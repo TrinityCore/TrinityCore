@@ -18,40 +18,22 @@
 #ifndef IpNetwork_h__
 #define IpNetwork_h__
 
+#include "AsioHacksFwd.h"
 #include "Define.h"
-#include "IpAddress.h"
-#include <boost/asio/ip/network_v4.hpp>
-#include <boost/asio/ip/network_v6.hpp>
+#include "Optional.h"
+#include <span>
 
-namespace Trinity
+namespace Trinity::Net
 {
-    namespace Net
-    {
-        inline bool IsInNetwork(boost::asio::ip::address_v4 const& networkAddress, boost::asio::ip::address_v4 const& mask, boost::asio::ip::address_v4 const& clientAddress)
-        {
-            boost::asio::ip::network_v4 network = boost::asio::ip::make_network_v4(networkAddress, mask);
-            boost::asio::ip::address_v4_range hosts = network.hosts();
-            return hosts.find(clientAddress) != hosts.end();
-        }
+TC_COMMON_API bool IsInLocalNetwork(boost::asio::ip::address const& clientAddress);
 
-        inline boost::asio::ip::address_v4 GetDefaultNetmaskV4(boost::asio::ip::address_v4 const& networkAddress)
-        {
-            if ((address_to_uint(networkAddress) & 0x80000000) == 0)
-                return boost::asio::ip::address_v4(0xFF000000);
-            if ((address_to_uint(networkAddress) & 0xC0000000) == 0x80000000)
-                return boost::asio::ip::address_v4(0xFFFF0000);
-            if ((address_to_uint(networkAddress) & 0xE0000000) == 0xC0000000)
-                return boost::asio::ip::address_v4(0xFFFFFF00);
-            return boost::asio::ip::address_v4(0xFFFFFFFF);
-        }
+TC_COMMON_API bool IsInNetwork(boost::asio::ip::network_v4 const& network, boost::asio::ip::address_v4 const& clientAddress);
 
-        inline bool IsInNetwork(boost::asio::ip::address_v6 const& networkAddress, uint16 prefixLength, boost::asio::ip::address_v6 const& clientAddress)
-        {
-            boost::asio::ip::network_v6 network = boost::asio::ip::make_network_v6(networkAddress, prefixLength);
-            boost::asio::ip::address_v6_range hosts = network.hosts();
-            return hosts.find(clientAddress) != hosts.end();
-        }
-    }
+TC_COMMON_API bool IsInNetwork(boost::asio::ip::network_v6 const& network, boost::asio::ip::address_v6 const& clientAddress);
+
+TC_COMMON_API Optional<std::size_t> SelectAddressForClient(boost::asio::ip::address const& clientAddress, std::span<boost::asio::ip::address> const& addresses);
+
+TC_COMMON_API void ScanLocalNetworks();
 }
 
 #endif // IpNetwork_h__

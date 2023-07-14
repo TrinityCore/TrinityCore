@@ -34,10 +34,10 @@
 #include "GitRevision.h"
 #include "InstanceLockMgr.h"
 #include "IoContext.h"
+#include "IpNetwork.h"
 #include "MapManager.h"
 #include "Metric.h"
 #include "MySQLThreading.h"
-#include "ObjectAccessor.h"
 #include "OpenSSLCrypto.h"
 #include "OutdoorPvP/OutdoorPvPMgr.h"
 #include "ProcessPriority.h"
@@ -289,6 +289,8 @@ extern int main(int argc, char** argv)
 
     if (vm.count("update-databases-only"))
         return 0;
+
+    Trinity::Net::ScanLocalNetworks();
 
     // Set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
@@ -619,7 +621,6 @@ bool LoadRealmInfo()
         realm.Build = realmListRealm->Build;
         realm.ExternalAddress = std::make_unique<boost::asio::ip::address>(*realmListRealm->ExternalAddress);
         realm.LocalAddress = std::make_unique<boost::asio::ip::address>(*realmListRealm->LocalAddress);
-        realm.LocalSubnetMask = std::make_unique<boost::asio::ip::address>(*realmListRealm->LocalSubnetMask);
         realm.Port = realmListRealm->Port;
         realm.Name = realmListRealm->Name;
         realm.NormalizedName = realmListRealm->NormalizedName;
