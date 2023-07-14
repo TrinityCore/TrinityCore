@@ -25,14 +25,12 @@
 #include <atomic>
 #include <functional>
 
-using boost::asio::ip::tcp;
-
 #define TRINITY_MAX_LISTEN_CONNECTIONS boost::asio::socket_base::max_listen_connections
 
 class AsyncAcceptor
 {
 public:
-    typedef void(*AcceptCallback)(tcp::socket&& newSocket, uint32 threadIndex);
+    typedef void(*AcceptCallback)(boost::asio::ip::tcp::socket&& newSocket, uint32 threadIndex);
 
     AsyncAcceptor(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port) :
         _acceptor(ioContext), _endpoint(Trinity::Net::make_address(bindIp), port),
@@ -48,7 +46,7 @@ public:
     {
         auto [tmpSocket, tmpThreadIndex] = _socketFactory();
         // TODO: get rid of temporary variables (clang 15 cannot handle variables from structured bindings as lambda captures)
-        tcp::socket* socket = tmpSocket;
+        boost::asio::ip::tcp::socket* socket = tmpSocket;
         uint32 threadIndex = tmpThreadIndex;
         _acceptor.async_accept(*socket, [this, socket, threadIndex](boost::system::error_code error)
         {
@@ -116,16 +114,16 @@ public:
         _acceptor.close(err);
     }
 
-    void SetSocketFactory(std::function<std::pair<tcp::socket*, uint32>()> func) { _socketFactory = func; }
+    void SetSocketFactory(std::function<std::pair<boost::asio::ip::tcp::socket*, uint32>()> func) { _socketFactory = func; }
 
 private:
-    std::pair<tcp::socket*, uint32> DefeaultSocketFactory() { return std::make_pair(&_socket, 0); }
+    std::pair<boost::asio::ip::tcp::socket*, uint32> DefeaultSocketFactory() { return std::make_pair(&_socket, 0); }
 
-    tcp::acceptor _acceptor;
-    tcp::endpoint _endpoint;
-    tcp::socket _socket;
+    boost::asio::ip::tcp::acceptor _acceptor;
+    boost::asio::ip::tcp::endpoint _endpoint;
+    boost::asio::ip::tcp::socket _socket;
     std::atomic<bool> _closed;
-    std::function<std::pair<tcp::socket*, uint32>()> _socketFactory;
+    std::function<std::pair<boost::asio::ip::tcp::socket*, uint32>()> _socketFactory;
 };
 
 template<class T>
