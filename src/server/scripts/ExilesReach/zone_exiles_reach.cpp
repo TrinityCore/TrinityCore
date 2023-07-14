@@ -1792,7 +1792,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
 
         if (Player* player = caster->ToPlayer())
         {
-            if (Creature* alaria = FindCreatureIgnorePhase(player, "alaria_camp", 50.0f))
+            if (FindCreatureIgnorePhase(player, "alaria_camp", 50.0f))
             {
                 Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
                 conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
