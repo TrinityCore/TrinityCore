@@ -1317,7 +1317,7 @@ class TC_GAME_API Unit : public WorldObject
         bool isPossessing() const;
         bool isPossessing(Unit* u) const;
 
-        CharmInfo* GetCharmInfo() { return m_charmInfo; }
+        CharmInfo* GetCharmInfo() { return m_charmInfo.get(); }
         CharmInfo* InitCharmInfo();
         void DeleteCharmInfo();
         void SetPetNumberForClient(uint32 petNumber) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PetNumber), petNumber); }
@@ -1553,11 +1553,11 @@ class TC_GAME_API Unit : public WorldObject
         void SetSilencedSchoolMask(SpellSchoolMask schoolMask) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::SilencedSchoolMask), schoolMask); }
         void ReplaceAllSilencedSchoolMask(SpellSchoolMask schoolMask) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::SilencedSchoolMask), schoolMask); }
 
-        SpellHistory* GetSpellHistory() { return _spellHistory; }
-        SpellHistory const* GetSpellHistory() const { return _spellHistory; }
+        SpellHistory* GetSpellHistory() { return _spellHistory.get(); }
+        SpellHistory const* GetSpellHistory() const { return _spellHistory.get(); }
 
-        ObjectGuid m_SummonSlot[MAX_SUMMON_SLOT];
-        ObjectGuid m_ObjectSlot[MAX_GAMEOBJECT_SLOT];
+        std::array<ObjectGuid, MAX_SUMMON_SLOT> m_SummonSlot;
+        std::array<ObjectGuid, MAX_GAMEOBJECT_SLOT> m_ObjectSlot;
 
         ShapeshiftForm GetShapeshiftForm() const { return ShapeshiftForm(*m_unitData->ShapeshiftForm); }
         void SetShapeshiftForm(ShapeshiftForm form);
@@ -1572,9 +1572,9 @@ class TC_GAME_API Unit : public WorldObject
         float m_modSpellHitChance;
         int32 m_baseSpellCritChance;
 
-        uint32 m_baseAttackSpeed[MAX_ATTACK];
-        float m_modAttackSpeedPct[MAX_ATTACK];
-        uint32 m_attackTimer[MAX_ATTACK];
+        std::array<uint32, MAX_ATTACK> m_baseAttackSpeed;
+        std::array<float, MAX_ATTACK> m_modAttackSpeedPct;
+        std::array<uint32, MAX_ATTACK> m_attackTimer;
 
         // stat system
         void HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifierType, float amount, bool apply);
@@ -1746,8 +1746,8 @@ class TC_GAME_API Unit : public WorldObject
         void FollowerRemoved(AbstractFollower* f) { m_followingMe.erase(f); }
         void RemoveAllFollowers();
 
-        MotionMaster* GetMotionMaster() { return i_motionMaster; }
-        MotionMaster const* GetMotionMaster() const { return i_motionMaster; }
+        MotionMaster* GetMotionMaster() { return i_motionMaster.get(); }
+        MotionMaster const* GetMotionMaster() const { return i_motionMaster.get(); }
         virtual MovementGeneratorType GetDefaultMovementType() const;
 
         bool IsStopped() const { return !(HasUnitState(UNIT_STATE_MOVING)); }
@@ -1811,7 +1811,7 @@ class TC_GAME_API Unit : public WorldObject
         ObjectGuid LastCharmerGUID;
         bool CreateVehicleKit(uint32 id, uint32 creatureEntry, bool loading = false);
         void RemoveVehicleKit(bool onRemoveFromWorld = false);
-        Vehicle* GetVehicleKit() const { return m_vehicleKit; }
+        Vehicle* GetVehicleKit() const { return m_vehicleKit.get(); }
         Vehicle* GetVehicle() const { return m_vehicle; }
         void SetVehicle(Vehicle* vehicle) { m_vehicle = vehicle; }
         bool IsOnVehicle(Unit const* vehicle) const;
@@ -1868,7 +1868,7 @@ class TC_GAME_API Unit : public WorldObject
         bool CanInstantCast() const { return _instantCast; }
 
         // Movement info
-        Movement::MoveSpline * movespline;
+        std::unique_ptr<Movement::MoveSpline> movespline;
 
         int32 GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue = false, int32 miscValue = 0) const;
         bool IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications = false);
@@ -1942,9 +1942,9 @@ class TC_GAME_API Unit : public WorldObject
 
         bool m_ControlledByPlayer;
 
-        float m_createStats[MAX_STATS];
-        float m_floatStatPosBuff[MAX_STATS];
-        float m_floatStatNegBuff[MAX_STATS];
+        std::array<float, MAX_STATS> m_createStats;
+        std::array<float, MAX_STATS> m_floatStatPosBuff;
+        std::array<float, MAX_STATS> m_floatStatNegBuff;
 
         AttackerSet m_attackers;
         Unit* m_attacking;
@@ -1965,7 +1965,7 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 m_transformSpell;
 
-        Spell* m_currentSpells[CURRENT_MAX_SPELL];
+        std::array<Spell*, CURRENT_MAX_SPELL> m_currentSpells;
 
         AuraMap m_ownedAuras;
         AuraApplicationMap m_appliedAuras;
@@ -1973,7 +1973,7 @@ class TC_GAME_API Unit : public WorldObject
         AuraMap::iterator m_auraUpdateIterator;
         uint32 m_removedAurasCount;
 
-        AuraEffectList m_modAuras[TOTAL_AURAS];
+        std::array<AuraEffectList, TOTAL_AURAS> m_modAuras;
         AuraList m_scAuras;                        // cast singlecast auras
         AuraApplicationList m_interruptableAuras;  // auras which have interrupt mask applied on unit
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
@@ -1988,22 +1988,22 @@ class TC_GAME_API Unit : public WorldObject
         VisibleAuraContainer m_visibleAuras;
         Trinity::Containers::FlatSet<AuraApplication*, VisibleAuraSlotCompare> m_visibleAurasToUpdate;
 
-        float m_speed_rate[MAX_MOVE_TYPE];
+        std::array<float, MAX_MOVE_TYPE> m_speed_rate;
 
         Unit* m_unitMovedByMe;    // only ever set for players, and only for direct client control
         Player* m_playerMovingMe; // only set for direct client control (possess effects, vehicles and similar)
         Unit* m_charmer; // Unit that is charming ME
         Unit* m_charmed; // Unit that is being charmed BY ME
-        CharmInfo* m_charmInfo;
+        std::unique_ptr<CharmInfo> m_charmInfo;
         SharedVisionList m_sharedVision;
 
-        MotionMaster* i_motionMaster;
+        std::unique_ptr<MotionMaster> i_motionMaster;
 
-        uint32 m_reactiveTimer[MAX_REACTIVE];
+        std::array<uint32, MAX_REACTIVE> m_reactiveTimer;
         uint32 m_regenTimer;
 
         Vehicle* m_vehicle;
-        Vehicle* m_vehicleKit;
+        std::unique_ptr<Vehicle> m_vehicleKit;
 
         uint32 m_unitTypeMask;
         LiquidTypeEntry const* _lastLiquid;
@@ -2086,7 +2086,7 @@ class TC_GAME_API Unit : public WorldObject
         uint16 _movementAnimKitId;
         uint16 _meleeAnimKitId;
 
-        SpellHistory* _spellHistory;
+        std::unique_ptr<SpellHistory> _spellHistory;
 
         std::unique_ptr<MovementForces> _movementForces;
         PositionUpdateInfo _positionUpdateInfo;
