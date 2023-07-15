@@ -30,14 +30,13 @@ class VehicleJoinEvent;
 class TC_GAME_API Vehicle : public TransportBase
 {
     public:
+        Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
+        ~Vehicle();
+
         Vehicle(Vehicle const& right) = delete;
         Vehicle(Vehicle&& right) = delete;
         Vehicle& operator=(Vehicle const& right) = delete;
         Vehicle& operator=(Vehicle&& right) = delete;
-
-        // unprotected ctor and dtor needed for std::unique_ptr
-        Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
-        ~Vehicle();
 
         void Install();
         void Uninstall();

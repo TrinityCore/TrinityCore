@@ -327,7 +327,7 @@ Unit::Unit(bool isWorldObject) :
     m_state = 0;
     m_deathState = ALIVE;
 
-    m_currentSpells.fill(nullptr);
+    m_currentSpells = { };
 
     m_auraUpdateIterator = m_ownedAuras.end();
 
@@ -350,9 +350,9 @@ Unit::Unit(bool isWorldObject) :
         m_weaponDamage[i][MAXDAMAGE] = BASE_MAXDAMAGE;
     }
 
-    m_createStats.fill(0.0f);
-    m_floatStatPosBuff.fill(0.0f);
-    m_floatStatNegBuff.fill(0.0f);
+    m_createStats = { };
+    m_floatStatPosBuff = { };
+    m_floatStatNegBuff = { };
 
     m_attacking = nullptr;
     if (GetTypeId() == TYPEID_PLAYER)
@@ -9522,7 +9522,7 @@ void Unit::DeleteCharmInfo()
         return;
 
     m_charmInfo->RestoreState();
-    m_charmInfo.reset();
+    m_charmInfo = nullptr;
 }
 
 CharmInfo::CharmInfo(Unit* unit)
@@ -11508,7 +11508,7 @@ void Unit::RemoveVehicleKit(bool onRemoveFromWorld /*= false*/)
         SendSetVehicleRecId(0);
 
     m_vehicleKit->Uninstall();
-    m_vehicleKit.reset();
+    m_vehicleKit = nullptr;
 
     m_updateFlag.Vehicle = false;
     m_unitTypeMask &= ~UNIT_MASK_VEHICLE;
