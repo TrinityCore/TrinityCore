@@ -1695,9 +1695,9 @@ class spell_dru_yseras_gift : public AuraScript
 };
 
 // 145110 - Ysera's Gift (heal)
-class spell_dru_yseras_gift_heal : public SpellScript
+class spell_dru_yseras_gift_group_heal : public SpellScript
 {
-    PrepareSpellScript(spell_dru_yseras_gift_heal);
+    PrepareSpellScript(spell_dru_yseras_gift_group_heal);
 
     void SelectTargets(std::list<WorldObject*>& targets)
     {
@@ -1706,7 +1706,7 @@ class spell_dru_yseras_gift_heal : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_yseras_gift_heal::SelectTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_yseras_gift_group_heal::SelectTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
     }
 };
 
@@ -1758,5 +1758,5 @@ void AddSC_druid_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
     RegisterSpellScript(spell_dru_yseras_gift);
-    RegisterSpellScript(spell_dru_yseras_gift_heal);
+    RegisterSpellScript(spell_dru_yseras_gift_group_heal);
 }
