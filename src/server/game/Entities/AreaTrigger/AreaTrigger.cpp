@@ -784,6 +784,9 @@ void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, uint32
 {
     float angleSin = std::sin(GetOrientation());
     float angleCos = std::cos(GetOrientation());
+    float lastZ = GetPositionZ();
+
+    bool followTerrain = GetTemplate() && GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN);
 
     // This is needed to rotate the spline, following caster orientation
     std::vector<G3D::Vector3> rotatedPoints;
@@ -792,10 +795,24 @@ void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, uint32
     {
         float x = GetPositionX() + (offset.GetPositionX() * angleCos - offset.GetPositionY() * angleSin);
         float y = GetPositionY() + (offset.GetPositionY() * angleCos + offset.GetPositionX() * angleSin);
-        float z = GetPositionZ();
+        float z = lastZ;
 
-        UpdateAllowedPositionZ(x, y, z);
-        z += offset.GetPositionZ();
+        if (followTerrain)
+        {
+            // Add max Z tolerance for ground
+            z += 5.f;
+
+            // Set Z to actual ground
+            UpdateAllowedPositionZ(x, y, z);
+
+            // If we are inside a wall or slope is too steep, prevent from going further
+            if (std::abs(z - lastZ) >= 5.0f) {
+                rotatedPoints.emplace_back(rotatedPoints.back());
+                continue;
+            }
+
+            lastZ = z;
+        }
 
         rotatedPoints.emplace_back(x, y, z);
     }
