@@ -145,10 +145,10 @@ class TC_GAME_API ObjectGuid
         ObjectGuid(HighGuid hi, uint32 entry, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HighGuid::Corpse || hi == HighGuid::AreaTrigger) ? 48 : 52)) : 0; }
         ObjectGuid(HighGuid hi, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(hi) << ((hi == HighGuid::Corpse || hi == HighGuid::AreaTrigger) ? 48 : 52)) : 0; }
         ObjectGuid(ObjectGuid const& r) : _data(r._data) { }
-        ObjectGuid(ObjectGuid&& r) : _data(r._data) { }
+        ObjectGuid(ObjectGuid&& r) noexcept : _data(r._data) { }
 
         ObjectGuid& operator=(ObjectGuid const& r) { _data = r._data; return *this; }
-        ObjectGuid& operator=(ObjectGuid&& r) { _data = r._data; return *this; }
+        ObjectGuid& operator=(ObjectGuid&& r) noexcept  { _data = r._data; return *this; }
 
         operator uint64() const { return _data._guid; }
         PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }

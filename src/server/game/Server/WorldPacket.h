@@ -36,7 +36,7 @@ class WorldPacket : public ByteBuffer
         WorldPacket(uint16 opcode, size_t res = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : ByteBuffer(res),
             m_opcode(opcode), _connection(connection), _compressionStream(nullptr) { }
 
-        WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), _connection(packet._connection), _compressionStream(nullptr)
+        WorldPacket(WorldPacket&& packet) noexcept : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), _connection(packet._connection), _compressionStream(nullptr)
         {
         }
 
@@ -60,7 +60,7 @@ class WorldPacket : public ByteBuffer
             return *this;
         }
 
-        WorldPacket& operator=(WorldPacket&& right)
+        WorldPacket& operator=(WorldPacket&& right) noexcept
         {
             if (this != &right)
             {
