@@ -493,7 +493,7 @@ void AreaTrigger::SearchUnitInCylinder(std::vector<Unit*>& targetList)
 
 void AreaTrigger::SearchUnitInDisk(std::vector<Unit*>& targetList)
 {
-    SearchUnits(targetList, GetMaxSearchRadius(), false);
+    SearchUnits(targetList, GetMaxSearchRadius() * GetProgress(), false);
 
     float innerRadius = _shape.DiskDatas.InnerRadius;
     float height = _shape.DiskDatas.Height;
