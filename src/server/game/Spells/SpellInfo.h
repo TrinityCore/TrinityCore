@@ -31,6 +31,7 @@ class Unit;
 class Player;
 class Item;
 class Spell;
+class SpellEffectInfo;
 class SpellInfo;
 class WorldObject;
 struct SpellChainNode;
@@ -139,7 +140,8 @@ enum SpellTargetDirectionTypes
     TARGET_DIR_BACK_LEFT,
     TARGET_DIR_FRONT_LEFT,
     TARGET_DIR_RANDOM,
-    TARGET_DIR_ENTRY
+    TARGET_DIR_ENTRY,
+    TARGET_DIR_SUMMON // alters direction based on summon type (creatures are summoned on the left side, gameobjects in front)
 };
 
 enum SpellEffectImplicitTargetTypes
@@ -222,7 +224,7 @@ public:
     SpellTargetObjectTypes GetObjectType() const;
     SpellTargetCheckTypes GetCheckType() const;
     SpellTargetDirectionTypes GetDirectionType() const;
-    float CalcDirectionAngle() const;
+    float CalcDirectionAngle(SpellEffectInfo const& effectInfo) const;
 
     Targets GetTarget() const;
     uint32 GetExplicitTargetMask(bool& srcSet, bool& dstSet) const;

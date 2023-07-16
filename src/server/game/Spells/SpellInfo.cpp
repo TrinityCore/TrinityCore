@@ -100,7 +100,7 @@ SpellTargetDirectionTypes SpellImplicitTargetInfo::GetDirectionType() const
     return _data[_target].DirectionType;
 }
 
-float SpellImplicitTargetInfo::CalcDirectionAngle() const
+float SpellImplicitTargetInfo::CalcDirectionAngle(SpellEffectInfo const& effectInfo) const
 {
     switch (GetDirectionType())
     {
@@ -122,6 +122,17 @@ float SpellImplicitTargetInfo::CalcDirectionAngle() const
             return static_cast<float>(M_PI/4);
         case TARGET_DIR_RANDOM:
             return float(rand_norm())*static_cast<float>(2*M_PI);
+        case TARGET_DIR_SUMMON:
+            // This direction does alter its angle based on what is being summoned.
+            // Creatures are being summoned on the left, gameobjects infront
+            switch (effectInfo.Effect)
+            {
+                case SPELL_EFFECT_SUMMON_PET:
+                case SPELL_EFFECT_SUMMON:
+                    return static_cast<float>(M_PI / 2);
+                default:
+                    return 0.0f;
+            }
         default:
             return 0.0f;
     }
@@ -250,7 +261,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ALLY,     TARGET_DIR_NONE},        // 29 TARGET_DEST_DYNOBJ_ALLY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_SRC,    TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_ALLY,     TARGET_DIR_NONE},        // 30 TARGET_UNIT_SRC_AREA_ALLY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_ALLY,     TARGET_DIR_NONE},        // 31 TARGET_UNIT_DEST_AREA_ALLY
-    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_FRONT_LEFT},  // 32 TARGET_DEST_CASTER_SUMMON
+    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_SUMMON },     // 32 TARGET_DEST_CASTER_SUMMON
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_SRC,    TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_PARTY,    TARGET_DIR_NONE},        // 33 TARGET_UNIT_SRC_AREA_PARTY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_PARTY,    TARGET_DIR_NONE},        // 34 TARGET_UNIT_DEST_AREA_PARTY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_PARTY,    TARGET_DIR_NONE},        // 35 TARGET_UNIT_TARGET_PARTY

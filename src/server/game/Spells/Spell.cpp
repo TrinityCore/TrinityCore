@@ -1502,7 +1502,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                 break;
 
             float dist = m_spellInfo->Effects[effIndex].CalcRadius(unitCaster);
-            float angle = targetType.CalcDirectionAngle();
+            float angle = targetType.CalcDirectionAngle(m_spellInfo->Effects[effIndex]);
 
             Position pos = dest._position;
             unitCaster->MovePositionToFirstCollision(pos, dist, angle);
@@ -1513,17 +1513,46 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
         case TARGET_DEST_CASTER_GROUND_2:
             dest._position.m_positionZ = m_caster->GetMapWaterOrGroundLevel(dest._position.GetPositionX(), dest._position.GetPositionY(), dest._position.GetPositionZ());
             break;
+        case TARGET_DEST_CASTER_SUMMON:
+        {
+            float angle = targetType.CalcDirectionAngle(m_spellInfo->Effects[effIndex]);
+            float dist = [&]()
+            {
+                // Effect specific radius may override default behavior
+                if (m_spellInfo->Effects[effIndex].HasRadius())
+                    return m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
+
+                // Gameobject summons use range entries
+                if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRANS_DOOR)
+                {
+                    if (m_spellInfo->RangeEntry != nullptr)
+                    {
+                        float minDist = m_spellInfo->GetMinRange(true);
+                        float maxDist = m_spellInfo->GetMaxRange(true);
+                        return frand(minDist, maxDist);
+                    }
+                    else
+                        return 0.f;
+                }
+                else // creature summons fall back to default distance
+                    return DEFAULT_FOLLOW_DISTANCE;
+
+                return 0.f;
+            }();
+
+            Position pos = dest._position;
+            m_caster->MovePositionToFirstCollision(pos, dist, angle);
+            dest.Relocate(pos);
+            break;
+        }
         default:
         {
             float dist = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
-            float angle = targetType.CalcDirectionAngle();
+            float angle = targetType.CalcDirectionAngle(m_spellInfo->Effects[effIndex]);
             float objSize = m_caster->GetCombatReach();
 
             switch (targetType.GetTarget())
             {
-                case TARGET_DEST_CASTER_SUMMON:
-                    dist = DEFAULT_FOLLOW_DISTANCE;
-                    break;
                 case TARGET_DEST_CASTER_RANDOM:
                     if (dist > objSize)
                         dist = objSize + (dist - objSize) * float(rand_norm());
@@ -1571,7 +1600,7 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplici
             break;
         default:
         {
-            float angle = targetType.CalcDirectionAngle();
+            float angle = targetType.CalcDirectionAngle(m_spellInfo->Effects[effIndex]);
             float dist = m_spellInfo->Effects[effIndex].CalcRadius(nullptr);
             if (targetType.GetTarget() == TARGET_DEST_TARGET_RANDOM)
                 dist *= float(rand_norm());
@@ -1607,7 +1636,7 @@ void Spell::SelectImplicitDestDestTargets(SpellEffIndex effIndex, SpellImplicitT
             break;
         default:
         {
-            float angle = targetType.CalcDirectionAngle();
+            float angle = targetType.CalcDirectionAngle(m_spellInfo->Effects[effIndex]);
             float dist = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
             if (targetType.GetTarget() == TARGET_DEST_DEST_RANDOM)
                 dist *= float(rand_norm());
