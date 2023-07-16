@@ -69,7 +69,7 @@ void Battlenet::Session::GameAccountInfo::LoadResult(Field* fields)
         DisplayName = Name;
 }
 
-Battlenet::Session::Session(tcp::socket&& socket) : BattlenetSocket(std::move(socket)), _accountInfo(new AccountInfo()), _gameAccountInfo(nullptr), _locale(),
+Battlenet::Session::Session(boost::asio::ip::tcp::socket&& socket) : BattlenetSocket(std::move(socket)), _accountInfo(new AccountInfo()), _gameAccountInfo(nullptr), _locale(),
     _os(), _build(0), _ipCountry(), _authed(false), _requestToken(0)
 {
     _headerLengthBuffer.Resize(2);
@@ -232,11 +232,11 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
     if (logonRequest->has_cached_web_credentials())
         return VerifyWebCredentials(logonRequest->cached_web_credentials(), continuation);
 
-    boost::asio::ip::tcp::endpoint const& endpoint = sLoginService.GetAddressForClient(GetRemoteIpAddress());
+    std::string const& hostname = sLoginService.GetHostnameForClient(GetRemoteIpAddress());
 
     challenge::v1::ChallengeExternalRequest externalChallenge;
     externalChallenge.set_payload_type("web_auth_url");
-    externalChallenge.set_payload(Trinity::StringFormat("https://{}:{}/bnetserver/login/", endpoint.address().to_string(), endpoint.port()));
+    externalChallenge.set_payload(Trinity::StringFormat("https://{}/bnetserver/login/", hostname));
     Service<challenge::v1::ChallengeListener>(this).OnExternalChallenge(&externalChallenge);
     return ERROR_OK;
 }

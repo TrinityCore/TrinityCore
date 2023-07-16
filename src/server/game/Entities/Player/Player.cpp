@@ -157,6 +157,10 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_session = session;
 
+    m_modMeleeHitChance = 7.5f;
+    m_modRangedHitChance = 7.5f;
+    m_modSpellHitChance = 15.0f;
+
     m_ingametime = 0;
     m_sharedQuestId = 0;
 

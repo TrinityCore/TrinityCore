@@ -29,8 +29,6 @@
 #include <mutex>
 #include <thread>
 
-using boost::asio::ip::tcp;
-
 template<class SocketType>
 class NetworkThread
 {
@@ -88,7 +86,7 @@ public:
         SocketAdded(sock);
     }
 
-    tcp::socket* GetSocketForAccept() { return &_acceptSocket; }
+    boost::asio::ip::tcp::socket* GetSocketForAccept() { return &_acceptSocket; }
 
 protected:
     virtual void SocketAdded(std::shared_ptr<SocketType> /*sock*/) { }
@@ -169,7 +167,7 @@ private:
     SocketContainer _newSockets;
 
     Trinity::Asio::IoContext _ioContext;
-    tcp::socket _acceptSocket;
+    boost::asio::ip::tcp::socket _acceptSocket;
     Trinity::Asio::DeadlineTimer _updateTimer;
 };
 
