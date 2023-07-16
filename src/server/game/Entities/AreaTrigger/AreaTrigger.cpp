@@ -791,8 +791,9 @@ void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, uint32
     // This is needed to rotate the spline, following caster orientation
     std::vector<G3D::Vector3> rotatedPoints;
     rotatedPoints.reserve(offsets.size());
-    for (Position const& offset : offsets)
+    for (uint32 i = 0; i < offsets.size(); ++i)
     {
+        Position const& offset = offsets[i];
         float x = GetPositionX() + (offset.GetPositionX() * angleCos - offset.GetPositionY() * angleSin);
         float y = GetPositionY() + (offset.GetPositionY() * angleCos + offset.GetPositionX() * angleSin);
         float z = lastZ;
@@ -805,14 +806,24 @@ void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, uint32
             // Set Z to actual ground
             UpdateAllowedPositionZ(x, y, z);
 
-            // If we are inside a wall or slope is too steep, prevent from going further
-            if (std::abs(z - lastZ) >= 5.0f) {
-                rotatedPoints.emplace_back(rotatedPoints.back());
-                continue;
+            // Only check line of sight from 2nd point
+            if (i > 0)
+            {
+                G3D::Vector3 previousPoint = rotatedPoints.back();
+                bool isInLineOfSight = GetMap()->isInLineOfSight(GetPhaseShift(), previousPoint.x, previousPoint.y, previousPoint.z + 0.5f, x, y, z + 0.5f, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::Nothing);
+
+                // If we are inside a wall or slope is too steep, prevent from going further
+                if (!isInLineOfSight || std::abs(z - lastZ) >= 5.0f)
+                {
+                    rotatedPoints.emplace_back(previousPoint);
+                    continue;
+                }
             }
 
             lastZ = z;
         }
+
+        z += offset.GetPositionZ();
 
         rotatedPoints.emplace_back(x, y, z);
     }
