@@ -20,8 +20,9 @@
 #include "Util.h"
 #include <cstring>
 #include <stdarg.h>
+#include <openssl/evp.h>
 
-SHA1Hash::SHA1Hash()
+SHA1Hash::SHA1Hash() noexcept
 {
     m_ctx = EVP_MD_CTX_new();
     EVP_DigestInit_ex(m_ctx, EVP_sha1(), nullptr);
@@ -33,7 +34,7 @@ SHA1Hash::SHA1Hash(const SHA1Hash &other) : SHA1Hash() // copy
     std::memcpy(m_digest, other.m_digest, SHA_DIGEST_LENGTH);
 }
 
-SHA1Hash::SHA1Hash(SHA1Hash &&other) : SHA1Hash() // move
+SHA1Hash::SHA1Hash(SHA1Hash &&other) noexcept : SHA1Hash() // move
 {
     Swap(other);
 }
@@ -93,8 +94,13 @@ void SHA1Hash::Finalize(void)
 
 std::string CalculateSHA1Hash(std::string const& content)
 {
-    unsigned char digest[SHA_DIGEST_LENGTH];
-    SHA1((unsigned char*)content.c_str(), content.length(), (unsigned char*)&digest);
+    EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(mdctx, EVP_sha1(), nullptr);
+    EVP_DigestUpdate(mdctx, content.c_str(), content.size());
+    uint8 digest[SHA_DIGEST_LENGTH];
+    uint32 shaDigestLength = SHA_DIGEST_LENGTH;
+    EVP_DigestFinal_ex(mdctx, digest, &shaDigestLength);
+    EVP_MD_CTX_free(mdctx);
 
     return ByteArrayToHexStr(digest, SHA_DIGEST_LENGTH);
 }
