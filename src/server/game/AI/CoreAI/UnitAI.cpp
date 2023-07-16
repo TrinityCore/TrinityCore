@@ -61,7 +61,11 @@ void UnitAI::AttackStartCaster(Unit* victim, float dist)
 void UnitAI::DoMeleeAttackIfReady()
 {
     if (me->HasUnitState(UNIT_STATE_CASTING))
-        return;
+    {
+        Spell* channeledSpell = me->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
+        if (!channeledSpell || !channeledSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL))
+            return;
+    }
 
     Unit* victim = me->GetVictim();
 
