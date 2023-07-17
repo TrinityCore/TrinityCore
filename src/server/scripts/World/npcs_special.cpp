@@ -780,15 +780,12 @@ public:
             {                                                   //lower max health
                 case 12923:
                 case 12938:                                     //Injured Soldier
-                    me->SetHealth(me->CountPctFromMaxHealth(75));
                     break;
                 case 12924:
                 case 12936:                                     //Badly injured Soldier
-                    me->SetHealth(me->CountPctFromMaxHealth(50));
                     break;
                 case 12925:
                 case 12937:                                     //Critically injured Soldier
-                    me->SetHealth(me->CountPctFromMaxHealth(25));
                     break;
             }
         }
@@ -839,7 +836,7 @@ public:
         {
             //lower HP on every world tick makes it a useful counter, not officlone though
             if (me->IsAlive() && me->GetHealth() > 6)
-                me->ModifyHealth(-5);
+                me->ModifyHealth(-1);
 
             if (me->IsAlive() && me->GetHealth() <= 6)
             {
