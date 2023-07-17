@@ -1,0 +1,89 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef DEF_ABERRUS_THE_SHADOWED_CRUCIBLE_H_
+#define DEF_ABERRUS_THE_SHADOWED_CRUCIBLE_H_
+
+#include "CreatureAIImpl.h"
+
+#define ATSCScriptName "instance_aberrus_the_shadowed_crucible"
+#define DataHeader "ATSC"
+
+uint32 const EncounterCount = 9;
+
+enum ATSCDataTypes
+{
+    // Encounters
+    DATA_KAZZARA_THE_HELLFORGED          = 0,
+    DATA_THE_AMALGAMATION_CHAMBER        = 1,
+    DATA_THE_FORGOTTEN_EXPERIMENTS       = 2,
+    DATA_ASSAULT_OF_THE_ZAQALI           = 3,
+    DATA_RASHOK_THE_ELDER                = 4,
+    DATA_ZSKARN_THE_VIGILANT_STEWARD     = 5,
+    DATA_MAGMORAX                        = 6,
+    DATA_ECHO_OF_NELTHARION              = 7,
+    DATA_SCALECOMMANDER_SARKARETH        = 8,
+
+    // Additional Data
+    DATA_KAZZARA_GATE                    = 9
+};
+
+enum ATSCCreatureIds
+{
+    // Bosses
+    BOSS_KAZZARA_THE_HELLFORGED          = 201261,
+
+    BOSS_ETERNAL_BLAZE                   = 201773,
+    BOSS_ESSENCE_OF_SHADOW               = 201774,
+    BOSS_SHADOWFLAME_AMALGAMATION        = 201934,
+
+    BOSS_NELDRIS                         = 200912,
+    BOSS_THADRION                        = 200913,
+    BOSS_RIONTHUS                        = 200918,
+
+    BOSS_WARLORD_KAGNI                   = 199659,
+    BOSS_RASHOK_THE_ELDER                = 201320,
+    BOSS_ZSKARN_THE_VIGILANT_STEWARD     = 202637,
+    BOSS_MAGMORAX                        = 201579,
+    BOSS_ECHO_OF_NELTHARION              = 204223,
+    BOSS_SCALECOMMANDER_SARKARETH        = 205319,
+
+    // Misc
+    NPC_SABELLIAN                        = 201575
+};
+
+enum ATSCGameObjectIds
+{
+    GO_KAZZARA_DOOR                      = 398742,
+    GO_KAZZARA_GATE                      = 397996,
+    GO_INVISIBLE_DOOR                    = 398588
+};
+
+enum ATSCSharedActions
+{
+    ACTION_START_INTRO
+};
+
+template <class AI, class T>
+inline AI* GetAberrusTheShadowedCrucibleAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, ATSCScriptName);
+}
+
+#define RegisterAberrusTheShadowedCrucibleCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetAberrusTheShadowedCrucibleAI)
+
+#endif
