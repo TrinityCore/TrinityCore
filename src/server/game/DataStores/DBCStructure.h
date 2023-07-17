@@ -1350,6 +1350,12 @@ struct OverrideSpellDataEntry
     // char*   PlayerActionbar;                             // 12
 };
 
+struct PlayerConditionEntry
+{
+    uint32 ID;                                              // 0
+    char* FailureDescription;                               // 1
+};
+
 struct PowerDisplayEntry
 {
     uint32  ID;                                             // 0

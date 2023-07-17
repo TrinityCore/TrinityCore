@@ -1086,6 +1086,26 @@ bool ConditionMgr::IsSpellUsedInSpellClickConditions(uint32 spellId) const
     return SpellsUsedInSpellClickConditions.find(spellId) != SpellsUsedInSpellClickConditions.end();
 }
 
+/*static*/ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* playerCondition)
+{
+    // Blizzard has never shipped a proper PlayerCondition.dbc entry with Cataclysm and many of its entries are serverside. So we have to hardcode the checks on our own.
+    switch (playerCondition->ID)
+    {
+        case 9414:  return player->GetQuestStatus(46) == QUEST_STATUS_REWARDED;
+        case 12161: return player->GetQuestStatus(29279) == QUEST_STATUS_REWARDED;
+        case 12163: return player->GetQuestStatus(29283) == QUEST_STATUS_REWARDED;
+        case 12212: return player->GetQuestStatus(29281) == QUEST_STATUS_REWARDED;
+        case 12251: return player->GetReputationRank(72) == REP_REVERED;
+        case 12252: return player->GetReputationRank(72) == REP_EXALTED;
+        case 12380: return player->GetQuestStatus(29281) == QUEST_STATUS_REWARDED && player->GetQuestStatus(29283) == QUEST_STATUS_REWARDED && player->GetQuestStatus(29279) == QUEST_STATUS_REWARDED;
+        case 12515: return player->GetQuestStatus(29201) == QUEST_STATUS_REWARDED;
+        default:
+            return true;
+    }
+
+    return true;
+}
+
 ConditionMgr* ConditionMgr::instance()
 {
     static ConditionMgr instance;

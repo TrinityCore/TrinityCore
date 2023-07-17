@@ -33,6 +33,7 @@ class Unit;
 class WorldObject;
 class LootTemplate;
 struct Condition;
+struct PlayerConditionEntry;
 
 enum ConditionTypes
 {                                                           // value1           value2         value3
@@ -268,6 +269,8 @@ class TC_GAME_API ConditionMgr
         bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const;
 
         bool IsSpellUsedInSpellClickConditions(uint32 spellId) const;
+
+        static bool IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* playerCondition);
 
         struct ConditionTypeInfo
         {
