@@ -148,7 +148,7 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficu
 (@OGUID+4, 397996, 2569, 14663, 14663, '14,15,16,17', '0', 0, 2468.826904296875, 2481.5849609375, 707.1500244140625, 3.141592741012573242, 0, 0, -1, 0, 604800, 255, 0, 49679), -- Gate (Area: Aberrus, the Shadowed Crucible - Difficulty: Normal) CreateObject1
 (@OGUID+5, 376886, 2454, 14022, 14648, '0', '0', 0, 1842.1129150390625, 2549.317626953125, -74.5390777587890625, 0, 0, 0, 0, 1, 120, 255, 1, 50000); -- Instance Portal (Area: Aberrus Approach - Difficulty: 0) CreateObject1
 
-DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+4;
+DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+5;
 INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, `parent_rotation2`, `parent_rotation3`, `WorldEffectID`, `AIAnimKitID`) VALUES
 (@OGUID+2, 0, 0, 1, -0.00000004371138828, 0, 0), -- Door
 (@OGUID+3, 0, 0, 1, -0.00000004371138828, 0, 0); -- Invisible Door
@@ -188,12 +188,10 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `StandState`, `AnimTie
 (@CGUID+28, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Edgelord
 (@CGUID+29, 0, 0, 0, 0, 0, 1, 0, 425, 0, 0, 0, 4, ''), -- Sundered Manaweaver
 (@CGUID+30, 0, 0, 0, 0, 0, 1, 0, 425, 0, 0, 0, 4, ''), -- Sundered Manaweaver
-(@CGUID+31, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '371442'), -- Flittering Flutterwing - 371442 - Dragonfly Delicacy
 (@CGUID+32, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Devastator
 (@CGUID+33, 0, 0, 0, 0, 0, 1, 0, 425, 0, 0, 0, 4, ''), -- Sundered Manaweaver
 (@CGUID+34, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Siegemaster
 (@CGUID+35, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, '402538'), -- Kazzara, the Hellforged - 402538 - Energize
-(@CGUID+36, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '371442'), -- Flittering Flutterwing - 371442 - Dragonfly Delicacy
 (@CGUID+38, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Siegemaster
 (@CGUID+39, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Devastator
 (@CGUID+40, 0, 0, 0, 0, 0, 1, 0, 425, 0, 0, 0, 4, ''), -- Sundered Manaweaver
@@ -206,13 +204,11 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `StandState`, `AnimTie
 (@CGUID+47, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Siegemaster
 (@CGUID+48, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Edgelord
 (@CGUID+49, 0, 0, 0, 0, 0, 1, 0, 425, 0, 0, 0, 4, ''), -- Sundered Manaweaver
-(@CGUID+50, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '371442'), -- Flittering Flutterwing - 371442 - Dragonfly Delicacy
 (@CGUID+51, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Edgelord
 (@CGUID+52, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Preserver
 (@CGUID+53, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Edgelord
 (@CGUID+54, 0, 0, 0, 0, 0, 1, 0, 425, 0, 0, 0, 4, ''), -- Sundered Manaweaver
 (@CGUID+55, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Siegemaster
-(@CGUID+56, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '371442'), -- Flittering Flutterwing - 371442 - Dragonfly Delicacy
 (@CGUID+57, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Kazzara Lava Left
 (@CGUID+58, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Kazzara Lava Right
 (@CGUID+59, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Edgelord
@@ -300,6 +296,10 @@ DELETE FROM `creature_template_movement` WHERE `CreatureId`=188663;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES
 (188663, 0, 0, 1, 0, 0, 0, NULL);
 
+DELETE FROM `creature_template_addon` WHERE `entry` IN (188663 /*188663 (Flittering Flutterwing) - Dragonfly Delicacy*/);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(188663, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '371442'); -- 188663 (Flittering Flutterwing) - Dragonfly Delicacy
+
 DELETE FROM `waypoint_data` WHERE `id`= @PATH;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`) VALUES
 (@PATH, 0, 2395.603, 2459.497, 708.2903, NULL, 5814, 1),
@@ -335,8 +335,8 @@ UPDATE `creature_template` SET `faction`=16, `speed_walk`=4.800000190734863281, 
 UPDATE `creature_template` SET `faction`=14, `speed_run`=1.285714268684387207, `BaseAttackTime`=2000, `unit_flags`=320, `unit_flags2`=4194304 WHERE `entry`=202416; -- Scalecommander Sarkareth
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=256, `unit_flags2`=2097152 WHERE `entry`=202637; -- Zskarn
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=4196352 WHERE `entry`=198874; -- Sundered Siegemaster
-UPDATE `creature_template` SET `faction`=35, `speed_walk`=3.20000004768371582, `BaseAttackTime`=2000, `unit_flags`=33587456, `unit_flags2`=2048, `unit_flags3`=16777216 WHERE `entry`=205328; -- Kazzara Lava Right
-UPDATE `creature_template` SET `faction`=35, `speed_walk`=3.20000004768371582, `BaseAttackTime`=2000, `unit_flags`=33587456, `unit_flags2`=2048, `unit_flags3`=16777216 WHERE `entry`=205329; -- Kazzara Lava Left
+UPDATE `creature_template` SET `faction`=35, `speed_walk`=3.20000004768371582, `BaseAttackTime`=2000, `unit_flags`=33587456, `unit_flags2`=2048, `unit_flags3`=16777216, `flags_extra`=128 WHERE `entry`=205328; -- Kazzara Lava Right
+UPDATE `creature_template` SET `faction`=35, `speed_walk`=3.20000004768371582, `BaseAttackTime`=2000, `unit_flags`=33587456, `unit_flags2`=2048, `unit_flags3`=16777216, `flags_extra`=128 WHERE `entry`=205329; -- Kazzara Lava Left
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048 WHERE `entry`=205735; -- Sundered Preserver
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048 WHERE `entry`=205734; -- Sundered Edgelord
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048 WHERE `entry`=205737; -- Sundered Manaweaver
