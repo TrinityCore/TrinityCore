@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "SpawnData.h"
+#include <variant>
 #include <vector>
 
 #define MAX_AREATRIGGER_ENTITY_DATA 8
@@ -87,34 +88,20 @@ struct AreaTriggerAction
     AreaTriggerActionUserTypes TargetType;
 };
 
-// Scale array definition
-// 0 - time offset from creation for starting of scaling
-// 1+2,3+4 are values for curve points Vector2[2]
-// 5 is packed curve information (has_no_data & 1) | ((interpolation_mode & 0x7) << 1) | ((first_point_offset & 0x7FFFFF) << 4) | ((point_count & 0x1F) << 27)
-// 6 bool is_override, only valid for AREATRIGGER_OVERRIDE_SCALE_CURVE, if true then use data from AREATRIGGER_OVERRIDE_SCALE_CURVE instead of ScaleCurveId from CreateObject
-
-struct AreaTriggerScaleInfo
+struct AreaTriggerScaleCurvePointsTemplate
 {
-    AreaTriggerScaleInfo();
+    AreaTriggerScaleCurvePointsTemplate();
 
-    union
-    {
-        struct
-        {
-            uint32 StartTimeOffset;
-            float Points[4];
-            struct
-            {
-                uint32 NoData : 1;
-                uint32 InterpolationMode : 3;
-                uint32 FirstPointOffset : 23;
-                uint32 PointCount : 5;
-            } CurveParameters;
-            uint32 OverrideActive;
-        } Structured;
+    CurveInterpolationMode Mode;
+    std::array<DBCPosition2D, 2> Points;
+};
 
-        uint32 Raw[MAX_AREATRIGGER_SCALE];
-    } Data;
+struct AreaTriggerScaleCurveTemplate
+{
+    AreaTriggerScaleCurveTemplate();
+
+    uint32 StartTimeOffset;
+    std::variant<float, AreaTriggerScaleCurvePointsTemplate> Curve;
 };
 
 struct AreaTriggerShapeInfo
@@ -213,7 +200,7 @@ public:
     AreaTriggerTemplate();
     ~AreaTriggerTemplate();
 
-    bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }
+    bool HasFlag(AreaTriggerFlags flag) const { return (Flags & flag) != 0; }
 
     AreaTriggerId Id;
     uint32 Flags;
@@ -245,8 +232,8 @@ public:
     uint32 TimeToTarget;
     uint32 TimeToTargetScale;
 
-    AreaTriggerScaleInfo OverrideScale;
-    AreaTriggerScaleInfo ExtraScale;
+    Optional<AreaTriggerScaleCurveTemplate> OverrideScale;
+    Optional<AreaTriggerScaleCurveTemplate> ExtraScale;
 
     AreaTriggerShapeInfo Shape;
     std::vector<TaggedPosition<Position::XY>> PolygonVertices;

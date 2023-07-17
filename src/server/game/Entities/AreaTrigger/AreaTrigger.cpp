@@ -39,6 +39,7 @@
 #include "Transport.h"
 #include "Unit.h"
 #include "UpdateData.h"
+#include <bit>
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _spawnId(0), _aurEff(nullptr), _maxSearchRadius(0.0f),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
@@ -139,22 +140,7 @@ bool AreaTrigger::Create(uint32 areaTriggerCreatePropertiesId, Unit* caster, Uni
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::BoundsRadius2D), GetMaxSearchRadius());
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::DecalPropertiesID), GetCreateProperties()->DecalPropertiesId);
 
-    if (GetCreateProperties()->ExtraScale.Data.Structured.StartTimeOffset)
-        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve).ModifyValue(&UF::ScaleCurve::StartTimeOffset), GetCreateProperties()->ExtraScale.Data.Structured.StartTimeOffset);
-    if (GetCreateProperties()->ExtraScale.Data.Structured.Points[0] || GetCreateProperties()->ExtraScale.Data.Structured.Points[1])
-    {
-        Position point(GetCreateProperties()->ExtraScale.Data.Structured.Points[0], GetCreateProperties()->ExtraScale.Data.Structured.Points[1]);
-        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve).ModifyValue(&UF::ScaleCurve::Points, 0), point);
-    }
-    if (GetCreateProperties()->ExtraScale.Data.Structured.Points[2] || GetCreateProperties()->ExtraScale.Data.Structured.Points[3])
-    {
-        Position point(GetCreateProperties()->ExtraScale.Data.Structured.Points[2], GetCreateProperties()->ExtraScale.Data.Structured.Points[3]);
-        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve).ModifyValue(&UF::ScaleCurve::Points, 1), point);
-    }
-    if (GetCreateProperties()->ExtraScale.Data.Raw[5])
-        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve).ModifyValue(&UF::ScaleCurve::ParameterCurve), GetCreateProperties()->ExtraScale.Data.Raw[5]);
-    if (GetCreateProperties()->ExtraScale.Data.Structured.OverrideActive)
-        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve).ModifyValue(&UF::ScaleCurve::OverrideActive), GetCreateProperties()->ExtraScale.Data.Structured.OverrideActive);
+    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve), GetCreateProperties()->ExtraScale);
 
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimationDataID), GetCreateProperties()->AnimId);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimKitID), GetCreateProperties()->AnimKitId);
@@ -370,6 +356,88 @@ void AreaTrigger::_UpdateDuration(int32 newDuration)
 float AreaTrigger::GetProgress() const
 {
     return GetTimeSinceCreated() < GetTimeToTargetScale() ? float(GetTimeSinceCreated()) / float(GetTimeToTargetScale()) : 1.0f;
+}
+
+float AreaTrigger::GetScaleCurveValue(UF::ScaleCurve const& scaleCurve, float x) const
+{
+    ASSERT(*scaleCurve.OverrideActive, "ScaleCurve must be active to evaluate it");
+
+    // unpack ParameterCurve
+    if (*scaleCurve.ParameterCurve & 1)
+        return std::bit_cast<float>(*scaleCurve.ParameterCurve & ~1);
+
+    std::array<DBCPosition2D, 2> points;
+    for (std::size_t i = 0; i < scaleCurve.Points.size(); ++i)
+        points[i] = { .X = scaleCurve.Points[i].Pos.GetPositionX(), .Y = scaleCurve.Points[i].Pos.GetPositionY() };
+
+    CurveInterpolationMode mode = CurveInterpolationMode(*scaleCurve.ParameterCurve >> 1 & 0x7);
+    std::size_t pointCount = *scaleCurve.ParameterCurve >> 24 & 0xFF;
+
+    return sDB2Manager.GetCurveValueAt(mode, std::span(points.begin(), pointCount), x);
+}
+
+void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false>&& scaleCurveMutator, Optional<AreaTriggerScaleCurveTemplate> const& curve)
+{
+    if (!curve)
+    {
+        SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::OverrideActive), false);
+        return;
+    }
+
+    SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::OverrideActive), true);
+    SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::StartTimeOffset), curve->StartTimeOffset);
+
+    Position point;
+    // ParameterCurve packing information
+    // (not_using_points & 1) | ((interpolation_mode & 0x7) << 1) | ((first_point_offset & 0xFFFFF) << 4) | ((point_count & 0xFF) << 24)
+    //   if not_using_points is set then the entire field is simply read as a float (ignoring that lowest bit)
+
+    if (float const* simpleFloat = std::get_if<float>(&curve->Curve))
+    {
+        uint32 packedCurve = std::bit_cast<uint32>(*simpleFloat);
+        packedCurve |= 1;
+
+        SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::ParameterCurve), packedCurve);
+
+        // clear points
+        for (std::size_t i = 0; i < UF::size<decltype(UF::ScaleCurve::Points)>(); ++i)
+            SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::Points, i), point);
+    }
+    else if (AreaTriggerScaleCurvePointsTemplate const* curvePoints = std::get_if<AreaTriggerScaleCurvePointsTemplate>(&curve->Curve))
+    {
+        CurveInterpolationMode mode = curvePoints->Mode;
+        if (curvePoints->Points[1].X < curvePoints->Points[0].X)
+            mode = CurveInterpolationMode::Constant;
+
+        switch (mode)
+        {
+            case CurveInterpolationMode::CatmullRom:
+                // catmullrom requires at least 4 points, impossible here
+                mode = CurveInterpolationMode::Cosine;
+                break;
+            case CurveInterpolationMode::Bezier3:
+            case CurveInterpolationMode::Bezier4:
+            case CurveInterpolationMode::Bezier:
+                // bezier requires more than 2 points, impossible here
+                mode = CurveInterpolationMode::Linear;
+                break;
+            default:
+                break;
+        }
+
+        uint32 pointCount = 2;
+        if (mode == CurveInterpolationMode::Constant)
+            pointCount = 1;
+
+        uint32 packedCurve = (uint32(mode) << 1) | (pointCount << 24);
+        SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::ParameterCurve), packedCurve);
+
+        for (std::size_t i = 0; i < curvePoints->Points.size(); ++i)
+        {
+            point.Relocate(curvePoints->Points[i].X, curvePoints->Points[i].Y);
+            SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::Points, i), point);
+        }
+    }
 }
 
 void AreaTrigger::UpdateTargetList()
