@@ -319,6 +319,35 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@PATH, 14, 2409.898, 2470.884, 708.2902, NULL, 0, 1),
 (@PATH, 15, 2401.526, 2456.868, 708.2902, NULL, 0, 1);
 
+DELETE FROM `waypoint_data` WHERE `id`=85000000;
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(85000000, 0, 2500.0615, 2482.264, 708.7047, NULL, 0, 0, 0, 100, 0),
+(85000000, 1, 2511.0615, 2482.014, 701.9547, NULL, 0, 0, 0, 100, 0),
+(85000000, 2, 2519.8115, 2485.014, 700.4547, NULL, 0, 0, 0, 100, 0),
+(85000000, 3, 2526.8115, 2492.264, 700.4547, NULL, 0, 0, 0, 100, 0),
+(85000000, 4, 2535.8115, 2515.014, 700.4547, NULL, 0, 0, 0, 100, 0),
+(85000000, 5, 2540.0615, 2529.014, 700.4547, NULL, 0, 0, 0, 100, 0),
+(85000000, 6, 2544.5642, 2552.007, 699.9161, NULL, 0, 0, 0, 100, 0);
+
+DELETE FROM `waypoint_data` WHERE `id`=85000001;
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(85000001, 0, 2494.0542, 2487.5217, 708.2893, NULL, 0, 0, 0, 100, 0),
+(85000001, 1, 2500.8042, 2487.5217, 708.5393, NULL, 0, 0, 0, 100, 0),
+(85000001, 2, 2512.8042, 2490.0217, 700.5393, NULL, 0, 0, 0, 100, 0),
+(85000001, 3, 2517.5542, 2493.2717, 700.2893, NULL, 0, 0, 0, 100, 0),
+(85000001, 4, 2520.8042, 2500.0217, 700.2893, NULL, 0, 0, 0, 100, 0),
+(85000001, 5, 2531.5542, 2529.7717, 700.2893, NULL, 0, 0, 0, 100, 0),
+(85000001, 6, 2535.716, 2551.6182, 699.9161, NULL, 0, 0, 0, 100, 0);
+
+DELETE FROM `waypoint_data` WHERE `id`=85000002;
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(85000002, 0, 2500.9102, 2474.3933, 708.5393, NULL, 0, 0, 0, 100, 0),
+(85000002, 1, 2512.4102, 2473.3933, 701.0393, NULL, 0, 0, 0, 100, 0),
+(85000002, 2, 2522.9102, 2476.1433, 700.2893, NULL, 0, 0, 0, 100, 0),
+(85000002, 3, 2534.1602, 2487.6433, 700.2893, NULL, 0, 0, 0, 100, 0),
+(85000002, 4, 2545.9102, 2511.8933, 700.2893, NULL, 0, 0, 0, 100, 0),
+(85000002, 5, 2555.8586, 2552.1042, 699.9161, NULL, 0, 0, 0, 100, 0);
+
 DELETE FROM `npc_vendor` WHERE (`entry`=205350 AND `item`=204634 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=205350 AND `item`=2901 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=205350 AND `item`=5956 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=205350 AND `item`=190452 AND `ExtendedCost`=0 AND `type`=1);
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `type`, `PlayerConditionID`, `IgnoreFiltering`, `VerifiedBuild`) VALUES
 (205350, 4, 204634, 0, 0, 1, 0, 0, 49679), -- Rot Resistant Cauldron

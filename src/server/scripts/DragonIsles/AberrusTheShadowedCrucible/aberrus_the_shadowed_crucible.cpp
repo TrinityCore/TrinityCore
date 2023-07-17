@@ -52,39 +52,14 @@ enum AberrusEvents
     EVENT_KAZZARA_INTRO_DONE
 };
 
+enum AberrusPaths
+{
+    PATH_SARKARETH                    = 85000000,
+    PATH_WINGLORD_DEZRAN              = 85000001,
+    PATH_ZSKARN                       = 85000002
+};
+
 Position const SabellianConvoPosition  = { 2250.6372f, 2482.3003f, 711.9592f };
-
-Position const SarkarethMovePos[7] =
-{
-    { 2500.0615f, 2482.264f, 708.7047f },
-    { 2511.0615f, 2482.014f, 701.9547f },
-    { 2519.8115f, 2485.014f, 700.4547f },
-    { 2526.8115f, 2492.264f, 700.4547f },
-    { 2535.8115f, 2515.014f, 700.4547f },
-    { 2540.0615f, 2529.014f, 700.4547f },
-    { 2544.5642f, 2552.007f, 699.9161f }
-};
-
-Position const WinglordDezranMovePos[7] =
-{
-    { 2494.0542f, 2487.5217f, 708.2893f },
-    { 2500.8042f, 2487.5217f, 708.5393f },
-    { 2512.8042f, 2490.0217f, 700.5393f },
-    { 2517.5542f, 2493.2717f, 700.2893f },
-    { 2520.8042f, 2500.0217f, 700.2893f },
-    { 2531.5542f, 2529.7717f, 700.2893f },
-    { 2535.716f, 2551.6182f, 699.9161f }
-};
-
-Position const ZskarnMovePos[6] =
-{
-    { 2500.9102f, 2474.3933f, 708.5393f },
-    { 2512.4102f, 2473.3933f, 701.0393f },
-    { 2522.9102f, 2476.1433f, 700.2893f },
-    { 2534.1602f, 2487.6433f, 700.2893f },
-    { 2545.9102f, 2511.8933f, 700.2893f },
-    { 2555.8586f, 2552.1042f, 699.9161f }
-};
 
 // Id 26 - Areatrigger
 struct at_aberrus_sabellian_conversation_intro : AreaTriggerAI
@@ -203,26 +178,17 @@ class conversation_aberrus_kazzara_intro : public ConversationScript
                     Unit* zskarn = conversation->GetActorUnit(CONVO_ACTOR_IDX_ZSKARN);
                     Unit* sarkareth = conversation->GetActorUnit(CONVO_ACTOR_IDX_SARKARETH);
 
+                    sarkareth->GetMotionMaster()->MovePath(PATH_SARKARETH, false);
+                    sarkareth->ToCreature()->DespawnOrUnsummon(45s);
+
+                    winglordDezran->GetMotionMaster()->MovePath(PATH_WINGLORD_DEZRAN, false);
+                    winglordDezran->ToCreature()->DespawnOrUnsummon(45s);
+
+                    zskarn->GetMotionMaster()->MovePath(PATH_ZSKARN, false);
+                    zskarn->ToCreature()->DespawnOrUnsummon(45s, Seconds::max()); // override respawn time due to CREATURE_FLAG_EXTRA_DUNGEON_BOSS
+
                     if (Creature* kazzara = conversation->GetInstanceScript()->GetCreature(DATA_KAZZARA_THE_HELLFORGED))
                         kazzara->AI()->DoAction(ACTION_START_INTRO);
-
-                    for (uint8 i = 0; i < 7; i++)
-                    {
-                        sarkareth->SetWalk(true);
-                        sarkareth->GetMotionMaster()->MovePoint(0, SarkarethMovePos[i], true);
-                        sarkareth->ToCreature()->DespawnOrUnsummon(45s);
-
-                        winglordDezran->SetWalk(true);
-                        winglordDezran->GetMotionMaster()->MovePoint(0, WinglordDezranMovePos[i], true);
-                        winglordDezran->ToCreature()->DespawnOrUnsummon(45s);
-                    }
-
-                    for (uint8 i = 0; i < 6; i++)
-                    {
-                        zskarn->SetWalk(true);
-                        zskarn->GetMotionMaster()->MovePoint(0, ZskarnMovePos[i], true);
-                        zskarn->ToCreature()->DespawnOrUnsummon(45s, Seconds::max()); // override respawn time due to CREATURE_FLAG_EXTRA_DUNGEON_BOSS
-                    }
                     break;
                 }
                 default:
