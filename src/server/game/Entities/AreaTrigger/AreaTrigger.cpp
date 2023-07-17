@@ -39,6 +39,7 @@
 #include "Transport.h"
 #include "Unit.h"
 #include "UpdateData.h"
+#include "advstd.h"
 #include <bit>
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _spawnId(0), _aurEff(nullptr), _maxSearchRadius(0.0f),
@@ -364,7 +365,7 @@ float AreaTrigger::GetScaleCurveValue(UF::ScaleCurve const& scaleCurve, float x)
 
     // unpack ParameterCurve
     if (*scaleCurve.ParameterCurve & 1)
-        return std::bit_cast<float>(*scaleCurve.ParameterCurve & ~1);
+        return advstd::bit_cast<float>(*scaleCurve.ParameterCurve & ~1);
 
     std::array<DBCPosition2D, 2> points;
     for (std::size_t i = 0; i < scaleCurve.Points.size(); ++i)
@@ -394,7 +395,7 @@ void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false>
 
     if (float const* simpleFloat = std::get_if<float>(&curve->Curve))
     {
-        uint32 packedCurve = std::bit_cast<uint32>(*simpleFloat);
+        uint32 packedCurve = advstd::bit_cast<uint32>(*simpleFloat);
         packedCurve |= 1;
 
         SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::ParameterCurve), packedCurve);
