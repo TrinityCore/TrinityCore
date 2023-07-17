@@ -213,7 +213,7 @@ class conversation_aberrus_kazzara_intro : public ConversationScript
 
                         winglordDezran->SetWalk(true);
                         winglordDezran->GetMotionMaster()->MovePoint(0, WinglordDezranMovePos[i], true);
-                        winglordDezran->ToCreature()->DespawnOrUnsummon(45s);                        
+                        winglordDezran->ToCreature()->DespawnOrUnsummon(45s);
                     }
 
                     for (uint8 i = 0; i < 6; i++)
