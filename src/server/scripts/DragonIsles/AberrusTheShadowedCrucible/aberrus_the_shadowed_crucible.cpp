@@ -19,6 +19,7 @@
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "aberrus_the_shadowed_crucible.h"
