@@ -782,50 +782,62 @@ void AreaTrigger::UndoActions(Unit* unit)
 
 void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, uint32 timeToTarget)
 {
-    float angleSin = std::sin(GetOrientation());
-    float angleCos = std::cos(GetOrientation());
-    float lastZ = GetPositionZ();
-
-    bool followTerrain = GetTemplate() && GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN);
+    if (offsets.size() < 2)
+        return;
 
     // This is needed to rotate the spline, following caster orientation
     std::vector<G3D::Vector3> rotatedPoints;
     rotatedPoints.reserve(offsets.size());
-    for (uint32 i = 0; i < offsets.size(); ++i)
+
+    for (Position const& offset : offsets)
     {
-        Position const& offset = offsets[i];
-        float x = GetPositionX() + (offset.GetPositionX() * angleCos - offset.GetPositionY() * angleSin);
-        float y = GetPositionY() + (offset.GetPositionY() * angleCos + offset.GetPositionX() * angleSin);
-        float z = lastZ;
+        Position positionWithOffset = GetPosition().GetPositionWithOffset(offset);
+        rotatedPoints.emplace_back(positionWithOffset.GetPositionX(), positionWithOffset.GetPositionY(), positionWithOffset.GetPositionZ());
+    }
 
-        if (followTerrain)
+    if (GetTemplate() && GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN))
+    {
+        ::Movement::Spline<int32> offsetSpline = ::Movement::Spline<int32>();
+        offsetSpline.init_spline(&rotatedPoints[0], rotatedPoints.size(), ::Movement::SplineBase::ModeLinear);
+        offsetSpline.initLengths();
+
+        // This is a guess from various sniff, would require more research
+        const uint8 stepCount = 14;
+
+        G3D::Vector3 startPosition;
+        offsetSpline.evaluate_percent(0, startPosition);
+        float lastZ = startPosition.z;
+
+        rotatedPoints.clear();
+        rotatedPoints.emplace_back(startPosition);
+
+        float currentPercent = .0f;
+        for (uint8 stepIndex = 1; stepIndex <= stepCount; ++stepIndex)
         {
-            // Add max Z tolerance for ground
-            z += 5.f;
+            currentPercent = float(stepIndex) / float(stepCount);
 
-            // Set Z to actual ground
-            UpdateAllowedPositionZ(x, y, z);
+            G3D::Vector3 currentPosition;
+            offsetSpline.evaluate_percent(currentPercent, currentPosition);
 
-            // Only check line of sight from 2nd point
-            if (i > 0)
-            {
-                G3D::Vector3 previousPoint = rotatedPoints.back();
-                bool isInLineOfSight = GetMap()->isInLineOfSight(GetPhaseShift(), previousPoint.x, previousPoint.y, previousPoint.z + 0.5f, x, y, z + 0.5f, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::Nothing);
+            currentPosition.z = GetMapHeight(currentPosition.x, currentPosition.y, lastZ + 5.0f);
+            currentPosition.z = std::max(lastZ - 2.0f, currentPosition.z);
 
-                // If we are inside a wall or slope is too steep, prevent from going further
-                if (!isInLineOfSight || std::abs(z - lastZ) >= 5.0f)
-                {
-                    rotatedPoints.emplace_back(previousPoint);
-                    continue;
-                }
-            }
+            G3D::Vector3 previousPoint = rotatedPoints.back();
+            bool isInLineOfSight = GetMap()->isInLineOfSight(GetPhaseShift(), previousPoint.x, previousPoint.y, previousPoint.z + 1.75f, currentPosition.x, currentPosition.y, currentPosition.z + 1.75f, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::Nothing);
 
-            lastZ = z;
+            if (!isInLineOfSight)
+                break;
+
+            rotatedPoints.emplace_back(currentPosition);
+            lastZ = currentPosition.z;
         }
 
-        z += offset.GetPositionZ();
+        // If we stopped before the end of the spline due to LOS,
+        // reduce the timeToTarget accordingly to keep initial speed
+        timeToTarget *= currentPercent;
 
-        rotatedPoints.emplace_back(x, y, z);
+        if (rotatedPoints.size() < 2)
+            rotatedPoints.emplace_back(rotatedPoints.back());
     }
 
     InitSplines(std::move(rotatedPoints), timeToTarget);
