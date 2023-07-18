@@ -363,18 +363,18 @@ UPDATE `creature_model_info` SET `VerifiedBuild`=49679 WHERE `DisplayID` IN (107
 UPDATE `creature_template` SET `faction`=16, `speed_walk`=4.800000190734863281, `speed_run`=1.714285731315612792, `BaseAttackTime`=2000, `unit_flags2`=2097152, `ScriptName`='boss_kazzara_the_hellforged' WHERE `entry`=201261; -- Kazzara, the Hellforged
 UPDATE `creature_template` SET `faction`=14, `speed_run`=1.285714268684387207, `BaseAttackTime`=2000, `unit_flags`=320, `unit_flags2`=4194304 WHERE `entry`=202416; -- Scalecommander Sarkareth
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=256, `unit_flags2`=2097152 WHERE `entry`=202637; -- Zskarn
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=4196352 WHERE `entry`=198874; -- Sundered Siegemaster
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=4196352, `StringId`='sundered_mob_kazzara_intro' WHERE `entry`=198874; -- Sundered Siegemaster
 UPDATE `creature_template` SET `faction`=35, `speed_walk`=3.20000004768371582, `BaseAttackTime`=2000, `unit_flags`=33587456, `unit_flags2`=2048, `unit_flags3`=16777216, `flags_extra`=128 WHERE `entry`=205328; -- Kazzara Lava Right
 UPDATE `creature_template` SET `faction`=35, `speed_walk`=3.20000004768371582, `BaseAttackTime`=2000, `unit_flags`=33587456, `unit_flags2`=2048, `unit_flags3`=16777216, `flags_extra`=128 WHERE `entry`=205329; -- Kazzara Lava Left
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048 WHERE `entry`=205735; -- Sundered Preserver
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048 WHERE `entry`=205734; -- Sundered Edgelord
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048 WHERE `entry`=205737; -- Sundered Manaweaver
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `StringId`='sundered_mob_kazzara_intro' WHERE `entry`=205735; -- Sundered Preserver
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `StringId`='sundered_mob_kazzara_intro' WHERE `entry`=205734; -- Sundered Edgelord
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `StringId`='sundered_mob_kazzara_intro' WHERE `entry`=205737; -- Sundered Manaweaver
 UPDATE `creature_template` SET `faction`=188, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048 WHERE `entry`=188663; -- Flittering Flutterwing
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=4196352 WHERE `entry`=198872; -- Sundered Manaweaver
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048 WHERE `entry`=205736; -- Sundered Siegemaster
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=4196352 WHERE `entry`=198871; -- Sundered Scaleguard
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=4196352 WHERE `entry`=198873; -- Sundered Edgelord
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=4196352 WHERE `entry`=198869; -- Sundered Devastator
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=4196352, `StringId`='sundered_mob_kazzara_intro' WHERE `entry`=198872; -- Sundered Manaweaver
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `StringId`='sundered_mob_kazzara_intro' WHERE `entry`=205736; -- Sundered Siegemaster
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=4196352, `StringId`='sundered_mob_kazzara_intro' WHERE `entry`=198871; -- Sundered Scaleguard
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=4196352, `StringId`='sundered_mob_kazzara_intro' WHERE `entry`=198873; -- Sundered Edgelord
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=4196352, `StringId`='sundered_mob_kazzara_intro' WHERE `entry`=198869; -- Sundered Devastator
 UPDATE `creature_template` SET `faction`=35, `npcflag`=4294967296, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048 WHERE `entry`=203403; -- Cuzolth
 UPDATE `creature_template` SET `faction`=3276, `npcflag`=4224, `BaseAttackTime`=2000, `unit_flags`=33600, `unit_flags2`=2048 WHERE `entry`=205350; -- Forgemaster Bazentus
 UPDATE `creature_template` SET `faction`=35, `speed_walk`=1.60000002384185791, `speed_run`=1.857142806053161621, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=2048 WHERE `entry`=205348; -- Black Dragonflight Magus

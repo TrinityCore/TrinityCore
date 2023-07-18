@@ -38,49 +38,6 @@ enum KazzaraEvents
     EVENT_REMOVE_FLAGS          = 1
 };
 
-enum KazzaraIntroNpcs
-{
-    NPC_SUNDERED_EDGELORD       = 205734,
-    NPC_SUNDERED_PRESERVER      = 205735,
-    NPC_SUNDERED_SIEGEMASTER    = 205736,
-    NPC_SUNDERED_MANAWEAVER     = 205737,
-    NPC_SUNDERED_DEVASTATOR     = 198869,
-    NPC_SUNDERED_SCALEGUARD     = 198871,
-    NPC_SUNDERED_MANAWEAVER_2   = 198872,
-    NPC_SUNDERED_EDGELORD_2     = 198873,
-    NPC_SUNDERED_SIEGEMASTER_2  = 198874
-};
-
-class AllSunderedMobsInGrid
-{
-    public:
-        AllSunderedMobsInGrid() { }
-
-        bool operator()(Unit* u) const
-        {
-            if (!u->IsAlive() || u->IsInCombat())
-                return false;
-
-            switch (u->GetEntry())
-            {
-                case NPC_SUNDERED_EDGELORD:
-                case NPC_SUNDERED_PRESERVER:
-                case NPC_SUNDERED_SIEGEMASTER:
-                case NPC_SUNDERED_MANAWEAVER:
-                case NPC_SUNDERED_DEVASTATOR:
-                case NPC_SUNDERED_SCALEGUARD:
-                case NPC_SUNDERED_MANAWEAVER_2:
-                case NPC_SUNDERED_EDGELORD_2:
-                case NPC_SUNDERED_SIEGEMASTER_2:
-                    return true;
-                default:
-                    return false;
-            }
-
-            return true;
-        }
-};
-
 class CastFearEvent : public BasicEvent
 {
     public:
@@ -88,6 +45,9 @@ class CastFearEvent : public BasicEvent
 
         bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
         {
+            if (!_caster->IsAlive() || _caster->IsInCombat())
+                return false;
+
             _caster->CastSpell(_caster, SPELL_FEAR, TRIGGERED_FULL_MASK);
             return true;
         }
@@ -125,9 +85,7 @@ struct boss_kazzara_the_hellforged : public BossAI
                 DoCast(SPELL_KAZZARA_INTRO);
 
                 std::vector<Creature*> sunderedMobs;
-                AllSunderedMobsInGrid check;
-                Trinity::CreatureListSearcher<AllSunderedMobsInGrid> searcher(me, sunderedMobs, check);
-                Cell::VisitGridObjects(me, searcher, 50.0f);
+                GetCreatureListWithOptionsInGrid(sunderedMobs, me, 50.0f, FindCreatureOptions().SetStringId("sundered_mob_kazzara_intro"));
 
                 if (sunderedMobs.empty())
                     return;
@@ -137,7 +95,9 @@ struct boss_kazzara_the_hellforged : public BossAI
 
                 scheduler.Schedule(10s, [this](TaskContext /*context*/)
                 {
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_UNINTERACTIBLE));
+                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE));
+                    me->SetImmuneToPC(false);
+                    me->SetImmuneToNPC(false);
                 });
                 break;
             }
