@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CellImpl.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
