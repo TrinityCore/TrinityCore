@@ -562,16 +562,29 @@ void AreaTrigger::SearchUnitInCylinder(std::vector<Unit*>& targetList)
 
 void AreaTrigger::SearchUnitInDisk(std::vector<Unit*>& targetList)
 {
-    SearchUnits(targetList, GetMaxSearchRadius(), false);
-
     float innerRadius = _shape.DiskDatas.InnerRadius;
+    float outerRadius = _shape.DiskDatas.OuterRadius;
     float height = _shape.DiskDatas.Height;
+
+    if (GetTemplate() && GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE))
+    {
+        float progress = GetProgress();
+        if (GetCreateProperties()->MorphCurveId)
+            progress = sDB2Manager.GetCurveValueAt(GetCreateProperties()->MorphCurveId, progress);
+
+        innerRadius = G3D::lerp(_shape.DiskDatas.InnerRadius, _shape.DiskDatas.InnerRadiusTarget, progress);
+        outerRadius = G3D::lerp(_shape.DiskDatas.OuterRadius, _shape.DiskDatas.OuterRadiusTarget, progress);
+        height = G3D::lerp(_shape.DiskDatas.Height, _shape.DiskDatas.HeightTarget, progress);
+    }
+
+    SearchUnits(targetList, outerRadius, false);
+
     float minZ = GetPositionZ() - height;
     float maxZ = GetPositionZ() + height;
 
     targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [this, innerRadius, minZ, maxZ](Unit const* unit) -> bool
     {
-        return unit->IsInDist2d(this, innerRadius) ||  unit->GetPositionZ() < minZ || unit->GetPositionZ() > maxZ;
+        return unit->IsInDist2d(this, innerRadius) || unit->GetPositionZ() < minZ || unit->GetPositionZ() > maxZ;
     }), targetList.end());
 }
 
