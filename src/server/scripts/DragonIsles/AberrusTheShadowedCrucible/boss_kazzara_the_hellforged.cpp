@@ -73,7 +73,6 @@ class AllSunderedMobsInGrid
                 case NPC_SUNDERED_EDGELORD_2:
                 case NPC_SUNDERED_SIEGEMASTER_2:
                     return true;
-                    break;
                 default:
                     return false;
             }
@@ -133,8 +132,8 @@ struct boss_kazzara_the_hellforged : public BossAI
                 if (sunderedMobs.empty())
                     return;
 
-                for (Creature* SunderedMob : sunderedMobs)
-                    SunderedMob->m_Events.AddEventAtOffset(new CastFearEvent(SunderedMob), Milliseconds(1500));
+                for (Creature* sunderedMob : sunderedMobs)
+                    sunderedMob->m_Events.AddEventAtOffset(new CastFearEvent(sunderedMob), Milliseconds(1500));
 
                 scheduler.Schedule(10s, [this](TaskContext /*context*/)
                 {
