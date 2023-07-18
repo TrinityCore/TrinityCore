@@ -85,7 +85,7 @@ struct boss_kazzara_the_hellforged : public BossAI
                 DoCast(SPELL_KAZZARA_INTRO);
 
                 std::vector<Creature*> sunderedMobs;
-                GetCreatureListWithOptionsInGrid(sunderedMobs, me, 50.0f, FindCreatureOptions().SetStringId("sundered_mob_kazzara_intro"));
+                GetCreatureListWithOptionsInGrid(sunderedMobs, me, 50.0f, FindCreatureOptions().SetStringId("sundered_mob"));
 
                 if (sunderedMobs.empty())
                     return;
