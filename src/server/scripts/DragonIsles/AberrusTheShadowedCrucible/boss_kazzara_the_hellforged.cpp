@@ -131,8 +131,8 @@ struct boss_kazzara_the_hellforged : public BossAI
                 if (sunderedMobs.empty())
                     return;
 
-                for (Creature* sunderedNpc : sunderedMobs)
-                    sunderedNpc->m_Events.AddEventAtOffset(new CastFearEvent(sunderedNpc), Milliseconds(1500));
+                for (Creature* SunderedMob : sunderedMobs)
+                    SunderedMob->m_Events.AddEventAtOffset(new CastFearEvent(SunderedMob), Milliseconds(1500));
 
                 scheduler.Schedule(10s, [this](TaskContext /*context*/)
                 {
