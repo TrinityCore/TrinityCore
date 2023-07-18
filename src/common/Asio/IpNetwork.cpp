@@ -80,7 +80,15 @@ Optional<std::size_t> SelectAddressForClient(boost::asio::ip::address const& cli
     {
         boost::asio::ip::address const& address = addresses[i];
 
-        if (IsInLocalNetwork(address))
+        if (address.is_loopback())
+        {
+            if (address.is_v6() && !loopbackIpv6Index)
+                loopbackIpv6Index = i;
+
+            if (address.is_v4() && !loopbackIpv4Index)
+                loopbackIpv4Index = i;
+        }
+        else if (IsInLocalNetwork(address))
         {
             if (address.is_v6() && !localIpv6Index)
                 localIpv6Index = i;
@@ -97,14 +105,6 @@ Optional<std::size_t> SelectAddressForClient(boost::asio::ip::address const& cli
                 externalIpv4Index = i;
         }
 
-        if (address.is_loopback())
-        {
-            if (address.is_v6() && !loopbackIpv6Index)
-                loopbackIpv6Index = i;
-
-            if (address.is_v4() && !loopbackIpv4Index)
-                loopbackIpv4Index = i;
-        }
     }
 
     if (IsInLocalNetwork(clientAddress) || clientAddress.is_loopback())
