@@ -33,6 +33,7 @@
 #include "Item.h"
 #include "LFGMgr.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
 #include "SkillDiscovery.h"
