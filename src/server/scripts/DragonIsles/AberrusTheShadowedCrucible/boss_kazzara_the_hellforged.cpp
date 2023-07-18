@@ -17,6 +17,7 @@
 
 #include "CellImpl.h"
 #include "GameObject.h"
+#include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
