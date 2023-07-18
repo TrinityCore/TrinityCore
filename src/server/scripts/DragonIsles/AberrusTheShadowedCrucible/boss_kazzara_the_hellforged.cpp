@@ -49,10 +49,35 @@ enum KazzaraIntroNpcs
     NPC_SUNDERED_SIEGEMASTER_2  = 198874
 };
 
-uint32 const SunderedMobs[9] =
+class AllSunderedMobsInGrid
 {
-    NPC_SUNDERED_EDGELORD, NPC_SUNDERED_PRESERVER, NPC_SUNDERED_SIEGEMASTER, NPC_SUNDERED_MANAWEAVER,
-    NPC_SUNDERED_DEVASTATOR, NPC_SUNDERED_SCALEGUARD, NPC_SUNDERED_MANAWEAVER_2, NPC_SUNDERED_EDGELORD_2, NPC_SUNDERED_SIEGEMASTER_2
+    public:
+        AllSunderedMobsInGrid() { }
+
+        bool operator()(Unit* u) const
+        {
+            if (!u->IsAlive() || u->IsInCombat())
+                return false;
+
+            switch (u->GetEntry())
+            {
+                case NPC_SUNDERED_EDGELORD:
+                case NPC_SUNDERED_PRESERVER:
+                case NPC_SUNDERED_SIEGEMASTER:
+                case NPC_SUNDERED_MANAWEAVER:
+                case NPC_SUNDERED_DEVASTATOR:
+                case NPC_SUNDERED_SCALEGUARD:
+                case NPC_SUNDERED_MANAWEAVER_2:
+                case NPC_SUNDERED_EDGELORD_2:
+                case NPC_SUNDERED_SIEGEMASTER_2:
+                    return true;
+                    break;
+                default:
+                    return false;
+            }
+
+            return true;
+        }
 };
 
 class CastFearEvent : public BasicEvent
@@ -62,9 +87,6 @@ class CastFearEvent : public BasicEvent
 
         bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
         {
-            if (!_caster->IsAlive() || _caster->IsInCombat())
-                return false;
-
             _caster->CastSpell(_caster, SPELL_FEAR, TRIGGERED_FULL_MASK);
             return true;
         }
@@ -101,16 +123,16 @@ struct boss_kazzara_the_hellforged : public BossAI
                 DoCast(SPELL_DREAD_LANDING);
                 DoCast(SPELL_KAZZARA_INTRO);
 
-                for (uint8 i = 0; i < 9; ++i)
-                {
-                    std::vector<Creature*> sunderedNpcs;
-                    GetCreatureListWithEntryInGrid(sunderedNpcs, me, SunderedMobs[i], 50.0f);
+                std::vector<Creature*> sunderedMobs;
+                AllSunderedMobsInGrid check;
+                Trinity::CreatureListSearcher<AllSunderedMobsInGrid> searcher(me, sunderedMobs, check);
+                Cell::VisitGridObjects(me, searcher, 50.0f);
 
-                    for (Creature* sunderedMobs : sunderedNpcs)
-                    {
-                        sunderedMobs->m_Events.AddEventAtOffset(new CastFearEvent(sunderedMobs), Milliseconds(1500));
-                    };
-                }
+                if (sunderedMobs.empty())
+                    return;
+
+                for (Creature* sunderedNpc : sunderedMobs)
+                    sunderedNpc->m_Events.AddEventAtOffset(new CastFearEvent(sunderedNpc), Milliseconds(1500));
 
                 scheduler.Schedule(10s, [this](TaskContext /*context*/)
                 {

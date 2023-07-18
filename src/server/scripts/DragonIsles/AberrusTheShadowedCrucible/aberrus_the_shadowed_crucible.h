@@ -21,11 +21,11 @@
 #include "CreatureAIImpl.h"
 
 #define ATSCScriptName "instance_aberrus_the_shadowed_crucible"
-#define DataHeader "ATSC"
+#define DataHeader "Aberrus"
 
 uint32 const EncounterCount = 9;
 
-enum ATSCDataTypes
+enum AberrusDataTypes
 {
     // Encounters
     DATA_KAZZARA_THE_HELLFORGED          = 0,
@@ -42,7 +42,7 @@ enum ATSCDataTypes
     DATA_KAZZARA_GATE                    = 9
 };
 
-enum ATSCCreatureIds
+enum AberrusCreatureIds
 {
     // Bosses
     BOSS_KAZZARA_THE_HELLFORGED          = 201261,
@@ -66,14 +66,14 @@ enum ATSCCreatureIds
     NPC_SABELLIAN                        = 201575
 };
 
-enum ATSCGameObjectIds
+enum AberrusGameObjectIds
 {
     GO_KAZZARA_DOOR                      = 398742,
     GO_KAZZARA_GATE                      = 397996,
     GO_INVISIBLE_DOOR                    = 398588
 };
 
-enum ATSCSharedActions
+enum AberrusSharedActions
 {
     ACTION_START_INTRO
 };

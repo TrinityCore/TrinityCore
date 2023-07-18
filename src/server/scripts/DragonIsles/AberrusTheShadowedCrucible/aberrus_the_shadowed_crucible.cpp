@@ -72,7 +72,7 @@ struct at_aberrus_sabellian_conversation_intro : AreaTriggerAI
         if (!player)
             return;
 
-        Conversation::CreateConversation(CONVERSATION_SABELLIAN_INTRO, unit, unit->GetPosition(), ObjectGuid::Empty, nullptr, true);
+        Conversation::CreateConversation(CONVERSATION_SABELLIAN_INTRO, unit, unit->GetPosition(), ObjectGuid::Empty);
         at->Remove();
     }
 };
@@ -88,7 +88,7 @@ struct at_aberrus_sarkareth_conversation_intro : AreaTriggerAI
         if (!player)
             return;
 
-        Conversation::CreateConversation(CONVERSATION_SARKARETH_INTRO, unit, unit->GetPosition(), ObjectGuid::Empty, nullptr, true);
+        Conversation::CreateConversation(CONVERSATION_SARKARETH_INTRO, unit, unit->GetPosition(), ObjectGuid::Empty);
         at->Remove();
     }
 };
@@ -104,7 +104,7 @@ struct at_aberrus_kazzara_summon_conversation_intro : AreaTriggerAI
         if (!player)
             return;
 
-        Conversation::CreateConversation(CONVERSATION_KAZZARA_SUMMON_INTRO, unit, unit->GetPosition(), ObjectGuid::Empty, nullptr, true);
+        Conversation::CreateConversation(CONVERSATION_KAZZARA_SUMMON_INTRO, unit, unit->GetPosition(), ObjectGuid::Empty);
         at->Remove();
     }
 };
@@ -132,7 +132,7 @@ class conversation_aberrus_sabellian_intro : public ConversationScript
             {
                 case EVENT_SABELLIAN_MOVE:
                 {
-                    Unit* sabellian = conversation->GetActorUnit(CONVO_ACTOR_IDX_SABELLIAN);
+                    Creature* sabellian = conversation->GetActorCreature(CONVO_ACTOR_IDX_SABELLIAN);
 
                     sabellian->SetWalk(true);
                     sabellian->GetMotionMaster()->MovePoint(0, SabellianConvoPosition);
@@ -140,7 +140,7 @@ class conversation_aberrus_sabellian_intro : public ConversationScript
                 }
                 case EVENT_SABELLIAN_MOVE_HOME_POS:
                 {
-                    Unit* sabellian = conversation->GetActorUnit(CONVO_ACTOR_IDX_SABELLIAN);
+                    Creature* sabellian = conversation->GetActorCreature(CONVO_ACTOR_IDX_SABELLIAN);
 
                     sabellian->SetWalk(true);
                     sabellian->GetMotionMaster()->MovePoint(0, sabellian->ToCreature()->GetHomePosition(), false, sabellian->ToCreature()->GetHomePosition().GetOrientation());
@@ -174,21 +174,25 @@ class conversation_aberrus_kazzara_intro : public ConversationScript
             {
                 case EVENT_KAZZARA_INTRO:
                 {
-                    Unit* winglordDezran = conversation->GetActorUnit(CONVO_ACTOR_IDX_WINGLORD_DEZRAN);
-                    Unit* zskarn = conversation->GetActorUnit(CONVO_ACTOR_IDX_ZSKARN);
-                    Unit* sarkareth = conversation->GetActorUnit(CONVO_ACTOR_IDX_SARKARETH);
+                    Creature* winglordDezran = conversation->GetActorCreature(CONVO_ACTOR_IDX_WINGLORD_DEZRAN);
+                    Creature* zskarn = conversation->GetActorCreature(CONVO_ACTOR_IDX_ZSKARN);
+                    Creature* sarkareth = conversation->GetActorCreature(CONVO_ACTOR_IDX_SARKARETH);
+
+                    if (!winglordDezran || !zskarn || !sarkareth)
+                        return;
 
                     sarkareth->GetMotionMaster()->MovePath(PATH_SARKARETH, false);
-                    sarkareth->ToCreature()->DespawnOrUnsummon(45s);
+                    sarkareth->DespawnOrUnsummon(45s);
 
                     winglordDezran->GetMotionMaster()->MovePath(PATH_WINGLORD_DEZRAN, false);
-                    winglordDezran->ToCreature()->DespawnOrUnsummon(45s);
+                    winglordDezran->DespawnOrUnsummon(45s);
 
                     zskarn->GetMotionMaster()->MovePath(PATH_ZSKARN, false);
-                    zskarn->ToCreature()->DespawnOrUnsummon(45s, Seconds::max()); // override respawn time due to CREATURE_FLAG_EXTRA_DUNGEON_BOSS
+                    zskarn->DespawnOrUnsummon(45s, Seconds::max()); // override respawn time due to CREATURE_FLAG_EXTRA_DUNGEON_BOSS
 
-                    if (Creature* kazzara = conversation->GetInstanceScript()->GetCreature(DATA_KAZZARA_THE_HELLFORGED))
-                        kazzara->AI()->DoAction(ACTION_START_INTRO);
+                    if (InstanceScript* instance = conversation->GetInstanceScript())
+                        if (Creature* kazzara = instance->GetCreature(DATA_KAZZARA_THE_HELLFORGED))
+                            kazzara->AI()->DoAction(ACTION_START_INTRO);
                     break;
                 }
                 default:

@@ -424,25 +424,20 @@ INSERT INTO `conversation_template` (`Id`, `FirstLineId`, `TextureKitId`, `Scrip
 (20985, 56697, 0, 'conversation_aberrus_kazzara_intro', 50000);
 
 -- Conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`IN (1,2) AND `SourceEntry`IN (411873, 411877, 411874);
+SET @CONDREF := -4;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`IN (1,2);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=@CONDREF-0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 1, 411873, 0, 0, 31, 0, 4, 0, 0, 0, 0, 0, '', 'Spell 411873 can only hit Player'),
 (13, 2, 411873, 0, 0, 31, 0, 4, 0, 0, 0, 0, 0, '', 'Spell 411873 can only hit Player'),
-(13, 1, 411877, 0, 0, 31, 0, 3, 205734, 0, 0, 0, 0, '', 'Spell 411877 can only hit Sundered Edgelord'),
-(13, 1, 411877, 0, 1, 31, 0, 3, 205735, 0, 0, 0, 0, '', 'Spell 411877 can only hit Sundered Preserver'),
-(13, 1, 411877, 0, 2, 31, 0, 3, 205736, 0, 0, 0, 0, '', 'Spell 411877 can only hit Sundered Siegemaster'),
-(13, 1, 411877, 0, 3, 31, 0, 3, 205737, 0, 0, 0, 0, '', 'Spell 411877 can only hit Sundered Manaweaver'),
-(13, 1, 411877, 0, 4, 31, 0, 3, 198869, 0, 0, 0, 0, '', 'Spell 411877 can only hit Sundered Devastator'),
-(13, 1, 411877, 0, 5, 31, 0, 3, 198871, 0, 0, 0, 0, '', 'Spell 411877 can only hit Sundered Scaleguard'),
-(13, 1, 411877, 0, 6, 31, 0, 3, 198872, 0, 0, 0, 0, '', 'Spell 411877 can only hit Sundered Manaweaver'),
-(13, 1, 411877, 0, 7, 31, 0, 3, 198873, 0, 0, 0, 0, '', 'Spell 411877 can only hit Sundered Edgelord'),
-(13, 1, 411877, 0, 8, 31, 0, 3, 198874, 0, 0, 0, 0, '', 'Spell 411877 can only hit Sundered Siegemaster'),
-(13, 2, 411874, 0, 0, 31, 0, 3, 205734, 0, 0, 0, 0, '', 'Spell 411874 can only hit Sundered Edgelord'),
-(13, 2, 411874, 0, 1, 31, 0, 3, 205735, 0, 0, 0, 0, '', 'Spell 411874 can only hit Sundered Preserver'),
-(13, 2, 411874, 0, 2, 31, 0, 3, 205736, 0, 0, 0, 0, '', 'Spell 411874 can only hit Sundered Siegemaster'),
-(13, 2, 411874, 0, 3, 31, 0, 3, 205737, 0, 0, 0, 0, '', 'Spell 411874 can only hit Sundered Manaweaver'),
-(13, 2, 411874, 0, 4, 31, 0, 3, 198869, 0, 0, 0, 0, '', 'Spell 411874 can only hit Sundered Devastator'),
-(13, 2, 411874, 0, 5, 31, 0, 3, 198871, 0, 0, 0, 0, '', 'Spell 411874 can only hit Sundered Scaleguard'),
-(13, 2, 411874, 0, 6, 31, 0, 3, 198872, 0, 0, 0, 0, '', 'Spell 411874 can only hit Sundered Manaweaver'),
-(13, 2, 411874, 0, 7, 31, 0, 3, 198873, 0, 0, 0, 0, '', 'Spell 411874 can only hit Sundered Edgelord'),
-(13, 2, 411874, 0, 8, 31, 0, 3, 198874, 0, 0, 0, 0, '', 'Spell 411874 can only hit Sundered Siegemaster');
+(13, 1, 411877, 0, 0, @CONDREF-0, 0, 0, 0, 0, 0, 0, 0, '', 'Spell 411877 can only hit npcs on condition reference'),
+(13, 2, 411874, 0, 0, @CONDREF-0, 0, 0, 0, 0, 0, 0, 0, '', 'Spell 411877 can only hit npcs on condition reference'),
+(@CONDREF-0, 0, 0, 0, 0, 31, 0, 3, 205734, 0, 0, 0, 0, '', 'Apply condition reference on Sundered Edgelord'),
+(@CONDREF-0, 0, 0, 0, 1, 31, 0, 3, 205735, 0, 0, 0, 0, '', 'Apply condition reference on Sundered Preserver'),
+(@CONDREF-0, 0, 0, 0, 2, 31, 0, 3, 205736, 0, 0, 0, 0, '', 'Apply condition reference on Sundered Siegemaster'),
+(@CONDREF-0, 0, 0, 0, 3, 31, 0, 3, 205737, 0, 0, 0, 0, '', 'Apply condition reference on Sundered Manaweaver'),
+(@CONDREF-0, 0, 0, 0, 4, 31, 0, 3, 198869, 0, 0, 0, 0, '', 'Apply condition reference on Sundered Devastator'),
+(@CONDREF-0, 0, 0, 0, 5, 31, 0, 3, 198871, 0, 0, 0, 0, '', 'Apply condition reference on Sundered Scaleguard'),
+(@CONDREF-0, 0, 0, 0, 6, 31, 0, 3, 198872, 0, 0, 0, 0, '', 'Apply condition reference on Sundered Manaweaver'),
+(@CONDREF-0, 0, 0, 0, 7, 31, 0, 3, 198873, 0, 0, 0, 0, '', 'Apply condition reference on Sundered Edgelord'),
+(@CONDREF-0, 0, 0, 0, 8, 31, 0, 3, 198874, 0, 0, 0, 0, '', 'Apply condition reference on Sundered Siegemaster');
