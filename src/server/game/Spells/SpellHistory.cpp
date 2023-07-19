@@ -26,7 +26,6 @@
 #include "PetPackets.h"
 #include "Player.h"
 #include "Spell.h"
-#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
@@ -669,10 +668,8 @@ void SpellHistory::ResetAllCooldowns()
 
 bool SpellHistory::HasCooldown(SpellInfo const* spellInfo, uint32 itemId /*= 0*/) const
 {
-    Unit::AuraEffectList const& auraCooldownList = _owner->GetAuraEffectsByType(SPELL_AURA_IGNORE_SPELL_COOLDOWN);
-    for (Unit::AuraEffectList::const_iterator itr = auraCooldownList.begin(); itr != auraCooldownList.end(); ++itr)
-        if ((*itr)->IsAffectingSpell(spellInfo))
-            return false;
+    if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_IGNORE_SPELL_COOLDOWN, spellInfo))
+        return false;
 
     if (_spellCooldowns.count(spellInfo->Id) != 0)
         return true;
