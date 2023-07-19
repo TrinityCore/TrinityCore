@@ -2924,6 +2924,8 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         // Do triggers for unit
         if (canEffectTrigger)
         {
+            procAttacker |= PROC_FLAG_2_CAST_SUCCESSFUL;
+
             if (spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS))
                 procAttacker = ProcFlagsInit(PROC_FLAG_NONE, PROC_FLAG_2_NONE);
 
