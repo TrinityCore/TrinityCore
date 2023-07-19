@@ -32,6 +32,7 @@
 #include "DeadlineTimer.h"
 #include "GitRevision.h"
 #include "IPLocation.h"
+#include "IpNetwork.h"
 #include "LoginRESTService.h"
 #include "MySQLThreading.h"
 #include "OpenSSLCrypto.h"
@@ -51,12 +52,14 @@
 
 #include "Hacks/boost_program_options_with_filesystem_path.h"
 
-using boost::asio::ip::tcp;
 using namespace boost::program_options;
 namespace fs = boost::filesystem;
 
 #ifndef _TRINITY_BNET_CONFIG
 # define _TRINITY_BNET_CONFIG  "bnetserver.conf"
+#endif
+#ifndef _TRINITY_BNET_CONFIG_DIR
+    #define _TRINITY_BNET_CONFIG_DIR "bnetserver.conf.d"
 #endif
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
@@ -80,15 +83,16 @@ void StopDB();
 void SignalHandler(std::weak_ptr<Trinity::Asio::IoContext> ioContextRef, boost::system::error_code const& error, int signalNumber);
 void KeepDatabaseAliveHandler(std::weak_ptr<Trinity::Asio::DeadlineTimer> dbPingTimerRef, int32 dbPingInterval, boost::system::error_code const& error);
 void BanExpiryHandler(std::weak_ptr<Trinity::Asio::DeadlineTimer> banExpiryCheckTimerRef, int32 banExpiryCheckInterval, boost::system::error_code const& error);
-variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService);
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, std::string& winServiceAction);
 
 int main(int argc, char** argv)
 {
     signal(SIGABRT, &Trinity::AbortHandler);
 
     auto configFile = fs::absolute(_TRINITY_BNET_CONFIG);
-    std::string configService;
-    auto vm = GetConsoleArguments(argc, argv, configFile, configService);
+    auto configDir  = fs::absolute(_TRINITY_BNET_CONFIG_DIR);
+    std::string winServiceAction;
+    auto vm = GetConsoleArguments(argc, argv, configFile, configDir, winServiceAction);
     // exit if help or version is enabled
     if (vm.count("help") || vm.count("version"))
         return 0;
@@ -98,11 +102,11 @@ int main(int argc, char** argv)
     std::shared_ptr<void> protobufHandle(nullptr, [](void*) { google::protobuf::ShutdownProtobufLibrary(); });
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-    if (configService.compare("install") == 0)
+    if (winServiceAction == "install")
         return WinServiceInstall() ? 0 : 1;
-    else if (configService.compare("uninstall") == 0)
+    if (winServiceAction == "uninstall")
         return WinServiceUninstall() ? 0 : 1;
-    else if (configService.compare("run") == 0)
+    if (winServiceAction == "run")
         return WinServiceRun() ? 0 : 1;
 #endif
 
@@ -115,6 +119,20 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    std::vector<std::string> loadedConfigFiles;
+    std::vector<std::string> configDirErrors;
+    bool additionalConfigFileLoadSuccess = sConfigMgr->LoadAdditionalDir(configDir.generic_string(), true, loadedConfigFiles, configDirErrors);
+    for (std::string const& loadedConfigFile : loadedConfigFiles)
+        printf("Loaded additional config file %s\n", loadedConfigFile.c_str());
+
+    if (!additionalConfigFileLoadSuccess)
+    {
+        for (std::string const& configDirError : configDirErrors)
+            printf("Error in additional config files: %s\n", configDirError.c_str());
+
+        return 1;
+    }
+
     std::vector<std::string> overriddenKeys = sConfigMgr->OverrideWithEnvVariablesIfAny();
 
     sLog->RegisterAppender<AppenderDB>();
@@ -123,18 +141,18 @@ int main(int argc, char** argv)
     Trinity::Banner::Show("bnetserver",
         [](char const* text)
         {
-            TC_LOG_INFO("server.bnetserver", "%s", text);
+            TC_LOG_INFO("server.bnetserver", "{}", text);
         },
         []()
         {
-            TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
-            TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
-            TC_LOG_INFO("server.bnetserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+            TC_LOG_INFO("server.bnetserver", "Using configuration file {}.", sConfigMgr->GetFilename());
+            TC_LOG_INFO("server.bnetserver", "Using SSL version: {} (library: {})", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
+            TC_LOG_INFO("server.bnetserver", "Using Boost version: {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
 
     for (std::string const& key : overriddenKeys)
-        TC_LOG_INFO("server.authserver", "Configuration field '%s' was overridden with environment variable.", key.c_str());
+        TC_LOG_INFO("server.authserver", "Configuration field '{}' was overridden with environment variable.", key);
 
     OpenSSLCrypto::threadsSetup(boost::dll::program_location().remove_filename());
 
@@ -145,10 +163,10 @@ int main(int argc, char** argv)
     if (!pidFile.empty())
     {
         if (uint32 pid = CreatePIDFile(pidFile))
-            TC_LOG_INFO("server.bnetserver", "Daemon PID: %u\n", pid);
+            TC_LOG_INFO("server.bnetserver", "Daemon PID: {}\n", pid);
         else
         {
-            TC_LOG_ERROR("server.bnetserver", "Cannot create PID file %s.\n", pidFile.c_str());
+            TC_LOG_ERROR("server.bnetserver", "Cannot create PID file {}.\n", pidFile);
             return 1;
         }
     }
@@ -175,11 +193,13 @@ int main(int argc, char** argv)
 
     std::shared_ptr<Trinity::Asio::IoContext> ioContext = std::make_shared<Trinity::Asio::IoContext>();
 
+    Trinity::Net::ScanLocalNetworks();
+
     // Start the listening port (acceptor) for auth connections
     int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
     if (bnport < 0 || bnport > 0xFFFF)
     {
-        TC_LOG_ERROR("server.bnetserver", "Specified battle.net port (%d) out of allowed range (1-65535)", bnport);
+        TC_LOG_ERROR("server.bnetserver", "Specified battle.net port ({}) out of allowed range (1-65535)", bnport);
         return 1;
     }
 
@@ -337,22 +357,22 @@ void ServiceStatusWatcher(std::weak_ptr<Trinity::Asio::DeadlineTimer> serviceSta
 }
 #endif
 
-variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService)
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, [[maybe_unused]] std::string& winServiceAction)
 {
-    (void)configService;
-
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")
         ("version,v", "print version build info")
         ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_BNET_CONFIG)),
                      "use <arg> as configuration file")
+        ("config-dir,cd", value<fs::path>(&configDir)->default_value(fs::absolute(_TRINITY_BNET_CONFIG_DIR)),
+            "use <arg> as directory with additional config files")
         ("update-databases-only,u", "updates databases only")
         ;
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     options_description win("Windows platform specific options");
     win.add_options()
-        ("service,s", value<std::string>(&configService)->default_value(""), "Windows service options: [install | uninstall]")
+        ("service,s", value<std::string>(&winServiceAction)->default_value(""), "Windows service options: [install | uninstall]")
         ;
 
     all.add(win);

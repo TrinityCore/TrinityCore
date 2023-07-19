@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "message_types.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,7 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -86,7 +84,7 @@ void protobuf_AddDesc_message_5ftypes_2eproto() {
     "\n\023message_types.proto\022\014bgs.protocol\",\n\tM"
     "essageId\022\r\n\005epoch\030\001 \001(\004\022\020\n\010position\030\002 \001("
     "\004*4\n\017TypingIndicator\022\020\n\014TYPING_START\020\000\022\017"
-    "\n\013TYPING_STOP\020\001B\002H\001", 139);
+    "\n\013TYPING_STOP\020\001B\002H\002", 139);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "message_types.proto", &protobuf_RegisterTypes);
   MessageId::default_instance_ = new MessageId();
@@ -175,207 +173,9 @@ MessageId* MessageId::New() const {
   return new MessageId;
 }
 
-void MessageId::Clear() {
-#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
-  &reinterpret_cast<MessageId*>(16)->f) - \
-   reinterpret_cast<char*>(16))
-
-#define ZR_(first, last) do {                              \
-    size_t f = OFFSET_OF_FIELD_(first);                    \
-    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
-    ::memset(&first, 0, n);                                \
-  } while (0)
-
-  ZR_(epoch_, position_);
-
-#undef OFFSET_OF_FIELD_
-#undef ZR_
-
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool MessageId::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.MessageId)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional uint64 epoch = 1;
-      case 1: {
-        if (tag == 8) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &epoch_)));
-          set_has_epoch();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_position;
-        break;
-      }
-
-      // optional uint64 position = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_position:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &position_)));
-          set_has_position();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.MessageId)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.MessageId)
-  return false;
-#undef DO_
-}
-
-void MessageId::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.MessageId)
-  // optional uint64 epoch = 1;
-  if (has_epoch()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->epoch(), output);
-  }
-
-  // optional uint64 position = 2;
-  if (has_position()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->position(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.MessageId)
-}
-
-::google::protobuf::uint8* MessageId::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.MessageId)
-  // optional uint64 epoch = 1;
-  if (has_epoch()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->epoch(), target);
-  }
-
-  // optional uint64 position = 2;
-  if (has_position()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->position(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.MessageId)
-  return target;
-}
-
-int MessageId::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional uint64 epoch = 1;
-    if (has_epoch()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->epoch());
-    }
-
-    // optional uint64 position = 2;
-    if (has_position()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->position());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void MessageId::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const MessageId* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const MessageId*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void MessageId::MergeFrom(const MessageId& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_epoch()) {
-      set_epoch(from.epoch());
-    }
-    if (from.has_position()) {
-      set_position(from.position());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void MessageId::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void MessageId::CopyFrom(const MessageId& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool MessageId::IsInitialized() const {
-  return true;
-}
-
 void MessageId::Swap(MessageId* other) {
   if (other != this) {
-    std::swap(epoch_, other->epoch_);
-    std::swap(position_, other->position_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata MessageId::GetMetadata() const {

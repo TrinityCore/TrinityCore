@@ -18,6 +18,7 @@
 #ifndef CombatLogPacketsCommon_h__
 #define CombatLogPacketsCommon_h__
 
+#include "ObjectGuid.h"
 #include "Packet.h"
 
 class Spell;
@@ -69,7 +70,7 @@ namespace WorldPackets
             int16 PlayerLevelDelta = 0;
             float PlayerItemLevel = 0;
             float TargetItemLevel = 0;
-            uint16 ScalingHealthItemLevelCurveID = 0;
+            uint32 ScalingHealthItemLevelCurveID = 0;
             uint8 TargetLevel = 0;
             uint8 Expansion = 0;
             int8 TargetScalingLevelDelta = 0;
@@ -88,10 +89,19 @@ namespace WorldPackets
             int32 ScriptVisualID = 0;
         };
 
+        struct SpellSupportInfo
+        {
+            ObjectGuid CasterGUID;
+            int32 SpellID = 0;
+            int32 Amount = 0;
+            float Percentage = 0.0f;
+        };
+
         ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogData);
         ByteBuffer& operator<<(ByteBuffer& data, ContentTuningParams const& contentTuningParams);
         ByteBuffer& operator>>(ByteBuffer& data, SpellCastVisual& visual);
         ByteBuffer& operator<<(ByteBuffer& data, SpellCastVisual const& visual);
+        ByteBuffer& operator<<(ByteBuffer& data, SpellSupportInfo const& supportInfo);
     }
 
     namespace CombatLog

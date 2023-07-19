@@ -26,7 +26,7 @@
 #include "ScenarioMgr.h"
 #include "StringFormat.h"
 
-InstanceScenario::InstanceScenario(InstanceMap const* map, ScenarioData const* scenarioData) : Scenario(scenarioData), _map(map)
+InstanceScenario::InstanceScenario(InstanceMap* map, ScenarioData const* scenarioData) : Scenario(map, scenarioData)
 {
     ASSERT(_map);
     LoadInstanceData();
@@ -39,7 +39,7 @@ InstanceScenario::InstanceScenario(InstanceMap const* map, ScenarioData const* s
 
 void InstanceScenario::LoadInstanceData()
 {
-    InstanceScript const* instanceScript = _map->GetInstanceScript();
+    InstanceScript const* instanceScript = _map->ToInstanceMap()->GetInstanceScript();
     if (!instanceScript)
         return;
 
@@ -103,7 +103,7 @@ void InstanceScenario::LoadInstanceData()
 
 std::string InstanceScenario::GetOwnerInfo() const
 {
-    return Trinity::StringFormat("Instance ID %u", _map->GetInstanceId());
+    return Trinity::StringFormat("Instance ID {}", _map->GetInstanceId());
 }
 
 void InstanceScenario::SendPacket(WorldPacket const* data) const

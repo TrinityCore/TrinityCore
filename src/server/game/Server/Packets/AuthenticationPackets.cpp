@@ -138,6 +138,7 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
                 _worldPacket << uint8(classAvailability.ClassID);
                 _worldPacket << uint8(classAvailability.ActiveExpansionLevel);
                 _worldPacket << uint8(classAvailability.AccountExpansionLevel);
+                _worldPacket << uint8(classAvailability.MinActiveExpansionLevel);
             }
         }
 
@@ -146,6 +147,7 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket.WriteBit(SuccessInfo->NumPlayersHorde.has_value());
         _worldPacket.WriteBit(SuccessInfo->NumPlayersAlliance.has_value());
         _worldPacket.WriteBit(SuccessInfo->ExpansionTrialExpiration.has_value());
+        _worldPacket.WriteBit(SuccessInfo->NewBuildKeys.has_value());
         _worldPacket.FlushBits();
 
         {
@@ -166,7 +168,16 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
             _worldPacket << uint16(*SuccessInfo->NumPlayersAlliance);
 
         if (SuccessInfo->ExpansionTrialExpiration)
-            _worldPacket << int32(*SuccessInfo->ExpansionTrialExpiration);
+            _worldPacket << *SuccessInfo->ExpansionTrialExpiration;
+
+        if (SuccessInfo->NewBuildKeys)
+        {
+            for (std::size_t i = 0; i < 16; ++i)
+            {
+                _worldPacket << SuccessInfo->NewBuildKeys->NewBuildKey[i];
+                _worldPacket << SuccessInfo->NewBuildKeys->SomeKey[i];
+            }
+        }
 
         for (VirtualRealmInfo const& virtualRealm : SuccessInfo->VirtualRealms)
             _worldPacket << virtualRealm;

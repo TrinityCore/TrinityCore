@@ -1,8 +1,8 @@
 # set up output paths for executable binaries (.exe-files, and .dll-files on DLL-capable platforms)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(MSVC_EXPECTED_VERSION 19.24)
-set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2019 16.4")
+set(MSVC_EXPECTED_VERSION 19.30)
+set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2022 17")
 
 # This file is also used by compilers that pretend to be MSVC but report their own version number - don't version check them
 if(NOT CMAKE_CXX_COMPILER_FRONTEND_VARIANT)
@@ -91,12 +91,9 @@ endif()
 # that the program will eventually be linked with a conforming operator new implementation,
 # and can omit all of these extra null checks from your program.
 # http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
-if(NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0))
-  # makes this flag a requirement to build TC at all
-  target_compile_options(trinity-compile-option-interface
-    INTERFACE
-      /Zc:throwingNew)
-endif()
+target_compile_options(trinity-compile-option-interface
+  INTERFACE
+    /Zc:throwingNew)
 
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
 target_compile_definitions(trinity-compile-option-interface
@@ -151,7 +148,8 @@ target_compile_options(trinity-compile-option-interface
     /w34100  # C4100 'identifier' : unreferenced formal parameter
     /w34101  # C4101: 'identifier' : unreferenced local variable
     /w34189  # C4189: 'identifier' : local variable is initialized but not referenced
-    /w34389) # C4189: 'equality-operator' : signed/unsigned mismatch
+    /w34389  # C4389: 'equality-operator' : signed/unsigned mismatch
+	/w35054) # C5054: 'operator 'operator-name': deprecated between enumerations of different types'
 
 # Enable and treat as errors the following warnings to easily detect virtual function signature failures:
 # 'function' : member function does not override any base class virtual member function

@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
@@ -606,7 +607,7 @@ struct boss_algalon_the_observer : public BossAI
                     events.ScheduleEvent(EVENT_EVADE, 2s + 500ms);
                     break;
                 case EVENT_EVADE:
-                    EnterEvadeMode(EVADE_REASON_OTHER);
+                    EnterEvadeMode(EvadeReason::Other);
                     break;
                 case EVENT_COSMIC_SMASH:
                     Talk(EMOTE_ALGALON_COSMIC_SMASH);
@@ -1048,7 +1049,7 @@ class spell_algalon_phase_constellation : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void HandlePeriodic(AuraEffect const* aurEff)

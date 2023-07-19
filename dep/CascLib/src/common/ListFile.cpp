@@ -62,14 +62,16 @@ static char * ListFile_SkipSpaces(PLISTFILE_CACHE pCache)
 
 static void ListFile_CheckFormat(PLISTFILE_CACHE pCache)
 {
-    // Only if the listfile is greatger than 2 MB
-    if((pCache->pEnd - pCache->pBegin) > 0x100000)
+    const size_t nSizeLimit = 0x20;
+
+    // Only if the listfile is greater than 2 MB
+    if((pCache->pEnd - pCache->pBegin) > nSizeLimit)
     {
         char * szPtr = pCache->pBegin;
         size_t nDigitCount = 0;
 
         // Calculate the amount of digits
-        while(nDigitCount <= 20 && '0' <= szPtr[nDigitCount] && szPtr[nDigitCount] <= '9')
+        while(nDigitCount <= nSizeLimit && '0' <= szPtr[nDigitCount] && szPtr[nDigitCount] <= '9')
             nDigitCount++;
 
         // There must be a semicolon after
@@ -303,14 +305,14 @@ LPBYTE ListFile_GetData(void * pvListFile, PDWORD PtrDataSize)
     DWORD cbData = 0;
 
     // Get data from the list file cache
-    if (pvListFile != NULL)
+    if(pvListFile != NULL)
     {
         pbData = (LPBYTE)pCache->pBegin;
         cbData = (DWORD)(pCache->pEnd - pCache->pBegin);
     }
 
     // Give the data to the caller
-    if (PtrDataSize != NULL)
+    if(PtrDataSize != NULL)
         PtrDataSize[0] = cbData;
     return pbData;
 }

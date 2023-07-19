@@ -50,17 +50,6 @@ namespace WorldPackets
             ObjectGuid Guid;
         };
 
-        class BlackMarketOpenResult final : public ServerPacket
-        {
-        public:
-            BlackMarketOpenResult() : ServerPacket(SMSG_BLACK_MARKET_OPEN_RESULT, 15) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Guid;
-            bool Enable = true;
-        };
-
         class BlackMarketRequestItems final : public ClientPacket
         {
         public:

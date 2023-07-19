@@ -110,10 +110,10 @@ public:
         if (!searchString.empty())
         {
             // search by GUID
-            if (isNumeric(searchString.c_str()))
+            if (Optional<uint64> guidValue = Trinity::StringTo<uint64>(searchString))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_GUID);
-                stmt->setUInt64(0, strtoull(searchString.c_str(), nullptr, 10));
+                stmt->setUInt64(0, *guidValue);
                 result = CharacterDatabase.Query(stmt);
             }
             // search by name
@@ -267,7 +267,7 @@ public:
                 if (*target->m_playerData->PlayerTitle == titleInfo->MaskID)
                     activeStr = handler->GetTrinityString(LANG_ACTIVE);
 
-                std::string titleName = Trinity::StringFormat(name, player->GetName().c_str());
+                std::string titleName = fmt::sprintf(name, player->GetName());
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())
@@ -358,10 +358,10 @@ public:
             if (WorldSession* session = handler->GetSession())
             {
                 if (Player* player = session->GetPlayer())
-                    sLog->OutCommand(session->GetAccountId(), "GM %s (Account: %u) forced rename %s to player %s (Account: %u)", player->GetName().c_str(), session->GetAccountId(), newName.c_str(), player->GetName().c_str(), sCharacterCache->GetCharacterAccountIdByGuid(player->GetGUID()));
+                    sLog->OutCommand(session->GetAccountId(), "GM {} (Account: {}) forced rename {} to player {} (Account: {})", player->GetName(), session->GetAccountId(), newName, player->GetName(), sCharacterCache->GetCharacterAccountIdByGuid(player->GetGUID()));
             }
             else
-                sLog->OutCommand(0, "CONSOLE forced rename '%s' to '%s' (%s)", player->GetName().c_str(), newName.c_str(), player->GetGUID().ToString().c_str());
+                sLog->OutCommand(0, "CONSOLE forced rename '{}' to '{}' ({})", player->GetName(), newName, player->GetGUID().ToString());
         }
         else
         {
@@ -403,7 +403,7 @@ public:
         }
         else
         {
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().GetCounter());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().ToString().c_str());
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, static_cast<uint16>(AT_LOGIN_CUSTOMIZE));
             stmt->setUInt64(1, player->GetGUID().GetCounter());
@@ -427,7 +427,7 @@ public:
         }
         else
         {
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().GetCounter());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().ToString().c_str());
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_FACTION));
             stmt->setUInt64(1, player->GetGUID().GetCounter());
@@ -451,7 +451,7 @@ public:
         }
         else
         {
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().GetCounter());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().ToString().c_str());
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_RACE));
             stmt->setUInt64(1, player->GetGUID().GetCounter());
@@ -506,14 +506,14 @@ public:
 
         handler->PSendSysMessage(LANG_CHANGEACCOUNT_SUCCESS, player->GetName().c_str(), newAccount.GetName().c_str());
 
-        std::string logString = Trinity::StringFormat("changed ownership of player %s (%s) from account %u to account %u", player->GetName().c_str(), player->GetGUID().ToString().c_str(), oldAccountId, newAccount.GetID());
+        std::string logString = Trinity::StringFormat("changed ownership of player {} ({}) from account {} to account {}", player->GetName(), player->GetGUID().ToString(), oldAccountId, newAccount.GetID());
         if (WorldSession* session = handler->GetSession())
         {
             if (Player* player = session->GetPlayer())
-                sLog->OutCommand(session->GetAccountId(), "GM %s (Account: %u) %s", player->GetName().c_str(), session->GetAccountId(), logString.c_str());
+                sLog->OutCommand(session->GetAccountId(), "GM {} (Account: {}) {}", player->GetName(), session->GetAccountId(), logString);
         }
         else
-            sLog->OutCommand(0, "%s %s", handler->GetTrinityString(LANG_CONSOLE), logString.c_str());
+            sLog->OutCommand(0, "{} {}", handler->GetTrinityString(LANG_CONSOLE), logString);
         return true;
     }
 

@@ -76,6 +76,7 @@ enum Spells
     SPELL_TELEPORT_LIVE         = 28026
 };
 
+#define SPELL_UNHOLY_AURA RAID_MODE<uint32>(55606, 55608)
 #define SPELL_DEATH_PLAGUE RAID_MODE<uint32>(55604, 55645)
 #define SPELL_SHADOW_BOLT_VOLLEY RAID_MODE<uint32>(27831, 55638)
 #define SPELL_ARCANE_EXPLOSION RAID_MODE<uint32>(27989, 56407)
@@ -384,7 +385,7 @@ struct boss_gothik : public BossAI
         {
             case ACTION_MINION_EVADE:
                 if (_gateIsOpen || me->GetThreatManager().IsThreatListEmpty())
-                    return EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                    return EnterEvadeMode(EvadeReason::NoHostiles);
                 if (_gateCanOpen)
                     OpenGate();
                 break;
@@ -430,7 +431,7 @@ struct boss_gothik : public BossAI
                 {
                     if (RAID_MODE(waves10,waves25).size() <= _waveCount) // bounds check
                     {
-                        TC_LOG_INFO("scripts", "GothikAI: Wave count %d is out of range for difficulty %d.", _waveCount, static_cast<uint32>(GetDifficulty()));
+                        TC_LOG_INFO("scripts", "GothikAI: Wave count {} is out of range for difficulty {}.", _waveCount, static_cast<uint32>(GetDifficulty()));
                         break;
                     }
 
@@ -581,7 +582,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
                         AttackStart(target);
                     }
                     else
-                        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                        EnterEvadeMode(EvadeReason::NoHostiles);
                     break;
             }
         }
@@ -610,7 +611,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
                     AttackStart(newTarget);
                 }
                 else
-                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                    EnterEvadeMode(EvadeReason::NoHostiles);
             }
 
             _UpdateAI(diff);
@@ -663,7 +664,19 @@ struct npc_gothik_minion_livingrider : public npc_gothik_minion_baseAI
 {
     npc_gothik_minion_livingrider(Creature* creature) : npc_gothik_minion_baseAI(creature, SPELL_ANCHOR_1_RIDER), _boltVolleyTimer(urandms(5,10)) { }
 
-    void _UpdateAI(uint32 diff)
+    void JustAppeared() override
+    {
+        npc_gothik_minion_baseAI::JustAppeared();
+        DoCastSelf(SPELL_UNHOLY_AURA, true);
+    }
+
+    void JustReachedHome() override
+    {
+        npc_gothik_minion_baseAI::JustReachedHome();
+        DoCastSelf(SPELL_UNHOLY_AURA, true);
+    }
+
+    void _UpdateAI(uint32 diff) override
     {
         if (diff < _boltVolleyTimer)
             _boltVolleyTimer -= diff;
@@ -674,6 +687,8 @@ struct npc_gothik_minion_livingrider : public npc_gothik_minion_baseAI
         }
         if (!me->HasUnitState(UNIT_STATE_CASTING))
             DoMeleeAttackIfReady();
+
+        npc_gothik_minion_baseAI::_UpdateAI(diff);
     }
     uint32 _boltVolleyTimer;
 };
@@ -718,7 +733,19 @@ struct npc_gothik_minion_spectralrider : public npc_gothik_minion_baseAI
 {
     npc_gothik_minion_spectralrider(Creature* creature) : npc_gothik_minion_baseAI(creature), _frenzyTimer(urandms(2,5)), _drainTimer(urandms(8,12)) { }
 
-    void _UpdateAI(uint32 diff)
+    void JustAppeared() override
+    {
+        npc_gothik_minion_baseAI::JustAppeared();
+        DoCastSelf(SPELL_UNHOLY_AURA, true);
+    }
+
+    void JustReachedHome() override
+    {
+        npc_gothik_minion_baseAI::JustReachedHome();
+        DoCastSelf(SPELL_UNHOLY_AURA, true);
+    }
+
+    void _UpdateAI(uint32 diff) override
     {
         if (diff < _frenzyTimer)
             _frenzyTimer -= diff;
@@ -764,6 +791,8 @@ struct npc_gothik_minion_spectralrider : public npc_gothik_minion_baseAI
 
         if (!me->HasUnitState(UNIT_STATE_CASTING))
             DoMeleeAttackIfReady();
+
+        npc_gothik_minion_baseAI::_UpdateAI(diff);
     }
     uint32 _frenzyTimer, _drainTimer;
 };

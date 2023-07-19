@@ -279,7 +279,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE               = 185,
     SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE                = 186,
     SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE               = 187,
-    SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE              = 188,
+    SPELL_AURA_MOD_UI_HEALING_RANGE                         = 188,
     SPELL_AURA_MOD_RATING                                   = 189,
     SPELL_AURA_MOD_FACTION_REPUTATION_GAIN                  = 190,
     SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED                    = 191,
@@ -442,7 +442,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_MONEY_GAIN                               = 348,  // Modifies gold gains from source: [Misc = 0, Quests][Misc = 1, Loot]
     SPELL_AURA_MOD_CURRENCY_GAIN                            = 349,
     SPELL_AURA_350                                          = 350,
-    SPELL_AURA_MOD_CURRENCY_CATEGORY_GAIN_PCT               = 351,  // NYI
+    SPELL_AURA_MOD_CURRENCY_CATEGORY_GAIN_PCT               = 351,
     SPELL_AURA_352                                          = 352,
     SPELL_AURA_MOD_CAMOUFLAGE                               = 353,  // NYI
     SPELL_AURA_MOD_HEALING_DONE_PCT_VERSUS_TARGET_HEALTH    = 354,  // Restoration Shaman mastery - mod healing based on target's health (less = more healing)
@@ -497,7 +497,7 @@ enum AuraType : uint32
     SPELL_AURA_OVERRIDE_SPELL_VISUAL                        = 403,
     SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT              = 404,
     SPELL_AURA_MOD_RATING_PCT                               = 405,
-    SPELL_AURA_KEYBOUND_OVERRIDE                            = 406,  // NYI
+    SPELL_AURA_KEYBOUND_OVERRIDE                            = 406,
     SPELL_AURA_MOD_FEAR_2                                   = 407,  // NYI
     SPELL_AURA_SET_ACTION_BUTTON_SPELL_COUNT                = 408,
     SPELL_AURA_CAN_TURN_WHILE_FALLING                       = 409,
@@ -598,10 +598,41 @@ enum AuraType : uint32
     SPELL_AURA_MOD_HEALING_TAKEN_FROM_CASTER                = 504,
     SPELL_AURA_MOD_PLAYER_CHOICE_REROLLS                    = 505, // NYI
     SPELL_AURA_DISABLE_INERTIA                              = 506,
-    SPELL_AURA_507                                          = 507,
+    SPELL_AURA_MOD_DAMAGE_TAKEN_FROM_CASTER_BY_LABEL        = 507,
     SPELL_AURA_508                                          = 508,
     SPELL_AURA_509                                          = 509,
-    SPELL_AURA_MODIFIED_RAID_INSTANCE                       = 510, // Related to "Fated" raid affixes
+    SPELL_AURA_MODIFIED_RAID_INSTANCE                       = 510, // NYI; Related to "Fated" raid affixes
+    SPELL_AURA_APPLY_PROFESSION_EFFECT                      = 511, // NYI; MiscValue[0] = ProfessionEffectID
+    SPELL_AURA_512                                          = 512,
+    SPELL_AURA_513                                          = 513,
+    SPELL_AURA_514                                          = 514,
+    SPELL_AURA_515                                          = 515,
+    SPELL_AURA_516                                          = 516,
+    SPELL_AURA_517                                          = 517,
+    SPELL_AURA_518                                          = 518,
+    SPELL_AURA_MOD_COOLDOWN_RECOVERY_RATE_ALL               = 519, // NYI; applies to all spells, not filtered by familyflags or label
+    SPELL_AURA_520                                          = 520,
+    SPELL_AURA_521                                          = 521,
+    SPELL_AURA_522                                          = 522,
+    SPELL_AURA_523                                          = 523,
+    SPELL_AURA_524                                          = 524,
+    SPELL_AURA_DISPLAY_PROFESSION_EQUIPMENT                 = 525, // NYI; MiscValue[0] = Profession (enum, not id)
+    SPELL_AURA_526                                          = 526,
+    SPELL_AURA_527                                          = 527,
+    SPELL_AURA_ALLOW_BLOCKING_SPELLS                        = 528, // NYI
+    SPELL_AURA_MOD_SPELL_BLOCK_CHANCE                       = 529, // NYI
+    SPELL_AURA_530                                          = 530,
+    SPELL_AURA_531                                          = 531,
+    SPELL_AURA_532                                          = 532,
+    SPELL_AURA_DISABLE_NAVIGATION                           = 533, // disables map pins
+    SPELL_AURA_534                                          = 534,
+    SPELL_AURA_535                                          = 535, // related to profession equipment; NYI; MiscValue[0] = Profession (enum, not id)
+    SPELL_AURA_IGNORE_SPELL_CREATURE_TYPE_REQUIREMENTS      = 536,
+    SPELL_AURA_537                                          = 537,
+    SPELL_AURA_MOD_FAKE_INEBRIATION_MOVEMENT_ONLY           = 538,
+    SPELL_AURA_ALLOW_MOUNT_IN_COMBAT                        = 539,
+    SPELL_AURA_MOD_SUPPORT_STAT                             = 540, // NYI
+    SPELL_AURA_MOD_REQUIRED_MOUNT_CAPABILITY_FLAGS          = 541,
     TOTAL_AURAS
 };
 

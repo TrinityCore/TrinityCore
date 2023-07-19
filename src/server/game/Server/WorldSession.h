@@ -30,11 +30,11 @@
 #include "IteratorPair.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
+#include "Opcodes.h"
 #include "Optional.h"
-#include "Packet.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
-#include <boost/circular_buffer.hpp>
+#include <boost/circular_buffer_fwd.hpp>
 #include <array>
 #include <map>
 #include <memory>
@@ -46,9 +46,11 @@ class Creature;
 class InstanceLock;
 class Item;
 class LoginQueryHolder;
+class MessageBuffer;
 class Player;
 class Unit;
 class Warden;
+class WorldPacket;
 class WorldSession;
 class WorldSocket;
 struct AuctionPosting;
@@ -301,6 +303,7 @@ namespace WorldPackets
         class ChatRegisterAddonPrefixes;
         class ChatUnregisterAllAddonPrefixes;
         class ChatReportIgnored;
+        class CanLocalWhisperTargetRequest;
     }
 
     namespace Collections
@@ -638,6 +641,7 @@ namespace WorldPackets
         class QuestConfirmAccept;
         class QuestGiverStatusQuery;
         class QuestGiverStatusMultipleQuery;
+        class QuestGiverStatusTrackedQuery;
         class QuestGiverHello;
         class QueryQuestInfo;
         class QuestGiverChooseReward;
@@ -704,7 +708,6 @@ namespace WorldPackets
         class CancelMountAura;
         class CancelModSpeedNoControlAuras;
         class PetCancelAura;
-        class RequestCategoryCooldowns;
         class CancelCast;
         class CastSpell;
         class PetCastSpell;
@@ -717,6 +720,8 @@ namespace WorldPackets
         class SpellClick;
         class MissileTrajectoryCollision;
         class UpdateMissileTrajectory;
+        class TradeSkillSetFavorite;
+        class KeyboundOverride;
     }
 
     namespace Talent
@@ -773,6 +778,16 @@ namespace WorldPackets
         class TradeStatus;
     }
 
+    namespace Traits
+    {
+        class TraitsCommitConfig;
+        class ClassTalentsRequestNewConfig;
+        class ClassTalentsRenameConfig;
+        class ClassTalentsDeleteConfig;
+        class ClassTalentsSetStarterBuildActive;
+        class ClassTalentsSetUsesSharedActionBars;
+    }
+
     namespace Transmogrification
     {
         class TransmogrifyItems;
@@ -810,13 +825,7 @@ namespace WorldPackets
         class WhoRequestPkt;
     }
 
-    class Null final : public ClientPacket
-    {
-    public:
-        Null(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
-
-        void Read() override { _worldPacket.rfinish(); }
-    };
+    class Null;
 }
 
 namespace google
@@ -844,13 +853,15 @@ enum AccountDataType
     GLOBAL_FLAGGED_CACHE                = 10,
     PER_CHARACTER_FLAGGED_CACHE         = 11,
     PER_CHARACTER_CLICK_BINDINGS_CACHE  = 12,
+    GLOBAL_EDIT_MODE_CACHE              = 13,
+    PER_CHARACTER_EDIT_MODE_CACHE       = 14,
 };
 
-#define NUM_ACCOUNT_DATA_TYPES        13
+#define NUM_ACCOUNT_DATA_TYPES        15
 
-#define ALL_ACCOUNT_DATA_CACHE_MASK 0x1FFF
-#define GLOBAL_CACHE_MASK           0x515
-#define PER_CHARACTER_CACHE_MASK    0x1AEA
+#define ALL_ACCOUNT_DATA_CACHE_MASK 0x7FFF
+#define GLOBAL_CACHE_MASK           0x2515
+#define PER_CHARACTER_CACHE_MASK    0x5AEA
 
 struct AccountData
 {
@@ -1057,7 +1068,6 @@ class TC_GAME_API WorldSession
 
         // Pet
         void SendQueryPetNameResponse(ObjectGuid guid);
-        void SendStablePet(ObjectGuid guid);
         void SendPetStableResult(StableResult result);
         bool CheckStableMaster(ObjectGuid guid);
 
@@ -1188,7 +1198,7 @@ class TC_GAME_API WorldSession
         void HandleGetUndeleteCooldownStatus(WorldPackets::Character::GetUndeleteCharacterCooldownStatus& /*getCooldown*/);
         void HandleUndeleteCooldownStatusCallback(PreparedQueryResult result);
         void HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCharacter& undeleteInfo);
-        bool MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req, Classes playerClass,
+        bool MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req, Races race, Classes playerClass,
             bool checkRequiredDependentChoices, Trinity::IteratorPair<UF::ChrCustomizationChoice const*> selectedChoices) const;
         bool ValidateAppearance(Races race, Classes playerClass, Gender gender,
             Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations); // customizations must be sorted
@@ -1270,7 +1280,6 @@ class TC_GAME_API WorldSession
 
         void HandleSetFactionAtWar(WorldPackets::Character::SetFactionAtWar& packet);
         void HandleSetFactionNotAtWar(WorldPackets::Character::SetFactionNotAtWar& packet);
-        void HandleSetFactionCheat(WorldPacket& recvData);
         void HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWatchedFaction& packet);
         void HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFactionInactive& packet);
         void HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::RequestForcedReactions& requestForcedReactions);
@@ -1496,9 +1505,18 @@ class TC_GAME_API WorldSession
         void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
         void HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe);
         void HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet);
+        void HandleTradeSkillSetFavorite(WorldPackets::Spells::TradeSkillSetFavorite const& tradeSkillSetFavorite);
+
+        void HandleTraitsCommitConfig(WorldPackets::Traits::TraitsCommitConfig const& traitsCommitConfig);
+        void HandleClassTalentsRequestNewConfig(WorldPackets::Traits::ClassTalentsRequestNewConfig& classTalentsRequestNewConfig);
+        void HandleClassTalentsRenameConfig(WorldPackets::Traits::ClassTalentsRenameConfig& classTalentsRenameConfig);
+        void HandleClassTalentsDeleteConfig(WorldPackets::Traits::ClassTalentsDeleteConfig const& classTalentsDeleteConfig);
+        void HandleClassTalentsSetStarterBuildActive(WorldPackets::Traits::ClassTalentsSetStarterBuildActive const& classTalentsSetStarterBuildActive);
+        void HandleClassTalentsSetUsesSharedActionBars(WorldPackets::Traits::ClassTalentsSetUsesSharedActionBars const& classTalentsSetUsesSharedActionBars);
 
         void HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet);
         void HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& packet);
+        void HandleQuestgiverStatusTrackedQueryOpcode(WorldPackets::Quest::QuestGiverStatusTrackedQuery& questGiverStatusTrackedQuery);
         void HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHello& packet);
         void HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestGiverAcceptQuest& packet);
         void HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGiverQueryQuest& packet);
@@ -1529,6 +1547,7 @@ class TC_GAME_API WorldSession
         void SendChatRestricted(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet);
         void HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& chatReportIgnored);
+        void HandleChatCanLocalWhisperTargetRequest(WorldPackets::Chat::CanLocalWhisperTargetRequest const& canLocalWhisperTargetRequest);
 
         void HandleUnregisterAllAddonPrefixesOpcode(WorldPackets::Chat::ChatUnregisterAllAddonPrefixes& packet);
         void HandleAddonRegisteredPrefixesOpcode(WorldPackets::Chat::ChatRegisterAddonPrefixes& packet);
@@ -1712,9 +1731,9 @@ class TC_GAME_API WorldSession
         void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);
         void HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed);
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
-        void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
         void HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction);
         void HandleConversationLineStarted(WorldPackets::Misc::ConversationLineStarted& conversationLineStarted);
+        void HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride);
 
         // Adventure Journal
         void HandleAdventureJournalOpenQuest(WorldPackets::AdventureJournal::AdventureJournalOpenQuest& openQuest);
@@ -1776,7 +1795,7 @@ class TC_GAME_API WorldSession
         void SendBattlenetRequest(uint32 serviceHash, uint32 methodId, pb::Message const* request);
 
         std::array<uint8, 32> const& GetRealmListSecret() const { return _realmListSecret; }
-        void SetRealmListSecret(std::array<uint8, 32> const& secret) { memcpy(_realmListSecret.data(), secret.data(), secret.size()); }
+        void SetRealmListSecret(std::array<uint8, 32> const& secret) { _realmListSecret = secret; }
 
         std::unordered_map<uint32, uint8> const& GetRealmCharacterCounts() const { return _realmCharacterCounts; }
 
@@ -1918,9 +1937,8 @@ class TC_GAME_API WorldSession
         rbac::RBACData* _RBACData;
         uint32 expireTime;
         bool forceExit;
-        ObjectGuid m_currentBankerGUID;
 
-        boost::circular_buffer<std::pair<int64, uint32>> _timeSyncClockDeltaQueue; // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
+        std::unique_ptr<boost::circular_buffer<std::pair<int64, uint32>>> _timeSyncClockDeltaQueue; // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
         int64 _timeSyncClockDelta;
         void ComputeNewClockDelta();
 

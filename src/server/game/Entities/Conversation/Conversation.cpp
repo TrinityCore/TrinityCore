@@ -24,10 +24,12 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Map.h"
+#include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "UpdateData.h"
+#include "WorldSession.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0)
 {
@@ -64,6 +66,8 @@ void Conversation::RemoveFromWorld()
 
 void Conversation::Update(uint32 diff)
 {
+    sScriptMgr->OnConversationUpdate(this, diff);
+
     if (GetDuration() > Milliseconds(diff))
     {
         _duration -= Milliseconds(diff);
@@ -91,7 +95,7 @@ void Conversation::Remove()
     }
 }
 
-Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo /*= nullptr*/)
+Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo /*= nullptr*/, bool autoStart /*= true*/)
 {
     ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(conversationEntry);
     if (!conversationTemplate)
@@ -100,7 +104,8 @@ Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* c
     ObjectGuid::LowType lowGuid = creator->GetMap()->GenerateLowGuid<HighGuid::Conversation>();
 
     Conversation* conversation = new Conversation();
-    if (!conversation->Create(lowGuid, conversationEntry, creator->GetMap(), creator, pos, privateObjectOwner, spellInfo))
+    conversation->Create(lowGuid, conversationEntry, creator->GetMap(), creator, pos, privateObjectOwner, spellInfo);
+    if (autoStart && !conversation->Start())
     {
         delete conversation;
         return nullptr;
@@ -155,7 +160,7 @@ private:
     ConversationActorTemplate const& _actor;
 };
 
-bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* /*spellInfo = nullptr*/)
+void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* /*spellInfo = nullptr*/)
 {
     ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(conversationEntry);
     ASSERT(conversationTemplate);
@@ -181,14 +186,12 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     for (ConversationActorTemplate const& actor : conversationTemplate->Actors)
         std::visit(ConversationActorFillVisitor(this, creator, map, actor), actor.Data);
 
-    std::set<uint16> actorIndices;
     std::vector<UF::ConversationLine> lines;
     for (ConversationLineTemplate const* line : conversationTemplate->Lines)
     {
         if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CONVERSATION_LINE, line->Id, creator))
             continue;
 
-        actorIndices.insert(line->ActorIdx);
         lines.emplace_back();
 
         UF::ConversationLine& lineField = lines.back();
@@ -196,6 +199,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         lineField.UiCameraID = line->UiCameraID;
         lineField.ActorIndex = line->ActorIdx;
         lineField.Flags = line->Flags;
+        lineField.ChatType = line->ChatType;
 
         ConversationLineEntry const* convoLine = sConversationLineStore.LookupEntry(line->Id); // never null for conversationTemplate->Lines
 
@@ -223,14 +227,16 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     _duration += 10s;
 
     sScriptMgr->OnConversationCreate(this, creator);
+}
 
-    // All actors need to be set
-    for (uint16 actorIndex : actorIndices)
+bool Conversation::Start()
+{
+    for (UF::ConversationLine const& line : *m_conversationData->Lines)
     {
-        UF::ConversationActor const* actor = actorIndex < m_conversationData->Actors.size() ? &m_conversationData->Actors[actorIndex] : nullptr;
+        UF::ConversationActor const* actor = line.ActorIndex < m_conversationData->Actors.size() ? &m_conversationData->Actors[line.ActorIndex] : nullptr;
         if (!actor || (!actor->CreatureID && actor->ActorGUID.IsEmpty() && !actor->NoActorObject))
         {
-            TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: %u) due to missing actor (Idx: %u).", conversationEntry, actorIndex);
+            TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: {}) due to missing actor (Idx: {}).", GetEntry(), line.ActorIndex);
             return false;
         }
     }
@@ -238,6 +244,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     if (!GetMap()->AddToMap(this))
         return false;
 
+    sScriptMgr->OnConversationStart(this);
     return true;
 }
 
@@ -271,6 +278,59 @@ Milliseconds const* Conversation::GetLineStartTime(LocaleConstant locale, int32 
 Milliseconds Conversation::GetLastLineEndTime(LocaleConstant locale) const
 {
     return _lastLineEndTimes[locale];
+}
+
+int32 Conversation::GetLineDuration(LocaleConstant locale, int32 lineId)
+{
+    ConversationLineEntry const* convoLine = sConversationLineStore.LookupEntry(lineId);
+    if (!convoLine)
+    {
+        TC_LOG_ERROR("entities.conversation", "Conversation::GetLineDuration: Tried to get duration for invalid ConversationLine id {}.", lineId);
+        return 0;
+    }
+
+    int32 const* textDuration = sDB2Manager.GetBroadcastTextDuration(convoLine->BroadcastTextID, locale);
+    if (!textDuration)
+        return 0;
+
+    return *textDuration + convoLine->AdditionalDuration;
+}
+
+Milliseconds Conversation::GetLineEndTime(LocaleConstant locale, int32 lineId) const
+{
+    Milliseconds const* lineStartTime = GetLineStartTime(locale, lineId);
+    if (!lineStartTime)
+    {
+        TC_LOG_ERROR("entities.conversation", "Conversation::GetLineEndTime: Unable to get line start time for locale {}, lineid {} (Conversation ID: {}).", locale, lineId, GetEntry());
+        return Milliseconds(0);
+    }
+    return *lineStartTime + Milliseconds(GetLineDuration(locale, lineId));
+}
+
+LocaleConstant Conversation::GetPrivateObjectOwnerLocale() const
+{
+    LocaleConstant privateOwnerLocale = LOCALE_enUS;
+    if (Player* owner = ObjectAccessor::GetPlayer(*this, GetPrivateObjectOwner()))
+        privateOwnerLocale = owner->GetSession()->GetSessionDbLocaleIndex();
+    return privateOwnerLocale;
+}
+
+Unit* Conversation::GetActorUnit(uint32 actorIdx) const
+{
+    if (m_conversationData->Actors.size() <= actorIdx)
+    {
+        TC_LOG_ERROR("entities.conversation", "Conversation::GetActorUnit: Tried to access invalid actor idx {} (Conversation ID: {}).", actorIdx, GetEntry());
+        return nullptr;
+    }
+    return ObjectAccessor::GetUnit(*this, m_conversationData->Actors[actorIdx].ActorGUID);
+}
+
+Creature* Conversation::GetActorCreature(uint32 actorIdx) const
+{
+    Unit* actor = GetActorUnit(actorIdx);
+    if (!actor)
+        return nullptr;
+    return actor->ToCreature();
 }
 
 uint32 Conversation::GetScriptId() const

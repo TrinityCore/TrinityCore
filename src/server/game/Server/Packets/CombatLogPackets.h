@@ -26,6 +26,13 @@ namespace WorldPackets
 {
     namespace CombatLog
     {
+        struct CombatWorldTextViewerInfo
+        {
+            ObjectGuid ViewerGUID;
+            Optional<uint8> ColorType;
+            Optional<uint8> ScaleType;
+        };
+
         class SpellNonMeleeDamageLog final : public CombatLogServerPacket
         {
         public:
@@ -49,6 +56,8 @@ namespace WorldPackets
             int32 Flags = 0;
             // Optional<SpellNonMeleeDamageLogDebugInfo> DebugInfo;
             Optional<Spells::ContentTuningParams> ContentTuning;
+            std::vector<CombatWorldTextViewerInfo> WorldTextViewers;
+            std::vector<Spells::SpellSupportInfo> Supporters;
         };
 
         class EnvironmentalDamageLog final : public CombatLogServerPacket
@@ -95,6 +104,7 @@ namespace WorldPackets
             Optional<float> CritRollMade;
             Optional<float> CritRollNeeded;
             Optional<Spells::ContentTuningParams> ContentTuning;
+            std::vector<Spells::SpellSupportInfo> Supporters;
         };
 
         class SpellPeriodicAuraLog final : public CombatLogServerPacket
@@ -118,6 +128,7 @@ namespace WorldPackets
                 bool Crit                 = false;
                 Optional<PeriodicalAuraLogEffectDebugInfo> DebugInfo;
                 Optional<Spells::ContentTuningParams> ContentTuning;
+                std::vector<Spells::SpellSupportInfo> Supporters;
             };
 
             SpellPeriodicAuraLog() : CombatLogServerPacket(SMSG_SPELL_PERIODIC_AURA_LOG, 16 + 16 + 4 + 4 + 1) { }
@@ -328,6 +339,7 @@ namespace WorldPackets
             int32 Absorbed = 0;
             int32 OriginalDamage = 0;
             bool Unk = false;
+            std::vector<Spells::SpellSupportInfo> Supporters;
         };
 
         class SpellHealAbsorbLog final : public ServerPacket

@@ -43,12 +43,14 @@ TC_API_EXPORT EnumText EnumUtils<Classes>::ToString(Classes value)
         case CLASS_MONK: return { "CLASS_MONK", "Monk", "" };
         case CLASS_DRUID: return { "CLASS_DRUID", "Druid", "" };
         case CLASS_DEMON_HUNTER: return { "CLASS_DEMON_HUNTER", "Demon Hunter", "" };
+        case CLASS_EVOKER: return { "CLASS_EVOKER", "Evoker", "" };
+        case CLASS_ADVENTURER: return { "CLASS_ADVENTURER", "Adventurer", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<Classes>::Count() { return 12; }
+TC_API_EXPORT size_t EnumUtils<Classes>::Count() { return 14; }
 
 template <>
 TC_API_EXPORT Classes EnumUtils<Classes>::FromIndex(size_t index)
@@ -67,6 +69,8 @@ TC_API_EXPORT Classes EnumUtils<Classes>::FromIndex(size_t index)
         case 9: return CLASS_MONK;
         case 10: return CLASS_DRUID;
         case 11: return CLASS_DEMON_HUNTER;
+        case 12: return CLASS_EVOKER;
+        case 13: return CLASS_ADVENTURER;
         default: throw std::out_of_range("index");
     }
 }
@@ -88,6 +92,8 @@ TC_API_EXPORT size_t EnumUtils<Classes>::ToIndex(Classes value)
         case CLASS_MONK: return 9;
         case CLASS_DRUID: return 10;
         case CLASS_DEMON_HUNTER: return 11;
+        case CLASS_EVOKER: return 12;
+        case CLASS_ADVENTURER: return 13;
         default: throw std::out_of_range("value");
     }
 }
@@ -120,12 +126,19 @@ TC_API_EXPORT EnumText EnumUtils<Powers>::ToString(Powers value)
         case POWER_ARCANE_CHARGES: return { "POWER_ARCANE_CHARGES", "Arcane Charges", "" };
         case POWER_FURY: return { "POWER_FURY", "Fury", "" };
         case POWER_PAIN: return { "POWER_PAIN", "Pain", "" };
+        case POWER_ESSENCE: return { "POWER_ESSENCE", "Essence", "" };
+        case POWER_RUNE_BLOOD: return { "POWER_RUNE_BLOOD", "Blood Runes", "" };
+        case POWER_RUNE_FROST: return { "POWER_RUNE_FROST", "Frost Runes", "" };
+        case POWER_RUNE_UNHOLY: return { "POWER_RUNE_UNHOLY", "Unholy Runes", "" };
+        case POWER_ALTERNATE_QUEST: return { "POWER_ALTERNATE_QUEST", "Alternate (Quest)", "" };
+        case POWER_ALTERNATE_ENCOUNTER: return { "POWER_ALTERNATE_ENCOUNTER", "Alternate (Encounter)", "" };
+        case POWER_ALTERNATE_MOUNT: return { "POWER_ALTERNATE_MOUNT", "Alternate (Mount)", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<Powers>::Count() { return 20; }
+TC_API_EXPORT size_t EnumUtils<Powers>::Count() { return 27; }
 
 template <>
 TC_API_EXPORT Powers EnumUtils<Powers>::FromIndex(size_t index)
@@ -152,6 +165,13 @@ TC_API_EXPORT Powers EnumUtils<Powers>::FromIndex(size_t index)
         case 17: return POWER_ARCANE_CHARGES;
         case 18: return POWER_FURY;
         case 19: return POWER_PAIN;
+        case 20: return POWER_ESSENCE;
+        case 21: return POWER_RUNE_BLOOD;
+        case 22: return POWER_RUNE_FROST;
+        case 23: return POWER_RUNE_UNHOLY;
+        case 24: return POWER_ALTERNATE_QUEST;
+        case 25: return POWER_ALTERNATE_ENCOUNTER;
+        case 26: return POWER_ALTERNATE_MOUNT;
         default: throw std::out_of_range("index");
     }
 }
@@ -181,6 +201,13 @@ TC_API_EXPORT size_t EnumUtils<Powers>::ToIndex(Powers value)
         case POWER_ARCANE_CHARGES: return 17;
         case POWER_FURY: return 18;
         case POWER_PAIN: return 19;
+        case POWER_ESSENCE: return 20;
+        case POWER_RUNE_BLOOD: return 21;
+        case POWER_RUNE_FROST: return 22;
+        case POWER_RUNE_UNHOLY: return 23;
+        case POWER_ALTERNATE_QUEST: return 24;
+        case POWER_ALTERNATE_ENCOUNTER: return 25;
+        case POWER_ALTERNATE_MOUNT: return 26;
         default: throw std::out_of_range("value");
     }
 }
@@ -1826,7 +1853,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr12>::ToString(SpellAttr12 value)
         case SPELL_ATTR12_UNK28: return { "SPELL_ATTR12_UNK28", "Unknown attribute 28@Attr12", "" };
         case SPELL_ATTR12_UNK29: return { "SPELL_ATTR12_UNK29", "Unknown attribute 29@Attr12", "" };
         case SPELL_ATTR12_UNK30: return { "SPELL_ATTR12_UNK30", "Unknown attribute 30@Attr12", "" };
-        case SPELL_ATTR12_UNK31: return { "SPELL_ATTR12_UNK31", "Unknown attribute 31@Attr12", "" };
+        case SPELL_ATTR12_ONLY_PROC_FROM_CLASS_ABILITIES: return { "SPELL_ATTR12_ONLY_PROC_FROM_CLASS_ABILITIES", "Only Proc From Class Abilities", "" };
         default: throw std::out_of_range("value");
     }
 }
@@ -1870,7 +1897,7 @@ TC_API_EXPORT SpellAttr12 EnumUtils<SpellAttr12>::FromIndex(size_t index)
         case 28: return SPELL_ATTR12_UNK28;
         case 29: return SPELL_ATTR12_UNK29;
         case 30: return SPELL_ATTR12_UNK30;
-        case 31: return SPELL_ATTR12_UNK31;
+        case 31: return SPELL_ATTR12_ONLY_PROC_FROM_CLASS_ABILITIES;
         default: throw std::out_of_range("index");
     }
 }
@@ -1911,7 +1938,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr12>::ToIndex(SpellAttr12 value)
         case SPELL_ATTR12_UNK28: return 28;
         case SPELL_ATTR12_UNK29: return 29;
         case SPELL_ATTR12_UNK30: return 30;
-        case SPELL_ATTR12_UNK31: return 31;
+        case SPELL_ATTR12_ONLY_PROC_FROM_CLASS_ABILITIES: return 31;
         default: throw std::out_of_range("value");
     }
 }
@@ -1924,7 +1951,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr13>::ToString(SpellAttr13 value)
 {
     switch (value)
     {
-        case SPELL_ATTR13_UNK0: return { "SPELL_ATTR13_UNK0", "Unknown attribute 0@Attr13", "" };
+        case SPELL_ATTR13_ALLOW_CLASS_ABILITY_PROCS: return { "SPELL_ATTR13_ALLOW_CLASS_ABILITY_PROCS", "Allow Class Ability Procs", "" };
         case SPELL_ATTR13_UNK1: return { "SPELL_ATTR13_UNK1", "Unknown attribute 0@Attr13", "" };
         case SPELL_ATTR13_PASSIVE_IS_UPGRADE: return { "SPELL_ATTR13_PASSIVE_IS_UPGRADE", "Is Upgrade", "Displays \042Upgrade\042 in spell tooltip instead of \042Passive\042" };
         case SPELL_ATTR13_UNK3: return { "SPELL_ATTR13_UNK3", "Unknown attribute 3@Attr13", "" };
@@ -1968,7 +1995,7 @@ TC_API_EXPORT SpellAttr13 EnumUtils<SpellAttr13>::FromIndex(size_t index)
 {
     switch (index)
     {
-        case 0: return SPELL_ATTR13_UNK0;
+        case 0: return SPELL_ATTR13_ALLOW_CLASS_ABILITY_PROCS;
         case 1: return SPELL_ATTR13_UNK1;
         case 2: return SPELL_ATTR13_PASSIVE_IS_UPGRADE;
         case 3: return SPELL_ATTR13_UNK3;
@@ -2009,7 +2036,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr13>::ToIndex(SpellAttr13 value)
 {
     switch (value)
     {
-        case SPELL_ATTR13_UNK0: return 0;
+        case SPELL_ATTR13_ALLOW_CLASS_ABILITY_PROCS: return 0;
         case SPELL_ATTR13_UNK1: return 1;
         case SPELL_ATTR13_PASSIVE_IS_UPGRADE: return 2;
         case SPELL_ATTR13_UNK3: return 3;
@@ -2198,8 +2225,8 @@ TC_API_EXPORT EnumText EnumUtils<SpellCastResult>::ToString(SpellCastResult valu
         case SPELL_FAILED_BAD_TARGETS: return { "SPELL_FAILED_BAD_TARGETS", "SPELL_FAILED_BAD_TARGETS", "" };
         case SPELL_FAILED_PVP_TARGET_WHILE_UNFLAGGED: return { "SPELL_FAILED_PVP_TARGET_WHILE_UNFLAGGED", "SPELL_FAILED_PVP_TARGET_WHILE_UNFLAGGED", "" };
         case SPELL_FAILED_CANT_BE_CHARMED: return { "SPELL_FAILED_CANT_BE_CHARMED", "SPELL_FAILED_CANT_BE_CHARMED", "" };
-        case SPELL_FAILED_CANT_BE_DISENCHANTED: return { "SPELL_FAILED_CANT_BE_DISENCHANTED", "SPELL_FAILED_CANT_BE_DISENCHANTED", "" };
-        case SPELL_FAILED_CANT_BE_DISENCHANTED_SKILL: return { "SPELL_FAILED_CANT_BE_DISENCHANTED_SKILL", "SPELL_FAILED_CANT_BE_DISENCHANTED_SKILL", "" };
+        case SPELL_FAILED_CANT_BE_SALVAGED: return { "SPELL_FAILED_CANT_BE_SALVAGED", "SPELL_FAILED_CANT_BE_SALVAGED", "" };
+        case SPELL_FAILED_CANT_BE_SALVAGED_SKILL: return { "SPELL_FAILED_CANT_BE_SALVAGED_SKILL", "SPELL_FAILED_CANT_BE_SALVAGED_SKILL", "" };
         case SPELL_FAILED_CANT_BE_ENCHANTED: return { "SPELL_FAILED_CANT_BE_ENCHANTED", "SPELL_FAILED_CANT_BE_ENCHANTED", "" };
         case SPELL_FAILED_CANT_BE_MILLED: return { "SPELL_FAILED_CANT_BE_MILLED", "SPELL_FAILED_CANT_BE_MILLED", "" };
         case SPELL_FAILED_CANT_BE_PROSPECTED: return { "SPELL_FAILED_CANT_BE_PROSPECTED", "SPELL_FAILED_CANT_BE_PROSPECTED", "" };
@@ -2492,19 +2519,22 @@ TC_API_EXPORT EnumText EnumUtils<SpellCastResult>::ToString(SpellCastResult valu
         case SPELL_FAILED_INELIGIBLE_WEAPON_APPEARANCE: return { "SPELL_FAILED_INELIGIBLE_WEAPON_APPEARANCE", "SPELL_FAILED_INELIGIBLE_WEAPON_APPEARANCE", "" };
         case SPELL_FAILED_PLAYER_CONDITION: return { "SPELL_FAILED_PLAYER_CONDITION", "SPELL_FAILED_PLAYER_CONDITION", "" };
         case SPELL_FAILED_NOT_WHILE_CHROMIE_TIMED: return { "SPELL_FAILED_NOT_WHILE_CHROMIE_TIMED", "SPELL_FAILED_NOT_WHILE_CHROMIE_TIMED", "" };
-        case SPELL_FAILED_OPTIONAL_REAGENTS: return { "SPELL_FAILED_OPTIONAL_REAGENTS", "SPELL_FAILED_OPTIONAL_REAGENTS", "" };
+        case SPELL_FAILED_CRAFTING_REAGENTS: return { "SPELL_FAILED_CRAFTING_REAGENTS", "SPELL_FAILED_CRAFTING_REAGENTS", "" };
         case SPELL_FAILED_SPECTATOR_OR_COMMENTATOR: return { "SPELL_FAILED_SPECTATOR_OR_COMMENTATOR", "SPELL_FAILED_SPECTATOR_OR_COMMENTATOR", "" };
         case SPELL_FAILED_SOULBIND_CONDUIT_LEARN_FAILED_INVALID_COVENANT: return { "SPELL_FAILED_SOULBIND_CONDUIT_LEARN_FAILED_INVALID_COVENANT", "SPELL_FAILED_SOULBIND_CONDUIT_LEARN_FAILED_INVALID_COVENANT", "" };
         case SPELL_FAILED_SHADOWLANDS_RIDING_REQUIREMENT: return { "SPELL_FAILED_SHADOWLANDS_RIDING_REQUIREMENT", "SPELL_FAILED_SHADOWLANDS_RIDING_REQUIREMENT", "" };
         case SPELL_FAILED_NOT_IN_MAGE_TOWER: return { "SPELL_FAILED_NOT_IN_MAGE_TOWER", "SPELL_FAILED_NOT_IN_MAGE_TOWER", "" };
         case SPELL_FAILED_GARRISON_FOLLOWER_AT_MIN_LEVEL: return { "SPELL_FAILED_GARRISON_FOLLOWER_AT_MIN_LEVEL", "SPELL_FAILED_GARRISON_FOLLOWER_AT_MIN_LEVEL", "" };
+        case SPELL_FAILED_CANT_BE_RECRAFTED: return { "SPELL_FAILED_CANT_BE_RECRAFTED", "SPELL_FAILED_CANT_BE_RECRAFTED", "" };
+        case SPELL_FAILED_PASSIVE_REPLACED: return { "SPELL_FAILED_PASSIVE_REPLACED", "SPELL_FAILED_PASSIVE_REPLACED", "" };
+        case SPELL_FAILED_CANT_FLY_HERE: return { "SPELL_FAILED_CANT_FLY_HERE", "SPELL_FAILED_CANT_FLY_HERE", "" };
         case SPELL_FAILED_UNKNOWN: return { "SPELL_FAILED_UNKNOWN", "SPELL_FAILED_UNKNOWN", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<SpellCastResult>::Count() { return 317; }
+TC_API_EXPORT size_t EnumUtils<SpellCastResult>::Count() { return 320; }
 
 template <>
 TC_API_EXPORT SpellCastResult EnumUtils<SpellCastResult>::FromIndex(size_t index)
@@ -2527,8 +2557,8 @@ TC_API_EXPORT SpellCastResult EnumUtils<SpellCastResult>::FromIndex(size_t index
         case 13: return SPELL_FAILED_BAD_TARGETS;
         case 14: return SPELL_FAILED_PVP_TARGET_WHILE_UNFLAGGED;
         case 15: return SPELL_FAILED_CANT_BE_CHARMED;
-        case 16: return SPELL_FAILED_CANT_BE_DISENCHANTED;
-        case 17: return SPELL_FAILED_CANT_BE_DISENCHANTED_SKILL;
+        case 16: return SPELL_FAILED_CANT_BE_SALVAGED;
+        case 17: return SPELL_FAILED_CANT_BE_SALVAGED_SKILL;
         case 18: return SPELL_FAILED_CANT_BE_ENCHANTED;
         case 19: return SPELL_FAILED_CANT_BE_MILLED;
         case 20: return SPELL_FAILED_CANT_BE_PROSPECTED;
@@ -2821,13 +2851,16 @@ TC_API_EXPORT SpellCastResult EnumUtils<SpellCastResult>::FromIndex(size_t index
         case 307: return SPELL_FAILED_INELIGIBLE_WEAPON_APPEARANCE;
         case 308: return SPELL_FAILED_PLAYER_CONDITION;
         case 309: return SPELL_FAILED_NOT_WHILE_CHROMIE_TIMED;
-        case 310: return SPELL_FAILED_OPTIONAL_REAGENTS;
+        case 310: return SPELL_FAILED_CRAFTING_REAGENTS;
         case 311: return SPELL_FAILED_SPECTATOR_OR_COMMENTATOR;
         case 312: return SPELL_FAILED_SOULBIND_CONDUIT_LEARN_FAILED_INVALID_COVENANT;
         case 313: return SPELL_FAILED_SHADOWLANDS_RIDING_REQUIREMENT;
         case 314: return SPELL_FAILED_NOT_IN_MAGE_TOWER;
         case 315: return SPELL_FAILED_GARRISON_FOLLOWER_AT_MIN_LEVEL;
-        case 316: return SPELL_FAILED_UNKNOWN;
+        case 316: return SPELL_FAILED_CANT_BE_RECRAFTED;
+        case 317: return SPELL_FAILED_PASSIVE_REPLACED;
+        case 318: return SPELL_FAILED_CANT_FLY_HERE;
+        case 319: return SPELL_FAILED_UNKNOWN;
         default: throw std::out_of_range("index");
     }
 }
@@ -2853,8 +2886,8 @@ TC_API_EXPORT size_t EnumUtils<SpellCastResult>::ToIndex(SpellCastResult value)
         case SPELL_FAILED_BAD_TARGETS: return 13;
         case SPELL_FAILED_PVP_TARGET_WHILE_UNFLAGGED: return 14;
         case SPELL_FAILED_CANT_BE_CHARMED: return 15;
-        case SPELL_FAILED_CANT_BE_DISENCHANTED: return 16;
-        case SPELL_FAILED_CANT_BE_DISENCHANTED_SKILL: return 17;
+        case SPELL_FAILED_CANT_BE_SALVAGED: return 16;
+        case SPELL_FAILED_CANT_BE_SALVAGED_SKILL: return 17;
         case SPELL_FAILED_CANT_BE_ENCHANTED: return 18;
         case SPELL_FAILED_CANT_BE_MILLED: return 19;
         case SPELL_FAILED_CANT_BE_PROSPECTED: return 20;
@@ -3147,13 +3180,16 @@ TC_API_EXPORT size_t EnumUtils<SpellCastResult>::ToIndex(SpellCastResult value)
         case SPELL_FAILED_INELIGIBLE_WEAPON_APPEARANCE: return 307;
         case SPELL_FAILED_PLAYER_CONDITION: return 308;
         case SPELL_FAILED_NOT_WHILE_CHROMIE_TIMED: return 309;
-        case SPELL_FAILED_OPTIONAL_REAGENTS: return 310;
+        case SPELL_FAILED_CRAFTING_REAGENTS: return 310;
         case SPELL_FAILED_SPECTATOR_OR_COMMENTATOR: return 311;
         case SPELL_FAILED_SOULBIND_CONDUIT_LEARN_FAILED_INVALID_COVENANT: return 312;
         case SPELL_FAILED_SHADOWLANDS_RIDING_REQUIREMENT: return 313;
         case SPELL_FAILED_NOT_IN_MAGE_TOWER: return 314;
         case SPELL_FAILED_GARRISON_FOLLOWER_AT_MIN_LEVEL: return 315;
-        case SPELL_FAILED_UNKNOWN: return 316;
+        case SPELL_FAILED_CANT_BE_RECRAFTED: return 316;
+        case SPELL_FAILED_PASSIVE_REPLACED: return 317;
+        case SPELL_FAILED_CANT_FLY_HERE: return 318;
+        case SPELL_FAILED_UNKNOWN: return 319;
         default: throw std::out_of_range("value");
     }
 }
@@ -3307,12 +3343,16 @@ TC_API_EXPORT EnumText EnumUtils<Mechanics>::ToString(Mechanics value)
         case MECHANIC_SAPPED: return { "MECHANIC_SAPPED", "MECHANIC_SAPPED", "" };
         case MECHANIC_ENRAGED: return { "MECHANIC_ENRAGED", "MECHANIC_ENRAGED", "" };
         case MECHANIC_WOUNDED: return { "MECHANIC_WOUNDED", "MECHANIC_WOUNDED", "" };
+        case MECHANIC_INFECTED_2: return { "MECHANIC_INFECTED_2", "MECHANIC_INFECTED_2", "" };
+        case MECHANIC_INFECTED_3: return { "MECHANIC_INFECTED_3", "MECHANIC_INFECTED_3", "" };
+        case MECHANIC_INFECTED_4: return { "MECHANIC_INFECTED_4", "MECHANIC_INFECTED_4", "" };
+        case MECHANIC_TAUNTED: return { "MECHANIC_TAUNTED", "MECHANIC_TAUNTED", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<Mechanics>::Count() { return 33; }
+TC_API_EXPORT size_t EnumUtils<Mechanics>::Count() { return 37; }
 
 template <>
 TC_API_EXPORT Mechanics EnumUtils<Mechanics>::FromIndex(size_t index)
@@ -3352,6 +3392,10 @@ TC_API_EXPORT Mechanics EnumUtils<Mechanics>::FromIndex(size_t index)
         case 30: return MECHANIC_SAPPED;
         case 31: return MECHANIC_ENRAGED;
         case 32: return MECHANIC_WOUNDED;
+        case 33: return MECHANIC_INFECTED_2;
+        case 34: return MECHANIC_INFECTED_3;
+        case 35: return MECHANIC_INFECTED_4;
+        case 36: return MECHANIC_TAUNTED;
         default: throw std::out_of_range("index");
     }
 }
@@ -3394,6 +3438,10 @@ TC_API_EXPORT size_t EnumUtils<Mechanics>::ToIndex(Mechanics value)
         case MECHANIC_SAPPED: return 30;
         case MECHANIC_ENRAGED: return 31;
         case MECHANIC_WOUNDED: return 32;
+        case MECHANIC_INFECTED_2: return 33;
+        case MECHANIC_INFECTED_3: return 34;
+        case MECHANIC_INFECTED_4: return 35;
+        case MECHANIC_TAUNTED: return 36;
         default: throw std::out_of_range("value");
     }
 }
@@ -3900,12 +3948,26 @@ TC_API_EXPORT EnumText EnumUtils<Emote>::ToString(Emote value)
         case EMOTE_ONESHOT_FLYCUSTOMSPELL01: return { "EMOTE_ONESHOT_FLYCUSTOMSPELL01", "EMOTE_ONESHOT_FLYCUSTOMSPELL01", "" };
         case EMOTE_ONESHOT_SPELLEFFECT_DECAY: return { "EMOTE_ONESHOT_SPELLEFFECT_DECAY", "EMOTE_ONESHOT_SPELLEFFECT_DECAY", "" };
         case EMOTE_STATE_CREATURE_SPECIAL: return { "EMOTE_STATE_CREATURE_SPECIAL", "EMOTE_STATE_CREATURE_SPECIAL", "" };
+        case EMOTE_ONESHOT_WAREACT01: return { "EMOTE_ONESHOT_WAREACT01", "EMOTE_ONESHOT_WAREACT01", "" };
+        case EMOTE_ONESHOT_FLYCUSTOMSPELL04: return { "EMOTE_ONESHOT_FLYCUSTOMSPELL04", "EMOTE_ONESHOT_FLYCUSTOMSPELL04", "" };
+        case EMOTE_ONESHOT_TALK_SUBDUED: return { "EMOTE_ONESHOT_TALK_SUBDUED", "EMOTE_ONESHOT_TALK_SUBDUED", "" };
+        case EMOTE_STATE_EMOTETALK: return { "EMOTE_STATE_EMOTETALK", "EMOTE_STATE_EMOTETALK", "" };
+        case EMOTE_STATE_WAINTERACTION: return { "EMOTE_STATE_WAINTERACTION", "EMOTE_STATE_WAINTERACTION", "" };
+        case EMOTE_ONESHOT_TAKE_OFF_START: return { "EMOTE_ONESHOT_TAKE_OFF_START", "EMOTE_ONESHOT_TAKE_OFF_START", "" };
+        case EMOTE_ONESHOT_BATTLEROAR_NO_SOUND: return { "EMOTE_ONESHOT_BATTLEROAR_NO_SOUND", "EMOTE_ONESHOT_BATTLEROAR_NO_SOUND", "" };
+        case EMOTE_STATE_WAWEAPONSHARPEN: return { "EMOTE_STATE_WAWEAPONSHARPEN", "EMOTE_STATE_WAWEAPONSHARPEN", "" };
+        case EMOTE_ONESHOT_ROLLSTART: return { "EMOTE_ONESHOT_ROLLSTART", "EMOTE_ONESHOT_ROLLSTART", "" };
+        case EMOTE_ONESHOT_ROLLEND: return { "EMOTE_ONESHOT_ROLLEND", "EMOTE_ONESHOT_ROLLEND", "" };
+        case EMOTE_ONESHOT_WAREACT02: return { "EMOTE_ONESHOT_WAREACT02", "EMOTE_ONESHOT_WAREACT02", "" };
+        case EMOTE_ONESHOT_WATHREATEN: return { "EMOTE_ONESHOT_WATHREATEN", "EMOTE_ONESHOT_WATHREATEN", "" };
+        case EMOTE_ARTOFFLOOP: return { "EMOTE_ARTOFFLOOP", "EMOTE_ARTOFFLOOP", "" };
+        case EMOTE_STATE_READYSPELLOMNI_NOSHEATH: return { "EMOTE_STATE_READYSPELLOMNI_NOSHEATH", "EMOTE_STATE_READYSPELLOMNI_NOSHEATH", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<Emote>::Count() { return 404; }
+TC_API_EXPORT size_t EnumUtils<Emote>::Count() { return 418; }
 
 template <>
 TC_API_EXPORT Emote EnumUtils<Emote>::FromIndex(size_t index)
@@ -4316,6 +4378,20 @@ TC_API_EXPORT Emote EnumUtils<Emote>::FromIndex(size_t index)
         case 401: return EMOTE_ONESHOT_FLYCUSTOMSPELL01;
         case 402: return EMOTE_ONESHOT_SPELLEFFECT_DECAY;
         case 403: return EMOTE_STATE_CREATURE_SPECIAL;
+        case 404: return EMOTE_ONESHOT_WAREACT01;
+        case 405: return EMOTE_ONESHOT_FLYCUSTOMSPELL04;
+        case 406: return EMOTE_ONESHOT_TALK_SUBDUED;
+        case 407: return EMOTE_STATE_EMOTETALK;
+        case 408: return EMOTE_STATE_WAINTERACTION;
+        case 409: return EMOTE_ONESHOT_TAKE_OFF_START;
+        case 410: return EMOTE_ONESHOT_BATTLEROAR_NO_SOUND;
+        case 411: return EMOTE_STATE_WAWEAPONSHARPEN;
+        case 412: return EMOTE_ONESHOT_ROLLSTART;
+        case 413: return EMOTE_ONESHOT_ROLLEND;
+        case 414: return EMOTE_ONESHOT_WAREACT02;
+        case 415: return EMOTE_ONESHOT_WATHREATEN;
+        case 416: return EMOTE_ARTOFFLOOP;
+        case 417: return EMOTE_STATE_READYSPELLOMNI_NOSHEATH;
         default: throw std::out_of_range("index");
     }
 }
@@ -4729,6 +4805,20 @@ TC_API_EXPORT size_t EnumUtils<Emote>::ToIndex(Emote value)
         case EMOTE_ONESHOT_FLYCUSTOMSPELL01: return 401;
         case EMOTE_ONESHOT_SPELLEFFECT_DECAY: return 402;
         case EMOTE_STATE_CREATURE_SPECIAL: return 403;
+        case EMOTE_ONESHOT_WAREACT01: return 404;
+        case EMOTE_ONESHOT_FLYCUSTOMSPELL04: return 405;
+        case EMOTE_ONESHOT_TALK_SUBDUED: return 406;
+        case EMOTE_STATE_EMOTETALK: return 407;
+        case EMOTE_STATE_WAINTERACTION: return 408;
+        case EMOTE_ONESHOT_TAKE_OFF_START: return 409;
+        case EMOTE_ONESHOT_BATTLEROAR_NO_SOUND: return 410;
+        case EMOTE_STATE_WAWEAPONSHARPEN: return 411;
+        case EMOTE_ONESHOT_ROLLSTART: return 412;
+        case EMOTE_ONESHOT_ROLLEND: return 413;
+        case EMOTE_ONESHOT_WAREACT02: return 414;
+        case EMOTE_ONESHOT_WATHREATEN: return 415;
+        case EMOTE_ARTOFFLOOP: return 416;
+        case EMOTE_STATE_READYSPELLOMNI_NOSHEATH: return 417;
         default: throw std::out_of_range("value");
     }
 }
@@ -5056,12 +5146,13 @@ TC_API_EXPORT EnumText EnumUtils<SpellFamilyNames>::ToString(SpellFamilyNames va
         case SPELLFAMILY_UNK91: return { "SPELLFAMILY_UNK91", "SPELLFAMILY_UNK91", "" };
         case SPELLFAMILY_UNK100: return { "SPELLFAMILY_UNK100", "SPELLFAMILY_UNK100", "" };
         case SPELLFAMILY_DEMON_HUNTER: return { "SPELLFAMILY_DEMON_HUNTER", "SPELLFAMILY_DEMON_HUNTER", "" };
+        case SPELLFAMILY_EVOKER: return { "SPELLFAMILY_EVOKER", "SPELLFAMILY_EVOKER", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<SpellFamilyNames>::Count() { return 24; }
+TC_API_EXPORT size_t EnumUtils<SpellFamilyNames>::Count() { return 25; }
 
 template <>
 TC_API_EXPORT SpellFamilyNames EnumUtils<SpellFamilyNames>::FromIndex(size_t index)
@@ -5092,6 +5183,7 @@ TC_API_EXPORT SpellFamilyNames EnumUtils<SpellFamilyNames>::FromIndex(size_t ind
         case 21: return SPELLFAMILY_UNK91;
         case 22: return SPELLFAMILY_UNK100;
         case 23: return SPELLFAMILY_DEMON_HUNTER;
+        case 24: return SPELLFAMILY_EVOKER;
         default: throw std::out_of_range("index");
     }
 }
@@ -5125,6 +5217,7 @@ TC_API_EXPORT size_t EnumUtils<SpellFamilyNames>::ToIndex(SpellFamilyNames value
         case SPELLFAMILY_UNK91: return 21;
         case SPELLFAMILY_UNK100: return 22;
         case SPELLFAMILY_DEMON_HUNTER: return 23;
+        case SPELLFAMILY_EVOKER: return 24;
         default: throw std::out_of_range("value");
     }
 }

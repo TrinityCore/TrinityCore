@@ -36,8 +36,18 @@
 // Local structures
 
 // In-memory layout of the TVFS file header
-typedef struct _TVFS_DIRECTORY_HEADER
+struct TVFS_DIRECTORY_HEADER
 {
+    TVFS_DIRECTORY_HEADER()
+    {
+        memset(this, 0, sizeof(TVFS_DIRECTORY_HEADER) - FIELD_OFFSET(TVFS_DIRECTORY_HEADER, Data));
+    }
+
+    LPBYTE DataAt(DWORD dwOffset)
+    {
+        return Data.pbData + dwOffset;
+    }
+
     DWORD Signature;                                // Must be CASC_TVFS_ROOT_SIGNATURE
     BYTE  FormatVersion;                            // Version of the format. Should be 1.
     BYTE  HeaderSize;                               // Size of the header, in bytes
@@ -59,9 +69,8 @@ typedef struct _TVFS_DIRECTORY_HEADER
     DWORD  CftOffsSize;                             // Byte length of the offset in the Content File Table entry
     DWORD  EstOffsSize;                             // Byte length of the offset in the Encoding Specifier Table entry
 
-    LPBYTE pbDirectoryData;                         // Pointer to the begin of directory data
-    LPBYTE pbDirectoryEnd;                          // Pointer to the end of directory data
-
+    CASC_BLOB Data;                                 // The complete directory data
+    
 //  LPBYTE pbPathFileTable;                         // Begin and end of the path table
 //  LPBYTE pbPathTableEnd;
 
@@ -71,7 +80,7 @@ typedef struct _TVFS_DIRECTORY_HEADER
 //  LPBYTE pbCftFileTable;                          // Begin and end of the content file table
 //  LPBYTE pbCftTableEnd;
 
-} TVFS_DIRECTORY_HEADER, *PTVFS_DIRECTORY_HEADER;
+};
 
 /*
 // Minimum size of a valid path table entry. 1 byte + 1-byte name + 1 byte + DWORD
@@ -96,8 +105,8 @@ typedef struct _TVFS_DIRECTORY_HEADER
 // In-memory layout of the path table entry
 typedef struct _TVFS_PATH_TABLE_ENTRY
 {
-    LPBYTE pbNamePtr;                               // Pointer to the begin of the node name
-    LPBYTE pbNameEnd;                               // Pointer to the end of the file name
+    char * m_pNamePtr;                              // Pointer to the begin of the node name
+    char * m_pNameEnd;                              // Pointer to the end of the file name
     DWORD NodeFlags;                                // TVFS_PTE_XXX
     DWORD NodeValue;                                // Node value
 } TVFS_PATH_TABLE_ENTRY, *PTVFS_PATH_TABLE_ENTRY;
@@ -147,8 +156,8 @@ struct TRootHandler_TVFS : public TFileTreeRoot
             PathBuffer.AppendChar('/');
 
         // Append the name fragment, if any
-        if(PathEntry.pbNameEnd > PathEntry.pbNamePtr)
-            PathBuffer.AppendStringN((const char *)PathEntry.pbNamePtr, (PathEntry.pbNameEnd - PathEntry.pbNamePtr), false);
+        if(PathEntry.m_pNameEnd > PathEntry.m_pNamePtr)
+            PathBuffer.AppendStringN(PathEntry.m_pNamePtr, (PathEntry.m_pNameEnd - PathEntry.m_pNamePtr), false);
 
         // Append the postfix separator, if needed
         if(PathEntry.NodeFlags & TVFS_PTE_PATH_SEPARATOR_POST)
@@ -157,12 +166,15 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         return true;
     }
 
-    static DWORD CaptureDirectoryHeader(TVFS_DIRECTORY_HEADER & DirHeader, LPBYTE pbDataPtr, LPBYTE pbDataEnd)
+    static DWORD CaptureDirectoryHeader(TVFS_DIRECTORY_HEADER & DirHeader, CASC_BLOB & Data)
     {
-        // Fill the header structure with zeros
-        memset(&DirHeader, 0, sizeof(TVFS_DIRECTORY_HEADER));
-        DirHeader.pbDirectoryData = pbDataPtr;
-        DirHeader.pbDirectoryEnd = pbDataEnd;
+        LPBYTE pbDataPtr = NULL;
+        LPBYTE pbDataEnd = NULL;
+
+        // Extract the data out of the buffer
+        DirHeader.Data.MoveFrom(Data);
+        pbDataPtr = DirHeader.Data.pbData;
+        pbDataEnd = DirHeader.Data.End();
 
         // Capture the signature
         pbDataPtr = CaptureInteger32(pbDataPtr, pbDataEnd, &DirHeader.Signature);
@@ -189,7 +201,7 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         DirHeader.VfsTableSize    = ConvertBytesToInteger_4((LPBYTE)(&DirHeader.VfsTableSize));
         DirHeader.CftTableOffset  = ConvertBytesToInteger_4((LPBYTE)(&DirHeader.CftTableOffset));
         DirHeader.CftTableSize    = ConvertBytesToInteger_4((LPBYTE)(&DirHeader.CftTableSize));
-        DirHeader.MaxDepth        = (USHORT)ConvertBytesToInteger_2((LPBYTE)(&DirHeader.MaxDepth));
+        DirHeader.MaxDepth        = ConvertBytesToInteger_2((LPBYTE)(&DirHeader.MaxDepth));
         DirHeader.EstTableOffset  = ConvertBytesToInteger_4((LPBYTE)(&DirHeader.EstTableOffset));
         DirHeader.EstTableSize    = ConvertBytesToInteger_4((LPBYTE)(&DirHeader.EstTableSize));
 
@@ -220,7 +232,7 @@ struct TRootHandler_TVFS : public TFileTreeRoot
 
     LPBYTE CaptureVfsSpanCount(TVFS_DIRECTORY_HEADER & DirHeader, DWORD dwVfsOffset, DWORD & SpanCount)
     {
-        LPBYTE pbVfsFileTable = DirHeader.pbDirectoryData + DirHeader.VfsTableOffset;
+        LPBYTE pbVfsFileTable = DirHeader.DataAt(DirHeader.VfsTableOffset);
         LPBYTE pbVfsFileEntry = pbVfsFileTable + dwVfsOffset;
         LPBYTE pbVfsFileEnd = pbVfsFileTable + DirHeader.VfsTableSize;
 
@@ -239,7 +251,7 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         LPBYTE pbCftFileTable;
         LPBYTE pbCftFileEntry;
         LPBYTE pbCftFileEnd;
-        LPBYTE pbVfsFileTable = DirHeader.pbDirectoryData + DirHeader.VfsTableOffset;
+        LPBYTE pbVfsFileTable = DirHeader.DataAt(DirHeader.VfsTableOffset);
         LPBYTE pbVfsFileEnd = pbVfsFileTable + DirHeader.VfsTableSize;
         size_t ItemSize = sizeof(DWORD) + sizeof(DWORD) + DirHeader.CftOffsSize;
 
@@ -260,7 +272,7 @@ struct TRootHandler_TVFS : public TFileTreeRoot
             //
 
             // Resolve the Container File Table entry
-            pbCftFileTable = DirHeader.pbDirectoryData + DirHeader.CftTableOffset;
+            pbCftFileTable = DirHeader.DataAt(DirHeader.CftTableOffset);
             pbCftFileEntry = pbCftFileTable + dwCftOffset;
             pbCftFileEnd = pbCftFileTable + DirHeader.CftTableSize;
 
@@ -300,8 +312,8 @@ struct TRootHandler_TVFS : public TFileTreeRoot
     LPBYTE CapturePathEntry(TVFS_PATH_TABLE_ENTRY & PathEntry, LPBYTE pbPathTablePtr, LPBYTE pbPathTableEnd)
     {
         // Reset the path entry structure
-        PathEntry.pbNamePtr = pbPathTablePtr;
-        PathEntry.pbNameEnd = pbPathTablePtr;
+        PathEntry.m_pNamePtr = (char *)(pbPathTablePtr);
+        PathEntry.m_pNameEnd = (char *)(pbPathTablePtr);
         PathEntry.NodeFlags = 0;
         PathEntry.NodeValue = 0;
 
@@ -320,8 +332,8 @@ struct TRootHandler_TVFS : public TFileTreeRoot
 
             if((pbPathTablePtr + nLength) > pbPathTableEnd)
                 return NULL;
-            PathEntry.pbNamePtr = pbPathTablePtr;
-            PathEntry.pbNameEnd = pbPathTablePtr + nLength;
+            PathEntry.m_pNamePtr = (char *)(pbPathTablePtr);
+            PathEntry.m_pNameEnd = (char *)(pbPathTablePtr + nLength);
             pbPathTablePtr += nLength;
         }
 
@@ -380,9 +392,11 @@ struct TRootHandler_TVFS : public TFileTreeRoot
     DWORD IsVfsSubDirectory(TCascStorage * hs,  TVFS_DIRECTORY_HEADER & DirHeader, TVFS_DIRECTORY_HEADER & SubHeader, LPBYTE EKey, DWORD dwFileSize)
     {
         PCASC_CKEY_ENTRY pCKeyEntry;
-        LPBYTE pbVfsData = NULL;
-        DWORD cbVfsData = dwFileSize;
+        CASC_BLOB VfsData;
         DWORD dwErrCode = ERROR_BAD_FORMAT;
+
+        // Keep compiler happy
+        CASCLIB_UNUSED(dwFileSize);
 
         // Verify whether the EKey is in the list of VFS root files
         if(IsVfsFileEKey(hs, EKey, DirHeader.EKeySize))
@@ -391,17 +405,16 @@ struct TRootHandler_TVFS : public TFileTreeRoot
             if((pCKeyEntry = FindCKeyEntry_EKey(hs, EKey)) != NULL)
             {
                 // Load the entire file into memory
-                pbVfsData = LoadInternalFileToMemory(hs, pCKeyEntry, &cbVfsData);
-                if(pbVfsData && cbVfsData)
+                dwErrCode = LoadInternalFileToMemory(hs, pCKeyEntry, VfsData);
+                if(dwErrCode == ERROR_SUCCESS && VfsData.cbData)
                 {
                     // Capture the file folder. This also serves as test
-                    dwErrCode = CaptureDirectoryHeader(SubHeader, pbVfsData, pbVfsData + cbVfsData);
+                    dwErrCode = CaptureDirectoryHeader(SubHeader, VfsData);
                     if(dwErrCode == ERROR_SUCCESS)
                         return dwErrCode;
 
                     // Clear the captured header
                     memset(&SubHeader, 0, sizeof(TVFS_DIRECTORY_HEADER));
-                    CASC_FREE(pbVfsData);
                 }
             }
         }
@@ -523,6 +536,11 @@ struct TRootHandler_TVFS : public TFileTreeRoot
                             }
                         }
 
+                        //BREAKIF(strcmp((const char *)PathBuffer, "Base") == 0);
+                        //BREAKIF(strcmp((const char *)PathBuffer, "base") == 0);
+                        //BREAKIF(strcmp((const char *)PathBuffer, "base:ComplexTypeDescriptorSizes.dat") == 0);
+                        //BREAKIF(strcmp((const char *)PathBuffer, "DivideAndConquer.w3m:war3map.doo") == 0);
+
                         // We need to check whether this is another TVFS directory file
                         if(IsVfsSubDirectory(hs, DirHeader, SubHeader, SpanEntry.EKey, SpanEntry.ContentSize) == ERROR_SUCCESS)
                         {
@@ -533,11 +551,8 @@ struct TRootHandler_TVFS : public TFileTreeRoot
                             assert(pCKeyEntry->ContentSize == SpanEntry.ContentSize);
                             FileTree.InsertByName(pCKeyEntry, PathBuffer);
 
-                            // Parse the subdir
+                            // Parse the subdir. On error, stop the parsing
                             dwErrCode = ParseDirectoryData(hs, SubHeader, PathBuffer);
-                            CASC_FREE(SubHeader.pbDirectoryData);
-
-                            // On error, stop the parsing
                             if(dwErrCode != ERROR_SUCCESS)
                                 return dwErrCode;
                         }
@@ -652,7 +667,7 @@ struct TRootHandler_TVFS : public TFileTreeRoot
 
     DWORD ParseDirectoryData(TCascStorage * hs, TVFS_DIRECTORY_HEADER & DirHeader, CASC_PATH<char> & PathBuffer)
     {
-        LPBYTE pbRootDirectory = DirHeader.pbDirectoryData + DirHeader.PathTableOffset;
+        LPBYTE pbRootDirectory = DirHeader.DataAt(DirHeader.PathTableOffset);
         LPBYTE pbRootDirPtr = pbRootDirectory;
         LPBYTE pbRootDirEnd = pbRootDirPtr + DirHeader.PathTableSize;
         DWORD dwNodeValue = 0;
@@ -766,14 +781,14 @@ struct TRootHandler_TVFS : public TFileTreeRoot
 //-----------------------------------------------------------------------------
 // Public functions - TVFS root
 
-DWORD RootHandler_CreateTVFS(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
+DWORD RootHandler_CreateTVFS(TCascStorage * hs, CASC_BLOB & RootFile)
 {
     TRootHandler_TVFS * pRootHandler = NULL;
     TVFS_DIRECTORY_HEADER RootHeader;
     DWORD dwErrCode;
 
     // Capture the entire root directory
-    dwErrCode = TRootHandler_TVFS::CaptureDirectoryHeader(RootHeader, pbRootFile, pbRootFile + cbRootFile);
+    dwErrCode = TRootHandler_TVFS::CaptureDirectoryHeader(RootHeader, RootFile);
     if(dwErrCode == ERROR_SUCCESS)
     {
         // Allocate the root handler object

@@ -16,6 +16,7 @@
  */
 
 #include "icecrown_citadel.h"
+#include "Containers.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -125,7 +126,7 @@ struct boss_rotface : public BossAI
     {
         if (!instance->CheckRequiredBosses(DATA_ROTFACE, who->ToPlayer()))
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             return;
         }
@@ -491,7 +492,8 @@ class spell_rotface_mutated_infection_aura : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_2 && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
     }
 
     void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)

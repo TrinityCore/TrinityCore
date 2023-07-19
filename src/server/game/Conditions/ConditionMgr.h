@@ -105,7 +105,7 @@ enum ConditionTypes
     CONDITION_PET_TYPE                 = 45,                   // mask                   0              0                  true if player has a pet of given type(s)
     CONDITION_TAXI                     = 46,                   // 0                      0              0                  true if player is on taxi
     CONDITION_QUESTSTATE               = 47,                   // quest_id               state_mask     0                  true if player is in any of the provided quest states for the quest (1 = not taken, 2 = completed, 8 = in progress, 32 = failed, 64 = rewarded)
-    CONDITION_QUEST_OBJECTIVE_PROGRESS = 48,                   // ID                     0              0                  true if player has ID objective complete, but quest not yet rewarded
+    CONDITION_QUEST_OBJECTIVE_PROGRESS = 48,                   // ID                     0              progressValue      true if player has ID objective progress equal to ConditionValue3 (and quest is in quest log)
     CONDITION_DIFFICULTY_ID            = 49,                   // Difficulty             0              0                  true is map has difficulty id
     CONDITION_GAMEMASTER               = 50,                   // canBeGM                0              0                  true if player is gamemaster (or can be gamemaster)
     CONDITION_OBJECT_ENTRY_GUID        = 51,                   // TypeID                 entry          guid               true if object is type TypeID and the entry is 0 or matches entry of the object or matches guid of the object
@@ -308,7 +308,7 @@ class TC_GAME_API ConditionMgr
 
         static uint32 GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status);
         static bool IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition);
-        static bool IsPlayerMeetingExpression(Player const* player, WorldStateExpressionEntry const* expression);
+        static bool IsMeetingWorldStateExpression(Map const* map, WorldStateExpressionEntry const* expression);
         static bool IsUnitMeetingCondition(Unit const* unit, Unit const* otherUnit, UnitConditionEntry const* condition);
 
         struct ConditionTypeInfo
@@ -328,6 +328,7 @@ class TC_GAME_API ConditionMgr
         bool addToGossipMenuItems(Condition* cond) const;
         bool addToSpellImplicitTargetConditions(Condition* cond) const;
         bool addToPhases(Condition* cond) const;
+        bool addToGraveyardData(Condition* cond) const;
         bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
 
         static void LogUselessConditionValue(Condition* cond, uint8 index, uint32 value);

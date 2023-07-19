@@ -338,7 +338,7 @@ struct boss_kelthuzad : public BossAI
                             me->GetCreatureListWithEntryInGrid(skeletons, NPC_SKELETON2, 200.0f);
                             if (skeletons.empty())
                             { // prevent UB
-                                EnterEvadeMode(EVADE_REASON_OTHER);
+                                EnterEvadeMode(EvadeReason::Other);
                                 return;
                             }
                             std::list<Creature*>::iterator it = skeletons.begin();
@@ -594,7 +594,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
         {
             ScriptedAI::EnterEvadeMode(why);
             if (Creature* kelThuzad = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KELTHUZAD)))
-                kelThuzad->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
+                kelThuzad->AI()->EnterEvadeMode(EvadeReason::Other);
         }
 
         void JustEngagedWith(Unit* who) override

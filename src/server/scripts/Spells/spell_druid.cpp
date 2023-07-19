@@ -85,6 +85,8 @@ enum DruidSpells
     SPELL_DRUID_REJUVENATION_T10_PROC          = 70691,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS       = 70658,
     SPELL_DRUID_SAVAGE_ROAR                    = 62071,
+    SPELL_DRUID_SHOOTING_STARS                 = 202342,
+    SPELL_DRUID_SHOOTING_STARS_DAMAGE          = 202497,
     SPELL_DRUID_SKULL_BASH_CHARGE              = 221514,
     SPELL_DRUID_SKULL_BASH_INTERRUPT           = 93985,
     SPELL_DRUID_SUNFIRE_DAMAGE                 = 164815,
@@ -92,7 +94,9 @@ enum DruidSpells
     SPELL_DRUID_TRAVEL_FORM                    = 783,
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
-    SPELL_DRUID_THRASH_CAT                     = 106830
+    SPELL_DRUID_THRASH_CAT                     = 106830,
+    SPELL_DRUID_YSERAS_GIFT_HEAL_PARTY         = 145110,
+    SPELL_DRUID_YSERAS_GIFT_HEAL_SELF          = 145109
 };
 
 class RaidCheck
@@ -481,8 +485,7 @@ class spell_dru_ferocious_bite : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE  })
-            && sSpellMgr->AssertSpellInfo(SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE, EFFECT_1 } });
     }
 
     void HandleHitTargetBurn(SpellEffIndex /*effIndex*/)
@@ -718,7 +721,7 @@ class spell_dru_innervate : public SpellScript
         if (caster != GetHitUnit())
             if (AuraEffect const* innervateR2 = caster->GetAuraEffect(SPELL_DRUID_INNERVATE_RANK_2, EFFECT_0))
                 caster->CastSpell(caster, SPELL_DRUID_INNERVATE,
-                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+                    CastSpellExtraArgs(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)
                     .SetTriggeringSpell(GetSpell())
                     .AddSpellMod(SPELLVALUE_BASE_POINT0, -innervateR2->GetAmount()));
 
@@ -973,6 +976,31 @@ class spell_dru_savage_roar_aura : public AuraScript
     }
 };
 
+// 164815 - Sunfire
+// 164812 - Moonfire
+class spell_dru_shooting_stars : public AuraScript
+{
+    PrepareAuraScript(spell_dru_shooting_stars);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_SHOOTING_STARS, SPELL_DRUID_SHOOTING_STARS_DAMAGE });
+    }
+
+    void OnTick(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (AuraEffect const* shootingStars = caster->GetAuraEffect(SPELL_DRUID_SHOOTING_STARS, EFFECT_0))
+                if (roll_chance_i(shootingStars->GetAmount()))
+                    caster->CastSpell(GetTarget(), SPELL_DRUID_SHOOTING_STARS_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_shooting_stars::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
 // 106839 - Skull Bash
 class spell_dru_skull_bash : public SpellScript
 {
@@ -1034,6 +1062,31 @@ class spell_dru_starfall_dummy : public SpellScript
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_starfall_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_dru_starfall_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 340694 - Sudden Ambush
+// 384667 - Sudden Ambush
+class spell_dru_sudden_ambush : public AuraScript
+{
+    PrepareAuraScript(spell_dru_sudden_ambush);
+
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& procInfo)
+    {
+        Spell const* procSpell = procInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        Optional<int32> comboPoints = procSpell->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+        if (!comboPoints)
+            return false;
+
+        return roll_chance_i(*comboPoints * aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_sudden_ambush::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -1543,7 +1596,7 @@ class spell_dru_wild_growth : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (spellInfo->GetEffects().size() <= EFFECT_2 || spellInfo->GetEffect(EFFECT_2).IsEffect() || spellInfo->GetEffect(EFFECT_2).CalcValue() <= 0)
+        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } }) || spellInfo->GetEffect(EFFECT_2).IsEffect() || spellInfo->GetEffect(EFFECT_2).CalcValue() <= 0)
             return false;
         return true;
     }
@@ -1611,6 +1664,52 @@ class spell_dru_wild_growth_aura : public AuraScript
     }
 };
 
+// 145108 - Ysera's Gift
+class spell_dru_yseras_gift : public AuraScript
+{
+    PrepareAuraScript(spell_dru_yseras_gift);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_DRUID_YSERAS_GIFT_HEAL_SELF,
+            SPELL_DRUID_YSERAS_GIFT_HEAL_PARTY
+        });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    {
+        int32 healAmount = int32(GetTarget()->CountPctFromMaxHealth(aurEff->GetAmount()));
+
+        if (!GetTarget()->IsFullHealth())
+            GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_YSERAS_GIFT_HEAL_SELF, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount));
+        else
+            GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_YSERAS_GIFT_HEAL_PARTY, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_yseras_gift::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 145110 - Ysera's Gift (heal)
+class spell_dru_yseras_gift_group_heal : public SpellScript
+{
+    PrepareSpellScript(spell_dru_yseras_gift_group_heal);
+
+    void SelectTargets(std::list<WorldObject*>& targets)
+    {
+        Trinity::SelectRandomInjuredTargets(targets, 1, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_yseras_gift_group_heal::SelectTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_barkskin);
@@ -1638,9 +1737,11 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_prowl);
     RegisterSpellScript(spell_dru_rip);
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_aura);
+    RegisterSpellScript(spell_dru_shooting_stars);
     RegisterSpellScript(spell_dru_skull_bash);
     RegisterSpellScript(spell_dru_stampeding_roar);
     RegisterSpellScript(spell_dru_starfall_dummy);
+    RegisterSpellScript(spell_dru_sudden_ambush);
     RegisterSpellScript(spell_dru_sunfire);
     RegisterSpellScript(spell_dru_survival_instincts);
     RegisterSpellScript(spell_dru_swift_flight_passive);
@@ -1656,4 +1757,6 @@ void AddSC_druid_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
+    RegisterSpellScript(spell_dru_yseras_gift);
+    RegisterSpellScript(spell_dru_yseras_gift_group_heal);
 }

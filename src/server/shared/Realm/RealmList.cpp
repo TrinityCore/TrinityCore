@@ -23,6 +23,7 @@
 #include "Errors.h"
 #include "IoContext.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "ProtobufJSON.h"
 #include "Resolver.h"
 #include "Util.h"
@@ -93,7 +94,7 @@ void RealmList::LoadBuildInfo()
 }
 
 void RealmList::UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
-    boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr, boost::asio::ip::address&& localSubmask,
+    boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr,
     uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel,
     float population)
 {
@@ -110,8 +111,6 @@ void RealmList::UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint
         realm.ExternalAddress = std::make_unique<boost::asio::ip::address>(std::move(address));
     if (!realm.LocalAddress || *realm.LocalAddress != localAddr)
         realm.LocalAddress = std::make_unique<boost::asio::ip::address>(std::move(localAddr));
-    if (!realm.LocalSubnetMask || *realm.LocalSubnetMask != localSubmask)
-        realm.LocalSubnetMask = std::make_unique<boost::asio::ip::address>(std::move(localSubmask));
     realm.Port = port;
 }
 
@@ -144,60 +143,52 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 std::string name = fields[1].GetString();
                 std::string externalAddressString = fields[2].GetString();
                 std::string localAddressString = fields[3].GetString();
-                std::string localSubmaskString = fields[4].GetString();
 
                 Optional<boost::asio::ip::tcp::endpoint> externalAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), externalAddressString, "");
                 if (!externalAddress)
                 {
-                    TC_LOG_ERROR("realmlist", "Could not resolve address %s for realm \"%s\" id %u", externalAddressString.c_str(), name.c_str(), realmId);
+                    TC_LOG_ERROR("realmlist", "Could not resolve address {} for realm \"{}\" id {}", externalAddressString, name, realmId);
                     continue;
                 }
 
                 Optional<boost::asio::ip::tcp::endpoint> localAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), localAddressString, "");
                 if (!localAddress)
                 {
-                    TC_LOG_ERROR("realmlist", "Could not resolve localAddress %s for realm \"%s\" id %u", localAddressString.c_str(), name.c_str(), realmId);
+                    TC_LOG_ERROR("realmlist", "Could not resolve localAddress {} for realm \"{}\" id {}", localAddressString, name, realmId);
                     continue;
                 }
 
-                Optional<boost::asio::ip::tcp::endpoint> localSubmask = _resolver->Resolve(boost::asio::ip::tcp::v4(), localSubmaskString, "");
-                if (!localSubmask)
-                {
-                    TC_LOG_ERROR("realmlist", "Could not resolve localSubnetMask %s for realm \"%s\" id %u", localSubmaskString.c_str(), name.c_str(), realmId);
-                    continue;
-                }
-
-                uint16 port = fields[5].GetUInt16();
-                uint8 icon = fields[6].GetUInt8();
+                uint16 port = fields[4].GetUInt16();
+                uint8 icon = fields[5].GetUInt8();
                 if (icon == REALM_TYPE_FFA_PVP)
                     icon = REALM_TYPE_PVP;
                 if (icon >= MAX_CLIENT_REALM_TYPE)
                     icon = REALM_TYPE_NORMAL;
-                RealmFlags flag = RealmFlags(fields[7].GetUInt8());
-                uint8 timezone = fields[8].GetUInt8();
-                uint8 allowedSecurityLevel = fields[9].GetUInt8();
-                float pop = fields[10].GetFloat();
-                uint32 build = fields[11].GetUInt32();
-                uint8 region = fields[12].GetUInt8();
-                uint8 battlegroup = fields[13].GetUInt8();
+                RealmFlags flag = RealmFlags(fields[6].GetUInt8());
+                uint8 timezone = fields[7].GetUInt8();
+                uint8 allowedSecurityLevel = fields[8].GetUInt8();
+                float pop = fields[9].GetFloat();
+                uint32 build = fields[10].GetUInt32();
+                uint8 region = fields[11].GetUInt8();
+                uint8 battlegroup = fields[12].GetUInt8();
 
                 Battlenet::RealmHandle id{ region, battlegroup, realmId };
 
-                UpdateRealm(newRealms[id], id, build, name, externalAddress->address(), localAddress->address(), localSubmask->address(), port, icon,
+                UpdateRealm(newRealms[id], id, build, name, externalAddress->address(), localAddress->address(), port, icon,
                     flag, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
 
                 newSubRegions.insert(Battlenet::RealmHandle{ region, battlegroup, 0 }.GetAddressString());
 
                 if (!existingRealms.count(id))
-                    TC_LOG_INFO("realmlist", "Added realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
+                    TC_LOG_INFO("realmlist", "Added realm \"{}\" at {}:{}.", name, externalAddressString, port);
                 else
-                    TC_LOG_DEBUG("realmlist", "Updating realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
+                    TC_LOG_DEBUG("realmlist", "Updating realm \"{}\" at {}:{}.", name, externalAddressString, port);
 
                 existingRealms.erase(id);
             }
             catch (std::exception& ex)
             {
-                TC_LOG_ERROR("realmlist", "Realmlist::UpdateRealms has thrown an exception: %s", ex.what());
+                TC_LOG_ERROR("realmlist", "Realmlist::UpdateRealms has thrown an exception: {}", ex.what());
                 ABORT();
             }
         }
@@ -205,7 +196,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     }
 
     for (auto itr = existingRealms.begin(); itr != existingRealms.end(); ++itr)
-        TC_LOG_INFO("realmlist", "Removed realm \"%s\".", itr->second.c_str());
+        TC_LOG_INFO("realmlist", "Removed realm \"{}\".", itr->second);
 
     {
         std::unique_lock<std::shared_mutex> lock(_realmsMutex);
@@ -224,11 +215,19 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
 Realm const* RealmList::GetRealm(Battlenet::RealmHandle const& id) const
 {
     std::shared_lock<std::shared_mutex> lock(_realmsMutex);
-    auto itr = _realms.find(id);
-    if (itr != _realms.end())
-        return &itr->second;
+    return Trinity::Containers::MapGetValuePtr(_realms, id);
+}
 
-    return nullptr;
+bool RealmList::GetRealmNames(Battlenet::RealmHandle const& id, std::string* name, std::string* normalizedName) const
+{
+    std::shared_lock<std::shared_mutex> lock(_realmsMutex);
+    Realm const* realm = Trinity::Containers::MapGetValuePtr(_realms, id);
+    if (!realm)
+        return false;
+
+    *name = realm->Name;
+    *normalizedName = realm->NormalizedName;
+    return true;
 }
 
 RealmBuildInfo const* RealmList::GetBuildInfo(uint32 build) const

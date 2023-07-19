@@ -22,14 +22,13 @@
 #include <boost/asio/ssl/stream.hpp>
 #include <boost/system/error_code.hpp>
 
-using boost::asio::ip::tcp;
 namespace boostssl = boost::asio::ssl;
 
 template<class SslContext>
 class SslSocket
 {
 public:
-    explicit SslSocket(tcp::socket&& socket) : _socket(std::move(socket)), _sslSocket(_socket, SslContext::instance())
+    explicit SslSocket(boost::asio::ip::tcp::socket&& socket) : _socket(std::move(socket)), _sslSocket(_socket, SslContext::instance())
     {
         _sslSocket.set_verify_mode(boostssl::verify_none);
     }
@@ -70,7 +69,7 @@ public:
         _socket.set_option(option, error);
     }
 
-    tcp::socket::endpoint_type remote_endpoint() const
+    boost::asio::ip::tcp::socket::endpoint_type remote_endpoint() const
     {
         return _socket.remote_endpoint();
     }
@@ -83,8 +82,8 @@ public:
     }
 
 private:
-    tcp::socket _socket;
-    boostssl::stream<tcp::socket&> _sslSocket;
+    boost::asio::ip::tcp::socket _socket;
+    boostssl::stream<boost::asio::ip::tcp::socket&> _sslSocket;
 };
 
 #endif // SslSocket_h__

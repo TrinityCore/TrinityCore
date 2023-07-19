@@ -4,6 +4,7 @@ set(HEADER_FILES
     src/CascPort.h
     src/CascStructs.h
     src/common/Array.h
+    src/common/ArraySparse.h
     src/common/Common.h
     src/common/Csv.h
     src/common/Directory.h
@@ -61,7 +62,7 @@ target_include_directories(casc
     PRIVATE
       ${CMAKE_SOURCE_DIR}/dep)
 
-target_compile_definitions(casc PUBLIC -D__SYS_ZLIB -DCASCLIB_NO_AUTO_LINK_LIBRARY)
+target_compile_definitions(casc PUBLIC -D__SYS_ZLIB -DCASCLIB_NO_AUTO_LINK_LIBRARY -DCASCLIB_NODEBUG)
 
 target_link_libraries(casc
   PRIVATE

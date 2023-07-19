@@ -27,7 +27,7 @@ body:
     attributes:
       label: Steps to reproduce the problem
       description: |
-        1. Step 1 include entries of affected creatures / items / quests with a link to the relevant wowhead or https://tcubuntu.northeurope.cloudapp.azure.com/aowow/ page.  
+        1. Step 1 include entries of affected creatures / items / quests with a link to the relevant wowhead or for 3.3.5a branch at https://aowow.trinitycore.info/ page.  
         2. Step 2
         3. Step 3
     validations:

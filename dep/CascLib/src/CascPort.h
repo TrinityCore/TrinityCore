@@ -13,7 +13,7 @@
 #define __CASCPORT_H__
 
 #ifndef __cplusplus
-    #include <stdbool.h>
+  #include <stdbool.h>
 #endif
 
 //-----------------------------------------------------------------------------
@@ -30,6 +30,7 @@
   #define _CRT_SECURE_NO_DEPRECATE
   #define _CRT_NON_CONFORMING_SWPRINTFS
 
+  // Prevent duplicate symbols defined by Windows headers
   #ifndef WIN32_LEAN_AND_MEAN
     #define WIN32_LEAN_AND_MEAN
   #endif
@@ -46,7 +47,6 @@
   #include <direct.h>
   #include <malloc.h>
   #include <windows.h>
-  #include <ws2tcpip.h>
   #include <strsafe.h>
 
   #define CASCLIB_PLATFORM_LITTLE_ENDIAN
@@ -93,7 +93,7 @@
   #include <netdb.h>
 
   // Support for PowerPC on Max OS X
-  #if (__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)
+  #if(__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)
     #include <stdint.h>
     #include <CoreFoundation/CFByteOrder.h>
   #endif

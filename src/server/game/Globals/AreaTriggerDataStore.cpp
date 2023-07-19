@@ -78,14 +78,14 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
             if (actionType >= AREATRIGGER_ACTION_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_actions` has invalid ActionType (%u,%u) for AreaTriggerId %u and Param %u",
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_actions` has invalid ActionType ({},{}) for AreaTriggerId {} and Param {}",
                     actionType, areaTriggerId.Id, uint32(areaTriggerId.IsServerSide), action.Param);
                 continue;
             }
 
             if (targetType >= AREATRIGGER_ACTION_USER_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_actions` has invalid TargetType (%u,%u) for AreaTriggerId %u and Param %u",
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_actions` has invalid TargetType ({},{}) for AreaTriggerId {} and Param {}",
                     targetType, areaTriggerId.Id, uint32(areaTriggerId.IsServerSide), action.Param);
                 continue;
             }
@@ -94,7 +94,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             {
                 if (!sObjectMgr->GetWorldSafeLoc(action.Param))
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_actions` has invalid entry (%u,%u) with TargetType=Teleport and Param (%u) not a valid world safe loc entry",
+                    TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_actions` has invalid entry ({},{}) with TargetType=Teleport and Param ({}) not a valid world safe loc entry",
                         areaTriggerId.Id, uint32(areaTriggerId.IsServerSide), action.Param);
                     continue;
                 }
@@ -125,7 +125,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             if (!verticeFields[4].IsNull() && !verticeFields[5].IsNull())
                 verticesTargetByCreateProperties[areaTriggerCreatePropertiesId].emplace_back(verticeFields[4].GetFloat(), verticeFields[5].GetFloat());
             else if (verticeFields[4].IsNull() != verticeFields[5].IsNull())
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_polygon_vertex` has listed invalid target vertices (AreaTriggerCreatePropertiesId: %u, Index: %u).", areaTriggerCreatePropertiesId, verticeFields[1].GetUInt32());
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_polygon_vertex` has listed invalid target vertices (AreaTriggerCreatePropertiesId: {}, Index: {}).", areaTriggerCreatePropertiesId, verticeFields[1].GetUInt32());
         }
         while (vertices->NextRow());
     }
@@ -164,7 +164,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
             if (areaTriggerTemplate.Id.IsServerSide && areaTriggerTemplate.Flags != 0)
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template` has listed server-side areatrigger (Id: %u, IsServerSide: %u) with non-zero flags",
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template` has listed server-side areatrigger (Id: {}, IsServerSide: {}) with non-zero flags",
                     areaTriggerTemplate.Id.Id, uint32(areaTriggerTemplate.Id.IsServerSide));
                 continue;
             }
@@ -195,13 +195,13 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
             if (areatriggerId && !createProperties.Template)
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` references invalid AreaTriggerId %u for AreaTriggerCreatePropertiesId %u", areatriggerId, createProperties.Id);
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` references invalid AreaTriggerId {} for AreaTriggerCreatePropertiesId {}", areatriggerId, createProperties.Id);
                 continue;
             }
 
             if (shape >= AREATRIGGER_TYPE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has listed areatrigger create properties %u with invalid shape %u.",
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has listed areatrigger create properties {} with invalid shape {}.",
                     createProperties.Id, uint32(shape));
                 continue;
             }
@@ -210,7 +210,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             createProperties.Curve = Value; \
             if (createProperties.Curve && !sCurveStore.LookupEntry(createProperties.Curve)) \
             { \
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has listed areatrigger (AreaTriggerCreatePropertiesId: %u, Id: %u) with invalid " #Curve " (%u), set to 0!", \
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has listed areatrigger (AreaTriggerCreatePropertiesId: {}, Id: {}) with invalid " #Curve " ({}), set to 0!", \
                     createProperties.Id, areatriggerId, createProperties.Curve); \
                 createProperties.Curve = 0; \
             }
@@ -264,7 +264,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             AreaTriggerCreateProperties* createProperties = Trinity::Containers::MapGetValuePtr(_areaTriggerCreateProperties, areaTriggerCreatePropertiesId);
             if (!createProperties)
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_orbit` reference invalid AreaTriggerCreatePropertiesId %u", areaTriggerCreatePropertiesId);
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_orbit` reference invalid AreaTriggerCreatePropertiesId {}", areaTriggerCreatePropertiesId);
                 continue;
             }
 
@@ -276,7 +276,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             createProperties->OrbitInfo->Float = Value; \
             if (!std::isfinite(createProperties->OrbitInfo->Float)) \
             { \
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_orbit` has listed areatrigger (AreaTriggerCreatePropertiesId: %u) with invalid " #Float " (%f), set to 0!", \
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_orbit` has listed areatrigger (AreaTriggerCreatePropertiesId: {}) with invalid " #Float " ({}), set to 0!", \
                     areaTriggerCreatePropertiesId, createProperties->OrbitInfo->Float); \
                 createProperties->OrbitInfo->Float = 0.0f; \
             }
@@ -298,7 +298,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates circular movement infos. DB table `areatrigger_create_properties_orbit` is empty.");
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " spell areatrigger templates in %u ms.", _areaTriggerTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} spell areatrigger templates in {} ms.", _areaTriggerTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void AreaTriggerDataStore::LoadAreaTriggerSpawns()
@@ -321,21 +321,21 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
 
             if (!GetAreaTriggerTemplate(areaTriggerid))
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed areatrigger that doesn't exist: Id: %u, IsServerSide: %u for SpawnId " UI64FMTD,
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed areatrigger that doesn't exist: Id: {}, IsServerSide: {} for SpawnId " UI64FMTD,
                     areaTriggerid.Id, uint32(areaTriggerid.IsServerSide), spawnId);
                 continue;
             }
 
             if (!MapManager::IsValidMapCoord(location))
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed an invalid position: SpawnId: " UI64FMTD ", MapId %u, Position {%s}",
-                    spawnId, location.GetMapId(), location.ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed an invalid position: SpawnId: {}, MapId {}, Position {{}}",
+                    spawnId, location.GetMapId(), location.ToString());
                 continue;
             }
 
             if (shape >= AREATRIGGER_TYPE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed areatrigger SpawnId: " UI64FMTD " with invalid shape %u.",
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed areatrigger SpawnId: {} with invalid shape {}.",
                     spawnId, uint32(shape));
                 continue;
             }
@@ -363,7 +363,7 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
         } while (templates->NextRow());
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " areatrigger spawns in %u ms.", _areaTriggerSpawnsBySpawnId.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} areatrigger spawns in {} ms.", _areaTriggerSpawnsBySpawnId.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 AreaTriggerTemplate const* AreaTriggerDataStore::GetAreaTriggerTemplate(AreaTriggerId const& areaTriggerId) const

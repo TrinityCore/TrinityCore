@@ -20,6 +20,7 @@
 
 #include "ConditionMgr.h"
 #include "DBCEnums.h"
+#include "ModelIgnoreFlags.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
@@ -62,6 +63,7 @@ enum AuraType : uint32;
 enum CurrentSpellTypes : uint8;
 enum LootType : uint8;
 enum ProcFlagsHit : uint32;
+enum ProcFlagsSpellType : uint32;
 enum SpellTargetCheckTypes : uint8;
 enum SpellTargetObjectTypes : uint8;
 enum SpellValueMod : uint8;
@@ -256,6 +258,7 @@ class TC_GAME_API Spell
         void EffectHeal();
         void EffectBind();
         void EffectTeleportToReturnPoint();
+        void EffectIncreaseCurrencyCap();
         void EffectHealthLeech();
         void EffectQuestComplete();
         void EffectCreateItem();
@@ -372,12 +375,15 @@ class TC_GAME_API Spell
         void EffectRemoveTalent();
         void EffectDestroyItem();
         void EffectLearnGarrisonBuilding();
+        void EffectRemoveAuraBySpellLabel();
         void EffectCreateGarrison();
         void EffectCreateConversation();
         void EffectCancelConversation();
         void EffectAddGarrisonFollower();
         void EffectActivateGarrisonBuilding();
         void EffectGrantBattlePetLevel();
+        void EffectGiveExperience();
+        void EffectGiveRestedExperience();
         void EffectHealBattlePetPct();
         void EffectEnableBattlePets();
         void EffectChangeBattlePetQuality();
@@ -403,6 +409,14 @@ class TC_GAME_API Spell
         void EffectSendChatMessage();
         void EffectGrantBattlePetExperience();
         void EffectLearnTransmogIllusion();
+        void EffectModifyAuraStacks();
+        void EffectModifyCooldown();
+        void EffectModifyCooldowns();
+        void EffectModifyCooldownsByCategory();
+        void EffectModifySpellCharges();
+        void EffectCreateTraitTreeConfig();
+        void EffectChangeActiveCombatTraitConfig();
+        void EffectTeleportGraveyard();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
@@ -442,7 +456,7 @@ class TC_GAME_API Spell
         void cancel();
         void update(uint32 difftime);
         void cast(bool skipCheck = false);
-        void finish(bool ok = true);
+        void finish(SpellCastResult result = SPELL_CAST_OK);
         void TakePower();
 
         void TakeRunePower(bool didHit);
@@ -483,7 +497,7 @@ class TC_GAME_API Spell
         uint32 getState() const { return m_spellState; }
         void setState(uint32 state) { m_spellState = state; }
 
-        void DoCreateItem(uint32 itemId, ItemContext context = ItemContext::NONE, std::vector<int32> const& bonusListIDs = std::vector<int32>());
+        void DoCreateItem(uint32 itemId, ItemContext context = ItemContext::NONE, std::vector<int32> const* bonusListIDs = nullptr);
 
         bool CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEffectInfo, Position const* losPosition) const;
         bool CheckEffectTarget(GameObject const* target, SpellEffectInfo const& spellEffectInfo) const;
@@ -571,6 +585,7 @@ class TC_GAME_API Spell
                 uint32 Data[2];
             } Raw;
         } m_misc;
+        std::any m_customArg;
         SpellCastVisual m_SpellVisual;
         SpellCastTargets m_targets;
         int8 m_comboPointGain;
@@ -592,6 +607,8 @@ class TC_GAME_API Spell
 
         bool IsTriggeredByAura(SpellInfo const* auraSpellInfo) const { return (auraSpellInfo == m_triggeredByAuraSpell); }
 
+        int32 GetProcChainLength() const { return m_procChainLength; }
+
         bool IsDeletable() const { return !m_referencedFromCurrentSpell && !m_executedCurrently; }
         void SetReferencedFromCurrent(bool yes) { m_referencedFromCurrentSpell = yes; }
         bool IsInterruptable() const { return !m_executedCurrently; }
@@ -601,6 +618,8 @@ class TC_GAME_API Spell
         uint64 GetDelayMoment() const { return m_delayMoment; }
         uint64 CalculateDelayMomentForDst(float launchDelay) const;
         void RecalculateDelayMomentForDst();
+        void UpdateDelayMomentForDst(uint64 hitDelay);
+        void UpdateDelayMomentForUnitTarget(Unit* unit, uint64 hitDelay);
         uint8 GetRuneState() const { return m_runesState; }
         void SetRuneState(uint8 value) { m_runesState = value; }
 
@@ -636,6 +655,9 @@ class TC_GAME_API Spell
 
         std::string GetDebugInfo() const;
         void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount);
+
+        bool IsWithinLOS(WorldObject const* source, WorldObject const* target, bool targetAsSourceLocation, VMAP::ModelIgnoreFlags ignoreFlags) const;
+        bool IsWithinLOS(WorldObject const* source, Position const& target, VMAP::ModelIgnoreFlags ignoreFlags) const;
 
     protected:
         bool HasGlobalCooldown() const;
@@ -716,6 +738,7 @@ class TC_GAME_API Spell
         ProcFlagsInit m_procAttacker;         // Attacker trigger flags
         ProcFlagsInit m_procVictim;           // Victim   trigger flags
         ProcFlagsHit m_hitMask;
+        ProcFlagsSpellType m_procSpellType;   // for finish procs
         void prepareDataForTriggerSystem();
 
         // *****************************************
@@ -874,6 +897,7 @@ class TC_GAME_API Spell
         // we can't store original aura link to prevent access to deleted auras
         // and in same time need aura data and after aura deleting.
         SpellInfo const* m_triggeredByAuraSpell;
+        int32 m_procChainLength;
 
         std::unique_ptr<PathGenerator> m_preGeneratedPath;
 

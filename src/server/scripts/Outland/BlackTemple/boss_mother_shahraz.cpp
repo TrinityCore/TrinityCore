@@ -248,7 +248,7 @@ class spell_mother_shahraz_saber_lash : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
             && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
     }
 
@@ -277,7 +277,7 @@ class spell_mother_shahraz_generic_periodic : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty()
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
             && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 

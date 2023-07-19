@@ -523,7 +523,10 @@ public:
 
         handler->PSendSysMessage(LANG_NPCINFO_DYNAMIC_FLAGS, target->GetDynamicFlags());
         handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
-        handler->PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid, cInfo->pickpocketLootId, cInfo->SkinLootId);
+
+        CreatureDifficulty const* creatureDifficulty = target->GetCreatureDifficulty();
+        handler->PSendSysMessage(LANG_NPCINFO_LOOT, creatureDifficulty->LootID, creatureDifficulty->PickPocketLootID, creatureDifficulty->SkinLootID);
+
         handler->PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());
 
         if (CreatureData const* data = sObjectMgr->GetCreatureData(target->GetSpawnId()))
@@ -535,9 +538,11 @@ public:
         handler->PSendSysMessage(LANG_NPCINFO_ARMOR, target->GetArmor());
         handler->PSendSysMessage(LANG_NPCINFO_POSITION, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
         handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, target->GetAIName().c_str(), target->GetScriptName().c_str());
+        handler->PSendSysMessage(LANG_OBJECTINFO_STRINGIDS, STRING_VIEW_FMT_ARG(target->GetStringIds()[0]),
+            STRING_VIEW_FMT_ARG(target->GetStringIds()[1]), STRING_VIEW_FMT_ARG(target->GetStringIds()[2]));
         handler->PSendSysMessage(LANG_NPCINFO_REACTSTATE, DescribeReactState(target->GetReactState()));
         if (CreatureAI const* ai = target->AI())
-            handler->PSendSysMessage(LANG_OBJECTINFO_AITYPE, GetTypeName(*ai).c_str());
+            handler->PSendSysMessage(LANG_OBJECTINFO_AITYPE, Trinity::GetTypeName(*ai).c_str());
         handler->PSendSysMessage(LANG_NPCINFO_FLAGS_EXTRA, cInfo->flags_extra);
         for (CreatureFlagsExtra flag : EnumUtils::Iterate<CreatureFlagsExtra>())
             if (cInfo->flags_extra & flag)
@@ -691,8 +696,7 @@ public:
             return false;
         }
 
-        creature->SetDisplayId(displayId);
-        creature->SetNativeDisplayId(displayId);
+        creature->SetDisplayId(displayId, true);
 
         creature->SaveToDB();
 
@@ -1091,7 +1095,7 @@ public:
 
         CreatureTemplate const* cInfo = creatureTarget->GetCreatureTemplate();
 
-        if (!cInfo->IsTameable (player->CanTameExoticPets()))
+        if (!cInfo->IsTameable (player->CanTameExoticPets(), creatureTarget->GetCreatureDifficulty()))
         {
             handler->PSendSysMessage (LANG_CREATURE_NON_TAMEABLE, cInfo->Entry);
             handler->SetSentErrorMessage (true);
@@ -1136,7 +1140,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcEvadeCommand(ChatHandler* handler, Optional<CreatureAI::EvadeReason> why, Optional<EXACT_SEQUENCE("force")> force)
+    static bool HandleNpcEvadeCommand(ChatHandler* handler, Optional<EvadeReason> why, Optional<EXACT_SEQUENCE("force")> force)
     {
         Creature* creatureTarget = handler->getSelectedCreature();
         if (!creatureTarget || creatureTarget->IsPet())
@@ -1155,7 +1159,7 @@ public:
 
         if (force)
             creatureTarget->ClearUnitState(UNIT_STATE_EVADE);
-        creatureTarget->AI()->EnterEvadeMode(why.value_or(CreatureAI::EVADE_REASON_OTHER));
+        creatureTarget->AI()->EnterEvadeMode(why.value_or(EvadeReason::Other));
 
         return true;
     }
@@ -1179,7 +1183,7 @@ public:
             if (!pair.second)
                 continue;
             Player const* player = ObjectAccessor::FindConnectedPlayer(pair.first);
-            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL, player ? player->GetName().c_str() : Trinity::StringFormat("Offline player (GUID %s)", pair.first.ToString().c_str()).c_str(), pair.second->size());
+            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL, player ? player->GetName() : Trinity::StringFormat("Offline player (GUID {})", pair.first.ToString()), pair.second->size());
 
             for (auto it = pair.second->cbegin(); it != pair.second->cend(); ++it)
             {

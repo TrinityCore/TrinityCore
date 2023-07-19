@@ -148,7 +148,8 @@ void CreateDir(boost::filesystem::path const& path)
     if (fs::exists(path))
         return;
 
-    if (!fs::create_directory(path))
+    boost::system::error_code err;
+    if (!fs::create_directory(path, err) || err)
         throw std::runtime_error("Unable to create directory" + path.string());
 }
 
@@ -269,9 +270,9 @@ void ReadMapDBC()
 {
     printf("Read Map.db2 file...\n");
 
-    DB2CascFileSource source(CascStorage, MapLoadInfo::Instance()->Meta->FileDataId);
+    DB2CascFileSource source(CascStorage, MapLoadInfo::Instance.Meta->FileDataId);
     DB2FileLoader db2;
-    TryLoadDB2("Map.db2", &source, &db2, MapLoadInfo::Instance());
+    TryLoadDB2("Map.db2", &source, &db2, &MapLoadInfo::Instance);
 
     map_ids.reserve(db2.GetRecordCount());
     std::unordered_map<uint32, std::size_t> idToIndex;
@@ -314,9 +315,9 @@ void ReadLiquidMaterialTable()
 {
     printf("Read LiquidMaterial.db2 file...\n");
 
-    DB2CascFileSource source(CascStorage, LiquidMaterialLoadInfo::Instance()->Meta->FileDataId);
+    DB2CascFileSource source(CascStorage, LiquidMaterialLoadInfo::Instance.Meta->FileDataId);
     DB2FileLoader db2;
-    TryLoadDB2("LiquidMaterial.db2", &source, &db2, LiquidMaterialLoadInfo::Instance());
+    TryLoadDB2("LiquidMaterial.db2", &source, &db2, &LiquidMaterialLoadInfo::Instance);
 
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
@@ -338,9 +339,9 @@ void ReadLiquidObjectTable()
 {
     printf("Read LiquidObject.db2 file...\n");
 
-    DB2CascFileSource source(CascStorage, LiquidObjectLoadInfo::Instance()->Meta->FileDataId);
+    DB2CascFileSource source(CascStorage, LiquidObjectLoadInfo::Instance.Meta->FileDataId);
     DB2FileLoader db2;
-    TryLoadDB2("LiquidObject.db2", &source, &db2, LiquidObjectLoadInfo::Instance());
+    TryLoadDB2("LiquidObject.db2", &source, &db2, &LiquidObjectLoadInfo::Instance);
 
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
@@ -362,9 +363,9 @@ void ReadLiquidTypeTable()
 {
     printf("Read LiquidType.db2 file...\n");
 
-    DB2CascFileSource source(CascStorage, LiquidTypeLoadInfo::Instance()->Meta->FileDataId);
+    DB2CascFileSource source(CascStorage, LiquidTypeLoadInfo::Instance.Meta->FileDataId);
     DB2FileLoader db2;
-    TryLoadDB2("LiquidType.db2", &source, &db2, LiquidTypeLoadInfo::Instance());
+    TryLoadDB2("LiquidType.db2", &source, &db2, &LiquidTypeLoadInfo::Instance);
 
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
@@ -387,9 +388,9 @@ bool ReadCinematicCameraDBC()
 {
     printf("Read CinematicCamera.db2 file...\n");
 
-    DB2CascFileSource source(CascStorage, CinematicCameraLoadInfo::Instance()->Meta->FileDataId);
+    DB2CascFileSource source(CascStorage, CinematicCameraLoadInfo::Instance.Meta->FileDataId);
     DB2FileLoader db2;
-    TryLoadDB2("CinematicCamera.db2", &source, &db2, CinematicCameraLoadInfo::Instance());
+    TryLoadDB2("CinematicCamera.db2", &source, &db2, &CinematicCameraLoadInfo::Instance);
 
     // get camera file list from DB2
     for (size_t i = 0; i < db2.GetRecordCount(); ++i)
@@ -1031,7 +1032,7 @@ bool ConvertADT(uint32 fileDataId, std::string const& mapName, std::string const
 {
     ChunkedFile adt;
 
-    if (!adt.loadFile(CascStorage, fileDataId, Trinity::StringFormat("Map %s grid [%u,%u]", mapName.c_str(), gx, gy)))
+    if (!adt.loadFile(CascStorage, fileDataId, Trinity::StringFormat("Map {} grid [{},{}]", mapName, gx, gy)))
         return false;
 
     return ConvertADT(adt, mapName, outputPath, gx, gy, build, ignoreDeepWater);
@@ -1085,7 +1086,7 @@ void ExtractMaps(uint32 build)
         // Loadup map grid data
         ChunkedFile wdt;
         std::bitset<(WDT_MAP_SIZE) * (WDT_MAP_SIZE)> existingTiles;
-        if (wdt.loadFile(CascStorage, map_ids[z].WdtFileDataId, Trinity::StringFormat("WDT for map %u", map_ids[z].Id), false))
+        if (wdt.loadFile(CascStorage, map_ids[z].WdtFileDataId, Trinity::StringFormat("WDT for map {}", map_ids[z].Id), false))
         {
             FileChunk* mphd = wdt.GetChunk("MPHD");
             FileChunk* main = wdt.GetChunk("MAIN");
@@ -1097,7 +1098,7 @@ void ExtractMaps(uint32 build)
                     if (!(main->As<wdt_MAIN>()->adt_list[y][x].flag & 0x1))
                         continue;
 
-                    outputFileName = Trinity::StringFormat("%s/maps/%04u_%02u_%02u.map", output_path.string().c_str(), map_ids[z].Id, y, x);
+                    outputFileName = Trinity::StringFormat("{}/maps/{:04}_{:02}_{:02}.map", output_path.string(), map_ids[z].Id, y, x);
                     bool ignoreDeepWater = IsDeepWaterIgnored(map_ids[z].Id, y, x);
                     if (mphd && mphd->As<wdt_MPHD>()->flags & 0x200)
                     {
@@ -1105,7 +1106,7 @@ void ExtractMaps(uint32 build)
                     }
                     else
                     {
-                        std::string storagePath = Trinity::StringFormat(R"(World\Maps\%s\%s_%u_%u.adt)", map_ids[z].Directory.c_str(), map_ids[z].Directory.c_str(), x, y);
+                        std::string storagePath = Trinity::StringFormat(R"(World\Maps\{}\{}_{}_{}.adt)", map_ids[z].Directory, map_ids[z].Directory, x, y);
                         existingTiles[y * WDT_MAP_SIZE + x] = ConvertADT(storagePath, map_ids[z].Name, outputFileName, y, x, build, ignoreDeepWater);
                     }
                 }
@@ -1116,7 +1117,7 @@ void ExtractMaps(uint32 build)
             }
         }
 
-        if (FILE* tileList = fopen(Trinity::StringFormat("%s/maps/%04u.tilelist", output_path.string().c_str(), map_ids[z].Id).c_str(), "wb"))
+        if (FILE* tileList = fopen(Trinity::StringFormat("{}/maps/{:04}.tilelist", output_path.string(), map_ids[z].Id).c_str(), "wb"))
         {
             fwrite(MapMagic.data(), 1, MapMagic.size(), tileList);
             fwrite(&MapVersionMagic, 1, sizeof(MapVersionMagic), tileList);
@@ -1218,7 +1219,7 @@ bool ExtractDB2File(uint32 fileDataId, char const* cascFileName, int locale, boo
     {
         DB2SectionHeader sectionHeader = db2.GetSectionHeader(i);
         if (sectionHeader.TactId && CascStorage->HasTactKey(sectionHeader.TactId))
-            sectionHeader.TactId = 0;
+            sectionHeader.TactId = DUMMY_KNOWN_TACT_ID;
 
         posAfterHeaders += fwrite(&sectionHeader, 1, sizeof(sectionHeader), output);
     }
@@ -1307,7 +1308,7 @@ void ExtractCameraFiles()
         std::unique_ptr<CASC::File> cameraFile(CascStorage->OpenFile(cameraFileDataId, CASC_LOCALE_NONE));
         if (cameraFile)
         {
-            boost::filesystem::path filePath = outputPath / Trinity::StringFormat("FILE%08X.xxx", cameraFileDataId);
+            boost::filesystem::path filePath = outputPath / Trinity::StringFormat("FILE{:08X}.xxx", cameraFileDataId);
 
             if (!boost::filesystem::exists(filePath))
                 if (ExtractFile(cameraFile.get(), filePath.string()))
@@ -1336,10 +1337,9 @@ void ExtractGameTables()
         { 1391662, "ArtifactLevelXP.txt" },
         { 1391663, "BarberShopCostBase.txt" },
         { 1391664, "BaseMp.txt" },
+        { 4494528, "BaseProfessionRatings.txt" },
         { 1391665, "BattlePetTypeDamageMod.txt" },
         { 1391666, "BattlePetXP.txt" },
-        { 1391667, "ChallengeModeDamage.txt" },
-        { 1391668, "ChallengeModeHealth.txt" },
         { 1391669, "CombatRatings.txt" },
         { 1391670, "CombatRatingsMultByILvl.txt" },
         { 1391671, "HonorLevel.txt" },
@@ -1348,6 +1348,7 @@ void ExtractGameTables()
         { 1726830, "ItemLevelSquish.txt" },
         { 1391643, "ItemSocketCostPerLevel.txt" },
         { 1391651, "NPCManaCostScaler.txt" },
+        { 4492239, "ProfessionRatings.txt" },
         { 1391659, "SandboxScaling.txt" },
         { 1391660, "SpellScaling.txt" },
         { 1980632, "StaminaMultByILvl.txt" },

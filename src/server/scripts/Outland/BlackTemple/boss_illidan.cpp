@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "black_temple.h"
+#include "Containers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -698,7 +699,7 @@ struct boss_illidan_stormrage : public BossAI
                 if (player->IsAlive() && !player->IsGameMaster() && IsInBoundary(player))
                     return;
 
-        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+        EnterEvadeMode(EvadeReason::NoHostiles);
     }
 
     void SummonMinions()

@@ -16,6 +16,7 @@
  */
 
 #include "icecrown_citadel.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
@@ -113,7 +114,7 @@ struct boss_festergut : public BossAI
     {
         if (!instance->CheckRequiredBosses(DATA_FESTERGUT, who->ToPlayer()))
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             return;
         }

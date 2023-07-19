@@ -28,44 +28,47 @@ namespace Movement
     struct SpellEffectExtraData;
 }
 
-template<class T>
-class PointMovementGenerator : public MovementGeneratorMedium<T, PointMovementGenerator<T>>
+class PointMovementGenerator : public MovementGenerator
 {
     public:
-        explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f, Optional<float> finalOrient = {},
-            Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
+        explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, Optional<float> speed = {}, Optional<float> finalOrient = {},
+            Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr,
+            MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
+            Optional<float> closeEnoughDistance = {});
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 
-        void DoInitialize(T*);
-        void DoReset(T*);
-        bool DoUpdate(T*, uint32);
-        void DoDeactivate(T*);
-        void DoFinalize(T*, bool, bool);
+        void Initialize(Unit* owner) override;
+        void Reset(Unit* owner) override;
+        bool Update(Unit* owner, uint32 diff) override;
+        void Deactivate(Unit* owner) override;
+        void Finalize(Unit* owner, bool active, bool movementInform) override;
 
-        void UnitSpeedChanged() override { PointMovementGenerator<T>::AddFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING); }
+        void UnitSpeedChanged() override { AddFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING); }
 
         uint32 GetId() const { return _movementId; }
 
     private:
-        void MovementInform(T*);
+        void MovementInform(Unit*);
 
         uint32 _movementId;
         Position _destination;
-        float _speed;
+        Optional<float> _speed;
         bool _generatePath;
         //! if set then unit will turn to specified _orient in provided _pos
         Optional<float> _finalOrient;
         Unit const* i_faceTarget;
         std::unique_ptr<Movement::SpellEffectExtraData> i_spellEffectExtra;
+        MovementWalkRunSpeedSelectionMode _speedSelectionMode;
+        Optional<float> _closeEnoughDistance;
 };
 
-class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
+class AssistanceMovementGenerator : public PointMovementGenerator
 {
     public:
-        explicit AssistanceMovementGenerator(uint32 id, float x, float y, float z) : PointMovementGenerator<Creature>(id, x, y, z, true) { }
+        explicit AssistanceMovementGenerator(uint32 id, float x, float y, float z) : PointMovementGenerator(id, x, y, z, true) { }
 
-        void Finalize(Unit*, bool, bool) override;
+        void Finalize(Unit* owner, bool active, bool movementInform) override;
         MovementGeneratorType GetMovementGeneratorType() const override;
 };
 

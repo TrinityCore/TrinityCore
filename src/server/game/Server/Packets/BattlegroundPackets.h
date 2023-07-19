@@ -135,9 +135,10 @@ namespace WorldPackets
                 Optional<int32> RatingChange;
                 Optional<uint32> PreMatchMMR;
                 Optional<int32> MmrChange;
+                Optional<uint32> PostMatchMMR;
                 std::vector<PVPMatchPlayerPVPStat> Stats;
                 int32 PrimaryTalentTree = 0;
-                int32 Sex = 0;
+                int8 Sex = 0;
                 int32 Race = 0;
                 int32 Class = 0;
                 int32 CreatureID = 0;
@@ -436,7 +437,7 @@ namespace WorldPackets
         class RatedPvpInfo final : public ServerPacket
         {
         public:
-            RatedPvpInfo() : ServerPacket(SMSG_RATED_PVP_INFO, 6 * sizeof(BracketInfo)) { }
+            RatedPvpInfo() : ServerPacket(SMSG_RATED_PVP_INFO, 7 * sizeof(BracketInfo)) { }
 
             WorldPacket const* Write() override;
 
@@ -450,16 +451,36 @@ namespace WorldPackets
                 int32 Unused2 = 0;
                 int32 WeeklyPlayed = 0;
                 int32 WeeklyWon = 0;
+                int32 RoundsSeasonPlayed = 0;
+                int32 RoundsSeasonWon = 0;
+                int32 RoundsWeeklyPlayed = 0;
+                int32 RoundsWeeklyWon = 0;
                 int32 BestWeeklyRating = 0;
                 int32 LastWeeksBestRating = 0;
                 int32 BestSeasonRating = 0;
                 int32 PvpTierID = 0;
                 int32 Unused3 = 0;
-                int32 WeeklyBestWinPvpTierID = 0;
                 int32 Unused4 = 0;
                 int32 Rank = 0;
                 bool Disqualified = false;
-            } Bracket[6];
+            } Bracket[7];
+        };
+
+        struct RatedMatchDeserterPenalty
+        {
+            int32 PersonalRatingChange = 0;
+            int32 QueuePenaltySpellID = 0;
+            WorldPackets::Duration<Milliseconds, int32> QueuePenaltyDuration;
+        };
+
+        enum class PVPMatchState : uint8
+        {
+            Waiting     = 0,
+            StartUp     = 1,
+            Engaged     = 2,
+            PostRound   = 3,
+            Inactive    = 4,
+            Complete    = 5
         };
 
         class PVPMatchInitialize final : public ServerPacket
@@ -469,21 +490,25 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            enum MatchState : uint8
-            {
-                InProgress = 1,
-                Complete = 3,
-                Inactive = 4
-            };
-
             uint32 MapID = 0;
-            MatchState State = Inactive;
+            PVPMatchState State = PVPMatchState::Inactive;
             Timestamp<> StartTime;
             WorldPackets::Duration<Seconds> Duration;
+            Optional<RatedMatchDeserterPenalty> DeserterPenalty;
             uint8 ArenaFaction = 0;
             uint32 BattlemasterListID = 0;
             bool Registered = false;
             bool AffectsRating = false;
+        };
+
+        class PVPMatchSetState final : public ServerPacket
+        {
+        public:
+            explicit PVPMatchSetState(PVPMatchState state) : ServerPacket(SMSG_PVP_MATCH_SET_STATE, 1), State(state) { }
+
+            WorldPacket const* Write() override;
+
+            PVPMatchState State;
         };
 
         class PVPMatchComplete final : public ServerPacket

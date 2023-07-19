@@ -27,8 +27,6 @@
 #include <type_traits>
 #include <boost/asio/ip/tcp.hpp>
 
-using boost::asio::ip::tcp;
-
 #define READ_BLOCK_SIZE 4096
 #ifdef BOOST_ASIO_HAS_IOCP
 #define TC_SOCKET_USE_IOCP
@@ -61,11 +59,11 @@ using boost::asio::ip::tcp;
 
             tcp::socket::endpoint_type remote_endpoint() const;
 */
-template<class T, class Stream = tcp::socket>
+template<class T, class Stream = boost::asio::ip::tcp::socket>
 class Socket : public std::enable_shared_from_this<T>
 {
 public:
-    explicit Socket(tcp::socket&& socket) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()),
+    explicit Socket(boost::asio::ip::tcp::socket&& socket) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()),
         _remotePort(_socket.remote_endpoint().port()), _readBuffer(), _closed(false), _closing(false), _isWritingAsync(false)
     {
         _readBuffer.Resize(READ_BLOCK_SIZE);
@@ -147,8 +145,8 @@ public:
         boost::system::error_code shutdownError;
         _socket.shutdown(boost::asio::socket_base::shutdown_send, shutdownError);
         if (shutdownError)
-            TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
-                shutdownError.value(), shutdownError.message().c_str());
+            TC_LOG_DEBUG("network", "Socket::CloseSocket: {} errored when shutting down socket: {} ({})", GetRemoteIpAddress().to_string(),
+                shutdownError.value(), shutdownError.message());
 
         OnClose();
     }
@@ -185,10 +183,10 @@ protected:
     void SetNoDelay(bool enable)
     {
         boost::system::error_code err;
-        _socket.set_option(tcp::no_delay(enable), err);
+        _socket.set_option(boost::asio::ip::tcp::no_delay(enable), err);
         if (err)
-            TC_LOG_DEBUG("network", "Socket::SetNoDelay: failed to set_option(boost::asio::ip::tcp::no_delay) for %s - %d (%s)",
-                GetRemoteIpAddress().to_string().c_str(), err.value(), err.message().c_str());
+            TC_LOG_DEBUG("network", "Socket::SetNoDelay: failed to set_option(boost::asio::ip::tcp::no_delay) for {} - {} ({})",
+                GetRemoteIpAddress().to_string(), err.value(), err.message());
     }
 
     Stream& underlying_stream()

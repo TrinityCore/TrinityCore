@@ -74,27 +74,27 @@ private:
 public:
     void CleanUpGrids(uint32 diff);
 
-    void GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, map_liquidHeaderTypeFlags reqLiquidType = map_liquidHeaderTypeFlags::AllLiquids, float collisionHeight = 2.03128f, DynamicMapTree const* dynamicMapTree = nullptr); // DEFAULT_COLLISION_HEIGHT in Object.h
-    ZLiquidStatus GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, map_liquidHeaderTypeFlags ReqLiquidType, LiquidData* data = nullptr, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
+    void GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, PositionFullTerrainStatus& data, map_liquidHeaderTypeFlags reqLiquidType = map_liquidHeaderTypeFlags::AllLiquids, float collisionHeight = 2.03128f, DynamicMapTree const* dynamicMapTree = nullptr); // DEFAULT_COLLISION_HEIGHT in Object.h
+    ZLiquidStatus GetLiquidStatus(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, map_liquidHeaderTypeFlags ReqLiquidType, LiquidData* data = nullptr, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
 
-    bool GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId, DynamicMapTree const* dynamicMapTree = nullptr);
-    uint32 GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, DynamicMapTree const* dynamicMapTree = nullptr);
-    uint32 GetAreaId(PhaseShift const& phaseShift, Position const& pos, DynamicMapTree const* dynamicMapTree = nullptr) { return GetAreaId(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), dynamicMapTree); }
-    uint32 GetZoneId(PhaseShift const& phaseShift, float x, float y, float z, DynamicMapTree const* dynamicMapTree = nullptr);
-    uint32 GetZoneId(PhaseShift const& phaseShift, Position const& pos, DynamicMapTree const* dynamicMapTree = nullptr) { return GetZoneId(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), dynamicMapTree); }
-    void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, float x, float y, float z, DynamicMapTree const* dynamicMapTree = nullptr);
-    void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, Position const& pos, DynamicMapTree const* dynamicMapTree = nullptr) { GetZoneAndAreaId(phaseShift, zoneid, areaid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), dynamicMapTree); }
+    bool GetAreaInfo(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId, DynamicMapTree const* dynamicMapTree = nullptr);
+    uint32 GetAreaId(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, DynamicMapTree const* dynamicMapTree = nullptr);
+    uint32 GetAreaId(PhaseShift const& phaseShift, uint32 mapId, Position const& pos, DynamicMapTree const* dynamicMapTree = nullptr) { return GetAreaId(phaseShift, mapId, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), dynamicMapTree); }
+    uint32 GetZoneId(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, DynamicMapTree const* dynamicMapTree = nullptr);
+    uint32 GetZoneId(PhaseShift const& phaseShift, uint32 mapId, Position const& pos, DynamicMapTree const* dynamicMapTree = nullptr) { return GetZoneId(phaseShift, mapId, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), dynamicMapTree); }
+    void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32 mapId, uint32& zoneid, uint32& areaid, float x, float y, float z, DynamicMapTree const* dynamicMapTree = nullptr);
+    void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32 mapId, uint32& zoneid, uint32& areaid, Position const& pos, DynamicMapTree const* dynamicMapTree = nullptr) { GetZoneAndAreaId(phaseShift, mapId, zoneid, areaid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), dynamicMapTree); }
 
-    float GetMinHeight(PhaseShift const& phaseShift, float x, float y);
-    float GetGridHeight(PhaseShift const& phaseShift, float x, float y);
-    float GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float z, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH);
-    float GetStaticHeight(PhaseShift const& phaseShift, Position const& pos, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) { return GetStaticHeight(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), checkVMap, maxSearchDist); }
+    float GetMinHeight(PhaseShift const& phaseShift, uint32 mapId, float x, float y);
+    float GetGridHeight(PhaseShift const& phaseShift, uint32 mapId, float x, float y);
+    float GetStaticHeight(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH);
+    float GetStaticHeight(PhaseShift const& phaseShift, uint32 mapId, Position const& pos, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) { return GetStaticHeight(phaseShift, mapId, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), checkVMap, maxSearchDist); }
 
-    float GetWaterLevel(PhaseShift const& phaseShift, float x, float y);
-    bool IsInWater(PhaseShift const& phaseShift, float x, float y, float z, LiquidData* data = nullptr);
-    bool IsUnderWater(PhaseShift const& phaseShift, float x, float y, float z);
+    float GetWaterLevel(PhaseShift const& phaseShift, uint32 mapId, float x, float y);
+    bool IsInWater(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, LiquidData* data = nullptr);
+    bool IsUnderWater(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z);
 
-    float GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y, float z, float* ground = nullptr, bool swim = false, float collisionHeight = 2.03128f, DynamicMapTree const* dynamicMapTree = nullptr); // DEFAULT_COLLISION_HEIGHT in Object.h
+    float GetWaterOrGroundLevel(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, float* ground = nullptr, bool swim = false, float collisionHeight = 2.03128f, DynamicMapTree const* dynamicMapTree = nullptr); // DEFAULT_COLLISION_HEIGHT in Object.h
 
 private:
     static constexpr int32 GetBitsetIndex(int32 gx, int32 gy) { return gx * MAX_NUMBER_OF_GRIDS + gy; }

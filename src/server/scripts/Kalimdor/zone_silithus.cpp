@@ -879,7 +879,7 @@ public:
                 Player* groupMember = nullptr;
 
                 uint8 GroupMemberCount = 0;
-                uint8 DeadMemberCount = 0;
+                //uint8 DeadMemberCount = 0;
                 uint8 FailedMemberCount = 0;
 
                 Group::MemberSlotList const& members = EventGroup->GetMemberSlots();
@@ -896,8 +896,8 @@ public:
                     }
                     ++GroupMemberCount;
 
-                    if (groupMember->isDead())
-                        ++DeadMemberCount;
+                    //if (groupMember->isDead())
+                    //    ++DeadMemberCount;
                 }
 
                 if (GroupMemberCount == FailedMemberCount || !player->IsWithinDistInMap(me, EVENT_AREA_RADIUS))
@@ -1454,7 +1454,7 @@ class spell_silithus_summon_cultist_periodic : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void PeriodicTick(AuraEffect const* aurEff)
@@ -1463,7 +1463,7 @@ class spell_silithus_summon_cultist_periodic : public AuraScript
 
         // All these spells trigger a spell that requires reagents; if the
         // triggered spell is cast as "triggered", reagents are not consumed
-        GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST)).SetTriggeringAura(aurEff));
+        GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgs(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST).SetTriggeringAura(aurEff));
     }
 
     void Register() override

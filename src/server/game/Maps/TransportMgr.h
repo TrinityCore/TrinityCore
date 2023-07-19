@@ -103,7 +103,6 @@ struct TransportTemplate
     double CalculateDistanceMoved(double timePassedInSegment, double segmentDuration, bool isFirstSegment, bool isLastSegment) const;
 
     std::set<uint32> MapIds;
-    bool InInstance = false;
 };
 
 struct TC_GAME_API TransportAnimation

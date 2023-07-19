@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "AreaTriggerAI.h"
+#include "Containers.h"
 #include "G3DPosition.hpp"
 #include "GridNotifiers.h"
 #include "Log.h"
@@ -48,15 +49,30 @@ enum PriestSpells
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
+    SPELL_PRIEST_DARK_REPRIMAND                     = 400169,
+    SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE      = 373129,
+    SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING     = 400171,
+    SPELL_PRIEST_DARK_REPRIMAND_DAMAGE              = 373130,
+    SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
-    SPELL_PRIEST_DIVINE_STAR_DAMAGE                 = 122128,
-    SPELL_PRIEST_DIVINE_STAR_HEAL                   = 110745,
+    SPELL_PRIEST_DIVINE_STAR_HOLY                   = 110744,
+    SPELL_PRIEST_DIVINE_STAR_SHADOW                 = 122121,
+    SPELL_PRIEST_DIVINE_STAR_HOLY_DAMAGE            = 122128,
+    SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL              = 110745,
+    SPELL_PRIEST_DIVINE_STAR_SHADOW_DAMAGE          = 390845,
+    SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL            = 390981,
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
+    SPELL_PRIEST_EMPOWERED_RENEW_HEAL               = 391359,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
-    SPELL_PRIEST_HALO_DAMAGE                        = 120696,
-    SPELL_PRIEST_HALO_HEAL                          = 120692,
+    SPELL_PRIEST_HALO_HOLY                          = 120517,
+    SPELL_PRIEST_HALO_SHADOW                        = 120644,
+    SPELL_PRIEST_HALO_HOLY_DAMAGE                   = 120696,
+    SPELL_PRIEST_HALO_HOLY_HEAL                     = 120692,
+    SPELL_PRIEST_HALO_SHADOW_DAMAGE                 = 390964,
+    SPELL_PRIEST_HALO_SHADOW_HEAL                   = 390971,
     SPELL_PRIEST_HEAL                               = 2060,
+    SPELL_PRIEST_HOLY_MENDING_HEAL                  = 391156,
     SPELL_PRIEST_HOLY_WORD_CHASTISE                 = 88625,
     SPELL_PRIEST_HOLY_WORD_SANCTIFY                 = 34861,
     SPELL_PRIEST_HOLY_WORD_SERENITY                 = 2050,
@@ -78,12 +94,18 @@ enum PriestSpells
     SPELL_PRIEST_POWER_WORD_SHIELD                  = 17,
     SPELL_PRIEST_POWER_WORD_SOLACE_ENERGIZE         = 129253,
     SPELL_PRIEST_PRAYER_OF_HEALING                  = 596,
+    SPELL_PRIEST_PURGE_THE_WICKED                   = 204197,
+    SPELL_PRIEST_PURGE_THE_WICKED_DUMMY             = 204215,
+    SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC          = 204213,
     SPELL_PRIEST_RAPTURE                            = 47536,
     SPELL_PRIEST_RENEW                              = 139,
     SPELL_PRIEST_RENEWED_HOPE                       = 197469,
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
+    SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
+    SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
+    SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
     SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE          = 197045,
     SPELL_PRIEST_SINS_OF_THE_MANY                   = 280398,
@@ -92,6 +114,7 @@ enum PriestSpells
     SPELL_PRIEST_STRENGTH_OF_SOUL                   = 197535,
     SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT            = 197548,
     SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
+    SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL                = 234946,
     SPELL_PRIEST_TRINITY                            = 214205,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
@@ -231,8 +254,7 @@ class spell_pri_atonement : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL, SPELL_PRIEST_SINS_OF_THE_MANY })
-            && spellInfo->GetEffects().size() > EFFECT_1
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SINS_OF_THE_MANY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_PRIEST_SINS_OF_THE_MANY, EFFECT_2 } });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -283,7 +305,8 @@ public:
 
     void UpdateSinsOfTheManyValue()
     {
-        constexpr std::array<float, 11> damageByStack = { 12.0f, 12.0f, 10.0f, 8.0f, 7.0f, 6.0f, 5.0f, 5.0f, 4.0f, 4.0f, 3.0f };
+        // Note: the damage dimish starts at the 6th application as of 10.0.5.
+        constexpr std::array<float, 20> damageByStack = { 40.0f, 40.0f, 40.0f, 40.0f, 40.0f, 35.0f, 30.0f, 25.0f, 20.0f, 15.0f, 11.0f, 8.0f, 5.0f, 4.0f, 3.0f, 2.5f, 2.0f, 1.5f, 1.25f, 1.0f };
 
         for (SpellEffIndex effectIndex : { EFFECT_0, EFFECT_1, EFFECT_2 })
             if (AuraEffect* sinOfTheMany = GetUnitOwner()->GetAuraEffect(SPELL_PRIEST_SINS_OF_THE_MANY, effectIndex))
@@ -327,6 +350,33 @@ class spell_pri_atonement_triggered : public AuraScript
     }
 };
 
+// 204883 - Circle of Healing
+class spell_pri_circle_of_healing : public SpellScript
+{
+    PrepareSpellScript(spell_pri_circle_of_healing);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        // Note: we must remove one since target is always chosen.
+        uint32 const maxTargets = uint32(GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(GetCaster()) - 1);
+
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
+
+        if (Unit* explicitTarget = GetExplTargetUnit())
+            targets.push_front(explicitTarget);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_circle_of_healing::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
 // 64844 - Divine Hymn
 class spell_pri_divine_hymn : public SpellScript
 {
@@ -351,31 +401,59 @@ class spell_pri_divine_hymn : public SpellScript
     }
 };
 
-// 110744 - Divine Star
+// 122121 - Divine Star (Shadow)
+class spell_pri_divine_star_shadow : public SpellScript
+{
+    PrepareSpellScript(spell_pri_divine_star_shadow);
+
+    void HandleHitTarget(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+
+        if (caster->GetPowerType() != GetEffectInfo().MiscValue)
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_divine_star_shadow::HandleHitTarget, EFFECT_2, SPELL_EFFECT_ENERGIZE);
+    }
+};
+
+// 110744 - Divine Star (Holy)
+// 122121 - Divine Star (Shadow)
 struct areatrigger_pri_divine_star : AreaTriggerAI
 {
-    areatrigger_pri_divine_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+    areatrigger_pri_divine_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _maxTravelDistance(0.0f) { }
 
     void OnInitialize() override
     {
-        if (Unit* caster = at->GetCaster())
-        {
-            _casterCurrentPosition = caster->GetPosition();
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(at->GetSpellId(), DIFFICULTY_NONE);
+        if (!spellInfo)
+            return;
 
-            // Note: max. distance at which the Divine Star can travel to is 24 yards.
-            float divineStarXOffSet = 24.0f;
+        if (spellInfo->GetEffects().size() <= EFFECT_1)
+            return;
 
-            Position destPos = _casterCurrentPosition;
-            at->MovePositionToFirstCollision(destPos, divineStarXOffSet, 0.0f);
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
 
-            PathGenerator firstPath(at);
-            firstPath.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
+        _casterCurrentPosition = caster->GetPosition();
 
-            G3D::Vector3 const& endPoint = firstPath.GetPath().back();
+        // Note: max. distance at which the Divine Star can travel to is EFFECT_1's BasePoints yards.
+        _maxTravelDistance = float(spellInfo->GetEffect(EFFECT_1).CalcValue(caster));
 
-            // Note: it takes 1000ms to reach 24 yards, so it takes 41.67ms to run 1 yard.
-            at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * 41.67f);
-        }
+        Position destPos = _casterCurrentPosition;
+        at->MovePositionToFirstCollision(destPos, _maxTravelDistance, 0.0f);
+
+        PathGenerator firstPath(at);
+        firstPath.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
+
+        G3D::Vector3 const& endPoint = firstPath.GetPath().back();
+
+        // Note: it takes 1000ms to reach EFFECT_1's BasePoints yards, so it takes (1000 / EFFECT_1's BasePoints)ms to run 1 yard.
+        at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * float(1000 / _maxTravelDistance));
     }
 
     void OnUpdate(uint32 diff) override
@@ -385,35 +463,34 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (Unit* caster = at->GetCaster())
-        {
-            if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
-            {
-                if (caster->IsValidAttackTarget(unit))
-                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                else if (caster->IsValidAssistTarget(unit))
-                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-
-                _affectedUnits.push_back(unit->GetGUID());
-            }
-        }
+        HandleUnitEnterExit(unit);
     }
 
     void OnUnitExit(Unit* unit) override
     {
         // Note: this ensures any unit receives a second hit if they happen to be inside the AT when Divine Star starts its return path.
-        if (Unit* caster = at->GetCaster())
-        {
-            if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
-            {
-                if (caster->IsValidAttackTarget(unit))
-                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                else if (caster->IsValidAssistTarget(unit))
-                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+        HandleUnitEnterExit(unit);
+    }
 
-                _affectedUnits.push_back(unit->GetGUID());
-            }
-        }
+    void HandleUnitEnterExit(Unit* unit)
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) != _affectedUnits.end())
+            return;
+
+        constexpr TriggerCastFlags TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS;
+
+        if (caster->IsValidAttackTarget(unit))
+            caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_DIVINE_STAR_SHADOW ? SPELL_PRIEST_DIVINE_STAR_SHADOW_DAMAGE : SPELL_PRIEST_DIVINE_STAR_HOLY_DAMAGE,
+                TriggerFlags);
+        else if (caster->IsValidAssistTarget(unit))
+            caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_DIVINE_STAR_SHADOW ? SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL : SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL,
+                TriggerFlags);
+
+        _affectedUnits.push_back(unit->GetGUID());
     }
 
     void OnDestinationReached() override
@@ -436,21 +513,22 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
     {
         _scheduler.Schedule(0ms, [this](TaskContext task)
         {
-            if (Unit* caster = at->GetCaster())
-            {
-                _casterCurrentPosition = caster->GetPosition();
+            Unit* caster = at->GetCaster();
+            if (!caster)
+                return;
 
-                Movement::PointsArray returnSplinePoints;
+            _casterCurrentPosition = caster->GetPosition();
 
-                returnSplinePoints.push_back(PositionToVector3(at));
-                returnSplinePoints.push_back(PositionToVector3(at));
-                returnSplinePoints.push_back(PositionToVector3(caster));
-                returnSplinePoints.push_back(PositionToVector3(caster));
+            Movement::PointsArray returnSplinePoints;
 
-                at->InitSplines(returnSplinePoints, at->GetDistance(caster) / 24 * 1000);
+            returnSplinePoints.push_back(PositionToVector3(at));
+            returnSplinePoints.push_back(PositionToVector3(at));
+            returnSplinePoints.push_back(PositionToVector3(caster));
+            returnSplinePoints.push_back(PositionToVector3(caster));
 
-                task.Repeat(250ms);
-            }
+            at->InitSplines(returnSplinePoints, uint32(at->GetDistance(caster) / _maxTravelDistance * 1000));
+
+            task.Repeat(250ms);
         });
     }
 
@@ -458,6 +536,38 @@ private:
     TaskScheduler _scheduler;
     Position _casterCurrentPosition;
     std::vector<ObjectGuid> _affectedUnits;
+    float _maxTravelDistance;
+};
+
+// 391339 - Empowered Renew
+class spell_pri_empowered_renew : public AuraScript
+{
+    PrepareAuraScript(spell_pri_empowered_renew);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_RENEW, SPELL_PRIEST_EMPOWERED_RENEW_HEAL })
+            && ValidateSpellEffect({ { SPELL_PRIEST_RENEW, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_RENEW, DIFFICULTY_NONE)->GetEffect(EFFECT_0).IsAura(SPELL_AURA_PERIODIC_HEAL);
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetProcTarget();
+
+        SpellInfo const* renewSpellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_RENEW, GetCastDifficulty());
+        SpellEffectInfo const& renewEffect = renewSpellInfo->GetEffect(EFFECT_0);
+        int32 estimatedTotalHeal = AuraEffect::CalculateEstimatedfTotalPeriodicAmount(caster, target, renewSpellInfo, renewEffect, renewEffect.CalcValue(caster), 1);
+        int32 healAmount = CalculatePct(estimatedTotalHeal, aurEff->GetAmount());
+
+        caster->CastSpell(target, SPELL_PRIEST_EMPOWERED_RENEW_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount));
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_empowered_renew::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 47788 - Guardian Spirit
@@ -469,7 +579,7 @@ class spell_pri_guardian_spirit : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL }) && spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellInfo({ SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL }) && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool Load() override
@@ -506,7 +616,27 @@ class spell_pri_guardian_spirit : public AuraScript
     }
 };
 
-// 120517 - Halo
+// 120644 - Halo (Shadow)
+class spell_pri_halo_shadow : public SpellScript
+{
+    PrepareSpellScript(spell_pri_halo_shadow);
+
+    void HandleHitTarget(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+
+        if (caster->GetPowerType() != GetEffectInfo().MiscValue)
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_halo_shadow::HandleHitTarget, EFFECT_1, SPELL_EFFECT_ENERGIZE);
+    }
+};
+
+// 120517 - Halo (Holy)
+// 120644 - Halo (Shadow)
 struct areatrigger_pri_halo : AreaTriggerAI
 {
     areatrigger_pri_halo(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
@@ -516,10 +646,39 @@ struct areatrigger_pri_halo : AreaTriggerAI
         if (Unit* caster = at->GetCaster())
         {
             if (caster->IsValidAttackTarget(unit))
-                caster->CastSpell(unit, SPELL_PRIEST_HALO_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_HALO_SHADOW ? SPELL_PRIEST_HALO_SHADOW_DAMAGE : SPELL_PRIEST_HALO_HOLY_DAMAGE,
+                    TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
             else if (caster->IsValidAssistTarget(unit))
-                caster->CastSpell(unit, SPELL_PRIEST_HALO_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_HALO_SHADOW ? SPELL_PRIEST_HALO_SHADOW_HEAL : SPELL_PRIEST_HALO_HOLY_HEAL,
+                    TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
         }
+    }
+};
+
+// 391154 - Holy Mending
+class spell_pri_holy_mending : public AuraScript
+{
+    PrepareAuraScript(spell_pri_holy_mending);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_RENEW, SPELL_PRIEST_HOLY_MENDING_HEAL });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        return procInfo.GetProcTarget()->HasAura(SPELL_PRIEST_RENEW, procInfo.GetActor()->GetGUID());
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_HOLY_MENDING_HEAL, CastSpellExtraArgs(aurEff));
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_holy_mending::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectProc += AuraEffectProcFn(spell_pri_holy_mending::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -530,8 +689,8 @@ class spell_pri_holy_words : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
+        return ValidateSpellInfo(
+        {
             SPELL_PRIEST_HEAL,
             SPELL_PRIEST_FLASH_HEAL,
             SPELL_PRIEST_PRAYER_OF_HEALING,
@@ -540,10 +699,12 @@ class spell_pri_holy_words : public AuraScript
             SPELL_PRIEST_HOLY_WORD_CHASTISE,
             SPELL_PRIEST_HOLY_WORD_SANCTIFY,
             SPELL_PRIEST_HOLY_WORD_SERENITY
-            })
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_SERENITY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_SANCTIFY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_3
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_CHASTISE, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+        }) && ValidateSpellEffect(
+        {
+            { SPELL_PRIEST_HOLY_WORD_SERENITY, EFFECT_1 },
+            { SPELL_PRIEST_HOLY_WORD_SANCTIFY, EFFECT_3 },
+            { SPELL_PRIEST_HOLY_WORD_CHASTISE, EFFECT_1 }
+        });
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -575,7 +736,7 @@ class spell_pri_holy_words : public AuraScript
                 cdReductionEffIndex = EFFECT_1;
                 break;
             default:
-                TC_LOG_WARN("spells.priest", "HolyWords aura has been proced by an unknown spell: %u", GetSpellInfo()->Id);
+                TC_LOG_WARN("spells.priest", "HolyWords aura has been proced by an unknown spell: {}", GetSpellInfo()->Id);
                 return;
         }
 
@@ -687,23 +848,62 @@ class spell_pri_mind_bomb : public AuraScript
     }
 };
 
-// 47540 - Penance
-class spell_pri_penance : public SpellScript
+// 390686 - Painful Punishment
+class spell_pri_painful_punishment : public AuraScript
 {
-    PrepareSpellScript(spell_pri_penance);
+    PrepareAuraScript(spell_pri_painful_punishment);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
-            SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE,
-            SPELL_PRIEST_PENANCE_CHANNEL_HEALING
+            SPELL_PRIEST_SHADOW_WORD_PAIN,
+            SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC
         });
+    }
+
+    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+        if (!caster || !target)
+            return;
+
+        int32 additionalDuration = aurEff->GetAmount();
+
+        if (Aura* shadowWordPain = target->GetOwnedAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()))
+            shadowWordPain->SetDuration(shadowWordPain->GetDuration() + additionalDuration);
+
+        if (Aura* purgeTheWicked = target->GetOwnedAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID()))
+            purgeTheWicked->SetDuration(purgeTheWicked->GetDuration() + additionalDuration);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_painful_punishment::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 47540 - Penance
+// 400169 - Dark Reprimand
+class spell_pri_penance : public SpellScript
+{
+    PrepareSpellScript(spell_pri_penance);
+
+public:
+    spell_pri_penance(uint32 damageSpellId, uint32 healingSpellId) : _damageSpellId(damageSpellId), _healingSpellId(healingSpellId)
+    {
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _damageSpellId, _healingSpellId });
     }
 
     SpellCastResult CheckCast()
     {
         Unit* caster = GetCaster();
+
         if (Unit* target = GetExplTargetUnit())
         {
             if (!caster->IsFriendlyTo(target))
@@ -726,9 +926,9 @@ class spell_pri_penance : public SpellScript
         if (Unit* target = GetHitUnit())
         {
             if (caster->IsFriendlyTo(target))
-                caster->CastSpell(target, SPELL_PRIEST_PENANCE_CHANNEL_HEALING, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+                caster->CastSpell(target, _healingSpellId, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
             else
-                caster->CastSpell(target, SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+                caster->CastSpell(target, _damageSpellId, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
         }
     }
 
@@ -737,12 +937,17 @@ class spell_pri_penance : public SpellScript
         OnCheckCast += SpellCheckCastFn(spell_pri_penance::CheckCast);
         OnEffectHitTarget += SpellEffectFn(spell_pri_penance::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
+
+private:
+    uint32 _damageSpellId;
+    uint32 _healingSpellId;
 };
 
 // 47758 - Penance (Channel Damage), 47757 - Penance (Channel Healing)
-class spell_pri_penance_channeled : public AuraScript
+// 373129 - Dark Reprimand (Channel Damage), 400171 - Dark Reprimand (Channel Healing)
+class spell_pri_penance_or_dark_reprimand_channeled : public AuraScript
 {
-    PrepareAuraScript(spell_pri_penance_channeled);
+    PrepareAuraScript(spell_pri_penance_or_dark_reprimand_channeled);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -757,7 +962,7 @@ class spell_pri_penance_channeled : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_pri_penance_channeled::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_pri_penance_or_dark_reprimand_channeled::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -791,6 +996,7 @@ class spell_pri_power_of_the_dark_side : public AuraScript
 };
 
 // 47666 - Penance (Damage)
+// 373130 - Dark Reprimand (Damage)
 class spell_pri_power_of_the_dark_side_damage_bonus : public SpellScript
 {
     PrepareSpellScript(spell_pri_power_of_the_dark_side_damage_bonus);
@@ -821,6 +1027,7 @@ class spell_pri_power_of_the_dark_side_damage_bonus : public SpellScript
 };
 
 // 47750 - Penance (Healing)
+// 400187 - Dark Reprimand (Healing)
 class spell_pri_power_of_the_dark_side_healing_bonus : public SpellScript
 {
     PrepareSpellScript(spell_pri_power_of_the_dark_side_healing_bonus);
@@ -858,7 +1065,7 @@ class spell_pri_power_word_radiance : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT, SPELL_PRIEST_ATONEMENT_TRIGGERED, SPELL_PRIEST_TRINITY })
-            && spellInfo->GetEffects().size() > EFFECT_3;
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } });
     }
 
     void OnTargetSelect(std::list<WorldObject*>& targets)
@@ -1081,7 +1288,7 @@ public:
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, SPELL_PRIEST_PRAYER_OF_MENDING_AURA })
-            && !sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, DIFFICULTY_NONE)->GetEffects().empty();
+            && ValidateSpellEffect({ { SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, EFFECT_0 } });
     }
 
     bool Load() override
@@ -1129,7 +1336,13 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP });
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_PRAYER_OF_MENDING_HEAL,
+            SPELL_PRIEST_PRAYER_OF_MENDING_JUMP,
+            SPELL_PRIEST_SAY_YOUR_PRAYERS
+        })
+            && ValidateSpellEffect({ { SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0 } });
     }
 
     void HandleHeal(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -1148,7 +1361,14 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
             {
                 CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = caster->GetGUID();
-                args.AddSpellMod(SPELLVALUE_BASE_POINT0, stackAmount - 1);
+
+                int32 newStackAmount = stackAmount - 1;
+                if (AuraEffect* sayYourPrayers = caster->GetAuraEffect(SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0))
+                    if (roll_chance_i(sayYourPrayers->GetAmount()))
+                        ++newStackAmount;
+
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, newStackAmount);
+
                 target->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP, args);
             }
 
@@ -1208,6 +1428,109 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     }
 };
 
+// 204197 - Purge the Wicked
+// Called by Penance - 47540, Dark Reprimand - 400169
+class spell_pri_purge_the_wicked : public SpellScript
+{
+    PrepareSpellScript(spell_pri_purge_the_wicked);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC,
+            SPELL_PRIEST_PURGE_THE_WICKED_DUMMY
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (target->HasAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID()))
+            caster->CastSpell(target, SPELL_PRIEST_PURGE_THE_WICKED_DUMMY, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_purge_the_wicked::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 204215 - Purge the Wicked
+class spell_pri_purge_the_wicked_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_pri_purge_the_wicked_dummy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, SPELL_PRIEST_REVEL_IN_PURITY })
+            && ValidateSpellEffect({ { SPELL_PRIEST_REVEL_IN_PURITY, EFFECT_1 } });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* caster = GetCaster();
+        Unit* explTarget = GetExplTargetUnit();
+
+        targets.remove_if([&](WorldObject* object) -> bool
+        {
+            // Note: we must remove any non-unit target, the explicit target and any other target that may be under any crowd control aura.
+            Unit* target = object->ToUnit();
+            return !target || target == explTarget || target->HasBreakableByDamageCrowdControlAura();
+        });
+
+        if (targets.empty())
+            return;
+
+        // Note: there's no SPELL_EFFECT_DUMMY with BasePoints 1 in any of the spells related to use as reference so we hardcode the value.
+        uint32 spreadCount = 1;
+
+        // Note: we must sort our list of targets whose priority is 1) aura, 2) distance, and 3) duration.
+        targets.sort([&](WorldObject const* lhs, WorldObject const* rhs) -> bool
+        {
+            Unit const* targetA = lhs->ToUnit();
+            Unit const* targetB = rhs->ToUnit();
+
+            Aura* auraA = targetA->GetAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID());
+            Aura* auraB = targetB->GetAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID());
+
+            if (!auraA)
+            {
+                if (auraB)
+                    return true;
+                return explTarget->GetExactDist(targetA) < explTarget->GetExactDist(targetB);
+            }
+            if (!auraB)
+                return false;
+
+            return auraA->GetDuration() < auraB->GetDuration();
+        });
+
+        // Note: Revel in Purity talent.
+        if (caster->HasAura(SPELL_PRIEST_REVEL_IN_PURITY))
+            spreadCount += sSpellMgr->AssertSpellInfo(SPELL_PRIEST_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(GetCaster());
+
+        if (targets.size() > spreadCount)
+            targets.resize(spreadCount);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        caster->CastSpell(target, SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_purge_the_wicked_dummy::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_purge_the_wicked_dummy::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 47536 - Rapture
 class spell_pri_rapture : public SpellScript
 {
@@ -1229,7 +1552,7 @@ class spell_pri_rapture : public SpellScript
 
         if (Unit* target = ObjectAccessor::GetUnit(*caster, _raptureTarget))
             caster->CastSpell(target, SPELL_PRIEST_POWER_WORD_SHIELD,
-                CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+                CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS)
                 .SetTriggeringSpell(GetSpell()));
     }
 
@@ -1479,6 +1802,64 @@ class spell_pri_t10_heal_2p_bonus : public AuraScript
     }
 };
 
+// 200128 - Trail of Light
+class spell_pri_trail_of_light : public AuraScript
+{
+    PrepareAuraScript(spell_pri_trail_of_light);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (_healQueue.empty() || _healQueue.back() != eventInfo.GetActionTarget()->GetGUID())
+            _healQueue.push(eventInfo.GetActionTarget()->GetGUID());
+
+        if (_healQueue.size() > 2)
+            _healQueue.pop();
+
+        if (_healQueue.size() == 2)
+            return true;
+
+        return false;
+    }
+
+    void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = GetTarget();
+        Unit* oldTarget = ObjectAccessor::GetUnit(*caster, _healQueue.front());
+        if (!oldTarget)
+            return;
+
+        // Note: old target may not be friendly anymore due to charm and faction change effects.
+        if (!caster->IsValidAssistTarget(oldTarget))
+            return;
+
+        SpellInfo const* healSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL, DIFFICULTY_NONE);
+        if (!healSpellInfo)
+            return;
+
+        // Note: distance may be greater than the heal's spell range.
+        if (!caster->IsWithinDist(oldTarget, healSpellInfo->GetMaxRange(true, caster)))
+            return;
+
+        uint32 healAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+
+        caster->CastSpell(oldTarget, SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount));
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_trail_of_light::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_trail_of_light::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+private:
+    std::queue<ObjectGuid> _healQueue;
+};
+
 // 109142 - Twist of Fate (Shadow)
 // 265259 - Twist of Fate (Discipline)
 class spell_pri_twist_of_fate : public AuraScript
@@ -1608,17 +1989,23 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_aq_3p_bonus);
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_triggered);
+    RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_divine_hymn);
+    RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
+    RegisterSpellScript(spell_pri_empowered_renew);
     RegisterSpellScript(spell_pri_guardian_spirit);
+    RegisterSpellScript(spell_pri_halo_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
     RegisterSpellScript(spell_pri_holy_words);
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
     RegisterSpellScript(spell_pri_mind_bomb);
-    RegisterSpellScript(spell_pri_penance);
-    RegisterSpellScript(spell_pri_penance_channeled);
+    RegisterSpellScript(spell_pri_painful_punishment);
+    RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance", SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING);
+    RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_dark_reprimand", SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE, SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING);
+    RegisterSpellScript(spell_pri_penance_or_dark_reprimand_channeled);
     RegisterSpellScript(spell_pri_power_of_the_dark_side);
     RegisterSpellScript(spell_pri_power_of_the_dark_side_damage_bonus);
     RegisterSpellScript(spell_pri_power_of_the_dark_side_healing_bonus);
@@ -1628,11 +2015,14 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_prayer_of_mending);
     RegisterSpellScript(spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
+    RegisterSpellScript(spell_pri_purge_the_wicked);
+    RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
+    RegisterSpellScript(spell_pri_trail_of_light);
     RegisterSpellScript(spell_pri_t3_4p_bonus);
     RegisterSpellScript(spell_pri_t5_heal_2p_bonus);
     RegisterSpellScript(spell_pri_t10_heal_2p_bonus);

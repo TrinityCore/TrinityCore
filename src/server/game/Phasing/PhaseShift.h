@@ -20,8 +20,8 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
+#include "FlatSet.h"
 #include "ObjectGuid.h"
-#include <boost/container/flat_set.hpp>
 #include <map>
 
 class PhasingHandler;
@@ -82,7 +82,7 @@ public:
         typename Container::iterator Iterator;
         bool Erased;
     };
-    using PhaseContainer = boost::container::flat_set<PhaseRef>;
+    using PhaseContainer = Trinity::Containers::FlatSet<PhaseRef>;
     using VisibleMapIdContainer = std::map<uint32, VisibleMapIdRef>;
     using UiMapPhaseIdContainer = std::map<uint32, UiMapPhaseIdRef>;
 

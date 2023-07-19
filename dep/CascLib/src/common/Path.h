@@ -17,13 +17,20 @@
 template <typename xchar>
 struct CASC_PATH
 {
-    CASC_PATH(int chSeparator = PATH_SEP_CHAR)
+    CASC_PATH(const xchar * szRoot, ...)
     {
-        m_szBufferBegin = m_szBufferPtr = m_Buffer;
-        m_szBufferEnd = m_szBufferBegin + _countof(m_Buffer);
-        m_chSeparator = (xchar)chSeparator;
-        m_bLocalCache = 0;
-        m_Buffer[0] = 0;
+        va_list argList;
+
+        Initialize(PATH_SEP_CHAR);
+        
+        va_start(argList, szRoot);
+        Create(szRoot, argList);
+        va_end(argList);
+    }
+
+    CASC_PATH(xchar chSeparator = PATH_SEP_CHAR)
+    {
+        Initialize(chSeparator);
     }
 
     ~CASC_PATH()
@@ -34,10 +41,53 @@ struct CASC_PATH
         }
     }
 
-    // LPCTSTR szPath = Path;
-    operator const xchar *() const
+    void Create(const xchar * szRoot, ...)
     {
-        return m_szBufferBegin;
+        va_list argList;
+
+        va_start(argList, szRoot);
+        Create(szRoot, argList);
+        va_end(argList);
+    }
+
+    void Create(const xchar * szRoot, va_list argList)
+    {
+        const xchar * szPathPart;
+
+        // Fill-in the root path
+        SetPathRoot(szRoot);
+
+        // Append all parts until there is NULL
+        while((szPathPart = va_arg(argList, const xchar *)) != NULL)
+        {
+            AppendString(szPathPart, true);
+        }
+    }
+
+    bool CutLastPart()
+    {
+        xchar * szBufferPtr;
+
+        // Cut ending (back)slashes, if any
+        while((m_szBufferPtr > m_szBufferBegin) && (m_szBufferPtr[-1] == _T('\\') || m_szBufferPtr[-1] == _T('/')))
+            m_szBufferPtr--;
+        szBufferPtr = m_szBufferPtr - 1;
+
+        // Cut the last path part
+        while(szBufferPtr > m_szBufferBegin)
+        {
+            // End of path?
+            if(szBufferPtr[0] == _T('\\') || szBufferPtr[0] == _T('/'))
+            {
+                m_szBufferPtr = szBufferPtr;
+                m_szBufferPtr[0] = 0;
+                return true;
+            }
+
+            // Go one character back
+            szBufferPtr--;
+        }
+        return false;
     }
 
     void SetLocalCaching(int bLocalCache)
@@ -50,10 +100,21 @@ struct CASC_PATH
         return (m_bLocalCache != 0);
     }
 
+    // LPCTSTR szPath = Path;
+    operator const xchar * () const
+    {
+        return m_szBufferBegin;
+    }
+
     // LPTSTR szPath = Path.New();
-    xchar * New()
+    xchar * New(bool bCutLastPart = false)
     {
         xchar * szNewStr;
+
+        if(bCutLastPart)
+        {
+            CutLastPart();
+        }
 
         if((szNewStr = CASC_ALLOC<xchar>(Length() + 1)) != NULL)
         {
@@ -77,12 +138,11 @@ struct CASC_PATH
             m_szBufferPtr[0] = 0;
             return true;
         }
-
         return false;
     }
 
-    // Path.Copy(szBuffer, _countof(szBuffer));
-    bool Copy(xchar * szBuffer, size_t cchBuffer)
+    // Path.CopyTo(szBuffer, _countof(szBuffer));
+    bool CopyTo(xchar * szBuffer, size_t cchBuffer)
     {
         if((Length() + 1) > cchBuffer)
             return false;
@@ -182,6 +242,15 @@ struct CASC_PATH
     }
 
     protected:
+
+    void Initialize(xchar chSeparator)
+    {
+        m_szBufferBegin = m_szBufferPtr = m_Buffer;
+        m_szBufferEnd = m_szBufferBegin + _countof(m_Buffer);
+        m_chSeparator = chSeparator;
+        m_bLocalCache = 0;
+        m_Buffer[0] = 0;
+    }
 
     xchar * m_szBufferBegin;
     xchar * m_szBufferPtr;

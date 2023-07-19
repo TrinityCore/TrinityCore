@@ -30,8 +30,8 @@ void WorldPackets::Item::BuyItem::Read()
     _worldPacket >> Quantity;
     _worldPacket >> Muid;
     _worldPacket >> Slot;
+    ItemType = _worldPacket.read<ItemVendorType, int32>();
     _worldPacket >> Item;
-    ItemType = static_cast<ItemVendorType>(_worldPacket.ReadBits(3));
 }
 
 WorldPacket const* WorldPackets::Item::BuySucceeded::Write()
@@ -258,13 +258,26 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
     _worldPacket << uint32(BattlePetBreedQuality);
     _worldPacket << int32(BattlePetLevel);
     _worldPacket << ItemGUID;
+    _worldPacket << uint32(Toasts.size());
+    for (UiEventToast const& uiEventToast : Toasts)
+        _worldPacket << uiEventToast;
+
     _worldPacket.WriteBit(Pushed);
     _worldPacket.WriteBit(Created);
     _worldPacket.WriteBits(DisplayText, 3);
     _worldPacket.WriteBit(IsBonusRoll);
     _worldPacket.WriteBit(IsEncounterLoot);
+    _worldPacket.WriteBit(CraftingData.has_value());
+    _worldPacket.WriteBit(FirstCraftOperationID.has_value());
     _worldPacket.FlushBits();
+
     _worldPacket << Item;
+
+    if (FirstCraftOperationID)
+        _worldPacket << uint32(*FirstCraftOperationID);
+
+    if (CraftingData)
+        _worldPacket << *CraftingData;
 
     return &_worldPacket;
 }

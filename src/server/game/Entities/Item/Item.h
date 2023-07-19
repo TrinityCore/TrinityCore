@@ -172,7 +172,7 @@ class TC_GAME_API Item : public Object
     friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
 
     public:
-        static Item* CreateItem(uint32 itemEntry, uint32 count, ItemContext context, Player const* player = nullptr);
+        static Item* CreateItem(uint32 itemEntry, uint32 count, ItemContext context, Player const* player = nullptr, bool addDefaultBonuses = true);
         Item* CloneItem(uint32 count, Player const* player = nullptr) const;
 
         Item();
@@ -226,6 +226,7 @@ class TC_GAME_API Item : public Object
         void CheckArtifactRelicSlotUnlock(Player const* owner);
 
         void AddBonuses(uint32 bonusListID);
+        std::vector<int32> const& GetBonusListIDs() const { return m_itemData->ItemBonusKey->BonusListIDs; }
         void SetBonuses(std::vector<int32> bonusListIDs);
         void ClearBonuses();
 
@@ -411,6 +412,7 @@ class TC_GAME_API Item : public Object
 
         uint32 GetVisibleEntry(Player const* owner) const;
         uint16 GetVisibleAppearanceModId(Player const* owner) const;
+        uint32 GetVisibleModifiedAppearanceId(Player const* owner) const;
         int32 GetVisibleSecondaryModifiedAppearanceId(Player const* owner) const;
         uint32 GetVisibleEnchantmentId(Player const* owner) const;
         uint16 GetVisibleItemVisual(Player const* owner) const;

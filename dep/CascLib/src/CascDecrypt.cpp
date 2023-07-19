@@ -51,8 +51,8 @@ static CASC_ENCRYPTION_KEY StaticCascKeys[] =
     // Battle.net app
     { 0x2C547F26A2613E01ULL, { 0x37, 0xC5, 0x0C, 0x10, 0x2D, 0x4C, 0x9E, 0x3A, 0x5A, 0xC0, 0x69, 0xF0, 0x72, 0xB1, 0x41, 0x7D } },   // Battle.net App Alpha 1.5.0
 
-    // Starcraft
-//  { 0xD0CAE11366CEEA83ULL, { 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x?? } },   // 1.12.3.2609 (build 45364)
+    // StarCraft II
+    { 0xD0CAE11366CEEA83ULL, { 0x00, 0x41, 0x61, 0x07, 0x8E, 0x5A, 0x61, 0x20, 0x32, 0x1E, 0xA5, 0xFF, 0xE4, 0xDC, 0xD1, 0x26 } },   // Nova Covert Ops Expansion
 
     // Warcraft III Reforged beta (build)
     { 0x6E4296823E7D561EULL, { 0xC0, 0xBF, 0xA2, 0x94, 0x3A, 0xC3, 0xE9, 0x22, 0x86, 0xE4, 0x44, 0x3E, 0xE3, 0x56, 0x0D, 0x65 } },   // 1.32.0.13369 Base content (Beta Week 0)
@@ -767,7 +767,7 @@ bool WINAPI CascAddEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPBYTE Key)
 
     // Validate the storage handle
     hs = TCascStorage::IsValid(hStorage);
-    if (hs == NULL)
+    if(hs == NULL)
     {
         SetCascError(ERROR_INVALID_HANDLE);
         return false;
@@ -804,7 +804,7 @@ LPBYTE WINAPI CascFindEncryptionKey(HANDLE hStorage, ULONGLONG KeyName)
 
     // Validate the storage handle
     hs = TCascStorage::IsValid(hStorage);
-    if (hs == NULL)
+    if(hs == NULL)
     {
         SetCascError(ERROR_INVALID_HANDLE);
         return NULL;
@@ -819,7 +819,7 @@ bool WINAPI CascGetNotFoundEncryptionKey(HANDLE hStorage, ULONGLONG * KeyName)
     TCascStorage * hs;
 
     // Validate the storage handle
-    if ((hs = TCascStorage::IsValid(hStorage)) == NULL)
+    if((hs = TCascStorage::IsValid(hStorage)) == NULL)
     {
         SetCascError(ERROR_INVALID_HANDLE);
         return false;

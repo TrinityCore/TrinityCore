@@ -69,7 +69,7 @@ std::string Ticket::GetAssignedToName() const
 
 void Ticket::TeleportTo(Player* player) const
 {
-    player->TeleportTo(_mapId, _pos.GetPositionX(), _pos.GetPositionY(), _pos.GetPositionZ(), 0.0f, 0);
+    player->TeleportTo(_mapId, _pos.GetPositionX(), _pos.GetPositionY(), _pos.GetPositionZ(), 0.0f);
 }
 
 std::string Ticket::FormatViewMessageString(ChatHandler& handler, char const* closedName, char const* assignedToName, char const* unassignedName, char const* deletedName) const
@@ -513,7 +513,7 @@ void SupportMgr::LoadBugTickets()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u GM bugs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} GM bugs in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SupportMgr::LoadComplaintTickets()
@@ -568,7 +568,7 @@ void SupportMgr::LoadComplaintTickets()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u GM complaints in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} GM complaints in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SupportMgr::LoadSuggestionTickets()
@@ -608,7 +608,7 @@ void SupportMgr::LoadSuggestionTickets()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u GM suggestions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} GM suggestions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SupportMgr::AddTicket(BugTicket* ticket)

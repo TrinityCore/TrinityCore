@@ -326,7 +326,7 @@ namespace WorldPackets
             void Read() override;
 
             int32 MissingQuestCount = 0;
-            std::array<int32, 125> MissingQuestPOIs;
+            std::array<int32, 175> MissingQuestPOIs;
         };
 
         class QuestPOIQueryResponse final : public ServerPacket
@@ -439,11 +439,12 @@ namespace WorldPackets
             uint8 LookupState = 0;
             WorldPackets::Auth::VirtualRealmNameInfo NameInfo;
         };
+
+        ByteBuffer& operator<<(ByteBuffer& data, PlayerGuidLookupHint const& lookupHint);
+        ByteBuffer& operator<<(ByteBuffer& data, PlayerGuidLookupData const& lookupData);
     }
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupData const& lookupData);
 ByteBuffer& operator<<(ByteBuffer& data, QuestPOIData const& questPOIData);
 
 #endif // QueryPackets_h__

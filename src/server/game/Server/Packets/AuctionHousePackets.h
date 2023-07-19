@@ -51,7 +51,7 @@ namespace WorldPackets
         struct AuctionListFilterSubClass
         {
             int32 ItemSubclass = 0;
-            uint32 InvTypeMask = 0;
+            uint64 InvTypeMask = 0;
         };
 
         struct AuctionListFilterClass
@@ -152,6 +152,8 @@ namespace WorldPackets
             uint32 Offset = 0;
             uint8 MinLevel = 1;
             uint8 MaxLevel = MAX_LEVEL;
+            uint8 Unused1007_1 = 0;
+            uint8 Unused1007_2 = 0;
             AuctionHouseFilterMask Filters = AuctionHouseFilterMask(0);
             std::vector<uint8> KnownPets; // size checked separately in Read()
             int8 MaxPetLevel = 0;
@@ -418,7 +420,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Guid;
-            uint32 DeliveryDelay = 0;
+            uint32 PurchasedItemDeliveryDelay = 0;
+            uint32 CancelledItemDeliveryDelay = 0;
             bool OpenForBusiness = true;
         };
 

@@ -82,6 +82,7 @@ public:
     void Close();
 
     Realm const* GetRealm(Battlenet::RealmHandle const& id) const;
+    bool GetRealmNames(Battlenet::RealmHandle const& id, std::string* name, std::string* normalizedName) const;
 
     RealmBuildInfo const* GetBuildInfo(uint32 build) const;
     uint32 GetMinorMajorBugfixVersionForBuild(uint32 build) const;
@@ -97,7 +98,7 @@ private:
     void LoadBuildInfo();
     void UpdateRealms(boost::system::error_code const& error);
     void UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
-        boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr, boost::asio::ip::address&& localSubmask,
+        boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr,
         uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
     std::vector<RealmBuildInfo> _builds;

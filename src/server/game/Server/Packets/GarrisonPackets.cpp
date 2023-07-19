@@ -481,13 +481,4 @@ WorldPacket const* GarrisonBuildingActivated::Write()
 
     return &_worldPacket;
 }
-
-WorldPacket const* GarrisonOpenTalentNpc::Write()
-{
-    _worldPacket << NpcGUID;
-    _worldPacket << int32(GarrTalentTreeID);
-    _worldPacket << int32(FriendshipFactionID);
-
-    return &_worldPacket;
-}
 }

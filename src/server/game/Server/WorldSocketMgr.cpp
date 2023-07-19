@@ -22,9 +22,9 @@
 #include "WorldSocket.h"
 #include <boost/system/error_code.hpp>
 
-static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
+static void OnSocketAccept(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
 {
-    sWorldSocketMgr.OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
+    sWorldSocketMgr.OnSocketOpen(std::forward<boost::asio::ip::tcp::socket>(sock), threadIndex);
 }
 
 class WorldSocketThread : public NetworkThread<WorldSocket>
@@ -62,7 +62,7 @@ bool WorldSocketMgr::StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std:
     _tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
 
     int const max_connections = TRINITY_MAX_LISTEN_CONNECTIONS;
-    TC_LOG_DEBUG("misc", "Max allowed socket connections %d", max_connections);
+    TC_LOG_DEBUG("misc", "Max allowed socket connections {}", max_connections);
 
     // -1 means use default
     _socketSystemSendBufferSize = sConfigMgr->GetIntDefault("Network.OutKBuff", -1);
@@ -85,7 +85,7 @@ bool WorldSocketMgr::StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std:
     }
     catch (boost::system::system_error const& err)
     {
-        TC_LOG_ERROR("network", "Exception caught in WorldSocketMgr::StartNetwork (%s:%u): %s", bindIp.c_str(), port, err.what());
+        TC_LOG_ERROR("network", "Exception caught in WorldSocketMgr::StartNetwork ({}:{}): {}", bindIp, port, err.what());
         return false;
     }
 
@@ -120,7 +120,7 @@ void WorldSocketMgr::StopNetwork()
     sScriptMgr->OnNetworkStop();
 }
 
-void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
+void WorldSocketMgr::OnSocketOpen(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
 {
     // set some options here
     if (_socketSystemSendBufferSize >= 0)
@@ -129,7 +129,7 @@ void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
         sock.set_option(boost::asio::socket_base::send_buffer_size(_socketSystemSendBufferSize), err);
         if (err && err != boost::system::errc::not_supported)
         {
-            TC_LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::socket_base::send_buffer_size) err = %s", err.message().c_str());
+            TC_LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::socket_base::send_buffer_size) err = {}", err.message());
             return;
         }
     }
@@ -141,14 +141,14 @@ void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
         sock.set_option(boost::asio::ip::tcp::no_delay(true), err);
         if (err)
         {
-            TC_LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::ip::tcp::no_delay) err = %s", err.message().c_str());
+            TC_LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::ip::tcp::no_delay) err = {}", err.message());
             return;
         }
     }
 
     //sock->m_OutBufferSize = static_cast<size_t> (m_SockOutUBuff);
 
-    BaseSocketMgr::OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
+    BaseSocketMgr::OnSocketOpen(std::forward<boost::asio::ip::tcp::socket>(sock), threadIndex);
 }
 
 NetworkThread<WorldSocket>* WorldSocketMgr::CreateThreads() const

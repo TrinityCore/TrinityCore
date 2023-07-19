@@ -23,12 +23,13 @@
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
+#include "Map.h"
 #include "NPCHandler.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "QueryPackets.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "TerrainMgr.h"
 #include "World.h"
 
@@ -71,19 +72,23 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
 {
     if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(packet.CreatureID))
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE '%s' - Entry: %u.", ci->Name.c_str(), packet.CreatureID);
-        if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+        TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE '{}' - Entry: {}.", ci->Name, packet.CreatureID);
+
+        Difficulty difficulty = _player->GetMap()->GetDifficultyID();
+
+        // Cache only exists for difficulty base
+        if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES) && difficulty == DIFFICULTY_NONE)
             SendPacket(&ci->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
         else
         {
-            WorldPacket response = ci->BuildQueryData(GetSessionDbLocaleIndex());
+            WorldPacket response = ci->BuildQueryData(GetSessionDbLocaleIndex(), difficulty);
             SendPacket(&response);
         }
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUERY_CREATURE_RESPONSE");
     }
     else
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE - NO CREATURE INFO! (ENTRY: %u)", packet.CreatureID);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE - NO CREATURE INFO! (ENTRY: {})", packet.CreatureID);
 
         WorldPackets::Query::QueryCreatureResponse response;
         response.CreatureID = packet.CreatureID;
@@ -108,7 +113,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
     }
     else
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (ENTRY: %u)", packet.GameObjectID);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (ENTRY: {})", packet.GameObjectID);
 
         WorldPackets::Query::QueryGameObjectResponse response;
         response.GameObjectID = packet.GameObjectID;
@@ -151,7 +156,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
                     mapID = corpseMapEntry->CorpseMapID;
                     x = corpseMapEntry->Corpse.X;
                     y = corpseMapEntry->Corpse.Y;
-                    z = entranceTerrain->GetStaticHeight(player->GetPhaseShift(), x, y, MAX_HEIGHT);
+                    z = entranceTerrain->GetStaticHeight(player->GetPhaseShift(), mapID, x, y, MAX_HEIGHT);
                 }
             }
         }
@@ -169,7 +174,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
 
 void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY TextId: %u", packet.TextID);
+    TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY TextId: {}", packet.TextID);
 
     NpcText const* npcText = sObjectMgr->GetNpcText(packet.TextID);
 
@@ -188,7 +193,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
     }
 
     if (!response.Allow)
-        TC_LOG_ERROR("sql.sql", "HandleNpcTextQueryOpcode: no BroadcastTextID found for text %u in `npc_text table`", packet.TextID);
+        TC_LOG_ERROR("sql.sql", "HandleNpcTextQueryOpcode: no BroadcastTextID found for text {} in `npc_text table`", packet.TextID);
 
     SendPacket(response.Write());
 }
@@ -254,7 +259,7 @@ void WorldSession::HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQues
 
         if (!sObjectMgr->GetQuestTemplate(questID))
         {
-            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUERY_QUEST_COMPLETION_NPCS by %s", questID, _player->GetGUID().ToString().c_str());
+            TC_LOG_DEBUG("network", "WORLD: Unknown quest {} in CMSG_QUERY_QUEST_COMPLETION_NPCS by {}", questID, _player->GetGUID().ToString());
             continue;
         }
 
@@ -317,11 +322,11 @@ void WorldSession::HandleQueryRealmName(WorldPackets::Query::QueryRealmName& que
     realmQueryResponse.VirtualRealmAddress = queryRealmName.VirtualRealmAddress;
 
     Battlenet::RealmHandle realmHandle(queryRealmName.VirtualRealmAddress);
-    if (sObjectMgr->GetRealmName(realmHandle.Realm, realmQueryResponse.NameInfo.RealmNameActual, realmQueryResponse.NameInfo.RealmNameNormalized))
+    if (sRealmList->GetRealmNames(realmHandle, &realmQueryResponse.NameInfo.RealmNameActual, &realmQueryResponse.NameInfo.RealmNameNormalized))
     {
         realmQueryResponse.LookupState = RESPONSE_SUCCESS;
         realmQueryResponse.NameInfo.IsInternalRealm = false;
-        realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == realm.Id.GetAddress();
+        realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == GetVirtualRealmAddress();
     }
     else
         realmQueryResponse.LookupState = RESPONSE_FAILURE;

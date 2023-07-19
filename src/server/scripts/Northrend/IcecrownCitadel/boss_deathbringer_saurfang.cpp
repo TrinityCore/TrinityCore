@@ -16,6 +16,7 @@
  */
 
 #include "icecrown_citadel.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
@@ -281,7 +282,7 @@ struct boss_deathbringer_saurfang : public BossAI
 
         if (!instance->CheckRequiredBosses(DATA_DEATHBRINGER_SAURFANG, who->ToPlayer()))
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             return;
         }
@@ -386,7 +387,7 @@ struct boss_deathbringer_saurfang : public BossAI
             if (target->GetTransport())
             {
                 summon->DespawnOrUnsummon(1ms);
-                EnterEvadeMode(EVADE_REASON_OTHER);
+                EnterEvadeMode(EvadeReason::Other);
                 return;
             }
 
@@ -416,7 +417,7 @@ struct boss_deathbringer_saurfang : public BossAI
     {
         if (target->GetTransport())
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             return;
         }
 

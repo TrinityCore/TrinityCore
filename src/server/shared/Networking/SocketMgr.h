@@ -24,8 +24,6 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <memory>
 
-using boost::asio::ip::tcp;
-
 template<class SocketType>
 class SocketMgr
 {
@@ -46,7 +44,7 @@ public:
         }
         catch (boost::system::system_error const& err)
         {
-            TC_LOG_ERROR("network", "Exception caught in SocketMgr.StartNetwork (%s:%u): %s", bindIp.c_str(), port, err.what());
+            TC_LOG_ERROR("network", "Exception caught in SocketMgr.StartNetwork ({}:{}): {}", bindIp, port, err.what());
             return false;
         }
 
@@ -95,7 +93,7 @@ public:
                 _threads[i].Wait();
     }
 
-    virtual void OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
+    virtual void OnSocketOpen(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
     {
         try
         {
@@ -106,7 +104,7 @@ public:
         }
         catch (boost::system::system_error const& err)
         {
-            TC_LOG_WARN("network", "Failed to retrieve client's remote address %s", err.what());
+            TC_LOG_WARN("network", "Failed to retrieve client's remote address {}", err.what());
         }
     }
 
@@ -123,7 +121,7 @@ public:
         return min;
     }
 
-    std::pair<tcp::socket*, uint32> GetSocketForAccept()
+    std::pair<boost::asio::ip::tcp::socket*, uint32> GetSocketForAccept()
     {
         uint32 threadIndex = SelectThreadWithMinConnections();
         return std::make_pair(_threads[threadIndex].GetSocketForAccept(), threadIndex);

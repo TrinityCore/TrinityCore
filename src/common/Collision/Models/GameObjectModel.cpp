@@ -22,6 +22,7 @@
 #include "GameObjectModel.h"
 #include "Log.h"
 #include "MapTree.h"
+#include "Memory.h"
 #include "Timer.h"
 #include <G3D/Quat.h>
 
@@ -42,24 +43,23 @@ struct GameobjectModelData
 typedef std::unordered_map<uint32, GameobjectModelData> ModelList;
 ModelList model_list;
 
-void LoadGameObjectModelList(std::string const& dataPath)
+bool LoadGameObjectModelList(std::string const& dataPath)
 {
     uint32 oldMSTime = getMSTime();
 
-    FILE* model_list_file = fopen((dataPath + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb");
+    auto model_list_file = Trinity::make_unique_ptr_with_deleter(fopen((dataPath + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb"), &::fclose);
     if (!model_list_file)
     {
-        TC_LOG_ERROR("misc", "Unable to open '%s' file.", VMAP::GAMEOBJECT_MODELS);
-        return;
+        TC_LOG_ERROR("misc", "Unable to open '{}' file.", VMAP::GAMEOBJECT_MODELS);
+        return false;
     }
 
     char magic[8];
-    if (fread(magic, 1, 8, model_list_file) != 8
+    if (fread(magic, 1, 8, model_list_file.get()) != 8
         || memcmp(magic, VMAP::VMAP_MAGIC, 8) != 0)
     {
-        TC_LOG_ERROR("misc", "File '%s' has wrong header, expected %s.", VMAP::GAMEOBJECT_MODELS, VMAP::VMAP_MAGIC);
-        fclose(model_list_file);
-        return;
+        TC_LOG_ERROR("misc", "File '{}' has wrong header, expected {}.", VMAP::GAMEOBJECT_MODELS, VMAP::VMAP_MAGIC);
+        return false;
     }
 
     uint32 name_length, displayId;
@@ -68,32 +68,32 @@ void LoadGameObjectModelList(std::string const& dataPath)
     while (true)
     {
         Vector3 v1, v2;
-        if (fread(&displayId, sizeof(uint32), 1, model_list_file) != 1)
-            if (feof(model_list_file))  // EOF flag is only set after failed reading attempt
+        if (fread(&displayId, sizeof(uint32), 1, model_list_file.get()) != 1)
+            if (feof(model_list_file.get()))  // EOF flag is only set after failed reading attempt
                 break;
 
-        if (fread(&isWmo, sizeof(uint8), 1, model_list_file) != 1
-            || fread(&name_length, sizeof(uint32), 1, model_list_file) != 1
+        if (fread(&isWmo, sizeof(uint8), 1, model_list_file.get()) != 1
+            || fread(&name_length, sizeof(uint32), 1, model_list_file.get()) != 1
             || name_length >= sizeof(buff)
-            || fread(&buff, sizeof(char), name_length, model_list_file) != name_length
-            || fread(&v1, sizeof(Vector3), 1, model_list_file) != 1
-            || fread(&v2, sizeof(Vector3), 1, model_list_file) != 1)
+            || fread(&buff, sizeof(char), name_length, model_list_file.get()) != name_length
+            || fread(&v1, sizeof(Vector3), 1, model_list_file.get()) != 1
+            || fread(&v2, sizeof(Vector3), 1, model_list_file.get()) != 1)
         {
-            TC_LOG_ERROR("misc", "File '%s' seems to be corrupted!", VMAP::GAMEOBJECT_MODELS);
+            TC_LOG_ERROR("misc", "File '{}' seems to be corrupted!", VMAP::GAMEOBJECT_MODELS);
             break;
         }
 
         if (v1.isNaN() || v2.isNaN())
         {
-            TC_LOG_ERROR("misc", "File '%s' Model '%s' has invalid v1%s v2%s values!", VMAP::GAMEOBJECT_MODELS, std::string(buff, name_length).c_str(), v1.toString().c_str(), v2.toString().c_str());
+            TC_LOG_ERROR("misc", "File '{}' Model '{}' has invalid v1{} v2{} values!", VMAP::GAMEOBJECT_MODELS, std::string(buff, name_length), v1.toString(), v2.toString());
             continue;
         }
 
         model_list.emplace(std::piecewise_construct, std::forward_as_tuple(displayId), std::forward_as_tuple(&buff[0], name_length, v1, v2, isWmo != 0));
     }
 
-    fclose(model_list_file);
-    TC_LOG_INFO("server.loading", ">> Loaded %u GameObject models in %u ms", uint32(model_list.size()), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} GameObject models in {} ms", uint32(model_list.size()), GetMSTimeDiffToNow(oldMSTime));
+    return true;
 }
 
 GameObjectModel::~GameObjectModel()
@@ -112,7 +112,7 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
     // ignore models with no bounds
     if (mdl_box == G3D::AABox::zero())
     {
-        TC_LOG_ERROR("misc", "GameObject model %s has zero bounds, loading skipped", it->second.name.c_str());
+        TC_LOG_ERROR("misc", "GameObject model {} has zero bounds, loading skipped", it->second.name);
         return false;
     }
 
@@ -227,7 +227,9 @@ bool GameObjectModel::GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationI
     Vector3 pModel = iInvRot * (point - iPos) * iInvScale;
     Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
     float zDist;
-    if (iModel->GetLocationInfo(pModel, zDirModel, zDist, info))
+
+    VMAP::GroupLocationInfo groupInfo;
+    if (iModel->GetLocationInfo(pModel, zDirModel, zDist, groupInfo))
     {
         Vector3 modelGround = pModel + zDist * zDirModel;
         float world_Z = ((modelGround * iInvRot) * iScale + iPos).z;
@@ -270,7 +272,7 @@ bool GameObjectModel::UpdatePosition()
     // ignore models with no bounds
     if (mdl_box == G3D::AABox::zero())
     {
-        TC_LOG_ERROR("misc", "GameObject model %s has zero bounds, loading skipped", it->second.name.c_str());
+        TC_LOG_ERROR("misc", "GameObject model {} has zero bounds, loading skipped", it->second.name);
         return false;
     }
 

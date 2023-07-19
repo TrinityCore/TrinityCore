@@ -16,6 +16,7 @@
  */
 
 #include "zulgurub.h"
+#include "Containers.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"

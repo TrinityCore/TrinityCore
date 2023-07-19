@@ -78,11 +78,11 @@ void ExtractGameobjectModels()
 {
     printf("Extracting GameObject models...\n");
 
-    DB2CascFileSource source(CascStorage, GameobjectDisplayInfoLoadInfo::Instance()->Meta->FileDataId);
+    DB2CascFileSource source(CascStorage, GameobjectDisplayInfoLoadInfo::Instance.Meta->FileDataId);
     DB2FileLoader db2;
     try
     {
-        db2.Load(&source, GameobjectDisplayInfoLoadInfo::Instance());
+        db2.Load(&source, &GameobjectDisplayInfoLoadInfo::Instance);
     }
     catch (std::exception const& e)
     {
@@ -113,7 +113,7 @@ void ExtractGameobjectModels()
         if (!fileId)
             continue;
 
-        std::string fileName = Trinity::StringFormat("FILE%08X.xxx", fileId);
+        std::string fileName = Trinity::StringFormat("FILE{:08X}.xxx", fileId);
         bool result = false;
         uint32 header;
         if (!GetHeaderMagic(fileName, &header))

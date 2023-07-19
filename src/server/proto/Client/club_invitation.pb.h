@@ -24,6 +24,7 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
+#include "global_extensions/field_options.pb.h"  // IWYU pragma: export
 #include "club_core.pb.h"
 #include "club_member.pb.h"
 #include "api/client/v2/attribute_types.pb.h"
@@ -78,19 +79,6 @@ class TC_PROTO_API ClubSlot : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ClubSlot* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ClubSlot& from);
-  void MergeFrom(const ClubSlot& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -167,19 +155,6 @@ class TC_PROTO_API SendInvitationOptions : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   SendInvitationOptions* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const SendInvitationOptions& from);
-  void MergeFrom(const SendInvitationOptions& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -273,19 +248,6 @@ class TC_PROTO_API ClubInvitation : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ClubInvitation* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ClubInvitation& from);
-  void MergeFrom(const ClubInvitation& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -445,19 +407,6 @@ class TC_PROTO_API SendSuggestionOptions : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   SendSuggestionOptions* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const SendSuggestionOptions& from);
-  void MergeFrom(const SendSuggestionOptions& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -500,12 +449,21 @@ class TC_PROTO_API SendSuggestionOptions : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
       mutable_attribute();
 
+  // optional uint32 join_club_source = 4;
+  inline bool has_join_club_source() const;
+  inline void clear_join_club_source();
+  static const int kJoinClubSourceFieldNumber = 4;
+  inline ::google::protobuf::uint32 join_club_source() const;
+  inline void set_join_club_source(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.SendSuggestionOptions)
  private:
   inline void set_has_target_id();
   inline void clear_has_target_id();
   inline void set_has_slot();
   inline void clear_has_slot();
+  inline void set_has_join_club_source();
+  inline void clear_has_join_club_source();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -514,6 +472,7 @@ class TC_PROTO_API SendSuggestionOptions : public ::google::protobuf::Message {
   ::bgs::protocol::club::v1::MemberId* target_id_;
   ::bgs::protocol::club::v1::ClubSlot* slot_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute > attribute_;
+  ::google::protobuf::uint32 join_club_source_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5finvitation_2eproto();
   friend void protobuf_AssignDesc_club_5finvitation_2eproto();
   friend void protobuf_ShutdownFile_club_5finvitation_2eproto();
@@ -551,19 +510,6 @@ class TC_PROTO_API ClubSuggestion : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ClubSuggestion* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ClubSuggestion& from);
-  void MergeFrom(const ClubSuggestion& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -709,19 +655,6 @@ class TC_PROTO_API CreateTicketOptions : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   CreateTicketOptions* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const CreateTicketOptions& from);
-  void MergeFrom(const CreateTicketOptions& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -769,6 +702,13 @@ class TC_PROTO_API CreateTicketOptions : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 expiration_time() const;
   inline void set_expiration_time(::google::protobuf::uint64 value);
 
+  // optional uint32 join_club_source = 5;
+  inline bool has_join_club_source() const;
+  inline void clear_join_club_source();
+  static const int kJoinClubSourceFieldNumber = 5;
+  inline ::google::protobuf::uint32 join_club_source() const;
+  inline void set_join_club_source(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.CreateTicketOptions)
  private:
   inline void set_has_slot();
@@ -777,6 +717,8 @@ class TC_PROTO_API CreateTicketOptions : public ::google::protobuf::Message {
   inline void clear_has_allowed_redeem_count();
   inline void set_has_expiration_time();
   inline void clear_has_expiration_time();
+  inline void set_has_join_club_source();
+  inline void clear_has_join_club_source();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -786,6 +728,7 @@ class TC_PROTO_API CreateTicketOptions : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute > attribute_;
   ::google::protobuf::uint64 expiration_time_;
   ::google::protobuf::uint32 allowed_redeem_count_;
+  ::google::protobuf::uint32 join_club_source_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5finvitation_2eproto();
   friend void protobuf_AssignDesc_club_5finvitation_2eproto();
   friend void protobuf_ShutdownFile_club_5finvitation_2eproto();
@@ -823,19 +766,6 @@ class TC_PROTO_API ClubTicket : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ClubTicket* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ClubTicket& from);
-  void MergeFrom(const ClubTicket& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -1565,6 +1495,30 @@ SendSuggestionOptions::mutable_attribute() {
   return &attribute_;
 }
 
+// optional uint32 join_club_source = 4;
+inline bool SendSuggestionOptions::has_join_club_source() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void SendSuggestionOptions::set_has_join_club_source() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void SendSuggestionOptions::clear_has_join_club_source() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void SendSuggestionOptions::clear_join_club_source() {
+  join_club_source_ = 0u;
+  clear_has_join_club_source();
+}
+inline ::google::protobuf::uint32 SendSuggestionOptions::join_club_source() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.SendSuggestionOptions.join_club_source)
+  return join_club_source_;
+}
+inline void SendSuggestionOptions::set_join_club_source(::google::protobuf::uint32 value) {
+  set_has_join_club_source();
+  join_club_source_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.SendSuggestionOptions.join_club_source)
+}
+
 // -------------------------------------------------------------------
 
 // ClubSuggestion
@@ -1939,6 +1893,30 @@ inline void CreateTicketOptions::set_expiration_time(::google::protobuf::uint64 
   set_has_expiration_time();
   expiration_time_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.CreateTicketOptions.expiration_time)
+}
+
+// optional uint32 join_club_source = 5;
+inline bool CreateTicketOptions::has_join_club_source() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void CreateTicketOptions::set_has_join_club_source() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void CreateTicketOptions::clear_has_join_club_source() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void CreateTicketOptions::clear_join_club_source() {
+  join_club_source_ = 0u;
+  clear_has_join_club_source();
+}
+inline ::google::protobuf::uint32 CreateTicketOptions::join_club_source() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.CreateTicketOptions.join_club_source)
+  return join_club_source_;
+}
+inline void CreateTicketOptions::set_join_club_source(::google::protobuf::uint32 value) {
+  set_has_join_club_source();
+  join_club_source_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.CreateTicketOptions.join_club_source)
 }
 
 // -------------------------------------------------------------------

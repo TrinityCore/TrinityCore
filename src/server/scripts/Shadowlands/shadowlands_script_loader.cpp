@@ -16,14 +16,18 @@
  */
 
 // This is where scripts' loading functions should be declared:
+void AddSC_covenant_spell_scripts();
+void AddSC_torghast_spell_scripts();
 
 void AddSC_boss_anduin_wrynn();
 void AddSC_instance_sepulcher_of_the_first_ones();
 
-// The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
 void AddShadowlandsScripts()
 {
+    AddSC_covenant_spell_scripts();
+    AddSC_torghast_spell_scripts();
+
+    // Sepulcher of the First Ones    
     AddSC_boss_anduin_wrynn();
     AddSC_instance_sepulcher_of_the_first_ones();
 }

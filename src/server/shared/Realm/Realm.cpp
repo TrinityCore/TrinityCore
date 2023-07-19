@@ -31,31 +31,24 @@ void Realm::SetName(std::string name)
 
 boost::asio::ip::address Realm::GetAddressForClient(boost::asio::ip::address const& clientAddr) const
 {
-    boost::asio::ip::address realmIp;
-
-    // Attempt to send best address for client
-    if (clientAddr.is_loopback())
+    std::array<boost::asio::ip::address, 2> addresses = std::array{ *ExternalAddress, * LocalAddress };
+    if (auto addressIndex = Trinity::Net::SelectAddressForClient(clientAddr, addresses))
     {
-        // Try guessing if realm is also connected locally
-        if (LocalAddress->is_loopback() || ExternalAddress->is_loopback())
-            realmIp = clientAddr;
-        else
+        switch (*addressIndex)
         {
-            // Assume that user connecting from the machine that bnetserver is located on
-            // has all realms available in his local network
-            realmIp = *LocalAddress;
+            case 0:
+                return *ExternalAddress;
+            case 1:
+                return *LocalAddress;
+            default:
+                break;
         }
     }
-    else
-    {
-        if (clientAddr.is_v4() && Trinity::Net::IsInNetwork(LocalAddress->to_v4(), LocalSubnetMask->to_v4(), clientAddr.to_v4()))
-            realmIp = *LocalAddress;
-        else
-            realmIp = *ExternalAddress;
-    }
 
-    // Return external IP
-    return realmIp;
+    if (clientAddr.is_loopback())
+        return *LocalAddress;
+
+    return *ExternalAddress;
 }
 
 uint32 Realm::GetConfigId() const
@@ -70,10 +63,10 @@ uint32 const Realm::ConfigIdByType[MAX_CLIENT_REALM_TYPE] =
 
 std::string Battlenet::RealmHandle::GetAddressString() const
 {
-    return Trinity::StringFormat("%u-%u-%u", Region, Site, Realm);
+    return Trinity::StringFormat("{}-{}-{}", Region, Site, Realm);
 }
 
 std::string Battlenet::RealmHandle::GetSubRegionAddress() const
 {
-    return Trinity::StringFormat("%u-%u-0", Region, Site);
+    return Trinity::StringFormat("{}-{}-0", Region, Site);
 }

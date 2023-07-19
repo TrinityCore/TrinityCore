@@ -82,11 +82,18 @@ class CASC_FILE_TREE
     // Retrieve the maximum FileDataId ever inserted
     DWORD GetNextFileDataId();
 
+#ifdef CASCLIB_DEBUG
+    void DumpFileDataIds(const char * szFileName)
+    {
+        FileDataIds.Dump(szFileName);
+    }
+#endif
+
     protected:
 
     PCASC_FILE_NODE InsertNew(PCASC_CKEY_ENTRY pCKeyEntry);
     PCASC_FILE_NODE InsertNew();
-    bool InsertToHashTable(PCASC_FILE_NODE pFileNode);
+    bool InsertToNameMap(PCASC_FILE_NODE pFileNode);
     bool InsertToIdTable(PCASC_FILE_NODE pFileNode);
 
     bool SetNodePlainName(PCASC_FILE_NODE pFileNode, const char * szPlainName, const char * szPlainNameEnd);
@@ -95,7 +102,8 @@ class CASC_FILE_TREE
     CASC_ARRAY NodeTable;                           // Dynamic array that holds all CASC_FILE_NODEs
     CASC_ARRAY NameTable;                           // Dynamic array that holds all node names
 
-    CASC_ARRAY FileDataIds;                         // Dynamic array that maps FileDataId -> CASC_FILE_NODE
+    CASC_SPARSE_ARRAY FileDataIds;                  // Dynamic array that maps FileDataId -> CASC_FILE_NODE
+    //CASC_ARRAY FileDataIds;                         // Dynamic array that maps FileDataId -> CASC_FILE_NODE
     CASC_MAP NameMap;                               // Map of FileNameHash -> CASC_FILE_NODE
 
     size_t FileDataIdOffset;                        // If nonzero, this is the offset of the "FileDataId" field in the CASC_FILE_NODE

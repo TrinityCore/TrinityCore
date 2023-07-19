@@ -124,7 +124,7 @@ typedef CASC_CKEY_ENTRY *PCASC_CKEY_ENTRY;
 
 extern unsigned char AsciiToLowerTable_Slash[256];
 extern unsigned char AsciiToUpperTable_BkSlash[256];
-extern unsigned char AsciiToHexTable[0x80];
+extern unsigned char AsciiToHexTable[128];
 extern unsigned char IntToHexChar[];
 
 //-----------------------------------------------------------------------------
@@ -186,7 +186,7 @@ inline DWORD Rol32(DWORD dwValue, DWORD dwRolCount)
 //-----------------------------------------------------------------------------
 // Big endian number manipulation
 
-inline DWORD ConvertBytesToInteger_2(LPBYTE ValueAsBytes)
+inline USHORT ConvertBytesToInteger_2(LPBYTE ValueAsBytes)
 {
     USHORT Value = 0;
 
@@ -325,7 +325,9 @@ void CascStrCopy(wchar_t * szTarget, size_t cchTarget, const wchar_t * szSource,
 //-----------------------------------------------------------------------------
 // Safe version of s(w)printf
 
+size_t CascStrPrintfV(char * buffer, size_t nCount, const char * format, va_list argList);
 size_t CascStrPrintf(char * buffer, size_t nCount, const char * format, ...);
+size_t CascStrPrintfV(wchar_t * buffer, size_t nCount, const wchar_t * format, va_list argList);
 size_t CascStrPrintf(wchar_t * buffer, size_t nCount, const wchar_t * format, ...);
 
 //-----------------------------------------------------------------------------
@@ -337,11 +339,6 @@ wchar_t * CascNewStr(const wchar_t * szString, size_t nCharsToReserve = 0);
 LPSTR  CascNewStrT2A(LPCTSTR szString, size_t nCharsToReserve = 0);
 LPTSTR CascNewStrA2T(LPCSTR szString, size_t nCharsToReserve = 0);
 
-size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, va_list argList);
-size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, ...);
-LPTSTR GetLastPathPart(LPTSTR szWorkPath);
-bool CutLastPathPart(LPTSTR szWorkPath);
-
 size_t NormalizeFileName_UpperBkSlash(char * szNormName, const char * szFileName, size_t cchMaxChars);
 size_t NormalizeFileName_LowerSlash(char * szNormName, const char * szFileName, size_t cchMaxChars);
 
@@ -350,6 +347,12 @@ ULONGLONG CalcFileNameHash(const char * szFileName);
 
 //-----------------------------------------------------------------------------
 // String conversion functions
+
+template <typename xchar>
+bool IsHexadecimalDigit(xchar ch)
+{
+    return ((ch < sizeof(AsciiToHexTable)) && (AsciiToHexTable[ch] != 0xFF));
+}
 
 template <typename xchar, typename INTXX>
 DWORD ConvertStringToInt(const xchar * szString, size_t nMaxDigits, INTXX & RefValue, const xchar ** PtrStringEnd = NULL)
@@ -448,34 +451,75 @@ xchar * StringFromBinary(LPBYTE pbBinary, size_t cbBinary, xchar * szBuffer)
 //-----------------------------------------------------------------------------
 // Structures for data blobs
 
-struct QUERY_KEY
+struct CASC_BLOB
 {
-    QUERY_KEY()
+    CASC_BLOB()
+    {
+        Reset();
+    }
+
+    ~CASC_BLOB()
+    {
+        Free();
+    }
+
+    void MoveFrom(CASC_BLOB & Source)
+    {
+        // Free current data, if any
+        Free();
+
+        // Take the source data
+        pbData = Source.pbData;
+        cbData = Source.cbData;
+
+        // Reset the source data without freeing
+        Source.Reset();
+    }
+
+    DWORD SetData(const void * pv, size_t cb)
+    {
+        if(SetSize(cb) != ERROR_SUCCESS)
+            return ERROR_NOT_ENOUGH_MEMORY;
+
+        memcpy(pbData, pv, cb);
+        return ERROR_SUCCESS;
+    }
+
+    DWORD SetSize(size_t cb)
+    {
+        Free();
+
+        // Always leave one extra byte for NUL character
+        if((pbData = CASC_ALLOC<BYTE>(cb + 1)) == NULL)
+            return ERROR_NOT_ENOUGH_MEMORY;
+
+        cbData = cb;
+        return ERROR_SUCCESS;
+    }
+
+    void Reset()
     {
         pbData = NULL;
         cbData = 0;
     }
 
-    ~QUERY_KEY()
+    void Free()
     {
-        CASC_FREE(pbData);
+        if(pbData != NULL)
+            CASC_FREE(pbData);
+        pbData = NULL;
         cbData = 0;
     }
 
-    DWORD SetData(const void * pv, size_t cb)
+    LPBYTE End() const
     {
-        if((pbData = CASC_ALLOC<BYTE>(cb)) == NULL)
-            return ERROR_NOT_ENOUGH_MEMORY;
-
-        memcpy(pbData, pv, cb);
-        cbData = cb;
-        return ERROR_SUCCESS;
+        return pbData + cbData;
     }
 
     LPBYTE pbData;
     size_t cbData;
 };
-typedef QUERY_KEY *PQUERY_KEY;
+typedef CASC_BLOB *PCASC_BLOB;
 
 //-----------------------------------------------------------------------------
 // File name utilities
@@ -526,20 +570,9 @@ bool CascCheckWildCard(const char * szString, const char * szWildCard);
 //-----------------------------------------------------------------------------
 // Hashing functions
 
-ULONGLONG HashStringJenkins(const char * szFileName);
-
 bool CascIsValidMD5(LPBYTE pbMd5);
 void CascCalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_hash);
 bool CascVerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expected_md5);
-
-//-----------------------------------------------------------------------------
-// Scanning a directory
-
-typedef bool (*INDEX_FILE_FOUND)(LPCTSTR szFileName, void * pvContext);
-
-bool DirectoryExists(LPCTSTR szDirectory);
-
-int ScanIndexDirectory(LPCTSTR szIndexPath, INDEX_FILE_FOUND pfnOnFileFound, void * pvContext);
 
 //-----------------------------------------------------------------------------
 // Argument structure versioning
