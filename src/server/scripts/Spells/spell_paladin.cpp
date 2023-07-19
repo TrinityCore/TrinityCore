@@ -1464,8 +1464,6 @@ class spell_pal_shield_of_vengeance_damage : public SpellScript
 {
     PrepareSpellScript(spell_pal_shield_of_vengeance_damage);
 
-    uint8 targetsCount = 0;
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targetsCount = targets.size();
@@ -1482,6 +1480,9 @@ class spell_pal_shield_of_vengeance_damage : public SpellScript
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_shield_of_vengeance_damage::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_pal_shield_of_vengeance_damage::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
+
+private:
+    uint8 targetsCount = 0;
 };
 
 // 85256 - Templar's Verdict
