@@ -46,8 +46,8 @@ public:
     bool Start(Trinity::Asio::IoContext* ioContext);
     void Stop();
 
-    boost::asio::ip::tcp::endpoint const& GetEndpointForClient(boost::asio::ip::address const& address) const;
     std::string const& GetHostnameForClient(boost::asio::ip::address const& address) const;
+    int32 GetPort() const { return _port; }
 
 private:
     void Run();
@@ -102,10 +102,8 @@ private:
     Battlenet::JSON::Login::FormInputs _formInputs;
     std::string _bindIP;
     int32 _port;
-    std::string _externalHostname;
-    boost::asio::ip::tcp::endpoint _externalEndpoint;
-    std::string _localHostname;
-    boost::asio::ip::tcp::endpoint _localEndpoint;
+    std::array<std::string, 2> _hostnames;
+    std::array<boost::asio::ip::address, 2> _addresses;
     uint32 _loginTicketDuration;
 
     HttpMethodHandlerMap _getHandlers;
