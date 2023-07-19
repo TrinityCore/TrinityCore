@@ -1898,6 +1898,9 @@ class TC_GAME_API Unit : public WorldObject
         // enables / disables combat interaction of this unit
         void SetIsCombatDisallowed(bool apply) { _isCombatDisallowed = apply; }
 
+        bool IsUninteractible() const { return HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE); }
+        void SetUninteractible(bool apply);
+
         void AddWorldEffect(int32 worldEffectId) { AddDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::WorldEffects)) = worldEffectId; }
         void RemoveWorldEffect(int32 worldEffectId)
         {

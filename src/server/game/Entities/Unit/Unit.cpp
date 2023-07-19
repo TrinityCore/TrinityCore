@@ -7968,6 +7968,14 @@ void Unit::SetImmuneToNPC(bool apply, bool keepCombat)
         RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
 }
 
+void Unit::SetUninteractible(bool apply)
+{
+    if (apply)
+        SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+    else
+        RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+}
+
 void Unit::SetCannotTurn(bool apply)
 {
     if (apply)
