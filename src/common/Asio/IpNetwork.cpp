@@ -104,7 +104,6 @@ Optional<std::size_t> SelectAddressForClient(boost::asio::ip::address const& cli
             if (address.is_v4() && !externalIpv4Index)
                 externalIpv4Index = i;
         }
-
     }
 
     if (IsInLocalNetwork(clientAddress) || clientAddress.is_loopback())

@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 #include "Tuples.h"
 #include "Types.h"
+#include <boost/preprocessor/punctuation/remove_parens.hpp>
 #include <memory>
 #include <vector>
 
@@ -1339,6 +1340,8 @@ class GenericSpellAndAuraScriptLoader : public SpellScriptLoader
     using AuraScriptType = typename Trinity::find_type_if_t<Trinity::SpellScripts::is_AuraScript, Ts...>;
     using ArgsType = typename Trinity::find_type_if_t<Trinity::is_tuple, Ts...>;
 
+    static_assert(!std::conjunction_v<std::is_same<SpellScriptType, Trinity::find_type_end>, std::is_same<AuraScriptType, Trinity::find_type_end>>, "At least one of SpellScript/AuraScript arguments must be provided for GenericSpellAndAuraScriptLoader");
+
 public:
     GenericSpellAndAuraScriptLoader(char const* name, ArgsType&& args) : SpellScriptLoader(name), _args(std::move(args)) { }
 
@@ -1362,9 +1365,9 @@ private:
     ArgsType _args;
 };
 
-#define RegisterSpellScriptWithArgs(spell_script, script_name, ...) new GenericSpellAndAuraScriptLoader<spell_script, decltype(std::make_tuple(__VA_ARGS__))>(script_name, std::make_tuple(__VA_ARGS__))
+#define RegisterSpellScriptWithArgs(spell_script, script_name, ...) new GenericSpellAndAuraScriptLoader<BOOST_PP_REMOVE_PARENS(spell_script), decltype(std::make_tuple(__VA_ARGS__))>(script_name, std::make_tuple(__VA_ARGS__))
 #define RegisterSpellScript(spell_script) RegisterSpellScriptWithArgs(spell_script, #spell_script)
-#define RegisterSpellAndAuraScriptPairWithArgs(script_1, script_2, script_name, ...) new GenericSpellAndAuraScriptLoader<script_1, script_2, decltype(std::make_tuple(__VA_ARGS__))>(script_name, std::make_tuple(__VA_ARGS__))
+#define RegisterSpellAndAuraScriptPairWithArgs(script_1, script_2, script_name, ...) new GenericSpellAndAuraScriptLoader<BOOST_PP_REMOVE_PARENS(script_1), BOOST_PP_REMOVE_PARENS(script_2), decltype(std::make_tuple(__VA_ARGS__))>(script_name, std::make_tuple(__VA_ARGS__))
 #define RegisterSpellAndAuraScriptPair(script_1, script_2) RegisterSpellAndAuraScriptPairWithArgs(script_1, script_2, #script_1)
 
 template <class AI>
