@@ -4060,7 +4060,6 @@ class spell_remnant_of_a_fallen_king_spawn : public AuraScript
             GetTarget()->SetObjectScale(5.0f);
             GetTarget()->GetAI()->DoAction(ACTION_ACTIVATE_REMNANT);
             GetTarget()->CastSpell(GetTarget(), SPELL_REMNANT_TIMER);
-            
         }
     }
 
@@ -4109,27 +4108,22 @@ class spell_anduin_wrynn_severed_soul : public AuraScript
     {
         switch (GetTargetApplication()->GetRemoveMode())
         {
-        case AURA_REMOVE_BY_DEATH:
-        case AURA_REMOVE_BY_CANCEL:
-        case AURA_REMOVE_BY_DEFAULT:
-        case AURA_REMOVE_BY_ENEMY_SPELL:
-        {
-
-            GetCaster()->CastSpell(GetCaster(), SPELL_CANCEL_LOST_SOUL, true);
-
-            if (TempSummon* summon = GetTarget()->ToTempSummon())
+            case AURA_REMOVE_BY_DEATH:
+            case AURA_REMOVE_BY_CANCEL:
+            case AURA_REMOVE_BY_DEFAULT:
+            case AURA_REMOVE_BY_ENEMY_SPELL:
             {
-                if (summon->GetSummonerUnit() == GetCaster())
+                GetCaster()->CastSpell(GetCaster(), SPELL_CANCEL_LOST_SOUL, true);
+
+                if (TempSummon* summon = GetTarget()->ToTempSummon())
                 {
-                    
-                    GetCaster()->NearTeleportTo(Position(soulPosition), false);
-                };
-                    
+                    if (summon->GetSummonerUnit() == GetCaster())
+                        GetCaster()->NearTeleportTo(Position(soulPosition), false);
+                }
+                break;
             }
-        }
-        break;
-        default:
-            return;
+            default:
+                return;
         }
     }
 
@@ -4158,14 +4152,20 @@ class spell_anduin_wrynn_lost_soul_mirror_image : public SpellScript
         ObjectGuid casterGuid = GetCaster()->GetGUID();
 
         targets.remove_if([casterGuid](WorldObject* target) -> bool
-            {
-                if (TempSummon* summon = target->ToUnit()->ToTempSummon())
-                {
-                    if (target->ToUnit()->ToTempSummon()->GetSummonerGUID() == casterGuid)
-                        return false;
-                }
-        return true;
-            });
+        {
+            Unit* unit = target->ToUnit();
+            if (!unit)
+                return true;
+
+            TempSummon* summon = unit->ToTempSummon();
+            if (!summon)
+                return true;
+
+            if (summon->GetSummonerGUID() != casterGuid)
+                return true;
+
+            return false;
+        });
     }
 
     void Register() override
@@ -4188,8 +4188,8 @@ class spell_remnant_of_a_fallen_king_return_to_kingsmourne : public AuraScript
         InstanceScript* instance = GetCaster()->GetInstanceScript();
         if (!instance)
             return;
-        Creature* anduin = instance->GetCreature(DATA_ANDUIN_WRYNN);
-        GetCaster()->CastSpell(anduin, SPELL_RETURN_TO_KINGSMOURNE, false);
+
+        GetCaster()->CastSpell(instance->GetCreature(DATA_ANDUIN_WRYNN), SPELL_RETURN_TO_KINGSMOURNE, false);
     }
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -4201,8 +4201,8 @@ class spell_remnant_of_a_fallen_king_return_to_kingsmourne : public AuraScript
         InstanceScript* instance = caster->GetInstanceScript();
         if (!instance)
             return;
-        Creature* anduin = instance->GetCreature(DATA_ANDUIN_WRYNN);
-        GetCaster()->CastSpell(anduin, SPELL_RETURN_TO_KINGSMOURNE, true);
+
+        GetCaster()->CastSpell(instance->GetCreature(DATA_ANDUIN_WRYNN), SPELL_RETURN_TO_KINGSMOURNE, true);
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -4210,20 +4210,17 @@ class spell_remnant_of_a_fallen_king_return_to_kingsmourne : public AuraScript
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
         {
             if (Creature* arthas = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
-            {
-                if (arthas->IsAIEnabled())
-                    arthas->DespawnOrUnsummon();
-            }
+                arthas->DespawnOrUnsummon();
 
             if (Creature* anduin = instance->GetCreature(DATA_ANDUIN_WRYNN))
             {
+                anduin->RemoveAurasDueToSpell(SPELL_DOMINATION_GRASP_ROOT_AREATRIGGER);
+                instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 0);
+                instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 1);
                 if (anduin->IsAIEnabled())
                 {
-                    anduin->RemoveAurasDueToSpell(SPELL_DOMINATION_GRASP_ROOT_AREATRIGGER);
                     anduin->AI()->DoAction(ACTION_EXIT_INTERMISSION);
                     anduin->AI()->DoCastSelf(SPELL_CANCEL_FORCE_OF_WILL);
-                    instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 0);
-                    instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 1);
                 }
             }
         }
@@ -4281,10 +4278,9 @@ class spell_anduin_wrynn_grim_reflections : public SpellScript
         uint8 reflectionsNumber = GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 4 : 3;
         std::vector<Position> grimReflections(std::begin(GrimReflections), std::end(GrimReflections));
         Trinity::Containers::RandomResize(grimReflections, reflectionsNumber);
+
         for (uint8 i = 0; i < reflectionsNumber; i++)
-        {
             GetCaster()->CastSpell(Position(grimReflections[i]), SPELL_GRIM_REFLECTIONS_SUMMON, true);
-        }
     }
 
     void Register() override
@@ -4436,15 +4432,13 @@ class spell_anduin_wrynn_hopelessness_expire : public AuraScript
     {
         switch (GetTargetApplication()->GetRemoveMode())
         {
-        case AURA_REMOVE_BY_ENEMY_SPELL:
-        case AURA_REMOVE_BY_EXPIRE:
-        case AURA_REMOVE_BY_DEATH:
-        {
-            GetTarget()->CastSpell(GetTarget(), SPELL_HOPELESSNESS_EXPLODE, true);
-        }
-            break;
-        default:
-            return;
+            case AURA_REMOVE_BY_ENEMY_SPELL:
+            case AURA_REMOVE_BY_EXPIRE:
+            case AURA_REMOVE_BY_DEATH:
+                GetTarget()->CastSpell(GetTarget(), SPELL_HOPELESSNESS_EXPLODE, true);
+                break;
+            default:
+                return;
         }        
     }    
 
@@ -4823,4 +4817,3 @@ void AddSC_boss_anduin_wrynn()
     RegisterSpellScript(spell_anduin_wrynn_blasphemy_init);
     RegisterSpellScript(spell_anduin_wrynn_progression_aura);
 }
-
