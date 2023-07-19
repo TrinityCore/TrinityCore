@@ -63,7 +63,9 @@ struct boss_kazzara_the_hellforged : public BossAI
 
     void JustAppeared() override
     {
-        me->SetUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_UNINTERACTIBLE));
+        me->SetUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE));
+        me->SetImmuneToPC(true);
+        me->SetImmuneToNPC(true);
         me->SetVisible(false);
     }
 
