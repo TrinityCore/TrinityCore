@@ -352,7 +352,7 @@ struct boss_kaelthas : public BossAI
     {
         Initialize();
         DoAction(ACTION_PREPARE_ADVISORS);
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
         me->SetEmoteState(EMOTE_ONESHOT_NONE);
         me->SetDisableGravity(false);
         me->SetTarget(ObjectGuid::Empty);
@@ -382,7 +382,7 @@ struct boss_kaelthas : public BossAI
         {
             case ACTION_START_ENCOUNTER:
                 Talk(SAY_INTRO);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
 
                 _advisorGuid[ADVISOR_THALADRED] = instance->GetGuidData(DATA_THALADRED);
                 _advisorGuid[ADVISOR_SANGUINAR] = instance->GetGuidData(DATA_SANGUINAR);
@@ -501,7 +501,7 @@ struct boss_kaelthas : public BossAI
             case POINT_TRANSITION_CENTER_ASCENDING:
                 me->SetFacingTo(float(M_PI));
                 Talk(SAY_PHASE5_NUTS);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->SetDisableGravity(true);
                 //me->SetHover(true); -- Set in sniffs, but breaks his visual.
                 events.ScheduleEvent(EVENT_TRANSITION_2, 2s);
@@ -520,7 +520,7 @@ struct boss_kaelthas : public BossAI
             case POINT_END_TRANSITION:
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->InterruptNonMeleeSpells(false);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->RemoveAurasDueToSpell(SPELL_FULLPOWER);
 
                 if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))

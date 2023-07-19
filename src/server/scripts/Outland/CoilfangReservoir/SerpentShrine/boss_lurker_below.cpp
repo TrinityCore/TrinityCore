@@ -138,7 +138,7 @@ struct boss_the_lurker_below : public BossAI
         instance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
         DoCast(me, SPELL_SUBMERGE); // submerge anim
         me->SetVisible(false); // we start invis under water, submerged
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(true);
         me->SetImmuneToPC(true);
     }
 
@@ -194,7 +194,7 @@ struct boss_the_lurker_below : public BossAI
                     WaitTimer = 3000;
                     CanStartEvent = true; // fresh fished from pool
                     me->SetImmuneToPC(false);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                 }
                 else
                     WaitTimer -= diff;

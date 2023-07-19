@@ -153,7 +153,7 @@ class boss_selin_fireheart : public CreatureScript
                     Unit* CrystalChosen = ObjectAccessor::GetUnit(*me, CrystalGUID);
                     if (CrystalChosen && CrystalChosen->IsAlive())
                     {
-                        CrystalChosen->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        CrystalChosen->SetUninteractible(false);
                         CrystalChosen->CastSpell(me, SPELL_MANA_RAGE, true);
                         events.ScheduleEvent(EVENT_EMPOWER, 10s, PHASE_DRAIN);
                     }

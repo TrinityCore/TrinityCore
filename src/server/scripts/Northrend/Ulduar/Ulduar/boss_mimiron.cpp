@@ -662,7 +662,7 @@ class boss_mimiron : public CreatureScript
                             break;
                         case EVENT_OUTTRO_3:
                             DoCast(me, SPELL_TELEPORT_VISUAL);
-                            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            me->SetUninteractible(true);
                             me->DespawnOrUnsummon(1s); // sniffs say 6 sec after, but it doesnt matter.
                             break;
                         default:
@@ -804,7 +804,7 @@ class boss_leviathan_mk_ii : public CreatureScript
                 switch (point)
                 {
                     case WP_MKII_P1_IDLE:
-                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(true);
                         DoCast(me, SPELL_HALF_HEAL);
 
                         if (Creature* mimiron = instance->GetCreature(DATA_MIMIRON))
@@ -1228,7 +1228,7 @@ class boss_aerial_command_unit : public CreatureScript
                 if (type == POINT_MOTION_TYPE && point == WP_AERIAL_P4_POS)
                 {
                     me->SetFacingTo(VehicleRelocation[WP_AERIAL_P4_POS].GetOrientation());
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
 
                     if (Creature* mimiron = instance->GetCreature(DATA_MIMIRON))

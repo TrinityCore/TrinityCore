@@ -190,7 +190,7 @@ public:
                 // Say text
                 Talk(SAY_MO_RESURRECTED);
 
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
             });
 

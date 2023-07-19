@@ -272,7 +272,7 @@ struct boss_prince_taldaram : public BossAI
 
     void RemovePrison()
     {
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
         summons.DespawnEntry(NPC_JEDOGA_CONTROLLER);
         me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
         me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), PrinceTaldaramGroundPositionZ, me->GetOrientation());

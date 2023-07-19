@@ -556,14 +556,14 @@ struct npc_nerubian_burrower : public ScriptedAI
                 me->RemoveAurasDueToSpell(SPELL_SUBMERGE_EFFECT);
                 DoCast(me, SPELL_EMERGE_EFFECT);
                 DoCast(me, SPELL_AWAKENED);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
             }
             else
             {
                 if (!me->HasAura(SPELL_PERMAFROST_HELPER))
                 {
                     DoCast(me, SPELL_SUBMERGE_EFFECT);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     DoCast(me, SPELL_PERSISTENT_DIRT, true);
                 }
             }
@@ -604,7 +604,7 @@ struct npc_frost_sphere : public ScriptedAI
             {
                 // we are close to the ground
                 me->GetMotionMaster()->MoveIdle();
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
                 DoCast(SPELL_PERMAFROST_MODEL);
                 DoCast(SPELL_PERMAFROST);
@@ -614,7 +614,7 @@ struct npc_frost_sphere : public ScriptedAI
             {
                 // we are in air
                 me->GetMotionMaster()->MoveIdle();
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 //At hit the ground
                 me->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
                 me->GetMotionMaster()->MoveFall(POINT_FALL_GROUND);

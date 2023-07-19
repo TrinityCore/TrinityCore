@@ -264,7 +264,7 @@ public:
         {
             Initialize();
             me->SetDisableGravity(true);
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
             me->setActive(true);
             me->SetFarVisible(true);
 
@@ -444,7 +444,7 @@ public:
 
         void InitializeAI() override
         {
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
             me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->AddUnitState(UNIT_STATE_STUNNED);
 
@@ -617,7 +617,7 @@ public:
         {
             if (summoned->GetEntry() == NPC_ARMAGEDDON_TARGET)
             {
-                summoned->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                summoned->SetUninteractible(true);
                 summoned->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         //      summoned->SetVisibility(VISIBILITY_OFF);  //with this we cant see the armageddon visuals
             }
