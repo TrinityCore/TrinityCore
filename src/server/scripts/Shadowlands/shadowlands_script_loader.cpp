@@ -18,12 +18,17 @@
 // This is where scripts' loading functions should be declared:
 void AddSC_covenant_spell_scripts();
 void AddSC_torghast_spell_scripts();
+void AddSC_boss_anduin_wrynn();
+void AddSC_instance_sepulcher_of_the_first_ones();
 
 void AddSC_boss_anduin_wrynn();
 void AddSC_instance_sepulcher_of_the_first_ones();
 
 void AddShadowlandsScripts()
 {
+    AddSC_boss_anduin_wrynn();
+    AddSC_instance_sepulcher_of_the_first_ones();
+
     AddSC_covenant_spell_scripts();
     AddSC_torghast_spell_scripts();
 

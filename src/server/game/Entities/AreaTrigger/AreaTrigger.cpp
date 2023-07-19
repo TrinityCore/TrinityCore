@@ -441,6 +441,11 @@ void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false>
     }
 }
 
+void AreaTrigger::SetTestData(AreaTriggerScaleCurveTemplate const& curve)
+{
+    //SetScaleCurve(m_values.ModifyValue(&UF::AreaTriggerData::OverrideScaleCurve), curve);
+}
+
 void AreaTrigger::UpdateTargetList()
 {
     std::vector<Unit*> targetList;
@@ -501,6 +506,8 @@ void AreaTrigger::SearchUnits(std::vector<Unit*>& targetList, float radius, bool
 void AreaTrigger::SearchUnitInSphere(std::vector<Unit*>& targetList)
 {
     float radius = _shape.SphereDatas.Radius;
+    float radiusTarget = _shape.SphereDatas.RadiusTarget;
+
     if (GetTemplate() && GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE))
     {
         if (GetCreateProperties()->MorphCurveId)
@@ -509,7 +516,27 @@ void AreaTrigger::SearchUnitInSphere(std::vector<Unit*>& targetList)
                 _shape.SphereDatas.RadiusTarget,
                 sDB2Manager.GetCurveValueAt(GetCreateProperties()->MorphCurveId, GetProgress()));
         }
+
+        if (m_areaTriggerData->OverrideScaleCurve->OverrideActive)
+        {
+            float testValue = GetScaleCurveValue(m_areaTriggerData->OverrideScaleCurve, GetProgress());
+            printf("My Radius is %f and my ScaleValue is %f", radius, testValue);
+            radius *= testValue;
+        }
+
+        if (GetCreateProperties()->ScaleCurveId)
+        {
+            radius *= sDB2Manager.GetCurveValueAt(GetCreateProperties()->ScaleCurveId, GetProgress());
+        }
     }
+
+    if (Unit* caster = GetCaster())
+        if (Player* playerCaster = caster->ToPlayer())
+        {
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(GetSpellId(), playerCaster->GetMap()->GetDifficultyID());
+            if (spellInfo)
+                playerCaster->ApplySpellMod(spellInfo, SpellModOp::Radius, radius);
+        }
 
     SearchUnits(targetList, radius, true);
 }

@@ -29,11 +29,13 @@ uint32 const EncounterCount = 11;
 enum SepulcherOfTheFirstOnesDataTypes
 {
     // Bosses
-
+    DATA_VIGILANT_CUSTODIAN = 1,
     DATA_ANDUIN_WRYNN = 7,
-
+    DATA_MALGANIS = 8,
+    DATA_KINTESSA = 9,
 
     // Encounter-related data
+    DATA_ANDUIN_WRYNN_INTRODUCTION,
     DATA_ANDUIN_GAMEOBJECTS,
     DATA_BEFOULED_BARRIER,
     DATA_EMPTY_VESSEL,
@@ -44,6 +46,7 @@ enum SepulcherOfTheFirstOnesDataTypes
     DATA_BEACON_OF_HOPE,
     DATA_JAINA_PROUDMOORE,
     DATA_UTHER_THE_LIGHTBRINGER,
+    DATA_FIRIM,
     DATA_BRIDGE_TO_ANDUIN,
     DATA_BRIDGE_AFTER_ANDUIN,
 
@@ -54,14 +57,20 @@ enum SepulcherOfTheFirstOnesCreatureIds
 {
     // Bosses
 
+    BOSS_VIGILANT_CUSTODIAN = 184522,
+    BOSS_VIGILANT_GUARDIAN = 180773,
     BOSS_ANDUIN_WRYNN = 181954,
     BOSS_REMNANT_OF_A_FALLEN_KING = 183463,
+    BOSS_MALGANIS = 181398,
+    BOSS_KINTESSA = 181399,
+
 
     // Anduin Wrynn Encounter
 
     NPC_LADY_JAINA_PROUDMOORE = 183664,
     NPC_UTHER_THE_LIGHTBRINGER = 183665,
     NPC_SYLVANAS_WINDRUNNER = 183666,
+    NPC_FIRIM = 184589,
 
     NPC_BEFOULED_BARRIER = 184585,
 
@@ -79,7 +88,9 @@ enum SepulcherOfTheFirstOnesCreatureIds
 
     NPC_BEACON_OF_HOPE = 184830,
 
-
+    // Lords of Dread Encounter
+    NPC_INCHOATE_SHADOW = 183138,
+    NPC_SLUMBER_CLOUD = 181925,
 
 
 };
@@ -102,8 +113,6 @@ enum SepulcherOfTheFirstOnesEvents
     EVENT_RESET_PLAYERS_ON_TRANSLOCATOR = 1
 };
 
-
-
 enum SepulcherOfTheFirstOnesActions
 {
 
@@ -121,6 +130,8 @@ enum SepulcherOfTheFirstOnesWorldStates
     WORLD_STATE_ANDUIN_INTERMISSION = 21433,
     WORLD_STATE_ANDUIN_ENCOUNTER_COMPLETED = 21242,
 
+    WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED = 21219, // 1 for engaged
+    WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_COMPLETED = 21220, // 1 for Finished, Set 21219 to 0
 };
 
 template <class AI, class T>

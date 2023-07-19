@@ -32,13 +32,19 @@ ObjectData const creatureData[] =
     { NPC_GRIM_REFLECTION,             DATA_GRIM_REFLECTION      },
     { BOSS_REMNANT_OF_A_FALLEN_KING,   DATA_REMNANT_OF_A_FALLEN_KING },
     { NPC_UTHER_THE_LIGHTBRINGER,      DATA_UTHER_THE_LIGHTBRINGER },
+    { NPC_LADY_JAINA_PROUDMOORE,       DATA_JAINA_PROUDMOORE     },
     { NPC_SYLVANAS_WINDRUNNER,         DATA_SYLVANAS_WINDRUNNER  },
+    { NPC_FIRIM,                       DATA_FIRIM                },
     { NPC_ANDUIN_SOUL,                 DATA_ANDUIN_SOUL          },
     { NPC_BEACON_OF_HOPE,              DATA_BEACON_OF_HOPE       },
     {0, 0}
 
 };
 
+enum Spells
+{
+    SPELL_ANDUIN_PLUNGE_KINGSMOURNE = 369125,
+};
 
 class instance_sepulcher_of_the_first_ones : public InstanceMapScript
 {
@@ -50,10 +56,9 @@ public:
         instance_sepulcher_of_the_first_ones_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
-            SetData(DATA_ANDUIN_WRYNN, TO_BE_DECIDED);
-            SetData(DATA_ANDUIN_GAMEOBJECTS, TO_BE_DECIDED);
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
+            AnduinIntroductionData = NOT_STARTED;
             
         }
 
@@ -112,39 +117,66 @@ public:
             {
                 switch (state)
                 {
+                case NOT_STARTED:
+                {
+                    DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 0);
 
-                    case TO_BE_DECIDED:
+                    break;
+                }
+
+                case IN_PROGRESS:
+                {
+                    Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN);
+                    if (!anduin)
+                        return false;
+
+                    DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 1);
+
+                    if (Creature* uther = GetCreature(DATA_UTHER_THE_LIGHTBRINGER))
                     {
-
+                        if (uther->IsAIEnabled())
+                            uther->SetFaction(2);
+                            uther->AI()->JustEngagedWith(anduin);
+                            uther->GetThreatManager().AddThreat(anduin, 1000000);
+                            uther->GetAI()->AttackStart(anduin);
                     }
 
-                    case NOT_STARTED:
+                    if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                     {
 
-                        break;
+                        if (sylvanas->IsAIEnabled())
+                            sylvanas->SetFaction(2);
+                            sylvanas->AI()->JustEngagedWith(anduin);
+                            sylvanas->GetThreatManager().AddThreat(anduin, 1000000);
+                            sylvanas->GetAI()->AttackStartCaster(anduin, 25.0f);
                     }
 
-                    case IN_PROGRESS:
+                    if (Creature* jaina = GetCreature(DATA_JAINA_PROUDMOORE))
                     {
+                        if (jaina->IsAIEnabled())
+                            jaina->SetFaction(2);
+                            jaina->AI()->JustEngagedWith(anduin);
+                            jaina->GetThreatManager().AddThreat(anduin, 1000000);
+                            jaina->GetAI()->AttackStartCaster(anduin, 25.0f);
 
-                    }
-
-                    case FAIL:
-                    {
-                        break;
-                    }
-
-                    case DONE:
-                    {
-
-                        break;
-                    }
-
-                    default:
-                        break;
                     }
 
                     break;
+                }
+
+                case DONE:
+                {
+                    break;
+                }
+
+                case FAIL:
+                    break;
+
+                default:
+                    break;
+                }
+
+                break;
             }
 
             default:
@@ -152,6 +184,68 @@ public:
             }
 
             return true;
+        }
+        void SetData(uint32 type, uint32 data) override
+        {
+            switch (type)
+            {
+            case DATA_ANDUIN_WRYNN_INTRODUCTION:
+            {
+                switch (data)
+                {
+                case NOT_STARTED:
+                {
+                    AnduinIntroductionData = NOT_STARTED;
+                    if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
+                    {
+                        anduin->CastSpell(anduin, SPELL_ANDUIN_PLUNGE_KINGSMOURNE);
+                        anduin->SetUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
+                        anduin->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        anduin->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                        anduin->SetImmuneToAll(true);
+                        anduin->SetSpeed(MOVE_WALK, 10.0f);
+                    }
+                    break;
+                }
+                case IN_PROGRESS:
+                {
+                    AnduinIntroductionData = IN_PROGRESS;
+                    break;
+                }
+
+                case DONE:
+                    AnduinIntroductionData = DONE;
+                    if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
+                    {
+                        anduin->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
+                        anduin->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        anduin->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                        anduin->SetImmuneToAll(false);
+                        anduin->SetSpeed(MOVE_RUN, 11.0f);
+                        anduin->RemoveAurasDueToSpell(SPELL_ANDUIN_PLUNGE_KINGSMOURNE);
+                    }
+                    break;
+
+                default:
+                    break;
+                }
+                break;
+            }
+
+            }
+        }
+
+        uint32 GetData(uint32 type) const override
+        {
+            switch (type)
+            {
+            case DATA_ANDUIN_WRYNN_INTRODUCTION:
+                return AnduinIntroductionData;
+            default:
+                break;
+            }
+
+            return 0;
         }
         void OnGameObjectCreate(GameObject* go) override
         {
@@ -179,28 +273,20 @@ public:
             }
         }
 
-
-        void SetData(uint32 type, uint32 data) override
+        void UpdateDoorState(GameObject* door) override
         {
-            switch (type)
+            // Leviathan doors are set to DOOR_TYPE_ROOM except the one it uses to enter the room
+            // which has to be set to DOOR_TYPE_PASSAGE
+            if (door->GetEntry() == GAMEOBJECT_BRIDGE_AFTER_ANDUIN)
             {
-            case DATA_ANDUIN_GAMEOBJECTS:
-            {
-                switch (data)
+                if (GetBossState(DATA_ANDUIN_WRYNN) == DONE)
                 {
-
+                    door->UseDoorOrButton();
                 }
-                break;
             }
-
-            default:
-                break;
-            }
-        }
-
-        uint32 GetData(uint32 type) const override
-        {
-
+                
+            else
+                InstanceScript::UpdateDoorState(door);
         }
 
         ObjectGuid GetGuidData(uint32 type) const override
@@ -230,7 +316,10 @@ public:
                 return JainaGUID;
 
             case DATA_SYLVANAS_WINDRUNNER:
-                return SylvanasGUID;          
+                return SylvanasGUID;
+
+            case DATA_FIRIM:
+                return FirimGUID;
 
 
             default:
@@ -267,11 +356,13 @@ public:
         ObjectGuid UtherGUID;
         ObjectGuid JainaGUID;
         ObjectGuid SylvanasGUID;
+        ObjectGuid FirimGUID;
         ObjectGuid AnduinGUID;
         ObjectGuid TreasureofTheFirstOnesGUID;
         ObjectGuid BridgeToAnduinGUID;
         ObjectGuid BridgeAfterAnduinGUID;
         uint8 AnduinGObjectData;
+        uint8 AnduinIntroductionData;
 
     };
 
