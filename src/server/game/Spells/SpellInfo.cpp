@@ -674,7 +674,7 @@ float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, SpellTarget
     // TargetA -> TargetARadiusEntry
     // TargetB -> TargetBRadiusEntry
     // Aura effects have TargetARadiusEntry == TargetBRadiusEntry (mostly)
-    const SpellRadiusEntry* entry = TargetARadiusEntry;
+    SpellRadiusEntry const* entry = TargetARadiusEntry;
     if (targetIndex == SpellTargetIndex::TargetB && HasRadius(targetIndex))
         entry = TargetBRadiusEntry;
 
