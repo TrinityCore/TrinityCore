@@ -9473,6 +9473,12 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     if (IsInWorld())
         RemoveFromWorld();
+    else
+    {
+        // cleanup that must happen even if not in world
+        if (IsVehicle())
+            RemoveVehicleKit(true);
+    }
 
     ASSERT(GetGUID());
 
