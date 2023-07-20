@@ -206,6 +206,8 @@ class DatabaseWorkerPool
         //! Keeps all our MySQL connections alive, prevent the server from disconnecting us.
         void KeepAlive();
 
+        size_t QueueSize() const;
+
     private:
         uint32 OpenConnections(InternalIndex type, uint8 numConnections);
 
