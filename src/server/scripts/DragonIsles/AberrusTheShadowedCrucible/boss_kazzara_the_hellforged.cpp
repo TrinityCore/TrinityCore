@@ -63,7 +63,7 @@ struct boss_kazzara_the_hellforged : public BossAI
 
     void JustAppeared() override
     {
-        me->SetUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE));
+        me->SetUninteractible(true);
         me->SetImmuneToPC(true);
         me->SetImmuneToNPC(true);
         me->SetVisible(false);
@@ -97,7 +97,7 @@ struct boss_kazzara_the_hellforged : public BossAI
 
                 scheduler.Schedule(10s, [this](TaskContext /*context*/)
                 {
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE));
+                    me->SetUninteractible(false);
                     me->SetImmuneToPC(false);
                     me->SetImmuneToNPC(false);
                 });
