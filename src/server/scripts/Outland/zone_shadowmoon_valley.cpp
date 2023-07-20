@@ -168,7 +168,7 @@ public:
         {
             if (spellInfo->Id == SPELL_SUMMON_INFERNAL)
             {
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetImmuneToPC(false);
                 me->RemoveAurasDueToSpell(SPELL_SPAWN_AND_PACIFY);
                 // handle by the spell below when such auras will be not removed after evade

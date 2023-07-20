@@ -328,7 +328,7 @@ struct boss_alar : public BossAI
                         for (uint8 i = 0; i < 2; ++i)
                             DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
                         me->SetBoundingRadius(10);
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(false);
                         me->SetDisplayId(me->GetNativeDisplayId());
                         DoCast(me, SPELL_REBIRTH_2, true);
                         break;
@@ -411,7 +411,7 @@ struct boss_alar : public BossAI
             {
                 me->AttackStop();
                 me->GetMotionMaster()->MovePoint(6, waypoint[4][0], waypoint[4][1], waypoint[4][2]);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->SetBoundingRadius(50);
                 WaitEvent = WE_METEOR;
                 WaitTimer = 0;
@@ -428,7 +428,7 @@ struct boss_alar : public BossAI
                     Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2min);
                     if (Summoned)
                     {
-                        Summoned->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        Summoned->SetUninteractible(true);
                         Summoned->SetObjectScale(Summoned->GetObjectScale() * 2.5f);
                         Summoned->SetDisplayId(11686);
                         Summoned->SetFaction(me->GetFaction());
@@ -507,7 +507,7 @@ struct npc_ember_of_alar : public ScriptedAI
             damage = 0;
             DoCast(me, SPELL_EMBER_BLAST, true);
             me->SetDisplayId(11686);
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
             if (instance->GetBossState(DATA_ALAR) == IN_PROGRESS)
             {
                 if (Unit* Alar = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ALAR)))

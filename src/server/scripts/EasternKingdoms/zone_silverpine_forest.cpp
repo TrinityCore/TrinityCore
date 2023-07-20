@@ -1459,7 +1459,7 @@ struct npc_silverpine_forsaken_bat : public VehicleAI
                 {
                     player->KilledMonsterCredit(NPC_BAT_HANDLER_MAGGOTBREATH);
 
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
 
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 17.794235f);
                     me->GetMotionMaster()->MovePath(PATH_BAT_TO_LAKE, false);
@@ -1697,7 +1697,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
             DoCastSelf(SPELL_STEALTH);
 
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
 
             _playerSkipped = true;
         }
@@ -1852,7 +1852,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
                 case EVENT_RANE_SKIPS_PATH + 1:
                     DoCastSelf(SPELL_STEALTH);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 500ms);
                     break;
 
@@ -2354,7 +2354,7 @@ struct npc_silverpine_armoire : public VehicleAI
                         {
                             yorick->RemoveAura(SPELL_STEALTH);
 
-                            yorick->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            yorick->SetUninteractible(false);
 
                             bloodfang->CastSpell(yorick, SPELL_RIDE_REVERSE_CAST_EXSANGUINATE, true);
 
@@ -3387,7 +3387,7 @@ struct npc_silverpine_orc_crate : public ScriptedAI
     {
         if (summoner->GetEntry() == NPC_ORC_SEA_PUP)
         {
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
 
             me->EnterVehicle(summoner->ToUnit());
         }

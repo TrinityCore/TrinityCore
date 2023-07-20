@@ -71,7 +71,7 @@ struct boss_vaelastrasz : public BossAI
         Initialize();
         creature->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         creature->SetFaction(FACTION_FRIENDLY);
-        creature->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        creature->SetUninteractible(false);
     }
 
     void Initialize()

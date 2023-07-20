@@ -158,7 +158,7 @@ public:
                 events.SetPhase(PHASE_INTRO);
                 me->setActive(true);
                 me->SetFarVisible(true);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_START, SPLINE_CHAIN_INTRO_START, false);
                 HandleTerraceDoors(false);
             }

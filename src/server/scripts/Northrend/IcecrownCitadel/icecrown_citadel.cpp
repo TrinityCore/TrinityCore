@@ -1311,7 +1311,7 @@ class spell_icc_stoneform : public AuraScript
         if (Creature* target = GetTarget()->ToCreature())
         {
             target->SetReactState(REACT_PASSIVE);
-            target->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            target->SetUninteractible(true);
             target->SetImmuneToPC(true);
             target->SetEmoteState(EMOTE_STATE_CUSTOM_SPELL_02);
         }
@@ -1322,7 +1322,7 @@ class spell_icc_stoneform : public AuraScript
         if (Creature* target = GetTarget()->ToCreature())
         {
             target->SetReactState(REACT_AGGRESSIVE);
-            target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            target->SetUninteractible(false);
             target->SetImmuneToPC(false);
             target->SetEmoteState(EMOTE_ONESHOT_NONE);
         }

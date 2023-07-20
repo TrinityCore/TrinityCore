@@ -198,7 +198,7 @@ struct npc_headless_horseman_head : public PassiveAI
     void HandleInitialSetup()
     {
         DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_HEAD_STUN);
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(true);
         _phase = PHASE_1;
         _events.SetPhase(PHASE_1);
     }
@@ -255,7 +255,7 @@ struct npc_headless_horseman_head : public PassiveAI
     {
         me->RemoveAurasDueToSpell(SPELL_HEADLESS_HORSEMAN_C_HEAD_STUN);
         DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_HEAD_VISUAL, true);
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
         me->GetMotionMaster()->MoveRandom(30.0f);
 
         switch (_phase)
@@ -310,11 +310,11 @@ struct npc_headless_horseman_head : public PassiveAI
                         DoCast(horseman, SPELL_HEADLESS_HORSEMAN_C_RETURN_HEAD, true);
                     me->RemoveAllAttackers();
                     me->GetMotionMaster()->Clear();
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     break;
                 case EVENT_RAIN_OF_TREATS:
                     DoCastSelf(SPELL_RAIN_OF_TREATS);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     _instance->SetData(DATA_PREPARE_RESET, 0);
                     if (GameObject* pumpkin = me->SummonGameObject(GO_PUMPKIN_SHRINE, GOPumpkinSpawnPosition, GOPumpkinSpawnQuat, 7_days))
                         me->RemoveGameObject(pumpkin, false);
@@ -707,7 +707,7 @@ struct npc_sir_thomas : public PassiveAI
     void Reset() override
     {
         me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(true);
         DoCastSelf(SPELL_HEADLESS_HORSEMAN_WISP_INVIS);
 
         _scheduler.Schedule(9s, [this](TaskContext /*context*/)
@@ -720,7 +720,7 @@ struct npc_sir_thomas : public PassiveAI
     {
         if (spellInfo->Id == SPELL_HEADLESS_HORSEMAN_WISP_FLIGHT_PORT)
         {
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
             me->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
             me->RemoveAurasDueToSpell(SPELL_HEADLESS_HORSEMAN_WISP_INVIS);
             DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_GHOST_VISUAL, true);

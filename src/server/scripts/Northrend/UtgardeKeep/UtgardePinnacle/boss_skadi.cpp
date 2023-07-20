@@ -224,7 +224,7 @@ struct boss_skadi : public BossAI
         {
             case ACTION_START_ENCOUNTER:
                 instance->SetBossState(DATA_SKADI_THE_RUTHLESS, IN_PROGRESS);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->setActive(true);
                 SpawnFirstWave();
                 Talk(SAY_AGGRO);
@@ -259,7 +259,7 @@ struct boss_skadi : public BossAI
                 Talk(SAY_DRAKE_DEATH);
                 DoCastSelf(SPELL_SKADI_TELEPORT);
                 summons.DespawnEntry(NPC_WORLD_TRIGGER);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetImmuneToPC(false);
                 me->SetReactState(REACT_AGGRESSIVE);
                 _phase = PHASE_GROUND;

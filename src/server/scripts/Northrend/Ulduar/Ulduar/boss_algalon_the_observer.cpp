@@ -349,7 +349,7 @@ struct boss_algalon_the_observer : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         Milliseconds introDelay = 0ms;
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(true);
         me->SetImmuneToNPC(true);
         events.Reset();
         events.SetPhase(PHASE_ROLE_PLAY);
@@ -472,7 +472,7 @@ struct boss_algalon_the_observer : public BossAI
             events.SetPhase(PHASE_ROLE_PLAY);
             me->SetReactState(REACT_PASSIVE);
             me->AttackStop();
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
             DoCastSelf(SPELL_SELF_STUN);
             events.Reset();
             summons.DespawnAll();
@@ -547,7 +547,7 @@ struct boss_algalon_the_observer : public BossAI
                 {
                     events.SetPhase(PHASE_NORMAL);
                     me->SetSheath(SHEATH_STATE_MELEE);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetImmuneToNPC(false);
                     me->SetReactState(REACT_DEFENSIVE);
                     DoCastAOE(SPELL_SUPERMASSIVE_FAIL, true);
@@ -639,7 +639,7 @@ struct boss_algalon_the_observer : public BossAI
                     break;
                 case EVENT_OUTRO_4:
                     DoCastAOE(SPELL_SUPERMASSIVE_FAIL);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     break;
                 case EVENT_OUTRO_5:
                     if (Creature* brann = me->SummonCreature(NPC_BRANN_BRONZBEARD_ALG, BrannOutroPos))
@@ -725,7 +725,7 @@ struct npc_living_constellation : public CreatureAI
                     if (Unit* target = algalon->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(algalon)))
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(false);
                         AttackStart(target);
                         DoZoneInCombat();
                         _isActive = true;

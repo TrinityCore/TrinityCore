@@ -380,7 +380,8 @@ struct boss_gormok : public boss_northrend_beastsAI
                     if (Unit* snobold = me->GetVehicleKit()->GetPassenger(i))
                     {
                         snobold->ExitVehicle();
-                        snobold->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                        snobold->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        snobold->SetUninteractible(false);
                         snobold->GetAI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
                         snobold->CastSpell(me, SPELL_JUMP_TO_HAND, true);
                         break;
@@ -484,7 +485,8 @@ struct npc_snobold_vassal : public ScriptedAI
         }
         else
         {
-            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUninteractible(false);
             _events.CancelEvent(EVENT_CHECK_MOUNT);
             _events.CancelEvent(EVENT_FIRE_BOMB);
             me->AttackStop();
@@ -734,20 +736,18 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
     {
         me->SetReactState(REACT_PASSIVE);
         me->AttackStop();
+        me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
 
         if (wasMobile)
         {
-            me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
             DoCastSelf(SPELL_SUBMERGE);
             me->SetSpeedRate(MOVE_RUN, 8.0f);
             DoCastSelf(SPELL_GROUND_VISUAL_0, true);
             events.SetPhase(PHASE_SUBMERGED);
             events.ScheduleEvent(EVENT_EMERGE, 5s, 0, PHASE_SUBMERGED);
-            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         }
         else
         {
-            me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
             DoCastSelf(SPELL_SUBMERGE_2);
             me->RemoveAurasDueToSpell(SPELL_GROUND_VISUAL_1);
             me->SetSpeedRate(MOVE_RUN, 1.1111f);
@@ -755,8 +755,10 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
             events.SetPhase(PHASE_SUBMERGED);
             me->SetControlled(false, UNIT_STATE_ROOT);
             events.ScheduleEvent(EVENT_EMERGE, 6s, 0, PHASE_SUBMERGED);
-            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         }
+
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUninteractible(true);
         me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ() + me->GetCollisionHeight());
     }
 
@@ -768,7 +770,8 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
         me->RemoveAurasDueToSpell(SPELL_GROUND_VISUAL_0);
         DoCastSelf(SPELL_EMERGE);
         DoCastAOE(SPELL_HATE_TO_ZERO, true);
-        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUninteractible(false);
         me->SetReactState(REACT_AGGRESSIVE);
         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
             AttackStart(target);

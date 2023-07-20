@@ -241,7 +241,7 @@ struct npc_ichor_globule : public ScriptedAI
         if (spellInfo->Id == SPELL_WATER_GLOBULE_VISUAL)
         {
             DoCast(me, SPELL_WATER_GLOBULE_TRANSFORM);
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
             me->GetMotionMaster()->MoveFollow(unitCaster, 0.0f, 0.0f);
         }
     }
@@ -291,13 +291,13 @@ class spell_ichoron_drained : public AuraScript
 
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        GetTarget()->SetUninteractible(true);
         GetTarget()->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
     }
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        GetTarget()->SetUninteractible(false);
         GetTarget()->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
 
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)

@@ -152,7 +152,7 @@ struct boss_volazj : public BossAI
         ResetPlayersPhaseMask();
 
         // Cleanup
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
         me->SetControlled(false, UNIT_STATE_STUNNED);
     }
 
@@ -192,7 +192,7 @@ struct boss_volazj : public BossAI
 
     void DamageTaken(Unit* /*pAttacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE))
+        if (me->IsUninteractible())
             damage = 0;
 
         if ((GetHealthPct(0) >= 66 && GetHealthPct(damage) < 66) || (GetHealthPct(0) >= 33 && GetHealthPct(damage) < 33))
@@ -223,7 +223,7 @@ struct boss_volazj : public BossAI
                 Talk(SAY_INSANITY);
                 DoCastSelf(SPELL_WHISPER_INSANITY, true);
                 // Unattackable
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->SetControlled(true, UNIT_STATE_STUNNED);
             }
             // phase mask
@@ -348,7 +348,7 @@ struct boss_volazj : public BossAI
                 return;
 
             _insanityHandled = 0;
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
             me->SetControlled(false, UNIT_STATE_STUNNED);
             me->RemoveAurasDueToSpell(INSANITY_VISUAL);
         }
