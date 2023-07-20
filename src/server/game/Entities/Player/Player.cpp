@@ -16147,7 +16147,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                 break;
             case QUEST_STATUS_INCOMPLETE:
                 if (quest->IsImportant())
-                    result |= QuestGiverStatus::ImportantQuestReward;
+                    result |= QuestGiverStatus::ImportantReward;
                 else if (quest->GetQuestTag() == QuestTagType::CovenantCalling)
                     result |= QuestGiverStatus::CovenantCallingReward;
                 else if (quest->HasFlagEx(QUEST_FLAGS_EX_LEGENDARY))
@@ -16187,7 +16187,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                     if (quest->IsImportant())
                         result |= isTrivial ? QuestGiverStatus::TrivialImportantQuest : QuestGiverStatus::ImportantQuest;
                     else if (quest->GetQuestTag() == QuestTagType::CovenantCalling)
-                        result |= isTrivial ? QuestGiverStatus::TrivialCovenantCallingQuest : QuestGiverStatus::CovenantCallingQuest;
+                        result |= QuestGiverStatus::CovenantCallingQuest;
                     else if (quest->HasFlagEx(QUEST_FLAGS_EX_LEGENDARY))
                         result |= isTrivial ? QuestGiverStatus::TrivialLegendaryQuest : QuestGiverStatus::LegendaryQuest;
                     else if (quest->IsDaily())
@@ -16195,6 +16195,8 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                     else
                         result |= isTrivial ? QuestGiverStatus::Trivial : QuestGiverStatus::Quest;
                 }
+                else if (quest->IsImportant())
+                    result |= QuestGiverStatus::FutureImportantQuest;
                 else if (quest->HasFlagEx(QUEST_FLAGS_EX_LEGENDARY))
                     result |= QuestGiverStatus::FutureLegendaryQuest;
                 else
