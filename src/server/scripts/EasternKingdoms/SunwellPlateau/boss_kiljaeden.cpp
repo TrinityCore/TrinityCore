@@ -1038,7 +1038,8 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUninteractible(true);
         }
 
         void JustSummoned(Creature* summoned) override

@@ -137,8 +137,11 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                         if (siege->IsAlive())
                         {
                             if (siege->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_CANT_SWIM | UNIT_FLAG_IMMUNE_TO_PC))
+                            {
                                 // following sniffs the vehicle always has UNIT_FLAG_CANNOT_SWIM
-                                siege->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_IMMUNE_TO_PC);
+                                siege->SetUninteractible(false);
+                                siege->SetImmuneToPC(false);
+                            }
                             else
                                 siege->SetHealth(siege->GetMaxHealth());
                         }
@@ -748,7 +751,8 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
 
                         if (Creature* siegeEngine = GetBGCreature(siegeType))
                         {
-                            siegeEngine->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_CANT_SWIM);
+                            siegeEngine->SetUnitFlag(UNIT_FLAG_CANT_SWIM);
+                            siegeEngine->SetUninteractible(true);
                             siegeEngine->SetImmuneToPC(true);
                             siegeEngine->SetFaction(BG_IC_Factions[(node->faction == TEAM_ALLIANCE ? 0 : 1)]);
                         }

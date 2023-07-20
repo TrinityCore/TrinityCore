@@ -369,7 +369,7 @@ struct boss_malygos : public BossAI
 
         me->SetDisableGravity(true);
         me->SetImmuneToAll(true);
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
         // TO DO: find what in core is making boss slower than in retail (when correct speed data) or find missing movement flag update or forced spline change
         me->SetSpeedRate(MOVE_FLIGHT, _flySpeed * 0.25f);
         if (_despawned)
@@ -680,7 +680,7 @@ struct boss_malygos : public BossAI
                 if (!_firstCyclicMovementStarted)
                 {
                     _firstCyclicMovementStarted = true;
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     if (Creature* alexstraszaBunny = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ALEXSTRASZA_BUNNY_GUID)))
                         me->SetFacingToObject(alexstraszaBunny);
                     events.ScheduleEvent(EVENT_SUMMON_ARCANE_BOMB, 1s, 0, PHASE_TWO);
@@ -914,7 +914,7 @@ struct boss_malygos : public BossAI
                     me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, LIGHT_OBSCURE_ARCANE_RUNES, 1s);
                     DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
                     DoCast(me, SPELL_IMMUNE_CURSES);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetReactState(REACT_AGGRESSIVE);
                     DoZoneInCombat();
                     SetPhase(PHASE_THREE, true);
@@ -1129,7 +1129,7 @@ struct npc_melee_hover_disk : public VehicleAI
             {
 
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetDisableGravity(false);
                 me->SetCanFly(false);
             }
@@ -1159,7 +1159,7 @@ struct npc_melee_hover_disk : public VehicleAI
             if (vehicleTemp->GetPassenger(0) && vehicleTemp->GetPassenger(0)->GetTypeId() == TYPEID_PLAYER)
             {
                 vehicleTemp->RemoveAllPassengers();
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
             }
         }
 

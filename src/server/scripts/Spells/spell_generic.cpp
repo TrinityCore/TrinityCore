@@ -1779,7 +1779,9 @@ class spell_gen_feign_death_all_flags_uninteractible : public AuraScript
         Unit* target = GetTarget();
         target->SetUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
         target->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
-        target->SetUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_UNINTERACTIBLE);
+        target->SetUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+        target->SetImmuneToAll(true);
+        target->SetUninteractible(true);
 
         if (Creature* creature = target->ToCreature())
             creature->SetReactState(REACT_PASSIVE);
@@ -1790,7 +1792,9 @@ class spell_gen_feign_death_all_flags_uninteractible : public AuraScript
         Unit* target = GetTarget();
         target->RemoveUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
         target->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
-        target->RemoveUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_UNINTERACTIBLE);
+        target->RemoveUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+        target->SetImmuneToAll(false);
+        target->SetUninteractible(false);
 
         if (Creature* creature = target->ToCreature())
             creature->InitializeReactState();

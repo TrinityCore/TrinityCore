@@ -602,7 +602,8 @@ struct boss_kaelthas : public BossAI
                     // Sometimes people can collect Aggro in Phase 1-3. Reset threat before releasing Kael.
                     ResetThreatList();
 
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
+                    me->RemoveUnitFlag(UNIT_FLAG_PACIFIED);
+                    me->SetUninteractible(false);
 
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         AttackStart(target);
@@ -779,7 +780,8 @@ struct advisorbase_ai : public ScriptedAI
 
         me->SetStandState(UNIT_STAND_STATE_STAND);
         me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
+        me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
+        me->SetUninteractible(false);
 
         //reset encounter
         if (instance->GetBossState(DATA_KAELTHAS) == IN_PROGRESS)
@@ -808,7 +810,8 @@ struct advisorbase_ai : public ScriptedAI
         if (spellInfo->Id == SPELL_RESSURECTION)
         {
             _hasRessurrected = true;
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
+            me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
+            me->SetUninteractible(false);
             me->SetStandState(UNIT_STAND_STATE_STAND);
             events.ScheduleEvent(EVENT_DELAYED_RESSURECTION, 2s);
         }
@@ -829,7 +832,8 @@ struct advisorbase_ai : public ScriptedAI
             me->ModifyAuraState(AURA_STATE_WOUNDED_25_PERCENT, false);
             me->ModifyAuraState(AURA_STATE_WOUNDED_35_PERCENT, false);
             me->ModifyAuraState(AURA_STATE_WOUND_HEALTH_20_80, false);
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
+            me->SetUnitFlag(UNIT_FLAG_STUNNED);
+            me->SetUninteractible(true);
             me->SetTarget(ObjectGuid::Empty);
             me->SetStandState(UNIT_STAND_STATE_DEAD);
             me->GetMotionMaster()->Clear();
