@@ -64,8 +64,7 @@ struct boss_kazzara_the_hellforged : public BossAI
     void JustAppeared() override
     {
         me->SetUninteractible(true);
-        me->SetImmuneToPC(true);
-        me->SetImmuneToNPC(true);
+        me->SetImmuneToAll(true);
         me->SetVisible(false);
     }
 
@@ -98,8 +97,7 @@ struct boss_kazzara_the_hellforged : public BossAI
                 scheduler.Schedule(10s, [this](TaskContext /*context*/)
                 {
                     me->SetUninteractible(false);
-                    me->SetImmuneToPC(false);
-                    me->SetImmuneToNPC(false);
+                    me->SetImmuneToAll(false);
                 });
                 break;
             }
