@@ -11948,7 +11948,7 @@ void Unit::KnockbackFrom(Position const& origin, float speedXY, float speedZ, Mo
         GetMotionMaster()->MoveKnockbackFrom(origin, speedXY, speedZ, spellEffectExtraData);
     else
     {
-        float o = GetPosition() == origin ? GetOrientation() + M_PI : origin.GetRelativeAngle(this);
+        float o = GetPosition() == origin ? GetOrientation() + M_PI : origin.GetAbsoluteAngle(this);
         if (speedXY < 0)
         {
             speedXY = -speedXY;
