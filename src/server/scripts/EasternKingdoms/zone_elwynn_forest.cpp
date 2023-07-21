@@ -680,8 +680,8 @@ public:
                 mathiasClone->DespawnOrUnsummon();
                 break;
             }
-        default:
-            break;
+            default:
+                break;
         }
     }
 
