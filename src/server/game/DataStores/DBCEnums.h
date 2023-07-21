@@ -750,6 +750,17 @@ enum Curves
     CURVE_ID_AZERITE_EMPOWERED_ITEM_RESPEC_COST = 6785
 };
 
+enum class CurveInterpolationMode : uint8
+{
+    Linear      = 0,
+    Cosine      = 1,
+    CatmullRom  = 2,
+    Bezier3     = 3,
+    Bezier4     = 4,
+    Bezier      = 5,
+    Constant    = 6,
+};
+
 enum Difficulty : uint8
 {
     DIFFICULTY_NONE                 = 0,

@@ -94,7 +94,9 @@ enum DruidSpells
     SPELL_DRUID_TRAVEL_FORM                    = 783,
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
-    SPELL_DRUID_THRASH_CAT                     = 106830
+    SPELL_DRUID_THRASH_CAT                     = 106830,
+    SPELL_DRUID_YSERAS_GIFT_HEAL_PARTY         = 145110,
+    SPELL_DRUID_YSERAS_GIFT_HEAL_SELF          = 145109
 };
 
 class RaidCheck
@@ -1662,6 +1664,52 @@ class spell_dru_wild_growth_aura : public AuraScript
     }
 };
 
+// 145108 - Ysera's Gift
+class spell_dru_yseras_gift : public AuraScript
+{
+    PrepareAuraScript(spell_dru_yseras_gift);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_DRUID_YSERAS_GIFT_HEAL_SELF,
+            SPELL_DRUID_YSERAS_GIFT_HEAL_PARTY
+        });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    {
+        int32 healAmount = int32(GetTarget()->CountPctFromMaxHealth(aurEff->GetAmount()));
+
+        if (!GetTarget()->IsFullHealth())
+            GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_YSERAS_GIFT_HEAL_SELF, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount));
+        else
+            GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_YSERAS_GIFT_HEAL_PARTY, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_yseras_gift::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 145110 - Ysera's Gift (heal)
+class spell_dru_yseras_gift_group_heal : public SpellScript
+{
+    PrepareSpellScript(spell_dru_yseras_gift_group_heal);
+
+    void SelectTargets(std::list<WorldObject*>& targets)
+    {
+        Trinity::SelectRandomInjuredTargets(targets, 1, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_yseras_gift_group_heal::SelectTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_barkskin);
@@ -1709,4 +1757,6 @@ void AddSC_druid_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
+    RegisterSpellScript(spell_dru_yseras_gift);
+    RegisterSpellScript(spell_dru_yseras_gift_group_heal);
 }

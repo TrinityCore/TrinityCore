@@ -1232,11 +1232,16 @@ class spell_mage_prismatic_barrier : public AuraScript
 {
     PrepareAuraScript(spell_mage_prismatic_barrier);
 
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_5 } });
+    }
+
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = false;
         if (Unit* caster = GetCaster())
-            amount += int32(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 7.0f);
+            amount = int32(CalculatePct(caster->GetMaxHealth(), GetEffectInfo(EFFECT_5).CalcValue(caster)));
     }
 
     void Register() override
@@ -1401,7 +1406,7 @@ class spell_mage_ring_of_frost_freeze : public SpellScript
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         WorldLocation const* dest = GetExplTargetDest();
-        float outRadius = sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_0).CalcRadius();
+        float outRadius = sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_0).CalcRadius(nullptr, SpellTargetIndex::TargetB);
         float inRadius = 6.5f;
 
         targets.remove_if([dest, outRadius, inRadius](WorldObject* target)
