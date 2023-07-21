@@ -1792,12 +1792,9 @@ struct npc_garrick_summoned_beach : public ScriptedAI
 
         if (Player* player = caster->ToPlayer())
         {
-            if (FindCreatureIgnorePhase(player, "alaria_camp", 50.0f))
-            {
-                Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
-                conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
-                conversation->Start();
-            }
+            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
+            conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
+            conversation->Start();
 
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
             me->GetMotionMaster()->MovePoint(POINT_CAMP_POSITION, GarrickAbandonedCampPosition, false);
