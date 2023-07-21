@@ -8,20 +8,17 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if(UNIX)
-  # Look for an installed bzip2 on unix
-  find_package(BZip2 REQUIRED)
+# Look for an installed bzip2 first
+find_package(BZip2)
 
-  add_library(bzip2 SHARED IMPORTED GLOBAL)
+if(TARGET BZip2::BZip2)
+  add_library(bzip2 INTERFACE)
 
-  set_target_properties(bzip2
-    PROPERTIES
-      IMPORTED_LOCATION
-        "${BZIP2_LIBRARIES}"
-      INTERFACE_INCLUDE_DIRECTORIES
-        "${BZIP2_INCLUDE_DIRS}")
+  target_link_libraries(bzip2 
+    INTERFACE
+      BZip2::BZip2)
 else()
-  # Use the bundled source on windows
+  # Use the bundled source
   file(GLOB sources *.c)
   add_library(bzip2 STATIC
     ${sources})

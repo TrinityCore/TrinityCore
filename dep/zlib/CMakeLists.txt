@@ -8,20 +8,17 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if(UNIX)
-  # Look for an installed zlib on unix
-  find_package(ZLIB REQUIRED)
+# Look for an installed zlib
+find_package(ZLIB)
 
-  add_library(zlib SHARED IMPORTED GLOBAL)
+if(TARGET ZLIB::ZLIB)
+  add_library(zlib INTERFACE)
 
-  set_target_properties(zlib
-    PROPERTIES
-      IMPORTED_LOCATION
-        "${ZLIB_LIBRARIES}"
-      INTERFACE_INCLUDE_DIRECTORIES
-        "${ZLIB_INCLUDE_DIRS}")
+  target_link_libraries(zlib
+    INTERFACE
+      ZLIB::ZLIB)
 else()
-  # Use the bundled source on windows
+  # Use the bundled source
   SET(zlib_STAT_SRCS
     adler32.c
     compress.c
