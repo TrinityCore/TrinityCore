@@ -675,29 +675,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
 
     if (!teleported)
     {
-        WorldSafeLocsEntry const* entranceLocation = nullptr;
-        MapEntry const* mapEntry = sMapStore.AssertEntry(at->target_mapId);
-        if (mapEntry->Instanceable())
-        {
-            // Check if we can contact the instancescript of the instance for an updated entrance location
-            if (uint32 targetInstanceId = sMapMgr->FindInstanceIdForPlayer(at->target_mapId, _player))
-                if (Map* map = sMapMgr->FindMap(at->target_mapId, targetInstanceId))
-                    if (InstanceMap* instanceMap = map->ToInstanceMap())
-                        if (InstanceScript* instanceScript = instanceMap->GetInstanceScript())
-                            entranceLocation = sObjectMgr->GetWorldSafeLoc(instanceScript->GetEntranceLocation());
-
-            // Finally check with the instancesave for an entrance location if we did not get a valid one from the instancescript
-            if (!entranceLocation)
-            {
-                Group* group = player->GetGroup();
-                Difficulty difficulty = group ? group->GetDifficultyID(mapEntry) : player->GetDifficultyID(mapEntry);
-                ObjectGuid instanceOwnerGuid = group ? group->GetRecentInstanceOwner(at->target_mapId) : player->GetGUID();
-                if (InstanceLock const* instanceLock = sInstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, { mapEntry, sDB2Manager.GetDownscaledMapDifficultyData(at->target_mapId, difficulty) }))
-                    entranceLocation = sObjectMgr->GetWorldSafeLoc(instanceLock->GetData()->EntranceWorldSafeLocId);
-            }
-        }
-
-        if (entranceLocation)
+        WorldSafeLocsEntry const* entranceLocation = player->GetInstanceEntrance(at->target_mapId);
+        if (entranceLocation && player->GetMapId() != at->target_mapId)
             player->TeleportTo(entranceLocation->Loc, TELE_TO_NOT_LEAVE_TRANSPORT);
         else
             player->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
