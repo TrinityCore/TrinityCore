@@ -156,6 +156,8 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         }
     }
 
+    pUser->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ItemUse);
+
     SpellCastTargets targets;
     targets.Read(recvPacket, pUser);
     HandleClientCastFlags(recvPacket, castFlags, targets);

@@ -2879,6 +2879,9 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     if (spellVisual->MissileModel == -4 || spellVisual->MissileModel == -5)
                         spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEEDS_AMMO_DATA;
 
+        // Saving to DB happens before removing from world - skip saving these auras
+        if (spellInfo->HasAuraInterruptFlag(SpellAuraInterruptFlags::LeaveWorld))
+            spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
     }
 
     // addition for binary spells, omit spells triggering other spells
@@ -3838,7 +3841,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 61719 }, [](SpellInfo* spellInfo)
     {
         // Interrupt flags copied from aura which this aura is linked with
-        spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
+        spellInfo->AuraInterruptFlags = SpellAuraInterruptFlags::HostileActionReceived | SpellAuraInterruptFlags::Damage;
     });
 
     // Death Knight T10 Tank 2P Bonus
@@ -3939,7 +3942,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Test Ribbon Pole Channel
     ApplySpellFix({ 29726 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
+        spellInfo->ChannelInterruptFlags &= ~SpellAuraInterruptFlags::Action;
     });
 
     ApplySpellFix({
@@ -4150,7 +4153,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 63414 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_GetEffect(EFFECT_0).TargetB = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-        spellInfo->ChannelInterruptFlags = 0;
+        spellInfo->ChannelInterruptFlags = SpellAuraInterruptFlags::None;
     });
 
     // Rocket Strike (Mimiron)
@@ -4718,7 +4721,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Threatening Gaze
     ApplySpellFix({ 24314 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
+        spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::Action | SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Anim;
     });
 
     //

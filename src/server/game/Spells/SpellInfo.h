@@ -23,6 +23,7 @@
 #include "DBCStructure.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
+#include "SpellDefines.h"
 
 #include <boost/container/flat_set.hpp>
 
@@ -327,9 +328,9 @@ class TC_GAME_API SpellInfo
         uint32 CategoryRecoveryTime;
         uint32 StartRecoveryCategory;
         uint32 StartRecoveryTime;
-        uint32 InterruptFlags;
-        uint32 AuraInterruptFlags;
-        uint32 ChannelInterruptFlags;
+        EnumFlag<SpellInterruptFlags> InterruptFlags = SpellInterruptFlags::None;
+        EnumFlag<SpellAuraInterruptFlags> AuraInterruptFlags = SpellAuraInterruptFlags::None;
+        EnumFlag<SpellAuraInterruptFlags> ChannelInterruptFlags = SpellAuraInterruptFlags::None;
         uint32 ProcFlags;
         uint32 ProcChance;
         uint32 ProcCharges;
@@ -390,6 +391,13 @@ class TC_GAME_API SpellInfo
         inline bool HasAttribute(SpellAttr6 attribute) const { return !!(AttributesEx6 & attribute); }
         inline bool HasAttribute(SpellAttr7 attribute) const { return !!(AttributesEx7 & attribute); }
         inline bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
+
+        bool CanBeInterrupted(Unit* interruptTarget, bool ignoreImmunity = false) const;
+
+        bool HasAnyAuraInterruptFlag() const;
+        bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag) const { return AuraInterruptFlags.HasFlag(flag); }
+
+        bool HasChannelInterruptFlag(SpellAuraInterruptFlags flag) const { return ChannelInterruptFlags.HasFlag(flag); }
 
         bool IsExplicitDiscovery() const;
         bool IsLootCrafting() const;
