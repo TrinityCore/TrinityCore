@@ -25,6 +25,7 @@
 #include "advstd.h"
 #include <map>
 #include <set>
+#include <span>
 #include <vector>
 
  // temporary hack until includes are sorted out (don't want to pull in Windows.h)
@@ -81,6 +82,7 @@ TC_GAME_API extern DB2Storage<ChrRacesEntry>                        sChrRacesSto
 TC_GAME_API extern DB2Storage<ChrSpecializationEntry>               sChrSpecializationStore;
 TC_GAME_API extern DB2Storage<CinematicCameraEntry>                 sCinematicCameraStore;
 TC_GAME_API extern DB2Storage<CinematicSequencesEntry>              sCinematicSequencesStore;
+TC_GAME_API extern DB2Storage<ConditionalChrModelEntry>             sConditionalChrModelStore;
 TC_GAME_API extern DB2Storage<ContentTuningEntry>                   sContentTuningStore;
 TC_GAME_API extern DB2Storage<ConversationLineEntry>                sConversationLineStore;
 TC_GAME_API extern DB2Storage<CorruptionEffectsEntry>               sCorruptionEffectsStore;
@@ -438,6 +440,7 @@ public:
     CurrencyContainerEntry const* GetCurrencyContainerForCurrencyQuantity(uint32 currencyId, int32 quantity) const;
     std::pair<float, float> GetCurveXAxisRange(uint32 curveId) const;
     float GetCurveValueAt(uint32 curveId, float x) const;
+    float GetCurveValueAt(CurveInterpolationMode mode, std::span<DBCPosition2D const> points, float x) const;
     EmotesTextSoundEntry const* GetTextSoundEmoteFor(uint32 emote, uint8 race, uint8 gender, uint8 class_) const;
     float EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int32 expansion, uint32 contentTuningId, Classes unitClass, int32 mythicPlusMilestoneSeason) const;
     std::vector<uint32> const* GetFactionTeamList(uint32 faction) const;

@@ -20,6 +20,7 @@
 void WorldPackets::Duel::CanDuel::Read()
 {
     _worldPacket >> TargetGUID;
+    ToTheDeath = _worldPacket.ReadBit();
 }
 
 WorldPacket const* WorldPackets::Duel::CanDuelResult::Write()
@@ -51,6 +52,8 @@ WorldPacket const* WorldPackets::Duel::DuelRequested::Write()
     _worldPacket << ArbiterGUID;
     _worldPacket << RequestedByGUID;
     _worldPacket << RequestedByWowAccount;
+    _worldPacket.WriteBit(ToTheDeath);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

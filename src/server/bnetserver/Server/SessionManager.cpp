@@ -35,9 +35,9 @@ NetworkThread<Battlenet::Session>* Battlenet::SessionManager::CreateThreads() co
     return new NetworkThread<Session>[GetNetworkThreadCount()];
 }
 
-void Battlenet::SessionManager::OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
+void Battlenet::SessionManager::OnSocketAccept(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
 {
-    sSessionMgr.OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
+    sSessionMgr.OnSocketOpen(std::forward<boost::asio::ip::tcp::socket>(sock), threadIndex);
 }
 
 Battlenet::SessionManager& Battlenet::SessionManager::Instance()

@@ -51,8 +51,8 @@ namespace WorldPackets
 
             uint64 MailID = 0;
             uint8 SenderType = 0;
-            Optional<ObjectGuid> SenderCharacter;
-            Optional<uint32> AltSenderID;
+            ObjectGuid SenderCharacter;
+            uint32 AltSenderID;
             uint64 Cod = 0;
             int32 StationeryID = 0;
             uint64 SentMoney = 0;

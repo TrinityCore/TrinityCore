@@ -106,6 +106,55 @@ private:
     }
 };
 
+// 111400 - Burning Rush
+class spell_warl_burning_rush : public SpellScript
+{
+    PrepareSpellScript(spell_warl_burning_rush);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    SpellCastResult CheckApplyAura()
+    {
+        Unit* caster = GetCaster();
+
+        if (caster->GetHealthPct() <= float(GetEffectInfo(EFFECT_1).CalcValue(caster)))
+        {
+            SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_YOU_DONT_HAVE_ENOUGH_HEALTH);
+            return SPELL_FAILED_CUSTOM_ERROR;
+        }
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_warl_burning_rush::CheckApplyAura);
+    }
+};
+
+// 111400 - Burning Rush
+class spell_warl_burning_rush_aura : public AuraScript
+{
+    PrepareAuraScript(spell_warl_burning_rush_aura);
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        if (GetTarget()->GetHealthPct() <= float(aurEff->GetAmount()))
+        {
+            PreventDefaultAction();
+            Remove();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_burning_rush_aura::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+    }
+};
+
 // 116858 - Chaos Bolt
 class spell_warl_chaos_bolt : public SpellScript
 {
@@ -184,6 +233,34 @@ class spell_warl_create_healthstone : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warl_create_healthstone::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 108416 - Dark Pact
+class spell_warl_dark_pact : public AuraScript
+{
+    PrepareAuraScript(spell_warl_dark_pact);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { spellInfo->Id, EFFECT_2 } });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = false;
+        if (Unit* caster = GetCaster())
+        {
+            float extraAmount = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 2.5f;
+            int32 absorb = caster->CountPctFromCurHealth(GetEffectInfo(EFFECT_1).CalcValue(caster));
+            caster->SetHealth(caster->GetHealth() - absorb);
+            amount = CalculatePct(absorb, GetEffectInfo(EFFECT_2).CalcValue(caster)) + extraAmount;
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_dark_pact::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
     }
 };
 
@@ -995,9 +1072,11 @@ class spell_warl_rain_of_fire : public AuraScript
 void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_banish);
+    RegisterSpellAndAuraScriptPair(spell_warl_burning_rush, spell_warl_burning_rush_aura);
     RegisterSpellScript(spell_warl_chaos_bolt);
     RegisterSpellScript(spell_warl_chaotic_energies);
     RegisterSpellScript(spell_warl_create_healthstone);
+    RegisterSpellScript(spell_warl_dark_pact);
     RegisterSpellScript(spell_warl_demonic_circle_summon);
     RegisterSpellScript(spell_warl_demonic_circle_teleport);
     RegisterSpellScript(spell_warl_devour_magic);

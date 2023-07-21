@@ -668,6 +668,9 @@ void SpellHistory::ResetAllCooldowns()
 
 bool SpellHistory::HasCooldown(SpellInfo const* spellInfo, uint32 itemId /*= 0*/) const
 {
+    if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_IGNORE_SPELL_COOLDOWN, spellInfo))
+        return false;
+
     if (_spellCooldowns.count(spellInfo->Id) != 0)
         return true;
 

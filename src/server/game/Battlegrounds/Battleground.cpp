@@ -420,6 +420,8 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         SetStatus(STATUS_IN_PROGRESS);
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FOURTH]);
 
+        SendPacketToAll(WorldPackets::Battleground::PVPMatchSetState(WorldPackets::Battleground::PVPMatchState::Engaged).Write());
+
         for (auto const& [guid, _] : GetPlayers())
             if (Player* player = ObjectAccessor::FindPlayer(guid))
                 player->AtStartOfEncounter();
@@ -1014,14 +1016,16 @@ void Battleground::AddPlayer(Player* player)
     {
         case STATUS_NONE:
         case STATUS_WAIT_QUEUE:
-            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchInitialize::Inactive;
+            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchState::Inactive;
             break;
         case STATUS_WAIT_JOIN:
+            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchState::StartUp;
+            break;
         case STATUS_IN_PROGRESS:
-            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchInitialize::InProgress;
+            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchState::Engaged;
             break;
         case STATUS_WAIT_LEAVE:
-            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchInitialize::Complete;
+            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchState::Complete;
             break;
         default:
             break;

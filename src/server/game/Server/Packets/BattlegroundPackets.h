@@ -138,7 +138,7 @@ namespace WorldPackets
                 Optional<uint32> PostMatchMMR;
                 std::vector<PVPMatchPlayerPVPStat> Stats;
                 int32 PrimaryTalentTree = 0;
-                int32 Sex = 0;
+                int8 Sex = 0;
                 int32 Race = 0;
                 int32 Class = 0;
                 int32 CreatureID = 0;
@@ -473,6 +473,16 @@ namespace WorldPackets
             WorldPackets::Duration<Milliseconds, int32> QueuePenaltyDuration;
         };
 
+        enum class PVPMatchState : uint8
+        {
+            Waiting     = 0,
+            StartUp     = 1,
+            Engaged     = 2,
+            PostRound   = 3,
+            Inactive    = 4,
+            Complete    = 5
+        };
+
         class PVPMatchInitialize final : public ServerPacket
         {
         public:
@@ -480,15 +490,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            enum MatchState : uint8
-            {
-                InProgress = 1,
-                Complete = 3,
-                Inactive = 4
-            };
-
             uint32 MapID = 0;
-            MatchState State = Inactive;
+            PVPMatchState State = PVPMatchState::Inactive;
             Timestamp<> StartTime;
             WorldPackets::Duration<Seconds> Duration;
             Optional<RatedMatchDeserterPenalty> DeserterPenalty;
@@ -496,6 +499,16 @@ namespace WorldPackets
             uint32 BattlemasterListID = 0;
             bool Registered = false;
             bool AffectsRating = false;
+        };
+
+        class PVPMatchSetState final : public ServerPacket
+        {
+        public:
+            explicit PVPMatchSetState(PVPMatchState state) : ServerPacket(SMSG_PVP_MATCH_SET_STATE, 1), State(state) { }
+
+            WorldPacket const* Write() override;
+
+            PVPMatchState State;
         };
 
         class PVPMatchComplete final : public ServerPacket

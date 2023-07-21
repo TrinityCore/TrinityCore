@@ -148,30 +148,40 @@ enum QuestStatus : uint8
     MAX_QUEST_STATUS
 };
 
-enum class QuestGiverStatus : uint32
+enum class QuestGiverStatus : uint64
 {
-    None                                = 0x000000,
-    Future                              = 0x000002,
-    Trivial                             = 0x000004,
-    TrivialRepeatableTurnin             = 0x000008,
-    TrivialDailyQuest                   = 0x000010,
-    Reward                              = 0x000020,
-    JourneyReward                       = 0x000040,
-    CovenantCallingReward               = 0x000080,
-    RepeatableTurnin                    = 0x000100,
-    DailyQuest                          = 0x000200,
-    Quest                               = 0x000400,
-    RewardCompleteNoPOI                 = 0x000800,
-    RewardCompletePOI                   = 0x001000,
-    LegendaryQuest                      = 0x002000,
-    LegendaryRewardCompleteNoPOI        = 0x004000,
-    LegendaryRewardCompletePOI          = 0x008000,
-    JourneyQuest                        = 0x010000,
-    JourneyRewardCompleteNoPOI          = 0x020000,
-    JourneyRewardCompletePOI            = 0x040000,
-    CovenantCallingQuest                = 0x080000,
-    CovenantCallingRewardCompleteNoPOI  = 0x100000,
-    CovenantCallingRewardCompletePOI    = 0x200000,
+    None                                = 0x000000000,
+    Future                              = 0x000000002,
+    Trivial                             = 0x000000004,
+    TrivialRepeatableTurnin             = 0x000000008,
+    TrivialDailyQuest                   = 0x000000010,
+    Reward                              = 0x000000020,
+    JourneyReward                       = 0x000000040,
+    CovenantCallingReward               = 0x000000080,
+    RepeatableTurnin                    = 0x000000100,
+    DailyQuest                          = 0x000000200,
+    Quest                               = 0x000000400,
+    RewardCompleteNoPOI                 = 0x000000800,
+    RewardCompletePOI                   = 0x000001000,
+    LegendaryQuest                      = 0x000002000,
+    LegendaryRewardCompleteNoPOI        = 0x000004000,
+    LegendaryRewardCompletePOI          = 0x000008000,
+    JourneyQuest                        = 0x000010000,
+    JourneyRewardCompleteNoPOI          = 0x000020000,
+    JourneyRewardCompletePOI            = 0x000040000,
+    CovenantCallingQuest                = 0x000080000,
+    CovenantCallingRewardCompleteNoPOI  = 0x000100000,
+    CovenantCallingRewardCompletePOI    = 0x000200000,
+    TrivialLegendaryQuest               = 0x000400000,
+    FutureLegendaryQuest                = 0x000800000,
+    LegendaryReward                     = 0x001000000,
+    ImportantQuest                      = 0x002000000,
+    ImportantQuestReward                = 0x004000000,
+    TrivialImportantQuest               = 0x008000000,
+    ImportantQuestRewardCompleteNoPOI   = 0x020000000,
+    ImportantQuestRewardCompletePOI     = 0x040000000,
+    TrivialJourneyQuest                 = 0x080000000,
+    TrivialCovenantCallingQuest         = 0x100000000,
 };
 
 DEFINE_ENUM_FLAG(QuestGiverStatus);
@@ -540,6 +550,7 @@ class TC_GAME_API Quest
         uint32 MaxMoneyValue() const;
         uint32 GetMaxMoneyReward() const;
         Optional<QuestTagType> GetQuestTag() const;
+        bool IsImportant() const;
 
         bool HasFlag(QuestFlags flag) const { return (_flags & uint32(flag)) != 0; }
         bool HasFlagEx(QuestFlagsEx flag) const { return (_flagsEx & uint32(flag)) != 0; }
@@ -575,7 +586,7 @@ class TC_GAME_API Quest
         uint32 GetRequiredMaxRepFaction() const { return _requiredMaxRepFaction; }
         int32  GetRequiredMaxRepValue() const { return _requiredMaxRepValue; }
         uint32 GetSuggestedPlayers() const { return _suggestedPlayers; }
-        uint32 GetLimitTime() const { return _limitTime; }
+        int64 GetLimitTime() const { return _limitTime; }
         int32  GetPrevQuestId() const { return _prevQuestID; }
         uint32 GetNextQuestId() const { return _nextQuestID; }
         int32  GetExclusiveGroup() const { return _exclusiveGroup; }
@@ -745,7 +756,7 @@ class TC_GAME_API Quest
         uint32 _soundAccept = 0;
         uint32 _soundTurnIn = 0;
         uint32 _areaGroupID = 0;
-        uint32 _limitTime = 0;
+        int64 _limitTime = 0;
         Trinity::RaceMask<uint64> _allowableRaces;
         int32 _treasurePickerID = 0;
         int32 _expansion = 0;
@@ -810,6 +821,7 @@ struct QuestStatusData
 {
     uint16 Slot = MAX_QUEST_LOG_SIZE;
     QuestStatus Status = QUEST_STATUS_NONE;
+    time_t AcceptTime = time_t(0);
     uint32 Timer = 0;
     bool Explored = false;
 };

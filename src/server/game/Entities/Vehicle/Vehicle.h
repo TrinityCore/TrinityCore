@@ -29,14 +29,10 @@ class VehicleJoinEvent;
 
 class TC_GAME_API Vehicle : public TransportBase
 {
-    protected:
-        friend bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry, bool);
+    public:
         Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
-
-        friend void Unit::RemoveVehicleKit(bool);
         ~Vehicle();
 
-    public:
         Vehicle(Vehicle const& right) = delete;
         Vehicle(Vehicle&& right) = delete;
         Vehicle& operator=(Vehicle const& right) = delete;
