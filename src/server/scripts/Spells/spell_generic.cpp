@@ -1779,7 +1779,9 @@ class spell_gen_feign_death_all_flags_uninteractible : public AuraScript
         Unit* target = GetTarget();
         target->SetUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
         target->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
-        target->SetUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_UNINTERACTIBLE);
+        target->SetUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+        target->SetImmuneToAll(true);
+        target->SetUninteractible(true);
 
         if (Creature* creature = target->ToCreature())
             creature->SetReactState(REACT_PASSIVE);
@@ -1790,7 +1792,9 @@ class spell_gen_feign_death_all_flags_uninteractible : public AuraScript
         Unit* target = GetTarget();
         target->RemoveUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
         target->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
-        target->RemoveUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_UNINTERACTIBLE);
+        target->RemoveUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+        target->SetImmuneToAll(false);
+        target->SetUninteractible(false);
 
         if (Creature* creature = target->ToCreature())
             creature->InitializeReactState();
@@ -2200,33 +2204,22 @@ class spell_gen_interrupt : public AuraScript
     }
 };
 
-class spell_gen_increase_stats_buff : public SpellScriptLoader
+class spell_gen_increase_stats_buff : public SpellScript
 {
-    public:
-        spell_gen_increase_stats_buff(char const* scriptName) : SpellScriptLoader(scriptName) { }
+    PrepareSpellScript(spell_gen_increase_stats_buff);
 
-        class spell_gen_increase_stats_buff_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_increase_stats_buff_SpellScript);
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitUnit()->IsInRaidWith(GetCaster()))
+            GetCaster()->CastSpell(GetCaster(), GetEffectValue() + 1, true); // raid buff
+        else
+            GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), true); // single-target buff
+    }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (GetHitUnit()->IsInRaidWith(GetCaster()))
-                    GetCaster()->CastSpell(GetCaster(), GetEffectValue() + 1, true); // raid buff
-                else
-                    GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), true); // single-target buff
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_increase_stats_buff_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gen_increase_stats_buff_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_increase_stats_buff::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 enum GenericLifebloom

@@ -367,7 +367,8 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
             case POSITION_SPARPOINT_READY:
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     me->SetFacingToObject(player);
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+                me->SetImmuneToPC(false);
+                me->SetUninteractible(false);
                 break;
             default:
                 break;
@@ -394,7 +395,8 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
             damage = 0;
             me->SetHealth(1);
             DoStopAttack();
-            me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+            me->SetImmuneToPC(true);
+            me->SetUninteractible(true);
             _events.CancelEvent(EVENT_JUMP_BEHIND);
 
             if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))

@@ -119,7 +119,7 @@ class boss_broggok : public CreatureScript
                         break;
                     case ACTION_ACTIVATE_BROGGOK:
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(false);
                         DoZoneInCombat();
                         events.ScheduleEvent(EVENT_SLIME_SPRAY, 10s);
                         events.ScheduleEvent(EVENT_POISON_BOLT, 7s);
@@ -127,7 +127,7 @@ class boss_broggok : public CreatureScript
                         break;
                     case ACTION_RESET_BROGGOK:
                         me->SetReactState(REACT_PASSIVE);
-                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(true);
                         summons.DespawnAll();
                         instance->SetBossState(DATA_BROGGOK, NOT_STARTED);
                         if (GameObject * lever = instance->GetGameObject(DATA_BROGGOK_LEVER))

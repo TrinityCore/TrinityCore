@@ -1336,66 +1336,54 @@ enum Heartpierce
 
 // Item - 50641: Heartpierce (Heroic)
 // 71892 - Item - Icecrown 25 Heroic Dagger Proc
-template <uint32 EnergySpellId, uint32 ManaSpellId, uint32 RageSpellId, uint32 RPSpellId>
-class spell_item_heartpierce : public SpellScriptLoader
+template <uint32 Energy, uint32 Mana, uint32 Rage, uint32 RunicPower>
+class spell_item_heartpierce : public AuraScript
 {
-    public:
-        spell_item_heartpierce(char const* ScriptName) : SpellScriptLoader(ScriptName) { }
+    PrepareAuraScript(spell_item_heartpierce);
 
-        template <uint32 Energy, uint32 Mana, uint32 Rage, uint32 RunicPower>
-        class spell_item_heartpierce_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
         {
-            PrepareAuraScript(spell_item_heartpierce_AuraScript);
+            Energy,
+            Mana,
+            Rage,
+            RunicPower
+        });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    Energy,
-                    Mana,
-                    Rage,
-                    RunicPower
-                });
-            }
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Unit* caster = eventInfo.GetActor();
 
-            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                Unit* caster = eventInfo.GetActor();
-
-                uint32 spellId;
-                switch (caster->GetPowerType())
-                {
-                    case POWER_MANA:
-                        spellId = Mana;
-                        break;
-                    case POWER_ENERGY:
-                        spellId = Energy;
-                        break;
-                    case POWER_RAGE:
-                        spellId = Rage;
-                        break;
-                    // Death Knights can't use daggers, but oh well
-                    case POWER_RUNIC_POWER:
-                        spellId = RunicPower;
-                        break;
-                    default:
-                        return;
-                }
-
-                caster->CastSpell(nullptr, spellId, aurEff);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_item_heartpierce_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
+        uint32 spellId;
+        switch (caster->GetPowerType())
         {
-            return new spell_item_heartpierce_AuraScript<EnergySpellId, ManaSpellId, RageSpellId, RPSpellId>();
+            case POWER_MANA:
+                spellId = Mana;
+                break;
+            case POWER_ENERGY:
+                spellId = Energy;
+                break;
+            case POWER_RAGE:
+                spellId = Rage;
+                break;
+            // Death Knights can't use daggers, but oh well
+            case POWER_RUNIC_POWER:
+                spellId = RunicPower;
+                break;
+            default:
+                return;
         }
+
+        caster->CastSpell(nullptr, spellId, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_item_heartpierce::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 enum HourglassSand
@@ -5002,8 +4990,8 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_frozen_shadoweave);
     RegisterSpellScript(spell_item_gnomish_death_ray);
     RegisterSpellScript(spell_item_harm_prevention_belt);
-    new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY, SPELL_INVIGORATION_MANA, SPELL_INVIGORATION_RAGE, SPELL_INVIGORATION_RP>("spell_item_heartpierce");
-    new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY_HERO, SPELL_INVIGORATION_MANA_HERO, SPELL_INVIGORATION_RAGE_HERO, SPELL_INVIGORATION_RP_HERO>("spell_item_heartpierce_hero");
+    RegisterSpellScriptWithArgs((spell_item_heartpierce<SPELL_INVIGORATION_ENERGY, SPELL_INVIGORATION_MANA, SPELL_INVIGORATION_RAGE, SPELL_INVIGORATION_RP>), "spell_item_heartpierce");
+    RegisterSpellScriptWithArgs((spell_item_heartpierce<SPELL_INVIGORATION_ENERGY_HERO, SPELL_INVIGORATION_MANA_HERO, SPELL_INVIGORATION_RAGE_HERO, SPELL_INVIGORATION_RP_HERO>), "spell_item_heartpierce_hero");
     RegisterSpellScript(spell_item_hourglass_sand);
     RegisterSpellScript(spell_item_crystal_spire_of_karabor);
     RegisterSpellScript(spell_item_make_a_wish);

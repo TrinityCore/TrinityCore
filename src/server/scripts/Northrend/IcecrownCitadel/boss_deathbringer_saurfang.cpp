@@ -367,7 +367,7 @@ struct boss_deathbringer_saurfang : public BossAI
             _dead = true;
             _JustDied();
             _EnterEvadeMode();
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
             me->SetImmuneToPC(true);
             me->RemoveAurasOnEvade();
             DoCastAOE(SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION);
@@ -464,7 +464,7 @@ struct boss_deathbringer_saurfang : public BossAI
             switch (eventId)
             {
                 case EVENT_INTRO_ALLIANCE_2:
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetFaction(FACTION_UNDEAD_SCOURGE);
                     Talk(SAY_INTRO_ALLIANCE_2);
                     break;
@@ -477,7 +477,7 @@ struct boss_deathbringer_saurfang : public BossAI
                     DoCastSelf(SPELL_GRIP_OF_AGONY);
                     break;
                 case EVENT_INTRO_HORDE_2:
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetFaction(FACTION_UNDEAD_SCOURGE);
                     Talk(SAY_INTRO_HORDE_2);
                     break;
@@ -732,7 +732,7 @@ struct npc_high_overlord_saurfang_icc : public ScriptedAI
                     if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_DEATHBRINGER_SAURFANG)))
                     {
                         deathbringer->CastSpell(me, SPELL_RIDE_VEHICLE, true);  // for the packet logs.
-                        deathbringer->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        deathbringer->SetUninteractible(true);
                         deathbringer->SetUnitFlag2(UNIT_FLAG2_PLAY_DEATH_ANIM);
                         deathbringer->SetEmoteState(EMOTE_STATE_DROWNED);
                     }

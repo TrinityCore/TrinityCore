@@ -141,7 +141,7 @@ struct boss_high_astromancer_solarian : public BossAI
         Initialize();
         _Reset();
         me->SetArmor(defaultarmor, 0);
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
         me->SetVisible(true);
         me->SetDisplayId(MODEL_HUMAN);
 
@@ -206,7 +206,7 @@ struct boss_high_astromancer_solarian : public BossAI
                 AppearDelay = false;
                 if (Phase == 2)
                 {
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     me->SetVisible(false);
                 }
                 AppearDelay_Timer = 2s;
@@ -309,7 +309,7 @@ struct boss_high_astromancer_solarian : public BossAI
                 {
                     if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer + Phase3_Timer + AppearDelay_Timer + 1700ms))
                     {
-                        Summoned->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        Summoned->SetUninteractible(true);
                         Summoned->CastSpell(Summoned, SPELL_SPOTLIGHT, false);
                     }
                 }
@@ -353,7 +353,7 @@ struct boss_high_astromancer_solarian : public BossAI
                     if (j != i)
                         SummonMinion(NPC_SOLARIUM_PRIEST, Portals[j][0], Portals[j][1], Portals[j][2]);
 
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetVisible(true);
 
                 Talk(SAY_SUMMON2);
@@ -388,7 +388,7 @@ struct boss_high_astromancer_solarian : public BossAI
         {
             Phase = 4;
             //To make sure she wont be invisible or not selecatble
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
             me->SetVisible(true);
             Talk(SAY_VOIDA);
             Talk(SAY_VOIDB);

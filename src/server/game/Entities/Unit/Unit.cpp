@@ -6616,6 +6616,14 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
         return false;
     });
 
+    // bonus against target aura mechanic
+    DoneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE_BY_TARGET_AURA_MECHANIC, [victim](AuraEffect const* aurEff) -> bool
+    {
+        if (victim->HasAuraWithMechanic(UI64LIT(1) << aurEff->GetMiscValue()))
+            return true;
+        return false;
+    });
+
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
     if (spellEffectInfo.Mechanic)
         AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellEffectInfo.Mechanic));
@@ -7518,6 +7526,14 @@ uint32 Unit::MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType
         return false;
     });
 
+    // bonus against target aura mechanic
+    DoneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE_BY_TARGET_AURA_MECHANIC, [pVictim](AuraEffect const* aurEff) -> bool
+    {
+        if (pVictim->HasAuraWithMechanic(UI64LIT(1) << aurEff->GetMiscValue()))
+            return true;
+        return false;
+    });
+
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
     if (spellEffectInfo && spellEffectInfo->Mechanic)
         AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellEffectInfo->Mechanic));
@@ -7968,6 +7984,22 @@ void Unit::SetImmuneToNPC(bool apply, bool keepCombat)
         RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
 }
 
+void Unit::SetUninteractible(bool apply)
+{
+    if (apply)
+        SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+    else
+        RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+}
+
+void Unit::SetCannotTurn(bool apply)
+{
+    if (apply)
+        SetUnitFlag2(UNIT_FLAG2_CANNOT_TURN);
+    else
+        RemoveUnitFlag2(UNIT_FLAG2_CANNOT_TURN);
+}
+
 bool Unit::IsThreatened() const
 {
     return !m_threatManager.IsThreatListEmpty();
@@ -7978,7 +8010,7 @@ bool Unit::isTargetableForAttack(bool checkFakeDeath) const
     if (!IsAlive())
         return false;
 
-    if (HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE))
+    if (HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE) || IsUninteractible())
         return false;
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsGameMaster())
@@ -9441,6 +9473,12 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     if (IsInWorld())
         RemoveFromWorld();
+    else
+    {
+        // cleanup that must happen even if not in world
+        if (IsVehicle())
+            RemoveVehicleKit(true);
+    }
 
     ASSERT(GetGUID());
 

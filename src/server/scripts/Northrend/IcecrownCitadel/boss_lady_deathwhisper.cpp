@@ -645,12 +645,12 @@ struct npc_cult_fanatic : public ScriptedAI
                         DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                         DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
                         DoCastSelf(SPELL_FULL_HEAL, true);
-                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(true);
                     })
                     .Schedule(Seconds(6), [this](TaskContext /*context*/)
                     {
                         me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoZoneInCombat(me);
 
@@ -736,12 +736,12 @@ struct npc_cult_adherent : public ScriptedAI
                         DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                         DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
                         DoCastSelf(SPELL_FULL_HEAL, true);
-                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(true);
                     })
                     .Schedule(Seconds(6), [this](TaskContext /*context*/)
                     {
                         me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoCastSelf(SPELL_SHROUD_OF_THE_OCCULT);
                         DoZoneInCombat(me);

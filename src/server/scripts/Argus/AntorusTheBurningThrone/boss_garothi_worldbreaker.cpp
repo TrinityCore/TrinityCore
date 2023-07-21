@@ -254,7 +254,7 @@ struct boss_garothi_worldbreaker : public BossAI
                     events.Reset();
                 events.ScheduleEvent(EVENT_REENGAGE_PLAYERS, 3s + 500ms);
                 HideCannons();
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 break;
             default:
                 break;
@@ -278,20 +278,20 @@ struct boss_garothi_worldbreaker : public BossAI
             DoCastSelf(SPELL_APOCALYPSE_DRIVE_FINAL_DAMAGE);
             Talk(SAY_ANNOUNCE_APOCALYPSE_DRIVE);
             Talk(SAY_APOCALYPSE_DRIVE);
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
 
             if (Creature* decimator = instance->GetCreature(DATA_DECIMATOR))
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, decimator, 2);
                 decimator->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
-                decimator->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                decimator->SetUninteractible(false);
             }
 
             if (Creature* annihilator = instance->GetCreature(DATA_ANNIHILATOR))
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, annihilator, 2);
                 annihilator->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
-                annihilator->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                annihilator->SetUninteractible(false);
             }
             ++_apocalypseDriveCount;
         }
@@ -326,7 +326,7 @@ struct boss_garothi_worldbreaker : public BossAI
             case NPC_ANNIHILATOR:
                 me->InterruptNonMeleeSpells(true);
                 me->RemoveAurasDueToSpell(SPELL_APOCALYPSE_DRIVE);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
 
                 if (summon->GetEntry() == NPC_ANNIHILATOR)
                     _searingBarrageSpellId = SPELL_SEARING_BARRAGE_ANNIHILATOR;
@@ -455,13 +455,15 @@ struct boss_garothi_worldbreaker : public BossAI
          if (Creature* decimator = instance->GetCreature(DATA_DECIMATOR))
          {
              instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, decimator);
-             decimator->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_IMMUNE);
+             decimator->SetUninteractible(true);
+             decimator->SetUnitFlag(UNIT_FLAG_IMMUNE);
          }
 
          if (Creature* annihilator = instance->GetCreature(DATA_ANNIHILATOR))
          {
              instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, annihilator);
-             annihilator->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_IMMUNE);
+             annihilator->SetUninteractible(true);
+             annihilator->SetUnitFlag(UNIT_FLAG_IMMUNE);
          }
      }
 };

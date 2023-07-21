@@ -340,7 +340,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_AURA_DURATION_BY_DISPEL_NOT_STACK        = 246,
     SPELL_AURA_CLONE_CASTER                                 = 247,
     SPELL_AURA_MOD_COMBAT_RESULT_CHANCE                     = 248,
-    SPELL_AURA_MOD_DAMAGE_PERCENT_DONE_BY_TARGET_AURA_MECHANIC = 249, // NYI
+    SPELL_AURA_MOD_DAMAGE_PERCENT_DONE_BY_TARGET_AURA_MECHANIC = 249,
     SPELL_AURA_MOD_INCREASE_HEALTH_2                        = 250,
     SPELL_AURA_MOD_ENEMY_DODGE                              = 251,
     SPELL_AURA_MOD_SPEED_SLOW_ALL                           = 252,
@@ -474,7 +474,7 @@ enum AuraType : uint32
     SPELL_AURA_380                                          = 380,
     SPELL_AURA_MOD_DAMAGE_TAKEN_FROM_CASTER_PET             = 381,  // NYI
     SPELL_AURA_MOD_PET_STAT_PCT                             = 382,  // NYI
-    SPELL_AURA_IGNORE_SPELL_COOLDOWN                        = 383,  // NYI
+    SPELL_AURA_IGNORE_SPELL_COOLDOWN                        = 383,
     SPELL_AURA_384                                          = 384,
     SPELL_AURA_385                                          = 385,
     SPELL_AURA_386                                          = 386,

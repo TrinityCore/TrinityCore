@@ -124,7 +124,7 @@ struct boss_magus_telestra : public BossAI
         Initialize();
 
         me->SetReactState(REACT_AGGRESSIVE);
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
 
         if (IsHeroic() && sGameEventMgr->IsActiveEvent(GAME_EVENT_WINTER_VEIL) && !me->HasAura(SPELL_WEAR_CHRISTMAS_HAT))
             me->AddAura(SPELL_WEAR_CHRISTMAS_HAT, me);
@@ -275,7 +275,7 @@ struct boss_magus_telestra : public BossAI
                     _unkillable = true;
                     // Hack, transform creature (from aura) has visible and invisible models and probability is NYI
                     me->SetDisplayId(15435);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     // Not restored later, maybe after wipe
                     SetEquipmentSlots(false, EQUIP_UNEQUIP);
                     events.ScheduleEvent(EVENT_SPLIT_3, 4s);
@@ -292,7 +292,7 @@ struct boss_magus_telestra : public BossAI
                     me->RemoveAurasDueToSpell(SPELL_CLONE_DIES_ARCANE);
                     me->RemoveAurasDueToSpell(SPELL_SUMMON_CLONES);
                     Talk(SAY_MERGE);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     _unkillable = false;
                     events.ScheduleEvent(EVENT_MERGE_2, 3s);
                     break;

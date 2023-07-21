@@ -425,7 +425,8 @@ class npc_saronite_vapors : public CreatureScript
                 if (damage >= me->GetHealth())
                 {
                     damage = 0;
-                    me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetUninteractible(true);
                     me->SetControlled(true, UNIT_STATE_ROOT);
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     me->SetHealth(me->GetMaxHealth());

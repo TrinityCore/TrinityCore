@@ -107,8 +107,9 @@ struct boss_ingvar_the_plunderer : public BossAI
     {
         if (me->GetEntry() != NPC_INGVAR)
             me->UpdateEntry(NPC_INGVAR);
-        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         me->SetImmuneToPC(false);
+        me->SetUninteractible(false);
 
         _Reset();
     }
@@ -124,8 +125,9 @@ struct boss_ingvar_the_plunderer : public BossAI
             me->StopMoving();
             DoCast(me, SPELL_INGVAR_FEIGN_DEATH, true);
 
-            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetImmuneToPC(true, true);
+            me->SetUninteractible(true);
 
             Talk(SAY_DEATH);
         }
@@ -222,8 +224,9 @@ struct boss_ingvar_the_plunderer : public BossAI
                     events.ScheduleEvent(EVENT_SMASH, 12s, 16s, 0, PHASE_HUMAN);
                     break;
                 case EVENT_JUST_TRANSFORMED:
-                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     me->SetImmuneToPC(false);
+                    me->SetUninteractible(false);
                     ScheduleSecondPhase();
                     Talk(SAY_AGGRO);
                     DoZoneInCombat();

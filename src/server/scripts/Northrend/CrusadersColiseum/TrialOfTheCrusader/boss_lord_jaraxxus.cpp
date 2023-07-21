@@ -324,7 +324,7 @@ struct npc_infernal_volcano : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         DoCastSelf(SPELL_INFERNAL_ERUPTION_EFFECT, true);
         if (IsHeroic())
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
     }
 };
 
@@ -386,7 +386,7 @@ struct npc_nether_portal : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         DoCastSelf(SPELL_NETHER_PORTAL_EFFECT, true);
         if (IsHeroic())
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
     }
 };
 

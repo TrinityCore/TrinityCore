@@ -386,7 +386,7 @@ typedef std::unordered_map<uint32, std::vector<ArtifactPowerEntry const*>> Artif
 typedef std::unordered_map<uint32, std::vector<uint32>> ArtifactPowerLinksContainer;
 typedef std::unordered_map<std::pair<uint32, uint8>, ArtifactPowerRankEntry const*> ArtifactPowerRanksContainer;
 typedef ChrSpecializationEntry const* ChrSpecializationByIndexContainer[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
-typedef std::unordered_map<uint32 /*curveID*/, std::vector<CurvePointEntry const*>> CurvePointsContainer;
+typedef std::unordered_map<uint32 /*curveID*/, std::vector<DBCPosition2D>> CurvePointsContainer;
 typedef std::map<std::tuple<uint32, uint8, uint8, uint8>, EmotesTextSoundEntry const*> EmotesTextSoundContainer;
 typedef std::unordered_map<uint32, std::vector<uint32>> FactionTeamContainer;
 typedef std::unordered_map<uint32, HeirloomEntry const*> HeirloomItemsContainer;
@@ -1205,12 +1205,20 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (CurrencyContainerEntry const* currencyContainer : sCurrencyContainerStore)
         _currencyContainers.emplace(currencyContainer->CurrencyTypesID, currencyContainer);
 
-    for (CurvePointEntry const* curvePoint : sCurvePointStore)
-        if (sCurveStore.LookupEntry(curvePoint->CurveID))
-            _curvePoints[curvePoint->CurveID].push_back(curvePoint);
+    {
+        std::unordered_map<uint32 /*curveID*/, std::vector<CurvePointEntry const*>> unsortedPoints;
+        for (CurvePointEntry const* curvePoint : sCurvePointStore)
+            if (sCurveStore.LookupEntry(curvePoint->CurveID))
+                unsortedPoints[curvePoint->CurveID].push_back(curvePoint);
 
-    for (auto itr = _curvePoints.begin(); itr != _curvePoints.end(); ++itr)
-        std::sort(itr->second.begin(), itr->second.end(), [](CurvePointEntry const* point1, CurvePointEntry const* point2) { return point1->OrderIndex < point2->OrderIndex; });
+        for (auto& [curveId, curvePoints] : unsortedPoints)
+        {
+            std::sort(curvePoints.begin(), curvePoints.end(), [](CurvePointEntry const* point1, CurvePointEntry const* point2) { return point1->OrderIndex < point2->OrderIndex; });
+            std::vector<DBCPosition2D>& points = _curvePoints[curveId];
+            points.resize(curvePoints.size());
+            std::transform(curvePoints.begin(), curvePoints.end(), points.begin(), [](CurvePointEntry const* point) { return point->Pos; });
+        }
+    }
 
     for (EmotesTextSoundEntry const* emoteTextSound : sEmotesTextSoundStore)
         _emoteTextSounds[EmotesTextSoundContainer::key_type(emoteTextSound->EmotesTextID, emoteTextSound->RaceID, emoteTextSound->SexID, emoteTextSound->ClassID)] = emoteTextSound;
@@ -2126,24 +2134,13 @@ CurrencyContainerEntry const* DB2Manager::GetCurrencyContainerForCurrencyQuantit
 
 std::pair<float, float> DB2Manager::GetCurveXAxisRange(uint32 curveId) const
 {
-    if (std::vector<CurvePointEntry const*> const* points = Trinity::Containers::MapGetValuePtr(_curvePoints, curveId))
-        return { points->front()->Pos.X, points->back()->Pos.X };
+    if (std::vector<DBCPosition2D> const* points = Trinity::Containers::MapGetValuePtr(_curvePoints, curveId))
+        return { points->front().X, points->back().X };
 
     return { 0.0f, 0.0f };
 }
 
-enum class CurveInterpolationMode : uint8
-{
-    Linear = 0,
-    Cosine = 1,
-    CatmullRom = 2,
-    Bezier3 = 3,
-    Bezier4 = 4,
-    Bezier = 5,
-    Constant = 6,
-};
-
-static CurveInterpolationMode DetermineCurveType(CurveEntry const* curve, std::vector<CurvePointEntry const*> const& points)
+static CurveInterpolationMode DetermineCurveType(CurveEntry const* curve, std::vector<DBCPosition2D> const& points)
 {
     switch (curve->Type)
     {
@@ -2182,91 +2179,96 @@ float DB2Manager::GetCurveValueAt(uint32 curveId, float x) const
         return 0.0f;
 
     CurveEntry const* curve = sCurveStore.AssertEntry(curveId);
-    std::vector<CurvePointEntry const*> const& points = itr->second;
+    std::vector<DBCPosition2D> const& points = itr->second;
     if (points.empty())
         return 0.0f;
 
-    switch (DetermineCurveType(curve, points))
+    return GetCurveValueAt(DetermineCurveType(curve, points), points, x);
+}
+
+float DB2Manager::GetCurveValueAt(CurveInterpolationMode mode, std::span<DBCPosition2D const> points, float x) const
+{
+    switch (mode)
     {
         case CurveInterpolationMode::Linear:
         {
             std::size_t pointIndex = 0;
-            while (pointIndex < points.size() && points[pointIndex]->Pos.X <= x)
+            while (pointIndex < points.size() && points[pointIndex].X <= x)
                 ++pointIndex;
             if (!pointIndex)
-                return points[0]->Pos.Y;
+                return points[0].Y;
             if (pointIndex >= points.size())
-                return points.back()->Pos.Y;
-            float xDiff = points[pointIndex]->Pos.X - points[pointIndex - 1]->Pos.X;
+                return points.back().Y;
+            float xDiff = points[pointIndex].X - points[pointIndex - 1].X;
             if (xDiff == 0.0)
-                return points[pointIndex]->Pos.Y;
-            return (((x - points[pointIndex - 1]->Pos.X) / xDiff) * (points[pointIndex]->Pos.Y - points[pointIndex - 1]->Pos.Y)) + points[pointIndex - 1]->Pos.Y;
+                return points[pointIndex].Y;
+            return (((x - points[pointIndex - 1].X) / xDiff) * (points[pointIndex].Y - points[pointIndex - 1].Y)) + points[pointIndex - 1].Y;
         }
         case CurveInterpolationMode::Cosine:
         {
             std::size_t pointIndex = 0;
-            while (pointIndex < points.size() && points[pointIndex]->Pos.X <= x)
+            while (pointIndex < points.size() && points[pointIndex].X <= x)
                 ++pointIndex;
             if (!pointIndex)
-                return points[0]->Pos.Y;
+                return points[0].Y;
             if (pointIndex >= points.size())
-                return points.back()->Pos.Y;
-            float xDiff = points[pointIndex]->Pos.X - points[pointIndex - 1]->Pos.X;
+                return points.back().Y;
+            float xDiff = points[pointIndex].X - points[pointIndex - 1].X;
             if (xDiff == 0.0)
-                return points[pointIndex]->Pos.Y;
-            return ((points[pointIndex]->Pos.Y - points[pointIndex - 1]->Pos.Y) * (1.0f - std::cos((x - points[pointIndex - 1]->Pos.X) / xDiff * float(M_PI))) * 0.5f) + points[pointIndex - 1]->Pos.Y;
+                return points[pointIndex].Y;
+            return ((points[pointIndex].Y - points[pointIndex - 1].Y) * (1.0f - std::cos((x - points[pointIndex - 1].X) / xDiff * float(M_PI))) * 0.5f) + points[pointIndex - 1].Y;
         }
         case CurveInterpolationMode::CatmullRom:
         {
             std::size_t pointIndex = 1;
-            while (pointIndex < points.size() && points[pointIndex]->Pos.X <= x)
+            while (pointIndex < points.size() && points[pointIndex].X <= x)
                 ++pointIndex;
             if (pointIndex == 1)
-                return points[1]->Pos.Y;
+                return points[1].Y;
             if (pointIndex >= points.size() - 1)
-                return points[points.size() - 2]->Pos.Y;
-            float xDiff = points[pointIndex]->Pos.X - points[pointIndex - 1]->Pos.X;
+                return points[points.size() - 2].Y;
+            float xDiff = points[pointIndex].X - points[pointIndex - 1].X;
             if (xDiff == 0.0)
-                return points[pointIndex]->Pos.Y;
+                return points[pointIndex].Y;
 
-            float mu = (x - points[pointIndex - 1]->Pos.X) / xDiff;
-            float a0 = -0.5f * points[pointIndex - 2]->Pos.Y + 1.5f * points[pointIndex - 1]->Pos.Y - 1.5f * points[pointIndex]->Pos.Y + 0.5f * points[pointIndex + 1]->Pos.Y;
-            float a1 = points[pointIndex - 2]->Pos.Y - 2.5f * points[pointIndex - 1]->Pos.Y + 2.0f * points[pointIndex]->Pos.Y - 0.5f * points[pointIndex + 1]->Pos.Y;
-            float a2 = -0.5f * points[pointIndex - 2]->Pos.Y + 0.5f * points[pointIndex]->Pos.Y;
-            float a3 = points[pointIndex - 1]->Pos.Y;
+            float mu = (x - points[pointIndex - 1].X) / xDiff;
+            float a0 = -0.5f * points[pointIndex - 2].Y + 1.5f * points[pointIndex - 1].Y - 1.5f * points[pointIndex].Y + 0.5f * points[pointIndex + 1].Y;
+            float a1 = points[pointIndex - 2].Y - 2.5f * points[pointIndex - 1].Y + 2.0f * points[pointIndex].Y - 0.5f * points[pointIndex + 1].Y;
+            float a2 = -0.5f * points[pointIndex - 2].Y + 0.5f * points[pointIndex].Y;
+            float a3 = points[pointIndex - 1].Y;
 
             return a0 * mu * mu * mu + a1 * mu * mu + a2 * mu + a3;
         }
         case CurveInterpolationMode::Bezier3:
         {
-            float xDiff = points[2]->Pos.X - points[0]->Pos.X;
+            float xDiff = points[2].X - points[0].X;
             if (xDiff == 0.0)
-                return points[1]->Pos.Y;
-            float mu = (x - points[0]->Pos.X) / xDiff;
-            return ((1.0f - mu) * (1.0f - mu) * points[0]->Pos.Y) + (1.0f - mu) * 2.0f * mu * points[1]->Pos.Y + mu * mu * points[2]->Pos.Y;
+                return points[1].Y;
+            float mu = (x - points[0].X) / xDiff;
+            return ((1.0f - mu) * (1.0f - mu) * points[0].Y) + (1.0f - mu) * 2.0f * mu * points[1].Y + mu * mu * points[2].Y;
         }
         case CurveInterpolationMode::Bezier4:
         {
-            float xDiff = points[3]->Pos.X - points[0]->Pos.X;
+            float xDiff = points[3].X - points[0].X;
             if (xDiff == 0.0)
-                return points[1]->Pos.Y;
-            float mu = (x - points[0]->Pos.X) / xDiff;
-            return (1.0f - mu) * (1.0f - mu) * (1.0f - mu) * points[0]->Pos.Y
-                + 3.0f * mu * (1.0f - mu) * (1.0f - mu) * points[1]->Pos.Y
-                + 3.0f * mu * mu * (1.0f - mu) * points[2]->Pos.Y
-                + mu * mu * mu * points[3]->Pos.Y;
+                return points[1].Y;
+            float mu = (x - points[0].X) / xDiff;
+            return (1.0f - mu) * (1.0f - mu) * (1.0f - mu) * points[0].Y
+                + 3.0f * mu * (1.0f - mu) * (1.0f - mu) * points[1].Y
+                + 3.0f * mu * mu * (1.0f - mu) * points[2].Y
+                + mu * mu * mu * points[3].Y;
         }
         case CurveInterpolationMode::Bezier:
         {
-            float xDiff = points.back()->Pos.X - points[0]->Pos.X;
+            float xDiff = points.back().X - points[0].X;
             if (xDiff == 0.0f)
-                return points.back()->Pos.Y;
+                return points.back().Y;
 
             std::vector<float> tmp(points.size());
             for (std::size_t i = 0; i < points.size(); ++i)
-                tmp[i] = points[i]->Pos.Y;
+                tmp[i] = points[i].Y;
 
-            float mu = (x - points[0]->Pos.X) / xDiff;
+            float mu = (x - points[0].X) / xDiff;
             int32 i = int32(points.size()) - 1;
             while (i > 0)
             {
@@ -2280,7 +2282,7 @@ float DB2Manager::GetCurveValueAt(uint32 curveId, float x) const
             return tmp[0];
         }
         case CurveInterpolationMode::Constant:
-            return points[0]->Pos.Y;
+            return points[0].Y;
         default:
             break;
     }

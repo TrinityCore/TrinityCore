@@ -420,7 +420,7 @@ struct npc_feral_defender : public ScriptedAI
                 case EVENT_RESPAWN_DEFENDER_3:
                     me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
                     DoCastSelf(SPELL_FULL_HEAL, true);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetDisableGravity(false);
                     me->SetHover(false);
@@ -449,7 +449,7 @@ struct npc_feral_defender : public ScriptedAI
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->RemoveAurasDueToSpell(SPELL_RANDOM_AGRO_PERIODIC);
                 DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH, true);
                 DoCastSelf(SPELL_FERAL_ESSENCE_APPLICATION_REMOVAL, true);
