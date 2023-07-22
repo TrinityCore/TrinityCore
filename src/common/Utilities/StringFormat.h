@@ -25,6 +25,13 @@ namespace Trinity
     template<typename... Args>
     using FormatString = fmt::format_string<Args...>;
 
+    using FormatStringView = fmt::string_view;
+
+    using FormatArgs = fmt::format_args;
+
+    template<typename... Args>
+    constexpr auto MakeFormatArgs(Args&&... args) { return fmt::make_format_args(args...); }
+
     /// Default TC string format function.
     template<typename... Args>
     inline std::string StringFormat(FormatString<Args...> fmt, Args&&... args)
@@ -45,6 +52,31 @@ namespace Trinity
         try
         {
             return fmt::format_to(out, fmt, std::forward<Args>(args)...);
+        }
+        catch (std::exception const& formatError)
+        {
+            return fmt::format_to(out, "An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
+        }
+    }
+
+    inline std::string StringVFormat(FormatStringView fmt, FormatArgs args)
+    {
+        try
+        {
+            return fmt::vformat(fmt, args);
+        }
+        catch (std::exception const& formatError)
+        {
+            return fmt::format("An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
+        }
+    }
+
+    template<typename OutputIt>
+    inline OutputIt StringVFormatTo(OutputIt out, FormatStringView fmt, FormatArgs args)
+    {
+        try
+        {
+            return fmt::vformat_to(out, fmt, args);
         }
         catch (std::exception const& formatError)
         {
