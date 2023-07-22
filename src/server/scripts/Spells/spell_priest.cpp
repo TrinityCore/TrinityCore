@@ -1355,8 +1355,7 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
             SPELL_PRIEST_PRAYER_OF_MENDING_HEAL,
             SPELL_PRIEST_PRAYER_OF_MENDING_JUMP,
             SPELL_PRIEST_SAY_YOUR_PRAYERS
-        })
-            && ValidateSpellEffect({ { SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0 } });
+        }) && ValidateSpellEffect({ { SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0 } });
     }
 
     void HandleHeal(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -1420,9 +1419,8 @@ class spell_pri_prayer_of_mending : public SpellScript
         if (!script)
             return;
 
-        bool isEmpoweredByFocusedMending = std::any_cast<bool>(GetSpell()->m_customArg);
-
-        script->SetEmpoweredByFocusedMending(isEmpoweredByFocusedMending);
+        if (bool const* isEmpoweredByFocusedMending = std::any_cast<bool>(&GetSpell()->m_customArg))
+            script->SetEmpoweredByFocusedMending(isEmpoweredByFocusedMending);
     }
 
     void Register() override
@@ -1467,13 +1465,14 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
     {
         return ValidateSpellInfo
         ({
-            SPELL_PRIEST_BENEDICTION,
             SPELL_PRIEST_RENEW,
-            SPELL_PRIEST_FOCUSED_MENDING,
-            SPELL_PRIEST_DIVINE_SERVICE,
             SPELL_PRIEST_PRAYER_OF_MENDING_AURA
-        })
-            && ValidateSpellEffect({ { SPELL_PRIEST_BENEDICTION, EFFECT_0 }, { SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0 }, { SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0 } });
+        }) && ValidateSpellEffect(
+        {
+            { SPELL_PRIEST_BENEDICTION, EFFECT_0 },
+            { SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0 },
+            { SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0 }
+        });
     }
 
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
@@ -1481,28 +1480,23 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        if (AuraEffect* benediction = caster->GetAuraEffect(SPELL_PRIEST_BENEDICTION, EFFECT_0))
-        {
+        if (AuraEffect const* benediction = caster->GetAuraEffect(SPELL_PRIEST_BENEDICTION, EFFECT_0))
             if (roll_chance_i(benediction->GetAmount()))
-                caster->CastSpell(target, SPELL_PRIEST_RENEW,
-                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-        }
+                caster->CastSpell(target, SPELL_PRIEST_RENEW, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
 
         float healBonus = 1.0f;
 
         if (AuraEffect const* focusedMending = caster->GetAuraEffect(SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0))
         {
-            bool isEmpoweredByFocusedMending = std::any_cast<bool>(GetSpell()->m_customArg);
+            bool const* isEmpoweredByFocusedMending = std::any_cast<bool>(&GetSpell()->m_customArg);
 
-            if (isEmpoweredByFocusedMending)
+            if (isEmpoweredByFocusedMending && *isEmpoweredByFocusedMending)
                 AddPct(healBonus, focusedMending->GetAmount());
         }
 
         if (AuraEffect const* divineService = caster->GetAuraEffect(SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0))
-        {
             if (Aura* prayerOfMending = target->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, caster->GetGUID()))
                 AddPct(healBonus, int32(divineService->GetAmount() * prayerOfMending->GetStackAmount()));
-        }
 
         SetHitHeal(GetHitHeal() * healBonus);
     }
