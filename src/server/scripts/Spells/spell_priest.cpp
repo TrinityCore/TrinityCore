@@ -597,7 +597,7 @@ class spell_pri_epiphany : public AuraScript
 
         caster->GetSpellHistory()->ResetCooldown(SPELL_PRIEST_PRAYER_OF_MENDING, true);
 
-        caster->CastSpell(caster, SPELL_PRIEST_EPIPHANY_PRAYER_OF_MENDING_RESET, true);
+        caster->CastSpell(caster, SPELL_PRIEST_EPIPHANY_PRAYER_OF_MENDING_RESET, TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void Register() override
