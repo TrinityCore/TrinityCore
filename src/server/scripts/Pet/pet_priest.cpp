@@ -27,8 +27,9 @@
 
 enum PriestSpells
 {
-    SPELL_PRIEST_GLYPH_OF_SHADOWFIEND       = 58228,
-    SPELL_PRIEST_SHADOWFIEND_DEATH          = 57989,
+    SPELL_PRIEST_ATONEMENT                  = 81749,
+    SPELL_PRIEST_ATONEMENT_PASSIVE          = 195178,
+
     SPELL_PRIEST_LIGHTWELL_CHARGES          = 59907
 };
 
@@ -50,9 +51,11 @@ struct npc_pet_pri_lightwell : public PassiveAI
     }
 };
 
-struct npc_pet_pri_shadowfiend : public PetAI
+// 19668 - Shadowfiend
+// 62982 - Mindbender
+struct npc_pet_pri_shadowfiend_mindbender : public PetAI
 {
-    npc_pet_pri_shadowfiend(Creature* creature) : PetAI(creature) { }
+    npc_pet_pri_shadowfiend_mindbender(Creature* creature) : PetAI(creature) { }
 
     void IsSummonedBy(WorldObject* summonerWO) override
     {
@@ -60,13 +63,13 @@ struct npc_pet_pri_shadowfiend : public PetAI
         if (!summoner)
             return;
 
-        if (summoner->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND))
-            DoCastAOE(SPELL_PRIEST_SHADOWFIEND_DEATH);
+        if (summoner->HasAura(SPELL_PRIEST_ATONEMENT))
+            DoCastSelf(SPELL_PRIEST_ATONEMENT_PASSIVE, TRIGGERED_FULL_MASK);
     }
 };
 
 void AddSC_priest_pet_scripts()
 {
     RegisterCreatureAI(npc_pet_pri_lightwell);
-    RegisterCreatureAI(npc_pet_pri_shadowfiend);
+    RegisterCreatureAI(npc_pet_pri_shadowfiend_mindbender);
 }

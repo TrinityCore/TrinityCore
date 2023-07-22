@@ -268,20 +268,7 @@ class spell_pri_atonement : public AuraScript
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
-        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-        CastSpellExtraArgs args(aurEff);
-        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
-        _appliedAtonements.erase(std::remove_if(_appliedAtonements.begin(), _appliedAtonements.end(), [this, &args](ObjectGuid const& targetGuid)
-        {
-            if (Unit* target = ObjectAccessor::GetUnit(*GetTarget(), targetGuid))
-            {
-                if (target->GetExactDist(GetTarget()) < GetEffectInfo(EFFECT_1).CalcValue())
-                    GetTarget()->CastSpell(target, SPELL_PRIEST_ATONEMENT_HEAL, args);
-
-                return false;
-            }
-            return true;
-        }), _appliedAtonements.end());
+        TriggerAtonementHealOnTargets(aurEff, eventInfo, false);
     }
 
     void Register() override
@@ -307,6 +294,28 @@ public:
         UpdateSinsOfTheManyValue();
     }
 
+    void TriggerAtonementHealOnTargets(AuraEffect* aurEff, ProcEventInfo& eventInfo, bool isTriggeredByPet)
+    {
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        CastSpellExtraArgs args(aurEff);
+        // Note: we need to check for EffectInfo in case that the pet triggers it because the passive spell has amount 0.
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(damageInfo->GetDamage(), isTriggeredByPet ? GetEffectInfo(EFFECT_0).CalcValue(GetCaster()) : aurEff->GetAmount()));
+
+        _appliedAtonements.erase(std::remove_if(_appliedAtonements.begin(), _appliedAtonements.end(), [this, &args](ObjectGuid const& targetGuid)
+        {
+            if (Unit* target = ObjectAccessor::GetUnit(*GetTarget(), targetGuid))
+            {
+                if (target->GetExactDist(GetTarget()) < GetEffectInfo(EFFECT_1).CalcValue())
+                    GetTarget()->CastSpell(target, SPELL_PRIEST_ATONEMENT_HEAL, args);
+
+                return false;
+            }
+
+            return true;
+
+        }), _appliedAtonements.end());
+    }
+
     void UpdateSinsOfTheManyValue()
     {
         // Note: the damage dimish starts at the 6th application as of 10.0.5.
@@ -315,6 +324,38 @@ public:
         for (SpellEffIndex effectIndex : { EFFECT_0, EFFECT_1, EFFECT_2 })
             if (AuraEffect* sinOfTheMany = GetUnitOwner()->GetAuraEffect(SPELL_PRIEST_SINS_OF_THE_MANY, effectIndex))
                 sinOfTheMany->ChangeAmount(damageByStack[std::min(_appliedAtonements.size(), damageByStack.size() - 1)]);
+    }
+};
+
+// 195178 - Atonement (Passive) 
+class spell_pri_atonement_passive : public AuraScript
+{
+    PrepareAuraScript(spell_pri_atonement_passive);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetDamageInfo() != nullptr;
+    }
+
+    void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* summoner = GetTarget()->GetOwner();
+        if (!summoner)
+            return;
+
+        if (Aura* atonement = summoner->GetAura(SPELL_PRIEST_ATONEMENT))
+            if (spell_pri_atonement* script = atonement->GetScript<spell_pri_atonement>())
+                script->TriggerAtonementHealOnTargets(aurEff, eventInfo, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_atonement_passive::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2091,6 +2132,7 @@ void AddSC_priest_spell_scripts()
     RegisterAreaTriggerAI(areatrigger_pri_angelic_feather);
     RegisterSpellScript(spell_pri_aq_3p_bonus);
     RegisterSpellScript(spell_pri_atonement);
+    RegisterSpellScript(spell_pri_atonement_passive);
     RegisterSpellScript(spell_pri_atonement_triggered);
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_divine_hymn);
