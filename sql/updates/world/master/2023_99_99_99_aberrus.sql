@@ -1,7 +1,13 @@
 SET @CGUID := XXXX;
 SET @OGUID := XXXX;
+SET @ATID := XXX;
+SET @ATSPAWNID := XXX;
+SET @WSLID := xxx;
 
-SET @PATH := ((@CGUID+61) * 10) << 3;
+SET @PATH_SIEGEMASTER := (198874 * 10) << 3;
+SET @PATH_SARKARETH := (202416 * 10) << 3;;
+SET @PATH_WINGLORD_DEZRAN := (202610 * 10) << 3;;
+SET @PATH_ZSKARN := (202637 * 10) << 3;;
 
 -- Instance Data
 DELETE FROM `access_requirement` WHERE `mapId`=2569;
@@ -15,43 +21,31 @@ DELETE FROM `instance_template` WHERE `map`=2569;
 INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
 (2569, 0, 'instance_aberrus_the_shadowed_crucible');
 
-DELETE FROM `instance_encounters` WHERE `entry` IN (2688, 2687, 2693, 2682, 2680, 2689, 2683, 2684, 2685);
-INSERT INTO `instance_encounters` (`entry`, `creditType`, `creditEntry`, `lastEncounterDungeon`, `comment`) VALUES
-(2688, 0, 201261, 0, 'Kazzara, the Hellforged'),
-(2687, 0, 201934, 0, 'The Amalgamation Chamber'),
-(2693, 0, 200918, 0, 'The Forgotten Experiments'),
-(2682, 0, 199659, 0, 'Assault of the Zaqali'),
-(2680, 0, 201320, 0, 'Rashok, the Elder'),
-(2689, 0, 202637, 0, 'The Vigilant Steward, Zskarn'),
-(2683, 0, 201579, 0, 'Magmorax'),
-(2684, 0, 204223, 0, 'Echo of Neltharion'),
-(2685, 0, 205319, 2520, 'Scalecommander Sarkareth');
-
-DELETE FROM `world_safe_locs` WHERE `ID` IN (100040, 100041);
+DELETE FROM `world_safe_locs` WHERE `ID` BETWEEN @WSLID+0 AND @WSLID+1;
 INSERT INTO `world_safe_locs` (`ID`, `MapID`, `LocX`, `LocY`, `LocZ`, `Facing`, `Comment`) VALUES
-(100040, 2569, 2212.78, 2481.39, 711.777, 0.019635128, '10.x Raid - Aberrus the Shadowed Crucible - Entrance'),
-(100041, 2454, 1817.62, 2549.31, -78.994, 3.1581035, '10.x Raid - Aberrus the Shadowed Crucible - Exit');
+(@WSLID+0, 2569, 2212.78, 2481.39, 711.777, 0.019635128, '10.x Raid - Aberrus the Shadowed Crucible - Entrance'),
+(@WSLID+1, 2454, 1817.62, 2549.31, -78.994, 3.1581035, '10.x Raid - Aberrus the Shadowed Crucible - Exit');
 
-DELETE FROM `areatrigger` WHERE `SpawnId` IN (25, 26, 27, 28, 29);
+DELETE FROM `areatrigger` WHERE `IsServerSide`=1 AND `SpawnId` BETWEEN @ATSPAWNID+0 AND @ATSPAWNID+4;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `Comment`) VALUES
-(25, 24, 1, 2454, 1847.1129150390625, 2549.317626953125, -79.5390777587890625, 0, 1, 0, 0, 1, 1, 25, 55, 6.03999996185, 0, 0, 0, 0, '', '10.x Raid - Aberrus the Shadowed Crucible - Entrance'),
-(26, 25, 1, 2569, 2185.072998046875, 2482.572998046875, 718.5048828125, 0, 1, 0, 0, 1, 0.5, 25, 55, 6.03999996185, 0, 0, 0, 0, '', '10.x Raid - Aberrus the Shadowed Crucible - Exit'),
-(27, 26, 1, 2569, 2236.875488, 2481.375244, 711.785767, 6.278931, 1, 0, 0, 1, 20, 50, 5, 20, 50, 5, 0, 0, 'at_aberrus_sabellian_conversation_intro', 'Aberrus - Trigger Sabellian and Wrathion Conversation'),
-(28, 27, 1, 2569, 2294.504883, 2481.418213, 711.838318, 0.000343, 1, 0, 0, 1, 10, 25, 1, 10, 25, 1, 0, 0, 'at_aberrus_sarkareth_conversation_intro', 'Aberrus - Trigger Sabellian and Sarkareth Conversation'),
-(29, 28, 1, 2569, 2339.703369, 2481.441162, 708.184509, 0.000343, 1, 0, 0, 1, 10, 20, 1, 10, 20, 1, 0, 0, 'at_aberrus_kazzara_summon_conversation_intro', 'Aberrus - Trigger Winglord Dezran, Sarkareth and Zskarn Conversation');
+(@ATSPAWNID+0, @ATID+0, 1, 2454, 1847.1129150390625, 2549.317626953125, -79.5390777587890625, 0, 1, 0, 0, 1, 1, 25, 55, 6.03999996185, 0, 0, 0, 0, '', '10.x Raid - Aberrus the Shadowed Crucible - Entrance'),
+(@ATSPAWNID+1, @ATID+1, 1, 2569, 2185.072998046875, 2482.572998046875, 718.5048828125, 0, 1, 0, 0, 1, 0.5, 25, 55, 6.03999996185, 0, 0, 0, 0, '', '10.x Raid - Aberrus the Shadowed Crucible - Exit'),
+(@ATSPAWNID+2, @ATID+2, 1, 2569, 2236.875488, 2481.375244, 711.785767, 6.278931, 1, 0, 0, 1, 20, 50, 5, 20, 50, 5, 0, 0, 'at_aberrus_sabellian_conversation_intro', 'Aberrus - Trigger Sabellian and Wrathion Conversation'),
+(@ATSPAWNID+3, @ATID+3, 1, 2569, 2294.504883, 2481.418213, 711.838318, 0.000343, 1, 0, 0, 1, 10, 25, 1, 10, 25, 1, 0, 0, 'at_aberrus_sarkareth_conversation_intro', 'Aberrus - Trigger Sabellian and Sarkareth Conversation'),
+(@ATSPAWNID+4, @ATID+4, 1, 2569, 2339.703369, 2481.441162, 708.184509, 0.000343, 1, 0, 0, 1, 10, 20, 1, 10, 20, 1, 0, 0, 'at_aberrus_kazzara_summon_conversation_intro', 'Aberrus - Trigger Winglord Dezran, Sarkareth and Zskarn Conversation');
 
-DELETE FROM `areatrigger_template` WHERE `Id` IN (24, 25, 26, 27, 28) AND `IsServerSide`=1;
+DELETE FROM `areatrigger_template` WHERE `IsServerSide`=1 AND `Id` BETWEEN @ATID+0 AND @ATD+4;
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES
-(24, 1, 1, 0, 1, 25, 55, 6.03999996185, 0, 0, 0, 0, 0),
-(25, 1, 1, 0, 0.5, 25, 55, 6.03999996185, 0, 0, 0, 0, 0),
-(26, 1, 1, 0, 20, 50, 5, 20, 50, 5, 0, 0, 0),
-(27, 1, 1, 0, 10, 25, 1, 10, 25, 1, 0, 0, 0),
-(28, 1, 1, 0, 10, 20, 1, 10, 20, 1, 0, 0, 0);
+(@ATID+0, 1, 1, 0, 1, 25, 55, 6.03999996185, 0, 0, 0, 0, 0),
+(@ATID+1, 1, 1, 0, 0.5, 25, 55, 6.03999996185, 0, 0, 0, 0, 0),
+(@ATID+2, 1, 1, 0, 20, 50, 5, 20, 50, 5, 0, 0, 0),
+(@ATID+3, 1, 1, 0, 10, 25, 1, 10, 25, 1, 0, 0, 0),
+(@ATID+4, 1, 1, 0, 10, 20, 1, 10, 20, 1, 0, 0, 0);
 
-DELETE FROM `areatrigger_template_actions` WHERE `AreaTriggerId` IN (24, 25) AND `IsServerSide`=1;
+DELETE FROM `areatrigger_template_actions` WHERE `AreaTriggerId` IN (@ATID+0, @ATID+1) AND `IsServerSide`=1;
 INSERT INTO `areatrigger_template_actions` (`AreaTriggerId`, `IsServerSide`, `ActionType`, `ActionParam`, `TargetType`) VALUES
-(24, 1, 2, 100040, 3),
-(25, 1, 2, 100041, 3);
+(@ATID+0, 1, 2, @WSLID+0, 3),
+(@ATID+1, 1, 2, @WSLID+1, 3);
 
 -- Creature and Gameobjects Data
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+82;
@@ -213,7 +207,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `StandState`, `AnimTie
 (@CGUID+58, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Kazzara Lava Right
 (@CGUID+59, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Edgelord
 (@CGUID+60, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Preserver
-(@CGUID+61, @PATH, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, ''), -- Sundered Siegemaster
+(@CGUID+61, @PATH_SIEGEMASTER, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, ''), -- Sundered Siegemaster
 (@CGUID+62, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Preserver
 (@CGUID+63, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 4, ''), -- Sundered Edgelord
 (@CGUID+64, 0, 0, 0, 0, 0, 1, 0, 425, 0, 0, 0, 4, ''), -- Sundered Manaweaver
@@ -300,53 +294,53 @@ DELETE FROM `creature_template_addon` WHERE `entry` IN (188663 /*188663 (Flitter
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (188663, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '371442'); -- 188663 (Flittering Flutterwing) - Dragonfly Delicacy
 
-DELETE FROM `waypoint_data` WHERE `id`= @PATH;
+DELETE FROM `waypoint_data` WHERE `id`= @PATH_SIEGEMASTER;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`) VALUES
-(@PATH, 0, 2395.603, 2459.497, 708.2903, NULL, 5814, 1),
-(@PATH, 1, 2410.109, 2471.991, 708.2902, NULL, 0, 1),
-(@PATH, 2, 2408.983, 2491.738, 708.2902, NULL, 0, 1),
-(@PATH, 3, 2401.788, 2503.958, 708.2902, NULL, 0, 1),
-(@PATH, 4, 2394.375, 2501.688, 708.3055, NULL, 5655, 1),
-(@PATH, 5, 2410.031, 2486.123, 708.2902, NULL, 0, 1),
-(@PATH, 6, 2409.898, 2470.884, 708.2902, NULL, 0, 1),
-(@PATH, 7, 2401.526, 2456.868, 708.2902, NULL, 0, 1),
-(@PATH, 8, 2395.603, 2459.497, 708.2903, NULL, 5885, 1),
-(@PATH, 9, 2410.109, 2471.991, 708.2902, NULL, 0, 1),
-(@PATH, 10, 2408.983, 2491.738, 708.2902, NULL, 0, 1),
-(@PATH, 11, 2401.788, 2503.958, 708.2902, NULL, 10, 1),
-(@PATH, 12, 2394.375, 2501.688, 708.3055, NULL, 6895, 1),
-(@PATH, 13, 2410.031, 2486.123, 708.2902, NULL, 0, 1),
-(@PATH, 14, 2409.898, 2470.884, 708.2902, NULL, 0, 1),
-(@PATH, 15, 2401.526, 2456.868, 708.2902, NULL, 0, 1);
+(@PATH_SIEGEMASTER, 0, 2395.603, 2459.497, 708.2903, NULL, 5814, 1),
+(@PATH_SIEGEMASTER, 1, 2410.109, 2471.991, 708.2902, NULL, 0, 1),
+(@PATH_SIEGEMASTER, 2, 2408.983, 2491.738, 708.2902, NULL, 0, 1),
+(@PATH_SIEGEMASTER, 3, 2401.788, 2503.958, 708.2902, NULL, 0, 1),
+(@PATH_SIEGEMASTER, 4, 2394.375, 2501.688, 708.3055, NULL, 5655, 1),
+(@PATH_SIEGEMASTER, 5, 2410.031, 2486.123, 708.2902, NULL, 0, 1),
+(@PATH_SIEGEMASTER, 6, 2409.898, 2470.884, 708.2902, NULL, 0, 1),
+(@PATH_SIEGEMASTER, 7, 2401.526, 2456.868, 708.2902, NULL, 0, 1),
+(@PATH_SIEGEMASTER, 8, 2395.603, 2459.497, 708.2903, NULL, 5885, 1),
+(@PATH_SIEGEMASTER, 9, 2410.109, 2471.991, 708.2902, NULL, 0, 1),
+(@PATH_SIEGEMASTER, 10, 2408.983, 2491.738, 708.2902, NULL, 0, 1),
+(@PATH_SIEGEMASTER, 11, 2401.788, 2503.958, 708.2902, NULL, 10, 1),
+(@PATH_SIEGEMASTER, 12, 2394.375, 2501.688, 708.3055, NULL, 6895, 1),
+(@PATH_SIEGEMASTER, 13, 2410.031, 2486.123, 708.2902, NULL, 0, 1),
+(@PATH_SIEGEMASTER, 14, 2409.898, 2470.884, 708.2902, NULL, 0, 1),
+(@PATH_SIEGEMASTER, 15, 2401.526, 2456.868, 708.2902, NULL, 0, 1);
 
-DELETE FROM `waypoint_data` WHERE `id`=85000000;
+DELETE FROM `waypoint_data` WHERE `id`=@PATH_SARKARETH;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
-(85000000, 0, 2500.0615, 2482.264, 708.7047, NULL, 0, 0, 0, 100, 0),
-(85000000, 1, 2511.0615, 2482.014, 701.9547, NULL, 0, 0, 0, 100, 0),
-(85000000, 2, 2519.8115, 2485.014, 700.4547, NULL, 0, 0, 0, 100, 0),
-(85000000, 3, 2526.8115, 2492.264, 700.4547, NULL, 0, 0, 0, 100, 0),
-(85000000, 4, 2535.8115, 2515.014, 700.4547, NULL, 0, 0, 0, 100, 0),
-(85000000, 5, 2540.0615, 2529.014, 700.4547, NULL, 0, 0, 0, 100, 0),
-(85000000, 6, 2544.5642, 2552.007, 699.9161, NULL, 0, 0, 0, 100, 0);
+(@PATH_SARKARETH, 0, 2500.0615, 2482.264, 708.7047, NULL, 0, 0, 0, 100, 0),
+(@PATH_SARKARETH, 1, 2511.0615, 2482.014, 701.9547, NULL, 0, 0, 0, 100, 0),
+(@PATH_SARKARETH, 2, 2519.8115, 2485.014, 700.4547, NULL, 0, 0, 0, 100, 0),
+(@PATH_SARKARETH, 3, 2526.8115, 2492.264, 700.4547, NULL, 0, 0, 0, 100, 0),
+(@PATH_SARKARETH, 4, 2535.8115, 2515.014, 700.4547, NULL, 0, 0, 0, 100, 0),
+(@PATH_SARKARETH, 5, 2540.0615, 2529.014, 700.4547, NULL, 0, 0, 0, 100, 0),
+(@PATH_SARKARETH, 6, 2544.5642, 2552.007, 699.9161, NULL, 0, 0, 0, 100, 0);
 
-DELETE FROM `waypoint_data` WHERE `id`=85000001;
+DELETE FROM `waypoint_data` WHERE `id`=@PATH_WINGLORD_DEZRAN;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
-(85000001, 0, 2494.0542, 2487.5217, 708.2893, NULL, 0, 0, 0, 100, 0),
-(85000001, 1, 2500.8042, 2487.5217, 708.5393, NULL, 0, 0, 0, 100, 0),
-(85000001, 2, 2512.8042, 2490.0217, 700.5393, NULL, 0, 0, 0, 100, 0),
-(85000001, 3, 2517.5542, 2493.2717, 700.2893, NULL, 0, 0, 0, 100, 0),
-(85000001, 4, 2520.8042, 2500.0217, 700.2893, NULL, 0, 0, 0, 100, 0),
-(85000001, 5, 2531.5542, 2529.7717, 700.2893, NULL, 0, 0, 0, 100, 0),
-(85000001, 6, 2535.716, 2551.6182, 699.9161, NULL, 0, 0, 0, 100, 0);
+(@PATH_WINGLORD_DEZRAN, 0, 2494.0542, 2487.5217, 708.2893, NULL, 0, 0, 0, 100, 0),
+(@PATH_WINGLORD_DEZRAN, 1, 2500.8042, 2487.5217, 708.5393, NULL, 0, 0, 0, 100, 0),
+(@PATH_WINGLORD_DEZRAN, 2, 2512.8042, 2490.0217, 700.5393, NULL, 0, 0, 0, 100, 0),
+(@PATH_WINGLORD_DEZRAN, 3, 2517.5542, 2493.2717, 700.2893, NULL, 0, 0, 0, 100, 0),
+(@PATH_WINGLORD_DEZRAN, 4, 2520.8042, 2500.0217, 700.2893, NULL, 0, 0, 0, 100, 0),
+(@PATH_WINGLORD_DEZRAN, 5, 2531.5542, 2529.7717, 700.2893, NULL, 0, 0, 0, 100, 0),
+(@PATH_WINGLORD_DEZRAN, 6, 2535.716, 2551.6182, 699.9161, NULL, 0, 0, 0, 100, 0);
 
-DELETE FROM `waypoint_data` WHERE `id`=85000002;
+DELETE FROM `waypoint_data` WHERE `id`=@PATH_ZSKARN;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
-(85000002, 0, 2500.9102, 2474.3933, 708.5393, NULL, 0, 0, 0, 100, 0),
-(85000002, 1, 2512.4102, 2473.3933, 701.0393, NULL, 0, 0, 0, 100, 0),
-(85000002, 2, 2522.9102, 2476.1433, 700.2893, NULL, 0, 0, 0, 100, 0),
-(85000002, 3, 2534.1602, 2487.6433, 700.2893, NULL, 0, 0, 0, 100, 0),
-(85000002, 4, 2545.9102, 2511.8933, 700.2893, NULL, 0, 0, 0, 100, 0),
-(85000002, 5, 2555.8586, 2552.1042, 699.9161, NULL, 0, 0, 0, 100, 0);
+(@PATH_ZSKARN, 0, 2500.9102, 2474.3933, 708.5393, NULL, 0, 0, 0, 100, 0),
+(@PATH_ZSKARN, 1, 2512.4102, 2473.3933, 701.0393, NULL, 0, 0, 0, 100, 0),
+(@PATH_ZSKARN, 2, 2522.9102, 2476.1433, 700.2893, NULL, 0, 0, 0, 100, 0),
+(@PATH_ZSKARN, 3, 2534.1602, 2487.6433, 700.2893, NULL, 0, 0, 0, 100, 0),
+(@PATH_ZSKARN, 4, 2545.9102, 2511.8933, 700.2893, NULL, 0, 0, 0, 100, 0),
+(@PATH_ZSKARN, 5, 2555.8586, 2552.1042, 699.9161, NULL, 0, 0, 0, 100, 0);
 
 DELETE FROM `npc_vendor` WHERE (`entry`=205350 AND `item`=204634 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=205350 AND `item`=2901 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=205350 AND `item`=5956 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=205350 AND `item`=190452 AND `ExtendedCost`=0 AND `type`=1);
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `type`, `PlayerConditionID`, `IgnoreFiltering`, `VerifiedBuild`) VALUES

@@ -60,25 +60,54 @@ DungeonEncounterData const encounters[] =
 
 class instance_aberrus_the_shadowed_crucible : public InstanceMapScript
 {
-    public:
-        instance_aberrus_the_shadowed_crucible() : InstanceMapScript(ATSCScriptName, 2569) { }
+public:
+    instance_aberrus_the_shadowed_crucible() : InstanceMapScript(ATSCScriptName, 2569) { }
 
-        struct instance_aberrus_the_shadowed_crucible_InstanceMapScript: public InstanceScript
+    struct instance_aberrus_the_shadowed_crucible_InstanceMapScript: public InstanceScript
+    {
+        instance_aberrus_the_shadowed_crucible_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
-            instance_aberrus_the_shadowed_crucible_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
-            {
-                SetHeaders(DataHeader);
-                SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, objectData);
-                LoadDoorData(doorData);
-                LoadDungeonEncounterData(encounters);
-            }
-        };
+            SetHeaders(DataHeader);
+            SetBossNumber(EncounterCount);
+            LoadObjectData(creatureData, objectData);
+            LoadDoorData(doorData);
+            LoadDungeonEncounterData(encounters);
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
-        {
-            return new instance_aberrus_the_shadowed_crucible_InstanceMapScript(map);
+            _kazzaraIntroDone = false;
         }
+
+        uint32 GetData(uint32 dataId) const override
+        {
+            switch (dataId)
+            {
+                case DATA_KAZZARA_INTRO_DONE:
+                    return _kazzaraIntroDone ? 1 : 0;
+                default:
+                    break;
+            }
+            return 0;
+        }
+
+        void SetData(uint32 dataId, uint32 /*value*/) override
+        {
+            switch (dataId)
+            {
+                case DATA_KAZZARA_INTRO_DONE:
+                    _kazzaraIntroDone = true; // no need to pass value, it will never reset to false
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    private:
+        bool _kazzaraIntroDone;
+    };
+
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    {
+        return new instance_aberrus_the_shadowed_crucible_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_aberrus_the_shadowed_crucible()

@@ -39,7 +39,10 @@ enum AberrusDataTypes
     DATA_SCALECOMMANDER_SARKARETH        = 8,
 
     // Additional Data
-    DATA_KAZZARA_GATE                    = 9
+    DATA_KAZZARA_GATE,
+
+    // Misc
+    DATA_KAZZARA_INTRO_DONE,
 };
 
 enum AberrusCreatureIds
@@ -75,7 +78,7 @@ enum AberrusGameObjectIds
 
 enum AberrusSharedActions
 {
-    ACTION_START_INTRO
+    ACTION_START_KAZZARA_INTRO = 0,
 };
 
 template <class AI, class T>

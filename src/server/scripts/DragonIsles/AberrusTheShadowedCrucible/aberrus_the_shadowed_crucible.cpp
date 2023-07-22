@@ -54,9 +54,9 @@ enum AberrusEvents
 
 enum AberrusPaths
 {
-    PATH_SARKARETH                    = 85000000,
-    PATH_WINGLORD_DEZRAN              = 85000001,
-    PATH_ZSKARN                       = 85000002
+    PATH_SARKARETH                    = (202416 * 10) << 3,
+    PATH_WINGLORD_DEZRAN              = (202610 * 10) << 3,
+    PATH_ZSKARN                       = (202637 * 10) << 3
 };
 
 Position const SabellianConvoPosition  = { 2250.6372f, 2482.3003f, 711.9592f };
@@ -188,11 +188,14 @@ class conversation_aberrus_kazzara_intro : public ConversationScript
                     winglordDezran->DespawnOrUnsummon(45s);
 
                     zskarn->GetMotionMaster()->MovePath(PATH_ZSKARN, false);
-                    zskarn->DespawnOrUnsummon(45s, Seconds::max()); // override respawn time due to CREATURE_FLAG_EXTRA_DUNGEON_BOSS
+                    zskarn->DespawnOrUnsummon(45s, Seconds::max()); // override respawn time to prevent instant respawn due to CREATURE_FLAG_EXTRA_DUNGEON_BOSS
 
                     if (InstanceScript* instance = conversation->GetInstanceScript())
+                    {
+                        instance->SetData(DATA_KAZZARA_INTRO_DONE, 1);
                         if (Creature* kazzara = instance->GetCreature(DATA_KAZZARA_THE_HELLFORGED))
-                            kazzara->AI()->DoAction(ACTION_START_INTRO);
+                            kazzara->AI()->DoAction(ACTION_START_KAZZARA_INTRO);
+                    }
                     break;
                 }
                 default:

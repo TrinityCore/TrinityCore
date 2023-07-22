@@ -33,29 +33,6 @@ enum KazzaraSpells
     SPELL_KAZZARA_INTRO         = 410541
 };
 
-enum KazzaraEvents
-{
-    EVENT_REMOVE_FLAGS          = 1
-};
-
-class CastFearEvent : public BasicEvent
-{
-    public:
-        CastFearEvent(Unit* caster) : _caster(caster) { }
-
-        bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
-        {
-            if (!_caster->IsAlive() || _caster->IsInCombat())
-                return false;
-
-            _caster->CastSpell(_caster, SPELL_FEAR, TRIGGERED_FULL_MASK);
-            return true;
-        }
-
-    private:
-        Unit* _caster;
-};
-
 // 201261 - Kazzara the Hellforged
 struct boss_kazzara_the_hellforged : public BossAI
 {
@@ -63,16 +40,19 @@ struct boss_kazzara_the_hellforged : public BossAI
 
     void JustAppeared() override
     {
-        me->SetUninteractible(true);
-        me->SetImmuneToAll(true);
-        me->SetVisible(false);
+        if (!instance->GetData(DATA_KAZZARA_INTRO_DONE))
+        {
+            me->SetUninteractible(true);
+            me->SetImmuneToAll(true);
+            me->SetVisible(false);
+        }
     }
 
     void DoAction(int32 actionId) override
     {
         switch (actionId)
         {
-            case ACTION_START_INTRO:
+            case ACTION_START_KAZZARA_INTRO:
             {
                 if (GameObject* gate = instance->GetGameObject(DATA_KAZZARA_GATE))
                 {
@@ -85,14 +65,19 @@ struct boss_kazzara_the_hellforged : public BossAI
                 DoCast(SPELL_DREAD_LANDING);
                 DoCast(SPELL_KAZZARA_INTRO);
 
-                std::vector<Creature*> sunderedMobs;
-                GetCreatureListWithOptionsInGrid(sunderedMobs, me, 50.0f, FindCreatureOptions().SetStringId("sundered_mob"));
+                // @TODO: check for some aura / selector causing this
+                scheduler.Schedule(1s + 500ms, [this](TaskContext /*context*/)
+                {
+                    std::vector<Creature*> sunderedMobs;
+                    GetCreatureListWithOptionsInGrid(sunderedMobs, me, 50.0f, FindCreatureOptions().SetStringId("sundered_mob"));
+                    for (Creature* sunderedMob : sunderedMobs)
+                    {
+                        if (!sunderedMob->IsAlive() || sunderedMob->IsInCombat())
+                            continue;
 
-                if (sunderedMobs.empty())
-                    return;
-
-                for (Creature* sunderedMob : sunderedMobs)
-                    sunderedMob->m_Events.AddEventAtOffset(new CastFearEvent(sunderedMob), Milliseconds(1500));
+                        sunderedMob->CastSpell(nullptr, SPELL_FEAR, false);
+                    }
+                });
 
                 scheduler.Schedule(10s, [this](TaskContext /*context*/)
                 {
