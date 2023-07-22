@@ -2843,7 +2843,7 @@ void World::SetInitialWorldSettings()
         else { //10人或者25人
             TC_LOG_INFO("server.loading", ">> 当前限制{}人，如需开通服务，请联系管理员QQ:643125009。", aaCenter.aa_version.aa_login_count);
         }
-        aaCenter.aa_version.version = "20230409";
+        aaCenter.aa_version.version = "20230715";
         if (aaCenter.aa_version.uuid != "") {
             TC_LOG_INFO("server.loading", ">> 当前版本号:{}-{}", aaCenter.aa_version.version.c_str(), aaCenter.aa_version.uuid.c_str());
         }

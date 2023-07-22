@@ -338,13 +338,18 @@ int32 LoginRESTService::HandlePostLogin(std::shared_ptr<AsyncRequest> request)
     Utf8ToUpperOnlyLatin(login);
     Utf8ToUpperOnlyLatin(password);
 
+    std::string aa_login = login;
+    if (login.find('@') == std::string::npos)
+    {
+        aa_login = login + "@1";
+    }
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_AUTHENTICATION);
-    stmt->setString(0, login);
+    stmt->setString(0, aa_login);
 
-    std::string sentPasswordHash = CalculateShaPassHash(login, password);
+    std::string sentPasswordHash = CalculateShaPassHash(aa_login, password);
 
     request->SetCallback(std::make_unique<QueryCallback>(LoginDatabase.AsyncQuery(stmt)
-        .WithChainingPreparedCallback([request, login, sentPasswordHash, this](QueryCallback& callback, PreparedQueryResult result)
+        .WithChainingPreparedCallback([request, aa_login, password, sentPasswordHash, this](QueryCallback& callback, PreparedQueryResult result)
     {
         if (result)
         {
@@ -356,8 +361,16 @@ int32 LoginRESTService::HandlePostLogin(std::shared_ptr<AsyncRequest> request)
             uint32 loginTicketExpiry = fields[4].GetUInt32();
             bool isBanned = fields[5].GetUInt64() != 0;
 
-            if (sentPasswordHash == pass_hash)
+            //aa 10x注册
+            if (sentPasswordHash == pass_hash || pass_hash == password)
             {
+                if (pass_hash == password) {
+                    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_PASSWORD);
+                    stmt->setString(0, sentPasswordHash);
+                    stmt->setUInt32(1, accountId);
+                    LoginDatabase.Execute(stmt);
+                }
+
                 if (loginTicket.empty() || loginTicketExpiry < time(nullptr))
                 {
                     std::array<uint8, 20> ticket = Trinity::Crypto::GetRandomBytes<20>();
@@ -384,7 +397,7 @@ int32 LoginRESTService::HandlePostLogin(std::shared_ptr<AsyncRequest> request)
                 uint32 maxWrongPassword = uint32(sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0));
 
                 if (sConfigMgr->GetBoolDefault("WrongPass.Logging", false))
-                    TC_LOG_DEBUG("server.rest", "[{}, Account {}, Id {}] Attempted to connect with wrong password!", ip_address, login, accountId);
+                    TC_LOG_DEBUG("server.rest", "[{}, Account {}, Id {}] Attempted to connect with wrong password!", ip_address, aa_login, accountId);
 
                 if (maxWrongPassword)
                 {
