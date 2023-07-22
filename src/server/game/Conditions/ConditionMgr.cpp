@@ -629,6 +629,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                     condMeets = ConditionMgr::IsPlayerMeetingCondition(player, playerCondition);
             break;
         }
+        case CONDITION_PRIVATE_OBJECT:
+        {
+            condMeets = !object->GetPrivateObjectOwner().IsEmpty();
+            break;
+        }
         default:
             break;
     }
@@ -840,6 +845,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             break;
         case CONDITION_PLAYER_CONDITION:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_PRIVATE_OBJECT:
+            mask |= GRID_MAP_TYPE_MASK_ALL & ~GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ABORT_MSG("Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2697,6 +2705,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_CHARMED:
         case CONDITION_TAXI:
         case CONDITION_GAMEMASTER:
+        case CONDITION_PRIVATE_OBJECT:
             break;
         case CONDITION_DIFFICULTY_ID:
             if (!sDifficultyStore.LookupEntry(cond->ConditionValue1))
