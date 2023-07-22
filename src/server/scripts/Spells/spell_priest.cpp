@@ -594,8 +594,6 @@ class spell_pri_epiphany : public AuraScript
     void HandleOnProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         Unit* caster = GetTarget();
-        if (!caster)
-            return;
 
         caster->GetSpellHistory()->ResetCooldown(SPELL_PRIEST_PRAYER_OF_MENDING, true);
 
