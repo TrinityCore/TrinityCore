@@ -99,6 +99,7 @@ enum PaladinSpells
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
     SPELL_PALADIN_RIGHTEOUS_VERDICT_AURA         = 267611,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
+    SPELL_PALADIN_SHIELD_OF_VENGEANCE_DAMAGE     = 184689,
     SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE         = 224266,
     SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE        = 408399,
     SPELL_PALADIN_T30_2P_HEARTFIRE_HEAL          = 408400,
@@ -1427,6 +1428,40 @@ class spell_pal_selfless_healer : public AuraScript
     }
 };
 
+// 184662 - Shield of Vengeance
+class spell_pal_shield_of_vengeance : public AuraScript
+{
+    PrepareAuraScript(spell_pal_shield_of_vengeance);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_SHIELD_OF_VENGEANCE_DAMAGE }) && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = CalculatePct(GetUnitOwner()->GetMaxHealth(), GetEffectInfo(EFFECT_1).CalcValue());
+        if (Player const* player = GetUnitOwner()->ToPlayer())
+            AddPct(amount, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + player->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
+
+        _initialAmount = amount;
+    }
+
+    void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_SHIELD_OF_VENGEANCE_DAMAGE,
+            CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_BASE_POINT0, _initialAmount - aurEff->GetAmount()));
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_shield_of_vengeance::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectRemove += AuraEffectApplyFn(spell_pal_shield_of_vengeance::HandleRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+    }
+
+    int32 _initialAmount = 0;
+};
+
 // 85256 - Templar's Verdict
 class spell_pal_templar_s_verdict : public SpellScript
 {
@@ -1663,6 +1698,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_righteous_protector);
     RegisterSpellScript(spell_pal_righteous_verdict);
     RegisterSpellScript(spell_pal_selfless_healer);
+    RegisterSpellScript(spell_pal_shield_of_vengeance);
     RegisterSpellScript(spell_pal_templar_s_verdict);
     RegisterSpellScript(spell_pal_t3_6p_bonus);
     RegisterSpellScript(spell_pal_t8_2p_bonus);
