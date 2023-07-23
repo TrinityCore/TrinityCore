@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * Scripts for spells with SPELLFAMILY_ROGUE and SPELLFAMILY_GENERIC spells used by rogue players.
- * Ordered alphabetically using scriptname.
- * Scriptnames of files in this file should be prefixed with "spell_rog_".
- */
+ /*
+  * Scripts for spells with SPELLFAMILY_ROGUE and SPELLFAMILY_GENERIC spells used by rogue players.
+  * Ordered alphabetically using scriptname.
+  * Scriptnames of files in this file should be prefixed with "spell_rog_".
+  */
 
 #include "ScriptMgr.h"
 #include "Containers.h"
@@ -36,46 +36,46 @@
 
 enum RogueSpells
 {
-    SPELL_ROGUE_ADRENALINE_RUSH                     = 13750,
-    SPELL_ROGUE_BETWEEN_THE_EYES                    = 199804,
-    SPELL_ROGUE_BLADE_FLURRY                        = 13877,
-    SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK           = 22482,
-    SPELL_ROGUE_BROADSIDE                           = 193356,
-    SPELL_ROGUE_BURIED_TREASURE                     = 199600,
-    SPELL_ROGUE_DEATH_FROM_ABOVE                    = 152150,
-    SPELL_ROGUE_GRAND_MELEE                         = 193358,
-    SPELL_ROGUE_GRAPPLING_HOOK                      = 195457,
-    SPELL_ROGUE_KILLING_SPREE                       = 51690,
-    SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
-    SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
-    SPELL_ROGUE_KILLING_SPREE_DMG_BUFF              = 61851,
-    SPELL_ROGUE_MARKED_FOR_DEATH                    = 137619,
-    SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665,
-    SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223,
-    SPELL_ROGUE_MAIN_GAUCHE                         = 86392,
-    SPELL_ROGUE_PREMEDITATION_PASSIVE               = 343160,
-    SPELL_ROGUE_PREMEDITATION_AURA                  = 343173,
-    SPELL_ROGUE_RUTHLESS_PRECISION                  = 193357,
-    SPELL_ROGUE_SANCTUARY                           = 98877,
-    SPELL_ROGUE_SKULL_AND_CROSSBONES                = 199603,
-    SPELL_ROGUE_SHADOW_FOCUS                        = 108209,
-    SPELL_ROGUE_SHADOW_FOCUS_EFFECT                 = 112942,
-    SPELL_ROGUE_SLICE_AND_DICE                      = 315496,
-    SPELL_ROGUE_SPRINT                              = 2983,
-    SPELL_ROGUE_STEALTH                             = 1784,
-    SPELL_ROGUE_STEALTH_STEALTH_AURA                = 158185,
-    SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA             = 158188,
-    SPELL_ROGUE_SYMBOLS_OF_DEATH_CRIT_AURA          = 227151,
-    SPELL_ROGUE_SYMBOLS_OF_DEATH_RANK2              = 328077,
-    SPELL_ROGUE_TRUE_BEARING                        = 193359,
-    SPELL_ROGUE_TURN_THE_TABLES_BUFF                = 198027,
-    SPELL_ROGUE_VANISH                              = 1856,
-    SPELL_ROGUE_VANISH_AURA                         = 11327,
-    SPELL_ROGUE_TRICKS_OF_THE_TRADE                 = 57934,
-    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628,
-    SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE        = 51699,
-    SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169,
-    SPELL_ROGUE_VENOMOUS_WOUNDS                     = 79134,
+    SPELL_ROGUE_ADRENALINE_RUSH = 13750,
+    SPELL_ROGUE_BETWEEN_THE_EYES = 199804,
+    SPELL_ROGUE_BLADE_FLURRY = 13877,
+    SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK = 22482,
+    SPELL_ROGUE_BROADSIDE = 193356,
+    SPELL_ROGUE_BURIED_TREASURE = 199600,
+    SPELL_ROGUE_DEATH_FROM_ABOVE = 152150,
+    SPELL_ROGUE_GRAND_MELEE = 193358,
+    SPELL_ROGUE_GRAPPLING_HOOK = 195457,
+    SPELL_ROGUE_KILLING_SPREE = 51690,
+    SPELL_ROGUE_KILLING_SPREE_TELEPORT = 57840,
+    SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG = 57841,
+    SPELL_ROGUE_KILLING_SPREE_DMG_BUFF = 61851,
+    SPELL_ROGUE_MARKED_FOR_DEATH = 137619,
+    SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT = 31665,
+    SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE = 31223,
+    SPELL_ROGUE_MAIN_GAUCHE = 86392,
+    SPELL_ROGUE_PREMEDITATION_PASSIVE = 343160,
+    SPELL_ROGUE_PREMEDITATION_AURA = 343173,
+    SPELL_ROGUE_RUTHLESS_PRECISION = 193357,
+    SPELL_ROGUE_SANCTUARY = 98877,
+    SPELL_ROGUE_SKULL_AND_CROSSBONES = 199603,
+    SPELL_ROGUE_SHADOW_FOCUS = 108209,
+    SPELL_ROGUE_SHADOW_FOCUS_EFFECT = 112942,
+    SPELL_ROGUE_SLICE_AND_DICE = 315496,
+    SPELL_ROGUE_SPRINT = 2983,
+    SPELL_ROGUE_STEALTH = 1784,
+    SPELL_ROGUE_STEALTH_STEALTH_AURA = 158185,
+    SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA = 158188,
+    SPELL_ROGUE_SYMBOLS_OF_DEATH_CRIT_AURA = 227151,
+    SPELL_ROGUE_SYMBOLS_OF_DEATH_RANK2 = 328077,
+    SPELL_ROGUE_TRUE_BEARING = 193359,
+    SPELL_ROGUE_TURN_THE_TABLES_BUFF = 198027,
+    SPELL_ROGUE_VANISH = 1856,
+    SPELL_ROGUE_VANISH_AURA = 11327,
+    SPELL_ROGUE_TRICKS_OF_THE_TRADE = 57934,
+    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC = 59628,
+    SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE = 51699,
+    SPELL_ROGUE_T5_2P_SET_BONUS = 37169,
+    SPELL_ROGUE_VENOMOUS_WOUNDS = 79134,
 };
 
 /* Returns true if the spell is a finishing move.
@@ -248,17 +248,16 @@ class spell_rog_deadly_poison : public SpellScript
 // 32645 - Envenom
 class spell_rog_envenom : public SpellScript
 {
-    void CalculateDamage(SpellEffIndex /*effIndex*/)
+    void CalculateDamage(SpellEffIndex effIndex)
     {
-        int32 damagePerCombo = GetHitDamage();
+        Optional<int32> cp = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+        int32 ap = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
+
+        int32 damagePerCombo = (ap * GetSpellInfo()->GetEffect(effIndex).BonusCoefficientFromAP) * (*cp);
         if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
             damagePerCombo += t5->GetAmount();
 
         int32 finalDamage = damagePerCombo;
-        std::vector<SpellPowerCost> const& costs = GetSpell()->GetPowerCost();
-        auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
-        if (c != costs.end())
-            finalDamage *= c->Amount;
 
         SetHitDamage(finalDamage);
     }
@@ -272,17 +271,16 @@ class spell_rog_envenom : public SpellScript
 // 196819 - Eviscerate
 class spell_rog_eviscerate : public SpellScript
 {
-    void CalculateDamage(SpellEffIndex /*effIndex*/)
+    void CalculateDamage(SpellEffIndex effIndex)
     {
-        int32 damagePerCombo = GetHitDamage();
+        Optional<int32> cp = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+        int32 ap = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
+
+        int32 damagePerCombo = (ap * GetSpellInfo()->GetEffect(effIndex).BonusCoefficientFromAP) * (*cp);
         if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
             damagePerCombo += t5->GetAmount();
 
         int32 finalDamage = damagePerCombo;
-        std::vector<SpellPowerCost> const& costs = GetSpell()->GetPowerCost();
-        auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
-        if (c != costs.end())
-            finalDamage *= c->Amount;
 
         SetHitDamage(finalDamage);
     }
@@ -362,11 +360,11 @@ class spell_rog_killing_spree_aura : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-        {
-            SPELL_ROGUE_KILLING_SPREE_TELEPORT,
-            SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG,
-            SPELL_ROGUE_KILLING_SPREE_DMG_BUFF
-        });
+            {
+                SPELL_ROGUE_KILLING_SPREE_TELEPORT,
+                SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG,
+                SPELL_ROGUE_KILLING_SPREE_DMG_BUFF
+            });
     }
 
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -573,35 +571,31 @@ class spell_rog_roll_the_bones : public SpellScript
 };
 
 // 1943 - Rupture
-class spell_rog_rupture : public AuraScript
+class spell_rog_rupture : public SpellScript
 {
+    void HandleHit(SpellEffIndex effIndex)
+    {
+        Optional<int32> cp = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+        const int32 MIN_DURATION = GetSpellInfo()->GetDuration();
+        int32 duration = MIN_DURATION * (*cp + 1);
+
+        GetSpell()->SetSpellValue(SPELLVALUE_DURATION, duration);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_rog_rupture::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// 1943 - Rupture DOT
+class spell_rog_rupture_aura : public AuraScript
+{
+    PrepareAuraScript(spell_rog_rupture_aura);
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ROGUE_VENOMOUS_WOUNDS });
-    }
-
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
-    {
-        if (Unit* caster = GetCaster())
-        {
-            canBeRecalculated = false;
-
-            float const attackpowerPerCombo[6] =
-            {
-                0.0f,
-                0.015f,         // 1 point:  ${($m1 + $b1*1 + 0.015 * $AP) * 4} damage over 8 secs
-                0.024f,         // 2 points: ${($m1 + $b1*2 + 0.024 * $AP) * 5} damage over 10 secs
-                0.03f,          // 3 points: ${($m1 + $b1*3 + 0.03 * $AP) * 6} damage over 12 secs
-                0.03428571f,    // 4 points: ${($m1 + $b1*4 + 0.03428571 * $AP) * 7} damage over 14 secs
-                0.0375f         // 5 points: ${($m1 + $b1*5 + 0.0375 * $AP) * 8} damage over 16 secs
-            };
-
-            int32 cp = caster->GetPower(POWER_COMBO_POINTS);
-            if (cp > 5)
-                cp = 5;
-
-            amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * attackpowerPerCombo[cp]);
-        }
     }
 
     void OnEffectRemoved(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -630,8 +624,27 @@ class spell_rog_rupture : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_rupture::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-        OnEffectRemove += AuraEffectRemoveFn(spell_rog_rupture::OnEffectRemoved, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_rog_rupture_aura::OnEffectRemoved, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 315496 - Slice and Dice
+class spell_rog_slice_and_dice : public SpellScript
+{
+    PrepareSpellScript(spell_rog_slice_and_dice);
+
+    void HandleApply(SpellEffIndex effIndex)
+    {
+        Optional<int32> cp = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+        const int32 MIN_DURATION = GetSpellInfo()->GetDuration();
+        int32 duration = MIN_DURATION * (*cp + 1);
+
+        GetSpell()->SetSpellValue(SPELLVALUE_DURATION, duration);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_rog_slice_and_dice::HandleApply, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
@@ -735,15 +748,15 @@ class spell_rog_stealth : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-        {
-            SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE,
-            SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT,
-            SPELL_ROGUE_SANCTUARY,
-            SPELL_ROGUE_SHADOW_FOCUS,
-            SPELL_ROGUE_SHADOW_FOCUS_EFFECT,
-            SPELL_ROGUE_STEALTH_STEALTH_AURA,
-            SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA
-        });
+            {
+                SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE,
+                SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT,
+                SPELL_ROGUE_SANCTUARY,
+                SPELL_ROGUE_SHADOW_FOCUS,
+                SPELL_ROGUE_SHADOW_FOCUS_EFFECT,
+                SPELL_ROGUE_STEALTH_STEALTH_AURA,
+                SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA
+            });
     }
 
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1006,6 +1019,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_restless_blades);
     RegisterSpellScript(spell_rog_roll_the_bones);
     RegisterSpellScript(spell_rog_rupture);
+    RegisterSpellScript(spell_rog_rupture_aura);
     RegisterSpellScript(spell_rog_ruthlessness);
     RegisterSpellScript(spell_rog_shadowstrike);
     RegisterSpellScript(spell_rog_sinister_strike);
@@ -1018,4 +1032,5 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_vanish);
     RegisterSpellScript(spell_rog_vanish_aura);
     RegisterSpellScript(spell_rog_venomous_wounds);
+    RegisterSpellScript(spell_rog_slice_and_dice);
 }
