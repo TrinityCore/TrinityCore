@@ -37,6 +37,18 @@
 
 bool WorldSession::CanOpenMailBox(ObjectGuid guid)
 {
+    // 一命模式 禁止邮件
+    {
+        ObjectGuid::LowType guidlow = _player->GetGUIDLow();
+        uint32 level = aaCenter.aa_characterss[guidlow].yiming;
+        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
+        if (conf.is_youjian == 1) {
+            std::string msg = "|cff00FFFF[一命模式]|r|cffFF0000无法进行邮件操作|r";
+            aaCenter.AA_SendMessage(_player, 1, msg.c_str());
+            return false;
+        }
+    }
+
     if (guid == _player->GetGUID())
     {
         // if (!HasPermission(rbac::RBAC_PERM_COMMAND_MAILBOX))

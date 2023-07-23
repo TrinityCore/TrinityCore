@@ -26,7 +26,19 @@ public:
         if (!player->HasSpell(200749)) {
             player->LearnSpell(200749, true);
         }
-        
+
+        //点卡模式
+        if (aaCenter.aa_world_confs[100].value1 == 1) {
+            uint32 accountid = player->GetSession()->GetAccountId();
+            if (accountid > 0) {
+                time_t timep;
+                time(&timep); /*当前time_t类型UTC时间*/
+                uint32 time = aaCenter.aa_accounts[accountid].dianka * 0.001;
+                std::string msg = "|cff00FFFF[账号提示]|cffFFFF00你的游戏时间剩余【" + std::to_string(time / 60) + "】分钟。";
+                aaCenter.AA_SendMessage(player, 0, msg.c_str());
+            }
+        }
+
         //发送时装、商城Creature
         {
             //for (auto itr : aaCenter.aa_ui_shizhuangs) {
@@ -200,6 +212,41 @@ public:
                     AA_Message aa_message;
                     AA_Notice notice = aaCenter.aa_notices[2];
                     aaCenter.AA_SendNotice(player, notice, true, aa_message);
+                }
+            }
+            {
+                //一命模式 模式等级光环
+                ObjectGuid::LowType guidlow = player->GetGUIDLow();
+                uint32 level = aaCenter.aa_characterss[guidlow].yiming;
+                AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
+                for (auto vipconf : aaCenter.aa_yiming_confs) {
+                    if (vipconf.first == 0) {
+                        continue;
+                    }
+                    if (vipconf.second.guanghuans != "" && vipconf.second.guanghuans != "0") {
+                        std::vector<int32> spellids; spellids.clear();
+                        aaCenter.AA_StringToVectorInt(vipconf.second.guanghuans, spellids, ",");
+                        for (size_t i = 0; i < spellids.size(); i++) {
+                            int32 spellid = spellids[i];
+                            if (spellid == 0) {
+                                continue;
+                            }
+                            if (player->HasAura(spellid)) {
+                                player->RemoveAura(spellid);
+                            }
+                        }
+                    }
+                }
+                if (conf.guanghuans != "" && conf.guanghuans != "0") {
+                    std::vector<int32> spellids; spellids.clear();
+                    aaCenter.AA_StringToVectorInt(conf.guanghuans, spellids, ",");
+                    for (size_t i = 0; i < spellids.size(); i++) {
+                        int32 spellid = spellids[i];
+                        if (spellid == 0) {
+                            continue;
+                        }
+                        player->AddAura(spellid, player);
+                    }
                 }
             }
             {

@@ -118,7 +118,12 @@ public:
             show_teleport(player, player->aa_menuId, action);
         }
         else {
-            show_teleport(player, player->aa_menuId, sender);
+            if (conf.refresh == 1) {
+                CloseGossipMenuFor(player);
+            }
+            else {
+                show_teleport(player, player->aa_menuId, sender);
+            }
         }
 
         // 需要关闭页面  '装备解绑','使用物品成长券','使用物品强化券','使用物品鉴定券'

@@ -511,6 +511,7 @@ struct QuestConditionalText
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
 // all base quest information, and any utility functions such as generating the amount of
 // xp to give
+struct AA_Quest;
 class TC_GAME_API Quest
 {
     friend class ObjectMgr;
@@ -518,8 +519,9 @@ class TC_GAME_API Quest
     friend class PlayerMenu;
     public:
         // Loading data. All queries are in ObjectMgr::LoadQuests()
-        explicit Quest(Field* questRecord);
+        explicit Quest(Field* questRecord, AA_Quest conf);
         ~Quest();
+        void AA_LoadQuestObjective(AA_Quest conf);
         void LoadRewardDisplaySpell(Field* fields);
         void LoadRewardChoiceItems(Field* fields);
         void LoadQuestDetails(Field* fields);

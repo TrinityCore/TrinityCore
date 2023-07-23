@@ -42,6 +42,67 @@ inline AAString AA_SafeStringAtIndex(std::vector<AAString> objects, size_t index
     }
 }
 
+struct AA_Quest
+{
+    uint32 id = 0;//`任务id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '不要和quest_template冲突',
+    uint32 QuestType = 0;//0-任务自动完成，1-任务不可用，2-任务可用，不会自动完成；
+    uint32 Flags = 0;//标识，可叠加。 0-无，1-玩家死亡后任务失败，2-护送或者其他事件驱动型任务，如果玩家在队伍中，所有能接这个任务的玩家都可以得到确认接收任务的提示，4-区域触发器激活，8-任务可以分享给其他玩家，16-未知，32-职业史诗任务，64-团队任务，128-TBC及以后版本添加，256-任务需要源物品（RequiredSourceItemId字段不为空），512-任务奖励物品和金钱隐藏，完成任务时才给予奖励，1024-任务完成时自动奖励，不在客户端任务面板显示，2048-血精灵和德莱尼的新手村任务，4096-日常，8192-可重复接的任务，16384-一般不可用的任务，32768-周常，65536-自动完成，131072-需要使用RequiredItemId 和SourceItemId，262144-用任务目标文字代替任务完成文字，524288-区域内开启任务，自动接收；
+    uint32 RewardNextQuest = 0;//`下个任务id` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+    int32 queststarter = 0;//`接受npc` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '生物id',
+    int32 questender = 0;//`完成npc` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '生物id',
+    uint32 need_jieshou = 0;//`接受额外需求` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '需求表id',
+    uint32 reward_jieshou = 0;//`接受额外奖励` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '奖励表id',
+    uint32 need_wancheng = 0;//`完成额外需求` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '需求表id',
+    uint32 reward_wancheng = 0;//`完成额外奖励` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '奖励表id',
+    std::string ObjectiveID = "";
+    std::string ObjectID = "";
+    std::string ObjectType = "";
+    std::string Amount = "";
+    std::string Description = "";
+    uint32 RewardItem1 = 0;
+    uint32 RewardAmount1 = 0;
+    uint32 RewardItem2 = 0;
+    uint32 RewardAmount2 = 0;
+    uint32 RewardItem3 = 0;
+    uint32 RewardAmount3 = 0;
+    uint32 RewardItem4 = 0;
+    uint32 RewardAmount4 = 0;
+    std::string LogTitle = "";
+    std::string LogDescription = "";
+    std::string QuestDescription = "";
+    std::string AreaDescription = "";
+    std::string PortraitGiverText = "";
+    std::string PortraitGiverName = "";
+    std::string PortraitTurnInText = "";
+    std::string PortraitTurnInName = "";
+    std::string QuestCompletionLog = "";
+};
+
+//一命通关模式
+struct AA_Yiming_Conf
+{
+    uint32 level = 0;//level
+    uint32 need_moshi = 0;//提升模式等级需求
+    uint32 reward_moshi = 0;//提升模式等级奖励
+    uint32 reward_level = 0;//人物等级达到奖励
+    uint32 exp = 0;//人物等级经验倍数
+    std::string guanghuans = "";//模式等级光环_多个逗号隔开
+    uint32 is_zudui = 0;//是否允许组队
+    uint32 is_jiaoyi = 0;//是否允许交易
+    uint32 is_paimai = 0;//是否允许拍卖
+    uint32 is_youjian = 0;//是否允许邮件
+    uint32 is_chuansong = 0;//是否允许传送
+    uint32 is_yongbing = 0;//是否允许召唤仆从
+    std::string jinzhi_items = "";//禁止的物品_多个逗号隔开
+    std::string jinzhi_spells = "";//禁止的法术_多个逗号隔开
+    std::string chengfa_dies = "";//惩罚死亡模式_多个逗号隔开
+    std::string chengfa_items = "";//免除惩罚物品_多个逗号隔开
+    std::string chengfa_spells = "";//免除惩罚光环_多个逗号隔开
+    std::string chengfa_areas = "";//免除惩罚区域_多个逗号隔开
+    uint32 notice = 0;//升级后公告
+    std::string text = "";//一命等级描述
+};
+
 //活动答题
 struct AA_Dati_Conf
 {
@@ -78,6 +139,22 @@ struct AA_Biwu_Conf {
     std::string gm_win = "";//决斗胜利调用GM命令
     std::string gm_lose = "";//决斗失败调用GM命令
     std::string gm_1 = "";//比武结束第一名调用GM命令
+};
+
+//首领争霸
+struct AA_Shouling_Conf {
+    uint32 event_id = 0;//活动进场事件
+    uint32 area = 0;//区域id
+    uint32 player_min = 0;//最少人数
+    uint32 bili = 0;//A队B队人数比例
+    std::string guanghuans_a = "";//A队光环_多个逗号隔开
+    std::string guanghuans_b = "";//B队光环_多个逗号隔开
+    std::string entrys = "";//A队为玩家，B队变身为怪物
+    uint32 bianshen_time = 0;//到时间，B队没死，则还原为人类，变身下一个人。
+    uint32 alert_id = 0;//_弹窗_id
+    uint32 wait_time = 0;//单位秒，到达等待时间后开始战斗
+    std::string gm_a = "";//击杀A队调用GM命令
+    std::string gm_b = "";//击杀B队调用GM命令
 };
 
 struct AA_Biwu_Team {
@@ -366,6 +443,7 @@ struct AA_Account
     std::string buy_time = "";
     std::string buy_time_yj = "";
     std::string diy_account = "";
+    uint32 dianka = 0;
     uint32 update_time = 0;
     bool isUpdate = false;
 };
@@ -401,6 +479,8 @@ struct AA_Characters
     std::string name_pre = "";
     std::string name_suf = "";
     uint32 duel_diy = 0;
+    uint32 yiming = 0;
+    uint32 is_yiming = 0;
     uint32 update_time = 0;
     bool isUpdate = false;
 };
@@ -633,6 +713,7 @@ struct AA_Character_Instance
     int32 cuiqu_pos = -1; //萃取位置
     uint32 baoshi_entry = 0;
     uint32 item_set = 0;
+    uint64 zulin_time = 0;
     uint32 update_time = 0; //update_time
     bool isUpdate = false;
 };
@@ -774,6 +855,7 @@ struct AA_Teleport_Conf {
     uint32 is_zhandou = 0;
     uint32 nanduid = 0;
     uint32 notice = 0;
+    uint32 refresh = 0;
 };
 
 struct AA_Map_Player_Conf {
@@ -1583,8 +1665,15 @@ struct AA_Buy_Time {
     uint32 entry = 0;
     uint32 buy_a = 0;
     uint32 buy_c = 0;
+    uint32 buy_q = 0;
     uint32 yongjiu_a = 0;
     uint32 yongjiu_c = 0;
+    uint32 yongjiu_q = 0;
+};
+
+struct AA_Item_Zulin {
+    uint32 entry = 0;
+    uint64 time = 0;
 };
 
 //`id` int unsigned NOT NULL DEFAULT '0' COMMENT '战场id,2为战歌 3为阿拉希 7为暴风之眼',
@@ -1694,6 +1783,9 @@ public:
     AA_Version aa_version;
 
     void Update(Unit* unit, uint32 diff);
+
+    //物品租赁
+    std::unordered_map<uint32, AA_Item_Zulin> aa_item_zulins;
 
     //技能光环相关
     std::unordered_map<uint32, AA_AuraId_Conf> aa_auraid_confs;
@@ -2269,6 +2361,26 @@ public:
     void AA_Biwu_Complete();
     void AA_Biwu_End();
     void AA_Biwu_Go(uint32 teamid);
+
+    //首领争霸专区
+    int32 aa_shouling_start_time = -1;
+    uint32 aa_shouling_event_id = 0;
+    bool aa_shouling_status = false;
+    bool aa_shouling_isstart = false;
+    uint32 aa_shouling_isnotice = 0;
+    std::unordered_map<uint32, AA_Shouling_Conf> aa_shouling_confs;
+    uint32 aa_shouling_time = 0;
+    std::set<ObjectGuid::LowType> aa_shouling_players;
+    std::set<ObjectGuid::LowType> aa_shouling_Bs;
+    void AA_Shouling_Update(uint32 diff);
+    void AA_Shouling_Cancel(ObjectGuid::LowType guidlow);
+    void AA_Shouling_Fenzu();
+    void AA_Shouling_End();
+
+    //自定义任务
+    std::unordered_map <uint32, AA_Quest> aa_quests;
+    //一命通关模式
+    std::unordered_map <uint32, AA_Yiming_Conf> aa_yiming_confs;
 
     //答题
     std::unordered_map<uint32, AA_Dati_Conf> aa_dati_confs;

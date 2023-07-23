@@ -29,6 +29,7 @@
 #include "ObjectAccessor.h"
 #include "Mail.h"
 #include "Object.h"
+#include "ItemBonusMgr.h"
 
 using namespace Trinity::ChatCommands;
 
@@ -237,11 +238,198 @@ public:
             { "变量" ,AA_bianliang, LANG_AA_bianliang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
             { "bl" ,AA_bianliang, LANG_AA_bianliang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
             { "答题" ,AA_dati, LANG_AA_dati, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
-            { "dt" ,AA_dati, LANG_AA_dati, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes }
+            { "dt" ,AA_dati, LANG_AA_dati, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+            { "点卡" ,AA_dianka, LANG_AA_dianka, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+            { "dk" ,AA_dianka, LANG_AA_dianka, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+            { "租赁" ,AA_zulin, LANG_AA_zulin, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+            { "zl" ,AA_zulin, LANG_AA_zulin, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+            { "一命等级" ,AA_yimingdengji, LANG_AA_yimingdengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+            { "ymdj" ,AA_yimingdengji, LANG_AA_yimingdengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes }
         };
         return commandTable;
     }
 
+    static bool AA_yimingdengji(ChatHandler* handler, char const* args)
+    {
+        Player* player = handler->getSelectedPlayerOrSelf();
+        if (!player || !player->IsInWorld()) {
+            return false;
+        }
+        uint32 guidlow = player->GetGUIDLow();
+        uint32 viplevel = aaCenter.aa_characterss[guidlow].yiming;
+        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[viplevel];
+        if (conf.level <= 0) {
+            aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFF0000你已达到最大一命等级");
+            return false;
+        }
+        if (conf.need_moshi > 0) {
+            if (!aaCenter.M_CanNeed(player, conf.need_moshi)) {
+                return false;
+            }
+            else {
+                aaCenter.M_Need(player, conf.need_moshi);
+            }
+        }
+        aaCenter.aa_characterss[guidlow].yiming = viplevel;
+        AA_Yiming_Conf vip_conf = aaCenter.aa_yiming_confs[viplevel];
+        if (vip_conf.reward_moshi > 0) {
+            aaCenter.M_Reward(player, vip_conf.reward_moshi);
+        }
+        time_t timep;
+        time(&timep);
+        aaCenter.aa_characterss[guidlow].update_time = timep;
+        aaCenter.aa_characterss[guidlow].isUpdate = true;
+        if (vip_conf.notice > 0) {
+            AA_Message aa_message;
+            AA_Notice notice = aaCenter.aa_notices[vip_conf.notice];
+            aaCenter.AA_SendNotice(player, notice, true, aa_message);
+        }
+        return true;
+    }
+    static bool AA_zulin(ChatHandler* handler, const char* args)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+        Player* playerTarget = handler->getSelectedPlayer();
+
+        if (!playerTarget)
+        {
+            playerTarget = player;
+        }
+
+        char* zustr = strtok((char*)args, " ");
+        char* typestr = strtok(nullptr, " ");
+
+        if (!zustr) {
+            ChatHandler(handler->GetSession()).PSendSysMessage("语法格式:.租赁(zl) 参数1（物品id）参数2（时间_单位秒，不填默认1小时）");
+            return false;
+        }
+        uint32 itemId = uint32(std::atoi(typestr));
+        uint32 time = 3600;
+        if (typestr) {
+            time = uint32(std::atoi(typestr));
+        }
+
+        if (!sObjectMgr->GetItemTemplate(itemId))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        int32 count = 1;
+
+        std::vector<int32> bonusListIDs;
+        char const* bonuses = strtok(nullptr, " ");
+
+        char const* context = strtok(nullptr, " ");
+
+        // semicolon separated bonuslist ids (parse them after all arguments are extracted by strtok!)
+        if (bonuses)
+            for (std::string_view token : Trinity::Tokenize(bonuses, ';', false))
+                if (Optional<int32> bonusListId = Trinity::StringTo<int32>(token); bonusListId && *bonusListId)
+                    bonusListIDs.push_back(*bonusListId);
+
+        ItemContext itemContext = ItemContext::NONE;
+        if (context)
+        {
+            itemContext = ItemContext(Trinity::StringTo<uint8>(context).value_or(0));
+            if (itemContext < ItemContext::Max)
+            {
+                std::vector<int32> contextBonuses = ItemBonusMgr::GetBonusListsForItem(itemId, itemContext);
+                bonusListIDs.insert(bonusListIDs.begin(), contextBonuses.begin(), contextBonuses.end());
+            }
+        }
+
+
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
+        if (!itemTemplate)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // Adding items
+        uint32 noSpaceForCount = 0;
+
+        // check space and find places
+        ItemPosCountVec dest;
+        InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
+        if (msg != EQUIP_ERR_OK)                               // convert to possible store amount
+            count -= noSpaceForCount;
+
+        if (count == 0 || dest.empty())                         // can't add any
+        {
+            handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId), GuidSet(), itemContext,
+            bonusListIDs.empty() ? nullptr : &bonusListIDs);
+
+        // remove binding (let GM give it to another player later)
+        if (player == playerTarget)
+            for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
+                if (Item* item1 = player->GetItemByPos(itr->pos))
+                    item1->SetBinding(false);
+
+        if (count > 0 && item)
+        {
+            player->SendNewItem(item, count, false, true);
+            handler->PSendSysMessage(LANG_ADDITEM, itemId, count, handler->GetNameLink(playerTarget).c_str());
+            if (player != playerTarget)
+                playerTarget->SendNewItem(item, count, true, false);
+        }
+
+        if (noSpaceForCount > 0)
+            handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
+
+        if (item) {
+            time_t timep;
+            std::time(&timep); /*当前time_t类型UTC时间*/
+            ObjectGuid::LowType guidlow = item->GetGUIDLow();
+            aaCenter.aa_character_instances[guidlow].zulin_time = timep + time;
+            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+            sAAData->AA_REP_Character_Instance(player, trans);
+            CharacterDatabase.CommitTransaction(trans);
+            aaCenter.aa_character_instances[guidlow].update_time = timep;
+            aaCenter.aa_character_instances[guidlow].isUpdate = true;
+        }
+
+        return true;
+    }
+    static bool AA_dianka(ChatHandler* handler, const char* args)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+        if (!player)
+        {
+            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        char* zustr = strtok((char*)args, " ");
+
+        if (!zustr) {
+            ChatHandler(handler->GetSession()).PSendSysMessage("语法格式:.点卡 参数（游戏时间_单位分）");
+            return false;
+        }
+
+        uint32 length = uint32(std::atoi(zustr));
+        if (length > 0) {
+            uint32 accountid = player->GetSession()->GetAccountId();
+            if (accountid > 0) {
+                aaCenter.aa_accounts[accountid].dianka += length * 1000 * 60;
+                time_t timep;
+                time(&timep); /*当前time_t类型UTC时间*/
+                aaCenter.aa_accounts[accountid].update_time = timep;
+                aaCenter.aa_accounts[accountid].isUpdate = true;
+                std::string msg = "|cff00FFFF[账号提示]|cffFFFF00充值成功，你的游戏时间增加【" + std::to_string(length) + "】分钟。";
+                aaCenter.AA_SendMessage(player, 0, msg.c_str());
+            }
+        }
+        return true;
+    }
     static bool AA_dati(ChatHandler* handler, const char* args)
     {
         Player* player = handler->GetSession()->GetPlayer();
@@ -3223,20 +3411,24 @@ public:
             if (Map* map = target->GetMap()) {
                 creature = target->SummonCreature(entry, pos, TEMPSUMMON_TIMED_DESPAWN, time * 1s);
             }
-            if (nandu > 0) {
-                AA_Creature conf = aaCenter.aa_creatures[nandu];
-                if (conf.id > 0) {
-                    creature->aa_id = conf.id;
-                    creature->SelectLevel();
-                }
-            }
-            AA_Boss_Conf bconf = aaCenter.aa_boss_confs[entry];
 
-            if (creature && bconf.id > 0) {
-                creature->aa_boss_id = bconf.id;
-                creature->aa_boss_time_max = (time / 60);
-                creature->aa_boss_time = 0;
-                creature->aa_boss_dmg.clear();
+            if (creature)
+            {
+                if (nandu > 0) {
+                    AA_Creature conf = aaCenter.aa_creatures[nandu];
+                    if (conf.id > 0) {
+                        creature->aa_id = conf.id;
+                        creature->SelectLevel();
+                    }
+                }
+                AA_Boss_Conf bconf = aaCenter.aa_boss_confs[entry];
+
+                if (bconf.id > 0) {
+                    creature->aa_boss_id = bconf.id;
+                    creature->aa_boss_time_max = (time / 60);
+                    creature->aa_boss_time = 0;
+                    creature->aa_boss_dmg.clear();
+                }
             }
         }
         else if (entry < 0) {
@@ -4152,7 +4344,12 @@ public:
     static bool AA_jiazaitese(ChatHandler* handler, char const* /*args*/)
     {
         aaCenter.LoadAAData_World();
+        if (aaCenter.aa_quests.size() > 0) {
+            std::string gm = ".reload all quest";
+            aaCenter.AA_DoCommand(nullptr, gm.c_str());
+        }
         Player* target = handler->getSelectedPlayerOrSelf();
+        
         if (target) {
             std::string msg = "|cff00FFFF[系统提示]|cffFFFF00特色数据库已全部重新加载。";
             sWorld->SendServerMessage(SERVER_MSG_STRING, msg.c_str(), target);
@@ -4549,6 +4746,18 @@ public:
         if (!goX || !goY) {
             ChatHandler(handler->GetSession()).PSendSysMessage("语法格式:.传送 x y z mapid o 难度等级(选填) 副本模式(选填)1代表5人普通和10人普通，2代表5人英雄和25人普通，3代表10人英雄，4代表25人英雄");
             return false;
+        }
+
+        // 一命模式 禁止传送
+        {
+            ObjectGuid::LowType guidlow = player->GetGUIDLow();
+            uint32 level = aaCenter.aa_characterss[guidlow].yiming;
+            AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
+            if (conf.is_chuansong == 1) {
+                std::string msg = "|cff00FFFF[一命模式]|r|cffFF0000无法进行传送操作|r";
+                aaCenter.AA_SendMessage(player, 1, msg.c_str());
+                return false;
+            }
         }
 
         float x = (float)atof(goX);

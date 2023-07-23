@@ -2298,7 +2298,17 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     }
 
     if (beilv > 0) {
-        beilv = 1.0 + beilv / 100.0;
+        beilv = 1.0 + beilv * 0.01;
+    }
+
+    //一命模式 经验倍率
+    {
+        ObjectGuid::LowType guidlow = GetGUIDLow();
+        uint32 level = aaCenter.aa_characterss[guidlow].yiming;
+        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
+        if (conf.level > 0) {
+            beilv += conf.exp;
+        }
     }
 
     AA_Creature_Exp econf = aaCenter.aa_creature_exps[centry];
@@ -2468,6 +2478,16 @@ void Player::GiveLevel(uint8 level)
     uint8 oldLevel = GetLevel();
     if (level == oldLevel)
         return;
+
+    // 一命模式 人物等级提升奖励
+    {
+        ObjectGuid::LowType guidlow = GetGUIDLow();
+        uint32 level = aaCenter.aa_characterss[guidlow].yiming;
+        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
+        if (conf.reward_level > 0) {
+            aaCenter.M_Reward(this, conf.reward_level, 1);
+        }
+    }
 
     {
         std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["玩家升级"];
@@ -4575,6 +4595,16 @@ void Player::BuildPlayerRepop()
 
 void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 {
+    //一命模式 禁止复活
+    {
+        ObjectGuid::LowType guidlow = GetGUIDLow();
+        if (aaCenter.aa_characterss[guidlow].is_yiming == 1) {
+            std::string msg = "|cff00FFFF[一命模式]|r|cffFF0000无法复活|r";
+            aaCenter.AA_SendMessage(this, 1, msg.c_str());
+            return;
+        }
+    }
+
     SetAreaSpiritHealer(nullptr);
 
     WorldPackets::Misc::DeathReleaseLoc packet;
@@ -5002,8 +5032,10 @@ void Player::RepopAtGraveyard()
     if (isDead()) {
         if (aaCenter.AA_TeleportDied(this))
         {
-            SpawnCorpseBones();
-            return;
+            if (aaCenter.aa_world_confs[99].value1 == 0) {
+                SpawnCorpseBones();
+                return;
+            }
         }
     }
     // note: this can be called also when the player is alive
@@ -12117,6 +12149,21 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading, ObjectGuid::Lo
                             }
                         }
                     }
+                    // 一命模式 禁用物品
+                    {
+                        ObjectGuid::LowType guidlow = player->GetGUIDLow();
+                        uint32 level = aaCenter.aa_characterss[guidlow].yiming;
+                        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
+                        if (conf.jinzhi_items != "" && conf.jinzhi_items != "0") {
+                            std::vector<int32> items; items.clear();
+                            aaCenter.AA_StringToVectorInt(conf.jinzhi_items, items, ",");
+                            if (std::find(items.begin(), items.end(), pProto->GetId()) != items.end()) {
+                                std::string msg = "|cff00FFFF[一命模式]|r|cffFF0000无法使用此物品|r";
+                                aaCenter.AA_SendMessage(player, 1, msg.c_str());
+                                return EQUIP_ERR_CANT_EQUIP_EVER;
+                            }
+                        }
+                    }
                     if (!aaCenter.M_CanNeed(player, aaCenter.aa_item_use_needs[pProto->GetId()].need, 1, true, guidlow)) {
                         return EQUIP_ERR_CANT_EQUIP_EVER;
                     }
@@ -12320,6 +12367,18 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
                 aaCenter.aa_character_instances[guidlow].guid = guidlow;
                 aaCenter.aa_character_instances[guidlow].itemEntry = pProto->GetId();
                 aaCenter.aa_character_instances[guidlow].owner_guid = GetGUIDLow();
+
+                if (aaCenter.aa_item_zulins.find(pProto->GetId()) != aaCenter.aa_item_zulins.end()) {
+                    time_t timep;
+                    time(&timep); /*当前time_t类型UTC时间*/
+                    aaCenter.aa_character_instances[guidlow].zulin_time = timep + aaCenter.aa_item_zulins[pProto->GetId()].time;
+                    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+                    sAAData->AA_REP_Character_Instance(this, trans);
+                    CharacterDatabase.CommitTransaction(trans);
+                    aaCenter.aa_character_instances[guidlow].update_time = timep;
+                    aaCenter.aa_character_instances[guidlow].isUpdate = true;
+                }
+
                 aaCenter.aa_character_instances[guidlow].update_time = timep;
                 aaCenter.aa_character_instances[guidlow].isUpdate = true;
                 if (aaCenter.aa_item_nonsuch_ids[pProto->GetId()].zu > 0) {
@@ -12374,6 +12433,18 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
                 aaCenter.aa_character_instances[guidlow].guid = guidlow;
                 aaCenter.aa_character_instances[guidlow].itemEntry = pProto->GetId();
                 aaCenter.aa_character_instances[guidlow].owner_guid = GetGUIDLow();
+
+                if (aaCenter.aa_item_zulins.find(pProto->GetId()) != aaCenter.aa_item_zulins.end()) {
+                    time_t timep;
+                    time(&timep); /*当前time_t类型UTC时间*/
+                    aaCenter.aa_character_instances[guidlow].zulin_time = timep + aaCenter.aa_item_zulins[pProto->GetId()].time;
+                    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+                    sAAData->AA_REP_Character_Instance(this, trans);
+                    CharacterDatabase.CommitTransaction(trans);
+                    aaCenter.aa_character_instances[guidlow].update_time = timep;
+                    aaCenter.aa_character_instances[guidlow].isUpdate = true;
+                }
+
                 aaCenter.aa_character_instances[guidlow].update_time = timep;
                 aaCenter.aa_character_instances[guidlow].isUpdate = true;
                 uint32 zu = aaCenter.AA_StringRandom(aaCenter.aa_item_jianding_buys[pProto->GetId()].zus);
@@ -14312,6 +14383,14 @@ void Player::UpdateItemDuration(uint32 time, bool realtimeonly)
 
         if (!realtimeonly || item->GetTemplate()->HasFlag(ITEM_FLAG_REAL_DURATION))
             item->UpdateDuration(this, time);
+
+        //物品租赁系统
+        if (aaCenter.aa_item_zulins.find(item->GetEntry()) != aaCenter.aa_item_zulins.end()) {
+            AA_Item_Zulin conf = aaCenter.aa_item_zulins[item->GetEntry()];
+            if (conf.time > 0) {
+                item->UpdateDuration(this, time);
+            }
+        }
     }
 }
 
@@ -15526,6 +15605,22 @@ bool Player::CanAddQuest(Quest const* quest, bool msg) const
             return false;
         }
     }
+
+    {
+        //自定义任务
+        if (aaCenter.aa_quests.find(quest->GetQuestId()) != aaCenter.aa_quests.end()) {
+            AA_Quest conf = aaCenter.aa_quests[quest->GetQuestId()];
+            if (conf.need_jieshou > 0) {
+                Player* player = const_cast<Player*>(this);
+                if (aaCenter.M_CanNeed(player, conf.need_jieshou)) {
+                    aaCenter.M_Need(player, conf.need_jieshou);
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+    }
     return true;
 }
 
@@ -15649,6 +15744,22 @@ bool Player::CanRewardQuest(Quest const* quest, bool msg) const
         }
     }
 
+    {
+        //自定义任务
+        if (aaCenter.aa_quests.find(quest->GetQuestId()) != aaCenter.aa_quests.end()) {
+            AA_Quest conf = aaCenter.aa_quests[quest->GetQuestId()];
+            if (conf.need_wancheng > 0) {
+                Player* player = const_cast<Player*>(this);
+                if (aaCenter.M_CanNeed(player, conf.need_wancheng)) {
+                    aaCenter.M_Need(player, conf.need_wancheng);
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+    }
+
     return true;
 }
 
@@ -15663,6 +15774,17 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
 
     if (CanCompleteQuest(quest->GetQuestId()))
         CompleteQuest(quest->GetQuestId());
+
+    {
+        //自定义任务
+        if (aaCenter.aa_quests.find(quest->GetQuestId()) != aaCenter.aa_quests.end()) {
+            AA_Quest conf = aaCenter.aa_quests[quest->GetQuestId()];
+            if (conf.reward_jieshou) {
+                Player* player = const_cast<Player*>(this);
+                aaCenter.M_Reward(player, conf.reward_jieshou);
+            }
+        }
+    }
 
     if (!questGiver)
         return;
@@ -16328,6 +16450,16 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
         for (auto mapconf : mapeventconfs) {
             if (quest_id == uint32(mapconf.value) || mapconf.value == -1) {
                 aaCenter.AA_EventMapStart(this, mapconf);
+            }
+        }
+    }
+    {
+        //自定义任务
+        if (aaCenter.aa_quests.find(quest_id) != aaCenter.aa_quests.end()) {
+            AA_Quest conf = aaCenter.aa_quests[quest_id];
+            if (conf.reward_wancheng) {
+                Player* player = const_cast<Player*>(this);
+                aaCenter.M_Reward(player, conf.reward_wancheng);
             }
         }
     }
@@ -23902,6 +24034,40 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
                     return false;
                 }
             }
+            {
+                if (aaCenter.aa_buy_times[pProto->GetId()].buy_q > 0) {
+                    std::string m_diy_systems = aaCenter.aa_system_conf.diy_system;
+                    std::map<std::string, std::string> mdiy_systems; mdiy_systems.clear();
+                    aaCenter.AA_StringToStringMap(m_diy_systems, mdiy_systems);
+                    uint32 itemId = pProto->GetId() + 100000000;
+                    if (itemId > 100000000) {
+                        std::string str = mdiy_systems[std::to_string(itemId)];
+                        uint32 count = aaCenter.AA_StringInt32(str);
+                        if (buycount + count > aaCenter.aa_buy_times[pProto->GetId()].buy_q) {
+                            std::string msg = "|cff00FFFF[系统提示]|cffFF0000该物品全服每日限制购买[" + std::to_string(aaCenter.aa_buy_times[pProto->GetId()].buy_q) + "]次";
+                            aaCenter.AA_SendMessage(this, 1, msg.c_str());
+                            return false;
+                        }
+                    }
+                }
+            }
+            {
+                if (aaCenter.aa_buy_times[pProto->GetId()].yongjiu_q > 0) {
+                    std::string m_diy_systems = aaCenter.aa_system_conf.diy_system;
+                    std::map<std::string, std::string> mdiy_systems; mdiy_systems.clear();
+                    aaCenter.AA_StringToStringMap(m_diy_systems, mdiy_systems);
+                    uint32 itemId = pProto->GetId() + 200000000;
+                    if (itemId > 200000000) {
+                        std::string str = mdiy_systems[std::to_string(itemId)];
+                        uint32 count = aaCenter.AA_StringInt32(str);
+                        if (buycount + count > aaCenter.aa_buy_times[pProto->GetId()].yongjiu_q) {
+                            std::string msg = "|cff00FFFF[系统提示]|cffFF0000该物品全服限制购买[" + std::to_string(aaCenter.aa_buy_times[pProto->GetId()].yongjiu_q) + "]次";
+                            aaCenter.AA_SendMessage(this, 1, msg.c_str());
+                            return false;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -23977,6 +24143,17 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 
     if (buyneed > 0) {
         aaCenter.M_Need(this, buyneed, pProto->GetBuyCount() * count);
+    }
+
+    if (aaCenter.aa_buy_times[pProto->GetId()].buy_q > 0) {
+        uint32 itemId = pProto->GetId() + 100000000;
+        std::string gm = ".变量 系统 " + std::to_string(itemId) + " +" + std::to_string(buycount);
+        aaCenter.AA_DoCommand(nullptr, gm.c_str());
+    }
+    if (aaCenter.aa_buy_times[pProto->GetId()].yongjiu_q > 0) {
+        uint32 itemId = pProto->GetId() + 200000000;
+        std::string gm = ".变量 系统 " + std::to_string(itemId) + " +" + std::to_string(buycount);
+        aaCenter.AA_DoCommand(nullptr, gm.c_str());
     }
 
     if (aaCenter.AA_VerifyCode("a202b")) {
@@ -26110,6 +26287,15 @@ void Player::AddItemDurations(Item* item)
     {
         m_itemDuration.push_back(item);
         item->SendTimeUpdate(this);
+        return;
+    }
+
+    //物品租赁系统
+    if (aaCenter.aa_item_zulins.find(item->GetEntry()) != aaCenter.aa_item_zulins.end()) {
+        AA_Item_Zulin conf = aaCenter.aa_item_zulins[item->GetEntry()];
+        if (conf.time > 0) {
+            m_itemDuration.push_back(item);
+        }
     }
 }
 

@@ -225,8 +225,14 @@ public:
     void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 gossipListId) override
     {
         uint32 const action = gossipListId;
+        if (!item || !item->IsInWorld()) {
+            return;
+        }
         //执行功能
-        AA_Teleport_Conf conf = aaCenter.aa_teleports[action];
+        AA_Teleport_Conf conf;
+        if (aaCenter.aa_teleports.find(action) != aaCenter.aa_teleports.end()) {
+            conf = aaCenter.aa_teleports[action];
+        }
         if (player->IsInCombat() && (conf.gm.find("解除战斗") == std::string::npos && conf.is_zhandou == 0)) {
             aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFF0000战斗中无法使用!");
             return;
@@ -271,7 +277,12 @@ public:
                 show_teleport(player, item, action);
             }
             else {
-                show_teleport(player, item, sender);
+                if (conf.refresh == 1) {
+                    CloseGossipMenuFor(player);
+                }
+                else {
+                    show_teleport(player, item, sender);
+                }
             }
         }
         else {

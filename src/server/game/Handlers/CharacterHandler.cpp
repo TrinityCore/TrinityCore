@@ -1086,8 +1086,18 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
         //创建账号，初始化玩家账号数据库
         time_t timep;
         time(&timep); /*当前time_t类型UTC时间*/
-        
+
+        //点卡模式 创建账号，初始游戏时间
+        if (aaCenter.aa_world_confs[100].value1 == 1 && aaCenter.aa_accounts.find(accountid) == aaCenter.aa_accounts.end()) {
+            uint32 dianka = 0;
+            if (aaCenter.aa_world_confs[100].value2 != "" && aaCenter.aa_world_confs[100].value2 != "0") {
+                dianka = aaCenter.AA_StringUint32(aaCenter.aa_world_confs[100].value2);
+            }
+            aaCenter.aa_accounts[accountid].dianka = dianka * 1000 * 60;
+        }
+
         aaCenter.aa_accounts[accountid].id = accountid;
+
         aaCenter.aa_accounts[accountid].isUpdate = true;
         aaCenter.aa_accounts[accountid].update_time = timep;
     }

@@ -694,6 +694,18 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade&
         return;
     }
 
+    // 一命模式 禁止交易
+    {
+        ObjectGuid::LowType guidlow = _player->GetGUIDLow();
+        uint32 level = aaCenter.aa_characterss[guidlow].yiming;
+        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
+        if (conf.is_jiaoyi == 1) {
+            std::string msg = "|cff00FFFF[一命模式]|r|cffFF0000无法进行交易|r";
+            aaCenter.AA_SendMessage(_player, 1, msg.c_str());
+            return;
+        }
+    }
+
     // OK start trade
     _player->m_trade = new TradeData(_player, pOther);
     pOther->m_trade = new TradeData(pOther, _player);

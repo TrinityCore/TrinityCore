@@ -3093,7 +3093,7 @@ std::string AACenter::GetPlayerFaction(Player* player)
 AA_Player_Stats_Conf AACenter::AA_GetPlayerStatConfWithMap(Unit const* unit)
 {
     AA_Player_Stats_Conf conf;
-    if (!unit || !unit->IsInWorld() || !unit->GetMap()) {
+    if (!unit || !unit->GetMap()) {
         return conf;
     }
     int32 class1 = -1;
@@ -3214,6 +3214,11 @@ std::string AACenter::GetMyInfo(Unit* me, std::string message, AA_Message aa_mes
         }
         if (message.find("<$会员等级>") != std::string::npos) {
             aaCenter.AA_StringReplace(message, "<$会员等级>", std::to_string(vipconf.level));
+        }
+
+        if (message.find("<$剩余游戏时间>") != std::string::npos) {
+            uint32 time = aaCenter.aa_accounts[accountid].dianka * 0.001 / 60;
+            aaCenter.AA_StringReplace(message, "<$剩余游戏时间>", std::to_string(time));
         }
 
         //自定义关键字
@@ -3346,6 +3351,14 @@ std::string AACenter::GetMyInfo(Unit* me, std::string message, AA_Message aa_mes
         }
         if (message.find("<$" + aaCenter.aa_world_confs[65].value2 + ">") != std::string::npos) {
             aaCenter.AA_StringReplace(message, "<$" + aaCenter.aa_world_confs[65].value2 + ">", std::to_string(aconf.battlecore));
+        }
+        if (message.find("<$一命描述>") != std::string::npos) {
+            AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[cconf.yiming];
+            std::string str = conf.text;
+            if (!nnn) {
+                aaCenter.AA_StringReplace(str, "\\n", "\n");
+            }
+            aaCenter.AA_StringReplace(message, "<$一命描述>", str);
         }
         if (message.find("<$会员描述>") != std::string::npos) {
             std::string str = vipconf.text;
@@ -6718,6 +6731,7 @@ void AACenter::M_GetItemText(Player* player, std::vector<uint32> itemIds, std::v
                 item += std::to_string(conf.cuiqu_pos); item += ",";
                 item += std::to_string(conf.baoshi_entry); item += ",";
                 item += std::to_string(conf.item_set); item += ",";
+                item += std::to_string(conf.zulin_time); item += ",";
                 item += std::to_string(conf.update_time); item += "}";
                 items += item;
                 items += "},";
@@ -12183,7 +12197,8 @@ void AACenter::LoadAAData_Characters()
                 conf.buy_time = fields[17].GetString();
                 conf.buy_time_yj = fields[18].GetString();
                 conf.diy_account = fields[19].GetString();
-                conf.update_time = fields[20].GetUInt32();
+                conf.dianka = fields[20].GetUInt32();
+                conf.update_time = fields[21].GetUInt32();
                 aa_accounts[conf.id] = conf;
             } while (result->NextRow());
         }
@@ -12259,6 +12274,8 @@ void AACenter::LoadAAData_Characters()
                 conf.name_pre = fields[i++].GetString();
                 conf.name_suf = fields[i++].GetString();
                 conf.duel_diy = fields[i++].GetUInt32();
+                conf.yiming = fields[i++].GetUInt32();
+                conf.is_yiming = fields[i++].GetUInt32();
                 conf.update_time = fields[i++].GetUInt32();
                 aa_characterss[conf.guid] = conf;
             } while (result->NextRow());
@@ -12431,6 +12448,132 @@ void AACenter::LoadAAData_Characters()
 
 void AACenter::LoadAAData_World()
 {
+    {
+        TC_LOG_INFO("server.loading", "正在加载 _自定义_任务...");
+        uint32 oldMSTime = getMSTime();
+        aa_quests.clear();
+        QueryResult result = WorldDatabase.Query("SELECT * FROM _自定义_任务");
+        if (result) {
+            do {
+                Field* fields = result->Fetch();
+                AA_Quest conf;
+                int i = 1;
+                conf.id = fields[i++].GetUInt32();//`任务id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '不要和quest_template冲突',
+                conf.QuestType = fields[i++].GetUInt32();//0-任务自动完成，1-任务不可用，2-任务可用，不会自动完成；
+                conf.Flags = fields[i++].GetUInt32();//标识，可叠加。 0-无，1-玩家死亡后任务失败，2-护送或者其他事件驱动型任务，如果玩家在队伍中，所有能接这个任务的玩家都可以得到确认接收任务的提示，4-区域触发器激活，8-任务可以分享给其他玩家，16-未知，32-职业史诗任务，64-团队任务，128-TBC及以后版本添加，256-任务需要源物品（RequiredSourceItemId字段不为空），512-任务奖励物品和金钱隐藏，完成任务时才给予奖励，1024-任务完成时自动奖励，不在客户端任务面板显示，2048-血精灵和德莱尼的新手村任务，4096-日常，8192-可重复接的任务，16384-一般不可用的任务，32768-周常，65536-自动完成，131072-需要使用RequiredItemId 和SourceItemId，262144-用任务目标文字代替任务完成文字，524288-区域内开启任务，自动接收；
+                conf.RewardNextQuest = fields[i++].GetUInt32();//`下个任务id` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                conf.queststarter = fields[i++].GetInt32();//`接受npc` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '生物id',
+                conf.questender = fields[i++].GetInt32();//`完成npc` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '生物id',
+                conf.need_jieshou = fields[i++].GetUInt32();//`接受额外需求` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '需求表id',
+                conf.reward_jieshou = fields[i++].GetUInt32();//`接受额外奖励` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '奖励表id',
+                conf.need_wancheng = fields[i++].GetUInt32();//`完成额外需求` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '需求表id',
+                conf.reward_wancheng = fields[i++].GetUInt32();//`完成额外奖励` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '奖励表id',
+                conf.ObjectiveID = fields[i++].GetString();
+                conf.ObjectID = fields[i++].GetString(); 
+                conf.ObjectType = fields[i++].GetString();
+                conf.Amount = fields[i++].GetString();
+                conf.Description = fields[i++].GetString();
+                conf.RewardItem1 = fields[i++].GetUInt32();
+                conf.RewardAmount1 = fields[i++].GetUInt32();
+                conf.RewardItem2 = fields[i++].GetUInt32();
+                conf.RewardAmount2 = fields[i++].GetUInt32();
+                conf.RewardItem3 = fields[i++].GetUInt32();
+                conf.RewardAmount3 = fields[i++].GetUInt32();
+                conf.RewardItem4 = fields[i++].GetUInt32();
+                conf.RewardAmount4 = fields[i++].GetUInt32();
+                conf.LogTitle = fields[i++].GetString();
+                conf.LogDescription = fields[i++].GetString();
+                conf.QuestDescription = fields[i++].GetString();
+                conf.AreaDescription = fields[i++].GetString();
+                conf.PortraitGiverText = fields[i++].GetString();
+                conf.PortraitGiverName = fields[i++].GetString();
+                conf.PortraitTurnInText = fields[i++].GetString();
+                conf.PortraitTurnInName = fields[i++].GetString();
+                conf.QuestCompletionLog = fields[i++].GetString();
+                aa_quests[conf.id] = conf;
+            } while (result->NextRow());
+            TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _自定义_任务 用时 {} 毫秒", (unsigned long)aa_quests.size(), GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+    {
+        TC_LOG_INFO("server.loading", "正在加载 _一命模式...");
+        uint32 oldMSTime = getMSTime();
+        aa_yiming_confs.clear();
+        QueryResult result = WorldDatabase.Query("SELECT * FROM _一命模式");
+        if (result) {
+            do {
+                Field* fields = result->Fetch();
+                AA_Yiming_Conf conf;
+                int i = 1;
+                conf.level = fields[i++].GetUInt32();
+                conf.need_moshi = fields[i++].GetUInt32();
+                conf.reward_moshi = fields[i++].GetUInt32();
+                conf.reward_level = fields[i++].GetUInt32();
+                conf.exp = fields[i++].GetUInt32();
+                conf.guanghuans = fields[i++].GetString();
+                conf.is_zudui = fields[i++].GetUInt32();
+                conf.is_jiaoyi = fields[i++].GetUInt32();
+                conf.is_paimai = fields[i++].GetUInt32();
+                conf.is_youjian = fields[i++].GetUInt32();
+                conf.is_chuansong = fields[i++].GetUInt32();
+                conf.is_yongbing = fields[i++].GetUInt32();
+                conf.jinzhi_items = fields[i++].GetString();
+                conf.jinzhi_spells = fields[i++].GetString();
+                conf.chengfa_dies = fields[i++].GetString();
+                conf.chengfa_items = fields[i++].GetString();
+                conf.chengfa_spells = fields[i++].GetString();
+                conf.chengfa_areas = fields[i++].GetString();
+                conf.notice = fields[i++].GetUInt32();
+                conf.text = fields[i++].GetString();
+                aa_yiming_confs[conf.level] = conf;
+            } while (result->NextRow());
+            TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _一命模式 用时 {} 毫秒", (unsigned long)aa_yiming_confs.size(), GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+    {
+        TC_LOG_INFO("server.loading", "正在加载 _物品_租赁...");
+        uint32 oldMSTime = getMSTime();
+        aa_item_zulins.clear();
+        QueryResult result = WorldDatabase.Query("SELECT * FROM _物品_租赁");
+        if (result) {
+            do {
+                Field* fields = result->Fetch();
+                AA_Item_Zulin conf;
+                int i = 1;
+                conf.entry = fields[i++].GetUInt32();
+                conf.time = fields[i++].GetUInt64();
+                aa_item_zulins[conf.entry] = conf;
+            } while (result->NextRow());
+            TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _物品_租赁 用时 {} 毫秒", (unsigned long)aa_item_zulins.size(), GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+    {
+        TC_LOG_INFO("server.loading", "正在加载 _活动_首领争霸...");
+        uint32 oldMSTime = getMSTime();
+        aa_shouling_confs.clear();
+        QueryResult result = WorldDatabase.Query("SELECT * FROM _活动_首领争霸");
+        if (result) {
+            do {
+                Field* fields = result->Fetch();
+                AA_Shouling_Conf conf;
+                int i = 1;
+                conf.event_id = fields[i++].GetUInt32();//活动进场事件;//活动进场事件
+                conf.area = fields[i++].GetUInt32();//区域id
+                conf.player_min = fields[i++].GetUInt32();//最少人数
+                conf.bili = fields[i++].GetUInt32();//A队B队人数比例
+                conf.guanghuans_a = fields[i++].GetString();//A队光环_多个逗号隔开
+                conf.guanghuans_b = fields[i++].GetString();//B队光环_多个逗号隔开
+                conf.entrys = fields[i++].GetString();//A队为玩家，B队变身为怪物
+                conf.bianshen_time = fields[i++].GetUInt32();//到时间，B队没死，则还原为人类，变身下一个人。
+                conf.alert_id = fields[i++].GetUInt32();//_弹窗_id
+                conf.wait_time = fields[i++].GetUInt32();//单位秒，到达等待时间后开始战斗
+                conf.gm_a = fields[i++].GetString();//击杀A队调用GM命令
+                conf.gm_b = fields[i++].GetString();//击杀B队调用GM命令
+                aa_shouling_confs[conf.event_id] = conf;
+            } while (result->NextRow());
+            TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _活动_首领争霸 用时 {} 毫秒", (unsigned long)aa_shouling_confs.size(), GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
     {
         TC_LOG_INFO("server.loading", "正在加载 _活动_答题x...");
         uint32 oldMSTime = getMSTime();
@@ -12928,8 +13071,10 @@ void AACenter::LoadAAData_World()
                 conf.entry = fields[1].GetUInt32();
                 conf.buy_a = fields[2].GetUInt32();
                 conf.buy_c = fields[3].GetUInt32();
-                conf.yongjiu_a = fields[4].GetUInt32();
-                conf.yongjiu_c = fields[5].GetUInt32();
+                conf.buy_q = fields[4].GetUInt32();
+                conf.yongjiu_a = fields[5].GetUInt32();
+                conf.yongjiu_c = fields[6].GetUInt32();
+                conf.yongjiu_q = fields[7].GetUInt32();
                 aa_buy_times[conf.entry] = conf;
             } while (result->NextRow());
             TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _物品_每日购买次数x 用时 {} 毫秒", (unsigned long)aa_buy_times.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -13868,6 +14013,7 @@ void AACenter::LoadAAData_World()
                 conf.is_visible = fields[10].GetUInt32();
                 conf.is_zhandou = fields[11].GetUInt32();
                 conf.notice = fields[12].GetUInt32();
+                conf.refresh = fields[13].GetUInt32();
                 aa_teleports[conf.id] = conf;
                 aa_teleport_targets[conf.targetid].push_back(conf.id);
             } while (result->NextRow());
@@ -18512,15 +18658,15 @@ std::unordered_map<uint32, AA_Biwu_Team> AACenter::AA_Biwu_Fenzu()
         if (i < count) {
             if (p) {
                 p->aa_biwu_teamid = teamid;
-            }
-            if (index == 1) {
-                aa_biwu_teams[teamid].p1 = p->GetGUIDLow();
-                index = 2;
-            }
-            else if (index == 2) {
-                aa_biwu_teams[teamid].p2 = p->GetGUIDLow();
-                index = 1;
-                teamid = teamid + 1;
+                if (index == 1) {
+                    aa_biwu_teams[teamid].p1 = p->GetGUIDLow();
+                    index = 2;
+                }
+                else if (index == 2) {
+                    aa_biwu_teams[teamid].p2 = p->GetGUIDLow();
+                    index = 1;
+                    teamid = teamid + 1;
+                }
             }
         }
         else {
@@ -18622,11 +18768,15 @@ void AACenter::AA_Biwu_Update(uint32 diff)
                 if (!pl1) {
                     aaCenter.aa_biwu_winners.erase(itr.second.p1);
                 }
+                else {
+                    pl1->aa_biwu_teamid = 0;
+                }
                 if (!pl2) {
                     aaCenter.aa_biwu_winners.erase(itr.second.p2);
                 }
-                pl1->aa_biwu_teamid = 0;
-                pl2->aa_biwu_teamid = 0;
+                else {
+                    pl2->aa_biwu_teamid = 0;
+                }
                 //根据血量百分比 或 血量，判断出胜负
                 if (pl1->GetHealthPct() > pl2->GetHealthPct()) {
                     aaCenter.aa_biwu_score[itr.second.p1] += 2;
@@ -18852,4 +19002,385 @@ void AACenter::AA_Biwu_End()
     aaCenter.aa_biwu_isstart = false;
     aaCenter.aa_biwu_isnotice = 0;
     aaCenter.aa_biwu_start_time = -1;
+}
+
+//首领争霸
+void AACenter::AA_Shouling_Cancel(ObjectGuid::LowType guidlow)
+{
+    if (guidlow == 0) {
+        return;
+    }
+    AA_Shouling_Conf conf = aaCenter.aa_shouling_confs[aaCenter.aa_shouling_event_id];
+    if (conf.event_id == 0) {
+        return;
+    }
+    if (Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow)) {
+        //还原设置
+        p->aa_shouling_isBianshen = false;
+        p->aa_shouling_time = 0;
+        //取消变身
+        if (p->aa_shouling_model > 0) {
+            std::string gm = ".组合 *.变身 " + std::to_string(p->aa_shouling_model) + " 1<$自身>";
+            aaCenter.AA_DoCommand(p, gm.c_str());
+            p->aa_shouling_model = 0;
+        }
+        //取消B光环增加A光环
+        if (conf.guanghuans_b != "" && conf.guanghuans_b != "") {
+            std::vector<int32> spells; spells.clear();
+            aaCenter.AA_StringToVectorInt(conf.guanghuans_b, spells, ",");
+            for (auto spell : spells) {
+                if (p->HasAura(spell)) {
+                    p->RemoveAura(spell);
+                }
+            }
+        }
+        if (conf.guanghuans_a != "" && conf.guanghuans_a != "") {
+            std::vector<int32> spells; spells.clear();
+            aaCenter.AA_StringToVectorInt(conf.guanghuans_a, spells, ",");
+            for (auto spell : spells) {
+                if (!p->HasAura(spell)) {
+                    p->AddAura(spell, p);
+                }
+            }
+        }
+
+        std::string msg = "|cff00FFFF[首领争霸]|cffFFFF00《" + aaCenter.AA_GetPlayerNameLink(p) + "》变异时间结束，状态恢复正常。";
+        for (auto guidlow : aaCenter.aa_shouling_players) {
+            Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow);
+            if (p) {
+                aaCenter.AA_SendMessage(p, 0, msg.c_str());
+            }
+        }
+    }
+}
+void AACenter::AA_Shouling_Fenzu()
+{
+    AA_Shouling_Conf conf = aaCenter.aa_shouling_confs[aaCenter.aa_shouling_event_id];
+    if (conf.event_id == 0) {
+        return;
+    }
+    //可以变身的玩家
+    std::set<ObjectGuid::LowType> guidlows; guidlows.clear();
+    //计算需要变身的数量
+    uint32 countMax = 1;
+    if (conf.bili > 0) {
+        countMax = aaCenter.aa_shouling_players.size() / conf.bili;
+    }
+
+    //分组AB队
+    //如果已经变过身，不再变，直接下一个。
+    //如果循环结束，没有一个变身，并且当前已经没有变身的。活动结束
+    //需要变身得数量 = 最大变身数量 - 正在变身的数量
+    uint32 count = 0;
+    for (auto guidlow : aaCenter.aa_shouling_players) {
+        //已经变过身
+        if (std::find(aaCenter.aa_shouling_Bs.begin(), aaCenter.aa_shouling_Bs.end(), guidlow) != aaCenter.aa_shouling_Bs.end()) {
+            continue;
+        }
+        //正在变身
+        Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow);
+        if (!p) {
+            continue;
+        }
+        if (!p->IsInWorld()) {
+            continue;
+        }
+        if (p->GetAreaId() != conf.area) {
+            continue;
+        }
+        if (p->aa_shouling_isBianshen) {
+            count = count + 1;
+            continue;
+        }
+        guidlows.insert(guidlow);
+    }
+
+    if (guidlows.size() == 0) {
+        aaCenter.aa_shouling_Bs.clear();
+        uint32 count = 0;
+        for (auto guidlow : aaCenter.aa_shouling_players) {
+            //已经变过身
+            if (std::find(aaCenter.aa_shouling_Bs.begin(), aaCenter.aa_shouling_Bs.end(), guidlow) != aaCenter.aa_shouling_Bs.end()) {
+                continue;
+            }
+            //正在变身
+            Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow);
+            if (!p) {
+                continue;
+            }
+            if (!p->IsInWorld()) {
+                continue;
+            }
+            if (p->GetAreaId() != conf.area) {
+                continue;
+            }
+            if (p->aa_shouling_isBianshen) {
+                count = count + 1;
+                continue;
+            }
+            guidlows.insert(guidlow);
+        }
+    }
+
+    uint32 countNeed = countMax - count;
+    uint32 index = 0;
+    for (auto guidlow : guidlows) {
+        Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow);
+        index = index + 1;
+        if (index > countNeed) {
+            break;
+        }
+        //分配为B队
+        aaCenter.aa_shouling_Bs.insert(guidlow);
+        p->aa_shouling_isBianshen = true;
+        p->aa_shouling_time = conf.bianshen_time * 1000;
+        //增加变身
+        if (conf.entrys != "" && conf.entrys != "0") {
+            uint32 moxing = aaCenter.AA_StringRandom(conf.entrys);
+            if (moxing > 0) {
+                CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(moxing);
+                if (ci)
+                {
+                    std::string gm = ".组合 *.变身 " + std::to_string(moxing) + " 1<$自身>";
+                    aaCenter.AA_DoCommand(p, gm.c_str());
+                    p->aa_shouling_model = moxing;
+                }
+            }
+        }
+        //取消A光环增加B光环
+        if (conf.guanghuans_a != "" && conf.guanghuans_a != "") {
+            std::vector<int32> spells; spells.clear();
+            aaCenter.AA_StringToVectorInt(conf.guanghuans_a, spells, ",");
+            for (auto spell : spells) {
+                if (p->HasAura(spell)) {
+                    p->RemoveAura(spell);
+                }
+            }
+        }
+        if (conf.guanghuans_b != "" && conf.guanghuans_b != "") {
+            std::vector<int32> spells; spells.clear();
+            aaCenter.AA_StringToVectorInt(conf.guanghuans_b, spells, ",");
+            for (auto spell : spells) {
+                if (!p->HasAura(spell)) {
+                    p->AddAura(spell, p);
+                }
+            }
+        }
+
+        std::string msg = "|cff00FFFF[首领争霸]|cffFFFF00玩家" + aaCenter.AA_GetPlayerNameLink(p) + "发生变异，持续时间" + std::to_string(conf.bianshen_time) + "秒。";
+        for (auto guidlow : aaCenter.aa_shouling_players) {
+            Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow);
+            if (p) {
+                aaCenter.AA_SendMessage(p, 0, msg.c_str());
+            }
+        }
+    }
+    bool hasB = false;
+    for (auto guidlow : aaCenter.aa_shouling_players) {
+        Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow);
+        if (p && p->aa_shouling_isBianshen) {
+            hasB = true;
+        }
+    }
+    //结束活动
+    if (!hasB && countNeed == 0) {
+        aaCenter.AA_Shouling_End();
+    }
+}
+
+void AACenter::AA_Shouling_Update(uint32 diff)
+{
+    if (aaCenter.aa_shouling_event_id == 0) {
+        return;
+    }
+    AA_Shouling_Conf conf = aaCenter.aa_shouling_confs[aaCenter.aa_shouling_event_id];
+    //提示开始时间倒计时。
+    uint32 time = aaCenter.aa_shouling_start_time / 1000;
+    if (time == 10 || time == 20 || time == 30 || time == 40 || time == 50 || time == 60 || time == 90 || time == 120) {
+        if (aaCenter.aa_shouling_isnotice != time) {
+            aaCenter.aa_shouling_isnotice = time;
+            std::string msg = "|cff00FFFF[首领争霸]|cffFFFF00首领争霸将在" + std::to_string(time) + "秒后开始，进入活动地图后，自动报名参加。";
+            std::set<Player*> players = aaCenter.GetOnlinePlayers();
+            for (auto player : players) {
+                aaCenter.AA_SendMessage(player, 0, msg.c_str());
+            }
+        }
+    }
+    //
+    if (aaCenter.aa_shouling_isstart == false) {
+        //如果事件还未到
+        if (conf.event_id > 0 && sGameEventMgr->IsActiveEvent(conf.event_id) && conf.area > 0) {
+            //比武前，超过等待时间，开始战斗
+            aaCenter.aa_shouling_start_time -= diff;
+            if (aaCenter.aa_shouling_start_time < 0) {
+                aaCenter.aa_shouling_start_time = 0;
+            }
+            //比武中，距离结束提示
+            if (aaCenter.aa_shouling_start_time > 0) {
+                uint32 time = aaCenter.aa_shouling_start_time / 1000;
+                if (time == 10 || time == 20 || time == 30 || time == 40 || time == 50 || time == 60 || time == 90 || time == 120) {
+                    if (aaCenter.aa_shouling_isnotice != time) {
+                        aaCenter.aa_shouling_isnotice = time;
+                        std::string msg = "|cff00FFFF[首领争霸]|cffFFFF00首领争霸将在" + std::to_string(time) + "秒后开始，进入活动地图后，自动报名参加。";
+                        std::set<Player*> players = aaCenter.GetOnlinePlayers();
+                        for (auto player : players) {
+                            aaCenter.AA_SendMessage(player, 0, msg.c_str());
+                        }
+                    }
+                }
+            }
+
+            //倒计时结束，分配AB队。
+            if (aaCenter.aa_shouling_start_time == 0) {
+                aa_shouling_isstart = true;
+                //获取地图所有人
+                std::set<Player*> players = aaCenter.GetOnlinePlayers();
+                for (auto p : players) {
+                    if (p->GetAreaId() != conf.area) {
+                        continue;
+                    }
+                    aaCenter.aa_shouling_players.insert(p->GetGUIDLow());
+                }
+
+                if (aaCenter.aa_shouling_players.size() >= conf.player_min) {
+                    //开始首领争霸
+                    aaCenter.AA_Shouling_Fenzu();
+                    aaCenter.aa_shouling_isstart = true;
+                }
+            }
+        }
+    }
+    else {
+        //B队变身时间超出
+        bool isOk = false;
+        for (auto guidlow : aaCenter.aa_shouling_players) {
+            if (Player* player = ObjectAccessor::FindPlayerByLowGUID(guidlow)) {
+                if (!player->aa_shouling_isBianshen) {
+                    continue;
+                }
+                if (player->aa_shouling_time >= diff) {
+                    player->aa_shouling_time -= diff;
+                }
+                else {
+                    player->aa_shouling_time = 0;
+                }
+                if (player->aa_shouling_time == 0) {
+                    aaCenter.AA_Shouling_Cancel(guidlow);
+                    isOk = true;
+                }
+            }
+        }
+        if (isOk) {
+            aaCenter.AA_Shouling_Fenzu();
+        }
+        //检测
+        for (auto guidlow : aaCenter.aa_shouling_players) {
+            if (Player* player = ObjectAccessor::FindPlayerByLowGUID(guidlow)) {
+                if (player->aa_shouling_isBianshen) {
+                    //检测阵营
+                    //player->setTeamId(TEAM_HORDE);
+                    //ChrRacesEntry const* DBCRace = sChrRacesStore.LookupEntry(RACE_UNDEAD_PLAYER);
+                    //player->SetFaction(DBCRace ? DBCRace->FactionID : 0);
+                    player->SetDuelTeam(HORDE);
+                    //检测光环
+                    //取消A光环增加B光环
+                    if (conf.guanghuans_a != "" && conf.guanghuans_a != "") {
+                        std::vector<int32> spells; spells.clear();
+                        aaCenter.AA_StringToVectorInt(conf.guanghuans_a, spells, ",");
+                        for (auto spell : spells) {
+                            if (player->HasAura(spell)) {
+                                player->RemoveAura(spell);
+                            }
+                        }
+                    }
+                    if (conf.guanghuans_b != "" && conf.guanghuans_b != "") {
+                        std::vector<int32> spells; spells.clear();
+                        aaCenter.AA_StringToVectorInt(conf.guanghuans_b, spells, ",");
+                        for (auto spell : spells) {
+                            if (!player->HasAura(spell)) {
+                                player->AddAura(spell, player);
+                            }
+                        }
+                    }
+                    //检测变身
+                    if (player->aa_shouling_model > 0) {
+                        if (player->aa_shouling_model != player->GetDisplayId()) {
+                            std::string gm = ".组合 *.变身 " + std::to_string(player->aa_shouling_model) + " 1<$自身>";
+                            aaCenter.AA_DoCommand(player, gm.c_str());
+                        }
+                    }
+                }
+                else {
+                    //检测阵营
+                    //player->setTeamId(TEAM_ALLIANCE);
+                    //ChrRacesEntry const* DBCRace = sChrRacesStore.LookupEntry(RACE_HUMAN);
+                    //player->SetFaction(DBCRace ? DBCRace->FactionID : 0);
+                    player->SetDuelTeam(ALLIANCE);
+                    //检测光环
+                    //取消B光环增加A光环
+                    if (conf.guanghuans_b != "" && conf.guanghuans_b != "") {
+                        std::vector<int32> spells; spells.clear();
+                        aaCenter.AA_StringToVectorInt(conf.guanghuans_b, spells, ",");
+                        for (auto spell : spells) {
+                            if (player->HasAura(spell)) {
+                                player->RemoveAura(spell);
+                            }
+                        }
+                    }
+                    if (conf.guanghuans_a != "" && conf.guanghuans_a != "") {
+                        std::vector<int32> spells; spells.clear();
+                        aaCenter.AA_StringToVectorInt(conf.guanghuans_a, spells, ",");
+                        for (auto spell : spells) {
+                            if (!player->HasAura(spell)) {
+                                player->AddAura(spell, player);
+                            }
+                        }
+                    }
+                    //检测变身
+                    if (player->aa_shouling_model > 0) {
+                        if (player->aa_shouling_model != player->GetDisplayId()) {
+                            std::string gm = ".组合 *.变身 " + std::to_string(player->aa_shouling_model) + " 1<$自身>";
+                            aaCenter.AA_DoCommand(player, gm.c_str());
+                        }
+                        player->aa_shouling_model = 0;
+                    }
+                    player->aa_shouling_time = 0;
+                    player->aa_shouling_isBianshen = false;
+                }
+            }
+        }
+    }
+}
+
+void AACenter::AA_Shouling_End()
+{
+    if (aaCenter.aa_shouling_event_id == 0) {
+        return;
+    }
+
+    std::set<Player*> players = aaCenter.GetOnlinePlayers();
+    for (auto guidlow : aaCenter.aa_shouling_players) {
+        if (Player* player = ObjectAccessor::FindPlayerByLowGUID(guidlow)) {
+            if (player->aa_shouling_model > 0) {
+                std::string gm = ".组合 *.变身 " + std::to_string(player->aa_shouling_model) + " 1<$自身>";
+                aaCenter.AA_DoCommand(player, gm.c_str());
+                player->aa_shouling_model = 0;
+            }
+            player->aa_shouling_time = 0;
+            player->aa_shouling_isBianshen = false;
+            //还原阵营
+            player->SetDuelTeam(0);
+            player->RestoreDisplayId();
+            player->SetObjectScale(1);
+        }
+    }
+
+    aaCenter.aa_shouling_start_time = -1;
+    aaCenter.aa_shouling_event_id = 0;
+    aaCenter.aa_shouling_status = false;
+    aaCenter.aa_shouling_isstart = false;
+    aaCenter.aa_shouling_isnotice = 0;
+    aaCenter.aa_shouling_time = 0;
+    aaCenter.aa_shouling_players.clear();
+    aaCenter.aa_shouling_Bs.clear();
 }

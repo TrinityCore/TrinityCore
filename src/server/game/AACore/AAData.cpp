@@ -71,7 +71,8 @@ void AAData::AA_REP_Character_Instance(Player* player, CharacterDatabaseTransact
         stmt->setInt32(35, conf.cuiqu_pos);
         stmt->setUInt32(36, conf.baoshi_entry);
         stmt->setUInt32(37, conf.item_set);
-        stmt->setUInt32(38, conf.update_time);
+        stmt->setUInt32(38, conf.zulin_time);
+        stmt->setUInt32(39, conf.update_time);
         trans->Append(stmt);
     }
 }
@@ -97,7 +98,10 @@ void AAData::AA_REP_Characters(Player* player, CharacterDatabaseTransaction& tra
         stmt->setString(9, conf.diy_guid);
         stmt->setString(10, conf.name_pre);
         stmt->setString(11, conf.name_suf);
-        stmt->setUInt32(12, conf.update_time);
+        stmt->setUInt32(12, conf.duel_diy);
+        stmt->setUInt32(13, conf.yiming);
+        stmt->setUInt32(14, conf.is_yiming);
+        stmt->setUInt32(15, conf.update_time);
         trans->Append(stmt);
     }
 }
@@ -207,47 +211,50 @@ void AAData::AA_REP_Account(Player* player, LoginDatabaseTransaction& trans)
         }
         aaCenter.aa_accounts[iter.first].isUpdate = false;
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(_AA_REP_Account);
-        stmt->setUInt64(0, iter.first);
-        stmt->setUInt32(1, conf.vip);
-        stmt->setUInt32(2, conf.jifen);
-        stmt->setUInt32(3, conf.jifen_cz);
-        stmt->setUInt32(4, conf.jifen_all);
-        stmt->setUInt32(5, conf.paodian);
-        stmt->setUInt32(6, conf.mobi);
-        stmt->setUInt32(7, conf.battlecore);
-        stmt->setUInt32(8, conf.jifen_day);
-        stmt->setUInt32(9, conf.shouchong_day);
-        stmt->setUInt32(10, conf.shouchong);
-        stmt->setString(11, conf.leichong);
-        stmt->setUInt32(12, conf.denglu_day);
-        stmt->setString(13, conf.denglu);
-        stmt->setUInt32(14, conf.denglu_qiandao);
-        stmt->setUInt32(15, conf.licai_day);
-        stmt->setUInt32(16, conf.licai);
-        stmt->setString(17, conf.buy_time);
-        stmt->setString(18, conf.buy_time_yj);
-        stmt->setString(19, conf.diy_account);
-        stmt->setUInt32(20, conf.update_time);
+        int i = 0;
+        stmt->setUInt64(i++, iter.first);
+        stmt->setUInt32(i++, conf.vip);
+        stmt->setUInt32(i++, conf.jifen);
+        stmt->setUInt32(i++, conf.jifen_cz);
+        stmt->setUInt32(i++, conf.jifen_all);
+        stmt->setUInt32(i++, conf.paodian);
+        stmt->setUInt32(i++, conf.mobi);
+        stmt->setUInt32(i++, conf.battlecore);
+        stmt->setUInt32(i++, conf.jifen_day);
+        stmt->setUInt32(i++, conf.shouchong_day);
+        stmt->setUInt32(i++, conf.shouchong);
+        stmt->setString(i++, conf.leichong);
+        stmt->setUInt32(i++, conf.denglu_day);
+        stmt->setString(i++, conf.denglu);
+        stmt->setUInt32(i++, conf.denglu_qiandao);
+        stmt->setUInt32(i++, conf.licai_day);
+        stmt->setUInt32(i++, conf.licai);
+        stmt->setString(i++, conf.buy_time);
+        stmt->setString(i++, conf.buy_time_yj);
+        stmt->setString(i++, conf.diy_account);
+        stmt->setUInt32(i++, conf.dianka);
+        stmt->setUInt32(i++, conf.update_time);
 
-        stmt->setUInt32(21, conf.vip);
-        stmt->setUInt32(22, conf.jifen);
-        stmt->setUInt32(23, conf.jifen_all);
-        stmt->setUInt32(24, conf.paodian);
-        stmt->setUInt32(25, conf.mobi);
-        stmt->setUInt32(26, conf.battlecore);
-        stmt->setUInt32(27, conf.jifen_day);
-        stmt->setUInt32(28, conf.shouchong_day);
-        stmt->setUInt32(29, conf.shouchong);
-        stmt->setString(30, conf.leichong);
-        stmt->setUInt32(31, conf.denglu_day);
-        stmt->setString(32, conf.denglu);
-        stmt->setUInt32(33, conf.denglu_qiandao);
-        stmt->setUInt32(34, conf.licai_day);
-        stmt->setUInt32(35, conf.licai);
-        stmt->setString(36, conf.buy_time);
-        stmt->setString(37, conf.buy_time_yj);
-        stmt->setString(38, conf.diy_account);
-        stmt->setUInt32(39, conf.update_time);
+        stmt->setUInt32(i++, conf.vip);
+        stmt->setUInt32(i++, conf.jifen);
+        stmt->setUInt32(i++, conf.jifen_all);
+        stmt->setUInt32(i++, conf.paodian);
+        stmt->setUInt32(i++, conf.mobi);
+        stmt->setUInt32(i++, conf.battlecore);
+        stmt->setUInt32(i++, conf.jifen_day);
+        stmt->setUInt32(i++, conf.shouchong_day);
+        stmt->setUInt32(i++, conf.shouchong);
+        stmt->setString(i++, conf.leichong);
+        stmt->setUInt32(i++, conf.denglu_day);
+        stmt->setString(i++, conf.denglu);
+        stmt->setUInt32(i++, conf.denglu_qiandao);
+        stmt->setUInt32(i++, conf.licai_day);
+        stmt->setUInt32(i++, conf.licai);
+        stmt->setString(i++, conf.buy_time);
+        stmt->setString(i++, conf.buy_time_yj);
+        stmt->setString(i++, conf.diy_account);
+        stmt->setUInt32(i++, conf.dianka);
+        stmt->setUInt32(i++, conf.update_time);
         trans->Append(stmt);
     }
 }

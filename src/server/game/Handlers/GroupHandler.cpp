@@ -60,6 +60,18 @@ void WorldSession::HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClien
     Player* invitingPlayer = GetPlayer();
     Player* invitedPlayer = ObjectAccessor::FindPlayerByName(packet.TargetName);
 
+    // 一命模式 禁止组队
+    if (invitingPlayer) {
+        ObjectGuid::LowType guidlow = invitingPlayer->GetGUIDLow();
+        uint32 level = aaCenter.aa_characterss[guidlow].yiming;
+        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
+        if (conf.is_zudui == 1) {
+            std::string msg = "|cff00FFFF[一命模式]|r|cffFF0000无法进行团队操作|r";
+            aaCenter.AA_SendMessage(invitingPlayer, 1, msg.c_str());
+            return;
+        }
+    }
+
     // no player
     if (!invitedPlayer)
     {

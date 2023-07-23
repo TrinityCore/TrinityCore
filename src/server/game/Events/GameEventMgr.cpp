@@ -191,6 +191,28 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
             }
         }
     }
+    //首领争霸开始准备
+    {
+        AA_Shouling_Conf conf = aaCenter.aa_shouling_confs[event_id];
+        if (conf.event_id > 0) {
+            aaCenter.aa_shouling_start_time = conf.wait_time * 1000;
+            aaCenter.aa_shouling_Bs.clear();
+
+            //获取地图所有人
+            std::set<Player*> players = aaCenter.GetOnlinePlayers();
+            for (auto p : players) {
+                aaCenter.aa_shouling_isnotice = conf.wait_time;
+                std::string msg = "|cff00FFFF[首领争霸]|cffFFFF00首领争霸将在" + std::to_string(conf.wait_time) + "秒后开始，进入活动地图后，自动报名参加。";
+                aaCenter.AA_SendMessage(p, 0, msg.c_str());
+            }
+
+            if (conf.alert_id > 0) {
+                aaCenter.AA_EventStart(nullptr, conf.alert_id);
+            }
+            aaCenter.aa_shouling_event_id = event_id;
+        }
+    }
+
     if (data.state == GAMEEVENT_NORMAL || data.state == GAMEEVENT_INTERNAL)
     {
         AddActiveEvent(event_id);
@@ -260,7 +282,14 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
             aaCenter.AA_Biwu_End();
         }
     }
-    
+    //首领争霸结束
+    {
+        AA_Shouling_Conf conf = aaCenter.aa_shouling_confs[event_id];
+        if (conf.event_id > 0) {
+            aaCenter.AA_Shouling_End();
+        }
+    }
+
     bool serverwide_evt = data.state != GAMEEVENT_NORMAL && data.state != GAMEEVENT_INTERNAL;
 
     RemoveActiveEvent(event_id);

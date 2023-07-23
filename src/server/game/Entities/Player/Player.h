@@ -1144,6 +1144,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     friend void AddItemToUpdateQueueOf(Item* item, Player* player);
     friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
     public:
+        uint32 aa_dianka = 120000;
+        uint32 aa_shouling_model = 0;
+        uint32 aa_shouling_time = 0;
+        bool aa_shouling_isBianshen = false;
+
         uint32 aa_biwu_teamid = 0;
         std::string aa_namepre_temp = "";
         std::string aa_namesuf_temp = "";

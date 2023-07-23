@@ -2919,6 +2919,8 @@ void World::Update(uint32 diff)
 
     // 比武大会
     aaCenter.AA_Biwu_Update(diff);
+    // 首领争霸
+    aaCenter.AA_Shouling_Update(diff);
 
     std::set<Player*> players = aaCenter.GetOnlinePlayers();
 
@@ -3118,6 +3120,10 @@ void World::Update(uint32 diff)
                 if (aa_alertTimes[bg_id] >= conf.alert_jiange * 1000 * 60) {
                     aa_alertTimes[bg_id] = 0;
                     GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
+                    if (conf.stop_time >= events.size())
+                    {
+                        continue;
+                    }
                     GameEventData const& eventData = events[conf.stop_time];
                     //time_t currenttime = sWorld->GetGameTime();
                     time_t currenttime = GameTime::GetGameTime();
@@ -3189,6 +3195,10 @@ void World::Update(uint32 diff)
                     continue;
                 }
                 GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
+                if (itr.second.game_event >= events.size())
+                {
+                    continue;
+                }
                 GameEventData const& eventData = events[itr.second.game_event];
                 if (!eventData.isValid())
                 {
@@ -3317,6 +3327,27 @@ void World::Update(uint32 diff)
                     meirijifen = true;
                     LoginDatabase.PExecute("UPDATE _aa_account SET 每日累充积分=0,每日首充积分=0,每日首充领取=0,签到天数=0,理财奖励领取=0,物品购买次数=\"\",更新时间={}", time1);
                     CharacterDatabase.PExecute("UPDATE _玩家角色数据 SET 物品购买次数=\"\",update_time={}", time1);
+
+                    //更新每日全服购买次数
+                    {
+                        std::string m_diy_systems = aaCenter.aa_system_conf.diy_system;
+                        std::map<std::string, std::string> mdiy_systems; mdiy_systems.clear();
+                        aaCenter.AA_StringToStringMap(m_diy_systems, mdiy_systems);
+                        bool isOk = false;
+                        for (auto itr : mdiy_systems) {
+                            std::string str = itr.first;
+                            uint32 entry = aaCenter.AA_StringInt32(str);
+                            if (entry > 100000000 && entry <= 200000000) {
+                                mdiy_systems.erase(std::to_string(entry));
+                                isOk = true;
+                            }
+                        }
+                        if (isOk) {
+                            std::string str = "";
+                            aaCenter.AA_StringMapToString(mdiy_systems, str);
+                            aaCenter.aa_system_conf.diy_system = str;
+                        }
+                    }
                 }
             }
             else {

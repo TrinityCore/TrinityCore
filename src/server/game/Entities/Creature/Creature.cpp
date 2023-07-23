@@ -1535,7 +1535,7 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
 
 void Creature::SelectLevel()
 {
-    if (!GetOwner() && !IsTotem() && this->aa_id == 0) {
+    if (!GetOwner() && !IsTotem()) {
         AA_Creature conf = aaCenter.AA_GetCreatureConf(this);
         this->aa_id = conf.id;
     }

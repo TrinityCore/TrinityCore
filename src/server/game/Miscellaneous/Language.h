@@ -1346,7 +1346,10 @@ enum TrinityStrings
     LANG_AA_yewaitiaozhankaishi = 80102,
     LANG_AA_qinglihuancun = 80103,
     LANG_AA_bianliang = 80104,
-    LANG_AA_dati = 80104,
+    LANG_AA_dati = 80105,
+    LANG_AA_dianka = 80106,
+    LANG_AA_zulin = 80107,
+    LANG_AA_yimingdengji = 80108,
 
     LANG_AA_HandleSetScaleCommand = 80200,
     LANG_AA_HandleSetDisplayCommand = 80201,

@@ -785,9 +785,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     
     PrepareStatement(_AA_UPD_Character_Paihang_Renwu, "update _玩家排行数据x set 每日完成任务 = ? where guid = ?", CONNECTION_ASYNC);
     
-    PrepareStatement(_AA_REP_Character_Instance, "replace into _玩家装备数据 (guid, itemEntry, owner_guid, name, 原始组, 原始属性, 鉴定组, 鉴定id, 鉴定等级, 鉴定属性, 强化组, 强化id, 强化等级, 强化属性, 强化奖励属性, 强化奖励属性百分比, 强化奖励技能, 成长组, 成长id, 成长等级, 成长经验, 成长属性, 成长奖励属性, 成长奖励属性百分比, 成长奖励技能, 附魔技能数量, 附魔技能, 附魔属性数量, 附魔属性, 重铸次数, 重铸属性需要, 重铸技能需要, 符文数量, 符文属性, 符文组合属性, 萃取位置, 宝石id, 随机套装组, update_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(_AA_REP_Character_Instance, "replace into _玩家装备数据 (guid, itemEntry, owner_guid, name, 原始组, 原始属性, 鉴定组, 鉴定id, 鉴定等级, 鉴定属性, 强化组, 强化id, 强化等级, 强化属性, 强化奖励属性, 强化奖励属性百分比, 强化奖励技能, 成长组, 成长id, 成长等级, 成长经验, 成长属性, 成长奖励属性, 成长奖励属性百分比, 成长奖励技能, 附魔技能数量, 附魔技能, 附魔属性数量, 附魔属性, 重铸次数, 重铸属性需要, 重铸技能需要, 符文数量, 符文属性, 符文组合属性, 萃取位置, 宝石id, 随机套装组, 租赁时间, update_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
-    PrepareStatement(_AA_REP_Characters, "replace into _玩家角色数据 (guid, 在线奖励领取状态, 升级奖励领取状态, 天赋点, 累计抽奖次数, 累计抽奖领取, 物品购买次数, 物品永久购买, 招募者姓名, 自定义角色变量, 名字前缀, 名字后缀, update_time) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
+    PrepareStatement(_AA_REP_Characters, "replace into _玩家角色数据 (guid, 在线奖励领取状态, 升级奖励领取状态, 天赋点, 累计抽奖次数, 累计抽奖领取, 物品购买次数, 物品永久购买, 招募者姓名, 自定义角色变量, 名字前缀, 名字后缀, 自定义阵营, 一命等级, 一命模式, update_time) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
 
     PrepareStatement(_AA_REP_Systems, "replace into _系统数据 (id, 自定义系统变量, update_time) VALUES(?,?,?)", CONNECTION_ASYNC);
 

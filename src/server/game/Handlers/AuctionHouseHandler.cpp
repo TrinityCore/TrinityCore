@@ -198,6 +198,18 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionH
         return;
     }
 
+    // 一命模式 禁止拍卖行
+    {
+        ObjectGuid::LowType guidlow = GetPlayer()->GetGUIDLow();
+        uint32 level = aaCenter.aa_characterss[guidlow].yiming;
+        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
+        if (conf.is_paimai == 1) {
+            std::string msg = "|cff00FFFF[一命模式]|r|cffFF0000无法进行拍卖行操作|r";
+            aaCenter.AA_SendMessage(GetPlayer(), 1, msg.c_str());
+            return;
+        }
+    }
+
     if (aaCenter.aa_world_confs[60].value1 != 0)
     {
         std::string danwei = aaCenter.AA_GetAuctionUnit();

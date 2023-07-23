@@ -690,6 +690,36 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
                 continue;
             }
 
+            //每日购买限制
+            {
+                if (aaCenter.aa_buy_times[vendorItem->item].buy_q > 0) {
+                    std::string m_diy_systems = aaCenter.aa_system_conf.diy_system;
+                    std::map<std::string, std::string> mdiy_systems; mdiy_systems.clear();
+                    aaCenter.AA_StringToStringMap(m_diy_systems, mdiy_systems);
+                    uint32 itemId = vendorItem->item + 100000000;
+                    if (itemId > 100000000) {
+                        std::string str = mdiy_systems[std::to_string(itemId)];
+                        uint32 count = aaCenter.AA_StringInt32(str);
+                        if (count >= aaCenter.aa_buy_times[vendorItem->item].buy_q) {
+                            continue;
+                        }
+                    }
+                }
+                if (aaCenter.aa_buy_times[vendorItem->item].yongjiu_q > 0) {
+                    std::string m_diy_systems = aaCenter.aa_system_conf.diy_system;
+                    std::map<std::string, std::string> mdiy_systems; mdiy_systems.clear();
+                    aaCenter.AA_StringToStringMap(m_diy_systems, mdiy_systems);
+                    uint32 itemId = vendorItem->item + 200000000;
+                    if (itemId > 200000000) {
+                        std::string str = mdiy_systems[std::to_string(itemId)];
+                        uint32 count = aaCenter.AA_StringInt32(str);
+                        if (count >= aaCenter.aa_buy_times[vendorItem->item].yongjiu_q) {
+                            continue;
+                        }
+                    }
+                }
+            }
+
             uint64 price = uint64(floor(itemTemplate->GetBuyPrice() * discountMod));
             price = itemTemplate->GetBuyPrice() > 0 ? std::max(uint64(1), price) : price;
 

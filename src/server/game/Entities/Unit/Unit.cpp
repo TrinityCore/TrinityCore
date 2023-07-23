@@ -443,6 +443,33 @@ Unit::~Unit()
 
 void Unit::Update(uint32 p_time)
 {
+    //点卡模式
+    if (aaCenter.aa_world_confs[100].value1 == 1) {
+        if (Player* p = ToPlayer()) {
+            uint32 accountid = p->GetSession()->GetAccountId();
+            if (accountid > 0) {
+                time_t timep;
+                time(&timep); /*当前time_t类型UTC时间*/
+                aaCenter.aa_accounts[accountid].update_time = timep;
+                aaCenter.aa_accounts[accountid].isUpdate = true;
+                if (aaCenter.aa_accounts[accountid].dianka >= p_time) {
+                    aaCenter.aa_accounts[accountid].dianka = aaCenter.aa_accounts[accountid].dianka - p_time;
+                }
+                else {
+                    aaCenter.aa_accounts[accountid].dianka = 0;
+                    if (p->aa_dianka == 120000) {
+                        std::string msg = "|cff00FFFF[账号提示]|cffFF0000游戏时间已不足，你将在2分钟后被强制下线，请联系管理员充值。";
+                        aaCenter.AA_SendMessage(p, 0, msg.c_str());
+                    }
+                    else {
+                        p->GetSession()->KickPlayer("dianka");
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     aa_die_time += p_time;
 
     uint32 currTime = GameTime::GetGameTime();
@@ -985,7 +1012,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
                     Player* attacker_a = nullptr;
                     Player* attacker_v = victim->ToPlayer();
-                    if (Creature *c = victim->ToCreature()) {
+                    if (Creature* c = victim->ToCreature()) {
                         attacker_a = ObjectAccessor::FindPlayer(c->GetCreatorGUID());
                     }
                     if (!attacker_a || !attacker_a->IsInWorld()) {
@@ -1008,7 +1035,121 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                         for (auto mapconf : mapeventconfs) {
                             aaCenter.AA_EventMapStart(attacker_v, mapconf);
                         }
+
+                        //首领争霸
+                        AA_Shouling_Conf conf = aaCenter.aa_shouling_confs[aaCenter.aa_shouling_event_id];
+                        if (conf.event_id > 0) {
+                            if (std::find(aaCenter.aa_shouling_players.begin(), aaCenter.aa_shouling_players.end(), attacker_a->GetGUIDLow()) != aaCenter.aa_shouling_players.end() &&
+                                std::find(aaCenter.aa_shouling_players.begin(), aaCenter.aa_shouling_players.end(), attacker_v->GetGUIDLow()) != aaCenter.aa_shouling_players.end()) {
+                                if (!attacker_a->aa_shouling_isBianshen && attacker_v->aa_shouling_isBianshen) {
+                                    //玩家击杀了变异者
+                                    if (conf.gm_a != "" && conf.gm_a != "0") {
+                                        for (auto guidlow : aaCenter.aa_shouling_players) {
+                                            Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow);
+                                            if (p && !p->aa_shouling_isBianshen && p->GetAreaId() == conf.area) {
+                                                aaCenter.AA_DoCommand(p, conf.gm_a.c_str());
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (!attacker_v->aa_shouling_isBianshen && attacker_a->aa_shouling_isBianshen) {
+                                    //变异者击杀了玩家
+                                    if (conf.gm_b != "" && conf.gm_b != "0") {
+                                        for (auto guidlow : aaCenter.aa_shouling_players) {
+                                            Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow);
+                                            if (p && p->aa_shouling_isBianshen && p->GetAreaId() == conf.area) {
+                                                aaCenter.AA_DoCommand(p, conf.gm_b.c_str());
+                                            }
+                                        }
+                                    }
+                                }
+                                if (attacker_v->aa_shouling_isBianshen) {
+                                    aaCenter.AA_Shouling_Cancel(attacker_v->GetGUIDLow());
+                                    aaCenter.AA_Shouling_Fenzu();
+                                }
+                            }
+                        }
                     }
+
+                    //一命模式 0所有，1PVE死亡，2PVP死亡，3副本死亡，4自杀, 5决斗失败
+                    if (attacker_v && aaCenter.aa_yiming_confs.size() > 0)
+                    {
+                        ObjectGuid::LowType guidlow = attacker_v->GetGUIDLow();
+                        uint32 level = aaCenter.aa_characterss[guidlow].yiming;
+                        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
+                        if (conf.level > 0) {
+                            Player* p_yiming = attacker_v;
+                            std::string a_name = "";
+                            if (conf.chengfa_dies != "") {
+                                std::vector<int32> v; v.clear();
+                                aaCenter.AA_StringToVectorInt(conf.chengfa_dies, v, ",");
+                                //被玩家击杀
+                                if (attacker_a && attacker_v) {
+                                    if (std::find(v.begin(), v.end(), 0) != v.end() || std::find(v.begin(), v.end(), 2) != v.end()) {
+                                        p_yiming = nullptr;
+                                    }
+                                    a_name = aaCenter.AA_GetPlayerNameLink(attacker_a);
+                                }
+                                //被生物击杀
+                                else if (attacker->ToCreature() && attacker_v) {
+                                    if (std::find(v.begin(), v.end(), 0) != v.end() || std::find(v.begin(), v.end(), 1) != v.end()) {
+                                        p_yiming = nullptr;
+                                    }
+                                    a_name = attacker->ToCreature()->GetName();
+                                }
+                                //自杀
+                                else if (attacker_a == attacker_v || attacker == nullptr) {
+                                    if (std::find(v.begin(), v.end(), 0) != v.end() || std::find(v.begin(), v.end(), 4) != v.end()) {
+                                        p_yiming = nullptr;
+                                    }
+                                    a_name = "自杀";
+                                }
+                                //副本死亡
+                                else if (attacker_v->GetMap() && attacker_v->GetMap()->IsDungeon()) {
+                                    if (std::find(v.begin(), v.end(), 0) != v.end() || std::find(v.begin(), v.end(), 3) != v.end()) {
+                                        p_yiming = nullptr;
+                                    }
+                                }
+                            }
+                            if (p_yiming && conf.chengfa_areas != "" && conf.chengfa_areas != "0") {
+                                std::vector<int32> v; v.clear();
+                                aaCenter.AA_StringToVectorInt(conf.chengfa_areas, v, ",");
+                                if (std::find(v.begin(), v.end(), p_yiming->GetAreaId()) != v.end()) {
+                                    p_yiming = nullptr;
+                                }
+                            }
+                            if (p_yiming && conf.chengfa_items != "" && conf.chengfa_items != "0") {
+                                std::vector<int32> v; v.clear();
+                                aaCenter.AA_StringToVectorInt(conf.chengfa_items, v, ",");
+                                for (auto itemid : v) {
+                                    if (itemid && p_yiming->HasItemCount(itemid, 1)) {
+                                        p_yiming = nullptr;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (p_yiming && conf.chengfa_spells != "" && conf.chengfa_spells != "0") {
+                                std::vector<int32> v; v.clear();
+                                aaCenter.AA_StringToVectorInt(conf.chengfa_spells, v, ",");
+                                for (auto spellid : v) {
+                                    if (spellid && p_yiming->HasAura(spellid)) {
+                                        p_yiming = nullptr;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (p_yiming) {
+                                aaCenter.aa_characterss[guidlow].is_yiming = 1;
+                                time_t timep;
+                                time(&timep); /*当前time_t类型UTC时间*/
+                                aaCenter.aa_characterss[guidlow].update_time = timep;
+                                aaCenter.aa_characterss[guidlow].isUpdate = true;
+                                std::string msg = "|cff00FFFF[一命模式]|r|cffFF0000沉痛哀悼【" + std::to_string(p_yiming->GetLevel()) + "】级玩家【" + aaCenter.AA_GetPlayerNameLink(attacker_v) + "】在【" + attacker_v->GetMap()->GetMapName() + "】进行历练时，不幸牺牲，杀死ta的是【" + a_name + "】";
+                                aaCenter.AA_SendMessage(nullptr, 1, msg.c_str());
+                            }
+                        }
+                    }
+
                     if (Creature* c = victim->ToCreature()) {
                         if (attacker_a) {
                             std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["击杀生物"];
@@ -1487,6 +1628,74 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
 
                     // Calculate crit bonus
                     uint32 crit_bonus = damage;
+
+                    Unit* unit = const_cast<Unit*>(this);
+                    bool isPVP = false;
+                    if (unit && unit->GetTypeId() == TYPEID_PLAYER) {
+                        if (victim) {
+                            if (victim->GetTypeId() == TYPEID_PLAYER) {
+                                isPVP = true;
+                            }
+                        }
+                    }
+                    else {
+                        isPVP = false;
+                    }
+                    if (victim && unit && unit->IsAlive() && victim->IsAlive()) {
+                        if (isPVP) {
+                            if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 217) > 0) {
+                                crit_bonus += (crit_bonus * (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 217) / 100.0));
+                            }
+                            if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 216) > 0) {
+                                uint32 damage = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 216) * 0.5;
+                                crit_bonus += damage;
+                            }
+                            //觉醒属性，PVP魔法伤害增加-攻击目标
+                            //被攻击者-玩家或雇佣兵，攻击者是人物 = PVP受到魔法暴击伤害减少
+                            if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 226) > 0) {
+                                uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 226);
+                                damage = damage > 100 ? 100 : damage;
+                                crit_bonus -= (crit_bonus * (damage / 100.0));
+                            }
+                            if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 225) > 0) {
+                                uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 225) * 0.5;
+                                if (crit_bonus > damage) {
+                                    crit_bonus -= damage;
+                                }
+                                else {
+                                    crit_bonus = 0;
+                                }
+                            }
+                        }
+                        else {
+                            //觉醒属性，PVE魔法伤害增加-攻击目标
+                            //攻击者-玩家或雇佣兵，被攻击者是怪物 = PVE魔法暴击伤害增加
+                            if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 317) > 0) {
+                                crit_bonus += (crit_bonus * (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 317) / 100.0));
+                            }
+                            if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 316) > 0) {
+                                uint32 damage = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 316) * 0.5;
+                                crit_bonus += damage;
+                            }
+                            //觉醒属性，PVP魔法伤害增加-攻击目标
+                            //被攻击者-玩家或雇佣兵，攻击者是怪物 = PVE受到魔法暴击伤害减少
+                            if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 326) > 0) {
+                                uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 326);
+                                damage = damage > 100 ? 100 : damage;
+                                crit_bonus -= (crit_bonus * (damage / 100.0));
+                            }
+                            if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 325) > 0) {
+                                uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 325) * 0.5;
+                                if (crit_bonus > damage) {
+                                    crit_bonus -= damage;
+                                }
+                                else {
+                                    crit_bonus = 0;
+                                }
+                            }
+                        }
+                    }
+
                     // Apply crit_damage bonus for melee spells
                     if (Player* modOwner = GetSpellModOwner())
                         modOwner->ApplySpellMod(spellInfo, SpellModOp::CritDamageAndHealing, crit_bonus);
@@ -1528,6 +1737,55 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 {
                     damageInfo->HitInfo |= SPELL_HIT_TYPE_CRIT;
                     damage = Unit::SpellCriticalDamageBonus(this, spellInfo, damage, victim);
+
+                    Unit* unit = const_cast<Unit*>(this);
+                    bool isPVP = false;
+                    if (unit && unit->GetTypeId() == TYPEID_PLAYER) {
+                        if (victim) {
+                            if (victim->GetTypeId() == TYPEID_PLAYER) {
+                                isPVP = true;
+                            }
+                        }
+                    }
+                    else {
+                        isPVP = false;
+                    }
+                    if (victim && unit && unit->IsAlive() && victim->IsAlive()) {
+                        if (isPVP) {
+                            if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 215) > 0) {
+                                damage += (damage * (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 215) / 100.0));
+                            }
+                            if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 214) > 0) {
+                                damage += aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 214);
+                            }
+                            //觉醒属性，PVP魔法伤害增加-攻击目标
+                            //被攻击者-玩家或雇佣兵，攻击者是人物 = PVP受到魔法暴击伤害减少
+                            if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 224) > 0) {
+                                damage -= (damage * (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 224) / 100.0));
+                            }
+                            if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 223) > 0) {
+                                damage -= aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 223);
+                            }
+                        }
+                        else {
+                            //觉醒属性，PVE魔法伤害增加-攻击目标
+                            //攻击者-玩家或雇佣兵，被攻击者是怪物 = PVE魔法暴击伤害增加
+                            if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 315) > 0) {
+                                damage += (damage * (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 315) / 100.0));
+                            }
+                            if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 314) > 0) {
+                                damage += aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 314);
+                            }
+                            //觉醒属性，PVP魔法伤害增加-攻击目标
+                            //被攻击者-玩家或雇佣兵，攻击者是怪物 = PVE受到魔法暴击伤害减少
+                            if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 324) > 0) {
+                                damage -= (damage * (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 324) / 100.0));
+                            }
+                            if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 323) > 0) {
+                                damage -= aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 323);
+                            }
+                        }
+                    }
                 }
 
                 if (CanApplyResilience())

@@ -4504,10 +4504,29 @@ void ObjectMgr::LoadQuests()
         Field* fields = result->Fetch();
 
         uint32 questId = fields[0].GetUInt32();
-        auto itr = _questTemplates.emplace(std::piecewise_construct, std::forward_as_tuple(questId), std::forward_as_tuple(fields)).first;
+
+        AA_Quest conf;
+        if (aaCenter.aa_quests.find(questId) != aaCenter.aa_quests.end()) {
+            conf = aaCenter.aa_quests[questId];
+        }
+        auto itr = _questTemplates.emplace(std::piecewise_construct, std::forward_as_tuple(questId), std::forward_as_tuple(fields, conf)).first;
         if (itr->second.IsAutoPush())
             _questTemplatesAutoPush.push_back(&itr->second);
     } while (result->NextRow());
+
+    //自定义任务
+    for (auto itr : aaCenter.aa_quests) {
+        AA_Quest conf = itr.second;
+        if (conf.id == 0) {
+            continue;
+        }
+        if (_questTemplates.find(conf.id) != _questTemplates.end()) {
+            continue;
+        }
+        auto itr = _questTemplates.emplace(std::piecewise_construct, std::forward_as_tuple(conf.id), std::forward_as_tuple(nullptr, conf)).first;
+        if (itr->second.IsAutoPush())
+            _questTemplatesAutoPush.push_back(&itr->second);
+    }
 
     struct QuestLoaderHelper
     {
@@ -4580,11 +4599,24 @@ void ObjectMgr::LoadQuests()
                 uint32 questId = fields[0].GetUInt32();
 
                 auto itr = _questTemplates.find(questId);
-                if (itr != _questTemplates.end())
+                if (itr != _questTemplates.end()) {
                     (itr->second.*loader.LoaderFunction)(fields);
+                }
                 else
                     TC_LOG_ERROR("server.loading", "Table `{}` has data for quest {} but such quest does not exist", loader.TableName, questId);
             } while (result->NextRow());
+        }
+    }
+
+    //自定义任务
+    for (auto itr : aaCenter.aa_quests) {
+        AA_Quest conf = itr.second;
+        if (conf.id == 0) {
+            continue;
+        }
+        auto itr = _questTemplates.find(conf.id);
+        if (itr != _questTemplates.end()) {
+            itr->second.AA_LoadQuestObjective(conf);
         }
     }
 
@@ -8391,6 +8423,57 @@ void ObjectMgr::LoadQuestPOI()
 
     } while (result->NextRow());
 
+    //自定义任务
+    for (auto itr : aaCenter.aa_quests) {
+        AA_Quest conf = itr.second;
+        if (conf.id == 0) {
+            continue;
+        }
+
+        if (!GetQuestTemplate(conf.id))
+            continue;
+
+        if (conf.ObjectiveID != "" && conf.ObjectiveID != "0") {
+            std::vector<int32> objectiveIDs; objectiveIDs.clear();
+            aaCenter.AA_StringToVectorInt(conf.ObjectiveID, objectiveIDs, ",");
+            std::vector<int32> objectIDs; objectIDs.clear();
+            if (conf.ObjectID != "") {
+                aaCenter.AA_StringToVectorInt(conf.ObjectID, objectIDs, ",");
+            }
+            std::vector<int32> objectTypes; objectTypes.clear();
+            if (conf.ObjectType != "") {
+                aaCenter.AA_StringToVectorInt(conf.ObjectType, objectTypes, ",");
+            }
+            std::vector<int32> amounts; amounts.clear();
+            if (conf.Amount != "") {
+                aaCenter.AA_StringToVectorInt(conf.Amount, amounts, ",");
+            }
+            if (amounts.size() && amounts.size() == objectTypes.size() && amounts.size() == objectIDs.size() && amounts.size() == objectiveIDs.size()) {
+                for (size_t i = 0; i < objectIDs.size(); i++)
+                {
+                    allPoints[conf.id][i].emplace_back(0, 0, 0);
+
+                    uint32 objectiveID = objectiveIDs[i];
+                    uint32 objectId = objectIDs[i];
+                    uint32 objectType = objectTypes[i];
+                    uint32 amount = amounts[i];
+
+                    if (std::map<int32, std::vector<QuestPOIBlobPoint>>* blobs = Trinity::Containers::MapGetValuePtr(allPoints, conf.id))
+                    {
+                        if (std::vector<QuestPOIBlobPoint>* points = Trinity::Containers::MapGetValuePtr(*blobs, i))
+                        {
+                            QuestPOIData& poiData = _questPOIStore[conf.id];
+                            poiData.QuestID = conf.id;
+                            poiData.Blobs.emplace_back(0, 0, objectiveID, objectId, 0, 0, 0, 0,
+                                0, 0, 0, 0, std::move(*points), 0);
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     TC_LOG_INFO("server.loading", ">> Loaded {} quest POI definitions in {} ms", _questPOIStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -8517,6 +8600,50 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReve
             reverseMap->insert(QuestRelationsReverse::value_type(quest, id));
         ++count;
     } while (result->NextRow());
+
+    //自定义任务
+    for (auto itr : aaCenter.aa_quests) {
+        AA_Quest conf = itr.second;
+        if (conf.id == 0) {
+            continue;
+        }
+
+        int32 id1 = conf.queststarter;
+        int32 id2 = conf.questender;
+        uint32 quest = conf.id;
+        if (!_questTemplates.count(quest))
+        {
+            continue;
+        }
+
+        int32 id = 0;
+        if (table == "gameobject_queststarter") {
+            if (id1 < 0) {
+                id = -id1;
+            }
+        }
+        else if (table == "gameobject_questender") {
+            if (id2 < 0) {
+                id = -id2;
+            }
+        }
+        else if (table == "creature_queststarter") {
+            if (id1 > 0) {
+                id = id1;
+            }
+        }
+        else if (table == "creature_questender") {
+            if (id2 > 0) {
+                id = id2;
+            }
+        }
+        if (id) {
+            map.insert(QuestRelations::value_type(id, quest));
+            if (reverseMap)
+                reverseMap->insert(QuestRelationsReverse::value_type(quest, id));
+        }
+
+    }
 
     TC_LOG_INFO("server.loading", ">> Loaded {} quest relations from {} in {} ms", count, table, GetMSTimeDiffToNow(oldMSTime));
 }

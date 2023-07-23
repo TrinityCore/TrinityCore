@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -3410,6 +3410,22 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
                 if (std::find(spells.begin(), spells.end(), m_spellInfo->Id) != spells.end()) {
                     aaCenter.AA_SendMessage(p, 1, "|cff00FFFF[系统提示]|cffFF0000该地图中禁用此技能|r");
                     return SPELL_FAILED_UNKNOWN;
+                }
+            }
+
+            // 一命模式 禁用技能
+            {
+                ObjectGuid::LowType guidlow = p->GetGUIDLow();
+                uint32 level = aaCenter.aa_characterss[guidlow].yiming;
+                AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
+                if (conf.level > 0 && conf.jinzhi_spells != "" && conf.jinzhi_spells != "0") {
+                    std::vector<int32> spells; spells.clear();
+                    aaCenter.AA_StringToVectorInt(conf.jinzhi_spells, spells, ",");
+                    if (std::find(spells.begin(), spells.end(), m_spellInfo->Id) != spells.end()) {
+                        std::string msg = "|cff00FFFF[一命模式]|r|cffFF0000无法使用此技能|r";
+                        aaCenter.AA_SendMessage(p, 1, msg.c_str());
+                        return SPELL_FAILED_UNKNOWN;
+                    }
                 }
             }
         }
