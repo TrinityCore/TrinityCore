@@ -66,16 +66,23 @@ class TC_GAME_API Weather
 {
     public:
 
-        Weather(uint32 zoneId, WeatherData const* weatherChances);
+        // @tswow-begin map parameter
+        Weather(Map* map, uint32 zoneId, WeatherData const* weatherChances);
+        // @tswow-end
         ~Weather() { };
 
         bool Update(uint32 diff);
         bool ReGenerate();
-        bool UpdateWeather();
+        // @tswow-begin triggerScripts parameter
+        bool UpdateWeather(bool triggerScripts = true);
+        // @tswow-end
 
         void SendWeatherUpdateToPlayer(Player* player);
         static void SendFineWeatherUpdateToPlayer(Player* player);
-        void SetWeather(WeatherType type, float intensity);
+
+        // @tswow-begin triggerScripts parameter
+        void SetWeather(WeatherType type, float intensity, bool triggerScripts = true);
+        // @tswow-end
 
         /// For which zone is this weather?
         uint32 GetZone() const { return m_zone; };
@@ -89,5 +96,10 @@ class TC_GAME_API Weather
         float m_intensity;
         IntervalTimer m_timer;
         WeatherData const* m_weatherChances;
+
+        // @tswow-begin
+        Map* m_map;
+        friend class TSWeather;
+        // @tswow-end
 };
 #endif
