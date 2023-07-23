@@ -591,13 +591,13 @@ class spell_pri_epiphany : public AuraScript
         return roll_chance_i(aurEff->GetAmount());
     }
 
-    void HandleOnProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         Unit* caster = GetTarget();
 
         caster->GetSpellHistory()->ResetCooldown(SPELL_PRIEST_PRAYER_OF_MENDING, true);
 
-        caster->CastSpell(caster, SPELL_PRIEST_EPIPHANY_PRAYER_OF_MENDING_RESET, TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        caster->CastSpell(caster, SPELL_PRIEST_EPIPHANY_PRAYER_OF_MENDING_RESET, aurEff);
     }
 
     void Register() override
