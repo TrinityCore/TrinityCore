@@ -986,7 +986,6 @@ class spell_dru_rejuvenation_germination : public AuraScript
     void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* caster = GetCaster();
-        Unit* target = GetTarget();
         if (!caster)
             return;
 
