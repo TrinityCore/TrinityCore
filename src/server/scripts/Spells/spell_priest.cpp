@@ -2286,6 +2286,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_halo_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
     RegisterSpellScript(spell_pri_holy_words);
+    RegisterSpellScript(spell_pri_inescapable_torment);
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
