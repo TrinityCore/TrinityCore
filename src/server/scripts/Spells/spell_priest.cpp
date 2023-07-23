@@ -327,7 +327,7 @@ public:
     }
 };
 
-// 195178 - Atonement (Passive) 
+// 195178 - Atonement (Passive)
 class spell_pri_atonement_passive : public AuraScript
 {
     PrepareAuraScript(spell_pri_atonement_passive);
