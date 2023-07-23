@@ -1051,9 +1051,13 @@ class spell_pri_power_leech_passive : public AuraScript
             return;
 
         if (summoner->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_SHADOW)
-            target->CastSpell(summoner, target->GetEntry() == PET_PRIEST_SHADOWFIEND ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY : SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY, CastSpellExtraArgs(aurEff));
+            spellInfo = sSpellMgr->AssertSpellInfo(target->GetEntry() == PET_PRIEST_SHADOWFIEND ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY : SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY, GetCastDifficulty());
         else
-            target->CastSpell(summoner, target->GetEntry() == PET_PRIEST_SHADOWFIEND ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA : SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA, CastSpellExtraArgs(aurEff));
+            spellInfo = sSpellMgr->AssertSpellInfo(target->GetEntry() == PET_PRIEST_SHADOWFIEND ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA : SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA, GetCastDifficulty());
+
+        // Note: divisor is 100 for SPELL_EFFECT_ENERGIZE since their BasePoints are > 100 and 10 for SPELL_EFFECT_ENERGIZE_PCT since their BasePoints are < 100.
+        target->CastSpell(summoner, spellInfo->Id, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_BASE_POINT0,
+            spellInfo->GetEffect(EFFECT_0).CalcValue() / spellInfo->HasEffect(SPELL_EFFECT_ENERGIZE) ? 100 : 10));
     }
 
     void Register() override
@@ -1061,6 +1065,9 @@ class spell_pri_power_leech_passive : public AuraScript
         DoCheckProc += AuraCheckProcFn(spell_pri_power_leech_passive::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pri_power_leech_passive::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
+
+private:
+    SpellInfo const* spellInfo;
 };
 
 // 198069 - Power of the Dark Side
