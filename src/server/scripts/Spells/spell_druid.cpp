@@ -55,6 +55,8 @@ enum DruidSpells
     SPELL_DRUID_ECLIPSE_OOC                    = 329910,
     SPELL_DRUID_ECLIPSE_SOLAR_AURA             = 48517,
     SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT        = 326053,
+    SPELL_DRUID_EFFLORESCENCE                  = 145205,
+    SPELL_DRUID_EFFLORESCENCE_HEAL             = 81269,
     SPELL_DRUID_ENTANGLING_ROOTS               = 339,
     SPELL_DRUID_EXHILARATE                     = 28742,
     SPELL_DRUID_FORM_AQUATIC_PASSIVE           = 276012,
@@ -92,6 +94,8 @@ enum DruidSpells
     SPELL_DRUID_SHOOTING_STARS_DAMAGE          = 202497,
     SPELL_DRUID_SKULL_BASH_CHARGE              = 221514,
     SPELL_DRUID_SKULL_BASH_INTERRUPT           = 93985,
+    SPELL_DRUID_SPRING_BLOSSOMS                = 207385,
+    SPELL_DRUID_SPRING_BLOSSOMS_HEAL           = 207386,
     SPELL_DRUID_SUNFIRE_DAMAGE                 = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS             = 50322,
     SPELL_DRUID_TRAVEL_FORM                    = 783,
@@ -456,6 +460,75 @@ class spell_dru_eclipse_ooc : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_eclipse_ooc::Tick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 145205 - Efflorescence
+class spell_dru_efflorescence : public SpellScript
+{
+    PrepareSpellScript(spell_dru_efflorescence);
+
+    void HandleSummonAreaTrigger(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        // Note: if caster has any Efflorescence areatrigger, we remove it.
+        if (AreaTrigger* efflorescenceAT = caster->GetAreaTrigger(SPELL_DRUID_EFFLORESCENCE))
+            efflorescenceAT->Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dru_efflorescence::HandleSummonAreaTrigger, EFFECT_2, SPELL_EFFECT_CREATE_AREATRIGGER);
+    }
+};
+
+// 81262 - Efflorescence (Dummy)
+class spell_dru_efflorescence_dummy : public AuraScript
+{
+    PrepareAuraScript(spell_dru_efflorescence_dummy);
+
+    void HandlePeriodicDummy(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();
+        Unit* summoner = target->GetOwner();
+        if (!summoner)
+            return;
+
+        summoner->CastSpell(target, SPELL_DRUID_EFFLORESCENCE_HEAL, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_efflorescence_dummy::HandlePeriodicDummy, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 81269 - Efflorescence (Heal)
+class spell_dru_efflorescence_heal : public SpellScript
+{
+    PrepareSpellScript(spell_dru_efflorescence_heal);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        // Note: Efflorescence became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
+        Trinity::SelectRandomInjuredTargets(targets, GetSpellInfo()->MaxAffectedTargets, true);
+    }
+
+    void HandleOnHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        // Note: Spirit Blossoms talent.
+        if (caster->HasAura(SPELL_DRUID_SPRING_BLOSSOMS))
+            caster->CastSpell(target, SPELL_DRUID_SPRING_BLOSSOMS_HEAL, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_efflorescence_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_efflorescence_heal::HandleOnHit, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 
@@ -1782,6 +1855,9 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_eclipse_aura);
     RegisterSpellScript(spell_dru_eclipse_dummy);
     RegisterSpellScript(spell_dru_eclipse_ooc);
+    RegisterSpellScript(spell_dru_efflorescence);
+    RegisterSpellScript(spell_dru_efflorescence_dummy);
+    RegisterSpellScript(spell_dru_efflorescence_heal);
     RegisterSpellAndAuraScriptPair(spell_dru_entangling_roots, spell_dru_entangling_roots_aura);
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_forms_trinket);
