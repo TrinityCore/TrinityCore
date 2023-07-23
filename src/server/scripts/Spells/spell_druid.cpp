@@ -33,6 +33,8 @@
 
 enum DruidSpells
 {
+    SPELL_DRUID_ABUNDANCE                      = 207383,
+    SPELL_DRUID_ABUNDANCE_EFFECT               = 207640,
     SPELL_DRUID_BALANCE_T10_BONUS              = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC         = 70721,
     SPELL_DRUID_BEAR_FORM                      = 5487,
@@ -47,6 +49,8 @@ enum DruidSpells
     SPELL_DRUID_BRAMBLES_REFLECT               = 203958,
     SPELL_DRUID_BRISTLING_FUR_GAIN_RAGE        = 204031,
     SPELL_DRUID_CAT_FORM                       = 768,
+    SPELL_DRUID_CULTIVATION                    = 200390,
+    SPELL_DRUID_CULTIVATION_HEAL               = 200389,
     SPELL_DRUID_CURIOUS_BRAMBLEPATCH           = 330670,
     SPELL_DRUID_EARTHWARDEN_AURA               = 203975,
     SPELL_DRUID_ECLIPSE_DUMMY                  = 79577,
@@ -945,6 +949,59 @@ protected:
     bool ToCatForm() const override { return true; }
 };
 
+// 774 - Rejuvenation
+// 155777 - Rejuventation (Germination)
+class spell_dru_rejuvenation_germination : public AuraScript
+{
+    PrepareAuraScript(spell_dru_rejuvenation_germination);
+
+    void HandleOnApplyOrReapply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->HasAura(SPELL_DRUID_ABUNDANCE))
+            return;
+
+        // Note: caster only casts Abundance when first applied on the target, otherwise that given stack is refreshed.
+        if (mode == AURA_EFFECT_HANDLE_REAL)
+            caster->CastSpell(caster, SPELL_DRUID_ABUNDANCE_EFFECT, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        else if (Aura* abundanceAura = caster->GetAura(SPELL_DRUID_ABUNDANCE_EFFECT))
+            abundanceAura->RefreshDuration();
+    }
+
+    void HandleOnTick(AuraEffect const* p_AurEff)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+        if (!caster)
+            return;
+
+        // Note: Cultivation talent.
+        if (AuraEffect* cultivationEffect = caster->GetAuraEffect(SPELL_DRUID_CULTIVATION, EFFECT_0))
+        {
+            if (target->GetHealthPct() < cultivationEffect->GetAmount())
+                caster->CastSpell(target, SPELL_DRUID_CULTIVATION_HEAL, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        }
+    }
+
+    void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+        if (!caster)
+            return;
+
+        if (Aura* abundanceEffect = caster->GetAura(SPELL_DRUID_ABUNDANCE_EFFECT))
+            abundanceEffect->SetStackAmount(abundanceEffect->GetStackAmount() - 1);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_rejuvenation_germination::HandleOnApplyOrReapply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_rejuvenation_germination::HandleOnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_rejuvenation_germination::HandleOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 1079 - Rip
 class spell_dru_rip : public AuraScript
 {
@@ -1731,6 +1788,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_moonfire);
     RegisterSpellScript(spell_dru_omen_of_clarity);
     RegisterSpellScript(spell_dru_prowl);
+    RegisterSpellScript(spell_dru_rejuvenation_germination);
     RegisterSpellScript(spell_dru_rip);
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_aura);
     RegisterSpellScript(spell_dru_shooting_stars);
