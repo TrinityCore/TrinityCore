@@ -1656,38 +1656,24 @@ class spell_dru_wild_growth : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } }) || spellInfo->GetEffect(EFFECT_2).IsEffect() || spellInfo->GetEffect(EFFECT_2).CalcValue() <= 0)
+        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) || spellInfo->GetEffect(EFFECT_1).IsEffect())
             return false;
+
         return true;
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(RaidCheck(GetCaster()));
+        uint32 const maxTargets = uint32(GetEffectInfo(EFFECT_1).CalcValue(GetCaster()));
 
-        uint32 const maxTargets = uint32(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
-
-        if (targets.size() > maxTargets)
-        {
-            targets.sort(Trinity::HealthPctOrderPred());
-            targets.resize(maxTargets);
-        }
-
-        _targets = targets;
-    }
-
-    void SetTargets(std::list<WorldObject*>& targets)
-    {
-        targets = _targets;
+        // Note: Wild Growth became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
     }
 
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth::SetTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
     }
-
-    std::list<WorldObject*> _targets;
 };
 
 class spell_dru_wild_growth_aura : public AuraScript
