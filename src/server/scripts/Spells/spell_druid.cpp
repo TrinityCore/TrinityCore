@@ -59,6 +59,7 @@ enum DruidSpells
     SPELL_DRUID_ECLIPSE_OOC                    = 329910,
     SPELL_DRUID_ECLIPSE_SOLAR_AURA             = 48517,
     SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT        = 326053,
+    SPELL_DRUID_EFFLORESCENCE                  = 145205,
     SPELL_DRUID_ENTANGLING_ROOTS               = 339,
     SPELL_DRUID_EXHILARATE                     = 28742,
     SPELL_DRUID_FORM_AQUATIC_PASSIVE           = 276012,
@@ -90,6 +91,8 @@ enum DruidSpells
     SPELL_DRUID_MANGLE                         = 33917,
     SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
+    SPELL_DRUID_PHOTOSYNTHESIS                 = 274902,
+    SPELL_DRUID_PHOTOSYNTHESIS_EFFECT          = 274906,
     SPELL_DRUID_PROWL                          = 5215,
     SPELL_DRUID_REJUVENATION_T10_PROC          = 70691,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS       = 70658,
@@ -105,6 +108,8 @@ enum DruidSpells
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
     SPELL_DRUID_THRASH_CAT                     = 106830,
+    SPELL_DRUID_VERDANCY                       = 392325,
+    SPELL_DRUID_VERDANCY_HEAL                  = 392329,
     SPELL_DRUID_YSERAS_GIFT_HEAL_PARTY         = 145110,
     SPELL_DRUID_YSERAS_GIFT_HEAL_SELF          = 145109
 };
@@ -923,23 +928,115 @@ class spell_dru_item_t6_trinket : public AuraScript
 };
 
 // 33763 - Lifebloom
+// 188550 - Lifebloom (Undergrowth)
 class spell_dru_lifebloom : public AuraScript
 {
     bool Validate(SpellInfo const* /*spell*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_LIFEBLOOM_FINAL_HEAL });
+        return ValidateSpellInfo({ SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, SPELL_DRUID_PHOTOSYNTHESIS_EFFECT })
+            && ValidateSpellEffect({ { SPELL_DRUID_PHOTOSYNTHESIS, EFFECT_0 }, { SPELL_DRUID_PHOTOSYNTHESIS, EFFECT_1 } });
     }
 
-    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleOnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        // Final heal only on duration end
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+        if (!caster)
+            return;
+
+        // Note: Photosynthesis talent.
+        if (Aura* photosynthesisAura = caster->GetAura(SPELL_DRUID_PHOTOSYNTHESIS))
+        {
+            if (target == caster)
+                caster->CastSpell(caster, SPELL_DRUID_PHOTOSYNTHESIS_EFFECT, CastSpellExtraArgs(aurEff).AddSpellBP0(photosynthesisAura->GetEffect(EFFECT_0)->GetAmount()));
+        }
+    }
+
+    void HandleOnTick(AuraEffect const* aurEff)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+        if (!caster)
+            return;
+
+        // Note: Photosynthesis talent.
+        if (Aura* photosynthesisAura = caster->GetAura(SPELL_DRUID_PHOTOSYNTHESIS))
+        {
+            if (target != caster)
+            {
+                if (roll_chance_i(photosynthesisAura->GetEffect(EFFECT_1)->GetAmount()))
+                    caster->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff));
+            }   
+        }
+    }
+
+    void HandleAfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+        if (!caster)
+            return;
+
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
-            GetCaster()->CastSpell(GetUnitOwner(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, true);
+            caster->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff));
+
+        // Note: Photosynthesis talent.
+        if (Aura* photosynthesisAura = caster->GetAura(SPELL_DRUID_PHOTOSYNTHESIS))
+        {
+            if (target == caster)
+                caster->RemoveAura(SPELL_DRUID_PHOTOSYNTHESIS_EFFECT);
+        }
     }
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_dru_lifebloom::HandleOnApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_lifebloom::HandleOnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom::HandleAfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 33778 - Lifebloom (Heal)
+class spell_dru_lifebloom_heal : public SpellScript
+{
+    PrepareSpellScript(spell_dru_lifebloom_heal);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_EFFLORESCENCE })
+            && ValidateSpellEffect({ { SPELL_DRUID_VERDANCY, EFFECT_0 } });
+    }
+
+    void HandleOnHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        // Note: Verdancy talent.
+        if (AuraEffect* verdancyEffect = caster->GetAuraEffect(SPELL_DRUID_VERDANCY, EFFECT_0))
+        {
+            if (AreaTrigger* efflorescenceAT = caster->GetAreaTrigger(SPELL_DRUID_EFFLORESCENCE))
+            {
+                // Note: max. radius is the Efflorescence's radius.
+                float areatriggerRadius = efflorescenceAT->GetCreateProperties()->GetMaxSearchRadius();
+
+                std::list<Unit*> targetList;
+                Trinity::AnyFriendlyUnitInObjectRangeCheck checker(efflorescenceAT, caster, areatriggerRadius);
+                Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(efflorescenceAT, targetList, checker);
+                Cell::VisitAllObjects(efflorescenceAT, searcher, areatriggerRadius);
+
+                if (targetList.size() > verdancyEffect->GetAmount())
+                    targetList.resize(verdancyEffect->GetAmount());
+
+                for (Unit* chosenTarget : targetList)
+                    caster->CastSpell(chosenTarget, SPELL_DRUID_VERDANCY_HEAL, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_lifebloom_heal::HandleOnHit, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 
@@ -1799,6 +1896,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_innervate);
     RegisterSpellScript(spell_dru_item_t6_trinket);
     RegisterSpellScript(spell_dru_lifebloom);
+    RegisterSpellScript(spell_dru_lifebloom_heal);
     RegisterSpellScript(spell_dru_lunar_inspiration);
     RegisterSpellScript(spell_dru_moonfire);
     RegisterSpellScript(spell_dru_omen_of_clarity);
