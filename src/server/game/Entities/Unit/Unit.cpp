@@ -5918,6 +5918,19 @@ Guardian* Unit::GetGuardianPet() const
     return nullptr;
 }
 
+Optional<ObjectGuid> Unit::GetSummonGUID(uint32 entry)
+{
+    for (Unit* summon : this->m_Controlled)
+    {
+        if (summon->GetEntry() != entry)
+            continue;
+
+        return summon->GetGUID();
+    }
+
+    return std::nullopt;
+}
+
 void Unit::SetMinion(Minion *minion, bool apply)
 {
     TC_LOG_DEBUG("entities.unit", "SetMinion {} for {}, apply {}", minion->GetEntry(), GetEntry(), apply);

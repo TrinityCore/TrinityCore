@@ -83,12 +83,16 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_WORD_SANCTIFY                 = 34861,
     SPELL_PRIEST_HOLY_WORD_SERENITY                 = 2050,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER     = 411097,
+    SPELL_PRIEST_INESCAPABLE_TORMENT                = 373427,
+    SPELL_PRIEST_INESCAPABLE_TORMENT_EFFECT         = 373441,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
     SPELL_PRIEST_MASOCHISM_TALENT                   = 193063,
     SPELL_PRIEST_MASOCHISM_PERIODIC_HEAL            = 193065,
     SPELL_PRIEST_MASTERY_GRACE                      = 271534,
+    SPELL_PRIEST_MINDBENDER_DISC                    = 123040,
+    SPELL_PRIEST_MINDBENDER_SHADOW                  = 200174,
     SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
     SPELL_PRIEST_PENANCE                            = 47540,
@@ -807,6 +811,69 @@ class spell_pri_holy_words : public AuraScript
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_holy_words::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
+};
+
+// 373427 - Inescapable Torment
+// Called by Mind Blast - 8092, Shadow Word: Death - 32379
+class spell_pri_inescapable_torment : public SpellScript
+{
+    PrepareSpellScript(spell_pri_inescapable_torment);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_INESCAPABLE_TORMENT,
+            SPELL_PRIEST_INESCAPABLE_TORMENT_EFFECT,
+            SPELL_PRIEST_MINDBENDER_SHADOW,
+            SPELL_PRIEST_MINDBENDER_DISC
+        })
+            && ValidateSpellEffect({ { SPELL_PRIEST_INESCAPABLE_TORMENT, EFFECT_1 } });
+    }
+
+    void HandleOnHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (!caster->IsPlayer() || !caster->HasAura(SPELL_PRIEST_INESCAPABLE_TORMENT))
+            return;
+
+        Optional<ObjectGuid> mindbenderGUID = caster->GetSummonGUID(PET_PRIEST_MINDBENDER);
+        if (mindbenderGUID.has_value())
+        {
+            Unit* mindbender = ObjectAccessor::GetUnit(*caster, *mindbenderGUID);
+            if (!mindbender)
+                return;
+
+            mindbender->CastSpell(target, SPELL_PRIEST_INESCAPABLE_TORMENT_EFFECT, TRIGGERED_FULL_MASK);
+
+            if (caster->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_SHADOW)
+                mindbenderSummon = caster->GetAura(SPELL_PRIEST_MINDBENDER_SHADOW);
+            else
+                mindbenderSummon = caster->GetAura(SPELL_PRIEST_MINDBENDER_DISC);
+
+            // Note: Mindbender's duration increases by SPELL_PRIEST_INESCAPABLE_TORMENT's (EFFECT_1)ms.
+            if (mindbenderSummon)
+            {
+                spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_INESCAPABLE_TORMENT, GetCastDifficulty());
+
+                Milliseconds extraDuration = Seconds(spellInfo->GetEffect(EFFECT_1).CalcValue());
+
+                mindbenderSummon->SetDuration(mindbenderSummon->GetDuration() + extraDuration.count());
+                mindbenderSummon->SetMaxDuration(mindbenderSummon->GetMaxDuration() + extraDuration.count());
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_inescapable_torment::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+private:
+    Aura* mindbenderSummon;
+    SpellInfo const* spellInfo;
 };
 
 // 40438 - Priest Tier 6 Trinket
