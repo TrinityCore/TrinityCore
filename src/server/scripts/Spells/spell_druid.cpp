@@ -21,6 +21,7 @@
  * Scriptnames of files in this file should be prefixed with "spell_dru_".
  */
 
+#include "AreaTrigger.h"
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "DB2Stores.h"
