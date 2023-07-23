@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "DB2Stores.h"
+#include "GridNotifiers.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
