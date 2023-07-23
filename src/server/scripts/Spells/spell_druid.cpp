@@ -898,7 +898,7 @@ class spell_dru_lifebloom : public AuraScript
             {
                 if (roll_chance_i(photosynthesisAura->GetEffect(EFFECT_1)->GetAmount()))
                     caster->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff));
-            }   
+            }
         }
     }
 
