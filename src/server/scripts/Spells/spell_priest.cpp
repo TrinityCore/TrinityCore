@@ -1070,7 +1070,7 @@ class spell_pri_power_leech_passive : public AuraScript
 
         // Note: divisor is 100 for SPELL_EFFECT_ENERGIZE since their BasePoints are > 100 and 10 for SPELL_EFFECT_ENERGIZE_PCT since their BasePoints are < 100.
         target->CastSpell(summoner, spellInfo->Id, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_BASE_POINT0,
-            spellInfo->GetEffect(EFFECT_0).CalcValue() / spellInfo->HasEffect(SPELL_EFFECT_ENERGIZE) ? 100 : 10));
+            spellInfo->GetEffect(EFFECT_0).CalcValue() / uint32(spellInfo->HasEffect(SPELL_EFFECT_ENERGIZE) ? 100 : 10)));
 
         // Note: Essence Devourer talent.
         if (summoner->HasAura(SPELL_PRIEST_ESSENCE_DEVOURER))
