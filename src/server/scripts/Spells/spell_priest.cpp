@@ -93,6 +93,10 @@ enum PriestSpells
     SPELL_PRIEST_PENANCE_CHANNEL_HEALING            = 47757,
     SPELL_PRIEST_PENANCE_DAMAGE                     = 47666,
     SPELL_PRIEST_PENANCE_HEALING                    = 47750,
+    SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA       = 343727,
+    SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY   = 262485,
+    SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA        = 123051,
+    SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY    = 200010,
     SPELL_PRIEST_POWER_OF_THE_DARK_SIDE             = 198069,
     SPELL_PRIEST_POWER_OF_THE_DARK_SIDE_TINT        = 225795,
     SPELL_PRIEST_POWER_WORD_SHIELD                  = 17,
@@ -128,6 +132,12 @@ enum PriestSpells
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788
+};
+
+enum PriestPets
+{
+    PET_PRIEST_SHADOWFIEND                          = 19668,
+    PET_PRIEST_MINDBENDER                           = 62982
 };
 
 enum MiscSpells
@@ -1008,6 +1018,48 @@ class spell_pri_penance_or_dark_reprimand_channeled : public AuraScript
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_pri_penance_or_dark_reprimand_channeled::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 262484 - Power Leech (Passive for Shadowfiend)
+// 284621 - Power Leech (Passive for Mindbender)
+class spell_pri_power_leech_passive : public AuraScript
+{
+    PrepareAuraScript(spell_pri_power_leech_passive);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY,
+            SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA,
+            SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY,
+            SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA
+        });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetDamageInfo() != nullptr;
+    }
+
+    void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* target = GetTarget();
+        Unit* summoner = target->GetOwner();
+        if (!summoner || !summoner->IsPlayer())
+            return;
+
+        if (summoner->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_SHADOW)
+            target->CastSpell(summoner, target->GetEntry() == PET_PRIEST_SHADOWFIEND ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY : SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY, CastSpellExtraArgs(aurEff));
+        else
+            target->CastSpell(summoner, target->GetEntry() == PET_PRIEST_SHADOWFIEND ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA : SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA, CastSpellExtraArgs(aurEff));
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_power_leech_passive::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_power_leech_passive::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2151,6 +2203,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance", SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING);
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_dark_reprimand", SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE, SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING);
     RegisterSpellScript(spell_pri_penance_or_dark_reprimand_channeled);
+    RegisterSpellScript(spell_pri_power_leech_passive);
     RegisterSpellScript(spell_pri_power_of_the_dark_side);
     RegisterSpellScript(spell_pri_power_of_the_dark_side_damage_bonus);
     RegisterSpellScript(spell_pri_power_of_the_dark_side_healing_bonus);
