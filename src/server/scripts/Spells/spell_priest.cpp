@@ -1043,7 +1043,7 @@ class spell_pri_power_leech_passive : public AuraScript
         return eventInfo.GetDamageInfo() != nullptr;
     }
 
-    void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         Unit* target = GetTarget();
         Unit* summoner = target->GetOwner();
