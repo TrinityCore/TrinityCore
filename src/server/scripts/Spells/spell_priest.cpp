@@ -388,15 +388,10 @@ class spell_pri_divine_hymn : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(RaidCheck(GetCaster()));
+        uint32 const maxTargets = uint32(GetSpellInfo()->MaxAffectedTargets);
 
-        uint32 const maxTargets = 3;
-
-        if (targets.size() > maxTargets)
-        {
-            targets.sort(Trinity::HealthPctOrderPred());
-            targets.resize(maxTargets);
-        }
+        // Note: Divine Hymn became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
     }
 
     void Register() override
