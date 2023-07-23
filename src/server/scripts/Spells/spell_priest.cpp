@@ -65,6 +65,9 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL            = 390981,
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
     SPELL_PRIEST_EMPOWERED_RENEW_HEAL               = 391359,
+    SPELL_PRIEST_ESSENCE_DEVOURER                   = 415479,
+    SPELL_PRIEST_ESSENCE_DEVOURER_SHADOWFIEND_HEAL  = 415673,
+    SPELL_PRIEST_ESSENCE_DEVOURER_MINDBENDER_HEAL   = 415676,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
     SPELL_PRIEST_FOCUSED_MENDING                    = 372354,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
@@ -1034,7 +1037,17 @@ class spell_pri_power_leech_passive : public AuraScript
             SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY,
             SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA,
             SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY,
-            SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA
+            SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA,
+            SPELL_PRIEST_ESSENCE_DEVOURER,
+            SPELL_PRIEST_ESSENCE_DEVOURER_SHADOWFIEND_HEAL,
+            SPELL_PRIEST_ESSENCE_DEVOURER_MINDBENDER_HEAL
+        })
+            && ValidateSpellEffect
+        ({
+            { SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY, EFFECT_0 },
+            { SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA, EFFECT_0 },
+            { SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY, EFFECT_0 },
+            { SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA, EFFECT_0 }
         });
     }
 
@@ -1058,6 +1071,10 @@ class spell_pri_power_leech_passive : public AuraScript
         // Note: divisor is 100 for SPELL_EFFECT_ENERGIZE since their BasePoints are > 100 and 10 for SPELL_EFFECT_ENERGIZE_PCT since their BasePoints are < 100.
         target->CastSpell(summoner, spellInfo->Id, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_BASE_POINT0,
             spellInfo->GetEffect(EFFECT_0).CalcValue() / spellInfo->HasEffect(SPELL_EFFECT_ENERGIZE) ? 100 : 10));
+
+        // Note: Essence Devourer talent.
+        if (summoner->HasAura(SPELL_PRIEST_ESSENCE_DEVOURER))
+            summoner->CastSpell(nullptr, target->GetEntry() == PET_PRIEST_SHADOWFIEND ? SPELL_PRIEST_ESSENCE_DEVOURER_SHADOWFIEND_HEAL : SPELL_PRIEST_ESSENCE_DEVOURER_MINDBENDER_HEAL, CastSpellExtraArgs(aurEff));
     }
 
     void Register() override
