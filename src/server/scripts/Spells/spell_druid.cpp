@@ -968,7 +968,7 @@ class spell_dru_rejuvenation_germination : public AuraScript
             abundanceAura->RefreshDuration();
     }
 
-    void HandleOnTick(AuraEffect const* p_AurEff)
+    void HandleOnTick(AuraEffect const* /*aurEff*/)
     {
         Unit* caster = GetCaster();
         Unit* target = GetTarget();
