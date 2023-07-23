@@ -68,6 +68,7 @@ enum DruidSpells
     SPELL_DRUID_FORMS_TRINKET_NONE             = 37344,
     SPELL_DRUID_FORMS_TRINKET_TREE             = 37342,
     SPELL_DRUID_GALACTIC_GUARDIAN_AURA         = 213708,
+    SPELL_DRUID_GERMINATION                    = 155675,
     SPELL_DRUID_GLYPH_OF_STARS                 = 114301,
     SPELL_DRUID_GLYPH_OF_STARS_VISUAL          = 114302,
     SPELL_DRUID_GORE_PROC                      = 93622,
@@ -85,6 +86,8 @@ enum DruidSpells
     SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
     SPELL_DRUID_PROWL                          = 5215,
+    SPELL_DRUID_REJUVENATION                   = 774,
+    SPELL_DRUID_REJUVENATION_GERMINATION       = 155777,
     SPELL_DRUID_REJUVENATION_T10_PROC          = 70691,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS       = 70658,
     SPELL_DRUID_SAVAGE_ROAR                    = 62071,
@@ -900,6 +903,47 @@ class spell_dru_lunar_inspiration : public AuraScript
     }
 };
 
+// 392315 - Luxuriant Soil
+class spell_dru_luxuriant_soil : public AuraScript
+{
+    PrepareAuraScript(spell_dru_luxuriant_soil);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_REJUVENATION, SPELL_DRUID_REJUVENATION_GERMINATION });
+    }
+
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        Unit* target = GetTarget();
+
+        // Note: let's use the ProcSpell's max. range.
+        float spellRange = eventInfo.GetProcSpell()->GetSpellInfo()->GetMaxRange();
+
+        std::list<Unit*> targetList;
+        Trinity::AnyFriendlyUnitInObjectRangeCheck checker(target, target, spellRange);
+        Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(target, targetList, checker);
+        Cell::VisitAllObjects(target, searcher, spellRange);
+
+        if (targetList.empty())
+            return;
+
+        if (Unit* possibleTarget = Trinity::Containers::SelectRandomContainerElement(targetList))
+            target->CastSpell(possibleTarget, SPELL_DRUID_REJUVENATION, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_luxuriant_soil::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dru_luxuriant_soil::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 //  8921 - Moonfire
 class spell_dru_moonfire : public SpellScript
 {
@@ -985,6 +1029,53 @@ class spell_dru_rip : public AuraScript
     void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+// 774 - Rejuvenation
+class spell_dru_rejuvenation : public SpellScript
+{
+    PrepareSpellScript(spell_dru_rejuvenation);
+
+    SpellCastResult CheckTarget()
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetExplTargetUnit();
+        if (!target || !target->IsFriendlyTo(caster))
+            target = caster;
+
+        // Note: Germination talent.
+        if (caster->HasAura(SPELL_DRUID_GERMINATION))
+        {
+            Aura* rejuvenationAura = target->GetAura(SPELL_DRUID_REJUVENATION, caster->GetGUID());
+            Aura* germinationAura = target->GetAura(SPELL_DRUID_REJUVENATION_GERMINATION, caster->GetGUID());
+
+            if (!rejuvenationAura)
+                return SPELL_CAST_OK;
+
+            if (!germinationAura)
+                caster->CastSpell(target, SPELL_DRUID_REJUVENATION_GERMINATION);
+            else
+            {
+                if (germinationAura && rejuvenationAura)
+                {
+                    int32 germinationDuration = germinationAura->GetDuration();
+                    int32 rejuvenationDuration = rejuvenationAura->GetDuration();
+
+                    if (germinationDuration > rejuvenationDuration)
+                        rejuvenationAura->RefreshDuration();
+                    else
+                        caster->CastSpell(target, SPELL_DRUID_REJUVENATION_GERMINATION);
+                }
+            }
+        }
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_dru_rejuvenation::CheckTarget);
     }
 };
 
@@ -1793,9 +1884,11 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_item_t6_trinket);
     RegisterSpellScript(spell_dru_lifebloom);
     RegisterSpellScript(spell_dru_lunar_inspiration);
+    RegisterSpellScript(spell_dru_luxuriant_soil);
     RegisterSpellScript(spell_dru_moonfire);
     RegisterSpellScript(spell_dru_omen_of_clarity);
     RegisterSpellScript(spell_dru_prowl);
+    RegisterSpellScript(spell_dru_rejuvenation);
     RegisterSpellScript(spell_dru_rip);
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_aura);
     RegisterSpellScript(spell_dru_shooting_stars);
