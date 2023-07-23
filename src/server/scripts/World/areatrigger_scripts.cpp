@@ -407,6 +407,88 @@ struct areatrigger_stormwind_teleport_unit : AreaTriggerAI
     }
 };
 
+enum BattlegroundBuffEntries
+{
+    GAMEOBJECT_BERSERK_BUFF_1       = 180380,
+    GAMEOBJECT_BERSERK_BUFF_2       = 184966,
+    GAMEOBJECT_BERSERK_BUFF_3       = 180376,
+    GAMEOBJECT_BERSERK_BUFF_4       = 179905,
+    GAMEOBJECT_BERSERK_BUFF_5       = 184972,
+    GAMEOBJECT_BERSERK_BUFF_6       = 179907,
+    GAMEOBJECT_BERSERK_BUFF_7       = 180378,
+    GAMEOBJECT_BERSERK_BUFF_8       = 184975,
+    GAMEOBJECT_BERSERK_BUFF_9       = 184978,
+    GAMEOBJECT_BERSERK_BUFF_10      = 180382,
+    GAMEOBJECT_BERSERK_BUFF_11      = 180148,
+    GAMEOBJECT_FOOD_BUFF_1          = 179904,
+    GAMEOBJECT_FOOD_BUFF_2          = 179906,
+    GAMEOBJECT_FOOD_BUFF_3          = 180144,
+    GAMEOBJECT_FOOD_BUFF_4          = 180145,
+    GAMEOBJECT_FOOD_BUFF_5          = 180362,
+    GAMEOBJECT_FOOD_BUFF_6          = 180377,
+    GAMEOBJECT_FOOD_BUFF_7          = 180383,
+    GAMEOBJECT_RESTORATION_BUFF_1   = 184965,
+    GAMEOBJECT_RESTORATION_BUFF_2   = 184971,
+    GAMEOBJECT_RESTORATION_BUFF_3   = 184974,
+    GAMEOBJECT_RESTORATION_BUFF_4   = 184977,
+    GAMEOBJECT_SPEED_BUFF_1         = 179899,
+    GAMEOBJECT_SPEED_BUFF_2         = 180146,
+    GAMEOBJECT_SPEED_BUFF_3         = 180147,
+    GAMEOBJECT_SPEED_BUFF_4         = 180379,
+    GAMEOBJECT_SPEED_BUFF_5         = 184964,
+    GAMEOBJECT_SPEED_BUFF_6         = 180381,
+    GAMEOBJECT_SPEED_BUFF_7         = 184970,
+    GAMEOBJECT_SPEED_BUFF_8         = 184973,
+    GAMEOBJECT_SPEED_BUFF_9         = 180384,
+    GAMEOBJECT_SPEED_BUFF_10        = 184976,
+    GAMEOBJECT_SPEED_BUFF_11        = 179871
+};
+
+std::unordered_set<uint32> const BUFF_ENTRIES =
+{
+    GAMEOBJECT_BERSERK_BUFF_1, GAMEOBJECT_BERSERK_BUFF_2, GAMEOBJECT_BERSERK_BUFF_3, GAMEOBJECT_BERSERK_BUFF_4, GAMEOBJECT_BERSERK_BUFF_5,
+    GAMEOBJECT_BERSERK_BUFF_6, GAMEOBJECT_BERSERK_BUFF_7, GAMEOBJECT_BERSERK_BUFF_8, GAMEOBJECT_BERSERK_BUFF_9, GAMEOBJECT_BERSERK_BUFF_10,
+    GAMEOBJECT_BERSERK_BUFF_11, GAMEOBJECT_FOOD_BUFF_1, GAMEOBJECT_FOOD_BUFF_2, GAMEOBJECT_FOOD_BUFF_3, GAMEOBJECT_FOOD_BUFF_4,
+    GAMEOBJECT_FOOD_BUFF_5, GAMEOBJECT_FOOD_BUFF_6, GAMEOBJECT_FOOD_BUFF_7, GAMEOBJECT_RESTORATION_BUFF_1, GAMEOBJECT_RESTORATION_BUFF_2,
+    GAMEOBJECT_RESTORATION_BUFF_3, GAMEOBJECT_RESTORATION_BUFF_4, GAMEOBJECT_SPEED_BUFF_1, GAMEOBJECT_SPEED_BUFF_2, GAMEOBJECT_SPEED_BUFF_3,
+    GAMEOBJECT_SPEED_BUFF_4, GAMEOBJECT_SPEED_BUFF_5, GAMEOBJECT_SPEED_BUFF_6, GAMEOBJECT_SPEED_BUFF_7, GAMEOBJECT_SPEED_BUFF_8, GAMEOBJECT_SPEED_BUFF_9,
+    GAMEOBJECT_SPEED_BUFF_10, GAMEOBJECT_SPEED_BUFF_11
+};
+
+void HandleBuffAreaTrigger(Player* player)
+{
+    if (GameObject* buffObject = player->FindNearestGameObject(BUFF_ENTRIES, 4.0f))
+    {
+        buffObject->ActivateObject(GameObjectActions::Disturb, 0, player);
+        buffObject->DespawnOrUnsummon();
+    }
+}
+
+struct areatrigger_battleground_buffs : AreaTriggerAI
+{
+    areatrigger_battleground_buffs(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsPlayer())
+            return;
+
+        HandleBuffAreaTrigger(unit->ToPlayer());
+    }
+};
+
+class AreaTrigger_at_battleground_buffs : public AreaTriggerScript
+{
+public:
+    AreaTrigger_at_battleground_buffs() : AreaTriggerScript("at_battleground_buffs") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        HandleBuffAreaTrigger(player);
+        return true;
+    }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -418,4 +500,6 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_area_52_entrance();
     new AreaTrigger_at_frostgrips_hollow();
     RegisterAreaTriggerAI(areatrigger_stormwind_teleport_unit);
+    new AreaTrigger_at_battleground_buffs();
+    RegisterAreaTriggerAI(areatrigger_battleground_buffs);
 }

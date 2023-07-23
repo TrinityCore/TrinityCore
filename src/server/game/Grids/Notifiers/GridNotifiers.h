@@ -788,6 +788,31 @@ namespace Trinity
             NearestGameObjectEntryInObjectRangeCheck(NearestGameObjectEntryInObjectRangeCheck const&) = delete;
     };
 
+    class NearestGameObjectEntriesInObjectRangeCheck
+    {
+    public:
+        NearestGameObjectEntriesInObjectRangeCheck(WorldObject const& obj, std::unordered_set<uint32> const& entries, float range, bool spawnedOnly = true) : i_obj(obj), i_entries(entries), i_range(range), i_spawnedOnly(spawnedOnly) { }
+
+        bool operator()(GameObject* go)
+        {
+            if ((!i_spawnedOnly || go->isSpawned()) && i_entries.contains(go->GetEntry()) && go->GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDist(go, i_range))
+            {
+                i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
+                return true;
+            }
+            return false;
+        }
+
+    private:
+        WorldObject const& i_obj;
+        std::unordered_set<uint32> const& i_entries;
+        float  i_range;
+        bool   i_spawnedOnly;
+
+        // prevent clone this object
+        NearestGameObjectEntriesInObjectRangeCheck(NearestGameObjectEntriesInObjectRangeCheck const&) = delete;
+    };
+
     // Success at unit in range, range update for next check (this can be use with GameobjectLastSearcher to find nearest unspawned GO)
     class NearestUnspawnedGameObjectEntryInObjectRangeCheck
     {
