@@ -17,74 +17,74 @@
 
 #include "SpellScript.h"
 #include "Log.h"
-#include "Spell.h"
 #include "ScriptMgr.h"
+#include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "StringConvert.h"
 #include "Unit.h"
-#include <sstream>
 #include <string>
 
-bool _SpellScript::_Validate(SpellInfo const* entry)
+bool SpellScriptBase::_Validate(SpellInfo const* entry)
 {
     if (!Validate(entry))
     {
-        TC_LOG_ERROR("scripts", "Spell `{}` did not pass Validate() function of script `{}` - script will be not added to the spell", entry->Id, m_scriptName->c_str());
+        TC_LOG_ERROR("scripts", "Spell `{}` did not pass Validate() function of script `{}` - script will be not added to the spell", entry->Id, m_scriptName);
         return false;
     }
     return true;
 }
 
-_SpellScript::_SpellScript(): m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptName(nullptr), m_scriptSpellId(0)
+SpellScriptBase::SpellScriptBase(): m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptSpellId(0)
 {
 }
 
-_SpellScript::~_SpellScript() = default;
+SpellScriptBase::~SpellScriptBase() = default;
 
-bool _SpellScript::_ValidateSpellInfo(uint32 spellId)
+bool SpellScriptBase::ValidateSpellInfoImpl(uint32 spellId)
 {
     if (!sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
     {
-        TC_LOG_ERROR("scripts.spells", "_SpellScript::ValidateSpellInfo: Spell {} does not exist.", spellId);
+        TC_LOG_ERROR("scripts.spells", "SpellScriptBase::ValidateSpellInfo: Spell {} does not exist.", spellId);
         return false;
     }
 
     return true;
 }
 
-bool _SpellScript::_ValidateSpellEffect(uint32 spellId, SpellEffIndex effectIndex)
+bool SpellScriptBase::ValidateSpellEffectImpl(uint32 spellId, SpellEffIndex effectIndex)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
     if (!spellInfo)
     {
-        TC_LOG_ERROR("scripts.spells", "_SpellScript::_ValidateSpellEffect: Spell {} does not exist.", spellId);
+        TC_LOG_ERROR("scripts.spells", "SpellScriptBase::ValidateSpellEffect: Spell {} does not exist.", spellId);
         return false;
     }
 
     if (spellInfo->GetEffects().size() <= effectIndex)
     {
-        TC_LOG_ERROR("scripts.spells", "_SpellScript::_ValidateSpellEffect: Spell {} does not have EFFECT_{}.", spellId, uint32(effectIndex));
+        TC_LOG_ERROR("scripts.spells", "SpellScriptBase::ValidateSpellEffect: Spell {} does not have EFFECT_{}.", spellId, uint32(effectIndex));
         return false;
     }
 
     return true;
 }
 
-void _SpellScript::_Register()
+void SpellScriptBase::_Register()
 {
     m_currentScriptState = SPELL_SCRIPT_STATE_REGISTRATION;
     Register();
     m_currentScriptState = SPELL_SCRIPT_STATE_NONE;
 }
 
-void _SpellScript::_Unload()
+void SpellScriptBase::_Unload()
 {
     m_currentScriptState = SPELL_SCRIPT_STATE_UNLOADING;
     Unload();
     m_currentScriptState = SPELL_SCRIPT_STATE_NONE;
 }
 
-void _SpellScript::_Init(std::string const* scriptname, uint32 spellId)
+void SpellScriptBase::_Init(std::string const& scriptname, uint32 spellId)
 {
     m_currentScriptState = SPELL_SCRIPT_STATE_NONE;
     m_scriptName = scriptname;
@@ -93,76 +93,70 @@ void _SpellScript::_Init(std::string const* scriptname, uint32 spellId)
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     // Acquire a strong reference to the binary code
     // to keep it loaded until all spells are destroyed.
-    m_moduleReference = sScriptMgr->AcquireModuleReferenceOfScriptName(*scriptname);
+    m_moduleReference = sScriptMgr->AcquireModuleReferenceOfScriptName(scriptname);
 #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 }
 
-std::string const* _SpellScript::_GetScriptName() const
+std::string_view SpellScriptBase::GetScriptName() const
 {
     return m_scriptName;
 }
 
-_SpellScript::EffectHook::EffectHook(uint8 _effIndex)
+SpellScriptBase::EffectHook::EffectHook(uint8 effIndex)
 {
     // effect index must be in range <0;2>, allow use of special effindexes
-    ASSERT(_effIndex == EFFECT_ALL || _effIndex == EFFECT_FIRST_FOUND || _effIndex < MAX_SPELL_EFFECTS);
-    effIndex = _effIndex;
+    ASSERT(effIndex == EFFECT_ALL || effIndex == EFFECT_FIRST_FOUND || effIndex < MAX_SPELL_EFFECTS);
+    _effIndex = effIndex;
 }
 
-_SpellScript::EffectHook::EffectHook(EffectHook&& right) noexcept = default;
-_SpellScript::EffectHook& _SpellScript::EffectHook::operator=(EffectHook&& right) noexcept = default;
-_SpellScript::EffectHook::~EffectHook() = default;
+SpellScriptBase::EffectHook::EffectHook(EffectHook&& right) noexcept = default;
+SpellScriptBase::EffectHook& SpellScriptBase::EffectHook::operator=(EffectHook&& right) noexcept = default;
+SpellScriptBase::EffectHook::~EffectHook() = default;
 
-uint32 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellInfo const* spellEntry) const
+uint32 SpellScriptBase::EffectHook::GetAffectedEffectsMask(SpellInfo const* spellInfo) const
 {
     uint32 mask = 0;
-    if ((effIndex == EFFECT_ALL) || (effIndex == EFFECT_FIRST_FOUND))
+    if (_effIndex == EFFECT_ALL || _effIndex == EFFECT_FIRST_FOUND)
     {
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if ((effIndex == EFFECT_FIRST_FOUND) && mask)
+            if (_effIndex == EFFECT_FIRST_FOUND && mask)
                 return mask;
-            if (CheckEffect(spellEntry, i))
+            if (CheckEffect(spellInfo, i))
                 mask |= 1 << i;
         }
     }
     else
     {
-        if (CheckEffect(spellEntry, effIndex))
-            mask |= 1 << effIndex;
+        if (CheckEffect(spellInfo, _effIndex))
+            mask |= 1 << _effIndex;
     }
     return mask;
 }
 
-bool _SpellScript::EffectHook::IsEffectAffected(SpellInfo const* spellEntry, uint8 effIndexToCheck) const
+bool SpellScriptBase::EffectHook::IsEffectAffected(SpellInfo const* spellInfo, uint8 effIndex) const
 {
-    return (GetAffectedEffectsMask(spellEntry) & 1 << effIndexToCheck) != 0;
+    return (GetAffectedEffectsMask(spellInfo) & 1 << effIndex) != 0;
 }
 
-std::string _SpellScript::EffectHook::EffIndexToString() const
+std::string SpellScriptBase::EffectHook::EffIndexToString() const
 {
-    if (effIndex == EFFECT_ALL)
+    if (_effIndex == EFFECT_ALL)
         return "EFFECT_ALL";
-    if (effIndex == EFFECT_FIRST_FOUND)
+    if (_effIndex == EFFECT_FIRST_FOUND)
         return "EFFECT_FIRST_FOUND";
-    if (effIndex < MAX_SPELL_EFFECTS)
-        return Trinity::StringFormat("EFFECT_{}", uint32(effIndex));
+    if (_effIndex < MAX_SPELL_EFFECTS)
+        return Trinity::StringFormat("EFFECT_{}", uint32(_effIndex));
     return "Invalid Value";
 }
 
-_SpellScript::EffectNameCheck::EffectNameCheck(uint16 _effName) : effName(_effName)
+namespace EffectNameCheck
 {
-}
-
-_SpellScript::EffectNameCheck::EffectNameCheck(EffectNameCheck&& right) noexcept = default;
-_SpellScript::EffectNameCheck& _SpellScript::EffectNameCheck::operator=(EffectNameCheck&& right) noexcept = default;
-_SpellScript::EffectNameCheck::~EffectNameCheck() = default;
-
-bool _SpellScript::EffectNameCheck::Check(SpellInfo const* spellEntry, uint8 effIndex) const
+bool Check(SpellInfo const* spellInfo, uint8 effIndex, uint16 effName)
 {
-    if (spellEntry->GetEffects().size() <= effIndex)
+    if (spellInfo->GetEffects().size() <= effIndex)
         return false;
-    SpellEffectInfo const& spellEffectInfo = spellEntry->GetEffect(SpellEffIndex(effIndex));
+    SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(SpellEffIndex(effIndex));
     if (!spellEffectInfo.Effect && !effName)
         return true;
     if (!spellEffectInfo.Effect)
@@ -170,53 +164,19 @@ bool _SpellScript::EffectNameCheck::Check(SpellInfo const* spellEntry, uint8 eff
     return (effName == SPELL_EFFECT_ANY) || (spellEffectInfo.Effect == effName);
 }
 
-std::string _SpellScript::EffectNameCheck::ToString() const
+std::string ToString(uint16 effName)
 {
     switch (effName)
     {
         case SPELL_EFFECT_ANY:
             return "SPELL_EFFECT_ANY";
         default:
-            char num[10];
-            sprintf (num, "%u", effName);
-            return num;
+            return Trinity::ToString(effName);
     }
 }
+};
 
-_SpellScript::EffectAuraNameCheck::EffectAuraNameCheck(uint16 _effAurName) : effAurName(_effAurName)
-{
-}
-
-_SpellScript::EffectAuraNameCheck::EffectAuraNameCheck(EffectAuraNameCheck&& right) noexcept = default;
-_SpellScript::EffectAuraNameCheck& _SpellScript::EffectAuraNameCheck::operator=(EffectAuraNameCheck&& right) noexcept = default;
-_SpellScript::EffectAuraNameCheck::~EffectAuraNameCheck() = default;
-
-bool _SpellScript::EffectAuraNameCheck::Check(SpellInfo const* spellEntry, uint8 effIndex) const
-{
-    if (spellEntry->GetEffects().size() <= effIndex)
-        return false;
-    SpellEffectInfo const& spellEffectInfo = spellEntry->GetEffect(SpellEffIndex(effIndex));
-    if (!spellEffectInfo.ApplyAuraName && !effAurName)
-        return true;
-    if (!spellEffectInfo.ApplyAuraName)
-        return false;
-    return (effAurName == SPELL_AURA_ANY) || (spellEffectInfo.ApplyAuraName == effAurName);
-}
-
-std::string _SpellScript::EffectAuraNameCheck::ToString() const
-{
-    switch (effAurName)
-    {
-        case SPELL_AURA_ANY:
-            return "SPELL_AURA_ANY";
-        default:
-            char num[10];
-            sprintf (num, "%u", effAurName);
-            return num;
-    }
-}
-
-SpellScript::CastHandler::CastHandler(SpellCastFnType _pCastHandlerScript) : pCastHandlerScript(_pCastHandlerScript)
+SpellScript::CastHandler::CastHandler(SpellCastFnType callImpl) : _callImpl(callImpl)
 {
 }
 
@@ -224,12 +184,12 @@ SpellScript::CastHandler::CastHandler(CastHandler&& right) noexcept = default;
 SpellScript::CastHandler& SpellScript::CastHandler::operator=(CastHandler&& right) noexcept = default;
 SpellScript::CastHandler::~CastHandler() = default;
 
-void SpellScript::CastHandler::Call(SpellScript* spellScript)
+void SpellScript::CastHandler::Call(SpellScript* spellScript) const
 {
-    (spellScript->*pCastHandlerScript)();
+    (spellScript->*_callImpl)();
 }
 
-SpellScript::CheckCastHandler::CheckCastHandler(SpellCheckCastFnType checkCastHandlerScript) : _checkCastHandlerScript(checkCastHandlerScript)
+SpellScript::CheckCastHandler::CheckCastHandler(SpellCheckCastFnType callImpl) : _callImpl(callImpl)
 {
 }
 
@@ -237,27 +197,13 @@ SpellScript::CheckCastHandler::CheckCastHandler(CheckCastHandler&& right) noexce
 SpellScript::CheckCastHandler& SpellScript::CheckCastHandler::operator=(CheckCastHandler&& right) noexcept = default;
 SpellScript::CheckCastHandler::~CheckCastHandler() = default;
 
-SpellCastResult SpellScript::CheckCastHandler::Call(SpellScript* spellScript)
+SpellCastResult SpellScript::CheckCastHandler::Call(SpellScript* spellScript) const
 {
-    return (spellScript->*_checkCastHandlerScript)();
+    return (spellScript->*_callImpl)();
 }
 
-SpellScript::OnCalculateResistAbsorbHandler::OnCalculateResistAbsorbHandler(SpellOnResistAbsorbCalculateFnType onResistAbsorbCalculateHandlerScript) :
-    pOnCalculateResistAbsorbHandlerScript(onResistAbsorbCalculateHandlerScript)
-{
-}
-
-SpellScript::OnCalculateResistAbsorbHandler::OnCalculateResistAbsorbHandler(OnCalculateResistAbsorbHandler&& right) noexcept = default;
-SpellScript::OnCalculateResistAbsorbHandler& SpellScript::OnCalculateResistAbsorbHandler::operator=(OnCalculateResistAbsorbHandler&& right) noexcept = default;
-SpellScript::OnCalculateResistAbsorbHandler::~OnCalculateResistAbsorbHandler() = default;
-
-void SpellScript::OnCalculateResistAbsorbHandler::Call(SpellScript* spellScript, DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount)
-{
-    return (spellScript->*pOnCalculateResistAbsorbHandlerScript)(damageInfo, resistAmount, absorbAmount);
-}
-
-SpellScript::EffectHandler::EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
-    : _SpellScript::EffectNameCheck(_effName), _SpellScript::EffectHook(_effIndex), pEffectHandlerScript(_pEffectHandlerScript)
+SpellScript::EffectHandler::EffectHandler(SpellEffectFnType callImpl, uint8 effIndex, uint16 effName)
+    : EffectHook(effIndex), _callImpl(callImpl), _effName(effName)
 {
 }
 
@@ -267,20 +213,20 @@ SpellScript::EffectHandler::~EffectHandler() = default;
 
 std::string SpellScript::EffectHandler::ToString() const
 {
-    return "Index: " + EffIndexToString() + " Name: " +_SpellScript::EffectNameCheck::ToString();
+    return "Index: " + EffIndexToString() + " Name: " + EffectNameCheck::ToString(_effName);
 }
 
-bool SpellScript::EffectHandler::CheckEffect(SpellInfo const* spellEntry, uint8 effIndexToCheck) const
+bool SpellScript::EffectHandler::CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) const
 {
-    return _SpellScript::EffectNameCheck::Check(spellEntry, effIndexToCheck);
+    return EffectNameCheck::Check(spellInfo, effIndex, _effName);
 }
 
-void SpellScript::EffectHandler::Call(SpellScript* spellScript, SpellEffIndex effIndexToHandle)
+void SpellScript::EffectHandler::Call(SpellScript* spellScript, SpellEffIndex effIndex) const
 {
-    (spellScript->*pEffectHandlerScript)(effIndexToHandle);
+    (spellScript->*_callImpl)(effIndex);
 }
 
-SpellScript::BeforeHitHandler::BeforeHitHandler(SpellBeforeHitFnType pBeforeHitHandlerScript) : _pBeforeHitHandlerScript(pBeforeHitHandlerScript)
+SpellScript::BeforeHitHandler::BeforeHitHandler(SpellBeforeHitFnType callImpl) : _callImpl(callImpl)
 {
 }
 
@@ -288,26 +234,24 @@ SpellScript::BeforeHitHandler::BeforeHitHandler(BeforeHitHandler&& right) noexce
 SpellScript::BeforeHitHandler& SpellScript::BeforeHitHandler::operator=(BeforeHitHandler&& right) noexcept = default;
 SpellScript::BeforeHitHandler::~BeforeHitHandler() = default;
 
-void SpellScript::BeforeHitHandler::Call(SpellScript* spellScript, SpellMissInfo missInfo)
+void SpellScript::BeforeHitHandler::Call(SpellScript* spellScript, SpellMissInfo missInfo) const
 {
-    (spellScript->*_pBeforeHitHandlerScript)(missInfo);
+    (spellScript->*_callImpl)(missInfo);
 }
 
-SpellScript::HitHandler::HitHandler(SpellHitFnType _pHitHandlerScript) : pHitHandlerScript(_pHitHandlerScript)
-{
-}
+SpellScript::HitHandler::HitHandler(SpellHitFnType callImpl) : _callImpl(callImpl)
+{ }
 
 SpellScript::HitHandler::HitHandler(HitHandler&& right) noexcept = default;
 SpellScript::HitHandler& SpellScript::HitHandler::operator=(HitHandler&& right) noexcept = default;
 SpellScript::HitHandler::~HitHandler() = default;
 
-void SpellScript::HitHandler::Call(SpellScript* spellScript)
+void SpellScript::HitHandler::Call(SpellScript* spellScript) const
 {
-    (spellScript->*pHitHandlerScript)();
+    (spellScript->*_callImpl)();
 }
 
-SpellScript::OnCalcCritChanceHandler::OnCalcCritChanceHandler(SpellOnCalcCritChanceFnType onCalcCritChanceHandlerScript) : _onCalcCritChanceHandlerScript(
-    onCalcCritChanceHandlerScript)
+SpellScript::OnCalcCritChanceHandler::OnCalcCritChanceHandler(SpellOnCalcCritChanceFnType callImpl) : _callImpl(callImpl)
 {
 }
 
@@ -317,11 +261,11 @@ SpellScript::OnCalcCritChanceHandler::~OnCalcCritChanceHandler() = default;
 
 void SpellScript::OnCalcCritChanceHandler::Call(SpellScript* spellScript, Unit const* victim, float& critChance) const
 {
-    (spellScript->*_onCalcCritChanceHandlerScript)(victim, critChance);
+    return (spellScript->*_callImpl)(victim, critChance);
 }
 
-SpellScript::TargetHook::TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area, bool _dest)
-    : _SpellScript::EffectHook(_effectIndex), targetType(_targetType), area(_area), dest(_dest) { }
+SpellScript::TargetHook::TargetHook(uint8 effectIndex, uint16 targetType, bool area, bool dest)
+    : EffectHook(effectIndex), _targetType(targetType), _area(area), _dest(dest) { }
 
 SpellScript::TargetHook::TargetHook(TargetHook&& right) noexcept = default;
 SpellScript::TargetHook& SpellScript::TargetHook::operator=(TargetHook&& right) noexcept = default;
@@ -329,50 +273,48 @@ SpellScript::TargetHook::~TargetHook() = default;
 
 std::string SpellScript::TargetHook::ToString() const
 {
-    std::ostringstream oss;
-    oss << "Index: " << EffIndexToString() << " Target: " << targetType;
-    return oss.str();
+    return Trinity::StringFormat("Index: {} Target: {}", EffIndexToString(), _targetType);
 }
 
-bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 effIndexToCheck) const
+bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) const
 {
-    if (!targetType)
+    if (!_targetType)
         return false;
 
-    if (spellEntry->GetEffects().size() <= effIndexToCheck)
+    if (spellInfo->GetEffects().size() <= effIndex)
         return false;
 
-    SpellEffectInfo const& spellEffectInfo = spellEntry->GetEffect(SpellEffIndex(effIndexToCheck));
-    if (spellEffectInfo.TargetA.GetTarget() != targetType &&
-        spellEffectInfo.TargetB.GetTarget() != targetType)
+    SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(SpellEffIndex(effIndex));
+    if (spellEffectInfo.TargetA.GetTarget() != _targetType &&
+        spellEffectInfo.TargetB.GetTarget() != _targetType)
         return false;
 
-    SpellImplicitTargetInfo targetInfo(targetType);
+    SpellImplicitTargetInfo targetInfo(_targetType);
     switch (targetInfo.GetSelectionCategory())
     {
         case TARGET_SELECT_CATEGORY_CHANNEL: // SINGLE
-            return !area;
+            return !_area;
         case TARGET_SELECT_CATEGORY_NEARBY: // BOTH
             return true;
         case TARGET_SELECT_CATEGORY_CONE: // AREA
         case TARGET_SELECT_CATEGORY_LINE: // AREA
-            return area;
+            return _area;
         case TARGET_SELECT_CATEGORY_AREA: // AREA
             if (targetInfo.GetObjectType() == TARGET_OBJECT_TYPE_UNIT_AND_DEST)
-                return area || dest;
-            return area;
+                return _area || _dest;
+            return _area;
         case TARGET_SELECT_CATEGORY_DEFAULT:
             switch (targetInfo.GetObjectType())
             {
                 case TARGET_OBJECT_TYPE_SRC: // EMPTY
                     return false;
                 case TARGET_OBJECT_TYPE_DEST: // DEST
-                    return dest;
+                    return _dest;
                 default:
                     switch (targetInfo.GetReferenceType())
                     {
                         case TARGET_REFERENCE_TYPE_CASTER: // SINGLE
-                            return !area;
+                            return !_area;
                         case TARGET_REFERENCE_TYPE_TARGET: // BOTH
                             return true;
                         default:
@@ -388,8 +330,8 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
     return false;
 }
 
-SpellScript::ObjectAreaTargetSelectHandler::ObjectAreaTargetSelectHandler(SpellObjectAreaTargetSelectFnType _pObjectAreaTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)
-    : TargetHook(_effIndex, _targetType, true, false), pObjectAreaTargetSelectHandlerScript(_pObjectAreaTargetSelectHandlerScript)
+SpellScript::ObjectAreaTargetSelectHandler::ObjectAreaTargetSelectHandler(SpellObjectAreaTargetSelectFnType callImpl, uint8 effIndex, uint16 targetType)
+    : TargetHook(effIndex, targetType, true, false), _callImpl(callImpl)
 {
 }
 
@@ -397,13 +339,13 @@ SpellScript::ObjectAreaTargetSelectHandler::ObjectAreaTargetSelectHandler(Object
 SpellScript::ObjectAreaTargetSelectHandler& SpellScript::ObjectAreaTargetSelectHandler::operator=(ObjectAreaTargetSelectHandler&& right) noexcept = default;
 SpellScript::ObjectAreaTargetSelectHandler::~ObjectAreaTargetSelectHandler() = default;
 
-void SpellScript::ObjectAreaTargetSelectHandler::Call(SpellScript* spellScript, std::list<WorldObject*>& targets)
+void SpellScript::ObjectAreaTargetSelectHandler::Call(SpellScript* spellScript, std::list<WorldObject*>& targets) const
 {
-    (spellScript->*pObjectAreaTargetSelectHandlerScript)(targets);
+    (spellScript->*_callImpl)(targets);
 }
 
-SpellScript::ObjectTargetSelectHandler::ObjectTargetSelectHandler(SpellObjectTargetSelectFnType _pObjectTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)
-    : TargetHook(_effIndex, _targetType, false, false), pObjectTargetSelectHandlerScript(_pObjectTargetSelectHandlerScript)
+SpellScript::ObjectTargetSelectHandler::ObjectTargetSelectHandler(SpellObjectTargetSelectFnType callImpl, uint8 effIndex, uint16 targetType)
+    : TargetHook(effIndex, targetType, false, false), _callImpl(callImpl)
 {
 }
 
@@ -411,13 +353,13 @@ SpellScript::ObjectTargetSelectHandler::ObjectTargetSelectHandler(ObjectTargetSe
 SpellScript::ObjectTargetSelectHandler& SpellScript::ObjectTargetSelectHandler::operator=(ObjectTargetSelectHandler&& right) noexcept = default;
 SpellScript::ObjectTargetSelectHandler::~ObjectTargetSelectHandler() = default;
 
-void SpellScript::ObjectTargetSelectHandler::Call(SpellScript* spellScript, WorldObject*& target)
+void SpellScript::ObjectTargetSelectHandler::Call(SpellScript* spellScript, WorldObject*& target) const
 {
-    (spellScript->*pObjectTargetSelectHandlerScript)(target);
+    (spellScript->*_callImpl)(target);
 }
 
-SpellScript::DestinationTargetSelectHandler::DestinationTargetSelectHandler(SpellDestinationTargetSelectFnType _DestinationTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)
-    : TargetHook(_effIndex, _targetType, false, true), DestinationTargetSelectHandlerScript(_DestinationTargetSelectHandlerScript)
+SpellScript::DestinationTargetSelectHandler::DestinationTargetSelectHandler(SpellDestinationTargetSelectFnType callImpl, uint8 effIndex, uint16 targetType)
+    : TargetHook(effIndex, targetType, false, true), _callImpl(callImpl)
 {
 }
 
@@ -425,9 +367,22 @@ SpellScript::DestinationTargetSelectHandler::DestinationTargetSelectHandler(Dest
 SpellScript::DestinationTargetSelectHandler& SpellScript::DestinationTargetSelectHandler::operator=(DestinationTargetSelectHandler&& right) noexcept = default;
 SpellScript::DestinationTargetSelectHandler::~DestinationTargetSelectHandler() = default;
 
-void SpellScript::DestinationTargetSelectHandler::Call(SpellScript* spellScript, SpellDestination& target)
+void SpellScript::DestinationTargetSelectHandler::Call(SpellScript* spellScript, SpellDestination& target) const
 {
-    (spellScript->*DestinationTargetSelectHandlerScript)(target);
+    (spellScript->*_callImpl)(target);
+}
+
+SpellScript::OnCalculateResistAbsorbHandler::OnCalculateResistAbsorbHandler(SpellOnResistAbsorbCalculateFnType callImpl) : _callImpl(callImpl)
+{
+}
+
+SpellScript::OnCalculateResistAbsorbHandler::OnCalculateResistAbsorbHandler(OnCalculateResistAbsorbHandler&& right) noexcept = default;
+SpellScript::OnCalculateResistAbsorbHandler& SpellScript::OnCalculateResistAbsorbHandler::operator=(OnCalculateResistAbsorbHandler&& right) noexcept = default;
+SpellScript::OnCalculateResistAbsorbHandler::~OnCalculateResistAbsorbHandler() = default;
+
+void SpellScript::OnCalculateResistAbsorbHandler::Call(SpellScript* spellScript, DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount) const
+{
+    (spellScript->*_callImpl)(damageInfo, resistAmount, absorbAmount);
 }
 
 SpellScript::SpellScript(): m_spell(nullptr), m_hitPreventEffectMask(0), m_hitPreventDefaultEffectMask(0)
@@ -438,39 +393,39 @@ SpellScript::~SpellScript() = default;
 
 bool SpellScript::_Validate(SpellInfo const* entry)
 {
-    for (auto itr = OnEffectLaunch.begin(); itr != OnEffectLaunch.end(); ++itr)
-        if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectLaunch` of SpellScript won't be executed", entry->Id, (*itr).ToString(), m_scriptName->c_str());
+    for (EffectHandler& hook : OnEffectLaunch)
+        if (!hook.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectLaunch` of SpellScript won't be executed", entry->Id, hook.ToString(), m_scriptName);
 
-    for (auto itr = OnEffectLaunchTarget.begin(); itr != OnEffectLaunchTarget.end(); ++itr)
-        if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectLaunchTarget` of SpellScript won't be executed", entry->Id, (*itr).ToString(), m_scriptName->c_str());
+    for (EffectHandler& hook : OnEffectLaunchTarget)
+        if (!hook.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectLaunchTarget` of SpellScript won't be executed", entry->Id, hook.ToString(), m_scriptName);
 
-    for (auto itr = OnEffectHit.begin(); itr != OnEffectHit.end(); ++itr)
-        if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectHit` of SpellScript won't be executed", entry->Id, (*itr).ToString(), m_scriptName->c_str());
+    for (EffectHandler& hook : OnEffectHit)
+        if (!hook.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectHit` of SpellScript won't be executed", entry->Id, hook.ToString(), m_scriptName);
 
-    for (auto itr = OnEffectHitTarget.begin(); itr != OnEffectHitTarget.end(); ++itr)
-        if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectHitTarget` of SpellScript won't be executed", entry->Id, (*itr).ToString(), m_scriptName->c_str());
+    for (EffectHandler& hook : OnEffectHitTarget)
+        if (!hook.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectHitTarget` of SpellScript won't be executed", entry->Id, hook.ToString(), m_scriptName);
 
-    for (auto itr = OnEffectSuccessfulDispel.begin(); itr != OnEffectSuccessfulDispel.end(); ++itr)
-        if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectSuccessfulDispel` of SpellScript won't be executed", entry->Id, (*itr).ToString(), m_scriptName->c_str());
+    for (EffectHandler& hook : OnEffectSuccessfulDispel)
+        if (!hook.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectSuccessfulDispel` of SpellScript won't be executed", entry->Id, hook.ToString(), m_scriptName);
 
-    for (auto itr = OnObjectAreaTargetSelect.begin(); itr != OnObjectAreaTargetSelect.end(); ++itr)
-        if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnObjectAreaTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString(), m_scriptName->c_str());
+    for (ObjectAreaTargetSelectHandler& hook : OnObjectAreaTargetSelect)
+        if (!hook.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnObjectAreaTargetSelect` of SpellScript won't be executed", entry->Id, hook.ToString(), m_scriptName);
 
-    for (auto itr = OnObjectTargetSelect.begin(); itr != OnObjectTargetSelect.end(); ++itr)
-        if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnObjectTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString(), m_scriptName->c_str());
+    for (ObjectTargetSelectHandler& hook : OnObjectTargetSelect)
+        if (!hook.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnObjectTargetSelect` of SpellScript won't be executed", entry->Id, hook.ToString(), m_scriptName);
 
-    for (auto itr = OnDestinationTargetSelect.begin(); itr != OnDestinationTargetSelect.end(); ++itr)
-        if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnDestinationTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString(), m_scriptName->c_str());
+    for (DestinationTargetSelectHandler& hook : OnDestinationTargetSelect)
+        if (!hook.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnDestinationTargetSelect` of SpellScript won't be executed", entry->Id, hook.ToString(), m_scriptName);
 
-    return _SpellScript::_Validate(entry);
+    return SpellScriptBase::_Validate(entry);
 }
 
 bool SpellScript::_Load(Spell* spell)
@@ -620,7 +575,7 @@ int64 SpellScript::GetUnitTargetCountForEffect(SpellEffIndex effect) const
     if (!IsAfterTargetSelectionPhase())
     {
         TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetUnitTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)",
-            m_scriptName->c_str(), m_scriptSpellId);
+            m_scriptName, m_scriptSpellId);
         return 0;
     }
     return m_spell->GetUnitTargetCountForEffect(effect);
@@ -631,7 +586,7 @@ int64 SpellScript::GetGameObjectTargetCountForEffect(SpellEffIndex effect) const
     if (!IsAfterTargetSelectionPhase())
     {
         TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetGameObjectTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)",
-            m_scriptName->c_str(), m_scriptSpellId);
+            m_scriptName, m_scriptSpellId);
         return 0;
     }
     return m_spell->GetGameObjectTargetCountForEffect(effect);
@@ -642,7 +597,7 @@ int64 SpellScript::GetItemTargetCountForEffect(SpellEffIndex effect) const
     if (!IsAfterTargetSelectionPhase())
     {
         TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetItemTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)",
-            m_scriptName->c_str(), m_scriptSpellId);
+            m_scriptName, m_scriptSpellId);
         return 0;
     }
     return m_spell->GetItemTargetCountForEffect(effect);
@@ -653,7 +608,7 @@ int64 SpellScript::GetCorpseTargetCountForEffect(SpellEffIndex effect) const
     if (!IsAfterTargetSelectionPhase())
     {
         TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetCorpseTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)",
-            m_scriptName->c_str(), m_scriptSpellId);
+            m_scriptName, m_scriptSpellId);
         return 0;
     }
     return m_spell->GetCorpseTargetCountForEffect(effect);
@@ -663,7 +618,7 @@ Unit* SpellScript::GetHitUnit() const
 {
     if (!IsInTargetHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitUnit was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitUnit was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return nullptr;
     }
     return m_spell->unitTarget;
@@ -673,7 +628,7 @@ Creature* SpellScript::GetHitCreature() const
 {
     if (!IsInTargetHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitCreature was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitCreature was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return nullptr;
     }
     if (m_spell->unitTarget)
@@ -685,7 +640,7 @@ Player* SpellScript::GetHitPlayer() const
 {
     if (!IsInTargetHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitPlayer was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitPlayer was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return nullptr;
     }
     if (m_spell->unitTarget)
@@ -697,7 +652,7 @@ Item* SpellScript::GetHitItem() const
 {
     if (!IsInTargetHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitItem was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitItem was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return nullptr;
     }
     return m_spell->itemTarget;
@@ -707,7 +662,7 @@ GameObject* SpellScript::GetHitGObj() const
 {
     if (!IsInTargetHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitGObj was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitGObj was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return nullptr;
     }
     return m_spell->gameObjTarget;
@@ -717,7 +672,7 @@ Corpse* SpellScript::GetHitCorpse() const
 {
     if (!IsInTargetHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitCorpse was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitCorpse was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return nullptr;
     }
     return m_spell->m_corpseTarget;
@@ -727,7 +682,7 @@ WorldLocation* SpellScript::GetHitDest() const
 {
     if (!IsInEffectHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitDest was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitDest was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return nullptr;
     }
     return m_spell->destTarget;
@@ -737,7 +692,7 @@ int32 SpellScript::GetHitDamage() const
 {
     if (!IsInTargetHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitDamage was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitDamage was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return 0;
     }
     return m_spell->m_damage;
@@ -747,7 +702,7 @@ void SpellScript::SetHitDamage(int32 damage)
 {
     if (!IsInModifiableHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetHitDamage was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetHitDamage was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return;
     }
     m_spell->m_damage = damage;
@@ -757,7 +712,7 @@ int32 SpellScript::GetHitHeal() const
 {
     if (!IsInTargetHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitHeal was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitHeal was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return 0;
     }
     return m_spell->m_healing;
@@ -767,7 +722,7 @@ void SpellScript::SetHitHeal(int32 heal)
 {
     if (!IsInModifiableHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetHitHeal was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetHitHeal was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return;
     }
     m_spell->m_healing = heal;
@@ -777,7 +732,7 @@ bool SpellScript::IsHitCrit() const
 {
     if (!IsInTargetHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::IsHitCrit was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::IsHitCrit was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return false;
     }
     if (Unit* hitUnit = GetHitUnit())
@@ -796,7 +751,7 @@ Aura* SpellScript::GetHitAura(bool dynObjAura /*= false*/) const
 {
     if (!IsInTargetHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitAura was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetHitAura was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return nullptr;
     }
 
@@ -814,7 +769,7 @@ void SpellScript::PreventHitAura()
 {
     if (!IsInTargetHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::PreventHitAura was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::PreventHitAura was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return;
     }
     if (UnitAura* aura = m_spell->_spellAura)
@@ -827,7 +782,7 @@ void SpellScript::PreventHitEffect(SpellEffIndex effIndex)
 {
     if (!IsInHitPhase() && !IsInEffectHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::PreventHitEffect was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::PreventHitEffect was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return;
     }
     m_hitPreventEffectMask |= 1 << effIndex;
@@ -838,7 +793,7 @@ void SpellScript::PreventHitDefaultEffect(SpellEffIndex effIndex)
 {
     if (!IsInHitPhase() && !IsInEffectHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::PreventHitDefaultEffect was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::PreventHitDefaultEffect was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return;
     }
     m_hitPreventDefaultEffectMask |= 1 << effIndex;
@@ -846,7 +801,7 @@ void SpellScript::PreventHitDefaultEffect(SpellEffIndex effIndex)
 
 SpellEffectInfo const& SpellScript::GetEffectInfo() const
 {
-    ASSERT(IsInEffectHook(), "Script: `%s` Spell: `%u`: function SpellScript::GetEffectInfo was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+    ASSERT(IsInEffectHook(), "Script: `" STRING_VIEW_FMT "` Spell: `%u`: function SpellScript::GetEffectInfo was called, but function has no effect in current hook!", STRING_VIEW_FMT_ARG(m_scriptName), m_scriptSpellId);
 
     return *m_spell->effectInfo;
 }
@@ -855,7 +810,7 @@ int32 SpellScript::GetEffectValue() const
 {
     if (!IsInEffectHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetEffectValue was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetEffectValue was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return 0;
     }
 
@@ -866,7 +821,7 @@ void SpellScript::SetEffectValue(int32 value)
 {
     if (!IsInEffectHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetEffectValue was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetEffectValue was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return;
     }
 
@@ -877,7 +832,7 @@ float SpellScript::GetEffectVariance() const
 {
     if (!IsInEffectHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetEffectVariance was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetEffectVariance was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return 0.0f;
     }
 
@@ -888,7 +843,7 @@ void SpellScript::SetEffectVariance(float variance)
 {
     if (!IsInEffectHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetEffectVariance was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetEffectVariance was called, but function has no effect in current hook!", m_scriptName, m_scriptSpellId);
         return;
     }
 
@@ -920,7 +875,7 @@ void SpellScript::SetCustomCastResultMessage(SpellCustomErrors result)
 {
     if (!IsInCheckCastHook())
     {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetCustomCastResultMessage was called while spell not in check cast phase!", m_scriptName->c_str(), m_scriptSpellId);
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetCustomCastResultMessage was called while spell not in check cast phase!", m_scriptName, m_scriptSpellId);
         return;
     }
 
@@ -932,112 +887,138 @@ Difficulty SpellScript::GetCastDifficulty() const
     return m_spell->GetCastDifficulty();
 }
 
+namespace EffectAuraNameCheck
+{
+bool Check(SpellInfo const* spellEntry, uint8 effIndex, uint16 auraType)
+{
+    if (spellEntry->GetEffects().size() <= effIndex)
+        return false;
+    SpellEffectInfo const& spellEffectInfo = spellEntry->GetEffect(SpellEffIndex(effIndex));
+    if (!spellEffectInfo.ApplyAuraName && !auraType)
+        return true;
+    if (!spellEffectInfo.ApplyAuraName)
+        return false;
+    return (auraType == SPELL_AURA_ANY) || (spellEffectInfo.ApplyAuraName == auraType);
+}
+
+std::string ToString(uint16 effAurName)
+{
+    switch (effAurName)
+    {
+        case SPELL_AURA_ANY:
+            return "SPELL_AURA_ANY";
+        default:
+            return Trinity::ToString(effAurName);
+    }
+}
+}
+
 bool AuraScript::_Validate(SpellInfo const* entry)
 {
     for (auto itr = DoCheckAreaTarget.begin(); itr != DoCheckAreaTarget.end(); ++itr)
         if (!entry->HasAreaAuraEffect() && !entry->HasEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA) && !entry->HasEffect(SPELL_EFFECT_APPLY_AURA))
-            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `DoCheckAreaTarget` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `DoCheckAreaTarget` of AuraScript won't be executed", entry->Id, m_scriptName);
 
     for (auto itr = OnDispel.begin(); itr != OnDispel.end(); ++itr)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
-            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `OnDispel` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `OnDispel` of AuraScript won't be executed", entry->Id, m_scriptName);
 
     for (auto itr = AfterDispel.begin(); itr != AfterDispel.end(); ++itr)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
-            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `AfterDispel` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `AfterDispel` of AuraScript won't be executed", entry->Id, m_scriptName);
 
     for (auto itr = OnEffectApply.begin(); itr != OnEffectApply.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectApply` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectApply` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = OnEffectRemove.begin(); itr != OnEffectRemove.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectRemove` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectRemove` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = AfterEffectApply.begin(); itr != AfterEffectApply.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `AfterEffectApply` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `AfterEffectApply` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = AfterEffectRemove.begin(); itr != AfterEffectRemove.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `AfterEffectRemove` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `AfterEffectRemove` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = OnEffectPeriodic.begin(); itr != OnEffectPeriodic.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectPeriodic` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectPeriodic` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = OnEffectUpdatePeriodic.begin(); itr != OnEffectUpdatePeriodic.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectUpdatePeriodic` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectUpdatePeriodic` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = DoEffectCalcAmount.begin(); itr != DoEffectCalcAmount.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `DoEffectCalcAmount` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `DoEffectCalcAmount` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = DoEffectCalcPeriodic.begin(); itr != DoEffectCalcPeriodic.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `DoEffectCalcPeriodic` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `DoEffectCalcPeriodic` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = DoEffectCalcSpellMod.begin(); itr != DoEffectCalcSpellMod.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `DoEffectCalcSpellMod` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `DoEffectCalcSpellMod` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = DoEffectCalcCritChance.begin(); itr != DoEffectCalcCritChance.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `DoEffectCalcCritChance` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `DoEffectCalcCritChance` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = OnEffectAbsorb.begin(); itr != OnEffectAbsorb.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectAbsorb` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectAbsorb` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = AfterEffectAbsorb.begin(); itr != AfterEffectAbsorb.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `AfterEffectAbsorb` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `AfterEffectAbsorb` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = OnEffectManaShield.begin(); itr != OnEffectManaShield.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectManaShield` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectManaShield` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = AfterEffectManaShield.begin(); itr != AfterEffectManaShield.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `AfterEffectManaShield` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `AfterEffectManaShield` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = OnEffectSplit.begin(); itr != OnEffectSplit.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectSplit` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectSplit` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = DoCheckProc.begin(); itr != DoCheckProc.end(); ++itr)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
-            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `DoCheckProc` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `DoCheckProc` of AuraScript won't be executed", entry->Id, m_scriptName);
 
     for (auto itr = DoCheckEffectProc.begin(); itr != DoCheckEffectProc.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `DoCheckEffectProc` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `DoCheckEffectProc` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = DoPrepareProc.begin(); itr != DoPrepareProc.end(); ++itr)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
-            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `DoPrepareProc` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `DoPrepareProc` of AuraScript won't be executed", entry->Id, m_scriptName);
 
     for (auto itr = OnProc.begin(); itr != OnProc.end(); ++itr)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
-            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `OnProc` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `OnProc` of AuraScript won't be executed", entry->Id, m_scriptName);
 
     for (auto itr = AfterProc.begin(); itr != AfterProc.end(); ++itr)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
-            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `AfterProc` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` of script `{}` does not have apply aura effect - handler bound to hook `AfterProc` of AuraScript won't be executed", entry->Id, m_scriptName);
 
     for (auto itr = OnEffectProc.begin(); itr != OnEffectProc.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectProc` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `OnEffectProc` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
     for (auto itr = AfterEffectProc.begin(); itr != AfterEffectProc.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `AfterEffectProc` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName->c_str());
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `AfterEffectProc` of AuraScript won't be executed", entry->Id, itr->ToString(), m_scriptName);
 
-    return _SpellScript::_Validate(entry);
+    return SpellScriptBase::_Validate(entry);
 }
 
-AuraScript::CheckAreaTargetHandler::CheckAreaTargetHandler(AuraCheckAreaTargetFnType _pHandlerScript) : pHandlerScript(_pHandlerScript)
+AuraScript::CheckAreaTargetHandler::CheckAreaTargetHandler(AuraCheckAreaTargetFnType callImpl) : _callImpl(callImpl)
 {
 }
 
@@ -1045,12 +1026,12 @@ AuraScript::CheckAreaTargetHandler::CheckAreaTargetHandler(CheckAreaTargetHandle
 AuraScript::CheckAreaTargetHandler& AuraScript::CheckAreaTargetHandler::operator=(CheckAreaTargetHandler&& right) noexcept = default;
 AuraScript::CheckAreaTargetHandler::~CheckAreaTargetHandler() = default;
 
-bool AuraScript::CheckAreaTargetHandler::Call(AuraScript* auraScript, Unit* _target)
+bool AuraScript::CheckAreaTargetHandler::Call(AuraScript* auraScript, Unit* _target) const
 {
-    return (auraScript->*pHandlerScript)(_target);
+    return (auraScript->*_callImpl)(_target);
 }
 
-AuraScript::AuraDispelHandler::AuraDispelHandler(AuraDispelFnType _pHandlerScript) : pHandlerScript(_pHandlerScript)
+AuraScript::AuraDispelHandler::AuraDispelHandler(AuraDispelFnType callImpl) : _callImpl(callImpl)
 {
 }
 
@@ -1058,30 +1039,30 @@ AuraScript::AuraDispelHandler::AuraDispelHandler(AuraDispelHandler&& right) noex
 AuraScript::AuraDispelHandler& AuraScript::AuraDispelHandler::operator=(AuraDispelHandler&& right) noexcept = default;
 AuraScript::AuraDispelHandler::~AuraDispelHandler() = default;
 
-void AuraScript::AuraDispelHandler::Call(AuraScript* auraScript, DispelInfo* _dispelInfo)
+void AuraScript::AuraDispelHandler::Call(AuraScript* auraScript, DispelInfo* dispelInfo) const
 {
-    (auraScript->*pHandlerScript)(_dispelInfo);
+    (auraScript->*_callImpl)(dispelInfo);
 }
 
-AuraScript::EffectBase::EffectBase(uint8 _effIndex, uint16 _effName)
-    : _SpellScript::EffectAuraNameCheck(_effName), _SpellScript::EffectHook(_effIndex) { }
+AuraScript::EffectBase::EffectBase(uint8 effIndex, uint16 auraType)
+    : EffectHook(effIndex), _auraType(auraType) { }
 
 AuraScript::EffectBase::EffectBase(EffectBase&& right) noexcept = default;
 AuraScript::EffectBase& AuraScript::EffectBase::operator=(EffectBase&& right) noexcept = default;
 AuraScript::EffectBase::~EffectBase() = default;
 
-bool AuraScript::EffectBase::CheckEffect(SpellInfo const* spellEntry, uint8 effIndexToCheck) const
+bool AuraScript::EffectBase::CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) const
 {
-    return _SpellScript::EffectAuraNameCheck::Check(spellEntry, effIndexToCheck);
+    return EffectAuraNameCheck::Check(spellInfo, effIndex, _auraType);
 }
 
 std::string AuraScript::EffectBase::ToString() const
 {
-    return "Index: " + EffIndexToString() + " AuraName: " +_SpellScript::EffectAuraNameCheck::ToString();
+    return "Index: " + EffIndexToString() + " AuraName: " + EffectAuraNameCheck::ToString(_auraType);
 }
 
-AuraScript::EffectPeriodicHandler::EffectPeriodicHandler(AuraEffectPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
-    : AuraScript::EffectBase(_effIndex, _effName), pEffectHandlerScript(_pEffectHandlerScript)
+AuraScript::EffectPeriodicHandler::EffectPeriodicHandler(AuraEffectPeriodicFnType callImpl, uint8 effIndex, uint16 auraType)
+    : EffectBase(effIndex, auraType), _callImpl(callImpl)
 {
 }
 
@@ -1089,13 +1070,13 @@ AuraScript::EffectPeriodicHandler::EffectPeriodicHandler(EffectPeriodicHandler&&
 AuraScript::EffectPeriodicHandler& AuraScript::EffectPeriodicHandler::operator=(EffectPeriodicHandler&& right) noexcept = default;
 AuraScript::EffectPeriodicHandler::~EffectPeriodicHandler() = default;
 
-void AuraScript::EffectPeriodicHandler::Call(AuraScript* auraScript, AuraEffect const* _aurEff)
+void AuraScript::EffectPeriodicHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff) const
 {
-    (auraScript->*pEffectHandlerScript)(_aurEff);
+    (auraScript->*_callImpl)(aurEff);
 }
 
-AuraScript::EffectUpdatePeriodicHandler::EffectUpdatePeriodicHandler(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
-    : AuraScript::EffectBase(_effIndex, _effName), pEffectHandlerScript(_pEffectHandlerScript)
+AuraScript::EffectUpdatePeriodicHandler::EffectUpdatePeriodicHandler(AuraEffectUpdatePeriodicFnType callImpl, uint8 effIndex, uint16 auraType)
+    : EffectBase(effIndex, auraType), _callImpl(callImpl)
 {
 }
 
@@ -1103,13 +1084,13 @@ AuraScript::EffectUpdatePeriodicHandler::EffectUpdatePeriodicHandler(EffectUpdat
 AuraScript::EffectUpdatePeriodicHandler& AuraScript::EffectUpdatePeriodicHandler::operator=(EffectUpdatePeriodicHandler&& right) noexcept = default;
 AuraScript::EffectUpdatePeriodicHandler::~EffectUpdatePeriodicHandler() = default;
 
-void AuraScript::EffectUpdatePeriodicHandler::Call(AuraScript* auraScript, AuraEffect* aurEff)
+void AuraScript::EffectUpdatePeriodicHandler::Call(AuraScript* auraScript, AuraEffect* aurEff) const
 {
-    (auraScript->*pEffectHandlerScript)(aurEff);
+    (auraScript->*_callImpl)(aurEff);
 }
 
-AuraScript::EffectCalcAmountHandler::EffectCalcAmountHandler(AuraEffectCalcAmountFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
-    : AuraScript::EffectBase(_effIndex, _effName), pEffectHandlerScript(_pEffectHandlerScript)
+AuraScript::EffectCalcAmountHandler::EffectCalcAmountHandler(AuraEffectCalcAmountFnType callImpl, uint8 effIndex, uint16 auraType)
+    : EffectBase(effIndex, auraType), _callImpl(callImpl)
 {
 }
 
@@ -1117,13 +1098,13 @@ AuraScript::EffectCalcAmountHandler::EffectCalcAmountHandler(EffectCalcAmountHan
 AuraScript::EffectCalcAmountHandler& AuraScript::EffectCalcAmountHandler::operator=(EffectCalcAmountHandler&& right) noexcept = default;
 AuraScript::EffectCalcAmountHandler::~EffectCalcAmountHandler() = default;
 
-void AuraScript::EffectCalcAmountHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+void AuraScript::EffectCalcAmountHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated) const
 {
-    (auraScript->*pEffectHandlerScript)(aurEff, amount, canBeRecalculated);
+    (auraScript->*_callImpl)(aurEff, amount, canBeRecalculated);
 }
 
-AuraScript::EffectCalcPeriodicHandler::EffectCalcPeriodicHandler(AuraEffectCalcPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
-    : AuraScript::EffectBase(_effIndex, _effName), pEffectHandlerScript(_pEffectHandlerScript)
+AuraScript::EffectCalcPeriodicHandler::EffectCalcPeriodicHandler(AuraEffectCalcPeriodicFnType callImpl, uint8 effIndex, uint16 auraType)
+    : EffectBase(effIndex, auraType), _callImpl(callImpl)
 {
 }
 
@@ -1131,13 +1112,13 @@ AuraScript::EffectCalcPeriodicHandler::EffectCalcPeriodicHandler(EffectCalcPerio
 AuraScript::EffectCalcPeriodicHandler& AuraScript::EffectCalcPeriodicHandler::operator=(EffectCalcPeriodicHandler&& right) noexcept = default;
 AuraScript::EffectCalcPeriodicHandler::~EffectCalcPeriodicHandler() = default;
 
-void AuraScript::EffectCalcPeriodicHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, bool& isPeriodic, int32& periodicTimer)
+void AuraScript::EffectCalcPeriodicHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, bool& isPeriodic, int32& periodicTimer) const
 {
-    (auraScript->*pEffectHandlerScript)(aurEff, isPeriodic, periodicTimer);
+    (auraScript->*_callImpl)(aurEff, isPeriodic, periodicTimer);
 }
 
-AuraScript::EffectCalcSpellModHandler::EffectCalcSpellModHandler(AuraEffectCalcSpellModFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
-    : AuraScript::EffectBase(_effIndex, _effName), pEffectHandlerScript(_pEffectHandlerScript)
+AuraScript::EffectCalcSpellModHandler::EffectCalcSpellModHandler(AuraEffectCalcSpellModFnType callImpl, uint8 effIndex, uint16 auraType)
+    : EffectBase(effIndex, auraType), _callImpl(callImpl)
 {
 }
 
@@ -1145,13 +1126,13 @@ AuraScript::EffectCalcSpellModHandler::EffectCalcSpellModHandler(EffectCalcSpell
 AuraScript::EffectCalcSpellModHandler& AuraScript::EffectCalcSpellModHandler::operator=(EffectCalcSpellModHandler&& right) noexcept = default;
 AuraScript::EffectCalcSpellModHandler::~EffectCalcSpellModHandler() = default;
 
-void AuraScript::EffectCalcSpellModHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, SpellModifier*& spellMod)
+void AuraScript::EffectCalcSpellModHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, SpellModifier*& spellMod) const
 {
-    (auraScript->*pEffectHandlerScript)(aurEff, spellMod);
+    (auraScript->*_callImpl)(aurEff, spellMod);
 }
 
-AuraScript::EffectCalcCritChanceHandler::EffectCalcCritChanceHandler(AuraEffectCalcCritChanceFnType effectHandlerScript, uint8 effIndex, uint16 effName)
-    : AuraScript::EffectBase(effIndex, effName), _effectHandlerScript(effectHandlerScript)
+AuraScript::EffectCalcCritChanceHandler::EffectCalcCritChanceHandler(AuraEffectCalcCritChanceFnType callImpl, uint8 effIndex, uint16 auraType)
+    : EffectBase(effIndex, auraType), _callImpl(callImpl)
 {
 }
 
@@ -1161,11 +1142,11 @@ AuraScript::EffectCalcCritChanceHandler::~EffectCalcCritChanceHandler() = defaul
 
 void AuraScript::EffectCalcCritChanceHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, Unit const* victim, float& critChance) const
 {
-    (auraScript->*_effectHandlerScript)(aurEff, victim, critChance);
+    (auraScript->*_callImpl)(aurEff, victim, critChance);
 }
 
-AuraScript::EffectApplyHandler::EffectApplyHandler(AuraEffectApplicationModeFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode)
-    : AuraScript::EffectBase(_effIndex, _effName), pEffectHandlerScript(_pEffectHandlerScript), mode(_mode)
+AuraScript::EffectApplyHandler::EffectApplyHandler(AuraEffectApplicationModeFnType callImpl, uint8 effIndex, uint16 auraType, AuraEffectHandleModes mode)
+    : EffectBase(effIndex, auraType), _callImpl(callImpl), _mode(mode)
 {
 }
 
@@ -1173,14 +1154,13 @@ AuraScript::EffectApplyHandler::EffectApplyHandler(EffectApplyHandler&& right) n
 AuraScript::EffectApplyHandler& AuraScript::EffectApplyHandler::operator=(EffectApplyHandler&& right) noexcept = default;
 AuraScript::EffectApplyHandler::~EffectApplyHandler() = default;
 
-void AuraScript::EffectApplyHandler::Call(AuraScript* auraScript, AuraEffect const* _aurEff, AuraEffectHandleModes _mode)
+void AuraScript::EffectApplyHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, AuraEffectHandleModes mode) const
 {
-    if (_mode & mode)
-        (auraScript->*pEffectHandlerScript)(_aurEff, _mode);
+    (auraScript->*_callImpl)(aurEff, mode);
 }
 
-AuraScript::EffectAbsorbHandler::EffectAbsorbHandler(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex, bool overKill)
-    : AuraScript::EffectBase(_effIndex, overKill ? SPELL_AURA_SCHOOL_ABSORB_OVERKILL : SPELL_AURA_SCHOOL_ABSORB), pEffectHandlerScript(_pEffectHandlerScript)
+AuraScript::EffectAbsorbHandler::EffectAbsorbHandler(AuraEffectAbsorbFnType callImpl, uint8 effIndex, uint16 auraType)
+    : EffectBase(effIndex, auraType), _callImpl(callImpl)
 {
 }
 
@@ -1188,51 +1168,26 @@ AuraScript::EffectAbsorbHandler::EffectAbsorbHandler(EffectAbsorbHandler&& right
 AuraScript::EffectAbsorbHandler& AuraScript::EffectAbsorbHandler::operator=(EffectAbsorbHandler&& right) noexcept = default;
 AuraScript::EffectAbsorbHandler::~EffectAbsorbHandler() = default;
 
-void AuraScript::EffectAbsorbHandler::Call(AuraScript* auraScript, AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+void AuraScript::EffectAbsorbHandler::Call(AuraScript* auraScript, AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount) const
 {
-    (auraScript->*pEffectHandlerScript)(aurEff, dmgInfo, absorbAmount);
+    (auraScript->*_callImpl)(aurEff, dmgInfo, absorbAmount);
 }
 
-AuraScript::EffectAbsorbHealHandler::EffectAbsorbHealHandler(AuraEffectAbsorbHealFnType _pEffectHandlerScript, uint8 _effIndex)
-    : AuraScript::EffectBase(_effIndex, SPELL_AURA_SCHOOL_HEAL_ABSORB)
-{
-    pEffectHandlerScript = _pEffectHandlerScript;
-}
-
-void AuraScript::EffectAbsorbHealHandler::Call(AuraScript * auraScript, AuraEffect * aurEff, HealInfo & healInfo, uint32 & absorbAmount)
-{
-    (auraScript->*pEffectHandlerScript)(aurEff, healInfo, absorbAmount);
-}
-
-AuraScript::EffectManaShieldHandler::EffectManaShieldHandler(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex)
-    : AuraScript::EffectBase(_effIndex, SPELL_AURA_MANA_SHIELD), pEffectHandlerScript(_pEffectHandlerScript)
+AuraScript::EffectAbsorbHealHandler::EffectAbsorbHealHandler(AuraEffectAbsorbHealFnType callImpl, uint8 effIndex, uint16 auraType)
+    : EffectBase(effIndex, auraType), _callImpl(callImpl)
 {
 }
 
-AuraScript::EffectManaShieldHandler::EffectManaShieldHandler(EffectManaShieldHandler&& right) noexcept = default;
-AuraScript::EffectManaShieldHandler& AuraScript::EffectManaShieldHandler::operator=(EffectManaShieldHandler&& right) noexcept = default;
-AuraScript::EffectManaShieldHandler::~EffectManaShieldHandler() = default;
+AuraScript::EffectAbsorbHealHandler::EffectAbsorbHealHandler(EffectAbsorbHealHandler&& right) noexcept = default;
+AuraScript::EffectAbsorbHealHandler& AuraScript::EffectAbsorbHealHandler::operator=(EffectAbsorbHealHandler&& right) noexcept = default;
+AuraScript::EffectAbsorbHealHandler::~EffectAbsorbHealHandler() = default;
 
-void AuraScript::EffectManaShieldHandler::Call(AuraScript* auraScript, AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+void AuraScript::EffectAbsorbHealHandler::Call(AuraScript* auraScript, AuraEffect* aurEff, HealInfo& healInfo, uint32& absorbAmount) const
 {
-    (auraScript->*pEffectHandlerScript)(aurEff, dmgInfo, absorbAmount);
+    (auraScript->*_callImpl)(aurEff, healInfo, absorbAmount);
 }
 
-AuraScript::EffectSplitHandler::EffectSplitHandler(AuraEffectSplitFnType _pEffectHandlerScript, uint8 _effIndex)
-    : AuraScript::EffectBase(_effIndex, SPELL_AURA_SPLIT_DAMAGE_PCT), pEffectHandlerScript(_pEffectHandlerScript)
-{
-}
-
-AuraScript::EffectSplitHandler::EffectSplitHandler(EffectSplitHandler&& right) noexcept = default;
-AuraScript::EffectSplitHandler& AuraScript::EffectSplitHandler::operator=(EffectSplitHandler&& right) noexcept = default;
-AuraScript::EffectSplitHandler::~EffectSplitHandler() = default;
-
-void AuraScript::EffectSplitHandler::Call(AuraScript* auraScript, AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& splitAmount)
-{
-    (auraScript->*pEffectHandlerScript)(aurEff, dmgInfo, splitAmount);
-}
-
-AuraScript::CheckProcHandler::CheckProcHandler(AuraCheckProcFnType handlerScript) : _HandlerScript(handlerScript)
+AuraScript::CheckProcHandler::CheckProcHandler(AuraCheckProcFnType callImpl) : _callImpl(callImpl)
 {
 }
 
@@ -1240,13 +1195,13 @@ AuraScript::CheckProcHandler::CheckProcHandler(CheckProcHandler&& right) noexcep
 AuraScript::CheckProcHandler& AuraScript::CheckProcHandler::operator=(CheckProcHandler&& right) noexcept = default;
 AuraScript::CheckProcHandler::~CheckProcHandler() = default;
 
-bool AuraScript::CheckProcHandler::Call(AuraScript* auraScript, ProcEventInfo& eventInfo)
+bool AuraScript::CheckProcHandler::Call(AuraScript* auraScript, ProcEventInfo& eventInfo) const
 {
-    return (auraScript->*_HandlerScript)(eventInfo);
+    return (auraScript->*_callImpl)(eventInfo);
 }
 
-AuraScript::CheckEffectProcHandler::CheckEffectProcHandler(AuraCheckEffectProcFnType handlerScript, uint8 effIndex, uint16 effName)
-    : AuraScript::EffectBase(effIndex, effName), _HandlerScript(handlerScript)
+AuraScript::CheckEffectProcHandler::CheckEffectProcHandler(AuraCheckEffectProcFnType callImpl, uint8 effIndex, uint16 auraType)
+    : EffectBase(effIndex, auraType), _callImpl(callImpl)
 {
 }
 
@@ -1254,12 +1209,12 @@ AuraScript::CheckEffectProcHandler::CheckEffectProcHandler(CheckEffectProcHandle
 AuraScript::CheckEffectProcHandler& AuraScript::CheckEffectProcHandler::operator=(CheckEffectProcHandler&& right) noexcept = default;
 AuraScript::CheckEffectProcHandler::~CheckEffectProcHandler() = default;
 
-bool AuraScript::CheckEffectProcHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+bool AuraScript::CheckEffectProcHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, ProcEventInfo& eventInfo) const
 {
-    return (auraScript->*_HandlerScript)(aurEff, eventInfo);
+    return (auraScript->*_callImpl)(aurEff, eventInfo);
 }
 
-AuraScript::AuraProcHandler::AuraProcHandler(AuraProcFnType handlerScript) : _HandlerScript(handlerScript)
+AuraScript::AuraProcHandler::AuraProcHandler(AuraProcFnType callImpl) : _callImpl(callImpl)
 {
 }
 
@@ -1267,13 +1222,13 @@ AuraScript::AuraProcHandler::AuraProcHandler(AuraProcHandler&& right) noexcept =
 AuraScript::AuraProcHandler& AuraScript::AuraProcHandler::operator=(AuraProcHandler&& right) noexcept = default;
 AuraScript::AuraProcHandler::~AuraProcHandler() = default;
 
-void AuraScript::AuraProcHandler::Call(AuraScript* auraScript, ProcEventInfo& eventInfo)
+void AuraScript::AuraProcHandler::Call(AuraScript* auraScript, ProcEventInfo& eventInfo) const
 {
-    (auraScript->*_HandlerScript)(eventInfo);
+    (auraScript->*_callImpl)(eventInfo);
 }
 
-AuraScript::EffectProcHandler::EffectProcHandler(AuraEffectProcFnType effectHandlerScript, uint8 effIndex, uint16 effName)
-    : AuraScript::EffectBase(effIndex, effName), _EffectHandlerScript(effectHandlerScript)
+AuraScript::EffectProcHandler::EffectProcHandler(AuraEffectProcFnType callImpl, uint8 effIndex, uint16 auraType)
+    : EffectBase(effIndex, auraType), _callImpl(callImpl)
 {
 }
 
@@ -1281,12 +1236,12 @@ AuraScript::EffectProcHandler::EffectProcHandler(EffectProcHandler&& right) noex
 AuraScript::EffectProcHandler& AuraScript::EffectProcHandler::operator=(EffectProcHandler&& right) noexcept = default;
 AuraScript::EffectProcHandler::~EffectProcHandler() = default;
 
-void AuraScript::EffectProcHandler::Call(AuraScript* auraScript, AuraEffect* aurEff, ProcEventInfo& eventInfo)
+void AuraScript::EffectProcHandler::Call(AuraScript* auraScript, AuraEffect* aurEff, ProcEventInfo& eventInfo) const
 {
-    (auraScript->*_EffectHandlerScript)(aurEff, eventInfo);
+    (auraScript->*_callImpl)(aurEff, eventInfo);
 }
 
-AuraScript::EnterLeaveCombatHandler::EnterLeaveCombatHandler(AuraEnterLeaveCombatFnType handlerScript) : _handlerScript(handlerScript)
+AuraScript::EnterLeaveCombatHandler::EnterLeaveCombatHandler(AuraEnterLeaveCombatFnType callImpl) : _callImpl(callImpl)
 {
 }
 
@@ -1296,10 +1251,10 @@ AuraScript::EnterLeaveCombatHandler::~EnterLeaveCombatHandler() = default;
 
 void AuraScript::EnterLeaveCombatHandler::Call(AuraScript* auraScript, bool isNowInCombat) const
 {
-    (auraScript->*_handlerScript)(isNowInCombat);
+    (auraScript->*_callImpl)(isNowInCombat);
 }
 
-AuraScript::AuraScript(): _SpellScript(), m_aura(nullptr), m_auraApplication(nullptr), m_defaultActionPrevented(false)
+AuraScript::AuraScript(): SpellScriptBase(), m_aura(nullptr), m_auraApplication(nullptr), m_defaultActionPrevented(false)
 {
 }
 
@@ -1365,7 +1320,7 @@ void AuraScript::PreventDefaultAction()
             m_defaultActionPrevented = true;
             break;
         default:
-            TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}` AuraScript::PreventDefaultAction called in a hook in which the call won't have effect!", m_scriptName->c_str(), m_scriptSpellId);
+            TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}` AuraScript::PreventDefaultAction called in a hook in which the call won't have effect!", m_scriptName, m_scriptSpellId);
             break;
     }
 }
@@ -1568,7 +1523,7 @@ Unit* AuraScript::GetTarget() const
         case AURA_SCRIPT_HOOK_ENTER_LEAVE_COMBAT:
             return m_auraApplication->GetTarget();
         default:
-            TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}` AuraScript::GetTarget called in a hook in which the call won't have effect!", m_scriptName->c_str(), m_scriptSpellId);
+            TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}` AuraScript::GetTarget called in a hook in which the call won't have effect!", m_scriptName, m_scriptSpellId);
     }
 
     return nullptr;
