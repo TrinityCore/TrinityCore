@@ -341,8 +341,6 @@ public:
 // 195178 - Atonement (Passive)
 class spell_pri_atonement_passive : public AuraScript
 {
-    PrepareAuraScript(spell_pri_atonement_passive);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT });
@@ -793,8 +791,6 @@ class spell_pri_holy_words : public AuraScript
 // Called by Mind Blast - 8092, Shadow Word: Death - 32379
 class spell_pri_inescapable_torment : public SpellScript
 {
-    PrepareSpellScript(spell_pri_inescapable_torment);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
@@ -1057,8 +1053,6 @@ class spell_pri_penance_or_dark_reprimand_channeled : public AuraScript
 // 284621 - Power Leech (Passive for Mindbender)
 class spell_pri_power_leech_passive : public AuraScript
 {
-    PrepareAuraScript(spell_pri_power_leech_passive);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
