@@ -42,7 +42,7 @@ enum AberrusDataTypes
     DATA_KAZZARA_GATE,
 
     // Misc
-    DATA_KAZZARA_INTRO_DONE,
+    DATA_KAZZARA_INTRO_DONE
 };
 
 enum AberrusCreatureIds
@@ -66,7 +66,7 @@ enum AberrusCreatureIds
     BOSS_SCALECOMMANDER_SARKARETH        = 205319,
 
     // Misc
-    NPC_SABELLIAN                        = 201575
+    NPC_SABELLIAN_AT_ABERRUS_INTRO       = 201575
 };
 
 enum AberrusGameObjectIds

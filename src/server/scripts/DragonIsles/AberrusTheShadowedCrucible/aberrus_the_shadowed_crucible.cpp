@@ -26,8 +26,10 @@
 
 enum AberrusMisc
 {
-    CONVERSATION_SABELLIAN_INTRO      = 20800, // Sabellian and Wrathion
-    CONVERSATION_SARKARETH_INTRO      = 20970, // Sabellian and Sarkareth
+    SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_1 = 400785, // Sabellian and Wrathion
+    SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_2 = 403340, // Sabellian and Sarkareth
+
+
 
     // Sabellian intro
     CONVO_ACTOR_IDX_SABELLIAN         = 0,
@@ -71,7 +73,12 @@ struct at_aberrus_sabellian_conversation_intro : AreaTriggerAI
         if (!player)
             return;
 
-        Conversation::CreateConversation(CONVERSATION_SABELLIAN_INTRO, unit, unit->GetPosition(), ObjectGuid::Empty);
+        Creature* sabellian = unit->FindNearestCreature(NPC_SABELLIAN_AT_ABERRUS_INTRO, 50.0f);
+
+        if (!sabellian)
+            return;
+
+        sabellian->CastSpell(nullptr, SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_1);
         at->Remove();
     }
 };
@@ -87,7 +94,12 @@ struct at_aberrus_sarkareth_conversation_intro : AreaTriggerAI
         if (!player)
             return;
 
-        Conversation::CreateConversation(CONVERSATION_SARKARETH_INTRO, unit, unit->GetPosition(), ObjectGuid::Empty);
+        Creature* sabellian = unit->FindNearestCreature(NPC_SABELLIAN_AT_ABERRUS_INTRO, 50.0f);
+
+        if (!sabellian)
+            return;
+
+        sabellian->CastSpell(nullptr, SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_2);
         at->Remove();
     }
 };
