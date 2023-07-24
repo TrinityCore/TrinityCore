@@ -487,8 +487,6 @@ private:
 // 44191 - Flame Strike
 class spell_felblood_kaelthas_flame_strike : public AuraScript
 {
-    PrepareAuraScript(spell_felblood_kaelthas_flame_strike);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FLAME_STRIKE_DAMAGE });

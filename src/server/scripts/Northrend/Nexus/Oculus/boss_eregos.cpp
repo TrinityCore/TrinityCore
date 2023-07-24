@@ -254,8 +254,6 @@ private:
 // 51162 - Planar Shift
 class spell_eregos_planar_shift : public AuraScript
 {
-    PrepareAuraScript(spell_eregos_planar_shift);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* creature = GetTarget()->ToCreature())

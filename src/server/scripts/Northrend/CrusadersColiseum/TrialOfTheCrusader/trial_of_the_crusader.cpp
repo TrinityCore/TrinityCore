@@ -884,8 +884,6 @@ private:
 // 69016 - Corpse Teleport
 class spell_lich_king_teleport_corpse : public SpellScript
 {
-    PrepareSpellScript(spell_lich_king_teleport_corpse);
-
     void HandleTeleport(SpellEffIndex /*effIndex*/)
     {
         GetHitUnit()->NearTeleportTo(CorpseTeleportPosition);

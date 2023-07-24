@@ -478,8 +478,6 @@ struct npc_solarium_priest : public ScriptedAI
 // 42783 - Wrath of the Astromancer
 class spell_astromancer_wrath_of_the_astromancer : public AuraScript
 {
-    PrepareAuraScript(spell_astromancer_wrath_of_the_astromancer);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_WRATH_OF_THE_ASTROMANCER_DOT })

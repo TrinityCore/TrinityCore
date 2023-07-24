@@ -1082,8 +1082,6 @@ private:
 // 40401 - Shade Soul Channel (serverside spell)
 class spell_shade_soul_channel_serverside : public AuraScript
 {
-    PrepareAuraScript(spell_shade_soul_channel_serverside);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_SHADE_SOUL_CHANNEL_2 });
@@ -1103,8 +1101,6 @@ class spell_shade_soul_channel_serverside : public AuraScript
 // 40520 - Shade Soul Channel
 class spell_shade_soul_channel : public AuraScript
 {
-    PrepareAuraScript(spell_shade_soul_channel);
-
     void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         int32 const maxSlowEff = -99;

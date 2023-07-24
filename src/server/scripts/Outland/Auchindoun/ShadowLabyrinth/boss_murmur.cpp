@@ -156,8 +156,6 @@ struct boss_murmur : public BossAI
 // 33923, 38796 - Sonic Boom
 class spell_murmur_sonic_boom : public SpellScript
 {
-    PrepareSpellScript(spell_murmur_sonic_boom);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SONIC_BOOM_EFFECT });
@@ -177,8 +175,6 @@ class spell_murmur_sonic_boom : public SpellScript
 // 33666, 38795 - Sonic Boom Effect
 class spell_murmur_sonic_boom_effect : public SpellScript
 {
-    PrepareSpellScript(spell_murmur_sonic_boom_effect);
-
     void CalcDamage()
     {
         if (Unit* target = GetHitUnit())
@@ -209,8 +205,6 @@ class ThunderingStormCheck
 // 39365 - Thundering Storm
 class spell_murmur_thundering_storm : public SpellScript
 {
-    PrepareSpellScript(spell_murmur_thundering_storm);
-
     void FilterTarget(std::list<WorldObject*>& targets)
     {
         targets.remove_if(ThunderingStormCheck(GetCaster()));
@@ -225,8 +219,6 @@ class spell_murmur_thundering_storm : public SpellScript
 // 33711, 38794 - Murmur's Touch
 class spell_murmur_murmurs_touch : public AuraScript
 {
-    PrepareAuraScript(spell_murmur_murmurs_touch);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
