@@ -889,8 +889,6 @@ class spell_dru_lifebloom : public AuraScript
 // 33778 - Lifebloom (Heal)
 class spell_dru_lifebloom_heal : public SpellScript
 {
-    PrepareSpellScript(spell_dru_lifebloom_heal);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_EFFLORESCENCE })
