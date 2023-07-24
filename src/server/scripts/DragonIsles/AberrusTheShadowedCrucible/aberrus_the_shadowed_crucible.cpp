@@ -22,6 +22,7 @@
 #include "MotionMaster.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Unit.h"
 #include "aberrus_the_shadowed_crucible.h"
 
 enum AberrusMisc
