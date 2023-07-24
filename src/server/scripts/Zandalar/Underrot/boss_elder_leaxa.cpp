@@ -214,8 +214,6 @@ struct npc_blood_wave_stalker : public ScriptedAI
 // 264747 - Sanguine Feast
 class spell_sanguine_feast_selector : public SpellScript
 {
-    PrepareSpellScript(spell_sanguine_feast_selector);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
@@ -236,8 +234,6 @@ class spell_sanguine_feast_selector : public SpellScript
 // 260889 - Creeping Rot
 class spell_creeping_rot_selector : public SpellScript
 {
-    PrepareSpellScript(spell_creeping_rot_selector);
-
     static constexpr float SPAWN_DISTANCE = 5.0f;
 
     void HandleHit(SpellEffIndex /*effIndex*/)
@@ -268,8 +264,6 @@ class spell_creeping_rot_selector : public SpellScript
 // 261496 - Creeping Rot (Aura)
 class spell_creeping_rot_aura : public AuraScript
 {
-    PrepareAuraScript(spell_creeping_rot_aura);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
@@ -302,8 +296,6 @@ static Position const MirrorSpawnPositions[] =
 // 264603 - Blood Mirror
 class spell_blood_mirror_selector : public SpellScript
 {
-    PrepareSpellScript(spell_blood_mirror_selector);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BLOOD_MIRROR_MISSILE });
@@ -326,8 +318,6 @@ class spell_blood_mirror_selector : public SpellScript
 // 261498 - Creeping Rot
 class spell_taint_of_ghuun : public SpellScript
 {
-    PrepareSpellScript(spell_taint_of_ghuun);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TAINT_OF_GHUUN });

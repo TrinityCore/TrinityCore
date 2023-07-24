@@ -379,8 +379,6 @@ struct npc_ingvar_throw_dummy : public ScriptedAI
 // 42912 - Summon Banshee
 class spell_ingvar_summon_banshee : public SpellScript
 {
-    PrepareSpellScript(spell_ingvar_summon_banshee);
-
     void SetDest(SpellDestination& dest)
     {
         dest.RelocateOffset({ 0.0f, 0.0f, 30.0f, 0.0f });
@@ -395,8 +393,6 @@ class spell_ingvar_summon_banshee : public SpellScript
 // 42730, 59735 - Woe Strike
 class spell_ingvar_woe_strike : public AuraScript
 {
-    PrepareAuraScript(spell_ingvar_woe_strike);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WOE_STRIKE_EFFECT });

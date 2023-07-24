@@ -63,8 +63,6 @@ enum AttentionExilesReachData
 // 290901 - Attention!
 class spell_attention_exiles_reach_tutorial : public AuraScript
 {
-    PrepareAuraScript(spell_attention_exiles_reach_tutorial);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DEBUG_LOOK_RIGHT });
@@ -286,8 +284,6 @@ public:
 // 325108 - Summon Throg - Combat Training (DNT)
 class spell_summon_sparring_partner : public SpellScript
 {
-    PrepareSpellScript(spell_summon_sparring_partner);
-
     void SelectTarget(WorldObject*& target)
     {
         Player* caster = GetCaster()->ToPlayer();
@@ -987,8 +983,6 @@ enum KnockedDownExilesReachData
 // 305445 - Knocked Down!
 class spell_knocked_down_exiles_reach_beach : public AuraScript
 {
-    PrepareAuraScript(spell_knocked_down_exiles_reach_beach);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_KNOCKED_DOWN_STUN2 });
@@ -1057,8 +1051,6 @@ enum SpellCrashLandedData
 template<uint32 StaticCaptainNPCId>
 class spell_crash_landed_generic : public SpellScript
 {
-    PrepareSpellScript(spell_crash_landed_generic);
-
     void HandleEffect(SpellEffIndex /*effIndex*/)
     {
         Player* player = GetCaster()->ToPlayer();
@@ -2032,8 +2024,6 @@ public:
 // 325076 - Summon Warlord Grimaxe
 class spell_summon_survivor_beach : public SpellScript
 {
-    PrepareSpellScript(spell_summon_survivor_beach);
-
     void SelectTarget(WorldObject*& target)
     {
         Player* caster = GetCaster()->ToPlayer();

@@ -692,8 +692,6 @@ private:
 // 228928 - Stealth
 class spell_stealth_vanessa_human_heritage : public AuraScript
 {
-    PrepareAuraScript(spell_stealth_vanessa_human_heritage);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->SetDisplayId(DISPLAY_VANESSA_INVISIBLE);

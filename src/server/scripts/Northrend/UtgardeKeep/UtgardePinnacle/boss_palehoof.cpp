@@ -524,8 +524,6 @@ struct go_palehoof_sphere : public GameObjectAI
 // 48139 - Crazed
 class spell_palehoof_crazed : public AuraScript
 {
-    PrepareAuraScript(spell_palehoof_crazed);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->RemoveAurasDueToSpell(SPELL_CRAZED_TAUNT);
@@ -540,8 +538,6 @@ class spell_palehoof_crazed : public AuraScript
 // 48146 - Crazed
 class spell_palehoof_crazed_effect : public SpellScript
 {
-    PrepareSpellScript(spell_palehoof_crazed_effect);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CRAZED_TAUNT });
@@ -561,8 +557,6 @@ class spell_palehoof_crazed_effect : public SpellScript
 // 47669 - Awaken Subboss
 class spell_palehoof_awaken_subboss : public SpellScript
 {
-    PrepareSpellScript(spell_palehoof_awaken_subboss);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ORB_CHANNEL });
@@ -585,8 +579,6 @@ class spell_palehoof_awaken_subboss : public SpellScript
 // 47670 - Awaken Gortok
 class spell_palehoof_awaken_gortok : public SpellScript
 {
-    PrepareSpellScript(spell_palehoof_awaken_gortok);
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();

@@ -524,8 +524,6 @@ private:
 // 64381 - Strength of the Pack
 class spell_auriaya_strenght_of_the_pack : public SpellScript
 {
-    PrepareSpellScript(spell_auriaya_strenght_of_the_pack);
-
     void FilterTargets(std::list<WorldObject*>& unitList)
     {
         unitList.remove_if([](WorldObject* obj) { return obj->GetEntry() != NPC_SANCTUM_SENTRY; });
@@ -540,8 +538,6 @@ class spell_auriaya_strenght_of_the_pack : public SpellScript
 // 64392, 64679 - Sentinel Blast
 class spell_auriaya_sentinel_blast : public SpellScript
 {
-    PrepareSpellScript(spell_auriaya_sentinel_blast);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if([](WorldObject* object) -> bool
@@ -566,8 +562,6 @@ class spell_auriaya_sentinel_blast : public SpellScript
 // 63709 - Aggro Creator
 class spell_auriaya_agro_creator : public SpellScript
 {
-    PrepareSpellScript(spell_auriaya_agro_creator);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_POUNCE });
@@ -596,8 +590,6 @@ class spell_auriaya_agro_creator : public SpellScript
 // 64456 - Feral Essence Application Removal
 class spell_auriaya_feral_essence_removal : public SpellScript
 {
-    PrepareSpellScript(spell_auriaya_feral_essence_removal);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FERAL_ESSENCE });
@@ -618,8 +610,6 @@ class spell_auriaya_feral_essence_removal : public SpellScript
 // 64496, 64674 - Feral Rush
 class spell_auriaya_feral_rush : public SpellScript
 {
-    PrepareSpellScript(spell_auriaya_feral_rush);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FERAL_RUSH_2 });

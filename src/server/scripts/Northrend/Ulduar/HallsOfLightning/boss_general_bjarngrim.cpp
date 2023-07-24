@@ -380,8 +380,6 @@ private:
 // 53792 - Battle Stance
 class spell_bjarngrim_stance_dummy : public AuraScript
 {
-    PrepareAuraScript(spell_bjarngrim_stance_dummy);
-
 public:
     spell_bjarngrim_stance_dummy(uint8 stanceId) : AuraScript(), _stanceId(stanceId) { }
 
@@ -456,8 +454,6 @@ private:
 // 52098 - Charge Up
 class spell_bjarngrim_charge_up : public AuraScript
 {
-    PrepareAuraScript(spell_bjarngrim_charge_up);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TEMPOARY_ELECTRICAL_CHARGE });
@@ -478,8 +474,6 @@ class spell_bjarngrim_charge_up : public AuraScript
 // 59085 - Arc Weld
 class spell_bjarngrim_arc_weld : public AuraScript
 {
-    PrepareAuraScript(spell_bjarngrim_arc_weld);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ARC_WELD_DAMAGE });

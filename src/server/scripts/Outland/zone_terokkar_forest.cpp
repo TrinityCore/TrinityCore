@@ -151,8 +151,6 @@ public:
 // 40655 - Skyguard Flare
 class spell_skyguard_flare : public SpellScript
 {
-    PrepareSpellScript(spell_skyguard_flare);
-
     void ModDestHeight(SpellDestination& dest)
     {
         dest._position.m_positionZ = GetCaster()->GetMap()->GetHeight(GetCaster()->GetPhaseShift(), dest._position.GetPositionX(), dest._position.GetPositionY(), MAX_HEIGHT);
@@ -186,8 +184,6 @@ std::array<uint32, 5> const CocoonSummonSpells =
 // 38949 - Terrokar Free Webbed Creature
 class spell_terokkar_free_webbed : public SpellScript
 {
-    PrepareSpellScript(spell_terokkar_free_webbed);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(CocoonSummonSpells);
@@ -207,8 +203,6 @@ class spell_terokkar_free_webbed : public SpellScript
 // 38950 - Terokkar Free Webbed Creature ON QUEST
 class spell_terokkar_free_webbed_on_quest : public SpellScript
 {
-    PrepareSpellScript(spell_terokkar_free_webbed_on_quest);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_FREE_WEBBED_6 });
@@ -245,8 +239,6 @@ enum WhoAreThey
 // 48917 - Who Are They: Cast from Questgiver
 class spell_terokkar_shadowy_disguise_cast_from_questgiver : public SpellScript
 {
-    PrepareSpellScript(spell_terokkar_shadowy_disguise_cast_from_questgiver);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHADOWY_DISGUISE });
@@ -266,8 +258,6 @@ class spell_terokkar_shadowy_disguise_cast_from_questgiver : public SpellScript
 // 32756 - Shadowy Disguise
 class spell_terokkar_shadowy_disguise : public AuraScript
 {
-    PrepareAuraScript(spell_terokkar_shadowy_disguise);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MALE_SHADOWY_DISGUISE, SPELL_FEMALE_SHADOWY_DISGUISE });
@@ -296,8 +286,6 @@ class spell_terokkar_shadowy_disguise : public AuraScript
 // 32780 - Cancel Shadowy Disguise
 class spell_terokkar_cancel_shadowy_disguise : public SpellScript
 {
-    PrepareSpellScript(spell_terokkar_cancel_shadowy_disguise);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHADOWY_DISGUISE });

@@ -478,8 +478,6 @@ public:
 
     class spell_anraphet_alpha_beams_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_anraphet_alpha_beams_SpellScript);
-
         void FilterTargets(std::list<WorldObject*>& targets)
         {
             if (targets.empty())
@@ -510,8 +508,6 @@ public:
 
     class spell_anraphet_omega_stance_summon_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_anraphet_omega_stance_summon_SpellScript);
-
         void SetDest(SpellDestination& dest)
         {
             dest.RelocateOffset({ 0.0f, 0.0f, 30.0f, 0.0f });
@@ -537,8 +533,6 @@ public:
 
     class spell_anraphet_omega_stance_spider_effect_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_anraphet_omega_stance_spider_effect_SpellScript);
-
         void SetDest(SpellDestination& dest)
         {
             // Do our own calculations for the destination position.

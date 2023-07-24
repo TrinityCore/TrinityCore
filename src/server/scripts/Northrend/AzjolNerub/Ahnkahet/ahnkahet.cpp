@@ -25,8 +25,6 @@
 // 56584 - Combined Toxins
 class spell_ahnkahet_combined_toxins : public AuraScript
 {
-    PrepareAuraScript(spell_ahnkahet_combined_toxins);
-
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         // only procs on poisons (damage class check to exclude stuff like Envenom)
@@ -43,8 +41,6 @@ class spell_ahnkahet_combined_toxins : public AuraScript
 // 56698, 59102 - Shadow Blast
 class spell_ahnkahet_shadow_blast : public SpellScript
 {
-    PrepareSpellScript(spell_ahnkahet_shadow_blast);
-
     void HandleDamageCalc(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
@@ -69,8 +65,6 @@ enum ShadowSickle
 // 56702, 59103 - Shadow Sickle
 class spell_ahnkahet_shadow_sickle : public AuraScript
 {
-    PrepareAuraScript(spell_ahnkahet_shadow_sickle);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHADOW_SICKLE_TRIGGERED });
@@ -108,8 +102,6 @@ class spell_ahnkahet_shadow_sickle : public AuraScript
 // 58906, 58908, 58909, 58910 - Creature - Yogg-Saron Whisper
 class spell_ahnkahet_yogg_saron_whisper : public SpellScript
 {
-    PrepareSpellScript(spell_ahnkahet_yogg_saron_whisper);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return sBroadcastTextStore.HasRecord(uint32(spellInfo->GetEffect(EFFECT_0).CalcValue())) &&

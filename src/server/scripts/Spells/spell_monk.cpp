@@ -56,8 +56,6 @@ enum MonkSpells
 // 117952 - Crackling Jade Lightning
 class spell_monk_crackling_jade_lightning : public AuraScript
 {
-    PrepareAuraScript(spell_monk_crackling_jade_lightning);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -83,8 +81,6 @@ class spell_monk_crackling_jade_lightning : public AuraScript
 // 117959 - Crackling Jade Lightning
 class spell_monk_crackling_jade_lightning_knockback_proc_aura : public AuraScript
 {
-    PrepareAuraScript(spell_monk_crackling_jade_lightning_knockback_proc_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -125,8 +121,6 @@ class spell_monk_crackling_jade_lightning_knockback_proc_aura : public AuraScrip
 // 116849 - Life Cocoon
 class spell_monk_life_cocoon : public SpellScript
 {
-    PrepareSpellScript(spell_monk_life_cocoon);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MONK_CALMING_COALESCENCE });
@@ -156,8 +150,6 @@ class spell_monk_life_cocoon : public SpellScript
 // 392972 - Open Palm Strikes
 class spell_monk_open_palm_strikes : public AuraScript
 {
-    PrepareAuraScript(spell_monk_open_palm_strikes);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellEffect({ { SPELL_MONK_OPEN_PALM_STRIKES_TALENT, EFFECT_1} });
@@ -178,8 +170,6 @@ class spell_monk_open_palm_strikes : public AuraScript
 // 121817 - Power Strike
 class spell_monk_power_strike_periodic : public AuraScript
 {
-    PrepareAuraScript(spell_monk_power_strike_periodic);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MONK_POWER_STRIKE_PROC });
@@ -199,8 +189,6 @@ class spell_monk_power_strike_periodic : public AuraScript
 // 129914 - Power Strike Proc
 class spell_monk_power_strike_proc : public AuraScript
 {
-    PrepareAuraScript(spell_monk_power_strike_proc);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MONK_POWER_STRIKE_ENERGIZE });
@@ -220,8 +208,6 @@ class spell_monk_power_strike_proc : public AuraScript
 // 115546 - Provoke
 class spell_monk_provoke : public SpellScript
 {
-    PrepareSpellScript(spell_monk_provoke);
-
     static uint32 const BlackOxStatusEntry = 61146;
 
     bool Validate(SpellInfo const* spellInfo) override
@@ -269,8 +255,6 @@ class spell_monk_provoke : public SpellScript
 // 109132 - Roll
 class spell_monk_roll : public SpellScript
 {
-    PrepareSpellScript(spell_monk_roll);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MONK_ROLL_BACKWARD, SPELL_MONK_ROLL_FORWARD, SPELL_MONK_NO_FEATHER_FALL });
@@ -301,8 +285,6 @@ class spell_monk_roll : public SpellScript
 // 109131 - Roll (backward)
 class spell_monk_roll_aura : public AuraScript
 {
-    PrepareAuraScript(spell_monk_roll_aura);
-
     void CalcMovementAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         amount += 100;
@@ -358,8 +340,6 @@ static constexpr SpellEffIndex AuraStaggerEffectTotal = EFFECT_1;
 // 115069 - Stagger
 class spell_monk_stagger : public AuraScript
 {
-    PrepareAuraScript(spell_monk_stagger);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MONK_STAGGER_LIGHT, SPELL_MONK_STAGGER_MODERATE, SPELL_MONK_STAGGER_HEAVY });
@@ -467,8 +447,6 @@ private:
 // 124255 - Stagger - SPELL_MONK_STAGGER_DAMAGE_AURA
 class spell_monk_stagger_damage_aura : public AuraScript
 {
-    PrepareAuraScript(spell_monk_stagger_damage_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MONK_STAGGER_LIGHT, SPELL_MONK_STAGGER_MODERATE, SPELL_MONK_STAGGER_HEAVY });
@@ -497,8 +475,6 @@ class spell_monk_stagger_damage_aura : public AuraScript
 // 124273, 124274, 124275 - Light/Moderate/Heavy Stagger - SPELL_MONK_STAGGER_LIGHT / SPELL_MONK_STAGGER_MODERATE / SPELL_MONK_STAGGER_HEAVY
 class spell_monk_stagger_debuff_aura : public AuraScript
 {
-    PrepareAuraScript(spell_monk_stagger_debuff_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MONK_STAGGER_DAMAGE_AURA })

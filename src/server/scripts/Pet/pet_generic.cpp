@@ -151,8 +151,6 @@ enum LichPet
 // 69735 - Lich Pet OnSummon
 class spell_pet_gen_lich_pet_onsummon : public SpellScript
 {
-    PrepareSpellScript(spell_pet_gen_lich_pet_onsummon);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LICH_PET_AURA });
@@ -173,8 +171,6 @@ class spell_pet_gen_lich_pet_onsummon : public SpellScript
 // 69736 - Lich Pet Aura Remove
 class spell_pet_gen_lich_pet_aura_remove : public SpellScript
 {
-    PrepareSpellScript(spell_pet_gen_lich_pet_aura_remove);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LICH_PET_AURA });
@@ -194,8 +190,6 @@ class spell_pet_gen_lich_pet_aura_remove : public SpellScript
 // 69732 - Lich Pet Aura
 class spell_pet_gen_lich_pet_aura : public AuraScript
 {
-    PrepareAuraScript(spell_pet_gen_lich_pet_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LICH_PET_AURA_ONKILL });
@@ -228,8 +222,6 @@ class spell_pet_gen_lich_pet_aura : public AuraScript
 // 70050 - [DND] Lich Pet
 class spell_pet_gen_lich_pet_periodic_emote : public AuraScript
 {
-    PrepareAuraScript(spell_pet_gen_lich_pet_periodic_emote);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LICH_PET_EMOTE });
@@ -257,8 +249,6 @@ class spell_pet_gen_lich_pet_periodic_emote : public AuraScript
 // 70049 - [DND] Lich Pet
 class spell_pet_gen_lich_pet_emote : public AuraScript
 {
-    PrepareAuraScript(spell_pet_gen_lich_pet_emote);
-
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOM_SPELL_01);
@@ -273,8 +263,6 @@ class spell_pet_gen_lich_pet_emote : public AuraScript
 // 69682 - Lil' K.T. Focus
 class spell_pet_gen_lich_pet_focus : public SpellScript
 {
-    PrepareSpellScript(spell_pet_gen_lich_pet_focus);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });

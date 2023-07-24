@@ -155,8 +155,6 @@ class RaidCheck
 // 121536 - Angelic Feather talent
 class spell_pri_angelic_feather_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_pri_angelic_feather_trigger);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER });
@@ -221,8 +219,6 @@ struct areatrigger_pri_angelic_feather : AreaTriggerAI
 // 26169 - Oracle Healing Bonus
 class spell_pri_aq_3p_bonus : public AuraScript
 {
-    PrepareAuraScript(spell_pri_aq_3p_bonus);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ORACULAR_HEAL });
@@ -253,8 +249,6 @@ class spell_pri_aq_3p_bonus : public AuraScript
 // 81749 - Atonement
 class spell_pri_atonement : public AuraScript
 {
-    PrepareAuraScript(spell_pri_atonement);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL, SPELL_PRIEST_SINS_OF_THE_MANY })
@@ -321,8 +315,6 @@ public:
 // 194384, 214206 - Atonement
 class spell_pri_atonement_triggered : public AuraScript
 {
-    PrepareAuraScript(spell_pri_atonement_triggered);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT });
@@ -357,8 +349,6 @@ class spell_pri_atonement_triggered : public AuraScript
 // 204883 - Circle of Healing
 class spell_pri_circle_of_healing : public SpellScript
 {
-    PrepareSpellScript(spell_pri_circle_of_healing);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
@@ -384,8 +374,6 @@ class spell_pri_circle_of_healing : public SpellScript
 // 64844 - Divine Hymn
 class spell_pri_divine_hymn : public SpellScript
 {
-    PrepareSpellScript(spell_pri_divine_hymn);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if(RaidCheck(GetCaster()));
@@ -408,8 +396,6 @@ class spell_pri_divine_hymn : public SpellScript
 // 122121 - Divine Star (Shadow)
 class spell_pri_divine_star_shadow : public SpellScript
 {
-    PrepareSpellScript(spell_pri_divine_star_shadow);
-
     void HandleHitTarget(SpellEffIndex effIndex)
     {
         Unit* caster = GetCaster();
@@ -546,8 +532,6 @@ private:
 // 391339 - Empowered Renew
 class spell_pri_empowered_renew : public AuraScript
 {
-    PrepareAuraScript(spell_pri_empowered_renew);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_RENEW, SPELL_PRIEST_EMPOWERED_RENEW_HEAL })
@@ -577,8 +561,6 @@ class spell_pri_empowered_renew : public AuraScript
 // 47788 - Guardian Spirit
 class spell_pri_guardian_spirit : public AuraScript
 {
-    PrepareAuraScript(spell_pri_guardian_spirit);
-
     uint32 healPct = 0;
 
     bool Validate(SpellInfo const* spellInfo) override
@@ -623,8 +605,6 @@ class spell_pri_guardian_spirit : public AuraScript
 // 120644 - Halo (Shadow)
 class spell_pri_halo_shadow : public SpellScript
 {
-    PrepareSpellScript(spell_pri_halo_shadow);
-
     void HandleHitTarget(SpellEffIndex effIndex)
     {
         Unit* caster = GetCaster();
@@ -662,8 +642,6 @@ struct areatrigger_pri_halo : AreaTriggerAI
 // 391154 - Holy Mending
 class spell_pri_holy_mending : public AuraScript
 {
-    PrepareAuraScript(spell_pri_holy_mending);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_RENEW, SPELL_PRIEST_HOLY_MENDING_HEAL });
@@ -689,8 +667,6 @@ class spell_pri_holy_mending : public AuraScript
 // 63733 - Holy Words
 class spell_pri_holy_words : public AuraScript
 {
-    PrepareAuraScript(spell_pri_holy_words);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -758,8 +734,6 @@ class spell_pri_holy_words : public AuraScript
 // 40438 - Priest Tier 6 Trinket
 class spell_pri_item_t6_trinket : public AuraScript
 {
-    PrepareAuraScript(spell_pri_item_t6_trinket);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_BLESSING, SPELL_PRIEST_DIVINE_WRATH });
@@ -785,8 +759,6 @@ class spell_pri_item_t6_trinket : public AuraScript
 // 92833 - Leap of Faith
 class spell_pri_leap_of_faith_effect_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_pri_leap_of_faith_effect_trigger);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_LEAP_OF_FAITH_EFFECT });
@@ -811,8 +783,6 @@ class spell_pri_leap_of_faith_effect_trigger : public SpellScript
 // 1706 - Levitate
 class spell_pri_levitate : public SpellScript
 {
-    PrepareSpellScript(spell_pri_levitate);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_LEVITATE_EFFECT });
@@ -832,8 +802,6 @@ class spell_pri_levitate : public SpellScript
 // 205369 - Mind Bomb
 class spell_pri_mind_bomb : public AuraScript
 {
-    PrepareAuraScript(spell_pri_mind_bomb);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_MIND_BOMB_STUN });
@@ -855,8 +823,6 @@ class spell_pri_mind_bomb : public AuraScript
 // 390686 - Painful Punishment
 class spell_pri_painful_punishment : public AuraScript
 {
-    PrepareAuraScript(spell_pri_painful_punishment);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
@@ -892,8 +858,6 @@ class spell_pri_painful_punishment : public AuraScript
 // 400169 - Dark Reprimand
 class spell_pri_penance : public SpellScript
 {
-    PrepareSpellScript(spell_pri_penance);
-
 public:
     spell_pri_penance(uint32 damageSpellId, uint32 healingSpellId) : _damageSpellId(damageSpellId), _healingSpellId(healingSpellId)
     {
@@ -951,8 +915,6 @@ private:
 // 373129 - Dark Reprimand (Channel Damage), 400171 - Dark Reprimand (Channel Healing)
 class spell_pri_penance_or_dark_reprimand_channeled : public AuraScript
 {
-    PrepareAuraScript(spell_pri_penance_or_dark_reprimand_channeled);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_OF_THE_DARK_SIDE });
@@ -973,8 +935,6 @@ class spell_pri_penance_or_dark_reprimand_channeled : public AuraScript
 // 198069 - Power of the Dark Side
 class spell_pri_power_of_the_dark_side : public AuraScript
 {
-    PrepareAuraScript(spell_pri_power_of_the_dark_side);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_OF_THE_DARK_SIDE_TINT });
@@ -1003,8 +963,6 @@ class spell_pri_power_of_the_dark_side : public AuraScript
 // 373130 - Dark Reprimand (Damage)
 class spell_pri_power_of_the_dark_side_damage_bonus : public SpellScript
 {
-    PrepareSpellScript(spell_pri_power_of_the_dark_side_damage_bonus);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_OF_THE_DARK_SIDE });
@@ -1034,8 +992,6 @@ class spell_pri_power_of_the_dark_side_damage_bonus : public SpellScript
 // 400187 - Dark Reprimand (Healing)
 class spell_pri_power_of_the_dark_side_healing_bonus : public SpellScript
 {
-    PrepareSpellScript(spell_pri_power_of_the_dark_side_healing_bonus);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_OF_THE_DARK_SIDE });
@@ -1064,8 +1020,6 @@ class spell_pri_power_of_the_dark_side_healing_bonus : public SpellScript
 // 194509 - Power Word: Radiance
 class spell_pri_power_word_radiance : public SpellScript
 {
-    PrepareSpellScript(spell_pri_power_word_radiance);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT, SPELL_PRIEST_ATONEMENT_TRIGGERED, SPELL_PRIEST_TRINITY })
@@ -1135,8 +1089,6 @@ private:
 // 17 - Power Word: Shield
 class spell_pri_power_word_shield : public SpellScript
 {
-    PrepareSpellScript(spell_pri_power_word_shield);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_WEAKENED_SOUL });
@@ -1172,8 +1124,6 @@ class spell_pri_power_word_shield : public SpellScript
 
 class spell_pri_power_word_shield_aura : public AuraScript
 {
-    PrepareAuraScript(spell_pri_power_word_shield_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
@@ -1265,8 +1215,6 @@ class spell_pri_power_word_shield_aura : public AuraScript
 // 129250 - Power Word: Solace
 class spell_pri_power_word_solace : public SpellScript
 {
-    PrepareSpellScript(spell_pri_power_word_solace);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_WORD_SOLACE_ENERGIZE });
@@ -1322,8 +1270,6 @@ protected:
 // 411097 - Priest Holy 10.1 Class Set 2pc (Chooser)
 class spell_pri_prayer_of_mending_dummy : public spell_pri_prayer_of_mending_SpellScriptBase
 {
-    PrepareSpellScript(spell_pri_prayer_of_mending_dummy);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Trinity::SelectRandomInjuredTargets(targets, 1, true);
@@ -1346,8 +1292,6 @@ class spell_pri_prayer_of_mending_dummy : public spell_pri_prayer_of_mending_Spe
 // 41635 - Prayer of Mending (Aura)
 class spell_pri_prayer_of_mending_aura : public AuraScript
 {
-    PrepareAuraScript(spell_pri_prayer_of_mending_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
@@ -1407,8 +1351,6 @@ private:
 
 class spell_pri_prayer_of_mending : public SpellScript
 {
-    PrepareSpellScript(spell_pri_prayer_of_mending);
-
     void HandleEffectDummy(SpellEffIndex /*effIndex*/)
     {
         Aura* aura = GetHitAura();
@@ -1432,8 +1374,6 @@ class spell_pri_prayer_of_mending : public SpellScript
 // 155793 - Prayer of Mending (Jump)
 class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_SpellScriptBase
 {
-    PrepareSpellScript(spell_pri_prayer_of_mending_jump);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         // Note: priority list is a) players b) non-player units. Also, this spell became smartheal in WoD.
@@ -1459,8 +1399,6 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
 // 33110 - Prayer of Mending (Heal)
 class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_SpellScriptBase
 {
-    PrepareSpellScript(spell_pri_prayer_of_mending_heal);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
@@ -1510,8 +1448,6 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
 // 405554 - Priest Holy 10.1 Class Set 2pc
 class spell_pri_holy_10_1_class_set_2pc : public AuraScript
 {
-    PrepareAuraScript(spell_pri_holy_10_1_class_set_2pc);
-
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         return roll_chance_i(aurEff->GetAmount());
@@ -1535,8 +1471,6 @@ class spell_pri_holy_10_1_class_set_2pc : public AuraScript
 // Called by Penance - 47540, Dark Reprimand - 400169
 class spell_pri_purge_the_wicked : public SpellScript
 {
-    PrepareSpellScript(spell_pri_purge_the_wicked);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
@@ -1564,8 +1498,6 @@ class spell_pri_purge_the_wicked : public SpellScript
 // 204215 - Purge the Wicked
 class spell_pri_purge_the_wicked_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_pri_purge_the_wicked_dummy);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, SPELL_PRIEST_REVEL_IN_PURITY })
@@ -1637,8 +1569,6 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
 // 47536 - Rapture
 class spell_pri_rapture : public SpellScript
 {
-    PrepareSpellScript(spell_pri_rapture);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_WORD_SHIELD });
@@ -1672,8 +1602,6 @@ private:
 // 280391 - Sins of the Many
 class spell_pri_sins_of_the_many : public AuraScript
 {
-    PrepareAuraScript(spell_pri_sins_of_the_many);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_SINS_OF_THE_MANY });
@@ -1699,8 +1627,6 @@ class spell_pri_sins_of_the_many : public AuraScript
 // 20711 - Spirit of Redemption
 class spell_pri_spirit_of_redemption : public AuraScript
 {
-    PrepareAuraScript(spell_pri_spirit_of_redemption);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_SPIRIT_OF_REDEMPTION });
@@ -1724,8 +1650,6 @@ class spell_pri_spirit_of_redemption : public AuraScript
 // 186263 - Shadow Mend
 class spell_pri_shadow_mend : public SpellScript
 {
-    PrepareSpellScript(spell_pri_shadow_mend);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
@@ -1773,8 +1697,6 @@ class spell_pri_shadow_mend : public SpellScript
 // 187464 - Shadow Mend (Damage)
 class spell_pri_shadow_mend_periodic_damage : public AuraScript
 {
-    PrepareAuraScript(spell_pri_shadow_mend_periodic_damage);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_MEND_DAMAGE });
@@ -1814,8 +1736,6 @@ class spell_pri_shadow_mend_periodic_damage : public AuraScript
 // 28809 - Greater Heal
 class spell_pri_t3_4p_bonus : public AuraScript
 {
-    PrepareAuraScript(spell_pri_t3_4p_bonus);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ARMOR_OF_FAITH });
@@ -1836,8 +1756,6 @@ class spell_pri_t3_4p_bonus : public AuraScript
 // 37594 - Greater Heal Refund
 class spell_pri_t5_heal_2p_bonus : public AuraScript
 {
-    PrepareAuraScript(spell_pri_t5_heal_2p_bonus);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ITEM_EFFICIENCY });
@@ -1870,8 +1788,6 @@ class spell_pri_t5_heal_2p_bonus : public AuraScript
 // 70770 - Item - Priest T10 Healer 2P Bonus
 class spell_pri_t10_heal_2p_bonus : public AuraScript
 {
-    PrepareAuraScript(spell_pri_t10_heal_2p_bonus);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_BLESSED_HEALING });
@@ -1908,8 +1824,6 @@ class spell_pri_t10_heal_2p_bonus : public AuraScript
 // 200128 - Trail of Light
 class spell_pri_trail_of_light : public AuraScript
 {
-    PrepareAuraScript(spell_pri_trail_of_light);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL });
@@ -1967,8 +1881,6 @@ private:
 // 265259 - Twist of Fate (Discipline)
 class spell_pri_twist_of_fate : public AuraScript
 {
-    PrepareAuraScript(spell_pri_twist_of_fate);
-
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         return eventInfo.GetProcTarget()->GetHealthPct() < aurEff->GetAmount();
@@ -1983,8 +1895,6 @@ class spell_pri_twist_of_fate : public AuraScript
 // 15286 - Vampiric Embrace
 class spell_pri_vampiric_embrace : public AuraScript
 {
-    PrepareAuraScript(spell_pri_vampiric_embrace);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL });
@@ -2022,8 +1932,6 @@ class spell_pri_vampiric_embrace : public AuraScript
 // 15290 - Vampiric Embrace (heal)
 class spell_pri_vampiric_embrace_target : public SpellScript
 {
-    PrepareSpellScript(spell_pri_vampiric_embrace_target);
-
     void FilterTargets(std::list<WorldObject*>& unitList)
     {
         unitList.remove(GetCaster());
@@ -2038,8 +1946,6 @@ class spell_pri_vampiric_embrace_target : public SpellScript
 // 34914 - Vampiric Touch
 class spell_pri_vampiric_touch : public AuraScript
 {
-    PrepareAuraScript(spell_pri_vampiric_touch);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, SPELL_GEN_REPLENISHMENT });
