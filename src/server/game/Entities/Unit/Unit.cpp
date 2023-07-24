@@ -896,8 +896,10 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
         // If we had damage (aka health was not 1 already) trigger OnHealthDepleted
         if (damageTaken > 0)
+        {
             if (CreatureAI* victimAI = victim->ToCreature()->AI())
                 victimAI->OnHealthDepleted(attacker, false);
+        }
     }
     else if (victim->IsVehicle() && damageTaken >= (health-1) && victim->GetCharmer() && victim->GetCharmer()->GetTypeId() == TYPEID_PLAYER)
     {
