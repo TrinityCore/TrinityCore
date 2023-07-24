@@ -32,8 +32,6 @@ enum MaraudersOfDarrowshire
 // 17271 - Test Fetid Skull
 class spell_eastern_plaguelands_test_fetid_skull : public SpellScript
 {
-    PrepareSpellScript(spell_eastern_plaguelands_test_fetid_skull);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CREATE_RESONATING_SKULL, SPELL_CREATE_BONE_DUST });

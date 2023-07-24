@@ -368,8 +368,6 @@ public:
 // 59910 - Summon Minions
 class spell_novos_summon_minions : public SpellScript
 {
-    PrepareSpellScript(spell_novos_summon_minions);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_COPY_OF_MINIONS });

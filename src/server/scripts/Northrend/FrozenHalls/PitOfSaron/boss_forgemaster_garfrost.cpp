@@ -250,8 +250,6 @@ private:
 // 68786, 70336 - Permafrost
 class spell_garfrost_permafrost : public SpellScript
 {
-    PrepareSpellScript(spell_garfrost_permafrost);
-
 public:
     spell_garfrost_permafrost()
     {

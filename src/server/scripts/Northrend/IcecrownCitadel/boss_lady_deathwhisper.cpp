@@ -946,8 +946,6 @@ private:
 // 70842 - Mana Barrier
 class spell_deathwhisper_mana_barrier : public AuraScript
 {
-    PrepareAuraScript(spell_deathwhisper_mana_barrier);
-
     void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
@@ -968,8 +966,6 @@ class spell_deathwhisper_mana_barrier : public AuraScript
 // 71289 - Dominate Mind
 class spell_deathwhisper_dominated_mind : public AuraScript
 {
-    PrepareAuraScript(spell_deathwhisper_dominated_mind);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_DOMINATE_MIND_SCALE });
@@ -990,8 +986,6 @@ class spell_deathwhisper_dominated_mind : public AuraScript
 // 72478 - Summon Spirits
 class spell_deathwhisper_summon_spirits : public SpellScript
 {
-    PrepareSpellScript(spell_deathwhisper_summon_spirits);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_SHADE });
@@ -1011,8 +1005,6 @@ class spell_deathwhisper_summon_spirits : public SpellScript
 // 70674 - Vampiric Might
 class spell_deathwhisper_vampiric_might : public AuraScript
 {
-    PrepareAuraScript(spell_deathwhisper_vampiric_might);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_VAMPIRIC_MIGHT_PROC });
@@ -1042,8 +1034,6 @@ class spell_deathwhisper_vampiric_might : public AuraScript
 // 69483 - Dark Reckoning
 class spell_deathwhisper_dark_reckoning : public AuraScript
 {
-    PrepareAuraScript(spell_deathwhisper_dark_reckoning);
-
     bool Validate(SpellInfo const* spell) override
     {
         return ValidateSpellEffect({ { spell->Id, EFFECT_0 } })

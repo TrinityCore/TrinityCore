@@ -477,8 +477,6 @@ enum DetonateTeleporter
 // 38920 - Detonate Teleporter
 class spell_detonate_teleporter : public SpellScript
 {
-    PrepareSpellScript(spell_detonate_teleporter);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_UNIT;

@@ -811,8 +811,6 @@ private:
 // 70672, 72455, 72832, 72833 - Gaseous Bloat
 class spell_putricide_gaseous_bloat : public AuraScript
 {
-    PrepareAuraScript(spell_putricide_gaseous_bloat);
-
     void HandleExtraEffect(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
@@ -854,8 +852,6 @@ class spell_putricide_gaseous_bloat : public AuraScript
 // 70672, 72455, 72832, 72833 - Gaseous Bloat
 class spell_putricide_ooze_channel : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_ooze_channel);
-
     bool Validate(SpellInfo const* spell) override
     {
         return ValidateSpellInfo({ spell->ExcludeTargetAuraSpell });
@@ -929,8 +925,6 @@ class ExactDistanceCheck
 // 70346, 72456, 72868, 72869 - Slime Puddle
 class spell_putricide_slime_puddle : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_slime_puddle);
-
     void ScaleRange(std::list<WorldObject*>& targets)
     {
         targets.remove_if(ExactDistanceCheck(GetCaster(), 2.5f * GetCaster()->GetObjectScale()));
@@ -947,8 +941,6 @@ class spell_putricide_slime_puddle : public SpellScript
 // 72868, 72869 - Slime Puddle
 class spell_putricide_slime_puddle_aura : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_slime_puddle_aura);
-
     void ReplaceAura()
     {
         if (Unit* target = GetHitUnit())
@@ -964,8 +956,6 @@ class spell_putricide_slime_puddle_aura : public SpellScript
 // 70351, 71966, 71967, 71968 - Unstable Experiment
 class spell_putricide_unstable_experiment : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_unstable_experiment);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -1002,8 +992,6 @@ class spell_putricide_unstable_experiment : public SpellScript
 // 70459 - Ooze Eruption Search Effect
 class spell_putricide_ooze_eruption_searcher : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_ooze_eruption_searcher);
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (GetHitUnit()->HasAura(SPELL_VOLATILE_OOZE_ADHESIVE))
@@ -1022,8 +1010,6 @@ class spell_putricide_ooze_eruption_searcher : public SpellScript
 // 71770 - Ooze Spell Tank Protection
 class spell_putricide_ooze_tank_protection : public AuraScript
 {
-    PrepareAuraScript(spell_putricide_ooze_tank_protection);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
@@ -1048,8 +1034,6 @@ class spell_putricide_ooze_tank_protection : public AuraScript
 // 71255 - Choking Gas Bomb
 class spell_putricide_choking_gas_bomb : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_choking_gas_bomb);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         uint32 skipIndex = urand(0, 2);
@@ -1073,8 +1057,6 @@ class spell_putricide_choking_gas_bomb : public SpellScript
 // 70920 - Unbound Plague Search Effect
 class spell_putricide_unbound_plague : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_unbound_plague);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_UNBOUND_PLAGUE, SPELL_UNBOUND_PLAGUE_SEARCHER });
@@ -1135,8 +1117,6 @@ class spell_putricide_unbound_plague : public SpellScript
 // 70360, 72527 - Eat Ooze
 class spell_putricide_eat_ooze : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_eat_ooze);
-
     void SelectTarget(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -1177,8 +1157,6 @@ class spell_putricide_eat_ooze : public SpellScript
 // 72451, 72463, 72671, 72672 - Mutated Plague
 class spell_putricide_mutated_plague : public AuraScript
 {
-    PrepareAuraScript(spell_putricide_mutated_plague);
-
     void HandleTriggerSpell(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
@@ -1228,8 +1206,6 @@ class spell_putricide_mutated_plague : public AuraScript
 // 70308 - Mutated Transformation (Init)
 class spell_putricide_mutation_init : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_mutation_init);
-
     SpellCastResult CheckRequirementInternal(SpellCustomErrors& extendedError)
     {
         InstanceScript* instance = GetExplTargetUnit()->GetInstanceScript();
@@ -1282,8 +1258,6 @@ class spell_putricide_mutation_init : public SpellScript
 
 class spell_putricide_mutation_init_aura : public AuraScript
 {
-    PrepareAuraScript(spell_putricide_mutation_init_aura);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         uint32 spellId = 70311;
@@ -1302,8 +1276,6 @@ class spell_putricide_mutation_init_aura : public AuraScript
 // 70405, 72508, 72509, 72510 - Mutated Transformation (Dismiss)
 class spell_putricide_mutated_transformation_dismiss : public AuraScript
 {
-    PrepareAuraScript(spell_putricide_mutated_transformation_dismiss);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Vehicle* veh = GetTarget()->GetVehicleKit())
@@ -1319,8 +1291,6 @@ class spell_putricide_mutated_transformation_dismiss : public AuraScript
 // 70311, 71503 - Mutated Transformation
 class spell_putricide_mutated_transformation : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_mutated_transformation);
-
     void HandleSummon(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -1370,8 +1340,6 @@ class spell_putricide_mutated_transformation : public SpellScript
 // 70402, 72511, 72512, 72513 - Mutated Transformation (Damage)
 class spell_putricide_mutated_transformation_dmg : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_mutated_transformation_dmg);
-
     void FilterTargetsInitial(std::list<WorldObject*>& targets)
     {
         if (Unit* owner = ObjectAccessor::GetUnit(*GetCaster(), GetCaster()->GetCreatorGUID()))
@@ -1387,8 +1355,6 @@ class spell_putricide_mutated_transformation_dmg : public SpellScript
 // 70539, 72457, 72875, 72876 - Regurgitated Ooze
 class spell_putricide_regurgitated_ooze : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_regurgitated_ooze);
-
     // the only purpose of this hook is to fail the achievement
     void ExtraEffect(SpellEffIndex /*effIndex*/)
     {
@@ -1407,8 +1373,6 @@ class spell_putricide_regurgitated_ooze : public SpellScript
 // 72618 - Mutated Plague Clear
 class spell_putricide_clear_aura_effect_value : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_clear_aura_effect_value);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -1432,8 +1396,6 @@ class spell_putricide_clear_aura_effect_value : public SpellScript
 // 71123 - Decimate
 class spell_stinky_precious_decimate : public SpellScript
 {
-    PrepareSpellScript(spell_stinky_precious_decimate);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (GetHitUnit()->GetHealthPct() > float(GetEffectValue()))
@@ -1452,8 +1414,6 @@ class spell_stinky_precious_decimate : public SpellScript
 // 70402, 72511, 72512, 72513 - Mutated Transformation
 class spell_abomination_mutated_transformation : public SpellScript
 {
-    PrepareSpellScript(spell_abomination_mutated_transformation);
-
     void HandleResistance(DamageInfo const& damageInfo, uint32& resistAmount, int32& /*absorbAmount*/)
     {
         Unit* caster = damageInfo.GetAttacker();;
@@ -1474,8 +1434,6 @@ class spell_abomination_mutated_transformation : public SpellScript
 // 71279, 72459, 72621, 72622 - Choking Gas Explosion
 class spell_putricide_choking_gas_filter : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_choking_gas_filter);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_OOZE_VARIABLE, SPELL_GAS_VARIABLE });

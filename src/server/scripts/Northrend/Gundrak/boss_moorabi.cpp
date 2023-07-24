@@ -205,8 +205,6 @@ class achievement_less_rabi : public AchievementCriteriaScript
 // 55163 - Mojo Frenzy
 class spell_moorabi_mojo_frenzy : public AuraScript
 {
-    PrepareAuraScript(spell_moorabi_mojo_frenzy);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_MOJO_FRENZY_CAST_SPEED });

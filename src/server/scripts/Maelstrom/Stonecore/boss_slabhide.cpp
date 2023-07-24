@@ -412,8 +412,6 @@ public:
 
     class spell_s81035_stalactite_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_s81035_stalactite_SpellScript);
-
         void SummonStalactiteTrigger()
         {
             Unit* caster = GetCaster();
@@ -441,8 +439,6 @@ public:
 
     class spell_s81028_s80650_stalactite_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_s81028_s80650_stalactite_SpellScript);
-
         void ModDestHeight(SpellDestination& dest)
         {
             // All stalactite triggers should have Z position 301.3837f, but no way to relocate (not relocateoffset!) height only.
@@ -472,8 +468,6 @@ public:
 
     class spell_stalactite_mod_dest_height_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_stalactite_mod_dest_height_SpellScript);
-
         void ModDestHeight(SpellDestination& dest)
         {
             Unit* caster = GetCaster();
@@ -502,8 +496,6 @@ public:
 
     class spell_s92306_crystal_storm_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_s92306_crystal_storm_SpellScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_CRYSTAL_STORM_TRIGGER });
@@ -554,8 +546,6 @@ public:
 
     class spell_s92300_crystal_storm_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_s92300_crystal_storm_SpellScript);
-
         void FilterTargets(std::list<WorldObject*>& unitList)
         {
             Unit* caster = GetCaster();

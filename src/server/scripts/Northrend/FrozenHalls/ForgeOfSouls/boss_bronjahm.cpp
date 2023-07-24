@@ -241,8 +241,6 @@ private:
 // 68793, 69050 - Magic's Bane
 class spell_bronjahm_magic_bane : public SpellScript
 {
-    PrepareSpellScript(spell_bronjahm_magic_bane);
-
     void RecalculateDamage(SpellEffIndex /*effIndex*/)
     {
         if (GetHitUnit()->GetPowerType() != POWER_MANA)
@@ -262,8 +260,6 @@ class spell_bronjahm_magic_bane : public SpellScript
 // 68861 - Consume Soul
 class spell_bronjahm_consume_soul : public SpellScript
 {
-    PrepareSpellScript(spell_bronjahm_consume_soul);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -290,8 +286,6 @@ static uint32 const SoulstormVisualSpells[] =
 
 class spell_bronjahm_soulstorm_visual : public AuraScript
 {
-    PrepareAuraScript(spell_bronjahm_soulstorm_visual);
-
     void HandlePeriodicTick(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
@@ -307,8 +301,6 @@ class spell_bronjahm_soulstorm_visual : public AuraScript
 // 68921, 69049 - Soulstorm
 class spell_bronjahm_soulstorm_targeting : public SpellScript
 {
-    PrepareSpellScript(spell_bronjahm_soulstorm_targeting);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Unit* caster = GetCaster();

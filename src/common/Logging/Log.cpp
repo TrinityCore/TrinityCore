@@ -221,17 +221,17 @@ void Log::RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn)
     appenderFactory[index] = appenderCreateFn;
 }
 
-void Log::OutMessageImpl(std::string_view filter, LogLevel level, std::string&& message)
+void Log::OutMessageImpl(std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs)
 {
-    write(std::make_unique<LogMessage>(level, std::string(filter), std::move(message)));
+    write(std::make_unique<LogMessage>(level, filter, Trinity::StringVFormat(messageFormat, messageFormatArgs)));
 }
 
-void Log::OutCommandImpl(std::string&& message, std::string&& param1)
+void Log::OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs)
 {
-    write(std::make_unique<LogMessage>(LOG_LEVEL_INFO, "commands.gm", std::move(message), std::move(param1)));
+    write(std::make_unique<LogMessage>(LOG_LEVEL_INFO, "commands.gm", Trinity::StringVFormat(messageFormat, messageFormatArgs), Trinity::ToString(account)));
 }
 
-void Log::write(std::unique_ptr<LogMessage>&& msg) const
+void Log::write(std::unique_ptr<LogMessage> msg) const
 {
     Logger const* logger = GetLoggerByType(msg->type);
 

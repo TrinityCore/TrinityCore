@@ -944,8 +944,6 @@ struct npc_tesla : public ScriptedAI
 // 28085 - Negative Charge
 class spell_thaddius_polarity_charge : public SpellScript
 {
-    PrepareSpellScript(spell_thaddius_polarity_charge);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -1034,8 +1032,6 @@ class spell_thaddius_polarity_charge : public SpellScript
 // 28089 - Polarity Shift
 class spell_thaddius_polarity_shift : public SpellScript
 {
-    PrepareSpellScript(spell_thaddius_polarity_shift);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -1077,8 +1073,6 @@ class spell_thaddius_polarity_shift : public SpellScript
 // 54517 - Magnetic Pull
 class spell_thaddius_magnetic_pull : public SpellScript
 {
-    PrepareSpellScript(spell_thaddius_magnetic_pull);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_MAGNETIC_PULL });

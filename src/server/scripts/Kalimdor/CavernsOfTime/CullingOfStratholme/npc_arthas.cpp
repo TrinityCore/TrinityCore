@@ -1658,8 +1658,6 @@ struct npc_stratholme_rp_dummy : NullCreatureAI
 // 50773 - Crusader Strike
 class spell_stratholme_crusader_strike : public SpellScript
 {
-    PrepareSpellScript(spell_stratholme_crusader_strike);
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())

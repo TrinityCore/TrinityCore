@@ -326,8 +326,6 @@ private:
 // 47710 - Summon Telestra Clones
 class spell_magus_telestra_summon_clones : public SpellScript
 {
-    PrepareSpellScript(spell_magus_telestra_summon_clones);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -357,8 +355,6 @@ class spell_magus_telestra_summon_clones : public SpellScript
 // 47713 - Telestra Clone Dies (Arcane)
 class spell_magus_telestra_clone_dies : public AuraScript
 {
-    PrepareAuraScript(spell_magus_telestra_clone_dies);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TRIGGER_000 });

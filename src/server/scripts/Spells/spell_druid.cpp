@@ -121,8 +121,6 @@ private:
 
 class spell_dru_base_transformer : public SpellScript
 {
-    PrepareSpellScript(spell_dru_base_transformer);
-
 protected:
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -150,8 +148,6 @@ protected:
 // 22812 - Barkskin
 class spell_dru_barkskin : public AuraScript
 {
-    PrepareAuraScript(spell_dru_barkskin);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_BRAMBLES_PASSIVE });
@@ -173,8 +169,6 @@ class spell_dru_barkskin : public AuraScript
 // 50334 - Berserk
 class spell_dru_berserk : public spell_dru_base_transformer
 {
-    PrepareSpellScript(spell_dru_berserk);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         if (!spell_dru_base_transformer::Validate(spellInfo))
@@ -203,8 +197,6 @@ protected:
 // 203953 - Brambles - SPELL_DRUID_BRAMBLES_PASSIVE
 class spell_dru_brambles : public AuraScript
 {
-    PrepareAuraScript(spell_dru_brambles);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_BRAMBLES_REFLECT, SPELL_DRUID_BRAMBLES_DAMAGE_AURA });
@@ -234,8 +226,6 @@ class spell_dru_brambles : public AuraScript
 // 155835 - Bristling Fur
 class spell_dru_bristling_fur : public AuraScript
 {
-    PrepareAuraScript(spell_dru_bristling_fur);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_BRISTLING_FUR_GAIN_RAGE });
@@ -262,8 +252,6 @@ class spell_dru_bristling_fur : public AuraScript
 // 768 - CatForm - SPELL_DRUID_CAT_FORM
 class spell_dru_cat_form : public AuraScript
 {
-    PrepareAuraScript(spell_dru_cat_form);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_PROWL });
@@ -283,8 +271,6 @@ class spell_dru_cat_form : public AuraScript
 // 1850 - Dash
 class spell_dru_dash : public AuraScript
 {
-    PrepareAuraScript(spell_dru_dash);
-
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         // do not set speed if not in cat form
@@ -314,8 +300,6 @@ public:
 // 48517 Eclipse (Solar) + 48518 Eclipse (Lunar)
 class spell_dru_eclipse_aura : public AuraScript
 {
-    PrepareAuraScript(spell_dru_eclipse_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_DUMMY });
@@ -340,8 +324,6 @@ class spell_dru_eclipse_aura : public AuraScript
 // 79577 - Eclipse - SPELL_DRUID_ECLIPSE_DUMMY
 class spell_dru_eclipse_dummy : public AuraScript
 {
-    PrepareAuraScript(spell_dru_eclipse_dummy);
-
     class InitializeEclipseCountersEvent : public BasicEvent
     {
     public:
@@ -431,8 +413,6 @@ private:
 // 329910 - Eclipse out of combat - SPELL_DRUID_ECLIPSE_OOC
 class spell_dru_eclipse_ooc : public AuraScript
 {
-    PrepareAuraScript(spell_dru_eclipse_ooc);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_ECLIPSE_DUMMY, SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT });
@@ -462,8 +442,6 @@ class spell_dru_eclipse_ooc : public AuraScript
 // 203974 - Earthwarden
 class spell_dru_earthwarden : public AuraScript
 {
-    PrepareAuraScript(spell_dru_earthwarden);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_THRASH_CAT, SPELL_DRUID_THRASH_BEAR, SPELL_DRUID_EARTHWARDEN_AURA });
@@ -485,8 +463,6 @@ class spell_dru_earthwarden : public AuraScript
 // 102359 - Mass Entanglement
 class spell_dru_entangling_roots : public SpellScript
 {
-    PrepareSpellScript(spell_dru_entangling_roots);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_CURIOUS_BRAMBLEPATCH });
@@ -514,8 +490,6 @@ class spell_dru_entangling_roots : public SpellScript
 
 class spell_dru_entangling_roots_aura : public AuraScript
 {
-    PrepareAuraScript(spell_dru_entangling_roots_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_ENTANGLING_ROOTS, SPELL_DRUID_MASS_ENTANGLEMENT });
@@ -541,8 +515,6 @@ class spell_dru_entangling_roots_aura : public AuraScript
 // 22568 - Ferocious Bite
 class spell_dru_ferocious_bite : public SpellScript
 {
-    PrepareSpellScript(spell_dru_ferocious_bite);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellEffect({ { SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE, EFFECT_1 } });
@@ -590,8 +562,6 @@ private:
 // 37336 - Druid Forms Trinket
 class spell_dru_forms_trinket : public AuraScript
 {
-    PrepareAuraScript(spell_dru_forms_trinket);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -665,8 +635,6 @@ class spell_dru_forms_trinket : public AuraScript
 // 203964 - Galactic Guardian
 class spell_dru_galactic_guardian : public AuraScript
 {
-    PrepareAuraScript(spell_dru_galactic_guardian);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_GALACTIC_GUARDIAN_AURA });
@@ -695,8 +663,6 @@ class spell_dru_galactic_guardian : public AuraScript
 // 24858 - Moonkin Form
 class spell_dru_glyph_of_stars : public AuraScript
 {
-    PrepareAuraScript(spell_dru_glyph_of_stars);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_GLYPH_OF_STARS, SPELL_DRUID_GLYPH_OF_STARS_VISUAL });
@@ -724,8 +690,6 @@ class spell_dru_glyph_of_stars : public AuraScript
 // 210706 - Gore
 class spell_dru_gore : public AuraScript
 {
-    PrepareAuraScript(spell_dru_gore);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_GORE_PROC, SPELL_DRUID_MANGLE });
@@ -760,8 +724,6 @@ protected:
 // 29166 - Innervate
 class spell_dru_innervate : public SpellScript
 {
-    PrepareSpellScript(spell_dru_innervate);
-
     SpellCastResult CheckCast()
     {
         Player* target = Object::ToPlayer(GetExplTargetUnit());
@@ -797,8 +759,6 @@ class spell_dru_innervate : public SpellScript
 // 40442 - Druid Tier 6 Trinket
 class spell_dru_item_t6_trinket : public AuraScript
 {
-    PrepareAuraScript(spell_dru_item_t6_trinket);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -853,8 +813,6 @@ class spell_dru_item_t6_trinket : public AuraScript
 // 33763 - Lifebloom
 class spell_dru_lifebloom : public AuraScript
 {
-    PrepareAuraScript(spell_dru_lifebloom);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_LIFEBLOOM_FINAL_HEAL });
@@ -876,8 +834,6 @@ class spell_dru_lifebloom : public AuraScript
 // 155580 - Lunar Inspiration
 class spell_dru_lunar_inspiration : public AuraScript
 {
-    PrepareAuraScript(spell_dru_lunar_inspiration);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_LUNAR_INSPIRATION_OVERRIDE });
@@ -903,8 +859,6 @@ class spell_dru_lunar_inspiration : public AuraScript
 //  8921 - Moonfire
 class spell_dru_moonfire : public SpellScript
 {
-    PrepareSpellScript(spell_dru_moonfire);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_MOONFIRE_DAMAGE });
@@ -924,8 +878,6 @@ class spell_dru_moonfire : public SpellScript
 // 16864 - Omen of Clarity
 class spell_dru_omen_of_clarity : public AuraScript
 {
-    PrepareAuraScript(spell_dru_omen_of_clarity);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_BALANCE_T10_BONUS, SPELL_DRUID_BALANCE_T10_BONUS_PROC });
@@ -954,8 +906,6 @@ protected:
 // 1079 - Rip
 class spell_dru_rip : public AuraScript
 {
-    PrepareAuraScript(spell_dru_rip);
-
     bool Load() override
     {
         Unit* caster = GetCaster();
@@ -991,8 +941,6 @@ class spell_dru_rip : public AuraScript
 // 52610 - Savage Roar
 class spell_dru_savage_roar : public SpellScript
 {
-    PrepareSpellScript(spell_dru_savage_roar);
-
     SpellCastResult CheckCast()
     {
         Unit* caster = GetCaster();
@@ -1010,8 +958,6 @@ class spell_dru_savage_roar : public SpellScript
 
 class spell_dru_savage_roar_aura : public AuraScript
 {
-    PrepareAuraScript(spell_dru_savage_roar_aura);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_SAVAGE_ROAR });
@@ -1040,8 +986,6 @@ class spell_dru_savage_roar_aura : public AuraScript
 // 164812 - Moonfire
 class spell_dru_shooting_stars : public AuraScript
 {
-    PrepareAuraScript(spell_dru_shooting_stars);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_SHOOTING_STARS, SPELL_DRUID_SHOOTING_STARS_DAMAGE });
@@ -1064,8 +1008,6 @@ class spell_dru_shooting_stars : public AuraScript
 // 106839 - Skull Bash
 class spell_dru_skull_bash : public SpellScript
 {
-    PrepareSpellScript(spell_dru_skull_bash);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_SKULL_BASH_CHARGE, SPELL_DRUID_SKULL_BASH_INTERRUPT });
@@ -1093,8 +1035,6 @@ protected:
 // 50286 - Starfall (Dummy)
 class spell_dru_starfall_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_dru_starfall_dummy);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Trinity::Containers::RandomResize(targets, 2);
@@ -1129,8 +1069,6 @@ class spell_dru_starfall_dummy : public SpellScript
 // 384667 - Sudden Ambush
 class spell_dru_sudden_ambush : public AuraScript
 {
-    PrepareAuraScript(spell_dru_sudden_ambush);
-
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& procInfo)
     {
         Spell const* procSpell = procInfo.GetProcSpell();
@@ -1153,8 +1091,6 @@ class spell_dru_sudden_ambush : public AuraScript
 //  93402 - Sunfire
 class spell_dru_sunfire : public SpellScript
 {
-    PrepareSpellScript(spell_dru_sunfire);
-
     void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_SUNFIRE_DAMAGE, true);
@@ -1169,8 +1105,6 @@ class spell_dru_sunfire : public SpellScript
 // 61336 - Survival Instincts
 class spell_dru_survival_instincts : public AuraScript
 {
-    PrepareAuraScript(spell_dru_survival_instincts);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_SURVIVAL_INSTINCTS });
@@ -1196,8 +1130,6 @@ class spell_dru_survival_instincts : public AuraScript
 // 40121 - Swift Flight Form (Passive)
 class spell_dru_swift_flight_passive : public AuraScript
 {
-    PrepareAuraScript(spell_dru_swift_flight_passive);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -1219,8 +1151,6 @@ class spell_dru_swift_flight_passive : public AuraScript
 // 28744 - Regrowth
 class spell_dru_t3_6p_bonus : public AuraScript
 {
-    PrepareAuraScript(spell_dru_t3_6p_bonus);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_BLESSING_OF_THE_CLAW });
@@ -1241,8 +1171,6 @@ class spell_dru_t3_6p_bonus : public AuraScript
 // 28719 - Healing Touch
 class spell_dru_t3_8p_bonus : public AuraScript
 {
-    PrepareAuraScript(spell_dru_t3_8p_bonus);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_EXHILARATE });
@@ -1277,8 +1205,6 @@ class spell_dru_t3_8p_bonus : public AuraScript
 // 37295 - Mana Restore
 class spell_dru_t4_2p_bonus : public AuraScript
 {
-    PrepareAuraScript(spell_dru_t4_2p_bonus);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_INFUSION });
@@ -1299,8 +1225,6 @@ class spell_dru_t4_2p_bonus : public AuraScript
 // 70723 - Item - Druid T10 Balance 4P Bonus
 class spell_dru_t10_balance_4p_bonus : public AuraScript
 {
-    PrepareAuraScript(spell_dru_t10_balance_4p_bonus);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_LANGUISH });
@@ -1337,8 +1261,6 @@ class spell_dru_t10_balance_4p_bonus : public AuraScript
 // 70691 - Item T10 Restoration 4P Bonus
 class spell_dru_t10_restoration_4p_bonus : public SpellScript
 {
-    PrepareSpellScript(spell_dru_t10_restoration_4p_bonus);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -1381,8 +1303,6 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScript
 // 70664 - Druid T10 Restoration 4P Bonus (Rejuvenation)
 class spell_dru_t10_restoration_4p_bonus_dummy : public AuraScript
 {
-    PrepareAuraScript(spell_dru_t10_restoration_4p_bonus_dummy);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_REJUVENATION_T10_PROC });
@@ -1424,8 +1344,6 @@ class spell_dru_t10_restoration_4p_bonus_dummy : public AuraScript
 // 77758 - Thrash
 class spell_dru_thrash : public SpellScript
 {
-    PrepareSpellScript(spell_dru_thrash);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_THRASH_BEAR_AURA });
@@ -1450,8 +1368,6 @@ class spell_dru_thrash : public SpellScript
 // 192090 - Thrash (Aura) - SPELL_DRUID_THRASH_BEAR_AURA
 class spell_dru_thrash_aura : public AuraScript
 {
-    PrepareAuraScript(spell_dru_thrash_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_BLOOD_FRENZY_AURA, SPELL_DRUID_BLOOD_FRENZY_RAGE_GAIN });
@@ -1476,8 +1392,6 @@ class spell_dru_thrash_aura : public AuraScript
 // 165961 - Stag Form
 class spell_dru_travel_form : public AuraScript
 {
-    PrepareAuraScript(spell_dru_travel_form);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_FORM_STAG, SPELL_DRUID_FORM_AQUATIC_PASSIVE, SPELL_DRUID_FORM_AQUATIC, SPELL_DRUID_FORM_FLIGHT, SPELL_DRUID_FORM_SWIFT_FLIGHT });
@@ -1557,8 +1471,6 @@ private:
 // 783 - Travel Form (dummy)
 class spell_dru_travel_form_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_dru_travel_form_dummy);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_FORM_AQUATIC_PASSIVE, SPELL_DRUID_FORM_AQUATIC, SPELL_DRUID_FORM_STAG });
@@ -1584,8 +1496,6 @@ class spell_dru_travel_form_dummy : public SpellScript
 
 class spell_dru_travel_form_dummy_aura : public AuraScript
 {
-    PrepareAuraScript(spell_dru_travel_form_dummy_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_FORM_STAG, SPELL_DRUID_FORM_AQUATIC, SPELL_DRUID_FORM_FLIGHT, SPELL_DRUID_FORM_SWIFT_FLIGHT });
@@ -1632,8 +1542,6 @@ protected:
 // 252216 - Tiger Dash (Aura)
 class spell_dru_tiger_dash_aura : public AuraScript
 {
-    PrepareAuraScript(spell_dru_tiger_dash_aura);
-
     void HandlePeriodic(AuraEffect const* aurEff)
     {
         if (AuraEffect* effRunSpeed = GetEffect(EFFECT_0))
@@ -1652,8 +1560,6 @@ class spell_dru_tiger_dash_aura : public AuraScript
 // 48438 - Wild Growth
 class spell_dru_wild_growth : public SpellScript
 {
-    PrepareSpellScript(spell_dru_wild_growth);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } }) || spellInfo->GetEffect(EFFECT_2).IsEffect() || spellInfo->GetEffect(EFFECT_2).CalcValue() <= 0)
@@ -1692,8 +1598,6 @@ class spell_dru_wild_growth : public SpellScript
 
 class spell_dru_wild_growth_aura : public AuraScript
 {
-    PrepareAuraScript(spell_dru_wild_growth_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_RESTORATION_T10_2P_BONUS });
@@ -1727,8 +1631,6 @@ class spell_dru_wild_growth_aura : public AuraScript
 // 145108 - Ysera's Gift
 class spell_dru_yseras_gift : public AuraScript
 {
-    PrepareAuraScript(spell_dru_yseras_gift);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
@@ -1757,8 +1659,6 @@ class spell_dru_yseras_gift : public AuraScript
 // 145110 - Ysera's Gift (heal)
 class spell_dru_yseras_gift_group_heal : public SpellScript
 {
-    PrepareSpellScript(spell_dru_yseras_gift_group_heal);
-
     void SelectTargets(std::list<WorldObject*>& targets)
     {
         Trinity::SelectRandomInjuredTargets(targets, 1, true);
