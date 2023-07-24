@@ -79,31 +79,6 @@ typedef struct _FILE_ROOT_GROUP
 } FILE_ROOT_GROUP, *PFILE_ROOT_GROUP;
 
 //-----------------------------------------------------------------------------
-// Debug local stuff
-
-#if defined(_MSC_VER) && defined(CASCLIB_DEBUG)
-static FILE * fp = NULL;
-static bool bLogEntries = true;
-
-static void LogEntry(DWORD FileDataId, PCONTENT_KEY pCKey)
-{
-    if(fp && bLogEntries)
-    {
-        char szCKey[MD5_STRING_SIZE + 1];
-
-        if(FileDataId == 1260179)
-        {
-            bLogEntries = false;
-            __debugbreak();
-        }
-
-        StringFromBinary(pCKey->Value, MD5_HASH_SIZE, szCKey);
-        fprintf(fp, "File Data ID: %u, CKey = %s\n", FileDataId, szCKey);
-    }
-}
-#endif
-
-//-----------------------------------------------------------------------------
 // TRootHandler_WoW interface / implementation
 
 #define FTREE_FLAGS_WOW (FTREE_FLAG_USE_DATA_ID | FTREE_FLAG_USE_LOCALE_FLAGS | FTREE_FLAG_USE_CONTENT_FLAGS)
@@ -123,11 +98,11 @@ struct TRootHandler_WoW : public TFileTreeRoot
         switch(RootFormat)
         {
             case RootFormatWoW6x:
-                dwFeatures |= CASC_FEATURE_ROOT_CKEY | CASC_FEATURE_FNAME_HASHES | CASC_FEATURE_FILE_DATA_IDS | CASC_FEATURE_LOCALE_FLAGS | CASC_FEATURE_CONTENT_FLAGS;
+                dwFeatures |= CASC_FEATURE_ROOT_CKEY | CASC_FEATURE_LOCALE_FLAGS | CASC_FEATURE_CONTENT_FLAGS | CASC_FEATURE_FNAME_HASHES;
                 break;
 
             case RootFormatWoW82:
-                dwFeatures |= CASC_FEATURE_ROOT_CKEY | CASC_FEATURE_FNAME_HASHES_OPTIONAL | CASC_FEATURE_FILE_DATA_IDS | CASC_FEATURE_LOCALE_FLAGS | CASC_FEATURE_CONTENT_FLAGS;
+                dwFeatures |= CASC_FEATURE_ROOT_CKEY | CASC_FEATURE_LOCALE_FLAGS | CASC_FEATURE_CONTENT_FLAGS | CASC_FEATURE_FILE_DATA_IDS | CASC_FEATURE_FNAME_HASHES_OPTIONAL;
                 break;
         }
     }

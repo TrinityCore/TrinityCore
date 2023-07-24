@@ -104,7 +104,7 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
         {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effect->SpellID, user->GetMap()->GetDifficultyID()))
             {
-                if (!spellInfo->CanBeUsedInCombat())
+                if (!spellInfo->CanBeUsedInCombat(user))
                 {
                     user->SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, item, nullptr);
                     return;

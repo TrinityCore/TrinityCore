@@ -139,7 +139,7 @@ class instance_uldaman : public InstanceMapScript
             {
                 creature->SetFaction(FACTION_FRIENDLY);
                 creature->RemoveAllAuras();
-                creature->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                creature->SetUninteractible(true);
                 creature->SetControlled(true, UNIT_STATE_ROOT);
                 creature->AddAura(SPELL_MINION_FREEZE_ANIM, creature);
             }
@@ -173,7 +173,7 @@ class instance_uldaman : public InstanceMapScript
                             continue;
                         target->SetControlled(false, UNIT_STATE_ROOT);
                         target->SetFaction(FACTION_MONSTER);
-                        target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        target->SetUninteractible(false);
                         target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
 
                         return;        // only want the first one we find
@@ -196,7 +196,7 @@ class instance_uldaman : public InstanceMapScript
                     if (!target || !target->IsAlive() || target->GetFaction() == FACTION_MONSTER)
                         continue;
                     target->SetControlled(false, UNIT_STATE_ROOT);
-                    target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    target->SetUninteractible(false);
                     target->SetFaction(FACTION_MONSTER);
                     target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
                     archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
@@ -248,7 +248,7 @@ class instance_uldaman : public InstanceMapScript
                     archaedas->RemoveAura(SPELL_FREEZE_ANIM);
                     archaedas->CastSpell(archaedas, SPELL_ARCHAEDAS_AWAKEN, false);
                     archaedas->SetFaction(FACTION_TITAN);
-                    archaedas->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    archaedas->SetUninteractible(false);
                     whoWokeuiArchaedasGUID = target;
                 }
             }
@@ -261,7 +261,7 @@ class instance_uldaman : public InstanceMapScript
 
                 ironaya->SetFaction(FACTION_TITAN);
                 ironaya->SetControlled(false, UNIT_STATE_ROOT);
-                ironaya->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                ironaya->SetUninteractible(false);
 
                 ironaya->GetMotionMaster()->Clear();
                 ironaya->GetMotionMaster()->MovePoint(0, IronayaPoint);

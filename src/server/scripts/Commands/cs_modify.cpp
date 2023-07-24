@@ -869,13 +869,14 @@ public:
         // Generate random customizations
         std::vector<UF::ChrCustomizationChoice> customizations;
 
+        Races race = Races(target->GetRace());
         Classes playerClass = Classes(target->GetClass());
         std::vector<ChrCustomizationOptionEntry const*> const* options = sDB2Manager.GetCustomiztionOptions(target->GetRace(), gender);
         WorldSession const* worldSession = target->GetSession();
         for (ChrCustomizationOptionEntry const* option : *options)
         {
             ChrCustomizationReqEntry const* optionReq = sChrCustomizationReqStore.LookupEntry(option->ChrCustomizationReqID);
-            if (optionReq && !worldSession->MeetsChrCustomizationReq(optionReq, playerClass, false, MakeChrCustomizationChoiceRange(customizations)))
+            if (optionReq && !worldSession->MeetsChrCustomizationReq(optionReq, race, playerClass, false, MakeChrCustomizationChoiceRange(customizations)))
                 continue;
 
             // Loop over the options until the first one fits
@@ -883,7 +884,7 @@ public:
             for (ChrCustomizationChoiceEntry const* choiceForOption : *choicesForOption)
             {
                 ChrCustomizationReqEntry const* choiceReq = sChrCustomizationReqStore.LookupEntry(choiceForOption->ChrCustomizationReqID);
-                if (choiceReq && !worldSession->MeetsChrCustomizationReq(choiceReq, playerClass, false, MakeChrCustomizationChoiceRange(customizations)))
+                if (choiceReq && !worldSession->MeetsChrCustomizationReq(choiceReq, race, playerClass, false, MakeChrCustomizationChoiceRange(customizations)))
                     continue;
 
                 ChrCustomizationChoiceEntry const* choiceEntry = choicesForOption->at(0);

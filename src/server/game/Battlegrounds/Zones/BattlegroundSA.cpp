@@ -631,9 +631,15 @@ void BattlegroundSA::DemolisherStartState(bool start)
         if (Creature* dem = GetBGCreature(i))
         {
             if (start)
-                dem->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+            {
+                dem->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                dem->SetUninteractible(true);
+            }
             else
-                dem->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+            {
+                dem->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                dem->SetUninteractible(false);
+            }
         }
     }
 }

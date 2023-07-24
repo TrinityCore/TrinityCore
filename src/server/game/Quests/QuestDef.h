@@ -148,30 +148,41 @@ enum QuestStatus : uint8
     MAX_QUEST_STATUS
 };
 
-enum class QuestGiverStatus : uint32
+enum class QuestGiverStatus : uint64
 {
-    None                                = 0x000000,
-    Future                              = 0x000002,
-    Trivial                             = 0x000004,
-    TrivialRepeatableTurnin             = 0x000008,
-    TrivialDailyQuest                   = 0x000010,
-    Reward                              = 0x000020,
-    JourneyReward                       = 0x000040,
-    CovenantCallingReward               = 0x000080,
-    RepeatableTurnin                    = 0x000100,
-    DailyQuest                          = 0x000200,
-    Quest                               = 0x000400,
-    RewardCompleteNoPOI                 = 0x000800,
-    RewardCompletePOI                   = 0x001000,
-    LegendaryQuest                      = 0x002000,
-    LegendaryRewardCompleteNoPOI        = 0x004000,
-    LegendaryRewardCompletePOI          = 0x008000,
-    JourneyQuest                        = 0x010000,
-    JourneyRewardCompleteNoPOI          = 0x020000,
-    JourneyRewardCompletePOI            = 0x040000,
-    CovenantCallingQuest                = 0x080000,
-    CovenantCallingRewardCompleteNoPOI  = 0x100000,
-    CovenantCallingRewardCompletePOI    = 0x200000,
+    None                                = 0x000000000,
+    Future                              = 0x000000002,
+    Trivial                             = 0x000000004,
+    TrivialRepeatableTurnin             = 0x000000008,
+    TrivialDailyQuest                   = 0x000000010,
+    Reward                              = 0x000000020,
+    JourneyReward                       = 0x000000040,
+    CovenantCallingReward               = 0x000000080,
+    RepeatableTurnin                    = 0x000000100,
+    DailyQuest                          = 0x000000200,
+    Quest                               = 0x000000400,
+    RewardCompleteNoPOI                 = 0x000000800,
+    RewardCompletePOI                   = 0x000001000,
+    LegendaryQuest                      = 0x000002000,
+    LegendaryRewardCompleteNoPOI        = 0x000004000,
+    LegendaryRewardCompletePOI          = 0x000008000,
+    JourneyQuest                        = 0x000010000,
+    JourneyRewardCompleteNoPOI          = 0x000020000,
+    JourneyRewardCompletePOI            = 0x000040000,
+    CovenantCallingQuest                = 0x000080000,
+    CovenantCallingRewardCompleteNoPOI  = 0x000100000,
+    CovenantCallingRewardCompletePOI    = 0x000200000,
+    TrivialLegendaryQuest               = 0x000400000,
+    FutureLegendaryQuest                = 0x000800000,
+    LegendaryReward                     = 0x001000000,
+    ImportantQuest                      = 0x002000000,
+    ImportantReward                     = 0x004000000,
+    TrivialImportantQuest               = 0x008000000,
+    FutureImportantQuest                = 0x010000000,
+    ImportantQuestRewardCompleteNoPOI   = 0x020000000,
+    ImportantQuestRewardCompletePOI     = 0x040000000,
+    TrivialJourneyQuest                 = 0x080000000,
+    FutureJourneyQuest                  = 0x100000000,
 };
 
 DEFINE_ENUM_FLAG(QuestGiverStatus);
@@ -273,7 +284,10 @@ enum QuestFlagsEx2 : uint32
     QUEST_FLAGS_EX2_DISPLAY_TIME_REMAINING              = 0x00020000,
     QUEST_FLAGS_EX2_CLEAR_TASK_PROGRESS_WHEN_ABANDONED  = 0x00040000,
     QUEST_FLAGS_EX2_SUPPRESS_GREETINGS_ON_COMPLETE      = 0x00080000,
-    QUEST_FLAGS_EX2_HIDE_REQUIRED_ITEMS_ON_TURN_IN      = 0x00100000
+    QUEST_FLAGS_EX2_HIDE_REQUIRED_ITEMS_ON_TURN_IN      = 0x00100000,
+    QUEST_FLAGS_EX2_IGNORE_SOULBOUND_ITEMS              = 0x00200000,
+    QUEST_FLAGS_EX2_DONT_DEFER_START_EFFECTS            = 0x00400000,
+    QUEST_FLAGS_EX2_HIDE_REQUIRED_ITEMS_PRE_TURN_IN     = 0x00800000,
 };
 
 enum QuestSpecialFlags
@@ -287,7 +301,7 @@ enum QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_MONTHLY              = 0x010,   // Set by 16 in SpecialFlags in DB if the quest is reset at the begining of the month
     // room for more custom flags
 
-    QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST | QUEST_SPECIAL_FLAGS_MONTHLY,
+    QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_AUTO_PUSH_TO_PARTY | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST | QUEST_SPECIAL_FLAGS_MONTHLY,
 
     QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES = 0x020,    // Internal flag computed only
 };
@@ -341,14 +355,16 @@ enum QuestObjectiveType
 
 enum QuestObjectiveFlags
 {
-    QUEST_OBJECTIVE_FLAG_TRACKED_ON_MINIMAP                 = 0x01, // client displays large yellow blob on minimap for creature/gameobject
-    QUEST_OBJECTIVE_FLAG_SEQUENCED                          = 0x02, // client will not see the objective displayed until all previous objectives are completed
-    QUEST_OBJECTIVE_FLAG_OPTIONAL                           = 0x04, // not required to complete the quest
-    QUEST_OBJECTIVE_FLAG_HIDDEN                             = 0x08, // never displayed in quest log
-    QUEST_OBJECTIVE_FLAG_HIDE_CREDIT_MSG                    = 0x10, // skip showing item objective progress
-    QUEST_OBJECTIVE_FLAG_PRESERVE_QUEST_ITEMS               = 0x20,
-    QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR               = 0x40, // hidden objective used to calculate progress bar percent (quests are limited to a single progress bar objective)
-    QUEST_OBJECTIVE_FLAG_KILL_PLAYERS_SAME_FACTION          = 0x80
+    QUEST_OBJECTIVE_FLAG_TRACKED_ON_MINIMAP                 = 0x0001, // client displays large yellow blob on minimap for creature/gameobject
+    QUEST_OBJECTIVE_FLAG_SEQUENCED                          = 0x0002, // client will not see the objective displayed until all previous objectives are completed
+    QUEST_OBJECTIVE_FLAG_OPTIONAL                           = 0x0004, // not required to complete the quest
+    QUEST_OBJECTIVE_FLAG_HIDDEN                             = 0x0008, // never displayed in quest log
+    QUEST_OBJECTIVE_FLAG_HIDE_CREDIT_MSG                    = 0x0010, // skip showing item objective progress
+    QUEST_OBJECTIVE_FLAG_PRESERVE_QUEST_ITEMS               = 0x0020,
+    QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR               = 0x0040, // hidden objective used to calculate progress bar percent (quests are limited to a single progress bar objective)
+    QUEST_OBJECTIVE_FLAG_KILL_PLAYERS_SAME_FACTION          = 0x0080,
+    QUEST_OBJECTIVE_FLAG_NO_SHARE_PROGRESS                  = 0x0100,
+    QUEST_OBJECTIVE_FLAG_IGNORE_SOULBOUND_ITEMS             = 0x0200,
 };
 
 enum class QuestCompleteSpellType : uint32
@@ -540,6 +556,7 @@ class TC_GAME_API Quest
         uint32 MaxMoneyValue() const;
         uint32 GetMaxMoneyReward() const;
         Optional<QuestTagType> GetQuestTag() const;
+        bool IsImportant() const;
 
         bool HasFlag(QuestFlags flag) const { return (_flags & uint32(flag)) != 0; }
         bool HasFlagEx(QuestFlagsEx flag) const { return (_flagsEx & uint32(flag)) != 0; }
@@ -575,7 +592,7 @@ class TC_GAME_API Quest
         uint32 GetRequiredMaxRepFaction() const { return _requiredMaxRepFaction; }
         int32  GetRequiredMaxRepValue() const { return _requiredMaxRepValue; }
         uint32 GetSuggestedPlayers() const { return _suggestedPlayers; }
-        uint32 GetLimitTime() const { return _limitTime; }
+        int64 GetLimitTime() const { return _limitTime; }
         int32  GetPrevQuestId() const { return _prevQuestID; }
         uint32 GetNextQuestId() const { return _nextQuestID; }
         int32  GetExclusiveGroup() const { return _exclusiveGroup; }
@@ -745,7 +762,7 @@ class TC_GAME_API Quest
         uint32 _soundAccept = 0;
         uint32 _soundTurnIn = 0;
         uint32 _areaGroupID = 0;
-        uint32 _limitTime = 0;
+        int64 _limitTime = 0;
         Trinity::RaceMask<uint64> _allowableRaces;
         int32 _treasurePickerID = 0;
         int32 _expansion = 0;
@@ -810,6 +827,7 @@ struct QuestStatusData
 {
     uint16 Slot = MAX_QUEST_LOG_SIZE;
     QuestStatus Status = QUEST_STATUS_NONE;
+    time_t AcceptTime = time_t(0);
     uint32 Timer = 0;
     bool Explored = false;
 };

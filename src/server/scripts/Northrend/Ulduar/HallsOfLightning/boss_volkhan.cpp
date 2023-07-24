@@ -377,8 +377,6 @@ private:
 // 52654, 52238 - Temper
 class spell_volkhan_temper_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_volkhan_temper_dummy);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TEMPER_DUMMY_COMBAT });
@@ -412,8 +410,6 @@ class spell_volkhan_temper_dummy : public SpellScript
 // 52441 - Cool Down
 class spell_volkhan_cool_down : public AuraScript
 {
-    PrepareAuraScript(spell_volkhan_cool_down);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_COOL_DOWN_SLOW, SPELL_COSMETIC_STUN_IMMUNE_FREEZE_AMNIM });
@@ -446,8 +442,6 @@ class spell_volkhan_cool_down : public AuraScript
 // 59123 Cosmetic - Stun + Immune Permanent (Freeze Anim)
 class spell_volkhan_cosmetic_stun_immune_permanent : public AuraScript
 {
-    PrepareAuraScript(spell_volkhan_cosmetic_stun_immune_permanent);
-
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* target = GetTarget()->ToCreature())
@@ -463,8 +457,6 @@ class spell_volkhan_cosmetic_stun_immune_permanent : public AuraScript
 // 52237, 59529 - Shattering Stomp
 class spell_volkhan_shattering_stomp : public SpellScript
 {
-    PrepareSpellScript(spell_volkhan_shattering_stomp);
-
     void HandleShattering()
     {
         if (Creature* caster = GetCaster()->ToCreature())

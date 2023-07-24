@@ -164,6 +164,9 @@ extern "C" {
 // Default format string for the file ID
 #define CASC_FILEID_FORMAT          "FILE%08X.dat"
 
+// Separator char for path-product delimiter
+#define CASC_PARAM_SEPARATOR        '*'
+
 //-----------------------------------------------------------------------------
 // Structures
 

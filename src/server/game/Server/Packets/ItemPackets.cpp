@@ -30,8 +30,8 @@ void WorldPackets::Item::BuyItem::Read()
     _worldPacket >> Quantity;
     _worldPacket >> Muid;
     _worldPacket >> Slot;
+    ItemType = _worldPacket.read<ItemVendorType, int32>();
     _worldPacket >> Item;
-    ItemType = static_cast<ItemVendorType>(_worldPacket.ReadBits(3));
 }
 
 WorldPacket const* WorldPackets::Item::BuySucceeded::Write()
