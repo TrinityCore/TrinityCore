@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
-#include "Unit.h"
 #include "aberrus_the_shadowed_crucible.h"
 
 ObjectData const creatureData[] =
