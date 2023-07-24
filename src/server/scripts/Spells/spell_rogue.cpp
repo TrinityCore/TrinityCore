@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
- /*
-  * Scripts for spells with SPELLFAMILY_ROGUE and SPELLFAMILY_GENERIC spells used by rogue players.
-  * Ordered alphabetically using scriptname.
-  * Scriptnames of files in this file should be prefixed with "spell_rog_".
-  */
+/*
+ * Scripts for spells with SPELLFAMILY_ROGUE and SPELLFAMILY_GENERIC spells used by rogue players.
+ * Ordered alphabetically using scriptname.
+ * Scriptnames of files in this file should be prefixed with "spell_rog_".
+ */
 
 #include "ScriptMgr.h"
 #include "Containers.h"
@@ -360,11 +360,11 @@ class spell_rog_killing_spree_aura : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-            {
-                SPELL_ROGUE_KILLING_SPREE_TELEPORT,
-                SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG,
-                SPELL_ROGUE_KILLING_SPREE_DMG_BUFF
-            });
+        {
+            SPELL_ROGUE_KILLING_SPREE_TELEPORT,
+            SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG,
+            SPELL_ROGUE_KILLING_SPREE_DMG_BUFF
+        });
     }
 
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -748,15 +748,15 @@ class spell_rog_stealth : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-            {
-                SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE,
-                SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT,
-                SPELL_ROGUE_SANCTUARY,
-                SPELL_ROGUE_SHADOW_FOCUS,
-                SPELL_ROGUE_SHADOW_FOCUS_EFFECT,
-                SPELL_ROGUE_STEALTH_STEALTH_AURA,
-                SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA
-            });
+        {
+            SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE,
+            SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT,
+            SPELL_ROGUE_SANCTUARY,
+            SPELL_ROGUE_SHADOW_FOCUS,
+            SPELL_ROGUE_SHADOW_FOCUS_EFFECT,
+            SPELL_ROGUE_STEALTH_STEALTH_AURA,
+            SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA
+        });
     }
 
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
