@@ -99,7 +99,9 @@ namespace
                 "WOWGUID_FAKE_MODERATOR",
                 nullptr,
                 nullptr,
-                "WOWGUID_UNIQUE_ACCOUNT_OBJ_INITIALIZATION"
+                "WOWGUID_UNIQUE_ACCOUNT_OBJ_INITIALIZATION",
+                nullptr,
+                "WOWGUID_PENDING_PERMANENT_CHARACTER_ASSIGNMENT"
             };
 
             ObjectGuid::LowType id = guid.GetCounter();
@@ -452,6 +454,25 @@ namespace
             return ObjectGuidFactory::CreateWorldLayer(arg1, arg2, arg3, arg4);
         }
 
+        std::string FormatLMMLobby(char const* typeName, ObjectGuid guid)
+        {
+            return Trinity::StringFormat("{}-{}-{}-{}-{}-{:X}", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 26) & 0xFFFFFF,
+                uint32(guid.GetRawValue(1) >> 18) & 0xFF, uint32(guid.GetRawValue(1) >> 10) & 0xFF, guid.GetRawValue(0));
+        }
+
+        ObjectGuid ParseLMMLobby(HighGuid /*type*/, char const* guidString)
+        {
+            uint32 realmId = 0;
+            uint32 arg2 = 0;
+            uint8 arg3 = 0;
+            uint8 arg4 = 0;
+            uint64 arg5 = 0;
+            if (std::sscanf(guidString, "%u-%u-%hhu-%hhu-%" SCNx64, &realmId, &arg2, &arg3, &arg4, &arg5) != 5)
+                return ObjectGuid::FromStringFailed;
+
+            return ObjectGuidFactory::CreateLMMLobby(realmId, arg2, arg3, arg4, arg5);
+        }
+
         ObjectGuidInfo();
     } Info;
 
@@ -460,7 +481,7 @@ namespace
 #define SET_GUID_INFO(type, format, parse) \
             Names[AsUnderlyingType(HighGuid::type)] = #type;\
             ClientFormatFunction[AsUnderlyingType(HighGuid::type)] = &ObjectGuidInfo::format;\
-            ClientParseFunction[AsUnderlyingType(HighGuid::type)] = &ObjectGuidInfo::parse;
+            ClientParseFunction[AsUnderlyingType(HighGuid::type)] = &ObjectGuidInfo::parse
 
         SET_GUID_INFO(Null, FormatNull, ParseNull);
         SET_GUID_INFO(Uniq, FormatUniq, ParseUniq);
@@ -515,6 +536,8 @@ namespace
         SET_GUID_INFO(ToolsClient, FormatToolsClient, ParseToolsClient);
         SET_GUID_INFO(WorldLayer, FormatWorldLayer, ParseWorldLayer);
         SET_GUID_INFO(ArenaTeam, FormatGuild, ParseGuild);
+        SET_GUID_INFO(LMMParty, FormatClient, ParseClient);
+        SET_GUID_INFO(LMMLobby, FormatLMMLobby, ParseLMMLobby);
 
 #undef SET_GUID_INFO
     }
@@ -716,6 +739,16 @@ ObjectGuid ObjectGuidFactory::CreateWorldLayer(uint32 arg1, uint16 arg2, uint8 a
         | (uint64(arg2 & 0x1FF))),
         uint64((uint64(arg3 & 0xFF) << 24)
         | uint64(arg4 & 0x7FFFFF)));
+}
+
+ObjectGuid ObjectGuidFactory::CreateLMMLobby(uint32 realmId, uint32 arg2, uint8 arg3, uint8 arg4, ObjectGuid::LowType counter)
+{
+    return ObjectGuid(uint64((uint64(HighGuid::LMMLobby) << 58)
+        | (uint64(GetRealmIdForObjectGuid(realmId)) << 42)
+        | (uint64(arg2 & 0xFFFFFFFF) << 26)
+        | (uint64(arg3 & 0xFF) << 18)
+        | (uint64(arg4 & 0xFF) << 10)),
+        counter);
 }
 
 ObjectGuid const ObjectGuid::Empty = ObjectGuid();

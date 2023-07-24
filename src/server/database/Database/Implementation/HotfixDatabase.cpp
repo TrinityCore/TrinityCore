@@ -374,7 +374,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // ChrCustomizationReq.db2
-    PrepareStatement(HOTFIX_SEL_CHR_CUSTOMIZATION_REQ, "SELECT ID, ReqSource, Flags, ClassMask, AchievementID, QuestID, OverrideArchive, "
+    PrepareStatement(HOTFIX_SEL_CHR_CUSTOMIZATION_REQ, "SELECT ID, RaceMask, ReqSource, Flags, ClassMask, AchievementID, QuestID, OverrideArchive, "
         "ItemModifiedAppearanceID FROM chr_customization_req WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CHR_CUSTOMIZATION_REQ, "SELECT MAX(ID) + 1 FROM chr_customization_req", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CHR_CUSTOMIZATION_REQ, "SELECT ID, ReqSource_lang FROM chr_customization_req_locale WHERE (`VerifiedBuild` > 0) = ?"
@@ -431,6 +431,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_CINEMATIC_SEQUENCES, "SELECT ID, SoundID, Camera1, Camera2, Camera3, Camera4, Camera5, Camera6, Camera7, Camera8"
         " FROM cinematic_sequences WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CINEMATIC_SEQUENCES, "SELECT MAX(ID) + 1 FROM cinematic_sequences", CONNECTION_SYNCH);
+
+    // ConditionalChrModel.db2
+    PrepareStatement(HOTFIX_SEL_CONDITIONAL_CHR_MODEL, "SELECT ID, ChrModelID, ChrCustomizationReqID, PlayerConditionID, Flags, "
+        "ChrCustomizationCategoryID FROM conditional_chr_model WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CONDITIONAL_CHR_MODEL, "SELECT MAX(ID) + 1 FROM conditional_chr_model", CONNECTION_SYNCH);
 
     // ConditionalContentTuning.db2
     PrepareStatement(HOTFIX_SEL_CONDITIONAL_CONTENT_TUNING, "SELECT ID, OrderIndex, RedirectContentTuningID, RedirectFlag, ParentContentTuningID"
@@ -629,7 +634,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // GameobjectDisplayInfo.db2
     PrepareStatement(HOTFIX_SEL_GAMEOBJECT_DISPLAY_INFO, "SELECT ID, GeoBoxMinX, GeoBoxMinY, GeoBoxMinZ, GeoBoxMaxX, GeoBoxMaxY, GeoBoxMaxZ, "
-        "FileDataID, ObjectEffectPackageID, OverrideLootEffectScale, OverrideNameScale FROM gameobject_display_info WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "FileDataID, ObjectEffectPackageID, OverrideLootEffectScale, OverrideNameScale, AlternateDisplayType, ClientCreatureDisplayInfoID, "
+        "ClientItemID FROM gameobject_display_info WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_GAMEOBJECT_DISPLAY_INFO, "SELECT MAX(ID) + 1 FROM gameobject_display_info", CONNECTION_SYNCH);
 
     // Gameobjects.db2
@@ -1848,7 +1854,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // UiMap.db2
     PrepareStatement(HOTFIX_SEL_UI_MAP, "SELECT Name, ID, ParentUiMapID, Flags, `System`, Type, BountySetID, BountyDisplayLocation, "
-        "VisibilityPlayerConditionID, HelpTextPosition, BkgAtlasID, AlternateUiMapGroup, ContentTuningID FROM ui_map WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "VisibilityPlayerConditionID2, VisibilityPlayerConditionID, HelpTextPosition, BkgAtlasID, AlternateUiMapGroup, ContentTuningID FROM ui_map"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_UI_MAP, "SELECT MAX(ID) + 1 FROM ui_map", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_UI_MAP, "SELECT ID, Name_lang FROM ui_map_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 

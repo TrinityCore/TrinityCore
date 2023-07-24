@@ -46,8 +46,9 @@
 enum class ChatWhisperTargetStatus : uint8
 {
     CanWhisper      = 0,
-    Offline         = 1,
-    WrongFaction    = 2
+    CanWhisperGuild = 1,
+    Offline         = 2,
+    WrongFaction    = 3
 };
 
 inline bool isNasty(uint8 c)

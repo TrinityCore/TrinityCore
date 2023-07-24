@@ -307,6 +307,9 @@ enum ItemFlags4
     ITEM_FLAG4_NO_SALVAGE                                       = 0x00800000,
     ITEM_FLAG4_RECRAFTABLE                                      = 0x01000000,
     ITEM_FLAG4_CC_TRINKET                                       = 0x02000000,
+    ITEM_FLAG4_KEEP_THROUGH_FACTION_CHANGE                      = 0x04000000,
+    ITEM_FLAG4_NOT_MULTICRAFTABLE                               = 0x08000000,
+    ITEM_FLAG4_DONT_REPORT_LOOT_LOG_TO_SELF                     = 0x10000000,
 };
 
 enum ItemFlagsCustom

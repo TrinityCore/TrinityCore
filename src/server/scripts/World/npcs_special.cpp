@@ -637,7 +637,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
         }
 
         void BeginEvent(Player* player)
@@ -662,7 +662,7 @@ public:
             }
 
             Event = true;
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
         }
 
         void PatientDied(Position const* point)
@@ -770,7 +770,7 @@ public:
             Initialize();
 
             //no select
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
 
             //no regen health
             me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
@@ -811,7 +811,7 @@ public:
                         ENSURE_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, player, Coord);
 
             //make uninteractible
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
 
             //regen health
             me->RemoveUnitFlag(UNIT_FLAG_IN_COMBAT);
@@ -848,7 +848,7 @@ public:
             if (me->IsAlive() && me->GetHealth() <= 6)
             {
                 me->RemoveUnitFlag(UNIT_FLAG_IN_COMBAT);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->setDeathState(JUST_DIED);
                 me->SetUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
 

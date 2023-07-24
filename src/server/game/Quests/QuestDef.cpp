@@ -114,7 +114,7 @@ Quest::Quest(Field* questRecord, AA_Quest conf)
         _soundAccept = questRecord[98].GetUInt32();
         _soundTurnIn = questRecord[99].GetUInt32();
         _areaGroupID = questRecord[100].GetUInt32();
-        _limitTime = questRecord[101].GetUInt32();
+        _limitTime = questRecord[101].GetInt64();
         _allowableRaces.RawValue = questRecord[102].GetUInt64();
         _treasurePickerID = questRecord[103].GetInt32();
         _expansion = questRecord[104].GetInt32();
@@ -130,8 +130,7 @@ Quest::Quest(Field* questRecord, AA_Quest conf)
         _portraitTurnInText = questRecord[113].GetString();
         _portraitTurnInName = questRecord[114].GetString();
         _questCompletionLog = questRecord[115].GetString();
-    }
-    else {
+    } else {
         _packageID = 0;//questRecord[2].GetUInt32();
         _contentTuningID = 2680;//questRecord[3].GetInt32();
         _questSortID = 0;//questRecord[4].GetInt16();
@@ -191,7 +190,7 @@ Quest::Quest(Field* questRecord, AA_Quest conf)
             RewardFactionCapIn[i] = 0;//questRecord[72 + i * 4].GetInt32();
         }
 
-        _rewardReputationMask = 0;// questRecord[89].GetUInt32();
+        _rewardReputationMask = 0;//questRecord[89].GetUInt32();
 
         for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         {
@@ -205,13 +204,12 @@ Quest::Quest(Field* questRecord, AA_Quest conf)
         _soundAccept = 0;//questRecord[98].GetUInt32();
         _soundTurnIn = 0;//questRecord[99].GetUInt32();
         _areaGroupID = 0;//questRecord[100].GetUInt32();
-        _limitTime = 0;//questRecord[101].GetUInt32();
+        _limitTime = 0;//questRecord[101].GetInt64();
         _allowableRaces.RawValue = uint64(-1);//questRecord[102].GetUInt64();
         _treasurePickerID = 0;//questRecord[103].GetInt32();
         _expansion = 0;//questRecord[104].GetInt32();
         _managedWorldStateID = 0;//questRecord[105].GetInt32();
         _questSessionBonus = 0;//questRecord[106].GetInt32();
-
     }
     if (conf.id > 0) {
         _id = conf.id;// questRecord[0].GetUInt32();
@@ -420,7 +418,6 @@ void Quest::AA_LoadQuestObjective(AA_Quest conf)
             }
         }
     }
-    
     _usedQuestObjectiveTypes[obj.Type] = true;
 }
 
@@ -634,6 +631,14 @@ Optional<QuestTagType> Quest::GetQuestTag() const
         return static_cast<QuestTagType>(questInfo->Type);
 
     return {};
+}
+
+bool Quest::IsImportant() const
+{
+    if (QuestInfoEntry const* questInfo = sQuestInfoStore.LookupEntry(GetQuestInfoID()))
+        return (questInfo->Modifiers & 0x400) != 0;
+
+    return false;
 }
 
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const

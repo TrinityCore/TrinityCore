@@ -274,9 +274,8 @@ static DWORD GetLocaleValue(LPCSTR szTag)
         case 0x64654445: return CASC_LOCALE_DEDE;
         case 0x72755255: return CASC_LOCALE_RURU;
         case 0x69744954: return CASC_LOCALE_ITIT;
+        default:         return CASC_LOCALE_NONE;
     }
-
-    return 0;
 }
 
 static bool CheckConfigFileVariable(
@@ -579,29 +578,41 @@ static DWORD GetDefaultCdnPath(TCascStorage * hs, const CASC_CSV_COLUMN & Column
     return ERROR_SUCCESS;
 }
 
-static DWORD GetDefaultLocaleMask(TCascStorage * hs, const CASC_CSV_COLUMN & Column)
+static DWORD GetDefaultLocaleByRegion(LPCSTR szRegion)
+{
+    #define CASC_REGION_INT(hi, lo) (((DWORD)(hi) << 0x08) | lo)
+
+    // Setup the default locale
+    switch(CASC_REGION_INT(szRegion[0], szRegion[1]))
+    {
+        case CASC_REGION_INT('u', 's'): return CASC_LOCALE_ENUS;
+        case CASC_REGION_INT('e', 'u'): return CASC_LOCALE_ENGB;
+        case CASC_REGION_INT('c', 'n'): return CASC_LOCALE_ZHCN;
+        case CASC_REGION_INT('k', 'r'): return CASC_LOCALE_KOKR;
+        case CASC_REGION_INT('t', 'w'): return CASC_LOCALE_ZHTW;
+//      case CASC_REGION_INT('s', 'g'): return CASC_LOCALE_????;
+        default: return CASC_LOCALE_ENUS;
+    }
+}
+
+static DWORD GetDefaultLocaleMask(const CASC_CSV_COLUMN & Column)
 {
     LPCSTR szTagEnd = Column.szValue + Column.nLength - 4;
-    LPCSTR szTagPtr = Column.szValue;
+    LPCSTR szTagPtr;
+    DWORD dwLocaleValue;
     DWORD dwLocaleMask = 0;
 
-    while(szTagPtr < szTagEnd)
+    // Go through the whole tag string
+    for(szTagPtr = Column.szValue; szTagPtr <= szTagEnd; szTagPtr++)
     {
-        DWORD dwLocaleValue = GetLocaleValue(szTagPtr);
-
-        if(dwLocaleValue != 0)
+        // Try to recognize the 4-char locale code
+        if((dwLocaleValue = GetLocaleValue(szTagPtr)) != CASC_LOCALE_NONE)
         {
-            dwLocaleMask = dwLocaleMask | GetLocaleValue(szTagPtr);
-            szTagPtr += 4;
-        }
-        else
-        {
-            szTagPtr++;
+            dwLocaleMask |= dwLocaleValue;
+            szTagPtr += 3;  // Will be moved by 1 more at the end of the loop
         }
     }
-
-    hs->dwDefaultLocale = dwLocaleMask;
-    return ERROR_SUCCESS;
+    return dwLocaleMask;
 }
 
 static DWORD ParseFile_BuildInfo(TCascStorage * hs, CASC_CSV & Csv)
@@ -703,7 +714,7 @@ static DWORD ParseFile_BuildInfo(TCascStorage * hs, CASC_CSV & Csv)
             return dwErrCode;
 
         // If we found tags, we can extract language build from it
-        GetDefaultLocaleMask(hs, Csv[nSelected]["Tags!STRING:0"]);
+        hs->dwDefaultLocale = GetDefaultLocaleMask(Csv[nSelected]["Tags!STRING:0"]);
 
         // Get the CDN servers and hosts
         if(hs->dwFeatures & CASC_FEATURE_ONLINE)
@@ -733,6 +744,9 @@ static DWORD ParseRegionLine_Versions(TCascStorage * hs, CASC_CSV & Csv, size_t 
     // If the region line is not there yet, supply default one
     if(hs->szRegion == NULL)
         hs->szRegion = CascNewStr(Csv[nLine]["Region!STRING:0"].szValue);
+
+    // Get the default locale mask based on the region
+    hs->dwDefaultLocale = GetDefaultLocaleByRegion(hs->szRegion);
 
     // Extract the CDN build key
     dwErrCode = LoadQueryKey(Csv[nLine]["BuildConfig!HEX:16"], hs->CdnBuildKey);
@@ -782,6 +796,9 @@ static DWORD ParseFile_BuildDb(TCascStorage * hs, CASC_CSV & Csv)
     dwErrCode = LoadQueryKey(Csv[CSV_ZERO][1], hs->CdnConfigKey);
     if(dwErrCode != ERROR_SUCCESS)
         return dwErrCode;
+
+    // Extract tags
+    hs->dwDefaultLocale = GetDefaultLocaleMask(Csv[CSV_ZERO][2]);
 
     // Verify all variables
     return (hs->CdnBuildKey.pbData != NULL && hs->CdnConfigKey.pbData != NULL) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;

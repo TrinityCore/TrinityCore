@@ -173,13 +173,16 @@ static DWORD ParseBlteHeader(PCASC_FILE_SPAN pFileSpan, PCASC_CKEY_ENTRY pCKeyEn
     CASCLIB_UNUSED(HeaderOffset);
 
     // On files within storage segments ("data.###"), there is BLTE_ENCODED_HEADER
-    // On local files, there is just PBLTE_HEADER
+    // On local files, there is just BLTE_HEADER
     if(ConvertBytesToInteger_4_LE(pBlteHeader->Signature) != BLTE_HEADER_SIGNATURE)
     {
         // There must be at least some bytes
         if(cbEncodedBuffer < FIELD_OFFSET(BLTE_ENCODED_HEADER, MustBe0F))
             return ERROR_BAD_FORMAT;
-        if(pEncodedHeader->EncodedSize != pCKeyEntry->EncodedSize)
+
+        // Note that some newer WoW builds have the entire encoded part zeroed
+        // Tested on WoW retail 50401, file DBFilesClient\\LoreTextPublic.db2
+        if(pEncodedHeader->EncodedSize != 0 && pEncodedHeader->EncodedSize != pCKeyEntry->EncodedSize)
             return ERROR_BAD_FORMAT;
 
 #ifdef CASCLIB_DEBUG
@@ -1039,7 +1042,7 @@ bool WINAPI CascSetFileFlags(HANDLE hFile, DWORD dwOpenFlags)
     }
 
     // Set "overcome encrypted" flag. Will apply on next CascReadFile
-    hf->bOvercomeEncrypted = (dwOpenFlags & CASC_OVERCOME_ENCRYPTED) != 0;
+    hf->bOvercomeEncrypted = (dwOpenFlags & CASC_OVERCOME_ENCRYPTED) ? true : false;
     return true;
 }
 

@@ -254,8 +254,6 @@ private:
 // 271775 - Tantrum Energy Bar (periodic)
 class spell_cragmaw_power_energize_tantrum : public AuraScript
 {
-    PrepareAuraScript(spell_cragmaw_power_energize_tantrum);
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
@@ -271,8 +269,6 @@ class spell_cragmaw_power_energize_tantrum : public AuraScript
 // 260411 - Summon Larva
 class spell_cragmaw_summon_larva : public AuraScript
 {
-    PrepareAuraScript(spell_cragmaw_summon_larva);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* creature = GetTarget()->ToCreature())
@@ -302,8 +298,6 @@ struct at_cragmaw_destroy_larva : AreaTriggerAI
 // 260416 - Metamorphosis
 class spell_cragmaw_larva_metamorphosis : public AuraScript
 {
-    PrepareAuraScript(spell_cragmaw_larva_metamorphosis);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -340,8 +334,6 @@ class spell_cragmaw_larva_metamorphosis : public AuraScript
 // 278641 - Blood Burst
 class spell_cragmaw_blood_burst : public AuraScript
 {
-    PrepareAuraScript(spell_cragmaw_blood_burst);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();

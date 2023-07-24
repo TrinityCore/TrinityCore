@@ -150,11 +150,12 @@ void protobuf_AssignDesc_club_5finvitation_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubSuggestion));
   CreateTicketOptions_descriptor_ = file->message_type(5);
-  static const int CreateTicketOptions_offsets_[4] = {
+  static const int CreateTicketOptions_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateTicketOptions, slot_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateTicketOptions, attribute_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateTicketOptions, allowed_redeem_count_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateTicketOptions, expiration_time_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateTicketOptions, join_club_source_),
   };
   CreateTicketOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -280,20 +281,21 @@ void protobuf_AddDesc_club_5finvitation_2eproto() {
     "ription\022,\n\004slot\030\005 \001(\0132\036.bgs.protocol.clu"
     "b.v1.ClubSlot\022-\n\tattribute\030\006 \003(\0132\032.bgs.p"
     "rotocol.v2.Attribute\022\025\n\rcreation_time\030\007 "
-    "\001(\004\022\027\n\017expiration_time\030\010 \001(\004\"\251\001\n\023CreateT"
+    "\001(\004\022\027\n\017expiration_time\030\010 \001(\004\"\331\001\n\023CreateT"
     "icketOptions\022,\n\004slot\030\001 \001(\0132\036.bgs.protoco"
     "l.club.v1.ClubSlot\022-\n\tattribute\030\002 \003(\0132\032."
     "bgs.protocol.v2.Attribute\022\034\n\024allowed_red"
     "eem_count\030\003 \001(\r\022\027\n\017expiration_time\030\004 \001(\004"
-    "\"\320\002\n\nClubTicket\022\n\n\002id\030\001 \001(\t\0228\n\007creator\030\002"
-    " \001(\0132\'.bgs.protocol.club.v1.MemberDescri"
-    "ption\0223\n\004club\030\003 \001(\0132%.bgs.protocol.club."
-    "v1.ClubDescription\022,\n\004slot\030\004 \001(\0132\036.bgs.p"
-    "rotocol.club.v1.ClubSlot\022-\n\tattribute\030\005 "
-    "\003(\0132\032.bgs.protocol.v2.Attribute\022\034\n\024curre"
-    "nt_redeem_count\030\006 \001(\r\022\034\n\024allowed_redeem_"
-    "count\030\007 \001(\r\022\025\n\rcreation_time\030\010 \001(\004\022\027\n\017ex"
-    "piration_time\030\t \001(\004B\002H\002P\000", 1825);
+    "\022.\n\020join_club_source\030\005 \001(\rB\024\202\371+\020*\016JoinCl"
+    "ubSource\"\320\002\n\nClubTicket\022\n\n\002id\030\001 \001(\t\0228\n\007c"
+    "reator\030\002 \001(\0132\'.bgs.protocol.club.v1.Memb"
+    "erDescription\0223\n\004club\030\003 \001(\0132%.bgs.protoc"
+    "ol.club.v1.ClubDescription\022,\n\004slot\030\004 \001(\013"
+    "2\036.bgs.protocol.club.v1.ClubSlot\022-\n\tattr"
+    "ibute\030\005 \003(\0132\032.bgs.protocol.v2.Attribute\022"
+    "\034\n\024current_redeem_count\030\006 \001(\r\022\034\n\024allowed"
+    "_redeem_count\030\007 \001(\r\022\025\n\rcreation_time\030\010 \001"
+    "(\004\022\027\n\017expiration_time\030\t \001(\004B\002H\002P\000", 1873);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_invitation.proto", &protobuf_RegisterTypes);
   ClubSlot::default_instance_ = new ClubSlot();
@@ -748,6 +750,7 @@ const int CreateTicketOptions::kSlotFieldNumber;
 const int CreateTicketOptions::kAttributeFieldNumber;
 const int CreateTicketOptions::kAllowedRedeemCountFieldNumber;
 const int CreateTicketOptions::kExpirationTimeFieldNumber;
+const int CreateTicketOptions::kJoinClubSourceFieldNumber;
 #endif  // !_MSC_VER
 
 CreateTicketOptions::CreateTicketOptions()
@@ -772,6 +775,7 @@ void CreateTicketOptions::SharedCtor() {
   slot_ = NULL;
   allowed_redeem_count_ = 0u;
   expiration_time_ = GOOGLE_ULONGLONG(0);
+  join_club_source_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 

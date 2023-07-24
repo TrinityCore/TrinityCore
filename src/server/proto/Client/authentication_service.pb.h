@@ -224,6 +224,18 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   inline ::std::string* release_phone_number();
   inline void set_allocated_phone_number(::std::string* phone_number);
 
+  // optional string auth_platform = 17;
+  inline bool has_auth_platform() const;
+  inline void clear_auth_platform();
+  static const int kAuthPlatformFieldNumber = 17;
+  inline const ::std::string& auth_platform() const;
+  inline void set_auth_platform(const ::std::string& value);
+  inline void set_auth_platform(const char* value);
+  inline void set_auth_platform(const char* value, size_t size);
+  inline ::std::string* mutable_auth_platform();
+  inline ::std::string* release_auth_platform();
+  inline void set_allocated_auth_platform(::std::string* auth_platform);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.authentication.v1.LogonRequest)
  private:
   inline void set_has_program();
@@ -250,6 +262,8 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   inline void clear_has_device_id();
   inline void set_has_phone_number();
   inline void clear_has_phone_number();
+  inline void set_has_auth_platform();
+  inline void clear_has_auth_platform();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -267,6 +281,7 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   ::std::string* user_agent_;
   ::std::string* device_id_;
   ::std::string* phone_number_;
+  ::std::string* auth_platform_;
   friend void TC_PROTO_API protobuf_AddDesc_authentication_5fservice_2eproto();
   friend void protobuf_AssignDesc_authentication_5fservice_2eproto();
   friend void protobuf_ShutdownFile_authentication_5fservice_2eproto();
@@ -1899,6 +1914,82 @@ inline void LogonRequest::set_allocated_phone_number(::std::string* phone_number
     phone_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.authentication.v1.LogonRequest.phone_number)
+}
+
+// optional string auth_platform = 17;
+inline bool LogonRequest::has_auth_platform() const {
+  return (_has_bits_[0] & 0x00001000u) != 0;
+}
+inline void LogonRequest::set_has_auth_platform() {
+  _has_bits_[0] |= 0x00001000u;
+}
+inline void LogonRequest::clear_has_auth_platform() {
+  _has_bits_[0] &= ~0x00001000u;
+}
+inline void LogonRequest::clear_auth_platform() {
+  if (auth_platform_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    auth_platform_->clear();
+  }
+  clear_has_auth_platform();
+}
+inline const ::std::string& LogonRequest::auth_platform() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.authentication.v1.LogonRequest.auth_platform)
+  return *auth_platform_;
+}
+inline void LogonRequest::set_auth_platform(const ::std::string& value) {
+  set_has_auth_platform();
+  if (auth_platform_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    auth_platform_ = new ::std::string;
+  }
+  auth_platform_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.authentication.v1.LogonRequest.auth_platform)
+}
+inline void LogonRequest::set_auth_platform(const char* value) {
+  set_has_auth_platform();
+  if (auth_platform_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    auth_platform_ = new ::std::string;
+  }
+  auth_platform_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.authentication.v1.LogonRequest.auth_platform)
+}
+inline void LogonRequest::set_auth_platform(const char* value, size_t size) {
+  set_has_auth_platform();
+  if (auth_platform_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    auth_platform_ = new ::std::string;
+  }
+  auth_platform_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.authentication.v1.LogonRequest.auth_platform)
+}
+inline ::std::string* LogonRequest::mutable_auth_platform() {
+  set_has_auth_platform();
+  if (auth_platform_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    auth_platform_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.authentication.v1.LogonRequest.auth_platform)
+  return auth_platform_;
+}
+inline ::std::string* LogonRequest::release_auth_platform() {
+  clear_has_auth_platform();
+  if (auth_platform_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = auth_platform_;
+    auth_platform_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void LogonRequest::set_allocated_auth_platform(::std::string* auth_platform) {
+  if (auth_platform_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete auth_platform_;
+  }
+  if (auth_platform) {
+    set_has_auth_platform();
+    auth_platform_ = auth_platform;
+  } else {
+    clear_has_auth_platform();
+    auth_platform_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.authentication.v1.LogonRequest.auth_platform)
 }
 
 // -------------------------------------------------------------------

@@ -281,8 +281,6 @@ class spell_anhuur_shield_of_light : public SpellScriptLoader
 
         class spell_anhuur_shield_of_light_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_anhuur_shield_of_light_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (InstanceScript* const script = GetCaster()->GetInstanceScript())
@@ -316,8 +314,6 @@ class spell_anhuur_disable_beacon_beams : public SpellScriptLoader
 
         class spell_anhuur_disable_beacon_beams_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_anhuur_disable_beacon_beams_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 GetHitUnit()->RemoveAurasDueToSpell(GetEffectValue());
@@ -355,8 +351,6 @@ public:
 
     class spell_anhuur_divine_reckoning_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_anhuur_divine_reckoning_AuraScript);
-
         void OnPeriodic(AuraEffect const* aurEff)
         {
             if (Unit* caster = GetCaster())
