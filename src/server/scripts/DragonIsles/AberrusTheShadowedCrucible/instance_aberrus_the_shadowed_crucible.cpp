@@ -17,6 +17,7 @@
 
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
+#include "Unit.h"
 #include "aberrus_the_shadowed_crucible.h"
 
 ObjectData const creatureData[] =
