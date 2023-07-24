@@ -550,25 +550,27 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     //物品租赁系统
     if (aaCenter.aa_character_instances.find(GetGUIDLow()) != aaCenter.aa_character_instances.end()) {
         AA_Character_Instance conf = aaCenter.aa_character_instances[GetGUIDLow()];
-        time_t timep;
-        time(&timep);
-        time_t t = conf.zulin_time >= timep ? conf.zulin_time - timep : 0;
-        if (t <= diff) {
-            if (owner && owner->IsInWorld()) {
-                time_t t1 = conf.zulin_time;
-                char tmp[32] = { NULL };
-                strftime(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S", localtime(&t1));
-                std::string date(tmp);
-                std::string msg = "|cff00FFFF[物品租赁]|cffFF0000你的|r" + aaCenter.AA_GetItemLinkJd(this) + "|cffFF0000" + "已于" + date + "过期。";
-                aaCenter.AA_SendMessage(owner, 0, msg.c_str());
+        if (conf.zulin_time > 0) {
+            time_t timep;
+            time(&timep);
+            time_t t = conf.zulin_time >= timep ? conf.zulin_time - timep : 0;
+            if (t <= diff) {
+                if (owner && owner->IsInWorld()) {
+                    time_t t1 = conf.zulin_time;
+                    char tmp[32] = { NULL };
+                    strftime(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S", localtime(&t1));
+                    std::string date(tmp);
+                    std::string msg = "|cff00FFFF[物品租赁]|cffFF0000你的|r" + aaCenter.AA_GetItemLinkJd(this) + "|cffFF0000" + "已于" + date + "过期。";
+                    aaCenter.AA_SendMessage(owner, 0, msg.c_str());
+                }
+                sScriptMgr->OnItemExpire(owner, GetTemplate());
+                owner->DestroyItem(GetBagSlot(), GetSlot(), true);
+                return;
             }
-            sScriptMgr->OnItemExpire(owner, GetTemplate());
-            owner->DestroyItem(GetBagSlot(), GetSlot(), true);
+
+            SetState(ITEM_CHANGED, owner);                          // save new time in database
             return;
         }
-
-        SetState(ITEM_CHANGED, owner);                          // save new time in database
-        return;
     }
 
     uint32 duration = m_itemData->Expiration;

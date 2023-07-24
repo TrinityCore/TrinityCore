@@ -2938,7 +2938,7 @@ void AACenter::AA_ApplyItemBonuses(Player* player, Item* pItem, bool apply, bool
         break;
     }
 
-    if (player->CanModifyStats() && (damage || pProto->GetDelay()))
+    if (player->CanModifyStats() && (damage || delay))
         player->UpdateDamagePhysical(attType);
 }
 

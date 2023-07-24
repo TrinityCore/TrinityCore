@@ -1088,7 +1088,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
         time(&timep); /*当前time_t类型UTC时间*/
 
         //点卡模式 创建账号，初始游戏时间
-        if (aaCenter.aa_world_confs[100].value1 == 1 && aaCenter.aa_accounts.find(accountid) == aaCenter.aa_accounts.end()) {
+        if (aaCenter.aa_world_confs[100].value1 == 1 && (aaCenter.aa_accounts.find(accountid) == aaCenter.aa_accounts.end() || aaCenter.aa_accounts[accountid].id == 0)) {
             uint32 dianka = 0;
             if (aaCenter.aa_world_confs[100].value2 != "" && aaCenter.aa_world_confs[100].value2 != "0") {
                 dianka = aaCenter.AA_StringUint32(aaCenter.aa_world_confs[100].value2);

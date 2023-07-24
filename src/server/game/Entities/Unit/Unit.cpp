@@ -461,10 +461,11 @@ void Unit::Update(uint32 p_time)
                         std::string msg = "|cff00FFFF[账号提示]|cffFF0000游戏时间已不足，你将在2分钟后被强制下线，请联系管理员充值。";
                         aaCenter.AA_SendMessage(p, 0, msg.c_str());
                     }
-                    else {
+                    else if (p->aa_dianka == 0) {
                         p->GetSession()->KickPlayer("dianka");
                         return;
                     }
+                    p->aa_dianka = p->aa_dianka >= p_time ? p->aa_dianka - p_time : 0;
                 }
             }
         }
