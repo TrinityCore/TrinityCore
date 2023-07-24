@@ -115,8 +115,6 @@ struct npc_engineer_helice : public EscortAI
 
 class spell_q12688_detonate_1 : public SpellScript
 {
-    PrepareSpellScript(spell_q12688_detonate_1);
-
     static constexpr uint32 SPAWN_GROUP_FLAMES = 67;
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -156,8 +154,6 @@ class spell_q12688_detonate_1 : public SpellScript
 
 class spell_q12688_detonate_2 : public SpellScript
 {
-    PrepareSpellScript(spell_q12688_detonate_2);
-
     static constexpr uint32 SPAWN_GROUP_FLAMES = 68;
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -390,8 +386,6 @@ enum MiscLifewarden
 // 51957 - Call of the Lifewarden
 class spell_q12620_the_lifewarden_wrath : public SpellScript
 {
-    PrepareSpellScript(spell_q12620_the_lifewarden_wrath);
-
     void HandleSendEvent(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -468,8 +462,6 @@ enum KickWhatKick
 // 51330 - Shoot RJR
 class spell_q12589_shoot_rjr : public SpellScript
 {
-    PrepareSpellScript(spell_q12589_shoot_rjr);
-
     SpellCastResult CheckCast()
     {
         if (Unit* target = GetExplTargetUnit())
@@ -593,8 +585,6 @@ enum ReturnedSevenfold
 // 51854 - Deathbolt
 class spell_q12611_deathbolt : public SpellScript
 {
-    PrepareSpellScript(spell_q12611_deathbolt);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -634,8 +624,6 @@ enum BurningToHelp
 // 52308 - Take Sputum Sample
 class spell_sholazar_take_sputum_sample : public SpellScript
 {
-    PrepareSpellScript(spell_sholazar_take_sputum_sample);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo(
@@ -668,8 +656,6 @@ class spell_sholazar_take_sputum_sample : public SpellScript
 // 52306 - Sputum Collected
 class spell_sholazar_sputum_collected : public SpellScript
 {
-    PrepareSpellScript(spell_sholazar_sputum_collected);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_HYDRA_SPUTUM });
@@ -704,8 +690,6 @@ enum ACleansingSong
 // 52941 - Song of Cleansing
 class spell_sholazar_song_of_cleansing : public SpellScript
 {
-    PrepareSpellScript(spell_sholazar_song_of_cleansing);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -753,8 +737,6 @@ enum StrengthOfTheTempest
 // 53062 - Lightning Strike
 class spell_sholazar_lightning_strike : public SpellScript
 {
-    PrepareSpellScript(spell_sholazar_lightning_strike);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CREATE_POWER_OF_THE_TEMPEST });
@@ -778,8 +760,6 @@ class spell_sholazar_lightning_strike : public SpellScript
 // 51071 - Flight to Sholazar (Missile Warning)
 class spell_sholazar_flight_to_sholazar : public SpellScript
 {
-    PrepareSpellScript(spell_sholazar_flight_to_sholazar);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return sBroadcastTextStore.LookupEntry(uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()));

@@ -404,8 +404,6 @@ private:
    50824 - Summon Earthen Dwarf */
 class spell_sjonnir_periodic_summon : public AuraScript
 {
-    PrepareAuraScript(spell_sjonnir_periodic_summon);
-
 public:
     spell_sjonnir_periodic_summon(uint32 leftPipeSpell, uint32 rightPipeSpell)
         : AuraScript(), _leftPipeSpell(leftPipeSpell), _rightPipeSpell(rightPipeSpell) { }
@@ -439,8 +437,6 @@ private:
 // 50777 - Iron Sludge Spawn Visual
 class spell_sjonnir_iron_sludge_spawn_visual : public AuraScript
 {
-    PrepareAuraScript(spell_sjonnir_iron_sludge_spawn_visual);
-
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         // They're indeed passive but I'm not sure enough if it's handled by this aura or directly in script

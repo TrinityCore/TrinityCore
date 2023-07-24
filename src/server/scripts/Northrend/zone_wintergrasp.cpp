@@ -354,8 +354,6 @@ private:
    61409 - Build Siege Vehicle (Force) */
 class spell_wintergrasp_force_building : public SpellScript
 {
-    PrepareSpellScript(spell_wintergrasp_force_building);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -382,8 +380,6 @@ class spell_wintergrasp_force_building : public SpellScript
 // 61178 - Grab Passenger
 class spell_wintergrasp_grab_passenger : public SpellScript
 {
-    PrepareSpellScript(spell_wintergrasp_grab_passenger);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Player* target = GetHitPlayer())
@@ -428,8 +424,6 @@ enum WgTeleport
 // 54640 - Teleport
 class spell_wintergrasp_defender_teleport : public SpellScript
 {
-    PrepareSpellScript(spell_wintergrasp_defender_teleport);
-
     SpellCastResult CheckCast()
     {
         if (Player* target = GetExplTargetUnit()->ToPlayer())
@@ -449,8 +443,6 @@ class spell_wintergrasp_defender_teleport : public SpellScript
 // 54643 - Teleport
 class spell_wintergrasp_defender_teleport_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_wintergrasp_defender_teleport_trigger);
-
     void HandleDummy(SpellEffIndex /*effindex*/)
     {
         if (Unit* target = GetHitUnit())
@@ -471,8 +463,6 @@ class spell_wintergrasp_defender_teleport_trigger : public SpellScript
 // 59911 - Tenacity
 class spell_wintergrasp_tenacity_refresh : public AuraScript
 {
-    PrepareAuraScript(spell_wintergrasp_tenacity_refresh);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } }))

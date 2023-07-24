@@ -452,8 +452,6 @@ struct go_manticron_cube : public GameObjectAI
 // 30541 - Blaze
 class spell_magtheridon_blaze_target : public SpellScript
 {
-    PrepareSpellScript(spell_magtheridon_blaze_target);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_BLAZE });
@@ -473,8 +471,6 @@ class spell_magtheridon_blaze_target : public SpellScript
 // 30410 - Shadow Grasp
 class spell_magtheridon_shadow_grasp : public AuraScript
 {
-    PrepareAuraScript(spell_magtheridon_shadow_grasp);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_MIND_EXHAUSTION });
@@ -496,8 +492,6 @@ class spell_magtheridon_shadow_grasp : public AuraScript
 // 30166 - Shadow Grasp (Visual Effect)
 class spell_magtheridon_shadow_grasp_visual : public AuraScript
 {
-    PrepareAuraScript(spell_magtheridon_shadow_grasp_visual);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(

@@ -282,8 +282,6 @@ private:
 // 59820 - Drained
 class spell_ichoron_drained : public AuraScript
 {
-    PrepareAuraScript(spell_ichoron_drained);
-
     bool Load() override
     {
         return GetOwner()->GetEntry() == NPC_ICHORON || GetOwner()->GetEntry() == NPC_DUMMY_ICHORON;
@@ -315,8 +313,6 @@ class spell_ichoron_drained : public AuraScript
 // 54269 - Merge
 class spell_ichoron_merge : public SpellScript
 {
-    PrepareSpellScript(spell_ichoron_merge);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHRINK });
@@ -342,8 +338,6 @@ class spell_ichoron_merge : public SpellScript
 // 54306 - Protective Bubble
 class spell_ichoron_protective_bubble : public AuraScript
 {
-    PrepareAuraScript(spell_ichoron_protective_bubble);
-
     bool Load() override
     {
         return GetOwner()->GetEntry() == NPC_ICHORON || GetOwner()->GetEntry() == NPC_DUMMY_ICHORON;
@@ -366,8 +360,6 @@ class spell_ichoron_protective_bubble : public AuraScript
 // 54259 - Splatter
 class spell_ichoron_splatter : public AuraScript
 {
-    PrepareAuraScript(spell_ichoron_splatter);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(

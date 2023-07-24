@@ -259,8 +259,6 @@ class spell_anetheron_vampiric_aura : public SpellScriptLoader
 
         class spell_anetheron_vampiric_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_anetheron_vampiric_aura_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_VAMPIRIC_AURA_HEAL });

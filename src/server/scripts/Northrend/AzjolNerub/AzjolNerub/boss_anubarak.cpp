@@ -606,8 +606,6 @@ struct npc_anubarak_impale_target : public NullCreatureAI
 // 53472, 59433 - Pound
 class spell_anubarak_pound : public AuraScript
 {
-    PrepareAuraScript(spell_anubarak_pound);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_POUND_DAMAGE });
@@ -628,8 +626,6 @@ class spell_anubarak_pound : public AuraScript
 // 53520 - Carrion Beetles
 class spell_anubarak_carrion_beetles : public AuraScript
 {
-    PrepareAuraScript(spell_anubarak_carrion_beetles);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_CARRION_BEETLE });

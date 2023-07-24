@@ -571,8 +571,6 @@ class spell_archimonde_drain_world_tree_dummy : public SpellScriptLoader
 
         class spell_archimonde_drain_world_tree_dummy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_archimonde_drain_world_tree_dummy_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_DRAIN_WORLD_TREE_TRIGGERED });
@@ -599,8 +597,6 @@ class spell_archimonde_drain_world_tree_dummy : public SpellScriptLoader
 // Protection of Elune 38528
 class spell_protection_of_elune : public AuraScript
 {
-    PrepareAuraScript(spell_protection_of_elune);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
