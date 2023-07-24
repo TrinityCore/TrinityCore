@@ -21,11 +21,12 @@
  * Scriptnames of files in this file should be prefixed with "spell_dru_".
  */
 
-#include "ScriptMgr.h"
+#include "CellImpl.h"
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "GridNotifiers.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
