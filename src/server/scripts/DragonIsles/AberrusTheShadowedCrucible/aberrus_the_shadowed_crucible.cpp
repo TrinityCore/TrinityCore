@@ -35,39 +35,34 @@ enum AberrusEvents
 
 enum AberrusPaths
 {
-    PATH_SARKARETH                    = (202416 * 10) << 3,
-    PATH_WINGLORD_DEZRAN              = (202610 * 10) << 3,
-    PATH_ZSKARN                       = (202637 * 10) << 3
-};
-
-enum AberrusCreatureIds
-{
-    NPC_SABELLIAN_AT_ABERRUS_ENTRANCE = 201575
+    PATH_SARKARETH                              = (202416 * 10) << 3,
+    PATH_WINGLORD_DEZRAN                        = (202610 * 10) << 3,
+    PATH_ZSKARN                                 = (202637 * 10) << 3
 };
 
 enum AberrusSpells
 {
-    SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_1 = 400785, // Sabellian and Wrathion
-    SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_2 = 403340, // Sabellian and Sarkareth
+    SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_1    = 400785, // Sabellian and Wrathion
+    SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_2    = 403340, // Sabellian and Sarkareth
 };
 
 enum AberrusMisc
 {
     // Sabellian intro
-    CONVO_ACTOR_IDX_SABELLIAN         = 0,
+    CONVO_ACTOR_IDX_SABELLIAN                   = 0,
 
-    CONVO_SABELLIAN_INTRO_LINE_01     = 56690,
-    CONVO_SABELLIAN_INTRO_LINE_02     = 56692,
+    CONVO_SABELLIAN_INTRO_LINE_01               = 56690,
+    CONVO_SABELLIAN_INTRO_LINE_02               = 56692,
 
     // Kazzara intro
-    CONVO_ACTOR_IDX_WINGLORD_DEZRAN   = 0,
-    CONVO_ACTOR_IDX_ZSKARN            = 1,
-    CONVO_ACTOR_IDX_SARKARETH         = 2,
+    CONVO_ACTOR_IDX_WINGLORD_DEZRAN             = 0,
+    CONVO_ACTOR_IDX_ZSKARN                      = 1,
+    CONVO_ACTOR_IDX_SARKARETH                   = 2,
 
-    CONVO_SARKARETH_LAST_LINE         = 57821
+    CONVO_SARKARETH_LAST_LINE                   = 57821
 };
 
-Position const SabellianConvoPosition = { 2250.6372f, 2482.3003f, 711.9592f };
+Position const SabellianIntroConvoMovePosition = { 2250.6372f, 2482.3003f, 711.9592f };
 
 // Id 26 - Areatrigger
 struct at_aberrus_sabellian_conversation_intro : AreaTriggerAI
@@ -139,7 +134,7 @@ public:
                     break;
 
                 sabellian->SetWalk(true);
-                sabellian->GetMotionMaster()->MovePoint(0, SabellianConvoPosition);
+                sabellian->GetMotionMaster()->MovePoint(0, SabellianIntroConvoMovePosition);
                 break;
             }
             case EVENT_SABELLIAN_MOVE_HOME_POS:

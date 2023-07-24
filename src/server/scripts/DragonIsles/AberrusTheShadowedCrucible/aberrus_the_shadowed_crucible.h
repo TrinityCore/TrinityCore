@@ -28,15 +28,15 @@ uint32 const EncounterCount = 9;
 enum AberrusDataTypes
 {
     // Encounters
-    DATA_KAZZARA_THE_HELLFORGED          = 0,
-    DATA_THE_AMALGAMATION_CHAMBER        = 1,
-    DATA_THE_FORGOTTEN_EXPERIMENTS       = 2,
-    DATA_ASSAULT_OF_THE_ZAQALI           = 3,
-    DATA_RASHOK_THE_ELDER                = 4,
-    DATA_ZSKARN_THE_VIGILANT_STEWARD     = 5,
-    DATA_MAGMORAX                        = 6,
-    DATA_ECHO_OF_NELTHARION              = 7,
-    DATA_SCALECOMMANDER_SARKARETH        = 8,
+    DATA_KAZZARA_THE_HELLFORGED         = 0,
+    DATA_THE_AMALGAMATION_CHAMBER       = 1,
+    DATA_THE_FORGOTTEN_EXPERIMENTS      = 2,
+    DATA_ASSAULT_OF_THE_ZAQALI          = 3,
+    DATA_RASHOK_THE_ELDER               = 4,
+    DATA_ZSKARN_THE_VIGILANT_STEWARD    = 5,
+    DATA_MAGMORAX                       = 6,
+    DATA_ECHO_OF_NELTHARION             = 7,
+    DATA_SCALECOMMANDER_SARKARETH       = 8,
 
     // Additional Data
     DATA_KAZZARA_GATE,
@@ -48,29 +48,32 @@ enum AberrusDataTypes
 enum AberrusCreatureIds
 {
     // Bosses
-    BOSS_KAZZARA_THE_HELLFORGED          = 201261,
+    BOSS_KAZZARA_THE_HELLFORGED         = 201261,
 
-    BOSS_ETERNAL_BLAZE                   = 201773,
-    BOSS_ESSENCE_OF_SHADOW               = 201774,
-    BOSS_SHADOWFLAME_AMALGAMATION        = 201934,
+    BOSS_ETERNAL_BLAZE                  = 201773,
+    BOSS_ESSENCE_OF_SHADOW              = 201774,
+    BOSS_SHADOWFLAME_AMALGAMATION       = 201934,
 
-    BOSS_NELDRIS                         = 200912,
-    BOSS_THADRION                        = 200913,
-    BOSS_RIONTHUS                        = 200918,
+    BOSS_NELDRIS                        = 200912,
+    BOSS_THADRION                       = 200913,
+    BOSS_RIONTHUS                       = 200918,
 
-    BOSS_WARLORD_KAGNI                   = 199659,
-    BOSS_RASHOK_THE_ELDER                = 201320,
-    BOSS_ZSKARN_THE_VIGILANT_STEWARD     = 202637,
-    BOSS_MAGMORAX                        = 201579,
-    BOSS_ECHO_OF_NELTHARION              = 204223,
-    BOSS_SCALECOMMANDER_SARKARETH        = 205319,
+    BOSS_WARLORD_KAGNI                  = 199659,
+    BOSS_RASHOK_THE_ELDER               = 201320,
+    BOSS_ZSKARN_THE_VIGILANT_STEWARD    = 202637,
+    BOSS_MAGMORAX                       = 201579,
+    BOSS_ECHO_OF_NELTHARION             = 204223,
+    BOSS_SCALECOMMANDER_SARKARETH       = 205319,
+
+    // Misc
+    NPC_SABELLIAN_AT_ABERRUS_ENTRANCE   = 201575
 };
 
 enum AberrusGameObjectIds
 {
-    GO_KAZZARA_DOOR                      = 398742,
-    GO_KAZZARA_GATE                      = 397996,
-    GO_INVISIBLE_DOOR                    = 398588
+    GO_KAZZARA_DOOR                     = 398742,
+    GO_KAZZARA_GATE                     = 397996,
+    GO_INVISIBLE_DOOR                   = 398588
 };
 
 enum AberrusSharedActions

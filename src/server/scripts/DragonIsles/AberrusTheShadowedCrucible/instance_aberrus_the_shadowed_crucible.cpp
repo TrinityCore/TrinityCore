@@ -126,7 +126,7 @@ public:
                 _deadSunderedMobs++;
                 if (_deadSunderedMobs >= 6)
                 {
-                    Creature* sarkareth = creature->FindNearestCreature(NPC_SCALECOMMANDER_SARKARETH_AT_KAZZARA, 100.0f);
+                    Creature* sarkareth = creature->FindNearestCreature(NPC_SCALECOMMANDER_SARKARETH_AT_KAZZARA, 300.0f);
                     if (!sarkareth)
                         return;
                     sarkareth->CastSpell(nullptr, SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_3);
