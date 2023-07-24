@@ -898,7 +898,6 @@ class spell_dru_lifebloom_heal : public SpellScript
     void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
 
         // Note: Verdancy talent.
         if (AuraEffect* verdancyEffect = caster->GetAuraEffect(SPELL_DRUID_VERDANCY, EFFECT_0))
@@ -913,6 +912,7 @@ class spell_dru_lifebloom_heal : public SpellScript
                 Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(efflorescenceAT, targetList, checker);
                 Cell::VisitAllObjects(efflorescenceAT, searcher, areatriggerRadius);
 
+                // Note: max. targets is Verdancy's EFFECT_0.
                 if (targetList.size() > verdancyEffect->GetAmount())
                     targetList.resize(verdancyEffect->GetAmount());
 
