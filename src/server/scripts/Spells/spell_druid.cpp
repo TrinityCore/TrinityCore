@@ -1025,8 +1025,10 @@ class spell_dru_lifebloom_heal : public SpellScript
                 Cell::VisitAllObjects(efflorescenceAT, searcher, areatriggerRadius);
 
                 // Note: max. targets is Verdancy's EFFECT_0.
-                if (targetList.size() > verdancyEffect->GetAmount())
-                    targetList.resize(verdancyEffect->GetAmount());
+                uint32 const maxTargets = verdancyEffect->GetAmount();
+
+                if (targetList.size() > maxTargets)
+                    targetList.resize(maxTargets);
 
                 for (Unit* chosenTarget : targetList)
                     caster->CastSpell(chosenTarget, SPELL_DRUID_VERDANCY_HEAL, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
