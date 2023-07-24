@@ -1365,8 +1365,12 @@ void GameObject::Update(uint32 diff)
             else if (!GetOwnerGUID().IsEmpty() || GetSpellId())
             {
                 SetRespawnTime(0);
-                if (GameObject* go = GetMap()->GetGameObject(GetOwnerGUID()))
-                    go->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase, nullptr));
+
+                if (GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
+                {
+                    if (GameObject* go = GetMap()->GetGameObject(GetOwnerGUID()))
+                        go->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase, nullptr));
+                }
 
                 Delete();
                 return;
@@ -2972,11 +2976,9 @@ void GameObject::Use(Unit* user)
                     }
                     else
                     {
-                        CastSpellExtraArgs args;
-                        args.SetTriggerFlags(TRIGGERED_FULL_MASK);
                         // we let the owner cast the spell for now
                         // so that caster guid is set correctly
-                        SpellCastResult result = owner->CastSpell(user, owner->GetGOInfo()->newflag.pickupSpell, args);
+                        SpellCastResult result = owner->CastSpell(user, owner->GetGOInfo()->newflag.pickupSpell, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
                         if (result == SPELL_CAST_OK)
                         {
                             Delete();
@@ -3147,7 +3149,8 @@ void GameObject::Use(Unit* user)
         SpellCastResult castResult = CastSpell(user, spellId);
         if (castResult == SPELL_FAILED_SUCCESS)
         {
-            HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
+            if (GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
+                HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
         }
     }
 }
