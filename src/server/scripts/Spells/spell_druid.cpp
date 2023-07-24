@@ -447,8 +447,6 @@ class spell_dru_eclipse_ooc : public AuraScript
 // 145205 - Efflorescence
 class spell_dru_efflorescence : public SpellScript
 {
-    PrepareSpellScript(spell_dru_efflorescence);
-
     void HandleSummonAreaTrigger(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
@@ -467,8 +465,6 @@ class spell_dru_efflorescence : public SpellScript
 // 81262 - Efflorescence (Dummy)
 class spell_dru_efflorescence_dummy : public AuraScript
 {
-    PrepareAuraScript(spell_dru_efflorescence_dummy);
-
     void HandlePeriodicDummy(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
@@ -488,8 +484,6 @@ class spell_dru_efflorescence_dummy : public AuraScript
 // 81269 - Efflorescence (Heal)
 class spell_dru_efflorescence_heal : public SpellScript
 {
-    PrepareSpellScript(spell_dru_efflorescence_heal);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         // Note: Efflorescence became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
