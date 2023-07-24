@@ -52,8 +52,6 @@ struct npc_bg_ab_gryphon_bat_rider_leader : public ScriptedAI
 // 261985 - Blacksmith Working
 class spell_bg_ab_blacksmith_working : public AuraScript
 {
-    PrepareAuraScript(spell_bg_ab_blacksmith_working);
-
     static constexpr uint32 ITEM_BLACKSMITH_HAMMER = 5956;
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

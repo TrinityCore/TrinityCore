@@ -51,8 +51,6 @@ enum EvokerSpellLabels
 // 362969 - Azure Strike (blue)
 class spell_evo_azure_strike : public SpellScript
 {
-    PrepareSpellScript(spell_evo_azure_strike);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove(GetExplTargetUnit());
@@ -69,8 +67,6 @@ class spell_evo_azure_strike : public SpellScript
 // 370455 - Charged Blast
 class spell_evo_charged_blast : public AuraScript
 {
-    PrepareAuraScript(spell_evo_charged_blast);
-
     bool CheckProc(ProcEventInfo& procInfo)
     {
         return procInfo.GetSpellInfo() && procInfo.GetSpellInfo()->HasLabel(SPELL_LABEL_EVOKER_BLUE);
@@ -85,8 +81,6 @@ class spell_evo_charged_blast : public AuraScript
 // 358733 - Glide (Racial)
 class spell_evo_glide : public SpellScript
 {
-    PrepareSpellScript(spell_evo_glide);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_EVOKER_GLIDE_KNOCKBACK, SPELL_EVOKER_HOVER, SPELL_EVOKER_SOAR_RACIAL });
@@ -124,8 +118,6 @@ class spell_evo_glide : public SpellScript
 // 361469 - Living Flame (Red)
 class spell_evo_living_flame : public SpellScript
 {
-    PrepareSpellScript(spell_evo_living_flame);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo ({ SPELL_EVOKER_LIVING_FLAME_DAMAGE, SPELL_EVOKER_LIVING_FLAME_HEAL, SPELL_EVOKER_ENERGIZING_FLAME });
@@ -165,8 +157,6 @@ class spell_evo_living_flame : public SpellScript
 // 381773 - Permeating Chill
 class spell_evo_permeating_chill : public AuraScript
 {
-    PrepareAuraScript(spell_evo_permeating_chill);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_EVOKER_PERMEATING_CHILL_TALENT });
@@ -197,8 +187,6 @@ class spell_evo_permeating_chill : public AuraScript
 // 393568 - Pyre
 class spell_evo_pyre : public SpellScript
 {
-    PrepareSpellScript(spell_evo_pyre);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo ({ SPELL_EVOKER_PYRE_DAMAGE });

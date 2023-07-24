@@ -614,8 +614,6 @@ public:
 // 53110 - Devour Humanoid
 class spell_death_knight_devour_humanoid : public SpellScript
 {
-    PrepareSpellScript(spell_death_knight_devour_humanoid);
-
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
         GetHitUnit()->CastSpell(GetCaster(), GetEffectValue(), true);

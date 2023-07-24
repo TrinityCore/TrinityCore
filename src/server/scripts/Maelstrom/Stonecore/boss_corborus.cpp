@@ -192,7 +192,7 @@ class boss_corborus : public CreatureScript
                             events.RescheduleEvent(EVENT_SUBMERGE, 100s);
 
                             me->SetReactState(REACT_PASSIVE);
-                            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            me->SetUninteractible(true);
                             DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
                             me->AttackStop();
 
@@ -217,7 +217,7 @@ class boss_corborus : public CreatureScript
                             break;
                         case EVENT_EMERGE:
                             me->RemoveAllAuras();
-                            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            me->SetUninteractible(false);
                             DoCast(me, SPELL_EMERGE);
                             events.ScheduleEvent(EVENT_ATTACK, 2500ms);
                             break;

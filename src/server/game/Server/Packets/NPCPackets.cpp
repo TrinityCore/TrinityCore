@@ -77,6 +77,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText)
     data << int32(gossipText.QuestFlags[1]);
 
     data.WriteBit(gossipText.Repeatable);
+    data.WriteBit(gossipText.Important);
     data.WriteBits(gossipText.QuestTitle.size(), 9);
     data.FlushBits();
 

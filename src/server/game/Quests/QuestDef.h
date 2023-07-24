@@ -176,12 +176,13 @@ enum class QuestGiverStatus : uint64
     FutureLegendaryQuest                = 0x000800000,
     LegendaryReward                     = 0x001000000,
     ImportantQuest                      = 0x002000000,
-    ImportantQuestReward                = 0x004000000,
+    ImportantReward                     = 0x004000000,
     TrivialImportantQuest               = 0x008000000,
+    FutureImportantQuest                = 0x010000000,
     ImportantQuestRewardCompleteNoPOI   = 0x020000000,
     ImportantQuestRewardCompletePOI     = 0x040000000,
     TrivialJourneyQuest                 = 0x080000000,
-    TrivialCovenantCallingQuest         = 0x100000000,
+    FutureJourneyQuest                  = 0x100000000,
 };
 
 DEFINE_ENUM_FLAG(QuestGiverStatus);
@@ -283,7 +284,10 @@ enum QuestFlagsEx2 : uint32
     QUEST_FLAGS_EX2_DISPLAY_TIME_REMAINING              = 0x00020000,
     QUEST_FLAGS_EX2_CLEAR_TASK_PROGRESS_WHEN_ABANDONED  = 0x00040000,
     QUEST_FLAGS_EX2_SUPPRESS_GREETINGS_ON_COMPLETE      = 0x00080000,
-    QUEST_FLAGS_EX2_HIDE_REQUIRED_ITEMS_ON_TURN_IN      = 0x00100000
+    QUEST_FLAGS_EX2_HIDE_REQUIRED_ITEMS_ON_TURN_IN      = 0x00100000,
+    QUEST_FLAGS_EX2_IGNORE_SOULBOUND_ITEMS              = 0x00200000,
+    QUEST_FLAGS_EX2_DONT_DEFER_START_EFFECTS            = 0x00400000,
+    QUEST_FLAGS_EX2_HIDE_REQUIRED_ITEMS_PRE_TURN_IN     = 0x00800000,
 };
 
 enum QuestSpecialFlags
@@ -351,14 +355,16 @@ enum QuestObjectiveType
 
 enum QuestObjectiveFlags
 {
-    QUEST_OBJECTIVE_FLAG_TRACKED_ON_MINIMAP                 = 0x01, // client displays large yellow blob on minimap for creature/gameobject
-    QUEST_OBJECTIVE_FLAG_SEQUENCED                          = 0x02, // client will not see the objective displayed until all previous objectives are completed
-    QUEST_OBJECTIVE_FLAG_OPTIONAL                           = 0x04, // not required to complete the quest
-    QUEST_OBJECTIVE_FLAG_HIDDEN                             = 0x08, // never displayed in quest log
-    QUEST_OBJECTIVE_FLAG_HIDE_CREDIT_MSG                    = 0x10, // skip showing item objective progress
-    QUEST_OBJECTIVE_FLAG_PRESERVE_QUEST_ITEMS               = 0x20,
-    QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR               = 0x40, // hidden objective used to calculate progress bar percent (quests are limited to a single progress bar objective)
-    QUEST_OBJECTIVE_FLAG_KILL_PLAYERS_SAME_FACTION          = 0x80
+    QUEST_OBJECTIVE_FLAG_TRACKED_ON_MINIMAP                 = 0x0001, // client displays large yellow blob on minimap for creature/gameobject
+    QUEST_OBJECTIVE_FLAG_SEQUENCED                          = 0x0002, // client will not see the objective displayed until all previous objectives are completed
+    QUEST_OBJECTIVE_FLAG_OPTIONAL                           = 0x0004, // not required to complete the quest
+    QUEST_OBJECTIVE_FLAG_HIDDEN                             = 0x0008, // never displayed in quest log
+    QUEST_OBJECTIVE_FLAG_HIDE_CREDIT_MSG                    = 0x0010, // skip showing item objective progress
+    QUEST_OBJECTIVE_FLAG_PRESERVE_QUEST_ITEMS               = 0x0020,
+    QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR               = 0x0040, // hidden objective used to calculate progress bar percent (quests are limited to a single progress bar objective)
+    QUEST_OBJECTIVE_FLAG_KILL_PLAYERS_SAME_FACTION          = 0x0080,
+    QUEST_OBJECTIVE_FLAG_NO_SHARE_PROGRESS                  = 0x0100,
+    QUEST_OBJECTIVE_FLAG_IGNORE_SOULBOUND_ITEMS             = 0x0200,
 };
 
 enum class QuestCompleteSpellType : uint32

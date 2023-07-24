@@ -83,7 +83,7 @@ public:
             {
                 //Become visible again
                 me->SetFaction(FACTION_MONSTER);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 //Noxxion model
                 me->SetDisplayId(11172);
                 Invisible = false;
@@ -123,7 +123,7 @@ public:
                 //me->m_canMove = true;
                 me->InterruptNonMeleeSpells(false);
                 me->SetFaction(FACTION_FRIENDLY);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 // Invisible Model
                 me->SetDisplayId(11686);
                 SummonAdds(me->GetVictim());

@@ -1364,8 +1364,9 @@ class npc_healthy_spore : public CreatureScript
             npc_healthy_sporeAI(Creature* creature) : ScriptedAI(creature)
             {
                 SetCombatMovement(false);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->SetImmuneToPC(true);
+                me->SetUninteractible(true);
                 me->SetReactState(REACT_PASSIVE);
                 DoCast(me, SPELL_HEALTHY_SPORE_VISUAL);
                 DoCast(me, SPELL_POTENT_PHEROMONES);
@@ -1540,8 +1541,6 @@ class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
 
         class spell_freya_attuned_to_nature_dose_reduction_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_freya_attuned_to_nature_dose_reduction_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
@@ -1589,8 +1588,6 @@ class spell_freya_iron_roots : public SpellScriptLoader
 
         class spell_freya_iron_roots_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_freya_iron_roots_SpellScript);
-
             void HandleSummon(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);

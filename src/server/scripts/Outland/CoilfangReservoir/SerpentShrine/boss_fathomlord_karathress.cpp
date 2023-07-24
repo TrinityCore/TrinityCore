@@ -659,8 +659,6 @@ struct boss_fathomguard_caribdis : public ScriptedAI
 // 38358 - Tidal Surge
 class spell_fathomlord_karathress_tidal_surge : public SpellScript
 {
-    PrepareSpellScript(spell_fathomlord_karathress_tidal_surge);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TIDAL_SURGE_EFFECT });

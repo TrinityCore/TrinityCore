@@ -410,8 +410,6 @@ class player_overlord_brandAI : public PlayerAI
 // 69172 - Overlord's Brand
 class spell_tyrannus_overlord_brand : public AuraScript
 {
-    PrepareAuraScript(spell_tyrannus_overlord_brand);
-
     bool Load() override
     {
         return GetCaster() && GetCaster()->GetEntry() == NPC_TYRANNUS;
@@ -444,8 +442,6 @@ class spell_tyrannus_overlord_brand : public AuraScript
 // 69275 - Mark of Rimefang
 class spell_tyrannus_mark_of_rimefang : public AuraScript
 {
-    PrepareAuraScript(spell_tyrannus_mark_of_rimefang);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* caster = GetCaster();
@@ -466,8 +462,6 @@ class spell_tyrannus_mark_of_rimefang : public AuraScript
 // 69232 - Icy Blast
 class spell_tyrannus_rimefang_icy_blast : public SpellScript
 {
-    PrepareSpellScript(spell_tyrannus_rimefang_icy_blast);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ICY_BLAST_AURA });
