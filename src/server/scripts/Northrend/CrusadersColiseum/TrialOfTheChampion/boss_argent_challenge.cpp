@@ -133,8 +133,6 @@ class spell_eadric_radiance : public SpellScriptLoader
         spell_eadric_radiance() : SpellScriptLoader("spell_eadric_radiance") { }
         class spell_eadric_radiance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_eadric_radiance_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(OrientationCheck(GetCaster()));
@@ -651,8 +649,6 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
         class spell_paletress_summon_memory_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_paletress_summon_memory_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(memorySpellId);

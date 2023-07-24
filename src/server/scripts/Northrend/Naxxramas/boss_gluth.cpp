@@ -290,8 +290,6 @@ private:
 // 28374, 54426 - Decimate
 class spell_gluth_decimate : public SpellScript
 {
-    PrepareSpellScript(spell_gluth_decimate);
-
     // handles the damaging effect of the decimate spell.
     void HandleScriptEffect(SpellEffIndex /* index */)
     {
@@ -333,8 +331,6 @@ class spell_gluth_decimate : public SpellScript
 // 28239, 28404 - Zombie Chow Search (single target and aoe zombie-kill spell) to heal Gluth on each target hit
 class spell_gluth_zombiechow_search : public SpellScript
 {
-    PrepareSpellScript(spell_gluth_zombiechow_search);
-
     void HealForEachTargetHit()
     {
         GetCaster()->ModifyHealth(int32(GetCaster()->CountPctFromMaxHealth(5)));

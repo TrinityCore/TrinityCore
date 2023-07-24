@@ -580,8 +580,6 @@ struct npc_ymirjar_harpooner : public npc_skadi_trashAI
 // 47594 - Freezing Cloud
 class spell_freezing_cloud_area_right : public SpellScript
 {
-    PrepareSpellScript(spell_freezing_cloud_area_right);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_FREEZING_CLOUD });
@@ -607,8 +605,6 @@ class spell_freezing_cloud_area_right : public SpellScript
 // 47574 - Freezing Cloud
 class spell_freezing_cloud_area_left : public SpellScript
 {
-    PrepareSpellScript(spell_freezing_cloud_area_left);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_FREEZING_CLOUD });
@@ -634,8 +630,6 @@ class spell_freezing_cloud_area_left : public SpellScript
 // 47579, 60020 - Freezing Cloud
 class spell_freezing_cloud_damage : public AuraScript
 {
-    PrepareAuraScript(spell_freezing_cloud_damage);
-
     bool CanBeAppliedOn(Unit* target)
     {
         if (Aura* aur = target->GetAura(GetId()))
@@ -654,8 +648,6 @@ class spell_freezing_cloud_damage : public AuraScript
 // 49308 - Utgarde Pinnacle Guantlet Reset Check
 class spell_skadi_reset_check : public SpellScript
 {
-    PrepareSpellScript(spell_skadi_reset_check);
-
     void CountTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_UTGARDE_PINNACLE_GAUNTLET_EFFECT));
@@ -689,8 +681,6 @@ private:
 // 48642 - Launch Harpoon
 class spell_skadi_launch_harpoon : public SpellScript
 {
-    PrepareSpellScript(spell_skadi_launch_harpoon);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.size() >= 2)
@@ -713,8 +703,6 @@ class spell_skadi_launch_harpoon : public SpellScript
 // 50255, 59331 - Poisoned Spear
 class spell_skadi_poisoned_spear : public SpellScript
 {
-    PrepareSpellScript(spell_skadi_poisoned_spear);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_POISONED_SPEAR_PERIODIC });
@@ -734,8 +722,6 @@ class spell_skadi_poisoned_spear : public SpellScript
 // 61791 - Ride Vehicle
 class spell_skadi_ride_vehicle : public AuraScript
 {
-    PrepareAuraScript(spell_skadi_ride_vehicle);
-
     void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         PreventDefaultAction();
@@ -756,8 +742,6 @@ class spell_skadi_ride_vehicle : public AuraScript
 // 59275 - Summon Gauntlet Mobs Periodic
 class spell_summon_gauntlet_mobs_periodic : public AuraScript
 {
-    PrepareAuraScript(spell_summon_gauntlet_mobs_periodic);
-
     void CastTheNextTwoSpells()
     {
         for (uint8 i = 0; i < 2; ++i)

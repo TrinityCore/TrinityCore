@@ -785,8 +785,6 @@ private:
    60297 - Volazj Whisper: Death 02 */
 class spell_volazj_whisper : public SpellScript
 {
-    PrepareSpellScript(spell_volazj_whisper);
-
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
         Player* target = GetHitPlayer();

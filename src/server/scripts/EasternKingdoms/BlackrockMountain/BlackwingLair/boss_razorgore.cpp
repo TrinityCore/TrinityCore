@@ -182,8 +182,6 @@ struct go_orb_of_domination : public GameObjectAI
 // 19873 - Destroy Egg
 class spell_egg_event : public SpellScript
 {
-    PrepareSpellScript(spell_egg_event);
-
     void HandleOnHit()
     {
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
