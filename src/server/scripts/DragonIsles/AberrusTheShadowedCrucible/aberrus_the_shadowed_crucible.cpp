@@ -29,8 +29,6 @@ enum AberrusMisc
     SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_1 = 400785, // Sabellian and Wrathion
     SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_2 = 403340, // Sabellian and Sarkareth
 
-
-
     // Sabellian intro
     CONVO_ACTOR_IDX_SABELLIAN         = 0,
 
