@@ -29,8 +29,6 @@ enum SummonRandomDrakkari
 // 49960 - Summon Random Drakkari
 class spell_summon_random_drakkari : public SpellScript
 {
-    PrepareSpellScript(spell_summon_random_drakkari);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_DRAKKARI_SHAMAN, SPELL_SUMMON_DRAKKARI_GUARDIAN });

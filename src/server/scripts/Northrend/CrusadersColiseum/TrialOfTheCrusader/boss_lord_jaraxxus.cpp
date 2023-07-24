@@ -468,8 +468,6 @@ private:
 // 66334, 67905, 67906, 67907 - Mistress' Kiss
 class spell_mistress_kiss : public AuraScript
 {
-    PrepareAuraScript(spell_mistress_kiss);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MISTRESS_KISS_DAMAGE_SILENCE });
@@ -495,8 +493,6 @@ class spell_mistress_kiss : public AuraScript
 // 66336, 67076, 67077, 67078 - Mistress' Kiss
 class spell_mistress_kiss_area : public SpellScript
 {
-    PrepareSpellScript(spell_mistress_kiss_area);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
@@ -533,8 +529,6 @@ class spell_mistress_kiss_area : public SpellScript
 // 66493 - Fel Streak
 class spell_fel_streak_visual : public SpellScript
 {
-    PrepareSpellScript(spell_fel_streak_visual);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });

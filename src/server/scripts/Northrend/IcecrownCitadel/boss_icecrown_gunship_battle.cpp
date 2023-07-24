@@ -1729,8 +1729,6 @@ struct npc_gunship_cannon : public PassiveAI
 // 68721 - Rocket Pack
 class spell_igb_rocket_pack : public AuraScript
 {
-    PrepareAuraScript(spell_igb_rocket_pack);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ROCKET_PACK_DAMAGE, SPELL_ROCKET_BURST })
@@ -1763,8 +1761,6 @@ class spell_igb_rocket_pack : public AuraScript
 // 70348 - Rocket Pack Useable
 class spell_igb_rocket_pack_useable : public AuraScript
 {
-    PrepareAuraScript(spell_igb_rocket_pack_useable);
-
     bool Load() override
     {
         return GetOwner()->GetInstanceScript() != nullptr;
@@ -1803,8 +1799,6 @@ class spell_igb_rocket_pack_useable : public AuraScript
 // 70121 - On Orgrim's Hammer Deck
 class spell_igb_on_gunship_deck : public AuraScript
 {
-    PrepareAuraScript(spell_igb_on_gunship_deck);
-
 public:
     spell_igb_on_gunship_deck()
     {
@@ -1846,8 +1840,6 @@ private:
 // 69487 - Overheat
 class spell_igb_periodic_trigger_with_power_cost : public AuraScript
 {
-    PrepareAuraScript(spell_igb_periodic_trigger_with_power_cost);
-
     void HandlePeriodicTick(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
@@ -1863,8 +1855,6 @@ class spell_igb_periodic_trigger_with_power_cost : public AuraScript
 // 69399, 70172 - Cannon Blast
 class spell_igb_cannon_blast : public SpellScript
 {
-    PrepareSpellScript(spell_igb_cannon_blast);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -1890,8 +1880,6 @@ class spell_igb_cannon_blast : public SpellScript
 // 69402, 70175 - Incinerating Blast
 class spell_igb_incinerating_blast : public SpellScript
 {
-    PrepareSpellScript(spell_igb_incinerating_blast);
-
 public:
     spell_igb_incinerating_blast()
     {
@@ -1927,8 +1915,6 @@ private:
 // 69487 - Overheat
 class spell_igb_overheat : public AuraScript
 {
-    PrepareAuraScript(spell_igb_overheat);
-
     bool Load() override
     {
         if (GetAura()->GetType() != UNIT_AURA_TYPE)
@@ -1973,8 +1959,6 @@ class spell_igb_overheat : public AuraScript
 // 69705 - Below Zero
 class spell_igb_below_zero : public SpellScript
 {
-    PrepareSpellScript(spell_igb_below_zero);
-
     void RemovePassengers(SpellMissInfo missInfo)
     {
         if (missInfo != SPELL_MISS_NONE)
@@ -1992,8 +1976,6 @@ class spell_igb_below_zero : public SpellScript
 // 70104 - Teleport to Enemy Ship
 class spell_igb_teleport_to_enemy_ship : public SpellScript
 {
-    PrepareSpellScript(spell_igb_teleport_to_enemy_ship);
-
     void RelocateTransportOffset(SpellEffIndex /*effIndex*/)
     {
         WorldLocation const* dest = GetHitDest();
@@ -2016,8 +1998,6 @@ class spell_igb_teleport_to_enemy_ship : public SpellScript
 // 70397, 70403 - Burning Pitch
 class spell_igb_burning_pitch_selector : public SpellScript
 {
-    PrepareSpellScript(spell_igb_burning_pitch_selector);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         uint32 team = HORDE;
@@ -2055,8 +2035,6 @@ class spell_igb_burning_pitch_selector : public SpellScript
 // 71335, 71339 - Burning Pitch
 class spell_igb_burning_pitch : public SpellScript
 {
-    PrepareSpellScript(spell_igb_burning_pitch);
-
     void HandleDummy(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -2075,8 +2053,6 @@ class spell_igb_burning_pitch : public SpellScript
 // 69678, 70609 - Rocket Artillery
 class spell_igb_rocket_artillery : public SpellScript
 {
-    PrepareSpellScript(spell_igb_rocket_artillery);
-
     void SelectRandomTarget(std::list<WorldObject*>& targets)
     {
         if (!targets.empty())
@@ -2103,8 +2079,6 @@ class spell_igb_rocket_artillery : public SpellScript
 // 69679 - Rocket Artillery
 class spell_igb_rocket_artillery_explosion : public SpellScript
 {
-    PrepareSpellScript(spell_igb_rocket_artillery_explosion);
-
     void DamageGunship(SpellEffIndex /*effIndex*/)
     {
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
@@ -2124,8 +2098,6 @@ class spell_igb_rocket_artillery_explosion : public SpellScript
 // 67335 - Gunship Fall Teleport
 class spell_igb_gunship_fall_teleport : public SpellScript
 {
-    PrepareSpellScript(spell_igb_gunship_fall_teleport);
-
     bool Load() override
     {
         return GetCaster()->GetInstanceScript() != nullptr;
@@ -2155,8 +2127,6 @@ class spell_igb_gunship_fall_teleport : public SpellScript
 // 70331 - Check for Players
 class spell_igb_check_for_players : public SpellScript
 {
-    PrepareSpellScript(spell_igb_check_for_players);
-
 public:
     spell_igb_check_for_players()
     {
@@ -2199,8 +2169,6 @@ private:
 // 72340 - Teleport Players on Victory
 class spell_igb_teleport_players_on_victory : public SpellScript
 {
-    PrepareSpellScript(spell_igb_teleport_players_on_victory);
-
     bool Load() override
     {
         return GetCaster()->GetInstanceScript() != nullptr;
@@ -2224,8 +2192,6 @@ class spell_igb_teleport_players_on_victory : public SpellScript
 // 71201 - Battle Experience - proc should never happen, handled in script
 class spell_igb_battle_experience_check : public AuraScript
 {
-    PrepareAuraScript(spell_igb_battle_experience_check);
-
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         return false;

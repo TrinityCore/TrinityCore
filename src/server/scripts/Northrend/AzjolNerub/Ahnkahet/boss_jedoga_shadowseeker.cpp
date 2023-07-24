@@ -468,8 +468,6 @@ private:
 // 56328 - Random Lightning Visual Effect
 class spell_random_lightning_visual_effect : public SpellScript
 {
-    PrepareSpellScript(spell_random_lightning_visual_effect);
-
     void ModDestHeight(SpellDestination& dest)
     {
         Position const offset = { 0.0f, 0.0f, -19.0f, 0.0f };

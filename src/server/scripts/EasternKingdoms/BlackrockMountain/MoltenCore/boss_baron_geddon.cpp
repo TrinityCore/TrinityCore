@@ -115,8 +115,6 @@ struct boss_baron_geddon : public BossAI
 // 19695 - Inferno
 class spell_baron_geddon_inferno : public AuraScript
 {
-    PrepareAuraScript(spell_baron_geddon_inferno);
-
     void OnPeriodic(AuraEffect const* aurEff)
     {
         PreventDefaultAction();

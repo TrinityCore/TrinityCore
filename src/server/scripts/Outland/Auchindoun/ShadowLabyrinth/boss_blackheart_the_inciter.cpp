@@ -206,8 +206,6 @@ struct boss_blackheart_the_inciter_mc_dummy : public NullCreatureAI
 // 33676 - Incite Chaos
 class spell_blackheart_incite_chaos : public SpellScript
 {
-    PrepareSpellScript(spell_blackheart_incite_chaos);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_INCITE_CHAOS_B });
