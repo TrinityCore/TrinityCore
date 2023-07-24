@@ -65,7 +65,6 @@ struct boss_kazzara_the_hellforged : public BossAI
                 DoCast(SPELL_DREAD_LANDING);
                 DoCast(SPELL_KAZZARA_INTRO);
 
-                // @TODO: check for some aura / selector causing this
                 scheduler.Schedule(1s + 500ms, [this](TaskContext /*context*/)
                 {
                     std::vector<Creature*> sunderedMobs;
@@ -79,7 +78,7 @@ struct boss_kazzara_the_hellforged : public BossAI
                     }
                 });
 
-                scheduler.Schedule(10s, [this](TaskContext /*context*/)
+                scheduler.Schedule(12s, [this](TaskContext /*context*/)
                 {
                     me->SetUninteractible(false);
                     me->SetImmuneToAll(false);

@@ -93,21 +93,8 @@ struct at_aberrus_sarkareth_conversation_intro : AreaTriggerAI
     }
 };
 
-// Id 28 - Areatrigger
-struct at_aberrus_kazzara_summon_conversation_intro : AreaTriggerAI
-{
-    at_aberrus_kazzara_summon_conversation_intro(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        Player* player = unit->ToPlayer();
-        if (!player)
-            return;
-
-        Conversation::CreateConversation(CONVERSATION_KAZZARA_SUMMON_INTRO, unit, unit->GetPosition(), ObjectGuid::Empty);
-        at->Remove();
-    }
-};
+// @TODO: trigger on 6 sundered deaths:
+// Conversation::CreateConversation(CONVERSATION_KAZZARA_SUMMON_INTRO, unit, unit->GetPosition(), ObjectGuid::Empty);
 
 // 20800 - Conversation
 class conversation_aberrus_sabellian_intro : public ConversationScript
@@ -211,7 +198,6 @@ void AddSC_aberrus_the_shadowed_crucible()
 {
     RegisterAreaTriggerAI(at_aberrus_sabellian_conversation_intro);
     RegisterAreaTriggerAI(at_aberrus_sarkareth_conversation_intro);
-    RegisterAreaTriggerAI(at_aberrus_kazzara_summon_conversation_intro);
 
     new conversation_aberrus_sabellian_intro();
     new conversation_aberrus_kazzara_intro();

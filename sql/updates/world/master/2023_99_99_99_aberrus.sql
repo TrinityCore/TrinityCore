@@ -1,8 +1,8 @@
-SET @CGUID := XXXX;
-SET @OGUID := XXXX;
-SET @ATID := XXX;
-SET @ATSPAWNID := XXX;
-SET @WSLID := xxx;
+SET @CGUID := 9003944;
+SET @OGUID := 9000373;
+SET @ATID := 25;
+SET @ATSPAWNID := 26;
+SET @WSLID := 100040;
 
 SET @PATH_SIEGEMASTER := (198874 * 10) << 3;
 SET @PATH_SARKARETH := (202416 * 10) << 3;;
@@ -26,21 +26,19 @@ INSERT INTO `world_safe_locs` (`ID`, `MapID`, `LocX`, `LocY`, `LocZ`, `Facing`, 
 (@WSLID+0, 2569, 2212.78, 2481.39, 711.777, 0.019635128, '10.x Raid - Aberrus the Shadowed Crucible - Entrance'),
 (@WSLID+1, 2454, 1817.62, 2549.31, -78.994, 3.1581035, '10.x Raid - Aberrus the Shadowed Crucible - Exit');
 
-DELETE FROM `areatrigger` WHERE `IsServerSide`=1 AND `SpawnId` BETWEEN @ATSPAWNID+0 AND @ATSPAWNID+4;
+DELETE FROM `areatrigger` WHERE `IsServerSide`=1 AND `SpawnId` BETWEEN @ATSPAWNID+0 AND @ATSPAWNID+3;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `Comment`) VALUES
-(@ATSPAWNID+0, @ATID+0, 1, 2454, 1847.1129150390625, 2549.317626953125, -79.5390777587890625, 0, 1, 0, 0, 1, 1, 25, 55, 6.03999996185, 0, 0, 0, 0, '', '10.x Raid - Aberrus the Shadowed Crucible - Entrance'),
-(@ATSPAWNID+1, @ATID+1, 1, 2569, 2185.072998046875, 2482.572998046875, 718.5048828125, 0, 1, 0, 0, 1, 0.5, 25, 55, 6.03999996185, 0, 0, 0, 0, '', '10.x Raid - Aberrus the Shadowed Crucible - Exit'),
+(@ATSPAWNID+0, @ATID+0, 1, 2454, 1847.1129150390625, 2549.317626953125, -79.5390777587890625, 0, 1, 0, 0, 1, 1, 25, 80, 1, 25, 80, 0, 0, '', '10.1 Raid - Aberrus the Shadowed Crucible - Entrance'),
+(@ATSPAWNID+1, @ATID+1, 1, 2569, 2185.072998046875, 2482.572998046875, 718.5048828125, 0, 1, 0, 0, 1, 1, 20, 30, 1, 20, 30, 0, 0, '', '10.1 Raid - Aberrus the Shadowed Crucible - Exit'),
 (@ATSPAWNID+2, @ATID+2, 1, 2569, 2236.875488, 2481.375244, 711.785767, 6.278931, 1, 0, 0, 1, 20, 50, 5, 20, 50, 5, 0, 0, 'at_aberrus_sabellian_conversation_intro', 'Aberrus - Trigger Sabellian and Wrathion Conversation'),
-(@ATSPAWNID+3, @ATID+3, 1, 2569, 2294.504883, 2481.418213, 711.838318, 0.000343, 1, 0, 0, 1, 10, 25, 1, 10, 25, 1, 0, 0, 'at_aberrus_sarkareth_conversation_intro', 'Aberrus - Trigger Sabellian and Sarkareth Conversation'),
-(@ATSPAWNID+4, @ATID+4, 1, 2569, 2339.703369, 2481.441162, 708.184509, 0.000343, 1, 0, 0, 1, 10, 20, 1, 10, 20, 1, 0, 0, 'at_aberrus_kazzara_summon_conversation_intro', 'Aberrus - Trigger Winglord Dezran, Sarkareth and Zskarn Conversation');
+(@ATSPAWNID+3, @ATID+3, 1, 2569, 2294.504883, 2481.418213, 711.838318, 0.000343, 1, 0, 0, 1, 10, 25, 1, 10, 25, 1, 0, 0, 'at_aberrus_sarkareth_conversation_intro', 'Aberrus - Trigger Sabellian and Sarkareth Conversation');
 
-DELETE FROM `areatrigger_template` WHERE `IsServerSide`=1 AND `Id` BETWEEN @ATID+0 AND @ATD+4;
+DELETE FROM `areatrigger_template` WHERE `IsServerSide`=1 AND `Id` BETWEEN @ATID+0 AND @ATID+3;
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES
-(@ATID+0, 1, 1, 0, 1, 25, 55, 6.03999996185, 0, 0, 0, 0, 0),
-(@ATID+1, 1, 1, 0, 0.5, 25, 55, 6.03999996185, 0, 0, 0, 0, 0),
+(@ATID+0, 1, 1, 0, 1, 25, 80, 1, 25, 80, 0, 0, 0),
+(@ATID+1, 1, 1, 0, 1, 20, 30, 1, 20, 30, 0, 0, 0),
 (@ATID+2, 1, 1, 0, 20, 50, 5, 20, 50, 5, 0, 0, 0),
-(@ATID+3, 1, 1, 0, 10, 25, 1, 10, 25, 1, 0, 0, 0),
-(@ATID+4, 1, 1, 0, 10, 20, 1, 10, 20, 1, 0, 0, 0);
+(@ATID+3, 1, 1, 0, 10, 25, 1, 10, 25, 1, 0, 0, 0);
 
 DELETE FROM `areatrigger_template_actions` WHERE `AreaTriggerId` IN (@ATID+0, @ATID+1) AND `IsServerSide`=1;
 INSERT INTO `areatrigger_template_actions` (`AreaTriggerId`, `IsServerSide`, `ActionType`, `ActionParam`, `TargetType`) VALUES
