@@ -774,49 +774,46 @@ class spell_mage_flame_on : public AuraScript
    }
 };
 
-class FlurryEvent : public BasicEvent
+// 44614 - Flurry
+class spell_mage_flurry : public SpellScript
 {
+    class FlurryEvent : public BasicEvent
+    {
     public:
-        FlurryEvent(Unit* caster, ObjectGuid const& targetGUID, uint8 count) : _caster(caster), _targetGUID(targetGUID), _count(count) { }
+        FlurryEvent(Unit* caster, ObjectGuid const& target, ObjectGuid const& originalCastId, int32 count)
+            : _caster(caster), _target(target), _originalCastId(originalCastId), _count(count) { }
 
         bool Execute(uint64 time, uint32 /*diff*/) override
         {
-            Unit* target = ObjectAccessor::GetUnit(*_caster, _targetGUID);
+            Unit* target = ObjectAccessor::GetUnit(*_caster, _target);
 
             if (!target)
                 return true;
 
-            _caster->CastSpell(target, SPELL_MAGE_FLURRY_DAMAGE, true);
+            _caster->CastSpell(target, SPELL_MAGE_FLURRY_DAMAGE, CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS).SetOriginalCastId(_originalCastId));
 
             if (!--_count)
                 return true;
 
-            _caster->m_Events.AddEvent(this, Milliseconds(time) + randtime(200ms, 300ms));
+            _caster->m_Events.AddEvent(this, Milliseconds(time) + randtime(300ms, 400ms));
             return false;
         }
 
     private:
         Unit* _caster;
-        ObjectGuid _targetGUID;
-        uint8 _count;
-};
-
-// 44614 - Flurry
-class spell_mage_flurry : public SpellScript
-{
-    PrepareSpellScript(spell_mage_flurry);
+        ObjectGuid _target;
+        ObjectGuid _originalCastId;
+        int32 _count;
+    };
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_MAGE_FLURRY_DAMAGE
-        });
+        return ValidateSpellInfo({ SPELL_MAGE_FLURRY_DAMAGE });
     }
 
-    void EffectHit(SpellEffIndex)
+    void EffectHit(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->m_Events.AddEventAtOffset(new FlurryEvent(GetCaster(), GetHitUnit()->GetGUID(), GetEffectValue() - 1), randtime(200ms, 300ms));
+        GetCaster()->m_Events.AddEventAtOffset(new FlurryEvent(GetCaster(), GetHitUnit()->GetGUID(), GetSpell()->m_castId, GetEffectValue() - 1), randtime(300ms, 400ms));
     }
 
     void Register() override
@@ -828,17 +825,12 @@ class spell_mage_flurry : public SpellScript
 // 228354 - Flurry (damage)
 class spell_mage_flurry_damage : public SpellScript
 {
-    PrepareSpellScript(spell_mage_flurry_damage);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_MAGE_WINTERS_CHILL
-        });
+        return ValidateSpellInfo({ SPELL_MAGE_WINTERS_CHILL });
     }
 
-    void HandleDamage(SpellEffIndex /*effIndex*/)
+    void HandleDamage(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_MAGE_WINTERS_CHILL, true);
     }
