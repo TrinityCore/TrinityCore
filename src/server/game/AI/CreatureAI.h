@@ -99,7 +99,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void JustEngagedWith(Unit* /*who*/) { }
 
         // Called when the creature reaches 0 health (or 1 if unkillable).
-        virtual void OnHealthDepleted(Unit* /*attacker*/, bool /*wasKilled*/) { }
+        virtual void OnHealthDepleted(Unit* /*attacker*/, bool /*isKill*/) { }
 
         // Called when the creature is killed
         virtual void JustDied(Unit* /*killer*/) { }
