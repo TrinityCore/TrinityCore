@@ -1079,9 +1079,25 @@ void WorldObject::ProcessPositionDataChanged(PositionFullTerrainStatus const& da
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_areaId))
         if (area->ParentAreaID)
             m_zoneId = area->ParentAreaID;
-    m_outdoors = data.outdoors;
+
+    // @tswow-begin
+    bool data_outdoors = data.outdoors;
+    if (m_outdoors != data.outdoors && (isType(TYPEMASK_UNIT | TYPEMASK_PLAYER)))
+    {
+        FIRE(Unit, OnOutdoorsChanged, TSUnit(static_cast<Unit*>(this)), TSMutable<bool, bool>(&data_outdoors));
+    }
+    m_outdoors = data_outdoors;
+    // @tswow-end
     m_staticFloorZ = data.floorZ;
-    m_liquidStatus = data.liquidStatus;
+
+    // @tswow-begin
+    uint32 data_liquidStatus = static_cast<uint32>(data.liquidStatus);
+    if (data_liquidStatus != m_liquidStatus && isType(TYPEMASK_UNIT | TYPEMASK_PLAYER))
+    {
+        FIRE(Unit, OnLiquidStatusChanged, TSUnit(static_cast<Unit*>(this)), TSMutableNumber<uint32>(&data_liquidStatus));
+    }
+    m_liquidStatus = static_cast<ZLiquidStatus>(data_liquidStatus);
+    // @tswow-end
 }
 
 void WorldObject::AddToWorld()
