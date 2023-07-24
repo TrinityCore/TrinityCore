@@ -2757,8 +2757,6 @@ class spell_hor_start_halls_of_reflection_quest_ae : public SpellScriptLoader
 
         class spell_hor_start_halls_of_reflection_quest_ae_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hor_start_halls_of_reflection_quest_ae_SpellScript);
-
             void StartQuests(SpellEffIndex /*effIndex*/)
             {
                 if (Player* target = GetHitPlayer())
@@ -2791,8 +2789,6 @@ class spell_hor_evasion : public SpellScriptLoader
 
         class spell_hor_evasion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hor_evasion_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -2835,8 +2831,6 @@ class spell_hor_gunship_cannon_fire : public SpellScriptLoader
 
         class spell_hor_gunship_cannon_fire_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_hor_gunship_cannon_fire_AuraScript);
-
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (!urand(0, 2))
@@ -2863,8 +2857,6 @@ class spell_hor_gunship_cannon_fire : public SpellScriptLoader
 // 70698 - Quel'Delar's Will
 class spell_hor_quel_delars_will : public SpellScript
 {
-    PrepareSpellScript(spell_hor_quel_delars_will);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });

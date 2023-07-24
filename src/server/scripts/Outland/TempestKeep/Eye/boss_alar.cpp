@@ -552,8 +552,6 @@ struct npc_flame_patch_alar : public ScriptedAI
 // 34229 - Flame Quills
 class spell_alar_flame_quills : public AuraScript
 {
-    PrepareAuraScript(spell_alar_flame_quills);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(flameQuillsSpells);

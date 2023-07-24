@@ -134,8 +134,6 @@ struct boss_krystallus : public BossAI
 // 50810, 61546 - Shatter
 class spell_krystallus_shatter : public SpellScript
 {
-    PrepareSpellScript(spell_krystallus_shatter);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
@@ -154,8 +152,6 @@ class spell_krystallus_shatter : public SpellScript
 // 50811, 61547 - Shatter
 class spell_krystallus_shatter_effect : public SpellScript
 {
-    PrepareSpellScript(spell_krystallus_shatter_effect);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });

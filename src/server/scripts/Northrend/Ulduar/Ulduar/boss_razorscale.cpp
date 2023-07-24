@@ -1584,8 +1584,6 @@ public:
    64021 - Flame Breath */
 class spell_razorscale_flame_breath : public SpellScript
 {
-    PrepareSpellScript(spell_razorscale_flame_breath);
-
     void CheckDamage()
     {
         Creature* target = GetHitCreature();
@@ -1620,8 +1618,6 @@ class spell_razorscale_flame_breath : public SpellScript
    63969 - Summon Iron Dwarves */
 class spell_razorscale_summon_iron_dwarves : public SpellScript
 {
-    PrepareSpellScript(spell_razorscale_summon_iron_dwarves);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1661,8 +1657,6 @@ class spell_razorscale_summon_iron_dwarves : public SpellScript
 // 64821 - Fuse Armor
 class spell_razorscale_fuse_armor : public AuraScript
 {
-    PrepareAuraScript(spell_razorscale_fuse_armor);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FUSED_ARMOR });
@@ -1686,8 +1680,6 @@ class spell_razorscale_fuse_armor : public AuraScript
 // 62669 - Firebolt
 class spell_razorscale_firebolt : public SpellScript
 {
-    PrepareSpellScript(spell_razorscale_firebolt);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if([](WorldObject* obj) { return obj->GetEntry() != NPC_RAZORSCALE_HARPOON_FIRE_STATE; });

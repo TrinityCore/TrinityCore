@@ -102,8 +102,6 @@ struct boss_koralon : public BossAI
 // 66725, 68161 - Meteor Fists
 class spell_koralon_meteor_fists : public AuraScript
 {
-    PrepareAuraScript(spell_koralon_meteor_fists);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_METEOR_FISTS_DAMAGE });
@@ -125,8 +123,6 @@ class spell_koralon_meteor_fists : public AuraScript
 // 66809, 67331 - Meteor Fists
 class spell_koralon_meteor_fists_damage : public SpellScript
 {
-    PrepareSpellScript(spell_koralon_meteor_fists_damage);
-
 public:
     spell_koralon_meteor_fists_damage()
     {
@@ -158,8 +154,6 @@ private:
 // 66808, 68160 - Meteor Fists
 class spell_flame_warder_meteor_fists : public AuraScript
 {
-    PrepareAuraScript(spell_flame_warder_meteor_fists);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FW_METEOR_FISTS_DAMAGE });

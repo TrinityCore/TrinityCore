@@ -27,8 +27,6 @@
 
 class spell_azerite_gen_aura_calc_from_2nd_effect_triggered_spell : public AuraScript
 {
-    PrepareAuraScript(spell_azerite_gen_aura_calc_from_2nd_effect_triggered_spell);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
@@ -55,8 +53,6 @@ class spell_azerite_gen_aura_calc_from_2nd_effect_triggered_spell : public AuraS
 // 270658 - Azerite Fortification
 class spell_item_azerite_fortification : public AuraScript
 {
-    PrepareAuraScript(spell_item_azerite_fortification);
-
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         Spell const* procSpell = eventInfo.GetProcSpell();
@@ -84,8 +80,6 @@ enum StrengthInNumbers
 // 271548 - Strength in Numbers
 class spell_item_strength_in_numbers : public SpellScript
 {
-    PrepareSpellScript(spell_item_strength_in_numbers);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_STRENGTH_IN_NUMBERS_TRAIT, SPELL_STRENGTH_IN_NUMBERS_BUFF });
@@ -115,8 +109,6 @@ enum BlessedPortents
 // 271843 - Blessed Portents
 class spell_item_blessed_portents : public AuraScript
 {
-    PrepareAuraScript(spell_item_blessed_portents);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BLESSED_PORTENTS_TRAIT, SPELL_BLESSED_PORTENTS_HEAL });
@@ -149,8 +141,6 @@ enum ConcentratedMending
 // 272260 - Concentrated Mending
 class spell_item_concentrated_mending : public AuraScript
 {
-    PrepareAuraScript(spell_item_concentrated_mending);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CONCENTRATED_MENDING_TRAIT });
@@ -180,8 +170,6 @@ enum BracingChill
 // 272276 - Bracing Chill
 class spell_item_bracing_chill_proc : public AuraScript
 {
-    PrepareAuraScript(spell_item_bracing_chill_proc);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BRACING_CHILL_TRAIT, SPELL_BRACING_CHILL_HEAL, SPELL_BRACING_CHILL_SEARCH_JUMP_TARGET });
@@ -219,8 +207,6 @@ class spell_item_bracing_chill_proc : public AuraScript
 // 272436 - Bracing Chill
 class spell_item_bracing_chill_search_jump_target : public SpellScript
 {
-    PrepareSpellScript(spell_item_bracing_chill_search_jump_target);
-
     void FilterTarget(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -260,8 +246,6 @@ class spell_item_bracing_chill_search_jump_target : public SpellScript
 // 272837 - Trample the Weak
 class spell_item_trample_the_weak : public AuraScript
 {
-    PrepareAuraScript(spell_item_trample_the_weak);
-
     bool CheckHealthPct(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         return eventInfo.GetActor()->GetHealthPct() > eventInfo.GetActionTarget()->GetHealthPct();
@@ -276,8 +260,6 @@ class spell_item_trample_the_weak : public AuraScript
 // 272892 - Wracking Brilliance
 class spell_item_wracking_brilliance : public AuraScript
 {
-    PrepareAuraScript(spell_item_wracking_brilliance);
-
     enum
     {
         SPELL_AGONY_SOUL_SHARD_GAIN = 210067
@@ -317,8 +299,6 @@ enum OrbitalPrecision
 // 275514 - Orbital Precision
 class spell_item_orbital_precision : public AuraScript
 {
-    PrepareAuraScript(spell_item_orbital_precision);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MAGE_FROZEN_ORB });
@@ -343,8 +323,6 @@ enum BlurOfTalons
 // 277966 - Blur of Talons
 class spell_item_blur_of_talons : public AuraScript
 {
-    PrepareAuraScript(spell_item_blur_of_talons);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_HUNTER_COORDINATED_ASSAULT });
@@ -364,8 +342,6 @@ class spell_item_blur_of_talons : public AuraScript
 // 278519 - Divine Right
 class spell_item_divine_right : public AuraScript
 {
-    PrepareAuraScript(spell_item_divine_right);
-
     bool CheckHealthPct(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         return eventInfo.GetProcTarget()->HasAuraState(AURA_STATE_WOUNDED_20_PERCENT, eventInfo.GetSpellInfo(), eventInfo.GetActor());
@@ -380,8 +356,6 @@ class spell_item_divine_right : public AuraScript
 // 280409 - Blood Rite
 class spell_item_blood_rite : public AuraScript
 {
-    PrepareAuraScript(spell_item_blood_rite);
-
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*procInfo*/)
     {
         RefreshDuration();
@@ -396,8 +370,6 @@ class spell_item_blood_rite : public AuraScript
 // 281843 - Tradewinds
 class spell_item_tradewinds : public AuraScript
 {
-    PrepareAuraScript(spell_item_tradewinds);
-
     enum
     {
         SPELL_TRADEWINDS_ALLY_BUFF = 281844
@@ -424,8 +396,6 @@ class spell_item_tradewinds : public AuraScript
 // 287379 - Bastion of Might
 class spell_item_bastion_of_might : public SpellScript
 {
-    PrepareSpellScript(spell_item_bastion_of_might);
-
     enum
     {
         SPELL_WARRIOR_IGNORE_PAIN = 190456
@@ -450,8 +420,6 @@ class spell_item_bastion_of_might : public SpellScript
 // 287650 - Echoing Blades
 class spell_item_echoing_blades : public AuraScript
 {
-    PrepareAuraScript(spell_item_echoing_blades);
-
     void PrepareProc(ProcEventInfo& eventInfo)
     {
         if (eventInfo.GetProcSpell())
@@ -486,8 +454,6 @@ class spell_item_echoing_blades : public AuraScript
 // 287653 - Echoing Blades
 class spell_item_echoing_blades_damage : public SpellScript
 {
-    PrepareSpellScript(spell_item_echoing_blades_damage);
-
     enum
     {
         SPELL_ECHOING_BLADES_TRAIT = 287649
@@ -519,8 +485,6 @@ class spell_item_echoing_blades_damage : public SpellScript
 // 288882 - Hour of Reaping
 class spell_item_hour_of_reaping : public AuraScript
 {
-    PrepareAuraScript(spell_item_hour_of_reaping);
-
     enum
     {
         SPELL_DH_SOUL_BARRIER  = 263648
@@ -551,8 +515,6 @@ class spell_item_hour_of_reaping : public AuraScript
 // 304086  - Azerite Fortification
 class spell_item_conflict_wearer_on_stun_proc : public AuraScript
 {
-    PrepareAuraScript(spell_item_conflict_wearer_on_stun_proc);
-
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         Spell const* procSpell = eventInfo.GetProcSpell();
@@ -572,8 +534,6 @@ class spell_item_conflict_wearer_on_stun_proc : public AuraScript
 // 305723 - Strife (Azerite Essence)
 class spell_item_conflict_rank3 : public AuraScript
 {
-    PrepareAuraScript(spell_item_conflict_rank3);
-
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         if (eventInfo.GetHitMask() & (PROC_HIT_INTERRUPT | PROC_HIT_DISPEL))
@@ -607,8 +567,6 @@ class spell_item_conflict_rank3 : public AuraScript
 // 277253 - Heart of Azeroth
 class spell_item_heart_of_azeroth : public AuraScript
 {
-    PrepareAuraScript(spell_item_heart_of_azeroth);
-
     void SetEquippedFlag(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
     {
         SetState(true);
@@ -641,8 +599,6 @@ class spell_item_heart_of_azeroth : public AuraScript
 // 315176 - Grasping Tendrils
 class spell_item_corruption_grasping_tendrils : public AuraScript
 {
-    PrepareAuraScript(spell_item_corruption_grasping_tendrils);
-
     bool Load() override
     {
         return GetUnitOwner()->IsPlayer();

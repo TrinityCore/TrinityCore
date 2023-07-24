@@ -1412,8 +1412,6 @@ class spell_halion_meteor_strike_marker : public SpellScriptLoader
 
         class spell_halion_meteor_strike_marker_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_meteor_strike_marker_AuraScript);
-
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster())
@@ -1443,8 +1441,6 @@ class spell_halion_combustion_consumption : public SpellScriptLoader
 
         class spell_halion_combustion_consumption_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_combustion_consumption_AuraScript);
-
         public:
             spell_halion_combustion_consumption_AuraScript(uint32 spellID) : AuraScript(), _markSpell(spellID) { }
 
@@ -1501,8 +1497,6 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
 
         class spell_halion_combustion_consumption_periodic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_combustion_consumption_periodic_AuraScript);
-
             bool Validate(SpellInfo const* spellInfo) override
             {
                 return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
@@ -1544,8 +1538,6 @@ class spell_halion_marks : public SpellScriptLoader
 
         class spell_halion_marks_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_marks_AuraScript);
-
         public:
             spell_halion_marks_AuraScript(uint32 summonSpell, uint32 removeSpell) : AuraScript(),
                 _summonSpellId(summonSpell), _removeSpellId(removeSpell) { }
@@ -1608,8 +1600,6 @@ class spell_halion_damage_aoe_summon : public SpellScriptLoader
 
         class spell_halion_damage_aoe_summon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_damage_aoe_summon_SpellScript);
-
             void HandleSummon(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -1645,8 +1635,6 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
 
         class spell_halion_twilight_realm_handlers_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_twilight_realm_handlers_AuraScript);
-
         public:
             spell_halion_twilight_realm_handlers_AuraScript(uint32 beforeHitSpell, bool isApplyHandler) : AuraScript(),
                 _isApply(isApplyHandler), _beforeHitSpellId(beforeHitSpell)
@@ -1709,8 +1697,6 @@ class spell_halion_clear_debuffs : public SpellScriptLoader
 
         class spell_halion_clear_debuffs_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_clear_debuffs_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_CLEAR_DEBUFFS, SPELL_TWILIGHT_REALM });
@@ -1757,8 +1743,6 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
 
         class spell_halion_twilight_cutter_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_twilight_cutter_SpellScript);
-
             void RemoveNotBetween(std::list<WorldObject*>& unitList)
             {
                 if (unitList.empty())
@@ -1796,8 +1780,6 @@ class spell_halion_twilight_phasing : public SpellScriptLoader
 
         class spell_halion_twilight_phasing_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_twilight_phasing_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_TWILIGHT_PORTAL });
@@ -1830,8 +1812,6 @@ class spell_halion_summon_exit_portals : public SpellScriptLoader
 
         class spell_halion_summon_exit_portals_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_summon_exit_portals_SpellScript);
-
             void SetDest0(SpellDestination& dest)
             {
                 Position const offset = { 0.0f, 20.0f, 0.0f, 0.0f };
@@ -1865,8 +1845,6 @@ class spell_halion_spawn_living_embers : public SpellScriptLoader
 
         class spell_halion_spawn_living_embers_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_spawn_living_embers_SpellScript);
-
             void SelectMeteorFlames(std::list<WorldObject*>& unitList)
             {
                 if (!unitList.empty())
@@ -1899,8 +1877,6 @@ class spell_halion_blazing_aura : public SpellScriptLoader
 
         class spell_halion_blazing_aura_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_blazing_aura_SpellScript);
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);

@@ -375,8 +375,6 @@ public:
 
     class spell_a_trip_to_ironforge_quest_complete_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_a_trip_to_ironforge_quest_complete_SpellScript);
-
         void HandleForceCast(SpellEffIndex effIndex)
         {
             PreventHitDefaultEffect(effIndex);
@@ -407,8 +405,6 @@ public:
 
     class spell_follow_that_gyrocopter_quest_start_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_follow_that_gyrocopter_quest_start_SpellScript);
-
         void HandleForceCast(SpellEffIndex effIndex)
         {
             PreventHitDefaultEffect(effIndex);
@@ -439,8 +435,6 @@ public:
 
     class spell_low_health_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_low_health_SpellScript);
-
         void HandleDummyEffect(SpellEffIndex /*eff*/)
         {
             if (Creature* target = GetHitCreature())
