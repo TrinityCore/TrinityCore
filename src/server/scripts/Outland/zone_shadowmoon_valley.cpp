@@ -1517,8 +1517,6 @@ class spell_unlocking_zuluheds_chains : public SpellScriptLoader
 
         class spell_unlocking_zuluheds_chains_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_unlocking_zuluheds_chains_SpellScript);
-
             void HandleAfterHit()
             {
                 if (Player* caster = GetCaster()->ToPlayer())
@@ -1609,8 +1607,6 @@ enum DissensionAmongstTheRanks
 // 38224 - Illidari Agent Illusion
 class spell_shadowmoon_illidari_agent_illusion : public AuraScript
 {
-    PrepareAuraScript(spell_shadowmoon_illidari_agent_illusion);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ILLIDARI_DISGUISE_MALE, SPELL_ILLIDARI_DISGUISE_FEMALE });
@@ -1640,8 +1636,6 @@ class spell_shadowmoon_illidari_agent_illusion : public AuraScript
 // 38223 - Quest Credit: Crazed Colossus
 class spell_shadowmoon_quest_credit_crazed_colossus : public SpellScript
 {
-    PrepareSpellScript(spell_shadowmoon_quest_credit_crazed_colossus);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo(

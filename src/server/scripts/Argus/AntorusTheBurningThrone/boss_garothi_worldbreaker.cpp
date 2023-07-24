@@ -509,8 +509,6 @@ private:
 
 class spell_garothi_apocalypse_drive : public AuraScript
 {
-    PrepareAuraScript(spell_garothi_apocalypse_drive);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_APOCALYPSE_DRIVE_PERIODIC_DAMAGE });
@@ -529,8 +527,6 @@ class spell_garothi_apocalypse_drive : public AuraScript
 
 class spell_garothi_fel_bombardment_selector : public SpellScript
 {
-    PrepareSpellScript(spell_garothi_fel_bombardment_selector);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -570,8 +566,6 @@ class spell_garothi_fel_bombardment_selector : public SpellScript
 
 class spell_garothi_fel_bombardment_warning : public AuraScript
 {
-    PrepareAuraScript(spell_garothi_fel_bombardment_warning);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FEL_BOMBARDMENT_PERIODIC });
@@ -592,8 +586,6 @@ class spell_garothi_fel_bombardment_warning : public AuraScript
 
 class spell_garothi_fel_bombardment_periodic : public AuraScript
 {
-    PrepareAuraScript(spell_garothi_fel_bombardment_periodic);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
@@ -613,8 +605,6 @@ class spell_garothi_fel_bombardment_periodic : public AuraScript
 
 class spell_garothi_searing_barrage_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_garothi_searing_barrage_dummy);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SEARING_BARRAGE_SELECTOR });
@@ -633,8 +623,6 @@ class spell_garothi_searing_barrage_dummy : public SpellScript
 
 class spell_garothi_searing_barrage_selector : public SpellScript
 {
-    PrepareSpellScript(spell_garothi_searing_barrage_selector);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -667,8 +655,6 @@ class spell_garothi_searing_barrage_selector : public SpellScript
 
 class spell_garothi_decimation_selector : public SpellScript
 {
-    PrepareSpellScript(spell_garothi_decimation_selector);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DECIMATION_WARNING });
@@ -699,8 +685,6 @@ class spell_garothi_decimation_selector : public SpellScript
 
 class spell_garothi_decimation_warning : public AuraScript
 {
-    PrepareAuraScript(spell_garothi_decimation_warning);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DECIMATION_MISSILE });
@@ -727,8 +711,6 @@ class spell_garothi_decimation_warning : public AuraScript
 
 class spell_garothi_carnage : public AuraScript
 {
-    PrepareAuraScript(spell_garothi_carnage);
-
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo`*/)
     {
         // Usually we could just handle this via spell_proc but since we want
@@ -745,8 +727,6 @@ class spell_garothi_carnage : public AuraScript
 
 class spell_garothi_annihilation_selector : public SpellScript
 {
-    PrepareSpellScript(spell_garothi_annihilation_selector);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
@@ -766,8 +746,6 @@ class spell_garothi_annihilation_selector : public SpellScript
 
 class spell_garothi_annihilation_triggered : public SpellScript
 {
-    PrepareSpellScript(spell_garothi_annihilation_triggered);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ANNIHILATION_DAMAGE_UNSPLITTED });
@@ -790,8 +768,6 @@ class spell_garothi_annihilation_triggered : public SpellScript
 
 class spell_garothi_eradication : public SpellScript
 {
-    PrepareSpellScript(spell_garothi_eradication);
-
     void ChangeDamage()
     {
         if (Unit* caster = GetCaster())
@@ -809,8 +785,6 @@ class spell_garothi_eradication : public SpellScript
 
 class spell_garothi_surging_fel : public AuraScript
 {
-    PrepareAuraScript(spell_garothi_surging_fel);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SURGING_FEL_DAMAGE });
@@ -830,8 +804,6 @@ class spell_garothi_surging_fel : public AuraScript
 
 class spell_garothi_cannon_chooser : public SpellScript
 {
-    PrepareSpellScript(spell_garothi_cannon_chooser);
-
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetHitCreature();

@@ -305,8 +305,6 @@ private:
 // 48292 - Dark Slash
 class spell_dark_slash : public SpellScript
 {
-    PrepareSpellScript(spell_dark_slash);
-
     void CalculateDamage()
     {
         // Slashes the target with darkness, dealing damage equal to half the target's current health.

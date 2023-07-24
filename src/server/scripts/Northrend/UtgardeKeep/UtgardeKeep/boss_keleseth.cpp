@@ -308,8 +308,6 @@ private:
 // 48400 - Frost Tomb
 class spell_frost_tomb : public AuraScript
 {
-    PrepareAuraScript(spell_frost_tomb);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)

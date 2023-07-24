@@ -392,8 +392,6 @@ class spell_rain_of_bones : public SpellScriptLoader
 
         class spell_rain_of_bones_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rain_of_bones_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_SKELETON });

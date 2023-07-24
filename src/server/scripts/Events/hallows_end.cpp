@@ -44,8 +44,6 @@ std::array<uint32, 4> const CandysSpells =
 // 24930 - Hallow's End Candy
 class spell_hallow_end_candy : public SpellScript
 {
-    PrepareSpellScript(spell_hallow_end_candy);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(CandysSpells);
@@ -65,8 +63,6 @@ class spell_hallow_end_candy : public SpellScript
 // 24926 - Hallow's End Candy
 class spell_hallow_end_candy_pirate : public AuraScript
 {
-    PrepareAuraScript(spell_hallow_end_candy_pirate);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -112,8 +108,6 @@ enum TrickSpells
 // 24750 - Trick
 class spell_hallow_end_trick : public SpellScript
 {
-    PrepareSpellScript(spell_hallow_end_trick);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -182,8 +176,6 @@ enum TrickOrTreatSpells
 // 24751 - Trick or Treat
 class spell_hallow_end_trick_or_treat : public SpellScript
 {
-    PrepareSpellScript(spell_hallow_end_trick_or_treat);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_TRICK, SPELL_TREAT, SPELL_TRICKED_OR_TREATED });
@@ -208,8 +200,6 @@ class spell_hallow_end_trick_or_treat : public SpellScript
 // 44436 - Tricky Treat
 class spell_hallow_end_tricky_treat : public SpellScript
 {
-    PrepareSpellScript(spell_hallow_end_tricky_treat);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -248,8 +238,6 @@ enum HallowendData
 // 24717, 24718, 24719, 24720, 24724, 24733, 24737, 24741
 class spell_hallow_end_wand : public SpellScript
 {
-    PrepareSpellScript(spell_hallow_end_wand);
-
     bool Validate(SpellInfo const* /*spellEntry*/) override
     {
         return ValidateSpellInfo(
