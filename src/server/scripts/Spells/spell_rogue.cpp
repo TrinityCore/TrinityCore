@@ -36,46 +36,46 @@
 
 enum RogueSpells
 {
-    SPELL_ROGUE_ADRENALINE_RUSH = 13750,
-    SPELL_ROGUE_BETWEEN_THE_EYES = 199804,
-    SPELL_ROGUE_BLADE_FLURRY = 13877,
-    SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK = 22482,
-    SPELL_ROGUE_BROADSIDE = 193356,
-    SPELL_ROGUE_BURIED_TREASURE = 199600,
-    SPELL_ROGUE_DEATH_FROM_ABOVE = 152150,
-    SPELL_ROGUE_GRAND_MELEE = 193358,
-    SPELL_ROGUE_GRAPPLING_HOOK = 195457,
-    SPELL_ROGUE_KILLING_SPREE = 51690,
-    SPELL_ROGUE_KILLING_SPREE_TELEPORT = 57840,
-    SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG = 57841,
-    SPELL_ROGUE_KILLING_SPREE_DMG_BUFF = 61851,
-    SPELL_ROGUE_MARKED_FOR_DEATH = 137619,
-    SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT = 31665,
-    SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE = 31223,
-    SPELL_ROGUE_MAIN_GAUCHE = 86392,
-    SPELL_ROGUE_PREMEDITATION_PASSIVE = 343160,
-    SPELL_ROGUE_PREMEDITATION_AURA = 343173,
-    SPELL_ROGUE_RUTHLESS_PRECISION = 193357,
-    SPELL_ROGUE_SANCTUARY = 98877,
-    SPELL_ROGUE_SKULL_AND_CROSSBONES = 199603,
-    SPELL_ROGUE_SHADOW_FOCUS = 108209,
-    SPELL_ROGUE_SHADOW_FOCUS_EFFECT = 112942,
-    SPELL_ROGUE_SLICE_AND_DICE = 315496,
-    SPELL_ROGUE_SPRINT = 2983,
-    SPELL_ROGUE_STEALTH = 1784,
-    SPELL_ROGUE_STEALTH_STEALTH_AURA = 158185,
-    SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA = 158188,
-    SPELL_ROGUE_SYMBOLS_OF_DEATH_CRIT_AURA = 227151,
-    SPELL_ROGUE_SYMBOLS_OF_DEATH_RANK2 = 328077,
-    SPELL_ROGUE_TRUE_BEARING = 193359,
-    SPELL_ROGUE_TURN_THE_TABLES_BUFF = 198027,
-    SPELL_ROGUE_VANISH = 1856,
-    SPELL_ROGUE_VANISH_AURA = 11327,
-    SPELL_ROGUE_TRICKS_OF_THE_TRADE = 57934,
-    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC = 59628,
-    SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE = 51699,
-    SPELL_ROGUE_T5_2P_SET_BONUS = 37169,
-    SPELL_ROGUE_VENOMOUS_WOUNDS = 79134,
+    SPELL_ROGUE_ADRENALINE_RUSH                     = 13750,
+    SPELL_ROGUE_BETWEEN_THE_EYES                    = 199804,
+    SPELL_ROGUE_BLADE_FLURRY                        = 13877,
+    SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK           = 22482,
+    SPELL_ROGUE_BROADSIDE                           = 193356,
+    SPELL_ROGUE_BURIED_TREASURE                     = 199600,
+    SPELL_ROGUE_DEATH_FROM_ABOVE                    = 152150,
+    SPELL_ROGUE_GRAND_MELEE                         = 193358,
+    SPELL_ROGUE_GRAPPLING_HOOK                      = 195457,
+    SPELL_ROGUE_KILLING_SPREE                       = 51690,
+    SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
+    SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
+    SPELL_ROGUE_KILLING_SPREE_DMG_BUFF              = 61851,
+    SPELL_ROGUE_MARKED_FOR_DEATH                    = 137619,
+    SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665,
+    SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223,
+    SPELL_ROGUE_MAIN_GAUCHE                         = 86392,
+    SPELL_ROGUE_PREMEDITATION_PASSIVE               = 343160,
+    SPELL_ROGUE_PREMEDITATION_AURA                  = 343173,
+    SPELL_ROGUE_RUTHLESS_PRECISION                  = 193357,
+    SPELL_ROGUE_SANCTUARY                           = 98877,
+    SPELL_ROGUE_SKULL_AND_CROSSBONES                = 199603,
+    SPELL_ROGUE_SHADOW_FOCUS                        = 108209,
+    SPELL_ROGUE_SHADOW_FOCUS_EFFECT                 = 112942,
+    SPELL_ROGUE_SLICE_AND_DICE                      = 315496,
+    SPELL_ROGUE_SPRINT                              = 2983,
+    SPELL_ROGUE_STEALTH                             = 1784,
+    SPELL_ROGUE_STEALTH_STEALTH_AURA                = 158185,
+    SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA             = 158188,
+    SPELL_ROGUE_SYMBOLS_OF_DEATH_CRIT_AURA          = 227151,
+    SPELL_ROGUE_SYMBOLS_OF_DEATH_RANK2              = 328077,
+    SPELL_ROGUE_TRUE_BEARING                        = 193359,
+    SPELL_ROGUE_TURN_THE_TABLES_BUFF                = 198027,
+    SPELL_ROGUE_VANISH                              = 1856,
+    SPELL_ROGUE_VANISH_AURA                         = 11327,
+    SPELL_ROGUE_TRICKS_OF_THE_TRADE                 = 57934,
+    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628,
+    SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE        = 51699,
+    SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169,
+    SPELL_ROGUE_VENOMOUS_WOUNDS                     = 79134,
 };
 
 /* Returns true if the spell is a finishing move.
@@ -250,10 +250,10 @@ class spell_rog_envenom : public SpellScript
 {
     void CalculateDamage(SpellEffIndex effIndex)
     {
-        Optional<int32> cp = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
-        int32 ap = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
+        Optional<int32> comboPoints = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+        int32 attackPower = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
 
-        int32 damagePerCombo = (ap * GetSpellInfo()->GetEffect(effIndex).BonusCoefficientFromAP) * (*cp);
+        int32 damagePerCombo = (attackPower * GetSpellInfo()->GetEffect(effIndex).BonusCoefficientFromAP) * (*comboPoints);
         if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
             damagePerCombo += t5->GetAmount();
 
@@ -273,10 +273,10 @@ class spell_rog_eviscerate : public SpellScript
 {
     void CalculateDamage(SpellEffIndex effIndex)
     {
-        Optional<int32> cp = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
-        int32 ap = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
+        Optional<int32> comboPoints = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+        int32 attackPower = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
 
-        int32 damagePerCombo = (ap * GetSpellInfo()->GetEffect(effIndex).BonusCoefficientFromAP) * (*cp);
+        int32 damagePerCombo = (attackPower * GetSpellInfo()->GetEffect(effIndex).BonusCoefficientFromAP) * (*comboPoints);
         if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
             damagePerCombo += t5->GetAmount();
 
@@ -573,11 +573,11 @@ class spell_rog_roll_the_bones : public SpellScript
 // 1943 - Rupture
 class spell_rog_rupture : public SpellScript
 {
-    void HandleHit(SpellEffIndex effIndex)
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        Optional<int32> cp = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+        Optional<int32> comboPoints = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
         const int32 MIN_DURATION = GetSpellInfo()->GetDuration();
-        int32 duration = MIN_DURATION * (*cp + 1);
+        int32 duration = MIN_DURATION * (*comboPoints + 1);
 
         GetSpell()->SetSpellValue(SPELLVALUE_DURATION, duration);
     }
@@ -633,11 +633,11 @@ class spell_rog_slice_and_dice : public SpellScript
 {
     PrepareSpellScript(spell_rog_slice_and_dice);
 
-    void HandleApply(SpellEffIndex effIndex)
+    void HandleApply(SpellEffIndex /*effIndex*/)
     {
-        Optional<int32> cp = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+        Optional<int32> comboPoints = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
         const int32 MIN_DURATION = GetSpellInfo()->GetDuration();
-        int32 duration = MIN_DURATION * (*cp + 1);
+        int32 duration = MIN_DURATION * (*comboPoints + 1);
 
         GetSpell()->SetSpellValue(SPELLVALUE_DURATION, duration);
     }
