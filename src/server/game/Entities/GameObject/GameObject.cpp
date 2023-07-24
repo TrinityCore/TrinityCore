@@ -1366,7 +1366,7 @@ void GameObject::Update(uint32 diff)
             {
                 SetRespawnTime(0);
 
-                if (GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
+                if (GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG_DROP)
                 {
                     if (GameObject* go = GetMap()->GetGameObject(GetOwnerGUID()))
                         go->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase, nullptr));
