@@ -85,8 +85,6 @@ public:
 
     class spell_siege_cannon_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_siege_cannon_SpellScript);
-
         void SelectRandomTarget(std::list<WorldObject*>& targets)
         {
             if (targets.empty())

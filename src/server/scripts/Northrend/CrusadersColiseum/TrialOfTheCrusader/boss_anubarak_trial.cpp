@@ -791,8 +791,6 @@ struct npc_anubarak_spike : public ScriptedAI
 // 65923 - Pursuing Spikes
 class spell_pursuing_spikes : public AuraScript
 {
-    PrepareAuraScript(spell_pursuing_spikes);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PERMAFROST, SPELL_SPIKE_FAIL });
@@ -832,8 +830,6 @@ class spell_pursuing_spikes : public AuraScript
 // 65919 - Impale
 class spell_impale : public SpellScript
 {
-    PrepareSpellScript(spell_impale);
-
     void HandleDamageCalc(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
@@ -853,8 +849,6 @@ class spell_impale : public SpellScript
 // 66118, 67630, 68646, 68647 - Leeching Swarm
 class spell_anubarak_leeching_swarm : public AuraScript
 {
-    PrepareAuraScript(spell_anubarak_leeching_swarm);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_LEECHING_SWARM_DMG, SPELL_LEECHING_SWARM_HEAL });

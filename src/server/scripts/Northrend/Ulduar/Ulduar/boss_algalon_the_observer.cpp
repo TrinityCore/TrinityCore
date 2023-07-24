@@ -1017,8 +1017,6 @@ private:
 // 64412 - Phase Punch
 class spell_algalon_phase_punch : public AuraScript
 {
-    PrepareAuraScript(spell_algalon_phase_punch);
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
@@ -1045,8 +1043,6 @@ class spell_algalon_phase_punch : public AuraScript
 // 65508 - Constellation Phase Trigger
 class spell_algalon_phase_constellation : public AuraScript
 {
-    PrepareAuraScript(spell_algalon_phase_constellation);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
@@ -1070,8 +1066,6 @@ class spell_algalon_phase_constellation : public AuraScript
 // 62266 - Trigger 3 Adds
 class spell_algalon_trigger_3_adds : public SpellScript
 {
-    PrepareSpellScript(spell_algalon_trigger_3_adds);
-
     void SelectTarget(std::list<WorldObject*>& targets)
     {
         // Remove Living Constellation already actived
@@ -1098,8 +1092,6 @@ class spell_algalon_trigger_3_adds : public SpellScript
 // 62018 - Collapse
 class spell_algalon_collapse : public AuraScript
 {
-    PrepareAuraScript(spell_algalon_collapse);
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
@@ -1115,8 +1107,6 @@ class spell_algalon_collapse : public AuraScript
 // 64443, 64584 - Big Bang
 class spell_algalon_big_bang : public SpellScript
 {
-    PrepareSpellScript(spell_algalon_big_bang);
-
     bool Load() override
     {
         _targetCount = 0;
@@ -1146,8 +1136,6 @@ private:
 // 64445 - Remove Player from Phase
 class spell_algalon_remove_phase : public AuraScript
 {
-    PrepareAuraScript(spell_algalon_remove_phase);
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
@@ -1163,8 +1151,6 @@ class spell_algalon_remove_phase : public AuraScript
 // 62295 - Cosmic Smash
 class spell_algalon_cosmic_smash : public SpellScript
 {
-    PrepareSpellScript(spell_algalon_cosmic_smash);
-
     void ModDestHeight(SpellDestination& dest)
     {
         // Meteor should spawn below the platform
@@ -1181,8 +1167,6 @@ class spell_algalon_cosmic_smash : public SpellScript
 // 62311, 64596 - Cosmic Smash
 class spell_algalon_cosmic_smash_damage : public SpellScript
 {
-    PrepareSpellScript(spell_algalon_cosmic_smash_damage);
-
     void RecalculateDamage()
     {
         if (!GetExplTargetDest() || !GetHitUnit())
@@ -1202,8 +1186,6 @@ class spell_algalon_cosmic_smash_damage : public SpellScript
 // 65311 - Supermassive Fail
 class spell_algalon_supermassive_fail : public SpellScript
 {
-    PrepareSpellScript(spell_algalon_supermassive_fail);
-
     void RecalculateDamage()
     {
         if (Player* player = GetHitPlayer())
@@ -1221,8 +1203,6 @@ class spell_algalon_supermassive_fail : public SpellScript
 // 64417 - Phase Punch (Phase Shifts)
 class spell_algalon_black_hole_phase_shifts : public AuraScript
 {
-    PrepareAuraScript(spell_algalon_black_hole_phase_shifts);
-
     bool Load() override
     {
         return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;

@@ -856,8 +856,6 @@ private:
 // 28410 - Chains of Kel'Thuzad
 class spell_kelthuzad_chains : public AuraScript
 {
-    PrepareAuraScript(spell_kelthuzad_chains);
-
     void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
     {
         aurEff->HandleAuraModScale(GetTargetApplication(), mode, true);
@@ -878,8 +876,6 @@ class spell_kelthuzad_chains : public AuraScript
 // 27819 - Detonate Mana
 class spell_kelthuzad_detonate_mana : public AuraScript
 {
-    PrepareAuraScript(spell_kelthuzad_detonate_mana);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_MANA_DETONATION_DAMAGE });
@@ -908,8 +904,6 @@ class spell_kelthuzad_detonate_mana : public AuraScript
 // 27808 - Frost Blast
 class spell_kelthuzad_frost_blast : public AuraScript
 {
-    PrepareAuraScript(spell_kelthuzad_frost_blast);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FROST_BLAST_DMG });

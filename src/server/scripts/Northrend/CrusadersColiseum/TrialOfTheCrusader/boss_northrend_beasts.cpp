@@ -1068,8 +1068,6 @@ struct boss_icehowl : public boss_northrend_beastsAI
 // 66342 - Jump to Hand
 class spell_gormok_jump_to_hand : public AuraScript
 {
-    PrepareAuraScript(spell_gormok_jump_to_hand);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_RIDE_PLAYER });
@@ -1099,8 +1097,6 @@ class spell_gormok_jump_to_hand : public AuraScript
 // 66245 - Ride Vehicle
 class spell_gormok_ride_player : public AuraScript
 {
-    PrepareAuraScript(spell_gormok_ride_player);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
@@ -1121,8 +1117,6 @@ class spell_gormok_ride_player : public AuraScript
 // 66406 - Snobolled!
 class spell_gormok_snobolled : public AuraScript
 {
-    PrepareAuraScript(spell_gormok_snobolled);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_RIDE_PLAYER });
@@ -1143,8 +1137,6 @@ class spell_gormok_snobolled : public AuraScript
 // 66823, 67618, 67619, 67620 - Paralytic Toxin
 class spell_jormungars_paralytic_toxin : public AuraScript
 {
-    PrepareAuraScript(spell_jormungars_paralytic_toxin);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_PARALYSIS });
@@ -1197,8 +1189,6 @@ class spell_jormungars_paralytic_toxin : public AuraScript
 // 66870, 67621, 67622, 67623 - Burning Bile
 class spell_jormungars_burning_bile : public SpellScript
 {
-    PrepareSpellScript(spell_jormungars_burning_bile);
-
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -1214,8 +1204,6 @@ class spell_jormungars_burning_bile : public SpellScript
 // 66882 - Slime Pool
 class spell_jormungars_slime_pool : public AuraScript
 {
-    PrepareAuraScript(spell_jormungars_slime_pool);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
@@ -1241,8 +1229,6 @@ class spell_jormungars_slime_pool : public AuraScript
    66823 - Paralytic Toxin */
 class spell_jormungars_snakes_spray : public SpellScript
 {
-    PrepareSpellScript(spell_jormungars_snakes_spray);
-
 public:
     spell_jormungars_snakes_spray(uint32 spellId) : SpellScript(), _spellId(spellId) { }
 
@@ -1268,8 +1254,6 @@ private:
 // 66830 - Paralysis
 class spell_jormungars_paralysis : public AuraScript
 {
-    PrepareAuraScript(spell_jormungars_paralysis);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
@@ -1289,8 +1273,6 @@ class spell_jormungars_paralysis : public AuraScript
 // 66688 - Arctic Breath
 class spell_icehowl_arctic_breath : public SpellScript
 {
-    PrepareSpellScript(spell_icehowl_arctic_breath);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
@@ -1311,8 +1293,6 @@ class spell_icehowl_arctic_breath : public SpellScript
 // 66734 - Trample
 class spell_icehowl_trample : public SpellScript
 {
-    PrepareSpellScript(spell_icehowl_trample);
-
     void CheckTargets(std::list<WorldObject*>& targets)
     {
         Creature* caster = GetCaster()->ToCreature();
@@ -1334,8 +1314,6 @@ class spell_icehowl_trample : public SpellScript
 // 66683 - Massive Crash
 class spell_icehowl_massive_crash : public AuraScript
 {
-    PrepareAuraScript(spell_icehowl_massive_crash);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_SURGE_OF_ADRENALINE });

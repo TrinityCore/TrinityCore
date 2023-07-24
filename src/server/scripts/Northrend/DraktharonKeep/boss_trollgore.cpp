@@ -207,8 +207,6 @@ struct npc_drakkari_invader : public ScriptedAI
 // 49380, 59803 - Consume
 class spell_trollgore_consume : public SpellScript
 {
-    PrepareSpellScript(spell_trollgore_consume);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CONSUME_BUFF });
@@ -229,8 +227,6 @@ class spell_trollgore_consume : public SpellScript
 // 49555, 59807 - Corpse Explode
 class spell_trollgore_corpse_explode : public AuraScript
 {
-    PrepareAuraScript(spell_trollgore_corpse_explode);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CORPSE_EXPLODE_DAMAGE });
@@ -259,8 +255,6 @@ class spell_trollgore_corpse_explode : public AuraScript
 // 49405 - Invader Taunt Trigger
 class spell_trollgore_invader_taunt : public SpellScript
 {
-    PrepareSpellScript(spell_trollgore_invader_taunt);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });

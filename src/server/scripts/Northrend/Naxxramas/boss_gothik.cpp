@@ -890,8 +890,6 @@ struct npc_gothik_trigger : public ScriptedAI
 // 27831, 55638 - Shadow Bolt Volley
 class spell_gothik_shadow_bolt_volley : public SpellScript
 {
-    PrepareSpellScript(spell_gothik_shadow_bolt_volley);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_SHADOW_MARK));

@@ -338,8 +338,6 @@ private:
 // 51103 - Frostbomb
 class spell_urom_frostbomb : public AuraScript
 {
-    PrepareAuraScript(spell_urom_frostbomb);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_FROST_BUFFET });
