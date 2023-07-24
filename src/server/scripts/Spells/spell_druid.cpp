@@ -863,8 +863,6 @@ class spell_dru_lunar_inspiration : public AuraScript
 // 392315 - Luxuriant Soil
 class spell_dru_luxuriant_soil : public AuraScript
 {
-    PrepareAuraScript(spell_dru_luxuriant_soil);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_REJUVENATION, SPELL_DRUID_REJUVENATION_GERMINATION });
@@ -986,8 +984,6 @@ class spell_dru_rip : public AuraScript
 // 774 - Rejuvenation
 class spell_dru_rejuvenation : public SpellScript
 {
-    PrepareSpellScript(spell_dru_rejuvenation);
-
     SpellCastResult CheckTarget()
     {
         Unit* caster = GetCaster();
