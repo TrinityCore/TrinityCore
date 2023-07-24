@@ -983,7 +983,7 @@ class spell_dru_lifebloom : public AuraScript
             caster->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff));
 
         // Note: Photosynthesis talent.
-        if (Aura* photosynthesisAura = caster->GetAura(SPELL_DRUID_PHOTOSYNTHESIS))
+        if (caster->HasAura(SPELL_DRUID_PHOTOSYNTHESIS))
         {
             if (target == caster)
                 caster->RemoveAura(SPELL_DRUID_PHOTOSYNTHESIS_EFFECT);
