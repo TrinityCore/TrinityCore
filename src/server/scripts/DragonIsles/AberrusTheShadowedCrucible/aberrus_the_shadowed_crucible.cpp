@@ -28,7 +28,6 @@ enum AberrusMisc
 {
     CONVERSATION_SABELLIAN_INTRO      = 20800, // Sabellian and Wrathion
     CONVERSATION_SARKARETH_INTRO      = 20970, // Sabellian and Sarkareth
-    CONVERSATION_KAZZARA_SUMMON_INTRO = 20985, // Winglord Dezran, Sarkareth and Zskarn
 
     // Sabellian intro
     CONVO_ACTOR_IDX_SABELLIAN         = 0,
@@ -92,9 +91,6 @@ struct at_aberrus_sarkareth_conversation_intro : AreaTriggerAI
         at->Remove();
     }
 };
-
-// @TODO: trigger on 6 sundered deaths:
-// Conversation::CreateConversation(CONVERSATION_KAZZARA_SUMMON_INTRO, unit, unit->GetPosition(), ObjectGuid::Empty);
 
 // 20800 - Conversation
 class conversation_aberrus_sabellian_intro : public ConversationScript

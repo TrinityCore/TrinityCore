@@ -58,6 +58,16 @@ DungeonEncounterData const encounters[] =
     { DATA_SCALECOMMANDER_SARKARETH,    {{ 2685 }} }
 };
 
+enum AberrusInstanceCreatureIds
+{
+    NPC_SCALECOMMANDER_SARKARETH_AT_KAZZARA = 202416
+};
+
+enum AberrusInstanceSpells
+{
+    SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_3 = 403409 // Winglord Dezran, Sarkareth and Zskarn (Kazzara Summon)
+};
+
 class instance_aberrus_the_shadowed_crucible : public InstanceMapScript
 {
 public:
@@ -74,6 +84,7 @@ public:
             LoadDungeonEncounterData(encounters);
 
             _kazzaraIntroDone = false;
+            _deadSunderedMobs = 0;
         }
 
         uint32 GetData(uint32 dataId) const override
@@ -100,7 +111,30 @@ public:
             }
         }
 
+        void OnUnitDeath(Unit* unit) override
+        {
+            Creature* creature = unit->ToCreature();
+            if (!creature)
+                return;
+
+            if (creature->HasStringId("sundered_mob"))
+            {
+                if (_deadSunderedMobs >= 6)
+                    return;
+
+                _deadSunderedMobs++;
+                if (_deadSunderedMobs >= 6)
+                {
+                    Creature* sarkareth = creature->FindNearestCreature(NPC_SCALECOMMANDER_SARKARETH_AT_KAZZARA, 100.0f);
+                    if (!sarkareth)
+                        return;
+                    sarkareth->CastSpell(nullptr, SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_3);
+                }
+            }
+        }
+
     private:
+        uint8 _deadSunderedMobs;
         bool _kazzaraIntroDone;
     };
 
