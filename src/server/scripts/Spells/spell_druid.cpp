@@ -953,8 +953,6 @@ protected:
 // 155777 - Rejuventation (Germination)
 class spell_dru_rejuvenation_germination : public AuraScript
 {
-    PrepareAuraScript(spell_dru_rejuvenation_germination);
-
     void HandleOnApplyOrReapply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
     {
         Unit* caster = GetCaster();
