@@ -25,25 +25,6 @@
 #include "Unit.h"
 #include "aberrus_the_shadowed_crucible.h"
 
-enum AberrusMisc
-{
-    SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_1 = 400785, // Sabellian and Wrathion
-    SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_2 = 403340, // Sabellian and Sarkareth
-
-    // Sabellian intro
-    CONVO_ACTOR_IDX_SABELLIAN         = 0,
-
-    CONVO_SABELLIAN_INTRO_LINE_01     = 56690,
-    CONVO_SABELLIAN_INTRO_LINE_02     = 56692,
-
-    // Kazzara intro
-    CONVO_ACTOR_IDX_WINGLORD_DEZRAN   = 0,
-    CONVO_ACTOR_IDX_ZSKARN            = 1,
-    CONVO_ACTOR_IDX_SARKARETH         = 2,
-
-    CONVO_SARKARETH_LAST_LINE         = 57821
-};
-
 enum AberrusEvents
 {
     EVENT_SABELLIAN_MOVE = 1,
@@ -59,7 +40,34 @@ enum AberrusPaths
     PATH_ZSKARN                       = (202637 * 10) << 3
 };
 
-Position const SabellianConvoPosition  = { 2250.6372f, 2482.3003f, 711.9592f };
+enum AberrusCreatureIds
+{
+    NPC_SABELLIAN_AT_ABERRUS_ENTRANCE = 201575
+};
+
+enum AberrusSpells
+{
+    SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_1 = 400785, // Sabellian and Wrathion
+    SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_2 = 403340, // Sabellian and Sarkareth
+};
+
+enum AberrusMisc
+{
+    // Sabellian intro
+    CONVO_ACTOR_IDX_SABELLIAN         = 0,
+
+    CONVO_SABELLIAN_INTRO_LINE_01     = 56690,
+    CONVO_SABELLIAN_INTRO_LINE_02     = 56692,
+
+    // Kazzara intro
+    CONVO_ACTOR_IDX_WINGLORD_DEZRAN   = 0,
+    CONVO_ACTOR_IDX_ZSKARN            = 1,
+    CONVO_ACTOR_IDX_SARKARETH         = 2,
+
+    CONVO_SARKARETH_LAST_LINE         = 57821
+};
+
+Position const SabellianConvoPosition = { 2250.6372f, 2482.3003f, 711.9592f };
 
 // Id 26 - Areatrigger
 struct at_aberrus_sabellian_conversation_intro : AreaTriggerAI
@@ -72,7 +80,7 @@ struct at_aberrus_sabellian_conversation_intro : AreaTriggerAI
         if (!player)
             return;
 
-        Creature* sabellian = unit->FindNearestCreature(NPC_SABELLIAN_AT_ABERRUS_INTRO, 50.0f);
+        Creature* sabellian = unit->FindNearestCreature(NPC_SABELLIAN_AT_ABERRUS_ENTRANCE, 50.0f);
 
         if (!sabellian)
             return;
@@ -93,7 +101,7 @@ struct at_aberrus_sarkareth_conversation_intro : AreaTriggerAI
         if (!player)
             return;
 
-        Creature* sabellian = unit->FindNearestCreature(NPC_SABELLIAN_AT_ABERRUS_INTRO, 50.0f);
+        Creature* sabellian = unit->FindNearestCreature(NPC_SABELLIAN_AT_ABERRUS_ENTRANCE, 50.0f);
 
         if (!sabellian)
             return;
@@ -106,44 +114,48 @@ struct at_aberrus_sarkareth_conversation_intro : AreaTriggerAI
 // 20800 - Conversation
 class conversation_aberrus_sabellian_intro : public ConversationScript
 {
-    public:
-        conversation_aberrus_sabellian_intro() : ConversationScript("conversation_aberrus_sabellian_intro") { }
+public:
+    conversation_aberrus_sabellian_intro() : ConversationScript("conversation_aberrus_sabellian_intro") { }
 
-        void OnConversationStart(Conversation* conversation) override
+    void OnConversationStart(Conversation* conversation) override
+    {
+        if (Milliseconds const* sabellianMoveStartTime = conversation->GetLineStartTime(DEFAULT_LOCALE, CONVO_SABELLIAN_INTRO_LINE_01))
+            _events.ScheduleEvent(EVENT_SABELLIAN_MOVE, *sabellianMoveStartTime);
+
+        if (Milliseconds const* sabellianHomeMoveStartTime = conversation->GetLineStartTime(DEFAULT_LOCALE, CONVO_SABELLIAN_INTRO_LINE_02))
+            _events.ScheduleEvent(EVENT_SABELLIAN_MOVE_HOME_POS, *sabellianHomeMoveStartTime + Seconds(2));
+    }
+
+    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    {
+        _events.Update(diff);
+
+        switch (_events.ExecuteEvent())
         {
-            if (Milliseconds const* sabellianMoveStartTime = conversation->GetLineStartTime(DEFAULT_LOCALE, CONVO_SABELLIAN_INTRO_LINE_01))
-                _events.ScheduleEvent(EVENT_SABELLIAN_MOVE, *sabellianMoveStartTime);
-
-            if (Milliseconds const* sabellianHomeMoveStartTime = conversation->GetLineStartTime(DEFAULT_LOCALE, CONVO_SABELLIAN_INTRO_LINE_02))
-                _events.ScheduleEvent(EVENT_SABELLIAN_MOVE_HOME_POS, *sabellianHomeMoveStartTime + Seconds(2));
-        }
-
-        void OnConversationUpdate(Conversation* conversation, uint32 diff) override
-        {
-            _events.Update(diff);
-
-            switch (_events.ExecuteEvent())
+            case EVENT_SABELLIAN_MOVE:
             {
-                case EVENT_SABELLIAN_MOVE:
-                {
-                    Creature* sabellian = conversation->GetActorCreature(CONVO_ACTOR_IDX_SABELLIAN);
+                Creature* sabellian = conversation->GetActorCreature(CONVO_ACTOR_IDX_SABELLIAN);
+                if (!sabellian)
+                    break;
 
-                    sabellian->SetWalk(true);
-                    sabellian->GetMotionMaster()->MovePoint(0, SabellianConvoPosition);
-                    break;
-                }
-                case EVENT_SABELLIAN_MOVE_HOME_POS:
-                {
-                    Creature* sabellian = conversation->GetActorCreature(CONVO_ACTOR_IDX_SABELLIAN);
-
-                    sabellian->SetWalk(true);
-                    sabellian->GetMotionMaster()->MovePoint(0, sabellian->ToCreature()->GetHomePosition(), false, sabellian->ToCreature()->GetHomePosition().GetOrientation());
-                    break;
-                }
-                default:
-                    break;
+                sabellian->SetWalk(true);
+                sabellian->GetMotionMaster()->MovePoint(0, SabellianConvoPosition);
+                break;
             }
+            case EVENT_SABELLIAN_MOVE_HOME_POS:
+            {
+                Creature* sabellian = conversation->GetActorCreature(CONVO_ACTOR_IDX_SABELLIAN);
+                if (!sabellian)
+                    break;
+
+                sabellian->SetWalk(true);
+                sabellian->GetMotionMaster()->MovePoint(0, sabellian->ToCreature()->GetHomePosition(), false, sabellian->ToCreature()->GetHomePosition().GetOrientation());
+                break;
+            }
+            default:
+                break;
         }
+    }
 
 private:
     EventMap _events;
@@ -152,50 +164,50 @@ private:
 // 20985 - Conversation
 class conversation_aberrus_kazzara_intro : public ConversationScript
 {
-    public:
-        conversation_aberrus_kazzara_intro() : ConversationScript("conversation_aberrus_kazzara_intro") { }
+public:
+    conversation_aberrus_kazzara_intro() : ConversationScript("conversation_aberrus_kazzara_intro") { }
 
-        void OnConversationStart(Conversation* conversation) override
+    void OnConversationStart(Conversation* conversation) override
+    {
+        _events.ScheduleEvent(EVENT_KAZZARA_INTRO, conversation->GetLineEndTime(DEFAULT_LOCALE, CONVO_SARKARETH_LAST_LINE));
+    }
+
+    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    {
+        _events.Update(diff);
+
+        switch (_events.ExecuteEvent())
         {
-            _events.ScheduleEvent(EVENT_KAZZARA_INTRO, conversation->GetLineEndTime(DEFAULT_LOCALE, CONVO_SARKARETH_LAST_LINE));
-        }
-
-        void OnConversationUpdate(Conversation* conversation, uint32 diff) override
-        {
-            _events.Update(diff);
-
-            switch (_events.ExecuteEvent())
+            case EVENT_KAZZARA_INTRO:
             {
-                case EVENT_KAZZARA_INTRO:
+                Creature* winglordDezran = conversation->GetActorCreature(CONVO_ACTOR_IDX_WINGLORD_DEZRAN);
+                Creature* zskarn = conversation->GetActorCreature(CONVO_ACTOR_IDX_ZSKARN);
+                Creature* sarkareth = conversation->GetActorCreature(CONVO_ACTOR_IDX_SARKARETH);
+
+                if (!winglordDezran || !zskarn || !sarkareth)
+                    return;
+
+                sarkareth->GetMotionMaster()->MovePath(PATH_SARKARETH, false);
+                sarkareth->DespawnOrUnsummon(45s);
+
+                winglordDezran->GetMotionMaster()->MovePath(PATH_WINGLORD_DEZRAN, false);
+                winglordDezran->DespawnOrUnsummon(45s);
+
+                zskarn->GetMotionMaster()->MovePath(PATH_ZSKARN, false);
+                zskarn->DespawnOrUnsummon(45s, Seconds::max()); // override respawn time to prevent instant respawn due to CREATURE_FLAG_EXTRA_DUNGEON_BOSS
+
+                if (InstanceScript* instance = conversation->GetInstanceScript())
                 {
-                    Creature* winglordDezran = conversation->GetActorCreature(CONVO_ACTOR_IDX_WINGLORD_DEZRAN);
-                    Creature* zskarn = conversation->GetActorCreature(CONVO_ACTOR_IDX_ZSKARN);
-                    Creature* sarkareth = conversation->GetActorCreature(CONVO_ACTOR_IDX_SARKARETH);
-
-                    if (!winglordDezran || !zskarn || !sarkareth)
-                        return;
-
-                    sarkareth->GetMotionMaster()->MovePath(PATH_SARKARETH, false);
-                    sarkareth->DespawnOrUnsummon(45s);
-
-                    winglordDezran->GetMotionMaster()->MovePath(PATH_WINGLORD_DEZRAN, false);
-                    winglordDezran->DespawnOrUnsummon(45s);
-
-                    zskarn->GetMotionMaster()->MovePath(PATH_ZSKARN, false);
-                    zskarn->DespawnOrUnsummon(45s, Seconds::max()); // override respawn time to prevent instant respawn due to CREATURE_FLAG_EXTRA_DUNGEON_BOSS
-
-                    if (InstanceScript* instance = conversation->GetInstanceScript())
-                    {
-                        instance->SetData(DATA_KAZZARA_INTRO_DONE, 1);
-                        if (Creature* kazzara = instance->GetCreature(DATA_KAZZARA_THE_HELLFORGED))
-                            kazzara->AI()->DoAction(ACTION_START_KAZZARA_INTRO);
-                    }
-                    break;
+                    instance->SetData(DATA_KAZZARA_INTRO_DONE, 1);
+                    if (Creature* kazzara = instance->GetCreature(DATA_KAZZARA_THE_HELLFORGED))
+                        kazzara->AI()->DoAction(ACTION_START_KAZZARA_INTRO);
                 }
-                default:
-                    break;
+                break;
             }
+            default:
+                break;
         }
+    }
 
 private:
     EventMap _events;

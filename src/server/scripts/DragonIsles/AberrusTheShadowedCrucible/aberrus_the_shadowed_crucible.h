@@ -64,9 +64,6 @@ enum AberrusCreatureIds
     BOSS_MAGMORAX                        = 201579,
     BOSS_ECHO_OF_NELTHARION              = 204223,
     BOSS_SCALECOMMANDER_SARKARETH        = 205319,
-
-    // Misc
-    NPC_SABELLIAN_AT_ABERRUS_INTRO       = 201575
 };
 
 enum AberrusGameObjectIds
