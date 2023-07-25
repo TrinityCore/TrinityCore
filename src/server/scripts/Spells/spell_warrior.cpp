@@ -288,21 +288,21 @@ class spell_warr_critical_thinking : public AuraScript
 // 236279 - Devastator
 class spell_warr_devastator : public AuraScript
 {
-    PrepareAuraScript(spell_warr_devastator);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo ({ SPELL_WARRIOR_SHIELD_SLAM, SPELL_WARRIOR_SHIELD_SLAM_MARKER });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo({ SPELL_WARRIOR_SHIELD_SLAM, SPELL_WARRIOR_SHIELD_SLAM_MARKER });
     }
 
-    void OnProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
     {
         if (GetTarget()->GetSpellHistory()->HasCooldown(SPELL_WARRIOR_SHIELD_SLAM))
+        {
             if (roll_chance_i(GetEffectInfo(EFFECT_1).CalcValue()))
             {
                 GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_SHIELD_SLAM, true);
-                GetTarget()->CastSpell(GetTarget(), SPELL_WARRIOR_SHIELD_SLAM_MARKER, true);
+                GetTarget()->CastSpell(GetTarget(), SPELL_WARRIOR_SHIELD_SLAM_MARKER, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
             }
+        }
     }
 
     void Register() override
