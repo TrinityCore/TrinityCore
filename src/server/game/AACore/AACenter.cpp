@@ -2900,6 +2900,10 @@ void AACenter::AA_ApplyItemBonuses(Player* player, Item* pItem, bool apply, bool
     }
 
     WeaponAttackType attType = Player::GetAttackBySlot(slot, pProto->GetInventoryType());
+
+    if (attType >= MAX_ATTACK)
+        return;
+
     if (!player->IsInFeralForm() && apply && !player->CanUseAttackType(attType))
         return;
 
