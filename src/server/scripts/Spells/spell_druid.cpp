@@ -836,10 +836,10 @@ class spell_dru_lifebloom : public AuraScript
             return;
 
         // Note: Photosynthesis talent.
-        if (Aura* photosynthesisAura = caster->GetAura(SPELL_DRUID_PHOTOSYNTHESIS))
+        if (AuraEffect* photosynthesisEffect = caster->GetAuraEffect(SPELL_DRUID_PHOTOSYNTHESIS, EFFECT_0))
         {
             if (target == caster)
-                caster->CastSpell(caster, SPELL_DRUID_PHOTOSYNTHESIS_EFFECT, CastSpellExtraArgs(aurEff).AddSpellBP0(photosynthesisAura->GetEffect(EFFECT_0)->GetAmount()));
+                caster->CastSpell(caster, SPELL_DRUID_PHOTOSYNTHESIS_EFFECT, CastSpellExtraArgs(aurEff).AddSpellBP0(photosynthesisEffect->GetAmount()));
         }
     }
 
@@ -851,11 +851,11 @@ class spell_dru_lifebloom : public AuraScript
             return;
 
         // Note: Photosynthesis talent.
-        if (Aura* photosynthesisAura = caster->GetAura(SPELL_DRUID_PHOTOSYNTHESIS))
+        if (AuraEffect* photosynthesisEffect = caster->GetAuraEffect(SPELL_DRUID_PHOTOSYNTHESIS, EFFECT_1))
         {
             if (target != caster)
             {
-                if (roll_chance_i(photosynthesisAura->GetEffect(EFFECT_1)->GetAmount()))
+                if (roll_chance_i(photosynthesisEffect->GetAmount()))
                     caster->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff));
             }
         }
