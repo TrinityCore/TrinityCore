@@ -889,38 +889,30 @@ class spell_dru_flourish : public SpellScript
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
 
-        std::list<Unit*> targets;
-        targets.push_back(GetHitUnit());
+        std::list<AuraEffect*> effectList = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
 
-        for (Unit* target : targets)
+        for (AuraEffect* aurEff : effectList)
         {
-            std::list<AuraEffect*> effectList = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
+            // Note: exclude any aura that doesn't belong to caster or is not affected by Flourish.
+            if (aurEff->GetCasterGUID() != caster->GetGUID() || aurEff->IsAffectingSpell(GetSpellInfo()))
+                continue;
 
-            for (AuraEffect* aurEff : effectList)
+            if (Aura* aura = aurEff->GetBase())
             {
-                // Note: exclude any aura that doesn't belong to caster or is not affected by Flourish.
-                if (aurEff->GetCasterGUID() != caster->GetGUID() || aurEff->IsAffectingSpell(GetSpellInfo()))
-                    continue;
+                Milliseconds extraDuration = Seconds(GetEffectInfo(EFFECT_0).CalcValue());
 
-                if (Aura* aura = aurEff->GetBase())
-                {
-                    Milliseconds extraDuration = Seconds(GetEffectInfo(EFFECT_0).CalcValue());
-
-                    aura->SetDuration(aura->GetDuration() + extraDuration.count());
-                    aura->SetMaxDuration(aura->GetMaxDuration() + extraDuration.count());
-                }
+                aura->SetDuration(aura->GetDuration() + extraDuration.count());
+                aura->SetMaxDuration(aura->GetMaxDuration() + extraDuration.count());
             }
         }
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_dru_flourish::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_flourish::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
-
-private:
-    std::vector<ObjectGuid> affectedTargetGUIDs;
 };
 
 // 37336 - Druid Forms Trinket
