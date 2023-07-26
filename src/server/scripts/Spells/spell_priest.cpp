@@ -448,34 +448,34 @@ class spell_pri_divine_image : public AuraScript
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
-        Unit* caster = eventInfo.GetActor();
-        if (!caster)
+        Unit* target = eventInfo.GetActor();
+        if (!target)
             return;
 
-        // Note: if caster has an active Divine Image, we should empower it rather than summoning a new one.
-        Optional<ObjectGuid> divineImageGUID = GetDivineImageGUID(caster);
+        // Note: if target has an active Divine Image, we should empower it rather than summoning a new one.
+        Optional<ObjectGuid> divineImageGUID = GetDivineImageGUID(target);
         if (divineImageGUID.has_value())
         {
-            Unit* divineImage = ObjectAccessor::GetUnit(*caster, *divineImageGUID);
+            Unit* divineImage = ObjectAccessor::GetUnit(*target, *divineImageGUID);
             if (!divineImage)
                 return;
 
-            // Note: Divine Image now teleports near the Priest when the Priest casts a Holy Word spell if the Image is further than 15 yards away (Patch 10.1.0).
-            if (caster->GetDistance(divineImage) > 15.0f)
-                divineImage->NearTeleportTo(caster->GetRandomNearPosition(3.0f));
+            // Note: Divine Image now teleports near the target when they cast a Holy Word spell if the Divine Image is further than 15 yards away (Patch 10.1.0).
+            if (target->GetDistance(divineImage) > 15.0f)
+                divineImage->NearTeleportTo(target->GetRandomNearPosition(3.0f));
 
             divineImage->CastSpell(divineImage, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER,
                 CastSpellExtraArgs(aurEff).SetTriggeringSpell(eventInfo.GetProcSpell()));
 
             // Note: Divine Image's duration resets to default duration.
-            if (Aura* divineImageSummon = caster->GetAura(SPELL_PRIEST_DIVINE_IMAGE_SUMMON))
+            if (Aura* divineImageSummon = target->GetAura(SPELL_PRIEST_DIVINE_IMAGE_SUMMON))
                 divineImageSummon->RefreshDuration();
         }
         else
-            caster->CastSpell(*caster, SPELL_PRIEST_DIVINE_IMAGE_SUMMON,
+            target->CastSpell(*target, SPELL_PRIEST_DIVINE_IMAGE_SUMMON,
                 CastSpellExtraArgs(aurEff).SetTriggeringSpell(eventInfo.GetProcSpell()));
 
-        caster->CastSpell(caster, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK,
+        target->CastSpell(target, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK,
             CastSpellExtraArgs(aurEff).SetTriggeringSpell(eventInfo.GetProcSpell()));
     }
 
@@ -533,25 +533,25 @@ class spell_pri_divine_image_spell_triggered : public AuraScript
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
-        Unit* caster = eventInfo.GetActor();
-        if (!caster)
+        Unit* target = eventInfo.GetActor();
+        if (!target)
             return;
 
-        Optional<ObjectGuid> divineImageGUID = GetDivineImageGUID(caster);
+        Optional<ObjectGuid> divineImageGUID = GetDivineImageGUID(target);
         if (!divineImageGUID.has_value())
             return;
 
-        Unit* divineImage = ObjectAccessor::GetUnit(*caster, *divineImageGUID);
+        Unit* divineImage = ObjectAccessor::GetUnit(*target, *divineImageGUID);
         if (!divineImage)
             return;
 
-        divineImage->CastSpell(eventInfo.GetProcTarget(), GetDivineImageSpell(eventInfo.GetSpellInfo()->Id), aurEff);
+        divineImage->CastSpell(eventInfo.GetProcTarget(), GetDivineImageSpell(eventInfo.GetSpellInfo()->Id), CastSpellExtraArgs(aurEff));
     }
 
     void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit* caster = GetCaster())
-            caster->RemoveAura(SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK);
+        if (Unit* target = GetTarget())
+            target->RemoveAurasDueToSpell(SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK);
     }
 
     uint32 GetDivineImageSpell(uint32 spellId)
