@@ -871,7 +871,7 @@ class spell_dru_lifebloom_heal : public SpellScript
             {
                 if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
                 {
-                    if (!caster->IsFriendlyTo(unit))
+                    if (!caster->IsValidAssistTarget(unit))
                         continue;
 
                     targetList.push_back(unit);
