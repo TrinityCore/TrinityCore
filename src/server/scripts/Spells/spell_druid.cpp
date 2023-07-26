@@ -22,10 +22,8 @@
  */
 
 #include "AreaTrigger.h"
-#include "CellImpl.h"
 #include "Containers.h"
 #include "DB2Stores.h"
-#include "GridNotifiers.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
@@ -864,22 +862,25 @@ class spell_dru_lifebloom_heal : public SpellScript
         {
             if (AreaTrigger* efflorescenceAT = caster->GetAreaTrigger(SPELL_DRUID_EFFLORESCENCE))
             {
-                // Note: max. radius is the Efflorescence's radius.
-                float areatriggerRadius = efflorescenceAT->GetCreateProperties()->GetMaxSearchRadius();
+                for (ObjectGuid const& guid : efflorescenceAT->GetInsideUnits())
+                {
+                    if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
+                    {
+                        if (!caster->IsFriendlyTo(unit))
+                            continue;
 
-                std::list<Unit*> targetList;
-                Trinity::AnyFriendlyUnitInObjectRangeCheck checker(efflorescenceAT, caster, areatriggerRadius);
-                Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(efflorescenceAT, targetList, checker);
-                Cell::VisitAllObjects(efflorescenceAT, searcher, areatriggerRadius);
+                        _targetList.push_back(unit);
+                    }
+                }
 
                 // Note: max. targets is Verdancy's EFFECT_0.
                 uint32 const maxTargets = verdancyEffect->GetAmount();
 
-                if (targetList.size() > maxTargets)
-                    targetList.resize(maxTargets);
+                if (_targetList.size() > maxTargets)
+                    _targetList.resize(maxTargets);
 
-                for (Unit* chosenTarget : targetList)
-                    caster->CastSpell(chosenTarget, SPELL_DRUID_VERDANCY_HEAL, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+                for (Unit* target : _targetList)
+                    caster->CastSpell(target, SPELL_DRUID_VERDANCY_HEAL, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
             }
         }
     }
@@ -888,6 +889,9 @@ class spell_dru_lifebloom_heal : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_dru_lifebloom_heal::HandleOnHit, EFFECT_0, SPELL_EFFECT_HEAL);
     }
+
+private:
+    std::list<Unit*> _targetList;
 };
 
 // 155580 - Lunar Inspiration
