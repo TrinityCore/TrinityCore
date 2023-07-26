@@ -554,6 +554,7 @@ void AlterApperance::Read()
     Customizations.resize(_worldPacket.read<uint32>());
     _worldPacket >> NewSex;
     _worldPacket >> CustomizedRace;
+    _worldPacket >> CustomizedChrModelID;
     for (ChrCustomizationChoice& customization : Customizations)
         _worldPacket >> customization;
 

@@ -623,7 +623,7 @@ void LootRoll::Finish(RollVoteMap::const_iterator winnerItr)
 Loot::Loot(Map* map, ObjectGuid owner, LootType type, Group const* group) : gold(0), unlootedCount(0), loot_type(type),
     _guid(map ? ObjectGuid::Create<HighGuid::LootObject>(map->GetId(), 0, map->GenerateLowGuid<HighGuid::LootObject>()) : ObjectGuid::Empty),
     _owner(owner), _itemContext(ItemContext::NONE), _lootMethod(group ? group->GetLootMethod() : FREE_FOR_ALL),
-    _lootMaster(group ? group->GetMasterLooterGuid() : ObjectGuid::Empty), _wasOpened(false), _dungeonEncounterId(0)
+    _lootMaster(group ? group->GetMasterLooterGuid() : ObjectGuid::Empty), _wasOpened(false), _changed(false), _dungeonEncounterId(0)
 {
 }
 
@@ -717,6 +717,9 @@ void Loot::OnLootOpened(Map* map, ObjectGuid looter)
                 if (!itr->second.TryToStart(map, *this, lootListId, maxEnchantingSkill))
                     _rolls.erase(itr);
             }
+
+            if (!_rolls.empty())
+                _changed = true;
         }
         else if (_lootMethod == MASTER_LOOT)
         {
@@ -893,6 +896,12 @@ bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool
     return allLooted;
 }
 
+void Loot::LootMoney()
+{
+    gold = 0;
+    _changed = true;
+}
+
 LootItem const* Loot::GetItemInSlot(uint32 lootListId) const
 {
     if (lootListId < items.size())
@@ -931,6 +940,7 @@ LootItem* Loot::LootItemInSlot(uint32 lootListId, Player const* player, NotNorma
     if (is_looted)
         return nullptr;
 
+    _changed = true;
     return item;
 }
 

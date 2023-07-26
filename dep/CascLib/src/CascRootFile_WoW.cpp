@@ -89,7 +89,7 @@ struct TRootHandler_WoW : public TFileTreeRoot
 
     TRootHandler_WoW(ROOT_FORMAT RFormat, DWORD HashlessFileCount) : TFileTreeRoot(FTREE_FLAGS_WOW)
     {
-        // Turn off the "we know file names" bit 
+        // Turn off the "we know file names" bit
         FileCounterHashless = HashlessFileCount;
         FileCounter = 0;
         RootFormat = RFormat;
@@ -98,11 +98,11 @@ struct TRootHandler_WoW : public TFileTreeRoot
         switch(RootFormat)
         {
             case RootFormatWoW6x:
-                dwFeatures |= CASC_FEATURE_ROOT_CKEY | CASC_FEATURE_FNAME_HASHES | CASC_FEATURE_FILE_DATA_IDS | CASC_FEATURE_LOCALE_FLAGS | CASC_FEATURE_CONTENT_FLAGS;
+                dwFeatures |= CASC_FEATURE_ROOT_CKEY | CASC_FEATURE_LOCALE_FLAGS | CASC_FEATURE_CONTENT_FLAGS | CASC_FEATURE_FNAME_HASHES;
                 break;
 
             case RootFormatWoW82:
-                dwFeatures |= CASC_FEATURE_ROOT_CKEY | CASC_FEATURE_FNAME_HASHES_OPTIONAL | CASC_FEATURE_FILE_DATA_IDS | CASC_FEATURE_LOCALE_FLAGS | CASC_FEATURE_CONTENT_FLAGS;
+                dwFeatures |= CASC_FEATURE_ROOT_CKEY | CASC_FEATURE_LOCALE_FLAGS | CASC_FEATURE_CONTENT_FLAGS | CASC_FEATURE_FILE_DATA_IDS | CASC_FEATURE_FNAME_HASHES_OPTIONAL;
                 break;
         }
     }
@@ -155,7 +155,7 @@ struct TRootHandler_WoW : public TFileTreeRoot
                 return pbRootPtr + (sizeof(FILE_ROOT_ENTRY) * RootGroup.Header.NumberOfFiles);
 
             case RootFormatWoW82:
-                
+
                 // Verify the position of array of CONTENT_KEY
                 if((pbRootPtr + (sizeof(CONTENT_KEY) * RootGroup.Header.NumberOfFiles)) > pbRootEnd)
                     return NULL;
@@ -229,7 +229,6 @@ struct TRootHandler_WoW : public TFileTreeRoot
         {
             // Set the file data ID
             FileDataId = FileDataId + RootGroup.FileDataIds[i];
-            //printf("File Data ID: %u\n", FileDataId);
 
             // Find the item in the central storage. Insert it to the tree
             if((pCKeyEntry = FindCKeyEntry_CKey(hs, pCKey->Value)) != NULL)
@@ -357,7 +356,7 @@ struct TRootHandler_WoW : public TFileTreeRoot
     */
 
     DWORD ParseWowRootFile_Level1(
-        TCascStorage * hs, 
+        TCascStorage * hs,
         LPBYTE pbRootPtr,
         LPBYTE pbRootEnd,
         DWORD dwLocaleMask,
@@ -389,7 +388,7 @@ struct TRootHandler_WoW : public TFileTreeRoot
         if(dwErrCode == ERROR_SUCCESS)
             dwErrCode = ParseWowRootFile_Level1(hs, pbRootPtr, pbRootEnd, dwLocaleMask, 1);
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
         // Dump the array of the file data IDs
         //FileTree.DumpFileDataIds("e:\\file-data-ids.bin");
 #endif
@@ -494,6 +493,8 @@ DWORD RootHandler_CreateWoW(TCascStorage * hs, CASC_BLOB & RootFile, DWORD dwLoc
     pRootHandler = new TRootHandler_WoW(RootFormat, FileCounterHashless);
     if(pRootHandler != NULL)
     {
+        //fp = fopen("E:\\file-data-ids2.txt", "wt");
+
         // Load the root directory. If load failed, we free the object
         dwErrCode = pRootHandler->Load(hs, pbRootFile, pbRootEnd, dwLocaleMask);
         if(dwErrCode != ERROR_SUCCESS)
@@ -501,6 +502,8 @@ DWORD RootHandler_CreateWoW(TCascStorage * hs, CASC_BLOB & RootFile, DWORD dwLoc
             delete pRootHandler;
             pRootHandler = NULL;
         }
+
+        //fclose(fp);
     }
 
     // Assign the root directory (or NULL) and return error

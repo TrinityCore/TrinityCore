@@ -82,7 +82,7 @@ class CASC_FILE_TREE
     // Retrieve the maximum FileDataId ever inserted
     DWORD GetNextFileDataId();
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
     void DumpFileDataIds(const char * szFileName)
     {
         FileDataIds.Dump(szFileName);
@@ -93,7 +93,7 @@ class CASC_FILE_TREE
 
     PCASC_FILE_NODE InsertNew(PCASC_CKEY_ENTRY pCKeyEntry);
     PCASC_FILE_NODE InsertNew();
-    bool InsertToHashTable(PCASC_FILE_NODE pFileNode);
+    bool InsertToNameMap(PCASC_FILE_NODE pFileNode);
     bool InsertToIdTable(PCASC_FILE_NODE pFileNode);
 
     bool SetNodePlainName(PCASC_FILE_NODE pFileNode, const char * szPlainName, const char * szPlainNameEnd);

@@ -140,6 +140,12 @@ namespace WorldPackets
                     bool InGameRoom = false;
                 };
 
+                struct NewBuild
+                {
+                    std::array<uint8, 16> NewBuildKey = { };
+                    std::array<uint8, 16> SomeKey = { };
+                };
+
                 AuthSuccessInfo() { } // work around clang bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101227
 
                 uint8 ActiveExpansionLevel = 0; ///< the current server expansion, the possible values are in @ref Expansions
@@ -163,6 +169,7 @@ namespace WorldPackets
                 Optional<uint16> NumPlayersHorde; ///< number of horde players in this realm. @todo implement
                 Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
                 Optional<Timestamp<>> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
+                Optional<NewBuild> NewBuildKeys;
             };
 
             AuthResponse() : ServerPacket(SMSG_AUTH_RESPONSE, 132) { }

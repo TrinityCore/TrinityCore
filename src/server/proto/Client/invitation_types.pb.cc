@@ -112,30 +112,32 @@ void protobuf_AddDesc_invitation_5ftypes_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::bgs::protocol::protobuf_AddDesc_entity_5ftypes_2eproto();
+  ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\026invitation_types.proto\022\014bgs.protocol\032\022"
-    "entity_types.proto\"\373\001\n\nInvitation\022\n\n\002id\030"
-    "\001 \002(\006\0220\n\020inviter_identity\030\002 \002(\0132\026.bgs.pr"
-    "otocol.Identity\0220\n\020invitee_identity\030\003 \002("
-    "\0132\026.bgs.protocol.Identity\022\024\n\014inviter_nam"
-    "e\030\004 \001(\t\022\024\n\014invitee_name\030\005 \001(\t\022\032\n\022invitat"
-    "ion_message\030\006 \001(\t\022\025\n\rcreation_time\030\007 \001(\004"
-    "\022\027\n\017expiration_time\030\010 \001(\004*\005\010d\020\220N\"R\n\020Invi"
-    "tationParams\022\036\n\022invitation_message\030\001 \001(\t"
-    "B\002\030\001\022\027\n\017expiration_time\030\002 \001(\004*\005\010d\020\220N*\206\002\n"
-    "\027InvitationRemovedReason\022&\n\"INVITATION_R"
-    "EMOVED_REASON_ACCEPTED\020\000\022&\n\"INVITATION_R"
-    "EMOVED_REASON_DECLINED\020\001\022%\n!INVITATION_R"
-    "EMOVED_REASON_REVOKED\020\002\022%\n!INVITATION_RE"
-    "MOVED_REASON_IGNORED\020\003\022%\n!INVITATION_REM"
-    "OVED_REASON_EXPIRED\020\004\022&\n\"INVITATION_REMO"
-    "VED_REASON_CANCELED\020\005*\270\001\n\027SuggestionRemo"
-    "vedReason\022&\n\"SUGGESTION_REMOVED_REASON_A"
-    "PPROVED\020\000\022&\n\"SUGGESTION_REMOVED_REASON_D"
-    "ECLINED\020\001\022%\n!SUGGESTION_REMOVED_REASON_E"
-    "XPIRED\020\002\022&\n\"SUGGESTION_REMOVED_REASON_CA"
-    "NCELED\020\003B&\n\014bgs.protocolB\024InvitationType"
-    "sProtoH\002", 888);
+    "entity_types.proto\032%global_extensions/fi"
+    "eld_options.proto\"\213\002\n\nInvitation\022\n\n\002id\030\001"
+    " \002(\006\0220\n\020inviter_identity\030\002 \002(\0132\026.bgs.pro"
+    "tocol.Identity\0220\n\020invitee_identity\030\003 \002(\013"
+    "2\026.bgs.protocol.Identity\022\034\n\014inviter_name"
+    "\030\004 \001(\tB\006\202\371+\002\010\001\022\034\n\014invitee_name\030\005 \001(\tB\006\202\371"
+    "+\002\010\001\022\032\n\022invitation_message\030\006 \001(\t\022\025\n\rcrea"
+    "tion_time\030\007 \001(\004\022\027\n\017expiration_time\030\010 \001(\004"
+    "*\005\010d\020\220N\"R\n\020InvitationParams\022\036\n\022invitatio"
+    "n_message\030\001 \001(\tB\002\030\001\022\027\n\017expiration_time\030\002"
+    " \001(\004*\005\010d\020\220N*\206\002\n\027InvitationRemovedReason\022"
+    "&\n\"INVITATION_REMOVED_REASON_ACCEPTED\020\000\022"
+    "&\n\"INVITATION_REMOVED_REASON_DECLINED\020\001\022"
+    "%\n!INVITATION_REMOVED_REASON_REVOKED\020\002\022%"
+    "\n!INVITATION_REMOVED_REASON_IGNORED\020\003\022%\n"
+    "!INVITATION_REMOVED_REASON_EXPIRED\020\004\022&\n\""
+    "INVITATION_REMOVED_REASON_CANCELED\020\005*\270\001\n"
+    "\027SuggestionRemovedReason\022&\n\"SUGGESTION_R"
+    "EMOVED_REASON_APPROVED\020\000\022&\n\"SUGGESTION_R"
+    "EMOVED_REASON_DECLINED\020\001\022%\n!SUGGESTION_R"
+    "EMOVED_REASON_EXPIRED\020\002\022&\n\"SUGGESTION_RE"
+    "MOVED_REASON_CANCELED\020\003B&\n\014bgs.protocolB"
+    "\024InvitationTypesProtoH\002", 943);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "invitation_types.proto", &protobuf_RegisterTypes);
   Invitation::default_instance_ = new Invitation();

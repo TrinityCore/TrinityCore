@@ -114,6 +114,7 @@ enum ConditionTypes
     CONDITION_SCENARIO_STEP            = 54,                   // ScenarioStepId         0              0                  true if player is at scenario with current step equal to ScenarioStepID
     CONDITION_SCENE_IN_PROGRESS        = 55,                   // SceneScriptPackageId   0              0                  true if player is playing a scene with ScriptPackageId equal to given value
     CONDITION_PLAYER_CONDITION         = 56,                   // PlayerConditionId      0              0                  true if player satisfies PlayerCondition
+    CONDITION_PRIVATE_OBJECT           = 57,                   // 0                      0              0                  true if entity is private object
     CONDITION_MAX
 };
 
@@ -308,7 +309,7 @@ class TC_GAME_API ConditionMgr
 
         static uint32 GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status);
         static bool IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition);
-        static bool IsPlayerMeetingExpression(Player const* player, WorldStateExpressionEntry const* expression);
+        static bool IsMeetingWorldStateExpression(Map const* map, WorldStateExpressionEntry const* expression);
         static bool IsUnitMeetingCondition(Unit const* unit, Unit const* otherUnit, UnitConditionEntry const* condition);
 
         struct ConditionTypeInfo

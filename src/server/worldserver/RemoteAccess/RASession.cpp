@@ -28,8 +28,6 @@
 #include <memory>
 #include <thread>
 
-using boost::asio::ip::tcp;
-
 void RASession::Start()
 {
     // wait 1 second for active connections to send negotiation request

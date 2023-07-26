@@ -511,7 +511,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     if (sScriptMgr->OnAreaTrigger(player, atEntry, packet.Entered))
         return;
 
-    if (player->IsAlive())
+    if (player->IsAlive() && packet.Entered)
     {
         // not using Player::UpdateQuestObjectiveProgress, ObjectID in quest_objectives can be set to -1, areatrigger_involvedrelation then holds correct id
         if (std::unordered_set<uint32> const* quests = sObjectMgr->GetQuestsForAreaTrigger(packet.AreaTriggerID))
@@ -559,10 +559,18 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     if (sObjectMgr->IsTavernAreaTrigger(packet.AreaTriggerID))
     {
         // set resting flag we are in the inn
-        player->GetRestMgr().SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
+        if (packet.Entered)
+            player->GetRestMgr().SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
+        else
+            player->GetRestMgr().RemoveRestFlag(REST_FLAG_IN_TAVERN);
 
         if (sWorld->IsFFAPvPRealm())
-            player->RemovePvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
+        {
+            if (packet.Entered)
+                player->RemovePvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
+            else
+                player->SetPvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
+        }
 
         return;
     }
@@ -573,6 +581,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     if (OutdoorPvP* pvp = player->GetOutdoorPvP())
         if (pvp->HandleAreaTrigger(_player, packet.AreaTriggerID, packet.Entered))
             return;
+
+    if (!packet.Entered)
+        return;
 
     AreaTriggerStruct const* at = sObjectMgr->GetAreaTrigger(packet.AreaTriggerID);
     if (!at)
@@ -664,29 +675,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
 
     if (!teleported)
     {
-        WorldSafeLocsEntry const* entranceLocation = nullptr;
-        MapEntry const* mapEntry = sMapStore.AssertEntry(at->target_mapId);
-        if (mapEntry->Instanceable())
-        {
-            // Check if we can contact the instancescript of the instance for an updated entrance location
-            if (uint32 targetInstanceId = sMapMgr->FindInstanceIdForPlayer(at->target_mapId, _player))
-                if (Map* map = sMapMgr->FindMap(at->target_mapId, targetInstanceId))
-                    if (InstanceMap* instanceMap = map->ToInstanceMap())
-                        if (InstanceScript* instanceScript = instanceMap->GetInstanceScript())
-                            entranceLocation = sObjectMgr->GetWorldSafeLoc(instanceScript->GetEntranceLocation());
-
-            // Finally check with the instancesave for an entrance location if we did not get a valid one from the instancescript
-            if (!entranceLocation)
-            {
-                Group* group = player->GetGroup();
-                Difficulty difficulty = group ? group->GetDifficultyID(mapEntry) : player->GetDifficultyID(mapEntry);
-                ObjectGuid instanceOwnerGuid = group ? group->GetRecentInstanceOwner(at->target_mapId) : player->GetGUID();
-                if (InstanceLock const* instanceLock = sInstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, { mapEntry, sDB2Manager.GetDownscaledMapDifficultyData(at->target_mapId, difficulty) }))
-                    entranceLocation = sObjectMgr->GetWorldSafeLoc(instanceLock->GetData()->EntranceWorldSafeLocId);
-            }
-        }
-
-        if (entranceLocation)
+        WorldSafeLocsEntry const* entranceLocation = player->GetInstanceEntrance(at->target_mapId);
+        if (entranceLocation && player->GetMapId() != at->target_mapId)
             player->TeleportTo(entranceLocation->Loc, TELE_TO_NOT_LEAVE_TRANSPORT);
         else
             player->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
@@ -1166,6 +1156,9 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
 {
     if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
         _player->PlayerTalkClass->GetInteractionData().Reset();
+
+    if (_player->GetStableMaster() == closeInteraction.SourceGuid)
+        _player->SetStableMaster(ObjectGuid::Empty);
 }
 
 void WorldSession::HandleConversationLineStarted(WorldPackets::Misc::ConversationLineStarted& conversationLineStarted)

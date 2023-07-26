@@ -30,12 +30,6 @@ struct PetSpell
     PetSpellType type;
 };
 
-enum PetStableinfo
-{
-    PET_STABLE_ACTIVE = 1,
-    PET_STABLE_INACTIVE = 2
-};
-
 typedef std::unordered_map<uint32, PetSpell> PetSpellMap;
 typedef std::vector<uint32> AutoSpellList;
 

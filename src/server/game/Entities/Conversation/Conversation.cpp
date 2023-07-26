@@ -24,10 +24,12 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Map.h"
+#include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "UpdateData.h"
+#include "WorldSession.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0)
 {
@@ -64,6 +66,8 @@ void Conversation::RemoveFromWorld()
 
 void Conversation::Update(uint32 diff)
 {
+    sScriptMgr->OnConversationUpdate(this, diff);
+
     if (GetDuration() > Milliseconds(diff))
     {
         _duration -= Milliseconds(diff);
@@ -195,6 +199,7 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         lineField.UiCameraID = line->UiCameraID;
         lineField.ActorIndex = line->ActorIdx;
         lineField.Flags = line->Flags;
+        lineField.ChatType = line->ChatType;
 
         ConversationLineEntry const* convoLine = sConversationLineStore.LookupEntry(line->Id); // never null for conversationTemplate->Lines
 
@@ -239,6 +244,7 @@ bool Conversation::Start()
     if (!GetMap()->AddToMap(this))
         return false;
 
+    sScriptMgr->OnConversationStart(this);
     return true;
 }
 
@@ -272,6 +278,59 @@ Milliseconds const* Conversation::GetLineStartTime(LocaleConstant locale, int32 
 Milliseconds Conversation::GetLastLineEndTime(LocaleConstant locale) const
 {
     return _lastLineEndTimes[locale];
+}
+
+int32 Conversation::GetLineDuration(LocaleConstant locale, int32 lineId)
+{
+    ConversationLineEntry const* convoLine = sConversationLineStore.LookupEntry(lineId);
+    if (!convoLine)
+    {
+        TC_LOG_ERROR("entities.conversation", "Conversation::GetLineDuration: Tried to get duration for invalid ConversationLine id {}.", lineId);
+        return 0;
+    }
+
+    int32 const* textDuration = sDB2Manager.GetBroadcastTextDuration(convoLine->BroadcastTextID, locale);
+    if (!textDuration)
+        return 0;
+
+    return *textDuration + convoLine->AdditionalDuration;
+}
+
+Milliseconds Conversation::GetLineEndTime(LocaleConstant locale, int32 lineId) const
+{
+    Milliseconds const* lineStartTime = GetLineStartTime(locale, lineId);
+    if (!lineStartTime)
+    {
+        TC_LOG_ERROR("entities.conversation", "Conversation::GetLineEndTime: Unable to get line start time for locale {}, lineid {} (Conversation ID: {}).", locale, lineId, GetEntry());
+        return Milliseconds(0);
+    }
+    return *lineStartTime + Milliseconds(GetLineDuration(locale, lineId));
+}
+
+LocaleConstant Conversation::GetPrivateObjectOwnerLocale() const
+{
+    LocaleConstant privateOwnerLocale = LOCALE_enUS;
+    if (Player* owner = ObjectAccessor::GetPlayer(*this, GetPrivateObjectOwner()))
+        privateOwnerLocale = owner->GetSession()->GetSessionDbLocaleIndex();
+    return privateOwnerLocale;
+}
+
+Unit* Conversation::GetActorUnit(uint32 actorIdx) const
+{
+    if (m_conversationData->Actors.size() <= actorIdx)
+    {
+        TC_LOG_ERROR("entities.conversation", "Conversation::GetActorUnit: Tried to access invalid actor idx {} (Conversation ID: {}).", actorIdx, GetEntry());
+        return nullptr;
+    }
+    return ObjectAccessor::GetUnit(*this, m_conversationData->Actors[actorIdx].ActorGUID);
+}
+
+Creature* Conversation::GetActorCreature(uint32 actorIdx) const
+{
+    Unit* actor = GetActorUnit(actorIdx);
+    if (!actor)
+        return nullptr;
+    return actor->ToCreature();
 }
 
 uint32 Conversation::GetScriptId() const

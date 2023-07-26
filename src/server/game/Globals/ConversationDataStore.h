@@ -71,6 +71,7 @@ struct ConversationLineTemplate
     uint32 UiCameraID;  // Link to UiCamera.db2
     uint8 ActorIdx;     // Index from conversation_actors
     uint8 Flags;
+    uint8 ChatType;
 };
 
 struct ConversationTemplate

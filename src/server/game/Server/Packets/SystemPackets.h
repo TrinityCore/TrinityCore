@@ -158,6 +158,7 @@ namespace WorldPackets
             bool LFGListCustomRequiresAuthenticator  = false;
             bool AddonsDisabled                      = false;
             bool Unused1000                          = false;
+            bool ContentTrackingEnabled              = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;

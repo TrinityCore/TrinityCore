@@ -90,14 +90,14 @@ public:
                         break;
                     case EVENT_ILLUSION:
                         DoCast(SPELL_ILLUSION);
-                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(true);
                         me->SetDisplayId(11686);  // Invisible Model
                         ModifyThreatByPercent(me->GetVictim(), -99);
                         events.ScheduleEvent(EVENT_SET_VISIBILITY, 3s);
                         events.ScheduleEvent(EVENT_ILLUSION, 25s);
                         break;
                     case EVENT_SET_VISIBILITY:
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(false);
                         me->SetDisplayId(11073);     //Jandice Model
                         break;
                     default:

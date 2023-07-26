@@ -298,7 +298,7 @@ public:
     {
         events.SetPhase(PHASE_TRANSITION);
 
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
 
         events.ScheduleEvent(EVENT_TRANSITION_1, 10s, 0, PHASE_TRANSITION);
         events.ScheduleEvent(EVENT_TRANSITION_2, 12s, 0, PHASE_TRANSITION);
@@ -316,8 +316,9 @@ public:
 
         me->DespawnOrUnsummon(0s, 30s);
 
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
+        me->SetUnitFlag(UNIT_FLAG_STUNNED);
         me->SetImmuneToPC(true);
+        me->SetUninteractible(true);
         me->setActive(false);
         me->SetFarVisible(false);
         if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
@@ -504,7 +505,7 @@ public:
                 me->SetFullHealth();
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetControlled(false, UNIT_STATE_ROOT);
                 Talk(EMOTE_FEIGN_REVIVE);
                 isFeignDeath = false;
@@ -575,7 +576,7 @@ public:
         if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
             thaddius->AI()->DoAction(ACTION_STALAGG_DIED);
 
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(true);
         me->RemoveAllAuras();
         me->SetReactState(REACT_PASSIVE);
         me->AttackStop();
@@ -738,7 +739,7 @@ public:
                 me->SetFullHealth();
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetControlled(false, UNIT_STATE_ROOT);
                 Talk(EMOTE_FEIGN_REVIVE);
                 isFeignDeath = false;
@@ -814,7 +815,7 @@ public:
         if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
             thaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
 
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(true);
         me->RemoveAllAuras();
         me->SetReactState(REACT_PASSIVE);
         me->AttackStop();
@@ -943,8 +944,6 @@ struct npc_tesla : public ScriptedAI
 // 28085 - Negative Charge
 class spell_thaddius_polarity_charge : public SpellScript
 {
-    PrepareSpellScript(spell_thaddius_polarity_charge);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -1033,8 +1032,6 @@ class spell_thaddius_polarity_charge : public SpellScript
 // 28089 - Polarity Shift
 class spell_thaddius_polarity_shift : public SpellScript
 {
-    PrepareSpellScript(spell_thaddius_polarity_shift);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -1076,8 +1073,6 @@ class spell_thaddius_polarity_shift : public SpellScript
 // 54517 - Magnetic Pull
 class spell_thaddius_magnetic_pull : public SpellScript
 {
-    PrepareSpellScript(spell_thaddius_magnetic_pull);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_MAGNETIC_PULL });

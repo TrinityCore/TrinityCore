@@ -29,7 +29,7 @@
 
 #define CHECKED_KEY {0x00, 0x00, 0x0F, 0x84}
 
-#if defined(_DEBUG) && defined(CHECKED_KEY)
+#if defined(CASCLIB_DEBUG) && defined(CHECKED_KEY)
 
 inline bool CheckForXKey(LPBYTE XKey)
 {
@@ -117,7 +117,7 @@ TCascStorage::~TCascStorage()
     // Free the blobs
     FreeCascBlob(&CdnConfigKey);
     FreeCascBlob(&CdnBuildKey);
-    
+
     FreeCascBlob(&ArchiveGroup);
     FreeCascBlob(&ArchivesKey);
     FreeCascBlob(&PatchArchivesKey);
@@ -423,8 +423,8 @@ static int LoadEncodingCKeyPage(TCascStorage * hs, CASC_ENCODING_HEADER & EnHead
         if(pFileEntry->EKeyCount == 0)
             break;
 
-        // Example of a file entry with multiple EKeys: 
-        // Overwatch build 24919, CKey: 0e 90 94 fa d2 cb 85 ac d0 7c ea 09 f9 c5 ba 00 
+        // Example of a file entry with multiple EKeys:
+        // Overwatch build 24919, CKey: 0e 90 94 fa d2 cb 85 ac d0 7c ea 09 f9 c5 ba 00
 //      BREAKIF(pFileEntry->EKeyCount > 1);
 //      BREAK_ON_XKEY3(pFileEntry->CKey, 0x34, 0x82, 0x1f);
 
@@ -613,7 +613,7 @@ int CaptureDownloadTag(CASC_DOWNLOAD_HEADER & DlHeader, CASC_TAG_ENTRY1 & DlTag,
         pbFilePtr++;
     if(pbFilePtr >= pbFileEnd)
         return ERROR_BAD_FORMAT;
-    
+
     // Save the length of the tag name
     DlTag.NameLength = (pbFilePtr - pbSaveFilePtr);
     pbFilePtr++;
@@ -630,7 +630,7 @@ int CaptureDownloadTag(CASC_DOWNLOAD_HEADER & DlHeader, CASC_TAG_ENTRY1 & DlTag,
     // Get the bitmap length.
     // If the bitmap is last in the list and it's shorter than declared, we make it shorter
     DlTag.BitmapLength = GetTagBitmapLength(pbFilePtr, pbFileEnd, DlHeader.EntryCount);
-    
+
     // Get the entry length
     DlTag.TagLength = (pbFilePtr - pbSaveFilePtr) + DlTag.BitmapLength;
     return ERROR_SUCCESS;
@@ -769,7 +769,7 @@ static int LoadDownloadManifest(TCascStorage * hs)
         if(dwErrCode == ERROR_SUCCESS)
         {
             // Parse the entire download manifest
-            dwErrCode = LoadDownloadManifest(hs, DlHeader, DownloadFile.pbData, DownloadFile.pbData + DownloadFile.cbData); 
+            dwErrCode = LoadDownloadManifest(hs, DlHeader, DownloadFile.pbData, DownloadFile.pbData + DownloadFile.cbData);
         }
     }
 
@@ -1072,7 +1072,7 @@ static bool GetStoragePathProduct(TCascStorage * hs, void * pvStorageInfo, size_
         // Append the product code name, if any
         if(hs->szCodeName != NULL)
         {
-            *szBuffer++ = _T(':');
+            *szBuffer++ = _T(CASC_PARAM_SEPARATOR);
             CascStrCopy(szBuffer, (szBufferEnd - szBuffer), hs->szCodeName);
             szBuffer += _tcslen(hs->szCodeName);
         }
@@ -1080,7 +1080,7 @@ static bool GetStoragePathProduct(TCascStorage * hs, void * pvStorageInfo, size_
         // Append the product region, if any
         if(hs->szRegion != NULL)
         {
-            *szBuffer++ = _T(':');
+            *szBuffer++ = _T(CASC_PARAM_SEPARATOR);
             CascStrCopy(szBuffer, (szBufferEnd - szBuffer), hs->szRegion);
         }
     }
@@ -1122,6 +1122,7 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs, L
     // Merge features
     hs->dwFeatures |= (dwFeatures & (CASC_FEATURE_DATA_ARCHIVES | CASC_FEATURE_DATA_FILES | CASC_FEATURE_ONLINE));
     hs->dwFeatures |= (pArgs->dwFlags & CASC_FEATURE_FORCE_DOWNLOAD);
+    hs->dwFeatures |= (BuildFileType == CascVersions) ? CASC_FEATURE_ONLINE : 0;
     hs->BuildFileType = BuildFileType;
 
     // Copy the name of the build file
@@ -1208,10 +1209,7 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs, L
         // Failing to select storage on them will lead to the first-in-order file in the list being loaded.
         // Example: WoW build 32144, file: DBFilesClient\Achievement.db2, file data ID: 1260179
         // Locales: koKR frFR deDE zhCN esES zhTW enUS&enGB esMX ruRU itIT ptBT&ptPT (in order of appearance in the build manifest)
-        if(dwLocaleMask == 0)
-        {
-            dwLocaleMask = hs->dwDefaultLocale;
-        }
+        dwLocaleMask = (dwLocaleMask != 0) ? dwLocaleMask : hs->dwDefaultLocale;
 
         // Continue loading the manifest
         dwErrCode = LoadBuildManifest(hs, dwLocaleMask);
@@ -1249,10 +1247,10 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs, L
     return dwErrCode;
 }
 
-// Check for URL pattern. Note that the string may be terminated by ':' instead of '\0'
+// Check for URL pattern. Note that the string may be terminated by CASC_PARAM_SEPARATOR instead of '\0'
 static bool IsUrl(LPCTSTR szString)
 {
-    while(szString[0] != 0 && szString[0] != '*')
+    while(szString[0] != 0 && szString[0] != CASC_PARAM_SEPARATOR)
     {
         // Check for "://"
         if(!_tcsncmp(szString, _T("://"), 3))
@@ -1275,7 +1273,7 @@ static LPTSTR GetNextParam(LPTSTR szParamsPtr, bool bMustBeUrl = false)
     if(szParamsPtr != NULL)
     {
         // Find the separator ("*") or end of string
-        if((szSeparator = _tcschr(szParamsPtr, _T('*'))) != NULL)
+        if((szSeparator = _tcschr(szParamsPtr, _T(CASC_PARAM_SEPARATOR))) != NULL)
         {
             // Check for URL pattern, if needed
             if(bMustBeUrl && IsUrl(szSeparator + 1) == false)
@@ -1390,24 +1388,23 @@ bool WINAPI CascOpenStorageEx(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs, b
         if((hs = new TCascStorage()) != NULL)
         {
             CASC_BUILD_FILE BuildFile = {NULL};
-            DWORD dwFeatures = bOnlineStorage ? CASC_FEATURE_ONLINE : 0;
-            
+
             // Check for one of the supported main files (.build.info, .build.db, versions)
             if((dwErrCode = CheckCascBuildFileExact(BuildFile, pArgs->szLocalPath)) == ERROR_SUCCESS)
             {
-                dwErrCode = LoadCascStorage(hs, pArgs, BuildFile.szFullPath, BuildFile.BuildFileType, dwFeatures | CASC_FEATURE_DATA_ARCHIVES | CASC_FEATURE_DATA_FILES);
+                dwErrCode = LoadCascStorage(hs, pArgs, BuildFile.szFullPath, BuildFile.BuildFileType, CASC_FEATURE_DATA_ARCHIVES | CASC_FEATURE_DATA_FILES);
             }
 
             // Search the folder and upper folders for the build file
             else if((dwErrCode = CheckCascBuildFileDirs(BuildFile, pArgs->szLocalPath)) == ERROR_SUCCESS)
             {
-                dwErrCode = LoadCascStorage(hs, pArgs, BuildFile.szFullPath, BuildFile.BuildFileType, dwFeatures | CASC_FEATURE_DATA_ARCHIVES | CASC_FEATURE_DATA_FILES);
+                dwErrCode = LoadCascStorage(hs, pArgs, BuildFile.szFullPath, BuildFile.BuildFileType, CASC_FEATURE_DATA_ARCHIVES | CASC_FEATURE_DATA_FILES);
             }
 
             // If the caller requested an online storage, we must have the code name
-            else if((dwErrCode = CheckOnlineStorage(pArgs, BuildFile, dwFeatures)) == ERROR_SUCCESS)
+            else if((dwErrCode = CheckOnlineStorage(pArgs, BuildFile, bOnlineStorage)) == ERROR_SUCCESS)
             {
-                dwErrCode = LoadCascStorage(hs, pArgs, BuildFile.szFullPath, BuildFile.BuildFileType, dwFeatures | CASC_FEATURE_DATA_FILES);
+                dwErrCode = LoadCascStorage(hs, pArgs, BuildFile.szFullPath, BuildFile.BuildFileType, CASC_FEATURE_DATA_FILES);
             }
         }
     }
@@ -1426,7 +1423,7 @@ bool WINAPI CascOpenStorageEx(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs, b
 }
 
 //
-// Opens a local CASC storage 
+// Opens a local CASC storage
 //
 // szParams: "local_path:code_name", like "C:\\Games\\World of Warcraft:wowt"
 //

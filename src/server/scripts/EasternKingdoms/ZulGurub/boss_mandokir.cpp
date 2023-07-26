@@ -410,8 +410,6 @@ private:
 // 96682 - Decapitate
 class spell_mandokir_decapitate : public SpellScript
 {
-    PrepareSpellScript(spell_mandokir_decapitate);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -439,8 +437,6 @@ class spell_mandokir_decapitate : public SpellScript
 // 96776 - Bloodletting
 class spell_mandokir_bloodletting : public AuraScript
 {
-    PrepareAuraScript(spell_mandokir_bloodletting);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_BLOODLETTING_DAMAGE, SPELL_BLOODLETTING_HEAL });
@@ -470,8 +466,6 @@ class spell_mandokir_bloodletting : public AuraScript
 // 96821 - Spirit's Vengeance Cancel
 class spell_mandokir_spirit_vengeance_cancel : public SpellScript
 {
-    PrepareSpellScript(spell_mandokir_spirit_vengeance_cancel);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Player* target = GetHitPlayer())
@@ -508,8 +502,6 @@ class DevastatingSlamTargetSelector
 // 96761 - Devastating Slam
 class spell_mandokir_devastating_slam : public SpellScript
 {
-    PrepareSpellScript(spell_mandokir_devastating_slam);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if(DevastatingSlamTargetSelector(GetCaster()->ToCreature(), GetCaster()->GetVictim()));
@@ -556,8 +548,6 @@ class spell_mandokir_devastating_slam : public SpellScript
 // 96721 - Ohgan's Orders
 class spell_mandokir_ohgan_orders : public SpellScript
 {
-    PrepareSpellScript(spell_mandokir_ohgan_orders);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -585,8 +575,6 @@ class spell_mandokir_ohgan_orders : public SpellScript
 // 96722 - Ohgan's Orders
 class spell_mandokir_ohgan_orders_trigger : public AuraScript
 {
-    PrepareAuraScript(spell_mandokir_ohgan_orders_trigger);
-
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
@@ -610,8 +598,6 @@ class spell_mandokir_ohgan_orders_trigger : public AuraScript
 // 96724 - Reanimate Ohgan
 class spell_mandokir_reanimate_ohgan : public SpellScript
 {
-    PrepareSpellScript(spell_mandokir_reanimate_ohgan);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())

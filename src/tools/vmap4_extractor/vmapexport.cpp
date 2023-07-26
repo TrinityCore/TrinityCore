@@ -524,11 +524,11 @@ int main(int argc, char ** argv)
     {
         printf("Read Map.dbc file... ");
 
-        DB2CascFileSource source(CascStorage, MapLoadInfo::Instance()->Meta->FileDataId);
+        DB2CascFileSource source(CascStorage, MapLoadInfo::Instance.Meta->FileDataId);
         DB2FileLoader db2;
         try
         {
-            db2.Load(&source, MapLoadInfo::Instance());
+            db2.Load(&source, &MapLoadInfo::Instance);
         }
         catch (std::exception const& e)
         {

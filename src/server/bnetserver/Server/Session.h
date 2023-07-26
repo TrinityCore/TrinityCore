@@ -28,8 +28,6 @@
 #include <google/protobuf/message.h>
 #include <memory>
 
-using boost::asio::ip::tcp;
-
 namespace pb = google::protobuf;
 
 class ServiceBase;
@@ -111,7 +109,7 @@ namespace Battlenet
             std::unordered_map<uint32, GameAccountInfo> GameAccounts;
         };
 
-        explicit Session(tcp::socket&& socket);
+        explicit Session(boost::asio::ip::tcp::socket&& socket);
         ~Session();
 
         void Start() override;

@@ -367,7 +367,7 @@ struct boss_deathbringer_saurfang : public BossAI
             _dead = true;
             _JustDied();
             _EnterEvadeMode();
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
             me->SetImmuneToPC(true);
             me->RemoveAurasOnEvade();
             DoCastAOE(SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION);
@@ -464,7 +464,7 @@ struct boss_deathbringer_saurfang : public BossAI
             switch (eventId)
             {
                 case EVENT_INTRO_ALLIANCE_2:
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetFaction(FACTION_UNDEAD_SCOURGE);
                     Talk(SAY_INTRO_ALLIANCE_2);
                     break;
@@ -477,7 +477,7 @@ struct boss_deathbringer_saurfang : public BossAI
                     DoCastSelf(SPELL_GRIP_OF_AGONY);
                     break;
                 case EVENT_INTRO_HORDE_2:
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetFaction(FACTION_UNDEAD_SCOURGE);
                     Talk(SAY_INTRO_HORDE_2);
                     break;
@@ -732,7 +732,7 @@ struct npc_high_overlord_saurfang_icc : public ScriptedAI
                     if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_DEATHBRINGER_SAURFANG)))
                     {
                         deathbringer->CastSpell(me, SPELL_RIDE_VEHICLE, true);  // for the packet logs.
-                        deathbringer->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        deathbringer->SetUninteractible(true);
                         deathbringer->SetUnitFlag2(UNIT_FLAG2_PLAY_DEATH_ANIM);
                         deathbringer->SetEmoteState(EMOTE_STATE_DROWNED);
                     }
@@ -987,8 +987,6 @@ private:
 // 72202 - Blood Link
 class spell_deathbringer_blood_link : public SpellScript
 {
-    PrepareSpellScript(spell_deathbringer_blood_link);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BLOOD_LINK_POWER, SPELL_BLOOD_POWER });
@@ -1011,8 +1009,6 @@ class spell_deathbringer_blood_link : public SpellScript
 // 72178 - Blood Link
 class spell_deathbringer_blood_link_aura : public AuraScript
 {
-    PrepareAuraScript(spell_deathbringer_blood_link_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MARK_OF_THE_FALLEN_CHAMPION });
@@ -1035,8 +1031,6 @@ class spell_deathbringer_blood_link_aura : public AuraScript
 // 72371 - Blood Power
 class spell_deathbringer_blood_power : public SpellScript
 {
-    PrepareSpellScript(spell_deathbringer_blood_power);
-
     void ModAuraValue()
     {
         if (Aura* aura = GetHitAura())
@@ -1051,8 +1045,6 @@ class spell_deathbringer_blood_power : public SpellScript
 
 class spell_deathbringer_blood_power_aura : public AuraScript
 {
-    PrepareAuraScript(spell_deathbringer_blood_power_aura);
-
     void RecalculateHook(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated)
     {
         amount = int32(GetUnitOwner()->GetPower(POWER_ENERGY));
@@ -1069,8 +1061,6 @@ class spell_deathbringer_blood_power_aura : public AuraScript
 // 72409, 72447, 72448, 72449 - Rune of Blood
 class spell_deathbringer_rune_of_blood : public SpellScript
 {
-    PrepareSpellScript(spell_deathbringer_rune_of_blood);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
@@ -1091,8 +1081,6 @@ class spell_deathbringer_rune_of_blood : public SpellScript
 // 72176 - Blood Beast's Blood Link
 class spell_deathbringer_blood_beast_blood_link : public AuraScript
 {
-    PrepareAuraScript(spell_deathbringer_blood_beast_blood_link);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
@@ -1113,8 +1101,6 @@ class spell_deathbringer_blood_beast_blood_link : public AuraScript
 // 72380, 72438, 72439, 72440 - Blood Nova
 class spell_deathbringer_blood_nova : public SpellScript
 {
-    PrepareSpellScript(spell_deathbringer_blood_nova);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
@@ -1135,8 +1121,6 @@ class spell_deathbringer_blood_nova : public SpellScript
 // 72378, 73058 - Blood Nova
 class spell_deathbringer_blood_nova_targeting : public SpellScript
 {
-    PrepareSpellScript(spell_deathbringer_blood_nova_targeting);
-
 public:
     spell_deathbringer_blood_nova_targeting()
     {
@@ -1198,8 +1182,6 @@ private:
 // 72385, 72441, 72442, 72443 - Boiling Blood
 class spell_deathbringer_boiling_blood : public SpellScript
 {
-    PrepareSpellScript(spell_deathbringer_boiling_blood);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -1225,8 +1207,6 @@ class spell_deathbringer_boiling_blood : public SpellScript
 // 72257 - Remove Marks of the Fallen Champion
 class spell_deathbringer_remove_marks : public SpellScript
 {
-    PrepareSpellScript(spell_deathbringer_remove_marks);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);

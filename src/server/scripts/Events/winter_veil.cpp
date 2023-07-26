@@ -32,8 +32,6 @@ enum Mistletoe
 // 26218 - Mistletoe
 class spell_winter_veil_mistletoe : public SpellScript
 {
-    PrepareSpellScript(spell_winter_veil_mistletoe);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -78,8 +76,6 @@ std::array<uint32, 4> const WonderboltTransformSpells =
 // 26275 - PX-238 Winter Wondervolt TRAP
 class spell_winter_veil_px_238_winter_wondervolt : public SpellScript
 {
-    PrepareSpellScript(spell_winter_veil_px_238_winter_wondervolt);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(WonderboltTransformSpells);
@@ -117,8 +113,6 @@ enum ReindeerTransformation
 // 25860 - Reindeer Transformation
 class spell_winter_veil_reindeer_transformation : public SpellScript
 {
-    PrepareSpellScript(spell_winter_veil_reindeer_transformation);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
