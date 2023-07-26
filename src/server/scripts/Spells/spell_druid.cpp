@@ -1931,6 +1931,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_moonfire);
     RegisterSpellScript(spell_dru_omen_of_clarity);
     RegisterSpellScript(spell_dru_photosynthesis);
+    RegisterSpellScript(spell_dru_photosynthesis_effect);
     RegisterSpellScript(spell_dru_prowl);
     RegisterSpellScript(spell_dru_rip);
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_aura);
