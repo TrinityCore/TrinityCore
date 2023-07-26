@@ -177,16 +177,16 @@ void EventMap::CancelEventGroup(GroupIndex group)
     }
 }
 
-uint32 EventMap::GetTimeUntilEvent(EventId eventId) const
+Milliseconds EventMap::GetTimeUntilEvent(EventId eventId) const
 {
     for (auto const& [time, event] : _eventMap)
         if (eventId == event._id)
-            return std::chrono::duration_cast<Milliseconds>((time - _time)).count();
+            return std::chrono::duration_cast<Milliseconds>(time - _time);
 
-    return std::numeric_limits<uint32>::max();
+    return Milliseconds::max();
 }
 
 bool EventMap::HasEventScheduled(EventId eventId) const
 {
-    return GetTimeUntilEvent(eventId) != std::numeric_limits<uint32>::max();
+    return GetTimeUntilEvent(eventId) != Milliseconds::max();
 }

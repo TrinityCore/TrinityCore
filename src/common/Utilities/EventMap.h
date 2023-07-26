@@ -208,8 +208,10 @@ public:
     void DelayEvents(Milliseconds delay, GroupIndex group);
 
     /**
-    Sun custom:
-    Check events with given id delay and set it to delay if it's smaller
+    * @name SetMinimalDelay
+    * @brief Increase event delay if smaller than given delay.
+    * @param eventId The id of the event.
+    * @param delay Minimum delay for given event.
     */
     void SetMinimalDelay(EventId eventId, Milliseconds delay);
 
@@ -240,11 +242,11 @@ public:
 
     /**
     * @name GetTimeUntilEvent
-    * @brief Returns time in milliseconds until next event.
-    * @param eventId of the event.
+    * @brief Returns time as std::chrono type until next event.
+    * @return Time of next event. If event is not scheduled returns Milliseconds::max()
     * @return Time of next event.
     */
-    uint32 GetTimeUntilEvent(EventId eventId) const;
+    Milliseconds GetTimeUntilEvent(EventId eventId) const;
 
     bool HasEventScheduled(EventId eventId) const;
 
