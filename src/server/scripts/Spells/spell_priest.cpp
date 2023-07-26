@@ -65,7 +65,8 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL            = 390981,
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
     SPELL_PRIEST_EMPOWERED_RENEW_HEAL               = 391359,
-    SPELL_PRIEST_EPIPHANY_PRAYER_OF_MENDING_RESET   = 414556,
+    SPELL_PRIEST_EPIPHANY                           = 414553,
+    SPELL_PRIEST_EPIPHANY_HIGHLIGHT                 = 414556,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
     SPELL_PRIEST_FOCUSED_MENDING                    = 372354,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
@@ -567,7 +568,7 @@ class spell_pri_epiphany : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING, SPELL_PRIEST_EPIPHANY_PRAYER_OF_MENDING_RESET });
+        return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING, SPELL_PRIEST_EPIPHANY_HIGHLIGHT });
     }
 
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -577,11 +578,11 @@ class spell_pri_epiphany : public AuraScript
 
     void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        Unit* caster = GetTarget();
+        Unit* target = GetTarget();
 
-        caster->GetSpellHistory()->ResetCooldown(SPELL_PRIEST_PRAYER_OF_MENDING, true);
+        target->GetSpellHistory()->ResetCooldown(SPELL_PRIEST_PRAYER_OF_MENDING, true);
 
-        caster->CastSpell(caster, SPELL_PRIEST_EPIPHANY_PRAYER_OF_MENDING_RESET, aurEff);
+        target->CastSpell(target, SPELL_PRIEST_EPIPHANY_HIGHLIGHT, CastSpellExtraArgs(aurEff));
     }
 
     void Register() override
@@ -1310,8 +1311,18 @@ class spell_pri_prayer_of_mending_dummy : public spell_pri_prayer_of_mending_Spe
 
     void HandleEffectDummy(SpellEffIndex /*effIndex*/)
     {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
         // Note: we need to increase BasePoints by 1 since it's 4 as default.
-        CastPrayerOfMendingAura(GetCaster(), GetHitUnit(), GetEffectValue() + 1, true);
+        CastPrayerOfMendingAura(caster, target, GetEffectValue() + 1, true);
+
+        // Note: Epiphany talent. Only the non-triggered version should consume it.
+        if (caster->HasAura(SPELL_PRIEST_EPIPHANY) && m_scriptSpellId == SPELL_PRIEST_PRAYER_OF_MENDING)
+        {
+            if (caster->HasAura(SPELL_PRIEST_EPIPHANY_HIGHLIGHT))
+                caster->RemoveAurasDueToSpell(SPELL_PRIEST_EPIPHANY_HIGHLIGHT);
+        }
     }
 
     void Register() override
