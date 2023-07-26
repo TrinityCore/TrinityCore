@@ -24,6 +24,7 @@
 #include "AreaTrigger.h"
 #include "Containers.h"
 #include "DB2Stores.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
