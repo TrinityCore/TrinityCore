@@ -883,6 +883,46 @@ private:
     float _damageMultiplier = 0.0f;
 };
 
+// 197721 - Flourish
+class spell_dru_flourish : public SpellScript
+{
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        std::list<Unit*> targets;
+        targets.push_back(GetHitUnit());
+
+        for (Unit* target : targets)
+        {
+            std::list<AuraEffect*> effectList = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
+
+            for (AuraEffect* aurEff : effectList)
+            {
+                // Note: exclude any aura that doesn't belong to caster or is not affected by Flourish.
+                if (aurEff->GetCasterGUID() != caster->GetGUID() || aurEff->IsAffectingSpell(GetSpellInfo()))
+                    continue;
+
+                if (Aura* aura = aurEff->GetBase())
+                {
+                    Milliseconds extraDuration = Seconds(GetEffectInfo(EFFECT_0).CalcValue());
+
+                    aura->SetDuration(aura->GetDuration() + extraDuration.count());
+                    aura->SetMaxDuration(aura->GetMaxDuration() + extraDuration.count());
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dru_flourish::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+private:
+    std::vector<ObjectGuid> affectedTargetGUIDs;
+};
+
 // 37336 - Druid Forms Trinket
 class spell_dru_forms_trinket : public AuraScript
 {
@@ -2343,6 +2383,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_embrace_of_the_dream_effect);
     RegisterSpellAndAuraScriptPair(spell_dru_entangling_roots, spell_dru_entangling_roots_aura);
     RegisterSpellScript(spell_dru_ferocious_bite);
+    RegisterSpellScript(spell_dru_flourish);
     RegisterSpellScript(spell_dru_forms_trinket);
     RegisterSpellScript(spell_dru_galactic_guardian);
     RegisterSpellScript(spell_dru_germination);
