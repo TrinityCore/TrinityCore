@@ -866,7 +866,7 @@ class spell_dru_luxuriant_soil : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_REJUVENATION, SPELL_DRUID_REJUVENATION_GERMINATION });
+        return ValidateSpellInfo({ SPELL_DRUID_REJUVENATION });
     }
 
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -889,8 +889,8 @@ class spell_dru_luxuriant_soil : public AuraScript
         if (targetList.empty())
             return;
 
-        if (Unit* possibleTarget = Trinity::Containers::SelectRandomContainerElement(targetList))
-            target->CastSpell(possibleTarget, SPELL_DRUID_REJUVENATION, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
+        if (Unit* chosenTarget = Trinity::Containers::SelectRandomContainerElement(targetList))
+            target->CastSpell(chosenTarget, SPELL_DRUID_REJUVENATION, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
     }
 
     void Register() override
@@ -998,23 +998,23 @@ class spell_dru_rejuvenation : public SpellScript
             Aura* rejuvenationAura = target->GetAura(SPELL_DRUID_REJUVENATION, caster->GetGUID());
             Aura* germinationAura = target->GetAura(SPELL_DRUID_REJUVENATION_GERMINATION, caster->GetGUID());
 
+            // Note: if target doesn't have Rejuventation, cast passes through.
             if (!rejuvenationAura)
                 return SPELL_CAST_OK;
 
+            // Note: if target has Rejuvenation, but not Germination, we cast a different spell instead.
             if (!germinationAura)
                 caster->CastSpell(target, SPELL_DRUID_REJUVENATION_GERMINATION);
             else
             {
-                if (germinationAura && rejuvenationAura)
-                {
-                    int32 germinationDuration = germinationAura->GetDuration();
-                    int32 rejuvenationDuration = rejuvenationAura->GetDuration();
+                // Note: if target has both Rejuvenation and Germination, the one with the smaller duration is cast.
+                int32 germinationDuration = germinationAura->GetDuration();
+                int32 rejuvenationDuration = rejuvenationAura->GetDuration();
 
-                    if (germinationDuration > rejuvenationDuration)
-                        rejuvenationAura->RefreshDuration();
-                    else
-                        caster->CastSpell(target, SPELL_DRUID_REJUVENATION_GERMINATION);
-                }
+                if (germinationDuration > rejuvenationDuration)
+                    return SPELL_CAST_OK;
+                else
+                    caster->CastSpell(target, SPELL_DRUID_REJUVENATION_GERMINATION);
             }
         }
 
