@@ -243,11 +243,18 @@ public:
     /**
     * @name GetTimeUntilEvent
     * @brief Returns time as std::chrono type until next event.
+    * @param eventId The id of the event.
     * @return Time of next event. If event is not scheduled returns Milliseconds::max()
     * @return Time of next event.
     */
     Milliseconds GetTimeUntilEvent(EventId eventId) const;
 
+    /**
+     * @name HasEventScheduled
+     * @brief Returns whether an event is scheduled
+     * @param eventId The id of the event.
+     * @return True if event is scheduled
+     */
     bool HasEventScheduled(EventId eventId) const;
 
 private:
