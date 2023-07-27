@@ -536,7 +536,7 @@ class spell_dru_embrace_of_the_dream_chooser : public SpellScript
             case SPELL_DRUID_REJUVENATION_GERMINATION:
                 return true;
             default:
-                return false;
+                break;
         }
 
         return false;
