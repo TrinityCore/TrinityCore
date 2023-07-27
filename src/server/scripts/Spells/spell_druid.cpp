@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "DB2Stores.h"
+#include "Group.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -95,6 +96,7 @@ enum DruidSpells
     SPELL_DRUID_SKULL_BASH_INTERRUPT           = 93985,
     SPELL_DRUID_SUNFIRE_DAMAGE                 = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS             = 50322,
+    SPELL_DRUID_TRANQUILITY                    = 740,
     SPELL_DRUID_TRAVEL_FORM                    = 783,
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
@@ -1406,6 +1408,72 @@ class spell_dru_tranquility : public SpellScript
     }
 };
 
+// 157982 - Tranquility (Heal)
+class spell_dru_tranquility_heal : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DRUID_TRANQUILITY, EFFECT_2 } });
+    }
+
+    void HandleCalculateHeal(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+        if (!player)
+            return;
+
+        float healBonus = 1.0f;
+
+        // Note: if caster doesn't have group or has one which is not a raid group.
+        Group const* group = player->GetGroup();
+        if (!group || (group && !group->isRaidGroup()))
+        {
+            if (AuraEffect* tranquilityEffect = player->GetAuraEffect(SPELL_DRUID_TRANQUILITY, EFFECT_2))
+                AddPct(healBonus, tranquilityEffect->GetAmount());
+
+        }
+
+        SetHitHeal(GetHitHeal() * healBonus);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_tranquility_heal::HandleCalculateHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
+class spell_dru_tranquility_heal_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DRUID_TRANQUILITY, EFFECT_2 } });
+    }
+
+    void HandleCalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+        if (!player)
+            return;
+
+        float healBonus = 1.0f;
+
+        // Note: if caster doesn't have group or has one which is not a raid group.
+        Group const* group = player->GetGroup();
+        if (!group || (group && !group->isRaidGroup()))
+        {
+            if (AuraEffect* tranquilityEffect = player->GetAuraEffect(SPELL_DRUID_TRANQUILITY, EFFECT_2))
+                AddPct(healBonus, tranquilityEffect->GetAmount());
+        }
+
+        amount *= healBonus;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_tranquility_heal_aura::HandleCalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
+    }
+};
+
 // 1066 - Aquatic Form
 // 33943 - Flight Form
 // 40120 - Swift Flight Form
@@ -1735,6 +1803,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_thrash);
     RegisterSpellScript(spell_dru_thrash_aura);
     RegisterSpellScript(spell_dru_tranquility);
+    RegisterSpellAndAuraScriptPair(spell_dru_tranquility_heal, spell_dru_tranquility_heal_aura);
     RegisterSpellScript(spell_dru_travel_form);
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
