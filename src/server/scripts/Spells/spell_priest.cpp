@@ -26,6 +26,7 @@
 #include "Containers.h"
 #include "G3DPosition.hpp"
 #include "GridNotifiers.h"
+#include "Group.h"
 #include "Log.h"
 #include "MoveSplineInitArgs.h"
 #include "ObjectAccessor.h"
@@ -56,6 +57,7 @@ enum PriestSpells
     SPELL_PRIEST_DARK_REPRIMAND_DAMAGE              = 373130,
     SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
+    SPELL_PRIEST_DIVINE_HYMN                        = 64843,
     SPELL_PRIEST_DIVINE_SERVICE                     = 391233,
     SPELL_PRIEST_DIVINE_STAR_HOLY                   = 110744,
     SPELL_PRIEST_DIVINE_STAR_SHADOW                 = 122121,
@@ -371,9 +373,14 @@ class spell_pri_circle_of_healing : public SpellScript
     }
 };
 
-// 64844 - Divine Hymn
-class spell_pri_divine_hymn : public SpellScript
+// 64844 - Divine Hymn (Heal)
+class spell_pri_divine_hymn_heal : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_HYMN, EFFECT_1 } });
+    }
+
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         uint32 const maxTargets = uint32(GetSpellInfo()->MaxAffectedTargets);
@@ -382,9 +389,61 @@ class spell_pri_divine_hymn : public SpellScript
         Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
     }
 
+    void HandleCalculateHeal(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+        if (!player)
+            return;
+
+        float healBonus = 1.0f;
+
+        // Note: if caster doesn't have group or has one which is not a raid group.
+        Group const* group = player->GetGroup();
+        if (!group || (group && !group->isRaidGroup()))
+        {
+            if (AuraEffect* divineHymnEffect = player->GetAuraEffect(SPELL_PRIEST_DIVINE_HYMN, EFFECT_1))
+                AddPct(healBonus, divineHymnEffect->GetAmount());
+        }
+
+        SetHitHeal(GetHitHeal() * healBonus);
+    }
+
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_divine_hymn::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_divine_hymn_heal::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_divine_hymn_heal::HandleCalculateHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
+class spell_pri_divine_hymn_heal_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_HYMN, EFFECT_1 } });
+    }
+
+    void HandleCalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+        if (!player)
+            return;
+
+        float healBonus = 1.0f;
+
+        // Note: if caster doesn't have group or has one which is not a raid group.
+        Group const* group = player->GetGroup();
+        if (!group || (group && !group->isRaidGroup()))
+        {
+            if (AuraEffect* divineHymnEffect = player->GetAuraEffect(SPELL_PRIEST_DIVINE_HYMN, EFFECT_1))
+                AddPct(healBonus, divineHymnEffect->GetAmount());
+        }
+
+        amount *= healBonus;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_divine_hymn_heal_aura::HandleCalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
@@ -1994,7 +2053,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_triggered);
     RegisterSpellScript(spell_pri_circle_of_healing);
-    RegisterSpellScript(spell_pri_divine_hymn);
+    RegisterSpellAndAuraScriptPair(spell_pri_divine_hymn_heal, spell_pri_divine_hymn_heal_aura);
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_empowered_renew);
