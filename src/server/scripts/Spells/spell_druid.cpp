@@ -493,7 +493,7 @@ class spell_dru_embrace_of_the_dream : public AuraScript
 // 392146 - Embrace of the Dream (Chooser)
 class spell_dru_embrace_of_the_dream_chooser : public SpellScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
