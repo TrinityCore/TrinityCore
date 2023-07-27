@@ -2060,7 +2060,7 @@ bool Aura::CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplicati
     {
         script->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_APPLY, aurApp);
         for (AuraScript::EffectApplyHandler const& onEffectApply : script->OnEffectApply)
-            if (onEffectApply.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()) && onEffectApply.GetMode() & mode)
+            if (onEffectApply.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
                 onEffectApply.Call(script, aurEff, mode);
 
         if (!preventDefault)
@@ -2079,7 +2079,7 @@ bool Aura::CallScriptEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplicat
     {
         script->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_REMOVE, aurApp);
         for (AuraScript::EffectApplyHandler const& onEffectRemove : script->OnEffectRemove)
-            if (onEffectRemove.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()) && onEffectRemove.GetMode() & mode)
+            if (onEffectRemove.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
                 onEffectRemove.Call(script, aurEff, mode);
 
         if (!preventDefault)
@@ -2096,7 +2096,7 @@ void Aura::CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraAppl
     {
         script->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_APPLY, aurApp);
         for (AuraScript::EffectApplyHandler const& afterEffectApply : script->AfterEffectApply)
-            if (afterEffectApply.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()) && afterEffectApply.GetMode() & mode)
+            if (afterEffectApply.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
                 afterEffectApply.Call(script, aurEff, mode);
 
         script->_FinishScriptCall();
@@ -2109,7 +2109,7 @@ void Aura::CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApp
     {
         script->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE, aurApp);
         for (AuraScript::EffectApplyHandler const& afterEffectRemove : script->AfterEffectRemove)
-            if (afterEffectRemove.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()) && afterEffectRemove.GetMode() & mode)
+            if (afterEffectRemove.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
                 afterEffectRemove.Call(script, aurEff, mode);
 
         script->_FinishScriptCall();
