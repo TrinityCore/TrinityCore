@@ -1406,7 +1406,6 @@ class spell_dru_tranquility : public SpellScript
     }
 };
 
-
 // 1066 - Aquatic Form
 // 33943 - Flight Form
 // 40120 - Swift Flight Form
