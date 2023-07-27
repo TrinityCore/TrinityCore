@@ -75,6 +75,7 @@ enum DruidSpells
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS          = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP                = 60774,
     SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE = 102543,
+    SPELL_DRUID_INNER_PEACE                    = 197073,
     SPELL_DRUID_INNERVATE                      = 29166,
     SPELL_DRUID_INNERVATE_RANK_2               = 326228,
     SPELL_DRUID_INFUSION                       = 37238,
@@ -1386,6 +1387,26 @@ class spell_dru_thrash_aura : public AuraScript
     }
 };
 
+// 740 - Tranquility
+class spell_dru_tranquility : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+
+        // Note: Inner Peace talent.
+        if (!caster->HasAura(SPELL_DRUID_INNER_PEACE))
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_tranquility::HandleHitTarget, EFFECT_3, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_tranquility::HandleHitTarget, EFFECT_4, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+
 // 1066 - Aquatic Form
 // 33943 - Flight Form
 // 40120 - Swift Flight Form
@@ -1714,6 +1735,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_t10_restoration_4p_bonus_dummy);
     RegisterSpellScript(spell_dru_thrash);
     RegisterSpellScript(spell_dru_thrash_aura);
+    RegisterSpellScript(spell_dru_tranquility);
     RegisterSpellScript(spell_dru_travel_form);
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
