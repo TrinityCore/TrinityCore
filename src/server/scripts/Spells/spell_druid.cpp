@@ -478,7 +478,7 @@ class spell_dru_embrace_of_the_dream : public AuraScript
         return roll_chance_i(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_EMBRACE_OF_THE_DREAM_EFFECT, CastSpellExtraArgs(aurEff));
     }
