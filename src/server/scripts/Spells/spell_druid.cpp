@@ -932,7 +932,7 @@ class spell_dru_power_of_the_archdruid : public AuraScript
             Trinity::Containers::RandomResize(targetList, maxTargets);
 
         for (Unit* chosenTarget : targetList)
-            target->CastSpell(chosenTarget, eventInfo.GetProcSpell()->GetSpellInfo()->Id, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
+            target->CastSpell(chosenTarget, eventInfo.GetProcSpell()->GetSpellInfo()->Id, CastSpellExtraArgs(aurEff));
     }
 
     void Register() override
