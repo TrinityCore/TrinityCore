@@ -1438,7 +1438,6 @@ class spell_dru_tranquility_heal : public SpellScript
         {
             if (AuraEffect* tranquilityEffect = player->GetAuraEffect(SPELL_DRUID_TRANQUILITY, EFFECT_2))
                 AddPct(healBonus, tranquilityEffect->GetAmount());
-
         }
 
         SetHitHeal(GetHitHeal() * healBonus);
