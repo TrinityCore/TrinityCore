@@ -87,6 +87,7 @@ enum DruidSpells
     SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
     SPELL_DRUID_POWER_OF_THE_ARCHDRUID         = 392302,
+    SPELL_DRUID_POWER_OF_THE_ARCHDRUID_EFFECT  = 392303,
     SPELL_DRUID_PROWL                          = 5215,
     SPELL_DRUID_REJUVENATION_T10_PROC          = 70691,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS       = 70658,
@@ -935,6 +936,8 @@ class spell_dru_power_of_the_archdruid : public AuraScript
 
         for (Unit* chosenTarget : targetList)
             target->CastSpell(chosenTarget, eventInfo.GetProcSpell()->GetSpellInfo()->Id, CastSpellExtraArgs(aurEff));
+
+        target->RemoveAurasDueToSpell(SPELL_DRUID_POWER_OF_THE_ARCHDRUID_EFFECT);
     }
 
     void Register() override
