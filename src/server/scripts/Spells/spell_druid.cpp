@@ -1416,6 +1416,14 @@ class spell_dru_tranquility_heal : public SpellScript
         return ValidateSpellEffect({ { SPELL_DRUID_TRANQUILITY, EFFECT_2 } });
     }
 
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        uint32 const maxTargets = uint32(GetSpellInfo()->MaxAffectedTargets);
+
+        // Note: Tranquility became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
+    }
+
     void HandleCalculateHeal(SpellEffIndex /*effIndex*/)
     {
         Player* player = GetCaster()->ToPlayer();
@@ -1438,6 +1446,8 @@ class spell_dru_tranquility_heal : public SpellScript
 
     void Register() override
     {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_tranquility_heal::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_tranquility_heal::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
         OnEffectHitTarget += SpellEffectFn(spell_dru_tranquility_heal::HandleCalculateHeal, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
