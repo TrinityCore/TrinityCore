@@ -55,6 +55,8 @@ enum DruidSpells
     SPELL_DRUID_ECLIPSE_OOC                    = 329910,
     SPELL_DRUID_ECLIPSE_SOLAR_AURA             = 48517,
     SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT        = 326053,
+    SPELL_DRUID_EMBRACE_OF_THE_DREAM_EFFECT    = 392146,
+    SPELL_DRUID_EMBRACE_OF_THE_DREAM_HEAL      = 392147,
     SPELL_DRUID_ENTANGLING_ROOTS               = 339,
     SPELL_DRUID_EXHILARATE                     = 28742,
     SPELL_DRUID_FORM_AQUATIC_PASSIVE           = 276012,
@@ -85,6 +87,9 @@ enum DruidSpells
     SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
     SPELL_DRUID_PROWL                          = 5215,
+    SPELL_DRUID_REGROWTH                       = 8936,
+    SPELL_DRUID_REJUVENATION                   = 774,
+    SPELL_DRUID_REJUVENATION_GERMINATION       = 155777,
     SPELL_DRUID_REJUVENATION_T10_PROC          = 70691,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS       = 70658,
     SPELL_DRUID_SAVAGE_ROAR                    = 62071,
@@ -456,6 +461,78 @@ class spell_dru_earthwarden : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dru_earthwarden::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 392124 - Embrace of the Dream
+class spell_dru_embrace_of_the_dream : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo ({ SPELL_DRUID_EMBRACE_OF_THE_DREAM_EFFECT })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        return roll_chance_i(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_EMBRACE_OF_THE_DREAM_EFFECT, CastSpellExtraArgs(aurEff));
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_embrace_of_the_dream::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dru_embrace_of_the_dream::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 392146 - Embrace of the Dream (Chooser)
+class spell_dru_embrace_of_the_dream_chooser : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_EMBRACE_OF_THE_DREAM_HEAL });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([&](WorldObject const* target)
+        {
+            Unit const* unitTarget = target->ToUnit();
+            if (!unitTarget)
+                return true;
+
+            std::list<AuraEffect*> effectList = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
+
+            for (AuraEffect* aurEff : effectList)
+                if (aurEff->GetCasterGUID() != GetCaster()->GetGUID() || !IsSpellRelatedToEffect(aurEff->GetBase()->GetId()))
+                    return true;
+
+            return false;
+        });
+    }
+
+    void HandleOnHit(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_EMBRACE_OF_THE_DREAM_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
+    }
+
+    bool IsSpellRelatedToEffect(uint32 spellId)
+    {
+        if (spellId == SPELL_DRUID_REGROWTH || spellId == SPELL_DRUID_REJUVENATION || spellId == SPELL_DRUID_REJUVENATION_GERMINATION)
+            return true;
+
+        return false;
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_embrace_of_the_dream_chooser::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_embrace_of_the_dream_chooser::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1682,6 +1759,8 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_eclipse_aura);
     RegisterSpellScript(spell_dru_eclipse_dummy);
     RegisterSpellScript(spell_dru_eclipse_ooc);
+    RegisterSpellScript(spell_dru_embrace_of_the_dream);
+    RegisterSpellScript(spell_dru_embrace_of_the_dream_chooser);
     RegisterSpellAndAuraScriptPair(spell_dru_entangling_roots, spell_dru_entangling_roots_aura);
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_forms_trinket);
