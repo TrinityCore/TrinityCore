@@ -495,7 +495,13 @@ class spell_dru_embrace_of_the_dream_chooser : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_EMBRACE_OF_THE_DREAM_HEAL });
+        return ValidateSpellInfo
+        ({
+            SPELL_DRUID_EMBRACE_OF_THE_DREAM_HEAL,
+            SPELL_DRUID_REGROWTH,
+            SPELL_DRUID_REJUVENATION,
+            SPELL_DRUID_REJUVENATION_GERMINATION
+        });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -509,7 +515,7 @@ class spell_dru_embrace_of_the_dream_chooser : public SpellScript
             std::list<AuraEffect*> effectList = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
 
             for (AuraEffect* aurEff : effectList)
-                if (aurEff->GetCasterGUID() != GetCaster()->GetGUID() || !IsSpellRelatedToEffect(aurEff->GetBase()->GetId()))
+                if (aurEff->GetCasterGUID() != GetCaster()->GetGUID() || !IsSpellSubjectOfTargeting(aurEff->GetBase()->GetId()))
                     return true;
 
             return false;
@@ -521,10 +527,17 @@ class spell_dru_embrace_of_the_dream_chooser : public SpellScript
         GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_EMBRACE_OF_THE_DREAM_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
     }
 
-    bool IsSpellRelatedToEffect(uint32 spellId)
+    bool IsSpellSubjectOfTargeting(uint32 spellId)
     {
-        if (spellId == SPELL_DRUID_REGROWTH || spellId == SPELL_DRUID_REJUVENATION || spellId == SPELL_DRUID_REJUVENATION_GERMINATION)
-            return true;
+        switch (spellId)
+        {
+            case SPELL_DRUID_REGROWTH:
+            case SPELL_DRUID_REJUVENATION:
+            case SPELL_DRUID_REJUVENATION_GERMINATION:
+                return true;
+            default:
+                return false;
+        }
 
         return false;
     }
