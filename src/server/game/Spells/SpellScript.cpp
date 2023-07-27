@@ -750,7 +750,6 @@ Difficulty SpellScript::GetCastDifficulty() const
     return m_spell->GetCastDifficulty();
 }
 
-
 bool AuraScript::_Validate(SpellInfo const* entry)
 {
     for (auto itr = DoCheckAreaTarget.begin(); itr != DoCheckAreaTarget.end(); ++itr)
