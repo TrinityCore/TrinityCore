@@ -84,6 +84,7 @@ enum DruidSpells
     SPELL_DRUID_MANGLE                         = 33917,
     SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
+    SPELL_DRUID_POWER_OF_THE_ARCHDRUID         = 392302,
     SPELL_DRUID_PROWL                          = 5215,
     SPELL_DRUID_REJUVENATION_T10_PROC          = 70691,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS       = 70658,
@@ -896,6 +897,50 @@ class spell_dru_omen_of_clarity : public AuraScript
     }
 };
 
+// 392303 - Power of the Archdruid
+class spell_dru_power_of_the_archdruid : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DRUID_POWER_OF_THE_ARCHDRUID, EFFECT_0 } });
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* target = GetTarget();
+        Unit* procTarget = eventInfo.GetActionTarget();
+
+        // Note: range is EFFECT_0's BasePoints.
+        float const spellRange = aurEff->GetAmount();
+
+        std::list<Unit*> targetList;
+        Trinity::AnyFriendlyUnitInObjectRangeCheck checker(procTarget, procTarget, spellRange);
+        Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(procTarget, targetList, checker);
+        Cell::VisitAllObjects(procTarget, searcher, spellRange);
+
+        if (targetList.empty())
+            return;
+
+        AuraEffect* const powerOfTheArchdruidEffect = target->GetAuraEffect(SPELL_DRUID_POWER_OF_THE_ARCHDRUID, EFFECT_0);
+        if (!powerOfTheArchdruidEffect)
+            return;
+
+        // Note: max. targets is SPELL_DRUID_POWER_OF_THE_ARCHDRUID's EFFECT_0 BasePoints.
+        uint8 const maxTargets = powerOfTheArchdruidEffect->GetAmount();
+
+        if (targetList.size() > maxTargets)
+            Trinity::Containers::RandomResize(targetList, maxTargets);
+
+        for (Unit* chosenTarget : targetList)
+            target->CastSpell(chosenTarget, eventInfo.GetProcSpell()->GetSpellInfo()->Id, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dru_power_of_the_archdruid::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 5215 - Prowl
 class spell_dru_prowl : public spell_dru_base_transformer
 {
@@ -1695,6 +1740,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_lunar_inspiration);
     RegisterSpellScript(spell_dru_moonfire);
     RegisterSpellScript(spell_dru_omen_of_clarity);
+    RegisterSpellScript(spell_dru_power_of_the_archdruid);
     RegisterSpellScript(spell_dru_prowl);
     RegisterSpellScript(spell_dru_rip);
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_aura);
