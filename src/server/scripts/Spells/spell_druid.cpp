@@ -1445,7 +1445,7 @@ class spell_dru_tranquility_heal : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_divine_hymn_heal::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_tranquility_heal::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
         OnEffectHitTarget += SpellEffectFn(spell_dru_tranquility_heal::HandleCalculateHeal, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
