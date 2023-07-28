@@ -470,7 +470,7 @@ void AreaTrigger::SetOverrideScaleCurve(uint32 startTimeOffSet, std::array<DBCPo
     curveTemplate.StartTimeOffset = startTimeOffSet;
 
     AreaTriggerScaleCurvePointsTemplate curve;
-    curve.Mode = CurveInterpolationMode::Linear;
+    curve.Mode = mode;
     curve.Points = points;
     curveTemplate.Curve = curve;
 
