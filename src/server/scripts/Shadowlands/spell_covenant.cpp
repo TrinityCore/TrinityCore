@@ -24,8 +24,6 @@
 // 323916 - Sulfuric Emission
 class spell_soulbind_sulfuric_emission : public AuraScript
 {
-    PrepareAuraScript(spell_soulbind_sulfuric_emission);
-
     static constexpr uint32 SPELL_SULFURIC_EMISSION_COOLDOWN_AURA = 347684;
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -53,8 +51,6 @@ class spell_soulbind_sulfuric_emission : public AuraScript
 // 332753 - Superior Tactics
 class spell_soulbind_superior_tactics : public AuraScript
 {
-    PrepareAuraScript(spell_soulbind_superior_tactics);
-
     static constexpr uint32 SPELL_SUPERIOR_TACTICS_COOLDOWN_AURA = 332926;
 
     bool Validate(SpellInfo const* /*spellInfo*/) override

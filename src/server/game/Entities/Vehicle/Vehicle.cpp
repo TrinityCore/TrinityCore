@@ -512,7 +512,7 @@ Vehicle* Vehicle::RemovePassenger(WorldObject* passenger)
 
     // Remove UNIT_FLAG_UNINTERACTIBLE if passenger did not have it before entering vehicle
     if (seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE && !seat->second.Passenger.IsUninteractible)
-        unit->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        unit->SetUninteractible(false);
 
     seat->second.Passenger.Reset();
 
@@ -819,7 +819,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     Passenger->SetVehicle(Target);
     Seat->second.Passenger.Guid = Passenger->GetGUID();
-    Seat->second.Passenger.IsUninteractible = Passenger->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+    Seat->second.Passenger.IsUninteractible = Passenger->IsUninteractible();
     Seat->second.Passenger.IsGravityDisabled = Passenger->HasUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
     if (Seat->second.SeatInfo->CanEnterOrExit())
     {

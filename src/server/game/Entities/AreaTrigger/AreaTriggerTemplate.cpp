@@ -21,9 +21,12 @@
 #include <cstring>
 #include <cmath>
 
-AreaTriggerScaleInfo::AreaTriggerScaleInfo()
+AreaTriggerScaleCurvePointsTemplate::AreaTriggerScaleCurvePointsTemplate() : Mode(CurveInterpolationMode::Linear), Points()
 {
-    memset(Data.Raw, 0, sizeof(Data.Raw));
+}
+
+AreaTriggerScaleCurveTemplate::AreaTriggerScaleCurveTemplate() : StartTimeOffset(0), Curve(1.0f)
+{
 }
 
 AreaTriggerShapeInfo::AreaTriggerShapeInfo()
@@ -59,9 +62,7 @@ AreaTriggerTemplate::AreaTriggerTemplate()
     Flags = 0;
 }
 
-AreaTriggerTemplate::~AreaTriggerTemplate()
-{
-}
+AreaTriggerTemplate::~AreaTriggerTemplate() = default;
 
 AreaTriggerCreateProperties::AreaTriggerCreateProperties()
 {
@@ -80,21 +81,14 @@ AreaTriggerCreateProperties::AreaTriggerCreateProperties()
     TimeToTarget = 0;
     TimeToTargetScale = 0;
 
-    // legacy code from before it was known what each curve field does
-    // wtf? thats not how you pack curve data
-    float tmp = 1.0000001f;
-    memcpy(&ExtraScale.Data.Raw[5], &tmp, sizeof(tmp));
-    // also OverrideActive does nothing on ExtraScale
-    ExtraScale.Data.Structured.OverrideActive = 1;
+    ExtraScale.emplace();
 
     Template = nullptr;
 
     ScriptId = 0;
 }
 
-AreaTriggerCreateProperties::~AreaTriggerCreateProperties()
-{
-}
+AreaTriggerCreateProperties::~AreaTriggerCreateProperties() = default;
 
 bool AreaTriggerCreateProperties::HasSplines() const
 {

@@ -702,6 +702,13 @@ class TC_PROTO_API CreateTicketOptions : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 expiration_time() const;
   inline void set_expiration_time(::google::protobuf::uint64 value);
 
+  // optional uint32 join_club_source = 5;
+  inline bool has_join_club_source() const;
+  inline void clear_join_club_source();
+  static const int kJoinClubSourceFieldNumber = 5;
+  inline ::google::protobuf::uint32 join_club_source() const;
+  inline void set_join_club_source(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.CreateTicketOptions)
  private:
   inline void set_has_slot();
@@ -710,6 +717,8 @@ class TC_PROTO_API CreateTicketOptions : public ::google::protobuf::Message {
   inline void clear_has_allowed_redeem_count();
   inline void set_has_expiration_time();
   inline void clear_has_expiration_time();
+  inline void set_has_join_club_source();
+  inline void clear_has_join_club_source();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -719,6 +728,7 @@ class TC_PROTO_API CreateTicketOptions : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute > attribute_;
   ::google::protobuf::uint64 expiration_time_;
   ::google::protobuf::uint32 allowed_redeem_count_;
+  ::google::protobuf::uint32 join_club_source_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5finvitation_2eproto();
   friend void protobuf_AssignDesc_club_5finvitation_2eproto();
   friend void protobuf_ShutdownFile_club_5finvitation_2eproto();
@@ -1883,6 +1893,30 @@ inline void CreateTicketOptions::set_expiration_time(::google::protobuf::uint64 
   set_has_expiration_time();
   expiration_time_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.CreateTicketOptions.expiration_time)
+}
+
+// optional uint32 join_club_source = 5;
+inline bool CreateTicketOptions::has_join_club_source() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void CreateTicketOptions::set_has_join_club_source() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void CreateTicketOptions::clear_has_join_club_source() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void CreateTicketOptions::clear_join_club_source() {
+  join_club_source_ = 0u;
+  clear_has_join_club_source();
+}
+inline ::google::protobuf::uint32 CreateTicketOptions::join_club_source() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.CreateTicketOptions.join_club_source)
+  return join_club_source_;
+}
+inline void CreateTicketOptions::set_join_club_source(::google::protobuf::uint32 value) {
+  set_has_join_club_source();
+  join_club_source_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.CreateTicketOptions.join_club_source)
 }
 
 // -------------------------------------------------------------------

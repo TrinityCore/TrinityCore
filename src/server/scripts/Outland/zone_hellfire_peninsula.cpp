@@ -809,8 +809,6 @@ enum FelSpirits
 // 39190 - Send Vengeance
 class spell_hellfire_peninsula_send_vengeance : public SpellScript
 {
-    PrepareSpellScript(spell_hellfire_peninsula_send_vengeance);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SEND_VENGEANCE_TO_PLAYER });
@@ -832,8 +830,6 @@ class spell_hellfire_peninsula_send_vengeance : public SpellScript
 // 39202 - Send Vengeance to Player
 class spell_hellfire_peninsula_send_vengeance_to_player : public SpellScript
 {
-    PrepareSpellScript(spell_hellfire_peninsula_send_vengeance_to_player);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_FEL_SPIRIT });

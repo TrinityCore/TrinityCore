@@ -30,22 +30,12 @@ BattlegroundAB::BattlegroundAB(BattlegroundTemplate const* battlegroundTemplate)
 {
     m_IsInformedNearVictory = false;
     m_BuffChange = true;
-    BgObjects.resize(BG_AB_OBJECT_MAX);
-    BgCreatures.resize(BG_AB_ALL_NODES_COUNT + 5);//+5 for aura triggers
-
-    for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-    {
-        m_Nodes[i] = 0;
-        m_prevNodes[i] = 0;
-        m_NodeTimers[i] = 0;
-        m_BannerTimers[i].timer = 0;
-        m_BannerTimers[i].type = 0;
-        m_BannerTimers[i].teamIndex = 0;
-    }
+    BgObjects.resize(0);
+    BgCreatures.resize(0);
+    m_lastTick = 0;
 
     for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
     {
-        m_lastTick[i] = 0;
         m_HonorScoreTics[i] = 0;
         m_ReputationScoreTics[i] = 0;
     }
@@ -60,75 +50,24 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        int team_points[PVP_TEAMS_COUNT] = { 0, 0 };
-
-        for (int node = 0; node < BG_AB_DYNAMIC_NODES_COUNT; ++node)
-        {
-            // 3 sec delay to spawn new banner instead previous despawned one
-            if (m_BannerTimers[node].timer)
-            {
-                if (m_BannerTimers[node].timer > diff)
-                    m_BannerTimers[node].timer -= diff;
-                else
-                {
-                    m_BannerTimers[node].timer = 0;
-                    _CreateBanner(node, m_BannerTimers[node].type, m_BannerTimers[node].teamIndex, false);
-                }
-            }
-
-            // 1-minute to occupy a node from contested state
-            if (m_NodeTimers[node])
-            {
-                if (m_NodeTimers[node] > diff)
-                    m_NodeTimers[node] -= diff;
-                else
-                {
-                    m_NodeTimers[node] = 0;
-                    // Change from contested to occupied !
-                    uint8 teamIndex = m_Nodes[node]-1;
-                    m_prevNodes[node] = m_Nodes[node];
-                    m_Nodes[node] += 2;
-                    // burn current contested banner
-                    _DelBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex);
-                    // create new occupied banner
-                    _CreateBanner(node, BG_AB_NODE_TYPE_OCCUPIED, teamIndex, true);
-                    _SendNodeUpdate(node);
-                    _NodeOccupied(node, (teamIndex == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
-                    // Message to chatlog
-
-                    if (teamIndex == TEAM_ALLIANCE)
-                    {
-                        SendBroadcastText(ABNodes[node].TextAllianceTaken, CHAT_MSG_BG_SYSTEM_ALLIANCE);
-                        PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
-                    }
-                    else
-                    {
-                        SendBroadcastText(ABNodes[node].TextHordeTaken, CHAT_MSG_BG_SYSTEM_HORDE);
-                        PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
-                    }
-                }
-            }
-
-            for (int team = 0; team < PVP_TEAMS_COUNT; ++team)
-                if (m_Nodes[node] == team + BG_AB_NODE_TYPE_OCCUPIED)
-                    ++team_points[team];
-        }
-
         // Accumulate points
-        for (int team = 0; team < PVP_TEAMS_COUNT; ++team)
+        m_lastTick += diff;
+        if (m_lastTick > BG_AB_TickInterval)
         {
-            int points = team_points[team];
-            if (!points)
-                continue;
+            m_lastTick -= BG_AB_TickInterval;
 
-            m_lastTick[team] += diff;
+            uint8 ally = 0, horde = 0;
+            _CalculateTeamNodes(ally, horde);
+            uint8 points[PVP_TEAMS_COUNT] = { ally, horde };
 
-            if (m_lastTick[team] > BG_AB_TickIntervals[points])
+            for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
             {
-                m_lastTick[team] -= BG_AB_TickIntervals[points];
-                m_TeamScores[team] += BG_AB_TickPoints[points];
-                m_HonorScoreTics[team] += BG_AB_TickPoints[points];
-                m_ReputationScoreTics[team] += BG_AB_TickPoints[points];
+                if (!points[team])
+                    continue;
+
+                m_TeamScores[team] += BG_AB_TickPoints[points[team]];
+                m_HonorScoreTics[team] += BG_AB_TickPoints[points[team]];
+                m_ReputationScoreTics[team] += BG_AB_TickPoints[points[team]];
 
                 if (m_ReputationScoreTics[team] >= m_ReputationTics)
                 {
@@ -175,6 +114,9 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                         UpdateWorldState(BG_AB_WS_HAD_500_DISADVANTAGE_ALLIANCE, 1);
                 }
             }
+
+            UpdateWorldState(BG_AB_WS_OCCUPIED_BASES_ALLY, ally);
+            UpdateWorldState(BG_AB_WS_OCCUPIED_BASES_HORDE, horde);
         }
 
         // Test win condition
@@ -185,39 +127,8 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
     }
 }
 
-void BattlegroundAB::StartingEventCloseDoors()
-{
-    // despawn banners, auras and buffs
-    for (int obj = BG_AB_OBJECT_BANNER_NEUTRAL; obj < BG_AB_DYNAMIC_NODES_COUNT * 8; ++obj)
-        SpawnBGObject(obj, RESPAWN_ONE_DAY);
-    for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT * 3; ++i)
-        SpawnBGObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + i, RESPAWN_ONE_DAY);
-
-    // Starting doors
-    DoorClose(BG_AB_OBJECT_GATE_A);
-    DoorClose(BG_AB_OBJECT_GATE_H);
-    SpawnBGObject(BG_AB_OBJECT_GATE_A, RESPAWN_IMMEDIATELY);
-    SpawnBGObject(BG_AB_OBJECT_GATE_H, RESPAWN_IMMEDIATELY);
-
-    // Starting base spirit guides
-    _NodeOccupied(BG_AB_SPIRIT_ALIANCE, ALLIANCE);
-    _NodeOccupied(BG_AB_SPIRIT_HORDE, HORDE);
-}
-
 void BattlegroundAB::StartingEventOpenDoors()
 {
-    // spawn neutral banners
-    for (int banner = BG_AB_OBJECT_BANNER_NEUTRAL, i = 0; i < 5; banner += 8, ++i)
-        SpawnBGObject(banner, RESPAWN_IMMEDIATELY);
-    for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-    {
-        //randomly select buff to spawn
-        uint8 buff = urand(0, 2);
-        SpawnBGObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + buff + i * 3, RESPAWN_IMMEDIATELY);
-    }
-    DoorOpen(BG_AB_OBJECT_GATE_A);
-    DoorOpen(BG_AB_OBJECT_GATE_H);
-
     // Achievement: Let's Get This Done
     TriggerGameEvent(AB_EVENT_START_BATTLE);
 }
@@ -260,276 +171,39 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
     }
 }
 
-/*  type: 0-neutral, 1-contested, 3-occupied
-    teamIndex: 0-ally, 1-horde                        */
-void BattlegroundAB::_CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay)
+void BattlegroundAB::_CalculateTeamNodes(uint8& alliance, uint8& horde)
 {
-    // Just put it into the queue
-    if (delay)
+    alliance = 0;
+    horde = 0;
+
+    if (BattlegroundMap* map = FindBgMap())
     {
-        m_BannerTimers[node].timer = 2000;
-        m_BannerTimers[node].type = type;
-        m_BannerTimers[node].teamIndex = teamIndex;
-        return;
-    }
-
-    uint8 obj = node*8 + type + teamIndex;
-
-    SpawnBGObject(obj, RESPAWN_IMMEDIATELY);
-
-    // handle aura with banner
-    if (!type)
-        return;
-    obj = node * 8 + ((type == BG_AB_NODE_TYPE_OCCUPIED) ? (5 + teamIndex) : 7);
-    SpawnBGObject(obj, RESPAWN_IMMEDIATELY);
-}
-
-void BattlegroundAB::_DelBanner(uint8 node, uint8 type, uint8 teamIndex)
-{
-    uint8 obj = node*8 + type + teamIndex;
-    SpawnBGObject(obj, RESPAWN_ONE_DAY);
-
-    // handle aura with banner
-    if (!type)
-        return;
-    obj = node * 8 + ((type == BG_AB_NODE_TYPE_OCCUPIED) ? (5 + teamIndex) : 7);
-    SpawnBGObject(obj, RESPAWN_ONE_DAY);
-}
-
-void BattlegroundAB::_SendNodeUpdate(uint8 node)
-{
-    // Send node owner state update to refresh map icons on client
-    constexpr int32 idPlusArray[] = {0, 2, 3, 0, 1};
-    constexpr int32 statePlusArray[] = {0, 2, 0, 2, 0};
-
-    if (m_prevNodes[node])
-        UpdateWorldState(BG_AB_OP_NODESTATES[node] + idPlusArray[m_prevNodes[node]], 0);
-    else
-        UpdateWorldState(BG_AB_OP_NODEICONS[node], 0);
-
-    UpdateWorldState(BG_AB_OP_NODESTATES[node] + idPlusArray[m_Nodes[node]], 1);
-
-    switch (node)
-    {
-        case BG_AB_NODE_STABLES:
-            UpdateWorldState(BG_AB_WS_STABLES_ICON_NEW, m_Nodes[node] + statePlusArray[m_Nodes[node]]);
-            UpdateWorldState(BG_AB_WS_STABLES_HORDE_CONTROL_STATE, m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_OCCUPIED ? 2 : (m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_CONTESTED ? 1 : 0));
-            UpdateWorldState(BG_AB_WS_STABLES_ALLIANCE_CONTROL_STATE, m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_OCCUPIED ? 2 : (m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_CONTESTED ? 1 : 0));
-            break;
-        case BG_AB_NODE_BLACKSMITH:
-            UpdateWorldState(BG_AB_WS_BLACKSMITH_ICON_NEW, m_Nodes[node] + statePlusArray[m_Nodes[node]]);
-            UpdateWorldState(BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE, m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_OCCUPIED ? 2 : (m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_CONTESTED ? 1 : 0));
-            UpdateWorldState(BG_AB_WS_BLACKSMITH_ALLIANCE_CONTROL_STATE, m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_OCCUPIED ? 2 : (m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_CONTESTED ? 1 : 0));
-            break;
-        case BG_AB_NODE_FARM:
-            UpdateWorldState(BG_AB_WS_FARM_ICON_NEW, m_Nodes[node] + statePlusArray[m_Nodes[node]]);
-            UpdateWorldState(BG_AB_WS_FARM_HORDE_CONTROL_STATE, m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_OCCUPIED ? 2 : (m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_CONTESTED ? 1 : 0));
-            UpdateWorldState(BG_AB_WS_FARM_ALLIANCE_CONTROL_STATE, m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_OCCUPIED ? 2 : (m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_CONTESTED ? 1 : 0));
-            break;
-        case BG_AB_NODE_LUMBER_MILL:
-            UpdateWorldState(BG_AB_WS_LUMBER_MILL_ICON_NEW, m_Nodes[node] + statePlusArray[m_Nodes[node]]);
-            UpdateWorldState(BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE, m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_OCCUPIED ? 2 : (m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_CONTESTED ? 1 : 0));
-            UpdateWorldState(BG_AB_WS_LUMBER_MILL_ALLIANCE_CONTROL_STATE, m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_OCCUPIED ? 2 : (m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_CONTESTED ? 1 : 0));
-            break;
-        case BG_AB_NODE_GOLD_MINE:
-            UpdateWorldState(BG_AB_WS_GOLD_MINE_ICON_NEW, m_Nodes[node] + statePlusArray[m_Nodes[node]]);
-            UpdateWorldState(BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE, m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_OCCUPIED ? 2 : (m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_CONTESTED ? 1 : 0));
-            UpdateWorldState(BG_AB_WS_GOLD_MINE_ALLIANCE_CONTROL_STATE, m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_OCCUPIED ? 2 : (m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_CONTESTED ? 1 : 0));
-            break;
-        default:
-            break;
-    }
-
-    // How many bases each team owns
-    uint8 ally = 0, horde = 0;
-    for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-        if (m_Nodes[i] == BG_AB_NODE_STATUS_ALLY_OCCUPIED)
-            ++ally;
-        else if (m_Nodes[i] == BG_AB_NODE_STATUS_HORDE_OCCUPIED)
-            ++horde;
-
-    UpdateWorldState(BG_AB_WS_OCCUPIED_BASES_ALLY, ally);
-    UpdateWorldState(BG_AB_WS_OCCUPIED_BASES_HORDE, horde);
-}
-
-void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
-{
-    if (!AddSpiritGuide(node, BG_AB_SpiritGuidePos[node], GetTeamIndexByTeamId(team)))
-        TC_LOG_ERROR("bg.battleground", "Failed to spawn spirit guide! point: {}, team: {}, ", node, team);
-
-    if (node >= BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
-        return;
-
-    uint8 capturedNodes = 0;
-    for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-        if (m_Nodes[i] == uint8(GetTeamIndexByTeamId(team)) + BG_AB_NODE_TYPE_OCCUPIED && !m_NodeTimers[i])
-            ++capturedNodes;
-
-    if (capturedNodes >= 5)
-        CastSpellOnTeam(SPELL_AB_QUEST_REWARD_5_BASES, team);
-    if (capturedNodes >= 4)
-        CastSpellOnTeam(SPELL_AB_QUEST_REWARD_4_BASES, team);
-
-    Creature* trigger = !BgCreatures[node + 7] ? GetBGCreature(node + 7) : nullptr; // 0-6 spirit guides
-    if (!trigger)
-        trigger = AddCreature(WORLD_TRIGGER, node+7, BG_AB_NodePositions[node], GetTeamIndexByTeamId(team));
-
-    //add bonus honor aura trigger creature when node is accupied
-    //cast bonus aura (+50% honor in 25yards)
-    //aura should only apply to players who have accupied the node, set correct faction for trigger
-    if (trigger)
-    {
-        trigger->SetFaction(team == ALLIANCE ? FACTION_ALLIANCE_GENERIC : FACTION_HORDE_GENERIC);
-        trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
-    }
-}
-
-void BattlegroundAB::_NodeDeOccupied(uint8 node)
-{
-    //only dynamic nodes, no start points
-    if (node >= BG_AB_DYNAMIC_NODES_COUNT)
-        return;
-
-    //remove bonus honor aura trigger creature when node is lost
-    DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
-
-    DelCreature(node);
-
-    // buff object isn't despawned
-}
-
-/* Invoked if a player used a banner as a gameobject */
-void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    uint8 node = BG_AB_NODE_STABLES;
-    GameObject* obj = GetBgMap()->GetGameObject(BgObjects[node*8+7]);
-    while ((node < BG_AB_DYNAMIC_NODES_COUNT) && ((!obj) || (!source->IsWithinDistInMap(obj, 10))))
-    {
-        ++node;
-        obj = GetBgMap()->GetGameObject(BgObjects[node*8+BG_AB_OBJECT_AURA_CONTESTED]);
-    }
-
-    if (node == BG_AB_DYNAMIC_NODES_COUNT)
-    {
-        // this means our player isn't close to any of banners - maybe cheater ??
-        return;
-    }
-
-    TeamId teamIndex = GetTeamIndexByTeamId(GetPlayerTeam(source->GetGUID()));
-
-    // Check if player really could use this banner, not cheated
-    if (!(m_Nodes[node] == 0 || teamIndex == m_Nodes[node]%2))
-        return;
-
-    source->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
-    uint32 sound = 0;
-    // If node is neutral, change to contested
-    if (m_Nodes[node] == BG_AB_NODE_TYPE_NEUTRAL)
-    {
-        UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
-        m_prevNodes[node] = m_Nodes[node];
-        m_Nodes[node] = teamIndex + 1;
-        // burn current neutral banner
-        _DelBanner(node, BG_AB_NODE_TYPE_NEUTRAL, 0);
-        // create new contested banner
-        _CreateBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex, true);
-        _SendNodeUpdate(node);
-        m_NodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
-
-        if (teamIndex == TEAM_ALLIANCE)
-            SendBroadcastText(ABNodes[node].TextAllianceClaims, CHAT_MSG_BG_SYSTEM_ALLIANCE, source);
-        else
-            SendBroadcastText(ABNodes[node].TextHordeClaims, CHAT_MSG_BG_SYSTEM_HORDE, source);
-
-        sound = BG_AB_SOUND_NODE_CLAIMED;
-    }
-    // If node is contested
-    else if ((m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_CONTESTED) || (m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_CONTESTED))
-    {
-        // If last state is NOT occupied, change node to enemy-contested
-        if (m_prevNodes[node] < BG_AB_NODE_TYPE_OCCUPIED)
+        for (ObjectGuid const& guid : _capturePoints)
         {
-            UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
-            m_prevNodes[node] = m_Nodes[node];
-            m_Nodes[node] = uint8(teamIndex) + BG_AB_NODE_TYPE_CONTESTED;
-            // burn current contested banner
-            _DelBanner(node, BG_AB_NODE_TYPE_CONTESTED, !teamIndex);
-            // create new contested banner
-            _CreateBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex, true);
-            _SendNodeUpdate(node);
-            m_NodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
-
-            if (teamIndex == TEAM_ALLIANCE)
-                SendBroadcastText(ABNodes[node].TextAllianceAssaulted, CHAT_MSG_BG_SYSTEM_ALLIANCE, source);
-            else
-                SendBroadcastText(ABNodes[node].TextHordeAssaulted, CHAT_MSG_BG_SYSTEM_HORDE, source);
+            if (GameObject* capturePoint = map->GetGameObject(guid))
+            {
+                int32 wsValue = map->GetWorldStateValue(capturePoint->GetGOInfo()->capturePoint.worldState1);
+                switch (WorldPackets::Battleground::BattlegroundCapturePointState(wsValue))
+                {
+                    case WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured:
+                        ++alliance;
+                        break;
+                    case WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured:
+                        ++horde;
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
-        // If contested, change back to occupied
-        else
-        {
-            UpdatePlayerScore(source, SCORE_BASES_DEFENDED, 1);
-            m_prevNodes[node] = m_Nodes[node];
-            m_Nodes[node] = uint8(teamIndex) + BG_AB_NODE_TYPE_OCCUPIED;
-            // burn current contested banner
-            _DelBanner(node, BG_AB_NODE_TYPE_CONTESTED, !teamIndex);
-            // create new occupied banner
-            _CreateBanner(node, BG_AB_NODE_TYPE_OCCUPIED, teamIndex, true);
-            _SendNodeUpdate(node);
-            m_NodeTimers[node] = 0;
-            _NodeOccupied(node, (teamIndex == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
-
-            if (teamIndex == TEAM_ALLIANCE)
-                SendBroadcastText(ABNodes[node].TextAllianceDefended, CHAT_MSG_BG_SYSTEM_ALLIANCE, source);
-            else
-                SendBroadcastText(ABNodes[node].TextHordeDefended, CHAT_MSG_BG_SYSTEM_HORDE, source);
-        }
-        sound = (teamIndex == TEAM_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
     }
-    // If node is occupied, change to enemy-contested
-    else
-    {
-        UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
-        m_prevNodes[node] = m_Nodes[node];
-        m_Nodes[node] = uint8(teamIndex) + BG_AB_NODE_TYPE_CONTESTED;
-        // burn current occupied banner
-        _DelBanner(node, BG_AB_NODE_TYPE_OCCUPIED, !teamIndex);
-        // create new contested banner
-        _CreateBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex, true);
-        _SendNodeUpdate(node);
-        _NodeDeOccupied(node);
-        m_NodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
-
-        if (teamIndex == TEAM_ALLIANCE)
-            SendBroadcastText(ABNodes[node].TextAllianceAssaulted, CHAT_MSG_BG_SYSTEM_ALLIANCE, source);
-        else
-            SendBroadcastText(ABNodes[node].TextHordeAssaulted, CHAT_MSG_BG_SYSTEM_HORDE, source);
-
-        sound = (teamIndex == TEAM_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
-    }
-
-    // If node is occupied again, send "X has taken the Y" msg.
-    if (m_Nodes[node] >= BG_AB_NODE_TYPE_OCCUPIED)
-    {
-        if (teamIndex == TEAM_ALLIANCE)
-            SendBroadcastText(ABNodes[node].TextAllianceTaken, CHAT_MSG_BG_SYSTEM_ALLIANCE);
-        else
-            SendBroadcastText(ABNodes[node].TextHordeTaken, CHAT_MSG_BG_SYSTEM_HORDE);
-    }
-    PlaySoundToAll(sound);
 }
 
 uint32 BattlegroundAB::GetPrematureWinner()
 {
     // How many bases each team owns
     uint8 ally = 0, horde = 0;
-    for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-        if (m_Nodes[i] == BG_AB_NODE_STATUS_ALLY_OCCUPIED)
-            ++ally;
-        else if (m_Nodes[i] == BG_AB_NODE_STATUS_HORDE_OCCUPIED)
-            ++horde;
+    _CalculateTeamNodes(ally, horde);
 
     if (ally > horde)
         return ALLIANCE;
@@ -540,40 +214,250 @@ uint32 BattlegroundAB::GetPrematureWinner()
     return Battleground::GetPrematureWinner();
 }
 
+void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, WorldObject* invoker)
+{
+    switch (eventId)
+    {
+        case AB_EVENT_START_BATTLE:
+        {
+            for (ObjectGuid const& guid : _creaturesToRemoveOnMatchStart)
+                if (Creature* creature = GetBgMap()->GetCreature(guid))
+                    creature->DespawnOrUnsummon();
+
+            for (ObjectGuid const& guid : _gameobjectsToRemoveOnMatchStart)
+                if (GameObject* gameObject = GetBgMap()->GetGameObject(guid))
+                    gameObject->DespawnOrUnsummon();
+
+            for (ObjectGuid const& guid : _doors)
+            {
+                if (GameObject* gameObject = GetBgMap()->GetGameObject(guid))
+                {
+                    gameObject->UseDoorOrButton();
+                    gameObject->DespawnOrUnsummon(3s);
+                }
+            }
+            break;
+        }
+        case AB_EVENT_CONTESTED_BLACKSMITH_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_BLACKSMITH_ALLIANCE_CONTROL_STATE, 1);
+            UpdateWorldState(BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE, 0);
+            PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+            break;
+        case AB_EVENT_DEFENDED_BLACKSMITH_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_BLACKSMITH_ALLIANCE_CONTROL_STATE, 2);
+            UpdateWorldState(BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE, 0);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+            break;
+        case AB_EVENT_CAPTURE_BLACKSMITH_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_BLACKSMITH_ALLIANCE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
+            break;
+        case AB_EVENT_CONTESTED_BLACKSMITH_HORDE:
+            UpdateWorldState(BG_AB_WS_BLACKSMITH_ALLIANCE_CONTROL_STATE, 0);
+            UpdateWorldState(BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE, 1);
+            PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_HORDE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+            break;
+        case AB_EVENT_DEFENDED_BLACKSMITH_HORDE:
+            UpdateWorldState(BG_AB_WS_BLACKSMITH_ALLIANCE_CONTROL_STATE, 0);
+            UpdateWorldState(BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+            break;
+        case AB_EVENT_CAPTURE_BLACKSMITH_HORDE:
+            UpdateWorldState(BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
+            break;
+        case AB_EVENT_CONTESTED_FARM_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_FARM_ALLIANCE_CONTROL_STATE, 1);
+            UpdateWorldState(BG_AB_WS_FARM_HORDE_CONTROL_STATE, 0);
+            PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+            break;
+        case AB_EVENT_DEFENDED_FARM_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_FARM_ALLIANCE_CONTROL_STATE, 2);
+            UpdateWorldState(BG_AB_WS_FARM_HORDE_CONTROL_STATE, 0);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+            break;
+        case AB_EVENT_CAPTURE_FARM_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_FARM_ALLIANCE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
+            break;
+        case AB_EVENT_CONTESTED_FARM_HORDE:
+            UpdateWorldState(BG_AB_WS_FARM_ALLIANCE_CONTROL_STATE, 0);
+            UpdateWorldState(BG_AB_WS_FARM_HORDE_CONTROL_STATE, 1);
+            PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_HORDE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+            break;
+        case AB_EVENT_DEFENDED_FARM_HORDE:
+            UpdateWorldState(BG_AB_WS_FARM_ALLIANCE_CONTROL_STATE, 0);
+            UpdateWorldState(BG_AB_WS_FARM_HORDE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+            break;
+        case AB_EVENT_CAPTURE_FARM_HORDE:
+            UpdateWorldState(BG_AB_WS_FARM_HORDE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
+            break;
+        case AB_EVENT_CONTESTED_GOLD_MINE_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_GOLD_MINE_ALLIANCE_CONTROL_STATE, 1);
+            UpdateWorldState(BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE, 0);
+            PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+            break;
+        case AB_EVENT_DEFENDED_GOLD_MINE_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_GOLD_MINE_ALLIANCE_CONTROL_STATE, 2);
+            UpdateWorldState(BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE, 0);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+            break;
+        case AB_EVENT_CAPTURE_GOLD_MINE_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_GOLD_MINE_ALLIANCE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
+            break;
+        case AB_EVENT_CONTESTED_GOLD_MINE_HORDE:
+            UpdateWorldState(BG_AB_WS_GOLD_MINE_ALLIANCE_CONTROL_STATE, 0);
+            UpdateWorldState(BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE, 1);
+            PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_HORDE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+            break;
+        case AB_EVENT_DEFENDED_GOLD_MINE_HORDE:
+            UpdateWorldState(BG_AB_WS_GOLD_MINE_ALLIANCE_CONTROL_STATE, 0);
+            UpdateWorldState(BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+            break;
+        case AB_EVENT_CAPTURE_GOLD_MINE_HORDE:
+            UpdateWorldState(BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
+            break;
+        case AB_EVENT_CONTESTED_LUMBER_MILL_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_LUMBER_MILL_ALLIANCE_CONTROL_STATE, 1);
+            UpdateWorldState(BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE, 0);
+            PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+            break;
+        case AB_EVENT_DEFENDED_LUMBER_MILL_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_LUMBER_MILL_ALLIANCE_CONTROL_STATE, 2);
+            UpdateWorldState(BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE, 0);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+            break;
+        case AB_EVENT_CAPTURE_LUMBER_MILL_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_LUMBER_MILL_ALLIANCE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
+            break;
+        case AB_EVENT_CONTESTED_LUMBER_MILL_HORDE:
+            UpdateWorldState(BG_AB_WS_LUMBER_MILL_ALLIANCE_CONTROL_STATE, 0);
+            UpdateWorldState(BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE, 1);
+            PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_HORDE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+            break;
+        case AB_EVENT_DEFENDED_LUMBER_MILL_HORDE:
+            UpdateWorldState(BG_AB_WS_LUMBER_MILL_ALLIANCE_CONTROL_STATE, 0);
+            UpdateWorldState(BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+            break;
+        case AB_EVENT_CAPTURE_LUMBER_MILL_HORDE:
+            UpdateWorldState(BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
+            break;
+        case AB_EVENT_CONTESTED_STABLES_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_STABLES_ALLIANCE_CONTROL_STATE, 1);
+            UpdateWorldState(BG_AB_WS_STABLES_HORDE_CONTROL_STATE, 0);
+            PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+            break;
+        case AB_EVENT_DEFENDED_STABLES_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_STABLES_ALLIANCE_CONTROL_STATE, 2);
+            UpdateWorldState(BG_AB_WS_STABLES_HORDE_CONTROL_STATE, 0);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+            break;
+        case AB_EVENT_CAPTURE_STABLES_ALLIANCE:
+            UpdateWorldState(BG_AB_WS_STABLES_ALLIANCE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
+            break;
+        case AB_EVENT_CONTESTED_STABLES_HORDE:
+            UpdateWorldState(BG_AB_WS_STABLES_ALLIANCE_CONTROL_STATE, 0);
+            UpdateWorldState(BG_AB_WS_STABLES_HORDE_CONTROL_STATE, 1);
+            PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_HORDE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+            break;
+        case AB_EVENT_DEFENDED_STABLES_HORDE:
+            UpdateWorldState(BG_AB_WS_STABLES_ALLIANCE_CONTROL_STATE, 0);
+            UpdateWorldState(BG_AB_WS_STABLES_HORDE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
+            if (Player* player = invoker->ToPlayer())
+                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+            break;
+        case AB_EVENT_CAPTURE_STABLES_HORDE:
+            UpdateWorldState(BG_AB_WS_STABLES_HORDE_CONTROL_STATE, 2);
+            PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
+            break;
+        default:
+            TC_LOG_WARN("bg.events", "BattlegroundAB::ProcessEvent: Unhandled event %u.", eventId);
+            break;
+    }
+}
+
+void BattlegroundAB::OnCreatureCreate(Creature* creature)
+{
+    switch (creature->GetEntry())
+    {
+        case BG_AB_NPC_THE_BLACK_BRIDE:
+        case BG_AB_NPC_RADULF_LEDER:
+            _creaturesToRemoveOnMatchStart.push_back(creature->GetGUID());
+            break;
+        default:
+            break;
+    }
+}
+
+void BattlegroundAB::OnGameObjectCreate(GameObject* gameObject)
+{
+    if (gameObject->GetGOInfo()->type == GAMEOBJECT_TYPE_CAPTURE_POINT)
+        _capturePoints.push_back(gameObject->GetGUID());
+
+    switch (gameObject->GetEntry())
+    {
+        case BG_AB_OBJECTID_GHOST_GATE:
+            _gameobjectsToRemoveOnMatchStart.push_back(gameObject->GetGUID());
+            break;
+        case BG_AB_OBJECTID_ALLIANCE_DOOR:
+        case BG_AB_OBJECTID_HORDE_DOOR:
+            _doors.push_back(gameObject->GetGUID());
+            break;
+        default:
+            break;
+    }
+}
+
 bool BattlegroundAB::SetupBattleground()
 {
-    for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-    {
-        if (!AddObject(BG_AB_OBJECT_BANNER_NEUTRAL + 8*i, BG_AB_OBJECTID_NODE_BANNER_0 + i, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_BANNER_CONT_A + 8*i, BG_AB_OBJECTID_BANNER_CONT_A, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_BANNER_CONT_H + 8*i, BG_AB_OBJECTID_BANNER_CONT_H, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_BANNER_ALLY + 8*i, BG_AB_OBJECTID_BANNER_A, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_BANNER_HORDE + 8*i, BG_AB_OBJECTID_BANNER_H, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_AURA_ALLY + 8*i, BG_AB_OBJECTID_AURA_A, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_AURA_HORDE + 8*i, BG_AB_OBJECTID_AURA_H, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_AURA_CONTESTED + 8*i, BG_AB_OBJECTID_AURA_C, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY))
-        {
-            TC_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn some object Battleground not created!");
-            return false;
-        }
-    }
-
-    if (!AddObject(BG_AB_OBJECT_GATE_A, BG_AB_OBJECTID_GATE_A, BG_AB_DoorPositions[0][0], BG_AB_DoorPositions[0][1], BG_AB_DoorPositions[0][2], BG_AB_DoorPositions[0][3], BG_AB_DoorPositions[0][4], BG_AB_DoorPositions[0][5], BG_AB_DoorPositions[0][6], BG_AB_DoorPositions[0][7], RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_AB_OBJECT_GATE_H, BG_AB_OBJECTID_GATE_H, BG_AB_DoorPositions[1][0], BG_AB_DoorPositions[1][1], BG_AB_DoorPositions[1][2], BG_AB_DoorPositions[1][3], BG_AB_DoorPositions[1][4], BG_AB_DoorPositions[1][5], BG_AB_DoorPositions[1][6], BG_AB_DoorPositions[1][7], RESPAWN_IMMEDIATELY))
-    {
-        TC_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn door object Battleground not created!");
-        return false;
-    }
-
-    //buffs
-    for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-    {
-        if (!AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i, Buff_Entries[0], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, std::sin(BG_AB_BuffPositions[i][3]/2), std::cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 1, Buff_Entries[1], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, std::sin(BG_AB_BuffPositions[i][3]/2), std::cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 2, Buff_Entries[2], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, std::sin(BG_AB_BuffPositions[i][3]/2), std::cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY))
-            TC_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn buff object!");
-    }
-
     UpdateWorldState(BG_AB_WS_RESOURCES_MAX, BG_AB_MAX_TEAM_SCORE);
     UpdateWorldState(BG_AB_WS_RESOURCES_WARNING, BG_AB_WARNING_NEAR_VICTORY_SCORE);
 
@@ -587,8 +471,7 @@ void BattlegroundAB::Reset()
 
     m_TeamScores[TEAM_ALLIANCE]          = 0;
     m_TeamScores[TEAM_HORDE]             = 0;
-    m_lastTick[TEAM_ALLIANCE]            = 0;
-    m_lastTick[TEAM_HORDE]               = 0;
+    m_lastTick                           = 0;
     m_HonorScoreTics[TEAM_ALLIANCE]      = 0;
     m_HonorScoreTics[TEAM_HORDE]         = 0;
     m_ReputationScoreTics[TEAM_ALLIANCE] = 0;
@@ -598,17 +481,10 @@ void BattlegroundAB::Reset()
     m_HonorTics = (isBGWeekend) ? BG_AB_ABBGWeekendHonorTicks : BG_AB_NotABBGWeekendHonorTicks;
     m_ReputationTics = (isBGWeekend) ? BG_AB_ABBGWeekendReputationTicks : BG_AB_NotABBGWeekendReputationTicks;
 
-    for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-    {
-        m_Nodes[i] = 0;
-        m_prevNodes[i] = 0;
-        m_NodeTimers[i] = 0;
-        m_BannerTimers[i].timer = 0;
-    }
-
-    for (uint8 i = 0; i < BG_AB_ALL_NODES_COUNT + 5; ++i)//+5 for aura triggers
-        if (!BgCreatures[i].IsEmpty())
-            DelCreature(i);
+    _creaturesToRemoveOnMatchStart.clear();
+    _gameobjectsToRemoveOnMatchStart.clear();
+    _doors.clear();
+    _capturePoints.clear();
 }
 
 void BattlegroundAB::EndBattleground(uint32 winner)
@@ -627,41 +503,7 @@ void BattlegroundAB::EndBattleground(uint32 winner)
 
 WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveyard(Player* player)
 {
-    TeamId teamIndex = GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID()));
-
-    // Is there any occupied node for this team?
-    std::vector<uint8> nodes;
-    for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-        if (m_Nodes[i] == teamIndex + 3)
-            nodes.push_back(i);
-
-    WorldSafeLocsEntry const* good_entry = nullptr;
-    // If so, select the closest node to place ghost on
-    if (!nodes.empty())
-    {
-        float plr_x = player->GetPositionX();
-        float plr_y = player->GetPositionY();
-
-        float mindist = 999999.0f;
-        for (uint8 i = 0; i < nodes.size(); ++i)
-        {
-            WorldSafeLocsEntry const* entry = sObjectMgr->GetWorldSafeLoc(BG_AB_GraveyardIds[nodes[i]]);
-            if (!entry)
-                continue;
-            float dist = (entry->Loc.GetPositionX() - plr_x) * (entry->Loc.GetPositionX() - plr_x) + (entry->Loc.GetPositionY() - plr_y) * (entry->Loc.GetPositionY() - plr_y);
-            if (mindist > dist)
-            {
-                mindist = dist;
-                good_entry = entry;
-            }
-        }
-        nodes.clear();
-    }
-    // If not, place ghost on starting location
-    if (!good_entry)
-        good_entry = sObjectMgr->GetWorldSafeLoc(BG_AB_GraveyardIds[teamIndex+5]);
-
-    return good_entry;
+    return sObjectMgr->GetClosestGraveyard(player->GetWorldLocation(), player->GetTeam(), player);
 }
 
 WorldSafeLocsEntry const* BattlegroundAB::GetExploitTeleportLocation(Team team)

@@ -121,8 +121,6 @@ private:
 // 66637 - Horde Gunship Portal
 class spell_ioc_gunship_portal : public SpellScript
 {
-    PrepareSpellScript(spell_ioc_gunship_portal);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -151,8 +149,6 @@ class spell_ioc_gunship_portal : public SpellScript
 // 66656 - Parachute
 class spell_ioc_parachute_ic : public AuraScript
 {
-    PrepareAuraScript(spell_ioc_parachute_ic);
-
     void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
@@ -197,8 +193,6 @@ class StartLaunchEvent : public BasicEvent
 // 66218 - Launch
 class spell_ioc_launch : public SpellScript
 {
-    PrepareSpellScript(spell_ioc_launch);
-
     void Launch()
     {
         if (!GetCaster()->ToCreature() || !GetExplTargetDest())
@@ -225,8 +219,6 @@ enum SeaforiumBombSpells
 // 66676 - Seaforium Blast
 class spell_ioc_seaforium_blast_credit : public SpellScript
 {
-    PrepareSpellScript(spell_ioc_seaforium_blast_credit);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_A_BOMB_INABLE_CREDIT, SPELL_A_BOMB_INATION_CREDIT });

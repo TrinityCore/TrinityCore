@@ -415,8 +415,6 @@ uint32 const FetchIngredients[21][4] =
 // 51157 - Random Ingredient Hard Aura
 class spell_random_ingredient_aura : public AuraScript
 {
-    PrepareAuraScript(spell_random_ingredient_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -454,8 +452,6 @@ class spell_random_ingredient_aura : public AuraScript
 // 51134 - Random Ingredient Easy
 class spell_random_ingredient : public SpellScript
 {
-    PrepareSpellScript(spell_random_ingredient);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -524,8 +520,6 @@ class spell_random_ingredient : public SpellScript
 // 51046 - Pot Check
 class spell_pot_check : public SpellScript
 {
-    PrepareSpellScript(spell_pot_check);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -615,8 +609,6 @@ class spell_pot_check : public SpellScript
 
 class spell_fetch_ingredient_aura : public AuraScript
 {
-    PrepareAuraScript(spell_fetch_ingredient_aura);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
@@ -690,8 +682,6 @@ enum ScourgeDisguise
 // 51966 - Scourge Disguise
 class spell_zuldrak_scourge_disguise : public AuraScript
 {
-    PrepareAuraScript(spell_zuldrak_scourge_disguise);
-
     void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
@@ -714,8 +704,6 @@ class spell_zuldrak_scourge_disguise : public AuraScript
 // 51971 - Scourge Disguise Instability
 class spell_zuldrak_scourge_disguise_instability : public AuraScript
 {
-    PrepareAuraScript(spell_zuldrak_scourge_disguise_instability);
-
     void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
     {
         isPeriodic = true;
@@ -743,8 +731,6 @@ class spell_zuldrak_scourge_disguise_instability : public AuraScript
 // 52010 - Scourge Disguise Expiring
 class spell_zuldrak_scourge_disguise_expiring : public AuraScript
 {
-    PrepareAuraScript(spell_zuldrak_scourge_disguise_expiring);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Player* player = GetTarget()->ToPlayer())
@@ -768,8 +754,6 @@ class spell_zuldrak_scourge_disguise_expiring : public AuraScript
 // 54089 - Drop Disguise
 class spell_zuldrak_drop_disguise : public SpellScript
 {
-    PrepareSpellScript(spell_zuldrak_drop_disguise);
-
     void HandleHit()
     {
         if (Unit* target = GetHitUnit())
@@ -796,8 +780,6 @@ enum Cocooned
 // 51596 - Cocooned: Player Not On Quest
 class spell_zuldrak_cocooned_not_on_quest : public SpellScript
 {
-    PrepareSpellScript(spell_zuldrak_cocooned_not_on_quest);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_SCOURGED_CAPTIVE });
@@ -817,8 +799,6 @@ class spell_zuldrak_cocooned_not_on_quest : public SpellScript
 // 51598 - Cocooned: Player On Quest
 class spell_zuldrak_cocooned_on_quest : public SpellScript
 {
-    PrepareSpellScript(spell_zuldrak_cocooned_on_quest);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_SCOURGED_CAPTIVE, SPELL_SUMMON_CAPTIVE_FOOTMAN });
@@ -850,8 +830,6 @@ enum Sabotage
 // 52324 - Scourgewagon Explosion
 class spell_zuldrak_scourgewagon_explosion : public SpellScript
 {
-    PrepareSpellScript(spell_zuldrak_scourgewagon_explosion);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -888,8 +866,6 @@ class spell_zuldrak_scourgewagon_explosion : public SpellScript
 // 54990 - Chains of the Scourge
 class spell_zuldrak_chains_of_the_scourge : public SpellScript
 {
-    PrepareSpellScript(spell_zuldrak_chains_of_the_scourge);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()) });

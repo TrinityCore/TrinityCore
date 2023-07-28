@@ -807,8 +807,6 @@ struct npc_gatewatcher_web_wrap : public NullCreatureAI
 // 52343 - Krik'Thir Subboss Aggro Trigger
 class spell_gatewatcher_subboss_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_gatewatcher_subboss_trigger);
-
     void HandleTargets(std::list<WorldObject*>& targetList)
     {
         // Remove any Watchers that are already in combat
@@ -849,8 +847,6 @@ class spell_gatewatcher_subboss_trigger : public SpellScript
 // 52536 - Fixate Trigger
 class spell_anub_ar_skirmisher_fixate : public SpellScript
 {
-    PrepareSpellScript(spell_anub_ar_skirmisher_fixate);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_FIXATE_TRIGGERED });
@@ -871,8 +867,6 @@ class spell_anub_ar_skirmisher_fixate : public SpellScript
 // 52086 - Web Wrap
 class spell_gatewatcher_web_wrap : public AuraScript
 {
-    PrepareAuraScript(spell_gatewatcher_web_wrap);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_WEB_WRAP_WRAPPED });

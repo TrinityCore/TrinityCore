@@ -241,7 +241,7 @@ struct npc_ichor_globule : public ScriptedAI
         if (spellInfo->Id == SPELL_WATER_GLOBULE_VISUAL)
         {
             DoCast(me, SPELL_WATER_GLOBULE_TRANSFORM);
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
             me->GetMotionMaster()->MoveFollow(unitCaster, 0.0f, 0.0f);
         }
     }
@@ -282,8 +282,6 @@ private:
 // 59820 - Drained
 class spell_ichoron_drained : public AuraScript
 {
-    PrepareAuraScript(spell_ichoron_drained);
-
     bool Load() override
     {
         return GetOwner()->GetEntry() == NPC_ICHORON || GetOwner()->GetEntry() == NPC_DUMMY_ICHORON;
@@ -291,13 +289,13 @@ class spell_ichoron_drained : public AuraScript
 
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        GetTarget()->SetUninteractible(true);
         GetTarget()->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
     }
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        GetTarget()->SetUninteractible(false);
         GetTarget()->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
 
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
@@ -315,8 +313,6 @@ class spell_ichoron_drained : public AuraScript
 // 54269 - Merge
 class spell_ichoron_merge : public SpellScript
 {
-    PrepareSpellScript(spell_ichoron_merge);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHRINK });
@@ -342,8 +338,6 @@ class spell_ichoron_merge : public SpellScript
 // 54306 - Protective Bubble
 class spell_ichoron_protective_bubble : public AuraScript
 {
-    PrepareAuraScript(spell_ichoron_protective_bubble);
-
     bool Load() override
     {
         return GetOwner()->GetEntry() == NPC_ICHORON || GetOwner()->GetEntry() == NPC_DUMMY_ICHORON;
@@ -366,8 +360,6 @@ class spell_ichoron_protective_bubble : public AuraScript
 // 54259 - Splatter
 class spell_ichoron_splatter : public AuraScript
 {
-    PrepareAuraScript(spell_ichoron_splatter);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(

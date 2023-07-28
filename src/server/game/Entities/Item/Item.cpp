@@ -2482,6 +2482,19 @@ uint16 Item::GetVisibleAppearanceModId(Player const* owner) const
     return uint16(GetAppearanceModId());
 }
 
+uint32 Item::GetVisibleModifiedAppearanceId(Player const* owner) const
+{
+    uint32 itemModifiedAppearanceId = GetModifier(AppearanceModifierSlotBySpec[owner->GetActiveTalentGroup()]);
+    if (!itemModifiedAppearanceId)
+        itemModifiedAppearanceId = GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS);
+
+    if (!itemModifiedAppearanceId)
+        if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = GetItemModifiedAppearance())
+            itemModifiedAppearanceId = itemModifiedAppearance->ID;
+
+    return itemModifiedAppearanceId;
+}
+
 int32 Item::GetVisibleSecondaryModifiedAppearanceId(Player const* owner) const
 {
     uint32 itemModifiedAppearanceId = GetModifier(SecondaryAppearanceModifierSlotBySpec[owner->GetActiveTalentGroup()]);

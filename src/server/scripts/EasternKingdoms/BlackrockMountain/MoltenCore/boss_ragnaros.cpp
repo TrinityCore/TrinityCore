@@ -172,7 +172,7 @@ struct boss_ragnaros : public BossAI
                 //Become unbanished again
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->SetFaction(FACTION_MONSTER);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetEmoteState(EMOTE_ONESHOT_NONE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
@@ -250,7 +250,7 @@ struct boss_ragnaros : public BossAI
                             //Root self
                             //DoCast(me, 23973);
                             me->SetFaction(FACTION_FRIENDLY);
-                            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            me->SetUninteractible(true);
                             me->SetEmoteState(EMOTE_STATE_SUBMERGED);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
                             instance->SetData(DATA_RAGNAROS_ADDS, 0);

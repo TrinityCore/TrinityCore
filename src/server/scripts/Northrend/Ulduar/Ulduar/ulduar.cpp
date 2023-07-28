@@ -24,8 +24,6 @@
 // 61906 - Random Aggro Periodic (5 sec)
 class spell_ulduar_random_aggro_periodic : public AuraScript
 {
-    PrepareAuraScript(spell_ulduar_random_aggro_periodic);
-
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
@@ -55,8 +53,6 @@ class spell_ulduar_random_aggro_periodic : public AuraScript
 // 65042 - Prison of Yogg-Saron Teleport
 class spell_ulduar_teleporter : public SpellScript
 {
-    PrepareSpellScript(spell_ulduar_teleporter);
-
     SpellCastResult CheckRequirement()
     {
         if (GetExplTargetUnit()->GetTypeId() != TYPEID_PLAYER)

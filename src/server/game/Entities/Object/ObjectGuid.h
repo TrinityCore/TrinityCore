@@ -124,6 +124,8 @@ enum class HighGuid
     ToolsClient      = 50,
     WorldLayer       = 51,
     ArenaTeam        = 52,
+    LMMParty         = 53,
+    LMMLobby         = 54,
 
     Count,
 };
@@ -158,6 +160,7 @@ enum class ObjectGuidFormatType
     ClubFinder,
     ToolsClient,
     WorldLayer,
+    LMMLobby,
 };
 
 template<HighGuid high>
@@ -227,6 +230,8 @@ MAKE_GUID_TRAIT(HighGuid::ClubFinder, ObjectGuidSequenceSource::Global, ObjectGu
 MAKE_GUID_TRAIT(HighGuid::ToolsClient, ObjectGuidSequenceSource::Realm, ObjectGuidFormatType::ToolsClient);
 MAKE_GUID_TRAIT(HighGuid::WorldLayer, ObjectGuidSequenceSource::Global, ObjectGuidFormatType::WorldLayer);
 MAKE_GUID_TRAIT(HighGuid::ArenaTeam, ObjectGuidSequenceSource::Realm, ObjectGuidFormatType::Guild);
+MAKE_GUID_TRAIT(HighGuid::LMMParty, ObjectGuidSequenceSource::Realm, ObjectGuidFormatType::Client);
+MAKE_GUID_TRAIT(HighGuid::LMMLobby, ObjectGuidSequenceSource::Realm, ObjectGuidFormatType::LMMLobby);
 
 class ByteBuffer;
 class ObjectGuid;
@@ -252,6 +257,7 @@ public:
     static ObjectGuid CreateClubFinder(uint32 realmId, uint8 type, uint32 clubFinderId, uint64 dbId);
     static ObjectGuid CreateToolsClient(uint16 mapId, uint32 serverId, uint64 counter);
     static ObjectGuid CreateWorldLayer(uint32 arg1, uint16 arg2, uint8 arg3, uint32 arg4);
+    static ObjectGuid CreateLMMLobby(uint32 realmId, uint32 arg2, uint8 arg3, uint8 arg4, uint64 counter);
 };
 
 #pragma pack(push, 1)
@@ -367,6 +373,7 @@ class TC_GAME_API ObjectGuid
         template<HighGuid type> static std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::ClubFinder, ObjectGuid> Create(uint8 clubType, uint32 clubFinderId, ObjectGuid::LowType dbId) { return ObjectGuidFactory::CreateClubFinder(0, clubType, clubFinderId, dbId); }
         template<HighGuid type> static std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::ToolsClient, ObjectGuid> Create(uint16 mapId, uint32 serverId, ObjectGuid::LowType counter) { return ObjectGuidFactory::CreateToolsClient(mapId, serverId, counter); }
         template<HighGuid type> static std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::WorldLayer, ObjectGuid> Create(uint32 arg1, uint16 arg2, uint8 arg3, uint32 arg4) { return ObjectGuidFactory::CreateWorldLayer(arg1, arg2, arg3, arg4); }
+        template<HighGuid type> static std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::LMMLobby, ObjectGuid> Create(uint32 arg2, uint8 arg3, uint8 arg4, ObjectGuid::LowType counter) { return ObjectGuidFactory::CreateLMMLobby(0, arg2, arg3, arg4, counter); }
 
     protected:
         ObjectGuid(uint64 high, uint64 low)

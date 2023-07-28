@@ -117,8 +117,6 @@ struct boss_archavon : public BossAI
 // 58941 - Rock Shards
 class spell_archavon_rock_shards : public SpellScript
 {
-    PrepareSpellScript(spell_archavon_rock_shards);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(

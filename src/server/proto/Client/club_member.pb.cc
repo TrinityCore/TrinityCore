@@ -188,9 +188,10 @@ void protobuf_AssignDesc_club_5fmember_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MemberVoiceState));
   CreateMemberOptions_descriptor_ = file->message_type(6);
-  static const int CreateMemberOptions_offsets_[2] = {
+  static const int CreateMemberOptions_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateMemberOptions, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateMemberOptions, attribute_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateMemberOptions, join_club_source_),
   };
   CreateMemberOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -456,39 +457,40 @@ void protobuf_AddDesc_club_5fmember_2eproto() {
     "\001(\010\"\221\001\n\020MemberVoiceState\022\n\n\002id\030\001 \001(\t\022\021\n\t"
     "stream_id\030\002 \001(\004\022\016\n\006joined\030\003 \001(\010\022>\n\nmicro"
     "phone\030\004 \001(\0162*.bgs.protocol.club.v1.Voice"
-    "MicrophoneState\022\016\n\006active\030\005 \001(\010\"p\n\023Creat"
-    "eMemberOptions\022*\n\002id\030\001 \001(\0132\036.bgs.protoco"
-    "l.club.v1.MemberId\022-\n\tattribute\030\002 \003(\0132\032."
-    "bgs.protocol.v2.Attribute\"[\n\021MemberDescr"
-    "iption\022*\n\002id\030\001 \001(\0132\036.bgs.protocol.club.v"
-    "1.MemberId\022\032\n\nbattle_tag\030\002 \001(\tB\006\202\371+\002\010\001\"^"
-    "\n\013RoleOptions\0221\n\tmember_id\030\001 \001(\0132\036.bgs.p"
-    "rotocol.club.v1.MemberId\022\034\n\004role\030\002 \003(\rB\016"
-    "\020\001\212\371+\010*\006\n\004\010\001\020\001\"U\n\016RoleAssignment\0221\n\tmemb"
-    "er_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Membe"
-    "rId\022\020\n\004role\030\002 \003(\rB\002\020\001\"}\n\031MemberAttribute"
-    "Assignment\0221\n\tmember_id\030\001 \001(\0132\036.bgs.prot"
-    "ocol.club.v1.MemberId\022-\n\tattribute\030\002 \003(\013"
-    "2\032.bgs.protocol.v2.Attribute\"Q\n\026Subscrib"
-    "erStateOptions\0227\n\005voice\030\001 \001(\0132(.bgs.prot"
-    "ocol.club.v1.MemberVoiceOptions\"\225\001\n\031Subs"
-    "criberStateAssignment\0221\n\tmember_id\030\001 \001(\013"
-    "2\036.bgs.protocol.club.v1.MemberId\022\016\n\006acti"
-    "ve\030\002 \001(\010\0225\n\005voice\030\003 \001(\0132&.bgs.protocol.c"
-    "lub.v1.MemberVoiceState\"\341\001\n\022MemberStateO"
-    "ptions\022-\n\tattribute\030\001 \003(\0132\032.bgs.protocol"
-    ".v2.Attribute\022;\n\016presence_level\030\002 \001(\0162#."
-    "bgs.protocol.club.v1.PresenceLevel\022\026\n\016mo"
-    "derator_mute\030\003 \001(\010\0229\n\rwhisper_level\030\004 \001("
-    "\0162\".bgs.protocol.club.v1.WhisperLevel\022\014\n"
-    "\004note\030\005 \001(\t\"\227\002\n\025MemberStateAssignment\0221\n"
-    "\tmember_id\030\001 \001(\0132\036.bgs.protocol.club.v1."
-    "MemberId\022-\n\tattribute\030\002 \003(\0132\032.bgs.protoc"
-    "ol.v2.Attribute\022;\n\016presence_level\030\003 \001(\0162"
-    "#.bgs.protocol.club.v1.PresenceLevel\022\026\n\016"
-    "moderator_mute\030\004 \001(\010\0229\n\rwhisper_level\030\005 "
-    "\001(\0162\".bgs.protocol.club.v1.WhisperLevel\022"
-    "\014\n\004note\030\006 \001(\tB\002H\002P\000", 2419);
+    "MicrophoneState\022\016\n\006active\030\005 \001(\010\"\240\001\n\023Crea"
+    "teMemberOptions\022*\n\002id\030\001 \001(\0132\036.bgs.protoc"
+    "ol.club.v1.MemberId\022-\n\tattribute\030\002 \003(\0132\032"
+    ".bgs.protocol.v2.Attribute\022.\n\020join_club_"
+    "source\030\003 \001(\rB\024\202\371+\020*\016JoinClubSource\"[\n\021Me"
+    "mberDescription\022*\n\002id\030\001 \001(\0132\036.bgs.protoc"
+    "ol.club.v1.MemberId\022\032\n\nbattle_tag\030\002 \001(\tB"
+    "\006\202\371+\002\010\001\"^\n\013RoleOptions\0221\n\tmember_id\030\001 \001("
+    "\0132\036.bgs.protocol.club.v1.MemberId\022\034\n\004rol"
+    "e\030\002 \003(\rB\016\020\001\212\371+\010*\006\n\004\010\001\020\001\"U\n\016RoleAssignmen"
+    "t\0221\n\tmember_id\030\001 \001(\0132\036.bgs.protocol.club"
+    ".v1.MemberId\022\020\n\004role\030\002 \003(\rB\002\020\001\"}\n\031Member"
+    "AttributeAssignment\0221\n\tmember_id\030\001 \001(\0132\036"
+    ".bgs.protocol.club.v1.MemberId\022-\n\tattrib"
+    "ute\030\002 \003(\0132\032.bgs.protocol.v2.Attribute\"Q\n"
+    "\026SubscriberStateOptions\0227\n\005voice\030\001 \001(\0132("
+    ".bgs.protocol.club.v1.MemberVoiceOptions"
+    "\"\225\001\n\031SubscriberStateAssignment\0221\n\tmember"
+    "_id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberI"
+    "d\022\016\n\006active\030\002 \001(\010\0225\n\005voice\030\003 \001(\0132&.bgs.p"
+    "rotocol.club.v1.MemberVoiceState\"\341\001\n\022Mem"
+    "berStateOptions\022-\n\tattribute\030\001 \003(\0132\032.bgs"
+    ".protocol.v2.Attribute\022;\n\016presence_level"
+    "\030\002 \001(\0162#.bgs.protocol.club.v1.PresenceLe"
+    "vel\022\026\n\016moderator_mute\030\003 \001(\010\0229\n\rwhisper_l"
+    "evel\030\004 \001(\0162\".bgs.protocol.club.v1.Whispe"
+    "rLevel\022\014\n\004note\030\005 \001(\t\"\227\002\n\025MemberStateAssi"
+    "gnment\0221\n\tmember_id\030\001 \001(\0132\036.bgs.protocol"
+    ".club.v1.MemberId\022-\n\tattribute\030\002 \003(\0132\032.b"
+    "gs.protocol.v2.Attribute\022;\n\016presence_lev"
+    "el\030\003 \001(\0162#.bgs.protocol.club.v1.Presence"
+    "Level\022\026\n\016moderator_mute\030\004 \001(\010\0229\n\rwhisper"
+    "_level\030\005 \001(\0162\".bgs.protocol.club.v1.Whis"
+    "perLevel\022\014\n\004note\030\006 \001(\tB\002H\002P\000", 2468);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_member.proto", &protobuf_RegisterTypes);
   Member::default_instance_ = new Member();
@@ -1026,6 +1028,7 @@ void MemberVoiceState::Swap(MemberVoiceState* other) {
 #ifndef _MSC_VER
 const int CreateMemberOptions::kIdFieldNumber;
 const int CreateMemberOptions::kAttributeFieldNumber;
+const int CreateMemberOptions::kJoinClubSourceFieldNumber;
 #endif  // !_MSC_VER
 
 CreateMemberOptions::CreateMemberOptions()
@@ -1048,6 +1051,7 @@ CreateMemberOptions::CreateMemberOptions(const CreateMemberOptions& from)
 void CreateMemberOptions::SharedCtor() {
   _cached_size_ = 0;
   id_ = NULL;
+  join_club_source_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 

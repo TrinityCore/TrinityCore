@@ -216,7 +216,7 @@ struct boss_shade_of_akama : public BossAI
         _Reset();
         Initialize();
         me->SetImmuneToPC(true);
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(true);
         me->SetEmoteState(EMOTE_STATE_STUN);
         me->SetWalk(true);
         events.ScheduleEvent(EVENT_INITIALIZE_SPAWNERS, 1s);
@@ -255,7 +255,7 @@ struct boss_shade_of_akama : public BossAI
         if (_isInPhaseOne && motionType == CHASE_MOTION_TYPE)
         {
             _isInPhaseOne = false;
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
             me->SetImmuneToPC(false);
             me->SetWalk(false);
             events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
@@ -317,7 +317,7 @@ struct boss_shade_of_akama : public BossAI
                 {
                     for (ObjectGuid summonGuid : summons)
                         if (Creature* channeler = ObjectAccessor::GetCreature(*me, summonGuid))
-                            channeler->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            channeler->SetUninteractible(false);
 
                     for (ObjectGuid spawnerGuid : _spawners)
                         if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
@@ -565,7 +565,7 @@ struct npc_ashtongue_channeler : public PassiveAI
         {
             if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
             {
-                if (shade->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE))
+                if (shade->IsUninteractible())
                     DoCastSelf(SPELL_SHADE_SOUL_CHANNEL);
 
                 else
@@ -574,7 +574,7 @@ struct npc_ashtongue_channeler : public PassiveAI
 
             channel.Repeat(Seconds(2));
         });
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(true);
     }
 
     void UpdateAI(uint32 diff) override
@@ -692,7 +692,7 @@ struct npc_ashtongue_sorcerer : public ScriptedAI
     {
         if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
         {
-            if (shade->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE))
+            if (shade->IsUninteractible())
                 me->GetMotionMaster()->MovePoint(0, shade->GetPosition());
 
             else if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
@@ -730,7 +730,7 @@ struct npc_ashtongue_sorcerer : public ScriptedAI
             {
                 if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                 {
-                    if (shade->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE))
+                    if (shade->IsUninteractible())
                     {
                         me->SetFacingToObject(shade);
                         DoCastSelf(SPELL_SHADE_SOUL_CHANNEL);
@@ -1082,8 +1082,6 @@ private:
 // 40401 - Shade Soul Channel (serverside spell)
 class spell_shade_soul_channel_serverside : public AuraScript
 {
-    PrepareAuraScript(spell_shade_soul_channel_serverside);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_SHADE_SOUL_CHANNEL_2 });
@@ -1103,8 +1101,6 @@ class spell_shade_soul_channel_serverside : public AuraScript
 // 40520 - Shade Soul Channel
 class spell_shade_soul_channel : public AuraScript
 {
-    PrepareAuraScript(spell_shade_soul_channel);
-
     void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         int32 const maxSlowEff = -99;

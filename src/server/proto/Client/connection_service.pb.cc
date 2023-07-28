@@ -123,7 +123,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ConnectionMeteringContentHandles));
   ConnectResponse_descriptor_ = file->message_type(3);
-  static const int ConnectResponse_offsets_[9] = {
+  static const int ConnectResponse_offsets_[10] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, server_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, client_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, bind_result_),
@@ -133,6 +133,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, use_bindless_rpc_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, binary_content_handle_array_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, ciid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, connected_region_),
   };
   ConnectResponse_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -369,7 +370,7 @@ void protobuf_AddDesc_connection_5fservice_2eproto() {
     "\005 \001(\01320.bgs.protocol.connection.v1.Clien"
     "tSdkVersionInfo\"W\n ConnectionMeteringCon"
     "tentHandles\0223\n\016content_handle\030\001 \003(\0132\033.bg"
-    "s.protocol.ContentHandle\"\302\003\n\017ConnectResp"
+    "s.protocol.ContentHandle\"\334\003\n\017ConnectResp"
     "onse\022*\n\tserver_id\030\001 \002(\0132\027.bgs.protocol.P"
     "rocessId\022*\n\tclient_id\030\002 \001(\0132\027.bgs.protoc"
     "ol.ProcessId\022\023\n\013bind_result\030\003 \001(\r\022\?\n\rbin"
@@ -380,47 +381,48 @@ void protobuf_AddDesc_connection_5fservice_2eproto() {
     "_time\030\006 \001(\004\022\037\n\020use_bindless_rpc\030\007 \001(\010:\005f"
     "alse\022a\n\033binary_content_handle_array\030\010 \001("
     "\0132<.bgs.protocol.connection.v1.Connectio"
-    "nMeteringContentHandles\022\014\n\004ciid\030\t \001(\t\"(\n"
-    "\014BoundService\022\014\n\004hash\030\001 \002(\007\022\n\n\002id\030\002 \002(\r\""
-    "\230\002\n\013BindRequest\022.\n deprecated_imported_s"
-    "ervice_hash\030\001 \003(\007B\004\020\001\030\001\022Q\n\033deprecated_ex"
-    "ported_service\030\002 \003(\0132(.bgs.protocol.conn"
-    "ection.v1.BoundServiceB\002\030\001\022B\n\020exported_s"
-    "ervice\030\003 \003(\0132(.bgs.protocol.connection.v"
-    "1.BoundService\022B\n\020imported_service\030\004 \003(\013"
-    "2(.bgs.protocol.connection.v1.BoundServi"
-    "ce\"1\n\014BindResponse\022!\n\023imported_service_i"
-    "d\030\001 \003(\rB\004\020\001\030\001\"\216\001\n\013EchoRequest\022\014\n\004time\030\001 "
-    "\001(\006\022\033\n\014network_only\030\002 \001(\010:\005false\022\017\n\007payl"
-    "oad\030\003 \001(\014\022(\n\007forward\030\004 \001(\0132\027.bgs.protoco"
-    "l.ProcessId\022\031\n\021forward_client_id\030\005 \001(\t\"-"
-    "\n\014EchoResponse\022\014\n\004time\030\001 \001(\006\022\017\n\007payload\030"
-    "\002 \001(\014\"\'\n\021DisconnectRequest\022\022\n\nerror_code"
-    "\030\001 \002(\r\"<\n\026DisconnectNotification\022\022\n\nerro"
-    "r_code\030\001 \002(\r\022\016\n\006reason\030\002 \001(\t\"\020\n\016EncryptR"
-    "equest*J\n\rMeteringLevel\022\031\n\025METERING_LEVE"
-    "L_LEGACY\020\000\022\036\n\032METERING_LEVEL_CATEGORIZED"
-    "\020\0012\373\005\n\021ConnectionService\022j\n\007Connect\022*.bg"
-    "s.protocol.connection.v1.ConnectRequest\032"
-    "+.bgs.protocol.connection.v1.ConnectResp"
-    "onse\"\006\202\371+\002\010\001\022c\n\004Bind\022\'.bgs.protocol.conn"
-    "ection.v1.BindRequest\032(.bgs.protocol.con"
-    "nection.v1.BindResponse\"\010\202\371+\004\010\002P\001\022a\n\004Ech"
-    "o\022\'.bgs.protocol.connection.v1.EchoReque"
-    "st\032(.bgs.protocol.connection.v1.EchoResp"
-    "onse\"\006\202\371+\002\010\003\022h\n\017ForceDisconnect\0222.bgs.pr"
-    "otocol.connection.v1.DisconnectNotificat"
-    "ion\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\004\022D"
-    "\n\tKeepAlive\022\024.bgs.protocol.NoData\032\031.bgs."
-    "protocol.NO_RESPONSE\"\006\202\371+\002\010\005\022U\n\007Encrypt\022"
-    "*.bgs.protocol.connection.v1.EncryptRequ"
-    "est\032\024.bgs.protocol.NoData\"\010\202\371+\004\010\006P\001\022e\n\021R"
-    "equestDisconnect\022-.bgs.protocol.connecti"
-    "on.v1.DisconnectRequest\032\031.bgs.protocol.N"
-    "O_RESPONSE\"\006\202\371+\002\010\007\032D\202\371+8\n*bnet.protocol."
-    "connection.ConnectionService*\nconnection"
-    "\212\371+\004\010\001\020\001B<\n\032bgs.protocol.connection.v1B\026"
-    "ConnectionServiceProtoH\002\200\001\000\210\001\001", 2710);
+    "nMeteringContentHandles\022\014\n\004ciid\030\t \001(\t\022\030\n"
+    "\020connected_region\030\n \001(\r\"(\n\014BoundService\022"
+    "\014\n\004hash\030\001 \002(\007\022\n\n\002id\030\002 \002(\r\"\230\002\n\013BindReques"
+    "t\022.\n deprecated_imported_service_hash\030\001 "
+    "\003(\007B\004\020\001\030\001\022Q\n\033deprecated_exported_service"
+    "\030\002 \003(\0132(.bgs.protocol.connection.v1.Boun"
+    "dServiceB\002\030\001\022B\n\020exported_service\030\003 \003(\0132("
+    ".bgs.protocol.connection.v1.BoundService"
+    "\022B\n\020imported_service\030\004 \003(\0132(.bgs.protoco"
+    "l.connection.v1.BoundService\"1\n\014BindResp"
+    "onse\022!\n\023imported_service_id\030\001 \003(\rB\004\020\001\030\001\""
+    "\216\001\n\013EchoRequest\022\014\n\004time\030\001 \001(\006\022\033\n\014network"
+    "_only\030\002 \001(\010:\005false\022\017\n\007payload\030\003 \001(\014\022(\n\007f"
+    "orward\030\004 \001(\0132\027.bgs.protocol.ProcessId\022\031\n"
+    "\021forward_client_id\030\005 \001(\t\"-\n\014EchoResponse"
+    "\022\014\n\004time\030\001 \001(\006\022\017\n\007payload\030\002 \001(\014\"\'\n\021Disco"
+    "nnectRequest\022\022\n\nerror_code\030\001 \002(\r\"<\n\026Disc"
+    "onnectNotification\022\022\n\nerror_code\030\001 \002(\r\022\016"
+    "\n\006reason\030\002 \001(\t\"\020\n\016EncryptRequest*J\n\rMete"
+    "ringLevel\022\031\n\025METERING_LEVEL_LEGACY\020\000\022\036\n\032"
+    "METERING_LEVEL_CATEGORIZED\020\0012\373\005\n\021Connect"
+    "ionService\022j\n\007Connect\022*.bgs.protocol.con"
+    "nection.v1.ConnectRequest\032+.bgs.protocol"
+    ".connection.v1.ConnectResponse\"\006\202\371+\002\010\001\022c"
+    "\n\004Bind\022\'.bgs.protocol.connection.v1.Bind"
+    "Request\032(.bgs.protocol.connection.v1.Bin"
+    "dResponse\"\010\202\371+\004\010\002P\001\022a\n\004Echo\022\'.bgs.protoc"
+    "ol.connection.v1.EchoRequest\032(.bgs.proto"
+    "col.connection.v1.EchoResponse\"\006\202\371+\002\010\003\022h"
+    "\n\017ForceDisconnect\0222.bgs.protocol.connect"
+    "ion.v1.DisconnectNotification\032\031.bgs.prot"
+    "ocol.NO_RESPONSE\"\006\202\371+\002\010\004\022D\n\tKeepAlive\022\024."
+    "bgs.protocol.NoData\032\031.bgs.protocol.NO_RE"
+    "SPONSE\"\006\202\371+\002\010\005\022U\n\007Encrypt\022*.bgs.protocol"
+    ".connection.v1.EncryptRequest\032\024.bgs.prot"
+    "ocol.NoData\"\010\202\371+\004\010\006P\001\022e\n\021RequestDisconne"
+    "ct\022-.bgs.protocol.connection.v1.Disconne"
+    "ctRequest\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371"
+    "+\002\010\007\032D\202\371+8\n*bnet.protocol.connection.Con"
+    "nectionService*\nconnection\212\371+\004\010\001\020\001B<\n\032bg"
+    "s.protocol.connection.v1B\026ConnectionServ"
+    "iceProtoH\002\200\001\000\210\001\001", 2736);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "connection_service.proto", &protobuf_RegisterTypes);
   ClientSdkVersionInfo::default_instance_ = new ClientSdkVersionInfo();
@@ -723,6 +725,7 @@ const int ConnectResponse::kServerTimeFieldNumber;
 const int ConnectResponse::kUseBindlessRpcFieldNumber;
 const int ConnectResponse::kBinaryContentHandleArrayFieldNumber;
 const int ConnectResponse::kCiidFieldNumber;
+const int ConnectResponse::kConnectedRegionFieldNumber;
 #endif  // !_MSC_VER
 
 ConnectResponse::ConnectResponse()
@@ -758,6 +761,7 @@ void ConnectResponse::SharedCtor() {
   use_bindless_rpc_ = false;
   binary_content_handle_array_ = NULL;
   ciid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  connected_region_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 

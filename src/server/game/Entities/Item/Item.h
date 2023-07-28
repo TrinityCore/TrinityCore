@@ -412,6 +412,7 @@ class TC_GAME_API Item : public Object
 
         uint32 GetVisibleEntry(Player const* owner) const;
         uint16 GetVisibleAppearanceModId(Player const* owner) const;
+        uint32 GetVisibleModifiedAppearanceId(Player const* owner) const;
         int32 GetVisibleSecondaryModifiedAppearanceId(Player const* owner) const;
         uint32 GetVisibleEnchantmentId(Player const* owner) const;
         uint16 GetVisibleItemVisual(Player const* owner) const;

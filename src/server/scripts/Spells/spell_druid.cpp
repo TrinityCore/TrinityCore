@@ -421,10 +421,10 @@ private:
     }
 };
 
-// 329910 - Eclipse periodic tick
-class spell_dru_eclipse_periodic_tick : public AuraScript
+// 329910 - Eclipse out of combat - SPELL_DRUID_ECLIPSE_OOC
+class spell_dru_eclipse_ooc : public AuraScript
 {
-    PrepareAuraScript(spell_dru_eclipse_periodic_tick);
+    PrepareAuraScript(spell_dru_eclipse_ooc);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -438,9 +438,9 @@ class spell_dru_eclipse_periodic_tick : public AuraScript
         if (!auraEffDummy)
             return;
 
-        if (!owner->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT) || !owner->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT))
+        if (!owner->IsInCombat() && (!owner->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT) || !owner->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT)))
         {
-            // Restore 2 stacks to each spell
+            // Restore 2 stacks to each spell when out of combat
             spell_dru_eclipse_common::SetSpellCount(owner, SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, auraEffDummy->GetAmount());
             spell_dru_eclipse_common::SetSpellCount(owner, SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT, auraEffDummy->GetAmount());
         }
@@ -448,7 +448,7 @@ class spell_dru_eclipse_periodic_tick : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_eclipse_periodic_tick::Tick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_eclipse_ooc::Tick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1646,7 +1646,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_earthwarden);
     RegisterSpellScript(spell_dru_eclipse_aura);
     RegisterSpellScript(spell_dru_eclipse_dummy);
-    RegisterSpellScript(spell_dru_eclipse_periodic_tick);
+    RegisterSpellScript(spell_dru_eclipse_ooc);
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_forms_trinket);
     RegisterSpellScript(spell_dru_galactic_guardian);
