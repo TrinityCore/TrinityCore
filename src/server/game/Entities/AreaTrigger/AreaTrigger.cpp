@@ -364,7 +364,7 @@ float AreaTrigger::GetOverrideScaleCurveProgress() const
 {
     auto const overrideScale = m_areaTriggerData->OverrideScaleCurve;
     ASSERT(overrideScale->OverrideActive, "OverrideScaleCurve must be active to evaluate it");
-    
+
     if (!GetTimeToTargetScale())
         return 1.0f;
 
