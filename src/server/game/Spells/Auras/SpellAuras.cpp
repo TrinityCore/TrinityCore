@@ -906,6 +906,10 @@ void Aura::RefreshDuration(bool withMods)
         if (m_spellInfo->HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION))
             duration = int32(duration * caster->m_unitData->ModCastingSpeed);
 
+        // Pandemic Mechanic
+        if (m_spellInfo->HasAttribute(SPELL_ATTR13_PERIODIC_REFRESH_EXTENDS_DURATION))
+            duration = std::max(GetDuration(), std::min(CalculatePct(duration, 30.f), GetDuration()) + duration);
+
         SetMaxDuration(duration);
         SetDuration(duration);
     }
@@ -924,6 +928,10 @@ void Aura::RefreshDuration(bool withMods)
 void Aura::RefreshTimers(bool resetPeriodicTimer)
 {
     m_maxDuration = CalcMaxDuration();
+
+    // Pandemic doesn't reset periodic timer
+    if (m_spellInfo->HasAttribute(SPELL_ATTR13_PERIODIC_REFRESH_EXTENDS_DURATION))
+        resetPeriodicTimer = false;
 
     RefreshDuration();
 
