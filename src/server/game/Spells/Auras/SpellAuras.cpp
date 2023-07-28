@@ -924,21 +924,6 @@ void Aura::RefreshDuration(bool withMods)
 void Aura::RefreshTimers(bool resetPeriodicTimer)
 {
     m_maxDuration = CalcMaxDuration();
-    if (m_spellInfo->HasAttribute(SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER))
-    {
-        int32 minPeriod = m_maxDuration;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (AuraEffect const* eff = GetEffect(i))
-                if (int32 period = eff->GetPeriod())
-                    minPeriod = std::min(period, minPeriod);
-
-        // If only one tick remaining, roll it over into new duration
-        if (GetDuration() <= minPeriod)
-        {
-            m_maxDuration += GetDuration();
-            resetPeriodicTimer = false;
-        }
-    }
 
     RefreshDuration();
 
