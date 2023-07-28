@@ -649,7 +649,6 @@ class TC_GAME_API Spell
 
         int32 GetTimer() const { return m_timer; }
 
-        int64 GetUnitTargetIndexForEffect(TargetInfo const& targetInfo, SpellEffIndex effect) const;
         int64 GetUnitTargetCountForEffect(SpellEffIndex effect) const;
         int64 GetGameObjectTargetCountForEffect(SpellEffIndex effect) const;
         int64 GetItemTargetCountForEffect(SpellEffIndex effect) const;
@@ -824,6 +823,8 @@ class TC_GAME_API Spell
         void DoProcessTargetContainer(Container& targetContainer);
 
         SpellDestination m_destTargets[MAX_SPELL_EFFECTS];
+
+        int64 GetUnitTargetIndexForEffect(TargetInfo const& targetInfo, SpellEffIndex effect) const;
 
         void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true, bool implicit = true, Position const* losPosition = nullptr);
         void AddGOTarget(GameObject* target, uint32 effectMask);
