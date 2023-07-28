@@ -144,6 +144,8 @@ class spell_pal_ardent_defender : public AuraScript
 
     void HandleAbsorb(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& /*absorbAmount*/)
     {
+        PreventDefaultAction();
+
         int32 healAmount = int32(GetTarget()->CountPctFromMaxHealth(GetEffectInfo(EFFECT_1).CalcValue(GetTarget())));
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(healAmount);
