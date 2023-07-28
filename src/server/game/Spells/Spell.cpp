@@ -8372,7 +8372,6 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, Spe
                     && targetCount > m_softTargetCapCount)
                     m_damage *= std::sqrt(float(m_softTargetCapCount) / std::min<int64>(AOE_DAMAGE_TARGET_CAP, targetCount));
 
-
                 // cap damage of player AOE
                 if (targetCount > AOE_DAMAGE_TARGET_CAP)
                     m_damage *= AOE_DAMAGE_TARGET_CAP / targetCount;

@@ -490,7 +490,7 @@ void SpellScript::SetSoftTargetCap(int64 targetCount)
     {
         TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetSoftTargetCap was called, but function has no effect in current hook! (spell is not in before hit phase)",
             m_scriptName, m_scriptSpellId);
-        return 0;
+        return;
     }
     m_spell->m_softTargetCapCount = targetCount;
 }
@@ -501,7 +501,7 @@ void SpellScript::SetFullAmountTargetCap(int64 targetCount)
     {
         TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetFullAmountTargetCap was called, but function has no effect in current hook! (spell is not in before hit phase)",
             m_scriptName, m_scriptSpellId);
-        return 0;
+        return;
     }
     m_spell->m_fullAmountTargetCapCount = targetCount;
 }
