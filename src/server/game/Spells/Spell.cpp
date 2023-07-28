@@ -576,6 +576,8 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     effectInfo = nullptr;
     m_damage = 0;
     m_healing = 0;
+    m_softTargetCapCount = 0;
+    m_fullAmountTargetCapCount = 0;
     m_hitMask = PROC_HIT_NONE;
     m_procSpellType = PROC_SPELL_TYPE_NONE;
     focusObject = nullptr;
@@ -2620,6 +2622,23 @@ void Spell::AddCorpseTarget(Corpse* corpse, uint32 effectMask)
 void Spell::AddDestTarget(SpellDestination const& dest, uint32 effIndex)
 {
     m_destTargets[effIndex] = dest;
+}
+
+int64 Spell::GetUnitTargetIndexForEffect(TargetInfo const& targetInfo, SpellEffIndex effect) const
+{
+    int64 index = 0;
+    for (TargetInfo const& uniqueTargetInfo : m_UniqueTargetInfo)
+    {
+        if (uniqueTargetInfo.MissCondition == SPELL_MISS_NONE && uniqueTargetInfo.EffectMask & (1 << effect))
+        {
+            if (uniqueTargetInfo.TargetGUID == targetInfo.TargetGUID)
+                break;
+
+            index++;
+        }
+    }
+
+    return index;
 }
 
 int64 Spell::GetUnitTargetCountForEffect(SpellEffIndex effect) const
@@ -8344,10 +8363,19 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, Spe
 
             if (m_originalCaster->GetTypeId() == TYPEID_PLAYER)
             {
+                int64 const targetIndex = GetUnitTargetIndexForEffect(targetInfo, spellEffectInfo.EffectIndex);
+                int64 const targetCount = GetUnitTargetCountForEffect(spellEffectInfo.EffectIndex);
+
+                // Shadowlands: Sqrt Target Cap Damage Calculation
+                if (targetIndex >= m_fullAmountTargetCapCount
+                    && m_softTargetCapCount > 0
+                    && targetCount > m_softTargetCapCount)
+                    m_damage *= std::sqrt(float(m_softTargetCapCount) / std::min<int64>(AOE_DAMAGE_TARGET_CAP, targetCount));
+
+
                 // cap damage of player AOE
-                int64 targetAmount = GetUnitTargetCountForEffect(spellEffectInfo.EffectIndex);
-                if (targetAmount > 20)
-                    m_damage = m_damage * 20 / targetAmount;
+                if (targetCount > AOE_DAMAGE_TARGET_CAP)
+                    m_damage *= AOE_DAMAGE_TARGET_CAP / targetCount;
             }
         }
     }

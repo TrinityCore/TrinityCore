@@ -73,6 +73,7 @@ enum WeaponAttackType : uint8;
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 #define MAX_SPELL_RANGE_TOLERANCE 3.0f
 #define TRAJECTORY_MISSILE_SIZE 3.0f
+#define AOE_DAMAGE_TARGET_CAP 20
 
 enum SpellCastFlags
 {
@@ -648,6 +649,7 @@ class TC_GAME_API Spell
 
         int32 GetTimer() const { return m_timer; }
 
+        int64 GetUnitTargetIndexForEffect(TargetInfo const& targetInfo, SpellEffIndex effect) const;
         int64 GetUnitTargetCountForEffect(SpellEffIndex effect) const;
         int64 GetGameObjectTargetCountForEffect(SpellEffIndex effect) const;
         int64 GetItemTargetCountForEffect(SpellEffIndex effect) const;
@@ -731,6 +733,9 @@ class TC_GAME_API Spell
         // Damage and healing in effects need just calculate
         int32 m_damage;           // Damage  in effects count here
         int32 m_healing;          // Healing in effects count here
+
+        int64 m_softTargetCapCount;       // Shadowlands: The amount of targets after the damage decreases by the Square Root AOE formula
+        int64 m_fullAmountTargetCapCount; // Shadowlands: The amount of targets that still take the full amount before the damage decreases by the Square Root AOE formula
 
         // ******************************************
         // Spell trigger system
