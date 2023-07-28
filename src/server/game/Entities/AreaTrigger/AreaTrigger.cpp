@@ -142,6 +142,7 @@ bool AreaTrigger::Create(uint32 areaTriggerCreatePropertiesId, Unit* caster, Uni
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::DecalPropertiesID), GetCreateProperties()->DecalPropertiesId);
 
     SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve), GetCreateProperties()->ExtraScale);
+    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideScaleCurve), GetCreateProperties()->OverrideScale);
 
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimationDataID), GetCreateProperties()->AnimId);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimKitID), GetCreateProperties()->AnimKitId);
@@ -359,6 +360,28 @@ float AreaTrigger::GetProgress() const
     return GetTimeSinceCreated() < GetTimeToTargetScale() ? float(GetTimeSinceCreated()) / float(GetTimeToTargetScale()) : 1.0f;
 }
 
+float AreaTrigger::GetOverrideScaleCurveProgress() const
+{
+    auto const overrideScale = m_areaTriggerData->OverrideScaleCurve;
+    ASSERT(overrideScale->OverrideActive, "OverrideScaleCurve must be active to evaluate it");
+    
+    if (!GetTimeToTargetScale())
+        return 1.0f;
+
+    return std::min(float(GetTimeSinceCreated() - overrideScale->StartTimeOffset) / float(GetTimeToTargetScale()), 1.0f);
+}
+
+float AreaTrigger::GetExtraScaleCurveProgress() const
+{
+    auto const extraScale = m_areaTriggerData->ExtraScaleCurve;
+    ASSERT(extraScale->OverrideActive, "ExtraScaleCurve must be active to evaluate it");
+
+    if (!GetTimeToTargetExtraScale())
+        return 1.0f;
+
+    return std::min(float(GetTimeSinceCreated() - extraScale->StartTimeOffset) / float(GetTimeToTargetExtraScale()), 1.0f);
+}
+
 float AreaTrigger::GetScaleCurveValue(UF::ScaleCurve const& scaleCurve, float x) const
 {
     ASSERT(*scaleCurve.OverrideActive, "ScaleCurve must be active to evaluate it");
@@ -441,6 +464,29 @@ void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false>
     }
 }
 
+void AreaTrigger::SetOverrideScaleCurve(uint32 startTimeOffSet, std::array<DBCPosition2D, 2> points, CurveInterpolationMode mode /*= CurveInterpolationMode::Linear*/)
+{
+    AreaTriggerScaleCurveTemplate curveTemplate;
+    curveTemplate.StartTimeOffset = startTimeOffSet;
+
+    AreaTriggerScaleCurvePointsTemplate curve;
+    curve.Mode = CurveInterpolationMode::Linear;
+    curve.Points = points;
+    curveTemplate.Curve = curve;
+
+    UF::MutableFieldReference<UF::AreaTriggerData, false> areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
+    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideScaleCurve), curveTemplate);
+}
+
+float AreaTrigger::GetOverrideScaleCurveValue() const
+{
+    UF::UpdateField<UF::ScaleCurve, 0, 3> const overrideScale = m_areaTriggerData->OverrideScaleCurve;
+    if (!overrideScale->OverrideActive)
+        return 1.0f;
+
+    return GetScaleCurveValue(overrideScale, GetOverrideScaleCurveProgress());
+}
+
 void AreaTrigger::UpdateTargetList()
 {
     std::vector<Unit*> targetList;
@@ -509,7 +555,19 @@ void AreaTrigger::SearchUnitInSphere(std::vector<Unit*>& targetList)
                 _shape.SphereDatas.RadiusTarget,
                 sDB2Manager.GetCurveValueAt(GetCreateProperties()->MorphCurveId, GetProgress()));
         }
+
+        if (GetCreateProperties()->ScaleCurveId)
+        {
+            radius *= sDB2Manager.GetCurveValueAt(GetCreateProperties()->ScaleCurveId, GetProgress());
+        }
     }
+
+    radius *= GetOverrideScaleCurveValue();
+
+    if (Unit* caster = GetCaster())
+        if (Player* playerCaster = caster->ToPlayer())
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(GetSpellId(), GetMap()->GetDifficultyID()))
+                playerCaster->ApplySpellMod(spellInfo, SpellModOp::Radius, radius);
 
     SearchUnits(targetList, radius, true);
 }

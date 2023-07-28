@@ -91,9 +91,16 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         bool IsRemoved() const { return _isRemoved; }
         uint32 GetSpellId() const { return m_areaTriggerData->SpellID; }
         AuraEffect const* GetAuraEffect() const { return _aurEff; }
+
         uint32 GetTimeSinceCreated() const { return _timeSinceCreated; }
         uint32 GetTimeToTarget() const { return m_areaTriggerData->TimeToTarget; }
         uint32 GetTimeToTargetScale() const { return m_areaTriggerData->TimeToTargetScale; }
+        uint32 GetTimeToTargetExtraScale() const { return m_areaTriggerData->TimeToTargetExtraScale; }
+
+        void SetTimeToTarget(uint32 timeToTarget) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget); }
+        void SetTimeToTargetScale(uint32 timeToTargetScale) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTargetScale), timeToTargetScale); }
+        void SetTimeToTargetExtraScale(uint32 timeToTargetExtraScale) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTargetExtraScale), timeToTargetExtraScale); }
+
         int32 GetDuration() const { return _duration; }
         int32 GetTotalDuration() const { return _totalDuration; }
         void SetDuration(int32 newDuration);
@@ -130,9 +137,15 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         UF::UpdateField<UF::AreaTriggerData, 0, TYPEID_AREATRIGGER> m_areaTriggerData;
 
+        void SetOverrideScaleCurve(uint32 startTimeOffSet, std::array<DBCPosition2D, 2> points, CurveInterpolationMode mode = CurveInterpolationMode::Linear);
+        float GetOverrideScaleCurveValue() const;
+
     protected:
         void _UpdateDuration(int32 newDuration);
         float GetProgress() const;
+
+        float GetOverrideScaleCurveProgress() const;
+        float GetExtraScaleCurveProgress() const;
 
         float GetScaleCurveValue(UF::ScaleCurve const& scaleCurve, float x) const;
         void SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false>&& scaleCurveMutator, Optional<AreaTriggerScaleCurveTemplate> const& curve);
