@@ -26,7 +26,6 @@
 #include "Containers.h"
 #include "G3DPosition.hpp"
 #include "GridNotifiers.h"
-#include "Group.h"
 #include "Log.h"
 #include "MoveSplineInitArgs.h"
 #include "ObjectAccessor.h"
@@ -57,7 +56,6 @@ enum PriestSpells
     SPELL_PRIEST_DARK_REPRIMAND_DAMAGE              = 373130,
     SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
-    SPELL_PRIEST_DIVINE_HYMN                        = 64843,
     SPELL_PRIEST_DIVINE_SERVICE                     = 391233,
     SPELL_PRIEST_DIVINE_STAR_HOLY                   = 110744,
     SPELL_PRIEST_DIVINE_STAR_SHADOW                 = 122121,
