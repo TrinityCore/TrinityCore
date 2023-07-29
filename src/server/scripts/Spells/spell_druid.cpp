@@ -936,7 +936,7 @@ class spell_dru_power_of_the_archdruid : public AuraScript
         for (Unit* chosenTarget : targetList)
             target->CastSpell(chosenTarget, eventInfo.GetProcSpell()->GetSpellInfo()->Id, CastSpellExtraArgs(aurEff));
 
-        target->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+        Remove();
     }
 
     void Register() override
