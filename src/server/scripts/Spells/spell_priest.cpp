@@ -820,15 +820,11 @@ class spell_pri_inescapable_torment : public SpellScript
 
             mindbender->CastSpell(target, SPELL_PRIEST_INESCAPABLE_TORMENT_EFFECT, TRIGGERED_FULL_MASK);
 
-            if (caster->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_SHADOW)
-                mindbenderSummon = caster->GetAura(SPELL_PRIEST_MINDBENDER_SHADOW);
-            else
-                mindbenderSummon = caster->GetAura(SPELL_PRIEST_MINDBENDER_DISC);
-
             // Note: Mindbender's duration increases by SPELL_PRIEST_INESCAPABLE_TORMENT's (EFFECT_1)ms.
+            Aura* mindbenderSummon = caster->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_SHADOW ? caster->GetAura(SPELL_PRIEST_MINDBENDER_SHADOW) : caster->GetAura(SPELL_PRIEST_MINDBENDER_DISC);
             if (mindbenderSummon)
             {
-                spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_INESCAPABLE_TORMENT, GetCastDifficulty());
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_INESCAPABLE_TORMENT, GetCastDifficulty());
 
                 Milliseconds extraDuration = Seconds(spellInfo->GetEffect(EFFECT_1).CalcValue());
 
@@ -842,10 +838,6 @@ class spell_pri_inescapable_torment : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_pri_inescapable_torment::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
-
-private:
-    Aura* mindbenderSummon;
-    SpellInfo const* spellInfo;
 };
 
 // 40438 - Priest Tier 6 Trinket
@@ -1086,10 +1078,9 @@ class spell_pri_power_leech_passive : public AuraScript
         if (!summoner || !summoner->IsPlayer())
             return;
 
-        if (summoner->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_SHADOW)
-            spellInfo = sSpellMgr->AssertSpellInfo(target->GetEntry() == PET_PRIEST_SHADOWFIEND ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY : SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY, GetCastDifficulty());
-        else
-            spellInfo = sSpellMgr->AssertSpellInfo(target->GetEntry() == PET_PRIEST_SHADOWFIEND ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA : SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA, GetCastDifficulty());
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(summoner->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_SHADOW ?
+            target->GetEntry() == PET_PRIEST_SHADOWFIEND ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY : SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY :
+            target->GetEntry() == PET_PRIEST_SHADOWFIEND ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA : SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA, GetCastDifficulty());
 
         // Note: divisor is 100 for SPELL_EFFECT_ENERGIZE since their BasePoints are > 100 and 10 for SPELL_EFFECT_ENERGIZE_PCT since their BasePoints are < 100.
         target->CastSpell(summoner, spellInfo->Id, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_BASE_POINT0,
@@ -1105,9 +1096,6 @@ class spell_pri_power_leech_passive : public AuraScript
         DoCheckProc += AuraCheckProcFn(spell_pri_power_leech_passive::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pri_power_leech_passive::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
-
-private:
-    SpellInfo const* spellInfo;
 };
 
 // 198069 - Power of the Dark Side
