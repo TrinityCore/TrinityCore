@@ -879,7 +879,7 @@ class spell_dru_luxuriant_soil : public AuraScript
         Unit* target = GetTarget();
 
         // Note: let's use the ProcSpell's max. range.
-        float spellRange = eventInfo.GetProcSpell()->GetSpellInfo()->GetMaxRange();
+        float spellRange = eventInfo.GetSpellInfo()->GetMaxRange();
 
         std::list<Unit*> targetList;
         Trinity::AnyFriendlyUnitInObjectRangeCheck checker(target, target, spellRange);
