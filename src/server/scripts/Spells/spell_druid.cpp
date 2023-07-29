@@ -974,7 +974,7 @@ class spell_dru_rejuvenation_germination : public AuraScript
             return;
 
         // Note: Cultivation talent.
-        if (AuraEffect* cultivationEffect = caster->GetAuraEffect(SPELL_DRUID_CULTIVATION, EFFECT_0))
+        if (AuraEffect const* cultivationEffect = caster->GetAuraEffect(SPELL_DRUID_CULTIVATION, EFFECT_0))
         {
             if (target->GetHealthPct() < cultivationEffect->GetAmount())
                 caster->CastSpell(target, SPELL_DRUID_CULTIVATION_HEAL, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
