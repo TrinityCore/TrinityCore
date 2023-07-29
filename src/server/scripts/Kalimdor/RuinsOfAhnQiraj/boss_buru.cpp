@@ -249,8 +249,6 @@ class spell_egg_explosion : public SpellScriptLoader
 
         class spell_egg_explosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_egg_explosion_SpellScript);
-
             void HandleAfterCast()
             {
                 if (Creature* buru = GetCaster()->FindNearestCreature(NPC_BURU, 5.f))

@@ -166,8 +166,6 @@ private:
 // 32960 - Mark of Kazzak
 class spell_mark_of_kazzak : public AuraScript
 {
-    PrepareAuraScript(spell_mark_of_kazzak);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_MARK_OF_KAZZAK_DAMAGE });
@@ -201,8 +199,6 @@ class spell_mark_of_kazzak : public AuraScript
 // 21063 - Twisted Reflection
 class spell_twisted_reflection : public AuraScript
 {
-    PrepareAuraScript(spell_twisted_reflection);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TWISTED_REFLECTION_HEAL });

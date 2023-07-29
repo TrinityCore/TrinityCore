@@ -2438,10 +2438,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (IsUnit(target))
                 {
-                    if (e.action.setUninteractible.uninteractible)
-                        target->ToUnit()->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                    else
-                        target->ToUnit()->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    target->ToUnit()->SetUninteractible(e.action.setUninteractible.uninteractible != 0);
                 }
             }
             break;

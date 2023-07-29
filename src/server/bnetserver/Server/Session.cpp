@@ -232,11 +232,9 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
     if (logonRequest->has_cached_web_credentials())
         return VerifyWebCredentials(logonRequest->cached_web_credentials(), continuation);
 
-    std::string const& hostname = sLoginService.GetHostnameForClient(GetRemoteIpAddress());
-
     challenge::v1::ChallengeExternalRequest externalChallenge;
     externalChallenge.set_payload_type("web_auth_url");
-    externalChallenge.set_payload(Trinity::StringFormat("https://{}/bnetserver/login/", hostname));
+    externalChallenge.set_payload(Trinity::StringFormat("https://{}:{}/bnetserver/login/", sLoginService.GetHostnameForClient(GetRemoteIpAddress()), sLoginService.GetPort()));
     Service<challenge::v1::ChallengeListener>(this).OnExternalChallenge(&externalChallenge);
     return ERROR_OK;
 }

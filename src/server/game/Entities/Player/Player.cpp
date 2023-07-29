@@ -16147,7 +16147,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                 break;
             case QUEST_STATUS_INCOMPLETE:
                 if (quest->IsImportant())
-                    result |= QuestGiverStatus::ImportantQuestReward;
+                    result |= QuestGiverStatus::ImportantReward;
                 else if (quest->GetQuestTag() == QuestTagType::CovenantCalling)
                     result |= QuestGiverStatus::CovenantCallingReward;
                 else if (quest->HasFlagEx(QUEST_FLAGS_EX_LEGENDARY))
@@ -16187,7 +16187,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                     if (quest->IsImportant())
                         result |= isTrivial ? QuestGiverStatus::TrivialImportantQuest : QuestGiverStatus::ImportantQuest;
                     else if (quest->GetQuestTag() == QuestTagType::CovenantCalling)
-                        result |= isTrivial ? QuestGiverStatus::TrivialCovenantCallingQuest : QuestGiverStatus::CovenantCallingQuest;
+                        result |= QuestGiverStatus::CovenantCallingQuest;
                     else if (quest->HasFlagEx(QUEST_FLAGS_EX_LEGENDARY))
                         result |= isTrivial ? QuestGiverStatus::TrivialLegendaryQuest : QuestGiverStatus::LegendaryQuest;
                     else if (quest->IsDaily())
@@ -16195,6 +16195,8 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                     else
                         result |= isTrivial ? QuestGiverStatus::Trivial : QuestGiverStatus::Quest;
                 }
+                else if (quest->IsImportant())
+                    result |= QuestGiverStatus::FutureImportantQuest;
                 else if (quest->HasFlagEx(QUEST_FLAGS_EX_LEGENDARY))
                     result |= QuestGiverStatus::FutureLegendaryQuest;
                 else
@@ -19537,6 +19539,33 @@ void Player::AddInstanceEnterTime(uint32 instanceId, time_t enterTime)
 {
     if (_instanceResetTimes.find(instanceId) == _instanceResetTimes.end())
         _instanceResetTimes.insert(InstanceTimeMap::value_type(instanceId, enterTime + HOUR));
+}
+
+WorldSafeLocsEntry const* Player::GetInstanceEntrance(uint32 targetMapId)
+{
+    WorldSafeLocsEntry const* entranceLocation = nullptr;
+    MapEntry const* mapEntry = sMapStore.AssertEntry(targetMapId);
+
+    if (mapEntry->Instanceable())
+    {
+        // Check if we can contact the instancescript of the instance for an updated entrance location
+        if (uint32 targetInstanceId = sMapMgr->FindInstanceIdForPlayer(targetMapId, this))
+            if (Map* map = sMapMgr->FindMap(targetMapId, targetInstanceId))
+                if (InstanceMap* instanceMap = map->ToInstanceMap())
+                    if (InstanceScript* instanceScript = instanceMap->GetInstanceScript())
+                        entranceLocation = sObjectMgr->GetWorldSafeLoc(instanceScript->GetEntranceLocation());
+
+        // Finally check with the instancesave for an entrance location if we did not get a valid one from the instancescript
+        if (!entranceLocation)
+        {
+            Group* group = GetGroup();
+            Difficulty difficulty = group ? group->GetDifficultyID(mapEntry) : GetDifficultyID(mapEntry);
+            ObjectGuid instanceOwnerGuid = group ? group->GetRecentInstanceOwner(targetMapId) : GetGUID();
+            if (InstanceLock const* instanceLock = sInstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, { mapEntry, sDB2Manager.GetDownscaledMapDifficultyData(targetMapId, difficulty) }))
+                entranceLocation = sObjectMgr->GetWorldSafeLoc(instanceLock->GetData()->EntranceWorldSafeLocId);
+        }
+    }
+    return entranceLocation;
 }
 
 bool Player::_LoadHomeBind(PreparedQueryResult result)
@@ -23588,7 +23617,7 @@ void Player::UpdateTriggerVisibility()
         {
             Creature* creature = GetMap()->GetCreature(*itr);
             // Update fields of triggers, transformed units or uninteractible units (values dependent on GM state)
-            if (!creature || (!creature->IsTrigger() && !creature->HasAuraType(SPELL_AURA_TRANSFORM) && !creature->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE)))
+            if (!creature || (!creature->IsTrigger() && !creature->HasAuraType(SPELL_AURA_TRANSFORM) && !creature->IsUninteractible()))
                 continue;
 
             creature->ForceUpdateFieldChange(creature->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayID));

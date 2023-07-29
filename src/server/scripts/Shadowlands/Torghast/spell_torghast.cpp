@@ -26,8 +26,6 @@
 // 297721 - Subjugator's Manacles
 class spell_torghast_subjugators_manacles : public AuraScript
 {
-    PrepareAuraScript(spell_torghast_subjugators_manacles);
-
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
     {
         if (_triggeredTargets.contains(procInfo.GetProcTarget()->GetGUID()))
@@ -55,8 +53,6 @@ class spell_torghast_subjugators_manacles : public AuraScript
 // 300771 - Blade of the Lifetaker
 class spell_torghast_blade_of_the_lifetaker : public AuraScript
 {
-    PrepareAuraScript(spell_torghast_blade_of_the_lifetaker);
-
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
     {
         PreventDefaultAction();
@@ -75,8 +71,6 @@ class spell_torghast_blade_of_the_lifetaker : public AuraScript
 // 300796 - Touch of the Unseen
 class spell_torghast_touch_of_the_unseen : public AuraScript
 {
-    PrepareAuraScript(spell_torghast_touch_of_the_unseen);
-
     static constexpr uint32 SPELL_DOOR_OF_SHADOWS = 300728;
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -108,8 +102,6 @@ class spell_torghast_touch_of_the_unseen : public AuraScript
 // 305060 - Yel'Shir's Powerglove
 class spell_torghast_yelshirs_powerglove : public SpellScript
 {
-    PrepareSpellScript(spell_torghast_yelshirs_powerglove);
-
     void HandleEffect(SpellEffIndex /*effIndex*/)
     {
         if (SpellInfo const* triggeringSpell = GetTriggeringSpell())
@@ -126,8 +118,6 @@ class spell_torghast_yelshirs_powerglove : public SpellScript
 // 321706 - Dimensional Blade
 class spell_torghast_dimensional_blade : public SpellScript
 {
-    PrepareSpellScript(spell_torghast_dimensional_blade);
-
     static constexpr uint32 SPELL_MAGE_BLINK = 1953;
     static constexpr uint32 SPELL_MAGE_SHIMMER = 212653;
 
@@ -170,8 +160,6 @@ class spell_torghast_dimensional_blade : public SpellScript
 // 341324 - Uncontrolled Darkness
 class spell_torghast_uncontrolled_darkness : public AuraScript
 {
-    PrepareAuraScript(spell_torghast_uncontrolled_darkness);
-
     void Register() override
     {
         // just a value holder, no hooks
@@ -184,8 +172,6 @@ public:
 // 343174 - Uncontrolled Darkness
 class spell_torghast_uncontrolled_darkness_proc : public AuraScript
 {
-    PrepareAuraScript(spell_torghast_uncontrolled_darkness_proc);
-
     static constexpr uint32 SPELL_UNCONTROLLED_DARKNESS = 341324;
     static constexpr uint32 SPELL_UNCONTROLLED_DARKNESS_BUFF = 341375;
 
@@ -236,8 +222,6 @@ class spell_torghast_uncontrolled_darkness_proc : public AuraScript
 // 342632 - Malevolent Stitching
 class spell_torghast_fleshcraft_shield_proc : public AuraScript
 {
-    PrepareAuraScript(spell_torghast_fleshcraft_shield_proc);
-
     static constexpr uint32 SPELL_LABEL_FLESHCRAFT_BUFF = 1103;
 
     bool CheckProc(ProcEventInfo& procInfo)
@@ -254,8 +238,6 @@ class spell_torghast_fleshcraft_shield_proc : public AuraScript
 // 342779 - Crystallized Dreams
 class spell_torghast_soulshape_proc : public AuraScript
 {
-    PrepareAuraScript(spell_torghast_soulshape_proc);
-
     static constexpr uint32 SPELL_LABEL_SOULSHAPE = 1100;
 
     bool CheckProc(ProcEventInfo& procInfo)
@@ -273,8 +255,6 @@ class spell_torghast_soulshape_proc : public AuraScript
 // 342799 - Gnarled Key
 class spell_torghast_door_of_shadows_proc : public AuraScript
 {
-    PrepareAuraScript(spell_torghast_door_of_shadows_proc);
-
     static constexpr uint32 SPELL_LABEL_DOOR_OF_SHADOWS = 726;
 
     bool CheckProc(ProcEventInfo& procInfo)
@@ -291,8 +271,6 @@ class spell_torghast_door_of_shadows_proc : public AuraScript
 // 348908 - Ethereal Wildseed
 class spell_torghast_flicker_proc : public AuraScript
 {
-    PrepareAuraScript(spell_torghast_flicker_proc);
-
     static constexpr uint32 SPELL_LABEL_FLICKER = 1105;
 
     bool CheckProc(ProcEventInfo& procInfo)
@@ -309,8 +287,6 @@ class spell_torghast_flicker_proc : public AuraScript
 // 354569 - Potent Potion
 class spell_torghast_potent_potion_proc : public AuraScript
 {
-    PrepareAuraScript(spell_torghast_potent_potion_proc);
-
     static constexpr uint32 SPELL_LABEL_REJUVENATING_SIPHONED_ESSENCE = 1290;
 
     bool CheckProc(ProcEventInfo& procInfo)
@@ -327,8 +303,6 @@ class spell_torghast_potent_potion_proc : public AuraScript
 // 354706 - Spiritual Rejuvenation Potion
 class spell_torghast_potent_potion_calc : public SpellScript
 {
-    PrepareSpellScript(spell_torghast_potent_potion_calc);
-
     static constexpr uint32 SPELL_LABEL_SPIRITUAL_REJUVENATION_POTION = 354568;
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -352,8 +326,6 @@ class spell_torghast_potent_potion_calc : public SpellScript
 // 373761 - Poisonous Spores
 class spell_torghast_poisonous_spores : public AuraScript
 {
-    PrepareAuraScript(spell_torghast_poisonous_spores);
-
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
     {
         PreventDefaultAction();

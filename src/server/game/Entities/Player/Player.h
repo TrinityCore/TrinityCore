@@ -65,6 +65,7 @@ struct TalentEntry;
 struct TrainerSpell;
 struct TransferAbortParams;
 struct VendorItem;
+struct WorldSafeLocsEntry;
 
 class AELootResult;
 class Bag;
@@ -2608,6 +2609,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CheckInstanceValidity(bool /*isLogin*/);
         bool CheckInstanceCount(uint32 instanceId) const;
         void AddInstanceEnterTime(uint32 instanceId, time_t enterTime);
+        WorldSafeLocsEntry const* GetInstanceEntrance(uint32 targetMapId);
 
         // last used pet number (for BG's)
         uint32 GetLastPetNumber() const { return m_lastpetnumber; }
