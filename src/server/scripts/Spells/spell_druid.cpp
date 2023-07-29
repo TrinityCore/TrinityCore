@@ -762,20 +762,14 @@ class spell_dru_innervate : public SpellScript
 // 117679 - Incarnation (Passive)
 class spell_dru_incarnation : public AuraScript
 {
-    PrepareAuraScript(spell_dru_incarnation);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_DRUID_INCARNATION_TREE_OF_LIFE
-        });
+        return ValidateSpellInfo({ SPELL_DRUID_INCARNATION_TREE_OF_LIFE });
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        if (GetTarget()->HasAura(SPELL_DRUID_INCARNATION_TREE_OF_LIFE))
-            GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_INCARNATION_TREE_OF_LIFE);
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_INCARNATION_TREE_OF_LIFE);
     }
 
     void Register() override
@@ -787,17 +781,12 @@ class spell_dru_incarnation : public AuraScript
 // 33891 - Incarnation: Tree of Life (Talent, Shapeshift)
 class spell_dru_incarnation_tree_of_life : public AuraScript
 {
-    PrepareAuraScript(spell_dru_incarnation_tree_of_life);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_DRUID_INCARNATION
-        });
+        return ValidateSpellInfo({ SPELL_DRUID_INCARNATION });
     }
 
-    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         if (!GetTarget()->HasAura(SPELL_DRUID_INCARNATION))
             GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_INCARNATION, true);
@@ -1615,11 +1604,10 @@ class spell_dru_wild_growth : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_DRUID_TREE_OF_LIFE, EFFECT_2 } })
-            && ValidateSpellInfo({ SPELL_DRUID_TREE_OF_LIFE });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_DRUID_TREE_OF_LIFE, EFFECT_2 } });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
         targets.remove_if(RaidCheck(GetCaster()));
 
@@ -1633,22 +1621,12 @@ class spell_dru_wild_growth : public SpellScript
             targets.sort(Trinity::HealthPctOrderPred());
             targets.resize(maxTargets);
         }
-
-        _targets = targets;
-    }
-
-    void SetTargets(std::list<WorldObject*>& targets)
-    {
-        targets = _targets;
     }
 
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth::SetTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
     }
-
-    std::list<WorldObject*> _targets;
 };
 
 class spell_dru_wild_growth_aura : public AuraScript
