@@ -68,7 +68,7 @@ struct boss_kazzara_the_hellforged : public BossAI
                 scheduler.Schedule(1s + 500ms, [this](TaskContext /*context*/)
                 {
                     std::vector<Creature*> sunderedMobs;
-                    GetCreatureListWithOptionsInGrid(sunderedMobs, me, 50.0f, FindCreatureOptions().SetStringId("sundered_mob"));
+                    GetCreatureListWithOptionsInGrid(sunderedMobs, me, 50.0f, { .StringId = "sundered_mob" });
                     for (Creature* sunderedMob : sunderedMobs)
                     {
                         if (!sunderedMob->IsAlive() || sunderedMob->IsInCombat())
