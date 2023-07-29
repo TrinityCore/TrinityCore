@@ -1319,10 +1319,7 @@ class spell_pri_prayer_of_mending_dummy : public spell_pri_prayer_of_mending_Spe
 
         // Note: Epiphany talent. Only the non-triggered version should consume it.
         if (caster->HasAura(SPELL_PRIEST_EPIPHANY) && m_scriptSpellId == SPELL_PRIEST_PRAYER_OF_MENDING)
-        {
-            if (caster->HasAura(SPELL_PRIEST_EPIPHANY_HIGHLIGHT))
-                caster->RemoveAurasDueToSpell(SPELL_PRIEST_EPIPHANY_HIGHLIGHT);
-        }
+            caster->RemoveAurasDueToSpell(SPELL_PRIEST_EPIPHANY_HIGHLIGHT);
     }
 
     void Register() override
