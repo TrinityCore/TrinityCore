@@ -24,7 +24,6 @@
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "DB2Stores.h"
-#include "Group.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -96,7 +95,6 @@ enum DruidSpells
     SPELL_DRUID_SKULL_BASH_INTERRUPT           = 93985,
     SPELL_DRUID_SUNFIRE_DAMAGE                 = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS             = 50322,
-    SPELL_DRUID_TRANQUILITY                    = 740,
     SPELL_DRUID_TRAVEL_FORM                    = 783,
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
