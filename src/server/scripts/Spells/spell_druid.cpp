@@ -859,9 +859,9 @@ class spell_dru_lifebloom_heal : public SpellScript
         Unit* caster = GetCaster();
 
         // Note: Verdancy talent.
-        if (AuraEffect* const verdancyEffect = caster->GetAuraEffect(SPELL_DRUID_VERDANCY, EFFECT_0))
+        if (AuraEffect const* verdancyEffect = caster->GetAuraEffect(SPELL_DRUID_VERDANCY, EFFECT_0))
         {
-            AreaTrigger* const efflorescenceAT = caster->GetAreaTrigger(SPELL_DRUID_EFFLORESCENCE);
+            AreaTrigger const* efflorescenceAT = caster->GetAreaTrigger(SPELL_DRUID_EFFLORESCENCE);
             if (!efflorescenceAT)
                 return;
 
@@ -1008,7 +1008,7 @@ class spell_dru_photosynthesis_effect : public AuraScript
         if (target->GetGUID() != GetCasterGUID())
             return;
 
-        if (AuraEffect* photosynthesisEffect = target->GetAuraEffect(SPELL_DRUID_PHOTOSYNTHESIS, EFFECT_0))
+        if (AuraEffect const* photosynthesisEffect = target->GetAuraEffect(SPELL_DRUID_PHOTOSYNTHESIS, EFFECT_0))
             target->CastSpell(target, SPELL_DRUID_PHOTOSYNTHESIS_EFFECT, CastSpellExtraArgs(aurEff).AddSpellBP0(photosynthesisEffect->GetAmount()));
     }
 
