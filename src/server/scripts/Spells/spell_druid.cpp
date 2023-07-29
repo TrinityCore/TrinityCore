@@ -899,13 +899,10 @@ class spell_dru_flourish : public SpellScript
             if (aurEff->GetCasterGUID() != caster->GetGUID() || aurEff->IsAffectingSpell(GetSpellInfo()))
                 continue;
 
-            if (Aura* aura = aurEff->GetBase())
-            {
-                Milliseconds extraDuration = Seconds(GetEffectInfo(EFFECT_0).CalcValue());
+            Milliseconds extraDuration = Seconds(GetEffectInfo(EFFECT_0).CalcValue());
 
-                aura->SetDuration(aura->GetDuration() + extraDuration.count());
-                aura->SetMaxDuration(aura->GetMaxDuration() + extraDuration.count());
-            }
+            aurEff->GetBase()->SetDuration(aurEff->GetBase()->GetDuration() + extraDuration.count());
+            aurEff->GetBase()->SetMaxDuration(aurEff->GetBase()->GetMaxDuration() + extraDuration.count());
         }
     }
 
