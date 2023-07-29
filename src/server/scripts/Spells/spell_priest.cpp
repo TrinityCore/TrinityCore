@@ -373,80 +373,6 @@ class spell_pri_circle_of_healing : public SpellScript
     }
 };
 
-// 64844 - Divine Hymn (Heal)
-class spell_pri_divine_hymn_heal : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_HYMN, EFFECT_1 } });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        uint32 const maxTargets = uint32(GetSpellInfo()->MaxAffectedTargets);
-
-        // Note: Divine Hymn became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
-        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
-    }
-
-    void HandleCalculateHeal(SpellEffIndex /*effIndex*/)
-    {
-        Player* player = GetCaster()->ToPlayer();
-        if (!player)
-            return;
-
-        float healBonus = 1.0f;
-
-        // Note: if caster doesn't have group or has one which is not a raid group.
-        Group const* group = player->GetGroup();
-        if (!group || (group && !group->isRaidGroup()))
-        {
-            if (AuraEffect* divineHymnEffect = player->GetAuraEffect(SPELL_PRIEST_DIVINE_HYMN, EFFECT_1))
-                AddPct(healBonus, divineHymnEffect->GetAmount());
-        }
-
-        SetHitHeal(GetHitHeal() * healBonus);
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_divine_hymn_heal::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
-        OnEffectHitTarget += SpellEffectFn(spell_pri_divine_hymn_heal::HandleCalculateHeal, EFFECT_0, SPELL_EFFECT_HEAL);
-    }
-};
-
-class spell_pri_divine_hymn_heal_aura : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_HYMN, EFFECT_1 } });
-    }
-
-    void HandleCalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-    {
-        Player* player = GetCaster()->ToPlayer();
-        if (!player)
-            return;
-
-        float healBonus = 1.0f;
-
-        // Note: if caster doesn't have group or has one which is not a raid group.
-        Group const* group = player->GetGroup();
-        if (!group || (group && !group->isRaidGroup()))
-        {
-            if (AuraEffect* divineHymnEffect = player->GetAuraEffect(SPELL_PRIEST_DIVINE_HYMN, EFFECT_1))
-                AddPct(healBonus, divineHymnEffect->GetAmount());
-        }
-
-        amount *= healBonus;
-    }
-
-    void Register() override
-    {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_divine_hymn_heal_aura::HandleCalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
-    }
-};
-
 // 122121 - Divine Star (Shadow)
 class spell_pri_divine_star_shadow : public SpellScript
 {
@@ -2053,7 +1979,6 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_triggered);
     RegisterSpellScript(spell_pri_circle_of_healing);
-    RegisterSpellAndAuraScriptPair(spell_pri_divine_hymn_heal, spell_pri_divine_hymn_heal_aura);
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_empowered_renew);
