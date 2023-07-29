@@ -491,7 +491,7 @@ class spell_dru_embrace_of_the_dream : public AuraScript
 };
 
 // 392146 - Embrace of the Dream (Chooser)
-class spell_dru_embrace_of_the_dream_chooser : public SpellScript
+class spell_dru_embrace_of_the_dream_effect : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -509,8 +509,6 @@ class spell_dru_embrace_of_the_dream_chooser : public SpellScript
         targets.remove_if([&](WorldObject const* target)
         {
             Unit const* unitTarget = target->ToUnit();
-            if (!unitTarget)
-                return true;
 
             std::list<AuraEffect*> effectList = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
 
@@ -544,8 +542,8 @@ class spell_dru_embrace_of_the_dream_chooser : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_embrace_of_the_dream_chooser::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        OnEffectHitTarget += SpellEffectFn(spell_dru_embrace_of_the_dream_chooser::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_embrace_of_the_dream_effect::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_embrace_of_the_dream_effect::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1773,7 +1771,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_eclipse_dummy);
     RegisterSpellScript(spell_dru_eclipse_ooc);
     RegisterSpellScript(spell_dru_embrace_of_the_dream);
-    RegisterSpellScript(spell_dru_embrace_of_the_dream_chooser);
+    RegisterSpellScript(spell_dru_embrace_of_the_dream_effect);
     RegisterSpellAndAuraScriptPair(spell_dru_entangling_roots, spell_dru_entangling_roots_aura);
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_forms_trinket);
