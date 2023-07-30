@@ -555,7 +555,6 @@ class TC_GAME_API Battleground : public ZoneScript
         // this must be filled in constructors!
         uint32 StartMessageIds[BG_STARTING_EVENT_COUNT];
 
-        bool   m_BuffChange;
         bool   m_IsRandom;
 
         BGHonorMode m_HonorMode;

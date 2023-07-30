@@ -75,7 +75,6 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
     m_Events            = 0;
     m_StartDelayTime    = 0;
     m_IsRated           = false;
-    m_BuffChange        = false;
     m_IsRandom          = false;
     m_InBGFreeSlotQueue = false;
     m_SetDeleteThis     = false;
