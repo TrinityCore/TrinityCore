@@ -5262,47 +5262,42 @@ enum MajorHealingCooldownSpell : uint32
     SPELL_EVOKER_REWIND                  = 363534
 };
 
-class MajorHealingCooldownBonusModifier
+void ApplyMajorHealingCooldownBonusModifier(Player* player, uint32 spellId, float& healBonus)
 {
-public:
-
-    void ApplyMajorHealingCooldownBonusModifier(Player* player, uint32 spellId, float& healBonus)
+    // Note: if caster is not in a group or if their group is not a raid group.
+    Group const* group = player->GetGroup();
+    if (!group || (group && !group->isRaidGroup()))
     {
-        // Note: if caster is not in a group or if their group is not a raid group.
-        Group const* group = player->GetGroup();
-        if (!group || (group && !group->isRaidGroup()))
-        {
-            std::pair<uint32, uint8> spellIdAndIncreasingEffect = GetSpellIdAndIncreasingEffect(spellId);
+        std::pair<uint32, uint8> spellIdAndIncreasingEffect = GetSpellIdAndIncreasingEffect(spellId);
 
-            if (AuraEffect* const healingIncreaseEffect = player->GetAuraEffect(spellIdAndIncreasingEffect.first, spellIdAndIncreasingEffect.second))
-                AddPct(healBonus, healingIncreaseEffect->GetAmount());
-        }
+        if (AuraEffect* const healingIncreaseEffect = player->GetAuraEffect(spellIdAndIncreasingEffect.first, spellIdAndIncreasingEffect.second))
+            AddPct(healBonus, healingIncreaseEffect->GetAmount());
+    }
+}
+
+std::pair<uint32, uint8> GetSpellIdAndIncreasingEffect(uint32 spellId)
+{
+    // Note: some return spellId because their increasing effect is inside the same healing or absorb spell.
+    switch (spellId)
+    {
+        case SPELL_DRUID_TRANQUILITY_HEAL:
+            return { SPELL_DRUID_TRANQUILITY, EFFECT_2 };
+        case SPELL_PRIEST_DIVINE_HYMN_HEAL:
+            return { SPELL_PRIEST_DIVINE_HYMN, EFFECT_1 };
+        case SPELL_PRIEST_LUMINOUS_BARRIER:
+            return { spellId, EFFECT_1 };
+        case SPELL_SHAMAN_HEALING_TIDE_TOTEM_HEAL:
+            return { SPELL_SHAMAN_HEALING_TIDE_TOTEM, EFFECT_2 };
+        case SPELL_MONK_REVIVAL:
+            return { spellId, EFFECT_4 };
+        case SPELL_EVOKER_REWIND:
+            return { spellId, EFFECT_3 };
+        default:
+            break;
     }
 
-    std::pair<uint32, uint8> GetSpellIdAndIncreasingEffect(uint32 spellId)
-    {
-        // Note: some return spellId because their increasing effect is inside the same healing or absorb spell.
-        switch (spellId)
-        {
-            case SPELL_DRUID_TRANQUILITY_HEAL:
-                return { SPELL_DRUID_TRANQUILITY, EFFECT_2 };
-            case SPELL_PRIEST_DIVINE_HYMN_HEAL:
-                return { SPELL_PRIEST_DIVINE_HYMN, EFFECT_1 };
-            case SPELL_PRIEST_LUMINOUS_BARRIER:
-                return { spellId, EFFECT_1 };
-            case SPELL_SHAMAN_HEALING_TIDE_TOTEM_HEAL:
-                return { SPELL_SHAMAN_HEALING_TIDE_TOTEM, EFFECT_2 };
-            case SPELL_MONK_REVIVAL:
-                return { spellId, EFFECT_4 };
-            case SPELL_EVOKER_REWIND:
-                return { spellId, EFFECT_3 };
-            default:
-                break;
-        }
-
-        return {};
-    }
-};
+    return {};
+}
 
 // 157982 - Tranquility (Heal)
 // 64844 - Divine Hymn (Heal)
@@ -5310,7 +5305,7 @@ public:
 // 114942 - Healing Tide (Heal)
 // 115310 - Revival (Heal)
 // 363534 - Rewind (Heal)
-class spell_gen_major_healing_cooldown_modifier : public SpellScript, MajorHealingCooldownBonusModifier
+class spell_gen_major_healing_cooldown_modifier : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -5343,7 +5338,7 @@ class spell_gen_major_healing_cooldown_modifier : public SpellScript, MajorHeali
     }
 };
 
-class spell_gen_major_healing_cooldown_modifier_aura : public AuraScript, MajorHealingCooldownBonusModifier
+class spell_gen_major_healing_cooldown_modifier_aura : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
