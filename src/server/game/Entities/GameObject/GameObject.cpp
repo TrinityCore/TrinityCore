@@ -503,6 +503,51 @@ void SetTransportAutoCycleBetweenStopFrames::Execute(GameObjectTypeBase& type) c
     if (Transport* transport = dynamic_cast<Transport*>(&type))
         transport->SetAutoCycleBetweenStopFrames(_on);
 }
+
+class NewFlag : public GameObjectTypeBase
+{
+public:
+    explicit NewFlag(GameObject& owner) : GameObjectTypeBase(owner), _state(FlagState::InBase), _respawnTime(0) { }
+
+    void SetState(FlagState newState, Player* player)
+    {
+        FlagState oldState = _state;
+        _state = newState;
+        _owner.UpdateObjectVisibility();
+        if (ZoneScript* zoneScript = _owner.GetZoneScript())
+            zoneScript->OnFlagStateChange(&_owner, oldState, _state, player);
+
+        if (newState == FlagState::Respawning)
+            _respawnTime = GameTime::GetGameTimeMS() + _owner.GetGOInfo()->newflag.RespawnTime;
+        else
+            _respawnTime = 0;
+    }
+
+    void Update([[maybe_unused]] uint32 diff) override
+    {
+        if (_state == FlagState::Respawning && GameTime::GetGameTimeMS() >= _respawnTime)
+            SetState(FlagState::InBase, nullptr);
+    }
+
+    bool IsNeverVisibleFor([[maybe_unused]] WorldObject const* seer, [[maybe_unused]] bool allowServersideObjects) const override
+    {
+        return _state != FlagState::InBase;
+    }
+
+private:
+    FlagState _state;
+    time_t _respawnTime;
+};
+
+SetNewFlagState::SetNewFlagState(FlagState state, Player* player) : _state(state), _player(player)
+{
+}
+
+void SetNewFlagState::Execute(GameObjectTypeBase& type) const
+{
+    if (NewFlag* newFlag = dynamic_cast<NewFlag*>(&type))
+        newFlag->SetState(_state, _player);
+}
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
@@ -796,6 +841,9 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
                 m_invisibility.AddFlag(INVISIBILITY_TRAP);
                 m_invisibility.AddValue(INVISIBILITY_TRAP, 300);
             }
+            break;
+        case GAMEOBJECT_TYPE_NEW_FLAG:
+            m_goTypeImpl = std::make_unique<GameObjectType::NewFlag>(*this);
             break;
         case GAMEOBJECT_TYPE_PHASEABLE_MO:
             RemoveFlag(GameObjectFlags(0xF00));
@@ -1317,6 +1365,13 @@ void GameObject::Update(uint32 diff)
             else if (!GetOwnerGUID().IsEmpty() || GetSpellId())
             {
                 SetRespawnTime(0);
+
+                if (GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG_DROP)
+                {
+                    if (GameObject* go = GetMap()->GetGameObject(GetOwnerGUID()))
+                        go->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase, nullptr));
+                }
+
                 Delete();
                 return;
             }
@@ -1806,6 +1861,9 @@ bool GameObject::IsNeverVisibleFor(WorldObject const* seer, bool allowServerside
 
     if (!GetDisplayId() && GetGOInfo()->IsDisplayMandatory())
         return true;
+
+    if (m_goTypeImpl)
+        return m_goTypeImpl->IsNeverVisibleFor(seer, allowServersideObjects);
 
     return false;
 }
@@ -2892,7 +2950,47 @@ void GameObject::Use(Unit* user)
                 return;
 
             spellId = info->newflag.pickupSpell;
+            spellCaster = nullptr;
             break;
+        }
+        case GAMEOBJECT_TYPE_NEW_FLAG_DROP:
+        {
+            GameObjectTemplate const* info = GetGOInfo();
+            if (!info)
+                return;
+
+            if (user->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            if (GameObject* owner = GetMap()->GetGameObject(GetOwnerGUID()))
+            {
+                if (owner->GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
+                {
+                    // friendly with enemy flag means you're taking it
+                    bool defenderInteract = !owner->IsFriendlyTo(user);
+                    if (defenderInteract && owner->GetGOInfo()->newflag.ReturnonDefenderInteract)
+                    {
+                        Delete();
+                        owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase, user->ToPlayer()));
+                        return;
+                    }
+                    else
+                    {
+                        // we let the owner cast the spell for now
+                        // so that caster guid is set correctly
+                        SpellCastResult result = owner->CastSpell(user, owner->GetGOInfo()->newflag.pickupSpell, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+                        if (result == SPELL_CAST_OK)
+                        {
+                            Delete();
+                            owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
+                            return;
+                        }
+                    }
+                }
+            }
+
+            Delete();
+            return;
         }
         case GAMEOBJECT_TYPE_ITEM_FORGE:
         {
@@ -3047,7 +3145,14 @@ void GameObject::Use(Unit* user)
     if (spellCaster)
         spellCaster->CastSpell(user, spellId, triggered);
     else
-        CastSpell(user, spellId);
+    {
+        SpellCastResult castResult = CastSpell(user, spellId);
+        if (castResult == SPELL_FAILED_SUCCESS)
+        {
+            if (GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
+                HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
+        }
+    }
 }
 
 void GameObject::SendCustomAnim(uint32 anim)
