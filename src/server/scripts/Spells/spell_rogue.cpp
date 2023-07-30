@@ -42,6 +42,9 @@ enum RogueSpells
     SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK           = 22482,
     SPELL_ROGUE_BROADSIDE                           = 193356,
     SPELL_ROGUE_BURIED_TREASURE                     = 199600,
+    SPELL_ROGUE_CHEAT_DEATH_DUMMY                   = 31231,
+    SPELL_ROGUE_CHEATED_DEATH                       = 45181,
+    SPELL_ROGUE_CHEATING_DEATH                      = 45182,
     SPELL_ROGUE_DEATH_FROM_ABOVE                    = 152150,
     SPELL_ROGUE_GRAND_MELEE                         = 193358,
     SPELL_ROGUE_GRAPPLING_HOOK                      = 195457,
@@ -160,6 +163,36 @@ class spell_rog_blade_flurry : public AuraScript
     }
 
     Unit* _procTarget = nullptr;
+};
+
+// 31230 - Cheat Death
+class spell_rog_cheat_death : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_CHEAT_DEATH_DUMMY, SPELL_ROGUE_CHEATED_DEATH, SPELL_ROGUE_CHEATING_DEATH })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        PreventDefaultAction();
+
+        if (!GetTarget()->HasAura(SPELL_ROGUE_CHEATED_DEATH))
+        {
+            int32 healAmount = int32(GetTarget()->CountPctFromMaxHealth(GetEffectInfo(EFFECT_1).CalcValue(GetTarget())));
+            GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_CHEAT_DEATH_DUMMY, true);
+            GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_CHEATED_DEATH, true);
+            GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_CHEATING_DEATH, true);
+            GetTarget()->SetHealth(healAmount);
+            absorbAmount = dmgInfo.GetDamage();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbOverkillFn(spell_rog_cheat_death::HandleAbsorb, EFFECT_0);
+    }
 };
 
 // 2818 - Deadly Poison
@@ -955,6 +988,7 @@ void AddSC_rogue_spell_scripts()
 {
     RegisterSpellScript(spell_rog_backstab);
     RegisterSpellScript(spell_rog_blade_flurry);
+    RegisterSpellScript(spell_rog_cheat_death);
     RegisterSpellScript(spell_rog_deadly_poison);
     RegisterSpellScript(spell_rog_envenom);
     RegisterSpellScript(spell_rog_eviscerate);
