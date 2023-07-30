@@ -23,13 +23,11 @@
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "Random.h"
 #include "SpellInfo.h"
 
 BattlegroundAB::BattlegroundAB(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     m_IsInformedNearVictory = false;
-    m_BuffChange = true;
     BgObjects.resize(0);
     BgCreatures.resize(0);
     m_lastTick = 0;

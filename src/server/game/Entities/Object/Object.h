@@ -459,7 +459,7 @@ struct FindGameObjectOptions
     Optional<std::string_view> StringId;
 
     Optional<bool> IsSummon;
-    Optional<bool> IsSpawned;
+    Optional<bool> IsSpawned = true; // most searches should be for spawned objects only, to search for "any" just clear this field at call site
 
     bool IgnorePhases = false;
     bool IgnoreNotOwnedPrivateObjects = true;
