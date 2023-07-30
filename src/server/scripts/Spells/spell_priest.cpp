@@ -36,6 +36,7 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
+#include "TemporarySummon.h"
 
 enum PriestSpells
 {
@@ -821,16 +822,12 @@ class spell_pri_inescapable_torment : public SpellScript
             mindbender->CastSpell(target, SPELL_PRIEST_INESCAPABLE_TORMENT_EFFECT, TRIGGERED_FULL_MASK);
 
             // Note: Mindbender's duration increases by SPELL_PRIEST_INESCAPABLE_TORMENT's (EFFECT_1)ms.
-            Aura* mindbenderSummon = caster->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_SHADOW ? caster->GetAura(SPELL_PRIEST_MINDBENDER_SHADOW) : caster->GetAura(SPELL_PRIEST_MINDBENDER_DISC);
-            if (mindbenderSummon)
-            {
-                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_INESCAPABLE_TORMENT, GetCastDifficulty());
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_INESCAPABLE_TORMENT, GetCastDifficulty());
 
-                Milliseconds extraDuration = Seconds(spellInfo->GetEffect(EFFECT_1).CalcValue());
+            Milliseconds extraDuration = Seconds(spellInfo->GetEffect(EFFECT_1).CalcValue());
 
-                mindbenderSummon->SetDuration(mindbenderSummon->GetDuration() + extraDuration.count());
-                mindbenderSummon->SetMaxDuration(mindbenderSummon->GetMaxDuration() + extraDuration.count());
-            }
+            if (TempSummon* mindbenderSummon = mindbender->ToTempSummon())
+                mindbenderSummon->SetDuration(mindbenderSummon->GetTimer() + extraDuration.count());
         }
     }
 
