@@ -432,29 +432,8 @@ class FlaggedValuesArray32
         T_FLAGS m_flags;
 };
 
-struct TC_GAME_API FindCreatureOptions
+struct FindCreatureOptions
 {
-    FindCreatureOptions();
-    ~FindCreatureOptions();
-
-    FindCreatureOptions& SetCreatureId(uint32 creatureId) { CreatureId = creatureId; return *this; }
-    FindCreatureOptions& SetStringId(std::string_view stringId) { StringId = stringId; return *this; }
-
-    FindCreatureOptions& SetIsAlive(bool isAlive) { IsAlive = isAlive; return *this; }
-    FindCreatureOptions& SetIsInCombat(bool isInCombat) { IsInCombat = isInCombat; return *this; }
-    FindCreatureOptions& SetIsSummon(bool isSummon) { IsSummon = isSummon; return *this; }
-
-    FindCreatureOptions& SetIgnorePhases(bool ignorePhases) { IgnorePhases = ignorePhases; return *this; }
-    FindCreatureOptions& SetIgnoreNotOwnedPrivateObjects(bool ignoreNotOwnedPrivateObjects) { IgnoreNotOwnedPrivateObjects = ignoreNotOwnedPrivateObjects; return *this; }
-    FindCreatureOptions& SetIgnorePrivateObjects(bool ignorePrivateObjects) { IgnorePrivateObjects = ignorePrivateObjects; return *this; }
-
-    FindCreatureOptions& SetHasAura(uint32 spellId) { AuraSpellId = spellId; return *this; }
-    FindCreatureOptions& SetOwner(ObjectGuid ownerGuid) { OwnerGuid = ownerGuid; return *this; }
-    FindCreatureOptions& SetCharmer(ObjectGuid charmerGuid) { CharmerGuid = charmerGuid; return *this; }
-    FindCreatureOptions& SetCreator(ObjectGuid creatorGuid) { CreatorGuid = creatorGuid; return *this; }
-    FindCreatureOptions& SetDemonCreator(ObjectGuid demonCreatorGuid) { DemonCreatorGuid = demonCreatorGuid; return *this; }
-    FindCreatureOptions& SetPrivateObjectOwner(ObjectGuid privateObjectOwnerGuid) { PrivateObjectOwnerGuid = privateObjectOwnerGuid; return *this; }
-
     Optional<uint32> CreatureId;
     Optional<std::string_view> StringId;
 
@@ -472,12 +451,6 @@ struct TC_GAME_API FindCreatureOptions
     Optional<ObjectGuid> CreatorGuid;
     Optional<ObjectGuid> DemonCreatorGuid;
     Optional<ObjectGuid> PrivateObjectOwnerGuid;
-
-    FindCreatureOptions(FindCreatureOptions const&) = delete;
-    FindCreatureOptions(FindCreatureOptions&&) = delete;
-
-    FindCreatureOptions& operator=(FindCreatureOptions const&) = delete;
-    FindCreatureOptions& operator=(FindCreatureOptions&&) = delete;
 };
 
 class TC_GAME_API WorldObject : public Object, public WorldLocation

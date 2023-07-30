@@ -6209,6 +6209,19 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
     if (!target)
         return;
 
+    if (!apply)
+    {
+        if (GameObject* gameObjectCaster = target->GetMap()->GetGameObject(GetCasterGUID()))
+        {
+            if (gameObjectCaster->GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
+            {
+                gameObjectCaster->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Dropped, target));
+                if (GameObject* droppedFlag = gameObjectCaster->SummonGameObject(gameObjectCaster->GetGOInfo()->newflag.FlagDrop, target->GetPosition(), QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.f, 0.f), Seconds(gameObjectCaster->GetGOInfo()->newflag.ExpireDuration / 1000), GO_SUMMON_TIMED_DESPAWN))
+                    droppedFlag->SetOwnerGUID(gameObjectCaster->GetGUID());
+            }
+        }
+    }
+
     BattlegroundMap* battlegroundMap = target->GetMap()->ToBattlegroundMap();
     if (!battlegroundMap)
         return;
