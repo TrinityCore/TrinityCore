@@ -168,7 +168,7 @@ class TC_GAME_API Aura
         void SetMaxDuration(int32 duration) { m_maxDuration = duration; }
         int32 CalcMaxDuration() const { return CalcMaxDuration(GetCaster()); }
         int32 CalcMaxDuration(Unit* caster) const;
-        static int32 CalcMaxDuration(SpellInfo const* spellInfo, WorldObject* caster);
+        static int32 CalcMaxDuration(SpellInfo const* spellInfo, WorldObject const* caster, std::vector<SpellPowerCost> const* powerCosts);
         int32 GetDuration() const { return m_duration; }
         void SetDuration(int32 duration, bool withMods = false);
         void RefreshDuration(bool withMods = false);

@@ -750,7 +750,7 @@ Optional<float> AuraEffect::CalculateEstimatedAmount(Unit const* caster, int32 a
 float AuraEffect::CalculateEstimatedfTotalPeriodicAmount(Unit* caster, Unit* target, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo,
     float amount, uint8 stack)
 {
-    int32 maxDuration = Aura::CalcMaxDuration(spellInfo, caster);
+    int32 maxDuration = Aura::CalcMaxDuration(spellInfo, caster, nullptr);
     if (maxDuration <= 0)
         return 0.0f;
 

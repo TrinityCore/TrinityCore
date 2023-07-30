@@ -3959,22 +3959,16 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
     // Spell drain all exist power on cast (Only paladin lay of Hands)
     if (HasAttribute(SPELL_ATTR1_USE_ALL_MANA))
     {
+        if (optionalCost)
+            return {};
+
         // If power type - health drain all
         if (power->PowerType == POWER_HEALTH)
-        {
-            SpellPowerCost cost;
-            cost.Power = POWER_HEALTH;
-            cost.Amount = unitCaster->GetHealth();
-            return cost;
-        }
+            return SpellPowerCost{ .Power = POWER_HEALTH, .Amount = int32(unitCaster->GetHealth()) };
+
         // Else drain all power
         if (power->PowerType < MAX_POWERS)
-        {
-            SpellPowerCost cost;
-            cost.Power = Powers(power->PowerType);
-            cost.Amount = unitCaster->GetPower(cost.Power);
-            return cost;
-        }
+            return SpellPowerCost{ .Power = Powers(power->PowerType), .Amount = unitCaster->GetPower(Powers(power->PowerType)) };
 
         TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '{}' in spell {}", power->PowerType, Id);
         return {};
@@ -4158,10 +4152,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
     if (initiallyNegative != (powerCost < 0))
         powerCost = 0;
 
-    SpellPowerCost cost;
-    cost.Power = Powers(power->PowerType);
-    cost.Amount = powerCost;
-    return cost;
+    return SpellPowerCost{ .Power = Powers(power->PowerType), .Amount = powerCost };
 }
 
 std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask schoolMask, Spell* spell) const
@@ -4180,11 +4171,7 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(WorldObject const* caster, 
             if (itr != costs.end())
                 return *itr;
 
-            SpellPowerCost cost;
-            cost.Power = powerType;
-            cost.Amount = 0;
-            costs.push_back(cost);
-            return costs.back();
+            return costs.emplace_back<SpellPowerCost>({ .Power = powerType, .Amount = 0 });
         };
 
         for (SpellPowerEntry const* power : PowerCosts)
