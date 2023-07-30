@@ -2194,15 +2194,6 @@ GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float
     return go;
 }
 
-GameObject* WorldObject::FindNearestGameObject(std::unordered_set<uint32> const& entries, float range, bool spawnedOnly) const
-{
-    GameObject* go = nullptr;
-    Trinity::NearestGameObjectEntriesInObjectRangeCheck checker(*this, entries, range, spawnedOnly);
-    Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntriesInObjectRangeCheck> searcher(this, go, checker);
-    Cell::VisitGridObjects(this, searcher, range);
-    return go;
-}
-
 Player* WorldObject::SelectNearestPlayer(float distance) const
 {
     Player* target = nullptr;

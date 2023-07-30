@@ -459,7 +459,7 @@ struct FindGameObjectOptions
     Optional<std::string_view> StringId;
 
     Optional<bool> IsSummon;
-    Optional<bool> IsSpawned;
+    Optional<bool> IsSpawned = true; // most searches should be for spawned objects only, to search for "any" just clear this field at call site
 
     bool IgnorePhases = false;
     bool IgnoreNotOwnedPrivateObjects = true;
@@ -622,7 +622,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObjectWithOptions(float range, FindGameObjectOptions const& options) const;
         GameObject* FindNearestUnspawnedGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
-        GameObject* FindNearestGameObject(std::unordered_set<uint32> const& entries, float range, bool spawnedOnly = true) const;
         Player* SelectNearestPlayer(float distance) const;
 
         virtual ObjectGuid GetOwnerGUID() const = 0;
