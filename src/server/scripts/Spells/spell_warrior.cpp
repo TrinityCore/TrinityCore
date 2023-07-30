@@ -62,6 +62,8 @@ enum WarriorSpells
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_SHIELD_BLOCK_AURA                 = 132404,
     SPELL_WARRIOR_SHIELD_CHARGE_EFFECT              = 385953,
+    SPELL_WARRIOR_SHIELD_SLAM                       = 23922,
+    SPELL_WARRIOR_SHIELD_SLAM_MARKER                = 224324,
     SPELL_WARRIOR_SHOCKWAVE                         = 46968,
     SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_STOICISM                          = 70845,
@@ -280,6 +282,32 @@ class spell_warr_critical_thinking : public AuraScript
     void Register() override
     {
         AfterEffectProc += AuraEffectProcFn(spell_warr_critical_thinking::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+};
+
+// 236279 - Devastator
+class spell_warr_devastator : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo({ SPELL_WARRIOR_SHIELD_SLAM, SPELL_WARRIOR_SHIELD_SLAM_MARKER });
+    }
+
+    void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
+    {
+        if (GetTarget()->GetSpellHistory()->HasCooldown(SPELL_WARRIOR_SHIELD_SLAM))
+        {
+            if (roll_chance_i(GetEffectInfo(EFFECT_1).CalcValue()))
+            {
+                GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_SHIELD_SLAM, true);
+                GetTarget()->CastSpell(GetTarget(), SPELL_WARRIOR_SHIELD_SLAM_MARKER, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warr_devastator::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -770,6 +798,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_charge_effect);
     RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_critical_thinking);
+    RegisterSpellScript(spell_warr_devastator);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);

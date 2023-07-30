@@ -112,6 +112,13 @@ CertificatesFile = "./bnetserver.cert.pem"
 PrivateKeyFile = "./bnetserver.key.pem"
 
 #
+#    PrivateKeyPassword
+#        Description: Password used to encrypt private key.
+#        Default:     ""
+
+PrivateKeyPassword = ""
+
+#
 #    UseProcessors
 #        Description: Processors mask for Windows and Linux based multi-processor systems.
 #        Example:     A computer with 2 CPUs:
