@@ -946,9 +946,9 @@ public:
             else
             {
                 // Spell 37392 does not exist in dbc, manually spawning
-                me->SummonCreature(NPC_OSCILLATING_FREQUENCY_SCANNER_TOP_BUNNY, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 0.5f, me->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 50s);
-                me->SummonGameObject(GO_OSCILLATING_FREQUENCY_SCANNER, *me, QuaternionData(), 50s);
-                me->DespawnOrUnsummon(50s);
+                me->SummonCreature(NPC_OSCILLATING_FREQUENCY_SCANNER_TOP_BUNNY, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 0.5f, me->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 230s);
+                me->SummonGameObject(GO_OSCILLATING_FREQUENCY_SCANNER, *me, QuaternionData(), 230s);
+                me->DespawnOrUnsummon(230s);
             }
 
             timer = 500;
@@ -967,7 +967,7 @@ public:
                 if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
                     DoCast(player, SPELL_OSCILLATION_FIELD);
 
-                timer = 3000;
+                timer = 300;
             }
             else
                 timer -= diff;
