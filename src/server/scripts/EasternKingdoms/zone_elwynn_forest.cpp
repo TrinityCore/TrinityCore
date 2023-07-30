@@ -476,8 +476,8 @@ public:
 
     void OnConversationCreate(Conversation* conversation, Unit* creator) override
     {
-        Creature* mathiasObject = GetClosestCreatureWithOptions(creator, 15.0f, FindCreatureOptions().SetIgnorePhases(true).SetCreatureId(NPC_MATHIAS_SHAW));
-        Creature* vanessaObject = GetClosestCreatureWithOptions(creator, 15.0f, FindCreatureOptions().SetIgnorePhases(true).SetCreatureId(NPC_VANESSA_VANCLEEF));
+        Creature* mathiasObject = GetClosestCreatureWithOptions(creator, 15.0f, { .CreatureId = NPC_MATHIAS_SHAW, .IgnorePhases = true });
+        Creature* vanessaObject = GetClosestCreatureWithOptions(creator, 15.0f, { .CreatureId = NPC_VANESSA_VANCLEEF, .IgnorePhases = true });
         if (!mathiasObject || !vanessaObject)
             return;
 
@@ -589,8 +589,8 @@ public:
 
     void OnConversationCreate(Conversation* conversation, Unit* creator) override
     {
-        Creature* mathiasObject = GetClosestCreatureWithOptions(creator, 15.0f, FindCreatureOptions().SetIgnorePhases(true).SetCreatureId(NPC_MATHIAS_SHAW));
-        Creature* vanessaObject = GetClosestCreatureWithOptions(creator, 15.0f, FindCreatureOptions().SetIgnorePhases(true).SetCreatureId(NPC_VANESSA_VANCLEEF));
+        Creature* mathiasObject = GetClosestCreatureWithOptions(creator, 15.0f, { .CreatureId = NPC_MATHIAS_SHAW, .IgnorePhases = true });
+        Creature* vanessaObject = GetClosestCreatureWithOptions(creator, 15.0f, { .CreatureId = NPC_VANESSA_VANCLEEF, .IgnorePhases = true });
         if (!mathiasObject || !vanessaObject)
             return;
 
