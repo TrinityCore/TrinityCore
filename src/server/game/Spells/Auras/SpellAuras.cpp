@@ -924,21 +924,6 @@ void Aura::RefreshDuration(bool withMods)
 void Aura::RefreshTimers(bool resetPeriodicTimer)
 {
     m_maxDuration = CalcMaxDuration();
-    if (m_spellInfo->HasAttribute(SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER))
-    {
-        int32 minPeriod = m_maxDuration;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (AuraEffect const* eff = GetEffect(i))
-                if (int32 period = eff->GetPeriod())
-                    minPeriod = std::min(period, minPeriod);
-
-        // If only one tick remaining, roll it over into new duration
-        if (GetDuration() <= minPeriod)
-        {
-            m_maxDuration += GetDuration();
-            resetPeriodicTimer = false;
-        }
-    }
 
     RefreshDuration();
 
@@ -2060,7 +2045,7 @@ bool Aura::CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplicati
     {
         script->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_APPLY, aurApp);
         for (AuraScript::EffectApplyHandler const& onEffectApply : script->OnEffectApply)
-            if (onEffectApply.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()) && onEffectApply.GetMode() & mode)
+            if (onEffectApply.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
                 onEffectApply.Call(script, aurEff, mode);
 
         if (!preventDefault)
@@ -2079,7 +2064,7 @@ bool Aura::CallScriptEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplicat
     {
         script->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_REMOVE, aurApp);
         for (AuraScript::EffectApplyHandler const& onEffectRemove : script->OnEffectRemove)
-            if (onEffectRemove.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()) && onEffectRemove.GetMode() & mode)
+            if (onEffectRemove.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
                 onEffectRemove.Call(script, aurEff, mode);
 
         if (!preventDefault)
@@ -2096,7 +2081,7 @@ void Aura::CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraAppl
     {
         script->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_APPLY, aurApp);
         for (AuraScript::EffectApplyHandler const& afterEffectApply : script->AfterEffectApply)
-            if (afterEffectApply.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()) && afterEffectApply.GetMode() & mode)
+            if (afterEffectApply.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
                 afterEffectApply.Call(script, aurEff, mode);
 
         script->_FinishScriptCall();
@@ -2109,7 +2094,7 @@ void Aura::CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApp
     {
         script->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE, aurApp);
         for (AuraScript::EffectApplyHandler const& afterEffectRemove : script->AfterEffectRemove)
-            if (afterEffectRemove.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()) && afterEffectRemove.GetMode() & mode)
+            if (afterEffectRemove.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
                 afterEffectRemove.Call(script, aurEff, mode);
 
         script->_FinishScriptCall();
