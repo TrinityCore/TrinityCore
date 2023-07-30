@@ -5262,19 +5262,6 @@ enum MajorHealingCooldownSpell : uint32
     SPELL_EVOKER_REWIND                  = 363534
 };
 
-void ApplyMajorHealingCooldownBonusModifier(Player* player, uint32 spellId, float& healBonus)
-{
-    // Note: if caster is not in a group or if their group is not a raid group.
-    Group const* group = player->GetGroup();
-    if (!group || (group && !group->isRaidGroup()))
-    {
-        std::pair<uint32, uint8> spellIdAndIncreasingEffect = GetSpellIdAndIncreasingEffect(spellId);
-
-        if (AuraEffect* const healingIncreaseEffect = player->GetAuraEffect(spellIdAndIncreasingEffect.first, spellIdAndIncreasingEffect.second))
-            AddPct(healBonus, healingIncreaseEffect->GetAmount());
-    }
-}
-
 std::pair<uint32, uint8> GetSpellIdAndIncreasingEffect(uint32 spellId)
 {
     // Note: some return spellId because their increasing effect is inside the same healing or absorb spell.
@@ -5297,6 +5284,19 @@ std::pair<uint32, uint8> GetSpellIdAndIncreasingEffect(uint32 spellId)
     }
 
     return {};
+}
+
+void ApplyMajorHealingCooldownBonusModifier(Player* player, uint32 spellId, float& healBonus)
+{
+    // Note: if caster is not in a group or if their group is not a raid group.
+    Group const* group = player->GetGroup();
+    if (!group || (group && !group->isRaidGroup()))
+    {
+        std::pair<uint32, uint8> spellIdAndIncreasingEffect = GetSpellIdAndIncreasingEffect(spellId);
+
+        if (AuraEffect* const healingIncreaseEffect = player->GetAuraEffect(spellIdAndIncreasingEffect.first, spellIdAndIncreasingEffect.second))
+            AddPct(healBonus, healingIncreaseEffect->GetAmount());
+    }
 }
 
 // 157982 - Tranquility (Heal)
