@@ -80,3 +80,7 @@ zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
 zmqpp (C++ binding for 0mq/zmq is a 'high-level' library that hides most of the c-style interface core 0mq provides.)
   https://github.com/zeromq/zmqpp
   Version: 3.2.0 17e9f6afa98f56ecac1e3f3eecbfc112357a6732
+
+MinHook (The Minimalistic x86/x64 API Hooking Library for Windows)
+  https://github.com/TsudaKageyu/minhook
+  Version: 0f25a2449b3cf878bcbdbf91b693c38149ecf029

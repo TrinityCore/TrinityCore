@@ -8,15 +8,24 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if (WIN32)
-  add_subdirectory(client_launcher)
-  add_subdirectory(client_patcher)
-  add_subdirectory(connection_patcher)
+CollectSourceFiles(${CMAKE_CURRENT_SOURCE_DIR} PRIVATE_SOURCES)
+
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
+
+if(PLATFORM EQUAL 64)
+  set(target_name client_patcher_64)
 else()
-  add_subdirectory(connection_patcher)
+  set(target_name client_patcher_32)
 endif()
 
-add_subdirectory(map_extractor)
-add_subdirectory(vmap4_assembler)
-add_subdirectory(vmap4_extractor)
-add_subdirectory(mmaps_generator)
+add_library(${target_name} SHARED ${PRIVATE_SOURCES})
+
+target_link_libraries(${target_name}
+  PRIVATE
+    trinity-core-interface
+  PUBLIC
+    common
+    minhook
+)
+
+install(TARGETS ${target_name} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}")

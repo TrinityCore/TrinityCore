@@ -36,6 +36,9 @@ endif()
 
 if(TOOLS)
   add_subdirectory(StormLib)
+  if(WIN32)
+    add_subdirectory(MinHook)
+  endif()
 endif()
 
 if(BUILD_TESTING)
