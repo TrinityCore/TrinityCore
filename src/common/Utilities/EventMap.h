@@ -34,8 +34,8 @@ class TC_COMMON_API EventMap
         Event() = default;
         Event(EventId id, GroupIndex groupIndex, PhaseIndex phaseIndex) :
             _id(id),
-            _groupMask(1u << (groupIndex - 1u)),  // no index validity check here
-            _phaseMask(1u << (phaseIndex - 1u))   // no index validity check here
+            _groupMask(groupIndex ? (1u << (groupIndex - 1u)) : 0u), // no index validity check here
+            _phaseMask(phaseIndex ? (1u << (phaseIndex - 1u)) : 0u)  // no index validity check here
         {}
 
         EventId _id          = 0u;
