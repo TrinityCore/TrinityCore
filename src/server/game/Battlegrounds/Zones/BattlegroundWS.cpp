@@ -226,10 +226,10 @@ void BattlegroundWS::StartingEventOpenDoors()
     TriggerGameEvent(WS_EVENT_START_BATTLE);
 }
 
-void BattlegroundWS::AddPlayer(Player* player)
+void BattlegroundWS::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
 {
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
-    Battleground::AddPlayer(player);
+    Battleground::AddPlayer(player, queueId);
     if (!isInBattleground)
         PlayerScores[player->GetGUID()] = new BattlegroundWGScore(player->GetGUID(), player->GetBGTeam());
 }

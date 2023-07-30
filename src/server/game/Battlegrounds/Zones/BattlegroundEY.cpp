@@ -376,10 +376,10 @@ void BattlegroundEY::UpdatePointsIcons(uint32 Team, uint32 Point)
     }
 }
 
-void BattlegroundEY::AddPlayer(Player* player)
+void BattlegroundEY::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
 {
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
-    Battleground::AddPlayer(player);
+    Battleground::AddPlayer(player, queueId);
     if (!isInBattleground)
         PlayerScores[player->GetGUID()] = new BattlegroundEYScore(player->GetGUID(), player->GetBGTeam());
 

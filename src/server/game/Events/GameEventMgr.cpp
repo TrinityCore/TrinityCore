@@ -1115,8 +1115,6 @@ void GameEventMgr::UnApplyEvent(uint16 event_id)
     UpdateEventNPCFlags(event_id);
     // remove vendor items
     UpdateEventNPCVendor(event_id, false);
-    // update bg holiday
-    UpdateBattlegroundSettings();
 }
 
 void GameEventMgr::ApplyNewEvent(uint16 event_id)
@@ -1141,8 +1139,6 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     UpdateEventNPCFlags(event_id);
     // add vendor items
     UpdateEventNPCVendor(event_id, true);
-    // update bg holiday
-    UpdateBattlegroundSettings();
 
     //! Run SAI scripts with SMART_EVENT_GAME_EVENT_START
     RunSmartAIScripts(event_id, true);
@@ -1183,14 +1179,6 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
             }
         });
     }
-}
-
-void GameEventMgr::UpdateBattlegroundSettings()
-{
-    sBattlegroundMgr->ResetHolidays();
-
-    for (uint16 activeEventId : m_ActiveEvents)
-        sBattlegroundMgr->SetHolidayActive(mGameEventBattlegroundHolidays[activeEventId]);
 }
 
 void GameEventMgr::UpdateEventNPCVendor(uint16 event_id, bool activate)
