@@ -7012,6 +7012,38 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         }
     }
 
+    // 77495 - Mastery: Harmony
+    if (AuraEffect const* harmonyEffect = GetAuraEffect(77495, EFFECT_0))
+    {
+        int8 healingPeriodicCount = 0;
+
+        AuraEffectList const& periodicHealingAuras = victim->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
+        for (AuraEffect const* aurEff : periodicHealingAuras)
+        {
+            if (aurEff->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID && aurEff->GetCasterGUID() == GetGUID())
+                healingPeriodicCount++;
+
+            // Note: Harmonious Blooming talent.
+            if (AuraEffect const* harmoniousBloomingEffect = GetAuraEffect(392256, EFFECT_0))
+            {
+                if (spellProto->Id == 33763 || spellProto->Id == 188550)
+                    healingPeriodicCount += harmoniousBloomingEffect->GetAmount();
+            }
+        }
+
+        float bonusHeal = 1.0f;
+
+        // Note: Wild Synthesis talent.
+        if (Aura* wildSynthesisAura = GetAura(400534))
+            bonusHeal += (wildSynthesisAura->GetStackAmount() * wildSynthesisAura->GetEffect(EFFECT_1)->GetAmount());
+
+        // Note: Nourish talent.
+        if (spellProto->Id == 50464)
+            bonusHeal = float(spellProto->GetEffect(EFFECT_1).CalcValue() / 100.0f);
+
+        DoneTotal += CalculatePct(int32(healamount), float(harmonyEffect->GetAmount() * healingPeriodicCount) * bonusHeal);
+    }
+
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
     // modify spell power by victim's SPELL_AURA_MOD_HEALING auras (eg Amplify/Dampen Magic)
