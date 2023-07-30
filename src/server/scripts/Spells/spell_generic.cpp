@@ -5370,7 +5370,7 @@ class spell_gen_major_healing_cooldown_modifier_aura : public AuraScript
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_major_healing_cooldown_modifier_aura::HandleCalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         else if (m_scriptSpellId == SPELL_EVOKER_REWIND)
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_major_healing_cooldown_modifier_aura::HandleCalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-        else
+        else if (m_scriptSpellId == SPELL_DRUID_TRANQUILITY || m_scriptSpellId == SPELL_PRIEST_DIVINE_HYMN)
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_major_healing_cooldown_modifier_aura::HandleCalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
     }
 };
