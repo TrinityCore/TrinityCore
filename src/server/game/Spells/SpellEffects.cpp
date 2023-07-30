@@ -4416,19 +4416,13 @@ void Spell::EffectPullTowards()
 
     if (!unitTarget)
         return;
+    
+    Position pos;
 
-    Position pos = m_caster->GetFirstCollisionPosition(m_caster->GetCombatReach(), m_caster->GetRelativeAngle(unitTarget));
+    float speedXY = unitTarget->GetExactDist(pos);
+    float speedZ = damage / 10.0f;
 
-    // This is a blizzlike mistake: this should be 2D distance according to projectile motion formulas, but Blizzard erroneously used 3D distance.
-    float distXY = unitTarget->GetExactDist(pos);
-
-    // Avoid division by 0
-    if (distXY < 0.001)
-        return;
-
-    float distZ = pos.GetPositionZ() - unitTarget->GetPositionZ();
-    float speedXY = effectInfo->MiscValue ? effectInfo->MiscValue / 10.0f : 30.0f;
-    float speedZ = (2 * speedXY * speedXY * distZ + Movement::gravity * distXY * distXY) / (2 * speedXY * distXY);
+    pos.Relocate(m_caster);
 
     if (!std::isfinite(speedZ))
     {
@@ -4436,7 +4430,7 @@ void Spell::EffectPullTowards()
         return;
     }
 
-    unitTarget->JumpTo(speedXY, speedZ, true, pos);
+    unitTarget->GetMotionMaster()->MoveJump(pos, speedXY, speedZ);
 }
 
 void Spell::EffectPullTowardsDest()
