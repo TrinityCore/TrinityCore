@@ -7031,17 +7031,15 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             }
         }
 
-        float bonusHeal = 1.0f;
-
         // Note: Wild Synthesis talent.
         if (Aura* wildSynthesisAura = GetAura(400534))
-            bonusHeal += (wildSynthesisAura->GetStackAmount() * wildSynthesisAura->GetEffect(EFFECT_1)->GetAmount());
+            DoneTotalMod += (wildSynthesisAura->GetStackAmount() * wildSynthesisAura->GetEffect(EFFECT_1)->GetAmount());
 
         // Note: Nourish talent.
         if (spellProto->Id == 50464)
-            bonusHeal = float(spellProto->GetEffect(EFFECT_1).CalcValue() / 100.0f);
+            DoneTotalMod = float(spellProto->GetEffect(EFFECT_1).CalcValue() / 100.0f);
 
-        DoneTotal += int32(CalculatePct(healamount, float(harmonyEffect->GetAmount() * healingPeriodicCount) * bonusHeal));
+        DoneTotal += int32(CalculatePct(healamount, float(harmonyEffect->GetAmount() * healingPeriodicCount) * DoneTotalMod));
     }
 
     // Done fixed damage bonus auras
