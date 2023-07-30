@@ -1460,7 +1460,7 @@ class spell_icc_harvest_blight_specimen : public SpellScript
 // 72585 - Soul Missile
 class spell_icc_soul_missile : public SpellScript
 {
-    void RelocateDest(SpellDestination& dest)
+    static void RelocateDest(SpellDestination& dest)
     {
         static Position const offset = { 0.0f, 0.0f, 200.0f, 0.0f };
         dest.RelocateOffset(offset);
