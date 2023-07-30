@@ -212,7 +212,7 @@ class spell_sha_ancestral_guidance_heal : public SpellScript
         return ValidateSpellInfo({ SPELL_SHAMAN_ANCESTRAL_GUIDANCE });
     }
 
-    void ResizeTargets(std::list<WorldObject*>& targets)
+    static void ResizeTargets(std::list<WorldObject*>& targets)
     {
         Trinity::SelectRandomInjuredTargets(targets, 3, true);
     }
