@@ -596,7 +596,7 @@ class spell_rog_rupture : public AuraScript
                 0.0375f         // 5 points: ${($m1 + $b1*5 + 0.0375 * $AP) * 8} damage over 16 secs
             };
 
-            uint32 cp = caster->GetComboPoints();
+            int32 cp = caster->GetPower(POWER_COMBO_POINTS);
             if (cp > 5)
                 cp = 5;
 
