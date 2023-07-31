@@ -179,7 +179,6 @@ class TC_GAME_API BattlegroundMgr
         bool   m_Testing;
         BattleMastersMap mBattleMastersMap;
 
-
         BattlegroundTemplate const* GetBattlegroundTemplateByMapId(uint32 mapId)
         {
             BattlegroundMapTemplateContainer::const_iterator itr = _battlegroundMapTemplates.find(mapId);

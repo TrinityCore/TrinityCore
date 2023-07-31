@@ -559,7 +559,6 @@ class TC_GAME_API Battleground : public ZoneScript
         // this must be filled in constructors!
         uint32 StartMessageIds[BG_STARTING_EVENT_COUNT];
 
-
         BGHonorMode m_HonorMode;
         int32 m_TeamScores[PVP_TEAMS_COUNT];
 
