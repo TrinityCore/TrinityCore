@@ -38,6 +38,7 @@ class WorldObject;
 class WorldPacket;
 class WorldSession;
 
+struct BattlegroundTemplate;
 struct ItemDisenchantLootEntry;
 struct MapEntry;
 
