@@ -176,14 +176,15 @@ class spell_rog_cheat_death : public AuraScript
 
     void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
     {
-        PreventDefaultAction();
-
         if (!GetTarget()->HasAura(SPELL_ROGUE_CHEATED_DEATH))
         {
+            PreventDefaultAction();
+
             int32 healAmount = int32(GetTarget()->CountPctFromMaxHealth(GetEffectInfo(EFFECT_1).CalcValue(GetTarget())));
-            GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_CHEAT_DEATH_DUMMY, true);
-            GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_CHEATED_DEATH, true);
-            GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_CHEATING_DEATH, true);
+
+            for (uint32 const& spellId : { SPELL_ROGUE_CHEAT_DEATH_DUMMY, SPELL_ROGUE_CHEATED_DEATH, SPELL_ROGUE_CHEATING_DEATH })
+                GetTarget()->CastSpell(GetTarget(), spellId, true);
+
             GetTarget()->SetHealth(healAmount);
             absorbAmount = dmgInfo.GetDamage();
         }
