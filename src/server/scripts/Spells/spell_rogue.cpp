@@ -571,28 +571,8 @@ class spell_rog_roll_the_bones : public SpellScript
 };
 
 // 1943 - Rupture
-class spell_rog_rupture : public SpellScript
+class spell_rog_rupture : public AuraScript
 {
-    void HandleHit(SpellEffIndex /*effIndex*/)
-    {
-        Optional<int32> comboPoints = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
-        const int32 MIN_DURATION = GetSpellInfo()->GetDuration();
-        int32 duration = MIN_DURATION * (*comboPoints + 1);
-
-        GetSpell()->SetSpellValue(SPELLVALUE_DURATION, duration);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_rog_rupture::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-    }
-};
-
-// 1943 - Rupture DOT
-class spell_rog_rupture_aura : public AuraScript
-{
-    PrepareAuraScript(spell_rog_rupture_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ROGUE_VENOMOUS_WOUNDS });
@@ -624,27 +604,7 @@ class spell_rog_rupture_aura : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_rog_rupture_aura::OnEffectRemoved, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-// 315496 - Slice and Dice
-class spell_rog_slice_and_dice : public SpellScript
-{
-    PrepareSpellScript(spell_rog_slice_and_dice);
-
-    void HandleApply(SpellEffIndex /*effIndex*/)
-    {
-        Optional<int32> comboPoints = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
-        const int32 MIN_DURATION = GetSpellInfo()->GetDuration();
-        int32 duration = MIN_DURATION * (*comboPoints + 1);
-
-        GetSpell()->SetSpellValue(SPELLVALUE_DURATION, duration);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_rog_slice_and_dice::HandleApply, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectRemove += AuraEffectRemoveFn(spell_rog_rupture::OnEffectRemoved, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1019,7 +979,6 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_restless_blades);
     RegisterSpellScript(spell_rog_roll_the_bones);
     RegisterSpellScript(spell_rog_rupture);
-    RegisterSpellScript(spell_rog_rupture_aura);
     RegisterSpellScript(spell_rog_ruthlessness);
     RegisterSpellScript(spell_rog_shadowstrike);
     RegisterSpellScript(spell_rog_sinister_strike);
@@ -1032,5 +991,4 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_vanish);
     RegisterSpellScript(spell_rog_vanish_aura);
     RegisterSpellScript(spell_rog_venomous_wounds);
-    RegisterSpellScript(spell_rog_slice_and_dice);
 }
