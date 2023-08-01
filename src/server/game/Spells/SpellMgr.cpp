@@ -508,7 +508,7 @@ SpellProcEntry const* SpellMgr::GetSpellProcEntry(SpellInfo const* spellInfo) co
     return nullptr;
 }
 
-bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo)
+bool SpellMgr::CanSpellTriggerProcOnEvent(SpellInfo const* procAuraSpellInfo, SpellProcEntry const& procEntry, ProcEventInfo& eventInfo)
 {
     // proc type doesn't match
     if (!(eventInfo.GetTypeMask() & procEntry.ProcFlags))
@@ -573,6 +573,10 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
             else
                 hitMask |= PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB;
         }
+
+        if (procAuraSpellInfo->HasAttribute(SPELL_ATTR12_CAN_PROC_FROM_IMMUNE))
+            hitMask |= PROC_HIT_IMMUNE;
+
         if (!(eventInfo.GetHitMask() & hitMask))
             return false;
     }

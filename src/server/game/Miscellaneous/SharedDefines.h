@@ -870,7 +870,7 @@ enum SpellAttr11 : uint32
 enum SpellAttr12 : uint32
 {
     SPELL_ATTR12_UNK0                            = 0x00000001, // TITLE Unknown attribute 0@Attr12
-    SPELL_ATTR12_UNK1                            = 0x00000002, // TITLE Unknown attribute 1@Attr12
+    SPELL_ATTR12_CAN_PROC_FROM_IMMUNE            = 0x00000002, // TITLE Can proc from immuned spells
     SPELL_ATTR12_UNK2                            = 0x00000004, // TITLE Unknown attribute 2@Attr12
     SPELL_ATTR12_UNK3                            = 0x00000008, // TITLE Unknown attribute 3@Attr12
     SPELL_ATTR12_UNK4                            = 0x00000010, // TITLE Unknown attribute 4@Attr12

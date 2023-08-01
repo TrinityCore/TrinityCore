@@ -1830,7 +1830,7 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
         return 0;
 
     // do checks against db data
-    if (!SpellMgr::CanSpellTriggerProcOnEvent(*procEntry, eventInfo))
+    if (!SpellMgr::CanSpellTriggerProcOnEvent(GetSpellInfo(), *procEntry, eventInfo))
         return 0;
 
     // do checks using conditions table
