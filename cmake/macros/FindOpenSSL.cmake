@@ -597,7 +597,6 @@ find_package_handle_standard_args(OpenSSL
     OPENSSL_INCLUDE_DIR
   VERSION_VAR
     OPENSSL_VERSION
-  HANDLE_VERSION_RANGE
   HANDLE_COMPONENTS
   FAIL_MESSAGE
     "Could NOT find OpenSSL, try to set the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR"
