@@ -234,6 +234,8 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_ON_RESIST_ABSORB_CALCULATION,
     SPELL_SCRIPT_HOOK_AFTER_CAST,
     SPELL_SCRIPT_HOOK_CALC_CRIT_CHANCE,
+    SPELL_SCRIPT_HOOK_CALC_DAMAGE,
+    SPELL_SCRIPT_HOOK_CALC_HEALING,
     SPELL_SCRIPT_HOOK_ON_PRECAST,
     SPELL_SCRIPT_HOOK_CALC_CAST_TIME,
 };
@@ -693,6 +695,60 @@ public:
         SafeWrapperType _safeWrapper;
     };
 
+    class DamageAndHealingCalcHandler final
+    {
+    public:
+        union DamageAndHealingCalcFnType
+        {
+            void(SpellScript::* Member)(Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
+            void(*Static)(Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
+        };
+
+        using SafeWrapperType = void(*)(SpellScript* spellScript, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl);
+
+        template<typename ScriptFunc>
+        explicit DamageAndHealingCalcHandler(ScriptFunc handler)
+        {
+            using ScriptClass = GetScriptClass_t<ScriptFunc>;
+
+            static_assert(sizeof(DamageAndHealingCalcFnType) >= sizeof(ScriptFunc));
+            static_assert(alignof(DamageAndHealingCalcFnType) >= alignof(ScriptFunc));
+
+            if constexpr (!std::is_void_v<ScriptClass>)
+            {
+                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, Unit*, int32&, int32&, float&>
+                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, Unit*, int32&, int32&, float&>, void>,
+                    "DamageAndHealingCalcHandler signature must be \"void CalcDamage(Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)\"");
+
+                _callImpl = { .Member = reinterpret_cast<decltype(DamageAndHealingCalcFnType::Member)>(handler) };
+                _safeWrapper = [](SpellScript* spellScript, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl)
+                {
+                    return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(victim, damageOrHealing, flatMod, pctMod);
+                };
+            }
+            else
+            {
+                static_assert(std::is_invocable_v<ScriptFunc, Unit*, int32&, int32&, float&>
+                    && std::is_same_v<std::invoke_result_t<ScriptFunc, Unit*, int32&, int32&, float&>, void>,
+                    "DamageAndHealingCalcHandler signature must be \"static void CalcDamage(Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)\"");
+
+                _callImpl = { .Static = reinterpret_cast<decltype(DamageAndHealingCalcFnType::Static)>(handler) };
+                _safeWrapper = [](SpellScript* /*spellScript*/, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl)
+                {
+                    return reinterpret_cast<ScriptFunc>(callImpl.Static)(victim, damageOrHealing, flatMod, pctMod);
+                };
+            }
+        }
+
+        void Call(SpellScript* spellScript, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod) const
+        {
+            return _safeWrapper(spellScript, victim, damageOrHealing, flatMod, pctMod, _callImpl);
+        }
+    private:
+        DamageAndHealingCalcFnType _callImpl;
+        SafeWrapperType _safeWrapper;
+    };
+
     class OnCalculateResistAbsorbHandler final
     {
     public:
@@ -835,6 +891,16 @@ public:
     HookList<DestinationTargetSelectHandler> OnDestinationTargetSelect;
     #define SpellDestinationTargetSelectFn(F, I, N) DestinationTargetSelectHandler(&F, I, N)
 
+    // example: CalcDamage += SpellCalcDamageFn(class::function);
+    // where function is void function(Unit* victim, int32& damage, int32& flatMod, float& pctMod)
+    HookList<DamageAndHealingCalcHandler> CalcDamage;
+    #define SpellCalcDamageFn(F) DamageAndHealingCalcHandler(&F)
+
+    // example: CalcHealing += SpellCalcHealingFn(class::function);
+    // where function is void function(Unit* victim, int32& healing, int32& flatMod, float& pctMod)
+    HookList<DamageAndHealingCalcHandler> CalcHealing;
+    #define SpellCalcHealingFn(F) DamageAndHealingCalcHandler(&F)
+
     // example: OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(class::function);
     // where function is void function(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount)
     HookList<OnCalculateResistAbsorbHandler> OnCalculateResistAbsorb;
@@ -850,14 +916,16 @@ public:
     // 5. OnCast - executed just before spell is launched (creates missile) or executed
     // 6. AfterCast - executed after spell missile is launched and immediate spell actions are done
     // 7. OnEffectLaunch - executed just before specified effect handler call - when spell missile is launched
-    // 8. OnEffectLaunchTarget - executed just before specified effect handler call - when spell missile is launched - called for each target from spell target map
-    // 9. OnCalcCritChance - executed just after specified effect handler call - when spell missile is launched - called for each target from spell target map
-    // 10. OnCalculateResistAbsorb - executed when damage resist/absorbs is calculated - before spell hit target
-    // 11. OnEffectHit - executed just before specified effect handler call - when spell missile hits dest
-    // 12. BeforeHit - executed just before spell hits a target - called for each target from spell target map
-    // 13. OnEffectHitTarget - executed just before specified effect handler call - called for each target from spell target map
-    // 14. OnHit - executed just before spell deals damage and procs auras - when spell hits target - called for each target from spell target map
-    // 15. AfterHit - executed just after spell finishes all it's jobs for target - called for each target from spell target map
+    // 8. OnCalcCritChance - executed just after specified effect handler call - when spell missile is launched - called for each target from spell target map
+    // 9. OnEffectLaunchTarget - executed just before specified effect handler call - when spell missile is launched - called for each target from spell target map
+    // 10a. CalcDamage - executed during specified effect handler call - when spell missile is launched - called for each target from spell target map
+    // 10b. CalcHealing - executed during specified effect handler call - when spell missile is launched - called for each target from spell target map
+    // 11. OnCalculateResistAbsorb - executed when damage resist/absorbs is calculated - before spell hit target
+    // 12. OnEffectHit - executed just before specified effect handler call - when spell missile hits dest
+    // 13. BeforeHit - executed just before spell hits a target - called for each target from spell target map
+    // 14. OnEffectHitTarget - executed just before specified effect handler call - called for each target from spell target map
+    // 15. OnHit - executed just before spell deals damage and procs auras - when spell hits target - called for each target from spell target map
+    // 16. AfterHit - executed just after spell finishes all it's jobs for target - called for each target from spell target map
 
     // this hook is only executed after a successful dispel of any aura
     // OnEffectSuccessfulDispel - executed just after effect successfully dispelled aura(s)
@@ -989,6 +1057,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_EFFECT_CALC_PERIODIC,
     AURA_SCRIPT_HOOK_EFFECT_CALC_SPELLMOD,
     AURA_SCRIPT_HOOK_EFFECT_CALC_CRIT_CHANCE,
+    AURA_SCRIPT_HOOK_EFFECT_CALC_DAMAGE_AND_HEALING,
     AURA_SCRIPT_HOOK_EFFECT_ABSORB,
     AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB,
     AURA_SCRIPT_HOOK_EFFECT_MANASHIELD,
@@ -1441,7 +1510,7 @@ public:
             {
                 static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect const*, Unit const*, float&>
                     && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect const*, Unit const*, float&>, void>,
-                    "EffectCalcSpellModHandler signature must be \"void CalcCritChance(AuraEffect const* aurEff, Unit const* victim, float& critChance)\"");
+                    "EffectCalcCritChanceHandler signature must be \"void CalcCritChance(AuraEffect const* aurEff, Unit const* victim, float& critChance)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectCalcCritChanceFnType::Member)>(handler) };
                 _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, Unit const* victim, float& critChance, AuraEffectCalcCritChanceFnType callImpl)
@@ -1453,7 +1522,7 @@ public:
             {
                 static_assert(std::is_invocable_v<ScriptFunc, AuraEffect const*, Unit const*, float&>
                     && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect const*, Unit const*, float&>, void>,
-                    "EffectCalcSpellModHandler signature must be \"static void CalcCritChance(AuraEffect const* aurEff, Unit const* victim, float& critChance)\"");
+                    "EffectCalcCritChanceHandler signature must be \"static void CalcCritChance(AuraEffect const* aurEff, Unit const* victim, float& critChance)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectCalcCritChanceFnType::Static)>(handler) };
                 _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, Unit const* victim, float& critChance, AuraEffectCalcCritChanceFnType callImpl)
@@ -1469,6 +1538,61 @@ public:
         }
     private:
         AuraEffectCalcCritChanceFnType _callImpl;
+        SafeWrapperType _safeWrapper;
+    };
+
+    class EffectCalcDamageAndHealingHandler final : public EffectBase
+    {
+    public:
+        union AuraEffectDamageAndHealingCalcFnType
+        {
+            void(AuraScript::* Member)(AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
+            void(*Static)(AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
+        };
+
+        using SafeWrapperType = void(*)(AuraScript* auraScript, AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, AuraEffectDamageAndHealingCalcFnType callImpl);
+
+        template<typename ScriptFunc>
+        explicit EffectCalcDamageAndHealingHandler(ScriptFunc handler, uint8 effIndex, uint16 auraType)
+            : EffectBase(effIndex, auraType)
+        {
+            using ScriptClass = GetScriptClass_t<ScriptFunc>;
+
+            static_assert(sizeof(AuraEffectDamageAndHealingCalcFnType) >= sizeof(ScriptFunc));
+            static_assert(alignof(AuraEffectDamageAndHealingCalcFnType) >= alignof(ScriptFunc));
+
+            if constexpr (!std::is_void_v<ScriptClass>)
+            {
+                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect const*, Unit*, int32&, int32&, float&>
+                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect const*, Unit*, int32&, int32&, float&>, void>,
+                    "EffectCalcDamageAndHealingHandler signature must be \"void CalcDamageAndHealing(AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)\"");
+
+                _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectDamageAndHealingCalcFnType::Member)>(handler) };
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, AuraEffectDamageAndHealingCalcFnType callImpl)
+                {
+                    return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff, victim, damageOrHealing, flatMod, pctMod);
+                };
+            }
+            else
+            {
+                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect const*, Unit*, int32&, int32&, float&>
+                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect const*, Unit*, int32&, int32&, float&>, void>,
+                    "EffectCalcDamageAndHealingHandler signature must be \"static void CalcDamageAndHealing(AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)\"");
+
+                _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectDamageAndHealingCalcFnType::Static)>(handler) };
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, AuraEffectDamageAndHealingCalcFnType callImpl)
+                {
+                    return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff, victim, damageOrHealing, flatMod, pctMod);
+                };
+            }
+        }
+
+        void Call(AuraScript* auraScript, AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod) const
+        {
+            return _safeWrapper(auraScript, aurEff, victim, damageOrHealing, flatMod, pctMod, _callImpl);
+        }
+    private:
+        AuraEffectDamageAndHealingCalcFnType _callImpl;
         SafeWrapperType _safeWrapper;
     };
 
@@ -2001,6 +2125,14 @@ public:
     // where function is: void function (AuraEffect const* aurEff, Unit* victim, float& critChance);
     HookList<EffectCalcCritChanceHandler> DoEffectCalcCritChance;
     #define AuraEffectCalcCritChanceFn(F, I, N) EffectCalcCritChanceHandler(&F, I, N)
+
+    // executed when aura effect calculates damage or healing for dots and hots
+    // example: DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
+    // example: DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
+    // where function is: void function (AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
+    HookList<EffectCalcDamageAndHealingHandler> DoEffectCalcDamageAndHealing;
+    #define AuraEffectCalcDamageFn(F, I, N) EffectCalcDamageAndHealingHandler(&F, I, N)
+    #define AuraEffectCalcHealingFn(F, I, N) EffectCalcDamageAndHealingHandler(&F, I, N)
 
     // executed when absorb aura effect is going to reduce damage
     // example: OnEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);

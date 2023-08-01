@@ -543,7 +543,7 @@ void Spell::EffectSchoolDMG()
 
         if (unitCaster && apply_direct_bonus)
         {
-            uint32 bonus = unitCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE, *effectInfo);
+            uint32 bonus = unitCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE, *effectInfo, 1, this);
             damage = bonus + uint32(bonus * variance);
             damage = unitTarget->SpellDamageBonusTaken(unitCaster, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE);
         }
@@ -1062,7 +1062,7 @@ void Spell::EffectPowerDrain()
     // add spell damage bonus
     if (unitCaster)
     {
-        uint32 bonus = unitCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE, *effectInfo);
+        uint32 bonus = unitCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE, *effectInfo, 1, this);
         damage = bonus + uint32(bonus * variance);
         damage = unitTarget->SpellDamageBonusTaken(unitCaster, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE);
     }
@@ -1176,10 +1176,10 @@ void Spell::EffectHeal()
     }
     // Death Pact - return pct of max health to caster
     else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
-        addhealth = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, int32(unitCaster->CountPctFromMaxHealth(damage)), HEAL, *effectInfo);
+        addhealth = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, int32(unitCaster->CountPctFromMaxHealth(damage)), HEAL, *effectInfo, 1, this);
     else
     {
-        uint32 bonus = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL, *effectInfo);
+        uint32 bonus = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL, *effectInfo, 1, this);
         addhealth = bonus + uint32(bonus * variance);
     }
 
@@ -1203,7 +1203,7 @@ void Spell::EffectHealPct()
     uint32 heal = unitTarget->CountPctFromMaxHealth(damage);
     if (Unit* unitCaster = GetUnitCasterForEffectHandlers())
     {
-        heal = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, heal, HEAL, *effectInfo);
+        heal = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, heal, HEAL, *effectInfo, 1, this);
         heal = unitTarget->SpellHealingBonusTaken(unitCaster, m_spellInfo, heal, HEAL);
     }
 
@@ -1221,7 +1221,7 @@ void Spell::EffectHealMechanical()
     Unit* unitCaster = GetUnitCasterForEffectHandlers();
     uint32 heal = damage;
     if (unitCaster)
-        heal = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, heal, HEAL, *effectInfo);
+        heal = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, heal, HEAL, *effectInfo, 1, this);
 
     heal += uint32(heal * variance);
     if (unitCaster)
@@ -1241,7 +1241,7 @@ void Spell::EffectHealthLeech()
     Unit* unitCaster = GetUnitCasterForEffectHandlers();
     uint32 bonus = 0;
     if (unitCaster)
-        bonus = unitCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE, *effectInfo);
+        bonus = unitCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE, *effectInfo, 1, this);
 
     damage = bonus + uint32(bonus * variance);
 
@@ -1264,7 +1264,7 @@ void Spell::EffectHealthLeech()
 
     if (unitCaster && unitCaster->IsAlive())
     {
-        healthGain = unitCaster->SpellHealingBonusDone(unitCaster, m_spellInfo, healthGain, HEAL, *effectInfo);
+        healthGain = unitCaster->SpellHealingBonusDone(unitCaster, m_spellInfo, healthGain, HEAL, *effectInfo, 1, this);
         healthGain = unitCaster->SpellHealingBonusTaken(unitCaster, m_spellInfo, healthGain, HEAL);
 
         HealInfo healInfo(unitCaster, unitCaster, healthGain, m_spellInfo, m_spellSchoolMask);
@@ -2801,6 +2801,7 @@ void Spell::EffectWeaponDmg()
     }
 
     int32 weaponDamage = unitCaster->CalculateDamage(m_attackType, normalized, addPctMods);
+    Mechanics mechanic = MECHANIC_NONE;
 
     // Sequence is important
     for (SpellEffectInfo const& spellEffectInfo : m_spellInfo->GetEffects())
@@ -2818,8 +2819,11 @@ void Spell::EffectWeaponDmg()
                 weaponDamage = int32(weaponDamage * weaponDamagePercentMod);
                 break;
             default:
-                break;                                      // not weapon damage effect, just skip
+                continue;                                   // not weapon damage effect, just skip
         }
+
+        if (spellEffectInfo.Mechanic != MECHANIC_NONE && mechanic == MECHANIC_NONE)
+            mechanic = spellEffectInfo.Mechanic;
     }
 
     weaponDamage += spell_bonus;
@@ -2829,7 +2833,7 @@ void Spell::EffectWeaponDmg()
     weaponDamage = std::max(weaponDamage, 0);
 
     // Add melee damage bonuses (also check for negative)
-    weaponDamage = unitCaster->MeleeDamageBonusDone(unitTarget, weaponDamage, m_attackType, SPELL_DIRECT_DAMAGE, m_spellInfo, effectInfo);
+    weaponDamage = unitCaster->MeleeDamageBonusDone(unitTarget, weaponDamage, m_attackType, SPELL_DIRECT_DAMAGE, m_spellInfo, mechanic, m_spellSchoolMask, this);
     m_damage += unitTarget->MeleeDamageBonusTaken(unitCaster, weaponDamage, m_attackType, SPELL_DIRECT_DAMAGE, m_spellInfo);
 }
 

@@ -2185,6 +2185,19 @@ void Aura::CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, Aura
     }
 }
 
+void Aura::CallScriptCalcDamageAndHealingHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)
+{
+    for (AuraScript* script : m_loadedScripts)
+    {
+        script->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_DAMAGE_AND_HEALING, aurApp);
+        for (AuraScript::EffectCalcDamageAndHealingHandler const& effectCalcDamageAndHealing : script->DoEffectCalcDamageAndHealing)
+            if (effectCalcDamageAndHealing.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
+                effectCalcDamageAndHealing.Call(script, aurEff, victim, damageOrHealing, flatMod, pctMod);
+
+        script->_FinishScriptCall();
+    }
+}
+
 void Aura::CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount, bool& defaultPrevented)
 {
     for (AuraScript* script : m_loadedScripts)

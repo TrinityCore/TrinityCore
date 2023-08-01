@@ -852,6 +852,8 @@ class TC_GAME_API Spell
         void CallScriptAfterHitHandlers();
     public:
         void CallScriptCalcCritChanceHandlers(Unit const* victim, float& chance);
+        void CallScriptCalcDamageHandlers(Unit* victim, int32& damage, int32& flatMod, float& pctMod);
+        void CallScriptCalcHealingHandlers(Unit* victim, int32& healing, int32& flatMod, float& pctMod);
     protected:
         void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
