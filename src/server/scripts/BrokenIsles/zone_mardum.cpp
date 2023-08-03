@@ -20,17 +20,17 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 
-enum SceneSpellData
+enum MardumSpellData
 {
     SPELL_START_DEMON_HUNTER_PLAY_SCENE = 193525
 };
 
-enum TrackerQuestData
+enum MardumQuestData
 {
     QUEST_DEMON_HUNTER_INTRO_TRACKER    = 40076
 };
 
-enum ConversationData
+enum MardumConversationData
 {
     CONVO_DEMONHUNTER_INTRO_START   = 705
 };
