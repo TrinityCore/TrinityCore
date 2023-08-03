@@ -8,7 +8,7 @@ on:
         required: true
 
 jobs:
-  build:
+  linux:
   
     runs-on: ubuntu-20.04
     
@@ -34,9 +34,25 @@ jobs:
         cd bin
         make -j 4 -k && make install
 
+    - name: 上传资源
+      uses: actions/upload-artifact@v3
+      with:
+        name: server-linux-64x-v${{ github.event.inputs.tag_name }}
+        path: ./bin/check_install/bin/**/*
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [ linux ]
+    steps:
+    - name: 下载资源
+      uses: actions/download-artifact@v3
+      with:
+        name: server-linux-64x-v${{ github.event.inputs.tag_name }}
+        path: server-linux-64x-v${{ github.event.inputs.tag_name }}/
+
     - name: 打包资源
       run: |
-        cd bin/check_install/bin/ && tar cvfz ../server-linux-64x-v${{ github.event.inputs.tag_name }}.tgz ./ && cd -
+        cd server-linux-64x-v${{ github.event.inputs.tag_name }}/ && tar cvfz ../server-linux-64x-v${{ github.event.inputs.tag_name }}.tgz ./ && cd -
 
     - name: 发布版本
       uses: softprops/action-gh-release@v1
@@ -50,10 +66,3 @@ jobs:
         prerelease: false
         files: |
           server-linux-64x-v${{ github.event.inputs.tag_name }}.tgz
-
-    - name: 检查程序
-      run: |
-        cd bin/check_install/bin
-        ./authserver --version
-        ./worldserver --version
-        
