@@ -1,34 +1,58 @@
 name: GCC
 
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'tag name'
+        required: true
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+  
+    runs-on: ubuntu-latest
+    
     steps:
-    - uses: actions/checkout@v2
-    - name: Dependencies
+    
+    - name: 签出源码
+      uses: actions/checkout@v3
+      
+    - name: 安装依赖
       run: |
-        sudo apt-get update && sudo apt-get install -yq libboost-all-dev g++-10
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10
-    - name: Setup
+        sudo apt-get update && sudo apt-get install -yq libboost-all-dev g++-8
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 100 --slave /usr/bin/g++ g++ /usr/bin/g++-8
+        
+    - name: 配置项目
       run: |
         mkdir bin
         cd bin
         cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install -DBUILD_TESTING=1
         cd ..
-    - name: Build
+        
+    - name: 编译项目
       run: |
         cd bin
         make -j 4 -k && make install
-    - name: Unit tests
+
+    - name: 打包资源
       run: |
-        cd bin
-        make test
-    - name: Check executables
+        cd bin/check_install/bin/ && tar cvfz ../server-linux-64x-v${{ github.event.inputs.tag_name }}.tgz ./ && cd -
+
+    - name: 检查程序
       run: |
         cd bin/check_install/bin
-        ./bnetserver --version
+        ./authserver --version
         ./worldserver --version
+        
+    - name: 发布版本
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.event.inputs.tag_name }}
+        name: server-v${{ github.event.inputs.tag_name }}
+        body: v${{ github.event.inputs.tag_name }} 版本发布.
+        draft: false
+        prerelease: false
+        files: |
+          server-linux-64x-v${{ github.event.inputs.tag_name }}.tgz
