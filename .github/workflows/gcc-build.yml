@@ -38,12 +38,6 @@ jobs:
       run: |
         cd bin/check_install/bin/ && tar cvfz ../server-linux-64x-v${{ github.event.inputs.tag_name }}.tgz ./ && cd -
 
-    - name: 检查程序
-      run: |
-        cd bin/check_install/bin
-        ./authserver --version
-        ./worldserver --version
-        
     - name: 发布版本
       uses: softprops/action-gh-release@v1
       env:
@@ -56,3 +50,10 @@ jobs:
         prerelease: false
         files: |
           server-linux-64x-v${{ github.event.inputs.tag_name }}.tgz
+
+    - name: 检查程序
+      run: |
+        cd bin/check_install/bin
+        ./authserver --version
+        ./worldserver --version
+        
