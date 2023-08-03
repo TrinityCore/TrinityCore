@@ -2252,7 +2252,7 @@ void Aura::CallScriptCalcDamageAndHealingHandlers(AuraEffect const* aurEff, Aura
 {
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_DAMAGE_AND_HEALING);
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_DAMAGE_AND_HEALING, aurApp);
         auto effEndItr = (*scritr)->DoEffectCalcDamageAndHealing.end(), effItr = (*scritr)->DoEffectCalcDamageAndHealing.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->Filter(m_spellInfo, SpellEffIndex(aurEff->GetEffIndex())))
