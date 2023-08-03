@@ -17,6 +17,7 @@
 
 #include "Conversation.h"
 #include "PhasingHandler.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 
