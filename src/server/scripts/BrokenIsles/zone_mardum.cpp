@@ -35,7 +35,6 @@ enum MardumConversationData
     CONVO_DEMONHUNTER_INTRO_START   = 705
 };
 
-
 class scene_demonhunter_intro : public SceneScript
 {
 public:
