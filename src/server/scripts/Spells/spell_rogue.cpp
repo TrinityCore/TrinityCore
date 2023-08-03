@@ -248,46 +248,34 @@ class spell_rog_deadly_poison : public SpellScript
 // 32645 - Envenom
 class spell_rog_envenom : public SpellScript
 {
-    void CalculateDamage(SpellEffIndex effIndex)
+    void CalculateDamage(Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& pctMod) const
     {
-        Optional<int32> comboPoints = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
-        int32 attackPower = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
+        pctMod *= GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS).value_or(0);
 
-        int32 damagePerCombo = (attackPower * GetSpellInfo()->GetEffect(effIndex).BonusCoefficientFromAP) * (*comboPoints);
         if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
-            damagePerCombo += t5->GetAmount();
-
-        int32 finalDamage = damagePerCombo;
-
-        SetHitDamage(finalDamage);
+            flatMod += t5->GetAmount();
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_rog_envenom::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_rog_envenom::CalculateDamage);
     }
 };
 
 // 196819 - Eviscerate
 class spell_rog_eviscerate : public SpellScript
 {
-    void CalculateDamage(SpellEffIndex effIndex)
+    void CalculateDamage(Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& pctMod) const
     {
-        Optional<int32> comboPoints = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
-        int32 attackPower = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
+        pctMod *= GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS).value_or(0);
 
-        int32 damagePerCombo = (attackPower * GetSpellInfo()->GetEffect(effIndex).BonusCoefficientFromAP) * (*comboPoints);
         if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
-            damagePerCombo += t5->GetAmount();
-
-        int32 finalDamage = damagePerCombo;
-
-        SetHitDamage(finalDamage);
+            flatMod += t5->GetAmount();
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_rog_eviscerate::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_rog_eviscerate::CalculateDamage);
     }
 };
 
