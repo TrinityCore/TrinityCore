@@ -2248,6 +2248,20 @@ void Aura::CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellM
     }
 }
 
+void Aura::CallScriptCalcDamageAndHealingHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_DAMAGE_AND_HEALING);
+        auto effEndItr = (*scritr)->DoEffectCalcDamageAndHealing.end(), effItr = (*scritr)->DoEffectCalcDamageAndHealing.begin();
+        for (; effItr != effEndItr; ++effItr)
+            if (effItr->Filter(m_spellInfo, SpellEffIndex(aurEff->GetEffIndex())))
+                effItr->Call(aurEff, victim, damageOrHealing, flatMod, pctMod);
+
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
 void Aura::CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool& defaultPrevented)
 {
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)

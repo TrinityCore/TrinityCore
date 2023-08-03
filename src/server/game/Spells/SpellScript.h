@@ -479,6 +479,8 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_BEFORE_CAST,
     SPELL_SCRIPT_HOOK_ON_CAST,
     SPELL_SCRIPT_HOOK_AFTER_CAST,
+    SPELL_SCRIPT_HOOK_CALC_DAMAGE,
+    SPELL_SCRIPT_HOOK_CALC_HEALING,
     SPELL_SCRIPT_HOOK_ON_SPELL_START
 };
 
@@ -494,10 +496,11 @@ class TC_GAME_API SpellScript : public _SpellScript
     // DO NOT OVERRIDE THESE IN SCRIPTS
     public:
         
-        using CheckCastHook   = HookHandler<SpellCastResult>;
-        using EffectNameHook  = EffectNameHookHandler<void, SpellEffIndex>;
-        using HitHook         = HookHandler<void>;
-        using CastHook        = HookHandler<void>;
+        using CheckCastHook             = HookHandler<SpellCastResult>;
+        using EffectNameHook            = EffectNameHookHandler<void, SpellEffIndex>;
+        using HitHook                   = HookHandler<void>;
+        using CastHook                  = HookHandler<void>;
+        using DamageAndHealingCalcHook  = HookHandler<void, Unit*, int32&, int32&, float&>;
 
     public:
         SpellScript()
@@ -508,6 +511,7 @@ class TC_GAME_API SpellScript : public _SpellScript
             AfterCast(this),
             OnCheckCast(this),
             OnEffectLaunch(this), OnEffectLaunchTarget(this), OnEffectHit(this), OnEffectHitTarget(this), OnEffectSuccessfulDispel(this),
+            CalcDamage(this), CalcHealing(this),
             BeforeHit(this), OnHit(this), AfterHit(this),
             OnObjectAreaTargetSelect(this), OnObjectTargetSelect(this), OnDestinationTargetSelect(this)
         {
@@ -521,6 +525,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         void _PrepareScriptCall(SpellScriptHookType hookType);
         void _FinishScriptCall();
         bool IsInCheckCastHook() const;
+        bool IsAfterTargetSelectionPhase() const;
         bool IsInTargetHook() const;
         bool IsInModifiableHook() const;
         bool IsInHitPhase() const;
@@ -562,6 +567,16 @@ class TC_GAME_API SpellScript : public _SpellScript
         EffectNameHook::HookList OnEffectHitTarget;
         EffectNameHook::HookList OnEffectSuccessfulDispel;
 
+    public: // SpellScript interface - Calc Damage or Heal hooks
+
+        // CalcDamage.Register(this, &class::function);
+        // Function is: void function(Unit* victim, int32& damage, int32& flatMod, float& pctMod);
+        DamageAndHealingCalcHook::HookList CalcDamage;
+
+        // CalcHealing.Register(this, &class::function);
+        // Function is: void function(Unit* victim, int32& healing, int32& flatMod, float& pctMod);
+        DamageAndHealingCalcHook::HookList CalcHealing;
+
     public: // SpellScript interface - Hit hooks
 
         // BeforeHit.Register(this, class::function);
@@ -600,6 +615,8 @@ class TC_GAME_API SpellScript : public _SpellScript
         // 5. AfterCast - executed after spell missile is launched and immediate spell actions are done
         // 6. OnEffectLaunch - executed just before specified effect handler call - when spell missile is launched
         // 7. OnEffectLaunchTarget - executed just before specified effect handler call - when spell missile is launched - called for each target from spell target map
+        // 10a. CalcDamage - executed during specified effect handler call - when spell missile is launched - called for each target from spell target map
+        // 10b. CalcHealing - executed during specified effect handler call - when spell missile is launched - called for each target from spell target map
         // 8. OnEffectHit - executed just before specified effect handler call - when spell missile hits dest
         // 9. BeforeHit - executed just before spell hits a target - called for each target from spell target map
         // 10. OnEffectHitTarget - executed just before specified effect handler call - called for each target from spell target map
@@ -720,6 +737,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_EFFECT_CALC_AMOUNT,
     AURA_SCRIPT_HOOK_EFFECT_CALC_PERIODIC,
     AURA_SCRIPT_HOOK_EFFECT_CALC_SPELLMOD,
+    AURA_SCRIPT_HOOK_EFFECT_CALC_DAMAGE_AND_HEALING,
     AURA_SCRIPT_HOOK_EFFECT_ABSORB,
     AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB,
     AURA_SCRIPT_HOOK_EFFECT_MANASHIELD,
@@ -751,13 +769,14 @@ class TC_GAME_API AuraScript : public _SpellScript
     // DO NOT OVERRIDE THESE IN SCRIPTS
     public:
 
-        using AuraCheckAreaTargetHookHandler      = HookHandler<bool, Unit*>;
-        using AuraDispelHookHandler               = HookHandler<void, DispelInfo*>;
-        using AuraEffectPeriodicHookHandler       = AuraNameHookHandler<void, AuraEffect const*>;
-        using AuraEffectUpdatePeriodicHookHandler = AuraNameHookHandler<void, AuraEffect*>;
-        using AuraEffectCalcAmountHookHandler     = AuraNameHookHandler<void, AuraEffect const*, int32&, bool&>;
-        using AuraEffectCalcPeriodicHookHandler   = AuraNameHookHandler<void, AuraEffect const*, bool&, int32&>;
-        using AuraEffectCalcSpellModHookHandler   = AuraNameHookHandler<void, AuraEffect const*, SpellModifier*&>;
+        using AuraCheckAreaTargetHookHandler        = HookHandler<bool, Unit*>;
+        using AuraDispelHookHandler                 = HookHandler<void, DispelInfo*>;
+        using AuraEffectPeriodicHookHandler         = AuraNameHookHandler<void, AuraEffect const*>;
+        using AuraEffectUpdatePeriodicHookHandler   = AuraNameHookHandler<void, AuraEffect*>;
+        using AuraEffectCalcAmountHookHandler       = AuraNameHookHandler<void, AuraEffect const*, int32&, bool&>;
+        using AuraEffectCalcPeriodicHookHandler     = AuraNameHookHandler<void, AuraEffect const*, bool&, int32&>;
+        using AuraEffectCalcSpellModHookHandler     = AuraNameHookHandler<void, AuraEffect const*, SpellModifier*&>;
+        using EffectCalcDamageAndHealingHookHandler = AuraNameHookHandler<void, AuraEffect const*, Unit*, int32&, int32&, float&>;
 
         template <typename R, typename... Args>
         struct TC_GAME_API AuraEffectHandleModeHookHandler : AuraNameHookHandler<R, Args...>
@@ -868,6 +887,7 @@ class TC_GAME_API AuraScript : public _SpellScript
             OnEffectRemove(this), AfterEffectRemove(this),
             OnEffectPeriodic(this), OnEffectUpdatePeriodic(this),
             DoEffectCalcAmount(this), DoEffectCalcPeriodic(this), DoEffectCalcSpellMod(this),
+            DoEffectCalcDamageAndHealing(this),
             OnEffectAbsorb(this), AfterEffectAbsorb(this),
             OnEffectManaShield(this), AfterEffectManaShield(this),
             OnEffectSplit(this),
@@ -964,6 +984,11 @@ class TC_GAME_API AuraScript : public _SpellScript
         // example: DoEffectCalcSpellMod.Register(this, &class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
         // where function is: void function (AuraEffect const* aurEff, SpellModifier*& spellMod);
         AuraEffectCalcSpellModHookHandler::HookList DoEffectCalcSpellMod;
+
+        // executed when aura effect calculates damage or healing for dots and hots
+        // example: DoEffectCalcDamageAndHealing.Register(this, &class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
+        // where function is: void function (AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
+        EffectCalcDamageAndHealingHookHandler::HookList DoEffectCalcDamageAndHealing;
 
         // executed when absorb aura effect is going to reduce damage
         // example: OnEffectAbsorb.Register(this, &class::function, EffectIndexSpecifier);

@@ -113,6 +113,27 @@ bool SpellScript::_Validate(SpellInfo const* entry)
         if (!(*itr).GetAffectedEffectsMask(entry))
             TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnDestinationTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
+    if (CalcDamage.size())
+    {
+        if (!entry->HasEffect(SPELL_EFFECT_SCHOOL_DAMAGE)
+            && !entry->HasEffect(SPELL_EFFECT_POWER_DRAIN)
+            && !entry->HasEffect(SPELL_EFFECT_HEALTH_LEECH)
+            && !entry->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE)
+            && !entry->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL)
+            && !entry->HasEffect(SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
+            && !entry->HasEffect(SPELL_EFFECT_WEAPON_PERCENT_DAMAGE))
+            TC_LOG_ERROR("scripts", "Spell `%u` script `%s` does not have a damage effect - handler bound to hook `CalcDamage` of SpellScript won't be executed", entry->Id, m_scriptName->c_str());
+    }
+
+    if (CalcHealing.size())
+    {
+        if (!entry->HasEffect(SPELL_EFFECT_HEAL)
+            && !entry->HasEffect(SPELL_EFFECT_HEAL_PCT)
+            && !entry->HasEffect(SPELL_EFFECT_HEAL_MECHANICAL)
+            && !entry->HasEffect(SPELL_EFFECT_HEALTH_LEECH))
+            TC_LOG_ERROR("scripts", "Spell `%u` script `%s` does not have a damage effect - handler bound to hook `CalcHealing` of SpellScript won't be executed", entry->Id, m_scriptName->c_str());
+    }
+
     return _SpellScript::_Validate(entry);
 }
 
@@ -145,6 +166,17 @@ bool SpellScript::IsInCheckCastHook() const
 {
     return m_currentScriptState == SPELL_SCRIPT_HOOK_CHECK_CAST;
 }
+
+bool SpellScript::IsAfterTargetSelectionPhase() const
+{
+    return IsInHitPhase()
+        || IsInEffectHook()
+        || m_currentScriptState == SPELL_SCRIPT_HOOK_ON_CAST
+        || m_currentScriptState == SPELL_SCRIPT_HOOK_AFTER_CAST
+        || m_currentScriptState == SPELL_SCRIPT_HOOK_CALC_DAMAGE
+        || m_currentScriptState == SPELL_SCRIPT_HOOK_CALC_HEALING;
+}
+
 bool SpellScript::IsInTargetHook() const
 {
     switch (m_currentScriptState)
@@ -514,6 +546,10 @@ bool AuraScript::_Validate(SpellInfo const* entry)
         if (!(*itr).GetAffectedEffectsMask(entry))
             TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoEffectCalcSpellMod` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
+    for (auto itr = DoEffectCalcDamageAndHealing.begin(); itr != DoEffectCalcDamageAndHealing.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoEffectCalcDamageAndHealing` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+
     for (auto itr = OnEffectAbsorb.begin(); itr != OnEffectAbsorb.end();  ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectAbsorb` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
@@ -808,6 +844,7 @@ Unit* AuraScript::GetTarget() const
         case AURA_SCRIPT_HOOK_EFFECT_AFTER_APPLY:
         case AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE:
         case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
+        case AURA_SCRIPT_HOOK_EFFECT_CALC_DAMAGE_AND_HEALING:
         case AURA_SCRIPT_HOOK_EFFECT_ABSORB:
         case AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB:
         case AURA_SCRIPT_HOOK_EFFECT_MANASHIELD:

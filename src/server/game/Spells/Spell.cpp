@@ -8427,6 +8427,32 @@ void Spell::CallScriptAfterHitHandlers()
     }
 }
 
+void Spell::CallScriptCalcDamageHandlers(Unit* victim, int32& damage, int32& flatMod, float& pctMod)
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CALC_DAMAGE);
+        auto hookItrEnd = (*scritr)->CalcDamage.end(), hookItr = (*scritr)->CalcDamage.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            (*hookItr).Call(victim, damage, flatMod, pctMod);
+
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Spell::CallScriptCalcHealingHandlers(Unit* victim, int32& healing, int32& flatMod, float& pctMod)
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CALC_HEALING);
+        auto hookItrEnd = (*scritr)->CalcHealing.end(), hookItr = (*scritr)->CalcHealing.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            (*hookItr).Call(victim, healing, flatMod, pctMod);
+
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
 void Spell::CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
 {
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
