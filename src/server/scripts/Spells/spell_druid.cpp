@@ -33,6 +33,8 @@
 
 enum DruidSpells
 {
+    SPELL_DRUID_ABUNDANCE                      = 207383,
+    SPELL_DRUID_ABUNDANCE_EFFECT               = 207640,
     SPELL_DRUID_BALANCE_T10_BONUS              = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC         = 70721,
     SPELL_DRUID_BEAR_FORM                      = 5487,
@@ -47,6 +49,8 @@ enum DruidSpells
     SPELL_DRUID_BRAMBLES_REFLECT               = 203958,
     SPELL_DRUID_BRISTLING_FUR_GAIN_RAGE        = 204031,
     SPELL_DRUID_CAT_FORM                       = 768,
+    SPELL_DRUID_CULTIVATION                    = 200390,
+    SPELL_DRUID_CULTIVATION_HEAL               = 200389,
     SPELL_DRUID_CURIOUS_BRAMBLEPATCH           = 330670,
     SPELL_DRUID_EARTHWARDEN_AURA               = 203975,
     SPELL_DRUID_ECLIPSE_DUMMY                  = 79577,
@@ -120,6 +124,45 @@ public:
 
 private:
     Unit const* _caster;
+};
+
+// 774 - Rejuvenation
+// 155777 - Rejuventation (Germination)
+class spell_dru_abundance : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ABUNDANCE, SPELL_DRUID_ABUNDANCE_EFFECT });
+    }
+
+    void HandleOnApplyOrReapply(AuraEffect const* aurEff, AuraEffectHandleModes mode) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->HasAura(SPELL_DRUID_ABUNDANCE))
+            return;
+
+        // Note: caster only casts Abundance when first applied on the target, otherwise that given stack is refreshed.
+        if (mode & AURA_EFFECT_HANDLE_REAL)
+            caster->CastSpell(caster, SPELL_DRUID_ABUNDANCE_EFFECT, CastSpellExtraArgs().SetTriggeringAura(aurEff));
+        else if (Aura* abundanceAura = caster->GetAura(SPELL_DRUID_ABUNDANCE_EFFECT))
+            abundanceAura->RefreshDuration();
+    }
+
+    void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (Aura* abundanceEffect = caster->GetAura(SPELL_DRUID_ABUNDANCE_EFFECT))
+            abundanceEffect->ModStackAmount(-1);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_abundance::HandleOnApplyOrReapply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_abundance::HandleOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 class spell_dru_base_transformer : public SpellScript
@@ -268,6 +311,33 @@ class spell_dru_cat_form : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_cat_form::HandleAfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 774 - Rejuvenation
+// 155777 - Rejuventation (Germination)
+class spell_dru_cultivation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_CULTIVATION, SPELL_DRUID_CULTIVATION_HEAL });
+    }
+
+    void HandleOnTick(AuraEffect const* aurEff) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* target = GetTarget();
+        if (AuraEffect const* cultivationEffect = caster->GetAuraEffect(SPELL_DRUID_CULTIVATION, EFFECT_0))
+            if (target->HealthBelowPct(cultivationEffect->GetAmount()))
+                caster->CastSpell(target, SPELL_DRUID_CULTIVATION_HEAL, CastSpellExtraArgs().SetTriggeringAura(aurEff));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_cultivation::HandleOnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
@@ -1705,11 +1775,13 @@ class spell_dru_yseras_gift_group_heal : public SpellScript
 
 void AddSC_druid_spell_scripts()
 {
+    RegisterSpellScript(spell_dru_abundance);
     RegisterSpellScript(spell_dru_barkskin);
     RegisterSpellScript(spell_dru_berserk);
     RegisterSpellScript(spell_dru_brambles);
     RegisterSpellScript(spell_dru_bristling_fur);
     RegisterSpellScript(spell_dru_cat_form);
+    RegisterSpellScript(spell_dru_cultivation);
     RegisterSpellScript(spell_dru_dash);
     RegisterSpellScript(spell_dru_earthwarden);
     RegisterSpellScript(spell_dru_eclipse_aura);
