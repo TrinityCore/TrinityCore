@@ -247,39 +247,6 @@ class spell_pri_aq_3p_bonus : public AuraScript
     }
 };
 
-// 81751 - Atonement (Heal)
-class spell_pri_abyssal_reverie : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT })
-            && ValidateSpellEffect({ { SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0 }  });
-    }
-
-    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
-    {
-        Unit* caster = GetCaster();
-
-        if (AuraEffect* const abyssalReverieEffect = caster->GetAuraEffect(SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0))
-        {
-            Aura* atonementAura = caster->GetAura(SPELL_PRIEST_ATONEMENT);
-            if (!atonementAura)
-                return;
-
-            if (spell_pri_atonement* script = atonementAura->GetScript<spell_pri_atonement>())
-            {
-                if (script->IsTriggeringSpellShadowSchoolMask())
-                    AddPct(pctMod, abyssalReverieEffect->GetAmount());
-            }
-        }
-    }
-
-    void Register() override
-    {
-        CalcHealing += SpellCalcHealingFn(spell_pri_abyssal_reverie::CalculateHealingBonus);
-    }
-};
-
 // 81749 - Atonement
 class spell_pri_atonement : public AuraScript
 {
@@ -352,6 +319,39 @@ public:
     bool IsTriggeringSpellShadowSchoolMask()
     {
         return _isTriggeringSpellShadowSchoolMask;
+    }
+};
+
+// 81751 - Atonement (Heal)
+class spell_pri_abyssal_reverie : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT })
+            && ValidateSpellEffect({ { SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0 }  });
+    }
+
+    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        Unit* caster = GetCaster();
+
+        if (AuraEffect* const abyssalReverieEffect = caster->GetAuraEffect(SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0))
+        {
+            Aura* atonementAura = caster->GetAura(SPELL_PRIEST_ATONEMENT);
+            if (!atonementAura)
+                return;
+
+            if (spell_pri_atonement* script = atonementAura->GetScript<spell_pri_atonement>())
+            {
+                if (script->IsTriggeringSpellShadowSchoolMask())
+                    AddPct(pctMod, abyssalReverieEffect->GetAmount());
+            }
+        }
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcHealingFn(spell_pri_abyssal_reverie::CalculateHealingBonus);
     }
 };
 
