@@ -1498,6 +1498,14 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
         return;
     }
 
+    // Packet spoofing check. The client does not allow reforging reforging items below item level 200
+    if (item->GetItemLevel() < 200)
+    {
+        TC_LOG_ERROR("network", "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an item item (Entry: %u) below item level 200. Probably cheater.", player->GetGUID().GetCounter(), player->GetName().c_str(), item->GetEntry());
+        SendReforgeResult(false);
+        return;
+    }
+
     if (!reforgeEntry)
     {
         if (!item->GetEnchantmentId(REFORGE_ENCHANTMENT_SLOT))
