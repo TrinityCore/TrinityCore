@@ -561,6 +561,16 @@ class spell_pri_empowered_renew : public AuraScript
 // 246287 - Evangelism
 class spell_pri_evangelism : public SpellScript
 {
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_TRINITY,
+            SPELL_PRIEST_ATONEMENT_EFFECT,
+            SPELL_PRIEST_ATONEMENT_EFFECT_TRINITY
+        });
+    }
+
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
         Unit* caster = GetCaster();
