@@ -5341,14 +5341,14 @@ class spell_gen_major_healing_cooldown_modifier_aura : public AuraScript
         });
     }
 
-    void HandleCalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
-        amount *= GetMajorHealingCooldownBonusModifier(GetCaster(), GetSpellInfo()->Id);
+        AddPct(pctMod, GetMajorHealingCooldownBonusModifier(GetCaster(), GetSpellInfo()->Id));
     }
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_major_healing_cooldown_modifier_aura::HandleCalculateAmount, EFFECT_FIRST_FOUND, SPELL_AURA_ANY);
+        DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(spell_gen_major_healing_cooldown_modifier_aura::CalculateHealingBonus, EFFECT_FIRST_FOUND, SPELL_AURA_ANY);
     }
 };
 
