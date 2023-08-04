@@ -5287,7 +5287,7 @@ float GetMajorHealingCooldownBonusModifier(Unit* unit, uint32 spellId)
         std::pair<uint32, uint8> spellIdAndIncreasingEffect = GetSpellIdAndIncreasingEffect(spellId);
 
         if (AuraEffect* const healingIncreaseEffect = unit->GetAuraEffect(spellIdAndIncreasingEffect.first, spellIdAndIncreasingEffect.second))
-            return float(pctMod + (healingIncreaseEffect->GetAmount() / 100.0f));
+            AddPct(pctMod, healingIncreaseEffect->GetAmount());
     }
 
     return pctMod;
