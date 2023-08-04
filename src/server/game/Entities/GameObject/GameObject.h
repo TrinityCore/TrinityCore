@@ -35,6 +35,16 @@ struct Loot;
 struct TransportAnimation;
 enum TriggerCastFlags : uint32;
 
+// enum for GAMEOBJECT_TYPE_NEW_FLAG
+// values taken from world state
+enum class FlagState : uint8
+{
+    InBase = 1,
+    Taken,
+    Dropped,
+    Respawning
+};
+
 namespace WorldPackets
 {
     namespace Battleground
@@ -60,6 +70,7 @@ public:
     virtual void Update([[maybe_unused]] uint32 diff) { }
     virtual void OnStateChanged([[maybe_unused]] GOState oldState, [[maybe_unused]] GOState newState) { }
     virtual void OnRelocated() { }
+    virtual bool IsNeverVisibleFor([[maybe_unused]] WorldObject const* seer, [[maybe_unused]] bool allowServersideObjects) const { return false; }
 
 protected:
     GameObject& _owner;
@@ -76,6 +87,18 @@ public:
 
 private:
     bool _on;
+};
+
+class TC_GAME_API SetNewFlagState : public GameObjectTypeBase::CustomCommand
+{
+public:
+    explicit SetNewFlagState(FlagState state, Player* player);
+
+    void Execute(GameObjectTypeBase& type) const override;
+
+private:
+    FlagState _state;
+    Player* _player;
 };
 }
 
@@ -331,10 +354,14 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetRespawnCompatibilityMode(bool mode = true) { m_respawnCompatibilityMode = mode; }
         bool GetRespawnCompatibilityMode() {return m_respawnCompatibilityMode; }
 
+        std::string const& GetAIName() const;
         uint32 GetScriptId() const;
         GameObjectAI* AI() const { return m_AI; }
 
-        std::string const& GetAIName() const;
+        bool HasStringId(std::string_view id) const;
+        void SetScriptStringId(std::string id);
+        std::array<std::string_view, 3> const& GetStringIds() const { return m_stringIds; }
+
         void SetDisplayId(uint32 displayid);
         uint32 GetDisplayId() const { return m_gameObjectData->DisplayID; }
         uint8 GetNameSetId() const;
@@ -427,6 +454,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectData const* m_goData;
         std::unique_ptr<GameObjectTypeBase> m_goTypeImpl;
         GameObjectValue m_goValue; // TODO: replace with m_goTypeImpl
+        std::array<std::string_view, 3> m_stringIds;
+        Optional<std::string> m_scriptStringId;
 
         int64 m_packedRotation;
         QuaternionData m_localRotation;

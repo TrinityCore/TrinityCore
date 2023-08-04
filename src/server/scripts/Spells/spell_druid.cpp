@@ -33,6 +33,8 @@
 
 enum DruidSpells
 {
+    SPELL_DRUID_ABUNDANCE                      = 207383,
+    SPELL_DRUID_ABUNDANCE_EFFECT               = 207640,
     SPELL_DRUID_BALANCE_T10_BONUS              = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC         = 70721,
     SPELL_DRUID_BEAR_FORM                      = 5487,
@@ -47,6 +49,8 @@ enum DruidSpells
     SPELL_DRUID_BRAMBLES_REFLECT               = 203958,
     SPELL_DRUID_BRISTLING_FUR_GAIN_RAGE        = 204031,
     SPELL_DRUID_CAT_FORM                       = 768,
+    SPELL_DRUID_CULTIVATION                    = 200390,
+    SPELL_DRUID_CULTIVATION_HEAL               = 200389,
     SPELL_DRUID_CURIOUS_BRAMBLEPATCH           = 330670,
     SPELL_DRUID_EARTHWARDEN_AURA               = 203975,
     SPELL_DRUID_ECLIPSE_DUMMY                  = 79577,
@@ -74,7 +78,9 @@ enum DruidSpells
     SPELL_DRUID_GROWL                          = 6795,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS          = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP                = 60774,
+    SPELL_DRUID_INCARNATION                    = 117679,
     SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE = 102543,
+    SPELL_DRUID_INCARNATION_TREE_OF_LIFE       = 33891,
     SPELL_DRUID_INNERVATE                      = 29166,
     SPELL_DRUID_INNERVATE_RANK_2               = 326228,
     SPELL_DRUID_INFUSION                       = 37238,
@@ -95,6 +101,7 @@ enum DruidSpells
     SPELL_DRUID_SUNFIRE_DAMAGE                 = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS             = 50322,
     SPELL_DRUID_TRAVEL_FORM                    = 783,
+    SPELL_DRUID_TREE_OF_LIFE                   = 33891,
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
     SPELL_DRUID_THRASH_CAT                     = 106830,
@@ -117,6 +124,45 @@ public:
 
 private:
     Unit const* _caster;
+};
+
+// 774 - Rejuvenation
+// 155777 - Rejuventation (Germination)
+class spell_dru_abundance : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ABUNDANCE, SPELL_DRUID_ABUNDANCE_EFFECT });
+    }
+
+    void HandleOnApplyOrReapply(AuraEffect const* aurEff, AuraEffectHandleModes mode) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->HasAura(SPELL_DRUID_ABUNDANCE))
+            return;
+
+        // Note: caster only casts Abundance when first applied on the target, otherwise that given stack is refreshed.
+        if (mode & AURA_EFFECT_HANDLE_REAL)
+            caster->CastSpell(caster, SPELL_DRUID_ABUNDANCE_EFFECT, CastSpellExtraArgs().SetTriggeringAura(aurEff));
+        else if (Aura* abundanceAura = caster->GetAura(SPELL_DRUID_ABUNDANCE_EFFECT))
+            abundanceAura->RefreshDuration();
+    }
+
+    void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (Aura* abundanceEffect = caster->GetAura(SPELL_DRUID_ABUNDANCE_EFFECT))
+            abundanceEffect->ModStackAmount(-1);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_abundance::HandleOnApplyOrReapply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_abundance::HandleOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 class spell_dru_base_transformer : public SpellScript
@@ -265,6 +311,33 @@ class spell_dru_cat_form : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_cat_form::HandleAfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 774 - Rejuvenation
+// 155777 - Rejuventation (Germination)
+class spell_dru_cultivation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_CULTIVATION, SPELL_DRUID_CULTIVATION_HEAL });
+    }
+
+    void HandleOnTick(AuraEffect const* aurEff) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* target = GetTarget();
+        if (AuraEffect const* cultivationEffect = caster->GetAuraEffect(SPELL_DRUID_CULTIVATION, EFFECT_0))
+            if (target->HealthBelowPct(cultivationEffect->GetAmount()))
+                caster->CastSpell(target, SPELL_DRUID_CULTIVATION_HEAL, CastSpellExtraArgs().SetTriggeringAura(aurEff));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_cultivation::HandleOnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
@@ -756,6 +829,45 @@ class spell_dru_innervate : public SpellScript
     }
 };
 
+// 117679 - Incarnation (Passive)
+class spell_dru_incarnation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_INCARNATION_TREE_OF_LIFE });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_INCARNATION_TREE_OF_LIFE);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_incarnation::OnRemove, EFFECT_0, SPELL_AURA_IGNORE_SPELL_COOLDOWN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 33891 - Incarnation: Tree of Life (Talent, Shapeshift)
+class spell_dru_incarnation_tree_of_life : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_INCARNATION });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (!GetTarget()->HasAura(SPELL_DRUID_INCARNATION))
+            GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_INCARNATION, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_incarnation_tree_of_life::AfterApply, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 40442 - Druid Tier 6 Trinket
 class spell_dru_item_t6_trinket : public AuraScript
 {
@@ -919,7 +1031,7 @@ class spell_dru_rip : public AuraScript
         if (Unit* caster = GetCaster())
         {
             // 0.01 * $AP * cp
-            uint32 cp = caster->ToPlayer()->GetComboPoints();
+            int32 cp = caster->GetPower(POWER_COMBO_POINTS);
 
             // Idol of Feral Shadows. Can't be handled as SpellMod due its dependency from CPs
             if (AuraEffect const* auraEffIdolOfFeralShadows = caster->GetAuraEffect(SPELL_DRUID_IDOL_OF_FERAL_SHADOWS, EFFECT_0))
@@ -1562,38 +1674,29 @@ class spell_dru_wild_growth : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } }) || spellInfo->GetEffect(EFFECT_2).IsEffect() || spellInfo->GetEffect(EFFECT_2).CalcValue() <= 0)
-            return false;
-        return true;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_DRUID_TREE_OF_LIFE, EFFECT_2 } });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
         targets.remove_if(RaidCheck(GetCaster()));
 
-        uint32 const maxTargets = uint32(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+        uint32 maxTargets = uint32(GetEffectInfo(EFFECT_1).CalcValue(GetCaster()));
+
+        if (AuraEffect const* treeOfLife = GetCaster()->GetAuraEffect(SPELL_DRUID_TREE_OF_LIFE, EFFECT_2))
+            maxTargets += uint32(treeOfLife->GetAmount());
 
         if (targets.size() > maxTargets)
         {
             targets.sort(Trinity::HealthPctOrderPred());
             targets.resize(maxTargets);
         }
-
-        _targets = targets;
-    }
-
-    void SetTargets(std::list<WorldObject*>& targets)
-    {
-        targets = _targets;
     }
 
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth::SetTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
     }
-
-    std::list<WorldObject*> _targets;
 };
 
 class spell_dru_wild_growth_aura : public AuraScript
@@ -1672,11 +1775,13 @@ class spell_dru_yseras_gift_group_heal : public SpellScript
 
 void AddSC_druid_spell_scripts()
 {
+    RegisterSpellScript(spell_dru_abundance);
     RegisterSpellScript(spell_dru_barkskin);
     RegisterSpellScript(spell_dru_berserk);
     RegisterSpellScript(spell_dru_brambles);
     RegisterSpellScript(spell_dru_bristling_fur);
     RegisterSpellScript(spell_dru_cat_form);
+    RegisterSpellScript(spell_dru_cultivation);
     RegisterSpellScript(spell_dru_dash);
     RegisterSpellScript(spell_dru_earthwarden);
     RegisterSpellScript(spell_dru_eclipse_aura);
@@ -1689,6 +1794,8 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_glyph_of_stars);
     RegisterSpellScript(spell_dru_gore);
     RegisterSpellScript(spell_dru_incapacitating_roar);
+    RegisterSpellScript(spell_dru_incarnation);
+    RegisterSpellScript(spell_dru_incarnation_tree_of_life);
     RegisterSpellScript(spell_dru_innervate);
     RegisterSpellScript(spell_dru_item_t6_trinket);
     RegisterSpellScript(spell_dru_lifebloom);
