@@ -5341,7 +5341,7 @@ class spell_gen_major_healing_cooldown_modifier_aura : public AuraScript
         });
     }
 
-    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    void CalculateHealingBonus(AuraEffect const* /*aurEff*/, Unit* /*victim*/, int32& /*damageOrHealing*/, int32& /*flatMod*/, float& pctMod) const
     {
         AddPct(pctMod, GetMajorHealingCooldownBonusModifier(GetCaster(), GetSpellInfo()->Id));
     }
