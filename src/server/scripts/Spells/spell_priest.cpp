@@ -253,7 +253,8 @@ class spell_pri_atonement : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo
-        ({ SPELL_PRIEST_ATONEMENT_HEAL,
+        ({
+            SPELL_PRIEST_ATONEMENT_HEAL,
             SPELL_PRIEST_SINS_OF_THE_MANY
         })
             && ValidateSpellEffect
@@ -274,9 +275,9 @@ class spell_pri_atonement : public AuraScript
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
 
         uint32 heal = CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount());
-      
+
         // Note: Abyssal Reverie talent.
-        if (AuraEffect const* abyssalReverieEffect = eventInfo.GetActor()->GetAuraEffect(SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0))
+        if (AuraEffect const* abyssalReverieEffect = GetTarget()->GetAuraEffect(SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0))
         {
             if (damageInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_SHADOW)
                 AddPct(heal, abyssalReverieEffect->GetAmount());
@@ -332,7 +333,7 @@ public:
     }
 };
 
-// 194384, 214206 - Atonement
+// 194384, 214206 - Atonement (Buff)
 class spell_pri_atonement_triggered : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
