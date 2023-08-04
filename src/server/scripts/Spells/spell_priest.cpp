@@ -39,6 +39,7 @@
 
 enum PriestSpells
 {
+    SPELL_PRIEST_ABYSSAL_REVERIE                    = 373054,
     SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER        = 158624,
     SPELL_PRIEST_ANGELIC_FEATHER_AURA               = 121557,
     SPELL_PRIEST_ARMOR_OF_FAITH                     = 28810,
@@ -251,8 +252,16 @@ class spell_pri_atonement : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL, SPELL_PRIEST_SINS_OF_THE_MANY })
-            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_PRIEST_SINS_OF_THE_MANY, EFFECT_2 } });
+        return ValidateSpellInfo
+        ({ SPELL_PRIEST_ATONEMENT_HEAL,
+            SPELL_PRIEST_SINS_OF_THE_MANY
+        })
+            && ValidateSpellEffect
+        ({
+            { spellInfo->Id, EFFECT_1 },
+            { SPELL_PRIEST_SINS_OF_THE_MANY, EFFECT_2 },
+            { SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0 }
+        });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -263,8 +272,19 @@ class spell_pri_atonement : public AuraScript
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+
+        uint32 heal = CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount());
+      
+        // Note: Abyssal Reverie talent.
+        if (AuraEffect const* abyssalReverieEffect = eventInfo.GetActor()->GetAuraEffect(SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0))
+        {
+            if (damageInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_SHADOW)
+                AddPct(heal, abyssalReverieEffect->GetAmount());
+        }
+
         CastSpellExtraArgs args(aurEff);
-        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, heal);
+
         _appliedAtonements.erase(std::remove_if(_appliedAtonements.begin(), _appliedAtonements.end(), [this, &args](ObjectGuid const& targetGuid)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*GetTarget(), targetGuid))
