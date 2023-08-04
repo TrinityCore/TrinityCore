@@ -273,6 +273,11 @@ class spell_pri_abyssal_reverie : public SpellScript
             }
         }
     }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcHealingFn(spell_pri_abyssal_reverie::CalculateHealingBonus);
+    }
 };
 
 // 81749 - Atonement
@@ -2025,6 +2030,7 @@ void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_angelic_feather_trigger);
     RegisterAreaTriggerAI(areatrigger_pri_angelic_feather);
+    RegisterSpellScript(spell_pri_abyssal_reverie);
     RegisterSpellScript(spell_pri_aq_3p_bonus);
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_triggered);
