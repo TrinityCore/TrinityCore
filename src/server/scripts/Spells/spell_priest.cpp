@@ -566,14 +566,14 @@ class spell_pri_evangelism : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        Aura* atonementBuff = caster->HasAura(SPELL_PRIEST_TRINITY) ? target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT_TRINITY, caster->GetGUID()) : target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID());
-        if (!atonementBuff)
+        Aura* atonementAura = caster->HasAura(SPELL_PRIEST_TRINITY) ? target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT_TRINITY, caster->GetGUID()) : target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID());
+        if (!atonementAura)
             return;
 
         Milliseconds extraDuration = Seconds(GetEffectInfo(effIndex).CalcValue());
 
-        atonementBuff->SetDuration(atonementBuff->GetDuration() + extraDuration.count());
-        atonementBuff->SetMaxDuration(atonementBuff->GetDuration() + extraDuration.count());
+        atonementAura->SetDuration(atonementAura->GetDuration() + extraDuration.count());
+        atonementAura->SetMaxDuration(atonementAura->GetDuration() + extraDuration.count());
     }
 
     void Register() override
