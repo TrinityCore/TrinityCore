@@ -285,16 +285,8 @@ class spell_pri_atonement : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_PRIEST_ATONEMENT_HEAL,
-            SPELL_PRIEST_SINS_OF_THE_MANY
-        })
-            && ValidateSpellEffect
-        ({
-            { spellInfo->Id, EFFECT_1 },
-            { SPELL_PRIEST_SINS_OF_THE_MANY, EFFECT_2 }
-        });
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL, SPELL_PRIEST_SINS_OF_THE_MANY })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_PRIEST_SINS_OF_THE_MANY, EFFECT_2 } });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
