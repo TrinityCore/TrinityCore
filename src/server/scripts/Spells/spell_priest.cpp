@@ -106,6 +106,7 @@ enum PriestSpells
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
     SPELL_PRIEST_LIGHT_ERUPTION                     = 196812,
+    SPELL_PRIEST_LIGHTS_WRATH_VISUAL                = 215795,
     SPELL_PRIEST_MASOCHISM_TALENT                   = 193063,
     SPELL_PRIEST_MASOCHISM_PERIODIC_HEAL            = 193065,
     SPELL_PRIEST_MASTERY_GRACE                      = 271534,
@@ -385,6 +386,11 @@ public:
         std::erase(_appliedAtonements, target);
 
         UpdateSinsOfTheManyValue();
+    }
+
+    std::vector<ObjectGuid> const& GetAtonementTargets() const
+    {
+        return _appliedAtonements;
     }
 
     void TriggerAtonementHealOnTargets(AuraEffect const* atonementEffect, ProcEventInfo const& eventInfo)
@@ -1264,6 +1270,50 @@ class spell_pri_levitate : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_pri_levitate::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 373178 - Light's Wrath
+class spell_pri_lights_wrath : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void OnPrecast() override
+    {
+        Aura const* atonement = GetCaster()->GetAura(SPELL_PRIEST_ATONEMENT);
+        if (!atonement)
+            return;
+
+        spell_pri_atonement const* script = atonement->GetScript<spell_pri_atonement>();
+        if (!script)
+            return;
+
+        for (ObjectGuid const& atonementTarget : script->GetAtonementTargets())
+        {
+            if (Unit* target = ObjectAccessor::GetUnit(*GetCaster(), atonementTarget))
+            {
+                target->CastSpell(GetCaster(), SPELL_PRIEST_LIGHTS_WRATH_VISUAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+            }
+        }
+    }
+
+    void CalculateDamageBonus(Unit const* /*victim*/, int32 const& /*damage*/, int32 const& /*flatMod*/, float& pctMod) const
+    {
+        Aura const* atonement = GetCaster()->GetAura(SPELL_PRIEST_ATONEMENT);
+        if (!atonement)
+            return;
+
+        // Atonement size may have changed when missile hits, we need to take an updated count of Atonement applications.
+        if (spell_pri_atonement const* script = atonement->GetScript<spell_pri_atonement>())
+            AddPct(pctMod, GetEffectInfo(EFFECT_1).CalcValue(GetCaster()) * script->GetAtonementTargets().size());
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_pri_lights_wrath::CalculateDamageBonus);
     }
 };
 
@@ -2592,6 +2642,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
+    RegisterSpellScript(spell_pri_lights_wrath);
     RegisterSpellScript(spell_pri_mind_bomb);
     RegisterSpellScript(spell_pri_painful_punishment);
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance", SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING);
