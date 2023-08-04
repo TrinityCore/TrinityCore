@@ -31,7 +31,6 @@
 #include "DB2Stores.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
-#include "Group.h"
 #include "InstanceScript.h"
 #include "Item.h"
 #include "Log.h"
@@ -5278,17 +5277,20 @@ std::pair<uint32, uint8> GetSpellIdAndIncreasingEffect(uint32 spellId)
     return {};
 }
 
-void ApplyMajorHealingCooldownBonusModifier(Player* player, uint32 spellId, float& healBonus)
+float GetMajorHealingCooldownBonusModifier(Unit* unit, uint32 spellId)
 {
-    // Note: if caster is not in a group or if their group is not a raid group.
-    Group const* group = player->GetGroup();
-    if (!group || (group && !group->isRaidGroup()))
+    float pctMod = 1.0f;
+
+    // Note: if caster is not in a raid setting, is in PvP or while in arena combat with 5 or less allied players.
+    if (!unit->GetMap()->IsRaid() || unit->GetMap()->IsBattleground())
     {
         std::pair<uint32, uint8> spellIdAndIncreasingEffect = GetSpellIdAndIncreasingEffect(spellId);
 
-        if (AuraEffect* const healingIncreaseEffect = player->GetAuraEffect(spellIdAndIncreasingEffect.first, spellIdAndIncreasingEffect.second))
-            AddPct(healBonus, healingIncreaseEffect->GetAmount());
+        if (AuraEffect* const healingIncreaseEffect = unit->GetAuraEffect(spellIdAndIncreasingEffect.first, spellIdAndIncreasingEffect.second))
+            return float(pctMod + (healingIncreaseEffect->GetAmount() / 100.0f));
     }
+
+    return pctMod;
 }
 
 // 157982 - Tranquility (Heal)
@@ -5310,23 +5312,15 @@ class spell_gen_major_healing_cooldown_modifier : public SpellScript
         });
     }
 
-    void HandleCalculateHeal(SpellEffIndex /*effIndex*/)
+    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
-        Player* player = GetCaster()->ToPlayer();
-        if (!player)
-            return;
-
-        float healBonus = 1.0f;
-
-        ApplyMajorHealingCooldownBonusModifier(player, GetSpellInfo()->Id, healBonus);
-
-        SetHitHeal(GetHitHeal() * healBonus);
+        AddPct(pctMod, GetMajorHealingCooldownBonusModifier(GetCaster(), GetSpellInfo()->Id));
     }
 
     void Register() override
     {
         if (m_scriptSpellId == SPELL_DRUID_TRANQUILITY_HEAL || m_scriptSpellId == SPELL_PRIEST_DIVINE_HYMN_HEAL || m_scriptSpellId == SPELL_SHAMAN_HEALING_TIDE_TOTEM_HEAL || m_scriptSpellId == SPELL_MONK_REVIVAL)
-            OnEffectHitTarget += SpellEffectFn(spell_gen_major_healing_cooldown_modifier::HandleCalculateHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            CalcHealing += SpellCalcHealingFn(spell_gen_major_healing_cooldown_modifier::CalculateHealingBonus);
     }
 };
 
@@ -5349,15 +5343,7 @@ class spell_gen_major_healing_cooldown_modifier_aura : public AuraScript
 
     void HandleCalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
-        Player* player = GetCaster()->ToPlayer();
-        if (!player)
-            return;
-
-        float healBonus = 1.0f;
-
-        ApplyMajorHealingCooldownBonusModifier(player, GetSpellInfo()->Id, healBonus);
-
-        amount *= healBonus;
+        amount *= GetMajorHealingCooldownBonusModifier(GetCaster(), GetSpellInfo()->Id);
     }
 
     void Register() override
