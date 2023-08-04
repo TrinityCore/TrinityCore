@@ -355,7 +355,7 @@ public:
     }
 };
 
-// 194384, 214206 - Atonement (Buff)
+// 194384 - Atonement (Buff), 214206 - Atonement [Trinity] (Buff)
 class spell_pri_atonement_triggered : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
