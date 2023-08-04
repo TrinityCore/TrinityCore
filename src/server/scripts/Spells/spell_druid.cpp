@@ -1502,19 +1502,17 @@ class spell_dru_thrash_aura : public AuraScript
 // 740 - Tranquility
 class spell_dru_tranquility : public SpellScript
 {
-    void HandleHitTarget(SpellEffIndex effIndex)
+    void FilterTargets(WorldObject*& target)
     {
-        Unit* caster = GetCaster();
-
         // Note: Inner Peace talent.
-        if (!caster->HasAura(SPELL_DRUID_INNER_PEACE))
-            PreventHitDefaultEffect(effIndex);
+        if (!GetCaster()->HasAura(SPELL_DRUID_INNER_PEACE))
+            target = nullptr;
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dru_tranquility::HandleHitTarget, EFFECT_3, SPELL_EFFECT_APPLY_AURA);
-        OnEffectHitTarget += SpellEffectFn(spell_dru_tranquility::HandleHitTarget, EFFECT_4, SPELL_EFFECT_APPLY_AURA);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dru_tranquility::FilterTargets, EFFECT_3, TARGET_UNIT_CASTER);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dru_tranquility::FilterTargets, EFFECT_4, TARGET_UNIT_CASTER);
     }
 };
 
