@@ -5282,7 +5282,7 @@ float GetMajorHealingCooldownBonusModifier(Unit* unit, uint32 spellId)
     float pctMod = 1.0f;
 
     // Note: if caster is not in a raid setting, is in PvP or while in arena combat with 5 or less allied players.
-    if (!unit->GetMap()->IsRaid() || unit->GetMap()->IsBattleground())
+    if (!unit->GetMap()->IsRaid() || !unit->GetMap()->IsBattleground())
     {
         std::pair<uint32, uint8> spellIdAndIncreasingEffect = GetSpellIdAndIncreasingEffect(spellId);
 
