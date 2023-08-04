@@ -247,6 +247,34 @@ class spell_pri_aq_3p_bonus : public AuraScript
     }
 };
 
+// 81751 - Atonement (Heal)
+class spell_pri_abyssal_reverie : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT })
+            && ValidateSpellEffect({ { SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0 }  });
+    }
+
+    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        Unit* caster = GetCaster();
+
+        if (AuraEffect* const abyssalReverieEffect = caster->GetAuraEffect(SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0))
+        {
+            Aura* atonementAura = caster->GetAura(SPELL_PRIEST_ATONEMENT);
+            if (!atonementAura)
+                return;
+
+            if (spell_pri_atonement* script = atonementAura->GetScript<spell_pri_atonement>())
+            {
+                if (script->IsTriggeringSpellShadowSchoolMask())
+                    AddPct(pctMod, abyssalReverieEffect->GetAmount());
+            }
+        }
+    }
+};
+
 // 81749 - Atonement
 class spell_pri_atonement : public AuraScript
 {
@@ -260,8 +288,7 @@ class spell_pri_atonement : public AuraScript
             && ValidateSpellEffect
         ({
             { spellInfo->Id, EFFECT_1 },
-            { SPELL_PRIEST_SINS_OF_THE_MANY, EFFECT_2 },
-            { SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0 }
+            { SPELL_PRIEST_SINS_OF_THE_MANY, EFFECT_2 }
         });
     }
 
@@ -273,18 +300,10 @@ class spell_pri_atonement : public AuraScript
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-
-        uint32 heal = CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount());
-
-        // Note: Abyssal Reverie talent.
-        if (AuraEffect const* abyssalReverieEffect = GetTarget()->GetAuraEffect(SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0))
-        {
-            if (damageInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_SHADOW)
-                AddPct(heal, abyssalReverieEffect->GetAmount());
-        }
-
         CastSpellExtraArgs args(aurEff);
-        args.AddSpellMod(SPELLVALUE_BASE_POINT0, heal);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+
+        _isTriggeringSpellShadowSchoolMask = damageInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_SHADOW;
 
         _appliedAtonements.erase(std::remove_if(_appliedAtonements.begin(), _appliedAtonements.end(), [this, &args](ObjectGuid const& targetGuid)
         {
@@ -306,6 +325,7 @@ class spell_pri_atonement : public AuraScript
     }
 
     std::vector<ObjectGuid> _appliedAtonements;
+    bool _isTriggeringSpellShadowSchoolMask = false;
 
 public:
     void AddAtonementTarget(ObjectGuid const& target)
@@ -330,6 +350,11 @@ public:
         for (SpellEffIndex effectIndex : { EFFECT_0, EFFECT_1, EFFECT_2 })
             if (AuraEffect* sinOfTheMany = GetUnitOwner()->GetAuraEffect(SPELL_PRIEST_SINS_OF_THE_MANY, effectIndex))
                 sinOfTheMany->ChangeAmount(damageByStack[std::min(_appliedAtonements.size(), damageByStack.size() - 1)]);
+    }
+
+    bool IsTriggeringSpellShadowSchoolMask()
+    {
+        return _isTriggeringSpellShadowSchoolMask;
     }
 };
 
