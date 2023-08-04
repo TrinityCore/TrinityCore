@@ -8648,7 +8648,7 @@ void Spell::CallScriptCalcHealingHandlers(Unit* victim, int32& healing, int32& f
 {
     for (SpellScript* script : m_loadedScripts)
     {
-        script->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CALC_DAMAGE);
+        script->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CALC_HEALING);
         for (SpellScript::DamageAndHealingCalcHandler const& calcHealing : script->CalcHealing)
             calcHealing.Call(script, victim, healing, flatMod, pctMod);
 
