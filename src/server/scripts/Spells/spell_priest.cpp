@@ -561,7 +561,7 @@ class spell_pri_empowered_renew : public AuraScript
 // 246287 - Evangelism
 class spell_pri_evangelism : public SpellScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
