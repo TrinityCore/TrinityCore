@@ -464,10 +464,10 @@ class spell_item_echoing_blades_damage : public SpellScript
         return ValidateSpellEffect({ { SPELL_ECHOING_BLADES_TRAIT, EFFECT_2 } });
     }
 
-    void CalculateDamage(SpellEffIndex /*effIndex*/)
+    void CalculateDamage(Unit const* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/) const
     {
         if (AuraEffect const* trait = GetCaster()->GetAuraEffect(SPELL_ECHOING_BLADES_TRAIT, EFFECT_2))
-            SetHitDamage(trait->GetAmount() * 2);
+            damage = trait->GetAmount() * 2;
     }
 
     void ForceCritical(Unit const* /*victim*/, float& critChance)
@@ -477,7 +477,7 @@ class spell_item_echoing_blades_damage : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_item_echoing_blades_damage::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_item_echoing_blades_damage::CalculateDamage);
         OnCalcCritChance += SpellOnCalcCritChanceFn(spell_item_echoing_blades_damage::ForceCritical);
     }
 };

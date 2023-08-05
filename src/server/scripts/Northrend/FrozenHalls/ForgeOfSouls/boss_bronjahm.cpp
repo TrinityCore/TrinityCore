@@ -241,19 +241,19 @@ private:
 // 68793, 69050 - Magic's Bane
 class spell_bronjahm_magic_bane : public SpellScript
 {
-    void RecalculateDamage(SpellEffIndex /*effIndex*/)
+    void CalculateDamage(Unit const* victim, int32& damage, int32& /*flatMod*/, float& /*pctMod*/) const
     {
-        if (GetHitUnit()->GetPowerType() != POWER_MANA)
+        if (victim->GetPowerType() != POWER_MANA)
             return;
 
         int32 const maxDamage = GetCaster()->GetMap()->IsHeroic() ? 15000 : 10000;
-        int32 newDamage = GetEffectValue() + (GetHitUnit()->GetMaxPower(POWER_MANA) / 2);
-        SetEffectValue(std::min<int32>(maxDamage, newDamage));
+        int32 newDamage = damage + (victim->GetMaxPower(POWER_MANA) / 2);
+        damage = std::min(maxDamage, newDamage);
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_bronjahm_magic_bane::RecalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_bronjahm_magic_bane::CalculateDamage);
     }
 };
 

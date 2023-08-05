@@ -65,7 +65,7 @@ class TC_GAME_API AuraEffect
         void SetPeriodicTimer(int32 periodicTimer) { _periodicTimer = periodicTimer; }
 
         int32 CalculateAmount(Unit* caster);
-        static Optional<float> CalculateEstimatedAmount(Unit const* caster, Unit* target, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, int32 amount, uint8 stack);
+        static Optional<float> CalculateEstimatedAmount(Unit const* caster, Unit* target, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, int32 amount, uint8 stack, AuraEffect const* aurEff);
         Optional<float> CalculateEstimatedAmount(Unit const* caster, int32 amount) const;
         static float CalculateEstimatedfTotalPeriodicAmount(Unit* caster, Unit* target, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, float amount, uint8 stack);
         void CalculatePeriodic(Unit* caster, bool resetPeriodicTimer = true, bool load = false);
