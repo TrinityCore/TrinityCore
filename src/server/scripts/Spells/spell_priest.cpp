@@ -280,7 +280,7 @@ class spell_pri_atonement : public AuraScript
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
-        TriggerAtonementHealOnTargets(aurEff, eventInfo, false);
+        TriggerAtonementHealOnTargets(aurEff, eventInfo, GetTarget(), false);
     }
 
     void Register() override
@@ -306,19 +306,20 @@ public:
         UpdateSinsOfTheManyValue();
     }
 
-    void TriggerAtonementHealOnTargets(AuraEffect* aurEff, ProcEventInfo& eventInfo, bool isTriggeredByPet)
+    void TriggerAtonementHealOnTargets(AuraEffect* aurEff, ProcEventInfo& eventInfo, Unit* actor, bool isTriggeredByPet)
     {
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
         CastSpellExtraArgs args(aurEff);
+
         // Note: we need to check for EffectInfo in case that the pet triggers it because the passive spell has amount 0.
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(damageInfo->GetDamage(), isTriggeredByPet ? GetEffectInfo(EFFECT_0).CalcValue(GetCaster()) : aurEff->GetAmount()));
 
-        _appliedAtonements.erase(std::remove_if(_appliedAtonements.begin(), _appliedAtonements.end(), [this, &args](ObjectGuid const& targetGuid)
+        _appliedAtonements.erase(std::remove_if(_appliedAtonements.begin(), _appliedAtonements.end(), [this, actor, &args](ObjectGuid const& targetGuid)
         {
-            if (Unit* target = ObjectAccessor::GetUnit(*GetTarget(), targetGuid))
+            if (Unit* target = ObjectAccessor::GetUnit(*actor, targetGuid))
             {
-                if (target->GetExactDist(GetTarget()) < GetEffectInfo(EFFECT_1).CalcValue())
-                    GetTarget()->CastSpell(target, SPELL_PRIEST_ATONEMENT_HEAL, args);
+                if (target->GetExactDist(actor) < GetEffectInfo(EFFECT_1).CalcValue())
+                    actor->CastSpell(target, SPELL_PRIEST_ATONEMENT_HEAL, args);
 
                 return false;
             }
@@ -354,13 +355,14 @@ class spell_pri_atonement_passive : public AuraScript
 
     void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
-        Unit* summoner = GetTarget()->GetOwner();
-        if (!summoner)
+        Unit* target = GetTarget();
+        Unit* summoner = target->GetOwner();
+        if (!summoner || !summoner->IsPlayer())
             return;
 
         if (Aura* atonement = summoner->GetAura(SPELL_PRIEST_ATONEMENT))
             if (spell_pri_atonement* script = atonement->GetScript<spell_pri_atonement>())
-                script->TriggerAtonementHealOnTargets(aurEff, eventInfo, true);
+                script->TriggerAtonementHealOnTargets(aurEff, eventInfo, summoner, true);
     }
 
     void Register() override
@@ -615,6 +617,21 @@ class spell_pri_empowered_renew : public AuraScript
     }
 };
 
+// 415673 - Essence Devourer (Heal)
+// 415676 - Essence Devourer (Heal)
+class spell_pri_essence_devourer_heal : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Trinity::SelectRandomInjuredTargets(targets, 1, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_essence_devourer_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
 // 47788 - Guardian Spirit
 class spell_pri_guardian_spirit : public AuraScript
 {
@@ -788,8 +805,8 @@ class spell_pri_holy_words : public AuraScript
     }
 };
 
-// 373427 - Inescapable Torment
-// Called by Mind Blast - 8092, Shadow Word: Death - 32379
+// 8092 - Mind Blast
+// 32379 - Shadow Word: Death
 class spell_pri_inescapable_torment : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -2151,6 +2168,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_empowered_renew);
+    RegisterSpellScript(spell_pri_essence_devourer_heal);
     RegisterSpellScript(spell_pri_guardian_spirit);
     RegisterSpellScript(spell_pri_halo_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
