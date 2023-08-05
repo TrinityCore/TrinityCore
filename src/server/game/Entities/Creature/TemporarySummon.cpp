@@ -308,12 +308,6 @@ void TempSummon::SetTempSummonType(TempSummonType type)
     m_type = type;
 }
 
-void TempSummon::SetDuration(uint32 duration)
-{
-    m_lifetime = duration;
-    m_timer = duration;
-}
-
 void TempSummon::UnSummon(uint32 msTime)
 {
     if (msTime)
