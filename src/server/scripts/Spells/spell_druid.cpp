@@ -105,23 +105,6 @@ enum DruidSpells
     SPELL_DRUID_YSERAS_GIFT_HEAL_SELF          = 145109
 };
 
-class RaidCheck
-{
-public:
-    explicit RaidCheck(Unit const* caster) : _caster(caster) { }
-
-    bool operator()(WorldObject* obj) const
-    {
-        if (Unit* target = obj->ToUnit())
-            return !_caster->IsInRaidWith(target);
-
-        return true;
-    }
-
-private:
-    Unit const* _caster;
-};
-
 class spell_dru_base_transformer : public SpellScript
 {
 protected:
