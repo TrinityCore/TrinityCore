@@ -64,6 +64,7 @@ struct FactionTemplateEntry;
 struct Loot;
 struct PositionFullTerrainStatus;
 struct QuaternionData;
+struct SpellPowerCost;
 enum ZLiquidStatus : uint32;
 
 namespace WorldPackets
@@ -453,6 +454,22 @@ struct FindCreatureOptions
     Optional<ObjectGuid> PrivateObjectOwnerGuid;
 };
 
+struct FindGameObjectOptions
+{
+    Optional<uint32> GameObjectId;
+    Optional<std::string_view> StringId;
+
+    Optional<bool> IsSummon;
+    Optional<bool> IsSpawned = true; // most searches should be for spawned objects only, to search for "any" just clear this field at call site
+
+    bool IgnorePhases = false;
+    bool IgnoreNotOwnedPrivateObjects = true;
+    bool IgnorePrivateObjects = false;
+
+    Optional<ObjectGuid> OwnerGuid;
+    Optional<ObjectGuid> PrivateObjectOwnerGuid;
+};
+
 class TC_GAME_API WorldObject : public Object, public WorldLocation
 {
     protected:
@@ -603,6 +620,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
         Creature*   FindNearestCreatureWithOptions(float range, FindCreatureOptions const& options) const;
         GameObject* FindNearestGameObject(uint32 entry, float range, bool spawnedOnly = true) const;
+        GameObject* FindNearestGameObjectWithOptions(float range, FindGameObjectOptions const& options) const;
         GameObject* FindNearestUnspawnedGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player* SelectNearestPlayer(float distance) const;
@@ -625,7 +643,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
 
         double ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, double value) const;
-        int32 CalcSpellDuration(SpellInfo const* spellInfo) const;
+        int32 CalcSpellDuration(SpellInfo const* spellInfo, std::vector<SpellPowerCost> const* powerCosts) const;
         int32 ModSpellDuration(SpellInfo const* spellInfo, WorldObject const* target, int32 duration, bool positive, uint32 effectMask) const;
         void ModSpellCastTime(SpellInfo const* spellInfo, int32& castTime, Spell* spell = nullptr) const;
         void ModSpellDurationTime(SpellInfo const* spellInfo, int32& durationTime, Spell* spell = nullptr) const;
@@ -664,6 +682,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         template <typename Container>
         void GetGameObjectListWithEntryInGrid(Container& gameObjectContainer, uint32 entry, float maxSearchRange = 250.0f) const;
+
+        template <typename Container>
+        void GetGameObjectListWithOptionsInGrid(Container& gameObjectContainer, float maxSearchRange, FindGameObjectOptions const& options) const;
 
         template <typename Container>
         void GetCreatureListWithEntryInGrid(Container& creatureContainer, uint32 entry, float maxSearchRange = 250.0f) const;
