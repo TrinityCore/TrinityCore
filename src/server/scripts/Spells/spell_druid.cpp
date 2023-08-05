@@ -132,7 +132,7 @@ private:
 };
 
 // 774 - Rejuvenation
-// 155777 - Rejuventation (Germination)
+// 155777 - Rejuvenation (Germination)
 class spell_dru_abundance : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -563,20 +563,9 @@ class spell_dru_efflorescence_heal : public SpellScript
         Trinity::SelectRandomInjuredTargets(targets, GetSpellInfo()->MaxAffectedTargets, true);
     }
 
-    void HandleOnHit(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        // Note: Spirit Blossoms talent.
-        if (caster->HasAura(SPELL_DRUID_SPRING_BLOSSOMS))
-            caster->CastSpell(target, SPELL_DRUID_SPRING_BLOSSOMS_HEAL, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
-    }
-
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_efflorescence_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        OnEffectHitTarget += SpellEffectFn(spell_dru_efflorescence_heal::HandleOnHit, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 
@@ -1202,6 +1191,21 @@ class spell_dru_skull_bash : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dru_skull_bash::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 81269 - Efflorescence (Heal)
+class spell_dru_spring_blossoms : public SpellScript
+{
+    void HandleOnHit(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster()->HasAura(SPELL_DRUID_SPRING_BLOSSOMS))
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_SPRING_BLOSSOMS_HEAL, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_spring_blossoms::HandleOnHit, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 
@@ -1878,6 +1882,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_aura);
     RegisterSpellScript(spell_dru_shooting_stars);
     RegisterSpellScript(spell_dru_skull_bash);
+    RegisterSpellScript(spell_dru_spring_blossoms);
     RegisterSpellScript(spell_dru_stampeding_roar);
     RegisterSpellScript(spell_dru_starfall_dummy);
     RegisterSpellScript(spell_dru_sudden_ambush);
