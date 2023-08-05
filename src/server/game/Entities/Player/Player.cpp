@@ -18358,7 +18358,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
             bool hasTemplate = transmog != NormalEntry && transmog != InvisibleEntry;
             if (transmog && hasTemplate) {
                 auto source = sObjectMgr->GetItemTemplate(transmog);
-                if (!source || Transmogrification::instance().CannotTransmogrifyItemWithItem(this, proto, source))
+                if (!source || Transmogrification::instance().CannotTransmogrifyItemWithItem(this, proto, source, false))
                     item->SetTransmog(0); // Player swapped factions? Or settings changed.
             }
 

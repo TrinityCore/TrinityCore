@@ -90,10 +90,11 @@ public:
     Item* GetEquippedItem(Player* player, uint8 slot);
     void UpdateItem(Player* player, Item* item);
 
-    TransmogResult CannotTransmogrifyItemWithItem(Player* player, ItemTemplate const* destination, ItemTemplate const* source);
-    TransmogResult CannotTransmogrifyItemWithEnchant(Player* player, ItemTemplate const* destination, uint32 enchant);
-    TransmogResult CannotTransmogrifyItem(Player* player, ItemTemplate const* proto);
+    TransmogResult CannotTransmogrifyItemWithItem(Player* player, ItemTemplate const* destination, ItemTemplate const* source, bool ever);
+    TransmogResult CannotTransmogrifyItemWithEnchant(Player* player, ItemTemplate const* destination, uint32 enchant, bool ever);
+    TransmogResult CannotTransmogrifyItem(Player* player, ItemTemplate const* proto, bool ever);
     TransmogResult CannotEquip(Player* player, ItemTemplate const* proto);
+    TransmogResult CannotEverEquip(Player* player, ItemTemplate const* proto);
     TransmogResult CannotTransmogrify(ItemTemplate const* proto);
     bool HasPendingTransmog(Player* player, uint8 slot, Item** retItem = nullptr, uint32* retPending = nullptr, uint32* retCurrent = nullptr);
     bool HasPendingEnchant(Player* player, uint8 slot, Item** retItem = nullptr, uint32* retPending = nullptr, uint32* retCurrent = nullptr);

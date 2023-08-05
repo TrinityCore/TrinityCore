@@ -250,7 +250,7 @@ void Transmogrification::UpdateItem(Player* player, Item* item)
     }
 }
 
-TransmogResult Transmogrification::CannotTransmogrifyItemWithItem(Player* player, ItemTemplate const* target, ItemTemplate const* source)
+TransmogResult Transmogrification::CannotTransmogrifyItemWithItem(Player* player, ItemTemplate const* target, ItemTemplate const* source, bool ever)
 {
     // commented out because items can be same, in which case looks is reverted to old look
     // if (source->ItemId == target->ItemId)
@@ -263,10 +263,10 @@ TransmogResult Transmogrification::CannotTransmogrifyItemWithItem(Player* player
     if (source->Class != target->Class)
         return TransmogResult_ItemTypesDontMatch;
 
-    if (TransmogResult res = CannotTransmogrifyItem(player, source))
+    if (TransmogResult res = CannotTransmogrifyItem(player, source, ever))
         return res;
 
-    if (TransmogResult res = CannotTransmogrifyItem(player, target))
+    if (TransmogResult res = CannotTransmogrifyItem(player, target, ever))
         return res;
 
     if (IsBowOrGunOrCrossbow(source) != IsBowOrGunOrCrossbow(target) ||
@@ -338,9 +338,10 @@ static bool IsFitToSpellRequirements(SpellInfo const* spellInfo, ItemTemplate co
     return true;
 }
 
-TransmogResult Transmogrification::CannotTransmogrifyItemWithEnchant(Player * player, ItemTemplate const * destination, uint32 enchant)
+TransmogResult Transmogrification::CannotTransmogrifyItemWithEnchant(Player * player, ItemTemplate const * destination, uint32 enchant, bool ever)
 {
     (void)player;
+    (void)ever;
     auto it = enchant_to_spells.find(enchant);
     if (it != enchant_to_spells.end()) {
         for (auto* spellInfo : it->second)
@@ -366,13 +367,21 @@ TransmogResult Transmogrification::CannotTransmogrifyItemWithEnchant(Player * pl
     return TransmogResult_Ok;
 }
 
-TransmogResult Transmogrification::CannotTransmogrifyItem(Player* player, ItemTemplate const* proto)
+TransmogResult Transmogrification::CannotTransmogrifyItem(Player* player, ItemTemplate const* proto, bool ever)
 {
     if (TransmogResult res = CannotTransmogrify(proto))
         return res;
 
-    if (TransmogResult res = CannotEquip(player, proto))
-        return res;
+    if (ever)
+    {
+        if (TransmogResult res = CannotEverEquip(player, proto))
+            return res;
+    }
+    else
+    {
+        if (TransmogResult res = CannotEquip(player, proto))
+            return res;
+    }
 
     return TransmogResult_Ok;
 }
@@ -604,7 +613,7 @@ TransmogResult Transmogrification::TrySetPendingTransmog(Player* player, uint32 
 
     if (hasTemplate)
     {
-        if (TransmogResult res = CannotTransmogrifyItemWithItem(player, itemTransmogrified->GetTemplate(), itemtemplate))
+        if (TransmogResult res = CannotTransmogrifyItemWithItem(player, itemTransmogrified->GetTemplate(), itemtemplate, false))
         {
             TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) failed CannotTransmogrifyItemWithItem (%u with %u).", player->GetName().c_str(), player->GetGUID().ToString().c_str(), itemTransmogrified->GetEntry(), entry);
             return res;
@@ -646,7 +655,7 @@ TransmogResult Transmogrification::TrySetPendingEnchant(Player* player, uint32 s
 
     if (hasTemplate)
     {
-        if (TransmogResult res = CannotTransmogrifyItemWithEnchant(player, itemTransmogrified->GetTemplate(), entry)) {
+        if (TransmogResult res = CannotTransmogrifyItemWithEnchant(player, itemTransmogrified->GetTemplate(), entry, false)) {
             TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) failed CannotTransmogrifyItemWithEnchant (%u with %u).", player->GetName().c_str(), player->GetGUID().ToString().c_str(), itemTransmogrified->GetEntry(), entry);
             return res;
         }
@@ -712,7 +721,7 @@ TransmogResult Transmogrification::CannotEquip(Player* player, ItemTemplate cons
         if (player->GetSkillValue(proto->RequiredSkill) == 0)
             return TransmogResult_MissingSkill;
         else if (player->GetSkillValue(proto->RequiredSkill) < proto->RequiredSkillRank)
-            return TransmogResult_MissingSkill;
+            return TransmogResult_TooLowSkill;
     }
 
     if (!IgnoreReqSpell && proto->RequiredSpell != 0 && !player->HasSpell(proto->RequiredSpell))
@@ -720,6 +729,76 @@ TransmogResult Transmogrification::CannotEquip(Player* player, ItemTemplate cons
 
     if (!IgnoreReqLevel && player->GetLevel() < proto->RequiredLevel)
         return TransmogResult_TooLowLevelPlayer;
+
+    return TransmogResult_Ok;
+}
+
+static constexpr uint32 classesToClassMask(std::initializer_list<Classes> classes) {
+    uint32 mask = 0;
+    for (auto c : classes)
+        mask |= (1 << (c - 1));
+    return mask;
+};
+
+// Skills from player->GetSkill() implementation
+static std::map<SkillType, uint32> SkillToClassMask = {
+    { SKILL_PLATE_MAIL, classesToClassMask({CLASS_PALADIN, CLASS_WARRIOR, CLASS_DEATH_KNIGHT })},
+    { SKILL_MAIL, classesToClassMask({CLASS_PALADIN, CLASS_WARRIOR, CLASS_DEATH_KNIGHT, CLASS_HUNTER, CLASS_SHAMAN })},
+    { SKILL_LEATHER, classesToClassMask({CLASS_PALADIN, CLASS_WARRIOR, CLASS_DEATH_KNIGHT, CLASS_HUNTER, CLASS_SHAMAN, CLASS_DRUID, CLASS_ROGUE })},
+    { SKILL_SHIELD, classesToClassMask({CLASS_PALADIN, CLASS_WARRIOR, CLASS_SHAMAN })},
+
+    { SKILL_2H_AXES, classesToClassMask({CLASS_WARRIOR, CLASS_SHAMAN, CLASS_PALADIN, CLASS_HUNTER, CLASS_DEATH_KNIGHT})},
+    { SKILL_AXES, classesToClassMask({CLASS_WARRIOR, CLASS_SHAMAN, CLASS_PALADIN, CLASS_HUNTER, CLASS_DEATH_KNIGHT, CLASS_ROGUE})},
+
+    { SKILL_2H_SWORDS, classesToClassMask({CLASS_WARRIOR, CLASS_PALADIN, CLASS_HUNTER, CLASS_DEATH_KNIGHT})},
+    { SKILL_SWORDS, classesToClassMask({CLASS_WARRIOR, CLASS_PALADIN, CLASS_HUNTER, CLASS_DEATH_KNIGHT, CLASS_WARLOCK, CLASS_ROGUE, CLASS_MAGE, })},
+
+    { SKILL_2H_MACES, classesToClassMask({CLASS_WARRIOR, CLASS_SHAMAN, CLASS_PALADIN, CLASS_DRUID, CLASS_DEATH_KNIGHT})},
+    { SKILL_MACES, classesToClassMask({CLASS_WARRIOR, CLASS_SHAMAN, CLASS_PALADIN, CLASS_DRUID, CLASS_DEATH_KNIGHT, CLASS_ROGUE, CLASS_PRIEST})},
+
+    { SKILL_BOWS, classesToClassMask({CLASS_WARRIOR, CLASS_HUNTER, CLASS_ROGUE})},
+    { SKILL_CROSSBOWS, classesToClassMask({CLASS_WARRIOR, CLASS_HUNTER, CLASS_ROGUE})},
+    { SKILL_GUNS, classesToClassMask({CLASS_WARRIOR, CLASS_HUNTER, CLASS_ROGUE})},
+
+    { SKILL_STAVES, classesToClassMask({CLASS_WARRIOR, CLASS_WARLOCK, CLASS_SHAMAN, CLASS_PRIEST, CLASS_MAGE, CLASS_HUNTER, CLASS_DRUID})},
+    { SKILL_POLEARMS, classesToClassMask({CLASS_WARRIOR, CLASS_PALADIN, CLASS_HUNTER, CLASS_DRUID, CLASS_DEATH_KNIGHT})},
+    { SKILL_FIST_WEAPONS, classesToClassMask({CLASS_WARRIOR, CLASS_SHAMAN, CLASS_ROGUE, CLASS_HUNTER, CLASS_DRUID})},
+    { SKILL_DAGGERS, classesToClassMask({CLASS_WARRIOR, CLASS_WARLOCK, CLASS_SHAMAN, CLASS_ROGUE, CLASS_PRIEST, CLASS_MAGE, CLASS_HUNTER, CLASS_DRUID})},
+    { SKILL_THROWN, classesToClassMask({CLASS_WARRIOR, CLASS_ROGUE})},
+    { SKILL_WANDS, classesToClassMask({CLASS_WARLOCK, CLASS_PRIEST, CLASS_MAGE})},
+
+    { SKILL_FISHING, CLASSMASK_ALL_PLAYABLE},
+    { SKILL_ASSASSINATION, 0},
+};
+
+TransmogResult Transmogrification::CannotEverEquip(Player* player, ItemTemplate const* proto)
+{
+    if (!IgnoreReqFaction)
+    {
+        if ((proto->Flags2 & ITEM_FLAG2_FACTION_HORDE) && player->GetTeam() != HORDE)
+            return TransmogResult_InvalidFaction;
+
+        if ((proto->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)
+            return TransmogResult_InvalidFaction;
+    }
+
+    if (!IgnoreReqClass && (proto->AllowableClass & player->GetClassMask()) == 0)
+        return TransmogResult_InvalidClass;
+
+    if (!IgnoreReqRace && (proto->AllowableRace & player->GetRaceMask()) == 0)
+        return TransmogResult_InvalidRace;
+
+    // We need to check that player can ever get the required profiency
+    if (!IgnorePlayerMissingProfiency && proto->GetSkill() != 0)
+    {
+        auto it = SkillToClassMask.find(static_cast<SkillType>(proto->GetSkill()));
+        if (it != SkillToClassMask.end() && (it->second & player->GetClassMask()) == 0)
+            return TransmogResult_MissingProfiency;
+    }
+
+    // Ignore required level as player can level up
+    // Ignore required skill as in DB they are all profession related and player can learn them later
+    // Ignore required spells as in DB they are all profession related and player can learn them later
 
     return TransmogResult_Ok;
 }
@@ -817,7 +896,7 @@ bool Transmogrification::CanAddEnchantToCollection(Player* player, Item* item)
     (void)item;
     //if (!IgnoreReqBound && !IsBound(item))
     //    return false;
-    //if (CannotEquip(player, item->GetTemplate()))
+    //if (CannotEverEquip(player, item->GetTemplate()))
     //    return false;
     return true;
 }
@@ -826,7 +905,7 @@ bool Transmogrification::CanAddToCollection(Player* player, ItemTemplate const* 
 {
     if (CannotTransmogrify(itemTemplate))
         return false;
-    if (CannotEquip(player, itemTemplate))
+    if (CannotEverEquip(player, itemTemplate))
         return false;
     return true;
 }
@@ -1006,7 +1085,7 @@ bool Transmogrification::HasPendingTransmog(Player* player, uint8 slot, Item** r
     {
         if (pending == NormalEntry || pending == InvisibleEntry)
         {
-            if (CannotTransmogrifyItem(player, item->GetTemplate()))
+            if (CannotTransmogrifyItem(player, item->GetTemplate(), false))
                 return false;
         }
         else
@@ -1014,7 +1093,7 @@ bool Transmogrification::HasPendingTransmog(Player* player, uint8 slot, Item** r
             decltype(auto) sourceTemplate = sObjectMgr->GetItemTemplate(pending);
             if (!sourceTemplate)
                 return false;
-            if (CannotTransmogrifyItemWithItem(player, item->GetTemplate(), sourceTemplate))
+            if (CannotTransmogrifyItemWithItem(player, item->GetTemplate(), sourceTemplate, false))
                 return false;
         }
         if (retItem)
@@ -1047,7 +1126,7 @@ bool Transmogrification::HasPendingEnchant(Player* player, uint8 slot, Item** re
     {
         if (pending == NormalEntry || pending == InvisibleEntry)
         {
-            if (CannotTransmogrifyItem(player, item->GetTemplate()))
+            if (CannotTransmogrifyItem(player, item->GetTemplate(), false))
                 return false;
         }
         else
@@ -1055,7 +1134,7 @@ bool Transmogrification::HasPendingEnchant(Player* player, uint8 slot, Item** re
             decltype(auto) enchantEntry = sSpellItemEnchantmentStore.LookupEntry(pending);
             if (!enchantEntry)
                 return false;
-            if (CannotTransmogrifyItem(player, item->GetTemplate()))
+            if (CannotTransmogrifyItem(player, item->GetTemplate(), false))
                 return false;
         }
         if (retItem)

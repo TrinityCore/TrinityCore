@@ -691,7 +691,7 @@ public:
                 for (uint32 appearance : player->transmogrification_appearances[transmogtype])
                 {
                     decltype(auto) source = sObjectMgr->GetItemTemplate(appearance);
-                    if (source && !Transmogrification::instance().CannotTransmogrifyItemWithItem(player, target, source))
+                    if (source && !Transmogrification::instance().CannotTransmogrifyItemWithItem(player, target, source, true))
                         actions.emplace_back(appearance, Transmogrification::instance().GetItemLink(source->ItemId, player->GetSession()), Transmogrification::instance().GetItemName(source, player->GetSession()));
                 }
             }
@@ -700,7 +700,7 @@ public:
             {
                 std::set<uint32> added_enchant_visuals;
                 static const auto try_add_enchant = [](std::set<uint32>& added_enchant_visuals, std::vector<Action>& actions, Player* player, const ItemTemplate* target, uint32 enchant) {
-                    if (!Transmogrification::instance().CannotTransmogrifyItemWithEnchant(player, target, enchant)) {
+                    if (!Transmogrification::instance().CannotTransmogrifyItemWithEnchant(player, target, enchant, true)) {
                         auto* source = sSpellItemEnchantmentStore.LookupEntry(enchant);
                         if (source) {
                             auto it = Transmogrification::enchant_visual_to_name.find(source->ItemVisual);
