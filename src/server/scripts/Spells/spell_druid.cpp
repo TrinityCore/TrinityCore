@@ -60,7 +60,6 @@ enum DruidSpells
     SPELL_DRUID_ECLIPSE_OOC                    = 329910,
     SPELL_DRUID_ECLIPSE_SOLAR_AURA             = 48517,
     SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT        = 326053,
-    SPELL_DRUID_EFFLORESCENCE                  = 145205,
     SPELL_DRUID_EFFLORESCENCE_HEAL             = 81269,
     SPELL_DRUID_ENTANGLING_ROOTS               = 339,
     SPELL_DRUID_EXHILARATE                     = 28742,
@@ -525,7 +524,7 @@ class spell_dru_efflorescence : public SpellScript
         Unit* caster = GetCaster();
 
         // Note: if caster has any Efflorescence areatrigger, we remove it.
-        if (AreaTrigger* efflorescenceAT = caster->GetAreaTrigger(SPELL_DRUID_EFFLORESCENCE))
+        if (AreaTrigger* efflorescenceAT = caster->GetAreaTrigger(GetSpellInfo()->Id))
             efflorescenceAT->Remove();
     }
 
@@ -538,6 +537,11 @@ class spell_dru_efflorescence : public SpellScript
 // 81262 - Efflorescence (Dummy)
 class spell_dru_efflorescence_dummy : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_EFFLORESCENCE_HEAL });
+    }
+
     void HandlePeriodicDummy(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
@@ -1197,6 +1201,11 @@ class spell_dru_skull_bash : public SpellScript
 // 81269 - Efflorescence (Heal)
 class spell_dru_spring_blossoms : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_SPRING_BLOSSOMS, SPELL_DRUID_SPRING_BLOSSOMS_HEAL });
+    }
+
     void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
         if (GetCaster()->HasAura(SPELL_DRUID_SPRING_BLOSSOMS))
