@@ -263,12 +263,11 @@ public:
             static_assert(sizeof(SpellCastFnType) >= sizeof(ScriptFunc));
             static_assert(alignof(SpellCastFnType) >= alignof(ScriptFunc));
 
-            static_assert(std::is_invocable_v<ScriptFunc, ScriptClass>
-                && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass>, void>,
+            static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass>,
                 "CastHandler signature must be \"void HandleCast()\"");
 
             _callImpl = reinterpret_cast<SpellCastFnType>(handler);
-            _safeWrapper = [](SpellScript* spellScript, SpellCastFnType callImpl)
+            _safeWrapper = [](SpellScript* spellScript, SpellCastFnType callImpl) -> void
             {
                 return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl))();
             };
@@ -304,24 +303,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass>, SpellCastResult>,
+                static_assert(std::is_invocable_r_v<SpellCastResult, ScriptFunc, ScriptClass>,
                     "CheckCastHandler signature must be \"SpellCastResult CheckCast()\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(SpellCheckCastFnType::Member)>(handler) };
-                _safeWrapper = [](SpellScript* spellScript, SpellCheckCastFnType callImpl)
+                _safeWrapper = [](SpellScript* spellScript, SpellCheckCastFnType callImpl) -> SpellCastResult
                 {
                     return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))();
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc>
-                   && std::is_same_v<std::invoke_result_t<ScriptFunc>, SpellCastResult>,
+                static_assert(std::is_invocable_r_v<SpellCastResult, ScriptFunc>,
                    "CheckCastHandler signature must be \"static SpellCastResult CheckCast()\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(SpellCheckCastFnType::Static)>(handler) };
-                _safeWrapper = [](SpellScript* /*spellScript*/, SpellCheckCastFnType callImpl)
+                _safeWrapper = [](SpellScript* /*spellScript*/, SpellCheckCastFnType callImpl) -> SpellCastResult
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)();
                 };
@@ -368,12 +365,11 @@ public:
             static_assert(sizeof(SpellEffectFnType) >= sizeof(ScriptFunc));
             static_assert(alignof(SpellEffectFnType) >= alignof(ScriptFunc));
 
-            static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, SpellEffIndex>
-                && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, SpellEffIndex>, void>,
+            static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, SpellEffIndex>,
                 "EffectHandler signature must be \"void HandleEffect(SpellEffIndex effIndex)\"");
 
             _callImpl = reinterpret_cast<SpellEffectFnType>(handler);
-            _safeWrapper = [](SpellScript* spellScript, SpellEffIndex effIndex, SpellEffectFnType callImpl)
+            _safeWrapper = [](SpellScript* spellScript, SpellEffIndex effIndex, SpellEffectFnType callImpl) -> void
             {
                 return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl))(effIndex);
             };
@@ -403,12 +399,11 @@ public:
             static_assert(sizeof(SpellBeforeHitFnType) >= sizeof(ScriptFunc));
             static_assert(alignof(SpellBeforeHitFnType) >= alignof(ScriptFunc));
 
-            static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, SpellMissInfo>
-                && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, SpellMissInfo>, void>,
+            static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, SpellMissInfo>,
                 "BeforeHitHandler signature must be \"void HandleBeforeHit(SpellMissInfo missInfo)\"");
 
             _callImpl = reinterpret_cast<SpellBeforeHitFnType>(handler);
-            _safeWrapper = [](SpellScript* spellScript, SpellMissInfo missInfo, SpellBeforeHitFnType callImpl)
+            _safeWrapper = [](SpellScript* spellScript, SpellMissInfo missInfo, SpellBeforeHitFnType callImpl) -> void
             {
                 return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl))(missInfo);
             };
@@ -438,12 +433,11 @@ public:
             static_assert(sizeof(SpellHitFnType) >= sizeof(ScriptFunc));
             static_assert(alignof(SpellHitFnType) >= alignof(ScriptFunc));
 
-            static_assert(std::is_invocable_v<ScriptFunc, ScriptClass>
-                && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass>, void>,
+            static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass>,
                 "HitHandler signature must be \"void HandleHit()\"");
 
             _callImpl = reinterpret_cast<SpellHitFnType>(handler);
-            _safeWrapper = [](SpellScript* spellScript, SpellHitFnType callImpl)
+            _safeWrapper = [](SpellScript* spellScript, SpellHitFnType callImpl) -> void
             {
                 return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl))();
             };
@@ -479,24 +473,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, Unit const*, float&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, Unit const*, float&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, Unit const*, float&>,
                     "OnCalcCritChanceHandler signature must be \"void CalcCritChance(Unit const* victim, float& critChance)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(SpellOnCalcCritChanceFnType::Member)>(handler) };
-                _safeWrapper = [](SpellScript* spellScript, Unit const* victim, float& critChance, SpellOnCalcCritChanceFnType callImpl)
+                _safeWrapper = [](SpellScript* spellScript, Unit const* victim, float& critChance, SpellOnCalcCritChanceFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(victim, critChance);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, Unit const*, float&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, Unit const*, float&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, Unit const*, float&>,
                     "OnCalcCritChanceHandler signature must be \"static void CalcCritChance(Unit const* victim, float& critChance)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(SpellOnCalcCritChanceFnType::Static)>(handler) };
-                _safeWrapper = [](SpellScript* /*spellScript*/, Unit const* victim, float& critChance, SpellOnCalcCritChanceFnType callImpl)
+                _safeWrapper = [](SpellScript* /*spellScript*/, Unit const* victim, float& critChance, SpellOnCalcCritChanceFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(victim, critChance);
                 };
@@ -552,24 +544,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, std::list<WorldObject*>&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, std::list<WorldObject*>&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, std::list<WorldObject*>&>,
                     "ObjectAreaTargetSelectHandler signature must be \"void SetTargets(std::list<WorldObject*>& targets)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(SpellObjectAreaTargetSelectFnType::Member)>(handler) };
-                _safeWrapper = [](SpellScript* spellScript, std::list<WorldObject*>& targets, SpellObjectAreaTargetSelectFnType callImpl)
+                _safeWrapper = [](SpellScript* spellScript, std::list<WorldObject*>& targets, SpellObjectAreaTargetSelectFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(targets);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, std::list<WorldObject*>&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, std::list<WorldObject*>&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, std::list<WorldObject*>&>,
                     "ObjectAreaTargetSelectHandler signature must be \"static void SetTargets(std::list<WorldObject*>& targets)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(SpellObjectAreaTargetSelectFnType::Static)>(handler) };
-                _safeWrapper = [](SpellScript* /*spellScript*/, std::list<WorldObject*>& targets, SpellObjectAreaTargetSelectFnType callImpl)
+                _safeWrapper = [](SpellScript* /*spellScript*/, std::list<WorldObject*>& targets, SpellObjectAreaTargetSelectFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(targets);
                 };
@@ -607,24 +597,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, WorldObject*&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, WorldObject*&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, WorldObject*&>,
                     "ObjectTargetSelectHandler signature must be \"void SetTarget(WorldObject*& target)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(SpellObjectTargetSelectFnType::Member)>(handler) };
-                _safeWrapper = [](SpellScript* spellScript, WorldObject*& target, SpellObjectTargetSelectFnType callImpl)
+                _safeWrapper = [](SpellScript* spellScript, WorldObject*& target, SpellObjectTargetSelectFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(target);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, WorldObject*&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, WorldObject*&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, WorldObject*&>,
                     "ObjectTargetSelectHandler signature must be \"static void SetTarget(WorldObject*& target)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(SpellObjectTargetSelectFnType::Static)>(handler) };
-                _safeWrapper = [](SpellScript* /*spellScript*/, WorldObject*& target, SpellObjectTargetSelectFnType callImpl)
+                _safeWrapper = [](SpellScript* /*spellScript*/, WorldObject*& target, SpellObjectTargetSelectFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(target);
                 };
@@ -662,24 +650,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, SpellDestination&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, SpellDestination&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, SpellDestination&>,
                     "DestinationTargetSelectHandler signature must be \"void SetTarget(SpellDestination& target)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(SpellDestinationTargetSelectFnType::Member)>(handler) };
-                _safeWrapper = [](SpellScript* spellScript, SpellDestination& target, SpellDestinationTargetSelectFnType callImpl)
+                _safeWrapper = [](SpellScript* spellScript, SpellDestination& target, SpellDestinationTargetSelectFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(target);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, SpellDestination&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, SpellDestination&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, SpellDestination&>,
                     "DestinationTargetSelectHandler signature must be \"static void SetTarget(SpellDestination& target)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(SpellDestinationTargetSelectFnType::Static)>(handler) };
-                _safeWrapper = [](SpellScript* /*spellScript*/, SpellDestination& target, SpellDestinationTargetSelectFnType callImpl)
+                _safeWrapper = [](SpellScript* /*spellScript*/, SpellDestination& target, SpellDestinationTargetSelectFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(target);
                 };
@@ -716,24 +702,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, Unit*, int32&, int32&, float&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, Unit*, int32&, int32&, float&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, Unit*, int32&, int32&, float&>,
                     "DamageAndHealingCalcHandler signature must be \"void CalcDamage(Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(DamageAndHealingCalcFnType::Member)>(handler) };
-                _safeWrapper = [](SpellScript* spellScript, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl)
+                _safeWrapper = [](SpellScript* spellScript, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(victim, damageOrHealing, flatMod, pctMod);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, Unit*, int32&, int32&, float&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, Unit*, int32&, int32&, float&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, Unit*, int32&, int32&, float&>,
                     "DamageAndHealingCalcHandler signature must be \"static void CalcDamage(Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(DamageAndHealingCalcFnType::Static)>(handler) };
-                _safeWrapper = [](SpellScript* /*spellScript*/, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl)
+                _safeWrapper = [](SpellScript* /*spellScript*/, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(victim, damageOrHealing, flatMod, pctMod);
                 };
@@ -770,24 +754,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, DamageInfo const&, uint32&, int32&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, DamageInfo const&, uint32&, int32&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, DamageInfo const&, uint32&, int32&>,
                     "OnCalculateResistAbsorbHandler signature must be \"void CalcAbsorbResist(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(SpellOnResistAbsorbCalculateFnType::Member)>(handler) };
-                _safeWrapper = [](SpellScript* spellScript, DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount, SpellOnResistAbsorbCalculateFnType callImpl)
+                _safeWrapper = [](SpellScript* spellScript, DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount, SpellOnResistAbsorbCalculateFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(damageInfo, resistAmount, absorbAmount);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, DamageInfo const&, uint32&, int32&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, DamageInfo const&, uint32&, int32&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, DamageInfo const&, uint32&, int32&>,
                     "OnCalculateResistAbsorbHandler signature must be \"static void CalcAbsorbResist(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(SpellOnResistAbsorbCalculateFnType::Static)>(handler) };
-                _safeWrapper = [](SpellScript* /*spellScript*/, DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount, SpellOnResistAbsorbCalculateFnType callImpl)
+                _safeWrapper = [](SpellScript* /*spellScript*/, DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount, SpellOnResistAbsorbCalculateFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(damageInfo, resistAmount, absorbAmount);
                 };
@@ -1109,24 +1091,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, Unit*>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, Unit*>, bool>,
+                static_assert(std::is_invocable_r_v<bool, ScriptFunc, ScriptClass, Unit*>,
                     "CheckAreaTargetHandler signature must be \"bool CheckTarget(Unit* target)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraCheckAreaTargetFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, Unit* target, AuraCheckAreaTargetFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, Unit* target, AuraCheckAreaTargetFnType callImpl) -> bool
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(target);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, Unit*>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, Unit*>, bool>,
+                static_assert(std::is_invocable_r_v<bool, ScriptFunc, Unit*>,
                     "CheckAreaTargetHandler signature must be \"static bool CheckTarget(Unit* target)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraCheckAreaTargetFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, Unit* target, AuraCheckAreaTargetFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, Unit* target, AuraCheckAreaTargetFnType callImpl) -> bool
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(target);
                 };
@@ -1163,24 +1143,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, DispelInfo*>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, DispelInfo*>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, DispelInfo*>,
                     "AuraDispelHandler signature must be \"void HandleDispel(DispelInfo* dispelInfo)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraDispelFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, DispelInfo* dispelInfo, AuraDispelFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, DispelInfo* dispelInfo, AuraDispelFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(dispelInfo);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, DispelInfo*>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, DispelInfo*>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, DispelInfo*>,
                     "AuraDispelHandler signature must be \"static void HandleDispel(DispelInfo* dispelInfo)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraDispelFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, DispelInfo* dispelInfo, AuraDispelFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, DispelInfo* dispelInfo, AuraDispelFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(dispelInfo);
                 };
@@ -1233,24 +1211,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect const*>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect const*>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, AuraEffect const*>,
                     "EffectPeriodicHandler signature must be \"void HandlePeriodic(AuraEffect const* aurEff)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectPeriodicFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, AuraEffectPeriodicFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, AuraEffectPeriodicFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect const*>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect const*>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, AuraEffect const*>,
                     "EffectPeriodicHandler signature must be \"static void HandlePeriodic(AuraEffect const* aurEff)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectPeriodicFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, AuraEffectPeriodicFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, AuraEffectPeriodicFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff);
                 };
@@ -1288,24 +1264,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect*>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect*>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, AuraEffect*>,
                     "EffectUpdatePeriodicHandler signature must be \"void HandleUpdatePeriodic(AuraEffect* aurEff)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectUpdatePeriodicFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, AuraEffect* aurEff, AuraEffectUpdatePeriodicFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect* aurEff, AuraEffectUpdatePeriodicFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect*>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect*>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, AuraEffect*>,
                     "EffectUpdatePeriodicHandler signature must be \"static void HandleUpdatePeriodic(AuraEffect* aurEff)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectUpdatePeriodicFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect* aurEff, AuraEffectUpdatePeriodicFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect* aurEff, AuraEffectUpdatePeriodicFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff);
                 };
@@ -1343,24 +1317,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect const*, int32&, bool&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect const*, int32&, bool&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, AuraEffect const*, int32&, bool&>,
                     "EffectCalcAmountHandler signature must be \"void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectCalcAmountFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated, AuraEffectCalcAmountFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated, AuraEffectCalcAmountFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff, amount, canBeRecalculated);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect const*, int32&, bool&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect const*, int32&, bool&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, AuraEffect const*, int32&, bool&>,
                     "EffectCalcAmountHandler signature must be \"static void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectCalcAmountFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated, AuraEffectCalcAmountFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated, AuraEffectCalcAmountFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff, amount, canBeRecalculated);
                 };
@@ -1398,24 +1370,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect const*, bool&, int32&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect const*, bool&, int32&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, AuraEffect const*, bool&, int32&>,
                     "EffectCalcPeriodicHandler signature must be \"void CalcPeriodic(AuraEffect const* aurEff, bool& isPeriodic, int32& periodicTimer)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectCalcPeriodicFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, bool& isPeriodic, int32& periodicTimer, AuraEffectCalcPeriodicFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, bool& isPeriodic, int32& periodicTimer, AuraEffectCalcPeriodicFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff, isPeriodic, periodicTimer);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect const*, bool&, int32&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect const*, bool&, int32&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, AuraEffect const*, bool&, int32&>,
                     "EffectCalcPeriodicHandler signature must be \"static void CalcPeriodic(AuraEffect const* aurEff, bool& isPeriodic, int32& periodicTimer)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectCalcPeriodicFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, bool& isPeriodic, int32& periodicTimer, AuraEffectCalcPeriodicFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, bool& isPeriodic, int32& periodicTimer, AuraEffectCalcPeriodicFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff, isPeriodic, periodicTimer);
                 };
@@ -1453,24 +1423,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect const*, SpellModifier*&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect const*, SpellModifier*&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, AuraEffect const*, SpellModifier*&>,
                     "EffectCalcSpellModHandler signature must be \"void CalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectCalcSpellModFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, SpellModifier*& spellMod, AuraEffectCalcSpellModFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, SpellModifier*& spellMod, AuraEffectCalcSpellModFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff, spellMod);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect const*, SpellModifier*&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect const*, SpellModifier*&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, AuraEffect const*, SpellModifier*&>,
                     "EffectCalcSpellModHandler signature must be \"static void CalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectCalcSpellModFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, SpellModifier*& spellMod, AuraEffectCalcSpellModFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, SpellModifier*& spellMod, AuraEffectCalcSpellModFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff, spellMod);
                 };
@@ -1508,24 +1476,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect const*, Unit const*, float&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect const*, Unit const*, float&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, AuraEffect const*, Unit const*, float&>,
                     "EffectCalcCritChanceHandler signature must be \"void CalcCritChance(AuraEffect const* aurEff, Unit const* victim, float& critChance)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectCalcCritChanceFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, Unit const* victim, float& critChance, AuraEffectCalcCritChanceFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, Unit const* victim, float& critChance, AuraEffectCalcCritChanceFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff, victim, critChance);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect const*, Unit const*, float&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect const*, Unit const*, float&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, AuraEffect const*, Unit const*, float&>,
                     "EffectCalcCritChanceHandler signature must be \"static void CalcCritChance(AuraEffect const* aurEff, Unit const* victim, float& critChance)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectCalcCritChanceFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, Unit const* victim, float& critChance, AuraEffectCalcCritChanceFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, Unit const* victim, float& critChance, AuraEffectCalcCritChanceFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff, victim, critChance);
                 };
@@ -1563,24 +1529,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect const*, Unit*, int32&, int32&, float&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect const*, Unit*, int32&, int32&, float&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, AuraEffect const*, Unit*, int32&, int32&, float&>,
                     "EffectCalcDamageAndHealingHandler signature must be \"void CalcDamageAndHealing(AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectDamageAndHealingCalcFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, AuraEffectDamageAndHealingCalcFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, AuraEffectDamageAndHealingCalcFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff, victim, damageOrHealing, flatMod, pctMod);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect const*, Unit*, int32&, int32&, float&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect const*, Unit*, int32&, int32&, float&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, AuraEffect const*, Unit*, int32&, int32&, float&>,
                     "EffectCalcDamageAndHealingHandler signature must be \"static void CalcDamageAndHealing(AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectDamageAndHealingCalcFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, AuraEffectDamageAndHealingCalcFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, AuraEffectDamageAndHealingCalcFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff, victim, damageOrHealing, flatMod, pctMod);
                 };
@@ -1618,24 +1582,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect const*, AuraEffectHandleModes>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect const*, AuraEffectHandleModes>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, AuraEffect const*, AuraEffectHandleModes>,
                     "EffectApplyHandler signature must be \"void HandleApplyOrRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectApplicationModeFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, AuraEffectHandleModes mode, AuraEffectApplicationModeFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, AuraEffectHandleModes mode, AuraEffectApplicationModeFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff, mode);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect const*, AuraEffectHandleModes>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect const*, AuraEffectHandleModes>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, AuraEffect const*, AuraEffectHandleModes>,
                     "EffectApplyHandler signature must be \"static void HandleApplyOrRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectApplicationModeFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, AuraEffectHandleModes mode, AuraEffectApplicationModeFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, AuraEffectHandleModes mode, AuraEffectApplicationModeFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff, mode);
                 };
@@ -1677,24 +1639,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect*, DamageInfo&, uint32&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect*, DamageInfo&, uint32&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, AuraEffect*, DamageInfo&, uint32&>,
                     "EffectAbsorbHandler signature must be \"void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectAbsorbFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount, AuraEffectAbsorbFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount, AuraEffectAbsorbFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff, dmgInfo, absorbAmount);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect*, DamageInfo&, uint32&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect*, DamageInfo&, uint32&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, AuraEffect*, DamageInfo&, uint32&>,
                     "EffectAbsorbHandler signature must be \"static void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectAbsorbFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount, AuraEffectAbsorbFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount, AuraEffectAbsorbFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff, dmgInfo, absorbAmount);
                 };
@@ -1732,24 +1692,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect*, HealInfo&, uint32&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect*, HealInfo&, uint32&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, AuraEffect*, HealInfo&, uint32&>,
                     "EffectAbsorbHealHandler signature must be \"void HandleAbsorb(AuraEffect* aurEff, HealInfo& healInfo, uint32& absorbAmount)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectAbsorbHealFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, AuraEffect* aurEff, HealInfo& healInfo, uint32& absorbAmount, AuraEffectAbsorbHealFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect* aurEff, HealInfo& healInfo, uint32& absorbAmount, AuraEffectAbsorbHealFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff, healInfo, absorbAmount);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect*, HealInfo&, uint32&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect*, HealInfo&, uint32&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, AuraEffect*, HealInfo&, uint32&>,
                     "EffectAbsorbHealHandler signature must be \"static void HandleAbsorb(AuraEffect* aurEff, HealInfo& healInfo, uint32& absorbAmount)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectAbsorbHealFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect* aurEff, HealInfo& healInfo, uint32& absorbAmount, AuraEffectAbsorbHealFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect* aurEff, HealInfo& healInfo, uint32& absorbAmount, AuraEffectAbsorbHealFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff, healInfo, absorbAmount);
                 };
@@ -1786,24 +1744,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, ProcEventInfo&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, ProcEventInfo&>, bool>,
+                static_assert(std::is_invocable_r_v<bool, ScriptFunc, ScriptClass, ProcEventInfo&>,
                     "CheckProcHandler signature must be \"bool CheckProc(ProcEventInfo& eventInfo)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraCheckProcFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, ProcEventInfo& eventInfo, AuraCheckProcFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, ProcEventInfo& eventInfo, AuraCheckProcFnType callImpl) -> bool
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(eventInfo);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ProcEventInfo&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ProcEventInfo&>, bool>,
+                static_assert(std::is_invocable_r_v<bool, ScriptFunc, ProcEventInfo&>,
                     "CheckProcHandler signature must be \"static bool CheckProc(ProcEventInfo& eventInfo)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraCheckProcFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, ProcEventInfo& eventInfo, AuraCheckProcFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, ProcEventInfo& eventInfo, AuraCheckProcFnType callImpl) -> bool
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(eventInfo);
                 };
@@ -1841,24 +1797,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect const*, ProcEventInfo&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect const*, ProcEventInfo&>, bool>,
+                static_assert(std::is_invocable_r_v<bool, ScriptFunc, ScriptClass, AuraEffect const*, ProcEventInfo&>,
                     "CheckEffectProcHandler signature must be \"bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraCheckEffectProcFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, ProcEventInfo& eventInfo, AuraCheckEffectProcFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect const* aurEff, ProcEventInfo& eventInfo, AuraCheckEffectProcFnType callImpl) -> bool
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff, eventInfo);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect const*, ProcEventInfo&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect const*, ProcEventInfo&>, bool>,
+                static_assert(std::is_invocable_r_v<bool, ScriptFunc, AuraEffect const*, ProcEventInfo&>,
                     "CheckEffectProcHandler signature must be \"static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraCheckEffectProcFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, ProcEventInfo& eventInfo, AuraCheckEffectProcFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect const* aurEff, ProcEventInfo& eventInfo, AuraCheckEffectProcFnType callImpl) -> bool
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff, eventInfo);
                 };
@@ -1895,24 +1849,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, ProcEventInfo&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, ProcEventInfo&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, ProcEventInfo&>,
                     "AuraProcHandler signature must be \"void HandleProc(ProcEventInfo& eventInfo)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraProcFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, ProcEventInfo& eventInfo, AuraProcFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, ProcEventInfo& eventInfo, AuraProcFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(eventInfo);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ProcEventInfo&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ProcEventInfo&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ProcEventInfo&>,
                     "AuraProcHandler signature must be \"static void HandleProc(ProcEventInfo& eventInfo)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraProcFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, ProcEventInfo& eventInfo, AuraProcFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, ProcEventInfo& eventInfo, AuraProcFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Member)(eventInfo);
                 };
@@ -1950,24 +1902,22 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, AuraEffect*, ProcEventInfo&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, AuraEffect*, ProcEventInfo&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, AuraEffect*, ProcEventInfo&>,
                     "EffectProcHandler signature must be \"void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(AuraEffectProcFnType::Member)>(handler) };
-                _safeWrapper = [](AuraScript* auraScript, AuraEffect* aurEff, ProcEventInfo& eventInfo, AuraEffectProcFnType callImpl)
+                _safeWrapper = [](AuraScript* auraScript, AuraEffect* aurEff, ProcEventInfo& eventInfo, AuraEffectProcFnType callImpl) -> void
                 {
                     return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(aurEff, eventInfo);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_v<ScriptFunc, AuraEffect*, ProcEventInfo&>
-                    && std::is_same_v<std::invoke_result_t<ScriptFunc, AuraEffect*, ProcEventInfo&>, void>,
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, AuraEffect*, ProcEventInfo&>,
                     "EffectProcHandler signature must be \"static void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraEffectProcFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect* aurEff, ProcEventInfo& eventInfo, AuraEffectProcFnType callImpl)
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraEffect* aurEff, ProcEventInfo& eventInfo, AuraEffectProcFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)(aurEff, eventInfo);
                 };
@@ -1998,12 +1948,11 @@ public:
             static_assert(sizeof(AuraEnterLeaveCombatFnType) >= sizeof(ScriptFunc));
             static_assert(alignof(AuraEnterLeaveCombatFnType) >= alignof(ScriptFunc));
 
-            static_assert(std::is_invocable_v<ScriptFunc, ScriptClass, bool>
-                && std::is_same_v<std::invoke_result_t<ScriptFunc, ScriptClass, bool>, void>,
+            static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, bool>,
                 "EnterLeaveCombatHandler signature must be \"void HandleEnterLeaveCombat(bool isNowInCombat)\"");
 
             _callImpl = reinterpret_cast<AuraEnterLeaveCombatFnType>(handler);
-            _safeWrapper = [](AuraScript* auraScript, bool isNowInCombat, AuraEnterLeaveCombatFnType callImpl)
+            _safeWrapper = [](AuraScript* auraScript, bool isNowInCombat, AuraEnterLeaveCombatFnType callImpl) -> void
             {
                 return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl))(isNowInCombat);
             };
