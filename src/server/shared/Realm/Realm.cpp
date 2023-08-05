@@ -31,24 +31,13 @@ void Realm::SetName(std::string name)
 
 boost::asio::ip::address Realm::GetAddressForClient(boost::asio::ip::address const& clientAddr) const
 {
-    std::array<boost::asio::ip::address, 2> addresses = std::array{ *ExternalAddress, * LocalAddress };
-    if (auto addressIndex = Trinity::Net::SelectAddressForClient(clientAddr, addresses))
-    {
-        switch (*addressIndex)
-        {
-            case 0:
-                return *ExternalAddress;
-            case 1:
-                return *LocalAddress;
-            default:
-                break;
-        }
-    }
+    if (auto addressIndex = Trinity::Net::SelectAddressForClient(clientAddr, Addresses))
+        return Addresses[*addressIndex];
 
     if (clientAddr.is_loopback())
-        return *LocalAddress;
+        return Addresses[1];
 
-    return *ExternalAddress;
+    return Addresses[0];
 }
 
 uint32 Realm::GetConfigId() const
