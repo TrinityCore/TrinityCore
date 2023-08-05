@@ -1261,35 +1261,58 @@ bool Item::CanTransmogrify() const
     return true;
 }
 
+// Based on client function CheckTransmogrificationQualityAndClass (build 15595)
+inline bool CheckTransmogrificationQualityAndClass(ItemTemplate const* sourceItem)
+{
+    // Only weapons and armor can be transmogrified
+    if (sourceItem->GetClass() != ITEM_CLASS_WEAPON && sourceItem->GetClass() != ITEM_CLASS_ARMOR)
+        return false;
+
+    // Legendary items cannot be transmogrified
+    if (sourceItem->GetQuality() == ITEM_QUALITY_LEGENDARY)
+        return false;
+
+    // Fishing poles cannot be transmogrified
+    if (sourceItem->GetClass() == ITEM_CLASS_WEAPON && sourceItem->GetSubClass() == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+        return false;
+
+    return true;
+}
+
 bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier)
 {
     if (!transmogrifier || !transmogrified)
         return false;
 
-    ItemTemplate const* proto1 = transmogrifier->GetTemplate(); // source
-    ItemTemplate const* proto2 = transmogrified->GetTemplate(); // dest
+    ItemTemplate const* sourceItem = transmogrifier->GetTemplate(); // source
+    ItemTemplate const* targetItem = transmogrified->GetTemplate(); // dest
 
-    if (proto1->GetId() == proto2->GetId())
+    // check source item's validity. The client does check these conditions so we should do as well.
+    if (!CheckTransmogrificationQualityAndClass(sourceItem))
+        return false;
+
+    if (sourceItem->GetId() == targetItem->GetId())
         return false;
 
     if (!transmogrified->CanTransmogrify() || !transmogrifier->CanBeTransmogrified())
         return false;
 
-    if (proto1->GetInventoryType() == INVTYPE_BAG ||
-        proto1->GetInventoryType() == INVTYPE_RELIC ||
-        proto1->GetInventoryType() == INVTYPE_BODY ||
-        proto1->GetInventoryType() == INVTYPE_FINGER ||
-        proto1->GetInventoryType() == INVTYPE_TRINKET ||
-        proto1->GetInventoryType() == INVTYPE_AMMO ||
-        proto1->GetInventoryType() == INVTYPE_QUIVER)
+    // Check items which can never be transmogrified.
+    if (sourceItem->GetInventoryType() == INVTYPE_BAG ||
+        sourceItem->GetInventoryType() == INVTYPE_RELIC ||
+        sourceItem->GetInventoryType() == INVTYPE_BODY ||
+        sourceItem->GetInventoryType() == INVTYPE_FINGER ||
+        sourceItem->GetInventoryType() == INVTYPE_TRINKET ||
+        sourceItem->GetInventoryType() == INVTYPE_AMMO ||
+        sourceItem->GetInventoryType() == INVTYPE_QUIVER)
         return false;
 
-    if (proto1->GetSubClass() != proto2->GetSubClass() && (proto1->GetClass() != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()))
+    if (sourceItem->GetSubClass() != targetItem->GetSubClass() && (sourceItem->GetClass() != ITEM_CLASS_WEAPON || !sourceItem->IsRangedWeapon() || !targetItem->IsRangedWeapon()))
         return false;
 
-    if (proto1->GetInventoryType() != proto2->GetInventoryType() &&
-        (proto1->GetClass() != ITEM_CLASS_WEAPON || (proto2->GetInventoryType() != INVTYPE_WEAPONMAINHAND && proto2->GetInventoryType() != INVTYPE_WEAPONOFFHAND)) &&
-        (proto1->GetClass() != ITEM_CLASS_ARMOR || (proto1->GetInventoryType() != INVTYPE_CHEST && proto2->GetInventoryType() != INVTYPE_ROBE && proto1->GetInventoryType() != INVTYPE_ROBE && proto2->GetInventoryType() != INVTYPE_CHEST)))
+    if (sourceItem->GetInventoryType() != targetItem->GetInventoryType() &&
+        (sourceItem->GetClass() != ITEM_CLASS_WEAPON || (targetItem->GetInventoryType() != INVTYPE_WEAPONMAINHAND && targetItem->GetInventoryType() != INVTYPE_WEAPONOFFHAND)) &&
+        (sourceItem->GetClass() != ITEM_CLASS_ARMOR || (sourceItem->GetInventoryType() != INVTYPE_CHEST && targetItem->GetInventoryType() != INVTYPE_ROBE && sourceItem->GetInventoryType() != INVTYPE_ROBE && targetItem->GetInventoryType() != INVTYPE_CHEST)))
         return false;
 
     return true;
