@@ -38,7 +38,6 @@ uint32 BG_EY_HonorScoreTicks[BG_HONOR_MODE_NUM] =
 
 BattlegroundEY::BattlegroundEY(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
-    m_BuffChange = true;
     BgObjects.resize(BG_EY_OBJECT_MAX);
     BgCreatures.resize(BG_EY_CREATURES_MAX);
     m_Points_Trigger[FEL_REAVER] = TR_FEL_REAVER_BUFF;

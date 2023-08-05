@@ -1880,13 +1880,6 @@ class spell_igb_cannon_blast : public SpellScript
 // 69402, 70175 - Incinerating Blast
 class spell_igb_incinerating_blast : public SpellScript
 {
-public:
-    spell_igb_incinerating_blast()
-    {
-        _energyLeft = 0;
-    }
-
-private:
     void StoreEnergy()
     {
         _energyLeft = GetCaster()->GetPower(POWER_ENERGY) - 10;
@@ -1897,19 +1890,19 @@ private:
         GetCaster()->SetPower(POWER_ENERGY, 0);
     }
 
-    void CalculateDamage(SpellEffIndex /*effIndex*/)
+    void CalculateDamage(Unit const* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
     {
-        SetEffectValue(GetEffectValue() + _energyLeft * _energyLeft * 8);
+        flatMod += _energyLeft * _energyLeft * 8;
     }
 
     void Register() override
     {
         OnCast += SpellCastFn(spell_igb_incinerating_blast::StoreEnergy);
         AfterCast += SpellCastFn(spell_igb_incinerating_blast::RemoveEnergy);
-        OnEffectLaunchTarget += SpellEffectFn(spell_igb_incinerating_blast::CalculateDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_igb_incinerating_blast::CalculateDamage);
     }
 
-    uint32 _energyLeft;
+    int32 _energyLeft = 0;
 };
 
 // 69487 - Overheat

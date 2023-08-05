@@ -968,23 +968,15 @@ class spell_pri_power_of_the_dark_side_damage_bonus : public SpellScript
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_OF_THE_DARK_SIDE });
     }
 
-    void HandleLaunchTarget(SpellEffIndex effIndex)
+    void CalculateDamageBonus(Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (AuraEffect* powerOfTheDarkSide = GetCaster()->GetAuraEffect(SPELL_PRIEST_POWER_OF_THE_DARK_SIDE, EFFECT_0))
-        {
-            PreventHitDefaultEffect(effIndex);
-
-            float damageBonus = GetCaster()->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), GetEffectValue(), SPELL_DIRECT_DAMAGE, GetEffectInfo());
-            float value = damageBonus + damageBonus * GetEffectVariance();
-            value *= 1.0f + (powerOfTheDarkSide->GetAmount() / 100.0f);
-            value = GetHitUnit()->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), value, SPELL_DIRECT_DAMAGE);
-            SetHitDamage(value);
-        }
+            AddPct(pctMod, powerOfTheDarkSide->GetAmount());
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_pri_power_of_the_dark_side_damage_bonus::HandleLaunchTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_pri_power_of_the_dark_side_damage_bonus::CalculateDamageBonus);
     }
 };
 
@@ -997,23 +989,15 @@ class spell_pri_power_of_the_dark_side_healing_bonus : public SpellScript
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_OF_THE_DARK_SIDE });
     }
 
-    void HandleLaunchTarget(SpellEffIndex effIndex)
+    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (AuraEffect* powerOfTheDarkSide = GetCaster()->GetAuraEffect(SPELL_PRIEST_POWER_OF_THE_DARK_SIDE, EFFECT_0))
-        {
-            PreventHitDefaultEffect(effIndex);
-
-            float healingBonus = GetCaster()->SpellHealingBonusDone(GetHitUnit(), GetSpellInfo(), GetEffectValue(), HEAL, GetEffectInfo());
-            float value = healingBonus + healingBonus * GetEffectVariance();
-            value *= 1.0f + (powerOfTheDarkSide->GetAmount() / 100.0f);
-            value = GetHitUnit()->SpellHealingBonusTaken(GetCaster(), GetSpellInfo(), value, HEAL);
-            SetHitHeal(value);
-        }
+            AddPct(pctMod, powerOfTheDarkSide->GetAmount());
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_pri_power_of_the_dark_side_healing_bonus::HandleLaunchTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+        CalcHealing += SpellCalcHealingFn(spell_pri_power_of_the_dark_side_healing_bonus::CalculateHealingBonus);
     }
 };
 
