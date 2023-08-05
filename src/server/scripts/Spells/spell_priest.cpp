@@ -130,6 +130,7 @@ enum PriestSpells
     SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
+    SPELL_PRIEST_PRAYER_OF_MENDING_VISUAL           = 225275,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788
 };
 
@@ -1268,7 +1269,7 @@ public:
         return true;
     }
 
-    void CastPrayerOfMendingAura(Unit* caster, Unit* target, uint8 stack, bool firstCast)
+    void CastPrayerOfMendingAura(Unit* caster, Unit* target, Unit* visualCaster, uint8 stack, bool firstCast)
     {
         uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, *_healEffectDummy);
         CastSpellExtraArgs args;
@@ -1277,6 +1278,7 @@ public:
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
         args.SetCustomArg(firstCast);
         caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_AURA, args);
+        visualCaster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_VISUAL, true);
     }
 
 protected:
@@ -1299,7 +1301,7 @@ class spell_pri_prayer_of_mending_dummy : public spell_pri_prayer_of_mending_Spe
         Unit* target = GetHitUnit();
 
         // Note: we need to increase BasePoints by 1 since it's 4 as default.
-        CastPrayerOfMendingAura(caster, target, GetEffectValue() + 1, true);
+        CastPrayerOfMendingAura(caster, target, caster, GetEffectValue() + 1, true);
 
         // Note: Epiphany talent. Only the non-triggered version should consume it.
         if (caster->HasAura(SPELL_PRIEST_EPIPHANY) && m_scriptSpellId == SPELL_PRIEST_PRAYER_OF_MENDING)
@@ -1408,10 +1410,11 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     void HandleJump(SpellEffIndex /*effIndex*/)
     {
         Unit* origCaster = GetOriginalCaster();
+        Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
         if (origCaster)
-            CastPrayerOfMendingAura(origCaster, target, GetEffectValue(), false);
+            CastPrayerOfMendingAura(origCaster, target, caster, GetEffectValue(), false);
     }
 
     void Register() override
@@ -1473,16 +1476,23 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
 // 405554 - Priest Holy 10.1 Class Set 2pc
 class spell_pri_holy_10_1_class_set_2pc : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_PRAYER_OF_MENDING, EFFECT_0 } });
+    }
+
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         return roll_chance_i(aurEff->GetAmount());
     }
 
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER,
-            CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)
-            .SetTriggeringSpell(eventInfo.GetProcSpell()));
+        CastSpellExtraArgs args(aurEff);
+        args.SetTriggeringSpell(eventInfo.GetProcSpell());
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(GetCaster()));
+
+        GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER, args);
     }
 
     void Register() override
