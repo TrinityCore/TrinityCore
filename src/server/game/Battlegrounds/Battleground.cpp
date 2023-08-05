@@ -75,7 +75,6 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
     m_Events            = 0;
     m_StartDelayTime    = 0;
     m_IsRated           = false;
-    m_BuffChange        = false;
     m_IsRandom          = false;
     m_InBGFreeSlotQueue = false;
     m_SetDeleteThis     = false;
@@ -1645,51 +1644,6 @@ void Battleground::EndNow()
     RemoveFromBGFreeSlotQueue();
     SetStatus(STATUS_WAIT_LEAVE);
     SetRemainingTime(0);
-}
-
-// IMPORTANT NOTICE:
-// buffs aren't spawned/despawned when players captures anything
-// buffs are in their positions when battleground starts
-void Battleground::HandleTriggerBuff(ObjectGuid go_guid)
-{
-    if (!FindBgMap())
-    {
-        TC_LOG_ERROR("bg.battleground", "Battleground::HandleTriggerBuff called with null bg map, {}", go_guid.ToString());
-        return;
-    }
-
-    GameObject* obj = GetBgMap()->GetGameObject(go_guid);
-    if (!obj || obj->GetGoType() != GAMEOBJECT_TYPE_TRAP || !obj->isSpawned())
-        return;
-
-    // Change buff type, when buff is used:
-    int32 index = BgObjects.size() - 1;
-    while (index >= 0 && BgObjects[index] != go_guid)
-        index--;
-    if (index < 0)
-    {
-        TC_LOG_ERROR("bg.battleground", "Battleground::HandleTriggerBuff: cannot find buff gameobject ({}, entry: {}, type: {}) in internal data for BG (map: {}, instance id: {})!",
-            go_guid.ToString(), obj->GetEntry(), obj->GetGoType(), GetMapId(), m_InstanceID);
-        return;
-    }
-
-    // Randomly select new buff
-    uint8 buff = urand(0, 2);
-    uint32 entry = obj->GetEntry();
-    if (m_BuffChange && entry != Buff_Entries[buff])
-    {
-        // Despawn current buff
-        SpawnBGObject(index, RESPAWN_ONE_DAY);
-        // Set index for new one
-        for (uint8 currBuffTypeIndex = 0; currBuffTypeIndex < 3; ++currBuffTypeIndex)
-            if (entry == Buff_Entries[currBuffTypeIndex])
-            {
-                index -= currBuffTypeIndex;
-                index += buff;
-            }
-    }
-
-    SpawnBGObject(index, BUFF_RESPAWN_TIME);
 }
 
 void Battleground::HandleKillPlayer(Player* victim, Player* killer)

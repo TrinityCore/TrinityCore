@@ -1288,16 +1288,16 @@ class spell_blood_council_shadow_prison : public AuraScript
 // 72999 - Shadow Prison
 class spell_blood_council_shadow_prison_damage : public SpellScript
 {
-    void AddExtraDamage(SpellEffIndex /*effIndex*/)
+    void CalculateDamage(Unit const* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
     {
-        if (Aura* aur = GetHitUnit()->GetAura(GetSpellInfo()->Id))
+        if (Aura const* aur = victim->GetAura(GetSpellInfo()->Id))
             if (AuraEffect const* eff = aur->GetEffect(EFFECT_1))
-                SetEffectValue(GetEffectValue() + eff->GetAmount());
+                flatMod += eff->GetAmount();
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_blood_council_shadow_prison_damage::AddExtraDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_blood_council_shadow_prison_damage::CalculateDamage);
     }
 };
 
