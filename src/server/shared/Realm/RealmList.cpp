@@ -107,10 +107,9 @@ void RealmList::UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint
     realm.Timezone = timezone;
     realm.AllowedSecurityLevel = allowedSecurityLevel;
     realm.PopulationLevel = population;
-    if (!realm.ExternalAddress || *realm.ExternalAddress != address)
-        realm.ExternalAddress = std::make_unique<boost::asio::ip::address>(std::move(address));
-    if (!realm.LocalAddress || *realm.LocalAddress != localAddr)
-        realm.LocalAddress = std::make_unique<boost::asio::ip::address>(std::move(localAddr));
+    realm.Addresses.resize(2);
+    realm.Addresses[0] = std::move(address);
+    realm.Addresses[1] = std::move(localAddr);
     realm.Port = port;
 }
 

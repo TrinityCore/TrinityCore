@@ -617,18 +617,7 @@ bool LoadRealmInfo()
 {
     if (Realm const* realmListRealm = sRealmList->GetRealm(realm.Id))
     {
-        realm.Id = realmListRealm->Id;
-        realm.Build = realmListRealm->Build;
-        realm.ExternalAddress = std::make_unique<boost::asio::ip::address>(*realmListRealm->ExternalAddress);
-        realm.LocalAddress = std::make_unique<boost::asio::ip::address>(*realmListRealm->LocalAddress);
-        realm.Port = realmListRealm->Port;
-        realm.Name = realmListRealm->Name;
-        realm.NormalizedName = realmListRealm->NormalizedName;
-        realm.Type = realmListRealm->Type;
-        realm.Flags = realmListRealm->Flags;
-        realm.Timezone = realmListRealm->Timezone;
-        realm.AllowedSecurityLevel = realmListRealm->AllowedSecurityLevel;
-        realm.PopulationLevel = realmListRealm->PopulationLevel;
+        realm = *realmListRealm;
         return true;
     }
 
