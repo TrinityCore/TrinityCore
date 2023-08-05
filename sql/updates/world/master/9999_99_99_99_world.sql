@@ -6,12 +6,10 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatu
 
 UPDATE `creature_template_addon` SET `auras`="262484" WHERE `entry`=19668;
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_pri_atonement_passive', 'spell_pri_power_leech_passive', 'spell_pri_inescapable_torment', 'spell_pri_essence_devourer_heal');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_pri_atonement_passive', 'spell_pri_power_leech_passive', 'spell_pri_essence_devourer_heal');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (195178, 'spell_pri_atonement_passive'),
 (262484, 'spell_pri_power_leech_passive'),
 (284621, 'spell_pri_power_leech_passive'),
-(8092, 'spell_pri_inescapable_torment'),
-(32379, 'spell_pri_inescapable_torment'),
 (415673, 'spell_pri_essence_devourer_heal'),
 (415676, 'spell_pri_essence_devourer_heal');

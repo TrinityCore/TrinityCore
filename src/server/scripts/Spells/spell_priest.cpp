@@ -84,8 +84,6 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_WORD_SANCTIFY                 = 34861,
     SPELL_PRIEST_HOLY_WORD_SERENITY                 = 2050,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER     = 411097,
-    SPELL_PRIEST_INESCAPABLE_TORMENT                = 373427,
-    SPELL_PRIEST_INESCAPABLE_TORMENT_EFFECT         = 373441,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
@@ -802,55 +800,6 @@ class spell_pri_holy_words : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_holy_words::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
-// 8092 - Mind Blast
-// 32379 - Shadow Word: Death
-class spell_pri_inescapable_torment : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-            SPELL_PRIEST_INESCAPABLE_TORMENT,
-            SPELL_PRIEST_INESCAPABLE_TORMENT_EFFECT,
-            SPELL_PRIEST_MINDBENDER_SHADOW,
-            SPELL_PRIEST_MINDBENDER_DISC
-        })
-            && ValidateSpellEffect({ { SPELL_PRIEST_INESCAPABLE_TORMENT, EFFECT_1 } });
-    }
-
-    void HandleOnHitTarget(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        if (!caster->IsPlayer() || !caster->HasAura(SPELL_PRIEST_INESCAPABLE_TORMENT))
-            return;
-
-        Optional<ObjectGuid> mindbenderGUID = caster->GetSummonGUID(PET_PRIEST_MINDBENDER);
-        if (mindbenderGUID.has_value())
-        {
-            Unit* mindbender = ObjectAccessor::GetUnit(*caster, *mindbenderGUID);
-            if (!mindbender)
-                return;
-
-            mindbender->CastSpell(target, SPELL_PRIEST_INESCAPABLE_TORMENT_EFFECT, TRIGGERED_FULL_MASK);
-
-            // Note: Mindbender's duration increases by SPELL_PRIEST_INESCAPABLE_TORMENT's (EFFECT_1)ms.
-            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_INESCAPABLE_TORMENT, GetCastDifficulty());
-
-            Milliseconds extraDuration = Seconds(spellInfo->GetEffect(EFFECT_1).CalcValue());
-
-            if (TempSummon* mindbenderSummon = mindbender->ToTempSummon())
-                mindbenderSummon->SetDuration(mindbenderSummon->GetTimer() + extraDuration.count());
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_inescapable_torment::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
