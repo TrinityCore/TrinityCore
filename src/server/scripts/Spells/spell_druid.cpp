@@ -127,7 +127,7 @@ private:
 };
 
 // 774 - Rejuvenation
-// 155777 - Rejuventation (Germination)
+// 155777 - Rejuvenation (Germination)
 class spell_dru_abundance : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -320,7 +320,8 @@ class spell_dru_cultivation : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_CULTIVATION, SPELL_DRUID_CULTIVATION_HEAL });
+        return ValidateSpellInfo({ SPELL_DRUID_CULTIVATION_HEAL })
+            && ValidateSpellEffect({ { SPELL_DRUID_CULTIVATION, EFFECT_0 } });
     }
 
     void HandleOnTick(AuraEffect const* aurEff) const
