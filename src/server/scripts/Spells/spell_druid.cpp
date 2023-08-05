@@ -519,18 +519,15 @@ class spell_dru_eclipse_ooc : public AuraScript
 // 145205 - Efflorescence
 class spell_dru_efflorescence : public SpellScript
 {
-    void HandleSummonAreaTrigger(SpellEffIndex /*effIndex*/)
+    void OnPrecast() override
     {
-        Unit* caster = GetCaster();
-
         // Note: if caster has any Efflorescence areatrigger, we remove it.
-        if (AreaTrigger* efflorescenceAT = caster->GetAreaTrigger(GetSpellInfo()->Id))
+        if (AreaTrigger* efflorescenceAT = GetCaster()->GetAreaTrigger(GetSpellInfo()->Id))
             efflorescenceAT->Remove();
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_dru_efflorescence::HandleSummonAreaTrigger, EFFECT_2, SPELL_EFFECT_CREATE_AREATRIGGER);
     }
 };
 
