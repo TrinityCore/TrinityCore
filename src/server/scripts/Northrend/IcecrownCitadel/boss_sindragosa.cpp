@@ -1099,13 +1099,13 @@ class spell_sindragosa_unchained_magic : public SpellScript
                 continue;
 
             ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(player->GetPrimarySpecialization());
-            if (specialization->Role == 1)
+            if (specialization->GetRole() == ChrSpecializationRole::Healer)
             {
                 healers.push_back(target);
                 continue;
             }
 
-            if (specialization->Flags & CHR_SPECIALIZATION_FLAG_CASTER)
+            if (specialization->GetFlags().HasFlag(ChrSpecializationFlag::Caster))
                 casters.push_back(target);
         }
 

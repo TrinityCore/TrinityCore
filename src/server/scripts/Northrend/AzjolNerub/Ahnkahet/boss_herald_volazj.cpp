@@ -419,50 +419,18 @@ struct npc_twisted_visage : public ScriptedAI
 
     void AttackStart(Unit* who) override
     {
-        switch (_playerClass)
-        {
-            case CLASS_SHAMAN:
-                switch (_playerSpec)
-                {
-                    case TALENT_SPEC_SHAMAN_ELEMENTAL:
-                    case TALENT_SPEC_SHAMAN_RESTORATION:
-                        ScriptedAI::AttackStartCaster(who, 25.0f);
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case CLASS_DRUID:
-                switch (_playerSpec)
-                {
-                    case TALENT_SPEC_DRUID_BALANCE:
-                    case TALENT_SPEC_DRUID_RESTORATION:
-                        ScriptedAI::AttackStartCaster(who, 25.0f);
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case CLASS_PRIEST:
-            case CLASS_HUNTER:
-            case CLASS_MAGE:
-            case CLASS_WARLOCK:
-                ScriptedAI::AttackStartCaster(who, 25.0f);
-                break;
-            case CLASS_ROGUE:
-                ScriptedAI::AttackStart(who);
-                break;
-            default:
-                ScriptedAI::AttackStart(who);
-                break;
-        }
+        ChrSpecializationEntry const* chrSpecialization = sChrSpecializationStore.LookupEntry(_playerSpec);
+        if (chrSpecialization && chrSpecialization->GetFlags().HasFlag(ChrSpecializationFlag::Ranged))
+            ScriptedAI::AttackStartCaster(who, 25.0f);
+        else
+            ScriptedAI::AttackStart(who);
     }
 
     void SetData(uint32 type, uint32 data) override
     {
         if (type == DATA_TWISTED_VISAGE_PLAYER_CLASS)
         {
-            if (data > CLASS_NONE && data <= CLASS_DRUID)
+            if (data > CLASS_NONE && data < MAX_CLASSES)
                 _playerClass = data;
         }
         else if (type == DATA_TWISTED_VISAGE_PLAYER_SPEC && _playerClass != CLASS_NONE)
