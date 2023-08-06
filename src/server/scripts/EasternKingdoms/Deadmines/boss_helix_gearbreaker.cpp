@@ -609,7 +609,7 @@ class spell_helix_sticky_bomb_periodic_trigger : public AuraScript
         if (!spell)
             return;
 
-        if (Player* player = target->SelectNearestPlayer(spell->Effects[EFFECT_0].CalcRadius()))
+        if (Player* player = target->SelectNearestPlayer(spell->Effects[EFFECT_0].CalcRadius(nullptr, SpellTargetIndex::TargetB)))
         {
             if (!player->GetVehicleBase() && player->GetExactDist(target) <= 1.0f)
             {

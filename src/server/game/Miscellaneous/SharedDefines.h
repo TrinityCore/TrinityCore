@@ -31,6 +31,12 @@ enum SpellEffIndex : uint8
     EFFECT_2 = 2
 };
 
+enum class SpellTargetIndex : uint8
+{
+    TargetA = 0,
+    TargetB = 1
+};
+
 // used in script definitions
 #define EFFECT_FIRST_FOUND 254
 #define EFFECT_ALL 255

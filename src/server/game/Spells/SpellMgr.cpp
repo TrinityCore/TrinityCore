@@ -3048,12 +3048,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].BonusMultiplier = spellInfo->Effects[EFFECT_1].BonusMultiplier;
     });
 
-    // Howl of Azgalor
-    ApplySpellFix({ 31344 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yards instead of 50000?!
-    });
-
     ApplySpellFix({
         42818, // Headless Horseman - Wisp Flight Port
         42821  // Headless Horseman - Wisp Flight Missile
@@ -3084,14 +3078,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENEMY);
-    });
-
-    // Improved Spell Reflection - aoe aura
-    ApplySpellFix({ 59725 }, [](SpellInfo* spellInfo)
-    {
-        // Target entry seems to be wrong for this spell :/
-        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_20_YARDS);
     });
 
     ApplySpellFix({
@@ -3501,13 +3487,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
     });
 
-    // Siege Cannon (Tol Barad)
-    ApplySpellFix({ 85123 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
-        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
-    });
-
     ApplySpellFix({
         46842, // Flame Ring
         46836  // Flame Patch
@@ -3571,12 +3550,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
     // ENDOF BLACK TEMPLE SPELLS
 
-    // Summon Corpse Scarabs
-    ApplySpellFix({ 28864, 29105 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
-    });
-
     // Tag Greater Felfire Diemetradon
     ApplySpellFix({ 37851 }, [](SpellInfo* spellInfo)
     {
@@ -3630,27 +3603,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 74039 }, [](SpellInfo* spellInfo)
     {
         spellInfo->RecoveryTime = 1000;
-    });
-
-    //
-    // VIOLET HOLD SPELLS
-    //
-    // Water Globule (Ichoron)
-    ApplySpellFix({ 54258, 54264, 54265, 54266, 54267 }, [](SpellInfo* spellInfo)
-    {
-        // in 3.3.5 there is only one radius in dbc which is 0 yards in this
-        // use max radius from 4.3.4
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_25_YARDS);
-    });
-    // ENDOF VIOLET HOLD
-
-    //
-    // ULDUAR SPELLS
-    //
-    // Pursued (Flame Leviathan)
-    ApplySpellFix({ 62374 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS);   // 50000yd
     });
 
     // Focused Eyebeam Summon Trigger (Kologarn)
@@ -3780,31 +3732,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF TRIAL OF THE CRUSADER SPELLS
 
     //
-    // HALLS OF REFLECTION SPELLS
-    //
-    ApplySpellFix({
-        72435, // Defiling Horror
-        72452  // Defiling Horror
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_60_YARDS); // 60yd
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_60_YARDS); // 60yd
-    });
-
-    // Achievement Check
-    ApplySpellFix({ 72830 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-    });
-
-    // Start Halls of Reflection Quest AE
-    ApplySpellFix({ 72900 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-    });
-    // ENDOF HALLS OF REFLECTION SPELLS
-
-    //
     // ICECROWN CITADEL SPELLS
     //
     ApplySpellFix({
@@ -3821,20 +3748,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
-    });
-
-    ApplySpellFix({
-        69075, // Bone Storm (Lord Marrowgar)
-        70834, // Bone Storm (Lord Marrowgar)
-        70835, // Bone Storm (Lord Marrowgar)
-        70836, // Bone Storm (Lord Marrowgar)
-        72864, // Death Plague (Rotting Frost Giant)
-        71160, // Plague Stench (Stinky)
-        71161, // Plague Stench (Stinky)
-        71123  // Decimate (Stinky & Precious)
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yd
     });
 
     // Shadow's Fate
@@ -3869,28 +3782,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
-    });
-
-    // Award Reputation - Boss Kill
-    ApplySpellFix({ 73843, 73844, 73845, 73846 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-    });
-
-    ApplySpellFix({
-        72378, // Blood Nova (Deathbringer Saurfang)
-        73058, // Blood Nova (Deathbringer Saurfang)
-        72769  // Scent of Blood (Deathbringer Saurfang)
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
-    });
-
-    // Scent of Blood (Deathbringer Saurfang)
-    ApplySpellFix({ 72771 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
     });
 
     // Resistant Skin (Deathbringer Saurfang adds)
@@ -3940,25 +3831,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].Effect = 0;
     });
 
-    // Mutated Plague (Professor Putricide)
-    ApplySpellFix({ 72454, 72464, 72506, 72507 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-    });
-
     // Unbound Plague (Professor Putricide) (needs target selection script)
     ApplySpellFix({ 70911, 72854, 72855, 72856 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
-    });
-
-    ApplySpellFix({
-        71518, // Unholy Infusion Quest Credit (Professor Putricide)
-        72934, // Blood Infusion Quest Credit (Blood-Queen Lana'thel)
-        72289  // Frost Infusion Quest Credit (Sindragosa)
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // another missing radius
     });
 
     // Empowered Flare (Blood Prince Council)
@@ -3991,26 +3867,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9); // 30 seconds (missing)
     });
 
-    // Frostbolt Volley (only heroic)
-    ApplySpellFix({ 72015, 72016 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_2].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_40_YARDS);
-    });
-
     // Summon Suppressor (needs target selection script)
     ApplySpellFix({ 70936 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
         spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(157); // 90yd
-    });
-
-    ApplySpellFix({
-        72706, // Achievement Check (Valithria Dreamwalker)
-        71357  // Order Whelp
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);   // 200yd
     });
 
     // Sindragosa's Fury
@@ -4053,15 +3915,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Defile
     ApplySpellFix({ 72754, 73708, 73709, 73710 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+        spellInfo->Effects[EFFECT_0].TargetBRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+        spellInfo->Effects[EFFECT_1].TargetBRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
     });
 
     // Val'kyr Target Search
     ApplySpellFix({ 69030 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
         spellInfo->Attributes |= SPELL_ATTR0_NO_IMMUNITIES;
     });
 
@@ -4069,14 +3929,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 69198 }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
-    });
-
-    // Harvest Souls
-    ApplySpellFix({ 73654, 74295, 74296, 74297 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-        spellInfo->Effects[EFFECT_2].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
     });
 
     // Harvest Soul
@@ -4097,91 +3949,51 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); // 5 seconds
     });
 
-    // Shadow Trap
-    ApplySpellFix({ 73529 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS); // 10yd
-    });
-
-    // Shadow Trap (searcher)
-    ApplySpellFix({ 74282 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS); // 5yd
-    });
-
     // Restore Soul
     ApplySpellFix({ 72595, 73650 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+        spellInfo->Effects[EFFECT_0].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
     });
 
     // Destroy Soul
     ApplySpellFix({ 74086 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+        spellInfo->Effects[EFFECT_0].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
     });
 
     // Summon Spirit Bomb
     ApplySpellFix({ 74302, 74342 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+        spellInfo->Effects[EFFECT_0].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
         spellInfo->MaxAffectedTargets = 1;
     });
 
     // Summon Spirit Bomb
     ApplySpellFix({ 74341, 74343 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+        spellInfo->Effects[EFFECT_0].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
         spellInfo->MaxAffectedTargets = 3;
     });
 
     // Summon Spirit Bomb
     ApplySpellFix({ 73579 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_25_YARDS); // 25yd
-    });
-
-    // Fury of Frostmourne
-    ApplySpellFix({ 72350 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-    });
-
-    ApplySpellFix(
-    {
-        75127, // Kill Frostmourne Players
-        72351, // Fury of Frostmourne
-        72431, // Jump (removes Fury of Frostmourne debuff)
-        72429, // Mass Resurrection
-        73159, // Play Movie
-        73582  // Trigger Vile Spirit (Inside, Heroic)
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+        spellInfo->Effects[EFFECT_0].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_25_YARDS); // 25yd
     });
 
     // Raise Dead
     ApplySpellFix({ 72376 }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 3;
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
     });
 
     // Jump
     ApplySpellFix({ 71809 }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS); // 10yd
         spellInfo->Effects[EFFECT_0].MiscValue = 190;
     });
 
-    // Broken Frostmourne
-    ApplySpellFix({ 72405 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_20_YARDS); // 20yd
-        spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
-    });
     // ENDOF ICECROWN CITADEL SPELLS
 
     //
@@ -4190,13 +4002,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Soul Consumption
     ApplySpellFix({ 74799 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_12_YARDS);
-    });
-
-    // Twilight Cutter
-    ApplySpellFix({ 74769, 77844, 77845, 77846 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yd
+        spellInfo->Effects[EFFECT_1].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_12_YARDS);
     });
 
     // Twilight Mending
@@ -4211,18 +4017,18 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].Mechanic = MECHANIC_NONE;
         spellInfo->Effects[EFFECT_1].Mechanic = MECHANIC_SNARE;
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
+        spellInfo->Effects[EFFECT_1].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
     });
 
     ApplySpellFix({ 75884 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
+        spellInfo->Effects[EFFECT_0].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
+        spellInfo->Effects[EFFECT_1].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
     });
 
     ApplySpellFix({ 75883, 75876 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
+        spellInfo->Effects[EFFECT_1].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
     });
     // ENDOF RUBY SANCTUM SPELLS
 
@@ -4276,41 +4082,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AuraInterruptFlags = SpellAuraInterruptFlags::Damage | SpellAuraInterruptFlags::HostileActionReceived;
     });
 
-    // Rupture
-   ApplySpellFix({ 95669 }, [](SpellInfo* spellInfo)
-   {
-        spellInfo->Effects[EFFECT_1].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_8_YARDS);
-   });
-
     // ENDOF STONECORE SPELLS
 
     //
     //  THE VORTEX PINNACLE SPELLS
     //
-    // Howling Gale
-    ApplySpellFix({ 85085 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
-    });
-
-    // Howling Gale
-    ApplySpellFix({ 85159 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(84); // To-do: Enum this radius entry - EFFECT_RADIUS_17_YARDS.
-    });
-
-    // Upwind of Altairus
-    ApplySpellFix({ 88282 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS);
-    });
-
-    // Twisting Winds
-    ApplySpellFix({ 88314 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
-    });
 
     // Grounding Field
     ApplySpellFix({
@@ -4413,11 +4189,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // Ascendant Council
-    // Disperse
-    ApplySpellFix({ 83087 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
-    });
 
     // Frozen Orb
     ApplySpellFix({ 92267 }, [](SpellInfo* spellInfo)
@@ -4494,7 +4265,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Charge
     ApplySpellFix({ 88295 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
+        spellInfo->Effects[EFFECT_0].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
     });
 
     // "Captain" Cookie
@@ -4511,7 +4282,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Spark
     ApplySpellFix({ 95520 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
+        spellInfo->Effects[EFFECT_0].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
     });
 
     // Summon Defias
@@ -4545,15 +4316,9 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // Commander Ulthok
     // Dark Fissure
-    ApplySpellFix({ 76047 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
-    });
-
     ApplySpellFix({ 96311 }, [](SpellInfo* spellInfo)
     {
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // Infinite
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
     });
 
     // Ozumat
@@ -4561,7 +4326,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 76953 }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 5;
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
+        spellInfo->Effects[EFFECT_0].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
     });
 
     // Summon Murloc Add Trigger
@@ -4661,11 +4426,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     // THE LOST CITY OF THE TOL'VIR SPELLS
     //
     // General Husam
-    // Summon Shockwave Target N
-    ApplySpellFix({ 83131 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
-    });
 
     // Hurl
     ApplySpellFix({ 83235 }, [](SpellInfo* spellInfo)
@@ -4675,49 +4435,16 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // High Prophet Barim
-    // Heaven's Fury
-    ApplySpellFix({ 81942, 90040 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
-    });
-
-    // Hallowed Ground
-    ApplySpellFix({ 88814, 90010 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_13_YARDS);
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_13_YARDS);
-    });
-
     // Blaze of the Heavens
     ApplySpellFix({ 91196 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
-    });
-
-    // Blaze of the Heavens
-    ApplySpellFix({ 95249 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
+        spellInfo->Effects[EFFECT_0].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
     });
 
     // Soul Fragment
     ApplySpellFix({ 82224 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx5 |= SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL;
-    });
-
-    // Lockmaw and Augh
-    // Dust Flail
-    ApplySpellFix({ 81643, 81652 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_11_YARDS);
-    });
-
-    // Siamat
-    // Lightning Charge
-    ApplySpellFix({ 91872 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
     });
 
     // Generic Spells
@@ -4738,7 +4465,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         // Little hack, Increase the radius so it can hit the Cave In Stalkers in the platform.
-        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_45_YARDS);
+        spellInfo->Effects[EFFECT_0].TargetBRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_45_YARDS);
     });
 
     // Destruction Protocoll
@@ -4747,40 +4474,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx2 |= SPELL_ATTR2_NO_INITIAL_THREAT;
     });
 
-    // Crumbling Ruin
-    ApplySpellFix({
-        75609,
-        91206
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS);
-    });
-
-    // Solar Fire
-    ApplySpellFix({ 89133, 89878 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
-    });
-
-    // Solar Winds
-    ApplySpellFix({ 74108, 89130 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
-    });
-
     // Spore Cloud
     ApplySpellFix({ 75701 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
-    });
-
-    // Noxious Spores
-    ApplySpellFix({
-        75702,
-        89889
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = nullptr;
     });
 
     ApplySpellFix({
@@ -4796,27 +4493,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     //
     // SHADOWFANG KEEP SPELLS
     //
-    // Summon Spirit of Wolf Master Nandos
-    // Summon Spirit of Odo the Blindwatcher
-    // Summon Spirit of Razorclaw the Butcher
-    // Summon Spirit of Rethilgore
-    ApplySpellFix({ 93896, 93859, 93921, 93925 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_15_YARDS);
-    });
-
-    // Desecration Arm
-    ApplySpellFix({ 67802 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
-    });
-
-    // Desecration
-    ApplySpellFix({ 93691, 94370 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
-    });
 
     // Toxic Coagulant
     ApplySpellFix({ 93617 }, [](SpellInfo* spellInfo)
@@ -4930,12 +4606,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // Infinite
     });
 
-    // Immolation
-    ApplySpellFix({ 99845 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
-    });
-
     // World in Flames
     // There is no channel update packet in sniffs so we can assume that this is a leftover from a redesign
     ApplySpellFix({
@@ -5000,8 +4670,9 @@ void SpellMgr::LoadSpellInfoCorrections()
         101237,
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
-        spellInfo->Effects[EFFECT_1].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+        // HACK! Caster - Target radius calculation needs corrections
+        spellInfo->Effects[EFFECT_0].TargetBRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+        spellInfo->Effects[EFFECT_1].TargetBRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
     });
 
     // ENDOF FIRELANDS SPELLS
@@ -5027,19 +4698,10 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ZUL'GURUB SPELLS
     //
 
-    // Tears of Blood
-    ApplySpellFix({
-        96422,
-        96957,
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_12_YARDS);
-    });
-
     // Wave of Agony
     ApplySpellFix({ 96461 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_2_YARDS);
+        spellInfo->Effects[EFFECT_0].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_2_YARDS);
     });  
 
     // Wave of Agony (Damage)
@@ -5052,7 +4714,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 97355 }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_40_YARDS);
         spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo(TARGET_DEST_DEST);
     });
 
@@ -5068,7 +4729,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         96319
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
+        spellInfo->Effects[EFFECT_0].TargetBRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
     });
 
@@ -5079,12 +4740,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-    });
-
-    // Zanzili Fire
-    ApplySpellFix({ 96916 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_2_YARDS);
     });
 
     // Shadow Spike
@@ -5153,9 +4808,9 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Boulder Smash
     ApplySpellFix({ 96834 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
-        spellInfo->Effects[EFFECT_1].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
-        spellInfo->Effects[EFFECT_2].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
+        spellInfo->Effects[EFFECT_0].TargetBRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
+        spellInfo->Effects[EFFECT_1].TargetBRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
+        spellInfo->Effects[EFFECT_2].TargetBRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
     });
 
     // ENDOF ZUL'GURUB SPELLS
@@ -5199,7 +4854,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         86191
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
+        spellInfo->Effects[EFFECT_0].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
     });
 
     // Al'Akir
@@ -5268,7 +4923,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         91104,
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50_YARDS);
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(245); // 50 seconds
     });
 
@@ -5280,12 +4934,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
-    });
-
-    // Lightning Clouds
-    ApplySpellFix({ 89583 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_80_YARDS);
     });
 
     // Lightning Clouds
@@ -5504,23 +5152,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
-    // Ignition
-    ApplySpellFix({
-        92134,
-        92196,
-        92197,
-        92198
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_2_YARDS);
-    });
-
-    // Armageddon
-    ApplySpellFix({ 92182 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
-    });
-
     // Flamethrower
     ApplySpellFix({
         79505,
@@ -5551,7 +5182,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Overcharged Power Generator
     ApplySpellFix({ 91858 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
+        spellInfo->Effects[EFFECT_1].TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
     });
 
     // Sonar Pulse
@@ -5634,20 +5265,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(0);
     });
 
-    // Growth Catalyst
-    ApplySpellFix({
-        77987,
-        101440,
-        101441,
-        101442
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
-        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
-        spellInfo->Effects[EFFECT_1].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
-        spellInfo->Effects[EFFECT_2].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
-    });
-
     // Release Aberrations
     ApplySpellFix({ 77569 }, [](SpellInfo* spellInfo)
     {
@@ -5666,15 +5283,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx2 |= SPELL_ATTR2_NO_INITIAL_THREAT;
     });
 
-    // Dragon Orb
-    ApplySpellFix({
-        78219,
-        78220
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
-    });
-
     // Shadowflame Breath
     ApplySpellFix({
         77826,
@@ -5690,17 +5298,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 78949 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].AuraPeriod = 3000;
-    });
-
-    // Lightning Discharge
-    ApplySpellFix({
-        81435,
-        81436,
-        81437,
-        81438,
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_18_YARDS);
     });
 
     // Hail of Bones
@@ -5738,17 +5335,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 1;
     });
 
-    // Lightning Discharge
-    ApplySpellFix({
-        81435,
-        81436,
-        81437,
-        81438
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_18_YARDS);
-    });
-
     // Explosive Cinders
     ApplySpellFix({ 79339 }, [](SpellInfo* spellInfo)
     {
@@ -5774,7 +5360,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx2 |= SPELL_ATTR2_NO_INITIAL_THREAT;
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
     });
 
     // Mangle (Hotfix: 2011-03-16: Magmaw overall damage and health was a little too high on all difficulties and has been reduced slightly)
