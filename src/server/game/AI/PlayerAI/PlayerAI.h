@@ -22,6 +22,7 @@
 
 class Creature;
 class Spell;
+enum class ChrSpecialization : uint32;
 
 class TC_GAME_API PlayerAI : public UnitAI
 {
@@ -31,7 +32,7 @@ class TC_GAME_API PlayerAI : public UnitAI
         Creature* GetCharmer() const;
 
         // helper functions to determine player info
-        uint32 GetSpec(Player const* who = nullptr) const;
+        ChrSpecialization GetSpec(Player const* who = nullptr) const;
         static bool IsPlayerHealer(Player const* who);
         bool IsHealer(Player const* who = nullptr) const { return (!who || who == me) ? _isSelfHealer : IsPlayerHealer(who); }
         static bool IsPlayerRangedAttacker(Player const* who);
@@ -85,7 +86,7 @@ class TC_GAME_API PlayerAI : public UnitAI
         void CancelAllShapeshifts();
 
     private:
-        uint32 const _selfSpec;
+        ChrSpecialization const _selfSpec;
         bool const _isSelfHealer;
         bool _isSelfRangedAttacker;
 };

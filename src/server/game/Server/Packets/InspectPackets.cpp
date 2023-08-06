@@ -77,7 +77,7 @@ ByteBuffer& operator<<(ByteBuffer& data, InspectItemData const& itemData)
 void PlayerModelDisplayInfo::Initialize(Player const* player)
 {
     GUID = player->GetGUID();
-    SpecializationID = player->GetPrimarySpecialization();
+    SpecializationID = AsUnderlyingType(player->GetPrimarySpecialization());
     Name = player->GetName();
     GenderID = player->GetNativeGender();
     Race = player->GetRace();

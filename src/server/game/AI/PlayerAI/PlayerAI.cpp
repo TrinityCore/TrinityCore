@@ -406,7 +406,7 @@ Creature* PlayerAI::GetCharmer() const
     return nullptr;
 }
 
-uint32 PlayerAI::GetSpec(Player const* who /*= nullptr*/) const
+ChrSpecialization PlayerAI::GetSpec(Player const* who /*= nullptr*/) const
 {
     return (!who || who == me) ? _selfSpec : who->GetPrimarySpecialization();
 }
@@ -416,8 +416,8 @@ bool PlayerAI::IsPlayerHealer(Player const* who)
     if (!who)
         return false;
 
-    return who->GetPrimarySpecialization()
-        && sChrSpecializationStore.AssertEntry(who->GetPrimarySpecialization())->GetRole() == ChrSpecializationRole::Healer;
+    ChrSpecializationEntry const* chrSpec = who->GetPrimarySpecializationEntry();
+    return chrSpec && chrSpec->GetRole() == ChrSpecializationRole::Healer;
 }
 
 bool PlayerAI::IsPlayerRangedAttacker(Player const* who)
@@ -425,8 +425,8 @@ bool PlayerAI::IsPlayerRangedAttacker(Player const* who)
     if (!who)
         return false;
 
-    return who->GetPrimarySpecialization()
-        && sChrSpecializationStore.AssertEntry(who->GetPrimarySpecialization())->GetFlags().HasFlag(ChrSpecializationFlag::Ranged);
+    ChrSpecializationEntry const* chrSpec = who->GetPrimarySpecializationEntry();
+    return chrSpec && chrSpec->GetFlags().HasFlag(ChrSpecializationFlag::Ranged);
 }
 
 PlayerAI::TargetedSpell PlayerAI::VerifySpellCast(uint32 spellId, Unit* target)

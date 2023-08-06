@@ -4344,7 +4344,7 @@ class spell_item_amalgams_seventh_spine : public AuraScript
 
         auto updateAuraIfInCorrectSpec = [&](ChrSpecialization spec, AmalgamsSeventhSpine aura)
         {
-            if (target->GetPrimarySpecialization() != uint32(spec))
+            if (target->GetPrimarySpecialization() != spec)
                 target->RemoveAurasDueToSpell(aura);
             else if (!target->HasAura(aura))
                 target->CastSpell(target, aura, aurEff);
