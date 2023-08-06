@@ -43,7 +43,6 @@ public:
 
     void OnSceneStart(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
-        player->CompleteQuest(QUEST_DEMON_HUNTER_INTRO_TRACKER);
         Conversation::CreateConversation(CONVO_DEMONHUNTER_INTRO_START, player, *player, player->GetGUID(), nullptr);
     }
 
