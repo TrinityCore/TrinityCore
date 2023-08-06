@@ -1267,28 +1267,15 @@ public:
             && ValidateSpellEffect({ { SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, EFFECT_0 } });
     }
 
-    bool Load() override
-    {
-        _spellInfoHeal = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, DIFFICULTY_NONE);
-        _healEffectDummy = &_spellInfoHeal->GetEffect(EFFECT_0);
-        return true;
-    }
-
     void CastPrayerOfMendingAura(Unit* caster, Unit* target, Unit* visualCaster, uint8 stack, bool firstCast)
     {
-        uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, *_healEffectDummy);
         CastSpellExtraArgs args;
         args.TriggerFlags = TRIGGERED_FULL_MASK;
         args.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
-        args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
         args.SetCustomArg(firstCast);
         caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_AURA, args);
         visualCaster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_VISUAL, true);
     }
-
-protected:
-    SpellInfo const* _spellInfoHeal;
-    SpellEffectInfo const* _healEffectDummy;
 };
 
 // 33076 - Prayer of Mending (Dummy)
@@ -1330,16 +1317,11 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_PRIEST_PRAYER_OF_MENDING_HEAL,
-            SPELL_PRIEST_PRAYER_OF_MENDING_JUMP,
-            SPELL_PRIEST_SAY_YOUR_PRAYERS
-        })
+        return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP })
             && ValidateSpellEffect({ { SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0 } });
     }
 
-    void HandleHeal(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         // Note: caster is the priest who cast the spell and target is current holder of the aura.
         Unit* target = GetTarget();
@@ -1373,7 +1355,7 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_prayer_of_mending_aura::HandleHeal, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pri_prayer_of_mending_aura::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 
 public:
@@ -1443,8 +1425,9 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
         ({
             SPELL_PRIEST_RENEW,
             SPELL_PRIEST_PRAYER_OF_MENDING_AURA
-        }) && ValidateSpellEffect(
-        {
+        })
+            && ValidateSpellEffect
+        ({
             { SPELL_PRIEST_BENEDICTION, EFFECT_0 },
             { SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0 },
             { SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0 }
