@@ -16,6 +16,7 @@
  */
 
 #include "ahnkahet.h"
+#include "DB2Stores.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
@@ -241,7 +242,7 @@ struct boss_volazj : public BossAI
                     // clone
                     player->CastSpell(summon, SPELL_CLONE_PLAYER, true);
                     summon->GetAI()->SetData(DATA_TWISTED_VISAGE_PLAYER_CLASS, player->GetClass());
-                    summon->GetAI()->SetData(DATA_TWISTED_VISAGE_PLAYER_SPEC, player->GetPrimarySpecialization());
+                    summon->GetAI()->SetData(DATA_TWISTED_VISAGE_PLAYER_SPEC, AsUnderlyingType(player->GetPrimarySpecialization()));
                     summon->SetReactState(REACT_AGGRESSIVE);
                     DoZoneInCombat(summon);
                     // set phase
@@ -441,7 +442,7 @@ struct npc_twisted_visage : public ScriptedAI
             switch (_playerClass)
             {
                 case CLASS_WARRIOR:
-                    switch (data)
+                    switch (ChrSpecialization(data))
                     {
                         case ChrSpecialization::WarriorArms:
                             _scheduler.Schedule(3s, [this](TaskContext mortalStrike)
@@ -485,7 +486,7 @@ struct npc_twisted_visage : public ScriptedAI
                     }
                     break;
                 case CLASS_PALADIN:
-                    switch (data)
+                    switch (ChrSpecialization(data))
                     {
                         case ChrSpecialization::PaladinProtection:
                             _scheduler.Schedule(5s, [this](TaskContext consecration)
@@ -544,7 +545,7 @@ struct npc_twisted_visage : public ScriptedAI
                     });
                     break;
                 case CLASS_PRIEST:
-                    switch (data)
+                    switch (ChrSpecialization(data))
                     {
                         case ChrSpecialization::PriestShadow:
                             _scheduler.Schedule(5s, [this](TaskContext shadowWordPain)
@@ -597,7 +598,7 @@ struct npc_twisted_visage : public ScriptedAI
                     });
                     break;
                 case CLASS_SHAMAN:
-                    switch (data)
+                    switch (ChrSpecialization(data))
                     {
                         default:
                         case ChrSpecialization::ShamanElemental:
@@ -664,7 +665,7 @@ struct npc_twisted_visage : public ScriptedAI
                     });
                     break;
                 case CLASS_DRUID:
-                    switch (data)
+                    switch (ChrSpecialization(data))
                     {
                         case ChrSpecialization::DruidBalance:
                             _scheduler.Schedule(2s, [this](TaskContext moonfire)

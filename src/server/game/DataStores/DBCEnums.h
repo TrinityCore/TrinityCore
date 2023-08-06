@@ -299,8 +299,9 @@ enum class ChrSpecializationRole : int8
     Dps     = 2
 };
 
-enum ChrSpecialization : uint32
+enum class ChrSpecialization : uint32
 {
+    None                        = 0,
     MageArcane                  = 62,
     MageFire                    = 63,
     MageFrost                   = 64,
@@ -338,7 +339,8 @@ enum ChrSpecialization : uint32
     DemonHunterHavoc            = 577,
     DemonHunterVengeance        = 581,
     EvokerDevastation           = 1467,
-    EvokerPreservation          = 1468
+    EvokerPreservation          = 1468,
+    EvokerAugmentation          = 1473
 };
 
 enum class ContentTuningCalcType : int32
