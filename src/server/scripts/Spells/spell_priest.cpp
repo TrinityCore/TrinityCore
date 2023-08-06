@@ -41,6 +41,8 @@ enum PriestSpells
 {
     SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER        = 158624,
     SPELL_PRIEST_ANGELIC_FEATHER_AURA               = 121557,
+    SPELL_PRIEST_ANSWERED_PRAYERS                   = 394289,
+    SPELL_PRIEST_APOTHEOSIS                         = 200183,
     SPELL_PRIEST_ARMOR_OF_FAITH                     = 28810,
     SPELL_PRIEST_ATONEMENT                          = 81749,
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
@@ -213,6 +215,57 @@ struct areatrigger_pri_angelic_feather : AreaTriggerAI
                 at->SetDuration(0);
             }
         }
+    }
+};
+
+// 391387 - Answered Prayers
+class spell_pri_answered_prayers : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_ANSWERED_PRAYERS, SPELL_PRIEST_APOTHEOSIS })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo) const
+    {
+        Milliseconds extraDuration = 0ms;
+        if (AuraEffect const* durationEffect = GetEffect(EFFECT_1))
+            extraDuration = Seconds(durationEffect->GetAmount());
+
+        Unit* target = eventInfo.GetActor();
+
+        Aura* answeredPrayers = target->GetAura(SPELL_PRIEST_ANSWERED_PRAYERS);
+
+        // Note: if caster has no aura, we must cast it first.
+        if (!answeredPrayers)
+            target->CastSpell(target, SPELL_PRIEST_ANSWERED_PRAYERS, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        else
+        {
+            // Note: there's no BaseValue dummy that we can use as reference, so we hardcode the increasing stack value.
+            answeredPrayers->ModStackAmount(1);
+
+            // Note: if current stacks match max. stacks, trigger Apotheosis.
+            if (answeredPrayers->GetStackAmount() != aurEff->GetAmount())
+                return;
+
+            answeredPrayers->Remove();
+
+            if (Aura* apotheosis = GetTarget()->GetAura(SPELL_PRIEST_APOTHEOSIS))
+            {
+                apotheosis->SetDuration(apotheosis->GetDuration() + extraDuration.count());
+                apotheosis->SetMaxDuration(apotheosis->GetMaxDuration() + extraDuration.count());
+            }
+            else
+                target->CastSpell(target, SPELL_PRIEST_APOTHEOSIS,
+                    CastSpellExtraArgs(TRIGGERED_FULL_MASK & ~TRIGGERED_CAST_DIRECTLY)
+                    .AddSpellMod(SPELLVALUE_DURATION, extraDuration.count()));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_answered_prayers::HandleOnProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL);
     }
 };
 
@@ -1979,6 +2032,7 @@ void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_angelic_feather_trigger);
     RegisterAreaTriggerAI(areatrigger_pri_angelic_feather);
+    RegisterSpellScript(spell_pri_answered_prayers);
     RegisterSpellScript(spell_pri_aq_3p_bonus);
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_triggered);
