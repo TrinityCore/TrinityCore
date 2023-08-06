@@ -1488,7 +1488,8 @@ class spell_pri_holy_10_1_class_set_2pc : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellEffect({ { SPELL_PRIEST_PRAYER_OF_MENDING, EFFECT_0 } });
+        return ValidateSpellInfo({ SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER })
+            && ValidateSpellEffect({ { SPELL_PRIEST_PRAYER_OF_MENDING, EFFECT_0 } });
     }
 
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
