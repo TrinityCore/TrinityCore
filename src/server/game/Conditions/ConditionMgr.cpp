@@ -4017,16 +4017,16 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
             return otherUnit && unit->GetReactionTo(otherUnit) <= REP_HOSTILE;
         case UnitConditionVariable::IsSpecMelee:
             return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
-                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_MELEE;
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->GetFlags().HasFlag(ChrSpecializationFlag::Melee);
         case UnitConditionVariable::IsSpecTank:
             return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
-                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 0;
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->GetRole() == ChrSpecializationRole::Tank;
         case UnitConditionVariable::IsSpecRanged:
             return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
-                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_RANGED;
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->GetFlags().HasFlag(ChrSpecializationFlag::Ranged);
         case UnitConditionVariable::IsSpecHealer:
             return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
-                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 1;
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->GetRole() == ChrSpecializationRole::Healer;
         case UnitConditionVariable::IsPlayerControlledNPC:
             return unit->IsCreature() && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
         case UnitConditionVariable::IsDying:

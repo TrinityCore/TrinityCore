@@ -406,7 +406,7 @@ Creature* PlayerAI::GetCharmer() const
     return nullptr;
 }
 
-uint16 PlayerAI::GetSpec(Player const* who /*= nullptr*/) const
+uint32 PlayerAI::GetSpec(Player const* who /*= nullptr*/) const
 {
     return (!who || who == me) ? _selfSpec : who->GetPrimarySpecialization();
 }
@@ -416,28 +416,8 @@ bool PlayerAI::IsPlayerHealer(Player const* who)
     if (!who)
         return false;
 
-    switch (who->GetClass())
-    {
-        case CLASS_WARRIOR:
-        case CLASS_HUNTER:
-        case CLASS_ROGUE:
-        case CLASS_DEATH_KNIGHT:
-        case CLASS_MAGE:
-        case CLASS_WARLOCK:
-        case CLASS_DEMON_HUNTER:
-        default:
-            return false;
-        case CLASS_PALADIN:
-            return who->GetPrimarySpecialization() == TALENT_SPEC_PALADIN_HOLY;
-        case CLASS_PRIEST:
-            return who->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_DISCIPLINE || who->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_HOLY;
-        case CLASS_SHAMAN:
-            return who->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_RESTORATION;
-        case CLASS_MONK:
-            return who->GetPrimarySpecialization() == TALENT_SPEC_MONK_MISTWEAVER;
-        case CLASS_DRUID:
-            return who->GetPrimarySpecialization() == TALENT_SPEC_DRUID_RESTORATION;
-    }
+    return who->GetPrimarySpecialization()
+        && sChrSpecializationStore.AssertEntry(who->GetPrimarySpecialization())->GetRole() == ChrSpecializationRole::Healer;
 }
 
 bool PlayerAI::IsPlayerRangedAttacker(Player const* who)
@@ -445,33 +425,8 @@ bool PlayerAI::IsPlayerRangedAttacker(Player const* who)
     if (!who)
         return false;
 
-    switch (who->GetClass())
-    {
-        case CLASS_WARRIOR:
-        case CLASS_PALADIN:
-        case CLASS_ROGUE:
-        case CLASS_DEATH_KNIGHT:
-        default:
-            return false;
-        case CLASS_MAGE:
-        case CLASS_WARLOCK:
-            return true;
-        case CLASS_HUNTER:
-        {
-            // check if we have a ranged weapon equipped
-            Item const* rangedSlot = who->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
-            if (ItemTemplate const* rangedTemplate = rangedSlot ? rangedSlot->GetTemplate() : nullptr)
-                if ((1 << rangedTemplate->GetSubClass()) & ITEM_SUBCLASS_MASK_WEAPON_RANGED)
-                    return true;
-            return false;
-        }
-        case CLASS_PRIEST:
-            return who->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_SHADOW;
-        case CLASS_SHAMAN:
-            return who->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_ELEMENTAL;
-        case CLASS_DRUID:
-            return who->GetPrimarySpecialization() == TALENT_SPEC_DRUID_BALANCE;
-    }
+    return who->GetPrimarySpecialization()
+        && sChrSpecializationStore.AssertEntry(who->GetPrimarySpecialization())->GetFlags().HasFlag(ChrSpecializationFlag::Ranged);
 }
 
 PlayerAI::TargetedSpell PlayerAI::VerifySpellCast(uint32 spellId, Unit* target)
@@ -642,7 +597,7 @@ void PlayerAI::DoAutoAttackIfReady()
 
 void PlayerAI::CancelAllShapeshifts()
 {
-    std::list<AuraEffect*> const& shapeshiftAuras = me->GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
+    Unit::AuraEffectList const& shapeshiftAuras = me->GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
     std::set<Aura*> removableShapeshifts;
     for (AuraEffect* auraEff : shapeshiftAuras)
     {
