@@ -3994,6 +3994,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].MiscValue = 190;
     });
 
+    // Broken Frostmourne
+    ApplySpellFix({ 72405 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
+    });
+
     // ENDOF ICECROWN CITADEL SPELLS
 
     //
@@ -5263,6 +5269,17 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(0);
+    });
+
+    // Growth Catalyst
+    ApplySpellFix({
+        77987,
+        101440,
+        101441,
+        101442
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Release Aberrations
