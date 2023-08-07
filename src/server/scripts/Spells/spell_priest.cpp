@@ -1320,15 +1320,35 @@ public:
             && ValidateSpellEffect({ { SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, EFFECT_0 } });
     }
 
+    bool Load() override
+    {
+        _spellInfoHeal = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, DIFFICULTY_NONE);
+        _healEffectDummy = &_spellInfoHeal->GetEffect(EFFECT_0);
+        return true;
+    }
+
     void CastPrayerOfMendingAura(Unit* caster, Unit* target, Unit* visualCaster, uint8 stack, bool firstCast)
     {
         CastSpellExtraArgs args;
         args.TriggerFlags = TRIGGERED_FULL_MASK;
         args.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
+
+        // Note: this line's purpose is to show the correct amount in Points field in SMSG_AURA_UPDATE.
+        uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, *_healEffectDummy);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
+
+        // Note: Focused Mending talent.
         args.SetCustomArg(firstCast);
+
         caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_AURA, args);
+
+        // Note: the visual is contained in a different spell.
         visualCaster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_VISUAL, true);
     }
+
+protected:
+    SpellInfo const* _spellInfoHeal;
+    SpellEffectInfo const* _healEffectDummy;
 };
 
 // 33076 - Prayer of Mending (Dummy)
