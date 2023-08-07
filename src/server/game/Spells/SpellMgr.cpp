@@ -5433,12 +5433,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS;
     });
 
-    // Earth Shield
-    ApplySpellFix({ 379 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
-    });
-
     // Light of Dawn
     ApplySpellFix({ 85222 }, [](SpellInfo* spellInfo)
     {
