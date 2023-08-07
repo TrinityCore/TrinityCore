@@ -20,7 +20,7 @@
 
 #include "Common.h"
 #include "AsioHacksFwd.h"
-#include <memory>
+#include <vector>
 
 enum RealmFlags
 {
@@ -79,9 +79,7 @@ struct TC_SHARED_API Realm
 {
     Battlenet::RealmHandle Id;
     uint32 Build;
-    std::unique_ptr<boost::asio::ip::address> ExternalAddress;
-    std::unique_ptr<boost::asio::ip::address> LocalAddress;
-    std::unique_ptr<boost::asio::ip::address> LocalSubnetMask;
+    std::vector<boost::asio::ip::address> Addresses;
     uint16 Port;
     std::string Name;
     std::string NormalizedName;
