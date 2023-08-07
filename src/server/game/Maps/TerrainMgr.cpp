@@ -163,6 +163,14 @@ void TerrainInfo::LoadMapAndVMap(int32 gx, int32 gy)
     LoadMapAndVMapImpl(gx, gy);
 }
 
+void TerrainInfo::LoadMMapInstance(uint32 mapId, uint32 instanceId)
+{
+    LoadMMapInstanceImpl(mapId, instanceId);
+
+    for (std::shared_ptr<TerrainInfo> const& childTerrain : _childTerrain)
+        childTerrain->LoadMMapInstanceImpl(mapId, instanceId);
+}
+
 void TerrainInfo::LoadMapAndVMapImpl(int32 gx, int32 gy)
 {
     LoadMap(gx, gy);
@@ -173,6 +181,11 @@ void TerrainInfo::LoadMapAndVMapImpl(int32 gx, int32 gy)
         childTerrain->LoadMapAndVMapImpl(gx, gy);
 
     _loadedGrids[GetBitsetIndex(gx, gy)] = true;
+}
+
+void TerrainInfo::LoadMMapInstanceImpl(uint32 mapId, uint32 instanceId)
+{
+    MMAP::MMapFactory::createOrGetMMapManager()->loadMapInstance(sWorld->GetDataPath(), _mapId, mapId, instanceId);
 }
 
 void TerrainInfo::LoadMap(int32 gx, int32 gy)
@@ -240,6 +253,14 @@ void TerrainInfo::UnloadMap(int32 gx, int32 gy)
     // unload later
 }
 
+void TerrainInfo::UnloadMMapInstance(uint32 mapId, uint32 instanceId)
+{
+    UnloadMMapInstanceImpl(mapId, instanceId);
+
+    for (std::shared_ptr<TerrainInfo> const& childTerrain : _childTerrain)
+        childTerrain->UnloadMMapInstanceImpl(mapId, instanceId);
+}
+
 void TerrainInfo::UnloadMapImpl(int32 gx, int32 gy)
 {
     _gridMap[gx][gy] = nullptr;
@@ -250,6 +271,11 @@ void TerrainInfo::UnloadMapImpl(int32 gx, int32 gy)
         childTerrain->UnloadMapImpl(gx, gy);
 
     _loadedGrids[GetBitsetIndex(gx, gy)] = false;
+}
+
+void TerrainInfo::UnloadMMapInstanceImpl(uint32 mapId, uint32 instanceId)
+{
+    MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(_mapId, mapId, instanceId);
 }
 
 GridMap* TerrainInfo::GetGrid(uint32 mapId, float x, float y, bool loadIfMissing /*= true*/)

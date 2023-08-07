@@ -21,7 +21,6 @@
 #include "CellImpl.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
-#include "DisableMgr.h"
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
 #include "GameTime.h"
@@ -34,7 +33,6 @@
 #include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "MapManager.h"
-#include "MMapFactory.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -95,7 +93,7 @@ Map::~Map()
     sOutdoorPvPMgr->DestroyOutdoorPvPForMap(this);
     sBattlefieldMgr->DestroyBattlefieldsForMap(this);
 
-    MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
+    m_terrain->UnloadMMapInstance(GetId(), GetInstanceId());
 }
 
 void Map::LoadAllCells()
@@ -150,7 +148,7 @@ i_scriptLock(false), _respawnCheckTimer(0)
 
     sTransportMgr->CreateTransportsForMap(this);
 
-    MMAP::MMapFactory::createOrGetMMapManager()->loadMapInstance(sWorld->GetDataPath(), GetId(), i_InstanceId);
+    m_terrain->LoadMMapInstance(GetId(), GetInstanceId());
 
     _worldStateValues = sWorldStateMgr->GetInitialWorldStatesForMap(this);
 
