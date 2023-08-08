@@ -30,6 +30,7 @@ enum PriestSpells
     SPELL_PRIEST_GLYPH_OF_SHADOWFIEND       = 58228,
     SPELL_PRIEST_SHADOWFIEND_DEATH          = 57989,
     SPELL_PRIEST_LIGHTWELL_CHARGES          = 59907,
+    SPELL_PRIEST_INVOKE_THE_NAARU           = 196687,
     SPELL_PRIEST_DIVINE_IMAGE_SPELL_CHECK   = 405216
 };
 
@@ -76,6 +77,7 @@ struct npc_pet_pri_divine_image : public PetAI
     void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         me->SetReactState(REACT_PASSIVE);
+        me->CastSpell(me, SPELL_PRIEST_INVOKE_THE_NAARU);
     }
 
     void OnDespawn() override
