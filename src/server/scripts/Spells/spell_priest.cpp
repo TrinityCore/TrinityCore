@@ -41,6 +41,8 @@ enum PriestSpells
 {
     SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER        = 158624,
     SPELL_PRIEST_ANGELIC_FEATHER_AURA               = 121557,
+    SPELL_PRIEST_ANSWERED_PRAYERS                   = 394289,
+    SPELL_PRIEST_APOTHEOSIS                         = 200183,
     SPELL_PRIEST_ARMOR_OF_FAITH                     = 28810,
     SPELL_PRIEST_ATONEMENT                          = 81749,
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
@@ -213,6 +215,57 @@ struct areatrigger_pri_angelic_feather : AreaTriggerAI
                 at->SetDuration(0);
             }
         }
+    }
+};
+
+// 391387 - Answered Prayers
+class spell_pri_answered_prayers : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_ANSWERED_PRAYERS, SPELL_PRIEST_APOTHEOSIS })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo) const
+    {
+        Milliseconds extraDuration = 0ms;
+        if (AuraEffect const* durationEffect = GetEffect(EFFECT_1))
+            extraDuration = Seconds(durationEffect->GetAmount());
+
+        Unit* target = eventInfo.GetActor();
+
+        Aura* answeredPrayers = target->GetAura(SPELL_PRIEST_ANSWERED_PRAYERS);
+
+        // Note: if caster has no aura, we must cast it first.
+        if (!answeredPrayers)
+            target->CastSpell(target, SPELL_PRIEST_ANSWERED_PRAYERS, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        else
+        {
+            // Note: there's no BaseValue dummy that we can use as reference, so we hardcode the increasing stack value.
+            answeredPrayers->ModStackAmount(1);
+
+            // Note: if current stacks match max. stacks, trigger Apotheosis.
+            if (answeredPrayers->GetStackAmount() != aurEff->GetAmount())
+                return;
+
+            answeredPrayers->Remove();
+
+            if (Aura* apotheosis = GetTarget()->GetAura(SPELL_PRIEST_APOTHEOSIS))
+            {
+                apotheosis->SetDuration(apotheosis->GetDuration() + extraDuration.count());
+                apotheosis->SetMaxDuration(apotheosis->GetMaxDuration() + extraDuration.count());
+            }
+            else
+                target->CastSpell(target, SPELL_PRIEST_APOTHEOSIS,
+                    CastSpellExtraArgs(TRIGGERED_FULL_MASK & ~TRIGGERED_CAST_DIRECTLY)
+                    .AddSpellMod(SPELLVALUE_DURATION, extraDuration.count()));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_answered_prayers::HandleOnProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL);
     }
 };
 
@@ -968,23 +1021,15 @@ class spell_pri_power_of_the_dark_side_damage_bonus : public SpellScript
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_OF_THE_DARK_SIDE });
     }
 
-    void HandleLaunchTarget(SpellEffIndex effIndex)
+    void CalculateDamageBonus(Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (AuraEffect* powerOfTheDarkSide = GetCaster()->GetAuraEffect(SPELL_PRIEST_POWER_OF_THE_DARK_SIDE, EFFECT_0))
-        {
-            PreventHitDefaultEffect(effIndex);
-
-            float damageBonus = GetCaster()->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), GetEffectValue(), SPELL_DIRECT_DAMAGE, GetEffectInfo());
-            float value = damageBonus + damageBonus * GetEffectVariance();
-            value *= 1.0f + (powerOfTheDarkSide->GetAmount() / 100.0f);
-            value = GetHitUnit()->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), value, SPELL_DIRECT_DAMAGE);
-            SetHitDamage(value);
-        }
+            AddPct(pctMod, powerOfTheDarkSide->GetAmount());
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_pri_power_of_the_dark_side_damage_bonus::HandleLaunchTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_pri_power_of_the_dark_side_damage_bonus::CalculateDamageBonus);
     }
 };
 
@@ -997,23 +1042,15 @@ class spell_pri_power_of_the_dark_side_healing_bonus : public SpellScript
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_OF_THE_DARK_SIDE });
     }
 
-    void HandleLaunchTarget(SpellEffIndex effIndex)
+    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (AuraEffect* powerOfTheDarkSide = GetCaster()->GetAuraEffect(SPELL_PRIEST_POWER_OF_THE_DARK_SIDE, EFFECT_0))
-        {
-            PreventHitDefaultEffect(effIndex);
-
-            float healingBonus = GetCaster()->SpellHealingBonusDone(GetHitUnit(), GetSpellInfo(), GetEffectValue(), HEAL, GetEffectInfo());
-            float value = healingBonus + healingBonus * GetEffectVariance();
-            value *= 1.0f + (powerOfTheDarkSide->GetAmount() / 100.0f);
-            value = GetHitUnit()->SpellHealingBonusTaken(GetCaster(), GetSpellInfo(), value, HEAL);
-            SetHitHeal(value);
-        }
+            AddPct(pctMod, powerOfTheDarkSide->GetAmount());
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_pri_power_of_the_dark_side_healing_bonus::HandleLaunchTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+        CalcHealing += SpellCalcHealingFn(spell_pri_power_of_the_dark_side_healing_bonus::CalculateHealingBonus);
     }
 };
 
@@ -1995,6 +2032,7 @@ void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_angelic_feather_trigger);
     RegisterAreaTriggerAI(areatrigger_pri_angelic_feather);
+    RegisterSpellScript(spell_pri_answered_prayers);
     RegisterSpellScript(spell_pri_aq_3p_bonus);
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_triggered);

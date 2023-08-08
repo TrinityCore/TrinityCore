@@ -599,7 +599,7 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
     MemberStats.PositionY = int16(player->GetPositionY());
     MemberStats.PositionZ = int16(player->GetPositionZ());
 
-    MemberStats.SpecID = player->GetPrimarySpecialization();
+    MemberStats.SpecID = AsUnderlyingType(player->GetPrimarySpecialization());
     MemberStats.PartyType[0] = player->m_playerData->PartyType & 0xF;
     MemberStats.PartyType[1] = player->m_playerData->PartyType >> 4;
     MemberStats.WmoGroupID = 0;

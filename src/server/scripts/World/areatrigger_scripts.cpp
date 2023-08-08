@@ -407,6 +407,40 @@ struct areatrigger_stormwind_teleport_unit : AreaTriggerAI
     }
 };
 
+void HandleBuffAreaTrigger(Player* player)
+{
+    if (GameObject* buffObject = player->FindNearestGameObjectWithOptions(4.0f, { .StringId = "bg_buff_object" }))
+    {
+        buffObject->ActivateObject(GameObjectActions::Disturb, 0, player);
+        buffObject->DespawnOrUnsummon();
+    }
+}
+
+struct areatrigger_battleground_buffs : AreaTriggerAI
+{
+    areatrigger_battleground_buffs(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsPlayer())
+            return;
+
+        HandleBuffAreaTrigger(unit->ToPlayer());
+    }
+};
+
+class AreaTrigger_at_battleground_buffs : public AreaTriggerScript
+{
+public:
+    AreaTrigger_at_battleground_buffs() : AreaTriggerScript("at_battleground_buffs") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        HandleBuffAreaTrigger(player);
+        return true;
+    }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -418,4 +452,6 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_area_52_entrance();
     new AreaTrigger_at_frostgrips_hollow();
     RegisterAreaTriggerAI(areatrigger_stormwind_teleport_unit);
+    RegisterAreaTriggerAI(areatrigger_battleground_buffs);
+    new AreaTrigger_at_battleground_buffs();
 }

@@ -48,7 +48,7 @@ CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
 
 static Creature* FindCreatureIgnorePhase(WorldObject const* obj, std::string_view stringId, float range = 100.0f)
 {
-    return obj->FindNearestCreatureWithOptions(range, FindCreatureOptions().SetIgnorePhases(true).SetStringId(stringId));
+    return obj->FindNearestCreatureWithOptions(range, { .StringId = stringId, .IgnorePhases = true });
 }
 
  // ********************************************
@@ -290,7 +290,7 @@ class spell_summon_sparring_partner : public SpellScript
         if (!caster)
             return;
 
-        Creature* partner = caster->FindNearestCreatureWithOptions(10.0f, FindCreatureOptions().SetIgnorePhases(true).SetStringId(caster->GetTeam() == ALLIANCE ? "q58209_cole" : "q59927_throg"));
+        Creature* partner = FindCreatureIgnorePhase(caster, caster->GetTeam() == ALLIANCE ? "q58209_cole" : "q59927_throg", 10.0f);
         if (!partner)
             return;
 
@@ -1469,7 +1469,7 @@ struct npc_bo_beach_laying : public ScriptedAI
         {
             player->KilledMonsterCredit(me->GetEntry());
 
-            if (Creature* survivor = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("bo_beach").SetIgnorePhases(true)))
+            if (Creature* survivor = FindCreatureIgnorePhase(player, "bo_beach", 50.0f))
                 survivor->SummonPersonalClone(BoCloneSpawnPosition, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
         }
     }
@@ -1491,7 +1491,7 @@ struct npc_mithran_dawntracker_beach_laying : public ScriptedAI
         {
             player->KilledMonsterCredit(me->GetEntry());
 
-            if (Creature* survivor = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("mithran_beach").SetIgnorePhases(true)))
+            if (Creature* survivor = FindCreatureIgnorePhase(player, "mithran_beach", 50.0f))
                 survivor->SummonPersonalClone(MithranCloneSpawnPosition, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
         }
     }
@@ -1513,7 +1513,7 @@ struct npc_lana_jordan_beach_laying : public ScriptedAI
         {
             player->KilledMonsterCredit(me->GetEntry());
 
-            if (Creature* survivor = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("lana_jordan_beach").SetIgnorePhases(true)))
+            if (Creature* survivor = FindCreatureIgnorePhase(player, "lana_jordan_beach", 50.0f))
                 survivor->SummonPersonalClone(LanaCloneSpawnPosition, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
         }
     }
@@ -1967,14 +1967,14 @@ public:
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
                 player->CastSpell(player, summonSpellId);
 
-                if (Creature* survivor1 = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetStringId(survivor1StringId).SetIgnorePhases(true)))
+                if (Creature* survivor1 = FindCreatureIgnorePhase(player, survivor1StringId, 25.0f))
                 {
                     Creature* survivor1Personal = survivor1->SummonPersonalClone(survivor1->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
                     survivor1Personal->SetScriptStringId("spawn_check");
                 }
-                if (Creature* survivor2 = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetStringId(survivor2StringId).SetIgnorePhases(true)))
+                if (Creature* survivor2 = FindCreatureIgnorePhase(player, survivor2StringId, 25.0f))
                     survivor2->SummonPersonalClone(survivor2->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-                if (Creature* survivor3 = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetStringId(survivor3StringId).SetIgnorePhases(true)))
+                if (Creature* survivor3 = FindCreatureIgnorePhase(player, survivor3StringId, 25.0f))
                     survivor3->SummonPersonalClone(survivor3->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
 
                 break;
@@ -2030,7 +2030,7 @@ class spell_summon_survivor_beach : public SpellScript
         if (!caster)
             return;
 
-        Creature* survivor = caster->FindNearestCreatureWithOptions(5.0f, FindCreatureOptions().SetIgnorePhases(true).SetStringId(caster->GetTeam() == ALLIANCE ? "q54952_garrick" : "q59931_grimaxe"));
+        Creature* survivor = FindCreatureIgnorePhase(caster, caster->GetTeam() == ALLIANCE ? "q54952_garrick" : "q59931_grimaxe", 5.0f);
         if (!survivor)
             return;
 
