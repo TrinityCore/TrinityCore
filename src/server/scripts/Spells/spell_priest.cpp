@@ -1347,8 +1347,8 @@ public:
     }
 
 protected:
-    SpellInfo const* _spellInfoHeal;
-    SpellEffectInfo const* _healEffectDummy;
+    SpellInfo const* _spellInfoHeal = nullptr;
+    SpellEffectInfo const* _healEffectDummy = nullptr;
 };
 
 // 33076 - Prayer of Mending (Dummy)
