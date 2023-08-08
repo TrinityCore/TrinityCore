@@ -615,12 +615,21 @@ namespace Trinity
     // CHECKS && DO classes
 
     // CHECK modifiers
-    class NoopCheckCustomizer
+    class InRangeCheckCustomizer
     {
     public:
-        bool Test(WorldObject const* /*o*/) const { return true; }
+        explicit InRangeCheckCustomizer(WorldObject const& obj, float range) : i_obj(obj), i_range(range) { }
+
+        bool Test(WorldObject const* o) const
+        {
+            return i_obj.IsWithinDist(o, i_range);
+        }
 
         void Update(WorldObject const* /*o*/) { }
+
+    private:
+        WorldObject const& i_obj;
+        float i_range;
     };
 
     class NearestCheckCustomizer
@@ -1398,14 +1407,14 @@ namespace Trinity
             NearestCreatureEntryWithLiveStateInObjectRangeCheck(NearestCreatureEntryWithLiveStateInObjectRangeCheck const&) = delete;
     };
 
-    template <typename Customizer = NoopCheckCustomizer>
+    template <typename Customizer = InRangeCheckCustomizer>
     class CreatureWithOptionsInObjectRangeCheck
     {
         public:
             CreatureWithOptionsInObjectRangeCheck(WorldObject const& obj, Customizer& customizer, FindCreatureOptions const& args)
                 : i_obj(obj), i_args(args), i_customizer(customizer) { }
 
-            bool operator()(Creature* u) const
+            bool operator()(Creature const* u) const
             {
                 if (u->getDeathState() == DEAD) // Despawned
                     return false;
@@ -1455,6 +1464,53 @@ namespace Trinity
             WorldObject const& i_obj;
             FindCreatureOptions const& i_args;
             Customizer& i_customizer;
+    };
+
+    template <typename Customizer = InRangeCheckCustomizer>
+    class GameObjectWithOptionsInObjectRangeCheck
+    {
+    public:
+        GameObjectWithOptionsInObjectRangeCheck(WorldObject const& obj, Customizer& customizer, FindGameObjectOptions const& args)
+            : i_obj(obj), i_args(args), i_customizer(customizer) { }
+
+        bool operator()(GameObject const* go) const
+        {
+            if (i_args.IsSpawned.has_value() && i_args.IsSpawned != go->isSpawned()) // Despawned
+                return false;
+
+            if (go->GetGUID() == i_obj.GetGUID())
+                return false;
+
+            if (!i_customizer.Test(go))
+                return false;
+
+            if (i_args.GameObjectId && go->GetEntry() != i_args.GameObjectId)
+                return false;
+
+            if (i_args.StringId && !go->HasStringId(*i_args.StringId))
+                return false;
+
+            if (i_args.IsSummon.has_value() && (go->GetSpawnId() == 0) != i_args.IsSummon)
+                return false;
+
+            if ((i_args.OwnerGuid && go->GetOwnerGUID() != i_args.OwnerGuid)
+                || (i_args.PrivateObjectOwnerGuid && go->GetPrivateObjectOwner() != i_args.PrivateObjectOwnerGuid))
+                return false;
+
+            if (i_args.IgnorePrivateObjects && go->IsPrivateObject())
+                return false;
+
+            if (i_args.IgnoreNotOwnedPrivateObjects && !go->CheckPrivateObjectOwnerVisibility(&i_obj))
+                return false;
+
+            i_customizer.Update(go);
+            return true;
+        }
+
+    private:
+        WorldObject const& i_obj;
+        FindGameObjectOptions const& i_args;
+        Customizer& i_customizer;
     };
 
     class AnyPlayerInObjectRangeCheck

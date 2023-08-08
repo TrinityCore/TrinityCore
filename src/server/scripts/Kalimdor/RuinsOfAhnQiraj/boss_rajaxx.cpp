@@ -126,18 +126,14 @@ class boss_rajaxx : public CreatureScript
 // 25599 - Thundercrash
 class spell_rajaxx_thundercrash : public SpellScript
 {
-    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+    static void HandleDamageCalc(Unit const* victim, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
     {
-        int32 damage = GetHitUnit()->GetHealth() / 2;
-        if (damage < 200)
-            damage = 200;
-
-        SetEffectValue(damage);
+        damage = victim->CountPctFromCurHealth(50);
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_rajaxx_thundercrash::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_rajaxx_thundercrash::HandleDamageCalc);
     }
 };
 

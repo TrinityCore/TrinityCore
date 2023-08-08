@@ -280,15 +280,67 @@ enum class ChrRacesFlag : int32
 
 DEFINE_ENUM_FLAG(ChrRacesFlag);
 
-enum ChrSpecializationFlag
+enum class ChrSpecializationFlag : uint32
 {
-    CHR_SPECIALIZATION_FLAG_CASTER                  = 0x01,
-    CHR_SPECIALIZATION_FLAG_RANGED                  = 0x02,
-    CHR_SPECIALIZATION_FLAG_MELEE                   = 0x04,
-    CHR_SPECIALIZATION_FLAG_UNKNOWN                 = 0x08,
-    CHR_SPECIALIZATION_FLAG_DUAL_WIELD_TWO_HANDED   = 0x10,     // used for CUnitDisplay::SetSheatheInvertedForDualWield
-    CHR_SPECIALIZATION_FLAG_PET_OVERRIDE_SPEC       = 0x20,
-    CHR_SPECIALIZATION_FLAG_RECOMMENDED             = 0x40,
+    Caster              = 0x01,
+    Ranged              = 0x02,
+    Melee               = 0x04,
+    DualWieldTwoHanded  = 0x10,     // used for CUnitDisplay::SetSheatheInvertedForDualWield
+    PetOverrideSpec     = 0x20,
+    Recommended         = 0x40,
+};
+
+DEFINE_ENUM_FLAG(ChrSpecializationFlag);
+
+enum class ChrSpecializationRole : int8
+{
+    Tank    = 0,
+    Healer  = 1,
+    Dps     = 2
+};
+
+enum class ChrSpecialization : uint32
+{
+    None                        = 0,
+    MageArcane                  = 62,
+    MageFire                    = 63,
+    MageFrost                   = 64,
+    PaladinHoly                 = 65,
+    PaladinProtection           = 66,
+    PaladinRetribution          = 70,
+    WarriorArms                 = 71,
+    WarriorFury                 = 72,
+    WarriorProtection           = 73,
+    DruidBalance                = 102,
+    DruidFeral                  = 103,
+    DruidGuardian               = 104,
+    DruidRestoration            = 105,
+    DeathKnightBlood            = 250,
+    DeathKnightFrost            = 251,
+    DeathKnightUnholy           = 252,
+    HunterBeastMastery          = 253,
+    HunterMarksmanship          = 254,
+    HunterSurvival              = 255,
+    PriestDiscipline            = 256,
+    PriestHoly                  = 257,
+    PriestShadow                = 258,
+    RogueAssassination          = 259,
+    RogueOutlaw                 = 260,
+    RogueSubtely                = 261,
+    ShamanElemental             = 262,
+    ShamanEnhancement           = 263,
+    ShamanRestoration           = 264,
+    WarlockAffliction           = 265,
+    WarlockDemonology           = 266,
+    WarlockDestruction          = 267,
+    MonkBrewmaster              = 268,
+    MonkWindwalker              = 269,
+    MonkMistweaver              = 270,
+    DemonHunterHavoc            = 577,
+    DemonHunterVengeance        = 581,
+    EvokerDevastation           = 1467,
+    EvokerPreservation          = 1468,
+    EvokerAugmentation          = 1473
 };
 
 enum class ContentTuningCalcType : int32

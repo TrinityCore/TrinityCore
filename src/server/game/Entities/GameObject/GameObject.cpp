@@ -503,6 +503,51 @@ void SetTransportAutoCycleBetweenStopFrames::Execute(GameObjectTypeBase& type) c
     if (Transport* transport = dynamic_cast<Transport*>(&type))
         transport->SetAutoCycleBetweenStopFrames(_on);
 }
+
+class NewFlag : public GameObjectTypeBase
+{
+public:
+    explicit NewFlag(GameObject& owner) : GameObjectTypeBase(owner), _state(FlagState::InBase), _respawnTime(0) { }
+
+    void SetState(FlagState newState, Player* player)
+    {
+        FlagState oldState = _state;
+        _state = newState;
+        _owner.UpdateObjectVisibility();
+        if (ZoneScript* zoneScript = _owner.GetZoneScript())
+            zoneScript->OnFlagStateChange(&_owner, oldState, _state, player);
+
+        if (newState == FlagState::Respawning)
+            _respawnTime = GameTime::GetGameTimeMS() + _owner.GetGOInfo()->newflag.RespawnTime;
+        else
+            _respawnTime = 0;
+    }
+
+    void Update([[maybe_unused]] uint32 diff) override
+    {
+        if (_state == FlagState::Respawning && GameTime::GetGameTimeMS() >= _respawnTime)
+            SetState(FlagState::InBase, nullptr);
+    }
+
+    bool IsNeverVisibleFor([[maybe_unused]] WorldObject const* seer, [[maybe_unused]] bool allowServersideObjects) const override
+    {
+        return _state != FlagState::InBase;
+    }
+
+private:
+    FlagState _state;
+    time_t _respawnTime;
+};
+
+SetNewFlagState::SetNewFlagState(FlagState state, Player* player) : _state(state), _player(player)
+{
+}
+
+void SetNewFlagState::Execute(GameObjectTypeBase& type) const
+{
+    if (NewFlag* newFlag = dynamic_cast<NewFlag*>(&type))
+        newFlag->SetState(_state, _player);
+}
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
@@ -797,6 +842,9 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
                 m_invisibility.AddValue(INVISIBILITY_TRAP, 300);
             }
             break;
+        case GAMEOBJECT_TYPE_NEW_FLAG:
+            m_goTypeImpl = std::make_unique<GameObjectType::NewFlag>(*this);
+            break;
         case GAMEOBJECT_TYPE_PHASEABLE_MO:
             RemoveFlag(GameObjectFlags(0xF00));
             SetFlag(GameObjectFlags((m_goInfo->phaseableMO.AreaNameSet & 0xF) << 8));
@@ -832,6 +880,9 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     }
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
+
+    m_stringIds[0] = goInfo->StringId;
+
     AIM_Initialize();
 
     if (spawnid)
@@ -1105,17 +1156,9 @@ void GameObject::Update(uint32 diff)
 
                     // Type 0 despawns after being triggered, type 1 does not.
                     /// @todo This is activation radius. Casting radius must be selected from spell data.
-                    float radius;
-                    if (!goInfo->trap.radius)
-                    {
-                        // Battleground traps: data2 == 0 && data5 == 3
-                        if (goInfo->trap.cooldown != 3)
-                            break;
-
-                        radius = 3.f;
-                    }
-                    else
-                        radius = goInfo->trap.radius / 2.f;
+                    float radius = goInfo->trap.radius / 2.f; // this division seems to date back to when the field was called diameter, don't think it is still relevant.
+                    if (!radius)
+                        break;
 
                     // Pointer to appropriate target if found any
                     Unit* target = nullptr;
@@ -1256,12 +1299,6 @@ void GameObject::Update(uint32 diff)
                             SetLootState(GO_JUST_DEACTIVATED);
                         else if (!goInfo->trap.charges)
                             SetLootState(GO_READY);
-
-                        // Battleground gameobjects have data2 == 0 && data5 == 3
-                        if (!goInfo->trap.radius && goInfo->trap.cooldown == 3)
-                            if (Player* player = target->ToPlayer())
-                                if (Battleground* bg = player->GetBattleground())
-                                    bg->HandleTriggerBuff(GetGUID());
                     }
                     break;
                 }
@@ -1323,6 +1360,13 @@ void GameObject::Update(uint32 diff)
             else if (!GetOwnerGUID().IsEmpty() || GetSpellId())
             {
                 SetRespawnTime(0);
+
+                if (GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG_DROP)
+                {
+                    if (GameObject* go = GetMap()->GetGameObject(GetOwnerGUID()))
+                        go->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase, nullptr));
+                }
+
                 Delete();
                 return;
             }
@@ -1663,6 +1707,8 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
     m_goData = data;
 
+    m_stringIds[1] = data->StringId;
+
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
 
@@ -1812,6 +1858,9 @@ bool GameObject::IsNeverVisibleFor(WorldObject const* seer, bool allowServerside
 
     if (!GetDisplayId() && GetGOInfo()->IsDisplayMandatory())
         return true;
+
+    if (m_goTypeImpl)
+        return m_goTypeImpl->IsNeverVisibleFor(seer, allowServersideObjects);
 
     return false;
 }
@@ -2898,7 +2947,47 @@ void GameObject::Use(Unit* user)
                 return;
 
             spellId = info->newflag.pickupSpell;
+            spellCaster = nullptr;
             break;
+        }
+        case GAMEOBJECT_TYPE_NEW_FLAG_DROP:
+        {
+            GameObjectTemplate const* info = GetGOInfo();
+            if (!info)
+                return;
+
+            if (user->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            if (GameObject* owner = GetMap()->GetGameObject(GetOwnerGUID()))
+            {
+                if (owner->GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
+                {
+                    // friendly with enemy flag means you're taking it
+                    bool defenderInteract = !owner->IsFriendlyTo(user);
+                    if (defenderInteract && owner->GetGOInfo()->newflag.ReturnonDefenderInteract)
+                    {
+                        Delete();
+                        owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase, user->ToPlayer()));
+                        return;
+                    }
+                    else
+                    {
+                        // we let the owner cast the spell for now
+                        // so that caster guid is set correctly
+                        SpellCastResult result = owner->CastSpell(user, owner->GetGOInfo()->newflag.pickupSpell, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+                        if (result == SPELL_CAST_OK)
+                        {
+                            Delete();
+                            owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
+                            return;
+                        }
+                    }
+                }
+            }
+
+            Delete();
+            return;
         }
         case GAMEOBJECT_TYPE_ITEM_FORGE:
         {
@@ -3053,7 +3142,14 @@ void GameObject::Use(Unit* user)
     if (spellCaster)
         spellCaster->CastSpell(user, spellId, triggered);
     else
-        CastSpell(user, spellId);
+    {
+        SpellCastResult castResult = CastSpell(user, spellId);
+        if (castResult == SPELL_FAILED_SUCCESS)
+        {
+            if (GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
+                HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
+        }
+    }
 }
 
 void GameObject::SendCustomAnim(uint32 anim)
@@ -3097,6 +3193,25 @@ uint32 GameObject::GetScriptId() const
             return scriptId;
 
     return GetGOInfo()->ScriptId;
+}
+
+bool GameObject::HasStringId(std::string_view id) const
+{
+    return std::find(m_stringIds.begin(), m_stringIds.end(), id) != m_stringIds.end();
+}
+
+void GameObject::SetScriptStringId(std::string id)
+{
+    if (!id.empty())
+    {
+        m_scriptStringId.emplace(std::move(id));
+        m_stringIds[2] = *m_scriptStringId;
+    }
+    else
+    {
+        m_scriptStringId.reset();
+        m_stringIds[2] = {};
+    }
 }
 
 // overwrite WorldObject function for proper name localization

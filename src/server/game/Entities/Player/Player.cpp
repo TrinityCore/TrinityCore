@@ -1237,8 +1237,7 @@ void Player::setDeathState(DeathState s)
 
         // drunken state is cleared on death
         SetDrunkValue(0);
-        // lost combo points at any target (targeted combo points clear in Unit::setDeathState)
-        ClearComboPoints();
+        SetPower(POWER_COMBO_POINTS, 0);
 
         ClearResurrectRequestData();
 
@@ -1620,7 +1619,7 @@ void Player::RemoveFromWorld()
         StopCastingCharm();
         StopCastingBindSight();
         UnsummonPetTemporaryIfAny();
-        ClearComboPoints();
+        SetPower(POWER_COMBO_POINTS, 0);
         m_session->DoLootReleaseAll();
         m_lootRolls.clear();
         sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
@@ -8067,8 +8066,8 @@ void Player::DuelComplete(DuelCompleteType type)
     opponent->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::DuelEnd);
 
     // cleanup combo points
-    ClearComboPoints();
-    opponent->ClearComboPoints();
+    SetPower(POWER_COMBO_POINTS, 0);
+    opponent->SetPower(POWER_COMBO_POINTS, 0);
 
     //cleanups
     SetDuelArbiter(ObjectGuid::Empty);
@@ -8843,7 +8842,7 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= fal
         if (!spellproto)
             continue;
 
-        if (effectData->ChrSpecializationID && effectData->ChrSpecializationID != GetPrimarySpecialization())
+        if (effectData->ChrSpecializationID && ChrSpecialization(effectData->ChrSpecializationID) != GetPrimarySpecialization())
             continue;
 
         ApplyEquipSpell(spellproto, item, apply, formChange);
@@ -8987,7 +8986,7 @@ void Player::UpdateItemSetAuras(bool formChange /*= false*/)
         {
             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE);
 
-            if (itemSetSpell->ChrSpecID && itemSetSpell->ChrSpecID != GetPrimarySpecialization())
+            if (itemSetSpell->ChrSpecID && ChrSpecialization(itemSetSpell->ChrSpecID) != GetPrimarySpecialization())
                 ApplyEquipSpell(spellInfo, nullptr, false, false);  // item set aura is not for current spec
             else
             {
@@ -9181,7 +9180,7 @@ void Player::ApplyAzeritePower(AzeriteEmpoweredItem* item, AzeritePowerEntry con
 {
     if (apply)
     {
-        if (!azeritePower->SpecSetID || sDB2Manager.IsSpecSetMember(azeritePower->SpecSetID, GetPrimarySpecialization()))
+        if (!azeritePower->SpecSetID || sDB2Manager.IsSpecSetMember(azeritePower->SpecSetID, AsUnderlyingType(GetPrimarySpecialization())))
             CastSpell(this, azeritePower->SpellID, item);
     }
     else
@@ -12272,7 +12271,7 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto, bool skipRequiredL
                 return EQUIP_ERR_INTERNAL_BAG_ERROR;
 
     if (ArtifactEntry const* artifact = sArtifactStore.LookupEntry(proto->GetArtifactID()))
-        if (artifact->ChrSpecializationID != GetPrimarySpecialization())
+        if (ChrSpecialization(artifact->ChrSpecializationID) != GetPrimarySpecialization())
             return EQUIP_ERR_CANT_USE_ITEM;
 
     return EQUIP_ERR_OK;
@@ -19086,7 +19085,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     SetNumRespecs(fields.numRespecs);
     SetPrimarySpecialization(fields.primarySpecialization);
     SetActiveTalentGroup(fields.activeTalentGroup);
-    ChrSpecializationEntry const* primarySpec = sChrSpecializationStore.LookupEntry(GetPrimarySpecialization());
+    ChrSpecializationEntry const* primarySpec = GetPrimarySpecializationEntry();
     if (!primarySpec || primarySpec->ClassID != GetClass() || GetActiveTalentGroup() >= MAX_SPECIALIZATIONS)
         ResetTalentSpecialization();
 
@@ -20902,7 +20901,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         //save, but in tavern/city
         stmt->setUInt32(index++, GetTalentResetCost());
         stmt->setInt64(index++, GetTalentResetTime());
-        stmt->setUInt32(index++, GetPrimarySpecialization());
+        stmt->setUInt32(index++, AsUnderlyingType(GetPrimarySpecialization()));
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt32(index++, 0); // summonedPetNumber
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
@@ -21035,7 +21034,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt32(index++, GetTalentResetCost());
         stmt->setInt64(index++, GetTalentResetTime());
         stmt->setUInt8(index++, GetNumRespecs());
-        stmt->setUInt32(index++, GetPrimarySpecialization());
+        stmt->setUInt32(index++, AsUnderlyingType(GetPrimarySpecialization()));
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         if (PetStable const* petStable = GetPetStable())
             stmt->setUInt32(index++, petStable->GetCurrentPet() && petStable->GetCurrentPet()->Health > 0 ? petStable->GetCurrentPet()->PetNumber : 0); // summonedPetNumber
@@ -27765,14 +27764,14 @@ TalentLearnResult Player::LearnTalent(uint32 talentId, int32* spellOnCooldown)
     if (isDead())
         return TALENT_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
-    if (!GetPrimarySpecialization())
+    if (GetPrimarySpecialization() == ChrSpecialization::None)
         return TALENT_FAILED_NO_PRIMARY_TREE_SELECTED;
 
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
     if (!talentInfo)
         return TALENT_FAILED_UNKNOWN;
 
-    if (talentInfo->SpecID && talentInfo->SpecID != GetPrimarySpecialization())
+    if (talentInfo->SpecID && ChrSpecialization(talentInfo->SpecID) != GetPrimarySpecialization())
         return TALENT_FAILED_UNKNOWN;
 
     // prevent learn talent for different class (cheating)
@@ -27796,7 +27795,7 @@ TalentLearnResult Player::LearnTalent(uint32 talentId, int32* spellOnCooldown)
     {
         if (!talent->SpecID)
             bestSlotMatch = talent;
-        else if (talent->SpecID == GetPrimarySpecialization())
+        else if (ChrSpecialization(talent->SpecID) == GetPrimarySpecialization())
         {
             bestSlotMatch = talent;
             break;
@@ -28151,7 +28150,7 @@ bool Player::CanSeeSpellClickOn(Creature const* c) const
 void Player::SendTalentsInfoData()
 {
     WorldPackets::Talent::UpdateTalentData packet;
-    packet.Info.PrimarySpecialization = GetPrimarySpecialization();
+    packet.Info.PrimarySpecialization = AsUnderlyingType(GetPrimarySpecialization());
 
     for (uint8 i = 0; i < MAX_SPECIALIZATIONS; ++i)
     {
@@ -30392,7 +30391,7 @@ Pet* Player::SummonPet(uint32 entry, Optional<PetSaveMode> slot, float x, float 
 
 bool Player::CanUseMastery() const
 {
-    if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetPrimarySpecialization()))
+    if (ChrSpecializationEntry const* chrSpec = GetPrimarySpecializationEntry())
         return HasSpell(chrSpec->MasterySpellID[0]) || HasSpell(chrSpec->MasterySpellID[1]);
 
     return false;
@@ -30585,7 +30584,7 @@ void Player::RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId)
 
 void Player::LearnSpecializationSpells()
 {
-    if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(GetPrimarySpecialization()))
+    if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(AsUnderlyingType(GetPrimarySpecialization())))
     {
         for (size_t j = 0; j < specSpells->size(); ++j)
         {
@@ -30684,6 +30683,11 @@ void Player::RemoveSocial()
 uint32 Player::GetDefaultSpecId() const
 {
     return ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))->ID;
+}
+
+ChrSpecializationEntry const* Player::GetPrimarySpecializationEntry() const
+{
+    return sChrSpecializationStore.LookupEntry(AsUnderlyingType(GetPrimarySpecialization()));
 }
 
 void Player::SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay) const
@@ -31074,7 +31078,7 @@ bool TraitMgr::PlayerDataAccessor::HasAchieved(int32 achievementId) const
 
 uint32 TraitMgr::PlayerDataAccessor::GetPrimarySpecialization() const
 {
-    return _player->GetPrimarySpecialization();
+    return AsUnderlyingType(_player->GetPrimarySpecialization());
 }
 
 void Player::AA_ApplyItem(Item* pItem, bool apply)

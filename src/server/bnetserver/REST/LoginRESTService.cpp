@@ -140,9 +140,9 @@ std::string const& LoginRESTService::GetHostnameForClient(boost::asio::ip::addre
         return _hostnames[*addressIndex];
 
     if (address.is_loopback())
-        return _hostnames[0];
+        return _hostnames[1];
 
-    return _hostnames[1];
+    return _hostnames[0];
 }
 
 void LoginRESTService::Run()
