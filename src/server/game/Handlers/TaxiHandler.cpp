@@ -114,6 +114,9 @@ void WorldSession::SendTaxiMenu(Creature* unit)
 
 void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathNode)
 {
+    // add anticheat helper here to avoid false hits if relog during flight path travel
+    GetPlayer()->SetCanTeleport(true);
+
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
@@ -261,7 +264,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     std::vector<uint32> nodes;
     nodes.resize(2);
-
+    GetPlayer()->SetCanTeleport(true);
     recvData >> guid >> nodes[0] >> nodes[1];
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_ACTIVATETAXI from %d to %d", nodes[0], nodes[1]);
     Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);
@@ -286,6 +289,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& recvData)
 
 void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
 {
+    GetPlayer()->SetCanTeleport(true);
     WorldPacket data(SMSG_ACTIVATETAXIREPLY, 4);
     data << uint32(reply);
     SendPacket(&data);

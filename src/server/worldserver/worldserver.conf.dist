@@ -3315,6 +3315,279 @@ LevelReq.Auction = 1
 
 LevelReq.Mail = 1
 
+###################################################################################################
+#   ANTICHEAT
+#
+#     Anticheat.Enable
+#       Description: Enables or disables the Anticheat System functionality
+#       Default:     1 - (Enabled)
+#                    0 - (Disabled)
+
+Anticheat.Enable = 1
+
+#     Anticheat.EnabledOnGmAccounts
+#       Description: Enables detection for GM accounts
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+
+Anticheat.EnabledOnGmAccounts = 0
+
+#     Anticheat.ReportsForIngameWarnings
+#       Description: How many reports the player must have to notify to GameMasters ingame when he generates a new report.
+#       Default:     70
+
+Anticheat.ReportsForIngameWarnings = 70
+
+#     Anticheat.MaxReportsForDailyReport
+#       Description: How many reports must the player have to make a report that it is in DB for a day (not only during the player's session).
+#       Default:     70
+
+Anticheat.MaxReportsForDailyReport = 70
+
+#     Anticheat.ReportinChat
+#       Description: min and max total reports to trigger gm chat message spam.
+#       Default:     So with 70 being min and 80 being max, it will spam gm in chat 10 times.
+#                    Anticheat.ReportinChat.Min = 70
+#                    Anticheat.ReportinChat.Max = 80
+
+Anticheat.ReportinChat.Min = 70
+Anticheat.ReportinChat.Max = 80
+
+#     Anticheat.AlertFrequency
+#       Description: Once Ingame warngings and report in chat min is met, this will throttle to alert the gms every other count
+#       Default:     So with 1 being the default, u will get a message alert for every 1 violations.
+#       Anticheat.AlertFrequency = 1
+
+Anticheat.AlertFrequency = 1
+
+#     Anticheat.WriteLog
+#       Description: Enable writing to log when a player is detected using hacks
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+
+Anticheat.WriteLog = 0
+
+#     Anticheat.Detect
+#       Description: It represents which detections are enabled (ClimbHack disabled by default).
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+
+Anticheat.LUAblocker = 0
+Anticheat.DetectFlyHack = 0
+Anticheat.DetectWaterWalkHack = 0
+Anticheat.DetectJumpHack = 0
+Anticheat.DetectTelePlaneHack = 0
+Anticheat.DetectSpeedHack = 0
+Anticheat.DetectClimbHack = 0
+Anticheat.DetectTelePortHack = 0
+Anticheat.IgnoreControlHack = 0
+Anticheat.DetectZaxisHack = 0
+Anticheat.AntiSwimHack = 0
+Anticheat.DetectGravityHack = 0
+Anticheat.AntiKnockBack = 0
+Anticheat.NoFallDamage = 0
+Anticheat.DetectBGStartHack = 0
+Anticheat.OpAckOrderHack = 0
+
+#     Anticheat.StricterFlyHackCheck
+#       Description: Checks moveflag ascending (may give false positives)
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+
+Anticheat.StricterFlyHackCheck = 0
+
+#     Anticheat.StricterDetectJumpHack
+#       Description: Checks moveflag for advance stricter jump hacks (may give false positives)
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+
+Anticheat.StricterDetectJumpHack = 0
+
+#     Anticheat.SpeedLimitTolerance
+#       Description: Speed Limit Tolerance allows a certain whole percentage of tolerance to speed 
+#       hack logging and detection.
+#
+#       Example: AnticheatMgr:: Speed-Hack (Speed Movement at 12% above allowed Server Set rate 8%.)
+#       will be detected since its 4 (default) and higher, but anything 3 and lower will not be flagged.
+#       Default:    4 - (Default)
+#
+
+Anticheat.SpeedLimitTolerance = 4
+
+#     Automatic Moderation Features
+#
+#     Anticheat.KickPlayer
+#     Anticheat.ReportsForKick
+#
+#       Description: Enables and Auto kick when reports reach threshhold
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+#       Default:    70 - (Kicks at 70 auto reports)
+#
+
+Anticheat.KickPlayer = 0
+Anticheat.ReportsForKick = 75
+
+#     Anticheat.BanPlayer
+#     Anticheat.ReportsForBan
+#
+#       Description: Enables and Auto ban when reports reach threshhold
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+#       Default:    70 - (Bans at 70 auto reports)
+#
+
+Anticheat.BanPlayer = 0
+Anticheat.ReportsForBan = 70
+
+#     Anticheat.JailPlayer
+#     Anticheat.ReportsForJail
+#
+#       Description: Enables and Auto Jail when reports reach threshhold
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+#       Default:    70 - (Jails at 70 auto reports)
+#
+
+Anticheat.JailPlayer = 0
+Anticheat.ReportsForJail = 70
+
+#     Anticheat.AnnounceKick
+#     Anticheat.AnnounceBan
+#     Anticheat.AnnounceJail
+#       Description: Send a message to all players when a user kicked, banned, jailed.
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+
+Anticheat.AnnounceKick = 0
+Anticheat.AnnounceBan = 0
+Anticheat.AnnounceJail = 0
+
+
+
+#
+###################################################################################################
+
+###################################################################################################
+#   ANTICHEAT COUNTER MEASURE
+#
+#     Anticheat Counter Measures
+#
+#     Anticheat.CM.TIMEMANIPULATION
+#
+#       Description: Counters Time Manipulation hacks. These hacks can cause server to crash.
+#
+#       Default:    1 - (Enabled)
+#                   0 - (Disabled)
+#
+
+Anticheat.CM.TIMEMANIPULATION = 1
+
+#
+#     Anticheat.CM.Teleport
+#
+#       Description: Sends player back to last gps position if player cheats and teleports.
+#
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+#
+
+Anticheat.CM.Teleport = 0
+
+#
+#     Anticheat.CM.FLYHACK
+#
+#       Description: Sets player back to the ground if fly hack is detected
+#
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+#
+
+Anticheat.CM.FLYHACK = 0
+
+#
+#     Anticheat.CM.JUMPHACK
+#     Anticheat.CM.ADVJUMPHACK
+#       Description: Sets player back to the ground if jump hack is detected
+#
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+#
+
+Anticheat.CM.JUMPHACK = 0
+Anticheat.CM.ADVJUMPHACK = 0
+
+#
+#     Anticheat.CM.IGNOREZ
+#
+#       Description: Sets player back to the ground if ignore-z hack is detected
+#
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+#
+
+Anticheat.CM.IGNOREZ = 0
+
+#
+#     Anticheat.CM.SPEEDHACK
+#
+#       Description: Sets player back to allowed server rate speed when speed hack is detected
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+#
+
+Anticheat.CM.SPEEDHACK = 0
+
+#
+#     Anticheat.CM.WriteLog
+#
+#       Description: Enables Logging
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+#
+
+Anticheat.CM.WriteLog = 0
+
+#
+#     Anticheat.CM.ALERTSCREEN
+#
+#       Description: Alerts online GMs of Counter Measure being deployed via screen alert
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+#
+
+Anticheat.CM.ALERTSCREEN = 0
+
+#
+#     Anticheat.CM.ALERTCHAT
+#
+#       Description: Alerts online GMs of Counter Measure being deployed via chat alert
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+#
+
+Anticheat.CM.ALERTCHAT= 0
+
+#
+#     Anticheat.BG.StartAreaTeleport
+#
+#       Description: Sends player back to start position if player cheats and teleports out of start spot
+#                    before the BG begins.
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+#
+
+Anticheat.BG.StartAreaTeleport = 0
+
+# Anticheat Logging\Appenders
+# Currently spams into its own file
+# If you want world console spam just use Logger.anticheat=3,Console Server Anticheat
+
+Appender.Anticheat=2,3,15,anticheat.log,a
+Logger.anticheat=3,Server Anticheat
+
+#
+###################################################################################################
 #
 #     PlayerDump.DisallowPaths
 #        Description: Disallow using paths in PlayerDump output files

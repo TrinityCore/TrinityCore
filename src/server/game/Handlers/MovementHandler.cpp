@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Battleground.h"
 #include "Common.h"
 #include "Corpse.h"
@@ -357,6 +358,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     if (opcode == MSG_MOVE_FALL_LAND || opcode == MSG_MOVE_START_SWIM)
         mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // Parachutes
 
+    if (plrMover)
+        sAnticheatMgr->OnPlayerMove(plrMover, movementInfo, opcode);
+
     /* process position-change */
     WorldPacket data(opcode, recvData.size());
     int64 movementTime = (int64) movementInfo.time + _timeSyncClockDelta;
@@ -652,7 +656,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
 
     WorldPacket data(MSG_MOVE_KNOCK_BACK, 66);
     WriteMovementInfo(&data, &movementInfo);
-
+    _player->SetCanTeleport(true);
     // knockback specific info
     data << movementInfo.jump.sinAngle;
     data << movementInfo.jump.cosAngle;

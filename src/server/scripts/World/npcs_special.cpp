@@ -773,21 +773,6 @@ public:
 
             //to make them lay with face down
             me->SetStandState(UNIT_STAND_STATE_DEAD);
-
-            uint32 mobId = me->GetEntry();
-
-            switch (mobId)
-            {                                                   //lower max health
-                case 12923:
-                case 12938:                                     //Injured Soldier
-                    break;
-                case 12924:
-                case 12936:                                     //Badly injured Soldier
-                    break;
-                case 12925:
-                case 12937:                                     //Critically injured Soldier
-                    break;
-            }
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
