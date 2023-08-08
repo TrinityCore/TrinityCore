@@ -106,7 +106,6 @@ enum PriestSpells
     SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
-    SPELL_PRIEST_PRAYER_OF_MENDING_VISUAL           = 225275,
     SPELL_PRIEST_PURGE_THE_WICKED                   = 204197,
     SPELL_PRIEST_PURGE_THE_WICKED_DUMMY             = 204215,
     SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC          = 204213,
@@ -134,6 +133,11 @@ enum PriestSpells
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788
+};
+
+enum PriestSpellVisuals
+{
+    SPELL_VISUAL_PRIEST_PRAYER_OF_MENDING  = 38945
 };
 
 enum MiscSpells
@@ -1311,12 +1315,7 @@ class spell_pri_prayer_of_mending_SpellScriptBase : public SpellScript
 public:
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_PRIEST_PRAYER_OF_MENDING_HEAL,
-            SPELL_PRIEST_PRAYER_OF_MENDING_AURA,
-            SPELL_PRIEST_PRAYER_OF_MENDING_VISUAL
-        })
+        return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, SPELL_PRIEST_PRAYER_OF_MENDING_AURA })
             && ValidateSpellEffect({ { SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, EFFECT_0 } });
     }
 
@@ -1327,7 +1326,7 @@ public:
         return true;
     }
 
-    void CastPrayerOfMendingAura(Unit* caster, Unit* target, Unit* visualCaster, uint8 stack, bool firstCast)
+    void CastPrayerOfMendingAura(Unit* caster, Unit* target, Unit* visualSender, uint8 stack, bool firstCast)
     {
         CastSpellExtraArgs args;
         args.TriggerFlags = TRIGGERED_FULL_MASK;
@@ -1342,8 +1341,8 @@ public:
 
         caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_AURA, args);
 
-        // Note: the visual is contained in a different spell.
-        visualCaster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_VISUAL, true);
+        // Note: the visualSender is the priest if it is first cast or the aura holder when the aura triggers.
+        visualSender->SendPlaySpellVisual(target, SPELL_VISUAL_PRIEST_PRAYER_OF_MENDING, 0, 0, 40.0f);
     }
 
 protected:
