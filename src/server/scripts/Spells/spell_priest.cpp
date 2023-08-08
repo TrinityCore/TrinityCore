@@ -1639,7 +1639,7 @@ class spell_pri_holy_10_1_class_set_4pc_aura : public AuraScript
     }
 
     void Register() override
-    {    
+    {
         OnEffectRemove += AuraEffectRemoveFn(spell_pri_holy_10_1_class_set_4pc_aura::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
