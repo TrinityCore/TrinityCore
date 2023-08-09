@@ -18,8 +18,9 @@
 #ifndef TotemPackets_h__
 #define TotemPackets_h__
 
-#include "Packet.h"
 #include "ObjectGuid.h"
+#include "Packet.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {
@@ -45,7 +46,7 @@ namespace WorldPackets
 
             ObjectGuid Totem;
             int32 SpellID = 0;
-            int32 Duration = 0;
+            Duration<Milliseconds, int32> Duration = 0ms;
             uint8 Slot = 0;
             float TimeMod = 1.0f;
             bool CannotDismiss = false;
