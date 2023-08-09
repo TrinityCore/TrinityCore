@@ -36,6 +36,7 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
+#include "TemporarySummon.h"
 
 enum PriestSpells
 {
@@ -471,6 +472,76 @@ class spell_pri_divine_hymn : public SpellScript
     }
 };
 
+namespace DivineImageHelpers
+{
+Unit* GetSummon(Unit const* owner)
+{
+    for (Unit* summon : owner->m_Controlled)
+        if (summon->GetEntry() == NPC_PRIEST_DIVINE_IMAGE)
+            return summon;
+
+    return nullptr;
+}
+
+Optional<uint32> GetSpellToCast(uint32 spellId)
+{
+    switch (spellId)
+    {
+        case SPELL_PRIEST_RENEW:
+            return SPELL_PRIEST_TRANQUIL_LIGHT;
+        case SPELL_PRIEST_POWER_WORD_SHIELD:
+        case SPELL_PRIEST_POWER_WORD_LIFE:
+        case SPELL_PRIEST_FLASH_HEAL:
+        case SPELL_PRIEST_HEAL:
+        case SPELL_PRIEST_GREATER_HEAL:
+        case SPELL_PRIEST_HOLY_WORD_SERENITY:
+            return SPELL_PRIEST_HEALING_LIGHT;
+        case SPELL_PRIEST_PRAYER_OF_MENDING:
+        case SPELL_PRIEST_PRAYER_OF_MENDING_HEAL:
+            return SPELL_PRIEST_BLESSED_LIGHT;
+        case SPELL_PRIEST_PRAYER_OF_HEALING:
+        case SPELL_PRIEST_CIRCLE_OF_HEALING:
+        case SPELL_PRIEST_HALO_HOLY:
+        case SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL:
+        case SPELL_PRIEST_DIVINE_HYMN_HEAL:
+        case SPELL_PRIEST_HOLY_WORD_SANCTIFY:
+        case SPELL_PRIEST_HOLY_WORD_SALVATION:
+            return SPELL_PRIEST_DAZZLING_LIGHT;
+        case SPELL_PRIEST_SHADOW_WORD_PAIN:
+        case SPELL_PRIEST_SMITE:
+        case SPELL_PRIEST_HOLY_FIRE:
+        case SPELL_PRIEST_SHADOW_WORD_DEATH:
+        case SPELL_PRIEST_HOLY_WORD_CHASTISE:
+        case SPELL_PRIEST_MINDGAMES:
+        case SPELL_PRIEST_MINDGAMES_VENTHYR:
+            return SPELL_PRIEST_SEARING_LIGHT;
+        case SPELL_PRIEST_HOLY_NOVA:
+            return SPELL_PRIEST_LIGHT_ERUPTION;
+        default:
+            break;
+    }
+
+    return {};
+}
+
+void Trigger(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+{
+    Unit* target = eventInfo.GetActor();
+    if (!target)
+        return;
+
+    Unit* divineImage = GetSummon(target);
+    if (!divineImage)
+        return;
+
+    Optional<uint32> spellId = GetSpellToCast(eventInfo.GetSpellInfo()->Id);
+    if (!spellId)
+        return;
+
+    divineImage->CastSpell(SpellCastTargets(eventInfo.GetProcSpell()->m_targets), *spellId, aurEff);
+}
+}
+
 // 392988 - Divine Image
 class spell_pri_divine_image : public AuraScript
 {
@@ -490,39 +561,38 @@ class spell_pri_divine_image : public AuraScript
         if (!target)
             return;
 
-        CastSpellExtraArgs args;
-        args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DISALLOW_PROC_EVENTS | TRIGGERED_DONT_REPORT_CAST_ERROR;
-        args.SetTriggeringAura(aurEff);
-        args.SetTriggeringSpell(eventInfo.GetProcSpell());
-
         // Note: if target has an active Divine Image, we should empower it rather than summoning a new one.
-        if (Unit* divineImage = GetDivineImage(target))
+        if (Unit* divineImage = DivineImageHelpers::GetSummon(target))
         {
             // Note: Divine Image now teleports near the target when they cast a Holy Word spell if the Divine Image is further than 15 yards away (Patch 10.1.0).
             if (target->GetDistance(divineImage) > 15.0f)
                 divineImage->NearTeleportTo(target->GetRandomNearPosition(3.0f));
 
-            divineImage->CastSpell(divineImage, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER, args);
+            if (TempSummon* tempSummon = divineImage->ToTempSummon())
+                tempSummon->RefreshTimer();
+
+            divineImage->CastSpell(divineImage, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER, eventInfo.GetProcSpell());
         }
         else
-            target->CastSpell(target, SPELL_PRIEST_DIVINE_IMAGE_SUMMON, args);
+        {
+            target->CastSpell(target, SPELL_PRIEST_DIVINE_IMAGE_SUMMON, CastSpellExtraArgs()
+                .SetTriggeringAura(aurEff)
+                .SetTriggeringSpell(eventInfo.GetProcSpell())
+                .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DISALLOW_PROC_EVENTS | TRIGGERED_DONT_REPORT_CAST_ERROR));
 
-        target->CastSpell(target, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK, args);
+            // cause immediate proc
+            DivineImageHelpers::Trigger(aurEff, eventInfo);
+        }
+
+        target->CastSpell(target, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK, CastSpellExtraArgs()
+            .SetTriggeringAura(aurEff)
+            .SetTriggeringSpell(eventInfo.GetProcSpell())
+            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DISALLOW_PROC_EVENTS | TRIGGERED_DONT_REPORT_CAST_ERROR));
     }
 
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_divine_image::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-
-public:
-    static Unit* GetDivineImage(Unit const* owner)
-    {
-        for (Unit* summon : owner->m_Controlled)
-            if (summon->GetEntry() == NPC_PRIEST_DIVINE_IMAGE)
-                return summon;
-
-        return nullptr;
     }
 };
 
@@ -567,70 +637,37 @@ class spell_pri_divine_image_spell_triggered : public AuraScript
 
     static bool CheckProc(ProcEventInfo const& eventInfo)
     {
-        return spell_pri_divine_image::GetDivineImage(eventInfo.GetActor()) != nullptr;
-    }
-
-    static void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
-    {
-        Unit* target = eventInfo.GetActor();
-        if (!target)
-            return;
-
-        spell_pri_divine_image::GetDivineImage(target)->CastSpell(eventInfo.GetProcTarget(), GetDivineImageSpell(eventInfo.GetSpellInfo()->Id), aurEff);
+        return DivineImageHelpers::GetSummon(eventInfo.GetActor()) != nullptr;
     }
 
     void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        if (Unit* target = GetTarget())
-            target->RemoveAurasDueToSpell(SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK);
-    }
-
-    static uint32 GetDivineImageSpell(uint32 spellId)
-    {
-        switch (spellId)
-        {
-            case SPELL_PRIEST_RENEW:
-                return SPELL_PRIEST_TRANQUIL_LIGHT;
-            case SPELL_PRIEST_POWER_WORD_SHIELD:
-            case SPELL_PRIEST_POWER_WORD_LIFE:
-            case SPELL_PRIEST_FLASH_HEAL:
-            case SPELL_PRIEST_HEAL:
-            case SPELL_PRIEST_GREATER_HEAL:
-            case SPELL_PRIEST_HOLY_WORD_SERENITY:
-                return SPELL_PRIEST_HEALING_LIGHT;
-            case SPELL_PRIEST_PRAYER_OF_MENDING:
-            case SPELL_PRIEST_PRAYER_OF_MENDING_HEAL:
-                return SPELL_PRIEST_BLESSED_LIGHT;
-            case SPELL_PRIEST_PRAYER_OF_HEALING:
-            case SPELL_PRIEST_CIRCLE_OF_HEALING:
-            case SPELL_PRIEST_HALO_HOLY:
-            case SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL:
-            case SPELL_PRIEST_DIVINE_HYMN_HEAL:
-            case SPELL_PRIEST_HOLY_WORD_SANCTIFY:
-            case SPELL_PRIEST_HOLY_WORD_SALVATION:
-                return SPELL_PRIEST_DAZZLING_LIGHT;
-            case SPELL_PRIEST_SHADOW_WORD_PAIN:
-            case SPELL_PRIEST_SMITE:
-            case SPELL_PRIEST_HOLY_FIRE:
-            case SPELL_PRIEST_SHADOW_WORD_DEATH:
-            case SPELL_PRIEST_HOLY_WORD_CHASTISE:
-            case SPELL_PRIEST_MINDGAMES:
-            case SPELL_PRIEST_MINDGAMES_VENTHYR:
-                return SPELL_PRIEST_SEARING_LIGHT;
-            case SPELL_PRIEST_HOLY_NOVA:
-                return SPELL_PRIEST_LIGHT_ERUPTION;
-            default:
-                break;
-        }
-
-        return 0;
+        GetTarget()->RemoveAurasDueToSpell(SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK);
     }
 
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_pri_divine_image_spell_triggered::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_pri_divine_image_spell_triggered::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(DivineImageHelpers::Trigger, EFFECT_0, SPELL_AURA_DUMMY);
         AfterEffectRemove += AuraEffectRemoveFn(spell_pri_divine_image_spell_triggered::HandleAfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 405963 Divine Image
+// 409387 Divine Image
+class spell_pri_divine_image_stack_timer : public AuraScript
+{
+    void TrackStackApplicationTime(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetUnitOwner()->m_Events.AddEventAtOffset([spelId = GetId(), owner = GetUnitOwner()]
+        {
+            owner->RemoveAuraFromStack(spelId);
+        }, Milliseconds(GetMaxDuration()));
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_pri_divine_image_stack_timer::TrackStackApplicationTime, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
@@ -2228,6 +2265,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_hymn);
     RegisterSpellScript(spell_pri_divine_image);
     RegisterSpellScript(spell_pri_divine_image_spell_triggered);
+    RegisterSpellScript(spell_pri_divine_image_stack_timer);
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_empowered_renew);
