@@ -62,6 +62,8 @@ class TC_GAME_API TempSummon : public Creature
         ObjectGuid GetSummonerGUID() const { return m_summonerGUID; }
         TempSummonType GetSummonType() const { return m_type; }
         Milliseconds GetTimer() const { return m_timer; }
+        void RefreshTimer() { m_timer = m_lifetime; }
+        void ModifyTimer(Milliseconds mod) { m_timer += mod; m_lifetime += mod; }
         Optional<uint32> GetCreatureIdVisibleToSummoner() const { return m_creatureIdVisibleToSummoner; }
         Optional<uint32> GetDisplayIdVisibleToSummoner() const { return m_displayIdVisibleToSummoner; }
         bool CanFollowOwner() const { return m_canFollowOwner; }
