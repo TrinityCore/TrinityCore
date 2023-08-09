@@ -458,7 +458,7 @@ void Guardian::InitStats(WorldObject* summoner, Milliseconds duration)
 {
     Minion::InitStats(summoner, duration);
 
-    InitStatsForLevel(GetOwner()->GetLevel());
+    InitStatsForLevel(GetLevel()); // level is already initialized in TempSummon::InitStats, so use that
 
     if (GetOwner()->GetTypeId() == TYPEID_PLAYER && HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
         m_charmInfo->InitCharmCreateSpells();
