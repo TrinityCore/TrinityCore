@@ -140,7 +140,7 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
 {
     GameEventData &data = mGameEvent[event_id];
     AA_Event_GameEvent econf = aaCenter.aa_event_gameevents[event_id];
-    std::set<Player*> players = aaCenter.GetOnlinePlayers();
+    std::vector<Player*> players = aaCenter.GetOnlinePlayers();
     for (auto p : players) {
         if (econf.gm1 != "" && econf.gm1 != "0") {
             aaCenter.AA_DoCommand(p, econf.gm1.c_str());
@@ -176,7 +176,7 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
                 aaCenter.aa_biwu_winners.clear();
 
                 //获取地图所有人
-                std::set<Player*> players = aaCenter.GetOnlinePlayers();
+                std::vector<Player*> players = aaCenter.GetOnlinePlayers();
                 for (auto p : players) {
                     aaCenter.aa_biwu_index = 1;
                     aaCenter.aa_biwu_isnotice = conf.wait_time;
@@ -193,26 +193,73 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
     }
     //首领争霸开始准备
     {
-        AA_Shouling_Conf conf = aaCenter.aa_shouling_confs[event_id];
-        if (conf.event_id > 0) {
-            aaCenter.aa_shouling_start_time = conf.wait_time * 1000;
-            aaCenter.aa_shouling_Bs.clear();
+        if (aaCenter.aa_shouling_confs.find(event_id) != aaCenter.aa_shouling_confs.end()) {
+            AA_Shouling_Conf conf = aaCenter.aa_shouling_confs[event_id];
+            if (conf.event_id > 0) {
+                aaCenter.aa_shouling_start_time = conf.wait_time * 1000;
+                aaCenter.aa_shouling_Bs.clear();
 
-            //获取地图所有人
-            std::set<Player*> players = aaCenter.GetOnlinePlayers();
-            for (auto p : players) {
-                aaCenter.aa_shouling_isnotice = conf.wait_time;
-                std::string msg = "|cff00FFFF[首领争霸]|cffFFFF00首领争霸将在" + std::to_string(conf.wait_time) + "秒后开始，进入活动地图后，自动报名参加。";
-                aaCenter.AA_SendMessage(p, 0, msg.c_str());
-            }
+                //获取地图所有人
+                std::vector<Player*> players = aaCenter.GetOnlinePlayers();
+                for (auto p : players) {
+                    aaCenter.aa_shouling_isnotice = conf.wait_time;
+                    std::string msg = "|cff00FFFF[首领争霸]|cffFFFF00首领争霸将在" + std::to_string(conf.wait_time) + "秒后开始，进入活动地图后，自动报名参加。";
+                    aaCenter.AA_SendMessage(p, 0, msg.c_str());
+                }
 
-            if (conf.alert_id > 0) {
-                aaCenter.AA_EventStart(nullptr, conf.alert_id);
+                if (conf.alert_id > 0) {
+                    aaCenter.AA_EventStart(nullptr, conf.alert_id);
+                }
+                aaCenter.aa_shouling_event_id = event_id;
             }
-            aaCenter.aa_shouling_event_id = event_id;
         }
     }
 
+    //抢占开始准备
+    {
+        if (aaCenter.aa_ziyuan_confs.find(event_id) != aaCenter.aa_ziyuan_confs.end()) {
+            AA_Ziyuan_Conf conf = aaCenter.aa_ziyuan_confs[event_id];
+            if (conf.event_id > 0) {
+                aaCenter.aa_ziyuan_start_time = conf.wait_time * 1000;
+
+                //获取地图所有人
+                std::vector<Player*> players = aaCenter.GetOnlinePlayers();
+                for (auto p : players) {
+                    aaCenter.aa_ziyuan_isnotice = conf.wait_time;
+                    std::string msg = "|cff00FFFF[" + conf.name + "]|cffFFFF00抢占资源将在" + std::to_string(conf.wait_time) + "秒后开始，进入活动地图后，自动报名参加。";
+                    aaCenter.AA_SendMessage(p, 0, msg.c_str());
+                }
+
+                if (conf.alert_id > 0) {
+                    aaCenter.AA_EventStart(nullptr, conf.alert_id);
+                }
+                aaCenter.aa_ziyuan_event_id = event_id;
+            }
+        }
+    }
+
+    //攻城战开始准备
+    {
+        if (aaCenter.aa_gongcheng_confs.find(event_id) != aaCenter.aa_gongcheng_confs.end()) {
+            AA_Gongcheng_Conf conf = aaCenter.aa_gongcheng_confs[event_id];
+            if (conf.event_id > 0) {
+                aaCenter.aa_gongcheng_start_time = conf.wait_time * 1000;
+
+                //获取地图所有人
+                std::vector<Player*> players = aaCenter.GetOnlinePlayers();
+                for (auto p : players) {
+                    aaCenter.aa_gongcheng_isnotice = conf.wait_time;
+                    std::string msg = "|cff00FFFF[" + conf.name + "]|cffFFFF00活动将在" + std::to_string(conf.wait_time) + "秒后开始，进入活动地图后，自动报名参加。";
+                    aaCenter.AA_SendMessage(p, 0, msg.c_str());
+                }
+
+                if (conf.alert_id > 0) {
+                    aaCenter.AA_EventStart(nullptr, conf.alert_id);
+                }
+                aaCenter.aa_gongcheng_event_id = event_id;
+            }
+        }
+    }
     if (data.state == GAMEEVENT_NORMAL || data.state == GAMEEVENT_INTERNAL)
     {
         AddActiveEvent(event_id);
@@ -254,7 +301,7 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 {
     GameEventData &data = mGameEvent[event_id];
     AA_Event_GameEvent econf = aaCenter.aa_event_gameevents[event_id];
-    std::set<Player*> players = aaCenter.GetOnlinePlayers();
+    std::vector<Player*> players = aaCenter.GetOnlinePlayers();
     for (auto p : players) {
         if (econf.gm2 != "" && econf.gm2 != "0") {
             aaCenter.AA_DoCommand(p, econf.gm2.c_str());
@@ -277,16 +324,43 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 
     //比武大会结束
     {
-        AA_Biwu_Conf conf = aaCenter.aa_biwu_confs[event_id];
-        if (conf.event_id > 0) {
-            aaCenter.AA_Biwu_End();
+        if (aaCenter.aa_biwu_confs.find(event_id) != aaCenter.aa_biwu_confs.end()) {
+            AA_Biwu_Conf conf = aaCenter.aa_biwu_confs[event_id];
+            if (conf.event_id > 0) {
+                aaCenter.AA_Biwu_End();
+            }
         }
     }
     //首领争霸结束
     {
-        AA_Shouling_Conf conf = aaCenter.aa_shouling_confs[event_id];
-        if (conf.event_id > 0) {
-            aaCenter.AA_Shouling_End();
+        if (aaCenter.aa_shouling_confs.find(event_id) != aaCenter.aa_shouling_confs.end()) {
+            AA_Shouling_Conf conf = aaCenter.aa_shouling_confs[event_id];
+            if (conf.event_id > 0) {
+                aaCenter.AA_Shouling_End();
+            }
+        }
+    }
+    //抢占资源结束
+    {
+        if (aaCenter.aa_ziyuan_confs.find(event_id) != aaCenter.aa_ziyuan_confs.end()) {
+            AA_Ziyuan_Conf conf = aaCenter.aa_ziyuan_confs[event_id];
+            if (conf.event_id > 0) {
+                aaCenter.AA_Ziyuan_End(3);
+            }
+        }
+    }
+    //攻城战结束
+    {
+        if (aaCenter.aa_gongcheng_confs.find(event_id) != aaCenter.aa_gongcheng_confs.end()) {
+            AA_Gongcheng_Conf conf = aaCenter.aa_gongcheng_confs[event_id];
+            if (conf.event_id > 0) {
+                if (aaCenter.aa_gongcheng_killa > 0 || aaCenter.aa_gongcheng_killb > 0) {
+                    aaCenter.AA_Gongcheng_End(2);
+                }
+                else {
+                    aaCenter.AA_Gongcheng_End(3);
+                }
+            }
         }
     }
 

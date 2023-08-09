@@ -40,16 +40,21 @@ public:
         }
 
         //发送时装、商城Creature
-        {
-            //for (auto itr : aaCenter.aa_ui_shizhuangs) {
-            //    std::map<uint32, AA_UI_Shizhuang> it = itr.second;
-            //    for (auto i : it) {
-            //        if (i.second.modelid > 0) {
-            //            _SendCreature(player, i.second.modelid);
-            //        }
-            //    }
-            //}
-        }
+        //{
+        //    for (auto itr : aaCenter.aa_ui_shizhuangs) {
+        //        std::map<uint32, AA_UI_Shizhuang> it = itr.second;
+        //        for (auto i : it) {
+        //            if (i.second.modelid > 0) {
+        //                _SendCreature(player, i.second.modelid);
+        //            }
+        //        }
+        //    }
+        //    for (auto itr : aaCenter.aa_shop_entry_cs) {
+        //        if (itr > 0) {
+        //            _SendCreature(player, itr);
+        //        }
+        //    }
+        //}
 
         if (firstLogin) {
             //aawow出生光环
@@ -353,6 +358,19 @@ public:
         if (!player)
         {
             return;
+        }
+
+        //首领争霸
+        if (aaCenter.aa_shouling_event_id > 0) {
+            aaCenter.AA_Shouling_Cancel(player->GetGUIDLow());
+        }
+        //抢占资源
+        if (aaCenter.aa_ziyuan_event_id > 0) {
+            aaCenter.AA_Ziyuan_Cancel(player->GetGUIDLow());
+        }
+        //攻城
+        if (aaCenter.aa_gongcheng_event_id > 0) {
+            aaCenter.AA_Gongcheng_Cancel(player->GetGUIDLow());
         }
 
         //析构参数

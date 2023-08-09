@@ -1350,6 +1350,7 @@ enum TrinityStrings
     LANG_AA_dianka = 80106,
     LANG_AA_zulin = 80107,
     LANG_AA_yimingdengji = 80108,
+    LANG_AA_huoyuejindu = 80109,
 
     LANG_AA_HandleSetScaleCommand = 80200,
     LANG_AA_HandleSetDisplayCommand = 80201,

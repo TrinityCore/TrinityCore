@@ -5035,12 +5035,18 @@ void Player::RepopAtGraveyard()
     if (isDead()) {
         if (aaCenter.AA_TeleportDied(this))
         {
-            if (aaCenter.aa_world_confs[99].value1 == 0) {
+            //副本里 或 配置99 为0，立即复活
+            if ((GetMap() && GetMap()->IsDungeon()) || aaCenter.aa_world_confs[99].value1 == 0) {
                 SpawnCorpseBones();
+                return;
+            }
+            //1表示不复活只传送到复活坐标
+            else if (aaCenter.aa_world_confs[99].value1 == 1) {
                 return;
             }
         }
     }
+
     // note: this can be called also when the player is alive
     // for example from WorldSession::HandleMovementOpcodes
 
@@ -7671,8 +7677,6 @@ uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
 void Player::UpdateArea(uint32 newArea)
 {
     AA_Map_Player_Conf map_conf = aaCenter.AA_GetAA_Map_Player_Conf(this);
-    //清除地图进度显示
-    aaCenter.M_SendClientAddonData(this, "1010", "{}");
 
     if (newArea && m_areaUpdateId != newArea) {
         //切换area
@@ -24046,82 +24050,9 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     }
 
     uint32 buycount = pProto->GetBuyCount() * count;
-    //aawow 商人购买需要，购买次数限制
-    if (aaCenter.AA_VerifyCode("a202b")) {
-        if (aaCenter.aa_buy_times[pProto->GetId()].entry > 0) {
-            uint32 accountid = GetSession()->GetAccountId();
-            ObjectGuid::LowType guidlow = GetGUIDLow();
-            {
-                std::map<int32, int32> buy_times; buy_times.clear();
-                aaCenter.AA_StringToMap(aaCenter.aa_accounts[accountid].buy_time_yj, buy_times);
-                if (aaCenter.aa_buy_times[pProto->GetId()].yongjiu_a && (buy_times[pProto->GetId()] + buycount) > aaCenter.aa_buy_times[pProto->GetId()].yongjiu_a) {
-                    std::string msg = "|cff00FFFF[系统提示]|cffFF0000该物品同一账号限制购买[" + std::to_string(aaCenter.aa_buy_times[pProto->GetId()].yongjiu_a) + "]次";
-                    aaCenter.AA_SendMessage(this, 1, msg.c_str());
-                    return false;
-                }
-            }
-            {
-                std::map<int32, int32> buy_times; buy_times.clear();
-                aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].buy_time_yj, buy_times);
-                if (aaCenter.aa_buy_times[pProto->GetId()].yongjiu_c && (buy_times[pProto->GetId()] + buycount) > aaCenter.aa_buy_times[pProto->GetId()].yongjiu_c) {
-                    std::string msg = "|cff00FFFF[系统提示]|cffFF0000该物品同一角色限制购买[" + std::to_string(aaCenter.aa_buy_times[pProto->GetId()].yongjiu_c) + "]次";
-                    aaCenter.AA_SendMessage(this, 1, msg.c_str());
-                    return false;
-                }
-            }
-            {
-                std::map<int32, int32> buy_times; buy_times.clear();
-                aaCenter.AA_StringToMap(aaCenter.aa_accounts[accountid].buy_time, buy_times);
-                if (aaCenter.aa_buy_times[pProto->GetId()].buy_a && (buy_times[pProto->GetId()] + buycount) > aaCenter.aa_buy_times[pProto->GetId()].buy_a) {
-                    std::string msg = "|cff00FFFF[系统提示]|cffFF0000该物品同一账号每日限制购买[" + std::to_string(aaCenter.aa_buy_times[pProto->GetId()].buy_a) + "]次";
-                    aaCenter.AA_SendMessage(this, 1, msg.c_str());
-                    return false;
-                }
-            }
-            {
-                std::map<int32, int32> buy_times; buy_times.clear();
-                aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].buy_time, buy_times);
-                if (aaCenter.aa_buy_times[pProto->GetId()].buy_c && (buy_times[pProto->GetId()] + buycount) > aaCenter.aa_buy_times[pProto->GetId()].buy_c) {
-                    std::string msg = "|cff00FFFF[系统提示]|cffFF0000该物品同一角色每日限制购买[" + std::to_string(aaCenter.aa_buy_times[pProto->GetId()].buy_c) + "]次";
-                    aaCenter.AA_SendMessage(this, 1, msg.c_str());
-                    return false;
-                }
-            }
-            {
-                if (aaCenter.aa_buy_times[pProto->GetId()].buy_q > 0) {
-                    std::string m_diy_systems = aaCenter.aa_system_conf.diy_system;
-                    std::map<std::string, std::string> mdiy_systems; mdiy_systems.clear();
-                    aaCenter.AA_StringToStringMap(m_diy_systems, mdiy_systems);
-                    uint32 itemId = pProto->GetId() + 100000000;
-                    if (itemId > 100000000) {
-                        std::string str = mdiy_systems[std::to_string(itemId)];
-                        uint32 count = aaCenter.AA_StringInt32(str);
-                        if (buycount + count > aaCenter.aa_buy_times[pProto->GetId()].buy_q) {
-                            std::string msg = "|cff00FFFF[系统提示]|cffFF0000该物品全服每日限制购买[" + std::to_string(aaCenter.aa_buy_times[pProto->GetId()].buy_q) + "]次";
-                            aaCenter.AA_SendMessage(this, 1, msg.c_str());
-                            return false;
-                        }
-                    }
-                }
-            }
-            {
-                if (aaCenter.aa_buy_times[pProto->GetId()].yongjiu_q > 0) {
-                    std::string m_diy_systems = aaCenter.aa_system_conf.diy_system;
-                    std::map<std::string, std::string> mdiy_systems; mdiy_systems.clear();
-                    aaCenter.AA_StringToStringMap(m_diy_systems, mdiy_systems);
-                    uint32 itemId = pProto->GetId() + 200000000;
-                    if (itemId > 200000000) {
-                        std::string str = mdiy_systems[std::to_string(itemId)];
-                        uint32 count = aaCenter.AA_StringInt32(str);
-                        if (buycount + count > aaCenter.aa_buy_times[pProto->GetId()].yongjiu_q) {
-                            std::string msg = "|cff00FFFF[系统提示]|cffFF0000该物品全服限制购买[" + std::to_string(aaCenter.aa_buy_times[pProto->GetId()].yongjiu_q) + "]次";
-                            aaCenter.AA_SendMessage(this, 1, msg.c_str());
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
+    bool isOk = aaCenter.AA_Buy_Time_CanBuy(this, pProto->GetId(), buycount);
+    if (!isOk) {
+        return false;
     }
 
     uint32 centry = creature->GetEntry();
@@ -24198,79 +24129,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         aaCenter.M_Need(this, buyneed, pProto->GetBuyCount() * count);
     }
 
-    if (aaCenter.aa_buy_times[pProto->GetId()].buy_q > 0) {
-        uint32 itemId = pProto->GetId() + 100000000;
-        std::string gm = ".变量 系统 " + std::to_string(itemId) + " +" + std::to_string(buycount);
-        aaCenter.AA_DoCommand(nullptr, gm.c_str());
-    }
-    if (aaCenter.aa_buy_times[pProto->GetId()].yongjiu_q > 0) {
-        uint32 itemId = pProto->GetId() + 200000000;
-        std::string gm = ".变量 系统 " + std::to_string(itemId) + " +" + std::to_string(buycount);
-        aaCenter.AA_DoCommand(nullptr, gm.c_str());
-    }
-
-    if (aaCenter.AA_VerifyCode("a202b")) {
-        if (aaCenter.aa_buy_times[pProto->GetId()].buy_a > 0) {
-            uint32 accountid = GetSession()->GetAccountId();
-            {
-                std::map<int32, int32> buy_times;
-                aaCenter.AA_StringToMap(aaCenter.aa_accounts[accountid].buy_time, buy_times);
-                buy_times[pProto->GetId()] += buycount;
-                std::string buy_timestr = "";
-                aaCenter.AA_MapToString(buy_times, buy_timestr);
-                aaCenter.aa_accounts[accountid].buy_time = buy_timestr;
-                time_t timep;
-                time(&timep); /*当前time_t类型UTC时间*/
-                aaCenter.aa_accounts[accountid].update_time = timep;
-                aaCenter.aa_accounts[accountid].isUpdate = true;
-            }
-        }
-        if (aaCenter.aa_buy_times[pProto->GetId()].buy_c > 0) {
-            ObjectGuid::LowType guidlow = GetGUIDLow();
-            {
-                std::map<int32, int32> buy_times;
-                aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].buy_time, buy_times);
-                buy_times[pProto->GetId()] += buycount;
-                std::string buy_timestr = "";
-                aaCenter.AA_MapToString(buy_times, buy_timestr);
-                aaCenter.aa_characterss[guidlow].buy_time = buy_timestr;
-                time_t timep;
-                time(&timep); /*当前time_t类型UTC时间*/
-                aaCenter.aa_characterss[guidlow].update_time = timep;
-                aaCenter.aa_characterss[guidlow].isUpdate = true;
-            }
-        }
-        if (aaCenter.aa_buy_times[pProto->GetId()].yongjiu_a > 0) {
-            uint32 accountid = GetSession()->GetAccountId();
-            {
-                std::map<int32, int32> buy_times;
-                aaCenter.AA_StringToMap(aaCenter.aa_accounts[accountid].buy_time_yj, buy_times);
-                buy_times[pProto->GetId()] += buycount;
-                std::string buy_timestr = "";
-                aaCenter.AA_MapToString(buy_times, buy_timestr);
-                aaCenter.aa_accounts[accountid].buy_time_yj = buy_timestr;
-                time_t timep;
-                time(&timep); /*当前time_t类型UTC时间*/
-                aaCenter.aa_accounts[accountid].update_time = timep;
-                aaCenter.aa_accounts[accountid].isUpdate = true;
-            }
-        }
-        if (aaCenter.aa_buy_times[pProto->GetId()].yongjiu_c > 0) {
-            ObjectGuid::LowType guidlow = GetGUIDLow();
-            {
-                std::map<int32, int32> buy_times;
-                aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].buy_time_yj, buy_times);
-                buy_times[pProto->GetId()] += buycount;
-                std::string buy_timestr = "";
-                aaCenter.AA_MapToString(buy_times, buy_timestr);
-                aaCenter.aa_characterss[guidlow].buy_time_yj = buy_timestr;
-                time_t timep;
-                time(&timep); /*当前time_t类型UTC时间*/
-                aaCenter.aa_characterss[guidlow].update_time = timep;
-                aaCenter.aa_characterss[guidlow].isUpdate = true;
-            }
-        }
-    }
+    aaCenter.AA_Buy_Time_SetBuyCount(this, pProto->GetId(), buycount);
 
     return false;
 }

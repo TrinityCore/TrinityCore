@@ -3061,6 +3061,69 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     if (!bySpell && this == target)
         return false;
 
+    {
+        Player* a = nullptr;
+        Player* b = nullptr;
+        if (GetOwner()) {
+            a = GetOwner()->ToPlayer();
+        }
+        else {
+            a = const_cast<Player*>(ToPlayer());
+        }
+        if (target->GetOwner()) {
+            b = target->GetOwner()->ToPlayer();
+        }
+        else {
+            b = const_cast<Player*>(target->ToPlayer());
+        }
+
+        if (a && b) {
+            //首领争霸
+            if (aaCenter.aa_shouling_event_id > 0) {
+                if (std::find(aaCenter.aa_shouling_players.begin(), aaCenter.aa_shouling_players.end(), a->GetGUIDLow()) != aaCenter.aa_shouling_players.end() &&
+                    std::find(aaCenter.aa_shouling_players.begin(), aaCenter.aa_shouling_players.end(), b->GetGUIDLow()) != aaCenter.aa_shouling_players.end()) {
+                    if (a->aa_shouling_isBianshen && b->aa_shouling_isBianshen) {
+                        return false;
+                    }
+                    else if (a->aa_shouling_isBianshen && !b->aa_shouling_isBianshen) {
+                        return true;
+                    }
+                    else if (!a->aa_shouling_isBianshen && b->aa_shouling_isBianshen) {
+                        return true;
+                    }
+                }
+            }
+            //抢占资源
+            if (aaCenter.aa_ziyuan_event_id > 0) {
+                if (std::find(aaCenter.aa_ziyuan_players.begin(), aaCenter.aa_ziyuan_players.end(), a->GetGUIDLow()) != aaCenter.aa_ziyuan_players.end() &&
+                    std::find(aaCenter.aa_ziyuan_players.begin(), aaCenter.aa_ziyuan_players.end(), b->GetGUIDLow()) != aaCenter.aa_ziyuan_players.end()) {
+                    if (a->aa_ziyuan_teamid && b->aa_ziyuan_teamid) {
+                        if (a->aa_ziyuan_teamid == b->aa_ziyuan_teamid) {
+                            return false;
+                        }
+                        else if (a->aa_ziyuan_teamid != b->aa_ziyuan_teamid) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            //攻城战
+            if (aaCenter.aa_gongcheng_event_id > 0) {
+                if (std::find(aaCenter.aa_gongcheng_players.begin(), aaCenter.aa_gongcheng_players.end(), a->GetGUIDLow()) != aaCenter.aa_gongcheng_players.end() &&
+                    std::find(aaCenter.aa_gongcheng_players.begin(), aaCenter.aa_gongcheng_players.end(), b->GetGUIDLow()) != aaCenter.aa_gongcheng_players.end()) {
+                    if (a->aa_gongcheng_teamid && b->aa_gongcheng_teamid) {
+                        if (a->aa_gongcheng_teamid == b->aa_gongcheng_teamid) {
+                            return false;
+                        }
+                        else if (a->aa_gongcheng_teamid != b->aa_gongcheng_teamid) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // can't attack unattackable units
     Unit const* unitTarget = target->ToUnit();
     if (unitTarget && unitTarget->HasUnitState(UNIT_STATE_UNATTACKABLE))

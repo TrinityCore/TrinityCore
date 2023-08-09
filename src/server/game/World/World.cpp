@@ -2833,6 +2833,27 @@ void World::SetInitialWorldSettings()
         else {
             TC_LOG_INFO("server.loading", ">> 『 属性配置 』 → 验证失败  〔1.0k    特制功能   定制用户：酸酸〕");
         }
+        if (aaCenter.AA_VerifyCode("a404b")) {
+            TC_LOG_INFO("server.loading", ">> 『 一命模式 』 → 验证通过  〔3.5k    特制功能   定制用户：蚂蚁〕");
+        }
+        else {
+            aaCenter.aa_yiming_confs.clear();
+            TC_LOG_INFO("server.loading", ">> 『 一命模式 』 → 验证失败  〔3.5k    特制功能   定制用户：蚂蚁〕");
+        }
+        if (aaCenter.AA_VerifyCode("a405b")) {
+            TC_LOG_INFO("server.loading", ">> 『 自定任务 』 → 验证通过  〔2.0k    特制功能   定制用户：技术〕");
+        }
+        else {
+            aaCenter.aa_quests.clear();
+            TC_LOG_INFO("server.loading", ">> 『 自定任务 』 → 验证失败  〔2.0k    特制功能   定制用户：技术〕");
+        }
+        if (aaCenter.AA_VerifyCode("a406b")) {
+            TC_LOG_INFO("server.loading", ">> 『 锁定洗炼 』 → 验证通过  〔2.0k    特制功能   定制用户：AH〕");
+        }
+        else {
+            aaCenter.aa_quests.clear();
+            TC_LOG_INFO("server.loading", ">> 『 锁定洗炼 』 → 验证失败  〔2.0k    特制功能   定制用户：AH〕");
+        }
         TC_LOG_INFO("server.loading", ">> 其他众多脑洞功能，都可以通过功能之间的相互搭配来自由创作，比如：『 国战玩法 』，『 罪魂之塔 』，『 公会战系统 』，『 阵营战系统 』，『 跑酷玩法 』，『 温泉泡点 』，『 空中比赛 』");
 
         TC_LOG_INFO("server.loading", ">> QQ:643125009，声明：本模拟器不做任何商业盈利用途。只用作个人爱好研究 如有使用本模拟器商业非法盈利产生不法行为概不负责。");
@@ -2921,8 +2942,12 @@ void World::Update(uint32 diff)
     aaCenter.AA_Biwu_Update(diff);
     // 首领争霸
     aaCenter.AA_Shouling_Update(diff);
+    // 抢占资源
+    aaCenter.AA_Ziyuan_Update(diff);
+    // 攻城战
+    aaCenter.AA_Gongcheng_Update(diff);
 
-    std::set<Player*> players = aaCenter.GetOnlinePlayers();
+    std::vector<Player*> players = aaCenter.GetOnlinePlayers();
 
     if (aa_second_2 >= 2000) {
         //答题
@@ -3292,7 +3317,7 @@ void World::Update(uint32 diff)
         {
             time_t time1 = time(NULL);//获取系统时间，单位为秒;
             struct tm* time = localtime(&time1);//转换成tm类型的结构体;
-            if (time->tm_hour == 8) {
+            if (time->tm_hour == aaCenter.aa_world_confs[101].value1) {
                 if (meirijifen == false) {
                     //正确遍历:
                     {
@@ -3319,6 +3344,9 @@ void World::Update(uint32 diff)
                             AA_Characters conf = iter->second;
                             conf.guid = iter->first;
                             conf.buy_time = "";
+                            conf.huoyue = 0;
+                            conf.huoyue_jindus = "";
+                            conf.huoyue_jindu_status = "";
                             conf.isUpdate = true;
                             conf.update_time = time1;
                             aaCenter.aa_characterss[iter->first] = conf;
@@ -3326,7 +3354,7 @@ void World::Update(uint32 diff)
                     }
                     meirijifen = true;
                     LoginDatabase.PExecute("UPDATE _aa_account SET 每日累充积分=0,每日首充积分=0,每日首充领取=0,签到天数=0,理财奖励领取=0,物品购买次数=\"\",更新时间={}", time1);
-                    CharacterDatabase.PExecute("UPDATE _玩家角色数据 SET 物品购买次数=\"\",update_time={}", time1);
+                    CharacterDatabase.PExecute("UPDATE _玩家角色数据 SET 物品购买次数=\"\",活跃值=0,活跃进度=\"\",活跃进度领取状态=\"\",update_time={}", time1);
 
                     //更新每日全服购买次数
                     {
@@ -3363,7 +3391,7 @@ void World::Update(uint32 diff)
         {
             std::string msg = "|cff00FFFF[系统提示]|cffFFFF00你正在使用的是AA暗黑核心，需要取消此条消息，请联系QQ643125009";
             if (aaCenter.aa_version.aa_login_count != 999 && aaCenter.aa_version.aa_login_count != 16) {
-                std::set<Player*> players = aaCenter.GetOnlinePlayers();
+                std::vector<Player*> players = aaCenter.GetOnlinePlayers();
                 for (auto player : players) {
                     aaCenter.AA_SendMessage(player, 0, msg.c_str());
                     aaCenter.AA_SendMessage(player, 0, msg.c_str());

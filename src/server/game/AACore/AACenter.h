@@ -42,6 +42,70 @@ inline AAString AA_SafeStringAtIndex(std::vector<AAString> objects, size_t index
     }
 }
 
+struct AA_Huoyue_Conf
+{
+    uint32 id = 0;//id
+    std::string name = "";//任务名称
+    uint32 jindu = 0;//完成需要进度
+    uint32 huoyue = 0;//完成奖励GM命令
+    std::string gm = "";//完成奖励GM命令
+    std::string shuoming = "";//完成奖励GM命令
+};
+
+struct AA_Huoyue_Jieduan
+{
+    uint32 huoyue = 0;//活跃度值
+    std::string icon = "";//图标
+    std::string detail = "";//奖励描述
+    std::string gm = "";//奖励GM命令
+};
+
+struct AA_Ziyuan_Conf
+{
+    uint32 event_id = 0;//活动进场事件活动进场事件
+    std::string name = "";//活动名称
+    uint32 area = 0;//区域id区域id
+    uint32 player_min = 0;//最少人数最少人数
+    uint32 bili = 0;//A队B队人数比例
+    uint32 fuhuo_a = 0;
+    uint32 fuhuo_b = 0;
+    std::string guanghuans_a = "";//A队光环_多个逗号隔开
+    std::string guanghuans_b = "";//B队光环_多个逗号隔开
+    std::string entrys_a = "";//A队变身_多个随机逗号隔开
+    std::string entrys_b = "";//B队变身_多个随机逗号隔开
+    uint32 ziyuan_max = 0;// 资源点最大数量
+    std::string guids = "";//抢占资源GOB的GUID
+    uint32 alert_id = 0;//_弹窗_id
+    uint32 wait_time = 0;//单位秒，到达等待时间后开始战斗进场后等待时间
+    std::string gm_kill = "";// 杀人触发GM命令
+    std::string gm_die = "";// 死亡触发GM命令
+    std::string gm_a = "";//胜利触发GM命令
+    std::string gm_b = "";//失败触发GM命令
+};
+
+struct AA_Gongcheng_Conf
+{
+    uint32 event_id = 0;//活动进场事件活动进场事件
+    std::string name = "";//活动名称
+    uint32 area = 0;//区域id区域id
+    uint32 player_min = 0;//最少人数最少人数
+    uint32 bili = 0;//A队B队人数比例
+    uint32 fuhuo_a = 0;
+    uint32 fuhuo_b = 0;
+    std::string guanghuans_a = "";//A队光环_多个逗号隔开
+    std::string guanghuans_b = "";//B队光环_多个逗号隔开
+    std::string entrys_a = "";//A队变身_多个随机逗号隔开
+    std::string entrys_b = "";//B队变身_多个随机逗号隔开
+    uint32 ziyuan_max = 0;// 资源点最大数量
+    std::string guids = "";//抢占资源GOB的GUID
+    uint32 alert_id = 0;//_弹窗_id
+    uint32 wait_time = 0;//单位秒，到达等待时间后开始战斗进场后等待时间
+    std::string gm_kill = "";// 杀人触发GM命令
+    std::string gm_die = "";// 死亡触发GM命令
+    std::string gm_a = "";//胜利触发GM命令
+    std::string gm_b = "";//失败触发GM命令
+};
+
 struct AA_Quest
 {
     uint32 id = 0;//`任务id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '不要和quest_template冲突',
@@ -315,10 +379,14 @@ struct AA_Shop
 {
     uint32 id = 0;//    `id` int unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
     std::string name = "";//    `栏目名称` text CHARACTER SET utf8 COLLATE utf8_general_ci,
+    std::string icon = "";//    `栏目图标` text CHARACTER SET utf8 COLLATE utf8_general_ci,
     uint32 zu = 0;//    `第几栏` int unsigned NOT NULL DEFAULT '0',
     uint32 ye = 0;//    `第几页` int unsigned NOT NULL DEFAULT '0',
     uint32 entry = 0;//    `展示物品entry` int unsigned NOT NULL DEFAULT '0',
     ObjectGuid::LowType guidlow = 0;//    `展示物品guid` int unsigned NOT NULL DEFAULT '0' COMMENT '展示已存在物品guid',
+    uint32 entry_c = 0;//    `展示物品entry` int unsigned NOT NULL DEFAULT '0',
+    uint32 isNew = 0;
+    uint32 zekou = 0;
     uint32 need = 0;//    `购买需求` int unsigned NOT NULL DEFAULT '0',
     uint32 reward = 0;//    `触发奖励` int unsigned NOT NULL DEFAULT '0',
     uint32 tanchuang = 0;//    `触发弹窗` int unsigned NOT NULL DEFAULT '0',
@@ -481,6 +549,9 @@ struct AA_Characters
     uint32 duel_diy = 0;
     uint32 yiming = 0;
     uint32 is_yiming = 0;
+    uint32 huoyue = 0;
+    std::string huoyue_jindus = "";
+    std::string huoyue_jindu_status = "";
     uint32 update_time = 0;
     bool isUpdate = false;
 };
@@ -702,8 +773,10 @@ struct AA_Character_Instance
     std::string cz_reward_spell = ""; //成长奖励技能
     uint32 fm_spell_count = 0; //附魔技能数量-----拾取鉴定
     std::string fm_spells = ""; //附魔技能-----拾取鉴定
+    std::string fm_spell_suodings = ""; //附魔技能-----拾取鉴定
     uint32 fm_value_count = 0; //附魔属性数量-----拾取鉴定
     std::string fm_values = ""; //附魔属性-----拾取鉴定
+    std::string fm_value_suodings = ""; //附魔属性锁定状态
     uint32 chongzhu_count = 0; //重铸次数
     uint32 chongzhu_value = 0; //重铸属性需要
     uint32 chongzhu_spell = 0; //重铸技能需要
@@ -2071,7 +2144,12 @@ public:
     std::map<uint32, AA_Fanpai> aa_fanpais;
     std::unordered_map<uint32, std::vector<uint32>> aa_fanpai_zus;
     std::map<uint32, AA_Huodong_Conf> aa_huodong_confs;
+
+    //每日限购
     std::unordered_map<uint32, AA_Buy_Time> aa_buy_times;
+    bool AA_Buy_Time_CanBuy(Player* p, uint32 entry, uint32 count);
+    void AA_Buy_Time_SetBuyCount(Player* p, uint32 entry, uint32 count);
+
     std::vector<std::string> aa_choujiangStrs;
     std::unordered_map<uint32, AA_Choujiang> aa_choujiangs;
     std::unordered_map<uint32, std::vector<uint32>> aa_choujiang_zus;
@@ -2283,7 +2361,7 @@ public:
     //装备回收
     AA_Huishou_Conf AA_GetHuiShouConf(Player* player, ObjectGuid::LowType guidlow, uint32 itemEntry);
     bool AA_Huishou(Player* player);
-    std::set<Player*> GetOnlinePlayers();
+    std::vector<Player*> GetOnlinePlayers();
 
     //命令相关
     void AA_TeleportMoban(Player* player, uint32 mobanid);
@@ -2325,6 +2403,7 @@ public:
     //商城x
     std::unordered_map<uint32, AA_Shop> aa_shops;
     std::unordered_map<uint32, std::unordered_map<uint32, std::vector<uint32>>> aa_shop_zus;
+    std::set<uint32> aa_shop_entry_cs;
 
     //双甲-魂玉x
     std::unordered_map<ObjectGuid::LowType, AA_Item_Instance> aa_item_instances;
@@ -2338,6 +2417,10 @@ public:
     bool AA_UpdateJuanxianShuliang(Player *);
     std::map<ObjectGuid::LowType, uint32> aa_juanxian_players;
     std::vector<std::pair<uint32, uint32>> aa_juanxians;
+
+    //ui进度奖励
+    std::unordered_map<uint32, AA_Huoyue_Conf> aa_huoyue_confs;
+    std::unordered_map<uint32, AA_Huoyue_Jieduan> aa_huoyue_jieduans;
 
     //比武专区
     int32 aa_biwu_start_time = -1;
@@ -2376,6 +2459,37 @@ public:
     void AA_Shouling_Cancel(ObjectGuid::LowType guidlow);
     void AA_Shouling_Fenzu();
     void AA_Shouling_End();
+
+    //抢占资源专区
+    uint32 aa_ziyuan_a = 0;
+    uint32 aa_ziyuan_b = 0;
+    int32 aa_ziyuan_start_time = -1;
+    uint32 aa_ziyuan_zhanling_time = 0;
+    uint32 aa_ziyuan_event_id = 0;
+    bool aa_ziyuan_isstart = false;
+    uint32 aa_ziyuan_isnotice = 0;
+    std::unordered_map<uint32, AA_Ziyuan_Conf> aa_ziyuan_confs;
+    std::set<ObjectGuid::LowType> aa_ziyuan_players;
+    void AA_Ziyuan_Update(uint32 diff);
+    void AA_Ziyuan_Cancel(ObjectGuid::LowType guidlow);
+    void AA_Ziyuan_Fenzu();
+    void AA_Ziyuan_End(uint32 teamid);
+
+    //攻城战专区
+    std::unordered_map<uint32, uint32> aa_gongcheng_dians;
+    uint32 aa_gongcheng_killa = 0;
+    uint32 aa_gongcheng_killb = 0;
+    int32 aa_gongcheng_start_time = -1;
+    uint32 aa_gongcheng_zhanling_time = 0;
+    uint32 aa_gongcheng_event_id = 0;
+    bool aa_gongcheng_isstart = false;
+    uint32 aa_gongcheng_isnotice = 0;
+    std::unordered_map<uint32, AA_Gongcheng_Conf> aa_gongcheng_confs;
+    std::vector<ObjectGuid::LowType> aa_gongcheng_players;
+    void AA_Gongcheng_Update(uint32 diff);
+    void AA_Gongcheng_Cancel(ObjectGuid::LowType guidlow);
+    void AA_Gongcheng_Fenzu();
+    void AA_Gongcheng_End(uint32 teamid);
 
     //自定义任务
     std::unordered_map <uint32, AA_Quest> aa_quests;

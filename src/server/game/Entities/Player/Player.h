@@ -1111,6 +1111,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 aa_shouling_time = 0;
         bool aa_shouling_isBianshen = false;
 
+        uint32 aa_ziyuan_model = 0;
+        uint32 aa_ziyuan_teamid = 0;
+        bool aa_ziyuan_IsTaotai = false;
+
+        uint32 aa_gongcheng_model = 0;
+        uint32 aa_gongcheng_teamid = 0;
+        bool aa_gongcheng_IsTaotai = false;
+
         uint32 aa_biwu_teamid = 0;
         std::string aa_namepre_temp = "";
         std::string aa_namesuf_temp = "";

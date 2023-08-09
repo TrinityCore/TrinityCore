@@ -1016,8 +1016,8 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                         }
 
                         //首领争霸
-                        AA_Shouling_Conf conf = aaCenter.aa_shouling_confs[aaCenter.aa_shouling_event_id];
-                        if (conf.event_id > 0) {
+                        if (aaCenter.aa_shouling_event_id > 0) {
+                            AA_Shouling_Conf conf = aaCenter.aa_shouling_confs[aaCenter.aa_shouling_event_id];
                             if (std::find(aaCenter.aa_shouling_players.begin(), aaCenter.aa_shouling_players.end(), attacker_a->GetGUIDLow()) != aaCenter.aa_shouling_players.end() &&
                                 std::find(aaCenter.aa_shouling_players.begin(), aaCenter.aa_shouling_players.end(), attacker_v->GetGUIDLow()) != aaCenter.aa_shouling_players.end()) {
                                 if (!attacker_a->aa_shouling_isBianshen && attacker_v->aa_shouling_isBianshen) {
@@ -1044,7 +1044,50 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                                 }
                                 if (attacker_v->aa_shouling_isBianshen) {
                                     aaCenter.AA_Shouling_Cancel(attacker_v->GetGUIDLow());
-                                    aaCenter.AA_Shouling_Fenzu();
+                                }
+                            }
+                        }
+
+                        //抢占资源
+                        if (aaCenter.aa_ziyuan_event_id > 0 && attacker_a != attacker_v) {
+                            AA_Ziyuan_Conf conf = aaCenter.aa_ziyuan_confs[aaCenter.aa_ziyuan_event_id];
+                            if (std::find(aaCenter.aa_ziyuan_players.begin(), aaCenter.aa_ziyuan_players.end(), attacker_a->GetGUIDLow()) != aaCenter.aa_ziyuan_players.end() &&
+                                std::find(aaCenter.aa_ziyuan_players.begin(), aaCenter.aa_ziyuan_players.end(), attacker_v->GetGUIDLow()) != aaCenter.aa_ziyuan_players.end()) {
+                                if (attacker_a->aa_ziyuan_teamid && attacker_v->aa_ziyuan_teamid && attacker_a->aa_ziyuan_teamid != attacker_v->aa_ziyuan_teamid) {
+                                    if (conf.gm_kill != "" && conf.gm_kill != "0") {
+                                        aaCenter.AA_DoCommand(attacker_a, conf.gm_kill.c_str());
+                                    }
+                                    if (conf.gm_die != "" && conf.gm_die != "0") {
+                                        aaCenter.AA_DoCommand(attacker_v, conf.gm_die.c_str());
+                                    }
+                                    if (conf.ziyuan_max == 0) {
+                                        aaCenter.AA_Ziyuan_Cancel(attacker_v->GetGUIDLow());
+                                    }
+                                }
+                            }
+                        }
+
+                        //攻城战
+                        if (aaCenter.aa_gongcheng_event_id > 0 && attacker_a != attacker_v) {
+                            AA_Gongcheng_Conf conf = aaCenter.aa_gongcheng_confs[aaCenter.aa_gongcheng_event_id];
+                            if (std::find(aaCenter.aa_gongcheng_players.begin(), aaCenter.aa_gongcheng_players.end(), attacker_a->GetGUIDLow()) != aaCenter.aa_gongcheng_players.end() &&
+                                std::find(aaCenter.aa_gongcheng_players.begin(), aaCenter.aa_gongcheng_players.end(), attacker_v->GetGUIDLow()) != aaCenter.aa_gongcheng_players.end()) {
+                                if (attacker_a->aa_gongcheng_teamid && attacker_v->aa_gongcheng_teamid && attacker_a->aa_gongcheng_teamid != attacker_v->aa_gongcheng_teamid) {
+                                    if (conf.gm_kill != "" && conf.gm_kill != "0") {
+                                        aaCenter.AA_DoCommand(attacker_a, conf.gm_kill.c_str());
+                                    }
+                                    if (conf.gm_die != "" && conf.gm_die != "0") {
+                                        aaCenter.AA_DoCommand(attacker_v, conf.gm_die.c_str());
+                                    }
+                                    if (attacker_a->aa_gongcheng_teamid == 1 && attacker_v->aa_gongcheng_teamid == 2) {
+                                        aaCenter.aa_gongcheng_killa += 1;
+                                    }
+                                    if (attacker_a->aa_gongcheng_teamid == 2 && attacker_v->aa_gongcheng_teamid == 1) {
+                                        aaCenter.aa_gongcheng_killb += 1;
+                                    }
+                                    if (conf.ziyuan_max == 0) {
+                                        aaCenter.AA_Gongcheng_Cancel(attacker_v->GetGUIDLow());
+                                    }
                                 }
                             }
                         }

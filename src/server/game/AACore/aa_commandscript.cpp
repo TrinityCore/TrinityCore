@@ -244,11 +244,108 @@ public:
             { "租赁" ,AA_zulin, LANG_AA_zulin, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
             { "zl" ,AA_zulin, LANG_AA_zulin, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
             { "一命等级" ,AA_yimingdengji, LANG_AA_yimingdengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
-            { "ymdj" ,AA_yimingdengji, LANG_AA_yimingdengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes }
+            { "ymdj" ,AA_yimingdengji, LANG_AA_yimingdengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+            { "活跃进度" ,AA_huoyuejindu, LANG_AA_huoyuejindu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+            { "hyjd" ,AA_huoyuejindu, LANG_AA_huoyuejindu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes }
         };
         return commandTable;
     }
+    static bool AA_huoyuejindu(ChatHandler* handler, char const* args)
+    {
+        Player* player = handler->getSelectedPlayerOrSelf();
+        if (!player || !player->IsInWorld()) {
+            return false;
+        }
+        uint32 guidlow = player->GetGUIDLow();
+        char* zustr = strtok((char*)args, " ");
+        char* typestr = strtok(nullptr, " ");
 
+        if (!zustr || !typestr) {
+            ChatHandler(handler->GetSession()).PSendSysMessage("语法格式:.活跃进度（hyjd） 参数1（表：_自定义ui_活跃度_id） 参数2（进度值）");
+            return false;
+        }
+
+        int32 zu = int32(std::atoi(zustr));
+
+        if (zu <= 0) {
+            return false;
+        }
+
+        AA_Huoyue_Conf conf = aaCenter.aa_huoyue_confs[zu];
+        if (conf.id == 0) {
+            return false;
+        }
+
+        int32 type = int32(std::atoi(typestr));
+
+        bool isOk = false;
+        std::map<int32, int32> jindus; jindus.clear();
+        aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].huoyue_jindus, jindus);
+        if (type < 0) {
+            if (jindus[zu] + type >= 0) {
+                jindus[zu] = jindus[zu] + type;
+            }
+            else {
+                jindus[zu] = 0;
+            }
+        }
+        else {
+            //达到进度奖励
+            if (jindus[zu] < conf.jindu && jindus[zu] + type >= conf.jindu) {
+                if (conf.gm != "" && conf.gm != "0") {
+                    aaCenter.AA_DoCommand(player, conf.gm.c_str());
+                }
+                if (conf.huoyue > 0) {
+                    aaCenter.aa_characterss[guidlow].huoyue += conf.huoyue;
+                    isOk = true;
+                }
+                jindus[zu] = conf.jindu;
+            }
+            else if (jindus[zu] + type >= conf.jindu) {
+                jindus[zu] = conf.jindu;
+            }
+            else if (jindus[zu] < conf.jindu) {
+                jindus[zu] = jindus[zu] + type;
+            }
+        }
+        std::string str = "";
+        aaCenter.AA_MapToString(jindus, str);
+        aaCenter.aa_characterss[guidlow].huoyue_jindus = str;
+
+        //活跃度奖励
+        if (isOk) {
+            std::map<int32, int32> status; status.clear();
+            aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].huoyue_jindu_status, status);
+            for (auto itr : aaCenter.aa_huoyue_jieduans) {
+                AA_Huoyue_Jieduan conf_j = itr.second;
+                if (aaCenter.aa_characterss[guidlow].huoyue >= itr.first) {
+                    //检测有未领取过
+                    if (status[itr.first] == 1) {
+                        continue;
+                    }
+                    else {
+                        status[itr.first] = 1;
+                        if (conf_j.gm != "" && conf_j.gm != "0") {
+                            aaCenter.AA_DoCommand(player, conf_j.gm.c_str());
+                        }
+                    }
+                }
+            }
+
+            std::string str = "";
+            aaCenter.AA_MapToString(status, str);
+            aaCenter.aa_characterss[guidlow].huoyue_jindu_status = str;
+        }
+
+
+        time_t timep;
+        time(&timep);
+        aaCenter.aa_characterss[guidlow].update_time = timep;
+        aaCenter.aa_characterss[guidlow].isUpdate = true;
+
+        aaCenter.M_SendAA_Conf(player, "3091");
+        return true;
+    }
     static bool AA_yimingdengji(ChatHandler* handler, char const* args)
     {
         Player* player = handler->getSelectedPlayerOrSelf();
@@ -4600,14 +4697,11 @@ public:
         if (!*args)
             return false;
 
-        /*Tokenizer entries(std::string(args), ' ');
-        Tokenizer::const_iterator itr = entries.begin();
-        uint32 entry = uint32(atoi(*itr));*/
-        std::vector<std::string_view> entries = Trinity::Tokenize(args, ' ', false);
-        auto itr = entries.begin();
-        //std::string_view itr = entries[0];
-        //Optional<uint32> entry = Acore::StringTo<uint32>(itr);
-        uint32 entry = uint32(atoi(static_cast<std::string>(*itr).c_str()));
+        char* arg1 = strtok((char*)args, " ");
+        uint32 entry = 0;
+        if (arg1) {
+            entry = int32(std::atoi(arg1));
+        }
 
         if (entry == 0) {
             return false;
@@ -4616,6 +4710,13 @@ public:
         player->GetSession()->SendListInventory(vendor->GetGUID(), entry);
 
         vendor->aa_vendor_entrys[player->GetGUID()] = entry;
+
+        Unit* target = handler->getSelectedUnit();
+        uint32 baseEntry = 0;
+        if (target && target->IsInWorld()) {
+            baseEntry = target->GetEntry();
+        }
+        aaCenter.M_SendClientAddonData(player, "3100", "{" + std::to_string(entry) + "," + std::to_string(baseEntry) + "}");
         return true;
     };
 
