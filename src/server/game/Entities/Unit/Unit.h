@@ -485,7 +485,7 @@ class TC_GAME_API ProcEventInfo
                       ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask,
                       Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo);
 
-        Unit* GetActor() { return _actor; }
+        Unit* GetActor() const { return _actor; }
         Unit* GetActionTarget() const { return _actionTarget; }
         Unit* GetProcTarget() const { return _procTarget; }
 

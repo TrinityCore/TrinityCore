@@ -854,7 +854,7 @@ class spell_sha_healing_rain : public SpellScript
         {
             if (WorldLocation const* dest = GetExplTargetDest())
             {
-                int32 duration = GetSpellInfo()->CalcDuration(GetOriginalCaster());
+                Milliseconds duration = Milliseconds(GetSpellInfo()->CalcDuration(GetOriginalCaster()));
                 TempSummon* summon = GetCaster()->GetMap()->SummonCreature(NPC_HEALING_RAIN_INVISIBLE_STALKER, *dest, nullptr, duration, GetOriginalCaster());
                 if (!summon)
                     return;
