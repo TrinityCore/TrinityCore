@@ -78,8 +78,8 @@ struct npc_pet_pri_divine_image : public PassiveAI
     void IsSummonedBy(WorldObject* summoner) override
     {
         me->CastSpell(me, SPELL_PRIEST_INVOKE_THE_NAARU);
-        if (me->ToTempSummon()->IsGuardian() && summoner->IsPlayer())
-            static_cast<Guardian*>(me)->SetBonusDamage(summoner->ToPlayer()->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_HOLY));
+        if (me->ToTempSummon()->IsGuardian() && summoner->IsUnit())
+            static_cast<Guardian*>(me)->SetBonusDamage(summoner->ToUnit()->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_HOLY));
     }
 
     void OnDespawn() override
