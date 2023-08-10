@@ -1983,6 +1983,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("misc", "Loading Item Scripts...");                 // must be after LoadItemPrototypes
     sObjectMgr->LoadItemScriptNames();
 
+    TC_LOG_INFO("server.loading", "开始加载鉴定缓存数据...");
+    aaCenter.LoadAAData_ItemDisplay();
+
     TC_LOG_INFO("server.loading", "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
 

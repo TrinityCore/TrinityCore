@@ -461,6 +461,12 @@ struct AA_Cuiqu_Item
     std::string pcitems = "";
 };
 
+struct AA_Jianding_Display {
+    uint32 itemid = 0;
+    uint32 nonsuchid = 0;
+    uint32 update_time = 0;
+};
+
 struct AA_Jianding_Item {
     uint32 itemid = 0;
     uint32 need = 0;
@@ -1965,6 +1971,7 @@ public:
     void LoadAAData_Characters();
     void LoadAAData_World();
     void LoadAAData_Jindu();
+    void LoadAAData_ItemDisplay();
 
     /*采集*/
     std::unordered_map<uint32, AA_Caiji_Item> aa_caiji_items;
@@ -1984,6 +1991,7 @@ public:
     std::unordered_map<uint32, std::set<uint32>> aa_aura_conf_heal_pvps;
     std::unordered_map<uint32, std::set<uint32>> aa_aura_conf_heal_pves;
     std::set<uint32> aa_aura_conf_dies;
+    std::unordered_map<uint32, AA_Jianding_Display> aa_jianding_displays;
     std::unordered_map<uint32, AA_Jianding_Item> aa_jianding_items;
     std::unordered_map<uint32, AA_Qianghua_Item> aa_qianghua_items;
     //<group, <type, conf>>
@@ -2055,6 +2063,7 @@ public:
     std::unordered_map<uint32, AA_Need_Conf> aa_needs;
     std::unordered_map<uint32, AA_Reward_Conf> aa_rewards;
     std::unordered_map<ObjectGuid::LowType, AA_Character_Instance> aa_character_instances;
+    std::unordered_map<uint32, AA_Character_Instance> aa_character_instance_displays;
     std::unordered_map<uint32, std::set<uint32>> aa_character_instance_ids;
     std::unordered_map<ObjectGuid::LowType, std::vector<uint32>> aa_character_instance_owner;
     std::unordered_map<uint32, AA_Notice> aa_notices;
@@ -2283,16 +2292,17 @@ public:
     void M_RewardDo(Player* player, uint32 rewardid, uint32 count = 1);
     Item* GetItemByGUIDLow(Player* player, ObjectGuid::LowType guid);
     //    void M_NonsuchItem(Player *player, Item* pItem, uint32 nonsuch_group, bool isInit, uint32 nonsuch_id = 0);
-    uint32 M_NonsuchItem(Player* player, Item* pItem, uint32 zu, int32 type);
-    void M_NonsuchItemJipin(Player* player, Item* pItem, uint32 nonsuchId, int32 type);
-    bool M_NonsuchItemFmValue(Player* player, Item* pItem, uint32 nonsuchId, int32 type);
-    bool M_NonsuchItemFmSpell(Player* player, Item* pItem, uint32 nonsuchId, int32 type);
-    bool M_NonsuchItemSet(Player* player, Item* pItem, uint32 nonsuchId, int32 type);
+    uint32 M_NonsuchItem(Player* player, Item* pItem, uint32 zu, int32 type, uint32 nonsuch_id = 0, uint32 itemid = 0);
+    void M_NonsuchItemJipin(Player* player, Item* pItem, uint32 nonsuchId, int32 type, uint32 nonsuch_id = 0, uint32 itemid = 0);
+    bool M_NonsuchItemFmValue(Player* player, Item* pItem, uint32 nonsuchId, int32 type, uint32 nonsuch_id = 0, uint32 itemid = 0);
+    bool M_NonsuchItemFmSpell(Player* player, Item* pItem, uint32 nonsuchId, int32 type, uint32 nonsuch_id = 0, uint32 itemid = 0);
+    bool M_NonsuchItemSet(Player* player, Item* pItem, uint32 nonsuchId, int32 type, uint32 nonsuch_id = 0, uint32 itemid = 0);
     void M_UpgradeItem(Player* player, Item* pItem, uint32 qhjlevel = 0);
     void M_CleanUpgradeItem(Item* pItem);
     void M_LevelItem(Player* player, Item* pItem);
     void M_ChangeItemName(Player* player, Item* pItem, std::string name);
     void M_GetSpellText(Player* player, std::vector<uint32> spellIds, std::vector<uint32> spellTimes);
+    void M_GetItemTextDisplay(Player* player, std::vector<uint32> itemEntrys);
     void M_GetItemText(Player* player, std::vector<uint32> itemIds, std::vector<uint32> itemEntrys, std::vector<uint32> itemTimes);
     void M_GetItemTextPet(Player* player, std::vector<uint32> itemIds, std::vector<uint32> itemEntrys, std::vector<uint32> itemTimes);
     void M_SendAA_Conf(Player* player, std::string type);

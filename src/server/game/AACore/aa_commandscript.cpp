@@ -4441,6 +4441,7 @@ public:
     static bool AA_jiazaitese(ChatHandler* handler, char const* /*args*/)
     {
         aaCenter.LoadAAData_World();
+        aaCenter.LoadAAData_ItemDisplay();
         if (aaCenter.aa_quests.size() > 0) {
             std::string gm = ".reload all quest";
             aaCenter.AA_DoCommand(nullptr, gm.c_str());
