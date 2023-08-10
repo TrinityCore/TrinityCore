@@ -354,7 +354,7 @@ class spell_pri_atonement : public AuraScript
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_PRIEST_SINS_OF_THE_MANY, EFFECT_2 } });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    static bool CheckProc(ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetDamageInfo() != nullptr;
     }
@@ -429,7 +429,7 @@ class spell_pri_atonement_passive : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    static bool CheckProc(ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetDamageInfo() != nullptr;
     }
