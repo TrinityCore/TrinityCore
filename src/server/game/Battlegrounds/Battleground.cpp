@@ -682,7 +682,7 @@ void Battleground::EndBattleground(uint32 winner)
         stmt->setUInt64(0, battlegroundId);
         stmt->setUInt8(1, GetWinner());
         stmt->setUInt8(2, GetUniqueBracketId());
-        stmt->setUInt8(3, _battlegroundTemplate->Id);
+        stmt->setUInt8(3, GetTypeID());
         CharacterDatabase.Execute(stmt);
     }
 
@@ -1805,7 +1805,7 @@ uint32 Battleground::GetTeamScore(uint32 teamId) const
     if (teamId == TEAM_ALLIANCE || teamId == TEAM_HORDE)
         return m_TeamScores[teamId];
 
-    TC_LOG_ERROR("bg.battleground", "GetTeamScore with wrong Team {} for BG {}", teamId, _battlegroundTemplate->Id);
+    TC_LOG_ERROR("bg.battleground", "GetTeamScore with wrong Team {} for BG {}", teamId, GetTypeID());
     return 0;
 }
 
