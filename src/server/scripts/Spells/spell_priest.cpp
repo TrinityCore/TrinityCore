@@ -120,10 +120,10 @@ enum PriestSpells
     SPELL_PRIEST_PENANCE_CHANNEL_HEALING            = 47757,
     SPELL_PRIEST_PENANCE_DAMAGE                     = 47666,
     SPELL_PRIEST_PENANCE_HEALING                    = 47750,
-    SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA       = 343727,
-    SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY   = 262485,
     SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA        = 123051,
     SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY    = 200010,
+    SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA       = 343727,
+    SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY   = 262485,
     SPELL_PRIEST_POWER_OF_THE_DARK_SIDE             = 198069,
     SPELL_PRIEST_POWER_OF_THE_DARK_SIDE_TINT        = 225795,
     SPELL_PRIEST_POWER_WORD_LIFE                    = 373481,
@@ -359,9 +359,9 @@ class spell_pri_atonement : public AuraScript
         return eventInfo.GetDamageInfo() != nullptr;
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
-        TriggerAtonementHealOnTargets(aurEff, eventInfo, GetTarget(), false);
+        TriggerAtonementHealOnTargets(aurEff, eventInfo);
     }
 
     void Register() override
@@ -382,35 +382,37 @@ public:
 
     void RemoveAtonementTarget(ObjectGuid const& target)
     {
-        _appliedAtonements.erase(std::remove(_appliedAtonements.begin(), _appliedAtonements.end(), target), _appliedAtonements.end());
+        std::erase(_appliedAtonements, target);
 
         UpdateSinsOfTheManyValue();
     }
 
-    void TriggerAtonementHealOnTargets(AuraEffect const* aurEff, ProcEventInfo const& eventInfo, Unit* actor, bool isTriggeredByPet)
+    void TriggerAtonementHealOnTargets(AuraEffect const* atonementEffect, ProcEventInfo const& eventInfo)
     {
+        Unit* priest = GetUnitOwner();
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-        CastSpellExtraArgs args(aurEff);
+        CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
         // Note: we need to check for EffectInfo in case that the pet triggers it because the passive spell has amount 0.
-        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(damageInfo->GetDamage(), isTriggeredByPet ? GetEffectInfo(EFFECT_0).CalcValue(GetCaster()) : aurEff->GetAmount()));
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(damageInfo->GetDamage(), atonementEffect->GetAmount()));
 
-        _appliedAtonements.erase(std::remove_if(_appliedAtonements.begin(), _appliedAtonements.end(), [this, actor, &args](ObjectGuid const& targetGuid)
+        float distanceLimit = GetEffectInfo(EFFECT_1).CalcValue();
+
+        std::erase_if(_appliedAtonements, [this, priest, distanceLimit, &args](ObjectGuid const& targetGuid)
         {
-            if (Unit* target = ObjectAccessor::GetUnit(*actor, targetGuid))
+            if (Unit* target = ObjectAccessor::GetUnit(*priest, targetGuid))
             {
-                if (target->GetExactDist(actor) < GetEffectInfo(EFFECT_1).CalcValue())
-                    actor->CastSpell(target, SPELL_PRIEST_ATONEMENT_HEAL, args);
+                if (target->IsInDist2d(priest, distanceLimit))
+                    priest->CastSpell(target, SPELL_PRIEST_ATONEMENT_HEAL, args);
 
                 return false;
             }
 
             return true;
-
-        }), _appliedAtonements.end());
+        });
     }
 
-    void UpdateSinsOfTheManyValue()
+    void UpdateSinsOfTheManyValue() const
     {
         // Note: the damage dimish starts at the 6th application as of 10.0.5.
         constexpr std::array<float, 20> damageByStack = { 40.0f, 40.0f, 40.0f, 40.0f, 40.0f, 35.0f, 30.0f, 25.0f, 20.0f, 15.0f, 11.0f, 8.0f, 5.0f, 4.0f, 3.0f, 2.5f, 2.0f, 1.5f, 1.25f, 1.0f };
@@ -426,7 +428,7 @@ class spell_pri_atonement_passive : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT });
+        return ValidateSpellEffect({ { SPELL_PRIEST_ATONEMENT, EFFECT_0 } });
     }
 
     static bool CheckProc(ProcEventInfo const& eventInfo)
@@ -434,16 +436,16 @@ class spell_pri_atonement_passive : public AuraScript
         return eventInfo.GetDamageInfo() != nullptr;
     }
 
-    void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
     {
         Unit* target = GetTarget();
         Unit* summoner = target->GetOwner();
-        if (!summoner || !summoner->IsPlayer())
+        if (!summoner)
             return;
 
-        if (Aura* atonement = summoner->GetAura(SPELL_PRIEST_ATONEMENT))
-            if (spell_pri_atonement* script = atonement->GetScript<spell_pri_atonement>())
-                script->TriggerAtonementHealOnTargets(aurEff, eventInfo, summoner, true);
+        if (AuraEffect const* atonement = summoner->GetAuraEffect(SPELL_PRIEST_ATONEMENT, EFFECT_0))
+            if (spell_pri_atonement* script = atonement->GetBase()->GetScript<spell_pri_atonement>())
+                script->TriggerAtonementHealOnTargets(atonement, eventInfo);
     }
 
     void Register() override
@@ -1414,20 +1416,38 @@ class spell_pri_power_leech_passive : public AuraScript
         return eventInfo.GetDamageInfo() != nullptr;
     }
 
-    void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/) const
     {
         Unit* target = GetTarget();
-        Unit* summoner = target->GetOwner();
-        if (!summoner || !summoner->IsPlayer())
+        Player* summoner = Object::ToPlayer(target->GetOwner());
+        if (!summoner)
             return;
 
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(summoner->ToPlayer()->GetPrimarySpecialization() == ChrSpecialization::PriestShadow ?
-            target->GetEntry() == NPC_PRIEST_SHADOWFIEND ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY : SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY :
-            target->GetEntry() == NPC_PRIEST_SHADOWFIEND ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA : SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA, GetCastDifficulty());
+        SpellInfo const* spellInfo = nullptr;
+        int32 divisor = 1;
 
-        // Note: divisor is 100 for SPELL_EFFECT_ENERGIZE since their BasePoints are > 100 and 10 for SPELL_EFFECT_ENERGIZE_PCT since their BasePoints are < 100.
-        target->CastSpell(summoner, spellInfo->Id, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_BASE_POINT0,
-            spellInfo->GetEffect(EFFECT_0).CalcValue() / uint32(spellInfo->HasEffect(SPELL_EFFECT_ENERGIZE) ? 100 : 10)));
+        if (summoner->GetPrimarySpecialization() != ChrSpecialization::PriestShadow)
+        {
+            if (target->GetEntry() == NPC_PRIEST_SHADOWFIEND)
+            {
+                // Note: divisor is 100 because effect value is 5 and its supposed to restore 0.5%
+                spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA, GetCastDifficulty());
+                divisor = 10;
+            }
+            else
+            {
+                // Note: divisor is 100 because effect value is 20 and its supposed to restore 0.2%
+                spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA, GetCastDifficulty());
+                divisor = 100;
+            }
+        }
+        else
+            spellInfo = sSpellMgr->AssertSpellInfo(target->GetEntry() == NPC_PRIEST_SHADOWFIEND
+                ? SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY
+                : SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY, GetCastDifficulty());
+
+        target->CastSpell(summoner, spellInfo->Id, CastSpellExtraArgs(aurEff)
+            .AddSpellMod(SPELLVALUE_BASE_POINT0, spellInfo->GetEffect(EFFECT_0).CalcValue() / divisor));
 
         // Note: Essence Devourer talent.
         if (summoner->HasAura(SPELL_PRIEST_ESSENCE_DEVOURER))
