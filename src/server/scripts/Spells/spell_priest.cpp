@@ -714,7 +714,7 @@ class spell_pri_divine_service : public SpellScript
     void CalculateHealingBonus(Unit* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (AuraEffect const* divineServiceEffect = GetCaster()->GetAuraEffect(SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0))
-            if (Aura* prayerOfMending = victim->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, GetCaster()->GetGUID()))
+            if (Aura const* prayerOfMending = victim->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, GetCaster()->GetGUID()))
                 AddPct(pctMod, int32(divineServiceEffect->GetAmount() * prayerOfMending->GetStackAmount()));
     }
 
