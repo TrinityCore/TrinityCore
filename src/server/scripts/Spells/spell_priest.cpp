@@ -36,6 +36,7 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
+#include "TemporarySummon.h"
 
 enum PriestSpells
 {
@@ -50,14 +51,21 @@ enum PriestSpells
     SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY        = 214206,
     SPELL_PRIEST_BENEDICTION                        = 193157,
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
+    SPELL_PRIEST_BLESSED_LIGHT                      = 196813,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
+    SPELL_PRIEST_CIRCLE_OF_HEALING                  = 204883,
     SPELL_PRIEST_DARK_REPRIMAND                     = 400169,
     SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE      = 373129,
     SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING     = 400171,
     SPELL_PRIEST_DARK_REPRIMAND_DAMAGE              = 373130,
     SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
+    SPELL_PRIEST_DAZZLING_LIGHT                     = 196810,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
+    SPELL_PRIEST_DIVINE_HYMN_HEAL                   = 64844,
+    SPELL_PRIEST_DIVINE_IMAGE_SUMMON                = 392990,
+    SPELL_PRIEST_DIVINE_IMAGE_EMPOWER               = 409387,
+    SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK         = 405963,
     SPELL_PRIEST_DIVINE_SERVICE                     = 391233,
     SPELL_PRIEST_DIVINE_STAR_HOLY                   = 110744,
     SPELL_PRIEST_DIVINE_STAR_SHADOW                 = 122121,
@@ -68,6 +76,7 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
     SPELL_PRIEST_EMPOWERED_RENEW_HEAL               = 391359,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
+    SPELL_PRIEST_GREATER_HEAL                       = 289666,
     SPELL_PRIEST_FOCUSED_MENDING                    = 372354,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
     SPELL_PRIEST_HALO_HOLY                          = 120517,
@@ -77,17 +86,24 @@ enum PriestSpells
     SPELL_PRIEST_HALO_SHADOW_DAMAGE                 = 390964,
     SPELL_PRIEST_HALO_SHADOW_HEAL                   = 390971,
     SPELL_PRIEST_HEAL                               = 2060,
+    SPELL_PRIEST_HEALING_LIGHT                      = 196809,
+    SPELL_PRIEST_HOLY_FIRE                          = 14914,
     SPELL_PRIEST_HOLY_MENDING_HEAL                  = 391156,
+    SPELL_PRIEST_HOLY_NOVA                          = 132157,
     SPELL_PRIEST_HOLY_WORD_CHASTISE                 = 88625,
+    SPELL_PRIEST_HOLY_WORD_SALVATION                = 265202,
     SPELL_PRIEST_HOLY_WORD_SANCTIFY                 = 34861,
     SPELL_PRIEST_HOLY_WORD_SERENITY                 = 2050,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER     = 411097,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
+    SPELL_PRIEST_LIGHT_ERUPTION                     = 196812,
     SPELL_PRIEST_MASOCHISM_TALENT                   = 193063,
     SPELL_PRIEST_MASOCHISM_PERIODIC_HEAL            = 193065,
     SPELL_PRIEST_MASTERY_GRACE                      = 271534,
+    SPELL_PRIEST_MINDGAMES                          = 375901,
+    SPELL_PRIEST_MINDGAMES_VENTHYR                  = 323673,
     SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
     SPELL_PRIEST_PENANCE                            = 47540,
@@ -97,6 +113,7 @@ enum PriestSpells
     SPELL_PRIEST_PENANCE_HEALING                    = 47750,
     SPELL_PRIEST_POWER_OF_THE_DARK_SIDE             = 198069,
     SPELL_PRIEST_POWER_OF_THE_DARK_SIDE_TINT        = 225795,
+    SPELL_PRIEST_POWER_WORD_LIFE                    = 373481,
     SPELL_PRIEST_POWER_WORD_SHIELD                  = 17,
     SPELL_PRIEST_POWER_WORD_SOLACE_ENERGIZE         = 129253,
     SPELL_PRIEST_PRAYER_OF_HEALING                  = 596,
@@ -109,7 +126,9 @@ enum PriestSpells
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
     SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
+    SPELL_PRIEST_SEARING_LIGHT                      = 196811,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
+    SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32379,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
@@ -119,6 +138,7 @@ enum PriestSpells
     SPELL_PRIEST_SPIRIT_OF_REDEMPTION               = 27827,
     SPELL_PRIEST_STRENGTH_OF_SOUL                   = 197535,
     SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT            = 197548,
+    SPELL_PRIEST_TRANQUIL_LIGHT                     = 196816,
     SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
     SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL                = 234946,
     SPELL_PRIEST_TRINITY                            = 214205,
@@ -126,10 +146,16 @@ enum PriestSpells
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
+    SPELL_PRIEST_PRAYER_OF_MENDING                  = 33076,
     SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788
+};
+
+enum PriestPets
+{
+    NPC_PRIEST_DIVINE_IMAGE                         = 198236
 };
 
 enum MiscSpells
@@ -443,6 +469,205 @@ class spell_pri_divine_hymn : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_divine_hymn::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+    }
+};
+
+namespace DivineImageHelpers
+{
+Unit* GetSummon(Unit const* owner)
+{
+    for (Unit* summon : owner->m_Controlled)
+        if (summon->GetEntry() == NPC_PRIEST_DIVINE_IMAGE)
+            return summon;
+
+    return nullptr;
+}
+
+Optional<uint32> GetSpellToCast(uint32 spellId)
+{
+    switch (spellId)
+    {
+        case SPELL_PRIEST_RENEW:
+            return SPELL_PRIEST_TRANQUIL_LIGHT;
+        case SPELL_PRIEST_POWER_WORD_SHIELD:
+        case SPELL_PRIEST_POWER_WORD_LIFE:
+        case SPELL_PRIEST_FLASH_HEAL:
+        case SPELL_PRIEST_HEAL:
+        case SPELL_PRIEST_GREATER_HEAL:
+        case SPELL_PRIEST_HOLY_WORD_SERENITY:
+            return SPELL_PRIEST_HEALING_LIGHT;
+        case SPELL_PRIEST_PRAYER_OF_MENDING:
+        case SPELL_PRIEST_PRAYER_OF_MENDING_HEAL:
+            return SPELL_PRIEST_BLESSED_LIGHT;
+        case SPELL_PRIEST_PRAYER_OF_HEALING:
+        case SPELL_PRIEST_CIRCLE_OF_HEALING:
+        case SPELL_PRIEST_HALO_HOLY:
+        case SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL:
+        case SPELL_PRIEST_DIVINE_HYMN_HEAL:
+        case SPELL_PRIEST_HOLY_WORD_SANCTIFY:
+        case SPELL_PRIEST_HOLY_WORD_SALVATION:
+            return SPELL_PRIEST_DAZZLING_LIGHT;
+        case SPELL_PRIEST_SHADOW_WORD_PAIN:
+        case SPELL_PRIEST_SMITE:
+        case SPELL_PRIEST_HOLY_FIRE:
+        case SPELL_PRIEST_SHADOW_WORD_DEATH:
+        case SPELL_PRIEST_HOLY_WORD_CHASTISE:
+        case SPELL_PRIEST_MINDGAMES:
+        case SPELL_PRIEST_MINDGAMES_VENTHYR:
+            return SPELL_PRIEST_SEARING_LIGHT;
+        case SPELL_PRIEST_HOLY_NOVA:
+            return SPELL_PRIEST_LIGHT_ERUPTION;
+        default:
+            break;
+    }
+
+    return {};
+}
+
+void Trigger(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+{
+    Unit* target = eventInfo.GetActor();
+    if (!target)
+        return;
+
+    Unit* divineImage = GetSummon(target);
+    if (!divineImage)
+        return;
+
+    Optional<uint32> spellId = GetSpellToCast(eventInfo.GetSpellInfo()->Id);
+    if (!spellId)
+        return;
+
+    divineImage->CastSpell(SpellCastTargets(eventInfo.GetProcSpell()->m_targets), *spellId, aurEff);
+}
+}
+
+// 392988 - Divine Image
+class spell_pri_divine_image : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_DIVINE_IMAGE_SUMMON,
+            SPELL_PRIEST_DIVINE_IMAGE_EMPOWER,
+            SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK
+        });
+    }
+
+    static void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        Unit* target = eventInfo.GetActor();
+        if (!target)
+            return;
+
+        // Note: if target has an active Divine Image, we should empower it rather than summoning a new one.
+        if (Unit* divineImage = DivineImageHelpers::GetSummon(target))
+        {
+            // Note: Divine Image now teleports near the target when they cast a Holy Word spell if the Divine Image is further than 15 yards away (Patch 10.1.0).
+            if (target->GetDistance(divineImage) > 15.0f)
+                divineImage->NearTeleportTo(target->GetRandomNearPosition(3.0f));
+
+            if (TempSummon* tempSummon = divineImage->ToTempSummon())
+                tempSummon->RefreshTimer();
+
+            divineImage->CastSpell(divineImage, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER, eventInfo.GetProcSpell());
+        }
+        else
+        {
+            target->CastSpell(target, SPELL_PRIEST_DIVINE_IMAGE_SUMMON, CastSpellExtraArgs()
+                .SetTriggeringAura(aurEff)
+                .SetTriggeringSpell(eventInfo.GetProcSpell())
+                .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DISALLOW_PROC_EVENTS | TRIGGERED_DONT_REPORT_CAST_ERROR));
+
+            // cause immediate proc
+            DivineImageHelpers::Trigger(aurEff, eventInfo);
+        }
+
+        target->CastSpell(target, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK, CastSpellExtraArgs()
+            .SetTriggeringAura(aurEff)
+            .SetTriggeringSpell(eventInfo.GetProcSpell())
+            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DISALLOW_PROC_EVENTS | TRIGGERED_DONT_REPORT_CAST_ERROR));
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_divine_image::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 405216 - Divine Image (Spell Cast Check)
+class spell_pri_divine_image_spell_triggered : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_RENEW,
+            SPELL_PRIEST_POWER_WORD_SHIELD,
+            SPELL_PRIEST_POWER_WORD_LIFE,
+            SPELL_PRIEST_FLASH_HEAL,
+            SPELL_PRIEST_HOLY_WORD_SERENITY,
+            SPELL_PRIEST_PRAYER_OF_MENDING,
+            SPELL_PRIEST_PRAYER_OF_MENDING_HEAL,
+            SPELL_PRIEST_PRAYER_OF_HEALING,
+            SPELL_PRIEST_CIRCLE_OF_HEALING,
+            SPELL_PRIEST_HALO_HOLY,
+            SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL,
+            SPELL_PRIEST_DIVINE_HYMN_HEAL,
+            SPELL_PRIEST_HOLY_WORD_SANCTIFY,
+            SPELL_PRIEST_HOLY_WORD_SALVATION,
+            SPELL_PRIEST_SMITE,
+            SPELL_PRIEST_HOLY_FIRE,
+            SPELL_PRIEST_SHADOW_WORD_DEATH,
+            SPELL_PRIEST_SHADOW_WORD_PAIN,
+            SPELL_PRIEST_MINDGAMES,
+            SPELL_PRIEST_MINDGAMES_VENTHYR,
+            SPELL_PRIEST_HOLY_WORD_CHASTISE,
+            SPELL_PRIEST_HOLY_NOVA,
+            SPELL_PRIEST_TRANQUIL_LIGHT,
+            SPELL_PRIEST_HEALING_LIGHT,
+            SPELL_PRIEST_BLESSED_LIGHT,
+            SPELL_PRIEST_DAZZLING_LIGHT,
+            SPELL_PRIEST_SEARING_LIGHT,
+            SPELL_PRIEST_LIGHT_ERUPTION,
+            SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK
+        });
+    }
+
+    static bool CheckProc(ProcEventInfo const& eventInfo)
+    {
+        return DivineImageHelpers::GetSummon(eventInfo.GetActor()) != nullptr;
+    }
+
+    void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_divine_image_spell_triggered::CheckProc);
+        OnEffectProc += AuraEffectProcFn(DivineImageHelpers::Trigger, EFFECT_0, SPELL_AURA_DUMMY);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_divine_image_spell_triggered::HandleAfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 405963 Divine Image
+// 409387 Divine Image
+class spell_pri_divine_image_stack_timer : public AuraScript
+{
+    void TrackStackApplicationTime(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetUnitOwner()->m_Events.AddEventAtOffset([spelId = GetId(), owner = GetUnitOwner()]
+        {
+            owner->RemoveAuraFromStack(spelId);
+        }, Milliseconds(GetMaxDuration()));
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_pri_divine_image_stack_timer::TrackStackApplicationTime, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
@@ -2038,6 +2263,9 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement_triggered);
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_divine_hymn);
+    RegisterSpellScript(spell_pri_divine_image);
+    RegisterSpellScript(spell_pri_divine_image_spell_triggered);
+    RegisterSpellScript(spell_pri_divine_image_stack_timer);
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_empowered_renew);
