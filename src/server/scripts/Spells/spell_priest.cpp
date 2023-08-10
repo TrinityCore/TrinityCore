@@ -75,6 +75,8 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL            = 390981,
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
     SPELL_PRIEST_EMPOWERED_RENEW_HEAL               = 391359,
+    SPELL_PRIEST_EPIPHANY                           = 414553,
+    SPELL_PRIEST_EPIPHANY_HIGHLIGHT                 = 414556,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
     SPELL_PRIEST_GREATER_HEAL                       = 289666,
     SPELL_PRIEST_FOCUSED_MENDING                    = 372354,
@@ -95,6 +97,8 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_WORD_SANCTIFY                 = 34861,
     SPELL_PRIEST_HOLY_WORD_SERENITY                 = 2050,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER     = 411097,
+    SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P             = 405556,
+    SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT      = 409479,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
@@ -117,6 +121,10 @@ enum PriestSpells
     SPELL_PRIEST_POWER_WORD_SHIELD                  = 17,
     SPELL_PRIEST_POWER_WORD_SOLACE_ENERGIZE         = 129253,
     SPELL_PRIEST_PRAYER_OF_HEALING                  = 596,
+    SPELL_PRIEST_PRAYER_OF_MENDING                  = 33076,
+    SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
+    SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
+    SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
     SPELL_PRIEST_PURGE_THE_WICKED                   = 204197,
     SPELL_PRIEST_PURGE_THE_WICKED_DUMMY             = 204215,
     SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC          = 204213,
@@ -146,14 +154,15 @@ enum PriestSpells
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
-    SPELL_PRIEST_PRAYER_OF_MENDING                  = 33076,
-    SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
-    SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
-    SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788
 };
 
-enum PriestPets
+enum PriestSpellVisuals
+{
+    SPELL_VISUAL_PRIEST_PRAYER_OF_MENDING           = 38945
+};
+
+enum PriestSummons
 {
     NPC_PRIEST_DIVINE_IMAGE                         = 198236
 };
@@ -425,6 +434,28 @@ class spell_pri_atonement_triggered : public AuraScript
     }
 };
 
+// 33110 - Prayer of Mending (Heal)
+class spell_pri_benediction : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_RENEW })
+            && ValidateSpellEffect({ { SPELL_PRIEST_BENEDICTION, EFFECT_0 } });
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        if (AuraEffect const* benediction = GetCaster()->GetAuraEffect(SPELL_PRIEST_BENEDICTION, EFFECT_0))
+            if (roll_chance_i(benediction->GetAmount()))
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_RENEW, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_benediction::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
 // 204883 - Circle of Healing
 class spell_pri_circle_of_healing : public SpellScript
 {
@@ -580,7 +611,7 @@ class spell_pri_divine_image : public AuraScript
                 .SetTriggeringSpell(eventInfo.GetProcSpell())
                 .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DISALLOW_PROC_EVENTS | TRIGGERED_DONT_REPORT_CAST_ERROR));
 
-            // cause immediate proc
+            // Note: Divine Image triggers a cast immediately based on the Holy Word cast.
             DivineImageHelpers::Trigger(aurEff, eventInfo);
         }
 
@@ -668,6 +699,28 @@ class spell_pri_divine_image_stack_timer : public AuraScript
     void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_pri_divine_image_stack_timer::TrackStackApplicationTime, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
+// 33110 - Prayer of Mending (Heal)
+class spell_pri_divine_service : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_AURA })
+            && ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0 } });
+    }
+
+    void CalculateHealingBonus(Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (AuraEffect const* divineServiceEffect = GetCaster()->GetAuraEffect(SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0))
+            if (Aura const* prayerOfMending = victim->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, GetCaster()->GetGUID()))
+                AddPct(pctMod, int32(divineServiceEffect->GetAmount() * prayerOfMending->GetStackAmount()));
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcHealingFn(spell_pri_divine_service::CalculateHealingBonus);
     }
 };
 
@@ -833,6 +886,60 @@ class spell_pri_empowered_renew : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_empowered_renew::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 414553 - Epiphany
+class spell_pri_epiphany : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING, SPELL_PRIEST_EPIPHANY_HIGHLIGHT });
+    }
+
+    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/) const
+    {
+        Unit* target = GetTarget();
+
+        target->GetSpellHistory()->ResetCooldown(SPELL_PRIEST_PRAYER_OF_MENDING, true);
+
+        target->CastSpell(target, SPELL_PRIEST_EPIPHANY_HIGHLIGHT, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_epiphany::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pri_epiphany::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 33110 - Prayer of Mending (Heal)
+class spell_pri_focused_mending : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0 } });
+    }
+
+    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (AuraEffect const* focusedMendingEffect = GetCaster()->GetAuraEffect(SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0))
+        {
+            bool const* isEmpoweredByFocusedMending = std::any_cast<bool>(&GetSpell()->m_customArg);
+
+            if (isEmpoweredByFocusedMending && *isEmpoweredByFocusedMending)
+                AddPct(pctMod, focusedMendingEffect->GetAmount());
+        }
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcHealingFn(spell_pri_focused_mending::CalculateHealingBonus);
     }
 };
 
@@ -1512,41 +1619,60 @@ public:
         return true;
     }
 
-    void CastPrayerOfMendingAura(Unit* caster, Unit* target, uint8 stack, bool firstCast)
+    void CastPrayerOfMendingAura(Unit* caster, Unit* target, Unit* visualSender, uint8 stack, bool firstCast) const
     {
-        uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, *_healEffectDummy);
         CastSpellExtraArgs args;
         args.TriggerFlags = TRIGGERED_FULL_MASK;
         args.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
+
+        // Note: this line's purpose is to show the correct amount in Points field in SMSG_AURA_UPDATE.
+        uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, *_healEffectDummy);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
+
+        // Note: Focused Mending talent.
         args.SetCustomArg(firstCast);
+
         caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_AURA, args);
+
+        // Note: the visualSender is the priest if it is first cast or the aura holder when the aura triggers.
+        visualSender->SendPlaySpellVisual(target, SPELL_VISUAL_PRIEST_PRAYER_OF_MENDING, 0, 0, 40.0f);
     }
 
 protected:
-    SpellInfo const* _spellInfoHeal;
-    SpellEffectInfo const* _healEffectDummy;
+    SpellInfo const* _spellInfoHeal = nullptr;
+    SpellEffectInfo const* _healEffectDummy = nullptr;
 };
 
 // 33076 - Prayer of Mending (Dummy)
-// 411097 - Priest Holy 10.1 Class Set 2pc (Chooser)
 class spell_pri_prayer_of_mending_dummy : public spell_pri_prayer_of_mending_SpellScriptBase
 {
-    void FilterTargets(std::list<WorldObject*>& targets)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        Trinity::SelectRandomInjuredTargets(targets, 1, true);
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_PRAYER_OF_MENDING_AURA,
+            SPELL_PRIEST_EPIPHANY,
+            SPELL_PRIEST_EPIPHANY_HIGHLIGHT
+        });
     }
 
-    void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+    void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
     {
-        // Note: we need to increase BasePoints by 1 since it's 4 as default.
-        CastPrayerOfMendingAura(GetCaster(), GetHitUnit(), GetEffectValue() + 1, true);
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        // Note: we need to increase BasePoints by 1 since it's 4 as default. Also HACKFIX, we shouldn't reduce it by 1 if the target has the aura already.
+        uint8 stackAmount = target->HasAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, caster->GetGUID()) ? GetEffectValue() : GetEffectValue() + 1;
+
+        CastPrayerOfMendingAura(caster, target, caster, stackAmount, true);
+
+        // Note: Epiphany talent.
+        if (caster->HasAura(SPELL_PRIEST_EPIPHANY))
+            caster->RemoveAurasDueToSpell(SPELL_PRIEST_EPIPHANY_HIGHLIGHT);
     }
 
     void Register() override
     {
-        if (m_scriptSpellId == SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER)
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_prayer_of_mending_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
         OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_dummy::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
@@ -1556,15 +1682,11 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_PRIEST_PRAYER_OF_MENDING_HEAL,
-            SPELL_PRIEST_PRAYER_OF_MENDING_JUMP,
-            SPELL_PRIEST_SAY_YOUR_PRAYERS
-        }) && ValidateSpellEffect({ { SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0 } });
+        return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP })
+            && ValidateSpellEffect({ { SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0 } });
     }
 
-    void HandleHeal(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleHeal(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
         // Note: caster is the priest who cast the spell and target is current holder of the aura.
         Unit* target = GetTarget();
@@ -1613,7 +1735,7 @@ private:
 
 class spell_pri_prayer_of_mending : public SpellScript
 {
-    void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+    void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
     {
         Aura* aura = GetHitAura();
         if (!aura)
@@ -1636,19 +1758,16 @@ class spell_pri_prayer_of_mending : public SpellScript
 // 155793 - Prayer of Mending (Jump)
 class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_SpellScriptBase
 {
-    void FilterTargets(std::list<WorldObject*>& targets)
+    static void FilterTargets(std::list<WorldObject*>& targets)
     {
         // Note: priority list is a) players b) non-player units. Also, this spell became smartheal in WoD.
         Trinity::SelectRandomInjuredTargets(targets, 1, true);
     }
 
-    void HandleJump(SpellEffIndex /*effIndex*/)
+    void HandleJump(SpellEffIndex /*effIndex*/) const
     {
-        Unit* origCaster = GetOriginalCaster();
-        Unit* target = GetHitUnit();
-
-        if (origCaster)
-            CastPrayerOfMendingAura(origCaster, target, GetEffectValue(), false);
+        if (Unit* origCaster = GetOriginalCaster())
+            CastPrayerOfMendingAura(origCaster, GetHitUnit(), GetCaster(), GetEffectValue(), false);
     }
 
     void Register() override
@@ -1658,74 +1777,107 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     }
 };
 
-// 33110 - Prayer of Mending (Heal)
-class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_SpellScriptBase
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-            SPELL_PRIEST_RENEW,
-            SPELL_PRIEST_PRAYER_OF_MENDING_AURA
-        }) && ValidateSpellEffect(
-        {
-            { SPELL_PRIEST_BENEDICTION, EFFECT_0 },
-            { SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0 },
-            { SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0 }
-        });
-    }
-
-    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        if (AuraEffect const* benediction = caster->GetAuraEffect(SPELL_PRIEST_BENEDICTION, EFFECT_0))
-            if (roll_chance_i(benediction->GetAmount()))
-                caster->CastSpell(target, SPELL_PRIEST_RENEW, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
-
-        float healBonus = 1.0f;
-
-        if (AuraEffect const* focusedMending = caster->GetAuraEffect(SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0))
-        {
-            bool const* isEmpoweredByFocusedMending = std::any_cast<bool>(&GetSpell()->m_customArg);
-
-            if (isEmpoweredByFocusedMending && *isEmpoweredByFocusedMending)
-                AddPct(healBonus, focusedMending->GetAmount());
-        }
-
-        if (AuraEffect const* divineService = caster->GetAuraEffect(SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0))
-            if (Aura* prayerOfMending = target->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, caster->GetGUID()))
-                AddPct(healBonus, int32(divineService->GetAmount() * prayerOfMending->GetStackAmount()));
-
-        SetHitHeal(GetHitHeal() * healBonus);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
-    }
-};
-
 // 405554 - Priest Holy 10.1 Class Set 2pc
 class spell_pri_holy_10_1_class_set_2pc : public AuraScript
 {
-    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER })
+            && ValidateSpellEffect({ { SPELL_PRIEST_PRAYER_OF_MENDING, EFFECT_0 } });
+    }
+
+    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         return roll_chance_i(aurEff->GetAmount());
     }
 
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER,
-            CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)
-            .SetTriggeringSpell(eventInfo.GetProcSpell()));
+        CastSpellExtraArgs args(aurEff);
+        args.SetTriggeringSpell(eventInfo.GetProcSpell());
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(GetCaster()));
+
+        GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER, args);
     }
 
     void Register() override
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_holy_10_1_class_set_2pc::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_pri_holy_10_1_class_set_2pc::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 411097 - Priest Holy 10.1 Class Set 2pc (Chooser)
+class spell_pri_holy_10_1_class_set_2pc_chooser : public spell_pri_prayer_of_mending_SpellScriptBase
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_AURA });
+    }
+
+    static void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Trinity::SelectRandomInjuredTargets(targets, 1, true);
+    }
+
+    void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        // Note: we need to increase BasePoints by 1 since it's 4 as default. Also HACKFIX, we shouldn't reduce it by 1 if the target has the aura already.
+        uint8 stackAmount = target->HasAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, caster->GetGUID()) ? GetEffectValue() : GetEffectValue() + 1;
+
+        CastPrayerOfMendingAura(caster, target, caster, stackAmount, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_10_1_class_set_2pc_chooser::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_holy_10_1_class_set_2pc_chooser::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 155793 - Prayer of Mending (Jump)
+class spell_pri_holy_10_1_class_set_4pc : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P, SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT });
+    }
+
+    void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
+    {
+        if (GetOriginalCaster()->HasAura(SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P))
+            GetOriginalCaster()->CastSpell(GetOriginalCaster(), SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT, TRIGGERED_IGNORE_GCD);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_holy_10_1_class_set_4pc::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 41635 - Prayer of Mending (Aura)
+class spell_pri_holy_10_1_class_set_4pc_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P, SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT });
+    }
+
+    void HandleOnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (GetCaster()->HasAura(SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P))
+            GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD).SetTriggeringAura(aurEff));
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_pri_holy_10_1_class_set_4pc_aura::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2261,14 +2413,18 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_aq_3p_bonus);
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_triggered);
+    RegisterSpellScript(spell_pri_benediction);
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_divine_hymn);
     RegisterSpellScript(spell_pri_divine_image);
     RegisterSpellScript(spell_pri_divine_image_spell_triggered);
     RegisterSpellScript(spell_pri_divine_image_stack_timer);
+    RegisterSpellScript(spell_pri_divine_service);
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_empowered_renew);
+    RegisterSpellScript(spell_pri_epiphany);
+    RegisterSpellScript(spell_pri_focused_mending);
     RegisterSpellScript(spell_pri_guardian_spirit);
     RegisterSpellScript(spell_pri_halo_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
@@ -2290,8 +2446,10 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_prayer_of_mending_dummy);
     RegisterSpellAndAuraScriptPair(spell_pri_prayer_of_mending, spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
-    RegisterSpellScript(spell_pri_prayer_of_mending_heal);
     RegisterSpellScript(spell_pri_holy_10_1_class_set_2pc);
+    RegisterSpellScript(spell_pri_holy_10_1_class_set_2pc_chooser);
+    RegisterSpellScript(spell_pri_holy_10_1_class_set_4pc);
+    RegisterSpellScript(spell_pri_holy_10_1_class_set_4pc_aura);
     RegisterSpellScript(spell_pri_purge_the_wicked);
     RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
