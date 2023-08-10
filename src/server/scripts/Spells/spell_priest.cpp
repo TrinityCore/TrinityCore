@@ -443,7 +443,7 @@ class spell_pri_benediction : public SpellScript
             && ValidateSpellEffect({ { SPELL_PRIEST_BENEDICTION, EFFECT_0 } });
     }
 
-    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
     {
         if (AuraEffect const* benediction = GetCaster()->GetAuraEffect(SPELL_PRIEST_BENEDICTION, EFFECT_0))
             if (roll_chance_i(benediction->GetAmount()))
@@ -505,72 +505,72 @@ class spell_pri_divine_hymn : public SpellScript
 
 namespace DivineImageHelpers
 {
-    Unit* GetSummon(Unit const* owner)
-    {
-        for (Unit* summon : owner->m_Controlled)
-            if (summon->GetEntry() == NPC_PRIEST_DIVINE_IMAGE)
-                return summon;
+Unit* GetSummon(Unit const* owner)
+{
+    for (Unit* summon : owner->m_Controlled)
+        if (summon->GetEntry() == NPC_PRIEST_DIVINE_IMAGE)
+            return summon;
 
-        return nullptr;
+    return nullptr;
+}
+
+Optional<uint32> GetSpellToCast(uint32 spellId)
+{
+    switch (spellId)
+    {
+        case SPELL_PRIEST_RENEW:
+            return SPELL_PRIEST_TRANQUIL_LIGHT;
+        case SPELL_PRIEST_POWER_WORD_SHIELD:
+        case SPELL_PRIEST_POWER_WORD_LIFE:
+        case SPELL_PRIEST_FLASH_HEAL:
+        case SPELL_PRIEST_HEAL:
+        case SPELL_PRIEST_GREATER_HEAL:
+        case SPELL_PRIEST_HOLY_WORD_SERENITY:
+            return SPELL_PRIEST_HEALING_LIGHT;
+        case SPELL_PRIEST_PRAYER_OF_MENDING:
+        case SPELL_PRIEST_PRAYER_OF_MENDING_HEAL:
+            return SPELL_PRIEST_BLESSED_LIGHT;
+        case SPELL_PRIEST_PRAYER_OF_HEALING:
+        case SPELL_PRIEST_CIRCLE_OF_HEALING:
+        case SPELL_PRIEST_HALO_HOLY:
+        case SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL:
+        case SPELL_PRIEST_DIVINE_HYMN_HEAL:
+        case SPELL_PRIEST_HOLY_WORD_SANCTIFY:
+        case SPELL_PRIEST_HOLY_WORD_SALVATION:
+            return SPELL_PRIEST_DAZZLING_LIGHT;
+        case SPELL_PRIEST_SHADOW_WORD_PAIN:
+        case SPELL_PRIEST_SMITE:
+        case SPELL_PRIEST_HOLY_FIRE:
+        case SPELL_PRIEST_SHADOW_WORD_DEATH:
+        case SPELL_PRIEST_HOLY_WORD_CHASTISE:
+        case SPELL_PRIEST_MINDGAMES:
+        case SPELL_PRIEST_MINDGAMES_VENTHYR:
+            return SPELL_PRIEST_SEARING_LIGHT;
+        case SPELL_PRIEST_HOLY_NOVA:
+            return SPELL_PRIEST_LIGHT_ERUPTION;
+        default:
+            break;
     }
 
-    Optional<uint32> GetSpellToCast(uint32 spellId)
-    {
-        switch (spellId)
-        {
-            case SPELL_PRIEST_RENEW:
-                return SPELL_PRIEST_TRANQUIL_LIGHT;
-            case SPELL_PRIEST_POWER_WORD_SHIELD:
-            case SPELL_PRIEST_POWER_WORD_LIFE:
-            case SPELL_PRIEST_FLASH_HEAL:
-            case SPELL_PRIEST_HEAL:
-            case SPELL_PRIEST_GREATER_HEAL:
-            case SPELL_PRIEST_HOLY_WORD_SERENITY:
-                return SPELL_PRIEST_HEALING_LIGHT;
-            case SPELL_PRIEST_PRAYER_OF_MENDING:
-            case SPELL_PRIEST_PRAYER_OF_MENDING_HEAL:
-                return SPELL_PRIEST_BLESSED_LIGHT;
-            case SPELL_PRIEST_PRAYER_OF_HEALING:
-            case SPELL_PRIEST_CIRCLE_OF_HEALING:
-            case SPELL_PRIEST_HALO_HOLY:
-            case SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL:
-            case SPELL_PRIEST_DIVINE_HYMN_HEAL:
-            case SPELL_PRIEST_HOLY_WORD_SANCTIFY:
-            case SPELL_PRIEST_HOLY_WORD_SALVATION:
-                return SPELL_PRIEST_DAZZLING_LIGHT;
-            case SPELL_PRIEST_SHADOW_WORD_PAIN:
-            case SPELL_PRIEST_SMITE:
-            case SPELL_PRIEST_HOLY_FIRE:
-            case SPELL_PRIEST_SHADOW_WORD_DEATH:
-            case SPELL_PRIEST_HOLY_WORD_CHASTISE:
-            case SPELL_PRIEST_MINDGAMES:
-            case SPELL_PRIEST_MINDGAMES_VENTHYR:
-                return SPELL_PRIEST_SEARING_LIGHT;
-            case SPELL_PRIEST_HOLY_NOVA:
-                return SPELL_PRIEST_LIGHT_ERUPTION;
-            default:
-                break;
-        }
+    return {};
+}
 
-        return {};
-    }
+void Trigger(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+{
+    Unit* target = eventInfo.GetActor();
+    if (!target)
+        return;
 
-    void Trigger(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
-    {
-        Unit* target = eventInfo.GetActor();
-        if (!target)
-            return;
+    Unit* divineImage = GetSummon(target);
+    if (!divineImage)
+        return;
 
-        Unit* divineImage = GetSummon(target);
-        if (!divineImage)
-            return;
+    Optional<uint32> spellId = GetSpellToCast(eventInfo.GetSpellInfo()->Id);
+    if (!spellId)
+        return;
 
-        Optional<uint32> spellId = GetSpellToCast(eventInfo.GetSpellInfo()->Id);
-        if (!spellId)
-            return;
-
-        divineImage->CastSpell(SpellCastTargets(eventInfo.GetProcSpell()->m_targets), *spellId, aurEff);
-    }
+    divineImage->CastSpell(SpellCastTargets(eventInfo.GetProcSpell()->m_targets), *spellId, aurEff);
+}
 }
 
 // 392988 - Divine Image
@@ -586,7 +586,7 @@ class spell_pri_divine_image : public AuraScript
         });
     }
 
-    static void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         Unit* target = eventInfo.GetActor();
         if (!target)
@@ -623,7 +623,7 @@ class spell_pri_divine_image : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_divine_image::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pri_divine_image::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -711,7 +711,7 @@ class spell_pri_divine_service : public SpellScript
             && ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0 } });
     }
 
-    void CalculateHealingBonus(Unit* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    void CalculateHealingBonus(Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (AuraEffect const* divineServiceEffect = GetCaster()->GetAuraEffect(SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0))
             if (Aura const* prayerOfMending = victim->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, GetCaster()->GetGUID()))
@@ -892,25 +892,23 @@ class spell_pri_empowered_renew : public AuraScript
 // 414553 - Epiphany
 class spell_pri_epiphany : public AuraScript
 {
-    PrepareAuraScript(spell_pri_epiphany);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING, SPELL_PRIEST_EPIPHANY_HIGHLIGHT });
     }
 
-    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         return roll_chance_i(aurEff->GetAmount());
     }
 
-    void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/) const
     {
         Unit* target = GetTarget();
 
         target->GetSpellHistory()->ResetCooldown(SPELL_PRIEST_PRAYER_OF_MENDING, true);
 
-        target->CastSpell(target, SPELL_PRIEST_EPIPHANY_HIGHLIGHT, CastSpellExtraArgs(aurEff));
+        target->CastSpell(target, SPELL_PRIEST_EPIPHANY_HIGHLIGHT, aurEff);
     }
 
     void Register() override
@@ -1621,7 +1619,7 @@ public:
         return true;
     }
 
-    void CastPrayerOfMendingAura(Unit* caster, Unit* target, Unit* visualSender, uint8 stack, bool firstCast)
+    void CastPrayerOfMendingAura(Unit* caster, Unit* target, Unit* visualSender, uint8 stack, bool firstCast) const
     {
         CastSpellExtraArgs args;
         args.TriggerFlags = TRIGGERED_FULL_MASK;
@@ -1658,7 +1656,7 @@ class spell_pri_prayer_of_mending_dummy : public spell_pri_prayer_of_mending_Spe
         });
     }
 
-    void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+    void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
@@ -1688,7 +1686,7 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
             && ValidateSpellEffect({ { SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0 } });
     }
 
-    void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    void HandleHeal(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
         // Note: caster is the priest who cast the spell and target is current holder of the aura.
         Unit* target = GetTarget();
@@ -1722,7 +1720,7 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_prayer_of_mending_aura::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pri_prayer_of_mending_aura::HandleHeal, EFFECT_0, SPELL_AURA_DUMMY);
     }
 
 public:
@@ -1737,7 +1735,7 @@ private:
 
 class spell_pri_prayer_of_mending : public SpellScript
 {
-    void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+    void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
     {
         Aura* aura = GetHitAura();
         if (!aura)
@@ -1760,20 +1758,16 @@ class spell_pri_prayer_of_mending : public SpellScript
 // 155793 - Prayer of Mending (Jump)
 class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_SpellScriptBase
 {
-    void FilterTargets(std::list<WorldObject*>& targets)
+    static void FilterTargets(std::list<WorldObject*>& targets)
     {
         // Note: priority list is a) players b) non-player units. Also, this spell became smartheal in WoD.
         Trinity::SelectRandomInjuredTargets(targets, 1, true);
     }
 
-    void HandleJump(SpellEffIndex /*effIndex*/)
+    void HandleJump(SpellEffIndex /*effIndex*/) const
     {
-        Unit* origCaster = GetOriginalCaster();
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        if (origCaster)
-            CastPrayerOfMendingAura(origCaster, target, caster, GetEffectValue(), false);
+        if (Unit* origCaster = GetOriginalCaster())
+            CastPrayerOfMendingAura(origCaster, GetHitUnit(), GetCaster(), GetEffectValue(), false);
     }
 
     void Register() override
@@ -1792,12 +1786,12 @@ class spell_pri_holy_10_1_class_set_2pc : public AuraScript
             && ValidateSpellEffect({ { SPELL_PRIEST_PRAYER_OF_MENDING, EFFECT_0 } });
     }
 
-    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         return roll_chance_i(aurEff->GetAmount());
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
         CastSpellExtraArgs args(aurEff);
         args.SetTriggeringSpell(eventInfo.GetProcSpell());
@@ -1821,12 +1815,12 @@ class spell_pri_holy_10_1_class_set_2pc_chooser : public spell_pri_prayer_of_men
         return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_AURA });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    static void FilterTargets(std::list<WorldObject*>& targets)
     {
         Trinity::SelectRandomInjuredTargets(targets, 1, true);
     }
 
-    void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+    void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
@@ -1852,7 +1846,7 @@ class spell_pri_holy_10_1_class_set_4pc : public SpellScript
         return ValidateSpellInfo({ SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P, SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT });
     }
 
-    void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+    void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
     {
         if (GetOriginalCaster()->HasAura(SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P))
             GetOriginalCaster()->CastSpell(GetOriginalCaster(), SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT, TRIGGERED_IGNORE_GCD);
@@ -1872,7 +1866,7 @@ class spell_pri_holy_10_1_class_set_4pc_aura : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P, SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT });
     }
 
-    void HandleOnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void HandleOnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
