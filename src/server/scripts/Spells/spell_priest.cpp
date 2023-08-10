@@ -398,7 +398,7 @@ public:
 
         float distanceLimit = GetEffectInfo(EFFECT_1).CalcValue();
 
-        std::erase_if(_appliedAtonements, [this, priest, distanceLimit, &args](ObjectGuid const& targetGuid)
+        std::erase_if(_appliedAtonements, [priest, distanceLimit, &args](ObjectGuid const& targetGuid)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*priest, targetGuid))
             {
