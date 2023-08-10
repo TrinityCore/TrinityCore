@@ -359,7 +359,7 @@ class spell_pri_atonement : public AuraScript
         return eventInfo.GetDamageInfo() != nullptr;
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         TriggerAtonementHealOnTargets(aurEff, eventInfo);
     }
@@ -367,7 +367,7 @@ class spell_pri_atonement : public AuraScript
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_pri_atonement::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_pri_atonement::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pri_atonement::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 
     std::vector<ObjectGuid> _appliedAtonements;
@@ -393,7 +393,7 @@ public:
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
         CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
-        // Note: we need to check for EffectInfo in case that the pet triggers it because the passive spell has amount 0.
+        // Note: atonementEffect holds the correct amount since we passed the effect in the AuraScript that calls this method.
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(damageInfo->GetDamage(), atonementEffect->GetAmount()));
 
         float distanceLimit = GetEffectInfo(EFFECT_1).CalcValue();
@@ -443,9 +443,9 @@ class spell_pri_atonement_passive : public AuraScript
         if (!summoner)
             return;
 
-        if (AuraEffect const* atonement = summoner->GetAuraEffect(SPELL_PRIEST_ATONEMENT, EFFECT_0))
-            if (spell_pri_atonement* script = atonement->GetBase()->GetScript<spell_pri_atonement>())
-                script->TriggerAtonementHealOnTargets(atonement, eventInfo);
+        if (AuraEffect const* atonementEffect = summoner->GetAuraEffect(SPELL_PRIEST_ATONEMENT, EFFECT_0))
+            if (spell_pri_atonement* script = atonementEffect->GetBase()->GetScript<spell_pri_atonement>())
+                script->TriggerAtonementHealOnTargets(atonementEffect, eventInfo);
     }
 
     void Register() override
