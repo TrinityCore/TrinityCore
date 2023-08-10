@@ -24,15 +24,38 @@
 #include "Creature.h"
 #include "PassiveAI.h"
 #include "PetAI.h"
+#include "TemporarySummon.h"
 
 enum PriestSpells
 {
     SPELL_PRIEST_ATONEMENT                  = 81749,
     SPELL_PRIEST_ATONEMENT_PASSIVE          = 195178,
-
+    SPELL_PRIEST_DIVINE_IMAGE_SPELL_CHECK   = 405216,
+    SPELL_PRIEST_INVOKE_THE_NAARU           = 196687,
     SPELL_PRIEST_LIGHTWELL_CHARGES          = 59907
 };
 
+// 198236 - Divine Image
+struct npc_pet_pri_divine_image : public PassiveAI
+{
+    npc_pet_pri_divine_image(Creature* creature) : PassiveAI(creature) { }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        me->CastSpell(me, SPELL_PRIEST_INVOKE_THE_NAARU);
+
+        if (me->ToTempSummon()->IsGuardian() && summoner->IsUnit())
+            static_cast<Guardian*>(me)->SetBonusDamage(summoner->ToUnit()->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_HOLY));
+    }
+
+    void OnDespawn() override
+    {
+        if (Unit* owner = me->GetOwner())
+            owner->RemoveAura(SPELL_PRIEST_DIVINE_IMAGE_SPELL_CHECK);
+    }
+};
+
+// 189820 - Lightwell
 struct npc_pet_pri_lightwell : public PassiveAI
 {
     npc_pet_pri_lightwell(Creature* creature) : PassiveAI(creature)
@@ -70,6 +93,7 @@ struct npc_pet_pri_shadowfiend_mindbender : public PetAI
 
 void AddSC_priest_pet_scripts()
 {
+    RegisterCreatureAI(npc_pet_pri_divine_image);
     RegisterCreatureAI(npc_pet_pri_lightwell);
     RegisterCreatureAI(npc_pet_pri_shadowfiend_mindbender);
 }
