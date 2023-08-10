@@ -387,7 +387,7 @@ public:
         UpdateSinsOfTheManyValue();
     }
 
-    void TriggerAtonementHealOnTargets(AuraEffect* aurEff, ProcEventInfo& eventInfo, Unit* actor, bool isTriggeredByPet)
+    void TriggerAtonementHealOnTargets(AuraEffect const* aurEff, ProcEventInfo const& eventInfo, Unit* actor, bool isTriggeredByPet)
     {
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
         CastSpellExtraArgs args(aurEff);
@@ -2548,7 +2548,6 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_empowered_renew);
-    RegisterSpellScript(spell_pri_essence_devourer_heal);
     RegisterSpellScript(spell_pri_epiphany);
     RegisterSpellScript(spell_pri_essence_devourer_heal);
     RegisterSpellScript(spell_pri_focused_mending);
