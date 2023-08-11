@@ -1971,7 +1971,6 @@ public:
     void LoadAAData_Characters();
     void LoadAAData_World();
     void LoadAAData_Jindu();
-    void LoadAAData_ItemDisplay();
 
     /*采集*/
     std::unordered_map<uint32, AA_Caiji_Item> aa_caiji_items;

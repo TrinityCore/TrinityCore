@@ -251,6 +251,34 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
             if (player->GetSession()->PlayerLoading()) // pussywizard: crashfix (assert(passengers.empty) fail in ~transport), could be added to a transport during loading from db
                 return nullptr;
 
+            if (aaCenter.aa_minstancevalues[newInstanceId][4] != aa_teleport_moshi) {
+                Group* group = player->GetGroup();
+                if (group)
+                {
+                    if (!group->IsLeader(player->GetGUID()))
+                        return nullptr;
+
+                    if (group->isLFGGroup())
+                        return nullptr;
+
+                    if (map->IsRaid()) {
+                        group->SetRaidDifficultyID(Difficulty(aa_teleport_moshi));
+                    }
+                    else if (map->IsNonRaidDungeon()) {
+                        group->SetDungeonDifficultyID(Difficulty(aa_teleport_moshi));
+                    }
+                }
+                else
+                {
+                    if (map->IsRaid()) {
+                        player->SetRaidDifficultyID(Difficulty(aa_teleport_moshi));
+                    }
+                    else if (map->IsNonRaidDungeon()) {
+                        player->SetDungeonDifficultyID(Difficulty(aa_teleport_moshi));
+                    }
+                }
+            }
+
             MapMapType::iterator iter = i_maps.begin();
             while (iter != i_maps.end())
             {

@@ -13185,7 +13185,7 @@ void AACenter::LoadAAData_Characters()
     }
 }
 
-void AACenter::LoadAAData_ItemDisplay()
+void AACenter::LoadAAData_World()
 {
     {
         TC_LOG_INFO("server.loading", "正在加载 _物品_鉴定_未鉴定时显示...");
@@ -13206,10 +13206,6 @@ void AACenter::LoadAAData_ItemDisplay()
             TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _物品_鉴定_未鉴定时显示 用时 {} 毫秒", (unsigned long)aa_jianding_displays.size(), GetMSTimeDiffToNow(oldMSTime));
         }
     }
-}
-
-void AACenter::LoadAAData_World()
-{
     {
         TC_LOG_INFO("server.loading", "正在加载 _自定义ui_活跃度...");
         uint32 oldMSTime = getMSTime();
