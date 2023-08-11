@@ -493,7 +493,7 @@ class spell_pri_atonement_effect_aura : public AuraScript
         RegisterHelper<&spell_pri_atonement::RemoveAtonementTarget>();
     }
 
-    template<void(spell_pri_atonement::* func)(ObjectGuid const&)>
+    template<void(spell_pri_atonement::*func)(ObjectGuid const&)>
     void RegisterHelper()
     {
         if (Unit* caster = GetCaster())
