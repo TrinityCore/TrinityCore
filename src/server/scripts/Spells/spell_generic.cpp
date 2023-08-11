@@ -4784,7 +4784,7 @@ class spell_summon_battle_pet : public SpellScript
 
             Unit* caster = GetCaster();
             SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetEffectInfo().MiscValueB));
-            uint32 duration = uint32(GetSpellInfo()->CalcDuration(caster));
+            Milliseconds duration = Milliseconds(GetSpellInfo()->CalcDuration(caster));
             Position pos = GetHitDest()->GetPosition();
 
             if (Creature* summon = caster->GetMap()->SummonCreature(creatureId, pos, properties, duration, caster, GetSpellInfo()->Id))
