@@ -1728,12 +1728,13 @@ class spell_pri_power_word_shield : public AuraScript
             {
                 AddPct(modifiedAmount, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
 
-                // Note: this should be handled differently 
+                // Note: Mastery: Grace (TBD: move into DoEffectCalcDamageAndHealing hook with a new SpellScript and AuraScript).
                 if (AuraEffect const* masteryGraceEffect = caster->GetAuraEffect(SPELL_PRIEST_MASTERY_GRACE, EFFECT_0))
                     if (GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT) || GetUnitOwner()->HasAura(SPELL_PRIEST_TRINITY_EFFECT))
                         AddPct(modifiedAmount, masteryGraceEffect->GetAmount());
             }
 
+            // Note: Rapture talent (TBD: move into DoEffectCalcDamageAndHealing hook).
             if (AuraEffect const* raptureEffect = caster->GetAuraEffect(SPELL_PRIEST_RAPTURE, EFFECT_1))
                 AddPct(modifiedAmount, raptureEffect->GetAmount());
 
@@ -1747,6 +1748,7 @@ class spell_pri_power_word_shield : public AuraScript
         if (!caster)
             return;
 
+        // Note: Strength of Soul PvP talent.
         if (caster->HasAura(SPELL_PRIEST_STRENGTH_OF_SOUL))
             caster->CastSpell(GetTarget(), SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT, aurEff);
     }
@@ -1755,6 +1757,7 @@ class spell_pri_power_word_shield : public AuraScript
     {
         GetTarget()->RemoveAura(SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT);
 
+        // Note: Shield Discipline talent.
         if (Unit* caster = GetCaster())
             if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL && caster->HasAura(SPELL_PRIEST_SHIELD_DISCIPLINE))
                 caster->CastSpell(caster, SPELL_PRIEST_SHIELD_DISCIPLINE_EFFECT, aurEff);
