@@ -1619,7 +1619,7 @@ class spell_pri_power_of_the_dark_side_healing_bonus : public SpellScript
 // 194509 - Power Word: Radiance
 class spell_pri_power_word_radiance : public SpellScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_EFFECT });
     }
