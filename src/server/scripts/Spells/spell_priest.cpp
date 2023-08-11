@@ -449,29 +449,32 @@ class spell_pri_atonement_effect : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.SetTriggeringSpell(GetSpell());
+
         // Note: only apply Atonement if we don't have Trinity.
         if (caster->HasAura(SPELL_PRIEST_ATONEMENT) && !caster->HasAura(SPELL_PRIEST_TRINITY))
         {
-            // Note: Power Word: Radiance applies Atonement at 60 % of its total duration.
+            // Note: Power Word: Radiance applies Atonement at 60 % (without modifiers) of its total duration.
             if (m_scriptSpellId == SPELL_PRIEST_POWER_WORD_RADIANCE)
-                caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_EFFECT, CastSpellExtraArgs(SPELLVALUE_DURATION_PCT,
-                    sSpellMgr->AssertSpellInfo(SPELL_PRIEST_POWER_WORD_RADIANCE, GetCastDifficulty())->GetEffect(EFFECT_3).CalcValue(caster))
-                    .SetTriggeringSpell(GetSpell()));
-            else
-                caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_EFFECT, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+                args.AddSpellMod(SPELLVALUE_DURATION_PCT, sSpellMgr->AssertSpellInfo(SPELL_PRIEST_POWER_WORD_RADIANCE,
+                    GetCastDifficulty())->GetEffect(EFFECT_3).CalcValue(caster));
+
+            caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_EFFECT, args);
         }
         // Note: only apply Trinity if the Priest has both Trinity and Atonement and the triggering spell is Power Word: Shield.
         else if (caster->HasAura(SPELL_PRIEST_ATONEMENT) && caster->HasAura(SPELL_PRIEST_TRINITY) && m_scriptSpellId == SPELL_PRIEST_POWER_WORD_SHIELD)
-            caster->CastSpell(target, SPELL_PRIEST_TRINITY_EFFECT, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+            caster->CastSpell(target, SPELL_PRIEST_TRINITY_EFFECT, args);
     }
 
     void Register() override
     {
         if (m_scriptSpellId == SPELL_PRIEST_POWER_WORD_SHIELD || m_scriptSpellId == SPELL_PRIEST_RENEW)
             OnEffectHitTarget += SpellEffectFn(spell_pri_atonement_effect::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-        if (m_scriptSpellId == SPELL_PRIEST_POWER_WORD_RADIANCE)
+        else if (m_scriptSpellId == SPELL_PRIEST_POWER_WORD_RADIANCE)
             OnEffectHitTarget += SpellEffectFn(spell_pri_atonement_effect::HandleOnHitTarget, EFFECT_1, SPELL_EFFECT_HEAL);
-        OnEffectHitTarget += SpellEffectFn(spell_pri_atonement_effect::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+        else
+            OnEffectHitTarget += SpellEffectFn(spell_pri_atonement_effect::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 

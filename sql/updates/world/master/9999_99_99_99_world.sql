@@ -4,5 +4,5 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (139,'spell_pri_atonement_effect'),
 (2061,'spell_pri_atonement_effect'),
 (194509,'spell_pri_atonement_effect'),
-(246287,'spell_pri_atonement_effect_aura'),
+(194384,'spell_pri_atonement_effect_aura'),
 (214206,'spell_pri_atonement_effect_aura');
