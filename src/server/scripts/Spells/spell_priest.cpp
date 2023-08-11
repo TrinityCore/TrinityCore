@@ -169,6 +169,7 @@ enum PriestSpells
 
 enum PriestSpellVisuals
 {
+    SPELL_VISUAL_PRIEST_POWER_WORD_RADIANCE         = 52872,
     SPELL_VISUAL_PRIEST_PRAYER_OF_MENDING           = 38945
 };
 
@@ -452,7 +453,7 @@ class spell_pri_atonement_effect : public SpellScript
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.SetTriggeringSpell(GetSpell());
 
-        // Note: only apply Atonement if we don't have Trinity.
+        // Note: only apply Atonement if the Priest has Atonement but not Trinity.
         if (caster->HasAura(SPELL_PRIEST_ATONEMENT) && !caster->HasAura(SPELL_PRIEST_TRINITY))
         {
             // Note: Power Word: Radiance applies Atonement at 60 % (without modifiers) of its total duration.
@@ -1627,31 +1628,52 @@ class spell_pri_power_word_radiance : public SpellScript
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_EFFECT });
     }
 
-    void OnTargetSelect(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        uint32 maxTargets = GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) + 1; // adding 1 for explicit target unit
+        // Note: we must add one since explicit target is always chosen.
+        uint32 const maxTargets = GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) + 1;
+
         if (targets.size() > maxTargets)
         {
             Unit* explTarget = GetExplTargetUnit();
 
-            // Sort targets so units with no atonement are first, then units who are injured, then oher units
-            // Make sure explicit target unit is first
+            // Note: priority is: a) no Atonement b) injured c) anything else (excluding explicit target which is always added).
             targets.sort([this, explTarget](WorldObject* lhs, WorldObject* rhs)
             {
                 if (lhs == explTarget) // explTarget > anything: always true
                     return true;
                 if (rhs == explTarget) // anything > explTarget: always false
                     return false;
+
                 return MakeSortTuple(lhs) > MakeSortTuple(rhs);
             });
 
             targets.resize(maxTargets);
+
+            for (WorldObject* target : targets)
+            {
+                if (target == explTarget)
+                    continue;
+
+                _nonExplicitTargetGUIDs.push_back(target->GetGUID());
+            }   
         }
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitUnit() != GetExplTargetUnit())
+            return;
+
+        for (ObjectGuid const& guid : _nonExplicitTargetGUIDs)
+            if (Unit* target = ObjectAccessor::GetUnit(*GetExplTargetUnit(), guid))
+                GetExplTargetUnit()->SendPlaySpellVisual(target, SPELL_VISUAL_PRIEST_POWER_WORD_RADIANCE, 0, 0, 70.0f);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_power_word_radiance::OnTargetSelect, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_power_word_radiance::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_power_word_radiance::HandleEffectHitTarget, EFFECT_1, SPELL_EFFECT_HEAL);
     }
 
 private:
@@ -1673,6 +1695,8 @@ private:
         Unit* unit = obj->ToUnit();
         return unit && !unit->IsFullHealth();
     }
+
+    std::vector<ObjectGuid> _nonExplicitTargetGUIDs;
 };
 
 // 17 - Power Word: Shield
