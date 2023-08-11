@@ -1656,7 +1656,7 @@ class spell_pri_power_word_radiance : public SpellScript
                     continue;
 
                 _nonExplicitTargetGUIDs.push_back(target->GetGUID());
-            }   
+            }
         }
     }
 
