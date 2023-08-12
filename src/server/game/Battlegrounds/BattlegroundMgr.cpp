@@ -553,9 +553,9 @@ bool BattlegroundMgr::IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)
         case BattlegroundQueueIdType::ArenaSkirmish:
             if (battlemasterList->InstanceType != MAP_ARENA)
                 return false;
-            if (bgQueueTypeId.Rated)
+            if (!bgQueueTypeId.Rated)
                 return false;
-            if (bgQueueTypeId.TeamSize)
+            if (bgQueueTypeId.TeamSize != ARENA_TYPE_3v3)
                 return false;
             break;
         default:
