@@ -143,8 +143,8 @@ class TC_GAME_API BattlegroundQueue
 class TC_GAME_API BGQueueInviteEvent : public BasicEvent
 {
     public:
-        BGQueueInviteEvent(ObjectGuid pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime, BattlegroundQueueTypeId queueId) :
-          m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_ArenaType(arenaType), m_RemoveTime(removeTime), m_QueueId(queueId)
+        BGQueueInviteEvent(ObjectGuid pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint32 removeTime, BattlegroundQueueTypeId queueId) :
+          m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_RemoveTime(removeTime), m_QueueId(queueId)
           { }
         virtual ~BGQueueInviteEvent() { }
 
@@ -154,7 +154,6 @@ class TC_GAME_API BGQueueInviteEvent : public BasicEvent
         ObjectGuid m_PlayerGuid;
         uint32 m_BgInstanceGUID;
         BattlegroundTypeId m_BgTypeId;
-        uint8  m_ArenaType;
         uint32 m_RemoveTime;
         BattlegroundQueueTypeId m_QueueId;
 };
