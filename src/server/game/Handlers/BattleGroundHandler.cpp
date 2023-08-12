@@ -196,7 +196,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
         uint32 queueSlot = _player->AddBattlegroundQueueId(bgQueueTypeId);
 
         WorldPackets::Battleground::BattlefieldStatusQueued battlefieldStatus;
-        sBattlegroundMgr->BuildBattlegroundStatusQueued(&battlefieldStatus, bgTemplate, bracketEntry, _player, queueSlot, ginfo->JoinTime, bgQueueTypeId, avgTime, 0, false);
+        sBattlegroundMgr->BuildBattlegroundStatusQueued(&battlefieldStatus, _player, queueSlot, ginfo->JoinTime, bgQueueTypeId, avgTime, false);
         SendPacket(battlefieldStatus.Write());
 
         TC_LOG_DEBUG("bg.battleground", "Battleground: player joined queue for bg queue {{ BattlemasterListId: {}, Type: {}, Rated: {}, TeamSize: {} }}, {}, NAME {}",
@@ -241,7 +241,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
             uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);
 
             WorldPackets::Battleground::BattlefieldStatusQueued battlefieldStatus;
-            sBattlegroundMgr->BuildBattlegroundStatusQueued(&battlefieldStatus, bgTemplate, bracketEntry, member, queueSlot, ginfo->JoinTime, bgQueueTypeId, avgTime, 0, true);
+            sBattlegroundMgr->BuildBattlegroundStatusQueued(&battlefieldStatus, member, queueSlot, ginfo->JoinTime, bgQueueTypeId, avgTime, true);
             member->SendDirectMessage(battlefieldStatus.Write());
             TC_LOG_DEBUG("bg.battleground", "Battleground: player joined queue for bg queue {{ BattlemasterListId: {}, Type: {}, Rated: {}, TeamSize: {} }}, {}, NAME {}",
                 bgQueueTypeId.BattlemasterListId, uint32(bgQueueTypeId.Type), bgQueueTypeId.Rated ? "true" : "false", uint32(bgQueueTypeId.TeamSize),
@@ -389,7 +389,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
         _player->FinishTaxiFlight();
 
         WorldPackets::Battleground::BattlefieldStatusActive battlefieldStatus;
-        sBattlegroundMgr->BuildBattlegroundStatusActive(&battlefieldStatus, bg, _player, battlefieldPort.Ticket.Id, _player->GetBattlegroundQueueJoinTime(bgQueueTypeId), bg->GetArenaType(), bgQueueTypeId);
+        sBattlegroundMgr->BuildBattlegroundStatusActive(&battlefieldStatus, bg, _player, battlefieldPort.Ticket.Id, _player->GetBattlegroundQueueJoinTime(bgQueueTypeId), bgQueueTypeId);
         SendPacket(battlefieldStatus.Write());
 
         // remove battleground queue status from BGmgr
@@ -463,7 +463,6 @@ void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPackets::Battlegrou
         if (bgQueueTypeId == BATTLEGROUND_QUEUE_NONE)
             continue;
         BattlegroundTypeId bgTypeId = BattlegroundTypeId(bgQueueTypeId.BattlemasterListId);
-        uint8 arenaType = bgQueueTypeId.TeamSize;
         bg = _player->GetBattleground();
         if (bg)
         {
@@ -473,7 +472,7 @@ void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPackets::Battlegrou
                 //i cannot check any variable from player class because player class doesn't know if player is in 2v2 / 3v3 or 5v5 arena
                 //so i must use bg pointer to get that information
                 WorldPackets::Battleground::BattlefieldStatusActive battlefieldStatus;
-                sBattlegroundMgr->BuildBattlegroundStatusActive(&battlefieldStatus, bg, _player, i, _player->GetBattlegroundQueueJoinTime(bgQueueTypeId), arenaType, bgQueueTypeId);
+                sBattlegroundMgr->BuildBattlegroundStatusActive(&battlefieldStatus, bg, _player, i, _player->GetBattlegroundQueueJoinTime(bgQueueTypeId), bgQueueTypeId);
                 SendPacket(battlefieldStatus.Write());
                 continue;
             }
@@ -492,7 +491,7 @@ void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPackets::Battlegrou
                 continue;
 
             WorldPackets::Battleground::BattlefieldStatusNeedConfirmation battlefieldStatus;
-            sBattlegroundMgr->BuildBattlegroundStatusNeedConfirmation(&battlefieldStatus, bg, _player, i, _player->GetBattlegroundQueueJoinTime(bgQueueTypeId), getMSTimeDiff(getMSTime(), ginfo.RemoveInviteTime), arenaType, bgQueueTypeId);
+            sBattlegroundMgr->BuildBattlegroundStatusNeedConfirmation(&battlefieldStatus, bg, _player, i, _player->GetBattlegroundQueueJoinTime(bgQueueTypeId), getMSTimeDiff(getMSTime(), ginfo.RemoveInviteTime), bgQueueTypeId);
             SendPacket(battlefieldStatus.Write());
         }
         else
@@ -508,7 +507,7 @@ void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPackets::Battlegrou
 
             uint32 avgTime = bgQueue.GetAverageQueueWaitTime(&ginfo, bracketEntry->GetBracketId());
             WorldPackets::Battleground::BattlefieldStatusQueued battlefieldStatus;
-            sBattlegroundMgr->BuildBattlegroundStatusQueued(&battlefieldStatus, bgTemplate, bracketEntry, _player, i, _player->GetBattlegroundQueueJoinTime(bgQueueTypeId), bgQueueTypeId, avgTime, arenaType, ginfo.Players.size() > 1);
+            sBattlegroundMgr->BuildBattlegroundStatusQueued(&battlefieldStatus, _player, i, _player->GetBattlegroundQueueJoinTime(bgQueueTypeId), bgQueueTypeId, avgTime, ginfo.Players.size() > 1);
             SendPacket(battlefieldStatus.Write());
         }
     }
@@ -604,7 +603,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPackets::Battleground::Battl
         uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);
 
         WorldPackets::Battleground::BattlefieldStatusQueued battlefieldStatus;
-        sBattlegroundMgr->BuildBattlegroundStatusQueued(&battlefieldStatus, bgTemplate, bracketEntry, member, queueSlot, ginfo->JoinTime, bgQueueTypeId, avgTime, arenatype, true);
+        sBattlegroundMgr->BuildBattlegroundStatusQueued(&battlefieldStatus, member, queueSlot, ginfo->JoinTime, bgQueueTypeId, avgTime, true);
         member->SendDirectMessage(battlefieldStatus.Write());
 
         TC_LOG_DEBUG("bg.battleground", "Battleground: player joined queue for arena as group bg queue {{ BattlemasterListId: {}, Type: {}, Rated: {}, TeamSize: {} }}, {}, NAME {}",

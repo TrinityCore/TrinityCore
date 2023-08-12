@@ -182,18 +182,18 @@ void BattlegroundMgr::Update(uint32 diff)
     }
 }
 
-void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::BattlefieldStatusHeader* header, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, BattlegroundQueueTypeId queueId, uint32 arenaType)
+void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::BattlefieldStatusHeader* header, Player* player, uint32 ticketId, uint32 joinTime, BattlegroundQueueTypeId queueId)
 {
     header->Ticket.RequesterGuid = player->GetGUID();
     header->Ticket.Id = ticketId;
     header->Ticket.Type = WorldPackets::LFG::RideType::Battlegrounds;
     header->Ticket.Time = joinTime;
     header->QueueID.push_back(queueId.GetPacked());
-    header->RangeMin = bg->GetMinLevel();
-    header->RangeMax = bg->GetMaxLevel();
-    header->TeamSize = bg->isArena() ? arenaType : 0;
-    header->InstanceID = bg->GetClientInstanceID();
-    header->RegisteredMatch = bg->isRated();
+    header->RangeMin = 0; // seems to always be 0
+    header->RangeMax = DEFAULT_MAX_LEVEL; // alwyas max level of current expansion. Might be limited to account
+    header->TeamSize = queueId.TeamSize;
+    header->InstanceID = 0; // seems to always be 0
+    header->RegisteredMatch = queueId.Rated;
     header->TournamentRules = false;
 }
 
@@ -205,17 +205,17 @@ void BattlegroundMgr::BuildBattlegroundStatusNone(WorldPackets::Battleground::Ba
     battlefieldStatus->Ticket.Time = joinTime;
 }
 
-void BattlegroundMgr::BuildBattlegroundStatusNeedConfirmation(WorldPackets::Battleground::BattlefieldStatusNeedConfirmation* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 timeout, uint32 arenaType, BattlegroundQueueTypeId queueId)
+void BattlegroundMgr::BuildBattlegroundStatusNeedConfirmation(WorldPackets::Battleground::BattlefieldStatusNeedConfirmation* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 timeout, BattlegroundQueueTypeId queueId)
 {
-    BuildBattlegroundStatusHeader(&battlefieldStatus->Hdr, bg, player, ticketId, joinTime, queueId, arenaType);
+    BuildBattlegroundStatusHeader(&battlefieldStatus->Hdr, player, ticketId, joinTime, queueId);
     battlefieldStatus->Mapid = bg->GetMapId();
     battlefieldStatus->Timeout = timeout;
     battlefieldStatus->Role = 0;
 }
 
-void BattlegroundMgr::BuildBattlegroundStatusActive(WorldPackets::Battleground::BattlefieldStatusActive* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 arenaType, BattlegroundQueueTypeId queueId)
+void BattlegroundMgr::BuildBattlegroundStatusActive(WorldPackets::Battleground::BattlefieldStatusActive* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, BattlegroundQueueTypeId queueId)
 {
-    BuildBattlegroundStatusHeader(&battlefieldStatus->Hdr, bg, player, ticketId, joinTime, queueId, arenaType);
+    BuildBattlegroundStatusHeader(&battlefieldStatus->Hdr, player, ticketId, joinTime, queueId);
     battlefieldStatus->ShutdownTimer = bg->GetRemainingTime();
     battlefieldStatus->ArenaFaction = player->GetBGTeam() == HORDE ? PVP_TEAM_HORDE : PVP_TEAM_ALLIANCE;
     battlefieldStatus->LeftEarly = false;
@@ -223,20 +223,9 @@ void BattlegroundMgr::BuildBattlegroundStatusActive(WorldPackets::Battleground::
     battlefieldStatus->Mapid = bg->GetMapId();
 }
 
-void BattlegroundMgr::BuildBattlegroundStatusQueued(WorldPackets::Battleground::BattlefieldStatusQueued* battlefieldStatus, BattlegroundTemplate const* bgTemplate, PVPDifficultyEntry const* bracketEntry, Player* player, uint32 ticketId, uint32 joinTime, BattlegroundQueueTypeId queueId, uint32 avgWaitTime, uint32 arenaType, bool asGroup)
+void BattlegroundMgr::BuildBattlegroundStatusQueued(WorldPackets::Battleground::BattlefieldStatusQueued* battlefieldStatus, Player* player, uint32 ticketId, uint32 joinTime, BattlegroundQueueTypeId queueId, uint32 avgWaitTime, bool asGroup)
 {
-    battlefieldStatus->Hdr.Ticket.RequesterGuid = player->GetGUID();
-    battlefieldStatus->Hdr.Ticket.Id = ticketId;
-    battlefieldStatus->Hdr.Ticket.Type = WorldPackets::LFG::RideType::Battlegrounds;
-    battlefieldStatus->Hdr.Ticket.Time = joinTime;
-    battlefieldStatus->Hdr.QueueID.push_back(queueId.GetPacked());
-    battlefieldStatus->Hdr.RangeMin = bracketEntry->MinLevel;
-    battlefieldStatus->Hdr.RangeMax = bracketEntry->MaxLevel;
-    battlefieldStatus->Hdr.TeamSize = bgTemplate->IsArena() ? arenaType : 0;
-    battlefieldStatus->Hdr.InstanceID = 0;
-    battlefieldStatus->Hdr.RegisteredMatch = queueId.Rated;
-    battlefieldStatus->Hdr.TournamentRules = false;
-
+    BuildBattlegroundStatusHeader(&battlefieldStatus->Hdr, player, ticketId, joinTime, queueId);
     battlefieldStatus->AverageWaitTime = avgWaitTime;
     battlefieldStatus->AsGroup = asGroup;
     battlefieldStatus->SuspendedQueue = false;
