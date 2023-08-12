@@ -19,6 +19,7 @@
 #include "AreaBoundary.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "DBCStores.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"

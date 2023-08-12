@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "CreatureAIImpl.h"
 #include "GridNotifiersImpl.h"
 #include "Player.h"

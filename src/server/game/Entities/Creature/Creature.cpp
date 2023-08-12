@@ -19,6 +19,7 @@
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
 #include "Common.h"
+#include "Containers.h"
 #include "CreatureAI.h"
 #include "CreatureAISelector.h"
 #include "CreatureGroups.h"

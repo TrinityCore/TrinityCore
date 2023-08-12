@@ -37,6 +37,7 @@
 #include "CombatPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
+#include "Containers.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"

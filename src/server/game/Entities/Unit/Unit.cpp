@@ -29,6 +29,7 @@
 #include "CombatPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
+#include "Containers.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "CreatureGroups.h"

@@ -18,6 +18,7 @@
 #include "GameObject.h"
 #include "Battleground.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "CreatureAISelector.h"
 #include "DatabaseEnv.h"
 #include "GameObjectAI.h"

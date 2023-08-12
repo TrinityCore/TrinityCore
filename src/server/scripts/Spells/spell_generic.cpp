@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "DBCStores.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"

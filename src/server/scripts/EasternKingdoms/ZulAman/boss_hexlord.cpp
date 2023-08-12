@@ -23,6 +23,7 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"

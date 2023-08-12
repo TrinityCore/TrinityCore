@@ -20,6 +20,7 @@
 #include "CellImpl.h"
 #include "Chat.h"
 #include "Common.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "GridNotifiersImpl.h"
