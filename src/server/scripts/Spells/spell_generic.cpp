@@ -31,7 +31,6 @@
 #include "DB2Stores.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
-#include "Group.h"
 #include "InstanceScript.h"
 #include "Item.h"
 #include "Log.h"
@@ -5241,6 +5240,123 @@ class spell_gen_waiting_to_resurrect : public AuraScript
     }
 };
 
+enum MajorHealingCooldownSpell
+{
+    SPELL_DRUID_TRANQUILITY              = 740,
+    SPELL_DRUID_TRANQUILITY_HEAL         = 157982,
+    SPELL_PRIEST_DIVINE_HYMN             = 64843,
+    SPELL_PRIEST_DIVINE_HYMN_HEAL        = 64844,
+    SPELL_PRIEST_LUMINOUS_BARRIER        = 271466,
+    SPELL_SHAMAN_HEALING_TIDE_TOTEM      = 108280,
+    SPELL_SHAMAN_HEALING_TIDE_TOTEM_HEAL = 114942,
+    SPELL_MONK_REVIVAL                   = 115310,
+    SPELL_EVOKER_REWIND                  = 363534
+};
+
+namespace MajorPlayerHealingCooldownHelpers
+{
+float GetBonusMultiplier(Unit const* unit, uint32 spellId)
+{
+    // Note: if caster is not in a raid setting, is in PvP or while in arena combat with 5 or less allied players.
+    if (!unit->GetMap()->IsRaid() || !unit->GetMap()->IsBattleground())
+    {
+        uint32 bonusSpellId = 0;
+        SpellEffIndex effIndex = EFFECT_0;
+        switch (spellId)
+        {
+            case SPELL_DRUID_TRANQUILITY_HEAL:
+                bonusSpellId = SPELL_DRUID_TRANQUILITY;
+                effIndex = EFFECT_2;
+                break;
+            case SPELL_PRIEST_DIVINE_HYMN_HEAL:
+                bonusSpellId = SPELL_PRIEST_DIVINE_HYMN;
+                effIndex = EFFECT_1;
+                break;
+            case SPELL_PRIEST_LUMINOUS_BARRIER:
+                bonusSpellId = spellId;
+                effIndex = EFFECT_1;
+                break;
+            case SPELL_SHAMAN_HEALING_TIDE_TOTEM_HEAL:
+                bonusSpellId = SPELL_SHAMAN_HEALING_TIDE_TOTEM;
+                effIndex = EFFECT_2;
+                break;
+            case SPELL_MONK_REVIVAL:
+                bonusSpellId = spellId;
+                effIndex = EFFECT_4;
+                break;
+            case SPELL_EVOKER_REWIND:
+                bonusSpellId = spellId;
+                effIndex = EFFECT_3;
+                break;
+            default:
+                return 0.0f;
+        }
+
+        if (AuraEffect* const healingIncreaseEffect = unit->GetAuraEffect(bonusSpellId, effIndex))
+            return healingIncreaseEffect->GetAmount();
+
+        return sSpellMgr->AssertSpellInfo(bonusSpellId, DIFFICULTY_NONE)->GetEffect(effIndex).CalcValue(unit);
+    }
+
+    return 0.0f;
+}
+}
+
+// 157982 - Tranquility (Heal)
+// 64844 - Divine Hymn (Heal)
+// 114942 - Healing Tide (Heal)
+// 115310 - Revival (Heal)
+class spell_gen_major_healing_cooldown_modifier : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect
+        ({
+            { SPELL_DRUID_TRANQUILITY,         EFFECT_2 },
+            { SPELL_PRIEST_DIVINE_HYMN,        EFFECT_1 },
+            { SPELL_SHAMAN_HEALING_TIDE_TOTEM, EFFECT_2 },
+            { SPELL_MONK_REVIVAL,              EFFECT_4 }
+        });
+    }
+
+    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        AddPct(pctMod, MajorPlayerHealingCooldownHelpers::GetBonusMultiplier(GetCaster(), GetSpellInfo()->Id));
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcHealingFn(spell_gen_major_healing_cooldown_modifier::CalculateHealingBonus);
+    }
+};
+
+// 157982 - Tranquility (Heal)
+// 271466 - Luminous Barrier (Absorb)
+// 363534 - Rewind (Heal)
+class spell_gen_major_healing_cooldown_modifier_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect
+        ({
+            { SPELL_DRUID_TRANQUILITY,         EFFECT_2 },
+            { SPELL_PRIEST_LUMINOUS_BARRIER,   EFFECT_1 },
+            { SPELL_EVOKER_REWIND,             EFFECT_3 }
+        });
+    }
+
+    void CalculateHealingBonus(AuraEffect const* /*aurEff*/, Unit* /*victim*/, int32& /*damageOrHealing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (Unit const* caster = GetCaster())
+            AddPct(pctMod, MajorPlayerHealingCooldownHelpers::GetBonusMultiplier(caster, GetSpellInfo()->Id));
+    }
+
+    void Register() override
+    {
+        DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(spell_gen_major_healing_cooldown_modifier_aura::CalculateHealingBonus, EFFECT_ALL, SPELL_AURA_ANY);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5415,4 +5531,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_spirit_heal_personal);
     RegisterSpellScript(spell_gen_spirit_heal_channel);
     RegisterSpellScript(spell_gen_waiting_to_resurrect);
+    RegisterSpellScript(spell_gen_major_healing_cooldown_modifier);
+    RegisterSpellScript(spell_gen_major_healing_cooldown_modifier_aura);
 }
