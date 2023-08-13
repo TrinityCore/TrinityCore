@@ -803,8 +803,8 @@ class spell_dru_innervate : public SpellScript
         if (!target)
             return SPELL_FAILED_BAD_TARGETS;
 
-        ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(target->GetPrimarySpecialization());
-        if (!spec || spec->Role != 1)
+        ChrSpecializationEntry const* spec = target->GetPrimarySpecializationEntry();
+        if (!spec || spec->GetRole() != ChrSpecializationRole::Healer)
             return SPELL_FAILED_BAD_TARGETS;
 
         return SPELL_CAST_OK;
