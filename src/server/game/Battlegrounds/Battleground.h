@@ -168,7 +168,6 @@ struct BattlegroundPlayer
 {
     time_t OfflineRemoveTime;                              // for tracking and removing offline players from queue after 5 minutes
     uint32 Team;                                           // Player's team
-    int32 ActiveSpec;                                      // Player's active spec
     bool Mercenary;
 };
 
@@ -445,7 +444,6 @@ class TC_GAME_API Battleground : public ZoneScript
         virtual void RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool SendPacket);
                                                             // can be extended in in BG subclass
 
-        void HandleTriggerBuff(ObjectGuid go_guid);
         void SetHoliday(bool is_holiday);
 
         /// @todo make this protected:
@@ -556,7 +554,6 @@ class TC_GAME_API Battleground : public ZoneScript
         // this must be filled in constructors!
         uint32 StartMessageIds[BG_STARTING_EVENT_COUNT];
 
-        bool   m_BuffChange;
         bool   m_IsRandom;
 
         BGHonorMode m_HonorMode;

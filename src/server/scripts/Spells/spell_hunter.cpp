@@ -454,7 +454,7 @@ class spell_hun_multi_shot : public SpellScript
     void HandleOnHit()
     {
         // We need to check hunter's spec because it doesn't generate focus on other specs than MM
-        if (GetCaster()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_HUNTER_MARKSMAN)
+        if (GetCaster()->ToPlayer()->GetPrimarySpecialization() == ChrSpecialization::HunterMarksmanship)
             GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_MULTI_SHOT_FOCUS, true);
     }
 

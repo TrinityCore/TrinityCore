@@ -102,16 +102,16 @@ class spell_torghast_touch_of_the_unseen : public AuraScript
 // 305060 - Yel'Shir's Powerglove
 class spell_torghast_yelshirs_powerglove : public SpellScript
 {
-    void HandleEffect(SpellEffIndex /*effIndex*/)
+    void CalculateDamage(Unit const* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (SpellInfo const* triggeringSpell = GetTriggeringSpell())
             if (Aura const* triggerAura = GetCaster()->GetAura(triggeringSpell->Id))
-                SetEffectValue(GetEffectValue() * triggerAura->GetStackAmount());
+                pctMod *= triggerAura->GetStackAmount();
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_torghast_yelshirs_powerglove::HandleEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_torghast_yelshirs_powerglove::CalculateDamage);
     }
 };
 
@@ -313,7 +313,7 @@ class spell_torghast_potent_potion_calc : public SpellScript
     void SetValue(SpellEffIndex effIndex)
     {
         SetEffectValue(sSpellMgr->AssertSpellInfo(SPELL_LABEL_SPIRITUAL_REJUVENATION_POTION, GetCastDifficulty())->GetEffect(effIndex)
-            .CalcValue(GetCaster(), nullptr, GetHitUnit()));;
+            .CalcValue(GetCaster(), nullptr, GetHitUnit()));
     }
 
     void Register() override
