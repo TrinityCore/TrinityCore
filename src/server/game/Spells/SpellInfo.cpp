@@ -967,6 +967,8 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     SpellCastingRequirementsEntry const* _castreq = GetSpellCastingRequirements();
     RequiresSpellFocus = _castreq ? _castreq->RequiresSpellFocus : 0;
     FacingCasterFlags = _castreq ? SpellFacingCasterFlags(_castreq->FacingCasterFlags) : SpellFacingCasterFlags::None;
+    MinFactionId = _castreq ? _castreq->MinFactionID : 0;
+    MinReputation = _castreq ? _castreq->MinReputation : 0;
     AreaGroupId = _castreq ? _castreq->RequiredAreasID : -1;
 
     // SpellCategoriesEntry

@@ -415,6 +415,8 @@ class TC_GAME_API SpellInfo
         flag96 SpellFamilyFlags;
         uint32 DmgClass;
         uint32 PreventionType;
+        uint32 MinFactionId;
+        uint32 MinReputation;
         int32  AreaGroupId;
         uint32 SchoolMask;
         uint32 SpellDifficultyId;
