@@ -152,10 +152,13 @@ enum SpellValueMod : uint8
     SPELLVALUE_DURATION
 };
 
-enum SpellFacingFlags
+enum class SpellFacingCasterFlags : uint32
 {
-    SPELL_FACING_FLAG_INFRONT = 0x1
+    None    = 0x0,
+    Infront = 0x1
 };
+
+DEFINE_ENUM_FLAG(SpellFacingCasterFlags);
 
 enum TriggerCastFlags : uint32
 {

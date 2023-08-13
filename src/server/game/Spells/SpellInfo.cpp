@@ -966,7 +966,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     // SpellCastingRequirementsEntry
     SpellCastingRequirementsEntry const* _castreq = GetSpellCastingRequirements();
     RequiresSpellFocus = _castreq ? _castreq->RequiresSpellFocus : 0;
-    FacingCasterFlags = _castreq ? _castreq->FacingCasterFlags : 0;
+    FacingCasterFlags = _castreq ? SpellFacingCasterFlags(_castreq->FacingCasterFlags) : SpellFacingCasterFlags::None;
     AreaGroupId = _castreq ? _castreq->RequiredAreasID : -1;
 
     // SpellCategoriesEntry

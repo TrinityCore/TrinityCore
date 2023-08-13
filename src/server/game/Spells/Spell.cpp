@@ -6928,10 +6928,9 @@ SpellCastResult Spell::CheckRange(bool strict) const
         if (minRange > 0.0f && m_caster->GetExactDistSq(target) < minRange && !target->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_IGNORE_SPELL_MIN_RANGE_RESTRICTIONS))
             return SPELL_FAILED_TOO_CLOSE;
 
-        if (m_caster->GetTypeId() == TYPEID_PLAYER &&
-            (((m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(static_cast<float>(M_PI), target))
-                && !m_caster->ToPlayer()->IsWithinBoundaryRadius(target)))
-            return SPELL_FAILED_UNIT_NOT_INFRONT;
+        if (m_caster->IsPlayer() && m_spellInfo->FacingCasterFlags.HasFlag(SpellFacingCasterFlags::Infront))
+            if (!m_caster->HasInArc(static_cast<float>(M_PI), target) && !m_caster->ToPlayer()->IsWithinBoundaryRadius(target))
+                return SPELL_FAILED_UNIT_NOT_INFRONT;
     }
 
     if (GameObject* goTarget = m_targets.GetGOTarget())
