@@ -2513,6 +2513,18 @@ void SpellMgr::LoadSpellInfoStore()
 
         if (effect->Effect == SPELL_EFFECT_LANGUAGE)
             sLanguageMgr->LoadSpellEffectLanguage(effect);
+
+        switch (effect->EffectAura)
+        {
+            case SPELL_AURA_ADD_FLAT_MODIFIER:
+            case SPELL_AURA_ADD_PCT_MODIFIER:
+            case SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL:
+            case SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL:
+                ASSERT(effect->EffectMiscValue[0] < MAX_SPELLMOD, "MAX_SPELLMOD must be at least %d", effect->EffectMiscValue[0] + 1);
+                break;
+            default:
+                break;
+        }
     }
 
     for (SpellAuraOptionsEntry const* auraOptions : sSpellAuraOptionsStore)
