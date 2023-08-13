@@ -6972,6 +6972,7 @@ void AACenter::M_GetItemText(Player* player, std::vector<uint32> itemIds, std::v
         if (count == 0 || count != count1 || count != count2) { return; }
         int j = 0;
         for (int i = 0; i < count; i++) {
+            j++;
             uint32 id = itemIds[i];
             ObjectGuid::LowType guid = aaCenter.AA_GetRealItemGuid(id, 0);
             AA_Character_Instance conf = aaCenter.aa_character_instances[guid];
@@ -7032,7 +7033,7 @@ void AACenter::M_GetItemText(Player* player, std::vector<uint32> itemIds, std::v
                 items += item;
                 items += "},";
             }
-            if ((j > 10 || i == (count - 1)) && items != "{") {
+            if ((j > 5 || i == (count - 1)) && items != "{") {
                 items += "}";
                 aaCenter.AA_StringReplaceLast(items, ",}", "}");
                 aaCenter.M_SendClientAddonData(player, "12", items);
@@ -7052,6 +7053,7 @@ void AACenter::M_GetItemTextDisplay(Player* player, std::vector<uint32> itemEntr
         if (count == 0) { return; }
         int j = 0;
         for (int i = 0; i < count; i++) {
+            j++;
             uint32 entry = itemEntrys[i];
             AA_Character_Instance conf = aaCenter.aa_character_instance_displays[entry];
             if (conf.itemEntry == 0) {
@@ -7065,7 +7067,6 @@ void AACenter::M_GetItemTextDisplay(Player* player, std::vector<uint32> itemEntr
             ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(conf.itemEntry);
             std::string stat_count = "0,0";
             std::string item = "[";
-            item += std::to_string(conf.guid); item += "]={[";
             item += std::to_string(conf.itemEntry); item += "]={";
             item += std::to_string(conf.guid); item += ",";
             item += std::to_string(conf.itemEntry); item += ",";
@@ -7108,10 +7109,9 @@ void AACenter::M_GetItemTextDisplay(Player* player, std::vector<uint32> itemEntr
             item += std::to_string(conf.zulin_time); item += ",\"";
             item += conf.fm_spell_suodings; item += "\",\"";
             item += conf.fm_value_suodings; item += "\",";
-            item += std::to_string(conf.update_time); item += "}";
+            item += std::to_string(conf.update_time); item += "},";
             items += item;
-            items += "},";
-            if ((j > 10 || i == (count - 1)) && items != "{") {
+            if ((j > 5 || i == (count - 1)) && items != "{") {
                 items += "}";
                 aaCenter.AA_StringReplaceLast(items, ",}", "}");
                 aaCenter.M_SendClientAddonData(player, "3110", items);
