@@ -55,11 +55,15 @@ void Totem::InitStats(WorldObject* summoner, Milliseconds duration)
     // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
     if (Player* owner = GetOwner()->ToPlayer())
     {
-        if (m_Properties->Slot >= SUMMON_SLOT_TOTEM && m_Properties->Slot < MAX_TOTEM_SLOT)
+        int32 slot = m_Properties->Slot;
+        if (slot == SUMMON_SLOT_ANY_TOTEM)
+            slot = FindUsableTotemSlot(owner);
+
+        if (slot >= SUMMON_SLOT_TOTEM && slot < MAX_TOTEM_SLOT)
         {
             WorldPackets::Totem::TotemCreated data;
             data.Totem = GetGUID();
-            data.Slot = m_Properties->Slot - SUMMON_SLOT_TOTEM;
+            data.Slot = slot - SUMMON_SLOT_TOTEM;
             data.Duration = duration;
             data.SpellID = m_unitData->CreatedBySpell;
             owner->SendDirectMessage(data.Write());
