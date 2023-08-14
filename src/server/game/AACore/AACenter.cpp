@@ -7334,7 +7334,8 @@ void AACenter::M_SendAA_Conf(Player* player, std::string prefix)
             std::to_string(aaCenter.aa_world_confs[67].value1) + "," +
             std::to_string(aaCenter.aa_world_confs[68].value1) + "," +
             std::to_string(aaCenter.aa_world_confs[69].value1) + "," +
-            std::to_string(aaCenter.aa_world_confs[80].value1) + "}";
+            std::to_string(aaCenter.aa_world_confs[80].value1) + "," +
+            std::to_string(aaCenter.aa_world_confs[44].value1) + "}";
         aaCenter.M_SendClientAddonData(player, prefix, result);
     }
     else if (prefix == "21") {
@@ -7355,14 +7356,15 @@ void AACenter::M_SendAA_Conf(Player* player, std::string prefix)
         }
     }
     else if (prefix == "22") {
-        std::string result = "{";//{[id]="text",[id]="text"}
+        std::string result = "{";//{[id]={"text","text"},[id]={"text","text"}}
         int j = 0; size_t i = 0;
         for (auto& it : aaCenter.aa_fwzh_confs)
         {
             i++; j++;
-            result += "["; result += std::to_string(it.first); result += "]=\"";
-            result += it.second.text; result += "\",";
-            if (j > 10 || i == aaCenter.aa_fwzh_confs.size()) {
+            result += "["; result += std::to_string(it.first); result += "]={\"";
+            result += it.second.text; result += "\",\"";
+            result += it.second.items; result += "\"},";
+            if (j > 5 || i == aaCenter.aa_fwzh_confs.size()) {
                 result += "}";
                 aaCenter.AA_StringReplaceLast(result, ",}", "}");
                 aaCenter.M_SendClientAddonData(player, prefix, result);
