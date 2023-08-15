@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "TemporarySummon.h"
 #include "World.h"
+#include "ZoneScript.h"
 
 /*######
 ## at_coilfang_waterfall
