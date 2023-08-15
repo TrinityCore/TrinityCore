@@ -6201,7 +6201,7 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
     if (!target)
         return;
 
-    if (!apply)
+    if (!apply && aurApp->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT)
     {
         if (GameObject* gameObjectCaster = target->GetMap()->GetGameObject(GetCasterGUID()))
         {
