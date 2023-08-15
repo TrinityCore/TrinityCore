@@ -71,29 +71,29 @@ class TC_COMMON_API Log
         bool ShouldLog(std::string const& type, LogLevel level) const;
         bool SetLogLevel(std::string const& name, int32 level, bool isLogger = true);
 
-        template<typename Format, typename... Args>
-        inline void outMessage(std::string const& filter, LogLevel const level, Format&& fmt, Args&&... args)
+        template<typename... Args>
+        void OutMessage(std::string_view filter, LogLevel const level, Trinity::FormatString<Args...> fmt, Args&&... args)
         {
-            outMessage(filter, level, Trinity::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
+            this->OutMessageImpl(filter, level, Trinity::StringFormat(fmt, std::forward<Args>(args)...));
         }
 
-        template<typename Format, typename... Args>
-        void outCommand(uint32 account, Format&& fmt, Args&&... args)
+        template<typename... Args>
+        void OutCommand(uint32 account, Trinity::FormatString<Args...> fmt, Args&&... args)
         {
             if (!ShouldLog("commands.gm", LOG_LEVEL_INFO))
                 return;
 
-            outCommand(Trinity::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...), std::to_string(account));
+            this->OutCommandImpl(Trinity::StringFormat(fmt, std::forward<Args>(args)...), std::to_string(account));
         }
 
-        void outCharDump(char const* str, uint32 account_id, uint64 guid, char const* name);
+        void OutCharDump(char const* str, uint32 account_id, uint64 guid, char const* name);
 
         void SetRealmId(uint32 id);
 
         template<class AppenderImpl>
         void RegisterAppender()
         {
-            RegisterAppender(AppenderImpl::type, &CreateAppender<AppenderImpl>);
+            this->RegisterAppender(AppenderImpl::type, &CreateAppender<AppenderImpl>);
         }
 
         std::string const& GetLogsDir() const { return m_logsDir; }
@@ -111,8 +111,8 @@ class TC_COMMON_API Log
         void ReadAppendersFromConfig();
         void ReadLoggersFromConfig();
         void RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn);
-        void outMessage(std::string const& filter, LogLevel level, std::string&& message);
-        void outCommand(std::string&& message, std::string&& param1);
+        void OutMessageImpl(std::string_view filter, LogLevel level, std::string&& message);
+        void OutCommandImpl(std::string&& message, std::string&& param1);
 
         std::unordered_map<uint8, AppenderCreatorFn> appenderFactory;
         std::unordered_map<uint8, std::unique_ptr<Appender>> appenders;
@@ -129,35 +129,15 @@ class TC_COMMON_API Log
 
 #define sLog Log::instance()
 
-#define LOG_EXCEPTION_FREE(filterType__, level__, ...) \
-    { \
-        try \
-        { \
-            sLog->outMessage(filterType__, level__, __VA_ARGS__); \
-        } \
-        catch (std::exception& e) \
-        { \
-            sLog->outMessage("server", LOG_LEVEL_ERROR, "Wrong format occurred (%s) at %s:%u.", \
-                e.what(), __FILE__, __LINE__); \
-        } \
-    }
-
 #ifdef PERFORMANCE_PROFILING
 #define TC_LOG_MESSAGE_BODY(filterType__, level__, ...) ((void)0)
 #elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
-void check_args(char const*, ...) ATTR_PRINTF(1, 2);
-void check_args(std::string const&, ...);
 
 // This will catch format errors on build time
 #define TC_LOG_MESSAGE_BODY(filterType__, level__, ...)                 \
         do {                                                            \
             if (sLog->ShouldLog(filterType__, level__))                 \
-            {                                                           \
-                if (false)                                              \
-                    check_args(__VA_ARGS__);                            \
-                                                                        \
-                LOG_EXCEPTION_FREE(filterType__, level__, __VA_ARGS__); \
-            }                                                           \
+                sLog->OutMessage(filterType__, level__, __VA_ARGS__);   \
         } while (0)
 #else
 #define TC_LOG_MESSAGE_BODY(filterType__, level__, ...)                 \
@@ -165,7 +145,7 @@ void check_args(std::string const&, ...);
         __pragma(warning(disable:4127))                                 \
         do {                                                            \
             if (sLog->ShouldLog(filterType__, level__))                 \
-                LOG_EXCEPTION_FREE(filterType__, level__, __VA_ARGS__); \
+                sLog->OutMessage(filterType__, level__, __VA_ARGS__);   \
         } while (0)                                                     \
         __pragma(warning(pop))
 #endif

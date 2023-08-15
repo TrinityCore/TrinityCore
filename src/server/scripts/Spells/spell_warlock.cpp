@@ -213,7 +213,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
                                 rank = 2;
                                 break;
                             default:
-                                TC_LOG_ERROR("spells", "Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
+                                TC_LOG_ERROR("spells", "Unknown rank of Improved Healthstone id: {}", aurEff->GetId());
                                 break;
                         }
                     }

@@ -104,7 +104,7 @@ ObjectGuid::LowType ObjectGuidGenerator::Generate()
 
 void ObjectGuidGenerator::HandleCounterOverflow()
 {
-    TC_LOG_ERROR("misc", "%s guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(_high));
+    TC_LOG_ERROR("misc", "{} guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(_high));
     World::StopNow(ERROR_EXIT_CODE);
 }
 

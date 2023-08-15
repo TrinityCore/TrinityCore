@@ -273,9 +273,9 @@ namespace Trinity::Impl::ChatCommands
                     if (!nestedResult.HasErrorMessage())
                         return thisResult;
                     if (StringStartsWith(nestedResult.GetErrorMessage(), "\""))
-                        return Trinity::StringFormat("\"%s\"\n%s %s", thisResult.GetErrorMessage().c_str(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
+                        return Trinity::StringFormat("\"{}\"\n{} {}", thisResult.GetErrorMessage(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage());
                     else
-                        return Trinity::StringFormat("\"%s\"\n%s \"%s\"", thisResult.GetErrorMessage().c_str(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
+                        return Trinity::StringFormat("\"{}\"\n{} \"{}\"", thisResult.GetErrorMessage(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage());
                 }
             }
             else
@@ -286,7 +286,7 @@ namespace Trinity::Impl::ChatCommands
         {
             ChatCommandResult result = TryAtIndex<0>(val, handler, args);
             if (result.HasErrorMessage() && (result.GetErrorMessage().find('\n') != std::string::npos))
-                return Trinity::StringFormat("%s %s", GetTrinityString(handler, LANG_CMDPARSER_EITHER), result.GetErrorMessage().c_str());
+                return Trinity::StringFormat("{} {}", GetTrinityString(handler, LANG_CMDPARSER_EITHER), result.GetErrorMessage());
             return result;
         }
     };

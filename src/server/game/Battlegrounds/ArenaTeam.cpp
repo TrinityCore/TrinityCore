@@ -86,7 +86,7 @@ bool ArenaTeam::Create(ObjectGuid captainGuid, uint8 type, std::string const& te
     // Add captain as member
     AddMember(CaptainGuid);
 
-    TC_LOG_DEBUG("bg.arena", "New ArenaTeam created [Id: %u, Name: %s] [Type: %u] [Captain low GUID: %u]", GetId(), GetName().c_str(), GetType(), captainLowGuid);
+    TC_LOG_DEBUG("bg.arena", "New ArenaTeam created [Id: {}, Name: {}] [Type: {}] [Captain low GUID: {}]", GetId(), GetName(), GetType(), captainLowGuid);
     return true;
 }
 
@@ -119,7 +119,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
     // Check if player is already in a similar arena team
     if ((player && player->GetArenaTeamId(GetSlot())) || sCharacterCache->GetCharacterArenaTeamIdByGuid(playerGuid, GetType()) != 0)
     {
-        TC_LOG_DEBUG("bg.arena", "Arena: %s %s already has an arena team of type %u", playerGuid.ToString().c_str(), playerName.c_str(), GetType());
+        TC_LOG_DEBUG("bg.arena", "Arena: {} {} already has an arena team of type {}", playerGuid.ToString(), playerName, GetType());
         return false;
     }
 
@@ -180,7 +180,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
             player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 1);
     }
 
-    TC_LOG_DEBUG("bg.arena", "Player: %s [%s] joined arena team type: %u [Id: %u, Name: %s].", playerName.c_str(), playerGuid.ToString().c_str(), GetType(), GetId(), GetName().c_str());
+    TC_LOG_DEBUG("bg.arena", "Player: {} [{}] joined arena team type: {} [Id: {}, Name: {}].", playerName, playerGuid.ToString(), GetType(), GetId(), GetName());
 
     return true;
 }
@@ -246,7 +246,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
         // Delete member if character information is missing
         if (newMember.Name.empty())
         {
-            TC_LOG_ERROR("sql.sql", "ArenaTeam %u has member with empty name - probably %s doesn't exist, deleting him from memberlist!", arenaTeamId, newMember.Guid.ToString().c_str());
+            TC_LOG_ERROR("sql.sql", "ArenaTeam {} has member with empty name - probably {} doesn't exist, deleting him from memberlist!", arenaTeamId, newMember.Guid.ToString());
             DelMember(newMember.Guid, true);
             continue;
         }
@@ -264,7 +264,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
     if (Empty() || !captainPresentInTeam)
     {
         // Arena team is empty or captain is not in team, delete from db
-        TC_LOG_DEBUG("bg.arena", "ArenaTeam %u does not have any members or its captain is not in team, disbanding it...", TeamId);
+        TC_LOG_DEBUG("bg.arena", "ArenaTeam {} does not have any members or its captain is not in team, disbanding it...", TeamId);
         return false;
     }
 
@@ -306,9 +306,9 @@ void ArenaTeam::SetCaptain(ObjectGuid guid)
         newCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 0);
         if (oldCaptain)
         {
-            TC_LOG_DEBUG("bg.arena", "Player: %s %s promoted player: %s %s to leader of arena team [Id: %u, Name: %s] [Type: %u].",
-                oldCaptain->GetName().c_str(), oldCaptain->GetGUID().ToString().c_str(), newCaptain->GetName().c_str(),
-                newCaptain->GetGUID().ToString().c_str(), GetId(), GetName().c_str(), GetType());
+            TC_LOG_DEBUG("bg.arena", "Player: {} {} promoted player: {} {} to leader of arena team [Id: {}, Name: {}] [Type: {}].",
+                oldCaptain->GetName(), oldCaptain->GetGUID().ToString(), newCaptain->GetName(),
+                newCaptain->GetGUID().ToString(), GetId(), GetName(), GetType());
         }
     }
 }
@@ -358,7 +358,7 @@ void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
         // delete all info regarding this team
         for (uint32 i = 0; i < ARENA_TEAM_END; ++i)
             player->SetArenaTeamInfoField(GetSlot(), ArenaTeamInfoType(i), 0);
-        TC_LOG_DEBUG("bg.arena", "Player: %s %s left arena team type: %u [Id: %u, Name: %s].", player->GetName().c_str(), player->GetGUID().ToString().c_str(), GetType(), GetId(), GetName().c_str());
+        TC_LOG_DEBUG("bg.arena", "Player: {} {} left arena team type: {} [Id: {}, Name: {}].", player->GetName(), player->GetGUID().ToString(), GetType(), GetId(), GetName());
     }
 
     // Only used for single member deletion, for arena team disband we use a single query for more efficiency
@@ -383,7 +383,7 @@ void ArenaTeam::Disband(WorldSession* session)
         BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, ObjectGuid::Empty, 2, session->GetPlayerName(), GetName(), "");
 
         if (Player* player = session->GetPlayer())
-            TC_LOG_DEBUG("bg.arena", "Player: %s %s disbanded arena team type: %u [Id: %u, Name: %s].", player->GetName().c_str(), player->GetGUID().ToString().c_str(), GetType(), GetId(), GetName().c_str());
+            TC_LOG_DEBUG("bg.arena", "Player: {} {} disbanded arena team type: {} [Id: {}, Name: {}].", player->GetName(), player->GetGUID().ToString(), GetType(), GetId(), GetName());
     }
 
     // Update database
@@ -567,7 +567,7 @@ void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, ObjectGuid guid, uint8 str
             data << str1 << str2 << str3;
             break;
         default:
-            TC_LOG_ERROR("bg.arena", "Unhandled strCount %u in ArenaTeam::BroadcastEvent", strCount);
+            TC_LOG_ERROR("bg.arena", "Unhandled strCount {} in ArenaTeam::BroadcastEvent", strCount);
             return;
     }
 
@@ -606,7 +606,7 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
         default:
             break;
     }
-    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team type %u for some arena team", type);
+    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team type {} for some arena team", type);
     return 0xFF;
 }
 
