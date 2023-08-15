@@ -441,6 +441,39 @@ public:
     }
 };
 
+void HandleCaptureFlag(Player* player, uint32 team)
+{
+    if (player->GetTeam() == team)
+        if (ZoneScript* zoneScript = player->FindZoneScript())
+            zoneScript->OnCaptureFlag(player);
+}
+
+struct areatrigger_action_capture_flag_alliance : AreaTriggerAI
+{
+    areatrigger_action_capture_flag_alliance(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsPlayer())
+            return;
+
+        HandleCaptureFlag(unit->ToPlayer(), ALLIANCE);
+    }
+};
+
+struct areatrigger_action_capture_flag_horde : AreaTriggerAI
+{
+    areatrigger_action_capture_flag_horde(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsPlayer())
+            return;
+
+        HandleCaptureFlag(unit->ToPlayer(), HORDE);
+    }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -454,4 +487,6 @@ void AddSC_areatrigger_scripts()
     RegisterAreaTriggerAI(areatrigger_stormwind_teleport_unit);
     RegisterAreaTriggerAI(areatrigger_battleground_buffs);
     new AreaTrigger_at_battleground_buffs();
+    RegisterAreaTriggerAI(areatrigger_action_capture_flag_alliance);
+    RegisterAreaTriggerAI(areatrigger_action_capture_flag_horde);
 }
