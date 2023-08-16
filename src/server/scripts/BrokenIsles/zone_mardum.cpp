@@ -33,7 +33,7 @@ enum MardumQuestData
 
 enum MardumConversationData
 {
-    CONVO_DEMONHUNTER_INTRO_START   = 705
+    CONVO_DEMONHUNTER_INTRO_START       = 705
 };
 
 class scene_demonhunter_intro : public SceneScript
@@ -52,7 +52,7 @@ public:
     }
 };
 
-// 196030 - Serverside Spell
+// 196030 - Start: Quest Invis
 class spell_demon_hunter_intro_aura : public AuraScript
 {
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
