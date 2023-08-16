@@ -87,8 +87,8 @@ static int CreateChildProcess(T waiter, std::string const& executable,
 
     if (!secure)
     {
-        TC_LOG_TRACE(logger, "Starting process \"%s\" with arguments: \"%s\".",
-                executable.c_str(), boost::algorithm::join(argsVector, " ").c_str());
+        TC_LOG_TRACE(logger, "Starting process \"{}\" with arguments: \"{}\".",
+                executable, boost::algorithm::join(argsVector, " "));
     }
 
     // prepare file with only read permission (boost process opens with read_write)
@@ -129,12 +129,12 @@ static int CreateChildProcess(T waiter, std::string const& executable,
 
     auto outInfo = MakeTCLogSink([&](std::string_view msg)
     {
-        TC_LOG_INFO(logger, STRING_VIEW_FMT, STRING_VIEW_FMT_ARG(msg));
+        TC_LOG_INFO(logger, "{}", msg);
     });
 
     auto outError = MakeTCLogSink([&](std::string_view msg)
     {
-        TC_LOG_ERROR(logger, STRING_VIEW_FMT, STRING_VIEW_FMT_ARG(msg));
+        TC_LOG_ERROR(logger, "{}", msg);
     });
 
     copy(outStream, outInfo);
@@ -146,8 +146,8 @@ static int CreateChildProcess(T waiter, std::string const& executable,
 
     if (!secure)
     {
-        TC_LOG_TRACE(logger, ">> Process \"%s\" finished with return value %i.",
-                executable.c_str(), result);
+        TC_LOG_TRACE(logger, ">> Process \"{}\" finished with return value {}.",
+                executable, result);
     }
 
     return result;

@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "blackrock_depths.h"
+#include "Containers.h"
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
 #include "Group.h"
