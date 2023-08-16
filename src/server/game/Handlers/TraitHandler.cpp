@@ -171,7 +171,7 @@ void WorldSession::HandleClassTalentsRequestNewConfig(WorldPackets::Traits::Clas
         return index;
     };
 
-    classTalentsRequestNewConfig.Config.ChrSpecializationID = _player->GetPrimarySpecialization();
+    classTalentsRequestNewConfig.Config.ChrSpecializationID = AsUnderlyingType(_player->GetPrimarySpecialization());
     classTalentsRequestNewConfig.Config.LocalIdentifier = findFreeLocalIdentifier();
 
     for (UF::TraitEntry const& grantedEntry : TraitMgr::GetGrantedTraitEntriesForConfig(classTalentsRequestNewConfig.Config, _player))

@@ -22,8 +22,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
 #include "Containers.h"
 #include "DB2Stores.h"
+#include "GridNotifiersImpl.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -33,6 +35,8 @@
 
 enum DruidSpells
 {
+    SPELL_DRUID_ABUNDANCE                      = 207383,
+    SPELL_DRUID_ABUNDANCE_EFFECT               = 207640,
     SPELL_DRUID_BALANCE_T10_BONUS              = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC         = 70721,
     SPELL_DRUID_BEAR_FORM                      = 5487,
@@ -47,6 +51,8 @@ enum DruidSpells
     SPELL_DRUID_BRAMBLES_REFLECT               = 203958,
     SPELL_DRUID_BRISTLING_FUR_GAIN_RAGE        = 204031,
     SPELL_DRUID_CAT_FORM                       = 768,
+    SPELL_DRUID_CULTIVATION                    = 200390,
+    SPELL_DRUID_CULTIVATION_HEAL               = 200389,
     SPELL_DRUID_CURIOUS_BRAMBLEPATCH           = 330670,
     SPELL_DRUID_EARTHWARDEN_AURA               = 203975,
     SPELL_DRUID_ECLIPSE_DUMMY                  = 79577,
@@ -68,6 +74,7 @@ enum DruidSpells
     SPELL_DRUID_FORMS_TRINKET_NONE             = 37344,
     SPELL_DRUID_FORMS_TRINKET_TREE             = 37342,
     SPELL_DRUID_GALACTIC_GUARDIAN_AURA         = 213708,
+    SPELL_DRUID_GERMINATION                    = 155675,
     SPELL_DRUID_GLYPH_OF_STARS                 = 114301,
     SPELL_DRUID_GLYPH_OF_STARS_VISUAL          = 114302,
     SPELL_DRUID_GORE_PROC                      = 93622,
@@ -87,6 +94,8 @@ enum DruidSpells
     SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
     SPELL_DRUID_PROWL                          = 5215,
+    SPELL_DRUID_REJUVENATION                   = 774,
+    SPELL_DRUID_REJUVENATION_GERMINATION       = 155777,
     SPELL_DRUID_REJUVENATION_T10_PROC          = 70691,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS       = 70658,
     SPELL_DRUID_SAVAGE_ROAR                    = 62071,
@@ -120,6 +129,45 @@ public:
 
 private:
     Unit const* _caster;
+};
+
+// 774 - Rejuvenation
+// 155777 - Rejuventation (Germination)
+class spell_dru_abundance : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ABUNDANCE, SPELL_DRUID_ABUNDANCE_EFFECT });
+    }
+
+    void HandleOnApplyOrReapply(AuraEffect const* aurEff, AuraEffectHandleModes mode) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->HasAura(SPELL_DRUID_ABUNDANCE))
+            return;
+
+        // Note: caster only casts Abundance when first applied on the target, otherwise that given stack is refreshed.
+        if (mode & AURA_EFFECT_HANDLE_REAL)
+            caster->CastSpell(caster, SPELL_DRUID_ABUNDANCE_EFFECT, CastSpellExtraArgs().SetTriggeringAura(aurEff));
+        else if (Aura* abundanceAura = caster->GetAura(SPELL_DRUID_ABUNDANCE_EFFECT))
+            abundanceAura->RefreshDuration();
+    }
+
+    void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (Aura* abundanceEffect = caster->GetAura(SPELL_DRUID_ABUNDANCE_EFFECT))
+            abundanceEffect->ModStackAmount(-1);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_abundance::HandleOnApplyOrReapply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_abundance::HandleOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 class spell_dru_base_transformer : public SpellScript
@@ -268,6 +316,33 @@ class spell_dru_cat_form : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_cat_form::HandleAfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 774 - Rejuvenation
+// 155777 - Rejuventation (Germination)
+class spell_dru_cultivation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_CULTIVATION, SPELL_DRUID_CULTIVATION_HEAL });
+    }
+
+    void HandleOnTick(AuraEffect const* aurEff) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* target = GetTarget();
+        if (AuraEffect const* cultivationEffect = caster->GetAuraEffect(SPELL_DRUID_CULTIVATION, EFFECT_0))
+            if (target->HealthBelowPct(cultivationEffect->GetAmount()))
+                caster->CastSpell(target, SPELL_DRUID_CULTIVATION_HEAL, CastSpellExtraArgs().SetTriggeringAura(aurEff));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_cultivation::HandleOnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
@@ -663,6 +738,48 @@ class spell_dru_galactic_guardian : public AuraScript
     }
 };
 
+// 774 - Rejuvenation
+class spell_dru_germination : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_REJUVENATION, SPELL_DRUID_GERMINATION, SPELL_DRUID_REJUVENATION_GERMINATION });
+    }
+
+    void PickRejuvenationVariant(WorldObject*& target) const
+    {
+        Unit* caster = GetCaster();
+
+        // Germination talent.
+        if (caster->HasAura(SPELL_DRUID_GERMINATION))
+        {
+            Unit* unitTarget = target->ToUnit();
+            Aura* rejuvenationAura = unitTarget->GetAura(SPELL_DRUID_REJUVENATION, caster->GetGUID());
+            Aura* germinationAura = unitTarget->GetAura(SPELL_DRUID_REJUVENATION_GERMINATION, caster->GetGUID());
+
+            // if target doesn't have Rejuventation, cast passes through.
+            if (!rejuvenationAura)
+                return;
+
+            // if target has Rejuvenation, but not Germination, or Germination has lower remaining duration than Rejuvenation, then cast Germination
+            if (germinationAura && germinationAura->GetDuration() >= rejuvenationAura->GetDuration())
+                return;
+
+            caster->CastSpell(target, SPELL_DRUID_REJUVENATION_GERMINATION,
+                CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                .SetTriggeringSpell(GetSpell()));
+
+            // prevent aura refresh (but cast must still happen to consume mana)
+            target = nullptr;
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dru_germination::PickRejuvenationVariant, EFFECT_0, TARGET_UNIT_TARGET_ALLY);
+    }
+};
+
 // 24858 - Moonkin Form
 class spell_dru_glyph_of_stars : public AuraScript
 {
@@ -733,8 +850,8 @@ class spell_dru_innervate : public SpellScript
         if (!target)
             return SPELL_FAILED_BAD_TARGETS;
 
-        ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(target->GetPrimarySpecialization());
-        if (!spec || spec->Role != 1)
+        ChrSpecializationEntry const* spec = target->GetPrimarySpecializationEntry();
+        if (!spec || spec->GetRole() != ChrSpecializationRole::Healer)
             return SPELL_FAILED_BAD_TARGETS;
 
         return SPELL_CAST_OK;
@@ -895,6 +1012,44 @@ class spell_dru_lunar_inspiration : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dru_lunar_inspiration::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lunar_inspiration::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 392315 - Luxuriant Soil
+class spell_dru_luxuriant_soil : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_REJUVENATION });
+    }
+
+    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
+    {
+        Unit* rejuvCaster = GetTarget();
+
+        // let's use the ProcSpell's max. range.
+        float spellRange = eventInfo.GetSpellInfo()->GetMaxRange();
+
+        std::vector<Unit*> targetList;
+        Trinity::WorldObjectSpellNearbyTargetCheck check(spellRange, rejuvCaster, eventInfo.GetSpellInfo(), TARGET_CHECK_ALLY, nullptr, TARGET_OBJECT_TYPE_UNIT);
+        Trinity::UnitListSearcher searcher(rejuvCaster, targetList, check);
+        Cell::VisitAllObjects(rejuvCaster, searcher, spellRange);
+
+        if (targetList.empty())
+            return;
+
+        rejuvCaster->CastSpell(Trinity::Containers::SelectRandomContainerElement(targetList), SPELL_DRUID_REJUVENATION, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_luxuriant_soil::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dru_luxuriant_soil::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1705,11 +1860,13 @@ class spell_dru_yseras_gift_group_heal : public SpellScript
 
 void AddSC_druid_spell_scripts()
 {
+    RegisterSpellScript(spell_dru_abundance);
     RegisterSpellScript(spell_dru_barkskin);
     RegisterSpellScript(spell_dru_berserk);
     RegisterSpellScript(spell_dru_brambles);
     RegisterSpellScript(spell_dru_bristling_fur);
     RegisterSpellScript(spell_dru_cat_form);
+    RegisterSpellScript(spell_dru_cultivation);
     RegisterSpellScript(spell_dru_dash);
     RegisterSpellScript(spell_dru_earthwarden);
     RegisterSpellScript(spell_dru_eclipse_aura);
@@ -1719,6 +1876,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_forms_trinket);
     RegisterSpellScript(spell_dru_galactic_guardian);
+    RegisterSpellScript(spell_dru_germination);
     RegisterSpellScript(spell_dru_glyph_of_stars);
     RegisterSpellScript(spell_dru_gore);
     RegisterSpellScript(spell_dru_incapacitating_roar);
@@ -1728,6 +1886,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_item_t6_trinket);
     RegisterSpellScript(spell_dru_lifebloom);
     RegisterSpellScript(spell_dru_lunar_inspiration);
+    RegisterSpellScript(spell_dru_luxuriant_soil);
     RegisterSpellScript(spell_dru_moonfire);
     RegisterSpellScript(spell_dru_omen_of_clarity);
     RegisterSpellScript(spell_dru_prowl);

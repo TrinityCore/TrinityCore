@@ -1024,7 +1024,7 @@ void Aura::SetStackAmount(uint8 stackAmount)
 
 bool Aura::IsUsingStacks() const
 {
-    return m_spellInfo->StackAmount > 0;
+    return m_spellInfo->StackAmount > 0 || m_stackAmount > 1;
 }
 
 uint32 Aura::CalcMaxStackAmount() const
