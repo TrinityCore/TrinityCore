@@ -21,11 +21,15 @@
 #include "Define.h"
 #include "ObjectGuid.h"
 
+class AreaTrigger;
 class Creature;
 class GameObject;
+class Player;
 class Unit;
 class WorldObject;
 struct CreatureData;
+
+enum class FlagState : uint8;
 
 class TC_GAME_API ZoneScript
 {
@@ -46,6 +50,9 @@ class TC_GAME_API ZoneScript
         virtual void OnGameObjectCreate(GameObject* ) { }
         virtual void OnGameObjectRemove(GameObject* ) { }
 
+        virtual void OnAreaTriggerCreate([[maybe_unused]] AreaTrigger* areaTrigger) { }
+        virtual void OnAreaTriggerRemove([[maybe_unused]] AreaTrigger* areaTrigger) { }
+
         virtual void OnUnitDeath(Unit*) { }
 
         //All-purpose data storage ObjectGuid
@@ -62,6 +69,8 @@ class TC_GAME_API ZoneScript
 
         virtual void TriggerGameEvent(uint32 gameEventId, WorldObject* source = nullptr, WorldObject* target = nullptr);
         virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/) { }
+
+        virtual void OnFlagStateChange([[maybe_unused]] GameObject* flagInBase, [[maybe_unused]] FlagState oldValue, [[maybe_unused]] FlagState newValue, [[maybe_unused]] Player* player) { }
 };
 
 #endif

@@ -485,15 +485,15 @@ void BattlegroundSA::TeleportToEntrancePosition(Player* player)
             // player->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
 
             if (urand(0, 1))
-                player->TeleportTo(607, 2682.936f, -830.368f, 15.0f, 2.895f, 0);
+                player->TeleportTo(607, 2682.936f, -830.368f, 15.0f, 2.895f);
             else
-                player->TeleportTo(607, 2577.003f, 980.261f, 15.0f, 0.807f, 0);
+                player->TeleportTo(607, 2577.003f, 980.261f, 15.0f, 0.807f);
         }
         else
-            player->TeleportTo(607, 1600.381f, -106.263f, 8.8745f, 3.78f, 0);
+            player->TeleportTo(607, 1600.381f, -106.263f, 8.8745f, 3.78f);
     }
     else
-        player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
+        player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f);
 }
 
 void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* invoker /*= nullptr*/)
@@ -631,9 +631,15 @@ void BattlegroundSA::DemolisherStartState(bool start)
         if (Creature* dem = GetBGCreature(i))
         {
             if (start)
-                dem->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+            {
+                dem->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                dem->SetUninteractible(true);
+            }
             else
-                dem->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+            {
+                dem->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                dem->SetUninteractible(false);
+            }
         }
     }
 }

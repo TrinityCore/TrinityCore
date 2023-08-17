@@ -425,7 +425,8 @@ class npc_saronite_vapors : public CreatureScript
                 if (damage >= me->GetHealth())
                 {
                     damage = 0;
-                    me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetUninteractible(true);
                     me->SetControlled(true, UNIT_STATE_ROOT);
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     me->SetHealth(me->GetMaxHealth());
@@ -457,8 +458,6 @@ class spell_general_vezax_mark_of_the_faceless : public SpellScriptLoader
 
         class spell_general_vezax_mark_of_the_faceless_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_general_vezax_mark_of_the_faceless_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_MARK_OF_THE_FACELESS_DAMAGE });
@@ -494,8 +493,6 @@ class spell_general_vezax_mark_of_the_faceless_leech : public SpellScriptLoader
 
         class spell_general_vezax_mark_of_the_faceless_leech_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_general_vezax_mark_of_the_faceless_leech_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove(GetExplTargetWorldObject());
@@ -524,8 +521,6 @@ class spell_general_vezax_saronite_vapors : public SpellScriptLoader
 
         class spell_general_vezax_saronite_vapors_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_general_vezax_saronite_vapors_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SARONITE_VAPORS_ENERGIZE, SPELL_SARONITE_VAPORS_DAMAGE });

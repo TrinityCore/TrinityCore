@@ -26,6 +26,11 @@ void AddSC_ruby_life_pools();
 void AddSC_instance_azure_vault();
 void AddSC_boss_leymor();
 
+// Aberrus the Shadowed Crucible
+void AddSC_instance_aberrus_the_shadowed_crucible();
+void AddSC_aberrus_the_shadowed_crucible();
+void AddSC_boss_kazzara_the_hellforged();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddDragonIslesScripts()
@@ -39,4 +44,9 @@ void AddDragonIslesScripts()
     // Azure Vault
     AddSC_instance_azure_vault();
     AddSC_boss_leymor();
+
+    // Aberrus the Shadowed Crucible
+    AddSC_instance_aberrus_the_shadowed_crucible();
+    AddSC_aberrus_the_shadowed_crucible();
+    AddSC_boss_kazzara_the_hellforged();
 }

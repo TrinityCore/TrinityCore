@@ -75,7 +75,6 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
     m_Events            = 0;
     m_StartDelayTime    = 0;
     m_IsRated           = false;
-    m_BuffChange        = false;
     m_IsRandom          = false;
     m_InBGFreeSlotQueue = false;
     m_SetDeleteThis     = false;
@@ -419,6 +418,8 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             SendBroadcastText(StartMessageIds[BG_STARTING_EVENT_FOURTH], CHAT_MSG_BG_SYSTEM_NEUTRAL);
         SetStatus(STATUS_IN_PROGRESS);
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FOURTH]);
+
+        SendPacketToAll(WorldPackets::Battleground::PVPMatchSetState(WorldPackets::Battleground::PVPMatchState::Engaged).Write());
 
         for (auto const& [guid, _] : GetPlayers())
             if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -994,7 +995,6 @@ void Battleground::AddPlayer(Player* player)
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
-    bp.ActiveSpec = player->GetPrimarySpecialization();
     bp.Mercenary = player->IsMercenaryForBattlegroundQueueType(GetQueueId());
 
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
@@ -1014,14 +1014,16 @@ void Battleground::AddPlayer(Player* player)
     {
         case STATUS_NONE:
         case STATUS_WAIT_QUEUE:
-            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchInitialize::Inactive;
+            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchState::Inactive;
             break;
         case STATUS_WAIT_JOIN:
+            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchState::StartUp;
+            break;
         case STATUS_IN_PROGRESS:
-            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchInitialize::InProgress;
+            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchState::Engaged;
             break;
         case STATUS_WAIT_LEAVE:
-            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchInitialize::Complete;
+            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchState::Complete;
             break;
         default:
             break;
@@ -1281,7 +1283,7 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchSta
         if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerData.PlayerGUID))
         {
             playerData.IsInWorld = true;
-            playerData.PrimaryTalentTree = player->GetPrimarySpecialization();
+            playerData.PrimaryTalentTree = AsUnderlyingType(player->GetPrimarySpecialization());
             playerData.Sex = player->GetGender();
             playerData.Race = player->GetRace();
             playerData.Class = player->GetClass();
@@ -1641,51 +1643,6 @@ void Battleground::EndNow()
     RemoveFromBGFreeSlotQueue();
     SetStatus(STATUS_WAIT_LEAVE);
     SetRemainingTime(0);
-}
-
-// IMPORTANT NOTICE:
-// buffs aren't spawned/despawned when players captures anything
-// buffs are in their positions when battleground starts
-void Battleground::HandleTriggerBuff(ObjectGuid go_guid)
-{
-    if (!FindBgMap())
-    {
-        TC_LOG_ERROR("bg.battleground", "Battleground::HandleTriggerBuff called with null bg map, {}", go_guid.ToString());
-        return;
-    }
-
-    GameObject* obj = GetBgMap()->GetGameObject(go_guid);
-    if (!obj || obj->GetGoType() != GAMEOBJECT_TYPE_TRAP || !obj->isSpawned())
-        return;
-
-    // Change buff type, when buff is used:
-    int32 index = BgObjects.size() - 1;
-    while (index >= 0 && BgObjects[index] != go_guid)
-        index--;
-    if (index < 0)
-    {
-        TC_LOG_ERROR("bg.battleground", "Battleground::HandleTriggerBuff: cannot find buff gameobject ({}, entry: {}, type: {}) in internal data for BG (map: {}, instance id: {})!",
-            go_guid.ToString(), obj->GetEntry(), obj->GetGoType(), GetMapId(), m_InstanceID);
-        return;
-    }
-
-    // Randomly select new buff
-    uint8 buff = urand(0, 2);
-    uint32 entry = obj->GetEntry();
-    if (m_BuffChange && entry != Buff_Entries[buff])
-    {
-        // Despawn current buff
-        SpawnBGObject(index, RESPAWN_ONE_DAY);
-        // Set index for new one
-        for (uint8 currBuffTypeIndex = 0; currBuffTypeIndex < 3; ++currBuffTypeIndex)
-            if (entry == Buff_Entries[currBuffTypeIndex])
-            {
-                index -= currBuffTypeIndex;
-                index += buff;
-            }
-    }
-
-    SpawnBGObject(index, BUFF_RESPAWN_TIME);
 }
 
 void Battleground::HandleKillPlayer(Player* victim, Player* killer)

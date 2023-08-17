@@ -433,7 +433,7 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
 
                     charInfo.Customizations.clear();
 
-                    if (!(charInfo.Flags2 == CHAR_CUSTOMIZE_FLAG_CUSTOMIZE))
+                    if (!(charInfo.Flags2 & (CHAR_CUSTOMIZE_FLAG_CUSTOMIZE | CHAR_CUSTOMIZE_FLAG_FACTION | CHAR_CUSTOMIZE_FLAG_RACE)))
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
                         stmt->setUInt16(0, uint16(AT_LOGIN_CUSTOMIZE));
@@ -508,13 +508,16 @@ void WorldSession::HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCha
     });
 }
 
-bool WorldSession::MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req, Classes playerClass,
+bool WorldSession::MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req, Races race, Classes playerClass,
     bool checkRequiredDependentChoices, Trinity::IteratorPair<UF::ChrCustomizationChoice const*> selectedChoices) const
 {
     if (!req->GetFlags().HasFlag(ChrCustomizationReqFlag::HasRequirements))
         return true;
 
     if (req->ClassMask && !(req->ClassMask & (1 << (playerClass - 1))))
+        return false;
+
+    if (race != RACE_NONE && !req->RaceMask.IsEmpty() && req->RaceMask.RawValue != -1 && !req->RaceMask.HasRace(race))
         return false;
 
     if (req->AchievementID /*&& !HasAchieved(req->AchievementID)*/)
@@ -589,7 +592,7 @@ bool WorldSession::ValidateAppearance(Races race, Classes playerClass, Gender ge
             return false;
 
         if (ChrCustomizationReqEntry const* req = sChrCustomizationReqStore.LookupEntry((*customizationOptionDataItr)->ChrCustomizationReqID))
-            if (!MeetsChrCustomizationReq(req, playerClass, false, customizations))
+            if (!MeetsChrCustomizationReq(req, race, playerClass, false, customizations))
                 return false;
 
         std::vector<ChrCustomizationChoiceEntry const*> const* choicesForOption = sDB2Manager.GetCustomiztionChoices(playerChoice.ChrCustomizationOptionID);
@@ -606,7 +609,7 @@ bool WorldSession::ValidateAppearance(Races race, Classes playerClass, Gender ge
             return false;
 
         if (ChrCustomizationReqEntry const* req = sChrCustomizationReqStore.LookupEntry((*customizationChoiceDataItr)->ChrCustomizationReqID))
-            if (!MeetsChrCustomizationReq(req, playerClass, true, customizations))
+            if (!MeetsChrCustomizationReq(req, race, playerClass, true, customizations))
                 return false;
     }
 
@@ -1202,10 +1205,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         pCurrChar->SetGuildLevel(0);
     }
 
-    // Send stable contents to display icons on Call Pet spells
-    if (pCurrChar->HasSpell(CALL_PET_SPELL_ID))
-        SendStablePet(ObjectGuid::Empty);
-
     pCurrChar->GetSession()->GetBattlePetMgr()->SendJournalLockStatus();
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
@@ -1736,7 +1735,23 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPackets::Character::SetPlay
 
 void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance& packet)
 {
-    if (!ValidateAppearance(Races(_player->GetRace()), Classes(_player->GetClass()), Gender(packet.NewSex), MakeChrCustomizationChoiceRange(packet.Customizations)))
+    Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations = MakeChrCustomizationChoiceRange(packet.Customizations);
+    if (packet.CustomizedChrModelID)
+    {
+        ConditionalChrModelEntry const* conditionalChrModel = sConditionalChrModelStore.LookupEntry(packet.CustomizedChrModelID);
+        if (!conditionalChrModel)
+            return;
+
+        if (ChrCustomizationReqEntry const* req = sChrCustomizationReqStore.LookupEntry(conditionalChrModel->ChrCustomizationReqID))
+            if (!MeetsChrCustomizationReq(req, Races(packet.CustomizedRace), Classes(_player->GetClass()), false, customizations))
+                return;
+
+        if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(conditionalChrModel->PlayerConditionID))
+            if (!ConditionMgr::IsPlayerMeetingCondition(_player, condition))
+                return;
+    }
+
+    if (!ValidateAppearance(Races(_player->GetRace()), Classes(_player->GetClass()), Gender(packet.NewSex), customizations))
         return;
 
     GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
@@ -1752,7 +1767,7 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
         return;
     }
 
-    int64 cost = _player->GetBarberShopCost(MakeChrCustomizationChoiceRange(packet.Customizations));
+    int64 cost = _player->GetBarberShopCost(customizations);
 
     // 0 - ok
     // 1, 3 - not enough money

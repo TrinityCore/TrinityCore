@@ -2063,8 +2063,6 @@ struct npc_toc_pet_hunter : public boss_faction_championsAI
 // 65812, 68154, 68155, 68156 - Unstable Affliction
 class spell_faction_champion_warl_unstable_affliction : public AuraScript
 {
-    PrepareAuraScript(spell_faction_champion_warl_unstable_affliction);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_UNSTABLE_AFFLICTION_DISPEL });
@@ -2085,8 +2083,6 @@ class spell_faction_champion_warl_unstable_affliction : public AuraScript
 // 66017, 68753, 68754, 68755 - Death Grip
 class spell_faction_champion_death_grip : public SpellScript
 {
-    PrepareSpellScript(spell_faction_champion_death_grip);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_DEATH_GRIP_PULL });
@@ -2110,8 +2106,6 @@ class spell_faction_champion_death_grip : public SpellScript
 // 65980 - Bloodlust
 class spell_toc_bloodlust : public SpellScript
 {
-    PrepareSpellScript(spell_toc_bloodlust);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ AURA_SATED });
@@ -2139,8 +2133,6 @@ class spell_toc_bloodlust : public SpellScript
 // 65983 - Heroism
 class spell_toc_heroism : public SpellScript
 {
-    PrepareSpellScript(spell_toc_heroism);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ AURA_EXHAUSTION });

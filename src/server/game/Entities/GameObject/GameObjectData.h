@@ -24,6 +24,7 @@
 #include "SpawnData.h"
 #include "WorldPacket.h"
 #include <array>
+#include <set>
 #include <string>
 
 // from `gameobject_template`
@@ -331,6 +332,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 InteractRadiusOverride;                  // 0 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Willthisduelgountilaplayerdies;          // 1 Will this duel go until a player dies?, enum { false, true, }; Default: false
         } duelFlag;
         // 17 GAMEOBJECT_TYPE_FISHINGNODE
         struct
@@ -834,6 +836,7 @@ struct GameObjectTemplate
 
     std::string AIName;
     uint32 ScriptId;
+    std::string StringId;
     WorldPacket QueryData[TOTAL_LOCALES];
 
     // helpers
@@ -1093,17 +1096,78 @@ struct GameObjectTemplate
         }
     }
 
-    uint32 GetEventScriptId() const
+    std::set<uint32> GetEventScriptSet() const
     {
+        std::set<uint32> eventSet;
         switch (type)
         {
-            case GAMEOBJECT_TYPE_GOOBER:            return goober.eventID;
-            case GAMEOBJECT_TYPE_CHEST:             return chest.triggeredEvent;
-            case GAMEOBJECT_TYPE_CHAIR:             return chair.triggeredEvent;
-            case GAMEOBJECT_TYPE_CAMERA:            return camera.eventID;
-            case GAMEOBJECT_TYPE_GATHERING_NODE:    return gatheringNode.triggeredEvent;
-            default: return 0;
+            case GAMEOBJECT_TYPE_CHEST:
+                eventSet.insert(chest.triggeredEvent);
+                break;
+            case GAMEOBJECT_TYPE_CHAIR:
+                eventSet.insert(chair.triggeredEvent);
+                break;
+            case GAMEOBJECT_TYPE_GOOBER:
+                eventSet.insert(goober.eventID);
+                break;
+            case GAMEOBJECT_TYPE_TRANSPORT:
+                eventSet.insert(transport.Reached1stfloor);
+                eventSet.insert(transport.Reached2ndfloor);
+                eventSet.insert(transport.Reached3rdfloor);
+                eventSet.insert(transport.Reached4thfloor);
+                eventSet.insert(transport.Reached5thfloor);
+                eventSet.insert(transport.Reached6thfloor);
+                eventSet.insert(transport.Reached7thfloor);
+                eventSet.insert(transport.Reached8thfloor);
+                eventSet.insert(transport.Reached9thfloor);
+                eventSet.insert(transport.Reached10thfloor);
+                break;
+            case GAMEOBJECT_TYPE_CAMERA:
+                eventSet.insert(camera.eventID);
+                break;
+            case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
+                eventSet.insert(moTransport.startEventID);
+                eventSet.insert(moTransport.stopEventID);
+                break;
+            case GAMEOBJECT_TYPE_FLAGDROP:
+                eventSet.insert(flagDrop.eventID);
+                break;
+            case GAMEOBJECT_TYPE_CONTROL_ZONE:
+                eventSet.insert(controlZone.CaptureEventHorde);
+                eventSet.insert(controlZone.CaptureEventAlliance);
+                eventSet.insert(controlZone.ContestedEventHorde);
+                eventSet.insert(controlZone.ContestedEventAlliance);
+                eventSet.insert(controlZone.ProgressEventHorde);
+                eventSet.insert(controlZone.ProgressEventAlliance);
+                eventSet.insert(controlZone.NeutralEventHorde);
+                eventSet.insert(controlZone.NeutralEventAlliance);
+                break;
+            case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+                eventSet.insert(destructibleBuilding.IntactEvent);
+                eventSet.insert(destructibleBuilding.DamagedEvent);
+                eventSet.insert(destructibleBuilding.DestroyedEvent);
+                eventSet.insert(destructibleBuilding.RebuildingEvent);
+                eventSet.insert(destructibleBuilding.DamageEvent);
+                break;
+            case GAMEOBJECT_TYPE_CAPTURE_POINT:
+                eventSet.insert(capturePoint.ContestedEventHorde);
+                eventSet.insert(capturePoint.CaptureEventHorde);
+                eventSet.insert(capturePoint.DefendedEventHorde);
+                eventSet.insert(capturePoint.ContestedEventAlliance);
+                eventSet.insert(capturePoint.CaptureEventAlliance);
+                eventSet.insert(capturePoint.DefendedEventAlliance);
+                break;
+            case GAMEOBJECT_TYPE_GATHERING_NODE:
+                eventSet.insert(gatheringNode.triggeredEvent);
+                break;
+            default:
+                break;
         }
+
+        // Erase invalid value added from unused GameEvents data fields
+        eventSet.erase(0);
+
+        return eventSet;
     }
 
     uint32 GetTrivialSkillHigh() const

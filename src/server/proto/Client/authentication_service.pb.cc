@@ -66,7 +66,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
       "authentication_service.proto");
   GOOGLE_CHECK(file != NULL);
   LogonRequest_descriptor_ = file->message_type(0);
-  static const int LogonRequest_offsets_[12] = {
+  static const int LogonRequest_offsets_[13] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, program_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, platform_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, locale_),
@@ -79,6 +79,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, user_agent_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, device_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, phone_number_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, auth_platform_),
   };
   LogonRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -314,7 +315,7 @@ void protobuf_AddDesc_authentication_5fservice_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\034authentication_service.proto\022\036bgs.prot"
     "ocol.authentication.v1\032\022entity_types.pro"
-    "to\032\017rpc_types.proto\"\264\002\n\014LogonRequest\022\017\n\007"
+    "to\032\017rpc_types.proto\"\313\002\n\014LogonRequest\022\017\n\007"
     "program\030\001 \001(\t\022\020\n\010platform\030\002 \001(\t\022\016\n\006local"
     "e\030\003 \001(\t\022\025\n\005email\030\004 \001(\tB\006\202\371+\002\010\001\022\017\n\007versio"
     "n\030\005 \001(\t\022\033\n\023application_version\030\006 \001(\005\022\027\n\017"
@@ -322,58 +323,58 @@ void protobuf_AddDesc_authentication_5fservice_2eproto() {
     "ue_notifications\030\n \001(\010:\005false\022\036\n\026cached_"
     "web_credentials\030\014 \001(\014\022\022\n\nuser_agent\030\016 \001("
     "\t\022\021\n\tdevice_id\030\017 \001(\t\022\034\n\014phone_number\030\020 \001"
-    "(\tB\006\202\371+\002\010\001\"\275\002\n\013LogonResult\022\022\n\nerror_code"
-    "\030\001 \002(\r\022*\n\naccount_id\030\002 \001(\0132\026.bgs.protoco"
-    "l.EntityId\022/\n\017game_account_id\030\003 \003(\0132\026.bg"
-    "s.protocol.EntityId\022\025\n\005email\030\004 \001(\tB\006\202\371+\002"
-    "\010\001\022\030\n\020available_region\030\005 \003(\r\022\030\n\020connecte"
-    "d_region\030\006 \001(\r\022\032\n\nbattle_tag\030\007 \001(\tB\006\202\371+\002"
-    "\010\001\022\025\n\rgeoip_country\030\010 \001(\t\022\023\n\013session_key"
-    "\030\t \001(\014\022\027\n\017restricted_mode\030\n \001(\010\022\021\n\tclien"
-    "t_id\030\013 \001(\t\"(\n\022LogonUpdateRequest\022\022\n\nerro"
-    "r_code\030\001 \002(\r\"a\n\027LogonQueueUpdateRequest\022"
-    "\020\n\010position\030\001 \002(\r\022\026\n\016estimated_time\030\002 \002("
-    "\004\022\034\n\024eta_deviation_in_sec\030\003 \002(\004\"=\n\030Serve"
-    "rStateChangeRequest\022\r\n\005state\030\001 \002(\r\022\022\n\nev"
-    "ent_time\030\002 \002(\004\"T\n\013VersionInfo\022\016\n\006number\030"
-    "\001 \001(\r\022\r\n\005patch\030\002 \001(\t\022\023\n\013is_optional\030\003 \001("
-    "\010\022\021\n\tkick_time\030\004 \001(\004\"\\\n\027VersionInfoNotif"
-    "ication\022A\n\014version_info\030\001 \001(\0132+.bgs.prot"
-    "ocol.authentication.v1.VersionInfo\"0\n\035Ge"
-    "nerateWebCredentialsRequest\022\017\n\007program\030\001"
-    " \001(\007\"9\n\036GenerateWebCredentialsResponse\022\027"
-    "\n\017web_credentials\030\001 \001(\014\"6\n\033VerifyWebCred"
-    "entialsRequest\022\027\n\017web_credentials\030\001 \001(\0142"
-    "\312\005\n\026AuthenticationListener\022r\n\023OnServerSt"
-    "ateChange\0228.bgs.protocol.authentication."
-    "v1.ServerStateChangeRequest\032\031.bgs.protoc"
-    "ol.NO_RESPONSE\"\006\202\371+\002\010\004\022a\n\017OnLogonComplet"
-    "e\022+.bgs.protocol.authentication.v1.Logon"
-    "Result\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010"
-    "\005\022f\n\rOnLogonUpdate\0222.bgs.protocol.authen"
-    "tication.v1.LogonUpdateRequest\032\031.bgs.pro"
-    "tocol.NO_RESPONSE\"\006\202\371+\002\010\n\022r\n\024OnVersionIn"
-    "foUpdated\0227.bgs.protocol.authentication."
-    "v1.VersionInfoNotification\032\031.bgs.protoco"
-    "l.NO_RESPONSE\"\006\202\371+\002\010\013\022p\n\022OnLogonQueueUpd"
-    "ate\0227.bgs.protocol.authentication.v1.Log"
-    "onQueueUpdateRequest\032\031.bgs.protocol.NO_R"
-    "ESPONSE\"\006\202\371+\002\010\014\022J\n\017OnLogonQueueEnd\022\024.bgs"
-    ".protocol.NoData\032\031.bgs.protocol.NO_RESPO"
-    "NSE\"\006\202\371+\002\010\r\032\?\202\371+5\n1bnet.protocol.authent"
-    "ication.AuthenticationClient8\001\212\371+\002\010\0012\302\003\n"
-    "\025AuthenticationService\022S\n\005Logon\022,.bgs.pr"
-    "otocol.authentication.v1.LogonRequest\032\024."
-    "bgs.protocol.NoData\"\006\202\371+\002\010\001\022q\n\024VerifyWeb"
-    "Credentials\022;.bgs.protocol.authenticatio"
-    "n.v1.VerifyWebCredentialsRequest\032\024.bgs.p"
-    "rotocol.NoData\"\006\202\371+\002\010\007\022\237\001\n\026GenerateWebCr"
-    "edentials\022=.bgs.protocol.authentication."
-    "v1.GenerateWebCredentialsRequest\032>.bgs.p"
+    "(\tB\006\202\371+\002\010\001\022\025\n\rauth_platform\030\021 \001(\t\"\275\002\n\013Lo"
+    "gonResult\022\022\n\nerror_code\030\001 \002(\r\022*\n\naccount"
+    "_id\030\002 \001(\0132\026.bgs.protocol.EntityId\022/\n\017gam"
+    "e_account_id\030\003 \003(\0132\026.bgs.protocol.Entity"
+    "Id\022\025\n\005email\030\004 \001(\tB\006\202\371+\002\010\001\022\030\n\020available_r"
+    "egion\030\005 \003(\r\022\030\n\020connected_region\030\006 \001(\r\022\032\n"
+    "\nbattle_tag\030\007 \001(\tB\006\202\371+\002\010\001\022\025\n\rgeoip_count"
+    "ry\030\010 \001(\t\022\023\n\013session_key\030\t \001(\014\022\027\n\017restric"
+    "ted_mode\030\n \001(\010\022\021\n\tclient_id\030\013 \001(\t\"(\n\022Log"
+    "onUpdateRequest\022\022\n\nerror_code\030\001 \002(\r\"a\n\027L"
+    "ogonQueueUpdateRequest\022\020\n\010position\030\001 \002(\r"
+    "\022\026\n\016estimated_time\030\002 \002(\004\022\034\n\024eta_deviatio"
+    "n_in_sec\030\003 \002(\004\"=\n\030ServerStateChangeReque"
+    "st\022\r\n\005state\030\001 \002(\r\022\022\n\nevent_time\030\002 \002(\004\"T\n"
+    "\013VersionInfo\022\016\n\006number\030\001 \001(\r\022\r\n\005patch\030\002 "
+    "\001(\t\022\023\n\013is_optional\030\003 \001(\010\022\021\n\tkick_time\030\004 "
+    "\001(\004\"\\\n\027VersionInfoNotification\022A\n\014versio"
+    "n_info\030\001 \001(\0132+.bgs.protocol.authenticati"
+    "on.v1.VersionInfo\"0\n\035GenerateWebCredenti"
+    "alsRequest\022\017\n\007program\030\001 \001(\007\"9\n\036GenerateW"
+    "ebCredentialsResponse\022\027\n\017web_credentials"
+    "\030\001 \001(\014\"6\n\033VerifyWebCredentialsRequest\022\027\n"
+    "\017web_credentials\030\001 \001(\0142\312\005\n\026Authenticatio"
+    "nListener\022r\n\023OnServerStateChange\0228.bgs.p"
+    "rotocol.authentication.v1.ServerStateCha"
+    "ngeRequest\032\031.bgs.protocol.NO_RESPONSE\"\006\202"
+    "\371+\002\010\004\022a\n\017OnLogonComplete\022+.bgs.protocol."
+    "authentication.v1.LogonResult\032\031.bgs.prot"
+    "ocol.NO_RESPONSE\"\006\202\371+\002\010\005\022f\n\rOnLogonUpdat"
+    "e\0222.bgs.protocol.authentication.v1.Logon"
+    "UpdateRequest\032\031.bgs.protocol.NO_RESPONSE"
+    "\"\006\202\371+\002\010\n\022r\n\024OnVersionInfoUpdated\0227.bgs.p"
+    "rotocol.authentication.v1.VersionInfoNot"
+    "ification\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371"
+    "+\002\010\013\022p\n\022OnLogonQueueUpdate\0227.bgs.protoco"
+    "l.authentication.v1.LogonQueueUpdateRequ"
+    "est\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\014\022J"
+    "\n\017OnLogonQueueEnd\022\024.bgs.protocol.NoData\032"
+    "\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\r\032\?\202\371+5"
+    "\n1bnet.protocol.authentication.Authentic"
+    "ationClient8\001\212\371+\002\010\0012\302\003\n\025AuthenticationSe"
+    "rvice\022S\n\005Logon\022,.bgs.protocol.authentica"
+    "tion.v1.LogonRequest\032\024.bgs.protocol.NoDa"
+    "ta\"\006\202\371+\002\010\001\022q\n\024VerifyWebCredentials\022;.bgs"
+    ".protocol.authentication.v1.VerifyWebCre"
+    "dentialsRequest\032\024.bgs.protocol.NoData\"\006\202"
+    "\371+\002\010\007\022\237\001\n\026GenerateWebCredentials\022=.bgs.p"
     "rotocol.authentication.v1.GenerateWebCre"
-    "dentialsResponse\"\006\202\371+\002\010\010\032\?\202\371+5\n1bnet.pro"
-    "tocol.authentication.AuthenticationServe"
-    "r8\001\212\371+\002\020\001B\005H\002\200\001\000", 2456);
+    "dentialsRequest\032>.bgs.protocol.authentic"
+    "ation.v1.GenerateWebCredentialsResponse\""
+    "\006\202\371+\002\010\010\032\?\202\371+5\n1bnet.protocol.authenticat"
+    "ion.AuthenticationServer8\001\212\371+\002\020\001B\005H\002\200\001\000", 2479);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "authentication_service.proto", &protobuf_RegisterTypes);
   LogonRequest::default_instance_ = new LogonRequest();
@@ -420,6 +421,7 @@ const int LogonRequest::kCachedWebCredentialsFieldNumber;
 const int LogonRequest::kUserAgentFieldNumber;
 const int LogonRequest::kDeviceIdFieldNumber;
 const int LogonRequest::kPhoneNumberFieldNumber;
+const int LogonRequest::kAuthPlatformFieldNumber;
 #endif  // !_MSC_VER
 
 LogonRequest::LogonRequest()
@@ -453,6 +455,7 @@ void LogonRequest::SharedCtor() {
   user_agent_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   device_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   phone_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  auth_platform_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -488,6 +491,9 @@ void LogonRequest::SharedDtor() {
   }
   if (phone_number_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete phone_number_;
+  }
+  if (auth_platform_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete auth_platform_;
   }
   if (this != default_instance_) {
   }

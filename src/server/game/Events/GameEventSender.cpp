@@ -21,6 +21,7 @@
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "Util.h"
 #include "ZoneScript.h"
 
@@ -37,7 +38,8 @@ void GameEvents::Trigger(uint32 gameEventId, WorldObject* source, WorldObject* t
     if (zoneScript)
         zoneScript->ProcessEvent(target, gameEventId, source);
 
-    Map* map = refForMapAndZoneScript->GetMap();
+    sScriptMgr->OnEventTrigger(target, source, gameEventId);
+
     if (GameObject* goTarget = Object::ToGameObject(target))
         if (GameObjectAI* goAI = goTarget->AI())
             goAI->EventInform(gameEventId);
@@ -45,6 +47,7 @@ void GameEvents::Trigger(uint32 gameEventId, WorldObject* source, WorldObject* t
     if (Player* sourcePlayer = Object::ToPlayer(source))
         TriggerForPlayer(gameEventId, sourcePlayer);
 
+    Map* map = refForMapAndZoneScript->GetMap();
     TriggerForMap(gameEventId, map, source, target);
 }
 

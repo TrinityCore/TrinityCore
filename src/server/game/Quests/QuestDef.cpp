@@ -113,7 +113,7 @@ Quest::Quest(Field* questRecord)
     _soundAccept = questRecord[98].GetUInt32();
     _soundTurnIn = questRecord[99].GetUInt32();
     _areaGroupID = questRecord[100].GetUInt32();
-    _limitTime = questRecord[101].GetUInt32();
+    _limitTime = questRecord[101].GetInt64();
     _allowableRaces.RawValue = questRecord[102].GetUInt64();
     _treasurePickerID = questRecord[103].GetInt32();
     _expansion = questRecord[104].GetInt32();
@@ -129,6 +129,12 @@ Quest::Quest(Field* questRecord)
     _portraitTurnInText = questRecord[113].GetString();
     _portraitTurnInName = questRecord[114].GetString();
     _questCompletionLog = questRecord[115].GetString();
+}
+
+Quest::~Quest()
+{
+    for (QuestObjective& objective : Objectives)
+        delete objective.CompletionEffect;
 }
 
 void Quest::LoadRewardDisplaySpell(Field* fields)
@@ -248,7 +254,7 @@ void Quest::LoadQuestMailSender(Field* fields)
 
 void Quest::LoadQuestObjective(Field* fields)
 {
-    QuestObjective obj;
+    QuestObjective& obj = Objectives.emplace_back();
     obj.QuestID = fields[0].GetUInt32();
     obj.ID = fields[1].GetUInt32();
     obj.Type = fields[2].GetUInt8();
@@ -260,7 +266,22 @@ void Quest::LoadQuestObjective(Field* fields)
     obj.ProgressBarWeight = fields[8].GetFloat();
     obj.Description = fields[9].GetString();
 
-    Objectives.push_back(obj);
+    bool hasCompletionEffect = std::any_of(fields + 10, fields + 15, [](Field const& f) { return !f.IsNull(); });
+    if (hasCompletionEffect)
+    {
+        obj.CompletionEffect = new QuestObjectiveAction();
+        if (!fields[10].IsNull())
+            obj.CompletionEffect->GameEventId = fields[10].GetUInt32();
+        if (!fields[11].IsNull())
+            obj.CompletionEffect->SpellId = fields[11].GetUInt32();
+        if (!fields[12].IsNull())
+            obj.CompletionEffect->ConversationId = fields[12].GetUInt32();
+        if (!fields[13].IsNull())
+            obj.CompletionEffect->UpdatePhaseShift = fields[13].GetBool();
+        if (!fields[14].IsNull())
+            obj.CompletionEffect->UpdateZoneAuras = fields[14].GetBool();
+    }
+
     _usedQuestObjectiveTypes[obj.Type] = true;
 }
 
@@ -443,6 +464,14 @@ Optional<QuestTagType> Quest::GetQuestTag() const
     return {};
 }
 
+bool Quest::IsImportant() const
+{
+    if (QuestInfoEntry const* questInfo = sQuestInfoStore.LookupEntry(GetQuestInfoID()))
+        return (questInfo->Modifiers & 0x400) != 0;
+
+    return false;
+}
+
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
 {
     rewards.ChoiceItemCount         = GetRewChoiceItemsCount();
@@ -500,7 +529,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 uint32 Quest::GetRewMoneyMaxLevel() const
 {
     // If Quest has flag to not give money on max level, it's 0
-    if (HasFlag(QUEST_FLAGS_NO_MONEY_FROM_XP))
+    if (HasFlag(QUEST_FLAGS_NO_MONEY_FOR_XP))
         return 0;
 
     // Else, return the rewarded copper sum modified by the rate
@@ -512,9 +541,9 @@ bool Quest::IsAutoAccept() const
     return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) && HasFlag(QUEST_FLAGS_AUTO_ACCEPT);
 }
 
-bool Quest::IsAutoComplete() const
+bool Quest::IsTurnIn() const
 {
-    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && _type == QUEST_TYPE_AUTOCOMPLETE;
+    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && _type == QUEST_TYPE_TURNIN;
 }
 
 bool Quest::IsRaidQuest(Difficulty difficulty) const
@@ -531,7 +560,7 @@ bool Quest::IsRaidQuest(Difficulty difficulty) const
             break;
     }
 
-    if ((_flags & QUEST_FLAGS_RAID) != 0)
+    if ((_flags & QUEST_FLAGS_RAID_GROUP_OK) != 0)
         return true;
 
     return false;
@@ -633,7 +662,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.RewardXPDifficulty = GetXPDifficulty();
     response.Info.RewardXPMultiplier = GetXPMultiplier();
 
-    if (!HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+    if (!HasFlag(QUEST_FLAGS_HIDE_REWARD))
         response.Info.RewardMoney = player ? player->GetQuestMoneyReward(this) : GetMaxMoneyReward();
 
     response.Info.RewardMoneyDifficulty = GetRewMoneyDifficulty();
@@ -676,7 +705,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
         response.Info.ItemDropQuantity[i] = ItemDropQuantity[i];
     }
 
-    if (!HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+    if (!HasFlag(QUEST_FLAGS_HIDE_REWARD))
     {
         for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
         {

@@ -747,10 +747,19 @@ class TC_PROTO_API CreateMemberOptions : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
       mutable_attribute();
 
+  // optional uint32 join_club_source = 3;
+  inline bool has_join_club_source() const;
+  inline void clear_join_club_source();
+  static const int kJoinClubSourceFieldNumber = 3;
+  inline ::google::protobuf::uint32 join_club_source() const;
+  inline void set_join_club_source(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.CreateMemberOptions)
  private:
   inline void set_has_id();
   inline void clear_has_id();
+  inline void set_has_join_club_source();
+  inline void clear_has_join_club_source();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -758,6 +767,7 @@ class TC_PROTO_API CreateMemberOptions : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::club::v1::MemberId* id_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute > attribute_;
+  ::google::protobuf::uint32 join_club_source_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fmember_2eproto();
   friend void protobuf_AssignDesc_club_5fmember_2eproto();
   friend void protobuf_ShutdownFile_club_5fmember_2eproto();
@@ -2473,6 +2483,30 @@ inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
 CreateMemberOptions::mutable_attribute() {
   // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.CreateMemberOptions.attribute)
   return &attribute_;
+}
+
+// optional uint32 join_club_source = 3;
+inline bool CreateMemberOptions::has_join_club_source() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void CreateMemberOptions::set_has_join_club_source() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void CreateMemberOptions::clear_has_join_club_source() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void CreateMemberOptions::clear_join_club_source() {
+  join_club_source_ = 0u;
+  clear_has_join_club_source();
+}
+inline ::google::protobuf::uint32 CreateMemberOptions::join_club_source() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.CreateMemberOptions.join_club_source)
+  return join_club_source_;
+}
+inline void CreateMemberOptions::set_join_club_source(::google::protobuf::uint32 value) {
+  set_has_join_club_source();
+  join_club_source_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.CreateMemberOptions.join_club_source)
 }
 
 // -------------------------------------------------------------------

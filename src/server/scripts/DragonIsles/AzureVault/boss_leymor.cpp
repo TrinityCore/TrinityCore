@@ -385,8 +385,6 @@ static Position const LeyLineSproutGroupOrigin[] =
 // 374364 - Ley-Line Sprouts
 class spell_ley_line_sprouts : public SpellScript
 {
-    PrepareSpellScript(spell_ley_line_sprouts);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LEY_LINE_SPROUTS_MISSILE });
@@ -410,8 +408,6 @@ class spell_ley_line_sprouts : public SpellScript
 // 375732 - Stasis Ritual
 class spell_stasis_ritual : public AuraScript
 {
-    PrepareAuraScript(spell_stasis_ritual);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_STASIS_RITUAL_MISSILE });
@@ -432,8 +428,6 @@ class spell_stasis_ritual : public AuraScript
 // 375652 - Wild Eruption
 class spell_wild_eruption : public SpellScript
 {
-    PrepareSpellScript(spell_wild_eruption);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WILD_ERUPTION_MISSILE });
@@ -475,8 +469,6 @@ struct at_leymor_arcane_eruption : AreaTriggerAI
 // 374567 - Explosive Brand
 class spell_explosive_brand : public SpellScript
 {
-    PrepareSpellScript(spell_explosive_brand);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_EXPLOSIVE_BRAND_KNOCKBACK });
@@ -496,8 +488,6 @@ class spell_explosive_brand : public SpellScript
 // 374567 - Explosive Brand
 class spell_explosive_brand_AuraScript : public AuraScript
 {
-    PrepareAuraScript(spell_explosive_brand_AuraScript);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_EXPLOSIVE_BRAND_DAMAGE });
@@ -521,8 +511,6 @@ class spell_explosive_brand_AuraScript : public AuraScript
 // 374720 - Consuming Stomp
 class spell_consuming_stomp : public AuraScript
 {
-    PrepareAuraScript(spell_consuming_stomp);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->KillSelf();
@@ -537,8 +525,6 @@ class spell_consuming_stomp : public AuraScript
 // 386660 - Erupting Fissure
 class spell_erupting_fissure : public SpellScript
 {
-    PrepareSpellScript(spell_erupting_fissure);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ERUPTING_FISSURE_SPROUT_SELECTOR });
@@ -558,8 +544,6 @@ class spell_erupting_fissure : public SpellScript
 // 375591 - Sappy Burst
 class spell_sappy_burst : public SpellScript
 {
-    PrepareSpellScript(spell_sappy_burst);
-
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->KillSelf();

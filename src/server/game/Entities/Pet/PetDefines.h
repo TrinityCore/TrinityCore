@@ -58,6 +58,12 @@ constexpr bool IsStabledPetSlot(PetSaveMode slot)
     return slot >= PET_SAVE_FIRST_STABLE_SLOT && slot < PET_SAVE_LAST_STABLE_SLOT;
 }
 
+enum PetStableFlags : uint8
+{
+    PET_STABLE_ACTIVE   = 0x1,
+    PET_STABLE_INACTIVE = 0x2
+};
+
 enum PetSpellState
 {
     PETSPELL_UNCHANGED = 0,
@@ -108,6 +114,17 @@ enum class PetTameResult : uint8
     CantControlExotic       = 12,
     InvalidSlot             = 13,
     EliteTooHighLevel       = 14
+};
+
+enum class StableResult : uint8
+{
+    NotEnoughMoney        = 1,                              // "you don't have enough money"
+    InvalidSlot           = 3,                              // "That slot is locked"
+    StableSuccess         = 8,                              // stable success
+    UnstableSuccess       = 9,                              // unstable/swap success
+    BuySlotSuccess        = 10,                             // buy slot success
+    CantControlExotic     = 11,                             // "you are unable to control exotic creatures"
+    InternalError         = 12,                             // "Internal pet error"
 };
 
 constexpr uint32 CALL_PET_SPELL_ID = 883;

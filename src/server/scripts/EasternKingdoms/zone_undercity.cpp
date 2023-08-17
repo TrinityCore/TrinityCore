@@ -333,8 +333,6 @@ enum DragonmawShinbones
 // 8856 - Bending Shinbone
 class spell_undercity_bending_shinbone : public SpellScript
 {
-    PrepareSpellScript(spell_undercity_bending_shinbone);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BENDING_SHINBONE1, SPELL_BENDING_SHINBONE2 });

@@ -332,8 +332,6 @@ struct boss_brutallus : public BossAI
 // 46394 - Burn
 class spell_brutallus_burn : public AuraScript
 {
-    PrepareAuraScript(spell_brutallus_burn);
-
     void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
     {
         if (aurEff->GetTickNumber() % 11 == 0)
@@ -349,8 +347,6 @@ class spell_brutallus_burn : public AuraScript
 // 45185 - Stomp
 class spell_brutallus_stomp : public SpellScript
 {
-    PrepareSpellScript(spell_brutallus_stomp);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BURN });

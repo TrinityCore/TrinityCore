@@ -65,7 +65,7 @@ void QuestGiverStatusTrackedQuery::Read()
 WorldPacket const* QuestGiverStatus::Write()
 {
     _worldPacket << QuestGiver.Guid;
-    _worldPacket << uint32(QuestGiver.Status);
+    _worldPacket << uint64(QuestGiver.Status);
 
     return &_worldPacket;
 }
@@ -76,7 +76,7 @@ WorldPacket const* QuestGiverStatusMultiple::Write()
     for (QuestGiverInfo const& questGiver : QuestGiver)
     {
         _worldPacket << questGiver.Guid;
-        _worldPacket << uint32(questGiver.Status);
+        _worldPacket << uint64(questGiver.Status);
     }
 
     return &_worldPacket;
@@ -178,7 +178,7 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << int32(Info.CompleteSoundKitID);
 
         _worldPacket << int32(Info.AreaGroupID);
-        _worldPacket << int32(Info.TimeAllowed);
+        _worldPacket << int64(Info.TimeAllowed);
 
         _worldPacket << uint32(Info.Objectives.size());
         _worldPacket << uint64(Info.AllowableRaces.RawValue);

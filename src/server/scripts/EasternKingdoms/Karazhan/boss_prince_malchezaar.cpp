@@ -159,7 +159,7 @@ public:
             if (spellInfo->Id == SPELL_INFERNAL_RELAY)
             {
                 me->SetDisplayId(me->GetNativeDisplayId());
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 HellfireTimer = 4000;
                 CleanupTimer = 170000;
             }
@@ -453,7 +453,7 @@ public:
                         Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
                         if (axe)
                         {
-                            axe->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            axe->SetUninteractible(true);
                             axe->SetFaction(me->GetFaction());
                             axes[i] = axe->GetGUID();
                             if (target)

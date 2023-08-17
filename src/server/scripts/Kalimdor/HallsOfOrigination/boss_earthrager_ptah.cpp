@@ -262,8 +262,6 @@ class spell_earthrager_ptah_flame_bolt : public SpellScriptLoader
 
         class spell_earthrager_ptah_flame_bolt_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_earthrager_ptah_flame_bolt_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->IsHeroic() ? 3 : 2);
@@ -288,13 +286,12 @@ public:
 
     class spell_earthrager_ptah_explosion_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_earthrager_ptah_explosion_AuraScript);
-
         void SetFlags(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* ptah = GetCaster())
             {
-                ptah->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+                ptah->SetUninteractible(true);
+                ptah->SetUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
                 ptah->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             }
         }
@@ -303,7 +300,8 @@ public:
         {
             if (Unit* ptah = GetCaster())
             {
-                ptah->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+                ptah->SetUninteractible(false);
+                ptah->RemoveUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
                 ptah->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             }
         }

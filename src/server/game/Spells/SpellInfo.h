@@ -230,8 +230,8 @@ public:
     float     PositionFacing;
     SpellImplicitTargetInfo TargetA;
     SpellImplicitTargetInfo TargetB;
-    SpellRadiusEntry const* RadiusEntry;
-    SpellRadiusEntry const* MaxRadiusEntry;
+    SpellRadiusEntry const* TargetARadiusEntry;
+    SpellRadiusEntry const* TargetBRadiusEntry;
     int32     ChainTargets;
     uint32    ItemType;
     uint32    TriggerSpell;
@@ -269,9 +269,8 @@ public:
     float CalcValueMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
     float CalcDamageMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
 
-    bool HasRadius() const;
-    bool HasMaxRadius() const;
-    float CalcRadius(WorldObject* caster = nullptr, Spell* = nullptr) const;
+    bool HasRadius(SpellTargetIndex targetIndex) const;
+    float CalcRadius(WorldObject* caster = nullptr, SpellTargetIndex targetIndex = SpellTargetIndex::TargetA, Spell* = nullptr) const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool destSet = false, uint32 mask = 0) const;
@@ -491,12 +490,11 @@ class TC_GAME_API SpellInfo
         bool IsRequiringDeadTarget() const;
         bool IsAllowingDeadTarget() const;
         bool IsGroupBuff() const;
-        bool CanBeUsedInCombat() const;
+        bool CanBeUsedInCombat(Unit const* caster) const;
         bool IsPositive() const;
         bool IsPositiveEffect(uint8 effIndex) const;
         bool IsChanneled() const;
         bool IsMoveAllowedChannel() const;
-        bool NeedsComboPoints() const;
         bool IsNextMeleeSwingSpell() const;
         bool IsRangedWeaponSpell() const;
         bool IsAutoRepeatRangedSpell() const;

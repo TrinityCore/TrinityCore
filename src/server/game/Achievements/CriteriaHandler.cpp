@@ -32,6 +32,7 @@
 #include "Group.h"
 #include "InstanceScript.h"
 #include "Item.h"
+#include "ItemBonusMgr.h"
 #include "LanguageMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -2016,7 +2017,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         case ModifierTreeType::WorldStateExpression: // 67
             if (WorldStateExpressionEntry const* worldStateExpression = sWorldStateExpressionStore.LookupEntry(reqValue))
-                return ConditionMgr::IsPlayerMeetingExpression(referencePlayer, worldStateExpression);
+                return ConditionMgr::IsMeetingWorldStateExpression(referencePlayer->GetMap(), worldStateExpression);
             return false;
         case ModifierTreeType::DungeonDifficulty: // 68
             if (referencePlayer->GetMap()->GetDifficultyID() != reqValue)
@@ -3089,7 +3090,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerHasItemWithBonusListFromTreeAndQuality: // 222
         {
-            std::set<uint32> bonusListIDs = sDB2Manager.GetAllItemBonusTreeBonuses(reqValue);
+            std::vector<int32> bonusListIDs = ItemBonusMgr::GetAllBonusListsForTree(reqValue);
             if (bonusListIDs.empty())
                 return false;
 
@@ -3097,7 +3098,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             {
                 bool hasBonus = std::any_of(item->GetBonusListIDs().begin(), item->GetBonusListIDs().end(), [&bonusListIDs](int32 bonusListID)
                 {
-                    return bonusListIDs.find(bonusListID) != bonusListIDs.end();
+                    return std::find(bonusListIDs.begin(), bonusListIDs.end(), bonusListID) != bonusListIDs.end();
                 });
                 return hasBonus ? ItemSearchCallbackResult::Stop : ItemSearchCallbackResult::Continue;
             });
@@ -3417,7 +3418,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::PlayerLootSpecializationMatchesRole: // 263
         {
-            ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(referencePlayer->GetPrimarySpecialization());
+            ChrSpecializationEntry const* spec = referencePlayer->GetPrimarySpecializationEntry();
             if (!spec || spec->Role != int32(reqValue))
                 return false;
             break;
@@ -3528,7 +3529,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         }
         case ModifierTreeType::PlayerSpecialization: // 279
-            if (referencePlayer->GetPrimarySpecialization() != reqValue)
+            if (referencePlayer->GetPrimarySpecialization() != ChrSpecialization(reqValue))
                 return false;
             break;
         case ModifierTreeType::PlayerMapOrCosmeticChildMap: // 280
@@ -3869,6 +3870,14 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         }
+        case ModifierTreeType::PlayerSummonedBattlePetSpecies: // 352
+            if (referencePlayer->m_playerData->CurrentBattlePetSpeciesID != int32(reqValue))
+                return false;
+            break;
+        case ModifierTreeType::PlayerSummonedBattlePetIsMaxLevel: // 353
+            if (referencePlayer->m_unitData->WildBattlePetLevel != BattlePets::MAX_BATTLE_PET_LEVEL)
+                return false;
+            break;
         case ModifierTreeType::PlayerHasAtLeastProfPathRanks: // 355
         {
             auto traitNodeEntryRankCount = [referencePlayer, secondaryAsset]()
@@ -3892,6 +3901,50 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         }
+        case ModifierTreeType::PlayerHasItemTransmogrifiedToItemModifiedAppearance: // 358
+        {
+            ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(reqValue);
+
+            bool bagScanReachedEnd = referencePlayer->ForEachItem(ItemSearchLocation::Inventory, [referencePlayer, itemModifiedAppearance](Item const* item)
+            {
+                if (item->GetVisibleAppearanceModId(referencePlayer) == itemModifiedAppearance->ID)
+                    return ItemSearchCallbackResult::Stop;
+
+                if (int32(item->GetEntry()) == itemModifiedAppearance->ItemID)
+                    return ItemSearchCallbackResult::Stop;
+
+                return ItemSearchCallbackResult::Continue;
+            });
+            if (bagScanReachedEnd)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasCompletedDungeonEncounterInDifficulty: // 366
+            if (!referencePlayer->IsLockedToDungeonEncounter(reqValue, Difficulty(secondaryAsset)))
+                return false;
+            break;
+        case ModifierTreeType::PlayerIsBetweenQuests: // 369
+        {
+            QuestStatus status = referencePlayer->GetQuestStatus(reqValue);
+            if (status == QUEST_STATUS_NONE || status == QUEST_STATUS_FAILED)
+                return false;
+            if (referencePlayer->IsQuestRewarded(secondaryAsset))
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerScenarioStepID: // 371
+        {
+            Scenario const* scenario = referencePlayer->GetScenario();
+            if (!scenario)
+                return false;
+            if (scenario->GetStep()->ID != reqValue)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerZPositionBelow: // 374
+            if (referencePlayer->GetPositionZ() >= reqValue)
+                return false;
+            break;
         default:
             return false;
     }

@@ -245,7 +245,7 @@ enum TriggerCastFlags : uint32
     TRIGGERED_IGNORE_CAST_ITEM                      = 0x00000008,   //! Will not take away cast item or update related achievement criteria
     TRIGGERED_IGNORE_AURA_SCALING                   = 0x00000010,   //! Will ignore aura scaling
     TRIGGERED_IGNORE_CAST_IN_PROGRESS               = 0x00000020,   //! Will not check if a current cast is in progress
-    TRIGGERED_IGNORE_COMBO_POINTS                   = 0x00000040,   //! Will ignore combo point requirement
+    // reuse                                        = 0x00000040,
     TRIGGERED_CAST_DIRECTLY                         = 0x00000080,   //! In Spell::prepare, will be cast directly without setting containers for executed spell
     TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS           = 0x00000100,   //! Will ignore interruptible aura's at cast
     TRIGGERED_IGNORE_SET_FACING                     = 0x00000200,   //! Will not adjust facing to target (if any)
@@ -266,6 +266,8 @@ enum TriggerCastFlags : uint32
     TRIGGERED_IGNORE_CASTER_AURASTATE               = 0x00200000,   //! Will ignore caster aura states including combat requirements and death state
     TRIGGERED_FULL_DEBUG_MASK                       = 0xFFFFFFFF
 };
+
+DEFINE_ENUM_FLAG(TriggerCastFlags);
 
 enum SpellCastTargetFlags : uint32
 {
@@ -421,6 +423,11 @@ struct TC_GAME_API CastSpellTargetArg
         Targets->SetItemTarget(itemTarget);
     }
     CastSpellTargetArg(Position const& dest)
+    {
+        Targets.emplace();
+        Targets->SetDst(dest);
+    }
+    CastSpellTargetArg(SpellDestination const& dest)
     {
         Targets.emplace();
         Targets->SetDst(dest);

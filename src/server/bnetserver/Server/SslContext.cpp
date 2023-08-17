@@ -16,8 +16,8 @@
  */
 
 #include "SslContext.h"
-#include "Log.h"
 #include "Config.h"
+#include "Log.h"
 
 bool Battlenet::SslContext::Initialize()
 {
@@ -33,7 +33,12 @@ bool Battlenet::SslContext::Initialize()
     std::string certificateChainFile = sConfigMgr->GetStringDefault("CertificatesFile", "./bnetserver.cert.pem");
     std::string privateKeyFile = sConfigMgr->GetStringDefault("PrivateKeyFile", "./bnetserver.key.pem");
 
-    LOAD_CHECK(instance().set_options(boost::asio::ssl::context::no_sslv3, err));
+    auto passwordCallback = [](std::size_t /*max_length*/, boost::asio::ssl::context::password_purpose /*purpose*/) -> std::string
+    {
+        return sConfigMgr->GetStringDefault("PrivateKeyPassword", "");
+    };
+
+    LOAD_CHECK(instance().set_password_callback(passwordCallback, err));
     LOAD_CHECK(instance().use_certificate_chain_file(certificateChainFile, err));
     LOAD_CHECK(instance().use_private_key_file(privateKeyFile, boost::asio::ssl::context::pem, err));
 
@@ -44,6 +49,6 @@ bool Battlenet::SslContext::Initialize()
 
 boost::asio::ssl::context& Battlenet::SslContext::instance()
 {
-    static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
+    static boost::asio::ssl::context context(boost::asio::ssl::context::tls);
     return context;
 }

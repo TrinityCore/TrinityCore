@@ -61,6 +61,7 @@
 #include "GuildMgr.h"
 #include "InstanceLockMgr.h"
 #include "IPLocation.h"
+#include "ItemBonusMgr.h"
 #include "Language.h"
 #include "LanguageMgr.h"
 #include "LFGMgr.h"
@@ -1954,6 +1955,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Enchant Spells Proc datas...");
     sSpellMgr->LoadSpellEnchantProcData();
 
+    TC_LOG_INFO("server.loading", "Loading item bonus data...");
+    ItemBonusMgr::Load();
+
     TC_LOG_INFO("server.loading", "Loading Random item bonus list definitions...");
     LoadItemRandomBonusListTemplates();
 
@@ -1981,11 +1985,11 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Creature template addons...");
     sObjectMgr->LoadCreatureTemplateAddons();
 
+    TC_LOG_INFO("server.loading", "Loading Creature template difficulty...");
+    sObjectMgr->LoadCreatureTemplateDifficulty();
+
     TC_LOG_INFO("server.loading", "Loading Creature template sparring...");
     sObjectMgr->LoadCreatureTemplateSparring();
-
-    TC_LOG_INFO("server.loading", "Loading Creature template scaling...");
-    sObjectMgr->LoadCreatureScalingData();
 
     TC_LOG_INFO("server.loading", "Loading Reputation Reward Rates...");
     sObjectMgr->LoadReputationRewardRate();
@@ -3514,6 +3518,19 @@ void World::DailyReset()
         if (Player* player = itr->second->GetPlayer())
             player->DailyReset();
 
+    {
+        std::ostringstream questIds;
+        questIds << "DELETE cq, cqo FROM character_queststatus cq LEFT JOIN character_queststatus_objectives cqo ON cq.quest = cqo.quest WHERE cq.quest IN (";
+        for (auto const& [questId, quest] : sObjectMgr->GetQuestTemplates())
+        {
+            if (quest.IsDaily() && quest.HasFlagEx(QUEST_FLAGS_EX_REMOVE_ON_PERIODIC_RESET))
+                questIds << questId << ',';
+        }
+        questIds << "0)";
+
+        CharacterDatabase.Execute(questIds.str().c_str());
+    }
+
     // reselect pools
     sQuestPoolMgr->ChangeDailyQuests();
 
@@ -3549,6 +3566,19 @@ void World::ResetWeeklyQuests()
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (Player* player = itr->second->GetPlayer())
             player->ResetWeeklyQuestStatus();
+
+    {
+        std::ostringstream questIds;
+        questIds << "DELETE cq, cqo FROM character_queststatus cq LEFT JOIN character_queststatus_objectives cqo ON cq.quest = cqo.quest WHERE cq.quest IN (";
+        for (auto const& [questId, quest] : sObjectMgr->GetQuestTemplates())
+        {
+            if (quest.IsWeekly() && quest.HasFlagEx(QUEST_FLAGS_EX_REMOVE_ON_PERIODIC_RESET))
+                questIds << questId << ',';
+        }
+        questIds << "0)";
+
+        CharacterDatabase.Execute(questIds.str().c_str());
+    }
 
     // reselect pools
     sQuestPoolMgr->ChangeWeeklyQuests();

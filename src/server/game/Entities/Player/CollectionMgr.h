@@ -107,6 +107,7 @@ public:
     void LoadAccountHeirlooms(PreparedQueryResult result);
     void SaveAccountHeirlooms(LoginDatabaseTransaction trans);
     void AddHeirloom(uint32 itemId, uint32 flags);
+    bool HasHeirloom(uint32 itemId) const { return _heirlooms.contains(itemId); }
     void UpgradeHeirloom(uint32 itemId, int32 castItem);
     void CheckHeirloomUpgrades(Item* item);
 

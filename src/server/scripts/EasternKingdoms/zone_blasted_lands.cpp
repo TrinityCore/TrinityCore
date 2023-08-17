@@ -33,8 +33,6 @@ enum TeleportToRazelikh
 // 27686 - Teleport to Razelikh (GROUP)
 class spell_razelikh_teleport_group : public SpellScript
 {
-    PrepareSpellScript(spell_razelikh_teleport_group);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_TELEPORT_SINGLE, SPELL_TELEPORT_SINGLE_IN_GROUP });

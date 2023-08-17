@@ -266,8 +266,6 @@ private:
 // 56648 - Potent Fungus
 class spell_amanitar_potent_fungus : public AuraScript
 {
-    PrepareAuraScript(spell_amanitar_potent_fungus);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
