@@ -222,7 +222,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatu
 
 DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=17 AND `Entry`=176532);
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(176532, 0, 2, 2, 2107, 8, 100, 1, 199181, 0, 128, 50791);
+(176532, 17, 2, 2, 2107, 8, 100, 1, 199181, 0, 128, 50791);
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID` = 176532;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
