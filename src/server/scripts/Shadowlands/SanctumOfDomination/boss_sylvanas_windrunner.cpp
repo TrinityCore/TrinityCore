@@ -39,42 +39,42 @@ Position const SylvanasIntroPos[4] =
 enum SylvanasSpells
 {
     // Stances
-    SPELL_RANGER_BOW_STANCE                             = 347560,
-    SPELL_RANGER_DAGGERS_STANCE                         = 348010,
+    SPELL_RANGER_BOW_STANCE                              = 347560,
+    SPELL_RANGER_DAGGERS_STANCE                          = 348010,
 
     // Miscellanea
-    SPELL_GENERIC_ANCHOR_HERE                           = 45313,
-    SPELL_GENERIC_DUAL_WIELD                            = 42459,
-    SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING              = 352311,
-    SPELL_SYLVANAS_ROOT                                 = 347608
+    SPELL_GENERIC_ANCHOR_HERE                            = 45313,
+    SPELL_GENERIC_DUAL_WIELD                             = 42459,
+    SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING               = 352311,
+    SPELL_SYLVANAS_ROOT                                  = 347608
 };
 
 enum SylvanasPhases
 {
-    PHASE_ONE                                           = 1,
-    PHASE_INTERMISSION                                  = 4,
-    PHASE_TWO                                           = 2,
-    PHASE_THREE                                         = 3,
-    PHASE_INTERMISSION_WORLD_STATE                      = 11
+    PHASE_ONE                                            = 1,
+    PHASE_INTERMISSION                                   = 4,
+    PHASE_TWO                                            = 2,
+    PHASE_THREE                                          = 3,
+    PHASE_INTERMISSION_WORLD_STATE                       = 11
 };
 
 enum SylvanasEventGroups
 {
-    EVENT_GROUP_NORMAL_EVENTS                           = 1,
-    EVENT_GROUP_WINDRUNNER_EVENTS                       = 2
+    EVENT_GROUP_NORMAL_EVENTS                            = 1,
+    EVENT_GROUP_WINDRUNNER_EVENTS                        = 2
 };
 
 enum SylvanasEvents
 {
-    EVENT_INTRODUCTION                                  = 1,
-    EVENT_SIZE_MAX                                      = 200
+    EVENT_INTRODUCTION                                   = 1,
+    EVENT_SIZE_MAX                                       = 200
 };
 
 enum SylvanasTexts
 {
-    SAY_AGGRO                                           = 0,
-    SAY_SLAY                                            = 1,
-    SAY_DISENGAGE                                       = 2
+    SAY_AGGRO                                            = 0,
+    SAY_SLAY                                             = 1,
+    SAY_DISENGAGE                                        = 2
 };
 
 enum SylvanasConversations
@@ -86,34 +86,34 @@ enum SylvanasConversations
 
 enum SylvanasSpawnGroups
 {
-    SPAWN_GROUP_CHAMPIONS_FIRST_PHASE                   = 0,
+    SPAWN_GROUP_CHAMPIONS_FIRST_PHASE                    = 0,
     SPAWN_GROUP_CHAMPIONS_THIRD_PHASE,
     SPAWN_GROUP_CHAMPIONS_OUTRODUCTION
 };
 
 enum SylvanasPoints
 {
-    POINT_INTRO_01                                      = 1,
-    POINT_INTRO_02                                      = 2,
-    POINT_INTRO_03                                      = 3,
-    POINT_INTRO_FINISHED                                = 4
+    POINT_INTRO_01                                       = 1,
+    POINT_INTRO_02                                       = 2,
+    POINT_INTRO_03                                       = 3,
+    POINT_INTRO_FINISHED                                 = 4
 };
 
 enum SylvanasSpellVisualKits
 {
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_01      = 150067,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_02      = 150068,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_03      = 150069,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_04      = 150071,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_05      = 150072,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_06      = 150070,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_07      = 150074,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_08      = 150077,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_09      = 150076,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_10      = 150075,
-    SPELL_VISUAL_KIT_BOLVAR_INTRODUCTION_TALK_01        = 150073,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_01       = 150067,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_02       = 150068,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_03       = 150069,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_04       = 150071,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_05       = 150072,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_06       = 150070,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_07       = 150074,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_08       = 150077,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_09       = 150076,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_10       = 150075,
+    SPELL_VISUAL_KIT_BOLVAR_INTRODUCTION_TALK_01         = 150073,
 
-    SPELL_VISUAL_KIT_SYLVANAS_TELEPORT                  = 150078
+    SPELL_VISUAL_KIT_SYLVANAS_TELEPORT                   = 150078
 };
 
 // 178355 - Sylvanas Shadowcopy (Riding)
