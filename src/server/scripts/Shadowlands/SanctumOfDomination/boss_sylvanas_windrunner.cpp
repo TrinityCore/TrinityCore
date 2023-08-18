@@ -139,6 +139,8 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_GENERIC_DUAL_WIELD, true);
         DoCastSelf(SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING, true);
 
+        me->SetPower(me->GetPowerType(), 0);
+
         if (instance->GetData(DATA_SYLVANAS_INTRODUCTION) == DONE)
         {
             me->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
@@ -219,26 +221,7 @@ struct boss_sylvanas_windrunner : public BossAI
     }
 };
 
-// Serverside - Sylvanas Windrunner's Conversation Introduction
-struct at_sylvanas_windrunner_introduction : AreaTriggerAI
-{
-    at_sylvanas_windrunner_introduction(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
-        _instance(at->GetInstanceScript()) { }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        if (!_instance || _instance->GetData(DATA_SYLVANAS_INTRODUCTION) != NOT_STARTED || !unit->IsPlayer())
-            return;
-
-        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            Conversation::CreateConversation(CONVERSATION_SYLVANAS_INTRODUCTION, sylvanas, sylvanas->GetPosition(), ObjectGuid::Empty);
-    }
-
-private:
-    InstanceScript* _instance;
-};
-
-// Serverside - Sylvanas Windrunner's Position Z Check
+// 35 - Sylvanas Windrunner's Position Z Check (Serverside)
 struct at_sylvanas_windrunner_z_check : AreaTriggerAI
 {
     at_sylvanas_windrunner_z_check(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
@@ -261,7 +244,26 @@ struct at_sylvanas_windrunner_z_check : AreaTriggerAI
     }
 };
 
-// 17368 - Sylvanas Windrunner's Introduction Conversation
+// 36 - Sylvanas Windrunner's Conversation Introduction (Serverside)
+struct at_sylvanas_windrunner_introduction : AreaTriggerAI
+{
+    at_sylvanas_windrunner_introduction(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
+        _instance(at->GetInstanceScript()) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!_instance || _instance->GetData(DATA_SYLVANAS_INTRODUCTION) != NOT_STARTED || !unit->IsPlayer())
+            return;
+
+        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+            Conversation::CreateConversation(CONVERSATION_SYLVANAS_INTRODUCTION, sylvanas, sylvanas->GetPosition(), ObjectGuid::Empty);
+    }
+
+    private:
+    InstanceScript* _instance;
+};
+
+// 17368 - Sylvanas Windrunner's Introduction (Conversation)
 class conversation_sylvanas_windrunner_introduction : public ConversationScript
 {
 public:
@@ -272,7 +274,7 @@ public:
         if (Creature* bolvar = creator->GetInstanceScript()->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
             conversation->AddActor(NPC_BOLVAR_FORDRAGON_PINNACLE, CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID, bolvar->GetGUID());
 
-        _events.ScheduleEvent(EVENT_INTRODUCTION, 1s + 500ms);
+        _events.ScheduleEvent(EVENT_INTRODUCTION, 5s + 500ms);
     }
 
     void OnConversationUpdate(Conversation* conversation, uint32 diff) override
@@ -309,6 +311,7 @@ public:
                 _events.ScheduleEvent(EVENT_INTRODUCTION + 2, 1s + 500ms);
                 break;
             }
+
             case EVENT_INTRODUCTION + 2:
             {
                 Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
@@ -558,8 +561,8 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSanctumOfDominationCreatureAI(boss_sylvanas_windrunner);
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_shadowcopy_riding);
 
-    RegisterAreaTriggerAI(at_sylvanas_windrunner_introduction);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_z_check);
+    RegisterAreaTriggerAI(at_sylvanas_windrunner_introduction);
 
     new conversation_sylvanas_windrunner_introduction();
 }

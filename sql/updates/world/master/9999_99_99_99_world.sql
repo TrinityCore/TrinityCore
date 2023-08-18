@@ -2,8 +2,8 @@
  
 SET @CGUID := 1051934;
 SET @OGUID := 600246;
-SET @ATID := 23;
-SET @ATSPAWNID := 23;
+SET @ATID := 35;
+SET @ATSPAWNID := 35;
 
 -- Instance-related stuff
 DELETE FROM `access_requirement` WHERE `mapId`=2450;
@@ -452,7 +452,7 @@ INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, 
 (@OGUID+10, 0, 0, 0.000000087422776573, 1, 0, 0),
 (@OGUID+11, 0, 0, 0.000000087422776573, 1, 0, 0);
 
--- Areatrigger Check Z (Serverside, CUSTOM)
+-- Sylvanas Windrunner's Position Z Check (Serverside)
 DELETE FROM `areatrigger_template` WHERE `Id`=@ATID+0 AND `IsServerSide`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES 
 (@ATID+0, 1, 1, 0, 250, 250, 5, 0, 0, 0, 0, 0, 0);
@@ -464,7 +464,7 @@ INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, 
 (@ATSPAWNID+2, @ATID+0, 1, 2450, 225.434, -766.006, 4983.74, 3.9239, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - Edge of the Abyss (Z Check)'),
 (@ATSPAWNID+3, @ATID+0, 1, 2450, -249.124, -1277.07, 5605.18, 5.48411, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - The Crucible (Z Check)');
 
--- Areatrigger Introduction Conversation (Serverside, CUSTOM)
+-- Sylvanas Windrunner's Conversation Introduction (Serverside)
 DELETE FROM `areatrigger_template` WHERE `Id`=@ATID+1 AND `IsServerSide`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES 
 (@ATID+1, 1, 0, 0, 75, 75, 0, 0, 0, 0, 0, 0, 0);
@@ -473,7 +473,7 @@ DELETE FROM `areatrigger` WHERE `SpawnId`=@ATSPAWNID+4 AND `IsServerSide`=1;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `Comment`) VALUES 
 (@ATSPAWNID+4, @ATID+1, 1, 2450, 234.9542, -829.9804, 4104.986, 0.0, 0, 0, 0, 0, 75, 75, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_introduction', 'Sanctum of Domination - Pinnacle of Dominance (Conv. Introduction)');
 
--- 17368 - Sylvanas Windrunner Introduction (Conversation)
+-- 17368 - Sylvanas Windrunner's Introduction (Conversation)
 DELETE FROM `conversation_template` WHERE `Id`=17368;
 INSERT INTO `conversation_template` (`Id`, `FirstLineId`, `TextureKitId`, `ScriptName`, `VerifiedBuild`) VALUES 
 (17368, 44215, 0, 'conversation_sylvanas_windrunner_introduction', 41079);
