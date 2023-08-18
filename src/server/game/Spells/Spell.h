@@ -978,7 +978,7 @@ namespace Trinity
         bool operator()(WorldObject* target) const;
     };
 
-    TC_GAME_API void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers);
+    TC_GAME_API void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers, Unit const* prioritizeGroupMembersOf = nullptr);
 }
 
 using SpellEffectHandlerFn = void(Spell::*)();

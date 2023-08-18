@@ -9108,74 +9108,73 @@ bool WorldObjectSpellLineTargetCheck::operator()(WorldObject* target) const
     return WorldObjectSpellTargetCheck::operator ()(target);
 }
 
-void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers)
+void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers, Unit const* prioritizeGroupMembersOf /*= nullptr*/)
 {
     if (targets.size() <= maxTargets)
         return;
 
-    std::vector<WorldObject*> tempTargets(targets.begin(), targets.end());
-
-    auto begin = tempTargets.begin();
-    auto end = tempTargets.end();
-
-    if (prioritizePlayers)
+    // Target priority states (bit indices)
+    // higher value means lower selection priority
+    // current list:
+    // * injured player group members
+    // * injured other players
+    // * injured pets of group members
+    // * injured other pets
+    // * full health player group members
+    // * full health other players
+    // * full health pets of group members
+    // * full health other pets
+    enum
     {
-        auto playersEnd = std::stable_partition(begin, end, [](WorldObject const* target)
-        {
-            return target->IsPlayer();
-        });
+        NOT_GROUPED,
+        NOT_PLAYER,
+        NOT_INJURED,
+        END
+    };
 
-        size_t playerCount = std::distance(begin, playersEnd);
-        if (playerCount < maxTargets)
-        {
-            // not enough players, add nonplayer targets
-            // prioritize injured nonplayers over full health nonplayers
-            auto injuredNonPlayersEnd = std::stable_partition(playersEnd, end, [](WorldObject const* target)
-            {
-                return target->IsUnit() && !target->ToUnit()->IsFullHealth();
-            });
+    std::array<std::ptrdiff_t, 1 << END> countsByPriority = {};
+    std::vector<std::pair<WorldObject*, int32>> tempTargets;
+    tempTargets.resize(targets.size());
 
-            size_t injuredNonPlayersCount = std::distance(playersEnd, injuredNonPlayersEnd);
-            if (playerCount + injuredNonPlayersCount < maxTargets)
-            {
-                // not enough players + injured nonplayers
-                // fill remainder with random full health nonplayers
-                Containers::RandomShuffle(injuredNonPlayersEnd, end);
-            }
-            else if (playerCount + injuredNonPlayersCount > maxTargets)
-            {
-                // randomize injured nonplayers order
-                // final list will contain all players + random injured nonplayers
-                Containers::RandomShuffle(playersEnd, injuredNonPlayersEnd);
-            }
-
-            targets.assign(tempTargets.begin(), tempTargets.begin() + maxTargets);
-            return;
-        }
-
-        // We have more players than we requested, proceed checking injured targets
-        end = playersEnd;
-    }
-
-    auto injuredUnitsEnd = std::stable_partition(begin, end, [](WorldObject const* target)
+    // categorize each target
+    std::transform(targets.begin(), targets.end(), tempTargets.begin(), [&](WorldObject* target)
     {
-        return target->IsUnit() && !target->ToUnit()->IsFullHealth();
+        int32 negativePoints = 0;
+        if (prioritizeGroupMembersOf && (!target->IsUnit() || target->ToUnit()->IsInRaidWith(prioritizeGroupMembersOf)))
+            negativePoints |= 1 << NOT_GROUPED;
+
+        if (prioritizePlayers && !target->IsPlayer() && (!target->IsCreature() || !target->ToCreature()->HasFlag(CREATURE_STATIC_FLAG_4_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS)))
+            negativePoints |= 1 << NOT_PLAYER;
+
+        if (!target->IsUnit() || target->ToUnit()->IsFullHealth())
+            negativePoints |= 1 << NOT_INJURED;
+
+        ++countsByPriority[negativePoints];
+        return std::make_pair(target, negativePoints);
     });
 
-    size_t injuredUnitsCount = std::distance(begin, injuredUnitsEnd);
-    if (injuredUnitsCount < maxTargets)
+    std::sort(tempTargets.begin(), tempTargets.end(), [](std::pair<WorldObject*, int32> const& left, std::pair<WorldObject*, int32> const& right)
     {
-        // not enough injured units
-        // fill remainder with full health units
-        Containers::RandomShuffle(injuredUnitsEnd, end);
-    }
-    else if (injuredUnitsCount > maxTargets)
+        return left.second < right.second;
+    });
+
+    std::size_t foundTargets = 0;
+    for (std::ptrdiff_t countForPriority : countsByPriority)
     {
-        // select random injured units
-        Containers::RandomShuffle(begin, injuredUnitsEnd);
+        if (foundTargets + countForPriority >= maxTargets)
+        {
+            // shuffle only the lower priority extras
+            // example: our initial target list had 5 injured and 5 full health units and we want to select 7 targets
+            //          we always want to select 5 injured and 2 random full health ones
+            Containers::RandomShuffle(tempTargets.begin() + foundTargets, tempTargets.begin() + foundTargets + countForPriority);
+            break;
+        }
+
+        foundTargets += countForPriority;
     }
 
-    targets.assign(tempTargets.begin(), tempTargets.begin() + maxTargets);
+    targets.resize(maxTargets);
+    std::transform(tempTargets.begin(), tempTargets.begin() + maxTargets, targets.begin(), std::mem_fn(&std::pair<WorldObject*, int32>::first));
 }
 } //namespace Trinity
 
