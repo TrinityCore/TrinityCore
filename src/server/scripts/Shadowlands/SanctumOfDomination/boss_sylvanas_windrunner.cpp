@@ -61,8 +61,7 @@ enum SylvanasPhases
 enum SylvanasEventGroups
 {
     EVENT_GROUP_NORMAL_EVENTS                           = 1,
-    EVENT_GROUP_WINDRUNNER_EVENTS                       = 2,
-    EVENT_GROUP_INTRODUCTION_EVENTS                     = 3
+    EVENT_GROUP_WINDRUNNER_EVENTS                       = 2
 };
 
 enum SylvanasEvents
@@ -80,12 +79,16 @@ enum SylvanasTexts
 
 enum SylvanasConversations
 {
-    CONVERSATION_INTRO                                  = 17368
+    CONVERSATION_SYLVANAS_INTRODUCTION                   = 17368,
+    CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID = 0,
+    CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID   = 1
 };
 
 enum SylvanasSpawnGroups
 {
-    SPAWN_GROUP_CHAMPIONS                               = 0
+    SPAWN_GROUP_CHAMPIONS_FIRST_PHASE                   = 0,
+    SPAWN_GROUP_CHAMPIONS_THIRD_PHASE,
+    SPAWN_GROUP_CHAMPIONS_OUTRODUCTION  
 };
 
 enum SylvanasPoints
@@ -121,7 +124,7 @@ struct npc_sylvanas_windrunner_shadowcopy_riding : public ScriptedAI
     void JustAppeared() override
     {
         me->SetImmuneToAll(true, true);
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(true);
         me->SetReactState(REACT_PASSIVE);
     }
 };
@@ -167,7 +170,7 @@ struct boss_sylvanas_windrunner : public BossAI
         _Reset();
 
         // Note: every creature involved in the fight adds UNIT_FLAG_PET_IN_COMBAT or UNIT_FLAG_RENAME when engaging, meaning they're most likely summoned by Sylvanas.
-        me->SummonCreatureGroup(SPAWN_GROUP_CHAMPIONS);
+        me->SummonCreatureGroup(SPAWN_GROUP_CHAMPIONS_FIRST_PHASE);
 
         instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
@@ -193,7 +196,6 @@ struct boss_sylvanas_windrunner : public BossAI
         if (!victim->IsPlayer())
             return;
 
-        // TODO: there should be an internal CD for this.
         Talk(SAY_SLAY);
     }
 
@@ -213,148 +215,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
         // Note: we won't allow engaging until Phase 1 PR is merged.
         EnterEvadeMode(EvadeReason::Other);
-        me->Say("Only intro is implemented so far, evading.", LANG_UNIVERSAL);
-    }
-
-    void DoAction(int32 action) override
-    {
-        switch (action)
-        {
-            case ACTION_START_SYLVANAS_INTRO:
-                events.ScheduleEvent(EVENT_INTRODUCTION, 10s, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
-                break;
-            default:
-                break;
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_INTRODUCTION:
-                    Conversation::CreateConversation(CONVERSATION_INTRO, me, me->GetPosition(), ObjectGuid::Empty);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 1, 1s + 500ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 1:
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_01, 0, 0);
-                    if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                        me->SetFacingToObject(bolvar);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 2, 1s + 140ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 2:
-                    me->GetMotionMaster()->MovePoint(POINT_INTRO_01, SylvanasIntroPos[0], false);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 3, 1s + 500ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 3:
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_02, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 4, 3s + 360ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 4:
-                    me->GetMotionMaster()->MovePoint(POINT_INTRO_02, SylvanasIntroPos[1], false);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 5, 469ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 5:
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_03, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 6, 3s + 500ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 6:
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_04, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 7, 2s, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 7:
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_05, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 8, 5s, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 8:
-                    if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                        me->SetFacingToObject(bolvar);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 9, 750ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 9:
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_06, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 10, 457ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 10:
-                    me->GetMotionMaster()->MovePoint(POINT_INTRO_03, SylvanasIntroPos[2], false);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 11, 5s + 89ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 11:
-                    if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                    {
-                        bolvar->SetFacingToObject(me);
-                        bolvar->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_BOLVAR_INTRODUCTION_TALK_01, 0, 0);
-                    }
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 12, 13s + 567ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 12:
-                    if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                        me->SetFacingToObject(bolvar);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 13, 484ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 13:
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_07, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 14, 5s + 516ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 14:
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_08, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 15, 1s + 516ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 15:
-                    me->NearTeleportTo(SylvanasIntroPos[3], false);
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_TELEPORT, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 16, 1s + 265ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 16:
-                    if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                        me->SetFacingToObject(bolvar);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 17, 969ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 17:
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_09, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 18, 4s + 766ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 18:
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_10, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 19, 3s + 250ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 19:
-                    DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 20, 16ms, EVENT_GROUP_INTRODUCTION_EVENTS);
-                    break;
-
-                case EVENT_INTRODUCTION + 20:
-                    DoCastSelf(SPELL_GENERIC_ANCHOR_HERE, true);
-                    instance->SetData(DATA_SYLVANAS_INTRODUCTION, DONE);
-                    break;
-            }
-        }
+        me->Say("Only introduction is implemented so far, evading.", LANG_UNIVERSAL);
     }
 };
 
@@ -370,12 +231,7 @@ struct at_sylvanas_windrunner_introduction : AreaTriggerAI
             return;
 
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-        {
-            if (sylvanas->IsAIEnabled())
-                sylvanas->GetAI()->DoAction(ACTION_START_SYLVANAS_INTRO);
-
-            _instance->SetData(DATA_SYLVANAS_INTRODUCTION, IN_PROGRESS);
-        }
+            Conversation::CreateConversation(CONVERSATION_SYLVANAS_INTRODUCTION, sylvanas, sylvanas->GetPosition(), ObjectGuid::Empty);
     }
 
 private:
@@ -414,8 +270,289 @@ public:
     void OnConversationCreate(Conversation* conversation, Unit* creator) override
     {
         if (Creature* bolvar = creator->GetInstanceScript()->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-            conversation->AddActor(NPC_BOLVAR_FORDRAGON_PINNACLE, 1, bolvar->GetGUID());
+            conversation->AddActor(NPC_BOLVAR_FORDRAGON_PINNACLE, CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID, bolvar->GetGUID());
     }
+
+    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    {
+        _events.Update(diff);
+
+        switch (_events.ExecuteEvent())
+        {
+            case EVENT_INTRODUCTION:
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 1, 1s + 500ms);
+                break;
+
+            case EVENT_INTRODUCTION + 1:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                Creature* bolvar = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID);
+                if (!bolvar)
+                    break;
+
+                sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_01, 0, 0);
+                sylvanas->SetFacingToObject(bolvar);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 2, 1s + 140ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 2:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->GetMotionMaster()->MovePoint(POINT_INTRO_01, SylvanasIntroPos[0], false);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 3, 1s + 500ms);
+                break;
+            }
+            case EVENT_INTRODUCTION + 3:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_02, 0, 0);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 4, 3s + 360ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 4:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->GetMotionMaster()->MovePoint(POINT_INTRO_02, SylvanasIntroPos[1], false);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 5, 469ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 5:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_03, 0, 0);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 6, 3s + 500ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 6:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_04, 0, 0);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 7, 2s);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 7:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_05, 0, 0);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 8, 5s);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 8:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                Creature* bolvar = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID);
+                if (!bolvar)
+                    break;
+
+                sylvanas->SetFacingToObject(bolvar);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 9, 750ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 9:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_06, 0, 0);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 10, 457ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 10:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->GetMotionMaster()->MovePoint(POINT_INTRO_03, SylvanasIntroPos[2], false);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 11, 5s + 89ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 11:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                Creature* bolvar = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID);
+                if (!bolvar)
+                    break;
+
+                bolvar->SetFacingToObject(sylvanas);
+                bolvar->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_BOLVAR_INTRODUCTION_TALK_01, 0, 0);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 12, 13s + 567ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 12:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                Creature* bolvar = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID);
+                if (!bolvar)
+                    break;
+
+                sylvanas->SetFacingToObject(bolvar);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 13, 484ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 13:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_07, 0, 0);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 14, 5s + 516ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 14:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_08, 0, 0);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 15, 1s + 516ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 15:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->NearTeleportTo(SylvanasIntroPos[3], false);
+                sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_TELEPORT, 0, 0);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 16, 1s + 265ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 16:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                Creature* bolvar = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID);
+                if (!bolvar)
+                    break;
+
+                sylvanas->SetFacingToObject(bolvar);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 17, 969ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 17:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_09, 0, 0);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 18, 4s + 766ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 18:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_10, 0, 0);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 19, 3s + 250ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 19:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->CastSpell(sylvanas, SPELL_RANGER_BOW_STANCE);
+
+                _events.ScheduleEvent(EVENT_INTRODUCTION + 20, 16ms);
+                break;
+            }
+
+            case EVENT_INTRODUCTION + 20:
+            {
+                Creature* sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+                if (!sylvanas)
+                    break;
+
+                sylvanas->CastSpell(sylvanas, SPELL_GENERIC_ANCHOR_HERE);
+
+                if (InstanceScript* instance = sylvanas->GetInstanceScript())
+                    instance->SetData(DATA_SYLVANAS_INTRODUCTION, DONE);
+                break;
+            }
+
+            default:
+                break;
+        }
+    }
+
+private:
+    EventMap _events;
 };
 
 void AddSC_boss_sylvanas_windrunner()

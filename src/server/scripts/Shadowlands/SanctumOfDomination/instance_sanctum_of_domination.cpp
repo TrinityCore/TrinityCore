@@ -193,6 +193,8 @@ public:
                     {
                         case IN_PROGRESS:
                             SylvanasIntroductionData = IN_PROGRESS;
+                            if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                                sylvanas->SetHomePosition(SylvanasRespawnPos);
                             break;
 
                         case DONE:

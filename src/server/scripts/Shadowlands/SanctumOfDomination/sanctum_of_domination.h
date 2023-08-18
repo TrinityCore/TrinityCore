@@ -25,6 +25,8 @@
 
 uint32 const EncounterCount = 10;
 
+Position const SylvanasRespawnPos = { 225.73611f, -844.0746f,  4104.9882f, 1.3613f };
+
 enum SanctumOfDominationDataTypes
 {
     DATA_THE_TARRAGRUE                         = 0,
@@ -56,8 +58,7 @@ enum SanctumOfDominationCreatureIds
 
     /* Encounter-related creatures */
 
-    /* Sylvanas Windrunner */
-
+    /* Sylvanas Windrunner Encounter */
     NPC_SYLVANAS_SHADOWCOPY_RIDING             = 178355,
     NPC_BOLVAR_FORDRAGON_PINNACLE              = 178081,
     NPC_JAINA_PROUDMOORE_PINNACLE              = 176533,
@@ -82,11 +83,6 @@ enum SanctumOfDominationGameObjectIds
     GAMEOBJECT_TORGHAST_SPIKE_12               = 368754
 };
 
-enum SanctumOfDominationActions
-{
-    ACTION_START_SYLVANAS_INTRO                = 50
-};
-
 enum SanctumOfDominationAreas
 {
     AREA_PINNACLE_OF_DOMINANCE                 = 13653,
@@ -99,11 +95,11 @@ enum SanctumofDominationWorldStates
     WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED     = 20346,
     WORLD_STATE_SYLVANAS_ENCOUNTER_COMPLETED   = 20347,
     WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE       = 20348,
-    WORLD_STATE_SYLVANAS_UNK_01                = 21210, // Sets to 0 several times on phase 3
-    WORLD_STATE_SYLVANAS_UNK_02                = 21166, // Sets to 1 when SPELL_FINAL_SCENE is cast on players
-    WORLD_STATE_SYLVANAS_UNK_03                = 21120, // Sets to 1 when 353687 spell is cast by NPC 179262
+    WORLD_STATE_SYLVANAS_UNK_01                = 21210, // Info: sets to 0 several times on phase 3.
+    WORLD_STATE_SYLVANAS_UNK_02                = 21166, // Info: sets to 1 when SPELL_FINAL_SCENE is cast on players.
+    WORLD_STATE_SYLVANAS_UNK_03                = 21120, // Info: sets to 1 when 353687 spell is cast by NPC 179262.
     WORLD_STATE_SYLVANAS_ACHIEVEMENT_COMPLETED = 21134,
-    WORLD_STATE_SYLVANAS_UNK_04                = 20439, // This is always 1 on INIT and the following 0
+    WORLD_STATE_SYLVANAS_UNK_04                = 20439, // Info: this is always 1 on INIT and the following are 0.
     WORLD_STATE_SYLVANAS_UNK_05                = 20440,
     WORLD_STATE_SYLVANAS_UNK_06                = 20441,
     WORLD_STATE_SYLVANAS_UNK_07                = 20442,
