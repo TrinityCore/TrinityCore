@@ -354,14 +354,14 @@ UPDATE `creature_template_addon` SET `visibilityDistanceType`=4 WHERE `entry`=17
 
 DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=17 AND `Entry`=178082);
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(178082, 17, 0, 0, 2107, 8, 500, 1, 201345, 4, 67108992, 50791)
+(178082, 17, 0, 0, 2107, 8, 500, 1, 201345, 4, 67108992, 50791);
 
 -- 178079 - The Jailer
 UPDATE `creature_template_addon` SET `visibilityDistanceType`=4 WHERE `entry`=178079;
 
 DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=17 AND `Entry`=178079);
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(178079, 17, 3, 3, 2107, 8, 500, 1, 201342, 4, 67108992, 50791)
+(178079, 17, 3, 3, 2107, 8, 500, 1, 201342, 4, 67108992, 50791);
 
 -- 179261 - Sylvanas 
 DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=17 AND `Entry`=179261);
@@ -394,11 +394,6 @@ UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=182021;
 DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=17 AND `Entry`=182021);
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
 (182021, 17, 0, 0, 2107, 8, 1, 1, 205820, 1610612752, 6, 50791);
-
-DELETE FROM `creature` WHERE `guid` IN ();
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `VerifiedBuild`) VALUES
-(@CGUID+105, 182021, 2450, 13561, 13655, '14,15,16,17', '17921 - 17860 - 17852', 0, 0, 0, -250.171875, -1299.8472900390625, 5667.19921875, 4.839481353759765625, 604800, 0, 0, 20561, 0, 0, 0, 0, 50791); -- Death Gate (Area: The Crucible - Difficulty: Looking For Raid)
-
 
 -- 368743 - Torghast Spike
 -- 368744 - Torghast Spike
