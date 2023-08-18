@@ -360,10 +360,10 @@ public:
             if (WorldSession* session = handler->GetSession())
             {
                 if (Player* player = session->GetPlayer())
-                    sLog->OutCommand(session->GetAccountId(), "GM %s (Account: %u) forced rename %s to player %s (Account: %u)", player->GetName().c_str(), session->GetAccountId(), newName.c_str(), player->GetName().c_str(), sCharacterCache->GetCharacterAccountIdByGuid(player->GetGUID()));
+                    sLog->OutCommand(session->GetAccountId(), "GM {} (Account: {}) forced rename {} to player {} (Account: {})", player->GetName(), session->GetAccountId(), newName, player->GetName(), sCharacterCache->GetCharacterAccountIdByGuid(player->GetGUID()));
             }
             else
-                sLog->OutCommand(0, "CONSOLE forced rename '%s' to '%s' (%s)", player->GetName().c_str(), newName.c_str(), player->GetGUID().ToString().c_str());
+                sLog->OutCommand(0, "CONSOLE forced rename '{}' to '{}' ({})", player->GetName(), newName, player->GetGUID().ToString());
         }
         else
         {
@@ -512,10 +512,10 @@ public:
         if (WorldSession* session = handler->GetSession())
         {
             if (Player* player = session->GetPlayer())
-                sLog->OutCommand(session->GetAccountId(), "GM %s (Account: %u) %s", player->GetName().c_str(), session->GetAccountId(), logString.c_str());
+                sLog->OutCommand(session->GetAccountId(), "GM {} (Account: {}) {}", player->GetName(), session->GetAccountId(), logString);
         }
         else
-            sLog->OutCommand(0, "%s %s", handler->GetTrinityString(LANG_CONSOLE), logString.c_str());
+            sLog->OutCommand(0, "{} {}", handler->GetTrinityString(LANG_CONSOLE), logString);
         return true;
     }
 
