@@ -85,7 +85,7 @@
 //
 
 #if defined(_MSC_VER) && defined(_DEBUG)
-__inline void * DebugMalloc(char * /* szFile */, int /* nLine */, size_t nSize)
+__inline void * DebugMalloc(char const* /* szFile */, int /* nLine */, size_t nSize)
 {
 //  return new BYTE[nSize];
     return HeapAlloc(GetProcessHeap(), 0, nSize);
