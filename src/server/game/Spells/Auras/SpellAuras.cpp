@@ -21,6 +21,7 @@
 #include "DynamicObject.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
+#include "ListUtils.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -1177,7 +1178,7 @@ void Aura::UnregisterSingleTarget()
     ASSERT(m_isSingleTarget);
     Unit* caster = GetCaster();
     ASSERT(caster);
-    caster->GetSingleCastAuras().remove(this);
+    Trinity::Containers::Lists::RemoveUnique(caster->GetSingleCastAuras(), this);
     SetIsSingleTarget(false);
 }
 
