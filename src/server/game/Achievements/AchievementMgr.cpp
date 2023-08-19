@@ -100,9 +100,29 @@ bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTre
 
     if (achievement->InstanceID != -1 && referencePlayer->GetMapId() != uint32(achievement->InstanceID))
     {
-        TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: {} Type {} Achievement {}) Wrong map",
-            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
-        return false;
+        bool isMapCriteria = false;
+        switch (CriteriaType(criteria->Entry->Type))
+        {
+            case CriteriaType::WinBattleground:
+            case CriteriaType::ParticipateInBattleground:
+            case CriteriaType::DieOnMap:
+            case CriteriaType::WinArena:
+            case CriteriaType::ParticipateInArena:
+            case CriteriaType::CompleteChallengeMode:
+                isMapCriteria = true;
+                break;
+            default:
+                break;
+        }
+
+        // if criteria does not have map asset, then there is nothing more to check and we can fail the update criteria tree
+        // if criteria does have map assset, need to check if referencePlayer meets that condition.
+        if (!isMapCriteria || (criteria->Entry->Asset.MapID != -1 && referencePlayer->GetMapId() != uint32(criteria->Entry->Asset.MapID)))
+        {
+            TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: {} Type {} Achievement {}) Wrong map",
+                criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
+            return false;
+        }
     }
 
     if ((achievement->Faction == ACHIEVEMENT_FACTION_HORDE    && referencePlayer->GetTeam() != HORDE) ||
