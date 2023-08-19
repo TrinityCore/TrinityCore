@@ -560,7 +560,7 @@ INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, 
 (@OGUID+10, 0, 0, 0.000000087422776573, 1, 0, 0),
 (@OGUID+11, 0, 0, 0.000000087422776573, 1, 0, 0);
 
--- Sylvanas Windrunner's Position Z Check (Serverside)
+-- 35 - Sylvanas Windrunner's Position Z Check (Serverside)
 DELETE FROM `areatrigger_template` WHERE `Id`=@ATID+0 AND `IsServerSide`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES 
 (@ATID+0, 1, 1, 0, 250, 250, 5, 0, 0, 0, 0, 0, 0);
@@ -572,7 +572,7 @@ INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, 
 (@ATSPAWNID+2, @ATID+0, 1, 2450, 225.434, -766.006, 4983.74, 3.9239, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - Edge of the Abyss (Z Check)'),
 (@ATSPAWNID+3, @ATID+0, 1, 2450, -249.124, -1277.07, 5605.18, 5.48411, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - The Crucible (Z Check)');
 
--- Sylvanas Windrunner's Conversation Introduction (Serverside)
+-- 36 - Sylvanas Windrunner's Conversation Introduction (Serverside)
 DELETE FROM `areatrigger_template` WHERE `Id`=@ATID+1 AND `IsServerSide`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES 
 (@ATID+1, 1, 0, 0, 75, 75, 0, 0, 0, 0, 0, 0, 0);

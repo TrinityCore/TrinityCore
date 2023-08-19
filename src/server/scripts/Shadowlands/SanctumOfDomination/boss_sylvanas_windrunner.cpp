@@ -93,10 +93,7 @@ enum SylvanasSpawnGroups
 
 enum SylvanasPoints
 {
-    POINT_INTRO_01                                       = 1,
-    POINT_INTRO_02                                       = 2,
-    POINT_INTRO_03                                       = 3,
-    POINT_INTRO_FINISHED                                 = 4
+    POINT_INTRODUCTION                                   = 1
 };
 
 enum SylvanasSpellVisualKits
@@ -189,7 +186,7 @@ struct boss_sylvanas_windrunner : public BossAI
         if (type != POINT_MOTION_TYPE)
             return;
 
-        if (id == POINT_INTRO_01 || id == POINT_INTRO_02 || id == POINT_INTRO_03)
+        if (id == POINT_INTRODUCTION)
             DoCastSelf(SPELL_GENERIC_ANCHOR_HERE, true);
     }
 
@@ -236,8 +233,6 @@ struct at_sylvanas_windrunner_z_check : AreaTriggerAI
             if (player->IsGameMaster())
                 return;
 
-            player->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, uint32(player->GetMaxHealth()));
-
             if (player->IsAlive())
                 player->KillPlayer();
         }
@@ -259,7 +254,7 @@ struct at_sylvanas_windrunner_introduction : AreaTriggerAI
             Conversation::CreateConversation(CONVERSATION_SYLVANAS_INTRODUCTION, sylvanas, sylvanas->GetPosition(), ObjectGuid::Empty);
     }
 
-    private:
+private:
     InstanceScript* _instance;
 };
 
@@ -306,7 +301,7 @@ public:
                 if (!sylvanas)
                     break;
 
-                sylvanas->GetMotionMaster()->MovePoint(POINT_INTRO_01, SylvanasIntroPos[0], false);
+                sylvanas->GetMotionMaster()->MovePoint(POINT_INTRODUCTION, SylvanasIntroPos[0], false);
 
                 _events.ScheduleEvent(EVENT_INTRODUCTION + 2, 1s + 500ms);
                 break;
@@ -330,7 +325,7 @@ public:
                 if (!sylvanas)
                     break;
 
-                sylvanas->GetMotionMaster()->MovePoint(POINT_INTRO_02, SylvanasIntroPos[1], false);
+                sylvanas->GetMotionMaster()->MovePoint(POINT_INTRODUCTION, SylvanasIntroPos[1], false);
 
                 _events.ScheduleEvent(EVENT_INTRODUCTION + 4, 469ms);
                 break;
@@ -406,7 +401,7 @@ public:
                 if (!sylvanas)
                     break;
 
-                sylvanas->GetMotionMaster()->MovePoint(POINT_INTRO_03, SylvanasIntroPos[2], false);
+                sylvanas->GetMotionMaster()->MovePoint(POINT_INTRODUCTION, SylvanasIntroPos[2], false);
 
                 _events.ScheduleEvent(EVENT_INTRODUCTION + 10, 5s + 89ms);
                 break;
