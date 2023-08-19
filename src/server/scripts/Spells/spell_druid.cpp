@@ -114,23 +114,6 @@ enum DruidSpells
     SPELL_DRUID_YSERAS_GIFT_HEAL_SELF          = 145109
 };
 
-class RaidCheck
-{
-public:
-    explicit RaidCheck(Unit const* caster) : _caster(caster) { }
-
-    bool operator()(WorldObject* obj) const
-    {
-        if (Unit* target = obj->ToUnit())
-            return !_caster->IsInRaidWith(target);
-
-        return true;
-    }
-
-private:
-    Unit const* _caster;
-};
-
 // 774 - Rejuvenation
 // 155777 - Rejuventation (Germination)
 class spell_dru_abundance : public AuraScript
@@ -1764,18 +1747,14 @@ class spell_dru_wild_growth : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        targets.remove_if(RaidCheck(GetCaster()));
+        Unit* caster = GetCaster();
+        int32 maxTargets = GetEffectInfo(EFFECT_1).CalcValue(caster);
 
-        uint32 maxTargets = uint32(GetEffectInfo(EFFECT_1).CalcValue(GetCaster()));
+        if (AuraEffect const* treeOfLife = caster->GetAuraEffect(SPELL_DRUID_TREE_OF_LIFE, EFFECT_2))
+            maxTargets += treeOfLife->GetAmount();
 
-        if (AuraEffect const* treeOfLife = GetCaster()->GetAuraEffect(SPELL_DRUID_TREE_OF_LIFE, EFFECT_2))
-            maxTargets += uint32(treeOfLife->GetAmount());
-
-        if (targets.size() > maxTargets)
-        {
-            targets.sort(Trinity::HealthPctOrderPred());
-            targets.resize(maxTargets);
-        }
+        // Note: Wild Growth became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true, caster);
     }
 
     void Register() override
