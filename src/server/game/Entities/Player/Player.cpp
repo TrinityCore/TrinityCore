@@ -25289,6 +25289,10 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
         }
 
         Item* pItem = StoreNewItem(dest, lootItem->itemid, true, lootItem->randomPropertyId);
+        if (pItem)
+        {
+            FIRE_ID(pItem->GetTemplate()->events.id, Item, OnTakenAsLoot, TSItem(pItem), TSLootItem(lootItem), TSLoot(&loot), TSPlayer(this));
+        }
         SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast);
     }
 }
@@ -25332,7 +25336,6 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
     {
         GuidSet looters = item->GetAllowedLooters();
         Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, looters);
-
         // @tswow-begin
         FIRE_ID( newitem->GetTemplate()->events.id
                 , Item,OnTakenAsLoot

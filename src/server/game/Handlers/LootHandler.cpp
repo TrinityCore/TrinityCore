@@ -472,6 +472,13 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     // now move item from loot to target inventory
     Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, looters);
+    // @tswow-begin
+    if (newitem)
+    {
+        FIRE_ID(newitem->GetTemplate()->events.id, Item, OnTakenAsLoot, TSItem(newitem), TSLootItem(&item), TSLoot(loot), TSPlayer(target));
+    }
+    // @tswow-end
+
     target->SendNewItem(newitem, uint32(item.count), false, false, true);
     target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item.itemid, item.count);
     target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item.count);

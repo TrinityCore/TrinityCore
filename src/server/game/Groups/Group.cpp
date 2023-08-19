@@ -15,6 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TSEvents.h"
+#include "TSLoot.h"
+#include "TSPlayer.h"
+#include "TSItem.h"
+#include "Item.h"
 #include "Group.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
@@ -1500,7 +1505,13 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                         item->is_looted = true;
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                         roll->getLoot()->unlootedCount--;
-                        player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters());
+                        // @tswow-begin
+                        Item* i = player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters());
+                        if (i)
+                        {
+                            FIRE_ID(i->GetTemplate()->events.id, Item, OnTakenAsLoot, TSItem(i), TSLootItem(item), TSLoot(roll->getLoot()), TSPlayer(player));
+                        }
+                        // @tswow-end
                     }
                     else
                     {
@@ -1567,7 +1578,13 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                             item->is_looted = true;
                             roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                             roll->getLoot()->unlootedCount--;
-                            player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters());
+                            // @tswow-begin
+                            Item* i = player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters());
+                            if (i)
+                            {
+                                FIRE_ID(i->GetTemplate()->events.id, Item, OnTakenAsLoot, TSItem(i), TSLootItem(item), TSLoot(roll->getLoot()), TSPlayer(player));
+                            }
+                            // @tswow-end
                         }
                         else
                         {
@@ -1588,7 +1605,9 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                         ItemPosCountVec dest;
                         InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
                         if (msg == EQUIP_ERR_OK)
+                        {
                             player->AutoStoreLoot(pProto->DisenchantID, LootTemplates_Disenchant, true);
+                        }
                         else // If the player's inventory is full, send the disenchant result in a mail.
                         {
                             Loot loot;
