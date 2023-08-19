@@ -35,15 +35,18 @@ namespace Movement
 
     void PacketBuilder::WriteCreateBits(MoveSpline const& moveSpline, ByteBuffer& data)
     {
-        if (!data.WriteBit(!moveSpline.Finalized()))
+
+        bool hasSplineMove = data.WriteBit(!moveSpline.Finalized() && !moveSpline.splineIsFacingOnly);
+        if (!hasSplineMove)
             return;
 
         data.WriteBits(uint8(moveSpline.spline.mode()), 2);
         data.WriteBit(moveSpline.splineflags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation));
         data.WriteBits(moveSpline.getPath().size(), 22);
-        switch (moveSpline.splineflags & MoveSplineFlag::Mask_Final_Facing)
+
+        switch (moveSpline.facing.type)
         {
-            case MoveSplineFlag::Final_Target:
+            case MONSTER_MOVE_FACING_TARGET:
             {
                 ObjectGuid targetGuid(moveSpline.facing.target);
                 data.WriteBits(2, 2);
@@ -57,10 +60,10 @@ namespace Movement
                 data.WriteBit(targetGuid[5]);
                 break;
             }
-            case MoveSplineFlag::Final_Angle:
+            case MONSTER_MOVE_FACING_ANGLE:
                 data.WriteBits(0, 2);
                 break;
-            case MoveSplineFlag::Final_Point:
+            case MONSTER_MOVE_FACING_SPOT:
                 data.WriteBits(1, 2);
                 break;
             default:
@@ -68,13 +71,13 @@ namespace Movement
                 break;
         }
 
-        data.WriteBit((moveSpline.splineflags & MoveSplineFlag::Parabolic) && moveSpline.effect_start_time < moveSpline.Duration());
+        data.WriteBit((moveSpline.splineflags & MoveSplineFlag::Parabolic) != 0 && moveSpline.effect_start_time < moveSpline.Duration());
         data.WriteBits(moveSpline.splineflags.raw(), 25);
     }
 
     void PacketBuilder::WriteCreateData(MoveSpline const& moveSpline, ByteBuffer& data)
     {
-        if (!moveSpline.Finalized())
+        if (!moveSpline.Finalized() && !moveSpline.splineIsFacingOnly)
         {
             MoveSplineFlag const& splineFlags = moveSpline.splineflags;
 
@@ -83,9 +86,9 @@ namespace Movement
 
             data << moveSpline.timePassed();
 
-            if (splineFlags.final_angle)
+            if (moveSpline.facing.type == MONSTER_MOVE_FACING_ANGLE)
                 data << moveSpline.facing.angle;
-            else if (splineFlags.final_target)
+            else if (moveSpline.facing.type == MONSTER_MOVE_FACING_TARGET)
             {
                 ObjectGuid facingGuid(moveSpline.facing.target);
                 data.WriteByteSeq(facingGuid[5]);
@@ -106,7 +109,7 @@ namespace Movement
                 data << float(moveSpline.getPath()[i].y);
             }
 
-            if (splineFlags.final_point)
+            if (moveSpline.facing.type == MONSTER_MOVE_FACING_SPOT)
                 data << moveSpline.facing.f.x << moveSpline.facing.f.z << moveSpline.facing.f.y;
 
             data << float(1.f);                             // splineInfo.duration_mod_next; added in 3.1

@@ -18,11 +18,14 @@
 #ifndef TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 #define TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 
+#include "Duration.h"
 #include "MoveSplineFlag.h"
 #include "ObjectGuid.h"
-#include <vector>
+#include "Optional.h"
 
 class Unit;
+
+enum class AnimationTier : uint8;
 
 namespace Movement
 {
@@ -37,7 +40,9 @@ namespace Movement
         ObjectGuid target;
         float angle;
 
-        FacingInfo() : angle(0.0f) { f.x = f.y = f.z = 0.0f; }
+        MonsterMoveType type;
+
+        FacingInfo() : angle(0.0f), type(MONSTER_MOVE_NORMAL) { f.x = f.y = f.z = 0.0f; }
     };
 
     struct MoveSplineInitArgs
@@ -53,9 +58,11 @@ namespace Movement
         float velocity;
         float parabolic_amplitude;
         float vertical_acceleration;
-        float time_perc;
+        float effect_start_time_percent; // fraction of total spline duration
+        Milliseconds effect_start_time;  // absolute value
         uint32 splineId;
         float initialOrientation;
+        Optional<AnimationTier> animTier;
         bool walk;
         bool HasVelocity;
         bool TransformForTransport;
@@ -64,7 +71,7 @@ namespace Movement
         bool Validate(Unit* unit) const;
 
     private:
-        bool _checkPathBounds() const;
+        bool _checkPathLengths() const;
     };
 }
 

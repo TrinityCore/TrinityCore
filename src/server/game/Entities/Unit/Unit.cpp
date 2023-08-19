@@ -542,9 +542,8 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
     if (arrived)
     {
         DisableSpline();
-
-        if (movespline->HasAnimation())
-            SetAnimationTier(movespline->GetAnimationTier());
+        if (Optional<AnimationTier> animTier = movespline->GetAnimation())
+            SetAnimationTier(*animTier);
     }
 
     UpdateSplinePosition();
@@ -564,6 +563,8 @@ void Unit::UpdateSplinePosition()
 
         if (TransportBase* transport = GetDirectTransport())
             transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, &loc.orientation);
+        else
+            return;
     }
 
     if (HasUnitState(UNIT_STATE_CANNOT_TURN))
@@ -13646,6 +13647,21 @@ void Unit::SetFacingToObject(WorldObject const* object, bool force)
     Movement::MoveSplineInit init(this);
     init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
     init.SetFacing(GetAngle(object));   // when on transport, GetAngle will still return global coordinates (and angle) that needs transforming
+    init.Launch();
+}
+
+void Unit::SetFacingToPoint(Position const& point, bool force)
+{
+    // do not face when already moving
+    if (!force && (!IsStopped() || !movespline->Finalized()))
+        return;
+
+    /// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
+    Movement::MoveSplineInit init(this);
+    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
+    if (GetTransport())
+        init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
+    init.SetFacing(point.GetPositionX(), point.GetPositionY(), point.GetPositionZ());
     init.Launch();
 }
 

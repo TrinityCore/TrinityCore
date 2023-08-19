@@ -62,7 +62,7 @@ namespace Movement
     {
         MoveSpline& move_spline = *unit->movespline;
 
-        bool transport = unit->GetTransGUID() != 0;
+        bool transport = !unit->GetTransGUID().IsEmpty();
         Location real_position;
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
         // this also allows calculate spline position and update map position in much greater intervals
@@ -91,13 +91,16 @@ namespace Movement
         args.path[0] = real_position;
         args.initialOrientation = real_position.orientation;
         args.flags.enter_cycle = args.flags.cyclic;
-        move_spline.onTransport = (unit->GetTransGUID() != 0);
+        move_spline.onTransport = transport;
 
         uint32 moveFlags = unit->m_movementInfo.GetMovementFlags();
         if (!args.flags.backward)
             moveFlags = (moveFlags & ~MOVEMENTFLAG_BACKWARD) | MOVEMENTFLAG_FORWARD;
         else
             moveFlags = (moveFlags & ~MOVEMENTFLAG_FORWARD) | MOVEMENTFLAG_BACKWARD;
+
+        if (moveFlags & MOVEMENTFLAG_ROOT)
+            moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
 
         if (!args.HasVelocity)
         {
@@ -125,6 +128,7 @@ namespace Movement
         packet.MoverGUID = unit->GetGUID();
         packet.Pos = Position(real_position.x, real_position.y, real_position.z, real_position.orientation);
         packet.InitializeSplineData(move_spline);
+
         if (unit->m_movementInfo.HasExtraMovementFlag(MOVEMENTFLAG2_IS_VEHICLE_EXIT_VOLUNTARY))
             packet.SplineData.Move.VehicleExitVoluntary = true;
 
@@ -147,7 +151,7 @@ namespace Movement
         if (move_spline.Finalized())
             return;
 
-        bool transport = unit->GetTransGUID() != 0;
+        bool transport = !unit->GetTransGUID().IsEmpty();
         Location loc;
         if (move_spline.onTransport == transport)
             loc = move_spline.ComputePosition();
@@ -174,15 +178,7 @@ namespace Movement
         packet.MoverGUID = unit->GetGUID();
         packet.Pos = Position(loc.x, loc.y, loc.z, loc.orientation);
         packet.SplineData.ID = move_spline.GetId();
-
-        if (unit->IsAlive())
-            packet.SplineData.Move.Face = MONSTER_MOVE_STOP;
-        else
-        {
-            // Stopping splines for killed creatures send a normal packet with their current position as first path point
-            packet.SplineData.Move.Face = MONSTER_MOVE_NORMAL;
-            packet.SplineData.Move.Points.push_back({ loc.x, loc.y, loc.z });
-        }
+        packet.SplineData.Move.Face = MONSTER_MOVE_STOP;
 
         if (transport)
         {
@@ -213,13 +209,19 @@ namespace Movement
         args.facing.f.x = finalSpot.x;
         args.facing.f.y = finalSpot.y;
         args.facing.f.z = finalSpot.z;
-        args.flags.EnableFacingPoint();
+        args.facing.type = MONSTER_MOVE_FACING_SPOT;
+    }
+
+    void MoveSplineInit::SetFacing(float x, float y, float z)
+    {
+        SetFacing({ x, y, z });
     }
 
     void MoveSplineInit::SetFacing(Unit const* target)
     {
-        args.flags.EnableFacingTarget();
+        args.facing.angle = unit->GetAngle(target);
         args.facing.target = target->GetGUID();
+        args.facing.type = MONSTER_MOVE_FACING_TARGET;
     }
 
     void MoveSplineInit::SetFacing(float angle)
@@ -233,7 +235,7 @@ namespace Movement
         }
 
         args.facing.angle = G3D::wrap(angle, 0.f, (float)G3D::twoPi());
-        args.flags.EnableFacingAngle();
+        args.facing.type = MONSTER_MOVE_FACING_ANGLE;
     }
 
     void MoveSplineInit::MovebyPath(PointsArray const& controls, int32 path_offset)

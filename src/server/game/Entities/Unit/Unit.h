@@ -1214,12 +1214,10 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool SetHover(bool enable, bool packetOnly = false, bool updateAnimationTier = true);
         void SendSetVehicleRecId(uint32 vehicleId);
 
-        // Sets the internal orientation value to face the provided target. Does NOT have clientside effects.
         void SetOrientationTowards(WorldObject const* target);
-        // Launches a spline to face the given orientation.
         void SetFacingTo(float const ori, bool force = true);
-        // Launches a spline to face the given object
         void SetFacingToObject(WorldObject const* object, bool force = true);
+        void SetFacingToPoint(Position const& point, bool force = true);
 
         bool IsAlive() const { return (m_deathState == ALIVE); }
         bool isDying() const { return (m_deathState == JUST_DIED); }

@@ -75,7 +75,7 @@ namespace Movement
         /* Plays animation after movement done
          * can't be combined with parabolic movement
          */
-        void SetAnimation(AnimationTier anim);
+        void SetAnimation(AnimationTier anim, Milliseconds transitionStartTime = 0ms);
 
         /* Adds final facing animation
          * sets unit's facing to specified point/angle after all path done
@@ -83,6 +83,7 @@ namespace Movement
          */
         void SetFacing(float angle);
         void SetFacing(Vector3 const& point);
+        void SetFacing(float x, float y, float z);
         void SetFacing(Unit const* target);
 
         /* Initializes movement by path
@@ -174,7 +175,7 @@ namespace Movement
 
     inline void MoveSplineInit::SetParabolic(float amplitude, float time_shift)
     {
-        args.time_perc = time_shift;
+        args.effect_start_time_percent = time_shift;
         args.parabolic_amplitude = amplitude;
         args.vertical_acceleration = 0.0f;
         args.flags.EnableParabolic();
@@ -182,16 +183,18 @@ namespace Movement
 
     inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift)
     {
-        args.time_perc = time_shift;
+        args.effect_start_time_percent = time_shift;
         args.parabolic_amplitude = 0.0f;
         args.vertical_acceleration = vertical_acceleration;
         args.flags.EnableParabolic();
     }
 
-    inline void MoveSplineInit::SetAnimation(AnimationTier anim)
+    inline void MoveSplineInit::SetAnimation(AnimationTier anim, Milliseconds transitionStartTime /*= 0ms*/)
     {
-        args.time_perc = 0.f;
-        args.flags.EnableAnimation((uint8)anim);
+        args.effect_start_time_percent = 0.f;
+        args.effect_start_time = transitionStartTime;
+        args.animTier = anim;
+        args.flags.EnableAnimation();
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }

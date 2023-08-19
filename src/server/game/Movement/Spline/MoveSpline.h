@@ -82,6 +82,7 @@ namespace Movement
         int32           point_Idx;
         int32           point_Idx_offset;
         float           velocity;
+        Optional<AnimationTier> anim_tier;
 
         void init_spline(MoveSplineInitArgs const& args);
 
@@ -141,10 +142,10 @@ namespace Movement
         int32 MaxPathIdx() const { return spline.last() - 1; }
         bool HasStarted() const { return time_passed > 0; }
 
-        bool HasAnimation() const { return splineflags.animation; }
-        AnimationTier GetAnimationTier() const { return static_cast<AnimationTier>(splineflags.animTier); }
+        Optional<AnimationTier> GetAnimation() const { return anim_tier; }
 
         bool onTransport;
+        bool splineIsFacingOnly;
         std::string ToString() const;
     };
 }
