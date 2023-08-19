@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _EVENT_MAP_H_
-#define _EVENT_MAP_H_
+#ifndef TRINITYCORE_EVENT_MAP_H
+#define TRINITYCORE_EVENT_MAP_H
 
 #include "Define.h"
 #include "Duration.h"
@@ -34,14 +34,16 @@ class TC_COMMON_API EventMap
         Event() = default;
         Event(EventId id, GroupIndex groupIndex, PhaseIndex phaseIndex) :
             _id(id),
-            _groupMask(groupIndex ? (1u << (groupIndex - 1u)) : 0u), // no index validity check here
-            _phaseMask(phaseIndex ? (1u << (phaseIndex - 1u)) : 0u)  // no index validity check here
-        {}
+            _groupMask(groupIndex ? GroupMask(1u << (groupIndex - 1u)) : 0u),
+            _phaseMask(phaseIndex ? PhaseMask(1u << (phaseIndex - 1u)) : 0u)
+        {
+        }
 
         EventId _id          = 0u;
         GroupMask _groupMask = 0u;
         PhaseMask _phaseMask = 0u;
     };
+
     /**
      * Internal storage type.
      * Key: Time as TimePoint when the event should occur.
@@ -49,11 +51,7 @@ class TC_COMMON_API EventMap
     using EventStore = std::multimap<TimePoint, Event>;
 
 public:
-    EventMap() :
-        _time(TimePoint::min()),
-        _phaseMask(0),
-        _lastEvent({})
-    {}
+    EventMap() : _time(TimePoint::min()), _phaseMask(0) { }
 
     /**
     * @name Reset
@@ -296,4 +294,4 @@ private:
     Event _lastEvent;
 };
 
-#endif // _EVENT_MAP_H_
+#endif // TRINITYCORE_EVENT_MAP_H

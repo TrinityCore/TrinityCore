@@ -22,18 +22,18 @@ void EventMap::Reset()
 {
     _eventMap.clear();
     _time = TimePoint::min();
-    _phaseMask = {};
+    _phaseMask = 0;
 }
 
 void EventMap::SetPhase(PhaseIndex phase)
 {
     if (!phase)
-        _phaseMask = {};
+        _phaseMask = 0;
     else if (phase <= sizeof(PhaseMask) * 8)
         _phaseMask = PhaseMask(1u << (phase - 1u));
 }
 
-void EventMap::ScheduleEvent(EventId eventId, Milliseconds time, GroupIndex group, PhaseIndex phase)
+void EventMap::ScheduleEvent(EventId eventId, Milliseconds time, GroupIndex group /*= 0*/, PhaseIndex phase /*= 0*/)
 {
     if (group > sizeof(GroupMask) * 8)
         return;
@@ -44,7 +44,7 @@ void EventMap::ScheduleEvent(EventId eventId, Milliseconds time, GroupIndex grou
     _eventMap.insert(EventStore::value_type(_time + time, Event(eventId, group, phase)));
 }
 
-void EventMap::ScheduleEvent(EventId eventId, Milliseconds minTime, Milliseconds maxTime, GroupIndex group, PhaseIndex phase)
+void EventMap::ScheduleEvent(EventId eventId, Milliseconds minTime, Milliseconds maxTime, GroupIndex group /*= 0*/, PhaseIndex phase /*= 0*/)
 {
     ScheduleEvent(eventId, randtime(minTime, maxTime), group, phase);
 }
@@ -55,7 +55,7 @@ void EventMap::RescheduleEvent(EventId eventId, Milliseconds time, GroupIndex gr
     ScheduleEvent(eventId, time, group, phase);
 }
 
-void EventMap::RescheduleEvent(EventId eventId, Milliseconds minTime, Milliseconds maxTime, GroupIndex group, PhaseIndex phase)
+void EventMap::RescheduleEvent(EventId eventId, Milliseconds minTime, Milliseconds maxTime, GroupIndex group /*= 0*/, PhaseIndex phase /*= 0*/)
 {
     RescheduleEvent(eventId, randtime(minTime, maxTime), group, phase);
 }
@@ -77,7 +77,7 @@ EventMap::EventId EventMap::ExecuteEvent()
         auto itr = _eventMap.begin();
 
         if (itr->first > _time)
-            return {};
+            return 0;
         else if (_phaseMask && itr->second._phaseMask && !(itr->second._phaseMask & _phaseMask))
             _eventMap.erase(itr);
         else
@@ -89,7 +89,7 @@ EventMap::EventId EventMap::ExecuteEvent()
         }
     }
 
-    return {};
+    return 0;
 }
 
 void EventMap::DelayEvents(Milliseconds delay)
@@ -97,8 +97,7 @@ void EventMap::DelayEvents(Milliseconds delay)
     if (Empty())
         return;
 
-    EventStore delayed = std::move(_eventMap); // this does empty _eventMap
-    _eventMap.clear(); // ...but do it explicitely anyway
+    EventStore delayed = std::move(_eventMap);
     for (auto itr = delayed.begin(); itr != delayed.end();)
     {
         EventStore::node_type node = delayed.extract(itr++);
