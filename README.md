@@ -93,3 +93,6 @@ Read file [AUTHORS](AUTHORS).
 * [Wiki](https://www.trinitycore.info)
 * [Forums](https://talk.trinitycore.org/)
 * [Discord](https://discord.trinitycore.org/)
+
+## DB download like
+* [Donwload](https://github.com/TrinityCore/TrinityCore/releases)
