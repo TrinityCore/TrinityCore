@@ -113,7 +113,7 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
     Position position(_reference);
-    float distance = frand(0.f, _wanderDistance);
+    float distance = frand(0.1f, _wanderDistance);
     float angle = frand(0.f, float(M_PI * 2));
     owner->MovePositionToFirstCollision(position, distance, angle);
 
