@@ -113,9 +113,15 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
     Position position(_reference);
-    float distance = frand(0.1f, _wanderDistance);
-    float angle = frand(0.f, float(M_PI * 2));
+    float distance = _wanderDistance > 0.1f ? frand(0.1f, _wanderDistance) : _wanderDistance;
+    float angle = frand(0.f, static_cast<float>(M_PI * 2));
     owner->MovePositionToFirstCollision(position, distance, angle);
+    if (owner->GetPosition().GetExactDist(position) < 0.1f)
+    {
+        // the path is too short for the spline system to be accepted. Let's try again soon.
+        _timer.Reset(500);
+        return;
+    }
 
     if (!_path)
         _path = new PathGenerator(owner);
