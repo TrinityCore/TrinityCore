@@ -2704,6 +2704,20 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     break;
             }
 
+            switch (spellInfo->Effects[j].ApplyAuraName)
+            {
+                case SPELL_AURA_OPEN_STABLE:    // No point in saving this, since the stable dialog can't be open on aura load anyway.
+                    // Auras that require both caster & target to be in world cannot be saved
+                case SPELL_AURA_CONTROL_VEHICLE:
+                case SPELL_AURA_BIND_SIGHT:
+                case SPELL_AURA_MOD_POSSESS:
+                case SPELL_AURA_MOD_CHARM:
+                case SPELL_AURA_AOE_CHARM:
+                case SPELL_AURA_CONVERT_RUNE:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
+                    break;
+            }
+
             switch (spellInfo->Effects[j].Effect)
             {
                 case SPELL_EFFECT_SCHOOL_DAMAGE:
@@ -2887,6 +2901,10 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         }
 
         spellInfo->_InitializeExplicitTargetMask();
+
+        // Saving to DB happens before removing from world - skip saving these auras
+        if (spellInfo->HasAuraInterruptFlag(SpellAuraInterruptFlags::LeaveWorld))
+            spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
     }
 
     // addition for binary spells, omit spells triggering other spells
@@ -2945,7 +2963,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         {
             if (uint32 spellId = liquid->SpellID)
                 if (SpellInfo* spellInfo = _GetSpellInfo(spellId))
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_LIQUID_AURA;
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
         }
     }
 
