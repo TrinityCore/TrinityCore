@@ -94,7 +94,6 @@ namespace VMAP
         private:
             std::string iDestDir;
             std::string iSrcDir;
-            G3D::Table<std::string, unsigned int > iUniqueNameIds;
             MapData mapData;
             std::set<std::string> spawnedModelFiles;
 

@@ -91,31 +91,27 @@ ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid)
     return buf;
 }
 
-void ObjectGuidGeneratorBase::HandleCounterOverflow(HighGuid high)
+ObjectGuid::LowType ObjectGuidGenerator::Generate()
 {
-    TC_LOG_ERROR("misc", "%s guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(high));
+    if (_nextGuid >= ObjectGuid::GetMaxCounter(_high) - 1)
+        HandleCounterOverflow();
+
+    if (_high == HighGuid::Unit || _high == HighGuid::Vehicle || _high == HighGuid::GameObject || _high == HighGuid::Transport)
+        CheckGuidTrigger();
+
+    return _nextGuid++;
+}
+
+void ObjectGuidGenerator::HandleCounterOverflow()
+{
+    TC_LOG_ERROR("misc", "{} guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(_high));
     World::StopNow(ERROR_EXIT_CODE);
 }
 
-void ObjectGuidGeneratorBase::CheckGuidTrigger(ObjectGuid::LowType guidlow)
+void ObjectGuidGenerator::CheckGuidTrigger()
 {
-    if (!sWorld->IsGuidAlert() && guidlow > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDALERTLEVEL))
+    if (!sWorld->IsGuidAlert() && _nextGuid > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDALERTLEVEL))
         sWorld->TriggerGuidAlert();
-    else if (!sWorld->IsGuidWarning() && guidlow > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDWARNLEVEL))
+    else if (!sWorld->IsGuidWarning() && _nextGuid > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDWARNLEVEL))
         sWorld->TriggerGuidWarning();
 }
-
-#define GUID_TRAIT_INSTANTIATE_GUID( HIGH_GUID ) \
-    template class TC_GAME_API ObjectGuidGenerator< HIGH_GUID >;
-
-GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Container)
-GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Player)
-GUID_TRAIT_INSTANTIATE_GUID(HighGuid::GameObject)
-GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Transport)
-GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Unit)
-GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Pet)
-GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Vehicle)
-GUID_TRAIT_INSTANTIATE_GUID(HighGuid::DynamicObject)
-GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Mo_Transport)
-GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Instance)
-GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Group)

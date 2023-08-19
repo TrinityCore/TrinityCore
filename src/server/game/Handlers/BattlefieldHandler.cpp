@@ -125,7 +125,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
 
     recvData >> battleId >> accepted;
 
-    TC_LOG_DEBUG("misc", "HandleBfQueueInviteResponse: BattleID:%u Accepted:%u", battleId, accepted);
+    TC_LOG_DEBUG("misc", "HandleBfQueueInviteResponse: BattleID:{} Accepted:{}", battleId, accepted);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
     if (!bf)
@@ -147,7 +147,7 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
 
     recvData >> battleId >> accepted;
 
-    TC_LOG_DEBUG("misc", "HandleBfEntryInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
+    TC_LOG_DEBUG("misc", "HandleBfEntryInviteResponse: battleId: {}, accepted: {}", battleId, accepted);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
     if (!bf)
@@ -176,7 +176,7 @@ void WorldSession::HandleBfQueueExitRequest(WorldPacket& recvData)
 
     recvData >> battleId;
 
-    TC_LOG_DEBUG("misc", "HandleBfQueueExitRequest: battleId: %u ", battleId);
+    TC_LOG_DEBUG("misc", "HandleBfQueueExitRequest: battleId: {} ", battleId);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
     if (!bf)

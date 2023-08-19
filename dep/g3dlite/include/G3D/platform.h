@@ -190,6 +190,7 @@ These control the version of Winsock used by G3D.
     //  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_Compiler_Reference.asp
     //
 
+#if 0
     // DLL runtime
     #ifndef _DLL
         #define _DLL
@@ -226,6 +227,8 @@ These control the version of Winsock used by G3D.
 #   include <windows.h>
 #   undef WIN32_LEAN_AND_MEAN
 #   undef NOMINMAX
+
+#endif // 0
 
 #   ifdef _G3D_INTERNAL_HIDE_WINSOCK_
 #      undef _G3D_INTERNAL_HIDE_WINSOCK_

@@ -32,7 +32,6 @@
 #include "SpawnData.h"
 #include "Timer.h"
 #include "Transaction.h"
-#include <boost/heap/fibonacci_heap.hpp>
 #include <bitset>
 #include <list>
 #include <memory>
@@ -293,8 +292,7 @@ struct CompareRespawnInfo
     bool operator()(RespawnInfo const* a, RespawnInfo const* b) const;
 };
 using ZoneDynamicInfoMap = std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo>;
-using RespawnListContainer = boost::heap::fibonacci_heap<RespawnInfo*, boost::heap::compare<CompareRespawnInfo>>;
-using RespawnListHandle = RespawnListContainer::handle_type;
+struct RespawnListContainer;
 using RespawnInfoMap = std::unordered_map<ObjectGuid::LowType, RespawnInfo*>;
 struct RespawnInfo
 {
@@ -303,7 +301,6 @@ struct RespawnInfo
     uint32 entry;
     time_t respawnTime;
     uint32 gridId;
-    RespawnListHandle handle;
 };
 inline bool CompareRespawnInfo::operator()(RespawnInfo const* a, RespawnInfo const* b) const
 {
@@ -316,6 +313,9 @@ inline bool CompareRespawnInfo::operator()(RespawnInfo const* a, RespawnInfo con
     ASSERT(a->type != b->type, "Duplicate respawn entry for spawnId (%u,%u) found!", a->type, a->spawnId);
     return a->type < b->type;
 }
+
+extern template class TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid>;
+typedef TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid> MapStoredObjectTypesContainer;
 
 class TC_GAME_API Map : public GridRefManager<NGridType>
 {
@@ -623,14 +623,14 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         inline ObjectGuid::LowType GenerateLowGuid()
         {
             static_assert(ObjectGuidTraits<high>::MapSpecific, "Only map specific guid can be generated in Map context");
-            return GetGuidSequenceGenerator<high>().Generate();
+            return GetGuidSequenceGenerator(high).Generate();
         }
 
         template<HighGuid high>
         inline ObjectGuid::LowType GetMaxLowGuid()
         {
             static_assert(ObjectGuidTraits<high>::MapSpecific, "Only map specific guid can be retrieved in Map context");
-            return GetGuidSequenceGenerator<high>().GetNextAfterMaxUsed();
+            return GetGuidSequenceGenerator(high).GetNextAfterMaxUsed();
         }
 
         void AddUpdateObject(Object* obj)
@@ -845,7 +845,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
                 m_activeNonPlayers.erase(obj);
         }
 
-        RespawnListContainer _respawnTimes;
+        std::unique_ptr<RespawnListContainer> _respawnTimes;
         RespawnInfoMap       _creatureRespawnTimesBySpawnId;
         RespawnInfoMap       _gameObjectRespawnTimesBySpawnId;
         RespawnInfoMap& GetRespawnMapForType(SpawnObjectType type)
@@ -882,17 +882,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         ZoneDynamicInfoMap _zoneDynamicInfo;
         IntervalTimer _weatherUpdateTimer;
 
-        template<HighGuid high>
-        inline ObjectGuidGeneratorBase& GetGuidSequenceGenerator()
-        {
-            auto itr = _guidGenerators.find(high);
-            if (itr == _guidGenerators.end())
-                itr = _guidGenerators.insert(std::make_pair(high, std::unique_ptr<ObjectGuidGenerator<high>>(new ObjectGuidGenerator<high>()))).first;
+        ObjectGuidGenerator& GetGuidSequenceGenerator(HighGuid high);
 
-            return *itr->second;
-        }
-
-        std::map<HighGuid, std::unique_ptr<ObjectGuidGeneratorBase>> _guidGenerators;
+        std::map<HighGuid, std::unique_ptr<ObjectGuidGenerator>> _guidGenerators;
         MapStoredObjectTypesContainer _objectsStore;
         CreatureBySpawnIdContainer _creatureBySpawnIdStore;
         GameObjectBySpawnIdContainer _gameobjectBySpawnIdStore;

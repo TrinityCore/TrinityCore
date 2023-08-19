@@ -783,7 +783,7 @@ void Group::ConvertLeaderInstancesToGroup(Player* player, Group* group, bool swi
             if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(playerMap->GetInstanceId()))
                 if (save->GetGroupCount() == 0 && save->GetPlayerCount() == 0)
                 {
-                    TC_LOG_DEBUG("maps", "Group::ConvertLeaderInstancesToGroup: Group for player %s is taking over unbound instance map %d with Id %d", player->GetName().c_str(), playerMap->GetId(), playerMap->GetInstanceId());
+                    TC_LOG_DEBUG("maps", "Group::ConvertLeaderInstancesToGroup: Group for player {} is taking over unbound instance map {} with Id {}", player->GetName(), playerMap->GetId(), playerMap->GetInstanceId());
                     // if nobody is saved to this, then the save wasn't permanent
                     group->BindToInstance(save, false, false);
                 }
@@ -1044,7 +1044,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: {}", i->itemid);
             continue;
         }
 
@@ -1132,7 +1132,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: {}", i->itemid);
             continue;
         }
 
@@ -2183,7 +2183,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
                     AreaTrigger const * const instanceEntrance = sObjectMgr->GetGoBackTrigger(map->GetId());
 
                     if (!instanceEntrance)
-                        TC_LOG_DEBUG("root", "Instance entrance not found for maps %u", map->GetId());
+                        TC_LOG_DEBUG("root", "Instance entrance not found for maps {}", map->GetId());
                     else
                     {
                         WorldSafeLocsEntry const * graveyardLocation = sObjectMgr->GetClosestGraveyard(instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z, instanceEntrance->target_mapId, SendMsgTo->GetTeam());
@@ -2295,8 +2295,8 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
     bind.save = save;
     bind.perm = permanent;
     if (!load)
-        TC_LOG_DEBUG("maps", "Group::BindToInstance: %s, storage id: %u is now bound to map %d, instance %d, difficulty %d",
-            GetGUID().ToString().c_str(), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), static_cast<uint32>(save->GetDifficulty()));
+        TC_LOG_DEBUG("maps", "Group::BindToInstance: {}, storage id: {} is now bound to map {}, instance {}, difficulty {}",
+            GetGUID().ToString(), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), static_cast<uint32>(save->GetDifficulty()));
 
     return &bind;
 }
@@ -2338,7 +2338,7 @@ void Group::BroadcastGroupUpdate(void)
         {
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
-            TC_LOG_DEBUG("misc", "-- Forced group value update for '%s'", pp->GetName().c_str());
+            TC_LOG_DEBUG("misc", "-- Forced group value update for '{}'", pp->GetName());
         }
     }
 }

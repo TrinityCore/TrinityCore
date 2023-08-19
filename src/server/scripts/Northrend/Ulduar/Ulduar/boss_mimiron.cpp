@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
