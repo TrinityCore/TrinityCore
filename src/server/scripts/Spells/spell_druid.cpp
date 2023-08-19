@@ -26,6 +26,7 @@
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -61,6 +62,8 @@ enum DruidSpells
     SPELL_DRUID_ECLIPSE_OOC                    = 329910,
     SPELL_DRUID_ECLIPSE_SOLAR_AURA             = 48517,
     SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT        = 326053,
+    SPELL_DRUID_EFFLORESCENCE_AURA             = 81262,
+    SPELL_DRUID_EFFLORESCENCE_HEAL             = 81269,
     SPELL_DRUID_ENTANGLING_ROOTS               = 339,
     SPELL_DRUID_EXHILARATE                     = 28742,
     SPELL_DRUID_FORM_AQUATIC_PASSIVE           = 276012,
@@ -103,6 +106,8 @@ enum DruidSpells
     SPELL_DRUID_SHOOTING_STARS_DAMAGE          = 202497,
     SPELL_DRUID_SKULL_BASH_CHARGE              = 221514,
     SPELL_DRUID_SKULL_BASH_INTERRUPT           = 93985,
+    SPELL_DRUID_SPRING_BLOSSOMS                = 207385,
+    SPELL_DRUID_SPRING_BLOSSOMS_HEAL           = 207386,
     SPELL_DRUID_SUNFIRE_DAMAGE                 = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS             = 50322,
     SPELL_DRUID_TRAVEL_FORM                    = 783,
@@ -115,7 +120,7 @@ enum DruidSpells
 };
 
 // 774 - Rejuvenation
-// 155777 - Rejuventation (Germination)
+// 155777 - Rejuvenation (Germination)
 class spell_dru_abundance : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -497,6 +502,72 @@ class spell_dru_eclipse_ooc : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_eclipse_ooc::Tick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 145205 - Efflorescence
+class spell_dru_efflorescence : public SpellScript
+{
+    void RemoveOldAreaTrigger(SpellEffIndex /*effIndex*/) const
+    {
+        // if caster has any Efflorescence areatrigger, we remove it.
+        GetCaster()->RemoveAreaTrigger(GetSpellInfo()->Id);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_dru_efflorescence::RemoveOldAreaTrigger, EFFECT_2, SPELL_EFFECT_CREATE_AREATRIGGER);
+    }
+};
+
+struct npc_dru_efflorescence : public NullCreatureAI
+{
+    explicit npc_dru_efflorescence(Creature* creature) : NullCreatureAI(creature)
+    {
+    }
+
+    void InitializeAI() override
+    {
+        me->CastSpell(me, SPELL_DRUID_EFFLORESCENCE_AURA);
+    }
+};
+
+// 81262 - Efflorescence (Dummy)
+class spell_dru_efflorescence_dummy : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_EFFLORESCENCE_HEAL });
+    }
+
+    void HandlePeriodicDummy(AuraEffect const* /*aurEff*/) const
+    {
+        Unit* target = GetTarget();
+        Unit* summoner = target->GetOwner();
+        if (!summoner)
+            return;
+
+        summoner->CastSpell(target, SPELL_DRUID_EFFLORESCENCE_HEAL, TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_efflorescence_dummy::HandlePeriodicDummy, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 81269 - Efflorescence (Heal)
+class spell_dru_efflorescence_heal : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        // Efflorescence became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
+        Trinity::SelectRandomInjuredTargets(targets, 3, true, GetCaster());
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_efflorescence_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
@@ -1205,6 +1276,26 @@ class spell_dru_skull_bash : public SpellScript
     }
 };
 
+// 81269 - Efflorescence (Heal)
+class spell_dru_spring_blossoms : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_SPRING_BLOSSOMS, SPELL_DRUID_SPRING_BLOSSOMS_HEAL });
+    }
+
+    void HandleOnHit(SpellEffIndex /*effIndex*/) const
+    {
+        if (GetCaster()->HasAura(SPELL_DRUID_SPRING_BLOSSOMS))
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_SPRING_BLOSSOMS_HEAL, TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_spring_blossoms::HandleOnHit, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
 // 106898 - Stampeding Roar
 class spell_dru_stampeding_roar : public spell_dru_base_transformer
 {
@@ -1851,6 +1942,10 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_eclipse_aura);
     RegisterSpellScript(spell_dru_eclipse_dummy);
     RegisterSpellScript(spell_dru_eclipse_ooc);
+    RegisterCreatureAI(npc_dru_efflorescence);
+    RegisterSpellScript(spell_dru_efflorescence);
+    RegisterSpellScript(spell_dru_efflorescence_dummy);
+    RegisterSpellScript(spell_dru_efflorescence_heal);
     RegisterSpellAndAuraScriptPair(spell_dru_entangling_roots, spell_dru_entangling_roots_aura);
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_forms_trinket);
@@ -1873,6 +1968,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_aura);
     RegisterSpellScript(spell_dru_shooting_stars);
     RegisterSpellScript(spell_dru_skull_bash);
+    RegisterSpellScript(spell_dru_spring_blossoms);
     RegisterSpellScript(spell_dru_stampeding_roar);
     RegisterSpellScript(spell_dru_starfall_dummy);
     RegisterSpellScript(spell_dru_sudden_ambush);
