@@ -590,7 +590,7 @@ class TC_GAME_API SpellInfo
         uint32 GetRecoveryTime() const;
 
         int32 CalcPowerCost(WorldObject const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
-        float GetSpellScalingMultiplier(WorldObject const* caster, SpellScalingEntry const* scalingEntry, bool isPowerCostRelated = false) const;
+        float GetSpellScalingMultiplier(WorldObject const* caster, bool isPowerCostRelated = false) const;
 
         bool IsRanked() const;
         uint8 GetRank() const;

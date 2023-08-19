@@ -3346,10 +3346,10 @@ uint32 SpellInfo::GetMechanicImmunityMask(Unit* caster) const
 
 float SpellInfo::CalculateScaledCoefficient(Unit const* caster, float coefficient) const
 {
-    if (coefficient == 0.f || !caster || !GetSpellScaling())
+    if (coefficient == 0.f || !caster || SpellScalingId == 0)
         return coefficient;
 
-    return coefficient *= GetSpellScalingMultiplier(caster, GetSpellScaling());
+    return coefficient *= GetSpellScalingMultiplier(caster);
 }
 
 float SpellInfo::GetMinRange(bool positive) const
@@ -3633,7 +3633,7 @@ int32 SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask school
 
         // Scaling
         if (SpellScalingId)
-            powerCost = int32(ceilf(GetSpellScalingMultiplier(unitCaster, GetSpellScaling(), true) * (double)powerCost));
+            powerCost = int32(ceilf(GetSpellScalingMultiplier(unitCaster, true) * (double)powerCost));
         else
         {
             uint32 manaCostPerLevel = invertSign ? -int32(ManaCostPerlevel) : ManaCostPerlevel;
@@ -3703,30 +3703,27 @@ int32 SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask school
     return powerCost;
 }
 
-float SpellInfo::GetSpellScalingMultiplier(WorldObject const* caster, SpellScalingEntry const* scalingEntry, bool isPowerCostRelated /*= false*/) const
+float SpellInfo::GetSpellScalingMultiplier(WorldObject const* caster, bool isPowerCostRelated /*= false*/) const
 {
-    if (!caster || !caster->IsUnit() || !scalingEntry)
+    if (!caster || !caster->IsUnit() || SpellScalingId == 0)
         return 1.f;
 
     float multiplier = 1.f;
     float scalingMultiplier = 1.f;
 
-    int32 castTimeMaxLevel = scalingEntry->CastTimeMaxLevel;
     uint8 casterLevel = caster->ToUnit()->getLevel();
 
-    if (casterLevel < castTimeMaxLevel && scalingEntry->CastTimeMax)
+    if (casterLevel < Scaling.CastTimeMaxLevel && Scaling.CastTimeMax)
     {
-        float castTimeMax = (float)scalingEntry->CastTimeMax;
-        int32 castTime = scalingEntry->CastTimeMin + ((casterLevel - 1) * (scalingEntry->CastTimeMax - scalingEntry->CastTimeMin)) / (castTimeMaxLevel - 1);
-        multiplier = castTime / castTimeMax;
-        scalingMultiplier = castTime / castTimeMax;
+        int32 castTime = Scaling.CastTimeMin + ((casterLevel - 1) * (Scaling.CastTimeMax - Scaling.CastTimeMin)) / (Scaling.CastTimeMaxLevel - 1);
+        multiplier = castTime / (float)Scaling.CastTimeMax;
+        scalingMultiplier = castTime / (float)Scaling.CastTimeMax;
     }
 
     if (!isPowerCostRelated)
     {
-        int32 nerfMaxLevel = scalingEntry->NerfMaxLevel;
-        if (casterLevel < nerfMaxLevel)
-            scalingMultiplier = ((((1.f - scalingEntry->NerfFactor) * (casterLevel - 1)) / (nerfMaxLevel - 1)) + scalingEntry->NerfFactor) * multiplier;
+        if (casterLevel < Scaling.NerfMaxLevel)
+            scalingMultiplier = ((((1.f - Scaling.NerfFactor) * (casterLevel - 1)) / (Scaling.NerfMaxLevel - 1)) + Scaling.NerfFactor) * multiplier;
     }
 
     return scalingMultiplier;
