@@ -71,7 +71,7 @@ DELETE FROM `creature_template_difficulty` WHERE `Entry`=175732;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
 (175732, 14, 3, 3, 2104, 8, 99999999, 1, 99999999, 2097260, 65664, 50791),
 (175732, 15, 3, 3, 2105, 8, 99999999, 1, 99999999, 2097260, 65664, 50791),
-(175732, 16, 3, 3, 2106, 8, 99999999, 1, 99999999, 2097260, 65664, 50791),
+(175732, 16, 3, 3, 2106, 8, 1817.760009765625, 1, 204625, 2097260, 65664, 50791),
 (175732, 17, 3, 3, 2107, 8, 1443.760009765625, 1, 204626, 2097260, 65664, 50791);
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID`=175732;
@@ -125,7 +125,9 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (175732, 27, 0, 'Shadows draw near!', 14, 0, 100, 0, 0, 181354, 0, 210352, 0, 'Black Arrow 01'),
 (175732, 27, 1, 'Do you fear the shadows?', 14, 0, 100, 0, 0, 181353, 0, 210351, 0, 'Black Arrow 02'),
 (175732, 28, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t %s begins to cast |cFFFF0000|Hspell:358704|h[Black Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Black Arrow warning'),
-(175732, 29, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t You have been targetted by |cFFFF0000|Hspell:358704|h[Black Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 5, 'Black Arrow target warning');
+(175732, 29, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t You have been targetted by |cFFFF0000|Hspell:358704|h[Black Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 5, 'Black Arrow target warning'),
+(175732, 30, 0, 'A new age beckons, but you are unworthy of a place in it!', 14, 0, 100, 0, 0, 181349, 0, 210356, 0, 'RP during Rive 01'),
+(175732, 31, 0, 'Zovaal will not be denied!', 14, 0, 100, 0, 0, 181348, 0, 210357, 0, 'RP during Rive 01');
 
 DELETE FROM `creature_text_locale` WHERE `CreatureID`=175732;
 INSERT INTO `creature_text_locale` (`CreatureID`, `GroupID`, `ID`, `Locale`, `Text`) VALUES 
@@ -156,11 +158,13 @@ INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `
 (175732, 0, 0, 178081, 239.795, -806.064, 4105.07, 4.77206, 8, 0, 'Bolvar - Sylvanas Windrunner Encounter');
 
 -- 176920 - Domination Arrow
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=4194304, `unit_flags3`=1 WHERE `entry`=176920;
+
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=176920;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
 (176920, 14, 0, 0, 2104, 8, 99999999, 1, 99999999, 16778272, 144, 50791),
 (176920, 15, 0, 0, 2105, 8, 99999999, 1, 99999999, 16778272, 144, 50791),
-(176920, 16, 0, 0, 2106, 8, 99999999, 1, 99999999, 16778272, 144, 50791),
+(176920, 16, 0, 0, 2106, 8, 2.549999952316284179, 1, 204761, 16778272, 144, 50791),
 (176920, 17, 0, 0, 2107, 8, 1.20000004768371582, 1, 204762, 16778272, 144, 50791);
 
 -- 178355 - Sylvanas Shadowcopy (Riding)
@@ -172,9 +176,9 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=178355;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(178355, 14, 0, 0, 2104, 8, 1, 1, 99999999, 16778240, 16, 50791),
-(178355, 15, 0, 0, 2105, 8, 1, 1, 99999999, 16778240, 16, 50791),
-(178355, 16, 0, 0, 2106, 8, 1, 1, 99999999, 16778240, 16, 50791),
+(178355, 14, 0, 0, 2104, 8, 1, 1, 201696, 16778240, 16, 50791),
+(178355, 15, 0, 0, 2105, 8, 1, 1, 201696, 16778240, 16, 50791),
+(178355, 16, 0, 0, 2106, 8, 1, 1, 201696, 16778240, 16, 50791),
 (178355, 17, 0, 0, 2107, 8, 1, 1, 201696, 16778240, 16, 50791);
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=178355;
@@ -182,13 +186,15 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 (178355, 1, 0, 1, 0, 0, 0);
 
 -- 176369 - Sylvanas
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2099200, `unit_flags3`=1 WHERE `entry`=176369;
+
 UPDATE `creature_template_addon` SET `visibilityDistanceType`=3 WHERE `entry`=176369;
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=176369;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(176369, 14, 0, 0, 2104, 8, 1, 1, 99999999, 0, 0, 50791),
-(176369, 15, 0, 0, 2105, 8, 1, 1, 99999999, 0, 0, 50791),
-(176369, 16, 0, 0, 2106, 8, 1, 1, 99999999, 0, 0, 50791),
+(176369, 14, 0, 0, 2104, 8, 1, 1, 199018, 0, 0, 50791),
+(176369, 15, 0, 0, 2105, 8, 1, 1, 199018, 0, 0, 50791),
+(176369, 16, 0, 0, 2106, 8, 1, 1, 199018, 0, 0, 50791),
 (176369, 17, 0, 0, 2107, 8, 1, 1, 199018, 0, 0, 50791);
 
 -- 178081 - Highlord Bolvar Fordragon
@@ -200,9 +206,9 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatu
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=178081;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(178081, 14, 0, 0, 837, 8, 100, 1, 99999999, 0, 128, 50791),
-(178081, 15, 0, 0, 837, 8, 100, 1, 99999999, 0, 128, 50791),
-(178081, 16, 0, 0, 837, 8, 100, 1, 99999999, 0, 128, 50791),
+(178081, 14, 0, 0, 837, 8, 100, 1, 201344, 0, 128, 50791),
+(178081, 15, 0, 0, 837, 8, 100, 1, 201344, 0, 128, 50791),
+(178081, 16, 0, 0, 837, 8, 100, 1, 201344, 0, 128, 50791),
 (178081, 17, 0, 0, 837, 8, 100, 1, 201344, 0, 128, 50791);
 
 DELETE FROM `creature_model_info` WHERE `DisplayID`=101964;
@@ -237,9 +243,9 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatu
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=176532;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(176532, 14, 2, 2, 2104, 8, 100, 1, 99999999, 0, 128, 50791),
-(176532, 15, 2, 2, 2105, 8, 100, 1, 99999999, 0, 128, 50791),
-(176532, 16, 2, 2, 2106, 8, 100, 1, 99999999, 0, 128, 50791),
+(176532, 14, 2, 2, 2104, 8, 100, 1, 199181, 0, 128, 50791),
+(176532, 15, 2, 2, 2105, 8, 100, 1, 199181, 0, 128, 50791),
+(176532, 16, 2, 2, 2106, 8, 100, 1, 199181, 0, 128, 50791),
 (176532, 17, 2, 2, 2107, 8, 100, 1, 199181, 0, 128, 50791);
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID` = 176532;
@@ -277,9 +283,9 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatu
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=176533;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(176533, 14, 0, 0, 2104, 8, 100, 1, 99999999, 0, 128, 50791),
-(176533, 15, 0, 0, 2105, 8, 100, 1, 99999999, 0, 128, 50791),
-(176533, 16, 0, 0, 2106, 8, 100, 1, 99999999, 0, 128, 50791),
+(176533, 14, 0, 0, 2104, 8, 100, 1, 199182, 0, 128, 50791),
+(176533, 15, 0, 0, 2105, 8, 100, 1, 199182, 0, 128, 50791),
+(176533, 16, 0, 0, 2106, 8, 100, 1, 199182, 0, 128, 50791),
 (176533, 17, 0, 0, 2107, 8, 100, 1, 199182, 0, 128, 50791);
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=176533;
@@ -311,6 +317,8 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (176533, 12, 0, 'He\'s done it. The Arbiter falls...', 14, 0, 100, 0, 0, 181499, 0, 211465, 0, '');
 
 -- 177891 - Mawforged Summoner
+UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=33587200, `unit_flags2`=2099200 WHERE `entry`=177891;
+
 DELETE FROM `creature_template_addon` WHERE `entry` IN (177891);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (177891, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, '');
@@ -319,10 +327,12 @@ DELETE FROM `creature_template_difficulty` WHERE `Entry`=177891;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
 (177891, 14, 2, 2, 2104, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
 (177891, 15, 2, 2, 2105, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
-(177891, 16, 2, 2, 2106, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
+(177891, 16, 2, 2, 2106, 8, 16.93000030517578125, 1, 203460, 2097224, 128, 50791),
 (177891, 17, 2, 2, 2107, 8, 19.45000076293945312, 1, 203461, 2097224, 128, 50791);
 
 -- 177154 - Mawsworn Vanguard
+UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=33587200, `unit_flags2`=2099200 WHERE `entry`=177154;
+
 DELETE FROM `creature_template_addon` WHERE `entry` IN (177154);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (177154, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, '');
@@ -331,48 +341,63 @@ DELETE FROM `creature_template_difficulty` WHERE `Entry`=177154;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
 (177154, 14, 1, 1, 2104, 8, 99999999, 1, 99999999, 2097256, 128, 50791),
 (177154, 15, 1, 1, 2105, 8, 99999999, 1, 99999999, 2097256, 128, 50791),
-(177154, 16, 1, 1, 2106, 8, 99999999, 1, 99999999, 2097256, 128, 50791),
+(177154, 16, 1, 1, 2106, 8, 1.75, 1, 204091, 2097224, 128, 50791),
 (177154, 17, 1, 1, 2107, 8, 1.5, 1, 204635, 2097256, 128, 50791);
 
 -- 177889 - Mawforged Souljudge
+UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=33587200, `unit_flags2`=2097152 WHERE `entry`=177889;
+
 UPDATE `creature_template_addon` SET `visibilityDistanceType`=3 WHERE `entry`=177889;
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=177889;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
 (177889, 14, 2, 2, 2104, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
 (177889, 15, 2, 2, 2105, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
-(177889, 16, 2, 2, 2106, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
+(177889, 16, 2, 2, 2106, 8, 17.87000083923339843, 1, 203456, 2097224, 128, 50791),
 (177889, 17, 2, 2, 2107, 8, 20.59000015258789062, 1, 203457, 2097224, 128, 50791);
 
 -- 178008 - Decrepit Orb
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=35651584, `unit_flags3`=1 WHERE `entry`=178008;
+
 UPDATE `creature_template_addon` SET `visibilityDistanceType`=3 WHERE `entry`=178008;
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=178008;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(178008, 14, 1, 1, 2104, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
-(178008, 15, 1, 1, 2105, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
-(178008, 16, 1, 1, 2106, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
+(178008, 14, 1, 1, 2104, 8, 0.5, 1, 99999999, 2097224, 128, 50791),
+(178008, 15, 1, 1, 2105, 8, 0.5, 1, 99999999, 2097224, 128, 50791),
+(178008, 16, 1, 1, 2106, 8, 0.5, 1, 203447, 2097224, 128, 50791),
 (178008, 17, 1, 1, 2107, 8, 0.5, 1, 203449, 2097224, 128, 50791);
 
 -- 177892 - Mawforged Goliath
+UPDATE `creature_template` SET `faction`=16, `speed_walk`=6, `speed_run`=2.142857074737548828, `BaseAttackTime`=3000, `unit_flags`=33587200, `unit_flags2`=2099200 WHERE `entry`=177892;
+
 UPDATE `creature_template_addon` SET `visibilityDistanceType`=3 WHERE `entry`=177892;
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=177892;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(177892, 14, 2, 2, 2107, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
-(177892, 15, 2, 2, 2107, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
-(177892, 16, 2, 2, 2107, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
+(177892, 14, 2, 2, 2104, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
+(177892, 15, 2, 2, 2105, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
+(177892, 16, 2, 2, 2106, 8, 18.80999946594238281, 1, 203452, 2097224, 128, 50791),
 (177892, 17, 2, 2, 2107, 8, 22.87999916076660156, 1, 203453, 2097224, 128, 50791);
 
 -- 177787 - Mawsworn Hopebreaker
+UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=33587200, `unit_flags2`=2099200 WHERE `entry`=177787;
+
 UPDATE `creature_template_addon` SET `visibilityDistanceType`=3 WHERE `entry`=177787;
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=177787;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(177787, 14, 1, 1, 2104, 8, 99999999, 1, 99999999, 2097256, 128, 50791),
-(177787, 15, 1, 1, 2105, 8, 99999999, 1, 99999999, 2097256, 128, 50791),
-(177787, 16, 1, 1, 2106, 8, 99999999, 1, 99999999, 2097256, 128, 50791),
+(177787, 14, 1, 1, 2104, 8, 2, 1, 99999999, 2097256, 128, 50791),
+(177787, 15, 1, 1, 2105, 8, 2, 1, 99999999, 2097256, 128, 50791),
+(177787, 16, 1, 1, 2106, 8, 2, 1, 204092, 2097224, 128, 50791),
 (177787, 17, 1, 1, 2107, 8, 2, 1, 201046, 2097256, 128, 50791);
+
+-- 177893 - Mawforged Colossus
+UPDATE `creature_template` SET `faction`=16, `speed_walk`=2.799999952316284179, `speed_run`=2, `BaseAttackTime`=2000, `unit_flags`=33587200, `unit_flags2`=2099200 WHERE `entry`=177893;
+
+DELETE FROM `creature_template_difficulty` WHERE `Entry`=177787;
+INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
+(177893, 16, 2, 2, 2106, 8, 26.87000083923339843, 1, 204640, 2097256, 4224, 50791);
 
 -- 180623 - Focusing Prism
 UPDATE `creature_template` SET `unit_flags3`=16777217 WHERE `entry`=180623;
@@ -381,77 +406,91 @@ UPDATE `creature_template_addon` SET `auras`='358153' WHERE `entry`=180623;
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=180623;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(180623, 14, 0, 0, 2104, 8, 1, 1, 99999999, 1627390992, 117440534, 50791),
-(180623, 15, 0, 0, 2105, 8, 1, 1, 99999999, 1627390992, 117440534, 50791),
-(180623, 16, 0, 0, 2106, 8, 1, 1, 99999999, 1627390992, 117440534, 50791),
+(180623, 14, 0, 0, 2104, 8, 1, 1, 204285, 1627390992, 117440534, 50791),
+(180623, 15, 0, 0, 2105, 8, 1, 1, 204285, 1627390992, 117440534, 50791),
+(180623, 16, 0, 0, 2106, 8, 1, 1, 204285, 1627390992, 117440534, 50791),
 (180623, 17, 0, 0, 2107, 8, 1, 1, 204285, 1627390992, 117440534, 50791);
 
 -- 178072 - Anduin Wrynn
+UPDATE `creature_template` SET `faction`=14, `npcflag`=35184372088832, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=71303168, `unit_flags3`=98336, `VehicleId`=584 WHERE `entry`=178072;
+
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=178072;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(178072, 14, 2, 2, 2104, 8, 99999999, 1, 99999999, 4, 128, 50791),
-(178072, 15, 2, 2, 2105, 8, 99999999, 1, 99999999, 4, 128, 50791),
-(178072, 16, 2, 2, 2106, 8, 99999999, 1, 99999999, 4, 128, 50791),
+(178072, 14, 2, 2, 2104, 8, 500, 1, 201335, 4, 128, 50791),
+(178072, 15, 2, 2, 2105, 8, 500, 1, 201335, 4, 128, 50791),
+(178072, 16, 2, 2, 2106, 8, 500, 1, 201335, 4, 128, 50791),
 (178072, 17, 2, 2, 2107, 8, 500, 1, 201335, 4, 128, 50791);
 
 -- 178082 - The Arbiter
+UPDATE `creature_template` SET `faction`=35, `speed_walk`=0.699999988079071044, `speed_run`=0.25, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=71827456, `unit_flags3`=32769 WHERE `entry`=178082;
+
 UPDATE `creature_template_addon` SET `visibilityDistanceType`=4 WHERE `entry`=178082;
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=178082;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(178082, 14, 0, 0, 2104, 8, 99999999, 1, 99999999, 4, 67108992, 50791),
-(178082, 15, 0, 0, 2105, 8, 99999999, 1, 99999999, 4, 67108992, 50791),
-(178082, 16, 0, 0, 2106, 8, 99999999, 1, 99999999, 4, 67108992, 50791),
+(178082, 14, 0, 0, 2104, 8, 500, 1, 201345, 4, 67108992, 50791),
+(178082, 15, 0, 0, 2105, 8, 500, 1, 201345, 4, 67108992, 50791),
+(178082, 16, 0, 0, 2106, 8, 500, 1, 201345, 4, 67108992, 50791),
 (178082, 17, 0, 0, 2107, 8, 500, 1, 201345, 4, 67108992, 50791);
 
 -- 178079 - The Jailer
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=71303168, `unit_flags3`=32769, `VehicleId`=7513 WHERE `entry`=178079;
+
 UPDATE `creature_template_addon` SET `visibilityDistanceType`=4 WHERE `entry`=178079;
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=178079;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(178079, 14, 3, 3, 2104, 8, 99999999, 1, 99999999, 4, 67108992, 50791),
-(178079, 15, 3, 3, 2105, 8, 99999999, 1, 99999999, 4, 67108992, 50791),
-(178079, 16, 3, 3, 2106, 8, 99999999, 1, 99999999, 4, 67108992, 50791),
+(178079, 14, 3, 3, 2104, 8, 500, 1, 201342, 4, 67108992, 50791),
+(178079, 15, 3, 3, 2105, 8, 500, 1, 201342, 4, 67108992, 50791),
+(178079, 16, 3, 3, 2106, 8, 500, 1, 201342, 4, 67108992, 50791),
 (178079, 17, 3, 3, 2107, 8, 500, 1, 201342, 4, 67108992, 50791);
 
--- 179261 - Sylvanas 
+-- 179261 - Sylvanas
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=33556512, `unit_flags3`=1, `VehicleId`=7514 WHERE `entry`=179261;
+
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=179261;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(179261, 14, 0, 0, 2104, 8, 1, 1, 99999999, 16778240, 16, 50791),
-(179261, 15, 0, 0, 2105, 8, 1, 1, 99999999, 16778240, 16, 50791),
-(179261, 16, 0, 0, 2106, 8, 1, 1, 99999999, 16778240, 16, 50791),
+(179261, 14, 0, 0, 2104, 8, 1, 1, 202784, 16778240, 16, 50791),
+(179261, 15, 0, 0, 2105, 8, 1, 1, 202784, 16778240, 16, 50791),
+(179261, 16, 0, 0, 2106, 8, 1, 1, 202784, 16778240, 16, 50791),
 (179261, 17, 0, 0, 2107, 8, 1, 1, 202784, 16778240, 16, 50791);
 
--- 179787 - Sylvanas 
+-- 179787 - Sylvanas
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=33556512, `unit_flags3`=1, `VehicleId`=7535 WHERE `entry`=179787;
+
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=179787;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(179787, 14, 0, 0, 2104, 8, 1, 1, 99999999, 16778240, 16, 50791),
-(179787, 15, 0, 0, 2105, 8, 1, 1, 99999999, 16778240, 16, 50791),
-(179787, 16, 0, 0, 2106, 8, 1, 1, 99999999, 16778240, 16, 50791),
+(179787, 14, 0, 0, 2104, 8, 1, 1, 203323, 16778240, 16, 50791),
+(179787, 15, 0, 0, 2105, 8, 1, 1, 203323, 16778240, 16, 50791),
+(179787, 16, 0, 0, 2106, 8, 1, 1, 203323, 16778240, 16, 50791),
 (179787, 17, 0, 0, 2107, 8, 1, 1, 203323, 16778240, 16, 50791);
 
 -- 179784 - Sylvanas
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=33556512, `unit_flags3`=1, `VehicleId`=7533 WHERE `entry`=179784;
+
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=179784;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(179784, 14, 0, 0, 2104, 8, 1, 1, 99999999, 16778240, 16, 50791),
-(179784, 15, 0, 0, 2105, 8, 1, 1, 99999999, 16778240, 16, 50791),
-(179784, 16, 0, 0, 2106, 8, 1, 1, 99999999, 16778240, 16, 50791),
+(179784, 14, 0, 0, 2104, 8, 1, 1, 203320, 16778240, 16, 50791),
+(179784, 15, 0, 0, 2105, 8, 1, 1, 203320, 16778240, 16, 50791),
+(179784, 16, 0, 0, 2106, 8, 1, 1, 203320, 16778240, 16, 50791),
 (179784, 17, 0, 0, 2107, 8, 1, 1, 203320, 16778240, 16, 50791);
 
 -- 179788 - Sylvanas
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=33556512, `unit_flags3`=1, `VehicleId`=7536 WHERE `entry`=179788;
+
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=179788;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(179788, 14, 0, 0, 2104, 8, 1, 1, 99999999, 16778240, 16, 50791),
-(179788, 15, 0, 0, 2105, 8, 1, 1, 99999999, 16778240, 16, 50791),
-(179788, 16, 0, 0, 2106, 8, 1, 1, 99999999, 16778240, 16, 50791),
+(179788, 14, 0, 0, 2104, 8, 1, 1, 203324, 16778240, 16, 50791),
+(179788, 15, 0, 0, 2105, 8, 1, 1, 203324, 16778240, 16, 50791),
+(179788, 16, 0, 0, 2106, 8, 1, 1, 203324, 16778240, 16, 50791),
 (179788, 17, 0, 0, 2107, 8, 1, 1, 203324, 16778240, 16, 50791);
 
 -- 179262 - Sylvanas
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=179262;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(179262, 14, 0, 0, 2104, 8, 1, 1, 99999999, 16778240, 16, 50791),
-(179262, 15, 0, 0, 2105, 8, 1, 1, 99999999, 16778240, 16, 50791),
-(179262, 16, 0, 0, 2106, 8, 1, 1, 99999999, 16778240, 16, 50791),
+(179262, 14, 0, 0, 2104, 8, 1, 1, 202785, 16778240, 16, 50791),
+(179262, 15, 0, 0, 2105, 8, 1, 1, 202785, 16778240, 16, 50791),
+(179262, 16, 0, 0, 2106, 8, 1, 1, 202785, 16778240, 16, 50791),
 (179262, 17, 0, 0, 2107, 8, 1, 1, 202785, 16778240, 16, 50791);
 
 -- 182021 - Death Gate (Teleporter from The Crucible to Sanctum of Domination's entrance)
@@ -459,9 +498,9 @@ UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=182021;
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=182021;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(182021, 14, 0, 0, 2104, 8, 1, 1, 99999999, 1610612752, 6, 50791),
-(182021, 15, 0, 0, 2105, 8, 1, 1, 99999999, 1610612752, 6, 50791),
-(182021, 16, 0, 0, 2106, 8, 1, 1, 99999999, 1610612752, 6, 50791),
+(182021, 14, 0, 0, 2104, 8, 1, 1, 205820, 1610612752, 6, 50791),
+(182021, 15, 0, 0, 2105, 8, 1, 1, 205820, 1610612752, 6, 50791),
+(182021, 16, 0, 0, 2106, 8, 1, 1, 205820, 1610612752, 6, 50791),
 (182021, 17, 0, 0, 2107, 8, 1, 1, 205820, 1610612752, 6, 50791);
 
 -- 368743 - Torghast Spike
@@ -549,7 +588,8 @@ INSERT INTO `conversation_template` (`Id`, `FirstLineId`, `TextureKitId`, `Scrip
 
 DELETE FROM `conversation_actors` WHERE `ConversationId`=17368;
 INSERT INTO `conversation_actors` (`ConversationId`, `ConversationActorId`, `ConversationActorGuid`, `Idx`, `CreatureId`, `CreatureDisplayInfoId`, `VerifiedBuild`) VALUES 
-(17368, 80339, @CGUID+0, 0, 0, 0, 41079);
+(17368, 80339, @CGUID+0, 0, 0, 0, 41079),
+(17368, 81173, 0, 1, 0, 0, 50791);
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (44219, 44218, 44217, 44216, 44215);
 INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags`, `VerifiedBuild`) VALUES

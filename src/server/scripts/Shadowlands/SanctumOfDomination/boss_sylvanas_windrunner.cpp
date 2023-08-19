@@ -72,7 +72,7 @@ enum SylvanasEvents
 
 enum SylvanasTexts
 {
-    SAY_AGGRO                                            = 0,
+    SAY_ENGAGE                                           = 0,
     SAY_SLAY                                             = 1,
     SAY_DISENGAGE                                        = 2
 };
@@ -206,7 +206,7 @@ struct boss_sylvanas_windrunner : public BossAI
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-        Talk(SAY_AGGRO);
+        Talk(SAY_ENGAGE);
 
         instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
