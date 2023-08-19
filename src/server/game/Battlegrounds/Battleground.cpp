@@ -995,7 +995,6 @@ void Battleground::AddPlayer(Player* player)
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
-    bp.ActiveSpec = player->GetPrimarySpecialization();
     bp.Mercenary = player->IsMercenaryForBattlegroundQueueType(GetQueueId());
 
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
@@ -1284,7 +1283,7 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchSta
         if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerData.PlayerGUID))
         {
             playerData.IsInWorld = true;
-            playerData.PrimaryTalentTree = player->GetPrimarySpecialization();
+            playerData.PrimaryTalentTree = AsUnderlyingType(player->GetPrimarySpecialization());
             playerData.Sex = player->GetGender();
             playerData.Race = player->GetRace();
             playerData.Class = player->GetClass();
