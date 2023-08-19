@@ -1747,13 +1747,14 @@ class spell_dru_wild_growth : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        uint32 maxTargets = uint32(GetEffectInfo(EFFECT_1).CalcValue(GetCaster()));
+        Unit* caster = GetCaster();
+        int32 maxTargets = GetEffectInfo(EFFECT_1).CalcValue(caster);
 
-        if (AuraEffect const* treeOfLife = GetCaster()->GetAuraEffect(SPELL_DRUID_TREE_OF_LIFE, EFFECT_2))
-            maxTargets += uint32(treeOfLife->GetAmount());
+        if (AuraEffect const* treeOfLife = caster->GetAuraEffect(SPELL_DRUID_TREE_OF_LIFE, EFFECT_2))
+            maxTargets += treeOfLife->GetAmount();
 
         // Note: Wild Growth became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
-        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true, caster);
     }
 
     void Register() override
