@@ -1606,7 +1606,7 @@ class spell_halion_damage_aoe_summon : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 uint32 entry = uint32(GetEffectInfo().MiscValue);
                 SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetEffectInfo().MiscValueB));
-                uint32 duration = uint32(GetSpellInfo()->GetDuration());
+                Milliseconds duration = Milliseconds(GetSpellInfo()->GetDuration());
 
                 Position pos = caster->GetPosition();
                 if (Creature* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
