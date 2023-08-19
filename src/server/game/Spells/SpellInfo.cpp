@@ -2527,6 +2527,7 @@ void SpellInfo::_LoadAuraState()
                 return AURA_STATE_VICTORIOUS;
             case 71465: // Divine Surge
             case 50241: // Evasive Charges
+            case 81262: // Efflorescence
                 return AURA_STATE_RAID_ENCOUNTER;
             case 6950:   // Faerie Fire
             case 9806:   // Phantom Strike

@@ -21,12 +21,12 @@
  * Scriptnames of files in this file should be prefixed with "spell_dru_".
  */
 
-#include "AreaTrigger.h"
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -62,6 +62,7 @@ enum DruidSpells
     SPELL_DRUID_ECLIPSE_OOC                    = 329910,
     SPELL_DRUID_ECLIPSE_SOLAR_AURA             = 48517,
     SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT        = 326053,
+    SPELL_DRUID_EFFLORESCENCE_AURA             = 81262,
     SPELL_DRUID_EFFLORESCENCE_HEAL             = 81269,
     SPELL_DRUID_ENTANGLING_ROOTS               = 339,
     SPELL_DRUID_EXHILARATE                     = 28742,
@@ -507,15 +508,27 @@ class spell_dru_eclipse_ooc : public AuraScript
 // 145205 - Efflorescence
 class spell_dru_efflorescence : public SpellScript
 {
-    void OnPrecast() override
+    void RemoveOldAreaTrigger(SpellEffIndex /*effIndex*/) const
     {
-        // Note: if caster has any Efflorescence areatrigger, we remove it.
-        if (AreaTrigger* efflorescenceAT = GetCaster()->GetAreaTrigger(GetSpellInfo()->Id))
-            efflorescenceAT->Remove();
+        // if caster has any Efflorescence areatrigger, we remove it.
+        GetCaster()->RemoveAreaTrigger(GetSpellInfo()->Id);
     }
 
     void Register() override
     {
+        OnEffectLaunch += SpellEffectFn(spell_dru_efflorescence::RemoveOldAreaTrigger, EFFECT_2, SPELL_EFFECT_CREATE_AREATRIGGER);
+    }
+};
+
+struct npc_dru_efflorescence : public NullCreatureAI
+{
+    explicit npc_dru_efflorescence(Creature* creature) : NullCreatureAI(creature)
+    {
+    }
+
+    void InitializeAI() override
+    {
+        me->CastSpell(me, SPELL_DRUID_EFFLORESCENCE_AURA);
     }
 };
 
@@ -527,14 +540,14 @@ class spell_dru_efflorescence_dummy : public AuraScript
         return ValidateSpellInfo({ SPELL_DRUID_EFFLORESCENCE_HEAL });
     }
 
-    void HandlePeriodicDummy(AuraEffect const* /*aurEff*/)
+    void HandlePeriodicDummy(AuraEffect const* /*aurEff*/) const
     {
         Unit* target = GetTarget();
         Unit* summoner = target->GetOwner();
         if (!summoner)
             return;
 
-        summoner->CastSpell(target, SPELL_DRUID_EFFLORESCENCE_HEAL, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        summoner->CastSpell(target, SPELL_DRUID_EFFLORESCENCE_HEAL, TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
@@ -546,10 +559,10 @@ class spell_dru_efflorescence_dummy : public AuraScript
 // 81269 - Efflorescence (Heal)
 class spell_dru_efflorescence_heal : public SpellScript
 {
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        // Note: Efflorescence became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
-        Trinity::SelectRandomInjuredTargets(targets, GetSpellInfo()->MaxAffectedTargets, true);
+        // Efflorescence became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
+        Trinity::SelectRandomInjuredTargets(targets, 3, true, GetCaster());
     }
 
     void Register() override
@@ -1271,10 +1284,10 @@ class spell_dru_spring_blossoms : public SpellScript
         return ValidateSpellInfo({ SPELL_DRUID_SPRING_BLOSSOMS, SPELL_DRUID_SPRING_BLOSSOMS_HEAL });
     }
 
-    void HandleOnHit(SpellEffIndex /*effIndex*/)
+    void HandleOnHit(SpellEffIndex /*effIndex*/) const
     {
         if (GetCaster()->HasAura(SPELL_DRUID_SPRING_BLOSSOMS))
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_SPRING_BLOSSOMS_HEAL, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_SPRING_BLOSSOMS_HEAL, TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
@@ -1929,6 +1942,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_eclipse_aura);
     RegisterSpellScript(spell_dru_eclipse_dummy);
     RegisterSpellScript(spell_dru_eclipse_ooc);
+    RegisterCreatureAI(npc_dru_efflorescence);
     RegisterSpellScript(spell_dru_efflorescence);
     RegisterSpellScript(spell_dru_efflorescence_dummy);
     RegisterSpellScript(spell_dru_efflorescence_heal);
