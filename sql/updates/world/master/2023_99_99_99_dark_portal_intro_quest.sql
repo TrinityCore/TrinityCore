@@ -26,9 +26,10 @@ UPDATE `creature_queststarter` SET `VerifiedBuild`=50791 WHERE (`id`=78558 AND `
 UPDATE `creature_questender` SET `VerifiedBuild`=50791 WHERE (`id`=78558 AND `quest`=36881) OR (`id`=78558 AND `quest`=34398);
 
 -- Gameobjects
-DELETE FROM `gameobject` WHERE `guid` = @OGUID+0;
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+1;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
-(@OGUID+0, 230609, 0, 4, 72, '0', 0, 866, 1190, -11812.37890625, -3205.60595703125, -29.5840053558349609, 0, 0, 0, 0, 1, 120, 255, 1, 50791); -- Collision PC Size x2.5 (Area: The Dark Portal - Difficulty: 0) CreateObject1
+(@OGUID+0, 230609, 0, 4, 72, '0', 0, 866, 1190, -11812.37890625, -3205.60595703125, -29.5840053558349609, 0, 0, 0, 0, 1, 120, 255, 1, 50791), -- Collision PC Size x2.5 (Area: The Dark Portal - Difficulty: 0) CreateObject1
+(@OGUID+1, 188215, 1265, 7025, 7037, '0', 3563, 0, 0, 4066.33251953125, -2372.5712890625, 94.59978485107421875, 0, 0, 0, 0, 1, 120, 255, 1, 50791); -- Collision PC Size (Area: The Dark Portal - Difficulty: 0) CreateObject1
 
 -- Gossip
 UPDATE `gossip_menu_option` SET `GossipOptionID`=43231, `BoxText`='You are about to embark on a dangerous mission, and you may not be able to return immediately. Are you sure?', `BoxBroadcastTextID`= 88773, `VerifiedBuild`=50791 WHERE (`MenuID`=16863 AND `OptionID`=0);
@@ -38,11 +39,20 @@ UPDATE `quest_poi` SET `VerifiedBuild`=50791 WHERE (`QuestID`=36881 AND `BlobInd
 UPDATE `quest_poi_points` SET `VerifiedBuild`=50791 WHERE (`QuestID`=36881 AND `Idx1`=2 AND `Idx2`=0) OR (`QuestID`=36881 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=36881 AND `Idx1`=0 AND `Idx2`=0);
 UPDATE `quest_details` SET `VerifiedBuild`=50791 WHERE `ID` = 36881;
 
+-- Phase
+DELETE FROM `phase_area` WHERE `AreaId` = 7025 AND `PhaseId` = 3563;
+INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
+(7025, 3563, 'See Khadgar at the Dark Portal (Assault on the Dark Portal)');
+
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=16863 AND `ConditionValue1` IN (36881, 34398);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (15, 16863, 0, 0, 0, 47, 0, 36881, 8, 0, 0, 0, 0, '', 'Gossip Option 16863 - Show Option 0 if Quest 36881 is in progress'),
 (15, 16863, 0, 0, 1, 47, 0, 34398, 8, 0, 0, 0, 0, '', 'Gossip Option 16863 - Show Option 0 if Quest 34398 is in progress');
+
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceGroup` = 3563 AND `SourceEntry` = 0);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUES
+(26, 3563, 0, 0, 0, 47, 0, 34393, 2 | 64, 0, 1, 'Apply Phase 3563 if Quest 34393 is not complete | rewarded');
 
 -- SAI
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=78423; -- 78423 (Archmage Khadgar)
