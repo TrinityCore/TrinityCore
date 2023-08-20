@@ -89,6 +89,7 @@ enum DruidSpells
     SPELL_DRUID_INCARNATION                    = 117679,
     SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE = 102543,
     SPELL_DRUID_INCARNATION_TREE_OF_LIFE       = 33891,
+    SPELL_DRUID_INNER_PEACE                    = 197073,
     SPELL_DRUID_INNERVATE                      = 29166,
     SPELL_DRUID_INNERVATE_RANK_2               = 326228,
     SPELL_DRUID_INFUSION                       = 37238,
@@ -1033,6 +1034,31 @@ class spell_dru_incarnation_tree_of_life : public AuraScript
     void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dru_incarnation_tree_of_life::AfterApply, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 740 - Tranquility
+class spell_dru_inner_peace : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_INNER_PEACE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_4 } })
+            && spellInfo->GetEffect(EFFECT_3).IsAura(SPELL_AURA_MECHANIC_IMMUNITY_MASK)
+            && spellInfo->GetEffect(EFFECT_4).IsAura(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
+    }
+
+    void PreventEffect(WorldObject*& target) const
+    {
+        // Note: Inner Peace talent.
+        if (!GetCaster()->HasAura(SPELL_DRUID_INNER_PEACE))
+            target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dru_inner_peace::PreventEffect, EFFECT_3, TARGET_UNIT_CASTER);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dru_inner_peace::PreventEffect, EFFECT_4, TARGET_UNIT_CASTER);
     }
 };
 
@@ -2072,6 +2098,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_incapacitating_roar);
     RegisterSpellScript(spell_dru_incarnation);
     RegisterSpellScript(spell_dru_incarnation_tree_of_life);
+    RegisterSpellScript(spell_dru_inner_peace);
     RegisterSpellScript(spell_dru_innervate);
     RegisterSpellScript(spell_dru_item_t6_trinket);
     RegisterSpellScript(spell_dru_lifebloom);
