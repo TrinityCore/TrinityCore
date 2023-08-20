@@ -22,6 +22,7 @@
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "SharedDefines.h"
 #include "SpawnData.h"
 #include <variant>
 #include <vector>
@@ -30,8 +31,6 @@
 #define MAX_AREATRIGGER_SCALE 7
 
 enum class AreaTriggerFlag : uint32
-enum TeamId;
-
 {
     None                           = 0x00,
     IsServerSide                   = 0x01
