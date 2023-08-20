@@ -142,14 +142,29 @@ class spell_pal_ardent_defender : public AuraScript
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void HandleAbsorb(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& /*absorbAmount*/)
+    void HandleAbsorb(AuraEffect const* aurEff, DamageInfo const& dmgInfo, uint32& absorbAmount)
     {
         PreventDefaultAction();
 
-        int32 healAmount = int32(GetTarget()->CountPctFromMaxHealth(GetEffectInfo(EFFECT_1).CalcValue(GetTarget())));
-        CastSpellExtraArgs args(aurEff);
-        args.AddSpellBP0(healAmount);
-        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ARDENT_DEFENDER_HEAL, args);
+        int32 targetHealthPercent = GetEffectInfo(EFFECT_1).CalcValue(GetTarget());
+        uint64 targetHealth = int32(GetTarget()->CountPctFromMaxHealth(targetHealthPercent));
+        if (GetTarget()->HealthBelowPct(targetHealthPercent))
+        {
+            // we are currently below desired health
+            // absorb everything and heal up
+            absorbAmount = dmgInfo.GetDamage();
+
+            GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ARDENT_DEFENDER_HEAL,
+                CastSpellExtraArgs(aurEff)
+                .AddSpellMod(SPELLVALUE_BASE_POINT0, int32(targetHealth - GetTarget()->GetHealth())));
+        }
+        else
+        {
+            // we are currently above desired health
+            // just absorb enough to reach that percentage
+            absorbAmount = dmgInfo.GetDamage() - int32(GetTarget()->GetHealth() - targetHealth);
+        }
+
         Remove();
     }
 
