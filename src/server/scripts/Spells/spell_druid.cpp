@@ -26,6 +26,7 @@
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -1087,7 +1088,7 @@ class spell_dru_luxuriant_soil : public AuraScript
         float spellRange = eventInfo.GetSpellInfo()->GetMaxRange();
 
         std::vector<Unit*> targetList;
-        Trinity::WorldObjectSpellNearbyTargetCheck check(spellRange, rejuvCaster, eventInfo.GetSpellInfo(), TARGET_CHECK_ALLY, nullptr, TARGET_OBJECT_TYPE_UNIT);
+        Trinity::WorldObjectSpellAreaTargetCheck check(spellRange, rejuvCaster, rejuvCaster, rejuvCaster, eventInfo.GetSpellInfo(), TARGET_CHECK_ALLY, nullptr, TARGET_OBJECT_TYPE_UNIT);
         Trinity::UnitListSearcher searcher(rejuvCaster, targetList, check);
         Cell::VisitAllObjects(rejuvCaster, searcher, spellRange);
 
@@ -1152,40 +1153,42 @@ class spell_dru_power_of_the_archdruid : public AuraScript
         return ValidateSpellEffect({ { SPELL_DRUID_POWER_OF_THE_ARCHDRUID, EFFECT_0 } });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    static bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
-        Unit* target = GetTarget();
-        Unit* procTarget = eventInfo.GetActionTarget();
+        return eventInfo.GetActor()->HasAuraEffect(SPELL_DRUID_POWER_OF_THE_ARCHDRUID, EFFECT_0);
+    }
 
-        // Note: range is EFFECT_0's BasePoints.
-        float const spellRange = aurEff->GetAmount();
+    static void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        Unit* druid = eventInfo.GetActor();
+        Unit const* procTarget = eventInfo.GetActionTarget();
 
-        std::list<Unit*> targetList;
-        Trinity::AnyFriendlyUnitInObjectRangeCheck checker(procTarget, procTarget, spellRange);
-        Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(procTarget, targetList, checker);
+        // range is EFFECT_0's BasePoints.
+        float spellRange = aurEff->GetAmount();
+
+        std::vector<Unit*> targetList;
+        Trinity::WorldObjectSpellAreaTargetCheck checker(spellRange, procTarget, druid, druid, eventInfo.GetSpellInfo(), TARGET_CHECK_ALLY, nullptr, TARGET_OBJECT_TYPE_UNIT);
+        Trinity::UnitListSearcher searcher(procTarget, targetList, checker);
         Cell::VisitAllObjects(procTarget, searcher, spellRange);
+        std::erase(targetList, procTarget);
 
         if (targetList.empty())
             return;
 
-        AuraEffect* const powerOfTheArchdruidEffect = target->GetAuraEffect(SPELL_DRUID_POWER_OF_THE_ARCHDRUID, EFFECT_0);
-        if (!powerOfTheArchdruidEffect)
-            return;
+        AuraEffect const* powerOfTheArchdruidEffect = druid->GetAuraEffect(SPELL_DRUID_POWER_OF_THE_ARCHDRUID, EFFECT_0);
 
-        // Note: max. targets is SPELL_DRUID_POWER_OF_THE_ARCHDRUID's EFFECT_0 BasePoints.
-        uint8 const maxTargets = powerOfTheArchdruidEffect->GetAmount();
+        // max. targets is SPELL_DRUID_POWER_OF_THE_ARCHDRUID's EFFECT_0 BasePoints.
+        int32 maxTargets = powerOfTheArchdruidEffect->GetAmount();
 
-        if (targetList.size() > maxTargets)
-            Trinity::Containers::RandomResize(targetList, maxTargets);
+        Trinity::Containers::RandomResize(targetList, maxTargets);
 
         for (Unit* chosenTarget : targetList)
-            target->CastSpell(chosenTarget, eventInfo.GetProcSpell()->GetSpellInfo()->Id, CastSpellExtraArgs(aurEff));
-
-        Remove();
+            druid->CastSpell(chosenTarget, eventInfo.GetProcSpell()->GetSpellInfo()->Id, aurEff);
     }
 
     void Register() override
     {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_power_of_the_archdruid::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dru_power_of_the_archdruid::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
