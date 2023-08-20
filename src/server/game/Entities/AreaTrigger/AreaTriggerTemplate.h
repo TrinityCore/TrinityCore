@@ -57,6 +57,72 @@ enum AreaTriggerActionTypes
     AREATRIGGER_ACTION_MAX         = 3
 };
 
+enum class AreaTriggerActions : uint8
+{
+    CastSpell,
+    CastSpellOnAreaTriggerCreator,
+    AreaTriggerCreatorCastSpell,
+    CancelAura,
+    SendGameEvent,
+    StartQuest, // player only
+    RunRandomActionSet,
+    Teleport,
+    Deprecated,
+    ActivateGameObject,
+    StartResting,
+    StopResting,
+    DiscoverArea,
+    DeathRegion, // player only
+    DespawnAreaTrigger,
+    AddMovementForce,
+    RemoveMovementForce,
+    AreaTriggerCreatorCancelsAuraOnTriggeringUnit,
+    RunScript,
+    CaptureFlag,
+    SetScale,
+    IncrementScale,
+    DecrementScale,
+    SeamlessWarmup,
+    SeamlessTransfer,
+    KillCredit,
+    KillCreditToPlayerOnly,
+    CancelAuraOneApplication,
+    AreaTriggerCreatorCancelsAuraOnTriggeringUnitOneApplication,
+    ApplyAuraAndKeepRetrying,
+    CreatorApplyAuraAndKeepRetrying,
+    ConversationBegin,
+    AnimationSetForSpellVisual,
+    AnimationSetForSpellVisualAllowDecay,
+    AnimationClearForSpellVisual,
+    AllowGhostInInstance,
+    DissalowGhostInInstance,
+    SendGeneralTrigger
+};
+
+struct AreaTriggerActionParam
+{
+    // CastSpell
+    // CastSpellOnAreaTriggerCreator
+    // AreaTriggerCreatorCastSpell
+    // CancelAura
+    // AreaTriggerCreatorCancelsAuraOnTriggeringUnit
+    // CancelAuraOneApplication
+    // AreaTriggerCreatorCancelsAuraOnTriggeringUnitOneApplication
+    // ApplyAuraAndKeepRetrying
+    Optional<uint32> SpellID;
+
+    // SetScale
+    // IncrementScale
+    // DecrementScale
+    Optional<float> Scale;
+
+    // ActivateGameObject
+    Optional<ObjectGuid> Guid;
+
+    // CaptureFlag
+    Optional<TeamId> TeamId;
+};
+
 enum AreaTriggerActionUserTypes
 {
     AREATRIGGER_ACTION_USER_ANY    = 0,
