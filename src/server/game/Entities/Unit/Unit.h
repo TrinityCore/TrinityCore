@@ -27,6 +27,7 @@
 #include "UnitDefines.h"
 #include "Util.h"
 #include <array>
+#include <forward_list>
 #include <map>
 #include <memory>
 #include <stack>
@@ -485,7 +486,7 @@ class TC_GAME_API ProcEventInfo
                       ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask,
                       Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo);
 
-        Unit* GetActor() { return _actor; }
+        Unit* GetActor() const { return _actor; }
         Unit* GetActionTarget() const { return _actionTarget; }
         Unit* GetProcTarget() const { return _procTarget; }
 
@@ -759,9 +760,9 @@ class TC_GAME_API Unit : public WorldObject
         typedef std::multimap<AuraStateType,  AuraApplication*> AuraStateAurasMap;
         typedef std::pair<AuraStateAurasMap::const_iterator, AuraStateAurasMap::const_iterator> AuraStateAurasMapBounds;
 
-        typedef std::list<AuraEffect*> AuraEffectList;
-        typedef std::list<Aura*> AuraList;
-        typedef std::list<AuraApplication*> AuraApplicationList;
+        typedef std::forward_list<AuraEffect*> AuraEffectList;
+        typedef std::forward_list<Aura*> AuraList;
+        typedef std::forward_list<AuraApplication*> AuraApplicationList;
         typedef std::array<DiminishingReturn, DIMINISHING_MAX> Diminishing;
 
         typedef std::vector<std::pair<uint32 /*procEffectMask*/, AuraApplication*>> AuraApplicationProcContainer;
@@ -1709,16 +1710,16 @@ class TC_GAME_API Unit : public WorldObject
         Unit* GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo = nullptr);
 
         int32 SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const;
-        uint32 SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, SpellEffectInfo const& spellEffectInfo, uint32 stack = 1) const;
+        int32 SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, int32 pdamage, DamageEffectType damagetype, SpellEffectInfo const& spellEffectInfo, uint32 stack = 1, Spell* spell = nullptr, AuraEffect const* aurEff = nullptr) const;
         float SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, DamageEffectType damagetype, SpellEffectInfo const& spellEffectInfo) const;
-        uint32 SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype) const;
+        int32 SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, int32 pdamage, DamageEffectType damagetype) const;
         int32 SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const;
-        uint32 SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, SpellEffectInfo const& spellEffectInfo, uint32 stack = 1) const;
+        int32 SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, int32 healamount, DamageEffectType damagetype, SpellEffectInfo const& spellEffectInfo, uint32 stack = 1, Spell* spell = nullptr, AuraEffect const* aurEff = nullptr) const;
         float SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const;
-        uint32 SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype) const;
+        int32 SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, int32 healamount, DamageEffectType damagetype) const;
 
-        uint32 MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr, SpellEffectInfo const* spellEffectInfo = nullptr, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL);
-        uint32 MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL);
+        int32 MeleeDamageBonusDone(Unit* pVictim, int32 damage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr, Mechanics mechanic = MECHANIC_NONE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, Spell* spell = nullptr, AuraEffect const* aurEff = nullptr);
+        int32 MeleeDamageBonusTaken(Unit* attacker, int32 pdamage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL);
 
         bool IsBlockCritical();
         float SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
@@ -1783,12 +1784,6 @@ class TC_GAME_API Unit : public WorldObject
 
         void SetControlled(bool apply, UnitState state);
         void ApplyControlStatesIfNeeded();
-
-        ///-----------Combo point system-------------------
-        uint32 GetComboPoints() const { return uint32(GetPower(POWER_COMBO_POINTS)); }
-        void AddComboPoints(int8 count, Spell* spell = nullptr);
-        void GainSpellComboPoints(int8 count);
-        void ClearComboPoints();
 
         ///----------Pet responses methods-----------------
         void SendPetActionFeedback(PetActionFeedback msg, uint32 spellId);

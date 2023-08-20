@@ -507,8 +507,6 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_selfContainer = nullptr;
     m_referencedFromCurrentSpell = false;
     m_executedCurrently = false;
-    m_needComboPoints = m_spellInfo->NeedsComboPoints();
-    m_comboPointGain = 0;
     m_delayStart = 0;
     m_delayAtDamageCount = 0;
 
@@ -2965,10 +2963,6 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         spell->m_hitMask |= hitMask;
         spell->m_procSpellType |= procSpellType;
 
-        // Do not take combo points on dodge and miss
-        if (MissCondition != SPELL_MISS_NONE && spell->m_needComboPoints && spell->m_targets.GetUnitTargetGUID() == TargetGUID)
-            spell->m_needComboPoints = false;
-
         // _spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
         if (MissCondition != SPELL_MISS_EVADE && _spellHitTarget && !spell->m_caster->IsFriendlyTo(unit) && (!spell->IsPositive() || spell->m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
         {
@@ -3183,7 +3177,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, TargetInfo& hitInfo)
             }
         }
 
-        hitInfo.AuraDuration = Aura::CalcMaxDuration(m_spellInfo, origCaster);
+        hitInfo.AuraDuration = Aura::CalcMaxDuration(m_spellInfo, origCaster, &m_powerCost);
 
         // unit is immune to aura if it was diminished to 0 duration
         if (!hitInfo.Positive && !unit->ApplyDiminishingToDuration(m_spellInfo, hitInfo.AuraDuration, origCaster, diminishLevel))
@@ -3460,10 +3454,6 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     // Fill cost data (do not use power for item casts)
     if (!m_CastItem)
         m_powerCost = m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask, this);
-
-    // Set combo point requirement
-    if ((_triggeredCastFlags & TRIGGERED_IGNORE_COMBO_POINTS) || m_CastItem)
-        m_needComboPoints = false;
 
     int32 param1 = 0, param2 = 0;
     SpellCastResult result = CheckCast(true, &param1, &param2);
@@ -4151,18 +4141,8 @@ void Spell::_handle_immediate_phase()
 void Spell::_handle_finish_phase()
 {
     if (Unit* unitCaster = m_caster->ToUnit())
-    {
-        // Take for real after all targets are processed
-        if (m_needComboPoints)
-            unitCaster->ClearComboPoints();
-
-        // Real add combo points from effects
-        if (m_comboPointGain)
-            unitCaster->AddComboPoints(m_comboPointGain);
-
         if (m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
             unitCaster->SetLastExtraAttackSpell(m_spellInfo->Id);
-    }
 
     // Handle procs on finish
     if (!m_originalCaster)
@@ -5601,7 +5581,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 return SPELL_FAILED_NOT_READY;
         }
 
-        if (!IsIgnoringCooldowns() && m_caster->ToUnit())
+        if (!IsIgnoringCooldowns() && m_caster->ToUnit() && (!m_spellInfo->HasAttribute(SPELL_ATTR12_START_COOLDOWN_ON_CAST_START) || strict))
         {
             if (!m_caster->ToUnit()->GetSpellHistory()->IsReady(m_spellInfo, m_castItemEntry))
             {
@@ -5676,21 +5656,6 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             }
         }
 
-        bool reqCombat = true;
-        Unit::AuraEffectList const& stateAuras = unitCaster->GetAuraEffectsByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
-        for (Unit::AuraEffectList::const_iterator j = stateAuras.begin(); j != stateAuras.end(); ++j)
-        {
-            if ((*j)->IsAffectingSpell(m_spellInfo))
-            {
-                m_needComboPoints = false;
-                if ((*j)->GetMiscValue() == 1)
-                {
-                    reqCombat = false;
-                    break;
-                }
-            }
-        }
-
         // caster state requirements
         // not for triggered spells (needed by execute)
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE))
@@ -5711,7 +5676,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             if (m_spellInfo->ExcludeCasterAuraType && unitCaster->HasAuraType(m_spellInfo->ExcludeCasterAuraType))
                 return SPELL_FAILED_CASTER_AURASTATE;
 
-            if (reqCombat && unitCaster->IsInCombat() && !m_spellInfo->CanBeUsedInCombat(unitCaster))
+            if (unitCaster->IsInCombat() && !m_spellInfo->CanBeUsedInCombat(unitCaster))
                 return SPELL_FAILED_AFFECTING_COMBAT;
         }
 
@@ -6015,9 +5980,9 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     if (std::find(glyphBindableSpells->begin(), glyphBindableSpells->end(), m_misc.SpellId) == glyphBindableSpells->end())
                         return SPELL_FAILED_INVALID_GLYPH;
 
-                    if (std::vector<uint32> const* glyphRequiredSpecs = sDB2Manager.GetGlyphRequiredSpecs(glyphId))
+                    if (std::vector<ChrSpecialization> const* glyphRequiredSpecs = sDB2Manager.GetGlyphRequiredSpecs(glyphId))
                     {
-                        if (!caster->GetPrimarySpecialization())
+                        if (caster->GetPrimarySpecialization() == ChrSpecialization::None)
                             return SPELL_FAILED_GLYPH_NO_SPEC;
 
                         if (std::find(glyphRequiredSpecs->begin(), glyphRequiredSpecs->end(), caster->GetPrimarySpecialization()) == glyphRequiredSpecs->end())
@@ -6703,12 +6668,6 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             if (my_trade->GetSpell())
                 return SPELL_FAILED_ITEM_ALREADY_ENCHANTED;
     }
-
-    // check if caster has at least 1 combo point for spells that require combo points
-    if (m_needComboPoints)
-        if (Player* plrCaster = m_caster->ToPlayer())
-            if (!plrCaster->GetComboPoints())
-                return SPELL_FAILED_NO_COMBO_POINTS;
 
     // all ok
     return SPELL_CAST_OK;
@@ -8700,6 +8659,30 @@ void Spell::CallScriptCalcCritChanceHandlers(Unit const* victim, float& critChan
     }
 }
 
+void Spell::CallScriptCalcDamageHandlers(Unit* victim, int32& damage, int32& flatMod, float& pctMod)
+{
+    for (SpellScript* script : m_loadedScripts)
+    {
+        script->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CALC_DAMAGE);
+        for (SpellScript::DamageAndHealingCalcHandler const& calcDamage : script->CalcDamage)
+            calcDamage.Call(script, victim, damage, flatMod, pctMod);
+
+        script->_FinishScriptCall();
+    }
+}
+
+void Spell::CallScriptCalcHealingHandlers(Unit* victim, int32& healing, int32& flatMod, float& pctMod)
+{
+    for (SpellScript* script : m_loadedScripts)
+    {
+        script->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CALC_HEALING);
+        for (SpellScript::DamageAndHealingCalcHandler const& calcHealing : script->CalcHealing)
+            calcHealing.Call(script, victim, healing, flatMod, pctMod);
+
+        script->_FinishScriptCall();
+    }
+}
+
 void Spell::CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
 {
     for (SpellScript* script : m_loadedScripts)
@@ -9152,74 +9135,73 @@ bool WorldObjectSpellLineTargetCheck::operator()(WorldObject* target) const
     return WorldObjectSpellTargetCheck::operator ()(target);
 }
 
-void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers)
+void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers, Unit const* prioritizeGroupMembersOf /*= nullptr*/)
 {
     if (targets.size() <= maxTargets)
         return;
 
-    std::vector<WorldObject*> tempTargets(targets.begin(), targets.end());
-
-    auto begin = tempTargets.begin();
-    auto end = tempTargets.end();
-
-    if (prioritizePlayers)
+    // Target priority states (bit indices)
+    // higher value means lower selection priority
+    // current list:
+    // * injured player group members
+    // * injured other players
+    // * injured pets of group members
+    // * injured other pets
+    // * full health player group members
+    // * full health other players
+    // * full health pets of group members
+    // * full health other pets
+    enum
     {
-        auto playersEnd = std::stable_partition(begin, end, [](WorldObject const* target)
-        {
-            return target->IsPlayer();
-        });
+        NOT_GROUPED,
+        NOT_PLAYER,
+        NOT_INJURED,
+        END
+    };
 
-        size_t playerCount = std::distance(begin, playersEnd);
-        if (playerCount < maxTargets)
-        {
-            // not enough players, add nonplayer targets
-            // prioritize injured nonplayers over full health nonplayers
-            auto injuredNonPlayersEnd = std::stable_partition(playersEnd, end, [](WorldObject const* target)
-            {
-                return target->IsUnit() && !target->ToUnit()->IsFullHealth();
-            });
+    std::array<std::ptrdiff_t, 1 << END> countsByPriority = {};
+    std::vector<std::pair<WorldObject*, int32>> tempTargets;
+    tempTargets.resize(targets.size());
 
-            size_t injuredNonPlayersCount = std::distance(playersEnd, injuredNonPlayersEnd);
-            if (playerCount + injuredNonPlayersCount < maxTargets)
-            {
-                // not enough players + injured nonplayers
-                // fill remainder with random full health nonplayers
-                Containers::RandomShuffle(injuredNonPlayersEnd, end);
-            }
-            else if (playerCount + injuredNonPlayersCount > maxTargets)
-            {
-                // randomize injured nonplayers order
-                // final list will contain all players + random injured nonplayers
-                Containers::RandomShuffle(playersEnd, injuredNonPlayersEnd);
-            }
-
-            targets.assign(tempTargets.begin(), tempTargets.begin() + maxTargets);
-            return;
-        }
-
-        // We have more players than we requested, proceed checking injured targets
-        end = playersEnd;
-    }
-
-    auto injuredUnitsEnd = std::stable_partition(begin, end, [](WorldObject const* target)
+    // categorize each target
+    std::transform(targets.begin(), targets.end(), tempTargets.begin(), [&](WorldObject* target)
     {
-        return target->IsUnit() && !target->ToUnit()->IsFullHealth();
+        int32 negativePoints = 0;
+        if (prioritizeGroupMembersOf && (!target->IsUnit() || target->ToUnit()->IsInRaidWith(prioritizeGroupMembersOf)))
+            negativePoints |= 1 << NOT_GROUPED;
+
+        if (prioritizePlayers && !target->IsPlayer() && (!target->IsCreature() || !target->ToCreature()->HasFlag(CREATURE_STATIC_FLAG_4_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS)))
+            negativePoints |= 1 << NOT_PLAYER;
+
+        if (!target->IsUnit() || target->ToUnit()->IsFullHealth())
+            negativePoints |= 1 << NOT_INJURED;
+
+        ++countsByPriority[negativePoints];
+        return std::make_pair(target, negativePoints);
     });
 
-    size_t injuredUnitsCount = std::distance(begin, injuredUnitsEnd);
-    if (injuredUnitsCount < maxTargets)
+    std::sort(tempTargets.begin(), tempTargets.end(), [](std::pair<WorldObject*, int32> const& left, std::pair<WorldObject*, int32> const& right)
     {
-        // not enough injured units
-        // fill remainder with full health units
-        Containers::RandomShuffle(injuredUnitsEnd, end);
-    }
-    else if (injuredUnitsCount > maxTargets)
+        return left.second < right.second;
+    });
+
+    std::size_t foundTargets = 0;
+    for (std::ptrdiff_t countForPriority : countsByPriority)
     {
-        // select random injured units
-        Containers::RandomShuffle(begin, injuredUnitsEnd);
+        if (foundTargets + countForPriority >= maxTargets)
+        {
+            // shuffle only the lower priority extras
+            // example: our initial target list had 5 injured and 5 full health units and we want to select 7 targets
+            //          we always want to select 5 injured and 2 random full health ones
+            Containers::RandomShuffle(tempTargets.begin() + foundTargets, tempTargets.begin() + foundTargets + countForPriority);
+            break;
+        }
+
+        foundTargets += countForPriority;
     }
 
-    targets.assign(tempTargets.begin(), tempTargets.begin() + maxTargets);
+    targets.resize(maxTargets);
+    std::transform(tempTargets.begin(), tempTargets.begin() + maxTargets, targets.begin(), std::mem_fn(&std::pair<WorldObject*, int32>::first));
 }
 } //namespace Trinity
 

@@ -39,6 +39,7 @@
 #include "Transport.h"
 #include "Unit.h"
 #include "UpdateData.h"
+#include "ZoneScript.h"
 #include "advstd.h"
 #include <bit>
 
@@ -63,6 +64,9 @@ void AreaTrigger::AddToWorld()
     ///- Register the AreaTrigger for guid lookup and for caster
     if (!IsInWorld())
     {
+        if (m_zoneScript)
+            m_zoneScript->OnAreaTriggerCreate(this);
+
         GetMap()->GetObjectsStore().Insert<AreaTrigger>(GetGUID(), this);
         if (_spawnId)
             GetMap()->GetAreaTriggerBySpawnIdStore().insert(std::make_pair(_spawnId, this));
@@ -76,6 +80,9 @@ void AreaTrigger::RemoveFromWorld()
     ///- Remove the AreaTrigger from the accessor and from all lists of objects in world
     if (IsInWorld())
     {
+        if (m_zoneScript)
+            m_zoneScript->OnAreaTriggerRemove(this);
+
         _isRemoved = true;
 
         if (Unit* caster = GetCaster())
@@ -113,6 +120,8 @@ bool AreaTrigger::Create(uint32 areaTriggerCreatePropertiesId, Unit* caster, Uni
         TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (areaTriggerCreatePropertiesId {}) not created. Invalid areatrigger create properties id ({})", areaTriggerCreatePropertiesId, areaTriggerCreatePropertiesId);
         return false;
     }
+
+    SetZoneScript();
 
     _areaTriggerTemplate = _areaTriggerCreateProperties->Template;
 
@@ -253,6 +262,8 @@ bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerT
             areaTriggerTemplate->Id.Id, GetPositionX(), GetPositionY());
         return false;
     }
+
+    SetZoneScript();
 
     _areaTriggerTemplate = areaTriggerTemplate;
 

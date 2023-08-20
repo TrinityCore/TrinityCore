@@ -21,6 +21,7 @@
 #include "DynamicObject.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
+#include "ListUtils.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -859,10 +860,10 @@ void Aura::Update(uint32 diff, Unit* caster)
 
 int32 Aura::CalcMaxDuration(Unit* caster) const
 {
-    return Aura::CalcMaxDuration(GetSpellInfo(), caster);
+    return Aura::CalcMaxDuration(GetSpellInfo(), caster, nullptr);
 }
 
-/*static*/ int32 Aura::CalcMaxDuration(SpellInfo const* spellInfo, WorldObject* caster)
+/*static*/ int32 Aura::CalcMaxDuration(SpellInfo const* spellInfo, WorldObject const* caster, std::vector<SpellPowerCost> const* powerCosts)
 {
     Player* modOwner = nullptr;
     int32 maxDuration;
@@ -870,7 +871,7 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
     if (caster)
     {
         modOwner = caster->GetSpellModOwner();
-        maxDuration = caster->CalcSpellDuration(spellInfo);
+        maxDuration = caster->CalcSpellDuration(spellInfo, powerCosts);
     }
     else
         maxDuration = spellInfo->GetDuration();
@@ -924,21 +925,6 @@ void Aura::RefreshDuration(bool withMods)
 void Aura::RefreshTimers(bool resetPeriodicTimer)
 {
     m_maxDuration = CalcMaxDuration();
-    if (m_spellInfo->HasAttribute(SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER))
-    {
-        int32 minPeriod = m_maxDuration;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (AuraEffect const* eff = GetEffect(i))
-                if (int32 period = eff->GetPeriod())
-                    minPeriod = std::min(period, minPeriod);
-
-        // If only one tick remaining, roll it over into new duration
-        if (GetDuration() <= minPeriod)
-        {
-            m_maxDuration += GetDuration();
-            resetPeriodicTimer = false;
-        }
-    }
 
     RefreshDuration();
 
@@ -1039,7 +1025,7 @@ void Aura::SetStackAmount(uint8 stackAmount)
 
 bool Aura::IsUsingStacks() const
 {
-    return m_spellInfo->StackAmount > 0;
+    return m_spellInfo->StackAmount > 0 || m_stackAmount > 1;
 }
 
 uint32 Aura::CalcMaxStackAmount() const
@@ -1192,7 +1178,7 @@ void Aura::UnregisterSingleTarget()
     ASSERT(m_isSingleTarget);
     Unit* caster = GetCaster();
     ASSERT(caster);
-    caster->GetSingleCastAuras().remove(this);
+    Trinity::Containers::Lists::RemoveUnique(caster->GetSingleCastAuras(), this);
     SetIsSingleTarget(false);
 }
 
@@ -2195,6 +2181,19 @@ void Aura::CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, Aura
         for (AuraScript::EffectCalcCritChanceHandler const& effectCalcCritChance : script->DoEffectCalcCritChance)
             if (effectCalcCritChance.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
                 effectCalcCritChance.Call(script, aurEff, victim, critChance);
+
+        script->_FinishScriptCall();
+    }
+}
+
+void Aura::CallScriptCalcDamageAndHealingHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)
+{
+    for (AuraScript* script : m_loadedScripts)
+    {
+        script->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_DAMAGE_AND_HEALING, aurApp);
+        for (AuraScript::EffectCalcDamageAndHealingHandler const& effectCalcDamageAndHealing : script->DoEffectCalcDamageAndHealing)
+            if (effectCalcDamageAndHealing.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
+                effectCalcDamageAndHealing.Call(script, aurEff, victim, damageOrHealing, flatMod, pctMod);
 
         script->_FinishScriptCall();
     }
