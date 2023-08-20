@@ -390,19 +390,19 @@ class spell_sha_deeply_rooted_elements : public AuraScript
 
     void Register() override
     {
-        if (!GetAura() || GetUnitOwner()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_ELEMENTAL)
+        if (!GetAura() || GetUnitOwner()->ToPlayer()->GetPrimarySpecialization() == ChrSpecialization::ShamanElemental)
         {
             DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_deeply_rooted_elements::CheckProc<SPELL_SHAMAN_LAVA_BURST>, EFFECT_1, SPELL_AURA_DUMMY);
             OnEffectProc += AuraEffectProcFn(spell_sha_deeply_rooted_elements::HandleProc<SPELL_SHAMAN_ASCENDANCE_ELEMENTAL>, EFFECT_1, SPELL_AURA_DUMMY);
         }
 
-        if (!GetAura() || GetUnitOwner()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_ENHANCEMENT)
+        if (!GetAura() || GetUnitOwner()->ToPlayer()->GetPrimarySpecialization() == ChrSpecialization::ShamanEnhancement)
         {
             DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_deeply_rooted_elements::CheckProc<SPELL_SHAMAN_STORMSTRIKE>, EFFECT_2, SPELL_AURA_DUMMY);
             OnEffectProc += AuraEffectProcFn(spell_sha_deeply_rooted_elements::HandleProc<SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT>, EFFECT_2, SPELL_AURA_DUMMY);
         }
 
-        if (!GetAura() || GetUnitOwner()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_RESTORATION)
+        if (!GetAura() || GetUnitOwner()->ToPlayer()->GetPrimarySpecialization() == ChrSpecialization::ShamanRestoration)
         {
             DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_deeply_rooted_elements::CheckProc<SPELL_SHAMAN_RIPTIDE>, EFFECT_3, SPELL_AURA_DUMMY);
             OnEffectProc += AuraEffectProcFn(spell_sha_deeply_rooted_elements::HandleProc<SPELL_SHAMAN_ASCENDANCE_RESTORATION>, EFFECT_3, SPELL_AURA_DUMMY);
@@ -773,7 +773,7 @@ class spell_sha_flametongue_weapon : public SpellScript
     {
         Player* player = GetCaster()->ToPlayer();
         uint8 slot = EQUIPMENT_SLOT_MAINHAND;
-        if (player->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_ENHANCEMENT)
+        if (player->GetPrimarySpecialization() == ChrSpecialization::ShamanEnhancement)
             slot = EQUIPMENT_SLOT_OFFHAND;
 
         Item* targetItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
@@ -854,7 +854,7 @@ class spell_sha_healing_rain : public SpellScript
         {
             if (WorldLocation const* dest = GetExplTargetDest())
             {
-                int32 duration = GetSpellInfo()->CalcDuration(GetOriginalCaster());
+                Milliseconds duration = Milliseconds(GetSpellInfo()->CalcDuration(GetOriginalCaster()));
                 TempSummon* summon = GetCaster()->GetMap()->SummonCreature(NPC_HEALING_RAIN_INVISIBLE_STALKER, *dest, nullptr, duration, GetOriginalCaster());
                 if (!summon)
                     return;
