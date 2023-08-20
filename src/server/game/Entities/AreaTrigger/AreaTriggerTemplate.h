@@ -120,7 +120,7 @@ struct AreaTriggerActionParam
     Optional<ObjectGuid> Guid;
 
     // CaptureFlag
-    Optional<TeamId> TeamId;
+    Optional<::TeamId> TeamId;
 };
 
 enum AreaTriggerActionUserTypes
