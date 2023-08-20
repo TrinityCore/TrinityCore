@@ -25,6 +25,10 @@ UPDATE `creature_template` SET `unit_flags3`=1048576 WHERE `entry`=78553; -- Thr
 UPDATE `creature_queststarter` SET `VerifiedBuild`=50791 WHERE (`id`=78558 AND `quest`=35933) OR (`id`=78423 AND `quest`=36881);
 UPDATE `creature_questender` SET `VerifiedBuild`=50791 WHERE (`id`=78558 AND `quest`=36881) OR (`id`=78558 AND `quest`=34398);
 
+DELETE FROM `creature_template_gossip` WHERE (`CreatureID`=79675 AND `MenuID`=16433);
+INSERT INTO `creature_template_gossip` (`CreatureID`, `MenuID`, `VerifiedBuild`) VALUES
+(79675, 16433, 50791); -- Lady Liadrin
+
 -- Gameobjects
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+1;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
