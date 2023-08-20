@@ -79,7 +79,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         bool IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects = false) const override;
 
-        void DoAction(AreaTriggerActions action, Unit* unit, AreaTriggerActionParam const& param);
+        void DoAction(AreaTriggerActions action, Unit* triggeringUnit, AreaTriggerActionParam const& param);
 
         float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }
         float GetStationaryY() const override { return _stationaryPosition.GetPositionY(); }

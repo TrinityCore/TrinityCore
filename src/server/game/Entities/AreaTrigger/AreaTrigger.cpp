@@ -1383,7 +1383,7 @@ bool AreaTrigger::IsNeverVisibleFor(WorldObject const* seer, bool allowServersid
     return false;
 }
 
-void AreaTrigger::DoAction(AreaTriggerActions action, Unit* unit, AreaTriggerActionParam const& param)
+void AreaTrigger::DoAction(AreaTriggerActions action, Unit* /*triggeringUnit*/, AreaTriggerActionParam const& /*param*/)
 {
     switch (action)
     {
@@ -1426,7 +1426,7 @@ void AreaTrigger::DoAction(AreaTriggerActions action, Unit* unit, AreaTriggerAct
         case AreaTriggerActions::DissalowGhostInInstance:
         case AreaTriggerActions::SendGeneralTrigger:
         default:
-            TC_LOG_WARN("entities.areatrigger", "AreaTrigger {} tried to execute unsupported action {}", GetGUID(), action);
+            TC_LOG_WARN("entities.areatrigger", "AreaTrigger {} tried to execute unsupported action {}", GetEntry(), AsUnderlyingType(action));
             break;
     }
 }
