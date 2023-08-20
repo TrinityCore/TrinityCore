@@ -75,6 +75,7 @@ public:
             { "movie",              HandleDebugPlayMovieCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,  Console::No },
             { "sound",              HandleDebugPlaySoundCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,  Console::No },
             { "music",              HandleDebugPlayMusicCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,  Console::No },
+            { "objectsound",        HandleDebugPlayObjectSoundCommand,      rbac::RBAC_PERM_COMMAND_DEBUG,  Console::No },
         };
         static ChatCommandTable debugSendCommandTable =
         {
@@ -270,6 +271,23 @@ public:
         player->PlayDirectMusic(musicId, player);
 
         handler->PSendSysMessage(LANG_YOU_HEAR_SOUND, musicId);
+        return true;
+    }
+
+    static bool HandleDebugPlayObjectSoundCommand(ChatHandler* handler, int32 soundKitId, Optional<int32> broadcastTextId)
+    {
+        if (!sSoundKitStore.LookupEntry(soundKitId))
+        {
+            handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, soundKitId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* player = handler->GetPlayer();
+
+        player->PlayObjectSound(soundKitId, player->GetGUID(), player, broadcastTextId.has_value() ? *broadcastTextId : 0);
+
+        handler->PSendSysMessage(LANG_YOU_HEAR_SOUND, soundKitId);
         return true;
     }
 

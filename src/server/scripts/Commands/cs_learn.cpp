@@ -195,7 +195,7 @@ public:
             if (playerClass != talentInfo->ClassID)
                 continue;
 
-            if (talentInfo->SpecID && player->GetPrimarySpecialization() != talentInfo->SpecID)
+            if (talentInfo->SpecID && player->GetPrimarySpecialization() != ChrSpecialization(talentInfo->SpecID))
                 continue;
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
