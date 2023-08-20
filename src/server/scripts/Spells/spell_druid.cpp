@@ -601,14 +601,17 @@ class spell_dru_embrace_of_the_dream : public AuraScript
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
-    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
     {
         return roll_chance_i(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_EMBRACE_OF_THE_DREAM_EFFECT, CastSpellExtraArgs(aurEff));
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_EMBRACE_OF_THE_DREAM_EFFECT,
+            CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+            .SetTriggeringAura(aurEff)
+            .SetTriggeringSpell(eventInfo.GetProcSpell()));
     }
 
     void Register() override
@@ -618,7 +621,7 @@ class spell_dru_embrace_of_the_dream : public AuraScript
     }
 };
 
-// 392146 - Embrace of the Dream (Chooser)
+// 392146 - Embrace of the Dream (Selector)
 class spell_dru_embrace_of_the_dream_effect : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -632,46 +635,26 @@ class spell_dru_embrace_of_the_dream_effect : public SpellScript
         });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
         targets.remove_if([&](WorldObject const* target)
         {
             Unit const* unitTarget = target->ToUnit();
-
-            Unit::AuraEffectList effectList = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
-
-            for (AuraEffect* aurEff : effectList)
-                if (aurEff->GetCasterGUID() != GetCaster()->GetGUID() || !IsSpellSubjectOfTargeting(aurEff->GetBase()->GetId()))
-                    return true;
-
-            return false;
+            return !unitTarget || !unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, flag128(0x50, 0, 0, 0), GetCaster()->GetGUID());
         });
     }
 
-    void HandleOnHit(SpellEffIndex /*effIndex*/)
+    void HandleEffect(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_EMBRACE_OF_THE_DREAM_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
-    }
-
-    bool IsSpellSubjectOfTargeting(uint32 spellId)
-    {
-        switch (spellId)
-        {
-            case SPELL_DRUID_REGROWTH:
-            case SPELL_DRUID_REJUVENATION:
-            case SPELL_DRUID_REJUVENATION_GERMINATION:
-                return true;
-            default:
-                break;
-        }
-
-        return false;
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_EMBRACE_OF_THE_DREAM_HEAL,
+            CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+            .SetTriggeringSpell(GetSpell()));
     }
 
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_embrace_of_the_dream_effect::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        OnEffectHitTarget += SpellEffectFn(spell_dru_embrace_of_the_dream_effect::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_embrace_of_the_dream_effect::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
