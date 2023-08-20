@@ -120,14 +120,14 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (175732, 22, 0, 'You will pay. All of you will pay!', 14, 0, 100, 0, 0, 181530, 0, 210346, 0, 'Winds of Icecrown 02'),
 (175732, 23, 0, 'Death bends to my will!', 14, 0, 100, 0, 0, 181343, 0, 210354, 0, 'Phase 3 Start'),
 (175732, 24, 0, 'Heed the call of the Banshee Queen!', 14, 0, 100, 0, 0, 181334, 0, 210349, 0, 'Banshee\'s Fury 01'),
-(175732, 25, 1, 'Hear my cry and despair!', 14, 0, 100, 0, 0, 181335, 0, 210350, 0, 'Banshee\'s Fury 02'),
-(175732, 26, 0, '|TInterface\\ICONS\\Spell_AnimaMaw_GroundState.blp:20|t %s begins to cast |cFFFF0000|Hspell:354145|h[Raze]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Raze warning'),
-(175732, 27, 0, 'Shadows draw near!', 14, 0, 100, 0, 0, 181354, 0, 210352, 0, 'Black Arrow 01'),
-(175732, 27, 1, 'Do you fear the shadows?', 14, 0, 100, 0, 0, 181353, 0, 210351, 0, 'Black Arrow 02'),
-(175732, 28, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t %s begins to cast |cFFFF0000|Hspell:358704|h[Black Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Black Arrow warning'),
-(175732, 29, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t You have been targetted by |cFFFF0000|Hspell:358704|h[Black Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 5, 'Black Arrow target warning'),
-(175732, 30, 0, 'A new age beckons, but you are unworthy of a place in it!', 14, 0, 100, 0, 0, 181349, 0, 210356, 0, 'RP during Rive 01'),
-(175732, 31, 0, 'Zovaal will not be denied!', 14, 0, 100, 0, 0, 181348, 0, 210357, 0, 'RP during Rive 01');
+(175732, 24, 1, 'Hear my cry and despair!', 14, 0, 100, 0, 0, 181335, 0, 210350, 0, 'Banshee\'s Fury 02'),
+(175732, 25, 0, '|TInterface\\ICONS\\Spell_AnimaMaw_GroundState.blp:20|t %s begins to cast |cFFFF0000|Hspell:354145|h[Raze]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Raze warning'),
+(175732, 26, 0, 'Shadows draw near!', 14, 0, 100, 0, 0, 181354, 0, 210352, 0, 'Black Arrow 01'),
+(175732, 26, 1, 'Do you fear the shadows?', 14, 0, 100, 0, 0, 181353, 0, 210351, 0, 'Black Arrow 02'),
+(175732, 27, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t %s begins to cast |cFFFF0000|Hspell:358704|h[Black Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Black Arrow warning'),
+(175732, 28, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t You have been targetted by |cFFFF0000|Hspell:358704|h[Black Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 5, 'Black Arrow target warning'),
+(175732, 29, 0, 'A new age beckons, but you are unworthy of a place in it!', 14, 0, 100, 0, 0, 181349, 0, 210356, 0, 'RP during Rive 01'),
+(175732, 30, 0, 'Zovaal will not be denied!', 14, 0, 100, 0, 0, 181348, 0, 210357, 0, 'RP during Rive 01');
 
 DELETE FROM `creature_text_locale` WHERE `CreatureID`=175732;
 INSERT INTO `creature_text_locale` (`CreatureID`, `GroupID`, `ID`, `Locale`, `Text`) VALUES 
