@@ -1,4 +1,4 @@
-FROM The-Cataclysm-Preservation-Project/circle-ci:4.3.4-base-22.04
+FROM cataclysmpreservationproject/circle-ci:4.3.4-base-22.04
 
 #Setup
 WORKDIR /home/circleci
