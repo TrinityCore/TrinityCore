@@ -30,6 +30,8 @@
 #define MAX_AREATRIGGER_SCALE 7
 
 enum class AreaTriggerFlag : uint32
+enum TeamId;
+
 {
     None                           = 0x00,
     IsServerSide                   = 0x01
