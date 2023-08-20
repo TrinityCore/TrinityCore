@@ -1315,7 +1315,7 @@ class spell_putricide_mutated_transformation : public SpellScript
 
         uint32 entry = uint32(GetEffectInfo().MiscValue);
         SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetEffectInfo().MiscValueB));
-        uint32 duration = uint32(GetSpellInfo()->GetDuration());
+        Milliseconds duration = Milliseconds(GetSpellInfo()->GetDuration());
 
         Position pos = caster->GetPosition();
         TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id);

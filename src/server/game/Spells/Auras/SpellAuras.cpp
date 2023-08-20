@@ -21,6 +21,7 @@
 #include "DynamicObject.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
+#include "ListUtils.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -1024,7 +1025,7 @@ void Aura::SetStackAmount(uint8 stackAmount)
 
 bool Aura::IsUsingStacks() const
 {
-    return m_spellInfo->StackAmount > 0;
+    return m_spellInfo->StackAmount > 0 || m_stackAmount > 1;
 }
 
 uint32 Aura::CalcMaxStackAmount() const
@@ -1177,7 +1178,7 @@ void Aura::UnregisterSingleTarget()
     ASSERT(m_isSingleTarget);
     Unit* caster = GetCaster();
     ASSERT(caster);
-    caster->GetSingleCastAuras().remove(this);
+    Trinity::Containers::Lists::RemoveUnique(caster->GetSingleCastAuras(), this);
     SetIsSingleTarget(false);
 }
 

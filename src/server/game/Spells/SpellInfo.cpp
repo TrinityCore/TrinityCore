@@ -2527,6 +2527,7 @@ void SpellInfo::_LoadAuraState()
                 return AURA_STATE_VICTORIOUS;
             case 71465: // Divine Surge
             case 50241: // Evasive Charges
+            case 81262: // Efflorescence
                 return AURA_STATE_RAID_ENCOUNTER;
             case 6950:   // Faerie Fire
             case 9806:   // Phantom Strike
@@ -4285,7 +4286,7 @@ float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
             case SPELL_PPM_MOD_SPEC:
             {
                 if (Player* plrCaster = caster->ToPlayer())
-                    if (plrCaster->GetPrimarySpecialization() == uint32(mod->Param))
+                    if (plrCaster->GetPrimarySpecialization() == ChrSpecialization(mod->Param))
                         ppm *= 1.0f + mod->Coeff;
                 break;
             }
