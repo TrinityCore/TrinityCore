@@ -26,7 +26,6 @@
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
-#include "PassiveAI.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -514,21 +513,18 @@ class spell_dru_efflorescence : public SpellScript
         GetCaster()->RemoveAreaTrigger(GetSpellInfo()->Id);
     }
 
+    void InitSummon()
+    {
+        for (SpellLogEffectGenericVictimParams const& summonedObject : GetSpell()->GetExecuteLogEffectTargets(SPELL_EFFECT_SUMMON, &SpellLogEffect::GenericVictimTargets))
+            if (Unit* summon = ObjectAccessor::GetCreature(*GetCaster(), summonedObject.Victim))
+                summon->CastSpell(summon, SPELL_DRUID_EFFLORESCENCE_AURA,
+                    CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+    }
+
     void Register() override
     {
         OnEffectLaunch += SpellEffectFn(spell_dru_efflorescence::RemoveOldAreaTrigger, EFFECT_2, SPELL_EFFECT_CREATE_AREATRIGGER);
-    }
-};
-
-struct npc_dru_efflorescence : public NullCreatureAI
-{
-    explicit npc_dru_efflorescence(Creature* creature) : NullCreatureAI(creature)
-    {
-    }
-
-    void InitializeAI() override
-    {
-        me->CastSpell(me, SPELL_DRUID_EFFLORESCENCE_AURA);
+        AfterCast += SpellCastFn(spell_dru_efflorescence::InitSummon);
     }
 };
 
@@ -1942,7 +1938,6 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_eclipse_aura);
     RegisterSpellScript(spell_dru_eclipse_dummy);
     RegisterSpellScript(spell_dru_eclipse_ooc);
-    RegisterCreatureAI(npc_dru_efflorescence);
     RegisterSpellScript(spell_dru_efflorescence);
     RegisterSpellScript(spell_dru_efflorescence_dummy);
     RegisterSpellScript(spell_dru_efflorescence_heal);
