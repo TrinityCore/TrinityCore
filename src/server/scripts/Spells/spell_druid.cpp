@@ -1037,6 +1037,31 @@ class spell_dru_incarnation_tree_of_life : public AuraScript
     }
 };
 
+// 740 - Tranquility
+class spell_dru_inner_peace : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_INNER_PEACE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_4 } })
+            && spellInfo->GetEffect(EFFECT_3).IsAura(SPELL_AURA_MECHANIC_IMMUNITY_MASK)
+            && spellInfo->GetEffect(EFFECT_4).IsAura(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
+    }
+
+    void PreventEffect(WorldObject*& target) const
+    {
+        // Note: Inner Peace talent.
+        if (!GetCaster()->HasAura(SPELL_DRUID_INNER_PEACE))
+            target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dru_inner_peace::PreventEffect, EFFECT_3, TARGET_UNIT_CASTER);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dru_inner_peace::PreventEffect, EFFECT_4, TARGET_UNIT_CASTER);
+    }
+};
+
 // 40442 - Druid Tier 6 Trinket
 class spell_dru_item_t6_trinket : public AuraScript
 {
@@ -1773,23 +1798,6 @@ class spell_dru_thrash_aura : public AuraScript
     }
 };
 
-// 740 - Tranquility
-class spell_dru_tranquility : public SpellScript
-{
-    void FilterTargets(WorldObject*& target)
-    {
-        // Note: Inner Peace talent.
-        if (!GetCaster()->HasAura(SPELL_DRUID_INNER_PEACE))
-            target = nullptr;
-    }
-
-    void Register() override
-    {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dru_tranquility::FilterTargets, EFFECT_3, TARGET_UNIT_CASTER);
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dru_tranquility::FilterTargets, EFFECT_4, TARGET_UNIT_CASTER);
-    }
-};
-
 // 1066 - Aquatic Form
 // 33943 - Flight Form
 // 40120 - Swift Flight Form
@@ -2090,6 +2098,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_incapacitating_roar);
     RegisterSpellScript(spell_dru_incarnation);
     RegisterSpellScript(spell_dru_incarnation_tree_of_life);
+    RegisterSpellScript(spell_dru_inner_peace);
     RegisterSpellScript(spell_dru_innervate);
     RegisterSpellScript(spell_dru_item_t6_trinket);
     RegisterSpellScript(spell_dru_lifebloom);
@@ -2118,7 +2127,6 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_t10_restoration_4p_bonus_dummy);
     RegisterSpellScript(spell_dru_thrash);
     RegisterSpellScript(spell_dru_thrash_aura);
-    RegisterSpellScript(spell_dru_tranquility);
     RegisterSpellScript(spell_dru_travel_form);
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
