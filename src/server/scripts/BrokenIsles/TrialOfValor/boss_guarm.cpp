@@ -126,7 +126,7 @@ enum GuarmSpellCategories
 
 enum GuarmConversations
 {
-    CONVERSATION_DEATH      = 3917
+    CONVERSATION_DEATH = 3917
 };
 
 struct JumpMovePathPair
@@ -283,9 +283,6 @@ struct boss_guarm : public BossAI
             default:
                 break;
         }
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
 
         DoMeleeAttackIfReady();
     }
