@@ -574,8 +574,6 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     effectInfo = nullptr;
     m_damage = 0;
     m_healing = 0;
-    m_softTargetCapCount = 0;
-    m_fullAmountTargetCapCount = 0;
     m_hitMask = PROC_HIT_NONE;
     m_procSpellType = PROC_SPELL_TYPE_NONE;
     focusObject = nullptr;
@@ -2622,17 +2620,17 @@ void Spell::AddDestTarget(SpellDestination const& dest, uint32 effIndex)
     m_destTargets[effIndex] = dest;
 }
 
-int64 Spell::GetUnitTargetIndexForEffect(TargetInfo const& targetInfo, SpellEffIndex effect) const
+int32 Spell::GetUnitTargetIndexForEffect(ObjectGuid const& target, SpellEffIndex effect) const
 {
-    int64 index = 0;
+    int32 index = 0;
     for (TargetInfo const& uniqueTargetInfo : m_UniqueTargetInfo)
     {
         if (uniqueTargetInfo.MissCondition == SPELL_MISS_NONE && uniqueTargetInfo.EffectMask & (1 << effect))
         {
-            if (uniqueTargetInfo.TargetGUID == targetInfo.TargetGUID)
+            if (uniqueTargetInfo.TargetGUID == target)
                 break;
 
-            index++;
+            ++index;
         }
     }
 
@@ -8316,24 +8314,44 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, Spe
 
     if (m_originalCaster && m_damage > 0)
     {
-        if (spellEffectInfo.IsTargetingArea() || spellEffectInfo.IsAreaAuraEffect() || spellEffectInfo.IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA) || m_spellInfo->HasAttribute(SPELL_ATTR5_TREAT_AS_AREA_EFFECT))
+        bool isAoeTarget = spellEffectInfo.IsTargetingArea() || spellEffectInfo.IsAreaAuraEffect() || spellEffectInfo.IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA);
+        if (isAoeTarget || m_spellInfo->HasAttribute(SPELL_ATTR5_TREAT_AS_AREA_EFFECT))
         {
             m_damage = unit->CalculateAOEAvoidance(m_damage, m_spellInfo->SchoolMask, m_originalCaster->GetGUID());
 
             if (m_originalCaster->GetTypeId() == TYPEID_PLAYER)
             {
-                int64 const targetIndex = GetUnitTargetIndexForEffect(targetInfo, spellEffectInfo.EffectIndex);
-                int64 const targetCount = GetUnitTargetCountForEffect(spellEffectInfo.EffectIndex);
+                int64 targetCount = !isAoeTarget && m_spellValue->ParentSpellTargetCount ? *m_spellValue->ParentSpellTargetCount : GetUnitTargetCountForEffect(spellEffectInfo.EffectIndex);
+                int32 targetIndex = !isAoeTarget && m_spellValue->ParentSpellTargetIndex ? *m_spellValue->ParentSpellTargetIndex : GetUnitTargetIndexForEffect(targetInfo.TargetGUID, spellEffectInfo.EffectIndex);
 
-                // Shadowlands: Sqrt Target Cap Damage Calculation
-                if (targetIndex >= m_fullAmountTargetCapCount
-                    && m_softTargetCapCount > 0
-                    && targetCount > m_softTargetCapCount)
-                    m_damage *= std::sqrt(float(m_softTargetCapCount) / std::min<int64>(AOE_DAMAGE_TARGET_CAP, targetCount));
+                // sqrt target cap damage calculation
+                if (m_spellInfo->SqrtDamageAndHealingDiminishing.MaxTargets
+                    && targetCount > m_spellInfo->SqrtDamageAndHealingDiminishing.MaxTargets
+                    && targetIndex >= m_spellInfo->SqrtDamageAndHealingDiminishing.NumNonDiminishedTargets)
+                    m_damage = m_damage * std::sqrt(float(m_spellInfo->SqrtDamageAndHealingDiminishing.MaxTargets) / std::min(AOE_DAMAGE_TARGET_CAP, targetCount));
 
                 // cap damage of player AOE
                 if (targetCount > AOE_DAMAGE_TARGET_CAP)
-                    m_damage *= AOE_DAMAGE_TARGET_CAP / targetCount;
+                    m_damage = m_damage * AOE_DAMAGE_TARGET_CAP / targetCount;
+            }
+        }
+    }
+
+    if (m_originalCaster && m_healing > 0)
+    {
+        bool isAoeTarget = spellEffectInfo.IsTargetingArea() || spellEffectInfo.IsAreaAuraEffect() || spellEffectInfo.IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA);
+        if (isAoeTarget || m_spellInfo->HasAttribute(SPELL_ATTR5_TREAT_AS_AREA_EFFECT))
+        {
+            if (m_originalCaster->GetTypeId() == TYPEID_PLAYER)
+            {
+                int64 targetCount = !isAoeTarget && m_spellValue->ParentSpellTargetCount ? *m_spellValue->ParentSpellTargetCount : GetUnitTargetCountForEffect(spellEffectInfo.EffectIndex);
+                int32 targetIndex = !isAoeTarget && m_spellValue->ParentSpellTargetIndex ? *m_spellValue->ParentSpellTargetIndex : GetUnitTargetIndexForEffect(targetInfo.TargetGUID, spellEffectInfo.EffectIndex);
+
+                // sqrt target cap healing calculation
+                if (m_spellInfo->SqrtDamageAndHealingDiminishing.MaxTargets
+                    && targetCount > m_spellInfo->SqrtDamageAndHealingDiminishing.MaxTargets
+                    && targetIndex >= m_spellInfo->SqrtDamageAndHealingDiminishing.NumNonDiminishedTargets)
+                    m_healing = m_healing * std::sqrt(float(m_spellInfo->SqrtDamageAndHealingDiminishing.MaxTargets) / std::min(AOE_DAMAGE_TARGET_CAP, targetCount));
             }
         }
     }
@@ -8452,6 +8470,12 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
             break;
         case SPELLVALUE_DURATION:
             m_spellValue->Duration = value;
+            break;
+        case SPELLVALUE_PARENT_SPELL_TARGET_COUNT:
+            m_spellValue->ParentSpellTargetCount = value;
+            break;
+        case SPELLVALUE_PARENT_SPELL_TARGET_INDEX:
+            m_spellValue->ParentSpellTargetIndex = value;
             break;
         default:
             break;

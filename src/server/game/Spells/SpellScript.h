@@ -801,7 +801,6 @@ public:
     bool IsAfterTargetSelectionPhase() const;
     bool IsInTargetHook() const;
     bool IsInModifiableHook() const;
-    bool IsBeforeHitPhase() const;
     bool IsInHitPhase() const;
     bool IsInEffectHook() const;
 private:
@@ -957,13 +956,6 @@ public:
     int64 GetGameObjectTargetCountForEffect(SpellEffIndex effect) const;
     int64 GetItemTargetCountForEffect(SpellEffIndex effect) const;
     int64 GetCorpseTargetCountForEffect(SpellEffIndex effect) const;
-
-    // Shadowlands: The amount of targets after the damage decreases by the Square Root AOE formula
-    // evaluated just after SPELL_EFFECT_LAUNCH_TARGET handler call
-    void SetSoftTargetCap(int64 targetCount);
-    // Shadowlands: The amount of targets that still take the full amount before the damage decreases by the Square Root AOE formula
-    // evaluated just after SPELL_EFFECT_LAUNCH_TARGET handler call
-    void SetFullAmountTargetCap(int64 targetCount);
 
     // methods useable only during spell hit on target, or during spell launch on target:
     // returns: target of current effect if it was Unit otherwise NULL

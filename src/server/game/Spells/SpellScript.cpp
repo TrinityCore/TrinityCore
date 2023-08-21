@@ -383,13 +383,6 @@ bool SpellScript::IsInModifiableHook() const
     return false;
 }
 
-bool SpellScript::IsBeforeHitPhase() const
-{
-    return !IsInHitPhase()
-        && m_currentScriptState != SPELL_SCRIPT_HOOK_AFTER_CAST
-        && m_currentScriptState != SPELL_SCRIPT_HOOK_ON_RESIST_ABSORB_CALCULATION;
-}
-
 bool SpellScript::IsInHitPhase() const
 {
     return (m_currentScriptState >= HOOK_SPELL_HIT_START && m_currentScriptState < HOOK_SPELL_HIT_END);
@@ -505,28 +498,6 @@ int64 SpellScript::GetCorpseTargetCountForEffect(SpellEffIndex effect) const
         return 0;
     }
     return m_spell->GetCorpseTargetCountForEffect(effect);
-}
-
-void SpellScript::SetSoftTargetCap(int64 targetCount)
-{
-    if (!IsBeforeHitPhase())
-    {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetSoftTargetCap was called, but function has no effect in current hook! (spell is not in before hit phase)",
-            m_scriptName, m_scriptSpellId);
-        return;
-    }
-    m_spell->m_softTargetCapCount = targetCount;
-}
-
-void SpellScript::SetFullAmountTargetCap(int64 targetCount)
-{
-    if (!IsBeforeHitPhase())
-    {
-        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::SetFullAmountTargetCap was called, but function has no effect in current hook! (spell is not in before hit phase)",
-            m_scriptName, m_scriptSpellId);
-        return;
-    }
-    m_spell->m_fullAmountTargetCapCount = targetCount;
 }
 
 Unit* SpellScript::GetHitUnit() const

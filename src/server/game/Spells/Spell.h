@@ -73,7 +73,7 @@ enum WeaponAttackType : uint8;
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 #define MAX_SPELL_RANGE_TOLERANCE 3.0f
 #define TRAJECTORY_MISSILE_SIZE 3.0f
-#define AOE_DAMAGE_TARGET_CAP 20
+#define AOE_DAMAGE_TARGET_CAP SI64LIT(20)
 
 enum SpellCastFlags
 {
@@ -214,6 +214,8 @@ struct SpellValue
     float     DurationMul;
     float     CriticalChance;
     Optional<int32> Duration;
+    Optional<int32> ParentSpellTargetCount;
+    Optional<int32> ParentSpellTargetIndex;
 };
 
 enum SpellState
@@ -731,9 +733,6 @@ class TC_GAME_API Spell
         int32 m_damage;           // Damage  in effects count here
         int32 m_healing;          // Healing in effects count here
 
-        int64 m_softTargetCapCount;       // Shadowlands: The amount of targets after the damage decreases by the Square Root AOE formula
-        int64 m_fullAmountTargetCapCount; // Shadowlands: The amount of targets that still take the full amount before the damage decreases by the Square Root AOE formula
-
         // ******************************************
         // Spell trigger system
         // ******************************************
@@ -822,7 +821,7 @@ class TC_GAME_API Spell
 
         SpellDestination m_destTargets[MAX_SPELL_EFFECTS];
 
-        int64 GetUnitTargetIndexForEffect(TargetInfo const& targetInfo, SpellEffIndex effect) const;
+        int32 GetUnitTargetIndexForEffect(ObjectGuid const& target, SpellEffIndex effect) const;
 
         void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true, bool implicit = true, Position const* losPosition = nullptr);
         void AddGOTarget(GameObject* target, uint32 effectMask);
