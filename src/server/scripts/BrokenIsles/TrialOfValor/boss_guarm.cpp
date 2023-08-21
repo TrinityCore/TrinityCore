@@ -550,7 +550,7 @@ class at_guardians_breath : public AreaTriggerEntityScript
 public:
     at_guardians_breath(char const* script) : AreaTriggerEntityScript(script) { }
 
-    template<uint32 ColorSpellId>
+    template<uint32 ColorSpell>
     struct at_guardians_breathAI : AreaTriggerAI
     {
         at_guardians_breathAI(AreaTrigger* at) : AreaTriggerAI(at) { }
@@ -579,7 +579,7 @@ public:
             if (!ai)
                 return;
 
-            ai->HandleBreathEnter(unit->GetGUID(), ColorSpellId);
+            ai->HandleBreathEnter(unit->GetGUID(), ColorSpell);
         }
 
         void OnUnitExit(Unit* unit) override
