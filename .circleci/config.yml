@@ -88,7 +88,7 @@ jobs:
             cd bin/check_install
             cp -r ../../contrib/Docker/* .
             cp -r ../../sql ./sql
-            image_prefix=$(echo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME | tr '[:upper:]' '[:lower:]')
+            image_prefix=$(echo cataclysmpreservationproject/$CIRCLE_PROJECT_REPONAME | tr '[:upper:]' '[:lower:]')
             echo $image_prefix
             docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:$(echo $CIRCLE_BRANCH | tr '/' '-' | tr '[:upper:]' '[:lower:]') .
             docker save $image_prefix | gzip > ../../docker.tar.gz
