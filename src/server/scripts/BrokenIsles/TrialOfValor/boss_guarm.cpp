@@ -374,15 +374,15 @@ struct boss_guarm : public BossAI
         {
             Unit* player = ObjectAccessor::GetUnit(*me, playerGUID);
             if (!player)
-                return;
+                continue;
 
             if (player->isDead())
-                return;
+                continue;
 
             if (spellId == 0)
             {
                 frothingRageStacks++;
-                break;
+                continue;
             }
             DoCast(player, spellId, true);
             player->CastSpell(nullptr, GetBreathDebuffByDamageSpell(spellId));
