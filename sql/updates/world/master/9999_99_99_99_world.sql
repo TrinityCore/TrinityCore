@@ -100,11 +100,11 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 (114323, 114343, 1, 1, 'Guarm - Guarm', 8, 0), -- Guarm - Guarm
 (114323, 114341, 0, 1, 'Guarm - Guarm', 8, 0); -- Guarm - Guarm
 
-SET @PATH1 := ((114323 * 10) + 0) << 3;
-SET @PATH2 := ((114323 * 10) + 1) << 3;
-SET @PATH3 := ((114323 * 10) + 2) << 3;
-SET @PATH4 := ((114323 * 10) + 3) << 3;
-SET @PATH5 := ((114323 * 10) + 4) << 3;
+SET @PATH1 := (114323 * 100) + 0;
+SET @PATH2 := (114323 * 100) + 1;
+SET @PATH3 := (114323 * 100) + 2;
+SET @PATH4 := (114323 * 100) + 3;
+SET @PATH5 := (114323 * 100) + 4;
 DELETE FROM `waypoint_data` WHERE `id` IN(@PATH1, @PATH2, @PATH3, @PATH4, @PATH5);
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`) VALUES
 (@PATH1, 1, 479.3734, 447.34622, 5.0953035),

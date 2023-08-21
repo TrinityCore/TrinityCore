@@ -112,11 +112,11 @@ enum GuarmPoints
 
 enum GuarmPaths
 {
-    PATH_HEADLONG_CHARGE1   = ((114323 * 10) + 0) << 3,
-    PATH_HEADLONG_CHARGE2   = ((114323 * 10) + 1) << 3,
-    PATH_HEADLONG_CHARGE3   = ((114323 * 10) + 2) << 3,
-    PATH_HEADLONG_CHARGE4   = ((114323 * 10) + 3) << 3,
-    PATH_BERSERK            = ((114323 * 10) + 4) << 3,
+    PATH_HEADLONG_CHARGE1   = (114323 * 100) + 0,
+    PATH_HEADLONG_CHARGE2   = (114323 * 100) + 1,
+    PATH_HEADLONG_CHARGE3   = (114323 * 100) + 2,
+    PATH_HEADLONG_CHARGE4   = (114323 * 100) + 3,
+    PATH_BERSERK            = (114323 * 100) + 4,
 };
 
 enum GuarmSpellCategories
