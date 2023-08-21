@@ -489,7 +489,7 @@ public:
                 if (!sizeLogged)
                 {
                     sizeLogged = true;
-                    handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, std::to_string(auraList.size()).c_str(), i);
+                    handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, std::to_string(std::distance(auraList.begin(), auraList.end())).c_str(), i);
                 }
 
                 handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, effect->GetId(), effect->GetEffIndex(), effect->GetAmount());

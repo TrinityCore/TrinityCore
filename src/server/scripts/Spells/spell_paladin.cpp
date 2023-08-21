@@ -38,6 +38,7 @@
 
 enum PaladinSpells
 {
+    SPELL_PALADIN_ARDENT_DEFENDER_HEAL           = 66235,
     SPELL_PALADIN_ART_OF_WAR_TRIGGERED           = 231843,
     SPELL_PALADIN_AVENGERS_SHIELD                = 31935,
     SPELL_PALADIN_AVENGING_WRATH                 = 31884,
@@ -124,12 +125,53 @@ enum PaladinSpellVisual
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE       = 83731,
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT  = 83881,
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL         = 83732,
-    PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT    = 83880,
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT    = 83880
 };
 
 enum PaladinSpellLabel
 {
     SPELL_LABEL_PALADIN_T30_2P_HEARTFIRE         = 2598
+};
+
+// 31850 - Ardent Defender
+class spell_pal_ardent_defender : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_ARDENT_DEFENDER_HEAL })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void HandleAbsorb(AuraEffect const* aurEff, DamageInfo const& dmgInfo, uint32& absorbAmount)
+    {
+        PreventDefaultAction();
+
+        int32 targetHealthPercent = GetEffectInfo(EFFECT_1).CalcValue(GetTarget());
+        uint64 targetHealth = int32(GetTarget()->CountPctFromMaxHealth(targetHealthPercent));
+        if (GetTarget()->HealthBelowPct(targetHealthPercent))
+        {
+            // we are currently below desired health
+            // absorb everything and heal up
+            absorbAmount = dmgInfo.GetDamage();
+
+            GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ARDENT_DEFENDER_HEAL,
+                CastSpellExtraArgs(aurEff)
+                .AddSpellMod(SPELLVALUE_BASE_POINT0, int32(targetHealth - GetTarget()->GetHealth())));
+        }
+        else
+        {
+            // we are currently above desired health
+            // just absorb enough to reach that percentage
+            absorbAmount = dmgInfo.GetDamage() - int32(GetTarget()->GetHealth() - targetHealth);
+        }
+
+        Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbOverkillFn(spell_pal_ardent_defender::HandleAbsorb, EFFECT_2);
+    }
 };
 
 // 267344 - Art of War
@@ -212,86 +254,6 @@ private:
     Milliseconds _refreshTimer;
     Milliseconds _period;
 };
-
-/*
-// -31850 - Ardent Defender
-class spell_pal_ardent_defender : public SpellScriptLoader
-{
-    public:
-        spell_pal_ardent_defender() : SpellScriptLoader("spell_pal_ardent_defender") { }
-
-        class spell_pal_ardent_defender_AuraScript : public AuraScript
-        {
-            uint32 _absorbPct = 0;
-            uint32 _healPct = 0;
-
-            enum Spell
-            {
-                PAL_SPELL_ARDENT_DEFENDER_HEAL = 66235
-            };
-
-            bool Validate(SpellInfo const* spellInfo) override
-            {
-                return ValidateSpellInfo({ PAL_SPELL_ARDENT_DEFENDER_HEAL });
-            }
-
-            bool Load() override
-            {
-                _absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-                _healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated)
-            {
-                // Set absorbtion amount to unlimited
-                amount = -1;
-            }
-
-            void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
-            {
-                Unit* victim = GetTarget();
-                int32 remainingHealth = victim->GetHealth() - dmgInfo.GetDamage();
-                uint32 allowedHealth = victim->CountPctFromMaxHealth(35);
-                // If damage kills us
-                if (remainingHealth <= 0 && !victim->ToPlayer()->HasSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL))
-                {
-                    // Cast healing spell, completely avoid damage
-                    absorbAmount = dmgInfo.GetDamage();
-
-                    float defenseSkillValue = victim->GetDefenseSkillValue();
-                    // Max heal when defense skill denies critical hits from raid bosses
-                    // Formula: max defense at level + 140 (raiting from gear)
-                    float reqDefForMaxHeal = victim->GetMaxSkillValueForLevel() + 140.0f;
-                    float defenseFactor = std::min(1.0f, defenseSkillValue / reqDefForMaxHeal);
-
-                    int32 healAmount = int32(victim->CountPctFromMaxHealth(static_cast<uint32>(lroundf(_healPct * defenseFactor))));
-                    victim->CastCustomSpell(victim, PAL_SPELL_ARDENT_DEFENDER_HEAL, &healAmount, nullptr, nullptr, true, nullptr, aurEff);
-                    victim->ToPlayer()->AddSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL, 0, GameTime::GetGameTime() + 120);
-                }
-                else if (remainingHealth < int32(allowedHealth))
-                {
-                    // Reduce damage that brings us under 35% (or full damage if we are already under 35%) by x%
-                    uint32 damageToReduce = (victim->GetHealth() < allowedHealth)
-                        ? dmgInfo.GetDamage()
-                        : allowedHealth - remainingHealth;
-                    absorbAmount = CalculatePct(damageToReduce, _absorbPct);
-                }
-            }
-
-            void Register() override
-            {
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_ardent_defender_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_pal_ardent_defender_AuraScript::Absorb, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_ardent_defender_AuraScript();
-        }
-};
-*/
 
 // 248033 - Awakening
 class spell_pal_awakening : public AuraScript
@@ -1577,7 +1539,7 @@ class spell_pal_zeal : public AuraScript
 
 void AddSC_paladin_spell_scripts()
 {
-    //new spell_pal_ardent_defender();
+    RegisterSpellScript(spell_pal_ardent_defender);
     RegisterSpellScript(spell_pal_art_of_war);
     RegisterAreaTriggerAI(areatrigger_pal_ashen_hallow);
     RegisterSpellScript(spell_pal_awakening);

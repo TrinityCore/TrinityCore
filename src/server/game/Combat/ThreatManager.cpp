@@ -496,19 +496,19 @@ void ThreatManager::MatchUnitThreatToHighestThreat(Unit* target)
 
 void ThreatManager::TauntUpdate()
 {
-    std::list<AuraEffect*> const& tauntEffects = _owner->GetAuraEffectsByType(SPELL_AURA_MOD_TAUNT);
+    Unit::AuraEffectList const& tauntEffects = _owner->GetAuraEffectsByType(SPELL_AURA_MOD_TAUNT);
 
-    uint32 state = ThreatReference::TAUNT_STATE_TAUNT;
-    std::unordered_map<ObjectGuid, ThreatReference::TauntState> tauntStates;
+    uint32 tauntPriority = 0; // lowest is highest
+    std::unordered_map<ObjectGuid, uint32> tauntStates;
     // Only the last taunt effect applied by something still on our threat list is considered
-    for (auto it = tauntEffects.begin(), end = tauntEffects.end(); it != end; ++it)
-        tauntStates[(*it)->GetCasterGUID()] = ThreatReference::TauntState(state++);
+    for (AuraEffect const* tauntEffect : tauntEffects)
+        tauntStates[tauntEffect->GetCasterGUID()] = ++tauntPriority;
 
     for (auto const& pair : _myThreatListEntries)
     {
         auto it = tauntStates.find(pair.first);
         if (it != tauntStates.end())
-            pair.second->UpdateTauntState(it->second);
+            pair.second->UpdateTauntState(ThreatReference::TauntState(ThreatReference::TAUNT_STATE_TAUNT + tauntStates.size() - it->second));
         else
             pair.second->UpdateTauntState();
     }
