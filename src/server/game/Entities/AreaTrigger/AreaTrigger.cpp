@@ -135,7 +135,7 @@ bool AreaTrigger::Create(uint32 areaTriggerCreatePropertiesId, Unit* caster, Uni
     SetObjectScale(1.0f);
 
     _shape = GetCreateProperties()->Shape;
-    _maxSearchRadius = GetCreateProperties()->GetMaxSearchRadius();
+    _maxSearchRadius = _shape.GetMaxSearchRadius();
 
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::Caster), caster->GetGUID());

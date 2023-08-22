@@ -108,8 +108,3 @@ bool AreaTriggerCreateProperties::HasSplines() const
 {
     return SplinePoints.size() >= 2;
 }
-
-float AreaTriggerCreateProperties::GetMaxSearchRadius() const
-{
-    return Shape.GetMaxSearchRadius();
-}

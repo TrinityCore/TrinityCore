@@ -216,7 +216,6 @@ public:
     ~AreaTriggerCreateProperties();
 
     bool HasSplines() const;
-    float GetMaxSearchRadius() const;
 
     uint32 Id;
     AreaTriggerTemplate const* Template;
