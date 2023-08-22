@@ -187,6 +187,7 @@ uint32 const ArmorSpecializationIds[MAX_ARMOR_SPECIALIZATION_IDS] = { 86530, 865
 struct SpellModifier
 {
     SpellModifier(Aura* _ownerAura) : op(SpellModOp::HealingAndDamage), type(SPELLMOD_FLAT), value(0), mask(), spellId(0), ownerAura(_ownerAura) { }
+    virtual ~SpellModifier() = default;
 
     SpellModOp op;
     SpellModType type;

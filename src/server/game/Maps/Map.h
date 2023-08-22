@@ -121,8 +121,10 @@ using ZoneDynamicInfoMap = std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo
 using RespawnListContainer = boost::heap::fibonacci_heap<RespawnInfo*, boost::heap::compare<CompareRespawnInfo>>;
 using RespawnListHandle = RespawnListContainer::handle_type;
 using RespawnInfoMap = std::unordered_map<ObjectGuid::LowType, RespawnInfo*>;
-struct RespawnInfo
+struct TC_GAME_API RespawnInfo
 {
+    virtual ~RespawnInfo();
+
     SpawnObjectType type;
     ObjectGuid::LowType spawnId;
     uint32 entry;

@@ -68,6 +68,8 @@ GridState* si_GridStates[MAX_GRID_STATE];
 ZoneDynamicInfo::ZoneDynamicInfo() : MusicId(0), DefaultWeather(nullptr), WeatherId(WEATHER_STATE_FINE),
 Intensity(0.0f) { }
 
+RespawnInfo::~RespawnInfo() = default;
+
 Map::~Map()
 {
     // UnloadAll must be called before deleting the map
