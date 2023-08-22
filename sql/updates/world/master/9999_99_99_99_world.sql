@@ -10,6 +10,3 @@ CREATE TABLE `areatrigger_polygon_vertex`  (
   `VerifiedBuild` int UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`SpawnId`, `Idx`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
-
-
-ALTER TABLE `areatrigger` ADD COLUMN `VerifiedBuild` int UNSIGNED NOT NULL AFTER `Comment`;
