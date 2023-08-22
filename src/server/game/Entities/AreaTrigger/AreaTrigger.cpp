@@ -274,7 +274,6 @@ bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerT
     SetObjectScale(1.0f);
 
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
-    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::BoundsRadius2D), GetMaxSearchRadius());
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::DecalPropertiesID), 24); // blue decal, for .debug areatrigger visibility
 
     float tmp = 1.0000001f;
@@ -284,6 +283,8 @@ bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerT
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve).ModifyValue(&UF::ScaleCurve::ParameterCurve), tmp2);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve).ModifyValue(&UF::ScaleCurve::OverrideActive), true);
 
+    SetDuration(-1);
+
     _shape = position.Shape;
     _maxSearchRadius = _shape.GetMaxSearchRadius();
 
@@ -291,6 +292,8 @@ bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerT
         PhasingHandler::InitDbPhaseShift(GetPhaseShift(), position.phaseUseFlags, position.phaseId, position.phaseGroup);
 
     UpdateShape();
+
+    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::BoundsRadius2D), GetMaxSearchRadius());
 
     AI_Initialize();
 
@@ -708,7 +711,7 @@ void AreaTrigger::UpdatePolygonOrientation()
     if (G3D::fuzzyEq(_previousCheckOrientation, newOrientation))
         return;
 
-    _polygonVertices.assign(GetCreateProperties()->PolygonVertices.begin(), GetCreateProperties()->PolygonVertices.end());
+    _polygonVertices.assign(GetShape().PolygonVertices.begin(), GetShape().PolygonVertices.end());
 
     float angleSin = std::sin(newOrientation);
     float angleCos = std::cos(newOrientation);

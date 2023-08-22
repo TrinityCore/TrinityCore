@@ -16,6 +16,7 @@
  */
 
 #include "Object.h"
+#include "AreaTriggerDataStore.h"
 #include "AreaTriggerPackets.h"
 #include "AreaTriggerTemplate.h"
 #include "BattlefieldMgr.h"
@@ -461,7 +462,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         bool hasMoveCurveID         = createProperties && createProperties->MoveCurveId != 0;
         bool hasAreaTriggerSphere   = shape.IsSphere();
         bool hasAreaTriggerBox      = shape.IsBox();
-        bool hasAreaTriggerPolygon  = createProperties && shape.IsPolygon();
+        bool hasAreaTriggerPolygon  = shape.IsPolygon();
         bool hasAreaTriggerCylinder = shape.IsCylinder();
         bool hasDisk                = shape.IsDisk();
         bool hasBoundedPlane        = shape.IsBoudedPlane();
@@ -533,15 +534,16 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
         if (hasAreaTriggerPolygon)
         {
-            *data << int32(createProperties->PolygonVertices.size());
-            *data << int32(createProperties->PolygonVerticesTarget.size());
+            *data << int32(shape.PolygonVertices.size());
+            *data << int32(shape.PolygonVerticesTarget.size());
+
             *data << float(shape.PolygonDatas.Height);
             *data << float(shape.PolygonDatas.HeightTarget);
 
-            for (TaggedPosition<Position::XY> const& vertice : createProperties->PolygonVertices)
+            for (TaggedPosition<Position::XY> const& vertice : shape.PolygonVertices)
                 *data << vertice;
 
-            for (TaggedPosition<Position::XY> const& vertice : createProperties->PolygonVerticesTarget)
+            for (TaggedPosition<Position::XY> const& vertice : shape.PolygonVerticesTarget)
                 *data << vertice;
         }
 

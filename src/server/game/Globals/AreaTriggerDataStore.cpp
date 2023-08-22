@@ -240,9 +240,9 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 if (createProperties.Shape.PolygonDatas.Height <= 0.0f)
                     createProperties.Shape.PolygonDatas.Height = 1.0f;
 
-            createProperties.PolygonVertices       = std::move(verticesByCreateProperties[createProperties.Id]);
-            createProperties.PolygonVerticesTarget = std::move(verticesTargetByCreateProperties[createProperties.Id]);
-            createProperties.SplinePoints          = std::move(splinesByCreateProperties[createProperties.Id]);
+            createProperties.Shape.PolygonVertices       = std::move(verticesByCreateProperties[createProperties.Id]);
+            createProperties.Shape.PolygonVerticesTarget = std::move(verticesTargetByCreateProperties[createProperties.Id]);
+            createProperties.SplinePoints                = std::move(splinesByCreateProperties[createProperties.Id]);
 
             _areaTriggerCreateProperties[createProperties.Id] = createProperties;
         }
@@ -304,6 +304,36 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 void AreaTriggerDataStore::LoadAreaTriggerSpawns()
 {
     uint32 oldMSTime = getMSTime();
+
+    std::unordered_map<ObjectGuid::LowType, std::vector<TaggedPosition<Position::XY>>> verticesBySpawnId;
+    std::unordered_map<ObjectGuid::LowType, std::vector<TaggedPosition<Position::XY>>> verticesTargetBySpawnId;
+
+    //                                                     0          1         2         3               4               5
+    if (QueryResult vertices = WorldDatabase.Query("SELECT SpawnId, Idx, VerticeX, VerticeY, VerticeTargetX, VerticeTargetY FROM `areatrigger_polygon_vertex` ORDER BY `SpawnId`, `Idx`"))
+    {
+        do
+        {
+            Field* verticeFields = vertices->Fetch();
+            ObjectGuid::LowType spawnId = verticeFields[0].GetUInt64();
+
+            verticesBySpawnId[spawnId].emplace_back(verticeFields[2].GetFloat(), verticeFields[3].GetFloat());
+
+            if (!verticeFields[4].IsNull() && !verticeFields[5].IsNull())
+                verticesTargetBySpawnId[spawnId].emplace_back(verticeFields[4].GetFloat(), verticeFields[5].GetFloat());
+            else if (verticeFields[4].IsNull() != verticeFields[5].IsNull())
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_polygon_vertex` has listed invalid target vertices (SpawnId: " UI64FMTD ", Index: {}).", spawnId, verticeFields[1].GetUInt32());
+        }
+        while (vertices->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded {} areatrigger spawn polygon vertices in {} ms.", verticesBySpawnId.size(), GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger spawn polygon vertices. DB table `areatrigger_polygon_vertex` is empty.");
+    }
+
+    oldMSTime = getMSTime();
+
     // Load area trigger positions (to put them on the server)
     //                                                      0        1              2             3      4     5     6     7            8              9        10
     if (QueryResult templates = WorldDatabase.Query("SELECT SpawnId, AreaTriggerId, IsServerSide, MapId, PosX, PosY, PosZ, Orientation, PhaseUseFlags, PhaseId, PhaseGroup, "
@@ -356,6 +386,13 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
 
             spawn.scriptId = sObjectMgr->GetScriptId(fields[20].GetString());
             spawn.spawnGroupData = sObjectMgr->GetLegacySpawnGroup();
+
+            if (shape == AREATRIGGER_TYPE_POLYGON)
+                if (spawn.Shape.PolygonDatas.Height <= 0.0f)
+                    spawn.Shape.PolygonDatas.Height = 1.0f;
+
+            spawn.Shape.PolygonVertices       = std::move(verticesBySpawnId[spawnId]);
+            spawn.Shape.PolygonVerticesTarget = std::move(verticesTargetBySpawnId[spawnId]);
 
             // Add the trigger to a map::cell map, which is later used by GridLoader to query
             CellCoord cellCoord = Trinity::ComputeCellCoord(spawn.spawnPoint.GetPositionX(), spawn.spawnPoint.GetPositionY());

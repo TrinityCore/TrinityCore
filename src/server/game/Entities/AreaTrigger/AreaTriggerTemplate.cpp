@@ -49,6 +49,20 @@ float AreaTriggerShapeInfo::GetMaxSearchRadius() const
             return std::max(DiskDatas.OuterRadius, DiskDatas.OuterRadiusTarget);
         case AREATRIGGER_TYPE_BOUNDED_PLANE:
             return std::sqrt(BoundedPlaneDatas.Extents[0] * BoundedPlaneDatas.Extents[0] / 4 + BoundedPlaneDatas.Extents[1] * BoundedPlaneDatas.Extents[1] / 4);
+        case AREATRIGGER_TYPE_POLYGON:
+        {
+            Position center(0.0f, 0.0f);
+            float maxSearchRadius = 0.0f;
+
+            for (TaggedPosition<Position::XY> const& vertice : PolygonVertices)
+            {
+                float pointDist = center.GetExactDist2d(vertice);
+
+                if (pointDist > maxSearchRadius)
+                    maxSearchRadius = pointDist;
+            }
+            return maxSearchRadius;
+        }
         default:
             break;
     }
@@ -97,21 +111,5 @@ bool AreaTriggerCreateProperties::HasSplines() const
 
 float AreaTriggerCreateProperties::GetMaxSearchRadius() const
 {
-    if (Shape.Type == AREATRIGGER_TYPE_POLYGON)
-    {
-        Position center(0.0f, 0.0f);
-        float maxSearchRadius = 0.0f;
-
-        for (TaggedPosition<Position::XY> const& vertice : PolygonVertices)
-        {
-            float pointDist = center.GetExactDist2d(vertice);
-
-            if (pointDist > maxSearchRadius)
-                maxSearchRadius = pointDist;
-        }
-
-        return maxSearchRadius;
-    }
-
     return Shape.GetMaxSearchRadius();
 }

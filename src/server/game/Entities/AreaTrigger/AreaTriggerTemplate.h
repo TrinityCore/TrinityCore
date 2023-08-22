@@ -117,6 +117,8 @@ struct AreaTriggerShapeInfo
     float GetMaxSearchRadius() const;
 
     AreaTriggerTypes Type;
+    std::vector<TaggedPosition<Position::XY>> PolygonVertices;
+    std::vector<TaggedPosition<Position::XY>> PolygonVerticesTarget;
 
     union
     {
@@ -236,8 +238,6 @@ public:
     Optional<AreaTriggerScaleCurveTemplate> ExtraScale;
 
     AreaTriggerShapeInfo Shape;
-    std::vector<TaggedPosition<Position::XY>> PolygonVertices;
-    std::vector<TaggedPosition<Position::XY>> PolygonVerticesTarget;
 
     std::vector<Position> SplinePoints;
     Optional<AreaTriggerOrbitInfo> OrbitInfo;
