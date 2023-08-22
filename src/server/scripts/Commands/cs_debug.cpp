@@ -1634,7 +1634,7 @@ public:
         uint8 stack_array[10] = {};
         int size = 10;
 
-        handler->PSendSysMessage("Triggered an array out of bounds read at address %p, value %u", stack_array + size, stack_array[size]);
+        handler->PSendSysMessage("Triggered an array out of bounds read at address %p, value %u", static_cast<void*>(stack_array + size), stack_array[size]);
 #endif
         return true;
     }
@@ -1643,7 +1643,7 @@ public:
     {
 #ifdef ASAN
         uint8* leak = new uint8();
-        handler->PSendSysMessage("Leaked 1 uint8 object at address %p", leak);
+        handler->PSendSysMessage("Leaked 1 uint8 object at address %p", static_cast<void*>(leak));
 #endif
         return true;
     }
