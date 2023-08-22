@@ -218,6 +218,7 @@ enum SpecResetType
 struct SpellModifier
 {
     SpellModifier(Aura* _ownerAura) : op(SpellModOp::HealingAndDamage), type(SPELLMOD_FLAT), spellId(0), ownerAura(_ownerAura) { }
+    virtual ~SpellModifier() = default;
 
     SpellModOp op;
     SpellModType type;
