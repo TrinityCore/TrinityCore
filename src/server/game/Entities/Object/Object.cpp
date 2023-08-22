@@ -16,7 +16,6 @@
  */
 
 #include "Object.h"
-#include "AreaTriggerDataStore.h"
 #include "AreaTriggerPackets.h"
 #include "AreaTriggerTemplate.h"
 #include "BattlefieldMgr.h"
