@@ -44,9 +44,9 @@ UPDATE `quest_poi_points` SET `VerifiedBuild`=50791 WHERE (`QuestID`=36881 AND `
 UPDATE `quest_details` SET `VerifiedBuild`=50791 WHERE `ID` = 36881;
 
 -- Phase
-DELETE FROM `phase_area` WHERE `AreaId` = 7025 AND `PhaseId` = 3563;
+DELETE FROM `phase_area` WHERE `AreaId` = 7037 AND `PhaseId` = 3563;
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
-(7025, 3563, 'See Khadgar at the Dark Portal (Assault on the Dark Portal)');
+(7037, 3563, 'See Khadgar at the Dark Portal (Assault on the Dark Portal)');
 
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=16863 AND `ConditionValue1` IN (36881, 34398);
