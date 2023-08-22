@@ -22,6 +22,7 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
@@ -246,11 +247,9 @@ struct boss_guarm : public BossAI
                 if (me->GetPower(POWER_ENERGY) < 100)
                     break;
 
-                if (me->GetSpellHistory()->GetRemainingCategoryCooldown(SPELL_CATEGORY_GUARM) == Milliseconds::zero() && !me->HasAura(SPELL_OFF_THE_LEASH))
-                {
+                if (DoCastVictim(SPELL_GUARDIANS_BREATH_COLOR_SELECTOR) == SPELL_CAST_OK)
                     Talk(TALK_GUARDIANS_BREATH_ANNOUNCE);
-                    DoCastVictim(SPELL_GUARDIANS_BREATH_COLOR_SELECTOR);
-                }
+
                 break;
             }
             case EVENT_ROARING_LEAP:
