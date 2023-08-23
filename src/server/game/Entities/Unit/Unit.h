@@ -1702,6 +1702,10 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAreaTrigger(AuraEffect const* aurEff);
         void RemoveAllAreaTriggers();
 
+        void EnterAreaTrigger(uint32 areaTriggerId, ObjectGuid areaTriggerGUID);
+        void ExitAreaTrigger(uint32 areaTriggerId, ObjectGuid areaTriggerGUID);
+        bool IsInAreaTrigger(uint32 areaTriggerId);
+
         void ModifyAuraState(AuraStateType flag, bool apply);
         uint32 BuildAuraStateUpdateForTarget(Unit const* target) const;
         bool HasAuraState(AuraStateType flag, SpellInfo const* spellProto = nullptr, Unit const* Caster = nullptr) const;
@@ -1963,6 +1967,8 @@ class TC_GAME_API Unit : public WorldObject
 
         typedef std::vector<AreaTrigger*> AreaTriggerList;
         AreaTriggerList m_areaTrigger;
+
+        std::unordered_map<uint32 /*areaTriggerId*/, std::set<ObjectGuid>> _insideAreaTriggers;
 
         uint32 m_transformSpell;
 

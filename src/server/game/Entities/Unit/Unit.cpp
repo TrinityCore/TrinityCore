@@ -5265,6 +5265,24 @@ void Unit::RemoveAllAreaTriggers()
         m_areaTrigger.front()->Remove();
 }
 
+void Unit::EnterAreaTrigger(uint32 areaTriggerId, ObjectGuid areaTriggerGUID)
+{
+    _insideAreaTriggers[areaTriggerId].insert(areaTriggerGUID);
+}
+
+void Unit::ExitAreaTrigger(uint32 areaTriggerId, ObjectGuid areaTriggerGUID)
+{
+    _insideAreaTriggers[areaTriggerId].erase(areaTriggerGUID);
+
+    if (_insideAreaTriggers[areaTriggerId].size() == 0)
+        _insideAreaTriggers.erase(areaTriggerId);
+}
+
+bool Unit::IsInAreaTrigger(uint32 areaTriggerId)
+{
+    return _insideAreaTriggers.find(areaTriggerId) != _insideAreaTriggers.end();
+}
+
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
 {
     WorldPackets::CombatLog::SpellNonMeleeDamageLog packet;
