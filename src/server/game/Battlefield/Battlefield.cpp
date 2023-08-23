@@ -600,12 +600,14 @@ WorldSafeLocsEntry const* Battlefield::GetClosestGraveyard(Player* player)
 // ----------------------
 // - BfGraveyard Method -
 // ----------------------
-BfGraveyard::BfGraveyard(Battlefield* battlefield)
+BfGraveyard::BfGraveyard(Battlefield* bf)
 {
-    m_Bf = battlefield;
+    m_Bf = bf;
     m_GraveyardId = 0;
     m_ControlTeam = TEAM_NEUTRAL;
 }
+
+BfGraveyard::~BfGraveyard() = default;
 
 void BfGraveyard::Initialize(TeamId startControl, uint32 graveyardId)
 {
@@ -736,6 +738,8 @@ GameObject* Battlefield::GetGameObject(ObjectGuid guid)
 BattlefieldControlZoneHandler::BattlefieldControlZoneHandler(Battlefield* bf) : _battlefield(bf)
 {
 }
+
+BattlefieldControlZoneHandler::~BattlefieldControlZoneHandler() = default;
 
 Battlefield* BattlefieldControlZoneHandler::GetBattlefield()
 {
