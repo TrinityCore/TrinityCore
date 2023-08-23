@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
+#include "SpellMgr.h"
 #include "Timer.h"
 #include <cmath>
 
