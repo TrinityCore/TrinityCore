@@ -1,22 +1,24 @@
-SET @CGUID := xxxx;
-SET @OGUID := xxxx;
+SET @CGUID := 50000000;
+SET @OGUID := 50000000;
 
 -- Creatures
-DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+5;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+6;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `VerifiedBuild`) VALUES
 (@CGUID+0, 78423, 0, 4, 72, '0', 0, 866, 1190, 0, 1, -11812.2607421875, -3205.59716796875, -29.479166030883789, 3.093542814254760742, 120, 0, 0, 640000, 9573, 0, 0, 0, 50791), -- Archmage Khadgar (Area: The Dark Portal - Difficulty: 0) CreateObject1 (Auras: 128281 - Moonbeam Visual)
 (@CGUID+1, 78553, 0, 4, 72, '0', 0, 866, 1190, 0, 1, -11811.513671875, -3207.8837890625, -29.5382575988769531, 3.295763015747070312, 120, 0, 0, 4800000, 320750, 0, 0, 0, 50791), -- Thrall (Area: The Dark Portal - Difficulty: 0) CreateObject1
 (@CGUID+2, 79675, 0, 4, 72, '0', 0, 866, 1190, 0, 1, -11811.173828125, -3211.630126953125, -30.9784984588623046, 3.190636873245239257, 120, 0, 0, 400000, 0, 0, 0, 0, 50791), -- Lady Liadrin (Area: The Dark Portal - Difficulty: 0) CreateObject1
-(@CGUID+3, 78554, 0, 4, 72, '0', 0, 866, 1190, 0, 1, -11811.8818359375, -3203.59033203125, -29.5511932373046875, 3.358216285705566406, 120, 0, 0, 4800000, 128300, 0, 0, 0, 50791), -- Vindicator Maraad (Area: The Dark Portal - Difficulty: 0) CreateObject1 (Auras: 165746 - Retribution Aura)
-(@CGUID+4, 78430, 0, 4, 72, '0', 0, 866, 1190, 0, 1, -11811.48828125, -3201.296875, -29.9500179290771484, 3.295083284378051757, 120, 0, 0, 400000, 100, 0, 0, 0, 50791), -- Cordana Felsong (Area: The Dark Portal - Difficulty: 0) CreateObject1
-(@CGUID+5, 78558, 1265, 7025, 7037, '0', 3563, 0, 0, 0, 1, 4066.427001953125, -2372.5712890625, 94.6800384521484375, 1.593950867652893066, 120, 0, 0, 640000, 9573, 0, 0, 0, 50791); -- Archmage Khadgar (Area: The Dark Portal - Difficulty: 0) CreateObject1
+(@CGUID+3, 78554, 0, 4, 72, '0', 2801, 0, 1190, 0, 1, -11811.8818359375, -3203.59033203125, -29.5511932373046875, 3.358216285705566406, 120, 0, 0, 4800000, 128300, 0, 0, 0, 50791), -- Vindicator Maraad (Area: The Dark Portal - Difficulty: 0) CreateObject1 (Auras: 165746 - Retribution Aura)
+(@CGUID+4, 78554, 0, 4, 72, '0', 3146, 0, 1190, 0, 1, -11811.8818359375, -3203.59033203125, -29.5511932373046875, 3.358216285705566406, 120, 0, 0, 4800000, 128300, 0, 0, 0, 50791), -- Vindicator Maraad (Area: The Dark Portal - Difficulty: 0) CreateObject1 (Auras: 165746 - Retribution Aura)
+(@CGUID+5, 78430, 0, 4, 72, '0', 0, 866, 1190, 0, 1, -11811.48828125, -3201.296875, -29.9500179290771484, 3.295083284378051757, 120, 0, 0, 400000, 100, 0, 0, 0, 50791), -- Cordana Felsong (Area: The Dark Portal - Difficulty: 0) CreateObject1
+(@CGUID+6, 78558, 1265, 7025, 7037, '0', 3563, 0, 0, 0, 1, 4066.427001953125, -2372.5712890625, 94.6800384521484375, 1.593950867652893066, 120, 0, 0, 640000, 9573, 0, 0, 0, 50791); -- Archmage Khadgar (Area: The Dark Portal - Difficulty: 0) CreateObject1
 
-DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+5;
+DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+6;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '128281'), -- Archmage Khadgar - 128281 - Moonbeam Visual
 (@CGUID+2, 0, 19085, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Lady Liadrin
 (@CGUID+3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '165746'), -- Vindicator Maraad - 165746 - Retribution Aura
-(@CGUID+5, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, ''); -- Archmage Khadgar
+(@CGUID+4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '165746'), -- Vindicator Maraad - 165746 - Retribution Aura
+(@CGUID+6, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, ''); -- Archmage Khadgar
 
 UPDATE `creature_template` SET `unit_flags3`=1048576 WHERE `entry`=78430; -- Cordana Felsong
 UPDATE `creature_template` SET `unit_flags3`=9437184 WHERE `entry`=78554; -- Vindicator Maraad
