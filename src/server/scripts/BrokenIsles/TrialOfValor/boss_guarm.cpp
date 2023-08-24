@@ -134,6 +134,12 @@ enum GuarmConversations
     CONVERSATION_DEATH = 3917
 };
 
+enum GuarmActions
+{
+    ACTION_BREATH_HIT_TARGET = 0,
+    ACTION_HANDLE_FROTHING_RAGE,
+};
+
 struct JumpMovePathPair
 {
     Position JumpPos;
@@ -169,7 +175,7 @@ JumpMovePathPair const BerserkerPair = { { 464.035f, 549.979f, 2.95187f }, PATH_
 // 114323 - Guarm
 struct boss_guarm : public BossAI
 {
-    boss_guarm(Creature* creature) : BossAI(creature, DATA_GUARM), _lickCount(0) { }
+    boss_guarm(Creature* creature) : BossAI(creature, DATA_GUARM), _lickCount(0), _unitsHitByBreathCount(0) { }
 
     void JustAppeared() override
     {
@@ -199,8 +205,6 @@ struct boss_guarm : public BossAI
     {
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-
-        InitializeBreathTargets();
 
         DoCastAOE(SPELL_HELYATOSIS_AURA);
         DoCastAOE(SPELL_HELYATOSIS_INITIAL_ENERGIZE);
@@ -250,6 +254,7 @@ struct boss_guarm : public BossAI
                 if (me->GetPower(POWER_ENERGY) < 100)
                     break;
 
+                _unitsHitByBreathCount = 0;
                 if (DoCastVictim(SPELL_GUARDIANS_BREATH_COLOR_SELECTOR) == SPELL_CAST_OK)
                     Talk(TALK_GUARDIANS_BREATH_ANNOUNCE);
 
@@ -335,71 +340,39 @@ struct boss_guarm : public BossAI
         }
     }
 
-    void InitializeBreathTargets()
+    void DoAction(int32 param) override
     {
-        instance->instance->DoOnPlayers([this](Player* player)
+        switch (param)
         {
-            _breathTargetsMap[player->GetGUID()] = 0;
-        });
-    }
-
-    void HandleBreathEnter(ObjectGuid playerGUID, uint32 spellId)
-    {
-        _breathTargetsMap[playerGUID] = spellId;
-    }
-
-    void HandleBreathExit(ObjectGuid playerGUID)
-    {
-        _breathTargetsMap[playerGUID] = 0;
-    }
-
-    uint32 GetBreathDebuffByDamageSpell(uint32 breathDamageSpell)
-    {
-        switch (breathDamageSpell)
-        {
-            case SPELL_FIERY_PHLEGM:
-                return SPELL_FIERY_PHLEGM_AURA;
-            case SPELL_SALTY_SPITTLE:
-                return SPELL_SALTY_SPITTLE_AURA;
-            case SPELL_DARK_DISCHARGE:
-                return SPELL_DARK_DISCHARGE_AURA;
-        }
-        return 0;
-    }
-
-    void HandleBreath()
-    {
-        uint32 frothingRageStacks = 0;
-        for (auto& [playerGUID, spellId] : _breathTargetsMap)
-        {
-            Unit* player = ObjectAccessor::GetUnit(*me, playerGUID);
-            if (!player)
-                continue;
-
-            if (player->isDead())
-                continue;
-
-            if (spellId == 0)
+            case ACTION_BREATH_HIT_TARGET:
+                _unitsHitByBreathCount++;
+                break;
+            case ACTION_HANDLE_FROTHING_RAGE:
             {
-                frothingRageStacks++;
-                continue;
-            }
-            DoCast(player, spellId, true);
-            player->CastSpell(nullptr, GetBreathDebuffByDamageSpell(spellId));
-            spellId = 0;
-        }
+                uint32 engagedPlayers = 0;
+                for (auto const& itr : me->GetThreatManager().GetUnsortedThreatList())
+                {
+                    if (itr->GetVictim()->IsPlayer())
+                        engagedPlayers++;
+                }
 
-        if (frothingRageStacks > 0)
-        {
-            if (Aura* aura = me->GetAura(SPELL_FROTHING_RAGE))
-                frothingRageStacks += aura->GetStackAmount();
-            me->SetAuraStack(SPELL_FROTHING_RAGE, me, frothingRageStacks);
+                uint32 frothingRageStacks = engagedPlayers - _unitsHitByBreathCount;
+                if (frothingRageStacks > 0)
+                {
+                    if (Aura* aura = me->GetAura(SPELL_FROTHING_RAGE))
+                        frothingRageStacks += aura->GetStackAmount();
+                    me->SetAuraStack(SPELL_FROTHING_RAGE, me, frothingRageStacks);
+                }
+                break;
+            }
+            default:
+                break;
         }
     }
 
 private:
-    std::map<ObjectGuid, uint32 /*spellId*/> _breathTargetsMap;
     uint8 _lickCount;
+    uint8 _unitsHitByBreathCount;
 };
 
 // 227512 - Multi-Headed
@@ -508,11 +481,7 @@ class spell_guardians_breath : public SpellScript
         if (!caster->IsAIEnabled())
             return;
 
-        boss_guarm* ai = CAST_AI(boss_guarm, caster->GetAI());
-        if (!ai)
-            return;
-
-        ai->HandleBreath();
+        caster->GetAI()->DoAction(ACTION_HANDLE_FROTHING_RAGE);
     }
 
     void Register() override
@@ -555,50 +524,46 @@ public:
     {
         at_guardians_breathAI(AreaTrigger* at) : AreaTriggerAI(at) { }
 
-        boss_guarm* GetGuarmAI()
+        uint32 GetBreathDebuffByDamageSpell(uint32 breathDamageSpell) const
         {
-            Unit* caster = at->GetCaster();
-            if (!caster)
-                return nullptr;
-
-            if (!caster->IsAIEnabled())
-                return nullptr;
-
-            return CAST_AI(boss_guarm, caster->GetAI());
+            switch (breathDamageSpell)
+            {
+                case SPELL_FIERY_PHLEGM:
+                    return SPELL_FIERY_PHLEGM_AURA;
+                case SPELL_SALTY_SPITTLE:
+                    return SPELL_SALTY_SPITTLE_AURA;
+                case SPELL_DARK_DISCHARGE:
+                    return SPELL_DARK_DISCHARGE_AURA;
+            }
+            return 0;
         }
 
-        void OnUnitEnter(Unit* unit) override
+        void OnRemove() override
         {
-            if (!unit->IsPlayer())
+            InstanceScript* instance = at->GetInstanceScript();
+            if (!instance)
                 return;
 
-            if (unit->isDead())
+            Creature* guarm = instance->GetCreature(DATA_GUARM);
+            if (!guarm)
                 return;
 
-            boss_guarm* ai = GetGuarmAI();
-            if (!ai)
+            if (!guarm->IsAIEnabled())
                 return;
 
-            ai->HandleBreathEnter(unit->GetGUID(), ColorSpell);
-        }
+            for (ObjectGuid const& guid : at->GetInsideUnits())
+            {
+                Player* player = ObjectAccessor::GetPlayer(*at, guid);
+                if (!player)
+                    continue;
 
-        void OnUnitExit(Unit* unit) override
-        {
-            // dont handle exit when areatrigger is going to be removed
-            if (at->GetDuration() < 100)
-                return;
+                if (player->isDead())
+                    continue;
 
-            if (!unit->IsPlayer())
-                return;
-
-            if (unit->isDead())
-                return;
-
-            boss_guarm* ai = GetGuarmAI();
-            if (!ai)
-                return;
-
-            ai->HandleBreathExit(unit->GetGUID());
+                guarm->GetAI()->DoAction(ACTION_BREATH_HIT_TARGET);
+                guarm->CastSpell(player, ColorSpell, true);
+                player->CastSpell(nullptr, GetBreathDebuffByDamageSpell(ColorSpell));
+            }
         }
     };
 
