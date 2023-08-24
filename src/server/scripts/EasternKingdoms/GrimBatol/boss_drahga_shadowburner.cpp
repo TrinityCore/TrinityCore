@@ -490,7 +490,7 @@ struct npc_drahga_invoked_flaming_spirit : public ScriptedAI
                         AddThreat(target, 1500000.0f); // Todo: this should be handled by serverside spell 95207
                         me->GetThreatManager().FixateTarget(target);
                         me->ClearUnitState(UNIT_STATE_CASTING);
-                        me->GetMotionMaster()->MoveChase(target, 0.f, 0.f);
+                        me->GetMotionMaster()->MoveChase(target);
                     }
                     break;
                 default:

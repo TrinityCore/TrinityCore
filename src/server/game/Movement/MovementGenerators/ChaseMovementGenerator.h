@@ -24,34 +24,38 @@
 #include "Timer.h"
 
 class Unit;
+enum ChaseMovementPositionCheckResult : uint8;
+enum ChasePositionCheckOptions : uint8;
+
+static constexpr uint32 CHASE_MOVEMENT_INTERVAL         = 400; // sniffed value (1 batch update cyclice)
+static constexpr uint32 POSITION_CHECK_INTERVAL         = 100; // the interval at which we check if we already have reached the target
+static constexpr uint32 REPOSITION_MOVEMENT_INTERVAL    = 1200; // (3 batch update cycles) TODO: verify
 
 class ChaseMovementGenerator : public MovementGenerator, public AbstractPursuer
 {
     public:
         MovementGeneratorType GetMovementGeneratorType() const override { return CHASE_MOTION_TYPE; }
 
-        ChaseMovementGenerator(Unit* target, float range, Optional<ChaseAngle> angle = {});
-        ~ChaseMovementGenerator();
+        explicit ChaseMovementGenerator(Unit* target, Optional<float> range = {}, Optional<ChaseAngle> angle = {});
+        ~ChaseMovementGenerator() = default;
 
         void Initialize(Unit* owner) override;
         void Reset(Unit* owner) override { Initialize(owner); }
         bool Update(Unit* owner, uint32 diff) override;
         void Finalize(Unit* owner) override;
 
-        void UnitSpeedChanged() override { _lastTargetPosition.reset(); }
+        void UnitSpeedChanged() override { }
 
     private:
-        void LaunchMovement(Unit* owner, float chaseRange, bool backward = false, bool mutualChase = false);
+        Optional<float> _range;
+        Optional<ChaseAngle> _angle;
+        uint32 _previousChaseSplineId;
+        TimeTrackerSmall _moveTimer;
+        TimeTracker _positionCheckTimer;
+        std::unique_ptr<PathGenerator> _pathGenerator;
 
-        static constexpr uint32 CHASE_MOVEMENT_INTERVAL = 400; // sniffed value (1 batch update cyclice)
-        static constexpr uint32 REPOSITION_MOVEMENT_INTERVAL = 1200; // (3 batch update cycles) TODO: verify
-
-        TimeTrackerSmall _nextMovementTimer;
-        TimeTrackerSmall _nextRepositioningTimer;
-
-        Optional<Position> _lastTargetPosition;
-        float const _range;
-        Optional<ChaseAngle> const _angle;
+        ChaseMovementPositionCheckResult checkPosition(ChasePositionCheckOptions checkOptions, Unit* owner, Unit* target, Position const* destination = nullptr) const;
+        void launchSpline(Unit* owner, Unit* target, Position& destination);
 };
 
 #endif

@@ -485,9 +485,10 @@ void PetAI::DoAttack(Unit* target, bool chase)
 
             float chaseDistance = me->GetPetChaseDistance();
 
-            // Pets with ranged attacks should not care about the chase angle at all.
-            ChaseAngle angle = ChaseAngle(chaseDistance == 0.f ? float(M_PI) : 0.f, chaseDistance == 0.f ? float(M_PI_4) : float(M_PI * 2));
-            me->GetMotionMaster()->MoveChase(target, chaseDistance, angle);
+            if (chaseDistance == 0.f) // @todo: the chase angle of pets is relative to the angle between target and owner so it always faces away from the owner
+                me->GetMotionMaster()->MoveChase(target/*, std::nullopt, ChaseAngle(float(M_PI), float(M_PI_4)) */);
+            else
+                me->GetMotionMaster()->MoveChase(target, chaseDistance);
         }
         else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
         {

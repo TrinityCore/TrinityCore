@@ -162,7 +162,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     // *************
 
     //Start movement toward victim
-    void DoStartMovement(Unit* target, float distance = 0.0f, float angle = 0.0f);
+    void DoStartMovement(Unit* target, Optional<float> distance = std::nullopt, Optional<float> angle = std::nullopt);
 
     //Start no movement on victim
     void DoStartNoMovement(Unit* target);

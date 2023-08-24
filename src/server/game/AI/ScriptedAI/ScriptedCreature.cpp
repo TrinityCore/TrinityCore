@@ -156,7 +156,7 @@ void ScriptedAI::UpdateAI(uint32 /*diff*/)
     DoMeleeAttackIfReady();
 }
 
-void ScriptedAI::DoStartMovement(Unit* victim, float distance, float angle)
+void ScriptedAI::DoStartMovement(Unit* victim, Optional<float> distance /*= std::nullopt*/, Optional<float> angle /*= std::nullopt*/)
 {
     if (victim)
         me->GetMotionMaster()->MoveChase(victim, distance, angle);
