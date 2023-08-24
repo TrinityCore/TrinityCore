@@ -2482,16 +2482,6 @@ void Player::GiveLevel(uint8 level)
     if (level == oldLevel)
         return;
 
-    // 一命模式 人物等级提升奖励
-    {
-        ObjectGuid::LowType guidlow = GetGUIDLow();
-        uint32 level = aaCenter.aa_characterss[guidlow].yiming;
-        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
-        if (conf.reward_level > 0) {
-            aaCenter.M_Reward(this, conf.reward_level, 1);
-        }
-    }
-
     {
         std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["玩家升级"];
         for (auto mapconf : mapeventconfs) {
@@ -2590,6 +2580,31 @@ void Player::GiveLevel(uint8 level)
     PushQuests();
 
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
+
+    // 一命模式 人物等级提升奖励
+    {
+        ObjectGuid::LowType guidlow = GetGUIDLow();
+        uint32 level_ym = aaCenter.aa_characterss[guidlow].yiming;
+        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level_ym];
+        if (conf.reward_levels != "" && conf.reward_levels != "0") {
+            std::map<int32, int32> reward_levels; reward_levels.clear();
+            aaCenter.AA_StringToMap(conf.reward_levels, reward_levels);
+            if (reward_levels[level] > 0) {
+                aaCenter.M_Reward(this, reward_levels[level], 1);
+            }
+        }
+
+        uint32 level_jc = aaCenter.aa_world_confs[102].value1;
+        if (level_jc > 0 && level >= level_jc && aaCenter.aa_characterss[guidlow].yiming > 0) {
+            std::string str = "|cff00FFFF[一命模式]|cffFF0000恭喜玩家【" + GetName() + "】完成一命模式，到达了【" + std::to_string(level) + "】级。";
+            aaCenter.AA_SendMessage(nullptr, 2, str.c_str());
+            aaCenter.aa_characterss[guidlow].yiming = 0;
+            time_t timep;
+            time(&timep);
+            aaCenter.aa_characterss[guidlow].update_time = timep;
+            aaCenter.aa_characterss[guidlow].isUpdate = true;
+        }
+    }
 }
 
 bool Player::IsMaxLevel() const

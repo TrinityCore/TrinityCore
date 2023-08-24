@@ -7335,7 +7335,8 @@ void AACenter::M_SendAA_Conf(Player* player, std::string prefix)
             std::to_string(aaCenter.aa_world_confs[68].value1) + "," +
             std::to_string(aaCenter.aa_world_confs[69].value1) + "," +
             std::to_string(aaCenter.aa_world_confs[80].value1) + "," +
-            std::to_string(aaCenter.aa_world_confs[44].value1) + "}";
+            std::to_string(aaCenter.aa_world_confs[44].value1) + "," +
+            std::to_string(aaCenter.aa_world_confs[45].value1) + "}";
         aaCenter.M_SendClientAddonData(player, prefix, result);
     }
     else if (prefix == "21") {
@@ -9289,6 +9290,48 @@ void AACenter::AA_AiStart(Unit* attacker, Unit* victim, uint32 aiid, int32 value
                 targets.insert(victim);
             }
         }
+        else if (conf.action_target == "所有目标") {
+            // not empty (checked), copy
+            Unit::AttackerSet attackers = attacker->getAttackers();
+
+            // remove invalid attackers
+            for (Unit::AttackerSet::iterator aItr = attackers.begin(); aItr != attackers.end();)
+                if (!(*aItr)->IsValidAttackTarget(attacker))
+                    aItr = attackers.erase(aItr);
+                else
+                    ++aItr;
+
+            if (!attackers.empty()) {
+                for (auto unit : attackers) {
+                    targets.insert(unit);
+                }
+            }
+        }
+        else if (conf.action_target == "随机目标") {
+            // not empty (checked), copy
+            Unit::AttackerSet attackers = attacker->getAttackers();
+
+            // remove invalid attackers
+            for (Unit::AttackerSet::iterator aItr = attackers.begin(); aItr != attackers.end();)
+                if (!(*aItr)->IsValidAttackTarget(attacker))
+                    aItr = attackers.erase(aItr);
+                else
+                    ++aItr;
+
+            if (!attackers.empty()) {
+                time_t timep;
+                time(&timep); /*当前time_t类型UTC时间*/
+                int32 index = rand() % attackers.size();
+                int32 i = 0;
+                for (auto unit : attackers) {
+                    if (i == index) {
+                        targets.insert(unit);
+                        break;
+                    }
+                    i = i + 1;
+                }
+            }
+        }
         else if (conf.action_target == "主人") {
             if (attacker->GetTypeId() == TYPEID_UNIT) {
                 if (Creature* creature = attacker->ToCreature()) {
@@ -9349,19 +9392,23 @@ void AACenter::AA_AiStart(Unit* attacker, Unit* victim, uint32 aiid, int32 value
             }
             //'施放技能','说话','改变血量','改变属性','改变等级','随机取下装备','随机抢夺目标装备','召唤生物','奖励','消耗'
             if (conf.action_type == "施放技能") {
-                if (!unit->IsAlive() || (conf.action_param4 == 0 && unit->IsMounted())) {
+                if (!unit->IsAlive() || ((conf.action_param4 == 0 || conf.action_param4 == 2) && unit->IsMounted())) {
                     return;
+                }
+                bool isDutiao = true;
+                if (conf.action_param4 == 2 || conf.action_param4 == 3) {
+                    isDutiao = false;
                 }
                 if (conf.action_param2 == 0) {
                     if (conf.action_param1 > 0) {
                         if (conf.action_param3 > 0) { //不检测重复
                             attacker->aa_spells[conf.action_param1] = true;
-                            attacker->CastSpell(unit, conf.action_param1, true);
+                            attacker->CastSpell(unit, conf.action_param1, isDutiao);
                         }
                         else {
                             if (!unit->HasAura(conf.action_param1)) {
                                 attacker->aa_spells[conf.action_param1] = true;
-                                attacker->CastSpell(unit, conf.action_param1, true);
+                                attacker->CastSpell(unit, conf.action_param1, isDutiao);
                             }
                         }
                     }
@@ -9370,18 +9417,18 @@ void AACenter::AA_AiStart(Unit* attacker, Unit* victim, uint32 aiid, int32 value
                     if (conf.action_param5 != "" && conf.action_param5 != "0") {
                         uint32 spellid = aaCenter.AA_StringRandom(conf.action_param5);
                         attacker->aa_spells[spellid] = true;
-                        attacker->CastSpell(unit, spellid, true);
+                        attacker->CastSpell(unit, spellid, isDutiao);
                     }
                     else {
                         if (conf.action_param1 > 0) {
                             if (conf.action_param3 > 0) { //不检测重复
                                 attacker->aa_spells[conf.action_param1] = true;
-                                attacker->CastSpell(unit, conf.action_param1, true);
+                                attacker->CastSpell(unit, conf.action_param1, isDutiao);
                             }
                             else {
                                 if (!unit->HasAura(conf.action_param1)) {
                                     attacker->aa_spells[conf.action_param1] = true;
-                                    attacker->CastSpell(unit, conf.action_param1, true);
+                                    attacker->CastSpell(unit, conf.action_param1, isDutiao);
                                 }
                             }
                         }
@@ -9395,12 +9442,12 @@ void AACenter::AA_AiStart(Unit* attacker, Unit* victim, uint32 aiid, int32 value
                             if (spellid > 0) {
                                 if (conf.action_param3 > 0) { //不检测重复
                                     attacker->aa_spells[spellid] = true;
-                                    attacker->CastSpell(unit, spellid, true);
+                                    attacker->CastSpell(unit, spellid, isDutiao);
                                 }
                                 else {
                                     if (!unit->HasAura(spellid)) {
                                         attacker->aa_spells[spellid] = true;
-                                        attacker->CastSpell(unit, spellid, true);
+                                        attacker->CastSpell(unit, spellid, isDutiao);
                                     }
                                 }
                             }
@@ -9410,12 +9457,12 @@ void AACenter::AA_AiStart(Unit* attacker, Unit* victim, uint32 aiid, int32 value
                         if (conf.action_param1 > 0) {
                             if (conf.action_param3 > 0) { //不检测重复
                                 attacker->aa_spells[conf.action_param1] = true;
-                                attacker->CastSpell(unit, conf.action_param1, true);
+                                attacker->CastSpell(unit, conf.action_param1, isDutiao);
                             }
                             else {
                                 if (!unit->HasAura(conf.action_param1)) {
                                     attacker->aa_spells[conf.action_param1] = true;
-                                    attacker->CastSpell(unit, conf.action_param1, true);
+                                    attacker->CastSpell(unit, conf.action_param1, isDutiao);
                                 }
                             }
                         }
@@ -9427,12 +9474,12 @@ void AACenter::AA_AiStart(Unit* attacker, Unit* victim, uint32 aiid, int32 value
                     if (conf.action_param5 != "" && conf.action_param5 != "0") {
                         uint32 spellid = aaCenter.AA_StringRandom(conf.action_param5);
                         attacker->aa_spells[spellid] = true;
-                        attacker->CastSpell(unit, spellid, true);
+                        attacker->CastSpell(unit, spellid, isDutiao);
                     }
                     else {
                         if (conf.action_param1 > 0) {
                             attacker->aa_spells[conf.action_param1] = true;
-                            attacker->CastSpell(unit, conf.action_param1, true);
+                            attacker->CastSpell(unit, conf.action_param1, isDutiao);
                         }
                     }
                 }
@@ -10559,13 +10606,6 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
                 AA_Notice notice = aaCenter.aa_notices[16];
                 aaCenter.AA_SendNotice(player, notice, true, aa_message);
                 return;
-            }
-        }
-        for (auto itr : aaCenter.aa_desktop_confs) {
-            AA_Desktop_Conf conf = itr.second;
-            if (conf.gm != "" && conf.gm != "0" && std::to_string(conf.type) == prefix) {
-                aaCenter.AA_DoCommand(player, conf.gm.c_str());
-                break;
             }
         }
         if (prefix == "1") { //强化
@@ -13376,7 +13416,7 @@ void AACenter::LoadAAData_World()
                 conf.level = fields[i++].GetUInt32();
                 conf.need_moshi = fields[i++].GetUInt32();
                 conf.reward_moshi = fields[i++].GetUInt32();
-                conf.reward_level = fields[i++].GetUInt32();
+                conf.reward_levels = fields[i++].GetString();
                 conf.exp = fields[i++].GetUInt32();
                 conf.guanghuans = fields[i++].GetString();
                 conf.is_zudui = fields[i++].GetUInt32();
@@ -19950,12 +19990,24 @@ void AACenter::AA_Shouling_Fenzu()
     //如果循环结束，没有一个变身，并且当前已经没有变身的。活动结束
     //需要变身得数量 = 最大变身数量 - 正在变身的数量
     uint32 count = 0;
-    std::unordered_map<ObjectGuid::LowType, uint32> maps; maps.clear();
     for (auto guidlow : aaCenter.aa_shouling_players) {
-        maps[guidlow] = 1;
+        //正在变身
+        Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow);
+        if (!p) {
+            continue;
+        }
+        if (!p->IsInWorld()) {
+            continue;
+        }
+        if (p->GetZoneId() != conf.area) {
+            continue;
+        }
+        if (p->aa_shouling_isBianshen) {
+            count = count + 1;
+        }
     }
-    for (auto itr : maps) {
-        ObjectGuid::LowType guidlow = itr.first;
+    uint32 countNeed = countMax - count;
+    for (auto guidlow : aaCenter.aa_shouling_players) {
         //已经变过身
         if (std::find(aaCenter.aa_shouling_Bs.begin(), aaCenter.aa_shouling_Bs.end(), guidlow) != aaCenter.aa_shouling_Bs.end()) {
             continue;
@@ -19968,11 +20020,10 @@ void AACenter::AA_Shouling_Fenzu()
         if (!p->IsInWorld()) {
             continue;
         }
-        if (p->GetAreaId() != conf.area) {
+        if (p->GetZoneId() != conf.area) {
             continue;
         }
         if (p->aa_shouling_isBianshen) {
-            count = count + 1;
             continue;
         }
         guidlows.insert(guidlow);
@@ -19980,7 +20031,6 @@ void AACenter::AA_Shouling_Fenzu()
 
     if (guidlows.size() == 0) {
         aaCenter.aa_shouling_Bs.clear();
-        uint32 count = 0;
         for (auto guidlow : aaCenter.aa_shouling_players) {
             //已经变过身
             if (std::find(aaCenter.aa_shouling_Bs.begin(), aaCenter.aa_shouling_Bs.end(), guidlow) != aaCenter.aa_shouling_Bs.end()) {
@@ -19994,18 +20044,16 @@ void AACenter::AA_Shouling_Fenzu()
             if (!p->IsInWorld()) {
                 continue;
             }
-            if (p->GetAreaId() != conf.area) {
+            if (p->GetZoneId() != conf.area) {
                 continue;
             }
             if (p->aa_shouling_isBianshen) {
-                count = count + 1;
                 continue;
             }
             guidlows.insert(guidlow);
         }
     }
 
-    uint32 countNeed = countMax - count;
     uint32 index = 0;
     for (auto guidlow : guidlows) {
         Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow);
@@ -20057,6 +20105,12 @@ void AACenter::AA_Shouling_Fenzu()
                 aaCenter.AA_SendMessage(p, 0, msg.c_str());
             }
         }
+
+        //满状态
+        p->SetHealth(p->GetMaxHealth());
+        p->RemoveArenaSpellCooldowns();
+        p->SetPower(POWER_MANA, p->GetMaxPower(POWER_MANA));
+        p->SetPower(POWER_ENERGY, p->GetMaxPower(POWER_ENERGY));
     }
     bool hasB = false;
     for (auto guidlow : aaCenter.aa_shouling_players) {
@@ -20119,7 +20173,7 @@ void AACenter::AA_Shouling_Update(uint32 diff)
                 //获取地图所有人
                 std::vector<Player*> players = aaCenter.GetOnlinePlayers();
                 for (auto p : players) {
-                    if (p->GetAreaId() != conf.area) {
+                    if (p->GetZoneId() != conf.area) {
                         continue;
                     }
                     aaCenter.aa_shouling_players.insert(p->GetGUIDLow());
@@ -20159,76 +20213,109 @@ void AACenter::AA_Shouling_Update(uint32 diff)
         //检测
         for (auto guidlow : aaCenter.aa_shouling_players) {
             if (Player* player = ObjectAccessor::FindPlayerByLowGUID(guidlow)) {
-                if (player->aa_shouling_isBianshen) {
-                    //检测阵营
-                    //player->setTeamId(TEAM_HORDE);
-                    //ChrRacesEntry const* DBCRace = sChrRacesStore.LookupEntry(RACE_UNDEAD_PLAYER);
-                    //player->SetFaction(DBCRace ? DBCRace->FactionID : 0);
-                    player->SetDuelTeam(HORDE);
-                    //检测光环
-                    //取消A光环增加B光环
-                    if (conf.guanghuans_a != "" && conf.guanghuans_a != "0") {
-                        std::vector<int32> spells; spells.clear();
-                        aaCenter.AA_StringToVectorInt(conf.guanghuans_a, spells, ",");
-                        for (auto spell : spells) {
-                            if (player->HasAura(spell)) {
-                                player->RemoveAura(spell);
+                if (player->GetZoneId() != conf.area) {
+                    if (player->aa_shouling_time > 0 || player->aa_shouling_model > 0 || player->aa_shouling_isBianshen) {
+                        //取消A光环
+                        if (conf.guanghuans_a != "" && conf.guanghuans_a != "0") {
+                            std::vector<int32> spells; spells.clear();
+                            aaCenter.AA_StringToVectorInt(conf.guanghuans_a, spells, ",");
+                            for (auto spell : spells) {
+                                if (player->HasAura(spell)) {
+                                    player->RemoveAura(spell);
+                                }
                             }
                         }
-                    }
-                    if (conf.guanghuans_b != "" && conf.guanghuans_b != "0") {
-                        std::vector<int32> spells; spells.clear();
-                        aaCenter.AA_StringToVectorInt(conf.guanghuans_b, spells, ",");
-                        for (auto spell : spells) {
-                            if (!player->HasAura(spell)) {
-                                player->AddAura(spell, player);
+                        //取消B光环
+                        if (conf.guanghuans_b != "" && conf.guanghuans_b != "0") {
+                            std::vector<int32> spells; spells.clear();
+                            aaCenter.AA_StringToVectorInt(conf.guanghuans_b, spells, ",");
+                            for (auto spell : spells) {
+                                if (player->HasAura(spell)) {
+                                    player->RemoveAura(spell);
+                                }
                             }
                         }
-                    }
-                    //检测变身
-                    if (player->aa_shouling_model > 0) {
-                        if (player->aa_shouling_model != player->GetDisplayId()) {
+                        //取消变身
+                        if (player->aa_shouling_model > 0 && player->aa_shouling_model == player->GetDisplayId()) {
                             std::string gm = ".组合 *.变身 " + std::to_string(player->aa_shouling_model) + " 1<$自身>";
                             aaCenter.AA_DoCommand(player, gm.c_str());
+                            player->aa_shouling_model = 0;
                         }
+                        player->aa_shouling_time = 0;
+                        player->aa_shouling_isBianshen = false;
                     }
-                }
-                else {
-                    //检测阵营
-                    //player->setTeamId(TEAM_ALLIANCE);
-                    //ChrRacesEntry const* DBCRace = sChrRacesStore.LookupEntry(RACE_HUMAN);
-                    //player->SetFaction(DBCRace ? DBCRace->FactionID : 0);
-                    player->SetDuelTeam(ALLIANCE);
-                    //检测光环
-                    //取消B光环增加A光环
-                    if (conf.guanghuans_b != "" && conf.guanghuans_b != "0") {
-                        std::vector<int32> spells; spells.clear();
-                        aaCenter.AA_StringToVectorInt(conf.guanghuans_b, spells, ",");
-                        for (auto spell : spells) {
-                            if (player->HasAura(spell)) {
-                                player->RemoveAura(spell);
+                } else {
+                    if (player->aa_shouling_isBianshen) {
+                        //检测阵营
+                        //player->setTeamId(TEAM_HORDE);
+                        //ChrRacesEntry const* DBCRace = sChrRacesStore.LookupEntry(RACE_UNDEAD_PLAYER);
+                        //player->SetFaction(DBCRace ? DBCRace->FactionID : 0);
+                        player->SetDuelTeam(HORDE);
+                        //检测光环
+                        //取消A光环增加B光环
+                        if (conf.guanghuans_a != "" && conf.guanghuans_a != "0") {
+                            std::vector<int32> spells; spells.clear();
+                            aaCenter.AA_StringToVectorInt(conf.guanghuans_a, spells, ",");
+                            for (auto spell : spells) {
+                                if (player->HasAura(spell)) {
+                                    player->RemoveAura(spell);
+                                }
+                            }
+                        }
+                        if (conf.guanghuans_b != "" && conf.guanghuans_b != "0") {
+                            std::vector<int32> spells; spells.clear();
+                            aaCenter.AA_StringToVectorInt(conf.guanghuans_b, spells, ",");
+                            for (auto spell : spells) {
+                                if (!player->HasAura(spell)) {
+                                    player->AddAura(spell, player);
+                                }
+                            }
+                        }
+                        //检测变身
+                        if (player->aa_shouling_model > 0) {
+                            if (player->aa_shouling_model != player->GetDisplayId()) {
+                                std::string gm = ".组合 *.变身 " + std::to_string(player->aa_shouling_model) + " 1<$自身>";
+                                aaCenter.AA_DoCommand(player, gm.c_str());
                             }
                         }
                     }
-                    if (conf.guanghuans_a != "" && conf.guanghuans_a != "0") {
-                        std::vector<int32> spells; spells.clear();
-                        aaCenter.AA_StringToVectorInt(conf.guanghuans_a, spells, ",");
-                        for (auto spell : spells) {
-                            if (!player->HasAura(spell)) {
-                                player->AddAura(spell, player);
+                    else {
+                        //检测阵营
+                        //player->setTeamId(TEAM_ALLIANCE);
+                        //ChrRacesEntry const* DBCRace = sChrRacesStore.LookupEntry(RACE_HUMAN);
+                        //player->SetFaction(DBCRace ? DBCRace->FactionID : 0);
+                        player->SetDuelTeam(ALLIANCE);
+                        //检测光环
+                        //取消B光环增加A光环
+                        if (conf.guanghuans_b != "" && conf.guanghuans_b != "0") {
+                            std::vector<int32> spells; spells.clear();
+                            aaCenter.AA_StringToVectorInt(conf.guanghuans_b, spells, ",");
+                            for (auto spell : spells) {
+                                if (player->HasAura(spell)) {
+                                    player->RemoveAura(spell);
+                                }
                             }
                         }
-                    }
-                    //检测变身
-                    if (player->aa_shouling_model > 0) {
-                        if (player->aa_shouling_model != player->GetDisplayId()) {
-                            std::string gm = ".组合 *.变身 " + std::to_string(player->aa_shouling_model) + " 1<$自身>";
-                            aaCenter.AA_DoCommand(player, gm.c_str());
+                        if (conf.guanghuans_a != "" && conf.guanghuans_a != "0") {
+                            std::vector<int32> spells; spells.clear();
+                            aaCenter.AA_StringToVectorInt(conf.guanghuans_a, spells, ",");
+                            for (auto spell : spells) {
+                                if (!player->HasAura(spell)) {
+                                    player->AddAura(spell, player);
+                                }
+                            }
                         }
-                        player->aa_shouling_model = 0;
+                        //检测变身
+                        if (player->aa_shouling_model > 0) {
+                            if (player->aa_shouling_model != player->GetDisplayId()) {
+                                std::string gm = ".组合 *.变身 " + std::to_string(player->aa_shouling_model) + " 1<$自身>";
+                                aaCenter.AA_DoCommand(player, gm.c_str());
+                            }
+                            player->aa_shouling_model = 0;
+                        }
+                        player->aa_shouling_time = 0;
+                        player->aa_shouling_isBianshen = false;
                     }
-                    player->aa_shouling_time = 0;
-                    player->aa_shouling_isBianshen = false;
                 }
             }
         }
@@ -20242,20 +20329,18 @@ void AACenter::AA_Shouling_End()
     }
 
     std::vector<Player*> players = aaCenter.GetOnlinePlayers();
-    for (auto guidlow : aaCenter.aa_shouling_players) {
-        if (Player* player = ObjectAccessor::FindPlayerByLowGUID(guidlow)) {
-            if (player->aa_shouling_model > 0) {
-                std::string gm = ".组合 *.变身 " + std::to_string(player->aa_shouling_model) + " 1<$自身>";
-                aaCenter.AA_DoCommand(player, gm.c_str());
-                player->aa_shouling_model = 0;
-            }
-            player->aa_shouling_time = 0;
-            player->aa_shouling_isBianshen = false;
-            //还原阵营
-            player->SetDuelTeam(0);
-            player->RestoreDisplayId();
-            player->SetObjectScale(1);
+    for (auto player : players) {
+        if (player->aa_shouling_model > 0) {
+            std::string gm = ".组合 *.变身 " + std::to_string(player->aa_shouling_model) + " 1<$自身>";
+            aaCenter.AA_DoCommand(player, gm.c_str());
+            player->aa_shouling_model = 0;
         }
+        player->aa_shouling_time = 0;
+        player->aa_shouling_isBianshen = false;
+        //还原阵营
+        player->SetDuelTeam(0);
+        player->RestoreDisplayId();
+        player->SetObjectScale(1);
     }
 
     aaCenter.aa_shouling_start_time = -1;
@@ -20461,6 +20546,12 @@ void AACenter::AA_Ziyuan_Fenzu()
             }
         }
         count = count + 1;
+
+        //满状态
+        p->SetHealth(p->GetMaxHealth());
+        p->RemoveArenaSpellCooldowns();
+        p->SetPower(POWER_MANA, p->GetMaxPower(POWER_MANA));
+        p->SetPower(POWER_ENERGY, p->GetMaxPower(POWER_ENERGY));
     }
 }
 
@@ -20930,6 +21021,12 @@ void AACenter::AA_Gongcheng_Fenzu()
             }
         }
         count = count + 1;
+
+        //满状态
+        p->SetHealth(p->GetMaxHealth());
+        p->RemoveArenaSpellCooldowns();
+        p->SetPower(POWER_MANA, p->GetMaxPower(POWER_MANA));
+        p->SetPower(POWER_ENERGY, p->GetMaxPower(POWER_ENERGY));
     }
 }
 

@@ -1025,7 +1025,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                                     if (conf.gm_a != "" && conf.gm_a != "0") {
                                         for (auto guidlow : aaCenter.aa_shouling_players) {
                                             Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow);
-                                            if (p && !p->aa_shouling_isBianshen && p->GetAreaId() == conf.area) {
+                                            if (p && !p->aa_shouling_isBianshen && p->GetZoneId() == conf.area) {
                                                 aaCenter.AA_DoCommand(p, conf.gm_a.c_str());
                                             }
                                         }
@@ -1036,7 +1036,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                                     if (conf.gm_b != "" && conf.gm_b != "0") {
                                         for (auto guidlow : aaCenter.aa_shouling_players) {
                                             Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow);
-                                            if (p && p->aa_shouling_isBianshen && p->GetAreaId() == conf.area) {
+                                            if (p && p->aa_shouling_isBianshen && p->GetZoneId() == conf.area) {
                                                 aaCenter.AA_DoCommand(p, conf.gm_b.c_str());
                                             }
                                         }
@@ -1107,28 +1107,28 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                                 aaCenter.AA_StringToVectorInt(conf.chengfa_dies, v, ",");
                                 //被玩家击杀
                                 if (attacker_a && attacker_v) {
-                                    if (std::find(v.begin(), v.end(), 0) != v.end() || std::find(v.begin(), v.end(), 2) != v.end()) {
+                                    if (std::find(v.begin(), v.end(), 0) == v.end() && std::find(v.begin(), v.end(), 2) == v.end()) {
                                         p_yiming = nullptr;
                                     }
                                     a_name = aaCenter.AA_GetPlayerNameLink(attacker_a);
                                 }
                                 //被生物击杀
                                 else if (attacker->ToCreature() && attacker_v) {
-                                    if (std::find(v.begin(), v.end(), 0) != v.end() || std::find(v.begin(), v.end(), 1) != v.end()) {
+                                    if (std::find(v.begin(), v.end(), 0) == v.end() && std::find(v.begin(), v.end(), 1) == v.end()) {
                                         p_yiming = nullptr;
                                     }
                                     a_name = attacker->ToCreature()->GetName();
                                 }
                                 //自杀
                                 else if (attacker_a == attacker_v || attacker == nullptr) {
-                                    if (std::find(v.begin(), v.end(), 0) != v.end() || std::find(v.begin(), v.end(), 4) != v.end()) {
+                                    if (std::find(v.begin(), v.end(), 0) == v.end() && std::find(v.begin(), v.end(), 4) == v.end()) {
                                         p_yiming = nullptr;
                                     }
                                     a_name = "自杀";
                                 }
                                 //副本死亡
                                 else if (attacker_v->GetMap() && attacker_v->GetMap()->IsDungeon()) {
-                                    if (std::find(v.begin(), v.end(), 0) != v.end() || std::find(v.begin(), v.end(), 3) != v.end()) {
+                                    if (std::find(v.begin(), v.end(), 0) == v.end() && std::find(v.begin(), v.end(), 3) == v.end()) {
                                         p_yiming = nullptr;
                                     }
                                 }
@@ -1176,7 +1176,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                         if (attacker_a) {
                             std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["击杀生物"];
                             for (auto mapconf : mapeventconfs) {
-                                if (mapconf.value == c->GetEntry()) {
+                                if (mapconf.value == -1 || mapconf.value == c->GetEntry()) {
                                     aaCenter.AA_EventMapStart(attacker_a, mapconf);
                                 }
                             }
@@ -1186,7 +1186,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                         if (attacker_v) {
                             std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["被生物击杀"];
                             for (auto mapconf : mapeventconfs) {
-                                if (mapconf.value == c->GetEntry()) {
+                                if (mapconf.value == -1 || mapconf.value == c->GetEntry()) {
                                     aaCenter.AA_EventMapStart(attacker_v, mapconf);
                                 }
                             }

@@ -148,7 +148,7 @@ struct AA_Yiming_Conf
     uint32 level = 0;//level
     uint32 need_moshi = 0;//提升模式等级需求
     uint32 reward_moshi = 0;//提升模式等级奖励
-    uint32 reward_level = 0;//人物等级达到奖励
+    std::string reward_levels = "";//人物等级达到奖励
     uint32 exp = 0;//人物等级经验倍数
     std::string guanghuans = "";//模式等级光环_多个逗号隔开
     uint32 is_zudui = 0;//是否允许组队

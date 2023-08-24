@@ -352,13 +352,44 @@ public:
         if (!player || !player->IsInWorld()) {
             return false;
         }
-        uint32 guidlow = player->GetGUIDLow();
-        uint32 viplevel = aaCenter.aa_characterss[guidlow].yiming;
-        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[viplevel];
-        if (conf.level <= 0) {
-            aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFF0000你已达到最大一命等级");
+        char* zustr = strtok((char*)args, " ");
+        if (!zustr) {
+            ChatHandler(handler->GetSession()).PSendSysMessage("语法格式:.一命等级（ymdj） 参数1（等级）");
             return false;
         }
+
+        int32 level = int32(std::atoi(zustr));
+        uint32 guidlow = player->GetGUIDLow();
+
+        if (level == 0) {
+            aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[一命模式]|cffFF0000你解除了一命模式。");
+            aaCenter.aa_characterss[guidlow].yiming = 0;
+            aaCenter.aa_characterss[guidlow].is_yiming = 0;
+            time_t timep;
+            time(&timep);
+            aaCenter.aa_characterss[guidlow].update_time = timep;
+            aaCenter.aa_characterss[guidlow].isUpdate = true;
+            return true;
+        }
+
+        uint32 level_jc = aaCenter.aa_world_confs[102].value1;
+        if (level_jc > 0 && player->GetLevel() >= level_jc) {
+            aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[一命模式]|cffFF0000你已经满级，无法加入一命模式");
+            return false;
+        }
+
+        if (aaCenter.aa_yiming_confs.find(level) == aaCenter.aa_yiming_confs.end()) {
+            aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[一命模式]|cffFF0000等级输入有误");
+            return false;
+        }
+
+        uint32 viplevel = aaCenter.aa_characterss[guidlow].yiming;
+        if (level == viplevel) {
+            aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[一命模式]|cffFF0000你已达加入一命模式，请勿重复操作");
+            return false;
+        }
+
+        AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
         if (conf.need_moshi > 0) {
             if (!aaCenter.M_CanNeed(player, conf.need_moshi)) {
                 return false;
@@ -367,18 +398,18 @@ public:
                 aaCenter.M_Need(player, conf.need_moshi);
             }
         }
-        aaCenter.aa_characterss[guidlow].yiming = viplevel;
-        AA_Yiming_Conf vip_conf = aaCenter.aa_yiming_confs[viplevel];
-        if (vip_conf.reward_moshi > 0) {
-            aaCenter.M_Reward(player, vip_conf.reward_moshi);
+
+        aaCenter.aa_characterss[guidlow].yiming = level;
+        if (conf.reward_moshi > 0) {
+            aaCenter.M_Reward(player, conf.reward_moshi);
         }
         time_t timep;
         time(&timep);
         aaCenter.aa_characterss[guidlow].update_time = timep;
         aaCenter.aa_characterss[guidlow].isUpdate = true;
-        if (vip_conf.notice > 0) {
+        if (conf.notice > 0) {
             AA_Message aa_message;
-            AA_Notice notice = aaCenter.aa_notices[vip_conf.notice];
+            AA_Notice notice = aaCenter.aa_notices[conf.notice];
             aaCenter.AA_SendNotice(player, notice, true, aa_message);
         }
         return true;
@@ -1537,17 +1568,22 @@ public:
         int32 zu2 = int32(std::atoi(zustr2));
         int32 zu3 = int32(std::atoi(zustr3));
 
-        target->SetVirtualItem(0, zu1, 0, 0);
-        target->SetVirtualItem(1, zu2, 0, 0);
-        target->SetVirtualItem(2, zu3, 0, 0);
+        if (zu1 > 0) {
+            target->SetVirtualItem(0, zu1, 0, 0);
+        }
+        if (zu2 > 0) {
+            target->SetVirtualItem(1, zu2, 0, 0);
+        }
+        if (zu3 > 0) {
+            target->SetVirtualItem(2, zu3, 0, 0);
+        }
 
         char* isstr = strtok(nullptr, " ");
         if (isstr)
         {
             int32 isOk = int32(std::atoi(isstr));
             if (isOk) {
-                WorldDatabase.DirectPExecute("INSERT INTO creature_equip_template (CreatureID, ID, ItemID1, AppearanceModID1, ItemVisual1, ItemID2, AppearanceModID2, ItemVisual2, ItemID3, AppearanceModID3, ItemVisual3, VerifiedBuild) VALUES (?, 1, ?, 0, 0, ?, 0, 0, ?, 0, 0, 48069) ON DUPLICATE KEY UPDATE ItemID1 = ?, ItemID2 = ?, ItemID3 = ?", target->GetEntry(), zu1, zu2, zu3, zu1, zu2, zu3);
-                sObjectMgr->LoadEquipmentTemplates();
+                WorldDatabase.DirectPExecute("INSERT INTO creature_equip_template (CreatureID, ItemID1, ItemID2, ItemID3, VerifiedBuild) VALUES ({}, {}, {}, {}, 49679) ON DUPLICATE KEY UPDATE ItemID1 = {}, ItemID2 = {}, ItemID3 = {}", target->GetEntry(), zu1, zu2, zu3, zu1, zu2, zu3);
             }
         }
 
