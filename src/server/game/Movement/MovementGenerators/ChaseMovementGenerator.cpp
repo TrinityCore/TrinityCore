@@ -242,7 +242,9 @@ ChaseMovementPositionCheckResult ChaseMovementGenerator::checkPosition(ChasePosi
 void ChaseMovementGenerator::launchSpline(Unit* owner, Unit* target, Position& destination)
 {
     bool success = _pathGenerator->CalculatePath(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ(), owner->IsFlying());
-    uint32 deniedPathResultTypes = PATHFIND_NOPATH | PATHFIND_INCOMPLETE;
+    uint32 deniedPathResultTypes = PATHFIND_NOPATH;
+    if (!owner->IsHovering())
+        deniedPathResultTypes |= PATHFIND_INCOMPLETE;
     if (!owner->IsFlying() || (target->IsInWater() && !owner->CanEnterWater())) // only flying and swimming units may use shortcuts
         deniedPathResultTypes |= PATHFIND_SHORTCUT;
 
