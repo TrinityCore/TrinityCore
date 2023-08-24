@@ -844,7 +844,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             break;
         case GAMEOBJECT_TYPE_NEW_FLAG:
             m_goTypeImpl = std::make_unique<GameObjectType::NewFlag>(*this);
-            if (map->Instanceable()) 
+            if (map->Instanceable())
                 setActive(true);
             break;
         case GAMEOBJECT_TYPE_NEW_FLAG_DROP:
