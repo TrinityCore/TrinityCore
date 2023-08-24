@@ -222,8 +222,13 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
     }
 
     // we may need a better number here
-    bool startFarFromPoly = distToStartPoly > 7.0f;
-    bool endFarFromPoly = distToEndPoly > 7.0f;
+    float allowedPolyDist = 7.0f;
+    if (Unit const* unit = _source->ToUnit())
+        if (unit->IsHovering()) // some hovering units hover above the original 7.0f threshold so we have to take their hover offset into consideration
+            allowedPolyDist = std::max(allowedPolyDist, unit->GetHoverOffset());
+
+    bool startFarFromPoly = distToStartPoly > allowedPolyDist;
+    bool endFarFromPoly = distToEndPoly > allowedPolyDist;
     if (startFarFromPoly || endFarFromPoly)
     {
         TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: farFromPoly distToStartPoly=%.3f distToEndPoly=%.3f", distToStartPoly, distToEndPoly);
