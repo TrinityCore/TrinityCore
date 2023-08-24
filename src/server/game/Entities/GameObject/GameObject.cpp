@@ -507,20 +507,32 @@ void SetTransportAutoCycleBetweenStopFrames::Execute(GameObjectTypeBase& type) c
 class NewFlag : public GameObjectTypeBase
 {
 public:
-    explicit NewFlag(GameObject& owner) : GameObjectTypeBase(owner), _state(FlagState::InBase), _respawnTime(0) { }
+    explicit NewFlag(GameObject& owner) : GameObjectTypeBase(owner), _state(FlagState::InBase), _respawnTime(0), _takenFromBaseTime(0){ }
 
     void SetState(FlagState newState, Player* player)
     {
         FlagState oldState = _state;
         _state = newState;
+
+        if (player && newState == FlagState::Taken)
+            _carrierGUID = player->GetGUID();
+        else
+            _carrierGUID = ObjectGuid::Empty;
+
+        if (newState == FlagState::Taken && oldState == FlagState::InBase)
+            _takenFromBaseTime = GameTime::GetGameTime();
+        else if (newState == FlagState::InBase || newState == FlagState::Respawning)
+            _takenFromBaseTime = 0;
+
         _owner.UpdateObjectVisibility();
-        if (ZoneScript* zoneScript = _owner.GetZoneScript())
-            zoneScript->OnFlagStateChange(&_owner, oldState, _state, player);
 
         if (newState == FlagState::Respawning)
             _respawnTime = GameTime::GetGameTimeMS() + _owner.GetGOInfo()->newflag.RespawnTime;
         else
             _respawnTime = 0;
+
+        if (ZoneScript* zoneScript = _owner.GetZoneScript())
+            zoneScript->OnFlagStateChange(&_owner, oldState, _state, player);
     }
 
     void Update([[maybe_unused]] uint32 diff) override
@@ -534,9 +546,15 @@ public:
         return _state != FlagState::InBase;
     }
 
+    FlagState GetState() const { return _state; }
+    ObjectGuid const& GetCarrierGUID() const { return _carrierGUID; }
+    time_t GetTakenFromBaseTime() const { return _takenFromBaseTime; }
+
 private:
     FlagState _state;
     time_t _respawnTime;
+    ObjectGuid _carrierGUID;
+    time_t _takenFromBaseTime;
 };
 
 SetNewFlagState::SetNewFlagState(FlagState state, Player* player) : _state(state), _player(player)
@@ -4052,6 +4070,42 @@ bool GameObject::CanInteractWithCapturePoint(Player const* target) const
     // For Alliance players
     return m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde
         || m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured;
+}
+
+FlagState GameObject::GetFlagState() const
+{
+    if (GetGoType() != GAMEOBJECT_TYPE_NEW_FLAG)
+        return FlagState(0);
+
+    GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(m_goTypeImpl.get());
+    if (!newFlag)
+        return FlagState(0);
+
+    return newFlag->GetState();
+}
+
+ObjectGuid const& GameObject::GetFlagCarrierGUID() const
+{
+    if (GetGoType() != GAMEOBJECT_TYPE_NEW_FLAG)
+        return ObjectGuid::Empty;
+
+    GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(m_goTypeImpl.get());
+    if (!newFlag)
+        return ObjectGuid::Empty;
+
+    return newFlag->GetCarrierGUID();
+}
+
+time_t GameObject::GetFlagTakenFromBaseTime() const
+{
+    if (GetGoType() != GAMEOBJECT_TYPE_NEW_FLAG)
+        return time_t(0);
+
+    GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(m_goTypeImpl.get());
+    if (!newFlag)
+        return time_t(0);
+
+    return newFlag->GetTakenFromBaseTime();
 }
 
 bool GameObject::MeetsInteractCondition(Player const* user) const
