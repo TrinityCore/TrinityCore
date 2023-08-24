@@ -164,10 +164,7 @@ class TC_GAME_API BattlegroundMgr
             BattlegroundQueueTypeId QueueId;
             BattlegroundBracketId BracketId;
 
-            bool operator==(ScheduledQueueUpdate const& right) const
-            {
-                return ArenaMatchmakerRating == right.ArenaMatchmakerRating && QueueId == right.QueueId && BracketId == right.BracketId;
-            }
+            bool operator==(ScheduledQueueUpdate const& right) const = default;
         };
 
         std::vector<ScheduledQueueUpdate> m_QueueUpdateScheduler;

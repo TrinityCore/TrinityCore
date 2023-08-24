@@ -578,7 +578,6 @@ struct QuestRelationResult
                 }
 
                 bool operator==(Iterator const& other) const { return _it == other._it; }
-                bool operator!=(Iterator const& other) const { return _it != other._it; }
 
                 Iterator& operator++() { ++_it; skip(); return *this; }
                 Iterator operator++(int) { Iterator t = *this; ++*this; return t; }
