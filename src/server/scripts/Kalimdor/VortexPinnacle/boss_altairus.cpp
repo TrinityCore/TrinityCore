@@ -101,15 +101,12 @@ Position const TwisterSpawnPoints[POINT_TWISTER_MAX] =
 
 struct boss_altairus : public BossAI
 {
-    boss_altairus(Creature* creature) : BossAI(creature, DATA_ALTAIRUS)
-    {
-        me->SetHover(true);
-    }
+    boss_altairus(Creature* creature) : BossAI(creature, DATA_ALTAIRUS) { }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
         events.ScheduleEvent(EVENT_CALL_THE_WIND, 6s);
         events.ScheduleEvent(EVENT_CHILLING_BREATH, 10s, 14s);
 
