@@ -1,5 +1,10 @@
-SET @CGUID := 50000000;
-SET @OGUID := 50000000;
+SET @CGUID := 5000008;
+SET @OGUID := 5000029;
+
+-- game tele
+DELETE FROM `game_tele` WHERE `id`=1967;
+INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
+(1967, 4066.56, -2382.24, 97.8062, 1.5708, 1265, 'AssaultOnTheDarkPortalScenario');
 
 -- Creatures
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+6;
