@@ -23,6 +23,7 @@
 #include "MMapFactory.h"
 #include "MMapManager.h"
 #include "Log.h"
+#include "Position.h"
 #include "DisableMgr.h"
 #include "DetourCommon.h"
 #include "DetourNavMeshQuery.h"
@@ -59,6 +60,16 @@ PathGenerator::~PathGenerator()
 bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest /*= false*/)
 {
     return CalculatePath(PositionToVector3(_source->GetPosition()), G3D::Vector3(destX, destY, destZ), forceDest);
+}
+
+bool PathGenerator::CalculatePath(Position const& destination, bool forceDest /*= false*/)
+{
+    return CalculatePath(PositionToVector3(_source->GetPosition()), PositionToVector3(destination), forceDest);
+}
+
+bool PathGenerator::CalculatePath(Position const& startPosition, Position const& destination, bool forceDest /*= false*/)
+{
+    return CalculatePath(PositionToVector3(startPosition), PositionToVector3(destination), forceDest);
 }
 
 bool PathGenerator::CalculatePath(G3D::Vector3 const& startPoint, G3D::Vector3 const& endPoint, bool forceDest /*= false*/)
