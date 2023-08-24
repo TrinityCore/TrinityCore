@@ -417,18 +417,6 @@ public:
         part[2] = p3;
     }
 
-    inline bool operator<(flag96 const& right) const
-    {
-        for (uint8 i = 3; i > 0; --i)
-        {
-            if (part[i - 1] < right.part[i - 1])
-                return true;
-            else if (part[i - 1] > right.part[i - 1])
-                return false;
-        }
-        return false;
-    }
-
     inline bool operator==(flag96 const& right) const
     {
         return
