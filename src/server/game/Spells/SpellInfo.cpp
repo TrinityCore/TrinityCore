@@ -526,7 +526,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     }
     else if (GetScalingExpectedStat() == ExpectedStatType::None)
     {
-        if (casterUnit && basePointsPerLevel != 0.0f)
+        if (casterUnit && basePointsPerLevel != 0.0)
         {
             int32 level = int32(casterUnit->GetLevel());
             if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
@@ -545,7 +545,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     {
         // bonus amount from combo points
         if (comboDamage)
-            if (uint32 comboPoints = casterUnit->GetComboPoints())
+            if (int32 comboPoints = casterUnit->GetPower(POWER_COMBO_POINTS))
                 value += comboDamage * comboPoints;
     }
 
@@ -1710,11 +1710,6 @@ bool SpellInfo::IsMoveAllowedChannel() const
     return IsChanneled() && !ChannelInterruptFlags.HasFlag(SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Turning);
 }
 
-bool SpellInfo::NeedsComboPoints() const
-{
-    return HasAttribute(SpellAttr1(SPELL_ATTR1_FINISHING_MOVE_DAMAGE | SPELL_ATTR1_FINISHING_MOVE_DURATION));
-}
-
 bool SpellInfo::IsNextMeleeSwingSpell() const
 {
     return HasAttribute(SpellAttr0(SPELL_ATTR0_ON_NEXT_SWING_NO_DAMAGE | SPELL_ATTR0_ON_NEXT_SWING));
@@ -2532,6 +2527,7 @@ void SpellInfo::_LoadAuraState()
                 return AURA_STATE_VICTORIOUS;
             case 71465: // Divine Surge
             case 50241: // Evasive Charges
+            case 81262: // Efflorescence
                 return AURA_STATE_RAID_ENCOUNTER;
             case 6950:   // Faerie Fire
             case 9806:   // Phantom Strike
@@ -3572,6 +3568,41 @@ void SpellInfo::_LoadImmunityInfo()
     }
 }
 
+void SpellInfo::_LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTargets, Optional<SpellEffIndex> maxTargetsEffectValueHolder,
+    Optional<SpellEffIndex> numNonDiminishedTargetsEffectValueHolder)
+{
+    SqrtDamageAndHealingDiminishing.MaxTargets = maxTargets;
+    SqrtDamageAndHealingDiminishing.NumNonDiminishedTargets = numNonDiminishedTargets;
+
+    if (maxTargetsEffectValueHolder)
+    {
+        if (maxTargetsEffectValueHolder < GetEffects().size())
+        {
+            SpellEffectInfo const& valueHolder = GetEffect(*maxTargetsEffectValueHolder);
+            int32 expectedValue = valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1);
+            if (maxTargets != expectedValue)
+                TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} has different value in effect {} than expected, recheck target caps (expected {}, got {})",
+                    Id, AsUnderlyingType(*maxTargetsEffectValueHolder), maxTargets, expectedValue);
+        }
+        else
+            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} does not have effect {}", Id, AsUnderlyingType(*maxTargetsEffectValueHolder));
+    }
+
+    if (numNonDiminishedTargetsEffectValueHolder)
+    {
+        if (numNonDiminishedTargetsEffectValueHolder < GetEffects().size())
+        {
+            SpellEffectInfo const& valueHolder = GetEffect(*numNonDiminishedTargetsEffectValueHolder);
+            int32 expectedValue = valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1);
+            if (numNonDiminishedTargets != expectedValue)
+                TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} has different value in effect {} than expected, recheck target caps (expected {}, got {})",
+                    Id, AsUnderlyingType(*numNonDiminishedTargetsEffectValueHolder), numNonDiminishedTargets, expectedValue);
+        }
+        else
+            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} does not have effect {}", Id, AsUnderlyingType(*numNonDiminishedTargetsEffectValueHolder));
+    }
+}
+
 void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& spellEffectInfo, bool apply) const
 {
     SpellEffectInfo::ImmunityInfo const* immuneInfo = spellEffectInfo.GetImmunityInfo();
@@ -3959,22 +3990,16 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
     // Spell drain all exist power on cast (Only paladin lay of Hands)
     if (HasAttribute(SPELL_ATTR1_USE_ALL_MANA))
     {
+        if (optionalCost)
+            return {};
+
         // If power type - health drain all
         if (power->PowerType == POWER_HEALTH)
-        {
-            SpellPowerCost cost;
-            cost.Power = POWER_HEALTH;
-            cost.Amount = unitCaster->GetHealth();
-            return cost;
-        }
+            return SpellPowerCost{ .Power = POWER_HEALTH, .Amount = int32(unitCaster->GetHealth()) };
+
         // Else drain all power
         if (power->PowerType < MAX_POWERS)
-        {
-            SpellPowerCost cost;
-            cost.Power = Powers(power->PowerType);
-            cost.Amount = unitCaster->GetPower(cost.Power);
-            return cost;
-        }
+            return SpellPowerCost{ .Power = Powers(power->PowerType), .Amount = unitCaster->GetPower(Powers(power->PowerType)) };
 
         TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '{}' in spell {}", power->PowerType, Id);
         return {};
@@ -4158,10 +4183,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
     if (initiallyNegative != (powerCost < 0))
         powerCost = 0;
 
-    SpellPowerCost cost;
-    cost.Power = Powers(power->PowerType);
-    cost.Amount = powerCost;
-    return cost;
+    return SpellPowerCost{ .Power = Powers(power->PowerType), .Amount = powerCost };
 }
 
 std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask schoolMask, Spell* spell) const
@@ -4180,11 +4202,7 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(WorldObject const* caster, 
             if (itr != costs.end())
                 return *itr;
 
-            SpellPowerCost cost;
-            cost.Power = powerType;
-            cost.Amount = 0;
-            costs.push_back(cost);
-            return costs.back();
+            return costs.emplace_back<SpellPowerCost>({ .Power = powerType, .Amount = 0 });
         };
 
         for (SpellPowerEntry const* power : PowerCosts)
@@ -4303,7 +4321,7 @@ float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
             case SPELL_PPM_MOD_SPEC:
             {
                 if (Player* plrCaster = caster->ToPlayer())
-                    if (plrCaster->GetPrimarySpecialization() == uint32(mod->Param))
+                    if (plrCaster->GetPrimarySpecialization() == ChrSpecialization(mod->Param))
                         ppm *= 1.0f + mod->Coeff;
                 break;
             }

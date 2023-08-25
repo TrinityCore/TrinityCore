@@ -35,7 +35,8 @@ if(WITH_WARNINGS)
       -Winit-self
       -Winvalid-pch
       -Wfatal-errors
-      -Woverloaded-virtual)
+      -Woverloaded-virtual
+      -Wno-missing-field-initializers) # this warning is useless when combined with structure members that have default initializers
 
   message(STATUS "GCC: All warnings enabled")
 endif()

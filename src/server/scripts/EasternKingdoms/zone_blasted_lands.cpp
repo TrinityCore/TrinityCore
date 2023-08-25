@@ -60,7 +60,31 @@ class spell_razelikh_teleport_group : public SpellScript
     }
 };
 
+/*######
+## Quests 36881 and 34398: Warlords of Draenor: The Dark Portal
+######*/
+
+enum TeleportToTanaan
+{
+    SPELL_TELEPORT_TO_TANAAN = 167771,
+
+    MOVIE_INTO_THE_PORTAL    = 185
+};
+
+class player_teleport_to_tanaan : public PlayerScript
+{
+public:
+    player_teleport_to_tanaan() : PlayerScript("player_teleport_to_tanaan") { }
+
+    void OnMovieComplete(Player* player, uint32 movieId) override
+    {
+        if (movieId == MOVIE_INTO_THE_PORTAL)
+            player->CastSpell(player, SPELL_TELEPORT_TO_TANAAN, true);
+    }
+};
+
 void AddSC_blasted_lands()
 {
     RegisterSpellScript(spell_razelikh_teleport_group);
+    new player_teleport_to_tanaan();
 }

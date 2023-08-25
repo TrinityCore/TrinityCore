@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
+#include <compare>
 
 float const GROUND_HEIGHT_TOLERANCE = 0.05f; // Extra tolerance to z position to check if it is in air or on ground.
 constexpr float Z_OFFSET_FIND_HEIGHT = 0.5f;
@@ -6566,29 +6567,9 @@ struct BattlegroundQueueTypeId
             | UI64LIT(0x1F10000000000000);
     }
 
-    constexpr bool operator==(BattlegroundQueueTypeId right) const
-    {
-        return BattlemasterListId == right.BattlemasterListId
-            && Type == right.Type
-            && Rated == right.Rated
-            && TeamSize == right.TeamSize;
-    }
+    constexpr bool operator==(BattlegroundQueueTypeId const& right) const = default;
 
-    constexpr bool operator!=(BattlegroundQueueTypeId right) const
-    {
-        return !(*this == right);
-    }
-
-    constexpr bool operator<(BattlegroundQueueTypeId right) const
-    {
-        if (BattlemasterListId != right.BattlemasterListId)
-            return BattlemasterListId < right.BattlemasterListId;
-        if (Type != right.Type)
-            return Type < right.Type;
-        if (Rated != right.Rated)
-            return Rated < right.Rated;
-        return TeamSize < right.TeamSize;
-    }
+    constexpr std::strong_ordering operator<=>(BattlegroundQueueTypeId const& right) const = default;
 };
 
 constexpr BattlegroundQueueTypeId BATTLEGROUND_QUEUE_NONE = { 0, 0, false, 0 };
