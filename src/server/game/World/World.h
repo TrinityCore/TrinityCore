@@ -30,6 +30,7 @@
 #include "SharedDefines.h"
 #include "Timer.h"
 
+#include <array>
 #include <atomic>
 #include <list>
 #include <map>
