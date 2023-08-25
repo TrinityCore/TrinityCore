@@ -261,35 +261,57 @@ class spell_altairus_upwind_of_altairus : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_DOWNWIND_OF_ALTAIRUS,
-                SPELL_UPWIND_OF_ALTAIRUS
-            });
+        return ValidateSpellInfo({ SPELL_DOWNWIND_OF_ALTAIRUS, SPELL_UPWIND_OF_ALTAIRUS });
     }
 
-    void HandleUpwind(SpellEffIndex /*effIndex*/)
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        Unit* caster = GetCaster();
-        if (!caster)
+        if (targets.empty())
             return;
 
-        Unit* target = GetHitUnit();
-
-        if (std::abs(caster->GetOrientation() - target->GetOrientation()) > (float(M_PI) / 2))
-            target->RemoveAurasDueToSpell(SPELL_DOWNWIND_OF_ALTAIRUS);
-        else
+        targets.remove_if([&](WorldObject const* target)
         {
-            PreventHitDefaultEffect(EFFECT_0);
-            PreventHitDefaultEffect(EFFECT_1);
-            target->RemoveAurasDueToSpell(SPELL_UPWIND_OF_ALTAIRUS);
-            target->CastSpell(target, SPELL_DOWNWIND_OF_ALTAIRUS, true);
+            if (std::abs(GetCaster()->GetOrientation() - target->GetOrientation()) <= (float(M_PI) / 2))
+            {
+                _downwindTargetGUIDs.push_back(target->GetGUID());
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    void HandleDownwind()
+    {
+        for (ObjectGuid const& guid : _downwindTargetGUIDs)
+        {
+            if (Unit* target = ObjectAccessor::GetUnit(*GetCaster(), guid))
+            {
+                target->RemoveAurasDueToSpell(SPELL_UPWIND_OF_ALTAIRUS);
+                target->CastSpell(nullptr, SPELL_DOWNWIND_OF_ALTAIRUS, true);
+            }
         }
     }
 
     void Register() override
     {
-        OnEffectHitTarget.Register(&spell_altairus_upwind_of_altairus::HandleUpwind, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnObjectAreaTargetSelect.Register(&spell_altairus_upwind_of_altairus::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        AfterHit.Register(&spell_altairus_upwind_of_altairus::HandleDownwind);
+    }
+private:
+    std::vector<ObjectGuid> _downwindTargetGUIDs;
+};
+
+class spell_altairus_upwind_of_altairus_AuraScript : public AuraScript
+{
+    void ClearDownwindOfAltairus(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DOWNWIND_OF_ALTAIRUS);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply.Register(&spell_altairus_upwind_of_altairus_AuraScript::ClearDownwindOfAltairus, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -357,7 +379,7 @@ void AddSC_boss_altairus()
 {
     RegisterVortexPinnacleCreatureAI(boss_altairus);
     RegisterSpellScript(spell_altairus_call_the_wind);
-    RegisterSpellScript(spell_altairus_upwind_of_altairus);
+    RegisterSpellAndAuraScriptPair(spell_altairus_upwind_of_altairus, spell_altairus_upwind_of_altairus_AuraScript);
     RegisterSpellScript(spell_altairus_call_the_wind_channel);
     RegisterSpellScript(spell_altairus_chilling_breath);
     RegisterSpellScript(spell_altairus_safe_area);
