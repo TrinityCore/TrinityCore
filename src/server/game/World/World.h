@@ -842,7 +842,7 @@ class TC_GAME_API World
 
         bool m_isClosed;
 
-        IntervalTimer m_timers[WUPDATE_COUNT];
+        std::array<IntervalTimer, WUPDATE_COUNT> m_timers;
         time_t mail_timer;
         time_t mail_timer_expires;
 
@@ -856,10 +856,10 @@ class TC_GAME_API World
 
         std::string m_newCharString;
 
-        float rate_values[MAX_RATES];
-        uint32 m_int_configs[INT_CONFIG_VALUE_COUNT];
-        bool m_bool_configs[BOOL_CONFIG_VALUE_COUNT];
-        float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
+        std::array<float, MAX_RATES> rate_values;
+        std::array<uint32, INT_CONFIG_VALUE_COUNT> m_int_configs;
+        std::array<bool, BOOL_CONFIG_VALUE_COUNT> m_bool_configs;
+        std::array<float, FLOAT_CONFIG_VALUE_COUNT> m_float_configs;
         std::unordered_map<std::string, int32> m_worldVariables;
         uint32 m_playerLimit;
         AccountTypes m_allowedSecurityLevel;

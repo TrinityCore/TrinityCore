@@ -156,10 +156,10 @@ World::World()
 
     m_CleaningFlags = 0;
 
-    memset(rate_values, 0, sizeof(rate_values));
-    memset(m_int_configs, 0, sizeof(m_int_configs));
-    memset(m_bool_configs, 0, sizeof(m_bool_configs));
-    memset(m_float_configs, 0, sizeof(m_float_configs));
+    rate_values = { };
+    m_int_configs = { };
+    m_bool_configs = { };
+    m_float_configs = { };
 
     _guidWarn = false;
     _guidAlert = false;
