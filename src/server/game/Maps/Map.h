@@ -520,7 +520,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         bool IsGridLoaded(GridCoord const&) const;
         void EnsureGridCreated(GridCoord const&);
-        void EnsureGridCreated_i(GridCoord const&);
         bool EnsureGridLoaded(Cell const&);
         void EnsureGridLoadedForActiveObject(Cell const&, WorldObject* object);
 
