@@ -136,6 +136,8 @@ enum ZLiquidStatus : uint32
 
 struct LiquidData
 {
+    LiquidData() : type_flags(map_liquidHeaderTypeFlags::NoWater), entry(0), level(0.0f), depth_level(0.0f) { }
+
     EnumFlag<map_liquidHeaderTypeFlags> type_flags = map_liquidHeaderTypeFlags::NoWater;
     uint32 entry;
     float  level;
