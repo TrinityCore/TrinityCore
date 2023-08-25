@@ -2527,6 +2527,7 @@ void SpellInfo::_LoadAuraState()
                 return AURA_STATE_VICTORIOUS;
             case 71465: // Divine Surge
             case 50241: // Evasive Charges
+            case 81262: // Efflorescence
                 return AURA_STATE_RAID_ENCOUNTER;
             case 6950:   // Faerie Fire
             case 9806:   // Phantom Strike
@@ -3564,6 +3565,41 @@ void SpellInfo::_LoadImmunityInfo()
                 _allowedMechanicMask |= (1 << MECHANIC_FEAR);
                 break;
         }
+    }
+}
+
+void SpellInfo::_LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTargets, Optional<SpellEffIndex> maxTargetsEffectValueHolder,
+    Optional<SpellEffIndex> numNonDiminishedTargetsEffectValueHolder)
+{
+    SqrtDamageAndHealingDiminishing.MaxTargets = maxTargets;
+    SqrtDamageAndHealingDiminishing.NumNonDiminishedTargets = numNonDiminishedTargets;
+
+    if (maxTargetsEffectValueHolder)
+    {
+        if (maxTargetsEffectValueHolder < GetEffects().size())
+        {
+            SpellEffectInfo const& valueHolder = GetEffect(*maxTargetsEffectValueHolder);
+            int32 expectedValue = valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1);
+            if (maxTargets != expectedValue)
+                TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} has different value in effect {} than expected, recheck target caps (expected {}, got {})",
+                    Id, AsUnderlyingType(*maxTargetsEffectValueHolder), maxTargets, expectedValue);
+        }
+        else
+            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} does not have effect {}", Id, AsUnderlyingType(*maxTargetsEffectValueHolder));
+    }
+
+    if (numNonDiminishedTargetsEffectValueHolder)
+    {
+        if (numNonDiminishedTargetsEffectValueHolder < GetEffects().size())
+        {
+            SpellEffectInfo const& valueHolder = GetEffect(*numNonDiminishedTargetsEffectValueHolder);
+            int32 expectedValue = valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1);
+            if (numNonDiminishedTargets != expectedValue)
+                TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} has different value in effect {} than expected, recheck target caps (expected {}, got {})",
+                    Id, AsUnderlyingType(*numNonDiminishedTargetsEffectValueHolder), numNonDiminishedTargets, expectedValue);
+        }
+        else
+            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} does not have effect {}", Id, AsUnderlyingType(*numNonDiminishedTargetsEffectValueHolder));
     }
 }
 

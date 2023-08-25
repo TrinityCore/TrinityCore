@@ -151,7 +151,7 @@ class TC_GAME_API ArenaTeam
         bool LoadArenaTeamFromDB(QueryResult arenaTeamDataResult);
         bool LoadMembersFromDB(QueryResult arenaTeamMembersResult);
         void LoadStatsFromDB(uint32 ArenaTeamId);
-        void SaveToDB();
+        void SaveToDB(bool forceMemberSave = false);
 
         void BroadcastPacket(WorldPacket* packet);
         void NotifyStatsChanged();

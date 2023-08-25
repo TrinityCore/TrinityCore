@@ -33,10 +33,7 @@ bool ItemBonuses::operator==(ItemBonuses const& r) const
     return std::is_permutation(BonusListIDs.begin(), BonusListIDs.end(), r.BonusListIDs.begin());
 }
 
-bool ItemMod::operator==(ItemMod const& r) const
-{
-    return Value == r.Value && Type == r.Type;
-}
+bool ItemMod::operator==(ItemMod const& r) const = default;
 
 bool ItemModList::operator==(ItemModList const& r) const
 {
@@ -107,36 +104,9 @@ void ItemInstance::Initialize(::VoidStorageItem const* voidItem)
     }
 }
 
-bool ItemInstance::operator==(ItemInstance const& r) const
-{
-    if (ItemID != r.ItemID)
-        return false;
+bool ItemInstance::operator==(ItemInstance const& r) const = default;
 
-    if (ItemBonus.has_value() != r.ItemBonus.has_value())
-        return false;
-
-    if (Modifications != r.Modifications)
-        return false;
-
-    if (ItemBonus.has_value() && *ItemBonus != *r.ItemBonus)
-        return false;
-
-    return true;
-}
-
-bool ItemBonusKey::operator==(ItemBonusKey const& right) const
-{
-    if (ItemID != right.ItemID)
-        return false;
-
-    if (BonusListIDs != right.BonusListIDs)
-        return false;
-
-    if (Modifications != right.Modifications)
-        return false;
-
-    return true;
-}
+bool ItemBonusKey::operator==(ItemBonusKey const& right) const = default;
 
 ByteBuffer& operator<<(ByteBuffer& data, ItemBonuses const& itemBonusInstanceData)
 {

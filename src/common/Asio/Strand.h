@@ -35,7 +35,11 @@ namespace Trinity
             Strand(IoContext& ioContext) : boost::asio::io_context::strand(ioContext) { }
         };
 
-        using boost::asio::bind_executor;
+        template<typename T>
+        inline decltype(auto) post(boost::asio::io_context::strand& strand, T&& t)
+        {
+            return boost::asio::post(strand, std::forward<T>(t));
+        }
     }
 }
 

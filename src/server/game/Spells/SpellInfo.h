@@ -424,6 +424,11 @@ class TC_GAME_API SpellInfo
 
         uint32 ExplicitTargetMask = 0;
         SpellChainNode const* ChainEntry = nullptr;
+        struct
+        {
+            int32 MaxTargets = 0;               // The amount of targets after the damage decreases by the Square Root AOE formula
+            int32 NumNonDiminishedTargets = 0;  // The amount of targets that still take the full amount before the damage decreases by the Square Root AOE formula
+        } SqrtDamageAndHealingDiminishing;
 
         explicit SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data);
         explicit SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, std::vector<SpellEffectEntry> const& effects);
@@ -599,6 +604,9 @@ class TC_GAME_API SpellInfo
         void _LoadAuraState();
         void _LoadSpellDiminishInfo();
         void _LoadImmunityInfo();
+        void _LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTargets,
+            Optional<SpellEffIndex> maxTargetsEffectValueHolder,
+            Optional<SpellEffIndex> numNonDiminishedTargetsEffectValueHolder);
 
         // unloading helpers
         void _UnloadImplicitTargetConditionLists();
