@@ -54,8 +54,22 @@ public:
     }
 };
 
+// 34420 - The Cost of War
+class quest_the_cost_of_war : public QuestScript
+{
+public:
+    quest_the_cost_of_war() : QuestScript("quest_the_cost_of_war") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus == QUEST_STATUS_NONE)
+            player->RemoveAurasDueToSpell(SPELL_DARK_PORTAL_RUN_AWAY);
+    }
+};
+
 void AddSC_assault_on_the_dark_portal()
 {
     RegisterCreatureAI(npc_assault_archmage_khadgar);
     new scene_dark_portal_run_away();
+    new quest_the_cost_of_war();
 };
