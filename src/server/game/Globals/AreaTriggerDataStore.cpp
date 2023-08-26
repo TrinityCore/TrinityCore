@@ -42,7 +42,10 @@ struct std::hash<AreaTriggerId>
 
 namespace
 {
-    std::unordered_map<std::pair<uint32/*mapId*/, uint32/*cell_id*/>, std::set<ObjectGuid::LowType>> _areaTriggerSpawnsByLocation;
+    typedef std::unordered_map<uint32/*cell_id*/, std::set<ObjectGuid::LowType>> AtCellObjectGuidsMap;
+    typedef std::unordered_map<std::pair<uint32 /*mapId*/, Difficulty>, AtCellObjectGuidsMap> AtMapObjectGuids;
+
+    AtMapObjectGuids _areaTriggerSpawnsByLocation;
     std::unordered_map<ObjectGuid::LowType, AreaTriggerSpawn> _areaTriggerSpawnsBySpawnId;
     std::unordered_map<AreaTriggerId, AreaTriggerTemplate> _areaTriggerTemplateStore;
     std::unordered_map<uint32, AreaTriggerCreateProperties> _areaTriggerCreateProperties;
@@ -296,11 +299,15 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
 void AreaTriggerDataStore::LoadAreaTriggerSpawns()
 {
+    // build single time for check spawnmask
+    std::unordered_map<uint32, std::set<Difficulty>> spawnMasks;
+    for (MapDifficultyEntry const* mapDifficulty : sMapDifficultyStore)
+        spawnMasks[mapDifficulty->MapID].insert(Difficulty(mapDifficulty->DifficultyID));
+
     uint32 oldMSTime = getMSTime();
-    // Load area trigger positions (to put them on the server)
-    //                                                      0        1              2             3      4     5     6     7            8              9        10
-    if (QueryResult templates = WorldDatabase.Query("SELECT SpawnId, AreaTriggerId, IsServerSide, MapId, PosX, PosY, PosZ, Orientation, PhaseUseFlags, PhaseId, PhaseGroup, "
-    //   11     12          13          14          15          16          17          18          19          20               21
+    //                                                      0        1              2             3      4                  5     6     7     8            9              10       11
+    if (QueryResult templates = WorldDatabase.Query("SELECT SpawnId, AreaTriggerId, IsServerSide, MapId, SpawnDifficulties, PosX, PosY, PosZ, Orientation, PhaseUseFlags, PhaseId, PhaseGroup, "
+        // 12   13          14          15          16          17          18          19          20          21               22
         "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, SpellForVisuals, ScriptName FROM `areatrigger`"))
     {
         do
@@ -309,8 +316,8 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
 
             ObjectGuid::LowType spawnId = fields[0].GetUInt64();
             AreaTriggerId areaTriggerid = { fields[1].GetUInt32(), fields[2].GetUInt8() == 1 };
-            WorldLocation location(fields[3].GetUInt32(), fields[4].GetFloat(), fields[5].GetFloat(), fields[6].GetFloat(), fields[7].GetFloat());
-            uint8 shape = fields[11].GetUInt8();
+            WorldLocation location(fields[3].GetUInt32(), fields[5].GetFloat(), fields[6].GetFloat(), fields[7].GetFloat(), fields[8].GetFloat());
+            uint8 shape = fields[12].GetUInt8();
 
             if (!GetAreaTriggerTemplate(areaTriggerid))
             {
@@ -333,23 +340,30 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
                 continue;
             }
 
+            std::vector<Difficulty> difficulties = sObjectMgr->ParseSpawnDifficulties(fields[4].GetStringView(), "areatrigger", spawnId, location.GetMapId(), spawnMasks[location.GetMapId()]);
+            if (difficulties.empty())
+            {
+                TC_LOG_DEBUG("sql.sql", "Table `areatrigger` has areatrigger (GUID: {}) that is not spawned in any difficulty, skipped.", spawnId);
+                continue;
+            }
+
             AreaTriggerSpawn& spawn = _areaTriggerSpawnsBySpawnId[spawnId];
             spawn.spawnId = spawnId;
             spawn.mapId = location.GetMapId();
             spawn.Id = areaTriggerid;
             spawn.spawnPoint.Relocate(location);
 
-            spawn.phaseUseFlags = fields[8].GetUInt8();
-            spawn.phaseId = fields[9].GetUInt32();
-            spawn.phaseGroup = fields[10].GetUInt32();
+            spawn.phaseUseFlags = fields[9].GetUInt8();
+            spawn.phaseId = fields[10].GetUInt32();
+            spawn.phaseGroup = fields[11].GetUInt32();
 
             spawn.Shape.Type = static_cast<AreaTriggerTypes>(shape);
             for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
-                spawn.Shape.DefaultDatas.Data[i] = fields[12 + i].GetFloat();
+                spawn.Shape.DefaultDatas.Data[i] = fields[13 + i].GetFloat();
 
-            if (!fields[20].IsNull())
+            if (!fields[21].IsNull())
             {
-                spawn.SpellForVisuals = fields[20].GetInt32();
+                spawn.SpellForVisuals = fields[21].GetInt32();
                 if (!sSpellMgr->GetSpellInfo(*spawn.SpellForVisuals, DIFFICULTY_NONE))
                 {
                     TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed areatrigger SpawnId: {} with invalid SpellForVisual {}, set to none.",
@@ -358,12 +372,13 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
                 }
             }
 
-            spawn.scriptId = sObjectMgr->GetScriptId(fields[21].GetString());
+            spawn.scriptId = sObjectMgr->GetScriptId(fields[22].GetString());
             spawn.spawnGroupData = sObjectMgr->GetLegacySpawnGroup();
 
             // Add the trigger to a map::cell map, which is later used by GridLoader to query
             CellCoord cellCoord = Trinity::ComputeCellCoord(spawn.spawnPoint.GetPositionX(), spawn.spawnPoint.GetPositionY());
-            _areaTriggerSpawnsByLocation[{ spawn.mapId, cellCoord.GetId() }].insert(spawnId);
+            for (Difficulty difficulty : difficulties)
+                _areaTriggerSpawnsByLocation[{ spawn.mapId, difficulty }][cellCoord.GetId()].insert(spawnId);
         } while (templates->NextRow());
     }
 
@@ -380,9 +395,12 @@ AreaTriggerCreateProperties const* AreaTriggerDataStore::GetAreaTriggerCreatePro
     return Trinity::Containers::MapGetValuePtr(_areaTriggerCreateProperties, areaTriggerCreatePropertiesId);
 }
 
-std::set<ObjectGuid::LowType> const* AreaTriggerDataStore::GetAreaTriggersForMapAndCell(uint32 mapId, uint32 cellId) const
+std::set<ObjectGuid::LowType> const* AreaTriggerDataStore::GetAreaTriggersForMapAndCell(uint32 mapId, Difficulty difficulty, uint32 cellId) const
 {
-    return Trinity::Containers::MapGetValuePtr(_areaTriggerSpawnsByLocation, { mapId, cellId });
+    if (auto* atForMapAndDifficulty = Trinity::Containers::MapGetValuePtr(_areaTriggerSpawnsByLocation, { mapId, difficulty }))
+        return Trinity::Containers::MapGetValuePtr(*atForMapAndDifficulty, cellId);
+
+    return nullptr;
 }
 
 AreaTriggerSpawn const* AreaTriggerDataStore::GetAreaTriggerSpawn(ObjectGuid::LowType spawnId) const
