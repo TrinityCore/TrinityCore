@@ -133,22 +133,13 @@ class spell_rog_backstab : public SpellScript
 // Called by Sap - 6770 and Blind - 2094
 class spell_rog_blackjack : public AuraScript
 {
-    PrepareAuraScript(spell_legion_rogue_blind_AuraScript);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_ROGUE_BLACKJACK_TALENT,
-            SPELL_ROGUE_BLACKJACK
-        });
+        return ValidateSpellInfo({ SPELL_ROGUE_BLACKJACK_TALENT, SPELL_ROGUE_BLACKJACK });
     }
 
-    void EffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void EffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-            return;
-
         if (Unit* caster = GetCaster())
             if (caster->HasAura(SPELL_ROGUE_BLACKJACK_TALENT))
                 caster->CastSpell(GetTarget(), SPELL_ROGUE_BLACKJACK, true);
@@ -156,7 +147,7 @@ class spell_rog_blackjack : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectApplyFn(spell_rog_blackjack::EffectRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_rog_blackjack::EffectRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
