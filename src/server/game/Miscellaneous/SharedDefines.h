@@ -196,7 +196,7 @@ static constexpr uint8 MAX_UNIT_CLASSES = 4;
 
 #define CLASSMASK_WAND_USERS ((1<<(CLASS_PRIEST-1)) | (1<<(CLASS_MAGE-1)) | (1<<(CLASS_WARLOCK-1)))
 
-#define PLAYER_MAX_BATTLEGROUND_QUEUES 2
+static constexpr uint8 PLAYER_MAX_BATTLEGROUND_QUEUES = 3;
 
 enum ReputationRank
 {
