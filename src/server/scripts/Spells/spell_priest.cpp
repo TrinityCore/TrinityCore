@@ -978,16 +978,18 @@ class spell_pri_evangelism : public SpellScript
         });
     }
 
-    void HandleScriptEffect(SpellEffIndex effIndex)
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        Aura* atonementAura = caster->HasAura(SPELL_PRIEST_TRINITY) ? target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT_TRINITY, caster->GetGUID()) : target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID());
+        Aura* atonementAura = caster->HasAura(SPELL_PRIEST_TRINITY)
+            ? target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT_TRINITY, caster->GetGUID())
+            : target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID());
         if (!atonementAura)
             return;
 
-        Milliseconds extraDuration = Seconds(GetEffectInfo(effIndex).CalcValue());
+        Milliseconds extraDuration = Seconds(GetEffectValue());
 
         atonementAura->SetDuration(atonementAura->GetDuration() + extraDuration.count());
         atonementAura->SetMaxDuration(atonementAura->GetDuration() + extraDuration.count());
