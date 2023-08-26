@@ -24,6 +24,7 @@
 
 class AreaTriggerTemplate;
 class AreaTriggerCreateProperties;
+enum Difficulty : uint8;
 struct AreaTriggerId;
 struct AreaTriggerSpawn;
 
