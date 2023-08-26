@@ -60,6 +60,8 @@ enum RogueSpells
     SPELL_ROGUE_MAIN_GAUCHE                         = 86392,
     SPELL_ROGUE_PREMEDITATION_PASSIVE               = 343160,
     SPELL_ROGUE_PREMEDITATION_AURA                  = 343173,
+    SPELL_ROGUE_PREY_ON_THE_WEAK_TALENT             = 131511,
+    SPELL_ROGUE_PREY_ON_THE_WEAK                    = 255909,
     SPELL_ROGUE_RUTHLESS_PRECISION                  = 193357,
     SPELL_ROGUE_SANCTUARY                           = 98877,
     SPELL_ROGUE_SKULL_AND_CROSSBONES                = 199603,
@@ -533,6 +535,28 @@ class spell_rog_pickpocket : public SpellScript
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_rog_pickpocket::CheckCast);
+    }
+};
+
+// 131511 - Prey on the Weak
+// Called by Cheap Shot - 1833 and Kidney Shot - 408
+class spell_rog_prey_on_the_weak : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_PREY_ON_THE_WEAK_TALENT, SPELL_ROGUE_PREY_ON_THE_WEAK });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (Unit* caster = GetCaster())
+            if (caster->HasAura(SPELL_ROGUE_PREY_ON_THE_WEAK_TALENT))
+                caster->CastSpell(GetTarget(), SPELL_ROGUE_PREY_ON_THE_WEAK, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_rog_prey_on_the_weak::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1026,6 +1050,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_kingsbane);
     RegisterSpellScript(spell_rog_mastery_main_gauche);
     RegisterSpellScript(spell_rog_pickpocket);
+    RegisterSpellScript(spell_rog_prey_on_the_weak);
     RegisterSpellScript(spell_rog_restless_blades);
     RegisterSpellScript(spell_rog_roll_the_bones);
     RegisterSpellScript(spell_rog_rupture);
