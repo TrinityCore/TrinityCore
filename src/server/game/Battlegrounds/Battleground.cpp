@@ -99,8 +99,6 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
 
     m_LastPlayerPositionBroadcast = 0;
 
-    m_HonorMode = BG_NORMAL;
-
     StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_2M;
     StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_1M;
     StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_30S;
@@ -682,7 +680,7 @@ void Battleground::EndBattleground(uint32 winner)
         stmt->setUInt64(0, battlegroundId);
         stmt->setUInt8(1, GetWinner());
         stmt->setUInt8(2, GetUniqueBracketId());
-        stmt->setUInt8(3, GetTypeID());
+        stmt->setUInt32(3, GetTypeID());
         CharacterDatabase.Execute(stmt);
     }
 
@@ -753,7 +751,8 @@ void Battleground::EndBattleground(uint32 winner)
         {
             if (BattlegroundPlayer const* bgPlayer = GetBattlegroundPlayerData(player->GetGUID()))
             {
-                if (bgPlayer->queueTypeId.BattlemasterListId == BATTLEGROUND_RANDOM_BG || bgPlayer->queueTypeId.BattlemasterListId == BATTLEGROUND_RANDOM_EPIC || BattlegroundMgr::IsBGWeekend(BattlegroundTypeId(bgPlayer->queueTypeId.BattlemasterListId)))
+                if (BattlegroundMgr::IsRandomBattleground(bgPlayer->queueTypeId.BattlemasterListId)
+                    || BattlegroundMgr::IsBGWeekend(BattlegroundTypeId(bgPlayer->queueTypeId.BattlemasterListId)))
                 {
                     UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(winnerKills));
                     if (!player->GetRandomWinner())
@@ -783,7 +782,8 @@ void Battleground::EndBattleground(uint32 winner)
         {
             if (BattlegroundPlayer const* bgPlayer = GetBattlegroundPlayerData(player->GetGUID()))
             {
-                if (bgPlayer->queueTypeId.BattlemasterListId == BATTLEGROUND_RANDOM_BG || bgPlayer->queueTypeId.BattlemasterListId == BATTLEGROUND_RANDOM_EPIC || BattlegroundMgr::IsBGWeekend(BattlegroundTypeId(bgPlayer->queueTypeId.BattlemasterListId)))
+                if (BattlegroundMgr::IsRandomBattleground(bgPlayer->queueTypeId.BattlemasterListId)
+                    || BattlegroundMgr::IsBGWeekend(BattlegroundTypeId(bgPlayer->queueTypeId.BattlemasterListId)))
                     UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loserKills));
             }
         }
@@ -1745,11 +1745,6 @@ uint32 Battleground::GetAlivePlayersCountByTeam(uint32 Team) const
         }
     }
     return count;
-}
-
-void Battleground::SetHoliday(bool is_holiday)
-{
-    m_HonorMode = is_holiday ? BG_HOLIDAY : BG_NORMAL;
 }
 
 int32 Battleground::GetObjectType(ObjectGuid guid)

@@ -206,13 +206,6 @@ enum BattlegroundStartingEventsIds
 };
 #define BG_STARTING_EVENT_COUNT 4
 
-enum BGHonorMode
-{
-    BG_NORMAL = 0,
-    BG_HOLIDAY,
-    BG_HONOR_MODE_NUM
-};
-
 #define BG_AWARD_ARENA_POINTS_MIN_LEVEL 71
 #define ARENA_TIMELIMIT_POINTS_LOSS    -16
 
@@ -440,8 +433,6 @@ class TC_GAME_API Battleground : public ZoneScript
         virtual void RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool SendPacket);
                                                             // can be extended in in BG subclass
 
-        void SetHoliday(bool is_holiday);
-
         /// @todo make this protected:
         GuidVector BgObjects;
         GuidVector BgCreatures;
@@ -559,7 +550,6 @@ class TC_GAME_API Battleground : public ZoneScript
         // this must be filled in constructors!
         uint32 StartMessageIds[BG_STARTING_EVENT_COUNT];
 
-        BGHonorMode m_HonorMode;
         int32 m_TeamScores[PVP_TEAMS_COUNT];
 
     private:

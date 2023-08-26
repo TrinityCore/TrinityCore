@@ -37,7 +37,7 @@ enum BG_WSG_Rewards
     BG_WSG_REWARD_NUM
 };
 
-uint32 BG_WSG_Honor[BG_HONOR_MODE_NUM][BG_WSG_REWARD_NUM] =
+uint32 BG_WSG_Honor[2][BG_WSG_REWARD_NUM] =
 {
     {20, 40, 40}, // normal honor
     {60, 40, 80}  // holiday
@@ -361,7 +361,7 @@ void BattlegroundWS::EventPlayerCapturedFlag(Player* player)
         UpdateWorldState(BG_WS_FLAG_STATE_HORDE, 1);
         UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 0);
 
-        RewardHonorToTeam(BG_WSG_Honor[m_HonorMode][BG_WSG_WIN], winner);
+        RewardHonorToTeam(BG_WSG_Honor[BattlegroundMgr::IsBGWeekend(BATTLEGROUND_WS) ? 1 : 0][BG_WSG_WIN], winner);
         EndBattleground(winner);
     }
     else

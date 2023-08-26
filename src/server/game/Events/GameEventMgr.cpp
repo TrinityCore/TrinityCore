@@ -871,40 +871,6 @@ void GameEventMgr::LoadFromDB()
         }
     }
 
-    TC_LOG_INFO("server.loading", "Loading Game Event Battleground Holiday Data...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        //                                               0           1
-        QueryResult result = WorldDatabase.Query("SELECT EventEntry, BattlegroundID FROM game_event_battleground_holiday");
-
-        if (!result)
-            TC_LOG_INFO("server.loading", ">> Loaded 0 battleground holidays in game events. DB table `game_event_battleground_holiday` is empty.");
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-
-                uint16 event_id = fields[0].GetUInt8();
-
-                if (event_id >= mGameEvent.size())
-                {
-                    TC_LOG_ERROR("sql.sql", "`game_event_battleground_holiday`: game event id ({}) is out of range compared to max event id in `game_event`.", event_id);
-                    continue;
-                }
-
-                mGameEventBattlegroundHolidays[event_id] = fields[1].GetUInt32();
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            TC_LOG_INFO("server.loading", ">> Loaded {} battleground holidays in game events in {} ms.", count, GetMSTimeDiffToNow(oldMSTime));
-        }
-    }
-
     TC_LOG_INFO("server.loading", "Loading Game Event Pool Data...");
     {
         uint32 oldMSTime = getMSTime();
@@ -986,7 +952,6 @@ void GameEventMgr::Initialize()
         mGameEventCreatureQuests.resize(maxEventId);
         mGameEventGameObjectQuests.resize(maxEventId);
         mGameEventVendors.resize(maxEventId);
-        mGameEventBattlegroundHolidays.resize(maxEventId, 0);
         mGameEventPoolIds.resize(maxEventId * 2 - 1);
         mGameEventNPCFlags.resize(maxEventId);
         mGameEventModelEquip.resize(maxEventId);

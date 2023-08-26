@@ -156,7 +156,6 @@ class TC_GAME_API GameEventMgr
         typedef std::pair<ObjectGuid::LowType /*guid*/, uint64 /*npcflag*/> GuidNPCFlagPair;
         typedef std::list<GuidNPCFlagPair> NPCFlagList;
         typedef std::vector<NPCFlagList> GameEventNPCFlagMap;
-        typedef std::vector<uint32> GameEventBattlegroundMap;
         GameEventQuestMap mGameEventCreatureQuests;
         GameEventQuestMap mGameEventGameObjectQuests;
         GameEventNPCVendorMap mGameEventVendors;
@@ -165,7 +164,6 @@ class TC_GAME_API GameEventMgr
         //GameEventGuidMap  mGameEventGameobjectGuids;
         GameEventIdMap    mGameEventPoolIds;
         GameEventDataMap  mGameEvent;
-        GameEventBattlegroundMap mGameEventBattlegroundHolidays;
         QuestIdToEventConditionMap mQuestToEventConditions;
         GameEventNPCFlagMap mGameEventNPCFlags;
         ActiveEvents m_ActiveEvents;

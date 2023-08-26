@@ -23319,7 +23319,7 @@ bool Player::CanJoinToBattleground(BattlegroundTemplate const* bg) const
     uint32 perm = rbac::RBAC_PERM_JOIN_NORMAL_BG;
     if (bg->IsArena())
         perm = rbac::RBAC_PERM_JOIN_ARENAS;
-    else if (bg->Id == BATTLEGROUND_RANDOM_BG || bg->Id == BATTLEGROUND_RANDOM_EPIC)
+    else if (BattlegroundMgr::IsRandomBattleground(bg->Id))
         perm = rbac::RBAC_PERM_JOIN_RANDOM_BG;
 
     return GetSession()->HasPermission(perm);

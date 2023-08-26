@@ -99,7 +99,7 @@ class TC_GAME_API BattlegroundMgr
 
         /* Battlegrounds */
         Battleground* GetBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId);
-        Battleground* CreateNewBattleground(BattlegroundQueueTypeId queueId, PVPDifficultyEntry const* bracketEntry);
+        Battleground* CreateNewBattleground(BattlegroundQueueTypeId queueId, BattlegroundBracketId bracketId);
 
         void AddBattleground(Battleground* bg);
         void RemoveBattleground(BattlegroundTypeId bgTypeId, uint32 instanceId);
@@ -124,6 +124,7 @@ class TC_GAME_API BattlegroundMgr
         bool isArenaTesting() const { return m_ArenaTesting; }
         bool isTesting() const { return m_Testing; }
 
+        static bool IsRandomBattleground(uint32 battlemasterListId);
         static BattlegroundQueueTypeId BGQueueTypeId(uint16 battlemasterListId, BattlegroundQueueIdType type, bool rated, uint8 teamSize);
 
         static HolidayIds BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId);

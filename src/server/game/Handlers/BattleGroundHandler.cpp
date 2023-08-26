@@ -154,7 +154,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
 
         bool isInRandomBgQueue = _player->InBattlegroundQueueForBattlegroundQueueType(BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RB, BattlegroundQueueIdType::Battleground, false, 0))
             || _player->InBattlegroundQueueForBattlegroundQueueType(BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RANDOM_EPIC, BattlegroundQueueIdType::Battleground, false, 0));
-        if (bgTypeId != BATTLEGROUND_RB && bgTypeId != BATTLEGROUND_RANDOM_EPIC && isInRandomBgQueue)
+        if (!BattlegroundMgr::IsRandomBattleground(bgTypeId) && isInRandomBgQueue)
         {
             // player is already in random queue
             WorldPackets::Battleground::BattlefieldStatusFailed battlefieldStatus;
@@ -163,7 +163,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
             return;
         }
 
-        if (_player->InBattlegroundQueue(true) && !isInRandomBgQueue && (bgTypeId == BATTLEGROUND_RB || bgTypeId == BATTLEGROUND_RANDOM_EPIC))
+        if (_player->InBattlegroundQueue(true) && !isInRandomBgQueue && BattlegroundMgr::IsRandomBattleground(bgTypeId))
         {
             // player is already in queue, can't start random queue
             WorldPackets::Battleground::BattlefieldStatusFailed battlefieldStatus;

@@ -252,7 +252,7 @@ Battleground* BattlegroundMgr::GetBattleground(uint32 instanceId, BattlegroundTy
 
     BattlegroundDataContainer::const_iterator begin, end;
 
-    if (bgTypeId == BATTLEGROUND_TYPE_NONE || bgTypeId == BATTLEGROUND_RB || bgTypeId == BATTLEGROUND_RANDOM_EPIC)
+    if (bgTypeId == BATTLEGROUND_TYPE_NONE || IsRandomBattleground(bgTypeId))
     {
         begin = bgDataStore.begin();
         end = bgDataStore.end();
@@ -302,7 +302,7 @@ uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeI
 }
 
 // create a new battleground that will really be used to play
-Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundQueueTypeId queueId, PVPDifficultyEntry const* bracketEntry)
+Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundQueueTypeId queueId, BattlegroundBracketId bracketId)
 {
     BattlegroundTypeId bgTypeId = GetRandomBG(BattlegroundTypeId(queueId.BattlemasterListId));
 
@@ -312,6 +312,13 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundQueueTypeId que
     if (!bg_template)
     {
         TC_LOG_ERROR("bg.battleground", "Battleground: CreateNewBattleground - bg template not found for {}", bgTypeId);
+        return nullptr;
+    }
+
+    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketById(bg_template->BattlemasterEntry->MapID[0], bracketId);
+    if (!bracketEntry)
+    {
+        TC_LOG_ERROR("bg.battleground", "Battleground: CreateNewBattleground: bg bracket entry not found for map {} bracket id {}", bg_template->BattlemasterEntry->MapID[0], bracketId);
         return nullptr;
     }
 
@@ -418,7 +425,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[5].GetString());
         bgTemplate.BattlemasterEntry = bl;
 
-        if (bgTemplate.Id != BATTLEGROUND_AA && bgTemplate.Id != BATTLEGROUND_RB && bgTemplate.Id != BATTLEGROUND_RANDOM_EPIC)
+        if (bgTemplate.Id != BATTLEGROUND_AA && !IsRandomBattleground(bgTemplate.Id))
         {
             uint32 startId = fields[1].GetUInt32();
             if (WorldSafeLocsEntry const* start = sObjectMgr->GetWorldSafeLoc(startId))
@@ -494,6 +501,11 @@ bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
             || bgTypeId == BATTLEGROUND_DS
             || bgTypeId == BATTLEGROUND_RV
             || bgTypeId == BATTLEGROUND_RL;
+}
+
+bool BattlegroundMgr::IsRandomBattleground(uint32 battlemasterListId)
+{
+    return battlemasterListId == BATTLEGROUND_RB || battlemasterListId == BATTLEGROUND_RANDOM_EPIC;
 }
 
 BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(uint16 battlemasterListId, BattlegroundQueueIdType type, bool rated, uint8 teamSize)

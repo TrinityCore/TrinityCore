@@ -29,13 +29,6 @@
 #include "SpellInfo.h"
 #include "Util.h"
 
-// these variables aren't used outside of this file, so declare them only here
-uint32 BG_EY_HonorScoreTicks[BG_HONOR_MODE_NUM] =
-{
-    260, // normal honor
-    160  // holiday
-};
-
 BattlegroundEY::BattlegroundEY(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     BgObjects.resize(BG_EY_OBJECT_MAX);

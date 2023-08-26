@@ -1230,7 +1230,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(BattlegroundTemplate
         if (bgOrTemplate->Id != BATTLEGROUND_AA && isInRandomBgQueue)
             return ERR_IN_RANDOM_BG;
         // don't let join to bg queue random if someone from the group is already in bg queue
-        if ((bgOrTemplate->Id == BATTLEGROUND_RB || bgOrTemplate->Id == BATTLEGROUND_RANDOM_EPIC) && member->InBattlegroundQueue(true) && !isInRandomBgQueue)
+        if (BattlegroundMgr::IsRandomBattleground(bgOrTemplate->Id) && member->InBattlegroundQueue(true) && !isInRandomBgQueue)
             return ERR_IN_NON_RANDOM_BG;
         // check for deserter debuff in case not arena queue
         if (bgOrTemplate->Id != BATTLEGROUND_AA && member->IsDeserter())

@@ -29,7 +29,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldSession.h"
 
 /*********************************************************/
 /***            BATTLEGROUND QUEUE SYSTEM              ***/
@@ -215,7 +214,8 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player const* leader, Group const* g
                 // Show queue status to player only (when joining queue)
                 if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY))
                 {
-                    ChatHandler(leader->GetSession()).PSendSysMessage(LANG_BG_QUEUE_ANNOUNCE_SELF, bg->BattlemasterEntry->Name[leader->GetSession()->GetSessionDbcLocale()], q_min_level, q_max_level,
+                    ChatHandler chatHandler(leader->GetSession());
+                    chatHandler.PSendSysMessage(LANG_BG_QUEUE_ANNOUNCE_SELF, bg->BattlemasterEntry->Name[chatHandler.GetSessionDbcLocale()], q_min_level, q_max_level,
                         qAlliance, (MinPlayers > qAlliance) ? MinPlayers - qAlliance : (uint32)0, qHorde, (MinPlayers > qHorde) ? MinPlayers - qHorde : (uint32)0);
                 }
                 // System message
@@ -226,7 +226,6 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player const* leader, Group const* g
                 }
             }
         }
-        //release mutex
     }
 
     return ginfo;
@@ -820,12 +819,6 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundBra
     }
 
     // finished iterating through the bgs with free slots, maybe we need to create a new bg
-    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketById(bg_template->BattlemasterEntry->MapID[0], bracket_id);
-    if (!bracketEntry)
-    {
-        TC_LOG_ERROR("bg.battleground", "Battleground: Update: bg bracket entry not found for map {} bracket id {}", bg_template->BattlemasterEntry->MapID[0], bracket_id);
-        return;
-    }
 
     // get the min. players per team, properly for larger arenas as well. (must have full teams for arena matches!)
     uint32 MinPlayersPerTeam = bg_template->GetMinPlayersPerTeam();
@@ -847,7 +840,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundBra
         if (CheckPremadeMatch(bracket_id, MinPlayersPerTeam, MaxPlayersPerTeam))
         {
             // create new battleground
-            Battleground* bg2 = sBattlegroundMgr->CreateNewBattleground(m_queueId, bracketEntry);
+            Battleground* bg2 = sBattlegroundMgr->CreateNewBattleground(m_queueId, bracket_id);
             if (!bg2)
             {
                 TC_LOG_ERROR("bg.battleground", "BattlegroundQueue::Update - Cannot create battleground: {}", m_queueId.BattlemasterListId);
@@ -873,7 +866,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundBra
             || (bg_template->IsArena() && CheckSkirmishForSameFaction(bracket_id, MinPlayersPerTeam)))
         {
             // we successfully created a pool
-            Battleground* bg2 = sBattlegroundMgr->CreateNewBattleground(m_queueId, bracketEntry);
+            Battleground* bg2 = sBattlegroundMgr->CreateNewBattleground(m_queueId, bracket_id);
             if (!bg2)
             {
                 TC_LOG_ERROR("bg.battleground", "BattlegroundQueue::Update - Cannot create battleground: {}", m_queueId.BattlemasterListId);
@@ -972,7 +965,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundBra
         {
             GroupQueueInfo* aTeam = *itr_teams[TEAM_ALLIANCE];
             GroupQueueInfo* hTeam = *itr_teams[TEAM_HORDE];
-            Battleground* arena = sBattlegroundMgr->CreateNewBattleground(m_queueId, bracketEntry);
+            Battleground* arena = sBattlegroundMgr->CreateNewBattleground(m_queueId, bracket_id);
             if (!arena)
             {
                 TC_LOG_ERROR("bg.battleground", "BattlegroundQueue::Update couldn't create arena instance for rated arena match!");
