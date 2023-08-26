@@ -239,9 +239,13 @@ ChaseMovementPositionCheckResult ChaseMovementGenerator::checkPosition(ChasePosi
 
 void ChaseMovementGenerator::launchSpline(Unit* owner, Unit* target, Position& destination)
 {
-    bool success = _pathGenerator->CalculatePath(destination, owner->IsFlying());
+    Position startPoint = owner->GetPosition();
+    if (owner->IsHovering())
+        startPoint.m_positionZ = owner->GetFloorZ();
+
+    bool success = _pathGenerator->CalculatePath(startPoint, destination, owner->IsFlying());
     uint32 deniedPathResultTypes = PATHFIND_NOPATH | PATHFIND_INCOMPLETE;
-    if (!owner->IsFlying() || (target->IsInWater() && !owner->CanEnterWater())) // only flying and swimming units may use shortcuts
+    if ((!owner->IsFlying() || (target->IsInWater() && !owner->CanEnterWater())) && !owner->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING)) // only flying and swimming units and units with pathfinding disabled may use shortcuts an
         deniedPathResultTypes |= PATHFIND_SHORTCUT;
 
     bool cantReachTarget = !success || (_pathGenerator->GetPathType() & deniedPathResultTypes);
