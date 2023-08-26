@@ -11786,20 +11786,25 @@ void Unit::SendCancelSpellVisualKit(uint32 id)
     SendMessageToSet(cancelSpellVisualKit.Write(), true);
 }
 
-void Unit::CancelSpellMissiles(uint32 spellId, bool reverseMissile /*= false*/)
+void Unit::CancelSpellMissiles(uint32 spellId, bool reverseMissile /*= false*/, bool abortSpell /*= false*/)
 {
     bool hasMissile = false;
-    for (std::pair<uint64 const, BasicEvent*> const& itr : m_Events.GetEvents())
+    if (abortSpell)
     {
-        if (Spell const* spell = Spell::ExtractSpellFromEvent(itr.second))
+        for (std::pair<uint64 const, BasicEvent*> const& itr : m_Events.GetEvents())
         {
-            if (spell->GetSpellInfo()->Id == spellId)
+            if (Spell const* spell = Spell::ExtractSpellFromEvent(itr.second))
             {
-                itr.second->ScheduleAbort();
-                hasMissile = true;
+                if (spell->GetSpellInfo()->Id == spellId)
+                {
+                    itr.second->ScheduleAbort();
+                    hasMissile = true;
+                }
             }
         }
     }
+    else
+        hasMissile = true;
 
     if (hasMissile)
     {
