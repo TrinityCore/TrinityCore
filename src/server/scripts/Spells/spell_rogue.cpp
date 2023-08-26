@@ -174,21 +174,22 @@ class spell_rog_cheat_death : public AuraScript
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& /*dmgInfo*/, uint32& absorbAmount)
     {
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_ROGUE_CHEATED_DEATH))
+        {
+            absorbAmount = 0;
+            return;
+        }
+
         PreventDefaultAction();
 
-        if (!GetTarget()->HasAura(SPELL_ROGUE_CHEATED_DEATH))
-        {
-            int32 healAmount = int32(GetTarget()->CountPctFromMaxHealth(GetEffectInfo(EFFECT_1).CalcValue(GetTarget())));
+        target->CastSpell(target, SPELL_ROGUE_CHEAT_DEATH_DUMMY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        target->CastSpell(target, SPELL_ROGUE_CHEATED_DEATH, TRIGGERED_DONT_REPORT_CAST_ERROR);
+        target->CastSpell(target, SPELL_ROGUE_CHEATING_DEATH, TRIGGERED_DONT_REPORT_CAST_ERROR);
 
-            GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_CHEAT_DEATH_DUMMY, true);
-            GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_CHEATED_DEATH, true);
-            GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_CHEATING_DEATH, true);
-
-            GetTarget()->SetHealth(healAmount);
-            absorbAmount = dmgInfo.GetDamage();
-        }
+        target->SetHealth(target->CountPctFromMaxHealth(GetEffectInfo(EFFECT_1).CalcValue(target)));
     }
 
     void Register() override
