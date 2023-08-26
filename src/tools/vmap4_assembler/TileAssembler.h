@@ -20,6 +20,7 @@
 
 #include <G3D/Vector3.h>
 #include <G3D/Matrix3.h>
+#include <compare>
 #include <deque>
 #include <map>
 #include <set>
@@ -60,7 +61,7 @@ namespace VMAP
         uint32 Id;
         uint32 Flags;
 
-        bool operator<(TileSpawn const& right) const { return Id < right.Id; }
+        std::strong_ordering operator<=>(TileSpawn const& right) const { return Id <=> right.Id; }
     };
 
     struct MapSpawns

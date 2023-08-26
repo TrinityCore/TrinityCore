@@ -1650,7 +1650,7 @@ class BattlegroundAV : public Battleground
         ~BattlegroundAV();
 
         /* inherited from BattlegroundClass */
-        void AddPlayer(Player* player) override;
+        void AddPlayer(Player* player, BattlegroundQueueTypeId queueId) override;
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 

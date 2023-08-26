@@ -535,28 +535,6 @@ class spell_pri_circle_of_healing : public SpellScript
     }
 };
 
-// 64844 - Divine Hymn
-class spell_pri_divine_hymn : public SpellScript
-{
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if(RaidCheck(GetCaster()));
-
-        uint32 const maxTargets = 3;
-
-        if (targets.size() > maxTargets)
-        {
-            targets.sort(Trinity::HealthPctOrderPred());
-            targets.resize(maxTargets);
-        }
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_divine_hymn::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
-    }
-};
-
 namespace DivineImageHelpers
 {
 Unit* GetSummon(Unit const* owner)
@@ -1382,9 +1360,11 @@ public:
         if (Unit* target = GetHitUnit())
         {
             if (caster->IsFriendlyTo(target))
-                caster->CastSpell(target, _healingSpellId, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+                caster->CastSpell(target, _healingSpellId, CastSpellExtraArgs(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)
+                    .SetTriggeringSpell(GetSpell()));
             else
-                caster->CastSpell(target, _damageSpellId, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+                caster->CastSpell(target, _damageSpellId, CastSpellExtraArgs(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)
+                    .SetTriggeringSpell(GetSpell()));
         }
     }
 
@@ -2224,13 +2204,11 @@ class spell_pri_spirit_of_redemption : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_SPIRIT_OF_REDEMPTION });
     }
 
-    void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+    void HandleAbsorb(AuraEffect const* aurEff, DamageInfo const& /*dmgInfo*/, uint32 const& /*absorbAmount*/) const
     {
         Unit* target = GetTarget();
         target->CastSpell(target, SPELL_PRIEST_SPIRIT_OF_REDEMPTION, aurEff);
         target->SetFullHealth();
-
-        absorbAmount = dmgInfo.GetDamage();
     }
 
     void Register() override
@@ -2594,7 +2572,6 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement_triggered);
     RegisterSpellScript(spell_pri_benediction);
     RegisterSpellScript(spell_pri_circle_of_healing);
-    RegisterSpellScript(spell_pri_divine_hymn);
     RegisterSpellScript(spell_pri_divine_image);
     RegisterSpellScript(spell_pri_divine_image_spell_triggered);
     RegisterSpellScript(spell_pri_divine_image_stack_timer);
