@@ -1295,6 +1295,7 @@ class spell_pri_lights_wrath : public SpellScript
         {
             if (Unit* target = ObjectAccessor::GetUnit(*GetCaster(), atonementTarget))
             {
+                target->CancelSpellMissiles(SPELL_PRIEST_LIGHTS_WRATH_VISUAL, false, false);
                 target->CastSpell(GetCaster(), SPELL_PRIEST_LIGHTS_WRATH_VISUAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
             }
         }
