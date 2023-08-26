@@ -2170,13 +2170,11 @@ class spell_pri_spirit_of_redemption : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_SPIRIT_OF_REDEMPTION });
     }
 
-    void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+    void HandleAbsorb(AuraEffect const* aurEff, DamageInfo const& /*dmgInfo*/, uint32 const& /*absorbAmount*/) const
     {
         Unit* target = GetTarget();
         target->CastSpell(target, SPELL_PRIEST_SPIRIT_OF_REDEMPTION, aurEff);
         target->SetFullHealth();
-
-        absorbAmount = dmgInfo.GetDamage();
     }
 
     void Register() override

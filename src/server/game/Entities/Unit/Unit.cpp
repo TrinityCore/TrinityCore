@@ -947,13 +947,11 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                 // absorb all damage by default
                 uint32 currentAbsorb = damageInfo.GetDamage();
 
-                uint32 tempAbsorb = uint32(currentAbsorb);
-
                 // This aura type is used both by Spirit of Redemption (death not really prevented, must grant all credit immediately) and Cheat Death (death prevented)
                 // repurpose PreventDefaultAction for this
                 bool deathFullyPrevented = false;
 
-                absorbAurEff->GetBase()->CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, damageInfo, tempAbsorb, deathFullyPrevented);
+                absorbAurEff->GetBase()->CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, damageInfo, currentAbsorb, deathFullyPrevented);
 
                 // absorb must be smaller than the damage itself
                 currentAbsorb = std::min(currentAbsorb, damageInfo.GetDamage());
