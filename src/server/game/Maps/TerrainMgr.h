@@ -56,18 +56,22 @@ public:
     void AddChildTerrain(std::shared_ptr<TerrainInfo> childTerrain);
 
     void LoadMapAndVMap(int32 gx, int32 gy);
+    void LoadMMapInstance(uint32 mapId, uint32 instanceId);
 
 private:
     void LoadMapAndVMapImpl(int32 gx, int32 gy);
+    void LoadMMapInstanceImpl(uint32 mapId, uint32 instanceId);
     void LoadMap(int32 gx, int32 gy);
     void LoadVMap(int32 gx, int32 gy);
     void LoadMMap(int32 gx, int32 gy);
 
 public:
     void UnloadMap(int32 gx, int32 gy);
+    void UnloadMMapInstance(uint32 mapId, uint32 instanceId);
 
 private:
     void UnloadMapImpl(int32 gx, int32 gy);
+    void UnloadMMapInstanceImpl(uint32 mapId, uint32 instanceId);
 
     GridMap* GetGrid(uint32 mapId, float x, float y, bool loadIfMissing = true);
 

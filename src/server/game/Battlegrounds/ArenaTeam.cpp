@@ -731,7 +731,7 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
     }
 }
 
-void ArenaTeam::SaveToDB()
+void ArenaTeam::SaveToDB(bool forceMemberSave)
 {
     // Save team and member stats to db
     // Called after a match has ended or when calculating arena_points
@@ -751,7 +751,7 @@ void ArenaTeam::SaveToDB()
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
         // Save the effort and go
-        if (itr->WeekGames == 0)
+        if (itr->WeekGames == 0 && !forceMemberSave)
             continue;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_TEAM_MEMBER);

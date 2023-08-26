@@ -403,7 +403,7 @@ namespace Trinity::Impl::ChatCommands
                     if (prefix.empty())
                         return Trinity::StringFormat("{}{}{}", match, COMMAND_DELIMITER, suffix);
                     else
-                        return Trinity::StringFormat("{}{}{}{}", prefix, COMMAND_DELIMITER, match, COMMAND_DELIMITER, suffix);
+                        return Trinity::StringFormat("{}{}{}{}{}", prefix, COMMAND_DELIMITER, match, COMMAND_DELIMITER, suffix);
                 });
 
                 vec.emplace_back(possibility(it1->first));

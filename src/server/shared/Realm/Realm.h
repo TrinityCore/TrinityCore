@@ -20,7 +20,8 @@
 
 #include "Common.h"
 #include "AsioHacksFwd.h"
-#include <memory>
+#include <compare>
+#include <vector>
 
 enum RealmFlags
 {
@@ -48,10 +49,9 @@ namespace Battlenet
         uint8 Site;
         uint32 Realm;   // primary key in `realmlist` table
 
-        bool operator<(RealmHandle const& r) const
-        {
-            return Realm < r.Realm;
-        }
+        bool operator==(RealmHandle const& r) const { return Realm == r.Realm; }
+
+        std::strong_ordering operator<=>(RealmHandle const& r) const { return Realm <=> r.Realm; }
 
         uint32 GetAddress() const { return (Region << 24) | (Site << 16) | uint16(Realm); }
         std::string GetAddressString() const;
@@ -79,9 +79,7 @@ struct TC_SHARED_API Realm
 {
     Battlenet::RealmHandle Id;
     uint32 Build;
-    std::unique_ptr<boost::asio::ip::address> ExternalAddress;
-    std::unique_ptr<boost::asio::ip::address> LocalAddress;
-    std::unique_ptr<boost::asio::ip::address> LocalSubnetMask;
+    std::vector<boost::asio::ip::address> Addresses;
     uint16 Port;
     std::string Name;
     std::string NormalizedName;
