@@ -242,10 +242,10 @@ void BattlegroundIC::StartingEventOpenDoors()
         GetBGObject(BG_IC_TeleporterEffects[i].type)->SetGoState(GO_STATE_ACTIVE);
 }
 
-void BattlegroundIC::AddPlayer(Player* player)
+void BattlegroundIC::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
 {
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
-    Battleground::AddPlayer(player);
+    Battleground::AddPlayer(player, queueId);
     if (!isInBattleground)
         PlayerScores[player->GetGUID()] = new BattlegroundICScore(player->GetGUID(), player->GetBGTeam());
 

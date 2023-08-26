@@ -582,7 +582,7 @@ class BattlegroundSA : public Battleground
 
         /* inherited from BattlegroundClass */
         /// Called when a player join battle
-        void AddPlayer(Player* player) override;
+        void AddPlayer(Player* player, BattlegroundQueueTypeId queueId) override;
         /// Called for ini battleground, after that the first player be entered
         bool SetupBattleground() override;
         void Reset() override;

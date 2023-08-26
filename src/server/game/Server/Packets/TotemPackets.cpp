@@ -27,7 +27,7 @@ WorldPacket const* WorldPackets::Totem::TotemCreated::Write()
 {
     _worldPacket << uint8(Slot);
     _worldPacket << Totem;
-    _worldPacket << int32(Duration);
+    _worldPacket << Duration;
     _worldPacket << int32(SpellID);
     _worldPacket << float(TimeMod);
     _worldPacket.WriteBit(CannotDismiss);

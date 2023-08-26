@@ -20,6 +20,7 @@
 #include "CombatPackets.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -78,7 +79,7 @@ void ThreatReference::UpdateOffline()
     {
         _online = ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE;
         HeapNotifyIncreased();
-        _mgr.RegisterForAIUpdate(this);
+        _mgr.RegisterForAIUpdate(GetVictim()->GetGUID());
     }
 }
 
@@ -496,19 +497,19 @@ void ThreatManager::MatchUnitThreatToHighestThreat(Unit* target)
 
 void ThreatManager::TauntUpdate()
 {
-    std::list<AuraEffect*> const& tauntEffects = _owner->GetAuraEffectsByType(SPELL_AURA_MOD_TAUNT);
+    Unit::AuraEffectList const& tauntEffects = _owner->GetAuraEffectsByType(SPELL_AURA_MOD_TAUNT);
 
-    uint32 state = ThreatReference::TAUNT_STATE_TAUNT;
-    std::unordered_map<ObjectGuid, ThreatReference::TauntState> tauntStates;
+    uint32 tauntPriority = 0; // lowest is highest
+    std::unordered_map<ObjectGuid, uint32> tauntStates;
     // Only the last taunt effect applied by something still on our threat list is considered
-    for (auto it = tauntEffects.begin(), end = tauntEffects.end(); it != end; ++it)
-        tauntStates[(*it)->GetCasterGUID()] = ThreatReference::TauntState(state++);
+    for (AuraEffect const* tauntEffect : tauntEffects)
+        tauntStates[tauntEffect->GetCasterGUID()] = ++tauntPriority;
 
     for (auto const& pair : _myThreatListEntries)
     {
         auto it = tauntStates.find(pair.first);
         if (it != tauntStates.end())
-            pair.second->UpdateTauntState(it->second);
+            pair.second->UpdateTauntState(ThreatReference::TauntState(ThreatReference::TAUNT_STATE_TAUNT + tauntStates.size() - it->second));
         else
             pair.second->UpdateTauntState();
     }
@@ -644,11 +645,12 @@ ThreatReference const* ThreatManager::ReselectVictim()
 void ThreatManager::ProcessAIUpdates()
 {
     CreatureAI* ai = ASSERT_NOTNULL(_owner->ToCreature())->AI();
-    std::vector<ThreatReference const*> v(std::move(_needsAIUpdate)); // _needsAIUpdate is now empty in case this triggers a recursive call
+    std::vector<ObjectGuid> v(std::move(_needsAIUpdate)); // _needsAIUpdate is now empty in case this triggers a recursive call
     if (!ai)
         return;
-    for (ThreatReference const* ref : v)
-        ai->JustStartedThreateningMe(ref->GetVictim());
+    for (ObjectGuid const& guid : v)
+        if (ThreatReference const* ref = Trinity::Containers::MapGetValuePtr(_myThreatListEntries, guid))
+            ai->JustStartedThreateningMe(ref->GetVictim());
 }
 
 // returns true if a is LOWER on the threat list than b

@@ -21,6 +21,7 @@
 #include "DynamicObject.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
+#include "ListUtils.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -1024,7 +1025,7 @@ void Aura::SetStackAmount(uint8 stackAmount)
 
 bool Aura::IsUsingStacks() const
 {
-    return m_spellInfo->StackAmount > 0;
+    return m_spellInfo->StackAmount > 0 || m_stackAmount > 1;
 }
 
 uint32 Aura::CalcMaxStackAmount() const
@@ -1177,7 +1178,7 @@ void Aura::UnregisterSingleTarget()
     ASSERT(m_isSingleTarget);
     Unit* caster = GetCaster();
     ASSERT(caster);
-    caster->GetSingleCastAuras().remove(this);
+    Trinity::Containers::Lists::RemoveUnique(caster->GetSingleCastAuras(), this);
     SetIsSingleTarget(false);
 }
 
@@ -2180,6 +2181,19 @@ void Aura::CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, Aura
         for (AuraScript::EffectCalcCritChanceHandler const& effectCalcCritChance : script->DoEffectCalcCritChance)
             if (effectCalcCritChance.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
                 effectCalcCritChance.Call(script, aurEff, victim, critChance);
+
+        script->_FinishScriptCall();
+    }
+}
+
+void Aura::CallScriptCalcDamageAndHealingHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)
+{
+    for (AuraScript* script : m_loadedScripts)
+    {
+        script->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_DAMAGE_AND_HEALING, aurApp);
+        for (AuraScript::EffectCalcDamageAndHealingHandler const& effectCalcDamageAndHealing : script->DoEffectCalcDamageAndHealing)
+            if (effectCalcDamageAndHealing.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
+                effectCalcDamageAndHealing.Call(script, aurEff, victim, damageOrHealing, flatMod, pctMod);
 
         script->_FinishScriptCall();
     }
