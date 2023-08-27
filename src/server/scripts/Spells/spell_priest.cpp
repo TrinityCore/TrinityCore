@@ -1240,6 +1240,85 @@ class spell_pri_holy_words : public AuraScript
     }
 };
 
+// 265202 - Holy Word: Salvation
+class spell_pri_holy_word_salvation : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_PRAYER_OF_MENDING_AURA,
+            SPELL_PRIEST_RENEW
+        }) && ValidateSpellEffect({
+            { SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, EFFECT_0 },
+            { spellInfo->Id, EFFECT_1 }
+        }) && spellInfo->GetEffect(EFFECT_1).TargetB.GetTarget() == TARGET_UNIT_SRC_AREA_ALLY;
+    }
+
+    bool Load() override
+    {
+        _spellInfoHeal = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, DIFFICULTY_NONE);
+        _healEffectDummy = &_spellInfoHeal->GetEffect(EFFECT_0);
+        return true;
+    }
+
+    void HandleApplyBuffs(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        CastSpellExtraArgs args;
+        args.TriggerFlags = TRIGGERED_FULL_MASK;
+
+        // amount of Prayer of Mending is SPELL_PRIEST_HOLY_WORD_SALVATION's EFFECT_1.
+        args.AddSpellMod(SPELLVALUE_AURA_STACK, GetEffectValue());
+
+        int32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, *_healEffectDummy);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
+        caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_AURA, args);
+
+        // a full duration Renew is triggered.
+        caster->CastSpell(target, SPELL_PRIEST_RENEW, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetTriggeringSpell(GetSpell()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_holy_word_salvation::HandleApplyBuffs, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+
+    SpellInfo const* _spellInfoHeal = nullptr;
+    SpellEffectInfo const* _healEffectDummy = nullptr;
+};
+
+// 2050 - Holy Word: Serenity
+// 34861 - Holy Word: Sanctify
+class spell_pri_holy_word_salvation_cooldown_reduction : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_HOLY_WORD_SALVATION })
+            && ValidateSpellEffect({ { SPELL_PRIEST_HOLY_WORD_SALVATION, EFFECT_2 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasSpell(SPELL_PRIEST_HOLY_WORD_SALVATION);
+    }
+
+    void ReduceCooldown() const
+    {
+        // cooldown reduced by SPELL_PRIEST_HOLY_WORD_SALVATION's Seconds(EFFECT_2).
+        int32 cooldownReduction = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_SALVATION, GetCastDifficulty())->GetEffect(EFFECT_2).CalcValue(GetCaster());
+
+        GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_HOLY_WORD_SALVATION, Seconds(-cooldownReduction), true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pri_holy_word_salvation_cooldown_reduction::ReduceCooldown);
+    }
+};
+
 // 40438 - Priest Tier 6 Trinket
 class spell_pri_item_t6_trinket : public AuraScript
 {
@@ -2676,6 +2755,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_halo_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
     RegisterSpellScript(spell_pri_holy_words);
+    RegisterSpellScript(spell_pri_holy_word_salvation);
+    RegisterSpellScript(spell_pri_holy_word_salvation_cooldown_reduction);
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
