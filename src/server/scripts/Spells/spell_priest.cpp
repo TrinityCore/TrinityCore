@@ -1243,14 +1243,16 @@ class spell_pri_holy_words : public AuraScript
 // 265202 - Holy Word: Salvation
 class spell_pri_holy_word_salvation : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo
         ({
-            SPELL_PRIEST_PRAYER_OF_MENDING_HEAL,
             SPELL_PRIEST_PRAYER_OF_MENDING_AURA,
             SPELL_PRIEST_RENEW
-        });
+        }) && ValidateSpellEffect({
+            { SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, EFFECT_0 },
+            { spellInfo->Id, EFFECT_1 }
+        }) && spellInfo->GetEffect(EFFECT_1).TargetB.GetTarget() == TARGET_UNIT_SRC_AREA_ALLY;
     }
 
     bool Load() override
@@ -1260,7 +1262,7 @@ class spell_pri_holy_word_salvation : public SpellScript
         return true;
     }
 
-    void HandleApplyBuffs(SpellEffIndex /*effIndex*/)
+    void HandleApplyBuffs(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
@@ -1268,14 +1270,14 @@ class spell_pri_holy_word_salvation : public SpellScript
         CastSpellExtraArgs args;
         args.TriggerFlags = TRIGGERED_FULL_MASK;
 
-        // Note: amount of Prayer of Mending is SPELL_PRIEST_HOLY_WORD_SALVATION's EFFECT_1.
+        // amount of Prayer of Mending is SPELL_PRIEST_HOLY_WORD_SALVATION's EFFECT_1.
         args.AddSpellMod(SPELLVALUE_AURA_STACK, GetEffectValue());
 
-        uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, *_healEffectDummy);
+        int32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, *_healEffectDummy);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
         caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_AURA, args);
 
-        // Note: a full duration Renew is triggered.
+        // a full duration Renew is triggered.
         caster->CastSpell(target, SPELL_PRIEST_RENEW, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetTriggeringSpell(GetSpell()));
     }
 
@@ -1284,9 +1286,8 @@ class spell_pri_holy_word_salvation : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_pri_holy_word_salvation::HandleApplyBuffs, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 
-protected:
-    SpellInfo const* _spellInfoHeal;
-    SpellEffectInfo const* _healEffectDummy;
+    SpellInfo const* _spellInfoHeal = nullptr;
+    SpellEffectInfo const* _healEffectDummy = nullptr;
 };
 
 // 2050 - Holy Word: Serenity
@@ -1299,12 +1300,14 @@ class spell_pri_holy_word_salvation_cooldown_reduction : public SpellScript
             && ValidateSpellEffect({ { SPELL_PRIEST_HOLY_WORD_SALVATION, EFFECT_2 } });
     }
 
-    void HandleOnHitTarget(SpellEffIndex /*effIndex*/)
+    bool Load() override
     {
-        if (!GetCaster()->HasSpell(SPELL_PRIEST_HOLY_WORD_SALVATION))
-            return;
+        return GetCaster()->HasSpell(SPELL_PRIEST_HOLY_WORD_SALVATION);
+    }
 
-        // Note: cooldown reduced by SPELL_PRIEST_HOLY_WORD_SALVATION's Seconds(EFFECT_2).
+    void ReduceCooldown() const
+    {
+        // cooldown reduced by SPELL_PRIEST_HOLY_WORD_SALVATION's Seconds(EFFECT_2).
         int32 cooldownReduction = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_SALVATION, GetCastDifficulty())->GetEffect(EFFECT_2).CalcValue(GetCaster());
 
         GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_HOLY_WORD_SALVATION, Seconds(-cooldownReduction), true);
@@ -1312,7 +1315,7 @@ class spell_pri_holy_word_salvation_cooldown_reduction : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_holy_word_salvation_cooldown_reduction::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+        AfterCast += SpellCastFn(spell_pri_holy_word_salvation_cooldown_reduction::ReduceCooldown);
     }
 };
 
