@@ -154,6 +154,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetCanMelee(bool canMelee) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_MELEE, !canMelee); }
         bool CanIgnoreLineOfSightWhenCastingOnMe() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_IGNORE_LOS_WHEN_CASTING_ON_ME); }
 
+        void DisableLoot(bool disable) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_LOOT, !disable); }
+        bool IsLootDisabled() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_NO_LOOT); }
+
         bool HasSpell(uint32 spellID) const override;
 
         bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr, bool updateLevel = true);

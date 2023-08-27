@@ -11030,7 +11030,7 @@ void Unit::PlayOneShotAnimKitId(uint16 animKitId)
         {
             group->BroadcastPacket(&data, group->GetMemberGroup(player->GetGUID()) != 0);
 
-            if (creature)
+            if (creature && !creature->IsLootDisabled())
             {
                 group->UpdateLooterGuid(creature, true);
                 if (group->GetLooterGuid())
@@ -11048,7 +11048,7 @@ void Unit::PlayOneShotAnimKitId(uint16 animKitId)
         {
             player->SendDirectMessage(&data);
 
-            if (creature)
+            if (creature && !creature->IsLootDisabled())
             {
                 WorldPackets::Loot::LootList lootList;
                 lootList.Owner = creature->GetGUID();
@@ -11059,7 +11059,7 @@ void Unit::PlayOneShotAnimKitId(uint16 animKitId)
         }
 
         // Generate loot before updating looter
-        if (creature)
+        if (creature && !creature->IsLootDisabled())
         {
             Loot* loot = &creature->loot;
             loot->clear();
