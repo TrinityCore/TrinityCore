@@ -54,7 +54,7 @@ public:
             PhasingHandler::OnConditionChange(player);
         }
         
-        if (newStatus == QUEST_STATUS_INCOMPLETE)
+        else if (newStatus == QUEST_STATUS_INCOMPLETE)
         {
             player->CastSpell(player, SPELL_DARK_PORTAL_RUN_AWAY, TRIGGERED_FULL_MASK);
             PhasingHandler::OnConditionChange(player);
