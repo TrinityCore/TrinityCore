@@ -104,7 +104,7 @@ void AAData::AA_REP_Characters(Player* player, CharacterDatabaseTransaction& tra
         stmt->setUInt32(12, conf.duel_diy);
         stmt->setUInt32(13, conf.yiming);
         stmt->setUInt32(14, conf.is_yiming);
-        stmt->setUInt32(15, conf.huoyue);
+        stmt->setString(15, conf.huoyues);
         stmt->setString(16, conf.huoyue_jindus);
         stmt->setString(17, conf.huoyue_jindu_status);
         stmt->setUInt32(18, conf.update_time);
@@ -124,7 +124,8 @@ void AAData::AA_REP_Character_Juanxian(Player* player, CharacterDatabaseTransact
         stmt->setUInt64(0, iter.first);
         stmt->setString(1, conf.name);
         stmt->setUInt32(2, conf.juanxian);
-        stmt->setUInt32(3, conf.update_time);
+        stmt->setUInt32(3, conf.juanxian_zhou);
+        stmt->setUInt32(4, conf.update_time);
         trans->Append(stmt);
     }
 }

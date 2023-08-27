@@ -296,7 +296,12 @@ public:
                     aaCenter.AA_DoCommand(player, conf.gm.c_str());
                 }
                 if (conf.huoyue > 0) {
-                    aaCenter.aa_characterss[guidlow].huoyue += conf.huoyue;
+                    std::map<int32, int32> huoyues; huoyues.clear();
+                    aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].huoyues, huoyues);
+                    huoyues[conf.zu] += conf.huoyue;
+                    std::string huoyueStr = "";
+                    aaCenter.AA_MapToString(huoyues, huoyueStr);
+                    aaCenter.aa_characterss[guidlow].huoyues = huoyueStr;
                     isOk = true;
                 }
                 jindus[zu] = conf.jindu;
@@ -318,7 +323,9 @@ public:
             aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].huoyue_jindu_status, status);
             for (auto itr : aaCenter.aa_huoyue_jieduans) {
                 AA_Huoyue_Jieduan conf_j = itr.second;
-                if (aaCenter.aa_characterss[guidlow].huoyue >= itr.first) {
+                std::map<int32, int32> huoyues; huoyues.clear();
+                aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].huoyues, huoyues);
+                if (huoyues[conf_j.zu] >= itr.first) {
                     //检测有未领取过
                     if (status[itr.first] == 1) {
                         continue;
@@ -1532,6 +1539,11 @@ public:
                 result += "\"}}";
                 msg = result;
             }
+        }
+        else if (type == 3) { //活跃系统
+            result += std::to_string(id);
+            result += "}}";
+            msg = result;
         }
 ;       if (msg != "") {
             aaCenter.M_SendClientAddonData(player, "999", msg);
@@ -4824,9 +4836,7 @@ public:
 
             target->aa_teleport_nandu = nanduid;
             target->aa_teleport_moshi = moshiid;
-            target->aa_teleport_map = conf.map;
             aaCenter.AA_TeleportMoban(target, conf.id);
-            target->aa_teleport_map = -2;
 
         }
         else {
@@ -4944,9 +4954,7 @@ public:
 
         player->aa_teleport_nandu = nanduid;
         player->aa_teleport_moshi = moshiid;
-        player->aa_teleport_map = mapId;
         player->TeleportTo(mapId, x, y, z, ort);
-        player->aa_teleport_map = -2;
 
         return true;
     }

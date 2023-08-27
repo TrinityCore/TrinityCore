@@ -7939,93 +7939,6 @@ void AACenter::M_SendAA_Conf(Player* player, std::string prefix)
             }
         }
     }
-    else if (prefix == "3090") { //活跃度登录数据列表数据
-        {
-            std::string result = "{";//{[id]={"name","总页数"},[id]={"name","总页数"}}
-            size_t i = 0;
-            for (auto it : aaCenter.aa_huoyue_confs)
-            {
-                i++;
-                AA_Huoyue_Conf conf = it.second;
-                result += "["; result += std::to_string(it.first); result += "]={\"";
-                result += conf.name; result += "\",";
-                result += std::to_string(conf.jindu); result += ",";
-                result += std::to_string(conf.huoyue); result += ",\"";
-                result += conf.shuoming; result += "\",";
-                result += "},";
-                if (i == aaCenter.aa_huoyue_confs.size()) {
-                    result += "}";
-                    aaCenter.AA_StringReplaceLast(result, ",}", "}");
-                    aaCenter.M_SendClientAddonData(player, "30901", result);
-                    result = "{";
-                }
-            }
-        }
-        {
-            std::string result = "{";//{[id]={"name","总页数"},[id]={"name","总页数"}}
-            size_t i = 0;
-            for (auto it : aaCenter.aa_huoyue_jieduans)
-            {
-                i++;;
-                AA_Huoyue_Jieduan conf = it.second;
-                result += "["; result += std::to_string(it.first); result += "]={\"";
-                result += conf.icon; result += "\",\"";
-                result += conf.detail; result += "\",";
-                result += "},";
-                if (i == aaCenter.aa_huoyue_jieduans.size()) {
-                    result += "}";
-                    aaCenter.AA_StringReplaceLast(result, ",}", "}");
-                    aaCenter.M_SendClientAddonData(player, "30902", result);
-                    result = "{";
-                }
-            }
-        }
-    }
-    else if (prefix == "3091") { //活跃度动态数据
-        std::string result = "{";//{[id]={"name","总页数"},[id]={"name","总页数"}}
-        ObjectGuid::LowType guidlow = player->GetGUIDLow();
-        AA_Characters conf = aaCenter.aa_characterss[guidlow];
-
-        aaCenter.M_SendClientAddonData(player, "30911", "{" + std::to_string(conf.huoyue) + "}");
-
-        {
-            std::string result = "{";//{[id]={"name","总页数"},[id]={"name","总页数"}}
-            size_t i = 0;
-            std::map<int32, int32> huoyue_jindus; huoyue_jindus.clear();
-            aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].huoyue_jindus, huoyue_jindus);
-            for (auto it : huoyue_jindus) {
-                i++;;
-                result += "["; result += std::to_string(it.first); result += "]={";
-                result += std::to_string(it.second);
-                result += "},";
-                if (i == huoyue_jindus.size()) {
-                    result += "}";
-                    aaCenter.AA_StringReplaceLast(result, ",}", "}");
-                    aaCenter.M_SendClientAddonData(player, "30912", result);
-                    result = "{";
-                }
-            }
-        }
-
-        {
-            std::string result = "{";//{[id]={"name","总页数"},[id]={"name","总页数"}}
-            size_t i = 0;
-            std::map<int32, int32> huoyue_jindu_status; huoyue_jindu_status.clear();
-            aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].huoyue_jindu_status, huoyue_jindu_status);
-            for (auto it : huoyue_jindu_status) {
-                i++;;
-                result += "["; result += std::to_string(it.first); result += "]={";
-                result += std::to_string(it.second);
-                result += "},";
-                if (i == huoyue_jindu_status.size()) {
-                    result += "}";
-                    aaCenter.AA_StringReplaceLast(result, ",}", "}");
-                    aaCenter.M_SendClientAddonData(player, "30913", result);
-                    result = "{";
-                }
-            }
-        }
-    }
 }
 
 bool AACenter::M_SendClientAddonData(Player* player, std::string command, std::string msg)
@@ -9031,6 +8944,30 @@ std::set<uint32> AACenter::AA_GetAis(Unit* att, std::string eventtype)
         }
     }
     else if (Player* player = attacker->ToPlayer()) {
+        //称号
+        for (auto i = aaCenter.aa_ai_titles.begin(); i != aaCenter.aa_ai_titles.end(); ++i)
+        {
+            if (i->first == 0) {
+                continue;
+            }
+            if (i->second.ais == "" || i->second.ais == "0") {
+                continue;
+            }
+            if (player->HasTitle(i->first)) {
+                if (i->second.ais != "" && i->second.ais != "0") {
+                    uint32 aizu = aaCenter.AA_StringRandom(i->second.ais);
+                    if (aizu > 0) {
+                        std::set<uint32> ais = aaCenter.aa_ai_zus[aizu];
+                        for (uint32 ai : ais) {
+                            AA_Ai conf = aaCenter.aa_ais[ai];
+                            if (std::find(eventtypes.begin(), eventtypes.end(), conf.event_type) != eventtypes.end()) {
+                                aisets.insert(ai);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         //物品
         for (auto i = aaCenter.aa_ai_items.begin(); i != aaCenter.aa_ai_items.end(); ++i)
         {
@@ -11847,7 +11784,7 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
             if (aaCenter.aa_character_juanxians.find(player->GetGUIDLow()) != aaCenter.aa_character_juanxians.end())
             {
                 AA_Character_Juanxian conf = aa_character_juanxians[player->GetGUIDLow()];
-                juanxian = conf.juanxian;
+                juanxian = conf.juanxian_zhou;
             }
             result += danwei; result += "\",";
             result += std::to_string(juanxian); result += ",";
@@ -11962,11 +11899,13 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
                 time(&timep); /*当前time_t类型UTC时间*/
                 uint32 val = conf.jifen - juanxian;
                 uint32 jx = jconf.juanxian + juanxian;
+                uint32 jx_zhou = jconf.juanxian_zhou + juanxian;
                 conf.jifen = val;
                 aaCenter.aa_accounts[accountid].jifen = val;
                 LoginDatabase.PExecute("UPDATE _aa_account SET 当前积分 = {}, 更新时间=0 WHERE id = {};", val, accountid);
                 aaCenter.aa_character_juanxians[guidlow].guid = guidlow;
                 aaCenter.aa_character_juanxians[guidlow].juanxian = jx;
+                aaCenter.aa_character_juanxians[guidlow].juanxian_zhou = jx_zhou;
                 aaCenter.aa_character_juanxians[guidlow].name = player->GetName();
                 aaCenter.aa_character_juanxians[guidlow].isUpdate = true;
                 aaCenter.aa_character_juanxians[guidlow].update_time = timep;
@@ -12442,10 +12381,18 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
             }
         }
         else if (prefix == "3090") { //请求和发送活跃登录数据列表数据、进度数据
-            aaCenter.M_SendAA_Conf(player, prefix);
+            if (msgs.size() < 1) { return; }
+            uint32 zu = aaCenter.AA_StringUint32(msgs[0]);
+            if (zu > 0) {
+                aaCenter.AA_SendHuoyueAddon(player, zu);
+            }
         }
         else if (prefix == "3091") { //请求和发送活跃动态数据
-            aaCenter.M_SendAA_Conf(player, prefix);
+            if (msgs.size() < 1) { return; }
+            uint32 zu = aaCenter.AA_StringUint32(msgs[0]);
+            if (zu > 0) {
+                aaCenter.AA_SendHuoyueAddonDongtai(player, zu);
+            }
         }
         else if (prefix == "3110") { //获取展示items
             std::vector<uint32> itementrys; itementrys.clear();
@@ -12520,7 +12467,7 @@ bool AACenter::AA_UpdateJuanxianPaihang()
     std::map<uint32, uint32> juanxians1; juanxians1.clear();
     for (auto itr : aaCenter.aa_character_juanxians) {
         AA_Character_Juanxian conf = itr.second;
-        juanxians1[conf.guid] = conf.juanxian;
+        juanxians1[conf.guid] = conf.juanxian_zhou;
     }
     yewai_paihangpx(aaCenter.aa_juanxians, juanxians1);
 
@@ -13011,7 +12958,7 @@ void AACenter::LoadAAData_Characters()
         TC_LOG_INFO("server.loading", "正在加载 _玩家捐献数据...");
         uint32 oldMSTime = getMSTime();
         aa_character_juanxians.clear();
-        QueryResult result = CharacterDatabase.Query("SELECT * FROM _玩家捐献数据 ORDER BY 捐献数量");
+        QueryResult result = CharacterDatabase.Query("SELECT * FROM _玩家捐献数据 ORDER BY 周期捐献数量");
         if (result) {
             do {
                 Field* fields = result->Fetch();
@@ -13019,7 +12966,8 @@ void AACenter::LoadAAData_Characters()
                 conf.guid = fields[0].GetUInt64();
                 conf.name = fields[1].GetString();
                 conf.juanxian = fields[2].GetUInt32();
-                conf.update_time = fields[3].GetUInt32();
+                conf.juanxian_zhou = fields[3].GetUInt32();
+                conf.update_time = fields[4].GetUInt32();
                 aa_character_juanxians[conf.guid] = conf;
             } while (result->NextRow());
             TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _玩家捐献数据 用时 {} 毫秒", (unsigned long)aa_character_juanxians.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -13050,7 +12998,7 @@ void AACenter::LoadAAData_Characters()
                 conf.duel_diy = fields[i++].GetUInt32();
                 conf.yiming = fields[i++].GetUInt32();
                 conf.is_yiming = fields[i++].GetUInt32();
-                conf.huoyue = fields[i++].GetUInt32();
+                conf.huoyues = fields[i++].GetString();
                 conf.huoyue_jindus = fields[i++].GetString();
                 conf.huoyue_jindu_status = fields[i++].GetString();
                 conf.update_time = fields[i++].GetUInt32();
@@ -13252,19 +13200,22 @@ void AACenter::LoadAAData_World()
         TC_LOG_INFO("server.loading", "正在加载 _自定义ui_活跃度...");
         uint32 oldMSTime = getMSTime();
         aa_huoyue_confs.clear();
-        QueryResult result = WorldDatabase.Query("SELECT * FROM _自定义ui_活跃度");
+        aa_huoyue_conf_zus.clear();
+        QueryResult result = WorldDatabase.Query("SELECT * FROM _自定义ui_活跃度 ORDER BY id");
         if (result) {
             do {
                 Field* fields = result->Fetch();
                 AA_Huoyue_Conf conf;
                 uint32 i = 1;
                 conf.id = fields[i++].GetUInt32();//id
+                conf.zu = fields[i++].GetUInt32();//id
                 conf.name = fields[i++].GetString();//任务名称
                 conf.jindu = fields[i++].GetUInt32();//完成需要进度
                 conf.huoyue = fields[i++].GetUInt32();//完成奖励GM命令
                 conf.gm = fields[i++].GetString();//完成奖励GM命令
                 conf.shuoming = fields[i++].GetString();
                 aa_huoyue_confs[conf.id] = conf;
+                aa_huoyue_conf_zus[conf.zu].push_back(conf.id);
             } while (result->NextRow());
             TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _自定义ui_活跃度 用时 {} 毫秒", (unsigned long)aa_huoyue_confs.size(), GetMSTimeDiffToNow(oldMSTime));
         }
@@ -13273,17 +13224,20 @@ void AACenter::LoadAAData_World()
         TC_LOG_INFO("server.loading", "正在加载 _自定义ui_活跃度_奖励...");
         uint32 oldMSTime = getMSTime();
         aa_huoyue_jieduans.clear();
-        QueryResult result = WorldDatabase.Query("SELECT * FROM _自定义ui_活跃度_奖励");
+        aa_huoyue_jieduan_zus.clear();
+        QueryResult result = WorldDatabase.Query("SELECT * FROM _自定义ui_活跃度_奖励 ORDER BY 活跃度值");
         if (result) {
             do {
                 Field* fields = result->Fetch();
                 AA_Huoyue_Jieduan conf;
                 uint32 i = 1;
                 conf.huoyue = fields[i++].GetUInt32();//活跃度值
+                conf.zu = fields[i++].GetUInt32();//组
                 conf.icon = fields[i++].GetString();//图标
                 conf.detail = fields[i++].GetString();//奖励描述
                 conf.gm = fields[i++].GetString();//奖励GM命令
                 aa_huoyue_jieduans[conf.huoyue] = conf;
+                aa_huoyue_jieduan_zus[conf.zu].push_back(conf.huoyue);
             } while (result->NextRow());
             TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _自定义ui_活跃度_奖励 用时 {} 毫秒", (unsigned long)aa_huoyue_jieduans.size(), GetMSTimeDiffToNow(oldMSTime));
         }
@@ -15648,6 +15602,22 @@ void AACenter::LoadAAData_World()
                 aa_ai_zus[conf.zu].insert(conf.id);
             } while (result->NextRow());
             TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _自定义Ai 用时 {} 毫秒", (unsigned long)aa_ais.size(), GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+    {
+        TC_LOG_INFO("server.loading", "正在加载 _自定义Ai_称号带Ai...");
+        uint32 oldMSTime = getMSTime();
+        aa_ai_titles.clear();
+        QueryResult result = WorldDatabase.Query("SELECT * FROM _自定义Ai_称号带Ai");
+        if (result) {
+            do {
+                Field* fields = result->Fetch();
+                AA_Ai_Title conf;
+                conf.id = fields[1].GetUInt32();
+                conf.ais = fields[2].GetString();
+                aa_ai_titles[conf.id] = conf;
+            } while (result->NextRow());
+            TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _自定义Ai_称号带Ai 用时 {} 毫秒", (unsigned long)aa_ai_titles.size(), GetMSTimeDiffToNow(oldMSTime));
         }
     }
     {
@@ -21514,6 +21484,107 @@ void AACenter::AA_Buy_Time_SetBuyCount(Player* player, uint32 entry, uint32 buyc
             time(&timep); /*当前time_t类型UTC时间*/
             aaCenter.aa_characterss[guidlow].update_time = timep;
             aaCenter.aa_characterss[guidlow].isUpdate = true;
+        }
+    }
+}
+
+//活跃度
+void AACenter::AA_SendHuoyueAddon(Player* player, uint32 zu) {
+    if (zu == 0) {
+        return;
+    }
+    {
+        std::string result = "{";//{[id]={"name","总页数"},[id]={"name","总页数"}}
+        size_t i = 0;
+        for (auto it : aaCenter.aa_huoyue_confs)
+        {
+            i++;
+            if (it.second.zu == zu) {
+                AA_Huoyue_Conf conf = it.second;
+                result += "["; result += std::to_string(it.first); result += "]={\"";
+                result += conf.name; result += "\",";
+                result += std::to_string(conf.jindu); result += ",";
+                result += std::to_string(conf.huoyue); result += ",\"";
+                result += conf.shuoming; result += "\",";
+                result += "},";
+            }
+            if (i == aaCenter.aa_huoyue_confs.size()) {
+                result += "}";
+                aaCenter.AA_StringReplaceLast(result, ",}", "}");
+                aaCenter.M_SendClientAddonData(player, "30901", result);
+                result = "{";
+            }
+        }
+    }
+    {
+        std::string result = "{";//{[id]={"name","总页数"},[id]={"name","总页数"}}
+        size_t i = 0;
+        for (auto it : aaCenter.aa_huoyue_jieduans)
+        {
+            i++;
+            if (it.second.zu == zu) {
+                AA_Huoyue_Jieduan conf = it.second;
+                result += "["; result += std::to_string(it.first); result += "]={\"";
+                result += conf.icon; result += "\",\"";
+                result += conf.detail; result += "\",";
+                result += "},";
+            }
+            if (i == aaCenter.aa_huoyue_jieduans.size()) {
+                result += "}";
+                aaCenter.AA_StringReplaceLast(result, ",}", "}");
+                aaCenter.M_SendClientAddonData(player, "30902", result);
+                result = "{";
+            }
+        }
+    }
+}
+
+void AACenter::AA_SendHuoyueAddonDongtai(Player* player, uint32 zu) {
+    if (zu == 0) {
+        return;
+    }
+    std::string result = "{";//{[id]={"name","总页数"},[id]={"name","总页数"}}
+    ObjectGuid::LowType guidlow = player->GetGUIDLow();
+    AA_Characters conf = aaCenter.aa_characterss[guidlow];
+    std::map<int32, int32> huoyues; huoyues.clear();
+    aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].huoyues, huoyues);
+    aaCenter.M_SendClientAddonData(player, "30911", "{" + std::to_string(huoyues[zu]) + "}");
+
+    {
+        std::string result = "{";//{[id]={"name","总页数"},[id]={"name","总页数"}}
+        size_t i = 0;
+        std::map<int32, int32> huoyue_jindus; huoyue_jindus.clear();
+        aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].huoyue_jindus, huoyue_jindus);
+        for (auto it : huoyue_jindus) {
+            i++;;
+            result += "["; result += std::to_string(it.first); result += "]={";
+            result += std::to_string(it.second);
+            result += "},";
+            if (i == huoyue_jindus.size()) {
+                result += "}";
+                aaCenter.AA_StringReplaceLast(result, ",}", "}");
+                aaCenter.M_SendClientAddonData(player, "30912", result);
+                result = "{";
+            }
+        }
+    }
+
+    {
+        std::string result = "{";//{[id]={"name","总页数"},[id]={"name","总页数"}}
+        size_t i = 0;
+        std::map<int32, int32> huoyue_jindu_status; huoyue_jindu_status.clear();
+        aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].huoyue_jindu_status, huoyue_jindu_status);
+        for (auto it : huoyue_jindu_status) {
+            i++;;
+            result += "["; result += std::to_string(it.first); result += "]={";
+            result += std::to_string(it.second);
+            result += "},";
+            if (i == huoyue_jindu_status.size()) {
+                result += "}";
+                aaCenter.AA_StringReplaceLast(result, ",}", "}");
+                aaCenter.M_SendClientAddonData(player, "30913", result);
+                result = "{";
+            }
         }
     }
 }

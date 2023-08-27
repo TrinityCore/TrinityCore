@@ -1130,7 +1130,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 aa_usedTalentCount = 0; //官方天赋数量
 
         //副本模式
-        int32 aa_teleport_map = -2;
         int32 aa_teleport_nandu = -2;
         int32 aa_teleport_moshi = -2;
 

@@ -779,7 +779,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_INS_INSTANCE, "INSERT INTO instance (instanceId, data, completedEncountersMask, entranceWorldSafeLocId) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
 
     // AAData
-    PrepareStatement(_AA_REP_Character_Juanxian, "replace into _玩家捐献数据 (guid, 玩家名字, 捐献数量, update_time) VALUES(?,?,?,?)", CONNECTION_ASYNC);
+    PrepareStatement(_AA_REP_Character_Juanxian, "replace into _玩家捐献数据 (guid, 玩家名字, 捐献数量, 周期捐献数量, update_time) VALUES(?,?,?,?,?)", CONNECTION_ASYNC);
 
     PrepareStatement(_AA_UPD_Character_Paihang_Jisha, "update _玩家排行数据x set 每日战场击杀 = ? where guid = ?", CONNECTION_ASYNC);
     

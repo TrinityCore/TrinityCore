@@ -45,6 +45,7 @@ inline AAString AA_SafeStringAtIndex(std::vector<AAString> objects, size_t index
 struct AA_Huoyue_Conf
 {
     uint32 id = 0;//id
+    uint32 zu = 0;//zu
     std::string name = "";//任务名称
     uint32 jindu = 0;//完成需要进度
     uint32 huoyue = 0;//完成奖励GM命令
@@ -55,6 +56,7 @@ struct AA_Huoyue_Conf
 struct AA_Huoyue_Jieduan
 {
     uint32 huoyue = 0;//活跃度值
+    uint32 zu = 0;//zu
     std::string icon = "";//图标
     std::string detail = "";//奖励描述
     std::string gm = "";//奖励GM命令
@@ -534,6 +536,7 @@ struct AA_Character_Juanxian
     ObjectGuid::LowType guid = 0;
     std::string name = "";
     uint32 juanxian = 0;
+    uint32 juanxian_zhou = 0;
     uint32 update_time = 0;
     bool isUpdate = false;
 };
@@ -555,7 +558,7 @@ struct AA_Characters
     uint32 duel_diy = 0;
     uint32 yiming = 0;
     uint32 is_yiming = 0;
-    uint32 huoyue = 0;
+    std::string huoyues = "";
     std::string huoyue_jindus = "";
     std::string huoyue_jindu_status = "";
     uint32 update_time = 0;
@@ -1201,6 +1204,12 @@ struct AA_Ai
     int8 action_param4 = 0;
     std::string action_param5 = "";
     uint32 notice = 0;
+};
+
+struct AA_Ai_Title
+{
+    uint32 id = 0;
+    std::string ais = "";
 };
 
 struct AA_Ai_Map
@@ -2137,6 +2146,7 @@ public:
     std::unordered_map<uint32, AA_Ai> aa_ais;
     std::unordered_map<uint32, std::set<uint32>> aa_ai_zus;
     std::unordered_map<uint32, AA_Ai_Pet> aa_ai_pets;
+    std::unordered_map<uint32, AA_Ai_Title> aa_ai_titles;
     std::unordered_map<uint32, AA_Ai_Item> aa_ai_items;
     std::unordered_map<uint32, AA_Ai_Creature> aa_ai_creatures;
     std::unordered_map<uint32, AA_Ai_Spell> aa_ai_spells;
@@ -2428,8 +2438,12 @@ public:
     std::vector<std::pair<uint32, uint32>> aa_juanxians;
 
     //ui进度奖励
+    void AA_SendHuoyueAddon(Player* player, uint32 zu);
+    void AA_SendHuoyueAddonDongtai(Player* player, uint32 zu);
     std::unordered_map<uint32, AA_Huoyue_Conf> aa_huoyue_confs;
+    std::unordered_map<uint32, std::vector<uint32>> aa_huoyue_conf_zus;
     std::unordered_map<uint32, AA_Huoyue_Jieduan> aa_huoyue_jieduans;
+    std::unordered_map<uint32, std::vector<uint32>> aa_huoyue_jieduan_zus;
 
     //比武专区
     int32 aa_biwu_start_time = -1;

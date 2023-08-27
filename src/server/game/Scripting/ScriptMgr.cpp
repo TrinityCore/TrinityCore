@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1565,7 +1565,7 @@ void ScriptMgr::OnPlayerEnterMap(Map* map, Player* player)
     {
         std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["进入地图"];
         for (auto conf : mapeventconfs) {
-            if ((conf.mapid == -1 && conf.zoneid == -1 && conf.areaid == -1) || conf.mapid > -1) {
+            if ((conf.mapid == -1 && conf.zoneid == -1 && conf.areaid == -1) || (conf.mapid > -1 && conf.mapid == map->GetId())) {
                 if (conf.gm != "" && conf.gm != "0") {
                     aaCenter.AA_DoCommand(player, conf.gm.c_str());
                 }

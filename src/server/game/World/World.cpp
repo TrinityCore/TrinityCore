@@ -3337,6 +3337,29 @@ void World::Update(uint32 diff)
                             aaCenter.aa_accounts[iter->first] = conf;
                         }
                     }
+                    //清空周期捐献数量
+                    if (aaCenter.aa_world_confs[94].value2 != "" && aaCenter.aa_world_confs[94].value2 != "0") {
+                        std::string m_diy_systems = aaCenter.aa_system_conf.diy_system;
+                        std::map<std::string, std::string> mdiy_systems; mdiy_systems.clear();
+                        aaCenter.AA_StringToStringMap(m_diy_systems, mdiy_systems);
+                        uint32 juanxian_day = aaCenter.AA_StringInt32(mdiy_systems["捐献"]) + 1;
+                        mdiy_systems["捐献"] = std::to_string(juanxian_day);
+                        if (juanxian_day == aaCenter.AA_StringInt32(aaCenter.aa_world_confs[94].value2)) {
+                            //清空周期捐献计时
+                            mdiy_systems["捐献"] = "0";
+                            //清空周期捐献
+                            for (auto itr : aaCenter.aa_character_juanxians) {
+                                aaCenter.aa_character_juanxians[itr.first].juanxian_zhou = 0;
+                                aaCenter.aa_character_juanxians[itr.first].isUpdate = true;
+                                aaCenter.aa_character_juanxians[itr.first].update_time = time1;
+                            }
+                        }
+                        std::string juanxian_str = "";
+                        aaCenter.AA_StringToStringMap(juanxian_str, mdiy_systems);
+                        aaCenter.aa_system_conf.diy_system = juanxian_str;
+                        aaCenter.aa_system_conf.isUpdate = true;
+                        aaCenter.aa_system_conf.update_time = time1;
+                    }
                     {
                         std::unordered_map<ObjectGuid::LowType, AA_Characters>::iterator iter;
                         for (iter = aaCenter.aa_characterss.begin(); iter != aaCenter.aa_characterss.end(); iter++)
@@ -3344,7 +3367,7 @@ void World::Update(uint32 diff)
                             AA_Characters conf = iter->second;
                             conf.guid = iter->first;
                             conf.buy_time = "";
-                            conf.huoyue = 0;
+                            conf.huoyues = "";
                             conf.huoyue_jindus = "";
                             conf.huoyue_jindu_status = "";
                             conf.isUpdate = true;
@@ -3354,7 +3377,7 @@ void World::Update(uint32 diff)
                     }
                     meirijifen = true;
                     LoginDatabase.PExecute("UPDATE _aa_account SET 每日累充积分=0,每日首充积分=0,每日首充领取=0,签到天数=0,理财奖励领取=0,物品购买次数=\"\",更新时间={}", time1);
-                    CharacterDatabase.PExecute("UPDATE _玩家角色数据 SET 物品购买次数=\"\",活跃值=0,活跃进度=\"\",活跃进度领取状态=\"\",update_time={}", time1);
+                    CharacterDatabase.PExecute("UPDATE _玩家角色数据 SET 物品购买次数=\"\",活跃值=\"\",活跃进度=\"\",活跃进度领取状态=\"\",update_time={}", time1);
 
                     //更新每日全服购买次数
                     {
