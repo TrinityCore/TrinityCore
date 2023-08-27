@@ -1941,7 +1941,10 @@ void Creature::setDeathState(DeathState s)
 
     if (s == JUST_DIED)
     {
-        m_corpseRemoveTime = GameTime::GetGameTime() + m_corpseDelay;
+        m_corpseRemoveTime = GameTime::GetGameTime();
+        if (!HasStaticFlag(CREATURE_STATIC_FLAG_DESPAWN_INSTANTLY))
+            m_corpseRemoveTime += m_corpseDelay;
+
         uint32 respawnDelay = m_respawnDelay;
         if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
             GetMap()->ApplyDynamicModeRespawnScaling(this, m_spawnId, respawnDelay, scalingMode);
