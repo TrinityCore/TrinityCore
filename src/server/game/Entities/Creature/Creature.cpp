@@ -562,6 +562,11 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_4_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS, (cinfo->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) != 0);
 
+    if (_staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_NO_BIRTH_ANIM))
+        m_updateFlag |= UPDATEFLAG_NO_BIRTH_ANIM;
+    else
+        m_updateFlag &= ~UPDATEFLAG_NO_BIRTH_ANIM;
+
     SetNoNpcDamageBelowPctHealthValue(sObjectMgr->GetSparringHealthLimitFor(GetEntry()));
 
     return true;
