@@ -437,8 +437,8 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "ctm.Ground, ctm.Swim, ctm.Flight, ctm.Rooted, ctm.Random, ctm.InteractionPauseTimer,  HoverHeight, HealthModifier, HealthModifierExtra, ManaModifier, ManaModifierExtra, "
     //                                        73             74              75                  76            77           78          79                    80
                                              "ArmorModifier, DamageModifier, ExperienceModifier, RacialLeader, movementId, RegenHealth, mechanic_immune_mask, spell_school_immune_mask, "
-    //                                        81           82
-                                             "flags_extra, ScriptName FROM creature_template ct LEFT JOIN creature_template_movement ctm ON ct.entry = ctm.CreatureId");
+    //                                        81           82           83            84            85            86            87
+                                             "flags_extra, StaticFlags, StaticFlags2, StaticFlags3, StaticFlags4, StaticFlags5, ScriptName FROM creature_template ct LEFT JOIN creature_template_movement ctm ON ct.entry = ctm.CreatureId");
 
     if (!result)
     {
@@ -557,7 +557,9 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.MechanicImmuneMask    = fields[79].GetUInt32();
     creatureTemplate.SpellSchoolImmuneMask = fields[80].GetUInt32();
     creatureTemplate.flags_extra           = fields[81].GetUInt32();
-    creatureTemplate.ScriptID              = GetScriptId(fields[82].GetCString());
+    CreatureStaticFlagsHolder(CreatureStaticFlags(fields[82].GetUInt32()), CreatureStaticFlags2(fields[83].GetUInt32()),
+        CreatureStaticFlags3(fields[84].GetUInt32()), CreatureStaticFlags4(fields[85].GetUInt32()), CreatureStaticFlags5(fields[86].GetUInt32()));
+    creatureTemplate.ScriptID              = GetScriptId(fields[87].GetCString());
 }
 
 void ObjectMgr::LoadCreatureTemplateAddons()

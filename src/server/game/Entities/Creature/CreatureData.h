@@ -19,6 +19,7 @@
 #define CreatureData_h__
 
 #include "DBCEnums.h"
+#include "EnumFlag.h"
 #include "SharedDefines.h"
 #include "SpawnData.h"
 #include "UnitDefines.h"
@@ -74,6 +75,225 @@ enum CreatureFlagsExtra : uint32
                                                 CREATURE_FLAG_EXTRA_UNUSED_26 | CREATURE_FLAG_EXTRA_UNUSED_27 | CREATURE_FLAG_EXTRA_UNUSED_31),
 
     CREATURE_FLAG_EXTRA_DB_ALLOWED           = (0xFFFFFFFF & ~(CREATURE_FLAG_EXTRA_UNUSED | CREATURE_FLAG_EXTRA_DUNGEON_BOSS))
+};
+
+enum CreatureStaticFlags
+{
+    CREATURE_STATIC_FLAG_MOUNTABLE                         = 0x00000001,
+    CREATURE_STATIC_FLAG_NO_XP                             = 0x00000002, // CREATURE_FLAG_EXTRA_NO_XP
+    CREATURE_STATIC_FLAG_NO_LOOT                           = 0x00000004,
+    CREATURE_STATIC_FLAG_UNKILLABLE                        = 0x00000008,
+    CREATURE_STATIC_FLAG_TAMEABLE                          = 0x00000010, // CREATURE_TYPE_FLAG_TAMEABLE
+    CREATURE_STATIC_FLAG_IMMUNE_TO_PC                      = 0x00000020, // UNIT_FLAG_IMMUNE_TO_PC
+    CREATURE_STATIC_FLAG_IMMUNE_TO_NPC                     = 0x00000040, // UNIT_FLAG_IMMUNE_TO_NPC
+    CREATURE_STATIC_FLAG_CAN_WIELD_LOOT                    = 0x00000080,
+    CREATURE_STATIC_FLAG_SESSILE                           = 0x00000100, // creature_template_movement.Rooted = 1
+    CREATURE_STATIC_FLAG_UNINTERACTIBLE                    = 0x00000200, // UNIT_FLAG_UNINTERACTIBLE
+    CREATURE_STATIC_FLAG_NO_AUTOMATIC_REGEN                = 0x00000400, // Creatures with that flag uses no UNIT_FLAG2_REGENERATE_POWER
+    CREATURE_STATIC_FLAG_DESPAWN_INSTANTLY                 = 0x00000800, // Creature instantly disappear when killed
+    CREATURE_STATIC_FLAG_CORPSE_RAID                       = 0x00001000,
+    CREATURE_STATIC_FLAG_CREATOR_LOOT                      = 0x00002000, // Lootable only by creator(engineering dummies)
+    CREATURE_STATIC_FLAG_NO_DEFENSE                        = 0x00004000,
+    CREATURE_STATIC_FLAG_NO_SPELL_DEFENSE                  = 0x00008000,
+    CREATURE_STATIC_FLAG_BOSS_MOB                          = 0x00010000, // CREATURE_TYPE_FLAG_BOSS_MOB, original description: Raid Boss Mob
+    CREATURE_STATIC_FLAG_COMBAT_PING                       = 0x00020000,
+    CREATURE_STATIC_FLAG_AQUATIC                           = 0x00040000, // aka Water Only, creature_template_movement.Ground = 0
+    CREATURE_STATIC_FLAG_AMPHIBIOUS                        = 0x00080000, // creature_template_movement.Swim = 1
+    CREATURE_STATIC_FLAG_NO_MELEE                          = 0x00100000, // "No Melee (Flee)" Prevents melee(does not prevent chasing, does not make creature passive). Not sure what 'Flee' means but another flag is named NO_MELEE_APPROACH
+    CREATURE_STATIC_FLAG_VISIBLE_TO_GHOSTS                 = 0x00200000, // CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS
+    CREATURE_STATIC_FLAG_PVP_ENABLING                      = 0x00400000, // Old UNIT_FLAG_PVP_ENABLING, now UNIT_BYTES_2_OFFSET_PVP_FLAG from UNIT_FIELD_BYTES_2
+    CREATURE_STATIC_FLAG_DO_NOT_PLAY_WOUND_ANIM            = 0x00800000, // CREATURE_TYPE_FLAG_DO_NOT_PLAY_WOUND_ANIM
+    CREATURE_STATIC_FLAG_NO_FACTION_TOOLTIP                = 0x01000000, // CREATURE_TYPE_FLAG_NO_FACTION_TOOLTIP
+    CREATURE_STATIC_FLAG_IGNORE_COMBAT                     = 0x02000000, // Actually only changes react state to passive
+    CREATURE_STATIC_FLAG_ONLY_ATTACK_PVP_ENABLING          = 0x04000000, // "Only attack targets that are PvP enabling"
+    CREATURE_STATIC_FLAG_CALLS_GUARDS                      = 0x08000000, // Creature will summon a guard if player is within its aggro range (even if creature doesn't attack per se)
+    CREATURE_STATIC_FLAG_CAN_SWIM                          = 0x10000000, // UnitFlags 0x8000 UNIT_FLAG_CAN_SWIM
+    CREATURE_STATIC_FLAG_FLOATING                          = 0x20000000, // creature_template_movement.Flight = 1
+    CREATURE_STATIC_FLAG_MORE_AUDIBLE                      = 0x40000000, // CREATURE_TYPE_FLAG_MORE_AUDIBLE
+    CREATURE_STATIC_FLAG_LARGE_AOI                         = 0x80000000  // UnitFlags2 0x200000
+};
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags);
+
+enum CreatureStaticFlags2
+{
+    CREATURE_STATIC_FLAG_2_NO_PET_SCALING                  = 0x00000001,
+    CREATURE_STATIC_FLAG_2_FORCE_PARTY_MEMBERS_INTO_COMBAT = 0x00000002, // Original description: Force Raid Combat
+    CREATURE_STATIC_FLAG_2_LOCK_TAPPERS_TO_RAID_ON_DEATH   = 0x00000004, // "Lock Tappers To Raid On Death", toggleable by 'Set "RAID_LOCK_ON_DEATH" flag for unit(s)' action, CREATURE_FLAG_EXTRA_INSTANCE_BIND
+    CREATURE_STATIC_FLAG_2_SPELL_ATTACKABLE                = 0x00000008, // CREATURE_TYPE_FLAG_SPELL_ATTACKABLE, original description(not valid anymore?): No Harmful Vertex Coloring
+    CREATURE_STATIC_FLAG_2_NO_CRUSHING_BLOWS               = 0x00000010, // CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS
+    CREATURE_STATIC_FLAG_2_NO_OWNER_THREAT                 = 0x00000020,
+    CREATURE_STATIC_FLAG_2_NO_WOUNDED_SLOWDOWN             = 0x00000040,
+    CREATURE_STATIC_FLAG_2_USE_CREATOR_BONUSES             = 0x00000080,
+    CREATURE_STATIC_FLAG_2_IGNORE_FEIGN_DEATH              = 0x00000100, // CREATURE_FLAG_EXTRA_IGNORE_FEIGN_DEATH
+    CREATURE_STATIC_FLAG_2_IGNORE_SANCTUARY                = 0x00000200,
+    CREATURE_STATIC_FLAG_2_ACTION_TRIGGERS_WHILE_CHARMED   = 0x00000400,
+    CREATURE_STATIC_FLAG_2_INTERACT_WHILE_DEAD             = 0x00000800, // CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD
+    CREATURE_STATIC_FLAG_2_NO_INTERRUPT_SCHOOL_COOLDOWN    = 0x00001000,
+    CREATURE_STATIC_FLAG_2_RETURN_SOUL_SHARD_TO_MASTER_OF_PET = 0x00002000,
+    CREATURE_STATIC_FLAG_2_SKIN_WITH_HERBALISM             = 0x00004000, // CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM
+    CREATURE_STATIC_FLAG_2_SKIN_WITH_MINING                = 0x00008000, // CREATURE_TYPE_FLAG_SKIN_WITH_MINING
+    CREATURE_STATIC_FLAG_2_ALERT_CONTENT_TEAM_ON_DEATH     = 0x00010000,
+    CREATURE_STATIC_FLAG_2_ALERT_CONTENT_TEAM_AT_90_PCT_HP = 0x00020000,
+    CREATURE_STATIC_FLAG_2_ALLOW_MOUNTED_COMBAT            = 0x00040000, // CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT
+    CREATURE_STATIC_FLAG_2_PVP_ENABLING_OOC                = 0x00080000,
+    CREATURE_STATIC_FLAG_2_NO_DEATH_MESSAGE                = 0x00100000, // CREATURE_TYPE_FLAG_NO_DEATH_MESSAGE
+    CREATURE_STATIC_FLAG_2_IGNORE_PATHING_FAILURE          = 0x00200000,
+    CREATURE_STATIC_FLAG_2_FULL_SPELL_LIST                 = 0x00400000,
+    CREATURE_STATIC_FLAG_2_DOES_NOT_REDUCE_REPUTATION_FOR_RAIDS = 0x00800000,
+    CREATURE_STATIC_FLAG_2_IGNORE_MISDIRECTION             = 0x01000000,
+    CREATURE_STATIC_FLAG_2_HIDE_BODY                       = 0x02000000, // UNIT_FLAG2_HIDE_BODY
+    CREATURE_STATIC_FLAG_2_SPAWN_DEFENSIVE                 = 0x04000000,
+    CREATURE_STATIC_FLAG_2_SERVER_ONLY                     = 0x08000000,
+    CREATURE_STATIC_FLAG_2_CAN_SAFE_FALL                   = 0x10000000, // Original description: No Collision
+    CREATURE_STATIC_FLAG_2_CAN_ASSIST                      = 0x20000000, // CREATURE_TYPE_FLAG_CAN_ASSIST, original description: Player Can Heal/Buff
+    CREATURE_STATIC_FLAG_2_NO_SKILL_GAINS                  = 0x40000000, // CREATURE_FLAG_EXTRA_NO_SKILL_GAINS
+    CREATURE_STATIC_FLAG_2_NO_PET_BAR                      = 0x80000000  // CREATURE_TYPE_FLAG_NO_PET_BAR
+};
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags2);
+
+enum CreatureStaticFlags3
+{
+    CREATURE_STATIC_FLAG_3_NO_DAMAGE_HISTORY              = 0x00000001,
+    CREATURE_STATIC_FLAG_3_DONT_PVP_ENABLE_OWNER          = 0x00000002,
+    CREATURE_STATIC_FLAG_3_DO_NOT_FADE_IN                 = 0x00000004, // UNIT_FLAG2_DO_NOT_FADE_IN
+    CREATURE_STATIC_FLAG_3_MASK_UID                       = 0x00000008, // CREATURE_TYPE_FLAG_MASK_UID, original description: Non-Unique In Combat Log
+    CREATURE_STATIC_FLAG_3_SKIN_WITH_ENGINEERING          = 0x00000010, // CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING
+    CREATURE_STATIC_FLAG_3_NO_AGGRO_ON_LEASH              = 0x00000020,
+    CREATURE_STATIC_FLAG_3_NO_FRIENDLY_AREA_AURAS         = 0x00000040,
+    CREATURE_STATIC_FLAG_3_EXTENDED_CORPSE_DURATION       = 0x00000080,
+    CREATURE_STATIC_FLAG_3_CANNOT_SWIM                    = 0x00000100, // UNIT_FLAG_CANNOT_SWIM
+    CREATURE_STATIC_FLAG_3_TAMEABLE_EXOTIC                = 0x00000200, // CREATURE_TYPE_FLAG_TAMEABLE_EXOTIC
+    CREATURE_STATIC_FLAG_3_GIGANTIC_AOI                   = 0x00000400, // Since MoP, creatures with that flag have UnitFlags2 0x400000
+    CREATURE_STATIC_FLAG_3_INFINITE_AOI                   = 0x00000800, // Since MoP, creatures with that flag have UnitFlags2 0x40000000
+    CREATURE_STATIC_FLAG_3_CANNOT_PENETRATE_WATER         = 0x00001000, // Waterwalking
+    CREATURE_STATIC_FLAG_3_NO_NAME_PLATE                  = 0x00002000, // CREATURE_TYPE_FLAG_NO_NAME_PLATE
+    CREATURE_STATIC_FLAG_3_CHECKS_LIQUIDS                 = 0x00004000,
+    CREATURE_STATIC_FLAG_3_NO_THREAT_FEEDBACK             = 0x00008000,
+    CREATURE_STATIC_FLAG_3_USE_MODEL_COLLISION_SIZE       = 0x00010000, // CREATURE_TYPE_FLAG_USE_MODEL_COLLISION_SIZE
+    CREATURE_STATIC_FLAG_3_ATTACKER_IGNORES_FACING        = 0x00020000, // In 3.3.5 used only by Rocket Propelled Warhead
+    CREATURE_STATIC_FLAG_3_ALLOW_INTERACTION_WHILE_IN_COMBAT = 0x00040000, // CREATURE_TYPE_FLAG_ALLOW_INTERACTION_WHILE_IN_COMBAT
+    CREATURE_STATIC_FLAG_3_SPELL_CLICK_FOR_PARTY_ONLY     = 0x00080000,
+    CREATURE_STATIC_FLAG_3_FACTION_LEADER                 = 0x00100000,
+    CREATURE_STATIC_FLAG_3_IMMUNE_TO_PLAYER_BUFFS         = 0x00200000,
+    CREATURE_STATIC_FLAG_3_COLLIDE_WITH_MISSILES          = 0x00400000, // CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES
+    CREATURE_STATIC_FLAG_3_CAN_BE_MULTITAPPED             = 0x00800000, // Original description: Do Not Tap (Credit to threat list)
+    CREATURE_STATIC_FLAG_3_DO_NOT_PLAY_MOUNTED_ANIMATIONS = 0x01000000, // CREATURE_TYPE_FLAG_DO_NOT_PLAY_MOUNTED_ANIMATIONS, original description: Disable Dodge, Parry and Block Animations
+    CREATURE_STATIC_FLAG_3_CANNOT_TURN                    = 0x02000000, // UNIT_FLAG2_CANNOT_TURN
+    CREATURE_STATIC_FLAG_3_ENEMY_CHECK_IGNORES_LOS        = 0x04000000,
+    CREATURE_STATIC_FLAG_3_FOREVER_CORPSE_DURATION        = 0x08000000, // 7 days
+    CREATURE_STATIC_FLAG_3_PETS_ATTACK_WITH_3D_PATHING    = 0x10000000, // "Pets attack with 3d pathing (Kologarn)"
+    CREATURE_STATIC_FLAG_3_LINK_ALL                       = 0x20000000, // CREATURE_TYPE_FLAG_LINK_ALL
+    CREATURE_STATIC_FLAG_3_AI_CAN_AUTO_TAKEOFF_IN_COMBAT  = 0x40000000,
+    CREATURE_STATIC_FLAG_3_AI_CAN_AUTO_LAND_IN_COMBAT     = 0x80000000
+};
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags3);
+
+enum CreatureStaticFlags4
+{
+    CREATURE_STATIC_FLAG_4_NO_BIRTH_ANIM                       = 0x00000001, // SMSG_UPDATE_OBJECT's "NoBirthAnim"
+    CREATURE_STATIC_FLAG_4_TREAT_AS_PLAYER_FOR_DIMINISHING_RETURNS = 0x00000002, // Primarily used by ToC champions
+    CREATURE_STATIC_FLAG_4_TREAT_AS_PLAYER_FOR_PVP_DEBUFF_DURATION = 0x00000004, // Primarily used by ToC champions
+    CREATURE_STATIC_FLAG_4_INTERACT_ONLY_WITH_CREATOR          = 0x00000008, // CREATURE_TYPE_FLAG_INTERACT_ONLY_WITH_CREATOR, original description: Only Display Gossip for Summoner
+    CREATURE_STATIC_FLAG_4_DO_NOT_PLAY_UNIT_EVENT_SOUNDS       = 0x00000010, // CREATURE_TYPE_FLAG_DO_NOT_PLAY_UNIT_EVENT_SOUNDS, original description: No Death Scream
+    CREATURE_STATIC_FLAG_4_HAS_NO_SHADOW_BLOB                  = 0x00000020, // CREATURE_TYPE_FLAG_HAS_NO_SHADOW_BLOB, original description(wrongly linked type flag or behavior was changed?): Can be Healed by Enemies
+    CREATURE_STATIC_FLAG_4_DEALS_TRIPLE_DAMAGE_TO_PC_CONTROLLED_PETS = 0x00000040,
+    CREATURE_STATIC_FLAG_4_NO_NPC_DAMAGE_BELOW_85PTC           = 0x00000080,
+    CREATURE_STATIC_FLAG_4_OBEYS_TAUNT_DIMINISHING_RETURNS     = 0x00000100, // CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS
+    CREATURE_STATIC_FLAG_4_NO_MELEE_APPROACH                   = 0x00000200,
+    CREATURE_STATIC_FLAG_4_UPDATE_CREATURE_RECORD_WHEN_INSTANCE_CHANGES_DIFFICULTY = 0x00000400, // Used only by Snobold Vassal
+    CREATURE_STATIC_FLAG_4_CANNOT_DAZE                         = 0x00000800, // "Cannot Daze (Combat Stun)"
+    CREATURE_STATIC_FLAG_4_FLAT_HONOR_AWARD                    = 0x00001000,
+    CREATURE_STATIC_FLAG_4_IGNORE_LOS_WHEN_CASTING_ON_ME       = 0x00002000, // "Other objects can ignore line of sight requirements when casting spells on me", used only by Ice Tomb in 3.3.5
+    CREATURE_STATIC_FLAG_4_GIVE_QUEST_KILL_CREDIT_WHILE_OFFLINE = 0x00004000,
+    CREATURE_STATIC_FLAG_4_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS = 0x00008000, // CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT, "Treat as Raid Unit For Helpful Spells (Instances ONLY)", used by Valithria Dreamwalker
+    CREATURE_STATIC_FLAG_4_DONT_REPOSITION_IF_MELEE_TARGET_IS_TOO_CLOSE = 0x00010000, // "Don't reposition because melee target is too close"
+    CREATURE_STATIC_FLAG_4_PET_OR_GUARDIAN_AI_DONT_GO_BEHIND_TARGET = 0x00020000,
+    CREATURE_STATIC_FLAG_4_5_MINUTE_LOOT_ROLL_TIMER            = 0x00040000, // Used by Lich King
+    CREATURE_STATIC_FLAG_4_FORCE_GOSSIP                        = 0x00080000, // CREATURE_TYPE_FLAG_FORCE_GOSSIP
+    CREATURE_STATIC_FLAG_4_DONT_REPOSITION_WITH_FRIENDS_IN_COMBAT = 0x00100000,
+    CREATURE_STATIC_FLAG_4_DO_NOT_SHEATHE                      = 0x00200000, // CREATURE_TYPE_FLAG_DO_NOT_SHEATHE, original description: Manual Sheathing control
+    CREATURE_STATIC_FLAG_4_IGNORE_SPELL_MIN_RANGE_RESTRICTIONS = 0x00400000, // UnitFlags2 0x8000000, original description: Attacker Ignores Minimum Ranges
+    CREATURE_STATIC_FLAG_4_SUPPRESS_INSTANCE_WIDE_RELEASE_IN_COMBAT = 0x00800000,
+    CREATURE_STATIC_FLAG_4_PREVENT_SWIM                        = 0x01000000, // UnitFlags2 0x1000000, original description: AI will only swim if target swims
+    CREATURE_STATIC_FLAG_4_HIDE_IN_COMBAT_LOG                  = 0x02000000, // UnitFlags2 0x2000000, original description: Don't generate combat log when engaged with NPC's
+    CREATURE_STATIC_FLAG_4_ALLOW_NPC_COMBAT_WHILE_UNINTERACTIBLE = 0x04000000,
+    CREATURE_STATIC_FLAG_4_PREFER_NPCS_WHEN_SEARCHING_FOR_ENEMIES = 0x08000000,
+    CREATURE_STATIC_FLAG_4_ONLY_GENERATE_INITIAL_THREAT        = 0x10000000,
+    CREATURE_STATIC_FLAG_4_DO_NOT_TARGET_ON_INTERACTION        = 0x20000000, // CREATURE_TYPE_FLAG_DO_NOT_TARGET_ON_INTERACTION, original description: Doesn't change target on right click
+    CREATURE_STATIC_FLAG_4_DO_NOT_RENDER_OBJECT_NAME           = 0x40000000, // CREATURE_TYPE_FLAG_DO_NOT_RENDER_OBJECT_NAME, original description: Hide name in world frame
+    CREATURE_STATIC_FLAG_4_QUEST_BOSS                          = 0x80000000  // CREATURE_TYPE_FLAG_QUEST_BOSS
+};
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags4);
+
+enum CreatureStaticFlags5
+{
+    CREATURE_STATIC_FLAG_5_UNTARGETABLE_BY_CLIENT              = 0x00000001, // UnitFlags2 0x4000000 UNIT_FLAG2_UNTARGETABLE_BY_CLIENT
+    CREATURE_STATIC_FLAG_5_FORCE_SELF_MOUNTING                 = 0x00000002,
+    CREATURE_STATIC_FLAG_5_UNINTERACTIBLE_IF_HOSTILE           = 0x00000004, // UnitFlags2 0x10000000
+    CREATURE_STATIC_FLAG_5_DISABLES_XP_AWARD                   = 0x00000008,
+    CREATURE_STATIC_FLAG_5_DISABLE_AI_PREDICTION               = 0x00000010,
+    CREATURE_STATIC_FLAG_5_NO_LEAVECOMBAT_STATE_RESTORE        = 0x00000020,
+    CREATURE_STATIC_FLAG_5_BYPASS_INTERACT_INTERRUPTS          = 0x00000040,
+    CREATURE_STATIC_FLAG_5_240_DEGREE_BACK_ARC                 = 0x00000080,
+    CREATURE_STATIC_FLAG_5_INTERACT_WHILE_HOSTILE              = 0x00000100, // UnitFlags2 0x4000 UNIT_FLAG2_INTERACT_WHILE_HOSTILE
+    CREATURE_STATIC_FLAG_5_DONT_DISMISS_ON_FLYING_MOUNT        = 0x00000200,
+    CREATURE_STATIC_FLAG_5_PREDICTIVE_POWER_REGEN              = 0x00000400, // CREATURE_TYPEFLAGS_2_UNK1
+    CREATURE_STATIC_FLAG_5_HIDE_LEVEL_INFO_IN_TOOLTIP          = 0x00000800, // CREATURE_TYPEFLAGS_2_UNK2
+    CREATURE_STATIC_FLAG_5_HIDE_HEALTH_BAR_UNDER_TOOLTIP       = 0x00001000, // CREATURE_TYPEFLAGS_2_UNK3
+    CREATURE_STATIC_FLAG_5_SUPPRESS_HIGHLIGHT_WHEN_TARGETED_OR_MOUSED_OVER = 0x00002000, // UnitFlags2 0x80000
+    CREATURE_STATIC_FLAG_5_AI_PREFER_PATHABLE_TARGETS          = 0x00004000,
+    CREATURE_STATIC_FLAG_5_FREQUENT_AREA_TRIGGER_CHECKS        = 0x00008000,
+    CREATURE_STATIC_FLAG_5_ASSIGN_KILL_CREDIT_TO_ENCOUNTER_LIST= 0x00010000,
+    CREATURE_STATIC_FLAG_5_NEVER_EVADE                         = 0x00020000,
+    CREATURE_STATIC_FLAG_5_AI_CANT_PATH_ON_STEEP_SLOPES        = 0x00040000,
+    CREATURE_STATIC_FLAG_5_AI_IGNORE_LOS_TO_MELEE_TARGET       = 0x00080000,
+    CREATURE_STATIC_FLAG_5_NO_TEXT_IN_CHAT_BUBBLE              = 0x00100000, // "Never display emote or chat text in a chat bubble", CREATURE_TYPEFLAGS_2_UNK4
+    CREATURE_STATIC_FLAG_5_CLOSE_IN_ON_UNPATHABLE_TARGET       = 0x00200000, // "AI Pets close in on unpathable target"
+    CREATURE_STATIC_FLAG_5_DONT_GO_BEHIND_ME                   = 0x00400000, // "Pet/Guardian AI Don't Go Behind Me (use on target)"
+    CREATURE_STATIC_FLAG_5_NO_DEATH_THUD                       = 0x00800000, // CREATURE_TYPEFLAGS_2_UNK5
+    CREATURE_STATIC_FLAG_5_CLIENT_LOCAL_CREATURE               = 0x01000000,
+    CREATURE_STATIC_FLAG_5_CAN_DROP_LOOT_WHILE_IN_A_CHALLENGE_MODE_INSTANCE = 0x02000000,
+    CREATURE_STATIC_FLAG_5_HAS_SAFE_LOCATION                   = 0x04000000,
+    CREATURE_STATIC_FLAG_5_NO_HEALTH_REGEN                     = 0x08000000,
+    CREATURE_STATIC_FLAG_5_NO_POWER_REGEN                      = 0x10000000,
+    CREATURE_STATIC_FLAG_5_NO_PET_UNIT_FRAME                   = 0x20000000,
+    CREATURE_STATIC_FLAG_5_NO_INTERACT_ON_LEFT_CLICK           = 0x40000000, // CREATURE_TYPEFLAGS_2_UNK6
+    CREATURE_STATIC_FLAG_5_GIVE_CRITERIA_KILL_CREDIT_WHEN_CHARMED = 0x80000000
+};
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags5);
+
+class CreatureStaticFlagsHolder
+{
+public:
+    explicit CreatureStaticFlagsHolder(CreatureStaticFlags flags = CreatureStaticFlags(), CreatureStaticFlags2 flags2 = CreatureStaticFlags2(),
+        CreatureStaticFlags3 flags3 = CreatureStaticFlags3(), CreatureStaticFlags4 flags4 = CreatureStaticFlags4(), CreatureStaticFlags5 flags5 = CreatureStaticFlags5())
+        : _flags(flags), _flags2(flags2), _flags3(flags3), _flags4(flags4), _flags5(flags5)
+    {
+    }
+
+    bool HasFlag(CreatureStaticFlags flag) const { return _flags.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags2 flag) const { return _flags2.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags3 flag) const { return _flags3.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags4 flag) const { return _flags4.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags5 flag) const { return _flags5.HasFlag(flag); }
+
+    void ApplyFlag(CreatureStaticFlags flag, bool apply) { if (apply) _flags |= flag; else _flags &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags2 flag, bool apply) { if (apply) _flags2 |= flag; else _flags2 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags3 flag, bool apply) { if (apply) _flags3 |= flag; else _flags3 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags4 flag, bool apply) { if (apply) _flags4 |= flag; else _flags4 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags5 flag, bool apply) { if (apply) _flags5 |= flag; else _flags5 &= ~flag; }
+
+private:
+    EnumFlag<CreatureStaticFlags> _flags;
+    EnumFlag<CreatureStaticFlags2> _flags2;
+    EnumFlag<CreatureStaticFlags3> _flags3;
+    EnumFlag<CreatureStaticFlags4> _flags4;
+    EnumFlag<CreatureStaticFlags5> _flags5;
 };
 
 enum class CreatureGroundMovementType : uint8
@@ -201,6 +421,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  MechanicImmuneMask;
     uint32  SpellSchoolImmuneMask;
     uint32  flags_extra;
+    CreatureStaticFlagsHolder StaticFlags;
     uint32  ScriptID;
     WorldPacket QueryData[TOTAL_LOCALES];
     uint32  GetRandomValidModelId() const;
