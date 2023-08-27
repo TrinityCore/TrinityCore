@@ -4353,6 +4353,41 @@ struct QuestPackageItemLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 5, &QuestPackageItemMeta::Instance, HOTFIX_SEL_QUEST_PACKAGE_ITEM };
 };
 
+struct QuestPoiBlobLoadInfo
+{
+
+    static constexpr DB2FieldMeta Fields[10] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_SHORT, "MapID" },
+            { true, FT_INT, "UiMapID" },
+			{ true, FT_INT, "Flags" },
+            { false, FT_BYTE, "NumPoints" },
+            { false, FT_INT, "QuestID" },
+            { true, FT_INT, "ObjectiveIndex" },
+            { true, FT_INT, "ObjectiveID" },
+            { false, FT_INT, "PlayerConditionID" },
+            { false, FT_INT, "NavigationPlayerConditionID" },
+        };
+        
+		static constexpr DB2LoadInfo Instance{ Fields, 10, &QuestPOIBlobMeta::Instance, HOTFIX_SEL_QUEST_POI_BLOB };
+
+};
+
+struct QuestPoiPointLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[5] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_SHORT, "X" },
+            { true, FT_SHORT, "Y" },
+            { true, FT_SHORT, "Z" },
+            { false, FT_INT, "QuestPOIBlobID" },
+        };
+        
+		static constexpr DB2LoadInfo Instance{ Fields, 5, &QuestPOIPointMeta::Instance, HOTFIX_SEL_QUEST_POI_POINT };
+};
+
 struct QuestSortLoadInfo
 {
     static constexpr DB2FieldMeta Fields[3] =

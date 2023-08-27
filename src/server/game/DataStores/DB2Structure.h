@@ -3188,6 +3188,29 @@ struct QuestPackageItemEntry
     uint8 DisplayType;
 };
 
+struct QuestPOIBlobEntry
+{
+    uint32 ID;
+    int16 MapID;
+    int32 UiMapID;
+	int32 Flags;
+    uint8 NumPoints;
+    uint32 QuestID;
+    int32 ObjectiveIndex;
+    int32 ObjectiveID;
+    uint32 PlayerConditionID;
+    uint32 NavigationPlayerConditionID;
+};
+
+struct QuestPOIPointEntry
+{
+    uint32 ID;
+    int16 X;
+    int16 Y;
+    int16 Z;
+    uint32 QuestPOIBlobID;
+};
+
 struct QuestSortEntry
 {
     uint32 ID;
