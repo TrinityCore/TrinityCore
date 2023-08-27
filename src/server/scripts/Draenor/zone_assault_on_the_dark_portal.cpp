@@ -24,21 +24,7 @@
 
 enum AssaultMisc
 {
-    SPELL_DARK_PORTAL_RUN_AWAY = 158985,
-
-    QUEST_THE_COST_OF_WAR      = 34420
-};
-
-// 78558 - Archmage Khadgar
-struct npc_assault_archmage_khadgar : public ScriptedAI
-{
-    npc_assault_archmage_khadgar(Creature* creature) : ScriptedAI(creature) { }
-
-    void OnQuestAccept(Player* player, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_THE_COST_OF_WAR)
-            player->CastSpell(player, SPELL_DARK_PORTAL_RUN_AWAY);
-    }
+    SPELL_DARK_PORTAL_RUN_AWAY = 158985
 };
 
 // 621 - Dark Portal: Run away
@@ -63,13 +49,21 @@ public:
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
         if (newStatus == QUEST_STATUS_NONE)
+        {
             player->RemoveAurasDueToSpell(SPELL_DARK_PORTAL_RUN_AWAY);
+            PhasingHandler::OnConditionChange(player);
+        }
+        
+        if (newStatus == QUEST_STATUS_INCOMPLETE)
+        {
+            player->CastSpell(player, SPELL_DARK_PORTAL_RUN_AWAY, TRIGGERED_FULL_MASK);
+            PhasingHandler::OnConditionChange(player);
+        }
     }
 };
 
 void AddSC_assault_on_the_dark_portal()
 {
-    RegisterCreatureAI(npc_assault_archmage_khadgar);
     new scene_dark_portal_run_away();
     new quest_the_cost_of_war();
 };

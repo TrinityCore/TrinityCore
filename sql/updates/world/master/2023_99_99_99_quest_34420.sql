@@ -30,7 +30,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `StandState`, `AnimTie
 (@CGUID+8, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 0, ''), -- Lady Liadrin
 (@CGUID+10, 0, 0, 0, 0, 0, 1, 0, 375, 0, 0, 0, 0, '165746'); -- Vindicator Maraad - 165746 - Retribution Aura
 
-UPDATE `creature_template` SET `unit_flags2`=4196352, `ScriptName` = 'npc_assault_archmage_khadgar' WHERE `entry`=78558; -- Archmage Khadgar
+UPDATE `creature_template` SET `unit_flags2`=4196352 WHERE `entry`=78558; -- Archmage Khadgar
 UPDATE `creature_template` SET `unit_flags3`=1048576 WHERE `entry`=78430; -- Cordana Felsong
 UPDATE `creature_template` SET `unit_flags3`=1048576 WHERE `entry`=78553; -- Thrall
 UPDATE `creature_template` SET `unit_flags3`=1048576 WHERE `entry`=78569; -- Hansel Heavyhands
@@ -83,7 +83,10 @@ UPDATE `gossip_menu_option` SET `GossipOptionID`=42453, `VerifiedBuild`=50791 WH
 UPDATE `scene_template` SET `ScriptName` = 'scene_dark_portal_run_away' WHERE `SceneId`=621; -- Archmage Khadgar
 
 -- Quest
-UPDATE `quest_template_addon` SET `ScriptName` = 'quest_the_cost_of_war' WHERE `ID` = 34420;
+DELETE FROM `quest_template_addon` WHERE `ID`=34420;
+INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`, `ScriptName`) VALUES
+(34420, 0, 0, 0, 34393, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 'quest_the_cost_of_war');
+
 UPDATE `quest_poi` SET `VerifiedBuild`=50791 WHERE (`QuestID`=34420 AND `BlobIndex`=0 AND `Idx1`=1) OR (`QuestID`=34420 AND `BlobIndex`=0 AND `Idx1`=0) OR (`QuestID`=42567 AND `BlobIndex`=0 AND `Idx1`=1) OR (`QuestID`=42567 AND `BlobIndex`=0 AND `Idx1`=0) OR (`QuestID`=39954 AND `BlobIndex`=0 AND `Idx1`=1) OR (`QuestID`=39954 AND `BlobIndex`=0 AND `Idx1`=0) OR (`QuestID`=39944 AND `BlobIndex`=0 AND `Idx1`=1) OR (`QuestID`=39944 AND `BlobIndex`=0 AND `Idx1`=0) OR (`QuestID`=39935 AND `BlobIndex`=0 AND `Idx1`=2) OR (`QuestID`=39935 AND `BlobIndex`=0 AND `Idx1`=1) OR (`QuestID`=39935 AND `BlobIndex`=0 AND `Idx1`=0) OR (`QuestID`=39931 AND `BlobIndex`=0 AND `Idx1`=1) OR (`QuestID`=39931 AND `BlobIndex`=0 AND `Idx1`=0) OR (`QuestID`=26131 AND `BlobIndex`=0 AND `Idx1`=1) OR (`QuestID`=26131 AND `BlobIndex`=0 AND `Idx1`=0) OR (`QuestID`=1453 AND `BlobIndex`=0 AND `Idx1`=1) OR (`QuestID`=1453 AND `BlobIndex`=0 AND `Idx1`=0);
 UPDATE `quest_poi_points` SET `VerifiedBuild`=50791 WHERE (`QuestID`=34420 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=34420 AND `Idx1`=0 AND `Idx2`=0) OR (`QuestID`=42567 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=42567 AND `Idx1`=0 AND `Idx2`=0) OR (`QuestID`=39954 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=39954 AND `Idx1`=0 AND `Idx2`=0) OR (`QuestID`=39944 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=39944 AND `Idx1`=0 AND `Idx2`=0) OR (`QuestID`=39935 AND `Idx1`=2 AND `Idx2`=0) OR (`QuestID`=39935 AND `Idx1`=1 AND `Idx2`=7) OR (`QuestID`=39935 AND `Idx1`=1 AND `Idx2`=6) OR (`QuestID`=39935 AND `Idx1`=1 AND `Idx2`=5) OR (`QuestID`=39935 AND `Idx1`=1 AND `Idx2`=4) OR (`QuestID`=39935 AND `Idx1`=1 AND `Idx2`=3) OR (`QuestID`=39935 AND `Idx1`=1 AND `Idx2`=2) OR (`QuestID`=39935 AND `Idx1`=1 AND `Idx2`=1) OR (`QuestID`=39935 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=39935 AND `Idx1`=0 AND `Idx2`=0) OR (`QuestID`=39931 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=39931 AND `Idx1`=0 AND `Idx2`=0) OR (`QuestID`=26131 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=26131 AND `Idx1`=0 AND `Idx2`=0) OR (`QuestID`=1453 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=1453 AND `Idx1`=0 AND `Idx2`=0);
 UPDATE `quest_details` SET `VerifiedBuild`=50791 WHERE `ID`=34420;
@@ -93,7 +96,7 @@ UPDATE `creature_queststarter` SET `VerifiedBuild`=50791 WHERE (`id`=78558 AND `
 -- Phase
 DELETE FROM `phase_area` WHERE `AreaId`IN (7025, 7041) AND `PhaseId` IN (3569, 3264, 3394, 3395, 3396);
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
-(7025, 3569, 'See Questgivers at Bleeding Hollow Building'),
+(7025, 3569, 'See Named Characters on Dark Portal, Post-Guldan'),
 (7041, 3264, 'See Questgivers at Bleeding Hollow Building'),
 (7041, 3394, 'See Khadgar at Bleeding Hollow Building'),
 (7041, 3395, 'See Thrall at Bleeding Hollow Building'),
@@ -103,7 +106,7 @@ INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup`=3569 AND `SourceEntry`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (26, 3569, 0, 0, 0, 47, 0, 34393, 66, 0, 0, 0, 0, '', 'Apply Phase 3569 if Quest 34393 is complete | rewarded'),
-(26, 3569, 0, 0, 0, 47, 0, 34420, 66, 0, 0, 0, 1, '', 'Apply Phase 3569 if Quest 34420 is not complete | rewarded');
+(26, 3569, 0, 0, 0, 47, 0, 34420, 66, 0, 1, 0, 0, '', 'Apply Phase 3569 if Quest 34420 is not complete | rewarded');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup`=3264 AND `SourceEntry`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
