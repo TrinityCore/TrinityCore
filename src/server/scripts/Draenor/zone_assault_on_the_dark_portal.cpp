@@ -53,7 +53,6 @@ public:
             player->RemoveAurasDueToSpell(SPELL_DARK_PORTAL_RUN_AWAY);
             PhasingHandler::OnConditionChange(player);
         }
-        
         else if (newStatus == QUEST_STATUS_INCOMPLETE)
         {
             player->CastSpell(player, SPELL_DARK_PORTAL_RUN_AWAY, TRIGGERED_FULL_MASK);
