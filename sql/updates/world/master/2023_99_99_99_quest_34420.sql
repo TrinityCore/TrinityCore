@@ -94,13 +94,13 @@ UPDATE `quest_template_locale` SET `QuestDescription`='Hay quien dice que es una
 UPDATE `creature_queststarter` SET `VerifiedBuild`=50791 WHERE (`id`=78558 AND `quest`=34420);
 
 -- Phase
-DELETE FROM `phase_area` WHERE `AreaId`IN (7025, 7041) AND `PhaseId` IN (3569, 3264, 3394, 3395, 3396);
+DELETE FROM `phase_area` WHERE `AreaId` = 7025 AND `PhaseId` IN (3569, 3264, 3394, 3395, 3396);
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 (7025, 3569, 'See Named Characters on Dark Portal, Post-Guldan'),
-(7041, 3264, 'See Questgivers at Bleeding Hollow Building'),
-(7041, 3394, 'See Khadgar at Bleeding Hollow Building'),
-(7041, 3395, 'See Thrall at Bleeding Hollow Building'),
-(7041, 3396, 'See Maraad at Bleeding Hollow Building');
+(7025, 3264, 'See Questgivers at Bleeding Hollow Building'),
+(7025, 3394, 'See Khadgar at Bleeding Hollow Building'),
+(7025, 3395, 'See Thrall at Bleeding Hollow Building'),
+(7025, 3396, 'See Maraad at Bleeding Hollow Building');
 
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup`=3569 AND `SourceEntry`=0;
