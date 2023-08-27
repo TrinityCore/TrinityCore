@@ -373,7 +373,6 @@ class spell_pri_atonement : public AuraScript
     }
 
     std::vector<ObjectGuid> _appliedAtonements;
-    bool _isTriggeringSpellShadowSchoolMask = false;
 
 public:
     void AddAtonementTarget(ObjectGuid const& target)
@@ -395,6 +394,12 @@ public:
         return _appliedAtonements;
     }
 
+    struct TriggerArgs
+    {
+        SpellInfo const* TriggeredBy = nullptr;
+        SpellSchoolMask DamageSchoolMask = SPELL_SCHOOL_MASK_NONE;
+    };
+
     void TriggerAtonementHealOnTargets(AuraEffect const* atonementEffect, ProcEventInfo const& eventInfo)
     {
         Unit* priest = GetUnitOwner();
@@ -403,6 +408,10 @@ public:
 
         // Note: atonementEffect holds the correct amount since we passed the effect in the AuraScript that calls this method.
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(damageInfo->GetDamage(), atonementEffect->GetAmount()));
+
+        args.SetCustomArg(TriggerArgs{
+            .TriggeredBy = eventInfo.GetSpellInfo(),
+            .DamageSchoolMask = eventInfo.GetDamageInfo()->GetSchoolMask() });
 
         float distanceLimit = GetEffectInfo(EFFECT_1).CalcValue();
 
@@ -429,11 +438,6 @@ public:
             if (AuraEffect* sinOfTheMany = GetUnitOwner()->GetAuraEffect(SPELL_PRIEST_SINS_OF_THE_MANY, effectIndex))
                 sinOfTheMany->ChangeAmount(damageByStack[std::min(_appliedAtonements.size(), damageByStack.size() - 1)]);
     }
-
-    bool IsTriggeringSpellShadowSchoolMask()
-    {
-        return _isTriggeringSpellShadowSchoolMask;
-    }
 };
 
 // 81751 - Atonement (Heal)
@@ -441,26 +445,17 @@ class spell_pri_abyssal_reverie : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT })
-            && ValidateSpellEffect({ { SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0 }  });
+        return ValidateSpellEffect({ { SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0 }  });
     }
 
-    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    void CalculateHealingBonus(Unit const* /*victim*/, int32 const& /*healing*/, int32 const& /*flatMod*/, float& pctMod) const
     {
-        Unit* caster = GetCaster();
+        spell_pri_atonement::TriggerArgs const* args = std::any_cast<spell_pri_atonement::TriggerArgs>(&GetSpell()->m_customArg);
+        if (!args || !(args->DamageSchoolMask & SPELL_SCHOOL_MASK_SHADOW))
+            return;
 
-        if (AuraEffect* const abyssalReverieEffect = caster->GetAuraEffect(SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0))
-        {
-            Aura* atonementAura = caster->GetAura(SPELL_PRIEST_ATONEMENT);
-            if (!atonementAura)
-                return;
-
-            if (spell_pri_atonement* script = atonementAura->GetScript<spell_pri_atonement>())
-            {
-                if (script->IsTriggeringSpellShadowSchoolMask())
-                    AddPct(pctMod, abyssalReverieEffect->GetAmount());
-            }
-        }
+        if (AuraEffect* const abyssalReverieEffect = GetCaster()->GetAuraEffect(SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0))
+            AddPct(pctMod, abyssalReverieEffect->GetAmount());
     }
 
     void Register() override
