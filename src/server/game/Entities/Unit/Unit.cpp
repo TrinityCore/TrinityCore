@@ -2074,8 +2074,12 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackTy
     int32    sum = 0, tmp = 0;
     int32    roll = urand(0, 9999);
 
+    float arcAngle = static_cast<float>(M_PI);
+    if (victim->IsCreature() && victim->ToCreature()->HasStaticFlag(CREATURE_STATIC_FLAG_5_240_DEGREE_BACK_ARC))
+        arcAngle -= static_cast<float>(M_PI / 3);
+
     // check if attack comes from behind, nobody can parry or block if attacker is behind
-    bool canParryOrBlock = victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION);
+    bool canParryOrBlock = victim->HasInArc(arcAngle, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION);
 
     // only creatures can dodge if attacker is behind
     bool canDodge = victim->GetTypeId() != TYPEID_PLAYER || canParryOrBlock;
