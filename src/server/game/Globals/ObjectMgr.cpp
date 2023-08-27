@@ -735,12 +735,12 @@ void ObjectMgr::LoadCreatureSummonedData()
 
         if (!fields[4].IsNull())
         {
+            summonedData.QuestsToDespawnOnQuestRemove.emplace();
             for (std::string_view questStr : Trinity::Tokenize(fields[4].GetStringView(), ',', false))
             {
                 if (Optional<uint32> questId = Trinity::StringTo<uint32>(questStr))
                 {
                     // quests aren't loaded yet, we cannot validate them
-                    summonedData.QuestsToDespawnOnQuestRemove.emplace();
                     summonedData.QuestsToDespawnOnQuestRemove->push_back(*questId);
                 }
             }
