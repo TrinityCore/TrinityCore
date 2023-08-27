@@ -44,7 +44,6 @@ namespace WorldPackets
             std::vector<int32> BonusListIDs;
 
             bool operator==(ItemBonuses const& r) const;
-            bool operator!=(ItemBonuses const& r) const { return !(*this == r); }
         };
 
         struct ItemMod
@@ -56,7 +55,6 @@ namespace WorldPackets
             ItemModifier Type = MAX_ITEM_MODIFIERS;
 
             bool operator==(ItemMod const& r) const;
-            bool operator!=(ItemMod const& r) const { return !(*this == r); }
         };
 
         struct ItemModList
@@ -64,7 +62,6 @@ namespace WorldPackets
             Array<ItemMod, MAX_ITEM_MODIFIERS> Values;
 
             bool operator==(ItemModList const& r) const;
-            bool operator!=(ItemModList const& r) const { return !(*this == r); }
         };
 
         struct ItemInstance
@@ -79,7 +76,6 @@ namespace WorldPackets
             ItemModList Modifications;
 
             bool operator==(ItemInstance const& r) const;
-            bool operator!=(ItemInstance const& r) const { return !(*this == r); }
         };
 
         struct ItemBonusKey
@@ -89,7 +85,6 @@ namespace WorldPackets
             std::vector<ItemMod> Modifications;
 
             bool operator==(ItemBonusKey const& right) const;
-            bool operator!=(ItemBonusKey const& r) const { return !(*this == r); }
         };
 
         struct ItemEnchantData

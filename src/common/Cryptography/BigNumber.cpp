@@ -132,7 +132,7 @@ BigNumber& BigNumber::operator<<=(int n)
     return *this;
 }
 
-int BigNumber::CompareTo(BigNumber const& bn) const
+int32 BigNumber::CompareTo(BigNumber const& bn) const
 {
     return BN_cmp(_bn, bn._bn);
 }

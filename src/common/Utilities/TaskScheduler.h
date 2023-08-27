@@ -95,18 +95,13 @@ class TC_COMMON_API TaskScheduler
         Task& operator= (Task&& right) = delete;
 
         // Order tasks by its end
-        inline bool operator< (Task const& other) const
+        std::weak_ordering operator<=> (Task const& other) const
         {
-            return _end < other._end;
-        }
-
-        inline bool operator> (Task const& other) const
-        {
-            return _end > other._end;
+            return _end <=> other._end;
         }
 
         // Compare tasks with its end
-        inline bool operator== (Task const& other)
+        bool operator== (Task const& other) const
         {
             return _end == other._end;
         }
@@ -126,7 +121,7 @@ class TC_COMMON_API TaskScheduler
         bool operator() (TaskContainer const& left, TaskContainer const& right) const
         {
             return (*left.get()) < (*right.get());
-        };
+        }
     };
 
     class TC_COMMON_API TaskQueue
