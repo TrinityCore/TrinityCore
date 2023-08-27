@@ -17,10 +17,12 @@
 
 // This is where scripts' loading functions should be declared:
 void AddSC_orderhall_warrior();
+void AddSC_zone_mardum();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddBrokenIslesScripts()
 {
     AddSC_orderhall_warrior();
+    AddSC_zone_mardum();
 }

@@ -161,7 +161,7 @@ void WorldSession::HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::Az
         }
     }
     else
-        azeriteItem->CreateSelectedAzeriteEssences(_player->GetPrimarySpecialization());
+        azeriteItem->CreateSelectedAzeriteEssences(AsUnderlyingType(_player->GetPrimarySpecialization()));
 
     azeriteItem->SetSelectedAzeriteEssence(azeriteEssenceActivateEssence.Slot, azeriteEssenceActivateEssence.AzeriteEssenceID);
 
