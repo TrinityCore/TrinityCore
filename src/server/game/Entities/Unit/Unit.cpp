@@ -853,6 +853,10 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
         duel_hasEnded = true;
     }
+    else if (victim->IsCreature() && damage >= health && victim->ToCreature()->HasStaticFlag(CREATURE_STATIC_FLAG_UNKILLABLE))
+    {
+        damage = health - 1;
+    }
     else if (victim->IsVehicle() && damage >= (health-1) && victim->GetCharmer() && victim->GetCharmer()->GetTypeId() == TYPEID_PLAYER)
     {
         Player* victimRider = victim->GetCharmer()->ToPlayer();
