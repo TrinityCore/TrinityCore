@@ -19,6 +19,8 @@
 #define TRINITY_AREATRIGGERAI_H
 
 #include "Define.h"
+#include "EventMap.h"
+#include "ObjectGuid.h"
 
 class AreaTrigger;
 class Spell;
@@ -30,6 +32,8 @@ class TC_GAME_API AreaTriggerAI
 
     protected:
         AreaTrigger* const at;
+        EventMap events;
+
     public:
         explicit AreaTriggerAI(AreaTrigger* a, uint32 scriptId = {});
         virtual ~AreaTriggerAI();
@@ -41,7 +45,13 @@ class TC_GAME_API AreaTriggerAI
         virtual void OnCreate([[maybe_unused]] Spell const* creatingSpell) { }
 
         // Called on each AreaTrigger update
-        virtual void OnUpdate([[maybe_unused]] uint32 diff) { }
+        virtual void OnUpdate(uint32 diff);
+
+        // Hook used to execute events scheduled into EventMap without the need
+        // to override OnUpdate
+        // note: You must re-schedule the event within this method if the event
+        // is supposed to run more than once
+        virtual void ExecuteEvent(uint32 /*eventId*/) { }
 
         // Called when the AreaTrigger reach splineIndex
         virtual void OnSplineIndexReached([[maybe_unused]] int32 splineIndex) { }
@@ -57,6 +67,13 @@ class TC_GAME_API AreaTriggerAI
 
         // Called when the AreaTrigger is removed
         virtual void OnRemove() { }
+
+        // Pass parameters between AI
+        virtual void DoAction([[maybe_unused]] int32 param) { }
+        virtual uint32 GetData([[maybe_unused]] uint32 id = 0) const { return 0; }
+        virtual void SetData([[maybe_unused]] uint32 id, [[maybe_unused]] uint32 value) { }
+        virtual void SetGUID([[maybe_unused]] ObjectGuid const& guid, [[maybe_unused]] int32 id = 0) { }
+        virtual ObjectGuid GetGUID([[maybe_unused]] int32 id = 0) const { return ObjectGuid::Empty; }
 
         // Gets the id of the AI (script id)
         uint32 GetId() { return _scriptId; }

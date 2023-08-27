@@ -26,3 +26,11 @@ AreaTriggerAI::AreaTriggerAI(AreaTrigger* a, uint32 scriptId) : _scriptId(script
 AreaTriggerAI::~AreaTriggerAI()
 {
 }
+
+void AreaTriggerAI::OnUpdate(uint32 diff)
+{
+    events.Update(diff);
+
+    while (uint32 eventId = events.ExecuteEvent())
+        ExecuteEvent(eventId);
+}
