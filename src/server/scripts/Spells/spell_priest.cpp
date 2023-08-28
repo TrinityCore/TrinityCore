@@ -486,7 +486,25 @@ class spell_pri_atonement_effect : public SpellScript
             && ValidateSpellEffect({ { SPELL_PRIEST_POWER_WORD_RADIANCE, EFFECT_3 } });
     }
 
-    void HandleOnHitTarget(SpellEffIndex /*effIndex*/) const
+    bool Load() override
+    {
+        Unit* caster = GetCaster();
+        if (!caster->HasAura(SPELL_PRIEST_ATONEMENT))
+            return false;
+
+        // only apply Trinity if the Priest has both Trinity and Atonement and the triggering spell is Power Word: Shield.
+        if (caster->HasAura(SPELL_PRIEST_TRINITY))
+        {
+            if (GetSpellInfo()->Id != SPELL_PRIEST_POWER_WORD_SHIELD)
+                return false;
+
+            _effectSpellId = SPELL_PRIEST_TRINITY_EFFECT;
+        }
+
+        return true;
+    }
+
+    void HandleOnHitTarget() const
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
@@ -494,30 +512,19 @@ class spell_pri_atonement_effect : public SpellScript
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.SetTriggeringSpell(GetSpell());
 
-        // Note: only apply Atonement if the Priest has Atonement but not Trinity.
-        if (caster->HasAura(SPELL_PRIEST_ATONEMENT) && !caster->HasAura(SPELL_PRIEST_TRINITY))
-        {
-            // Note: Power Word: Radiance applies Atonement at 60 % (without modifiers) of its total duration.
-            if (m_scriptSpellId == SPELL_PRIEST_POWER_WORD_RADIANCE)
-                args.AddSpellMod(SPELLVALUE_DURATION_PCT, sSpellMgr->AssertSpellInfo(SPELL_PRIEST_POWER_WORD_RADIANCE,
-                    GetCastDifficulty())->GetEffect(EFFECT_3).CalcValue(caster));
+        // Power Word: Radiance applies Atonement at 60 % (without modifiers) of its total duration.
+        if (GetSpellInfo()->Id == SPELL_PRIEST_POWER_WORD_RADIANCE)
+            args.AddSpellMod(SPELLVALUE_DURATION_PCT, GetSpellInfo()->GetEffect(EFFECT_3).CalcValue(caster));
 
-            caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_EFFECT, args);
-        }
-        // Note: only apply Trinity if the Priest has both Trinity and Atonement and the triggering spell is Power Word: Shield.
-        else if (caster->HasAura(SPELL_PRIEST_ATONEMENT) && caster->HasAura(SPELL_PRIEST_TRINITY) && m_scriptSpellId == SPELL_PRIEST_POWER_WORD_SHIELD)
-            caster->CastSpell(target, SPELL_PRIEST_TRINITY_EFFECT, args);
+        caster->CastSpell(target, _effectSpellId, args);
     }
 
     void Register() override
     {
-        if (m_scriptSpellId == SPELL_PRIEST_POWER_WORD_SHIELD || m_scriptSpellId == SPELL_PRIEST_RENEW)
-            OnEffectHitTarget += SpellEffectFn(spell_pri_atonement_effect::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-        else if (m_scriptSpellId == SPELL_PRIEST_POWER_WORD_RADIANCE)
-            OnEffectHitTarget += SpellEffectFn(spell_pri_atonement_effect::HandleOnHitTarget, EFFECT_1, SPELL_EFFECT_HEAL);
-        else
-            OnEffectHitTarget += SpellEffectFn(spell_pri_atonement_effect::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+        AfterHit += SpellHitFn(spell_pri_atonement_effect::HandleOnHitTarget);
     }
+
+    uint32 _effectSpellId = SPELL_PRIEST_ATONEMENT_EFFECT;
 };
 
 // 194384 - Atonement (Buff), 214206 - Atonement [Trinity] (Buff)
@@ -1777,14 +1784,14 @@ class spell_pri_power_word_radiance : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        // Note: we must add one since explicit target is always chosen.
-        uint32 const maxTargets = GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) + 1;
+        Unit* explTarget = GetExplTargetUnit();
+
+        // we must add one since explicit target is always chosen.
+        uint32 maxTargets = GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) + 1;
 
         if (targets.size() > maxTargets)
         {
-            Unit* explTarget = GetExplTargetUnit();
-
-            // Note: priority is: a) no Atonement b) injured c) anything else (excluding explicit target which is always added).
+            // priority is: a) no Atonement b) injured c) anything else (excluding explicit target which is always added).
             targets.sort([this, explTarget](WorldObject* lhs, WorldObject* rhs)
             {
                 if (lhs == explTarget) // explTarget > anything: always true
@@ -1796,41 +1803,38 @@ class spell_pri_power_word_radiance : public SpellScript
             });
 
             targets.resize(maxTargets);
+        }
 
-            for (WorldObject* target : targets)
-            {
-                if (target == explTarget)
-                    continue;
+        for (WorldObject* target : targets)
+        {
+            if (target == explTarget)
+                continue;
 
-                _nonExplicitTargetGUIDs.push_back(target->GetGUID());
-            }
+            _visualTargets.push_back(target->GetGUID());
         }
     }
 
-    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        if (GetHitUnit() != GetExplTargetUnit())
-            return;
-
-        for (ObjectGuid const& guid : _nonExplicitTargetGUIDs)
-            if (Unit* target = ObjectAccessor::GetUnit(*GetExplTargetUnit(), guid))
-                GetExplTargetUnit()->SendPlaySpellVisual(target, SPELL_VISUAL_PRIEST_POWER_WORD_RADIANCE, 0, 0, 70.0f);
+        for (ObjectGuid const& guid : _visualTargets)
+            if (Unit* target = ObjectAccessor::GetUnit(*GetHitUnit(), guid))
+                GetHitUnit()->SendPlaySpellVisual(target, SPELL_VISUAL_PRIEST_POWER_WORD_RADIANCE, 0, 0, 70.0f);
     }
 
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_power_word_radiance::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
-        OnEffectHitTarget += SpellEffectFn(spell_pri_power_word_radiance::HandleEffectHitTarget, EFFECT_1, SPELL_EFFECT_HEAL);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_power_word_radiance::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 
 private:
-    std::tuple<bool, bool> MakeSortTuple(WorldObject* obj)
+    std::tuple<bool, bool> MakeSortTuple(WorldObject* obj) const
     {
         return std::make_tuple(IsUnitWithNoAtonement(obj), IsUnitInjured(obj));
     }
 
     // Returns true if obj is a unit but has no atonement
-    bool IsUnitWithNoAtonement(WorldObject* obj)
+    bool IsUnitWithNoAtonement(WorldObject* obj) const
     {
         Unit* unit = obj->ToUnit();
         return unit && !unit->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, GetCaster()->GetGUID());
@@ -1843,7 +1847,7 @@ private:
         return unit && !unit->IsFullHealth();
     }
 
-    std::vector<ObjectGuid> _nonExplicitTargetGUIDs;
+    std::vector<ObjectGuid> _visualTargets;
 };
 
 // 17 - Power Word: Shield
