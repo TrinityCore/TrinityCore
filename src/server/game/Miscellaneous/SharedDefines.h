@@ -4707,8 +4707,8 @@ enum CreatureTypeFlags
     CREATURE_TYPE_FLAG_INTERACT_ONLY_WITH_CREATOR        = 0x00800000,
     CREATURE_TYPE_FLAG_DO_NOT_PLAY_UNIT_EVENT_SOUNDS     = 0x01000000,
     CREATURE_TYPE_FLAG_HAS_NO_SHADOW_BLOB                = 0x02000000,
-    CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT                = 0x04000000, //! Creature can be targeted by spells that require target to be in caster's party/raid
-    CREATURE_TYPE_FLAG_FORCE_GOSSIP                      = 0x08000000,   // Allows the creature to display a single gossip option.
+    CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT                = 0x04000000, //!< Creature can be targeted by spells that require target to be in caster's party/raid
+    CREATURE_TYPE_FLAG_FORCE_GOSSIP                      = 0x08000000, // Allows the creature to display a single gossip option.
     CREATURE_TYPE_FLAG_DO_NOT_SHEATHE                    = 0x10000000,
     CREATURE_TYPE_FLAG_DO_NOT_TARGET_ON_INTERACTION      = 0x20000000,
     CREATURE_TYPE_FLAG_DO_NOT_RENDER_OBJECT_NAME         = 0x40000000,
