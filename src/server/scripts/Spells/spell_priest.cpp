@@ -51,6 +51,7 @@ enum PriestSpells
     SPELL_PRIEST_ATONEMENT_EFFECT                   = 194384,
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
     SPELL_PRIEST_BENEDICTION                        = 193157,
+    SPELL_PRIEST_BENEVOLENCE                        = 415416,
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_BLESSED_LIGHT                      = 196813,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
@@ -167,7 +168,8 @@ enum PriestSpells
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
-    SPELL_PRIEST_WEAKENED_SOUL                      = 6788
+    SPELL_PRIEST_WEAKENED_SOUL                      = 6788,
+    SPELL_PVP_RULES_ENABLED_HARDCODED               = 134735
 };
 
 enum PriestSpellVisuals
@@ -1864,8 +1866,12 @@ class spell_pri_power_word_shield : public AuraScript
             SPELL_PRIEST_TRINITY_EFFECT,
             SPELL_PRIEST_SHIELD_DISCIPLINE,
             SPELL_PRIEST_SHIELD_DISCIPLINE_EFFECT,
-        })
-            && ValidateSpellEffect({ { SPELL_PRIEST_MASTERY_GRACE, EFFECT_0 }, { SPELL_PRIEST_RAPTURE, EFFECT_1 } });
+            SPELL_PVP_RULES_ENABLED_HARDCODED
+        }) && ValidateSpellEffect({
+            { SPELL_PRIEST_MASTERY_GRACE, EFFECT_0 },
+            { SPELL_PRIEST_RAPTURE, EFFECT_1 },
+            { SPELL_PRIEST_BENEVOLENCE, EFFECT_0 }
+        });
     }
 
     void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& canBeRecalculated) const
@@ -1874,21 +1880,32 @@ class spell_pri_power_word_shield : public AuraScript
 
         if (Unit* caster = GetCaster())
         {
-            float modifiedAmount = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 1.65f;
+            float modifiedAmount = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 3.36f;
 
             if (Player* player = caster->ToPlayer())
             {
                 AddPct(modifiedAmount, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
 
-                // Note: Mastery: Grace (TBD: move into DoEffectCalcDamageAndHealing hook with a new SpellScript and AuraScript).
+                // Mastery: Grace (TBD: move into DoEffectCalcDamageAndHealing hook with a new SpellScript and AuraScript).
                 if (AuraEffect const* masteryGraceEffect = caster->GetAuraEffect(SPELL_PRIEST_MASTERY_GRACE, EFFECT_0))
                     if (GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT) || GetUnitOwner()->HasAura(SPELL_PRIEST_TRINITY_EFFECT))
                         AddPct(modifiedAmount, masteryGraceEffect->GetAmount());
+
+                if (player->GetPrimarySpecialization() != ChrSpecialization::PriestHoly)
+                {
+                    modifiedAmount *= 1.25f;
+                    if (caster->HasAura(SPELL_PVP_RULES_ENABLED_HARDCODED))
+                        modifiedAmount *= 0.8f;
+                }
             }
 
-            // Note: Rapture talent (TBD: move into DoEffectCalcDamageAndHealing hook).
+            // Rapture talent (TBD: move into DoEffectCalcDamageAndHealing hook).
             if (AuraEffect const* raptureEffect = caster->GetAuraEffect(SPELL_PRIEST_RAPTURE, EFFECT_1))
                 AddPct(modifiedAmount, raptureEffect->GetAmount());
+
+            // Benevolence talent
+            if (AuraEffect const* benevolenceEffect = caster->GetAuraEffect(SPELL_PRIEST_BENEVOLENCE, EFFECT_0))
+                AddPct(modifiedAmount, benevolenceEffect->GetAmount());
 
             amount = modifiedAmount;
         }
