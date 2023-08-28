@@ -2009,18 +2009,47 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         }
     }
 
+    /*
+        TARGET_DEST_NEARBY_ENTRY_2 -> is mostly used by summon spells for more as one summon with fix spawn positions
+    */
+    std::vector<WorldObject*> targetList;
+    bool _foundMoreTargets = false;
+    uint8 _targetCounter = 0;
+    if (summonCount > 1 && m_spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_DEST_NEARBY_ENTRY_2)
+    {
+        ConditionContainer* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
+        SpellImplicitTargetInfo const& targetType = m_spellInfo->Effects[effIndex].TargetB;
+
+        std::list<WorldObject*> tempTargets;
+        SearchAreaTargets(tempTargets, m_spellInfo->Effects[effIndex].CalcRadius(), destTarget, m_caster, targetType.GetObjectType(), targetType.GetCheckType(), condList);
+
+        for (auto& itr : tempTargets)
+        {
+            _foundMoreTargets = true;
+            ++_targetCounter;
+            targetList.push_back(itr);
+        }
+
+        if (_targetCounter >= 1)
+            _targetCounter -= 1;
+
+        // Shuffle Targets to get randomize points.
+        Trinity::Containers::RandomShuffle(targetList);
+    }
+
     for (uint32 i = 0; i < summonCount; ++i)
     {
         Position dest = *destTarget;
-        if (summonCount > 1)
+        if (summonCount > 1 && m_spellInfo->Effects[effIndex].TargetB.GetTarget() != TARGET_DEST_NEARBY_ENTRY_2)
         {
             // Multiple summons are summoned at random points within the destination radius
             float radius = m_spellInfo->Effects[effIndex].CalcRadius();
             dest = caster->GetRandomPoint(*destTarget, radius);
         }
 
-        if (TempSummon* summon = caster->GetMap()->SummonCreature(entry, *destTarget, extraArgs))
+        if (TempSummon* summon = caster->GetMap()->SummonCreature(entry, !_foundMoreTargets ? dest : *targetList[_targetCounter], extraArgs))
         {
+            --_targetCounter;
             ExecuteLogEffectSummonObject(effIndex, summon);
 
             if (summonCount == 1 && summon->IsVehicle())
