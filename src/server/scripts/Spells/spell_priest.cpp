@@ -26,6 +26,7 @@
 #include "Containers.h"
 #include "G3DPosition.hpp"
 #include "GridNotifiers.h"
+#include "ListUtils.h"
 #include "Log.h"
 #include "MoveSplineInitArgs.h"
 #include "ObjectAccessor.h"
@@ -2457,10 +2458,13 @@ class spell_pri_shadow_covenant : public SpellScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        // Note: we must remove one since explicit target is always added.
-        uint32 const maxTargets = uint32(GetSpellInfo()->GetEffect(EFFECT_2).CalcValue(GetCaster()) - 1);
+        // remove explicit target (will be readded later)
+        Trinity::Containers::Lists::RemoveUnique(targets, GetExplTargetWorldObject());
+
+        // we must remove one since explicit target is always added.
+        uint32 maxTargets = uint32(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) - 1);
 
         Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
 
