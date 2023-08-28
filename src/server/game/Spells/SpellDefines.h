@@ -249,10 +249,10 @@ enum TriggerCastFlags : uint32
     TRIGGERED_IGNORE_CAST_IN_PROGRESS               = 0x00000020,   //!< Will not check if a current cast is in progress
     // reuse                                        = 0x00000040,
     TRIGGERED_CAST_DIRECTLY                         = 0x00000080,   //!< In Spell::prepare, will be cast directly without setting containers for executed spell
-    TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS           = 0x00000100,   //!< Will ignore interruptible aura's at cast
+    // reuse                                        = 0x00000100,
     TRIGGERED_IGNORE_SET_FACING                     = 0x00000200,   //!< Will not adjust facing to target (if any)
     TRIGGERED_IGNORE_SHAPESHIFT                     = 0x00000400,   //!< Will ignore shapeshift checks
-    // reuse
+    // reuse                                        = 0x00000800,
     TRIGGERED_DISALLOW_PROC_EVENTS                  = 0x00001000,   //!< Disallows proc events from triggered spell (default)
     TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE   = 0x00002000,   //!< Will ignore mounted/on vehicle restrictions
     // reuse                                        = 0x00004000,
