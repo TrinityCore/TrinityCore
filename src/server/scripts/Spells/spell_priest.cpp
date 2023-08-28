@@ -26,6 +26,7 @@
 #include "Containers.h"
 #include "G3DPosition.hpp"
 #include "GridNotifiers.h"
+#include "ListUtils.h"
 #include "Log.h"
 #include "MoveSplineInitArgs.h"
 #include "ObjectAccessor.h"
@@ -2449,6 +2450,34 @@ class spell_pri_spirit_of_redemption : public AuraScript
     }
 };
 
+// 314867 - Shadow Covenant
+class spell_pri_shadow_covenant : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        // remove explicit target (will be readded later)
+        Trinity::Containers::Lists::RemoveUnique(targets, GetExplTargetWorldObject());
+
+        // we must remove one since explicit target is always added.
+        uint32 maxTargets = uint32(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) - 1);
+
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
+
+        if (Unit* explicitTarget = GetExplTargetUnit())
+            targets.push_front(explicitTarget);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_shadow_covenant::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
 // 186263 - Shadow Mend
 class spell_pri_shadow_mend : public SpellScript
 {
@@ -2849,6 +2878,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_rapture);
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
+    RegisterSpellScript(spell_pri_shadow_covenant);
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
     RegisterSpellScript(spell_pri_trail_of_light);
