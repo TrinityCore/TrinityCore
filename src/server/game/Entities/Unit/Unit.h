@@ -27,6 +27,7 @@
 #include "UnitDefines.h"
 #include "Util.h"
 #include <array>
+#include <forward_list>
 #include <map>
 #include <memory>
 #include <stack>
@@ -759,9 +760,9 @@ class TC_GAME_API Unit : public WorldObject
         typedef std::multimap<AuraStateType,  AuraApplication*> AuraStateAurasMap;
         typedef std::pair<AuraStateAurasMap::const_iterator, AuraStateAurasMap::const_iterator> AuraStateAurasMapBounds;
 
-        typedef std::list<AuraEffect*> AuraEffectList;
-        typedef std::list<Aura*> AuraList;
-        typedef std::list<AuraApplication*> AuraApplicationList;
+        typedef std::forward_list<AuraEffect*> AuraEffectList;
+        typedef std::forward_list<Aura*> AuraList;
+        typedef std::forward_list<AuraApplication*> AuraApplicationList;
         typedef std::array<DiminishingReturn, DIMINISHING_MAX> Diminishing;
 
         typedef std::vector<std::pair<uint32 /*procEffectMask*/, AuraApplication*>> AuraApplicationProcContainer;
@@ -1207,7 +1208,7 @@ class TC_GAME_API Unit : public WorldObject
         void SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration) const;
         void SendCancelSpellVisualKit(uint32 id);
 
-        void CancelSpellMissiles(uint32 spellId, bool reverseMissile = false);
+        void CancelSpellMissiles(uint32 spellId, bool reverseMissile = false, bool abortSpell = false);
 
         void DeMorph();
 

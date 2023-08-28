@@ -38,10 +38,15 @@ enum RogueSpells
 {
     SPELL_ROGUE_ADRENALINE_RUSH                     = 13750,
     SPELL_ROGUE_BETWEEN_THE_EYES                    = 199804,
+    SPELL_ROGUE_BLACKJACK_TALENT                    = 379005,
+    SPELL_ROGUE_BLACKJACK                           = 394119,
     SPELL_ROGUE_BLADE_FLURRY                        = 13877,
     SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK           = 22482,
     SPELL_ROGUE_BROADSIDE                           = 193356,
     SPELL_ROGUE_BURIED_TREASURE                     = 199600,
+    SPELL_ROGUE_CHEAT_DEATH_DUMMY                   = 31231,
+    SPELL_ROGUE_CHEATED_DEATH                       = 45181,
+    SPELL_ROGUE_CHEATING_DEATH                      = 45182,
     SPELL_ROGUE_DEATH_FROM_ABOVE                    = 152150,
     SPELL_ROGUE_GRAND_MELEE                         = 193358,
     SPELL_ROGUE_GRAPPLING_HOOK                      = 195457,
@@ -55,6 +60,8 @@ enum RogueSpells
     SPELL_ROGUE_MAIN_GAUCHE                         = 86392,
     SPELL_ROGUE_PREMEDITATION_PASSIVE               = 343160,
     SPELL_ROGUE_PREMEDITATION_AURA                  = 343173,
+    SPELL_ROGUE_PREY_ON_THE_WEAK_TALENT             = 131511,
+    SPELL_ROGUE_PREY_ON_THE_WEAK                    = 255909,
     SPELL_ROGUE_RUTHLESS_PRECISION                  = 193357,
     SPELL_ROGUE_SANCTUARY                           = 98877,
     SPELL_ROGUE_SKULL_AND_CROSSBONES                = 199603,
@@ -124,6 +131,28 @@ class spell_rog_backstab : public SpellScript
     }
 };
 
+// 379005 - Blackjack
+// Called by Sap - 6770 and Blind - 2094
+class spell_rog_blackjack : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_BLACKJACK_TALENT, SPELL_ROGUE_BLACKJACK });
+    }
+
+    void EffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (Unit* caster = GetCaster())
+            if (caster->HasAura(SPELL_ROGUE_BLACKJACK_TALENT))
+                caster->CastSpell(GetTarget(), SPELL_ROGUE_BLACKJACK, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectApplyFn(spell_rog_blackjack::EffectRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
 class spell_rog_blade_flurry : public AuraScript
 {
@@ -160,6 +189,39 @@ class spell_rog_blade_flurry : public AuraScript
     }
 
     Unit* _procTarget = nullptr;
+};
+
+// 31230 - Cheat Death
+class spell_rog_cheat_death : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_CHEAT_DEATH_DUMMY, SPELL_ROGUE_CHEATED_DEATH, SPELL_ROGUE_CHEATING_DEATH })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& /*dmgInfo*/, uint32& absorbAmount)
+    {
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_ROGUE_CHEATED_DEATH))
+        {
+            absorbAmount = 0;
+            return;
+        }
+
+        PreventDefaultAction();
+
+        target->CastSpell(target, SPELL_ROGUE_CHEAT_DEATH_DUMMY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        target->CastSpell(target, SPELL_ROGUE_CHEATED_DEATH, TRIGGERED_DONT_REPORT_CAST_ERROR);
+        target->CastSpell(target, SPELL_ROGUE_CHEATING_DEATH, TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        target->SetHealth(target->CountPctFromMaxHealth(GetEffectInfo(EFFECT_1).CalcValue(target)));
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbOverkillFn(spell_rog_cheat_death::HandleAbsorb, EFFECT_0);
+    }
 };
 
 // 2818 - Deadly Poison
@@ -473,6 +535,28 @@ class spell_rog_pickpocket : public SpellScript
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_rog_pickpocket::CheckCast);
+    }
+};
+
+// 131511 - Prey on the Weak
+// Called by Cheap Shot - 1833 and Kidney Shot - 408
+class spell_rog_prey_on_the_weak : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_PREY_ON_THE_WEAK_TALENT, SPELL_ROGUE_PREY_ON_THE_WEAK });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (Unit* caster = GetCaster())
+            if (caster->HasAura(SPELL_ROGUE_PREY_ON_THE_WEAK_TALENT))
+                caster->CastSpell(GetTarget(), SPELL_ROGUE_PREY_ON_THE_WEAK, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_rog_prey_on_the_weak::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -954,7 +1038,9 @@ class spell_rog_venomous_wounds : public AuraScript
 void AddSC_rogue_spell_scripts()
 {
     RegisterSpellScript(spell_rog_backstab);
+    RegisterSpellScript(spell_rog_blackjack);
     RegisterSpellScript(spell_rog_blade_flurry);
+    RegisterSpellScript(spell_rog_cheat_death);
     RegisterSpellScript(spell_rog_deadly_poison);
     RegisterSpellScript(spell_rog_envenom);
     RegisterSpellScript(spell_rog_eviscerate);
@@ -964,6 +1050,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_kingsbane);
     RegisterSpellScript(spell_rog_mastery_main_gauche);
     RegisterSpellScript(spell_rog_pickpocket);
+    RegisterSpellScript(spell_rog_prey_on_the_weak);
     RegisterSpellScript(spell_rog_restless_blades);
     RegisterSpellScript(spell_rog_roll_the_bones);
     RegisterSpellScript(spell_rog_rupture);

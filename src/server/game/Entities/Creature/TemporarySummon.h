@@ -45,7 +45,7 @@ class TC_GAME_API TempSummon : public Creature
 {
     public:
         explicit TempSummon(SummonPropertiesEntry const* properties, WorldObject* owner, bool isWorldObject);
-        virtual ~TempSummon() { }
+        virtual ~TempSummon();
         void Update(uint32 diff) override;
         virtual void InitStats(WorldObject* summoner, Milliseconds duration);
         virtual void InitSummon(WorldObject* summoner);
@@ -72,7 +72,12 @@ class TC_GAME_API TempSummon : public Creature
         SummonPropertiesEntry const* const m_Properties;
 
         std::string GetDebugInfo() const override;
+
+    protected:
+        std::ptrdiff_t FindUsableTotemSlot(Unit const* summoner) const;
+
     private:
+        bool IsSharingTotemSlotWith(ObjectGuid objectGuid) const;
         TempSummonType m_type;
         Milliseconds m_timer;
         Milliseconds m_lifetime;
