@@ -2941,7 +2941,7 @@ TaxiPathEntry const* DB2Manager::GetTaxiPath(uint32 from, uint32 to) const
     return Trinity::Containers::MapGetValuePtr(_taxiPaths, { from, to });
 }
 
-bool DB2Manager::IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)
+bool DB2Manager::IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId, bool requireAllTotems /*= true*/)
 {
     if (requiredTotemCategoryId == 0)
         return true;
@@ -2958,7 +2958,8 @@ bool DB2Manager::IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint3
     if (itemEntry->TotemCategoryType != reqEntry->TotemCategoryType)
         return false;
 
-    return (itemEntry->TotemCategoryMask & reqEntry->TotemCategoryMask) == reqEntry->TotemCategoryMask;
+    int32 sharedMask = itemEntry->TotemCategoryMask & reqEntry->TotemCategoryMask;
+    return requireAllTotems ? sharedMask == reqEntry->TotemCategoryMask : sharedMask != 0;
 }
 
 bool DB2Manager::IsToyItem(uint32 toy) const

@@ -59,17 +59,17 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, Fligh
         std::string GetDebugInfo() const override;
 
     private:
-        float _endGridX; //! X coord of last node location
-        float _endGridY; //! Y coord of last node location
-        uint32 _endMapId; //! map Id of last node location
-        uint32 _preloadTargetNode; //! node index where preloading starts
+        float _endGridX; //!< X coord of last node location
+        float _endGridY; //!< Y coord of last node location
+        uint32 _endMapId; //!< map Id of last node location
+        uint32 _preloadTargetNode; //!< node index where preloading starts
 
         struct TaxiNodeChangeInfo
         {
             uint32 PathIndex;
             int64 Cost;
         };
-        std::deque<TaxiNodeChangeInfo> _pointsForPathSwitch; //! node indexes and costs where TaxiPath changes
+        std::deque<TaxiNodeChangeInfo> _pointsForPathSwitch; //!< node indexes and costs where TaxiPath changes
 };
 
 #endif // TRINITY_FLIGHTPATHMOVEMENTGENERATOR_H

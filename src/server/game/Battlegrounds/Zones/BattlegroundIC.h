@@ -965,7 +965,7 @@ class BattlegroundIC : public Battleground
         ~BattlegroundIC();
 
         /* inherited from BattlegroundClass */
-        void AddPlayer(Player* player) override;
+        void AddPlayer(Player* player, BattlegroundQueueTypeId queueId) override;
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
         void PostUpdateImpl(uint32 diff) override;
