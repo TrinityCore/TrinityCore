@@ -65,7 +65,7 @@ BattlegroundWS::BattlegroundWS(BattlegroundTemplate const* battlegroundTemplate)
     _capturePointAreaTriggers = { };
 
     _flagAssaultTimer.Reset(FLAG_ASSAULT_TIMER);
-    _stackCount = 0;
+    _assaultStackCount = 0;
 }
 
 BattlegroundWS::~BattlegroundWS() { }
@@ -78,13 +78,13 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
         {
             if (GetTeamScore(TEAM_ALLIANCE) == 0)
             {
-                if (GetTeamScore(TEAM_HORDE) == 0)        // No one scored - result is tie
+                if (GetTeamScore(TEAM_HORDE) == 0) // No one scored - result is tie
                     EndBattleground(0);
-                else                                 // Horde has more points and thus wins
+                else // Horde has more points and thus wins
                     EndBattleground(HORDE);
             }
-            else if (GetTeamScore(TEAM_HORDE) == 0)
-                EndBattleground(ALLIANCE);           // Alliance has > 0, Horde has 0, alliance wins
+            else if (GetTeamScore(TEAM_HORDE) == 0) // Alliance has > 0, Horde has 0, alliance wins
+                EndBattleground(ALLIANCE);
             else if (GetTeamScore(TEAM_HORDE) == GetTeamScore(TEAM_ALLIANCE)) // Team score equal, winner is team that scored the last flag
                 EndBattleground(_lastFlagCaptureTeam);
             else if (GetTeamScore(TEAM_HORDE) > GetTeamScore(TEAM_ALLIANCE))  // Last but not least, check who has the higher score
@@ -99,9 +99,9 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
             if (_flagAssaultTimer.Passed())
             {
                 _flagAssaultTimer.Reset(FLAG_ASSAULT_TIMER);
-                _stackCount++;
+                _assaultStackCount++;
 
-                // get stack count, ...
+                // update assault debuff stacks
                 DoForFlagKeepers([&](Player* player) -> void
                 {
                     ApplyAssaultDebuffToPlayer(player);
@@ -113,16 +113,20 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
 
 void BattlegroundWS::DoForFlagKeepers(std::function<void(Player*)> action) const
 {
-    for (ObjectGuid guid : _flags)
-        if (GameObject* gameObject = GetBgMap()->GetGameObject(guid))
-            if (Player* player = ObjectAccessor::FindPlayer(gameObject->GetFlagCarrierGUID()))
-                action(player);
+    for (ObjectGuid flagGUID : _flags)
+    {
+        if (GameObject* flag = GetBgMap()->GetGameObject(flagGUID))
+        {
+            if (Player* carrier = ObjectAccessor::FindPlayer(flag->GetFlagCarrierGUID()))
+                action(carrier);
+        }
+    }
 }
 
 void BattlegroundWS::ResetAssaultDebuff()
 {
     _bothFlagsKept = false;
-    _stackCount = 0;
+    _assaultStackCount = 0;
     _flagAssaultTimer.Reset(FLAG_ASSAULT_TIMER);
     DoForFlagKeepers([&](Player* player) -> void
     {
@@ -132,21 +136,25 @@ void BattlegroundWS::ResetAssaultDebuff()
 
 void BattlegroundWS::ApplyAssaultDebuffToPlayer(Player* player)
 {
-    if (_stackCount == 0)
+    if (_assaultStackCount == 0)
         return;
 
-    if (_stackCount < FLAG_BRUTAL_ASSAULT_STACK_COUNT)
+    uint32 spellId = WS_SPELL_FOCUSED_ASSAULT;
+    if (_assaultStackCount >= FLAG_BRUTAL_ASSAULT_STACK_COUNT)
     {
-        player->CastSpell(player, WS_SPELL_FOCUSED_ASSAULT, true);
-        if (Aura* aura = player->GetAura(WS_SPELL_FOCUSED_ASSAULT))
-            aura->SetStackAmount(_stackCount);
+        player->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
+        spellId = WS_SPELL_BRUTAL_ASSAULT;
     }
-    else
+
+    Aura* aura = player->GetAura(spellId);
+    if (!aura)
     {
-        player->CastSpell(player, WS_SPELL_BRUTAL_ASSAULT, true);
-        if (Aura* aura = player->GetAura(WS_SPELL_BRUTAL_ASSAULT))
-            aura->SetStackAmount(_stackCount - (FLAG_BRUTAL_ASSAULT_STACK_COUNT - 1));
+        player->CastSpell(player, spellId, true);
+        aura = player->GetAura(spellId);
     }
+
+    if (aura)
+        aura->SetStackAmount(_assaultStackCount);
 }
 
 void BattlegroundWS::RemoveAssaultDebuffFromPlayer(Player* player)
@@ -189,7 +197,7 @@ FlagState BattlegroundWS::GetFlagState(TeamId team) const
     return FlagState(0);
 }
 
-ObjectGuid const& BattlegroundWS::GetFlagCarrier(TeamId team) const
+ObjectGuid const& BattlegroundWS::GetFlagCarrierGUID(TeamId team) const
 {
     if (GameObject* gameObject = FindBgMap()->GetGameObject(_flags[team]))
         return gameObject->GetFlagCarrierGUID();
@@ -276,7 +284,7 @@ void BattlegroundWS::Reset()
 
     _doors.clear();
     _flags = { };
-    _stackCount = 0;
+    _assaultStackCount = 0;
     _flagAssaultTimer.Reset(FLAG_ASSAULT_TIMER);
     _capturePointAreaTriggers = { };
 }
@@ -288,6 +296,7 @@ void BattlegroundWS::EndBattleground(uint32 winner)
         RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), ALLIANCE);
     if (winner == HORDE)
         RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), HORDE);
+
     // Complete map_end rewards (even if no team wins)
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), HORDE);
@@ -395,6 +404,7 @@ void BattlegroundWS::OnFlagStateChange(GameObject* flagInBase, FlagState /*oldVa
     switch (newValue)
     {
         case FlagState::InBase:
+        {
             if (GetStatus() == STATUS_IN_PROGRESS)
             {
                 ResetAssaultDebuff();
@@ -425,25 +435,34 @@ void BattlegroundWS::OnFlagStateChange(GameObject* flagInBase, FlagState /*oldVa
                 HandleFlagRoomCapturePoint();
             }
             break;
+        }
         case FlagState::Dropped:
-            player->CastSpell(player, SPELL_RECENTLY_DROPPED_FLAG, true);
+        {
             player->RemoveAurasDueToSpell(BG_WS_SPELL_QUICK_CAP_TIMER);
             RemoveAssaultDebuffFromPlayer(player);
 
+            uint32 recentlyDroppedSpellId = SPELL_RECENTLY_DROPPED_FLAG_ALLIANCE;
             if (team == ALLIANCE)
-                SendBroadcastText(BG_WS_TEXT_HORDE_FLAG_DROPPED, CHAT_MSG_BG_SYSTEM_HORDE, player);
-            else
+            {
+                recentlyDroppedSpellId = SPELL_RECENTLY_DROPPED_FLAG_HORDE;
                 SendBroadcastText(BG_WS_TEXT_ALLIANCE_FLAG_DROPPED, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+            }
+            else
+                SendBroadcastText(BG_WS_TEXT_HORDE_FLAG_DROPPED, CHAT_MSG_BG_SYSTEM_HORDE, player);
+
+            player->CastSpell(player, recentlyDroppedSpellId, true);
             break;
+        }
         case FlagState::Taken:
+        {
             if (team == HORDE)
             {
-                SendBroadcastText(BG_WS_TEXT_HORDE_FLAG_PICKED_UP, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+                SendBroadcastText(BG_WS_TEXT_HORDE_FLAG_PICKED_UP, CHAT_MSG_BG_SYSTEM_HORDE, player);
                 PlaySoundToAll(BG_WS_SOUND_HORDE_FLAG_PICKED_UP);
             }
             else
             {
-                SendBroadcastText(BG_WS_TEXT_ALLIANCE_FLAG_PICKED_UP, CHAT_MSG_BG_SYSTEM_HORDE, player);
+                SendBroadcastText(BG_WS_TEXT_ALLIANCE_FLAG_PICKED_UP, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
                 PlaySoundToAll(BG_WS_SOUND_ALLIANCE_FLAG_PICKED_UP);
             }
 
@@ -455,6 +474,7 @@ void BattlegroundWS::OnFlagStateChange(GameObject* flagInBase, FlagState /*oldVa
             flagInBase->CastSpell(player, BG_WS_SPELL_QUICK_CAP_TIMER, true);
             player->StartCriteriaTimer(CriteriaStartEvent::BeSpellTarget, BG_WS_SPELL_QUICK_CAP_TIMER, uint32(GameTime::GetGameTime() - flagInBase->GetFlagTakenFromBaseTime()));
             break;
+        }
         case FlagState::Respawning:
             ResetAssaultDebuff();
             break;
@@ -476,7 +496,7 @@ bool BattlegroundWS::CanCaptureFlag(AreaTrigger* areaTrigger, Player* player)
         return false;
 
     // check if enemy flag's carrier is this player
-    if (GetFlagCarrier(otherTeamId) != player->GetGUID())
+    if (GetFlagCarrierGUID(otherTeamId) != player->GetGUID())
         return false;
 
     // check that team's flag is in base
@@ -514,14 +534,14 @@ void BattlegroundWS::OnCaptureFlag(AreaTrigger* /*areaTrigger*/, Player* player)
     // 3. chat message & sound
     if (team == ALLIANCE)
     {
-        SendBroadcastText(BG_WS_TEXT_CAPTURED_HORDE_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+        SendBroadcastText(BG_WS_TEXT_CAPTURED_HORDE_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, player);
         PlaySoundToAll(BG_WS_SOUND_FLAG_CAPTURED_ALLIANCE);
         RewardReputationToTeam(890, m_ReputationCapture, ALLIANCE);
         player->CastSpell(player, SPELL_CAPTURED_ALLIANCE_COSMETIC_FX);
     }
     else
     {
-        SendBroadcastText(BG_WS_TEXT_CAPTURED_ALLIANCE_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, player);
+        SendBroadcastText(BG_WS_TEXT_CAPTURED_ALLIANCE_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
         PlaySoundToAll(BG_WS_SOUND_FLAG_CAPTURED_HORDE);
         RewardReputationToTeam(889, m_ReputationCapture, HORDE);
         player->CastSpell(player, SPELL_CAPTURED_HORDE_COSMETIC_FX);

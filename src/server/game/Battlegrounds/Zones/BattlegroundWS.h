@@ -129,10 +129,10 @@ enum BG_WS_Objectives
     WS_OBJECTIVE_RETURN_FLAG    = 929
 };
 
-enum AreaTriggers
+enum BG_WS_AreaTriggers
 {
-    AT_CAPTURE_POINT_ALLIANCE   = 30000000,
-    AT_CAPTURE_POINT_HORDE      = 30000001
+    AT_CAPTURE_POINT_ALLIANCE   = 30,
+    AT_CAPTURE_POINT_HORDE      = 31
 };
 
 static constexpr uint32 WS_EVENT_START_BATTLE = 35912;
@@ -191,7 +191,7 @@ class BattlegroundWS : public Battleground
 
         /* BG Flags */
         FlagState GetFlagState(TeamId team) const;
-        ObjectGuid const& GetFlagCarrier(TeamId team) const;
+        ObjectGuid const& GetFlagCarrierGUID(TeamId team) const;
         void HandleFlagRoomCapturePoint();
 
         void HandleKillPlayer(Player* player, Player* killer) override;
@@ -241,7 +241,7 @@ class BattlegroundWS : public Battleground
         std::array<ObjectGuid, 2> _flags;
 
         TimeTracker _flagAssaultTimer;
-        uint16 _stackCount;
+        uint16 _assaultStackCount;
         std::array<ObjectGuid, 2> _capturePointAreaTriggers;
 };
 #endif

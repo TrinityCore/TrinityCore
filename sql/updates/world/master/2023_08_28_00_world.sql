@@ -1,9 +1,9 @@
-SET @CGUID := 30000000;
-SET @OGUID := 30000000;
+SET @CGUID := 7000000;
+SET @OGUID := 7000000;
 
-SET @TRIGGER_ID_ALLIANCE := 30000000; -- Trigger ID for capture flag area trigger alliance
-SET @TRIGGER_ID_HORDE := 30000001; -- Trigger ID for capture flag area trigger horde
-SET @TRIGGER_SPAWN_ID := 30000000;
+SET @TRIGGER_ID_ALLIANCE := 30; -- Trigger ID for capture flag area trigger alliance
+SET @TRIGGER_ID_HORDE := 31; -- Trigger ID for capture flag area trigger horde
+SET @TRIGGER_SPAWN_ID := 35;
 
 -- new trigger capture flag
 DELETE FROM `areatrigger_template` WHERE `Id` IN (@TRIGGER_ID_ALLIANCE, @TRIGGER_ID_HORDE) AND `IsServerSide` = 1;
