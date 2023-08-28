@@ -112,13 +112,10 @@ bool ItemInstance::operator==(ItemInstance const& r) const
     if (ItemID != r.ItemID)
         return false;
 
-    if (ItemBonus.has_value() != r.ItemBonus.has_value())
+    if (ItemBonus != r.ItemBonus)
         return false;
 
     if (Modifications != r.Modifications)
-        return false;
-
-    if (ItemBonus.has_value() && *ItemBonus != *r.ItemBonus)
         return false;
 
     return true;

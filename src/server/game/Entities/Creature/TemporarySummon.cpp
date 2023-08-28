@@ -18,7 +18,7 @@
 #include "TemporarySummon.h"
 #include "CellImpl.h"
 #include "CreatureAI.h"
-#include "DB2Structure.h"
+#include "DB2Stores.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
@@ -29,6 +29,7 @@
 #include "Pet.h"
 #include "Player.h"
 #include "SmoothPhasing.h"
+#include "SpellMgr.h"
 #include <boost/container/small_vector.hpp>
 #include <sstream>
 
@@ -41,6 +42,8 @@ m_timer(0ms), m_lifetime(0ms), m_canFollowOwner(true)
 
     m_unitTypeMask |= UNIT_MASK_SUMMON;
 }
+
+TempSummon::~TempSummon() = default;
 
 WorldObject* TempSummon::GetSummoner() const
 {
@@ -212,8 +215,11 @@ void TempSummon::InitStats(WorldObject* summoner, Milliseconds duration)
 
     if (Unit* unitSummoner = ToUnit(summoner))
     {
-        int32 slot = m_Properties->Slot;
-        if (slot > 0)
+        std::ptrdiff_t slot = m_Properties->Slot;
+        if (slot == SUMMON_SLOT_ANY_TOTEM)
+            slot = FindUsableTotemSlot(unitSummoner);
+
+        if (slot != 0)
         {
             if (!unitSummoner->m_SummonSlot[slot].IsEmpty() && unitSummoner->m_SummonSlot[slot] != GetGUID())
             {
@@ -350,19 +356,76 @@ void TempSummon::RemoveFromWorld()
     if (!IsInWorld())
         return;
 
-    if (m_Properties)
-    {
-        int32 slot = m_Properties->Slot;
-        if (slot > 0)
-            if (Unit* owner = GetSummonerUnit())
-                if (owner->m_SummonSlot[slot] == GetGUID())
-                    owner->m_SummonSlot[slot].Clear();
-    }
+    if (m_Properties && m_Properties->Slot != 0)
+        if (Unit* owner = GetSummonerUnit())
+            for (ObjectGuid& summonSlot : owner->m_SummonSlot)
+                if (summonSlot == GetGUID())
+                    summonSlot.Clear();
 
     //if (GetOwnerGUID())
     //    TC_LOG_ERROR("entities.unit", "Unit {} has owner guid when removed from world", GetEntry());
 
     Creature::RemoveFromWorld();
+}
+
+std::ptrdiff_t TempSummon::FindUsableTotemSlot(Unit const* summoner) const
+{
+    auto totemBegin = summoner->m_SummonSlot.begin() + SUMMON_SLOT_TOTEM;
+    auto totemEnd = summoner->m_SummonSlot.begin() + MAX_TOTEM_SLOT;
+
+    // first try exact guid match
+    auto totemSlot = std::find_if(totemBegin, totemEnd, [&](ObjectGuid const& otherTotemGuid)
+    {
+        return otherTotemGuid == GetGUID();
+    });
+
+    // then a slot that shares totem category with this new summon
+    if (totemSlot == totemEnd)
+        totemSlot = std::find_if(totemBegin, totemEnd, [&](ObjectGuid const& otherTotemGuid) { return IsSharingTotemSlotWith(otherTotemGuid); });
+
+    // any empty slot...?
+    if (totemSlot == totemEnd)
+        totemSlot = std::find_if(totemBegin, totemEnd, [](ObjectGuid const& otherTotemGuid) { return otherTotemGuid.IsEmpty(); });
+
+    // if no usable slot was found, try used slot by a summon with the same creature id
+    // we must not despawn unrelated summons
+    if (totemSlot == totemEnd)
+        totemSlot = std::find_if(totemBegin, totemEnd, [&](ObjectGuid const& otherTotemGuid) { return GetEntry() == otherTotemGuid.GetEntry(); });
+
+    // if no slot was found, this summon gets no slot and will not be stored in m_SummonSlot
+    if (totemSlot == totemEnd)
+        return 0;
+
+    return totemSlot - summoner->m_SummonSlot.begin();
+}
+
+bool TempSummon::IsSharingTotemSlotWith(ObjectGuid objectGuid) const
+{
+    Creature const* otherSummon = GetMap()->GetCreature(objectGuid);
+    if (!otherSummon)
+        return false;
+
+    SpellInfo const* mySummonSpell = sSpellMgr->GetSpellInfo(m_unitData->CreatedBySpell, DIFFICULTY_NONE);
+    if (!mySummonSpell)
+        return false;
+
+    SpellInfo const* otherSummonSpell = sSpellMgr->GetSpellInfo(otherSummon->m_unitData->CreatedBySpell, DIFFICULTY_NONE);
+    if (!otherSummonSpell)
+        return false;
+
+    for (uint16 myTotemCategory : mySummonSpell->TotemCategory)
+        if (myTotemCategory)
+            for (uint16 otherTotemCategory : otherSummonSpell->TotemCategory)
+                if (otherTotemCategory && DB2Manager::IsTotemCategoryCompatibleWith(myTotemCategory, otherTotemCategory, false))
+                    return true;
+
+    for (int32 myTotemId : mySummonSpell->Totem)
+        if (myTotemId)
+            for (int32 otherTotemId : otherSummonSpell->Totem)
+                if (otherTotemId && myTotemId == otherTotemId)
+                    return true;
+
+    return false;
 }
 
 std::string TempSummon::GetDebugInfo() const

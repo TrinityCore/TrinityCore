@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "AsioHacksFwd.h"
+#include <compare>
 #include <vector>
 
 enum RealmFlags
@@ -48,10 +49,9 @@ namespace Battlenet
         uint8 Site;
         uint32 Realm;   // primary key in `realmlist` table
 
-        bool operator<(RealmHandle const& r) const
-        {
-            return Realm < r.Realm;
-        }
+        bool operator==(RealmHandle const& r) const { return Realm == r.Realm; }
+
+        std::strong_ordering operator<=>(RealmHandle const& r) const { return Realm <=> r.Realm; }
 
         uint32 GetAddress() const { return (Region << 24) | (Site << 16) | uint16(Realm); }
         std::string GetAddressString() const;

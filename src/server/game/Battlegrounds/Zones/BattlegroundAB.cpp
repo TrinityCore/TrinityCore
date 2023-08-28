@@ -131,10 +131,10 @@ void BattlegroundAB::StartingEventOpenDoors()
     TriggerGameEvent(AB_EVENT_START_BATTLE);
 }
 
-void BattlegroundAB::AddPlayer(Player* player)
+void BattlegroundAB::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
 {
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
-    Battleground::AddPlayer(player);
+    Battleground::AddPlayer(player, queueId);
     if (!isInBattleground)
         PlayerScores[player->GetGUID()] = new BattlegroundABScore(player->GetGUID(), player->GetBGTeam());
 }
