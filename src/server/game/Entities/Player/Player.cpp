@@ -25761,11 +25761,11 @@ bool Player::CanUseBattlegroundObject(GameObject* gameobject) const
 
     bool hasRecentlyDroppedFlagDebuff = HasAura([](Aura const* aura) -> bool
     {
-        if (aura->GetSpellInfo()->Id == SPELL_RECENTLY_DROPPED_FLAG_ALLIANCE)
+        if (aura->GetSpellInfo()->Id == SPELL_RECENTLY_DROPPED_ALLIANCE_FLAG)
             return true;
-        else if (aura->GetSpellInfo()->Id == SPELL_RECENTLY_DROPPED_FLAG_HORDE)
+        else if (aura->GetSpellInfo()->Id == SPELL_RECENTLY_DROPPED_HORDE_FLAG)
             return true;
-        else if (aura->GetSpellInfo()->Id == SPELL_RECENTLY_DROPPED_FLAG_NEUTRAL)
+        else if (aura->GetSpellInfo()->Id == SPELL_RECENTLY_DROPPED_NEUTRAL_FLAG)
             return true;
         return false;
     });

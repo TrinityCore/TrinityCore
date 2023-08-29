@@ -132,7 +132,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`
 -- Spell with dummy aura application
 DELETE FROM `serverside_spell` WHERE `id` = 183317;
 INSERT INTO `serverside_spell` (`Id`, `Attributes`, `AttributesEx2`, `AttributesEx6`, `RangeIndex`, `EquippedItemClass`, `SpellName`, `SchoolMask`, `AuraInterruptFlags1`) VALUES
-(183317, 134217984, 4, 1, 13, -1, 'Capture the flag - timer', 1, 0x00080000 | 0x00020000 | 0x00100000); -- Removed when leaving world/mounting/stealth/invis
+(183317, 134217984, 4, 1, 13, -1, 'CTF Tracking Aura', 1, 0x00080000 | 0x00020000 | 0x00100000); -- Removed when leaving world/mounting/stealth/invis
 
 DELETE FROM `serverside_spell_effect` WHERE `SpellID` = 183317;
 INSERT INTO `serverside_spell_effect` (`SpellID`, `EffectIndex`, `Effect`, `EffectAura`) VALUES

@@ -441,10 +441,10 @@ void BattlegroundWS::OnFlagStateChange(GameObject* flagInBase, FlagState /*oldVa
             player->RemoveAurasDueToSpell(BG_WS_SPELL_QUICK_CAP_TIMER);
             RemoveAssaultDebuffFromPlayer(player);
 
-            uint32 recentlyDroppedSpellId = SPELL_RECENTLY_DROPPED_FLAG_ALLIANCE;
+            uint32 recentlyDroppedSpellId = SPELL_RECENTLY_DROPPED_HORDE_FLAG;
             if (team == ALLIANCE)
             {
-                recentlyDroppedSpellId = SPELL_RECENTLY_DROPPED_FLAG_HORDE;
+                recentlyDroppedSpellId = SPELL_RECENTLY_DROPPED_ALLIANCE_FLAG;
                 SendBroadcastText(BG_WS_TEXT_ALLIANCE_FLAG_DROPPED, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
             }
             else
