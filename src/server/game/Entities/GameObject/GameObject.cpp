@@ -2966,7 +2966,11 @@ void GameObject::Use(Unit* user)
             if (!info)
                 return;
 
-            if (user->GetTypeId() != TYPEID_PLAYER)
+            Player* player = user->ToPlayer();
+            if (!player)
+                return;
+
+            if (!player->CanUseBattlegroundObject(this))
                 return;
 
             GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(m_goTypeImpl.get());
@@ -2989,11 +2993,14 @@ void GameObject::Use(Unit* user)
             if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
 
+            if (!user->IsAlive())
+                return;
+
             if (GameObject* owner = GetMap()->GetGameObject(GetOwnerGUID()))
             {
                 if (owner->GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
                 {
-                    GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(m_goTypeImpl.get());
+                    GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(owner->m_goTypeImpl.get());
                     if (!newFlag)
                         return;
 

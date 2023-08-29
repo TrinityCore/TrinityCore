@@ -330,6 +330,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundQueueTypeId que
             bg = new BattlegroundAV(bg_template);
             break;
         case BATTLEGROUND_WS:
+        case BATTLEGROUND_WG_CTF:
             bg = new BattlegroundWS(bg_template);
             break;
         case BATTLEGROUND_AB:
