@@ -620,10 +620,10 @@ struct CreatureData : public SpawnData
     uint32 curhealth = 0;
     uint32 curmana = 0;
     uint8 movementType = 0;
-    uint64 npcflag;
-    uint32 unit_flags = 0;                                  // enum UnitFlags mask values
-    uint32 unit_flags2 = 0;                                 // enum UnitFlags2 mask values
-    uint32 unit_flags3 = 0;                                 // enum UnitFlags3 mask values
+    Optional<uint64> npcflag;
+    Optional<uint32> unit_flags;                                  // enum UnitFlags mask values
+    Optional<uint32> unit_flags2;                                 // enum UnitFlags2 mask values
+    Optional<uint32> unit_flags3;                                 // enum UnitFlags3 mask values
 };
 
 struct CreatureModelInfo
