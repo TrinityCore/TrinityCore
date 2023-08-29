@@ -158,8 +158,10 @@ struct CompareRespawnInfo
 using ZoneDynamicInfoMap = std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo>;
 struct RespawnListContainer;
 using RespawnInfoMap = std::unordered_map<ObjectGuid::LowType, RespawnInfo*>;
-struct RespawnInfo
+struct TC_GAME_API RespawnInfo
 {
+    virtual ~RespawnInfo();
+
     SpawnObjectType type;
     ObjectGuid::LowType spawnId;
     uint32 entry;

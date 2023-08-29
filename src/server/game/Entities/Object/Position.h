@@ -59,7 +59,6 @@ private:
 
 public:
     bool operator==(Position const& a) const;
-    bool operator!=(Position const& a) const { return !(operator==(a)); }
 
     void Relocate(float x, float y) { m_positionX = x; m_positionY = y; }
     void Relocate(float x, float y, float z) { Relocate(x, y); m_positionZ = z; }
