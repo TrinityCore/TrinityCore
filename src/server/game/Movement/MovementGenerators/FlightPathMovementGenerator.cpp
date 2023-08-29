@@ -277,9 +277,9 @@ void FlightPathMovementGenerator::InitEndGridInfo()
      *  Storage to preload flightmaster grid at end of flight. For multi-stop flights, this will
      *  be reinitialized for each flightmaster at the end of each spline (or stop) in the flight.
      */
-    uint32 nodeCount = _path.size(); //! Number of nodes in path.
+    uint32 nodeCount = _path.size(); // Number of nodes in path.
     ASSERT(nodeCount, "FlightPathMovementGenerator::InitEndGridInfo() called with empty _path");
-    _endMapId = _path[nodeCount - 1]->ContinentID; //! MapId of last node
+    _endMapId = _path[nodeCount - 1]->ContinentID; // MapId of last node
     if (nodeCount < 3)
         _preloadTargetNode = 0;
     else
