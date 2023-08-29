@@ -2344,8 +2344,8 @@ class spell_gen_netherbloom : public SpellScript
                 return;
 
             // triggered spells are 28703 to 28707
-            // Note: some sources say, that there was the possibility of
-            //       receiving a debuff. However, this seems to be removed by a patch.
+            // some sources say, that there was the possibility of
+            // receiving a debuff. However, this seems to be removed by a patch.
 
             // don't overwrite an existing aura
             for (uint8 i = 0; i < 5; ++i)
@@ -2618,7 +2618,7 @@ class spell_gen_player_say : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        // Note: target here is always player; caster here is gameobject, creature or player (self cast)
+        // target here is always player; caster here is gameobject, creature or player (self cast).
         if (Unit* target = GetHitUnit())
             target->Unit::Say(uint32(GetEffectValue()), target);
     }
@@ -4964,7 +4964,7 @@ class spell_gen_reverse_cast_target_to_caster_triggered: public SpellScript
     }
 };
 
-// Note: this spell unsummons any creature owned by the caster. Set appropriate target conditions on the DB.
+// these spells unsummon any creature owned by the caster. Set appropriate target conditions on the DB.
 // 84065 - Despawn All Summons
 // 83935 - Despawn All Summons
 // 160938 - Despawn All Summons (Garrison Intro Only)
@@ -5258,7 +5258,7 @@ namespace MajorPlayerHealingCooldownHelpers
 {
 float GetBonusMultiplier(Unit const* unit, uint32 spellId)
 {
-    // Note: if caster is not in a raid setting, is in PvP or while in arena combat with 5 or less allied players.
+    // if caster is not in a raid setting, is in PvP or while in arena combat with 5 or less allied players.
     if (!unit->GetMap()->IsRaid() || !unit->GetMap()->IsBattleground())
     {
         uint32 bonusSpellId = 0;

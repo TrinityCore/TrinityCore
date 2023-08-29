@@ -290,15 +290,15 @@ class spell_pri_answered_prayers : public AuraScript
 
         Aura* answeredPrayers = target->GetAura(SPELL_PRIEST_ANSWERED_PRAYERS);
 
-        // Note: if caster has no aura, we must cast it first.
+        // if caster has no aura, we must cast it first.
         if (!answeredPrayers)
             target->CastSpell(target, SPELL_PRIEST_ANSWERED_PRAYERS, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
         else
         {
-            // Note: there's no BaseValue dummy that we can use as reference, so we hardcode the increasing stack value.
+            // there's no BaseValue dummy effect that we can use as reference, so we hardcode the increasing stack value.
             answeredPrayers->ModStackAmount(1);
 
-            // Note: if current stacks match max. stacks, trigger Apotheosis.
+            // if current stacks match max. stacks, trigger Apotheosis.
             if (answeredPrayers->GetStackAmount() != aurEff->GetAmount())
                 return;
 
@@ -411,7 +411,7 @@ public:
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
         CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
-        // Note: atonementEffect holds the correct amount since we passed the effect in the AuraScript that calls this method.
+        // atonementEffect holds the correct amount since we passed the effect in the AuraScript that calls this method.
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(damageInfo->GetDamage(), atonementEffect->GetAmount()));
 
         args.SetCustomArg(TriggerArgs{
@@ -436,7 +436,7 @@ public:
 
     void UpdateSinsOfTheManyValue() const
     {
-        // Note: the damage dimish starts at the 6th application as of 10.0.5.
+        // the damage dimish starts at the 6th application as of 10.0.5.
         constexpr std::array<float, 20> damageByStack = { 40.0f, 40.0f, 40.0f, 40.0f, 40.0f, 35.0f, 30.0f, 25.0f, 20.0f, 15.0f, 11.0f, 8.0f, 5.0f, 4.0f, 3.0f, 2.5f, 2.0f, 1.5f, 1.25f, 1.0f };
 
         for (SpellEffIndex effectIndex : { EFFECT_0, EFFECT_1, EFFECT_2 })
@@ -627,7 +627,7 @@ class spell_pri_circle_of_healing : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        // Note: we must remove one since target is always chosen.
+        // we must remove one since target is always chosen.
         uint32 const maxTargets = uint32(GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(GetCaster()) - 1);
 
         Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
@@ -731,10 +731,10 @@ class spell_pri_divine_image : public AuraScript
         if (!target)
             return;
 
-        // Note: if target has an active Divine Image, we should empower it rather than summoning a new one.
+        // if target has an active Divine Image, we should empower it rather than summoning a new one.
         if (Unit* divineImage = DivineImageHelpers::GetSummon(target))
         {
-            // Note: Divine Image now teleports near the target when they cast a Holy Word spell if the Divine Image is further than 15 yards away (Patch 10.1.0).
+            // Divine Image now teleports near the target when they cast a Holy Word spell if the Divine Image is further than 15 yards away (Patch 10.1.0).
             if (target->GetDistance(divineImage) > 15.0f)
                 divineImage->NearTeleportTo(target->GetRandomNearPosition(3.0f));
 
@@ -750,7 +750,7 @@ class spell_pri_divine_image : public AuraScript
                 .SetTriggeringSpell(eventInfo.GetProcSpell())
                 .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DISALLOW_PROC_EVENTS | TRIGGERED_DONT_REPORT_CAST_ERROR));
 
-            // Note: Divine Image triggers a cast immediately based on the Holy Word cast.
+            // Divine Image triggers a cast immediately based on the Holy Word cast.
             DivineImageHelpers::Trigger(aurEff, eventInfo);
         }
 
@@ -901,7 +901,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
         _casterCurrentPosition = caster->GetPosition();
 
-        // Note: max. distance at which the Divine Star can travel to is EFFECT_1's BasePoints yards.
+        // max. distance at which the Divine Star can travel to is EFFECT_1's BasePoints yards.
         _maxTravelDistance = float(spellInfo->GetEffect(EFFECT_1).CalcValue(caster));
 
         Position destPos = _casterCurrentPosition;
@@ -912,7 +912,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
         G3D::Vector3 const& endPoint = firstPath.GetPath().back();
 
-        // Note: it takes 1000ms to reach EFFECT_1's BasePoints yards, so it takes (1000 / EFFECT_1's BasePoints)ms to run 1 yard.
+        // it takes 1000ms to reach EFFECT_1's BasePoints yards, so it takes (1000 / EFFECT_1's BasePoints)ms to run 1 yard.
         at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * float(1000 / _maxTravelDistance));
     }
 
@@ -928,7 +928,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
     void OnUnitExit(Unit* unit) override
     {
-        // Note: this ensures any unit receives a second hit if they happen to be inside the AT when Divine Star starts its return path.
+        // this ensures any unit receives a second hit if they happen to be inside the AT when Divine Star starts its return path.
         HandleUnitEnterExit(unit);
     }
 
@@ -1677,13 +1677,13 @@ class spell_pri_power_leech_passive : public AuraScript
         {
             if (target->GetEntry() == NPC_PRIEST_SHADOWFIEND)
             {
-                // Note: divisor is 100 because effect value is 5 and its supposed to restore 0.5%
+                // divisor is 100 because effect value is 5 and its supposed to restore 0.5%
                 spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA, GetCastDifficulty());
                 divisor = 10;
             }
             else
             {
-                // Note: divisor is 100 because effect value is 20 and its supposed to restore 0.2%
+                // divisor is 100 because effect value is 20 and its supposed to restore 0.2%
                 spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA, GetCastDifficulty());
                 divisor = 100;
             }
@@ -1696,7 +1696,7 @@ class spell_pri_power_leech_passive : public AuraScript
         target->CastSpell(summoner, spellInfo->Id, CastSpellExtraArgs(aurEff)
             .AddSpellMod(SPELLVALUE_BASE_POINT0, spellInfo->GetEffect(EFFECT_0).CalcValue() / divisor));
 
-        // Note: Essence Devourer talent.
+        // Essence Devourer talent.
         if (summoner->HasAura(SPELL_PRIEST_ESSENCE_DEVOURER))
             summoner->CastSpell(nullptr, target->GetEntry() == NPC_PRIEST_SHADOWFIEND ? SPELL_PRIEST_ESSENCE_DEVOURER_SHADOWFIEND_HEAL : SPELL_PRIEST_ESSENCE_DEVOURER_MINDBENDER_HEAL, aurEff);
     }
@@ -1899,11 +1899,11 @@ class spell_pri_power_word_shield : public AuraScript
                 }
             }
 
-            // Rapture talent (TBD: move into DoEffectCalcDamageAndHealing hook).
+            // Rapture talent.
             if (AuraEffect const* raptureEffect = caster->GetAuraEffect(SPELL_PRIEST_RAPTURE, EFFECT_1))
                 AddPct(modifiedAmount, raptureEffect->GetAmount());
 
-            // Benevolence talent
+            // Benevolence talent.
             if (AuraEffect const* benevolenceEffect = caster->GetAuraEffect(SPELL_PRIEST_BENEVOLENCE, EFFECT_0))
                 AddPct(modifiedAmount, benevolenceEffect->GetAmount());
 
@@ -1917,7 +1917,7 @@ class spell_pri_power_word_shield : public AuraScript
         if (!caster)
             return;
 
-        // Note: Strength of Soul PvP talent.
+        // Strength of Soul PvP talent.
         if (caster->HasAura(SPELL_PRIEST_STRENGTH_OF_SOUL))
             caster->CastSpell(GetTarget(), SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT, aurEff);
     }
@@ -1926,7 +1926,7 @@ class spell_pri_power_word_shield : public AuraScript
     {
         GetTarget()->RemoveAura(SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT);
 
-        // Note: Shield Discipline talent.
+        // Shield Discipline talent.
         if (Unit* caster = GetCaster())
             if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL && caster->HasAura(SPELL_PRIEST_SHIELD_DISCIPLINE))
                 caster->CastSpell(caster, SPELL_PRIEST_SHIELD_DISCIPLINE_EFFECT, aurEff);
@@ -1984,16 +1984,16 @@ public:
         args.TriggerFlags = TRIGGERED_FULL_MASK;
         args.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
 
-        // Note: this line's purpose is to show the correct amount in Points field in SMSG_AURA_UPDATE.
+        // this line's purpose is to show the correct amount in Points field in SMSG_AURA_UPDATE.
         uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, *_healEffectDummy);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
 
-        // Note: Focused Mending talent.
+        // Focused Mending talent.
         args.SetCustomArg(firstCast);
 
         caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_AURA, args);
 
-        // Note: the visualSender is the priest if it is first cast or the aura holder when the aura triggers.
+        // the visualSender is the priest if it is first cast or the aura holder when the aura triggers.
         visualSender->SendPlaySpellVisual(target, SPELL_VISUAL_PRIEST_PRAYER_OF_MENDING, 0, 0, 40.0f);
     }
 
@@ -2020,12 +2020,12 @@ class spell_pri_prayer_of_mending_dummy : public spell_pri_prayer_of_mending_Spe
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        // Note: we need to increase BasePoints by 1 since it's 4 as default. Also HACKFIX, we shouldn't reduce it by 1 if the target has the aura already.
+        // we need to increase BasePoints by 1 since it's 4 as default. Also HACKFIX, we shouldn't reduce it by 1 if the target has the aura already.
         uint8 stackAmount = target->HasAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, caster->GetGUID()) ? GetEffectValue() : GetEffectValue() + 1;
 
         CastPrayerOfMendingAura(caster, target, caster, stackAmount, true);
 
-        // Note: Epiphany talent.
+        // Epiphany talent.
         if (caster->HasAura(SPELL_PRIEST_EPIPHANY))
             caster->RemoveAurasDueToSpell(SPELL_PRIEST_EPIPHANY_HIGHLIGHT);
     }
@@ -2047,7 +2047,7 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
 
     void HandleHeal(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        // Note: caster is the priest who cast the spell and target is current holder of the aura.
+        // caster is the priest who cast the spell and target is current holder of the aura.
         Unit* target = GetTarget();
 
         if (Unit* caster = GetCaster())
@@ -2057,7 +2057,7 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
 
             caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, args);
 
-            // Note: jump is only executed if higher than 1 stack.
+            // jump is only executed if higher than 1 stack.
             int32 stackAmount = GetStackAmount();
             if (stackAmount > 1)
             {
@@ -2119,7 +2119,7 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
 {
     static void FilterTargets(std::list<WorldObject*>& targets)
     {
-        // Note: priority list is a) players b) non-player units. Also, this spell became smartheal in WoD.
+        // priority list is: a) players b) non-player units. Also, this spell became smartheal in WoD.
         Trinity::SelectRandomInjuredTargets(targets, 1, true);
     }
 
@@ -2184,7 +2184,7 @@ class spell_pri_holy_10_1_class_set_2pc_chooser : public spell_pri_prayer_of_men
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        // Note: we need to increase BasePoints by 1 since it's 4 as default. Also HACKFIX, we shouldn't reduce it by 1 if the target has the aura already.
+        // we need to increase BasePoints by 1 since it's 4 as default. Also HACKFIX, we shouldn't reduce it by 1 if the target has the aura already.
         uint8 stackAmount = target->HasAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, caster->GetGUID()) ? GetEffectValue() : GetEffectValue() + 1;
 
         CastPrayerOfMendingAura(caster, target, caster, stackAmount, true);
@@ -2284,7 +2284,7 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
 
         targets.remove_if([&](WorldObject* object) -> bool
         {
-            // Note: we must remove any non-unit target, the explicit target and any other target that may be under any crowd control aura.
+            // we must remove any non-unit target, the explicit target and any other target that may be under any crowd control aura.
             Unit* target = object->ToUnit();
             return !target || target == explTarget || target->HasBreakableByDamageCrowdControlAura();
         });
@@ -2292,10 +2292,10 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
         if (targets.empty())
             return;
 
-        // Note: there's no SPELL_EFFECT_DUMMY with BasePoints 1 in any of the spells related to use as reference so we hardcode the value.
+        // there's no SPELL_EFFECT_DUMMY with BasePoints 1 in any of the spells related to use as reference so we hardcode the value.
         uint32 spreadCount = 1;
 
-        // Note: we must sort our list of targets whose priority is 1) aura, 2) distance, and 3) duration.
+        // we must sort our list of targets whose priority is 1) aura, 2) distance, and 3) duration.
         targets.sort([&](WorldObject const* lhs, WorldObject const* rhs) -> bool
         {
             Unit const* targetA = lhs->ToUnit();
@@ -2316,7 +2316,7 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
             return auraA->GetDuration() < auraB->GetDuration();
         });
 
-        // Note: Revel in Purity talent.
+        // Revel in Purity talent.
         if (caster->HasAura(SPELL_PRIEST_REVEL_IN_PURITY))
             spreadCount += sSpellMgr->AssertSpellInfo(SPELL_PRIEST_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(GetCaster());
 
@@ -2647,7 +2647,7 @@ class spell_pri_trail_of_light : public AuraScript
         if (!oldTarget)
             return;
 
-        // Note: old target may not be friendly anymore due to charm and faction change effects.
+        // old target may not be friendly anymore due to charm and faction change effects.
         if (!caster->IsValidAssistTarget(oldTarget))
             return;
 
@@ -2655,7 +2655,7 @@ class spell_pri_trail_of_light : public AuraScript
         if (!healSpellInfo)
             return;
 
-        // Note: distance may be greater than the heal's spell range.
+        // distance may be greater than the heal's spell range.
         if (!caster->IsWithinDist(oldTarget, healSpellInfo->GetMaxRange(true, caster)))
             return;
 

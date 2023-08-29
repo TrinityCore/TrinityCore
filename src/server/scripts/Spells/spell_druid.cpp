@@ -139,7 +139,7 @@ class spell_dru_abundance : public AuraScript
         if (!caster || !caster->HasAura(SPELL_DRUID_ABUNDANCE))
             return;
 
-        // Note: caster only casts Abundance when first applied on the target, otherwise that given stack is refreshed.
+        // caster only casts Abundance when first applied on the target, otherwise that given stack is refreshed.
         if (mode & AURA_EFFECT_HANDLE_REAL)
             caster->CastSpell(caster, SPELL_DRUID_ABUNDANCE_EFFECT, CastSpellExtraArgs().SetTriggeringAura(aurEff));
         else if (Aura* abundanceAura = caster->GetAura(SPELL_DRUID_ABUNDANCE_EFFECT))
@@ -1051,7 +1051,7 @@ class spell_dru_inner_peace : public SpellScript
 
     void PreventEffect(WorldObject*& target) const
     {
-        // Note: Inner Peace talent.
+        // Inner Peace talent.
         if (!GetCaster()->HasAura(SPELL_DRUID_INNER_PEACE))
             target = nullptr;
     }
@@ -1986,7 +1986,7 @@ class spell_dru_wild_growth : public SpellScript
         if (AuraEffect const* treeOfLife = caster->GetAuraEffect(SPELL_DRUID_TREE_OF_LIFE, EFFECT_2))
             maxTargets += treeOfLife->GetAmount();
 
-        // Note: Wild Growth became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
+        // Wild Growth became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
         Trinity::SelectRandomInjuredTargets(targets, maxTargets, true, caster);
     }
 

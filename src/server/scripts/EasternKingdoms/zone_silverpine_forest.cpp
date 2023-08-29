@@ -308,8 +308,8 @@ enum QuestTheWarchiefCometh
     EVENT_START_SCENE_COMETH                = 1,
     EVENT_SUMMON_PORTAL_COMETH              = 2,
     EVENT_SUMMON_GARROSH_COMETH             = 3,
-    EVENT_AGATHA_RAISE_FORSAKEN             = 4, // Note: 4-8 are used.
-    EVENT_SCENE_TALK_COMETH                 = 9, // Note: 9-36 are used.
+    EVENT_AGATHA_RAISE_FORSAKEN             = 4, // 4-8 are used.
+    EVENT_SCENE_TALK_COMETH                 = 9, // 9-36 are used.
 
     ACTION_START_SCENE_COMETH               = 1,
 
@@ -1169,7 +1169,7 @@ struct npc_silverpine_sylvanas_windrunner_high_command : public ScriptedAI
         switch (summon->GetEntry())
         {
             case NPC_FORSAKEN_WARHORSE_SERVERSIDE:
-                // Note: the Forsaken Horse must be set in the same visibility mask that Sylvanas is in.
+                // the Forsaken Horse must be set in the same visibility mask that Sylvanas is in.
                 summon->CastSpell(summon, me->HasAura(SPELL_APPLY_INVIS_ZONE_1) ? SPELL_APPLY_INVIS_ZONE_1 : SPELL_APPLY_INVIS_ZONE_4, true);
                 break;
             default:
@@ -1222,7 +1222,7 @@ struct npc_silverpine_worgen_renegade : public ScriptedAI
     {
         _events.Reset();
 
-        // Note: this is for a later usage during Lordaeron (questId 27098).
+        // this is for a later usage during Lordaeron (questId 27098).
         if (me->IsSummon())
             DoCastSelf(SPELL_KILL_ME_AURA);
 
@@ -1301,7 +1301,7 @@ struct npc_silverpine_forsaken_trooper : public ScriptedAI
     {
         _events.Reset();
 
-        // Note: these texts are sent aswell during Lordaeron (questId 27098).
+        // these texts are sent aswell during Lordaeron (questId 27098).
         if (urand(0, 1))
             Talk(TALK_TROOPER_RESET);
     }
@@ -1376,7 +1376,7 @@ struct npc_silverpine_bat_handler_maggotbreath : public ScriptedAI
                 player->CastSpell(player, SPELL_SUMMON_FORSAKEN_BAT, true);
                 break;
 
-            // Note: Blizzard messed up this OptionNpc. It sends GossipOptionNpc::None rather than GossipOptionNpc::TaxiNode,
+            // Blizzard messed up this OptionNpc. It sends GossipOptionNpc::None rather than GossipOptionNpc::TaxiNode,
             // making it useless. To keep it blizzlike, we're just sending TaxiMenu forcefully as well.
             case GOSSIP_ACTION_INFO_DEF + 1:
                 player->GetSession()->SendTaxiMenu(me);
@@ -1726,7 +1726,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
         if (Unit* summoner = tempSummon->GetSummonerUnit())
         {
-            // Note: SummonPropertiesFlags::DespawnWhenExpired is NYI.
+            // SummonPropertiesFlags::DespawnWhenExpired is NYI.
             if (!summoner->HasAura(SPELL_SUMMON_YORICK))
                 me->DespawnOrUnsummon();
         }
@@ -3184,7 +3184,7 @@ private:
     EventMap _events;
 };
 
-// Note: we're not using the generic spell for this one because Orc Sea Pup is unsummoned 3s later.
+// we're not using the generic spell for this one because Orc Sea Pup is unsummoned 3s later.
 // 83840 - Despawn All Summons
 class spell_silverpine_despawn_all_summons_steel_thunder : public SpellScript
 {
@@ -3240,7 +3240,7 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
         {
             me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
 
-            // Note: SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
+            // SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
             me->GetMotionMaster()->MoveFollow(player, 2.0f, float(M_PI / 2.0f));
 
             if (player->GetQuestStatus(QUEST_STEEL_THUNDER) == QUEST_STATUS_INCOMPLETE)
@@ -3672,7 +3672,7 @@ struct npc_silverpine_mutant_bush_chicken : public ScriptedAI
 
         if (Unit* summoner = tempSummon->GetSummonerUnit())
         {
-            // Note: SummonPropertiesFlags::DespawnOnSummonerLogout is NYI.
+            // SummonPropertiesFlags::DespawnOnSummonerLogout is NYI.
             if (!summoner->IsInWorld())
                 me->DespawnOrUnsummon();
         }
@@ -3850,7 +3850,7 @@ struct npc_silverpine_orc_sea_dog : public ScriptedAI
         me->SetMaxPower(POWER_ENERGY, 100);
         me->SetPower(POWER_ENERGY, 100, true);
 
-        // Note: SummonPropertiesFlags::HelpWhenSummonedInCombat is NYI.
+        // SummonPropertiesFlags::HelpWhenSummonedInCombat is NYI.
         me->SetReactState(REACT_ASSIST);
     }
 
@@ -3860,7 +3860,7 @@ struct npc_silverpine_orc_sea_dog : public ScriptedAI
         {
             player->KilledMonsterCredit(NPC_ORC_SEA_DOG);
 
-            // Note: SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI. They should be faned around the back of the player depending on how many summons they have (Pets and Guardians included).
+            // SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI. They should be faned around the back of the player depending on how many summons they have (Pets and Guardians included).
             me->GetMotionMaster()->MoveFollow(player, 5.0f, frand(1.57f, 4.71f));
 
             _events.ScheduleEvent(EVENT_WEBBEB_ORC_CHECK_PLAYER, 1s);
@@ -3886,7 +3886,7 @@ struct npc_silverpine_orc_sea_dog : public ScriptedAI
 
         if (Unit* summoner = tempSummon->GetSummonerUnit())
         {
-            // Note: SummonPropertiesFlags::DespawnOnSummonerDeath and SummonPropertiesFlags::DespawnOnSummonerLogout are NYI.
+            // SummonPropertiesFlags::DespawnOnSummonerDeath and SummonPropertiesFlags::DespawnOnSummonerLogout are NYI.
             if (!summoner->IsAlive() || !summoner->IsInWorld())
                 me->DespawnOrUnsummon();
         }
@@ -4137,12 +4137,12 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
     void JustAppeared() override
     {
-        // Note: SummonPropertiesFlags::HelpWhenSummonedInCombat is NYI.
+        // SummonPropertiesFlags::HelpWhenSummonedInCombat is NYI.
         me->SetReactState(REACT_ASSIST);
 
         me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
 
-        // Note: SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
+        // SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveFollow(me->GetOwner(), 3.0f, float(M_PI / 2.0f));
 
@@ -4212,7 +4212,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
         _events.CancelEvent(EVENT_UNHOLY_SMITE);
         _events.CancelEvent(EVENT_DOOMHOWL);
 
-        // Note: SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
+        // SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveFollow(me->GetOwner(), 3.0f, float(M_PI / 2.0f));
     }
@@ -4229,7 +4229,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
         if (!tempSummon)
             return;
 
-        // Note: SummonPropertiesFlags::DespawnOnSummonerDeath, SummonPropertiesFlags::DespawnOnSummonerLogout and SummonPropertiesFlags::DespawnWhenExpired are NYI.
+        // SummonPropertiesFlags::DespawnOnSummonerDeath, SummonPropertiesFlags::DespawnOnSummonerLogout and SummonPropertiesFlags::DespawnWhenExpired are NYI.
         if (Unit* summoner = tempSummon->GetSummonerUnit())
         {
             if (!summoner->IsAlive() || !summoner->IsInWorld() || !summoner->HasAura(SPELL_SUMMON_AGATHA_FENRIS))
@@ -4306,7 +4306,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
                         me->SetSpeed(MOVE_RUN, 1.14286f);
 
-                        // Note: SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
+                        // SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveFollow(summoner, 3.0f, float(M_PI / 2.0f));
 

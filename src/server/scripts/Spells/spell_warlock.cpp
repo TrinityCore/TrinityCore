@@ -508,7 +508,7 @@ class spell_warl_sayaad_precast_disorientation : public SpellScript
         return ValidateSpellInfo({ PET_SUMMONING_DISORIENTATION });
     }
 
-    // Note: this is a special case in which the warlock's minion pet must also cast Summon Disorientation at the beginning since this is only handled by SPELL_EFFECT_SUMMON_PET in Spell::CheckCast.
+    // this is a special case in which the warlock's minion pet must also cast Summon Disorientation at the beginning since this is only handled by SPELL_EFFECT_SUMMON_PET in Spell::CheckCast.
     void OnPrecast() override
     {
         Player* player = GetCaster()->ToPlayer();
