@@ -3000,7 +3000,7 @@ void GameObject::Use(Unit* user)
             {
                 if (owner->GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
                 {
-                    GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(m_goTypeImpl.get());
+                    GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(owner->m_goTypeImpl.get());
                     if (!newFlag)
                         return;
 
