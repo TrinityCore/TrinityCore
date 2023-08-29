@@ -1677,13 +1677,13 @@ class spell_pri_power_leech_passive : public AuraScript
         {
             if (target->GetEntry() == NPC_PRIEST_SHADOWFIEND)
             {
-                // divisor is 100 because effect value is 5 and its supposed to restore 0.5%
+                // divisor is 100 because effect value is 5 and its supposed to restore 0.5%.
                 spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA, GetCastDifficulty());
                 divisor = 10;
             }
             else
             {
-                // divisor is 100 because effect value is 20 and its supposed to restore 0.2%
+                // divisor is 100 because effect value is 20 and its supposed to restore 0.2%.
                 spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA, GetCastDifficulty());
                 divisor = 100;
             }
