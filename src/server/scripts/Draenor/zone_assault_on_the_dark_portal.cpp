@@ -22,7 +22,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 
-enum AssaultMisc
+enum AssaultOnTheDarkPortalSpells
 {
     SPELL_DARK_PORTAL_RUN_AWAY = 158985
 };
