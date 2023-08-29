@@ -106,7 +106,9 @@ enum BattlegroundSpells
     SPELL_ARENA_PREPARATION         = 32727,                // use this one, 32728 not correct
     SPELL_PREPARATION               = 44521,                // Preparation
     SPELL_SPIRIT_HEAL_MANA          = 44535,                // Spirit Heal
-    SPELL_RECENTLY_DROPPED_FLAG     = 42792,                // Recently Dropped Flag
+    SPELL_RECENTLY_DROPPED_ALLIANCE_FLAG = 42792,           // makes Alliance flag unselectable
+    SPELL_RECENTLY_DROPPED_HORDE_FLAG = 50326,              // makes Horde flag unselectable
+    SPELL_RECENTLY_DROPPED_NEUTRAL_FLAG = 50327,            // makes Neutral flag unselectable
     SPELL_AURA_PLAYER_INACTIVE      = 43681,                // Inactive
     SPELL_HONORABLE_DEFENDER_25Y    = 68652,                // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
     SPELL_HONORABLE_DEFENDER_60Y    = 66157,                // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
