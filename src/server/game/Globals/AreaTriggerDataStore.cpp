@@ -334,15 +334,6 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
             }
 
             AreaTriggerSpawn& spawn = _areaTriggerSpawnsBySpawnId[spawnId];
-            spawn.SpellForVisuals = fields[20].GetUInt32();
-
-            if (!sSpellMgr->GetSpellInfo(spawn.SpellForVisuals, DIFFICULTY_NONE))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed areatrigger SpawnId: {} with invalid SpellForVisual {}.",
-                    spawnId, spawn.SpellForVisuals);
-                continue;
-            }
-
             spawn.spawnId = spawnId;
             spawn.mapId = location.GetMapId();
             spawn.Id = areaTriggerid;
@@ -355,6 +346,17 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
             spawn.Shape.Type = static_cast<AreaTriggerTypes>(shape);
             for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
                 spawn.Shape.DefaultDatas.Data[i] = fields[12 + i].GetFloat();
+
+            if (!fields[20].IsNull())
+            {
+                spawn.SpellForVisuals = fields[20].GetInt32();
+                if (!sSpellMgr->GetSpellInfo(*spawn.SpellForVisuals, DIFFICULTY_NONE))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed areatrigger SpawnId: {} with invalid SpellForVisual {}, set to none.",
+                        spawnId, *spawn.SpellForVisuals);
+                    spawn.SpellForVisuals.reset();
+                }
+            }
 
             spawn.scriptId = sObjectMgr->GetScriptId(fields[21].GetString());
             spawn.spawnGroupData = sObjectMgr->GetLegacySpawnGroup();
