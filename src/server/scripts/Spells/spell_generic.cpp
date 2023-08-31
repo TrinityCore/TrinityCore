@@ -3121,7 +3121,8 @@ class spell_gen_two_forms : public SpellScript
         }
 
         // Player cannot transform to human form if he is forced to be worgen for some reason (Darkflight)
-        if (GetCaster()->GetAuraEffectsByType(SPELL_AURA_WORGEN_ALTERED_FORM).size() > 1)
+        Unit::AuraEffectList const& alteredFormAuras = GetCaster()->GetAuraEffectsByType(SPELL_AURA_WORGEN_ALTERED_FORM);
+        if (std::distance(alteredFormAuras.begin(), alteredFormAuras.end()) > 1)
         {
             SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CANT_TRANSFORM);
             return SPELL_FAILED_CUSTOM_ERROR;
