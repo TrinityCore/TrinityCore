@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
+#include "SpellMgr.h"
 #include "Timer.h"
 #include <cmath>
 
@@ -299,8 +300,8 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
     // Load area trigger positions (to put them on the server)
     //                                                      0        1              2             3      4     5     6     7            8              9        10
     if (QueryResult templates = WorldDatabase.Query("SELECT SpawnId, AreaTriggerId, IsServerSide, MapId, PosX, PosY, PosZ, Orientation, PhaseUseFlags, PhaseId, PhaseGroup, "
-    //   11     12          13          14          15          16          17          18          19          20
-        "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, ScriptName FROM `areatrigger`"))
+    //   11     12          13          14          15          16          17          18          19          20               21
+        "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, SpellForVisuals, ScriptName FROM `areatrigger`"))
     {
         do
         {
@@ -346,7 +347,18 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
             for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
                 spawn.Shape.DefaultDatas.Data[i] = fields[12 + i].GetFloat();
 
-            spawn.scriptId = sObjectMgr->GetScriptId(fields[20].GetString());
+            if (!fields[20].IsNull())
+            {
+                spawn.SpellForVisuals = fields[20].GetInt32();
+                if (!sSpellMgr->GetSpellInfo(*spawn.SpellForVisuals, DIFFICULTY_NONE))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed areatrigger SpawnId: {} with invalid SpellForVisual {}, set to none.",
+                        spawnId, *spawn.SpellForVisuals);
+                    spawn.SpellForVisuals.reset();
+                }
+            }
+
+            spawn.scriptId = sObjectMgr->GetScriptId(fields[21].GetString());
             spawn.spawnGroupData = sObjectMgr->GetLegacySpawnGroup();
 
             // Add the trigger to a map::cell map, which is later used by GridLoader to query
