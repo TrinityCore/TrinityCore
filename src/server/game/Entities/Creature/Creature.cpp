@@ -1421,6 +1421,7 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
     CreatureData& data = sObjectMgr->NewOrExistCreatureData(m_spawnId);
 
     uint32 displayId = GetNativeDisplayId();
+    uint64 spawnNpcFlags = (uint64(m_unitData->NpcFlags[1]) << 32) | m_unitData->NpcFlags[0];
     Optional<uint64> npcflag;
     Optional<uint32> unitFlags;
     Optional<uint32> unitFlags2;
@@ -1434,17 +1435,17 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
             if (displayId && displayId == model.CreatureDisplayID)
                 displayId = 0;
 
-        if (npcflag != cinfo->npcflag)
-            unitFlags = (uint64(m_unitData->NpcFlags[1]) << 32) | m_unitData->NpcFlags[0];
+        if (spawnNpcFlags != cinfo->npcflag)
+            npcflag = spawnNpcFlags;
 
-        if (unitFlags != cinfo->unit_flags)
+        if (m_unitData->Flags != cinfo->unit_flags)
             unitFlags = m_unitData->Flags;
 
-        if (unitFlags2 != cinfo->unit_flags2)
-            unitFlags = m_unitData->Flags2;
+        if (m_unitData->Flags2 != cinfo->unit_flags2)
+            unitFlags2 = m_unitData->Flags2;
 
-        if (unitFlags3 != cinfo->unit_flags3)
-            unitFlags = m_unitData->Flags3;
+        if (m_unitData->Flags3 != cinfo->unit_flags3)
+            unitFlags3 = m_unitData->Flags3;
     }
 
     if (!data.spawnId)
