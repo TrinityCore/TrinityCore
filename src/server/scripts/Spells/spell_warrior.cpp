@@ -634,37 +634,30 @@ class spell_warr_storm_bolt : public SpellScript
 };
 
 // 384041 - Strategist
-// Called by Execute - 260798, Devastate - 20243, Thunder Clap - 6343, Revenge - 6572
-class spell_warr_strategist : public SpellScript
+class spell_warr_strategist : public AuraScript
 {
-    PrepareSpellScript(spell_warr_strategist);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_SHIELD_SLAM, SPELL_WARRIOR_SHIELD_SLAM_MARKER }) && ValidateSpellEffect({ { SPELL_WARRIOR_STRATEGIST, EFFECT_0 } });
+        return ValidateSpellInfo({ SPELL_WARRIOR_SHIELD_SLAM, SPELL_WARRIOR_SHIELD_SLAM_MARKER })
+            && ValidateSpellEffect({ { SPELL_WARRIOR_STRATEGIST, EFFECT_0 } });
     }
 
-    void HandleCooldown(SpellEffIndex /*effIndex*/)
+    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& /*procEvent*/)
     {
-        if (Unit* caster = GetCaster())
-        {
-            if (AuraEffect const* strategist = caster->GetAuraEffect(SPELL_WARRIOR_STRATEGIST, EFFECT_0))
-            {
-                if (caster->GetSpellHistory()->HasCooldown(SPELL_WARRIOR_SHIELD_SLAM))
-                {
-                    if (roll_chance_i(strategist->GetAmount()))
-                    {
-                        caster->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_SHIELD_SLAM, true);
-                        caster->CastSpell(caster, SPELL_WARRIOR_SHIELD_SLAM_MARKER, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
-                    }
-                }
-            }
-        }
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void HandleCooldown(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*procEvent*/) const
+    {
+        Unit* caster = GetTarget();
+        caster->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_SHIELD_SLAM, true);
+        caster->CastSpell(caster, SPELL_WARRIOR_SHIELD_SLAM_MARKER, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_strategist::HandleCooldown, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_strategist::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warr_strategist::HandleCooldown, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
