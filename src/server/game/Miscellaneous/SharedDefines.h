@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
+#include <compare>
 
 float const GROUND_HEIGHT_TOLERANCE = 0.05f; // Extra tolerance to z position to check if it is in air or on ground.
 constexpr float Z_OFFSET_FIND_HEIGHT = 0.5f;
@@ -195,7 +196,7 @@ static constexpr uint8 MAX_UNIT_CLASSES = 4;
 
 #define CLASSMASK_WAND_USERS ((1<<(CLASS_PRIEST-1)) | (1<<(CLASS_MAGE-1)) | (1<<(CLASS_WARLOCK-1)))
 
-#define PLAYER_MAX_BATTLEGROUND_QUEUES 2
+static constexpr uint8 PLAYER_MAX_BATTLEGROUND_QUEUES = 3;
 
 enum ReputationRank
 {
@@ -730,7 +731,7 @@ enum SpellAttr8 : uint32
     SPELL_ATTR8_UNK6                             = 0x00000040, // TITLE Unknown attribute 6@Attr8
     SPELL_ATTR8_UNK7                             = 0x00000080, // TITLE Unknown attribute 7@Attr8
     SPELL_ATTR8_AFFECT_PARTY_AND_RAID            = 0x00000100, // TITLE Use Target's Level for Spell Scaling
-    SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER        = 0x00000200, // TITLE Periodic Can Crit DESCRIPTION (WRONG) Periodic auras with this flag keep old periodic timer when refreshing at close to one tick remaining (kind of anti DoT clipping)
+    SPELL_ATTR8_PERIODIC_CAN_CRIT                = 0x00000200, // TITLE Periodic Can Crit
     SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM    = 0x00000400, // TITLE Mirror creature name
     SPELL_ATTR8_UNK11                            = 0x00000800, // TITLE Unknown attribute 11@Attr8
     SPELL_ATTR8_AURA_SEND_AMOUNT                 = 0x00001000, // TITLE Aura Points On Client
@@ -4706,8 +4707,8 @@ enum CreatureTypeFlags
     CREATURE_TYPE_FLAG_INTERACT_ONLY_WITH_CREATOR        = 0x00800000,
     CREATURE_TYPE_FLAG_DO_NOT_PLAY_UNIT_EVENT_SOUNDS     = 0x01000000,
     CREATURE_TYPE_FLAG_HAS_NO_SHADOW_BLOB                = 0x02000000,
-    CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT                = 0x04000000, //! Creature can be targeted by spells that require target to be in caster's party/raid
-    CREATURE_TYPE_FLAG_FORCE_GOSSIP                      = 0x08000000,   // Allows the creature to display a single gossip option.
+    CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT                = 0x04000000, //!< Creature can be targeted by spells that require target to be in caster's party/raid
+    CREATURE_TYPE_FLAG_FORCE_GOSSIP                      = 0x08000000, // Allows the creature to display a single gossip option.
     CREATURE_TYPE_FLAG_DO_NOT_SHEATHE                    = 0x10000000,
     CREATURE_TYPE_FLAG_DO_NOT_TARGET_ON_INTERACTION      = 0x20000000,
     CREATURE_TYPE_FLAG_DO_NOT_RENDER_OBJECT_NAME         = 0x40000000,
@@ -6566,29 +6567,9 @@ struct BattlegroundQueueTypeId
             | UI64LIT(0x1F10000000000000);
     }
 
-    constexpr bool operator==(BattlegroundQueueTypeId right) const
-    {
-        return BattlemasterListId == right.BattlemasterListId
-            && Type == right.Type
-            && Rated == right.Rated
-            && TeamSize == right.TeamSize;
-    }
+    constexpr bool operator==(BattlegroundQueueTypeId const& right) const = default;
 
-    constexpr bool operator!=(BattlegroundQueueTypeId right) const
-    {
-        return !(*this == right);
-    }
-
-    constexpr bool operator<(BattlegroundQueueTypeId right) const
-    {
-        if (BattlemasterListId != right.BattlemasterListId)
-            return BattlemasterListId < right.BattlemasterListId;
-        if (Type != right.Type)
-            return Type < right.Type;
-        if (Rated != right.Rated)
-            return Rated < right.Rated;
-        return TeamSize < right.TeamSize;
-    }
+    constexpr std::strong_ordering operator<=>(BattlegroundQueueTypeId const& right) const = default;
 };
 
 constexpr BattlegroundQueueTypeId BATTLEGROUND_QUEUE_NONE = { 0, 0, false, 0 };

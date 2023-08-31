@@ -152,8 +152,6 @@ class spell_pal_ardent_defender : public AuraScript
         {
             // we are currently below desired health
             // absorb everything and heal up
-            absorbAmount = dmgInfo.GetDamage();
-
             GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ARDENT_DEFENDER_HEAL,
                 CastSpellExtraArgs(aurEff)
                 .AddSpellMod(SPELLVALUE_BASE_POINT0, int32(targetHealth - GetTarget()->GetHealth())));
