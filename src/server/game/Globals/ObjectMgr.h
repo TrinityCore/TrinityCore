@@ -73,16 +73,15 @@ enum SummonerType
 struct TempSummonGroupKey
 {
     TempSummonGroupKey(uint32 summonerEntry, SummonerType summonerType, uint8 group)
-        : _summonerEntry(summonerEntry), _summonerType(summonerType), _summonGroup(group)
+        : SummonerEntry(summonerEntry), SummonerType(summonerType), SummonGroup(group)
     {
     }
 
     std::strong_ordering operator<=>(TempSummonGroupKey const& right) const = default;
 
-private:
-    uint32 _summonerEntry;      ///< Summoner's entry
-    SummonerType _summonerType; ///< Summoner's type, see SummonerType for available types
-    uint8 _summonGroup;         ///< Summon's group id
+    uint32 SummonerEntry;           ///< Summoner's entry
+    ::SummonerType SummonerType;    ///< Summoner's type, see SummonerType for available types
+    uint8 SummonGroup;              ///< Summon's group id
 };
 
 /// Stores data for temp summons
