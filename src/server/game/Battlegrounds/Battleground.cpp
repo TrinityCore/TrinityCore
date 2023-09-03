@@ -419,7 +419,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
         for (auto const& [guid, _] : GetPlayers())
             if (Player* player = ObjectAccessor::FindPlayer(guid))
-                player->AtStartOfEncounter();
+                player->AtStartOfEncounter(EncounterType::Battleground);
 
         // Remove preparation
         if (isArena())
@@ -856,7 +856,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         player->RemoveAura(SPELL_MERCENARY_SHAPESHIFT);
         player->RemovePlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE);
 
-        player->AtEndOfEncounter();
+        player->AtEndOfEncounter(EncounterType::Battleground);
 
         player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::LeaveArenaOrBattleground);
 

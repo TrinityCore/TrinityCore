@@ -31,6 +31,13 @@ struct CreatureData;
 
 enum class FlagState : uint8;
 
+enum class EncounterType : uint8
+{
+    DungeonEncounter,
+    Battleground,
+    MythicPlusRun
+};
+
 class TC_GAME_API ZoneScript
 {
     public:

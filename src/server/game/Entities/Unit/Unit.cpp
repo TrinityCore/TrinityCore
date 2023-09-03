@@ -509,17 +509,38 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed, bool gen
     GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 }
 
-void Unit::AtStartOfEncounter()
+void Unit::AtStartOfEncounter(EncounterType type)
 {
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::StartOfEncounter);
+
+    switch (type)
+    {
+        case EncounterType::DungeonEncounter:
+            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::StartOfDungeonEncounter);
+            break;
+        case EncounterType::MythicPlusRun:
+            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::StartOfMythicPlusRun);
+            break;
+        default:
+            break;
+    }
 
     if (IsAlive())
         Unit::ProcSkillsAndAuras(this, nullptr, PROC_FLAG_ENCOUNTER_START, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 }
 
-void Unit::AtEndOfEncounter()
+void Unit::AtEndOfEncounter(EncounterType type)
 {
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::EndOfEncounter);
+
+    switch (type)
+    {
+        case EncounterType::DungeonEncounter:
+            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::EndOfDungeonEncounter);
+            break;
+        default:
+            break;
+    }
 
     GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr)
     {
