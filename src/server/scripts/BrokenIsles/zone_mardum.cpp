@@ -17,6 +17,7 @@
 
 #include "Containers.h"
 #include "Conversation.h"
+#include "GridNotifiers.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
