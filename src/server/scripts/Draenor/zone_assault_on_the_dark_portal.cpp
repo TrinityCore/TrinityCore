@@ -24,7 +24,15 @@
 
 enum AssaultOnTheDarkPortalSpells
 {
-    SPELL_DARK_PORTAL_RUN_AWAY = 158985
+    SPELL_BLEEDING_HOLLOW_HOLDOUT        = 164609,
+    SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME = 164611,
+    SPELL_DARK_PORTAL_RUN_AWAY           = 158985,
+    SPELL_PUSH_ARMY                      = 165072
+};
+
+enum AssaultOnTheDarkPortalQuests
+{
+    QUEST_FLAG_ARMY_PUSHED        = 35297
 };
 
 // 621 - Dark Portal: Run away
@@ -61,8 +69,57 @@ public:
     }
 };
 
+// 34422 - Blaze of Glory
+class quest_blaze_of_glory : public QuestScript
+{
+public:
+    quest_blaze_of_glory() : QuestScript("quest_blaze_of_glory") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus == QUEST_STATUS_NONE)
+        {
+            player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_HOLDOUT);
+            player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME);
+            PhasingHandler::OnConditionChange(player);
+        }
+        else if (newStatus == QUEST_STATUS_INCOMPLETE)
+        {
+            if (player->GetQuestStatus(QUEST_FLAG_ARMY_PUSHED) != QUEST_STATUS_REWARDED)
+            {
+                player->CastSpell(player, SPELL_BLEEDING_HOLLOW_HOLDOUT, TRIGGERED_FULL_MASK);
+                player->CastSpell(player, SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME, TRIGGERED_FULL_MASK);
+                PhasingHandler::OnConditionChange(player);
+            }
+            else
+            {
+                player->CastSpell(player, SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME, TRIGGERED_FULL_MASK);
+                PhasingHandler::OnConditionChange(player);
+            }
+        }
+        else if (newStatus == QUEST_STATUS_COMPLETE)
+            player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME);
+    }
+};
+
+// 770 - Bleeding Hollow: Holdout
+class scene_bleeding_hollow_holdout : public SceneScript
+{
+public:
+    scene_bleeding_hollow_holdout() : SceneScript("scene_bleeding_hollow_holdout") { }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->CastSpell(player, SPELL_PUSH_ARMY, TRIGGERED_FULL_MASK);
+        player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_HOLDOUT);
+        PhasingHandler::OnConditionChange(player);
+    }
+};
+
 void AddSC_assault_on_the_dark_portal()
 {
     new scene_dark_portal_run_away();
     new quest_the_cost_of_war();
+    new quest_blaze_of_glory();
+    new scene_bleeding_hollow_holdout();
 };
