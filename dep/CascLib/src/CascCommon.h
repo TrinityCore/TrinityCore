@@ -40,8 +40,9 @@
 #include "common/RootHandler.h"
 #include "common/Sockets.h"
 
-// Headers from Alexander Peslyak's MD5 implementation
-#include "md5/md5.h"
+// Headers for hashes used in CascLib
+#include "hashes/md5.h"
+#include "hashes/sha1.h"
 
 // For HashStringJenkins
 #include "jenkins/lookup.h"

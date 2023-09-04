@@ -87,7 +87,6 @@ PCASC_FILE_NODE CASC_FILE_TREE::InsertNew(PCASC_CKEY_ENTRY pCKeyEntry)
         // Don't insert the node into any of the arrays here.
         // That is the caller's responsibility
     }
-
     return pFileNode;
 }
 
@@ -123,7 +122,6 @@ PCASC_FILE_NODE CASC_FILE_TREE::InsertNew()
             }
         }
     }
-
     return pFileNode;
 }
 
@@ -162,7 +160,6 @@ bool CASC_FILE_TREE::InsertToIdTable(PCASC_FILE_NODE pFileNode)
             }
         }
     }
-
     return false;
 }
 
@@ -183,7 +180,6 @@ bool CASC_FILE_TREE::SetNodePlainName(PCASC_FILE_NODE pFileNode, const char * sz
         pFileNode->NameLength = (USHORT)nLength;
         return true;
     }
-
     return false;
 }
 
@@ -233,7 +229,6 @@ bool CASC_FILE_TREE::RebuildNameMaps()
                 InsertToIdTable(pFileNode);
         }
     }
-
     return true;
 }
 
@@ -344,6 +339,7 @@ PCASC_FILE_NODE CASC_FILE_TREE::InsertByName(PCASC_CKEY_ENTRY pCKeyEntry, const 
         {
             // Supply the name hash
             pFileNode->FileNameHash = FileNameHash;
+            //bNewNodeInserted = true;
 
             // Set the file data id and the extra values
             SetExtras(pFileNode, FileDataId, LocaleFlags, ContentFlags);
@@ -358,8 +354,7 @@ PCASC_FILE_NODE CASC_FILE_TREE::InsertByName(PCASC_CKEY_ENTRY pCKeyEntry, const 
             SetNodeFileName(pFileNode, szFileName);
 
             // If we created a new node, we need to increment the reference count
-            assert(pCKeyEntry->RefCount != 0xFFFF);
-            //bNewNodeInserted = true;
+            assert(pCKeyEntry->RefCount < 0xFFFFFFFF);
             pCKeyEntry->RefCount++;
             FileNodes++;
         }
@@ -392,7 +387,6 @@ PCASC_FILE_NODE CASC_FILE_TREE::InsertByHash(PCASC_CKEY_ENTRY pCKeyEntry, ULONGL
         // Insert the file node to the hash map
         InsertToNameMap(pFileNode);
     }
-
     return pFileNode;
 }
 
@@ -422,8 +416,6 @@ PCASC_FILE_NODE CASC_FILE_TREE::InsertById(PCASC_CKEY_ENTRY pCKeyEntry, DWORD Fi
             pCKeyEntry->RefCount++;
         }
     }
-
-    // Return the new or old node
     return pFileNode;
 }
 
@@ -443,7 +435,7 @@ PCASC_FILE_NODE CASC_FILE_TREE::PathAt(char * szBuffer, size_t cchBuffer, size_t
         RefFileNode = (PCASC_FILE_NODE *)FileDataIds.ItemAt(nItemIndex);
         if(RefFileNode != NULL)
         {
-            pFileNode = *(PCASC_FILE_NODE *)FileDataIds.ItemAt(nItemIndex);
+            pFileNode = RefFileNode[0];
         }
     }
     else
@@ -451,7 +443,7 @@ PCASC_FILE_NODE CASC_FILE_TREE::PathAt(char * szBuffer, size_t cchBuffer, size_t
         pFileNode = (PCASC_FILE_NODE)NodeTable.ItemAt(nItemIndex);
     }
 
-    // Construct the entire path
+    // Construct the full path
     PathAt(szBuffer, cchBuffer, pFileNode);
     return pFileNode;
 }
@@ -522,7 +514,6 @@ PCASC_FILE_NODE CASC_FILE_TREE::Find(const char * szFullPath, DWORD FileDataId, 
     {
         GetExtras(pFileNode, &pFindData->dwFileDataId, &pFindData->dwLocaleFlags, &pFindData->dwContentFlags);
     }
-
     return pFileNode;
 }
 
@@ -539,7 +530,6 @@ PCASC_FILE_NODE CASC_FILE_TREE::Find(PCASC_CKEY_ENTRY pCKeyEntry)
                 return pFileNode;
         }
     }
-
     return NULL;
 }
 
@@ -562,7 +552,6 @@ PCASC_FILE_NODE CASC_FILE_TREE::FindById(DWORD FileDataId)
             pFileNode = RefElement[0];
         }
     }
-
     return pFileNode;
 }
 
