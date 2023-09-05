@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CellImpl.h"
 #include "Containers.h"
 #include "Conversation.h"
-#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
