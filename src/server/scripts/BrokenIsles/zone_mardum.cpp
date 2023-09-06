@@ -551,7 +551,7 @@ struct npc_illidari_fighting_invasion_begins : public ScriptedAI
 
     void ScheduleTargetSelection()
     {
-        _oocScheduler.Schedule(1ms, [this](TaskContext context)
+        _oocScheduler.Schedule(200ms, [this](TaskContext context)
         {
             Unit* target = GetNextTarget();
             if (!target)
@@ -581,10 +581,9 @@ struct npc_illidari_fighting_invasion_begins : public ScriptedAI
 
     void EnterEvadeMode(EvadeReason why) override
     {
-        if (why != EvadeReason::NoHostiles)
-            return;
-
-        _events.Reset();
+        // manualling calling it to not move to home position but move to next target instead
+        _EnterEvadeMode(why);
+        Reset();
         ScheduleTargetSelection();
     }
 
