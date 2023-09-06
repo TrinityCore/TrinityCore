@@ -291,8 +291,6 @@ bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerT
 
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimationDataID), -1);
 
-    SetDuration(-1);
-
     _shape = position.Shape;
     _maxSearchRadius = _shape.GetMaxSearchRadius();
 
