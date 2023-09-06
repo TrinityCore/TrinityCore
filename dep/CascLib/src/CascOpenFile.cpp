@@ -409,6 +409,21 @@ bool WINAPI CascOpenFile(HANDLE hStorage, const void * pvFileName, DWORD dwLocal
             break;
     }
 
+    // Check opening unique file
+    if(dwOpenFlags & CASC_OPEN_CKEY_ONCE)
+    {
+        // Was the file already open since CascOpenStorage?
+        if(pCKeyEntry->Flags & CASC_CE_OPEN_CKEY_ONCE)
+        {
+            SetCascError(ERROR_CKEY_ALREADY_OPENED);
+            return false;
+        }
+        else
+        {
+            pCKeyEntry->Flags |= CASC_CE_OPEN_CKEY_ONCE;
+        }
+    }
+
     // Perform the open operation
     return OpenFileByCKeyEntry(hs, pCKeyEntry, dwOpenFlags, PtrFileHandle);
 }
