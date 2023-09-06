@@ -32,7 +32,6 @@ namespace WorldPackets
 {
     namespace Spells
     {
-        struct SpellAmmo;
         struct SpellCastData;
     }
 }
@@ -887,7 +886,7 @@ class TC_GAME_API Spell
         void CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, float& speedXY, float& speedZ);
 
         void UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data);
-        void UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& data);
+        int32 GetSpellCastDataAmmo();
 
         SpellCastResult CanOpenLock(SpellEffectInfo const& effect, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------

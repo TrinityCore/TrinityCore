@@ -657,7 +657,7 @@ bool Group::RemoveMember(ObjectGuid guid, RemoveMethod method /*= GROUP_REMOVEME
     }
 }
 
-void Group::ChangeLeader(ObjectGuid newLeaderGuid, int8 partyIndex)
+void Group::ChangeLeader(ObjectGuid newLeaderGuid)
 {
     member_witerator slot = _getMemberWSlot(newLeaderGuid);
 
@@ -698,7 +698,7 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid, int8 partyIndex)
 
     WorldPackets::Party::GroupNewLeader groupNewLeader;
     groupNewLeader.Name = m_leaderName;
-    groupNewLeader.PartyIndex = partyIndex;
+    groupNewLeader.PartyIndex = GetGroupCategory();
     BroadcastPacket(groupNewLeader.Write(), true);
 }
 
@@ -769,7 +769,7 @@ void Group::Disband(bool hideDestroy /* = false */)
     delete this;
 }
 
-void Group::SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy, uint8 partyIndex)
+void Group::SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy)
 {
     if (symbol >= TARGET_ICONS_COUNT)
         return;
@@ -778,27 +778,27 @@ void Group::SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy,
     if (!target.IsEmpty())
         for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
             if (m_targetIcons[i] == target)
-                SetTargetIcon(i, ObjectGuid::Empty, changedBy, partyIndex);
+                SetTargetIcon(i, ObjectGuid::Empty, changedBy);
 
     m_targetIcons[symbol] = target;
 
     WorldPackets::Party::SendRaidTargetUpdateSingle updateSingle;
-    updateSingle.PartyIndex = partyIndex;
+    updateSingle.PartyIndex = GetGroupCategory();
     updateSingle.Target = target;
     updateSingle.ChangedBy = changedBy;
     updateSingle.Symbol = symbol;
     BroadcastPacket(updateSingle.Write(), true);
 }
 
-void Group::SendTargetIconList(WorldSession* session, int8 partyIndex)
+void Group::SendTargetIconList(WorldSession* session)
 {
     if (!session)
         return;
 
     WorldPackets::Party::SendRaidTargetUpdateAll updateAll;
-    updateAll.PartyIndex = partyIndex;
+    updateAll.PartyIndex = GetGroupCategory();
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; i++)
-        updateAll.TargetIcons.insert(std::pair<uint8, ObjectGuid>(i, m_targetIcons[i]));
+        updateAll.TargetIcons.try_emplace(i, m_targetIcons[i]);
 
     session->SendPacket(updateAll.Write());
 }
@@ -1444,7 +1444,7 @@ void Group::UpdateReadyCheck(uint32 diff)
         EndReadyCheck();
 }
 
-void Group::StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, Milliseconds duration)
+void Group::StartReadyCheck(ObjectGuid starterGuid, Milliseconds duration)
 {
     if (m_readyCheckStarted)
         return;
@@ -1462,7 +1462,7 @@ void Group::StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, Millisecond
 
     WorldPackets::Party::ReadyCheckStarted readyCheckStarted;
     readyCheckStarted.PartyGUID = m_guid;
-    readyCheckStarted.PartyIndex = partyIndex;
+    readyCheckStarted.PartyIndex = GetGroupCategory();
     readyCheckStarted.InitiatorGUID = starterGuid;
     readyCheckStarted.Duration = duration;
     BroadcastPacket(readyCheckStarted.Write(), false);
@@ -1561,11 +1561,11 @@ void Group::DeleteRaidMarker(uint8 markerId)
     SendRaidMarkersChanged();
 }
 
-void Group::SendRaidMarkersChanged(WorldSession* session, int8 partyIndex)
+void Group::SendRaidMarkersChanged(WorldSession* session)
 {
     WorldPackets::Party::RaidMarkersChanged packet;
 
-    packet.PartyIndex = partyIndex;
+    packet.PartyIndex = GetGroupCategory();
     packet.ActiveMarkers = m_activeMarkers;
 
     for (uint8 i = 0; i < RAID_MARKERS_COUNT; i++)

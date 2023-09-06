@@ -13200,8 +13200,8 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
 void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid) const
 {
     WorldPackets::Item::SellResponse sellResponse;
-    sellResponse.VendorGUID = (creature ? creature->GetGUID() : ObjectGuid::Empty);
-    sellResponse.ItemGUID = guid;
+    sellResponse.VendorGUID = creature ? creature->GetGUID() : ObjectGuid::Empty;
+    sellResponse.ItemGUIDs.push_back(guid);
     sellResponse.Reason = msg;
     SendDirectMessage(sellResponse.Write());
 }
@@ -23796,6 +23796,23 @@ bool Player::IsInGroup(ObjectGuid groupGuid) const
     return false;
 }
 
+Group const* Player::GetGroup(Optional<uint8> partyIndex) const
+{
+    Group const* group = GetGroup();
+    if (!partyIndex)
+        return group;
+
+    GroupCategory category = GroupCategory(*partyIndex);
+    if (group && group->GetGroupCategory() == category)
+        return group;
+
+    Group const* originalGroup = GetOriginalGroup();
+    if (originalGroup && originalGroup->GetGroupCategory() == category)
+        return originalGroup;
+
+    return nullptr;
+}
+
 void Player::SetGroup(Group* group, int8 subgroup)
 {
     if (group == nullptr)
@@ -25469,9 +25486,9 @@ Player* Player::GetNextRandomRaidMember(float radius)
     return nearMembers[randTarget];
 }
 
-PartyResult Player::CanUninviteFromGroup(ObjectGuid guidMember) const
+PartyResult Player::CanUninviteFromGroup(ObjectGuid guidMember, Optional<uint8> partyIndex) const
 {
-    Group const* grp = GetGroup();
+    Group const* grp = GetGroup(partyIndex);
     if (!grp)
         return ERR_NOT_IN_GROUP;
 
@@ -25492,7 +25509,7 @@ PartyResult Player::CanUninviteFromGroup(ObjectGuid guidMember) const
             return ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE;
 
         Player* player = ObjectAccessor::FindConnectedPlayer(guidMember);
-        if (!player->m_lootRolls.empty())
+        if (player && !player->m_lootRolls.empty())
             return ERR_PARTY_LFG_BOOT_LOOT_ROLLS;
 
         /// @todo Should also be sent when anyone has recently left combat, with an aprox ~5 seconds timer.
@@ -25574,10 +25591,7 @@ void Player::SetOriginalGroup(Group* group, int8 subgroup)
 void Player::SetPartyType(GroupCategory category, uint8 type)
 {
     ASSERT(category < MAX_GROUP_CATEGORY);
-    uint8 value = m_playerData->PartyType;
-    value &= ~uint8(uint8(0xFF) << (category * 4));
-    value |= uint8(uint8(type) << (category * 4));
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PartyType), value);
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PartyType, category), type);
 }
 
 void Player::ResetGroupUpdateSequenceIfNeeded(Group const* group)

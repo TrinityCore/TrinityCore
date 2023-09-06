@@ -633,6 +633,8 @@ enum AuraType : uint32
     SPELL_AURA_ALLOW_MOUNT_IN_COMBAT                        = 539,
     SPELL_AURA_MOD_SUPPORT_STAT                             = 540, // NYI
     SPELL_AURA_MOD_REQUIRED_MOUNT_CAPABILITY_FLAGS          = 541,
+    SPELL_AURA_542                                          = 542,
+    SPELL_AURA_543                                          = 543,
     TOTAL_AURAS
 };
 

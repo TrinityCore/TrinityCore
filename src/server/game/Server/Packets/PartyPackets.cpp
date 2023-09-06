@@ -44,18 +44,18 @@ WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
 
 void WorldPackets::Party::PartyInviteClient::Read()
 {
-    uint32 targetNameLen, targetRealmLen;
+    bool hasPartyIndex = _worldPacket.ReadBit();
 
-    _worldPacket >> PartyIndex;
-
-    targetNameLen = _worldPacket.ReadBits(9);
-    targetRealmLen = _worldPacket.ReadBits(9);
+    uint32 targetNameLen = _worldPacket.ReadBits(9);
+    uint32 targetRealmLen = _worldPacket.ReadBits(9);
 
     _worldPacket >> ProposedRoles;
     _worldPacket >> TargetGUID;
 
     TargetName = _worldPacket.ReadString(targetNameLen);
     TargetRealm = _worldPacket.ReadString(targetRealmLen);
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 WorldPacket const* WorldPackets::Party::PartyInvite::Write()
@@ -72,7 +72,7 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
     _worldPacket << InviterGUID;
     _worldPacket << InviterBNetAccountId;
     _worldPacket << uint16(Unk1);
-    _worldPacket << uint32(ProposedRoles);
+    _worldPacket << uint8(ProposedRoles);
     _worldPacket << uint32(LfgSlots.size());
     _worldPacket << uint32(LfgCompletedMask);
 
@@ -84,7 +84,7 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Party::PartyInvite::Initialize(Player* const inviter, int32 proposedRoles, bool canAccept)
+void WorldPackets::Party::PartyInvite::Initialize(Player const* inviter, int32 proposedRoles, bool canAccept)
 {
     CanAccept = canAccept;
 
@@ -99,24 +99,26 @@ void WorldPackets::Party::PartyInvite::Initialize(Player* const inviter, int32 p
 
 void WorldPackets::Party::PartyInviteResponse::Read()
 {
-    _worldPacket >> PartyIndex;
-
+    bool hasPartyIndex = _worldPacket.ReadBit();
     Accept = _worldPacket.ReadBit();
-
     bool hasRolesDesired = _worldPacket.ReadBit();
+
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
+
     if (hasRolesDesired)
-    {
-        RolesDesired.emplace();
-        _worldPacket >> *RolesDesired;
-    }
+        _worldPacket >> RolesDesired.emplace();
 }
 
 void WorldPackets::Party::PartyUninvite::Read()
 {
-    _worldPacket >> PartyIndex;
-    _worldPacket >> TargetGUID;
+    bool hasPartyIndex = _worldPacket.ReadBit();
+    uint32 reasonLen = _worldPacket.ReadBits(8);
 
-    uint8 reasonLen = _worldPacket.ReadBits(8);
+    _worldPacket >> TargetGUID;
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
+
     Reason = _worldPacket.ReadString(reasonLen);
 }
 
@@ -131,8 +133,10 @@ WorldPacket const* WorldPackets::Party::GroupDecline::Write()
 
 void WorldPackets::Party::RequestPartyMemberStats::Read()
 {
-    _worldPacket >> PartyIndex;
+    bool hasPartyIndex = _worldPacket.ReadBit();
     _worldPacket >> TargetGUID;
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberPhase const& phase)
@@ -244,54 +248,65 @@ WorldPacket const* WorldPackets::Party::PartyMemberFullState::Write()
 
 void WorldPackets::Party::SetPartyLeader::Read()
 {
-    _worldPacket >> PartyIndex;
+    bool hasPartyIndex = _worldPacket.ReadBit();
     _worldPacket >> TargetGUID;
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 void WorldPackets::Party::SetPartyAssignment::Read()
 {
-    _worldPacket >> PartyIndex;
+    bool hasPartyIndex = _worldPacket.ReadBit();
+    Set = _worldPacket.ReadBit();
     _worldPacket >> Assignment;
     _worldPacket >> Target;
-    Set = _worldPacket.ReadBit();
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 void WorldPackets::Party::SetRole::Read()
 {
-    _worldPacket >> PartyIndex;
+    bool hasPartyIndex = _worldPacket.ReadBit();
     _worldPacket >> TargetGUID;
     _worldPacket >> Role;
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 WorldPacket const* WorldPackets::Party::RoleChangedInform::Write()
 {
-    _worldPacket << PartyIndex;
+    _worldPacket << uint8(PartyIndex);
     _worldPacket << From;
     _worldPacket << ChangedUnit;
-    _worldPacket << OldRole;
-    _worldPacket << NewRole;
+    _worldPacket << uint8(OldRole);
+    _worldPacket << uint8(NewRole);
 
     return &_worldPacket;
 }
 
 void WorldPackets::Party::LeaveGroup::Read()
 {
-    _worldPacket >> PartyIndex;
+    if (_worldPacket.ReadBit())
+        _worldPacket >> PartyIndex.emplace();
 }
 
 void WorldPackets::Party::SetLootMethod::Read()
 {
-    _worldPacket >> PartyIndex;
+    bool hasPartyIndex = _worldPacket.ReadBit();
     _worldPacket >> LootMethod;
     _worldPacket >> LootMasterGUID;
     _worldPacket >> LootThreshold;
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 void WorldPackets::Party::MinimapPingClient::Read()
 {
+    bool hasPartyIndex = _worldPacket.ReadBit();
     _worldPacket >> PositionX;
     _worldPacket >> PositionY;
-    _worldPacket >> PartyIndex;
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 WorldPacket const* WorldPackets::Party::MinimapPing::Write()
@@ -305,9 +320,11 @@ WorldPacket const* WorldPackets::Party::MinimapPing::Write()
 
 void WorldPackets::Party::UpdateRaidTarget::Read()
 {
-    _worldPacket >> PartyIndex;
+    bool hasPartyIndex = _worldPacket.ReadBit();
     _worldPacket >> Target;
     _worldPacket >> Symbol;
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 WorldPacket const* WorldPackets::Party::SendRaidTargetUpdateSingle::Write()
@@ -341,19 +358,23 @@ void WorldPackets::Party::ConvertRaid::Read()
 
 void WorldPackets::Party::RequestPartyJoinUpdates::Read()
 {
-    _worldPacket >> PartyIndex;
+    if (_worldPacket.ReadBit())
+        _worldPacket >> PartyIndex.emplace();
 }
 
 void WorldPackets::Party::SetAssistantLeader::Read()
 {
-    _worldPacket >> PartyIndex;
-    _worldPacket >> Target;
+    bool hasPartyIndex = _worldPacket.ReadBit();
     Apply = _worldPacket.ReadBit();
+    _worldPacket >> Target;
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 void WorldPackets::Party::DoReadyCheck::Read()
 {
-    _worldPacket >> PartyIndex;
+    if (_worldPacket.ReadBit())
+        _worldPacket >> PartyIndex.emplace();
 }
 
 WorldPacket const* WorldPackets::Party::ReadyCheckStarted::Write()
@@ -368,8 +389,9 @@ WorldPacket const* WorldPackets::Party::ReadyCheckStarted::Write()
 
 void WorldPackets::Party::ReadyCheckResponseClient::Read()
 {
-    _worldPacket >> PartyIndex;
     IsReady = _worldPacket.ReadBit();
+    if (_worldPacket.ReadBit())
+        _worldPacket >> PartyIndex.emplace();
 }
 
 WorldPacket const* WorldPackets::Party::ReadyCheckResponse::Write()
@@ -399,7 +421,8 @@ void WorldPackets::Party::OptOutOfLoot::Read()
 
 void WorldPackets::Party::InitiateRolePoll::Read()
 {
-    _worldPacket >> PartyIndex;
+    if (_worldPacket.ReadBit())
+        _worldPacket >> PartyIndex.emplace();
 }
 
 WorldPacket const* WorldPackets::Party::RolePollInform::Write()
@@ -507,22 +530,27 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
 
 void WorldPackets::Party::SetEveryoneIsAssistant::Read()
 {
-    _worldPacket >> PartyIndex;
+    bool hasPartyIndex = _worldPacket.ReadBit();
     EveryoneIsAssistant = _worldPacket.ReadBit();
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 void WorldPackets::Party::ChangeSubGroup::Read()
 {
     _worldPacket >> TargetGUID;
-    _worldPacket >> PartyIndex;
     _worldPacket >> NewSubGroup;
+    if (_worldPacket.ReadBit())
+        _worldPacket >> PartyIndex.emplace();
 }
 
 void WorldPackets::Party::SwapSubGroups::Read()
 {
-    _worldPacket >> PartyIndex;
+    bool hasPartyIndex = _worldPacket.ReadBit();
     _worldPacket >> FirstTarget;
     _worldPacket >> SecondTarget;
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 void WorldPackets::Party::ClearRaidMarker::Read()
@@ -600,8 +628,8 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
     MemberStats.PositionZ = int16(player->GetPositionZ());
 
     MemberStats.SpecID = AsUnderlyingType(player->GetPrimarySpecialization());
-    MemberStats.PartyType[0] = player->m_playerData->PartyType & 0xF;
-    MemberStats.PartyType[1] = player->m_playerData->PartyType >> 4;
+    MemberStats.PartyType[0] = player->m_playerData->PartyType[0];
+    MemberStats.PartyType[1] = player->m_playerData->PartyType[1];
     MemberStats.WmoGroupID = 0;
     MemberStats.WmoDoodadPlacementID = 0;
 

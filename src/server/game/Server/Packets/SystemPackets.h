@@ -219,6 +219,7 @@ namespace WorldPackets
             Optional<int32> LaunchETA;
             std::vector<DebugTimeEventInfo> DebugTimeEvents;
             int32 Unused1007                         = 0;
+            Optional<std::string> RealmHiddenAlert;
         };
 
         class MOTD final : public ServerPacket
