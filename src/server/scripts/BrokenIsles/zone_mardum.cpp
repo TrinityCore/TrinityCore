@@ -81,84 +81,72 @@ class spell_demon_hunter_intro_aura : public AuraScript
 
 enum TheInvasionBeginsQuestData
 {
-    QUEST_THE_INVASION_BEGINS       = 40077,
+    QUEST_THE_INVASION_BEGINS                   = 40077,
 
-    CONVO_THE_INVASION_BEGINS       = 922,
+    CONVO_THE_INVASION_BEGINS                   = 922,
 
-    CONVO_LINE_TRIGGER_FACING       = 2529,
-    CONVO_LINE_START_PATH           = 2288,
+    NPC_KAYN_SUNFURY_INVASION_BEGINS            = 93011,
+    NPC_JAYCE_DARKWEAVER_INVASION_BEGINS        = 98228,
+    NPC_ALLARI_THE_SOULEATER_INVASION_BEGINS    = 98227,
+    NPC_CYANA_NIGHTGLAIVE_INVASION_BEGINS       = 98290,
+    NPC_KORVAS_BLOODTHORN_INVASION_BEGINS       = 98292,
+    NPC_SEVIS_BRIGHTFLAME_INVASION_BEGINS       = 99918,
+    NPC_WRATH_WARRIOR_INVASION_BEGINS           = 94580,
 
-    CONVO_ACROR_IDX_KAYN            = 1,
-    CONVO_ACTOR_IDX_KORVAS          = 2,
-
-    NPC_KAYN_SUNFURY                = 93011,
-    NPC_JAYCE_DARKWEAVER            = 98228,
-    NPC_ALLARI_THE_SOULEATER        = 98227,
-    NPC_CYANA_NIGHTGLAIVE           = 98290,
-    NPC_KORVAS_BLOODTHORN           = 98292,
-    NPC_SEVIS_BRIGHTFLAME           = 99918,
-    NPC_WRATH_WARRIOR               = 94580,
-
-    SPELL_THE_INVASION_BEGINS       = 187382,
-    SPELL_TRACK_TARGET_IN_CHANNEL   = 175799,
-    SPELL_DEMON_HUNTER_GLIDE_STATE  = 199303
+    SPELL_THE_INVASION_BEGINS                   = 187382,
+    SPELL_TRACK_TARGET_IN_CHANNEL               = 175799,
+    SPELL_DEMON_HUNTER_GLIDE_STATE              = 199303
 };
 
 enum TheInvasionsBeginsWaypointData
 {
     // Kayn
-    PATH_KAYN_ATTACK_DEMON          = 9301100,
-    PATH_KAYN_AFTER_DEMON           = 9301101,
+    PATH_KAYN_ATTACK_DEMON                      = 9301100,
+    PATH_KAYN_AFTER_DEMON                       = 9301101,
 
     // Path before Jump
-    PATH_JAYCE_INVASIONS_BEGINS     = 9822800,
-    PATH_ALLARI_INVASIONS_BEGINS    = 9822700,
-    PATH_CYANA_INVASIONS_BEGINS     = 9829000,
-    PATH_KORVAS_INVASIONS_BEGINS    = 9829200,
-    PATH_SEVIS_INVASIONS_BEGINS     = 9991800,
+    PATH_JAYCE_INVASION_BEGINS                  = 9822800,
+    PATH_ALLARI_INVASION_BEGINS                 = 9822700,
+    PATH_CYANA_INVASION_BEGINS                  = 9829000,
+    PATH_KORVAS_INVASION_BEGINS                 = 9829200,
+    PATH_SEVIS_INVASION_BEGINS                  = 9991800,
 
     // Path after Jump
-    PATH_JAYCE_INVASIONS_JUMP       = 9822801,
-    PATH_ALLARI_INVASIONS_JUMP      = 9822701,
-    PATH_CYANA_INVASIONS_JUMP       = 9829001,
-    PATH_KORVAS_INVASIONS_JUMP      = 9829201,
-    PATH_SEVIS_INVASIONS_JUMP       = 9991801,
+    PATH_JAYCE_JUMP_INVASION_BEGINS             = 9822801,
+    PATH_ALLARI_JUMP_INVASION_BEGINS            = 9822701,
+    PATH_CYANA_JUMP_INVASION_BEGINS             = 9829001,
+    PATH_KORVAS_JUMP_INVASION_BEGINS            = 9829201,
+    PATH_SEVIS_JUMP_INVASION_BEGINS             = 9991801,
 
-    POINT_ILLIDARI_LAND_POS         = 1,
-    POINT_KAYN_TRIGGER_DOUBLE_JUMP  = 2,
-    POINT_KAYN_MOVE_TO_DEMON        = 3,
+    POINT_ILLIDARI_LAND_POS                     = 1,
+    POINT_KAYN_TRIGGER_DOUBLE_JUMP              = 2,
+    POINT_KAYN_MOVE_TO_DEMON                    = 3,
 };
 
 enum TheInvasionBeginsAnimKitsData
 {
-    ANIM_DH_WINGS                   = 58110,
-    ANIM_DH_RUN                     = 9767,
-    ANIM_DH_RUN_ALLARI              = 9180,
+    ANIM_DH_WINGS                               = 58110,
+    ANIM_DH_RUN                                 = 9767,
+    ANIM_DH_RUN_ALLARI                          = 9180,
 };
 
 enum TheInvasionBeginsVisualData
 {
-    SPELL_VISUAL_KAYN_GLIDE             = 59738,
-    SPELL_VISUAL_KAYN_WINGS             = 59406,
-    SPELL_VISUAL_KAYN_DOUBLE_JUMP       = 58110,
-    SPELL_VISUAL_KORVAS_JUMP            = 63071,
-    SPELL_VISUAL_KIT_WRATH_WARRIOR_DIE  = 58476,
+    SPELL_VISUAL_KIT_KAYN_GLIDE                 = 59738,
+    SPELL_VISUAL_KIT_KAYN_WINGS                 = 59406,
+    SPELL_VISUAL_KIT_KAYN_DOUBLE_JUMP           = 58110,
+    SPELL_VISUAL_KIT_KORVAS_JUMP                = 63071,
+    SPELL_VISUAL_KIT_WRATH_WARRIOR_DIE          = 58476,
 };
 
-enum TheInvasionBeginsEventData
-{
-    EVENT_ILLIDARI_FACE_PLAYERS     = 1,
-    EVENT_ILLIDARI_START_PATH
-};
-
-Position const WrathWarriorSpawnPosition    = { 1081.9166f, 3183.8716f, 26.335993f };
-Position const KaynJumpPos                  = { 1172.17f, 3202.55f, 54.3479f };
-Position const KaynDoubleJumpPosition       = { 1094.2384f, 3186.058f, 28.81562f };
-Position const JayceJumpPos                 = { 1119.24f, 3203.42f, 38.1061f };
-Position const AllariJumpPos                = { 1120.08f, 3197.2f, 36.8502f };
-Position const KorvasJumpPos                = { 1117.89f, 3196.24f, 36.2158f };
-Position const SevisJumpPos                 = { 1120.74f, 3199.47f, 37.5157f };
-Position const CyanaJumpPos                 = { 1120.34f, 3194.28f, 36.4321f };
+Position const WrathWarriorSpawnPosition        = { 1081.9166f, 3183.8716f, 26.335993f };
+Position const KaynJumpPos                      = { 1172.17f, 3202.55f, 54.3479f };
+Position const KaynDoubleJumpPosition           = { 1094.2384f, 3186.058f, 28.81562f };
+Position const JayceJumpPos                     = { 1119.24f, 3203.42f, 38.1061f };
+Position const AllariJumpPos                    = { 1120.08f, 3197.2f, 36.8502f };
+Position const KorvasJumpPos                    = { 1117.89f, 3196.24f, 36.2158f };
+Position const SevisJumpPos                     = { 1120.74f, 3199.47f, 37.5157f };
+Position const CyanaJumpPos                     = { 1120.34f, 3194.28f, 36.4321f };
 
 // 93011 - Kayn Sunfury
 struct npc_kayn_sunfury_invasion_begins : public ScriptedAI
@@ -179,7 +167,7 @@ struct npc_kayn_sunfury_invasion_begins : public ScriptedAI
     {
         if (pathId == PATH_KAYN_ATTACK_DEMON)
         {
-            Creature* wrathWarrior = me->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_WRATH_WARRIOR, .IgnorePhases = true, .OwnerGuid = me->GetOwnerGUID() });
+            Creature* wrathWarrior = me->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_WRATH_WARRIOR_INVASION_BEGINS, .IgnorePhases = true, .OwnerGuid = me->GetOwnerGUID() });
             if (!wrathWarrior)
                 return;
 
@@ -214,9 +202,9 @@ struct npc_kayn_sunfury_invasion_begins : public ScriptedAI
             if (!summonerPlayer)
                 return;
 
-            me->SendPlaySpellVisualKit(SPELL_VISUAL_KAYN_WINGS, 4, 3000);
+            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KAYN_WINGS, 4, 3000);
             me->PlayObjectSound(SOUND_SPELL_DOUBLE_JUMP, me->GetGUID(), summonerPlayer);
-            me->SendPlaySpellVisualKit(SPELL_VISUAL_KAYN_DOUBLE_JUMP, 0, 0);
+            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KAYN_DOUBLE_JUMP, 0, 0);
             me->GetMotionMaster()->MoveJumpWithGravity(KaynDoubleJumpPosition, 24.0, 0.9874f, POINT_KAYN_MOVE_TO_DEMON);
         }
         else if (pointId == POINT_KAYN_MOVE_TO_DEMON)
@@ -242,12 +230,12 @@ struct npc_jayce_darkweaver_invasion_begins : public ScriptedAI
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (pathId == PATH_JAYCE_INVASIONS_BEGINS)
+        if (pathId == PATH_JAYCE_INVASION_BEGINS)
         {
             me->CastSpell(nullptr, SPELL_DEMON_HUNTER_GLIDE_STATE, true);
             me->GetMotionMaster()->MoveJumpWithGravity(JayceJumpPos, 12.0f, 15.2792f, POINT_ILLIDARI_LAND_POS);
         }
-        else if (pathId == PATH_JAYCE_INVASIONS_JUMP)
+        else if (pathId == PATH_JAYCE_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
     }
 
@@ -259,7 +247,7 @@ struct npc_jayce_darkweaver_invasion_begins : public ScriptedAI
         if (pointId == POINT_ILLIDARI_LAND_POS)
         {
             me->RemoveAurasDueToSpell(SPELL_DEMON_HUNTER_GLIDE_STATE);
-            me->GetMotionMaster()->MovePath(PATH_JAYCE_INVASIONS_JUMP, false);
+            me->GetMotionMaster()->MovePath(PATH_JAYCE_JUMP_INVASION_BEGINS, false);
         }
     }
 };
@@ -271,12 +259,12 @@ struct npc_allari_the_souleater_invasion_begins : public ScriptedAI
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (pathId == PATH_ALLARI_INVASIONS_BEGINS)
+        if (pathId == PATH_ALLARI_INVASION_BEGINS)
         {
             me->CastSpell(nullptr, SPELL_DEMON_HUNTER_GLIDE_STATE, true);
             me->GetMotionMaster()->MoveJumpWithGravity(AllariJumpPos, 12.0f, 9.2722f, POINT_ILLIDARI_LAND_POS);
         }
-        else if (pathId == PATH_ALLARI_INVASIONS_JUMP)
+        else if (pathId == PATH_ALLARI_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
     }
 
@@ -288,7 +276,7 @@ struct npc_allari_the_souleater_invasion_begins : public ScriptedAI
         if (pointId == POINT_ILLIDARI_LAND_POS)
         {
             me->RemoveAurasDueToSpell(SPELL_DEMON_HUNTER_GLIDE_STATE);
-            me->GetMotionMaster()->MovePath(PATH_ALLARI_INVASIONS_JUMP, false);
+            me->GetMotionMaster()->MovePath(PATH_ALLARI_JUMP_INVASION_BEGINS, false);
         }
     }
 };
@@ -300,12 +288,12 @@ struct npc_korvas_bloodthorn_invasion_begins : public ScriptedAI
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (pathId == PATH_KORVAS_INVASIONS_BEGINS)
+        if (pathId == PATH_KORVAS_INVASION_BEGINS)
         {
-            me->SendPlaySpellVisualKit(SPELL_VISUAL_KORVAS_JUMP, 4, 2000);
+            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KORVAS_JUMP, 4, 2000);
             me->GetMotionMaster()->MoveJumpWithGravity(KorvasJumpPos, 24.0f, 19.2911f, POINT_ILLIDARI_LAND_POS);
         }
-        else if (pathId == PATH_KORVAS_INVASIONS_JUMP)
+        else if (pathId == PATH_KORVAS_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
     }
 
@@ -317,7 +305,7 @@ struct npc_korvas_bloodthorn_invasion_begins : public ScriptedAI
         if (pointId == POINT_ILLIDARI_LAND_POS)
         {
             me->RemoveAurasDueToSpell(SPELL_DEMON_HUNTER_GLIDE_STATE);
-            me->GetMotionMaster()->MovePath(PATH_KORVAS_INVASIONS_JUMP, false);
+            me->GetMotionMaster()->MovePath(PATH_KORVAS_JUMP_INVASION_BEGINS, false);
         }
     }
 };
@@ -329,12 +317,12 @@ struct npc_sevis_brightflame_invasion_begins : public ScriptedAI
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (pathId == PATH_SEVIS_INVASIONS_BEGINS)
+        if (pathId == PATH_SEVIS_INVASION_BEGINS)
         {
             me->CastSpell(nullptr, SPELL_DEMON_HUNTER_GLIDE_STATE, true);
             me->GetMotionMaster()->MoveJumpWithGravity(SevisJumpPos, 12.0f, 13.3033f, POINT_ILLIDARI_LAND_POS);
         }
-        else if (pathId == PATH_SEVIS_INVASIONS_JUMP)
+        else if (pathId == PATH_SEVIS_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
     }
 
@@ -346,7 +334,7 @@ struct npc_sevis_brightflame_invasion_begins : public ScriptedAI
         if (pointId == POINT_ILLIDARI_LAND_POS)
         {
             me->RemoveAurasDueToSpell(SPELL_DEMON_HUNTER_GLIDE_STATE);
-            me->GetMotionMaster()->MovePath(PATH_SEVIS_INVASIONS_JUMP, false);
+            me->GetMotionMaster()->MovePath(PATH_SEVIS_JUMP_INVASION_BEGINS, false);
         }
     }
 };
@@ -358,12 +346,12 @@ struct npc_cyana_nightglaive_invasion_begins : public ScriptedAI
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (pathId == PATH_CYANA_INVASIONS_BEGINS)
+        if (pathId == PATH_CYANA_INVASION_BEGINS)
         {
             me->CastSpell(nullptr, SPELL_DEMON_HUNTER_GLIDE_STATE, true);
             me->GetMotionMaster()->MoveJumpWithGravity(CyanaJumpPos, 12.0f, 8.4555f, POINT_ILLIDARI_LAND_POS);
         }
-        else if (pathId == PATH_CYANA_INVASIONS_JUMP)
+        else if (pathId == PATH_CYANA_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
     }
 
@@ -375,7 +363,7 @@ struct npc_cyana_nightglaive_invasion_begins : public ScriptedAI
         if (pointId == POINT_ILLIDARI_LAND_POS)
         {
             me->RemoveAurasDueToSpell(SPELL_DEMON_HUNTER_GLIDE_STATE);
-            me->GetMotionMaster()->MovePath(PATH_CYANA_INVASIONS_JUMP, false);
+            me->GetMotionMaster()->MovePath(PATH_CYANA_JUMP_INVASION_BEGINS, false);
         }
     }
 };
@@ -386,14 +374,29 @@ class conversation_the_invasion_begins : public ConversationScript
 public:
     conversation_the_invasion_begins() : ConversationScript("conversation_the_invasion_begins") { }
 
+    enum TheInvasionBeginsConversationData
+    {
+        CONVO_LINE_TRIGGER_FACING       = 2529,
+        CONVO_LINE_START_PATH           = 2288,
+
+        CONVO_ACTOR_IDX_KAYN            = 1,
+        CONVO_ACTOR_IDX_KORVAS          = 2,
+    };
+
+    enum TheInvasionBeginsEventData
+    {
+        EVENT_ILLIDARI_FACE_PLAYERS     = 1,
+        EVENT_ILLIDARI_START_PATH
+    };
+
     void OnConversationCreate(Conversation* conversation, Unit* creator) override
     {
-        Creature* kaynObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_KAYN_SUNFURY, .IgnorePhases = true });
-        Creature* jayceObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_JAYCE_DARKWEAVER, .IgnorePhases = true });
-        Creature* allariaObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_ALLARI_THE_SOULEATER, .IgnorePhases = true });
-        Creature* cyanaObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_CYANA_NIGHTGLAIVE, .IgnorePhases = true });
-        Creature* korvasObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_KORVAS_BLOODTHORN, .IgnorePhases = true });
-        Creature* sevisObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_SEVIS_BRIGHTFLAME, .IgnorePhases = true });
+        Creature* kaynObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_KAYN_SUNFURY_INVASION_BEGINS, .IgnorePhases = true });
+        Creature* jayceObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_JAYCE_DARKWEAVER_INVASION_BEGINS, .IgnorePhases = true });
+        Creature* allariaObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_ALLARI_THE_SOULEATER_INVASION_BEGINS, .IgnorePhases = true });
+        Creature* cyanaObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_CYANA_NIGHTGLAIVE_INVASION_BEGINS, .IgnorePhases = true });
+        Creature* korvasObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_KORVAS_BLOODTHORN_INVASION_BEGINS, .IgnorePhases = true });
+        Creature* sevisObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_SEVIS_BRIGHTFLAME_INVASION_BEGINS, .IgnorePhases = true });
         if (!kaynObject || !jayceObject || !allariaObject || !cyanaObject || !korvasObject || !sevisObject)
             return;
 
@@ -413,7 +416,7 @@ public:
         allariaClone->SetAIAnimKitId(ANIM_DH_RUN_ALLARI);
         kaynClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
 
-        conversation->AddActor(CONVO_THE_INVASION_BEGINS, CONVO_ACROR_IDX_KAYN, kaynClone->GetGUID());
+        conversation->AddActor(CONVO_THE_INVASION_BEGINS, CONVO_ACTOR_IDX_KAYN, kaynClone->GetGUID());
         conversation->AddActor(CONVO_THE_INVASION_BEGINS, CONVO_ACTOR_IDX_KORVAS, korvasClone->GetGUID());
         conversation->Start();
     }
@@ -429,7 +432,7 @@ public:
             _events.ScheduleEvent(EVENT_ILLIDARI_START_PATH, *illidariStartPathLineStarted);
     }
 
-    void StartCloneChannel(ObjectGuid guid, Conversation* conversation)
+    static void StartCloneChannel(ObjectGuid guid, Conversation* conversation)
     {
         Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
         if (!privateObjectOwner)
@@ -442,9 +445,9 @@ public:
         clone->CastSpell(privateObjectOwner, SPELL_TRACK_TARGET_IN_CHANNEL, false);
     }
 
-    void StartCloneMovement(ObjectGuid guid, uint32 pathId, uint32 animKit, Conversation* conversation)
+    static void StartCloneMovement(ObjectGuid cloneGUID, uint32 pathId, uint32 animKit, Conversation* conversation)
     {
-        Creature* clone = ObjectAccessor::GetCreature(*conversation, guid);
+        Creature* clone = ObjectAccessor::GetCreature(*conversation, cloneGUID);
         if (!clone)
             return;
 
@@ -462,8 +465,8 @@ public:
         {
             case EVENT_ILLIDARI_FACE_PLAYERS:
             {
-                StartCloneChannel(conversation->GetActorCreature(CONVO_ACROR_IDX_KAYN)->GetGUID(), conversation);
-                StartCloneChannel(conversation->GetActorCreature(CONVO_ACTOR_IDX_KORVAS)->GetGUID(), conversation);
+                StartCloneChannel(conversation->GetActorUnit(CONVO_ACTOR_IDX_KAYN)->GetGUID(), conversation);
+                StartCloneChannel(conversation->GetActorUnit(CONVO_ACTOR_IDX_KORVAS)->GetGUID(), conversation);
                 StartCloneChannel(_jayceGUID, conversation);
                 StartCloneChannel(_allariGUID, conversation);
                 StartCloneChannel(_cyanaGUID, conversation);
@@ -472,7 +475,7 @@ public:
             }
             case EVENT_ILLIDARI_START_PATH:
             {
-                Creature* kaynClone = conversation->GetActorCreature(CONVO_ACROR_IDX_KAYN);
+                Creature* kaynClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_KAYN);
                 if (!kaynClone)
                     break;
 
@@ -485,17 +488,17 @@ public:
                     return;
 
                 kaynClone->PlayObjectSound(SOUND_METAL_WEAPON_UNSHEATH, kaynClone->GetGUID(), player);
-                kaynClone->SendPlaySpellVisualKit(SPELL_VISUAL_KAYN_GLIDE, 4, 3000);
-                kaynClone->SendPlaySpellVisualKit(SPELL_VISUAL_KAYN_WINGS, 4, 4000);
+                kaynClone->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KAYN_GLIDE, 4, 3000);
+                kaynClone->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KAYN_WINGS, 4, 4000);
                 kaynClone->GetMotionMaster()->MoveJumpWithGravity(KaynJumpPos, 20.5f, 396.3535f, POINT_KAYN_TRIGGER_DOUBLE_JUMP);
                 kaynClone->SetSheath(SHEATH_STATE_MELEE);
                 kaynClone->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
 
-                StartCloneMovement(conversation->GetActorCreature(CONVO_ACTOR_IDX_KORVAS)->GetGUID(), PATH_KORVAS_INVASIONS_BEGINS, ANIM_DH_RUN, conversation);
-                StartCloneMovement(_jayceGUID, PATH_JAYCE_INVASIONS_BEGINS, 0, conversation);
-                StartCloneMovement(_allariGUID, PATH_ALLARI_INVASIONS_BEGINS, ANIM_DH_RUN_ALLARI, conversation);
-                StartCloneMovement(_cyanaGUID, PATH_CYANA_INVASIONS_BEGINS, 0, conversation);
-                StartCloneMovement(_sevisGUID, PATH_SEVIS_INVASIONS_BEGINS, ANIM_DH_RUN, conversation);
+                StartCloneMovement(conversation->GetActorUnit(CONVO_ACTOR_IDX_KORVAS)->GetGUID(), PATH_KORVAS_INVASION_BEGINS, ANIM_DH_RUN, conversation);
+                StartCloneMovement(_jayceGUID, PATH_JAYCE_INVASION_BEGINS, 0, conversation);
+                StartCloneMovement(_allariGUID, PATH_ALLARI_INVASION_BEGINS, ANIM_DH_RUN_ALLARI, conversation);
+                StartCloneMovement(_cyanaGUID, PATH_CYANA_INVASION_BEGINS, 0, conversation);
+                StartCloneMovement(_sevisGUID, PATH_SEVIS_INVASION_BEGINS, ANIM_DH_RUN, conversation);
                 break;
             }
             default:
@@ -511,17 +514,6 @@ private:
     EventMap _events;
 };
 
-enum IllidariFighting
-{
-    // Spells
-    SPELL_ILLIDARI_CHAOS_STRIKE     = 197639,
-    SPELL_ILLIDARI_FEL_RUSH         = 200879,
-
-    // Events
-    EVENT_CHAOS_STRIKE              = 1,
-    EVENT_FEL_RUSH
-};
-
 // 98459 - Kayn Sunfury
 // 98458 - Jayce Darkweaver
 // 98456 - Allari the Souleater
@@ -531,6 +523,18 @@ enum IllidariFighting
 struct npc_illidari_fighting_invasion_begins : public ScriptedAI
 {
     npc_illidari_fighting_invasion_begins(Creature* creature) : ScriptedAI(creature) { }
+
+    enum IllidariFightingSpells
+    {
+        SPELL_ILLIDARI_CHAOS_STRIKE = 197639,
+        SPELL_ILLIDARI_FEL_RUSH = 200879,
+    };
+
+    enum IllidariFightingEvents
+    {
+        EVENT_CHAOS_STRIKE = 1,
+        EVENT_FEL_RUSH
+    };
 
     Unit* GetNextTarget()
     {
@@ -545,17 +549,50 @@ struct npc_illidari_fighting_invasion_begins : public ScriptedAI
         return Trinity::Containers::SelectRandomContainerElement(targetList);
     }
 
+    void ScheduleTargetSelection()
+    {
+        _oocScheduler.Schedule(1ms, [this](TaskContext context)
+        {
+            Unit* target = GetNextTarget();
+            if (!target)
+            {
+                context.Repeat(500ms);
+                return;
+            }
+            AttackStart(target);
+        });
+    }
+
+    void JustAppeared() override
+    {
+        ScheduleTargetSelection();
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
     void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_CHAOS_STRIKE, 5s);
         _events.ScheduleEvent(EVENT_FEL_RUSH, 7s);
     }
 
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        if (why != EvadeReason::NoHostiles)
+            return;
+
+        _events.Reset();
+        ScheduleTargetSelection();
+    }
+
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
         {
-            AttackStart(GetNextTarget());
+            _oocScheduler.Update(diff);
             return;
         }
 
@@ -564,30 +601,26 @@ struct npc_illidari_fighting_invasion_begins : public ScriptedAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = _events.ExecuteEvent())
+        switch (_events.ExecuteEvent())
         {
-            switch (eventId)
-            {
-                case EVENT_CHAOS_STRIKE:
-                    DoCastVictim(SPELL_ILLIDARI_CHAOS_STRIKE);
-                    _events.ScheduleEvent(EVENT_CHAOS_STRIKE, 5s);
-                    break;
-                case EVENT_FEL_RUSH:
-                    DoCastVictim(SPELL_ILLIDARI_FEL_RUSH);
-                    _events.ScheduleEvent(SPELL_ILLIDARI_FEL_RUSH, 7s);
-                    break;
-                default:
-                    break;
-            }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+            case EVENT_CHAOS_STRIKE:
+                DoCastVictim(SPELL_ILLIDARI_CHAOS_STRIKE);
+                _events.ScheduleEvent(EVENT_CHAOS_STRIKE, 5s);
+                break;
+            case EVENT_FEL_RUSH:
+                DoCastVictim(SPELL_ILLIDARI_FEL_RUSH);
+                _events.ScheduleEvent(SPELL_ILLIDARI_FEL_RUSH, 7s);
+                break;
+            default:
+                break;
         }
 
         DoMeleeAttackIfReady();
     }
+
 private:
     EventMap _events;
+    TaskScheduler _oocScheduler;
 };
 
 void AddSC_zone_mardum()
