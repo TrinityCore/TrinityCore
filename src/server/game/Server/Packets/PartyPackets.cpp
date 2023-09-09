@@ -46,6 +46,7 @@ void WorldPackets::Party::PartyInviteClient::Read()
 {
     bool hasPartyIndex = _worldPacket.ReadBit();
 
+    _worldPacket.ResetBitPos();
     uint32 targetNameLen = _worldPacket.ReadBits(9);
     uint32 targetRealmLen = _worldPacket.ReadBits(9);
 
