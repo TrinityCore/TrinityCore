@@ -50,7 +50,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             uint32 ProposedRoles = 0;
             std::string TargetName;
             std::string TargetRealm;
@@ -64,7 +64,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            void Initialize(Player* const inviter, int32 proposedRoles, bool canAccept);
+            void Initialize(Player const* inviter, int32 proposedRoles, bool canAccept);
 
             bool MightCRZYou = false;
             bool MustBeBNetFriend = false;
@@ -84,7 +84,7 @@ namespace WorldPackets
             bool IsXRealm = false;
 
             // Lfg
-            uint32 ProposedRoles = 0;
+            uint8 ProposedRoles = 0;
             uint32 LfgCompletedMask = 0;
             std::vector<uint32> LfgSlots;
         };
@@ -96,9 +96,9 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             bool Accept = false;
-            Optional<uint32> RolesDesired;
+            Optional<uint8> RolesDesired;
         };
 
         class PartyUninvite final : public ClientPacket
@@ -108,7 +108,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             ObjectGuid TargetGUID;
             std::string Reason;
         };
@@ -138,7 +138,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             ObjectGuid TargetGUID;
         };
 
@@ -236,7 +236,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             ObjectGuid TargetGUID;
         };
 
@@ -247,9 +247,9 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             ObjectGuid TargetGUID;
-            int32 Role = 0;
+            uint8 Role = 0;
         };
 
         class RoleChangedInform final : public ServerPacket
@@ -259,11 +259,11 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             ObjectGuid From;
             ObjectGuid ChangedUnit;
-            int32 OldRole = 0;
-            int32 NewRole = 0;
+            uint8 OldRole = 0;
+            uint8 NewRole = 0;
         };
 
         class LeaveGroup final : public ClientPacket
@@ -273,7 +273,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
         };
 
         class SetLootMethod final : public ClientPacket
@@ -283,7 +283,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             ObjectGuid LootMasterGUID;
             uint8 LootMethod = 0u;
             uint32 LootThreshold = 0u;
@@ -296,7 +296,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             float PositionX = 0.f;
             float PositionY = 0.f;
         };
@@ -320,7 +320,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             ObjectGuid Target;
             int8 Symbol = 0;
         };
@@ -366,7 +366,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
         };
 
         class SetAssistantLeader final : public ClientPacket
@@ -377,7 +377,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Target;
-            uint8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             bool Apply = false;
         };
 
@@ -388,7 +388,7 @@ namespace WorldPackets
 
             void Read() override;
             uint8 Assignment = 0;
-            uint8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             ObjectGuid Target;
             bool Set = false;
         };
@@ -400,7 +400,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
         };
 
         class ReadyCheckStarted final : public ServerPacket
@@ -423,7 +423,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             bool IsReady = false;
         };
 
@@ -475,7 +475,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
         };
 
         class RolePollInform final : public ServerPacket
@@ -575,7 +575,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             bool EveryoneIsAssistant = false;
         };
 
@@ -587,7 +587,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid TargetGUID;
-            int8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
             uint8 NewSubGroup = 0u;
         };
 
@@ -600,7 +600,7 @@ namespace WorldPackets
 
             ObjectGuid FirstTarget;
             ObjectGuid SecondTarget;
-            int8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
         };
 
         class ClearRaidMarker final : public ClientPacket

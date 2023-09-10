@@ -159,6 +159,19 @@ target_compile_options(trinity-compile-option-interface
     /we4263
     /we4264)
 
+if(ASAN)
+  target_compile_definitions(trinity-compile-option-interface
+    INTERFACE
+      -D_DISABLE_STRING_ANNOTATION
+      -D_DISABLE_VECTOR_ANNOTATION)
+
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      /fsanitize=address)
+
+  message(STATUS "MSVC: Enabled Address Sanitizer ASan")
+endif()
+
 # Disable incremental linking in debug builds.
 # To prevent linking getting stuck (which might be fixed in a later VS version).
 macro(DisableIncrementalLinking variable)

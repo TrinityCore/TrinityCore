@@ -132,6 +132,7 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(AddonsDisabled);
     _worldPacket.WriteBit(Unused1000);
     _worldPacket.WriteBit(ContentTrackingEnabled);
+    _worldPacket.WriteBit(IsSellAllJunkEnabled);
 
     _worldPacket.FlushBits();
 
@@ -211,6 +212,10 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 
     _worldPacket.WriteBit(AccountSaveDataExportEnabled);
     _worldPacket.WriteBit(AccountLockedByExport);
+    _worldPacket.WriteBit(RealmHiddenAlert.has_value());
+
+    if (RealmHiddenAlert)
+        _worldPacket.WriteBits(RealmHiddenAlert->length() + 1, 11);
 
     _worldPacket.FlushBits();
 
@@ -237,6 +242,9 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 
     if (LaunchETA)
         _worldPacket << int32(*LaunchETA);
+
+    if (RealmHiddenAlert && !RealmHiddenAlert->empty())
+        _worldPacket.WriteString(*RealmHiddenAlert);
 
     if (!LiveRegionCharacterCopySourceRegions.empty())
         _worldPacket.append(LiveRegionCharacterCopySourceRegions.data(), LiveRegionCharacterCopySourceRegions.size());

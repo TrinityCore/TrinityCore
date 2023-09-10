@@ -111,15 +111,11 @@ void WorldSession::HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClien
         return;
     }
 
-    Group* group = invitingPlayer->GetGroup();
-    if (group && group->isBGGroup())
-        group = invitingPlayer->GetOriginalGroup();
+    Group* group = invitingPlayer->GetGroup(packet.PartyIndex);
     if (!group)
         group = invitingPlayer->GetGroupInvite();
 
-    Group* group2 = invitedPlayer->GetGroup();
-    if (group2 && group2->isBGGroup())
-        group2 = invitedPlayer->GetOriginalGroup();
+    Group* group2 = invitedPlayer->GetGroup(packet.PartyIndex);
     // player already in another group or invited
     if (group2 || invitedPlayer->GetGroupInvite())
     {
@@ -195,6 +191,9 @@ void WorldSession::HandlePartyInviteResponseOpcode(WorldPackets::Party::PartyInv
     if (!group)
         return;
 
+    if (packet.PartyIndex && group->GetGroupCategory() != GroupCategory(*packet.PartyIndex))
+        return;
+
     if (packet.Accept)
     {
         // Remove player from invitees in any case
@@ -265,14 +264,14 @@ void WorldSession::HandlePartyUninviteOpcode(WorldPackets::Party::PartyUninvite&
         return;
     }
 
-    PartyResult res = GetPlayer()->CanUninviteFromGroup(packet.TargetGUID);
+    PartyResult res = GetPlayer()->CanUninviteFromGroup(packet.TargetGUID, packet.PartyIndex);
     if (res != ERR_PARTY_RESULT_OK)
     {
         SendPartyResult(PARTY_OP_UNINVITE, "", res);
         return;
     }
 
-    Group* grp = GetPlayer()->GetGroup();
+    Group* grp = GetPlayer()->GetGroup(packet.PartyIndex);
     // grp is checked already above in CanUninviteFromGroup()
     ASSERT(grp);
 
@@ -294,7 +293,7 @@ void WorldSession::HandlePartyUninviteOpcode(WorldPackets::Party::PartyUninvite&
 void WorldSession::HandleSetPartyLeaderOpcode(WorldPackets::Party::SetPartyLeader& packet)
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(packet.TargetGUID);
-    Group* group = GetPlayer()->GetGroup();
+    Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
 
     if (!group || !player)
         return;
@@ -303,7 +302,7 @@ void WorldSession::HandleSetPartyLeaderOpcode(WorldPackets::Party::SetPartyLeade
         return;
 
     // Everything's fine, accepted.
-    group->ChangeLeader(packet.TargetGUID, packet.PartyIndex);
+    group->ChangeLeader(packet.TargetGUID);
     group->SendUpdate();
 }
 
@@ -311,12 +310,12 @@ void WorldSession::HandleSetRoleOpcode(WorldPackets::Party::SetRole& packet)
 {
     WorldPackets::Party::RoleChangedInform roleChangedInform;
 
-    Group* group = GetPlayer()->GetGroup();
+    Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
     uint8 oldRole = group ? group->GetLfgRoles(packet.TargetGUID) : 0;
     if (oldRole == packet.Role)
         return;
 
-    roleChangedInform.PartyIndex = packet.PartyIndex;
+    roleChangedInform.PartyIndex = group->GetGroupCategory();
     roleChangedInform.From = GetPlayer()->GetGUID();
     roleChangedInform.ChangedUnit = packet.TargetGUID;
     roleChangedInform.OldRole = oldRole;
@@ -331,9 +330,9 @@ void WorldSession::HandleSetRoleOpcode(WorldPackets::Party::SetRole& packet)
         SendPacket(roleChangedInform.Write());
 }
 
-void WorldSession::HandleLeaveGroupOpcode(WorldPackets::Party::LeaveGroup& /*packet*/)
+void WorldSession::HandleLeaveGroupOpcode(WorldPackets::Party::LeaveGroup& packet)
 {
-    Group* grp = GetPlayer()->GetGroup();
+    Group* grp = GetPlayer()->GetGroup(packet.PartyIndex);
     Group* grpInvite = GetPlayer()->GetGroupInvite();
     if (!grp && !grpInvite)
         return;
@@ -364,7 +363,7 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
 {
     // not allowed to change
     /*
-    Group* group = GetPlayer()->GetGroup();
+    Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
     if (!group)
         return;
 
@@ -401,14 +400,15 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
 
 void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet)
 {
-    if (!GetPlayer()->GetGroup())
+    Group const* group = GetPlayer()->GetGroup(packet.PartyIndex);
+    if (!group)
         return;
 
     WorldPackets::Party::MinimapPing minimapPing;
     minimapPing.Sender = GetPlayer()->GetGUID();
     minimapPing.PositionX = packet.PositionX;
     minimapPing.PositionY = packet.PositionY;
-    GetPlayer()->GetGroup()->BroadcastPacket(minimapPing.Write(), true, -1, GetPlayer()->GetGUID());
+    group->BroadcastPacket(minimapPing.Write(), true, -1, GetPlayer()->GetGUID());
 }
 
 void WorldSession::HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet)
@@ -423,12 +423,12 @@ void WorldSession::HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& 
 
 void WorldSession::HandleUpdateRaidTargetOpcode(WorldPackets::Party::UpdateRaidTarget& packet)
 {
-    Group* group = GetPlayer()->GetGroup();
+    Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
     if (!group)
         return;
 
     if (packet.Symbol == -1)                  // target icon request
-        group->SendTargetIconList(this, packet.PartyIndex);
+        group->SendTargetIconList(this);
     else                                        // target icon update
     {
         if (group->isRaidGroup() && !group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
@@ -441,7 +441,7 @@ void WorldSession::HandleUpdateRaidTargetOpcode(WorldPackets::Party::UpdateRaidT
                 return;
         }
 
-        group->SetTargetIcon(packet.Symbol, packet.Target, GetPlayer()->GetGUID(), packet.PartyIndex);
+        group->SetTargetIcon(packet.Symbol, packet.Target, GetPlayer()->GetGUID());
     }
 }
 
@@ -470,18 +470,18 @@ void WorldSession::HandleConvertRaidOpcode(WorldPackets::Party::ConvertRaid& pac
 
 void WorldSession::HandleRequestPartyJoinUpdates(WorldPackets::Party::RequestPartyJoinUpdates& packet)
 {
-    Group* group = GetPlayer()->GetGroup();
+    Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
     if (!group)
         return;
 
-    group->SendTargetIconList(this, packet.PartyIndex);
-    group->SendRaidMarkersChanged(this, packet.PartyIndex);
+    group->SendTargetIconList(this);
+    group->SendRaidMarkersChanged(this);
 }
 
 void WorldSession::HandleChangeSubGroupOpcode(WorldPackets::Party::ChangeSubGroup& packet)
 {
     // we will get correct pointer for group here, so we don't have to check if group is BG raid
-    Group* group = GetPlayer()->GetGroup();
+    Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
     if (!group)
         return;
 
@@ -500,7 +500,7 @@ void WorldSession::HandleChangeSubGroupOpcode(WorldPackets::Party::ChangeSubGrou
 
 void WorldSession::HandleSwapSubGroupsOpcode(WorldPackets::Party::SwapSubGroups& packet)
 {
-    Group* group = GetPlayer()->GetGroup();
+    Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
     if (!group)
         return;
 
@@ -513,7 +513,7 @@ void WorldSession::HandleSwapSubGroupsOpcode(WorldPackets::Party::SwapSubGroups&
 
 void WorldSession::HandleSetAssistantLeaderOpcode(WorldPackets::Party::SetAssistantLeader& packet)
 {
-    Group* group = GetPlayer()->GetGroup();
+    Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
     if (!group)
         return;
 
@@ -525,7 +525,7 @@ void WorldSession::HandleSetAssistantLeaderOpcode(WorldPackets::Party::SetAssist
 
 void WorldSession::HandleSetPartyAssignment(WorldPackets::Party::SetPartyAssignment& packet)
 {
-    Group* group = GetPlayer()->GetGroup();
+    Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
     if (!group)
         return;
 
@@ -552,7 +552,7 @@ void WorldSession::HandleSetPartyAssignment(WorldPackets::Party::SetPartyAssignm
 
 void WorldSession::HandleDoReadyCheckOpcode(WorldPackets::Party::DoReadyCheck& packet)
 {
-    Group* group = GetPlayer()->GetGroup();
+    Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
     if (!group)
         return;
 
@@ -562,12 +562,12 @@ void WorldSession::HandleDoReadyCheckOpcode(WorldPackets::Party::DoReadyCheck& p
     /********************/
 
     // everything's fine, do it
-    group->StartReadyCheck(GetPlayer()->GetGUID(), packet.PartyIndex);
+    group->StartReadyCheck(GetPlayer()->GetGUID());
 }
 
 void WorldSession::HandleReadyCheckResponseOpcode(WorldPackets::Party::ReadyCheckResponseClient& packet)
 {
-    Group* group = GetPlayer()->GetGroup();
+    Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
     if (!group)
         return;
 
@@ -612,7 +612,7 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPackets::Party::OptOutOfLoot& p
 
 void WorldSession::HandleInitiateRolePoll(WorldPackets::Party::InitiateRolePoll& packet)
 {
-    Group* group = GetPlayer()->GetGroup();
+    Group const* group = GetPlayer()->GetGroup(packet.PartyIndex);
     if (!group)
         return;
 
@@ -622,13 +622,13 @@ void WorldSession::HandleInitiateRolePoll(WorldPackets::Party::InitiateRolePoll&
 
     WorldPackets::Party::RolePollInform rolePollInform;
     rolePollInform.From = GetPlayer()->GetGUID();
-    rolePollInform.PartyIndex = packet.PartyIndex;
+    rolePollInform.PartyIndex = group->GetGroupCategory();
     group->BroadcastPacket(rolePollInform.Write(), true);
 }
 
 void WorldSession::HandleSetEveryoneIsAssistant(WorldPackets::Party::SetEveryoneIsAssistant& packet)
 {
-    Group* group = GetPlayer()->GetGroup();
+    Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
     if (!group)
         return;
 

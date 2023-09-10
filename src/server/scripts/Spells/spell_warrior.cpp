@@ -68,6 +68,7 @@ enum WarriorSpells
     SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_STOICISM                          = 70845,
     SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
+    SPELL_WARRIOR_STRATEGIST                        = 384041,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
@@ -611,26 +612,54 @@ class spell_warr_shockwave : public SpellScript
 };
 
 // 107570 - Storm Bolt
-    class spell_warr_storm_bolt : public SpellScript
+class spell_warr_storm_bolt : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo
-            ({
-                SPELL_WARRIOR_STORM_BOLT_STUN
-            });
-        }
+        return ValidateSpellInfo
+        ({
+            SPELL_WARRIOR_STORM_BOLT_STUN
+        });
+    }
 
-        void HandleOnHit(SpellEffIndex /*effIndex*/)
-        {
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_STORM_BOLT_STUN, true);
-        }
+    void HandleOnHit(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_STORM_BOLT_STUN, true);
+    }
 
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt::HandleOnHit, EFFECT_1, SPELL_EFFECT_DUMMY);
-        }
-    };
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt::HandleOnHit, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 384041 - Strategist
+class spell_warr_strategist : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_SHIELD_SLAM, SPELL_WARRIOR_SHIELD_SLAM_MARKER })
+            && ValidateSpellEffect({ { SPELL_WARRIOR_STRATEGIST, EFFECT_0 } });
+    }
+
+    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& /*procEvent*/)
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void HandleCooldown(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*procEvent*/) const
+    {
+        Unit* caster = GetTarget();
+        caster->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_SHIELD_SLAM, true);
+        caster->CastSpell(caster, SPELL_WARRIOR_SHIELD_SLAM_MARKER, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_strategist::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warr_strategist::HandleCooldown, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
 
 // 52437 - Sudden Death
 class spell_warr_sudden_death : public AuraScript
@@ -811,6 +840,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_shield_charge);
     RegisterSpellScript(spell_warr_shockwave);
     RegisterSpellScript(spell_warr_storm_bolt);
+    RegisterSpellScript(spell_warr_strategist);
     RegisterSpellScript(spell_warr_sudden_death);
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_trauma);

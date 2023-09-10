@@ -43,6 +43,7 @@ struct AzeriteEssencePowerEntry;
 struct AzeriteItemMilestonePowerEntry;
 struct AzeritePowerEntry;
 struct BarberShopStyleEntry;
+struct BattlegroundTemplate;
 struct CharTitlesEntry;
 struct ChatChannelsEntry;
 struct ChrSpecializationEntry;
@@ -218,6 +219,7 @@ enum SpecResetType
 struct SpellModifier
 {
     SpellModifier(Aura* _ownerAura) : op(SpellModOp::HealingAndDamage), type(SPELLMOD_FLAT), spellId(0), ownerAura(_ownerAura) { }
+    virtual ~SpellModifier() = default;
 
     SpellModOp op;
     SpellModType type;
@@ -989,7 +991,7 @@ class Player;
 struct BGData
 {
     BGData() : bgInstanceID(0), bgTypeID(BATTLEGROUND_TYPE_NONE), bgAfkReportedCount(0), bgAfkReportedTimer(0),
-        bgTeam(0), mountSpell(0) { ClearTaxiPath(); }
+        bgTeam(0), mountSpell(0), queueId(BATTLEGROUND_QUEUE_NONE) { ClearTaxiPath(); }
 
     uint32 bgInstanceID;                    ///< This variable is set to bg->m_InstanceID,
                                             ///  when player is teleported to BG - (it is battleground's GUID)
@@ -1005,6 +1007,7 @@ struct BGData
     uint32 taxiPath[2];
 
     WorldLocation joinPos;                  ///< From where player entered BG
+    BattlegroundQueueTypeId queueId;
 
     void ClearTaxiPath()     { taxiPath[0] = taxiPath[1] = 0; }
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
@@ -2392,7 +2395,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsInvitedForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const;
         bool InBattlegroundQueueForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const;
 
-        void SetBattlegroundId(uint32 val, BattlegroundTypeId bgTypeId);
+        void SetBattlegroundId(uint32 val, BattlegroundTypeId bgTypeId, BattlegroundQueueTypeId queueId);
         uint32 AddBattlegroundQueueId(BattlegroundQueueTypeId val);
         bool HasFreeBattlegroundQueueId() const;
         void RemoveBattlegroundQueueId(BattlegroundQueueTypeId val);
@@ -2407,7 +2410,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetBGTeam() const;
 
         void LeaveBattleground(bool teleportToEntryPoint = true);
-        bool CanJoinToBattleground(Battleground const* bg) const;
+        bool CanJoinToBattleground(BattlegroundTemplate const* bg) const;
         bool CanReportAfkDueToLimit();
         void ReportedAfkBy(Player* reporter);
         void ClearAfkReports() { m_bgData.bgAfkReporter.clear(); }
@@ -2584,6 +2587,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsInGroup(ObjectGuid groupGuid) const;
         Group* GetGroupInvite() const { return m_groupInvite; }
         void SetGroupInvite(Group* group) { m_groupInvite = group; }
+        Group* GetGroup(Optional<uint8> partyIndex) { return const_cast<Group*>(const_cast<Player const*>(this)->GetGroup(partyIndex)); }
+        Group const* GetGroup(Optional<uint8> partyIndex) const;
         Group* GetGroup() { return m_group.getTarget(); }
         Group const* GetGroup() const { return const_cast<Group const*>(m_group.getTarget()); }
         GroupReference& GetGroupRef() { return m_group; }
@@ -2596,7 +2601,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ResetGroupUpdateSequenceIfNeeded(Group const* group);
         int32 NextGroupUpdateSequenceNumber(GroupCategory category);
         Player* GetNextRandomRaidMember(float radius);
-        PartyResult CanUninviteFromGroup(ObjectGuid guidMember = ObjectGuid::Empty) const;
+        PartyResult CanUninviteFromGroup(ObjectGuid guidMember, Optional<uint8> partyIndex) const;
 
         // Battleground / Battlefield Group System
         void SetBattlegroundOrBattlefieldRaid(Group* group, int8 subgroup = -1);

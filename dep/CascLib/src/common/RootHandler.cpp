@@ -80,7 +80,7 @@ PCASC_CKEY_ENTRY TFileTreeRoot::Search(TCascSearch * pSearch, PCASC_FIND_DATA pF
         //BREAKIF(pSearch->nFileIndex >= 2823765);
 
         // Retrieve the file item
-        pFileNode = FileTree.PathAt(pFindData->szFileName, MAX_PATH, pSearch->nFileIndex++);
+        pFileNode = FileTree.PathAt(pFindData->szFileName, _countof(pFindData->szFileName), pSearch->nFileIndex++);
         if(pFileNode != NULL)
         {
             // Ignore folders, but report mount points. These can and should be able to open and read

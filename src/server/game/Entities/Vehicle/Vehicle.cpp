@@ -246,11 +246,11 @@ void Vehicle::RemoveAllPassengers()
     // We don't need to iterate over Seats
     _me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
 
-    // Following the above logic, this assertion should NEVER fail.
-    // Even in 'hacky' cases, there should at least be VEHICLE_SPELL_RIDE_HARDCODED on us.
-    // SeatMap::const_iterator itr;
-    // for (itr = Seats.begin(); itr != Seats.end(); ++itr)
-    //    ASSERT(!itr->second.passenger);
+    // Aura script might cause the vehicle to be despawned in the middle of handling SPELL_AURA_CONTROL_VEHICLE removal
+    // In that case, aura effect has already been unregistered but passenger may still be found in Seats
+    for (auto const& [_, seat] : Seats)
+        if (Unit* passenger = ObjectAccessor::GetUnit(*_me, seat.Passenger.Guid))
+            passenger->_ExitVehicle();
 }
 
 /**

@@ -914,7 +914,6 @@ struct ChrClassesLoadInfo
         { false, FT_INT, "LowResScreenFileDataID" },
         { true, FT_INT, "Flags" },
         { false, FT_INT, "SpellTextureBlobFileDataID" },
-        { false, FT_INT, "RolesMask" },
         { false, FT_INT, "ArmorTypeMask" },
         { true, FT_INT, "CharStartKitUnknown901" },
         { true, FT_INT, "MaleCharacterCreationVisualFallback" },
@@ -936,6 +935,7 @@ struct ChrClassesLoadInfo
         { false, FT_BYTE, "ClassColorR" },
         { false, FT_BYTE, "ClassColorG" },
         { false, FT_BYTE, "ClassColorB" },
+        { false, FT_BYTE, "RolesMask" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 39, &ChrClassesMeta::Instance, HOTFIX_SEL_CHR_CLASSES };
@@ -990,7 +990,7 @@ struct ChrCustomizationDisplayInfoLoadInfo
 
 struct ChrCustomizationElementLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[12] =
+    static constexpr DB2FieldMeta Fields[13] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "ChrCustomizationChoiceID" },
@@ -1004,9 +1004,10 @@ struct ChrCustomizationElementLoadInfo
         { true, FT_INT, "ChrCustItemGeoModifyID" },
         { true, FT_INT, "ChrCustomizationVoiceID" },
         { true, FT_INT, "AnimKitID" },
+        { true, FT_INT, "ParticleColorID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 12, &ChrCustomizationElementMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_ELEMENT };
+    static constexpr DB2LoadInfo Instance{ Fields, 13, &ChrCustomizationElementMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_ELEMENT };
 };
 
 struct ChrCustomizationOptionLoadInfo
@@ -1420,7 +1421,7 @@ struct CreatureFamilyLoadInfo
 
 struct CreatureModelDataLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[38] =
+    static constexpr DB2FieldMeta Fields[40] =
     {
         { false, FT_INT, "ID" },
         { false, FT_FLOAT, "GeoBox1" },
@@ -1431,6 +1432,8 @@ struct CreatureModelDataLoadInfo
         { false, FT_FLOAT, "GeoBox6" },
         { false, FT_INT, "Flags" },
         { false, FT_INT, "FileDataID" },
+        { false, FT_FLOAT, "WalkSpeed" },
+        { false, FT_FLOAT, "RunSpeed" },
         { false, FT_INT, "BloodID" },
         { false, FT_INT, "FootprintTextureID" },
         { false, FT_FLOAT, "FootprintTextureLength" },
@@ -1462,7 +1465,7 @@ struct CreatureModelDataLoadInfo
         { false, FT_FLOAT, "Unknown820_32" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 38, &CreatureModelDataMeta::Instance, HOTFIX_SEL_CREATURE_MODEL_DATA };
+    static constexpr DB2LoadInfo Instance{ Fields, 40, &CreatureModelDataMeta::Instance, HOTFIX_SEL_CREATURE_MODEL_DATA };
 };
 
 struct CreatureTypeLoadInfo
@@ -5585,7 +5588,7 @@ struct TaxiNodesLoadInfo
         { false, FT_SHORT, "ContinentID" },
         { true, FT_INT, "ConditionID" },
         { false, FT_SHORT, "CharacterBitNumber" },
-        { false, FT_SHORT, "Flags" },
+        { true, FT_INT, "Flags" },
         { true, FT_INT, "UiTextureKitID" },
         { true, FT_INT, "MinimapAtlasMemberID" },
         { false, FT_FLOAT, "Facing" },
@@ -5622,7 +5625,7 @@ struct TaxiPathNodeLoadInfo
         { false, FT_SHORT, "PathID" },
         { true, FT_INT, "NodeIndex" },
         { false, FT_SHORT, "ContinentID" },
-        { false, FT_BYTE, "Flags" },
+        { true, FT_INT, "Flags" },
         { false, FT_INT, "Delay" },
         { true, FT_INT, "ArrivalEventID" },
         { true, FT_INT, "DepartureEventID" },

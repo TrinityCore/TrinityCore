@@ -212,7 +212,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int8 BagResult = EQUIP_ERR_OK; /// @see enum InventoryResult
+            int32 BagResult = EQUIP_ERR_OK; /// @see enum InventoryResult
             uint8 ContainerBSlot = 0;
             ObjectGuid SrcContainer;
             ObjectGuid DstContainer;
@@ -320,7 +320,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid VendorGUID;
-            ObjectGuid ItemGUID;
+            std::vector<ObjectGuid> ItemGUIDs;
             SellResult Reason = SELL_ERR_UNK;
         };
 
