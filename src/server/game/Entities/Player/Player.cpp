@@ -26686,6 +26686,49 @@ void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcod
         SetFallInformation(minfo.jump.fallTime, minfo.pos.GetPositionZ());
 }
 
+void Player::DisablePetControlsOnMount(ReactStates reactState, CommandStates commandState)
+{
+    Pet* pet = GetPet();
+    if (!pet)
+        return;
+
+    m_temporaryPetReactState = pet->GetReactState();
+    pet->SetReactState(reactState);
+    if (CharmInfo* charmInfo = pet->GetCharmInfo())
+        charmInfo->SetCommandState(commandState);
+
+    pet->GetMotionMaster()->MoveFollow(this, PET_FOLLOW_DIST, pet->GetFollowAngle());
+
+    WorldPackets::Pet::PetMode petMode;
+    petMode.PetGUID = pet->GetGUID();
+    petMode.ReactState = reactState;
+    petMode.CommandState = commandState;
+    petMode.Flag = 0;
+    SendDirectMessage(petMode.Write());
+}
+
+void Player::EnablePetControlsOnDismount()
+{
+    if (Pet* pet = GetPet())
+    {
+        WorldPackets::Pet::PetMode petMode;
+        petMode.PetGUID = pet->GetGUID();
+        if (m_temporaryPetReactState)
+        {
+            petMode.ReactState = *m_temporaryPetReactState;
+            pet->SetReactState(*m_temporaryPetReactState);
+        }
+
+        if (CharmInfo* charmInfo = pet->GetCharmInfo())
+            petMode.CommandState = charmInfo->GetCommandState();
+
+        petMode.Flag = 0;
+        SendDirectMessage(petMode.Write());
+    }
+
+    m_temporaryPetReactState.reset();
+}
+
 void Player::UnsummonPetTemporaryIfAny()
 {
     Pet* pet = GetPet();
@@ -26722,7 +26765,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
 
 bool Player::IsPetNeedBeTemporaryUnsummoned() const
 {
-    return !IsInWorld() || !IsAlive() || IsMounted() /*+in flight*/;
+    return !IsInWorld() || !IsAlive() || HasUnitMovementFlag(MOVEMENTFLAG_FLYING) || HasExtraUnitMovementFlag2(MOVEMENTFLAG3_ADV_FLYING);
 }
 
 bool Player::CanSeeSpellClickOn(Creature const* c) const

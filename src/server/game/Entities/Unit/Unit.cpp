@@ -7766,22 +7766,8 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             }
         }
 
-        // unsummon pet
-        Pet* pet = player->GetPet();
-        if (pet)
-        {
-            Battleground* bg = ToPlayer()->GetBattleground();
-            // don't unsummon pet in arena but SetFlag UNIT_FLAG_STUNNED to disable pet's interface
-            if (bg && bg->isArena())
-                pet->SetUnitFlag(UNIT_FLAG_STUNNED);
-            else
-                player->UnsummonPetTemporaryIfAny();
-        }
-
-        // if we have charmed npc, stun him also (everywhere)
-        if (Unit* charm = player->GetCharmed())
-            if (charm->GetTypeId() == TYPEID_UNIT)
-                charm->SetUnitFlag(UNIT_FLAG_STUNNED);
+        // disable pet controls
+        player->DisablePetControlsOnMount(REACT_PASSIVE, COMMAND_FOLLOW);
 
         player->SendMovementSetCollisionHeight(player->GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Mount);
     }
@@ -7816,18 +7802,8 @@ void Unit::Dismount()
     // (it could probably happen when logging in after a previous crash)
     if (Player* player = ToPlayer())
     {
-        if (Pet* pPet = player->GetPet())
-        {
-            if (pPet->HasUnitFlag(UNIT_FLAG_STUNNED) && !pPet->HasUnitState(UNIT_STATE_STUNNED))
-                pPet->RemoveUnitFlag(UNIT_FLAG_STUNNED);
-        }
-        else
-            player->ResummonPetTemporaryUnSummonedIfAny();
-
-        // if we have charmed npc, remove stun also
-        if (Unit* charm = player->GetCharmed())
-            if (charm->GetTypeId() == TYPEID_UNIT && charm->HasUnitFlag(UNIT_FLAG_STUNNED) && !charm->HasUnitState(UNIT_STATE_STUNNED))
-                charm->RemoveUnitFlag(UNIT_FLAG_STUNNED);
+        player->EnablePetControlsOnDismount();
+        player->ResummonPetTemporaryUnSummonedIfAny();
     }
 }
 

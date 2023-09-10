@@ -3068,8 +3068,12 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     if (IsFriendlyTo(target) || target->IsFriendlyTo(this))
         return false;
 
-    Player const* playerAffectingAttacker = unit && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) ? GetAffectingPlayer() : go ? GetAffectingPlayer() : nullptr;
+    Player const* playerAffectingAttacker = (unit && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)) || go ? GetAffectingPlayer() : nullptr;
     Player const* playerAffectingTarget = unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) ? unitTarget->GetAffectingPlayer() : nullptr;
+
+    // Pets of mounted players are immune to NPCs
+    if (!playerAffectingAttacker && unitTarget && unitTarget->IsPet() && playerAffectingTarget && playerAffectingTarget->IsMounted())
+        return false;
 
     // Not all neutral creatures can be attacked (even some unfriendly faction does not react aggresive to you, like Sporaggar)
     if ((playerAffectingAttacker && !playerAffectingTarget) || (!playerAffectingAttacker && playerAffectingTarget))
