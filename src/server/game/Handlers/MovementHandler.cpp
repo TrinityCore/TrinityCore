@@ -139,7 +139,7 @@ void WorldSession::HandleMoveWorldportAck()
         if (!mEntry->IsBattlegroundOrArena())
         {
             // We're not in BG
-            player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);
+            player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE, BATTLEGROUND_QUEUE_NONE);
             // reset destination bg team
             player->SetBGTeam(0);
         }
@@ -147,7 +147,7 @@ void WorldSession::HandleMoveWorldportAck()
         else if (Battleground* bg = player->GetBattleground())
         {
             if (player->IsInvitedForBattlegroundInstance(player->GetBattlegroundId()))
-                bg->AddPlayer(player);
+                bg->AddPlayer(player, player->m_bgData.queueId);
         }
     }
 

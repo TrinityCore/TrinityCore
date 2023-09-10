@@ -409,7 +409,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
                     instance->DoOnPlayers([](Player* player)
                     {
-                        player->AtStartOfEncounter();
+                        player->AtStartOfEncounter(EncounterType::DungeonEncounter);
                     });
                     break;
                 }
@@ -420,7 +420,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
                     instance->DoOnPlayers([](Player* player)
                     {
-                        player->AtEndOfEncounter();
+                        player->AtEndOfEncounter(EncounterType::DungeonEncounter);
                     });
                     break;
                 }
@@ -437,7 +437,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
                     instance->DoOnPlayers([](Player* player)
                     {
-                        player->AtEndOfEncounter();
+                        player->AtEndOfEncounter(EncounterType::DungeonEncounter);
                     });
                     break;
                 }

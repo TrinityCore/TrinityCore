@@ -39,6 +39,7 @@
 #include "Transport.h"
 #include "Unit.h"
 #include "UpdateData.h"
+#include "ZoneScript.h"
 #include "advstd.h"
 #include <bit>
 
@@ -63,6 +64,9 @@ void AreaTrigger::AddToWorld()
     ///- Register the AreaTrigger for guid lookup and for caster
     if (!IsInWorld())
     {
+        if (m_zoneScript)
+            m_zoneScript->OnAreaTriggerCreate(this);
+
         GetMap()->GetObjectsStore().Insert<AreaTrigger>(GetGUID(), this);
         if (_spawnId)
             GetMap()->GetAreaTriggerBySpawnIdStore().insert(std::make_pair(_spawnId, this));
@@ -76,15 +80,18 @@ void AreaTrigger::RemoveFromWorld()
     ///- Remove the AreaTrigger from the accessor and from all lists of objects in world
     if (IsInWorld())
     {
+        if (m_zoneScript)
+            m_zoneScript->OnAreaTriggerRemove(this);
+
         _isRemoved = true;
 
         if (Unit* caster = GetCaster())
             caster->_UnregisterAreaTrigger(this);
 
+        _ai->OnRemove();
+
         // Handle removal of all units, calling OnUnitExit & deleting auras if needed
         HandleUnitEnterExit({});
-
-        _ai->OnRemove();
 
         WorldObject::RemoveFromWorld();
 
@@ -113,6 +120,8 @@ bool AreaTrigger::Create(uint32 areaTriggerCreatePropertiesId, Unit* caster, Uni
         TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (areaTriggerCreatePropertiesId {}) not created. Invalid areatrigger create properties id ({})", areaTriggerCreatePropertiesId, areaTriggerCreatePropertiesId);
         return false;
     }
+
+    SetZoneScript();
 
     _areaTriggerTemplate = _areaTriggerCreateProperties->Template;
 
@@ -254,6 +263,8 @@ bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerT
         return false;
     }
 
+    SetZoneScript();
+
     _areaTriggerTemplate = areaTriggerTemplate;
 
     Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), areaTriggerTemplate->Id.Id, GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
@@ -261,17 +272,24 @@ bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerT
     SetEntry(areaTriggerTemplate->Id.Id);
 
     SetObjectScale(1.0f);
+    SetDuration(-1);
 
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::BoundsRadius2D), GetMaxSearchRadius());
-    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::DecalPropertiesID), 24); // blue decal, for .debug areatrigger visibility
+    if (position.SpellForVisuals)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(*position.SpellForVisuals, DIFFICULTY_NONE);
+        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellForVisuals), *position.SpellForVisuals);
+        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellVisual).ModifyValue(&UF::SpellCastVisual::SpellXSpellVisualID), spellInfo->GetSpellXSpellVisualId());
+        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellVisual).ModifyValue(&UF::SpellCastVisual::ScriptVisualID), 0);
+    }
 
-    float tmp = 1.0000001f;
-    uint32 tmp2;
-    memcpy(&tmp2, &tmp, sizeof(tmp));
+    if (IsServerSide())
+        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::DecalPropertiesID), 24); // blue decal, for .debug areatrigger visibility
 
-    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve).ModifyValue(&UF::ScaleCurve::ParameterCurve), tmp2);
-    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve).ModifyValue(&UF::ScaleCurve::OverrideActive), true);
+    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve), AreaTriggerScaleCurveTemplate());
+
+    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimationDataID), -1);
 
     _shape = position.Shape;
     _maxSearchRadius = _shape.GetMaxSearchRadius();
@@ -307,16 +325,16 @@ void AreaTrigger::Update(uint32 diff)
         }
         else
             UpdateSplinePosition(diff);
+    }
 
-        if (GetDuration() != -1)
+    if (GetDuration() != -1)
+    {
+        if (GetDuration() > int32(diff))
+            _UpdateDuration(_duration - diff);
+        else
         {
-            if (GetDuration() > int32(diff))
-                _UpdateDuration(_duration - diff);
-            else
-            {
-                Remove(); // expired
-                return;
-            }
+            Remove(); // expired
+            return;
         }
     }
 

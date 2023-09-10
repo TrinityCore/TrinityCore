@@ -1718,28 +1718,26 @@ void Player::RegenerateAll()
     // 5 seconds over and over again which confirms my theory that we have a independed timer.
     if (m_foodEmoteTimerCount >= 5000)
     {
-        std::vector<AuraEffect*> auraList;
-        AuraEffectList const& ModRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_REGEN);
-        AuraEffectList const& ModPowerRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN);
-
-        auraList.reserve(ModRegenAuras.size() + ModPowerRegenAuras.size());
-        auraList.insert(auraList.end(), ModRegenAuras.begin(), ModRegenAuras.end());
-        auraList.insert(auraList.end(), ModPowerRegenAuras.begin(), ModPowerRegenAuras.end());
-
-        for (auto itr = auraList.begin(); itr != auraList.end(); ++itr)
+        auto findInterruptibleEffect = [](AuraEffect const* aurEff)
         {
-            // Food emote comes above drinking emote if we have to decide (mage regen food for example)
-            if ((*itr)->GetBase()->HasEffectType(SPELL_AURA_MOD_REGEN) && (*itr)->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing))
-            {
-                SendPlaySpellVisualKit(SPELL_VISUAL_KIT_FOOD, 0, 0);
-                break;
-            }
-            else if ((*itr)->GetBase()->HasEffectType(SPELL_AURA_MOD_POWER_REGEN) && (*itr)->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing))
-            {
-                SendPlaySpellVisualKit(SPELL_VISUAL_KIT_DRINK, 0, 0);
-                break;
-            }
+            return aurEff->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing);
+        };
+
+        // Food emote comes above drinking emote if we have to decide (mage regen food for example)
+        AuraEffectList const& ModRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_REGEN);
+        auto itr = std::find_if(ModRegenAuras.cbegin(), ModRegenAuras.cend(), findInterruptibleEffect);
+        if (itr != ModRegenAuras.end())
+        {
+            SendPlaySpellVisualKit(SPELL_VISUAL_KIT_FOOD, 0, 0);
         }
+        else
+        {
+            AuraEffectList const& ModPowerRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN);
+            itr = std::find_if(ModPowerRegenAuras.cbegin(), ModPowerRegenAuras.cend(), findInterruptibleEffect);
+            if (itr != ModPowerRegenAuras.end())
+                SendPlaySpellVisualKit(SPELL_VISUAL_KIT_DRINK, 0, 0);
+        }
+
         m_foodEmoteTimerCount -= 5000;
     }
 }
@@ -9771,7 +9769,7 @@ void Player::RemovedInsignia(Player* looterPlr)
     // For AV Achievement
     if (Battleground* bg = GetBattleground())
     {
-        if (bg->GetTypeID(true) == BATTLEGROUND_AV)
+        if (bg->GetTypeID() == BATTLEGROUND_AV)
             bones->m_loot->FillLoot(PLAYER_CORPSE_LOOT_ENTRY, LootTemplates_Creature, this, true);
     }
     // For wintergrasp Quests
@@ -14282,8 +14280,8 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
 void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid) const
 {
     WorldPackets::Item::SellResponse sellResponse;
-    sellResponse.VendorGUID = (creature ? creature->GetGUID() : ObjectGuid::Empty);
-    sellResponse.ItemGUID = guid;
+    sellResponse.VendorGUID = creature ? creature->GetGUID() : ObjectGuid::Empty;
+    sellResponse.ItemGUIDs.push_back(guid);
     sellResponse.Reason = msg;
     SendDirectMessage(sellResponse.Write());
 }
@@ -18401,8 +18399,8 @@ void Player::_LoadBGData(PreparedQueryResult result)
 
     Field* fields = result->Fetch();
     // Expecting only one row
-    //        0           1     2      3      4      5      6          7          8        9
-    // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell FROM character_battleground_data WHERE guid = ?
+    //        0           1     2      3      4      5      6          7          8        9           10
+    // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell, queueTypeId FROM character_battleground_data WHERE guid = ?
 
     m_bgData.bgInstanceID = fields[0].GetUInt32();
     m_bgData.bgTeam       = fields[1].GetUInt16();
@@ -18414,6 +18412,7 @@ void Player::_LoadBGData(PreparedQueryResult result)
     m_bgData.taxiPath[0]  = fields[7].GetUInt32();
     m_bgData.taxiPath[1]  = fields[8].GetUInt32();
     m_bgData.mountSpell   = fields[9].GetUInt32();
+    m_bgData.queueId      = BattlegroundQueueTypeId::FromPacked(fields[10].GetUInt64());
 }
 
 bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, ObjectGuid guid)
@@ -18804,16 +18803,17 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         {
             map = currentBg->GetBgMap();
 
-            BattlegroundQueueTypeId bgQueueTypeId = currentBg->GetQueueId();
-            AddBattlegroundQueueId(bgQueueTypeId);
+            if (BattlegroundPlayer const* bgPlayer = currentBg->GetBattlegroundPlayerData(GetGUID()))
+            {
+                AddBattlegroundQueueId(bgPlayer->queueTypeId);
+                m_bgData.bgTypeID = BattlegroundTypeId(bgPlayer->queueTypeId.BattlemasterListId);
 
-            m_bgData.bgTypeID = currentBg->GetTypeID();
+                //join player to battleground group
+                currentBg->EventPlayerLoggedIn(this);
 
-            //join player to battleground group
-            currentBg->EventPlayerLoggedIn(this);
-
-            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
-            SetMercenaryForBattlegroundQueueType(bgQueueTypeId, currentBg->IsPlayerMercenaryInBattleground(GetGUID()));
+                SetInviteForBattlegroundQueueType(bgPlayer->queueTypeId, currentBg->GetInstanceID());
+                SetMercenaryForBattlegroundQueueType(bgPlayer->queueTypeId, currentBg->IsPlayerMercenaryInBattleground(GetGUID()));
+            }
         }
         // Bg was not found - go to Entry Point
         else
@@ -19028,7 +19028,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         m_InstanceValid = false;
 
     if (player_at_bg)
-        map->ToBattlegroundMap()->GetBG()->AddPlayer(this);
+        map->ToBattlegroundMap()->GetBG()->AddPlayer(this, m_bgData.queueId);
 
     // randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
     // this must help in case next save after mass player load after server startup
@@ -22816,7 +22816,7 @@ void Player::VehicleSpellInitialize()
     petSpells.PetGUID = vehicle->GetGUID();
     petSpells._CreatureFamily = 0;                          // Pet Family (0 for all vehicles)
     petSpells.Specialization = 0;
-    petSpells.TimeLimit = vehicle->IsSummon() ? vehicle->ToTempSummon()->GetTimer() : 0;
+    petSpells.TimeLimit = vehicle->IsSummon() ? vehicle->ToTempSummon()->GetTimer().count() : 0;
     petSpells.ReactState = vehicle->GetReactState();
     petSpells.CommandState = COMMAND_FOLLOW;
     petSpells.Flag = 0x8;
@@ -24522,12 +24522,12 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
     }
 }
 
-bool Player::CanJoinToBattleground(Battleground const* bg) const
+bool Player::CanJoinToBattleground(BattlegroundTemplate const* bg) const
 {
     uint32 perm = rbac::RBAC_PERM_JOIN_NORMAL_BG;
-    if (bg->isArena())
+    if (bg->IsArena())
         perm = rbac::RBAC_PERM_JOIN_ARENAS;
-    else if (bg->IsRandom())
+    else if (BattlegroundMgr::IsRandomBattleground(bg->Id))
         perm = rbac::RBAC_PERM_JOIN_RANDOM_BG;
 
     return GetSession()->HasPermission(perm);
@@ -25006,6 +25006,23 @@ bool Player::IsInGroup(ObjectGuid groupGuid) const
             return true;
 
     return false;
+}
+
+Group const* Player::GetGroup(Optional<uint8> partyIndex) const
+{
+    Group const* group = GetGroup();
+    if (!partyIndex)
+        return group;
+
+    GroupCategory category = GroupCategory(*partyIndex);
+    if (group && group->GetGroupCategory() == category)
+        return group;
+
+    Group const* originalGroup = GetOriginalGroup();
+    if (originalGroup && originalGroup->GetGroupCategory() == category)
+        return originalGroup;
+
+    return nullptr;
 }
 
 void Player::SetGroup(Group* group, int8 subgroup)
@@ -25875,10 +25892,11 @@ bool Player::InBattlegroundQueueForBattlegroundQueueType(BattlegroundQueueTypeId
     return GetBattlegroundQueueIndex(bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES;
 }
 
-void Player::SetBattlegroundId(uint32 val, BattlegroundTypeId bgTypeId)
+void Player::SetBattlegroundId(uint32 val, BattlegroundTypeId bgTypeId, BattlegroundQueueTypeId queueId)
 {
     m_bgData.bgInstanceID = val;
     m_bgData.bgTypeID = bgTypeId;
+    m_bgData.queueId = queueId;
 }
 
 uint32 Player::AddBattlegroundQueueId(BattlegroundQueueTypeId val)
@@ -25962,7 +25980,7 @@ bool Player::InArena() const
 bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const
 {
     // get a template bg instead of running one
-    Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
+    BattlegroundTemplate const* bg = sBattlegroundMgr->GetBattlegroundTemplateByTypeId(bgTypeId);
     if (!bg)
         return false;
 
@@ -26742,9 +26760,9 @@ Player* Player::GetNextRandomRaidMember(float radius)
     return nearMembers[randTarget];
 }
 
-PartyResult Player::CanUninviteFromGroup(ObjectGuid guidMember) const
+PartyResult Player::CanUninviteFromGroup(ObjectGuid guidMember, Optional<uint8> partyIndex) const
 {
-    Group const* grp = GetGroup();
+    Group const* grp = GetGroup(partyIndex);
     if (!grp)
         return ERR_NOT_IN_GROUP;
 
@@ -26765,7 +26783,7 @@ PartyResult Player::CanUninviteFromGroup(ObjectGuid guidMember) const
             return ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE;
 
         Player* player = ObjectAccessor::FindConnectedPlayer(guidMember);
-        if (!player->m_lootRolls.empty())
+        if (player && !player->m_lootRolls.empty())
             return ERR_PARTY_LFG_BOOT_LOOT_ROLLS;
 
         /// @todo Should also be sent when anyone has recently left combat, with an aprox ~5 seconds timer.
@@ -26847,10 +26865,7 @@ void Player::SetOriginalGroup(Group* group, int8 subgroup)
 void Player::SetPartyType(GroupCategory category, uint8 type)
 {
     ASSERT(category < MAX_GROUP_CATEGORY);
-    uint8 value = m_playerData->PartyType;
-    value &= ~uint8(uint8(0xFF) << (category * 4));
-    value |= uint8(uint8(type) << (category * 4));
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PartyType), value);
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PartyType, category), type);
 }
 
 void Player::ResetGroupUpdateSequenceIfNeeded(Group const* group)
@@ -27032,10 +27047,21 @@ bool Player::CanUseBattlegroundObject(GameObject* gameobject) const
             return false;
     }
 
+    bool hasRecentlyDroppedFlagDebuff = HasAura([](Aura const* aura) -> bool
+    {
+        if (aura->GetSpellInfo()->Id == SPELL_RECENTLY_DROPPED_ALLIANCE_FLAG)
+            return true;
+        else if (aura->GetSpellInfo()->Id == SPELL_RECENTLY_DROPPED_HORDE_FLAG)
+            return true;
+        else if (aura->GetSpellInfo()->Id == SPELL_RECENTLY_DROPPED_NEUTRAL_FLAG)
+            return true;
+        return false;
+    });
+
     // BUG: sometimes when player clicks on flag in AB - client won't send gameobject_use, only gameobject_report_use packet
     // Note: Mount, stealth and invisibility will be removed when used
     return (!isTotalImmune() &&                            // Damage immune
-            !HasAura(SPELL_RECENTLY_DROPPED_FLAG) &&       // Still has recently held flag debuff
+            !hasRecentlyDroppedFlagDebuff &&               // Still has recently held flag debuff
             IsAlive());                                    // Alive
 }
 
@@ -28258,6 +28284,7 @@ void Player::_SaveBGData(CharacterDatabaseTransaction trans)
     stmt->setUInt32(8, m_bgData.taxiPath[0]);
     stmt->setUInt32(9, m_bgData.taxiPath[1]);
     stmt->setUInt32(10, m_bgData.mountSpell);
+    stmt->setUInt64(11, m_bgData.queueId.GetPacked());
     trans->Append(stmt);
 }
 

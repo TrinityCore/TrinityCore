@@ -1817,6 +1817,9 @@ void SpellMgr::LoadSpellProcs()
         procEntry.SpellPhaseMask  = PROC_SPELL_PHASE_HIT;
         procEntry.HitMask         = PROC_HIT_NONE; // uses default proc @see SpellMgr::CanSpellTriggerProcOnEvent
 
+        if (!(procEntry.ProcFlags & REQ_SPELL_PHASE_PROC_FLAG_MASK) && procEntry.ProcFlags & PROC_FLAG_2_CAST_SUCCESSFUL)
+            procEntry.SpellPhaseMask = PROC_SPELL_PHASE_CAST; // set default phase for PROC_FLAG_2_CAST_SUCCESSFUL
+
         bool triggersSpell = false;
         for (SpellEffectInfo const& spellEffectInfo : spellInfo.GetEffects())
         {
@@ -2510,6 +2513,18 @@ void SpellMgr::LoadSpellInfoStore()
 
         if (effect->Effect == SPELL_EFFECT_LANGUAGE)
             sLanguageMgr->LoadSpellEffectLanguage(effect);
+
+        switch (effect->EffectAura)
+        {
+            case SPELL_AURA_ADD_FLAT_MODIFIER:
+            case SPELL_AURA_ADD_PCT_MODIFIER:
+            case SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL:
+            case SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL:
+                ASSERT(effect->EffectMiscValue[0] < MAX_SPELLMOD, "MAX_SPELLMOD must be at least %d", effect->EffectMiscValue[0] + 1);
+                break;
+            default:
+                break;
+        }
     }
 
     for (SpellAuraOptionsEntry const* auraOptions : sSpellAuraOptionsStore)
@@ -4613,7 +4628,24 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::LeaveWorld;
     });
-    // ENDOF FIRELANDS SPELLS
+    // ENDOF FIRELANDS
+
+    //
+    // MARDUM SPELLS
+    //
+
+    // 187382 - The Invasion Begins: Summon Wrath Warrior
+    ApplySpellFix({ 187382 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000 yards
+
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
+    // ENDOF MARDUM SPELLS
 
     //
     // ANTORUS THE BURNING THRONE SPELLS

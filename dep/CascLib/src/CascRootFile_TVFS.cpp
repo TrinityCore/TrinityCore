@@ -588,7 +588,7 @@ struct TRootHandler_TVFS : public TFileTreeRoot
                     {
                         PCASC_CKEY_ENTRY pSpanEntries;
                         PCASC_FILE_NODE pFileNode;
-                        USHORT RefCount;
+                        DWORD RefCount;
                         bool bFilePresent = true;
 
                         //

@@ -351,7 +351,7 @@ class boss_freya : public CreatureScript
                     {
                         me->AddAura(SPELL_DRAINED_OF_POWER, Elder[n]);
                         Elder[n]->CastSpell(me, SPELL_IRONBRANCH_ESSENCE, true);
-                        Elder[n]->RemoveLootMode(LOOT_MODE_DEFAULT); //! Why?
+                        Elder[n]->RemoveLootMode(LOOT_MODE_DEFAULT); // Why?
                         Elder[n]->AI()->AttackStart(who);
                         AddThreat(who, 250.0f, Elder[n]);
                         ++elderCount;

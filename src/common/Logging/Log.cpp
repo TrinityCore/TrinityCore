@@ -238,7 +238,7 @@ void Log::write(std::unique_ptr<LogMessage> msg) const
     if (_ioContext)
     {
         std::shared_ptr<LogOperation> logOperation = std::make_shared<LogOperation>(logger, std::move(msg));
-        Trinity::Asio::post(*_ioContext, Trinity::Asio::bind_executor(*_strand, [logOperation]() { logOperation->call(); }));
+        Trinity::Asio::post(*_strand, [logOperation]() { logOperation->call(); });
     }
     else
         logger->write(msg.get());

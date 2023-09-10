@@ -207,21 +207,6 @@ LPBYTE CaptureEncodedKey(LPBYTE pbEKey, LPBYTE pbData, BYTE EKeyLength)
     return pbData + EKeyLength;
 }
 
-LPBYTE CaptureArray_(LPBYTE pbDataPtr, LPBYTE pbDataEnd, LPBYTE * PtrArray, size_t ItemSize, size_t ItemCount)
-{
-    size_t ArraySize = ItemSize * ItemCount;
-
-    // Is there enough data?
-    if((pbDataPtr + ArraySize) > pbDataEnd)
-        return NULL;
-
-    // Give data
-    PtrArray[0] = pbDataPtr;
-
-    // Return the pointer to data following after the array
-    return pbDataPtr + ArraySize;
-}
-
 //-----------------------------------------------------------------------------
 // String copying and conversion
 
@@ -598,7 +583,7 @@ bool CascIsValidMD5(LPBYTE pbMd5)
     return (Int32Array[0] | Int32Array[1] | Int32Array[2] | Int32Array[3]) ? true : false;
 }
 
-bool CascVerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expected_md5)
+bool CascVerifyDataBlockHash(void * pvDataBlock, size_t cbDataBlock, LPBYTE expected_md5)
 {
     MD5_CTX md5_ctx;
     BYTE md5_digest[MD5_HASH_SIZE];
@@ -609,18 +594,27 @@ bool CascVerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expec
 
     // Calculate the MD5 of the data block
     MD5_Init(&md5_ctx);
-    MD5_Update(&md5_ctx, pvDataBlock, cbDataBlock);
+    MD5_Update(&md5_ctx, pvDataBlock, (unsigned long)(cbDataBlock));
     MD5_Final(md5_digest, &md5_ctx);
 
     // Does the MD5's match?
     return (memcmp(md5_digest, expected_md5, MD5_HASH_SIZE) == 0);
 }
 
-void CascCalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_hash)
+void CascHash_MD5(const void * pvDataBlock, size_t cbDataBlock, LPBYTE md5_hash)
 {
     MD5_CTX md5_ctx;
 
     MD5_Init(&md5_ctx);
-    MD5_Update(&md5_ctx, pvDataBlock, cbDataBlock);
+    MD5_Update(&md5_ctx, pvDataBlock, (unsigned long)(cbDataBlock));
     MD5_Final(md5_hash, &md5_ctx);
+}
+
+void CascHash_SHA1(const void * pvDataBlock, size_t cbDataBlock, LPBYTE sha1_hash)
+{
+    SHA1_CTX sha1_ctx;
+
+    SHA1_Init(&sha1_ctx);
+    SHA1_Update(&sha1_ctx, pvDataBlock, (u32)(cbDataBlock));
+    SHA1_Final(&sha1_ctx, sha1_hash);
 }

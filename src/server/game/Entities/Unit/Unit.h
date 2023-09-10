@@ -27,6 +27,7 @@
 #include "UnitDefines.h"
 #include "Util.h"
 #include <array>
+#include <forward_list>
 #include <map>
 #include <memory>
 #include <stack>
@@ -98,6 +99,7 @@ class UnitAura;
 class Vehicle;
 class VehicleJoinEvent;
 
+enum class EncounterType : uint8;
 enum class PetActionFeedback : uint8;
 enum MovementGeneratorType : uint8;
 enum ProcFlagsHit : uint32;
@@ -485,7 +487,7 @@ class TC_GAME_API ProcEventInfo
                       ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask,
                       Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo);
 
-        Unit* GetActor() { return _actor; }
+        Unit* GetActor() const { return _actor; }
         Unit* GetActionTarget() const { return _actionTarget; }
         Unit* GetProcTarget() const { return _procTarget; }
 
@@ -759,9 +761,9 @@ class TC_GAME_API Unit : public WorldObject
         typedef std::multimap<AuraStateType,  AuraApplication*> AuraStateAurasMap;
         typedef std::pair<AuraStateAurasMap::const_iterator, AuraStateAurasMap::const_iterator> AuraStateAurasMapBounds;
 
-        typedef std::list<AuraEffect*> AuraEffectList;
-        typedef std::list<Aura*> AuraList;
-        typedef std::list<AuraApplication*> AuraApplicationList;
+        typedef std::forward_list<AuraEffect*> AuraEffectList;
+        typedef std::forward_list<Aura*> AuraList;
+        typedef std::forward_list<AuraApplication*> AuraApplicationList;
         typedef std::array<DiminishingReturn, DIMINISHING_MAX> Diminishing;
 
         typedef std::vector<std::pair<uint32 /*procEffectMask*/, AuraApplication*>> AuraApplicationProcContainer;
@@ -1207,7 +1209,7 @@ class TC_GAME_API Unit : public WorldObject
         void SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration) const;
         void SendCancelSpellVisualKit(uint32 id);
 
-        void CancelSpellMissiles(uint32 spellId, bool reverseMissile = false);
+        void CancelSpellMissiles(uint32 spellId, bool reverseMissile = false, bool abortSpell = false);
 
         void DeMorph();
 
@@ -2024,8 +2026,8 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtDisengage() {}
 
     public:
-        void AtStartOfEncounter();
-        void AtEndOfEncounter();
+        void AtStartOfEncounter(EncounterType type);
+        void AtEndOfEncounter(EncounterType type);
 
     private:
 
