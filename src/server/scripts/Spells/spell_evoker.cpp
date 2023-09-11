@@ -40,7 +40,9 @@ enum EvokerSpells
     SPELL_EVOKER_LIVING_FLAME_HEAL         = 361509,
     SPELL_EVOKER_PERMEATING_CHILL_TALENT   = 370897,
     SPELL_EVOKER_PYRE_DAMAGE               = 357212,
-    SPELL_EVOKER_SOAR_RACIAL               = 369536
+    SPELL_EVOKER_SOAR_RACIAL               = 369536,
+    SPELL_EVOKER_DEEP_BREATH               = 357210,  // Todo Testing and fixing scripting
+    SPELL_EVOKER_LANDSLIDE                 = 358385 // TODO:Scripting
 };
 
 enum EvokerSpellLabels
@@ -189,7 +191,7 @@ class spell_evo_pyre : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo ({ SPELL_EVOKER_PYRE_DAMAGE });
+        return ValidateSpellInfo({ SPELL_EVOKER_PYRE_DAMAGE });
     }
 
     void HandleDamage(SpellEffIndex /*effIndex*/)
@@ -203,6 +205,99 @@ class spell_evo_pyre : public SpellScript
     }
 };
 
+
+// Deep Breath 357210
+class spell_evo_deep_breath : public SpellScript // v1 without mechanic empowered spells gives errors
+{
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_EVOKER_DEEP_BREATH });
+        }
+      
+        void HandleHitTarget(SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+             Unit* hitUnit = GetHitUnit();
+        }
+
+        void HandleLaunchTarget(SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+
+            if (AuraEffect* auraEffect = caster->GetAuraEffect(SPELL_EVOKER_DEEP_BREATH, EFFECT_0))
+            {
+                int32 manaCost = GetSpell()->GetPowerTypeCostAmount(POWER_MANA).value_or(0);
+                if (manaCost != 0)
+                    GetCaster()->ModifyPower(POWER_MANA, CalculatePct(manaCost, auraEffect->GetAmount()));
+            }
+        }
+
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetHitUnit()->GetPosition(), SPELL_EVOKER_DEEP_BREATH, true);
+
+        }
+
+        SpellCastResult CheckCast()
+        {
+            Unit* caster = GetCaster();
+
+            if (!caster->IsFalling())
+                return SPELL_FAILED_NOT_ON_GROUND;
+
+            return SPELL_CAST_OK;
+
+
+        }
+         //TODO: need id of SPELL_EVOKER_DEEP_BREATH_VISUAL,SPELL_EVOKER_DEEP_BREATH_EMPOWERED_BUFF  and empowered damage mechanic too
+      
+
+        void HandleCast()
+        {
+            Player* caster = GetCaster()->ToPlayer();
+            if (!caster)
+                return;
+
+            caster->CastSpell(caster, SPELL_EVOKER_DEEP_BREATH, true);
+            caster->SetSpeed(MOVE_RUN, 100.0f);
+            caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_EVOKER_DEEP_BREATH, GetCastDifficulty()), 0, nullptr, false, 180000ms); // 2 minutes
+        }
+
+      
+       
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_evo_deep_breath::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnCheckCast += SpellCheckCastFn(spell_evo_deep_breath::CheckCast);
+        OnCast += SpellCastFn(spell_evo_deep_breath::HandleCast);
+    }
+
+};
+
+
+// 358385 - LandSlide
+class spell_evo_landslide : public SpellScript // v1
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_LANDSLIDE });
+    }
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit()->GetPosition(), SPELL_EVOKER_LANDSLIDE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_evo_landslide::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+
+    }
+};
+
+
 void AddSC_evoker_spell_scripts()
 {
     RegisterSpellScript(spell_evo_azure_strike);
@@ -211,4 +306,6 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_living_flame);
     RegisterSpellScript(spell_evo_permeating_chill);
     RegisterSpellScript(spell_evo_pyre);
+    RegisterSpellScript(spell_evo_deep_breath);
+    RegisterSpellScript(spell_evo_landslide);
 }
