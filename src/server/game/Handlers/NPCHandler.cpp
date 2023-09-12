@@ -294,9 +294,9 @@ void WorldSession::SendSpiritResurrect()
 
     // get corpse nearest graveyard
     WorldSafeLocsEntry const* corpseGrave = nullptr;
-    WorldLocation corpseLocation = _player->GetCorpseLocation();
     if (_player->HasCorpse())
     {
+        WorldLocation const& corpseLocation = _player->GetCorpseLocation();
         corpseGrave = sObjectMgr->GetClosestGraveyard(corpseLocation, _player->GetTeam(), _player);
     }
 
