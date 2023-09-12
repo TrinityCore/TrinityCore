@@ -2354,7 +2354,7 @@ CREATE TABLE `realmlist` (
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
 INSERT INTO `realmlist` VALUES
-(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,50438,1,1);
+(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,51261,1,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
