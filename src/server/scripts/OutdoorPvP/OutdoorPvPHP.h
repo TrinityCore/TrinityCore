@@ -128,8 +128,8 @@ public:
 
 private:
     ObjectGuid _flagGuid;
-    uint32 _textCaptureHorde;
     uint32 _textCaptureAlliance;
+    uint32 _textCaptureHorde;
     uint32 _flagArtKitNeutral;
     uint32 _flagArtKitHorde;
     uint32 _flagArtKitAlliance;
