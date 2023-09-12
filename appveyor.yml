@@ -4,8 +4,25 @@ clone_depth: 1
 init:
 - ps: ''
 environment:
-  BOOST_ROOT: C:\Libraries\boost_1_82_0
-  OPENSSL_ROOT_DIR: C:\OpenSSL-v111-Win64
+  BOOST_ROOT: C:\Libraries\boost_1_83_0
+  MYSQL_ROOT_DIR: C:\mysql-8.1.0-winx64
+  OPENSSL_ROOT_DIR: C:\OpenSSL-v30-Win64
+install:
+- ps: >-
+    Write-Host "Installing MySQL Server 8.1" -ForegroundColor Cyan
+
+    Write-Host "Downloading MySQL..."
+
+    $zipPath = "$($env:temp)\mysql-8.1.0-winx64.zip"
+
+    (New-Object Net.WebClient).DownloadFile('https://cdn.mysql.com//Downloads/MySQL-8.1/mysql-8.1.0-winx64.zip', $zipPath)
+
+    Write-Host "Unpacking..."
+
+    7z x $zipPath -o"C:\" | Out-Null
+
+    Write-Host "MySQL Server 8.1 installed" -ForegroundColor Cyan
+
 build_script:
 - cmd: >-
     git config user.email "appveyor@build.bot" && git config user.name "AppVeyor"
@@ -18,11 +35,11 @@ build_script:
 
     cd bin\RelWithDebInfo\
 
-    copy "C:\Program Files\MySQL\MySQL Server 5.7\lib\libmysql.dll" libmysql.dll
+    copy "%MYSQL_ROOT_DIR%\lib\libmysql.dll" libmysql.dll
 
-    copy "%OPENSSL_ROOT_DIR%\libssl-1_1-x64.dll" libssl-1_1-x64.dll
+    copy "%OPENSSL_ROOT_DIR%\libssl-3-x64.dll" libssl-3-x64.dll
 
-    copy "%OPENSSL_ROOT_DIR%\libcrypto-1_1-x64.dll" libcrypto-1_1-x64.dll
+    copy "%OPENSSL_ROOT_DIR%\libcrypto-3-x64.dll" libcrypto-3-x64.dll
 
     cd ..
 
