@@ -66,9 +66,8 @@ bool OutdoorPvPSI::SetupOutdoorPvP()
     return true;
 }
 
-bool OutdoorPvPSI::Update(uint32 /*diff*/)
+void OutdoorPvPSI::Update(uint32 /*diff*/)
 {
-    return false;
 }
 
 void OutdoorPvPSI::HandlePlayerEnterZone(Player* player, uint32 zone)
