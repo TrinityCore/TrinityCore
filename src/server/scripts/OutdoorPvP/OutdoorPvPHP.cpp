@@ -18,6 +18,7 @@
 #include "OutdoorPvPHP.h"
 #include "GameObject.h"
 #include "Map.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "WorldStatePackets.h"
