@@ -67,7 +67,6 @@ void OutdoorPvPNA::HandleKillImpl(Player* player, Unit* killed)
     }
 }
 
-
 NAControlZoneHandler::NAControlZoneHandler(OutdoorPvPNA* pvp) : OutdoorPvPControlZoneHandler(pvp)
 {
 }
