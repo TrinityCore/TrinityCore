@@ -4176,16 +4176,18 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
         }
     }
     if (conf.diy_guid != "" && conf.diy_guid != "0") {
-        std::map<std::string, std::string> diy_guids; diy_guids.clear();
-        aaCenter.AA_StringToStringMap(conf.diy_guid, diy_guids);
+        std::vector<std::string> keys; keys.clear();
+        std::vector<std::string> values; values.clear();
+        aaCenter.AA_StringToVector3(conf.diy_guid, keys, values);
 
         std::string m_diy_guids = aaCenter.aa_characterss[guidlow].diy_guid;
         std::map<std::string, std::string> mdiy_guids; mdiy_guids.clear();
         aaCenter.AA_StringToStringMap(m_diy_guids, mdiy_guids);
 
-        for (auto itr : diy_guids) {
-            std::string k = itr.first;
-            std::string v = itr.second;
+        for (size_t i = 0; i < keys.size(); i++)
+        {
+            std::string k = keys[i];
+            std::string v = values[i];
             std::string v2 = mdiy_guids[k];
             if (v.find(">") == std::string::npos && v.find("<") == std::string::npos && v.find("!=") == std::string::npos && v.find("=") == std::string::npos) { //大于等于，消耗
                 float value = aaCenter.AA_StringFloat(v) * count;
@@ -4236,16 +4238,18 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
         }
     }
     if (conf.diy_system != "" && conf.diy_system != "0") {
-        std::map<std::string, std::string> diy_systems; diy_systems.clear();
-        aaCenter.AA_StringToStringMap(conf.diy_system, diy_systems);
+        std::vector<std::string> keys; keys.clear();
+        std::vector<std::string> values; values.clear();
+        aaCenter.AA_StringToVector3(conf.diy_system, keys, values);
 
         std::string m_diy_systems = aaCenter.aa_system_conf.diy_system;
         std::map<std::string, std::string> mdiy_systems; mdiy_systems.clear();
         aaCenter.AA_StringToStringMap(m_diy_systems, mdiy_systems);
 
-        for (auto itr : diy_systems) {
-            std::string k = itr.first;
-            std::string v = itr.second;
+        for (size_t i = 0; i < keys.size(); i++)
+        {
+            std::string k = keys[i];
+            std::string v = values[i];
             std::string v2 = mdiy_systems[k];
             if (v.find(">") == std::string::npos && v.find("<") == std::string::npos && v.find("!=") == std::string::npos && v.find("=") == std::string::npos) { //大于等于，消耗
                 float value = aaCenter.AA_StringFloat(v) * count;
@@ -4296,16 +4300,18 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
         }
     }
     if (conf.diy_account != "" && conf.diy_account != "0") {
-        std::map<std::string, std::string> diy_accounts; diy_accounts.clear();
-        aaCenter.AA_StringToStringMap(conf.diy_account, diy_accounts);
+        std::vector<std::string> keys; keys.clear();
+        std::vector<std::string> values; values.clear();
+        aaCenter.AA_StringToVector3(conf.diy_account, keys, values);
 
         std::string m_diy_accounts = aaCenter.aa_accounts[player->GetSession()->GetAccountId()].diy_account;
         std::map<std::string, std::string> mdiy_accounts; mdiy_accounts.clear();
         aaCenter.AA_StringToStringMap(m_diy_accounts, mdiy_accounts);
 
-        for (auto itr : diy_accounts) {
-            std::string k = itr.first;
-            std::string v = itr.second;
+        for (size_t i = 0; i < keys.size(); i++)
+        {
+            std::string k = keys[i];
+            std::string v = values[i];
             std::string v2 = mdiy_accounts[k];
             if (v.find(">") == std::string::npos && v.find("<") == std::string::npos && v.find("!=") == std::string::npos && v.find("=") == std::string::npos) { //大于等于，消耗
                 float value = aaCenter.AA_StringFloat(v) * count;
@@ -4319,15 +4325,6 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                 if (v.find(">") != std::string::npos) { //大于
                     aaCenter.AA_StringReplaceFirst(v, ">", "");
                     float value = aaCenter.AA_StringFloat(v) * count;
-                    float value2 = aaCenter.AA_StringFloat(v2);
-                    if (value2 <= value) {
-                        needstr = needstr + aa_color_blues + "· [" + k + "]" + aa_color_yellow + " x " + aaCenter.AA_StringFromFloat(value2) + "|r\n";
-                        isOk = false;
-                    }
-                }
-                if (v.find(">") != std::string::npos) { //大于
-                    aaCenter.AA_StringReplaceFirst(v, ">", "");
-                    float value = aaCenter.AA_StringFloat(v);
                     float value2 = aaCenter.AA_StringFloat(v2);
                     if (value2 <= value) {
                         needstr = needstr + aa_color_blues + "· [" + k + "]" + aa_color_yellow + " x " + aaCenter.AA_StringFromFloat(value2) + "|r\n";
@@ -4460,16 +4457,18 @@ void AACenter::M_Need(Player* player, uint32 needid, uint32 count)
             }
         }
         if (conf.diy_guid != "" && conf.diy_guid != "0") {
-            std::map<std::string, std::string> diy_guids; diy_guids.clear();
-            aaCenter.AA_StringToStringMap(conf.diy_guid, diy_guids);
+            std::vector<std::string> keys; keys.clear();
+            std::vector<std::string> values; values.clear();
+            aaCenter.AA_StringToVector3(conf.diy_guid, keys, values);
 
             std::string m_diy_guids = aaCenter.aa_characterss[guidlow].diy_guid;
             std::map<std::string, std::string> mdiy_guids; mdiy_guids.clear();
             aaCenter.AA_StringToStringMap(m_diy_guids, mdiy_guids);
 
-            for (auto itr : diy_guids) {
-                std::string k = itr.first;
-                std::string v = itr.second;
+            for (size_t i = 0; i < keys.size(); i++)
+            {
+                std::string k = keys[i];
+                std::string v = values[i];
                 std::string v2 = mdiy_guids[k];
                 if (v.find(">") == std::string::npos && v.find("<") == std::string::npos && v.find("!=") == std::string::npos && v.find("=") == std::string::npos) { //大于等于
                     uint32 value = aaCenter.AA_StringUint32(v) * count;
@@ -4492,16 +4491,18 @@ void AACenter::M_Need(Player* player, uint32 needid, uint32 count)
             aaCenter.aa_characterss[guidlow].diy_guid = str;
         }
         if (conf.diy_system != "" && conf.diy_system != "0") {
-            std::map<std::string, std::string> diy_systems; diy_systems.clear();
-            aaCenter.AA_StringToStringMap(conf.diy_system, diy_systems);
+            std::vector<std::string> keys; keys.clear();
+            std::vector<std::string> values; values.clear();
+            aaCenter.AA_StringToVector3(conf.diy_system, keys, values);
 
             std::string m_diy_systems = aaCenter.aa_system_conf.diy_system;
             std::map<std::string, std::string> mdiy_systems; mdiy_systems.clear();
             aaCenter.AA_StringToStringMap(m_diy_systems, mdiy_systems);
 
-            for (auto itr : diy_systems) {
-                std::string k = itr.first;
-                std::string v = itr.second;
+            for (size_t i = 0; i < keys.size(); i++)
+            {
+                std::string k = keys[i];
+                std::string v = values[i];
                 std::string v2 = mdiy_systems[k];
                 if (v.find(">") == std::string::npos && v.find("<") == std::string::npos && v.find("!=") == std::string::npos && v.find("=") == std::string::npos) { //大于等于
                     uint32 value = aaCenter.AA_StringUint32(v) * count;
@@ -4524,16 +4525,18 @@ void AACenter::M_Need(Player* player, uint32 needid, uint32 count)
             aaCenter.aa_system_conf.diy_system = str;
         }
         if (conf.diy_account != "" && conf.diy_account != "0") {
-            std::map<std::string, std::string> diy_accounts; diy_accounts.clear();
-            aaCenter.AA_StringToStringMap(conf.diy_account, diy_accounts);
+            std::vector<std::string> keys; keys.clear();
+            std::vector<std::string> values; values.clear();
+            aaCenter.AA_StringToVector3(conf.diy_account, keys, values);
 
             std::string m_diy_accounts = aaCenter.aa_accounts[accountid].diy_account;
             std::map<std::string, std::string> mdiy_accounts; mdiy_accounts.clear();
             aaCenter.AA_StringToStringMap(m_diy_accounts, mdiy_accounts);
 
-            for (auto itr : diy_accounts) {
-                std::string k = itr.first;
-                std::string v = itr.second;
+            for (size_t i = 0; i < keys.size(); i++)
+            {
+                std::string k = keys[i];
+                std::string v = values[i];
                 std::string v2 = mdiy_accounts[k];
                 if (v.find(">") == std::string::npos && v.find("<") == std::string::npos && v.find("!=") == std::string::npos && v.find("=") == std::string::npos) { //大于等于
                     uint32 value = aaCenter.AA_StringUint32(v) * count;
