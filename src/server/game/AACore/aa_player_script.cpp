@@ -377,12 +377,9 @@ public:
         ObjectGuid guid = player->GetGUID();
         aaCenter.aa_allsetitems.erase(guid);
         aaCenter.aa_allsetitems1.erase(guid);
-        aaCenter.aa_allsetspells_old.erase(guid);
-        aaCenter.aa_allsetspells_new.erase(guid);
+        aaCenter.aa_allsetspells.erase(guid);
         aaCenter.aa_allspells.erase(guid);
-        aaCenter.aa_allspells1.erase(guid);
         aaCenter.aa_allitemspells.erase(guid);
-        aaCenter.aa_allitemspells1.erase(guid);
         aaCenter.aa_allitems.erase(guid);
         aaCenter.aa_allitems1.erase(guid);
         aaCenter.aa_vendor_guid.erase(guid);

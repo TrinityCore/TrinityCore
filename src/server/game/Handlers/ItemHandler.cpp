@@ -772,6 +772,12 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
     packet.Reason = AsUnderlyingType(count ? VendorInventoryReason::None : VendorInventoryReason::Empty);
 
     SendPacket(packet.Write());
+
+    uint32 baseEntry = 0;
+    if (vendor && vendor->IsInWorld()) {
+        baseEntry = vendor->GetEntry();
+    }
+    aaCenter.M_SendClientAddonData(GetPlayer(), "3100", "{" + std::to_string(baseEntry) + "," + std::to_string(baseEntry) + "}");
 }
 
 void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBagItem& packet)

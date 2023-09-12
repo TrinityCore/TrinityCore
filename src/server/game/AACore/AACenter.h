@@ -151,7 +151,7 @@ struct AA_Yiming_Conf
     uint32 need_moshi = 0;//提升模式等级需求
     uint32 reward_moshi = 0;//提升模式等级奖励
     std::string reward_levels = "";//人物等级达到奖励
-    uint32 exp = 0;//人物等级经验倍数
+    float exp = 0;//人物等级经验倍数
     std::string guanghuans = "";//模式等级光环_多个逗号隔开
     uint32 is_zudui = 0;//是否允许组队
     uint32 is_jiaoyi = 0;//是否允许交易
@@ -1018,23 +1018,38 @@ struct AA_Spell_Conf
     float Periodic[3];//`周期123`
 };
 
-struct AA_Pet_Conf
+struct AA_Pet
 {
-    uint32 class1 = 0;
+    uint32 id = 0;
+    uint32 zu = 0;
+    float chance = 0;
+    std::string name = "";
     float agility = 0;
     float strength = 0;
     float intellect = 0;
     float spirit = 0;
     float stamina = 0;
+    std::string pet_moxing = "";
+    std::string pet_moxing1 = "";
+    std::string pet_moxing2 = "";
+    std::string pet_moxing3 = "";
+    float pet_scale = 0;
+    std::string pet_spells = "";
+    std::string pet_auras = "";
+    std::string player_spells = "";
+    std::string player_auras = "";
 };
 
-struct AA_Pet_Spell
-{
-    uint32 id = 0;
-    uint32 group = 0;
-    uint32 chance = 0;
-    uint32 spellid = 0;
+struct AA_Pet_Id {
+    uint32 entry = 0;
+    uint32 zu = 0;
 };
+
+struct AA_Pet_Class {
+    uint8 class1 = 0;
+    uint32 zu = 0;
+};
+
 struct AA_Event_Conf
 {
     uint32 id = 0;
@@ -1532,11 +1547,6 @@ struct AA_Creature_Id
     uint32 entry = 0;
     uint32 nanduid = 0;
     std::string zus = "";
-    std::string pet_moxing = "";
-    std::string pet_moxing1 = "";
-    std::string pet_moxing2 = "";
-    std::string pet_moxing3 = "";
-    float pet_scale = 0;
 };
 
 struct AA_Creature_Map {
@@ -2011,12 +2021,9 @@ public:
     std::unordered_map<uint32, AA_Spell> aa_spells;
     std::set<uint32> aa_spell_values; //所有带属性的物品技能
     std::unordered_map<uint32, std::vector<uint32>> aa_spell_zus;
-    std::unordered_map<ObjectGuid, std::vector<uint32> > aa_allspells1; //所有技能
-    std::unordered_map<ObjectGuid, std::set<uint32> > aa_allspells; //所有技能
-    std::unordered_map<ObjectGuid, std::unordered_map<uint32, std::vector<uint32>> > aa_allsetspells_old; //所有套装技能
-    std::unordered_map<ObjectGuid, std::unordered_map<uint32, std::vector<uint32>> > aa_allsetspells_new; //所有套装技能
-    std::unordered_map<ObjectGuid, std::unordered_map<ObjectGuid::LowType, std::vector<uint32> >> aa_allitemspells1; //所有物品技能
-    std::unordered_map<ObjectGuid ,std::unordered_map<ObjectGuid::LowType, std::set<uint32> >> aa_allitemspells; //所有物品技能
+    std::unordered_map<ObjectGuid, std::vector<uint32> > aa_allspells; //所有技能
+    std::unordered_map<ObjectGuid, std::unordered_map<uint32, std::vector<uint32>> > aa_allsetspells; //所有套装技能
+    std::unordered_map<ObjectGuid, std::unordered_map<ObjectGuid::LowType, std::vector<uint32> >> aa_allitemspells; //所有物品技能
     std::unordered_map<uint32, AA_Item_Upgrade> aa_item_upgrades;
     std::unordered_map<uint32, std::vector<uint32>> aa_item_upgrade_zus;
     std::unordered_map<uint32, AA_Item_Level> aa_item_levels;
@@ -2094,9 +2101,10 @@ public:
     std::unordered_map < uint32, uint32> aa_map_player_conf_yewai_maps;
     uint32 aa_map_player_conf_yewai_all_id = 0;
     // 宠物部分
-    std::unordered_map<uint32, AA_Pet_Conf> aa_pet_confs;
-    std::unordered_map<uint32, AA_Pet_Spell> aa_pet_spells;
-    std::unordered_map<uint32, std::vector<AA_Pet_Spell>> aa_pet_spell_group;
+    std::unordered_map<uint32, AA_Pet> aa_pets;
+    std::unordered_map<uint32, std::vector<uint32>> aa_pet_zus;
+    std::unordered_map<uint32, AA_Pet_Id> aa_pet_ids;
+    std::unordered_map<uint8, AA_Pet_Class> aa_pet_classs;
 
     std::unordered_map<uint32, AA_Player_Stats_Conf> aa_player_stats_confs;
     //[区域][class][id]

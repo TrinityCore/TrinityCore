@@ -1134,7 +1134,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         //副本模式
         int32 aa_teleport_nandu = -2;
-        int32 aa_teleport_moshi = -2;
 
         //防外挂-定高次数
         uint32 aa_wg_dinggao = 0;

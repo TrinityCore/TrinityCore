@@ -1552,8 +1552,10 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
 void Creature::SelectLevel()
 {
     if (!GetOwner() && !IsTotem()) {
-        AA_Creature conf = aaCenter.AA_GetCreatureConf(this);
-        this->aa_id = conf.id;
+        if (!ToTempSummon() || (ToTempSummon() && this->aa_id == 0)) {
+            AA_Creature conf = aaCenter.AA_GetCreatureConf(this);
+            this->aa_id = conf.id;
+        }
     }
 
     // Level
@@ -1605,8 +1607,19 @@ void Creature::UpdateLevelDependantStats()
     float weaponBaseMinDamage = basedamage;
     float weaponBaseMaxDamage = basedamage * 1.5f;
 
-
     // 没有主人，有主人为玩家 加难度
+    if (!GetOwner() && !IsTotem()) {
+        if (aaCenter.aa_boss_confs.find(cInfo->Entry) != aaCenter.aa_boss_confs.end()) {
+            AA_Boss_Conf bconf = aaCenter.aa_boss_confs[cInfo->Entry];
+            uint32 time = 0;
+            if (this && bconf.id > 0) {
+                this->aa_boss_id = bconf.id;
+                this->aa_boss_time_max = (time / 60);
+                this->aa_boss_time = 0;
+                this->aa_boss_dmg.clear();
+            }
+        }
+    }
     if (this->aa_id > 0) {
         AA_Creature conf = aaCenter.aa_creatures[this->aa_id];
         if (conf.damage > 0 && conf.damage != 100) {

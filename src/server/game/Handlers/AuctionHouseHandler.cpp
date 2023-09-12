@@ -997,7 +997,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
             } else {
                 msg = "|cff00FFFF["+danwei+"拍卖]|r玩家["+aaCenter.AA_GetPlayerNameLink(GetPlayer())+"]拍卖了"+aaCenter.AA_GetItemLinkJd(item) + "，一口价"+std::to_string(sellItem.BuyoutPrice)+"["+danwei+"]。";
             }
-            aaCenter.AA_SendMessage(nullptr, 2, msg.c_str());
+            aaCenter.AA_SendMessage(nullptr, 1, msg.c_str());
         }
     }
 

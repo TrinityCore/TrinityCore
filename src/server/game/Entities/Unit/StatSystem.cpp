@@ -806,11 +806,13 @@ void Player::UpdateDodgePercentage()
         GetDodgeFromAgility(diminishing, nondiminishing);
     }
 
-    if (aaCenter.AA_VerifyCode("a401b")) {
-        //敏捷加躲闪百分比
-        float v = std::atof(aaCenter.aa_world_confs[13].value2.c_str());
-        if (v > 0) {
-            diminishing = GetStat(STAT_AGILITY) * v;
+    if (aaCenter.aa_world_confs[13].value2 != "" && aaCenter.aa_world_confs[13].value2 != "0") {
+        if (aaCenter.AA_VerifyCode("a401b")) {
+            //敏捷加躲闪百分比
+            float v = std::atof(aaCenter.aa_world_confs[13].value2.c_str());
+            if (v > 0) {
+                diminishing = GetStat(STAT_AGILITY) * v;
+            }
         }
     }
 

@@ -2495,8 +2495,9 @@ void Player::GiveLevel(uint8 level)
 
         uint32 level_jc = aaCenter.aa_world_confs[102].value1;
         if (level_jc > 0 && level >= level_jc && aaCenter.aa_characterss[guidlow].yiming > 0) {
-            std::string str = "|cff00FFFF[一命模式]|cffFF0000恭喜玩家【" + GetName() + "】完成一命模式，到达了【" + std::to_string(level) + "】级。";
-            aaCenter.AA_SendMessage(nullptr, 2, str.c_str());
+            AA_Message aa_message;
+            AA_Notice notice = aaCenter.aa_notices[8];
+            aaCenter.AA_SendNotice(this, notice, true, aa_message);
             aaCenter.aa_characterss[guidlow].yiming = 0;
             time_t timep;
             time(&timep);
@@ -8228,14 +8229,38 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             }
         }
         aaCenter.AA_ApplyItemBonuses(this, item, apply);
-
         //刷新宠物属性
         if (Pet* pet = GetPet()) {
-            if (Player* owner = pet->GetOwner()) {
-                AA_Pet_Conf p_conf = aaCenter.aa_pet_confs[owner->GetClass()];
-                if (p_conf.class1 > 0) {
-                    pet->InitStatsForLevel(GetLevel());
-                }
+            if (pet->aa_id > 0) {
+                AA_Pet conf = aaCenter.aa_pets[pet->aa_id];
+                float minjie = GetStat(STAT_AGILITY);
+                float liliang = GetStat(STAT_STRENGTH);
+                float zhili = GetStat(STAT_INTELLECT);
+                float naili = GetStat(STAT_STAMINA);
+                float hujia = GetArmor();
+                float mana = GetCreateMana();
+                minjie = conf.agility > 0 ? minjie * conf.agility * 0.01 : minjie;
+                liliang = conf.strength > 0 ? liliang * conf.strength * 0.01 : liliang;
+                zhili = conf.intellect > 0 ? zhili * conf.intellect * 0.01 : zhili;
+                naili = conf.stamina > 0 ? naili * conf.stamina * 0.01 : naili;
+
+                float baseStam = naili < 20 ? naili : 20;
+                float moreStam = naili - baseStam;
+                pet->SetCreateHealth(baseStam + (moreStam * 10.0f));
+                pet->SetStatFlatModifier(UNIT_MOD_HEALTH, BASE_VALUE, pet->GetCreateHealth());
+                pet->SetCreateMana(mana);
+                pet->SetStatFlatModifier(UNIT_MOD_MANA, BASE_VALUE, pet->GetCreateMana());
+                pet->SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, hujia);
+
+                pet->SetCreateStat(STAT_STRENGTH, liliang);
+                pet->SetCreateStat(STAT_AGILITY, minjie);
+                pet->SetCreateStat(STAT_STAMINA, naili);
+                pet->SetCreateStat(STAT_INTELLECT, zhili);
+
+                pet->UpdateStats(STAT_STRENGTH);
+                pet->UpdateStats(STAT_AGILITY);
+                pet->UpdateStats(STAT_STAMINA);
+                pet->UpdateStats(STAT_INTELLECT);
             }
         }
         return;
@@ -8583,7 +8608,7 @@ void Player::ApplyItemObtainSpells(Item* item, bool apply)
     }
 
     //自定义技能
-    std::set<uint32> m_spells = aaCenter.aa_allitemspells[GetGUID()][item->GetGUIDLow()];
+    std::vector<uint32> m_spells = aaCenter.aa_allitemspells[GetGUID()][item->GetGUIDLow()];
     for (uint32 spellid : m_spells) {
         if (spellid == 0) {
             continue;
@@ -8685,86 +8710,82 @@ void _ReloadAllItemSpell(Player* player, Item* item, bool apply) {
     {
         //套装技能
         if (conf.item_set > 0) {
-            //刷新套装技能
-            aaCenter.aa_allsetspells_new[player->GetGUID()][conf.item_set].clear();
-
             std::vector<uint32> setids = aaCenter.aa_item_set_zus[conf.item_set];
             uint32 count = aaCenter.aa_allsetitems[player->GetGUID()][conf.item_set].size();
-
-            for (auto id : setids)
-            {
-                AA_Item_Set iconf = aaCenter.aa_item_sets[id];
-                std::vector<int32> v; v.clear();
-                aaCenter.AA_StringToVectorInt(iconf.spells, v, ",");
-                for (auto spell : v) {
-                    if (count >= iconf.count) {
-                        aaCenter.aa_allsetspells_new[player->GetGUID()][conf.item_set].push_back(spell);
-                    }
-                }
-            }
-            //对比之前的套装技能，如果增加了，增加的加属性
-            //如果减少了，减少的减属性
-            std::vector<uint32> newspells = aaCenter.aa_allsetspells_new[player->GetGUID()][conf.item_set];
-            std::vector<uint32> oldspells = aaCenter.aa_allsetspells_old[player->GetGUID()][conf.item_set];
-            for (auto oldspell : oldspells)
-            {
-                //新的如果减少了技能
-                if (std::find(newspells.begin(), newspells.end(), oldspell) == newspells.end()) {
-                    std::vector<uint32> ids = aaCenter.aa_allspells1[player->GetGUID()];
-                    for (auto itr = ids.begin(); itr != ids.end();) {
-                        if (*itr == oldspell)
-                        {
-                            itr = ids.erase(itr);
-                            break;
-                        }
-                        else {
-                            itr++;
-                        }
-                    }
-                    aaCenter.aa_allspells1[player->GetGUID()].clear();
-                    for (auto itr : ids) {
-                        aaCenter.aa_allspells1[player->GetGUID()].push_back(itr);
-                    }
-
-                    AA_Spell sconf = aaCenter.aa_spells[oldspell];
-                    std::map<int32, int32> values; values.clear();
-                    aaCenter.AA_StringToMap(sconf.values, values);
-                    for (auto v : values) {
-                        if (v.first > 0 && v.second > 0) {
-                            aaCenter.AddValue(player, v.first, v.second, false);
+            if (apply) {
+                for (auto id : setids)
+                {
+                    AA_Item_Set iconf = aaCenter.aa_item_sets[id];
+                    std::vector<int32> v; v.clear();
+                    aaCenter.AA_StringToVectorInt(iconf.spells, v, ",");
+                    for (auto spell : v) {
+                        if (count == iconf.count) {
+                            //加所有技能
+                            aaCenter.aa_allspells[player->GetGUID()].push_back(spell);
+                            //加套装技能
+                            aaCenter.aa_allsetspells[player->GetGUID()][conf.item_set].push_back(spell);
+                            //加物品技能属性
+                            if (std::find(aaCenter.aa_spell_values.begin(), aaCenter.aa_spell_values.end(), spell) != aaCenter.aa_spell_values.end()) {
+                                AA_Spell conf = aaCenter.aa_spells[spell];
+                                std::map<int32, int32> values; values.clear();
+                                aaCenter.AA_StringToMap(conf.values, values);
+                                for (auto v : values) {
+                                    if (v.first > 0 && v.second > 0) {
+                                        aaCenter.AddValue(player, v.first, v.second, true);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
-            for (auto newspell : newspells)
-            {
-                //新的如果新增了技能
-                if (std::find(oldspells.begin(), oldspells.end(), newspell) == oldspells.end()) {
-                    aaCenter.aa_allspells1[player->GetGUID()].push_back(newspell);
-                    AA_Spell sconf = aaCenter.aa_spells[newspell];
-                    std::map<int32, int32> values; values.clear();
-                    aaCenter.AA_StringToMap(sconf.values, values);
-                    for (auto v : values) {
-                        if (v.first > 0 && v.second > 0) {
-                            aaCenter.AddValue(player, v.first, v.second, true);
+            else {
+                for (auto id : setids)
+                {
+                    AA_Item_Set iconf = aaCenter.aa_item_sets[id];
+                    std::vector<int32> v; v.clear();
+                    aaCenter.AA_StringToVectorInt(iconf.spells, v, ",");
+                    if (count < iconf.count) {
+                        for (auto spell : v) {
+                            //减所有技能
+                            for (auto it = aaCenter.aa_allspells[player->GetGUID()].begin(); it != aaCenter.aa_allspells[player->GetGUID()].end();) {
+                                if (spell == *it)
+                                {
+                                    it = aaCenter.aa_allspells[player->GetGUID()].erase(it);
+                                    break;
+                                }
+                                else {
+                                    it++;
+                                }
+                            }
+                            //减物品技能属性
+                            if (std::find(aaCenter.aa_spell_values.begin(), aaCenter.aa_spell_values.end(), spell) != aaCenter.aa_spell_values.end()) {
+                                AA_Spell conf = aaCenter.aa_spells[spell];
+                                std::map<int32, int32> values; values.clear();
+                                aaCenter.AA_StringToMap(conf.values, values);
+                                for (auto v : values) {
+                                    if (v.first > 0 && v.second > 0) {
+                                        aaCenter.AddValue(player, v.first, v.second, false);
+                                    }
+                                }
+                            }
                         }
+                        //减套装技能
+                        aaCenter.aa_allsetspells[player->GetGUID()].erase(conf.item_set);
                     }
                 }
-            }
-            aaCenter.aa_allsetspells_old[player->GetGUID()][conf.item_set].clear();
-            for (auto spell : aaCenter.aa_allsetspells_new[player->GetGUID()][conf.item_set]) {
-                aaCenter.aa_allsetspells_old[player->GetGUID()][conf.item_set].push_back(spell);
             }
         }
     }
     {
         //物品技能
         std::set<uint32> itemspells = aaCenter.M_GetAllItemSpell(item->GetGUIDLow());
-        for (auto spell : itemspells)
-        {
-            if (apply) {
-                aaCenter.aa_allspells1[player->GetGUID()].push_back(spell);
-                aaCenter.aa_allitemspells1[player->GetGUID()][item->GetGUIDLow()].push_back(spell);
+        if (apply) {
+            for (auto spell : itemspells) {
+                //加所有技能
+                aaCenter.aa_allspells[player->GetGUID()].push_back(spell);
+                //加物品技能
+                aaCenter.aa_allitemspells[player->GetGUID()][item->GetGUIDLow()].push_back(spell);
                 //加物品技能属性
                 if (std::find(aaCenter.aa_spell_values.begin(), aaCenter.aa_spell_values.end(), spell) != aaCenter.aa_spell_values.end()) {
                     AA_Spell conf = aaCenter.aa_spells[spell];
@@ -8777,61 +8798,37 @@ void _ReloadAllItemSpell(Player* player, Item* item, bool apply) {
                     }
                 }
             }
-            else {
-                {
-                    std::vector<uint32> ids = aaCenter.aa_allspells1[player->GetGUID()];
-                    for (auto itr = ids.begin(); itr != ids.end();) {
-                        if (*itr == spell)
-                        {
-                            itr = ids.erase(itr);
-                            //减物品技能属性
-                            if (std::find(aaCenter.aa_spell_values.begin(), aaCenter.aa_spell_values.end(), spell) != aaCenter.aa_spell_values.end()) {
-                                AA_Spell conf = aaCenter.aa_spells[spell];
-                                std::map<int32, int32> values;
-                                aaCenter.AA_StringToMap(conf.values, values);
-                                for (auto v : values) {
-                                    if (v.first > 0 && v.second > 0) {
-                                        aaCenter.AddValue(player, v.first, v.second, false);
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                        else {
-                            itr++;
-                        }
+        }
+        else {
+            std::vector<uint32> ids = aaCenter.aa_allitemspells[player->GetGUID()][item->GetGUIDLow()];
+            //减所有技能
+            for (auto itr : ids) {
+                for (auto it = aaCenter.aa_allspells[player->GetGUID()].begin(); it != aaCenter.aa_allspells[player->GetGUID()].end();) {
+                    if (itr == *it)
+                    {
+                        it = aaCenter.aa_allspells[player->GetGUID()].erase(it);
+                        break;
                     }
-                    aaCenter.aa_allspells1[player->GetGUID()].clear();
-                    for (auto itr : ids) {
-                        aaCenter.aa_allspells1[player->GetGUID()].push_back(itr);
-                    }
-                }
-                {
-                    std::vector<uint32> ids = aaCenter.aa_allitemspells1[player->GetGUID()][item->GetGUIDLow()];
-                    for (auto itr = ids.begin(); itr != ids.end();) {
-                        if (*itr == spell)
-                        {
-                            itr = ids.erase(itr);
-                            break;
-                        }
-                        else {
-                            itr++;
-                        }
-                    }
-                    aaCenter.aa_allitemspells1[player->GetGUID()][item->GetGUIDLow()].clear();
-                    for (auto itr : ids) {
-                        aaCenter.aa_allitemspells1[player->GetGUID()][item->GetGUIDLow()].push_back(itr);
+                    else {
+                        it++;
                     }
                 }
             }
-        }
-        aaCenter.aa_allspells[player->GetGUID()].clear();
-        for (auto it : aaCenter.aa_allspells1[player->GetGUID()]) {
-            aaCenter.aa_allspells[player->GetGUID()].insert(it);
-        }
-        aaCenter.aa_allitemspells[player->GetGUID()][item->GetGUIDLow()].clear();
-        for (auto it : aaCenter.aa_allitemspells1[player->GetGUID()][item->GetGUIDLow()]) {
-            aaCenter.aa_allitemspells[player->GetGUID()][item->GetGUIDLow()].insert(it);
+            //减物品技能属性
+            for (auto spell : ids) {
+                if (std::find(aaCenter.aa_spell_values.begin(), aaCenter.aa_spell_values.end(), spell) != aaCenter.aa_spell_values.end()) {
+                    AA_Spell conf = aaCenter.aa_spells[spell];
+                    std::map<int32, int32> values; values.clear();
+                    aaCenter.AA_StringToMap(conf.values, values);
+                    for (auto v : values) {
+                        if (v.first > 0 && v.second > 0) {
+                            aaCenter.AddValue(player, v.first, v.second, false);
+                        }
+                    }
+                }
+            }
+            //减所有物品技能
+            aaCenter.aa_allitemspells[player->GetGUID()].erase(item->GetGUIDLow());
         }
     }
 }
@@ -8865,7 +8862,7 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= fal
     }
 
     //自定义技能
-    std::set<uint32> m_spells = aaCenter.aa_allitemspells[GetGUID()][item->GetGUIDLow()];
+    std::vector<uint32> m_spells = aaCenter.aa_allitemspells[GetGUID()][item->GetGUIDLow()];
     for (uint32 spellid : m_spells) {
         if (spellid == 0) {
             continue;
@@ -8900,7 +8897,7 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= fal
     //自定义套装技能
     AA_Character_Instance conf = aaCenter.aa_character_instances[item->GetGUIDLow()];
     if (conf.item_set > 0) {
-        std::vector<uint32> oldsm_spellspells = aaCenter.aa_allsetspells_old[GetGUID()][conf.item_set];
+        std::vector<uint32> oldsm_spellspells = aaCenter.aa_allsetspells[GetGUID()][conf.item_set];
         for (uint32 spellid : oldsm_spellspells) {
             if (spellid == 0) {
                 continue;
@@ -9323,7 +9320,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             }
 
             //自定义技能
-            std::set<uint32> m_spells = aaCenter.aa_allitemspells[GetGUID()][item->GetGUIDLow()];
+            std::vector<uint32> m_spells = aaCenter.aa_allitemspells[GetGUID()][item->GetGUIDLow()];
             for (uint32 spellid : m_spells) {
                 if (spellid == 0) {
                     continue;
@@ -24072,6 +24069,11 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     uint32 centry = creature->GetEntry();
     uint32 buyneed = aaCenter.aa_item_buy_needs[centry][pProto->GetId()].need;
     if (buyneed == 0) {
+        if (creature->aa_vendor_entrys.size() > 0 && creature->aa_vendor_entrys.find(GetGUID()) != creature->aa_vendor_entrys.end()) {
+            buyneed = aaCenter.aa_item_buy_needs[creature->aa_vendor_entrys[GetGUID()]][pProto->GetId()].need;
+        }
+    }
+    if (buyneed == 0) {
         buyneed = aaCenter.aa_item_buy_needs[0][pProto->GetId()].need;
     }
     if (buyneed > 0) {
@@ -25314,7 +25316,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
     }
 
     //自定义技能
-    std::set<uint32> m_spells = aaCenter.aa_allitemspells[GetGUID()][pItem->GetGUIDLow()];
+    std::vector<uint32> m_spells = aaCenter.aa_allitemspells[GetGUID()][pItem->GetGUIDLow()];
     for (uint32 spellid : m_spells) {
         if (spellid == 0) {
             continue;
@@ -25341,7 +25343,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
     //自定义套装技能
     AA_Character_Instance conf = aaCenter.aa_character_instances[pItem->GetGUIDLow()];
     if (conf.item_set > 0) {
-        std::vector<uint32> oldsm_spellspells = aaCenter.aa_allsetspells_old[GetGUID()][conf.item_set];
+        std::vector<uint32> oldsm_spellspells = aaCenter.aa_allsetspells[GetGUID()][conf.item_set];
         for (uint32 spellid : oldsm_spellspells) {
             if (spellid == 0) {
                 continue;

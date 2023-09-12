@@ -687,7 +687,7 @@ void AACenter::Update(Unit* unit, uint32 diff)
     else if (Creature* creature = unit->ToCreature()) {
         { //boss排行
             if (aaCenter.AA_VerifyCode("a102b")) {
-                if (creature->aa_boss_id > 0) {
+                if (creature->aa_boss_id > 0 && !creature->aa_boss_dmg.empty()) {
                     AA_Boss_Conf conf = aaCenter.aa_boss_confs[creature->aa_boss_id];
                     if (conf.reward != "" && conf.reward != "0") {
                         aaCenter.aa_boss_time[creature->GetGUIDLow()] += diff;
@@ -5636,51 +5636,66 @@ bool AACenter::M_NonsuchItemFmValue(Player* player, Item* pItem, uint32 nonsuchI
     std::vector<int32> types; types.clear();
     std::vector<int32> values; values.clear();
     uint32 last_count = 0;
-    if (conf.fmval_count1 > 0 || conf.fmval_count2 > 0) {
-        uint32 fmval_count = 0;
-        if (conf.fmval_count1 >= conf.fmval_count2) {
-            fmval_count = conf.fmval_count1;
+    uint32 fmval_count = 0;
+    if (type == -4 && pItem && aaCenter.aa_character_instances[pItem->GetGUIDLow()].fm_value_count > 0) {
+        fmval_count = aaCenter.aa_character_instances[pItem->GetGUIDLow()].fm_value_count;
+    }
+    else {
+        if (conf.fmval_count1 > 0 || conf.fmval_count2 > 0) {
+            if (conf.fmval_count1 >= conf.fmval_count2) {
+                fmval_count = conf.fmval_count1;
+            }
+            else {
+                fmval_count = (rand() % (conf.fmval_count2 - conf.fmval_count1 + 1)) + conf.fmval_count1;
+            }
         }
-        else {
-            fmval_count = (rand() % (conf.fmval_count2 - conf.fmval_count1 + 1)) + conf.fmval_count1;
-        }
+    }
+
+    if (fmval_count > 0) {
         if (suodings.size() != 0 && suoding_count > 0 && suoding_count >= fmval_count) {
             return false;
         }
         std::vector<int32> fmval_statzus; fmval_statzus.clear();
         aaCenter.AA_StringToVectorInt(conf.fmval_statzu, fmval_statzus, ",");
-        size_t max = fmval_statzus.size();
-        std::set<uint32> eraseid; eraseid.clear();
-        for (uint32 i = 0; i < fmval_count; i++) {
-            //锁定洗炼，跳过已锁定的属性
-            if (suodings.size() > 0 && suodings[last_count] > 0) {
-                std::vector<std::string> vs; vs.clear();
-                aaCenter.AA_StringToVectorString(a_conf.fm_values, vs, ",");
-                if (vs.size() > last_count) {
-                    std::string fm_v = vs[last_count];
-                    std::map<int32, int32> fms; fms.clear();
-                    aaCenter.AA_StringToMap(fm_v, fms);
-                    for (auto itr : fms) {
-                        if (itr.second > 0) {
-                            types.push_back(itr.first);
-                            values.push_back(itr.second);
-                            last_count++;
-                            if (conf.fmval_only == 1) {
-                                eraseid.insert(itr.first);
-                            }
-                        }
-                    }
-                    continue;
+
+        std::vector<std::string> vs; vs.clear();
+        aaCenter.AA_StringToVectorString(a_conf.fm_values, vs, ",");
+        for (size_t i = 0; i < fmval_count; i++)
+        {
+            uint32 is_suoding = 0;
+            if (suodings.size() > i) {
+                is_suoding = suodings[i];
+            }
+            if (is_suoding == 0) {
+                types.push_back(0);
+                values.push_back(0);
+            }
+            else {
+                std::string fm_v = vs[i];
+                std::map<int32, int32> fms; fms.clear();
+                aaCenter.AA_StringToMap(fm_v, fms);
+                for (auto itr : fms) {
+                    types.push_back(itr.first);
+                    values.push_back(itr.second);
+                    break;
                 }
             }
+        }
+
+        for (size_t i = 0; i < types.size(); i++)
+        {
+            uint32 type = types[i];
+            uint32 value = values[i];
+            if (type > 0 || value > 0) {
+                last_count++;
+                continue;
+            }
             uint32 fmval_statzu = 0;
-            if (max > 0) {
-                if (max > i) {
-                    fmval_statzu = fmval_statzus[i];
-                }
-                else {
-                    fmval_statzu = fmval_statzus[max - 1];
-                }
+            if (fmval_statzus.size() > i) {
+                fmval_statzu = fmval_statzus[i];
+            }
+            else if (fmval_statzus.size() > 0) {
+                fmval_statzu = fmval_statzus[0];
             }
             std::vector<uint32> confids = aaCenter.aa_stat_zus[fmval_statzu];
             //获取总chance，分母
@@ -5692,15 +5707,17 @@ bool AACenter::M_NonsuchItemFmValue(Player* player, Item* pItem, uint32 nonsuchI
                 if (stat_conf.type >= 120 && stat_conf.type <= 136) {
                     it = confids.erase(it);
                 }
-                else if (std::find(eraseid.begin(), eraseid.end(), *it) != eraseid.end()) {
+                else if (conf.fmval_only == 1 && std::find(types.begin(), types.end(), stat_conf.id) != types.end()) {
                     it = confids.erase(it);
                 }
                 else {
                     it++;
                     chanceMax += stat_conf.chance;
                 }
+
+
             }
-            if (confids.size() == 0) { break; }
+            if (confids.size() == 0) { continue; }
 
             if (chanceMax == 0) { chanceMax = 1; }
             //获取随机chance，分子
@@ -5746,12 +5763,9 @@ bool AACenter::M_NonsuchItemFmValue(Player* player, Item* pItem, uint32 nonsuchI
                 uint32 value = (rand() % (value2 - value1 + 1)) + value1;
                 statVal = value;
             }
-            types.push_back(stat_conf.id);
-            values.push_back(statVal);
+            types[i] = stat_conf.id;
+            values[i] = statVal;
             last_count++;
-            if (conf.fmval_only == 1) {
-                eraseid.insert(*rit);
-            }
         }
         if (nonsuch_id > 0) {
             std::string fmvalues = "";
@@ -5849,107 +5863,113 @@ bool AACenter::M_NonsuchItemFmSpell(Player* player, Item* pItem, uint32 nonsuchI
     //1、覆盖技能
     std::vector<int32> values; values.clear();
     uint32 last_count = 0;
-    if (iconf.fmspell_count1 > 0 || iconf.fmspell_count2 > 0) {
-        std::vector<uint32> confids; confids.clear();
-        std::vector<int32> fmspell_spellzus; fmspell_spellzus.clear();
-        std::vector<uint32> confids1; confids1.clear();
-        aaCenter.AA_StringToVectorInt(iconf.fmspell_spellzu, fmspell_spellzus, ",");
-        uint32 fmspell_count = (rand() % (iconf.fmspell_count2 - iconf.fmspell_count1 + 1)) + iconf.fmspell_count1;
+    uint32 fmspell_count = 0;
+    if (type == -4 && pItem && aaCenter.aa_character_instances[pItem->GetGUIDLow()].fm_spell_count > 0) {
+        fmspell_count = aaCenter.aa_character_instances[pItem->GetGUIDLow()].fm_spell_count;
+    }
+    else {
+        if (iconf.fmspell_count1 > 0 || iconf.fmspell_count2 > 0) {
+            fmspell_count = (rand() % (iconf.fmspell_count2 - iconf.fmspell_count1 + 1)) + iconf.fmspell_count1;
+        }
+    }
+    if (fmspell_count > 0) {
         if (suodings.size() != 0 && suoding_count > 0 && suoding_count >= fmspell_count) {
             return false;
         }
-        uint32 last_count_pre = 0;
-        bool isOk = true;
-        while (isOk)
+        std::vector<uint32> confids; confids.clear();
+        std::vector<int32> fmspell_spellzus; fmspell_spellzus.clear();
+        aaCenter.AA_StringToVectorInt(iconf.fmspell_spellzu, fmspell_spellzus, ",");
+        std::vector<int32> fm_spells; fm_spells.clear();
+        aaCenter.AA_StringToVectorInt(a_conf.fm_spells, fm_spells, ",");
+        for (size_t i = 0; i < fmspell_count; i++)
         {
-            uint32 index = 0;
-            for (auto fmspell_spellzu : fmspell_spellzus) {
-                index = index + 1;
-                if (last_count >= fmspell_count) {
-                    isOk = false;
-                    break;
-                }
-                if (last_count_pre > 0 && last_count_pre == last_count) {
-                    isOk = false;
-                    break;
-                }
-                //锁定洗炼，跳过已锁定的技能
-                if (suodings.size() > 0 && suodings[last_count] > 0) {
+            uint32 is_suoding = 0;
+            if (suodings.size() > i) {
+                is_suoding = suodings[i];
+            }
+            if (is_suoding == 0) {
+                values.push_back(0);
+            }
+            else {
+                uint32 spell = fm_spells[i];
+                values.push_back(spell);
+            }
+        }
+
+        for (size_t i = 0; i < values.size(); i++)
+        {
+            uint32 spellid = values[i];
+            if (spellid > 0) {
+                last_count++;
+                continue;
+            }
+            uint32 fmspell_spellzu = 0;
+            if (fmspell_spellzus.size() > i) {
+                fmspell_spellzu = fmspell_spellzus[i];
+            }
+            else if (fmspell_spellzus.size() > 0) {
+                fmspell_spellzu = fmspell_spellzus[0];
+            }
+            std::vector<uint32> confids1 = aaCenter.aa_spell_zus[fmspell_spellzu];
+            std::vector<uint32> tmp_confids; tmp_confids.clear();
+            uint32 chanceMax = 0;
+            for (auto it : confids1) {
+                AA_Spell conf = aaCenter.aa_spells[it];
+                if (conf.class1 != "-1") {
                     std::vector<int32> spells; spells.clear();
-                    aaCenter.AA_StringToVectorInt(a_conf.fm_spells, spells, ",");
-                    if (spells.size() > last_count) {
-                        uint32 spell = spells[last_count];
-                        values.push_back(spell);
-                        last_count++;
+                    aaCenter.AA_StringToVectorInt(conf.class1, spells, ",");
+                    if (std::find(spells.begin(), spells.end(), pProto->GetClass()) == spells.end())
+                    {
                         continue;
                     }
                 }
-                last_count_pre = last_count;
-                std::vector<uint32> confids1 = aaCenter.aa_spell_zus[fmspell_spellzu];
-                std::vector<uint32> tmp_confids; tmp_confids.clear();
-                uint32 chanceMax = 0;
-                for (auto it : confids1) {
-                    AA_Spell conf = aaCenter.aa_spells[it];
-                    if (conf.class1 != "-1") {
-                        std::vector<int32> spells; spells.clear();
-                        aaCenter.AA_StringToVectorInt(conf.class1, spells, ",");
-                        if (std::find(spells.begin(), spells.end(), pProto->GetClass()) == spells.end())
-                        {
-                            continue;
-                        }
+                if (conf.subclass != "-1") {
+                    std::vector<int32> spells; spells.clear();
+                    aaCenter.AA_StringToVectorInt(conf.subclass, spells, ",");
+                    if (std::find(spells.begin(), spells.end(), pProto->GetSubClass()) == spells.end())
+                    {
+                        continue;
                     }
-                    if (conf.subclass != "-1") {
-                        std::vector<int32> spells; spells.clear();
-                        aaCenter.AA_StringToVectorInt(conf.subclass, spells, ",");
-                        if (std::find(spells.begin(), spells.end(), pProto->GetSubClass()) == spells.end())
-                        {
-                            continue;
-                        }
-                    }
-                    if (conf.inventoryType != "-1") {
-                        std::vector<int32> inventoryTypes; inventoryTypes.clear();
-                        aaCenter.AA_StringToVectorInt(conf.inventoryType, inventoryTypes, ",");
-                        if (std::find(inventoryTypes.begin(), inventoryTypes.end(), pProto->GetInventoryType()) == inventoryTypes.end())
-                        {
-                            continue;
-                        }
-                    }
-                    if (iconf.fmspell_only == 1) {
-                        if (std::find(values.begin(), values.end(), it) != values.end()) {
-                            continue;
-                        }
-                    }
-                    //获取总chance，分母
-                    tmp_confids.push_back(it);
-                    chanceMax += conf.chance;
                 }
-                if (tmp_confids.size() == 0) {
-                    break;
-                }
-                if (chanceMax == 0) { chanceMax = 1; }
-                //获取随机chance，分子
-                uint32 chanceVal = rand() % chanceMax; uint32 max = 0; uint32 min = 0;
-                std::vector<uint32>::iterator rit;
-                for (auto it = tmp_confids.begin(); it != tmp_confids.end(); it++)
-                {
-                    AA_Spell conf = aaCenter.aa_spells[*it];
-                    max = conf.chance + max; min = 0;
-                    if (it == tmp_confids.begin()) { min = 0; }
-                    else {
-                        AA_Spell conf = aaCenter.aa_spells[*it - 1];
-                        min = conf.chance + min;
+                if (conf.inventoryType != "-1") {
+                    std::vector<int32> inventoryTypes; inventoryTypes.clear();
+                    aaCenter.AA_StringToVectorInt(conf.inventoryType, inventoryTypes, ",");
+                    if (std::find(inventoryTypes.begin(), inventoryTypes.end(), pProto->GetInventoryType()) == inventoryTypes.end())
+                    {
+                        continue;
                     }
-                    if (min <= chanceVal && chanceVal < max) { rit = it; break; }
                 }
-                values.push_back(*rit);
-                last_count++;
+                if (iconf.fmspell_only == 1) {
+                    if (std::find(values.begin(), values.end(), it) != values.end()) {
+                        continue;
+                    }
+                }
+                //获取总chance，分母
+                tmp_confids.push_back(it);
+                chanceMax += conf.chance;
             }
-            //找了一圈都没有，退出循环
-            if (last_count == 0) {
-                isOk = false;
+            if (tmp_confids.size() == 0) {
+                continue;
             }
+            if (chanceMax == 0) { chanceMax = 1; }
+            //获取随机chance，分子
+            uint32 chanceVal = rand() % chanceMax; uint32 max = 0; uint32 min = 0;
+            std::vector<uint32>::iterator rit;
+            for (auto it = tmp_confids.begin(); it != tmp_confids.end(); it++)
+            {
+                AA_Spell conf = aaCenter.aa_spells[*it];
+                max = conf.chance + max; min = 0;
+                if (it == tmp_confids.begin()) { min = 0; }
+                else {
+                    AA_Spell conf = aaCenter.aa_spells[*it - 1];
+                    min = conf.chance + min;
+                }
+                if (min <= chanceVal && chanceVal < max) { rit = it; break; }
+            }
+            values[i] = *rit;
+            last_count++;
         }
-        sort(values.begin(), values.end());
+
         if (nonsuch_id > 0) {
             std::string fmvalues = "";
             aaCenter.AA_VectorIntToString(fmvalues, values, ",");
@@ -8996,7 +9016,7 @@ std::set<uint32> AACenter::AA_GetAis(Unit* att, std::string eventtype)
             }
         }
 
-        std::set<uint32> allItemsSpells = aaCenter.aa_allspells[player->GetGUID()];
+        std::vector<uint32> allItemsSpells = aaCenter.aa_allspells[player->GetGUID()];
         if (allItemsSpells.size() > 0) {
             //_自定义ai_物品技能带ai
             for (auto i = aaCenter.aa_ai_spell_items.begin(); i != aaCenter.aa_ai_spell_items.end(); ++i)
@@ -9008,7 +9028,7 @@ std::set<uint32> AACenter::AA_GetAis(Unit* att, std::string eventtype)
                     continue;
                 }
 
-                if (allItemsSpells.find(i->first) == allItemsSpells.end()) {
+                if (std::find(allItemsSpells.begin(), allItemsSpells.end(), i->first) == allItemsSpells.end()) {
                     continue;
                 }
 
@@ -10539,9 +10559,6 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
                 player->clickTime = 0;
             }
             else {
-                AA_Message aa_message;
-                AA_Notice notice = aaCenter.aa_notices[16];
-                aaCenter.AA_SendNotice(player, notice, true, aa_message);
                 return;
             }
         }
@@ -13371,7 +13388,7 @@ void AACenter::LoadAAData_World()
                 conf.need_moshi = fields[i++].GetUInt32();
                 conf.reward_moshi = fields[i++].GetUInt32();
                 conf.reward_levels = fields[i++].GetString();
-                conf.exp = fields[i++].GetUInt32();
+                conf.exp = fields[i++].GetFloat();
                 conf.guanghuans = fields[i++].GetString();
                 conf.is_zudui = fields[i++].GetUInt32();
                 conf.is_jiaoyi = fields[i++].GetUInt32();
@@ -14574,45 +14591,69 @@ void AACenter::LoadAAData_World()
 
         uint32 oldMSTime = getMSTime();
 
-        aa_pet_confs.clear();                              // need for reload case
-
+        aa_pets.clear();                              // need for reload case
+        aa_pet_zus.clear();
         QueryResult result = WorldDatabase.Query("SELECT * FROM _属性调整_宠物");
         if (result) {
             do {
                 Field* fields = result->Fetch();
-
-                AA_Pet_Conf conf;
-                conf.class1 = fields[1].GetUInt32();
-                conf.agility = fields[2].GetFloat();
-                conf.strength = fields[3].GetFloat();
-                conf.intellect = fields[4].GetFloat();
-                conf.spirit = fields[5].GetFloat();
-                conf.stamina = fields[6].GetFloat();
-                aa_pet_confs[conf.class1] = conf;
+                int i = 1;
+                AA_Pet conf;
+                conf.id = fields[i++].GetUInt32();
+                conf.zu = fields[i++].GetUInt32();
+                conf.chance = fields[i++].GetFloat();
+                conf.name = fields[i++].GetString();
+                conf.agility = fields[i++].GetFloat();
+                conf.strength = fields[i++].GetFloat();
+                conf.intellect = fields[i++].GetFloat();
+                conf.spirit = fields[i++].GetFloat();
+                conf.stamina = fields[i++].GetFloat();
+                conf.pet_moxing = fields[i++].GetString();
+                conf.pet_moxing1 = fields[i++].GetString();
+                conf.pet_moxing2 = fields[i++].GetString();
+                conf.pet_moxing3 = fields[i++].GetString();
+                conf.pet_scale = fields[i++].GetFloat();
+                conf.pet_spells = fields[i++].GetString();
+                conf.pet_auras = fields[i++].GetString();
+                conf.player_spells = fields[i++].GetString();
+                conf.player_auras = fields[i++].GetString();
+                aa_pets[conf.id] = conf;
+                aa_pet_zus[conf.zu].push_back(conf.id);
             } while (result->NextRow());
 
-            TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _属性调整_宠物 用时 {} 毫秒", (unsigned long)aa_pet_confs.size(), GetMSTimeDiffToNow(oldMSTime));
+            TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _属性调整_宠物 用时 {} 毫秒", (unsigned long)aa_pets.size(), GetMSTimeDiffToNow(oldMSTime));
         }
     }
-
     {
-        TC_LOG_INFO("server.loading", "正在加载 _模板_宠物技能...");
+        TC_LOG_INFO("server.loading", "正在加载 _属性调整_按id调整宠物...");
         uint32 oldMSTime = getMSTime();
-        aa_pet_spells.clear();
-        aa_pet_spell_group.clear();
-        QueryResult result = WorldDatabase.Query("SELECT * FROM _模板_宠物技能 ORDER BY id");
+        aa_pet_ids.clear();
+        QueryResult result = WorldDatabase.Query("SELECT * FROM _属性调整_按id调整宠物");
         if (result) {
             do {
                 Field* fields = result->Fetch();
-                AA_Pet_Spell conf;
-                conf.id = fields[1].GetUInt32();
-                conf.group = fields[2].GetUInt32();
-                conf.chance = fields[3].GetUInt32();
-                conf.spellid = fields[4].GetUInt32();
-                aa_pet_spells[conf.id] = conf;
-                aa_pet_spell_group[conf.group].push_back(conf);
+                AA_Pet_Id conf;
+                conf.entry = fields[1].GetUInt32();
+                conf.zu = fields[2].GetUInt32();
+                aa_pet_ids[conf.entry] = conf;
             } while (result->NextRow());
-            TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _模板_宠物技能 用时 {} 毫秒", (unsigned long)aa_pet_spells.size(), GetMSTimeDiffToNow(oldMSTime));
+            TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _属性调整_按id调整宠物 用时 {} 毫秒", (unsigned long)aa_pet_ids.size(), GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+    {
+        TC_LOG_INFO("server.loading", "正在加载 _属性调整_按职业调整宠物...");
+        uint32 oldMSTime = getMSTime();
+        aa_pet_classs.clear();
+        QueryResult result = WorldDatabase.Query("SELECT * FROM _属性调整_按职业调整宠物");
+        if (result) {
+            do {
+                Field* fields = result->Fetch();
+                AA_Pet_Class conf;
+                conf.class1 = fields[1].GetUInt8();
+                conf.zu = fields[2].GetUInt32();
+                aa_pet_classs[conf.class1] = conf;
+            } while (result->NextRow());
+            TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _属性调整_按职业调整宠物 用时 {} 毫秒", (unsigned long)aa_pet_classs.size(), GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
@@ -14970,11 +15011,6 @@ void AACenter::LoadAAData_World()
                 conf.entry = fields[i++].GetUInt32();
                 conf.nanduid = fields[i++].GetUInt32();
                 conf.zus = fields[i++].GetString();
-                conf.pet_moxing = fields[i++].GetString();
-                conf.pet_moxing1 = fields[i++].GetString();
-                conf.pet_moxing2 = fields[i++].GetString();
-                conf.pet_moxing3 = fields[i++].GetString();
-                conf.pet_scale = fields[i++].GetFloat();
                 aa_creature_ids[conf.entry][conf.nanduid] = conf;
             } while (result->NextRow());
             TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _属性调整_按ID调整生物 用时 {} 毫秒", (unsigned long)aa_creature_ids.size(), GetMSTimeDiffToNow(oldMSTime));

@@ -39,6 +39,8 @@ class PetAura;
 class TC_GAME_API Pet : public Guardian
 {
     public:
+        uint32 aa_id = 0;
+
         explicit Pet(Player* owner, PetType type = MAX_PET_TYPE);
         virtual ~Pet();
 

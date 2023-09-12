@@ -385,6 +385,15 @@ public:
             return false;
         }
 
+        if (aaCenter.aa_world_confs[102].value2 != "" && aaCenter.aa_world_confs[102].value2 != "0") {
+            int32 level_jr = aaCenter.AA_StringInt32(aaCenter.aa_world_confs[102].value2);
+            if (level_jr > 0 && player->GetLevel() > level_jr) {
+                std::string str = "|cff00FFFF[一命模式]|cffFF0000你已经超过" + std::to_string(level_jr) + "级，无法加入一命模式";
+                aaCenter.AA_SendMessage(player, 1, str.c_str());
+                return false;
+            }
+        }
+
         if (aaCenter.aa_yiming_confs.find(level) == aaCenter.aa_yiming_confs.end()) {
             aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[一命模式]|cffFF0000等级输入有误");
             return false;
@@ -4776,10 +4785,9 @@ public:
         }
         char* zustr = strtok((char*)args, " ");
         char* nanduidstr = strtok(nullptr, " ");
-        char* moshiidstr = strtok(nullptr, " ");
         if (!zustr)
         {
-            ChatHandler(handler->GetSession()).PSendSysMessage("语法格式:.传送模板 __采集_坐标_组(同一组中按几率随机坐标) 秘境难度等级(选填) 副本模式(选填)1代表5人普通和10人普通，2代表5人英雄和25人普通，3代表10人英雄，4代表25人英雄");
+            ChatHandler(handler->GetSession()).PSendSysMessage("语法格式:.传送模板 __采集_坐标_组(同一组中按几率随机坐标) 秘境难度等级(选填)");
             return false;
         }
         int32 zu = int32(std::atoi(zustr));
@@ -4826,16 +4834,11 @@ public:
 
         if (conf.id > 0) {
             int32 nanduid = -2;
-            int32 moshiid = -2;
             if (nanduidstr) {
                 nanduid = uint32(std::atoi(nanduidstr));
             }
-            if (moshiidstr) {
-                moshiid = int32(std::atoi(moshiidstr));
-            }
 
             target->aa_teleport_nandu = nanduid;
-            target->aa_teleport_moshi = moshiid;
             aaCenter.AA_TeleportMoban(target, conf.id);
 
         }
@@ -4888,7 +4891,6 @@ public:
         char* id = strtok(nullptr, " ");
         char* port = strtok(nullptr, " ");
         char* goNandu = strtok(nullptr, " ");
-        char* moshiidstr = strtok(nullptr, " ");
 
         if (!goX || !goY) {
             ChatHandler(handler->GetSession()).PSendSysMessage("语法格式:.传送 x y z mapid o 难度等级(选填) 副本模式(选填)1代表5人普通和10人普通，2代表5人英雄和25人普通，3代表10人英雄，4代表25人英雄");
@@ -4947,13 +4949,8 @@ public:
         if (goNandu) {
             nanduid = (int32)(std::atoi(goNandu));
         }
-        int32 moshiid = -2;
-        if (moshiidstr) {
-            moshiid = int32(std::atoi(moshiidstr));
-        }
 
         player->aa_teleport_nandu = nanduid;
-        player->aa_teleport_moshi = moshiid;
         player->TeleportTo(mapId, x, y, z, ort);
 
         return true;

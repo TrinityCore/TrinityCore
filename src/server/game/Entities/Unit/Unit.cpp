@@ -1121,6 +1121,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                         uint32 level = aaCenter.aa_characterss[guidlow].yiming;
                         AA_Yiming_Conf conf = aaCenter.aa_yiming_confs[level];
                         if (conf.level > 0) {
+                            AA_Message aa_message;
                             Player* p_yiming = attacker_v;
                             std::string a_name = "";
                             if (conf.chengfa_dies != "") {
@@ -1132,6 +1133,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                                         p_yiming = nullptr;
                                     }
                                     a_name = aaCenter.AA_GetPlayerNameLink(attacker_a);
+                                    aa_message.target_player = attacker_a;
                                 }
                                 //被生物击杀
                                 else if (attacker->ToCreature() && attacker_v) {
@@ -1139,6 +1141,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                                         p_yiming = nullptr;
                                     }
                                     a_name = attacker->ToCreature()->GetName();
+                                    aa_message.target_creature = attacker->ToCreature();
                                 }
                                 //自杀
                                 else if (attacker_a == attacker_v || attacker == nullptr) {
@@ -1146,11 +1149,18 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                                         p_yiming = nullptr;
                                     }
                                     a_name = "自杀";
+                                    aa_message.target_player = attacker_a;
                                 }
                                 //副本死亡
                                 else if (attacker_v->GetMap() && attacker_v->GetMap()->IsDungeon()) {
                                     if (std::find(v.begin(), v.end(), 0) == v.end() && std::find(v.begin(), v.end(), 3) == v.end()) {
                                         p_yiming = nullptr;
+                                    }
+                                    if (attacker_v->ToPlayer()) {
+                                        aa_message.target_player = attacker_v;
+                                    }
+                                    else if (attacker_v->ToCreature()) {
+                                        aa_message.target_creature = attacker_v->ToCreature();
                                     }
                                 }
                             }
@@ -1187,6 +1197,8 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                                 time(&timep); /*当前time_t类型UTC时间*/
                                 aaCenter.aa_characterss[guidlow].update_time = timep;
                                 aaCenter.aa_characterss[guidlow].isUpdate = true;
+                                AA_Notice notice = aaCenter.aa_notices[9];
+                                aaCenter.AA_SendNotice(p_yiming, notice, true, aa_message);
                                 std::string msg = "|cff00FFFF[一命模式]|r|cffFF0000沉痛哀悼【" + std::to_string(p_yiming->GetLevel()) + "】级玩家【" + aaCenter.AA_GetPlayerNameLink(attacker_v) + "】在【" + attacker_v->GetMap()->GetMapName() + "】进行历练时，不幸牺牲，杀死ta的是【" + a_name + "】";
                                 aaCenter.AA_SendMessage(nullptr, 1, msg.c_str());
                             }
@@ -7233,45 +7245,6 @@ void Unit::SetMinion(Minion *minion, bool apply)
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
-            Pet* pet = minion->ToPet();
-            if (pet) {
-                AA_Pet_Conf p_conf;
-                float minjie = GetStat(STAT_AGILITY);
-                float liliang = GetStat(STAT_STRENGTH);
-                float zhili = GetStat(STAT_INTELLECT);
-                float naili = GetStat(STAT_STAMINA);
-                float hujia = GetArmor();
-                float mana = GetCreateMana();
-                p_conf = aaCenter.aa_pet_confs[GetClass()];
-                if (p_conf.class1 > 0) {
-                    minjie = p_conf.agility > 0 ? minjie * p_conf.agility * 0.01 : minjie;
-                    liliang = p_conf.strength > 0 ? liliang * p_conf.strength * 0.01 : liliang;
-                    zhili = p_conf.intellect > 0 ? zhili * p_conf.intellect * 0.01 : zhili;
-                    naili = p_conf.stamina > 0 ? naili * p_conf.stamina * 0.01 : naili;
-
-                    float baseStam = naili < 20 ? naili : 20;
-                    float moreStam = naili - baseStam;
-                    pet->SetCreateHealth(baseStam + (moreStam * 10.0f));
-                    pet->SetStatFlatModifier(UNIT_MOD_HEALTH, BASE_VALUE, pet->GetCreateHealth());
-                    pet->SetCreateMana(mana);
-                    pet->SetStatFlatModifier(UNIT_MOD_MANA, BASE_VALUE, pet->GetCreateMana());
-                    pet->SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, hujia);
-
-                    pet->SetCreateStat(STAT_STRENGTH, liliang);
-                    pet->SetCreateStat(STAT_AGILITY, minjie);
-                    pet->SetCreateStat(STAT_STAMINA, naili);
-                    pet->SetCreateStat(STAT_INTELLECT, zhili);
-
-                    pet->UpdateStats(STAT_STRENGTH);
-                    pet->UpdateStats(STAT_AGILITY);
-                    pet->UpdateStats(STAT_STAMINA);
-                    pet->UpdateStats(STAT_INTELLECT);
-                }
-            }
-        }
-
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
             minion->m_ControlledByPlayer = true;
             minion->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
         }
@@ -7414,6 +7387,254 @@ void Unit::SetMinion(Minion *minion, bool apply)
                             ToPlayer()->CharmSpellInitialize();
                     }
                     break;
+                }
+            }
+        }
+    }
+
+    if (minion && GetTypeId() == TYPEID_PLAYER)
+    {
+        Pet* pet = minion->ToPet();
+        if (pet) {
+            uint32 zu = 0;
+            if (pet->aa_id == 0) {
+                AA_Pet_Id conf_id = aaCenter.aa_pet_ids[pet->GetEntry()];
+                zu = conf_id.zu;
+                if (zu == 0) {
+                    AA_Pet_Class conf_class = aaCenter.aa_pet_classs[GetClass()];
+                    zu = conf_class.zu;
+                }
+            }
+            if (zu > 0) {
+                uint32 id = 0;
+                std::vector<uint32> ids = aaCenter.aa_pet_zus[zu];
+                //获取总chance，分母
+                int count = ids.size();
+                if (count > 0) {
+                    uint32 chanceMax = 0;
+                    for (int i = 0; i < count; i++) {
+                        uint32 id = ids[i];
+                        AA_Pet conf = aaCenter.aa_pets[id];
+                        chanceMax += conf.chance;
+                    }
+                    //获取随机chance，分子
+                    if (chanceMax == 0) { // 数据库的chance都为0
+                        chanceMax = 1;
+                    }
+                    uint32 chanceVal = rand() % chanceMax;
+                    //获取Index
+                    uint32 max = 0;
+                    uint32 min = 0;
+                    int index = 0;
+                    for (int i = 0; i < count; i++) {
+                        uint32 id = ids[i];
+                        AA_Pet conf = aaCenter.aa_pets[id];
+                        max = conf.chance + max;
+                        min = 0;
+                        if (i == 0) {
+                            min = 0;
+                        }
+                        else {
+                            uint32 id = ids[i - 1];
+                            AA_Pet conf = aaCenter.aa_pets[id];
+                            min = conf.chance + min;
+                        }
+                        if (min <= chanceVal && chanceVal < max) {
+                            index = i;
+                            break;
+                        }
+                    }
+                    id = ids[index];
+                    pet->aa_id = id;
+                }
+            }
+            CreatureTemplate const* cInfo = pet->GetCreatureTemplate();
+            if (pet->aa_id > 0 && cInfo) {
+                AA_Pet conf = aaCenter.aa_pets[pet->aa_id];
+
+                if (conf.name != "") {
+                    pet->SetName(conf.name);
+                }
+
+                float minjie = GetStat(STAT_AGILITY);
+                float liliang = GetStat(STAT_STRENGTH);
+                float zhili = GetStat(STAT_INTELLECT);
+                float naili = GetStat(STAT_STAMINA);
+                float hujia = GetArmor();
+                float mana = GetCreateMana();
+                minjie = conf.agility > 0 ? minjie * conf.agility * 0.01 : minjie;
+                liliang = conf.strength > 0 ? liliang * conf.strength * 0.01 : liliang;
+                zhili = conf.intellect > 0 ? zhili * conf.intellect * 0.01 : zhili;
+                naili = conf.stamina > 0 ? naili * conf.stamina * 0.01 : naili;
+
+                float baseStam = naili < 20 ? naili : 20;
+                float moreStam = naili - baseStam;
+                pet->SetCreateHealth(baseStam + (moreStam * 10.0f));
+                pet->SetStatFlatModifier(UNIT_MOD_HEALTH, BASE_VALUE, pet->GetCreateHealth());
+                pet->SetCreateMana(mana);
+                pet->SetStatFlatModifier(UNIT_MOD_MANA, BASE_VALUE, pet->GetCreateMana());
+                pet->SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, hujia);
+
+                pet->SetCreateStat(STAT_STRENGTH, liliang);
+                pet->SetCreateStat(STAT_AGILITY, minjie);
+                pet->SetCreateStat(STAT_STAMINA, naili);
+                pet->SetCreateStat(STAT_INTELLECT, zhili);
+
+                pet->UpdateStats(STAT_STRENGTH);
+                pet->UpdateStats(STAT_AGILITY);
+                pet->UpdateStats(STAT_STAMINA);
+                pet->UpdateStats(STAT_INTELLECT);
+
+                std::string pet_moxing = "";
+                std::string pet_moxing1 = "";
+                std::string pet_moxing2 = "";
+                std::string pet_moxing3 = "";
+                float pet_scale = 0;
+                std::string pet_spells = "";
+                std::string pet_auras = "";
+                std::string player_spells = "";
+                std::string player_auras = "";
+
+                //模型
+                if (conf.pet_moxing != "0" && conf.pet_moxing != "") {
+                    uint32 moxing = aaCenter.AA_StringRandom(conf.pet_moxing);
+                    CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(moxing);
+                    if (minfo && !pet->IsTotem())                               // Cancel load if no model defined or if totem
+                    {
+                        pet->SetDisplayId(moxing);
+                    }
+                }
+                else {
+                    uint32 moxing = cInfo->GetFirstValidModel()->CreatureDisplayID;
+                    CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(moxing);
+                    pet->SetDisplayId(moxing);
+                    pet->RestoreDisplayId();
+                }
+                //武器外观主手
+                if (conf.pet_moxing1 != "" && conf.pet_moxing1 != "0") {
+                    uint32 moxing = aaCenter.AA_StringRandom(conf.pet_moxing1);
+                    pet->SetVirtualItem(0, moxing, 0, 0);
+                }
+                else {
+                    CreatureData const* creData = sObjectMgr->GetCreatureData(pet->GetGUIDLow());
+                    if (creData) {
+                        int8 equipmentId = int8(creData->equipmentId);
+                        EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(pet->GetEntry(), equipmentId);
+                        if (einfo) {
+                            pet->SetVirtualItem(0, einfo->Items[0].ItemId, einfo->Items[0].AppearanceModId, einfo->Items[0].ItemVisual);
+                        }
+                    }
+                }
+                //武器外观副手
+                if (conf.pet_moxing2 != "" && conf.pet_moxing2 != "0") {
+                    uint32 moxing = aaCenter.AA_StringRandom(conf.pet_moxing2);
+                    pet->SetVirtualItem(1, moxing, 0, 0);
+                }
+                else {
+                    CreatureData const* creData = sObjectMgr->GetCreatureData(pet->GetGUIDLow());
+                    if (creData) {
+                        int8 equipmentId = int8(creData->equipmentId);
+                        EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(pet->GetEntry(), equipmentId);
+                        if (einfo) {
+                            pet->SetVirtualItem(1, einfo->Items[1].ItemId, einfo->Items[1].AppearanceModId, einfo->Items[1].ItemVisual);
+                        }
+                    }
+                }
+                //武器外观远程
+                if (conf.pet_moxing3 != "" && conf.pet_moxing3 != "0") {
+                    uint32 moxing = aaCenter.AA_StringRandom(conf.pet_moxing3);
+                    pet->SetVirtualItem(2, moxing, 0, 0);
+                }
+                else {
+                    CreatureData const* creData = sObjectMgr->GetCreatureData(pet->GetGUIDLow());
+                    if (creData) {
+                        int8 equipmentId = int8(creData->equipmentId);
+                        EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(pet->GetEntry(), equipmentId);
+                        if (einfo) {
+                            pet->SetVirtualItem(2, einfo->Items[2].ItemId, einfo->Items[2].AppearanceModId, einfo->Items[2].ItemVisual);
+                        }
+                    }
+                }
+                //模型大小
+                if (conf.pet_scale != 1 && conf.pet_scale > 0) {
+                    pet->SetObjectScale(conf.pet_scale);
+                }
+                else {
+                    pet->SetObjectScale(cInfo->scale);
+                }
+                if (conf.pet_spells != "" && conf.pet_spells != "0") {
+                    std::vector<int32> spells; spells.clear();
+                    aaCenter.AA_StringToVectorInt(conf.pet_spells, spells, ",");
+                    if (spells.size() > 0) {
+                        for (auto s : spells) {
+                            if (apply) {
+                                if (!pet->HasSpell(s)) {
+                                    pet->learnSpell(s);
+                                }
+                            }
+                            else {
+                                if (pet->HasSpell(s)) {
+                                    pet->unlearnSpell(s, pet);
+                                }
+                            }
+                        }
+                    }
+                }
+                if (conf.pet_auras != "" && conf.pet_auras != "0") {
+                    std::vector<int32> spells; spells.clear();
+                    aaCenter.AA_StringToVectorInt(conf.pet_auras, spells, ",");
+                    if (spells.size() > 0) {
+                        for (auto s : spells) {
+                            if (apply) {
+                                if (!pet->HasAura(s)) {
+                                    pet->AddAura(s, pet);
+                                }
+                            }
+                            else {
+                                if (pet->HasAura(s)) {
+                                    pet->RemoveAura(s);
+                                }
+                            }
+                        }
+                    }
+                }
+                if (Player* player = pet->GetOwner()) {
+                    if (conf.player_spells != "" && conf.player_spells != "0") {
+                        std::vector<int32> spells; spells.clear();
+                        aaCenter.AA_StringToVectorInt(conf.player_spells, spells, ",");
+                        if (spells.size() > 0) {
+                            for (auto s : spells) {
+                                if (apply) {
+                                    if (!player->HasSpell(s)) {
+                                        player->LearnSpell(s, true);
+                                    }
+                                }
+                                else {
+                                    if (player->HasSpell(s)) {
+                                        player->RemoveSpell(s);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (conf.player_auras != "" && conf.player_auras != "0") {
+                        std::vector<int32> spells; spells.clear();
+                        aaCenter.AA_StringToVectorInt(conf.player_auras, spells, ",");
+                        if (spells.size() > 0) {
+                            for (auto s : spells) {
+                                if (apply) {
+                                    if (!player->HasAura(s)) {
+                                        player->AddAura(s, player);
+                                    }
+                                }
+                                else {
+                                    if (player->HasAura(s)) {
+                                        player->RemoveAura(s);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

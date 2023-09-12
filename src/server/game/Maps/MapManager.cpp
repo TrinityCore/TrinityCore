@@ -152,7 +152,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
     uint32 newInstanceId = 0;                       // instanceId of the resulting map
 
     uint32 aa_instanceid_old = 0;
-    int32 aa_teleport_nandu = 0;
+    int32 aa_teleport_nandu = -2;
     ObjectGuid::LowType guidlow = player->GetGUID().GetCounter();
     bool aa_hasCundang = true;
     bool aa_hasData = true;
@@ -166,9 +166,8 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
         if (!newInstanceId)
             return nullptr;
 
-        aa_teleport_nandu = 0;
+        aa_teleport_nandu = -2;
         player->aa_teleport_nandu = -2;
-        player->aa_teleport_moshi = -2;
 
         map = FindMap_i(mapId, newInstanceId);
         if (!map)
@@ -185,44 +184,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
     else if (entry->IsDungeon())
     {
         Group* group = player->GetGroup();
-        Difficulty difficulty = DIFFICULTY_NONE;
-        //如果传送有副本难度参数
-        if (player->aa_teleport_moshi != -2) {
-            if (aaCenter.aa_pmapvalues[mapId][guidlow][1] != player->aa_teleport_moshi) {
-                difficulty = (Difficulty)(player->aa_teleport_moshi);
-            }
-            else {
-                difficulty = (Difficulty)(aaCenter.aa_pmapvalues[mapId][guidlow][1]);
-            }
-
-            if (group)
-            {
-                if (!group->IsLeader(player->GetGUID()))
-                    return nullptr;
-
-                if (group->isLFGGroup())
-                    return nullptr;
-
-                if (map->IsRaid()) {
-                    group->SetRaidDifficultyID(Difficulty(player->aa_teleport_moshi));
-                }
-                else if (map->IsNonRaidDungeon()) {
-                    group->SetDungeonDifficultyID(Difficulty(player->aa_teleport_moshi));
-                }
-            }
-            else
-            {
-                if (map->IsRaid()) {
-                    player->SetRaidDifficultyID(Difficulty(player->aa_teleport_moshi));
-                }
-                else if (map->IsNonRaidDungeon()) {
-                    player->SetDungeonDifficultyID(Difficulty(player->aa_teleport_moshi));
-                }
-            }
-        }
-        else {
-            difficulty = group ? group->GetDifficultyID(entry) : player->GetDifficultyID(entry);
-        }
+        Difficulty difficulty = group ? group->GetDifficultyID(entry) : player->GetDifficultyID(entry);
         MapDb2Entries entries{ entry, sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty) };
         ObjectGuid instanceOwnerGuid = group ? group->GetRecentInstanceOwner(mapId) : player->GetGUID();
         InstanceLock* instanceLock = sInstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, entries);
@@ -279,38 +241,9 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
         }
 
         //2、如果切换了难度。清理进度，清理存档
-        if ((player->aa_teleport_moshi != -2 && map && !map->HavePlayers() && aaCenter.aa_pmapvalues[mapId][guidlow][1] != player->aa_teleport_moshi) ||
-            (map && !map->HavePlayers() && aaCenter.aa_minstancevalues[newInstanceId][3] != player->aa_teleport_nandu)) {
+        if (map && !map->HavePlayers() && aaCenter.aa_minstancevalues[newInstanceId][3] != player->aa_teleport_nandu) {
             if (player->GetSession()->PlayerLoading()) // pussywizard: crashfix (assert(passengers.empty) fail in ~transport), could be added to a transport during loading from db
                 return nullptr;
-
-            if (aaCenter.aa_pmapvalues[mapId][guidlow][1] != player->aa_teleport_moshi) {
-                Group* group = player->GetGroup();
-                if (group)
-                {
-                    if (!group->IsLeader(player->GetGUID()))
-                        return nullptr;
-
-                    if (group->isLFGGroup())
-                        return nullptr;
-
-                    if (map->IsRaid()) {
-                        group->SetRaidDifficultyID(Difficulty(player->aa_teleport_moshi));
-                    }
-                    else if (map->IsNonRaidDungeon()) {
-                        group->SetDungeonDifficultyID(Difficulty(player->aa_teleport_moshi));
-                    }
-                }
-                else
-                {
-                    if (map->IsRaid()) {
-                        player->SetRaidDifficultyID(Difficulty(player->aa_teleport_moshi));
-                    }
-                    else if (map->IsNonRaidDungeon()) {
-                        player->SetDungeonDifficultyID(Difficulty(player->aa_teleport_moshi));
-                    }
-                }
-            }
 
             MapMapType::iterator iter = i_maps.begin();
             while (iter != i_maps.end())
@@ -369,24 +302,15 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
         aaCenter.aa_minstancebools.erase(aa_instanceid_old);
         aaCenter.aa_pinstancevalues.erase(aa_instanceid_old);
         aaCenter.aa_pinstancebools.erase(aa_instanceid_old);
-        aaCenter.aa_pmapvalues[mapId].erase(guidlow);
     }
 
     uint32 instanceid = map != nullptr ? map->GetInstanceId() : 0;
 
-    if (player->aa_teleport_nandu != -2 || player->aa_teleport_moshi != -2) {
+    if (aa_teleport_nandu != -2) {
         std::string str = "";
         //改变当前秘境难度
-        if (aa_teleport_nandu != -2) {
-            aaCenter.aa_minstancevalues[instanceid][3] = aa_teleport_nandu;
-            player->aa_teleport_nandu = -2;
-        }
-        //改变当前副本模式
-        if (player->aa_teleport_moshi != -2) {
-            aaCenter.aa_pmapvalues[mapId][guidlow][1] = player->aa_teleport_moshi;
-            player->aa_teleport_moshi = -2;
-            aaCenter.AA_UpdateValueBools(mapId, 0, true, guidlow);
-        }
+        aaCenter.aa_minstancevalues[instanceid][3] = aa_teleport_nandu;
+        player->aa_teleport_nandu = -2;
         aaCenter.AA_UpdateValueBools(instanceid, 3, true);
         aaCenter.AA_UpdateValueBools(instanceid, 3, true, guidlow);
     }
