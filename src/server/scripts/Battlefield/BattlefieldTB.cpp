@@ -706,8 +706,8 @@ void BattlefieldTB::PromotePlayer(Player* killer)
 TolBaradCapturePoint::TolBaradCapturePoint(BattlefieldTB* battlefield, TBCapturePointSpawnData const& data) : BattlefieldControlZoneHandler(battlefield),
     _textIdHordeCaptured(data.textGained[TEAM_HORDE]), _textIdAllianceCaptured(data.textGained[TEAM_ALLIANCE]),
     _textIdHordeLost(data.textLost[TEAM_HORDE]), _textIdAllianceLost(data.textLost[TEAM_ALLIANCE]),
-    _worldstateHordeCapturing(data.wsCapturing[TEAM_HORDE]), _worldstateAllianceCapturing(data.wsCapturing[TEAM_ALLIANCE]),
     _worldstateHordeControlled(data.wsControlled[TEAM_HORDE]), _worldstateAllianceControlled(data.wsControlled[TEAM_ALLIANCE]),
+    _worldstateHordeCapturing(data.wsCapturing[TEAM_HORDE]), _worldstateAllianceCapturing(data.wsCapturing[TEAM_ALLIANCE]),
     _worldstateNeutral(data.wsNeutral)
 {
 }

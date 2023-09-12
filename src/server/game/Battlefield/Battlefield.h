@@ -22,6 +22,7 @@
 #include "SharedDefines.h"
 #include "ZoneScript.h"
 #include <map>
+#include <memory>
 
 enum BattlefieldTypes
 {
