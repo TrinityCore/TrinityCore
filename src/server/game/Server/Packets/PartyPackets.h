@@ -665,6 +665,82 @@ namespace WorldPackets
             ObjectGuid Target;
             bool Accepted = false;
         };
+
+        class SetRestrictPingsToAssistants final : public ClientPacket
+        {
+        public:
+            explicit SetRestrictPingsToAssistants(WorldPacket&& packet) : ClientPacket(CMSG_SET_RESTRICT_PINGS_TO_ASSISTANTS, std::move(packet)) { }
+
+            void Read() override;
+
+            Optional<uint8> PartyIndex;
+            bool RestrictPingsToAssistants = false;
+        };
+
+        class SendPingUnit final : public ClientPacket
+        {
+        public:
+            explicit SendPingUnit(WorldPacket&& packet) : ClientPacket(CMSG_SEND_PING_UNIT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid SenderGUID;
+            ObjectGuid TargetGUID;
+            PingSubjectType Type = PingSubjectType::Max;
+            uint32 PinFrameID = 0;
+        };
+
+        class ReceivePingUnit final : public ServerPacket
+        {
+        public:
+            ReceivePingUnit() : ServerPacket(SMSG_RECEIVE_PING_UNIT, 16 + 16 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SenderGUID;
+            ObjectGuid TargetGUID;
+            PingSubjectType Type = PingSubjectType::Max;
+            uint32 PinFrameID = 0;
+        };
+
+        class SendPingWorldPoint final : public ClientPacket
+        {
+        public:
+            explicit SendPingWorldPoint(WorldPacket&& packet) : ClientPacket(CMSG_SEND_PING_WORLD_POINT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid SenderGUID;
+            uint32 MapID = 0;
+            TaggedPosition<Position::XYZ> Point;
+            PingSubjectType Type = PingSubjectType::Max;
+            uint32 PinFrameID = 0;
+        };
+
+        class ReceivePingWorldPoint final : public ServerPacket
+        {
+        public:
+            ReceivePingWorldPoint() : ServerPacket(SMSG_RECEIVE_PING_WORLD_POINT, 16 + 4 + 4 * 3 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SenderGUID;
+            uint32 MapID = 0;
+            TaggedPosition<Position::XYZ> Point;
+            PingSubjectType Type = PingSubjectType::Max;
+            uint32 PinFrameID = 0;
+        };
+
+        class CancelPingPin final : public ServerPacket
+        {
+        public:
+            CancelPingPin() : ServerPacket(SMSG_CANCEL_PING_PIN, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SenderGUID;
+            uint32 PinFrameID = 0;
+        };
     }
 }
 
