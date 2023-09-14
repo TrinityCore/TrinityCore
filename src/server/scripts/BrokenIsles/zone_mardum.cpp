@@ -725,7 +725,7 @@ struct npc_kayn_sunfury_ashtongue_intro_private : public ScriptedAI
             me->SetAIAnimKitId(ANIM_DH_RUN);
             me->DespawnOrUnsummon(10s);
 
-            task.Schedule(2s, [this, korvasGuid](TaskContext task)
+            task.Schedule(2s, [this, korvasGuid](TaskContext /*task*/)
             {
                 Creature* korvas = ObjectAccessor::GetCreature(*me, korvasGuid);
                 if (!korvas)
