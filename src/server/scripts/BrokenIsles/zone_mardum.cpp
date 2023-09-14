@@ -705,7 +705,7 @@ struct npc_kayn_sunfury_ashtongue_intro_private : public ScriptedAI
             korvas->CastSpell(privateObjectOwner, SPELL_TRACK_TARGET_IN_CHANNEL, false);
         });
 
-        _scheduler.Schedule(7s, [this, korvasGuid](TaskContext /*task*/)
+        _scheduler.Schedule(7s, [this](TaskContext /*task*/)
         {
             Talk(SAY_KAYN_CUT_A_HOLE, me);
         });
