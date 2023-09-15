@@ -18,11 +18,47 @@
 #include "SslContext.h"
 #include "Config.h"
 #include "Log.h"
+#include "Memory.h"
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
+#include <openssl/store.h>
+#include <openssl/ui.h>
+
+namespace
+{
+auto CreatePasswordUiMethodFromPemCallback(::pem_password_cb* callback)
+{
+    return Trinity::make_unique_ptr_with_deleter(UI_UTIL_wrap_read_pem_callback(callback, 0), ::UI_destroy_method);
+}
+
+auto OpenOpenSSLStore(boost::filesystem::path const& storePath, UI_METHOD const* passwordCallback, void* passwordCallbackData)
+{
+    std::string uri;
+    uri.reserve(6 + storePath.size());
+
+    uri += "file:";
+    std::string genericPath = storePath.generic_string();
+    if (!genericPath.empty() && !genericPath.starts_with('/'))
+        uri += '/'; // ensure the path starts with / (windows special case, unix absolute paths already do)
+
+    uri += genericPath;
+
+    return Trinity::make_unique_ptr_with_deleter(OSSL_STORE_open(uri.c_str(), passwordCallback, passwordCallbackData, nullptr, nullptr), ::OSSL_STORE_close);
+}
+
+boost::system::error_code GetLastOpenSSLError()
+{
+    auto ossl_error = ::ERR_get_error();
+    if (ERR_SYSTEM_ERROR(ossl_error))
+        return boost::system::error_code(static_cast<int>(::ERR_GET_REASON(ossl_error)), boost::asio::error::get_system_category());
+
+    return boost::system::error_code(static_cast<int>(ossl_error), boost::asio::error::get_ssl_category());
+}
+}
 
 bool Battlenet::SslContext::Initialize()
 {
     boost::system::error_code err;
-
 #define LOAD_CHECK(fn) do { fn; \
     if (err) \
     { \
@@ -31,7 +67,6 @@ bool Battlenet::SslContext::Initialize()
     } } while (0)
 
     std::string certificateChainFile = sConfigMgr->GetStringDefault("CertificatesFile", "./bnetserver.cert.pem");
-    std::string privateKeyFile = sConfigMgr->GetStringDefault("PrivateKeyFile", "./bnetserver.key.pem");
 
     auto passwordCallback = [](std::size_t /*max_length*/, boost::asio::ssl::context::password_purpose /*purpose*/) -> std::string
     {
@@ -39,8 +74,54 @@ bool Battlenet::SslContext::Initialize()
     };
 
     LOAD_CHECK(instance().set_password_callback(passwordCallback, err));
-    LOAD_CHECK(instance().use_certificate_chain_file(certificateChainFile, err));
-    LOAD_CHECK(instance().use_private_key_file(privateKeyFile, boost::asio::ssl::context::pem, err));
+
+    SSL_CTX* nativeContext = instance().native_handle();
+    auto password_ui_method = CreatePasswordUiMethodFromPemCallback(SSL_CTX_get_default_passwd_cb(nativeContext));
+
+    auto store = OpenOpenSSLStore(boost::filesystem::absolute(certificateChainFile),
+        password_ui_method.get(), SSL_CTX_get_default_passwd_cb_userdata(nativeContext));
+
+    if (!store)
+    {
+        err = GetLastOpenSSLError();
+        TC_LOG_ERROR("server.ssl", "OSSL_STORE_open failed: {}", err.message());
+        return false;
+    }
+
+    EVP_PKEY* key = nullptr;
+    STACK_OF(X509)* certs = sk_X509_new_null();
+    while (!OSSL_STORE_eof(store.get()))
+    {
+        OSSL_STORE_INFO* info = OSSL_STORE_load(store.get());
+        if (!info)
+            continue;
+
+        switch (OSSL_STORE_INFO_get_type(info))
+        {
+            case OSSL_STORE_INFO_PKEY:
+                key = OSSL_STORE_INFO_get1_PKEY(info);
+                break;
+            case OSSL_STORE_INFO_CERT:
+                sk_X509_push(certs, OSSL_STORE_INFO_get1_CERT(info));
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (sk_X509_num(certs) > 0)
+    {
+        X509* cert = sk_X509_shift(certs);
+        SSL_CTX_use_cert_and_key(nativeContext, cert, key, certs, 1);
+    }
+
+    sk_X509_free(certs);
+
+    if (!key)
+    {
+        std::string privateKeyFile = sConfigMgr->GetStringDefault("PrivateKeyFile", "./bnetserver.key.pem");
+        LOAD_CHECK(instance().use_private_key_file(privateKeyFile, boost::asio::ssl::context::pem, err));
+    }
 
 #undef LOAD_CHECK
 
