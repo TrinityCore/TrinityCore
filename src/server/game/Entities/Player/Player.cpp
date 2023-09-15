@@ -143,7 +143,9 @@
 
 enum PlayerSpells
 {
-    SPELL_EXPERIENCE_ELIMINATED = 206662
+    SPELL_EXPERIENCE_ELIMINATED = 206662,
+    SPELL_APPRENTICE_RIDING     = 33389,
+    SPELL_JOURNEYMAN_RIDING     = 33391
 };
 
 static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
@@ -24344,8 +24346,24 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races r
         if (ability->ClassMask && !(ability->ClassMask & classMask))
             continue;
 
-        // check level, skip class spells if not high enough
-        if (GetLevel() < spellInfo->SpellLevel)
+        // Check level, skip class spells if not high enough
+        // Special case for riding spells of the hero classes (Journeyman)
+        auto isRidingSpellForHeroClass = [&]()
+        {
+            if (skillId != SKILL_RIDING)
+                return false;
+
+            if (!(GetClassMask() & ((1 << (CLASS_DEATH_KNIGHT - 1)) | (1 << (CLASS_DEMON_HUNTER - 1)))))
+                return false;
+
+            if (ability->Spell != SPELL_APPRENTICE_RIDING && ability->Spell != SPELL_JOURNEYMAN_RIDING)
+                return false;
+
+            return true;
+        };
+
+        // Some spells use BaseLevel instead of SpellLevel (Riding)
+        if (!isRidingSpellForHeroClass() && GetLevel() < std::max(spellInfo->SpellLevel, spellInfo->BaseLevel))
             continue;
 
         // need unlearn spell
