@@ -1874,7 +1874,6 @@ bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32
     SetPhaseMask(phaseMask, false);
     Object::_Create(guidlow, petId, HighGuid::Pet);
 
-    m_spawnId = guidlow;
     m_originalEntry = Entry;
 
     if (!InitEntry(Entry))
