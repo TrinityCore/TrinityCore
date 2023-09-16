@@ -97,7 +97,7 @@ class TC_COMMON_API TaskScheduler
         // Order tasks by its end
         std::weak_ordering operator<=> (Task const& other) const
         {
-            return _end <=> other._end;
+            return std::compare_weak_order_fallback(_end, other._end);
         }
 
         // Compare tasks with its end
