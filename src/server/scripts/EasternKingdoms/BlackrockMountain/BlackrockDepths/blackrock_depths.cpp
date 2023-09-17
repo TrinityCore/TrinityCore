@@ -373,9 +373,9 @@ public:
         return GetBlackrockDepthsAI<npc_phalanxAI>(creature);
     }
 
-    struct npc_phalanxAI : public ScriptedAI
+    struct npc_phalanxAI : public BossAI
     {
-        npc_phalanxAI(Creature* creature) : ScriptedAI(creature)
+        npc_phalanxAI(Creature* creature) : BossAI(creature, BOSS_PHALANX)
         {
             Initialize();
         }
@@ -393,6 +393,7 @@ public:
 
         void Reset() override
         {
+            _Reset();
             Initialize();
         }
 
