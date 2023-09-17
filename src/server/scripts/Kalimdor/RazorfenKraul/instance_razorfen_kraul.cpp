@@ -26,6 +26,7 @@ EndScriptData */
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "Unit.h"
 #include "razorfen_kraul.h"
 
 #define WARD_KEEPERS_NR 2
