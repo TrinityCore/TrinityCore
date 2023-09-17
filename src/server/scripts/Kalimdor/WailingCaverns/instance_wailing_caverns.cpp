@@ -25,11 +25,20 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "InstanceScript.h"
-#include "Log.h"
 #include "Map.h"
 #include "wailing_caverns.h"
 
-#define MAX_ENCOUNTER   9
+static constexpr DungeonEncounterData Encounters[] =
+{
+    { BOSS_LADY_ANACONDRA, {{ 585 } } },
+    { BOSS_LORD_COBRAHN, {{ 586 } } },
+    { BOSS_KRESH, {{ 587 } } },
+    { BOSS_LORD_PYTHAS, {{ 588 } } },
+    { BOSS_SKUM, {{ 589 } } },
+    { BOSS_LORD_SERPENTIS, {{ 590 } } },
+    { BOSS_VERDAN_THE_EVERLIVING, {{ 591 } } },
+    { BOSS_MUTANUS_THE_DEVOURER, {{ 592 } } },
+};
 
 class instance_wailing_caverns : public InstanceMapScript
 {
@@ -47,6 +56,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
+            LoadDungeonEncounterData(Encounters);
 
             yelled = false;
         }
@@ -60,20 +70,33 @@ public:
                 NaralexGUID = creature->GetGUID();
         }
 
+        void OnUnitDeath(Unit* unit) override
+        {
+            switch (unit->GetEntry())
+            {
+                case NPC_KRESH:                 SetBossState(BOSS_KRESH, DONE); break;
+                case NPC_SKUM:                  SetBossState(BOSS_SKUM, DONE); break;
+                case NPC_VERDAN_THE_EVERLIVING: SetBossState(BOSS_VERDAN_THE_EVERLIVING, DONE); break;
+                default:
+                    break;
+            }
+        }
+
         void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
-                case TYPE_LORD_COBRAHN:         SetBossState(0, EncounterState(data));break;
-                case TYPE_LORD_PYTHAS:          SetBossState(1, EncounterState(data));break;
-                case TYPE_LADY_ANACONDRA:       SetBossState(2, EncounterState(data));break;
-                case TYPE_LORD_SERPENTIS:       SetBossState(3, EncounterState(data));break;
+                case TYPE_LORD_COBRAHN:         SetBossState(BOSS_LORD_COBRAHN, EncounterState(data));break;
+                case TYPE_LORD_PYTHAS:          SetBossState(BOSS_LORD_PYTHAS, EncounterState(data));break;
+                case TYPE_LADY_ANACONDRA:       SetBossState(BOSS_LADY_ANACONDRA, EncounterState(data));break;
+                case TYPE_LORD_SERPENTIS:       SetBossState(BOSS_LORD_SERPENTIS, EncounterState(data));break;
                 case TYPE_NARALEX_EVENT:        SetBossState(4, EncounterState(data));break;
                 case TYPE_NARALEX_PART1:        SetBossState(5, EncounterState(data));break;
                 case TYPE_NARALEX_PART2:        SetBossState(6, EncounterState(data));break;
                 case TYPE_NARALEX_PART3:        SetBossState(7, EncounterState(data));break;
-                case TYPE_MUTANUS_THE_DEVOURER: SetBossState(8, EncounterState(data));break;
+                case TYPE_MUTANUS_THE_DEVOURER: SetBossState(BOSS_MUTANUS_THE_DEVOURER, EncounterState(data));break;
                 case TYPE_NARALEX_YELLED:       yelled = true;      break;
+                default:                        break;
             }
         }
 
@@ -81,16 +104,17 @@ public:
         {
             switch (type)
             {
-                case TYPE_LORD_COBRAHN:         return GetBossState(0);
-                case TYPE_LORD_PYTHAS:          return GetBossState(1);
-                case TYPE_LADY_ANACONDRA:       return GetBossState(2);
-                case TYPE_LORD_SERPENTIS:       return GetBossState(3);
+                case TYPE_LORD_COBRAHN:         return GetBossState(BOSS_LORD_COBRAHN);
+                case TYPE_LORD_PYTHAS:          return GetBossState(BOSS_LORD_PYTHAS);
+                case TYPE_LADY_ANACONDRA:       return GetBossState(BOSS_LADY_ANACONDRA);
+                case TYPE_LORD_SERPENTIS:       return GetBossState(BOSS_LORD_SERPENTIS);
                 case TYPE_NARALEX_EVENT:        return GetBossState(4);
                 case TYPE_NARALEX_PART1:        return GetBossState(5);
                 case TYPE_NARALEX_PART2:        return GetBossState(6);
                 case TYPE_NARALEX_PART3:        return GetBossState(7);
-                case TYPE_MUTANUS_THE_DEVOURER: return GetBossState(8);
+                case TYPE_MUTANUS_THE_DEVOURER: return GetBossState(BOSS_MUTANUS_THE_DEVOURER);
                 case TYPE_NARALEX_YELLED:       return yelled;
+                default:                        break;
             }
             return 0;
         }
