@@ -3086,12 +3086,7 @@ void ObjectMgr::LoadItemTemplates()
                 if (enforceDBCAttributes)
                     itemTemplate.Class = dbcitem->ClassID;
             }
-            if (itemTemplate.SubClass != dbcitem->SubclassID)
-            {
-                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct subclass %u, must be %u .", entry, itemTemplate.SubClass, dbcitem->SubclassID);
-                if (enforceDBCAttributes)
-                    itemTemplate.SubClass = dbcitem->SubclassID;
-            }
+
             if (itemTemplate.SoundOverrideSubclass != dbcitem->SoundOverrideSubclassID)
             {
                 TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct SoundOverrideSubclass (%i), must be %i .", entry, itemTemplate.SoundOverrideSubclass, dbcitem->SoundOverrideSubclassID);
