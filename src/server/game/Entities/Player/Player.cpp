@@ -16545,6 +16545,10 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
         if (!IsQuestObjectiveCompletable(logSlot, quest, objective))
             continue;
 
+        // Ignore update of optional objectives if quest is completed
+        if ((GetQuestStatus(quest->GetQuestId()) == QUEST_STATUS_COMPLETE) && (objective.Flags & (QUEST_OBJECTIVE_FLAG_OPTIONAL)))
+            continue;
+
         if (quest->HasFlagEx(QUEST_FLAGS_EX_NO_CREDIT_FOR_PROXY))
             if (objective.Type == QUEST_OBJECTIVE_MONSTER && victimGuid.IsEmpty())
                 continue;
