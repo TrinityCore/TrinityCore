@@ -869,7 +869,6 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
     {
         if (encounter.creditType == type && encounter.creditEntry == creditEntry)
         {
-            completedEncounters |= 1 << encounter.dbcEntry->Bit;
             if (encounter.dbcEntry->CompleteWorldStateID)
                 DoUpdateWorldState(encounter.dbcEntry->CompleteWorldStateID, 1);
 
