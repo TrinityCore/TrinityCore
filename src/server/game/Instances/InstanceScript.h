@@ -288,12 +288,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void UpdateEncounterStateForKilledCreature(uint32 creatureId, Unit* source);
         void UpdateEncounterStateForSpellCast(uint32 spellId, Unit* source);
 
-        // Used only during loading
-        void SetCompletedEncountersMask(uint32 newMask);
-
-        // Returns completed encounters mask for packets
-        uint32 GetCompletedEncounterMask() const { return completedEncounters; }
-
         bool IsEncounterCompleted(uint32 dungeonEncounterId) const;
         bool IsEncounterCompletedInMaskByBossId(uint32 completedEncountersMask, uint32 bossId) const;
 
@@ -381,7 +375,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _creatureInfo;
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
-        uint32 completedEncounters; // DEPRECATED, REMOVE
         std::vector<InstanceSpawnGroupInfo> const* const _instanceSpawnGroups;
         std::unordered_set<uint32> _activatedAreaTriggers;
         uint32 _entranceId;

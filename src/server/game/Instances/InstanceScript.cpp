@@ -64,7 +64,7 @@ DungeonEncounterEntry const* BossInfo::GetDungeonEncounterForDifficulty(Difficul
     return itr != DungeonEncounters.end() ? *itr : nullptr;
 }
 
-InstanceScript::InstanceScript(InstanceMap* map) : instance(map), completedEncounters(0), _instanceSpawnGroups(sObjectMgr->GetInstanceSpawnGroupsForMap(map->GetId())),
+InstanceScript::InstanceScript(InstanceMap* map) : instance(map), _instanceSpawnGroups(sObjectMgr->GetInstanceSpawnGroupsForMap(map->GetId())),
 _entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
 {
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
@@ -433,6 +433,8 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                     {
                         DoUpdateCriteria(CriteriaType::DefeatDungeonEncounter, dungeonEncounter->ID);
                         SendBossKillCredit(dungeonEncounter->ID);
+                        if (dungeonEncounter->CompleteWorldStateID)
+                            DoUpdateWorldState(dungeonEncounter->CompleteWorldStateID, 1);
                     }
 
                     instance->DoOnPlayers([](Player* player)
@@ -494,8 +496,14 @@ void InstanceScript::Load(char const* data)
         // in loot-based lockouts instance can be loaded with later boss marked as killed without preceding bosses
         // but we still need to have them alive
         for (uint32 i = 0; i < bosses.size(); ++i)
+        {
             if (bosses[i].state == DONE && !CheckRequiredBosses(i))
                 bosses[i].state = NOT_STARTED;
+
+            if (DungeonEncounterEntry const* dungeonEncounter = bosses[i].GetDungeonEncounterForDifficulty(instance->GetDifficultyID()))
+                if (dungeonEncounter->CompleteWorldStateID)
+                    DoUpdateWorldState(dungeonEncounter->CompleteWorldStateID, bosses[i].state == DONE ? 1 : 0);
+        }
 
         UpdateSpawnGroups();
         AfterDataLoad();
@@ -903,16 +911,6 @@ void InstanceScript::UpdateEncounterStateForKilledCreature(uint32 creatureId, Un
 void InstanceScript::UpdateEncounterStateForSpellCast(uint32 spellId, Unit* source)
 {
     UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, spellId, source);
-}
-
-void InstanceScript::SetCompletedEncountersMask(uint32 newMask)
-{
-    completedEncounters = newMask;
-
-    if (DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID()))
-        for (DungeonEncounter const& encounter : *encounters)
-            if (completedEncounters & (1 << encounter.dbcEntry->Bit) && encounter.dbcEntry->CompleteWorldStateID)
-                DoUpdateWorldState(encounter.dbcEntry->CompleteWorldStateID, 1);
 }
 
 void InstanceScript::UpdatePhasing()
