@@ -300,7 +300,7 @@ struct BattlemasterListEntry
     //uint32 GroupsAllowed;                                 // 10
     char const* Name[16];                                   // 11-26
     //uint32 Name_lang_mask;                                // 27
-    uint32 MaxGroupSize;                                    // 28 used for checking if queue as group
+    uint32 MAX_GROUP_SIZE;                                    // 28 used for checking if queue as group
     uint32 HolidayWorldState;                               // 29
     //uint32 MinLevel;                                      // 30
     //uint32 MaxLevel;                                      // 31
