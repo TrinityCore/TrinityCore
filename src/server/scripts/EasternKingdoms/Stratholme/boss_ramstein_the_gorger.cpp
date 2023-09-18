@@ -21,7 +21,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
@@ -45,28 +44,31 @@ enum RamsteinMisc
 };
 
 // 10439 - Ramstein the Gorger
-struct boss_ramstein_the_gorger : public ScriptedAI
+struct boss_ramstein_the_gorger : public BossAI
 {
-    boss_ramstein_the_gorger(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    boss_ramstein_the_gorger(Creature* creature) : BossAI(creature, BOSS_RAMSTEIN_THE_GORGER) { }
 
     void Reset() override
     {
-        _events.Reset();
+        BossAI::Reset();
+
         DoCastSelf(SPELL_FLURRY);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _events.ScheduleEvent(EVENT_TRAMPLE, 10s, 15s);
-        _events.ScheduleEvent(EVENT_KNOCKOUT, 10s, 20s);
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_TRAMPLE, 10s, 15s);
+        events.ScheduleEvent(EVENT_KNOCKOUT, 10s, 20s);
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
+        BossAI::JustDied(killer);
+
         me->SummonCreatureGroup(SUMMON_GROUP_SENTRY);
         me->SummonCreatureGroup(SUMMON_GROUP_UNDEAD);
-
-        _instance->SetData(TYPE_RAMSTEIN, DONE);
     }
 
     void UpdateAI(uint32 diff) override
@@ -74,22 +76,22 @@ struct boss_ramstein_the_gorger : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _events.Update(diff);
+        events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = _events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_TRAMPLE:
                     DoCastSelf(SPELL_TRAMPLE);
-                    _events.Repeat(10s, 25s);
+                    events.Repeat(10s, 25s);
                     break;
                 case EVENT_KNOCKOUT:
                     DoCastVictim(SPELL_KNOCKOUT);
-                    _events.Repeat(15s, 20s);
+                    events.Repeat(15s, 20s);
                     break;
                 default:
                     break;
@@ -101,10 +103,6 @@ struct boss_ramstein_the_gorger : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-
-private:
-    EventMap _events;
-    InstanceScript* _instance;
 };
 
 void AddSC_boss_ramstein_the_gorger()

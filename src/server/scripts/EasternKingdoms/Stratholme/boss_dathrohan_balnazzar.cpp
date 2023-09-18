@@ -74,13 +74,14 @@ enum DathrohanMisc
 };
 
 // 10812 - Grand Crusader Dathrohan
-struct boss_dathrohan_balnazzar : public ScriptedAI
+struct boss_dathrohan_balnazzar : public BossAI
 {
-    boss_dathrohan_balnazzar(Creature* creature) : ScriptedAI(creature), _transformed(false) { }
+    boss_dathrohan_balnazzar(Creature* creature) : BossAI(creature, BOSS_BALNAZZAR), _transformed(false) { }
 
     void Reset() override
     {
-        _events.Reset();
+        BossAI::Reset();
+
         _transformed = false;
 
         if (me->GetEntry() == NPC_BALNAZZAR)
@@ -89,14 +90,16 @@ struct boss_dathrohan_balnazzar : public ScriptedAI
         SetEquipmentSlots(true);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
+        BossAI::JustEngagedWith(who);
+
         Talk(SAY_AGGRO);
 
-        _events.ScheduleEvent(EVENT_CRUSADERS_HAMMER, 15s, 25s);
-        _events.ScheduleEvent(EVENT_CRUSADER_STRIKE, 5s, 10s);
-        _events.ScheduleEvent(EVENT_HOLY_STRIKE, 10s, 20s);
-        _events.ScheduleEvent(EVENT_MIND_BLAST, 5s, 15s);
+        events.ScheduleEvent(EVENT_CRUSADERS_HAMMER, 15s, 25s);
+        events.ScheduleEvent(EVENT_CRUSADER_STRIKE, 5s, 10s);
+        events.ScheduleEvent(EVENT_HOLY_STRIKE, 10s, 20s);
+        events.ScheduleEvent(EVENT_MIND_BLAST, 5s, 15s);
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -104,12 +107,14 @@ struct boss_dathrohan_balnazzar : public ScriptedAI
         if (!_transformed && me->HealthBelowPctDamaged(40, damage))
         {
             _transformed = true;
-            _events.ScheduleEvent(EVENT_TRANSFORM_1, 0s);
+            events.ScheduleEvent(EVENT_TRANSFORM_1, 0s);
         }
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
+        BossAI::JustDied(killer);
+
         Talk(SAY_DEATH);
         me->SummonCreatureGroup(SUMMON_GROUP_DEATH);
     }
@@ -119,78 +124,78 @@ struct boss_dathrohan_balnazzar : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _events.Update(diff);
+        events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = _events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_CRUSADERS_HAMMER:
                     DoCastSelf(SPELL_CRUSADERS_HAMMER);
-                    _events.Repeat(20s, 30s);
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_CRUSADER_STRIKE:
                     DoCastVictim(SPELL_CRUSADER_STRIKE);
-                    _events.Repeat(10s, 20s);
+                    events.Repeat(10s, 20s);
                     break;
                 case EVENT_HOLY_STRIKE:
                     DoCastVictim(SPELL_HOLY_STRIKE);
-                    _events.Repeat(10s, 15s);
+                    events.Repeat(10s, 15s);
                     break;
 
                 case EVENT_MIND_BLAST:
                     DoCastVictim(SPELL_MIND_BLAST);
-                    _events.Repeat(10s, 15s);
+                    events.Repeat(10s, 15s);
                     break;
 
                 case EVENT_SHADOW_SHOCK:
                     DoCastSelf(SPELL_SHADOW_SHOCK);
-                    _events.Repeat(10s, 15s);
+                    events.Repeat(10s, 15s);
                     break;
                 case EVENT_PSYCHIC_SCREAM:
                     DoCastSelf(SPELL_PSYCHIC_SCREAM);
-                    _events.Repeat(20s, 30s);
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_SLEEP:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_SLEEP);
-                    _events.Repeat(15s, 20s);
+                    events.Repeat(15s, 20s);
                     break;
                 case EVENT_DOMINATION:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_DOMINATION);
-                    _events.Repeat(20s, 25s);
+                    events.Repeat(20s, 25s);
                     break;
 
                 case EVENT_TRANSFORM_1:
-                    _events.CancelEvent(EVENT_CRUSADERS_HAMMER);
-                    _events.CancelEvent(EVENT_CRUSADER_STRIKE);
-                    _events.CancelEvent(EVENT_HOLY_STRIKE);
-                    _events.CancelEvent(EVENT_MIND_BLAST);
+                    events.CancelEvent(EVENT_CRUSADERS_HAMMER);
+                    events.CancelEvent(EVENT_CRUSADER_STRIKE);
+                    events.CancelEvent(EVENT_HOLY_STRIKE);
+                    events.CancelEvent(EVENT_MIND_BLAST);
                     DoCastSelf(SPELL_BALNAZZAR_TRANSFORM);
                     me->SetReactState(REACT_PASSIVE);
-                    _events.ScheduleEvent(EVENT_TRANSFORM_2, 2s);
+                    events.ScheduleEvent(EVENT_TRANSFORM_2, 2s);
                     break;
                 case EVENT_TRANSFORM_2:
                     me->UpdateEntry(NPC_BALNAZZAR);
                     me->SetReactState(REACT_PASSIVE);
                     SetEquipmentSlots(false, EQUIP_UNEQUIP);
-                    _events.ScheduleEvent(EVENT_TRANSFORM_3, 2s);
+                    events.ScheduleEvent(EVENT_TRANSFORM_3, 2s);
                     break;
                 case EVENT_TRANSFORM_3:
                     Talk(SAY_TRANSFORM);
-                    _events.ScheduleEvent(EVENT_TRANSFORM_4, 4s);
+                    events.ScheduleEvent(EVENT_TRANSFORM_4, 4s);
                     break;
                 case EVENT_TRANSFORM_4:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    _events.ScheduleEvent(EVENT_MIND_BLAST, 5s, 15s);
-                    _events.ScheduleEvent(EVENT_SHADOW_SHOCK, 10s, 15s);
-                    _events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, 15s, 25s);
-                    _events.ScheduleEvent(EVENT_SLEEP, 5s, 15s);
-                    _events.ScheduleEvent(EVENT_DOMINATION, 15s, 25s);
+                    events.ScheduleEvent(EVENT_MIND_BLAST, 5s, 15s);
+                    events.ScheduleEvent(EVENT_SHADOW_SHOCK, 10s, 15s);
+                    events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, 15s, 25s);
+                    events.ScheduleEvent(EVENT_SLEEP, 5s, 15s);
+                    events.ScheduleEvent(EVENT_DOMINATION, 15s, 25s);
                     break;
                 default:
                     break;
@@ -205,7 +210,6 @@ struct boss_dathrohan_balnazzar : public ScriptedAI
 
 private:
     bool _transformed;
-    EventMap _events;
 };
 
 void AddSC_boss_dathrohan_balnazzar()

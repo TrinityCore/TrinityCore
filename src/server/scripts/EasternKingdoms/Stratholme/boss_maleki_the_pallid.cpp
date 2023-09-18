@@ -42,27 +42,25 @@ enum MalekiEvents
 };
 
 // 10438 - Maleki the Pallid
-struct boss_maleki_the_pallid : public ScriptedAI
+struct boss_maleki_the_pallid : public BossAI
 {
-    boss_maleki_the_pallid(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    boss_maleki_the_pallid(Creature* creature) : BossAI(creature, BOSS_MALEKI_THE_PALLID) { }
 
     void Reset() override
     {
-        _events.Reset();
+        BossAI::Reset();
+
         DoCastSelf(SPELL_FROST_ARMOR);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _events.ScheduleEvent(EVENT_FROSTBOLT, 0s, 8s);
-        _events.ScheduleEvent(EVENT_DRAIN_LIFE, 20s, 25s);
-        _events.ScheduleEvent(EVENT_DRAIN_MANA, 15s, 25s);
-        _events.ScheduleEvent(EVENT_ICE_TOMB, 10s, 20s);
-    }
+        BossAI::JustEngagedWith(who);
 
-    void JustDied(Unit* /*killer*/) override
-    {
-        _instance->SetData(TYPE_PALLID, IN_PROGRESS);
+        events.ScheduleEvent(EVENT_FROSTBOLT, 0s, 8s);
+        events.ScheduleEvent(EVENT_DRAIN_LIFE, 20s, 25s);
+        events.ScheduleEvent(EVENT_DRAIN_MANA, 15s, 25s);
+        events.ScheduleEvent(EVENT_ICE_TOMB, 10s, 20s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -70,34 +68,34 @@ struct boss_maleki_the_pallid : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _events.Update(diff);
+        events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = _events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_FROSTBOLT:
                     DoCastVictim(SPELL_FROSTBOLT);
-                    _events.Repeat(2s, 8s);
+                    events.Repeat(2s, 8s);
                     break;
                 case EVENT_DRAIN_LIFE:
                     DoCastVictim(SPELL_DRAIN_LIFE);
-                    _events.Repeat(20s, 30s);
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_DRAIN_MANA:
                 {
                     Unit* target = me->GetVictim();
                     if (target && target->GetPowerType() == POWER_MANA)
                         DoCast(target, SPELL_DRAIN_MANA);
-                    _events.Repeat(15s, 20s);
+                    events.Repeat(15s, 20s);
                     break;
                 }
                 case EVENT_ICE_TOMB:
                     DoCastVictim(SPELL_ICE_TOMB);
-                    _events.Repeat(15s, 25s);
+                    events.Repeat(15s, 25s);
                     break;
                 default:
                     break;
@@ -106,10 +104,6 @@ struct boss_maleki_the_pallid : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-
-private:
-    EventMap _events;
-    InstanceScript* _instance;
 };
 
 void AddSC_boss_maleki_the_pallid()

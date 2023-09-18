@@ -40,21 +40,24 @@ enum TimmyEvents
 };
 
 // 10808 - Timmy the Cruel
-struct boss_timmy_the_cruel : public ScriptedAI
+struct boss_timmy_the_cruel : public BossAI
 {
-    boss_timmy_the_cruel(Creature* creature) : ScriptedAI(creature) { }
+    boss_timmy_the_cruel(Creature* creature) : BossAI(creature, BOSS_TIMMY_THE_CRUEL) { }
 
     void Reset() override
     {
-        _events.Reset();
+        BossAI::Reset();
+
         DoCastSelf(SPELL_THRASH);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
+        BossAI::JustEngagedWith(who);
+
         Talk(SAY_AGGRO);
 
-        _events.ScheduleEvent(EVENT_RAVENOUS_CLAW, 10s, 15s);
+        events.ScheduleEvent(EVENT_RAVENOUS_CLAW, 10s, 15s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -62,18 +65,18 @@ struct boss_timmy_the_cruel : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _events.Update(diff);
+        events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = _events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_RAVENOUS_CLAW:
                     DoCastVictim(SPELL_RAVENOUS_CLAW);
-                    _events.Repeat(10s, 15s);
+                    events.Repeat(10s, 15s);
                     break;
                 default:
                     break;
@@ -85,9 +88,6 @@ struct boss_timmy_the_cruel : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-
-private:
-    EventMap _events;
 };
 
 void AddSC_boss_timmy_the_cruel()

@@ -41,21 +41,18 @@ enum WilleyEvents
 };
 
 // 10997 - Cannon Master Willey
-struct boss_cannon_master_willey : public ScriptedAI
+struct boss_cannon_master_willey : public BossAI
 {
-    boss_cannon_master_willey(Creature* creature) : ScriptedAI(creature) { }
+    boss_cannon_master_willey(Creature* creature) : BossAI(creature, BOSS_CANNON_MASTER_WILLEY) { }
 
-    void Reset() override
+    void JustEngagedWith(Unit* who) override
     {
-        _events.Reset();
-    }
+        BossAI::JustEngagedWith(who);
 
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        _events.ScheduleEvent(EVENT_SHOOT, 0s);
-        _events.ScheduleEvent(EVENT_KNOCK_AWAY, 10s, 20s);
-        _events.ScheduleEvent(EVENT_PUMMEL, 10s, 15s);
-        _events.ScheduleEvent(EVENT_SUMMON_RIFLEMAN, 5s, 10s);
+        events.ScheduleEvent(EVENT_SHOOT, 0s);
+        events.ScheduleEvent(EVENT_KNOCK_AWAY, 10s, 20s);
+        events.ScheduleEvent(EVENT_PUMMEL, 10s, 15s);
+        events.ScheduleEvent(EVENT_SUMMON_RIFLEMAN, 5s, 10s);
     }
 
     void AttackStart(Unit* who) override
@@ -68,30 +65,30 @@ struct boss_cannon_master_willey : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _events.Update(diff);
+        events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = _events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_SHOOT:
                     DoCastVictim(SPELL_SHOOT);
-                    _events.Repeat(2s, 4s);
+                    events.Repeat(2s, 4s);
                     break;
                 case EVENT_KNOCK_AWAY:
                     DoCastVictim(SPELL_KNOCK_AWAY);
-                    _events.Repeat(15s, 25s);
+                    events.Repeat(15s, 25s);
                     break;
                 case EVENT_PUMMEL:
                     DoCastVictim(SPELL_PUMMEL);
-                    _events.Repeat(10s, 15s);
+                    events.Repeat(10s, 15s);
                     break;
                 case EVENT_SUMMON_RIFLEMAN:
                     DoCastSelf(SPELL_SUMMON_RIFLEMAN);
-                    _events.Repeat(15s, 25s);
+                    events.Repeat(15s, 25s);
                     break;
                 default:
                     break;
@@ -103,9 +100,6 @@ struct boss_cannon_master_willey : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-
-private:
-    EventMap _events;
 };
 
 void AddSC_boss_cannon_master_willey()

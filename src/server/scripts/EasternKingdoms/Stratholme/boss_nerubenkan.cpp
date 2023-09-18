@@ -20,7 +20,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
@@ -41,26 +40,18 @@ enum NerubenkanEvents
 };
 
 // 10437 - Nerub'enkan
-struct boss_nerubenkan : public ScriptedAI
+struct boss_nerubenkan : public BossAI
 {
-    boss_nerubenkan(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    boss_nerubenkan(Creature* creature) : BossAI(creature, BOSS_NERUB_ENKAN) { }
 
-    void Reset() override
+    void JustEngagedWith(Unit* who) override
     {
-        _events.Reset();
-    }
+        BossAI::JustEngagedWith(who);
 
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        _events.ScheduleEvent(EVENT_CRYPT_SCARABS, 0s);
-        _events.ScheduleEvent(EVENT_ENCASING_WEBS, 5s, 10s);
-        _events.ScheduleEvent(EVENT_PIERCE_ARMOR, 5s, 20s);
-        _events.ScheduleEvent(EVENT_RAISE_SCARAB, 6s, 12s);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _instance->SetData(TYPE_NERUB, IN_PROGRESS);
+        events.ScheduleEvent(EVENT_CRYPT_SCARABS, 0s);
+        events.ScheduleEvent(EVENT_ENCASING_WEBS, 5s, 10s);
+        events.ScheduleEvent(EVENT_PIERCE_ARMOR, 5s, 20s);
+        events.ScheduleEvent(EVENT_RAISE_SCARAB, 6s, 12s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -68,30 +59,30 @@ struct boss_nerubenkan : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _events.Update(diff);
+        events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = _events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_CRYPT_SCARABS:
                     DoCastVictim(SPELL_CRYPT_SCARABS);
-                    _events.Repeat(2s, 10s);
+                    events.Repeat(2s, 10s);
                     break;
                 case EVENT_ENCASING_WEBS:
                     DoCastVictim(SPELL_ENCASING_WEBS);
-                    _events.Repeat(6s, 10s);
+                    events.Repeat(6s, 10s);
                     break;
                 case EVENT_PIERCE_ARMOR:
                     DoCastVictim(SPELL_PIERCE_ARMOR);
-                    _events.Repeat(10s, 20s);
+                    events.Repeat(10s, 20s);
                     break;
                 case EVENT_RAISE_SCARAB:
                     DoCastSelf(SPELL_RAISE_SCARAB);
-                    _events.Repeat(25s, 30s);
+                    events.Repeat(25s, 30s);
                     break;
                 default:
                     break;
@@ -100,10 +91,6 @@ struct boss_nerubenkan : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-
-private:
-    EventMap _events;
-    InstanceScript* _instance;
 };
 
 void AddSC_boss_nerubenkan()

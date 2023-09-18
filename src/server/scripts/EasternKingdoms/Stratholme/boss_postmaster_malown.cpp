@@ -49,7 +49,7 @@ enum MalownEvents
 // 11143 - Postmaster Malown
 struct boss_postmaster_malown : public BossAI
 {
-    boss_postmaster_malown(Creature* creature) : BossAI(creature, TYPE_MALOWN) { }
+    boss_postmaster_malown(Creature* creature) : BossAI(creature, BOSS_POSTMASTER_MALOWN) { }
 
     void Reset() override
     {

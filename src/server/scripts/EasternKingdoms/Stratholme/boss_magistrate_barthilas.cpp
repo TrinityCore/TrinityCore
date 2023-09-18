@@ -42,25 +42,24 @@ enum BarthilasEvents
 };
 
 // 10435 - Magistrate Barthilas
-struct boss_magistrate_barthilas : public ScriptedAI
+struct boss_magistrate_barthilas : public BossAI
 {
-    boss_magistrate_barthilas(Creature* creature) : ScriptedAI(creature) { }
+    boss_magistrate_barthilas(Creature* creature) : BossAI(creature, BOSS_MAGISTRATE_BARTHILAS) { }
 
-    void Reset() override
+    void JustEngagedWith(Unit* who) override
     {
-        _events.Reset();
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_FURIOUS_ANGER, 0s, 4s);
+        events.ScheduleEvent(EVENT_DRAINING_BLOW, 0s, 5s);
+        events.ScheduleEvent(EVENT_CROWD_PUMMEL, 15s, 20s);
+        events.ScheduleEvent(EVENT_MIGHTY_BLOW, 15s, 25s);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustDied(Unit* killer) override
     {
-        _events.ScheduleEvent(EVENT_FURIOUS_ANGER, 0s, 4s);
-        _events.ScheduleEvent(EVENT_DRAINING_BLOW, 0s, 5s);
-        _events.ScheduleEvent(EVENT_CROWD_PUMMEL, 15s, 20s);
-        _events.ScheduleEvent(EVENT_MIGHTY_BLOW, 15s, 25s);
-    }
+        BossAI::JustDied(killer);
 
-    void JustDied(Unit* /*killer*/) override
-    {
         DoCastSelf(SPELL_TRANSFORMATION, true);
     }
 
@@ -69,30 +68,30 @@ struct boss_magistrate_barthilas : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _events.Update(diff);
+        events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = _events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_FURIOUS_ANGER:
                     DoCastSelf(SPELL_FURIOUS_ANGER);
-                    _events.Repeat(4s);
+                    events.Repeat(4s);
                     break;
                 case EVENT_DRAINING_BLOW:
                     DoCastVictim(SPELL_DRAINING_BLOW);
-                    _events.Repeat(2s, 14s);
+                    events.Repeat(2s, 14s);
                     break;
                 case EVENT_CROWD_PUMMEL:
                     DoCastSelf(SPELL_CROWD_PUMMEL);
-                    _events.Repeat(25s, 30s);
+                    events.Repeat(25s, 30s);
                     break;
                 case EVENT_MIGHTY_BLOW:
                     DoCastVictim(SPELL_MIGHTY_BLOW);
-                    _events.Repeat(10s, 15s);
+                    events.Repeat(10s, 15s);
                     break;
                 default:
                     break;
@@ -104,9 +103,6 @@ struct boss_magistrate_barthilas : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-
-private:
-    EventMap _events;
 };
 
 void AddSC_boss_magistrate_barthilas()
