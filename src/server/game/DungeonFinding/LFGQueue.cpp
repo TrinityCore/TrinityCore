@@ -370,7 +370,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     LfgRolesMap proposalRoles;
 
     // Check for correct size
-    if (check.size() > MAXGROUPSIZE || check.empty())
+    if (check.size() > MAX_GROUP_SIZE || check.empty())
     {
         TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s): Size wrong - Not compatibles", GetDetailedMatchRoles(check).c_str());
         return LFG_INCOMPATIBLES_WRONG_GROUP_SIZE;
@@ -396,7 +396,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     // Check if more than one LFG group and number of players joining
     uint8 numPlayers = 0;
     uint8 numLfgGroups = 0;
-    for (GuidList::const_iterator it = check.begin(); it != check.end() && numLfgGroups < 2 && numPlayers <= MAXGROUPSIZE; ++it)
+    for (GuidList::const_iterator it = check.begin(); it != check.end() && numLfgGroups < 2 && numPlayers <= MAX_GROUP_SIZE; ++it)
     {
         ObjectGuid guid = *it;
         LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(guid);
@@ -421,8 +421,8 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
         }
     }
 
-    // Group with less that MAXGROUPSIZE members always compatible
-    if (check.size() == 1 && numPlayers != MAXGROUPSIZE)
+    // Group with less that MAX_GROUP_SIZE members always compatible
+    if (check.size() == 1 && numPlayers != MAX_GROUP_SIZE)
     {
         TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) single group. Compatibles", GetDetailedMatchRoles(check).c_str());
         LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(check.front());
