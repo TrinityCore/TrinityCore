@@ -22,7 +22,7 @@ efws (Entropia File System Watcher - crossplatform file system watcher)
 
 fmt (a small, safe and fast formatting library)
   https://github.com/fmtlib/fmt
-  Version: 7.1.3 https://github.com/fmtlib/fmt/releases/tag/7.1.3
+  Version: 9.1.0 https://github.com/fmtlib/fmt/releases/tag/9.1.0
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
@@ -49,8 +49,8 @@ SFMT (SIMD-oriented Fast Mersenne Twister)
   Version: 73bcba2e483640b8d50c1275514326dd4c1b0ca4
 
 utf8-cpp (UTF-8 with C++ in a Portable Way)
-  http://utfcpp.sourceforge.net/
-  Version: 2.3.4
+  https://github.com/nemtrif/utfcpp
+  Version: 3.2.3
 
 zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
   http://www.zlib.net/
@@ -72,3 +72,7 @@ argon2
 catch2
   https://github.com/catchorg/Catch2
   Version: v2.13.0
+
+short_alloc (Stack based allocator) https://howardhinnant.github.io/stack_alloc.html
+  https://howardhinnant.github.io/short_alloc.h
+  Version: N/A

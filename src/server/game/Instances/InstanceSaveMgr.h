@@ -166,7 +166,7 @@ class TC_GAME_API InstanceSaveManager
         struct InstResetEvent
         {
             uint8 type;
-            Difficulty difficulty:8;
+            Difficulty difficulty;
             uint16 mapid;
             uint16 instanceId;
 

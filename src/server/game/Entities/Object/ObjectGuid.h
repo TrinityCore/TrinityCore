@@ -20,7 +20,6 @@
 
 #include "ByteBuffer.h"
 #include "Define.h"
-#include <deque>
 #include <functional>
 #include <list>
 #include <memory>
@@ -204,9 +203,8 @@ class TC_GAME_API ObjectGuid
         TypeID GetTypeId() const { return GetTypeId(GetHigh()); }
 
         bool operator!() const { return IsEmpty(); }
-        bool operator==(ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
-        bool operator!=(ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
-        bool operator< (ObjectGuid const& guid) const { return GetRawValue() < guid.GetRawValue(); }
+        bool operator==(ObjectGuid const& right) const = default;
+        std::strong_ordering operator<=>(ObjectGuid const& right) const = default;
 
         static char const* GetTypeName(HighGuid high);
         char const* GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }
@@ -248,11 +246,10 @@ class TC_GAME_API ObjectGuid
 };
 
 // Some Shared defines
-typedef std::set<ObjectGuid> GuidSet;
-typedef std::list<ObjectGuid> GuidList;
-typedef std::deque<ObjectGuid> GuidDeque;
-typedef std::vector<ObjectGuid> GuidVector;
-typedef std::unordered_set<ObjectGuid> GuidUnorderedSet;
+using GuidSet = std::set<ObjectGuid>;
+using GuidList = std::list<ObjectGuid>;
+using GuidVector = std::vector<ObjectGuid>;
+using GuidUnorderedSet = std::unordered_set<ObjectGuid>;
 
 // minimum buffer size for packed guid is 9 bytes
 #define PACKED_GUID_MIN_BUFFER_SIZE 9
@@ -275,38 +272,21 @@ class TC_GAME_API PackedGuid
         ByteBuffer _packedGuid;
 };
 
-class TC_GAME_API ObjectGuidGeneratorBase
+class TC_GAME_API ObjectGuidGenerator
 {
 public:
-    ObjectGuidGeneratorBase(ObjectGuid::LowType start = 1) : _nextGuid(start) { }
+    explicit ObjectGuidGenerator(HighGuid high, ObjectGuid::LowType start = 1) : _high(high), _nextGuid(start) { }
+    ~ObjectGuidGenerator() = default;
 
-    virtual void Set(ObjectGuid::LowType val) { _nextGuid = val; }
-    virtual ObjectGuid::LowType Generate() = 0;
+    void Set(ObjectGuid::LowType val) { _nextGuid = val; }
+    ObjectGuid::LowType Generate();
     ObjectGuid::LowType GetNextAfterMaxUsed() const { return _nextGuid; }
-    virtual ~ObjectGuidGeneratorBase() { }
 
 protected:
-    static void HandleCounterOverflow(HighGuid high);
-    static void CheckGuidTrigger(ObjectGuid::LowType guid);
+    void HandleCounterOverflow();
+    void CheckGuidTrigger();
+    HighGuid _high;
     ObjectGuid::LowType _nextGuid;
-};
-
-template<HighGuid high>
-class TC_GAME_API ObjectGuidGenerator : public ObjectGuidGeneratorBase
-{
-public:
-    explicit ObjectGuidGenerator(ObjectGuid::LowType start = 1) : ObjectGuidGeneratorBase(start) { }
-
-    ObjectGuid::LowType Generate() override
-    {
-        if (_nextGuid >= ObjectGuid::GetMaxCounter(high) - 1)
-            HandleCounterOverflow(high);
-
-        if (high == HighGuid::Unit || high == HighGuid::GameObject)
-            CheckGuidTrigger(_nextGuid);
-
-        return _nextGuid++;
-    }
 };
 
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);

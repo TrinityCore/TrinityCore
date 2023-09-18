@@ -394,6 +394,7 @@ class TC_GAME_API Spell
         ObjectGuid m_castItemGUID;
         uint32 m_castItemEntry;
         uint8 m_cast_count;
+        bool m_fromClient;
         uint32 m_glyphIndex;
         SpellCastTargets m_targets;
 

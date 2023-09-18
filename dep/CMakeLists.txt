@@ -29,6 +29,7 @@ if(SERVERS)
   add_subdirectory(readline)
   add_subdirectory(gsoap)
   add_subdirectory(efsw)
+  add_subdirectory(short_alloc)
 endif()
 
 if(TOOLS)

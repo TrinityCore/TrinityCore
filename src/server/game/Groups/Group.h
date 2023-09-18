@@ -312,7 +312,7 @@ class TC_GAME_API Group
         void MasterLoot(Loot* loot, WorldObject* pLootedObject);
         Rolls::iterator GetRoll(ObjectGuid Guid);
         void CountTheRoll(Rolls::iterator roll, Map* allowedMap);
-        void CountRollVote(ObjectGuid playerGUID, ObjectGuid Guid, uint8 Choise);
+        bool CountRollVote(ObjectGuid playerGUID, ObjectGuid Guid, uint8 Choise);
         void EndRoll(Loot* loot, Map* allowedMap);
 
         // related to disenchant rolls

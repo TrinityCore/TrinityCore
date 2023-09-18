@@ -106,13 +106,13 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hour
     if (timeFormat == TimeFormat::Numeric)
     {
         if (days)
-            return Trinity::StringFormat("%u:%02u:%02u:%02u", days, hours, minutes, secs);
+            return Trinity::StringFormat("{}:{:02}:{:02}:{:02}", days, hours, minutes, secs);
         else if (hours)
-            return Trinity::StringFormat("%u:%02u:%02u", hours, minutes, secs);
+            return Trinity::StringFormat("{}:{:02}:{:02}", hours, minutes, secs);
         else if (minutes)
-            return Trinity::StringFormat("%u:%02u", minutes, secs);
+            return Trinity::StringFormat("{}:{:02}", minutes, secs);
         else
-            return Trinity::StringFormat("0:%02u", secs);
+            return Trinity::StringFormat("0:{:02}", secs);
     }
 
     std::ostringstream ss;
@@ -281,7 +281,7 @@ std::string TimeToTimestampStr(time_t t)
     //       HH     hour (2 digits 00-23)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
-    return Trinity::StringFormat("%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
+    return Trinity::StringFormat("{:04}-{:02}-{:02}_{:02}-{:02}-{:02}", aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
 }
 
 std::string TimeToHumanReadable(time_t t)
@@ -658,15 +658,13 @@ std::string Trinity::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen
         op = -1;
     }
 
-    std::ostringstream ss;
+    std::string result;
+    result.reserve(arrayLen * 2);
+    auto inserter = std::back_inserter(result);
     for (int32 i = init; i != end; i += op)
-    {
-        char buffer[4];
-        sprintf(buffer, "%02X", bytes[i]);
-        ss << buffer;
-    }
+        Trinity::StringFormatTo(inserter, "{:02X}", bytes[i]);
 
-    return ss.str();
+    return result;
 }
 
 void Trinity::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t outlen, bool reverse /*= false*/)
@@ -686,10 +684,7 @@ void Trinity::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t o
 
     uint32 j = 0;
     for (int32 i = init; i != end; i += 2 * op)
-    {
-        char buffer[3] = { str[i], str[i + 1], '\0' };
-        out[j++] = uint8(strtoul(buffer, nullptr, 16));
-    }
+        out[j++] = Trinity::StringTo<uint8>(str.substr(i, 2), 16).value_or(0);
 }
 
 bool StringEqualI(std::string_view a, std::string_view b)
@@ -708,7 +703,7 @@ bool StringCompareLessI(std::string_view a, std::string_view b)
     return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(), [](char c1, char c2) { return std::tolower(c1) < std::tolower(c2); });
 }
 
-std::string GetTypeName(std::type_info const& info)
+std::string Trinity::Impl::GetTypeName(std::type_info const& info)
 {
     return boost::core::demangle(info.name());
 }

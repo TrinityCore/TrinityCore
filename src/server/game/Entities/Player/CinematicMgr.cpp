@@ -19,6 +19,7 @@
 #include "Map.h"
 #include "M2Stores.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "TemporarySummon.h"
 
@@ -31,7 +32,7 @@ CinematicMgr::CinematicMgr(Player* playerref)
     m_cinematicLength = 0;
     m_cinematicCamera = nullptr;
     m_remoteSightPosition = Position(0.0f, 0.0f, 0.0f);
-    m_CinematicObject = nullptr;
+    m_CinematicObjectGUID = ObjectGuid::Empty;
 }
 
 CinematicMgr::~CinematicMgr()
@@ -60,11 +61,11 @@ void CinematicMgr::BeginCinematic()
                 return;
 
             player->GetMap()->LoadGrid(pos.GetPositionX(), pos.GetPositionY());
-            m_CinematicObject = player->SummonCreature(VISUAL_WAYPOINT, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5min);
-            if (m_CinematicObject)
+            if (TempSummon* cinematicObject = player->SummonCreature(VISUAL_WAYPOINT, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5min))
             {
-                m_CinematicObject->setActive(true);
-                player->SetViewpoint(m_CinematicObject, true);
+                m_CinematicObjectGUID = cinematicObject->GetGUID();
+                cinematicObject->setActive(true);
+                player->SetViewpoint(cinematicObject, true);
             }
 
             // Get cinematic length
@@ -81,13 +82,14 @@ void CinematicMgr::EndCinematic()
     m_cinematicDiff = 0;
     m_cinematicCamera = nullptr;
     m_activeCinematicCameraId = 0;
-    if (m_CinematicObject)
+    if (!m_CinematicObjectGUID.IsEmpty())
     {
         if (WorldObject* vpObject = player->GetViewpoint())
-            if (vpObject == m_CinematicObject)
-                player->SetViewpoint(m_CinematicObject, false);
+            if (vpObject->GetGUID() == m_CinematicObjectGUID)
+                player->SetViewpoint(vpObject, false);
 
-        m_CinematicObject->AddObjectToRemoveList();
+        if (WorldObject* cinematicObject = ObjectAccessor::GetWorldObject(*player, m_CinematicObjectGUID))
+            cinematicObject->AddObjectToRemoveList();
     }
 }
 
@@ -159,10 +161,17 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
     Position interPosition(lastPosition.m_positionX + (xDiff * (float(interDiff) / float(timeDiff))), lastPosition.m_positionY +
         (yDiff * (float(interDiff) / float(timeDiff))), lastPosition.m_positionZ + (zDiff * (float(interDiff) / float(timeDiff))));
 
+    WorldObject* vpObject = player ? player->GetViewpoint() : nullptr;
+    if (!vpObject || vpObject->GetGUID() != m_CinematicObjectGUID)
+    {
+        EndCinematic();
+        return;
+    }
+
     // Advance (at speed) to this position. The remote sight object is used
     // to send update information to player in cinematic
-    if (m_CinematicObject && interPosition.IsPositionValid())
-        m_CinematicObject->MonsterMoveWithSpeed(interPosition.m_positionX, interPosition.m_positionY, interPosition.m_positionZ, 500.0f, false, true);
+    if (vpObject->IsCreature() && interPosition.IsPositionValid())
+        vpObject->ToCreature()->MonsterMoveWithSpeed(interPosition.m_positionX, interPosition.m_positionY, interPosition.m_positionZ, 500.0f, false, true);
 
     // If we never received an end packet 10 seconds after the final timestamp then force an end
     if (m_cinematicDiff > m_cinematicLength + 10 * IN_MILLISECONDS)

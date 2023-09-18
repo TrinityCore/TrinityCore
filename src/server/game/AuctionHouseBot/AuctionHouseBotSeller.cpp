@@ -61,8 +61,8 @@ bool AuctionBotSeller::Initialize()
             excludeItems.insert(atoi(temp.c_str()));
     }
 
-    TC_LOG_DEBUG("ahbot", "Forced Inclusion %u items", (uint32)includeItems.size());
-    TC_LOG_DEBUG("ahbot", "Forced Exclusion %u items", (uint32)excludeItems.size());
+    TC_LOG_DEBUG("ahbot", "Forced Inclusion {} items", (uint32)includeItems.size());
+    TC_LOG_DEBUG("ahbot", "Forced Exclusion {} items", (uint32)excludeItems.size());
 
     TC_LOG_DEBUG("ahbot", "Loading npc vendor items for filter..");
     CreatureTemplateContainer const& creatures = sObjectMgr->GetCreatureTemplates();
@@ -71,7 +71,7 @@ bool AuctionBotSeller::Initialize()
             for (VendorItem const& vendorItem : data->m_items)
                 npcItems.insert(vendorItem.item);
 
-    TC_LOG_DEBUG("ahbot", "Npc vendor filter has %u items", (uint32)npcItems.size());
+    TC_LOG_DEBUG("ahbot", "Npc vendor filter has {} items", (uint32)npcItems.size());
 
     TC_LOG_DEBUG("ahbot", "Loading loot items for filter..");
     QueryResult result = WorldDatabase.PQuery(
@@ -101,7 +101,7 @@ bool AuctionBotSeller::Initialize()
         } while (result->NextRow());
     }
 
-    TC_LOG_DEBUG("ahbot", "Loot filter has %u items", (uint32)lootItems.size());
+    TC_LOG_DEBUG("ahbot", "Loot filter has {} items", (uint32)lootItems.size());
     TC_LOG_DEBUG("ahbot", "Sorting and cleaning items for AHBot seller...");
 
     uint32 itemsAdded = 0;
@@ -353,13 +353,13 @@ bool AuctionBotSeller::Initialize()
         return false;
     }
 
-    TC_LOG_DEBUG("ahbot", "AuctionHouseBot seller will use %u items to fill auction house (according your config choices)", itemsAdded);
+    TC_LOG_DEBUG("ahbot", "AuctionHouseBot seller will use {} items to fill auction house (according your config choices)", itemsAdded);
 
     LoadConfig();
 
     TC_LOG_DEBUG("ahbot", "Items loaded \tGray\tWhite\tGreen\tBlue\tPurple\tOrange\tYellow");
     for (uint32 i = 0; i < MAX_ITEM_CLASS; ++i)
-        TC_LOG_DEBUG("ahbot", "\t\t%u\t%u\t%u\t%u\t%u\t%u\t%u",
+        TC_LOG_DEBUG("ahbot", "\t\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
         (uint32)_itemPool[0][i].size(), (uint32)_itemPool[1][i].size(), (uint32)_itemPool[2][i].size(),
         (uint32)_itemPool[3][i].size(), (uint32)_itemPool[4][i].size(), (uint32)_itemPool[5][i].size(),
         (uint32)_itemPool[6][i].size());
@@ -553,7 +553,7 @@ uint32 AuctionBotSeller::SetStat(SellerConfiguration& config)
     TC_LOG_DEBUG("ahbot", "AHBot: Missed Item       \tGray\tWhite\tGreen\tBlue\tPurple\tOrange\tYellow");
     for (uint32 i = 0; i < MAX_ITEM_CLASS; ++i)
     {
-        TC_LOG_DEBUG("ahbot", "AHBot: \t\t%u\t%u\t%u\t%u\t%u\t%u\t%u",
+        TC_LOG_DEBUG("ahbot", "AHBot: \t\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
             config.GetMissedItemsPerClass(AUCTION_QUALITY_GRAY, (ItemClass)i),
             config.GetMissedItemsPerClass(AUCTION_QUALITY_WHITE, (ItemClass)i),
             config.GetMissedItemsPerClass(AUCTION_QUALITY_GREEN, (ItemClass)i),
@@ -875,7 +875,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         ItemTemplate const* prototype = sObjectMgr->GetItemTemplate(itemId);
         if (!prototype)
         {
-            TC_LOG_DEBUG("ahbot", "AHBot: Unknown item %u auction creating attempt.", itemId);
+            TC_LOG_DEBUG("ahbot", "AHBot: Unknown item {} auction creating attempt.", itemId);
             continue;
         }
 
@@ -884,7 +884,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         Item* item = Item::CreateItem(itemId, stackCount);
         if (!item)
         {
-            TC_LOG_ERROR("ahbot", "AHBot: Item::CreateItem() returned NULL for item %u (stack: %u)", itemId, stackCount);
+            TC_LOG_ERROR("ahbot", "AHBot: Item::CreateItem() returned NULL for item {} (stack: {})", itemId, stackCount);
             return;
         }
 
@@ -941,14 +941,14 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
     }
     CharacterDatabase.CommitTransaction(trans);
 
-    TC_LOG_DEBUG("ahbot", "AHBot: Added %u items to auction", count);
+    TC_LOG_DEBUG("ahbot", "AHBot: Added {} items to auction", count);
 }
 
 bool AuctionBotSeller::Update(AuctionHouseType houseType)
 {
     if (sAuctionBotConfig->GetConfigItemAmountRatio(houseType) > 0)
     {
-        TC_LOG_DEBUG("ahbot", "AHBot: %s selling ...", AuctionBotConfig::GetHouseTypeName(houseType));
+        TC_LOG_DEBUG("ahbot", "AHBot: {} selling ...", AuctionBotConfig::GetHouseTypeName(houseType));
         if (SetStat(_houseConfig[houseType]))
             AddNewAuctions(_houseConfig[houseType]);
         return true;
