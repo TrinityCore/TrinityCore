@@ -40,8 +40,8 @@ class WorldSession;
 struct MapEntry;
 
 #define MAX_GROUP_SIZE 5
-#define MAXRAIDSIZE 40
-#define MAX_RAID_SUBGROUPS MAXRAIDSIZE/MAX_GROUP_SIZE
+#define MAX_RAID_SIZE 40
+#define MAX_RAID_SUBGROUPS MAX_RAID_SIZE/MAX_GROUP_SIZE
 #define TARGETICONCOUNT 8
 
 enum RollVote
