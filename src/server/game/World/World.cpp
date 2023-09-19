@@ -2117,9 +2117,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading LFG entrance positions..."); // Must be after areatriggers
     sLFGMgr->LoadLFGDungeons();
 
-    TC_LOG_INFO("server.loading", "Loading Dungeon boss data...");
-    sObjectMgr->LoadInstanceEncounters();
-
     TC_LOG_INFO("server.loading", "Loading LFG rewards...");
     sLFGMgr->LoadRewards();
 

@@ -50,7 +50,6 @@ struct InstanceSpawnGroupInfo;
 enum class CriteriaType : uint8;
 enum class CriteriaStartEvent : uint8;
 enum Difficulty : uint8;
-enum EncounterCreditType : uint8;
 
 enum EncounterFrameType
 {
@@ -284,10 +283,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Checks boss requirements (one boss required to kill other)
         virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = nullptr) const { return true; }
 
-        // Checks encounter state at kill/spellcast
-        void UpdateEncounterStateForKilledCreature(uint32 creatureId, Unit* source);
-        void UpdateEncounterStateForSpellCast(uint32 spellId, Unit* source);
-
         bool IsEncounterCompleted(uint32 dungeonEncounterId) const;
         bool IsEncounterCompletedInMaskByBossId(uint32 completedEncountersMask, uint32 bossId) const;
 
@@ -365,7 +360,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
     private:
         static void LoadObjectData(ObjectData const* creatureData, ObjectInfoMap& objectInfo);
         void LoadDungeonEncounterData(uint32 bossId, std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> const& dungeonEncounterIds);
-        void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
+        void UpdateLfgEncounterState(BossInfo const* bossInfo);
 
         std::string headers;
         std::vector<BossInfo> bosses;

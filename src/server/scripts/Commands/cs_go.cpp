@@ -520,16 +520,13 @@ public:
         if (needles.empty())
             return false;
 
-        std::multimap<uint32, CreatureTemplate const*> matches;
+        std::multimap<uint32, CreatureTemplate const*, std::greater<uint32>> matches;
         std::unordered_map<uint32, std::vector<CreatureData const*>> spawnLookup;
 
         // find all boss flagged mobs that match our needles
         for (auto const& pair : sObjectMgr->GetCreatureTemplates())
         {
             CreatureTemplate const& data = pair.second;
-            if (!(data.flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS))
-                continue;
-
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(data.ScriptID);
             for (std::string_view label : needles)
@@ -539,7 +536,7 @@ public:
             if (count)
             {
                 matches.emplace(count, &data);
-                (void)spawnLookup[data.Entry]; // inserts default-constructed vector
+                spawnLookup.try_emplace(data.Entry);    // inserts default-constructed vector
             }
         }
 
@@ -567,7 +564,7 @@ public:
         }
 
         // see if we have multiple equal matches left
-        auto it = matches.crbegin(), end = matches.crend();
+        auto it = matches.cbegin(), end = matches.cend();
         uint32 const maxCount = it->first;
         if ((++it) != end && it->first == maxCount)
         {
@@ -580,7 +577,7 @@ public:
             return false;
         }
 
-        CreatureTemplate const* const boss = matches.crbegin()->second;
+        CreatureTemplate const* const boss = matches.cbegin()->second;
         std::vector<CreatureData const*> const& spawns = spawnLookup[boss->Entry];
         ASSERT(!spawns.empty());
 

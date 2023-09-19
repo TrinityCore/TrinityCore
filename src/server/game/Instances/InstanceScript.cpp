@@ -435,6 +435,8 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                         SendBossKillCredit(dungeonEncounter->ID);
                         if (dungeonEncounter->CompleteWorldStateID)
                             DoUpdateWorldState(dungeonEncounter->CompleteWorldStateID, 1);
+
+                        UpdateLfgEncounterState(bossInfo);
                     }
 
                     instance->DoOnPlayers([](Player* player)
@@ -857,59 +859,25 @@ void InstanceScript::SendBossKillCredit(uint32 encounterId)
     instance->SendToPlayers(bossKillCreditMessage.Write());
 }
 
-void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)
+void InstanceScript::UpdateLfgEncounterState(BossInfo const* bossInfo)
 {
-    DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID());
-    if (!encounters)
-        return;
-
-    uint32 dungeonId = 0;
-
-    for (auto const& encounter : *encounters)
+    for (auto const& ref : instance->GetPlayers())
     {
-        if (encounter.creditType == type && encounter.creditEntry == creditEntry)
+        if (Player* player = ref.GetSource())
         {
-            if (encounter.dbcEntry->CompleteWorldStateID)
-                DoUpdateWorldState(encounter.dbcEntry->CompleteWorldStateID, 1);
-
-            if (encounter.lastEncounterDungeon)
+            if (Group* grp = player->GetGroup())
             {
-                dungeonId = encounter.lastEncounterDungeon;
-                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance {} (instanceId {}) completed encounter {}. Credit Dungeon: {}",
-                    instance->GetMapName(), instance->GetInstanceId(), encounter.dbcEntry->Name[sWorld->GetDefaultDbcLocale()], dungeonId);
-                break;
-            }
-        }
-    }
-
-    if (dungeonId)
-    {
-        Map::PlayerList const& players = instance->GetPlayers();
-        for (auto const& ref : players)
-        {
-            if (Player* player = ref.GetSource())
-            {
-                if (Group* grp = player->GetGroup())
+                if (grp->isLFGGroup())
                 {
-                    if (grp->isLFGGroup())
-                    {
-                        sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId, instance);
-                        return;
-                    }
+                    std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> dungeonEncounterIds;
+                    std::transform(bossInfo->DungeonEncounters.begin(), bossInfo->DungeonEncounters.end(), dungeonEncounterIds.begin(),
+                        [](DungeonEncounterEntry const* entry) { return entry->ID; });
+                    sLFGMgr->OnDungeonEncounterDone(grp->GetGUID(), dungeonEncounterIds, instance);
+                    break;
                 }
             }
         }
     }
-}
-
-void InstanceScript::UpdateEncounterStateForKilledCreature(uint32 creatureId, Unit* source)
-{
-    UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, creatureId, source);
-}
-
-void InstanceScript::UpdateEncounterStateForSpellCast(uint32 spellId, Unit* source)
-{
-    UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, spellId, source);
 }
 
 void InstanceScript::UpdatePhasing()
