@@ -690,7 +690,7 @@ struct npc_kayn_sunfury_ashtongue_intro_private : public ScriptedAI
 
         ObjectGuid korvasGuid = korvasObject->GetGUID();
 
-        _scheduler.Schedule(1s, [this, korvasGuid](TaskContext /*task*/)
+        _scheduler.Schedule(1s, [this, korvasGuid](TaskContext task)
         {
             Unit* privateObjectOwner = ObjectAccessor::GetUnit(*me, me->GetPrivateObjectOwner());
             if (!privateObjectOwner)
@@ -703,38 +703,38 @@ struct npc_kayn_sunfury_ashtongue_intro_private : public ScriptedAI
             Talk(SAY_KAYN_ACTIVATE_GATEWAY, me);
             me->CastSpell(privateObjectOwner, SPELL_TRACK_TARGET_IN_CHANNEL, false);
             korvas->CastSpell(privateObjectOwner, SPELL_TRACK_TARGET_IN_CHANNEL, false);
-        });
 
-        _scheduler.Schedule(7s, [this](TaskContext /*task*/)
-        {
-            Talk(SAY_KAYN_CUT_A_HOLE, me);
-        });
-
-        _scheduler.Schedule(12s, [this, korvasGuid](TaskContext task)
-        {
-            Creature* korvas = ObjectAccessor::GetCreature(*me, korvasGuid);
-            if (!korvas)
-                return;
-
-            if (!korvas->IsAIEnabled())
-                return;
-
-            korvas->AI()->Talk(SAY_KORVAS_SLAY_MORE_DEMONS, me);
-            me->InterruptNonMeleeSpells(true);
-            me->GetMotionMaster()->MovePath(PATH_KAYN_SUNFURY_NEAR_TELEPORT, false);
-            me->SetAIAnimKitId(ANIM_DH_RUN);
-            me->DespawnOrUnsummon(10s);
-
-            task.Schedule(2s, [this, korvasGuid](TaskContext /*task*/)
+            task.Schedule(6s, [this, korvasGuid](TaskContext task)
             {
-                Creature* korvas = ObjectAccessor::GetCreature(*me, korvasGuid);
-                if (!korvas)
-                    return;
+                Talk(SAY_KAYN_CUT_A_HOLE, me);
 
-                korvas->InterruptNonMeleeSpells(true);
-                korvas->GetMotionMaster()->MovePath(PATH_KORVAS_BLOODTHORN_NEAR_TELEPORT, false);
-                korvas->SetAIAnimKitId(ANIM_DH_RUN);
-                korvas->DespawnOrUnsummon(12s);
+                task.Schedule(6s, [this, korvasGuid](TaskContext task)
+                {
+                    Creature* korvas = ObjectAccessor::GetCreature(*me, korvasGuid);
+                    if (!korvas)
+                        return;
+
+                    if (!korvas->IsAIEnabled())
+                        return;
+
+                    korvas->AI()->Talk(SAY_KORVAS_SLAY_MORE_DEMONS, me);
+                    me->InterruptNonMeleeSpells(true);
+                    me->GetMotionMaster()->MovePath(PATH_KAYN_SUNFURY_NEAR_TELEPORT, false);
+                    me->SetAIAnimKitId(ANIM_DH_RUN);
+                    me->DespawnOrUnsummon(10s);
+
+                    task.Schedule(2s, [this, korvasGuid](TaskContext /*task*/)
+                    {
+                        Creature* korvas = ObjectAccessor::GetCreature(*me, korvasGuid);
+                        if (!korvas)
+                            return;
+
+                        korvas->InterruptNonMeleeSpells(true);
+                        korvas->GetMotionMaster()->MovePath(PATH_KORVAS_BLOODTHORN_NEAR_TELEPORT, false);
+                        korvas->SetAIAnimKitId(ANIM_DH_RUN);
+                        korvas->DespawnOrUnsummon(12s);
+                    });
+                });
             });
         });
     }
@@ -791,21 +791,21 @@ struct npc_sevis_brightflame_ashtongue_gateway_private : public ScriptedAI
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(1s, [this](TaskContext task)
         {
             Talk(SAY_SEVIS_SAY_FIND_ALLARI, me);
-        });
 
-        _scheduler.Schedule(3s, [this](TaskContext /*task*/)
-        {
-            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SEVIS_MOUNT, 0, 0);
-            me->SetMountDisplayId(64385);
-        });
+            task.Schedule(2s, [this](TaskContext task)
+            {
+                me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SEVIS_MOUNT, 0, 0);
+                me->SetMountDisplayId(64385);
 
-        _scheduler.Schedule(5s, [this](TaskContext /*task*/)
-        {
-            me->InterruptNonMeleeSpells(true);
-            me->GetMotionMaster()->MovePath(PATH_SEVIS_BRIGHTFLAME_GATEWAY, false);
+                task.Schedule(3s, [this](TaskContext /*task*/)
+                {
+                    me->InterruptNonMeleeSpells(true);
+                    me->GetMotionMaster()->MovePath(PATH_SEVIS_BRIGHTFLAME_GATEWAY, false);
+                });
+            });
         });
     }
 
