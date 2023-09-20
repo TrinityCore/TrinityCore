@@ -39,10 +39,11 @@ class WorldSession;
 
 struct MapEntry;
 
-#define MAXGROUPSIZE 5
-#define MAXRAIDSIZE 40
-#define MAX_RAID_SUBGROUPS MAXRAIDSIZE/MAXGROUPSIZE
-#define TARGETICONCOUNT 8
+#define MAX_GROUP_SIZE      5
+#define MAX_RAID_SIZE       40
+#define MAX_RAID_SUBGROUPS  MAX_RAID_SIZE / MAX_GROUP_SIZE
+
+#define TARGET_ICONS_COUNT  8
 
 enum RollVote
 {
@@ -357,7 +358,7 @@ class TC_GAME_API Group
         Difficulty          m_raidDifficulty;
         Battleground*       m_bgGroup;
         Battlefield*        m_bfGroup;
-        ObjectGuid          m_targetIcons[TARGETICONCOUNT];
+        ObjectGuid          m_targetIcons[TARGET_ICONS_COUNT];
         LootMethod          m_lootMethod;
         ItemQualities       m_lootThreshold;
         ObjectGuid          m_looterGuid;
