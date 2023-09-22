@@ -159,6 +159,7 @@ namespace WorldPackets
             bool AddonsDisabled                      = false;
             bool Unused1000                          = false;
             bool ContentTrackingEnabled              = false;
+            bool IsSellAllJunkEnabled                = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;

@@ -649,3 +649,90 @@ void WorldSession::HandleClearRaidMarker(WorldPackets::Party::ClearRaidMarker& p
 
     group->DeleteRaidMarker(packet.MarkerId);
 }
+
+namespace
+{
+bool CanSendPing(Player const& player, PingSubjectType type, Group const*& group)
+{
+    if (type >= PingSubjectType::Max)
+        return false;
+
+    if (!player.GetSession()->CanSpeak())
+        return false;
+
+    group = player.GetGroup();
+    if (!group)
+        return false;
+
+    if (group->IsRestrictPingsToAssistants() && !group->IsLeader(player.GetGUID()) && !group->IsAssistant(player.GetGUID()))
+        return false;
+
+    return true;
+}
+}
+
+void WorldSession::HandleSetRestrictPingsToAssistants(WorldPackets::Party::SetRestrictPingsToAssistants const& setRestrictPingsToAssistants)
+{
+    Group* group = GetPlayer()->GetGroup(setRestrictPingsToAssistants.PartyIndex);
+    if (!group)
+        return;
+
+    if (!group->IsLeader(GetPlayer()->GetGUID()))
+        return;
+
+    group->SetRestrictPingsToAssistants(setRestrictPingsToAssistants.RestrictPingsToAssistants);
+}
+
+void WorldSession::HandleSendPingUnit(WorldPackets::Party::SendPingUnit const& pingUnit)
+{
+    Group const* group = nullptr;
+    if (!CanSendPing(*_player, pingUnit.Type, group))
+        return;
+
+    Unit const* target = ObjectAccessor::GetUnit(*_player, pingUnit.TargetGUID);
+    if (!target || !_player->HaveAtClient(target))
+        return;
+
+    WorldPackets::Party::ReceivePingUnit broadcastPingUnit;
+    broadcastPingUnit.SenderGUID = _player->GetGUID();
+    broadcastPingUnit.TargetGUID = pingUnit.TargetGUID;
+    broadcastPingUnit.Type = pingUnit.Type;
+    broadcastPingUnit.PinFrameID = pingUnit.PinFrameID;
+    broadcastPingUnit.Write();
+
+    for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+    {
+        Player const* member = itr->GetSource();
+        if (_player == member || !_player->IsInMap(member))
+            continue;
+
+        member->SendDirectMessage(broadcastPingUnit.GetRawPacket());
+    }
+}
+
+void WorldSession::HandleSendPingWorldPoint(WorldPackets::Party::SendPingWorldPoint const& pingWorldPoint)
+{
+    Group const* group = nullptr;
+    if (!CanSendPing(*_player, pingWorldPoint.Type, group))
+        return;
+
+    if (_player->GetMapId() != pingWorldPoint.MapID)
+        return;
+
+    WorldPackets::Party::ReceivePingWorldPoint broadcastPingWorldPoint;
+    broadcastPingWorldPoint.SenderGUID = _player->GetGUID();
+    broadcastPingWorldPoint.MapID = pingWorldPoint.MapID;
+    broadcastPingWorldPoint.Point = pingWorldPoint.Point;
+    broadcastPingWorldPoint.Type = pingWorldPoint.Type;
+    broadcastPingWorldPoint.PinFrameID = pingWorldPoint.PinFrameID;
+    broadcastPingWorldPoint.Write();
+
+    for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+    {
+        Player const* member = itr->GetSource();
+        if (_player == member || !_player->IsInMap(member))
+            continue;
+
+        member->SendDirectMessage(broadcastPingWorldPoint.GetRawPacket());
+    }
+}

@@ -43,29 +43,23 @@ class boss_magmus : public CreatureScript
     public:
         boss_magmus() : CreatureScript("boss_magmus") { }
 
-        struct boss_magmusAI : public ScriptedAI
+        struct boss_magmusAI : public BossAI
         {
-            boss_magmusAI(Creature* creature) : ScriptedAI(creature) { }
+            boss_magmusAI(Creature* creature) : BossAI(creature, BOSS_MAGMUS) { }
 
-            void Reset() override
+            void JustEngagedWith(Unit* who) override
             {
-                _events.Reset();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                if (InstanceScript* instance = me->GetInstanceScript())
-                    instance->SetData(TYPE_IRON_HALL, IN_PROGRESS);
-                _events.SetPhase(PHASE_ONE);
-                _events.ScheduleEvent(EVENT_FIERY_BURST, 5s);
+                _JustEngagedWith(who);
+                events.SetPhase(PHASE_ONE);
+                events.ScheduleEvent(EVENT_FIERY_BURST, 5s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
-                if (me->HealthBelowPctDamaged(50, damage) && _events.IsInPhase(PHASE_ONE))
+                if (me->HealthBelowPctDamaged(50, damage) && events.IsInPhase(PHASE_ONE))
                 {
-                    _events.SetPhase(PHASE_TWO);
-                    _events.ScheduleEvent(EVENT_WARSTOMP, 0s, 0, PHASE_TWO);
+                    events.SetPhase(PHASE_TWO);
+                    events.ScheduleEvent(EVENT_WARSTOMP, 0s, 0, PHASE_TWO);
                 }
             }
 
@@ -74,19 +68,19 @@ class boss_magmus : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                _events.Update(diff);
+                events.Update(diff);
 
-                while (uint32 eventId = _events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_FIERY_BURST:
                             DoCastVictim(SPELL_FIERYBURST);
-                            _events.ScheduleEvent(EVENT_FIERY_BURST, 6s);
+                            events.ScheduleEvent(EVENT_FIERY_BURST, 6s);
                             break;
                         case EVENT_WARSTOMP:
                             DoCastVictim(SPELL_WARSTOMP);
-                            _events.ScheduleEvent(EVENT_WARSTOMP, 8s, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_WARSTOMP, 8s, 0, PHASE_TWO);
                             break;
                         default:
                             break;
@@ -98,15 +92,10 @@ class boss_magmus : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
+                _JustDied();
                 if (InstanceScript* instance = me->GetInstanceScript())
-                {
                     instance->HandleGameObject(instance->GetGuidData(DATA_THRONE_DOOR), true);
-                    instance->SetData(TYPE_IRON_HALL, DONE);
-                }
             }
-
-        private:
-            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -143,7 +132,7 @@ public:
         {
             if (!_active)
             {
-                if (_instance->GetData(TYPE_IRON_HALL) == NOT_STARTED)
+                if (_instance->GetBossState(BOSS_MAGMUS) == NOT_STARTED)
                     return;
                 // Once the boss is engaged, the guardians will stay activated until the next instance reset
                 _events.ScheduleEvent(EVENT_GOUTOFFLAME, 0s, 10s);

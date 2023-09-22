@@ -132,6 +132,7 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(AddonsDisabled);
     _worldPacket.WriteBit(Unused1000);
     _worldPacket.WriteBit(ContentTrackingEnabled);
+    _worldPacket.WriteBit(IsSellAllJunkEnabled);
 
     _worldPacket.FlushBits();
 

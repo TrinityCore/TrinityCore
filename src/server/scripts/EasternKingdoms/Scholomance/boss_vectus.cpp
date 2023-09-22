@@ -44,17 +44,13 @@ class boss_vectus : public CreatureScript
 public:
     boss_vectus() : CreatureScript("boss_vectus") { }
 
-    struct boss_vectusAI : public ScriptedAI
+    struct boss_vectusAI : public BossAI
     {
-        boss_vectusAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_vectusAI(Creature* creature) : BossAI(creature, DATA_VECTUS) { }
 
-        void Reset() override
+        void JustEngagedWith(Unit* who) override
         {
-            events.Reset();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
+            _JustEngagedWith(who);
             events.ScheduleEvent(EVENT_FIRE_SHIELD, 2s);
             events.ScheduleEvent(EVENT_BLAST_WAVE, 14s);
         }
@@ -106,9 +102,6 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
-        private:
-            EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
