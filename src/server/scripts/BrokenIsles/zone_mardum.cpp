@@ -625,7 +625,7 @@ private:
     TaskScheduler _oocScheduler;
 };
 
-enum ETIAshtongueIntro
+enum ETIAshtongueIntroData
 {
     QUEST_ENTER_THE_ILLIDARI_ASHTONGUE      = 40378,
 
@@ -633,6 +633,8 @@ enum ETIAshtongueIntro
     NPC_KORVAS_BLOODTHORN_ASHTONGUE         = 98354,
     NPC_SEVIS_BRIGHTFLAME_ASHTONGUE         = 99916,
     NPC_ALLARI_SOULEATER_ASHTONGUE          = 94410,
+
+    DISPLAY_ID_SEVIS_MOUNT                  = 64385,
 
     SAY_KAYN_ACTIVATE_GATEWAY               = 0,
     SAY_KAYN_CUT_A_HOLE                     = 1,
@@ -643,10 +645,7 @@ enum ETIAshtongueIntro
 
     SPELL_CAST_MOUNT_DH_FELSABER            = 200175,
     SPELL_ASHTONGUE_FELLSABER_KILL_CREDIT   = 200254
-};
 
-enum ETIAshtongueWaypoints
-{
     PATH_KAYN_SUNFURY_NEAR_TELEPORT         = 9822900,
     PATH_KORVAS_BLOODTHORN_NEAR_TELEPORT    = 9835400,
     PATH_SEVIS_BRIGHTFLAME_GATEWAY          = 9991600
@@ -678,6 +677,7 @@ struct npc_kayn_sunfury_ashtongue_intro : public ScriptedAI
     }
 };
 
+// 98229 - Kayn Sunfury
 struct npc_kayn_sunfury_ashtongue_intro_private : public ScriptedAI
 {
     npc_kayn_sunfury_ashtongue_intro_private(Creature* creature) : ScriptedAI(creature) { }
@@ -755,6 +755,7 @@ CreatureAI* KaynSunfuryNearLegionBannerAISelector(Creature* creature)
     return new npc_kayn_sunfury_ashtongue_intro(creature);
 };
 
+// 1053 - Enter the Illidari: Ashtongue
 class scene_enter_the_illidari_ashtongue : public SceneScript
 {
 public:
@@ -778,7 +779,6 @@ public:
     {
         if (triggerName == "SEEFELSABERCREDIT")
             player->CastSpell(player, SPELL_ASHTONGUE_FELLSABER_KILL_CREDIT, true);
-
         else if (triggerName == "UPDATEPHASE")
             PhasingHandler::OnConditionChange(player);
     }
@@ -798,7 +798,7 @@ struct npc_sevis_brightflame_ashtongue_gateway_private : public ScriptedAI
             task.Schedule(2s, [this](TaskContext task)
             {
                 me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SEVIS_MOUNT, 0, 0);
-                me->SetMountDisplayId(64385);
+                me->SetMountDisplayId(DISPLAY_ID_SEVIS_MOUNT);
 
                 task.Schedule(3s, [this](TaskContext /*task*/)
                 {
@@ -839,6 +839,7 @@ class spell_accepting_felsaber_gift : public SpellScript
     }
 };
 
+// 32 - Mardum - Trigger KillCredit for Quest "Enter the Illidari: Ashtongue"
 struct at_enter_the_illidari_ashtongue_allari_killcredit : AreaTriggerAI
 {
     at_enter_the_illidari_ashtongue_allari_killcredit(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
