@@ -15,12 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "CellImpl.h"
 #include "Containers.h"
 #include "Conversation.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -622,6 +625,235 @@ private:
     TaskScheduler _oocScheduler;
 };
 
+enum ETIAshtongueIntroData
+{
+    QUEST_ENTER_THE_ILLIDARI_ASHTONGUE      = 40378,
+
+    NPC_KAYN_SUNFURY_ASHTONGUE              = 98229,
+    NPC_KORVAS_BLOODTHORN_ASHTONGUE         = 98354,
+    NPC_SEVIS_BRIGHTFLAME_ASHTONGUE         = 99916,
+    NPC_ALLARI_SOULEATER_ASHTONGUE          = 94410,
+
+    DISPLAY_ID_SEVIS_MOUNT                  = 64385,
+
+    SAY_KAYN_ACTIVATE_GATEWAY               = 0,
+    SAY_KAYN_CUT_A_HOLE                     = 1,
+    SAY_KORVAS_SLAY_MORE_DEMONS             = 0,
+    SAY_SEVIS_SAY_FIND_ALLARI               = 1,
+
+    SPELL_VISUAL_KIT_SEVIS_MOUNT            = 36264,
+
+    SPELL_CAST_MOUNT_DH_FELSABER            = 200175,
+    SPELL_ASHTONGUE_FELLSABER_KILL_CREDIT   = 200254
+
+    PATH_KAYN_SUNFURY_NEAR_TELEPORT         = 9822900,
+    PATH_KORVAS_BLOODTHORN_NEAR_TELEPORT    = 9835400,
+    PATH_SEVIS_BRIGHTFLAME_GATEWAY          = 9991600
+};
+
+// 98229 - Kayn Sunfury
+struct npc_kayn_sunfury_ashtongue_intro : public ScriptedAI
+{
+    npc_kayn_sunfury_ashtongue_intro(Creature* creature) : ScriptedAI(creature) { }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_ENTER_THE_ILLIDARI_ASHTONGUE)
+        {
+            PhasingHandler::OnConditionChange(player);
+            Creature* kaynObject = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_KAYN_SUNFURY_ASHTONGUE, .IgnorePhases = true });
+            Creature* korvasObject = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_KORVAS_BLOODTHORN_ASHTONGUE, .IgnorePhases = true });
+            if (!kaynObject || !korvasObject)
+                return;
+
+            TempSummon* kaynClone = kaynObject->SummonPersonalClone(kaynObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            TempSummon* korvasClone = korvasObject->SummonPersonalClone(korvasObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            if (!kaynClone || !korvasClone)
+                return;
+
+            korvasClone->SetEmoteState(EMOTE_STATE_READY1H);
+            kaynClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_QUESTGIVER));
+        }
+    }
+};
+
+// 98229 - Kayn Sunfury
+struct npc_kayn_sunfury_ashtongue_intro_private : public ScriptedAI
+{
+    npc_kayn_sunfury_ashtongue_intro_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        Creature* korvasObject = GetClosestCreatureWithOptions(me, 10.0f, { .CreatureId = NPC_KORVAS_BLOODTHORN_ASHTONGUE, .IgnorePhases = true, .PrivateObjectOwnerGuid = me->GetPrivateObjectOwner()});
+        if (!korvasObject)
+            return;
+
+        ObjectGuid korvasGuid = korvasObject->GetGUID();
+
+        _scheduler.Schedule(1s, [this, korvasGuid](TaskContext task)
+        {
+            Unit* privateObjectOwner = ObjectAccessor::GetUnit(*me, me->GetPrivateObjectOwner());
+            if (!privateObjectOwner)
+                return;
+
+            Unit* korvas = ObjectAccessor::GetUnit(*me, korvasGuid);
+            if (!korvas)
+                return;
+
+            Talk(SAY_KAYN_ACTIVATE_GATEWAY, me);
+            me->CastSpell(privateObjectOwner, SPELL_TRACK_TARGET_IN_CHANNEL, false);
+            korvas->CastSpell(privateObjectOwner, SPELL_TRACK_TARGET_IN_CHANNEL, false);
+
+            task.Schedule(6s, [this, korvasGuid](TaskContext task)
+            {
+                Talk(SAY_KAYN_CUT_A_HOLE, me);
+
+                task.Schedule(6s, [this, korvasGuid](TaskContext task)
+                {
+                    Creature* korvas = ObjectAccessor::GetCreature(*me, korvasGuid);
+                    if (!korvas)
+                        return;
+
+                    if (!korvas->IsAIEnabled())
+                        return;
+
+                    korvas->AI()->Talk(SAY_KORVAS_SLAY_MORE_DEMONS, me);
+                    me->InterruptNonMeleeSpells(true);
+                    me->GetMotionMaster()->MovePath(PATH_KAYN_SUNFURY_NEAR_TELEPORT, false);
+                    me->SetAIAnimKitId(ANIM_DH_RUN);
+                    me->DespawnOrUnsummon(10s);
+
+                    task.Schedule(2s, [this, korvasGuid](TaskContext /*task*/)
+                    {
+                        Creature* korvas = ObjectAccessor::GetCreature(*me, korvasGuid);
+                        if (!korvas)
+                            return;
+
+                        korvas->InterruptNonMeleeSpells(true);
+                        korvas->GetMotionMaster()->MovePath(PATH_KORVAS_BLOODTHORN_NEAR_TELEPORT, false);
+                        korvas->SetAIAnimKitId(ANIM_DH_RUN);
+                        korvas->DespawnOrUnsummon(12s);
+                    });
+                });
+            });
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+CreatureAI* KaynSunfuryNearLegionBannerAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_kayn_sunfury_ashtongue_intro_private(creature);
+    return new npc_kayn_sunfury_ashtongue_intro(creature);
+};
+
+// 1053 - Enter the Illidari: Ashtongue
+class scene_enter_the_illidari_ashtongue : public SceneScript
+{
+public:
+    scene_enter_the_illidari_ashtongue() : SceneScript("scene_enter_the_illidari_ashtongue") { }
+
+    void OnSceneStart(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        Creature* sevisObject = GetClosestCreatureWithOptions(player, 30.0f, { .CreatureId = NPC_SEVIS_BRIGHTFLAME_ASHTONGUE, .IgnorePhases = true });
+        if (!sevisObject)
+            return;
+
+        TempSummon* sevisClone = sevisObject->SummonPersonalClone(sevisObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+        if (!sevisClone)
+            return;
+
+        sevisClone->CastSpell(player, SPELL_TRACK_TARGET_IN_CHANNEL, false);
+        sevisClone->DespawnOrUnsummon(15s);
+    }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "SEEFELSABERCREDIT")
+            player->CastSpell(player, SPELL_ASHTONGUE_FELLSABER_KILL_CREDIT, true);
+        else if (triggerName == "UPDATEPHASE")
+            PhasingHandler::OnConditionChange(player);
+    }
+};
+
+// 99916 - Sevis Brightflame (Ashtongue Gateway)
+struct npc_sevis_brightflame_ashtongue_gateway_private : public ScriptedAI
+{
+    npc_sevis_brightflame_ashtongue_gateway_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            Talk(SAY_SEVIS_SAY_FIND_ALLARI, me);
+
+            task.Schedule(2s, [this](TaskContext task)
+            {
+                me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SEVIS_MOUNT, 0, 0);
+                me->SetMountDisplayId(DISPLAY_ID_SEVIS_MOUNT);
+
+                task.Schedule(3s, [this](TaskContext /*task*/)
+                {
+                    me->InterruptNonMeleeSpells(true);
+                    me->GetMotionMaster()->MovePath(PATH_SEVIS_BRIGHTFLAME_GATEWAY, false);
+                });
+            });
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+CreatureAI* SevisBrightflameAshtongueGatewayAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_sevis_brightflame_ashtongue_gateway_private(creature);
+    return new NullCreatureAI(creature);
+};
+
+// 200255 - Accepting Felsaber Gift
+class spell_accepting_felsaber_gift : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(nullptr, SPELL_CAST_MOUNT_DH_FELSABER, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_accepting_felsaber_gift::HandleHitTarget, EFFECT_3, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 32 - Mardum - Trigger KillCredit for Quest "Enter the Illidari: Ashtongue"
+struct at_enter_the_illidari_ashtongue_allari_killcredit : AreaTriggerAI
+{
+    at_enter_the_illidari_ashtongue_allari_killcredit(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player || player->GetQuestStatus(QUEST_ENTER_THE_ILLIDARI_ASHTONGUE) != QUEST_STATUS_INCOMPLETE)
+            return;
+
+        player->KilledMonsterCredit(NPC_ALLARI_SOULEATER_ASHTONGUE);
+    }
+};
+
 void AddSC_zone_mardum()
 {
     // Creature
@@ -633,12 +865,21 @@ void AddSC_zone_mardum()
     RegisterCreatureAI(npc_cyana_nightglaive_invasion_begins);
     RegisterCreatureAI(npc_illidari_fighting_invasion_begins);
 
+    // AISelector
+    new FactoryCreatureScript<CreatureAI, &KaynSunfuryNearLegionBannerAISelector>("npc_kayn_sunfury_ashtongue_intro");
+    new FactoryCreatureScript<CreatureAI, &SevisBrightflameAshtongueGatewayAISelector>("npc_sevis_brightflame_ashtongue_gateway_private");
+
+    // AreaTrigger
+    RegisterAreaTriggerAI(at_enter_the_illidari_ashtongue_allari_killcredit);
+
     // Conversation
     new conversation_the_invasion_begins();
 
     // Scene
     new scene_demonhunter_intro();
+    new scene_enter_the_illidari_ashtongue();
 
     // Spells
     RegisterSpellScript(spell_demon_hunter_intro_aura);
+    RegisterSpellScript(spell_accepting_felsaber_gift);
 };
