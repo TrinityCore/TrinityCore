@@ -89,12 +89,7 @@ public:
             PhasingHandler::OnConditionChange(player);
         }
         else if (newStatus == QUEST_STATUS_INCOMPLETE)
-        {
-            // @TODO: move to spell_area
-            player->CastSpell(player, SPELL_BLEEDING_HOLLOW_HOLDOUT, false);
-            player->CastSpell(player, SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME, false);
             PhasingHandler::OnConditionChange(player);
-        }
         else if (newStatus == QUEST_STATUS_COMPLETE)
             player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME);
     }
