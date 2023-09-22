@@ -84,19 +84,16 @@ public:
         {
             player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_HOLDOUT);
             player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME);
+            player->RemoveAurasDueToSpell(SPELL_PUSH_ARMY);
+            player->RemoveRewardedQuest(QUEST_FLAG_ARMY_PUSHED);
             PhasingHandler::OnConditionChange(player);
         }
         else if (newStatus == QUEST_STATUS_INCOMPLETE)
         {
-            if (player->GetQuestStatus(QUEST_FLAG_ARMY_PUSHED) != QUEST_STATUS_REWARDED)
-            {
-                player->CastSpell(player, SPELL_BLEEDING_HOLLOW_HOLDOUT, TRIGGERED_FULL_MASK);
-                PhasingHandler::OnConditionChange(player);
-            }
-            else
-                PhasingHandler::OnConditionChange(player);
-
-            player->CastSpell(player, SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME, TRIGGERED_FULL_MASK);
+            // @TODO: move to spell_area
+            player->CastSpell(player, SPELL_BLEEDING_HOLLOW_HOLDOUT, false);
+            player->CastSpell(player, SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME, false);
+            PhasingHandler::OnConditionChange(player);
         }
         else if (newStatus == QUEST_STATUS_COMPLETE)
             player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME);
@@ -111,9 +108,14 @@ public:
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
-        player->CastSpell(player, SPELL_PUSH_ARMY, TRIGGERED_FULL_MASK);
         player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_HOLDOUT);
         PhasingHandler::OnConditionChange(player);
+    }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Push")
+            player->CastSpell(player, SPELL_PUSH_ARMY, false);
     }
 };
 
