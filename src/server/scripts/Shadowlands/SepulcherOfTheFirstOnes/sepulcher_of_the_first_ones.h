@@ -49,6 +49,8 @@ enum SepulcherOfTheFirstOnesDataTypes
     DATA_FIRIM,
     DATA_BRIDGE_TO_ANDUIN,
     DATA_BRIDGE_AFTER_ANDUIN,
+    DATA_ANDUIN_WRYNN_FINAL_MOVIE,
+    DATA_ANDUIN_TREASURE,
 
 };
 
@@ -61,8 +63,6 @@ enum SepulcherOfTheFirstOnesCreatureIds
     BOSS_VIGILANT_GUARDIAN = 180773,
     BOSS_ANDUIN_WRYNN = 181954,
     BOSS_REMNANT_OF_A_FALLEN_KING = 183463,
-    BOSS_MALGANIS = 181398,
-    BOSS_KINTESSA = 181399,
 
 
     // Anduin Wrynn Encounter
@@ -88,11 +88,6 @@ enum SepulcherOfTheFirstOnesCreatureIds
 
     NPC_BEACON_OF_HOPE = 184830,
 
-    // Lords of Dread Encounter
-    NPC_INCHOATE_SHADOW = 183138,
-    NPC_SLUMBER_CLOUD = 181925,
-
-
 };
 
 enum SepulcherOfTheFirstOnesTranslocatorIds
@@ -115,7 +110,7 @@ enum SepulcherOfTheFirstOnesEvents
 
 enum SepulcherOfTheFirstOnesActions
 {
-
+    ACTION_START_ANDUIN_OUTRODUCTION = 1,
 };
 
 enum SepulcherOfTheFirstOnesAreas
@@ -129,9 +124,6 @@ enum SepulcherOfTheFirstOnesWorldStates
     WORLD_STATE_ANDUIN_ENCOUNTER_STARTED = 21243,
     WORLD_STATE_ANDUIN_INTERMISSION = 21433,
     WORLD_STATE_ANDUIN_ENCOUNTER_COMPLETED = 21242,
-
-    WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED = 21219, // 1 for engaged
-    WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_COMPLETED = 21220, // 1 for Finished, Set 21219 to 0
 };
 
 template <class AI, class T>

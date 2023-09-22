@@ -41,6 +41,12 @@ ObjectData const creatureData[] =
 
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_ANDUIN_WRYNN, {{ 2546 }} },
+
+};
+
 enum Spells
 {
     SPELL_ANDUIN_PLUNGE_KINGSMOURNE = 369125,
@@ -57,6 +63,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
+            LoadDungeonEncounterData(encounters);
             LoadObjectData(creatureData, nullptr);
             AnduinIntroductionData = NOT_STARTED;
             
@@ -81,6 +88,10 @@ public:
                 RemnantGUID = creature->GetGUID();
                 break;
 
+            case NPC_BEACON_OF_HOPE:
+                BeaconOfHopeGUID = creature->GetGUID();
+                break;
+
             case NPC_SYLVANAS_WINDRUNNER:
                 SylvanasGUID = creature->GetGUID();
                 break;
@@ -95,9 +106,6 @@ public:
 
             case NPC_ANDUIN_SOUL:
                 AnduinGUID = creature->GetGUID();
-                break;
-
-            case NPC_BEACON_OF_HOPE:
                 break;
 
 
@@ -137,8 +145,8 @@ public:
                         if (uther->IsAIEnabled())
                             uther->SetFaction(2);
                             uther->AI()->JustEngagedWith(anduin);
-                            uther->GetThreatManager().AddThreat(anduin, 1000000);
-                            uther->GetAI()->AttackStart(anduin);
+                            uther->GetThreatManager().AddThreat(anduin, 1000);
+                            
                     }
 
                     if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
@@ -147,7 +155,7 @@ public:
                         if (sylvanas->IsAIEnabled())
                             sylvanas->SetFaction(2);
                             sylvanas->AI()->JustEngagedWith(anduin);
-                            sylvanas->GetThreatManager().AddThreat(anduin, 1000000);
+                            sylvanas->GetThreatManager().AddThreat(anduin, 1000);
                             sylvanas->GetAI()->AttackStartCaster(anduin, 25.0f);
                     }
 
@@ -156,7 +164,7 @@ public:
                         if (jaina->IsAIEnabled())
                             jaina->SetFaction(2);
                             jaina->AI()->JustEngagedWith(anduin);
-                            jaina->GetThreatManager().AddThreat(anduin, 1000000);
+                            jaina->GetThreatManager().AddThreat(anduin, 1000);
                             jaina->GetAI()->AttackStartCaster(anduin, 25.0f);
 
                     }
@@ -166,6 +174,7 @@ public:
 
                 case DONE:
                 {
+
                     break;
                 }
 
@@ -214,6 +223,7 @@ public:
                 }
 
                 case DONE:
+                {
                     AnduinIntroductionData = DONE;
                     if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
                     {
@@ -225,13 +235,22 @@ public:
                         anduin->RemoveAurasDueToSpell(SPELL_ANDUIN_PLUNGE_KINGSMOURNE);
                     }
                     break;
-
+                }
                 default:
                     break;
                 }
                 break;
             }
 
+            case DATA_ANDUIN_WRYNN_FINAL_MOVIE:
+                AnduinFinalData = 1;
+                if (AnduinFinalData == 1)
+                    if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
+                        if (anduin->IsAIEnabled())
+                            anduin->GetAI()->DoAction(ACTION_START_ANDUIN_OUTRODUCTION);
+                break;
+            default:
+                break;
             }
         }
 
@@ -241,11 +260,21 @@ public:
             {
             case DATA_ANDUIN_WRYNN_INTRODUCTION:
                 return AnduinIntroductionData;
+            case DATA_ANDUIN_WRYNN_FINAL_MOVIE:
+                return AnduinFinalData;
             default:
                 break;
             }
 
             return 0;
+        }
+
+        void StartOutroduction()
+        {
+            if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
+            {
+                anduin->GetAI()->DoAction(ACTION_START_ANDUIN_OUTRODUCTION);
+            }
         }
         void OnGameObjectCreate(GameObject* go) override
         {
@@ -255,10 +284,6 @@ public:
             {
             case GAMEOBJECT_BRIDGE_TO_ANDUIN:
                 BridgeToAnduinGUID = go->GetGUID();
-                break;
-
-            case GAMEOBJECT_ANDUIN_CHEST_LOOT:
-                TreasureofTheFirstOnesGUID = go->GetGUID();
                 break;
 
             case GAMEOBJECT_BRIDGE_AFTER_ANDUIN:
@@ -309,6 +334,8 @@ public:
             case DATA_REMNANT_OF_A_FALLEN_KING:
                 return RemnantGUID;
 
+            case DATA_BEACON_OF_HOPE:
+                return BeaconOfHopeGUID;
             case DATA_UTHER_THE_LIGHTBRINGER:
                 return UtherGUID;
 
@@ -353,6 +380,7 @@ public:
         ObjectGuid LostSoulGUID;
         ObjectGuid GrimReflectionGUID;
         ObjectGuid RemnantGUID;
+        ObjectGuid BeaconOfHopeGUID;
         ObjectGuid UtherGUID;
         ObjectGuid JainaGUID;
         ObjectGuid SylvanasGUID;
@@ -363,6 +391,7 @@ public:
         ObjectGuid BridgeAfterAnduinGUID;
         uint8 AnduinGObjectData;
         uint8 AnduinIntroductionData;
+        uint8 AnduinFinalData;
 
     };
 
