@@ -173,7 +173,7 @@ bool Group::Create(Player* leader)
         stmt->setBinary(index++, m_targetIcons[5].GetRawValue());
         stmt->setBinary(index++, m_targetIcons[6].GetRawValue());
         stmt->setBinary(index++, m_targetIcons[7].GetRawValue());
-        stmt->setUInt8(index++, uint8(m_groupFlags));
+        stmt->setUInt16(index++, m_groupFlags);
         stmt->setUInt32(index++, uint8(m_dungeonDifficulty));
         stmt->setUInt32(index++, uint8(m_raidDifficulty));
         stmt->setUInt32(index++, uint8(m_legacyRaidDifficulty));
@@ -213,7 +213,7 @@ void Group::LoadGroupFromDB(Field* fields)
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
         m_targetIcons[i].SetRawValue(fields[4 + i].GetBinary());
 
-    m_groupFlags  = GroupFlags(fields[12].GetUInt8());
+    m_groupFlags  = GroupFlags(fields[12].GetUInt16());
     if (m_groupFlags & GROUP_FLAG_RAID)
         _initRaidSubGroupsCounter();
 
@@ -242,6 +242,9 @@ void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uin
         return;
     }
 
+    if (m_groupFlags & GROUP_FLAG_EVERYONE_ASSISTANT)
+        memberFlags |= MEMBER_FLAG_ASSISTANT;
+
     member.name         = character->Name;
     member.race         = Races(character->Race);
     member._class       = character->Class;
@@ -266,7 +269,7 @@ void Group::ConvertToLFG()
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
 
-        stmt->setUInt8(0, uint8(m_groupFlags));
+        stmt->setUInt16(0, m_groupFlags);
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);
@@ -285,7 +288,7 @@ void Group::ConvertToRaid()
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
 
-        stmt->setUInt8(0, uint8(m_groupFlags));
+        stmt->setUInt16(0, m_groupFlags);
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);
@@ -304,7 +307,7 @@ void Group::ConvertToGroup()
     if (m_memberSlots.size() > 5)
         return; // What message error should we send?
 
-    m_groupFlags = GroupFlags(GROUP_FLAG_NONE);
+    m_groupFlags = GroupFlags(m_groupFlags & ~GROUP_FLAG_RAID);
 
     if (m_subGroupsCounts)
     {
@@ -316,7 +319,7 @@ void Group::ConvertToGroup()
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
 
-        stmt->setUInt8(0, uint8(m_groupFlags));
+        stmt->setUInt16(0, m_groupFlags);
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);
@@ -657,7 +660,7 @@ bool Group::RemoveMember(ObjectGuid guid, RemoveMethod method /*= GROUP_REMOVEME
     }
 }
 
-void Group::ChangeLeader(ObjectGuid newLeaderGuid, int8 partyIndex)
+void Group::ChangeLeader(ObjectGuid newLeaderGuid)
 {
     member_witerator slot = _getMemberWSlot(newLeaderGuid);
 
@@ -698,7 +701,7 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid, int8 partyIndex)
 
     WorldPackets::Party::GroupNewLeader groupNewLeader;
     groupNewLeader.Name = m_leaderName;
-    groupNewLeader.PartyIndex = partyIndex;
+    groupNewLeader.PartyIndex = GetGroupCategory();
     BroadcastPacket(groupNewLeader.Write(), true);
 }
 
@@ -769,7 +772,7 @@ void Group::Disband(bool hideDestroy /* = false */)
     delete this;
 }
 
-void Group::SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy, uint8 partyIndex)
+void Group::SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy)
 {
     if (symbol >= TARGET_ICONS_COUNT)
         return;
@@ -778,27 +781,27 @@ void Group::SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy,
     if (!target.IsEmpty())
         for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
             if (m_targetIcons[i] == target)
-                SetTargetIcon(i, ObjectGuid::Empty, changedBy, partyIndex);
+                SetTargetIcon(i, ObjectGuid::Empty, changedBy);
 
     m_targetIcons[symbol] = target;
 
     WorldPackets::Party::SendRaidTargetUpdateSingle updateSingle;
-    updateSingle.PartyIndex = partyIndex;
+    updateSingle.PartyIndex = GetGroupCategory();
     updateSingle.Target = target;
     updateSingle.ChangedBy = changedBy;
     updateSingle.Symbol = symbol;
     BroadcastPacket(updateSingle.Write(), true);
 }
 
-void Group::SendTargetIconList(WorldSession* session, int8 partyIndex)
+void Group::SendTargetIconList(WorldSession* session)
 {
     if (!session)
         return;
 
     WorldPackets::Party::SendRaidTargetUpdateAll updateAll;
-    updateAll.PartyIndex = partyIndex;
+    updateAll.PartyIndex = GetGroupCategory();
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; i++)
-        updateAll.TargetIcons.insert(std::pair<uint8, ObjectGuid>(i, m_targetIcons[i]));
+        updateAll.TargetIcons.try_emplace(i, m_targetIcons[i]);
 
     session->SendPacket(updateAll.Write());
 }
@@ -1167,13 +1170,13 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
     }
 }
 
-GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid) const
+GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(BattlegroundTemplate const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid) const
 {
     // check if this group is LFG group
     if (isLFGGroup())
         return ERR_LFG_CANT_USE_BATTLEGROUND;
 
-    BattlemasterListEntry const* bgEntry = sBattlemasterListStore.LookupEntry(bgOrTemplate->GetTypeID());
+    BattlemasterListEntry const* bgEntry = sBattlemasterListStore.LookupEntry(bgOrTemplate->Id);
     if (!bgEntry)
         return ERR_BATTLEGROUND_JOIN_FAILED;            // shouldn't happen
 
@@ -1189,7 +1192,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     if (!reference)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
-    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bgOrTemplate->GetMapId(), reference->GetLevel());
+    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bgOrTemplate->BattlemasterEntry->MapID[0], reference->GetLevel());
     if (!bracketEntry)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
@@ -1227,13 +1230,13 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // don't let join if someone from the group is in bg queue random
         bool isInRandomBgQueue = member->InBattlegroundQueueForBattlegroundQueueType(BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RB, BattlegroundQueueIdType::Battleground, false, 0))
             || member->InBattlegroundQueueForBattlegroundQueueType(BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RANDOM_EPIC, BattlegroundQueueIdType::Battleground, false, 0));
-        if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && isInRandomBgQueue)
+        if (bgOrTemplate->Id != BATTLEGROUND_AA && isInRandomBgQueue)
             return ERR_IN_RANDOM_BG;
         // don't let join to bg queue random if someone from the group is already in bg queue
-        if ((bgOrTemplate->GetTypeID() == BATTLEGROUND_RB || bgOrTemplate->GetTypeID() == BATTLEGROUND_RANDOM_EPIC) && member->InBattlegroundQueue(true) && !isInRandomBgQueue)
+        if (BattlegroundMgr::IsRandomBattleground(bgOrTemplate->Id) && member->InBattlegroundQueue(true) && !isInRandomBgQueue)
             return ERR_IN_NON_RANDOM_BG;
         // check for deserter debuff in case not arena queue
-        if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && member->IsDeserter())
+        if (bgOrTemplate->Id != BATTLEGROUND_AA && member->IsDeserter())
             return ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS;
         // check if member can join any more battleground queues
         if (!member->HasFreeBattlegroundQueueId())
@@ -1249,7 +1252,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     }
 
     // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
-    if (bgOrTemplate->isArena() && memberscount != MinPlayerCount)
+    if (bgOrTemplate->IsArena() && memberscount != MinPlayerCount)
         return ERR_ARENA_TEAM_PARTY_SIZE;
 
     return ERR_BATTLEGROUND_NONE;
@@ -1444,7 +1447,7 @@ void Group::UpdateReadyCheck(uint32 diff)
         EndReadyCheck();
 }
 
-void Group::StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, Milliseconds duration)
+void Group::StartReadyCheck(ObjectGuid starterGuid, Milliseconds duration)
 {
     if (m_readyCheckStarted)
         return;
@@ -1462,7 +1465,7 @@ void Group::StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, Millisecond
 
     WorldPackets::Party::ReadyCheckStarted readyCheckStarted;
     readyCheckStarted.PartyGUID = m_guid;
-    readyCheckStarted.PartyIndex = partyIndex;
+    readyCheckStarted.PartyIndex = GetGroupCategory();
     readyCheckStarted.InitiatorGUID = starterGuid;
     readyCheckStarted.Duration = duration;
     BroadcastPacket(readyCheckStarted.Write(), false);
@@ -1561,11 +1564,11 @@ void Group::DeleteRaidMarker(uint8 markerId)
     SendRaidMarkersChanged();
 }
 
-void Group::SendRaidMarkersChanged(WorldSession* session, int8 partyIndex)
+void Group::SendRaidMarkersChanged(WorldSession* session)
 {
     WorldPackets::Party::RaidMarkersChanged packet;
 
-    packet.PartyIndex = partyIndex;
+    packet.PartyIndex = GetGroupCategory();
     packet.ActiveMarkers = m_activeMarkers;
 
     for (uint8 i = 0; i < RAID_MARKERS_COUNT; i++)
@@ -1846,6 +1849,41 @@ void Group::SetEveryoneIsAssistant(bool apply)
 
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
         ToggleGroupMemberFlag(itr, MEMBER_FLAG_ASSISTANT, apply);
+
+    if (!isBGGroup() && !isBFGroup())
+    {
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
+
+        stmt->setUInt16(0, m_groupFlags);
+        stmt->setUInt32(1, m_dbStoreId);
+
+        CharacterDatabase.Execute(stmt);
+    }
+
+    SendUpdate();
+}
+
+bool Group::IsRestrictPingsToAssistants() const
+{
+    return (m_groupFlags & GROUP_FLAG_RESTRICT_PINGS) != 0;
+}
+
+void Group::SetRestrictPingsToAssistants(bool restrictPingsToAssistants)
+{
+    if (restrictPingsToAssistants)
+        m_groupFlags = GroupFlags(m_groupFlags | GROUP_FLAG_RESTRICT_PINGS);
+    else
+        m_groupFlags = GroupFlags(m_groupFlags & ~GROUP_FLAG_RESTRICT_PINGS);
+
+    if (!isBGGroup() && !isBFGroup())
+    {
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
+
+        stmt->setUInt16(0, m_groupFlags);
+        stmt->setUInt32(1, m_dbStoreId);
+
+        CharacterDatabase.Execute(stmt);
+    }
 
     SendUpdate();
 }

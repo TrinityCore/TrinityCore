@@ -623,7 +623,7 @@ void PlayerAchievementMgr::SendCriteriaUpdate(Criteria const* criteria, Criteria
 
         SendPacket(criteriaUpdate.Write());
     }
-    else
+    if (criteria->FlagsCu & CRITERIA_FLAG_CU_PLAYER)
     {
         WorldPackets::Achievement::CriteriaUpdate criteriaUpdate;
 

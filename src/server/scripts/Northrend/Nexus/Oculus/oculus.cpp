@@ -438,24 +438,18 @@ class spell_oculus_shock_lance : public SpellScript
         return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
     }
 
-    void CalcDamage(SpellEffIndex /*effIndex*/)
+    void CalculateDamage(Unit const* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
     {
-        int32 damage = GetEffectValue();
-        if (Unit* target = GetHitUnit())
+        if (AuraEffect const* shockCharges = victim->GetAuraEffect(SPELL_AMBER_SHOCK_CHARGE, EFFECT_0, GetCaster()->GetGUID()))
         {
-            if (AuraEffect const* shockCharges = target->GetAuraEffect(SPELL_AMBER_SHOCK_CHARGE, EFFECT_0, GetCaster()->GetGUID()))
-            {
-                damage += shockCharges->GetAmount();
-                shockCharges->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-            }
+            flatMod += shockCharges->GetAmount();
+            shockCharges->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
-
-        SetEffectValue(damage);
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_oculus_shock_lance::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_oculus_shock_lance::CalculateDamage);
     }
 };
 

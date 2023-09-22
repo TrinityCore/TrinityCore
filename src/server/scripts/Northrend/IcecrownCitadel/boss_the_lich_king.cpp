@@ -1048,7 +1048,7 @@ struct boss_the_lich_king : public BossAI
                     }
                     break;
                 case EVENT_FROSTMOURNE_HEROIC:
-                    if (TempSummon* terenas = me->GetMap()->SummonCreature(NPC_TERENAS_MENETHIL_FROSTMOURNE_H, TerenasSpawnHeroic, nullptr, 50000))
+                    if (TempSummon* terenas = me->GetMap()->SummonCreature(NPC_TERENAS_MENETHIL_FROSTMOURNE_H, TerenasSpawnHeroic, nullptr, 50s))
                     {
                         terenas->AI()->DoAction(ACTION_FROSTMOURNE_INTRO);
                         std::list<Creature*> triggers;

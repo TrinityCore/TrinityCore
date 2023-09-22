@@ -32,6 +32,18 @@ enum Misc
     PATH_ADDS           = 652424
 };
 
+static constexpr DungeonEncounterData Encounters[] =
+{
+    { BOSS_HYDROMANCER_VELRATHA, { { 593 } } },
+    { BOSS_GAHZ_RILLA, { { 594 } } },
+    { BOSS_ANTU_SUL, { { 595 } } },
+    { BOSS_THEKA_THE_MARTYR, { { 596 } } },
+    { BOSS_WITCH_DOCTOR_ZUM_RAH, { { 597 } } },
+    { BOSS_NEKRUM_GUTCHEWER, { { 598 } } },
+    { BOSS_SHADOWPRIEST_SEZZ_ZIZ, { { 599 } } },
+    { BOSS_CHIEF_UKORZ_SANDSCALP, { { 600 } } },
+};
+
 int const pyramidSpawnTotal = 54;
 /* list of wave spawns: 0 = wave ID, 1 = creature id, 2 = x, 3 = y
 no z coordinat b/c they're all the same */
@@ -113,6 +125,8 @@ public:
         instance_zulfarrak_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            SetBossNumber(MAX_ENCOUNTER);
+            LoadDungeonEncounterData(Encounters);
             GahzRillaEncounter = NOT_STARTED;
             PyramidPhase = 0;
             major_wave_Timer = 0;
@@ -164,10 +178,25 @@ public:
                     break;
                 case NPC_GAHZRILLA:
                     if (GahzRillaEncounter >= IN_PROGRESS)
-                        creature->DisappearAndDie();
+                        creature->DespawnOrUnsummon();
                     else
                         GahzRillaEncounter = IN_PROGRESS;
                     break;
+            }
+        }
+
+        void OnUnitDeath(Unit* unit) override
+        {
+            switch (unit->GetEntry())
+            {
+                case ENTRY_VELRTHA:     SetBossState(BOSS_HYDROMANCER_VELRATHA, DONE); break;
+                case ENTRY_GAHZRILLA:   SetBossState(BOSS_GAHZ_RILLA, DONE); break;
+                case ENTRY_ANTUSUL:     SetBossState(BOSS_ANTU_SUL, DONE); break;
+                case ENTRY_THEKA:       SetBossState(BOSS_THEKA_THE_MARTYR, DONE); break;
+                case ENTRY_NEKRUM:      SetBossState(BOSS_NEKRUM_GUTCHEWER, DONE); break;
+                case ENTRY_SEZZZIZ:     SetBossState(BOSS_SHADOWPRIEST_SEZZ_ZIZ, DONE); break;
+                case ENTRY_SANDSCALP:   SetBossState(BOSS_CHIEF_UKORZ_SANDSCALP, DONE); break;
+                default: break;
             }
         }
 

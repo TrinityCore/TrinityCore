@@ -507,20 +507,35 @@ void SetTransportAutoCycleBetweenStopFrames::Execute(GameObjectTypeBase& type) c
 class NewFlag : public GameObjectTypeBase
 {
 public:
-    explicit NewFlag(GameObject& owner) : GameObjectTypeBase(owner), _state(FlagState::InBase), _respawnTime(0) { }
+    explicit NewFlag(GameObject& owner) : GameObjectTypeBase(owner), _state(FlagState::InBase), _respawnTime(0), _takenFromBaseTime(0){ }
 
     void SetState(FlagState newState, Player* player)
     {
+        if (_state == newState)
+            return;
+
         FlagState oldState = _state;
         _state = newState;
+
+        if (player && newState == FlagState::Taken)
+            _carrierGUID = player->GetGUID();
+        else
+            _carrierGUID = ObjectGuid::Empty;
+
+        if (newState == FlagState::Taken && oldState == FlagState::InBase)
+            _takenFromBaseTime = GameTime::GetGameTime();
+        else if (newState == FlagState::InBase || newState == FlagState::Respawning)
+            _takenFromBaseTime = 0;
+
         _owner.UpdateObjectVisibility();
-        if (ZoneScript* zoneScript = _owner.GetZoneScript())
-            zoneScript->OnFlagStateChange(&_owner, oldState, _state, player);
 
         if (newState == FlagState::Respawning)
             _respawnTime = GameTime::GetGameTimeMS() + _owner.GetGOInfo()->newflag.RespawnTime;
         else
             _respawnTime = 0;
+
+        if (ZoneScript* zoneScript = _owner.GetZoneScript())
+            zoneScript->OnFlagStateChange(&_owner, oldState, _state, player);
     }
 
     void Update([[maybe_unused]] uint32 diff) override
@@ -534,9 +549,15 @@ public:
         return _state != FlagState::InBase;
     }
 
+    FlagState GetState() const { return _state; }
+    ObjectGuid const& GetCarrierGUID() const { return _carrierGUID; }
+    time_t GetTakenFromBaseTime() const { return _takenFromBaseTime; }
+
 private:
     FlagState _state;
     time_t _respawnTime;
+    ObjectGuid _carrierGUID;
+    time_t _takenFromBaseTime;
 };
 
 SetNewFlagState::SetNewFlagState(FlagState state, Player* player) : _state(state), _player(player)
@@ -844,6 +865,12 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             break;
         case GAMEOBJECT_TYPE_NEW_FLAG:
             m_goTypeImpl = std::make_unique<GameObjectType::NewFlag>(*this);
+            if (map->Instanceable())
+                setActive(true);
+            break;
+        case GAMEOBJECT_TYPE_NEW_FLAG_DROP:
+            if (map->Instanceable())
+                setActive(true);
             break;
         case GAMEOBJECT_TYPE_PHASEABLE_MO:
             RemoveFlag(GameObjectFlags(0xF00));
@@ -855,6 +882,8 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             m_goValue.CapturePoint.LastTeamCapture = TEAM_NEUTRAL;
             m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::Neutral;
             UpdateCapturePoint();
+            if (map->Instanceable())
+                setActive(true);
             break;
         default:
             SetGoAnimProgress(animProgress);
@@ -880,6 +909,9 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     }
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
+
+    m_stringIds[0] = goInfo->StringId;
+
     AIM_Initialize();
 
     if (spawnid)
@@ -1147,17 +1179,9 @@ void GameObject::Update(uint32 diff)
 
                     // Type 0 despawns after being triggered, type 1 does not.
                     /// @todo This is activation radius. Casting radius must be selected from spell data.
-                    float radius;
-                    if (!goInfo->trap.radius)
-                    {
-                        // Battleground traps: data2 == 0 && data5 == 3
-                        if (goInfo->trap.cooldown != 3)
-                            break;
-
-                        radius = 3.f;
-                    }
-                    else
-                        radius = goInfo->trap.radius / 2.f;
+                    float radius = goInfo->trap.radius / 2.f; // this division seems to date back to when the field was called diameter, don't think it is still relevant.
+                    if (!radius)
+                        break;
 
                     // Pointer to appropriate target if found any
                     Unit* target = nullptr;
@@ -1262,7 +1286,7 @@ void GameObject::Update(uint32 diff)
                         m_loot->Update();
 
                         // Non-consumable chest was partially looted and restock time passed, restock all loot now
-                        if (GetGOInfo()->chest.consumable == 0 && GetGOInfo()->chest.chestRestockTime && GameTime::GetGameTime() >= m_restockTime)
+                        if (GetGOInfo()->chest.consumable == 0 && m_restockTime && GameTime::GetGameTime() >= m_restockTime)
                         {
                             m_restockTime = 0;
                             m_lootState = GO_READY;
@@ -1298,12 +1322,6 @@ void GameObject::Update(uint32 diff)
                             SetLootState(GO_JUST_DEACTIVATED);
                         else if (!goInfo->trap.charges)
                             SetLootState(GO_READY);
-
-                        // Battleground gameobjects have data2 == 0 && data5 == 3
-                        if (!goInfo->trap.radius && goInfo->trap.cooldown == 3)
-                            if (Player* player = target->ToPlayer())
-                                if (Battleground* bg = player->GetBattleground())
-                                    bg->HandleTriggerBuff(GetGUID());
                     }
                     break;
                 }
@@ -1711,6 +1729,8 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
     }
 
     m_goData = data;
+
+    m_stringIds[1] = data->StringId;
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
@@ -2901,11 +2921,11 @@ void GameObject::Use(Unit* user)
                     {
                         case 179785:                        // Silverwing Flag
                         case 179786:                        // Warsong Flag
-                            if (bg->GetTypeID(true) == BATTLEGROUND_WS)
+                            if (bg->GetTypeID() == BATTLEGROUND_WS)
                                 bg->EventPlayerClickedOnFlag(player, this);
                             break;
                         case 184142:                        // Netherstorm Flag
-                            if (bg->GetTypeID(true) == BATTLEGROUND_EY)
+                            if (bg->GetTypeID() == BATTLEGROUND_EY)
                                 bg->EventPlayerClickedOnFlag(player, this);
                             break;
                     }
@@ -2946,7 +2966,18 @@ void GameObject::Use(Unit* user)
             if (!info)
                 return;
 
-            if (user->GetTypeId() != TYPEID_PLAYER)
+            Player* player = user->ToPlayer();
+            if (!player)
+                return;
+
+            if (!player->CanUseBattlegroundObject(this))
+                return;
+
+            GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(m_goTypeImpl.get());
+            if (!newFlag)
+                return;
+
+            if (newFlag->GetState() != FlagState::InBase)
                 return;
 
             spellId = info->newflag.pickupSpell;
@@ -2962,10 +2993,20 @@ void GameObject::Use(Unit* user)
             if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
 
+            if (!user->IsAlive())
+                return;
+
             if (GameObject* owner = GetMap()->GetGameObject(GetOwnerGUID()))
             {
                 if (owner->GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
                 {
+                    GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(owner->m_goTypeImpl.get());
+                    if (!newFlag)
+                        return;
+
+                    if (newFlag->GetState() != FlagState::Dropped)
+                        return;
+
                     // friendly with enemy flag means you're taking it
                     bool defenderInteract = !owner->IsFriendlyTo(user);
                     if (defenderInteract && owner->GetGOInfo()->newflag.ReturnonDefenderInteract)
@@ -3196,6 +3237,25 @@ uint32 GameObject::GetScriptId() const
             return scriptId;
 
     return GetGOInfo()->ScriptId;
+}
+
+bool GameObject::HasStringId(std::string_view id) const
+{
+    return std::find(m_stringIds.begin(), m_stringIds.end(), id) != m_stringIds.end();
+}
+
+void GameObject::SetScriptStringId(std::string id)
+{
+    if (!id.empty())
+    {
+        m_scriptStringId.emplace(std::move(id));
+        m_stringIds[2] = *m_scriptStringId;
+    }
+    else
+    {
+        m_scriptStringId.reset();
+        m_stringIds[2] = {};
+    }
 }
 
 // overwrite WorldObject function for proper name localization
@@ -4020,6 +4080,42 @@ bool GameObject::CanInteractWithCapturePoint(Player const* target) const
     // For Alliance players
     return m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde
         || m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured;
+}
+
+FlagState GameObject::GetFlagState() const
+{
+    if (GetGoType() != GAMEOBJECT_TYPE_NEW_FLAG)
+        return FlagState(0);
+
+    GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(m_goTypeImpl.get());
+    if (!newFlag)
+        return FlagState(0);
+
+    return newFlag->GetState();
+}
+
+ObjectGuid const& GameObject::GetFlagCarrierGUID() const
+{
+    if (GetGoType() != GAMEOBJECT_TYPE_NEW_FLAG)
+        return ObjectGuid::Empty;
+
+    GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(m_goTypeImpl.get());
+    if (!newFlag)
+        return ObjectGuid::Empty;
+
+    return newFlag->GetCarrierGUID();
+}
+
+time_t GameObject::GetFlagTakenFromBaseTime() const
+{
+    if (GetGoType() != GAMEOBJECT_TYPE_NEW_FLAG)
+        return time_t(0);
+
+    GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(m_goTypeImpl.get());
+    if (!newFlag)
+        return time_t(0);
+
+    return newFlag->GetTakenFromBaseTime();
 }
 
 bool GameObject::MeetsInteractCondition(Player const* user) const

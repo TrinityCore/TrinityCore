@@ -48,7 +48,6 @@ enum class GossipOptionFlags : int32;
 enum class GossipOptionNpc : uint8;
 struct AccessRequirement;
 struct DeclinedName;
-struct DungeonEncounterEntry;
 struct FactionEntry;
 struct PlayerInfo;
 struct PlayerLevelInfo;
@@ -94,7 +93,7 @@ struct TempSummonData
     uint32 entry;        ///< Entry of summoned creature
     Position pos;        ///< Position, where should be creature spawned
     TempSummonType type; ///< Summon type, see TempSummonType for available types
-    uint32 time;         ///< Despawn time, usable only with certain temp summon types
+    Milliseconds time;   ///< Despawn time, usable only with certain temp summon types
 };
 
 #pragma pack(pop)
@@ -578,7 +577,6 @@ struct QuestRelationResult
                 }
 
                 bool operator==(Iterator const& other) const { return _it == other._it; }
-                bool operator!=(Iterator const& other) const { return _it != other._it; }
 
                 Iterator& operator++() { ++_it; skip(); return *this; }
                 Iterator operator++(int) { Iterator t = *this; ++*this; return t; }
@@ -993,26 +991,6 @@ struct ExtendedPlayerName
 
 ExtendedPlayerName ExtractExtendedPlayerName(std::string const& name);
 
-enum EncounterCreditType : uint8
-{
-    ENCOUNTER_CREDIT_KILL_CREATURE  = 0,
-    ENCOUNTER_CREDIT_CAST_SPELL     = 1
-};
-
-struct DungeonEncounter
-{
-    DungeonEncounter(DungeonEncounterEntry const* _dbcEntry, EncounterCreditType _creditType, uint32 _creditEntry, uint32 _lastEncounterDungeon)
-        : dbcEntry(_dbcEntry), creditType(_creditType), creditEntry(_creditEntry), lastEncounterDungeon(_lastEncounterDungeon) { }
-
-    DungeonEncounterEntry const* dbcEntry;
-    EncounterCreditType creditType;
-    uint32 creditEntry;
-    uint32 lastEncounterDungeon;
-};
-
-typedef std::vector<DungeonEncounter> DungeonEncounterList;
-typedef std::unordered_map<uint64, DungeonEncounterList> DungeonEncounterContainer;
-
 struct TerrainSwapInfo
 {
     uint32 Id;
@@ -1290,8 +1268,6 @@ class TC_GAME_API ObjectMgr
         VehicleTemplate const* GetVehicleTemplate(Vehicle* veh) const;
         VehicleAccessoryList const* GetVehicleAccessoryList(Vehicle* veh) const;
 
-        DungeonEncounterList const* GetDungeonEncounterList(uint32 mapId, Difficulty difficulty) const;
-
         void LoadQuests();
         void LoadQuestStartersAndEnders();
         void LoadGameobjectQuestStarters();
@@ -1312,6 +1288,8 @@ class TC_GAME_API ObjectMgr
         {
             return _exclusiveQuestGroups.equal_range(exclusiveGroupId);
         }
+
+        std::vector<Difficulty> ParseSpawnDifficulties(std::string_view difficultyString, std::string_view table, ObjectGuid::LowType spawnId, uint32 mapId, std::set<Difficulty> const& mapDifficulties);
 
         bool LoadTrinityStrings();
 
@@ -1364,7 +1342,6 @@ class TC_GAME_API ObjectMgr
         void LoadGossipMenuItemsLocales();
         void LoadPointOfInterestLocales();
         void LoadInstanceTemplate();
-        void LoadInstanceEncounters();
         void LoadMailLevelRewards();
         void LoadVehicleTemplateAccessories();
         void LoadVehicleTemplate();
@@ -1816,7 +1793,6 @@ class TC_GAME_API ObjectMgr
         AreaTriggerContainer _areaTriggerStore;
         AreaTriggerScriptContainer _areaTriggerScriptStore;
         AccessRequirementContainer _accessRequirementStore;
-        DungeonEncounterContainer _dungeonEncounterStore;
         std::unordered_map<uint32, WorldSafeLocsEntry> _worldSafeLocs;
 
         EventContainer _eventStore;

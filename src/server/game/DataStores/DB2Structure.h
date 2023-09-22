@@ -631,7 +631,6 @@ struct ChrClassesEntry
     uint32 LowResScreenFileDataID;
     int32 Flags;
     uint32 SpellTextureBlobFileDataID;
-    uint32 RolesMask;
     uint32 ArmorTypeMask;
     int32 CharStartKitUnknown901;
     int32 MaleCharacterCreationVisualFallback;
@@ -653,6 +652,7 @@ struct ChrClassesEntry
     uint8 ClassColorR;
     uint8 ClassColorG;
     uint8 ClassColorB;
+    uint8 RolesMask;
 };
 
 struct ChrClassesXPowerTypesEntry
@@ -700,6 +700,7 @@ struct ChrCustomizationElementEntry
     int32 ChrCustItemGeoModifyID;
     int32 ChrCustomizationVoiceID;
     int32 AnimKitID;
+    int32 ParticleColorID;
 };
 
 struct ChrCustomizationOptionEntry
@@ -847,6 +848,9 @@ struct ChrSpecializationEntry
     int8 PrimaryStatPriority;
     int32 AnimReplacements;
     std::array<int32, MAX_MASTERY_SPELLS> MasterySpellID;
+
+    EnumFlag<ChrSpecializationFlag> GetFlags() const { return static_cast<ChrSpecializationFlag>(Flags); }
+    ChrSpecializationRole GetRole() const { return static_cast<ChrSpecializationRole>(Role); }
 
     bool IsPetSpecialization() const
     {
@@ -1030,6 +1034,8 @@ struct CreatureModelDataEntry
     std::array<float, 6> GeoBox;
     uint32 Flags;
     uint32 FileDataID;
+    float WalkSpeed;
+    float RunSpeed;
     uint32 BloodID;
     uint32 FootprintTextureID;
     float FootprintTextureLength;
@@ -2735,7 +2741,13 @@ struct MapEntry
     bool IsDynamicDifficultyMap() const { return GetFlags().HasFlag(MapFlags::DynamicDifficulty); }
     bool IsFlexLocking() const { return GetFlags().HasFlag(MapFlags::FlexibleRaidLocking); }
     bool IsGarrison() const { return GetFlags().HasFlag(MapFlags::Garrison); }
-    bool IsSplitByFaction() const { return ID == 609 || ID == 2175 || ID == 2570; }
+    bool IsSplitByFaction() const
+    {
+        return ID == 609 || // Acherus (DeathKnight Start)
+            ID == 1265 ||   // Assault on the Dark Portal (WoD Intro)
+            ID == 2175 ||   // Exiles Reach - NPE
+            ID == 2570;     // Forbidden Reach (Dracthyr/Evoker Start)
+    }
 
     EnumFlag<MapFlags> GetFlags() const { return static_cast<MapFlags>(Flags[0]); }
     EnumFlag<MapFlags2> GetFlags2() const { return static_cast<MapFlags2>(Flags[1]); }
@@ -3964,7 +3976,7 @@ struct TaxiNodesEntry
     uint16 ContinentID;
     int32 ConditionID;
     uint16 CharacterBitNumber;
-    uint16 Flags;
+    int32 Flags;
     int32 UiTextureKitID;
     int32 MinimapAtlasMemberID;
     float Facing;
@@ -3988,7 +4000,7 @@ struct TaxiPathNodeEntry
     uint16 PathID;
     int32 NodeIndex;
     uint16 ContinentID;
-    uint8 Flags;
+    int32 Flags;
     uint32 Delay;
     int32 ArrivalEventID;
     int32 DepartureEventID;

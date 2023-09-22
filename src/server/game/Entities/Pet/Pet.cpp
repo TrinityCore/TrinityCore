@@ -244,6 +244,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         return false;
     }
 
+    owner->SetTemporaryUnsummonedPetNumber(0);
+
     Map* map = owner->GetMap();
     ObjectGuid::LowType guid = map->GenerateLowGuid<HighGuid::Pet>();
 
@@ -366,9 +368,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
         uint32 newPetIndex = std::distance(petStable->ActivePets.begin(), activePetItr);
 
-        // Check that we either have no pet (unsummoned by player) or it matches temporarily unsummoned pet by server (for example on flying mount)
-        ASSERT(!petStable->CurrentPetIndex || petStable->CurrentPetIndex == newPetIndex);
-
         petStable->SetCurrentActivePetIndex(newPetIndex);
     }
 
@@ -456,6 +455,9 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             }
         }
 
+        if (owner->IsMounted())
+            owner->DisablePetControlsOnMount(REACT_PASSIVE, COMMAND_FOLLOW);
+
         // must be after SetMinion (owner guid check)
         LoadTemplateImmunities();
         m_loading = false;
@@ -525,7 +527,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         std::string actionBar = GenerateActionBarData();
 
         ASSERT(owner->GetPetStable()->GetCurrentPet() && owner->GetPetStable()->GetCurrentPet()->PetNumber == m_charmInfo->GetPetNumber());
-        FillPetInfo(owner->GetPetStable()->GetCurrentPet());
+        FillPetInfo(owner->GetPetStable()->GetCurrentPet(), owner->GetTemporaryPetReactState());
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET);
         stmt->setUInt32(0, m_charmInfo->GetPetNumber());
@@ -534,7 +536,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         stmt->setUInt32(3, GetNativeDisplayId());
         stmt->setUInt8(4, GetLevel());
         stmt->setUInt32(5, m_unitData->PetExperience);
-        stmt->setUInt8(6, GetReactState());
+        stmt->setUInt8(6, owner->GetTemporaryPetReactState().value_or(GetReactState()));
         stmt->setInt16(7, owner->GetPetStable()->GetCurrentActivePetIndex().value_or(PET_SAVE_NOT_IN_SLOT));
         stmt->setString(8, m_name);
         stmt->setUInt8(9, HasPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED) ? 0 : 1);
@@ -557,14 +559,14 @@ void Pet::SavePetToDB(PetSaveMode mode)
     }
 }
 
-void Pet::FillPetInfo(PetStable::PetInfo* petInfo) const
+void Pet::FillPetInfo(PetStable::PetInfo* petInfo, Optional<ReactStates> forcedReactState /*= {}*/) const
 {
     petInfo->PetNumber = m_charmInfo->GetPetNumber();
     petInfo->CreatureId = GetEntry();
     petInfo->DisplayId = GetNativeDisplayId();
     petInfo->Level = GetLevel();
     petInfo->Experience = m_unitData->PetExperience;
-    petInfo->ReactState = GetReactState();
+    petInfo->ReactState = forcedReactState.value_or(GetReactState());
     petInfo->Name = GetName();
     petInfo->WasRenamed = !HasPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED);
     petInfo->Health = GetHealth();

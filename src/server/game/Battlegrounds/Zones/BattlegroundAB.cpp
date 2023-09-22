@@ -23,13 +23,11 @@
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "Random.h"
 #include "SpellInfo.h"
 
 BattlegroundAB::BattlegroundAB(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     m_IsInformedNearVictory = false;
-    m_BuffChange = true;
     BgObjects.resize(0);
     BgCreatures.resize(0);
     m_lastTick = 0;
@@ -133,10 +131,10 @@ void BattlegroundAB::StartingEventOpenDoors()
     TriggerGameEvent(AB_EVENT_START_BATTLE);
 }
 
-void BattlegroundAB::AddPlayer(Player* player)
+void BattlegroundAB::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
 {
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
-    Battleground::AddPlayer(player);
+    Battleground::AddPlayer(player, queueId);
     if (!isInBattleground)
         PlayerScores[player->GetGUID()] = new BattlegroundABScore(player->GetGUID(), player->GetBGTeam());
 }

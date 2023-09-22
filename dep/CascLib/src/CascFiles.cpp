@@ -523,7 +523,7 @@ static DWORD LoadBuildNumber(TCascStorage * hs, const char * /* szVariableName *
     // "build-name = 1.21.5.4037-retail"
     while(szDataBegin < szDataEnd)
     {
-        // There must be at least three digits (build 99 anyone?)
+        // If the character is a digit, we include it into the built number
         if(IsCharDigit(szDataBegin[0]))
         {
             dwBuildNumber = (dwBuildNumber * 10) + (szDataBegin[0] - '0');
@@ -539,9 +539,12 @@ static DWORD LoadBuildNumber(TCascStorage * hs, const char * /* szVariableName *
         szDataBegin++;
     }
 
-    // If not there, just take value from build file
-    if((hs->dwBuildNumber = dwMaxValue) == 0)
-        hs->dwBuildNumber = hs->CdnBuildKey.pbData[0] % 100;
+    // If we don't have a build number yet, take the max value, if any
+    if(hs->dwBuildNumber == 0 && dwMaxValue >= 100)
+    {
+        hs->dwBuildNumber = dwMaxValue;
+        return ERROR_SUCCESS;
+    }
     return ERROR_BAD_FORMAT;
 }
 

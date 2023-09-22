@@ -31,17 +31,27 @@
 
 typedef enum _ROOT_FORMAT
 {
-    RootFormatWoW6x,                            // WoW 6.x - 8.1.x
-    RootFormatWoW82                             // WoW 8.2 or newer
+    RootFormatWoW_v1,                           // Since build 18125 (WoW 6.0.1)
+    RootFormatWoW_v2,                           // Since build 30080 (WoW 8.2.0)
 } ROOT_FORMAT, *PROOT_FORMAT;
 
-// ROOT file header, since 8.2
-typedef struct _FILE_ROOT_HEADER_82
+// ROOT file header since build 50893 (10.1.7)
+typedef struct _FILE_ROOT_HEADER_50893
 {
-    DWORD Signature;                            // Must be CASC_WOW82_ROOT_SIGNATURE
+    DWORD Signature;                            // Must be CASC_WOW_ROOT_SIGNATURE
+    DWORD SizeOfHeader;
+    DWORD Version;                              // Must be 1
     DWORD TotalFiles;
     DWORD FilesWithNameHash;
-} FILE_ROOT_HEADER_82, *PFILE_ROOT_HEADER_82;
+} FILE_ROOT_HEADER_50893, * PFILE_ROOT_HEADER_50893;
+
+// ROOT file header since build 30080 (8.2.0)
+typedef struct _FILE_ROOT_HEADER_30080
+{
+    DWORD Signature;                            // Must be CASC_WOW_ROOT_SIGNATURE
+    DWORD TotalFiles;
+    DWORD FilesWithNameHash;
+} FILE_ROOT_HEADER_30080, *PFILE_ROOT_HEADER_30080;
 
 // On-disk version of root group. A root group contains a group of file
 // with the same locale and file flags
@@ -58,7 +68,7 @@ typedef struct _FILE_ROOT_GROUP_HEADER
 
 // On-disk version of root entry. Only present in versions 6.x - 8.1.xx
 // Each root entry represents one file in the CASC storage
-// In WoW 8.2 and newer, CKey and FileNameHash are split into separate arrays
+// In WoW build 30080 (8.2.0)+, CKey and FileNameHash are split into separate arrays
 // and FileNameHash is optional
 typedef struct _FILE_ROOT_ENTRY
 {
@@ -72,9 +82,9 @@ typedef struct _FILE_ROOT_GROUP
     FILE_ROOT_GROUP_HEADER Header;
     PDWORD FileDataIds;                         // Pointer to the array of File Data IDs
 
-    PFILE_ROOT_ENTRY pRootEntries;              // Valid for WoW 6.x - 8.1.x
-    PCONTENT_KEY pCKeyEntries;                  // Valid for WoW 8.2 or newer
-    PULONGLONG pHashes;                         // Valid for WoW 8.2 or newer (optional)
+    PFILE_ROOT_ENTRY pRootEntries;              // Valid for WoW since 18125
+    PCONTENT_KEY pCKeyEntries;                  // Valid for WoW since 30080
+    PULONGLONG pHashes;                         // Valid for WoW since 30080 (optional)
 
 } FILE_ROOT_GROUP, *PFILE_ROOT_GROUP;
 
@@ -87,6 +97,8 @@ struct TRootHandler_WoW : public TFileTreeRoot
 {
     public:
 
+    typedef LPBYTE (*CAPTURE_ROOT_HEADER)(LPBYTE pbRootPtr, LPBYTE pbRootEnd, PROOT_FORMAT RootFormat, PDWORD FileCounterHashless);
+
     TRootHandler_WoW(ROOT_FORMAT RFormat, DWORD HashlessFileCount) : TFileTreeRoot(FTREE_FLAGS_WOW)
     {
         // Turn off the "we know file names" bit
@@ -97,30 +109,102 @@ struct TRootHandler_WoW : public TFileTreeRoot
         // Update the flags based on format
         switch(RootFormat)
         {
-            case RootFormatWoW6x:
-                dwFeatures |= CASC_FEATURE_ROOT_CKEY | CASC_FEATURE_LOCALE_FLAGS | CASC_FEATURE_CONTENT_FLAGS | CASC_FEATURE_FNAME_HASHES;
+            case RootFormatWoW_v2:
+                dwFeatures |= CASC_FEATURE_ROOT_CKEY | CASC_FEATURE_LOCALE_FLAGS | CASC_FEATURE_CONTENT_FLAGS | CASC_FEATURE_FILE_DATA_IDS | CASC_FEATURE_FNAME_HASHES_OPTIONAL;
                 break;
 
-            case RootFormatWoW82:
-                dwFeatures |= CASC_FEATURE_ROOT_CKEY | CASC_FEATURE_LOCALE_FLAGS | CASC_FEATURE_CONTENT_FLAGS | CASC_FEATURE_FILE_DATA_IDS | CASC_FEATURE_FNAME_HASHES_OPTIONAL;
+            case RootFormatWoW_v1:
+                dwFeatures |= CASC_FEATURE_ROOT_CKEY | CASC_FEATURE_LOCALE_FLAGS | CASC_FEATURE_CONTENT_FLAGS | CASC_FEATURE_FNAME_HASHES;
                 break;
         }
     }
 
-    static LPBYTE CaptureRootHeader(FILE_ROOT_HEADER_82 & RootHeader, LPBYTE pbRootPtr, LPBYTE pbRootEnd)
+    // Check for the new format (World of Warcraft 10.1.7, build 50893)
+    static LPBYTE CaptureRootHeader_50893(LPBYTE pbRootPtr, LPBYTE pbRootEnd, PROOT_FORMAT RootFormat, PDWORD FileCounterHashless)
     {
+        FILE_ROOT_HEADER_50893 RootHeader;
+
         // Validate the root file header
-        if((pbRootPtr + sizeof(FILE_ROOT_HEADER_82)) >= pbRootEnd)
+        if((pbRootPtr + sizeof(FILE_ROOT_HEADER_50893)) >= pbRootEnd)
             return NULL;
-        memcpy(&RootHeader, pbRootPtr, sizeof(FILE_ROOT_HEADER_82));
+        memcpy(&RootHeader, pbRootPtr, sizeof(FILE_ROOT_HEADER_50893));
 
         // Verify the root file header
-        if(RootHeader.Signature != CASC_WOW82_ROOT_SIGNATURE)
+        if(RootHeader.Signature != CASC_WOW_ROOT_SIGNATURE)
+            return NULL;
+        if(RootHeader.Version != 1)
+            return NULL;
+        if(RootHeader.FilesWithNameHash > RootHeader.TotalFiles)
+            return NULL;
+        // wow client doesn't seem to think this is a fatal error, we will do the same for now
+        if(RootHeader.SizeOfHeader < 4)
+            RootHeader.SizeOfHeader = 4;
+
+        *RootFormat = RootFormatWoW_v2;
+        *FileCounterHashless = RootHeader.TotalFiles - RootHeader.FilesWithNameHash;
+        return pbRootPtr + RootHeader.SizeOfHeader;
+    }
+
+    // Check for the root format for build 30080+ (WoW 8.2.0)
+    static LPBYTE CaptureRootHeader_30080(LPBYTE pbRootPtr, LPBYTE pbRootEnd, PROOT_FORMAT RootFormat, PDWORD FileCounterHashless)
+    {
+        FILE_ROOT_HEADER_30080 RootHeader;
+
+        // Validate the root file header
+        if((pbRootPtr + sizeof(FILE_ROOT_HEADER_30080)) >= pbRootEnd)
+            return NULL;
+        memcpy(&RootHeader, pbRootPtr, sizeof(FILE_ROOT_HEADER_30080));
+
+        // Verify the root file header
+        if(RootHeader.Signature != CASC_WOW_ROOT_SIGNATURE)
             return NULL;
         if(RootHeader.FilesWithNameHash > RootHeader.TotalFiles)
             return NULL;
 
-        return pbRootPtr + sizeof(FILE_ROOT_HEADER_82);
+        *RootFormat = RootFormatWoW_v2;
+        *FileCounterHashless = RootHeader.TotalFiles - RootHeader.FilesWithNameHash;
+        return pbRootPtr + sizeof(FILE_ROOT_HEADER_30080);
+    }
+
+    // Check for the root format for build 18125+ (WoW 6.0.1)
+    static LPBYTE CaptureRootHeader_18125(LPBYTE pbRootPtr, LPBYTE pbRootEnd, PROOT_FORMAT RootFormat, PDWORD FileCounterHashless)
+    {
+        size_t DataLength;
+
+        // There is no header. Right at the begin, there's FILE_ROOT_GROUP_HEADER structure,
+        // followed by the array of DWORDs and FILE_ROOT_ENTRYs
+        if((pbRootPtr + sizeof(FILE_ROOT_GROUP_HEADER)) >= pbRootEnd)
+            return NULL;
+        DataLength = ((PFILE_ROOT_GROUP_HEADER)(pbRootPtr))->NumberOfFiles * (sizeof(DWORD) + sizeof(FILE_ROOT_ENTRY));
+
+        // Validate the array of data
+        if((pbRootPtr + sizeof(FILE_ROOT_GROUP_HEADER) + DataLength) >= pbRootEnd)
+            return NULL;
+
+        *RootFormat = RootFormatWoW_v1;
+        *FileCounterHashless = 0;
+        return pbRootPtr;
+    }
+
+    static LPBYTE CaptureRootHeader(LPBYTE pbRootPtr, LPBYTE pbRootEnd, PROOT_FORMAT RootFormat, PDWORD FileCounterHashless)
+    {
+        CAPTURE_ROOT_HEADER PfnCaptureRootHeader[] =
+        {
+            &CaptureRootHeader_50893,
+            &CaptureRootHeader_30080,
+            &CaptureRootHeader_18125,
+        };
+
+        for(size_t i = 0; i < _countof(PfnCaptureRootHeader); i++)
+        {
+            LPBYTE pbCapturedPtr;
+
+            if((pbCapturedPtr = PfnCaptureRootHeader[i](pbRootPtr, pbRootEnd, RootFormat, FileCounterHashless)) != NULL)
+            {
+                return pbCapturedPtr;
+            }
+        }
+        return NULL;
     }
 
     LPBYTE CaptureRootGroup(FILE_ROOT_GROUP & RootGroup, LPBYTE pbRootPtr, LPBYTE pbRootEnd)
@@ -146,15 +230,7 @@ struct TRootHandler_WoW : public TFileTreeRoot
         // Validate the array of root entries
         switch(RootFormat)
         {
-            case RootFormatWoW6x:
-                if((pbRootPtr + (sizeof(FILE_ROOT_ENTRY) * RootGroup.Header.NumberOfFiles)) > pbRootEnd)
-                    return NULL;
-                RootGroup.pRootEntries = (PFILE_ROOT_ENTRY)pbRootPtr;
-
-                // Return the position of the next block
-                return pbRootPtr + (sizeof(FILE_ROOT_ENTRY) * RootGroup.Header.NumberOfFiles);
-
-            case RootFormatWoW82:
+            case RootFormatWoW_v2:
 
                 // Verify the position of array of CONTENT_KEY
                 if((pbRootPtr + (sizeof(CONTENT_KEY) * RootGroup.Header.NumberOfFiles)) > pbRootEnd)
@@ -173,49 +249,21 @@ struct TRootHandler_WoW : public TFileTreeRoot
 
                 return pbRootPtr;
 
+            case RootFormatWoW_v1:
+                if((pbRootPtr + (sizeof(FILE_ROOT_ENTRY) * RootGroup.Header.NumberOfFiles)) > pbRootEnd)
+                    return NULL;
+                RootGroup.pRootEntries = (PFILE_ROOT_ENTRY)pbRootPtr;
+
+                // Return the position of the next block
+                return pbRootPtr + (sizeof(FILE_ROOT_ENTRY) * RootGroup.Header.NumberOfFiles);
+
             default:
                 return NULL;
         }
     }
 
-    DWORD ParseWowRootFile_AddFiles_6x(TCascStorage * hs, FILE_ROOT_GROUP & RootGroup)
-    {
-        PFILE_ROOT_ENTRY pRootEntry = RootGroup.pRootEntries;
-        PCASC_CKEY_ENTRY pCKeyEntry;
-        DWORD FileDataId = 0;
-
-        // Sanity check
-        assert(RootGroup.pRootEntries != NULL);
-
-        // WoW.exe (build 19116): Blocks with zero files are skipped
-        for(DWORD i = 0; i < RootGroup.Header.NumberOfFiles; i++, pRootEntry++)
-        {
-            // Set the file data ID
-            FileDataId = FileDataId + RootGroup.FileDataIds[i];
-//          BREAKIF(FileDataId == 2823765);
-
-            // Find the item in the central storage. Insert it to the tree
-            if((pCKeyEntry = FindCKeyEntry_CKey(hs, pRootEntry->CKey.Value)) != NULL)
-            {
-                if(pRootEntry->FileNameHash != 0)
-                {
-                    FileTree.InsertByHash(pCKeyEntry, pRootEntry->FileNameHash, FileDataId, RootGroup.Header.LocaleFlags, RootGroup.Header.ContentFlags);
-                }
-                else
-                {
-                    FileTree.InsertById(pCKeyEntry, FileDataId, RootGroup.Header.LocaleFlags, RootGroup.Header.ContentFlags);
-                }
-            }
-
-            // Update the file data ID
-            assert((FileDataId + 1) > FileDataId);
-            FileDataId++;
-        }
-
-        return ERROR_SUCCESS;
-    }
-
-    DWORD ParseWowRootFile_AddFiles_82(TCascStorage * hs, FILE_ROOT_GROUP & RootGroup)
+    // Since WoW build 30080 (8.2.0)
+    DWORD ParseWowRootFile_AddFiles_v2(TCascStorage * hs, FILE_ROOT_GROUP & RootGroup)
     {
         PCASC_CKEY_ENTRY pCKeyEntry;
         PCONTENT_KEY pCKey = RootGroup.pCKeyEntries;
@@ -238,6 +286,44 @@ struct TRootHandler_WoW : public TFileTreeRoot
                 if(RootGroup.pHashes != NULL && RootGroup.pHashes[i] != 0)
                 {
                     FileTree.InsertByHash(pCKeyEntry, RootGroup.pHashes[i], FileDataId, RootGroup.Header.LocaleFlags, RootGroup.Header.ContentFlags);
+                }
+                else
+                {
+                    FileTree.InsertById(pCKeyEntry, FileDataId, RootGroup.Header.LocaleFlags, RootGroup.Header.ContentFlags);
+                }
+            }
+
+            // Update the file data ID
+            assert((FileDataId + 1) > FileDataId);
+            FileDataId++;
+        }
+
+        return ERROR_SUCCESS;
+    }
+
+    // Since WoW build 18125 (6.0.1)
+    DWORD ParseWowRootFile_AddFiles_v1(TCascStorage * hs, FILE_ROOT_GROUP & RootGroup)
+    {
+        PFILE_ROOT_ENTRY pRootEntry = RootGroup.pRootEntries;
+        PCASC_CKEY_ENTRY pCKeyEntry;
+        DWORD FileDataId = 0;
+
+        // Sanity check
+        assert(RootGroup.pRootEntries != NULL);
+
+        // WoW.exe (build 19116): Blocks with zero files are skipped
+        for(DWORD i = 0; i < RootGroup.Header.NumberOfFiles; i++, pRootEntry++)
+        {
+            // Set the file data ID
+            FileDataId = FileDataId + RootGroup.FileDataIds[i];
+//          BREAKIF(FileDataId == 2823765);
+
+            // Find the item in the central storage. Insert it to the tree
+            if((pCKeyEntry = FindCKeyEntry_CKey(hs, pRootEntry->CKey.Value)) != NULL)
+            {
+                if(pRootEntry->FileNameHash != 0)
+                {
+                    FileTree.InsertByHash(pCKeyEntry, pRootEntry->FileNameHash, FileDataId, RootGroup.Header.LocaleFlags, RootGroup.Header.ContentFlags);
                 }
                 else
                 {
@@ -297,12 +383,12 @@ struct TRootHandler_WoW : public TFileTreeRoot
             // Now call the custom function
             switch(RootFormat)
             {
-                case RootFormatWoW82:
-                    ParseWowRootFile_AddFiles_82(hs, RootBlock);
+                case RootFormatWoW_v2:
+                    ParseWowRootFile_AddFiles_v2(hs, RootBlock);
                     break;
 
-                case RootFormatWoW6x:
-                    ParseWowRootFile_AddFiles_6x(hs, RootBlock);
+                case RootFormatWoW_v1:
+                    ParseWowRootFile_AddFiles_v1(hs, RootBlock);
                     break;
 
                 default:
@@ -407,7 +493,7 @@ struct TRootHandler_WoW : public TFileTreeRoot
             DWORD FileDataId = CASC_INVALID_ID;
             char szFileName[MAX_PATH];
 
-            if(RootFormat == RootFormatWoW82)
+            if(RootFormat == RootFormatWoW_v2)
             {
                 // Keep going through the listfile
                 for(;;)
@@ -421,11 +507,25 @@ struct TRootHandler_WoW : public TFileTreeRoot
                         break;
                     }
 
-                    // Try to find the file node by file data id
-                    pFileNode = FileTree.FindById(FileDataId);
-                    if(pFileNode != NULL && pFileNode->NameLength == 0)
+                    //
+                    // Several files were renamed around WoW build 50893 (10.1.7). Example:
+                    //
+                    //  * 2965132; interface/icons/inv_helm_armor_explorer_d_01.blp     file name hash = 0x770b8d2dc4d940aa
+                    //  * 2965132; interface/icons/inv_armor_explorer_d_01_helm.blp     file name hash = 0xf47ec17f4a1e49a2
+                    //
+                    // For that reason, we also need to check whether the file name hash matches
+                    //
+
+                    // BREAKIF(FileDataId == 2965132);
+
+                    if((pFileNode = FileTree.FindById(FileDataId)) != NULL)
                     {
-                        FileTree.SetNodeFileName(pFileNode, szFileName);
+                        if(pFileNode->NameLength == 0)
+                        {
+                            if(pFileNode->FileNameHash && pFileNode->FileNameHash != CalcFileNameHash(szFileName))
+                                continue;
+                            FileTree.SetNodeFileName(pFileNode, szFileName);
+                        }
                     }
                 }
             }
@@ -462,7 +562,7 @@ struct TRootHandler_WoW : public TFileTreeRoot
     }
 
     ROOT_FORMAT RootFormat;                 // Root file format
-    DWORD FileCounterHashless;              // Number of files for which we don't have hash. Meaningless for WoW before 8.2
+    DWORD FileCounterHashless;              // Number of files for which we don't have hash. Meaningless for WoW before 8.2.0
     DWORD FileCounter;                      // Counter of loaded files. Only used during loading of ROOT file
 };
 
@@ -472,22 +572,16 @@ struct TRootHandler_WoW : public TFileTreeRoot
 DWORD RootHandler_CreateWoW(TCascStorage * hs, CASC_BLOB & RootFile, DWORD dwLocaleMask)
 {
     TRootHandler_WoW * pRootHandler = NULL;
-    FILE_ROOT_HEADER_82 RootHeader;
-    ROOT_FORMAT RootFormat = RootFormatWoW6x;
+    ROOT_FORMAT RootFormat = RootFormatWoW_v1;
     LPBYTE pbRootFile = RootFile.pbData;
     LPBYTE pbRootEnd = RootFile.End();
     LPBYTE pbRootPtr;
     DWORD FileCounterHashless = 0;
     DWORD dwErrCode = ERROR_BAD_FORMAT;
 
-    // Check for the new format (World of Warcraft 8.2, build 30170)
-    pbRootPtr = TRootHandler_WoW::CaptureRootHeader(RootHeader, pbRootFile, pbRootEnd);
-    if(pbRootPtr != NULL)
-    {
-        FileCounterHashless = RootHeader.TotalFiles - RootHeader.FilesWithNameHash;
-        RootFormat = RootFormatWoW82;
-        pbRootFile = pbRootPtr;
-    }
+    // Verify the root header
+    if((pbRootPtr = TRootHandler_WoW::CaptureRootHeader(pbRootFile, pbRootEnd, &RootFormat, &FileCounterHashless)) == NULL)
+        return ERROR_BAD_FORMAT;
 
     // Create the WOW handler
     pRootHandler = new TRootHandler_WoW(RootFormat, FileCounterHashless);
@@ -496,7 +590,7 @@ DWORD RootHandler_CreateWoW(TCascStorage * hs, CASC_BLOB & RootFile, DWORD dwLoc
         //fp = fopen("E:\\file-data-ids2.txt", "wt");
 
         // Load the root directory. If load failed, we free the object
-        dwErrCode = pRootHandler->Load(hs, pbRootFile, pbRootEnd, dwLocaleMask);
+        dwErrCode = pRootHandler->Load(hs, pbRootPtr, pbRootEnd, dwLocaleMask);
         if(dwErrCode != ERROR_SUCCESS)
         {
             delete pRootHandler;

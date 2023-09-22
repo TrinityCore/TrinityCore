@@ -44,9 +44,9 @@ public:
         return GetMaraudonAI<boss_ptheradrasAI>(creature);
     }
 
-    struct boss_ptheradrasAI : public ScriptedAI
+    struct boss_ptheradrasAI : public BossAI
     {
-        boss_ptheradrasAI(Creature* creature) : ScriptedAI(creature)
+        boss_ptheradrasAI(Creature* creature) : BossAI(creature, BOSS_PRINCESS_THERADRAS)
         {
             Initialize();
         }
@@ -66,13 +66,15 @@ public:
 
         void Reset() override
         {
+            BossAI::Reset();
+
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* killer) override
         {
+            BossAI::JustDied(killer);
+
             me->SummonCreature(12238, 28.1887f, 62.3964f, -123.161f, 4.31096f, TEMPSUMMON_TIMED_DESPAWN, 10min);
         }
 

@@ -159,6 +159,7 @@ namespace WorldPackets
             bool AddonsDisabled                      = false;
             bool Unused1000                          = false;
             bool ContentTrackingEnabled              = false;
+            bool IsSellAllJunkEnabled                = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
@@ -219,6 +220,7 @@ namespace WorldPackets
             Optional<int32> LaunchETA;
             std::vector<DebugTimeEventInfo> DebugTimeEvents;
             int32 Unused1007                         = 0;
+            Optional<std::string> RealmHiddenAlert;
         };
 
         class MOTD final : public ServerPacket

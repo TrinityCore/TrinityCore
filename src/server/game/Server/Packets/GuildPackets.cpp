@@ -301,8 +301,8 @@ WorldPacket const* WorldPackets::Guild::GuildEventPlayerLeft::Write()
 WorldPacket const* WorldPackets::Guild::GuildPermissionsQueryResults::Write()
 {
     _worldPacket << uint32(RankID);
-    _worldPacket << int32(WithdrawGoldLimit);
     _worldPacket << int32(Flags);
+    _worldPacket << int32(WithdrawGoldLimit);
     _worldPacket << int32(NumTabs);
     _worldPacket << uint32(Tab.size());
 
