@@ -63,7 +63,7 @@ class TC_GAME_API Pet : public Guardian
         bool LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current, Optional<PetSaveMode> forcedSlot = {});
         bool IsLoading() const override { return m_loading;}
         void SavePetToDB(PetSaveMode mode);
-        void FillPetInfo(PetStable::PetInfo* petInfo) const;
+        void FillPetInfo(PetStable::PetInfo* petInfo, Optional<ReactStates> forcedReactState = {}) const;
         void Remove(PetSaveMode mode, bool returnreagent = false);
         static void DeleteFromDB(uint32 petNumber);
 

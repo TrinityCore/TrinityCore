@@ -140,8 +140,7 @@ private:
     {
         _lib = OSSL_LIB_CTX_new();
         OSSL_PROVIDER_add_builtin(_lib, "trinity-rsa-hmac-sha256", &InitProvider);
-        _handle = OSSL_PROVIDER_load(_lib, "trinity-rsa-hmac-sha256");
-        OSSL_PROVIDER_load(_lib, "default");
+        _handle = OSSL_PROVIDER_try_load(_lib, "trinity-rsa-hmac-sha256", 1);
     }
 
     ~HMAC_SHA256_MD()

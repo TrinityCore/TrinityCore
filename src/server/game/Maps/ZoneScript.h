@@ -60,7 +60,7 @@ class TC_GAME_API ZoneScript
         virtual void OnAreaTriggerCreate([[maybe_unused]] AreaTrigger* areaTrigger) { }
         virtual void OnAreaTriggerRemove([[maybe_unused]] AreaTrigger* areaTrigger) { }
 
-        virtual void OnUnitDeath(Unit*) { }
+        virtual void OnUnitDeath([[maybe_unused]] Unit* unit) { }
 
         //All-purpose data storage ObjectGuid
         virtual ObjectGuid GetGuidData(uint32 /*DataId*/) const { return ObjectGuid::Empty; }

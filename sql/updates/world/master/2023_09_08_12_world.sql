@@ -1,0 +1,21 @@
+SET @TEL_ID := 2083;
+
+DELETE FROM `game_tele` WHERE `id` BETWEEN @TEL_ID+0 AND @TEL_ID+16;
+INSERT INTO `game_tele` (`id`,`position_x`,`position_y`,`position_z`,`orientation`,`map`,`name`) VALUES
+(@TEL_ID+0,2599.61,-3319.49,3269.17,5.82214,2222,'GlutharnsDecay'),
+(@TEL_ID+1,2750.14,-2848.48,3299.01,1.46868,2222,'ChallengersPromenade'),
+(@TEL_ID+2,1813.7,-3183.58,3243.54,4.95819,2222,'HouseOfPlagues'),
+(@TEL_ID+3,1792.33,-3040.3,3277.82,5.20404,2222,'PlagueWatch'),
+(@TEL_ID+4,2946.73,-4009.82,3348.96,5.84963,2222,'RottingMound'),
+(@TEL_ID+5,2892.02,-3636.33,3321.34,2.22895,2222,'RenouncedBastille'),
+(@TEL_ID+6,3509.44,-3608.49,3424.08,5.48206,2222,'HouseOfRituals'),
+(@TEL_ID+7,3212.44,-3059.35,3311.5,1.59119,2222,'ForgottenWounds'),
+(@TEL_ID+8,3558.25,-2809.69,3344.14,5.51269,2222,'KeresRest'),
+(@TEL_ID+9,4269.85,-2897.57,3392.43,2.46299,2222,'HouseOfEyes'),
+(@TEL_ID+10,3774.03,-2049.6,3291.56,3.48716,2222,'SepulcherOfKnowledge'),
+(@TEL_ID+11,3574.3,-1738.77,3225.81,2.80543,2222,'SpidersWatch'),
+(@TEL_ID+12,3774.18,-1146.51,3191.86,3.93641,2222,'HouseOfConstructs'),
+(@TEL_ID+13,2494.69,-1846.85,3271.95,0.367559,2222,'TheSpearhead'),
+(@TEL_ID+14,2247.36,-1075.47,3378.19,6.10254,2222,'BurningThicket'),
+(@TEL_ID+15,2106.75,-1845.48,3357.12,2.50148,2222,'HouseOfTheChosen'),
+(@TEL_ID+16,1769.64,-2547.75,3392.23,0.0039115,2222,'SeatOfThePrimus');
