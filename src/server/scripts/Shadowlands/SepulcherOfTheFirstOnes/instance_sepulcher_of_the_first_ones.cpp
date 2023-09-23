@@ -356,22 +356,6 @@ public:
             return InstanceScript::GetGuidData(type);
         }
 
-        void Update(uint32 diff) override
-        {
-            Events.Update(diff);
-
-            while (uint32 eventId = Events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-
-
-                default:
-                    break;
-                }
-            }
-        }
-
     protected:
         EventMap Events;
         ObjectGuid AnduinWrynnGUID;

@@ -437,7 +437,7 @@ Position const AssistersSpawnPos[3] =
 
 Position const FirimOutroductionPos = { -3830.0156f, -2676.7969f, 91.56402f };
 
-Position const DominationGraspCenter = { -3825.0601f, -2715.4600f, 91.3567, 1.6260f };
+Position const DominationGraspCenter = { -3825.0601f, -2715.4600f, 91.3567f, 1.6260f };
 
 Position const IntermissionAssisters[3] =
 {
@@ -629,7 +629,6 @@ struct boss_anduin_wrynn : public BossAI
         Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
         Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER);
         Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE);
-        Unit* anduin = instance->GetCreature(DATA_ANDUIN_WRYNN);
 
         if (!sylvanas || !uther || !jaina)
             return;
@@ -653,7 +652,6 @@ struct boss_anduin_wrynn : public BossAI
         Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
         Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER);
         Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE);
-        Unit* anduin = instance->GetCreature(DATA_ANDUIN_WRYNN);
 
         if (!sylvanas || !uther || !jaina)
             return;
@@ -754,7 +752,7 @@ struct boss_anduin_wrynn : public BossAI
 
     void KilledUnit(Unit* victim) override
     {
-        if (_slay == 0)
+        if (_slay == 0 && !victim->IsPlayer())
         {
             Talk(SAY_SLAY);
             _slay = 1;
@@ -1455,7 +1453,8 @@ struct boss_anduin_wrynn : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (damage < me->GetHealthPct() <= 10.0)
+        float healthPct = me->GetHealthPct();
+        if (damage < healthPct && healthPct <= 10.0)
         {
             /*isInphaseThree = true;
             DoAction(ACTION_EXIT_INTERMISSION);*/
@@ -1596,12 +1595,6 @@ struct npc_anduin_wrynn_befouled_barrier : public ScriptedAI
 
     uint32 GetCurrentHealing() const
     {
-
-    }
-
-    void SetCurrentHealing(uint32 currentHealing)
-    {
-
 
     }
 
@@ -1753,7 +1746,7 @@ struct npc_anduin_wrynn_lost_soul : public ScriptedAI
         summoner->CastSpell(me, SPELL_LOST_SOUL_MIRROR_IMAGE);
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit* /*killer*/) override
     {
         DoAction(ACTION_RESTORE_SOUL);
         me->DespawnOrUnsummon(2s);
@@ -1919,7 +1912,7 @@ struct npc_anduin_wrynn_anduin_despair : public ScriptedAI
         DoCastSelf(SPELL_ANDUIN_SOUL_DESPAIR);
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit* /*killer*/) override
     {
         _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         DoCastSelf(SPELL_WILLPOWER_ENERGIZE_LARGE);
@@ -1957,7 +1950,7 @@ struct npc_anduin_wrynn_anduin_doubt : public ScriptedAI
 
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit* /*killer*/) override
     {
         _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         DoCastSelf(SPELL_WILLPOWER_ENERGIZE_SMALL);
@@ -2048,7 +2041,7 @@ struct npc_anduin_wrynn_anduin_hope : public ScriptedAI
             return;
     }
 
-    void HealReceived(Unit* healer, uint32& heal) override
+    void HealReceived(Unit* /*healer*/, uint32& heal) override
     {
         if (me->HealthAbovePctHealed(100, heal))
         {
@@ -2096,7 +2089,7 @@ public:
     npc_anduin_wrynn_fiendish_soul(Creature* creature) : ScriptedAI(creature),
         _instance(creature->GetInstanceScript()) { }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_GHOUL_LEAP, 1s);
         _events.ScheduleEvent(EVENT_NECROTIC_CLAWS, 10s);
@@ -2195,7 +2188,7 @@ public:
     npc_anduin_wrynn_monstrous_soul(Creature* creature) : ScriptedAI(creature),
         _instance(creature->GetInstanceScript()) { }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_UNRAVELING_FRENZY_PERIODIC, true);
 
@@ -2484,7 +2477,7 @@ struct npc_anduin_wrynn_grim_reflection : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit* /*killer*/) override
     {
         if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
         {
@@ -2562,13 +2555,6 @@ struct npc_anduin_wrynn_sylvanas : public ScriptedAI
             me->PauseMovement(9999999, 0, true);
             break;
         }
-    }
-
-    void MovementInform(uint32 type, uint32 id) override
-    {
-        if (type != POINT_MOTION_TYPE)
-            return;
-
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -2681,7 +2667,7 @@ struct npc_anduin_wrynn_jaina : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         if (pointId == 8)
             if (Creature* anduin = _instance->GetCreature(DATA_ANDUIN_WRYNN))
@@ -2865,15 +2851,16 @@ struct npc_dominated_translocator : public ScriptedAI
     npc_dominated_translocator(Creature* creature) : ScriptedAI(creature),
         _instance(creature->GetInstanceScript()) { }
 
-    bool OnGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
-        if (_instance->GetBossState(DATA_ANDUIN_WRYNN != DONE))
+        if (_instance->GetBossState(DATA_ANDUIN_WRYNN) != DONE)
         {
             CloseGossipMenuFor(player);
             return false;
         }
         CloseGossipMenuFor(player);
         player->CastSpell(player, SPELL_TELEPORT_COSMIC_HUB, false);
+        return true;
     }
 
 private:
@@ -2886,15 +2873,16 @@ struct npc_ancient_console : public ScriptedAI
     npc_ancient_console(Creature* creature) : ScriptedAI(creature),
         _instance(creature->GetInstanceScript()) { }
 
-    bool OnGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
-        if (_instance->GetBossState(DATA_ANDUIN_WRYNN != DONE))
+        if (_instance->GetBossState(DATA_ANDUIN_WRYNN) != DONE)
         {
             CloseGossipMenuFor(player);
             return false;
         }
         CloseGossipMenuFor(player);
         player->CastSpell(player, SPELL_TELEPORT_DOMINATIONS_GRASP, false);
+        return true;
     }
 
 private:
@@ -2980,7 +2968,7 @@ class spell_anduin_wrynn_progression_aura : public AuraScript
         canBeRecalculated = true;
     }
 
-    void Trigger(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+    void Trigger(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
     {
         if (!GetTarget()->GetAura(SPELL_ANDUIN_PROGRESSION_AURA))
             return;
@@ -3052,7 +3040,7 @@ class spell_anduin_wrynn_dark_zeal : public AuraScript
         return true;
     }
 
-    void OnProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void OnProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetActionTarget();
@@ -3101,7 +3089,7 @@ class spell_anduin_wrynn_hopebreaker_periodic : public AuraScript
 {
     PrepareAuraScript(spell_anduin_wrynn_hopebreaker_periodic);
 
-    void OnPeriodic(AuraEffect const* aurEff)
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
         if (!GetCaster())
             return;
@@ -3494,7 +3482,7 @@ class spell_anduin_wrynn_befouled_barrier_absorb : public AuraScript
 
     void Register() override
     {
-        OnEffectAbsorbHeal += AuraEffectAbsorbHealFn(spell_anduin_wrynn_befouled_barrier_absorb::OnHealAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_HEAL_ABSORB);
+        OnEffectAbsorbHeal += AuraEffectAbsorbHealFn(spell_anduin_wrynn_befouled_barrier_absorb::OnHealAbsorb, EFFECT_0);
     }
 };
 
@@ -3600,9 +3588,9 @@ class spell_anduin_wrynn_blasphemy_init : public SpellScript
         targets.remove_if([](WorldObject* target) -> bool
             {
                 if (!target->IsPlayer() ||
-                (!target->GetEntry() == NPC_SYLVANAS_WINDRUNNER ||
-                    !target->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER ||
-                    !target->GetEntry() == NPC_LADY_JAINA_PROUDMOORE))
+                (target->GetEntry() != NPC_SYLVANAS_WINDRUNNER ||
+                    target->GetEntry() != NPC_UTHER_THE_LIGHTBRINGER ||
+                    target->GetEntry() != NPC_LADY_JAINA_PROUDMOORE))
                     return true;
 
         return false;
@@ -3732,7 +3720,7 @@ class spell_anduin_wrynn_hopelessness_overconfidence : public AuraScript
 // Wicked Star Pointer 365021
 class spell_anduin_wrynn_wicked_star_pointer : public AuraScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WICKED_STAR_TARGETED });
     }
@@ -3939,7 +3927,7 @@ private:
 // Empowered Wicked Star Pointer - 367632
 class spell_anduin_wrynn_empowered_wicked_star_pointer : public AuraScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WICKED_STAR_TARGETED });
     }
@@ -4104,7 +4092,7 @@ struct at_anduin_wrynn_empowered_wicked_star : AreaTriggerAI
                 else if (Unit* caster = at->GetCaster())
                 {
                     Position wallPosition(DominationGraspCenter);
-                    caster->MovePositionToFirstCollision(wallPosition, 50.0f, frand(0, 2 * M_PI) - caster->GetOrientation());
+                    caster->MovePositionToFirstCollision(wallPosition, 50.0f, frand(0, 2.0f * float(M_PI)) - caster->GetOrientation());
 
                     Movement::PointsArray returnSplinePoints;
                     returnSplinePoints.push_back(PositionToVector3(at));
@@ -4128,7 +4116,7 @@ private:
 // Kingsmourne Hungers - 362405
 class spell_anduin_wrynn_kingsmourne_hungers : public SpellScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({
             SPELL_KINGSMOURNE_HUNGERS_DAMAGE,
@@ -4156,7 +4144,7 @@ class spell_anduin_wrynn_kingsmourne_hungers : public SpellScript
             });
     }
 
-    void HandleDummyEffect(SpellEffIndex effIndex)
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_KINGSMOURNE_HUNGERS_DAMAGE, true);
         GetHitUnit()->AddAura(SPELL_SEVERED_SOUL, GetHitUnit());
@@ -4183,7 +4171,7 @@ class spell_anduin_wrynn_kingsmourne_hungers : public SpellScript
 // Lost Soul Dimension - 362055
 class spell_anduin_wrynn_lost_soul : public AuraScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LOST_SOUL_GRACE });
     }
@@ -4240,32 +4228,6 @@ private:
     ObjectGuid _playerGUID;
     Position lostSoulPosition;
 };
-
-// Anduin Soul AT - 24744
-struct at_anduin_wrynn_anduin_soul : AreaTriggerAI
-{
-    at_anduin_wrynn_anduin_soul(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
-        _instance(at->GetInstanceScript()) { }
-
-    void OnInitialize() override
-    {
-        if (!_instance)
-            return;
-
-    }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-
-    }
-
-private:
-    InstanceScript* _instance;
-};
-// ----> VERIFIED CODE UP TO HERE <-----------
-//
-//
-// 
 
 //362392 
 class spell_anduin_rain_of_despair_player_selector : public SpellScript
@@ -4383,7 +4345,6 @@ class spell_remnant_of_a_fallen_king_spawn : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        InstanceScript* instance = GetTarget()->GetInstanceScript();
 
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
         {
@@ -4460,7 +4421,7 @@ class spell_anduin_soul_lost_soul : public SpellScript
     {
         for (std::list<WorldObject*>::iterator itr = unitList.begin(); itr != unitList.end();)
         {
-            if ((*itr)->GetEntry() == NPC_ANDUIN_DOUBT && (*itr)->IsWithinDistInMap(GetCaster(), 0.2))
+            if ((*itr)->GetEntry() == NPC_ANDUIN_DOUBT && (*itr)->IsWithinDistInMap(GetCaster(), 0.2f))
                 ++itr;
             else
                 unitList.erase(itr++);
@@ -4980,7 +4941,7 @@ class spell_remnant_of_a_fallen_king_remorseless_winter_periodic : public AuraSc
 {
     PrepareAuraScript(spell_remnant_of_a_fallen_king_remorseless_winter_periodic);
 
-    void OnPeriodic(AuraEffect const* aurEff)
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -5177,7 +5138,7 @@ public:
         skippedPlayers.insert(playerId);
     }
 
-    void OnMovieComplete(Player* player, uint32 movieId) override
+    void OnMovieComplete(Player* player, uint32 /*movieId*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
         {
@@ -5245,12 +5206,6 @@ void AddSC_boss_anduin_wrynn()
     RegisterSpellScript(spell_anduin_wrynn_lost_soul);
     RegisterSpellScript(spell_anduin_wrynn_lost_soul_mirror_image);
     RegisterSpellScript(spell_anduin_wrynn_severed_soul);
-
-    RegisterAreaTriggerAI(at_anduin_wrynn_anduin_soul);
-
-    //RegisterSpellScript(spell_anduin_despair_rain_of_despair);
-    //RegisterSpellScript(spell_anduin_despair_rain_of_despair_ranged);
-    //RegisterSpellScript(spell_anduin_despair_rain_of_despair_melee);
 
     RegisterSpellScript(spell_anduin_wrynn_force_of_will);
 
