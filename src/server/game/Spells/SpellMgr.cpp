@@ -4669,51 +4669,49 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // Wicked Star (Marker)
     ApplySpellFix({ 365021 }, [](SpellInfo* spellInfo)
-        {
-            spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
-        });
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+    });
 
     // Empowered Wicked Star (Marker)
     ApplySpellFix({ 367632 }, [](SpellInfo* spellInfo)
-        {
-            spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
-        });
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+    });
 
      // Wicked Star Areatrigger
     ApplySpellFix({ 365017 }, [](SpellInfo* spellInfo)
-        {
-
-		ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-			{
-				spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-			});
-        });
+    {
+	    ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+		{
+			spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+		});
+    });
 
     // Willpower Energize Large
     ApplySpellFix({ 365228 }, [](SpellInfo* spellInfo)
-        {
-            spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
-        });
+    {
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
+    });
 
     // Willpower Energize Small
     ApplySpellFix({ 365217 }, [](SpellInfo* spellInfo)
-        {
-            spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
-        });
+    {
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
+    });
 
     // Fragment of Hope Areatrigger
     ApplySpellFix({ 365816 }, [](SpellInfo* spellInfo)
-        {
+    {
         ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-            {
-                spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-            });
-
-        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
-            {
-                spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-            });
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
         });
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
 
     // END OF SEPULCHER OF THE FIRST ONES
 
