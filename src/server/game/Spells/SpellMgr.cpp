@@ -4679,13 +4679,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
     });
 
-     // Wicked Star Areatrigger
+    // Wicked Star Areatrigger
     ApplySpellFix({ 365017 }, [](SpellInfo* spellInfo)
     {
         ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-	    {
-		    spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-	    });
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
     });
 
     // Willpower Energize Large
