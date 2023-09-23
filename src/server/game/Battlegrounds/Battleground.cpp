@@ -30,6 +30,7 @@
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "GroupMgr.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "KillRewarder.h"
@@ -1082,6 +1083,7 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, Team team)
         group = new Group;
         SetBgRaid(team, group);
         group->Create(player);
+        sGroupMgr->AddGroup(group);
         Seconds countdownMaxForBGType = Seconds(StartDelayTimes[BG_STARTING_EVENT_FIRST]  / 1000);
         if (_preparationStartTime)
             group->StartCountdown(CountdownTimerType::Pvp, countdownMaxForBGType, _preparationStartTime);
