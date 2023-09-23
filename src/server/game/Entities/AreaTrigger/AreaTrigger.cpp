@@ -44,9 +44,9 @@
 #include <bit>
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _spawnId(0), _aurEff(nullptr), _maxSearchRadius(0.0f),
-_duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
-_isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
-_areaTriggerCreateProperties(nullptr), _areaTriggerTemplate(nullptr)
+    _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
+    _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
+    _areaTriggerCreateProperties(nullptr), _areaTriggerTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -369,7 +369,7 @@ void AreaTrigger::_UpdateDuration(int32 newDuration)
     DoWithSuppressingObjectUpdates([&]()
         {
             SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::Duration), _duration);
-    const_cast<UF::AreaTriggerData&>(*m_areaTriggerData).ClearChanged(&UF::AreaTriggerData::Duration);
+            const_cast<UF::AreaTriggerData&>(*m_areaTriggerData).ClearChanged(&UF::AreaTriggerData::Duration);
         });
 }
 
@@ -453,18 +453,18 @@ void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false>
 
         switch (mode)
         {
-        case CurveInterpolationMode::CatmullRom:
-            // catmullrom requires at least 4 points, impossible here
-            mode = CurveInterpolationMode::Cosine;
-            break;
-        case CurveInterpolationMode::Bezier3:
-        case CurveInterpolationMode::Bezier4:
-        case CurveInterpolationMode::Bezier:
-            // bezier requires more than 2 points, impossible here
-            mode = CurveInterpolationMode::Linear;
-            break;
-        default:
-            break;
+            case CurveInterpolationMode::CatmullRom:
+                // catmullrom requires at least 4 points, impossible here
+                mode = CurveInterpolationMode::Cosine;
+                break;
+            case CurveInterpolationMode::Bezier3:
+            case CurveInterpolationMode::Bezier4:
+            case CurveInterpolationMode::Bezier:
+                // bezier requires more than 2 points, impossible here
+                mode = CurveInterpolationMode::Linear;
+                break;
+            default:
+                break;
         }
 
         uint32 pointCount = 2;
@@ -511,26 +511,26 @@ void AreaTrigger::UpdateTargetList()
 
     switch (_shape.Type)
     {
-    case AREATRIGGER_TYPE_SPHERE:
-        SearchUnitInSphere(targetList);
-        break;
-    case AREATRIGGER_TYPE_BOX:
-        SearchUnitInBox(targetList);
-        break;
-    case AREATRIGGER_TYPE_POLYGON:
-        SearchUnitInPolygon(targetList);
-        break;
-    case AREATRIGGER_TYPE_CYLINDER:
-        SearchUnitInCylinder(targetList);
-        break;
-    case AREATRIGGER_TYPE_DISK:
-        SearchUnitInDisk(targetList);
-        break;
-    case AREATRIGGER_TYPE_BOUNDED_PLANE:
-        SearchUnitInBoundedPlane(targetList);
-        break;
-    default:
-        break;
+        case AREATRIGGER_TYPE_SPHERE:
+            SearchUnitInSphere(targetList);
+            break;
+        case AREATRIGGER_TYPE_BOX:
+            SearchUnitInBox(targetList);
+            break;
+        case AREATRIGGER_TYPE_POLYGON:
+            SearchUnitInPolygon(targetList);
+            break;
+        case AREATRIGGER_TYPE_CYLINDER:
+            SearchUnitInCylinder(targetList);
+            break;
+        case AREATRIGGER_TYPE_DISK:
+            SearchUnitInDisk(targetList);
+            break;
+        case AREATRIGGER_TYPE_BOUNDED_PLANE:
+            SearchUnitInBoundedPlane(targetList);
+            break;
+        default:
+            break;
     }
 
     if (GetTemplate())
@@ -538,9 +538,9 @@ void AreaTrigger::UpdateTargetList()
         if (ConditionContainer const* conditions = sConditionMgr->GetConditionsForAreaTrigger(GetTemplate()->Id.Id, GetTemplate()->Id.IsServerSide))
         {
             targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [conditions](Unit* target)
-                {
-                    return !sConditionMgr->IsObjectMeetToConditions(target, *conditions);
-                }), targetList.end());
+            {
+                return !sConditionMgr->IsObjectMeetToConditions(target, *conditions);
+            }), targetList.end());
         }
     }
 
@@ -584,15 +584,15 @@ void AreaTrigger::SearchUnitInSphere(std::vector<Unit*>& targetList)
         if (m_areaTriggerData->OverrideScaleCurve->OverrideActive)
             radius *= GetOverrideScaleCurveValue();
 
-        if (Unit* caster = GetCaster())
-            if (Player* playerCaster = caster->ToPlayer())
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(GetSpellId(), playerCaster->GetMap()->GetDifficultyID());
-                if (spellInfo)
-                    playerCaster->ApplySpellMod(spellInfo, SpellModOp::Radius, radius);
-            }
+    if (Unit* caster = GetCaster())
+        if (Player* playerCaster = caster->ToPlayer())
+        {
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(GetSpellId(), playerCaster->GetMap()->GetDifficultyID());
+            if (spellInfo)
+                playerCaster->ApplySpellMod(spellInfo, SpellModOp::Radius, radius);
+        }
 
-        SearchUnits(targetList, radius, true);
+    SearchUnits(targetList, radius, true);
 }
 
 
@@ -606,9 +606,9 @@ void AreaTrigger::SearchUnitInBox(std::vector<Unit*>& targetList)
     float extentsZ = _shape.BoxDatas.Extents[2];
 
     targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [boxCenter, extentsX, extentsY, extentsZ](Unit* unit) -> bool
-        {
-            return !unit->IsWithinBox(boxCenter, extentsX, extentsY, extentsZ / 2);
-        }), targetList.end());
+    {
+        return !unit->IsWithinBox(boxCenter, extentsX, extentsY, extentsZ / 2);
+    }), targetList.end());
 }
 
 void AreaTrigger::SearchUnitInPolygon(std::vector<Unit*>& targetList)
@@ -620,11 +620,11 @@ void AreaTrigger::SearchUnitInPolygon(std::vector<Unit*>& targetList)
     float maxZ = GetPositionZ() + height;
 
     targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [this, minZ, maxZ](Unit* unit) -> bool
-        {
-            return !CheckIsInPolygon2D(unit)
+    {
+        return !CheckIsInPolygon2D(unit)
             || unit->GetPositionZ() < minZ
-        || unit->GetPositionZ() > maxZ;
-        }), targetList.end());
+            || unit->GetPositionZ() > maxZ;
+    }), targetList.end());
 }
 
 void AreaTrigger::SearchUnitInCylinder(std::vector<Unit*>& targetList)
@@ -636,10 +636,10 @@ void AreaTrigger::SearchUnitInCylinder(std::vector<Unit*>& targetList)
     float maxZ = GetPositionZ() + height;
 
     targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [minZ, maxZ](Unit* unit) -> bool
-        {
-            return unit->GetPositionZ() < minZ
+    {
+        return unit->GetPositionZ() < minZ
             || unit->GetPositionZ() > maxZ;
-        }), targetList.end());
+    }), targetList.end());
 }
 
 void AreaTrigger::SearchUnitInDisk(std::vector<Unit*>& targetList)
@@ -652,9 +652,9 @@ void AreaTrigger::SearchUnitInDisk(std::vector<Unit*>& targetList)
     float maxZ = GetPositionZ() + height;
 
     targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [this, innerRadius, minZ, maxZ](Unit const* unit) -> bool
-        {
-            return unit->IsInDist2d(this, innerRadius) || unit->GetPositionZ() < minZ || unit->GetPositionZ() > maxZ;
-        }), targetList.end());
+    {
+        return unit->IsInDist2d(this, innerRadius) || unit->GetPositionZ() < minZ || unit->GetPositionZ() > maxZ;
+    }), targetList.end());
 }
 
 void AreaTrigger::SearchUnitInBoundedPlane(std::vector<Unit*>& targetList)
@@ -666,9 +666,9 @@ void AreaTrigger::SearchUnitInBoundedPlane(std::vector<Unit*>& targetList)
     float extentsY = _shape.BoxDatas.Extents[1];
 
     targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [boxCenter, extentsX, extentsY](Unit const* unit) -> bool
-        {
-            return !unit->IsWithinBox(boxCenter, extentsX, extentsY, MAP_SIZE);
-        }), targetList.end());
+    {
+        return !unit->IsWithinBox(boxCenter, extentsX, extentsY, MAP_SIZE);
+    }), targetList.end());
 }
 
 void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
@@ -835,7 +835,7 @@ bool AreaTrigger::CheckIsInPolygon2D(Position const* pos) const
             float slopeOfLine = (vertX_j - vertX_i) / (vertY_j - vertY_i);
 
             // this looks up the x-coord of a point lying on the above line, given its y-coord
-            float pointOnLine = (slopeOfLine * (testY - vertY_i)) + vertX_i;
+            float pointOnLine = (slopeOfLine* (testY - vertY_i)) + vertX_i;
 
             //checks to see if x-coord of testPoint is smaller than the point on the line with the same y-coord
             bool isLeftToLine = testX < pointOnLine;
@@ -861,29 +861,29 @@ bool UnitFitToActionRequirement(Unit* unit, Unit* caster, AreaTriggerAction cons
 {
     switch (action.TargetType)
     {
-    case AREATRIGGER_ACTION_USER_FRIEND:
-    {
-        return caster->IsValidAssistTarget(unit, sSpellMgr->GetSpellInfo(action.Param, caster->GetMap()->GetDifficultyID()));
-    }
-    case AREATRIGGER_ACTION_USER_ENEMY:
-    {
-        return caster->IsValidAttackTarget(unit, sSpellMgr->GetSpellInfo(action.Param, caster->GetMap()->GetDifficultyID()));
-    }
-    case AREATRIGGER_ACTION_USER_RAID:
-    {
-        return caster->IsInRaidWith(unit);
-    }
-    case AREATRIGGER_ACTION_USER_PARTY:
-    {
-        return caster->IsInPartyWith(unit);
-    }
-    case AREATRIGGER_ACTION_USER_CASTER:
-    {
-        return unit->GetGUID() == caster->GetGUID();
-    }
-    case AREATRIGGER_ACTION_USER_ANY:
-    default:
-        break;
+        case AREATRIGGER_ACTION_USER_FRIEND:
+        {
+            return caster->IsValidAssistTarget(unit, sSpellMgr->GetSpellInfo(action.Param, caster->GetMap()->GetDifficultyID()));
+        }
+        case AREATRIGGER_ACTION_USER_ENEMY:
+        {
+            return caster->IsValidAttackTarget(unit, sSpellMgr->GetSpellInfo(action.Param, caster->GetMap()->GetDifficultyID()));
+        }
+        case AREATRIGGER_ACTION_USER_RAID:
+        {
+            return caster->IsInRaidWith(unit);
+        }
+        case AREATRIGGER_ACTION_USER_PARTY:
+        {
+            return caster->IsInPartyWith(unit);
+        }
+        case AREATRIGGER_ACTION_USER_CASTER:
+        {
+            return unit->GetGUID() == caster->GetGUID();
+        }
+        case AREATRIGGER_ACTION_USER_ANY:
+        default:
+            break;
     }
 
     return true;
@@ -967,10 +967,10 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 tim
 
     // should be sent in object create packets only
     DoWithSuppressingObjectUpdates([&]()
-        {
-            SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
-    const_cast<UF::AreaTriggerData&>(*m_areaTriggerData).ClearChanged(&UF::AreaTriggerData::TimeToTarget);
-        });
+    {
+        SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
+        const_cast<UF::AreaTriggerData&>(*m_areaTriggerData).ClearChanged(&UF::AreaTriggerData::TimeToTarget);
+    });
 
     if (IsInWorld())
     {
@@ -1007,10 +1007,10 @@ void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, uint32 timeToTarg
 
     // should be sent in object create packets only
     DoWithSuppressingObjectUpdates([&]()
-        {
-            SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
-    const_cast<UF::AreaTriggerData&>(*m_areaTriggerData).ClearChanged(&UF::AreaTriggerData::TimeToTarget);
-        });
+    {
+        SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
+        const_cast<UF::AreaTriggerData&>(*m_areaTriggerData).ClearChanged(&UF::AreaTriggerData::TimeToTarget);
+    });
 
     SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OrbitPathTarget), orbit.PathTarget.value_or(ObjectGuid::Empty));
 
