@@ -4663,8 +4663,8 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // ENDOF ANTORUS THE BURNING THRONE SPELLS
-	
-	
+
+
 	// SEPULCHER OF THE FIRST ONES
 
     // Wicked Star (Marker)
@@ -4682,10 +4682,10 @@ void SpellMgr::LoadSpellInfoCorrections()
      // Wicked Star Areatrigger
     ApplySpellFix({ 365017 }, [](SpellInfo* spellInfo)
     {
-	    ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-		{
-			spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-		});
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+	    {
+		    spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+	    });
     });
 
     // Willpower Energize Large
