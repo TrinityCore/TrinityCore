@@ -97,7 +97,7 @@ PidFile = ""
 
 #
 #    CertificatesFile
-#        Description: Certificates file.
+#        Description: Certificates file. Both PEM (.crt) and PKCS#12 (.pfx) formats are supported
 #        Example:     "/etc/ssl/certs/bnetserver.cert.pem"
 #        Default:     "./bnetserver.cert.pem"
 
@@ -107,6 +107,7 @@ CertificatesFile = "./bnetserver.cert.pem"
 #    PrivateKeyFile
 #        Description: Private key file.
 #        Example:     "/etc/ssl/private/bnetserver.key.pem"
+#                     Leave empty if you have a certificate in PKCS#12 format
 #        Default:     "./bnetserver.key.pem"
 
 PrivateKeyFile = "./bnetserver.key.pem"

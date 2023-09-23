@@ -23,6 +23,26 @@
 #define RFKScriptName "instance_razorfen_kraul"
 #define DataHeader "RFK"
 
+enum RFKBossIds
+{
+    BOSS_HUNTER_BONETUSK            = 0,
+    BOSS_ROOGUG                     = 1,
+    BOSS_WARLORD_RAMTUSK            = 2,
+    BOSS_GROYAT_THE_BLIND_HUNTER    = 3,
+    BOSS_CHARLGA_RAZORFLANK         = 4,
+
+    MAX_ENCOUNTER
+};
+
+enum RFKCreatureIds
+{
+    NPC_HUNTER_BONETUSK         = 75001,
+    NPC_ROOGUG                  = 6168,
+    NPC_WARLORD_RAMTUSK         = 74462,
+    NPC_GROYAT_THE_BLIND_HUNTER = 75247,
+    NPC_CHARLGA_RAZORFLANK      = 4421,
+};
+
 #define EVENT_WARD_KEEPER 1
 
 template <class AI, class T>

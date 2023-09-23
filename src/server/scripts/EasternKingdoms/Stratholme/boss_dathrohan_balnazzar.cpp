@@ -79,9 +79,9 @@ public:
         return GetStratholmeAI<boss_dathrohan_balnazzarAI>(creature);
     }
 
-    struct boss_dathrohan_balnazzarAI : public ScriptedAI
+    struct boss_dathrohan_balnazzarAI : public BossAI
     {
-        boss_dathrohan_balnazzarAI(Creature* creature) : ScriptedAI(creature)
+        boss_dathrohan_balnazzarAI(Creature* creature) : BossAI(creature, BOSS_BALNAZZAR)
         {
             Initialize();
         }
@@ -111,24 +111,20 @@ public:
 
         void Reset() override
         {
+            BossAI::Reset();
+
             Initialize();
 
             if (me->GetEntry() == NPC_BALNAZZAR)
                 me->UpdateEntry(NPC_DATHROHAN);
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* killer) override
         {
-            static uint32 uiCount = sizeof(m_aSummonPoint)/sizeof(SummonDef);
+            BossAI::JustDied(killer);
 
-            for (uint8 i=0; i<uiCount; ++i)
-                me->SummonCreature(NPC_ZOMBIE,
-                m_aSummonPoint[i].m_fX, m_aSummonPoint[i].m_fY, m_aSummonPoint[i].m_fZ, m_aSummonPoint[i].m_fOrient,
-                TEMPSUMMON_TIMED_DESPAWN, 1h);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
+            for (SummonDef const& summon : m_aSummonPoint)
+                me->SummonCreature(NPC_ZOMBIE, summon.m_fX, summon.m_fY, summon.m_fZ, summon.m_fOrient, TEMPSUMMON_TIMED_DESPAWN, 1h);
         }
 
         void UpdateAI(uint32 uiDiff) override

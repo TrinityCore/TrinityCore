@@ -24,7 +24,18 @@
 
 enum AssaultOnTheDarkPortalSpells
 {
-    SPELL_DARK_PORTAL_RUN_AWAY = 158985
+    SPELL_BLEEDING_HOLLOW_HOLDOUT        = 164609,
+    SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME = 164611,
+    SPELL_CANCEL_TRAIL_OF_FLAME_VISUAL   = 165993,
+    SPELL_DARK_PORTAL_RUN_AWAY           = 158985,
+    SPELL_HUT_CREDIT                     = 164613, // Serverside Spell
+    SPELL_PUSH_ARMY                      = 165072,
+    SPELL_TRAIL_OF_FLAME_LARGE           = 165991
+};
+
+enum AssaultOnTheDarkPortalQuests
+{
+    QUEST_FLAG_ARMY_PUSHED        = 35297
 };
 
 // 621 - Dark Portal: Run away
@@ -61,8 +72,70 @@ public:
     }
 };
 
+// 34422 - Blaze of Glory
+class quest_blaze_of_glory : public QuestScript
+{
+public:
+    quest_blaze_of_glory() : QuestScript("quest_blaze_of_glory") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus == QUEST_STATUS_NONE)
+        {
+            player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_HOLDOUT);
+            player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME);
+            player->RemoveAurasDueToSpell(SPELL_PUSH_ARMY);
+            player->RemoveRewardedQuest(QUEST_FLAG_ARMY_PUSHED);
+            PhasingHandler::OnConditionChange(player);
+        }
+        else if (newStatus == QUEST_STATUS_INCOMPLETE)
+            PhasingHandler::OnConditionChange(player);
+        else if (newStatus == QUEST_STATUS_COMPLETE)
+            player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME);
+    }
+};
+
+// 770 - Bleeding Hollow: Holdout
+class scene_bleeding_hollow_holdout : public SceneScript
+{
+public:
+    scene_bleeding_hollow_holdout() : SceneScript("scene_bleeding_hollow_holdout") { }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_HOLDOUT);
+        PhasingHandler::OnConditionChange(player);
+    }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Push")
+            player->CastSpell(player, SPELL_PUSH_ARMY, false);
+    }
+};
+
+// 771 - Bleeding Hollow: Trail of Flame
+class scene_bleeding_hollow_trail_of_flame : public SceneScript
+{
+    public:
+        scene_bleeding_hollow_trail_of_flame() : SceneScript("scene_bleeding_hollow_trail_of_flame") { }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Visual")
+            player->CastSpell(player, SPELL_TRAIL_OF_FLAME_LARGE, true);
+        else if (triggerName == "Clear")
+            player->CastSpell(player, SPELL_CANCEL_TRAIL_OF_FLAME_VISUAL, true);
+        else if (triggerName == "Credit")
+            player->CastSpell(player, SPELL_HUT_CREDIT, true);
+    }
+};
+
 void AddSC_assault_on_the_dark_portal()
 {
     new scene_dark_portal_run_away();
     new quest_the_cost_of_war();
+    new quest_blaze_of_glory();
+    new scene_bleeding_hollow_holdout();
+    new scene_bleeding_hollow_trail_of_flame();
 };
