@@ -607,7 +607,7 @@ void AreaTrigger::SearchUnitInBox(std::vector<Unit*>& targetList)
 
     targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [boxCenter, extentsX, extentsY, extentsZ](Unit* unit) -> bool
     {
-        return !unit->IsWithinBox(boxCenter, extentsX, extentsY, extentsZ / 2);
+        return !unit->IsWithinBox(boxCenter, extentsX, extentsY, extentsZ/2);
     }), targetList.end());
 }
 
@@ -911,8 +911,17 @@ void AreaTrigger::DoActions(Unit* unit)
                 case AREATRIGGER_ACTION_TELEPORT:
                 {
                     if (WorldSafeLocsEntry const* safeLoc = sObjectMgr->GetWorldSafeLoc(action.Param))
+                    {
                         if (Player* player = caster->ToPlayer())
+                        {
+                            if (player->GetMapId() != safeLoc->Loc.GetMapId())
+                            {
+                                if (WorldSafeLocsEntry const* instanceEntrance = player->GetInstanceEntrance(safeLoc->Loc.GetMapId()))
+                                    safeLoc = instanceEntrance;
+                            }
                             player->TeleportTo(safeLoc->Loc);
+                        }
+                    }
                     break;
                 }
                 default:
