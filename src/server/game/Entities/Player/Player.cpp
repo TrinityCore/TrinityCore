@@ -24346,10 +24346,6 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races r
                 continue;
         }
 
-        // AcquireMethod == 2 && NumSkillUps == 1 --> automatically learn riding skill spell, else we skip it (client shows riding in spellbook as trainable).
-        if (skillId == SKILL_RIDING && (ability->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN || ability->NumSkillUps != 1))
-            continue;
-
         // Check race if set
         if (!ability->RaceMask.IsEmpty() && !ability->RaceMask.HasRace(race))
             continue;
@@ -24359,23 +24355,17 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races r
             continue;
 
         // Check level, skip class spells if not high enough
-        // Special case for riding spells of the hero classes (Journeyman)
-        auto isRidingSpellForHeroClass = [&]()
+        uint32 requiredLevel = std::max(spellInfo->SpellLevel, spellInfo->BaseLevel);
+
+        // riding special cases
+        if (skillId == SKILL_RIDING)
         {
-            if (skillId != SKILL_RIDING)
-                return false;
+            if (GetClassMask() & ((1 << (CLASS_DEATH_KNIGHT - 1)) | (1 << (CLASS_DEMON_HUNTER - 1)))
+                && (ability->Spell == SPELL_APPRENTICE_RIDING || ability->Spell == SPELL_JOURNEYMAN_RIDING))
+                requiredLevel = 0;
+        }
 
-            if (!(GetClassMask() & ((1 << (CLASS_DEATH_KNIGHT - 1)) | (1 << (CLASS_DEMON_HUNTER - 1)))))
-                return false;
-
-            if (ability->Spell != SPELL_APPRENTICE_RIDING && ability->Spell != SPELL_JOURNEYMAN_RIDING)
-                return false;
-
-            return true;
-        };
-
-        // Some spells use BaseLevel instead of SpellLevel (Riding)
-        if (!isRidingSpellForHeroClass() && GetLevel() < std::max(spellInfo->SpellLevel, spellInfo->BaseLevel))
+        if (requiredLevel > GetLevel())
             continue;
 
         // need unlearn spell
