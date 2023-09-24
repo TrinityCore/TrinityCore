@@ -18,7 +18,7 @@
 #include "LootMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Group.h"
 #include "Log.h"
 #include "Loot.h"
@@ -857,9 +857,13 @@ void LoadLootTemplates_Fishing()
     uint32 count = LootTemplates_Fishing.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    for (AreaTableEntry const* areaTable : sAreaTableStore)
-        if (lootIdSet.find(areaTable->ID) != lootIdSet.end())
-            lootIdSet.erase(areaTable->ID);
+    AreaTableDBCMap const& areaMap = sDBCStoresMgr->GetAreaTableDBCMap();
+    for (const auto& atID : areaMap)
+    {
+        if (AreaTableDBC const* areaTable = &atID.second)
+            if (lootIdSet.find(areaTable->ID) != lootIdSet.end())
+                lootIdSet.erase(areaTable->ID);
+    }
 
     // output error for any still listed (not referenced from appropriate table) ids
     LootTemplates_Fishing.ReportUnusedIds(lootIdSet);
@@ -1030,10 +1034,15 @@ void LoadLootTemplates_Mail()
     uint32 count = LootTemplates_Mail.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sMailTemplateStore.GetNumRows(); ++i)
-        if (sMailTemplateStore.LookupEntry(i))
-            if (lootIdSet.find(i) != lootIdSet.end())
-                lootIdSet.erase(i);
+    MailTemplateDBCMap const& entryMap = sDBCStoresMgr->GetMailTemplateDBCMap();
+    for (const auto& indexID : entryMap)
+    {
+        if (MailTemplateDBC const* mt = &indexID.second)
+        {
+            if (lootIdSet.find(mt->ID) != lootIdSet.end())
+                lootIdSet.erase(mt->ID);
+        }
+    }
 
     // output error for any still listed (not referenced from appropriate table) ids
     LootTemplates_Mail.ReportUnusedIds(lootIdSet);

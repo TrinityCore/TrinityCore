@@ -22,7 +22,7 @@
 #include "Common.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
 #include "MiscPackets.h"
@@ -121,7 +121,7 @@ void CreatureTextMgr::LoadCreatureTexts()
 
         if (temp.sound)
         {
-            if (!sSoundEntriesStore.LookupEntry(temp.sound))
+            if (!sDBCStoresMgr->GetSoundEntriesDBC(temp.sound))
             {
                 TC_LOG_ERROR("sql.sql", "CreatureTextMgr: Entry {}, Group {} in table `creature_text` has Sound {} but sound does not exist.", temp.creatureId, temp.groupId, temp.sound);
                 temp.sound = 0;
@@ -142,7 +142,7 @@ void CreatureTextMgr::LoadCreatureTexts()
 
         if (temp.emote)
         {
-            if (!sEmotesStore.LookupEntry(temp.emote))
+            if (!sDBCStoresMgr->GetEmotesDBC(temp.emote))
             {
                 TC_LOG_ERROR("sql.sql", "CreatureTextMgr: Entry {}, Group {} in table `creature_text` has Emote {} but emote does not exist.", temp.creatureId, temp.groupId, uint32(temp.emote));
                 temp.emote = EMOTE_ONESHOT_NONE;

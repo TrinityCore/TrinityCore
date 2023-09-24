@@ -29,7 +29,7 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
@@ -307,7 +307,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
             continue;
 
         std::string aname;
-        if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(playerZoneId))
+        if (AreaTableDBC const* areaEntry = sDBCStoresMgr->GetAreaTableDBC(playerZoneId))
             aname = areaEntry->AreaName[GetSessionDbcLocale()];
 
         bool s_show = true;
@@ -603,7 +603,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         return;
     }
 
-    AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(triggerId);
+    AreaTriggerDBC const* atEntry = sDBCStoresMgr->GetAreaTriggerDBC(triggerId);
     if (!atEntry)
     {
         TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '{}' {} send unknown (by DBC) Area Trigger ID:{}",
@@ -668,7 +668,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
                     break;
                 case Map::CANNOT_ENTER_DIFFICULTY_UNAVAILABLE:
                     TC_LOG_DEBUG("maps", "MAP: Player '{}' attempted to enter instance map {} but the requested difficulty was not found", player->GetName(), at->target_mapId);
-                    if (MapEntry const* entry = sMapStore.LookupEntry(at->target_mapId))
+                    if (MapDBC const* entry = sDBCStoresMgr->GetMapDBC(at->target_mapId))
                         player->SendTransferAborted(entry->ID, TRANSFER_ABORT_DIFFICULTY, player->GetDifficulty(entry->IsRaid()));
                     break;
                 case Map::CANNOT_ENTER_NOT_IN_RAID:
@@ -689,9 +689,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
                     break;
                 }
                 case Map::CANNOT_ENTER_INSTANCE_BIND_MISMATCH:
-                    if (MapEntry const* entry = sMapStore.LookupEntry(at->target_mapId))
+                    if (MapDBC const* entry = sDBCStoresMgr->GetMapDBC(at->target_mapId))
                     {
-                        char const* mapName = entry->MapName[player->GetSession()->GetSessionDbcLocale()];
+                        std::string mapName = entry->MapName[player->GetSession()->GetSessionDbcLocale()];
                         TC_LOG_DEBUG("maps", "MAP: Player '{}' cannot enter instance map '{}' because their permanent bind is incompatible with their group's", player->GetName(), mapName);
                         // is there a special opcode for this?
                         // @todo figure out how to get player localized difficulty string (e.g. "10 player", "Heroic" etc)
@@ -1382,8 +1382,8 @@ void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
         return;
     }
 
-    AreaTableEntry const* atEntry = sAreaTableStore.LookupEntry(_player->GetAreaId());
-    if (!atEntry || !(atEntry->Flags & AREA_FLAG_WINTERGRASP_2))
+    AreaTableDBC const* atEntry = sDBCStoresMgr->GetAreaTableDBC(_player->GetAreaId());
+    if (!atEntry || !(atEntry->Flags & AREA_FLAG_CAN_HEARTH_AND_RESURRECT))
         return;
 
     _player->BuildPlayerRepop();

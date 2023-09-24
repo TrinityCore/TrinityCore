@@ -18,7 +18,7 @@
 #ifndef TRINITY_FORMULAS_H
 #define TRINITY_FORMULAS_H
 
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Creature.h"
 #include "Log.h"
 #include "Map.h"
@@ -177,7 +177,7 @@ namespace Trinity
             {
                 float xpMod = 1.0f;
 
-                gain = BaseGain(player->GetLevel(), u->GetLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
+                gain = BaseGain(player->GetLevel(), u->GetLevel(), sDBCStoresMgr->GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
 
                 if (gain && creature)
                 {

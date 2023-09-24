@@ -19,7 +19,7 @@
 #include "AchievementMgr.h"
 #include "CharacterDatabaseCleaner.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Log.h"
 #include "SpellMgr.h"
 #include "World.h"
@@ -118,7 +118,7 @@ void CharacterDatabaseCleaner::CleanCharacterAchievementProgress()
 
 bool CharacterDatabaseCleaner::SkillCheck(uint32 skill)
 {
-    return sSkillLineStore.LookupEntry(skill) != nullptr;
+    return sDBCStoresMgr->GetSkillLineDBC(skill) != nullptr;
 }
 
 void CharacterDatabaseCleaner::CleanCharacterSkills()
@@ -128,7 +128,7 @@ void CharacterDatabaseCleaner::CleanCharacterSkills()
 
 bool CharacterDatabaseCleaner::SpellCheck(uint32 spell_id)
 {
-    return sSpellMgr->GetSpellInfo(spell_id) && !GetTalentSpellPos(spell_id);
+    return sSpellMgr->GetSpellInfo(spell_id) && !sDBCStoresMgr->GetTalentSpellPos(spell_id);
 }
 
 void CharacterDatabaseCleaner::CleanCharacterSpell()
@@ -138,11 +138,11 @@ void CharacterDatabaseCleaner::CleanCharacterSpell()
 
 bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
 {
-    TalentEntry const* talentInfo = sTalentStore.LookupEntry(talent_id);
+    TalentDBC const* talentInfo = sDBCStoresMgr->GetTalentDBC(talent_id);
     if (!talentInfo)
         return false;
 
-    return sTalentTabStore.LookupEntry(talentInfo->TabID) != nullptr;
+    return sDBCStoresMgr->GetTalentTabDBC(talentInfo->TabID) != nullptr;
 }
 
 void CharacterDatabaseCleaner::CleanCharacterTalent()

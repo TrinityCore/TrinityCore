@@ -24,7 +24,7 @@
 #include "BattlegroundQueue.h"
 #include <unordered_map>
 
-struct BattlemasterListEntry;
+struct BattlemasterListDBC;
 
 typedef std::map<uint32, Battleground*> BattlegroundContainer;
 typedef std::set<uint32> BattlegroundClientIdsContainer;
@@ -56,7 +56,7 @@ struct BattlegroundTemplate
     float MaxStartDistSq;
     uint8 Weight;
     uint32 ScriptId;
-    BattlemasterListEntry const* BattlemasterEntry;
+    BattlemasterListDBC const* BattlemasterEntry;
 
     bool IsArena() const;
 };
@@ -84,7 +84,7 @@ class TC_GAME_API BattlegroundMgr
         Battleground* GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId);
         Battleground* GetBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId);
         Battleground* GetBattlegroundTemplate(BattlegroundTypeId bgTypeId);
-        Battleground* CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated);
+        Battleground* CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyDBC const* bracketEntry, uint8 arenaType, bool isRated);
 
         void AddBattleground(Battleground* bg);
         void RemoveBattleground(BattlegroundTypeId bgTypeId, uint32 instanceId);

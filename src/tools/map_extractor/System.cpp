@@ -43,13 +43,13 @@ typedef struct
     uint32 id;
 } map_id;
 
-struct LiquidTypeEntry
+struct LiquidTypeDBC
 {
     uint8 SoundBank;
 };
 
 std::vector<map_id> map_ids;
-std::unordered_map<uint32, LiquidTypeEntry> LiquidTypes;
+std::unordered_map<uint32, LiquidTypeDBC> LiquidTypes;
 #define MAX_PATH_LENGTH 128
 char output_path[MAX_PATH_LENGTH] = ".";
 char input_path[MAX_PATH_LENGTH] = ".";
@@ -249,7 +249,7 @@ void ReadLiquidTypeTableDBC()
 
     for (uint32 x = 0; x < dbc.getRecordCount(); ++x)
     {
-        LiquidTypeEntry& liquidType = LiquidTypes[dbc.getRecord(x).getUInt(0)];
+        LiquidTypeDBC& liquidType = LiquidTypes[dbc.getRecord(x).getUInt(0)];
         liquidType.SoundBank = dbc.getRecord(x).getUInt(3);
     }
 

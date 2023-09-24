@@ -264,7 +264,7 @@ class at_pit_cavern_entrance : public AreaTriggerScript
     public:
         at_pit_cavern_entrance() : AreaTriggerScript("at_pit_cavern_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerDBC const* /*areaTrigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
             {
@@ -285,7 +285,7 @@ class at_pit_cavern_end : public AreaTriggerScript
 public:
     at_pit_cavern_end() : AreaTriggerScript("at_pit_cavern_end") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    bool OnTrigger(Player* player, AreaTriggerDBC const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
         {

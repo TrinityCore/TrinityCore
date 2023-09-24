@@ -18,7 +18,7 @@
 #include "SmartScriptMgr.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
@@ -196,7 +196,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
                 }
                 case SMART_SCRIPT_TYPE_AREATRIGGER:
                 {
-                    if (!sAreaTriggerStore.LookupEntry((uint32)temp.entryOrGuid))
+                    if (!sDBCStoresMgr->GetAreaTriggerDBC((uint32)temp.entryOrGuid))
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: AreaTrigger entry ({}) does not exist, skipped loading.", uint32(temp.entryOrGuid));
                         continue;
@@ -640,7 +640,7 @@ bool SmartAIMgr::IsSpellValid(SmartScriptHolder const& e, uint32 entry)
 
 bool SmartAIMgr::IsItemValid(SmartScriptHolder const& e, uint32 entry)
 {
-    if (!sItemStore.LookupEntry(entry))
+    if (!sDBCStoresMgr->GetItemDBC(entry))
     {
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Item entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
         return false;
@@ -650,7 +650,7 @@ bool SmartAIMgr::IsItemValid(SmartScriptHolder const& e, uint32 entry)
 
 bool SmartAIMgr::IsTextEmoteValid(SmartScriptHolder const& e, uint32 entry)
 {
-    if (!sEmotesTextStore.LookupEntry(entry))
+    if (!sDBCStoresMgr->GetEmotesTextDBC(entry))
     {
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Text Emote entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
         return false;
@@ -660,7 +660,7 @@ bool SmartAIMgr::IsTextEmoteValid(SmartScriptHolder const& e, uint32 entry)
 
 bool SmartAIMgr::IsEmoteValid(SmartScriptHolder const& e, uint32 entry)
 {
-    if (!sEmotesStore.LookupEntry(entry))
+    if (!sDBCStoresMgr->GetEmotesDBC(entry))
     {
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Emote entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
         return false;
@@ -670,7 +670,7 @@ bool SmartAIMgr::IsEmoteValid(SmartScriptHolder const& e, uint32 entry)
 
 bool SmartAIMgr::IsAreaTriggerValid(SmartScriptHolder const& e, uint32 entry)
 {
-    if (!sAreaTriggerStore.LookupEntry(entry))
+    if (!sDBCStoresMgr->GetAreaTriggerDBC(entry))
     {
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent AreaTrigger entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
         return false;
@@ -680,7 +680,7 @@ bool SmartAIMgr::IsAreaTriggerValid(SmartScriptHolder const& e, uint32 entry)
 
 bool SmartAIMgr::IsSoundValid(SmartScriptHolder const& e, uint32 entry)
 {
-    if (!sSoundEntriesStore.LookupEntry(entry))
+    if (!sDBCStoresMgr->GetSoundEntriesDBC(entry))
     {
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Sound entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
         return false;
@@ -1130,12 +1130,12 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_SAI_IS_BOOLEAN_VALID(e, e.event.los.playerOnly);
                 break;
             case SMART_EVENT_RESPAWN:
-                if (e.event.respawn.type == SMART_SCRIPT_RESPAWN_CONDITION_MAP && !sMapStore.LookupEntry(e.event.respawn.map))
+                if (e.event.respawn.type == SMART_SCRIPT_RESPAWN_CONDITION_MAP && !sDBCStoresMgr->GetMapDBC(e.event.respawn.map))
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Map entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.respawn.map);
                     return false;
                 }
-                if (e.event.respawn.type == SMART_SCRIPT_RESPAWN_CONDITION_AREA && !sAreaTableStore.LookupEntry(e.event.respawn.area))
+                if (e.event.respawn.type == SMART_SCRIPT_RESPAWN_CONDITION_AREA && !sDBCStoresMgr->GetAreaTableDBC(e.event.respawn.area))
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Area entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.respawn.area);
                     return false;
@@ -1434,7 +1434,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_SET_FACTION:
-            if (e.action.faction.factionID && !sFactionTemplateStore.LookupEntry(e.action.faction.factionID))
+            if (e.action.faction.factionID && !sDBCStoresMgr->GetFactionTemplateDBC(e.action.faction.factionID))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Faction {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.faction.factionID);
                 return false;
@@ -1457,7 +1457,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} has ModelID set with also set CreatureId, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                         return false;
                     }
-                    else if (!sCreatureDisplayInfoStore.LookupEntry(e.action.morphOrMount.model))
+                    else if (!sDBCStoresMgr->GetCreatureDisplayInfoDBC(e.action.morphOrMount.model))
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Model id {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.morphOrMount.model);
                         return false;
@@ -1487,7 +1487,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         case SMART_ACTION_ACTIVATE_TAXI:
             {
-                if (!sTaxiPathStore.LookupEntry(e.action.taxi.id))
+                if (!sDBCStoresMgr->GetTaxiPathDBC(e.action.taxi.id))
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses invalid Taxi path ID {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.taxi.id);
                     return false;
@@ -1738,7 +1738,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         }
         case SMART_ACTION_TELEPORT:
-            if (!sMapStore.LookupEntry(e.action.teleport.mapID))
+            if (!sDBCStoresMgr->GetMapDBC(e.action.teleport.mapID))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Map entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.teleport.mapID);
                 return false;
@@ -1900,7 +1900,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         }
         case SMART_ACTION_OVERRIDE_LIGHT:
         {
-            AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(e.action.overrideLight.zoneId);
+            AreaTableDBC const* areaEntry = sDBCStoresMgr->GetAreaTableDBC(e.action.overrideLight.zoneId);
             if (!areaEntry)
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent zoneId {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.overrideLight.zoneId);
@@ -1913,13 +1913,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
 
-            if (!sLightStore.LookupEntry(e.action.overrideLight.areaLightId))
+            if (!sDBCStoresMgr->GetLightDBC(e.action.overrideLight.areaLightId))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent areaLightId {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.overrideLight.areaLightId);
                 return false;
             }
 
-            if (e.action.overrideLight.overrideLightId && !sLightStore.LookupEntry(e.action.overrideLight.overrideLightId))
+            if (e.action.overrideLight.overrideLightId && !sDBCStoresMgr->GetLightDBC(e.action.overrideLight.overrideLightId))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent overrideLightId {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.overrideLight.overrideLightId);
                 return false;
@@ -1929,7 +1929,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         }
         case SMART_ACTION_OVERRIDE_WEATHER:
         {
-            AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(e.action.overrideWeather.zoneId);
+            AreaTableDBC const* areaEntry = sDBCStoresMgr->GetAreaTableDBC(e.action.overrideWeather.zoneId);
             if (!areaEntry)
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent zoneId {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.overrideWeather.zoneId);

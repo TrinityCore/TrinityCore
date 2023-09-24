@@ -19,7 +19,7 @@
 #include "Battleground.h"
 #include "Corpse.h"
 #include "Creature.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "FlatSet.h"
 #include "Item.h"
 #include "ItemTemplate.h"
@@ -354,7 +354,7 @@ SpellEffectInfo::SpellEffectInfo() : _spellInfo(nullptr), EffectIndex(EFFECT_0),
 {
 }
 
-SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex)
+SpellEffectInfo::SpellEffectInfo(SpellDBC const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex)
 {
     _spellInfo = spellInfo;
     EffectIndex = SpellEffIndex(effIndex);
@@ -373,7 +373,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     Mechanic = Mechanics(spellEntry->EffectMechanic[effIndex]);
     TargetA = SpellImplicitTargetInfo(spellEntry->EffectImplicitTargetA[effIndex]);
     TargetB = SpellImplicitTargetInfo(spellEntry->EffectImplicitTargetB[effIndex]);
-    RadiusEntry = spellEntry->EffectRadiusIndex[effIndex] ? sSpellRadiusStore.LookupEntry(spellEntry->EffectRadiusIndex[effIndex]) : nullptr;
+    RadiusEntry = spellEntry->EffectRadiusIndex[effIndex] ? sDBCStoresMgr->GetSpellRadiusDBC(spellEntry->EffectRadiusIndex[effIndex]) : nullptr;
     ChainTarget = spellEntry->EffectChainTargets[effIndex];
     ItemType = spellEntry->EffectItemType[effIndex];
     TriggerSpell = spellEntry->EffectTriggerSpell[effIndex];
@@ -533,8 +533,8 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
 
             if (canEffectScale)
             {
-                GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(_spellInfo->SpellLevel - 1);
-                GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(casterUnit->GetLevel() - 1);
+                GtNPCManaCostScalerDBC const* spellScaler = sDBCStoresMgr->GetGtNPCManaCostScalerDBC(_spellInfo->SpellLevel - 1);
+                GtNPCManaCostScalerDBC const* casterScaler = sDBCStoresMgr->GetGtNPCManaCostScalerDBC(casterUnit->GetLevel() - 1);
                 if (spellScaler && casterScaler)
                     value *= casterScaler->Data / spellScaler->Data;
             }
@@ -804,10 +804,10 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 164 SPELL_EFFECT_REMOVE_AURA
 } };
 
-SpellInfo::SpellInfo(SpellEntry const* spellEntry)
+SpellInfo::SpellInfo(SpellDBC const* spellEntry)
 {
     Id = spellEntry->ID;
-    CategoryEntry = spellEntry->Category ? sSpellCategoryStore.LookupEntry(spellEntry->Category) : nullptr;
+    CategoryEntry = spellEntry->Category ? sDBCStoresMgr->GetSpellCategoryDBC(spellEntry->Category) : nullptr;
     Dispel = spellEntry->DispelType;
     Mechanic = spellEntry->Mechanic;
     Attributes = spellEntry->Attributes;
@@ -833,7 +833,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     TargetAuraSpell = spellEntry->TargetAuraSpell;
     ExcludeCasterAuraSpell = spellEntry->ExcludeCasterAuraSpell;
     ExcludeTargetAuraSpell = spellEntry->ExcludeTargetAuraSpell;
-    CastTimeEntry = spellEntry->CastingTimeIndex ? sSpellCastTimesStore.LookupEntry(spellEntry->CastingTimeIndex) : nullptr;
+    CastTimeEntry = spellEntry->CastingTimeIndex ? sDBCStoresMgr->GetSpellCastTimesDBC(spellEntry->CastingTimeIndex) : nullptr;
     RecoveryTime = spellEntry->RecoveryTime;
     CategoryRecoveryTime = spellEntry->CategoryRecoveryTime;
     StartRecoveryCategory = spellEntry->StartRecoveryCategory;
@@ -847,7 +847,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     MaxLevel = spellEntry->MaxLevel;
     BaseLevel = spellEntry->BaseLevel;
     SpellLevel = spellEntry->SpellLevel;
-    DurationEntry = spellEntry->DurationIndex ? sSpellDurationStore.LookupEntry(spellEntry->DurationIndex) : nullptr;
+    DurationEntry = spellEntry->DurationIndex ? sDBCStoresMgr->GetSpellDurationDBC(spellEntry->DurationIndex) : nullptr;
     PowerType = static_cast<Powers>(spellEntry->PowerType);
     ManaCost = spellEntry->ManaCost;
     ManaCostPerlevel = spellEntry->ManaCostPerLevel;
@@ -855,7 +855,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     ManaPerSecondPerLevel = spellEntry->ManaPerSecondPerLevel;
     ManaCostPercentage = spellEntry->ManaCostPct;
     RuneCostID = spellEntry->RuneCostID;
-    RangeEntry = spellEntry->RangeIndex ? sSpellRangeStore.LookupEntry(spellEntry->RangeIndex) : nullptr;
+    RangeEntry = spellEntry->RangeIndex ? sDBCStoresMgr->GetSpellRangeDBC(spellEntry->RangeIndex) : nullptr;
     Speed = spellEntry->Speed;
     StackAmount = spellEntry->CumulativeAura;
     Totem = spellEntry->Totem;
@@ -869,8 +869,11 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     SpellIconID = spellEntry->SpellIconID;
     ActiveIconID = spellEntry->ActiveIconID;
     Priority = spellEntry->SpellPriority;
-    SpellName = spellEntry->Name;
-    Rank = spellEntry->NameSubtext;
+    for (uint8 i = 0; i < TOTAL_LOCALES; i++)
+    {
+        SpellName[i] = spellEntry->Name[i];
+        Rank[i] = spellEntry->NameSubtext[i];
+    }
     MaxTargetLevel = spellEntry->MaxTargetLevel;
     MaxAffectedTargets = spellEntry->MaxTargets;
     SpellFamilyName = spellEntry->SpellClassSet;
@@ -1025,7 +1028,7 @@ bool SpellInfo::IsAbilityLearnedWithProfession() const
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
-        SkillLineAbilityEntry const* pAbility = _spell_idx->second;
+        SkillLineAbilityDBC const* pAbility = _spell_idx->second;
         if (!pAbility || pAbility->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
             continue;
 
@@ -1463,7 +1466,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 {
     // talents that learn spells can have stance requirements that need ignore
     // (this requirement only for client-side stance show in talent description)
-    if (GetTalentSpellCost(Id) > 0 && HasEffect(SPELL_EFFECT_LEARN_SPELL))
+    if (sDBCStoresMgr->GetTalentSpellCost(Id) > 0 && HasEffect(SPELL_EFFECT_LEARN_SPELL))
         return SPELL_CAST_OK;
 
     uint64 stanceMask = (form ? UI64LIT(1) << (form - 1) : 0);
@@ -1475,10 +1478,10 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
         return SPELL_CAST_OK;
 
     bool actAsShifted = false;
-    SpellShapeshiftFormEntry const* shapeInfo = nullptr;
+    SpellShapeshiftFormDBC const* shapeInfo = nullptr;
     if (form > 0)
     {
-        shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form);
+        shapeInfo = sDBCStoresMgr->GetSpellShapeshiftFormDBC(form);
         if (!shapeInfo)
         {
             TC_LOG_ERROR("spells", "GetErrorAtShapeshiftedCast: unknown shapeshift {}", form);
@@ -1519,7 +1522,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     if (AreaGroupId > 0)
     {
         bool found = false;
-        AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(AreaGroupId);
+        AreaGroupDBC const* groupEntry = sDBCStoresMgr->GetAreaGroupDBC(AreaGroupId);
         while (groupEntry)
         {
             for (uint8 i = 0; i < MAX_GROUP_AREA_IDS; ++i)
@@ -1528,7 +1531,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             if (found || !groupEntry->NextAreaID)
                 break;
             // Try search in next group
-            groupEntry = sAreaGroupStore.LookupEntry(groupEntry->NextAreaID);
+            groupEntry = sDBCStoresMgr->GetAreaGroupDBC(groupEntry->NextAreaID);
         }
 
         if (!found)
@@ -1540,17 +1543,17 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     {
         if (strict)
         {
-            AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(area_id);
+            AreaTableDBC const* areaEntry = sDBCStoresMgr->GetAreaTableDBC(area_id);
             if (!areaEntry)
-                areaEntry = sAreaTableStore.LookupEntry(zone_id);
+                areaEntry = sDBCStoresMgr->GetAreaTableDBC(zone_id);
 
             if (!areaEntry || !areaEntry->IsFlyable() || !player->CanFlyInZone(map_id, zone_id, this))
                 return SPELL_FAILED_INCORRECT_AREA;
         }
         else
         {
-            uint32 const v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
-            MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
+            uint32 const v_map = sDBCStoresMgr->GetVirtualMapForMapAndZone(map_id, zone_id);
+            MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(v_map);
             if (!mapEntry || mapEntry->Expansion() < 1 || !mapEntry->IsContinent())
                 return SPELL_FAILED_INCORRECT_AREA;
         }
@@ -1559,7 +1562,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // raid instance limitation
     if (HasAttribute(SPELL_ATTR6_NOT_IN_RAID_INSTANCE))
     {
-        MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+        MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(map_id);
         if (!mapEntry || mapEntry->IsRaid())
             return SPELL_FAILED_NOT_IN_RAID_INSTANCE;
     }
@@ -1591,7 +1594,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         case 43681:                                         // Inactive
         case 44535:                                         // Spirit Heal (mana)
         {
-            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(map_id);
             if (!mapEntry)
                 return SPELL_FAILED_INCORRECT_AREA;
 
@@ -1602,7 +1605,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             if (!player)
                 return SPELL_FAILED_REQUIRES_AREA;
 
-            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(map_id);
             if (!mapEntry)
                 return SPELL_FAILED_INCORRECT_AREA;
 
@@ -1617,7 +1620,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         case 35774:                                         // Gold Team (Horde)
         case 35775:                                         // Green Team (Horde)
         {
-            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(map_id);
             if (!mapEntry)
                 return SPELL_FAILED_INCORRECT_AREA;
 
@@ -1628,7 +1631,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             if (!player)
                 return SPELL_FAILED_REQUIRES_AREA;
 
-            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(map_id);
             if (!mapEntry)
                 return SPELL_FAILED_INCORRECT_AREA;
 
@@ -1840,7 +1843,7 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
         {
             if (effect.IsAura(SPELL_AURA_MOD_SHAPESHIFT))
             {
-                SpellShapeshiftFormEntry const* shapeShiftEntry = sSpellShapeshiftFormStore.LookupEntry(effect.MiscValue);
+                SpellShapeshiftFormDBC const* shapeShiftEntry = sDBCStoresMgr->GetSpellShapeshiftFormDBC(effect.MiscValue);
                 if (shapeShiftEntry && (shapeShiftEntry->Flags & 1) == 0)  // unk flag
                     checkMask |= VEHICLE_SEAT_FLAG_UNCONTROLLED;
                 break;
@@ -1853,7 +1856,7 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
         if (!checkMask)
             checkMask = VEHICLE_SEAT_FLAG_CAN_ATTACK;
 
-        VehicleSeatEntry const* vehicleSeat = vehicle->GetSeatForPassenger(caster);
+        VehicleSeatDBC const* vehicleSeat = vehicle->GetSeatForPassenger(caster);
         if (!HasAttribute(SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE) && !HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_MOUNTED)
             && (vehicleSeat->Flags & checkMask) != checkMask)
             return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
@@ -1866,7 +1869,7 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
                 if (!effect.IsEffect(SPELL_EFFECT_SUMMON))
                     continue;
 
-                SummonPropertiesEntry const* props = sSummonPropertiesStore.LookupEntry(effect.MiscValueB);
+                SummonPropertiesDBC const* props = sDBCStoresMgr->GetSummonPropertiesDBC(effect.MiscValueB);
                 if (props && props->Control != SUMMON_CATEGORY_WILD)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
             }
@@ -3282,7 +3285,7 @@ int32 SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask school
     if (HasAttribute(SPELL_ATTR4_SPELL_VS_EXTEND_COST))
     {
         uint32 speed = 0;
-        if (SpellShapeshiftFormEntry const* ss = sSpellShapeshiftFormStore.LookupEntry(unitCaster->GetShapeshiftForm()))
+        if (SpellShapeshiftFormDBC const* ss = sDBCStoresMgr->GetSpellShapeshiftFormDBC(unitCaster->GetShapeshiftForm()))
             speed = ss->CombatRoundTime;
         else
             speed = unitCaster->GetAttackTime(GetAttackType());
@@ -3298,8 +3301,8 @@ int32 SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask school
     {
         if (HasAttribute(SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION))
         {
-            GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(SpellLevel - 1);
-            GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(unitCaster->GetLevel() - 1);
+            GtNPCManaCostScalerDBC const* spellScaler = sDBCStoresMgr->GetGtNPCManaCostScalerDBC(SpellLevel - 1);
+            GtNPCManaCostScalerDBC const* casterScaler = sDBCStoresMgr->GetGtNPCManaCostScalerDBC(unitCaster->GetLevel() - 1);
             if (spellScaler && casterScaler)
                 powerCost *= casterScaler->Data / spellScaler->Data;
         }

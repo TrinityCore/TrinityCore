@@ -19,6 +19,7 @@
 #include "AchievementMgr.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
+#include "DBCStoresMgr.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -133,7 +134,7 @@ void LoadDisables()
             case DISABLE_TYPE_MAP:
             case DISABLE_TYPE_LFG_MAP:
             {
-                MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
+                MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(entry);
                 if (!mapEntry)
                 {
                     TC_LOG_ERROR("sql.sql", "Map entry {} from `disables` doesn't exist in dbc, skipped.", entry);
@@ -148,11 +149,11 @@ void LoadDisables()
                         break;
                     case MAP_INSTANCE:
                     case MAP_RAID:
-                        if (flags & DUNGEON_STATUSFLAG_HEROIC && !GetMapDifficultyData(entry, DUNGEON_DIFFICULTY_HEROIC))
+                        if (flags & DUNGEON_STATUSFLAG_HEROIC && !sDBCStoresMgr->GetMapDifficultyData(entry, DUNGEON_DIFFICULTY_HEROIC))
                             flags -= DUNGEON_STATUSFLAG_HEROIC;
-                        if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !GetMapDifficultyData(entry, RAID_DIFFICULTY_10MAN_HEROIC))
+                        if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !sDBCStoresMgr->GetMapDifficultyData(entry, RAID_DIFFICULTY_10MAN_HEROIC))
                             flags -= RAID_STATUSFLAG_10MAN_HEROIC;
-                        if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !GetMapDifficultyData(entry, RAID_DIFFICULTY_25MAN_HEROIC))
+                        if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !sDBCStoresMgr->GetMapDifficultyData(entry, RAID_DIFFICULTY_25MAN_HEROIC))
                             flags -= RAID_STATUSFLAG_25MAN_HEROIC;
                         if (!flags)
                             isFlagInvalid = true;
@@ -170,7 +171,7 @@ void LoadDisables()
                 break;
             }
             case DISABLE_TYPE_BATTLEGROUND:
-                if (!sBattlemasterListStore.LookupEntry(entry))
+                if (!sDBCStoresMgr->GetBattlemasterListDBC(entry))
                 {
                     TC_LOG_ERROR("sql.sql", "Battleground entry {} from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
@@ -198,7 +199,7 @@ void LoadDisables()
                 break;
             case DISABLE_TYPE_VMAP:
             {
-                MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
+                MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(entry);
                 if (!mapEntry)
                 {
                     TC_LOG_ERROR("sql.sql", "Map entry {} from `disables` doesn't exist in dbc, skipped.", entry);
@@ -238,7 +239,7 @@ void LoadDisables()
             }
             case DISABLE_TYPE_MMAP:
             {
-                MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
+                MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(entry);
                 if (!mapEntry)
                 {
                     TC_LOG_ERROR("sql.sql", "Map entry {} from `disables` doesn't exist in dbc, skipped.", entry);
@@ -374,12 +375,12 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
         case DISABLE_TYPE_LFG_MAP:
             if (Player const* player = ref->ToPlayer())
             {
-                MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
+                MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(entry);
                 if (mapEntry->IsDungeon())
                 {
                     uint8 disabledModes = itr->second.flags;
                     Difficulty targetDifficulty = player->GetDifficulty(mapEntry->IsRaid());
-                    GetDownscaledMapDifficultyData(entry, targetDifficulty);
+                    sDBCStoresMgr->GetDownscaledMapDifficultyData(entry, targetDifficulty);
                     switch (targetDifficulty)
                     {
                         case DUNGEON_DIFFICULTY_NORMAL:

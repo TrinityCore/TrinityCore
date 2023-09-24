@@ -29,6 +29,7 @@ EndScriptData */
 #include "CellImpl.h"
 #include "Channel.h"
 #include "Chat.h"
+#include "DBCStoresMgr.h"
 #include "GameTime.h"
 #include "GossipDef.h"
 #include "GridNotifiersImpl.h"
@@ -133,7 +134,7 @@ public:
     // cinematicId - ID from CinematicSequences.dbc
     static bool HandleDebugPlayCinematicCommand(ChatHandler* handler, uint32 cinematicId)
     {
-        CinematicSequencesEntry const* cineSeq = sCinematicSequencesStore.LookupEntry(cinematicId);
+        CinematicSequencesDBC const* cineSeq = sDBCStoresMgr->GetCinematicSequencesDBC(cinematicId);
         if (!cineSeq)
         {
             handler->PSendSysMessage(LANG_CINEMATIC_NOT_EXIST, cinematicId);
@@ -161,7 +162,7 @@ public:
     // movieId - ID from Movie.dbc
     static bool HandleDebugPlayMovieCommand(ChatHandler* handler, uint32 movieId)
     {
-        if (!sMovieStore.LookupEntry(movieId))
+        if (!sDBCStoresMgr->GetMovieDBC(movieId))
         {
             handler->PSendSysMessage(LANG_MOVIE_NOT_EXIST, movieId);
             handler->SetSentErrorMessage(true);
@@ -175,7 +176,7 @@ public:
     // soundId - ID from SoundEntries.dbc
     static bool HandleDebugPlaySoundCommand(ChatHandler* handler, uint32 soundId)
     {
-        if (!sSoundEntriesStore.LookupEntry(soundId))
+        if (!sDBCStoresMgr->GetSoundEntriesDBC(soundId))
         {
             handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, soundId);
             handler->SetSentErrorMessage(true);
@@ -204,7 +205,7 @@ public:
     // musicId - ID from SoundEntries.dbc
     static bool HandleDebugPlayMusicCommand(ChatHandler* handler, uint32 musicId)
     {
-        if (!sSoundEntriesStore.LookupEntry(musicId))
+        if (!sDBCStoresMgr->GetSoundEntriesDBC(musicId))
         {
             handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, musicId);
             handler->SetSentErrorMessage(true);
@@ -1018,7 +1019,7 @@ public:
         if (!ci)
             return false;
 
-        VehicleEntry const* ve = sVehicleStore.LookupEntry(*id);
+        VehicleDBC const* ve = sDBCStoresMgr->GetVehicleDBC(*id);
 
         if (!ve)
             return false;
@@ -1437,7 +1438,7 @@ public:
 
     static bool HandleDebugRaidResetCommand(ChatHandler* handler, uint32 mapId, Optional<uint8> difficulty)
     {
-        MapEntry const* mEntry = sMapStore.LookupEntry(mapId);
+        MapDBC const* mEntry = sDBCStoresMgr->GetMapDBC(mapId);
         if (!mEntry)
         {
             handler->PSendSysMessage("Invalid map specified.");
@@ -1454,7 +1455,7 @@ public:
             handler->PSendSysMessage("Invalid difficulty %d - specify in range [0,%d).", *difficulty, MAX_RAID_DIFFICULTY);
             return true;
         }
-        if (difficulty && !GetMapDifficultyData(mEntry->ID, Difficulty(*difficulty)))
+        if (difficulty && !sDBCStoresMgr->GetMapDifficultyData(mEntry->ID, Difficulty(*difficulty)))
         {
             handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", *difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
             return true;
@@ -1465,7 +1466,7 @@ public:
             handler->PSendSysMessage("Resetting all difficulties for '%s'.", mEntry->MapName[handler->GetSessionDbcLocale()]);
             for (uint8 diff = (mEntry->IsRaid() ? 0 : 1); diff < (mEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY); ++diff)
             {
-                if (GetMapDifficultyData(mEntry->ID, Difficulty(diff)))
+                if (sDBCStoresMgr->GetMapDifficultyData(mEntry->ID, Difficulty(diff)))
                 {
                     handler->PSendSysMessage("Resetting difficulty %d for '%s'.", diff, mEntry->MapName[handler->GetSessionDbcLocale()]);
                     sInstanceSaveMgr->ForceGlobalReset(mEntry->ID, Difficulty(diff));
@@ -1523,7 +1524,7 @@ public:
     static bool HandleDebugNearGraveyard(ChatHandler* handler, Optional<EXACT_SEQUENCE("linked")> linked)
     {
         Player* player = handler->GetPlayer();
-        WorldSafeLocsEntry const* nearestLoc = nullptr;
+        WorldSafeLocsDBC const* nearestLoc = nullptr;
 
         if (linked)
         {
@@ -1544,16 +1545,19 @@ public:
             float z = player->GetPositionZ();
             float distNearest = std::numeric_limits<float>::max();
 
-            for (uint32 i = 0; i < sWorldSafeLocsStore.GetNumRows(); ++i)
+            WorldSafeLocsDBCMap const& wslMap = sDBCStoresMgr->GetWorldSafeLocsDBCMap();
+            for (const auto& wslID : wslMap)
             {
-                WorldSafeLocsEntry const* loc = sWorldSafeLocsStore.LookupEntry(i);
-                if (loc && loc->Continent == player->GetMapId())
+                if (WorldSafeLocsDBC const* loc = &wslID.second)
                 {
-                    float dist = (loc->Loc.X - x) * (loc->Loc.X - x) + (loc->Loc.Y - y) * (loc->Loc.Y - y) + (loc->Loc.Z - z) * (loc->Loc.Z - z);
-                    if (dist < distNearest)
+                    if (loc->Continent == player->GetMapId())
                     {
-                        distNearest = dist;
-                        nearestLoc = loc;
+                        float dist = (loc->Loc.X - x) * (loc->Loc.X - x) + (loc->Loc.Y - y) * (loc->Loc.Y - y) + (loc->Loc.Z - z) * (loc->Loc.Z - z);
+                        if (dist < distNearest)
+                        {
+                            distNearest = dist;
+                            nearestLoc = loc;
+                        }
                     }
                 }
             }

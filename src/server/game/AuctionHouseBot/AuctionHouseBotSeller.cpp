@@ -19,7 +19,7 @@
 #include "AuctionHouseMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
@@ -106,31 +106,35 @@ bool AuctionBotSeller::Initialize()
 
     uint32 itemsAdded = 0;
 
-    for (uint32 itemId = 0; itemId < sItemStore.GetNumRows(); ++itemId)
+    ItemDBCMap const& entryMap = sDBCStoresMgr->GetItemDBCMap();
+    for (const auto& indexID : entryMap)
     {
-        ItemTemplate const* prototype = sObjectMgr->GetItemTemplate(itemId);
-        if (!prototype)
-            continue;
-
-        // skip items with too high quality (code can't properly work with its)
-        if (prototype->Quality >= MAX_AUCTION_QUALITY)
-            continue;
-
-        // forced exclude filter
-        if (excludeItems.count(itemId))
-            continue;
-
-        // forced include filter
-        if (includeItems.count(itemId))
+        if (ItemDBC const* itemdbc = &indexID.second)
         {
-            _itemPool[prototype->Quality][prototype->Class].push_back(itemId);
-            ++itemsAdded;
-            continue;
-        }
+            uint32 itemId = itemdbc->ID;
+            ItemTemplate const* prototype = sObjectMgr->GetItemTemplate(itemId);
+            if (!prototype)
+                continue;
 
-        // bounding filters
-        switch (prototype->Bonding)
-        {
+            // skip items with too high quality (code can't properly work with its)
+            if (prototype->Quality >= MAX_AUCTION_QUALITY)
+                continue;
+
+            // forced exclude filter
+            if (excludeItems.count(itemId))
+                continue;
+
+            // forced include filter
+            if (includeItems.count(itemId))
+            {
+                _itemPool[prototype->Quality][prototype->Class].push_back(itemId);
+                ++itemsAdded;
+                continue;
+            }
+
+            // bounding filters
+            switch (prototype->Bonding)
+            {
             case NO_BIND:
                 if (!sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BIND_NO))
                     continue;
@@ -153,11 +157,11 @@ bool AuctionBotSeller::Initialize()
                 break;
             default:
                 continue;
-        }
+            }
 
-        bool allowZero = false;
-        switch (prototype->Class)
-        {
+            bool allowZero = false;
+            switch (prototype->Class)
+            {
             case ITEM_CLASS_CONSUMABLE:
                 allowZero = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_CLASS_CONSUMABLE_ALLOW_ZERO); break;
             case ITEM_CLASS_CONTAINER:
@@ -188,50 +192,50 @@ bool AuctionBotSeller::Initialize()
                 allowZero = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_CLASS_GLYPH_ALLOW_ZERO); break;
             default:
                 allowZero = false;
-        }
+            }
 
-        // Filter out items with no buy/sell price unless otherwise flagged in the config.
-        if (!allowZero)
-        {
-            if (sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
+            // Filter out items with no buy/sell price unless otherwise flagged in the config.
+            if (!allowZero)
             {
-                if (prototype->SellPrice == 0)
+                if (sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
+                {
+                    if (prototype->SellPrice == 0)
+                        continue;
+                }
+                else
+                {
+                    if (prototype->BuyPrice == 0)
+                        continue;
+                }
+            }
+
+            // vendor filter
+            if (!sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEMS_VENDOR))
+            {
+                if (npcItems.count(itemId))
                     continue;
             }
-            else
+
+            // loot filter
+            if (!sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEMS_LOOT))
             {
-                if (prototype->BuyPrice == 0)
+                if (lootItems.count(itemId))
                     continue;
             }
-        }
 
-        // vendor filter
-        if (!sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEMS_VENDOR))
-        {
-            if (npcItems.count(itemId))
-                continue;
-        }
+            // not vendor/loot filter
+            if (!sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEMS_MISC))
+            {
+                bool const isVendorItem = npcItems.count(itemId) > 0;
+                bool const isLootItem = lootItems.count(itemId) > 0;
 
-        // loot filter
-        if (!sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEMS_LOOT))
-        {
-            if (lootItems.count(itemId))
-                continue;
-        }
+                if (!isLootItem && !isVendorItem)
+                    continue;
+            }
 
-        // not vendor/loot filter
-        if (!sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEMS_MISC))
-        {
-            bool const isVendorItem = npcItems.count(itemId) > 0;
-            bool const isLootItem = lootItems.count(itemId) > 0;
-
-            if (!isLootItem && !isVendorItem)
-                continue;
-        }
-
-        // item class/subclass specific filters
-        switch (prototype->Class)
-        {
+            // item class/subclass specific filters
+            switch (prototype->Class)
+            {
             case ITEM_CLASS_ARMOR:
             case ITEM_CLASS_WEAPON:
             {
@@ -338,10 +342,11 @@ bool AuctionBotSeller::Initialize()
                         continue;
                 break;
             }
-        }
+            }
 
-        _itemPool[prototype->Quality][prototype->Class].push_back(itemId);
-        ++itemsAdded;
+            _itemPool[prototype->Quality][prototype->Class].push_back(itemId);
+            ++itemsAdded;
+        }
     }
 
     if (!itemsAdded)
@@ -846,7 +851,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
             break;
     }
 
-    AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(houseid);
+    AuctionHouseDBC const* ahEntry = sDBCStoresMgr->GetAuctionHouseDBC(houseid);
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
 

@@ -18,7 +18,7 @@
 #include "Hyperlinks.h"
 #include "advstd.h"
 #include "Common.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Errors.h"
 #include "ObjectMgr.h"
 #include "SharedDefines.h"
@@ -114,7 +114,7 @@ struct LinkValidator<LinkTags::achievement>
         if (text.empty())
             return false;
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
-            if (text == data.Achievement->Title[i])
+            if (text == data.Achievement->Title[i][i])
                 return true;
         return false;
     }
@@ -132,15 +132,6 @@ struct LinkValidator<LinkTags::item>
     {
         ItemLocale const* locale = sObjectMgr->GetItemLocale(data.Item->ItemId);
 
-        std::array<char const*, 16> const* randomSuffixes = nullptr;
-        if (data.RandomProperty)
-            randomSuffixes = &data.RandomProperty->Name;
-        else if (data.RandomSuffix)
-            randomSuffixes = &data.RandomSuffix->Name;
-
-        if (data.IsBuggedInspectLink) /* DBC lookup will have failed on the client, so the link should've arrived without suffix */
-            randomSuffixes = nullptr;
-
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
             if (!locale && i != DEFAULT_LOCALE)
@@ -148,16 +139,23 @@ struct LinkValidator<LinkTags::item>
             std::string_view name = (i == DEFAULT_LOCALE) ? data.Item->Name1 : ObjectMgr::GetLocaleString(locale->Name, i);
             if (name.empty())
                 continue;
-            if (randomSuffixes)
+
+            std::string randomSuffixes = nullptr;
+            if (data.RandomProperty)
+                randomSuffixes = data.RandomProperty->Name[i];
+            else if (data.RandomSuffix)
+                randomSuffixes = data.RandomSuffix->Name[i];
+
+            if (!randomSuffixes.empty())
             {
-                std::string_view randomSuffix((*randomSuffixes)[i]);
+                std::string_view randomSuffix(randomSuffixes);
                 if (
-                  (!randomSuffix.empty()) &&
-                  (text.length() == (name.length() + 1 + randomSuffix.length())) &&
-                  (text.substr(0, name.length()) == name) &&
-                  (text[name.length()] == ' ') &&
-                  (text.substr(name.length() + 1) == randomSuffix)
-                )
+                    (!randomSuffix.empty()) &&
+                    (text.length() == (name.length() + 1 + randomSuffix.length())) &&
+                    (text.substr(0, name.length()) == name) &&
+                    (text[name.length()] == ' ') &&
+                    (text.substr(name.length() + 1) == randomSuffix)
+                    )
                     return true;
             }
             else if (text == name)
@@ -239,7 +237,7 @@ struct LinkValidator<LinkTags::enchant>
 
         for (auto pair = bounds.first; pair != bounds.second; ++pair)
         {
-            SkillLineEntry const* skill = sSkillLineStore.LookupEntry(pair->second->SkillLine);
+            SkillLineDBC const* skill = sDBCStoresMgr->GetSkillLineDBC(pair->second->SkillLine);
             if (!skill)
                 return false;
 

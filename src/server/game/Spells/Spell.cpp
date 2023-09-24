@@ -24,7 +24,7 @@
 #include "ConditionMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "DisableMgr.h"
 #include "DynamicObject.h"
 #include "G3DPosition.hpp"
@@ -4376,7 +4376,7 @@ void Spell::UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& ammo)
         {
             if (uint32 item_id = unitCaster->GetVirtualItemId(i))
             {
-                if (ItemEntry const* itemEntry = sItemStore.LookupEntry(item_id))
+                if (ItemDBC const* itemEntry = sDBCStoresMgr->GetItemDBC(item_id))
                 {
                     if (itemEntry->ClassID == ITEM_CLASS_WEAPON)
                     {
@@ -4832,7 +4832,7 @@ SpellCastResult Spell::CheckRuneCost(uint32 runeCostID) const
     if (player->GetClass() != CLASS_DEATH_KNIGHT)
         return SPELL_CAST_OK;
 
-    SpellRuneCostEntry const* src = sSpellRuneCostStore.LookupEntry(runeCostID);
+    SpellRuneCostDBC const* src = sDBCStoresMgr->GetSpellRuneCostDBC(runeCostID);
     if (!src)
         return SPELL_CAST_OK;
 
@@ -4872,7 +4872,7 @@ void Spell::TakeRunePower(bool didHit)
     if (m_caster->GetTypeId() != TYPEID_PLAYER || m_caster->ToPlayer()->GetClass() != CLASS_DEATH_KNIGHT)
         return;
 
-    SpellRuneCostEntry const* runeCostData = sSpellRuneCostStore.LookupEntry(m_spellInfo->RuneCostID);
+    SpellRuneCostDBC const* runeCostData = sDBCStoresMgr->GetSpellRuneCostDBC(m_spellInfo->RuneCostID);
     if (!runeCostData || (runeCostData->NoRuneCost() && runeCostData->NoRunicPowerGain()))
         return;
 
@@ -5340,7 +5340,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
     // - with SPELL_ATTR4_NOT_USABLE_IN_ARENA flag
     if (m_spellInfo->HasAttribute(SPELL_ATTR4_NOT_USABLE_IN_ARENA) ||
         (m_spellInfo->GetRecoveryTime() > 10 * MINUTE * IN_MILLISECONDS && !m_spellInfo->HasAttribute(SPELL_ATTR4_USABLE_IN_ARENA)))
-        if (MapEntry const* mapEntry = sMapStore.LookupEntry(m_caster->GetMapId()))
+        if (MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(m_caster->GetMapId()))
             if (mapEntry->IsBattleArena())
                 return SPELL_FAILED_NOT_IN_ARENA;
 
@@ -5514,7 +5514,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     return SPELL_FAILED_BAD_TARGETS;
 
                 uint32 glyphId = spellEffectInfo.MiscValue;
-                if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyphId))
+                if (GlyphPropertiesDBC const* gp = sDBCStoresMgr->GetGlyphPropertiesDBC(glyphId))
                     if (m_caster->ToPlayer()->HasAura(gp->SpellID))
                         return SPELL_FAILED_UNIQUE_GLYPH;
                 break;
@@ -5703,7 +5703,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (!unitCaster)
                     break;
 
-                SummonPropertiesEntry const* SummonProperties = sSummonPropertiesStore.LookupEntry(spellEffectInfo.MiscValueB);
+                SummonPropertiesDBC const* SummonProperties = sDBCStoresMgr->GetSummonPropertiesDBC(spellEffectInfo.MiscValueB);
                 if (!SummonProperties)
                     break;
 
@@ -5804,7 +5804,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     return SPELL_FAILED_SUMMON_PENDING;
 
                 // check if our map is dungeon
-                MapEntry const* map = sMapStore.LookupEntry(m_caster->GetMapId());
+                MapDBC const* map = sDBCStoresMgr->GetMapDBC(m_caster->GetMapId());
                 if (map->IsDungeon())
                 {
                     uint32 mapId = m_caster->GetMap()->GetId();
@@ -6022,7 +6022,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER && m_originalCaster->IsAlive())
                 {
                     Battlefield* Bf = sBattlefieldMgr->GetBattlefieldToZoneId(m_originalCaster->GetZoneId());
-                    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_originalCaster->GetAreaId()))
+                    if (AreaTableDBC const* area = sDBCStoresMgr->GetAreaTableDBC(m_originalCaster->GetAreaId()))
                         if (area->Flags & AREA_FLAG_NO_FLY_ZONE  || (Bf && !Bf->CanFlyIn()))
                             return SPELL_FAILED_NOT_HERE;
                 }
@@ -6830,7 +6830,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                     }
                 }
 
-                SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(spellEffectInfo.MiscValue);
+                SpellItemEnchantmentDBC const* enchantEntry = sDBCStoresMgr->GetSpellItemEnchantmentDBC(spellEffectInfo.MiscValue);
                 // do not allow adding usable enchantments to items that have use effect already
                 if (enchantEntry)
                 {
@@ -6876,7 +6876,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 if (item->GetOwner() != player)
                 {
                     uint32 enchant_id = spellEffectInfo.MiscValue;
-                    SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
+                    SpellItemEnchantmentDBC const* pEnchant = sDBCStoresMgr->GetSpellItemEnchantmentDBC(enchant_id);
                     if (!pEnchant)
                         return SPELL_FAILED_ERROR;
                     if (pEnchant->Flags & ENCHANTMENT_CAN_SOULBOUND)
@@ -7691,7 +7691,7 @@ SpellCastResult Spell::CanOpenLock(SpellEffectInfo const& spellEffectInfo, uint3
         return SPELL_CAST_OK;
 
     // Get LockInfo
-    LockEntry const* lockInfo = sLockStore.LookupEntry(lockId);
+    LockDBC const* lockInfo = sDBCStoresMgr->GetLockDBC(lockId);
 
     if (!lockInfo)
         return SPELL_FAILED_BAD_TARGETS;

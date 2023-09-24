@@ -833,7 +833,7 @@ class at_skadi_gaunlet : public AreaTriggerScript
     public:
         at_skadi_gaunlet() : AreaTriggerScript("at_skadi_gaunlet") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerDBC const* /*areaTrigger*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance || player->IsGameMaster())

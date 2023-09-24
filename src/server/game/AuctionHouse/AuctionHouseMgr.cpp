@@ -22,7 +22,7 @@
 #include "Common.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Language.h"
@@ -62,7 +62,7 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
         return &mNeutralAuctions;
 
     // teams have linked auction houses
-    FactionTemplateEntry const* uEntry = sFactionTemplateStore.LookupEntry(factionTemplateId);
+    FactionTemplateDBC const* uEntry = sDBCStoresMgr->GetFactionTemplateDBC(factionTemplateId);
     if (!uEntry)
         return &mNeutralAuctions;
     else if (uEntry->FactionGroup & FACTION_MASK_ALLIANCE)
@@ -86,7 +86,7 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMapByHouseId(uint8 auctionHouseI
     }
 }
 
-uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count)
+uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseDBC const* entry, uint32 time, Item* pItem, uint32 count)
 {
     uint32 MSV = pItem->GetTemplate()->SellPrice;
 
@@ -562,7 +562,7 @@ void AuctionHouseMgr::Update()
     mNeutralAuctions.Update();
 }
 
-AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId)
+AuctionHouseDBC const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId)
 {
     uint32 houseid = AUCTIONHOUSE_NEUTRAL; // goblin auction house
 
@@ -571,7 +571,7 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
         // FIXME: found way for proper auctionhouse selection by another way
         // AuctionHouse.dbc have faction field with _player_ factions associated with auction house races.
         // but no easy way convert creature faction to player race faction for specific city
-        FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(factionTemplateId);
+        FactionTemplateDBC const* u_entry = sDBCStoresMgr->GetFactionTemplateDBC(factionTemplateId);
         if (!u_entry)
             houseid = AUCTIONHOUSE_NEUTRAL; // goblin auction house
         else if (u_entry->FactionGroup & FACTION_MASK_ALLIANCE)
@@ -582,12 +582,12 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
             houseid = AUCTIONHOUSE_NEUTRAL; // goblin auction house
     }
 
-    return sAuctionHouseStore.LookupEntry(houseid);
+    return sDBCStoresMgr->GetAuctionHouseDBC(houseid);
 }
 
-AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntryFromHouse(uint8 houseId)
+AuctionHouseDBC const* AuctionHouseMgr::GetAuctionHouseEntryFromHouse(uint8 houseId)
 {
-    return (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION)) ? sAuctionHouseStore.LookupEntry(AUCTIONHOUSE_NEUTRAL) : sAuctionHouseStore.LookupEntry(houseId);
+    return (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION)) ? sDBCStoresMgr->GetAuctionHouseDBC(AUCTIONHOUSE_NEUTRAL) : sDBCStoresMgr->GetAuctionHouseDBC(houseId);
 }
 
 void AuctionHouseObject::AddAuction(AuctionEntry* auction)
@@ -794,29 +794,41 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
                 // These are found in ItemRandomSuffix.dbc and ItemRandomProperties.dbc
                 //  even though the DBC names seem misleading
 
-                std::array<char const*, 16> const* suffix = nullptr;
+                std::string suffix;
 
                 if (propRefID < 0)
                 {
-                    ItemRandomSuffixEntry const* itemRandSuffix = sItemRandomSuffixStore.LookupEntry(-propRefID);
+                    ItemRandomSuffixDBC const* itemRandSuffix = sDBCStoresMgr->GetItemRandomSuffixDBC(-propRefID);
                     if (itemRandSuffix)
-                        suffix = &itemRandSuffix->Name;
+                        suffix = itemRandSuffix->Name[locdbc_idx];
                 }
                 else
                 {
-                    ItemRandomPropertiesEntry const* itemRandProp = sItemRandomPropertiesStore.LookupEntry(propRefID);
+                    ItemRandomPropertiesDBC const* itemRandProp = sDBCStoresMgr->GetItemRandomPropertiesDBC(propRefID);
                     if (itemRandProp)
-                        suffix = &itemRandProp->Name;
+                        suffix = itemRandProp->Name[locdbc_idx];
                 }
 
                 // dbc local name
-                if (suffix)
+                if (suffix.empty())
                 {
-                    // Append the suffix (ie: of the Monkey) to the name using localization
-                    // or default enUS if localization is invalid
-                    name += ' ';
-                    name += (*suffix)[locdbc_idx >= 0 ? locdbc_idx : LOCALE_enUS];
+                    // Append the suffix (ie: of the Monkey) to the name using default enUS if localization is invalid
+                    if (propRefID < 0)
+                    {
+                        ItemRandomSuffixDBC const* itemRandSuffix = sDBCStoresMgr->GetItemRandomSuffixDBC(-propRefID);
+                        if (itemRandSuffix)
+                            suffix = itemRandSuffix->Name[LOCALE_enUS];
+                    }
+                    else
+                    {
+                        ItemRandomPropertiesDBC const* itemRandProp = sDBCStoresMgr->GetItemRandomPropertiesDBC(propRefID);
+                        if (itemRandProp)
+                            suffix = itemRandProp->Name[LOCALE_enUS];
+                    }
                 }
+
+                if (!suffix.empty())
+                    name += ' ' + suffix;
             }
 
             // Perform the search (with or without suffix)

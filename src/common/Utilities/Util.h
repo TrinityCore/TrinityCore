@@ -192,6 +192,57 @@ inline bool isNumericOrSpace(wchar_t wchar)
     return isNumeric(wchar) || wchar == L' ';
 }
 
+inline bool isNormalSymbol(wchar_t wchar)
+{
+    if (wchar == 0x2116) // ?
+        return true;
+
+    if (wchar == 0x2F) // "/"
+        return true;
+
+    if (wchar == 0x27) // "'"
+        return true;
+
+    switch (wchar)
+    {
+    case L'!':
+    case L'?':
+    case L'.':
+    case L'-':
+    case L'_':
+    case L':':
+    case L';':
+    case L'`':
+    case L'~':
+    case L'@':
+    case L'"':
+        //case L'?':
+    case L'#':
+    case L'$':
+    case L'%':
+    case L'^':
+    case L'&':
+    case L'*':
+    case L'(':
+    case L')':
+    case L'+':
+    case L'=':
+    case L'[':
+    case L']':
+    case L'{':
+    case L'}':
+    case L'|':
+    case L'/':
+    case L',':
+    case L'<':
+    case L'>':
+        return true;
+        break;
+    }
+
+    return false;
+}
+
 inline bool isBasicLatinString(std::wstring_view wstr, bool numericOrSpace)
 {
     for (wchar_t c : wstr)
@@ -221,6 +272,31 @@ inline bool isEastAsianString(std::wstring_view wstr, bool numericOrSpace)
     for (wchar_t c : wstr)
         if (!isEastAsianCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
             return false;
+    return true;
+}
+
+inline bool isNormalCharacter(wchar_t wchar)
+{
+    if (isNumericOrSpace(wchar))
+        return true;
+    if (isNormalSymbol(wchar))
+        return true;
+    if (isExtendedLatinCharacter(wchar))
+        return true;
+    if (isCyrillicCharacter(wchar))
+        return true;
+    if (isEastAsianCharacter(wchar))
+        return true;
+
+    return false;
+}
+
+inline bool isCorrectString(const std::wstring& wstr)
+{
+    for (size_t i = 0; i < wstr.size(); ++i)
+        if (!isNormalCharacter(wstr[i]))
+            return false;
+
     return true;
 }
 

@@ -23,6 +23,7 @@
 #include "Creature.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
+#include "DBCStoresMgr.h"
 #include "Formulas.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
@@ -640,7 +641,7 @@ void Battleground::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
 
 void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID)
 {
-    FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
+    FactionDBC const* factionEntry = sDBCStoresMgr->GetFactionDBC(faction_id);
     if (!factionEntry)
         return;
 
@@ -1275,7 +1276,7 @@ void Battleground::RelocateDeadPlayers(ObjectGuid guideGuid)
     GuidVector& ghostList = m_ReviveQueue[guideGuid];
     if (!ghostList.empty())
     {
-        WorldSafeLocsEntry const* closestGrave = nullptr;
+        WorldSafeLocsDBC const* closestGrave = nullptr;
         for (GuidVector::const_iterator itr = ghostList.begin(); itr != ghostList.end(); ++itr)
         {
             Player* player = ObjectAccessor::FindPlayer(*itr);
@@ -1779,7 +1780,7 @@ void Battleground::SetBgRaid(uint32 TeamID, Group* bg_raid)
     old_raid = bg_raid;
 }
 
-WorldSafeLocsEntry const* Battleground::GetClosestGraveyard(Player* player)
+WorldSafeLocsDBC const* Battleground::GetClosestGraveyard(Player* player)
 {
     return sObjectMgr->GetClosestGraveyard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
 }
@@ -1791,7 +1792,7 @@ void Battleground::StartTimedAchievement(AchievementCriteriaTimedTypes type, uin
             player->StartTimedAchievement(type, entry);
 }
 
-void Battleground::SetBracket(PvPDifficultyEntry const* bracketEntry)
+void Battleground::SetBracket(PvPDifficultyDBC const* bracketEntry)
 {
     m_BracketId = bracketEntry->GetBracketId();
     SetLevelRange(bracketEntry->MinLevel, bracketEntry->MaxLevel);

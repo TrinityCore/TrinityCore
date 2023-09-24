@@ -22,7 +22,7 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GossipDef.h"
 #include "Item.h"
 #include "Log.h"
@@ -156,7 +156,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     }
 
     // set faction visible if needed
-    if (FactionTemplateEntry const* factionTemplateEntry = sFactionTemplateStore.LookupEntry(unit->GetFaction()))
+    if (FactionTemplateDBC const* factionTemplateEntry = sDBCStoresMgr->GetFactionTemplateDBC(unit->GetFaction()))
         _player->GetReputationMgr().SetVisible(factionTemplateEntry);
 
     GetPlayer()->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
@@ -217,10 +217,10 @@ void WorldSession::SendSpiritResurrect()
     _player->DurabilityLossAll(0.25f, true);
 
     // get corpse nearest graveyard
-    WorldSafeLocsEntry const* corpseGrave = nullptr;
+    WorldSafeLocsDBC const* corpseGrave = nullptr;
     if (_player->HasCorpse())
     {
-        WorldLocation const& corpseLocation = _player->GetCorpseLocation();
+        WorldLocation corpseLocation = _player->GetCorpseLocation();
         corpseGrave = sObjectMgr->GetClosestGraveyard(corpseLocation.GetPositionX(), corpseLocation.GetPositionY(),
             corpseLocation.GetPositionZ(), corpseLocation.GetMapId(), _player->GetTeam());
     }
@@ -231,7 +231,7 @@ void WorldSession::SendSpiritResurrect()
     // teleport to nearest from corpse graveyard, if different from nearest to player ghost
     if (corpseGrave)
     {
-        WorldSafeLocsEntry const* ghostGrave = sObjectMgr->GetClosestGraveyard(
+        WorldSafeLocsDBC const* ghostGrave = sObjectMgr->GetClosestGraveyard(
             _player->GetPositionX(), _player->GetPositionY(), _player->GetPositionZ(), _player->GetMapId(), _player->GetTeam());
 
         if (corpseGrave != ghostGrave)
@@ -573,7 +573,7 @@ void WorldSession::HandleBuyStableSlot(WorldPacket& recvData)
     PetStable& petStable = GetPlayer()->GetOrInitPetStable();
     if (petStable.MaxStabledPets < MAX_PET_STABLES)
     {
-        StableSlotPricesEntry const* SlotPrice = sStableSlotPricesStore.LookupEntry(petStable.MaxStabledPets + 1);
+        StableSlotPricesDBC const* SlotPrice = sDBCStoresMgr->GetStableSlotPricesDBC(petStable.MaxStabledPets + 1);
         if (_player->HasEnoughMoney(SlotPrice->Cost))
         {
             ++petStable.MaxStabledPets;

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2019+ ATieshCore <https://at-wow.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,23 +18,19 @@
 #ifndef TRINITY_DBCSTRUCTURE_H
 #define TRINITY_DBCSTRUCTURE_H
 
-#include "Define.h"
 #include "DBCEnums.h"
-#include "SharedDefines.h"
-#include "Util.h"
-#include <set>
-#include <map>
 
-// Structures used to access raw DBC data require packing for portability
+ // Structures used to access raw DBC data require packing for portability
 #pragma pack(push, 1)
 
-struct AchievementEntry
+ // load Achievement.dbc
+struct AchievementDBC
 {
     uint32 ID;                                              // 0
     int32 Faction;                                          // 1 -1=all, 0=horde, 1=alliance
     int32 InstanceID;                                       // 2 -1=none
     //uint32 Supercedes;                                    // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
-    std::array<char const*, 16> Title;                      // 4-19
+    std::array<char const*, 16> Title[TOTAL_LOCALES];       // 12
     //uint32 Title_lang_mask;                               // 20
     //char const* Description[16];                          // 21-36
     //uint32 Description_lang_mask;                         // 37
@@ -49,7 +45,8 @@ struct AchievementEntry
     uint32 SharesCriteria;                                  // 61 - referenced achievement (counting of all completed criterias)
 };
 
-struct AchievementCriteriaEntry
+// load Achievement_Criteria.dbc
+struct AchievementCriteriaDBC
 {
     uint32 ID;                                              // 0
     uint32 AchievementID;                                   // 1
@@ -164,7 +161,7 @@ struct AchievementCriteriaEntry
         uint32 Asset;
     } AdditionalRequirements[MAX_CRITERIA_REQUIREMENTS];    // 5-8
 
-    //char const* Description[16];                          // 9-24
+    std::array<char const*, 16> name[TOTAL_LOCALES];        // 9-17
     //uint32 Description_lang_mask;                         // 25
     uint32 Flags;                                           // 26
     uint32 StartEvent;                                      // 27 AchievementCriteriaTimedTypes
@@ -173,7 +170,8 @@ struct AchievementCriteriaEntry
     //uint32 UiOrder;                                       // 30
 };
 
-struct AreaTableEntry
+// load AreaTable.dbc
+struct AreaTableDBC
 {
     uint32 ID;                                              // 0
     uint32 ContinentID;                                     // 1
@@ -186,7 +184,7 @@ struct AreaTableEntry
     //uint32 ZoneMusic;                                     // 8
     //uint32 IntroSound;                                    // 9
     int32 ExplorationLevel;                                 // 10
-    char const* AreaName[16];                               // 11-26
+    std::string AreaName[TOTAL_LOCALES];                    // 11-19
     //uint32 AreaName_lang_mask;                            // 27
     uint32 FactionGroupMask;                                // 28
     uint32 LiquidTypeID[4];                                 // 29-32 liquid override by type
@@ -214,16 +212,18 @@ struct AreaTableEntry
     }
 };
 
+// load AreaGroup.dbc
 #define MAX_GROUP_AREA_IDS 6
 
-struct AreaGroupEntry
+struct AreaGroupDBC
 {
     uint32 ID;                                              // 0
     uint32 AreaID[MAX_GROUP_AREA_IDS];                      // 1-6
     uint32 NextAreaID;                                      // 7 index of next group
 };
 
-struct AreaPOIEntry
+// load AreaPOI.dbc (NOT USED)
+struct AreaPOIDBC
 {
     uint32 ID;                                              // 0
     uint32 Importance;                                      // 1
@@ -241,7 +241,8 @@ struct AreaPOIEntry
     //uint32 WorldMapLink;                                  // 53
 };
 
-struct AreaTriggerEntry
+// load AreaTrigger.dbc
+struct AreaTriggerDBC
 {
     uint32 ID;                                              // 0
     uint32 ContinentID;                                     // 1
@@ -253,7 +254,8 @@ struct AreaTriggerEntry
     float BoxYaw;                                           // 9
 };
 
-struct AuctionHouseEntry
+// load AuctionHouse.dbc
+struct AuctionHouseDBC
 {
     uint32 ID;                                              // 0
     uint32 FactionID;                                       // 1 id of faction.dbc for player factions associated with city
@@ -263,13 +265,15 @@ struct AuctionHouseEntry
     //uint32 Name_lang_mask;                                // 20
 };
 
-struct BankBagSlotPricesEntry
+// load BankBagSlotPrices.dbc
+struct BankBagSlotPricesDBC
 {
     uint32 ID;                                              // 0
     uint32 Cost;                                            // 1
 };
 
-struct BannedAddOnsEntry
+// load BannedAddOns.dbc
+struct BannedAddOnsDBC
 {
     uint32 ID;                                              // 0
     //uint32 NameMD5[4];                                    // 1-4
@@ -278,7 +282,8 @@ struct BannedAddOnsEntry
     //uint32 Flags;                                         // 10
 };
 
-struct BarberShopStyleEntry
+// load BarberShopStyle.dbc
+struct BarberShopStyleDBC
 {
     uint32 ID;                                              // 0
     uint32 Type;                                            // 1 value 0 -> hair, value 2 -> facialhair
@@ -292,13 +297,14 @@ struct BarberShopStyleEntry
     uint32 Data;                                            // 39 real ID to hair/facial hair
 };
 
-struct BattlemasterListEntry
+// load BattlemasterList.dbc
+struct BattlemasterListDBC
 {
     uint32 ID;                                              // 0
     int32 MapID[8];                                         // 1-8
     uint32 InstanceType;                                    // 9 map type (3 - BG, 4 - arena)
     //uint32 GroupsAllowed;                                 // 10
-    char const* Name[16];                                   // 11-26
+    std::string Name[TOTAL_LOCALES];                        // 11-26
     //uint32 Name_lang_mask;                                // 27
     uint32 MaxGroupSize;                                    // 28 used for checking if queue as group
     uint32 HolidayWorldState;                               // 29
@@ -306,21 +312,24 @@ struct BattlemasterListEntry
     //uint32 MaxLevel;                                      // 31
 };
 
-struct CharacterFacialHairStylesEntry
+// load CharacterFacialHairStyles.dbc
+struct CharacterFacialHairStylesDBC
 {
-    uint32 RaceID;                                          // 0
-    uint32 SexID;                                           // 1
-    uint32 VariationID;                                     // 2
-    //uint32 Geoset[5];                                     // 3-7
+    uint32 ID;                                              // 0
+    uint8 RaceID;                                          // 1
+    uint8 SexID;                                           // 2
+    uint8 VariationID;                                     // 3
+    //uint32 Geoset[5];                                     // 4-8
 };
 
+// load CharSections.dbc
 enum CharSectionFlags
 {
     SECTION_FLAG_PLAYER       = 0x01,
     SECTION_FLAG_DEATH_KNIGHT = 0x04
 };
 
-enum CharSectionType
+enum CharSectionType : uint8
 {
     SECTION_TYPE_SKIN         = 0,
     SECTION_TYPE_FACE         = 1,
@@ -329,25 +338,26 @@ enum CharSectionType
     SECTION_TYPE_UNDERWEAR    = 4
 };
 
-struct CharSectionsEntry
+struct CharSectionsDBC
 {
-    //uint32 ID;                                            // 0
-    uint32 RaceID;                                          // 1
-    uint32 SexID;                                           // 2
-    uint32 BaseSection;                                     // 3
-    //char const* TextureName[3];                           // 4-6
-    uint32 Flags;                                           // 7
-    uint32 VariationIndex;                                  // 8
-    uint32 ColorIndex;                                      // 9
+    uint32 ID;                                             // 0
+    uint8 RaceID;                                          // 1
+    uint8 SexID;                                           // 2
+    uint8 BaseSection;                                     // 3
+    //char const* TextureName[3];                          // 4-6
+    uint8 Flags;                                           // 7
+    uint8 VariationIndex;                                  // 8
+    uint8 ColorIndex;                                      // 9
 
     inline bool HasFlag(CharSectionFlags flag) const { return (Flags & flag) != 0; }
 };
 
+// load CharStartOutfit.dbc
 #define MAX_OUTFIT_ITEMS 24
 
-struct CharStartOutfitEntry
+struct CharStartOutfitDBC
 {
-    //uint32 ID;                                            // 0
+    uint32 ID;                                              // 0
     uint8 RaceID;                                           // 1
     uint8 ClassID;                                          // 2
     uint8 SexID;                                            // 3
@@ -357,35 +367,38 @@ struct CharStartOutfitEntry
     //int32 InventoryType[MAX_OUTFIT_ITEMS];                // 53-76 not required at server side
 };
 
-struct CharTitlesEntry
+// load CharTitles.dbc
+struct CharTitlesDBC
 {
     uint32 ID;                                              // 0, title ids, for example in Quest::GetCharTitleId()
     //uint32 ConditionID;                                   // 1
-    char const* Name[16];                                   // 2-17 male
+    std::string Name[TOTAL_LOCALES];                        // 2-17 male
     //uint32 Name_lang_mask;                                // 18
-    char const* Name1[16];                                  // 19-34 female
+    std::string Name1[TOTAL_LOCALES];                       // 19-34 female
     //uint32 Name1_lang_mask;                               // 35
     uint32 MaskID;                                          // 36 used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER__FIELD_KNOWN_TITLES
 };
 
-struct ChatChannelsEntry
+// load ChatChannels.dbc
+struct ChatChannelsDBC
 {
     uint32 ID;                                              // 0
     uint32 Flags;                                           // 1
     //uint32 FactionGroup;                                  // 2
-    char const* Name[16];                                   // 3-18
+    std::string Name[TOTAL_LOCALES];                        // 3-18
     //uint32 Name_lang_mask;                                // 19
-    //char const* Shortcut[16];                             // 20-35
+    //std::string Shortcut[TOTAL_LOCALES];                  // 20-35
     //uint32 Shortcut_lang_mask;                            // 36
 };
 
-struct ChrClassesEntry
+// load ChrClasses.dbc
+struct ChrClassesDBC
 {
     uint32 ID;                                              // 0
     //uint32 DamageBonusStat;                               // 1
     uint32 DisplayPower;                                    // 2
     //char const* PetNameToken;                             // 3
-    char const* Name[16];                                   // 4-19
+    std::string Name[TOTAL_LOCALES];                        // 4-19
     //uint32 Name_lang_mask;                                // 20
     //char const* NameFemale[16];                           // 21-36
     //uint32 NameFemale_lang_mask;                          // 37
@@ -398,6 +411,7 @@ struct ChrClassesEntry
     uint32 RequiredExpansion;                               // 59
 };
 
+// load ChrRaces.dbc
 enum ChrRacesAllianceType
 {
     CHRRACES_ALLIANCE_TYPE_ALLIANCE     = 0,
@@ -412,7 +426,7 @@ enum ChrRacesFlags
     CHRRACES_FLAGS_CAN_MOUNT    = 0x04
 };
 
-struct ChrRacesEntry
+struct ChrRacesDBC
 {
     uint32 ID;                                              // 0
     uint32 Flags;                                           // 1
@@ -428,7 +442,7 @@ struct ChrRacesEntry
     //char const* ClientFileString;                         // 11
     uint32 CinematicSequenceID;                             // 12 ID from CinematicSequences.dbc
     uint32 Alliance;                                        // 13
-    char const* Name[16];                                   // 14-29
+    std::string Name[TOTAL_LOCALES];                        // 14-29
     //uint32 Name_lang_mask;                                // 30
     //char const* NameFemale[16];                           // 31-46
     //uint32 NameFemale_lang_mask;                          // 47
@@ -441,23 +455,28 @@ struct ChrRacesEntry
     inline bool HasFlag(ChrRacesFlags flag) const { return (Flags & flag) != 0; }
 };
 
-struct CinematicCameraEntry
+// load CinematicCamera.dbc
+struct CinematicCameraDBC
 {
     uint32 ID;                                              // 0
-    char const* Model;                                      // 1 Model filename (translate .mdx to .m2)
+    std::string Model;                                      // 1 Model filename (translate .mdx to .m2)
     uint32 SoundID;                                         // 2 Sound ID (voiceover for cinematic)
-    DBCPosition3D Origin;                                   // 3-5 Position in map used for basis for M2 co-ordinates
+    float OriginX;                                          // 3 Position X in map used for basis for M2 co-ordinates
+    float OriginY;                                          // 4 Position Y in map used for basis for M2 co-ordinates
+    float OriginZ;                                          // 5 Position Z in map used for basis for M2 co-ordinates
     float OriginFacing;                                     // 6 Orientation in map used for basis for M2 co-ordinates
 };
 
-struct CinematicSequencesEntry
+// load CinematicSequences.dbc
+struct CinematicSequencesDBC
 {
     uint32 ID;                                              // 0
     //uint32 SoundID;                                       // 1
     uint32 Camera[8];                                       // 2-9 ID in CinematicCamera.dbc
 };
 
-struct CreatureDisplayInfoEntry
+// load CreatureDisplayInfo.dbc
+struct CreatureDisplayInfoDBC
 {
     uint32 ID;                                              // 0
     uint32 ModelID;                                         // 1
@@ -475,9 +494,10 @@ struct CreatureDisplayInfoEntry
     //uint32 ObjectEffectPackageID;                         // 15
 };
 
-struct CreatureDisplayInfoExtraEntry
+// load CreatureDisplayInfoExtra.dbc
+struct CreatureDisplayInfoExtraDBC
 {
-    //uint32 ID;                                            // 0
+    uint32 ID;                                              // 0
     uint32 DisplayRaceID;                                   // 1
     uint32 DisplaySexID;                                    // 2
     //uint32 SkinID;                                        // 3
@@ -490,7 +510,8 @@ struct CreatureDisplayInfoExtraEntry
     //char const* BakeName;                                 // 20
 };
 
-struct CreatureFamilyEntry
+// load CreatureFamily.dbc
+struct CreatureFamilyDBC
 {
     uint32 ID;                                              // 0
     float MinScale;                                         // 1
@@ -501,21 +522,22 @@ struct CreatureFamilyEntry
     uint32 PetFoodMask;                                     // 7
     int32 PetTalentType;                                    // 8
     //int32 CategoryEnumID;                                 // 9
-    char const* Name[16];                                   // 10-25
+    std::string Name[TOTAL_LOCALES];                        // 10-25
     //uint32 Name_lang_mask;                                // 26
     //char const* IconFile;                                 // 27
 };
 
+// load CreatureModelData.dbc
 enum CreatureModelDataFlags
 {
     CREATURE_MODEL_DATA_FLAGS_CAN_MOUNT = 0x00000080
 };
 
-struct CreatureModelDataEntry
+struct CreatureModelDataDBC
 {
     uint32 ID;                                              // 0
     uint32 Flags;                                           // 1
-    char const* ModelName;                                  // 2
+    std::string ModelName;                                  // 2
     //uint32 SizeClass;                                     // 3
     float ModelScale;                                       // 4 Used in calculation of unit collision data
     //int32 BloodID;                                        // 5
@@ -541,19 +563,21 @@ struct CreatureModelDataEntry
     inline bool HasFlag(CreatureModelDataFlags flag) const { return (Flags & flag) != 0; }
 };
 
-struct CreatureSpellDataEntry
+// load CreatureSpellData.dbc
+struct CreatureSpellDataDBC
 {
     uint32 ID;                                              // 0
     uint32 Spells[MAX_CREATURE_SPELL_DATA_SLOT];            // 1-4
     //uint32 Availability[MAX_CREATURE_SPELL_DATA_SLOT];    // 4-7
 };
 
+// load CreatureType.dbc
 enum CreatureTypeEntryFlags
 {
     CREATURE_TYPE_ENTRY_FLAGS_IGNORED_TAB_TARGETING = 0x01 // Means do not include in tab targeting.
 };
 
-struct CreatureTypeEntry
+struct CreatureTypeDBC
 {
     uint32 ID;                                              // 0
     //char const* Name[16];                                 // 1-16
@@ -561,25 +585,26 @@ struct CreatureTypeEntry
     //uint32 Flags;                                         // 18
 };
 
-/* not used
-struct CurrencyCategoryEntry
+// load CurrencyCategory.dbc (NOT USED)
+struct CurrencyCategoryDBC
 {
     uint32 ID;                                              // 0
     uint32 Flags;                                           // 1
-    char const* Name[16];                                   // 2-17
-    uint32 Name_lang_mask;                                  // 18
+    std::string Name[TOTAL_LOCALES];                        // 2-17
+    //uint32 Name_lang_mask;                                // 18
 };
-*/
 
-struct CurrencyTypesEntry
+// load CurrencyTypes.dbc
+struct CurrencyTypesDBC
 {
-    //uint32 ID;                                            // 0
+    uint32 ID;                                              // 0
     uint32 ItemID;                                          // 1
     //uint32 CategoryID;                                    // 2
     uint32 BitIndex;                                        // 3 bit index in PLAYER_FIELD_KNOWN_CURRENCIES (1 << (index-1))
 };
 
-struct DestructibleModelDataEntry
+// load DestructibleModelData.dbc
+struct DestructibleModelDataDBC
 {
     uint32 ID;                                              // 0
     //uint32 State0ImpactEffectDoodadSet;                   // 1
@@ -602,32 +627,36 @@ struct DestructibleModelDataEntry
     //uint32 HealEffectSpeed;                               // 18
 };
 
-struct DungeonEncounterEntry
+// load DungeonEncounter.dbc
+struct DungeonEncounterDBC
 {
     uint32 ID;                                              // 0
     uint32 MapID;                                           // 1
     uint32 Difficulty;                                      // 2
     //uint32 OrderIndex;                                    // 3
     uint32 Bit;                                             // 4 encounter index for creating completed mask
-    char const* Name[16];                                   // 5-20
+    std::string Name[TOTAL_LOCALES];                        // 5-20
     //uint32 Name_lang_mask;                                // 21
     //uint32 SpellIconID;                                   // 22
 };
 
-struct DurabilityCostsEntry
+// load DurabilityCosts.dbc
+struct DurabilityCostsDBC
 {
     uint32 ID;                                              // 0
     uint32 WeaponSubClassCost[21];                          // 1-21
     uint32 ArmorSubClassCost[8];                            // 22-29
 };
 
-struct DurabilityQualityEntry
+// load DurabilityQuality.dbc
+struct DurabilityQualityDBC
 {
     uint32 ID;                                              // 0
     float Data;                                             // 1
 };
 
-struct EmotesEntry
+// load Emotes.dbc
+struct EmotesDBC
 {
     uint32 ID;                                              // 0
     //char const* EmoteSlashCommand;                        // 1 internal name
@@ -638,7 +667,8 @@ struct EmotesEntry
     //uint32 EventSoundID;                                  // 6
 };
 
-struct EmotesTextEntry
+// load EmotesText.dbc
+struct EmotesTextDBC
 {
     uint32 ID;                                              // 0
     //char const* Name;                                     // 1
@@ -646,16 +676,18 @@ struct EmotesTextEntry
     //uint32 EmoteText[16];                                 // 3-18
 };
 
-struct EmotesTextSoundEntry
+// load EmotesTextSound.dbc
+struct EmotesTextSoundDBC
 {
     uint32 ID;                                              // 0
     uint32 EmotesTextID;                                    // 1
-    uint32 RaceID;                                          // 2
-    uint32 SexID;                                           // 3 0 male / 1 female
+    uint8 RaceID;                                           // 2
+    uint8 SexID;                                            // 3 0 male / 1 female
     uint32 SoundID;                                         // 4
 };
 
-struct FactionEntry
+// load Faction.dbc
+struct FactionDBC
 {
     uint32 ID;                                              // 0
     int32 ReputationIndex;                                  // 1
@@ -668,7 +700,7 @@ struct FactionEntry
                                                             //       [1] Faction outputs rep * spilloverRateOut as spillover reputation
     uint32 ParentFactionCap[2];                             // 21-22 [0] The highest rank the faction will profit from incoming spillover
                                                             //       [1] It does not seem to be the max standing at which a faction outputs spillover ...so no idea
-    char const* Name[16];                                   // 23-38
+    std::string Name[TOTAL_LOCALES];                        // 23-38
     //uint32 Name_lang_mask;                                // 39
     //char const* Description[16];                          // 40-55
     //uint32 Description_lang_mask;                         // 56
@@ -680,9 +712,10 @@ struct FactionEntry
     }
 };
 
+// load FactionTemplate.dbc
 #define MAX_FACTION_RELATIONS 4
 
-struct FactionTemplateEntry
+struct FactionTemplateDBC
 {
     uint32 ID;                                              // 0
     uint32 Faction;                                         // 1
@@ -694,7 +727,7 @@ struct FactionTemplateEntry
     uint32 Friend[MAX_FACTION_RELATIONS];                   // 10-13
 
     // helpers
-    bool IsFriendlyTo(FactionTemplateEntry const& entry) const
+    bool IsFriendlyTo(FactionTemplateDBC const& entry) const
     {
         if (entry.Faction)
         {
@@ -707,7 +740,7 @@ struct FactionTemplateEntry
         }
         return (FriendGroup & entry.FactionGroup) || (FactionGroup & entry.FriendGroup);
     }
-    bool IsHostileTo(FactionTemplateEntry const& entry) const
+    bool IsHostileTo(FactionTemplateDBC const& entry) const
     {
         if (entry.Faction)
         {
@@ -720,7 +753,7 @@ struct FactionTemplateEntry
         }
         return (EnemyGroup & entry.FactionGroup) != 0;
     }
-    bool IsHostileToPlayers() const { return (EnemyGroup & FACTION_MASK_PLAYER) !=0; }
+    bool IsHostileToPlayers() const { return (EnemyGroup & FACTION_MASK_PLAYER) != 0; }
     bool IsNeutralToAll() const
     {
         for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
@@ -731,24 +764,27 @@ struct FactionTemplateEntry
     bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
 };
 
-struct GameObjectArtKitEntry
+// load GameObjectArtKit.dbc
+struct GameObjectArtKitDBC
 {
     uint32 ID;                                              // 0
     //char const* TextureVariation[3]                       // 1-3 m_textureVariations[3]
     //char const* AttachModel[4]                            // 4-8 m_attachModels[4]
 };
 
-struct GameObjectDisplayInfoEntry
+// load GameObjectDisplayInfo.dbc
+struct GameObjectDisplayInfoDBC
 {
     uint32 ID;                                              // 0
-    char const* ModelName;                                  // 1
+    std::string ModelName;                                  // 1
     //uint32 Sound[10];                                     // 2-11
     DBCPosition3D GeoBoxMin;                                // 12-14
     DBCPosition3D GeoBoxMax;                                // 15-17
     //uint32 ObjectEffectPackageID;                         // 18
 };
 
-struct GemPropertiesEntry
+// load GemProperties.dbc
+struct GemPropertiesDBC
 {
     uint32 ID;                                              // 0
     uint32 EnchantID;                                       // 1
@@ -757,7 +793,8 @@ struct GemPropertiesEntry
     uint32 Type;                                            // 4
 };
 
-struct GlyphPropertiesEntry
+// load GlyphProperties.dbc
+struct GlyphPropertiesDBC
 {
     uint32 ID;                                              // 0
     uint32 SpellID;                                         // 1
@@ -765,7 +802,8 @@ struct GlyphPropertiesEntry
     uint32 SpellIconID;                                     // 3
 };
 
-struct GlyphSlotEntry
+// load GlyphSlot.dbc
+struct GlyphSlotDBC
 {
     uint32 ID;                                              // 0
     uint32 Type;                                            // 1
@@ -773,95 +811,100 @@ struct GlyphSlotEntry
 };
 
 // All Gt* DBC store data for 100 levels, some by 100 per class/race
-#define GT_MAX_LEVEL    100
+constexpr uint8 GT_MAX_LEVEL = 100;
 // gtOCTClassCombatRatingScalar.dbc stores data for 32 ratings, look at MAX_COMBAT_RATING for real used amount
-#define GT_MAX_RATING   32
+constexpr uint8 GT_MAX_RATING = 32;
 
-struct GtBarberShopCostBaseEntry
-{
-    float Data;                                             // 0
-};
-
-struct GtCombatRatingsEntry
-{
-    float Data;                                             // 0
-};
-
-struct GtChanceToMeleeCritBaseEntry
-{
-    float Data;                                             // 0
-};
-
-struct GtChanceToMeleeCritEntry
-{
-    float Data;                                             // 0
-};
-
-struct GtChanceToSpellCritBaseEntry
-{
-    float Data;                                             // 0
-};
-
-struct GtNPCManaCostScalerEntry
-{
-    float Data;                                             // 0
-};
-
-struct GtChanceToSpellCritEntry
-{
-    float Data;                                             // 0
-};
-
-struct GtOCTClassCombatRatingScalarEntry
-{
-    float Data;                                             // 0
-};
-
-struct GtOCTRegenHPEntry
-{
-    float Data;                                             // 0
-};
-
-/*
-struct GtOCTRegenMPEntry
-{
-    float Data;                                             // 0
-};
-*/
-
-struct GtRegenHPPerSptEntry
-{
-    float Data;                                             // 0
-};
-
-struct GtRegenMPPerSptEntry
-{
-    float Data;                                             // 0
-};
-
-/*
-struct HolidayDescriptionsEntry
+// load gtBarberShopCostBase.dbc
+struct GtBarberShopCostBaseDBC
 {
     uint32 ID;                                              // 0
-    char const* Description[16];                            // 1-16
-    uint32 Description_lang_mask;                           // 17
+    float Data;                                             // 1
 };
-*/
 
-/*
-struct HolidayNamesEntry
+// load gtCombatRatings.dbc
+struct GtCombatRatingsDBC
 {
     uint32 ID;                                              // 0
-    char const* Name[16];                                   // 1-16
-    uint32 Name_lang_mask;                                  // 17
+    float Data;                                             // 1
 };
-*/
 
+// load gtChanceToMeleeCritBase.dbc
+struct GtChanceToMeleeCritBaseDBC
+{
+    uint32 ID;                                              // 0
+    float Data;                                             // 1
+};
+
+// load gtChanceToMeleeCrit.dbc
+struct GtChanceToMeleeCritDBC
+{
+    uint32 ID;                                              // 0
+    float Data;                                             // 1
+};
+
+// load gtChanceToSpellCritBase.dbc
+struct GtChanceToSpellCritBaseDBC
+{
+    uint32 ID;                                              // 0
+    float Data;                                             // 1
+};
+
+// load gtChanceToSpellCrit.dbc
+struct GtChanceToSpellCritDBC
+{
+    uint32 ID;                                              // 0
+    float Data;                                             // 1
+};
+
+// load gtNPCManaCostScaler.dbc
+struct GtNPCManaCostScalerDBC
+{
+    uint32 ID;                                              // 0
+    float Data;                                             // 1
+};
+
+// load gtOCTClassCombatRatingScalar.dbc
+struct GtOCTClassCombatRatingScalarDBC
+{
+    uint32 ID;                                              // 0
+    float Data;                                             // 1
+};
+
+// load gtOCTRegenHP.dbc
+struct GtOCTRegenHPDBC
+{
+    uint32 ID;                                              // 0
+    float Data;                                             // 1
+};
+
+// load gtOCTRegenMP.dbc (UNUSED)
+struct GtOCTRegenMPDBC
+{
+    uint32 ID;                                              // 0
+    float Data;                                             // 1
+};
+
+// load gtRegenHPPerSpt.dbc
+struct GtRegenHPPerSptDBC
+{
+    uint32 ID;                                              // 0
+    float Data;                                             // 1
+};
+
+// load gtRegenMPPerSpt.dbc
+struct GtRegenMPPerSptDBC
+{
+    uint32 ID;                                              // 0
+    float Data;                                             // 1
+};
+
+// load Holidays.dbc
 #define MAX_HOLIDAY_DURATIONS 10
 #define MAX_HOLIDAY_DATES 26
 #define MAX_HOLIDAY_FLAGS 10
 
-struct HolidaysEntry
+struct HolidaysDBC
 {
     uint32 ID;                                              // 0
     uint32 Duration[MAX_HOLIDAY_DURATIONS];                 // 1-10
@@ -871,62 +914,54 @@ struct HolidaysEntry
     uint32 CalendarFlags[MAX_HOLIDAY_FLAGS];                // 39-48
     //uint32 HolidayNameID;                                 // 49 HolidayNames.dbc
     //uint32 HolidayDescriptionID;                          // 50 HolidayDescriptions.dbc
-    char const* TextureFilename;                            // 51
+    std::string TextureFilename;                            // 51
     uint32 Priority;                                        // 52
     int32 CalendarFilterType;                               // 53
     //uint32 Flags;                                         // 54 0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1
 };
 
-struct ItemEntry
+// load Item.dbc
+struct ItemDBC
 {
-   uint32 ID;                                               // 0
-   uint32 ClassID;                                          // 1
-   uint32 SubclassID;                                       // 2
-   int32 SoundOverrideSubclassID;                           // 3
-   int32 Material;                                          // 4
-   uint32 DisplayInfoID;                                    // 5
-   uint32 InventoryType;                                    // 6
-   uint32 SheatheType;                                      // 7
+    uint32 ID;                                               // 0
+    uint32 ClassID;                                          // 1
+    uint32 SubclassID;                                       // 2
+    int32 SoundOverrideSubclassID;                           // 3
+    int32 Material;                                          // 4
+    uint32 DisplayInfoID;                                    // 5
+    uint32 InventoryType;                                    // 6
+    uint32 SheatheType;                                      // 7
 };
 
-struct ItemBagFamilyEntry
+// load ItemBagFamily.dbc
+struct ItemBagFamilyDBC
 {
     uint32 ID;                                              // 0
-    //char const* Name[16];                                 // 1-16
+    //std::string Name[16];                                 // 1-16
     //uint32 Name_lang_mask;                                // 17
 };
 
-/*
-struct ItemDisplayInfoEntry
+// load ItemDisplayInfo.dbc
+struct ItemDisplayInfoDBC
 {
     uint32 ID;                                              // 0
-    char const* ModelName[2];                               // 1-2
-    char const* ModelTexture[2];                            // 3-4
-    char const* InventoryIcon[2];                           // 5-6
+    std::string ModelName[2];                               // 1-2
+    std::string ModelTexture[2];                            // 3-4
+    std::string InventoryIcon[2];                           // 5-6
     uint32 GeosetGroup[3];                                  // 7-9
     uint32 Flags;                                           // 10
     uint32 SpellVisualID;                                   // 11
     uint32 GroupSoundIndex;                                 // 12
     uint32 HelmetGeosetVisID[2];                            // 13-14
-    char const* Texture[8];                                 // 15-22
+    std::string Texture[8];                                 // 15-22
     int32 ItemVisual;                                       // 23
     uint32 ParticleColorID;                                 // 24
 };
-*/
 
-/*
-struct ItemCondExtCostsEntry
-{
-    uint32 ID;                                              // 0
-    uint32 CondExtendedCost;                                // 1 ItemTemplate::CondExtendedCost
-    uint32 ItemExtendedCostEntry;                           // 2 ItemTemplate::ExtendedCost
-    uint32 ArenaSeason;                                     // 3 arena season number (1-4)
-};
-*/
-
+// load ItemExtendedCost.dbc
 #define MAX_ITEM_EXTENDED_COST_REQUIREMENTS 5
 
-struct ItemExtendedCostEntry
+struct ItemExtendedCostDBC
 {
     uint32 ID;                                              // 0
     uint32 HonorPoints;                                     // 1 required honor points
@@ -938,7 +973,8 @@ struct ItemExtendedCostEntry
     //uint32 ItemPurchaseGroup;                             // 15
 };
 
-struct ItemLimitCategoryEntry
+// load ItemLimitCategory.dbc
+struct ItemLimitCategoryDBC
 {
     uint32 ID;                                              // 0
     //char const* Name[16]                                  // 1-16
@@ -947,22 +983,24 @@ struct ItemLimitCategoryEntry
     uint32 Flags;                                           // 19 enum ItemLimitCategoryMode
 };
 
+// load ItemRandomProperties.dbc
 #define MAX_ITEM_ENCHANTMENT_EFFECTS 3
 
-struct ItemRandomPropertiesEntry
+struct ItemRandomPropertiesDBC
 {
     uint32 ID;                                                          // 0
     //char const* InternalName;                                         // 1
     std::array<uint32, MAX_ITEM_ENCHANTMENT_EFFECTS> Enchantment;       // 2-4
     //std::array<uint32, 2> UnusedEnchantment;                          // 5-6
-    std::array<char const*, 16> Name;                                   // 7-22
+    std::string Name[TOTAL_LOCALES];                                    // 7-22
     //uint32 Name_lang_mask;                                            // 23
 };
 
-struct ItemRandomSuffixEntry
+// load ItemRandomSuffix.dbc
+struct ItemRandomSuffixDBC
 {
     uint32 ID;                                                          // 0
-    std::array<char const*, 16> Name;                                   // 1-16
+    std::string Name[TOTAL_LOCALES];                                    // 1-16
     //uint32 Name_lang_mask;                                            // 17
     //char const* InternalName;                                         // 18
     std::array<uint32, MAX_ITEM_ENCHANTMENT_EFFECTS> Enchantment;       // 19-21
@@ -971,13 +1009,14 @@ struct ItemRandomSuffixEntry
     //std::array<uint32, 2> UnusedAllocationPct;                        // 27-28
 };
 
+// load ItemSet.dbc
 #define MAX_ITEM_SET_ITEMS 10
 #define MAX_ITEM_SET_SPELLS 8
 
-struct ItemSetEntry
+struct ItemSetDBC
 {
-    //uint32 ID;                                            // 0
-    char const* Name[16];                                   // 1-16
+    uint32 ID;                                              // 0
+    std::string Name[TOTAL_LOCALES];                        // 1-16
     //uint32 Name_lang_mask;                                // 17
     uint32 ItemID[MAX_ITEM_SET_ITEMS];                      // 18-27
     //uint32 UnusedItemID[7];                               // 28-34
@@ -987,10 +1026,11 @@ struct ItemSetEntry
     uint32 RequiredSkillRank;                               // 52
 };
 
-struct LFGDungeonEntry
+// load LFGDungeons.dbc
+struct LFGDungeonDBC
 {
     uint32 ID;                                              // 0
-    char const* Name[16];                                   // 1-16
+    std::string Name[TOTAL_LOCALES];                        // 1-16
     //uint32 Name_lang_mask;                                // 17
     uint32 MinLevel;                                        // 18
     uint32 MaxLevel;                                        // 19
@@ -1013,7 +1053,8 @@ struct LFGDungeonEntry
     uint32 Entry() const { return ID + (TypeID << 24); }
 };
 
-struct LightEntry
+// load Light.dbc
+struct LightDBC
 {
     uint32 ID;                                              // 0
     uint32 ContinentID;                                     // 1
@@ -1023,7 +1064,8 @@ struct LightEntry
     //uint32 LightParamsID[8];                              // 7-14
 };
 
-struct LiquidTypeEntry
+// load LiquidType.dbc
+struct LiquidTypeDBC
 {
     uint32 ID;                                              // 0
     //char const* Name;                                     // 1
@@ -1046,9 +1088,9 @@ struct LiquidTypeEntry
     //uint32 Unk2[4];                                       // 41-44
 };
 
+// load Lock.dbc
 #define MAX_LOCK_CASE 8
-
-struct LockEntry
+struct LockDBC
 {
     uint32 ID;                                              // 0
     uint32 Type[MAX_LOCK_CASE];                             // 1-8
@@ -1057,23 +1099,25 @@ struct LockEntry
     //uint32 Action[MAX_LOCK_CASE];                         // 25-32
 };
 
-struct MailTemplateEntry
+// load MailTemplate.dbc
+struct MailTemplateDBC
 {
     uint32 ID;                                              // 0
     //char const* Subject[16];                              // 1-16
     //uint32 Subject_lang_mask;                             // 17
-    char const* Body[16];                                   // 18-33
+    std::string Body[TOTAL_LOCALES];                        // 18-33
     //uint32 Body_lang_mask;                                // 34
 };
 
-struct MapEntry
+// load Map.dbc
+struct MapDBC
 {
     uint32 ID;                                              // 0
     //char const* Directory;                                // 1
     uint32 InstanceType;                                    // 2
     uint32 Flags;                                           // 3
     //uint32 MapType;                                       // 4 0 or 1 for battlegrounds (not arenas)
-    char const* MapName[16];                                // 5-20
+    std::string MapName[TOTAL_LOCALES];                     // 5-20
     //uint32 MapName_lang_mask;                             // 21
     uint32 AreaTableID;                                     // 22 common zone for instance and continent map
     //char const* MapDescription0[16];                      // 23-38 text for PvP Zones (Horde)
@@ -1101,7 +1145,7 @@ struct MapEntry
     bool IsBattlegroundOrArena() const { return InstanceType == MAP_BATTLEGROUND || InstanceType == MAP_ARENA; }
     bool IsWorldMap() const { return InstanceType == MAP_COMMON; }
 
-    bool GetEntrancePos(int32 &mapid, float &x, float &y) const
+    bool GetEntrancePos(int32& mapid, float& x, float& y) const
     {
         if (CorpseMapID < 0)
             return false;
@@ -1119,49 +1163,55 @@ struct MapEntry
     bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_DYNAMIC_DIFFICULTY) != 0; }
 };
 
-struct MapDifficultyEntry
+// load MapDifficulty.dbc
+struct MapDifficultyDBC
 {
-    //uint32 ID;                                            // 0
+    uint32 ID;                                              // 0
     uint32 MapID;                                           // 1
     uint32 Difficulty;                                      // 2 (for arenas: arena slot)
-    char const* Message;                                    // 3-18 text showed when transfer to map failed (missing requirements)
+    std::string Message[TOTAL_LOCALES];                     // 3-18 text showed when transfer to map failed (missing requirements)
     //uint32 Message_lang_mask;                             // 19
     uint32 RaidDuration;                                    // 20
     uint32 MaxPlayers;                                      // 21
     //char const* Difficultystring;                         // 22
 };
 
-struct MovieEntry
+// load Movie.dbc
+struct MovieDBC
 {
     uint32 ID;                                              // 0
     //char const* Filename;                                 // 1
     //uint32 Volume;                                        // 2 always 100
 };
 
-struct NamesProfanityEntry
+// load NamesProfanity.dbc
+struct NamesProfanityDBC
 {
-    //uint32 ID;                                            // 0
-    char const* Name;                                       // 1
+    uint32 ID;                                              // 0
+    std::string Name;                                       // 1
     int32 Language;                                         // 2
 };
 
-struct NamesReservedEntry
+// load NamesReserved.dbc
+struct NamesReservedDBC
 {
-    //uint32 ID;                                            // 0
-    char const* Name;                                       // 1
+    uint32 ID;                                              // 0
+    std::string Name;                                       // 1
     int32 Language;                                         // 2
 };
 
+// load OverrideSpellData.dbc
 #define MAX_OVERRIDE_SPELL 10
 
-struct OverrideSpellDataEntry
+struct OverrideSpellDataDBC
 {
     uint32 ID;                                              // 0
     uint32 Spells[MAX_OVERRIDE_SPELL];                      // 1-10
     //uint32 Flags;                                         // 11
 };
 
-struct PowerDisplayEntry
+// load PowerDisplay.dbc
+struct PowerDisplayDBC
 {
     uint32 ID;                                              // 0
     uint32 ActualType;                                      // 1
@@ -1171,9 +1221,10 @@ struct PowerDisplayEntry
     //uint8 Blue;                                           // 5
 };
 
-struct PvPDifficultyEntry
+// load PvpDifficulty.dbc
+struct PvPDifficultyDBC
 {
-    //uint32 ID;                                            // 0
+    uint32 ID;                                              // 0
     uint32 MapID;                                           // 1
     uint32 RangeIndex;                                      // 2
     uint32 MinLevel;                                        // 3
@@ -1184,26 +1235,30 @@ struct PvPDifficultyEntry
     BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(RangeIndex); }
 };
 
-struct QuestSortEntry
+// load QuestSort.dbc
+struct QuestSortDBC
 {
     uint32 ID;                                              // 0
     //char const* SortName[16];                             // 1-16
     //uint32 SortName_lang;                                 // 17
 };
 
-struct QuestXPEntry
+// load QuestXP.dbc
+struct QuestXPDBC
 {
     uint32 ID;                                              // 0
     uint32 Difficulty[10];                                  // 1-10
 };
 
-struct QuestFactionRewEntry
+// load QuestFactionReward.dbc
+struct QuestFactionRewardDBC
 {
     uint32 ID;                                              // 0
     int32 Difficulty[10];                                   // 1
 };
 
-struct RandPropPointsEntry
+// load RandPropPoints.dbc
+struct RandPropPointsDBC
 {
     uint32 ID;                                              // 0 item level
     uint32 Epic[5];                                         // 1-5
@@ -1211,7 +1266,8 @@ struct RandPropPointsEntry
     uint32 Good[5];                                         // 11-15
 };
 
-struct ScalingStatDistributionEntry
+// load ScalingStatDistribution.dbc
+struct ScalingStatDistributionDBC
 {
     uint32 ID;                                              // 0
     int32 StatID[10];                                       // 1-10
@@ -1219,7 +1275,8 @@ struct ScalingStatDistributionEntry
     uint32 Maxlevel;                                        // 21
 };
 
-struct ScalingStatValuesEntry
+// load ScalingStatValues.dbc
+struct ScalingStatValuesDBC
 {
     uint32 ID;                                              // 0
     uint32 Charlevel;                                       // 1
@@ -1315,12 +1372,13 @@ struct ScalingStatValuesEntry
     }
 };
 
-struct SkillLineEntry
+// load SkillLine.dbc
+struct SkillLineDBC
 {
     uint32 ID;                                              // 0
     int32 CategoryID;                                       // 1
     //uint32 SkillCostsID;                                  // 2
-    char const* DisplayName[16];                            // 3-18
+    std::string DisplayName[TOTAL_LOCALES];                 // 3-18
     //uint32 DisplayName_lang_mask;                         // 19
     //char const* Description[16];                          // 20-35
     //uint32 Description_lang_mask;                         // 36
@@ -1330,7 +1388,8 @@ struct SkillLineEntry
     uint32 CanLink;                                         // 55
 };
 
-struct SkillLineAbilityEntry
+// load SkillLineAbility.dbc
+struct SkillLineAbilityDBC
 {
     uint32 ID;                                              // 0
     uint32 SkillLine;                                       // 1
@@ -1347,19 +1406,10 @@ struct SkillLineAbilityEntry
     //uint32 CharacterPoints[2];                            // 12-13
 };
 
-/*
-struct SkillLineCategoryEntry
+// load SkillRaceClassInfo.dbc
+struct SkillRaceClassInfoDBC
 {
     uint32 ID;                                              // 0
-    char const* Name[16];                                   // 1-17
-    uint32 Name_lang_mask;                                  // 18
-    uint32 SortIndex;                                       // 19
-};
-*/
-
-struct SkillRaceClassInfoEntry
-{
-    //uint32 ID;                                            // 0
     uint32 SkillID;                                         // 1
     uint32 RaceMask;                                        // 2
     uint32 ClassMask;                                       // 3
@@ -1369,16 +1419,18 @@ struct SkillRaceClassInfoEntry
     //uint32 SkillCostIndex;                                // 7
 };
 
+// load SkillTiers.dbc
 #define MAX_SKILL_STEP 16
 
-struct SkillTiersEntry
+struct SkillTiersDBC
 {
     uint32 ID;                                              // 0
     //uint32 Cost[MAX_SKILL_STEP];                          // 1-16
     uint32 Value[MAX_SKILL_STEP];                           // 17-32
 };
 
-struct SoundEntriesEntry
+// load SoundEntries.dbc
+struct SoundEntriesDBC
 {
     uint32 ID;                                              // 0
     //uint32 SoundType;                                     // 1
@@ -1394,7 +1446,8 @@ struct SoundEntriesEntry
     //uint32 SoundEntriesAdvancedID;                        // 29
 };
 
-struct SpellEntry
+// load Spell.dbc
+struct SpellDBC
 {
     uint32 ID;                                                          // 0
     uint32 Category;                                                    // 1
@@ -1472,9 +1525,9 @@ struct SpellEntry
     uint32 SpellIconID;                                                 // 133
     uint32 ActiveIconID;                                                // 134
     uint32 SpellPriority;                                               // 135
-    std::array<char const*, 16> Name;                                   // 136-151
+    std::string Name[TOTAL_LOCALES];                                    // 136-151
     //uint32 Name_lang_mask;                                            // 152
-    std::array<char const*, 16> NameSubtext;                            // 153-168
+    std::string NameSubtext[TOTAL_LOCALES];                             // 153-168
     //uint32 NameSubtext_lang_mask;                                     // 169
     //std::array<char const*, 16> Description;                          // 170-185
     //uint32 Description_lang_mask;                                     // 186
@@ -1505,10 +1558,8 @@ struct SpellEntry
     //uint32 Difficulty;                                                // 233
 };
 
-typedef std::set<uint32> PetFamilySpellsSet;
-typedef std::map<uint32, PetFamilySpellsSet> PetFamilySpellsStore;
-
-struct SpellCastTimesEntry
+// load SpellCastTimes.dbc
+struct SpellCastTimesDBC
 {
     uint32 ID;                                              // 0
     int32 Base;                                             // 1
@@ -1516,34 +1567,15 @@ struct SpellCastTimesEntry
     //int32 Minimum;                                        // 3
 };
 
-struct SpellCategoryEntry
+// load SpellCategory.dbc
+struct SpellCategoryDBC
 {
     uint32 ID;                                              // 0
     uint32 Flags;                                           // 1
 };
 
-struct SpellDifficultyEntry
-{
-    uint32 ID;                                              // 0
-    int32 DifficultySpellID[MAX_DIFFICULTY];                // 1-4 instance modes: 10N, 25N, 10H, 25H or Normal/Heroic if only 1-2 is set, if 3-4 is 0 then Mode-2
-};
-
-struct SpellDurationEntry
-{
-    uint32 ID;                                              // 0
-    int32 Duration;                                         // 1
-    int32 DurationPerLevel;                                 // 2
-    int32 MaxDuration;                                      // 3
-};
-
-struct SpellFocusObjectEntry
-{
-    uint32 ID;                                              // 0
-    //char const* Name[16];                                 // 1-15
-    //uint32 Name_lang_mask;                                // 16
-};
-
-struct SpellItemEnchantmentEntry
+// load SpellItemEnchantment.dbc
+struct SpellItemEnchantmentDBC
 {
     uint32 ID;                                              // 0
     //uint32 Charges;                                       // 1
@@ -1551,7 +1583,7 @@ struct SpellItemEnchantmentEntry
     uint32 EffectPointsMin[MAX_ITEM_ENCHANTMENT_EFFECTS];   // 5-7
     //uint32 EffectPointsMax[MAX_ITEM_ENCHANTMENT_EFFECTS]  // 8-10
     uint32 EffectArg[MAX_ITEM_ENCHANTMENT_EFFECTS];         // 11-13
-    char const* Name[16];                                   // 14-29
+    std::string Name[TOTAL_LOCALES];                        // 14-29
     //uint32 Name_lang_mask;                                // 30
     uint32 ItemVisual;                                      // 31
     uint32 Flags;                                           // 32
@@ -1562,7 +1594,32 @@ struct SpellItemEnchantmentEntry
     uint32 MinLevel;                                        // 37
 };
 
-struct SpellItemEnchantmentConditionEntry
+// load SpellDifficulty.dbc
+struct SpellDifficultyDBC
+{
+    uint32 ID;                                              // 0
+    int32 DifficultySpellID[MAX_DIFFICULTY];                // 1-4 instance modes: 10N, 25N, 10H, 25H or Normal/Heroic if only 1-2 is set, if 3-4 is 0 then Mode-2
+};
+
+// load SpellDuration.dbc
+struct SpellDurationDBC
+{
+    uint32 ID;                                              // 0
+    int32 Duration;                                         // 1
+    int32 DurationPerLevel;                                 // 2
+    int32 MaxDuration;                                      // 3
+};
+
+// load SpellFocusObject.dbc
+struct SpellFocusObjectDBC
+{
+    uint32 ID;                                              // 0
+    //char const* Name[16];                                 // 1-15
+    //uint32 Name_lang_mask;                                // 16
+};
+
+// load SpellItemEnchantmentCondition.dbc
+struct SpellItemEnchantmentConditionDBC
 {
     uint32 ID;                                              // 0
     uint8 LtOperandType[5];                                 // 1-5
@@ -1573,7 +1630,8 @@ struct SpellItemEnchantmentConditionEntry
     //uint8 Logic[5];                                       // 25-30
 };
 
-struct SpellRadiusEntry
+// load SpellRadius.dbc
+struct SpellRadiusDBC
 {
     uint32 ID;                                              // 0
     float Radius;                                           // 1
@@ -1581,7 +1639,8 @@ struct SpellRadiusEntry
     float RadiusMax;                                        // 3
 };
 
-struct SpellRangeEntry
+// load SpellRange.dbc
+struct SpellRangeDBC
 {
     uint32 ID;                                              // 0
     float RangeMin[2];                                      // 1-2 [0] Hostile [1] Friendly
@@ -1593,7 +1652,8 @@ struct SpellRangeEntry
     //uint32 DisplayNameShort_lang_mask;                    // 39
 };
 
-struct SpellRuneCostEntry
+// load SpellRuneCost.dbc
+struct SpellRuneCostDBC
 {
     uint32 ID;                                              // 0
     uint32 RuneCost[3];                                     // 1-3 [0] Blood [1] Unholy [2] Frost
@@ -1603,9 +1663,10 @@ struct SpellRuneCostEntry
     bool NoRunicPowerGain() const { return RunicPower == 0; }
 };
 
+//load SpellShapeshiftForm.dbc
 #define MAX_SHAPESHIFT_SPELLS 8
 
-struct SpellShapeshiftFormEntry
+struct SpellShapeshiftFormDBC
 {
     uint32 ID;                                              // 0
     //uint32 BonusActionBar;                                // 1
@@ -1619,9 +1680,10 @@ struct SpellShapeshiftFormEntry
     uint32 PresetSpellID[MAX_SHAPESHIFT_SPELLS];            // 27-34
 };
 
-struct SpellVisualEntry
+// load SpellVisual.dbc
+struct SpellVisualDBC
 {
-    //uint32 ID;                                            // 0
+    uint32 ID;                                              // 0
     //uint32 PrecastKit;                                    // 1
     //uint32 CastKit;                                       // 2
     //uint32 ImpactKit;                                     // 3
@@ -1651,13 +1713,15 @@ struct SpellVisualEntry
     //DBCPosition3D MissileImpactOffset;                    // 29-31
 };
 
-struct StableSlotPricesEntry
+// load StableSlotPrices.dbc
+struct StableSlotPricesDBC
 {
     uint32 ID;                                              // 0
     uint32 Cost;                                            // 1
 };
 
-struct SummonPropertiesEntry
+// load SummonProperties.dbc
+struct SummonPropertiesDBC
 {
     uint32 ID;                                              // 0
     uint32 Control;                                         // 1
@@ -1667,7 +1731,8 @@ struct SummonPropertiesEntry
     uint32 Flags;                                           // 5
 };
 
-struct TalentEntry
+// load Talent.dbc
+struct TalentDBC
 {
     uint32 ID;                                              // 0
     uint32 TabID;                                           // 1 index in TalentTab.dbc (TalentTabEntry)
@@ -1684,7 +1749,18 @@ struct TalentEntry
     //std::array<uint32, 2> CategoryMask;                   // 21 its a 64 bit mask for pet 1<<CategoryEnumID in CreatureFamily.dbc
 };
 
-struct TalentTabEntry
+//     structure helper
+struct TalentSpellPos
+{
+    TalentSpellPos() : talent_id(0), rank(0) { }
+    TalentSpellPos(uint16 _talent_id, uint8 _rank) : talent_id(_talent_id), rank(_rank) { }
+
+    uint16 talent_id;
+    uint8  rank;
+};
+
+// load TalentTab.dbc
+struct TalentTabDBC
 {
     uint32 ID;                                              // 0
     //char const* Name[16];                                 // 1-16
@@ -1697,17 +1773,19 @@ struct TalentTabEntry
     //char const* BackgroundFile;                           // 23
 };
 
-struct TaxiNodesEntry
+// load TaxiNodes.dbc
+struct TaxiNodesDBC
 {
     uint32 ID;                                              // 0
     uint32 ContinentID;                                     // 1
     DBCPosition3D Pos;                                      // 2-4
-    char const* Name[16];                                   // 5-21
+    std::string Name[TOTAL_LOCALES];                        // 5-21
     //uint32 Name_lang_mask;                                // 22
     uint32 MountCreatureID[2];                              // 23-24
 };
 
-struct TaxiPathEntry
+// load TaxiPath.dbc
+struct TaxiPathDBC
 {
     uint32 ID;                                              // 0
     uint32 FromTaxiNode;                                    // 1
@@ -1715,9 +1793,20 @@ struct TaxiPathEntry
     uint32 Cost;                                            // 3
 };
 
-struct TaxiPathNodeEntry
+//     structure helper
+struct TaxiPathBySourceAndDestination
 {
-    //uint32 ID;                                            // 0
+    TaxiPathBySourceAndDestination() : ID(0), price(0) { }
+    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) { }
+
+    uint32 ID;
+    uint32 price;
+};
+
+// load TaxiPathNode.dbc
+struct TaxiPathNodeDBC
+{
+    uint32 ID;                                              // 0
     uint32 PathID;                                          // 1
     uint32 NodeIndex;                                       // 2
     uint32 ContinentID;                                     // 3
@@ -1728,13 +1817,15 @@ struct TaxiPathNodeEntry
     uint32 DepartureEventID;                                // 10
 };
 
-struct TeamContributionPointsEntry
+// load TeamContributionPoints.dbc
+struct TeamContributionPointsDBC
 {
-    //uint32 ID;                                            // 0
+    uint32 ID;                                              // 0
     float Data;                                             // 1
 };
 
-struct TotemCategoryEntry
+// load TotemCategory.dbc
+struct TotemCategoryDBC
 {
     uint32 ID;                                              // 0
     //char const* Name[16];                                 // 1-16
@@ -1743,18 +1834,20 @@ struct TotemCategoryEntry
     uint32 TotemCategoryMask;                               // 19 (compatibility mask for same type: different for totems, compatible from high to low for rods)
 };
 
-struct TransportAnimationEntry
+// load TransportAnimation.dbc
+struct TransportAnimationDBC
 {
-    //uint32 ID;                                            // 0
+    uint32 ID;                                              // 0
     uint32 TransportID;                                     // 1
     uint32 TimeIndex;                                       // 2
     DBCPosition3D Pos;                                      // 3
     //uint32 SequenceID;                                    // 4
 };
 
-struct TransportRotationEntry
+// load TransportRotation.dbc
+struct TransportRotationDBC
 {
-    //uint32 ID;                                            // 0
+    uint32 ID;                                              // 0
     uint32 GameObjectsID;                                   // 1
     uint32 TimeIndex;                                       // 2
     float X;                                                // 3
@@ -1763,9 +1856,10 @@ struct TransportRotationEntry
     float W;                                                // 6
 };
 
+// load Vehicle.dbc
 #define MAX_VEHICLE_SEATS 8
 
-struct VehicleEntry
+struct VehicleDBC
 {
     uint32 ID;                                              // 0
     uint32 Flags;                                           // 1
@@ -1799,7 +1893,8 @@ struct VehicleEntry
     //uint32 PowerDisplayIDUnused[2];                       // 38-39
 };
 
-struct VehicleSeatEntry
+// load VehicleSeat.dbc
+struct VehicleSeatDBC
 {
     uint32 ID;                                              // 0
     uint32 Flags;                                           // 1
@@ -1861,13 +1956,16 @@ struct VehicleSeatEntry
 
     inline bool CanEnterOrExit() const { return HasFlag(VehicleSeatFlags(VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT | VEHICLE_SEAT_FLAG_CAN_CONTROL | VEHICLE_SEAT_FLAG_SHOULD_USE_VEH_SEAT_EXIT_ANIM_ON_VOLUNTARY_EXIT)); }
     inline bool CanSwitchFromSeat() const { return HasFlag(VEHICLE_SEAT_FLAG_CAN_SWITCH); }
-    inline bool IsUsableByOverride() const { return HasFlag(VehicleSeatFlags(VEHICLE_SEAT_FLAG_UNCONTROLLED | VEHICLE_SEAT_FLAG_UNK18))
-                                    || HasFlag(VehicleSeatFlagsB(VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 |
-                                        VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4)); }
+    inline bool IsUsableByOverride() const {
+        return HasFlag(VehicleSeatFlags(VEHICLE_SEAT_FLAG_UNCONTROLLED | VEHICLE_SEAT_FLAG_UNK18))
+            || HasFlag(VehicleSeatFlagsB(VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 |
+                VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4));
+    }
     inline bool IsEjectable() const { return HasFlag(VEHICLE_SEAT_FLAG_B_EJECTABLE); }
 };
 
-struct WMOAreaTableEntry
+// load WMOAreaTable.dbc
+struct WMOAreaTableDBC
 {
     uint32 ID;                                              // 0 index
     int32 WMOID;                                            // 1 used in root WMO
@@ -1884,9 +1982,10 @@ struct WMOAreaTableEntry
     //uint32 AreaName_lang_mask;                            // 12
 };
 
-struct WorldMapAreaEntry
+// load WorldMapArea.dbc
+struct WorldMapAreaDBC
 {
-    //uint32 ID;                                            // 0
+    uint32 ID;                                              // 0
     uint32 MapID;                                           // 1
     uint32 AreaID;                                          // 2
     //char const* AreaName                                  // 3
@@ -1899,9 +1998,10 @@ struct WorldMapAreaEntry
     //uint32 ParentWorldMapID;                              // 10
 };
 
+// load WorldMapOverlay.dbc
 #define MAX_WORLD_MAP_OVERLAY_AREA_IDX 4
 
-struct WorldMapOverlayEntry
+struct WorldMapOverlayDBC
 {
     uint32 ID;                                              // 0
     //uint32 MapAreaID;                                     // 1 ID in WorldMapArea.dbc
@@ -1919,7 +2019,8 @@ struct WorldMapOverlayEntry
     //uint32 HitRectRight;                                  // 16
 };
 
-struct WorldSafeLocsEntry
+// load WorldSafeLocs.dbc
+struct WorldSafeLocsDBC
 {
     uint32 ID;                                              // 0
     uint32 Continent;                                       // 1
@@ -1927,6 +2028,47 @@ struct WorldSafeLocsEntry
     //char const* AreaName[16]                              // 5-20
     //uint32 AreaName_lang_mask;                            // 21
 };
+
+// UNUSED structures
+/*
+struct HolidayDescriptionsEntry
+{
+    uint32 ID;                                              // 0
+    char const* Description[16];                            // 1-16
+    uint32 Description_lang_mask;                           // 17
+};
+*/
+
+/*
+struct HolidayNamesEntry
+{
+    uint32 ID;                                              // 0
+    char const* Name[16];                                   // 1-16
+    uint32 Name_lang_mask;                                  // 17
+};
+*/
+
+/*
+struct ItemCondExtCostsEntry
+{
+    uint32 ID;                                              // 0
+    uint32 CondExtendedCost;                                // 1 ItemTemplate::CondExtendedCost
+    uint32 ItemExtendedCostEntry;                           // 2 ItemTemplate::ExtendedCost
+    uint32 ArenaSeason;                                     // 3 arena season number (1-4)
+};
+*/
+
+//#define MAX_ITEM_ENCHANTMENT_EFFECTS 3
+
+/*
+struct SkillLineCategoryEntry
+{
+    uint32 ID;                                              // 0
+    char const* Name[16];                                   // 1-17
+    uint32 Name_lang_mask;                                  // 18
+    uint32 SortIndex;                                       // 19
+};
+*/
 
 /*
 struct WorldStateUI
@@ -1963,43 +2105,6 @@ struct WorldStateZoneSounds
     uint32 SoundProviderPreferencesID;                      // 7
 };
 */
-
 #pragma pack(pop)
-
-// Structures not used for casting to loaded DBC data and not required then packing
-struct MapDifficulty
-{
-    MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false) { }
-    MapDifficulty(uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage) : resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage) { }
-
-    uint32 resetTime;
-    uint32 maxPlayers;
-    bool hasErrorMessage;
-};
-
-struct TalentSpellPos
-{
-    TalentSpellPos() : talent_id(0), rank(0) { }
-    TalentSpellPos(uint16 _talent_id, uint8 _rank) : talent_id(_talent_id), rank(_rank) { }
-
-    uint16 talent_id;
-    uint8  rank;
-};
-
-typedef std::map<uint32, TalentSpellPos> TalentSpellPosMap;
-
-struct TaxiPathBySourceAndDestination
-{
-    TaxiPathBySourceAndDestination() : ID(0), price(0) { }
-    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) { }
-
-    uint32    ID;
-    uint32    price;
-};
-typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
-typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
-
-typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
-typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 #endif

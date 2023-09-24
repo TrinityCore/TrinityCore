@@ -19,7 +19,7 @@
 #include "Common.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "FlightPathMovementGenerator.h"
 #include "Log.h"
 #include "MotionMaster.h"
@@ -225,7 +225,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
     uint32 curDest = GetPlayer()->m_taxi.GetTaxiDestination();
     if (curDest)
     {
-        TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
+        TaxiNodesDBC const* curDestNode = sDBCStoresMgr->GetTaxiNodesDBC(curDest);
 
         // far teleport case
         if (curDestNode && curDestNode->ContinentID != GetPlayer()->GetMapId() && GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
@@ -234,7 +234,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
             {
                 // short preparations to continue flight
                 flight->SetCurrentNodeAfterTeleport();
-                TaxiPathNodeEntry const* node = flight->GetPath()[flight->GetCurrentNode()];
+                TaxiPathNodeDBC const* node = flight->GetPath()[flight->GetCurrentNode()];
                 flight->SkipCurrentNode();
 
                 GetPlayer()->TeleportTo(curDestNode->ContinentID, node->Loc.X, node->Loc.Y, node->Loc.Z, GetPlayer()->GetOrientation());

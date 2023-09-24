@@ -18,7 +18,7 @@
 #include "BattlegroundEY.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GameObject.h"
 #include "Log.h"
 #include "Map.h"
@@ -502,7 +502,7 @@ bool BattlegroundEY::SetupBattleground()
     //buffs
     for (int i = 0; i < EY_POINTS_MAX; ++i)
     {
-        AreaTriggerEntry const* at = sAreaTriggerStore.LookupEntry(m_Points_Trigger[i]);
+        AreaTriggerDBC const* at = sDBCStoresMgr->GetAreaTriggerDBC(m_Points_Trigger[i]);
         if (!at)
         {
             TC_LOG_ERROR("bg.battleground", "BattlegroundEY: Unknown trigger: {}", m_Points_Trigger[i]);
@@ -515,14 +515,14 @@ bool BattlegroundEY::SetupBattleground()
             TC_LOG_ERROR("bg.battleground", "BattlegroundEY: Could not spawn Speedbuff Fel Reaver.");
     }
 
-    WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(EY_GRAVEYARD_MAIN_ALLIANCE);
+    WorldSafeLocsDBC const* sg = sDBCStoresMgr->GetWorldSafeLocsDBC(EY_GRAVEYARD_MAIN_ALLIANCE);
     if (!sg || !AddSpiritGuide(EY_SPIRIT_MAIN_ALLIANCE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.124139f, TEAM_ALLIANCE))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundEY: Failed to spawn spirit guide. The battleground was not created.");
         return false;
     }
 
-    sg = sWorldSafeLocsStore.LookupEntry(EY_GRAVEYARD_MAIN_HORDE);
+    sg = sDBCStoresMgr->GetWorldSafeLocsDBC(EY_GRAVEYARD_MAIN_HORDE);
     if (!sg || !AddSpiritGuide(EY_SPIRIT_MAIN_HORDE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.193953f, TEAM_HORDE))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundEY: Failed to spawn spirit guide. The battleground was not created.");
@@ -759,7 +759,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* player, uint32 Point)
     if (BgCreatures[Point])
         DelCreature(Point);
 
-    WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[Point].GraveyardId);
+    WorldSafeLocsDBC const* sg = sDBCStoresMgr->GetWorldSafeLocsDBC(m_CapturingPointTypes[Point].GraveyardId);
     if (!sg || !AddSpiritGuide(Point, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.124139f, GetTeamIndexByTeamId(Team)))
         TC_LOG_ERROR("bg.battleground", "BatteGroundEY: Failed to spawn spirit guide. point: {}, team: {}, graveyard_id: {}",
             Point, Team, m_CapturingPointTypes[Point].GraveyardId);
@@ -871,7 +871,7 @@ void BattlegroundEY::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
     packet.Worldstates.emplace_back(3085, 379); // unk, constant?
 }
 
-WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveyard(Player* player)
+WorldSafeLocsDBC const* BattlegroundEY::GetClosestGraveyard(Player* player)
 {
     uint32 g_id = 0;
 
@@ -884,9 +884,9 @@ WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveyard(Player* player)
 
     float distance, nearestDistance;
 
-    WorldSafeLocsEntry const* entry = nullptr;
-    WorldSafeLocsEntry const* nearestEntry = nullptr;
-    entry = sWorldSafeLocsStore.LookupEntry(g_id);
+    WorldSafeLocsDBC const* entry = nullptr;
+    WorldSafeLocsDBC const* nearestEntry = nullptr;
+    entry = sDBCStoresMgr->GetWorldSafeLocsDBC(g_id);
     nearestEntry = entry;
 
     if (!entry)
@@ -906,7 +906,7 @@ WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveyard(Player* player)
     {
         if (m_PointOwnedByTeam[i] == player->GetTeam() && m_PointState[i] == EY_POINT_UNDER_CONTROL)
         {
-            entry = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[i].GraveyardId);
+            entry = sDBCStoresMgr->GetWorldSafeLocsDBC(m_CapturingPointTypes[i].GraveyardId);
             if (!entry)
                 TC_LOG_ERROR("bg.battleground", "BattlegroundEY: Graveyard {} could not be found.", m_CapturingPointTypes[i].GraveyardId);
             else

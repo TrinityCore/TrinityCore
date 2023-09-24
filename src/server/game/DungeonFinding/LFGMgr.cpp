@@ -18,7 +18,7 @@
 #include "LFGMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
@@ -48,7 +48,7 @@ LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0),
 {
 }
 
-LFGDungeonData::LFGDungeonData(LFGDungeonEntry const* dbc) : id(dbc->ID), name(dbc->Name[0]), map(dbc->MapID),
+LFGDungeonData::LFGDungeonData(LFGDungeonDBC const* dbc) : id(dbc->ID), name(dbc->Name[0]), map(dbc->MapID),
     type(dbc->TypeID), expansion(uint8(dbc->ExpansionLevel)), group(uint8(dbc->GroupID)),
     minlevel(uint8(dbc->MinLevel)), maxlevel(uint8(dbc->MaxLevel)), difficulty(Difficulty(dbc->Difficulty)),
     seasonal((dbc->Flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
@@ -192,20 +192,20 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     LfgDungeonStore.clear();
 
     // Initialize Dungeon map with data from dbcs
-    for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
+    LFGDungeonDBCMap const& entryMap = sDBCStoresMgr->GetLFGDungeonDBCMap();
+    for (const auto& indexID : entryMap)
     {
-        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i);
-        if (!dungeon)
-            continue;
-
-        switch (dungeon->TypeID)
+        if (LFGDungeonDBC const* dungeon = &indexID.second)
         {
+            switch (dungeon->TypeID)
+            {
             case LFG_TYPE_DUNGEON:
             case LFG_TYPE_HEROIC:
             case LFG_TYPE_RAID:
             case LFG_TYPE_RANDOM:
                 LfgDungeonStore[dungeon->ID] = LFGDungeonData(dungeon);
                 break;
+            }
         }
     }
 
@@ -990,7 +990,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
         if (!dungeons.empty())
         {
             uint32 rDungeonId = (*dungeons.begin());
-            LFGDungeonEntry const* dungeonEntry = sLFGDungeonStore.LookupEntry(rDungeonId);
+            LFGDungeonDBC const* dungeonEntry = sDBCStoresMgr->GetLFGDungeonDBC(rDungeonId);
             if (dungeonEntry && dungeonEntry->TypeID == LFG_TYPE_RANDOM)
                 player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
         }

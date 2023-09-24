@@ -2029,7 +2029,7 @@ void Spell::EffectSummonType()
     if (!entry)
         return;
 
-    SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(effectInfo->MiscValueB);
+    SummonPropertiesDBC const* properties = sDBCStoresMgr->GetSummonPropertiesDBC(effectInfo->MiscValueB);
     if (!properties)
     {
         TC_LOG_ERROR("spells", "EffectSummonType: Unhandled summon type {}.", effectInfo->MiscValueB);
@@ -2472,11 +2472,11 @@ void Spell::EffectLearnSkill()
         return;
 
     uint32 skillid = effectInfo->MiscValue;
-    SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillid, unitTarget->GetRace(), unitTarget->GetClass());
+    SkillRaceClassInfoDBC const* rcEntry = sDBCStoresMgr->GetSkillRaceClassInfo(skillid, unitTarget->GetRace(), unitTarget->GetClass());
     if (!rcEntry)
         return;
 
-    SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcEntry->SkillTierID);
+    SkillTiersDBC const* tier = sDBCStoresMgr->GetSkillTiersDBC(rcEntry->SkillTierID);
     if (!tier)
         return;
 
@@ -2561,7 +2561,7 @@ void Spell::EffectEnchantItemPerm()
         if (!enchant_id)
             return;
 
-        SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
+        SpellItemEnchantmentDBC const* pEnchant = sDBCStoresMgr->GetSpellItemEnchantmentDBC(enchant_id);
         if (!pEnchant)
             return;
 
@@ -2607,7 +2607,7 @@ void Spell::EffectEnchantItemPrismatic()
     if (!enchantId)
         return;
 
-    SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId);
+    SpellItemEnchantmentDBC const* enchant = sDBCStoresMgr->GetSpellItemEnchantmentDBC(enchantId);
     if (!enchant)
         return;
 
@@ -2725,7 +2725,7 @@ void Spell::EffectEnchantItemTmp()
         return;
     }
 
-    SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
+    SpellItemEnchantmentDBC const* pEnchant = sDBCStoresMgr->GetSpellItemEnchantmentDBC(enchant_id);
     if (!pEnchant)
     {
         TC_LOG_ERROR("spells", "Spell {} Effect {} (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) has a non-existing enchanting id {} ", m_spellInfo->Id, uint32(effectInfo->EffectIndex), enchant_id);
@@ -2857,7 +2857,7 @@ void Spell::EffectSummonPet()
 
     if (!owner)
     {
-        SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(67);
+        SummonPropertiesDBC const* properties = sDBCStoresMgr->GetSummonPropertiesDBC(67);
         if (properties)
             SummonGuardian(*effectInfo, petentry, properties, 1);
         return;
@@ -3623,14 +3623,14 @@ void Spell::EffectDuel()
         return;
 
     // Players can only fight a duel in zones with this flag
-    AreaTableEntry const* casterAreaEntry = sAreaTableStore.LookupEntry(caster->GetAreaId());
+    AreaTableDBC const* casterAreaEntry = sDBCStoresMgr->GetAreaTableDBC(caster->GetAreaId());
     if (casterAreaEntry && !(casterAreaEntry->Flags & AREA_FLAG_ALLOW_DUELS))
     {
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
         return;
     }
 
-    AreaTableEntry const* targetAreaEntry = sAreaTableStore.LookupEntry(target->GetAreaId());
+    AreaTableDBC const* targetAreaEntry = sDBCStoresMgr->GetAreaTableDBC(target->GetAreaId());
     if (targetAreaEntry && !(targetAreaEntry->Flags & AREA_FLAG_ALLOW_DUELS))
     {
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
@@ -3795,9 +3795,9 @@ void Spell::EffectApplyGlyph()
     // apply new one
     if (uint32 glyph = effectInfo->MiscValue)
     {
-        if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
+        if (GlyphPropertiesDBC const* gp = sDBCStoresMgr->GetGlyphPropertiesDBC(glyph))
         {
-            if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_glyphIndex)))
+            if (GlyphSlotDBC const* gs = sDBCStoresMgr->GetGlyphSlotDBC(player->GetGlyphSlot(m_glyphIndex)))
             {
                 if (gp->GlyphSlotFlags != gs->Type)
                 {
@@ -3809,7 +3809,7 @@ void Spell::EffectApplyGlyph()
             // remove old glyph
             if (uint32 oldglyph = player->GetGlyph(m_glyphIndex))
             {
-                if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
+                if (GlyphPropertiesDBC const* old_gp = sDBCStoresMgr->GetGlyphPropertiesDBC(oldglyph))
                 {
                     player->RemoveAurasDueToSpell(old_gp->SpellID);
                     player->SetGlyph(m_glyphIndex, 0);
@@ -3854,7 +3854,7 @@ void Spell::EffectEnchantHeldItem()
         if (m_spellInfo->Id == 14792) // Venomhide Poison
             duration = 5 * MINUTE * IN_MILLISECONDS;
 
-        SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
+        SpellItemEnchantmentDBC const* pEnchant = sDBCStoresMgr->GetSpellItemEnchantmentDBC(enchant_id);
         if (!pEnchant)
             return;
 
@@ -4105,7 +4105,7 @@ void Spell::EffectReputation()
 
     uint32 factionId = effectInfo->MiscValue;
 
-    FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
+    FactionDBC const* factionEntry = sDBCStoresMgr->GetFactionDBC(factionId);
     if (!factionEntry)
         return;
 
@@ -5140,7 +5140,7 @@ void Spell::EffectDiscoverTaxi()
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
     uint32 nodeid = effectInfo->MiscValue;
-    if (sTaxiNodesStore.LookupEntry(nodeid))
+    if (sDBCStoresMgr->GetTaxiNodesDBC(nodeid))
         unitTarget->ToPlayer()->GetSession()->SendDiscoverNewTaxiNode(nodeid);
 }
 
@@ -5174,8 +5174,8 @@ void Spell::EffectGameObjectDamage()
     if (!gameObjTarget)
         return;
 
-    FactionTemplateEntry const* casterFaction = m_caster->GetFactionTemplateEntry();
-    FactionTemplateEntry const* targetFaction = sFactionTemplateStore.LookupEntry(gameObjTarget->GetFaction());
+    FactionTemplateDBC const* casterFaction = m_caster->GetFactionTemplateEntry();
+    FactionTemplateDBC const* targetFaction = sDBCStoresMgr->GetFactionTemplateDBC(gameObjTarget->GetFaction());
     // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
     if (!targetFaction || (casterFaction && !casterFaction->IsFriendlyTo(*targetFaction)))
         gameObjTarget->ModifyHealth(-damage, m_caster, GetSpellInfo()->Id);
@@ -5203,7 +5203,7 @@ void Spell::EffectGameObjectSetDestructionState()
     gameObjTarget->SetDestructibleState(GameObjectDestructibleState(effectInfo->MiscValue), m_caster, true);
 }
 
-void Spell::SummonGuardian(SpellEffectInfo const& spellEffectInfo, uint32 entry, SummonPropertiesEntry const* properties, uint32 numGuardians)
+void Spell::SummonGuardian(SpellEffectInfo const& spellEffectInfo, uint32 entry, SummonPropertiesDBC const* properties, uint32 numGuardians)
 {
     Unit* unitCaster = GetUnitCasterForEffectHandlers();
     if (!unitCaster)
@@ -5289,7 +5289,7 @@ void Spell::EffectPlayMusic()
 
     uint32 soundid = effectInfo->MiscValue;
 
-    if (!sSoundEntriesStore.LookupEntry(soundid))
+    if (!sDBCStoresMgr->GetSoundEntriesDBC(soundid))
     {
         TC_LOG_ERROR("spells", "EffectPlayMusic: Sound (Id: {}) does not exist in spell {}.", soundid, m_spellInfo->Id);
         return;
@@ -5344,7 +5344,7 @@ void Spell::EffectPlaySound()
 
     uint32 soundId = effectInfo->MiscValue;
 
-    if (!sSoundEntriesStore.LookupEntry(soundId))
+    if (!sDBCStoresMgr->GetSoundEntriesDBC(soundId))
     {
         TC_LOG_ERROR("spells", "EffectPlaySound: Sound (Id: {}) does not exist in spell {}.", soundId, m_spellInfo->Id);
         return;

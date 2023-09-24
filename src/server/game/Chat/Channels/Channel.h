@@ -25,7 +25,7 @@
 #include <unordered_set>
 
 class Player;
-struct AreaTableEntry;
+struct AreaTableDBC;
 
 // EnumUtils: DESCRIBE THIS
 enum ChatNotify : uint8
@@ -152,10 +152,10 @@ class TC_GAME_API Channel
     };
 
     public:
-        Channel(uint32 channelId, uint32 team = 0, AreaTableEntry const* zoneEntry = nullptr);  // built-in channel ctor
+        Channel(uint32 channelId, uint32 team = 0, AreaTableDBC const* zoneEntry = nullptr);  // built-in channel ctor
         Channel(std::string const& name, uint32 team, std::string const& banList = "");         // custom player channel ctor
 
-        static void GetChannelName(std::string& channelName, uint32 channelId, LocaleConstant locale, AreaTableEntry const* zoneEntry);
+        static void GetChannelName(std::string& channelName, uint32 channelId, LocaleConstant locale, AreaTableDBC const* zoneEntry);
         std::string GetName(LocaleConstant locale = DEFAULT_LOCALE) const;
 
         uint32 GetChannelId() const { return _channelId; }
@@ -177,7 +177,7 @@ class TC_GAME_API Channel
         uint8 GetFlags() const { return _channelFlags; }
         bool HasFlag(uint8 flag) const { return (_channelFlags & flag) != 0; }
 
-        AreaTableEntry const* GetZoneEntry() const { return _zoneEntry; }
+        AreaTableDBC const* GetZoneEntry() const { return _zoneEntry; }
 
         void JoinChannel(Player* player, std::string const& pass = "");
         void LeaveChannel(Player* player, bool send = true);
@@ -253,6 +253,6 @@ class TC_GAME_API Channel
         PlayerContainer _playersStore;
         BannedContainer _bannedStore;
 
-        AreaTableEntry const* _zoneEntry;
+        AreaTableDBC const* _zoneEntry;
 };
 #endif

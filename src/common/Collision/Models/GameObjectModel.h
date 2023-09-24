@@ -35,7 +35,7 @@ namespace VMAP
 }
 
 class GameObject;
-struct GameObjectDisplayInfoEntry;
+struct GameObjectDisplayInfoDBC;
 
 class TC_COMMON_API GameObjectModelOwnerBase
 {

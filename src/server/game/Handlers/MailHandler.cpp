@@ -19,7 +19,7 @@
 #include "AccountMgr.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Language.h"
@@ -587,7 +587,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextIt
     // in mail template case we need create new item text
     if (m->mailTemplateId)
     {
-        MailTemplateEntry const* mailTemplateEntry = sMailTemplateStore.LookupEntry(m->mailTemplateId);
+        MailTemplateDBC const* mailTemplateEntry = sDBCStoresMgr->GetMailTemplateDBC(m->mailTemplateId);
         ASSERT(mailTemplateEntry);
         bodyItem->SetText(mailTemplateEntry->Body[GetSessionDbcLocale()]);
     }

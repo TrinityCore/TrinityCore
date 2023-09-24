@@ -67,7 +67,7 @@ void WorldSession::HandleMoveWorldportAck()
     }
 
     // get the destination map entry, not the current one, this will fix homebind and reset greeting
-    MapEntry const* mEntry = sMapStore.LookupEntry(loc.GetMapId());
+    MapDBC const* mEntry = sDBCStoresMgr->GetMapDBC(loc.GetMapId());
     InstanceTemplate const* mInstance = sObjectMgr->GetInstanceTemplate(loc.GetMapId());
 
     // reset instance validity, except if going to an instance inside an instance
@@ -166,9 +166,9 @@ void WorldSession::HandleMoveWorldportAck()
     {
         // check if this instance has a reset time and send it to player if so
         Difficulty diff = player->GetDifficulty(mEntry->IsRaid());
-        if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->ID, diff))
+        if (MapDifficultyDBC  const* mapDiff = sDBCStoresMgr->GetMapDifficultyData(mEntry->ID, diff))
         {
-            if (mapDiff->resetTime)
+            if (mapDiff->RaidDuration)
             {
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->ID, diff))
                 {
@@ -380,7 +380,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     // Some vehicles allow the passenger to turn by himself
     if (Vehicle* vehicle = mover->GetVehicle())
     {
-        if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(mover))
+        if (VehicleSeatDBC const* seat = vehicle->GetSeatForPassenger(mover))
         {
             if (seat->Flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING)
             {

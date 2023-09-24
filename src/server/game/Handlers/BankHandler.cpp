@@ -17,7 +17,7 @@
 
 #include "BankPackets.h"
 #include "Item.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Log.h"
 #include "NPCPackets.h"
 #include "Opcodes.h"
@@ -153,7 +153,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& buyB
 
     TC_LOG_INFO("network", "PLAYER: Buy bank bag slot, slot number = {}", slot);
 
-    BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
+    BankBagSlotPricesDBC const* slotEntry = sDBCStoresMgr->GetBankBagSlotPricesDBC(slot);
 
     if (!slotEntry)
     {

@@ -27,7 +27,7 @@ EndScriptData */
 #include "ChannelMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -62,30 +62,30 @@ public:
     static bool HandleChannelSetOwnership(ChatHandler* handler, std::string channelName, bool grantOwnership)
     {
         uint32 channelId = 0;
-        for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
+        ChatChannelsDBCMap const& entryMap = sDBCStoresMgr->GetChatChannelsDBCMap();
+        for (const auto& skaID : entryMap)
         {
-            ChatChannelsEntry const* entry = sChatChannelsStore.LookupEntry(i);
-            if (!entry)
-                continue;
-
-            if (StringContainsStringI(entry->Name[handler->GetSessionDbcLocale()], channelName))
+            if (ChatChannelsDBC const* entry = &skaID.second)
             {
-                channelId = i;
-                break;
+                if (StringContainsStringI(entry->Name[handler->GetSessionDbcLocale()], channelName))
+                {
+                    channelId = entry->ID;
+                    break;
+                }
             }
         }
 
-        AreaTableEntry const* zoneEntry = nullptr;
-        for (uint32 i = 0; i < sAreaTableStore.GetNumRows(); ++i)
+        AreaTableDBC const* zoneEntry = nullptr;
+        AreaTableDBCMap const& areaMap = sDBCStoresMgr->GetAreaTableDBCMap();
+        for (const auto& atID : areaMap)
         {
-            AreaTableEntry const* entry = sAreaTableStore.LookupEntry(i);
-            if (!entry)
-                continue;
-
-            if (StringContainsStringI(entry->AreaName[handler->GetSessionDbcLocale()], channelName))
+            if (AreaTableDBC const* entry = &atID.second)
             {
-                zoneEntry = entry;
-                break;
+                if (StringContainsStringI(entry->AreaName[handler->GetSessionDbcLocale()], channelName))
+                {
+                    zoneEntry = entry;
+                    break;
+                }
             }
         }
 

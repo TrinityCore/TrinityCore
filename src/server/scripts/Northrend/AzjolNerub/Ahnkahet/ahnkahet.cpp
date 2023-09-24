@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -105,7 +105,7 @@ class spell_ahnkahet_yogg_saron_whisper : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return sObjectMgr->GetBroadcastText(uint32(spellInfo->GetEffect(EFFECT_0).CalcValue())) &&
-            sSoundEntriesStore.LookupEntry(uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()));
+            sDBCStoresMgr->GetSoundEntriesDBC(uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()));
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)

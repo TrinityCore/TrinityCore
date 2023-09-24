@@ -54,12 +54,12 @@ class Unit;
 class Weather;
 class WorldObject;
 class WorldPacket;
-struct MapDifficulty;
-struct MapEntry;
+struct MapDifficultyDBC;
+struct MapDBC;
 struct Position;
 struct ScriptAction;
 struct ScriptInfo;
-struct SummonPropertiesEntry;
+struct SummonPropertiesDBC;
 enum Difficulty : uint8;
 enum WeatherState : uint32;
 
@@ -326,7 +326,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         Map(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent = nullptr);
         virtual ~Map();
 
-        MapEntry const* GetEntry() const { return i_mapEntry; }
+        MapDBC const* GetEntry() const { return i_mapEntry; }
 
         // currently unused for normal maps
         bool CanUnload(uint32 diff)
@@ -450,7 +450,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // have meaning only for instanced map (that have set real difficulty)
         Difficulty GetDifficulty() const { return Difficulty(GetSpawnMode()); }
         bool IsRegularDifficulty() const;
-        MapDifficulty const* GetMapDifficulty() const;
+        MapDifficultyDBC const* GetMapDifficulty() const;
 
         bool Instanceable() const;
         bool IsDungeon() const;
@@ -501,7 +501,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         void UpdateIteratorBack(Player* player);
 
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = nullptr, uint32 duration = 0, WorldObject* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0, bool visibleOnlyBySummoner = false);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesDBC const* properties = nullptr, uint32 duration = 0, WorldObject* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0, bool visibleOnlyBySummoner = false);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
         Player* GetPlayer(ObjectGuid const& guid);
         Corpse* GetCorpse(ObjectGuid const& guid);
@@ -709,7 +709,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::mutex _mapLock;
         std::mutex _gridLock;
 
-        MapEntry const* i_mapEntry;
+        MapDBC const* i_mapEntry;
         uint8 i_spawnMode;
         uint32 i_InstanceId;
         uint32 m_unloadTimer;

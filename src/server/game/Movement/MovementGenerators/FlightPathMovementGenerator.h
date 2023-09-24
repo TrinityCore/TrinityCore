@@ -51,7 +51,7 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, Fligh
         void LoadPath(Player* owner); // called from MotionMaster
         void SetCurrentNodeAfterTeleport();
         void SkipCurrentNode() { ++_currentNode; }
-        void DoEventIfAny(Player* owner, TaxiPathNodeEntry const* node, bool departure);
+        void DoEventIfAny(Player* owner, TaxiPathNodeDBC const* node, bool departure);
         void InitEndGridInfo();
         void PreloadEndGrid();
 

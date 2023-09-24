@@ -222,11 +222,11 @@ void KillRewarder::_RewardGroup()
         // (battleground rewards only XP, that's why).
         if (!_isBattleGround || _xp)
         {
-            bool const isDungeon = !_isPvP && sMapStore.LookupEntry(_killer->GetMapId())->IsDungeon();
+            bool const isDungeon = !_isPvP && sDBCStoresMgr->GetMapDBC(_killer->GetMapId())->IsDungeon();
             if (!_isBattleGround)
             {
                 // 3.1.2. Alter group rate if group is in raid (not for battlegrounds).
-                bool const isRaid = !_isPvP && sMapStore.LookupEntry(_killer->GetMapId())->IsRaid() && _group->isRaidGroup();
+                bool const isRaid = !_isPvP && sDBCStoresMgr->GetMapDBC(_killer->GetMapId())->IsRaid() && _group->isRaidGroup();
                 _groupRate = Trinity::XP::xp_in_group_rate(_count, isRaid);
             }
 

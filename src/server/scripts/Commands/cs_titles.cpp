@@ -24,7 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Language.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -70,7 +70,7 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(titleId);
+        CharTitlesDBC const* titleInfo = sDBCStoresMgr->GetCharTitlesDBC(titleId);
         if (!titleInfo)
         {
             handler->PSendSysMessage(LANG_INVALID_TITLE_ID, titleId);
@@ -103,7 +103,7 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(titleId);
+        CharTitlesDBC const* titleInfo = sDBCStoresMgr->GetCharTitlesDBC(titleId);
         if (!titleInfo)
         {
             handler->PSendSysMessage(LANG_INVALID_TITLE_ID, titleId);
@@ -134,7 +134,7 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(titleId);
+        CharTitlesDBC const* titleInfo = sDBCStoresMgr->GetCharTitlesDBC(titleId);
         if (!titleInfo)
         {
             handler->PSendSysMessage(LANG_INVALID_TITLE_ID, titleId);
@@ -175,9 +175,12 @@ public:
 
         uint64 titles2 = mask;
 
-        for (uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
-            if (CharTitlesEntry const* tEntry = sCharTitlesStore.LookupEntry(i))
+        CharTitlesDBCMap const& entryMap = sDBCStoresMgr->GetCharTitlesDBCMap();
+        for (const auto& skaID : entryMap)
+        {
+            if (CharTitlesDBC const* tEntry = &skaID.second)
                 titles2 &= ~(uint64(1) << tEntry->MaskID);
+        }
 
         mask &= ~titles2;                                     // remove non-existing titles
 

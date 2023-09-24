@@ -36,7 +36,7 @@ class SpellInfo;
 class Player;
 class ProcEventInfo;
 class WorldObject;
-struct SkillLineAbilityEntry;
+struct SkillLineAbilityDBC;
 
 // only used in code
 enum SpellCategories
@@ -533,7 +533,7 @@ struct SpellLearnSpellNode
 typedef std::multimap<uint32, SpellLearnSpellNode> SpellLearnSpellMap;
 typedef std::pair<SpellLearnSpellMap::const_iterator, SpellLearnSpellMap::const_iterator> SpellLearnSpellMapBounds;
 
-typedef std::multimap<uint32, SkillLineAbilityEntry const*> SkillLineAbilityMap;
+typedef std::multimap<uint32, SkillLineAbilityDBC const*> SkillLineAbilityMap;
 typedef std::pair<SkillLineAbilityMap::const_iterator, SkillLineAbilityMap::const_iterator> SkillLineAbilityMapBounds;
 
 typedef std::multimap<uint32, uint32> PetLevelupSpellSet;

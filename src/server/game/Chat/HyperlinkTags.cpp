@@ -100,9 +100,9 @@ bool Trinity::Hyperlinks::LinkTags::glyph::StoreTo(GlyphLinkData& val, std::stri
     uint32 slot, prop;
     if (!(t.TryConsumeTo(slot) && t.TryConsumeTo(prop) && t.IsEmpty()))
         return false;
-    if (!(val.Slot = sGlyphSlotStore.LookupEntry(slot)))
+    if (!(val.Slot = sDBCStoresMgr->GetGlyphSlotDBC(slot)))
         return false;
-    if (!(val.Glyph = sGlyphPropertiesStore.LookupEntry(prop)))
+    if (!(val.Glyph = sDBCStoresMgr->GetGlyphPropertiesDBC(prop)))
         return false;
     return true;
 }
@@ -137,9 +137,9 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string
     {
         if (!val.Item->RandomSuffix)
             return false;
-        if (randomPropertyId < -static_cast<int32>(sItemRandomSuffixStore.GetNumRows()))
+        if (randomPropertyId < -static_cast<int32>(sDBCStoresMgr->GetNumRowItemRandomSuffixMap()))
             return false;
-        if (ItemRandomSuffixEntry const* suffixEntry = sItemRandomSuffixStore.LookupEntry(-randomPropertyId))
+        if (ItemRandomSuffixDBC const* suffixEntry = sDBCStoresMgr->GetItemRandomSuffixDBC(-randomPropertyId))
         {
             val.RandomSuffix = suffixEntry;
             val.RandomProperty = nullptr;
@@ -151,7 +151,7 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string
     {
         if (!val.Item->RandomProperty)
             return false;
-        if (ItemRandomPropertiesEntry const* propEntry = sItemRandomPropertiesStore.LookupEntry(randomPropertyId))
+        if (ItemRandomPropertiesDBC const* propEntry = sDBCStoresMgr->GetItemRandomPropertiesDBC(randomPropertyId))
         {
             val.RandomSuffix = nullptr;
             val.RandomProperty = propEntry;
@@ -198,7 +198,7 @@ bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, std::st
         return false;
     if (rank < -1 || rank >= MAX_TALENT_RANK)
         return false;
-    val.Talent = sTalentStore.LookupEntry(talentId);
+    val.Talent = sDBCStoresMgr->GetTalentDBC(talentId);
     val.Rank = rank+1;
     if (!val.Talent)
         return false;

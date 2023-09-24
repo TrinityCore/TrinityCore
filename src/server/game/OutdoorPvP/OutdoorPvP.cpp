@@ -18,7 +18,7 @@
 #include "OutdoorPvP.h"
 #include "CellImpl.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Log.h"
@@ -657,8 +657,10 @@ void OutdoorPvP::BroadcastWorker(Worker& _worker, uint32 zoneId)
 
 void OutdoorPvP::SetMapFromZone(uint32 zone)
 {
-    AreaTableEntry const* areaTable = sAreaTableStore.AssertEntry(zone);
-    Map* map = sMapMgr->CreateBaseMap(areaTable->ContinentID);
-    ASSERT(!map->Instanceable());
-    m_map = map;
+    if (AreaTableDBC const* areaTable = sDBCStoresMgr->GetAreaTableDBC(zone))
+    {
+        Map* map = sMapMgr->CreateBaseMap(areaTable->ContinentID);
+        ASSERT(!map->Instanceable());
+        m_map = map;
+    }
 }

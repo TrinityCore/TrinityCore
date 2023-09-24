@@ -53,7 +53,7 @@ class at_malfurion_stormrage : public AreaTriggerScript
     public:
         at_malfurion_stormrage() : AreaTriggerScript("at_malfurion_stormrage") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
+        bool OnTrigger(Player* player, AreaTriggerDBC const* /*at*/) override
         {
             if (player->GetInstanceScript() && !player->FindNearestCreature(NPC_MALFURION_STORMRAGE, 15.0f) &&
                 player->GetQuestStatus(QUEST_THE_CHARGE_OF_DRAGONFLIGHTS) == QUEST_STATUS_REWARDED && player->GetQuestStatus(QUEST_ERANIKUS_TYRANT_OF_DREAMS) != QUEST_STATUS_REWARDED)

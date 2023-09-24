@@ -35,21 +35,21 @@
 #include <unordered_set>
 
 struct AccessRequirement;
-struct AchievementEntry;
-struct AreaTableEntry;
-struct AreaTriggerEntry;
-struct BarberShopStyleEntry;
+struct AchievementDBC;
+struct AreaTableDBC;
+struct AreaTriggerDBC;
+struct BarberShopStyleDBC;
 struct CharacterCustomizeInfo;
-struct CharTitlesEntry;
-struct ChatChannelsEntry;
+struct CharTitlesDBC;
+struct ChatChannelsDBC;
 struct CreatureTemplate;
-struct FactionEntry;
+struct FactionDBC;
 struct ItemSetEffect;
 struct ItemTemplate;
 struct Loot;
 struct Mail;
-struct ScalingStatDistributionEntry;
-struct ScalingStatValuesEntry;
+struct ScalingStatDistributionDBC;
+struct ScalingStatValuesDBC;
 struct TrainerSpell;
 struct VendorItem;
 
@@ -917,7 +917,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const override;
 
         bool IsFalling() { return GetPositionZ() < m_lastFallZ; }
-        bool IsInAreaTriggerRadius(AreaTriggerEntry const* trigger) const;
+        bool IsInAreaTriggerRadius(AreaTriggerDBC const* trigger) const;
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
@@ -937,7 +937,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 GetChatTag() const;
         std::string autoReplyMsg;
 
-        uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = nullptr) const;
+        uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleDBC const* newSkin = nullptr) const;
 
         PlayerSocial* GetSocial() { return m_social; }
         void RemoveSocial();
@@ -1163,7 +1163,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
 
         float GetReputationPriceDiscount(Creature const* creature) const;
-        float GetReputationPriceDiscount(FactionTemplateEntry const* factionTemplate) const;
+        float GetReputationPriceDiscount(FactionTemplateDBC const* factionTemplate) const;
 
         Player* GetTrader() const;
         TradeData* GetTradeData() const { return m_trade; }
@@ -1294,8 +1294,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void KillCreditGO(uint32 entry, ObjectGuid guid = ObjectGuid::Empty);
         void TalkedToCreature(uint32 entry, ObjectGuid guid);
         void MoneyChanged(uint32 value);
-        void ReputationChanged(FactionEntry const* factionEntry);
-        void ReputationChanged2(FactionEntry const* factionEntry);
+        void ReputationChanged(FactionDBC const* factionEntry);
+        void ReputationChanged2(FactionDBC const* factionEntry);
         bool HasQuestForItem(uint32 itemId, uint32 excludeQuestId = 0, bool turnIn = false) const;
         bool HasQuestForGO(int32 goId) const;
         void UpdateVisibleGameobjectsOrSpellClicks();
@@ -1723,7 +1723,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetMovement(PlayerMovementType pType);
 
-        bool CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone) const;
+        bool CanJoinConstantChannelInZone(ChatChannelsDBC const* channel, AreaTableDBC const* zone) const;
 
         void JoinedChannel(Channel* c);
         void LeftChannel(Channel* c);
@@ -1868,8 +1868,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
         void _ApplyAllLevelScaleItemMods(bool apply);
-        ScalingStatDistributionEntry const* GetScalingStatDistributionFor(ItemTemplate const& itemTemplate) const;
-        ScalingStatValuesEntry const* GetScalingStatValuesFor(ItemTemplate const& itemTemplate) const;
+        ScalingStatDistributionDBC const* GetScalingStatDistributionFor(ItemTemplate const& itemTemplate) const;
+        ScalingStatValuesDBC const* GetScalingStatValuesFor(ItemTemplate const& itemTemplate) const;
         void _ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, bool only_level_scale = false);
         void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply);
         void _ApplyAmmoBonuses();
@@ -2160,11 +2160,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, WorldObject* ref = nullptr);
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
         void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
-        void CompletedAchievement(AchievementEntry const* entry);
+        void CompletedAchievement(AchievementDBC const* entry);
 
         bool HasTitle(uint32 bitIndex) const;
-        bool HasTitle(CharTitlesEntry const* title) const;
-        void SetTitle(CharTitlesEntry const* title, bool lost = false);
+        bool HasTitle(CharTitlesDBC const* title) const;
+        void SetTitle(CharTitlesDBC const* title, bool lost = false);
 
         //bool isActiveObject() const { return true; }
         bool CanSeeSpellClickOn(Creature const* creature) const;

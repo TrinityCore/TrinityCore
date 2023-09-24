@@ -87,6 +87,7 @@ LogsDir = ""
 #
 #    LoginDatabaseInfo
 #    WorldDatabaseInfo
+#    DBCDatabaseInfo
 #    CharacterDatabaseInfo
 #        Description: Database connection settings for the world server.
 #        Example:     "hostname;port;username;password;database;ssl"
@@ -97,6 +98,7 @@ LogsDir = ""
 #                                                                           Unix/Linux)
 #        Default:     "127.0.0.1;3306;trinity;trinity;auth"       - (LoginDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
+#                     "127.0.0.1;3306;trinity;trinity;dbc"        - (DBCDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
 #
 #    Don't change hostname unless you are hosting MySQL on a different machine, if you need help
@@ -109,21 +111,25 @@ LogsDir = ""
 
 LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
 WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
+DBCDatabaseInfo       = "127.0.0.1;3306;trinity;trinity;dbc"
 CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
 
 #
 #    LoginDatabase.WorkerThreads
 #    WorldDatabase.WorkerThreads
+#    DBCDatabase.WorkerThreads
 #    CharacterDatabase.WorkerThreads
 #        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
 #                     statements. Each worker thread is mirrored with its own connection to the
 #                     MySQL server and their own thread on the MySQL server.
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 #                     1 - (WorldDatabase.WorkerThreads)
+#                     1 - (DBCDatabase.WorkerThreads)
 #                     1 - (CharacterDatabase.WorkerThreads)
 
 LoginDatabase.WorkerThreads     = 1
 WorldDatabase.WorkerThreads     = 1
+DBCDatabase.WorkerThreads       = 1
 CharacterDatabase.WorkerThreads = 1
 
 #
@@ -133,10 +139,12 @@ CharacterDatabase.WorkerThreads = 1
 #        Description: The amount of MySQL connections spawned to handle.
 #        Default:     1 - (LoginDatabase.SynchThreads)
 #                     1 - (WorldDatabase.SynchThreads)
+#                     1 - (DBCDatabase.SynchThreads)
 #                     2 - (CharacterDatabase.SynchThreads)
 
 LoginDatabase.SynchThreads     = 1
 WorldDatabase.SynchThreads     = 1
+DBCDatabase.SynchThreads       = 1
 CharacterDatabase.SynchThreads = 2
 
 #

@@ -17,7 +17,7 @@
 
 #include "QuestDef.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -124,7 +124,7 @@ void Quest::LoadQuestDetails(Field* fields)
 {
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
     {
-        if (!sEmotesStore.LookupEntry(fields[1+i].GetUInt16()))
+        if (!sDBCStoresMgr->GetEmotesDBC(fields[1+i].GetUInt16()))
         {
             TC_LOG_ERROR("sql.sql", "Table `quest_details` has non-existing Emote{} ({}) set for quest {}. Skipped.", 1+i, fields[1+i].GetUInt16(), fields[0].GetUInt32());
             continue;
@@ -142,10 +142,10 @@ void Quest::LoadQuestRequestItems(Field* fields)
     _emoteOnComplete = fields[1].GetUInt16();
     _emoteOnIncomplete = fields[2].GetUInt16();
 
-    if (!sEmotesStore.LookupEntry(_emoteOnComplete))
+    if (!sDBCStoresMgr->GetEmotesDBC(_emoteOnComplete))
         TC_LOG_ERROR("sql.sql", "Table `quest_request_items` has non-existing EmoteOnComplete ({}) set for quest {}.", _emoteOnComplete, fields[0].GetUInt32());
 
-    if (!sEmotesStore.LookupEntry(_emoteOnIncomplete))
+    if (!sDBCStoresMgr->GetEmotesDBC(_emoteOnIncomplete))
         TC_LOG_ERROR("sql.sql", "Table `quest_request_items` has non-existing EmoteOnIncomplete ({}) set for quest {}.", _emoteOnIncomplete, fields[0].GetUInt32());
 
     _requestItemsText = fields[3].GetString();
@@ -155,7 +155,7 @@ void Quest::LoadQuestOfferReward(Field* fields)
 {
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
     {
-        if (!sEmotesStore.LookupEntry(fields[1 + i].GetUInt16()))
+        if (!sDBCStoresMgr->GetEmotesDBC(fields[1 + i].GetUInt16()))
         {
             TC_LOG_ERROR("sql.sql", "Table `quest_offer_reward` has non-existing Emote{} ({}) set for quest {}. Skipped.", 1 + i, fields[1 + i].GetUInt16(), fields[0].GetUInt32());
             continue;
@@ -204,7 +204,7 @@ uint32 Quest::GetXPReward(Player const* player) const
     if (player)
     {
         int32 quest_level = (_level == -1 ? player->GetLevel() : _level);
-        QuestXPEntry const* xpentry = sQuestXPStore.LookupEntry(quest_level);
+        QuestXPDBC const* xpentry = sDBCStoresMgr->GetQuestXPDBC(quest_level);
         if (!xpentry)
             return 0;
 
@@ -355,7 +355,7 @@ uint32 Quest::CalculateHonorGain(uint8 level) const
     if (GetRewHonorAddition() > 0 || GetRewHonorMultiplier() > 0.0f)
     {
         // values stored from 0.. for 1...
-        TeamContributionPointsEntry const* tc = sTeamContributionPointsStore.LookupEntry(level);
+        TeamContributionPointsDBC const* tc = sDBCStoresMgr->GetTeamContributionPointsDBC(level);
         if (!tc)
             return 0;
 

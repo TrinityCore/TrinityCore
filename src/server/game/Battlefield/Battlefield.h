@@ -77,7 +77,7 @@ class Unit;
 class WorldPacket;
 
 struct QuaternionData;
-struct WorldSafeLocsEntry;
+struct WorldSafeLocsDBC;
 
 typedef std::vector<BfGraveyard*> GraveyardVect;
 typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
@@ -304,7 +304,7 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         // Graveyard methods
         // Find which graveyard the player must be teleported to to be resurrected by spiritguide
-        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player);
+        WorldSafeLocsDBC const* GetClosestGraveyard(Player* player);
 
         virtual void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
         void RemovePlayerFromResurrectQueue(ObjectGuid player_guid);
