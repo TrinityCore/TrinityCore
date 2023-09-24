@@ -2307,9 +2307,6 @@ void Spell::EffectLearnSkill()
         return;
 
     uint32 skillid = effectInfo->MiscValue;
-    if (effectInfo->Effect == SPELL_EFFECT_SKILL && playerTarget->GetSkillStep(skillid) >= damage)
-        return;
-
     SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillid, playerTarget->GetRace(), playerTarget->GetClass());
     if (!rcEntry)
         return;
@@ -4555,7 +4552,7 @@ void Spell::EffectSkill()
         return;
 
     uint32 skillid = effectInfo->MiscValue;
-    if (effectInfo->Effect == SPELL_EFFECT_SKILL && playerTarget->GetSkillStep(skillid) >= damage)
+    if (playerTarget->GetSkillStep(skillid) >= damage)
         return;
 
     SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillid, playerTarget->GetRace(), playerTarget->GetClass());
