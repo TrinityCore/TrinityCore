@@ -847,44 +847,72 @@ struct boss_anduin_wrynn : public BossAI
     {
         switch (action)
         {
+            case ACTION_START_PRE_INTRODUCTION:
+            {
+                Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER);
+                Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+                Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE);
 
-        case ACTION_START_PRE_INTRODUCTION:
-        {
-            Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER);
-            Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
-            Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE);
+                if (!uther || !sylvanas || !jaina)
+                    return;
 
-            if (!uther || !sylvanas || !jaina)
-                return;
+                jaina->NearTeleportTo(PreIntroduction[0], false);
+                jaina->CastSpell(jaina, SPELL_BROKER_SPAWN, true);
+                uther->NearTeleportTo(PreIntroduction[1], false);
+                uther->CastSpell(uther, SPELL_BROKER_SPAWN, true);
+                sylvanas->NearTeleportTo(PreIntroduction[2], false);
+                sylvanas->CastSpell(sylvanas, SPELL_BROKER_SPAWN, true);
+                break;
+            }
 
-            jaina->NearTeleportTo(PreIntroduction[0], false);
-            jaina->CastSpell(jaina, SPELL_BROKER_SPAWN, true);
-            uther->NearTeleportTo(PreIntroduction[1], false);
-            uther->CastSpell(uther, SPELL_BROKER_SPAWN, true);
-            sylvanas->NearTeleportTo(PreIntroduction[2], false);
-            sylvanas->CastSpell(sylvanas, SPELL_BROKER_SPAWN, true);
-            break;
-        }
+            case ACTION_START_MOVEMENT:
+            {
+                Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER);
+                Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+                Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE);
 
-        case ACTION_START_MOVEMENT:
-        {
-            Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER);
-            Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
-            Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE);
+                if (!uther || !sylvanas || !jaina)
+                    return;
 
-            if (!uther || !sylvanas || !jaina)
-                return;
+                jaina->CastSpell(jaina, SPELL_BROKER_SPAWN, true);
+                uther->CastSpell(uther, SPELL_BROKER_SPAWN, true);
+                sylvanas->CastSpell(sylvanas, SPELL_BROKER_SPAWN, true);
+                break;
+            }
 
-            jaina->CastSpell(jaina, SPELL_BROKER_SPAWN, true);
-            uther->CastSpell(uther, SPELL_BROKER_SPAWN, true);
-            sylvanas->CastSpell(sylvanas, SPELL_BROKER_SPAWN, true);
-            break;
-        }
+            case ACTION_START_INTRODUCTION:
+            {
+                instance->SetData(DATA_ANDUIN_WRYNN_INTRODUCTION, IN_PROGRESS);
+                scheduler.Schedule(1ms, [this](TaskContext /*task*/)
+                {
+                    if (Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER))
+                    {
+                        if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                        {
+                            if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE))
+                            {
+                                ObjectGuid utherGUID = uther->GetGUID();
+                                ObjectGuid sylvanasGUID = sylvanas->GetGUID();
+                                ObjectGuid jainaGUID = jaina->GetGUID();
 
-        case ACTION_START_INTRODUCTION:
-        {
-            instance->SetData(DATA_ANDUIN_WRYNN_INTRODUCTION, IN_PROGRESS);
-            scheduler.Schedule(1ms, [this](TaskContext /*task*/)
+                                Conversation* introductionAnduin = Conversation::CreateConversation(CONVERSATION_INTRO, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
+                                introductionAnduin->AddActor(NPC_UTHER_THE_LIGHTBRINGER, 1, utherGUID);
+                                introductionAnduin->AddActor(NPC_SYLVANAS_WINDRUNNER, 2, sylvanasGUID);
+                                introductionAnduin->AddActor(NPC_LADY_JAINA_PROUDMOORE, 3, jainaGUID);
+                                introductionAnduin->Start();
+                            }
+                        }
+                    }
+                });
+
+                scheduler.Schedule(35s, [this](TaskContext /*task*/)
+                {
+                    instance->SetData(DATA_ANDUIN_WRYNN_INTRODUCTION, DONE);
+                });
+                break;
+            }
+
+            case ACTION_START_OUTRODUCTION:
             {
                 if (Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER))
                 {
@@ -892,138 +920,109 @@ struct boss_anduin_wrynn : public BossAI
                     {
                         if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE))
                         {
-                            ObjectGuid utherGUID = uther->GetGUID();
-                            ObjectGuid sylvanasGUID = sylvanas->GetGUID();
-                            ObjectGuid jainaGUID = jaina->GetGUID();
+                            if (Creature* firim = instance->GetCreature(DATA_FIRIM))
+                            {
+                                ObjectGuid utherGUID = uther->GetGUID();
+                                ObjectGuid sylvanasGUID = sylvanas->GetGUID();
+                                ObjectGuid jainaGUID = jaina->GetGUID();
+                                ObjectGuid firimGUID = firim->GetGUID();
+                                firim->GetMotionMaster()->MovePoint(0, FirimOutroductionPos, false);
 
-                            Conversation* introductionAnduin = Conversation::CreateConversation(CONVERSATION_INTRO, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                            introductionAnduin->AddActor(NPC_UTHER_THE_LIGHTBRINGER, 1, utherGUID);
-                            introductionAnduin->AddActor(NPC_SYLVANAS_WINDRUNNER, 2, sylvanasGUID);
-                            introductionAnduin->AddActor(NPC_LADY_JAINA_PROUDMOORE, 3, jainaGUID);
-                            introductionAnduin->Start();
+                                Conversation* introductionAnduin = Conversation::CreateConversation(CONVERSATION_ANDUIN_OUTRODUCTION, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
+                                introductionAnduin->AddActor(NPC_LADY_JAINA_PROUDMOORE, 1, jainaGUID);
+                                introductionAnduin->AddActor(NPC_SYLVANAS_WINDRUNNER, 2, sylvanasGUID);
+                                introductionAnduin->AddActor(NPC_UTHER_THE_LIGHTBRINGER, 3, utherGUID);
+                                introductionAnduin->AddActor(NPC_FIRIM, 4, firimGUID);
+                                introductionAnduin->Start();
+                            }
                         }
                     }
                 }
-            });
+                break;
+            }
 
-            scheduler.Schedule(35s, [this](TaskContext /*task*/)
+            case ACTION_SUMMON_SOULS:
             {
-                instance->SetData(DATA_ANDUIN_WRYNN_INTRODUCTION, DONE);
-            });
-            break;
-        }
+                if (Creature* anduinSoul = instance->GetCreature(DATA_ANDUIN_SOUL))
+                    anduinSoul->GetAI()->DoAction(ACTION_SUMMON_KINGSMOURNE_SOULS);
+                break;
+            }
 
-        case ACTION_START_OUTRODUCTION:
-        {
-            if (Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER))
+            case ACTION_CANCEL_EVENTS:
             {
+                events.CancelEvent(EVENT_HOPEBREAKER);
+                events.CancelEvent(EVENT_DOMINATION_WORD_PAIN);
+                events.CancelEvent(EVENT_BEFOULED_BARRIER);
+                events.CancelEvent(EVENT_KINGSMOURNE_HUNGERS);
+                events.CancelEvent(EVENT_WICKED_STAR);
+                events.CancelEvent(EVENT_BLASPHEMY);
+                events.CancelEvent(EVENT_GRIM_REFLECTIONS);
+                _dominationWordCount = 0;
+                break;
+            }
+
+            case ACTION_ARTHAS_INTERMISSION_UTHER:
+            {
+                instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 1);
+                if (Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER))
+                {
+                    ObjectGuid utherGUID = uther->GetGUID();
+                    Conversation* conversationUther = Conversation::CreateConversation(CONVERSATION_ARTHAS_UTHER, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
+                    conversationUther->AddActor(NPC_UTHER_THE_LIGHTBRINGER, 1, utherGUID);
+                    conversationUther->Start();
+                }
+                break;
+            }
+
+            case ACTION_ARTHAS_INTERMISSION_SYLVANAS:
+            {
+                instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 2);
                 if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                 {
-                    if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE))
-                    {
-                        if (Creature* firim = instance->GetCreature(DATA_FIRIM))
-                        {
-                            ObjectGuid utherGUID = uther->GetGUID();
-                            ObjectGuid sylvanasGUID = sylvanas->GetGUID();
-                            ObjectGuid jainaGUID = jaina->GetGUID();
-                            ObjectGuid firimGUID = firim->GetGUID();
-                            firim->GetMotionMaster()->MovePoint(0, FirimOutroductionPos, false);
-
-                            Conversation* introductionAnduin = Conversation::CreateConversation(CONVERSATION_ANDUIN_OUTRODUCTION, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                            introductionAnduin->AddActor(NPC_LADY_JAINA_PROUDMOORE, 1, jainaGUID);
-                            introductionAnduin->AddActor(NPC_SYLVANAS_WINDRUNNER, 2, sylvanasGUID);
-                            introductionAnduin->AddActor(NPC_UTHER_THE_LIGHTBRINGER, 3, utherGUID);
-                            introductionAnduin->AddActor(NPC_FIRIM, 4, firimGUID);
-                            introductionAnduin->Start();
-                        }
-                    }
+                    ObjectGuid sylvanasGUID = sylvanas->GetGUID();
+                    Conversation* conversationSylvanas = Conversation::CreateConversation(CONVERSATION_ARTHAS_SYLVANAS, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
+                    conversationSylvanas->AddActor(NPC_SYLVANAS_WINDRUNNER, 1, sylvanasGUID);
+                    conversationSylvanas->Start();
                 }
+                break;
             }
-            break;
-        }
 
-        case ACTION_SUMMON_SOULS:
-        {
-            if (Creature* anduinSoul = instance->GetCreature(DATA_ANDUIN_SOUL))
-                anduinSoul->GetAI()->DoAction(ACTION_SUMMON_KINGSMOURNE_SOULS);
-            break;
-        }
-
-        case ACTION_CANCEL_EVENTS:
-        {
-            events.CancelEvent(EVENT_HOPEBREAKER);
-            events.CancelEvent(EVENT_DOMINATION_WORD_PAIN);
-            events.CancelEvent(EVENT_BEFOULED_BARRIER);
-            events.CancelEvent(EVENT_KINGSMOURNE_HUNGERS);
-            events.CancelEvent(EVENT_WICKED_STAR);
-            events.CancelEvent(EVENT_BLASPHEMY);
-            events.CancelEvent(EVENT_GRIM_REFLECTIONS);
-            _dominationWordCount = 0;
-            break;
-        }
-
-        case ACTION_ARTHAS_INTERMISSION_UTHER:
-        {
-            instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 1);
-            if (Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER))
+            case ACTION_EXIT_INTERMISSION:
             {
-                ObjectGuid utherGUID = uther->GetGUID();
-                Conversation* conversationUther = Conversation::CreateConversation(CONVERSATION_ARTHAS_UTHER, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                conversationUther->AddActor(NPC_UTHER_THE_LIGHTBRINGER, 1, utherGUID);
-                conversationUther->Start();
-            }
-            break;
-        }
-
-        case ACTION_ARTHAS_INTERMISSION_SYLVANAS:
-        {
-            instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 2);
-            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            {
-                ObjectGuid sylvanasGUID = sylvanas->GetGUID();
-                Conversation* conversationSylvanas = Conversation::CreateConversation(CONVERSATION_ARTHAS_SYLVANAS, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                conversationSylvanas->AddActor(NPC_SYLVANAS_WINDRUNNER, 1, sylvanasGUID);
-                conversationSylvanas->Start();
-            }
-            break;
-        }
-
-        case ACTION_EXIT_INTERMISSION:
-        {
-            if (isInPhaseTwo == false)
-            {
-                isInPhaseTwo = true;
-                PhaseEvents(PHASE_TWO);
-                me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
-                scheduler.Schedule(3s, [this](TaskContext /*task*/)
+                if (isInPhaseTwo == false)
                 {
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    ZoneAllies();
-                });
-            }
+                    isInPhaseTwo = true;
+                    PhaseEvents(PHASE_TWO);
+                    me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
+                    scheduler.Schedule(3s, [this](TaskContext /*task*/)
+                    {
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        ZoneAllies();
+                    });
+                }
 
-            else if (isInphaseThree == false)
-            {
-                isInphaseThree = true;
-                PhaseEvents(PHASE_THREE);
-                me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
-                scheduler.Schedule(6s, [this](TaskContext /*task*/)
+                else if (isInphaseThree == false)
                 {
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    ZoneAllies();
-                });
+                    isInphaseThree = true;
+                    PhaseEvents(PHASE_THREE);
+                    me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
+                    scheduler.Schedule(6s, [this](TaskContext /*task*/)
+                    {
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        ZoneAllies();
+                    });
+                }
+                break;
             }
-            break;
-        }
 
-        case ACTION_END_ENCOUNTER:
-        {
-            EndEncounter();
-            break;
-        }
+            case ACTION_END_ENCOUNTER:
+            {
+                EndEncounter();
+                break;
+            }
 
-        default:
-            break;
+            default:
+                break;
         }
     }
 
@@ -1590,11 +1589,12 @@ struct npc_anduin_wrynn_beacon_of_hope : public ScriptedAI
         {
             switch (eventId)
             {
-            case EVENT_NPC_DESPAWN:
-                me->DespawnOrUnsummon(1ms);
-                break;
-            default:
-                break;
+                case EVENT_NPC_DESPAWN:
+                    me->DespawnOrUnsummon(1ms);
+                    break;
+
+                default:
+                    break;
             }
         }
 
@@ -1615,8 +1615,8 @@ struct npc_anduin_wrynn_beacon_of_hope : public ScriptedAI
                     break;
                 }
 
-            default:
-                break;
+                default:
+                    break;
         }
     }
 
@@ -1698,7 +1698,6 @@ struct npc_anduin_wrynn_lost_soul : public ScriptedAI
     {
         switch (action)
         {
-
             case ACTION_RESTORE_SOUL:
             {
                 if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
@@ -2053,7 +2052,6 @@ public:
     {
         switch (action)
         {
-
             case ACTION_SOUL_EXPLOSION:
             {
                 DoCastSelf(SPELL_SOUL_EXPLOSION_TARGET);
@@ -2097,7 +2095,6 @@ public:
 
                     _events.Repeat(10s);
                     break;
-
                 }
 
                 case EVENT_NECROTIC_CLAWS:
@@ -2144,7 +2141,6 @@ public:
     {
         switch (action)
         {
-
             case ACTION_NECROTIC_DETONATION:
             {
                 Talk(SAY_NECROTIC_DETONATION);
@@ -2183,6 +2179,9 @@ public:
                     DoCastSelf(SPELL_NECROTIC_DETONATION);
                     break;
                 }
+
+                default:
+                    break;
             }
         }
         DoMeleeAttackIfReady();
@@ -2253,7 +2252,6 @@ struct boss_remnant_of_a_fallen_king : public BossAI
 
         switch (summon->GetEntry())
         {
-
             case NPC_FIENDISH_SOUL:
             case NPC_MONSTROUS_SOUL:
                 summon->SetReactState(REACT_PASSIVE);
@@ -2269,7 +2267,6 @@ struct boss_remnant_of_a_fallen_king : public BossAI
     {
         switch (action)
         {
-
             case ACTION_ACTIVATE_REMNANT:
             {
                 DoCastAOE(SPELL_DARK_PRESENCE);
@@ -2333,7 +2330,6 @@ struct boss_remnant_of_a_fallen_king : public BossAI
         {
             switch (eventId)
             {
-
                 case EVENT_RETURN_TO_KINGSMOURNE:
                 {
                     me->SetReactState(REACT_PASSIVE);
@@ -2708,22 +2704,21 @@ struct npc_anduin_wrynn_uther : public ScriptedAI
         {
             switch (eventId)
             {
+                case EVENT_CANCEL_UTHER_EVENTS:
+                {
+                    _events.CancelEvent(EVENT_BLADE_OF_JUSTICE);
+                    break;
+                }
 
-            case EVENT_CANCEL_UTHER_EVENTS:
-            {
-                _events.CancelEvent(EVENT_BLADE_OF_JUSTICE);
-                break;
-            }
+                case EVENT_BLADE_OF_JUSTICE:
+                {
+                    DoCastVictim(SPELL_BLADE_OF_JUSTICE);
+                    _events.Repeat(10s);
+                    break;
+                }
 
-            case EVENT_BLADE_OF_JUSTICE:
-            {
-                DoCastVictim(SPELL_BLADE_OF_JUSTICE);
-                _events.Repeat(10s);
-                break;
-            }
-
-            default:
-                break;
+                default:
+                    break;
             }
         }
 
