@@ -505,6 +505,8 @@ bool Group::AddMember(Player* player)
     if (isRaidGroup())
         player->UpdateVisibleGameobjectsOrSpellClicks();
 
+    player->FailCriteria(CriteriaFailEvent::ModifyPartyStatus, 0);
+
     {
         // Broadcast new player group member fields to rest of the group
         UpdateData groupData(player->GetMapId());
@@ -570,6 +572,9 @@ bool Group::RemoveMember(ObjectGuid guid, RemoveMethod method /*= GROUP_REMOVEME
     // LFG group vote kick handled in scripts
     if (isLFGGroup() && method == GROUP_REMOVEMETHOD_KICK)
         return !m_memberSlots.empty();
+
+    if (player)
+        player->FailCriteria(CriteriaFailEvent::ModifyPartyStatus, 0);
 
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG/BF allow 1 member group)
     if (GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))

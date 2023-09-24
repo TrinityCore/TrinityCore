@@ -3087,16 +3087,13 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, TargetInfo& hitInfo)
 
     if (Player* player = unit->ToPlayer())
     {
-        player->StartCriteriaTimer(CriteriaStartEvent::BeSpellTarget, m_spellInfo->Id);
+        player->FailCriteria(CriteriaFailEvent::BeSpellTarget, m_spellInfo->Id);
+        player->StartCriteria(CriteriaStartEvent::BeSpellTarget, m_spellInfo->Id);
         player->UpdateCriteria(CriteriaType::BeSpellTarget, m_spellInfo->Id, 0, 0, m_caster);
-        player->UpdateCriteria(CriteriaType::GainAura, m_spellInfo->Id);
     }
 
     if (Player* player = m_caster->ToPlayer())
-    {
-        player->StartCriteriaTimer(CriteriaStartEvent::CastSpell, m_spellInfo->Id);
         player->UpdateCriteria(CriteriaType::LandTargetedSpellOnTarget, m_spellInfo->Id, 0, 0, unit);
-    }
 
     if (m_caster != unit)
     {
@@ -3791,10 +3788,12 @@ void Spell::_cast(bool skipCheck)
     {
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_ITEM) && m_CastItem)
         {
-            player->StartCriteriaTimer(CriteriaStartEvent::UseItem, m_CastItem->GetEntry());
+            player->StartCriteria(CriteriaStartEvent::UseItem, m_CastItem->GetEntry());
             player->UpdateCriteria(CriteriaType::UseItem, m_CastItem->GetEntry());
         }
 
+        player->FailCriteria(CriteriaFailEvent::CastSpell, m_spellInfo->Id);
+        player->StartCriteria(CriteriaStartEvent::CastSpell, m_spellInfo->Id);
         player->UpdateCriteria(CriteriaType::CastSpell, m_spellInfo->Id);
     }
 
