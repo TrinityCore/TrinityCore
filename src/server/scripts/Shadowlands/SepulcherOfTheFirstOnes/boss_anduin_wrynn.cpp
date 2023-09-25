@@ -550,16 +550,18 @@ private:
 struct boss_anduin_wrynn : public BossAI
 {
     boss_anduin_wrynn(Creature* creature) : BossAI(creature, DATA_ANDUIN_WRYNN),
-        _dominationWordCount(0), encounterEnded(false), isInphaseThree(false), _slay(0)
+        _slay(0), _dominationWordCount(0), _isInPhaseTwo(false), _isInphaseThree(false), _encounterEnded(false)
     {
         Initialize();
     }
 
     void Initialize()
     {
+        _slay = 0;
         _dominationWordCount = 0;
-        isInPhaseTwo = false;
-        isInphaseThree = false;
+        _isInPhaseTwo = false;
+        _isInphaseThree = false;
+        _encounterEnded = false;
         me->SetFaction(FACTION_MONSTER);
     }
 
@@ -700,7 +702,7 @@ struct boss_anduin_wrynn : public BossAI
     {
         ClearDebuffs();
         Talk(SAY_DISENGAGE);
-        if (encounterEnded == true)
+        if (_encounterEnded == true)
             return;
         _DespawnAtEvade();
         summons.DespawnAll();
@@ -995,9 +997,9 @@ struct boss_anduin_wrynn : public BossAI
 
             case ACTION_EXIT_INTERMISSION:
             {
-                if (isInPhaseTwo == false)
+                if (_isInPhaseTwo == false)
                 {
-                    isInPhaseTwo = true;
+                    _isInPhaseTwo = true;
                     PhaseEvents(PHASE_TWO);
                     me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
                     scheduler.Schedule(3s, [this](TaskContext /*task*/)
@@ -1007,9 +1009,9 @@ struct boss_anduin_wrynn : public BossAI
                     });
                 }
 
-                else if (isInphaseThree == false)
+                else if (_isInphaseThree == false)
                 {
-                    isInphaseThree = true;
+                    _isInphaseThree = true;
                     PhaseEvents(PHASE_THREE);
                     me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
                     scheduler.Schedule(6s, [this](TaskContext /*task*/)
@@ -1390,9 +1392,9 @@ struct boss_anduin_wrynn : public BossAI
 
     void ExitIntermission()
     {
-        if (isInPhaseTwo == true && HealthAbovePct(10))
+        if (_isInPhaseTwo == true && HealthAbovePct(10))
         {
-            isInphaseThree = true;
+            _isInphaseThree = true;
             PhaseEvents(PHASE_THREE);
             me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
             scheduler.Schedule(3s, [this](TaskContext /*task*/)
@@ -1402,9 +1404,9 @@ struct boss_anduin_wrynn : public BossAI
         }
 
 
-        else if (isInPhaseTwo == false && HealthAbovePct(10))
+        else if (_isInPhaseTwo == false && HealthAbovePct(10))
         {
-            isInPhaseTwo = true;
+            _isInPhaseTwo = true;
             PhaseEvents(PHASE_TWO);
             me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
             scheduler.Schedule(3s, [this](TaskContext /*task*/)
@@ -1419,7 +1421,7 @@ struct boss_anduin_wrynn : public BossAI
         float healthPct = me->GetHealthPct();
         if (damage < healthPct && healthPct <= 10.0)
         {
-            /*isInphaseThree = true;
+            /*_isInphaseThree = true;
             DoAction(ACTION_EXIT_INTERMISSION);*/
         }
     }
@@ -1430,7 +1432,7 @@ struct boss_anduin_wrynn : public BossAI
         events.Reset();
         scheduler.CancelAll();
         events.CancelEvent(EVENT_CHECK_HOSTILES);
-        encounterEnded = true;
+        _encounterEnded = true;
         instance->SetBossState(DATA_ANDUIN_WRYNN, DONE);
         _EnterEvadeMode();
         DoCastSelf(SPELL_ANDUIN_KNEEL_POSE);
@@ -1483,12 +1485,11 @@ struct boss_anduin_wrynn : public BossAI
 private:
     uint8 _slay;
     uint8 _dominationWordCount;
+    bool _isInPhaseTwo;
+    bool _isInphaseThree;
+    bool _encounterEnded;
     TaskScheduler scheduler;
     std::vector<ObjectGuid> _wickedStarTargetGUIDs;
-    bool isInPhaseTwo;
-    bool encounterEnded;
-    bool isInphaseThree;
-    bool _bridgeUsed;
 
 };
 
@@ -1994,7 +1995,7 @@ struct npc_anduin_wrynn_anduin_hope : public ScriptedAI
             _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             DoCastSelf(SPELL_WILLPOWER_ENERGIZE_SMALL);
             DoCastSelf(SPELL_SOUL_DESPAWN);
-            me->DespawnOrUnsummon(1s);
+            me->DespawnOrUnsummon(3s);
         }
     }
 
@@ -4683,7 +4684,7 @@ class spell_remnant_of_a_fallen_king_soul_reaper : public SpellScript
     }
 };
 
-// Anduin Wrynn Introduction 27 Custom AT
+// Anduin Wrynn Introduction 996 Custom AT
 struct at_anduin_wrynn_pre_introduction : AreaTriggerAI
 {
     at_anduin_wrynn_pre_introduction(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),

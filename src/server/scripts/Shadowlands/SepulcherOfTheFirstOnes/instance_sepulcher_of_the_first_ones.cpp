@@ -255,15 +255,6 @@ public:
             }
         }
 
-        void UpdateDoorState(GameObject* door) override
-        {
-            if (door->GetEntry() == GAMEOBJECT_BRIDGE_AFTER_ANDUIN)
-                if (GetBossState(DATA_ANDUIN_WRYNN) == DONE)
-                    door->UseDoorOrButton();
-            else
-                InstanceScript::UpdateDoorState(door);
-        }
-
         ObjectGuid GetGuidData(uint32 type) const override
         {
             switch (type)
