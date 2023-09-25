@@ -1757,7 +1757,7 @@ private:
 struct npc_anduin_wrynn_anduin_soul : public ScriptedAI
 {
     npc_anduin_wrynn_anduin_soul(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript()), _summons(me), _hopeGone(), _doubtGone(0), _despairGone(0) { }
+        _instance(creature->GetInstanceScript()), _hopeGone(), _doubtGone(0), _despairGone(0), _summons(me) { }
 
     void ReleaseFromKingsmourne()
     {
@@ -1830,13 +1830,14 @@ struct npc_anduin_wrynn_anduin_soul : public ScriptedAI
     }
 
 private:
-    SummonList _summons;
-    EventMap _events;
     InstanceScript* _instance;
-    TaskScheduler _scheduler;
     uint8 _hopeGone;
     uint8 _doubtGone;
     uint8 _despairGone;
+    SummonList _summons;
+    EventMap _events;
+    TaskScheduler _scheduler;
+
 };
 
 // Anduin's Despair - 184520
@@ -1866,8 +1867,8 @@ struct npc_anduin_wrynn_anduin_despair : public ScriptedAI
     }
 
 private:
-    EventMap _events;
     InstanceScript* _instance;
+    EventMap _events;
     TaskScheduler _scheduler;
 };
 
@@ -1931,8 +1932,8 @@ struct npc_anduin_wrynn_anduin_doubt : public ScriptedAI
     }
 
 private:
-    EventMap _events;
     InstanceScript* _instance;
+    EventMap _events;
     TaskScheduler _scheduler;
 };
 
@@ -2022,8 +2023,8 @@ struct npc_anduin_wrynn_anduin_hope : public ScriptedAI
     }
 
 private:
-    EventMap _events;
     InstanceScript* _instance;
+    EventMap _events;
     Position _anduinHope;
     TaskScheduler _scheduler;
 };
@@ -2120,8 +2121,8 @@ public:
     }
 
 private:
-    EventMap _events;
     InstanceScript* _instance;
+    EventMap _events;
     TaskScheduler _scheduler;
 };
 
@@ -2195,8 +2196,8 @@ public:
     }
 
 private:
-    EventMap _events;
     InstanceScript* _instance;
+    EventMap _events;
     TaskScheduler _scheduler;
 };
 
@@ -2370,9 +2371,9 @@ struct boss_remnant_of_a_fallen_king : public BossAI
     }
 
 private:
+    uint8 _transitioned;
     EventMap events;
     TaskScheduler scheduler;
-    uint8 _transitioned;
 };
 
 // Grim Reflection - 183033
@@ -2443,9 +2444,9 @@ struct npc_anduin_wrynn_grim_reflection : public ScriptedAI
     }
 
 private:
+    InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
-    InstanceScript* _instance;
 };
 
 
@@ -2808,7 +2809,6 @@ private:
 // 367524 - Spawn Pre-Introduction
 class spell_anduin_wrynn_pre_introduction : public AuraScript
 {
-
     PrepareAuraScript(spell_anduin_wrynn_pre_introduction);
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
