@@ -54,215 +54,215 @@
 enum Spells
 {
     // Pre-Introduction
-    SPELL_BROKER_SPAWN = 367524,
+    SPELL_BROKER_SPAWN                              = 367524,
 
     // Generic Spells
-    SPELL_ANDUIN_PLUNGE_KINGSMOURNE = 369125,
-    SPELL_WILLPOWER_DISPLAY = 365177,
-    SPELL_WILLPOWER_ENERGIZE_SMALL = 365217,
-    SPELL_WILLPOWER_ENERGIZE_LARGE = 365228,
-    SPELL_SOUL_DESPAWN = 362766,
-    SPELL_SHADESTEP = 363976,
-    SPELL_ANDUIN_PROGRESSION_AURA = 369317,
-    SPELL_ANDUIN_WILLPOWER_PERIODIC = 366848,
-    SPELL_ANDUIN_SOUL_GHOST = 369016,
+    SPELL_ANDUIN_PLUNGE_KINGSMOURNE                 = 369125,
+    SPELL_WILLPOWER_DISPLAY                         = 365177,
+    SPELL_WILLPOWER_ENERGIZE_SMALL                  = 365217,
+    SPELL_WILLPOWER_ENERGIZE_LARGE                  = 365228,
+    SPELL_SOUL_DESPAWN                              = 362766,
+    SPELL_SHADESTEP                                 = 363976,
+    SPELL_ANDUIN_PROGRESSION_AURA                   = 369317,
+    SPELL_ANDUIN_WILLPOWER_PERIODIC                 = 366848,
+    SPELL_ANDUIN_SOUL_GHOST                         = 369016,
 
     // Dark Zeal
-    SPELL_DARK_ZEAL_AURA = 364247,
-    SPELL_DARK_ZEAL_BUFF = 364248,
+    SPELL_DARK_ZEAL_AURA                            = 364247,
+    SPELL_DARK_ZEAL_BUFF                            = 364248,
 
     // Hopebreaker
-    SPELL_HOPEBREAKER = 361815,
-    SPELL_HOPEBREAKER_DAMAGE = 361816,
-    SPELL_HOPEBREAKER_DEBUFF = 361817,
-    SPELL_HOPEBREAKER_DEBUFF_DAMAGE = 361818,
-    SPELL_HOPEBREAKER_CLEAR = 364237,
+    SPELL_HOPEBREAKER                               = 361815,
+    SPELL_HOPEBREAKER_DAMAGE                        = 361816,
+    SPELL_HOPEBREAKER_DEBUFF                        = 361817,
+    SPELL_HOPEBREAKER_DEBUFF_DAMAGE                 = 361818,
+    SPELL_HOPEBREAKER_CLEAR                         = 364237,
 
     // Domination Word: Pain
-    SPELL_DOMINATION_WORD_PAIN = 366849,
+    SPELL_DOMINATION_WORD_PAIN                      = 366849,
 
     // Befouled Barrier
-    SPELL_BEFOULED_BARRIER = 365295,
-    SPELL_BEFOULED_BARRIER_BLACK_RING = 365633,
-    SPELL_BEFOULED_ERUPTION = 365853,
-    SPELL_BEFOULED_BARRIER_SPHERE_AREATRIGGER = 365173,
-    SPELL_BEFOULED_BARRIER_DEBUFF = 365293,
-    SPELL_BEFOULED_BARRIER_CLEAR = 369871,
-    SPELL_BEFOULED_BARRIER_EXPLODE = 365300,
+    SPELL_BEFOULED_BARRIER                          = 365295,
+    SPELL_BEFOULED_BARRIER_BLACK_RING               = 365633,
+    SPELL_BEFOULED_ERUPTION                         = 365853,
+    SPELL_BEFOULED_BARRIER_SPHERE_AREATRIGGER       = 365173,
+    SPELL_BEFOULED_BARRIER_DEBUFF                   = 365293,
+    SPELL_BEFOULED_BARRIER_CLEAR                    = 369871,
+    SPELL_BEFOULED_BARRIER_EXPLODE                  = 365300,
 
     // Blasphemy
-    SPELL_BLASPHEMY = 361989,
-    SPELL_BLASPHEMY_PRE_HIT = 364239,
-    SPELL_BLASPHEMY_OVERCONFIDENCE = 361990,
-    SPELL_BLASPHEMY_OVERCONFIDENCE_AREATRIGGER = 361992,
-    SPELL_BLASPHEMY_HOPELESSNESS = 361991,
-    SPELL_BLASPHEMY_HOPELESSNESS_AREATRIGGER = 361993,
-    SPELL_BLASPHEMY_SUCCESS = 362014,
-    SPELL_BLASPHEMY_EXPLODE = 361999,
-    SPELL_BLASPHEMY_EXPLODE_LFR_NORMAL = 366933,
-    SPELL_CANCEL_BLASPHEMY = 370161,
-    SPELL_BLASPHEMY_IMMUNE = 370407,
+    SPELL_BLASPHEMY                                 = 361989,
+    SPELL_BLASPHEMY_PRE_HIT                         = 364239,
+    SPELL_BLASPHEMY_OVERCONFIDENCE                  = 361990,
+    SPELL_BLASPHEMY_OVERCONFIDENCE_AREATRIGGER      = 361992,
+    SPELL_BLASPHEMY_HOPELESSNESS                    = 361991,
+    SPELL_BLASPHEMY_HOPELESSNESS_AREATRIGGER        = 361993,
+    SPELL_BLASPHEMY_SUCCESS                         = 362014,
+    SPELL_BLASPHEMY_EXPLODE                         = 361999,
+    SPELL_BLASPHEMY_EXPLODE_LFR_NORMAL              = 366933,
+    SPELL_CANCEL_BLASPHEMY                          = 370161,
+    SPELL_BLASPHEMY_IMMUNE                          = 370407,
 
     // Kingsmourne Hungers
-    SPELL_KINGSMOURNE_HUNGERS = 362405,
-    SPELL_KINGSMOURNE_HUNGERS_DAMAGE_IDK = 362406,
-    SPELL_KINGSMOURNE_HUNGERS_DAMAGE = 362407,
-    SPELL_LOST_SOUL_DIMENSION = 362055,
-    SPELL_LOST_SOUL = 362472, // summons npc
-    SPELL_LOST_SOUL_GRACE = 370068,
-    SPELL_LOST_SOUL_CLEAR = 365641,
-    SPELL_CANCEL_LOST_SOUL = 367774,
-    SPELL_SEVERED_SOUL = 367769, // Mythic
-    SPELL_LOST_SOUL_MYTHIC = 367770, // Summmons lost soul, player is summoner
-    SPELL_LOST_SOUL_MIRROR_IMAGE = 362402,
-    SPELL_SCARRED_SOUL = 365445,
-    SPELL_MIRROR_IMAGE = 362474,
-    SPELL_FEIGN_DEATH = 114371,
-    SPELL_BANISH_SOUL = 367771,
-    SPELL_MIRROR_IMAGE_IGNORE_PHASE_SHIFT = 362473,
-    SPELL_ANDUIN_LOST_SOUL_TRACKER = 369843,
+    SPELL_KINGSMOURNE_HUNGERS                       = 362405,
+    SPELL_KINGSMOURNE_HUNGERS_DAMAGE_IDK            = 362406,
+    SPELL_KINGSMOURNE_HUNGERS_DAMAGE                = 362407,
+    SPELL_LOST_SOUL_DIMENSION                       = 362055,
+    SPELL_LOST_SOUL                                 = 362472, // summons npc
+    SPELL_LOST_SOUL_GRACE                           = 370068,
+    SPELL_LOST_SOUL_CLEAR                           = 365641,
+    SPELL_CANCEL_LOST_SOUL                          = 367774,
+    SPELL_SEVERED_SOUL                              = 367769, // Mythic
+    SPELL_LOST_SOUL_MYTHIC                          = 367770, // Summmons lost soul, player is summoner
+    SPELL_LOST_SOUL_MIRROR_IMAGE                    = 362402,
+    SPELL_SCARRED_SOUL                              = 365445,
+    SPELL_MIRROR_IMAGE                              = 362474,
+    SPELL_FEIGN_DEATH                               = 114371,
+    SPELL_BANISH_SOUL                               = 367771,
+    SPELL_MIRROR_IMAGE_IGNORE_PHASE_SHIFT           = 362473,
+    SPELL_ANDUIN_LOST_SOUL_TRACKER                  = 369843,
 
     // Rain of Despair (Big add)
-    SPELL_RAIN_OF_DESPAIR = 362391,
-    SPELL_ANDUIN_SOUL_DESPAIR = 365220,
-    SPELL_RAIN_OF_DESPAIR_MELEE = 362393,
-    SPELL_RAIN_OF_DESPAIR_RANGED = 362396,
-    SPELL_RAIN_OF_DESPAIR_EXPLOSION = 362392,
+    SPELL_RAIN_OF_DESPAIR                           = 362391,
+    SPELL_ANDUIN_SOUL_DESPAIR                       = 365220,
+    SPELL_RAIN_OF_DESPAIR_MELEE                     = 362393,
+    SPELL_RAIN_OF_DESPAIR_RANGED                    = 362396,
+    SPELL_RAIN_OF_DESPAIR_EXPLOSION                 = 362392,
 
     // Wicked Star
-    SPELL_WICKED_STAR = 365030,
-    SPELL_WICKED_STAR_POINTER = 365021,
-    SPELL_WICKED_STAR_AREATRIGGER = 365017,
-    SPELL_WICKED_STAR_DAMAGE_SILENCE = 365024,
-    SPELL_WICKED_STAR_EMPOWERMENT = 365112,
-    SPELL_WICKED_STAR_IDK = 365992,
-    SPELL_WICKED_STAR_TARGETED = 366674,
-    SPELL_WICKED_STAR_IDK_3 = 369280,
+    SPELL_WICKED_STAR                               = 365030,
+    SPELL_WICKED_STAR_POINTER                       = 365021,
+    SPELL_WICKED_STAR_AREATRIGGER                   = 365017,
+    SPELL_WICKED_STAR_DAMAGE_SILENCE                = 365024,
+    SPELL_WICKED_STAR_EMPOWERMENT                   = 365112,
+    SPELL_WICKED_STAR_IDK                           = 365992,
+    SPELL_WICKED_STAR_TARGETED                      = 366674,
+    SPELL_WICKED_STAR_IDK_3                         = 369280,
 
     // Empowered Wicked Star
-    SPELL_EMPOWERED_WICKED_STAR = 367631,
-    SPELL_EMPOWERED_WICKED_STAR_POINTER = 367632,
-    SPELL_EMPOWERED_WICKED_STAR_AREATRIGGER = 367621,
-    SPELL_EMPOWERED_WICKED_STAR_DAMAGE_SILENCE = 367634,
+    SPELL_EMPOWERED_WICKED_STAR                     = 367631,
+    SPELL_EMPOWERED_WICKED_STAR_POINTER             = 367632,
+    SPELL_EMPOWERED_WICKED_STAR_AREATRIGGER         = 367621,
+    SPELL_EMPOWERED_WICKED_STAR_DAMAGE_SILENCE      = 367634,
 
     // Force of Will
-    SPELL_FORCE_OF_WILL = 368913,
-    SPELL_CANCEL_FORCE_OF_WILL = 368978,
+    SPELL_FORCE_OF_WILL                             = 368913,
+    SPELL_CANCEL_FORCE_OF_WILL                      = 368978,
 
     // Fiendish Soul
-    SPELL_NECROTIC_CLAWS_LEAP = 363019,
-    SPELL_NECROTIC_CLAWS_DEBUFF = 363020,
-    SPELL_SOUL_EXPLOSION_TARGET = 363029,
-    SPELL_SOUL_EXPLOSION_TRIGGER_MISSILE = 363030,
-    SPELL_SOUL_EXPLOSION_DAMAGE = 363031,
+    SPELL_NECROTIC_CLAWS_LEAP                       = 363019,
+    SPELL_NECROTIC_CLAWS_DEBUFF                     = 363020,
+    SPELL_SOUL_EXPLOSION_TARGET                     = 363029,
+    SPELL_SOUL_EXPLOSION_TRIGGER_MISSILE            = 363030,
+    SPELL_SOUL_EXPLOSION_DAMAGE                     = 363031,
 
     // Monstrous Soul
-    SPELL_UNRAVELING_FRENZY_PERIODIC = 363027,
-    SPELL_UNRAVELING_FRENZY = 363028,
-    SPELL_NECROTIC_DETONATION = 363024,
+    SPELL_UNRAVELING_FRENZY_PERIODIC                = 363027,
+    SPELL_UNRAVELING_FRENZY                         = 363028,
+    SPELL_NECROTIC_DETONATION                       = 363024,
 
     // Grim Reflections
-    SPELL_GRIM_REFLECTIONS = 365120,
-    SPELL_GRIM_REFLECTIONS_SUMMON = 365121,
-    SPELL_GRIM_REFLECTIONS_DEST_SUMMON = 365039,
-    SPELL_CALAMITY_STATE_VISUAL = 361685,
-    SPELL_WICKED_STAR_PROTECTION = 370400,
-    SPELL_PSYCHIC_TERROR = 365008,
-    SPELL_GRIM_FATE = 367932,
+    SPELL_GRIM_REFLECTIONS                          = 365120,
+    SPELL_GRIM_REFLECTIONS_SUMMON                   = 365121,
+    SPELL_GRIM_REFLECTIONS_DEST_SUMMON              = 365039,
+    SPELL_CALAMITY_STATE_VISUAL                     = 361685,
+    SPELL_WICKED_STAR_PROTECTION                    = 370400,
+    SPELL_PSYCHIC_TERROR                            = 365008,
+    SPELL_GRIM_FATE                                 = 367932,
 
     // Beacon of Hope
-    SPELL_BEACON_OF_HOPE = 365872,
-    SPELL_BEACON_OF_HOPE_AREATRIGGER = 362702,
+    SPELL_BEACON_OF_HOPE                            = 365872,
+    SPELL_BEACON_OF_HOPE_AREATRIGGER                = 362702,
 
     // Fragment of Hope
-    SPELL_FRAGMENT_OF_HOPE_AREATRIGGER = 365816,
-    SPELL_FRAGMENT_OF_HOPE_CLEAR_DEBUFF = 365828,
-    SPELL_FRAGMENT_OF_HOPE_DAMAGE = 365990,
+    SPELL_FRAGMENT_OF_HOPE_AREATRIGGER              = 365816,
+    SPELL_FRAGMENT_OF_HOPE_CLEAR_DEBUFF             = 365828,
+    SPELL_FRAGMENT_OF_HOPE_DAMAGE                   = 365990,
 
     // Purging Light
-    SPELL_PURGING_LIGHT = 368428,
+    SPELL_PURGING_LIGHT                             = 368428,
 
     // Hopelessness
-    SPELL_HOPELESSNESS = 365958,
-    SPELL_HOPELESSNESS_MISSILE = 365962,
-    SPELL_HOPELESSNESS_HOPELESSNESS_AREATRIGGER = 365966,
-    SPELL_HOPELESSNESS_EXPLODE = 365971,
+    SPELL_HOPELESSNESS                              = 365958,
+    SPELL_HOPELESSNESS_MISSILE                      = 365962,
+    SPELL_HOPELESSNESS_HOPELESSNESS_AREATRIGGER     = 365966,
+    SPELL_HOPELESSNESS_EXPLODE                      = 365971,
 
     // Empowered Hopebreaker
-    SPELL_EMPOWERED_HOPEBREAKER = 365805,
-    SPELL_EMPOWERED_HOPEBREAKER_EXPLOSION = 365806,
+    SPELL_EMPOWERED_HOPEBREAKER                     = 365805,
+    SPELL_EMPOWERED_HOPEBREAKER_EXPLOSION           = 365806,
 
     // Anduin's Soul
-    SPELL_LOST_SOUL_PERIODIC = 365650,
-    SPELL_LOST_SOUL_CONSUME = 365652,
+    SPELL_LOST_SOUL_PERIODIC                        = 365650,
+    SPELL_LOST_SOUL_CONSUME                         = 365652,
 
     // Anduin's Hope
-    SPELL_ANDUIN_SLOW = 365218,
-    SPELL_GLOOM = 364031,
+    SPELL_ANDUIN_SLOW                               = 365218,
+    SPELL_GLOOM                                     = 364031,
 
     // Anduin's Doubt
-    SPELL_GHOST_VISUAL_COSMETIC = 370833,
+    SPELL_GHOST_VISUAL_COSMETIC                     = 370833,
 
     // Remnant of a Fallen King
-    SPELL_DOMINATION_GRASP = 365216,
-    SPELL_DOMINATION_GRASP_ROOT_AREATRIGGER = 362505,
-    SPELL_SHADE_VISUAL = 362490, // Runic Power
-    SPELL_REMNANT_SPAWN = 362500, // Triggers Remorseless Winter
-    SPELL_DARK_PRESENCE = 368986,
-    SPELL_WEATHER_COSMETIC = 362493, // Cast by the remnant on all players
-    SPELL_SPAWN_REMNANT = 362497, // Cast by Anduin
-    SPELL_REMNANT_TIMER = 365291,
-    SPELL_RETURN_TO_KINGSMOURNE = 363022,
-    SPELL_RETURN_TO_KINGSMOURNE_VISUALS = 363021,
-    SPELL_SHADE_DESPAWN_CEREMONY = 363023,
+    SPELL_DOMINATION_GRASP                          = 365216,
+    SPELL_DOMINATION_GRASP_ROOT_AREATRIGGER         = 362505,
+    SPELL_SHADE_VISUAL                              = 362490, // Runic Power
+    SPELL_REMNANT_SPAWN                             = 362500, // Triggers Remorseless Winter
+    SPELL_DARK_PRESENCE                             = 368986,
+    SPELL_WEATHER_COSMETIC                          = 362493, // Cast by the remnant on all players
+    SPELL_SPAWN_REMNANT                             = 362497, // Cast by Anduin
+    SPELL_REMNANT_TIMER                             = 365291,
+    SPELL_RETURN_TO_KINGSMOURNE                     = 363022,
+    SPELL_RETURN_TO_KINGSMOURNE_VISUALS             = 363021,
+    SPELL_SHADE_DESPAWN_CEREMONY                    = 363023,
 
     // Remorseless Winter
-    SPELL_REMORSELESS_WINTER = 362542,
-    SPELL_REMORSELESS_WINTER_PERIODIC = 362543, // Cast AOE
-    SPELL_REMORSELESS_WINTER_DEBUFF_DAMAGE = 362545, // Debuff Damage
-    SPELL_REMORSELESS_WINTER_CLEAR = 370619,
+    SPELL_REMORSELESS_WINTER                        = 362542,
+    SPELL_REMORSELESS_WINTER_PERIODIC               = 362543, // Cast AOE
+    SPELL_REMORSELESS_WINTER_DEBUFF_DAMAGE          = 362545, // Debuff Damage
+    SPELL_REMORSELESS_WINTER_CLEAR                  = 370619,
 
     // Army of the Dead
-    SPELL_ARMY_OF_THE_DEAD = 362862,
-    SPELL_ECHOES_OF_ANDORHAL = 362863,
-    SPELL_ECHOES_OF_ANDORHAL_FIENDISH_GHOULS = 362864,
-    SPELL_ECHOES_OF_ANDORHAL_MONSTROUS_SOUL = 363025,
+    SPELL_ARMY_OF_THE_DEAD                          = 362862,
+    SPELL_ECHOES_OF_ANDORHAL                        = 362863,
+    SPELL_ECHOES_OF_ANDORHAL_FIENDISH_GHOULS        = 362864,
+    SPELL_ECHOES_OF_ANDORHAL_MONSTROUS_SOUL         = 363025,
 
     // March of the Damned
-    SPELL_MARCH_OF_THE_DAMNED = 363116, // Wall
-    SPELL_MARCH_OF_THE_DAMNED_PERIODIC = 363233,
-    SPELL_MARCH_OF_THE_DAMNED_AREATRIGGER = 363133,
-    SPELL_MARCH_OF_THE_DAMNED_DAMAGE = 364020,
-    SPELL_DESPAWN_WALLS = 371694,
+    SPELL_MARCH_OF_THE_DAMNED                       = 363116, // Wall
+    SPELL_MARCH_OF_THE_DAMNED_PERIODIC              = 363233,
+    SPELL_MARCH_OF_THE_DAMNED_AREATRIGGER           = 363133,
+    SPELL_MARCH_OF_THE_DAMNED_DAMAGE                = 364020,
+    SPELL_DESPAWN_WALLS                             = 371694,
 
     // Soul Reaper
-    SPELL_SOUL_REAPER = 362771,
-    SPELL_SOUL_REAPER_PHYSICAL_DAMAGE = 362772,
-    SPELL_SOUL_REAPER_SHADOWFROST_DAMAGE = 362773,
-    SPELL_SOUL_REAPER_DEBUFF = 362774,
-    SPELL_SOUL_REAPER_ATTACK_SPEED = 362775,
+    SPELL_SOUL_REAPER                               = 362771,
+    SPELL_SOUL_REAPER_PHYSICAL_DAMAGE               = 362772,
+    SPELL_SOUL_REAPER_SHADOWFROST_DAMAGE            = 362773,
+    SPELL_SOUL_REAPER_DEBUFF                        = 362774,
+    SPELL_SOUL_REAPER_ATTACK_SPEED                  = 362775,
 
     // Finish Encounter
-    SPELL_ANDUIN_KNEEL_POSE = 369367,
-    SPELL_FINAL_MOVIE = 367306,
-    SPELL_AWARD_ANDUIN_KILL = 359476, // players cast on themselves
+    SPELL_ANDUIN_KNEEL_POSE                         = 369367,
+    SPELL_FINAL_MOVIE                               = 367306,
+    SPELL_AWARD_ANDUIN_KILL                         = 359476, // players cast on themselves
 
     // Jaina Spells
-    SPELL_BLINK = 362844,
-    SPELL_FROSTBOLT = 362843,
-    SPELL_GENERIC_BLINK = 363984,
+    SPELL_BLINK                                     = 362844,
+    SPELL_FROSTBOLT                                 = 362843,
+    SPELL_GENERIC_BLINK                             = 363984,
 
     // Sylvanas Spells
-    SPELL_SHOOT_BOW = 364068,
-    SPELL_TUMBLE = 364069,
+    SPELL_SHOOT_BOW                                 = 364068,
+    SPELL_TUMBLE                                    = 364069,
 
     // Uther Spells
-    SPELL_BLADE_OF_JUSTICE = 363971,
-    SPELL_UTHER_CHARGE = 363972,
+    SPELL_BLADE_OF_JUSTICE                          = 363971,
+    SPELL_UTHER_CHARGE                              = 363972,
 
     // Translocators Teleport
-    SPELL_TELEPORT_COSMIC_HUB = 364475,
-    SPELL_TELEPORT_DOMINATIONS_GRASP = 368563,
+    SPELL_TELEPORT_COSMIC_HUB                       = 364475,
+    SPELL_TELEPORT_DOMINATIONS_GRASP                = 368563,
 };
 
 enum Phases
@@ -370,53 +370,53 @@ enum Actions
 
 enum Texts
 {
-    SAY_AGGRO = 0,
-    SAY_HOPEBREAKER = 1,
-    SAY_BEFOULED_BARRIER = 2,
-    SAY_BLASPHEMY = 3,
-    SAY_ANNOUNCE_BLASPHEMY = 4,
-    SAY_ANNOUNCE_KINGSMOURNE_HUNGERS = 5,
-    SAY_KINGSMOURNE_HUNGERS = 6,
-    SAY_WICKED_STAR = 7,
-    SAY_ANNOUNCE_WICKED_STAR = 8,
-    SAY_GRIM_REFLECTIONS = 9,
-    SAY_SLAY = 10,
-    SAY_EMPOWERED_HOPEBREAKER = 11,
-    SAY_DISENGAGE = 12,
-    SAY_NECROTIC_DETONATION = 13,
+    SAY_AGGRO                           = 0,
+    SAY_HOPEBREAKER                     = 1,
+    SAY_BEFOULED_BARRIER                = 2,
+    SAY_BLASPHEMY                       = 3,
+    SAY_ANNOUNCE_BLASPHEMY              = 4,
+    SAY_ANNOUNCE_KINGSMOURNE_HUNGERS    = 5,
+    SAY_KINGSMOURNE_HUNGERS             = 6,
+    SAY_WICKED_STAR                     = 7,
+    SAY_ANNOUNCE_WICKED_STAR            = 8,
+    SAY_GRIM_REFLECTIONS                = 9,
+    SAY_SLAY                            = 10,
+    SAY_EMPOWERED_HOPEBREAKER           = 11,
+    SAY_DISENGAGE                       = 12,
+    SAY_NECROTIC_DETONATION             = 13,
 };
 
 enum Conversations
 {
-    CONVERSATION_INTRO = 17835,
-    CONVERSATION_ARTHAS_UTHER = 17921,
-    CONVERSATION_ARTHAS_SYLVANAS = 17923,
-    CONVERSATION_ANDUIN_PHASE_THREE = 17924,
-    CONVERSATION_ANDUIN_OUTRODUCTION = 17836,
+    CONVERSATION_INTRO                  = 17835,
+    CONVERSATION_ARTHAS_UTHER           = 17921,
+    CONVERSATION_ARTHAS_SYLVANAS        = 17923,
+    CONVERSATION_ANDUIN_PHASE_THREE     = 17924,
+    CONVERSATION_ANDUIN_OUTRODUCTION    = 17836,
 };
 
 enum SpawnGroups
 {
-    SPAWN_GROUP_INITIAL = 0
+    SPAWN_GROUP_INITIAL         = 0
 };
 
 enum Points
 {
-    POINT_START_INTRODUCTION = 1,
-    POINT_ANDUIN_SOUL = 2,
-    POINT_ESCAPE_PLATFORM = 3,
-    POINT_MARCH_OF_THE_DAMNED = 4,
+    POINT_START_INTRODUCTION    = 1,
+    POINT_ANDUIN_SOUL           = 2,
+    POINT_ESCAPE_PLATFORM       = 3,
+    POINT_MARCH_OF_THE_DAMNED   = 4,
 };
 
 enum SpellVisuals
 {
-    SPELL_VISUAL_IDK = 114658, // Cast by Anduin
-    SPELL_VISUAL_CHEST_LOOT = 114023,
+    SPELL_VISUAL_IDK            = 114658, // Cast by Anduin
+    SPELL_VISUAL_CHEST_LOOT     = 114023,
 };
 
 enum Achievements
 {
-    ACHIEVMENT_ANDUIN_MYTHIC = 15486,
+    ACHIEVMENT_ANDUIN_MYTHIC    = 15486,
 };
 
 Position const JainaPos = { -3824.65f, -2692.20f, 91.35f };
@@ -767,11 +767,17 @@ struct boss_anduin_wrynn : public BossAI
                 float marchSpeed = 0.0f;
                 switch (me->GetMap()->GetDifficultyID())
                 {
-                    case DIFFICULTY_LFR_NEW: marchSpeed = 0.40f; break;
-                    case DIFFICULTY_NORMAL_RAID: marchSpeed = 0.40f; break;
-                    case DIFFICULTY_HEROIC_RAID: marchSpeed = 0.40f; break;
-                    case DIFFICULTY_MYTHIC_RAID: marchSpeed = 0.60f; break;
-                    default: marchSpeed = 0.40f; break;
+                    case DIFFICULTY_LFR_NEW:
+                    case DIFFICULTY_NORMAL_RAID:
+                    case DIFFICULTY_HEROIC_RAID:
+                        marchSpeed = 0.40f;
+                        break;
+                    case DIFFICULTY_MYTHIC_RAID:
+                        marchSpeed = 0.60f;
+                        break;
+                    default:
+                        marchSpeed = 0.40f;
+                        break;
                 }
 
                 summon->SetSpeedRate(MOVE_RUN, marchSpeed);
@@ -3562,11 +3568,21 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
 
             switch (at->GetMap()->GetDifficultyID())
             {
-                case DIFFICULTY_LFR_NEW: starLaunchSpeed = 60.00f; break;
-                case DIFFICULTY_NORMAL_RAID: starLaunchSpeed = 50.00f; break;
-                case DIFFICULTY_HEROIC_RAID: starLaunchSpeed = 40.00f; break;
-                case DIFFICULTY_MYTHIC_RAID: starLaunchSpeed = 30.00f; break;
-                default: starLaunchSpeed = 50.00f; break;
+                case DIFFICULTY_LFR_NEW:
+                    starLaunchSpeed = 60.00f;
+                    break;
+                case DIFFICULTY_NORMAL_RAID:
+                    starLaunchSpeed = 50.00f;
+                    break;
+                case DIFFICULTY_HEROIC_RAID:
+                    starLaunchSpeed = 40.00f;
+                    break;
+                case DIFFICULTY_MYTHIC_RAID:
+                    starLaunchSpeed = 30.00f;
+                    break;
+                default:
+                    starLaunchSpeed = 50.00f;
+                    break;
             }
 
             _casterCurrentPosition = caster->GetPosition();
@@ -3656,11 +3672,21 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
 
         switch (at->GetMap()->GetDifficultyID())
         {
-            case DIFFICULTY_LFR_NEW: starReturnSpeed = 8; break;
-            case DIFFICULTY_NORMAL_RAID: starReturnSpeed = 10.0; break;
-            case DIFFICULTY_HEROIC_RAID: starReturnSpeed = 12; break;
-            case DIFFICULTY_MYTHIC_RAID: starReturnSpeed = 14; break;
-            default: starReturnSpeed = 10.00f; break;
+            case DIFFICULTY_LFR_NEW:
+                starReturnSpeed = 8;
+                break;
+            case DIFFICULTY_NORMAL_RAID:
+                starReturnSpeed = 10;
+                break;
+            case DIFFICULTY_HEROIC_RAID:
+                starReturnSpeed = 12;
+                break;
+            case DIFFICULTY_MYTHIC_RAID:
+                starReturnSpeed = 14;
+                break;
+            default:
+                starReturnSpeed = 10;
+                break;
         }
 
         _scheduler.Schedule(0ms, [this, starReturnSpeed](TaskContext task)
@@ -4042,11 +4068,17 @@ public:
 
         switch (GetCaster()->GetMap()->GetDifficultyID())
         {
-            case DIFFICULTY_LFR_NEW: raidDifficulty = 30; break;
-            case DIFFICULTY_NORMAL_RAID: raidDifficulty = 27; break;
-            case DIFFICULTY_HEROIC_RAID: raidDifficulty = 25; break;
-            case DIFFICULTY_MYTHIC_RAID: raidDifficulty = 21; break;
-            default: raidDifficulty = 26; break;
+            case DIFFICULTY_LFR_NEW:
+            case DIFFICULTY_NORMAL_RAID:
+            case DIFFICULTY_HEROIC_RAID:
+                raidDifficulty = 28;
+                break;
+            case DIFFICULTY_MYTHIC_RAID:
+                raidDifficulty = 21;
+                break;
+            default:
+                raidDifficulty = 28;
+                break;
         }
 
         Unit* caster = GetCaster();
