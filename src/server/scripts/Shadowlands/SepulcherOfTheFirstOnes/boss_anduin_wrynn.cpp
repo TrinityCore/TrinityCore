@@ -1832,7 +1832,7 @@ struct npc_anduin_wrynn_anduin_soul : public ScriptedAI
 private:
     SummonList _summons;
     EventMap _events;
-    InstanceScript* const _instance;
+    InstanceScript* _instance;
     TaskScheduler _scheduler;
     uint8 _hopeGone;
     uint8 _doubtGone;
