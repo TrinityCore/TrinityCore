@@ -1609,21 +1609,21 @@ struct npc_anduin_wrynn_beacon_of_hope : public ScriptedAI
 
     void JustUnregisteredAreaTrigger(AreaTrigger* areaTrigger) override
     {
-
         switch (areaTrigger->GetSpellId())
         {
             case SPELL_FRAGMENT_OF_HOPE_AREATRIGGER:
+            {
                 if (!areaTrigger->GetInsideUnits().size())
                 {
                     if (Creature* beacon = _instance->GetCreature(DATA_BEACON_OF_HOPE))
                         beacon->CastSpell(beacon, SPELL_FRAGMENT_OF_HOPE_DAMAGE, true);
                     //printf("My size is %f", areaTrigger->GetInsideUnits().size());
                     //me->CastSpell(me, SPELL_FRAGMENT_OF_HOPE_DAMAGE, true);
-                    break;
                 }
-
-                default:
-                    break;
+                break;
+            }
+            default:
+                break;
         }
     }
 
