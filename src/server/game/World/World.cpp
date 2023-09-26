@@ -39,6 +39,7 @@
 #include "CreatureAIRegistry.h"
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
+#include "CustomWorldConfigMgr.h"
 #include "DatabaseEnv.h"
 #include "DBCStoresMgr.h"
 #include "DisableMgr.h"
@@ -150,6 +151,11 @@ World::World()
     memset(m_bool_configs, 0, sizeof(m_bool_configs));
     memset(m_float_configs, 0, sizeof(m_float_configs));
 
+    memset(custom_rate_values, 0, sizeof(custom_rate_values));
+    memset(custom_int_configs, 0, sizeof(custom_int_configs));
+    memset(custom_bool_configs, 0, sizeof(custom_bool_configs));
+    memset(custom_float_configs, 0, sizeof(custom_float_configs));
+
     _guidWarn = false;
     _guidAlert = false;
     _warnDiff = 0;
@@ -170,6 +176,24 @@ World::~World()
     CliCommandHolder* command = nullptr;
     while (cliCmdQueue.next(command))
         delete command;
+
+    for (uint32 i = 0; i < MAX_RATES; i++)
+        rate_values[i] = 0;
+    for (uint32 i = 0; i < INT_CONFIG_VALUE_COUNT; i++)
+        m_int_configs[i] = 0;
+    for (uint32 i = 0; i < BOOL_CONFIG_VALUE_COUNT; i++)
+        m_bool_configs[i] = 0;
+    for (uint32 i = 0; i < FLOAT_CONFIG_VALUE_COUNT; i++)
+        m_float_configs[i] = 0;
+
+    for (uint32 i = 0; i < CUSTOM_MAX_CONFIG_VALUE_COUNT; i++)
+        custom_rate_values[i] = 0;
+    for (uint32 i = 0; i < CUSTOM_INT_CONFIG_VALUE_COUNT; i++)
+        custom_int_configs[i] = 0;
+    for (uint32 i = 0; i < CUSTOM_BOOL_CONFIG_VALUE_COUNT; i++)
+        custom_bool_configs[i] = 0;
+    for (uint32 i = 0; i < CUSTOM_FLOAT_CONFIG_VALUE_COUNT; i++)
+        custom_float_configs[i] = 0;
 
     VMAP::VMapFactory::clear();
     MMAP::MMapFactory::clear();
@@ -1553,6 +1577,8 @@ void World::LoadConfigSettings(bool reload)
 
     // Specifies if IP addresses can be logged to the database
     m_bool_configs[CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE] = sConfigMgr->GetBoolDefault("AllowLoggingIPAddressesInDatabase", true, true);
+
+    sCustomWorldConfig->LoadCustom();
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
