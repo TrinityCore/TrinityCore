@@ -4183,10 +4183,12 @@ class spell_anduin_wrynn_severed_soul : public AuraScript
 {
     PrepareAuraScript(spell_anduin_wrynn_severed_soul);
 
+public:
+    Position _soulPosition;
+
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Position soulPosition = GetCaster()->GetPosition();
-
+        Position _soulPosition = GetCaster()->GetPosition();
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -4203,7 +4205,7 @@ class spell_anduin_wrynn_severed_soul : public AuraScript
                 if (TempSummon* summon = GetTarget()->ToTempSummon())
                 {
                     if (summon->GetSummonerUnit() == GetCaster())
-                        GetCaster()->NearTeleportTo(Position(soulPosition), false);
+                        GetCaster()->NearTeleportTo(Position(_soulPosition), false);
                 }
                 break;
             }
@@ -4217,10 +4219,6 @@ class spell_anduin_wrynn_severed_soul : public AuraScript
         OnEffectApply += AuraEffectApplyFn(spell_anduin_wrynn_severed_soul::OnApply, EFFECT_0, SPELL_AURA_LINKED_SUMMON, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_anduin_wrynn_severed_soul::OnRemove, EFFECT_1, SPELL_AURA_TRIGGER_SPELL_ON_EXPIRE, AURA_EFFECT_HANDLE_REAL);
     }
-
-private:
-    Position soulPosition;
-
 };
 
 // Lost Soul Mirror Image - 362402
