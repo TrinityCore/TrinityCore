@@ -3471,7 +3471,7 @@ struct at_anduin_wrynn_blasphemy : AreaTriggerAI
         {
             if (at->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID) // On Mythic players walking in with no debuff also trigger explosion
             {
-                if (!unit->HasAura(SPELL_BLASPHEMY_HOPELESSNESS_AREATRIGGER || !unit->HasAura(SPELL_BLASPHEMY_OVERCONFIDENCE_AREATRIGGER)))
+                if (!unit->HasAura(SPELL_BLASPHEMY_HOPELESSNESS_AREATRIGGER) || !unit->HasAura(SPELL_BLASPHEMY_OVERCONFIDENCE_AREATRIGGER))
                 {
                     if (Unit* target = at->GetTarget())
                     {
