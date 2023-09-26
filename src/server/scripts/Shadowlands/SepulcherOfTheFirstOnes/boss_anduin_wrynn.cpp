@@ -3695,20 +3695,16 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
 
         _scheduler.Schedule(0ms, [this, starReturnSpeed](TaskContext task)
         {
-            if (Unit* caster = at->GetCaster())
-            {
+            Movement::PointsArray returnSplinePoints;
 
-                Movement::PointsArray returnSplinePoints;
+            returnSplinePoints.push_back(PositionToVector3(at));
+            returnSplinePoints.push_back(PositionToVector3(at));
+            returnSplinePoints.push_back(PositionToVector3(_casterCurrentPosition));
+            returnSplinePoints.push_back(PositionToVector3(_casterCurrentPosition));
 
-                returnSplinePoints.push_back(PositionToVector3(at));
-                returnSplinePoints.push_back(PositionToVector3(at));
-                returnSplinePoints.push_back(PositionToVector3(_casterCurrentPosition));
-                returnSplinePoints.push_back(PositionToVector3(_casterCurrentPosition));
-
-                //at->InitSplines(returnSplinePoints, at->GetDistance(_casterCurrentPosition) / 14 * 600);
-                at->InitSplines(returnSplinePoints, static_cast<uint32>(at->GetDistance(_casterCurrentPosition) / starReturnSpeed * 600));
-                task.Repeat(250ms);
-            }
+            //at->InitSplines(returnSplinePoints, at->GetDistance(_casterCurrentPosition) / 14 * 600);
+            at->InitSplines(returnSplinePoints, static_cast<uint32>(at->GetDistance(_casterCurrentPosition) / starReturnSpeed * 600));
+            task.Repeat(250ms);
         });
     }
 
@@ -3878,11 +3874,12 @@ struct at_anduin_wrynn_empowered_wicked_star : AreaTriggerAI
     }
 
 private:
+    bool _excludeUnit;
     TaskScheduler _scheduler;
     Position _casterCurrentPosition;
     Position _targetCurrentPosition;
     std::vector<ObjectGuid> _affectedUnits;
-    bool _excludeUnit;
+
 };
 
 // Kingsmourne Hungers - 362405
@@ -3952,7 +3949,6 @@ class spell_anduin_wrynn_lost_soul : public AuraScript
     {
         lostSoulPosition = GetTarget()->GetPosition();
         GetTarget()->CastSpell(GetTarget(), SPELL_LOST_SOUL_GRACE, true);
-
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3995,7 +3991,6 @@ class spell_anduin_wrynn_lost_soul : public AuraScript
     }
 
 private:
-    ObjectGuid _playerGUID;
     Position lostSoulPosition;
 };
 
