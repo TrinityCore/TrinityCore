@@ -1236,6 +1236,19 @@ enum TrinityStrings
     LANG_SHUTDOWN_CANCELLED                       = 11018,
     LANG_YOU_CHANGE_POWER                         = 11019, // master branch ONLY
     LANG_YOUR_POWER_CHANGED                       = 11020, // master branch ONLY
-    LANG_INVALID_POWER_NAME                       = 11021  // master branch ONLY
+    LANG_INVALID_POWER_NAME                       = 11021,  // master branch ONLY
+
+    // CUSTOM STRINGS
+    // Anticheat
+    LANG_GM_ANNOUNCE_ASH                  = 12120,  // AntiSpeedHack
+    LANG_GM_ANNOUNCE_AFH_CANFLYWRONG      = 12121,  // AntiFlyHack - flying without canfly
+    LANG_GM_ANNOUNCE_AFK_SWIMMING         = 12122,  // AntiFlyHack - flying swimming not in water
+    LANG_GM_ANNOUNCE_AFH                  = 12123,  // AntiFlyHack
+    LANG_GM_ANNOUNCE_DOUBLE_JUMP          = 12124,  // Double jump (client can't sent second packet of jump (only hack))
+    LANG_GM_ANNOUNCE_JUMPER_FAKE          = 12125,  // Gagarin and others can set falling flag and move up as jump
+    LANG_GM_ANNOUNCE_JUMPER_FLYING        = 12126,  // Hitchhiker's Hack and others can set fly unrestricted flag
+    LANG_GM_ANNOUNCE_WALLCLIMB            = 12127,  // Wallclimb
+    LANG_GM_ANNOUNCE_MOVE_UNDER_CONTROL   = 12128,  // Movement under Controll (not restricted)
+    LANG_GM_ANNOUNCE_NOFALLINGDMG         = 12129,  // Falling without opcode of land/swim (not restricted)
 };
 #endif

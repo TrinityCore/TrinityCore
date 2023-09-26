@@ -475,7 +475,17 @@ enum Rates
 
 enum CustomWorldBoolConfigs
 {
-    CUSTOM_BOOL_TEST = 0,
+    CONFIG_ANTICHEAT_FAKEJUMPER_ENABLED = 0,
+    CONFIG_ANTICHEAT_FAKEFLYINGMODE_ENABLED,
+    CONFIG_ANTICHEAT_DOUBLEJUMP_ENABLED,
+    CONFIG_ANTICHEAT_FLYHACK_ENABLED,
+    CONFIG_ANTICHEAT_SPEEDHACK_ENABLED,
+    CONFIG_ANTICHEAT_IGNORE_CONTROL_MOVEMENT_ENABLED,
+    CONFIG_ASH_KICK_ENABLED,
+    CONFIG_AFH_KICK_ENABLED,
+    CONFIG_FAKEJUMPER_KICK_ENABLED,
+    CONFIG_FAKEFLYINGMODE_KICK_ENABLED,
+    CONFIG_ANTICHEAT_NOFALLINGDMG_KICK_ENABLED,
     CUSTOM_BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -486,7 +496,7 @@ enum CustomWorldFloatConfigs
 };
 
 enum CustomWorldIntConfigs {
-    CUSTOM_INT_TEST = 0,
+    CONFIG_ANTICHEAT_FLYHACK_TIMER = 0,
     CUSTOM_INT_CONFIG_VALUE_COUNT
 };
 
@@ -866,6 +876,9 @@ class TC_GAME_API World
         bool IsGuidWarning() { return _guidWarn; }
         bool IsGuidAlert() { return _guidAlert; }
 
+        void SetAreaIdExcludes(const std::string& areaIdExcludes);
+        bool isAreaIdDisabledForAC(uint32 areaId) const { return _areaIdExcludes.count(areaId); }
+
     protected:
         void _UpdateGameTime();
 
@@ -985,6 +998,8 @@ class TC_GAME_API World
         bool _guidAlert;
         uint32 _warnDiff;
         time_t _warnShutdownTime;
+
+        std::unordered_set<uint32> _areaIdExcludes;
 
     friend class debug_commandscript;
 };

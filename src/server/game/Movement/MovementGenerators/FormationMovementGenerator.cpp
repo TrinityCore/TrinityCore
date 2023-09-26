@@ -67,6 +67,9 @@ bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 diff)
     if (!owner || !target)
         return false;
 
+    if (owner->IsJumping())
+        return true;
+
     // Owner cannot move. Reset all fields and wait for next action
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {

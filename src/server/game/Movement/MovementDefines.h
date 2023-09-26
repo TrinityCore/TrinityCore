@@ -44,6 +44,8 @@ enum MovementGeneratorType : uint8
     EFFECT_MOTION_TYPE              = 16,
     SPLINE_CHAIN_MOTION_TYPE        = 17,    // SplineChainMovementGenerator.h
     FORMATION_MOTION_TYPE           = 18,    // FormationMovementGenerator.h
+    JUMP_MOTION_TYPE                = 19,    // JumpMovementGenerator.h
+    CHARGE_MOTION_TYPE              = 20,    // ChargeMovementGenerator.h
     MAX_MOTION_TYPE                          // SKIP
 };
 

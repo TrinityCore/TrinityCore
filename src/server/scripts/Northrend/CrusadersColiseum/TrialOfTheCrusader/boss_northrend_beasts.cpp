@@ -963,7 +963,7 @@ struct boss_icehowl : public boss_northrend_beastsAI
 
     void MovementInform(uint32 type, uint32 pointId) override
     {
-        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE && type != SPLINE_CHAIN_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE && type != JUMP_MOTION_TYPE && type != SPLINE_CHAIN_MOTION_TYPE)
             return;
 
         switch (pointId)

@@ -17,6 +17,7 @@
 
 #include "Spell.h"
 #include "AccountMgr.h"
+#include "Anticheat.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "Common.h"
@@ -4248,15 +4249,20 @@ void Spell::EffectCharge()
     {
         // charge changes fall time
         if (unitCaster->GetTypeId() == TYPEID_PLAYER)
-            unitCaster->ToPlayer()->SetFallInformation(0, unitCaster->GetPositionZ());
+            unitCaster->ToPlayer()->GetAnticheat()->resetFallingData(unitCaster->GetPositionZ());
 
         float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : SPEED_CHARGE;
         // Spell is not using explicit target - no generated path
         if (!m_preGeneratedPath)
         {
-            //unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-            Position pos = unitTarget->GetFirstCollisionPosition(unitTarget->GetCombatReach(), unitTarget->GetRelativeAngle(m_caster));
-            unitCaster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speed);
+            Position pos;
+            float targetObjectSizeForZOffset = std::min(unitTarget->GetCombatReach(), 4.0f);
+
+            if (unitCaster->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || unitTarget->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+                pos = unitTarget->GetPosition();
+            else
+                pos = unitTarget->GetFirstCollisionPosition(unitTarget->GetCombatReach(), unitTarget->GetRelativeAngle(unitCaster));
+            unitCaster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + targetObjectSizeForZOffset, speed);
         }
         else
             unitCaster->GetMotionMaster()->MoveCharge(*m_preGeneratedPath, speed);
@@ -4350,7 +4356,7 @@ void Spell::EffectLeapBack()
 
     // changes fall time
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
+        m_caster->ToPlayer()->GetAnticheat()->resetFallingData(m_caster->GetPositionZ());
 }
 
 void Spell::EffectQuestClear()
