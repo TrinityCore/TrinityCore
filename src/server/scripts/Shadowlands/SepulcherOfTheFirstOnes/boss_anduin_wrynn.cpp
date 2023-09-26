@@ -2010,7 +2010,6 @@ struct npc_anduin_wrynn_anduin_hope : public ScriptedAI
         switch (pointId)
         {
             case POINT_ESCAPE_PLATFORM:
-                if (Creature* anduin = _instance->GetCreature(DATA_ANDUIN_WRYNN))
                 {
                     DoCastSelf(SPELL_SOUL_DESPAWN);
                     me->DespawnOrUnsummon(1s);
@@ -2049,7 +2048,6 @@ public:
             DoAction(ACTION_SOUL_EXPLOSION);
         }
     }
-
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
