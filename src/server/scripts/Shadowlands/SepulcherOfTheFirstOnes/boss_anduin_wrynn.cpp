@@ -785,7 +785,7 @@ struct boss_anduin_wrynn : public BossAI
                 summon->SetSpeedRate(MOVE_RUN, marchSpeed);
                 summon->SetReactState(REACT_PASSIVE);
                 summon->CastSpell(summon, SPELL_MARCH_OF_THE_DAMNED_AREATRIGGER, true);
-                scheduler.Schedule(1s, [this, summon](TaskContext /*task*/)
+                scheduler.Schedule(1s, [summon](TaskContext /*task*/)
                 {
                     Position exitPlatform = summon->GetFirstCollisionPosition(100.0f, summon->GetAbsoluteAngle(summon));
                     summon->GetMotionMaster()->MovePoint(POINT_MARCH_OF_THE_DAMNED, exitPlatform, false, summon->GetOrientation());
