@@ -1947,7 +1947,7 @@ struct npc_anduin_wrynn_anduin_hope : public ScriptedAI
     {
         _events.Reset();
         me->SetRegenerateHealth(false);
-        me->SetHealth(1.0f);
+        me->SetHealth(1);
         me->SetReactState(REACT_PASSIVE);
 
     }
@@ -1968,7 +1968,7 @@ struct npc_anduin_wrynn_anduin_hope : public ScriptedAI
         });
 
         /*DoZoneInCombat();*/
-        me->SetHealth(1.0f);
+        me->SetHealth(1);
         //me->SetSpeed(MOVE_RUN, 1.0f);
         //me->SetReactState(REACT_PASSIVE);
 
@@ -2280,7 +2280,7 @@ struct boss_remnant_of_a_fallen_king : public BossAI
 
                 if (_transitioned == 0)
                 {
-                    scheduler.Schedule(1500ms, [this](TaskContext task)
+                    scheduler.Schedule(1500ms, [this](TaskContext /*task*/)
                     {
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                         me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
@@ -2290,7 +2290,7 @@ struct boss_remnant_of_a_fallen_king : public BossAI
 
                 else if (_transitioned == 1)
                 {
-                    scheduler.Schedule(3000ms, [this](TaskContext task)
+                    scheduler.Schedule(3000ms, [this](TaskContext /*task*/)
                     {
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                         me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
@@ -2298,7 +2298,7 @@ struct boss_remnant_of_a_fallen_king : public BossAI
                     });
                 }
 
-                scheduler.Schedule(2s, [this](TaskContext task)
+                scheduler.Schedule(2s, [this](TaskContext /*task*/)
                 {
                     DoCastSelf(SPELL_REMNANT_TIMER);
                     events.ScheduleEvent(EVENT_ARMY_OF_THE_DEAD, 1ms);
@@ -2853,6 +2853,12 @@ class spell_anduin_wrynn_progression_aura : public AuraScript
 {
     PrepareAuraScript(spell_anduin_wrynn_progression_aura);
 
+public:
+    spell_anduin_wrynn_progression_aura()
+    {
+        _triggered = false;
+    }
+
     bool Load() override
     {
         return true;
@@ -2875,13 +2881,13 @@ class spell_anduin_wrynn_progression_aura : public AuraScript
         if (dmgInfo.GetDamage() >= GetTarget()->GetHealth())
         {
             absorbAmount = dmgInfo.GetDamage();
-            if (!triggered)
+            if (!_triggered)
             {
                 GetTarget()->SetHealth(1);
                 GetTarget()->CastSpell(GetTarget(), SPELL_ANDUIN_KNEEL_POSE);
                 GetTarget()->GetAI()->DoAction(ACTION_END_ENCOUNTER);
                 GetTarget()->SetFaction(FACTION_FRIENDLY);
-                triggered = true;
+                _triggered = true;
                 absorbAmount = dmgInfo.GetDamage();
             }
         }
@@ -2894,7 +2900,7 @@ class spell_anduin_wrynn_progression_aura : public AuraScript
     }
 
 private:
-    bool triggered;
+    bool _triggered;
 };
 
 // 366848 - Anduin Willpower Periodic (Only LFR)
@@ -3343,8 +3349,7 @@ class spell_anduin_wrynn_blasphemy : public SpellScript
 
         return false;
         });
-
-        int8 hopelessnessAffected = std::floor(targets.size() / 2);
+        int8 hopelessnessAffected = static_cast<int8>(std::floor(targets.size() / 2));
         int8 maxAffected = hopelessnessAffected * 2;
         Trinity::Containers::RandomResize(targets, maxAffected);
 
@@ -3413,7 +3418,7 @@ struct at_anduin_wrynn_blasphemy : AreaTriggerAI
 
         if (unit->HasAura(at->GetSpellId()))
         {
-            if (at->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID || DIFFICULTY_MYTHIC_RAID)
+            if (at->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID || at->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
             {
                 unit->CastSpell(unit, SPELL_BLASPHEMY_EXPLODE, true);
                 unit->RemoveAurasDueToSpell(at->GetSpellId());
@@ -3498,7 +3503,7 @@ class spell_anduin_wrynn_hopelessness_overconfidence : public AuraScript
     {
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
         {
-            if (GetTarget()->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID || DIFFICULTY_MYTHIC_RAID)
+            if (GetTarget()->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID || GetTarget()->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
                 GetTarget()->CastSpell(GetTarget(), SPELL_BLASPHEMY_EXPLODE, true);
             else
                 GetTarget()->CastSpell(GetTarget(), SPELL_BLASPHEMY_EXPLODE_LFR_NORMAL, true);
@@ -3556,31 +3561,31 @@ class spell_anduin_wrynn_wicked_star_pointer : public AuraScript
 // Wicked Star - 365017 - AT 24741
 struct at_anduin_wrynn_wicked_star : AreaTriggerAI
 {
-    at_anduin_wrynn_wicked_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+    at_anduin_wrynn_wicked_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _excludeUnit(false) { }
 
     void OnInitialize() override
     {
         if (Unit* caster = at->GetCaster())
         {
 
-            float starLaunchSpeed = 0.0f;
+            uint32 starLaunchSpeed = 0;
 
             switch (at->GetMap()->GetDifficultyID())
             {
                 case DIFFICULTY_LFR_NEW:
-                    starLaunchSpeed = 60.00f;
+                    starLaunchSpeed = 60;
                     break;
                 case DIFFICULTY_NORMAL_RAID:
-                    starLaunchSpeed = 50.00f;
+                    starLaunchSpeed = 50;
                     break;
                 case DIFFICULTY_HEROIC_RAID:
-                    starLaunchSpeed = 40.00f;
+                    starLaunchSpeed = 40;
                     break;
                 case DIFFICULTY_MYTHIC_RAID:
-                    starLaunchSpeed = 30.00f;
+                    starLaunchSpeed = 30;
                     break;
                 default:
-                    starLaunchSpeed = 50.00f;
+                    starLaunchSpeed = 50;
                     break;
             }
 
@@ -3595,7 +3600,7 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
             firstPath.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
             G3D::Vector3 const& endPoint = firstPath.GetPath().back();
 
-            at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * starLaunchSpeed);
+            at->InitSplines(firstPath.GetPath(), static_cast<uint32>(at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * starLaunchSpeed));
         }
     }
 
@@ -3610,14 +3615,14 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
         {
             if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
             {
-                excludeUnit = false;
+                _excludeUnit = false;
                 if (unit->GetEntry() == NPC_SYLVANAS_WINDRUNNER || unit->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER ||
                     unit->GetEntry() == NPC_LADY_JAINA_PROUDMOORE || unit->GetEntry() == BOSS_ANDUIN_WRYNN)
-                    excludeUnit = true;
+                    _excludeUnit = true;
 
-                if (!excludeUnit && caster->IsValidAttackTarget(unit))
+                if (!_excludeUnit && caster->IsValidAttackTarget(unit))
                     caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                if (!excludeUnit && caster->IsValidAssistTarget(unit))
+                if (!_excludeUnit && caster->IsValidAssistTarget(unit))
                     caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
 
                 _affectedUnits.push_back(unit->GetGUID());
@@ -3631,17 +3636,17 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
         {
             if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
             {
-                excludeUnit = false;
+                _excludeUnit = false;
 
                 if (unit->GetEntry() == NPC_SYLVANAS_WINDRUNNER || unit->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER ||
                     unit->GetEntry() == NPC_LADY_JAINA_PROUDMOORE || unit->GetEntry() == BOSS_ANDUIN_WRYNN)
                 {
-                    excludeUnit = true;
+                    _excludeUnit = true;
                 }
 
-                if (!excludeUnit && caster->IsValidAttackTarget(unit))
+                if (!_excludeUnit && caster->IsValidAttackTarget(unit))
                     caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                if (!excludeUnit && caster->IsValidAssistTarget(unit))
+                if (!_excludeUnit && caster->IsValidAssistTarget(unit))
                     caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
 
                 _affectedUnits.push_back(unit->GetGUID());
@@ -3701,18 +3706,18 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
                 returnSplinePoints.push_back(PositionToVector3(_casterCurrentPosition));
 
                 //at->InitSplines(returnSplinePoints, at->GetDistance(_casterCurrentPosition) / 14 * 600);
-                at->InitSplines(returnSplinePoints, at->GetDistance(_casterCurrentPosition) / starReturnSpeed * 600);
+                at->InitSplines(returnSplinePoints, static_cast<uint32>(at->GetDistance(_casterCurrentPosition) / starReturnSpeed * 600));
                 task.Repeat(250ms);
             }
         });
     }
 
 private:
+    bool _excludeUnit;
     TaskScheduler _scheduler;
     Position _casterCurrentPosition;
     Position _targetCurrentPosition;
     std::vector<ObjectGuid> _affectedUnits;
-    bool excludeUnit;
 };
 
 // Empowered Wicked Star Pointer - 367632
@@ -3762,7 +3767,7 @@ class spell_anduin_wrynn_empowered_wicked_star_pointer : public AuraScript
 // Empowered Wicked Star 367621  AT - 24599
 struct at_anduin_wrynn_empowered_wicked_star : AreaTriggerAI
 {
-    at_anduin_wrynn_empowered_wicked_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+    at_anduin_wrynn_empowered_wicked_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _excludeUnit(false) { }
 
     void OnInitialize() override
     {
@@ -3779,7 +3784,7 @@ struct at_anduin_wrynn_empowered_wicked_star : AreaTriggerAI
             firstPath.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
             G3D::Vector3 const& endPoint = firstPath.GetPath().back();
 
-            at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * 50.00f);
+            at->InitSplines(firstPath.GetPath(), static_cast<uint32>(at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * 50));
         }
     }
 
@@ -3794,16 +3799,16 @@ struct at_anduin_wrynn_empowered_wicked_star : AreaTriggerAI
         {
             if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
             {
-                excludeUnit = false;
+                _excludeUnit = false;
                 if (unit->GetEntry() == NPC_SYLVANAS_WINDRUNNER || unit->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER ||
                     unit->GetEntry() == NPC_LADY_JAINA_PROUDMOORE || unit->GetEntry() == BOSS_ANDUIN_WRYNN)
                 {
-                    excludeUnit = true;
+                    _excludeUnit = true;
                 }
 
-                if (!excludeUnit && caster->IsValidAttackTarget(unit))
+                if (!_excludeUnit && caster->IsValidAttackTarget(unit))
                     caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                if (!excludeUnit && caster->IsValidAssistTarget(unit))
+                if (!_excludeUnit && caster->IsValidAssistTarget(unit))
                     caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
 
                 _affectedUnits.push_back(unit->GetGUID());
@@ -3817,15 +3822,15 @@ struct at_anduin_wrynn_empowered_wicked_star : AreaTriggerAI
         {
             if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
             {
-                excludeUnit = false;
+                _excludeUnit = false;
 
                 if (unit->GetEntry() == NPC_SYLVANAS_WINDRUNNER || unit->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER ||
                     unit->GetEntry() == NPC_LADY_JAINA_PROUDMOORE || unit->GetEntry() == BOSS_ANDUIN_WRYNN)
-                    excludeUnit = true;
+                    _excludeUnit = true;
 
-                if (!excludeUnit && caster->IsValidAttackTarget(unit))
+                if (!_excludeUnit && caster->IsValidAttackTarget(unit))
                     caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                if (!excludeUnit && caster->IsValidAssistTarget(unit))
+                if (!_excludeUnit && caster->IsValidAssistTarget(unit))
                     caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
 
                 _affectedUnits.push_back(unit->GetGUID());
@@ -3849,7 +3854,7 @@ struct at_anduin_wrynn_empowered_wicked_star : AreaTriggerAI
 
     void NextTrajectory()
     {
-        _scheduler.Schedule(0ms, [this](TaskContext task)
+        _scheduler.Schedule(0ms, [this](TaskContext /*task*/)
         {
             if (at->GetCaster()->GetFaction() == FACTION_FRIENDLY)
             {
@@ -3867,7 +3872,7 @@ struct at_anduin_wrynn_empowered_wicked_star : AreaTriggerAI
                 returnSplinePoints.push_back(PositionToVector3(wallPosition));
                 returnSplinePoints.push_back(PositionToVector3(wallPosition));
 
-                at->InitSplines(returnSplinePoints, at->GetDistance(wallPosition) / 8 * 600);
+                at->InitSplines(returnSplinePoints, static_cast<uint32>(at->GetDistance(wallPosition) / 8 * 600));
             }
         });
     }
@@ -3877,7 +3882,7 @@ private:
     Position _casterCurrentPosition;
     Position _targetCurrentPosition;
     std::vector<ObjectGuid> _affectedUnits;
-    bool excludeUnit;
+    bool _excludeUnit;
 };
 
 // Kingsmourne Hungers - 362405
@@ -4813,7 +4818,7 @@ public:
         {
             if (Creature* anduin = instance->GetCreature(DATA_ANDUIN_WRYNN))
             {
-                MarkPlayerAsSkipped(player->GetGUID().GetCounter());
+                MarkPlayerAsSkipped(static_cast<uint32>(player->GetGUID().GetCounter()));
                 player->RemoveAurasDueToSpell(SPELL_FINAL_MOVIE);
                 Map::PlayerList const& players = player->GetMap()->GetPlayers();
 
