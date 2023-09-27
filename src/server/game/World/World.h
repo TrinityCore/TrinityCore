@@ -473,6 +473,28 @@ enum Rates
     MAX_RATES
 };
 
+enum CustomWorldBoolConfigs
+{
+    CUSTOM_BOOL_TEST = 0,
+    CUSTOM_BOOL_CONFIG_VALUE_COUNT
+};
+
+enum CustomWorldFloatConfigs
+{
+    CUSTOM_FLOAT_TEST = 0,
+    CUSTOM_FLOAT_CONFIG_VALUE_COUNT
+};
+
+enum CustomWorldIntConfigs {
+    CUSTOM_INT_TEST = 0,
+    CUSTOM_INT_CONFIG_VALUE_COUNT
+};
+
+enum CustomRates {
+    CUSTOM_RATE_TEST = 0,
+    CUSTOM_MAX_CONFIG_VALUE_COUNT
+};
+
 /// Can be used in SMSG_AUTH_RESPONSE packet
 enum BillingPlanFlags
 {
@@ -715,6 +737,79 @@ class TC_GAME_API World
             return index < INT_CONFIG_VALUE_COUNT ? m_int_configs[index] : 0;
         }
 
+        /// Set a server rate (see #CustomRates)
+        bool customSetRate(CustomRates rate, float const& value)
+        {
+            bool result = false;
+            if (rate < CUSTOM_MAX_CONFIG_VALUE_COUNT)
+            {
+                custom_rate_values[rate] = value;
+                result = true;
+            }
+
+            return result;
+        }
+
+        /// Get a server rate (see #CustomRates)
+        float customGetRate(CustomRates rate) const { return custom_rate_values[rate]; }
+
+        /// Set a server configuration element (see #CustomWorldConfigs)
+        bool customSetBoolConfig(CustomWorldBoolConfigs index, bool const& value)
+        {
+            bool result = false;
+            if (index < CUSTOM_BOOL_CONFIG_VALUE_COUNT)
+            {
+                custom_bool_configs[index] = value;
+                result = true;
+            }
+
+            return result;
+        }
+
+        /// Get a server configuration element (see #CustomWorldConfigs)
+        bool customGetBoolConfig(CustomWorldBoolConfigs index) const
+        {
+            return index < CUSTOM_BOOL_CONFIG_VALUE_COUNT ? custom_bool_configs[index] : 0;
+        }
+
+        /// Set a server configuration element (see #CustomWorldConfigs)
+        bool customSetFloatConfig(CustomWorldFloatConfigs index, float const& value)
+        {
+            bool result = false;
+            if (index < CUSTOM_FLOAT_CONFIG_VALUE_COUNT)
+            {
+                custom_float_configs[index] = value;
+                result = true;
+            }
+
+            return result;
+        }
+
+        /// Get a server configuration element (see #CustomWorldConfigs)
+        float customGetFloatConfig(CustomWorldFloatConfigs index) const
+        {
+            return index < CUSTOM_FLOAT_CONFIG_VALUE_COUNT ? custom_float_configs[index] : 0;
+        }
+
+        /// Set a server configuration element (see #CustomWorldConfigs)
+        bool customSetIntConfig(CustomWorldIntConfigs index, uint32 const& value)
+        {
+            bool result = false;
+            if (index < CUSTOM_INT_CONFIG_VALUE_COUNT)
+            {
+                custom_int_configs[index] = value;
+                result = true;
+            }
+
+            return result;
+        }
+
+        /// Get a server configuration element (see #WorldConfigs)
+        uint32 customGetIntConfig(CustomWorldIntConfigs index) const
+        {
+            return index < INT_CONFIG_VALUE_COUNT ? custom_int_configs[index] : 0;
+        }
+
         void setWorldState(uint32 index, uint64 value);
         uint64 getWorldState(uint32 index) const;
         void LoadWorldStates();
@@ -820,6 +915,12 @@ class TC_GAME_API World
         uint32 m_int_configs[INT_CONFIG_VALUE_COUNT];
         bool m_bool_configs[BOOL_CONFIG_VALUE_COUNT];
         float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
+
+        float custom_rate_values[CUSTOM_MAX_CONFIG_VALUE_COUNT];
+        uint32 custom_int_configs[CUSTOM_INT_CONFIG_VALUE_COUNT];
+        bool custom_bool_configs[CUSTOM_BOOL_CONFIG_VALUE_COUNT];
+        float custom_float_configs[CUSTOM_FLOAT_CONFIG_VALUE_COUNT];
+
         typedef std::map<uint32, uint64> WorldStatesMap;
         WorldStatesMap m_worldstates;
         uint32 m_playerLimit;
