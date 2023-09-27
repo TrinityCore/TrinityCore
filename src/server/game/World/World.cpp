@@ -40,6 +40,7 @@
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
+#include "DBCStoresMgr.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "GameObjectModel.h"
@@ -105,6 +106,14 @@ TC_GAME_API int32 World::m_visibility_notify_periodOnContinents = DEFAULT_VISIBI
 TC_GAME_API int32 World::m_visibility_notify_periodInInstances  = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
 TC_GAME_API int32 World::m_visibility_notify_periodInBG         = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
 TC_GAME_API int32 World::m_visibility_notify_periodInArenas     = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
+
+TC_GAME_API uint32 GetLiquidFlags(uint32 liquidType)
+{
+    if (LiquidTypeDBC const* liq = sDBCStoresMgr->GetLiquidTypeDBC(liquidType))
+        return 1 << liq->SoundBank;
+
+    return 0;
+}
 
 /// World constructor
 World::World()
@@ -1617,7 +1626,7 @@ void World::SetInitialWorldSettings()
 
     ///- Load the DBC files
     TC_LOG_INFO("server.loading", "Initialize data stores...");
-    LoadDBCStores(m_dataPath);
+    sDBCStoresMgr->Initialize();
     DetectDBCLang();
 
     // Load cinematic cameras
@@ -1627,9 +1636,12 @@ void World::SetInitialWorldSettings()
     sIPLocation->Load();
 
     std::vector<uint32> mapIds;
-    for (uint32 mapId = 0; mapId < sMapStore.GetNumRows(); mapId++)
-        if (sMapStore.LookupEntry(mapId))
-            mapIds.push_back(mapId);
+    MapDBCMap const& mapMap = sDBCStoresMgr->GetMapDBCMap();
+    for (MapDBCMap::const_iterator itr = mapMap.begin(); itr != mapMap.end(); ++itr)
+    {
+        if (MapDBC const* mapInfo = &itr->second)
+            mapIds.push_back(mapInfo->ID);
+    }
 
     vmmgr2->InitializeThreadUnsafe(mapIds);
 
@@ -2242,7 +2254,7 @@ void World::DetectDBCLang()
         m_lang_confid = LOCALE_enUS;
     }
 
-    ChrRacesEntry const* race = sChrRacesStore.AssertEntry(1);
+    ChrRacesDBC const* race = sDBCStoresMgr->GetChrRacesDBC(1);
 
     std::string availableLocalsStr;
 

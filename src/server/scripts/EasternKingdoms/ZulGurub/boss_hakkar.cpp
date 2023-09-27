@@ -177,7 +177,7 @@ class at_zulgurub_entrance : public OnlyOnceAreaTriggerScript
 public:
     at_zulgurub_entrance() : OnlyOnceAreaTriggerScript("at_zulgurub_entrance") { }
 
-    bool TryHandleOnce(Player* player, AreaTriggerEntry const* areaTrigger) override
+    bool TryHandleOnce(Player* player, AreaTriggerDBC const* areaTrigger) override
     {
         InstanceScript* instance = player->GetInstanceScript();
         if (!instance || instance->GetBossState(DATA_HAKKAR) == DONE)

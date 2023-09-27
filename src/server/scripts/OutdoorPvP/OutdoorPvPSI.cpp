@@ -16,7 +16,7 @@
  */
 
 #include "OutdoorPvPSI.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GameObject.h"
 #include "Language.h"
 #include "Map.h"
@@ -119,7 +119,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger)
             // add 19 honor
             player->RewardHonor(nullptr, 1, 19);
             // add 20 cenarion circle repu
-            player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(609), 20);
+            player->GetReputationMgr().ModifyReputation(sDBCStoresMgr->GetFactionDBC(609), 20);
             // complete quest
             player->KilledMonsterCredit(SI_TURNIN_QUEST_CM_A);
         }
@@ -145,7 +145,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger)
             // add 19 honor
             player->RewardHonor(nullptr, 1, 19);
             // add 20 cenarion circle repu
-            player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(609), 20);
+            player->GetReputationMgr().ModifyReputation(sDBCStoresMgr->GetFactionDBC(609), 20);
             // complete quest
             player->KilledMonsterCredit(SI_TURNIN_QUEST_CM_H);
         }
@@ -163,7 +163,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
         {
             case ALLIANCE:
             {
-                AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(SI_AREATRIGGER_A);
+                AreaTriggerDBC const* atEntry = sDBCStoresMgr->GetAreaTriggerDBC(SI_AREATRIGGER_A);
                 if (atEntry)
                 {
                     // 5.0f is safe-distance
@@ -192,7 +192,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
             }
             case HORDE:
             {
-                AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(SI_AREATRIGGER_H);
+                AreaTriggerDBC const* atEntry = sDBCStoresMgr->GetAreaTriggerDBC(SI_AREATRIGGER_H);
                 if (atEntry)
                 {
                     // 5.0f is safe-distance

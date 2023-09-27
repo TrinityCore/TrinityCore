@@ -45,7 +45,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleAchievementAddCommand(ChatHandler* handler, AchievementEntry const* achievementEntry)
+    static bool HandleAchievementAddCommand(ChatHandler* handler, AchievementDBC const* achievementEntry)
     {
         Player* target = handler->getSelectedPlayer();
         if (!target)

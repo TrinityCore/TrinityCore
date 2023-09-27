@@ -26,6 +26,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "DBCStoresMgr.h"
 #include "Language.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
@@ -175,7 +176,7 @@ public:
 
     static bool HandleGoGraveyardCommand(ChatHandler* handler, uint32 gyId)
     {
-        WorldSafeLocsEntry const* gy = sWorldSafeLocsStore.LookupEntry(gyId);
+        WorldSafeLocsDBC const* gy = sDBCStoresMgr->GetWorldSafeLocsDBC(gyId);
         if (!gy)
         {
             handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDNOEXIST, gyId);
@@ -233,7 +234,7 @@ public:
 
     static bool HandleGoTaxinodeCommand(ChatHandler* handler, Variant<Hyperlink<taxinode>, uint32> nodeId)
     {
-        TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(nodeId);
+        TaxiNodesDBC const* node = sDBCStoresMgr->GetTaxiNodesDBC(nodeId);
         if (!node)
         {
             handler->PSendSysMessage(LANG_COMMAND_GOTAXINODENOTFOUND, nodeId);
@@ -245,7 +246,7 @@ public:
 
     static bool HandleGoAreaTriggerCommand(ChatHandler* handler, Variant<Hyperlink<areatrigger>, uint32> areaTriggerId)
     {
-        AreaTriggerEntry const* at = sAreaTriggerStore.LookupEntry(areaTriggerId);
+        AreaTriggerDBC const* at = sDBCStoresMgr->GetAreaTriggerDBC(areaTriggerId);
         if (!at)
         {
             handler->PSendSysMessage(LANG_COMMAND_GOAREATRNOTFOUND, areaTriggerId);
@@ -262,7 +263,7 @@ public:
 
         uint32 areaId = areaIdArg ? *areaIdArg : player->GetZoneId();
 
-        AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
+        AreaTableDBC const* areaEntry = sDBCStoresMgr->GetAreaTableDBC(areaId);
 
         if (x < 0 || x > 100 || y < 0 || y > 100 || !areaEntry)
         {
@@ -272,7 +273,7 @@ public:
         }
 
         // update to parent zone if exist (client map show only zones without parents)
-        AreaTableEntry const* zoneEntry = areaEntry->ParentAreaID ? sAreaTableStore.LookupEntry(areaEntry->ParentAreaID) : areaEntry;
+        AreaTableDBC const* zoneEntry = areaEntry->ParentAreaID ? sDBCStoresMgr->GetAreaTableDBC(areaEntry->ParentAreaID) : areaEntry;
         ASSERT(zoneEntry);
 
         Map const* map = sMapMgr->CreateBaseMap(zoneEntry->ContinentID);
@@ -284,7 +285,7 @@ public:
             return false;
         }
 
-        Zone2MapCoordinates(x, y, zoneEntry->ID);
+        sDBCStoresMgr->Zone2MapCoordinates(x, y, zoneEntry->ID);
 
         if (!MapManager::IsValidMapCoord(zoneEntry->ContinentID, x, y))
         {
@@ -374,7 +375,7 @@ public:
         {
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(pair.second.ScriptId);
-            char const* mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(pair.first))->MapName[handler->GetSessionDbcLocale()];
+            char const* mapName = ASSERT_NOTNULL(sDBCStoresMgr->GetMapDBC(pair.first))->MapName[handler->GetSessionDbcLocale()].c_str();
             for (std::string_view label : labels)
                 if (StringContainsStringI(scriptName, label))
                     ++count;
@@ -423,7 +424,7 @@ public:
             else
             {
                 uint32 const parentMapId = exit->target_mapId;
-                char const* const parentMapName = ASSERT_NOTNULL(sMapStore.LookupEntry(parentMapId))->MapName[handler->GetSessionDbcLocale()];
+                char const* const parentMapName = ASSERT_NOTNULL(sDBCStoresMgr->GetMapDBC(parentMapId))->MapName[handler->GetSessionDbcLocale()].c_str();
                 handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_GATE_FAILED, mapName, mapId, parentMapName, parentMapId);
             }
         }
@@ -523,7 +524,7 @@ public:
             for (CreatureData const* spawn : spawns)
             {
                 uint32 const mapId = spawn->mapId;
-                MapEntry const* const map = ASSERT_NOTNULL(sMapStore.LookupEntry(mapId));
+                MapDBC const* const map = ASSERT_NOTNULL(sDBCStoresMgr->GetMapDBC(mapId));
                 handler->PSendSysMessage(LANG_COMMAND_BOSS_MULTIPLE_SPAWN_ETY, spawn->spawnId, mapId, map->MapName[handler->GetSessionDbcLocale()], spawn->spawnPoint.ToString().c_str());
             }
             handler->SetSentErrorMessage(true);
@@ -540,7 +541,7 @@ public:
         uint32 const mapId = spawn->mapId;
         if (!player->TeleportTo({ mapId, spawn->spawnPoint }))
         {
-            char const* const mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(mapId))->MapName[handler->GetSessionDbcLocale()];
+            char const* const mapName = ASSERT_NOTNULL(sDBCStoresMgr->GetMapDBC(mapId))->MapName[handler->GetSessionDbcLocale()].c_str();
             handler->PSendSysMessage(LANG_COMMAND_GO_BOSS_FAILED, spawn->spawnId, boss->Name.c_str(), boss->Entry, mapName);
             handler->SetSentErrorMessage(true);
             return false;

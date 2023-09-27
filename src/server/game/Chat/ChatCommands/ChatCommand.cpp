@@ -20,7 +20,7 @@
 #include "AccountMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
@@ -148,11 +148,11 @@ static void LogCommandUsage(WorldSession const& session, uint32 permission, std:
     uint32 areaId = player->GetAreaId();
     std::string areaName = "Unknown";
     std::string zoneName = "Unknown";
-    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
+    if (AreaTableDBC const* area = sDBCStoresMgr->GetAreaTableDBC(areaId))
     {
         int locale = session.GetSessionDbcLocale();
         areaName = area->AreaName[locale];
-        if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
+        if (AreaTableDBC const* zone = sDBCStoresMgr->GetAreaTableDBC(area->ParentAreaID))
             zoneName = zone->AreaName[locale];
     }
 

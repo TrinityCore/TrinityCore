@@ -293,9 +293,9 @@ namespace Trinity::Impl::ChatCommands
 
     // AchievementEntry* from numeric id or link
     template <>
-    struct TC_GAME_API ArgInfo<AchievementEntry const*>
+    struct TC_GAME_API ArgInfo<AchievementDBC const*>
     {
-        static ChatCommandResult TryConsume(AchievementEntry const*&, ChatHandler const*, std::string_view);
+        static ChatCommandResult TryConsume(AchievementDBC const*&, ChatHandler const*, std::string_view);
     };
 
     // GameTele* from string name or link

@@ -17,7 +17,7 @@
 
 #include "icecrown_citadel.h"
 #include "Containers.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GridNotifiers.h"
 #include "Group.h"
 #include "InstanceScript.h"
@@ -1346,7 +1346,7 @@ class spell_putricide_mutated_transformation : public SpellScript
         }
 
         uint32 entry = uint32(GetEffectInfo().MiscValue);
-        SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetEffectInfo().MiscValueB));
+        SummonPropertiesDBC const* properties = sDBCStoresMgr->GetSummonPropertiesDBC(uint32(GetEffectInfo().MiscValueB));
         uint32 duration = uint32(GetSpellInfo()->GetDuration());
 
         Position pos = caster->GetPosition();

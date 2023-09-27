@@ -25,7 +25,7 @@
 class Channel;
 class Player;
 class WorldPacket;
-struct AreaTableEntry;
+struct AreaTableDBC;
 
 class TC_GAME_API ChannelMgr
 {
@@ -42,11 +42,11 @@ class TC_GAME_API ChannelMgr
         static Channel* GetChannelForPlayerByNamePart(std::string const& namePart, Player* playerSearcher);
 
         void SaveToDB();
-        Channel* GetSystemChannel(uint32 channelId, AreaTableEntry const* zoneEntry = nullptr);
+        Channel* GetSystemChannel(uint32 channelId, AreaTableDBC const* zoneEntry = nullptr);
         Channel* CreateCustomChannel(std::string const& name);
         Channel* GetCustomChannel(std::string const& name) const;
-        Channel* GetChannel(uint32 channelId, std::string const& name, Player* player, bool pkt = true, AreaTableEntry const* zoneEntry = nullptr) const;
-        void LeftChannel(uint32 channelId, AreaTableEntry const* zoneEntry);
+        Channel* GetChannel(uint32 channelId, std::string const& name, Player* player, bool pkt = true, AreaTableDBC const* zoneEntry = nullptr) const;
+        void LeftChannel(uint32 channelId, AreaTableDBC const* zoneEntry);
 
     private:
         CustomChannelContainer _customChannels;

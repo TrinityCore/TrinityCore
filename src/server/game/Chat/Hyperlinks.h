@@ -26,22 +26,22 @@
 #include <type_traits>
 #include <utility>
 
-struct AchievementEntry;
-struct GlyphPropertiesEntry;
-struct GlyphSlotEntry;
-struct ItemRandomPropertiesEntry;
-struct ItemRandomSuffixEntry;
+struct AchievementDBC;
+struct GlyphPropertiesDBC;
+struct GlyphSlotDBC;
+struct ItemRandomPropertiesDBC;
+struct ItemRandomSuffixDBC;
 struct ItemTemplate;
 class SpellInfo;
 class Quest;
-struct TalentEntry;
+struct TalentDBC;
 
 namespace Trinity::Hyperlinks
 {
 
     struct AchievementLinkData
     {
-        AchievementEntry const* Achievement;
+        AchievementDBC const* Achievement;
         ObjectGuid CharacterId;
         bool IsFinished;
         uint8 Year;
@@ -52,8 +52,8 @@ namespace Trinity::Hyperlinks
 
     struct GlyphLinkData
     {
-        GlyphPropertiesEntry const* Glyph;
-        GlyphSlotEntry const* Slot;
+        GlyphPropertiesDBC const* Glyph;
+        GlyphSlotDBC const* Slot;
     };
 
     struct ItemLinkData
@@ -61,8 +61,8 @@ namespace Trinity::Hyperlinks
         ItemTemplate const* Item;
         uint32 EnchantId;
         std::array<uint32, 3> GemEnchantId;
-        ItemRandomPropertiesEntry const* RandomProperty;
-        ItemRandomSuffixEntry const* RandomSuffix;
+        ItemRandomPropertiesDBC const* RandomProperty;
+        ItemRandomSuffixDBC const* RandomSuffix;
         uint32 RandomSuffixBaseAmount; /* ITEM_FIELD_PROPERTY_SEED - only nonzero for RandomSuffix items, AllocationPct from DBC are multiplied with this, then floored, to get stat value */
         uint8 RenderLevel;
         bool IsBuggedInspectLink;
@@ -76,7 +76,7 @@ namespace Trinity::Hyperlinks
 
     struct TalentLinkData
     {
-        TalentEntry const* Talent;
+        TalentDBC const* Talent;
         uint8 Rank;
         SpellInfo const* Spell;
     };

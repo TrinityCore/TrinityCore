@@ -17,7 +17,7 @@
 
 #include "MapInstanced.h"
 #include "Battleground.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Group.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
@@ -207,7 +207,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     std::lock_guard<std::mutex> lock(_mapLock);
 
     // make sure we have a valid map id
-    MapEntry const* entry = sMapStore.LookupEntry(GetId());
+    MapDBC const* entry = sDBCStoresMgr->GetMapDBC(GetId());
     if (!entry)
     {
         TC_LOG_ERROR("maps", "CreateInstance: no entry for map {}", GetId());
@@ -221,7 +221,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     }
 
     // some instances only have one difficulty
-    GetDownscaledMapDifficultyData(GetId(), difficulty);
+    sDBCStoresMgr->GetDownscaledMapDifficultyData(GetId(), difficulty);
 
     TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: {} map instance {} for {} created with difficulty {}", save ? "" : "new ", InstanceId, GetId(), static_cast<uint32>(difficulty));
 
@@ -248,7 +248,7 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
 
     TC_LOG_DEBUG("maps", "MapInstanced::CreateBattleground: map bg {} for {} created.", InstanceId, GetId());
 
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), bg->GetMinLevel());
+    PvPDifficultyDBC const* bracketEntry = sDBCStoresMgr->GetBattlegroundBracketByLevel(bg->GetMapId(), bg->GetMinLevel());
 
     uint8 spawnMode;
 

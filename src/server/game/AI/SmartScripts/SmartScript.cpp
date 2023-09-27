@@ -3626,7 +3626,7 @@ void SmartScript::RetryLater(SmartScriptHolder& e, bool ignoreChanceRoll)
     e.runOnce = false;
 }
 
-void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at)
+void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerDBC const* at)
 {
     if (e.empty())
     {
@@ -3680,7 +3680,7 @@ void SmartScript::GetScript()
     }
 }
 
-void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at)
+void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerDBC const* at)
 {
     if (obj)//handle object based scripts
     {

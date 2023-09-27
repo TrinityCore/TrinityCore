@@ -17,7 +17,7 @@
 
 #include "Position.h"
 #include "ByteBuffer.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GridDefines.h"
 #include "Random.h"
 #include "World.h"
@@ -224,7 +224,7 @@ ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::Packed
 std::string WorldLocation::GetDebugInfo() const
 {
     std::stringstream sstr;
-    MapEntry const* mapEntry = sMapStore.LookupEntry(m_mapId);
+    MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(m_mapId);
     sstr << "MapID: " << m_mapId << " Map name: '" << (mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "<not found>") <<"' " << Position::ToString();
     return sstr.str();
 }

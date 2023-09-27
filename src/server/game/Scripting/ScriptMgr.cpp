@@ -21,7 +21,7 @@
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GossipDef.h"
 #include "InstanceScript.h"
 #include "Item.h"
@@ -1382,7 +1382,7 @@ void ScriptMgr::OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)
     { \
         FOR_SCRIPTS(M, I, E) \
         { \
-            MapEntry const* C = I->second->GetEntry(); \
+            MapDBC const* C = I->second->GetEntry(); \
             if (!C) \
                 continue; \
             if (C->ID == V->GetId()) \
@@ -1595,7 +1595,7 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
     return tmpscript->GetAI(gameobject);
 }
 
-bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
+bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerDBC const* trigger)
 {
     ASSERT(player);
     ASSERT(trigger);
@@ -2247,12 +2247,12 @@ void FormulaScript::OnGroupRateCalculation(float& /*rate*/, uint32 /*count*/, bo
 }
 
 template <class TMap>
-MapScript<TMap>::MapScript(MapEntry const* mapEntry) : _mapEntry(mapEntry)
+MapScript<TMap>::MapScript(MapDBC const* mapEntry) : _mapEntry(mapEntry)
 {
 }
 
 template <class TMap>
-MapEntry const* MapScript<TMap>::GetEntry() const
+MapDBC const* MapScript<TMap>::GetEntry() const
 {
     return _mapEntry;
 }
@@ -2287,7 +2287,7 @@ template class TC_GAME_API MapScript<InstanceMap>;
 template class TC_GAME_API MapScript<BattlegroundMap>;
 
 WorldMapScript::WorldMapScript(char const* name, uint32 mapId)
-    : ScriptObject(name), MapScript(sMapStore.LookupEntry(mapId))
+    : ScriptObject(name), MapScript(sDBCStoresMgr->GetMapDBC(mapId))
 {
     if (!GetEntry())
         TC_LOG_ERROR("scripts", "Invalid WorldMapScript for {}; no such map ID.", mapId);
@@ -2299,7 +2299,7 @@ WorldMapScript::WorldMapScript(char const* name, uint32 mapId)
 }
 
 InstanceMapScript::InstanceMapScript(char const* name, uint32 mapId)
-    : ScriptObject(name), MapScript(sMapStore.LookupEntry(mapId))
+    : ScriptObject(name), MapScript(sDBCStoresMgr->GetMapDBC(mapId))
 {
     if (!GetEntry())
         TC_LOG_ERROR("scripts", "Invalid InstanceMapScript for {}; no such map ID.", mapId);
@@ -2316,7 +2316,7 @@ InstanceScript* InstanceMapScript::GetInstanceScript(InstanceMap* /*map*/) const
 }
 
 BattlegroundMapScript::BattlegroundMapScript(char const* name, uint32 mapId)
-    : ScriptObject(name), MapScript(sMapStore.LookupEntry(mapId))
+    : ScriptObject(name), MapScript(sDBCStoresMgr->GetMapDBC(mapId))
 {
     if (!GetEntry())
         TC_LOG_ERROR("scripts", "Invalid BattlegroundMapScript for {}; no such map ID.", mapId);
@@ -2402,12 +2402,12 @@ AreaTriggerScript::AreaTriggerScript(char const* name)
     ScriptRegistry<AreaTriggerScript>::Instance()->AddScript(this);
 }
 
-bool AreaTriggerScript::OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/)
+bool AreaTriggerScript::OnTrigger(Player* /*player*/, AreaTriggerDBC const* /*trigger*/)
 {
     return false;
 }
 
-bool OnlyOnceAreaTriggerScript::OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+bool OnlyOnceAreaTriggerScript::OnTrigger(Player* player, AreaTriggerDBC const* trigger)
 {
     uint32 const triggerId = trigger->ID;
     InstanceScript* instance = player->GetInstanceScript();
@@ -2420,7 +2420,7 @@ bool OnlyOnceAreaTriggerScript::OnTrigger(Player* player, AreaTriggerEntry const
     return true;
 }
 void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(InstanceScript* instance, uint32 triggerId) { instance->ResetAreaTriggerDone(triggerId); }
-void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(Player const* player, AreaTriggerEntry const* trigger) { if (InstanceScript* instance = player->GetInstanceScript()) ResetAreaTriggerDone(instance, trigger->ID); }
+void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(Player const* player, AreaTriggerDBC const* trigger) { if (InstanceScript* instance = player->GetInstanceScript()) ResetAreaTriggerDone(instance, trigger->ID); }
 
 BattlefieldScript::BattlefieldScript(char const* name)
         : ScriptObject(name)

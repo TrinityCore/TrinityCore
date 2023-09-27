@@ -18,7 +18,7 @@
 #include "CharacterCache.h"
 #include "Common.h"
 #include "Corpse.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "Map.h"
@@ -139,7 +139,7 @@ uint32 Corpse::GetFaction() const
     // inherit faction from player race
     uint32 const race = GetByteValue(CORPSE_FIELD_BYTES_1, 1);
 
-    ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
+    ChrRacesDBC const* rEntry = sDBCStoresMgr->GetChrRacesDBC(race);
     return rEntry ? rEntry->FactionID : 0;
 }
 

@@ -54,7 +54,7 @@ class UpdateData;
 class WorldObject;
 class WorldPacket;
 class ZoneScript;
-struct FactionTemplateEntry;
+struct FactionTemplateDBC;
 struct PositionFullTerrainStatus;
 struct QuaternionData;
 enum ZLiquidStatus : uint32;
@@ -442,10 +442,10 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         virtual uint32 GetFaction() const = 0;
         virtual void SetFaction(uint32 /*faction*/) { }
-        FactionTemplateEntry const* GetFactionTemplateEntry() const;
+        FactionTemplateDBC const* GetFactionTemplateEntry() const;
 
         ReputationRank GetReactionTo(WorldObject const* target) const;
-        static ReputationRank GetFactionReactionTo(FactionTemplateEntry const* factionTemplateEntry, WorldObject const* target);
+        static ReputationRank GetFactionReactionTo(FactionTemplateDBC const* factionTemplateEntry, WorldObject const* target);
 
         bool IsHostileTo(WorldObject const* target) const;
         bool IsHostileToPlayers() const;

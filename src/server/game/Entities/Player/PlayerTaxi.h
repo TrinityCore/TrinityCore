@@ -25,7 +25,7 @@
 #include <string>
 
 class ByteBuffer;
-struct FactionTemplateEntry;
+struct FactionTemplateDBC;
 
 class TC_GAME_API PlayerTaxi
 {
@@ -73,7 +73,7 @@ class TC_GAME_API PlayerTaxi
 
         std::deque<uint32> const& GetPath() const { return m_TaxiDestinations; }
         bool empty() const { return m_TaxiDestinations.empty(); }
-        FactionTemplateEntry const* GetFlightMasterFactionTemplate() const;
+        FactionTemplateDBC const* GetFlightMasterFactionTemplate() const;
         void SetFlightMasterFactionTemplateId(uint32 factionTemplateId) { m_flightMasterFactionId = factionTemplateId; }
 
         friend std::ostringstream& operator<<(std::ostringstream& ss, PlayerTaxi const& taxi);

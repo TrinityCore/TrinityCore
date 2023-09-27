@@ -1517,7 +1517,7 @@ class at_icc_saurfang_portal : public AreaTriggerScript
     public:
         at_icc_saurfang_portal() : AreaTriggerScript("at_icc_saurfang_portal") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerDBC const* /*areaTrigger*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance || instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
@@ -1551,7 +1551,7 @@ class at_icc_shutdown_traps : public AreaTriggerScript
     public:
         at_icc_shutdown_traps() : AreaTriggerScript("at_icc_shutdown_traps") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerDBC const* /*areaTrigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 instance->SetData(DATA_UPPERSPIRE_TELE_ACT, DONE);
@@ -1565,7 +1565,7 @@ class at_icc_start_blood_quickening : public AreaTriggerScript
     public:
         at_icc_start_blood_quickening() : AreaTriggerScript("at_icc_start_blood_quickening") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerDBC const* /*areaTrigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (instance->GetData(DATA_BLOOD_QUICKENING_STATE) == NOT_STARTED)
@@ -1579,7 +1579,7 @@ class at_icc_nerubar_broodkeeper : public OnlyOnceAreaTriggerScript
     public:
         at_icc_nerubar_broodkeeper() : OnlyOnceAreaTriggerScript("at_icc_nerubar_broodkeeper") { }
 
-        bool TryHandleOnce(Player* player, AreaTriggerEntry const* areaTrigger) override
+        bool TryHandleOnce(Player* player, AreaTriggerDBC const* areaTrigger) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
             {

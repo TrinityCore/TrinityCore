@@ -33,6 +33,7 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "CreatureGroups.h"
+#include "DBCStoresMgr.h"
 #include "Formulas.h"
 #include "GameClient.h"
 #include "GameObjectAI.h"
@@ -3180,9 +3181,9 @@ void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus /*oldLiquidStatus*/, Optiona
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
 
     // liquid aura handling
-    LiquidTypeEntry const* curLiquid = nullptr;
+    LiquidTypeDBC const* curLiquid = nullptr;
     if (IsInWater() && newLiquidData)
-        curLiquid = sLiquidTypeStore.LookupEntry(newLiquidData->entry);
+        curLiquid = sDBCStoresMgr->GetLiquidTypeDBC(newLiquidData->entry);
     if (curLiquid != _lastLiquid)
     {
         if (_lastLiquid && _lastLiquid->SpellID)
@@ -5472,7 +5473,7 @@ void Unit::UpdateDisplayPower()
         {
             if (GetTypeId() == TYPEID_PLAYER)
             {
-                ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(GetClass());
+                ChrClassesDBC const* cEntry = sDBCStoresMgr->GetChrClassesDBC(GetClass());
                 if (cEntry && cEntry->DisplayPower < MAX_POWERS)
                     displayPower = Powers(cEntry->DisplayPower);
             }
@@ -5480,7 +5481,7 @@ void Unit::UpdateDisplayPower()
             {
                 if (Vehicle* vehicle = GetVehicleKit())
                 {
-                    if (PowerDisplayEntry const* powerDisplay = sPowerDisplayStore.LookupEntry(vehicle->GetVehicleInfo()->PowerDisplayID))
+                    if (PowerDisplayDBC const* powerDisplay = sDBCStoresMgr->GetPowerDisplayDBC(vehicle->GetVehicleInfo()->PowerDisplayID))
                         displayPower = Powers(powerDisplay->ActualType);
                     else if (GetClass() == CLASS_ROGUE)
                         displayPower = POWER_ENERGY;
@@ -8927,12 +8928,12 @@ uint32 Unit::GetCreatureType() const
     if (GetTypeId() == TYPEID_PLAYER)
     {
         ShapeshiftForm form = GetShapeshiftForm();
-        SpellShapeshiftFormEntry const* ssEntry = sSpellShapeshiftFormStore.LookupEntry(form);
+        SpellShapeshiftFormDBC const* ssEntry = sDBCStoresMgr->GetSpellShapeshiftFormDBC(form);
         if (ssEntry && ssEntry->CreatureType > 0)
             return ssEntry->CreatureType;
         else
         {
-            ChrRacesEntry const* raceEntry = sChrRacesStore.AssertEntry(GetRace());
+            ChrRacesDBC const* raceEntry = sDBCStoresMgr->GetChrRacesDBC(GetRace());
             return raceEntry->CreatureType;
         }
     }
@@ -8965,7 +8966,7 @@ bool Unit::IsInDisallowedMountForm() const
 
     if (ShapeshiftForm form = GetShapeshiftForm())
     {
-        SpellShapeshiftFormEntry const* shapeshift = sSpellShapeshiftFormStore.LookupEntry(form);
+        SpellShapeshiftFormDBC const* shapeshift = sDBCStoresMgr->GetSpellShapeshiftFormDBC(form);
         if (!shapeshift)
             return true;
 
@@ -8976,16 +8977,16 @@ bool Unit::IsInDisallowedMountForm() const
     if (GetDisplayId() == GetNativeDisplayId())
         return false;
 
-    CreatureDisplayInfoEntry const* display = sCreatureDisplayInfoStore.LookupEntry(GetDisplayId());
+    CreatureDisplayInfoDBC const* display = sDBCStoresMgr->GetCreatureDisplayInfoDBC(GetDisplayId());
     if (!display)
         return true;
 
-    CreatureDisplayInfoExtraEntry const* displayExtra = sCreatureDisplayInfoExtraStore.LookupEntry(display->ExtendedDisplayInfoID);
+    CreatureDisplayInfoExtraDBC const* displayExtra = sDBCStoresMgr->GetCreatureDisplayInfoExtraDBC(display->ExtendedDisplayInfoID);
     if (!displayExtra)
         return true;
 
-    CreatureModelDataEntry const* model = sCreatureModelDataStore.LookupEntry(display->ModelID);
-    ChrRacesEntry const* race = sChrRacesStore.LookupEntry(displayExtra->DisplayRaceID);
+    CreatureModelDataDBC const* model = sDBCStoresMgr->GetCreatureModelDataDBC(display->ModelID);
+    ChrRacesDBC const* race = sDBCStoresMgr->GetChrRacesDBC(displayExtra->DisplayRaceID);
 
     if (model && !(model->HasFlag(CREATURE_MODEL_DATA_FLAGS_CAN_MOUNT)))
         if (race && !(race->HasFlag(CHRRACES_FLAGS_CAN_MOUNT)))
@@ -11807,7 +11808,7 @@ void Unit::RestoreFaction()
 
 bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry)
 {
-    VehicleEntry const* vehInfo = sVehicleStore.LookupEntry(id);
+    VehicleDBC const* vehInfo = sDBCStoresMgr->GetVehicleDBC(id);
     if (!vehInfo)
         return false;
 
@@ -11961,7 +11962,7 @@ void Unit::GetPartyMembers(std::list<Unit*> &TagUnitMap)
 
 bool Unit::IsContestedGuard() const
 {
-    if (FactionTemplateEntry const* entry = GetFactionTemplateEntry())
+    if (FactionTemplateDBC const* entry = GetFactionTemplateEntry())
         return entry->IsContestedGuardFaction();
 
     return false;
@@ -12442,7 +12443,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
     }
 
     uint32 modelid = 0;
-    SpellShapeshiftFormEntry const* formEntry = sSpellShapeshiftFormStore.LookupEntry(form);
+    SpellShapeshiftFormDBC const* formEntry = sDBCStoresMgr->GetSpellShapeshiftFormDBC(form);
     if (formEntry && formEntry->CreatureDisplayID[0])
     {
         // Take the alliance modelid as default
@@ -13547,8 +13548,8 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player const* t
             {
                 if (IsControlledByPlayer() && target != this && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && IsInRaidWith(target))
                 {
-                    FactionTemplateEntry const* ft1 = GetFactionTemplateEntry();
-                    FactionTemplateEntry const* ft2 = target->GetFactionTemplateEntry();
+                    FactionTemplateDBC const* ft1 = GetFactionTemplateEntry();
+                    FactionTemplateDBC const* ft2 = target->GetFactionTemplateEntry();
                     if (!ft1->IsFriendlyTo(*ft2))
                     {
                         if (index == UNIT_FIELD_BYTES_2)
@@ -13753,12 +13754,14 @@ float Unit::GetCollisionHeight() const
 
     if (IsMounted())
     {
-        if (CreatureDisplayInfoEntry const* mountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetMountDisplayId()))
+        if (CreatureDisplayInfoDBC const* mountDisplayInfo = sDBCStoresMgr->GetCreatureDisplayInfoDBC(GetMountDisplayId()))
         {
-            if (CreatureModelDataEntry const* mountModelData = sCreatureModelDataStore.LookupEntry(mountDisplayInfo->ModelID))
+            if (CreatureModelDataDBC const* mountModelData = sDBCStoresMgr->GetCreatureModelDataDBC(mountDisplayInfo->ModelID))
             {
-                CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.AssertEntry(GetNativeDisplayId());
-                CreatureModelDataEntry const* modelData = sCreatureModelDataStore.AssertEntry(displayInfo->ModelID);
+                CreatureDisplayInfoDBC const* displayInfo = sDBCStoresMgr->GetCreatureDisplayInfoDBC(GetNativeDisplayId());
+                ASSERT_NOTNULL(displayInfo);
+                CreatureModelDataDBC const* modelData = sDBCStoresMgr->GetCreatureModelDataDBC(displayInfo->ModelID);
+                ASSERT_NOTNULL(modelData);
                 float const collisionHeight = scaleMod * (mountModelData->MountHeight + modelData->CollisionHeight * modelData->ModelScale * displayInfo->CreatureModelScale * 0.5f);
                 return collisionHeight == 0.0f ? DEFAULT_COLLISION_HEIGHT : collisionHeight;
             }
@@ -13766,8 +13769,9 @@ float Unit::GetCollisionHeight() const
     }
 
     //! Dismounting case - use basic default model data
-    CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.AssertEntry(GetNativeDisplayId());
-    CreatureModelDataEntry const* modelData = sCreatureModelDataStore.AssertEntry(displayInfo->ModelID);
+    CreatureDisplayInfoDBC const* displayInfo = sDBCStoresMgr->GetCreatureDisplayInfoDBC(GetNativeDisplayId());
+    ASSERT_NOTNULL(displayInfo);
+    CreatureModelDataDBC const* modelData = sDBCStoresMgr->GetCreatureModelDataDBC(displayInfo->ModelID);
 
     float const collisionHeight = scaleMod * modelData->CollisionHeight * modelData->ModelScale * displayInfo->CreatureModelScale;
     return collisionHeight == 0.0f ? DEFAULT_COLLISION_HEIGHT : collisionHeight;

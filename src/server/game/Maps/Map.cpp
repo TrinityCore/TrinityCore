@@ -21,6 +21,7 @@
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "DynamicTree.h"
+#include "DBCStoresMgr.h"
 #include "GameObjectModel.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
@@ -278,7 +279,7 @@ void Map::DeleteStateMachine()
 
 Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _parent):
 _creatureToMoveLock(false), _gameObjectsToMoveLock(false), _dynamicObjectsToMoveLock(false),
-i_mapEntry(sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId),
+i_mapEntry(sDBCStoresMgr->GetMapDBC(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId),
 m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
@@ -2376,23 +2377,23 @@ inline ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, uint8 R
     int idx=(x_int>>3)*16 + (y_int>>3);
     uint8 type = _liquidFlags ? _liquidFlags[idx] : _liquidGlobalFlags;
     uint32 entry = _liquidEntry ? _liquidEntry[idx] : _liquidGlobalEntry;
-    if (LiquidTypeEntry const* liquidEntry = sLiquidTypeStore.LookupEntry(entry))
+    if (LiquidTypeDBC const* liquidEntry = sDBCStoresMgr->GetLiquidTypeDBC(entry))
     {
         type &= MAP_LIQUID_TYPE_DARK_WATER;
         uint32 liqTypeIdx = liquidEntry->SoundBank;
         if (entry < 21)
         {
-            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(getArea(x, y)))
+            if (AreaTableDBC const* area = sDBCStoresMgr->GetAreaTableDBC(getArea(x, y)))
             {
                 uint32 overrideLiquid = area->LiquidTypeID[liquidEntry->SoundBank];
                 if (!overrideLiquid && area->ParentAreaID)
                 {
-                    area = sAreaTableStore.LookupEntry(area->ParentAreaID);
+                    area = sDBCStoresMgr->GetAreaTableDBC(area->ParentAreaID);
                     if (area)
                         overrideLiquid = area->LiquidTypeID[liquidEntry->SoundBank];
                 }
 
-                if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
+                if (LiquidTypeDBC const* liq = sDBCStoresMgr->GetLiquidTypeDBC(overrideLiquid))
                 {
                     entry = overrideLiquid;
                     liqTypeIdx = liq->SoundBank;
@@ -2615,7 +2616,7 @@ uint32 Map::GetAreaId(uint32 phaseMask, float x, float y, float z) const
     if (hasVmapArea && G3D::fuzzyGe(z, vmapZ - GROUND_HEIGHT_TOLERANCE) && (G3D::fuzzyLt(z, gridMapHeight - GROUND_HEIGHT_TOLERANCE) || vmapZ > gridMapHeight))
     {
         // wmo found
-        if (WMOAreaTableEntry const* wmoEntry = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId))
+        if (WMOAreaTableDBC const* wmoEntry = sDBCStoresMgr->GetWMOAreaTableEntryByTripple(rootId, adtId, groupId))
             areaId = wmoEntry->AreaTableID;
 
         if (!areaId)
@@ -2633,7 +2634,7 @@ uint32 Map::GetAreaId(uint32 phaseMask, float x, float y, float z) const
 uint32 Map::GetZoneId(uint32 phaseMask, float x, float y, float z) const
 {
     uint32 areaId = GetAreaId(phaseMask, x, y, z);
-    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
+    if (AreaTableDBC const* area = sDBCStoresMgr->GetAreaTableDBC(areaId))
         if (area->ParentAreaID)
             return area->ParentAreaID;
 
@@ -2643,7 +2644,7 @@ uint32 Map::GetZoneId(uint32 phaseMask, float x, float y, float z) const
 void Map::GetZoneAndAreaId(uint32 phaseMask, uint32& zoneid, uint32& areaid, float x, float y, float z) const
 {
     areaid = zoneid = GetAreaId(phaseMask, x, y, z);
-    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaid))
+    if (AreaTableDBC const* area = sDBCStoresMgr->GetAreaTableDBC(areaid))
         if (area->ParentAreaID)
             zoneid = area->ParentAreaID;
 }
@@ -2672,22 +2673,22 @@ ZLiquidStatus Map::GetLiquidStatus(uint32 phaseMask, float x, float y, float z, 
                     liquid_type = 15;
 
                 uint32 liquidFlagType = 0;
-                if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquid_type))
+                if (LiquidTypeDBC const* liq = sDBCStoresMgr->GetLiquidTypeDBC(liquid_type))
                     liquidFlagType = liq->SoundBank;
 
                 if (liquid_type && liquid_type < 21)
                 {
-                    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId(phaseMask, x, y, z)))
+                    if (AreaTableDBC const* area = sDBCStoresMgr->GetAreaTableDBC(GetAreaId(phaseMask, x, y, z)))
                     {
                         uint32 overrideLiquid = area->LiquidTypeID[liquidFlagType];
                         if (!overrideLiquid && area->ParentAreaID)
                         {
-                            area = sAreaTableStore.LookupEntry(area->ParentAreaID);
+                            area = sDBCStoresMgr->GetAreaTableDBC(area->ParentAreaID);
                             if (area)
                                 overrideLiquid = area->LiquidTypeID[liquidFlagType];
                         }
 
-                        if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
+                        if (LiquidTypeDBC const* liq = sDBCStoresMgr->GetLiquidTypeDBC(overrideLiquid))
                         {
                             liquid_type = overrideLiquid;
                             liquidFlagType = liq->SoundBank;
@@ -2788,7 +2789,7 @@ void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, fl
         {
             data.areaInfo.emplace(wmoData->areaInfo->adtId, wmoData->areaInfo->rootId, wmoData->areaInfo->groupId, wmoData->areaInfo->mogpFlags);
             // wmo found
-            WMOAreaTableEntry const* wmoEntry = GetWMOAreaTableEntryByTripple(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, wmoData->areaInfo->groupId);
+            WMOAreaTableDBC const* wmoEntry = sDBCStoresMgr->GetWMOAreaTableEntryByTripple(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, wmoData->areaInfo->groupId);
             data.outdoors = (wmoData->areaInfo->mogpFlags & 0x8) != 0;
             if (wmoEntry)
             {
@@ -2809,14 +2810,14 @@ void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, fl
     {
         data.outdoors = true;
         data.areaId = gridAreaId;
-        if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(data.areaId))
+        if (AreaTableDBC const* areaEntry = sDBCStoresMgr->GetAreaTableDBC(data.areaId))
             data.outdoors = (areaEntry->Flags & (AREA_FLAG_INSIDE | AREA_FLAG_OUTSIDE)) != AREA_FLAG_INSIDE;
     }
 
     if (!data.areaId)
         data.areaId = i_mapEntry->AreaTableID;
 
-    AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(data.areaId);
+    AreaTableDBC const* areaEntry = sDBCStoresMgr->GetAreaTableDBC(data.areaId);
 
     // liquid processing
     data.liquidStatus = LIQUID_MAP_NO_WATER;
@@ -2827,7 +2828,7 @@ void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, fl
             liquidType = 15;
 
         uint32 liquidFlagType = 0;
-        if (LiquidTypeEntry const* liquidData = sLiquidTypeStore.LookupEntry(liquidType))
+        if (LiquidTypeDBC const* liquidData = sDBCStoresMgr->GetLiquidTypeDBC(liquidType))
             liquidFlagType = liquidData->SoundBank;
 
         if (liquidType && liquidType < 21 && areaEntry)
@@ -2835,12 +2836,12 @@ void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, fl
             uint32 overrideLiquid = areaEntry->LiquidTypeID[liquidFlagType];
             if (!overrideLiquid && areaEntry->ParentAreaID)
             {
-                AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID);
+                AreaTableDBC const* zoneEntry = sDBCStoresMgr->GetAreaTableDBC(areaEntry->ParentAreaID);
                 if (zoneEntry)
                     overrideLiquid = zoneEntry->LiquidTypeID[liquidFlagType];
             }
 
-            if (LiquidTypeEntry const* overrideData = sLiquidTypeStore.LookupEntry(overrideLiquid))
+            if (LiquidTypeDBC const* overrideData = sDBCStoresMgr->GetLiquidTypeDBC(overrideLiquid))
             {
                 liquidType = overrideLiquid;
                 liquidFlagType = overrideData->SoundBank;
@@ -2942,7 +2943,7 @@ bool Map::CheckGridIntegrity(Creature* c, bool moved) const
 
 char const* Map::GetMapName() const
 {
-    return i_mapEntry ? i_mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "UNNAMEDMAP\x0";
+    return i_mapEntry ? i_mapEntry->MapName[sWorld->GetDefaultDbcLocale()].c_str() : "UNNAMEDMAP\x0";
 }
 
 void Map::SendInitSelf(Player* player)
@@ -4185,9 +4186,9 @@ void InstanceMap::SetResetSchedule(bool on)
     }
 }
 
-MapDifficulty const* Map::GetMapDifficulty() const
+MapDifficultyDBC const* Map::GetMapDifficulty() const
 {
-    return GetMapDifficultyData(GetId(), GetDifficulty());
+    return sDBCStoresMgr->GetMapDifficultyData(GetId(), GetDifficulty());
 }
 
 uint32 Map::GetId() const
@@ -4267,17 +4268,17 @@ bool InstanceMap::HasPermBoundPlayers() const
 
 uint32 InstanceMap::GetMaxPlayers() const
 {
-    MapDifficulty const* mapDiff = GetMapDifficulty();
-    if (mapDiff && mapDiff->maxPlayers)
-        return mapDiff->maxPlayers;
+    MapDifficultyDBC const* mapDiff = GetMapDifficulty();
+    if (mapDiff && mapDiff->MaxPlayers)
+        return mapDiff->MaxPlayers;
 
     return GetEntry()->MaxPlayers;
 }
 
 uint32 InstanceMap::GetMaxResetDelay() const
 {
-    MapDifficulty const* mapDiff = GetMapDifficulty();
-    return mapDiff ? mapDiff->resetTime : 0;
+    MapDifficultyDBC const* mapDiff = GetMapDifficulty();
+    return mapDiff ? mapDiff->RaidDuration : 0;
 }
 
 /* ******* Battleground Instance Maps ******* */

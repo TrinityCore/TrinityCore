@@ -155,7 +155,7 @@ void CreatureAI::TriggerAlert(Unit const* who) const
 }
 
 // adapted from logic in Spell:EffectSummonType before commit 8499434
-static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
+static bool ShouldFollowOnSpawn(SummonPropertiesDBC const* properties)
 {
     // Summons without SummonProperties are generally scripted summons that don't belong to any owner
     if (!properties)

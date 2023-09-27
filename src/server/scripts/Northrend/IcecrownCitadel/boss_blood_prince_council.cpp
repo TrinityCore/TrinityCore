@@ -1329,7 +1329,7 @@ class at_blood_prince_council_start_intro : public AreaTriggerScript
     public:
         at_blood_prince_council_start_intro() : AreaTriggerScript("at_blood_prince_council_start_intro") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerDBC const* /*areaTrigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (Creature* controller = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))

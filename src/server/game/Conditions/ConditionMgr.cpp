@@ -169,7 +169,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         {
             if (Player* player = object->ToPlayer())
             {
-                if (FactionEntry const* faction = sFactionStore.LookupEntry(ConditionValue1))
+                if (FactionDBC const* faction = sDBCStoresMgr->GetFactionDBC(ConditionValue1))
                     condMeets = (ConditionValue2 & (1 << player->GetReputationMgr().GetRank(faction))) != 0;
             }
             break;
@@ -439,7 +439,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_REALM_ACHIEVEMENT:
         {
-            AchievementEntry const* achievement = sAchievementMgr->GetAchievement(ConditionValue1);
+            AchievementDBC const* achievement = sAchievementMgr->GetAchievement(ConditionValue1);
             if (achievement && sAchievementMgr->IsRealmCompleted(achievement))
                 condMeets = true;
             break;
@@ -1913,7 +1913,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_ZONEID:
         {
-            AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(cond->ConditionValue1);
+            AreaTableDBC const* areaEntry = sDBCStoresMgr->GetAreaTableDBC(cond->ConditionValue1);
             if (!areaEntry)
             {
                 TC_LOG_ERROR("sql.sql", "{} Area ({}) does not exist, skipped.", cond->ToString(true), cond->ConditionValue1);
@@ -1929,7 +1929,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_REPUTATION_RANK:
         {
-            FactionEntry const* factionEntry = sFactionStore.LookupEntry(cond->ConditionValue1);
+            FactionDBC const* factionEntry = sDBCStoresMgr->GetFactionDBC(cond->ConditionValue1);
             if (!factionEntry)
             {
                 TC_LOG_ERROR("sql.sql", "{} has non existing faction ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
@@ -1948,7 +1948,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_SKILL:
         {
-            SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(cond->ConditionValue1);
+            SkillLineDBC const* pSkill = sDBCStoresMgr->GetSkillLineDBC(cond->ConditionValue1);
             if (!pSkill)
             {
                 TC_LOG_ERROR("sql.sql", "{} specifies non-existing skill ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
@@ -1994,7 +1994,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_ACHIEVEMENT:
         {
-            AchievementEntry const* achievement = sAchievementMgr->GetAchievement(cond->ConditionValue1);
+            AchievementDBC const* achievement = sAchievementMgr->GetAchievement(cond->ConditionValue1);
             if (!achievement)
             {
                 TC_LOG_ERROR("sql.sql", "{} has non existing achivement id ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
@@ -2031,7 +2031,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_MAPID:
         {
-            MapEntry const* me = sMapStore.LookupEntry(cond->ConditionValue1);
+            MapDBC const* me = sDBCStoresMgr->GetMapDBC(cond->ConditionValue1);
             if (!me)
             {
                 TC_LOG_ERROR("sql.sql", "{} has non existing map ({}), skipped", cond->ToString(true), cond->ConditionValue1);
@@ -2251,7 +2251,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_TITLE:
         {
-            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(cond->ConditionValue1);
+            CharTitlesDBC const* titleEntry = sDBCStoresMgr->GetCharTitlesDBC(cond->ConditionValue1);
             if (!titleEntry)
             {
                 TC_LOG_ERROR("sql.sql", "{} has non existing title in value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
@@ -2293,7 +2293,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             break;
         case CONDITION_REALM_ACHIEVEMENT:
         {
-            AchievementEntry const* achievement = sAchievementMgr->GetAchievement(cond->ConditionValue1);
+            AchievementDBC const* achievement = sAchievementMgr->GetAchievement(cond->ConditionValue1);
             if (!achievement)
             {
                 TC_LOG_ERROR("sql.sql", "{} has non existing realm first achivement id ({}), skipped.", cond->ToString(true), cond->ConditionValue1);

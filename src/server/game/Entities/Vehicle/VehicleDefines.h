@@ -23,7 +23,7 @@
 #include <vector>
 #include <map>
 
-struct VehicleSeatEntry;
+struct VehicleSeatDBC;
 
 enum PowerType
 {
@@ -91,14 +91,14 @@ struct VehicleSeatAddon
 
 struct VehicleSeat
 {
-    explicit VehicleSeat(VehicleSeatEntry const* seatInfo, VehicleSeatAddon const* seatAddon) : SeatInfo(seatInfo), SeatAddon(seatAddon)
+    explicit VehicleSeat(VehicleSeatDBC const* seatInfo, VehicleSeatAddon const* seatAddon) : SeatInfo(seatInfo), SeatAddon(seatAddon)
     {
         Passenger.Reset();
     }
 
     bool IsEmpty() const { return Passenger.Guid.IsEmpty(); }
 
-    VehicleSeatEntry const* SeatInfo;
+    VehicleSeatDBC const* SeatInfo;
     VehicleSeatAddon const* SeatAddon;
     PassengerInfo Passenger;
 };

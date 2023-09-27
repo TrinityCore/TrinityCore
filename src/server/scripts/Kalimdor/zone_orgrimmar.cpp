@@ -820,7 +820,7 @@ class areatrigger_orgrimmar_herald_of_war : public AreaTriggerScript
 public:
     areatrigger_orgrimmar_herald_of_war() : AreaTriggerScript("areatrigger_orgrimmar_herald_of_war") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+    bool OnTrigger(Player* player, AreaTriggerDBC const* /*trigger*/) override
     {
         if (player->IsAlive() && player->GetQuestStatus(QUEST_HERALD_OF_WAR) == QUEST_STATUS_COMPLETE)
         {

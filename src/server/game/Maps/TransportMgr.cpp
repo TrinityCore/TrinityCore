@@ -70,7 +70,7 @@ void TransportMgr::LoadTransportTemplates()
             continue;
         }
 
-        if (goInfo->moTransport.taxiPathId >= sTaxiPathNodesByPath.size())
+        if (goInfo->moTransport.taxiPathId >= sDBCStoresMgr->GetTaxiPathNodesByPath().size())
         {
             TC_LOG_ERROR("sql.sql", "Transport {} (name: {}) has an invalid path specified in `gameobject_template`.`data0` ({}) field, skipped.", entry, goInfo->name, goInfo->moTransport.taxiPathId);
             continue;
@@ -93,12 +93,14 @@ void TransportMgr::LoadTransportTemplates()
 
 void TransportMgr::LoadTransportAnimationAndRotation()
 {
-    for (uint32 i = 0; i < sTransportAnimationStore.GetNumRows(); ++i)
-        if (TransportAnimationEntry const* anim = sTransportAnimationStore.LookupEntry(i))
+    TransportAnimationDBCMap const& taMap = sDBCStoresMgr->GetTransportAnimationDBCMap();
+    for (const auto& taID : taMap)
+        if (TransportAnimationDBC const* anim = &taID.second)
             AddPathNodeToTransport(anim->TransportID, anim->TimeIndex, anim);
 
-    for (uint32 i = 0; i < sTransportRotationStore.GetNumRows(); ++i)
-        if (TransportRotationEntry const* rot = sTransportRotationStore.LookupEntry(i))
+    TransportRotationDBCMap const& trMap = sDBCStoresMgr->GetTransportRotationDBCMap();
+    for (const auto& trID : trMap)
+        if (TransportRotationDBC const* rot = &trID.second)
             AddPathRotationToTransport(rot->GameObjectsID, rot->TimeIndex, rot);
 }
 
@@ -122,7 +124,8 @@ public:
 void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport)
 {
     uint32 pathId = goInfo->moTransport.taxiPathId;
-    TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathId];
+    TaxiPathNodesByPath const& tpnPath = sDBCStoresMgr->GetTaxiPathNodesByPath();
+    TaxiPathNodeList const& path = tpnPath[pathId];
     std::vector<KeyFrame>& keyFrames = transport->keyFrames;
     Movement::PointsArray splinePath, allPoints;
     bool mapChange = false;
@@ -143,7 +146,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     {
         if (!mapChange)
         {
-            TaxiPathNodeEntry const* node_i = path[i];
+            TaxiPathNodeDBC const* node_i = path[i];
             if (i != path.size() - 1 && (node_i->Flags & 1 || node_i->ContinentID != path[i + 1]->ContinentID))
             {
                 keyFrames.back().Teleport = true;
@@ -185,12 +188,12 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     if (transport->mapsUsed.size() > 1)
     {
         for (std::set<uint32>::const_iterator itr = transport->mapsUsed.begin(); itr != transport->mapsUsed.end(); ++itr)
-            ASSERT(!sMapStore.LookupEntry(*itr)->Instanceable());
+            ASSERT(!sDBCStoresMgr->GetMapDBC(*itr)->Instanceable());
 
         transport->inInstance = false;
     }
     else
-        transport->inInstance = sMapStore.LookupEntry(*transport->mapsUsed.begin())->Instanceable();
+        transport->inInstance = sDBCStoresMgr->GetMapDBC(*transport->mapsUsed.begin())->Instanceable();
 
     // last to first is always "teleport", even for closed paths
     keyFrames.back().Teleport = true;
@@ -354,7 +357,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     transport->pathTime = keyFrames.back().DepartureTime;
 }
 
-void TransportMgr::AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg, TransportAnimationEntry const* node)
+void TransportMgr::AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg, TransportAnimationDBC const* node)
 {
     TransportAnimation& animNode = _transportAnimations[transportEntry];
     if (animNode.TotalTime < timeSeg)
@@ -388,7 +391,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
     Transport* trans = new Transport();
 
     // ...at first waypoint
-    TaxiPathNodeEntry const* startNode = tInfo->keyFrames.begin()->Node;
+    TaxiPathNodeDBC const* startNode = tInfo->keyFrames.begin()->Node;
     uint32 mapId = startNode->ContinentID;
     float x = startNode->Loc.X;
     float y = startNode->Loc.Y;
@@ -404,7 +407,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
         return nullptr;
     }
 
-    if (MapEntry const* mapEntry = sMapStore.LookupEntry(mapId))
+    if (MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(mapId))
     {
         if (mapEntry->Instanceable() != tInfo->inInstance)
         {
@@ -467,7 +470,7 @@ void TransportMgr::CreateInstanceTransports(Map* map)
         CreateTransport(*itr, 0, map);
 }
 
-TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) const
+TransportAnimationDBC const* TransportAnimation::GetAnimNode(uint32 time) const
 {
     auto itr = Path.lower_bound(time);
     if (itr != Path.end())
@@ -476,7 +479,7 @@ TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) cons
     return nullptr;
 }
 
-TransportRotationEntry const* TransportAnimation::GetAnimRotation(uint32 time) const
+TransportRotationDBC const* TransportAnimation::GetAnimRotation(uint32 time) const
 {
     auto itr = Rotations.lower_bound(time);
     if (itr != Rotations.end())

@@ -29,7 +29,7 @@
 #include "ObjectDefines.h"
 
 struct InstanceTemplate;
-struct MapEntry;
+struct MapDBC;
 class Player;
 class Group;
 
@@ -75,7 +75,7 @@ class TC_GAME_API InstanceSave
         time_t GetResetTimeForDB();
 
         InstanceTemplate const* GetTemplate();
-        MapEntry const* GetMapEntry();
+        MapDBC const* GetMapEntry();
 
         /* online players bound to the instance (perm/solo)
            does not include the members of the group unless they have permanent saves */

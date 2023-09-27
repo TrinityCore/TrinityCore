@@ -26,7 +26,7 @@
 #include "Containers.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "LootMgr.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -3117,7 +3117,7 @@ class spell_item_nitro_boosts : public SpellScript
     void HandleDummy(SpellEffIndex /* effIndex */)
     {
         Unit* caster = GetCaster();
-        AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(caster->GetAreaId());
+        AreaTableDBC const* areaEntry = sDBCStoresMgr->GetAreaTableDBC(caster->GetAreaId());
         bool success = true;
         if (areaEntry && areaEntry->IsFlyable() && !caster->GetMap()->IsDungeon())
             success = roll_chance_i(95); // nitro boosts can only fail in flying-enabled locations on 3.3.5
@@ -3557,8 +3557,8 @@ class spell_item_sunwell_neck : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ Aldors, Scryers }) &&
-                    sFactionStore.LookupEntry(FACTION_ALDOR) &&
-                    sFactionStore.LookupEntry(FACTION_SCRYERS);
+                    sDBCStoresMgr->GetFactionDBC(FACTION_ALDOR) &&
+                    sDBCStoresMgr->GetFactionDBC(FACTION_SCRYERS);
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -3604,7 +3604,7 @@ class spell_item_toy_train_set_pulse : public SpellScript
         if (Player* target = GetHitUnit()->ToPlayer())
         {
             target->HandleEmoteCommand(EMOTE_ONESHOT_TRAIN);
-            if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(TEXT_EMOTE_TRAIN, target->GetRace(), target->GetNativeGender()))
+            if (EmotesTextSoundDBC const* soundEntry = sDBCStoresMgr->GetEmotesTextSoundDBCWithParam(TEXT_EMOTE_TRAIN, target->GetRace(), target->GetNativeGender()))
                 target->PlayDistanceSound(soundEntry->SoundID);
         }
     }

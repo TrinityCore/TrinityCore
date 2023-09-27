@@ -18,7 +18,7 @@
 #ifndef TRANSPORTMGR_H
 #define TRANSPORTMGR_H
 
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "ObjectGuid.h"
 #include <memory>
 
@@ -42,14 +42,14 @@ typedef std::unordered_map<uint32, std::set<uint32> > TransportInstanceMap;
 
 struct KeyFrame
 {
-    explicit KeyFrame(TaxiPathNodeEntry const* node) : Index(0), Node(node), InitialOrientation(0.0f),
+    explicit KeyFrame(TaxiPathNodeDBC const* node) : Index(0), Node(node), InitialOrientation(0.0f),
         DistSinceStop(-1.0f), DistUntilStop(-1.0f), DistFromPrev(-1.0f), TimeFrom(0.0f), TimeTo(0.0f),
         Teleport(false), ArriveTime(0), DepartureTime(0), Spline(nullptr), NextDistFromPrev(0.0f), NextArriveTime(0)
     {
     }
 
     uint32 Index;
-    TaxiPathNodeEntry const* Node;
+    TaxiPathNodeDBC const* Node;
     float InitialOrientation;
     float DistSinceStop;
     float DistUntilStop;
@@ -83,8 +83,8 @@ struct TransportTemplate
     uint32 entry;
 };
 
-typedef std::map<uint32, TransportAnimationEntry const*> TransportPathContainer;
-typedef std::map<uint32, TransportRotationEntry const*> TransportPathRotationContainer;
+typedef std::map<uint32, TransportAnimationDBC const*> TransportPathContainer;
+typedef std::map<uint32, TransportRotationDBC const*> TransportPathRotationContainer;
 
 struct TC_GAME_API TransportAnimation
 {
@@ -94,8 +94,8 @@ struct TC_GAME_API TransportAnimation
     TransportPathRotationContainer Rotations;
     uint32 TotalTime;
 
-    TransportAnimationEntry const* GetAnimNode(uint32 time) const;
-    TransportRotationEntry const* GetAnimRotation(uint32 time) const;
+    TransportAnimationDBC const* GetAnimNode(uint32 time) const;
+    TransportRotationDBC const* GetAnimRotation(uint32 time) const;
 };
 
 typedef std::map<uint32, TransportAnimation> TransportAnimationContainer;
@@ -146,9 +146,9 @@ class TC_GAME_API TransportMgr
         // Generates and precaches a path for transport to avoid generation each time transport instance is created
         void GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport);
 
-        void AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg, TransportAnimationEntry const* node);
+        void AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg, TransportAnimationDBC const* node);
 
-        void AddPathRotationToTransport(uint32 transportEntry, uint32 timeSeg, TransportRotationEntry const* node)
+        void AddPathRotationToTransport(uint32 transportEntry, uint32 timeSeg, TransportRotationDBC const* node)
         {
             _transportAnimations[transportEntry].Rotations[timeSeg] = node;
         }

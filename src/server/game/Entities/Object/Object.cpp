@@ -22,6 +22,7 @@
 #include "CinematicMgr.h"
 #include "Common.h"
 #include "Creature.h"
+#include "DBCStoresMgr.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "G3DPosition.hpp"
@@ -1068,7 +1069,7 @@ void WorldObject::UpdatePositionData()
 void WorldObject::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
 {
     m_zoneId = m_areaId = data.areaId;
-    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_areaId))
+    if (AreaTableDBC const* area = sDBCStoresMgr->GetAreaTableDBC(m_areaId))
         if (area->ParentAreaID)
             m_zoneId = area->ParentAreaID;
     m_outdoors = data.outdoors;
@@ -1859,7 +1860,7 @@ void WorldObject::AddObjectToRemoveList()
     map->AddObjectToRemoveList(this);
 }
 
-TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= nullptr*/, uint32 duration /*= 0*/, WorldObject* summoner /*= nullptr*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, bool visibleBySummonerOnly /*= false*/)
+TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesDBC const* properties /*= nullptr*/, uint32 duration /*= 0*/, WorldObject* summoner /*= nullptr*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, bool visibleBySummonerOnly /*= false*/)
 {
     uint32 mask = UNIT_MASK_SUMMON;
     if (properties)
@@ -2614,10 +2615,10 @@ void WorldObject::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo miss
     SendMessageToSet(&data, true);
 }
 
-FactionTemplateEntry const* WorldObject::GetFactionTemplateEntry() const
+FactionTemplateDBC const* WorldObject::GetFactionTemplateEntry() const
 {
     uint32 factionId = GetFaction();
-    FactionTemplateEntry const* entry = sFactionTemplateStore.LookupEntry(factionId);
+    FactionTemplateDBC const* entry = sDBCStoresMgr->GetFactionTemplateDBC(factionId);
     if (!entry)
     {
         switch (GetTypeId())
@@ -2658,14 +2659,14 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
     // check forced reputation to support SPELL_AURA_FORCE_REACTION
     if (selfPlayerOwner)
     {
-        if (FactionTemplateEntry const* targetFactionTemplateEntry = target->GetFactionTemplateEntry())
-            if (ReputationRank const* repRank = selfPlayerOwner->GetReputationMgr().GetForcedRankIfAny(targetFactionTemplateEntry))
+        if (FactionTemplateDBC const* targetFactionTemplateDBC = target->GetFactionTemplateEntry())
+            if (ReputationRank const* repRank = selfPlayerOwner->GetReputationMgr().GetForcedRankIfAny(targetFactionTemplateDBC))
                 return *repRank;
     }
     else if (targetPlayerOwner)
     {
-        if (FactionTemplateEntry const* selfFactionTemplateEntry = GetFactionTemplateEntry())
-            if (ReputationRank const* repRank = targetPlayerOwner->GetReputationMgr().GetForcedRankIfAny(selfFactionTemplateEntry))
+        if (FactionTemplateDBC const* selfFactionTemplateDBC = GetFactionTemplateEntry())
+            if (ReputationRank const* repRank = targetPlayerOwner->GetReputationMgr().GetForcedRankIfAny(selfFactionTemplateDBC))
                 return *repRank;
     }
 
@@ -2698,13 +2699,13 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
 
             if (selfPlayerOwner)
             {
-                if (FactionTemplateEntry const* targetFactionTemplateEntry = targetUnit->GetFactionTemplateEntry())
+                if (FactionTemplateDBC const* targetFactionTemplateEntry = targetUnit->GetFactionTemplateEntry())
                 {
                     if (ReputationRank const* repRank = selfPlayerOwner->GetReputationMgr().GetForcedRankIfAny(targetFactionTemplateEntry))
                         return *repRank;
                     if (!selfPlayerOwner->HasUnitFlag2(UNIT_FLAG2_IGNORE_REPUTATION))
                     {
-                        if (FactionEntry const* targetFactionEntry = sFactionStore.LookupEntry(targetFactionTemplateEntry->Faction))
+                        if (FactionDBC const* targetFactionEntry = sDBCStoresMgr->GetFactionDBC(targetFactionTemplateEntry->Faction))
                         {
                             if (targetFactionEntry->CanHaveReputation())
                             {
@@ -2729,13 +2730,13 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
     return WorldObject::GetFactionReactionTo(GetFactionTemplateEntry(), target);
 }
 
-/*static*/ ReputationRank WorldObject::GetFactionReactionTo(FactionTemplateEntry const* factionTemplateEntry, WorldObject const* target)
+/*static*/ ReputationRank WorldObject::GetFactionReactionTo(FactionTemplateDBC const* factionTemplateEntry, WorldObject const* target)
 {
     // always neutral when no template entry found
     if (!factionTemplateEntry)
         return REP_NEUTRAL;
 
-    FactionTemplateEntry const* targetFactionTemplateEntry = target->GetFactionTemplateEntry();
+    FactionTemplateDBC const* targetFactionTemplateEntry = target->GetFactionTemplateEntry();
     if (!targetFactionTemplateEntry)
         return REP_NEUTRAL;
 
@@ -2749,7 +2750,7 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
             return *repRank;
         if (target->IsUnit() && !target->ToUnit()->HasUnitFlag2(UNIT_FLAG2_IGNORE_REPUTATION))
         {
-            if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionTemplateEntry->Faction))
+            if (FactionDBC const* factionEntry = sDBCStoresMgr->GetFactionDBC(factionTemplateEntry->Faction))
             {
                 if (factionEntry->CanHaveReputation())
                 {
@@ -2788,11 +2789,11 @@ bool WorldObject::IsFriendlyTo(WorldObject const* target) const
 
 bool WorldObject::IsHostileToPlayers() const
 {
-    FactionTemplateEntry const* my_faction = GetFactionTemplateEntry();
+    FactionTemplateDBC const* my_faction = GetFactionTemplateEntry();
     if (!my_faction->Faction)
         return false;
 
-    FactionEntry const* raw_faction = sFactionStore.LookupEntry(my_faction->Faction);
+    FactionDBC const* raw_faction = sDBCStoresMgr->GetFactionDBC(my_faction->Faction);
     if (raw_faction && raw_faction->ReputationIndex >= 0)
         return false;
 
@@ -2801,11 +2802,11 @@ bool WorldObject::IsHostileToPlayers() const
 
 bool WorldObject::IsNeutralToAll() const
 {
-    FactionTemplateEntry const* my_faction = GetFactionTemplateEntry();
+    FactionTemplateDBC const* my_faction = GetFactionTemplateEntry();
     if (!my_faction->Faction)
         return true;
 
-    FactionEntry const* raw_faction = sFactionStore.LookupEntry(my_faction->Faction);
+    FactionDBC const* raw_faction = sDBCStoresMgr->GetFactionDBC(my_faction->Faction);
     if (raw_faction && raw_faction->ReputationIndex >= 0)
         return false;
 
@@ -2938,10 +2939,10 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
             if (creature->IsContestedGuard() && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP))
                 return true;
 
-            if (FactionTemplateEntry const* factionTemplate = creature->GetFactionTemplateEntry())
+            if (FactionTemplateDBC const* factionTemplate = creature->GetFactionTemplateEntry())
             {
                 if (!(player->GetReputationMgr().GetForcedRankIfAny(factionTemplate)))
-                    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionTemplate->Faction))
+                    if (FactionDBC const* factionEntry = sDBCStoresMgr->GetFactionDBC(factionTemplate->Faction))
                         if (FactionState const* repState = player->GetReputationMgr().GetState(factionEntry))
                             if (!(repState->Flags & FACTION_FLAG_AT_WAR))
                                 return false;

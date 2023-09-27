@@ -27,11 +27,11 @@ using ChatCommandResult = Trinity::Impl::ChatCommands::ChatCommandResult;
 
 struct AchievementVisitor
 {
-    using value_type = AchievementEntry const*;
+    using value_type = AchievementDBC const*;
     value_type operator()(Hyperlink<achievement> achData) const { return achData->Achievement; }
     value_type operator()(uint32 achId) const { return sAchievementMgr->GetAchievement(achId); }
 };
-ChatCommandResult Trinity::Impl::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(AchievementEntry const*& data, ChatHandler const* handler, std::string_view args)
+ChatCommandResult Trinity::Impl::ChatCommands::ArgInfo<AchievementDBC const*>::TryConsume(AchievementDBC const*& data, ChatHandler const* handler, std::string_view args)
 {
     Variant<Hyperlink<achievement>, uint32> val;
     ChatCommandResult result = ArgInfo<decltype(val)>::TryConsume(val, handler, args);

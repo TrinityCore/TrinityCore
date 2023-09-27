@@ -27,7 +27,7 @@ class Player;
 class SpellInfo;
 class Unit;
 class WorldObject;
-struct AreaTriggerEntry;
+struct AreaTriggerDBC;
 
 class TC_GAME_API SmartScript
 {
@@ -35,9 +35,9 @@ class TC_GAME_API SmartScript
         SmartScript();
         ~SmartScript();
 
-        void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = nullptr);
+        void OnInitialize(WorldObject* obj, AreaTriggerDBC const* at = nullptr);
         void GetScript();
-        void FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at);
+        void FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerDBC const* at);
 
         void ProcessEventsFor(SMART_EVENT e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, SpellInfo const* spell = nullptr, GameObject* gob = nullptr);
         void ProcessEvent(SmartScriptHolder& e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, SpellInfo const* spell = nullptr, GameObject* gob = nullptr);
@@ -115,7 +115,7 @@ class TC_GAME_API SmartScript
         GameObject* go;
         ObjectGuid goOrigGUID;
         Player* atPlayer;
-        AreaTriggerEntry const* trigger;
+        AreaTriggerDBC const* trigger;
         SmartScriptType mScriptType;
         uint32 mEventPhase;
 

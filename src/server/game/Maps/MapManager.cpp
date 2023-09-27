@@ -73,7 +73,7 @@ Map* MapManager::CreateBaseMap(uint32 id)
     {
         std::lock_guard<std::mutex> lock(_mapsLock);
 
-        MapEntry const* entry = sMapStore.LookupEntry(id);
+        MapDBC const* entry = sDBCStoresMgr->GetMapDBC(id);
         ASSERT(entry);
 
         if (entry->Instanceable())
@@ -124,7 +124,7 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
 
 Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck)
 {
-    MapEntry const* entry = sMapStore.LookupEntry(mapid);
+    MapDBC const* entry = sDBCStoresMgr->GetMapDBC(mapid);
     if (!entry)
         return Map::CANNOT_ENTER_NO_ENTRY;
 
@@ -138,7 +138,7 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
     Difficulty targetDifficulty, requestedDifficulty;
     targetDifficulty = requestedDifficulty = player->GetDifficulty(entry->IsRaid());
     // Get the highest available difficulty if current setting is higher than the instance allows
-    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(entry->ID, targetDifficulty);
+    MapDifficultyDBC  const* mapDiff = sDBCStoresMgr->GetDownscaledMapDifficultyData(entry->ID, targetDifficulty);
     if (!mapDiff)
         return Map::CANNOT_ENTER_DIFFICULTY_UNAVAILABLE;
 
@@ -150,7 +150,7 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
     if (!player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, true))
         return Map::CANNOT_ENTER_UNSPECIFIED_REASON;
 
-    char const* mapName = entry->MapName[player->GetSession()->GetSessionDbcLocale()];
+    char const* mapName = entry->MapName[player->GetSession()->GetSessionDbcLocale()].c_str();
 
     Group* group = player->GetGroup();
     if (entry->IsRaid()) // can only enter in a raid group
@@ -243,7 +243,7 @@ bool MapManager::ExistMapAndVMap(uint32 mapid, float x, float y)
 
 bool MapManager::IsValidMAP(uint32 mapid, bool startUp)
 {
-    MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
+    MapDBC const* mEntry = sDBCStoresMgr->GetMapDBC(mapid);
 
     if (startUp)
         return mEntry ? true : false;

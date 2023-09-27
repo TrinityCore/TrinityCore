@@ -321,7 +321,7 @@ class at_aq_battleguard_sartura : public AreaTriggerScript
 public:
     at_aq_battleguard_sartura() : AreaTriggerScript("at_aq_battleguard_sartura") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    bool OnTrigger(Player* player, AreaTriggerDBC const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
             if (Creature* sartura = instance->GetCreature(DATA_SARTURA))

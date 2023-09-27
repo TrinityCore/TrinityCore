@@ -34,12 +34,12 @@ class Unit;
 struct Condition;
 struct SpellChainNode;
 struct SpellTargetPosition;
-struct SpellDurationEntry;
+struct SpellDurationDBC;
 struct SpellModifier;
-struct SpellRangeEntry;
-struct SpellRadiusEntry;
-struct SpellEntry;
-struct SpellCastTimesEntry;
+struct SpellRangeDBC;
+struct SpellRadiusDBC;
+struct SpellDBC;
+struct SpellCastTimesDBC;
 
 enum SpellTargetSelectionCategories
 {
@@ -225,7 +225,7 @@ public:
     Mechanics Mechanic;
     SpellImplicitTargetInfo TargetA;
     SpellImplicitTargetInfo TargetB;
-    SpellRadiusEntry const* RadiusEntry;
+    SpellRadiusDBC const* RadiusEntry;
     uint32    ChainTarget;
     uint32    ItemType;
     uint32    TriggerSpell;
@@ -233,7 +233,7 @@ public:
     std::vector<Condition*>* ImplicitTargetConditions;
 
     SpellEffectInfo();
-    explicit SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex);
+    explicit SpellEffectInfo(SpellDBC const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex);
     SpellEffectInfo(SpellEffectInfo const&);
     SpellEffectInfo(SpellEffectInfo&&) noexcept;
     SpellEffectInfo& operator=(SpellEffectInfo const&);
@@ -290,7 +290,7 @@ class TC_GAME_API SpellInfo
 
     public:
         uint32 Id;
-        SpellCategoryEntry const* CategoryEntry;
+        SpellCategoryDBC const* CategoryEntry;
         uint32 Dispel;
         uint32 Mechanic;
         uint32 Attributes;
@@ -316,7 +316,7 @@ class TC_GAME_API SpellInfo
         uint32 TargetAuraSpell;
         uint32 ExcludeCasterAuraSpell;
         uint32 ExcludeTargetAuraSpell;
-        SpellCastTimesEntry const* CastTimeEntry;
+        SpellCastTimesDBC const* CastTimeEntry;
         uint32 RecoveryTime;
         uint32 CategoryRecoveryTime;
         uint32 StartRecoveryCategory;
@@ -330,7 +330,7 @@ class TC_GAME_API SpellInfo
         uint32 MaxLevel;
         uint32 BaseLevel;
         uint32 SpellLevel;
-        SpellDurationEntry const* DurationEntry;
+        SpellDurationDBC const* DurationEntry;
         Powers PowerType;
         uint32 ManaCost;
         uint32 ManaCostPerlevel;
@@ -338,7 +338,7 @@ class TC_GAME_API SpellInfo
         uint32 ManaPerSecondPerLevel;
         uint32 ManaCostPercentage;
         uint32 RuneCostID;
-        SpellRangeEntry const* RangeEntry;
+        SpellRangeDBC const* RangeEntry;
         float  Speed;
         uint32 StackAmount;
         std::array<uint32, 2> Totem;
@@ -352,8 +352,8 @@ class TC_GAME_API SpellInfo
         uint32 SpellIconID;
         uint32 ActiveIconID;
         uint32 Priority;
-        std::array<char const*, 16> SpellName;
-        std::array<char const*, 16> Rank;
+        std::string SpellName[TOTAL_LOCALES];
+        std::string Rank[TOTAL_LOCALES];
         uint32 MaxTargetLevel;
         uint32 MaxAffectedTargets;
         uint32 SpellFamilyName;
@@ -366,7 +366,7 @@ class TC_GAME_API SpellInfo
         uint32 ExplicitTargetMask;
         SpellChainNode const* ChainEntry;
 
-        SpellInfo(SpellEntry const* spellEntry);
+        SpellInfo(SpellDBC const* spellEntry);
         ~SpellInfo();
 
         uint32 GetCategory() const;

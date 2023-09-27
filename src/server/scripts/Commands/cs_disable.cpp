@@ -26,6 +26,7 @@ EndScriptData */
 #include "AchievementMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "DBCStoresMgr.h"
 #include "DisableMgr.h"
 #include "Language.h"
 #include "ObjectMgr.h"
@@ -107,7 +108,7 @@ public:
             }
             case DISABLE_TYPE_MAP:
             {
-                if (!sMapStore.LookupEntry(entry))
+                if (!sDBCStoresMgr->GetMapDBC(entry))
                 {
                     handler->PSendSysMessage(LANG_COMMAND_NOMAPFOUND);
                     handler->SetSentErrorMessage(true);
@@ -118,7 +119,7 @@ public:
             }
             case DISABLE_TYPE_BATTLEGROUND:
             {
-                if (!sBattlemasterListStore.LookupEntry(entry))
+                if (!sDBCStoresMgr->GetBattlemasterListDBC(entry))
                 {
                     handler->PSendSysMessage(LANG_COMMAND_NO_BATTLEGROUND_FOUND);
                     handler->SetSentErrorMessage(true);
@@ -151,7 +152,7 @@ public:
             }
             case DISABLE_TYPE_VMAP:
             {
-                if (!sMapStore.LookupEntry(entry))
+                if (!sDBCStoresMgr->GetMapDBC(entry))
                 {
                     handler->PSendSysMessage(LANG_COMMAND_NOMAPFOUND);
                     handler->SetSentErrorMessage(true);
@@ -162,7 +163,7 @@ public:
             }
             case DISABLE_TYPE_MMAP:
             {
-                if (!sMapStore.LookupEntry(entry))
+                if (!sDBCStoresMgr->GetMapDBC(entry))
                 {
                     handler->PSendSysMessage(LANG_COMMAND_NOMAPFOUND);
                     handler->SetSentErrorMessage(true);
@@ -173,7 +174,7 @@ public:
             }
             case DISABLE_TYPE_LFG_MAP:
             {
-                if (!sMapStore.LookupEntry(entry))
+                if (!sDBCStoresMgr->GetMapDBC(entry))
                 {
                     handler->PSendSysMessage(LANG_COMMAND_NOMAPFOUND);
                     handler->SetSentErrorMessage(true);

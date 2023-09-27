@@ -37,7 +37,7 @@ class WorldObject;
 class WorldPacket;
 class WorldSession;
 
-struct MapEntry;
+struct MapDBC;
 
 #define MAX_GROUP_SIZE      5
 #define MAX_RAID_SIZE       40
@@ -326,7 +326,7 @@ class TC_GAME_API Group
         void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);
         InstanceGroupBind* GetBoundInstance(Player* player);
         InstanceGroupBind* GetBoundInstance(Map* aMap);
-        InstanceGroupBind* GetBoundInstance(MapEntry const* mapEntry);
+        InstanceGroupBind* GetBoundInstance(MapDBC const* mapEntry);
         InstanceGroupBind* GetBoundInstance(Difficulty difficulty, uint32 mapId);
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty);
 

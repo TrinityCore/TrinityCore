@@ -38,7 +38,7 @@ enum TotemType
 class TC_GAME_API Totem : public Minion
 {
     public:
-        Totem(SummonPropertiesEntry const* properties, Unit* owner);
+        Totem(SummonPropertiesDBC const* properties, Unit* owner);
         virtual ~Totem() { }
         void Update(uint32 time) override;
         void InitStats(uint32 duration) override;

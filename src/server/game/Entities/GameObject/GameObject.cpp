@@ -21,6 +21,7 @@
 #include "Containers.h"
 #include "CreatureAISelector.h"
 #include "DatabaseEnv.h"
+#include "DBCStoresMgr.h"
 #include "GameObjectAI.h"
 #include "GameObjectModel.h"
 #include "GameTime.h"
@@ -500,13 +501,13 @@ void GameObject::Update(uint32 diff)
                         m_goValue.Transport.PathProgress += diff;
                         /* TODO: Fix movement in unloaded grid - currently GO will just disappear
                         uint32 timer = m_goValue.Transport.PathProgress % m_goValue.Transport.AnimationInfo->TotalTime;
-                        TransportAnimationEntry const* node = m_goValue.Transport.AnimationInfo->GetAnimNode(timer);
+                        TransportAnimationDBC const* node = m_goValue.Transport.AnimationInfo->GetAnimNode(timer);
                         if (node && m_goValue.Transport.CurrentSeg != node->TimeSeg)
                         {
                             m_goValue.Transport.CurrentSeg = node->TimeSeg;
 
                             G3D::Quat rotation;
-                            if (TransportRotationEntry const* rot = m_goValue.Transport.AnimationInfo->GetAnimRotation(timer))
+                            if (TransportRotationDBC const* rot = m_goValue.Transport.AnimationInfo->GetAnimRotation(timer))
                                 rotation = G3D::Quat(rot->X, rot->Y, rot->Z, rot->W);
 
                             G3D::Vector3 pos = rotation.toRotationMatrix()
@@ -2221,7 +2222,7 @@ void GameObject::SendCustomAnim(uint32 anim)
 
 bool GameObject::IsInRange(float x, float y, float z, float radius) const
 {
-    GameObjectDisplayInfoEntry const* info = sGameObjectDisplayInfoStore.LookupEntry(m_goInfo->displayId);
+    GameObjectDisplayInfoDBC const* info = sDBCStoresMgr->GetGameObjectDisplayInfoDBC(m_goInfo->displayId);
     if (!info)
         return IsWithinDist3d(x, y, z, radius);
 
@@ -2414,7 +2415,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             SetFlag(GO_FLAG_DAMAGED);
 
             uint32 modelId = m_goInfo->displayId;
-            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
+            if (DestructibleModelDataDBC const* modelData = sDBCStoresMgr->GetDestructibleModelDataDBC(m_goInfo->building.destructibleData))
                 if (modelData->State1Wmo)
                     modelId = modelData->State1Wmo;
             SetDisplayId(modelId);
@@ -2443,7 +2444,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             SetFlag(GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;
-            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
+            if (DestructibleModelDataDBC const* modelData = sDBCStoresMgr->GetDestructibleModelDataDBC(m_goInfo->building.destructibleData))
                 if (modelData->State2Wmo)
                     modelId = modelData->State2Wmo;
             SetDisplayId(modelId);
@@ -2462,7 +2463,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             RemoveFlag(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;
-            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
+            if (DestructibleModelDataDBC const* modelData = sDBCStoresMgr->GetDestructibleModelDataDBC(m_goInfo->building.destructibleData))
                 if (modelData->State3Wmo)
                     modelId = modelData->State3Wmo;
             SetDisplayId(modelId);
@@ -2829,7 +2830,7 @@ bool GameObject::IsAtInteractDistance(Player const* player, SpellInfo const* spe
         if (GetGoType() == GAMEOBJECT_TYPE_SPELL_FOCUS)
             return maxRange * maxRange >= GetExactDistSq(player);
 
-        if (sGameObjectDisplayInfoStore.LookupEntry(GetGOInfo()->displayId))
+        if (sDBCStoresMgr->GetGameObjectDisplayInfoDBC(GetGOInfo()->displayId))
             return IsAtInteractDistance(*player, maxRange);
     }
 
@@ -2838,7 +2839,7 @@ bool GameObject::IsAtInteractDistance(Player const* player, SpellInfo const* spe
 
 bool GameObject::IsAtInteractDistance(Position const& pos, float radius) const
 {
-    if (GameObjectDisplayInfoEntry const* displayInfo = sGameObjectDisplayInfoStore.LookupEntry(GetGOInfo()->displayId))
+    if (GameObjectDisplayInfoDBC const* displayInfo = sDBCStoresMgr->GetGameObjectDisplayInfoDBC(GetGOInfo()->displayId))
     {
         float scale = GetObjectScale();
 
@@ -2874,7 +2875,7 @@ SpellInfo const* GameObject::GetSpellForLock(Player const* player) const
     if (!lockId)
         return nullptr;
 
-    LockEntry const* lock = sLockStore.LookupEntry(lockId);
+    LockDBC const* lock = sDBCStoresMgr->GetLockDBC(lockId);
     if (!lock)
         return nullptr;
 

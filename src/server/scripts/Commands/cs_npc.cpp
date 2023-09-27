@@ -356,7 +356,7 @@ public:
     //set faction of creature
     static bool HandleNpcSetFactionIdCommand(ChatHandler* handler, uint32 factionId)
     {
-        if (!sFactionTemplateStore.LookupEntry(factionId))
+        if (!sDBCStoresMgr->GetFactionTemplateDBC(factionId))
         {
             handler->PSendSysMessage(LANG_WRONG_FACTION, factionId);
             handler->SetSentErrorMessage(true);
@@ -651,7 +651,7 @@ public:
             return false;
         }
 
-        if (!sCreatureDisplayInfoStore.LookupEntry(displayId))
+        if (!sDBCStoresMgr->GetCreatureDisplayInfoDBC(displayId))
         {
             handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, Trinity::ToString(displayId).c_str());
             handler->SetSentErrorMessage(true);

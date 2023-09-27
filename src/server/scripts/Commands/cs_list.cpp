@@ -27,7 +27,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Language.h"
@@ -471,10 +471,10 @@ public:
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());
         for (auto const& [aurId, aurApp] : auras)
         {
-            bool talent = GetTalentSpellCost(aurApp->GetBase()->GetId()) > 0;
+            bool talent = sDBCStoresMgr->GetTalentSpellCost(aurApp->GetBase()->GetId()) > 0;
 
             Aura const* aura = aurApp->GetBase();
-            char const* name = aura->GetSpellInfo()->SpellName[handler->GetSessionDbcLocale()];
+            char const* name = aura->GetSpellInfo()->SpellName[handler->GetSessionDbcLocale()].c_str();
 
             if (!ShouldListAura(aura->GetSpellInfo(), spellId, namePart, handler->GetSessionDbcLocale()))
                 continue;
@@ -664,8 +664,8 @@ public:
 
     static char const* GetZoneName(uint32 zoneId, LocaleConstant locale)
     {
-        AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(zoneId);
-        return zoneEntry ? zoneEntry->AreaName[locale] : "<unknown zone>";
+        AreaTableDBC const* zoneEntry = sDBCStoresMgr->GetAreaTableDBC(zoneId);
+        return zoneEntry ? zoneEntry->AreaName[locale].c_str() : "<unknown zone>";
     }
 
     static bool HandleListRespawnsCommand(ChatHandler* handler, Optional<uint32> range)

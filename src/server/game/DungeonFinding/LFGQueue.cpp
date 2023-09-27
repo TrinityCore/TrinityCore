@@ -18,7 +18,6 @@
 #include "ObjectDefines.h"
 #include "Containers.h"
 #include "DBCStructure.h"
-#include "DBCStores.h"
 #include "GameTime.h"
 #include "Group.h"
 #include "LFGQueue.h"

@@ -26,6 +26,7 @@ EndScriptData */
 #include "AchievementMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "DBCStoresMgr.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -96,7 +97,7 @@ public:
 
     static bool HandleResetStatsOrLevelHelper(Player* player)
     {
-        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(player->GetClass());
+        ChrClassesDBC const* classEntry = sDBCStoresMgr->GetChrClassesDBC(player->GetClass());
         if (!classEntry)
         {
             TC_LOG_ERROR("misc", "Class {} not found in DBC (Wrong DBC files?)", player->GetClass());

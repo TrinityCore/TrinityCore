@@ -22,6 +22,7 @@
 #include "CharacterCache.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "DBCStoresMgr.h"
 #include "DisableMgr.h"
 #include "GridNotifiers.h"
 #include "Group.h"
@@ -247,14 +248,14 @@ public:
         object->GetZoneAndAreaId(zoneId, areaId);
         uint32 mapId = object->GetMapId();
 
-        MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
-        AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(zoneId);
-        AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
+        MapDBC const* mapEntry = sDBCStoresMgr->GetMapDBC(mapId);
+        AreaTableDBC const* zoneEntry = sDBCStoresMgr->GetAreaTableDBC(zoneId);
+        AreaTableDBC const* areaEntry = sDBCStoresMgr->GetAreaTableDBC(areaId);
 
         float zoneX = object->GetPositionX();
         float zoneY = object->GetPositionY();
 
-        Map2ZoneCoordinates(zoneX, zoneY, zoneId);
+        sDBCStoresMgr->Map2ZoneCoordinates(zoneX, zoneY, zoneId);
 
         Map const* map = object->GetMap();
         float groundZ = object->GetMapHeight(object->GetPositionX(), object->GetPositionY(), MAX_HEIGHT);
@@ -989,7 +990,7 @@ public:
         else
             return false;
 
-        WorldSafeLocsEntry const* graveyard = sWorldSafeLocsStore.LookupEntry(graveyardId);
+        WorldSafeLocsDBC const* graveyard = sDBCStoresMgr->GetWorldSafeLocsDBC(graveyardId);
 
         if (!graveyard)
         {
@@ -1002,7 +1003,7 @@ public:
 
         uint32 zoneId = player->GetZoneId();
 
-        AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(zoneId);
+        AreaTableDBC const* areaEntry = sDBCStoresMgr->GetAreaTableDBC(zoneId);
         if (!areaEntry || areaEntry->ParentAreaID !=0)
         {
             handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDWRONGZONE, graveyardId, zoneId);
@@ -1034,7 +1035,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint32 zone_id = player->GetZoneId();
 
-        WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveyard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team);
+        WorldSafeLocsDBC const* graveyard = sObjectMgr->GetClosestGraveyard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team);
         if (graveyard)
         {
             uint32 graveyardId = graveyard->ID;
@@ -1088,7 +1089,7 @@ public:
             return false;
         }
 
-        AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId);
+        AreaTableDBC const* area = sDBCStoresMgr->GetAreaTableDBC(areaId);
         if (!area)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -1122,7 +1123,7 @@ public:
             return false;
         }
 
-        AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId);
+        AreaTableDBC const* area = sDBCStoresMgr->GetAreaTableDBC(areaId);
         if (!area)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -1519,7 +1520,7 @@ public:
             return false;
         }
 
-        SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skillId);
+        SkillLineDBC const* skillLine = sDBCStoresMgr->GetSkillLineDBC(skillId);
         if (!skillLine)
         {
             handler->PSendSysMessage(LANG_INVALID_SKILL_ID, skillId);
@@ -1853,8 +1854,8 @@ public:
             handler->PSendSysMessage(LANG_PINFO_CHR_LEVEL_HIGH, level);
 
         // Output XI. LANG_PINFO_CHR_RACE
-        raceStr  = GetRaceName(raceid, locale);
-        classStr = GetClassName(classid, locale);
+        raceStr  = sDBCStoresMgr->GetRaceName(raceid, locale);
+        classStr = sDBCStoresMgr->GetChrClassName(classid, locale);
         handler->PSendSysMessage(LANG_PINFO_CHR_RACE, (gender == 0 ? handler->GetTrinityString(LANG_CHARACTER_GENDER_MALE) : handler->GetTrinityString(LANG_CHARACTER_GENDER_FEMALE)), raceStr.c_str(), classStr.c_str());
 
         // Output XII. LANG_PINFO_CHR_ALIVE
@@ -1871,17 +1872,17 @@ public:
         handler->PSendSysMessage(LANG_PINFO_CHR_MONEY, gold, silv, copp);
 
         // Position data
-        MapEntry const* map = sMapStore.LookupEntry(mapId);
-        AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId);
+        MapDBC const* map = sDBCStoresMgr->GetMapDBC(mapId);
+        AreaTableDBC const* area = sDBCStoresMgr->GetAreaTableDBC(areaId);
         if (area)
         {
-            zoneName = area->AreaName[locale];
+            zoneName = area->AreaName[locale].c_str();
 
-            AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
+            AreaTableDBC const* zone = sDBCStoresMgr->GetAreaTableDBC(area->ParentAreaID);
             if (zone)
             {
                 areaName = zoneName;
-                zoneName = zone->AreaName[locale];
+                zoneName = zone->AreaName[locale].c_str();
             }
         }
 
@@ -2573,7 +2574,7 @@ public:
 
     static bool HandlePlayAllCommand(ChatHandler* handler, uint32 soundId)
     {
-        if (!sSoundEntriesStore.LookupEntry(soundId))
+        if (!sDBCStoresMgr->GetSoundEntriesDBC(soundId))
         {
             handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, soundId);
             handler->SetSentErrorMessage(true);

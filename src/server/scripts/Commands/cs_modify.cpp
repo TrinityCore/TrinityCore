@@ -24,7 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -232,7 +232,7 @@ public:
             return true;
         }
 
-        if (!sFactionTemplateStore.LookupEntry(*factionid))
+        if (!sDBCStoresMgr->GetFactionTemplateDBC(*factionid))
         {
             handler->PSendSysMessage(LANG_WRONG_FACTION, *factionid);
             handler->SetSentErrorMessage(true);
@@ -482,7 +482,7 @@ public:
     //Enable Player mount
     static bool HandleModifyMountCommand(ChatHandler* handler, uint32 mount, float speed)
     {
-        if (!sCreatureDisplayInfoStore.LookupEntry(mount))
+        if (!sDBCStoresMgr->GetCreatureDisplayInfoDBC(mount))
         {
             handler->SendSysMessage(LANG_NO_MOUNT);
             handler->SetSentErrorMessage(true);
@@ -753,7 +753,7 @@ public:
             }
         }
 
-        FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
+        FactionDBC const* factionEntry = sDBCStoresMgr->GetFactionDBC(factionId);
 
         if (!factionEntry)
         {

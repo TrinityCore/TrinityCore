@@ -150,6 +150,33 @@ bool DBUpdater<CharacterDatabaseConnection>::IsEnabled(uint32 const updateMask)
     return (updateMask & DatabaseLoader::DATABASE_CHARACTER) ? true : false;
 }
 
+// DBC Database
+template<>
+std::string DBUpdater<DBCDatabaseConnection>::GetConfigEntry()
+{
+    return "Updates.DBC";
+}
+
+template<>
+std::string DBUpdater<DBCDatabaseConnection>::GetTableName()
+{
+    return "DBC";
+}
+
+template<>
+std::string DBUpdater<DBCDatabaseConnection>::GetBaseFile()
+{
+    return BuiltInConfig::GetSourceDirectory() +
+        "/sql/base/dbc_database.sql";
+}
+
+template<>
+bool DBUpdater<DBCDatabaseConnection>::IsEnabled(uint32 const updateMask)
+{
+    // This way silences warnings under msvc
+    return (updateMask & DatabaseLoader::DATABASE_DBC) ? true : false;
+}
+
 // All
 template<class T>
 BaseLocation DBUpdater<T>::GetBaseLocationType()
@@ -410,3 +437,4 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 template class TC_DATABASE_API DBUpdater<LoginDatabaseConnection>;
 template class TC_DATABASE_API DBUpdater<WorldDatabaseConnection>;
 template class TC_DATABASE_API DBUpdater<CharacterDatabaseConnection>;
+template class TC_DATABASE_API DBUpdater<DBCDatabaseConnection>;

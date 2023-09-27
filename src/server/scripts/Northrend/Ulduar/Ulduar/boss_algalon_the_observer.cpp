@@ -17,7 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
@@ -981,7 +981,7 @@ struct go_celestial_planetarium_access : public GameObjectAI
             return true;
 
         bool hasKey = true;
-        if (LockEntry const* lock = sLockStore.LookupEntry(me->GetGOInfo()->goober.lockId))
+        if (LockDBC const* lock = sDBCStoresMgr->GetLockDBC(me->GetGOInfo()->goober.lockId))
         {
             hasKey = false;
             for (uint8 i = 0; i < MAX_LOCK_CASE; ++i)

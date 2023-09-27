@@ -64,14 +64,14 @@ class WorldObject;
 class WorldSession;
 
 struct AchievementCriteriaData;
-struct AreaTriggerEntry;
+struct AreaTriggerDBC;
 struct AuctionEntry;
 struct ConditionSourceInfo;
 struct Condition;
 struct CreatureTemplate;
 struct CreatureData;
 struct ItemTemplate;
-struct MapEntry;
+struct MapDBC;
 struct Position;
 
 namespace Trinity::ChatCommands { struct ChatCommandBuilder; }
@@ -296,16 +296,16 @@ class TC_GAME_API FormulaScript : public ScriptObject
 template<class TMap>
 class TC_GAME_API MapScript
 {
-        MapEntry const* _mapEntry;
+        MapDBC const* _mapEntry;
 
     protected:
 
-        explicit MapScript(MapEntry const* mapEntry);
+        explicit MapScript(MapDBC const* mapEntry);
 
     public:
 
-        // Gets the MapEntry structure associated with this script. Can return NULL.
-        MapEntry const* GetEntry() const;
+        // Gets the MapDBC structure associated with this script. Can return NULL.
+        MapDBC const* GetEntry() const;
 
         // Called when the map is created.
         virtual void OnCreate(TMap* map);
@@ -433,7 +433,7 @@ class TC_GAME_API AreaTriggerScript : public ScriptObject
     public:
 
         // Called when the area trigger is activated by a player.
-        virtual bool OnTrigger(Player* player, AreaTriggerEntry const* trigger);
+        virtual bool OnTrigger(Player* player, AreaTriggerDBC const* trigger);
 };
 
 class TC_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript
@@ -441,13 +441,13 @@ class TC_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript
     using AreaTriggerScript::AreaTriggerScript;
 
     public:
-        bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) final override;
+        bool OnTrigger(Player* /*player*/, AreaTriggerDBC const* /*trigger*/) final override;
 
     protected:
         // returns true if the trigger was successfully handled, false if we should try again next time
-        virtual bool TryHandleOnce(Player* player, AreaTriggerEntry const* trigger) = 0;
+        virtual bool TryHandleOnce(Player* player, AreaTriggerDBC const* trigger) = 0;
         void ResetAreaTriggerDone(InstanceScript* instance, uint32 triggerId);
-        void ResetAreaTriggerDone(Player const* player, AreaTriggerEntry const* trigger);
+        void ResetAreaTriggerDone(Player const* player, AreaTriggerDBC const* trigger);
 };
 
 class TC_GAME_API BattlefieldScript : public ScriptObject
@@ -943,7 +943,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* AreaTriggerScript */
 
-        bool OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger);
+        bool OnAreaTrigger(Player* player, AreaTriggerDBC const* trigger);
 
     public: /* BattlefieldScript */
 

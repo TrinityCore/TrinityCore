@@ -25,7 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Group.h"
 #include "Language.h"
 #include "MapManager.h"
@@ -228,7 +228,7 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        MapEntry const* map = sMapStore.LookupEntry(tele->mapId);
+        MapDBC const* map = sDBCStoresMgr->GetMapDBC(tele->mapId);
         if (!map || map->IsBattlegroundOrArena())
         {
             handler->SendSysMessage(LANG_CANNOT_TELE_TO_BG);
@@ -298,7 +298,7 @@ public:
             return false;
         }
 
-        MapEntry const* map = sMapStore.LookupEntry(tele->mapId);
+        MapDBC const* map = sDBCStoresMgr->GetMapDBC(tele->mapId);
         if (!map || (map->IsBattlegroundOrArena() && (player->GetMapId() != tele->mapId || !player->IsGameMaster())))
         {
             handler->SendSysMessage(LANG_CANNOT_TELE_TO_BG);

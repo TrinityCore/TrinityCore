@@ -863,7 +863,7 @@ void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
     SendBroadcastText(textId, msgType);
 }
 
-WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveyard(Player* player)
+WorldSafeLocsDBC const* BattlegroundIC::GetClosestGraveyard(Player* player)
 {
     TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
 
@@ -873,7 +873,7 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveyard(Player* player)
         if (nodePoint[i].faction == player->GetTeamId())
             nodes.push_back(i);
 
-    WorldSafeLocsEntry const* good_entry = nullptr;
+    WorldSafeLocsDBC const* good_entry = nullptr;
     // If so, select the closest node to place ghost on
     if (!nodes.empty())
     {
@@ -883,7 +883,7 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveyard(Player* player)
         float mindist = 999999.0f;
         for (uint8 i = 0; i < nodes.size(); ++i)
         {
-            WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_IC_GraveyardIds[nodes[i]]);
+            WorldSafeLocsDBC const*entry = sDBCStoresMgr->GetWorldSafeLocsDBC(BG_IC_GraveyardIds[nodes[i]]);
             if (!entry)
                 continue;
             float dist = (entry->Loc.X - player_x)*(entry->Loc.X - player_x)+(entry->Loc.Y - player_y)*(entry->Loc.Y - player_y);
@@ -897,7 +897,7 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveyard(Player* player)
     }
     // If not, place ghost on starting location
     if (!good_entry)
-        good_entry = sWorldSafeLocsStore.LookupEntry(BG_IC_GraveyardIds[uint32(teamIndex) + MAX_NODE_TYPES]);
+        good_entry = sDBCStoresMgr->GetWorldSafeLocsDBC(BG_IC_GraveyardIds[uint32(teamIndex) + MAX_NODE_TYPES]);
 
     return good_entry;
 }

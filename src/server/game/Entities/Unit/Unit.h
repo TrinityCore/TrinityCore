@@ -62,9 +62,9 @@ enum InventorySlot
 };
 
 struct AbstractFollower;
-struct FactionTemplateEntry;
+struct FactionTemplateDBC;
 struct LiquidData;
-struct LiquidTypeEntry;
+struct LiquidTypeDBC;
 struct SpellValue;
 
 class Aura;
@@ -1895,7 +1895,7 @@ class TC_GAME_API Unit : public WorldObject
         Vehicle* m_vehicleKit;
 
         uint32 m_unitTypeMask;
-        LiquidTypeEntry const* _lastLiquid;
+        LiquidTypeDBC const* _lastLiquid;
 
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
         bool IsAlwaysDetectableFor(WorldObject const* seer) const override;

@@ -28,7 +28,7 @@
 class Item;
 class Player;
 class WorldPacket;
-struct AuctionHouseEntry;
+struct AuctionHouseDBC;
 
 #define MIN_AUCTION_TIME (12*HOUR)
 #define MAX_AUCTION_ITEMS 160
@@ -94,7 +94,7 @@ struct TC_GAME_API AuctionEntry
     uint32 deposit;                                         //deposit can be calculated only when creating auction
     uint32 etime;
     std::unordered_set<ObjectGuid> bidders;
-    AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
+    AuctionHouseDBC const* auctionHouseEntry;             // in AuctionHouse.dbc
     AuctionEntryFlag Flags;
 
     // helpers
@@ -190,9 +190,9 @@ class TC_GAME_API AuctionHouseMgr
         void SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, CharacterDatabaseTransaction trans);
         void SendAuctionCancelledToBidderMail(AuctionEntry* auction, CharacterDatabaseTransaction trans);
 
-        static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count);
-        static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId);
-        static AuctionHouseEntry const* GetAuctionHouseEntryFromHouse(uint8 houseId);
+        static uint32 GetAuctionDeposit(AuctionHouseDBC const* entry, uint32 time, Item* pItem, uint32 count);
+        static AuctionHouseDBC const* GetAuctionHouseEntry(uint32 factionTemplateId);
+        static AuctionHouseDBC const* GetAuctionHouseEntryFromHouse(uint8 houseId);
     public:
 
         //load first auction items, because of check if item exists, when loading

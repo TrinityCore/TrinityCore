@@ -83,7 +83,7 @@ class TC_GAME_API ReputationMgr
 
         FactionStateList const& GetStateList() const { return _factions; }
 
-        FactionState const* GetState(FactionEntry const* factionEntry) const
+        FactionState const* GetState(FactionDBC const* factionEntry) const
         {
             return factionEntry->CanHaveReputation() ? GetState(factionEntry->ReputationIndex) : nullptr;
         }
@@ -95,45 +95,45 @@ class TC_GAME_API ReputationMgr
         }
 
         bool IsAtWar(uint32 faction_id) const;
-        bool IsAtWar(FactionEntry const* factionEntry) const;
+        bool IsAtWar(FactionDBC const* factionEntry) const;
         bool IsReputationAllowedForTeam(TeamId team, uint32 factionId) const;
 
         int32 GetReputation(uint32 faction_id) const;
-        int32 GetReputation(FactionEntry const* factionEntry) const;
-        int32 GetBaseReputation(FactionEntry const* factionEntry) const;
+        int32 GetReputation(FactionDBC const* factionEntry) const;
+        int32 GetBaseReputation(FactionDBC const* factionEntry) const;
 
-        ReputationRank GetRank(FactionEntry const* factionEntry) const;
-        ReputationRank GetBaseRank(FactionEntry const* factionEntry) const;
-        uint32 GetReputationRankStrIndex(FactionEntry const* factionEntry) const
+        ReputationRank GetRank(FactionDBC const* factionEntry) const;
+        ReputationRank GetBaseRank(FactionDBC const* factionEntry) const;
+        uint32 GetReputationRankStrIndex(FactionDBC const* factionEntry) const
         {
             return ReputationRankStrIndex[GetRank(factionEntry)];
         };
 
-        ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
+        ReputationRank const* GetForcedRankIfAny(FactionTemplateDBC const* factionTemplateEntry) const
         {
             ForcedReactions::const_iterator forceItr = _forcedReactions.find(factionTemplateEntry->Faction);
             return forceItr != _forcedReactions.end() ? &forceItr->second : nullptr;
         }
 
     public:                                                 // modifiers
-        bool SetReputation(FactionEntry const* factionEntry, int32 standing)
+        bool SetReputation(FactionDBC const* factionEntry, int32 standing)
         {
             return SetReputation(factionEntry, standing, false, false);
         }
-        bool ModifyReputation(FactionEntry const* factionEntry, int32 standing, bool spillOverOnly = false)
+        bool ModifyReputation(FactionDBC const* factionEntry, int32 standing, bool spillOverOnly = false)
         {
             return SetReputation(factionEntry, standing, true, spillOverOnly);
         }
 
-        void SetVisible(FactionTemplateEntry const* factionTemplateEntry);
-        void SetVisible(FactionEntry const* factionEntry);
+        void SetVisible(FactionTemplateDBC const* factionTemplateEntry);
+        void SetVisible(FactionDBC const* factionEntry);
         void SetAtWar(RepListID repListID, bool on);
         void SetInactive(RepListID repListID, bool on);
 
         void ApplyForceReaction(uint32 faction_id, ReputationRank rank, bool apply);
 
         //! Public for chat command needs
-        bool SetOneFactionReputation(FactionEntry const* factionEntry, int32 standing, bool incremental);
+        bool SetOneFactionReputation(FactionDBC const* factionEntry, int32 standing, bool incremental);
 
     public:                                                 // senders
         void SendInitialReputations();
@@ -142,8 +142,8 @@ class TC_GAME_API ReputationMgr
 
     private:                                                // internal helper functions
         void Initialize();
-        uint32 GetDefaultStateFlags(FactionEntry const* factionEntry) const;
-        bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental, bool spillOverOnly);
+        uint32 GetDefaultStateFlags(FactionDBC const* factionEntry) const;
+        bool SetReputation(FactionDBC const* factionEntry, int32 standing, bool incremental, bool spillOverOnly);
         void SetVisible(FactionState* faction);
         void SetAtWar(FactionState* faction, bool atWar) const;
         void SetInactive(FactionState* faction, bool inactive) const;

@@ -18,6 +18,7 @@
 #include "Pet.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "DBCStoresMgr.h"
 #include "Formulas.h"
 #include "Group.h"
 #include "InstanceScript.h"
@@ -813,7 +814,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
 
     SetDisplayId(creature->GetDisplayId());
 
-    if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family))
+    if (CreatureFamilyDBC const* cFamily = sDBCStoresMgr->GetCreatureFamilyDBC(cinfo->family))
         SetName(cFamily->Name[sWorld->GetDefaultDbcLocale()]);
     else
         SetName(creature->GetNameForLocaleIdx(sObjectMgr->GetDBCLocaleIndex()));
@@ -826,7 +827,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
     if (!CreateBaseAtTamed(cinfo, owner->GetMap(), owner->GetPhaseMask()))
         return false;
 
-    if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family))
+    if (CreatureFamilyDBC const* cFamily = sDBCStoresMgr->GetCreatureFamilyDBC(cinfo->family))
         SetName(cFamily->Name[sWorld->GetDefaultDbcLocale()]);
 
     Relocate(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation());
@@ -1141,7 +1142,7 @@ bool Pet::HaveInDiet(ItemTemplate const* item) const
     if (!cInfo)
         return false;
 
-    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cInfo->family);
+    CreatureFamilyDBC const* cFamily = sDBCStoresMgr->GetCreatureFamilyDBC(cInfo->family);
     if (!cFamily)
         return false;
 
@@ -1428,9 +1429,9 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
         newspell.active = active;
 
     // talent: unlearn all other talent ranks (high and low)
-    if (TalentSpellPos const* talentPos = GetTalentSpellPos(spellId))
+    if (TalentSpellPos const* talentPos = sDBCStoresMgr->GetTalentSpellPos(spellId))
     {
-        if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
+        if (TalentDBC const* talentInfo = sDBCStoresMgr->GetTalentDBC(talentPos->talent_id))
         {
             for (uint32 rankSpellId : talentInfo->SpellRank)
             {
@@ -1487,7 +1488,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     if (newspell.active == ACT_ENABLED)
         ToggleAutocast(spellInfo, true);
 
-    uint32 talentCost = GetTalentSpellCost(spellId);
+    uint32 talentCost = sDBCStoresMgr->GetTalentSpellCost(spellId);
     if (talentCost)
     {
         int32 free_points = GetMaxTalentPointsForLevel(GetLevel());
@@ -1585,7 +1586,7 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
 
     RemoveAurasDueToSpell(spell_id);
 
-    uint32 talentCost = GetTalentSpellCost(spell_id);
+    uint32 talentCost = sDBCStoresMgr->GetTalentSpellCost(spell_id);
     if (talentCost > 0)
     {
         if (m_usedTalentCount > talentCost)
@@ -1654,7 +1655,7 @@ bool Pet::resetTalents()
     if (!ci)
         return false;
     // Check pet talent type
-    CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
+    CreatureFamilyDBC const* pet_family = sDBCStoresMgr->GetCreatureFamilyDBC(ci->family);
     if (!pet_family || pet_family->PetTalentType < 0)
         return false;
 
@@ -1667,43 +1668,41 @@ bool Pet::resetTalents()
         return false;
     }
 
-    for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
+    TalentDBCMap const& talentMap = sDBCStoresMgr->GetTalentDBCMap();
+    for (const auto& tID : talentMap)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
-
-        if (!talentInfo)
-            continue;
-
-        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
-
-        if (!talentTabInfo)
-            continue;
-
-        // unlearn only talents for pets family talent type
-        if (!((1 << pet_family->PetTalentType) & talentTabInfo->PetTalentMask))
-            continue;
-
-        for (uint32 talentSpellId : talentInfo->SpellRank)
+        if (TalentDBC const* talentInfo = &tID.second)
         {
-            for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end();)
-            {
-                if (itr->second.state == PETSPELL_REMOVED)
-                {
-                    ++itr;
-                    continue;
-                }
-                // remove learned spells (all ranks)
-                uint32 itrFirstId = sSpellMgr->GetFirstSpellInChain(itr->first);
+            TalentTabDBC const* talentTabInfo = sDBCStoresMgr->GetTalentTabDBC(talentInfo->TabID);
+            if (!talentTabInfo)
+                continue;
 
-                // unlearn if first rank is talent or learned by talent
-                if (itrFirstId == talentSpellId || sSpellMgr->IsSpellLearnToSpell(talentSpellId, itrFirstId))
+            // unlearn only talents for pets family talent type
+            if (!((1 << pet_family->PetTalentType) & talentTabInfo->PetTalentMask))
+                continue;
+
+            for (uint32 talentSpellId : talentInfo->SpellRank)
+            {
+                for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end();)
                 {
-                    unlearnSpell(itr->first, false);
-                    itr = m_spells.begin();
-                    continue;
+                    if (itr->second.state == PETSPELL_REMOVED)
+                    {
+                        ++itr;
+                        continue;
+                    }
+                    // remove learned spells (all ranks)
+                    uint32 itrFirstId = sSpellMgr->GetFirstSpellInChain(itr->first);
+
+                    // unlearn if first rank is talent or learned by talent
+                    if (itrFirstId == talentSpellId || sSpellMgr->IsSpellLearnToSpell(talentSpellId, itrFirstId))
+                    {
+                        unlearnSpell(itr->first, false);
+                        itr = m_spells.begin();
+                        continue;
+                    }
+                    else
+                        ++itr;
                 }
-                else
-                    ++itr;
             }
         }
     }
@@ -1765,7 +1764,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* onlinePet /*= nullptr*/)
     ss << ") AND spell IN (";
 
     need_comma = false;
-    for (uint32 spell : sPetTalentSpells)
+    for (uint32 spell : sDBCStoresMgr->GetPetTalentSpells())
     {
         if (need_comma)
             ss << ',';
@@ -1901,12 +1900,13 @@ void Pet::LearnPetPassives()
     if (!cInfo)
         return;
 
-    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cInfo->family);
+    CreatureFamilyDBC const* cFamily = sDBCStoresMgr->GetCreatureFamilyDBC(cInfo->family);
     if (!cFamily)
         return;
 
-    PetFamilySpellsStore::const_iterator petStore = sPetFamilySpellsStore.find(cFamily->ID);
-    if (petStore != sPetFamilySpellsStore.end())
+    PetFamilySpellsStore const& PetSpellStore = sDBCStoresMgr->GetPetFamilySpellsStore();
+    PetFamilySpellsStore::const_iterator petStore = PetSpellStore.find(cFamily->ID);
+    if (petStore != PetSpellStore.end())
     {
         // For general hunter pets skill 270
         // Passive 01~10, Passive 00 (20782, not used), Ferocious Inspiration (34457)
@@ -1999,7 +1999,7 @@ Player* Pet::GetOwner() const
 
 float Pet::GetNativeObjectScale() const
 {
-    CreatureFamilyEntry const* creatureFamily = sCreatureFamilyStore.LookupEntry(GetCreatureTemplate()->family);
+    CreatureFamilyDBC const* creatureFamily = sDBCStoresMgr->GetCreatureFamilyDBC(GetCreatureTemplate()->family);
     if (creatureFamily && creatureFamily->MinScale > 0.0f && getPetType() == HUNTER_PET)
     {
         float scale;

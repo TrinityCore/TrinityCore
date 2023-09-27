@@ -45,14 +45,14 @@ class Map;
 enum GossipOptionIcon : uint8;
 struct AccessRequirement;
 struct DeclinedName;
-struct DungeonEncounterEntry;
-struct FactionEntry;
+struct DungeonEncounterDBC;
+struct FactionDBC;
 struct PlayerClassInfo;
 struct PlayerClassLevelInfo;
 struct PlayerInfo;
 struct PlayerLevelInfo;
-struct SkillRaceClassInfoEntry;
-struct WorldSafeLocsEntry;
+struct SkillRaceClassInfoDBC;
+struct WorldSafeLocsDBC;
 
 struct PageText
 {
@@ -872,12 +872,13 @@ enum SkillRangeType
     SKILL_RANGE_NONE                                        // 0..0 always
 };
 
-SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry);
+SkillRangeType GetSkillRangeType(SkillRaceClassInfoDBC const* rcEntry);
 
 #define MAX_PLAYER_NAME          12                         // max allowed by client name length
 #define MAX_INTERNAL_PLAYER_NAME 15                         // max server internal player name length (> MAX_PLAYER_NAME for support declined names)
 #define MAX_PET_NAME             12                         // max allowed by client name length
 #define MAX_CHARTER_NAME         24                         // max allowed by client name length
+#define MAX_CHANNEL_NAME         99                         // max allowed by client name length
 
 TC_GAME_API bool normalizePlayerName(std::string& name);
 #define SPAWNGROUP_MAP_UNSET            0xFFFFFFFF
@@ -900,10 +901,10 @@ enum EncounterCreditType : uint8
 
 struct DungeonEncounter
 {
-    DungeonEncounter(DungeonEncounterEntry const* _dbcEntry, EncounterCreditType _creditType, uint32 _creditEntry, uint32 _lastEncounterDungeon)
+    DungeonEncounter(DungeonEncounterDBC const* _dbcEntry, EncounterCreditType _creditType, uint32 _creditEntry, uint32 _lastEncounterDungeon)
         : dbcEntry(_dbcEntry), creditType(_creditType), creditEntry(_creditEntry), lastEncounterDungeon(_lastEncounterDungeon) { }
 
-    DungeonEncounterEntry const* dbcEntry;
+    DungeonEncounterDBC const* dbcEntry;
     EncounterCreditType creditType;
     uint32 creditEntry;
     uint32 lastEncounterDungeon;
@@ -1057,8 +1058,8 @@ class TC_GAME_API ObjectMgr
         GossipText const* GetGossipText(uint32 Text_ID) const;
         QuestGreeting const* GetQuestGreeting(ObjectGuid guid) const;
 
-        WorldSafeLocsEntry const* GetDefaultGraveyard(uint32 team) const;
-        WorldSafeLocsEntry const* GetClosestGraveyard(float x, float y, float z, uint32 MapId, uint32 team) const;
+        WorldSafeLocsDBC const* GetDefaultGraveyard(uint32 team) const;
+        WorldSafeLocsDBC const* GetClosestGraveyard(float x, float y, float z, uint32 MapId, uint32 team) const;
         bool AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist = true);
         void RemoveGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist = false);
         void LoadGraveyardZones();
@@ -1089,7 +1090,7 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        int32 GetBaseReputationOf(FactionEntry const* factionEntry, uint8 race, uint8 playerClass) const;
+        int32 GetBaseReputationOf(FactionDBC const* factionEntry, uint8 race, uint8 playerClass) const;
 
         RepSpilloverTemplate const* GetRepSpilloverTemplate(uint32 factionId) const
         {
@@ -1466,7 +1467,9 @@ class TC_GAME_API ObjectMgr
         static ResponseCodes CheckPlayerName(std::string_view name, LocaleConstant locale, bool create = false);
         static PetNameInvalidReason CheckPetName(std::string_view name, LocaleConstant locale);
         static bool IsValidCharterName(std::string_view name);
-
+        static bool IsValidChannelName(std::string_view name);
+        static bool IsValidChannelText(std::string_view name);
+        static bool IsValidityChecks(Player* player, std::string& name, bool withNasty = false);
         static bool CheckDeclinedNames(const std::wstring& w_ownname, DeclinedName const& names);
 
         GameTele const* GetGameTele(uint32 id) const

@@ -24,7 +24,7 @@
 #include "Unit.h"
 #include <list>
 
-struct VehicleEntry;
+struct VehicleDBC;
 class Unit;
 class VehicleJoinEvent;
 
@@ -32,7 +32,7 @@ class TC_GAME_API Vehicle : public TransportBase
 {
     protected:
         friend bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry);
-        Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
+        Vehicle(Unit* unit, VehicleDBC const* vehInfo, uint32 creatureEntry);
 
         friend void Unit::RemoveVehicleKit();
         ~Vehicle();
@@ -46,7 +46,7 @@ class TC_GAME_API Vehicle : public TransportBase
         void InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime);   //! May be called from scripts
 
         Unit* GetBase() const { return _me; }
-        VehicleEntry const* GetVehicleInfo() const { return _vehicleInfo; }
+        VehicleDBC const* GetVehicleInfo() const { return _vehicleInfo; }
         uint32 GetCreatureEntry() const { return _creatureEntry; }
 
         bool HasEmptySeat(int8 seatId) const;
@@ -65,7 +65,7 @@ class TC_GAME_API Vehicle : public TransportBase
 
         SeatMap Seats;                                      ///< The collection of all seats on the vehicle. Including vacant ones.
 
-        VehicleSeatEntry const* GetSeatForPassenger(Unit const* passenger) const;
+        VehicleSeatDBC const* GetSeatForPassenger(Unit const* passenger) const;
 
         void RemovePendingEventsForPassenger(Unit* passenger);
 
@@ -111,7 +111,7 @@ class TC_GAME_API Vehicle : public TransportBase
 
     private:
         Unit* _me;                                          ///< The underlying unit with the vehicle kit. Can be player or creature.
-        VehicleEntry const* _vehicleInfo;                   ///< DBC data for vehicle
+        VehicleDBC const* _vehicleInfo;                   ///< DBC data for vehicle
         GuidSet vehiclePlayers;
 
         uint32 _creatureEntry;                              ///< Can be different than the entry of _me in case of players

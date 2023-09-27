@@ -18,7 +18,7 @@
 #include "GameEventMgr.h"
 #include "BattlegroundMgr.h"
 #include "CreatureAI.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "DatabaseEnv.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
@@ -263,7 +263,7 @@ void GameEventMgr::LoadFromDB()
 
             if (pGameEvent.holiday_id != HOLIDAY_NONE)
             {
-                if (!sHolidaysStore.LookupEntry(pGameEvent.holiday_id))
+                if (!sDBCStoresMgr->GetHolidaysDBC(pGameEvent.holiday_id))
                 {
                     TC_LOG_ERROR("sql.sql", "`game_event`: game event id ({}) contains nonexisting holiday id {}.", event_id, pGameEvent.holiday_id);
                     pGameEvent.holiday_id = HOLIDAY_NONE;
@@ -964,7 +964,7 @@ void GameEventMgr::LoadHolidayDates()
         Field* fields = result->Fetch();
 
         uint32 holidayId = fields[0].GetUInt32();
-        HolidaysEntry* entry = const_cast<HolidaysEntry*>(sHolidaysStore.LookupEntry(holidayId));
+        HolidaysDBC* entry = const_cast<HolidaysDBC*>(sDBCStoresMgr->GetHolidaysDBC(holidayId));
         if (!entry)
         {
             TC_LOG_ERROR("sql.sql", "holiday_dates entry has invalid holiday id {}.", holidayId);
@@ -1584,7 +1584,7 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
         BattlegroundTypeId bgTypeId = BattlegroundMgr::WeekendHolidayIdToBGType(event.holiday_id);
         if (bgTypeId != BATTLEGROUND_TYPE_NONE)
         {
-            BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
+            BattlemasterListDBC const* bl = sDBCStoresMgr->GetBattlemasterListDBC(bgTypeId);
             if (bl && bl->HolidayWorldState)
             {
                 WorldPackets::WorldState::UpdateWorldState worldstate;
@@ -1742,7 +1742,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     if (!event.holidayStage) // Ignore holiday
         return;
 
-    HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(event.holiday_id);
+    HolidaysDBC const* holiday = sDBCStoresMgr->GetHolidaysDBC(event.holiday_id);
     if (!holiday->Date[0] || !holiday->Duration[0]) // Invalid definitions
     {
         TC_LOG_ERROR("sql.sql", "Missing date or duration for holiday {}.", event.holiday_id);

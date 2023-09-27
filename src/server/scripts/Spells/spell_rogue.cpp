@@ -23,7 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Item.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -238,7 +238,7 @@ class spell_rog_deadly_poison : public SpellScript
             // item combat enchantments
             for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
             {
-                SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(EnchantmentSlot(slot)));
+                SpellItemEnchantmentDBC const* enchant = sDBCStoresMgr->GetSpellItemEnchantmentDBC(item->GetEnchantmentId(EnchantmentSlot(slot)));
                 if (!enchant)
                     continue;
 

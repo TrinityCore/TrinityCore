@@ -18,7 +18,7 @@
 //add here most rarely modified headers to speed up debug build compilation
 
 #include "Creature.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "GameObject.h"

@@ -18,7 +18,7 @@
 #include "BattlegroundAV.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "GameObject.h"
 #include "Log.h"
 #include "MotionMaster.h"
@@ -1108,23 +1108,23 @@ void BattlegroundAV::SendMineWorldStates(uint32 mine)
         UpdateWorldState(BG_AV_MineWorldStates[mine2][prevowner], 0);
 }
 
-WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveyard(Player* player)
+WorldSafeLocsDBC const* BattlegroundAV::GetClosestGraveyard(Player* player)
 {
-    WorldSafeLocsEntry const* pGraveyard = nullptr;
-    WorldSafeLocsEntry const* entry = nullptr;
+    WorldSafeLocsDBC const* pGraveyard = nullptr;
+    WorldSafeLocsDBC const* entry = nullptr;
     float dist = 0;
     float minDist = 0;
     float x, y;
 
     player->GetPosition(x, y);
 
-    pGraveyard = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[GetTeamIndexByTeamId(player->GetTeam())+7]);
+    pGraveyard = sDBCStoresMgr->GetWorldSafeLocsDBC(BG_AV_GraveyardIds[GetTeamIndexByTeamId(player->GetTeam())+7]);
     minDist = (pGraveyard->Loc.X - x)*(pGraveyard->Loc.X - x)+(pGraveyard->Loc.Y - y)*(pGraveyard->Loc.Y - y);
 
     for (uint8 i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
         if (m_Nodes[i].Owner == player->GetTeam() && m_Nodes[i].State == POINT_CONTROLED)
         {
-            entry = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[i]);
+            entry = sDBCStoresMgr->GetWorldSafeLocsDBC(BG_AV_GraveyardIds[i]);
             if (entry)
             {
                 dist = (entry->Loc.X - x)*(entry->Loc.X - x)+(entry->Loc.Y - y)*(entry->Loc.Y - y);

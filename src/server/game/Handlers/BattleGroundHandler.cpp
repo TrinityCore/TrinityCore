@@ -24,7 +24,7 @@
 #include "Common.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "DisableMgr.h"
 #include "GameTime.h"
 #include "Group.h"
@@ -86,7 +86,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     recvData >> instanceId;                                // instance id, 0 if First Available selected
     recvData >> joinAsGroup;                               // join as group
 
-    if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
+    if (!sDBCStoresMgr->GetBattlemasterListDBC(bgTypeId_))
     {
         TC_LOG_ERROR("network", "Battleground: invalid bgtype ({}) received. possible cheater? player {}", bgTypeId_, _player->GetGUID().ToString());
         return;
@@ -121,7 +121,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
         return;
 
     // expected bracket entry
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), _player->GetLevel());
+    PvPDifficultyDBC const* bracketEntry = sDBCStoresMgr->GetBattlegroundBracketByLevel(bg->GetMapId(), _player->GetLevel());
     if (!bracketEntry)
         return;
 
@@ -343,7 +343,7 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket &recvData)
     uint8 canGainXP;
     recvData >> canGainXP;                                 // players with locked xp have their own bg queue on retail
 
-    BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
+    BattlemasterListDBC const* bl = sDBCStoresMgr->GetBattlemasterListDBC(bgTypeId);
     if (!bl)
     {
         TC_LOG_DEBUG("bg.battleground", "BattlegroundHandler: invalid bgtype ({}) with player (Name: {}, {}) received.", bgTypeId, _player->GetName(), _player->GetGUID().ToString());
@@ -364,7 +364,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     uint8 action;                                           // enter battle 0x1, leave queue 0x0
 
     recvData >> type >> unk2 >> bgTypeId_ >> unk >> action;
-    if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
+    if (!sDBCStoresMgr->GetBattlemasterListDBC(bgTypeId_))
     {
         TC_LOG_DEBUG("bg.battleground", "CMSG_BATTLEFIELD_PORT {} ArenaType: {}, Unk: {}, BgType: {}, Action: {}. Invalid BgType!",
             GetPlayerInfo(), type, unk2, bgTypeId_, action);
@@ -420,7 +420,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         GetPlayerInfo(), type, unk2, bgTypeId_, action);
 
     // expected bracket entry
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), _player->GetLevel());
+    PvPDifficultyDBC const* bracketEntry = sDBCStoresMgr->GetBattlegroundBracketByLevel(bg->GetMapId(), _player->GetLevel());
     if (!bracketEntry)
         return;
 
@@ -596,7 +596,7 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
                 continue;
 
             // expected bracket entry
-            PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), _player->GetLevel());
+            PvPDifficultyDBC const* bracketEntry = sDBCStoresMgr->GetBattlegroundBracketByLevel(bg->GetMapId(), _player->GetLevel());
             if (!bracketEntry)
                 continue;
 
@@ -669,7 +669,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
 
     BattlegroundTypeId bgTypeId = bg->GetTypeID();
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, arenatype);
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), _player->GetLevel());
+    PvPDifficultyDBC const* bracketEntry = sDBCStoresMgr->GetBattlegroundBracketByLevel(bg->GetMapId(), _player->GetLevel());
     if (!bracketEntry)
         return;
 

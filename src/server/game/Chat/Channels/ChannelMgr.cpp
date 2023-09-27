@@ -18,7 +18,7 @@
 #include "ChannelMgr.h"
 #include "Channel.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DBCStoresMgr.h"
 #include "Log.h"
 #include "Player.h"
 #include "World.h"
@@ -150,9 +150,11 @@ void ChannelMgr::SaveToDB()
         pair.second->UpdateChannelInDB();
 }
 
-Channel* ChannelMgr::GetSystemChannel(uint32 channelId, AreaTableEntry const* zoneEntry)
+Channel* ChannelMgr::GetSystemChannel(uint32 channelId, AreaTableDBC const* zoneEntry)
 {
-    ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
+    ChatChannelsDBC const* channelEntry = sDBCStoresMgr->GetChatChannelsDBC(channelId);
+    if (!channelEntry)
+        return nullptr;
     uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
     if (channelEntry->Flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
         zoneId = 0;
@@ -201,14 +203,16 @@ Channel* ChannelMgr::GetCustomChannel(std::string const& name) const
     return nullptr;
 }
 
-Channel* ChannelMgr::GetChannel(uint32 channelId, std::string const& name, Player* player, bool pkt /*= true*/, AreaTableEntry const* zoneEntry /*= nullptr*/) const
+Channel* ChannelMgr::GetChannel(uint32 channelId, std::string const& name, Player* player, bool pkt /*= true*/, AreaTableDBC const* zoneEntry /*= nullptr*/) const
 {
     Channel* ret = nullptr;
     bool send = false;
 
     if (channelId) // builtin
     {
-        ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
+        ChatChannelsDBC const* channelEntry = sDBCStoresMgr->GetChatChannelsDBC(channelId);
+        if (!channelEntry)
+            return nullptr;
         uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
         if (channelEntry->Flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
             zoneId = 0;
@@ -248,9 +252,11 @@ Channel* ChannelMgr::GetChannel(uint32 channelId, std::string const& name, Playe
     return ret;
 }
 
-void ChannelMgr::LeftChannel(uint32 channelId, AreaTableEntry const* zoneEntry)
+void ChannelMgr::LeftChannel(uint32 channelId, AreaTableDBC const* zoneEntry)
 {
-    ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
+    ChatChannelsDBC const* channelEntry = sDBCStoresMgr->GetChatChannelsDBC(channelId);
+    if (!channelEntry)
+        return;
     uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
     if (channelEntry->Flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
         zoneId = 0;
