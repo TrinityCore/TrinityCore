@@ -296,7 +296,6 @@ public:
         }
 
     protected:
-        EventMap Events;
         ObjectGuid AnduinWrynnGUID;
         ObjectGuid BefouledBarrierGUID;
         ObjectGuid EmptyVesselGUID;
