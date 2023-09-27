@@ -49,6 +49,7 @@
 #include "GameObjectAI.h"
 #include "Containers.h"
 #include "SpellMgr.h"
+#include "ScriptedGossip.h"
 #include "sepulcher_of_the_first_ones.h"
 
 
