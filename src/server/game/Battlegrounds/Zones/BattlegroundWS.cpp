@@ -472,7 +472,7 @@ void BattlegroundWS::OnFlagStateChange(GameObject* flagInBase, FlagState /*oldVa
             ApplyAssaultDebuffToPlayer(player);
 
             flagInBase->CastSpell(player, BG_WS_SPELL_QUICK_CAP_TIMER, true);
-            player->StartCriteriaTimer(CriteriaStartEvent::BeSpellTarget, BG_WS_SPELL_QUICK_CAP_TIMER, uint32(GameTime::GetGameTime() - flagInBase->GetFlagTakenFromBaseTime()));
+            player->StartCriteria(CriteriaStartEvent::BeSpellTarget, BG_WS_SPELL_QUICK_CAP_TIMER, Seconds(GameTime::GetGameTime() - flagInBase->GetFlagTakenFromBaseTime()));
             break;
         }
         case FlagState::Respawning:

@@ -98,13 +98,6 @@ bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTre
         return false;
     }
 
-    if (achievement->InstanceID != -1 && referencePlayer->GetMapId() != uint32(achievement->InstanceID))
-    {
-        TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: {} Type {} Achievement {}) Wrong map",
-            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
-        return false;
-    }
-
     if ((achievement->Faction == ACHIEVEMENT_FACTION_HORDE    && referencePlayer->GetTeam() != HORDE) ||
         (achievement->Faction == ACHIEVEMENT_FACTION_ALLIANCE && referencePlayer->GetTeam() != ALLIANCE))
     {
@@ -365,38 +358,6 @@ void PlayerAchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
             }
 
             criteriaProgres.second.Changed = false;
-        }
-    }
-}
-
-void PlayerAchievementMgr::ResetCriteria(CriteriaFailEvent failEvent, int32 failAsset, bool evenIfCriteriaComplete)
-{
-    TC_LOG_DEBUG("criteria.achievement", "PlayerAchievementMgr::ResetCriteria({}, {}, {})", uint32(failEvent), failAsset, evenIfCriteriaComplete ? "true" : "false");
-
-    // Disable for GameMasters with GM-mode enabled or for players that don't have the related RBAC permission
-    if (_owner->IsGameMaster() || _owner->GetSession()->HasPermission(rbac::RBAC_PERM_CANNOT_EARN_ACHIEVEMENTS))
-        return;
-
-    if (CriteriaList const* achievementCriteriaList = sCriteriaMgr->GetCriteriaByFailEvent(failEvent, failAsset))
-    {
-        for (Criteria const* achievementCriteria : *achievementCriteriaList)
-        {
-            std::vector<CriteriaTree const*> const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(achievementCriteria->ID);
-            bool allComplete = true;
-            for (CriteriaTree const* tree : *trees)
-            {
-                // don't update already completed criteria if not forced or achievement already complete
-                if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete) || !HasAchieved(tree->Achievement->ID))
-                {
-                    allComplete = false;
-                    break;
-                }
-            }
-
-            if (allComplete)
-                continue;
-
-            RemoveCriteriaProgress(achievementCriteria);
         }
     }
 }
