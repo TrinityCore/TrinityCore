@@ -198,6 +198,9 @@ bool RandomMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
     if (!owner || !owner->IsAlive())
         return true;
 
+    if (owner->IsJumping())
+        return true;
+
     if (HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED | MOVEMENTGENERATOR_FLAG_PAUSED))
         return true;
 

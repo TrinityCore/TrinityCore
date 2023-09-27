@@ -73,6 +73,8 @@ class TC_GAME_API AccountMgr
         static bool GetEmail(uint32 accountId, std::string& email);
         static uint32 GetCharactersCount(uint32 accountId);
 
+        static void RecordAntiCheatLog(uint32 accountId, std::string const& name, std::string const& description, std::string const& position, uint32 realmid);
+
         static bool IsBannedAccount(std::string const& name);
         static bool IsPlayerAccount(uint32 gmlevel);
         static bool IsAdminAccount(uint32 gmlevel);

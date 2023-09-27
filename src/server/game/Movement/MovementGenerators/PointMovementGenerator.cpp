@@ -48,12 +48,6 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
     MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
-    if (_movementId == EVENT_CHARGE_PREPATH)
-    {
-        owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
-        return;
-    }
-
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
@@ -92,15 +86,8 @@ bool PointMovementGenerator<T>::DoUpdate(T* owner, uint32 /*diff*/)
     if (!owner)
         return false;
 
-    if (_movementId == EVENT_CHARGE_PREPATH)
-    {
-        if (owner->movespline->Finalized())
-        {
-            MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
-            return false;
-        }
+    if (owner->IsJumping())
         return true;
-    }
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {

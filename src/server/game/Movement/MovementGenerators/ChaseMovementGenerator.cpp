@@ -102,6 +102,12 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     if (!target || !target->IsInWorld())
         return false;
 
+    if (owner->IsJumping())
+        return true;
+
+    if (owner->HasUnitState(UNIT_STATE_CHARGING))
+        return true;
+
     // the owner might be unable to move (rooted or casting), or we have lost the target, pause movement
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting() || HasLostTarget(owner, target))
     {
@@ -232,6 +238,9 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
             init.SetWalk(walk);
             init.SetFacing(target);
             init.Launch();
+
+            // update position for server and others units/players
+            owner->UpdateSplinePosition();
         }
     }
 

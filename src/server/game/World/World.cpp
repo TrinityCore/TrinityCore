@@ -195,6 +195,8 @@ World::~World()
     for (uint32 i = 0; i < CUSTOM_FLOAT_CONFIG_VALUE_COUNT; i++)
         custom_float_configs[i] = 0;
 
+    _areaIdExcludes.clear();
+
     VMAP::VMapFactory::clear();
     MMAP::MMapFactory::clear();
 
@@ -1578,6 +1580,9 @@ void World::LoadConfigSettings(bool reload)
     // Specifies if IP addresses can be logged to the database
     m_bool_configs[CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE] = sConfigMgr->GetBoolDefault("AllowLoggingIPAddressesInDatabase", true, true);
 
+    // Exclude some mapIDs for ASH and AFH
+    SetAreaIdExcludes(sConfigMgr->GetStringDefault("AntiCheats.areaIdExcludes", ""));
+    TC_LOG_INFO("server.loading", "AntiCheat disabled for %u maps", (uint32)_areaIdExcludes.size());
     sCustomWorldConfig->LoadCustom();
 
     // call ScriptMgr if we're reloading the configuration
@@ -3628,6 +3633,16 @@ void World::ReloadRBAC()
 void World::RemoveOldCorpses()
 {
     m_timers[WUPDATE_CORPSES].SetCurrent(m_timers[WUPDATE_CORPSES].GetInterval());
+}
+
+void World::SetAreaIdExcludes(const std::string& areaIdExcludes)
+{
+    _areaIdExcludes.clear();
+
+    std::stringstream excludeStream(areaIdExcludes);
+    std::string temp;
+    while (std::getline(excludeStream, temp, ','))
+        _areaIdExcludes.insert(atoi(temp.c_str()));
 }
 
 Realm realm;

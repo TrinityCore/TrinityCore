@@ -384,6 +384,17 @@ uint32 AccountMgr::GetCharactersCount(uint32 accountId)
     return (result) ? (*result)[0].GetUInt64() : 0;
 }
 
+void AccountMgr::RecordAntiCheatLog(uint32 accountId, std::string const& name, std::string const& description, std::string const& position, uint32 realmid)
+{
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ANTICHEAT);
+    stmt->setUInt32(0, accountId);
+    stmt->setString(1, name);
+    stmt->setString(2, description);
+    stmt->setString(3, position);
+    stmt->setInt32(4, realmid);
+    LoginDatabase.Execute(stmt);
+}
+
 bool AccountMgr::IsBannedAccount(std::string const& name)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_BY_USERNAME);

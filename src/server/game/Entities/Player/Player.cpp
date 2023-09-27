@@ -16,6 +16,7 @@
  */
 
 #include "Player.h"
+#include "Anticheat.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "ArenaTeam.h"
@@ -366,7 +367,6 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_runes = nullptr;
 
-    m_lastFallTime = 0;
     m_lastFallZ = 0;
 
     m_grantableLevels = 0;
@@ -401,6 +401,8 @@ Player::Player(WorldSession* session): Unit(true)
     m_reputationMgr = new ReputationMgr(this);
 
     m_groupUpdateTimer.Reset(5000);
+
+    p_anticheat = new Anticheat(this);
 }
 
 Player::~Player()
@@ -436,6 +438,7 @@ Player::~Player()
     delete m_achievementMgr;
     delete m_reputationMgr;
     delete _cinematicMgr;
+    delete p_anticheat;
 
     sWorld->DecreasePlayerCount();
 }
@@ -1219,6 +1222,8 @@ void Player::Update(uint32 p_time)
             m_zoneUpdateTimer -= p_time;
     }
 
+    GetAnticheat()->update(p_time);
+
     if (IsAlive())
     {
         m_regenTimer += p_time;
@@ -1625,6 +1630,7 @@ uint8 Player::GetChatTag() const
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
+    GetAnticheat()->setSkipOnePacketForASH(true);
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         TC_LOG_ERROR("maps", "Player::TeleportTo: Invalid map ({}) or invalid coordinates (X: {}, Y: {}, Z: {}, O: {}) given when teleporting player '{}' ({}, MapID: {}, X: {}, Y: {}, Z: {}, O: {}).",
@@ -1722,7 +1728,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         // this will be used instead of the current location in SaveToDB
         m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
-        SetFallInformation(0, GetPositionZ());
+        GetAnticheat()->resetFallingData(GetPositionZ());
 
         // code for finish transfer called in WorldSession::HandleMovementOpcodes()
         // at client packet MSG_MOVE_TELEPORT_ACK
@@ -1830,7 +1836,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
             m_teleport_options = options;
-            SetFallInformation(0, GetPositionZ());
+            GetAnticheat()->resetFallingData(GetPositionZ());
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
 
@@ -1928,6 +1934,8 @@ void Player::AddToWorld()
     for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
         if (m_items[i])
             m_items[i]->AddToWorld();
+
+    GetAnticheat()->setReloadModelsDisplayTimer();
 }
 
 void Player::RemoveFromWorld()
@@ -17791,7 +17799,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     SetUInt32Value(PLAYER_CHOSEN_TITLE, curTitle);
 
     // has to be called after last Relocate() in Player::LoadFromDB
-    SetFallInformation(0, GetPositionZ());
+    GetAnticheat()->resetFallingData(GetPositionZ());
 
     GetSpellHistory()->LoadFromDB<Player>(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELL_COOLDOWNS));
 
@@ -25163,12 +25171,6 @@ InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 
     return EQUIP_ERR_OK;
 }
 
-void Player::SetFallInformation(uint32 time, float z)
-{
-    m_lastFallTime = time;
-    m_lastFallZ = z;
-}
-
 void Player::HandleFall(MovementInfo const& movementInfo)
 {
     // calculate total z distance of the fall
@@ -25503,12 +25505,6 @@ void Player::AddKnownCurrency(uint32 itemId)
 {
     if (CurrencyTypesDBC const* ctEntry = sDBCStoresMgr->GetCurrencyTypesDBCByItemID(itemId))
         SetFlag64(PLAYER_FIELD_KNOWN_CURRENCIES, (1LL << (ctEntry->BitIndex-1)));
-}
-
-void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode)
-{
-    if (m_lastFallTime >= minfo.fallTime || m_lastFallZ <= minfo.pos.GetPositionZ() || opcode == MSG_MOVE_FALL_LAND)
-        SetFallInformation(minfo.fallTime, minfo.pos.GetPositionZ());
 }
 
 void Player::UnsummonPetTemporaryIfAny()
@@ -26650,8 +26646,9 @@ bool Player::SetDisableGravity(bool disable, bool packetOnly /*= false*/, bool u
 bool Player::SetCanFly(bool apply, bool packetOnly /*= false*/)
 {
     if (!apply)
-        SetFallInformation(0, GetPositionZ());
+        GetAnticheat()->resetFallingData(GetPositionZ());
 
+    GetAnticheat()->setCanFlybyServer(apply);
     WorldPacket data(apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY, 12);
     data << GetPackGUID();
     data << uint32(0);          //! movement counter

@@ -16,6 +16,7 @@
  */
 
 #include "FlightPathMovementGenerator.h"
+#include "Anticheat.h"
 #include "DBCStoresMgr.h"
 #include "Log.h"
 #include "MapManager.h"
@@ -168,7 +169,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* 
         // When the player reaches the last flight point, teleport to destination taxi node location
         if (TaxiNodesDBC const* node = sDBCStoresMgr->GetTaxiNodesDBC(taxiNodeId))
         {
-            owner->SetFallInformation(0, node->Pos.Z);
+            owner->GetAnticheat()->resetFallingData(node->Pos.Z);
             owner->TeleportTo(node->ContinentID, node->Pos.X, node->Pos.Y, node->Pos.Z, owner->GetOrientation());
         }
     }

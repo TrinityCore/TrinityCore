@@ -18,6 +18,7 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include "Anticheat.h"
 #include "GridObject.h"
 #include "Unit.h"
 #include "DatabaseEnvFwd.h"
@@ -918,6 +919,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool IsFalling() { return GetPositionZ() < m_lastFallZ; }
         bool IsInAreaTriggerRadius(AreaTriggerDBC const* trigger) const;
+        void UpdateLastZ(float newZ) { m_lastFallZ = newZ; }
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
@@ -1170,6 +1172,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void TradeCancel(bool sendback);
 
         CinematicMgr* GetCinematicMgr() const { return _cinematicMgr; }
+        Anticheat* GetAnticheat() const { return p_anticheat; }
 
         void UpdateEnchantTime(uint32 time);
         void UpdateSoulboundTradeItems();
@@ -1987,10 +1990,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
         /***                 VARIOUS SYSTEMS                   ***/
         /*********************************************************/
-        void UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode);
         // only changed for direct client control (possess, vehicle etc.), not stuff you control using pet commands
         WorldObject* m_seer;
-        void SetFallInformation(uint32 time, float z);
         void HandleFall(MovementInfo const& movementInfo);
 
         bool CanFlyInZone(uint32 mapid, uint32 zone, SpellInfo const* bySpell) const;
@@ -2478,7 +2479,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         MapReference m_mapRef;
 
-        uint32 m_lastFallTime;
         float  m_lastFallZ;
 
         int32 m_MirrorTimer[MAX_TIMERS];
@@ -2521,6 +2521,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 manaBeforeDuel;
 
         WorldLocation _corpseLocation;
+
+        Anticheat* p_anticheat;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

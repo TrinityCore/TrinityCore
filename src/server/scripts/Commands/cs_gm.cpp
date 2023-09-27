@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
+#include "Anticheat.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
@@ -97,7 +98,7 @@ public:
     {
         Player* target = handler->getSelectedPlayer();
         if (!target)
-            target = handler->GetSession()->GetPlayer();
+            target = handler->GetSession()->GetPlayer();        
 
         WorldPacket data(12);
         if (enable)
@@ -108,6 +109,7 @@ public:
         data << target->GetPackGUID();
         data << uint32(0);                                      // unknown
         target->SendMessageToSet(&data, true);
+        target->GetAnticheat()->setCanFlybyServer(enable);
         handler->PSendSysMessage(LANG_COMMAND_FLYMODE_STATUS, handler->GetNameLink(target).c_str(), enable ? "on" : "off");
         return true;
     }

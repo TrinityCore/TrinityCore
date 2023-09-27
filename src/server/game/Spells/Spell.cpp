@@ -3089,6 +3089,16 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     else
         m_casttime = m_spellInfo->CalcCastTime(this);
 
+    if (Unit* unitCaster = m_caster->ToUnit())
+    {
+        if (unitCaster->IsJumping() && m_casttime != 0)
+        {
+            SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
+            finish(false);
+            return SPELL_FAILED_SPELL_IN_PROGRESS;
+        }
+    }
+
     // don't allow channeled spells / spells with cast time to be cast while moving
     // exception are only channeled spells that have no casttime and SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
@@ -5581,20 +5591,41 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
                     float objSize = target->GetCombatReach();
                     float range = m_spellInfo->GetMaxRange(true, unitCaster, this) * 1.5f + objSize; // can't be overly strict
-
-                    m_preGeneratedPath = std::make_unique<PathGenerator>(unitCaster);
-                    m_preGeneratedPath->SetPathLengthLimit(range);
-
-                    // first try with raycast, if it fails fall back to normal path
-                    bool result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), false);
-                    if (m_preGeneratedPath->GetPathType() & PATHFIND_SHORT)
-                        return SPELL_FAILED_NOPATH;
-                    else if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
-                        return SPELL_FAILED_NOPATH;
-                    else if (m_preGeneratedPath->IsInvalidDestinationZ(target)) // Check position z, if not in a straight line
+                    if (!target->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), range))
                         return SPELL_FAILED_NOPATH;
 
-                    m_preGeneratedPath->ShortenPathUntilDist(PositionToVector3(target), objSize); // move back
+                    if (!unitCaster->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || !target->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+                    {
+                        m_preGeneratedPath = std::make_unique<PathGenerator>(unitCaster);
+                        m_preGeneratedPath->SetPathLengthLimit(range * 2.0f);
+
+                        /* ToDo: it's unclear why we need a Z offset, maybe because some creatures are a bit underground ?
+                         * Anyway ignore Z offset if the creature is underwater or flying as these can't be underground
+                         */
+                        float targetObjectSizeForZOffset = 0.0f;
+                        if (!target->IsUnderWater() && !target->IsFlying())
+                            targetObjectSizeForZOffset = std::min(target->GetCombatReach(), 4.0f);
+
+                        // first try with raycast, if it fails fall back to normal path
+                        bool result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSizeForZOffset, false);
+                        if (m_preGeneratedPath->GetPathType() & PATHFIND_SHORT)
+                            return SPELL_FAILED_OUT_OF_RANGE;
+                        else if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
+                        {
+                            // second try with raycast for the closest position
+                            float x, y, z;
+                            target->GetClosePoint(x, y, z, targetObjectSizeForZOffset);
+                            target->GetMap()->getObjectHitPos(target->GetPhaseMask(), target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSizeForZOffset, x, y, z + targetObjectSizeForZOffset, x, y, z, -targetObjectSizeForZOffset);
+                            result = m_preGeneratedPath->CalculatePath(x, y, z + targetObjectSizeForZOffset, false);
+
+                            if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
+                                return SPELL_FAILED_NOPATH;
+                        }
+                        else if (m_preGeneratedPath->IsInvalidDestinationZ(target)) // Check position z, if not in a straight line
+                            return SPELL_FAILED_NOPATH;
+
+                        m_preGeneratedPath->ShortenPathUntilDist(PositionToVector3(target), objSize); // move back
+                    }
                 }
                 break;
             }

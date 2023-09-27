@@ -52,9 +52,34 @@ void ConfusedMovementGenerator<T>::DoInitialize(T* owner)
     owner->SetUnitFlag(UNIT_FLAG_CONFUSED);
     owner->StopMoving();
 
-    _timer.Reset(0);
-    owner->GetPosition(_x, _y, _z);
     _path = nullptr;
+
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
+        _timer.Reset(200);
+    else
+    {
+        Position startdest;
+        owner->GetPosition(startdest.m_positionX, startdest.m_positionY, startdest.m_positionZ);
+        owner->GetNearPoint(owner, startdest.m_positionX, startdest.m_positionY, startdest.m_positionZ, 1.0f, owner->GetOrientation() * float(M_PI));
+
+        float distance = owner->GetExactDist2d(startdest.m_positionX, startdest.m_positionY);
+        owner->MovePositionToFirstCollision(startdest, distance, owner->GetOrientation() * float(M_PI));
+
+        Movement::MoveSplineInit init(owner);
+        init.MoveTo(startdest.m_positionX, startdest.m_positionY, startdest.m_positionZ);
+        init.SetWalk(true);
+
+        float _speed = owner->GetSpeed(MOVE_WALK);
+        float _checkspeed = owner->IsMounted() ? 5.0f : 2.5f;
+        if (_speed > _checkspeed)
+            _speed = _checkspeed;
+
+        init.SetVelocity(_speed);
+
+        int32 traveltime = init.Launch();
+        owner->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
+        _timer.Reset(traveltime);
+    }
 }
 
 template<class T>
@@ -70,6 +95,9 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
 {
     if (!owner || !owner->IsAlive())
         return false;
+
+    if (owner->IsJumping())
+        return true;
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
@@ -122,6 +150,9 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
         init.SetWalk(true);
         int32 traveltime = init.Launch();
         _timer.Reset(traveltime + urand(800, 1500));
+
+        // update position for server and others units/players
+        owner->UpdateSplinePosition();
     }
 
     return true;
