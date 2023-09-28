@@ -18,7 +18,6 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-#include "Anticheat.h"
 #include "GridObject.h"
 #include "Unit.h"
 #include "DatabaseEnvFwd.h"
@@ -54,6 +53,8 @@ struct ScalingStatValuesDBC;
 struct TrainerSpell;
 struct VendorItem;
 
+class AditionalData;
+class Anticheat;
 class AchievementMgr;
 class Bag;
 class Battleground;
@@ -1170,6 +1171,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void TradeCancel(bool sendback);
 
         CinematicMgr* GetCinematicMgr() const { return _cinematicMgr; }
+        AditionalData* GetAditionalData() const { return p_aditionalData; }
         Anticheat* GetAnticheat() const { return p_anticheat; }
 
         void UpdateEnchantTime(uint32 time);
@@ -1395,7 +1397,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*** MAILED ITEMS SYSTEM ***/
         /*********************************************************/
 
-        uint8 unReadMails;
+        uint32 unReadMails;
         time_t m_nextMailDelivereTime;
 
         void SendOnCancelExpectedVehicleRideAura() const;
@@ -2498,6 +2500,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         WorldLocation _corpseLocation;
 
+        AditionalData* p_aditionalData;
         Anticheat* p_anticheat;
 };
 

@@ -16,6 +16,7 @@
  */
 
 #include "AccountMgr.h"
+#include "AditionalData.h"
 #include "Anticheat.h"
 #include "Battleground.h"
 #include "Common.h"
@@ -511,6 +512,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     {
         plrMover->GetSession()->KickPlayer("Kicked by anticheat::ASH");
         return;
+    }
+
+    if (plrMover)
+    {
+        if (!plrMover->GetAditionalData()->hasWalkingFlag() && movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING))
+            plrMover->GetAditionalData()->setWalkingFlag(true);
+        if (plrMover->GetAditionalData()->hasWalkingFlag() && !movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING))
+            plrMover->GetAditionalData()->setWalkingFlag(false);
     }
 
     if (plrMover)
