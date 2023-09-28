@@ -18,17 +18,6 @@
 #ifndef TRINITY_MAIL_H
 #define TRINITY_MAIL_H
 
-#include "Common.h"
-#include "DatabaseEnvFwd.h"
-#include "ObjectGuid.h"
-#include <map>
-
-struct AuctionEntry;
-struct CalendarEvent;
-class Item;
-class Object;
-class Player;
-
 #define MAIL_BODY_ITEM_TEMPLATE 8383                        // - plain letter, A Dusty Unsent Letter: 889
 #define MAX_MAIL_ITEMS 12
 
@@ -63,13 +52,6 @@ enum MailStationery
     MAIL_STATIONERY_ORP     = 67                            // Orphan
 };
 
-enum MailState
-{
-    MAIL_STATE_UNCHANGED = 1,
-    MAIL_STATE_CHANGED   = 2,
-    MAIL_STATE_DELETED   = 3
-};
-
 enum MailShowFlags
 {
     MAIL_SHOW_UNK0    = 0x0001,
@@ -79,131 +61,11 @@ enum MailShowFlags
     MAIL_SHOW_RETURN  = 0x0010
 };
 
-class TC_GAME_API MailSender
+enum MailState : uint8
 {
-    public:                                                 // Constructors
-        MailSender(MailMessageType messageType, ObjectGuid::LowType sender_guidlow_or_entry, MailStationery stationery = MAIL_STATIONERY_DEFAULT)
-            : m_messageType(messageType), m_senderId(sender_guidlow_or_entry), m_stationery(stationery)
-        {
-        }
-        MailSender(Object* sender, MailStationery stationery = MAIL_STATIONERY_DEFAULT);
-        MailSender(CalendarEvent* sender);
-        MailSender(AuctionEntry* sender);
-        MailSender(Player* sender);
-        MailSender(uint32 senderEntry);
-    public:                                                 // Accessors
-        MailMessageType GetMailMessageType() const { return m_messageType; }
-        ObjectGuid::LowType GetSenderId() const { return m_senderId; }
-        MailStationery GetStationery() const { return m_stationery; }
-    private:
-        MailMessageType m_messageType;
-        ObjectGuid::LowType m_senderId;                                  // player low guid or other object entry
-        MailStationery m_stationery;
-};
-
-class TC_GAME_API MailReceiver
-{
-    public:                                                 // Constructors
-        explicit MailReceiver(ObjectGuid::LowType receiver_lowguid) : m_receiver(nullptr), m_receiver_lowguid(receiver_lowguid) { }
-        MailReceiver(Player* receiver);
-        MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowguid);
-    public:                                                 // Accessors
-        Player* GetPlayer() const { return m_receiver; }
-        ObjectGuid::LowType GetPlayerGUIDLow() const { return m_receiver_lowguid; }
-    private:
-        Player* m_receiver;
-        ObjectGuid::LowType m_receiver_lowguid;
-};
-
-class TC_GAME_API MailDraft
-{
-    typedef std::map<ObjectGuid::LowType, Item*> MailItemMap;
-
-    public:                                                 // Constructors
-        explicit MailDraft(uint16 mailTemplateId, bool need_items = true)
-            : m_mailTemplateId(mailTemplateId), m_mailTemplateItemsNeed(need_items), m_money(0), m_COD(0)
-        { }
-        MailDraft(std::string const& subject, std::string const& body)
-            : m_mailTemplateId(0), m_mailTemplateItemsNeed(false), m_subject(subject), m_body(body), m_money(0), m_COD(0) { }
-    public:                                                 // Accessors
-        uint16 GetMailTemplateId() const { return m_mailTemplateId; }
-        std::string const& GetSubject() const { return m_subject; }
-        uint32 GetMoney() const { return m_money; }
-        uint32 GetCOD() const { return m_COD; }
-        std::string const& GetBody() const { return m_body; }
-
-    public:                                                 // modifiers
-        MailDraft& AddItem(Item* item);
-        MailDraft& AddMoney(uint32 money) { m_money = money; return *this; }
-        MailDraft& AddCOD(uint32 COD) { m_COD = COD; return *this; }
-
-    public:                                                 // finishers
-        void SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, CharacterDatabaseTransaction trans);
-        void SendMailTo(CharacterDatabaseTransaction trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked = MAIL_CHECK_MASK_NONE, uint32 deliver_delay = 0);
-
-    private:
-        void deleteIncludedItems(CharacterDatabaseTransaction trans, bool inDB = false);
-        void prepareItems(Player* receiver, CharacterDatabaseTransaction trans);                // called from SendMailTo for generate mailTemplateBase items
-
-        uint16      m_mailTemplateId;
-        bool        m_mailTemplateItemsNeed;
-        std::string m_subject;
-        std::string m_body;
-
-        MailItemMap m_items;                                // Keep the items in a map to avoid duplicate guids (which can happen), store only low part of guid
-
-        uint32 m_money;
-        uint32 m_COD;
-};
-
-struct MailItemInfo
-{
-    ObjectGuid::LowType item_guid;
-    uint32 item_template;
-};
-typedef std::vector<MailItemInfo> MailItemInfoVec;
-
-struct TC_GAME_API Mail
-{
-    uint32 messageID;
-    uint8 messageType;
-    uint8 stationery;
-    uint16 mailTemplateId;
-    ObjectGuid::LowType sender;
-    ObjectGuid::LowType receiver;
-    std::string subject;
-    std::string body;
-    std::vector<MailItemInfo> items;
-    std::vector<ObjectGuid::LowType> removedItems;
-    time_t expire_time;
-    time_t deliver_time;
-    uint32 money;
-    uint32 COD;
-    uint32 checked;
-    MailState state;
-
-    void AddItem(ObjectGuid::LowType itemGuidLow, uint32 item_template)
-    {
-        MailItemInfo mii;
-        mii.item_guid = itemGuidLow;
-        mii.item_template = item_template;
-        items.push_back(mii);
-    }
-
-    bool RemoveItem(ObjectGuid::LowType item_guid)
-    {
-        for (MailItemInfoVec::iterator itr = items.begin(); itr != items.end(); ++itr)
-        {
-            if (itr->item_guid == item_guid)
-            {
-                items.erase(itr);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool HasItems() const { return !items.empty(); }
+    MAIL_STATE_UNCHANGED = 1,
+    MAIL_STATE_CHANGED   = 2,
+    //MAIL_STATE_DELETED   = 3  // not nessesary more
 };
 
 #endif

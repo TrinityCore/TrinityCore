@@ -232,7 +232,6 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
 ObjectMgr::ObjectMgr():
     _auctionId(1),
     _equipmentSetGuid(1),
-    _mailId(1),
     _hiPetNumber(1),
     _creatureSpawnId(1),
     _gameObjectSpawnId(1),
@@ -6391,132 +6390,6 @@ void ObjectMgr::LoadNpcTextLocales()
     TC_LOG_INFO("server.loading", ">> Loaded {} NpcText locale strings in {} ms", uint32(_npcTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
-//not very fast function but it is called only once a day, or on starting-up
-void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
-{
-    uint32 oldMSTime = getMSTime();
-
-    time_t curTime = GameTime::GetGameTime();
-    tm lt;
-    localtime_r(&curTime, &lt);
-    uint64 basetime(curTime);
-    TC_LOG_INFO("misc", "Returning mails current time: hour: {}, minute: {}, second: {} ", lt.tm_hour, lt.tm_min, lt.tm_sec);
-
-    // Delete all old mails without item and without body immediately, if starting server
-    if (!serverUp)
-    {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EMPTY_EXPIRED_MAIL);
-        stmt->setUInt64(0, basetime);
-        CharacterDatabase.Execute(stmt);
-    }
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL);
-    stmt->setUInt64(0, basetime);
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> No expired mails found.");
-        return;                                             // any mails need to be returned or deleted
-    }
-
-    std::map<uint32 /*messageId*/, MailItemInfoVec> itemsCache;
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL_ITEMS);
-    stmt->setUInt32(0, (uint32)basetime);
-    if (PreparedQueryResult items = CharacterDatabase.Query(stmt))
-    {
-        MailItemInfo item;
-        do
-        {
-            Field* fields = items->Fetch();
-            item.item_guid = fields[0].GetUInt32();
-            item.item_template = fields[1].GetUInt32();
-            uint32 mailId = fields[2].GetUInt32();
-            itemsCache[mailId].push_back(item);
-        } while (items->NextRow());
-    }
-
-    uint32 deletedCount = 0;
-    uint32 returnedCount = 0;
-    do
-    {
-        Field* fields = result->Fetch();
-        ObjectGuid::LowType receiver = fields[3].GetUInt32();
-        if (serverUp && ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, receiver)))
-            continue;
-
-        Mail* m = new Mail;
-        m->messageID      = fields[0].GetUInt32();
-        m->messageType    = fields[1].GetUInt8();
-        m->sender         = fields[2].GetUInt32();
-        m->receiver       = receiver;
-        bool has_items    = fields[4].GetBool();
-        m->expire_time    = time_t(fields[5].GetUInt32());
-        m->deliver_time   = 0;
-        m->COD            = fields[6].GetUInt32();
-        m->checked        = fields[7].GetUInt8();
-        m->mailTemplateId = fields[8].GetInt16();
-
-        // Delete or return mail
-        if (has_items)
-        {
-            // read items from cache
-            m->items.swap(itemsCache[m->messageID]);
-
-            // if it is mail from non-player, or if it's already return mail, it shouldn't be returned, but deleted
-            if (m->messageType != MAIL_NORMAL || (m->checked & (MAIL_CHECK_MASK_COD_PAYMENT | MAIL_CHECK_MASK_RETURNED)))
-            {
-                // mail open and then not returned
-                for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
-                {
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                    stmt->setUInt32(0, itr2->item_guid);
-                    CharacterDatabase.Execute(stmt);
-                }
-
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-                stmt->setUInt32(0, m->messageID);
-                CharacterDatabase.Execute(stmt);
-            }
-            else
-            {
-                // Mail will be returned
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL_RETURNED);
-                stmt->setUInt32(0, m->receiver);
-                stmt->setUInt32(1, m->sender);
-                stmt->setUInt32(2, basetime + 30 * DAY);
-                stmt->setUInt32(3, basetime);
-                stmt->setUInt8 (4, uint8(MAIL_CHECK_MASK_RETURNED));
-                stmt->setUInt32(5, m->messageID);
-                CharacterDatabase.Execute(stmt);
-                for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
-                {
-                    // Update receiver in mail items for its proper delivery, and in instance_item for avoid lost item at sender delete
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL_ITEM_RECEIVER);
-                    stmt->setUInt32(0, m->sender);
-                    stmt->setUInt32(1, itr2->item_guid);
-                    CharacterDatabase.Execute(stmt);
-
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
-                    stmt->setUInt32(0, m->sender);
-                    stmt->setUInt32(1, itr2->item_guid);
-                    CharacterDatabase.Execute(stmt);
-                }
-                delete m;
-                ++returnedCount;
-                continue;
-            }
-        }
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-        stmt->setUInt32(0, m->messageID);
-        CharacterDatabase.Execute(stmt);
-        delete m;
-        ++deletedCount;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Processed {} expired mails: {} deleted and {} returned in {} ms", deletedCount + returnedCount, deletedCount, returnedCount, GetMSTimeDiffToNow(oldMSTime));
-}
-
 void ObjectMgr::LoadQuestAreaTriggers()
 {
     uint32 oldMSTime = getMSTime();
@@ -7466,10 +7339,6 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         _auctionId = (*result)[0].GetUInt32()+1;
 
-    result = CharacterDatabase.Query("SELECT MAX(id) FROM mail");
-    if (result)
-        _mailId = (*result)[0].GetUInt32()+1;
-
     result = CharacterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
     if (result)
         sArenaTeamMgr->SetNextArenaTeamId((*result)[0].GetUInt32()+1);
@@ -7522,16 +7391,6 @@ uint64 ObjectMgr::GenerateEquipmentSetGuid()
         World::StopNow(ERROR_EXIT_CODE);
     }
     return _equipmentSetGuid++;
-}
-
-uint32 ObjectMgr::GenerateMailID()
-{
-    if (_mailId >= 0xFFFFFFFE)
-    {
-        TC_LOG_ERROR("misc", "Mail ids overflow!! Can't continue, shutting down server. Search on forum for TCE00007 for more info. ");
-        World::StopNow(ERROR_EXIT_CODE);
-    }
-    return _mailId++;
 }
 
 uint32 ObjectMgr::GeneratePetNumber()

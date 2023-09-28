@@ -27,6 +27,7 @@ Script Data End */
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "Mail.h"
+#include "MailMgr.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
@@ -173,10 +174,8 @@ struct npc_minigob_manabonk : public ScriptedAI
 
     void SendMailToPlayer(Player* player) const
     {
-        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         int16 deliverDelay = irand(MAIL_DELIVER_DELAY_MIN, MAIL_DELIVER_DELAY_MAX);
-        MailDraft(MAIL_MINIGOB_ENTRY, true).SendMailTo(trans, MailReceiver(player), MailSender(MAIL_CREATURE, me->GetEntry()), MAIL_CHECK_MASK_NONE, deliverDelay);
-        CharacterDatabase.CommitTransaction(trans);
+        sMailMgr->SendMailWithTemplateByGUID(me->GetEntry(), player->GetGUID().GetCounter(), MAIL_CREATURE, MAIL_MINIGOB_ENTRY, MAIL_CHECK_MASK_NONE, deliverDelay);
     }
 
     void UpdateAI(uint32 diff) override
