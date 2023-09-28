@@ -66,6 +66,7 @@
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "Mail.h"
+#include "MailMgr.h"
 #include "MailPackets.h"
 #include "MapManager.h"
 #include "MiscPackets.h"
@@ -299,7 +300,6 @@ Player::Player(WorldSession* session): Unit(true)
     _restFlagMask = 0;
     ////////////////////Rest System/////////////////////
 
-    m_mailsUpdated = false;
     unReadMails = 0;
     m_nextMailDelivereTime = 0;
 
@@ -420,13 +420,6 @@ Player::~Player()
             delete itr->second;
         delete m_talents[i];
     }
-
-    //all mailed items should be deleted, also all mail should be deallocated
-    for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
-        delete *itr;
-
-    for (ItemMap::iterator iter = mMitems.begin(); iter != mMitems.end(); ++iter)
-        delete iter->second;                                //if item is duplicated... then server may crash ... but that item should be deallocated
 
     delete PlayerTalkClass;
 
@@ -1968,9 +1961,6 @@ void Player::RemoveFromWorld()
     ///- The player should only be removed when logging out
     Unit::RemoveFromWorld();
 
-    for (ItemMap::iterator iter = mMitems.begin(); iter != mMitems.end(); ++iter)
-        iter->second->RemoveFromWorld();
-
     if (m_uint32Values)
     {
         if (WorldObject* viewpoint = GetViewpoint())
@@ -2652,12 +2642,7 @@ void Player::GiveLevel(uint8 level)
         pet->SynchronizeLevelWithOwner();
 
     if (MailLevelReward const* mailReward = sObjectMgr->GetMailLevelReward(level, GetRaceMask()))
-    {
-        /// @todo Poor design of mail system
-        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-        MailDraft(mailReward->mailTemplateId).SendMailTo(trans, this, MailSender(MAIL_CREATURE, mailReward->senderEntry));
-        CharacterDatabase.CommitTransaction(trans);
-    }
+        sMailMgr->SendMailWithTemplateByGUID(mailReward->senderEntry, GetGUID().GetCounter(), MAIL_CREATURE, mailReward->mailTemplateId);
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL);
 
@@ -2975,19 +2960,6 @@ void Player::SendTameFailure(uint8 result)
     SendDirectMessage(&data);
 }
 
-void Player::RemoveMail(uint32 id)
-{
-    for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
-    {
-        if ((*itr)->messageID == id)
-        {
-            //do not delete item, because Player::removeMail() is called when returning mail to sender.
-            m_mail.erase(itr);
-            return;
-        }
-    }
-}
-
 void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType item_guid, uint32 item_count) const
 {
     WorldPackets::Mail::MailCommandResult result;
@@ -3014,17 +2986,7 @@ void Player::UpdateNextMailTimeAndUnreads()
     // and recalculate unReadMail
     time_t cTime = GameTime::GetGameTime();
     m_nextMailDelivereTime = 0;
-    unReadMails = 0;
-    for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
-    {
-        if ((*itr)->deliver_time > cTime)
-        {
-            if (!m_nextMailDelivereTime || m_nextMailDelivereTime > (*itr)->deliver_time)
-                m_nextMailDelivereTime = (*itr)->deliver_time;
-        }
-        else if (((*itr)->checked & MAIL_CHECK_MASK_READ) == 0)
-            ++unReadMails;
-    }
+    unReadMails = sMailMgr->GetUnreadMessagesAndNextDelivertime(GetGUID().GetCounter(), m_nextMailDelivereTime);
 }
 
 void Player::AddNewMailDeliverTime(time_t deliver_time)
@@ -3977,15 +3939,6 @@ void Player::SetFreeTalentPoints(uint32 points)
     SetUInt32Value(PLAYER_CHARACTER_POINTS1, points);
 }
 
-Mail* Player::GetMail(uint32 id)
-{
-    for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
-        if ((*itr)->messageID == id)
-            return (*itr);
-
-    return nullptr;
-}
-
 void Player::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const
 {
     if (target == this)
@@ -4137,85 +4090,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
         // Completely remove from the database
         case CHAR_DELETE_REMOVE:
         {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_COD_ITEM_MAIL);
-            stmt->setUInt32(0, guid);
-            PreparedQueryResult resultMail = CharacterDatabase.Query(stmt);
-
-            if (resultMail)
-            {
-                std::unordered_map<uint32, std::vector<Item*>> itemsByMail;
-
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS);
-                stmt->setUInt32(0, guid);
-                PreparedQueryResult resultItems = CharacterDatabase.Query(stmt);
-
-                if (resultItems)
-                {
-                    do
-                    {
-                        Field* fields = resultItems->Fetch();
-                        uint32 mailId = fields[14].GetUInt32();
-                        if (Item* mailItem = _LoadMailedItem(playerguid, nullptr, mailId, nullptr, fields))
-                            itemsByMail[mailId].push_back(mailItem);
-
-                    } while (resultItems->NextRow());
-                }
-
-                do
-                {
-                    Field* mailFields = resultMail->Fetch();
-
-                    uint32 mail_id       = mailFields[0].GetUInt32();
-                    uint8 mailType       = mailFields[1].GetUInt8();
-                    uint16 mailTemplateId= mailFields[2].GetUInt16();
-                    uint32 sender        = mailFields[3].GetUInt32();
-                    std::string subject  = mailFields[4].GetString();
-                    std::string body     = mailFields[5].GetString();
-                    uint32 money         = mailFields[6].GetUInt32();
-                    bool has_items       = mailFields[7].GetBool();
-
-                    // We can return mail now
-                    // So firstly delete the old one
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-                    stmt->setUInt32(0, mail_id);
-                    trans->Append(stmt);
-
-                    // Mail is not from player
-                    if (mailType != MAIL_NORMAL)
-                    {
-                        if (has_items)
-                        {
-                            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-                            stmt->setUInt32(0, mail_id);
-                            trans->Append(stmt);
-                        }
-                        continue;
-                    }
-
-                    MailDraft draft(subject, body);
-                    if (mailTemplateId)
-                        draft = MailDraft(mailTemplateId, false);    // items are already included
-
-                    auto itemsItr = itemsByMail.find(mail_id);
-                    if (itemsItr != itemsByMail.end())
-                    {
-                        for (Item* item : itemsItr->second)
-                            draft.AddItem(item);
-
-                        // MailDraft will take care of freeing memory
-                        itemsByMail.erase(itemsItr);
-                    }
-
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-                    stmt->setUInt32(0, mail_id);
-                    trans->Append(stmt);
-
-                    uint32 pl_account = sCharacterCache->GetCharacterAccountIdByGuid(playerguid);
-
-                    draft.AddMoney(money).SendReturnToSender(pl_account, guid, sender, trans);
-                }
-                while (resultMail->NextRow());
-            }
+            sMailMgr->RemoveAllMailsFor(guid);
 
             // Unsummon and delete for pets in world is not required: player deleted from CLI or character list with not loaded pet.
             // NOW we can finally clear other DB data related to character
@@ -4338,14 +4213,6 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_GUID);
-            stmt->setUInt32(0, guid);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL);
-            stmt->setUInt32(0, guid);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEMS);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
@@ -15243,13 +15110,10 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     // Send reward mail
     if (uint32 mail_template_id = quest->GetRewMailTemplateId())
     {
-        /// @todo Poor design of mail system
-        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         if (uint32 questMailSender = quest->GetRewMailSenderEntry())
-            MailDraft(mail_template_id).SendMailTo(trans, this, questMailSender, MAIL_CHECK_MASK_HAS_BODY, quest->GetRewMailDelaySecs());
+            sMailMgr->SendMailWithTemplateByGUID(questMailSender, GetGUID().GetCounter(), MAIL_CREATURE, mail_template_id, MAIL_CHECK_MASK_HAS_BODY, quest->GetRewMailDelaySecs());
         else
-            MailDraft(mail_template_id).SendMailTo(trans, this, questGiver, MAIL_CHECK_MASK_HAS_BODY, quest->GetRewMailDelaySecs());
-        CharacterDatabase.CommitTransaction(trans);
+            sMailMgr->SendMailWithTemplateBy(questGiver, GetGUID().GetCounter(), mail_template_id, MAIL_CHECK_MASK_HAS_BODY, quest->GetRewMailDelaySecs());
     }
 
     if (quest->IsDaily() || quest->IsDFQuest())
@@ -17785,9 +17649,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     _LoadActions(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACTIONS));
 
-    // unread mails and next delivery time, actual mails not loaded
-    _LoadMail(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAILS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS));
-
     m_social = sSocialMgr->LoadFromDB(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SOCIAL_LIST), GetGUID());
 
     // check PLAYER_CHOSEN_TITLE compatibility with PLAYER__FIELD_KNOWN_TITLES
@@ -18231,13 +18092,14 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
         {
             std::string subject = GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM);
 
-            MailDraft draft(subject, "There were problems with equipping item(s).");
+            std::vector<Item*> sendItems;
             for (uint8 i = 0; !problematicItems.empty() && i < MAX_MAIL_ITEMS; ++i)
             {
-                draft.AddItem(problematicItems.front());
+                sendItems.push_back(problematicItems.front());
                 problematicItems.pop_front();
             }
-            draft.SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
+            sMailMgr->SendMailWithItemsBy(this, GetGUID().GetCounter(), subject, "There were problems with equipping item(s).", 0, sendItems);
+            sendItems.clear();
         }
         CharacterDatabase.CommitTransaction(trans);
     }
@@ -18373,111 +18235,6 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
         Item::DeleteFromDB(trans, itemGuid);
     }
     return item;
-}
-
-// load mailed item which should receive current player
-Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint32 mailId, Mail* mail, Field* fields)
-{
-    ObjectGuid::LowType itemGuid = fields[11].GetUInt32();
-    uint32 itemEntry = fields[12].GetUInt32();
-
-    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
-    if (!proto)
-    {
-        TC_LOG_ERROR("entities.player", "Player '{}' ({}) has unknown item in mailed items (GUID: {}, Entry: {}) in mail ({}), deleted.",
-            player ? player->GetName() : "<unknown>", playerGuid.ToString(), itemGuid, itemEntry, mailId);
-
-        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_MAIL_ITEM);
-        stmt->setUInt32(0, itemGuid);
-        trans->Append(stmt);
-
-        Item::DeleteFromDB(trans, itemGuid);
-
-        CharacterDatabase.CommitTransaction(trans);
-        return nullptr;
-    }
-
-    Item* item = NewItemOrBag(proto);
-
-    ObjectGuid ownerGuid = fields[13].GetUInt32() ? ObjectGuid::Create<HighGuid::Player>(fields[13].GetUInt32()) : ObjectGuid::Empty;
-    if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
-    {
-        TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: {}) in mail ({}) doesn't exist, deleted from mail.", itemGuid, mailId);
-
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
-        stmt->setUInt32(0, itemGuid);
-        CharacterDatabase.Execute(stmt);
-
-        item->FSetState(ITEM_REMOVED);
-
-        CharacterDatabaseTransaction temp = CharacterDatabaseTransaction(nullptr);
-        item->SaveToDB(temp);                               // it also deletes item object !
-        return nullptr;
-    }
-
-    if (mail)
-        mail->AddItem(itemGuid, itemEntry);
-
-    if (player)
-        player->AddMItem(item);
-
-    return item;
-}
-
-void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mailItemsResult)
-{
-    m_mail.clear();
-
-    std::unordered_map<uint32, Mail*> mailById;
-
-    if (mailsResult)
-    {
-        do
-        {
-            Field* fields = mailsResult->Fetch();
-            Mail* m = new Mail;
-
-            m->messageID      = fields[0].GetUInt32();
-            m->messageType    = fields[1].GetUInt8();
-            m->sender         = fields[2].GetUInt32();
-            m->receiver       = fields[3].GetUInt32();
-            m->subject        = fields[4].GetString();
-            m->body           = fields[5].GetString();
-            m->expire_time    = time_t(fields[6].GetUInt32());
-            m->deliver_time   = time_t(fields[7].GetUInt32());
-            m->money          = fields[8].GetUInt32();
-            m->COD            = fields[9].GetUInt32();
-            m->checked        = fields[10].GetUInt8();
-            m->stationery     = fields[11].GetUInt8();
-            m->mailTemplateId = fields[12].GetInt16();
-
-            if (m->mailTemplateId && !sDBCStoresMgr->GetMailTemplateDBC(m->mailTemplateId))
-            {
-                TC_LOG_ERROR("entities.player", "Player::_LoadMail: Mail ({}) has nonexistent MailTemplateId ({}), remove at load", m->messageID, m->mailTemplateId);
-                m->mailTemplateId = 0;
-            }
-
-            m->state = MAIL_STATE_UNCHANGED;
-
-            m_mail.push_back(m);
-            mailById[m->messageID] = m;
-        }
-        while (mailsResult->NextRow());
-    }
-
-    if (mailItemsResult)
-    {
-        do
-        {
-            Field* fields = mailItemsResult->Fetch();
-            uint32 mailId = fields[14].GetUInt32();
-            _LoadMailedItem(GetGUID(), this, mailId, mailById[mailId], fields);
-        } while (mailItemsResult->NextRow());
-    }
-
-    UpdateNextMailTimeAndUnreads();
 }
 
 void Player::LoadPet()
@@ -19585,9 +19342,6 @@ void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create /* = false
         trans->Append(stmt);
     }
 
-    if (m_mailsUpdated)                                     //save mails only when needed
-        _SaveMail(trans);
-
     _SaveBGData(trans);
     _SaveInventory(trans);
     _SaveQuestStatus(trans);
@@ -19879,76 +19633,6 @@ void Player::_SaveInventory(CharacterDatabaseTransaction trans)
         item->SaveToDB(trans);                                   // item have unchanged inventory record and can be save standalone
     }
     m_itemUpdateQueue.clear();
-}
-
-void Player::_SaveMail(CharacterDatabaseTransaction trans)
-{
-    CharacterDatabasePreparedStatement* stmt;
-
-    for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
-    {
-        Mail* m = (*itr);
-        if (m->state == MAIL_STATE_CHANGED)
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL);
-            stmt->setUInt8(0, uint8(m->HasItems() ? 1 : 0));
-            stmt->setUInt32(1, uint32(m->expire_time));
-            stmt->setUInt32(2, uint32(m->deliver_time));
-            stmt->setUInt32(3, m->money);
-            stmt->setUInt32(4, m->COD);
-            stmt->setUInt8(5, uint8(m->checked));
-            stmt->setUInt32(6, m->messageID);
-
-            trans->Append(stmt);
-
-            if (!m->removedItems.empty())
-            {
-                for (std::vector<uint32>::iterator itr2 = m->removedItems.begin(); itr2 != m->removedItems.end(); ++itr2)
-                {
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
-                    stmt->setUInt32(0, *itr2);
-                    trans->Append(stmt);
-                }
-                m->removedItems.clear();
-            }
-            m->state = MAIL_STATE_UNCHANGED;
-        }
-        else if (m->state == MAIL_STATE_DELETED)
-        {
-            if (m->HasItems())
-            {
-                for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
-                {
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                    stmt->setUInt32(0, itr2->item_guid);
-                    trans->Append(stmt);
-                }
-            }
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-            stmt->setUInt32(0, m->messageID);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-            stmt->setUInt32(0, m->messageID);
-            trans->Append(stmt);
-        }
-    }
-
-    //deallocate deleted mails...
-    for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end();)
-    {
-        if ((*itr)->state == MAIL_STATE_DELETED)
-        {
-            Mail* m = *itr;
-            m_mail.erase(itr);
-            delete m;
-            itr = m_mail.begin();
-        }
-        else
-            ++itr;
-    }
-
-    m_mailsUpdated = false;
 }
 
 void Player::_SaveQuestStatus(CharacterDatabaseTransaction trans)
@@ -20898,24 +20582,6 @@ void Player::Whisper(uint32 textId, Player* target, bool /*isBossWhisper = false
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, LANG_UNIVERSAL, this, target, bct->GetText(locale, GetGender()), 0, "", locale);
     target->SendDirectMessage(&data);
-}
-
-Item* Player::GetMItem(uint32 id)
-{
-    ItemMap::const_iterator itr = mMitems.find(id);
-    return itr != mMitems.end() ? itr->second : nullptr;
-}
-
-void Player::AddMItem(Item* it)
-{
-    ASSERT(it);
-    //ASSERT deleted, because items can be added before loading
-    mMitems[it->GetGUID().GetCounter()] = it;
-}
-
-bool Player::RemoveMItem(uint32 id)
-{
-    return mMitems.erase(id) ? true : false;
 }
 
 void Player::SendOnCancelExpectedVehicleRideAura() const
@@ -23716,11 +23382,13 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         offItem->DeleteFromInventoryDB(trans);                   // deletes item from character's inventory
         offItem->SaveToDB(trans);                                // recursive and not have transaction guard into self, item not in inventory and can be save standalone
+        CharacterDatabase.CommitTransaction(trans);
 
         std::string subject = GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM);
-        MailDraft(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
-
-        CharacterDatabase.CommitTransaction(trans);
+        std::vector<Item*> itemsInMail;
+        itemsInMail.push_back(offItem);
+        sMailMgr->SendMailWithItemsBy(this, this->GetGUID().GetCounter(), subject, "There were problems with equipping one or several items", 0, itemsInMail);
+        itemsInMail.clear();
     }
 }
 
@@ -26482,18 +26150,18 @@ void Player::RefundItem(Item* item)
 
 void Player::SendItemRetrievalMail(uint32 itemEntry, uint32 count)
 {
-    MailSender sender(MAIL_CREATURE, 34337 /* The Postmaster */);
-    MailDraft draft("Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed."); // This is the text used in Cataclysm, it probably wasn't changed.
+    std::vector<Item*> maillist;
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-
     if (Item* item = Item::CreateItem(itemEntry, count, nullptr))
     {
         item->SaveToDB(trans);
-        draft.AddItem(item);
+        maillist.push_back(item);
     }
-
-    draft.SendMailTo(trans, MailReceiver(this, GetGUID().GetCounter()), sender);
     CharacterDatabase.CommitTransaction(trans);
+
+    sMailMgr->SendMailWithItemsByGUID(34337, GetGUID().GetCounter(), MAIL_CREATURE,
+        "Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed.", 0, maillist);
+    maillist.clear();
 }
 
 void Player::SetRandomWinner(bool isWinner)

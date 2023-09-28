@@ -1242,8 +1242,6 @@ class TC_GAME_API ObjectMgr
             return itr != _fishingBaseForAreaStore.end() ? itr->second : 0;
         }
 
-        void ReturnOrDeleteOldMails(bool serverUp);
-
         CreatureBaseStats const* GetCreatureBaseStats(uint8 level, uint8 unitClass);
 
         void SetHighestGuids();
@@ -1257,7 +1255,6 @@ class TC_GAME_API ObjectMgr
 
         uint32 GenerateAuctionID();
         uint64 GenerateEquipmentSetGuid();
-        uint32 GenerateMailID();
         uint32 GeneratePetNumber();
         ObjectGuid::LowType GenerateCreatureSpawnId();
         ObjectGuid::LowType GenerateGameObjectSpawnId();
@@ -1574,7 +1571,6 @@ class TC_GAME_API ObjectMgr
         // first free id for selected id type
         uint32 _auctionId;
         uint64 _equipmentSetGuid;
-        std::atomic<uint32> _mailId;
         std::atomic<uint32> _hiPetNumber;
 
         ObjectGuid::LowType _creatureSpawnId;

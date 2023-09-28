@@ -58,6 +58,7 @@
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "M2Stores.h"
+#include "MailMgr.h"
 #include "MapManager.h"
 #include "Memory.h"
 #include "Metric.h"
@@ -138,9 +139,6 @@ World::World()
 
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
-
-    mail_timer = 0;
-    mail_timer_expires = 0;
 
     m_isClosed = false;
 
@@ -2100,10 +2098,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading client addons...");
     AddonMgr::LoadFromDB();
 
-    ///- Handle outdated emails (delete/return)
-    TC_LOG_INFO("server.loading", "Returning old mails...");
-    sObjectMgr->ReturnOrDeleteOldMails(false);
-
     TC_LOG_INFO("server.loading", "Loading Autobroadcasts...");
     LoadAutobroadcasts();
 
@@ -2178,19 +2172,6 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_CHANNEL_SAVE].SetInterval(getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_INTERVAL) * MINUTE * IN_MILLISECONDS);
 
-    //to set mailtimer to return mails every day between 4 and 5 am
-    //mailtimer is increased when updating auctions
-    //one second is 1000 -(tested on win system)
-    /// @todo Get rid of magic numbers
-    tm localTm;
-    time_t gameTime = GameTime::GetGameTime();
-    localtime_r(&gameTime, &localTm);
-    uint8 CleanOldMailsTime = getIntConfig(CONFIG_CLEAN_OLD_MAIL_TIME);
-    mail_timer = ((((localTm.tm_hour + (24 - CleanOldMailsTime)) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
-                                                            //1440
-    mail_timer_expires = ((DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
-    TC_LOG_INFO("server.loading", "Mail timer set to: {}, mail return is called every {} minutes", uint64(mail_timer), uint64(mail_timer_expires));
-
     ///- Initialize MapManager
     TC_LOG_INFO("server.loading", "Starting Map System");
     sMapMgr->Initialize();
@@ -2231,6 +2212,10 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Transports...");
     sTransportMgr->SpawnContinentTransports();
+
+    ///- Initialize Mails
+    TC_LOG_INFO("server.loading", "Starting Mail System");
+    sMailMgr->Initialize();
 
     ///- Initialize Warden
     TC_LOG_INFO("server.loading", "Loading Warden Checks...");
@@ -2426,14 +2411,6 @@ void World::Update(uint32 diff)
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update expired auctions"));
         m_timers[WUPDATE_AUCTIONS].Reset();
 
-        ///- Update mails (return old mails with item, or delete them)
-        //(tested... works on win)
-        if (++mail_timer > mail_timer_expires)
-        {
-            mail_timer = 0;
-            sObjectMgr->ReturnOrDeleteOldMails(true);
-        }
-
         ///- Handle expired auctions
         sAuctionMgr->Update();
     }
@@ -2535,6 +2512,11 @@ void World::Update(uint32 diff)
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update battlefields"));
         sBattlefieldMgr->Update(diff);
+    }
+
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update mails"));
+        sMailMgr->Update(diff);
     }
 
     ///- Delete all characters which have been deleted X days before

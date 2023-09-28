@@ -75,7 +75,6 @@ enum WorldTimers
     WUPDATE_EVENTS,
     WUPDATE_CLEANDB,
     WUPDATE_AUTOBROADCAST,
-    WUPDATE_MAILBOXQUEUE,
     WUPDATE_DELETECHARS,
     WUPDATE_AHBOT,
     WUPDATE_PINGDB,
@@ -497,6 +496,7 @@ enum CustomWorldFloatConfigs
 
 enum CustomWorldIntConfigs {
     CONFIG_ANTICHEAT_FLYHACK_TIMER = 0,
+    CONFIG_ANTISPAM_MAIL_COUNT_CONTROLLER,
     CUSTOM_INT_CONFIG_VALUE_COUNT
 };
 
@@ -911,8 +911,6 @@ class TC_GAME_API World
         bool m_isClosed;
 
         IntervalTimer m_timers[WUPDATE_COUNT];
-        time_t mail_timer;
-        time_t mail_timer_expires;
 
         SessionMap m_sessions;
         typedef std::unordered_map<uint32, time_t> DisconnectMap;

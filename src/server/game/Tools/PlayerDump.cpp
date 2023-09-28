@@ -807,7 +807,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::istream& input, uint32 account, std::
     ObjectGuid::LowType itemLowGuidOffset = sObjectMgr->GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed();
 
     std::map<ObjectGuid::LowType, ObjectGuid::LowType> mails;
-    ObjectGuid::LowType mailLowGuidOffset = sObjectMgr->_mailId;
+    ObjectGuid::LowType mailLowGuidOffset = 0;
 
     std::map<ObjectGuid::LowType, ObjectGuid::LowType> petIds;
     ObjectGuid::LowType petLowGuidOffset = sObjectMgr->_hiPetNumber;
@@ -956,7 +956,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::istream& input, uint32 account, std::
     sCharacterCache->AddCharacterCacheEntry(ObjectGuid(HighGuid::Player, guid), account, name, gender, race, playerClass, level);
 
     sObjectMgr->GetGenerator<HighGuid::Item>().Set(sObjectMgr->GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed() + items.size());
-    sObjectMgr->_mailId += mails.size();
+    //sObjectMgr->_mailId += mails.size();
     sObjectMgr->_hiPetNumber += petIds.size();
     sObjectMgr->_equipmentSetGuid += equipmentSetIds.size();
 
