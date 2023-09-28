@@ -16,6 +16,7 @@
  */
 
 #include "CalendarMgr.h"
+#include "AditionalData.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
@@ -200,7 +201,7 @@ void CalendarMgr::RemoveEvent(CalendarEvent* calendarEvent, ObjectGuid remover)
         {
             if (Player* premover = ObjectAccessor::FindConnectedPlayer(invite->GetInviteeGUID()))
             {
-                if (sMailMgr->GetMailBoxSize(invite->GetInviteeGUID()) /* + premover->GetAuctionLotsCount()*/ < sWorld->customGetIntConfig(CONFIG_ANTISPAM_MAIL_COUNT_CONTROLLER))
+                if (sMailMgr->GetMailBoxSize(invite->GetInviteeGUID()) + premover->GetAditionalData()->getAuctionLotsCount() < sWorld->customGetIntConfig(CONFIG_ANTISPAM_MAIL_COUNT_CONTROLLER))
                     sMailMgr->SendMailByCalendarEvent(calendarEvent, invite->GetInviteeGUID().GetCounter(), calendarEvent->BuildCalendarMailSubject(remover), calendarEvent->BuildCalendarMailBody(), 0, MAIL_CHECK_MASK_COPIED);
             }
         }

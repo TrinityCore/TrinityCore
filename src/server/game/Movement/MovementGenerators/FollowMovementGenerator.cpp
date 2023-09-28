@@ -16,6 +16,7 @@
  */
 
 #include "FollowMovementGenerator.h"
+#include "AditionalData.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "MoveSpline.h"
@@ -23,6 +24,7 @@
 #include "Optional.h"
 #include "PathGenerator.h"
 #include "Pet.h"
+#include "Player.h"
 #include "Unit.h"
 #include "Util.h"
 
@@ -165,7 +167,13 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
 
             Movement::MoveSplineInit init(owner);
             init.MovebyPath(_path->GetPath());
-            init.SetWalk(target->IsWalking());
+
+            bool walk;
+            if (owner->GetOwner() && owner->GetOwner()->ToPlayer())
+                walk = owner->GetOwner()->ToPlayer()->GetAditionalData()->hasWalkingFlag();
+            else
+                walk = target->IsWalking();
+            init.SetWalk(walk);
             init.SetFacing(target->GetOrientation());
             init.Launch();
         }

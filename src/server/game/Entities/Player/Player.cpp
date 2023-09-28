@@ -16,6 +16,7 @@
  */
 
 #include "Player.h"
+#include "AditionalData.h"
 #include "Anticheat.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
@@ -402,6 +403,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_groupUpdateTimer.Reset(5000);
 
+    p_aditionalData = new AditionalData(this);
     p_anticheat = new Anticheat(this);
 }
 
@@ -431,6 +433,7 @@ Player::~Player()
     delete m_achievementMgr;
     delete m_reputationMgr;
     delete _cinematicMgr;
+    delete p_aditionalData;
     delete p_anticheat;
 
     sWorld->DecreasePlayerCount();
@@ -1215,6 +1218,7 @@ void Player::Update(uint32 p_time)
             m_zoneUpdateTimer -= p_time;
     }
 
+    GetAditionalData()->update(p_time);
     GetAnticheat()->update(p_time);
 
     if (IsAlive())
@@ -17753,7 +17757,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     m_achievementMgr->CheckAllAchievementCriteria();
 
     _LoadEquipmentSets(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
-
+    GetAditionalData()->calculateAuctionLotsCounter();
     return true;
 }
 

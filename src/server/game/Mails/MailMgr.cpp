@@ -16,6 +16,7 @@
  */
 
 #include "AccountMgr.h"
+#include "AditionalData.h"
 #include "AuctionHouseMgr.h"
 #include "Bag.h"
 #include "BattlegroundMgr.h"
@@ -913,12 +914,11 @@ MailResponseResult MailMgr::HandleMailReturnToSender(uint32 mailID)
         if (itr->second.sender) // new receiver
         {
             // AditionalData
-            /*
             if (Player* receiver = ObjectAccessor::FindPlayerByLowGUID(itr->second.sender))
             {
-                if (GetMailBoxSize(itr->second.sender) + receiver->GetAuctionLotsCount() > sWorld->customGetIntConfig(CONFIG_ANTISPAM_MAIL_COUNT_CONTROLLER))
+                if (GetMailBoxSize(itr->second.sender) + receiver->GetAditionalData()->getAuctionLotsCount() > sWorld->customGetIntConfig(CONFIG_ANTISPAM_MAIL_COUNT_CONTROLLER))
                     return MAIL_ERR_RECIPIENT_CAP_REACHED;
-            }*/
+            }
         }
 
         // MAIL_OK, now just gather info from mail for new mail

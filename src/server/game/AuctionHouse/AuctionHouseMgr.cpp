@@ -669,6 +669,22 @@ void AuctionHouseObject::Update()
     CharacterDatabase.CommitTransaction(trans);
 }
 
+void AuctionHouseObject::BuildListAllLots(Player* player, uint32& totalcount)
+{
+    for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
+    {
+        AuctionEntry* Aentry = itr->second;
+        if (Aentry)
+        {
+            if (Aentry->owner == player->GetGUID().GetCounter())
+                ++totalcount;
+
+            if (Aentry->bidders.find(player->GetGUID()) != Aentry->bidders.end())
+                ++totalcount;
+        }
+    }
+}
+
 void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount)
 {
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
