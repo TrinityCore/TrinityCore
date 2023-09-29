@@ -4661,8 +4661,9 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // ENDOF ANTORUS THE BURNING THRONE SPELLS
 
-
-	// SEPULCHER OF THE FIRST ONES
+    //
+    // SEPULCHER OF THE FIRST ONES
+    //
 
     // Wicked Star (Marker)
     ApplySpellFix({ 365021 }, [](SpellInfo* spellInfo)
@@ -4711,7 +4712,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // END OF SEPULCHER OF THE FIRST ONES
-
 
     //
     // THE AZURE VAULT SPELLS
