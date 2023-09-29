@@ -684,6 +684,7 @@ struct boss_anduin_wrynn : public BossAI
         instance->SetBossState(DATA_ANDUIN_WRYNN, NOT_STARTED);
         scheduler.ClearValidator();
         HandleIntroduction();
+        me->SetEmoteState(EMOTE_STATE_READY2H);
         me->ModifyPower(me->GetPowerType(), 0);
         DoCastSelf(SPELL_ANDUIN_PROGRESSION_AURA);
         DoCastSelf(SPELL_WILLPOWER_DISPLAY, true);
@@ -936,7 +937,7 @@ struct boss_anduin_wrynn : public BossAI
                                 ObjectGuid sylvanasGUID = sylvanas->GetGUID();
                                 ObjectGuid jainaGUID = jaina->GetGUID();
                                 ObjectGuid firimGUID = firim->GetGUID();
-                                firim->GetMotionMaster()->MovePoint(0, FirimOutroductionPos, false);
+                                firim->GetMotionMaster()->MovePath(1845890, false);
 
                                 Conversation* introductionAnduin = Conversation::CreateConversation(CONVERSATION_ANDUIN_OUTRODUCTION, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
                                 introductionAnduin->AddActor(NPC_LADY_JAINA_PROUDMOORE, 1, jainaGUID);
@@ -2757,7 +2758,6 @@ struct npc_firim : public ScriptedAI
         }
     }
 
-
 private:
     InstanceScript* _instance;
 };
@@ -2834,13 +2834,13 @@ class spell_anduin_wrynn_pre_introduction : public AuraScript
             return;
 
         if (GetCaster()->GetEntry() == NPC_LADY_JAINA_PROUDMOORE)
-            GetCaster()->GetMotionMaster()->MovePath(1003, false);
+            GetCaster()->GetMotionMaster()->MovePath(1836640, false);
 
         else if (GetCaster()->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER)
-            GetCaster()->GetMotionMaster()->MovePath(1002, false);
+            GetCaster()->GetMotionMaster()->MovePath(1836650, false);
 
         else if (GetCaster()->GetEntry() == NPC_SYLVANAS_WINDRUNNER)
-            GetCaster()->GetMotionMaster()->MovePath(1001, false);
+            GetCaster()->GetMotionMaster()->MovePath(1836660, false);
     }
 
     void Register() override
@@ -3386,12 +3386,10 @@ class spell_anduin_wrynn_blasphemy_init : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
+        // No longer working after clearing CI errors
         targets.remove_if([](WorldObject* target) -> bool
         {
-            if (!target->IsPlayer() ||
-            (target->GetEntry() != NPC_SYLVANAS_WINDRUNNER ||
-                target->GetEntry() != NPC_UTHER_THE_LIGHTBRINGER ||
-                target->GetEntry() != NPC_LADY_JAINA_PROUDMOORE))
+            if (!target->IsPlayer() || !target->GetEntry() == NPC_SYLVANAS_WINDRUNNER || !target->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER || !target->GetEntry() == NPC_LADY_JAINA_PROUDMOORE)
                 return true;
 
         return false;
@@ -3918,7 +3916,8 @@ class spell_anduin_wrynn_kingsmourne_hungers : public SpellScript
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_KINGSMOURNE_HUNGERS_DAMAGE, true);
-        GetHitUnit()->AddAura(SPELL_SEVERED_SOUL, GetHitUnit());
+        if (GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+            GetHitUnit()->AddAura(SPELL_SEVERED_SOUL, GetHitUnit());
         GetCaster()->CastSpell(GetHitUnit(), SPELL_LOST_SOUL_DIMENSION, false);
         GetHitUnit()->CastSpell(GetHitUnit(), SPELL_LOST_SOUL, true);
     }
@@ -4323,9 +4322,9 @@ private:
 };
 
 // Return to Kingsmourne - 363022
-class spell_remnant_of_a_fallen_king_return_to_kingsmourne_01 : public AuraScript
+class spell_remnant_of_a_fallen_king_return_to_kingsmourne_applied : public AuraScript
 {
-    PrepareAuraScript(spell_remnant_of_a_fallen_king_return_to_kingsmourne_01);
+    PrepareAuraScript(spell_remnant_of_a_fallen_king_return_to_kingsmourne_applied);
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -4334,7 +4333,7 @@ class spell_remnant_of_a_fallen_king_return_to_kingsmourne_01 : public AuraScrip
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_remnant_of_a_fallen_king_return_to_kingsmourne_01::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_remnant_of_a_fallen_king_return_to_kingsmourne_applied::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -4707,30 +4706,6 @@ public:
     bool _firstEntry;
 };
 
-// Anduin Wrynn Introduction 26 Custom AT
-struct at_anduin_wrynn_introduction : AreaTriggerAI
-{
-    at_anduin_wrynn_introduction(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
-        _instance(at->GetInstanceScript()) { }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        if (!_instance || _instance->GetData(DATA_ANDUIN_WRYNN_INTRODUCTION) != NOT_STARTED || !unit->IsPlayer())
-            return;
-
-        if (Creature* anduin = _instance->GetCreature(DATA_ANDUIN_WRYNN))
-        {
-            anduin->GetAI()->DoAction(ACTION_START_INTRODUCTION);
-        }
-    }
-
-public:
-    InstanceScript* _instance;
-    TaskScheduler _scheduler;
-};
-
-
-
 // 17835 - Anduin Introduction
 class conversation_anduin_introduction : public ConversationScript
 {
@@ -4849,50 +4824,49 @@ void AddSC_boss_anduin_wrynn()
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_anduin_wrynn_monstrous_soul);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_anduin_wrynn_fiendish_soul);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_anduin_wrynn_grim_reflection);
+    RegisterSepulcherOfTheFirstOnesCreatureAI(npc_anduin_wrynn_beacon_of_hope);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_dominated_translocator);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_ancient_console);
 
+    RegisterAreaTriggerAI(at_anduin_wrynn_pre_introduction);
+    RegisterSpellScript(spell_anduin_wrynn_pre_introduction);
+    RegisterSpellScript(spell_anduin_wrynn_progression_aura);
     RegisterSpellScript(spell_anduin_wrynn_energize_willpower_lfr);
     RegisterSpellScript(spell_anduin_wrynn_dark_zeal);
-
     RegisterSpellScript(spell_anduin_wrynn_hopebreaker);
     RegisterSpellScript(spell_anduin_wrynn_hopebreaker_periodic);
     RegisterSpellScript(spell_anduin_wrynn_hopebreaker_damage);
-
     RegisterAreaTriggerAI(at_anduin_wrynn_befouled_barrier);
     RegisterSpellScript(spell_anduin_wrynn_befouled_barrier_absorb);
     RegisterSpellScript(spell_anduin_wrynn_befouled_barrier_expire);
-
     RegisterAreaTriggerAI(at_anduin_wrynn_blasphemy);
+    RegisterSpellScript(spell_anduin_wrynn_blasphemy_init);
     RegisterSpellScript(spell_anduin_wrynn_blasphemy);
     RegisterSpellScript(spell_anduin_wrynn_hopelessness_overconfidence);
-
     RegisterAreaTriggerAI(at_anduin_wrynn_wicked_star);
-    //RegisterSpellScript(spell_anduin_wrynn_wicked_star);
+    RegisterAreaTriggerAI(at_anduin_wrynn_empowered_wicked_star);
     RegisterSpellScript(spell_anduin_wrynn_wicked_star_pointer);
-
+    RegisterSpellScript(spell_anduin_wrynn_empowered_wicked_star_pointer);
     RegisterSpellScript(spell_anduin_wrynn_kingsmourne_hungers);
+    RegisterSpellScript(spell_anduin_soul_lost_soul);
     RegisterSpellScript(spell_anduin_wrynn_lost_soul);
     RegisterSpellScript(spell_anduin_wrynn_lost_soul_mirror_image);
     RegisterSpellScript(spell_anduin_wrynn_severed_soul);
-
+    RegisterSpellScript(spell_anduin_rain_of_despair_player_selector);
     RegisterSpellScript(spell_anduin_wrynn_force_of_will);
-
     RegisterAreaTriggerAI(at_anduin_wrynn_march_of_the_damned);
     RegisterSpellScript(spell_anduin_wrynn_march_of_the_damned);
+    RegisterSpellScript(spell_friendish_soul_explosion);
     RegisterSpellScript(spell_anduin_wrynn_dark_presence);
     RegisterSpellScript(spell_anduin_wrynn_grim_reflections);
     RegisterSpellScript(spell_anduin_wrynn_grim_fate);
-
     RegisterAreaTriggerAI(at_anduin_wrynn_beacon_of_hope);
     RegisterSpellScript(spell_anduin_wrynn_beacon_of_hope);
-
-    /*RegisterSpellScript(spell_anduin_wrynn_empowered_hopebreaker);*/
     RegisterSpellScript(spell_anduin_wrynn_empowered_hopebreaker_periodic);
-
     RegisterAreaTriggerAI(at_anduin_wrynn_hopelessness);
     RegisterSpellScript(spell_anduin_wrynn_hopelessness);
     RegisterSpellScript(spell_anduin_wrynn_hopelessness_expire);
+    RegisterSpellScript(spell_anduin_wrynn_fragment_of_hope);
 
     RegisterSpellScript(spell_remnant_of_a_fallen_king_spawn);
     RegisterSpellScript(spell_remnant_of_a_fallen_king_energize_runic_power);
@@ -4902,27 +4876,11 @@ void AddSC_boss_anduin_wrynn()
     RegisterSpellScript(spell_remnant_of_a_fallen_king_remorseless_winter_periodic);
     RegisterSpellScript(spell_remnant_of_a_fallen_king_remorseless_winter_damage);
     RegisterSpellScript(spell_remnant_of_a_fallen_king_return_to_kingsmourne);
-
-    RegisterAreaTriggerAI(at_anduin_wrynn_introduction);
+    RegisterSpellScript(spell_remnant_of_a_fallen_king_return_to_kingsmourne_applied);
 
     new conversation_anduin_introduction();
     new conversation_arthas_uther();
     new conversation_arthas_sylvanas();
     new conversation_anduin_outroduction();
-
-    RegisterSpellScript(spell_anduin_wrynn_blasphemy_init);
-    RegisterSpellScript(spell_anduin_wrynn_progression_aura);
-    RegisterSpellScript(spell_anduin_rain_of_despair_player_selector);
-    //RegisterAreaTriggerAI(at_anduin_wrynn_fragment_of_hope);
-    RegisterCreatureAI(npc_anduin_wrynn_beacon_of_hope);
-    RegisterSpellScript(spell_remnant_of_a_fallen_king_return_to_kingsmourne_01);
-    RegisterAreaTriggerAI(at_anduin_wrynn_empowered_wicked_star);
-    RegisterSpellScript(spell_anduin_wrynn_empowered_wicked_star_pointer);
-    /* RegisterAreaTriggerAI(at_anduin_soul);*/
-    RegisterSpellScript(spell_friendish_soul_explosion);
-    RegisterSpellScript(spell_anduin_soul_lost_soul);
-    RegisterSpellScript(spell_anduin_wrynn_pre_introduction);
-    RegisterAreaTriggerAI(at_anduin_wrynn_pre_introduction);
-    RegisterSpellScript(spell_anduin_wrynn_fragment_of_hope);
     new movie_anduin_final();
 }
