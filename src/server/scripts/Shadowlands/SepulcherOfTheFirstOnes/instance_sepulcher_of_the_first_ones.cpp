@@ -187,7 +187,6 @@ public:
                                 anduin->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                                 anduin->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                                 anduin->SetImmuneToAll(true);
-                                anduin->SetSpeed(MOVE_WALK, 10.0f);
                             }
                             break;
                         }

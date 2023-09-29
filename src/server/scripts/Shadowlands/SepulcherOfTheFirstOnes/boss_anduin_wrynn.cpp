@@ -585,7 +585,6 @@ struct boss_anduin_wrynn : public BossAI
             me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
             me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
             me->SetImmuneToAll(true);
-            me->SetSpeed(MOVE_RUN, 10.0f);
         }
     }
 
@@ -1120,12 +1119,10 @@ struct boss_anduin_wrynn : public BossAI
                     DoCastAOE(SPELL_HOPELESSNESS);
                     Talk(SAY_ANNOUNCE_BLASPHEMY);
                     Talk(SAY_BLASPHEMY);
-                    if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC)
-                    {
-                        events.Repeat(70500ms);
-                    }
+                    if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+                        events.Repeat(65500ms);
                     else
-                        events.Repeat(58400ms);
+                        events.Repeat(58500ms);
                     break;
                 }
 
@@ -1144,6 +1141,10 @@ struct boss_anduin_wrynn : public BossAI
                 {
                     DoCastSelf(SPELL_EMPOWERED_WICKED_STAR, true);
                     Talk(SAY_WICKED_STAR);
+                    if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+                        events.Repeat(65500ms);
+                    else
+                        events.Repeat(58500ms);
                     break;
                 }
 
@@ -1385,8 +1386,8 @@ struct boss_anduin_wrynn : public BossAI
                 Conversation* conversationFinal = Conversation::CreateConversation(CONVERSATION_ANDUIN_PHASE_THREE, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
                 conversationFinal->Start();
                 events.ScheduleEvent(EVENT_BEACON_OF_HOPE, 3000ms);
-                events.ScheduleEvent(EVENT_EMPOWERED_HOPEBREAKER, 11000ms);
-                events.ScheduleEvent(EVENT_HOPELESSNESS, 21500ms);
+                events.ScheduleEvent(EVENT_EMPOWERED_HOPEBREAKER, 11600ms);
+                events.ScheduleEvent(EVENT_HOPELESSNESS, 21800ms);
                 events.ScheduleEvent(EVENT_EMPOWERED_WICKED_STAR, 41000ms);
                 break;
             }
@@ -3386,13 +3387,12 @@ class spell_anduin_wrynn_blasphemy_init : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        // No longer working after clearing CI errors
         targets.remove_if([](WorldObject* target) -> bool
         {
-            if (!target->IsPlayer() || !target->GetEntry() == NPC_SYLVANAS_WINDRUNNER || !target->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER || !target->GetEntry() == NPC_LADY_JAINA_PROUDMOORE)
-                return true;
+            if (target->IsPlayer())
+                return false;
 
-        return false;
+        return true;
         });
     }
 
@@ -3843,9 +3843,13 @@ struct at_anduin_wrynn_empowered_wicked_star : AreaTriggerAI
         if (at->GetDistance(_casterCurrentPosition) > 0.05f)
         {
             _affectedUnits.clear();
-
-            NextTrajectory();
+            if (at->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+                NextTrajectory();
+            else
+                ReturnToCaster();
         }
+        else
+            at->Remove();
     }
 
     void NextTrajectory()
@@ -3854,7 +3858,6 @@ struct at_anduin_wrynn_empowered_wicked_star : AreaTriggerAI
         {
             if (at->GetCaster()->GetFaction() == FACTION_FRIENDLY)
             {
-
                 at->Remove();
             }
             else if (Unit* caster = at->GetCaster())
@@ -3871,6 +3874,43 @@ struct at_anduin_wrynn_empowered_wicked_star : AreaTriggerAI
                 at->InitSplines(returnSplinePoints, static_cast<uint32>(at->GetDistance(wallPosition) / 8 * 600));
             }
         });
+    }
+
+    void ReturnToCaster()
+    {
+        uint32 starReturnSpeed = 10;
+
+        switch (at->GetMap()->GetDifficultyID())
+        {
+        case DIFFICULTY_LFR_NEW:
+            starReturnSpeed = 8;
+            break;
+        case DIFFICULTY_NORMAL_RAID:
+            starReturnSpeed = 10;
+            break;
+        case DIFFICULTY_HEROIC_RAID:
+            starReturnSpeed = 12;
+            break;
+        case DIFFICULTY_MYTHIC_RAID:
+            starReturnSpeed = 14;
+            break;
+        default:
+            starReturnSpeed = 10;
+            break;
+        }
+
+        _scheduler.Schedule(0ms, [this, starReturnSpeed](TaskContext task)
+            {
+                Movement::PointsArray returnSplinePoints;
+
+                returnSplinePoints.push_back(PositionToVector3(at));
+                returnSplinePoints.push_back(PositionToVector3(at));
+                returnSplinePoints.push_back(PositionToVector3(_casterCurrentPosition));
+                returnSplinePoints.push_back(PositionToVector3(_casterCurrentPosition));
+
+                at->InitSplines(returnSplinePoints, static_cast<uint32>(at->GetDistance(_casterCurrentPosition) / starReturnSpeed * 600));
+                task.Repeat(250ms);
+            });
     }
 
 private:

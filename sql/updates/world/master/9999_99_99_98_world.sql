@@ -64,7 +64,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_grim_reflection', 
 -- Template Addon
 DELETE FROM `creature_template_addon` WHERE `entry` IN (184830,183671,183669,183793,183463,184519,184494,184493,183452,184585,184297,183033,181954);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
-(184830, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '362702'), -- 184830 (Beacon of Hope) - 362702
+(184830, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- 184830 (Beacon of Hope) - 362702
 (183671, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '362719'), -- 183671 (Monstrous Soul) - 362719
 (183669, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '368977'), -- 183669 (Fiendish Soul) - 368977
 (183793, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, '363116'), -- 183793 (March of the Damned) - 363116
@@ -494,9 +494,10 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (1845890, 10, -3830.11, -2675.45, 91.4696, NULL, 0, 0, 0, 100, 0);
 
 -- Spell Scripts
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (367524,369317,364247,361815,361817,361818,365293,365173,364239,361989,361993,361992,365021,362405,365652,362055,362402,367769,362392,368913,363233,368986,365120,367932,365872,365806,365958,365966,362500,365291,362862,362863,362771,362543,362545,363021,363022,367632,363029,365816);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (367524,366848,369317,364247,361815,361817,361818,365293,365173,364239,361989,361993,361992,365021,362405,365652,362055,362402,367769,362392,368913,363233,368986,365120,367932,365872,365806,365958,365966,362500,365291,362862,362863,362771,362543,362545,363021,363022,367632,363029,365816);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (367524, 'spell_anduin_wrynn_pre_introduction'),
+(366848, 'spell_anduin_wrynn_energize_willpower_lfr'),
 (369317, 'spell_anduin_wrynn_progression_aura'),
 (364247, 'spell_anduin_wrynn_dark_zeal'),
 (361815, 'spell_anduin_wrynn_hopebreaker'),
