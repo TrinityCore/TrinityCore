@@ -17823,7 +17823,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             case TRANSMOG_TYPE_ENCHANT:
                 break;
             default:
-                TC_LOG_ERROR("custom.transmog", "Account %u has transmog with unknown type %u in custom_account_transmog, ignoring", GetSession()->GetAccountId(), type);
+                TC_LOG_ERROR("custom.transmog", "Account {} has transmog with unknown type {} in custom_account_transmog, ignoring", GetSession()->GetAccountId(), type);
                 continue;
             }
             transmogrification_appearances[type].insert(entry);
@@ -17848,7 +17848,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             {
                 if (slot >= EQUIPMENT_SLOT_END)
                 {
-                    TC_LOG_ERROR("custom.transmog", "Set has invalid slot %u (Owner: %u, PresetID: %u), ignoring.", slot, GetGUID().GetCounter(), uint32(PresetID));
+                    TC_LOG_ERROR("custom.transmog", "Set has invalid slot {} (Owner: {}, PresetID: {}), ignoring.", slot, GetGUID().GetCounter(), uint32(PresetID));
                     continue;
                 }
                 switch (type)
@@ -17856,19 +17856,19 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
                 case TRANSMOG_TYPE_ITEM:
                     if (!sObjectMgr->GetItemTemplate(entry))
                     {
-                        TC_LOG_ERROR("custom.transmog", "Set has invalid item entry %u (Owner: %u, PresetID: %u), ignoring.", entry, GetGUID().GetCounter(), uint32(PresetID));
+                        TC_LOG_ERROR("custom.transmog", "Set has invalid item entry {} (Owner: {}, PresetID: {}), ignoring.", entry, GetGUID().GetCounter(), uint32(PresetID));
                         continue;
                     }
                     break;
                 case TRANSMOG_TYPE_ENCHANT:
                     if (!sSpellItemEnchantmentStore.LookupEntry(entry))
                     {
-                        TC_LOG_ERROR("custom.transmog", "Set has invalid enchant entry %u (Owner: %u, PresetID: %u), ignoring.", entry, GetGUID().GetCounter(), uint32(PresetID));
+                        TC_LOG_ERROR("custom.transmog", "Set has invalid enchant entry {} (Owner: {}, PresetID: {}), ignoring.", entry, GetGUID().GetCounter(), uint32(PresetID));
                         continue;
                     }
                     break;
                 default:
-                    TC_LOG_ERROR("custom.transmog", "Set has invalid transmog type %u (Owner: %u, PresetID: %u), ignoring.", type, GetGUID().GetCounter(), uint32(PresetID));
+                    TC_LOG_ERROR("custom.transmog", "Set has invalid transmog type {} (Owner: {}, PresetID: {}), ignoring.", type, GetGUID().GetCounter(), uint32(PresetID));
                     continue;
                 }
                 presetMap[PresetID].data.push_back(std::make_tuple(static_cast<uint8>(slot), static_cast<uint32>(entry), static_cast<AppearanceType>(type)));

@@ -587,7 +587,7 @@ TransmogResult Transmogrification::TrySetPendingTransmog(Player* player, uint32 
     // slot of the transmogrified item
     if (slot >= EQUIPMENT_SLOT_END)
     {
-        TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) tried to transmogrify invalid slot (%u) with %u.", player->GetName().c_str(), player->GetGUID().ToString().c_str(), slot, entry);
+        TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - {} ({}) tried to transmogrify invalid slot ({}) with {}.", player->GetName(), player->GetGUID().ToString(), slot, entry);
         return TransmogResult_InvalidSlot;
     }
 
@@ -598,7 +598,7 @@ TransmogResult Transmogrification::TrySetPendingTransmog(Player* player, uint32 
         itemtemplate = sObjectMgr->GetItemTemplate(entry);
         if (!itemtemplate)
         {
-            TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) tried to transmogrify slot %u with a non-existant item entry %u.", player->GetName().c_str(), player->GetGUID().ToString().c_str(), slot, entry);
+            TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - {} ({}) tried to transmogrify slot {} with a non-existant item entry {}.", player->GetName(), player->GetGUID().ToString(), slot, entry);
             return TransmogResult_NonexistantTransmog;
         }
     }
@@ -607,7 +607,7 @@ TransmogResult Transmogrification::TrySetPendingTransmog(Player* player, uint32 
     Item* itemTransmogrified = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
     if (!itemTransmogrified)
     {
-        TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) tried to transmogrify slot %u with entry %u, but the slot was empty.", player->GetName().c_str(), player->GetGUID().ToString().c_str(), slot, entry);
+        TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - {} ({}) tried to transmogrify slot {} with entry {}, but the slot was empty.", player->GetName(), player->GetGUID().ToString(), slot, entry);
         return TransmogResult_EmptySlot;
     }
 
@@ -615,7 +615,7 @@ TransmogResult Transmogrification::TrySetPendingTransmog(Player* player, uint32 
     {
         if (TransmogResult res = CannotTransmogrifyItemWithItem(player, itemTransmogrified->GetTemplate(), itemtemplate, false))
         {
-            TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) failed CannotTransmogrifyItemWithItem (%u with %u).", player->GetName().c_str(), player->GetGUID().ToString().c_str(), itemTransmogrified->GetEntry(), entry);
+            TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - {} ({}) failed CannotTransmogrifyItemWithItem ({} with {}).", player->GetName(), player->GetGUID().ToString(), itemTransmogrified->GetEntry(), entry);
             return res;
         }
     }
@@ -639,7 +639,7 @@ TransmogResult Transmogrification::TrySetPendingEnchant(Player* player, uint32 s
     // slot of the transmogrified item
     if (slot >= EQUIPMENT_SLOT_END)
     {
-        TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) tried to transmogrify invalid slot (%u) with %u.", player->GetName().c_str(), player->GetGUID().ToString().c_str(), slot, entry);
+        TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - {} ({}) tried to transmogrify invalid slot ({}) with {}.", player->GetName(), player->GetGUID().ToString(), slot, entry);
         return TransmogResult_InvalidSlot;
     }
 
@@ -649,14 +649,14 @@ TransmogResult Transmogrification::TrySetPendingEnchant(Player* player, uint32 s
     Item* itemTransmogrified = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
     if (!itemTransmogrified)
     {
-        TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) tried to transmogrify slot %u with entry %u, but the slot was empty.", player->GetName().c_str(), player->GetGUID().ToString().c_str(), slot, entry);
+        TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - {} ({}) tried to transmogrify slot {} with entry {}, but the slot was empty.", player->GetName(), player->GetGUID().ToString(), slot, entry);
         return TransmogResult_EmptySlot;
     }
 
     if (hasTemplate)
     {
         if (TransmogResult res = CannotTransmogrifyItemWithEnchant(player, itemTransmogrified->GetTemplate(), entry, false)) {
-            TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) failed CannotTransmogrifyItemWithEnchant (%u with %u).", player->GetName().c_str(), player->GetGUID().ToString().c_str(), itemTransmogrified->GetEntry(), entry);
+            TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - {} ({}) failed CannotTransmogrifyItemWithEnchant ({} with {}).", player->GetName(), player->GetGUID().ToString(), itemTransmogrified->GetEntry(), entry);
             return res;
         }
     }
