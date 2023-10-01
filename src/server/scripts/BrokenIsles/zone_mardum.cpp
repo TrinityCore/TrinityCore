@@ -854,6 +854,76 @@ struct at_enter_the_illidari_ashtongue_allari_killcredit : AreaTriggerAI
     }
 };
 
+enum ETICoilskarIntroData
+{
+    NPC_SEVIS_BRIGHTFLAME_COILSKAR      = 99917,
+    SAY_SEVIS_SAY_MEET_AT_LAST_GATEWAY  = 2,
+
+    PATH_SEVIS_BRIGHTFLAME_COILSKAR     = 9991700
+};
+
+// 1077 - Enter the Illidari: Coilskar
+class scene_enter_the_illidari_coilskar : public SceneScript
+{
+public:
+    scene_enter_the_illidari_coilskar() : SceneScript("scene_enter_the_illidari_coilskar") { }
+
+    void OnSceneStart(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        PhasingHandler::OnConditionChange(player);
+        Creature* sevisObject = GetClosestCreatureWithOptions(player, 30.0f, { .CreatureId = NPC_SEVIS_BRIGHTFLAME_COILSKAR, .IgnorePhases = true });
+        if (!sevisObject)
+            return;
+
+        TempSummon* sevisClone = sevisObject->SummonPersonalClone(sevisObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+        if (!sevisClone)
+            return;
+    }
+};
+
+// 99917 - Sevis Brightflame (Coilskar Gateway)
+struct npc_sevis_brightflame_coilskar_gateway_private : public ScriptedAI
+{
+    npc_sevis_brightflame_coilskar_gateway_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->DespawnOrUnsummon(14s);
+        me->SetFacingTo(5.79345f);
+
+        _scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            Talk(SAY_SEVIS_SAY_MEET_AT_LAST_GATEWAY, me);
+
+            task.Schedule(2s, [this](TaskContext task)
+            {
+                me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SEVIS_MOUNT, 0, 0);
+                me->SetMountDisplayId(DISPLAY_ID_SEVIS_MOUNT);
+
+                task.Schedule(3s, [this](TaskContext /*task*/)
+                {
+                    me->GetMotionMaster()->MovePath(PATH_SEVIS_BRIGHTFLAME_COILSKAR, false);
+                });
+            });
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+CreatureAI* SevisBrightflameCoilskarGatewayAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_sevis_brightflame_coilskar_gateway_private(creature);
+    return new NullCreatureAI(creature);
+};
+
 void AddSC_zone_mardum()
 {
     // Creature
@@ -868,6 +938,7 @@ void AddSC_zone_mardum()
     // AISelector
     new FactoryCreatureScript<CreatureAI, &KaynSunfuryNearLegionBannerAISelector>("npc_kayn_sunfury_ashtongue_intro");
     new FactoryCreatureScript<CreatureAI, &SevisBrightflameAshtongueGatewayAISelector>("npc_sevis_brightflame_ashtongue_gateway_private");
+    new FactoryCreatureScript<CreatureAI, &SevisBrightflameCoilskarGatewayAISelector>("npc_sevis_brightflame_coilskar_gateway_private");
 
     // AreaTrigger
     RegisterAreaTriggerAI(at_enter_the_illidari_ashtongue_allari_killcredit);
@@ -878,6 +949,7 @@ void AddSC_zone_mardum()
     // Scene
     new scene_demonhunter_intro();
     new scene_enter_the_illidari_ashtongue();
+    new scene_enter_the_illidari_coilskar();
 
     // Spells
     RegisterSpellScript(spell_demon_hunter_intro_aura);
