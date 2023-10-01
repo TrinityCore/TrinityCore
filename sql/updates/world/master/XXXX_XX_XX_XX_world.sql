@@ -37,7 +37,7 @@ INSERT INTO `quest_objectives_completion_effect` (`ObjectiveID`, `GameEventID`, 
 (280770, NULL, NULL, NULL, 1, 0);
 
 -- Gossip & text
-DELETE FROM `npc_text` WHERE `ID` BETWEEN @NPCTEXTID+0 AND @NPCTEXTID+0;
+DELETE FROM `npc_text` WHERE `ID` = @NPCTEXTID+0;
 INSERT INTO `npc_text` (`ID`, `Probability0`, `Probability1`, `Probability2`, `Probability3`, `Probability4`, `Probability5`, `Probability6`, `Probability7`, `BroadcastTextId0`, `BroadcastTextId1`, `BroadcastTextId2`, `BroadcastTextId3`, `BroadcastTextId4`, `BroadcastTextId5`, `BroadcastTextId6`, `BroadcastTextId7`, `VerifiedBuild`) VALUES
 (@NPCTEXTID+0, 1, 0, 0, 0, 0, 0, 0, 0, 101660, 0, 0, 0, 0, 0, 0, 0, 51536); -- 99917 (Sevis Brightflame)
 

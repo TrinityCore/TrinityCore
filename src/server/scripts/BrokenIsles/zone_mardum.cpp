@@ -875,9 +875,7 @@ public:
         if (!sevisObject)
             return;
 
-        TempSummon* sevisClone = sevisObject->SummonPersonalClone(sevisObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-        if (!sevisClone)
-            return;
+        sevisObject->SummonPersonalClone(sevisObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
     }
 };
 
@@ -888,8 +886,16 @@ struct npc_sevis_brightflame_coilskar_gateway_private : public ScriptedAI
 
     void JustAppeared() override
     {
+        TempSummon* summon = me->ToTempSummon();
+        if (!summon)
+            return;
+
+        Unit* summoner = summon->GetSummonerUnit();
+        if (!summoner)
+            return;
+
+        me->SetFacingToObject(summoner);
         me->DespawnOrUnsummon(14s);
-        me->SetFacingTo(5.79345f);
 
         _scheduler.Schedule(1s, [this](TaskContext task)
         {
