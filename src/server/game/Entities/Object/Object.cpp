@@ -3403,6 +3403,205 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     }
 }
 
+void WorldObject::MoveBlinkPosition(Position& pos, float distance2d) const
+{
+    Map* map = GetMap();
+    uint32 mapid = GetMapId();
+    uint32 phasemask = GetPhaseMask();
+    float destz = GetPositionZ();
+    float destx = pos.GetPositionX() + distance2d * cos(pos.GetOrientation());
+    float desty = pos.GetPositionY() + distance2d * sin(pos.GetOrientation());
+
+    float ground = map->GetHeight(phasemask, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+
+    if ((ToUnit() && !ToUnit()->HasUnitMovementFlag(MOVEMENTFLAG_FALLING)) || (pos.GetPositionZ() - ground < distance2d))
+    {
+        float tstX, tstY, tstZ, prevX, prevY, prevZ;
+        float tstZ1, tstZ2, tstZ3, destz1, destz2, destz3, srange1, srange2, srange3;
+        float srange = 0.0f;
+        float maxtravelDistZ = 2.65f;
+        float overdistance = 0.0f;
+        float totalpath = 0.0f;
+        float beforewaterz = 0.0f;
+        bool inwater = false;
+        bool wcol = false;
+        const float  step = 2.0f;
+        const uint8 numChecks = ceil(fabs(distance2d / step));
+        const float DELTA_X = (destx - pos.GetPositionX()) / numChecks;
+        const float DELTA_Y = (desty - pos.GetPositionY()) / numChecks;
+        int j = 1;
+        for (; j < (numChecks + 1); j++)
+        {
+            prevX = pos.GetPositionX() + (float(j - 1) * DELTA_X);
+            prevY = pos.GetPositionY() + (float(j - 1) * DELTA_Y);
+            tstX = pos.GetPositionX() + (float(j) * DELTA_X);
+            tstY = pos.GetPositionY() + (float(j) * DELTA_Y);
+
+            if (j < 2)
+            {
+                prevZ = pos.GetPositionZ();
+            }
+            else
+            {
+                prevZ = tstZ;
+            }
+
+            tstZ = map->GetHeight(phasemask, tstX, tstY, prevZ + maxtravelDistZ, true);
+            ground = tstZ;
+
+            if (!map->IsInWater(phasemask, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
+            {
+                if (map->IsInWater(phasemask, tstX, tstY, tstZ))
+                {
+                    if (!(beforewaterz != 0.0f))
+                        beforewaterz = prevZ;
+                    tstZ = beforewaterz;
+                    srange = sqrt((tstY - prevY) * (tstY - prevY) + (tstX - prevX) * (tstX - prevX));
+                    //TC_LOG_ERROR("server", "(start was from land) step in water , number of cycle = {} , distance of step = {}, total path = {}, Z = {}", j, srange, totalpath, tstZ);
+                }
+            }
+            else if (map->IsInWater(phasemask, tstX, tstY, tstZ))
+            {
+                prevZ = pos.GetPositionZ();
+                tstZ = pos.GetPositionZ();
+                srange = sqrt((tstY - prevY) * (tstY - prevY) + (tstX - prevX) * (tstX - prevX));
+
+                inwater = true;
+                if (inwater && (fabs(tstZ - ground) < 2.0f))
+                {
+                    wcol = true;
+                    //TC_LOG_ERROR("server", "step in water with collide and use standart check (for continue way after possible collide), number of cycle = {} ", j);
+                }
+
+                // if (j < 2)
+                //    TC_LOG_ERROR("server", "(start in water) step in water, number of cycle = {} , distance of step = {}, total path = {}", j, srange, totalpath);
+                // else
+                //    TC_LOG_ERROR("server", "step in water, number of cycle = {} , distance of step = {}, total path = {}", j, srange, totalpath);
+            }
+
+            if ((!map->IsInWater(phasemask, tstX, tstY, tstZ) && tstZ != beforewaterz) || wcol)  // second safety check z for blink way if on the ground
+            {
+                if (inwater && !map->IsInWater(phasemask, tstX, tstY, tstZ))
+                    inwater = false;
+
+                // highest available point
+                tstZ1 = map->GetHeight(phasemask, tstX, tstY, prevZ + maxtravelDistZ + GetCollisionHeight(), true, 25.0f);
+                // upper or floor
+                tstZ2 = map->GetHeight(phasemask, tstX, tstY, prevZ + GetCollisionHeight(), true, 25.0f);
+                //lower than floor
+                tstZ3 = map->GetHeight(phasemask, tstX, tstY, prevZ - maxtravelDistZ / 2 + GetCollisionHeight(), true, 25.0f);
+
+                //distance of rays, will select the shortest in 3D
+                srange1 = sqrt((tstY - prevY) * (tstY - prevY) + (tstX - prevX) * (tstX - prevX) + (tstZ1 - prevZ) * (tstZ1 - prevZ));
+                //TC_LOG_ERROR("server", "step = {}, distance of ray1 = {}", j, srange1);
+                srange2 = sqrt((tstY - prevY) * (tstY - prevY) + (tstX - prevX) * (tstX - prevX) + (tstZ2 - prevZ) * (tstZ2 - prevZ));
+                //TC_LOG_ERROR("server", "step = {}, distance of ray2 = {}", j, srange2);
+                srange3 = sqrt((tstY - prevY) * (tstY - prevY) + (tstX - prevX) * (tstX - prevX) + (tstZ3 - prevZ) * (tstZ3 - prevZ));
+                //TC_LOG_ERROR("server", "step = {}, distance of ray3 = {}", j, srange3);
+
+                if (srange1 < srange2)
+                {
+                    tstZ = tstZ1;
+                    srange = srange1;
+                }
+                else if (srange3 < srange2)
+                {
+                    tstZ = tstZ3;
+                    srange = srange3;
+                }
+                else
+                {
+                    tstZ = tstZ2;
+                    srange = srange2;
+                }
+
+                //TC_LOG_ERROR("server", "step on ground, number of cycle = {} , distance of step = {}, total path = {}", j, srange, totalpath);
+            }
+
+            destx = tstX;
+            desty = tstY;
+            destz = tstZ;
+
+            totalpath += srange;
+
+            if (totalpath > distance2d)
+            {
+                overdistance = totalpath - distance2d;
+                //TC_LOG_ERROR("server", "total path > than distance in 3D , need to move back a bit for save distance, total path = {}, overdistance = {}", totalpath, overdistance);
+            }
+
+            bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(mapid, prevX, prevY, prevZ + 0.5f, tstX, tstY, tstZ + 0.5f, tstX, tstY, tstZ, -0.5f);
+            // check dynamic collision
+            bool dcol = GetMap()->getObjectHitPos(phasemask, prevX, prevY, prevZ + 0.5f, tstX, tstY, tstZ + 0.5f, tstX, tstY, tstZ, -0.5f);
+
+            // collision occured
+            if (col || dcol || (overdistance > 0.0f && !map->IsInWater(phasemask, tstX, tstY, ground)) || (fabs(prevZ - tstZ) > maxtravelDistZ && (tstZ > prevZ)))
+            {
+                if ((overdistance > 0.0f) && (overdistance < step))
+                {
+                    destx = prevX + overdistance * cos(pos.GetOrientation());
+                    desty = prevY + overdistance * sin(pos.GetOrientation());
+                    //TC_LOG_ERROR("server", "(collision) collision occured 1");
+                }
+                else
+                {
+                    // move back a bit
+                    destx = tstX - (0.6 * cos(pos.GetOrientation()));
+                    desty = tstY - (0.6 * sin(pos.GetOrientation()));
+                    //TC_LOG_ERROR("server", "(collision) collision occured 2");
+                }
+
+                // highest available point
+                destz1 = map->GetHeight(phasemask, destx, desty, prevZ + maxtravelDistZ + GetCollisionHeight(), true, 25.0f);
+                // upper or floor
+                destz2 = map->GetHeight(phasemask, destx, desty, prevZ + GetCollisionHeight(), true, 25.0f);
+                //lower than floor
+                destz3 = map->GetHeight(phasemask, destx, desty, prevZ - maxtravelDistZ / 2 + GetCollisionHeight(), true, 25.0f);
+
+                //distance of rays, will select the shortest in 3D
+                srange1 = sqrt((desty - prevY) * (desty - prevY) + (destx - prevX) * (destx - prevX) + (destz1 - prevZ) * (destz1 - prevZ));
+                srange2 = sqrt((desty - prevY) * (desty - prevY) + (destx - prevX) * (destx - prevX) + (destz2 - prevZ) * (destz2 - prevZ));
+                srange3 = sqrt((desty - prevY) * (desty - prevY) + (destx - prevX) * (destx - prevX) + (destz3 - prevZ) * (destz3 - prevZ));
+
+                if (srange1 < srange2)
+                    destz = destz1;
+                else if (srange3 < srange2)
+                    destz = destz3;
+                else
+                    destz = destz2;
+
+                if (inwater && destz < prevZ && !wcol)
+                    destz = prevZ;
+                //TC_LOG_ERROR("server", "(collision) destZ rewrited in prevZ");
+
+                break;
+            }
+            // we have correct destz now
+        }
+
+        pos.Relocate(destx, desty, destz + 0.5f, pos.GetOrientation());
+    }
+    else
+    {
+        float z = pos.GetPositionZ();
+        bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(mapid, pos.GetPositionX(), pos.GetPositionY(), z + 0.5f, destx, desty, z + 0.5f, destx, desty, z, -0.5f);
+        // check dynamic collision
+        bool dcol = GetMap()->getObjectHitPos(phasemask, pos.GetPositionX(), pos.GetPositionY(), z + 0.5f, destx, desty, z + 0.5f, destx, desty, z, -0.5f);
+
+        // collision occured
+        if (col || dcol)
+        {
+            // move back a bit
+            destx = destx - (0.6 * cos(pos.GetOrientation()));
+            desty = desty - (0.6 * sin(pos.GetOrientation()));
+        }
+
+        pos.Relocate(destx, desty, z, pos.GetOrientation());
+        //float range = sqrt((desty - pos.GetPositionY())*(desty - pos.GetPositionY()) + (destx - pos.GetPositionX())*(destx - pos.GetPositionX()));
+        //TC_LOG_ERROR("server", "Blink number 2, in falling but at a hight, distance of blink = {}", range);
+    }
+}
+
 void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
 {
     m_phaseMask = newPhaseMask;
