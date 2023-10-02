@@ -3545,7 +3545,7 @@ class spell_anduin_wrynn_wicked_star_selector : public SpellScript
             if (tanks)
                 return true;
 
-            if (dpsDistance >= 2)
+            if (dpsDistance >= 3)
             {
                 if (player->GetPrimarySpecializationEntry()->GetRole() == ChrSpecializationRole::Dps &&
                     player->GetPrimarySpecializationEntry()->GetFlags().HasFlag(ChrSpecializationFlag::Melee))
@@ -3801,7 +3801,7 @@ class spell_anduin_wrynn_empowered_wicked_star_selector : public SpellScript
         if (tanks)
             return true;
 
-        if (dpsDistance >= 2)
+        if (dpsDistance >= 3)
         {
             if (player->GetPrimarySpecializationEntry()->GetRole() == ChrSpecializationRole::Dps &&
                 player->GetPrimarySpecializationEntry()->GetFlags().HasFlag(ChrSpecializationFlag::Melee))
