@@ -19,10 +19,12 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "G3DPosition.hpp"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
+#include "Player.h"
 #include "Unit.h"
 #include "Util.h"
 
@@ -199,20 +201,51 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
             if (owner->IsHovering())
                 owner->UpdateAllowedPositionZ(x, y, z);
 
+            bool forcedestination = owner->GetTransport();
             bool success = _path->CalculatePath(x, y, z, owner->CanFly());
-            if (!success || (_path->GetPathType() & (PATHFIND_NOPATH /* | PATHFIND_INCOMPLETE*/)))
+            if (!forcedestination)
             {
+                if (!success || (_path->GetPathType() & (PATHFIND_NOPATH /* | PATHFIND_INCOMPLETE*/)))
+                {
+                    if (owner->GetOwner() && owner->GetOwner()->ToPlayer() && owner->GetOwner()->ToPlayer()->InArena()) // arena force destination for pet (arena nagrand)
+                    {
+                        Movement::MoveSplineInit init(owner);
+                        init.MoveTo(x, y, z, true, true);
+                        init.SetWalk(false);
+                        init.SetFacing(target);
+                        init.Launch();
+                        return true;
+                    }
+
+                    if (cOwner)
+                        cOwner->SetCannotReachTarget(true);
+                    owner->StopMoving();
+                    return true;
+                }
+
+                if (shortenPath)
+                    _path->ShortenPathUntilDist(PositionToVector3(target), maxTarget);
+
                 if (cOwner)
-                    cOwner->SetCannotReachTarget(true);
-                owner->StopMoving();
-                return true;
+                    cOwner->SetCannotReachTarget(false);
             }
+            else
+            {
+                // check dynamic collision
+                bool dcol = owner->GetMap()->getObjectHitPos(owner->GetPhaseMask(), owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ() + 0.5f, x, y, z + 0.5f, x, y, z, -0.5f);
+                // collision occured
+                if (dcol && owner->GetOwner() && (z < owner->GetOwner()->GetPositionZ()))
+                {
+                    // move back a bit
+                    x -= CONTACT_DISTANCE * std::cos(owner->GetOrientation());
+                    y -= CONTACT_DISTANCE * std::sin(owner->GetOrientation());
+                    if (Map* map = owner->GetMap())
+                        z = map->GetHeight(owner->GetPhaseMask(), x, y, z + 2.8f, true);
+                }
 
-            if (shortenPath)
-                _path->ShortenPathUntilDist(PositionToVector3(target), maxTarget);
-
-            if (cOwner)
-                cOwner->SetCannotReachTarget(false);
+                if (z < target->GetPositionZ())
+                    z = target->GetPositionZ();
+            }
 
             bool walk = false;
             if (cOwner && !cOwner->IsPet())
@@ -234,13 +267,13 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
             AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
 
             Movement::MoveSplineInit init(owner);
-            init.MovebyPath(_path->GetPath());
+            if (!forcedestination)
+                init.MovebyPath(_path->GetPath());
+            else
+                init.MoveTo(x, y, z, false, true);
             init.SetWalk(walk);
             init.SetFacing(target);
             init.Launch();
-
-            // update position for server and others units/players
-            owner->UpdateSplinePosition();
         }
     }
 

@@ -191,12 +191,14 @@ namespace MMAP
             uint32 percentageDone(uint32 totalTiles, uint32 totalTilesDone) const;
             uint32 currentPercentageDone() const;
 
+            void LoadOffMeshConnections(const char* offMeshFilePath);
+
             TerrainBuilder* m_terrainBuilder;
             TileList m_tiles;
 
             bool m_debugOutput;
 
-            char const* m_offMeshFilePath;
+            std::vector<OffMeshConnection> m_offmeshConnections;
             unsigned int m_threads;
             bool m_skipContinents;
             bool m_skipJunkMaps;

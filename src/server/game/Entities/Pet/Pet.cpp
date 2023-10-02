@@ -17,6 +17,7 @@
 
 #include "Pet.h"
 #include "Common.h"
+#include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "DBCStoresMgr.h"
 #include "Formulas.h"
@@ -24,6 +25,7 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "ObjectMgr.h"
+#include "MotionMaster.h"
 #include "PetPackets.h"
 #include "Player.h"
 #include "QueryHolder.h"
@@ -33,6 +35,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
+#include "Transport.h"
 #include "Unit.h"
 #include "Util.h"
 #include "WorldPacket.h"
@@ -59,6 +62,11 @@ Pet::Pet(Player* owner, PetType type) :
 
     m_name = "Pet";
     m_focusRegenTimer = PET_FOCUS_REGEN_INTERVAL;
+
+    tempspellTarget = nullptr;
+    tempoldTarget = nullptr;
+    tempspellIsPositive = false;
+    tempspell = 0;
 }
 
 Pet::~Pet() = default;
@@ -86,6 +94,13 @@ void Pet::AddToWorld()
         GetCharmInfo()->SetIsFollowing(false);
         GetCharmInfo()->SetIsReturning(false);
     }
+
+    Transport* transport = GetOwner()->GetTransport();
+    if (transport)
+    {
+        if (!transport->isPassenger(this->ToCreature()))
+            transport->AddPassenger(this->ToCreature());
+    }
 }
 
 void Pet::RemoveFromWorld()
@@ -93,6 +108,12 @@ void Pet::RemoveFromWorld()
     ///- Remove the pet from the accessor
     if (IsInWorld())
     {
+        ClearCastWhenWillAvailable();
+
+        Transport* transport = GetTransport();
+        if (transport && transport->isPassenger(this->ToCreature()))
+            transport->RemovePassenger(this->ToCreature());
+
         ///- Don't call the function for Creature, normal mobs + totems go in a different storage
         Unit::RemoveFromWorld();
         GetMap()->GetObjectsStore().Remove<Pet>(GetGUID());
@@ -288,8 +309,11 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
     // Set pet's position after setting level, its size depends on it
     float px, py, pz;
-    owner->GetClosePoint(px, py, pz, GetCombatReach(), PET_FOLLOW_DIST, GetFollowAngle());
-    Relocate(px, py, pz, owner->GetOrientation());
+    if (owner->GetTransport())
+        owner->GetPosition(px, py, pz);
+    else
+        owner->GetClosePoint(px, py, pz, GetCombatReach(), PET_FOLLOW_DIST, GetFollowAngle());
+    Relocate(px, py, pz + 1.0f, owner->GetOrientation());
     if (!IsPositionValid())
     {
         TC_LOG_ERROR("entities.pet", "Pet {} not loaded. Suggested coordinates isn't valid (X: {} Y: {})",
@@ -623,6 +647,8 @@ void Pet::Update(uint32 diff)
                 Remove(PET_SAVE_NOT_IN_SLOT);               //hunters' pets never get removed because of death, NEVER!
                 return;
             }
+            else if (HasSpell(55709))
+                CastSpell(this, 55709);
             break;
         }
         case ALIVE:
@@ -645,6 +671,13 @@ void Pet::Update(uint32 diff)
                     Remove(PET_SAVE_NOT_IN_SLOT);
                     return;
                 }
+            }
+
+            /* elevator moveing up or down */
+            if (owner->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !GetTransport() && !GetVictim())
+            {
+                if (GetPositionZ() != owner->GetPositionZ())
+                    Relocate(GetPositionX(), GetPositionY(), owner->GetPositionZ() + 2.0f);
             }
 
             if (m_duration > 0)
@@ -687,6 +720,93 @@ void Pet::Update(uint32 diff)
                         default:
                             m_focusRegenTimer = 0;
                             break;
+                    }
+                }
+            }
+
+            if (tempspell != 0)
+            {
+                if (tempspellTarget && tempspellTarget->IsAlive())
+                {
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(tempspell);
+                    float max_range = GetSpellMaxRangeForTarget(tempspellTarget, spellInfo);
+
+                    if (IsWithinLOSInMap(tempspellTarget) && GetDistance(tempspellTarget) <= max_range)
+                    {
+                        if (tempspellTarget && !GetSpellHistory()->HasGlobalCooldown(spellInfo) && !GetSpellHistory()->HasCooldown(tempspell))
+                        {
+                            StopMoving();
+                            GetMotionMaster()->Clear();
+                            GetMotionMaster()->MoveIdle();
+
+                            GetCharmInfo()->SetIsCommandAttack(false);
+                            GetCharmInfo()->SetIsAtStay(true);
+                            GetCharmInfo()->SetIsCommandFollow(false);
+                            GetCharmInfo()->SetIsFollowing(false);
+                            GetCharmInfo()->SetIsReturning(false);
+                            GetCharmInfo()->SaveStayPosition();
+
+                            CastSpell(tempspellTarget, tempspell, true);
+
+                            if (tempspellIsPositive)
+                            {
+                                if (tempoldTarget && tempoldTarget->IsAlive())
+                                {
+                                    GetCharmInfo()->SetIsCommandAttack(true);
+                                    GetCharmInfo()->SetIsAtStay(false);
+                                    GetCharmInfo()->SetIsFollowing(false);
+                                    GetCharmInfo()->SetIsCommandFollow(false);
+                                    GetCharmInfo()->SetIsReturning(false);
+
+                                    ToCreature()->AI()->AttackStart(tempoldTarget);
+                                }
+                                else
+                                {
+                                    GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
+                                    GetCharmInfo()->SetIsCommandAttack(false);
+                                    GetCharmInfo()->SetIsAtStay(false);
+                                    GetCharmInfo()->SetIsReturning(true);
+                                    GetCharmInfo()->SetIsCommandFollow(true);
+                                    GetCharmInfo()->SetIsFollowing(false);
+                                    GetMotionMaster()->MoveFollow(GetCharmerOrOwner(), PET_FOLLOW_DIST, GetFollowAngle());
+                                }
+                            }
+
+                            ClearCastWhenWillAvailable();
+                        }
+                    }
+                }
+                else
+                {
+                    ClearCastWhenWillAvailable();
+
+                    if (GetCharmerOrOwner()->GetVictim() && GetCharmerOrOwner()->GetVictim()->IsAlive())
+                    {
+                        StopMoving();
+                        GetMotionMaster()->Clear();
+                        GetMotionMaster()->MoveIdle();
+
+                        GetCharmInfo()->SetIsCommandAttack(true);
+                        GetCharmInfo()->SetIsAtStay(false);
+                        GetCharmInfo()->SetIsFollowing(false);
+                        GetCharmInfo()->SetIsCommandFollow(false);
+                        GetCharmInfo()->SetIsReturning(false);
+
+                        ToCreature()->AI()->AttackStart(GetCharmerOrOwner()->GetVictim());
+                    }
+                    else
+                    {
+                        StopMoving();
+                        GetMotionMaster()->Clear();
+                        GetMotionMaster()->MoveIdle();
+
+                        GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
+                        GetCharmInfo()->SetIsCommandAttack(false);
+                        GetCharmInfo()->SetIsAtStay(false);
+                        GetCharmInfo()->SetIsReturning(true);
+                        GetCharmInfo()->SetIsCommandFollow(true);
+                        GetCharmInfo()->SetIsFollowing(false);
+                        GetMotionMaster()->MoveFollow(GetCharmerOrOwner(), PET_FOLLOW_DIST, GetFollowAngle());
                     }
                 }
             }
@@ -1960,6 +2080,30 @@ bool Pet::IsPetAura(Aura const* aura)
             return true;
 
     return false;
+}
+
+void Pet::CastWhenWillAvailable(uint32 spellid, Unit* spellTarget, Unit* oldTarget, bool spellIsPositive)
+{
+    if (!spellid)
+        return;
+
+    if (!spellTarget)
+        return;
+
+    tempspellTarget = spellTarget;
+    tempspell = spellid;
+    tempspellIsPositive = spellIsPositive;
+
+    if (oldTarget)
+        tempoldTarget = oldTarget;
+}
+
+void Pet::ClearCastWhenWillAvailable()
+{
+    tempspellIsPositive = false;
+    tempspell = 0;
+    tempspellTarget = nullptr;
+    tempoldTarget = nullptr;
 }
 
 void Pet::learnSpellHighRank(uint32 spellid)

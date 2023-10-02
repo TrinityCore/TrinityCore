@@ -2880,7 +2880,10 @@ void Spell::EffectSummonPet()
             //OldSummon->GetMap()->Remove(OldSummon->ToCreature(), false);
 
             float px, py, pz;
-            owner->GetClosePoint(px, py, pz, OldSummon->GetCombatReach());
+            if (owner->GetTransport())
+                owner->GetPosition(px, py, pz);
+            else
+                owner->GetClosePoint(px, py, pz, OldSummon->GetCombatReach());
 
             OldSummon->NearTeleportTo(px, py, pz, OldSummon->GetOrientation());
             //OldSummon->Relocate(px, py, pz, OldSummon->GetOrientation());
@@ -2906,7 +2909,10 @@ void Spell::EffectSummonPet()
     }
 
     float x, y, z;
-    owner->GetClosePoint(x, y, z, owner->GetCombatReach());
+    if (owner->GetTransport())
+        owner->GetPosition(x, y, z);
+    else
+        owner->GetClosePoint(x, y, z, owner->GetCombatReach());
     Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), SUMMON_PET, 0);
     if (!pet)
         return;
@@ -5239,11 +5245,18 @@ void Spell::SummonGuardian(SpellEffectInfo const& spellEffectInfo, uint32 entry,
     for (uint32 count = 0; count < numGuardians; ++count)
     {
         Position pos;
-        if (count == 0)
-            pos = *destTarget;
+        if (unitCaster->GetTransport())
+            pos = unitCaster->GetPosition();
         else
-            // randomize position for multiple summons
-            pos = unitCaster->GetRandomPoint(*destTarget, radius);
+        {
+            if (count == 0)
+                pos = *destTarget;
+            else
+            {
+                // randomize position for multiple summons
+                pos = unitCaster->GetRandomPoint(*destTarget, radius);
+            }
+        }
 
         TempSummon* summon = map->SummonCreature(entry, pos, properties, duration, unitCaster, m_spellInfo->Id);
         if (!summon)

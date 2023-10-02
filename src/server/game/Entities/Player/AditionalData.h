@@ -4,6 +4,7 @@
 #include "Define.h"
 
 class Player;
+class Transport;
 
 class TC_GAME_API AditionalData
 {
@@ -12,6 +13,9 @@ public:
     ~AditionalData();
 
     void update(uint32 p_time);
+
+    void enterOnTransport(Transport* transport);
+    void exitFromTransport(Transport* transport);
 
     // Auction info
     void calculateAuctionLotsCounter();

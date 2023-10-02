@@ -589,14 +589,26 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         return;
     }
 
-    _pathPoints.resize(pointCount);
+    // We are only going to use the path points that are 4yrds apart from each other as well as the first and final point to get a blizzlike result
+    uint32 splinePointCount = 1 + (pointCount / SMOOTH_PATH_MULTIPLIER) + (pointCount % SMOOTH_PATH_MULTIPLIER ? 1 : 0);
+    _pathPoints.resize(splinePointCount);
+
+    uint32 splineIndex = 0;
     for (uint32 i = 0; i < pointCount; ++i)
-        _pathPoints[i] = G3D::Vector3(pathPoints[i*VERTEX_SIZE+2], pathPoints[i*VERTEX_SIZE], pathPoints[i*VERTEX_SIZE+1]);
+    {
+        // We only want every 8th waypoint as well as the first and final point of pathPoints
+        if (i == 0 || !((i + 1) % SMOOTH_PATH_MULTIPLIER) || i == (pointCount - 1))
+        {
+            _pathPoints[splineIndex] = G3D::Vector3(pathPoints[i * VERTEX_SIZE + 2], pathPoints[i * VERTEX_SIZE], pathPoints[i * VERTEX_SIZE + 1]);
+            ++splineIndex;
+        }
+    }
+
 
     NormalizePath();
 
-    // first point is always our current location - we need the next one
-    SetActualEndPosition(_pathPoints[pointCount-1]);
+    // Set the actual end position to be our final path point which is at the end of the _pathPoints vector
+    SetActualEndPosition(_pathPoints[_pathPoints.size() - 1]);
 
     // force the given destination, if needed
     if (_forceDestination &&
@@ -617,13 +629,103 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
     }
 
+    if (_source->GetMapId() == 618)
+    {
+        pointCount = 2;
+        _pathPoints.resize(pointCount);
+        _pathPoints[0] = GetStartPosition();
+        _pathPoints[1] = endPoint[1] < 28.0f ? G3D::Vector3(endPoint[2], endPoint[0], 30.5f) : GetEndPosition();
+        _type = PathType(PATHFIND_NORMAL);
+    }
+
+    if (_type & PATHFIND_INCOMPLETE && _source->GetMapId() == 562) // Blade edge Arena
+    {
+        if ((endPoint[1] - startPoint[1]) > 4.5f)
+        {
+            // start X, y, z
+            float sX, sY;
+            sX = startPoint[2];
+            sY = startPoint[0];
+            //A (south-east)
+            if ((sX >= 6180.796875f && sX <= 6226.724609f) && (sY >= 236.296036f && sY <= 277.950043f))
+            {
+                //TC_LOG_INFO("anticheat", "++ PathGenerator::BuildPointPath A");
+                pointCount = 5;
+                _pathPoints.resize(pointCount);
+                _pathPoints[0] = GetStartPosition();
+                _pathPoints[1] = G3D::Vector3(6191.843262f, 264.801849f, 3.5f);
+                _pathPoints[2] = G3D::Vector3(6203.682617f, 281.374512f, 12.5f);
+                _pathPoints[3] = G3D::Vector3(6206.993164f, 280.087006f, 14.0f);
+                _pathPoints[4] = GetEndPosition();
+                _type = PathType(PATHFIND_NORMAL);
+            }
+            //B (north-east)
+            else if ((sX >= 6215.437500f && sX <= 6259.274902f) && (sY >= 205.504669f && sY <= 248.468872f))
+            {
+                //TC_LOG_INFO("anticheat", "++ PathGenerator::BuildPointPath B");
+                pointCount = 5;
+                _pathPoints.resize(pointCount);
+                _pathPoints[0] = GetStartPosition();
+                _pathPoints[1] = G3D::Vector3(6248.808105f, 220.637985f, 4.5f);
+                _pathPoints[2] = G3D::Vector3(6261.618652f, 232.819412f, 12.5f);
+                _pathPoints[3] = G3D::Vector3(6260.099121f, 236.207077f, 14.0f);
+                _pathPoints[4] = GetEndPosition();
+                _type = PathType(PATHFIND_NORMAL);
+            }
+            //C (north-west)
+            else if ((sX >= 6249.708496f && sX <= 6289.688965f) && (sY >= 247.162811f && sY <= 289.817505f))
+            {
+                //TC_LOG_INFO("anticheat", "++ PathGenerator::BuildPointPath C");
+                pointCount = 5;
+                _pathPoints.resize(pointCount);
+                _pathPoints[0] = GetStartPosition();
+                _pathPoints[1] = G3D::Vector3(6281.279785f, 260.974884f, 3.9f);
+                _pathPoints[2] = G3D::Vector3(6272.071289f, 243.330627f, 12.5f);
+                _pathPoints[3] = G3D::Vector3(6268.463867f, 245.091064f, 14.0f);
+                _pathPoints[4] = GetEndPosition();
+                _type = PathType(PATHFIND_NORMAL);
+            }
+            //D (south-west)
+            else if ((sX >= 6216.665039f && sX <= 6265.604980f) && (sY >= 274.625031f && sY <= 317.697571f))
+            {
+                //TC_LOG_INFO("anticheat", "++ PathGenerator::BuildPointPath D");
+                pointCount = 5;
+                _pathPoints.resize(pointCount);
+                _pathPoints[0] = GetStartPosition();
+                _pathPoints[1] = G3D::Vector3(6225.866211f, 305.163391f, 4.6f);
+                _pathPoints[2] = G3D::Vector3(6213.339355f, 292.441376f, 12.5f);
+                _pathPoints[3] = G3D::Vector3(6215.147949f, 289.954590f, 14.0f);
+                _pathPoints[4] = GetEndPosition();
+                _type = PathType(PATHFIND_NORMAL);
+            }
+        }
+    }
+
     TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::BuildPointPath path type {} size {} poly-size {}", _type, pointCount, _polyLength);
 }
 
 void PathGenerator::NormalizePath()
 {
+    bool petontransport = _source && _source->ToUnit() && _source->ToUnit()->IsPet() && _source->ToUnit()->GetTransport();
+
     for (uint32 i = 0; i < _pathPoints.size(); ++i)
+    {
         _source->UpdateAllowedPositionZ(_pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z);
+
+        if (petontransport && i != 0)
+        {
+            // check dynamic collision for transport (TODO navmesh for transport map)
+            bool dcol = _source->GetMap()->getObjectHitPos(_source->GetPhaseMask(), _pathPoints[i-1].x, _pathPoints[i-1].y, _pathPoints[i-1].z + 0.5f, _pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z + 0.5f, _pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z, -0.5f);
+            // collision occured
+            if (dcol)
+            {
+                float distance = _source->GetExactDist2d(_pathPoints[i].x, _pathPoints[i].y);
+                float checkz = _source->GetMap()->GetHeight(_pathPoints[i].x, _pathPoints[i].y, (_pathPoints[i].z + distance));
+                if (_pathPoints[i].z < checkz)
+                    _pathPoints[i].z = checkz;
+            }
+        }
+    }
 }
 
 void PathGenerator::BuildShortcut()
@@ -863,10 +965,10 @@ dtStatus PathGenerator::FindSmoothPath(float const* startPos, float const* endPo
         dtVsub(delta, steerPos, iterPos);
         float len = dtMathSqrtf(dtVdot(delta, delta));
         // If the steer target is end of path or off-mesh link, do not move past the location.
-        if ((endOfPath || offMeshConnection) && len < SMOOTH_PATH_STEP_SIZE)
+        if ((endOfPath || offMeshConnection) && len < RECAST_PATH_STEP_SIZE)
             len = 1.0f;
         else
-            len = SMOOTH_PATH_STEP_SIZE / len;
+            len = RECAST_PATH_STEP_SIZE / len;
 
         float moveTgt[VERTEX_SIZE];
         dtVmad(moveTgt, iterPos, delta, len);
@@ -1019,12 +1121,14 @@ void PathGenerator::ShortenPathUntilDist(G3D::Vector3 const& target, float dist)
     //   ... settle for a guesstimate since i'm not confident in doing trig on every chase motion tick...
     // (@todo review this)
     _pathPoints[i] += (_pathPoints[i - 1] - _pathPoints[i]).direction() * (dist - (_pathPoints[i] - target).length());
+    float checkz = _source->GetMap()->GetHeight(_pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z + 1.5f) + 0.5f;
+    _pathPoints[i].z = checkz;
     _pathPoints.resize(i+1);
 }
 
 bool PathGenerator::IsInvalidDestinationZ(Unit const* target) const
 {
-    return (target->GetPositionZ() - GetActualEndPosition().z) > 5.0f;
+    return (target->GetPositionZ() - GetActualEndPosition().z) > 5.0f && _source->GetMapId() != 562 && _source->GetMapId() != 618;
 }
 
 void PathGenerator::AddFarFromPolyFlags(bool startFarFromPoly, bool endFarFromPoly)

@@ -23,6 +23,7 @@
 #include "VehicleDefines.h"
 
 struct CreatureData;
+struct SummonPropertiesDBC;
 
 class TC_GAME_API Transport : public GameObject, public TransportBase
 {
@@ -42,8 +43,9 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         void BuildUpdate(UpdateDataMapType& data_map) override;
 
-        void AddPassenger(WorldObject* passenger);
+        void AddPassenger(WorldObject* passenger, bool skiprelocate = false);
         void RemovePassenger(WorldObject* passenger);
+        bool isPassenger(WorldObject* passenger);
         PassengerSet const& GetPassengers() const { return _passengers; }
 
         Creature* CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData const* data);
