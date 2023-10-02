@@ -395,14 +395,22 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
             {
                 plrMover->GetAnticheat()->setSkipOnePacketForASH(true);
                 if (Transport* transport = plrMover->GetMap()->GetTransport(movementInfo.transport.guid))
+                {
                     transport->AddPassenger(plrMover);
+                    plrMover->GetAditionalData()->enterOnTransport(transport);
+                }
             }
             else if (plrMover->GetTransport()->GetGUID() != movementInfo.transport.guid)
             {
                 plrMover->GetAnticheat()->setSkipOnePacketForASH(true);
+                plrMover->GetAditionalData()->exitFromTransport(plrMover->GetTransport());
                 plrMover->GetTransport()->RemovePassenger(plrMover);
+
                 if (Transport* transport = plrMover->GetMap()->GetTransport(movementInfo.transport.guid))
+                {
                     transport->AddPassenger(plrMover);
+                    plrMover->GetAditionalData()->enterOnTransport(transport);
+                }
                 else
                     movementInfo.transport.Reset();
             }
@@ -418,6 +426,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     else if (plrMover && plrMover->GetTransport())                // if we were on a transport, leave
     {
         plrMover->GetAnticheat()->setSkipOnePacketForASH(true);
+        plrMover->GetAditionalData()->exitFromTransport(plrMover->GetTransport());
         plrMover->GetTransport()->RemovePassenger(plrMover);
         movementInfo.transport.Reset();
     }

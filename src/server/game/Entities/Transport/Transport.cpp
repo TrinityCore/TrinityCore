@@ -20,6 +20,7 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "Common.h"
+#include "Creature.h"
 #include "DBCStoresMgr.h"
 #include "GameObjectAI.h"
 #include "Log.h"
@@ -43,6 +44,13 @@ Transport::Transport() : GameObject(),
 
 Transport::~Transport()
 {
+    while (!_passengers.empty())
+    {
+        WorldObject* obj = *_passengers.begin();
+        RemovePassenger(obj);
+    }
+
+    _passengers.clear(); // forced clear passengers list, for safe delete
     ASSERT(_passengers.empty());
     UnloadStaticPassengers();
 }
@@ -247,7 +255,7 @@ void Transport::DelayedUpdate(uint32 /*diff*/)
     DelayedTeleportTransport();
 }
 
-void Transport::AddPassenger(WorldObject* passenger)
+void Transport::AddPassenger(WorldObject* passenger, bool skiprelocate)
 {
     if (!IsInWorld())
         return;
@@ -260,7 +268,42 @@ void Transport::AddPassenger(WorldObject* passenger)
         TC_LOG_DEBUG("entities.transport", "Object {} boarded transport {}.", passenger->GetName(), GetName());
 
         if (Player* plr = passenger->ToPlayer())
+        {
+            plr->GetAnticheat()->setSkipOnePacketForASH(true);
             sScriptMgr->OnAddPassenger(this, plr);
+        }
+
+        if (Creature* crt = passenger->ToCreature()) // reg pet or totem on transport
+        {
+            if (crt->IsTotem() || crt->IsPet())
+            {
+                if (Unit* owner = crt->GetOwner())
+                {
+                    float x, y, z, o;
+                    owner->m_movementInfo.transport.pos.GetPosition(x, y, z, o);
+                    crt->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+                    CalculatePassengerPosition(x, y, z, &o);
+                    crt->SetHomePosition(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ() + 1.0f, owner->GetOrientation());
+                    crt->SetTransportHomePosition(x, y, z, o);
+
+                    if (!skiprelocate)
+                    {
+                        if (crt->IsPet())
+                        {
+                            if (crt->GetVictim())
+                                GetMap()->CreatureRelocation(crt, crt->GetVictim()->GetPositionX(), crt->GetVictim()->GetPositionY(), crt->GetVictim()->GetPositionZ() + crt->GetVictim()->GetCollisionHeight(), crt->GetVictim()->GetOrientation());
+                            else
+                                GetMap()->CreatureRelocation(crt, owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ() + owner->GetCollisionHeight(), owner->GetOrientation());
+                        }
+                        else if (crt->IsTotem())
+                            GetMap()->CreatureRelocation(crt, crt->GetPositionX(), crt->GetPositionY(), crt->GetPositionZ() + 1.0f, crt->GetOrientation(), false);
+                    }
+
+                }
+
+                sScriptMgr->OnAddPassengerPetOrTotem(this, crt);
+            }
+        }
     }
 }
 
@@ -284,17 +327,57 @@ void Transport::RemovePassenger(WorldObject* passenger)
 
     if (erased || _staticPassengers.erase(passenger)) // static passenger can remove itself in case of grid unload
     {
+        if (Player* plr = passenger->ToPlayer())
+        {
+            plr->GetAnticheat()->setSkipOnePacketForASH(true);
+            plr->GetAnticheat()->resetFallingData(plr->GetPositionZ());
+            sScriptMgr->OnRemovePassenger(this, plr);            
+        }
+
+        if (Creature* crt = passenger->ToCreature())
+        {
+            if (crt->IsPet())
+            {
+                if (Unit* owner = crt->GetOwner())
+                {
+                    if (crt->GetVictim())
+                        GetMap()->CreatureRelocation(crt, crt->GetVictim()->GetPositionX(), crt->GetVictim()->GetPositionY(), crt->GetVictim()->GetPositionZ() + crt->GetVictim()->GetCollisionHeight(), crt->GetVictim()->GetOrientation());
+                    else
+                        GetMap()->CreatureRelocation(crt, owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ() + owner->GetCollisionHeight(), owner->GetOrientation());
+                }
+            }
+            else if (crt->IsTotem())
+            {
+                if (crt->GetOwner())
+                {
+                    float x, y, z, o;
+                    crt->m_movementInfo.transport.pos.GetPosition(x, y, z, o);
+                    crt->SetTransportHomePosition(x, y, z, o);
+
+                    CalculatePassengerPosition(x, y, z, &o);
+                    crt->SetHomePosition(x, y, z, o);
+
+                    GetMap()->CreatureRelocation(crt, crt->GetPositionX(), crt->GetPositionY(), crt->GetPositionZ() + 1.0f, crt->GetOrientation(), false);
+                }
+            }
+
+            sScriptMgr->OnRemovePassengerPetOrTotem(this, crt);
+        }
+
         passenger->SetTransport(nullptr);
         passenger->m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
         passenger->m_movementInfo.transport.Reset();
         TC_LOG_DEBUG("entities.transport", "Object {} removed from transport {}.", passenger->GetName(), GetName());
-
-        if (Player* plr = passenger->ToPlayer())
-        {
-            sScriptMgr->OnRemovePassenger(this, plr);
-            plr->GetAnticheat()->resetFallingData(plr->GetPositionZ());
-        }
     }
+}
+
+bool Transport::isPassenger(WorldObject* passenger)
+{
+    for (PassengerSet::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
+        if (passenger == (*itr))
+            return true;
+
+    return false;
 }
 
 Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData const* data)

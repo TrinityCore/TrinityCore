@@ -1382,6 +1382,8 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
                     static float const DefaultTotemDistance = 3.0f;
                     if (!spellEffectInfo.HasRadius())
                         dist = DefaultTotemDistance;
+                    if (m_spellInfo->Id == 6495) // Sentry Totem has 100 basepoints (100 hp, but should be placed near caster)
+                        dist = 5.0f;
                     break;
                 }
                 default:
@@ -1392,7 +1394,25 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
                 dist = objSize;
 
             Position pos = dest._position;
-            m_caster->MovePositionToFirstCollision(pos, dist, angle);
+            if (m_caster->GetTransport())
+            {
+                float casterZ = m_caster->GetPositionZ();
+                pos.m_positionZ = m_caster->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, casterZ + 2 * dist);
+                // check dynamic collision
+                bool dcol = m_caster->GetMap()->getObjectHitPos(m_caster->GetPhaseMask(), m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ() + 0.5f, pos.m_positionX, pos.m_positionY, pos.m_positionZ + 0.5f, pos.m_positionX, pos.m_positionY, pos.m_positionZ, -0.5f);
+
+                // Collided with a gameobject
+                if (dcol)
+                {
+                    pos.m_positionX -= CONTACT_DISTANCE * std::cos(angle);
+                    pos.m_positionY -= CONTACT_DISTANCE * std::sin(angle);
+                    pos.m_positionZ = m_caster->GetMap()->GetHeight(m_caster->GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + dist);
+                    if (pos.m_positionZ < casterZ)
+                        pos.m_positionZ = casterZ + 1.0f;
+                }
+            }
+            else
+                m_caster->MovePositionToFirstCollision(pos, dist, angle);
 
             dest.Relocate(pos);
             break;
@@ -3203,7 +3223,10 @@ void Spell::cancel()
 
             SendChannelUpdate(0);
             SendInterrupted(0);
-            SendCastResult(SPELL_FAILED_INTERRUPTED);
+            if (m_spellInfo->Id == 1515)
+                SendCastResult(SPELL_CAST_OK);
+            else
+                SendCastResult(SPELL_FAILED_INTERRUPTED);
 
             m_appliedMods.clear();
             break;

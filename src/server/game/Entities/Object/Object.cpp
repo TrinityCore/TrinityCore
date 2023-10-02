@@ -1431,12 +1431,11 @@ void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
 
 void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z, float* groundZ) const
 {
-    // TODO: Allow transports to be part of dynamic vmap tree
     if (GetTransport())
     {
+        GetMap()->GetHeight(GetPhaseMask(), x, y, z, true);
         if (groundZ)
             *groundZ = z;
-
         return;
     }
 
