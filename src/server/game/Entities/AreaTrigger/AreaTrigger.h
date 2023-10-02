@@ -136,7 +136,6 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         UF::UpdateField<UF::AreaTriggerData, 0, TYPEID_AREATRIGGER> m_areaTriggerData;
 
-
         void SetOverrideScaleCurve(uint32 startTimeOffSet, std::array<DBCPosition2D, 2> points, CurveInterpolationMode mode = CurveInterpolationMode::Linear);
         float GetOverrideScaleCurveValue() const;
 

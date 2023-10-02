@@ -23,7 +23,6 @@
 #define DataHeader "SFO"
 #define SFOScriptName "instance_sepulcher_of_the_first_ones"
 
-
 uint32 const EncounterCount = 11;
 
 enum SepulcherOfTheFirstOnesDataTypes
@@ -53,7 +52,6 @@ enum SepulcherOfTheFirstOnesDataTypes
     DATA_ANDUIN_TREASURE,
 
 };
-
 
 enum SepulcherOfTheFirstOnesCreatureIds
 {

@@ -22,7 +22,6 @@ void AddSC_torghast_spell_scripts();
 void AddSC_boss_anduin_wrynn();
 void AddSC_instance_sepulcher_of_the_first_ones();
 
-
 void AddShadowlandsScripts()
 {
 

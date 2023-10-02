@@ -52,7 +52,6 @@
 #include "ScriptedGossip.h"
 #include "sepulcher_of_the_first_ones.h"
 
-
 enum Spells
 {
     // Pre-Introduction
@@ -1184,7 +1183,6 @@ struct boss_anduin_wrynn : public BossAI
                         IntermissionPositions();
                     });
 
-
                     scheduler.Schedule(1204ms, [this](TaskContext /*task*/)
                     {
                         DoAction(ACTION_ARTHAS_INTERMISSION_UTHER);
@@ -1362,7 +1360,6 @@ struct boss_anduin_wrynn : public BossAI
                 events.ScheduleEvent(EVENT_INTERMISSION_ONE, 150s);
                 break;
             }
-
 
             case PHASE_TWO:
             {
@@ -2447,7 +2444,6 @@ private:
     TaskScheduler _scheduler;
 };
 
-
 // 183666 - Sylvanas Windrunner
 struct npc_anduin_wrynn_sylvanas : public ScriptedAI
 {
@@ -2590,7 +2586,6 @@ struct npc_anduin_wrynn_jaina : public ScriptedAI
                 anduin->GetAI()->DoAction(ACTION_START_INTRODUCTION);
     }
 
-
     void UpdateAI(uint32 diff) override
     {
         _scheduler.Update(diff);
@@ -2635,7 +2630,6 @@ struct npc_anduin_wrynn_jaina : public ScriptedAI
 
         DoSpellAttackIfReady(SPELL_FROSTBOLT);
     }
-
 
 private:
     InstanceScript* _instance;
@@ -4965,7 +4959,6 @@ public:
 private:
     std::unordered_set<uint32> skippedPlayers;
 };
-
 
 void AddSC_boss_anduin_wrynn()
 {
