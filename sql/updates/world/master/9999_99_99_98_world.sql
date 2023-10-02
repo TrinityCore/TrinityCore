@@ -509,7 +509,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (361989, 'spell_anduin_wrynn_blasphemy'),
 (361993, 'spell_anduin_wrynn_hopelessness_overconfidence'),
 (361992, 'spell_anduin_wrynn_hopelessness_overconfidence'),
-(365021, 'spell_anduin_wrynn_wicked_star_pointer'),
+(365021, 'spell_anduin_wrynn_wicked_star_selector'),
 (362405, 'spell_anduin_wrynn_kingsmourne_hungers'),
 (365652, 'spell_anduin_soul_lost_soul'),
 (362055, 'spell_anduin_wrynn_lost_soul'),
@@ -534,6 +534,6 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (362545, 'spell_remnant_of_a_fallen_king_remorseless_winter_damage'),
 (363021, 'spell_remnant_of_a_fallen_king_return_to_kingsmourne'),
 (363022, 'spell_remnant_of_a_fallen_king_return_to_kingsmourne_applied'),
-(367632, 'spell_anduin_wrynn_empowered_wicked_star_pointer'),
+(367632, 'spell_anduin_wrynn_empowered_wicked_star_selector'),
 (363029, 'spell_friendish_soul_explosion'),
 (365816, 'spell_anduin_wrynn_fragment_of_hope');
