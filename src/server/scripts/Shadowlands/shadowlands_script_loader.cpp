@@ -29,7 +29,7 @@ void AddShadowlandsScripts()
     AddSC_covenant_spell_scripts();
     AddSC_torghast_spell_scripts();
 
-    // Sepulcher of the First Ones    
+    // Sepulcher of The First Ones
     AddSC_boss_anduin_wrynn();
     AddSC_instance_sepulcher_of_the_first_ones();
 }
