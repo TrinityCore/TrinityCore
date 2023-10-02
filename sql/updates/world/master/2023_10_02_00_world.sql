@@ -1,12 +1,13 @@
-SET @CGUID := 11001000;
+SET @CGUID := 6000139;
 
-SET @NPCTEXTID := 11001000;
+SET @NPCTEXTID := 560007;
 
 -- Creature
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+1;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
 (@CGUID+0, 99917, 1481, 7705, 7740, '0', 5464, 0, 0, 1, 756.76739501953125, 2401.420166015625, -60.9138259887695312, 1.067818880081176757, 120, 0, 0, 27954, 0, 0, NULL, NULL, NULL, NULL, 51536), -- Sevis Brightflame (Area: Molten Shore - Difficulty: 0) CreateObject1
 (@CGUID+1, 99914, 1481, 7705, 7740, '0', 5461, 0, 0, 0, 758.97222900390625, 2403.007080078125, -60.9143829345703125, 1.19526827335357666, 120, 0, 0, 2485, 3801, 0, NULL, NULL, NULL, NULL, 51536); -- Ashtongue Mystic (Area: Molten Shore - Difficulty: 0) CreateObject1
+
 DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+1;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''); -- Sevis Brightflame
