@@ -595,7 +595,6 @@ void AreaTrigger::SearchUnitInSphere(std::vector<Unit*>& targetList)
     SearchUnits(targetList, radius, true);
 }
 
-
 void AreaTrigger::SearchUnitInBox(std::vector<Unit*>& targetList)
 {
     SearchUnits(targetList, GetMaxSearchRadius(), false);
