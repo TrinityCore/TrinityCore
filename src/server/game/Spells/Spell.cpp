@@ -1310,6 +1310,23 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
                     dest = SpellDestination(*target);
             }
             break;
+        case TARGET_DEST_TARGET_BACK:
+        {
+            if (Unit* unitCaster = m_caster->ToUnit())
+                if (Unit* target = unitCaster->GetVictim())
+                {
+                    Position pos = target->GetPosition();
+                    float vcos, vsin;
+                    unitCaster->GetSinCos(pos.m_positionX, pos.m_positionY, vsin, vcos);
+
+                    pos.m_positionX += 0.05f * vcos;
+                    pos.m_positionY += 0.05f * vsin;
+                    target->UpdateAllowedPositionZ(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+
+                    dest = SpellDestination(pos.m_positionX, pos.m_positionY, pos.m_positionZ, target->GetOrientation());
+                }
+            break;
+        }
         case TARGET_DEST_CASTER_FISHING:
         {
             float minDist = m_spellInfo->GetMinRange(true);
@@ -1936,7 +1953,7 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
                 if (Unit* unit = (*itr)->ToUnit())
                 {
                     uint32 deficit = unit->GetMaxHealth() - unit->GetHealth();
-                    if (deficit > maxHPDeficit && target->IsWithinDist(unit, jumpRadius) && target->IsWithinLOSInMap(unit, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                    if (deficit > maxHPDeficit && target->IsWithinDist(unit, jumpRadius) && target->IsWithinLOSInMap(unit, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::Nothing))
                     {
                         foundItr = itr;
                         maxHPDeficit = deficit;
@@ -3573,6 +3590,13 @@ void Spell::handle_immediate()
             // GameObjects shouldn't cast channeled spells
             ASSERT_NOTNULL(m_caster->ToUnit())->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
         }
+
+        // interrupt movement at channeled spells for creature case
+        if (Unit* unitCaster = m_caster->ToUnit())
+        {
+            if (unitCaster->isMoving() && !m_spellInfo->HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING))
+                unitCaster->StopMoving();
+        }
     }
 
     PrepareTargetProcessing();
@@ -5145,7 +5169,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
             else
-                return SPELL_FAILED_NOT_READY;
+                return (m_spellInfo->Id == 15473 || m_spellInfo->Id == 46584) ? SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW : SPELL_FAILED_NOT_READY; // !Hack, returning not ready bugs shadowform client
         }
     }
 
@@ -5326,7 +5350,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     if (DynamicObject* dynObj = m_caster->ToUnit()->GetDynObject(m_triggeredByAuraSpell->Id))
                         losTarget = dynObj;
 
-                if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !m_spellInfo->HasAttribute(SPELL_ATTR5_SKIP_CHECKCAST_LOS_CHECK) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !target->IsWithinLOSInMap(losTarget, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !m_spellInfo->HasAttribute(SPELL_ATTR5_SKIP_CHECKCAST_LOS_CHECK) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !target->IsWithinLOSInMap(losTarget, LINEOFSIGHT_ALL_CHECKS, (sWorld->customGetBoolConfig(CONFIG_CHECK_M2_LOS) ? VMAP::ModelIgnoreFlags::Nothing : VMAP::ModelIgnoreFlags::M2)) && !m_spellInfo->HasAttribute(SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC))
                     return SPELL_FAILED_LINE_OF_SIGHT;
             }
         }
@@ -5338,7 +5362,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         float x, y, z;
         m_targets.GetDstPos()->GetPosition(x, y, z);
 
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !m_spellInfo->HasAttribute(SPELL_ATTR5_SKIP_CHECKCAST_LOS_CHECK) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOS(x, y, z, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !m_spellInfo->HasAttribute(SPELL_ATTR5_SKIP_CHECKCAST_LOS_CHECK) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOS(x, y, z, LINEOFSIGHT_ALL_CHECKS, (sWorld->customGetBoolConfig(CONFIG_CHECK_M2_LOS) ? VMAP::ModelIgnoreFlags::Nothing : VMAP::ModelIgnoreFlags::M2)) && !m_spellInfo->HasAttribute(SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC))
             return SPELL_FAILED_LINE_OF_SIGHT;
     }
 
@@ -7381,7 +7405,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
         {
             if (!m_targets.GetCorpseTargetGUID())
             {
-                if (target->IsWithinLOSInMap(m_caster, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2) && target->HasUnitFlag(UNIT_FLAG_SKINNABLE))
+                if (target->IsWithinLOSInMap(m_caster, LINEOFSIGHT_ALL_CHECKS, (sWorld->customGetBoolConfig(CONFIG_CHECK_M2_LOS) ? VMAP::ModelIgnoreFlags::Nothing : VMAP::ModelIgnoreFlags::M2)) && target->HasUnitFlag(UNIT_FLAG_SKINNABLE))
                     return true;
 
                 return false;
@@ -7397,7 +7421,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
             if (!corpse->HasFlag(CORPSE_FIELD_FLAGS, CORPSE_FLAG_LOOTABLE))
                 return false;
 
-            if (!corpse->IsWithinLOSInMap(m_caster, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+            if (!corpse->IsWithinLOSInMap(m_caster, LINEOFSIGHT_ALL_CHECKS, (sWorld->customGetBoolConfig(CONFIG_CHECK_M2_LOS) ? VMAP::ModelIgnoreFlags::Nothing : VMAP::ModelIgnoreFlags::M2)))
                 return false;
 
             break;
@@ -7405,7 +7429,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
         default:                                            // normal case
         {
             if (losPosition)
-                return target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ(), LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2);
+                return target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ(), LINEOFSIGHT_ALL_CHECKS, (sWorld->customGetBoolConfig(CONFIG_CHECK_M2_LOS) ? VMAP::ModelIgnoreFlags::Nothing : VMAP::ModelIgnoreFlags::M2));
             else
             {
                 // Get GO cast coordinates if original caster -> GO
@@ -7414,7 +7438,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
                     caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
                 if (!caster)
                     caster = m_caster;
-                if (target != m_caster && !target->IsWithinLOSInMap(caster, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                if (target != m_caster && !target->IsWithinLOSInMap(caster, LINEOFSIGHT_ALL_CHECKS, (sWorld->customGetBoolConfig(CONFIG_CHECK_M2_LOS) ? VMAP::ModelIgnoreFlags::Nothing : VMAP::ModelIgnoreFlags::M2)))
                     return false;
             }
             break;
