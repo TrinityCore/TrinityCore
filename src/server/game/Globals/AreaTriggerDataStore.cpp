@@ -238,6 +238,13 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
             createProperties.PolygonVertices       = std::move(verticesByCreateProperties[createProperties.Id]);
             createProperties.PolygonVerticesTarget = std::move(verticesTargetByCreateProperties[createProperties.Id]);
+            if (!createProperties.PolygonVerticesTarget.empty() && createProperties.PolygonVertices.size() != createProperties.PolygonVerticesTarget.size())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_polygon_vertex` has invalid target vertices, either all or none vertices must have a corresponding target vertex (AreaTriggerCreatePropertiesId: {}).",
+                    createProperties.Id);
+                createProperties.PolygonVerticesTarget.clear();
+            }
+
             createProperties.SplinePoints          = std::move(splinesByCreateProperties[createProperties.Id]);
 
             _areaTriggerCreateProperties[createProperties.Id] = createProperties;

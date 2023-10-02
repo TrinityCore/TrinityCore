@@ -409,6 +409,7 @@ Unit::~Unit()
     ASSERT(m_removedAuras.empty());
     ASSERT(m_gameObj.empty());
     ASSERT(m_dynObj.empty());
+    ASSERT(m_areaTrigger.empty());
     ASSERT(!m_unitMovedByMe || (m_unitMovedByMe == this));
     ASSERT(!m_playerMovingMe || (m_playerMovingMe == this));
 }
@@ -5244,7 +5245,7 @@ void Unit::_RegisterAreaTrigger(AreaTrigger* areaTrigger)
 
 void Unit::_UnregisterAreaTrigger(AreaTrigger* areaTrigger)
 {
-    m_areaTrigger.erase(std::remove(m_areaTrigger.begin(), m_areaTrigger.end(), areaTrigger));
+    std::erase(m_areaTrigger, areaTrigger);
     if (GetTypeId() == TYPEID_UNIT && IsAIEnabled())
         ToCreature()->AI()->JustUnregisteredAreaTrigger(areaTrigger);
 }
@@ -5267,8 +5268,6 @@ std::vector<AreaTrigger*> Unit::GetAreaTriggers(uint32 spellId) const
 
 void Unit::RemoveAreaTrigger(uint32 spellId)
 {
-    if (m_areaTrigger.empty())
-        return;
     for (AreaTriggerList::iterator i = m_areaTrigger.begin(); i != m_areaTrigger.end();)
     {
         AreaTrigger* areaTrigger = *i;
@@ -5284,8 +5283,6 @@ void Unit::RemoveAreaTrigger(uint32 spellId)
 
 void Unit::RemoveAreaTrigger(AuraEffect const* aurEff)
 {
-    if (m_areaTrigger.empty())
-        return;
     for (AreaTrigger* areaTrigger : m_areaTrigger)
     {
         if (areaTrigger->GetAuraEffect() == aurEff)
@@ -5299,7 +5296,7 @@ void Unit::RemoveAreaTrigger(AuraEffect const* aurEff)
 void Unit::RemoveAllAreaTriggers()
 {
     while (!m_areaTrigger.empty())
-        m_areaTrigger.front()->Remove();
+        m_areaTrigger.back()->Remove();
 }
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
