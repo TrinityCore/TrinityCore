@@ -81,7 +81,7 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
 void OutdoorPvPHP::OnGameObjectCreate(GameObject* go)
 {
     if (go->GetGoType() == GAMEOBJECT_TYPE_CONTROL_ZONE)
-        _controlZones.insert(go->GetGUID());
+        _controlZoneGUIDs.insert(go->GetGUID());
 
     switch (go->GetEntry())
     {
@@ -158,17 +158,13 @@ void OutdoorPvPHP::SendRemoveWorldStates(Player* player)
     initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_COUNT_H, 0);
     initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_COUNT_A, 0);
 
-    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_S_A, 0);
-    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_S_H, 0);
-    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_S_N, 0);
-
-    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_N_A, 0);
-    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_N_H, 0);
-    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_N_N, 0);
-
-    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_W_A, 0);
-    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_W_H, 0);
-    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_W_N, 0);
+    for (auto& itr : ControlZoneHandlers)
+    {
+        HPControlZoneHandler* handler = static_cast<HPControlZoneHandler*>(itr.second.get());
+        initWorldStates.Worldstates.emplace_back(handler->GetWorldStateNeutral(), 0);
+        initWorldStates.Worldstates.emplace_back(handler->GetWorldStateHorde(), 0);
+        initWorldStates.Worldstates.emplace_back(handler->GetWorldStateAlliance(), 0);
+    }
 
     player->SendDirectMessage(initWorldStates.Write());
 }
@@ -180,7 +176,7 @@ void OutdoorPvPHP::HandleKillImpl(Player* player, Unit* killed)
 
     // need to check if player is inside an capture zone
     bool isInsideCaptureZone = false;
-    for (ObjectGuid const& guid : _controlZones)
+    for (ObjectGuid const& guid : _controlZoneGUIDs)
     {
         if (GameObject* gameObject = GetMap()->GetGameObject(guid))
         {
@@ -227,7 +223,7 @@ void OutdoorPvPHP::SetHordeTowersControlled(uint32 count)
 HPControlZoneHandler::HPControlZoneHandler(OutdoorPvPHP* pvp) : OutdoorPvPControlZoneHandler(pvp),
     _flagGuid(ObjectGuid::Empty), _textCaptureAlliance(0), _textCaptureHorde(0),
     _flagArtKitNeutral(0), _flagArtKitHorde(0), _flagArtKitAlliance(0),
-    _worldstateNeutral(0), _worlstateHorde(0), _worldstateAlliance(0),
+    _worldstateNeutral(0), _worldstateHorde(0), _worldstateAlliance(0),
     _killCredit(0)
 {
 }
@@ -241,7 +237,7 @@ void HPControlZoneHandler::HandleProgressEventHorde(GameObject* controlZone)
     if (GameObject* flag = controlZone->GetMap()->GetGameObject(_flagGuid))
         flag->SetGoArtKit(_flagArtKitHorde);
 
-    controlZone->GetMap()->SetWorldStateValue(_worlstateHorde, 1, false);
+    controlZone->GetMap()->SetWorldStateValue(_worldstateHorde, 1, false);
     controlZone->GetMap()->SetWorldStateValue(_worldstateAlliance, 0, false);
     controlZone->GetMap()->SetWorldStateValue(_worldstateNeutral, 0, false);
 
@@ -263,7 +259,7 @@ void HPControlZoneHandler::HandleProgressEventAlliance(GameObject* controlZone)
     if (GameObject* flag = controlZone->GetMap()->GetGameObject(_flagGuid))
         flag->SetGoArtKit(_flagArtKitAlliance);
 
-    controlZone->GetMap()->SetWorldStateValue(_worlstateHorde, 0, false);
+    controlZone->GetMap()->SetWorldStateValue(_worldstateHorde, 0, false);
     controlZone->GetMap()->SetWorldStateValue(_worldstateAlliance, 1, false);
     controlZone->GetMap()->SetWorldStateValue(_worldstateNeutral, 0, false);
 
@@ -296,7 +292,7 @@ void HPControlZoneHandler::HandleNeutralEvent(GameObject* controlZone)
     if (GameObject* flag = controlZone->GetMap()->GetGameObject(_flagGuid))
         flag->SetGoArtKit(_flagArtKitNeutral);
 
-    controlZone->GetMap()->SetWorldStateValue(_worlstateHorde, 0, false);
+    controlZone->GetMap()->SetWorldStateValue(_worldstateHorde, 0, false);
     controlZone->GetMap()->SetWorldStateValue(_worldstateAlliance, 0, false);
     controlZone->GetMap()->SetWorldStateValue(_worldstateNeutral, 1, false);
 }

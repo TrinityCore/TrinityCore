@@ -104,10 +104,14 @@ public:
     void HandleNeutralEventAlliance([[maybe_unused]] GameObject* controlZone) override;
     void HandleNeutralEvent([[maybe_unused]] GameObject* controlZone) override;
 
+    uint32 GetWorldStateHorde() { return _worldstateHorde; }
+    uint32 GetWorldStateAlliance() { return _worldstateAlliance; }
+    uint32 GetWorldStateNeutral() { return _worldstateNeutral; }
+
     OutdoorPvPTF* GetOutdoorPvPTF() const;
 
 private:
-    uint32 _worldsateHorde;
+    uint32 _worldstateHorde;
     uint32 _worldstateAlliance;
     uint32 _worldstateNeutral;
 };
@@ -139,7 +143,7 @@ class OutdoorPvPTF : public OutdoorPvP
         uint32 m_AllianceTowersControlled;
         uint32 m_HordeTowersControlled;
         uint32 hours_left, second_digit, first_digit;
-        GuidUnorderedSet _controlZones;
+        GuidUnorderedSet _controlZoneGUIDs;
         std::unordered_map<uint32 /*control zone entry*/, std::unique_ptr<TFControlZoneHandler>> _controlZoneHandlers;
 };
 

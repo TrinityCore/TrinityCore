@@ -132,6 +132,13 @@ public:
     void HandleNeutralEventAlliance([[maybe_unused]] GameObject* controlZone) override;
     void HandleNeutralEvent([[maybe_unused]] GameObject* controlZone) override;
 
+    uint32 GetWorldStateNeutralUI() { return _worldstateNeutralUi; }
+    uint32 GetWorldStateNeutralMap() { return _worldstateNeutralMap; }
+    uint32 GetWorldStateHordeUI() { return _worldstateHordeUi; }
+    uint32 GetWorldStateHordeMap() { return _worldstateHordeMap; }
+    uint32 GetWorldStateAllianceUI() { return _worldstateAllianceUi; }
+    uint32 GetWorldStateAllianceMap() { return _worldstateAllianceMap; }
+
     OutdoorPvPZM* GetOutdoorPvpZM();
 
 private:

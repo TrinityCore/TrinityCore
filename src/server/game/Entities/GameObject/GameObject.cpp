@@ -779,7 +779,7 @@ public:
         GameEvents::Trigger(eventId, &_owner, nullptr);
     }
 
-    uint32 GetStaringValue() const
+    uint32 GetStartingValue() const
     {
         return _owner.GetGOInfo()->controlZone.startingValue;
     }
@@ -801,7 +801,7 @@ void SetControlZoneValue::Execute(GameObjectTypeBase& type) const
 {
     if (ControlZone* controlZone = dynamic_cast<ControlZone*>(&type))
     {
-        uint32 value = controlZone->GetStaringValue();
+        uint32 value = controlZone->GetStartingValue();
         if (_value.has_value())
             value = *_value;
 

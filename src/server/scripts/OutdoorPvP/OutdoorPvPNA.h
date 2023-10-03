@@ -149,8 +149,6 @@ public:
 
 class OPvPCapturePointNA : public OPvPCapturePoint
 {
-    friend class OutdoorPvPNA;
-
     public:
         OPvPCapturePointNA(OutdoorPvP* pvp);
 
@@ -164,6 +162,7 @@ class OPvPCapturePointNA : public OPvPCapturePoint
         void FactionTakeOver(uint32 team); // called when a faction takes control
         void UpdateWyvernRoostWorldState(uint32 roost);
 
+        void SetControlZoneGUID(ObjectGuid guid) { _controlZoneGUID = guid; }
     private:
         bool m_capturable;
         uint32 m_GuardsAlive;
@@ -174,12 +173,11 @@ class OPvPCapturePointNA : public OPvPCapturePoint
         uint32 m_WyvernStateWest;
         uint32 m_RespawnTimer;
         uint32 m_GuardCheckTimer;
-        ObjectGuid _controlZone;
+        ObjectGuid _controlZoneGUID;
 };
 
 class OutdoorPvPNA : public OutdoorPvP
 {
-    friend class OPvPCapturePointNA;
     public:
         OutdoorPvPNA(Map* map);
 

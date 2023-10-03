@@ -339,21 +339,20 @@ void OutdoorPvPZM::SendRemoveWorldStates(Player* player)
     initWorldStates.MapID = player->GetMapId();
     initWorldStates.AreaID = player->GetZoneId();
     initWorldStates.SubareaID = player->GetAreaId();
-    initWorldStates.Worldstates.emplace_back(ZM_UI_TOWER_EAST_N, 0);
-    initWorldStates.Worldstates.emplace_back(ZM_UI_TOWER_EAST_H, 0);
-    initWorldStates.Worldstates.emplace_back(ZM_UI_TOWER_EAST_A, 0);
-    initWorldStates.Worldstates.emplace_back(ZM_UI_TOWER_WEST_N, 0);
-    initWorldStates.Worldstates.emplace_back(ZM_UI_TOWER_WEST_H, 0);
-    initWorldStates.Worldstates.emplace_back(ZM_UI_TOWER_WEST_A, 0);
-    initWorldStates.Worldstates.emplace_back(ZM_MAP_TOWER_EAST_N, 0);
-    initWorldStates.Worldstates.emplace_back(ZM_MAP_TOWER_EAST_H, 0);
-    initWorldStates.Worldstates.emplace_back(ZM_MAP_TOWER_EAST_A, 0);
+
+    for (auto& itr : ControlZoneHandlers)
+    {
+        ZMControlZoneHandler* handler = static_cast<ZMControlZoneHandler*>(itr.second.get());
+        initWorldStates.Worldstates.emplace_back(handler->GetWorldStateNeutralUI(), 0);
+        initWorldStates.Worldstates.emplace_back(handler->GetWorldStateNeutralMap(), 0);
+        initWorldStates.Worldstates.emplace_back(handler->GetWorldStateHordeUI(), 0);
+        initWorldStates.Worldstates.emplace_back(handler->GetWorldStateHordeMap(), 0);
+        initWorldStates.Worldstates.emplace_back(handler->GetWorldStateAllianceUI(), 0);
+        initWorldStates.Worldstates.emplace_back(handler->GetWorldStateAllianceMap(), 0);
+    }
     initWorldStates.Worldstates.emplace_back(ZM_MAP_GRAVEYARD_H, 0);
     initWorldStates.Worldstates.emplace_back(ZM_MAP_GRAVEYARD_A, 0);
     initWorldStates.Worldstates.emplace_back(ZM_MAP_GRAVEYARD_N, 0);
-    initWorldStates.Worldstates.emplace_back(ZM_MAP_TOWER_WEST_N, 0);
-    initWorldStates.Worldstates.emplace_back(ZM_MAP_TOWER_WEST_H, 0);
-    initWorldStates.Worldstates.emplace_back(ZM_MAP_TOWER_WEST_A, 0);
     initWorldStates.Worldstates.emplace_back(ZM_MAP_HORDE_FLAG_READY, 0);
     initWorldStates.Worldstates.emplace_back(ZM_MAP_HORDE_FLAG_NOT_READY, 0);
     initWorldStates.Worldstates.emplace_back(ZM_MAP_ALLIANCE_FLAG_NOT_READY, 0);

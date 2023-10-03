@@ -48,7 +48,7 @@ void OutdoorPvPNA::OnGameObjectCreate(GameObject* go)
     switch (go->GetEntry())
     {
         case 182210:
-            m_obj->_controlZone = go->GetGUID();
+            m_obj->SetControlZoneGUID(go->GetGUID());
             break;
     }
 
@@ -174,7 +174,7 @@ void OPvPCapturePointNA::FactionTakeOver(uint32 team)
     m_ControllingFaction = team;
     m_GuardsAlive = NA_GUARDS_MAX;
     m_capturable = false;
-    if (GameObject* gameObject = m_PvP->GetMap()->GetGameObject(_controlZone))
+    if (GameObject* gameObject = m_PvP->GetMap()->GetGameObject(_controlZoneGUID))
         gameObject->ActivateObject(GameObjectActions::MakeInert, 0);
 
     if (team == ALLIANCE)
@@ -439,10 +439,10 @@ void OPvPCapturePointNA::Update(uint32 diff)
         {
             m_capturable = true;
             m_RespawnTimer = NA_RESPAWN_TIME;
-            if (GameObject* gameObject = m_PvP->GetMap()->GetGameObject(_controlZone))
+            if (GameObject* gameObject = m_PvP->GetMap()->GetGameObject(_controlZoneGUID))
                 gameObject->ActivateObject(GameObjectActions::MakeActive, 0);
         }
-        else if (GameObject* gameObject = m_PvP->GetMap()->GetGameObject(_controlZone))
+        else if (GameObject* gameObject = m_PvP->GetMap()->GetGameObject(_controlZoneGUID))
             gameObject->ActivateObject(GameObjectActions::MakeInert, 0);
         // update the guard count for the players in zone
         m_PvP->SetWorldState(NA_UI_GUARDS_LEFT, m_GuardsAlive);

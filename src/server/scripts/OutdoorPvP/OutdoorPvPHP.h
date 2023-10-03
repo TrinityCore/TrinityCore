@@ -114,7 +114,7 @@ public:
     void SetFlagArtKitHorde(uint32 artKit) { _flagArtKitHorde = artKit; }
     void SetFlagArtKitAlliance(uint32 artKit) { _flagArtKitAlliance = artKit; }
     void SetWorldstateNeutral(uint32 id) { _worldstateNeutral = id; }
-    void SetWorldstateHorde(uint32 id) { _worlstateHorde = id; }
+    void SetWorldstateHorde(uint32 id) { _worldstateHorde = id; }
     void SetWorldstateAlliance(uint32 id) { _worldstateAlliance = id; }
     void SetKillCredit(uint32 credit) { _killCredit = credit; }
 
@@ -123,6 +123,10 @@ public:
     void HandleNeutralEventHorde([[maybe_unused]] GameObject* controlZone) override;
     void HandleNeutralEventAlliance([[maybe_unused]] GameObject* controlZone) override;
     void HandleNeutralEvent([[maybe_unused]] GameObject* controlZone) override;
+
+    uint32 GetWorldStateNeutral() { return _worldstateNeutral; }
+    uint32 GetWorldStateHorde() { return _worldstateHorde; }
+    uint32 GetWorldStateAlliance() { return _worldstateAlliance; }
 
     OutdoorPvPHP* GetOutdoorPvPHP() const;
 
@@ -134,7 +138,7 @@ private:
     uint32 _flagArtKitHorde;
     uint32 _flagArtKitAlliance;
     uint32 _worldstateNeutral;
-    uint32 _worlstateHorde;
+    uint32 _worldstateHorde;
     uint32 _worldstateAlliance;
     uint32 _killCredit;
 };
@@ -164,7 +168,7 @@ class OutdoorPvPHP : public OutdoorPvP
         uint32 m_AllianceTowersControlled; // how many towers are controlled
         uint32 m_HordeTowersControlled;
 
-        GuidUnorderedSet _controlZones;
+        GuidUnorderedSet _controlZoneGUIDs;
 
         HPControlZoneHandler& GetControlZoneTowerNorthHandler() { return *static_cast<HPControlZoneHandler*>(ControlZoneHandlers[HP_GO_ENTRY_TOWER_N].get()); }
         HPControlZoneHandler& GetControlZoneTowerSouthHandler() { return *static_cast<HPControlZoneHandler*>(ControlZoneHandlers[HP_GO_ENTRY_TOWER_S].get()); }
