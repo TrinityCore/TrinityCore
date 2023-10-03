@@ -355,6 +355,23 @@ struct BattlegroundEYCapturingPointStruct
     uint32 GraveyardId;
 };
 
+class BattlegroundEY;
+
+class BattlegroundEYControlZoneHandler : public ControlZoneHandler
+{
+public:
+    explicit BattlegroundEYControlZoneHandler(BattlegroundEY* bg, uint32 point);
+
+    void HandleProgressEventHorde(GameObject* controlZone) override;
+    void HandleProgressEventAlliance(GameObject* controlZone) override;
+    void HandleNeutralEventHorde(GameObject* controlZone) override;
+    void HandleNeutralEventAlliance(GameObject* controlZone) override;
+
+private:
+    BattlegroundEY* _battleground;
+    uint32 _point;
+};
+
 const uint8  BG_EY_TickPoints[EY_POINTS_MAX] = {1, 2, 5, 10};
 const uint32 BG_EY_FlagPoints[EY_POINTS_MAX] = {75, 85, 100, 500};
 
@@ -450,21 +467,17 @@ class BattlegroundEY : public Battleground
         void EventPlayerDroppedFlag(Player* Source) override;
 
         uint32 GetPrematureWinner() override;
-protected:
+
+        void ProcessEvent(WorldObject* target, uint32 eventId, WorldObject* invoker) override;
         void PostUpdateImpl(uint32 diff) override;
 
         void EventPlayerCapturedFlag(Player* Source, uint32 BgObjectType);
-        void EventTeamCapturedPoint(Player* Source, uint32 Point);
-        void EventTeamLostPoint(Player* Source, uint32 Point);
+        void EventTeamCapturedPoint(Team team, uint32 point, WorldObject* controlZone);
+        void EventTeamLostPoint(Team team, uint32 point, WorldObject* controlZone);
         void UpdatePointsCount(uint32 Team);
         void UpdatePointsIcons(uint32 Team, uint32 Point);
 
     private:
-        /* Point status updating procedures */
-        void CheckSomeoneLeftPoint();
-        void CheckSomeoneJoinedPoint();
-        void UpdatePointStatuses();
-
         /* Scorekeeping */
         void AddPoints(uint32 Team, uint32 Points);
 
@@ -493,5 +506,7 @@ protected:
 
         int32 m_PointAddingTimer;
         uint32 m_HonorTics;
+
+        std::unordered_map<uint32, std::unique_ptr<BattlegroundEYControlZoneHandler>> ControlZoneHandlers;
 };
 #endif

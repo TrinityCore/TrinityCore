@@ -93,18 +93,17 @@ enum ZM_TowerStateMask
     ZM_TOWERSTATE_H = 4
 };
 
-class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
+enum ZM_WorldEvents
 {
-    public:
-        OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type, GameObject* go);
+    ZM_EVENT_BEACON_EAST_PROGRESS_HORDE     = 11807,
+    ZM_EVENT_BEACON_EAST_PROGRESS_ALLIANCE  = 11806,
+    ZM_EVENT_BEACON_EAST_NEUTRAL_HORDE      = 11814,
+    ZM_EVENT_BEACON_EAST_NEUTRAL_ALLIANCE   = 11815,
 
-        void ChangeState() override;
-
-        void UpdateTowerState();
-
-    protected:
-        ZM_BeaconType m_TowerType;
-        uint32 m_TowerState;
+    ZM_EVENT_BEACON_WEST_PROGRESS_HORDE     = 11805,
+    ZM_EVENT_BEACON_WEST_PROGRESS_ALLIANCE  = 11804,
+    ZM_EVENT_BEACON_WEST_NEUTRAL_HORDE      = 11808,
+    ZM_EVENT_BEACON_WEST_NEUTRAL_ALLIANCE   = 11809
 };
 
 enum ZM_GraveyardState
@@ -114,12 +113,51 @@ enum ZM_GraveyardState
     ZM_GRAVEYARD_H = 4
 };
 
+enum ZM_GameObjectEntries
+{
+    ZM_GO_ENTRY_BEACON_WEST = 182522,
+    ZM_GO_ENTRY_BEACON_EAST = 182523
+};
+
+class OutdoorPvPZM;
+
+class ZMControlZoneHandler : public OutdoorPvPControlZoneHandler
+{
+public:
+    ZMControlZoneHandler(OutdoorPvPZM* pvp, uint32 textBeaconTakenHorde, uint32 textBeaconTakenAlliance, uint32 worldstateNeutralUi, uint32 worldstateNeutralMap, uint32 worldstateHordeUi, uint32 worldstateHordeMap, uint32 worldstateAllianceUi, uint32 worldstateAllianceMap);
+
+    void HandleProgressEventHorde([[maybe_unused]] GameObject* controlZone) override;
+    void HandleProgressEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+    void HandleNeutralEventHorde([[maybe_unused]] GameObject* controlZone) override;
+    void HandleNeutralEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+    void HandleNeutralEvent([[maybe_unused]] GameObject* controlZone) override;
+
+    uint32 GetWorldStateNeutralUI() { return _worldstateNeutralUi; }
+    uint32 GetWorldStateNeutralMap() { return _worldstateNeutralMap; }
+    uint32 GetWorldStateHordeUI() { return _worldstateHordeUi; }
+    uint32 GetWorldStateHordeMap() { return _worldstateHordeMap; }
+    uint32 GetWorldStateAllianceUI() { return _worldstateAllianceUi; }
+    uint32 GetWorldStateAllianceMap() { return _worldstateAllianceMap; }
+
+    OutdoorPvPZM* GetOutdoorPvpZM();
+
+private:
+    uint32 _textBeaconTakenHorde;
+    uint32 _textBeaconTakenAlliance;
+    uint32 _worldstateNeutralUi;
+    uint32 _worldstateNeutralMap;
+    uint32 _worldstateHordeUi;
+    uint32 _worldstateHordeMap;
+    uint32 _worldstateAllianceUi;
+    uint32 _worldstateAllianceMap;
+};
+
 class OPvPCapturePointZM_Graveyard : public OPvPCapturePoint
 {
     public:
         OPvPCapturePointZM_Graveyard(OutdoorPvP* pvp);
 
-        bool Update(uint32 diff) override;
+        void Update(uint32 diff) override;
         void ChangeState() override { }
         int32 HandleOpenGo(Player* player, GameObject* go) override;
         bool HandleDropFlag(Player* player, uint32 spellId) override;
@@ -144,10 +182,9 @@ class OutdoorPvPZM : public OutdoorPvP
         OutdoorPvPZM(Map* map);
 
         bool SetupOutdoorPvP() override;
-        void OnGameObjectCreate(GameObject* go) override;
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
-        bool Update(uint32 diff) override;
+        void Update(uint32 diff) override;
         void SendRemoveWorldStates(Player* player) override;
         void HandleKillImpl(Player* player, Unit* killed) override;
 

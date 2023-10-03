@@ -113,16 +113,47 @@ enum HalaaStates
     HALAA_H = 16
 };
 
+enum HalaaEvents
+{
+    HALAA_EVENT_CAPTURE_HORDE       = 11504,
+    HALAA_EVENT_CAPTURE_ALLIANCE    = 11503,
+    HALAA_EVENT_CONTESTED_HORDE     = 11559,
+    HALAA_EVENT_CONTESTED_ALLIANCE  = 11558,
+    HALAA_EVENT_PROGRESS_HORDE      = 11821,
+    HALAA_EVENT_PROGRESS_ALLIANCE   = 11822
+};
+
 class Unit;
 class Creature;
+class WorldObject;
+
+class OutdoorPvPNA;
+
+class NAControlZoneHandler : public OutdoorPvPControlZoneHandler
+{
+public:
+    explicit NAControlZoneHandler(OutdoorPvPNA* pvp);
+
+    void HandleCaptureEventHorde([[maybe_unused]] GameObject* controlZone) override;
+    void HandleCaptureEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+    void HandleContestedEventHorde([[maybe_unused]] GameObject* controlZone) override;
+    void HandleContestedEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+    void HandleProgressEventHorde([[maybe_unused]] GameObject* controlZone) override;
+    void HandleProgressEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+    void HandleNeutralEventHorde([[maybe_unused]] GameObject* controlZone) override;
+    void HandleNeutralEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+    void HandleNeutralEvent([[maybe_unused]] GameObject* controlZone) override;
+
+    OutdoorPvPNA* GetOutdoorPvPNA() const;
+};
 
 class OPvPCapturePointNA : public OPvPCapturePoint
 {
     public:
         OPvPCapturePointNA(OutdoorPvP* pvp);
 
-        bool Update(uint32 diff) override;
-        void ChangeState() override;
+        void Update(uint32 diff) override;
+        void ChangeState() override { } // todo remove?
         bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go) override;
         int32 HandleOpenGo(Player* player, GameObject* go) override;
 
@@ -130,8 +161,8 @@ class OPvPCapturePointNA : public OPvPCapturePoint
         uint32 GetControllingFaction() const;
         void FactionTakeOver(uint32 team); // called when a faction takes control
         void UpdateWyvernRoostWorldState(uint32 roost);
-        void UpdateHalaaWorldState();
 
+        void SetControlZoneGUID(ObjectGuid guid) { _controlZoneGUID = guid; }
     private:
         bool m_capturable;
         uint32 m_GuardsAlive;
@@ -140,9 +171,9 @@ class OPvPCapturePointNA : public OPvPCapturePoint
         uint32 m_WyvernStateSouth;
         uint32 m_WyvernStateEast;
         uint32 m_WyvernStateWest;
-        uint32 m_HalaaState;
         uint32 m_RespawnTimer;
         uint32 m_GuardCheckTimer;
+        ObjectGuid _controlZoneGUID;
 };
 
 class OutdoorPvPNA : public OutdoorPvP
@@ -155,10 +186,11 @@ class OutdoorPvPNA : public OutdoorPvP
         bool SetupOutdoorPvP() override;
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
-        bool Update(uint32 diff) override;
+        void Update(uint32 diff) override;
         void SendRemoveWorldStates(Player* player) override;
         void HandleKillImpl(Player* player, Unit* killed) override;
-
+        void SendMapWorldStates(int32 neutral, int32 progressHorde, int32 progressAlliance, int32 capturedHorde, int32 captureAlliance);
+        OPvPCapturePointNA* GetCapturePoint() const { return m_obj; }
     private:
         OPvPCapturePointNA* m_obj;
 };
