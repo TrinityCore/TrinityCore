@@ -42,13 +42,17 @@ float AreaTriggerShapeInfo::GetMaxSearchRadius() const
         case AREATRIGGER_TYPE_SPHERE:
             return std::max(SphereDatas.Radius, SphereDatas.RadiusTarget);
         case AREATRIGGER_TYPE_BOX:
-            return std::sqrt(BoxDatas.Extents[0] * BoxDatas.Extents[0] + BoxDatas.Extents[1] * BoxDatas.Extents[1]);
+            return std::sqrt(std::max(
+                BoxDatas.Extents[0] * BoxDatas.Extents[0] + BoxDatas.Extents[1] * BoxDatas.Extents[1],
+                BoxDatas.ExtentsTarget[0] * BoxDatas.ExtentsTarget[0] + BoxDatas.ExtentsTarget[1] * BoxDatas.ExtentsTarget[1]));
         case AREATRIGGER_TYPE_CYLINDER:
             return std::max(CylinderDatas.Radius, CylinderDatas.RadiusTarget);
         case AREATRIGGER_TYPE_DISK:
             return std::max(DiskDatas.OuterRadius, DiskDatas.OuterRadiusTarget);
         case AREATRIGGER_TYPE_BOUNDED_PLANE:
-            return std::sqrt(BoundedPlaneDatas.Extents[0] * BoundedPlaneDatas.Extents[0] / 4 + BoundedPlaneDatas.Extents[1] * BoundedPlaneDatas.Extents[1] / 4);
+            return std::sqrt(std::max(
+                BoundedPlaneDatas.Extents[0] * BoundedPlaneDatas.Extents[0] / 4 + BoundedPlaneDatas.Extents[1] * BoundedPlaneDatas.Extents[1] / 4,
+                BoundedPlaneDatas.ExtentsTarget[0] * BoundedPlaneDatas.ExtentsTarget[0] / 4 + BoundedPlaneDatas.ExtentsTarget[1] * BoundedPlaneDatas.ExtentsTarget[1] / 4));
         default:
             break;
     }
@@ -102,13 +106,11 @@ float AreaTriggerCreateProperties::GetMaxSearchRadius() const
         Position center(0.0f, 0.0f);
         float maxSearchRadius = 0.0f;
 
-        for (TaggedPosition<Position::XY> const& vertice : PolygonVertices)
-        {
-            float pointDist = center.GetExactDist2d(vertice);
+        for (TaggedPosition<Position::XY> const& vertex : PolygonVertices)
+            maxSearchRadius = std::max(maxSearchRadius, center.GetExactDist2d(vertex));
 
-            if (pointDist > maxSearchRadius)
-                maxSearchRadius = pointDist;
-        }
+        for (TaggedPosition<Position::XY> const& vertex : PolygonVerticesTarget)
+            maxSearchRadius = std::max(maxSearchRadius, center.GetExactDist2d(vertex));
 
         return maxSearchRadius;
     }

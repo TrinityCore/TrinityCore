@@ -4544,6 +4544,9 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
     if (spellInfo->HasAttribute(SPELL_ATTR4_AURA_IS_BUFF))
         return true;
 
+    if (effect.EffectAttributes.HasFlag(SpellEffectAttributes::IsHarmful))
+        return false;
+
     visited.insert({ spellInfo, effect.EffectIndex });
 
     //We need scaling level info for some auras that compute bp 0 or positive but should be debuffs

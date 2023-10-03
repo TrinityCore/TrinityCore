@@ -1057,7 +1057,7 @@ class spell_sindragosa_s_fury : public SpellScript
         if (!GetHitUnit()->IsAlive() || !_targetCount)
             return;
 
-        if (GetHitUnit()->IsImmunedToDamage(GetSpellInfo()))
+        if (GetHitUnit()->IsImmunedToDamage(GetSpellInfo(), &GetEffectInfo()))
         {
             GetCaster()->SendSpellDamageImmune(GetHitUnit(), GetSpellInfo()->Id, false);
             return;
