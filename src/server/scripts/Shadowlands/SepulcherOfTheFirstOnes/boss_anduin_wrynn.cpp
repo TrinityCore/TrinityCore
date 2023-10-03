@@ -3075,19 +3075,21 @@ struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
 
     void UpdateSize(float radius, float targetRadius) const
     {
-        at->SetOverrideScaleCurve(at->GetTimeSinceCreated(),
-            { {
-                { 0.0f, radius },
-                { 1.0f, targetRadius }
-            } });
+        /*{ 0.0f, radius },
+        { 1.0f, targetRadius }*/
+
+        std::array<DBCPosition2D, 2> points = { DBCPosition2D(0.0f, radius), DBCPosition2D(1.0f, targetRadius) };
+        at->SetOverrideScaleCurve(at->GetTimeSinceCreated());
+        at->SetOverrideScaleCurve(points);
+
     }
 
     void UpdateSizeBasedOnAbsorb()
     {
         float radiusMod = 1.0f - (_absorbDone / (float)_absorbRequired);
         float targetRadius = BEFOULED_BARRIER_MAX_RADIUS * radiusMod;
+        float currentRadius = at->GetMaxSearchRadius();
 
-        float currentRadius = at->GetOverrideScaleCurveValue();
         if (G3D::fuzzyEq(currentRadius, targetRadius))
             return;
 
@@ -3172,11 +3174,11 @@ struct at_anduin_wrynn_beacon_of_hope : AreaTriggerAI
 
     void UpdateSize(float radius, float targetRadius) const
     {
-        at->SetOverrideScaleCurve(at->GetTimeSinceCreated(),
-            { {
-                { 0.0f, radius },
-                { 1.0f, targetRadius }
-            } });
+        //at->SetOverrideScaleCurve(at->GetTimeSinceCreated(),
+        //    { {
+        //        { 0.0f, radius },
+        //        { 1.0f, targetRadius }
+        //    } });
     }
 
     void UpdateSizeBasedOnCharges()
@@ -3188,11 +3190,11 @@ struct at_anduin_wrynn_beacon_of_hope : AreaTriggerAI
         if (targetRadius <= 4.0f || _chargesRemaining <= 0)
             at->Remove();
 
-        float currentRadius = at->GetOverrideScaleCurveValue();
-        if (G3D::fuzzyEq(currentRadius, targetRadius))
-            return;
+        //float currentRadius = at->GetOverrideScaleCurveValue();
+        //if (G3D::fuzzyEq(currentRadius, targetRadius))
+        //    return;
 
-        UpdateSize(currentRadius, targetRadius);
+        //UpdateSize(currentRadius, targetRadius);
     }
 
     void OnUpdate(uint32 diff) override
