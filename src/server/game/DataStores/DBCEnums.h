@@ -1862,7 +1862,7 @@ enum SpellCategoryFlags
 enum class SpellEffectAttributes
 {
     None                                    = 0,
-    NoImmunity                              = 0x000001, /*NYI*/ // not cancelled by immunities
+    NoImmunity                              = 0x000001, // not cancelled by immunities
     PositionIsFacingRelative                = 0x000002, /*NYI*/
     JumpChargeUnitMeleeRange                = 0x000004, /*NYI*/
     JumpChargeUnitStrictPathCheck           = 0x000008, /*NYI*/
