@@ -776,6 +776,7 @@ public:
         if (eventId <= 0)
             return;
 
+        _owner.GetMap()->UpdateSpawnGroupConditions();
         GameEvents::Trigger(eventId, &_owner, nullptr);
     }
 
