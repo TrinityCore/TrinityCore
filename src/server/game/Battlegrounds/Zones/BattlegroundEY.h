@@ -67,20 +67,6 @@ enum BG_EY_WorldStates
     BLOOD_ELF_ALLIANCE_CONTROL_STATE        = 17365,
 };
 
-enum BG_EY_ProgressBarConsts
-{
-    BG_EY_POINT_MAX_CAPTURERS_COUNT     = 5,
-    BG_EY_POINT_RADIUS                  = 70,
-    BG_EY_PROGRESS_BAR_DONT_SHOW        = 0,
-    BG_EY_PROGRESS_BAR_SHOW             = 1,
-    BG_EY_PROGRESS_BAR_PERCENT_GREY     = 40,
-    BG_EY_PROGRESS_BAR_STATE_MIDDLE     = 50,
-    BG_EY_PROGRESS_BAR_HORDE_CONTROLLED = 0,
-    BG_EY_PROGRESS_BAR_NEUTRAL_LOW      = 30,
-    BG_EY_PROGRESS_BAR_NEUTRAL_HIGH     = 70,
-    BG_EY_PROGRESS_BAR_ALI_CONTROLLED   = 100
-};
-
 enum BG_EY_Sounds
 {
     //strange ids, but sure about them
