@@ -3258,7 +3258,6 @@ class spell_anduin_wrynn_fragment_of_hope : public SpellScript
         Unit* caster = GetCaster();
         Position dest = caster->GetPosition();
         WorldObject* target = GetExplTargetWorldObject();
-        Position targetPos = target->GetPosition();
         _instance = caster->GetInstanceScript();
 
         if (Creature* beacon = _instance->GetCreature(DATA_BEACON_OF_HOPE))
