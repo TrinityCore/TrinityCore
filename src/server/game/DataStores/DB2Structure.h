@@ -2745,6 +2745,7 @@ struct MapEntry
     {
         return ID == 609 || // Acherus (DeathKnight Start)
             ID == 1265 ||   // Assault on the Dark Portal (WoD Intro)
+            ID == 1481 ||   // Mardum (DH Start)
             ID == 2175 ||   // Exiles Reach - NPE
             ID == 2570;     // Forbidden Reach (Dracthyr/Evoker Start)
     }
