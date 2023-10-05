@@ -3258,9 +3258,8 @@ class spell_anduin_wrynn_fragment_of_hope : public SpellScript
         Unit* caster = GetCaster();
         Position dest = caster->GetPosition();
         WorldObject* target = GetExplTargetWorldObject();
-        _instance = caster->GetInstanceScript();
 
-        if (Creature* beacon = _instance->GetCreature(DATA_BEACON_OF_HOPE))
+        if (Creature* beacon = caster->GetInstanceScript()->GetCreature(DATA_BEACON_OF_HOPE))
         {
             beacon->MovePositionToFirstCollision(dest, 30.0f, beacon->GetAbsoluteAngle(target) - beacon->GetOrientation());
         }
