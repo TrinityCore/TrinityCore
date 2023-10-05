@@ -4087,7 +4087,7 @@ class spell_anduin_wrynn_kingsmourne_hungers : public SpellScript
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_KINGSMOURNE_HUNGERS_DAMAGE, true);
         if (GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
-            //GetHitUnit()->AddAura(SPELL_SEVERED_SOUL, GetHitUnit());
+            GetHitUnit()->AddAura(SPELL_SEVERED_SOUL, GetHitUnit());
         GetCaster()->CastSpell(GetHitUnit(), SPELL_LOST_SOUL_DIMENSION, false);
         GetHitUnit()->CastSpell(GetHitUnit(), SPELL_LOST_SOUL, true);
     }
