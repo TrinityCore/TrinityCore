@@ -933,27 +933,27 @@ CreatureAI* SevisBrightflameCoilskarGatewayAISelector(Creature* creature)
 
 enum EyeOnThePrizeData
 {
-    NPC_COLOSSAL_INFERNAL_BALEFUL   = 96159,
+    NPC_COLOSSAL_INFERNAL_BALEFUL               = 96159,
 
-    QUEST_EYE_ON_THE_PRIZE          = 39049,
+    QUEST_EYE_ON_THE_PRIZE                      = 39049,
 
     // Inquisitor Baleful text
-    SAY_BALEFUL_AGGRO               = 0,
-    SAY_BALEFUL_AEGIS               = 1,
-    SAY_BALEFUL_DEATH               = 2,
+    SAY_BALEFUL_AGGRO                           = 0,
+    SAY_BALEFUL_AEGIS                           = 1,
+    SAY_BALEFUL_DEATH                           = 2,
 
     // Inquisitor Baleful events
-    EVENT_BALEFUL_MIND_SPIKE                = 1,
+    EVENT_BALEFUL_MIND_SPIKE                    = 1,
     EVENT_BALEFUL_BEAMING_GAZE,
     EVENT_BALEFUL_INCITE_MADNESS,
     EVENT_BALEFUL_COLOSS_INFERNAL_SMASH,
 
     // Inquisitor Baleful points
-    POINT_BALEFUL_AEGIS_UP                  = 1,
+    POINT_BALEFUL_AEGIS_UP                      = 1,
     POINT_BALEFUL_AEGIS_DOWN,
 
     // Inquisitor Baleful actions
-    ACTION_BALEFUL_AEGIS_DOWN               = 1,
+    ACTION_BALEFUL_AEGIS_DOWN                   = 1,
 
     // Inquisitor Baleful spells
     SPELL_BALEFUL_MIND_SPIKE                    = 194519,
@@ -981,7 +981,7 @@ public:
     bool Execute(uint64, uint32) override
     {
         Unit* target = _owner->AI()->SelectTarget(SelectTargetMethod::Random, 0, 150.0f, true);
-            _owner->CastSpell(target, SPELL_BALEFUL_COLOSS_INFERNAL_SMASH, false);
+        _owner->CastSpell(target, SPELL_BALEFUL_COLOSS_INFERNAL_SMASH, false);
         return true;
     }
 
