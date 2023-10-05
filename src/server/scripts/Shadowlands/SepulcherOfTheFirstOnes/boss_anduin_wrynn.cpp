@@ -3038,7 +3038,7 @@ private:
     InstanceScript* _instance;
 };
 
-// Befouled Barrier
+// Befouled Barrier - 24332 AT
 float constexpr BEFOULED_BARRIER_MAX_RADIUS = 12.0f;
 struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
 {
@@ -3075,23 +3075,34 @@ struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
 
     void UpdateSize(float radius, float targetRadius) const
     {
-        /*{ 0.0f, radius },
-        { 1.0f, targetRadius }*/
+        std::array<DBCPosition2D, 2> points =
+        { {
+            { 0.0f, radius },
+            { 1.0f, targetRadius }
+        } };
 
-        std::array<DBCPosition2D, 2> points = { DBCPosition2D(0.0f, radius), DBCPosition2D(1.0f, targetRadius) };
-        at->SetOverrideScaleCurve(at->GetTimeSinceCreated());
         at->SetOverrideScaleCurve(points);
-
     }
 
     void UpdateSizeBasedOnAbsorb()
     {
+        Unit* target = at->GetTarget();
+        if (!target)
+            return;
+
         float radiusMod = 1.0f - (_absorbDone / (float)_absorbRequired);
         float targetRadius = BEFOULED_BARRIER_MAX_RADIUS * radiusMod;
         float currentRadius = at->GetMaxSearchRadius();
 
         if (G3D::fuzzyEq(currentRadius, targetRadius))
             return;
+
+        if (targetRadius <= 3.741063f)
+        {
+            target->CastSpell(target, SPELL_BEFOULED_BARRIER_CLEAR, true);
+            target->ToCreature()->DespawnOrUnsummon();
+            return;
+        }
 
         UpdateSize(currentRadius, targetRadius);
     }
@@ -3103,6 +3114,9 @@ struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
+        if (!at->GetCaster())
+            return;
+
         at->GetCaster()->CastSpell(unit, SPELL_BEFOULED_BARRIER_DEBUFF, true);
     }
 
@@ -3174,27 +3188,29 @@ struct at_anduin_wrynn_beacon_of_hope : AreaTriggerAI
 
     void UpdateSize(float radius, float targetRadius) const
     {
-        //at->SetOverrideScaleCurve(at->GetTimeSinceCreated(),
-        //    { {
-        //        { 0.0f, radius },
-        //        { 1.0f, targetRadius }
-        //    } });
+        std::array<DBCPosition2D, 2> points =
+        { {
+            { 0.0f, radius },
+            { 1.0f, targetRadius }
+        } };
+
+        at->SetOverrideScaleCurve(at->GetTimeSinceCreated());
+        at->SetOverrideScaleCurve(points);
     }
 
     void UpdateSizeBasedOnCharges()
     {
-
         float radiusMod = 0.205129f * _entries;
         float targetRadius = BEFOULED_BARRIER_MAX_RADIUS - radiusMod;
 
         if (targetRadius <= 4.0f || _chargesRemaining <= 0)
             at->Remove();
 
-        //float currentRadius = at->GetOverrideScaleCurveValue();
-        //if (G3D::fuzzyEq(currentRadius, targetRadius))
-        //    return;
+        float currentRadius = at->GetMaxSearchRadius();
+        if (G3D::fuzzyEq(currentRadius, targetRadius))
+            return;
 
-        //UpdateSize(currentRadius, targetRadius);
+        UpdateSize(currentRadius, targetRadius);
     }
 
     void OnUpdate(uint32 diff) override
@@ -3205,6 +3221,9 @@ struct at_anduin_wrynn_beacon_of_hope : AreaTriggerAI
     void OnUnitEnter(Unit* unit) override
     {
         if (!unit->IsPlayer())
+            return;
+
+        if (!at->GetCaster())
             return;
 
         if (Creature* beacon = _instance->GetCreature(DATA_BEACON_OF_HOPE))
@@ -3234,18 +3253,28 @@ class spell_anduin_wrynn_fragment_of_hope : public SpellScript
 {
     PrepareSpellScript(spell_anduin_wrynn_fragment_of_hope);
 
-    void SetDest(SpellDestination& dest)
+    void SetDest(SpellDestination& destination)
     {
-        // Fragments shoot distance behind the target's entry position
-        Position const offset = { - 20.0f, 0.0f, 0.0f, 0.0f };
-        dest.Relocate(*GetExplTargetWorldObject());
-        dest.RelocateOffset(offset);
+        Unit* caster = GetCaster();
+        Position dest = caster->GetPosition();
+        WorldObject* target = GetExplTargetWorldObject();
+        Position targetPos = target->GetPosition();
+        _instance = caster->GetInstanceScript();
+
+        if (Creature* beacon = _instance->GetCreature(DATA_BEACON_OF_HOPE))
+        {
+            beacon->MovePositionToFirstCollision(dest, 30.0f, beacon->GetAbsoluteAngle(target) - beacon->GetOrientation());
+        }
+
+        destination.Relocate(dest);
     }
 
     void Register() override
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_anduin_wrynn_fragment_of_hope::SetDest, EFFECT_0, TARGET_DEST_DEST_RANDOM);
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_anduin_wrynn_fragment_of_hope::SetDest, EFFECT_0, TARGET_DEST_DEST);
     }
+private:
+    InstanceScript* _instance;
 };
 
 // 365293 - Befouled Barrier Absorb 365295
