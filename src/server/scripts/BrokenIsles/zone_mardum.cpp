@@ -20,6 +20,7 @@
 #include "CellImpl.h"
 #include "Containers.h"
 #include "Conversation.h"
+#include "CreatureAIImpl.h"
 #include "EventProcessor.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
