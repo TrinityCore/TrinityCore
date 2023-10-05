@@ -74,6 +74,8 @@ enum RealmType
                                                             // replaced by REALM_PVP in realm list
 };
 
+inline constexpr uint32 HARDCODED_DEVELOPMENT_REALM_CATEGORY_ID = 1;
+
 // Storage object for a realm
 struct TC_SHARED_API Realm
 {
