@@ -314,7 +314,7 @@ class BattlegroundEY : public Battleground
         void EventTeamLostPoint(TeamId teamId, uint32 point, GameObject* controlZone);
         void UpdatePointsCount(TeamId teamId);
 
-        void OnGameObjectCreate(GameObject* gameObject);
+        void OnGameObjectCreate(GameObject* gameObject) override;
 
         bool CanCaptureFlag([[maybe_unused]] AreaTrigger* areaTrigger, [[maybe_unused]] Player* player) override;
         void OnCaptureFlag([[maybe_unused]] AreaTrigger* areaTrigger, [[maybe_unused]] Player* player) override;
