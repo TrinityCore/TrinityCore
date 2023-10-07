@@ -1435,7 +1435,7 @@ struct boss_anduin_wrynn : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (_isInphaseThree == false && !HealthAbovePct(10))
         {
