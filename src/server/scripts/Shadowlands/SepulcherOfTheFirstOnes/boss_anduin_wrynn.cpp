@@ -358,6 +358,7 @@ enum Actions
     ACTION_ARTHAS_INTERMISSION_SYLVANAS,
     ACTION_EXIT_INTERMISSION,
     ACTION_ACTIVATE_REMNANT,
+    ACTION_DESPAWN_REMNANT,
     ACTION_SUMMON_KINGSMOURNE_SOULS,
     ACTION_DESPAWN_BEACON,
     ACTION_END_ENCOUNTER,
@@ -411,6 +412,14 @@ enum Points
     POINT_ANDUIN_SOUL           = 2,
     POINT_ESCAPE_PLATFORM       = 3,
     POINT_MARCH_OF_THE_DAMNED   = 4,
+};
+
+enum WayPoints
+{
+    WAYPOINT_JAINA      = 8,
+    WAYPOINT_UTHER      = 9,
+    WAYPOINT_FIRIM      = 10,
+    WAYPOINT_SYLVANAS   = 13,
 };
 
 enum SpellVisuals
@@ -1010,7 +1019,7 @@ struct boss_anduin_wrynn : public BossAI
                     });
                 }
 
-                else if (_isInphaseThree == false)
+                else if (_isInPhaseTwo == false)
                 {
                     _isInphaseThree = true;
                     PhaseEvents(PHASE_THREE);
@@ -1058,18 +1067,19 @@ struct boss_anduin_wrynn : public BossAI
                 }
                 case EVENT_HOPEBREAKER:
                 {
-                    Talk(SAY_HOPEBREAKER);
                     DoCastSelf(SPELL_HOPEBREAKER);
-                    (events.IsInPhase(PHASE_ONE) ?
-                        events.Repeat(Milliseconds(HopeBreakerP1.nextTimer())) :
-                        events.Repeat(Milliseconds(HopeBreakerP2.nextTimer())));
+                    Talk(SAY_HOPEBREAKER);
+                    if (events.IsInPhase(PHASE_ONE))
+                        events.Repeat(Milliseconds(HopeBreakerP1.nextTimer()));
+                    else
+                        events.Repeat(Milliseconds(HopeBreakerP2.nextTimer()));
                     break;
                 }
 
                 case EVENT_EMPOWERED_HOPEBREAKER:
                 {
-                    Talk(SAY_EMPOWERED_HOPEBREAKER);
                     DoCastSelf(SPELL_EMPOWERED_HOPEBREAKER, false);
+                    Talk(SAY_EMPOWERED_HOPEBREAKER);
                     if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
                         events.Repeat(65500ms);
                     else
@@ -1081,15 +1091,17 @@ struct boss_anduin_wrynn : public BossAI
                 {
                     _dominationWordCount++;
                     DoCastSelf(SPELL_DOMINATION_WORD_PAIN, false);
-                    (events.IsInPhase(PHASE_ONE) ?
-                        events.Repeat(Milliseconds(DominationWordPainP1.nextTimer())) :
-                        events.Repeat(Milliseconds(DominationWordPainP2.nextTimer())));
+                    if (events.IsInPhase(PHASE_ONE))
+                        events.Repeat(Milliseconds(DominationWordPainP1.nextTimer()));
+                    else
+                        events.Repeat(Milliseconds(DominationWordPainP2.nextTimer()));
 
                     if (events.IsInPhase(PHASE_ONE) && _dominationWordCount == 11)
                         DoAction(ACTION_CANCEL_EVENTS);
 
                     else if (events.IsInPhase(PHASE_TWO) && _dominationWordCount == 12)
                         DoAction(ACTION_CANCEL_EVENTS);
+
                     break;
                 }
 
@@ -1097,14 +1109,14 @@ struct boss_anduin_wrynn : public BossAI
                 {
                     DoCastSelf(SPELL_BEFOULED_BARRIER);
                     Talk(SAY_BEFOULED_BARRIER);
-                    (events.IsInPhase(PHASE_ONE) ?
-                        events.Repeat(Milliseconds(BefouledBarrierTimerP1.nextTimer())) :
-                        events.Repeat(Milliseconds(BefouledBarrierTimerP2.nextTimer())));
+                    if (events.IsInPhase(PHASE_ONE))
+                        events.Repeat(Milliseconds(BefouledBarrierTimerP1.nextTimer()));
+                    else
+                        events.Repeat(Milliseconds(BefouledBarrierTimerP2.nextTimer()));
                     break;
                 }
 
                 case EVENT_BLASPHEMY:
-
                 {
                     DoCastSelf(SPELL_BLASPHEMY);
                     Talk(SAY_ANNOUNCE_BLASPHEMY);
@@ -1127,12 +1139,12 @@ struct boss_anduin_wrynn : public BossAI
 
                 case EVENT_WICKED_STAR:
                 {
-
                     DoCastSelf(SPELL_WICKED_STAR);
                     Talk(SAY_WICKED_STAR);
-                    (events.IsInPhase(PHASE_ONE) ?
-                        events.Repeat(Milliseconds(WickedStarP1.nextTimer())) :
-                        events.Repeat(Milliseconds(WickedStarP2.nextTimer())));
+                    if (events.IsInPhase(PHASE_ONE))
+                        events.Repeat(Milliseconds(WickedStarP1.nextTimer()));
+                    else
+                        events.Repeat(Milliseconds(WickedStarP1.nextTimer()));
                     break;
                 }
 
@@ -1149,7 +1161,6 @@ struct boss_anduin_wrynn : public BossAI
 
                 case EVENT_KINGSMOURNE_HUNGERS:
                 {
-
                     DoCastSelf(SPELL_KINGSMOURNE_HUNGERS, false);
                     Talk(SAY_ANNOUNCE_KINGSMOURNE_HUNGERS);
                     Talk(SAY_KINGSMOURNE_HUNGERS);
@@ -1365,15 +1376,12 @@ struct boss_anduin_wrynn : public BossAI
             {
                 events.SetPhase(PHASE_TWO);
                 me->ModifyPower(me->GetPowerType(), 0);
+
                 if (me->GetMap()->GetDifficultyID() == DIFFICULTY_LFR_NEW)
-                {
                     DoCastSelf(SPELL_ANDUIN_WILLPOWER_PERIODIC, true);
-                }
 
                 if (me->GetMap()->GetDifficultyID() != DIFFICULTY_LFR_NEW)
-                {
                     events.ScheduleEvent(EVENT_KINGSMOURNE_HUNGERS, 48600ms);
-                }
 
                 events.ScheduleEvent(EVENT_GRIM_REFLECTIONS, 8500ms);
                 events.ScheduleEvent(EVENT_BEFOULED_BARRIER, 80600ms);
@@ -1388,6 +1396,7 @@ struct boss_anduin_wrynn : public BossAI
 
             case PHASE_THREE:
             {
+                _isInphaseThree = true;
                 me->ModifyPower(me->GetPowerType(), 0);
                 events.SetPhase(PHASE_THREE);
                 Conversation* conversationFinal = Conversation::CreateConversation(CONVERSATION_ANDUIN_PHASE_THREE, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
@@ -1428,11 +1437,25 @@ struct boss_anduin_wrynn : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        float healthPct = me->GetHealthPct();
-        if (damage < healthPct && healthPct <= 10.0)
+        if (_isInphaseThree == false && !HealthAbovePct(10))
         {
-            /*_isInphaseThree = true;
-            DoAction(ACTION_EXIT_INTERMISSION);*/
+            me->RemoveAurasDueToSpell(SPELL_DOMINATION_GRASP_ROOT_AREATRIGGER);
+            me->RemoveAurasDueToSpell(SPELL_MARCH_OF_THE_DAMNED_PERIODIC);
+            scheduler.Schedule(6s, [this](TaskContext /*task*/)
+                {
+                    me->SetReactState(REACT_AGGRESSIVE);
+                });
+
+            PhaseEvents(PHASE_THREE);
+
+            if (Creature* remnant = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
+                remnant->GetAI()->DoAction(ACTION_DESPAWN_REMNANT);
+
+            std::list<Creature*> marches;
+            GetCreatureListWithEntryInGrid(marches, me, NPC_MARCH_OF_THE_DAMNED, 300.0f);
+
+            for (Creature* marchOfTheDamned : marches)
+                marchOfTheDamned->DespawnOrUnsummon();
         }
     }
 
@@ -1497,7 +1520,6 @@ private:
     bool _isInphaseThree;
     bool _encounterEnded;
     TaskScheduler scheduler;
-    std::vector<ObjectGuid> _wickedStarTargetGUIDs;
 };
 
 // Befouled Barrier - 184585
@@ -2312,6 +2334,13 @@ struct boss_remnant_of_a_fallen_king : public BossAI
 
             }
 
+            case ACTION_DESPAWN_REMNANT:
+            {
+                EnterEvadeMode(EvadeReason::Other);
+                me->DespawnOrUnsummon();
+                break;
+            }
+
             default:
                 break;
         }
@@ -2465,7 +2494,7 @@ struct npc_anduin_wrynn_sylvanas : public ScriptedAI
     {
         switch (waypointId)
         {
-            case 13:
+            case WAYPOINT_SYLVANAS:
                 me->StopMoving();
                 me->PauseMovement(9999999, 0, true);
                 break;
@@ -2572,7 +2601,7 @@ struct npc_anduin_wrynn_jaina : public ScriptedAI
     {
         switch (waypointId)
         {
-            case 8:
+            case WAYPOINT_JAINA:
                 me->StopMoving();
                 me->PauseMovement(9999999, 0, true);
                 break;
@@ -2679,7 +2708,7 @@ struct npc_anduin_wrynn_uther : public ScriptedAI
     {
         switch (waypointId)
         {
-            case 9:
+            case WAYPOINT_UTHER:
                 me->StopMoving();
                 me->PauseMovement(9999999, 0, true);
                 break;
@@ -2739,7 +2768,7 @@ struct npc_firim : public ScriptedAI
     {
         switch (waypointId)
         {
-            case 10:
+            case WAYPOINT_FIRIM:
                 me->StopMoving();
                 me->PauseMovement(9999999, 0, true);
                 break;
@@ -3029,6 +3058,9 @@ struct at_anduin_wrynn_march_of_the_damned : AreaTriggerAI
     void OnUnitEnter(Unit* unit) override
     {
         if (!unit->IsPlayer())
+            return;
+
+        if (!at->GetCaster())
             return;
 
         at->GetCaster()->CastSpell(unit, SPELL_MARCH_OF_THE_DAMNED_DAMAGE, true);
