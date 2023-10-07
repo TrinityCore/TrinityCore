@@ -22,8 +22,11 @@
 #include "DB2Stores.h"
 #include "Log.h"
 #include "Player.h"
+#include "Realm.h"
 #include "World.h"
 #include "WorldSession.h"
+
+AreaTableEntry const* ChannelMgr::SpecialLinkedArea;
 
 ChannelMgr::~ChannelMgr()
 {
@@ -36,6 +39,9 @@ ChannelMgr::~ChannelMgr()
 
 /*static*/ void ChannelMgr::LoadFromDB()
 {
+    SpecialLinkedArea = sAreaTableStore.AssertEntry(3459);
+    ASSERT(SpecialLinkedArea->GetFlags().HasFlag(AreaFlags::LinkedChatSpecialArea));
+
     if (!sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 custom chat channels. Custom channel saving is disabled.");
@@ -268,9 +274,14 @@ ObjectGuid ChannelMgr::CreateCustomChannelGuid()
 ObjectGuid ChannelMgr::CreateBuiltinChannelGuid(uint32 channelId, AreaTableEntry const* zoneEntry /*= nullptr*/) const
 {
     ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
-    uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
-    if (channelEntry->Flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
-        zoneId = 0;
+    uint32 zoneId = 0;
+    if (zoneEntry && channelEntry->GetFlags().HasFlag(ChatChannelFlags::ZoneBased) && !channelEntry->GetFlags().HasFlag(ChatChannelFlags::LinkedChannel))
+        zoneId = zoneEntry->ID;
 
-    return ObjectGuid::Create<HighGuid::ChatChannel>(true, (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY2) != 0, zoneId, _team == ALLIANCE ? 3 : 5, channelId);
+    if (channelEntry->GetFlags().HasFlag(ChatChannelFlags::GlobalForTournament))
+        if (Cfg_CategoriesEntry const* category = sCfgCategoriesStore.LookupEntry(realm.Timezone))
+            if (category->GetFlags().HasFlag(CfgCategoriesFlags::Tournament))
+                zoneId = 0;
+
+    return ObjectGuid::Create<HighGuid::ChatChannel>(true, channelEntry->GetFlags().HasFlag(ChatChannelFlags::LinkedChannel), zoneId, _team == ALLIANCE ? 3 : 5, channelId);
 }

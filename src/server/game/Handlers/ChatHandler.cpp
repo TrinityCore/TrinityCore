@@ -431,6 +431,10 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
                 : ChannelMgr::GetChannelForPlayerByNamePart(target, sender);
             if (chn)
             {
+                if (ChatChannelsEntry const* chatChannel = sChatChannelsStore.LookupEntry(chn->GetChannelId()))
+                    if (chatChannel->GetFlags().HasFlag(ChatChannelFlags::ReadOnly))
+                        return;
+
                 sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
                 chn->Say(sender->GetGUID(), msg, lang);
             }
