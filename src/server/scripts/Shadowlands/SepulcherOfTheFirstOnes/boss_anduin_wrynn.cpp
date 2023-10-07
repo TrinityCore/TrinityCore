@@ -682,6 +682,8 @@ struct boss_anduin_wrynn : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLASPHEMY_OVERCONFIDENCE);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLASPHEMY_HOPELESSNESS);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOMINATION_WORD_PAIN);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BEFOULED_BARRIER_DEBUFF);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BEFOULED_BARRIER_EXPLODE);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LOST_SOUL_DIMENSION);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCARRED_SOUL);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WEATHER_COSMETIC);
@@ -1019,7 +1021,7 @@ struct boss_anduin_wrynn : public BossAI
                     });
                 }
 
-                else if (_isInPhaseTwo == false)
+                else if (_isInPhaseTwo == true && _isInphaseThree == false)
                 {
                     _isInphaseThree = true;
                     PhaseEvents(PHASE_THREE);
@@ -1065,6 +1067,7 @@ struct boss_anduin_wrynn : public BossAI
                     events.Repeat(1s);
                     break;
                 }
+
                 case EVENT_HOPEBREAKER:
                 {
                     DoCastSelf(SPELL_HOPEBREAKER);
@@ -1101,7 +1104,6 @@ struct boss_anduin_wrynn : public BossAI
 
                     else if (events.IsInPhase(PHASE_TWO) && _dominationWordCount == 12)
                         DoAction(ACTION_CANCEL_EVENTS);
-
                     break;
                 }
 
@@ -1339,9 +1341,11 @@ struct boss_anduin_wrynn : public BossAI
                 default:
                     break;
             }
+
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
+
         DoMeleeAttackIfReady();
     }
 
@@ -1355,14 +1359,10 @@ struct boss_anduin_wrynn : public BossAI
             {
                 events.SetPhase(PHASE_ONE);
                 if (me->GetMap()->GetDifficultyID() == DIFFICULTY_LFR_NEW)
-                {
                     DoCastSelf(SPELL_ANDUIN_WILLPOWER_PERIODIC, true);
-                }
 
                 if (me->GetMap()->GetDifficultyID() != DIFFICULTY_LFR_NEW)
-                {
                     events.ScheduleEvent(EVENT_KINGSMOURNE_HUNGERS, 45000ms);
-                }
                 events.ScheduleEvent(EVENT_HOPEBREAKER, 5000ms);
                 events.ScheduleEvent(EVENT_BEFOULED_BARRIER, 17000ms);
                 events.ScheduleEvent(EVENT_BLASPHEMY, 30000ms);
@@ -1391,7 +1391,6 @@ struct boss_anduin_wrynn : public BossAI
                 events.ScheduleEvent(EVENT_INTERMISSION_TWO, 169s);
                 events.ScheduleEvent(EVENT_BERSERK, 900s);
                 break;
-
             }
 
             case PHASE_THREE:
@@ -1472,11 +1471,13 @@ struct boss_anduin_wrynn : public BossAI
 
         if (Creature* beacon = instance->GetCreature(DATA_BEACON_OF_HOPE))
             beacon->GetAI()->DoAction(ACTION_DESPAWN_BEACON);
+
         me->SetReactState(REACT_PASSIVE);
         me->SetFaction(FACTION_FRIENDLY);
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_COMPLETED, 1);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->SetData(DATA_ANDUIN_WRYNN, DONE);
+
         if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
         {
             if (AchievementEntry const* mythicAnduin = sAchievementStore.LookupEntry(ACHIEVMENT_ANDUIN_MYTHIC))
@@ -1492,7 +1493,6 @@ struct boss_anduin_wrynn : public BossAI
         {
             chest->SetGoState(GO_STATE_ACTIVE);
             chest->SetSpellVisualId(SPELL_VISUAL_CHEST_LOOT, ObjectGuid::Empty);
-
         }
 
         scheduler.Schedule(5s, [this](TaskContext /*task*/)
@@ -1611,7 +1611,6 @@ struct npc_anduin_wrynn_beacon_of_hope : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-
         _events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -1747,7 +1746,6 @@ struct npc_anduin_wrynn_lost_soul : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-
         _events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -2009,7 +2007,6 @@ struct npc_anduin_wrynn_anduin_hope : public npc_anduin_wrynn_anduin_soul
 
     void UpdateAI(uint32 diff) override
     {
-
         _events.Update(diff);
         _scheduler.Update(diff);
 
@@ -2246,7 +2243,6 @@ struct boss_remnant_of_a_fallen_king : public BossAI
                 me->CastSpell(player, SPELL_WEATHER_COSMETIC, true);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_HOPEBREAKER);
         me->SetReactState(REACT_PASSIVE);
-
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -2329,9 +2325,7 @@ struct boss_remnant_of_a_fallen_king : public BossAI
                     me->SetReactState(REACT_AGGRESSIVE);
                     ContinueAttacking();
                 });
-
                 break;
-
             }
 
             case ACTION_DESPAWN_REMNANT:
@@ -2348,7 +2342,6 @@ struct boss_remnant_of_a_fallen_king : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-
         events.Update(diff);
 
         if (!UpdateVictim())
@@ -2389,6 +2382,7 @@ struct boss_remnant_of_a_fallen_king : public BossAI
                 }
 
             }
+
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
@@ -3303,8 +3297,6 @@ class spell_anduin_wrynn_fragment_of_hope : public SpellScript
     {
         OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_anduin_wrynn_fragment_of_hope::SetDest, EFFECT_0, TARGET_DEST_DEST);
     }
-private:
-    InstanceScript* _instance;
 };
 
 // 365293 - Befouled Barrier Absorb 365295
@@ -4081,7 +4073,6 @@ private:
     Position _casterCurrentPosition;
     Position _targetCurrentPosition;
     std::vector<ObjectGuid> _affectedUnits;
-
 };
 
 // Kingsmourne Hungers - 362405
@@ -4263,7 +4254,6 @@ class spell_anduin_wrynn_force_of_will : public AuraScript
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_anduin_wrynn_force_of_will::RecalculateHook, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_anduin_wrynn_force_of_will::RecalculateHook, EFFECT_1, SPELL_AURA_MOD_SUMMON_DAMAGE);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_anduin_wrynn_force_of_will::RecalculateHookDamageTaken, EFFECT_2, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
-
     }
 };
 
@@ -4520,7 +4510,6 @@ private:
         target = *itr;
         targets.clear();
         targets.push_back(target);
-
     }
 
     void HandleMissile(SpellEffIndex /*effIndex*/)
@@ -4779,7 +4768,6 @@ private:
     uint32 powerGained = 0;
     static constexpr std::array<int32, 3> _anduinRegenCycle =
     { 1, 1, 2 };
-
 };
 
 // Army of the Dead - 362862
@@ -4984,7 +4972,6 @@ public:
         if (Creature* firim = creator->GetInstanceScript()->GetCreature(DATA_FIRIM))
             conversation->AddActor(NPC_FIRIM, 4, firim->GetGUID());
     }
-
 };
 
 // 956 - Anduin End Movie
