@@ -4642,6 +4642,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // 195061 - Beaming Gaze
+    ApplySpellFix({ 195061 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
     // ENDOF MARDUM SPELLS
 
     //

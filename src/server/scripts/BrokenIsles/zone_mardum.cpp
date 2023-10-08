@@ -20,6 +20,8 @@
 #include "CellImpl.h"
 #include "Containers.h"
 #include "Conversation.h"
+#include "CreatureAIImpl.h"
+#include "EventProcessor.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -28,6 +30,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
@@ -930,6 +933,274 @@ CreatureAI* SevisBrightflameCoilskarGatewayAISelector(Creature* creature)
     return new NullCreatureAI(creature);
 };
 
+enum EyeOnThePrizeData
+{
+    NPC_COLOSSAL_INFERNAL_BALEFUL               = 96159,
+
+    QUEST_EYE_ON_THE_PRIZE                      = 39049,
+
+    DISPLAYID_BALEFUL_EYE                       = 38795,
+
+    // Inquisitor Baleful text
+    SAY_BALEFUL_AGGRO                           = 0,
+    SAY_BALEFUL_AEGIS                           = 1,
+    SAY_BALEFUL_DEATH                           = 2,
+
+    // Inquisitor Baleful events
+    EVENT_BALEFUL_MIND_SPIKE                    = 1,
+    EVENT_BALEFUL_BEAMING_GAZE,
+    EVENT_BALEFUL_INCITE_MADNESS,
+    EVENT_BALEFUL_COLOSS_INFERNAL_SMASH,
+
+    // Inquisitor Baleful points
+    POINT_BALEFUL_AEGIS_UP                      = 1,
+    POINT_BALEFUL_AEGIS_DOWN,
+
+    // Inquisitor Baleful actions
+    ACTION_BALEFUL_AEGIS_DOWN                   = 1,
+
+    // Inquisitor Baleful spells
+    SPELL_BALEFUL_MIND_SPIKE                    = 194519,
+    SPELL_BALEFUL_BEAMING_GAZE                  = 195058,
+    SPELL_BALEFUL_INCITE_MADNESS                = 194529,
+    SPELL_BALEFUL_LEGION_AEGIS                  = 192665,
+    SPELL_BALEFUL_DIE_KNOCKBACK                 = 190742,
+    SPELL_BALEFUL_TAKING_POWER                  = 203925,
+    SPELL_BALEFUL_KILL_CREDIT                   = 188559,
+
+    // Baleful Infernal Coloss
+    SPELL_BALEFUL_COLOSS_INFERNAL_SMASH         = 192709,
+    SPELL_BALEFUL_COLOSS_INFERNAL_SMASH_CAST    = 183938,
+
+    // Baleful Beaming Eye
+    SPELL_BALEFUL_BEAMING_EYE_SUMMON            = 195061,
+    SPELL_BALEFUL_BEAMING_EYE_CREATE_AT         = 195051
+};
+
+class BalefulColossSmashEvent : public BasicEvent
+{
+public:
+    BalefulColossSmashEvent(Creature* owner) : BasicEvent(), _owner(owner) { }
+
+    bool Execute(uint64, uint32) override
+    {
+        Unit* target = _owner->AI()->SelectTarget(SelectTargetMethod::Random, 0, 150.0f, true);
+        _owner->CastSpell(target, SPELL_BALEFUL_COLOSS_INFERNAL_SMASH, false);
+        return true;
+    }
+
+private:
+    Creature* _owner;
+};
+
+Position const BalefulAegisPos = { 592.4335f, 2433.1067f, -62.91178f };
+
+// 93105 - Inquisitor Baleful
+struct npc_inquisitor_baleful_molten_shore : public ScriptedAI
+{
+    npc_inquisitor_baleful_molten_shore(Creature* creature) : ScriptedAI(creature), _castedLegionAegis(false) { }
+
+    void JustAppeared() override
+    {
+        // Blizz use a personal spawn for every DH on Quest: 39049 which leads to issues
+        TempSummon* balefulColoss = me->SummonCreature(NPC_COLOSSAL_INFERNAL_BALEFUL, 523.4045f, 2428.4113f, -117.0033f, 0.10887321f, TEMPSUMMON_MANUAL_DESPAWN, 0s);
+        if (!balefulColoss)
+            return;
+
+        _balefulColossGUID = balefulColoss->GetGUID();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        Talk(SAY_BALEFUL_AGGRO);
+        _events.ScheduleEvent(EVENT_BALEFUL_MIND_SPIKE, 3s);
+        _events.ScheduleEvent(EVENT_BALEFUL_BEAMING_GAZE, 7s);
+        _events.ScheduleEvent(EVENT_BALEFUL_INCITE_MADNESS, 11s);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_BALEFUL_AEGIS_DOWN)
+            me->GetMotionMaster()->MovePoint(POINT_BALEFUL_AEGIS_DOWN, me->GetHomePosition());
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (pointId == POINT_BALEFUL_AEGIS_UP)
+            me->SetFacingTo(0.19842f);
+        else if (pointId == POINT_BALEFUL_AEGIS_DOWN)
+            me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_castedLegionAegis && me->HealthBelowPctDamaged(60, damage))
+        {
+            if (Creature* balefulColoss = ObjectAccessor::GetCreature(*me, _balefulColossGUID))
+            {
+                balefulColoss->m_Events.AddEventAtOffset(new BalefulColossSmashEvent(balefulColoss), 1s);
+                balefulColoss->m_Events.AddEventAtOffset(new BalefulColossSmashEvent(balefulColoss), 4s);
+                balefulColoss->m_Events.AddEventAtOffset(new BalefulColossSmashEvent(balefulColoss), 8s);
+                balefulColoss->m_Events.AddEventAtOffset(new BalefulColossSmashEvent(balefulColoss), 13s);
+            }
+
+            DoCast(SPELL_BALEFUL_LEGION_AEGIS);
+            me->SetReactState(REACT_PASSIVE);
+            Talk(SAY_BALEFUL_AEGIS);
+            me->GetMotionMaster()->MovePoint(POINT_BALEFUL_AEGIS_UP, BalefulAegisPos);
+            _castedLegionAegis = true;
+        }
+    }
+
+    void Reset() override
+    {
+        _castedLegionAegis = false;
+        _events.Reset();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        DoCast(SPELL_BALEFUL_DIE_KNOCKBACK);
+        Talk(SAY_BALEFUL_DEATH);
+
+        if (Creature* balefulColoss = ObjectAccessor::GetCreature(*me, _balefulColossGUID))
+            balefulColoss->KillSelf();
+
+        for (ObjectGuid tapperGUID : me->GetTapList())
+        {
+            if (Player* tapper = ObjectAccessor::GetPlayer(*me, tapperGUID))
+            {
+                tapper->CastSpell(tapper, SPELL_BALEFUL_KILL_CREDIT, false);
+                tapper->CastSpell(tapper, SPELL_BALEFUL_TAKING_POWER, false);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BALEFUL_MIND_SPIKE:
+                    DoCastVictim(SPELL_BALEFUL_MIND_SPIKE);
+                    _events.ScheduleEvent(EVENT_BALEFUL_MIND_SPIKE, 7s);
+                    break;
+                case EVENT_BALEFUL_BEAMING_GAZE:
+                    DoCastVictim(SPELL_BALEFUL_BEAMING_GAZE);
+                    _events.ScheduleEvent(EVENT_BALEFUL_BEAMING_GAZE, 11s);
+                    break;
+                case EVENT_BALEFUL_INCITE_MADNESS:
+                    DoCastVictim(SPELL_BALEFUL_INCITE_MADNESS);
+                    _events.ScheduleEvent(EVENT_BALEFUL_INCITE_MADNESS, 30s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    bool _castedLegionAegis;
+    ObjectGuid _balefulColossGUID;
+};
+
+// 99160 - Beaming Eye
+struct npc_baleful_beaming_eye : public ScriptedAI
+{
+    npc_baleful_beaming_eye(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->SetDisplayId(DISPLAYID_BALEFUL_EYE, true);
+        me->SetPlayHoverAnim(true);
+        DoCastSelf(SPELL_BALEFUL_BEAMING_EYE_CREATE_AT);
+        // ToDo: rotation isn't changing orientation, turnspeed should be random
+        me->GetMotionMaster()->MoveRotate(0, 10000, RAND(ROTATE_DIRECTION_LEFT, ROTATE_DIRECTION_RIGHT));
+    }
+};
+
+// 192665 - Legion Aegis
+class spell_mardum_baleful_legion_aegis : public AuraScript
+{
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+        {
+            if (UnitAI* ai = GetTarget()->GetAI())
+                ai->DoAction(ACTION_BALEFUL_AEGIS_DOWN);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mardum_baleful_legion_aegis::HandleRemove, EFFECT_0, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 192709 - Infernal Smash
+class spell_mardum_coloss_infernal_smash_selector : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BALEFUL_COLOSS_INFERNAL_SMASH_CAST });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_BALEFUL_COLOSS_INFERNAL_SMASH_CAST, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mardum_coloss_infernal_smash_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 195058 - Beaming Gaze (selector)
+class spell_mardum_baleful_beaming_gaze_selector : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BALEFUL_BEAMING_EYE_SUMMON });
+    }
+
+    void SummonBeamingEye(Unit* origin, float angle)
+    {
+        Position dest = origin->GetPosition();
+        origin->MovePositionToFirstCollision(dest, 6.5f, angle);
+        dest.m_positionZ += 0.35f;
+        origin->CastSpell(dest, SPELL_BALEFUL_BEAMING_EYE_SUMMON, true);
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        Unit* hitUnit = GetHitUnit();
+        SummonBeamingEye(hitUnit, float(M_PI));
+        SummonBeamingEye(hitUnit, float(-M_PI) / 4.0f);
+        SummonBeamingEye(hitUnit, float(M_PI) / 4.0f);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mardum_baleful_beaming_gaze_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_zone_mardum()
 {
     // Creature
@@ -940,6 +1211,8 @@ void AddSC_zone_mardum()
     RegisterCreatureAI(npc_sevis_brightflame_invasion_begins);
     RegisterCreatureAI(npc_cyana_nightglaive_invasion_begins);
     RegisterCreatureAI(npc_illidari_fighting_invasion_begins);
+    RegisterCreatureAI(npc_inquisitor_baleful_molten_shore);
+    RegisterCreatureAI(npc_baleful_beaming_eye);
 
     // AISelector
     new FactoryCreatureScript<CreatureAI, &KaynSunfuryNearLegionBannerAISelector>("npc_kayn_sunfury_ashtongue_intro");
@@ -960,4 +1233,7 @@ void AddSC_zone_mardum()
     // Spells
     RegisterSpellScript(spell_demon_hunter_intro_aura);
     RegisterSpellScript(spell_accepting_felsaber_gift);
+    RegisterSpellScript(spell_mardum_baleful_legion_aegis);
+    RegisterSpellScript(spell_mardum_coloss_infernal_smash_selector);
+    RegisterSpellScript(spell_mardum_baleful_beaming_gaze_selector);
 };
