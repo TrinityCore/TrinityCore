@@ -44,7 +44,6 @@ ObjectData const creatureData[] =
 DungeonEncounterData const encounters[] =
 {
     { DATA_ANDUIN_WRYNN, {{ 2546 }} },
-
 };
 
 enum Spells
@@ -65,8 +64,8 @@ public:
             SetBossNumber(EncounterCount);
             LoadDungeonEncounterData(encounters);
             LoadObjectData(creatureData, nullptr);
-            AnduinIntroductionData = NOT_STARTED;
 
+            AnduinIntroductionData = NOT_STARTED;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -226,8 +225,6 @@ public:
             {
                 case DATA_ANDUIN_WRYNN_INTRODUCTION:
                     return AnduinIntroductionData;
-                case DATA_ANDUIN_WRYNN_FINAL_MOVIE:
-                    return AnduinFinalData;
                 default:
                     break;
             }
@@ -275,6 +272,7 @@ public:
 
                 case DATA_BEACON_OF_HOPE:
                     return BeaconOfHopeGUID;
+
                 case DATA_UTHER_THE_LIGHTBRINGER:
                     return UtherGUID;
 
@@ -310,9 +308,7 @@ public:
         ObjectGuid TreasureofTheFirstOnesGUID;
         ObjectGuid BridgeToAnduinGUID;
         ObjectGuid BridgeAfterAnduinGUID;
-        uint8 AnduinGObjectData;
         uint8 AnduinIntroductionData;
-        uint8 AnduinFinalData;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

@@ -52,7 +52,7 @@
 #include "ScriptedGossip.h"
 #include "sepulcher_of_the_first_ones.h"
 
-enum Spells
+enum AnduinWrynnSpells
 {
     // Pre-Introduction
     SPELL_BROKER_SPAWN                              = 367524,
@@ -269,24 +269,23 @@ enum Spells
     SPELL_TELEPORT_DOMINATIONS_GRASP                = 368563,
 };
 
-enum Phases
+enum AnduinWrynnPhases
 {
     PHASE_ONE = 1,
     PHASE_TWO,
     PHASE_THREE,
 };
 
-enum Data
+enum AnduinWrynnData
 {
     DATA_REQUIRED_HEALING = 1,
     DATA_ABSORBED_HEALING,
 };
 
-enum Events
+enum AnduinWrynnEvents
 {
     // Anduin Wrynn
-    EVENT_CHECK_HOSTILES = 1,
-    EVENT_HOPEBREAKER,
+    EVENT_HOPEBREAKER = 1,
     EVENT_DOMINATION_WORD_PAIN,
     EVENT_BEFOULED_BARRIER,
     EVENT_UPDATE_BEFOULED_BARRIER,
@@ -345,7 +344,7 @@ enum Events
     EVENT_BLINK,
 };
 
-enum Actions
+enum AnduinWrynnActions
 {
     ACTION_START_PRE_INTRODUCTION = 1,
     ACTION_START_MOVEMENT,
@@ -353,7 +352,6 @@ enum Actions
     ACTION_FINISH_INTRODUCTION,
     ACTION_CANCEL_EVENTS,
     ACTION_CANCEL_EVENTS_ASSISTERS,
-    ACTION_SUMMON_SOULS,
     ACTION_ARTHAS_INTERMISSION_UTHER,
     ACTION_ARTHAS_INTERMISSION_SYLVANAS,
     ACTION_EXIT_INTERMISSION,
@@ -363,18 +361,18 @@ enum Actions
     ACTION_DESPAWN_BEACON,
     ACTION_END_ENCOUNTER,
     ACTION_START_OUTRODUCTION,
+    ACTION_DESPAIR_GONE,
+    ACTION_DOUBT_GONE,
+    ACTION_HOPE_RESTORED,
 
     // Fiendish Soul
     ACTION_SOUL_EXPLOSION,
 
     // Monstrous Soul
     ACTION_NECROTIC_DETONATION,
-
-    // Lost Soul
-    ACTION_RESTORE_SOUL,
 };
 
-enum Texts
+enum AnduinWrynnTexts
 {
     SAY_AGGRO                           = 0,
     SAY_HOPEBREAKER                     = 1,
@@ -392,7 +390,7 @@ enum Texts
     SAY_NECROTIC_DETONATION             = 13,
 };
 
-enum Conversations
+enum AnduinWrynnConversations
 {
     CONVERSATION_INTRO                  = 17835,
     CONVERSATION_ARTHAS_UTHER           = 17921,
@@ -401,12 +399,12 @@ enum Conversations
     CONVERSATION_ANDUIN_OUTRODUCTION    = 17836,
 };
 
-enum SpawnGroups
+enum AnduinWrynnSpawnGroups
 {
     SPAWN_GROUP_INITIAL         = 0
 };
 
-enum Points
+enum AnduinWrynnPoints
 {
     POINT_START_INTRODUCTION    = 1,
     POINT_ANDUIN_SOUL           = 2,
@@ -414,7 +412,7 @@ enum Points
     POINT_MARCH_OF_THE_DAMNED   = 4,
 };
 
-enum WayPoints
+enum AnduinWrynnWayPoints
 {
     WAYPOINT_JAINA      = 8,
     WAYPOINT_UTHER      = 9,
@@ -422,19 +420,17 @@ enum WayPoints
     WAYPOINT_SYLVANAS   = 13,
 };
 
-enum SpellVisuals
+enum AnduinWrynnSpellVisuals
 {
     SPELL_VISUAL_CHEST_LOOT     = 114023,
 };
 
-enum Achievements
+enum AnduinWrynnAchievements
 {
-    ACHIEVMENT_ANDUIN_MYTHIC    = 15486,
+    ACHIEVEMENT_ANDUIN_MYTHIC    = 15486,
 };
 
-Position const JainaPos = { -3824.65f, -2692.20f, 91.35f };
-
-Position const PreIntroduction[3] =
+Position const PreIntroductionAssistersPositions[3] =
 {
     { -3826.9548f, -2626.2761f, 78.9296f, 4.644121f }, // Jaina
     { -3831.6807f, -2626.2761f, 78.9296f, 5.460620f }, // Uther
@@ -452,18 +448,18 @@ Position const FirimOutroductionPos = { -3830.0156f, -2676.7969f, 91.56402f };
 
 Position const DominationGraspCenter = { -3825.0601f, -2715.4600f, 91.3567f, 1.6260f };
 
-Position const IntermissionAssisters[3] =
+Position const IntermissionAssistersTeleportPosition[3] =
 {
     { -3828.472f, -2688.191f, 91.2652f, 1.9153f }, // Sylvanas
     { -3819.519f, -2687.170f, 91.2652f, 2.1812f }, // Uther
     { -3824.960f, -2692.550f, 91.2652f, 1.5733f }, // Jaina
 };
 
-Position const AnduinsDespair = { -3828.355957f, -2704.1875f, 91.350716f, 4.982021f };
+Position const AnduinsDespairSpawnPosition = { -3828.355957f, -2704.1875f, 91.350716f, 4.982021f };
 
-Position const AnduinsSoul = { -3825.060059f, -2715.459961f, 91.356697f, 1.626040f };
+Position const AnduinsSoulSpawnPosition = { -3825.060059f, -2715.459961f, 91.356697f, 1.626040f };
 
-Position const AnduinsDoubt[4] =
+Position const AnduinsDoubtSpawnPositions[4] =
 {
     {  -3852.638916f, -2687.373291f, 91.348526f, 5.560700f }, // Right of Uther
     {  -3852.845459f, -2742.732666f, 91.348534f, 0.961583f }, // Next Right
@@ -471,7 +467,7 @@ Position const AnduinsDoubt[4] =
     {  -3799.805664f, -2740.925293f, 91.348541f, 2.247305f }, // Next Left
 };
 
-Position const AnduinsHope[4] =
+Position const AnduinsHopeSpawnPosition[4] =
 {
     {  -3825.149414f, -2711.508789f, 91.354919f, 1.463445f }, // In front of Anduin
     {  -3828.751709f, -2715.171875f, 91.354919f, 3.221487f }, // Left of Anduin
@@ -479,9 +475,9 @@ Position const AnduinsHope[4] =
     {  -3825.180664f, -2719.208252f, 91.354820f, 4.741285f }, // Behind Anduin
 };
 
-Position const RemnantofaFallenKing = { -3825.2466f, -2700.0486f, 91.3650f, 1.3762f };
+Position const RemnantOfAFallenKingSpawnPosition = { -3825.2466f, -2700.0486f, 91.3650f, 1.3762f };
 
-Position const GrimReflections[4] =
+Position const GrimReflectionsSpawnPositions[4] =
 {
     { -3825.389f, -2739.4202f, 91.431305f, 4.8445f}, // back side of Anduin
     { -3849.8438f, -2715.0574f, 91.40953f, 2.9961f}, // left side of Anduin
@@ -489,7 +485,7 @@ Position const GrimReflections[4] =
     { -3800.6980f, -2715.4340f, 91.390780f, 6.2769f}, // right side of Anduin
 };
 
-Position const MarchOfTheDamned[8] =
+Position const MarchOfTheDamnedSpawnPositions[8] =
 {
     { -3839.8489f, -2679.7708f, 91.53031f, 5.1081f }, // First right
     { -3860.8940f, -2701.0051f, 91.53032f, 5.9010f }, // Second Right
@@ -501,10 +497,9 @@ Position const MarchOfTheDamned[8] =
     { -3810.4290f, -2751.0903f, 91.53032f, 1.9584f } // Fourth Left
 };
 
-Position const BeaconOfHope = { -3825.0417f, -2715.3923f, 91.3568f, 0.0f };
+Position const BeaconOfHopeSpawnPosition = { -3825.0417f, -2715.3923f, 91.3568f, 0.0f };
 
-Position const ChestLoot = { -3840.9915f, -2741.7847f, 91.26521f, 1.334929f };
-Position const ChestLootTest = { -3848.65f, -2721.61f, 91.26f, 0.81493f };
+Position const ChestLootSpawnPosition = { -3840.9915f, -2741.7847f, 91.26521f, 1.334929f };
 
 template<typename T>
 struct Timers : public std::list<T>
@@ -546,11 +541,13 @@ public:
     bool Execute(uint64 /*time*/, uint32 /*diff*/) override
     {
         if (Creature* _summoner = ObjectAccessor::GetCreature(*_owner, _summonerGuid))
+        {
             if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0))
             {
                 _owner->SetReactState(REACT_AGGRESSIVE);
                 _owner->AI()->AttackStart(target);
             }
+        }
         return true;
     }
 
@@ -563,17 +560,16 @@ private:
 struct boss_anduin_wrynn : public BossAI
 {
     boss_anduin_wrynn(Creature* creature) : BossAI(creature, DATA_ANDUIN_WRYNN),
-        _slay(0), _dominationWordCount(0), _isInPhaseTwo(false), _isInphaseThree(false), _encounterEnded(false)
+        _slayTextOnCooldown(false), _dominationWordCount(0), _intermissionsDone(0), _encounterEnded(false)
     {
         Initialize();
     }
 
     void Initialize()
     {
-        _slay = 0;
+        _slayTextOnCooldown = false;
         _dominationWordCount = 0;
-        _isInPhaseTwo = false;
-        _isInphaseThree = false;
+        _intermissionsDone = 0;
         _encounterEnded = false;
         me->SetFaction(FACTION_MONSTER);
     }
@@ -599,18 +595,7 @@ struct boss_anduin_wrynn : public BossAI
         }
     }
 
-    void CheckForHostiles()
-    {
-        Map::PlayerList const& players = me->GetMap()->GetPlayers();
-        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-            if (Player* player = i->GetSource())
-                if (player->IsAlive() && IsInBoundary(player) && !player->IsGameMaster())
-                    return;
-
-        EnterEvadeMode(EvadeReason::NoHostiles);
-    }
-
-    void IntermissionPositions()
+    void PrepareAssistersForIntermission()
     {
         Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
         Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER);
@@ -619,9 +604,9 @@ struct boss_anduin_wrynn : public BossAI
         if (!sylvanas || !uther || !jaina)
             return;
 
-        sylvanas->CastSpell(Position(IntermissionAssisters[0]), SPELL_GENERIC_BLINK, false);
-        uther->CastSpell(Position(IntermissionAssisters[1]), SPELL_GENERIC_BLINK, false);
-        jaina->CastSpell(Position(IntermissionAssisters[2]), SPELL_GENERIC_BLINK, false);
+        sylvanas->CastSpell(IntermissionAssistersTeleportPosition[0], SPELL_GENERIC_BLINK, false);
+        uther->CastSpell(IntermissionAssistersTeleportPosition[1], SPELL_GENERIC_BLINK, false);
+        jaina->CastSpell(IntermissionAssistersTeleportPosition[2], SPELL_GENERIC_BLINK, false);
         sylvanas->AttackStop();
         uther->AttackStop();
         jaina->AttackStop();
@@ -631,9 +616,10 @@ struct boss_anduin_wrynn : public BossAI
         sylvanas->SetEmoteState(EMOTE_STATE_READY_BOW);
         jaina->SetEmoteState(EMOTE_STATE_READY2H);
         uther->SetEmoteState(EMOTE_STATE_READY2H);
+        // @TODO: assisters should attack remnant after teleport (as soon as it spawns)
     }
 
-    void ContinueAttacking()
+    void ForceAssistersToAttackRemnant()
     {
         Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
         Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER);
@@ -645,6 +631,7 @@ struct boss_anduin_wrynn : public BossAI
         Unit* remnant = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING);
         if (!remnant)
             return;
+
         uther->GetThreatManager().AddThreat(remnant, 100000);
         jaina->GetThreatManager().AddThreat(remnant, 100000);
         sylvanas->GetThreatManager().AddThreat(remnant, 100000);
@@ -654,7 +641,7 @@ struct boss_anduin_wrynn : public BossAI
         sylvanas->SetReactState(REACT_AGGRESSIVE);
     }
 
-    void ZoneAllies()
+    void ZoneAllies() // @TODO: figure out why they aren't attacking anduin after intermission / fix naming
     {
         Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
         Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER);
@@ -663,13 +650,13 @@ struct boss_anduin_wrynn : public BossAI
         if (!sylvanas || !uther || !jaina)
             return;
 
-        Unit* remnant = instance->GetCreature(DATA_ANDUIN_WRYNN);
-        if (!remnant)
+        Unit* anduin = instance->GetCreature(DATA_ANDUIN_WRYNN);
+        if (!anduin)
             return;
 
-        uther->GetThreatManager().AddThreat(remnant, 100000);
-        jaina->GetThreatManager().AddThreat(remnant, 100000);
-        sylvanas->GetThreatManager().AddThreat(remnant, 100000);
+        uther->GetThreatManager().AddThreat(anduin, 100000);
+        jaina->GetThreatManager().AddThreat(anduin, 100000);
+        sylvanas->GetThreatManager().AddThreat(anduin, 100000);
 
         DoZoneInCombat(sylvanas);
         DoZoneInCombat(jaina);
@@ -703,6 +690,7 @@ struct boss_anduin_wrynn : public BossAI
         DoCastSelf(SPELL_DARK_ZEAL_AURA, true);
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 0);
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 0);
+
         if (GameObject* bridge = me->FindNearestGameObject(GAMEOBJECT_BRIDGE_AFTER_ANDUIN, 500.0f))
         {
             if (instance->GetData(DATA_ANDUIN_WRYNN_INTRODUCTION) != DONE)
@@ -719,6 +707,7 @@ struct boss_anduin_wrynn : public BossAI
         Talk(SAY_DISENGAGE);
         if (_encounterEnded == true)
             return;
+
         _DespawnAtEvade();
         summons.DespawnAll();
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 0);
@@ -743,13 +732,13 @@ struct boss_anduin_wrynn : public BossAI
 
     void KilledUnit(Unit* victim) override
     {
-        if (_slay == 0 && !victim->IsPlayer())
+        if (_slayTextOnCooldown == false && !victim->IsPlayer())
         {
             Talk(SAY_SLAY);
-            _slay = 1;
+            _slayTextOnCooldown = true;
             scheduler.Schedule(3s, [this](TaskContext /*task*/)
             {
-                _slay = 0;
+                _slayTextOnCooldown = false;
             });
         }
     }
@@ -824,19 +813,18 @@ struct boss_anduin_wrynn : public BossAI
         {
             case NPC_ANDUIN_DOUBT:
             case NPC_ANDUIN_DESPAIR:
-                summon->ToTempSummon()->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
-                break;
-
-            case NPC_GRIM_REFLECTION:
             {
-                summon->ToTempSummon()->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
-                summon->DespawnOrUnsummon(3s);
+                // @TODO: move despawn to spellscript?
+                if (TempSummon* tempSummon = summon->ToTempSummon())
+                    tempSummon->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
                 break;
             }
 
-            case NPC_LOST_SOUL:
+            case NPC_GRIM_REFLECTION:
             {
-                summon->GetAI()->DoAction(ACTION_RESTORE_SOUL);
+                if (TempSummon* tempSummon = summon->ToTempSummon())
+                    tempSummon->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
+                summon->DespawnOrUnsummon(3s);
                 break;
             }
 
@@ -851,7 +839,6 @@ struct boss_anduin_wrynn : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         PhaseEvents(PHASE_ONE);
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, PHASE_ONE);
-        events.ScheduleEvent(EVENT_CHECK_HOSTILES, 1ms);
         Talk(SAY_AGGRO);
         scheduler.Schedule(10s, [this](TaskContext /*task*/)
         {
@@ -876,11 +863,11 @@ struct boss_anduin_wrynn : public BossAI
                 if (!uther || !sylvanas || !jaina)
                     return;
 
-                jaina->NearTeleportTo(PreIntroduction[0], false);
+                jaina->NearTeleportTo(PreIntroductionAssistersPositions[0], false);
                 jaina->CastSpell(jaina, SPELL_BROKER_SPAWN, true);
-                uther->NearTeleportTo(PreIntroduction[1], false);
+                uther->NearTeleportTo(PreIntroductionAssistersPositions[1], false);
                 uther->CastSpell(uther, SPELL_BROKER_SPAWN, true);
-                sylvanas->NearTeleportTo(PreIntroduction[2], false);
+                sylvanas->NearTeleportTo(PreIntroductionAssistersPositions[2], false);
                 sylvanas->CastSpell(sylvanas, SPELL_BROKER_SPAWN, true);
                 break;
             }
@@ -942,29 +929,18 @@ struct boss_anduin_wrynn : public BossAI
                         {
                             if (Creature* firim = instance->GetCreature(DATA_FIRIM))
                             {
-                                ObjectGuid utherGUID = uther->GetGUID();
-                                ObjectGuid sylvanasGUID = sylvanas->GetGUID();
-                                ObjectGuid jainaGUID = jaina->GetGUID();
-                                ObjectGuid firimGUID = firim->GetGUID();
-                                firim->GetMotionMaster()->MovePath(1845890, false);
+                                firim->GetMotionMaster()->MovePath(1845890, false); // @TODO: fixme magic number
 
                                 Conversation* introductionAnduin = Conversation::CreateConversation(CONVERSATION_ANDUIN_OUTRODUCTION, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                                introductionAnduin->AddActor(NPC_LADY_JAINA_PROUDMOORE, 1, jainaGUID);
-                                introductionAnduin->AddActor(NPC_SYLVANAS_WINDRUNNER, 2, sylvanasGUID);
-                                introductionAnduin->AddActor(NPC_UTHER_THE_LIGHTBRINGER, 3, utherGUID);
-                                introductionAnduin->AddActor(NPC_FIRIM, 4, firimGUID);
+                                introductionAnduin->AddActor(NPC_LADY_JAINA_PROUDMOORE, 1, jaina->GetGUID());
+                                introductionAnduin->AddActor(NPC_SYLVANAS_WINDRUNNER, 2, sylvanas->GetGUID());
+                                introductionAnduin->AddActor(NPC_UTHER_THE_LIGHTBRINGER, 3, uther->GetGUID());
+                                introductionAnduin->AddActor(NPC_FIRIM, 4, firim->GetGUID());
                                 introductionAnduin->Start();
                             }
                         }
                     }
                 }
-                break;
-            }
-
-            case ACTION_SUMMON_SOULS:
-            {
-                if (Creature* anduinSoul = instance->GetCreature(DATA_ANDUIN_SOUL))
-                    anduinSoul->GetAI()->DoAction(ACTION_SUMMON_KINGSMOURNE_SOULS);
                 break;
             }
 
@@ -986,9 +962,8 @@ struct boss_anduin_wrynn : public BossAI
                 instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 1);
                 if (Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER))
                 {
-                    ObjectGuid utherGUID = uther->GetGUID();
                     Conversation* conversationUther = Conversation::CreateConversation(CONVERSATION_ARTHAS_UTHER, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                    conversationUther->AddActor(NPC_UTHER_THE_LIGHTBRINGER, 1, utherGUID);
+                    conversationUther->AddActor(NPC_UTHER_THE_LIGHTBRINGER, 1, uther->GetGUID());
                     conversationUther->Start();
                 }
                 break;
@@ -999,9 +974,8 @@ struct boss_anduin_wrynn : public BossAI
                 instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 2);
                 if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                 {
-                    ObjectGuid sylvanasGUID = sylvanas->GetGUID();
                     Conversation* conversationSylvanas = Conversation::CreateConversation(CONVERSATION_ARTHAS_SYLVANAS, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                    conversationSylvanas->AddActor(NPC_SYLVANAS_WINDRUNNER, 1, sylvanasGUID);
+                    conversationSylvanas->AddActor(NPC_SYLVANAS_WINDRUNNER, 1, sylvanas->GetGUID());
                     conversationSylvanas->Start();
                 }
                 break;
@@ -1009,23 +983,20 @@ struct boss_anduin_wrynn : public BossAI
 
             case ACTION_EXIT_INTERMISSION:
             {
-                if (_isInPhaseTwo == false)
+                me->RemoveUnitFlag(UNIT_FLAG_STUNNED); // @TODO: remove?
+
+                if (_intermissionsDone == 0)
                 {
-                    _isInPhaseTwo = true;
                     PhaseEvents(PHASE_TWO);
-                    me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
                     scheduler.Schedule(3s, [this](TaskContext /*task*/)
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
                         ZoneAllies();
                     });
                 }
-
-                else if (_isInPhaseTwo == true && _isInphaseThree == false)
+                else if (_intermissionsDone == 1)
                 {
-                    _isInphaseThree = true;
                     PhaseEvents(PHASE_THREE);
-                    me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
                     scheduler.Schedule(6s, [this](TaskContext /*task*/)
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -1052,22 +1023,28 @@ struct boss_anduin_wrynn : public BossAI
 
         if (!UpdateVictim())
             return;
+
+        if (!me->GetVictim()->IsPlayer())
+        {
+            EnterEvadeMode(EvadeReason::NoHostiles);
+            return;
+        }
+
         events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
+        auto SpawnRemnant = [this](TaskContext /*task*/)
+        {
+            if (Creature* arthas = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
+                me->CastSpell(arthas, SPELL_SPAWN_REMNANT, false);
+        };
+
         while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
-                case EVENT_CHECK_HOSTILES:
-                {
-                    CheckForHostiles();
-                    events.Repeat(1s);
-                    break;
-                }
-
                 case EVENT_HOPEBREAKER:
                 {
                     DoCastSelf(SPELL_HOPEBREAKER);
@@ -1101,7 +1078,6 @@ struct boss_anduin_wrynn : public BossAI
 
                     if (events.IsInPhase(PHASE_ONE) && _dominationWordCount == 11)
                         DoAction(ACTION_CANCEL_EVENTS);
-
                     else if (events.IsInPhase(PHASE_TWO) && _dominationWordCount == 12)
                         DoAction(ACTION_CANCEL_EVENTS);
                     break;
@@ -1193,7 +1169,7 @@ struct boss_anduin_wrynn : public BossAI
                         me->SetReactState(REACT_PASSIVE);
                         DoCastSelf(SPELL_SHADESTEP);
                         me->NearTeleportTo(DominationGraspCenter, false);
-                        IntermissionPositions();
+                        PrepareAssistersForIntermission();
                     });
 
                     scheduler.Schedule(1204ms, [this](TaskContext /*task*/)
@@ -1211,37 +1187,19 @@ struct boss_anduin_wrynn : public BossAI
                         DoCastSelf(SPELL_DOMINATION_GRASP_ROOT_AREATRIGGER);
                         DoCastSelf(SPELL_FORCE_OF_WILL);
                         DoCastSelf(SPELL_HOPEBREAKER_CLEAR);
-                        me->SummonCreature(BOSS_REMNANT_OF_A_FALLEN_KING, RemnantofaFallenKing, TEMPSUMMON_MANUAL_DESPAWN);
-                        if (Creature* arthas = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
+
+                        if (Creature* arthas = me->SummonCreature(BOSS_REMNANT_OF_A_FALLEN_KING, RemnantOfAFallenKingSpawnPosition, TEMPSUMMON_MANUAL_DESPAWN))
                         {
                             me->CastSpell(arthas, SPELL_DOMINATION_GRASP, false);
                             me->CastSpell(arthas, SPELL_SPAWN_REMNANT, false);
                         }
                     });
 
-                    scheduler.Schedule(5s, [this](TaskContext /*task*/)
-                    {
-                        if (Creature* arthas = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
-                        {
-                            me->CastSpell(arthas, SPELL_SPAWN_REMNANT, false);
-                        }
-                    });
+                    scheduler.Schedule(5s, SpawnRemnant);
 
-                    scheduler.Schedule(6s, [this](TaskContext /*task*/)
-                    {
-                        if (Creature* arthas = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
-                        {
-                            me->CastSpell(arthas, SPELL_SPAWN_REMNANT, false);
-                        }
-                    });
+                    scheduler.Schedule(6s, SpawnRemnant);
 
-                    scheduler.Schedule(7s, [this](TaskContext /*task*/)
-                    {
-                        if (Creature* arthas = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
-                        {
-                            me->CastSpell(arthas, SPELL_SPAWN_REMNANT, false);
-                        }
-                    });
+                    scheduler.Schedule(7s, SpawnRemnant);
 
                     scheduler.Schedule(8100ms, [this](TaskContext /*task*/)
                     {
@@ -1251,11 +1209,11 @@ struct boss_anduin_wrynn : public BossAI
                             arthas->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                             arthas->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                             arthas->SetReactState(REACT_PASSIVE);
-                            ContinueAttacking();
+                            ForceAssistersToAttackRemnant();
+
+                            // only in first intermission
                             if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
-                            {
                                 DoCastSelf(SPELL_MARCH_OF_THE_DAMNED_PERIODIC);
-                            }
                         }
                     });
                     break;
@@ -1263,12 +1221,13 @@ struct boss_anduin_wrynn : public BossAI
 
                 case EVENT_INTERMISSION_TWO:
                 {
+                    // info: only timers are different to EVENT_INTERMISSION_ONE
                     scheduler.Schedule(1ms, [this](TaskContext /*task*/)
                     {
                         me->SetReactState(REACT_PASSIVE);
-                        me->CastSpell(Position{ DominationGraspCenter }, SPELL_SHADESTEP, false);
+                        me->CastSpell(DominationGraspCenter, SPELL_SHADESTEP, false);
                         me->NearTeleportTo(DominationGraspCenter, false);
-                        IntermissionPositions();
+                        PrepareAssistersForIntermission();
                     });
 
                     scheduler.Schedule(2204ms, [this](TaskContext /*task*/)
@@ -1287,37 +1246,19 @@ struct boss_anduin_wrynn : public BossAI
                         DoCastSelf(SPELL_FORCE_OF_WILL);
                         DoCastSelf(SPELL_HOPEBREAKER_CLEAR);
                         DoCastSelf(SPELL_DOMINATION_GRASP_ROOT_AREATRIGGER);
-                        me->SummonCreature(BOSS_REMNANT_OF_A_FALLEN_KING, RemnantofaFallenKing, TEMPSUMMON_MANUAL_DESPAWN);
-                        if (Creature* arthas = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
+
+                        if (Creature* arthas = me->SummonCreature(BOSS_REMNANT_OF_A_FALLEN_KING, RemnantOfAFallenKingSpawnPosition, TEMPSUMMON_MANUAL_DESPAWN))
                         {
                             me->CastSpell(arthas, SPELL_DOMINATION_GRASP, false);
                             me->CastSpell(arthas, SPELL_SPAWN_REMNANT, false);
                         }
                     });
 
-                    scheduler.Schedule(6s, [this](TaskContext /*task*/)
-                    {
-                        if (Creature* arthas = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
-                        {
-                            me->CastSpell(arthas, SPELL_SPAWN_REMNANT, false);
-                        }
-                    });
+                    scheduler.Schedule(6s, SpawnRemnant);
 
-                    scheduler.Schedule(7s, [this](TaskContext /*task*/)
-                    {
-                        if (Creature* arthas = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
-                        {
-                            me->CastSpell(arthas, SPELL_SPAWN_REMNANT, false);
-                        }
-                    });
+                    scheduler.Schedule(7s, SpawnRemnant);
 
-                    scheduler.Schedule(8s, [this](TaskContext /*task*/)
-                    {
-                        if (Creature* arthas = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
-                        {
-                            me->CastSpell(arthas, SPELL_SPAWN_REMNANT, false);
-                        }
-                    });
+                    scheduler.Schedule(8s, SpawnRemnant);
 
                     scheduler.Schedule(9s, [this](TaskContext /*task*/)
                     {
@@ -1362,18 +1303,19 @@ struct boss_anduin_wrynn : public BossAI
                     DoCastSelf(SPELL_ANDUIN_WILLPOWER_PERIODIC, true);
 
                 if (me->GetMap()->GetDifficultyID() != DIFFICULTY_LFR_NEW)
-                    events.ScheduleEvent(EVENT_KINGSMOURNE_HUNGERS, 45000ms);
-                events.ScheduleEvent(EVENT_HOPEBREAKER, 5000ms);
-                events.ScheduleEvent(EVENT_BEFOULED_BARRIER, 17000ms);
-                events.ScheduleEvent(EVENT_BLASPHEMY, 30000ms);
-                events.ScheduleEvent(EVENT_WICKED_STAR, 55000ms);
-                events.ScheduleEvent(EVENT_DOMINATION_WORD_PAIN, 7000ms);
+                    events.ScheduleEvent(EVENT_KINGSMOURNE_HUNGERS, 45s);
+                events.ScheduleEvent(EVENT_HOPEBREAKER, 5s);
+                events.ScheduleEvent(EVENT_BEFOULED_BARRIER, 17s);
+                events.ScheduleEvent(EVENT_BLASPHEMY, 30s);
+                events.ScheduleEvent(EVENT_WICKED_STAR, 55s);
+                events.ScheduleEvent(EVENT_DOMINATION_WORD_PAIN, 7s);
                 events.ScheduleEvent(EVENT_INTERMISSION_ONE, 150s);
                 break;
             }
 
             case PHASE_TWO:
             {
+                _intermissionsDone = 1;
                 events.SetPhase(PHASE_TWO);
                 me->ModifyPower(me->GetPowerType(), 0);
 
@@ -1395,55 +1337,29 @@ struct boss_anduin_wrynn : public BossAI
 
             case PHASE_THREE:
             {
-                _isInphaseThree = true;
+                _intermissionsDone = 2;
                 me->ModifyPower(me->GetPowerType(), 0);
                 events.SetPhase(PHASE_THREE);
-                Conversation* conversationFinal = Conversation::CreateConversation(CONVERSATION_ANDUIN_PHASE_THREE, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                conversationFinal->Start();
-                events.ScheduleEvent(EVENT_BEACON_OF_HOPE, 3000ms);
+                Conversation::CreateConversation(CONVERSATION_ANDUIN_PHASE_THREE, me, me->GetPosition(), ObjectGuid::Empty, nullptr, true);
+                events.ScheduleEvent(EVENT_BEACON_OF_HOPE, 3s);
                 events.ScheduleEvent(EVENT_EMPOWERED_HOPEBREAKER, 11600ms);
                 events.ScheduleEvent(EVENT_HOPELESSNESS, 21800ms);
-                events.ScheduleEvent(EVENT_EMPOWERED_WICKED_STAR, 41000ms);
+                events.ScheduleEvent(EVENT_EMPOWERED_WICKED_STAR, 41s);
                 break;
             }
         }
     }
 
-    void ExitIntermission()
-    {
-        if (_isInPhaseTwo == true && HealthAbovePct(10))
-        {
-            _isInphaseThree = true;
-            PhaseEvents(PHASE_THREE);
-            me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
-            scheduler.Schedule(3s, [this](TaskContext /*task*/)
-            {
-                me->SetReactState(REACT_AGGRESSIVE);
-            });
-        }
-
-        else if (_isInPhaseTwo == false && HealthAbovePct(10))
-        {
-            _isInPhaseTwo = true;
-            PhaseEvents(PHASE_TWO);
-            me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
-            scheduler.Schedule(3s, [this](TaskContext /*task*/)
-            {
-                me->SetReactState(REACT_AGGRESSIVE);
-            });
-        }
-    }
-
     void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (_isInphaseThree == false && !HealthAbovePct(10))
+        if (_intermissionsDone < 2 && !HealthAbovePct(10))
         {
             me->RemoveAurasDueToSpell(SPELL_DOMINATION_GRASP_ROOT_AREATRIGGER);
             me->RemoveAurasDueToSpell(SPELL_MARCH_OF_THE_DAMNED_PERIODIC);
             scheduler.Schedule(6s, [this](TaskContext /*task*/)
-                {
-                    me->SetReactState(REACT_AGGRESSIVE);
-                });
+            {
+                me->SetReactState(REACT_AGGRESSIVE);
+            });
 
             PhaseEvents(PHASE_THREE);
 
@@ -1453,8 +1369,8 @@ struct boss_anduin_wrynn : public BossAI
             std::list<Creature*> marches;
             GetCreatureListWithEntryInGrid(marches, me, NPC_MARCH_OF_THE_DAMNED, 300.0f);
 
-            for (Creature* marchOfTheDamned : marches)
-                marchOfTheDamned->DespawnOrUnsummon();
+            for (Creature* march : marches)
+                march->DespawnOrUnsummon();
         }
     }
 
@@ -1463,7 +1379,6 @@ struct boss_anduin_wrynn : public BossAI
         ClearDebuffs();
         events.Reset();
         scheduler.CancelAll();
-        events.CancelEvent(EVENT_CHECK_HOSTILES);
         _encounterEnded = true;
         instance->SetBossState(DATA_ANDUIN_WRYNN, DONE);
         _EnterEvadeMode();
@@ -1480,16 +1395,16 @@ struct boss_anduin_wrynn : public BossAI
 
         if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
         {
-            if (AchievementEntry const* mythicAnduin = sAchievementStore.LookupEntry(ACHIEVMENT_ANDUIN_MYTHIC))
+            if (AchievementEntry const* mythicAnduin = sAchievementStore.LookupEntry(ACHIEVEMENT_ANDUIN_MYTHIC))
             {
-                Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-                    if (Player* player = i->GetSource())
-                        player->CompletedAchievement(mythicAnduin);
+                me->GetMap()->DoOnPlayers([mythicAnduin](Player* player)
+                {
+                    player->CompletedAchievement(mythicAnduin);
+                });
             }
         }
 
-        if (GameObject* chest = me->SummonGameObject(GAMEOBJECT_ANDUIN_CHEST_LOOT, ChestLoot, QuaternionData::fromEulerAnglesZYX(-225.0f, 0.0f, 0.0f), 7_days))
+        if (GameObject* chest = me->SummonGameObject(GAMEOBJECT_ANDUIN_CHEST_LOOT, ChestLootSpawnPosition, QuaternionData::fromEulerAnglesZYX(-225.0f, 0.0f, 0.0f), 7_days))
         {
             chest->SetGoState(GO_STATE_ACTIVE);
             chest->SetSpellVisualId(SPELL_VISUAL_CHEST_LOOT, ObjectGuid::Empty);
@@ -1514,10 +1429,9 @@ struct boss_anduin_wrynn : public BossAI
     }
 
 private:
-    uint8 _slay;
+    bool _slayTextOnCooldown;
     uint8 _dominationWordCount;
-    bool _isInPhaseTwo;
-    bool _isInphaseThree;
+    uint8 _intermissionsDone;
     bool _encounterEnded;
     TaskScheduler scheduler;
 };
@@ -1525,18 +1439,18 @@ private:
 // Befouled Barrier - 184585
 struct npc_anduin_wrynn_befouled_barrier : public ScriptedAI
 {
-    npc_anduin_wrynn_befouled_barrier(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript()) { }
+    npc_anduin_wrynn_befouled_barrier(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
-        _scheduler.ClearValidator();
         _events.ScheduleEvent(EVENT_UPDATE_BEFOULED_BARRIER, 1s);
         me->SetReactState(REACT_PASSIVE);
     }
 
     void UpdateAI(uint32 diff) override
     {
+        UpdateVictim();
+
         _events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -1567,6 +1481,9 @@ struct npc_anduin_wrynn_befouled_barrier : public ScriptedAI
     uint32 GetRequiredHealing() const
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_BEFOULED_BARRIER_DEBUFF, me->GetMap()->GetDifficultyID());
+        if (!spellInfo)
+            return 0;
+
         return spellInfo->GetEffect(EFFECT_0).CalcValue();
     }
 
@@ -1577,20 +1494,16 @@ struct npc_anduin_wrynn_befouled_barrier : public ScriptedAI
     }
 
 private:
-    InstanceScript* _instance;
     EventMap _events;
-    TaskScheduler _scheduler;
 };
 
-// Beacon of Hope 184830
+// Beacon of Hope - 184830
 struct npc_anduin_wrynn_beacon_of_hope : public ScriptedAI
 {
-    npc_anduin_wrynn_beacon_of_hope(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript()) { }
+    npc_anduin_wrynn_beacon_of_hope(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
-        _scheduler.ClearValidator();
         me->SetReactState(REACT_PASSIVE);
     }
 
@@ -1611,6 +1524,8 @@ struct npc_anduin_wrynn_beacon_of_hope : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        UpdateVictim();
+
         _events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -1639,7 +1554,11 @@ struct npc_anduin_wrynn_beacon_of_hope : public ScriptedAI
             {
                 if (!areaTrigger->GetInsideUnits().size())
                 {
-                    if (Creature* beacon = _instance->GetCreature(DATA_BEACON_OF_HOPE))
+                    InstanceScript* instance = me->GetInstanceScript();
+                    if (!instance)
+                        break;
+
+                    if (Creature* beacon = instance->GetCreature(DATA_BEACON_OF_HOPE))
                         beacon->CastSpell(beacon, SPELL_FRAGMENT_OF_HOPE_DAMAGE, true);
                 }
                 break;
@@ -1650,16 +1569,13 @@ struct npc_anduin_wrynn_beacon_of_hope : public ScriptedAI
     }
 
 private:
-    InstanceScript* _instance;
     EventMap _events;
-    TaskScheduler _scheduler;
 };
 
 // Empty Vessel - 183452
 struct npc_anduin_wrynn_empty_vessel : public ScriptedAI
 {
-    npc_anduin_wrynn_empty_vessel(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript()) { }
+    npc_anduin_wrynn_empty_vessel(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -1671,28 +1587,15 @@ struct npc_anduin_wrynn_empty_vessel : public ScriptedAI
         if (!summoner->IsPlayer())
             return;
 
-        if (!summoner)
-            return;
-
         summoner->CastSpell(me, SPELL_MIRROR_IMAGE);
         DoCast(me, SPELL_FEIGN_DEATH);
     }
-
-    void Reset() override
-    {
-        _events.Reset();
-    }
-
-private:
-    InstanceScript* _instance;
-    EventMap _events;
 };
 
 // Lost Soul - 185607
 struct npc_anduin_wrynn_lost_soul : public ScriptedAI
 {
-    npc_anduin_wrynn_lost_soul(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript()) { }
+    npc_anduin_wrynn_lost_soul(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -1705,15 +1608,20 @@ struct npc_anduin_wrynn_lost_soul : public ScriptedAI
         if (!summoner->IsPlayer())
             return;
 
-        if (!summoner)
-            return;
-
         summoner->CastSpell(me, SPELL_LOST_SOUL_MIRROR_IMAGE);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        DoAction(ACTION_RESTORE_SOUL);
+        TempSummon* summon = me->ToTempSummon();
+        if (!summon)
+            return;
+
+        if (Unit* summoner = summon->GetSummonerUnit())
+        {
+            summoner->RemoveAurasDueToSpell(SPELL_SEVERED_SOUL);
+            summoner->NearTeleportTo(me->GetPosition(), false);
+        }
         me->DespawnOrUnsummon(2s);
     }
 
@@ -1722,30 +1630,10 @@ struct npc_anduin_wrynn_lost_soul : public ScriptedAI
         _events.Reset();
     }
 
-    void DoAction(int32 action) override
-    {
-        switch (action)
-        {
-            case ACTION_RESTORE_SOUL:
-            {
-                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
-                {
-                    if (!summoner)
-                        return;
-
-                    summoner->RemoveAurasDueToSpell(SPELL_SEVERED_SOUL);
-                    summoner->NearTeleportTo(me->GetPosition(), false);
-                }
-                break;
-            }
-
-            default:
-                break;
-        }
-    }
-
     void UpdateAI(uint32 diff) override
     {
+        UpdateVictim();
+
         _events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -1769,7 +1657,6 @@ struct npc_anduin_wrynn_lost_soul : public ScriptedAI
     }
 
 private:
-    InstanceScript* _instance;
     EventMap _events;
 };
 
@@ -1777,9 +1664,9 @@ private:
 struct npc_anduin_wrynn_anduin_soul : public ScriptedAI
 {
     npc_anduin_wrynn_anduin_soul(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript()), _hopeRestored(0), _doubtGone(0), _despairGone(0), _summons(me) { }
+        _hopeRestored(0), _doubtGone(0), _despairGone(0), _summons(me) { }
 
-    void ReleaseFromKingsmourne()
+    void CheckForReleaseFromKingsmourne()
     {
         if (_hopeRestored == 4 && _doubtGone == 4 && _despairGone == 1)
         {
@@ -1796,24 +1683,6 @@ struct npc_anduin_wrynn_anduin_soul : public ScriptedAI
         me->SetHoverHeight(1.0);
         me->SetPlayHoverAnim(true);
         DoCastSelf(SPELL_LOST_SOUL_PERIODIC);
-    }
-
-    void HopeRestored()
-    {
-        _hopeRestored++;
-        ReleaseFromKingsmourne();
-    }
-
-    void DoubtGone()
-    {
-        _doubtGone++;
-        ReleaseFromKingsmourne();
-    }
-
-    void DespairGone()
-    {
-        _despairGone++;
-        ReleaseFromKingsmourne();
     }
 
     void Reset() override
@@ -1840,7 +1709,11 @@ struct npc_anduin_wrynn_anduin_soul : public ScriptedAI
 
     void DoAction(int32 action) override
     {
-        Creature* anduin = _instance->GetCreature(DATA_ANDUIN_SOUL);
+        InstanceScript* instance = me->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* anduin = instance->GetCreature(DATA_ANDUIN_SOUL);
         if (!anduin)
             return;
 
@@ -1848,14 +1721,28 @@ struct npc_anduin_wrynn_anduin_soul : public ScriptedAI
         {
             case ACTION_SUMMON_KINGSMOURNE_SOULS:
             {
-                me->SummonCreature(NPC_ANDUIN_DESPAIR, AnduinsDespair, TEMPSUMMON_TIMED_DESPAWN, 40s);
+                me->SummonCreature(NPC_ANDUIN_DESPAIR, AnduinsDespairSpawnPosition, TEMPSUMMON_TIMED_DESPAWN, 40s);
                 for (uint8 i = 0; i < 4; i++)
                 {
-                    me->SummonCreature(NPC_ANDUIN_DOUBT, AnduinsDoubt[i], TEMPSUMMON_TIMED_DESPAWN, 40s);
-                    me->SummonCreature(NPC_ANDUIN_HOPE, AnduinsHope[i], TEMPSUMMON_TIMED_DESPAWN, 40s);
+                    me->SummonCreature(NPC_ANDUIN_DOUBT, AnduinsDoubtSpawnPositions[i], TEMPSUMMON_TIMED_DESPAWN, 40s);
+                    me->SummonCreature(NPC_ANDUIN_HOPE, AnduinsHopeSpawnPosition[i], TEMPSUMMON_TIMED_DESPAWN, 40s);
                 }
                 break;
             }
+            case ACTION_DESPAIR_GONE:
+                _despairGone++;
+                CheckForReleaseFromKingsmourne();
+                break;
+
+            case ACTION_DOUBT_GONE:
+                _doubtGone++;
+                CheckForReleaseFromKingsmourne();
+                break;
+
+            case ACTION_HOPE_RESTORED:
+                _hopeRestored++;
+                CheckForReleaseFromKingsmourne();
+                break;
 
             default:
                 break;
@@ -1863,25 +1750,21 @@ struct npc_anduin_wrynn_anduin_soul : public ScriptedAI
     }
 
 public:
-    InstanceScript* _instance;
     uint8 _hopeRestored;
     uint8 _doubtGone;
     uint8 _despairGone;
     SummonList _summons;
-    EventMap _events;
-    TaskScheduler _scheduler;
 };
 
 // Anduin's Despair - 184520
-struct npc_anduin_wrynn_anduin_despair : public npc_anduin_wrynn_anduin_soul
+struct npc_anduin_wrynn_anduin_despair : public ScriptedAI
 {
-    npc_anduin_wrynn_anduin_despair(Creature* creature) : npc_anduin_wrynn_anduin_soul(creature),
+    npc_anduin_wrynn_anduin_despair(Creature* creature) : ScriptedAI(creature),
         _instance(creature->GetInstanceScript()) { }
 
     void Reset() override
     {
         _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        _events.Reset();
     }
 
     void JustAppeared() override
@@ -1896,19 +1779,19 @@ struct npc_anduin_wrynn_anduin_despair : public npc_anduin_wrynn_anduin_soul
         _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         DoCastSelf(SPELL_WILLPOWER_ENERGIZE_LARGE);
         DoCastSelf(SPELL_SOUL_DESPAWN);
-        DespairGone();
+
+        if (Creature* soul = me->FindNearestCreature(NPC_ANDUIN_SOUL, 300.0f))
+            soul->GetAI()->DoAction(ACTION_DESPAIR_GONE);
     }
 
 private:
     InstanceScript* _instance;
-    EventMap _events;
-    TaskScheduler _scheduler;
 };
 
 // Anduin's Doubt - 184494
-struct npc_anduin_wrynn_anduin_doubt : public npc_anduin_wrynn_anduin_soul
+struct npc_anduin_wrynn_anduin_doubt : public ScriptedAI
 {
-    npc_anduin_wrynn_anduin_doubt(Creature* creature) : npc_anduin_wrynn_anduin_soul(creature),
+    npc_anduin_wrynn_anduin_doubt(Creature* creature) : ScriptedAI(creature),
         _instance(creature->GetInstanceScript()) { }
 
     void Reset() override
@@ -1922,10 +1805,7 @@ struct npc_anduin_wrynn_anduin_doubt : public npc_anduin_wrynn_anduin_soul
         me->SetWalk(true);
         DoCastSelf(SPELL_GHOST_VISUAL_COSMETIC, true);
         DoZoneInCombat();
-        _scheduler.Schedule(2s, [this](TaskContext /*task*/)
-        {
-            me->GetMotionMaster()->MovePoint(POINT_ANDUIN_SOUL, AnduinsSoul);
-        });
+        _events.ScheduleEvent(EVENT_ANDUIN_SOUL, 2s);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -1933,17 +1813,16 @@ struct npc_anduin_wrynn_anduin_doubt : public npc_anduin_wrynn_anduin_soul
         _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         DoCastSelf(SPELL_WILLPOWER_ENERGIZE_SMALL);
         DoCastSelf(SPELL_SOUL_DESPAWN);
-        DoubtGone();
+
+        if (Creature* soul = me->FindNearestCreature(NPC_ANDUIN_SOUL, 300.0f))
+            soul->GetAI()->DoAction(ACTION_DOUBT_GONE);
     }
 
     void UpdateAI(uint32 diff) override
     {
+        UpdateVictim();
 
         _events.Update(diff);
-        _scheduler.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
@@ -1951,11 +1830,11 @@ struct npc_anduin_wrynn_anduin_doubt : public npc_anduin_wrynn_anduin_soul
             {
                 case EVENT_ANDUIN_SOUL:
                 {
-                    me->GetMotionMaster()->MovePoint(POINT_ANDUIN_SOUL, AnduinsSoul);
-                    _events.Repeat(1ms);
+                    // @TODO: Drop stuff if we found a way which covers stun/deathgrip
+                    me->GetMotionMaster()->MovePoint(POINT_ANDUIN_SOUL, AnduinsSoulSpawnPosition);
+                    _events.Repeat(200ms);
                     break;
                 }
-
                 default:
                     break;
             }
@@ -1965,18 +1844,16 @@ struct npc_anduin_wrynn_anduin_doubt : public npc_anduin_wrynn_anduin_soul
 private:
     InstanceScript* _instance;
     EventMap _events;
-    TaskScheduler _scheduler;
 };
 
 // Anduin's Hope - 184493
-struct npc_anduin_wrynn_anduin_hope : public npc_anduin_wrynn_anduin_soul
+struct npc_anduin_wrynn_anduin_hope : public ScriptedAI
 {
-    npc_anduin_wrynn_anduin_hope(Creature* creature) : npc_anduin_wrynn_anduin_soul(creature),
+    npc_anduin_wrynn_anduin_hope(Creature* creature) : ScriptedAI(creature),
         _instance(creature->GetInstanceScript()) { }
 
     void Reset() override
     {
-        _events.Reset();
         me->SetRegenerateHealth(false);
         me->SetHealth(1);
         me->SetReactState(REACT_PASSIVE);
@@ -1993,7 +1870,7 @@ struct npc_anduin_wrynn_anduin_hope : public npc_anduin_wrynn_anduin_soul
 
         _scheduler.Schedule(2s, [this](TaskContext /*task*/)
         {
-            Position exitPlatform = me->GetFirstCollisionPosition(100.0f, me->GetAbsoluteAngle(me));
+            Position exitPlatform = me->GetFirstCollisionPosition(100.0f, 0);
             me->GetMotionMaster()->MovePoint(POINT_ESCAPE_PLATFORM, exitPlatform, false, me->GetOrientation());
         });
         me->SetHealth(1);
@@ -2002,16 +1879,13 @@ struct npc_anduin_wrynn_anduin_hope : public npc_anduin_wrynn_anduin_soul
         {
             me->DespawnOrUnsummon();
         });
-
     }
 
     void UpdateAI(uint32 diff) override
     {
-        _events.Update(diff);
-        _scheduler.Update(diff);
+        UpdateVictim();
 
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
+        _scheduler.Update(diff);
     }
 
     void HealReceived(Unit* /*healer*/, uint32& heal) override
@@ -2021,7 +1895,9 @@ struct npc_anduin_wrynn_anduin_hope : public npc_anduin_wrynn_anduin_soul
             _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             DoCastSelf(SPELL_WILLPOWER_ENERGIZE_SMALL);
             DoCastSelf(SPELL_SOUL_DESPAWN);
-            HopeRestored();
+
+            if (Creature* soul = me->FindNearestCreature(NPC_ANDUIN_SOUL, 300.0f))
+                soul->GetAI()->DoAction(ACTION_HOPE_RESTORED);
         }
     }
 
@@ -2033,10 +1909,11 @@ struct npc_anduin_wrynn_anduin_hope : public npc_anduin_wrynn_anduin_soul
         switch (pointId)
         {
             case POINT_ESCAPE_PLATFORM:
-                {
-                    DoCastSelf(SPELL_SOUL_DESPAWN);
-                    break;
-                }
+            {
+                DoCastSelf(SPELL_SOUL_DESPAWN);
+                me->DespawnOrUnsummon(4s);
+                break;
+            }
 
             default:
                 break;
@@ -2045,8 +1922,6 @@ struct npc_anduin_wrynn_anduin_hope : public npc_anduin_wrynn_anduin_soul
 
 private:
     InstanceScript* _instance;
-    EventMap _events;
-    Position _anduinHope;
     TaskScheduler _scheduler;
 };
 
@@ -2054,8 +1929,7 @@ private:
 struct npc_anduin_wrynn_fiendish_soul : public ScriptedAI
 {
 public:
-    npc_anduin_wrynn_fiendish_soul(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript()) { }
+    npc_anduin_wrynn_fiendish_soul(Creature* creature) : ScriptedAI(creature) { }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
@@ -2066,9 +1940,8 @@ public:
     void JustDied(Unit* /*killer*/) override
     {
         if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID || me->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID)
-        {
             DoAction(ACTION_SOUL_EXPLOSION);
-        }
+
         DoCastSelf(SPELL_SOUL_DESPAWN);
     }
 
@@ -2141,7 +2014,6 @@ public:
     }
 
 private:
-    InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
 };
@@ -2237,9 +2109,8 @@ struct boss_remnant_of_a_fallen_king : public BossAI
         me->ModifyPower(me->GetPowerType(), 0);
         me->SetPower(me->GetPowerType(), 0);
         me->SetFaction(16);
-        Map::PlayerList const& players = me->GetMap()->GetPlayers();
-        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-            if (Player* player = i->GetSource())
+        for (MapReference const& players : me->GetMap()->GetPlayers())
+            if (Player* player = players.GetSource())
                 me->CastSpell(player, SPELL_WEATHER_COSMETIC, true);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_HOPEBREAKER);
         me->SetReactState(REACT_PASSIVE);
@@ -2829,13 +2700,13 @@ class spell_anduin_wrynn_pre_introduction : public AuraScript
             return;
 
         if (GetTarget()->GetEntry() == NPC_LADY_JAINA_PROUDMOORE)
-            GetCaster()->NearTeleportTo(PreIntroduction[0], false);
+            GetCaster()->NearTeleportTo(PreIntroductionAssistersPositions[0], false);
 
         else if (GetCaster()->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER)
-            GetCaster()->NearTeleportTo(PreIntroduction[1], false);
+            GetCaster()->NearTeleportTo(PreIntroductionAssistersPositions[1], false);
 
         else if (GetCaster()->GetEntry() == NPC_SYLVANAS_WINDRUNNER)
-            GetCaster()->NearTeleportTo(PreIntroduction[2], false);
+            GetCaster()->NearTeleportTo(PreIntroductionAssistersPositions[2], false);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -4078,15 +3949,17 @@ private:
 // Kingsmourne Hungers - 362405
 class spell_anduin_wrynn_kingsmourne_hungers : public SpellScript
 {
+    PrepareSpellScript(spell_anduin_wrynn_kingsmourne_hungers);
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({
+        return ValidateSpellInfo(
+        {
             SPELL_KINGSMOURNE_HUNGERS_DAMAGE,
             SPELL_LOST_SOUL_DIMENSION,
-            SPELL_SEVERED_SOUL });
+            SPELL_SEVERED_SOUL
+        });
     }
-
-    PrepareSpellScript(spell_anduin_wrynn_kingsmourne_hungers);
 
     // Prevent swinging empty-handed when casts overlap
     void OnPreCast()
@@ -4099,10 +3972,10 @@ class spell_anduin_wrynn_kingsmourne_hungers : public SpellScript
         targets.remove_if([](WorldObject* target) -> bool
         {
             if (target->GetEntry() == NPC_SYLVANAS_WINDRUNNER ||
-            target->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER ||
+                target->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER ||
                 target->GetEntry() == NPC_LADY_JAINA_PROUDMOORE)
                 return true;
-        return false;
+            return false;
         });
     }
 
@@ -4117,7 +3990,12 @@ class spell_anduin_wrynn_kingsmourne_hungers : public SpellScript
 
     void OnCast()
     {
-        GetCaster()->GetAI()->DoAction(ACTION_SUMMON_SOULS);
+        InstanceScript* instance = GetCaster()->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (Creature* anduinSoul = instance->GetCreature(DATA_ANDUIN_SOUL))
+            anduinSoul->GetAI()->DoAction(ACTION_SUMMON_KINGSMOURNE_SOULS);
     }
 
     void Register() override
@@ -4265,7 +4143,7 @@ class spell_anduin_wrynn_march_of_the_damned : public AuraScript
 public:
     spell_anduin_wrynn_march_of_the_damned()
     {
-        _marchOfTheDamned.assign(std::begin(MarchOfTheDamned), std::end(MarchOfTheDamned));
+        _marchOfTheDamned.assign(std::begin(MarchOfTheDamnedSpawnPositions), std::end(MarchOfTheDamnedSpawnPositions));
     }
 
     void OnPeriodic(AuraEffect const* aurEff)
@@ -4582,7 +4460,7 @@ class spell_anduin_wrynn_grim_reflections : public SpellScript
     void HandleCast()
     {
         uint8 reflectionsNumber = GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 4 : 3;
-        std::vector<Position> grimReflections(std::begin(GrimReflections), std::end(GrimReflections));
+        std::vector<Position> grimReflections(std::begin(GrimReflectionsSpawnPositions), std::end(GrimReflectionsSpawnPositions));
         Trinity::Containers::RandomResize(grimReflections, reflectionsNumber);
 
         for (uint8 i = 0; i < reflectionsNumber; i++)
@@ -4625,7 +4503,7 @@ class spell_anduin_wrynn_beacon_of_hope : public SpellScript
 
     void OnCast()
     {
-        GetCaster()->SummonCreature(NPC_BEACON_OF_HOPE, BeaconOfHope, TEMPSUMMON_MANUAL_DESPAWN);
+        GetCaster()->SummonCreature(NPC_BEACON_OF_HOPE, BeaconOfHopeSpawnPosition, TEMPSUMMON_MANUAL_DESPAWN);
     }
 
     void Register() override
