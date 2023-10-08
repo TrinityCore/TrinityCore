@@ -1178,7 +1178,7 @@ class spell_mardum_baleful_beaming_gaze_selector : public SpellScript
     void SummonBeamingEye(Unit* origin, float angle)
     {
         Position dest = origin->GetPosition();
-        origin->MovePositionToFirstCollision(dest, 6.5f, float(M_PI));
+        origin->MovePositionToFirstCollision(dest, 6.5f, angle);
         dest.m_positionZ += 0.35f;
         origin->CastSpell(dest, SPELL_BALEFUL_BEAMING_EYE_SUMMON, true);
     }
