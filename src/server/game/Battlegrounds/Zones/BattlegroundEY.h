@@ -24,6 +24,8 @@
 #include "Timer.h"
 
 static constexpr Seconds POINTS_TICK_TIME = 2s;
+static constexpr Seconds BG_EY_FLAG_ASSAULT_TIMER = 30s;
+static constexpr uint16 BG_EY_FLAG_BRUTAL_ASSAULT_STACK_COUNT = 5;
 
 enum BG_EY_Misc
 {
@@ -80,7 +82,11 @@ enum BG_EY_Sounds
 enum BG_EY_Spells
 {
     BG_EY_NETHERSTORM_FLAG_SPELL        = 34976,
-    BG_EY_PLAYER_DROPPED_FLAG_SPELL     = 34991
+    BG_EY_PLAYER_DROPPED_FLAG_SPELL     = 34991,
+
+    // Focused/Brutal Assault
+    BG_EY_FOCUSED_ASSAULT_SPELL         = 46392,
+    BG_EY_BRUTAL_ASSAULT_SPELL          = 46393
 };
 
 enum EYBattlegroundObjectEntry
@@ -339,5 +345,15 @@ class BattlegroundEY : public Battleground
         std::unordered_map<uint32, std::unique_ptr<BattlegroundEYControlZoneHandler>> _controlZoneHandlers;
         GuidUnorderedSet _doors;
         ObjectGuid _flag;
+
+        // Focused/Brutal Assault
+        bool _assaultEnabled;
+        TimeTracker _flagAssaultTimer;
+        uint16 _assaultStackCount;
+
+        void DoForFlagKeepers(std::function<void(Player*)> action) const;
+        void ResetAssaultDebuff();
+        void ApplyAssaultDebuffToPlayer(Player* player);
+        void RemoveAssaultDebuffFromPlayer(Player* player);
 };
 #endif

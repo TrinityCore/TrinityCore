@@ -27,6 +27,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Random.h"
+#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "Util.h"
 
@@ -38,6 +39,9 @@ BattlegroundEY::BattlegroundEY(BattlegroundTemplate const* battlegroundTemplate)
     m_FlagCapturedBgObjectType = 0;
     m_HonorTics = 0;
     _pointsTimer.Reset(POINTS_TICK_TIME);
+    _assaultEnabled = false;
+    _assaultStackCount = 0;
+    _flagAssaultTimer.Reset(BG_EY_FLAG_ASSAULT_TIMER);
 }
 
 BattlegroundEY::~BattlegroundEY() { }
@@ -57,6 +61,22 @@ void BattlegroundEY::PostUpdateImpl(uint32 diff)
                 AddPoints(ALLIANCE, BG_EY_TickPoints[baseCountAlliance - 1]);
             if (baseCountHorde > 0)
                 AddPoints(HORDE, BG_EY_TickPoints[baseCountHorde - 1]);
+        }
+
+        if (_assaultEnabled)
+        {
+            _flagAssaultTimer.Update(diff);
+            if (_flagAssaultTimer.Passed())
+            {
+                _flagAssaultTimer.Reset(BG_EY_FLAG_ASSAULT_TIMER);
+                _assaultStackCount++;
+
+                // update assault debuff stacks
+                DoForFlagKeepers([&](Player* player) -> void
+                {
+                    ApplyAssaultDebuffToPlayer(player);
+                });
+            }
         }
     }
 }
@@ -110,6 +130,55 @@ uint8 BattlegroundEY::GetControlledBaseCount(TeamId teamId) const
         }
     }
     return baseCount;
+}
+
+void BattlegroundEY::DoForFlagKeepers(std::function<void(Player*)> action) const
+{
+    if (GameObject* flag = GetBgMap()->GetGameObject(_flag))
+    {
+        if (Player* carrier = ObjectAccessor::FindPlayer(flag->GetFlagCarrierGUID()))
+            action(carrier);
+    }
+}
+
+void BattlegroundEY::ResetAssaultDebuff()
+{
+    _assaultEnabled = false;
+    _assaultStackCount = 0;
+    _flagAssaultTimer.Reset(BG_EY_FLAG_ASSAULT_TIMER);
+    DoForFlagKeepers([&](Player* player) -> void
+    {
+        RemoveAssaultDebuffFromPlayer(player);
+    });
+}
+
+void BattlegroundEY::ApplyAssaultDebuffToPlayer(Player* player)
+{
+    if (_assaultStackCount == 0)
+        return;
+
+    uint32 spellId = BG_EY_FOCUSED_ASSAULT_SPELL;
+    if (_assaultStackCount >= BG_EY_FLAG_BRUTAL_ASSAULT_STACK_COUNT)
+    {
+        player->RemoveAurasDueToSpell(BG_EY_FOCUSED_ASSAULT_SPELL);
+        spellId = BG_EY_BRUTAL_ASSAULT_SPELL;
+    }
+
+    Aura* aura = player->GetAura(spellId);
+    if (!aura)
+    {
+        player->CastSpell(player, spellId, true);
+        aura = player->GetAura(spellId);
+    }
+
+    if (aura)
+        aura->SetStackAmount(_assaultStackCount);
+}
+
+void BattlegroundEY::RemoveAssaultDebuffFromPlayer(Player* player)
+{
+    player->RemoveAurasDueToSpell(BG_EY_FOCUSED_ASSAULT_SPELL);
+    player->RemoveAurasDueToSpell(BG_EY_BRUTAL_ASSAULT_SPELL);
 }
 
 void BattlegroundEY::UpdateTeamScore(uint32 Team)
@@ -231,9 +300,11 @@ void BattlegroundEY::OnFlagStateChange(GameObject* /*flagInBase*/, FlagState /*o
     switch (newValue)
     {
         case FlagState::InBase:
+            ResetAssaultDebuff();
             break;
         case FlagState::Dropped:
             player->CastSpell(player, SPELL_RECENTLY_DROPPED_NEUTRAL_FLAG, true);
+            RemoveAssaultDebuffFromPlayer(player);
 
             UpdateWorldState(NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
             UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
@@ -248,21 +319,22 @@ void BattlegroundEY::OnFlagStateChange(GameObject* /*flagInBase*/, FlagState /*o
             {
                 UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_ON_PLAYER);
                 PlaySoundToAll(BG_EY_SOUND_FLAG_PICKED_UP_ALLIANCE);
+                SendBroadcastText(BG_EY_TEXT_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
             }
             else
             {
                 UpdateWorldState(NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_ON_PLAYER);
                 PlaySoundToAll(BG_EY_SOUND_FLAG_PICKED_UP_HORDE);
+                SendBroadcastText(BG_EY_TEXT_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, player);
             }
 
-            player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
+            ApplyAssaultDebuffToPlayer(player);
+            _assaultEnabled = true;
 
-            if (GetPlayerTeam(player->GetGUID()) == ALLIANCE)
-                SendBroadcastText(BG_EY_TEXT_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
-            else
-                SendBroadcastText(BG_EY_TEXT_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, player);
+            player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
             break;
         case FlagState::Respawning:
+            ResetAssaultDebuff();
             break;
         default:
             break;
