@@ -1106,9 +1106,6 @@ struct npc_inquisitor_baleful_molten_shore : public ScriptedAI
                 default:
                     break;
             }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
         }
 
         DoMeleeAttackIfReady();
@@ -1139,8 +1136,10 @@ class spell_mardum_baleful_legion_aegis : public AuraScript
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+        {
             if (UnitAI* ai = GetTarget()->GetAI())
                 ai->DoAction(ACTION_BALEFUL_AEGIS_DOWN);
+        }
     }
 
     void Register() override
@@ -1176,22 +1175,20 @@ class spell_mardum_baleful_beaming_gaze_selector : public SpellScript
         return ValidateSpellInfo({ SPELL_BALEFUL_BEAMING_EYE_SUMMON });
     }
 
+    void SummonBeamingEye(Unit* origin, float angle)
+    {
+        Position dest = origin->GetPosition();
+        origin->MovePositionToFirstCollision(dest, 6.5f, float(M_PI));
+        dest.m_positionZ += 0.35f;
+        origin->CastSpell(dest, SPELL_BALEFUL_BEAMING_EYE_SUMMON, true);
+    }
+
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
         Unit* hitUnit = GetHitUnit();
-
-        Position destBehind = hitUnit->GetPosition();
-        Position destLeft = hitUnit->GetPosition();
-        Position destRight = hitUnit->GetPosition();
-        hitUnit->MovePositionToFirstCollision(destBehind, 6.5f, float(M_PI));
-        hitUnit->MovePositionToFirstCollision(destLeft, 6.5f, float(-M_PI) / 4.0f);
-        hitUnit->MovePositionToFirstCollision(destRight, 6.5f, float(M_PI) / 4.0f);
-        destBehind.m_positionZ += 0.35f;
-        destRight.m_positionZ += 0.35f;
-        destLeft.m_positionZ += 0.35f;
-        hitUnit->CastSpell(destBehind, SPELL_BALEFUL_BEAMING_EYE_SUMMON, true);
-        hitUnit->CastSpell(destLeft, SPELL_BALEFUL_BEAMING_EYE_SUMMON, true);
-        hitUnit->CastSpell(destRight, SPELL_BALEFUL_BEAMING_EYE_SUMMON, true);
+        SummonBeamingEye(hitUnit, float(M_PI));
+        SummonBeamingEye(hitUnit, float(-M_PI) / 4.0f);
+        SummonBeamingEye(hitUnit, float(M_PI) / 4.0f);
     }
 
     void Register() override

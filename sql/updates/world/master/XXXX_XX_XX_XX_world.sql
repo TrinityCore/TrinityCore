@@ -87,7 +87,7 @@ INSERT INTO `serverside_spell_effect` (`SpellID`, `EffectIndex`, `DifficultyID`,
 -- Phasing
 DELETE FROM `phase_area` WHERE `PhaseId` = 5056 AND `AreaId` = 7705;
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
-(7705, 5056, 'Colossal Infernal from Inquisitor Bailful Molten Shore');
+(7705, 5056, 'Colossal Infernal from Inquisitor Baleful Molten Shore');
 
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceGroup` = 5056 AND `SourceEntry` = 0); -- Colossal Infernal
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUES
