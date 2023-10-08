@@ -29,8 +29,9 @@ UPDATE `creature_template` SET `BaseAttackTime`=2000, `unit_flags`=33555200, `un
 UPDATE `creature_template` SET `ScriptName` = 'npc_inquisitor_baleful_molten_shore' WHERE `entry` = 93105;
 
 -- Creature Template Addon
-DELETE FROM `creature_template_addon` WHERE `entry` IN (96159, 98907, 98905);
+DELETE FROM `creature_template_addon` WHERE `entry` IN (99160, 96159, 98907, 98905);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(99160, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- 99160 (Beaming Eye)
 (96159, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 5, ''), -- 96159 (Colossal Infernal)
 (98907, 0, 0, 0, 3, 1, 1, 0, 0, 0, 0, 0, 4, '194533'), -- 98907 (Demonic Hallucination) - Incite Madness
 (98905, 0, 0, 0, 3, 1, 1, 0, 0, 0, 0, 0, 4, '194533'); -- 98905 (Demonic Hallucination) - Incite Madness

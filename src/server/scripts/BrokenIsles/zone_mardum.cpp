@@ -939,6 +939,8 @@ enum EyeOnThePrizeData
 
     QUEST_EYE_ON_THE_PRIZE                      = 39049,
 
+    DISPLAYID_BALEFUL_EYE                       = 38795,
+
     // Inquisitor Baleful text
     SAY_BALEFUL_AGGRO                           = 0,
     SAY_BALEFUL_AEGIS                           = 1,
@@ -1124,6 +1126,8 @@ struct npc_baleful_beaming_eye : public ScriptedAI
 
     void JustAppeared() override
     {
+        me->SetDisplayId(DISPLAYID_BALEFUL_EYE, true);
+        me->SetPlayHoverAnim(true);
         DoCastSelf(SPELL_BALEFUL_BEAMING_EYE_CREATE_AT);
         // ToDo: Implement MovementFlag Left/Right
         me->GetMotionMaster()->MoveRotate(0, 10000, RAND(ROTATE_DIRECTION_LEFT, ROTATE_DIRECTION_RIGHT));
@@ -1179,7 +1183,7 @@ class spell_mardum_baleful_beaming_gaze_selector : public SpellScript
     {
         Position dest = origin->GetPosition();
         origin->MovePositionToFirstCollision(dest, 6.5f, angle);
-        dest.m_positionZ += 0.35f;
+        dest.m_positionZ += 1.75f;
         origin->CastSpell(dest, SPELL_BALEFUL_BEAMING_EYE_SUMMON, true);
     }
 
