@@ -16,8 +16,6 @@ INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, 
 (@TRIGGER_SPAWN_ID+2, @TRIGGER_ID_NEUTRAL, 1, 566, 2284.7700195312, 1731.1099853516, 1190.0799560547, 0.0, 1.5, 1.5, 'areatrigger_action_capture_flag', 'Eye of the Storm - Capture Flag - Mage Tower'),
 (@TRIGGER_SPAWN_ID+3, @TRIGGER_ID_NEUTRAL, 1, 566, 2286.5600585938, 1402.3399658203, 1197.2900390625, 0.0, 1.5, 1.5, 'areatrigger_action_capture_flag', 'Eye of the Storm - Capture Flag - Horde');
 
-UPDATE `gameobject_template` SET `StringId` = 'bg_eye_of_the_storm_control_zone' WHERE `entry` IN (184080, 184081, 184082, 184083);
-
 DELETE FROM `gameobject_template_addon` WHERE `entry` IN (228508 /*Eye of the Storm Flag*/, 245854 /*Large Collision Wall*/);
 INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `WorldEffectID`, `AIAnimKitID`) VALUES
 (228508, 2059, 0, 0, 0), -- Eye of the Storm Flag

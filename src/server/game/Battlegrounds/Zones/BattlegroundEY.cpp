@@ -243,8 +243,7 @@ bool BattlegroundEY::CanCaptureFlag(AreaTrigger* areaTrigger, Player* player)
     if (areaTrigger->GetEntry() != TR_CAPTURE_FLAG)
         return false;
 
-    // todo maybe FindGameObjectOptions should have support for GameObjectTypes
-    if (GameObject* controlzone = player->FindNearestGameObjectWithOptions(40.0f, { .StringId = "bg_eye_of_the_storm_control_zone" }))
+    if (GameObject* controlzone = player->FindNearestGameObjectWithOptions(40.0f, { .GameObjectType = GAMEOBJECT_TYPE_CONTROL_ZONE }))
     {
         uint32 point = static_cast<BattlegroundEYControlZoneHandler*>(_controlZoneHandlers[controlzone->GetEntry()].get())->GetPoint();
         switch (GetPlayerTeam(player->GetGUID()))
