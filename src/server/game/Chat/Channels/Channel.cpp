@@ -18,6 +18,7 @@
 #include "Channel.h"
 #include "AccountMgr.h"
 #include "ChannelAppenders.h"
+#include "ChannelMgr.h"
 #include "Chat.h"
 #include "ChatPackets.h"
 #include "DB2Stores.h"
@@ -25,10 +26,8 @@
 #include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "SocialMgr.h"
 #include "StringConvert.h"
@@ -49,15 +48,15 @@ Channel::Channel(ObjectGuid const& guid, uint32 channelId, uint32 team /*= 0*/, 
     _zoneEntry(zoneEntry)
 {
     ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
-    if (channelEntry->Flags & CHANNEL_DBC_FLAG_TRADE)              // for trade channel
+    if (channelEntry->GetFlags().HasFlag(ChatChannelFlags::AllowItemLinks))     // for trade channel
         _channelFlags |= CHANNEL_FLAG_TRADE;
 
-    if (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY2)         // for city only channels
+    if (channelEntry->GetFlags().HasFlag(ChatChannelFlags::LinkedChannel))      // for city only channels
         _channelFlags |= CHANNEL_FLAG_CITY;
 
-    if (channelEntry->Flags & CHANNEL_DBC_FLAG_LFG)                // for LFG channel
+    if (channelEntry->GetFlags().HasFlag(ChatChannelFlags::LookingForGroup))    // for LFG channel
         _channelFlags |= CHANNEL_FLAG_LFG;
-    else                                                            // for all other channels
+    else                                                                        // for all other channels
         _channelFlags |= CHANNEL_FLAG_NOT_LFG;
 }
 
@@ -100,12 +99,12 @@ void Channel::GetChannelName(std::string& channelName, uint32 channelId, LocaleC
     if (channelId)
     {
         ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
-        if (!(channelEntry->Flags & CHANNEL_DBC_FLAG_GLOBAL))
+        if (channelEntry->GetFlags().HasFlag(ChatChannelFlags::ZoneBased))
         {
-            if (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY)
-                channelName = fmt::sprintf(channelEntry->Name[locale], sObjectMgr->GetTrinityString(LANG_CHANNEL_CITY, locale));
-            else
-                channelName = fmt::sprintf(channelEntry->Name[locale], ASSERT_NOTNULL(zoneEntry)->AreaName[locale]);
+            if (channelEntry->GetFlags().HasFlag(ChatChannelFlags::LinkedChannel))
+                zoneEntry = ChannelMgr::SpecialLinkedArea;
+
+            channelName = fmt::sprintf(channelEntry->Name[locale], ASSERT_NOTNULL(zoneEntry)->AreaName[locale]);
         }
         else
             channelName = channelEntry->Name[locale];

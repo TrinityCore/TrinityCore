@@ -249,6 +249,58 @@ enum class BattlemasterListFlags : uint32
 
 DEFINE_ENUM_FLAG(BattlemasterListFlags);
 
+enum class CfgCategoriesCharsets : uint8
+{
+    Any     = 0x00,
+    Latin1  = 0x01,
+    English = 0x02,
+    Russian = 0x04,
+    Korean  = 0x08,
+    Chinese = 0x10
+};
+
+DEFINE_ENUM_FLAG(CfgCategoriesCharsets);
+
+enum class CfgCategoriesFlags : uint8
+{
+    None        = 0x0,
+    Tournament  = 0x1
+};
+
+DEFINE_ENUM_FLAG(CfgCategoriesFlags);
+
+enum class ChatChannelFlags : int32
+{
+    None                = 0x00000000,
+    AutoJoin            = 0x00000001,
+    ZoneBased           = 0x00000002,
+    ReadOnly            = 0x00000004,
+    AllowItemLinks      = 0x00000008,
+    OnlyInCities        = 0x00000010,
+    LinkedChannel       = 0x00000020,
+    ZoneAttackAlerts    = 0x00010000,
+    GuildRecruitment    = 0x00020000,
+    LookingForGroup     = 0x00040000,
+    GlobalForTournament = 0x00080000,
+    DisableRaidIcons    = 0x00100000,
+    Regional            = 0x00200000
+};
+
+DEFINE_ENUM_FLAG(ChatChannelFlags);
+
+enum class ChatChannelRuleset : int32
+{
+    None                        = 0,
+    Mentor                      = 1,
+    Disabled                    = 2,
+    ChromieTimeCataclysm        = 3,
+    ChromieTimeBuringCrusade    = 4,
+    ChromieTimeWrath            = 5,
+    ChromieTimeMists            = 6,
+    ChromieTimeWoD              = 7,
+    ChromieTimeLegion           = 8,
+};
+
 enum class ChrRacesFlag : int32
 {
     NPCOnly                                     = 0x000001,
