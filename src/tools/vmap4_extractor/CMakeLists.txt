@@ -28,6 +28,15 @@ set_target_properties(vmap4extractor
       FOLDER
         "tools")
 
+if(UNITY_BUILDS)
+  set_target_properties(vmap4extractor
+      PROPERTIES UNITY_BUILD ON)
+  set_target_properties(vmap4extractor
+      PROPERTIES
+        UNITY_BUILD_MODE BATCH
+        UNITY_BUILD_BATCH_SIZE 8)
+endif()
+
 if(UNIX)
   install(TARGETS vmap4extractor DESTINATION bin)
 elseif(WIN32)

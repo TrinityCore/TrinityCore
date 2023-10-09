@@ -63,6 +63,15 @@ set_target_properties(authserver
       FOLDER
         "server")
 
+if(UNITY_BUILDS)
+  set_target_properties(authserver
+      PROPERTIES UNITY_BUILD ON)
+  set_target_properties(authserver
+      PROPERTIES
+        UNITY_BUILD_MODE BATCH
+        UNITY_BUILD_BATCH_SIZE 2)
+endif()
+
 if(COPY_CONF AND WIN32)
   if("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
     add_custom_command(TARGET authserver

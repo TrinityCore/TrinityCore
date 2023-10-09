@@ -27,6 +27,15 @@ set_target_properties(gsoap
       FOLDER
         "dep")
 
+if(UNITY_BUILDS)
+  set_target_properties(gsoap
+      PROPERTIES UNITY_BUILD ON)
+  set_target_properties(gsoap
+      PROPERTIES
+        UNITY_BUILD_MODE BATCH
+        UNITY_BUILD_BATCH_SIZE 7)
+endif()
+
 if (MSVC)
   # Little fix for MSVC / Windows platforms
   target_compile_definitions(gsoap

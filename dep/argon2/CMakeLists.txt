@@ -39,3 +39,12 @@ set_target_properties(argon2
   PROPERTIES
     FOLDER
       "dep")
+
+if(UNITY_BUILDS)
+  set_target_properties(argon2
+      PROPERTIES UNITY_BUILD ON)
+  set_target_properties(argon2
+      PROPERTIES
+        UNITY_BUILD_MODE BATCH
+        UNITY_BUILD_BATCH_SIZE 8)
+endif()

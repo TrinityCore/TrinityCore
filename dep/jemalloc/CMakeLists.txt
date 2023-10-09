@@ -117,3 +117,12 @@ else()
       valgrind)
 
 endif()
+
+if(UNITY_BUILDS)
+  set_target_properties(jemalloc
+      PROPERTIES UNITY_BUILD ON)
+  set_target_properties(jemalloc
+      PROPERTIES
+        UNITY_BUILD_MODE BATCH
+        UNITY_BUILD_BATCH_SIZE 8)
+endif()

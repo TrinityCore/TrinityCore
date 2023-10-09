@@ -38,3 +38,12 @@ set_target_properties(Recast
     PROPERTIES
       FOLDER
         "dep")
+
+if(UNITY_BUILDS)
+  set_target_properties(Recast
+      PROPERTIES UNITY_BUILD ON)
+  set_target_properties(Recast
+      PROPERTIES
+        UNITY_BUILD_MODE BATCH
+        UNITY_BUILD_BATCH_SIZE 2)
+endif()

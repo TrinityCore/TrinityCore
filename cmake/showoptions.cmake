@@ -45,6 +45,12 @@ else()
   message("* Build unit tests       : No (default)")
 endif()
 
+if(UNITY_BUILDS)
+  message("* Unity build enabled    : Yes")
+else()
+  message("* Unity build enabled    : No (default)")
+endif()
+
 if(USE_COREPCH)
   message("* Build core w/PCH       : Yes (default)")
 else()

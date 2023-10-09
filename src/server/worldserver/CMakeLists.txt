@@ -70,6 +70,15 @@ set_target_properties(worldserver
       FOLDER
         "server")
 
+if(UNITY_BUILDS)
+  set_target_properties(worldserver
+      PROPERTIES UNITY_BUILD ON)
+  set_target_properties(worldserver
+      PROPERTIES
+        UNITY_BUILD_MODE BATCH
+        UNITY_BUILD_BATCH_SIZE 8)
+endif()
+
 # Add all dynamic projects as dependency to the worldserver
 if(WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES)
   add_dependencies(worldserver ${WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES})

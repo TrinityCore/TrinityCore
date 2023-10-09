@@ -34,3 +34,12 @@ set_target_properties(Detour
     PROPERTIES
       FOLDER
         "dep")
+
+if(UNITY_BUILDS)
+  set_target_properties(Detour
+      PROPERTIES UNITY_BUILD ON)
+  set_target_properties(Detour
+      PROPERTIES
+        UNITY_BUILD_MODE BATCH
+        UNITY_BUILD_BATCH_SIZE 7)
+endif()

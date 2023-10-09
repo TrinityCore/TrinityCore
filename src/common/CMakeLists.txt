@@ -82,6 +82,15 @@ set_target_properties(common
       FOLDER
         "server")
 
+if(UNITY_BUILDS)
+  set_target_properties(common
+      PROPERTIES UNITY_BUILD ON)
+  set_target_properties(common
+      PROPERTIES
+        UNITY_BUILD_MODE BATCH
+        UNITY_BUILD_BATCH_SIZE 8)
+endif()
+
 if(BUILD_SHARED_LIBS)
   if(UNIX)
     install(TARGETS common
