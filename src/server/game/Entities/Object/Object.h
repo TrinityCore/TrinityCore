@@ -468,6 +468,7 @@ struct FindGameObjectOptions
 
     Optional<ObjectGuid> OwnerGuid;
     Optional<ObjectGuid> PrivateObjectOwnerGuid;
+    Optional<GameobjectTypes> GameObjectType;
 };
 
 class TC_GAME_API WorldObject : public Object, public WorldLocation

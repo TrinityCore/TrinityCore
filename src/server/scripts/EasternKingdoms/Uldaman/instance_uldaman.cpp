@@ -27,7 +27,6 @@ EndScriptData */
 #include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -51,6 +50,18 @@ enum IronayaTalk
     SAY_AGGRO = 0
 };
 
+static constexpr DungeonEncounterData Encounters[] =
+{
+    { BOSS_REVELOSH, { { 547 } } },
+    { BOSS_THE_LOST_DWARVES, { { 548 } } },
+    { BOSS_IRONAYA, { { 549 } } },
+    { BOSS_ANCIENT_STONE_KEEPER, { { 551 } } },
+    { BOSS_GALGANN_FIREHAMMER, { { 552 } } },
+    { BOSS_GRIMLOK, { { 553 } } },
+    { BOSS_ARCHAEDAS, { { 554 } } },
+    { BOSS_OBSIDIAN_SENTINEL, { { 1887 } } },
+};
+
 const Position IronayaPoint = { -231.228f, 246.6135f, -49.01617f, 0.0f };
 
 class instance_uldaman : public InstanceMapScript
@@ -64,16 +75,23 @@ class instance_uldaman : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
+                LoadDungeonEncounterData(Encounters);
 
+                ironayaActive = false;
+                altarDoorsDone = false;
                 ironayaSealDoorTimer = 27000; //animation time
                 keystoneCheck = false;
             }
 
             ObjectGuid archaedasGUID;
             ObjectGuid ironayaGUID;
+            bool ironayaActive;
+
             ObjectGuid whoWokeuiArchaedasGUID;
 
             ObjectGuid altarOfTheKeeperTempleDoor;
+            bool altarDoorsDone;
+
             ObjectGuid archaedasTempleDoor;
             ObjectGuid ancientVaultDoor;
             ObjectGuid ironayaSealDoor;
@@ -96,14 +114,14 @@ class instance_uldaman : public InstanceMapScript
                     case GO_ALTAR_OF_THE_KEEPER_TEMPLE_DOOR:         // lock the door
                         altarOfTheKeeperTempleDoor = go->GetGUID();
 
-                        if (GetBossState(0) == DONE)
+                        if (altarDoorsDone)
                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
 
                     case GO_ARCHAEDAS_TEMPLE_DOOR:
                         archaedasTempleDoor = go->GetGUID();
 
-                        if (GetBossState(0) == DONE)
+                        if (altarDoorsDone)
                             HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
 
@@ -112,21 +130,21 @@ class instance_uldaman : public InstanceMapScript
                         go->ReplaceAllFlags(GO_FLAG_IN_USE | GO_FLAG_NODESPAWN);
                         ancientVaultDoor = go->GetGUID();
 
-                        if (GetBossState(1) == DONE)
+                        if (GetBossState(BOSS_ARCHAEDAS) == DONE)
                             HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
 
                     case GO_IRONAYA_SEAL_DOOR:
                         ironayaSealDoor = go->GetGUID();
 
-                        if (GetBossState(2) == DONE)
+                        if (ironayaActive)
                             HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
 
                     case GO_KEYSTONE:
                         keystoneGUID = go->GetGUID();
 
-                        if (GetBossState(2) == DONE)
+                        if (ironayaActive)
                         {
                             HandleGameObject(ObjectGuid::Empty, true, go);
                             go->SetFlag(GO_FLAG_INTERACT_COND);
@@ -268,6 +286,7 @@ class instance_uldaman : public InstanceMapScript
                 ironaya->SetHomePosition(IronayaPoint);
 
                 ironaya->AI()->Talk(SAY_AGGRO);
+                ironayaActive = true;
             }
 
             void RespawnMinions()
@@ -320,11 +339,29 @@ class instance_uldaman : public InstanceMapScript
                     SetDoor(ironayaSealDoor, true);
                     BlockGO(keystoneGUID);
 
-                    SetData(DATA_IRONAYA_DOOR, DONE); //save state
                     keystoneCheck = false;
                 }
                 else
                     ironayaSealDoorTimer -= diff;
+            }
+
+            bool SetBossState(uint32 id, EncounterState state) override
+            {
+                if (!InstanceScript::SetBossState(id, state))
+                    return false;
+
+                switch (id)
+                {
+                    case BOSS_ARCHAEDAS:
+                        if (state == DONE) //archeadas defeat
+                        {
+                            SetDoor(archaedasTempleDoor, true); //re open enter door
+                            SetDoor(ancientVaultDoor, true);
+                        }
+                        break;
+                }
+
+                return true;
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -332,18 +369,9 @@ class instance_uldaman : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_ALTAR_DOORS:
-                        SetBossState(0, EncounterState(data));
+                        altarDoorsDone = data == DONE;
                         if (data == DONE)
                             SetDoor(altarOfTheKeeperTempleDoor, true);
-                        break;
-
-                    case DATA_ANCIENT_DOOR:
-                        SetBossState(1, EncounterState(data));
-                        if (data == DONE) //archeadas defeat
-                        {
-                            SetDoor(archaedasTempleDoor, true); //re open enter door
-                            SetDoor(ancientVaultDoor, true);
-                        }
                         break;
 
                     case DATA_IRONAYA_DOOR:
@@ -358,7 +386,7 @@ class instance_uldaman : public InstanceMapScript
                         switch (data)
                         {
                             case NOT_STARTED:
-                                if (GetBossState(0) == DONE) //if players opened the doors
+                                if (altarDoorsDone) //if players opened the doors
                                     SetDoor(archaedasTempleDoor, true);
 
                                 RespawnMinions();
@@ -414,7 +442,7 @@ class instance_uldaman : public InstanceMapScript
                     case 7228:    // Ironaya
                         ironayaGUID = creature->GetGUID();
 
-                        if (GetBossState(2) != DONE)
+                        if (!ironayaActive)
                             SetFrozenState (creature);
                         break;
 
@@ -426,6 +454,20 @@ class instance_uldaman : public InstanceMapScript
                         archaedasGUID = creature->GetGUID();
                         break;
 
+                }
+            }
+
+            void OnUnitDeath(Unit* unit) override
+            {
+                switch (unit->GetEntry())
+                {
+                    case NPC_REVELOSH: SetBossState(BOSS_REVELOSH, DONE); break;
+                    //case ?: SetBossState(BOSS_THE_LOST_DWARVES, DONE); break;
+                    case NPC_ANCIENT_STONE_KEEPER: SetBossState(BOSS_ANCIENT_STONE_KEEPER, DONE); break;
+                    case NPC_GALGANN_FIREHAMMER: SetBossState(BOSS_GALGANN_FIREHAMMER, DONE); break;
+                    case NPC_GRIMLOK: SetBossState(BOSS_GRIMLOK, DONE); break;
+                    case NPC_OBSIDIAN_SENTINEL: SetBossState(BOSS_OBSIDIAN_SENTINEL, DONE); break;
+                    default: break;
                 }
             }
 

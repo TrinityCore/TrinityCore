@@ -195,3 +195,12 @@ WorldPacket const* WorldPackets::Pet::PetTameFailure::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Pet::PetMode::Write()
+{
+    _worldPacket << PetGUID;
+    _worldPacket << uint16(CommandState | Flag << 8);
+    _worldPacket << uint8(ReactState);
+
+    return &_worldPacket;
+}

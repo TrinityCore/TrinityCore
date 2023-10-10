@@ -232,7 +232,7 @@ public:
 
         if (!factionid)
         {
-            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUID().ToString().c_str(), *factionid, *flag, std::to_string(*npcflag).c_str(), *dyflag);
+            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUID().ToString().c_str(), target->GetFaction(), *flag, std::to_string(*npcflag).c_str(), *dyflag);
             return true;
         }
 

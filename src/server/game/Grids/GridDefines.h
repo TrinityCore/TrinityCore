@@ -168,21 +168,11 @@ struct CoordPair
         return y_coord * LIMIT + x_coord;
     }
 
+    friend bool operator==(CoordPair const& p1, CoordPair const& p2) = default;
+
     uint32 x_coord;
     uint32 y_coord;
 };
-
-template<uint32 LIMIT>
-bool operator==(const CoordPair<LIMIT> &p1, const CoordPair<LIMIT> &p2)
-{
-    return (p1.x_coord == p2.x_coord && p1.y_coord == p2.y_coord);
-}
-
-template<uint32 LIMIT>
-bool operator!=(const CoordPair<LIMIT> &p1, const CoordPair<LIMIT> &p2)
-{
-    return !(p1 == p2);
-}
 
 typedef CoordPair<MAX_NUMBER_OF_GRIDS> GridCoord;
 typedef CoordPair<TOTAL_NUMBER_OF_CELLS_PER_MAP> CellCoord;

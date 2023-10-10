@@ -318,7 +318,8 @@ class spell_dru_cultivation : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_CULTIVATION, SPELL_DRUID_CULTIVATION_HEAL });
+        return ValidateSpellInfo({ SPELL_DRUID_CULTIVATION_HEAL })
+            && ValidateSpellEffect({ { SPELL_DRUID_CULTIVATION, EFFECT_0 } });
     }
 
     void HandleOnTick(AuraEffect const* aurEff) const

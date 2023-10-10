@@ -43,7 +43,7 @@ class OutdoorPvPSI : public OutdoorPvP
         bool SetupOutdoorPvP() override;
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
-        bool Update(uint32 diff) override;
+        void Update(uint32 diff) override;
         void SendRemoveWorldStates(Player* player) override;
         bool HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         bool HandleDropFlag(Player* player, uint32 spellId) override;

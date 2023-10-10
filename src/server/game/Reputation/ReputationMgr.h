@@ -172,7 +172,7 @@ class TC_GAME_API ReputationMgr
         uint8 _honoredFactionCount :8;
         uint8 _reveredFactionCount :8;
         uint8 _exaltedFactionCount :8;
-        bool _sendFactionIncreased; //! Play visual effect on next SMSG_SET_FACTION_STANDING sent
+        bool _sendFactionIncreased; //!< Play visual effect on next SMSG_SET_FACTION_STANDING sent
 };
 
 #endif

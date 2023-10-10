@@ -1,0 +1,17 @@
+SET @TEL_ID := 2070;
+
+DELETE FROM `game_tele` WHERE `id` BETWEEN @TEL_ID+0 AND @TEL_ID+12;
+INSERT INTO `game_tele` (`id`,`position_x`,`position_y`,`position_z`,`orientation`,`map`,`name`) VALUES
+(@TEL_ID+0,-6793.69,1008.17,5711.72,2.83132,2222,'HeartOfTheForest'),
+(@TEL_ID+1,-7791.06,1803.25,5536.61,2.61612,2222,'Darkreach'),
+(@TEL_ID+2,-7392.73,2878.61,5341.25,5.02024,2222,'TirnaScithe'),
+(@TEL_ID+3,-6848.09,1759.38,5556.33,0.719395,2222,'RootHome'),
+(@TEL_ID+4,-5578.12,1716.24,5645.25,3.78402,2222,'GossamerCliffs'),
+(@TEL_ID+5,-6138.16,1643.36,5589.87,3.72904,2222,'DreamsongFenn'),
+(@TEL_ID+6,-5968.92,630.649,5502.68,2.17316,2222,'GlitterfallBasin'),
+(@TEL_ID+7,-6905.59,23.1493,5460.04,5.91635,2222,'HibernalHollow'),
+(@TEL_ID+8,-6992.35,-577.721,5491.34,5.80012,2222,'TirnaNoch'),
+(@TEL_ID+9,-6086.84,-212.836,5570.92,1.22281,2222,'TirnaVaal'),
+(@TEL_ID+10,-5999.03,-807.788,5619.26,4.81994,2222,'CrumbledRidge'),
+(@TEL_ID+11,-5586.99,-535.357,5717.56,3.92066,2222,'HeartwoodGrove'),
+(@TEL_ID+12,-5197.07,-573.255,5838.17,2.79364,2222,'StarlitOverlook');

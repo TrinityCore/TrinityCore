@@ -30,7 +30,7 @@
 
 enum AreaTriggerFlags
 {
-    AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION   = 0x00001, // NYI
+    AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION   = 0x00001,
     AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE          = 0x00002, // Implemented for Spheres & Disks
     AREATRIGGER_FLAG_HAS_ATTACHED               = 0x00004,
     AREATRIGGER_FLAG_HAS_FACE_MOVEMENT_DIR      = 0x00008,
@@ -79,6 +79,8 @@ struct AreaTriggerId
 {
     uint32 Id = 0;
     bool IsServerSide = false;
+
+    friend bool operator==(AreaTriggerId const& left, AreaTriggerId const& right) = default;
 };
 
 struct AreaTriggerAction
@@ -252,6 +254,7 @@ struct AreaTriggerSpawn : SpawnData
     AreaTriggerId Id;
 
     AreaTriggerShapeInfo Shape;
+    Optional<int32> SpellForVisuals;
 };
 
 #endif

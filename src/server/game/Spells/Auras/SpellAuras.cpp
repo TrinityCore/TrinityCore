@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
@@ -925,6 +926,16 @@ void Aura::RefreshDuration(bool withMods)
 void Aura::RefreshTimers(bool resetPeriodicTimer)
 {
     m_maxDuration = CalcMaxDuration();
+
+    // Pandemic Mechanic
+    if (m_spellInfo->HasAttribute(SPELL_ATTR13_PERIODIC_REFRESH_EXTENDS_DURATION))
+    {
+        // Pandemic doesn't reset periodic timer
+        resetPeriodicTimer = false;
+
+        int32 pandemicDuration = CalculatePct(m_maxDuration, 30.f);
+        m_maxDuration = std::max(GetDuration(), std::min(pandemicDuration, GetDuration()) + m_maxDuration);
+    }
 
     RefreshDuration();
 
@@ -2496,7 +2507,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
         if (GetUnitOwner()->HasUnitState(UNIT_STATE_ISOLATED))
             continue;
 
-        std::vector<Unit*> units;
+        std::vector<WorldObject*> units;
         ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions;
 
         float radius = spellEffectInfo.CalcRadius(ref);
@@ -2552,16 +2563,20 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
 
         if (selectionType != TARGET_CHECK_DEFAULT)
         {
-            Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), ref, GetUnitOwner(), m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
-            Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
-            Cell::VisitAllObjects(GetUnitOwner(), searcher, radius + extraSearchRadius);
+            if (uint32 containerTypeMask = Spell::GetSearcherTypeMask(m_spellInfo, spellEffectInfo, TARGET_OBJECT_TYPE_UNIT, condList))
+            {
+                Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), ref, GetUnitOwner(), m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
+                Trinity::WorldObjectListSearcher searcher(GetUnitOwner(), units, check, containerTypeMask);
+                searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
+                Spell::SearchTargets(searcher, containerTypeMask, GetUnitOwner(), GetUnitOwner(), radius + extraSearchRadius);
 
-            // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
-            units.erase(std::remove_if(units.begin(), units.end(), [this](Unit* unit) { return !unit->IsSelfOrInSameMap(GetUnitOwner()); }), units.end());
+                // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
+                Trinity::Containers::EraseIf(units, [this](WorldObject const* unit) { return !unit->IsSelfOrInSameMap(GetUnitOwner()); });
+            }
         }
 
-        for (Unit* unit : units)
-            targets[unit] |= 1 << spellEffectInfo.EffectIndex;
+        for (WorldObject* unit : units)
+            targets[static_cast<Unit*>(unit)] |= 1 << spellEffectInfo.EffectIndex;
     }
 }
 

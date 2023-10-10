@@ -1017,7 +1017,7 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune;
             case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune;
             case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.noDamageImmune;
-            case GAMEOBJECT_TYPE_CHEST:      return 1;
+            case GAMEOBJECT_TYPE_CHEST:      return !chest.DamageImmuneOK;
             case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune;
             case GAMEOBJECT_TYPE_FLAGSTAND:  return flagStand.noDamageImmune;
             case GAMEOBJECT_TYPE_FLAGDROP:   return flagDrop.noDamageImmune;

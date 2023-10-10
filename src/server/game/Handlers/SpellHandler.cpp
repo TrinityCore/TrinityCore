@@ -428,7 +428,7 @@ void WorldSession::HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& canc
 
 void WorldSession::HandlePetCancelAuraOpcode(WorldPackets::Spells::PetCancelAura& packet)
 {
-    if (sSpellMgr->GetSpellInfo(packet.SpellID, DIFFICULTY_NONE))
+    if (!sSpellMgr->GetSpellInfo(packet.SpellID, DIFFICULTY_NONE))
     {
         TC_LOG_ERROR("network", "WORLD: unknown PET spell id {}", packet.SpellID);
         return;

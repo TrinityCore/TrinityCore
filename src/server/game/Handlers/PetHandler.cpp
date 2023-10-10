@@ -62,6 +62,9 @@ void WorldSession::HandleDismissCritter(WorldPackets::Pet::DismissCritter& packe
 
 void WorldSession::HandlePetAction(WorldPackets::Pet::PetAction& packet)
 {
+    if (_player->IsMounted())
+        return;
+
     ObjectGuid guid1 = packet.PetGUID; //pet guid
     ObjectGuid guid2 = packet.TargetGUID; //tag guid
 

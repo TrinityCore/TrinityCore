@@ -230,10 +230,10 @@ struct AnimKitConfigMeta
 {
     static constexpr DB2MetaField Fields[1] =
     {
-        { FT_INT, 1, false },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1300872, -1, 1, 1, 0xA3858D19, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1300872, -1, 1, 1, 0x4BB04814, Fields, -1 };
 };
 
 struct AnimKitConfigBoneSetMeta
@@ -288,7 +288,7 @@ struct AnimKitSegmentMeta
         { FT_INT, 1, false },
         { FT_INT, 1, false },
         { FT_FLOAT, 1, true },
-        { FT_SHORT, 1, false },
+        { FT_INT, 1, true },
         { FT_BYTE, 1, false },
         { FT_INT, 1, true },
         { FT_BYTE, 1, true },
@@ -297,7 +297,7 @@ struct AnimKitSegmentMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1304324, -1, 19, 19, 0xDCD09D5C, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1304324, -1, 19, 19, 0xC72DE963, Fields, 0 };
 };
 
 struct AnimReplacementMeta
@@ -1490,7 +1490,7 @@ struct CameraEffectEntryMeta
 
 struct CameraModeMeta
 {
-    static constexpr DB2MetaField Fields[11] =
+    static constexpr DB2MetaField Fields[12] =
     {
         { FT_FLOAT, 3, true },
         { FT_FLOAT, 3, true },
@@ -1503,9 +1503,10 @@ struct CameraModeMeta
         { FT_BYTE, 1, true },
         { FT_BYTE, 1, true },
         { FT_BYTE, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1343308, -1, 11, 11, 0xC26A74A9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343308, -1, 12, 12, 0x5F08423B, Fields, -1 };
 };
 
 struct CampaignMeta
@@ -2027,7 +2028,6 @@ struct ChrClassesMeta
         { FT_INT, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, false },
-        { FT_INT, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -2039,6 +2039,7 @@ struct ChrClassesMeta
         { FT_INT, 1, true },
         { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
+        { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
@@ -2050,7 +2051,7 @@ struct ChrClassesMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1361031, 10, 39, 39, 0xCD8CBEDA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1361031, 10, 39, 39, 0xA9224C3E, Fields, -1 };
 };
 
 struct ChrClassesXPowerTypesMeta
@@ -2224,8 +2225,9 @@ struct ChrCustomizationDisplayInfoMeta
 
 struct ChrCustomizationElementMeta
 {
-    static constexpr DB2MetaField Fields[11] =
+    static constexpr DB2MetaField Fields[12] =
     {
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -2239,7 +2241,7 @@ struct ChrCustomizationElementMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3512765, -1, 11, 11, 0x978B6C48, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3512765, -1, 12, 12, 0xE040533A, Fields, -1 };
 };
 
 struct ChrCustomizationGeosetMeta
@@ -2252,6 +2254,21 @@ struct ChrCustomizationGeosetMeta
     };
 
     static constexpr DB2Meta Instance{ 3456171, -1, 3, 3, 0x9D95412A, Fields, -1 };
+};
+
+struct ChrCustomizationGlyphPetMeta
+{
+    static constexpr DB2MetaField Fields[6] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5347591, -1, 6, 6, 0xD58B0F29, Fields, -1 };
 };
 
 struct ChrCustomizationMaterialMeta
@@ -2510,6 +2527,19 @@ struct ChrRacesCreateScreenIconMeta
     };
 
     static constexpr DB2Meta Instance{ 4566929, 0, 4, 4, 0x892075D2, Fields, 1 };
+};
+
+struct ChrRacesPingMeta
+{
+    static constexpr DB2MetaField Fields[4] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5320971, -1, 4, 4, 0xEEFB570B, Fields, -1 };
 };
 
 struct ChrSelectBackgroundCDIMeta
@@ -3420,11 +3450,13 @@ struct CreatureLabelMeta
 
 struct CreatureModelDataMeta
 {
-    static constexpr DB2MetaField Fields[31] =
+    static constexpr DB2MetaField Fields[33] =
     {
         { FT_FLOAT, 6, true },
         { FT_INT, 1, false },
         { FT_INT, 1, false },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, false },
         { FT_FLOAT, 1, true },
@@ -3455,7 +3487,7 @@ struct CreatureModelDataMeta
         { FT_FLOAT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1365368, -1, 31, 31, 0xEDDF3253, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1365368, -1, 33, 33, 0xCD28D54B, Fields, -1 };
 };
 
 struct CreatureMovementInfoMeta
@@ -5372,7 +5404,7 @@ struct GemPropertiesMeta
 
 struct GlideEventMeta
 {
-    static constexpr DB2MetaField Fields[10] =
+    static constexpr DB2MetaField Fields[11] =
     {
         { FT_FLOAT, 1, true },
         { FT_INT, 1, true },
@@ -5384,9 +5416,10 @@ struct GlideEventMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4644012, -1, 10, 10, 0x63D375D1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4644012, -1, 11, 11, 0xAF8D7840, Fields, -1 };
 };
 
 struct GlideEventBlendTimesMeta
@@ -8864,6 +8897,17 @@ struct PerksActivityThresholdGroupMeta
     static constexpr DB2Meta Instance{ 4519768, 1, 3, 3, 0x780A31D9, Fields, -1 };
 };
 
+struct PerksActivityXHolidaysMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5330797, -1, 2, 1, 0x9B7FB7C6, Fields, 1 };
+};
+
 struct PerksActivityXIntervalMeta
 {
     static constexpr DB2MetaField Fields[3] =
@@ -8983,6 +9027,20 @@ struct PhaseXPhaseGroupMeta
     };
 
     static constexpr DB2Meta Instance{ 987581, -1, 2, 1, 0xEC8D5E98, Fields, 1 };
+};
+
+struct PingTypeMeta
+{
+    static constexpr DB2MetaField Fields[5] =
+    {
+        { FT_INT, 1, true },
+        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5152358, -1, 5, 5, 0x0CE5C49B, Fields, -1 };
 };
 
 struct PlayerConditionMeta
@@ -12196,7 +12254,7 @@ struct TaxiNodesMeta
         { FT_SHORT, 1, false },
         { FT_INT, 1, true },
         { FT_SHORT, 1, false },
-        { FT_SHORT, 1, false },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_FLOAT, 1, true },
@@ -12205,7 +12263,7 @@ struct TaxiNodesMeta
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1068100, 4, 15, 15, 0x3F7CC8B2, Fields, 5 };
+    static constexpr DB2Meta Instance{ 1068100, 4, 15, 15, 0x5EE95BA9, Fields, 5 };
 };
 
 struct TaxiPathMeta
@@ -12230,13 +12288,13 @@ struct TaxiPathNodeMeta
         { FT_SHORT, 1, false },
         { FT_INT, 1, true },
         { FT_SHORT, 1, false },
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1000437, 1, 9, 9, 0xA20FF622, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1000437, 1, 9, 9, 0xF1BEC205, Fields, 2 };
 };
 
 struct TerrainColorGradingRampMeta
@@ -13205,8 +13263,9 @@ struct UiCanvasMeta
 
 struct UiCovenantDisplayInfoMeta
 {
-    static constexpr DB2MetaField Fields[12] =
+    static constexpr DB2MetaField Fields[13] =
     {
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -13221,7 +13280,7 @@ struct UiCovenantDisplayInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3509132, -1, 12, 12, 0x04B5154E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3509132, -1, 13, 13, 0xFB57169A, Fields, -1 };
 };
 
 struct UiItemInteractionMeta

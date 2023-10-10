@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "AsioHacksFwd.h"
+#include <compare>
 #include <vector>
 
 enum RealmFlags
@@ -48,10 +49,9 @@ namespace Battlenet
         uint8 Site;
         uint32 Realm;   // primary key in `realmlist` table
 
-        bool operator<(RealmHandle const& r) const
-        {
-            return Realm < r.Realm;
-        }
+        bool operator==(RealmHandle const& r) const { return Realm == r.Realm; }
+
+        std::strong_ordering operator<=>(RealmHandle const& r) const { return Realm <=> r.Realm; }
 
         uint32 GetAddress() const { return (Region << 24) | (Site << 16) | uint16(Realm); }
         std::string GetAddressString() const;
@@ -73,6 +73,8 @@ enum RealmType
     REALM_TYPE_FFA_PVP      = 16                            // custom, free for all pvp mode like arena PvP in all zones except rest activated places and sanctuaries
                                                             // replaced by REALM_PVP in realm list
 };
+
+inline constexpr uint32 HARDCODED_DEVELOPMENT_REALM_CATEGORY_ID = 1;
 
 // Storage object for a realm
 struct TC_SHARED_API Realm

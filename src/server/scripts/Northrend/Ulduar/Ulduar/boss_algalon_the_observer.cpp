@@ -1183,21 +1183,6 @@ class spell_algalon_cosmic_smash_damage : public SpellScript
     }
 };
 
-// 65311 - Supermassive Fail
-class spell_algalon_supermassive_fail : public SpellScript
-{
-    void RecalculateDamage()
-    {
-        if (Player* player = GetHitPlayer())
-            player->ResetCriteria(CriteriaFailEvent::BeSpellTarget, GetSpellInfo()->Id, true);
-    }
-
-    void Register() override
-    {
-        OnHit += SpellHitFn(spell_algalon_supermassive_fail::RecalculateDamage);
-    }
-};
-
 // 62168 - Black Hole (Phase Shifts)
 // 65250 - Worm Hole (Phase Shifts)
 // 64417 - Phase Punch (Phase Shifts)
@@ -1240,6 +1225,5 @@ void AddSC_boss_algalon_the_observer()
     RegisterSpellScript(spell_algalon_remove_phase);
     RegisterSpellScript(spell_algalon_cosmic_smash);
     RegisterSpellScript(spell_algalon_cosmic_smash_damage);
-    RegisterSpellScript(spell_algalon_supermassive_fail);
     RegisterSpellScript(spell_algalon_black_hole_phase_shifts);
 }

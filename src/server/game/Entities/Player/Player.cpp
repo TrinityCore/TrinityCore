@@ -143,7 +143,9 @@
 
 enum PlayerSpells
 {
-    SPELL_EXPERIENCE_ELIMINATED = 206662
+    SPELL_EXPERIENCE_ELIMINATED = 206662,
+    SPELL_APPRENTICE_RIDING     = 33389,
+    SPELL_JOURNEYMAN_RIDING     = 33391
 };
 
 static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
@@ -733,6 +735,20 @@ void Player::HandleDrowning(uint32 time_diff)
     if (!m_MirrorTimerFlags)
         return;
 
+    auto getEnvironmentalDamage = [&](EnviromentalDamage damageType)
+    {
+        uint8 damagePercent = 10;
+        if (damageType == DAMAGE_DROWNING || damageType == DAMAGE_EXHAUSTED)
+            damagePercent *= 2;
+
+        uint32 damage = GetMaxHealth() * damagePercent / 100;
+
+        // Randomize damage
+        damage += urand(0, pow(10, std::max(0, (int32)log10(damage) - 1)));
+
+        return damage;
+    };
+
     // In water
     if (m_MirrorTimerFlags & UNDERWATER_INWATER)
     {
@@ -750,8 +766,7 @@ void Player::HandleDrowning(uint32 time_diff)
             {
                 m_MirrorTimer[BREATH_TIMER] += 1 * IN_MILLISECONDS;
                 // Calculate and deal damage
-                /// @todo Check this formula
-                uint32 damage = GetMaxHealth() / 5 + urand(0, GetLevel() - 1);
+                uint32 damage = getEnvironmentalDamage(DAMAGE_DROWNING);
                 EnvironmentalDamage(DAMAGE_DROWNING, damage);
             }
             else if (!(m_MirrorTimerFlagsLast & UNDERWATER_INWATER))      // Update time in client if need
@@ -787,7 +802,7 @@ void Player::HandleDrowning(uint32 time_diff)
                 m_MirrorTimer[FATIGUE_TIMER] += 1 * IN_MILLISECONDS;
                 if (IsAlive())                                            // Calculate and deal damage
                 {
-                    uint32 damage = GetMaxHealth() / 5 + urand(0, GetLevel() - 1);
+                    uint32 damage = getEnvironmentalDamage(DAMAGE_EXHAUSTED);
                     EnvironmentalDamage(DAMAGE_EXHAUSTED, damage);
                 }
                 else if (HasPlayerFlag(PLAYER_FLAGS_GHOST))       // Teleport ghost to graveyard
@@ -819,8 +834,7 @@ void Player::HandleDrowning(uint32 time_diff)
             {
                 m_MirrorTimer[FIRE_TIMER] += 1 * IN_MILLISECONDS;
                 // Calculate and deal damage
-                /// @todo Check this formula
-                uint32 damage = urand(600, 700);
+                uint32 damage = getEnvironmentalDamage(DAMAGE_LAVA);
                 if (m_MirrorTimerFlags & UNDERWATER_INLAVA)
                     EnvironmentalDamage(DAMAGE_LAVA, damage);
                 // need to skip Slime damage in Undercity,
@@ -990,7 +1004,7 @@ void Player::Update(uint32 p_time)
         }
     }
 
-    m_achievementMgr->UpdateTimedCriteria(p_time);
+    m_achievementMgr->UpdateTimedCriteria(Milliseconds(p_time));
 
     if (HasUnitState(UNIT_STATE_MELEE_ATTACKING) && !HasUnitState(UNIT_STATE_CASTING | UNIT_STATE_CHARGING))
     {
@@ -1248,7 +1262,7 @@ void Player::setDeathState(DeathState s)
         UpdateCriteria(CriteriaType::DieInInstance, 1);
 
         // reset all death criterias
-        ResetCriteria(CriteriaFailEvent::Death, 0);
+        FailCriteria(CriteriaFailEvent::Death, 0);
     }
 
     Unit::setDeathState(s);
@@ -2034,7 +2048,7 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, NPCFlags npcFl
         return nullptr;
 
     // not unfriendly/hostile
-    if (creature->GetReactionTo(this) <= REP_UNFRIENDLY)
+    if (!creature->HasUnitFlag2(UNIT_FLAG2_INTERACT_WHILE_HOSTILE) && creature->GetReactionTo(this) <= REP_UNFRIENDLY)
         return nullptr;
 
     // not too far, taken from CGGameUI::SetInteractTarget
@@ -2394,6 +2408,7 @@ void Player::GiveLevel(uint8 level)
         CharacterDatabase.CommitTransaction(trans);
     }
 
+    StartCriteria(CriteriaStartEvent::ReachLevel, level);
     UpdateCriteria(CriteriaType::ReachLevel);
     UpdateCriteria(CriteriaType::ActivelyReachLevel, level);
 
@@ -3100,13 +3115,44 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         // add dependent skills if this spell is not learned from adding skill already
         if (spellLearnSkill->skill != fromSkill)
         {
-            uint32 skill_value = GetPureSkillValue(spellLearnSkill->skill);
-            uint32 skill_max_value = GetPureMaxSkillValue(spellLearnSkill->skill);
+            uint16 skill_value = GetPureSkillValue(spellLearnSkill->skill);
+            uint16 skill_max_value = GetPureMaxSkillValue(spellLearnSkill->skill);
 
             if (skill_value < spellLearnSkill->value)
                 skill_value = spellLearnSkill->value;
 
-            uint32 new_skill_max_value = spellLearnSkill->maxvalue == 0 ? GetMaxSkillValueForLevel() : spellLearnSkill->maxvalue;
+            uint16 new_skill_max_value = spellLearnSkill->maxvalue;
+
+            if (new_skill_max_value == 0)
+            {
+                if (SkillRaceClassInfoEntry const* rcInfo = sDB2Manager.GetSkillRaceClassInfo(spellLearnSkill->skill, GetRace(), GetClass()))
+                {
+                    switch (GetSkillRangeType(rcInfo))
+                    {
+                        case SKILL_RANGE_LANGUAGE:
+                            skill_value = 300;
+                            new_skill_max_value = 300;
+                            break;
+                        case SKILL_RANGE_LEVEL:
+                            new_skill_max_value = GetMaxSkillValueForLevel();
+                            break;
+                        case SKILL_RANGE_MONO:
+                            new_skill_max_value = 1;
+                            break;
+                        case SKILL_RANGE_RANK:
+                        {
+                            SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcInfo->SkillTierID);
+                            new_skill_max_value = tier->Value[spellLearnSkill->step - 1];
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+
+                    if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
+                        skill_value = new_skill_max_value;
+                }
+            }
 
             if (skill_max_value < new_skill_max_value)
                 skill_max_value = new_skill_max_value;
@@ -3347,16 +3393,49 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
                 SetSkill(spellLearnSkill->skill, 0, 0, 0);
             else                                            // set to prev. skill setting values
             {
-                uint32 skill_value = GetPureSkillValue(prevSkill->skill);
-                uint32 skill_max_value = GetPureMaxSkillValue(prevSkill->skill);
+                uint16 skill_value = GetPureSkillValue(prevSkill->skill);
+                uint16 skill_max_value = GetPureMaxSkillValue(prevSkill->skill);
 
-                if (skill_value > prevSkill->value)
+                uint16 new_skill_max_value = prevSkill->maxvalue;
+
+                if (new_skill_max_value == 0)
+                {
+                    if (SkillRaceClassInfoEntry const* rcInfo = sDB2Manager.GetSkillRaceClassInfo(prevSkill->skill, GetRace(), GetClass()))
+                    {
+                        switch (GetSkillRangeType(rcInfo))
+                        {
+                            case SKILL_RANGE_LANGUAGE:
+                                skill_value = 300;
+                                new_skill_max_value = 300;
+                                break;
+                            case SKILL_RANGE_LEVEL:
+                                new_skill_max_value = GetMaxSkillValueForLevel();
+                                break;
+                            case SKILL_RANGE_MONO:
+                                new_skill_max_value = 1;
+                                break;
+                            case SKILL_RANGE_RANK:
+                            {
+                                SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcInfo->SkillTierID);
+                                new_skill_max_value = tier->Value[prevSkill->step - 1];
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
+                            skill_value = new_skill_max_value;
+                    }
+                }
+                else if (skill_value > prevSkill->value)
                     skill_value = prevSkill->value;
-
-                uint32 new_skill_max_value = prevSkill->maxvalue == 0 ? GetMaxSkillValueForLevel() : prevSkill->maxvalue;
 
                 if (skill_max_value > new_skill_max_value)
                     skill_max_value = new_skill_max_value;
+
+                if (skill_value > new_skill_max_value)
+                    skill_value = new_skill_max_value;
 
                 SetSkill(prevSkill->skill, prevSkill->step, skill_value, skill_max_value);
             }
@@ -4855,16 +4934,19 @@ void Player::RepopAtGraveyard()
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone) const
 {
-    if (channel->Flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->GetFlags().HasFlag(AreaFlags::NoChatChannels))
+    if (channel->GetFlags().HasFlag(ChatChannelFlags::ZoneBased) && zone->GetFlags().HasFlag(AreaFlags::NoChatChannels))
         return false;
 
-    if ((channel->Flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->GetFlags().HasFlag(AreaFlags::AllowTradeChannel))))
+    if (channel->GetFlags().HasFlag(ChatChannelFlags::OnlyInCities) && !zone->GetFlags().HasFlag(AreaFlags::AllowTradeChannel))
         return false;
 
-    if ((channel->Flags & CHANNEL_DBC_FLAG_GUILD_REQ) && GetGuildId())
+    if (channel->GetFlags().HasFlag(ChatChannelFlags::GuildRecruitment) && GetGuildId())
         return false;
 
-    if (channel->Flags & CHANNEL_DBC_FLAG_NO_CLIENT_JOIN)
+    if (channel->GetRuleset() == ChatChannelRuleset::Disabled)
+        return false;
+
+    if (channel->GetFlags().HasFlag(ChatChannelFlags::Regional))
         return false;
 
     return true;
@@ -4909,19 +4991,15 @@ void Player::UpdateLocalChannels(uint32 newZone)
     if (!cMgr)
         return;
 
-    for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
+    for (ChatChannelsEntry const* channelEntry : sChatChannelsStore)
     {
-        ChatChannelsEntry const* channelEntry = sChatChannelsStore.LookupEntry(i);
-        if (!channelEntry)
-            continue;
-
-        if (!(channelEntry->Flags & CHANNEL_DBC_FLAG_INITIAL))
+        if (!channelEntry->GetFlags().HasFlag(ChatChannelFlags::AutoJoin))
             continue;
 
         Channel* usedChannel = nullptr;
         for (Channel* channel : m_channels)
         {
-            if (channel->GetChannelId() == i)
+            if (channel->GetChannelId() == channelEntry->ID)
             {
                 usedChannel = channel;
                 break;
@@ -4934,9 +5012,9 @@ void Player::UpdateLocalChannels(uint32 newZone)
 
         if (CanJoinConstantChannelInZone(channelEntry, current_zone))
         {
-            if (!(channelEntry->Flags & CHANNEL_DBC_FLAG_GLOBAL))
+            if (channelEntry->GetFlags().HasFlag(ChatChannelFlags::ZoneBased))
             {
-                if (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
+                if (channelEntry->GetFlags().HasFlag(ChatChannelFlags::LinkedChannel) && usedChannel)
                     continue;                            // Already on the channel, as city channel names are not changing
 
                 joinChannel = cMgr->GetSystemChannel(channelEntry->ID, current_zone);
@@ -7438,8 +7516,10 @@ void Player::UpdateArea(uint32 newArea)
 {
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
+    uint32 const oldArea = m_areaUpdateId;
     m_areaUpdateId = newArea;
 
+    AreaTableEntry const* oldAreaEntry = sAreaTableStore.LookupEntry(oldArea);
     AreaTableEntry const* area = sAreaTableStore.LookupEntry(newArea);
     bool oldFFAPvPArea = pvpInfo.IsInFFAPvPArea;
     pvpInfo.IsInFFAPvPArea = area && (area->GetFlags().HasFlag(AreaFlags::FreeForAllPvP));
@@ -7480,6 +7560,10 @@ void Player::UpdateArea(uint32 newArea)
     UpdateCriteria(CriteriaType::EnterTopLevelArea, newArea);
 
     UpdateMountCapability();
+
+    if ((oldAreaEntry && oldAreaEntry->GetFlags2().HasFlag(AreaFlags2::UseSubzoneForChatChannel))
+        || (area && area->GetFlags2().HasFlag(AreaFlags2::UseSubzoneForChatChannel)))
+        UpdateLocalChannels(newArea);
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
@@ -7544,7 +7628,9 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     AutoUnequipOffhandIfNeed();
 
     // recent client version not send leave/join channel packets for built-in local channels
-    UpdateLocalChannels(newZone);
+    AreaTableEntry const* newAreaEntry = sAreaTableStore.LookupEntry(newArea);
+    if (!newAreaEntry || !newAreaEntry->GetFlags2().HasFlag(AreaFlags2::UseSubzoneForChatChannel))
+        UpdateLocalChannels(newZone);
 
     UpdateZoneDependentAuras(newZone);
 
@@ -8986,7 +9072,7 @@ void Player::RemovedInsignia(Player* looterPlr)
     // For AV Achievement
     if (Battleground* bg = GetBattleground())
     {
-        if (bg->GetTypeID(true) == BATTLEGROUND_AV)
+        if (bg->GetTypeID() == BATTLEGROUND_AV)
             bones->m_loot->FillLoot(PLAYER_CORPSE_LOOT_ENTRY, LootTemplates_Creature, this, true);
     }
     // For wintergrasp Quests
@@ -13200,8 +13286,8 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
 void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid) const
 {
     WorldPackets::Item::SellResponse sellResponse;
-    sellResponse.VendorGUID = (creature ? creature->GetGUID() : ObjectGuid::Empty);
-    sellResponse.ItemGUID = guid;
+    sellResponse.VendorGUID = creature ? creature->GetGUID() : ObjectGuid::Empty;
+    sellResponse.ItemGUIDs.push_back(guid);
     sellResponse.Reason = msg;
     SendDirectMessage(sellResponse.Write());
 }
@@ -14897,7 +14983,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     m_QuestStatusSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
 
-    StartCriteriaTimer(CriteriaStartEvent::AcceptQuest, quest_id);
+    StartCriteria(CriteriaStartEvent::AcceptQuest, quest_id);
 
     SendQuestUpdate(quest_id);
 
@@ -15228,6 +15314,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
         SetDailyQuestStatus(quest_id);
         if (quest->IsDaily())
         {
+            StartCriteria(CriteriaStartEvent::CompleteDailyQuest, 0);
             UpdateCriteria(CriteriaType::CompleteDailyQuest, quest_id);
             UpdateCriteria(CriteriaType::CompleteAnyDailyQuestPerDay, quest_id);
         }
@@ -16158,7 +16245,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
 
         if (quest->IsTurnIn() && CanTakeQuest(quest, false) && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly())
         {
-            if (GetLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
+            if (GetLevel() > (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
                 result |= QuestGiverStatus::RepeatableTurnin;
             else
                 result |= QuestGiverStatus::TrivialRepeatableTurnin;
@@ -16180,7 +16267,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
             {
                 if (SatisfyQuestLevel(quest, false))
                 {
-                    bool isTrivial = GetLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF));
+                    bool isTrivial = GetLevel() > (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF));
                     if (quest->IsImportant())
                         result |= isTrivial ? QuestGiverStatus::TrivialImportantQuest : QuestGiverStatus::ImportantQuest;
                     else if (quest->GetQuestTag() == QuestTagType::CovenantCalling)
@@ -16468,7 +16555,7 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid /*= ObjectGuid::E
             real_entry = killed->GetEntry();
     }
 
-    StartCriteriaTimer(CriteriaStartEvent::KillNPC, real_entry);   // MUST BE CALLED FIRST
+    StartCriteria(CriteriaStartEvent::KillNPC, real_entry);   // MUST BE CALLED FIRST
     UpdateCriteria(CriteriaType::KillCreature, real_entry, addKillCount, 0, killed);
 
     UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_MONSTER, entry, 1, guid);
@@ -16476,6 +16563,7 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid /*= ObjectGuid::E
 
 void Player::KilledPlayerCredit(ObjectGuid victimGuid)
 {
+    StartCriteria(CriteriaStartEvent::KillPlayer, 0);
     UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_PLAYERKILLS, 0, 1, victimGuid);
 }
 
@@ -16640,9 +16728,12 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
                     updateZoneAuras = true;
             }
 
-            if (objectiveIsNowComplete && CanCompleteQuest(questId, objective.ID))
-                CompleteQuest(questId);
-            else if (objectiveItr.second.QuestStatusItr->second.Status == QUEST_STATUS_COMPLETE)
+            if (objectiveIsNowComplete)
+            {
+                if (CanCompleteQuest(questId, objective.ID))
+                    CompleteQuest(questId);
+            }
+            else if (!(objective.Flags & QUEST_OBJECTIVE_FLAG_OPTIONAL) && objectiveItr.second.QuestStatusItr->second.Status == QUEST_STATUS_COMPLETE)
                 IncompleteQuest(questId);
         }
     }
@@ -17246,8 +17337,8 @@ void Player::_LoadBGData(PreparedQueryResult result)
 
     Field* fields = result->Fetch();
     // Expecting only one row
-    //        0           1     2      3      4      5      6          7          8        9
-    // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell FROM character_battleground_data WHERE guid = ?
+    //        0           1     2      3      4      5      6          7          8        9           10
+    // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell, queueTypeId FROM character_battleground_data WHERE guid = ?
 
     m_bgData.bgInstanceID = fields[0].GetUInt32();
     m_bgData.bgTeam       = fields[1].GetUInt16();
@@ -17259,6 +17350,7 @@ void Player::_LoadBGData(PreparedQueryResult result)
     m_bgData.taxiPath[0]  = fields[7].GetUInt32();
     m_bgData.taxiPath[1]  = fields[8].GetUInt32();
     m_bgData.mountSpell   = fields[9].GetUInt32();
+    m_bgData.queueId      = BattlegroundQueueTypeId::FromPacked(fields[10].GetUInt64());
 }
 
 bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, ObjectGuid guid)
@@ -17649,16 +17741,17 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         {
             map = currentBg->GetBgMap();
 
-            BattlegroundQueueTypeId bgQueueTypeId = currentBg->GetQueueId();
-            AddBattlegroundQueueId(bgQueueTypeId);
+            if (BattlegroundPlayer const* bgPlayer = currentBg->GetBattlegroundPlayerData(GetGUID()))
+            {
+                AddBattlegroundQueueId(bgPlayer->queueTypeId);
+                m_bgData.bgTypeID = BattlegroundTypeId(bgPlayer->queueTypeId.BattlemasterListId);
 
-            m_bgData.bgTypeID = currentBg->GetTypeID();
+                //join player to battleground group
+                currentBg->EventPlayerLoggedIn(this);
 
-            //join player to battleground group
-            currentBg->EventPlayerLoggedIn(this);
-
-            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
-            SetMercenaryForBattlegroundQueueType(bgQueueTypeId, currentBg->IsPlayerMercenaryInBattleground(GetGUID()));
+                SetInviteForBattlegroundQueueType(bgPlayer->queueTypeId, currentBg->GetInstanceID());
+                SetMercenaryForBattlegroundQueueType(bgPlayer->queueTypeId, currentBg->IsPlayerMercenaryInBattleground(GetGUID()));
+            }
         }
         // Bg was not found - go to Entry Point
         else
@@ -17873,7 +17966,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         m_InstanceValid = false;
 
     if (player_at_bg)
-        map->ToBattlegroundMap()->GetBG()->AddPlayer(this);
+        map->ToBattlegroundMap()->GetBG()->AddPlayer(this, m_bgData.queueId);
 
     // randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
     // this must help in case next save after mass player load after server startup
@@ -20876,6 +20969,8 @@ void Player::_SaveStats(CharacterDatabaseTransaction trans) const
     stmt->setUInt32(index++, m_unitData->RangedAttackPower);
     stmt->setUInt32(index++, GetBaseSpellPowerBonus());
     stmt->setUInt32(index, m_activePlayerData->CombatRatings[CR_RESILIENCE_PLAYER_DAMAGE]);
+    stmt->setFloat(index++, m_activePlayerData->Mastery);
+    stmt->setInt32(index++, m_activePlayerData->Versatility);
 
     trans->Append(stmt);
 }
@@ -20885,18 +20980,18 @@ void Player::outDebugValues() const
     if (!sLog->ShouldLog("entities.unit", LOG_LEVEL_DEBUG))
         return;
 
-    TC_LOG_DEBUG("entities.unit", "HP is: \t\t\t{}\t\tMP is: \t\t\t{}", GetMaxHealth(), GetMaxPower(POWER_MANA));
-    TC_LOG_DEBUG("entities.unit", "AGILITY is: \t\t{}\t\tSTRENGTH is: \t\t{}", GetStat(STAT_AGILITY), GetStat(STAT_STRENGTH));
-    TC_LOG_DEBUG("entities.unit", "INTELLECT is: \t\t{}", GetStat(STAT_INTELLECT));
-    TC_LOG_DEBUG("entities.unit", "STAMINA is: \t\t{}", GetStat(STAT_STAMINA));
-    TC_LOG_DEBUG("entities.unit", "Armor is: \t\t{}\t\tBlock is: \t\t{}", GetArmor(), *m_activePlayerData->BlockPercentage);
-    TC_LOG_DEBUG("entities.unit", "HolyRes is: \t\t{}\t\tFireRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_HOLY), GetResistance(SPELL_SCHOOL_MASK_FIRE));
-    TC_LOG_DEBUG("entities.unit", "NatureRes is: \t\t{}\t\tFrostRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_NATURE), GetResistance(SPELL_SCHOOL_MASK_FROST));
-    TC_LOG_DEBUG("entities.unit", "ShadowRes is: \t\t{}\t\tArcaneRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_SHADOW), GetResistance(SPELL_SCHOOL_MASK_ARCANE));
-    TC_LOG_DEBUG("entities.unit", "MIN_DAMAGE is: \t\t{}\tMAX_DAMAGE is: \t\t{}", *m_unitData->MinDamage, *m_unitData->MaxDamage);
-    TC_LOG_DEBUG("entities.unit", "MIN_OFFHAND_DAMAGE is: \t{}\tMAX_OFFHAND_DAMAGE is: \t{}", *m_unitData->MinOffHandDamage, *m_unitData->MaxOffHandDamage);
-    TC_LOG_DEBUG("entities.unit", "MIN_RANGED_DAMAGE is: \t{}\tMAX_RANGED_DAMAGE is: \t{}", *m_unitData->MinRangedDamage, *m_unitData->MaxRangedDamage);
-    TC_LOG_DEBUG("entities.unit", "ATTACK_TIME is: \t{}\t\tRANGE_ATTACK_TIME is: \t{}", GetBaseAttackTime(BASE_ATTACK), GetBaseAttackTime(RANGED_ATTACK));
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "HP is: \t\t\t{}\t\tMP is: \t\t\t{}", GetMaxHealth(), GetMaxPower(POWER_MANA));
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "AGILITY is: \t\t{}\t\tSTRENGTH is: \t\t{}", GetStat(STAT_AGILITY), GetStat(STAT_STRENGTH));
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "INTELLECT is: \t\t{}", GetStat(STAT_INTELLECT));
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "STAMINA is: \t\t{}", GetStat(STAT_STAMINA));
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "Armor is: \t\t{}\t\tBlock is: \t\t{}", GetArmor(), *m_activePlayerData->BlockPercentage);
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "HolyRes is: \t\t{}\t\tFireRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_HOLY), GetResistance(SPELL_SCHOOL_MASK_FIRE));
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "NatureRes is: \t\t{}\t\tFrostRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_NATURE), GetResistance(SPELL_SCHOOL_MASK_FROST));
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "ShadowRes is: \t\t{}\t\tArcaneRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_SHADOW), GetResistance(SPELL_SCHOOL_MASK_ARCANE));
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "MIN_DAMAGE is: \t\t{}\tMAX_DAMAGE is: \t\t{}", *m_unitData->MinDamage, *m_unitData->MaxDamage);
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "MIN_OFFHAND_DAMAGE is: \t{}\tMAX_OFFHAND_DAMAGE is: \t{}", *m_unitData->MinOffHandDamage, *m_unitData->MaxOffHandDamage);
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "MIN_RANGED_DAMAGE is: \t{}\tMAX_RANGED_DAMAGE is: \t{}", *m_unitData->MinRangedDamage, *m_unitData->MaxRangedDamage);
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "ATTACK_TIME is: \t{}\t\tRANGE_ATTACK_TIME is: \t{}", GetBaseAttackTime(BASE_ATTACK), GetBaseAttackTime(RANGED_ATTACK));
 }
 
 /*********************************************************/
@@ -23312,12 +23407,12 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
     }
 }
 
-bool Player::CanJoinToBattleground(Battleground const* bg) const
+bool Player::CanJoinToBattleground(BattlegroundTemplate const* bg) const
 {
     uint32 perm = rbac::RBAC_PERM_JOIN_NORMAL_BG;
-    if (bg->isArena())
+    if (bg->IsArena())
         perm = rbac::RBAC_PERM_JOIN_ARENAS;
-    else if (bg->IsRandom())
+    else if (BattlegroundMgr::IsRandomBattleground(bg->Id))
         perm = rbac::RBAC_PERM_JOIN_RANDOM_BG;
 
     return GetSession()->HasPermission(perm);
@@ -23792,6 +23887,23 @@ bool Player::IsInGroup(ObjectGuid groupGuid) const
             return true;
 
     return false;
+}
+
+Group const* Player::GetGroup(Optional<uint8> partyIndex) const
+{
+    Group const* group = GetGroup();
+    if (!partyIndex)
+        return group;
+
+    GroupCategory category = GroupCategory(*partyIndex);
+    if (group && group->GetGroupCategory() == category)
+        return group;
+
+    Group const* originalGroup = GetOriginalGroup();
+    if (originalGroup && originalGroup->GetGroupCategory() == category)
+        return originalGroup;
+
+    return nullptr;
 }
 
 void Player::SetGroup(Group* group, int8 subgroup)
@@ -24313,10 +24425,6 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races r
                 continue;
         }
 
-        // AcquireMethod == 2 && NumSkillUps == 1 --> automatically learn riding skill spell, else we skip it (client shows riding in spellbook as trainable).
-        if (skillId == SKILL_RIDING && (ability->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN || ability->NumSkillUps != 1))
-            continue;
-
         // Check race if set
         if (!ability->RaceMask.IsEmpty() && !ability->RaceMask.HasRace(race))
             continue;
@@ -24325,8 +24433,18 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races r
         if (ability->ClassMask && !(ability->ClassMask & classMask))
             continue;
 
-        // check level, skip class spells if not high enough
-        if (GetLevel() < spellInfo->SpellLevel)
+        // Check level, skip class spells if not high enough
+        uint32 requiredLevel = std::max(spellInfo->SpellLevel, spellInfo->BaseLevel);
+
+        // riding special cases
+        if (skillId == SKILL_RIDING)
+        {
+            if (GetClassMask() & ((1 << (CLASS_DEATH_KNIGHT - 1)) | (1 << (CLASS_DEMON_HUNTER - 1)))
+                && (ability->Spell == SPELL_APPRENTICE_RIDING || ability->Spell == SPELL_JOURNEYMAN_RIDING))
+                requiredLevel = 0;
+        }
+
+        if (requiredLevel > GetLevel())
             continue;
 
         // need unlearn spell
@@ -24476,6 +24594,8 @@ void Player::DailyReset()
 
     if (_garrison)
         _garrison->ResetFollowerActivationLimit();
+
+    FailCriteria(CriteriaFailEvent::DailyQuestsCleared, 0);
 }
 
 void Player::ResetWeeklyQuestStatus()
@@ -24608,10 +24728,11 @@ bool Player::InBattlegroundQueueForBattlegroundQueueType(BattlegroundQueueTypeId
     return GetBattlegroundQueueIndex(bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES;
 }
 
-void Player::SetBattlegroundId(uint32 val, BattlegroundTypeId bgTypeId)
+void Player::SetBattlegroundId(uint32 val, BattlegroundTypeId bgTypeId, BattlegroundQueueTypeId queueId)
 {
     m_bgData.bgInstanceID = val;
     m_bgData.bgTypeID = bgTypeId;
+    m_bgData.queueId = queueId;
 }
 
 uint32 Player::AddBattlegroundQueueId(BattlegroundQueueTypeId val)
@@ -24695,7 +24816,7 @@ bool Player::InArena() const
 bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const
 {
     // get a template bg instead of running one
-    Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
+    BattlegroundTemplate const* bg = sBattlegroundMgr->GetBattlegroundTemplateByTypeId(bgTypeId);
     if (!bg)
         return false;
 
@@ -25466,9 +25587,9 @@ Player* Player::GetNextRandomRaidMember(float radius)
     return nearMembers[randTarget];
 }
 
-PartyResult Player::CanUninviteFromGroup(ObjectGuid guidMember) const
+PartyResult Player::CanUninviteFromGroup(ObjectGuid guidMember, Optional<uint8> partyIndex) const
 {
-    Group const* grp = GetGroup();
+    Group const* grp = GetGroup(partyIndex);
     if (!grp)
         return ERR_NOT_IN_GROUP;
 
@@ -25489,7 +25610,7 @@ PartyResult Player::CanUninviteFromGroup(ObjectGuid guidMember) const
             return ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE;
 
         Player* player = ObjectAccessor::FindConnectedPlayer(guidMember);
-        if (!player->m_lootRolls.empty())
+        if (player && !player->m_lootRolls.empty())
             return ERR_PARTY_LFG_BOOT_LOOT_ROLLS;
 
         /// @todo Should also be sent when anyone has recently left combat, with an aprox ~5 seconds timer.
@@ -25571,10 +25692,7 @@ void Player::SetOriginalGroup(Group* group, int8 subgroup)
 void Player::SetPartyType(GroupCategory category, uint8 type)
 {
     ASSERT(category < MAX_GROUP_CATEGORY);
-    uint8 value = m_playerData->PartyType;
-    value &= ~uint8(uint8(0xFF) << (category * 4));
-    value |= uint8(uint8(type) << (category * 4));
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PartyType), value);
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PartyType, category), type);
 }
 
 void Player::ResetGroupUpdateSequenceIfNeeded(Group const* group)
@@ -25756,10 +25874,21 @@ bool Player::CanUseBattlegroundObject(GameObject* gameobject) const
             return false;
     }
 
+    bool hasRecentlyDroppedFlagDebuff = HasAura([](Aura const* aura) -> bool
+    {
+        if (aura->GetSpellInfo()->Id == SPELL_RECENTLY_DROPPED_ALLIANCE_FLAG)
+            return true;
+        else if (aura->GetSpellInfo()->Id == SPELL_RECENTLY_DROPPED_HORDE_FLAG)
+            return true;
+        else if (aura->GetSpellInfo()->Id == SPELL_RECENTLY_DROPPED_NEUTRAL_FLAG)
+            return true;
+        return false;
+    });
+
     // BUG: sometimes when player clicks on flag in AB - client won't send gameobject_use, only gameobject_report_use packet
     // Note: Mount, stealth and invisibility will be removed when used
     return (!isTotalImmune() &&                            // Damage immune
-            !HasAura(SPELL_RECENTLY_DROPPED_FLAG) &&       // Still has recently held flag debuff
+            !hasRecentlyDroppedFlagDebuff &&               // Still has recently held flag debuff
             IsAlive());                                    // Alive
 }
 
@@ -26287,20 +26416,15 @@ bool Player::HasAchieved(uint32 achievementId) const
     return m_achievementMgr->HasAchieved(achievementId);
 }
 
-void Player::StartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry, uint32 timeLost/* = 0*/)
+void Player::StartCriteria(CriteriaStartEvent startEvent, uint32 entry, Milliseconds timeLost/* = Milliseconds::zero()*/)
 {
-    m_achievementMgr->StartCriteriaTimer(startEvent, entry, timeLost);
+    m_achievementMgr->StartCriteria(startEvent, entry, timeLost);
 }
 
-void Player::RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry)
+void Player::FailCriteria(CriteriaFailEvent condition, int32 failAsset)
 {
-    m_achievementMgr->RemoveCriteriaTimer(startEvent, entry);
-}
-
-void Player::ResetCriteria(CriteriaFailEvent condition, int32 failAsset, bool evenIfCriteriaComplete /* = false*/)
-{
-    m_achievementMgr->ResetCriteria(condition, failAsset, evenIfCriteriaComplete);
-    m_questObjectiveCriteriaMgr->ResetCriteria(condition, failAsset, evenIfCriteriaComplete);
+    m_achievementMgr->FailCriteria(condition, failAsset);
+    m_questObjectiveCriteriaMgr->FailCriteria(condition, failAsset);
 }
 
 void Player::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, WorldObject* ref /*= nullptr*/)
@@ -26658,6 +26782,49 @@ void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcod
         SetFallInformation(minfo.jump.fallTime, minfo.pos.GetPositionZ());
 }
 
+void Player::DisablePetControlsOnMount(ReactStates reactState, CommandStates commandState)
+{
+    Pet* pet = GetPet();
+    if (!pet)
+        return;
+
+    m_temporaryPetReactState = pet->GetReactState();
+    pet->SetReactState(reactState);
+    if (CharmInfo* charmInfo = pet->GetCharmInfo())
+        charmInfo->SetCommandState(commandState);
+
+    pet->GetMotionMaster()->MoveFollow(this, PET_FOLLOW_DIST, pet->GetFollowAngle());
+
+    WorldPackets::Pet::PetMode petMode;
+    petMode.PetGUID = pet->GetGUID();
+    petMode.ReactState = reactState;
+    petMode.CommandState = commandState;
+    petMode.Flag = 0;
+    SendDirectMessage(petMode.Write());
+}
+
+void Player::EnablePetControlsOnDismount()
+{
+    if (Pet* pet = GetPet())
+    {
+        WorldPackets::Pet::PetMode petMode;
+        petMode.PetGUID = pet->GetGUID();
+        if (m_temporaryPetReactState)
+        {
+            petMode.ReactState = *m_temporaryPetReactState;
+            pet->SetReactState(*m_temporaryPetReactState);
+        }
+
+        if (CharmInfo* charmInfo = pet->GetCharmInfo())
+            petMode.CommandState = charmInfo->GetCommandState();
+
+        petMode.Flag = 0;
+        SendDirectMessage(petMode.Write());
+    }
+
+    m_temporaryPetReactState.reset();
+}
+
 void Player::UnsummonPetTemporaryIfAny()
 {
     Pet* pet = GetPet();
@@ -26694,7 +26861,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
 
 bool Player::IsPetNeedBeTemporaryUnsummoned() const
 {
-    return !IsInWorld() || !IsAlive() || IsMounted() /*+in flight*/;
+    return !IsInWorld() || !IsAlive() || HasUnitMovementFlag(MOVEMENTFLAG_FLYING) || HasExtraUnitMovementFlag2(MOVEMENTFLAG3_ADV_FLYING);
 }
 
 bool Player::CanSeeSpellClickOn(Creature const* c) const
@@ -26956,6 +27123,7 @@ void Player::_SaveBGData(CharacterDatabaseTransaction trans)
     stmt->setUInt32(8, m_bgData.taxiPath[0]);
     stmt->setUInt32(9, m_bgData.taxiPath[1]);
     stmt->setUInt32(10, m_bgData.mountSpell);
+    stmt->setUInt64(11, m_bgData.queueId.GetPacked());
     trans->Append(stmt);
 }
 
@@ -28845,8 +29013,9 @@ std::string Player::GetMapAreaAndZoneString() const
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
     {
         areaName = area->AreaName[GetSession()->GetSessionDbcLocale()];
-        if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
-            zoneName = zone->AreaName[GetSession()->GetSessionDbcLocale()];
+        if (area->GetFlags().HasFlag(AreaFlags::IsSubzone))
+            if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
+                zoneName = zone->AreaName[GetSession()->GetSessionDbcLocale()];
     }
 
     std::ostringstream str;

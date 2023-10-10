@@ -257,6 +257,19 @@ namespace WorldPackets
 
             uint8 Result = 0;
         };
+
+        class PetMode final : public ServerPacket
+        {
+        public:
+            PetMode() : ServerPacket(SMSG_PET_MODE, 16 + 2 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PetGUID;
+            ReactStates ReactState = REACT_PASSIVE;
+            CommandStates CommandState = COMMAND_STAY;
+            uint8 Flag = 0;
+        };
     }
 }
 

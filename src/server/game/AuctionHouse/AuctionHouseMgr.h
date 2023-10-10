@@ -165,18 +165,7 @@ struct AuctionsBucketKey
     uint16 BattlePetSpeciesId;
     uint16 SuffixItemNameDescriptionId;
 
-    bool operator==(AuctionsBucketKey const& right) const
-    {
-        return ItemId == right.ItemId
-            && ItemLevel == right.ItemLevel
-            && BattlePetSpeciesId == right.BattlePetSpeciesId
-            && SuffixItemNameDescriptionId == right.SuffixItemNameDescriptionId;
-    }
-
-    bool operator!=(AuctionsBucketKey const& right) const
-    {
-        return !(*this == right);
-    }
+    bool operator==(AuctionsBucketKey const& right) const = default;
 
     friend std::strong_ordering operator<=>(AuctionsBucketKey const& left, AuctionsBucketKey const& right) = default;
 

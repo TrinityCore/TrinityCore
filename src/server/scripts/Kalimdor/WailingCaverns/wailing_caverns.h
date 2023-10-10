@@ -23,6 +23,20 @@
 #define WCScriptName "instance_wailing_caverns"
 #define DataHeader "WC"
 
+enum WCBossIds
+{
+    BOSS_LORD_COBRAHN           = 0,
+    BOSS_LORD_PYTHAS            = 1,
+    BOSS_LADY_ANACONDRA         = 2,
+    BOSS_LORD_SERPENTIS         = 3,
+    BOSS_MUTANUS_THE_DEVOURER   = 8,
+    BOSS_KRESH                  = 9,
+    BOSS_SKUM                   = 10,
+    BOSS_VERDAN_THE_EVERLIVING  = 11,
+
+    MAX_ENCOUNTER
+};
+
 enum WCDataTypes
 {
     TYPE_LORD_COBRAHN         = 1,
@@ -37,6 +51,13 @@ enum WCDataTypes
     TYPE_NARALEX_YELLED       = 10,
 
     DATA_NARALEX              = 3679,
+};
+
+enum WCCreatureIds
+{
+    NPC_KRESH                   = 3653,
+    NPC_SKUM                    = 3674,
+    NPC_VERDAN_THE_EVERLIVING   = 5775
 };
 
 template <class AI, class T>
