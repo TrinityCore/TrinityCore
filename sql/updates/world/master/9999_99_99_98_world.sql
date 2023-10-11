@@ -44,7 +44,7 @@ UPDATE `creature_template` SET `faction`=1665, `npcflag`=4224, `BaseAttackTime`=
 UPDATE `creature_template` SET `faction`=1665, `npcflag`=3, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `unit_flags3`=1 WHERE `entry`=184601; -- Highlord Bolvar Fordragon
 UPDATE `creature_template` SET `faction`=1665, `BaseAttackTime`=2000, `unit_flags`=33024, `unit_flags2`=2048, `unit_flags3`=1 WHERE `entry`=184613; -- Knight of the Ebon Blade
 UPDATE `creature_template` SET `faction`=1665, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `unit_flags3`=1 WHERE `entry`=184599; -- Thrall
-UPDATE `creature_template` SET `ScriptName`='npc_firim', `faction`=1665, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `unit_flags3`=1 WHERE `entry`=184589; -- Firim
+UPDATE `creature_template` SET `ScriptName`='', `faction`=1665, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `unit_flags3`=1 WHERE `entry`=184589; -- Firim
 UPDATE `creature_template` SET `faction`=35, `npcflag`=8192, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67143680, `unit_flags3`=16777217 WHERE `entry` IN (182431, 184354); -- Ancient Translocator
 UPDATE `creature_template` SET `ScriptName`='npc_dominated_translocator', `faction`=14, `npcflag`=1, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=71354368, `unit_flags3`=16777217 WHERE `entry`=184297; -- Dominated Translocator
 UPDATE `creature_template` SET `ScriptName`='boss_anduin_wrynn', `faction`=16, `speed_walk`=4.40000009536743164, `speed_run`=1.571428537368774414, `BaseAttackTime`=2000, `unit_flags`=262208 WHERE `entry`=181954; -- Anduin Wrynn
