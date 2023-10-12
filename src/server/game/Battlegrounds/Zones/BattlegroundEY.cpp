@@ -83,7 +83,7 @@ void BattlegroundEY::PostUpdateImpl(uint32 diff)
 
 void BattlegroundEY::StartingEventOpenDoors()
 {
-    for (ObjectGuid const& door : _doors)
+    for (ObjectGuid const& door : _doorGUIDs)
     {
         if (GameObject* gameObject = GetBgMap()->GetGameObject(door))
         {
@@ -134,7 +134,7 @@ uint8 BattlegroundEY::GetControlledBaseCount(TeamId teamId) const
 
 void BattlegroundEY::DoForFlagKeepers(std::function<void(Player*)> action) const
 {
-    if (GameObject* flag = GetBgMap()->GetGameObject(_flag))
+    if (GameObject* flag = GetBgMap()->GetGameObject(_flagGUID))
     {
         if (Player* carrier = ObjectAccessor::FindPlayer(flag->GetFlagCarrierGUID()))
             action(carrier);
@@ -207,6 +207,7 @@ void BattlegroundEY::EndBattleground(uint32 winner)
         RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
     if (winner == HORDE)
         RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
+
     // Complete map reward
     RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
@@ -228,10 +229,10 @@ void BattlegroundEY::OnGameObjectCreate(GameObject* gameObject)
     {
         case BG_OBJECT_A_DOOR_EY_ENTRY:
         case BG_OBJECT_H_DOOR_EY_ENTRY:
-            _doors.insert(gameObject->GetGUID());
+            _doorGUIDs.insert(gameObject->GetGUID());
             break;
         case BG_OBJECT_FLAG2_EY_ENTRY:
-            _flag = gameObject->GetGUID();
+            _flagGUID = gameObject->GetGUID();
             break;
         default:
             break;
@@ -240,12 +241,14 @@ void BattlegroundEY::OnGameObjectCreate(GameObject* gameObject)
 
 bool BattlegroundEY::CanCaptureFlag(AreaTrigger* areaTrigger, Player* player)
 {
-    if (areaTrigger->GetEntry() != TR_CAPTURE_FLAG)
+    if (areaTrigger->GetEntry() != AREATRIGGER_CAPTURE_FLAG)
         return false;
 
-    if (GameObject* flag = GetBgMap()->GetGameObject(_flag))
+    if (GameObject* flag = GetBgMap()->GetGameObject(_flagGUID))
+    {
         if (flag->GetFlagCarrierGUID() != player->GetGUID())
             return false;
+    }
 
     if (GameObject* controlzone = player->FindNearestGameObjectWithOptions(40.0f, { .StringId = "bg_eye_of_the_storm_control_zone" }))
     {
@@ -266,12 +269,12 @@ bool BattlegroundEY::CanCaptureFlag(AreaTrigger* areaTrigger, Player* player)
 
 void BattlegroundEY::OnCaptureFlag(AreaTrigger* areaTrigger, Player* player)
 {
-    if (areaTrigger->GetEntry() != TR_CAPTURE_FLAG)
+    if (areaTrigger->GetEntry() != AREATRIGGER_CAPTURE_FLAG)
         return;
 
     uint32 baseCount = GetControlledBaseCount(GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID())));
 
-    if (GameObject* gameObject = GetBgMap()->GetGameObject(_flag))
+    if (GameObject* gameObject = GetBgMap()->GetGameObject(_flagGUID))
         gameObject->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Respawning, player));
 
     Team team = Team(GetPlayerTeam(player->GetGUID()));
@@ -447,7 +450,6 @@ void BattlegroundEY::EventTeamCapturedPoint(TeamId teamId, uint32 point, GameObj
     }
 
     UpdateWorldState(m_PointsIconStruct[point].WorldStateControlIndex, 0);
-
     UpdatePointsCount(teamId);
 }
 
@@ -456,14 +458,9 @@ bool BattlegroundEY::UpdatePlayerScore(Player* player, uint32 type, uint32 value
     if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
         return false;
 
-    switch (type)
-    {
-        case SCORE_FLAG_CAPTURES:
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, EY_OBJECTIVE_CAPTURE_FLAG);
-            break;
-        default:
-            break;
-    }
+    if (type == SCORE_FLAG_CAPTURES)
+        player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, EY_OBJECTIVE_CAPTURE_FLAG);
+
     return true;
 }
 
@@ -497,15 +494,7 @@ void BattlegroundEY::ProcessEvent(WorldObject* target, uint32 eventId, WorldObje
 
                 auto controlzone = gameobject->GetGOInfo()->controlZone;
                 BattlegroundEYControlZoneHandler& handler = *_controlZoneHandlers[invoker->GetEntry()];
-                if (eventId == controlzone.CaptureEventAlliance)
-                    handler.HandleCaptureEventAlliance(gameobject);
-                else if (eventId == controlzone.CaptureEventHorde)
-                    handler.HandleCaptureEventHorde(gameobject);
-                else if (eventId == controlzone.ContestedEventAlliance)
-                    handler.HandleContestedEventAlliance(gameobject);
-                else if (eventId == controlzone.ContestedEventHorde)
-                    handler.HandleContestedEventHorde(gameobject);
-                else if (eventId == controlzone.NeutralEventAlliance)
+                if (eventId == controlzone.NeutralEventAlliance)
                     handler.HandleNeutralEventAlliance(gameobject);
                 else if (eventId == controlzone.NeutralEventHorde)
                     handler.HandleNeutralEventHorde(gameobject);

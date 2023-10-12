@@ -102,7 +102,7 @@ enum EYBattlegroundObjectEntry
 
 enum EYBattlegroundPointsTrigger
 {
-    TR_CAPTURE_FLAG = 10000000 // TODO CHANGE ME
+    AREATRIGGER_CAPTURE_FLAG = 33
 };
 
 enum EYBattlegroundPoints
@@ -343,8 +343,8 @@ class BattlegroundEY : public Battleground
         uint32 m_HonorTics;
 
         std::unordered_map<uint32, std::unique_ptr<BattlegroundEYControlZoneHandler>> _controlZoneHandlers;
-        GuidUnorderedSet _doors;
-        ObjectGuid _flag;
+        GuidUnorderedSet _doorGUIDs;
+        ObjectGuid _flagGUID;
 
         // Focused/Brutal Assault
         bool _assaultEnabled;
