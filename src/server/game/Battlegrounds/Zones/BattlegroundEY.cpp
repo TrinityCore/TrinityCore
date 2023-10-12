@@ -247,7 +247,7 @@ bool BattlegroundEY::CanCaptureFlag(AreaTrigger* areaTrigger, Player* player)
         if (flag->GetFlagCarrierGUID() != player->GetGUID())
             return false;
 
-    if (GameObject* controlzone = player->FindNearestGameObjectWithOptions(40.0f, { .GameObjectType = GAMEOBJECT_TYPE_CONTROL_ZONE }))
+    if (GameObject* controlzone = player->FindNearestGameObjectWithOptions(40.0f, { .StringId = "bg_eye_of_the_storm_control_zone" }))
     {
         uint32 point = _controlZoneHandlers[controlzone->GetEntry()]->GetPoint();
         switch (GetPlayerTeam(player->GetGUID()))
