@@ -35,19 +35,15 @@ class boss_ambassador_flamelash : public CreatureScript
     public:
         boss_ambassador_flamelash() : CreatureScript("boss_ambassador_flamelash") { }
 
-        struct boss_ambassador_flamelashAI : public ScriptedAI
+        struct boss_ambassador_flamelashAI : public BossAI
         {
-            boss_ambassador_flamelashAI(Creature* creature) : ScriptedAI(creature) { }
+            boss_ambassador_flamelashAI(Creature* creature) : BossAI(creature, BOSS_AMBASSADOR_FLAMELASH) { }
 
-            void Reset() override
+            void JustEngagedWith(Unit* who) override
             {
-                _events.Reset();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _events.ScheduleEvent(EVENT_FIREBLAST, 2s);
-                _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 24s);
+                _JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_FIREBLAST, 2s);
+                events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 24s);
             }
 
             void SummonSpirit(Unit* victim)
@@ -61,20 +57,20 @@ class boss_ambassador_flamelash : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                _events.Update(diff);
+                events.Update(diff);
 
-                while (uint32 eventId = _events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_FIREBLAST:
                             DoCastVictim(SPELL_FIREBLAST);
-                            _events.ScheduleEvent(EVENT_FIREBLAST, 7s);
+                            events.ScheduleEvent(EVENT_FIREBLAST, 7s);
                             break;
                         case EVENT_SUMMON_SPIRITS:
                             for (uint32 i = 0; i < 4; ++i)
                                 SummonSpirit(me->GetVictim());
-                            _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 30s);
+                            events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 30s);
                             break;
                         default:
                             break;
@@ -83,9 +79,6 @@ class boss_ambassador_flamelash : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-
-        private:
-            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

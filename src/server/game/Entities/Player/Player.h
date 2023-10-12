@@ -43,6 +43,7 @@ struct AzeriteEssencePowerEntry;
 struct AzeriteItemMilestonePowerEntry;
 struct AzeritePowerEntry;
 struct BarberShopStyleEntry;
+struct BattlegroundTemplate;
 struct CharTitlesEntry;
 struct ChatChannelsEntry;
 struct ChrSpecializationEntry;
@@ -990,7 +991,7 @@ class Player;
 struct BGData
 {
     BGData() : bgInstanceID(0), bgTypeID(BATTLEGROUND_TYPE_NONE), bgAfkReportedCount(0), bgAfkReportedTimer(0),
-        bgTeam(0), mountSpell(0) { ClearTaxiPath(); }
+        bgTeam(0), mountSpell(0), queueId(BATTLEGROUND_QUEUE_NONE) { ClearTaxiPath(); }
 
     uint32 bgInstanceID;                    ///< This variable is set to bg->m_InstanceID,
                                             ///  when player is teleported to BG - (it is battleground's GUID)
@@ -1006,6 +1007,7 @@ struct BGData
     uint32 taxiPath[2];
 
     WorldLocation joinPos;                  ///< From where player entered BG
+    BattlegroundQueueTypeId queueId;
 
     void ClearTaxiPath()     { taxiPath[0] = taxiPath[1] = 0; }
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
@@ -2393,7 +2395,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsInvitedForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const;
         bool InBattlegroundQueueForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const;
 
-        void SetBattlegroundId(uint32 val, BattlegroundTypeId bgTypeId);
+        void SetBattlegroundId(uint32 val, BattlegroundTypeId bgTypeId, BattlegroundQueueTypeId queueId);
         uint32 AddBattlegroundQueueId(BattlegroundQueueTypeId val);
         bool HasFreeBattlegroundQueueId() const;
         void RemoveBattlegroundQueueId(BattlegroundQueueTypeId val);
@@ -2408,7 +2410,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetBGTeam() const;
 
         void LeaveBattleground(bool teleportToEntryPoint = true);
-        bool CanJoinToBattleground(Battleground const* bg) const;
+        bool CanJoinToBattleground(BattlegroundTemplate const* bg) const;
         bool CanReportAfkDueToLimit();
         void ReportedAfkBy(Player* reporter);
         void ClearAfkReports() { m_bgData.bgAfkReporter.clear(); }
@@ -2529,6 +2531,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Temporarily removed pet cache
         uint32 GetTemporaryUnsummonedPetNumber() const { return m_temporaryUnsummonedPetNumber; }
         void SetTemporaryUnsummonedPetNumber(uint32 petnumber) { m_temporaryUnsummonedPetNumber = petnumber; }
+        Optional<ReactStates> GetTemporaryPetReactState() const { return m_temporaryPetReactState; }
+        void DisablePetControlsOnMount(ReactStates reactState, CommandStates commandState);
+        void EnablePetControlsOnDismount();
         void UnsummonPetTemporaryIfAny();
         void ResummonPetTemporaryUnSummonedIfAny();
         bool IsPetNeedBeTemporaryUnsummoned() const;
@@ -2585,6 +2590,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsInGroup(ObjectGuid groupGuid) const;
         Group* GetGroupInvite() const { return m_groupInvite; }
         void SetGroupInvite(Group* group) { m_groupInvite = group; }
+        Group* GetGroup(Optional<uint8> partyIndex) { return const_cast<Group*>(const_cast<Player const*>(this)->GetGroup(partyIndex)); }
+        Group const* GetGroup(Optional<uint8> partyIndex) const;
         Group* GetGroup() { return m_group.getTarget(); }
         Group const* GetGroup() const { return const_cast<Group const*>(m_group.getTarget()); }
         GroupReference& GetGroupRef() { return m_group; }
@@ -2597,7 +2604,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ResetGroupUpdateSequenceIfNeeded(Group const* group);
         int32 NextGroupUpdateSequenceNumber(GroupCategory category);
         Player* GetNextRandomRaidMember(float radius);
-        PartyResult CanUninviteFromGroup(ObjectGuid guidMember = ObjectGuid::Empty) const;
+        PartyResult CanUninviteFromGroup(ObjectGuid guidMember, Optional<uint8> partyIndex) const;
 
         // Battleground / Battlefield Group System
         void SetBattlegroundOrBattlefieldRaid(Group* group, int8 subgroup = -1);
@@ -2631,10 +2638,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::vector<uint32> GetCompletedAchievementIds() const;
         bool HasAchieved(uint32 achievementId) const;
         void ResetAchievements();
-        void ResetCriteria(CriteriaFailEvent condition, int32 failAsset, bool evenIfCriteriaComplete = false);
+        void FailCriteria(CriteriaFailEvent condition, int32 failAsset);
         void UpdateCriteria(CriteriaType type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject* ref = nullptr);
-        void StartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry, uint32 timeLost = 0);
-        void RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry);
+        void StartCriteria(CriteriaStartEvent startEvent, uint32 entry, Milliseconds timeLost = Milliseconds::zero());
         void CompletedAchievement(AchievementEntry const* entry);
         bool ModifierTreeSatisfied(uint32 modifierTreeId) const;
 
@@ -3168,6 +3174,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         // Temporary removed pet cache
         uint32 m_temporaryUnsummonedPetNumber;
+        Optional<ReactStates> m_temporaryPetReactState;
         uint32 m_oldpetspell;
 
         std::unique_ptr<PlayerAchievementMgr> m_achievementMgr;

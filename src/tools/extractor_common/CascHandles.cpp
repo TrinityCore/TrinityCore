@@ -99,7 +99,12 @@ namespace
 
         // Read the response status line.
         boost::asio::streambuf response;
-        boost::asio::read_until(socket, response, "\r\n");
+        boost::asio::read_until(socket, response, "\r\n", error);
+        if (error)
+        {
+            printf("Downloading tact key list failed to read HTTP response status %s", error.message().c_str());
+            return {};
+        }
 
         // Check that response is OK.
         std::string http_version;
@@ -119,6 +124,11 @@ namespace
 
         // Read the response headers, which are terminated by a blank line.
         boost::asio::read_until(socket, response, "\r\n\r\n");
+        if (error)
+        {
+            printf("Downloading tact key list failed to read HTTP response headers %s", error.message().c_str());
+            return {};
+        }
 
         // Process the response headers.
         std::string header;

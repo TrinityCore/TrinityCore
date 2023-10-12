@@ -42,9 +42,9 @@ public:
         return GetMaraudonAI<boss_noxxionAI>(creature);
     }
 
-    struct boss_noxxionAI : public ScriptedAI
+    struct boss_noxxionAI : public BossAI
     {
-        boss_noxxionAI(Creature* creature) : ScriptedAI(creature)
+        boss_noxxionAI(Creature* creature) : BossAI(creature, BOSS_NOXXION)
         {
             Initialize();
         }
@@ -66,10 +66,10 @@ public:
 
         void Reset() override
         {
+            BossAI::Reset();
+
             Initialize();
         }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SummonAdds(Unit* victim)
         {

@@ -164,38 +164,6 @@ void QuestObjectiveCriteriaMgr::SaveToDB(CharacterDatabaseTransaction trans)
     }
 }
 
-void QuestObjectiveCriteriaMgr::ResetCriteria(CriteriaFailEvent failEvent, int32 failAsset, bool evenIfCriteriaComplete)
-{
-    TC_LOG_DEBUG("criteria.quest", "QuestObjectiveCriteriaMgr::ResetCriteria({}, {}, {})", uint32(failEvent), failAsset, evenIfCriteriaComplete ? "true" : "false");
-
-    // disable for gamemasters with GM-mode enabled
-    if (_owner->IsGameMaster())
-        return;
-
-    if (CriteriaList const* playerCriteriaList = sCriteriaMgr->GetCriteriaByFailEvent(failEvent, failAsset))
-    {
-        for (Criteria const* playerCriteria : *playerCriteriaList)
-        {
-            std::vector<CriteriaTree const*> const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(playerCriteria->ID);
-            bool allComplete = true;
-            for (CriteriaTree const* tree : *trees)
-            {
-                // don't update already completed criteria if not forced
-                if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete))
-                {
-                    allComplete = false;
-                    break;
-                }
-            }
-
-            if (allComplete)
-                continue;
-
-            RemoveCriteriaProgress(playerCriteria);
-        }
-    }
-}
-
 void QuestObjectiveCriteriaMgr::ResetCriteriaTree(uint32 criteriaTreeId)
 {
     CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(criteriaTreeId);

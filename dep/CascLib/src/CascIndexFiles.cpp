@@ -596,7 +596,7 @@ static DWORD CaptureArchiveIndexFooter(CASC_ARCINDEX_FOOTER & InFooter, LPBYTE p
         // Verify the hash. FooterHash needs to be cleared in order to calculate footer hash properly
         checksum_data_length = FIELD_OFFSET(FILE_INDEX_FOOTER<0x08>, FooterHash) - FIELD_OFFSET(FILE_INDEX_FOOTER<0x08>, Version);
         memcpy(checksum_data, &pFooter08->Version, checksum_data_length);
-        CascCalculateDataBlockHash(checksum_data, sizeof(FILE_INDEX_FOOTER<0x08>) - MD5_HASH_SIZE, md5_hash);
+        CascHash_MD5(checksum_data, sizeof(FILE_INDEX_FOOTER<0x08>) - MD5_HASH_SIZE, md5_hash);
         if(!memcmp(md5_hash, InFooter.FooterHash, InFooter.FooterHashBytes))
             return ERROR_SUCCESS;
     }

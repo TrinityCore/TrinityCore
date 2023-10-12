@@ -389,7 +389,7 @@ public:
 
                 // all's well, set bg id
                 // when porting out from the bg, it will be reset to 0
-                _player->SetBattlegroundId(target->GetBattlegroundId(), target->GetBattlegroundTypeId());
+                _player->SetBattlegroundId(target->GetBattlegroundId(), target->GetBattlegroundTypeId(), BATTLEGROUND_QUEUE_NONE); // unsure
                 // remember current position as entry point for return at bg end teleportation
                 if (!_player->GetMap()->IsBattlegroundOrArena())
                     _player->SetBattlegroundEntryPoint();
@@ -522,7 +522,7 @@ public:
 
                 // all's well, set bg id
                 // when porting out from the bg, it will be reset to 0
-                target->SetBattlegroundId(_player->GetBattlegroundId(), _player->GetBattlegroundTypeId());
+                target->SetBattlegroundId(_player->GetBattlegroundId(), _player->GetBattlegroundTypeId(), BATTLEGROUND_QUEUE_NONE); // unsure about this
                 // remember current position as entry point for return at bg end teleportation
                 if (!target->GetMap()->IsBattlegroundOrArena())
                     target->SetBattlegroundEntryPoint();
@@ -1014,7 +1014,7 @@ public:
         uint32 zoneId = player->GetZoneId();
 
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(zoneId);
-        if (!areaEntry || areaEntry->ParentAreaID !=0)
+        if (!areaEntry || areaEntry->GetFlags().HasFlag(AreaFlags::IsSubzone))
         {
             handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDWRONGZONE, graveyardId, zoneId);
             handler->SetSentErrorMessage(true);
@@ -1953,11 +1953,14 @@ public:
         {
             zoneName = area->AreaName[locale];
 
-            AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
-            if (zone)
+            if (area->GetFlags().HasFlag(AreaFlags::IsSubzone))
             {
-                areaName = zoneName;
-                zoneName = zone->AreaName[locale];
+                AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
+                if (zone)
+                {
+                    areaName = zoneName;
+                    zoneName = zone->AreaName[locale];
+                }
             }
         }
 

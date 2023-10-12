@@ -93,7 +93,12 @@ void Scenario::SetStep(ScenarioStepEntry const* step)
 {
     _currentstep = step;
     if (step)
+    {
         SetStepState(step, SCENARIO_STEP_IN_PROGRESS);
+        for (ObjectGuid const& guid : _players)
+            if (Player* player = ObjectAccessor::GetPlayer(_map, guid))
+                player->StartCriteria(CriteriaStartEvent::BeginScenarioStep, step->ID);
+    }
 
     WorldPackets::Scenario::ScenarioState scenarioState;
     BuildScenarioState(&scenarioState);
@@ -133,7 +138,7 @@ ScenarioEntry const* Scenario::GetEntry() const
 
 ScenarioStepState Scenario::GetStepState(ScenarioStepEntry const* step)
 {
-    std::map<ScenarioStepEntry const*, ScenarioStepState>::const_iterator itr = _stepStates.find(step);
+    auto itr = _stepStates.find(step);
     if (itr == _stepStates.end())
         return SCENARIO_STEP_INVALID;
 

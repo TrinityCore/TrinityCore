@@ -545,6 +545,21 @@ struct BroadcastTextDurationEntry
     int32 Duration;
 };
 
+struct Cfg_CategoriesEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    uint16 LocaleMask;
+    uint8 CreateCharsetMask;
+    uint8 ExistingCharsetMask;
+    uint8 Flags;
+    int8 Order;
+
+    EnumFlag<CfgCategoriesCharsets> GetCreateCharsetMask() const { return static_cast<CfgCategoriesCharsets>(CreateCharsetMask); }
+    EnumFlag<CfgCategoriesCharsets> GetExistingCharsetMask() const { return static_cast<CfgCategoriesCharsets>(ExistingCharsetMask); }
+    EnumFlag<CfgCategoriesFlags> GetFlags() const { return static_cast<CfgCategoriesFlags>(Flags); }
+};
+
 struct Cfg_RegionsEntry
 {
     uint32 ID;
@@ -602,6 +617,9 @@ struct ChatChannelsEntry
     int32 Flags;
     int8 FactionGroup;
     int32 Ruleset;
+
+    EnumFlag<ChatChannelFlags> GetFlags() const { return static_cast<ChatChannelFlags>(Flags); }
+    ChatChannelRuleset GetRuleset() const { return static_cast<ChatChannelRuleset>(Ruleset); }
 };
 
 struct ChrClassUIDisplayEntry
@@ -631,7 +649,6 @@ struct ChrClassesEntry
     uint32 LowResScreenFileDataID;
     int32 Flags;
     uint32 SpellTextureBlobFileDataID;
-    uint32 RolesMask;
     uint32 ArmorTypeMask;
     int32 CharStartKitUnknown901;
     int32 MaleCharacterCreationVisualFallback;
@@ -653,6 +670,7 @@ struct ChrClassesEntry
     uint8 ClassColorR;
     uint8 ClassColorG;
     uint8 ClassColorB;
+    uint8 RolesMask;
 };
 
 struct ChrClassesXPowerTypesEntry
@@ -700,6 +718,7 @@ struct ChrCustomizationElementEntry
     int32 ChrCustItemGeoModifyID;
     int32 ChrCustomizationVoiceID;
     int32 AnimKitID;
+    int32 ParticleColorID;
 };
 
 struct ChrCustomizationOptionEntry
@@ -1033,6 +1052,8 @@ struct CreatureModelDataEntry
     std::array<float, 6> GeoBox;
     uint32 Flags;
     uint32 FileDataID;
+    float WalkSpeed;
+    float RunSpeed;
     uint32 BloodID;
     uint32 FootprintTextureID;
     float FootprintTextureLength;
@@ -2738,7 +2759,14 @@ struct MapEntry
     bool IsDynamicDifficultyMap() const { return GetFlags().HasFlag(MapFlags::DynamicDifficulty); }
     bool IsFlexLocking() const { return GetFlags().HasFlag(MapFlags::FlexibleRaidLocking); }
     bool IsGarrison() const { return GetFlags().HasFlag(MapFlags::Garrison); }
-    bool IsSplitByFaction() const { return ID == 609 || ID == 2175 || ID == 2570; }
+    bool IsSplitByFaction() const
+    {
+        return ID == 609 || // Acherus (DeathKnight Start)
+            ID == 1265 ||   // Assault on the Dark Portal (WoD Intro)
+            ID == 1481 ||   // Mardum (DH Start)
+            ID == 2175 ||   // Exiles Reach - NPE
+            ID == 2570;     // Forbidden Reach (Dracthyr/Evoker Start)
+    }
 
     EnumFlag<MapFlags> GetFlags() const { return static_cast<MapFlags>(Flags[0]); }
     EnumFlag<MapFlags2> GetFlags2() const { return static_cast<MapFlags2>(Flags[1]); }
@@ -3967,7 +3995,7 @@ struct TaxiNodesEntry
     uint16 ContinentID;
     int32 ConditionID;
     uint16 CharacterBitNumber;
-    uint16 Flags;
+    int32 Flags;
     int32 UiTextureKitID;
     int32 MinimapAtlasMemberID;
     float Facing;
@@ -3991,7 +4019,7 @@ struct TaxiPathNodeEntry
     uint16 PathID;
     int32 NodeIndex;
     uint16 ContinentID;
-    uint8 Flags;
+    int32 Flags;
     uint32 Delay;
     int32 ArrivalEventID;
     int32 DepartureEventID;

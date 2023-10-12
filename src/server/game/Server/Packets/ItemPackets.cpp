@@ -152,7 +152,7 @@ WorldPacket const* WorldPackets::Item::SetProficiency::Write()
 
 WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()
 {
-    _worldPacket << int8(BagResult);
+    _worldPacket << int32(BagResult);
     _worldPacket << Item[0];
     _worldPacket << Item[1];
     _worldPacket << uint8(ContainerBSlot); // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_WRONG_BAG_TYPE_2
@@ -238,8 +238,10 @@ void WorldPackets::Item::DestroyItem::Read()
 WorldPacket const* WorldPackets::Item::SellResponse::Write()
 {
     _worldPacket << VendorGUID;
-    _worldPacket << ItemGUID;
-    _worldPacket << uint8(Reason);
+    _worldPacket << uint32(ItemGUIDs.size());
+    _worldPacket << int32(Reason);
+    for (ObjectGuid const& itemGuid : ItemGUIDs)
+        _worldPacket << itemGuid;
 
     return &_worldPacket;
 }
@@ -264,6 +266,7 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
 
     _worldPacket.WriteBit(Pushed);
     _worldPacket.WriteBit(Created);
+    _worldPacket.WriteBit(Unused_1017);
     _worldPacket.WriteBits(DisplayText, 3);
     _worldPacket.WriteBit(IsBonusRoll);
     _worldPacket.WriteBit(IsEncounterLoot);

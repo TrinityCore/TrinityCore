@@ -46,9 +46,9 @@ public:
         return GetStratholmeAI<boss_timmy_the_cruelAI>(creature);
     }
 
-    struct boss_timmy_the_cruelAI : public ScriptedAI
+    struct boss_timmy_the_cruelAI : public BossAI
     {
-        boss_timmy_the_cruelAI(Creature* creature) : ScriptedAI(creature)
+        boss_timmy_the_cruelAI(Creature* creature) : BossAI(creature, BOSS_TIMMY_THE_CRUEL)
         {
             Initialize();
         }
@@ -64,11 +64,15 @@ public:
 
         void Reset() override
         {
+            BossAI::Reset();
+
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
+            BossAI::JustEngagedWith(who);
+
             if (!HasYelled)
             {
                 Talk(SAY_SPAWN);

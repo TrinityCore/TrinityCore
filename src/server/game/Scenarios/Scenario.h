@@ -19,6 +19,7 @@
 #define Scenario_h__
 
 #include "CriteriaHandler.h"
+#include <map>
 #include <unordered_set>
 
 class Map;

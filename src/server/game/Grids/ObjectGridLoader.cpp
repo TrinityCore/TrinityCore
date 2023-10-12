@@ -145,7 +145,7 @@ void ObjectGridLoader::Visit(CreatureMapType &m)
 void ObjectGridLoader::Visit(AreaTriggerMapType& m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
-    CellGuidSet const* areaTriggers = sAreaTriggerDataStore->GetAreaTriggersForMapAndCell(i_map->GetId(), cellCoord.GetId());
+    CellGuidSet const* areaTriggers = sAreaTriggerDataStore->GetAreaTriggersForMapAndCell(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId());
     if (areaTriggers)
         LoadHelper(*areaTriggers, cellCoord, m, i_areaTriggers, i_map);
 }
