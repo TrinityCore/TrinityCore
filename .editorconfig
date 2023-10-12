@@ -1,5 +1,5 @@
 [*]
-charset = utf-8
+charset = gb2312
 indent_size = 4
 tab_width = 4
 indent_style = space
@@ -8,4 +8,4 @@ trim_trailing_whitespace = true
 max_line_length = 160
 
 [*.{c,h,cpp,hpp,inl}]
-charset = latin1
+charset = gb2312
