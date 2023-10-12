@@ -114,7 +114,7 @@ uint8 BattlegroundEY::GetControlledBaseCount(TeamId teamId) const
     uint8 baseCount = 0;
     for (auto const& controlZoneHandler : _controlZoneHandlers)
     {
-        uint32 point = static_cast<BattlegroundEYControlZoneHandler*>(controlZoneHandler.second.get())->GetPoint();
+        uint32 point = controlZoneHandler.second->GetPoint();
         switch (teamId)
         {
             case TEAM_ALLIANCE:
@@ -243,9 +243,13 @@ bool BattlegroundEY::CanCaptureFlag(AreaTrigger* areaTrigger, Player* player)
     if (areaTrigger->GetEntry() != TR_CAPTURE_FLAG)
         return false;
 
+    if (GameObject* flag = GetBgMap()->GetGameObject(_flag))
+        if (flag->GetFlagCarrierGUID() != player->GetGUID())
+            return false;
+
     if (GameObject* controlzone = player->FindNearestGameObjectWithOptions(40.0f, { .GameObjectType = GAMEOBJECT_TYPE_CONTROL_ZONE }))
     {
-        uint32 point = static_cast<BattlegroundEYControlZoneHandler*>(_controlZoneHandlers[controlzone->GetEntry()].get())->GetPoint();
+        uint32 point = _controlZoneHandlers[controlzone->GetEntry()]->GetPoint();
         switch (GetPlayerTeam(player->GetGUID()))
         {
             case ALLIANCE:
