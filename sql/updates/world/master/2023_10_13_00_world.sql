@@ -1,6 +1,6 @@
 -- 
-SET @AREATRIGGERID := 5000000; -- @TODO: adjust me pre merge
-SET @ATSPAWNID := 35; -- @TODO: adjust me pre merge
+SET @AREATRIGGERID := 42; 
+SET @ATSPAWNID := 34;
 SET @BOUNDING_RADIUS := 7.36909;
 
 -- fix TrialOfValorHelheim tele pos
@@ -80,8 +80,8 @@ UPDATE `areatrigger_create_properties` SET `ScriptName`='at_guardians_breath_blu
 UPDATE `areatrigger_create_properties` SET `ScriptName`='SmartAreaTriggerAI' WHERE `Id` IN(9293, 8816);
 
 DELETE FROM `areatrigger` WHERE `SpawnId`=@ATSPAWNID;
-INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `Comment`) VALUES 
-(@ATSPAWNID+0, @AREATRIGGERID+2, 1, 1648, 469.0233, 460.4998, 4.8196, 4.7948, 1, 0, 0, 1, 30, 20, 10, 30, 20, 10, 0, 0, 'SmartAreaTriggerAI', 'Guarm In Range Convo Trigger');
+INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `Comment`) VALUES 
+(@ATSPAWNID+0, @AREATRIGGERID+2, 1, 1648, '14,15,16,17', 469.0233, 460.4998, 4.8196, 4.7948, 1, 0, 0, 1, 30, 20, 10, 30, 20, 10, 0, 0, 'SmartAreaTriggerAI', 'Guarm In Range Convo Trigger');
 
 DELETE FROM `smart_scripts` WHERE (`source_type`=11 AND `entryorguid` IN(@AREATRIGGERID+0, @AREATRIGGERID+1)) OR (`source_type`=12 AND `entryorguid`=@AREATRIGGERID+2);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
