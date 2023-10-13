@@ -1594,7 +1594,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             break;
         case CriteriaType::PVPKillInArea:
         case CriteriaType::EnterTopLevelArea:
-            if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.AreaID))
+            if (!miscValue1 || !DB2Manager::IsInArea(uint32(miscValue1), uint32(criteria->Entry->Asset.AreaID)))
                 return false;
             break;
         case CriteriaType::CurrencyGained:
@@ -1758,9 +1758,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::PlayerIsInArea: // 17
         {
-            uint32 zoneId, areaId;
-            referencePlayer->GetZoneAndAreaId(zoneId, areaId);
-            if (zoneId != reqValue && areaId != reqValue)
+            if (!DB2Manager::IsInArea(referencePlayer->GetAreaId(), reqValue))
                 return false;
             break;
         }
@@ -1768,9 +1766,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             if (!ref)
                 return false;
-            uint32 zoneId, areaId;
-            ref->GetZoneAndAreaId(zoneId, areaId);
-            if (zoneId != reqValue && areaId != reqValue)
+            if (!DB2Manager::IsInArea(ref->GetAreaId(), reqValue))
                 return false;
             break;
         }
@@ -3583,10 +3579,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerIsInAreaGroup: // 298
         {
             std::vector<uint32> areas = sDB2Manager.GetAreasForGroup(reqValue);
-            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(referencePlayer->GetAreaId()))
-                for (uint32 areaInGroup : areas)
-                    if (areaInGroup == area->ID || areaInGroup == area->ParentAreaID)
-                        return true;
+            for (uint32 areaInGroup : areas)
+                if (DB2Manager::IsInArea(referencePlayer->GetAreaId(), areaInGroup))
+                    return true;
             return false;
         }
         case ModifierTreeType::TargetIsInAreaGroup: // 299
@@ -3594,10 +3589,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (!ref)
                 return false;
             std::vector<uint32> areas = sDB2Manager.GetAreasForGroup(reqValue);
-            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(ref->GetAreaId()))
-                for (uint32 areaInGroup : areas)
-                    if (areaInGroup == area->ID || areaInGroup == area->ParentAreaID)
-                        return true;
+            for (uint32 areaInGroup : areas)
+                if (DB2Manager::IsInArea(ref->GetAreaId(), areaInGroup))
+                    return true;
             return false;
         }
         case ModifierTreeType::PlayerIsInChromieTime: // 300
