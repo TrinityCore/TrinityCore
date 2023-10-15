@@ -1201,6 +1201,196 @@ class spell_mardum_baleful_beaming_gaze_selector : public SpellScript
     }
 };
 
+enum SetThemFreeData
+{
+    NPC_CYANA_NIGHTGLAIVE_FREED     = 94377,
+    NPC_IZAL_WHITEMOON_FREED        = 93117,
+    NPC_BELATH_DAWNBLADE_FREED      = 94400,
+    NPC_MANNETHREL_DARKSTAR_FREED   = 93230,
+
+    SAY_CYANA_NIGHTGLAIVE_FREED     = 1,
+    SAY_IZAL_WHITEMOON_FREED        = 1,
+    SAY_BELATH_DAWNBLADE_FREED      = 1,
+    SAY_MANNETHRE_DARKSTAR_FREED    = 1,
+
+    PATH_CYANA_NIGHTGLAIVE_FREED    = 9437700,
+    PATH_IZAL_WHITEMOON_FREED       = 9311700,
+    PATH_BELATH_DAWNBLADE_FREED     = 9440000,
+    PATH_MANNETHREL_DARKSTAR_FREED  = 9323000,
+
+    ANIM_DH_WALK_DAZED              = 1078
+};
+
+// 94377 - Cyana Nightglaive
+struct npc_cyana_nightglaive_freed_private : public ScriptedAI
+{
+    npc_cyana_nightglaive_freed_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->DespawnOrUnsummon(19s);
+
+        _scheduler.Schedule(2s + 500ms, [this](TaskContext task)
+        {
+            Talk(SAY_CYANA_NIGHTGLAIVE_FREED, me);
+
+            task.Schedule(3s, [this](TaskContext /*task*/)
+            {
+                me->GetMotionMaster()->MovePath(PATH_CYANA_NIGHTGLAIVE_FREED, false);
+            });
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+CreatureAI* CyanaNightglaiveFreedAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_cyana_nightglaive_freed_private(creature);
+    return new NullCreatureAI(creature);
+};
+
+// 93117 - Izal Whitemoon
+struct npc_izal_whitemoon_freed_private : public ScriptedAI
+{
+    npc_izal_whitemoon_freed_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->DespawnOrUnsummon(18s);
+
+        _scheduler.Schedule(2s, [this](TaskContext task)
+        {
+            Talk(SAY_IZAL_WHITEMOON_FREED, me);
+
+            task.Schedule(3s, [this](TaskContext /*task*/)
+            {
+                me->GetMotionMaster()->MovePath(PATH_CYANA_NIGHTGLAIVE_FREED, false);
+            });
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+CreatureAI* IzalWhitemoonFreedAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_izal_whitemoon_freed_private(creature);
+    return new NullCreatureAI(creature);
+};
+
+// 94400 - Belath Dawnblade
+struct npc_belath_dawnblade_freed_private : public ScriptedAI
+{
+    npc_belath_dawnblade_freed_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->DespawnOrUnsummon(5min); // wtf blizz
+
+        _scheduler.Schedule(3s, [this](TaskContext task)
+        {
+            Talk(SAY_BELATH_DAWNBLADE_FREED, me);
+
+            task.Schedule(6s, [this](TaskContext /*task*/)
+            {
+                me->GetMotionMaster()->MovePath(PATH_BELATH_DAWNBLADE_FREED, false);
+            });
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+CreatureAI* BelathDawnbladeFreedAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_belath_dawnblade_freed_private(creature);
+    return new NullCreatureAI(creature);
+};
+
+// 93230 - Mannethrel Darkstar
+struct npc_mannethrel_darkstar_freed_private : public ScriptedAI
+{
+    npc_mannethrel_darkstar_freed_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->DespawnOrUnsummon(28s);
+
+        _scheduler.Schedule(2s, [this](TaskContext task)
+        {
+            Talk(SAY_BELATH_DAWNBLADE_FREED, me);
+
+            task.Schedule(6s, [this](TaskContext /*task*/)
+            {
+                me->SetAIAnimKitId(ANIM_DH_WALK_DAZED);
+                me->GetMotionMaster()->MovePath(PATH_MANNETHREL_DARKSTAR_FREED, false);
+            });
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+CreatureAI* MannethrelDarkstarFreedAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_mannethrel_darkstar_freed_private(creature);
+    return new NullCreatureAI(creature);
+};
+
+// 204711 - Set Them Free: Cyana Nightglaive Freed Kill Credit
+// 204714 - Set Them Free: Izal Whitemoon Freed Kill Credit
+// 204712 - Set Them Free: Belath Dawnblade Freed Kill Credit
+// 204715 - Set Them Free: Mannethrel Darkstar Freed Kill Credit
+template<uint32 CreatureId>
+class spell_freed_killcredit_set_them_free : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            Creature* staticObject = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = CreatureId, .IgnorePhases = true });
+            if (!staticObject)
+                return;
+
+            staticObject->SummonPersonalClone(staticObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_freed_killcredit_set_them_free::HandleHitTarget, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_zone_mardum()
 {
     // Creature
@@ -1218,6 +1408,10 @@ void AddSC_zone_mardum()
     new FactoryCreatureScript<CreatureAI, &KaynSunfuryNearLegionBannerAISelector>("npc_kayn_sunfury_ashtongue_intro");
     new FactoryCreatureScript<CreatureAI, &SevisBrightflameAshtongueGatewayAISelector>("npc_sevis_brightflame_ashtongue_gateway_private");
     new FactoryCreatureScript<CreatureAI, &SevisBrightflameCoilskarGatewayAISelector>("npc_sevis_brightflame_coilskar_gateway_private");
+    new FactoryCreatureScript<CreatureAI, &CyanaNightglaiveFreedAISelector>("npc_cyana_nightglaive_freed_private");
+    new FactoryCreatureScript<CreatureAI, &IzalWhitemoonFreedAISelector>("npc_izal_whitemoon_freed_private");
+    new FactoryCreatureScript<CreatureAI, &BelathDawnbladeFreedAISelector>("npc_belath_dawnblade_freed_private");
+    new FactoryCreatureScript<CreatureAI, &MannethrelDarkstarFreedAISelector>("npc_mannethrel_darkstar_freed_private");
 
     // AreaTrigger
     RegisterAreaTriggerAI(at_enter_the_illidari_ashtongue_allari_killcredit);
@@ -1236,4 +1430,8 @@ void AddSC_zone_mardum()
     RegisterSpellScript(spell_mardum_baleful_legion_aegis);
     RegisterSpellScript(spell_mardum_coloss_infernal_smash_selector);
     RegisterSpellScript(spell_mardum_baleful_beaming_gaze_selector);
+    RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_CYANA_NIGHTGLAIVE_FREED>, "spell_cyana_nightglaive_killcredit_set_them_free");
+    RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_IZAL_WHITEMOON_FREED>, "spell_izal_whitemoon_killcredit_set_them_free");
+    RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_BELATH_DAWNBLADE_FREED>, "spell_belath_dawnblade_killcredit_set_them_free");
+    RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_MANNETHREL_DARKSTAR_FREED>, "spell_mannethrel_darkstar_killcredit_set_them_free");
 };
