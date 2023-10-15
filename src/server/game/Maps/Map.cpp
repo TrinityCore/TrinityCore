@@ -3224,6 +3224,13 @@ bool Map::IsNormal() const
 
 bool Map::IsHeroic() const
 {
+    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
+    {
+        if (difficulty->Flags & DIFFICULTY_FLAG_DISPLAY_HEROIC)
+            return true;
+    }
+
+    // compatibility purposes of old difficulties
     switch (i_spawnMode)
     {
         case DIFFICULTY_10_HC:
@@ -3232,8 +3239,6 @@ bool Map::IsHeroic() const
         case DIFFICULTY_3_MAN_SCENARIO_HC:
             return true;
         default:
-            if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
-                return difficulty->Flags & DIFFICULTY_FLAG_DISPLAY_HEROIC;
             return false;
     }
 }
