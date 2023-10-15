@@ -1173,7 +1173,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr7>::ToString(SpellAttr7 value)
     {
         case SPELL_ATTR7_UNK0: return { "SPELL_ATTR7_UNK0", "Unknown attribute 0@Attr7", "" };
         case SPELL_ATTR7_IGNORE_DURATION_MODS: return { "SPELL_ATTR7_IGNORE_DURATION_MODS", "Ignore duration modifiers", "" };
-        case SPELL_ATTR7_REACTIVATE_AT_RESURRECT: return { "SPELL_ATTR7_REACTIVATE_AT_RESURRECT", "Reactivate at resurrect (client only)", "" };
+        case SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD: return { "SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD", "Disable Aura While Dead", "" };
         case SPELL_ATTR7_IS_CHEAT_SPELL: return { "SPELL_ATTR7_IS_CHEAT_SPELL", "Is cheat spell", "Cannot cast if caster doesn't have UnitFlag2 & UNIT_FLAG2_ALLOW_CHEAT_SPELLS" };
         case SPELL_ATTR7_UNK4: return { "SPELL_ATTR7_UNK4", "Unknown attribute 4@Attr7", "Soulstone related?" };
         case SPELL_ATTR7_SUMMON_PLAYER_TOTEM: return { "SPELL_ATTR7_SUMMON_PLAYER_TOTEM", "Summons player-owned totem", "" };
@@ -1217,7 +1217,7 @@ TC_API_EXPORT SpellAttr7 EnumUtils<SpellAttr7>::FromIndex(size_t index)
     {
         case 0: return SPELL_ATTR7_UNK0;
         case 1: return SPELL_ATTR7_IGNORE_DURATION_MODS;
-        case 2: return SPELL_ATTR7_REACTIVATE_AT_RESURRECT;
+        case 2: return SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD;
         case 3: return SPELL_ATTR7_IS_CHEAT_SPELL;
         case 4: return SPELL_ATTR7_UNK4;
         case 5: return SPELL_ATTR7_SUMMON_PLAYER_TOTEM;
@@ -1258,7 +1258,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
     {
         case SPELL_ATTR7_UNK0: return 0;
         case SPELL_ATTR7_IGNORE_DURATION_MODS: return 1;
-        case SPELL_ATTR7_REACTIVATE_AT_RESURRECT: return 2;
+        case SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD: return 2;
         case SPELL_ATTR7_IS_CHEAT_SPELL: return 3;
         case SPELL_ATTR7_UNK4: return 4;
         case SPELL_ATTR7_SUMMON_PLAYER_TOTEM: return 5;
