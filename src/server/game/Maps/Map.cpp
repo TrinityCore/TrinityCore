@@ -3200,9 +3200,26 @@ bool Map::IsHeroic() const
     return false;
 }
 
+bool Map::IsMythic() const
+{
+    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
+        return difficulty->Flags & DIFFICULTY_FLAG_DISPLAY_MYTHIC;
+    return false;
+}
+
+bool Map::IsHeroicOrMythic() const
+{
+    return IsHeroic() || IsMythic();
+}
+
 bool Map::Is25ManRaid() const
 {
     return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC);
+}
+
+bool Map::IsTimewalking() const
+{
+    return (IsRaid() && (i_spawnMode == DIFFICULTY_TIMEWALKING_RAID) || IsDungeon() && (i_spawnMode == DIFFICULTY_TIMEWALKING));
 }
 
 bool Map::IsBattleground() const
