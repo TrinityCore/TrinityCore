@@ -3219,7 +3219,7 @@ bool Map::Is25ManRaid() const
 
 bool Map::IsTimewalking() const
 {
-    return (IsRaid() && (i_spawnMode == DIFFICULTY_TIMEWALKING_RAID) || IsDungeon() && (i_spawnMode == DIFFICULTY_TIMEWALKING));
+    return (IsDungeon() && (i_spawnMode == DIFFICULTY_TIMEWALKING) || IsRaid() && (i_spawnMode == DIFFICULTY_TIMEWALKING_RAID));
 }
 
 bool Map::IsBattleground() const
