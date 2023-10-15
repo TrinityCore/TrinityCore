@@ -126,7 +126,6 @@ ScriptedAI::ScriptedAI(Creature* creature) : ScriptedAI(creature, creature->GetS
 
 ScriptedAI::ScriptedAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, scriptId), IsFleeing(false), _isCombatMovementAllowed(true)
 {
-    _isHeroic = me->GetMap()->IsHeroic();
     _difficulty = me->GetMap()->GetDifficultyID();
 }
 

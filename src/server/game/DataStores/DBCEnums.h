@@ -909,14 +909,14 @@ enum Difficulty : uint8
 
 enum DifficultyFlags
 {
-    DIFFICULTY_FLAG_HEROIC          = 0x01,
-    DIFFICULTY_FLAG_DEFAULT         = 0x02,
-    DIFFICULTY_FLAG_CAN_SELECT      = 0x04, // Player can select this difficulty in dropdown menu
-    DIFFICULTY_FLAG_CHALLENGE_MODE  = 0x08,
-
-    DIFFICULTY_FLAG_LEGACY          = 0x20,
-    DIFFICULTY_FLAG_DISPLAY_HEROIC  = 0x40, // Controls icon displayed on minimap when inside the instance
-    DIFFICULTY_FLAG_DISPLAY_MYTHIC  = 0x80  // Controls icon displayed on minimap when inside the instance
+    DIFFICULTY_FLAG_HEROIC_STYLE_LOCKOUTS   = 0x01,
+    DIFFICULTY_FLAG_DEFAULT                 = 0x02,
+    DIFFICULTY_FLAG_CAN_SELECT              = 0x04, // Player can select this difficulty in dropdown menu
+    //DIFFICULTY_FLAG_CHALLENGE_MODE          = 0x08, // deprecated since Legion expansion
+    DIFFICULTY_FLAG_LFG_ONLY                = 0x10,
+    DIFFICULTY_FLAG_LEGACY                  = 0x20,
+    DIFFICULTY_FLAG_DISPLAY_HEROIC          = 0x40, // Controls icon displayed on minimap when inside the instance
+    DIFFICULTY_FLAG_DISPLAY_MYTHIC          = 0x80  // Controls icon displayed on minimap when inside the instance
 };
 
 enum class ExpectedStatType : uint8

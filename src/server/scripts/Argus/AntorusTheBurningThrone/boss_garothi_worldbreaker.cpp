@@ -271,7 +271,7 @@ struct boss_garothi_worldbreaker : public BossAI
             me->SetFacingTo(me->GetHomePosition().GetOrientation());
             events.Reset();
 
-            if (GetDifficulty() == DIFFICULTY_MYTHIC_RAID || GetDifficulty() == DIFFICULTY_HEROIC_RAID)
+            if (IsHeroic() || IsMythic())
                 events.ScheduleEvent(EVENT_SURGING_FEL, 8s);
 
             DoCastSelf(SPELL_APOCALYPSE_DRIVE);

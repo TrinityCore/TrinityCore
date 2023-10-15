@@ -3193,11 +3193,49 @@ bool Map::IsRaid() const
     return i_mapEntry && i_mapEntry->IsRaid();
 }
 
+bool Map::IsLFR() const
+{
+    switch (i_spawnMode)
+    {
+        case DIFFICULTY_LFR:
+        case DIFFICULTY_LFR_NEW:
+        case DIFFICULTY_LFR_15TH_ANNIVERSARY:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool Map::IsNormal() const
+{
+    switch (i_spawnMode)
+    {
+        case DIFFICULTY_NORMAL:
+        case DIFFICULTY_10_N:
+        case DIFFICULTY_25_N:
+        case DIFFICULTY_NORMAL_RAID:
+        case DIFFICULTY_NORMAL_ISLAND:
+        case DIFFICULTY_NORMAL_WARFRONT:
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool Map::IsHeroic() const
 {
-    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
-        return difficulty->Flags & DIFFICULTY_FLAG_HEROIC;
-    return false;
+    switch (i_spawnMode)
+    {
+        case DIFFICULTY_10_HC:
+        case DIFFICULTY_25_HC:
+        case DIFFICULTY_HEROIC:
+        case DIFFICULTY_3_MAN_SCENARIO_HC:
+            return true;
+        default:
+            if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
+                return difficulty->Flags & DIFFICULTY_FLAG_DISPLAY_HEROIC;
+            return false;
+    }
 }
 
 bool Map::IsMythic() const
@@ -3207,11 +3245,6 @@ bool Map::IsMythic() const
     return false;
 }
 
-bool Map::IsHeroicOrMythic() const
-{
-    return IsHeroic() || IsMythic();
-}
-
 bool Map::Is25ManRaid() const
 {
     return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC);
@@ -3219,7 +3252,7 @@ bool Map::Is25ManRaid() const
 
 bool Map::IsTimewalking() const
 {
-    return (IsDungeon() && (i_spawnMode == DIFFICULTY_TIMEWALKING)) || (IsRaid() && (i_spawnMode == DIFFICULTY_TIMEWALKING_RAID));
+    return (IsDungeon() && i_spawnMode == DIFFICULTY_TIMEWALKING) || (IsRaid() && i_spawnMode == DIFFICULTY_TIMEWALKING_RAID);
 }
 
 bool Map::IsBattleground() const
