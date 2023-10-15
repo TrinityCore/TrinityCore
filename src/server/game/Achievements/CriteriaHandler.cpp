@@ -1643,6 +1643,11 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.ZoneID))
                 return false;
             break;
+        case CriteriaType::PlayerTriggerGameEvent:
+        case CriteriaType::AnyoneTriggerGameEventScenario:
+            if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.EventID))
+                return false;
+            break;
         default:
             break;
     }
