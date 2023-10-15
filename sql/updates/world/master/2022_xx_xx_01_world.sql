@@ -18,53 +18,32 @@ INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `
 (175732, 0, 2, 178082, -250.247, -1385.28, 5640.44, 1.57011, 8, 0, 'The Arbiter - Sylvanas Windrunner Encounter');
 
 -- Sylvanas Shadowcopy (Fight)
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2099200, `unit_flags3`=1, `CreatureDifficultyID`=199018, `ScriptName`='npc_sylvanas_windrunner_shadowcopy' WHERE `entry`=176369;
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2099200, `unit_flags3`=1, `ScriptName`='npc_sylvanas_windrunner_shadowcopy' WHERE `entry`=176369;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=176369;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(176369, 0, 0, 50331648, 1, 0, 0, 0, 0, 4, '');
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=176369;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(176369, 14, 0, 0, 2104, 41079),
-(176369, 15, 0, 0, 2105, 41079),
-(176369, 16, 0, 0, 2106, 41079),
-(176369, 17, 0, 0, 2107, 41079);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `AnimTier`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(176369, 0, 0, 3, 1, 0, 0, 0, 0, 4, '');
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=176369;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
 (176369, 1, 0, 1, 0, 0, 0);
 
 -- Domination Arrow
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=4194304, `unit_flags3`=1, `CreatureDifficultyID`=204760, `ScriptName`='npc_sylvanas_windrunner_domination_arrow' WHERE `entry`=176920;
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=4194304, `unit_flags3`=1, `ScriptName`='npc_sylvanas_windrunner_domination_arrow' WHERE `entry`=176920;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=176920;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(176920, 0, 0, 0, 1, 0, 0, 0, 0, 4, '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(176920, 0, 0, 1, 0, 0, 0, 0, 4, '');
 
 DELETE FROM `creature_model_info` WHERE `DisplayID`=100416;
 INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
 (100416, 0.75, 1.5, 2, 41359);
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=176920;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(176920, 14, 0, 0, 2104, 41079),
-(176920, 15, 0, 0, 2105, 41079),
-(176920, 16, 0, 0, 2106, 41079),
-(176920, 17, 0, 0, 2107, 41079);
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=176920;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
 (176920, 1, 0, 0, 1, 0, 0);
 
 -- Dark Sentinel
-DELETE FROM `creature_template_scaling` WHERE `Entry`=176920;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(176920, 14, 0, 0, 2104, 41079),
-(176920, 15, 0, 0, 2105, 41079),
-(176920, 16, 0, 0, 2106, 41079),
-(176920, 17, 0, 0, 2107, 41079);
-
 DELETE FROM `creature_equip_template` WHERE `CreatureID`=176404;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
 (176404, 1, 185997, 0, 0, 185997, 0, 0, 0, 0, 41359);
@@ -111,15 +90,22 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=348627 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (348627, 'spell_sylvanas_windrunner_desecrating_shot');
 
--- Ranger Heartseeker
-DELETE FROM `spell_script_names` WHERE `spell_id`=352663 AND `ScriptName`='spell_sylvanas_windrunner_ranger_heartseeker';
+-- Ranger's Heartseeker
+-- Banshee's Heartseeker
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (352663, 353969);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(352663, 'spell_sylvanas_windrunner_ranger_heartseeker');
+(352663, 'spell_sylvanas_windrunner_heartseeker'),
+(353969, 'spell_sylvanas_windrunner_heartseeker');
 
 -- Ranger Heartseeker (Shadow damage)
 DELETE FROM `spell_script_names` WHERE `spell_id`=352652 AND `ScriptName`='spell_sylvanas_windrunner_ranger_heartseeker_shadow_damage';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (352652, 'spell_sylvanas_windrunner_ranger_heartseeker_shadow_damage');
+
+-- Banshee's Heartseeker (Shadow damage)
+DELETE FROM `spell_script_names` WHERE `spell_id`=353967 AND `ScriptName`='spell_sylvanas_windrunner_banshee_heartseeker_shadow_damage';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(353967, 'spell_sylvanas_windrunner_banshee_heartseeker_shadow_damage');
 
 -- Domination Chains
 DELETE FROM `spell_script_names` WHERE `spell_id`=349419 AND `ScriptName`='spell_sylvanas_windrunner_domination_chains';
@@ -446,15 +432,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=33587200, `unit_flags2`=2099200 WHERE `entry`=177787;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=177787;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(177787, 0, 0, 0, 1, 0, 0, 0, 0, '351109');-- Aura may be wrong, check
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=177787;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(177787, 14, 1, 1, 2104, 41488),
-(177787, 15, 1, 1, 2105, 41488),
-(177787, 16, 1, 1, 2106, 41488),
-(177787, 17, 1, 1, 2107, 41488);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(177787, 0, 0, 1, 0, 0, 0, 0, '351109');-- Aura may be wrong, check
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID`=177787;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
@@ -464,13 +443,6 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `Appearanc
 -- Mawsworn Vanguard
 UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=33587200, `unit_flags2`=2099200 WHERE `entry`=177154;
 
-DELETE FROM `creature_template_scaling` WHERE `Entry`=177154;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(177154, 14, 1, 1, 2104, 41488),
-(177154, 15, 1, 1, 2105, 41488),
-(177154, 16, 1, 1, 2106, 41488),
-(177154, 17, 1, 1, 2107, 41488);
-
 DELETE FROM `creature_equip_template` WHERE `ID`=1 AND `CreatureID`=177154;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
 (177154, 1, 179720, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -479,43 +451,22 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `Appearanc
 UPDATE `creature_template` SET `faction`=16, `speed_walk`=6, `speed_run`=2.142857074737548828, `BaseAttackTime`=3000, `unit_flags`=33587200, `unit_flags2`=2099200 WHERE `entry`=177892;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=177892;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(177892, 0, 0, 0, 1, 0, 0, 0, 0, '350580');
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=177892;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(177892, 14, 2, 2, 2104, 41488),
-(177892, 15, 2, 2, 2105, 41488),
-(177892, 16, 2, 2, 2106, 41488),
-(177892, 17, 2, 2, 2107, 41488);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(177892, 0, 0, 1, 0, 0, 0, 0, '350580');
 
 -- Mawforged Summoner
-UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=33587200, `unit_flags2`=2099200, `HoverHeight`=1.70000004768371582 WHERE `entry`=177891;
+UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=33587200, `unit_flags2`=2099200 WHERE `entry`=177891;
 
 DELETE FROM `creature_equip_template` WHERE `ID`=1 AND `CreatureID`=177891;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
 (177891, 1, 184708, 0, 0, 185371, 0, 0, 0, 0, 0);
 
-DELETE FROM `creature_template_scaling` WHERE `Entry`=177891;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(177891, 14, 2, 2, 2104, 41488),
-(177891, 15, 2, 2, 2105, 41488),
-(177891, 16, 2, 2, 2106, 41488),
-(177891, 17, 2, 2, 2107, 41488);
-
 -- Mawforged Souljudge
 UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=33587200, `unit_flags2`=2097152 WHERE `entry`=177889;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=177889;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(177889, 0, 0, 0, 1, 0, 0, 0, 0, '357734');-- Aura may be wrong
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=177889;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(177889, 14, 2, 2, 2104, 41488),
-(177889, 15, 2, 2, 2105, 41488),
-(177889, 16, 2, 2, 2106, 41488),
-(177889, 17, 2, 2, 2107, 41488);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(177889, 0, 0, 1, 0, 0, 0, 0, '357734');-- Aura may be wrong
 
 DELETE FROM `creature_equip_template` WHERE `ID`=1 AND `CreatureID`=177889;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
@@ -525,29 +476,15 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `Appearanc
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=35651584, `unit_flags3`=1 WHERE `entry`=178008;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=178008;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(178008, 0, 0, 0, 1, 0, 0, 0, 0, '351317');
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=178008;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(178008, 14, 1, 1, 2104, 41488),
-(178008, 15, 1, 1, 2105, 41488),
-(178008, 16, 1, 1, 2106, 41488),
-(178008, 17, 1, 1, 2107, 41488);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(178008, 0, 0, 1, 0, 0, 0, 0, '351317');
 
 -- Focusing Prism
 UPDATE `creature_template` SET `faction`=35, `npcflag`=16777216, `BaseAttackTime`=2000, `unit_flags2`=100681760, `unit_flags3`=1 WHERE `entry`=180623;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=180623;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(180623, 0, 0, 0, 1, 0, 0, 0, 0, '358159');
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=180623;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(180623, 14, 0, 0, 2104, 41488),
-(180623, 15, 0, 0, 2105, 41488),
-(180623, 16, 0, 0, 2106, 41488),
-(180623, 17, 0, 0, 2107, 41488);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(180623, 0, 0, 1, 0, 0, 0, 0, '358159');
 
 -- Sylvanas (Invisible Walls)
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+12 AND @OGUID+36;
@@ -600,16 +537,6 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=354141;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (354141, 'spell_sylvanas_windrunner_sylvanas_push');
 
--- Banshee's Heartseeker
-DELETE FROM `spell_script_names` WHERE `spell_id`=353969;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(353969, 'spell_sylvanas_windrunner_banshee_heartseeker');
-
--- Banshee's Heartseeker (Shadow damage)
-DELETE FROM `spell_script_names` WHERE `spell_id`=353967;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(353967, 'spell_sylvanas_windrunner_banshee_heartseeker_shadow_damage');
-
 -- Shadow Dagger
 DELETE FROM `spell_script_names` WHERE `spell_id`=353935;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
@@ -629,15 +556,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=71303168, `unit_flags3`=32769, `VehicleId`=7513 WHERE `entry`=178079;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=178079;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(178079, 0, 0, 0, 1, 0, 0, 0, 0, '355347');
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=178079;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(178079, 14, 3, 3, 2104, 41488),
-(178079, 15, 3, 3, 2105, 41488),
-(178079, 16, 3, 3, 2106, 41488),
-(178079, 17, 3, 3, 2107, 41488);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(178079, 0, 0, 1, 0, 0, 0, 0, '355347');
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=178079;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
@@ -655,15 +575,8 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=33556512, `unit_flags3`=1, `VehicleId`=7536 WHERE `entry`=179788;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=179788;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(179788, 0, 0, 0, 1, 0, 0, 0, 0, '');
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=179788;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(179788, 14, 0, 0, 2104, 41079),
-(179788, 15, 0, 0, 2105, 41079),
-(179788, 16, 0, 0, 2106, 41079),
-(179788, 17, 0, 0, 2107, 41079);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(179788, 0, 0, 1, 0, 0, 0, 0, '');
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=179788;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
@@ -681,15 +594,8 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=33556512, `unit_flags3`=1, `VehicleId`=7535 WHERE `entry`=179787;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=179787;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(179787, 0, 0, 0, 1, 0, 0, 0, 0, '');
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=179787;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(179787, 14, 0, 0, 2104, 41079),
-(179787, 15, 0, 0, 2105, 41079),
-(179787, 16, 0, 0, 2106, 41079),
-(179787, 17, 0, 0, 2107, 41079);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(179787, 0, 0, 1, 0, 0, 0, 0, '');
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=179787;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
@@ -713,15 +619,8 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=33556512, `unit_flags3`=1, `VehicleId`=7533 WHERE `entry`=179784;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=179784;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(179784, 0, 0, 0, 1, 0, 0, 0, 0, '');
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=179784;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(179784, 14, 0, 0, 2104, 41079),
-(179784, 15, 0, 0, 2105, 41079),
-(179784, 16, 0, 0, 2106, 41079),
-(179784, 17, 0, 0, 2107, 41079);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(179784, 0, 0, 1, 0, 0, 0, 0, '');
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=179784;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
@@ -739,15 +638,8 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=33556512, `unit_flags3`=1, `VehicleId`=7514 WHERE `entry`=179261;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=179261;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(179261, 0, 0, 0, 1, 0, 0, 0, 0, '');
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=179261;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(179261, 14, 0, 0, 2104, 41079),
-(179261, 15, 0, 0, 2105, 41079),
-(179261, 16, 0, 0, 2106, 41079),
-(179261, 17, 0, 0, 2107, 41079);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(179261, 0, 0, 1, 0, 0, 0, 0, '');
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=179261;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
@@ -772,37 +664,23 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=33556512, `unit_flags3`=1 WHERE `entry`=179262;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=179262;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(179262, 0, 0, 50331648, 1, 0, 0, 0, 0, '353687');
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=179262;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(179262, 14, 0, 0, 2104, 41079),
-(179262, 15, 0, 0, 2105, 41079),
-(179262, 16, 0, 0, 2106, 41079),
-(179262, 17, 0, 0, 2107, 41079);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `AnimTier`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(179262, 0, 0, 3, 1, 0, 0, 0, 0, '353687');
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=179262;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
 (179262, 1, 0, 1, 0, 0, 0);
 
 -- Anduin Wrynn
-UPDATE `creature_template` SET `faction`=14, `npcflag`=0, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=67108864, `unit_flags3`=98336, `VehicleId`=584, `CreatureDifficultyID`=201335, `ScriptName`='npc_sylvanas_windrunner_anduin' WHERE `entry`=178072;
+UPDATE `creature_template` SET `faction`=14, `npcflag`=0, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=67108864, `unit_flags3`=98336, `VehicleId`=584, `ScriptName`='npc_sylvanas_windrunner_anduin' WHERE `entry`=178072;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=178072;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(178072, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4, '358166');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(178072, 0, 0, 0, 1, 0, 0, 0, 0, 4, '358166');
 
 DELETE FROM `creature_model_info` WHERE `DisplayID`=99092;
 INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
 (99092, 0.616385638713836669, 0, 0, 41359);
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=178072;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(178072, 14, 2, 2, 2104, 41079),
-(178072, 15, 2, 2, 2105, 41079),
-(178072, 16, 2, 2, 2106, 41079),
-(178072, 17, 2, 2, 2107, 41079);
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID`=178072 AND `ID`=1;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`, `VerifiedBuild`) VALUES 
@@ -819,18 +697,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (357730, 'spell_sylvanas_windrunner_blasphemy');
 
 -- The Arbiter
-UPDATE `creature_template` SET `faction`=35, `speed_walk`=0.699999988079071044, `speed_run`=0.25, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=71827456, `unit_flags3`=32769, `CreatureDifficultyID`=201345 WHERE `entry`=178082;
+UPDATE `creature_template` SET `faction`=35, `speed_walk`=0.699999988079071044, `speed_run`=0.25, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=71827456, `unit_flags3`=32769 WHERE `entry`=178082;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=178082;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(178082, 0, 0, 50331648, 1, 0, 0, 0, 0, '357738');
-
-DELETE FROM `creature_template_scaling` WHERE `Entry`=178082;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(178082, 14, 0, 0, 2104, 41079),
-(178082, 15, 0, 0, 2105, 41079),
-(178082, 16, 0, 0, 2106, 41079),
-(178082, 17, 0, 0, 2107, 41079);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `AnimTier`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(178082, 0, 0, 3, 1, 0, 0, 0, 0, '357738');
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=178082;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
@@ -862,13 +733,6 @@ INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags
 -- Death Gate
 UPDATE `creature_template` SET `faction`=190, `npcflag`=16777216, `speed_run`=1, `BaseAttackTime`=1000, `unit_flags`=768, `unit_flags2`=101189632 WHERE `entry`=182021;
 
-DELETE FROM `creature_template_scaling` WHERE `Entry`=182021;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(182021, 14, 0, 0, 2104, 41488),
-(182021, 15, 0, 0, 2105, 41488),
-(182021, 16, 0, 0, 2106, 41488),
-(182021, 17, 0, 0, 2107, 41488);
-
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=182021;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
 (182021, 0, 0, 1, 1, 0, 0);
@@ -893,4 +757,3 @@ INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `mingold`,
 DELETE FROM `spell_target_position` WHERE `ID`=344598 AND `EffectIndex`=0;
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES 
 (344598, 0, 2222, -1834.21, 1542.27, 5274.16, 41079);
-

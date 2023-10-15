@@ -40,7 +40,7 @@ ObjectData const creatureData[] =
 class instance_sanctum_of_domination : public InstanceMapScript
 {
 public:
-    instance_sanctum_of_domination() : InstanceMapScript(SODScriptName, 2450) { }
+    instance_sanctum_of_domination() : InstanceMapScript(SODScriptName, 2450) {}
 
     struct instance_sanctum_of_domination_InstanceMapScript : public InstanceScript
     {
@@ -211,9 +211,11 @@ public:
                         }
 
                         case FAIL:
+                        {
                             SylvanasShadowcopyGUID.clear();
                             Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 1s);
                             break;
+                        }
 
                         default:
                             break;
@@ -242,6 +244,7 @@ public:
                             break;
 
                         case DONE:
+                        {
                             SylvanasIntroductionData = DONE;
                             if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                             {
@@ -250,6 +253,7 @@ public:
                                 sylvanas->SetSpeed(MOVE_RUN, 14.0f);
                             }
                             break;
+                        }
 
                         default:
                             break;
@@ -326,7 +330,7 @@ public:
             if (sylvanas && DoCheckEvadeForBossIfNoPlayerIsEngaged(sylvanas))
             {
                 if (sylvanas->IsAIEnabled())
-                    sylvanas->AI()->EnterEvadeMode(CreatureAI::EvadeReason::EVADE_REASON_NO_HOSTILES);
+                    sylvanas->AI()->EnterEvadeMode(EvadeReason::NoHostiles);
             }
         }
 
@@ -338,13 +342,13 @@ public:
             return true;
         }
 
-        protected:
-            EventMap Events;
-            std::vector<ObjectGuid> SylvanasShadowcopyGUID;
-            std::vector<ObjectGuid> TorghastSpikeGUID;
-            std::vector<ObjectGuid> InvisibleWallPhaseTwoGUID;
-            uint8 SylvanasIntroductionData;
-            uint8 SylvanasIntermissionData;
+    protected:
+        EventMap Events;
+        std::vector<ObjectGuid> SylvanasShadowcopyGUID;
+        std::vector<ObjectGuid> TorghastSpikeGUID;
+        std::vector<ObjectGuid> InvisibleWallPhaseTwoGUID;
+        uint8 SylvanasIntroductionData;
+        uint8 SylvanasIntermissionData;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
