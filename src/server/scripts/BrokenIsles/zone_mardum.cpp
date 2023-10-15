@@ -1339,15 +1339,15 @@ struct npc_mannethrel_darkstar_freed_private : public ScriptedAI
         me->DespawnOrUnsummon(28s);
 
         _scheduler.Schedule(2s, [this](TaskContext task)
-            {
-                Talk(SAY_BELATH_DAWNBLADE_FREED, me);
+        {
+            Talk(SAY_BELATH_DAWNBLADE_FREED, me);
 
-                task.Schedule(6s, [this](TaskContext /*task*/)
-                    {
-                        me->SetAIAnimKitId(ANIM_DH_WALK_DAZED);
-                        me->GetMotionMaster()->MovePath(PATH_MANNETHREL_DARKSTAR_FREED, false);
-                    });
+            task.Schedule(6s, [this](TaskContext /*task*/)
+            {
+                me->SetAIAnimKitId(ANIM_DH_WALK_DAZED);
+                me->GetMotionMaster()->MovePath(PATH_MANNETHREL_DARKSTAR_FREED, false);
             });
+        });
     }
 
     void UpdateAI(uint32 diff) override
