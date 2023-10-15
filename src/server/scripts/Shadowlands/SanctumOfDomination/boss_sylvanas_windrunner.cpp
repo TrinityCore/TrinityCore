@@ -1919,7 +1919,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 {
                     DoCastSelf(SPELL_DESECRATING_SHOT_JUMP_FRONT);
 
-                sylvanas->SetNameplateAttachToGUID(me->GetGUID());
+                    sylvanas->SetNameplateAttachToGUID(me->GetGUID());
                 });
 
                 _scheduler.Schedule(146ms, [this, sylvanas](TaskContext /*task*/)
@@ -1936,7 +1936,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 {
                     _desecratingShotStorage.clear();
 
-                sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
+                    sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
                 });
                 break;
             }
@@ -2067,7 +2067,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         _scheduler.Schedule(828ms, [this, vectorPos, targetCount](TaskContext /*task*/)
         {
             if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_00 + targetCount)))
-            shadowCopyAI->SendVeilOfDarkness(vectorPos, targetCount);
+                shadowCopyAI->SendVeilOfDarkness(vectorPos, targetCount);
         });
     }
 
@@ -2079,7 +2079,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         _scheduler.Schedule(2s, [this, vectorPos, targetCount](TaskContext /*task*/)
         {
             if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_00 + targetCount)))
-            shadowCopyAI->ExecuteVeilOfDarkness(vectorPos, targetCount);
+                shadowCopyAI->ExecuteVeilOfDarkness(vectorPos, targetCount);
         });
     }
 
@@ -2104,8 +2104,8 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         _scheduler.Schedule(Milliseconds(50 + additionalTimer), [this, witheringFireGuids, targetCount](TaskContext /*task*/)
         {
             if (Creature* shadowCopy = GetShadowcopy(_instance, DATA_INDEX_00 + targetCount))
-            if (Unit* target = ObjectAccessor::GetUnit(*me, witheringFireGuids[targetCount]))
-                me->CastSpell(target->GetPosition(), SPELL_WITHERING_FIRE_COPY, true);
+                if (Unit* target = ObjectAccessor::GetUnit(*me, witheringFireGuids[targetCount]))
+                    me->CastSpell(target->GetPosition(), SPELL_WITHERING_FIRE_COPY, true);
         });
 
         _scheduler.Schedule(Milliseconds(573 + additionalTimer), [this, witheringFireGuids, targetCount](TaskContext /*task*/)
@@ -2125,8 +2125,8 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     _scheduler.Schedule(Milliseconds(timer), [this, targetGUID](TaskContext /*task*/)
                     {
                         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                        if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
-                            sylvanas->CastSpell(target, SPELL_WITHERING_FIRE);
+                            if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
+                                sylvanas->CastSpell(target, SPELL_WITHERING_FIRE);
                     });
                 }
             }
@@ -2151,7 +2151,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         return arrowsPerWave;
     }
 
-    private:
+private:
     InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
