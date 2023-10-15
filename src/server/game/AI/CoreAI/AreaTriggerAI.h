@@ -19,8 +19,10 @@
 #define TRINITY_AREATRIGGERAI_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
 
 class AreaTrigger;
+class Spell;
 class Unit;
 
 class TC_GAME_API AreaTriggerAI
@@ -37,28 +39,35 @@ class TC_GAME_API AreaTriggerAI
         virtual void OnInitialize() { }
 
         // Called when the AreaTrigger has just been created
-        virtual void OnCreate() { }
+        virtual void OnCreate([[maybe_unused]] Spell const* creatingSpell) { }
 
         // Called on each AreaTrigger update
-        virtual void OnUpdate(uint32 /*diff*/) { }
+        virtual void OnUpdate([[maybe_unused]] uint32 diff) { }
 
         // Called when the AreaTrigger reach splineIndex
-        virtual void OnSplineIndexReached(int /*splineIndex*/) { }
+        virtual void OnSplineIndexReached([[maybe_unused]] int32 splineIndex) { }
 
         // Called when the AreaTrigger reach its destination
         virtual void OnDestinationReached() { }
 
         // Called when an unit enter the AreaTrigger
-        virtual void OnUnitEnter(Unit* /*unit*/) { }
+        virtual void OnUnitEnter([[maybe_unused]] Unit* unit) { }
 
         // Called when an unit exit the AreaTrigger, or when the AreaTrigger is removed
-        virtual void OnUnitExit(Unit* /*unit*/) { }
+        virtual void OnUnitExit([[maybe_unused]] Unit* unit) { }
 
         // Called when the AreaTrigger is removed
         virtual void OnRemove() { }
 
+        // Pass parameters between AI
+        virtual void DoAction([[maybe_unused]] int32 param) { }
+        virtual uint32 GetData([[maybe_unused]] uint32 id = 0) const { return 0; }
+        virtual void SetData([[maybe_unused]] uint32 id, [[maybe_unused]] uint32 value) { }
+        virtual void SetGUID([[maybe_unused]] ObjectGuid const& guid, [[maybe_unused]] int32 id = 0) { }
+        virtual ObjectGuid GetGUID([[maybe_unused]] int32 id = 0) const { return ObjectGuid::Empty; }
+
         // Gets the id of the AI (script id)
-        uint32 GetId() { return _scriptId; }
+        uint32 GetId() const { return _scriptId; }
 };
 
 class NullAreaTriggerAI : public AreaTriggerAI

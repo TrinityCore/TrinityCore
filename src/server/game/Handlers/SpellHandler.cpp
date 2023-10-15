@@ -38,7 +38,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
-#include "Totem.h"
+#include "TemporarySummon.h"
 #include "TotemPackets.h"
 #include "World.h"
 
@@ -104,7 +104,7 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
         {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effect->SpellID, user->GetMap()->GetDifficultyID()))
             {
-                if (!spellInfo->CanBeUsedInCombat())
+                if (!spellInfo->CanBeUsedInCombat(user))
                 {
                     user->SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, item, nullptr);
                     return;
@@ -428,7 +428,7 @@ void WorldSession::HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& canc
 
 void WorldSession::HandlePetCancelAuraOpcode(WorldPackets::Spells::PetCancelAura& packet)
 {
-    if (sSpellMgr->GetSpellInfo(packet.SpellID, DIFFICULTY_NONE))
+    if (!sSpellMgr->GetSpellInfo(packet.SpellID, DIFFICULTY_NONE))
     {
         TC_LOG_ERROR("network", "WORLD: unknown PET spell id {}", packet.SpellID);
         return;
@@ -533,8 +533,8 @@ void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& tot
         return;
 
     Creature* totem = ObjectAccessor::GetCreature(*_player, _player->m_SummonSlot[slotId]);
-    if (totem && totem->IsTotem() && totem->GetGUID() == totemDestroyed.TotemGUID)
-        totem->ToTotem()->UnSummon();
+    if (totem && totem->IsTotem() && (totemDestroyed.TotemGUID.IsEmpty() || totem->GetGUID() == totemDestroyed.TotemGUID))
+        totem->DespawnOrUnsummon();
 }
 
 void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& selfRes)

@@ -41,6 +41,7 @@ namespace WorldPackets
             uint32 Id = 0;
             uint64 Quantity = 0;
             ObjectGuid Player;
+            uint32 Unused_10_1_5 = 0;
             uint32 Flags = 0;
             time_t Date = time_t(0);
             Duration<Seconds> TimeFromStart;
@@ -95,6 +96,7 @@ namespace WorldPackets
             uint32 CriteriaID = 0;
             uint64 Quantity = 0;
             ObjectGuid PlayerGUID;
+            uint32 Unused_10_1_5 = 0;
             uint32 Flags = 0;
             time_t CurrentTime = time_t(0);
             Duration<Seconds> ElapsedTime;
@@ -170,6 +172,7 @@ namespace WorldPackets
             time_t DateUpdated = 0;
             uint64 Quantity = 0;
             ObjectGuid PlayerGUID;
+            int32 Unused_10_1_5 = 0;
             int32 Flags = 0;
         };
 

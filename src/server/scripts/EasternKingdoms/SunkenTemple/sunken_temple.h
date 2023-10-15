@@ -23,6 +23,30 @@
 #define STScriptName "instance_sunken_temple"
 #define DataHeader "ST"
 
+enum STBossIds
+{
+    BOSS_AVATAR_OF_HAKKAR       = 0,
+    BOSS_JAMMALAN_THE_PROPHET   = 1,
+    BOSS_DREAMSCYTHE            = 2,
+    BOSS_WEAVER                 = 3,
+    BOSS_MORPHAZ                = 4,
+    BOSS_HAZZAS                 = 5,
+    BOSS_SHADE_OF_ERANIKUS      = 6,
+
+    MAX_ENCOUNTER
+};
+
+enum STCreatureIds
+{
+    NPC_AVATAR_OF_HAKKAR        = 8443,
+    NPC_JAMMALAN_THE_PROPHET    = 5710,
+    NPC_DREAMSCYTHE             = 5721,
+    NPC_WEAVER                  = 5720,
+    NPC_MORPHAZ                 = 5719,
+    NPC_HAZZAS                  = 5722,
+    NPC_SHADE_OF_ERANIKUS       = 5709,
+};
+
 enum STEvents
 {
     EVENT_STATE = 1

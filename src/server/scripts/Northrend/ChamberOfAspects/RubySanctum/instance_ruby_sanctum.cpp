@@ -184,7 +184,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                     if (Creature* zarithrian = GetCreature(DATA_GENERAL_ZARITHRIAN))
                     {
-                        zarithrian->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        zarithrian->SetUninteractible(false);
                         zarithrian->SetImmuneToPC(false);
                     }
             }

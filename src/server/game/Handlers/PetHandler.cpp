@@ -62,6 +62,9 @@ void WorldSession::HandleDismissCritter(WorldPackets::Pet::DismissCritter& packe
 
 void WorldSession::HandlePetAction(WorldPackets::Pet::PetAction& packet)
 {
+    if (_player->IsMounted())
+        return;
+
     ObjectGuid guid1 = packet.PetGUID; //pet guid
     ObjectGuid guid2 = packet.TargetGUID; //tag guid
 
@@ -603,9 +606,6 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
 
 void WorldSession::HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet)
 {
-    if (!_player->IsInWorld())
-        return;
-
     // pet/charmed
     Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.Pet);
     if (pet && pet->ToPet() && pet->ToPet()->getPetType() == HUNTER_PET)

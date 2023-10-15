@@ -240,8 +240,6 @@ class spell_snufflenose_command : public SpellScriptLoader
 
         class spell_snufflenose_commandSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_snufflenose_commandSpellScript);
-
             void HandleEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Creature* target = GetHitCreature())

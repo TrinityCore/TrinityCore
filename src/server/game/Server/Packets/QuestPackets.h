@@ -184,7 +184,7 @@ namespace WorldPackets
             int32 AcceptedSoundKitID        = 0;
             int32 CompleteSoundKitID        = 0;
             int32 AreaGroupID               = 0;
-            int32 TimeAllowed               = 0;
+            int64 TimeAllowed               = 0;
             int32 TreasurePickerID          = 0;
             int32 Expansion                 = 0;
             int32 ManagedWorldStateID       = 0;

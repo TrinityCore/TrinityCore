@@ -26,7 +26,7 @@ class Object;
 class Quest;
 class WorldSession;
 struct GossipMenuItems;
-enum class QuestGiverStatus : uint32;
+enum class QuestGiverStatus : uint64;
 
 #define GOSSIP_MAX_MENU_ITEMS               32
 #define DEFAULT_GOSSIP_MESSAGE              0xffffff

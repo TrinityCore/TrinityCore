@@ -161,6 +161,7 @@ enum DemonHunterSpells
     SPELL_DH_SOUL_CLEAVE                           = 228477,
     SPELL_DH_SOUL_CLEAVE_DMG                       = 228478,
     SPELL_DH_SOUL_FRAGMENT_COUNTER                 = 203981,
+    SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF              = 391172,
     SPELL_DH_SOUL_RENDING                          = 204909,
     SPELL_DH_SPIRIT_BOMB_DAMAGE                    = 218677,
     SPELL_DH_SPIRIT_BOMB_HEAL                      = 227255,
@@ -174,8 +175,6 @@ enum DemonHunterSpells
 // 197125 - Chaos Strike
 class spell_dh_chaos_strike : public AuraScript
 {
-    PrepareAuraScript(spell_dh_chaos_strike);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DH_CHAOS_STRIKE_ENERGIZE });
@@ -199,8 +198,6 @@ class spell_dh_chaos_strike : public AuraScript
 // 206416 - First Blood
 class spell_dh_first_blood : public AuraScript
 {
-    PrepareAuraScript(spell_dh_first_blood);
-
 public:
     ObjectGuid const& GetFirstTarget() const { return _firstTargetGUID; }
     void SetFirstTarget(ObjectGuid const& targetGuid) { _firstTargetGUID = targetGuid; }
@@ -218,8 +215,6 @@ private:
 // 210152 - Death Sweep
 class spell_dh_blade_dance : public SpellScript
 {
-    PrepareSpellScript(spell_dh_blade_dance);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DH_FIRST_BLOOD });
@@ -267,8 +262,6 @@ class spell_dh_blade_dance : public SpellScript
 // 210155 - Death Sweep
 class spell_dh_blade_dance_damage : public SpellScript
 {
-    PrepareSpellScript(spell_dh_blade_dance_damage);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DH_FIRST_BLOOD });
@@ -322,8 +315,6 @@ public:
 // 208673 - Sigil of Chains
 class spell_dh_sigil_of_chains : public SpellScript
 {
-    PrepareSpellScript(spell_dh_sigil_of_chains);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DH_SIGIL_OF_CHAINS_SLOW, SPELL_DH_SIGIL_OF_CHAINS_GRIP });
@@ -362,8 +353,6 @@ struct areatrigger_dh_sigil_of_chains : AreaTriggerAI
 // 131347 - Glide
 class spell_dh_glide : public SpellScript
 {
-    PrepareSpellScript(spell_dh_glide);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DH_GLIDE_KNOCKBACK, SPELL_DH_GLIDE_DURATION, SPELL_DH_VENGEFUL_RETREAT_TRIGGER, SPELL_DH_FEL_RUSH });
@@ -404,8 +393,6 @@ class spell_dh_glide : public SpellScript
 // 131347 - Glide
 class spell_dh_glide_AuraScript : public AuraScript
 {
-    PrepareAuraScript(spell_dh_glide_AuraScript);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DH_GLIDE_DURATION });
@@ -425,8 +412,6 @@ class spell_dh_glide_AuraScript : public AuraScript
 // 197154 - Glide
 class spell_dh_glide_timer : public AuraScript
 {
-    PrepareAuraScript(spell_dh_glide_timer);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DH_GLIDE });
@@ -440,6 +425,54 @@ class spell_dh_glide_timer : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_dh_glide_timer::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 391166 - Soul Furnace
+class spell_dh_soul_furnace : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF });
+    }
+
+    void CalculateSpellMod(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetStackAmount() == GetAura()->CalcMaxStackAmount())
+        {
+            GetTarget()->CastSpell(GetTarget(), SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF, true);
+            Remove();
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dh_soul_furnace::CalculateSpellMod, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
+// 339424 - Soul Furnace
+class spell_dh_soul_furnace_conduit : public AuraScript
+{
+    void CalculateSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
+    {
+        if (aurEff->GetAmount() == 10)
+        {
+            if (!spellMod)
+            {
+                spellMod = new SpellModifierByClassMask(GetAura());
+                spellMod->op = SpellModOp::HealingAndDamage;
+                spellMod->type = SPELLMOD_PCT;
+                spellMod->spellId = GetId();
+                static_cast<SpellModifierByClassMask*>(spellMod)->mask = flag128(0x80000000);
+                static_cast<SpellModifierByClassMask*>(spellMod)->value = GetEffect(EFFECT_1)->GetAmount() + 1;
+            }
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_dh_soul_furnace_conduit::CalculateSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -468,9 +501,14 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_blade_dance);
     RegisterSpellScript(spell_dh_blade_dance_damage);
 
+    // Vengeance
+    RegisterSpellScript(spell_dh_soul_furnace);
+
     // Vengeance & Havoc
 
     RegisterSpellAndAuraScriptPair(spell_dh_glide, spell_dh_glide_AuraScript);
     RegisterSpellScript(spell_dh_glide_timer);
 
+    // Soulbind conduits
+    RegisterSpellScript(spell_dh_soul_furnace_conduit);
 }

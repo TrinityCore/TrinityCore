@@ -1,8 +1,8 @@
 # set up output paths for executable binaries (.exe-files, and .dll-files on DLL-capable platforms)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(MSVC_EXPECTED_VERSION 19.30)
-set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2022 17")
+set(MSVC_EXPECTED_VERSION 19.32)
+set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2022 17.2")
 
 # This file is also used by compilers that pretend to be MSVC but report their own version number - don't version check them
 if(NOT CMAKE_CXX_COMPILER_FRONTEND_VARIANT)
@@ -148,7 +148,8 @@ target_compile_options(trinity-compile-option-interface
     /w34100  # C4100 'identifier' : unreferenced formal parameter
     /w34101  # C4101: 'identifier' : unreferenced local variable
     /w34189  # C4189: 'identifier' : local variable is initialized but not referenced
-    /w34389) # C4189: 'equality-operator' : signed/unsigned mismatch
+    /w34389  # C4389: 'equality-operator' : signed/unsigned mismatch
+	/w35054) # C5054: 'operator 'operator-name': deprecated between enumerations of different types'
 
 # Enable and treat as errors the following warnings to easily detect virtual function signature failures:
 # 'function' : member function does not override any base class virtual member function
@@ -157,6 +158,19 @@ target_compile_options(trinity-compile-option-interface
   INTERFACE
     /we4263
     /we4264)
+
+if(ASAN)
+  target_compile_definitions(trinity-compile-option-interface
+    INTERFACE
+      -D_DISABLE_STRING_ANNOTATION
+      -D_DISABLE_VECTOR_ANNOTATION)
+
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      /fsanitize=address)
+
+  message(STATUS "MSVC: Enabled Address Sanitizer ASan")
+endif()
 
 # Disable incremental linking in debug builds.
 # To prevent linking getting stuck (which might be fixed in a later VS version).

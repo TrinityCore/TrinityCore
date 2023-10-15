@@ -1,0 +1,15 @@
+SET @TEL_ID := 2031;
+
+DELETE FROM `game_tele` WHERE `id` BETWEEN @TEL_ID+0 AND @TEL_ID+10;
+INSERT INTO `game_tele` (`id`,`position_x`,`position_y`,`position_z`,`orientation`,`map`,`name`) VALUES
+(@TEL_ID+0,2837.74,5200.77,40.0746,2.26835,1643,'MechagonIsland'),
+(@TEL_ID+1,2434.2,6161.55,2.4017,1.51829,1643,'WesternSpray'),
+(@TEL_ID+2,2734.85,5338.54,73.4695,2.25813,1643,'JunkwattDepot'),
+(@TEL_ID+3,2901.59,4930.22,60.3734,1.92434,1643,'TheHeaps'),
+(@TEL_ID+4,2776.5,4987.74,1.13604,3.24223,1643,'TheOutflow'),
+(@TEL_ID+5,3122.08,5148.01,19.7421,2.62021,1643,'BondosYard'),
+(@TEL_ID+6,3018.77,5515.36,51.9988,6.26838,1643,'TheFleetingForest'),
+(@TEL_ID+7,3264.58,5223.85,18.3774,0.542053,1643,'ScrapboneDen'),
+(@TEL_ID+8,3332.95,4862.5,0.561187,2.50241,1643,'ProspectusBay'),
+(@TEL_ID+9,3189.32,4973.59,24.8436,2.78673,1643,'Rustbolt'),
+(@TEL_ID+10,3380.1,4595.1,15.6484,3.65068,1643,'SparkweaverPoint');

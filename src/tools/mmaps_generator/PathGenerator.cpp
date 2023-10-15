@@ -330,7 +330,7 @@ std::unordered_map<uint32, uint8> LoadLiquid(std::string const& locale, bool sil
     DB2FileSystemSource liquidTypeSource((boost::filesystem::path("dbc") / locale / "LiquidType.db2").string());
     try
     {
-        liquidDb2.Load(&liquidTypeSource, LiquidTypeLoadInfo::Instance());
+        liquidDb2.Load(&liquidTypeSource, &LiquidTypeLoadInfo::Instance);
         for (uint32 x = 0; x < liquidDb2.GetRecordCount(); ++x)
         {
             DB2Record record = liquidDb2.GetRecord(x);
@@ -358,7 +358,7 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
     DB2FileSystemSource mapSource((boost::filesystem::path("dbc") / locale / "Map.db2").string());
     try
     {
-        mapDb2.Load(&mapSource, MapLoadInfo::Instance());
+        mapDb2.Load(&mapSource, &MapLoadInfo::Instance);
         for (uint32 x = 0; x < mapDb2.GetRecordCount(); ++x)
         {
             DB2Record record = mapDb2.GetRecord(x);

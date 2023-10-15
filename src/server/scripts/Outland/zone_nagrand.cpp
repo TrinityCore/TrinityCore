@@ -716,8 +716,6 @@ enum FireBomb
 // 31959 - Fire Bomb Target Summon Trigger
 class spell_nagrand_fire_bomb_target_summon_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_nagrand_fire_bomb_target_summon_trigger);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FIRE_BOMB_TARGET_SUMMON_EFFECT });
@@ -739,8 +737,6 @@ class spell_nagrand_fire_bomb_target_summon_trigger : public SpellScript
 // 31960 - Fire Bomb Target Summon Effect
 class spell_nagrand_fire_bomb_target_summon_effect : public SpellScript
 {
-    PrepareSpellScript(spell_nagrand_fire_bomb_target_summon_effect);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FIRE_BOMB_DAMAGE_MISSILE });
@@ -760,8 +756,6 @@ class spell_nagrand_fire_bomb_target_summon_effect : public SpellScript
 // 31961 - Fire Bomb
 class spell_nagrand_fire_bomb_damage_missile : public SpellScript
 {
-    PrepareSpellScript(spell_nagrand_fire_bomb_damage_missile);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FIRE_BOMB_SUMMON_CATAPULT_BLAZE, SPELL_FIRE_BOMB_FLAMES });

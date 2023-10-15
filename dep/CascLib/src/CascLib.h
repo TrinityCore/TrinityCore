@@ -75,6 +75,7 @@ extern "C" {
 //-----------------------------------------------------------------------------
 // Defines
 
+// Version information
 #define CASCLIB_VERSION                 0x0300  // CascLib version - integral (3.0)
 #define CASCLIB_VERSION_STRING           "3.0"  // CascLib version - string
 
@@ -87,6 +88,8 @@ extern "C" {
 #define CASC_OPEN_FLAGS_MASK        0xFFFFFFF0  // The mask which gets open type from the dwFlags
 #define CASC_STRICT_DATA_CHECK      0x00000010  // Verify all data read from a file
 #define CASC_OVERCOME_ENCRYPTED     0x00000020  // When CascReadFile encounters a block encrypted with a key that is missing, the block is filled with zeros and returned as success
+#define CASC_OPEN_CKEY_ONCE         0x00000040  // Only opens a file with given CKey once, regardless on how many file names does it have. Used by CascLib test program
+                                                // If the file was already open before, CascOpenFile returns false and ERROR_FILE_ALREADY_OPENED
 
 #define CASC_LOCALE_ALL             0xFFFFFFFF
 #define CASC_LOCALE_ALL_WOW         0x0001F3F6  // All except enCN and enTW
@@ -110,17 +113,29 @@ extern "C" {
 #define CASC_LOCALE_PTPT            0x00010000
 
 // Content flags on WoW
+#define CASC_CFLAG_INSTALL                0x04
 #define CASC_CFLAG_LOAD_ON_WINDOWS        0x08
 #define CASC_CFLAG_LOAD_ON_MAC            0x10
+#define CASC_CFLAG_X86_32                 0x20
+#define CASC_CFLAG_X86_64                 0x40
 #define CASC_CFLAG_LOW_VIOLENCE           0x80
 #define CASC_CFLAG_DONT_LOAD             0x100
+#define CASC_CFLAG_UPDATE_PLUGIN         0x800
+#define CASC_CFLAG_ARM64                0x8000
+#define CASC_CFLAG_ENCRYPTED         0x8000000
 #define CASC_CFLAG_NO_NAME_HASH     0x10000000
+#define CASC_CFLAG_UNCMN_RESOLUTION 0x20000000      // Uncommon resolution
 #define CASC_CFLAG_BUNDLE           0x40000000
 #define CASC_CFLAG_NO_COMPRESSION   0x80000000
 
 #ifndef MD5_HASH_SIZE
 #define MD5_HASH_SIZE                     0x10
 #define MD5_STRING_SIZE                   0x20
+#endif
+
+#ifndef SHA1_HASH_SIZE
+#define SHA1_HASH_SIZE                    0x14
+#define SHA1_STRING_SIZE                  0x28
 #endif
 
 // Invalid values of all kind
@@ -152,6 +167,12 @@ extern "C" {
 
 // Maximum length of encryption key
 #define CASC_KEY_LENGTH 0x10
+
+// Default format string for the file ID
+#define CASC_FILEID_FORMAT          "FILE%08X.dat"
+
+// Separator char for path-product delimiter
+#define CASC_PARAM_SEPARATOR        '*'
 
 //-----------------------------------------------------------------------------
 // Structures
@@ -191,7 +212,7 @@ typedef enum _CASC_FILE_INFO_CLASS
 typedef enum _CASC_NAME_TYPE
 {
     CascNameFull,                               // Fully qualified file name
-    CascNameDataId,                             // Name created from file data id (FILE%08X.dat)
+    CascNameDataId,                             // Name created from file data id (CASC_FILEID_FORMAT)
     CascNameCKey,                               // Name created as string representation of CKey
     CascNameEKey                                // Name created as string representation of EKey
 } CASC_NAME_TYPE, *PCASC_NAME_TYPE;
@@ -363,6 +384,7 @@ bool   WINAPI CascCloseStorage(HANDLE hStorage);
 bool   WINAPI CascOpenFile(HANDLE hStorage, const void * pvFileName, DWORD dwLocaleFlags, DWORD dwOpenFlags, HANDLE * PtrFileHandle);
 bool   WINAPI CascOpenLocalFile(LPCTSTR szFileName, DWORD dwOpenFlags, HANDLE * PtrFileHandle);
 bool   WINAPI CascGetFileInfo(HANDLE hFile, CASC_FILE_INFO_CLASS InfoClass, void * pvFileInfo, size_t cbFileInfo, size_t * pcbLengthNeeded);
+bool   WINAPI CascSetFileFlags(HANDLE hFile, DWORD dwOpenFlags);
 bool   WINAPI CascGetFileSize64(HANDLE hFile, PULONGLONG PtrFileSize);
 bool   WINAPI CascSetFilePointer64(HANDLE hFile, LONGLONG DistanceToMove, PULONGLONG PtrNewPos, DWORD dwMoveMethod);
 bool   WINAPI CascReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead, PDWORD pdwRead);

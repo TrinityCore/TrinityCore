@@ -16,11 +16,23 @@
  */
 
 // This is where scripts' loading functions should be declared:
+
+// Trial of Valor
+void AddSC_boss_guarm();
+void AddSC_instance_trial_of_valor();
+
+// Orderhalls
 void AddSC_orderhall_warrior();
+void AddSC_zone_mardum();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddBrokenIslesScripts()
 {
+    // Trial of Valor
+    AddSC_boss_guarm();
+    AddSC_instance_trial_of_valor();
+
     AddSC_orderhall_warrior();
+    AddSC_zone_mardum();
 }

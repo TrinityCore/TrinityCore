@@ -1179,7 +1179,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr7>::ToString(SpellAttr7 value)
     {
         case SPELL_ATTR7_UNK0: return { "SPELL_ATTR7_UNK0", "Unknown attribute 0@Attr7", "" };
         case SPELL_ATTR7_IGNORE_DURATION_MODS: return { "SPELL_ATTR7_IGNORE_DURATION_MODS", "Ignore duration modifiers", "" };
-        case SPELL_ATTR7_REACTIVATE_AT_RESURRECT: return { "SPELL_ATTR7_REACTIVATE_AT_RESURRECT", "Reactivate at resurrect (client only)", "" };
+        case SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD: return { "SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD", "Disable Aura While Dead", "" };
         case SPELL_ATTR7_IS_CHEAT_SPELL: return { "SPELL_ATTR7_IS_CHEAT_SPELL", "Is cheat spell", "Cannot cast if caster doesn't have UnitFlag2 & UNIT_FLAG2_ALLOW_CHEAT_SPELLS" };
         case SPELL_ATTR7_UNK4: return { "SPELL_ATTR7_UNK4", "Unknown attribute 4@Attr7", "Soulstone related?" };
         case SPELL_ATTR7_SUMMON_TOTEM: return { "SPELL_ATTR7_SUMMON_TOTEM", "Summons player-owned totem", "" };
@@ -1223,7 +1223,7 @@ TC_API_EXPORT SpellAttr7 EnumUtils<SpellAttr7>::FromIndex(size_t index)
     {
         case 0: return SPELL_ATTR7_UNK0;
         case 1: return SPELL_ATTR7_IGNORE_DURATION_MODS;
-        case 2: return SPELL_ATTR7_REACTIVATE_AT_RESURRECT;
+        case 2: return SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD;
         case 3: return SPELL_ATTR7_IS_CHEAT_SPELL;
         case 4: return SPELL_ATTR7_UNK4;
         case 5: return SPELL_ATTR7_SUMMON_TOTEM;
@@ -1264,7 +1264,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
     {
         case SPELL_ATTR7_UNK0: return 0;
         case SPELL_ATTR7_IGNORE_DURATION_MODS: return 1;
-        case SPELL_ATTR7_REACTIVATE_AT_RESURRECT: return 2;
+        case SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD: return 2;
         case SPELL_ATTR7_IS_CHEAT_SPELL: return 3;
         case SPELL_ATTR7_UNK4: return 4;
         case SPELL_ATTR7_SUMMON_TOTEM: return 5;
@@ -1315,7 +1315,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr8>::ToString(SpellAttr8 value)
         case SPELL_ATTR8_UNK6: return { "SPELL_ATTR8_UNK6", "Unknown attribute 6@Attr8", "" };
         case SPELL_ATTR8_UNK7: return { "SPELL_ATTR8_UNK7", "Unknown attribute 7@Attr8", "" };
         case SPELL_ATTR8_AFFECT_PARTY_AND_RAID: return { "SPELL_ATTR8_AFFECT_PARTY_AND_RAID", "Use Target's Level for Spell Scaling", "" };
-        case SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER: return { "SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER", "Periodic Can Crit", "(WRONG) Periodic auras with this flag keep old periodic timer when refreshing at close to one tick remaining (kind of anti DoT clipping)" };
+        case SPELL_ATTR8_PERIODIC_CAN_CRIT: return { "SPELL_ATTR8_PERIODIC_CAN_CRIT", "Periodic Can Crit", "" };
         case SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM: return { "SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM", "Mirror creature name", "" };
         case SPELL_ATTR8_UNK11: return { "SPELL_ATTR8_UNK11", "Unknown attribute 11@Attr8", "" };
         case SPELL_ATTR8_AURA_SEND_AMOUNT: return { "SPELL_ATTR8_AURA_SEND_AMOUNT", "Aura Points On Client", "" };
@@ -1359,7 +1359,7 @@ TC_API_EXPORT SpellAttr8 EnumUtils<SpellAttr8>::FromIndex(size_t index)
         case 6: return SPELL_ATTR8_UNK6;
         case 7: return SPELL_ATTR8_UNK7;
         case 8: return SPELL_ATTR8_AFFECT_PARTY_AND_RAID;
-        case 9: return SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
+        case 9: return SPELL_ATTR8_PERIODIC_CAN_CRIT;
         case 10: return SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM;
         case 11: return SPELL_ATTR8_UNK11;
         case 12: return SPELL_ATTR8_AURA_SEND_AMOUNT;
@@ -1400,7 +1400,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr8>::ToIndex(SpellAttr8 value)
         case SPELL_ATTR8_UNK6: return 6;
         case SPELL_ATTR8_UNK7: return 7;
         case SPELL_ATTR8_AFFECT_PARTY_AND_RAID: return 8;
-        case SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER: return 9;
+        case SPELL_ATTR8_PERIODIC_CAN_CRIT: return 9;
         case SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM: return 10;
         case SPELL_ATTR8_UNK11: return 11;
         case SPELL_ATTR8_AURA_SEND_AMOUNT: return 12;
@@ -1971,7 +1971,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr13>::ToString(SpellAttr13 value)
         case SPELL_ATTR13_UNK17: return { "SPELL_ATTR13_UNK17", "Unknown attribute 17@Attr13", "" };
         case SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT: return { "SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT", "Do Not Enforce Shapeshift Requirements", "" };
         case SPELL_ATTR13_UNK19: return { "SPELL_ATTR13_UNK19", "Unknown attribute 19@Attr13", "" };
-        case SPELL_ATTR13_UNK20: return { "SPELL_ATTR13_UNK20", "Unknown attribute 20@Attr13", "" };
+        case SPELL_ATTR13_PERIODIC_REFRESH_EXTENDS_DURATION: return { "SPELL_ATTR13_PERIODIC_REFRESH_EXTENDS_DURATION", "Periodic Refresh Extends Duration", "" };
         case SPELL_ATTR13_UNK21: return { "SPELL_ATTR13_UNK21", "Unknown attribute 21@Attr13", "" };
         case SPELL_ATTR13_UNK22: return { "SPELL_ATTR13_UNK22", "Unknown attribute 22@Attr13", "" };
         case SPELL_ATTR13_UNK23: return { "SPELL_ATTR13_UNK23", "Unknown attribute 23@Attr13", "" };
@@ -2015,7 +2015,7 @@ TC_API_EXPORT SpellAttr13 EnumUtils<SpellAttr13>::FromIndex(size_t index)
         case 17: return SPELL_ATTR13_UNK17;
         case 18: return SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT;
         case 19: return SPELL_ATTR13_UNK19;
-        case 20: return SPELL_ATTR13_UNK20;
+        case 20: return SPELL_ATTR13_PERIODIC_REFRESH_EXTENDS_DURATION;
         case 21: return SPELL_ATTR13_UNK21;
         case 22: return SPELL_ATTR13_UNK22;
         case 23: return SPELL_ATTR13_UNK23;
@@ -2056,7 +2056,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr13>::ToIndex(SpellAttr13 value)
         case SPELL_ATTR13_UNK17: return 17;
         case SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT: return 18;
         case SPELL_ATTR13_UNK19: return 19;
-        case SPELL_ATTR13_UNK20: return 20;
+        case SPELL_ATTR13_PERIODIC_REFRESH_EXTENDS_DURATION: return 20;
         case SPELL_ATTR13_UNK21: return 21;
         case SPELL_ATTR13_UNK22: return 22;
         case SPELL_ATTR13_UNK23: return 23;
@@ -2528,13 +2528,15 @@ TC_API_EXPORT EnumText EnumUtils<SpellCastResult>::ToString(SpellCastResult valu
         case SPELL_FAILED_CANT_BE_RECRAFTED: return { "SPELL_FAILED_CANT_BE_RECRAFTED", "SPELL_FAILED_CANT_BE_RECRAFTED", "" };
         case SPELL_FAILED_PASSIVE_REPLACED: return { "SPELL_FAILED_PASSIVE_REPLACED", "SPELL_FAILED_PASSIVE_REPLACED", "" };
         case SPELL_FAILED_CANT_FLY_HERE: return { "SPELL_FAILED_CANT_FLY_HERE", "SPELL_FAILED_CANT_FLY_HERE", "" };
+        case SPELL_FAILED_DRAGONRIDING_RIDING_REQUIREMENT: return { "SPELL_FAILED_DRAGONRIDING_RIDING_REQUIREMENT", "SPELL_FAILED_DRAGONRIDING_RIDING_REQUIREMENT", "" };
+        case SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN: return { "SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN", "SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN", "" };
         case SPELL_FAILED_UNKNOWN: return { "SPELL_FAILED_UNKNOWN", "SPELL_FAILED_UNKNOWN", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<SpellCastResult>::Count() { return 320; }
+TC_API_EXPORT size_t EnumUtils<SpellCastResult>::Count() { return 322; }
 
 template <>
 TC_API_EXPORT SpellCastResult EnumUtils<SpellCastResult>::FromIndex(size_t index)
@@ -2860,7 +2862,9 @@ TC_API_EXPORT SpellCastResult EnumUtils<SpellCastResult>::FromIndex(size_t index
         case 316: return SPELL_FAILED_CANT_BE_RECRAFTED;
         case 317: return SPELL_FAILED_PASSIVE_REPLACED;
         case 318: return SPELL_FAILED_CANT_FLY_HERE;
-        case 319: return SPELL_FAILED_UNKNOWN;
+        case 319: return SPELL_FAILED_DRAGONRIDING_RIDING_REQUIREMENT;
+        case 320: return SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN;
+        case 321: return SPELL_FAILED_UNKNOWN;
         default: throw std::out_of_range("index");
     }
 }
@@ -3189,7 +3193,9 @@ TC_API_EXPORT size_t EnumUtils<SpellCastResult>::ToIndex(SpellCastResult value)
         case SPELL_FAILED_CANT_BE_RECRAFTED: return 316;
         case SPELL_FAILED_PASSIVE_REPLACED: return 317;
         case SPELL_FAILED_CANT_FLY_HERE: return 318;
-        case SPELL_FAILED_UNKNOWN: return 319;
+        case SPELL_FAILED_DRAGONRIDING_RIDING_REQUIREMENT: return 319;
+        case SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN: return 320;
+        case SPELL_FAILED_UNKNOWN: return 321;
         default: throw std::out_of_range("value");
     }
 }
@@ -3954,12 +3960,20 @@ TC_API_EXPORT EnumText EnumUtils<Emote>::ToString(Emote value)
         case EMOTE_STATE_EMOTETALK: return { "EMOTE_STATE_EMOTETALK", "EMOTE_STATE_EMOTETALK", "" };
         case EMOTE_STATE_WAINTERACTION: return { "EMOTE_STATE_WAINTERACTION", "EMOTE_STATE_WAINTERACTION", "" };
         case EMOTE_ONESHOT_TAKE_OFF_START: return { "EMOTE_ONESHOT_TAKE_OFF_START", "EMOTE_ONESHOT_TAKE_OFF_START", "" };
+        case EMOTE_ONESHOT_BATTLEROAR_NO_SOUND: return { "EMOTE_ONESHOT_BATTLEROAR_NO_SOUND", "EMOTE_ONESHOT_BATTLEROAR_NO_SOUND", "" };
+        case EMOTE_STATE_WAWEAPONSHARPEN: return { "EMOTE_STATE_WAWEAPONSHARPEN", "EMOTE_STATE_WAWEAPONSHARPEN", "" };
+        case EMOTE_ONESHOT_ROLLSTART: return { "EMOTE_ONESHOT_ROLLSTART", "EMOTE_ONESHOT_ROLLSTART", "" };
+        case EMOTE_ONESHOT_ROLLEND: return { "EMOTE_ONESHOT_ROLLEND", "EMOTE_ONESHOT_ROLLEND", "" };
+        case EMOTE_ONESHOT_WAREACT02: return { "EMOTE_ONESHOT_WAREACT02", "EMOTE_ONESHOT_WAREACT02", "" };
+        case EMOTE_ONESHOT_WATHREATEN: return { "EMOTE_ONESHOT_WATHREATEN", "EMOTE_ONESHOT_WATHREATEN", "" };
+        case EMOTE_ARTOFFLOOP: return { "EMOTE_ARTOFFLOOP", "EMOTE_ARTOFFLOOP", "" };
+        case EMOTE_STATE_READYSPELLOMNI_NOSHEATH: return { "EMOTE_STATE_READYSPELLOMNI_NOSHEATH", "EMOTE_STATE_READYSPELLOMNI_NOSHEATH", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<Emote>::Count() { return 410; }
+TC_API_EXPORT size_t EnumUtils<Emote>::Count() { return 418; }
 
 template <>
 TC_API_EXPORT Emote EnumUtils<Emote>::FromIndex(size_t index)
@@ -4376,6 +4390,14 @@ TC_API_EXPORT Emote EnumUtils<Emote>::FromIndex(size_t index)
         case 407: return EMOTE_STATE_EMOTETALK;
         case 408: return EMOTE_STATE_WAINTERACTION;
         case 409: return EMOTE_ONESHOT_TAKE_OFF_START;
+        case 410: return EMOTE_ONESHOT_BATTLEROAR_NO_SOUND;
+        case 411: return EMOTE_STATE_WAWEAPONSHARPEN;
+        case 412: return EMOTE_ONESHOT_ROLLSTART;
+        case 413: return EMOTE_ONESHOT_ROLLEND;
+        case 414: return EMOTE_ONESHOT_WAREACT02;
+        case 415: return EMOTE_ONESHOT_WATHREATEN;
+        case 416: return EMOTE_ARTOFFLOOP;
+        case 417: return EMOTE_STATE_READYSPELLOMNI_NOSHEATH;
         default: throw std::out_of_range("index");
     }
 }
@@ -4795,6 +4817,14 @@ TC_API_EXPORT size_t EnumUtils<Emote>::ToIndex(Emote value)
         case EMOTE_STATE_EMOTETALK: return 407;
         case EMOTE_STATE_WAINTERACTION: return 408;
         case EMOTE_ONESHOT_TAKE_OFF_START: return 409;
+        case EMOTE_ONESHOT_BATTLEROAR_NO_SOUND: return 410;
+        case EMOTE_STATE_WAWEAPONSHARPEN: return 411;
+        case EMOTE_ONESHOT_ROLLSTART: return 412;
+        case EMOTE_ONESHOT_ROLLEND: return 413;
+        case EMOTE_ONESHOT_WAREACT02: return 414;
+        case EMOTE_ONESHOT_WATHREATEN: return 415;
+        case EMOTE_ARTOFFLOOP: return 416;
+        case EMOTE_STATE_READYSPELLOMNI_NOSHEATH: return 417;
         default: throw std::out_of_range("value");
     }
 }

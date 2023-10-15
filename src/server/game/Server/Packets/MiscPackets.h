@@ -529,7 +529,7 @@ namespace WorldPackets
 
             int32 Min = 0;
             int32 Max = 0;
-            uint8 PartyIndex = 0;
+            Optional<uint8> PartyIndex;
         };
 
         class RandomRoll final : public ServerPacket

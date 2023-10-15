@@ -186,8 +186,9 @@ enum SMART_EVENT
     SMART_EVENT_ON_SPELL_FAILED          = 84,      // SpellID, CooldownMin, CooldownMax
     SMART_EVENT_ON_SPELL_START           = 85,      // SpellID, CooldownMin, CooldownMax
     SMART_EVENT_ON_DESPAWN               = 86,      // NONE
+    SMART_EVENT_SEND_EVENT_TRIGGER       = 87,      // NONE
 
-    SMART_EVENT_END                      = 87
+    SMART_EVENT_END                      = 88
 };
 
 struct SmartEvent
@@ -1444,18 +1445,18 @@ struct SmartTarget
 
 enum SmartScriptType
 {
-    SMART_SCRIPT_TYPE_CREATURE = 0, //done
-    SMART_SCRIPT_TYPE_GAMEOBJECT = 1, //done
-    SMART_SCRIPT_TYPE_AREATRIGGER = 2, //done
-    SMART_SCRIPT_TYPE_EVENT = 3, //
-    SMART_SCRIPT_TYPE_GOSSIP = 4, //
-    SMART_SCRIPT_TYPE_QUEST = 5, //done
-    SMART_SCRIPT_TYPE_SPELL = 6, //
-    SMART_SCRIPT_TYPE_TRANSPORT = 7, //
-    SMART_SCRIPT_TYPE_INSTANCE = 8, //
-    SMART_SCRIPT_TYPE_TIMED_ACTIONLIST = 9, //
-    SMART_SCRIPT_TYPE_SCENE = 10, //done
-    SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY = 11,
+    SMART_SCRIPT_TYPE_CREATURE                      = 0,
+    SMART_SCRIPT_TYPE_GAMEOBJECT                    = 1,
+    SMART_SCRIPT_TYPE_AREATRIGGER                   = 2,
+    SMART_SCRIPT_TYPE_EVENT                         = 3,
+    SMART_SCRIPT_TYPE_GOSSIP                        = 4,  // NYI
+    SMART_SCRIPT_TYPE_QUEST                         = 5,
+    SMART_SCRIPT_TYPE_SPELL                         = 6,  // NYI
+    SMART_SCRIPT_TYPE_TRANSPORT                     = 7,  // NYI
+    SMART_SCRIPT_TYPE_INSTANCE                      = 8,  // NYI
+    SMART_SCRIPT_TYPE_TIMED_ACTIONLIST              = 9,
+    SMART_SCRIPT_TYPE_SCENE                         = 10,
+    SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY            = 11,
     SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE = 12,
     SMART_SCRIPT_TYPE_MAX
 };
@@ -1582,6 +1583,7 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_ON_SPELL_FAILED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_SPELL_START,            SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_DESPAWN,                SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_SEND_EVENT_TRIGGER,        SMART_SCRIPT_TYPE_MASK_EVENT }
 };
 
 enum SmartEventFlags

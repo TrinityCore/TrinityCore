@@ -39,6 +39,19 @@ DoorData const doorData[] =
     { 0,                         0,                            DOOR_TYPE_ROOM    }
 };
 
+static constexpr DungeonEncounterData Encounters[] =
+{
+    { DATA_HIGHLORD_OMOKK, { { 267 } } },
+    { DATA_SHADOW_HUNTER_VOSHGAJIN, { { 268 } } },
+    { DATA_WARMASTER_VOONE, { { 269 } } },
+    { DATA_MOTHER_SMOLDERWEB, { { 270 } } },
+    { DATA_UROK_DOOMHOWL, { { 271 } } },
+    { DATA_QUARTERMASTER_ZIGRIS, { { 272 } } },
+    { DATA_HALYCON, { { 274 } } },
+    { DATA_GIZRUL_THE_SLAVENER, { { 273 } } },
+    { DATA_OVERLORD_WYRMTHALAK, { { 275 } } },
+};
+
 enum EventIds
 {
     EVENT_DARGONSPIRE_ROOM_STORE           = 1,
@@ -62,6 +75,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
+            LoadDungeonEncounterData(Encounters);
             LoadDoorData(doorData);
         }
 

@@ -38,6 +38,11 @@ namespace boost
         namespace ip
         {
             class address;
+            class address_v4;
+            class address_v6;
+
+            class network_v4;
+            class network_v6;
 
             class tcp;
 

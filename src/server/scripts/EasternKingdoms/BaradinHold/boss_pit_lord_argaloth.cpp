@@ -130,8 +130,6 @@ class spell_argaloth_consuming_darkness : public SpellScriptLoader
 
         class spell_argaloth_consuming_darkness_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_argaloth_consuming_darkness_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->Is25ManRaid() ? 8 : 3);
@@ -157,8 +155,6 @@ class spell_argaloth_meteor_slash : public SpellScriptLoader
 
         class spell_argaloth_meteor_slash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_argaloth_meteor_slash_SpellScript);
-
             void CountTargets(std::list<WorldObject*>& targets)
             {
                 _targetCount = targets.size();

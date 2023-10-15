@@ -407,9 +407,11 @@ WorldPacket const* WorldPackets::Misc::PlayMusic::Write()
 
 void WorldPackets::Misc::RandomRollClient::Read()
 {
+    bool hasPartyIndex = _worldPacket.ReadBit();
     _worldPacket >> Min;
     _worldPacket >> Max;
-    _worldPacket >> PartyIndex;
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
@@ -783,7 +785,7 @@ WorldPacket const* WorldPackets::Misc::DisplayToast::Write()
             _worldPacket.WriteBit(BonusRoll);
             _worldPacket << Item;
             _worldPacket << int32(LootSpec);
-            _worldPacket << int32(Gender);
+            _worldPacket << int8(Gender);
             break;
         case DisplayToastType::NewCurrency:
             _worldPacket << uint32(CurrencyID);

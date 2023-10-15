@@ -98,6 +98,7 @@ namespace WorldPackets
             int32 ContentTuningID = 0;
             int32 QuestType     = 0;
             bool Repeatable     = false;
+            bool Important      = false;
             std::string QuestTitle;
             int32 QuestFlags[2] = { };
         };

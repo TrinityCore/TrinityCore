@@ -32,6 +32,7 @@
 #include "Group.h"
 #include "InstanceScript.h"
 #include "Item.h"
+#include "ItemBonusMgr.h"
 #include "LanguageMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -550,11 +551,9 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::HonorLevelIncrease:
             case CriteriaType::PrestigeLevelIncrease:
             case CriteriaType::LearnAnyTransmogInSlot:
-            case CriteriaType::CollectTransmogSetFromGroup:
             case CriteriaType::CompleteAnyReplayQuest:
             case CriteriaType::BuyItemsFromVendors:
             case CriteriaType::SellItemsToVendors:
-            case CriteriaType::EnterTopLevelArea:
                 SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -661,16 +660,21 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
                 // miscValue1 is the ingame fallheight*100 as stored in dbc
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer);
                 break;
+            case CriteriaType::EarnAchievement:
             case CriteriaType::CompleteQuest:
             case CriteriaType::LearnOrKnowSpell:
             case CriteriaType::RevealWorldMapOverlay:
             case CriteriaType::GotHaircut:
             case CriteriaType::EquipItemInSlot:
             case CriteriaType::EquipItem:
-            case CriteriaType::EarnAchievement:
-            case CriteriaType::RecruitGarrisonFollower:
             case CriteriaType::LearnedNewPet:
+            case CriteriaType::EnterArea:
+            case CriteriaType::LeaveArea:
+            case CriteriaType::RecruitGarrisonFollower:
             case CriteriaType::ActivelyReachLevel:
+            case CriteriaType::CollectTransmogSetFromGroup:
+            case CriteriaType::EnterTopLevelArea:
+            case CriteriaType::LeaveTopLevelArea:
                 SetCriteriaProgress(criteria, 1, referencePlayer);
                 break;
             case CriteriaType::BankSlotsPurchased:
@@ -794,8 +798,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::AccountObtainPetThroughBattle:
             case CriteriaType::WinPetBattle:
             case CriteriaType::PlayerObtainPetThroughBattle:
-            case CriteriaType::EnterArea:
-            case CriteriaType::LeaveArea:
             case CriteriaType::DefeatDungeonEncounter:
             case CriteriaType::ActivateGarrisonBuilding:
             case CriteriaType::UpgradeGarrison:
@@ -858,75 +860,94 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
     }
 }
 
-void CriteriaHandler::UpdateTimedCriteria(uint32 timeDiff)
+void CriteriaHandler::UpdateTimedCriteria(Milliseconds timeDiff)
 {
-    if (!_timeCriteriaTrees.empty())
+    for (auto itr = _startedCriteria.begin(); itr != _startedCriteria.end();)
     {
-        for (auto itr = _timeCriteriaTrees.begin(); itr != _timeCriteriaTrees.end();)
+        // Time is up, remove timer and reset progress
+        if (itr->second <= timeDiff)
         {
-            // Time is up, remove timer and reset progress
-            if (itr->second <= timeDiff)
-            {
-                CriteriaTree const* criteriaTree = sCriteriaMgr->GetCriteriaTree(itr->first);
-                if (criteriaTree->Criteria)
-                    RemoveCriteriaProgress(criteriaTree->Criteria);
+            RemoveCriteriaProgress(sCriteriaMgr->GetCriteria(itr->first));
 
-                itr = _timeCriteriaTrees.erase(itr);
-            }
-            else
-            {
-                itr->second -= timeDiff;
-                ++itr;
-            }
+            itr = _startedCriteria.erase(itr);
+        }
+        else
+        {
+            itr->second -= timeDiff;
+            ++itr;
         }
     }
 }
 
-void CriteriaHandler::StartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry, uint32 timeLost /* = 0 */)
+void CriteriaHandler::StartCriteria(CriteriaStartEvent startEvent, uint32 entry, Milliseconds timeLost /*= Milliseconds::zero()*/)
 {
-    CriteriaList const& criteriaList = sCriteriaMgr->GetTimedCriteriaByType(startEvent);
-    for (Criteria const* criteria : criteriaList)
+    CriteriaList const* criteriaList = sCriteriaMgr->GetCriteriaByStartEvent(startEvent, entry);
+    if (!criteriaList)
+        return;
+
+    for (Criteria const* criteria : *criteriaList)
     {
-        if (criteria->Entry->StartAsset != int32(entry))
+        Milliseconds timeLimit = Milliseconds::max(); // this value is for criteria that have a start event requirement but no time limit
+        if (criteria->Entry->StartTimer)
+            timeLimit = Seconds(criteria->Entry->StartTimer);
+
+        timeLimit -= timeLost;
+
+        if (timeLimit <= Milliseconds::zero())
             continue;
 
         CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
-        bool canStart = false;
-        for (CriteriaTree const* tree : *trees)
+        bool canStart = std::any_of(trees->begin(), trees->end(), [&](CriteriaTree const* tree)
         {
-            if ((_timeCriteriaTrees.find(tree->ID) == _timeCriteriaTrees.end() || criteria->Entry->GetFlags().HasFlag(CriteriaFlags::ResetOnStart)) && !IsCompletedCriteriaTree(tree))
-            {
-                // Start the timer
-                if (criteria->Entry->StartTimer * uint32(IN_MILLISECONDS) > timeLost)
-                {
-                    _timeCriteriaTrees[tree->ID] = criteria->Entry->StartTimer * IN_MILLISECONDS - timeLost;
-                    canStart = true;
-                }
-            }
-        }
+            return !IsCompletedCriteriaTree(tree);
+        });
 
         if (!canStart)
             continue;
+
+        auto [itr, isNew] = _startedCriteria.try_emplace(criteria->ID, timeLimit);
+        if (!isNew)
+        {
+            if (!criteria->Entry->GetFlags().HasFlag(CriteriaFlags::ResetOnStart))
+                continue;
+
+            itr->second = timeLimit;
+        }
 
         // and at client too
         SetCriteriaProgress(criteria, 0, nullptr, PROGRESS_SET);
     }
 }
 
-void CriteriaHandler::RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry)
+void CriteriaHandler::FailCriteria(CriteriaFailEvent failEvent, uint32 asset)
 {
-    CriteriaList const& criteriaList = sCriteriaMgr->GetTimedCriteriaByType(startEvent);
-    for (Criteria const* criteria : criteriaList)
+    CriteriaList const* criteriaList = sCriteriaMgr->GetCriteriaByFailEvent(failEvent, asset);
+    if (!criteriaList)
+        return;
+
+    for (Criteria const* criteria : *criteriaList)
     {
-        if (criteria->Entry->StartAsset != int32(entry))
-            continue;
+        _startedCriteria.erase(criteria->ID);
 
         CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
-        // Remove the timer from all trees
-        for (CriteriaTree const* tree : *trees)
-            _timeCriteriaTrees.erase(tree->ID);
+        bool allTreesFullyComplete = std::all_of(trees->begin(), trees->end(), [&](CriteriaTree const* tree)
+        {
+            CriteriaTree const* root = tree;
+            if (CriteriaTree const* parent = sCriteriaMgr->GetCriteriaTree(root->Entry->Parent))
+            {
+                do
+                {
+                    root = parent;
+                    parent = sCriteriaMgr->GetCriteriaTree(root->Entry->Parent);
+                } while (parent);
+            }
 
-        // remove progress
+            return IsCompletedCriteriaTree(root);
+        });
+
+        if (allTreesFullyComplete)
+            continue;
+
         RemoveCriteriaProgress(criteria);
     }
 }
@@ -942,29 +963,6 @@ CriteriaProgress* CriteriaHandler::GetCriteriaProgress(Criteria const* entry)
 
 void CriteriaHandler::SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, Player* referencePlayer, ProgressType progressType)
 {
-    // Don't allow to cheat - doing timed criteria without timer active
-    CriteriaTreeList const* trees = nullptr;
-    if (criteria->Entry->StartTimer)
-    {
-        trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
-        if (!trees)
-            return;
-
-        bool hasTreeForTimed = false;
-        for (CriteriaTree const* tree : *trees)
-        {
-            auto timedIter = _timeCriteriaTrees.find(tree->ID);
-            if (timedIter != _timeCriteriaTrees.end())
-            {
-                hasTreeForTimed = true;
-                break;
-            }
-        }
-
-        if (!hasTreeForTimed)
-            return;
-    }
-
     TC_LOG_DEBUG("criteria", "CriteriaHandler::SetCriteriaProgress({}, {}) for {}", criteria->ID, changeValue, GetOwnerInfo());
 
     CriteriaProgress* progress = GetCriteriaProgress(criteria);
@@ -1013,20 +1011,22 @@ void CriteriaHandler::SetCriteriaProgress(Criteria const* criteria, uint64 chang
 
     if (criteria->Entry->StartTimer)
     {
-        ASSERT(trees);
-
-        for (CriteriaTree const* tree : *trees)
+        auto startedItr = _startedCriteria.find(criteria->ID);
+        if (startedItr != _startedCriteria.end())
         {
-            auto timedIter = _timeCriteriaTrees.find(tree->ID);
-            if (timedIter != _timeCriteriaTrees.end())
-            {
-                // Client expects this in packet
-                timeElapsed = Seconds(criteria->Entry->StartTimer - (timedIter->second / IN_MILLISECONDS));
+            // Client expects this in packet
+            timeElapsed = duration_cast<Seconds>(Seconds(criteria->Entry->StartTimer) - startedItr->second);
 
-                // Remove the timer, we wont need it anymore
-                if (IsCompletedCriteriaTree(tree))
-                    _timeCriteriaTrees.erase(timedIter);
-            }
+            // Remove the timer, we wont need it anymore
+            CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
+
+            bool allTreesCompleted = std::all_of(trees->begin(), trees->end(), [&](CriteriaTree const* tree)
+            {
+                return IsCompletedCriteriaTree(tree);
+            });
+
+            if (allTreesCompleted)
+                _startedCriteria.erase(startedItr);
         }
     }
 
@@ -1044,7 +1044,8 @@ void CriteriaHandler::RemoveCriteriaProgress(Criteria const* criteria)
 
     SendCriteriaProgressRemoved(criteria->ID);
 
-    _criteriaProgress.erase(criteriaProgress);
+    criteriaProgress->second.Counter = 0;
+    criteriaProgress->second.Changed = true;
 }
 
 bool CriteriaHandler::IsCompletedCriteriaTree(CriteriaTree const* tree)
@@ -1181,14 +1182,11 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::BankSlotsPurchased:
         case CriteriaType::ReputationGained:
         case CriteriaType::TotalExaltedFactions:
-        case CriteriaType::GotHaircut:
-        case CriteriaType::EquipItemInSlot:
         case CriteriaType::RollNeed:
         case CriteriaType::RollGreed:
         case CriteriaType::DeliverKillingBlowToClass:
         case CriteriaType::DeliverKillingBlowToRace:
         case CriteriaType::DoEmote:
-        case CriteriaType::EquipItem:
         case CriteriaType::MoneyEarnedFromQuesting:
         case CriteriaType::MoneyLootedFromCreatures:
         case CriteriaType::UseGameobject:
@@ -1215,18 +1213,24 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::CompleteAnyReplayQuest:
         case CriteriaType::BuyItemsFromVendors:
         case CriteriaType::SellItemsToVendors:
-        case CriteriaType::EnterTopLevelArea:
             return progress->Counter >= requiredAmount;
         case CriteriaType::EarnAchievement:
         case CriteriaType::CompleteQuest:
         case CriteriaType::LearnOrKnowSpell:
         case CriteriaType::RevealWorldMapOverlay:
-        case CriteriaType::RecruitGarrisonFollower:
+        case CriteriaType::GotHaircut:
+        case CriteriaType::EquipItemInSlot:
+        case CriteriaType::EquipItem:
         case CriteriaType::LearnedNewPet:
         case CriteriaType::HonorLevelIncrease:
         case CriteriaType::PrestigeLevelIncrease:
+        case CriteriaType::EnterArea:
+        case CriteriaType::LeaveArea:
+        case CriteriaType::RecruitGarrisonFollower:
         case CriteriaType::ActivelyReachLevel:
         case CriteriaType::CollectTransmogSetFromGroup:
+        case CriteriaType::EnterTopLevelArea:
+        case CriteriaType::LeaveTopLevelArea:
             return progress->Counter >= 1;
         case CriteriaType::AchieveSkillStep:
             return progress->Counter >= (requiredAmount * 75);
@@ -1321,24 +1325,10 @@ bool CriteriaHandler::CanUpdateCriteria(Criteria const* criteria, CriteriaTreeLi
     return true;
 }
 
-bool CriteriaHandler::ConditionsSatisfied(Criteria const* criteria, Player* referencePlayer) const
+bool CriteriaHandler::ConditionsSatisfied(Criteria const* criteria, Player* /*referencePlayer*/) const
 {
-    if (!criteria->Entry->FailEvent)
-        return true;
-
-    switch (CriteriaFailEvent(criteria->Entry->FailEvent))
-    {
-        case CriteriaFailEvent::LeaveBattleground:
-            if (!referencePlayer->InBattleground())
-                return false;
-            break;
-        case CriteriaFailEvent::ModifyPartyStatus:
-            if (referencePlayer->GetGroup())
-                return false;
-            break;
-        default:
-            break;
-    }
+    if (criteria->Entry->StartEvent && !_startedCriteria.contains(criteria->ID))
+        return false;
 
     return true;
 }
@@ -1607,8 +1597,12 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         case CriteriaType::PVPKillInArea:
-        case CriteriaType::EnterTopLevelArea:
-            if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.AreaID))
+        case CriteriaType::EnterArea:
+            if (!miscValue1 || !DB2Manager::IsInArea(uint32(miscValue1), uint32(criteria->Entry->Asset.AreaID)))
+                return false;
+            break;
+        case CriteriaType::LeaveArea:
+            if (!miscValue1 || DB2Manager::IsInArea(uint32(miscValue1), uint32(criteria->Entry->Asset.AreaID)))
                 return false;
             break;
         case CriteriaType::CurrencyGained:
@@ -1642,6 +1636,16 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             break;
         case CriteriaType::ActivelyReachLevel:
             if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.PlayerLevel))
+                return false;
+            break;
+        case CriteriaType::EnterTopLevelArea:
+        case CriteriaType::LeaveTopLevelArea:
+            if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.ZoneID))
+                return false;
+            break;
+        case CriteriaType::PlayerTriggerGameEvent:
+        case CriteriaType::AnyoneTriggerGameEventScenario:
+            if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.EventID))
                 return false;
             break;
         default:
@@ -1772,9 +1776,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::PlayerIsInArea: // 17
         {
-            uint32 zoneId, areaId;
-            referencePlayer->GetZoneAndAreaId(zoneId, areaId);
-            if (zoneId != reqValue && areaId != reqValue)
+            if (!DB2Manager::IsInArea(referencePlayer->GetAreaId(), reqValue))
                 return false;
             break;
         }
@@ -1782,9 +1784,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             if (!ref)
                 return false;
-            uint32 zoneId, areaId;
-            ref->GetZoneAndAreaId(zoneId, areaId);
-            if (zoneId != reqValue && areaId != reqValue)
+            if (!DB2Manager::IsInArea(ref->GetAreaId(), reqValue))
                 return false;
             break;
         }
@@ -2016,7 +2016,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         case ModifierTreeType::WorldStateExpression: // 67
             if (WorldStateExpressionEntry const* worldStateExpression = sWorldStateExpressionStore.LookupEntry(reqValue))
-                return ConditionMgr::IsPlayerMeetingExpression(referencePlayer, worldStateExpression);
+                return ConditionMgr::IsMeetingWorldStateExpression(referencePlayer->GetMap(), worldStateExpression);
             return false;
         case ModifierTreeType::DungeonDifficulty: // 68
             if (referencePlayer->GetMap()->GetDifficultyID() != reqValue)
@@ -3089,7 +3089,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerHasItemWithBonusListFromTreeAndQuality: // 222
         {
-            std::set<uint32> bonusListIDs = sDB2Manager.GetAllItemBonusTreeBonuses(reqValue);
+            std::vector<int32> bonusListIDs = ItemBonusMgr::GetAllBonusListsForTree(reqValue);
             if (bonusListIDs.empty())
                 return false;
 
@@ -3097,7 +3097,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             {
                 bool hasBonus = std::any_of(item->GetBonusListIDs().begin(), item->GetBonusListIDs().end(), [&bonusListIDs](int32 bonusListID)
                 {
-                    return bonusListIDs.find(bonusListID) != bonusListIDs.end();
+                    return std::find(bonusListIDs.begin(), bonusListIDs.end(), bonusListID) != bonusListIDs.end();
                 });
                 return hasBonus ? ItemSearchCallbackResult::Stop : ItemSearchCallbackResult::Continue;
             });
@@ -3417,7 +3417,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::PlayerLootSpecializationMatchesRole: // 263
         {
-            ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(referencePlayer->GetPrimarySpecialization());
+            ChrSpecializationEntry const* spec = referencePlayer->GetPrimarySpecializationEntry();
             if (!spec || spec->Role != int32(reqValue))
                 return false;
             break;
@@ -3528,7 +3528,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         }
         case ModifierTreeType::PlayerSpecialization: // 279
-            if (referencePlayer->GetPrimarySpecialization() != reqValue)
+            if (referencePlayer->GetPrimarySpecialization() != ChrSpecialization(reqValue))
                 return false;
             break;
         case ModifierTreeType::PlayerMapOrCosmeticChildMap: // 280
@@ -3597,10 +3597,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerIsInAreaGroup: // 298
         {
             std::vector<uint32> areas = sDB2Manager.GetAreasForGroup(reqValue);
-            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(referencePlayer->GetAreaId()))
-                for (uint32 areaInGroup : areas)
-                    if (areaInGroup == area->ID || areaInGroup == area->ParentAreaID)
-                        return true;
+            for (uint32 areaInGroup : areas)
+                if (DB2Manager::IsInArea(referencePlayer->GetAreaId(), areaInGroup))
+                    return true;
             return false;
         }
         case ModifierTreeType::TargetIsInAreaGroup: // 299
@@ -3608,10 +3607,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (!ref)
                 return false;
             std::vector<uint32> areas = sDB2Manager.GetAreasForGroup(reqValue);
-            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(ref->GetAreaId()))
-                for (uint32 areaInGroup : areas)
-                    if (areaInGroup == area->ID || areaInGroup == area->ParentAreaID)
-                        return true;
+            for (uint32 areaInGroup : areas)
+                if (DB2Manager::IsInArea(ref->GetAreaId(), areaInGroup))
+                    return true;
             return false;
         }
         case ModifierTreeType::PlayerIsInChromieTime: // 300
@@ -3869,6 +3867,14 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         }
+        case ModifierTreeType::PlayerSummonedBattlePetSpecies: // 352
+            if (referencePlayer->m_playerData->CurrentBattlePetSpeciesID != int32(reqValue))
+                return false;
+            break;
+        case ModifierTreeType::PlayerSummonedBattlePetIsMaxLevel: // 353
+            if (referencePlayer->m_unitData->WildBattlePetLevel != BattlePets::MAX_BATTLE_PET_LEVEL)
+                return false;
+            break;
         case ModifierTreeType::PlayerHasAtLeastProfPathRanks: // 355
         {
             auto traitNodeEntryRankCount = [referencePlayer, secondaryAsset]()
@@ -3892,6 +3898,50 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         }
+        case ModifierTreeType::PlayerHasItemTransmogrifiedToItemModifiedAppearance: // 358
+        {
+            ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(reqValue);
+
+            bool bagScanReachedEnd = referencePlayer->ForEachItem(ItemSearchLocation::Inventory, [referencePlayer, itemModifiedAppearance](Item const* item)
+            {
+                if (item->GetVisibleAppearanceModId(referencePlayer) == itemModifiedAppearance->ID)
+                    return ItemSearchCallbackResult::Stop;
+
+                if (int32(item->GetEntry()) == itemModifiedAppearance->ItemID)
+                    return ItemSearchCallbackResult::Stop;
+
+                return ItemSearchCallbackResult::Continue;
+            });
+            if (bagScanReachedEnd)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasCompletedDungeonEncounterInDifficulty: // 366
+            if (!referencePlayer->IsLockedToDungeonEncounter(reqValue, Difficulty(secondaryAsset)))
+                return false;
+            break;
+        case ModifierTreeType::PlayerIsBetweenQuests: // 369
+        {
+            QuestStatus status = referencePlayer->GetQuestStatus(reqValue);
+            if (status == QUEST_STATUS_NONE || status == QUEST_STATUS_FAILED)
+                return false;
+            if (referencePlayer->IsQuestRewarded(secondaryAsset))
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerScenarioStepID: // 371
+        {
+            Scenario const* scenario = referencePlayer->GetScenario();
+            if (!scenario)
+                return false;
+            if (scenario->GetStep()->ID != reqValue)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerZPositionBelow: // 374
+            if (referencePlayer->GetPositionZ() >= reqValue)
+                return false;
+            break;
         default:
             return false;
     }
@@ -4443,6 +4493,16 @@ CriteriaList const& CriteriaMgr::GetScenarioCriteriaByTypeAndScenario(CriteriaTy
     return EmptyCriteriaList;
 }
 
+CriteriaList const* CriteriaMgr::GetCriteriaByStartEvent(CriteriaStartEvent startEvent, int32 asset) const
+{
+    return Trinity::Containers::MapGetValuePtr(_criteriasByStartEvent[size_t(startEvent)], asset);
+}
+
+CriteriaList const* CriteriaMgr::GetCriteriaByFailEvent(CriteriaFailEvent failEvent, int32 asset) const
+{
+    return Trinity::Containers::MapGetValuePtr(_criteriasByFailEvent[size_t(failEvent)], asset);
+}
+
 CriteriaMgr::CriteriaMgr() = default;
 
 //==========================================================
@@ -4666,8 +4726,8 @@ void CriteriaMgr::LoadCriteriaList()
             _questObjectiveCriteriasByType[criteriaEntry->Type].push_back(criteria);
         }
 
-        if (criteriaEntry->StartTimer)
-            _criteriasByTimedType[criteriaEntry->StartEvent].push_back(criteria);
+        if (criteriaEntry->StartEvent)
+            _criteriasByStartEvent[criteriaEntry->StartEvent][criteriaEntry->StartAsset].push_back(criteria);
 
         if (criteriaEntry->FailEvent)
             _criteriasByFailEvent[criteriaEntry->FailEvent][criteriaEntry->FailAsset].push_back(criteria);

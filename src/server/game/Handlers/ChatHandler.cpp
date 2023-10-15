@@ -46,8 +46,9 @@
 enum class ChatWhisperTargetStatus : uint8
 {
     CanWhisper      = 0,
-    Offline         = 1,
-    WrongFaction    = 2
+    CanWhisperGuild = 1,
+    Offline         = 2,
+    WrongFaction    = 3
 };
 
 inline bool isNasty(uint8 c)
@@ -430,6 +431,10 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
                 : ChannelMgr::GetChannelForPlayerByNamePart(target, sender);
             if (chn)
             {
+                if (ChatChannelsEntry const* chatChannel = sChatChannelsStore.LookupEntry(chn->GetChannelId()))
+                    if (chatChannel->GetFlags().HasFlag(ChatChannelFlags::ReadOnly))
+                        return;
+
                 sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
                 chn->Say(sender->GetGUID(), msg, lang);
             }
