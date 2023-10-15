@@ -662,8 +662,8 @@ enum class CriteriaType : uint8
     BattlePetReachLevel                            = 160, // (Account Only) Battle pet has reached level {#Level}
     PlayerObtainPetThroughBattle                   = 161, /*NYI*/ // (Player) Obtain a pet through battle
     ActivelyEarnPetLevel                           = 162, // (Player) Actively earn level {#Level} with a pet by a player
-    EnterArea                                      = 163, /*NYI*/ // Enter Map Area "{AreaTable}"
-    LeaveArea                                      = 164, /*NYI*/ // Leave Map Area "{AreaTable}"
+    EnterArea                                      = 163, // Enter Map Area "{AreaTable}"
+    LeaveArea                                      = 164, // Leave Map Area "{AreaTable}"
     DefeatDungeonEncounter                         = 165, /*NYI*/ // Defeat Encounter "{DungeonEncounter}"
     PlaceAnyGarrisonBuilding                       = 166, /*NYI*/ // Garrison Building: Place any
     PlaceGarrisonBuilding                          = 167, // Garrison Building: Place "{GarrBuilding}"
@@ -725,7 +725,7 @@ enum class CriteriaType : uint8
     LearnTransmogIllusion                          = 223, /*NYI*/ // Learn Transmog Illusion
     LearnAnyTransmogIllusion                       = 224, /*NYI*/ // Learn Any Transmog Illusion
     EnterTopLevelArea                              = 225, // Enter Top Level Map Area "{AreaTable}"
-    LeaveTopLevelArea                              = 226, /*NYI*/ // Leave Top Level Map Area "{AreaTable}"
+    LeaveTopLevelArea                              = 226, // Leave Top Level Map Area "{AreaTable}"
     SocketGarrisonTalent                           = 227, /*NYI*/ // Socket Garrison Talent {GarrTalent}
     SocketAnySoulbindConduit                       = 228, /*NYI*/ // Socket Any Soulbind Conduit
     ObtainAnyItemWithCurrencyValue                 = 229, /*NYI*/ // Obtain Any Item With Currency Value "{CurrencyTypes}"
