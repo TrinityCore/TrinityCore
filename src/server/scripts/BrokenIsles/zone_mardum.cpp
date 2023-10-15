@@ -1300,7 +1300,7 @@ struct npc_belath_dawnblade_freed_private : public ScriptedAI
 
     void JustAppeared() override
     {
-        me->DespawnOrUnsummon(300s);
+        me->DespawnOrUnsummon(5min); // wtf blizz
 
         _scheduler.Schedule(3s, [this](TaskContext task)
         {
@@ -1367,86 +1367,27 @@ CreatureAI* MannethrelDarkstarFreedAISelector(Creature* creature)
 };
 
 // 204711 - Set Them Free: Cyana Nightglaive Freed Kill Credit
-class spell_cyana_nightglaive_killcredit_set_them_free : public SpellScript
-{
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* player = GetCaster()->ToPlayer())
-        {
-            Creature* cyanaObject = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_CYANA_NIGHTGLAIVE_FREED, .IgnorePhases = true });
-            if (!cyanaObject)
-                return;
-
-            cyanaObject->SummonPersonalClone(cyanaObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_cyana_nightglaive_killcredit_set_them_free::HandleHitTarget, EFFECT_1, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // 204714 - Set Them Free: Izal Whitemoon Freed Kill Credit
-class spell_izal_whitemoon_killcredit_set_them_free : public SpellScript
-{
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* player = GetCaster()->ToPlayer())
-        {
-            Creature* izalObject = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_IZAL_WHITEMOON_FREED, .IgnorePhases = true });
-            if (!izalObject)
-                return;
-
-            izalObject->SummonPersonalClone(izalObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_izal_whitemoon_killcredit_set_them_free::HandleHitTarget, EFFECT_1, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // 204712 - Set Them Free: Belath Dawnblade Freed Kill Credit
-class spell_belath_dawnblade_killcredit_set_them_free : public SpellScript
-{
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* player = GetCaster()->ToPlayer())
-        {
-            Creature* belathObject = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_BELATH_DAWNBLADE_FREED, .IgnorePhases = true });
-            if (!belathObject)
-                return;
-
-            belathObject->SummonPersonalClone(belathObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_belath_dawnblade_killcredit_set_them_free::HandleHitTarget, EFFECT_1, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // 204715 - Set Them Free: Mannethrel Darkstar Freed Kill Credit
-class spell_mannethrel_darkstar_killcredit_set_them_free : public SpellScript
+template<uint32 CreatureId>
+class spell_freed_killcredit_set_them_free : public SpellScript
 {
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (Player* player = GetCaster()->ToPlayer())
         {
-            Creature* mannethrelObject = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_MANNETHREL_DARKSTAR_FREED, .IgnorePhases = true });
-            if (!mannethrelObject)
+            Creature* staticObject = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = CreatureId, .IgnorePhases = true });
+            if (!staticObject)
                 return;
 
-            mannethrelObject->SummonPersonalClone(mannethrelObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            staticObject->SummonPersonalClone(staticObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
         }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_mannethrel_darkstar_killcredit_set_them_free::HandleHitTarget, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_freed_killcredit_set_them_free::HandleHitTarget, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1489,8 +1430,8 @@ void AddSC_zone_mardum()
     RegisterSpellScript(spell_mardum_baleful_legion_aegis);
     RegisterSpellScript(spell_mardum_coloss_infernal_smash_selector);
     RegisterSpellScript(spell_mardum_baleful_beaming_gaze_selector);
-    RegisterSpellScript(spell_cyana_nightglaive_killcredit_set_them_free);
-    RegisterSpellScript(spell_izal_whitemoon_killcredit_set_them_free);
-    RegisterSpellScript(spell_belath_dawnblade_killcredit_set_them_free);
-    RegisterSpellScript(spell_mannethrel_darkstar_killcredit_set_them_free);
+    RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_CYANA_NIGHTGLAIVE_FREED>, "spell_cyana_nightglaive_killcredit_set_them_free");
+    RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_IZAL_WHITEMOON_FREED>, "spell_izal_whitemoon_killcredit_set_them_free");
+    RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_BELATH_DAWNBLADE_FREED>, "spell_belath_dawnblade_killcredit_set_them_free");
+    RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_MANNETHREL_DARKSTAR_FREED>, "spell_mannethrel_darkstar_killcredit_set_them_free");
 };
