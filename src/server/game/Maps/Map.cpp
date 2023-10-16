@@ -3255,6 +3255,11 @@ bool Map::IsMythicPlus() const
     return IsDungeon() && i_spawnMode == DIFFICULTY_MYTHIC_KEYSTONE;
 }
 
+bool Map::IsHeroicOrHigher() const
+{
+    return IsHeroic() || IsMythic() || IsMythicPlus();
+}
+
 bool Map::Is25ManRaid() const
 {
     return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC);
