@@ -369,7 +369,7 @@ UPDATE `creature_template_addon` SET `visibilityDistanceType`=3 WHERE `entry`=17
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=178008;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
 (178008, 14, 1, 1, 2104, 8, 0.5, 1, 203448, 2097224, 128, 50791),
-(178008, 15, 1, 1, 2105, 8, 0.5, 1, 203446, 2097224, 128, 41488),
+(178008, 15, 1, 1, 2105, 8, 0.5, 1, 203446, 2097224, 128, 50791),
 (178008, 16, 1, 1, 2106, 8, 0.5, 1, 203447, 2097224, 128, 50791),
 (178008, 17, 1, 1, 2107, 8, 0.5, 1, 203449, 2097224, 128, 50791);
 
@@ -380,7 +380,7 @@ UPDATE `creature_template_addon` SET `visibilityDistanceType`=3 WHERE `entry`=17
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=177892;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(177892, 14, 2, 2, 2104, 8, 26.09000015258789062, 1, 203450, 2097224, 128, 41359),
+(177892, 14, 2, 2, 2104, 8, 26.09000015258789062, 1, 203450, 2097224, 128, 50791),
 (177892, 15, 2, 2, 2105, 8, 22.69000053405761718, 1, 203451, 2097224, 128, 50791),
 (177892, 16, 2, 2, 2106, 8, 18.80999946594238281, 1, 203452, 2097224, 128, 50791),
 (177892, 17, 2, 2, 2107, 8, 22.87999916076660156, 1, 203453, 2097224, 128, 50791);
