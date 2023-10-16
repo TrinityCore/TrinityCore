@@ -24801,13 +24801,16 @@ void Player::AtExitCombat()
     Unit::AtExitCombat();
     UpdatePotionCooldown();
 
-    //@tswow-begin
+    // @tswow-begin
     if (HasRunes())
+    {
         for (uint8 i = 0; i < MAX_RUNES; ++i)
         {
             SetRuneTimer(i, 0xFFFFFFFF);
             SetLastRuneGraceTimer(i, 0);
         }
+    }
+    // @tswow-end
 }
 
 void Player::SetCanParry(bool value)
