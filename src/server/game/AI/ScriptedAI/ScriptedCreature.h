@@ -241,6 +241,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         bool IsNormal() const { return me->GetMap()->IsNormal(); }
         bool IsHeroic() const { return me->GetMap()->IsHeroic(); }
         bool IsMythic() const { return me->GetMap()->IsMythic(); }
+        bool IsMythicPlus() const { return me->GetMap()->IsMythicPlus(); }
         bool IsTimewalking() const { return me->GetMap()->IsTimewalking(); }
 
         // return the dungeon or raid difficulty
