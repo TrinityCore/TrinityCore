@@ -4103,7 +4103,7 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
         }
     }
 
-    private:
+private:
     InstanceScript* _instance;
     ObjectGuid _playerGUID;
 };
@@ -4289,7 +4289,7 @@ class spell_sylvanas_windrunner_withering_fire : public SpellScript
 
         if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
-            if (sylvanas->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE)
+            if (SylvanasEventHelpers::GetWorldStatePhase(GetCaster()) == PHASE_ONE)
                 sylvanas->CastSpell(GetHitUnit(), GetEffectInfo(effIndex).TriggerSpell, true);
         }
     }
@@ -4336,7 +4336,7 @@ class spell_sylvanas_windrunner_heartseeker : public SpellScript
             return true;
         }
 
-    private:
+private:
         Unit* _actor;
         Unit* _victim;
     };
@@ -4360,7 +4360,7 @@ class spell_sylvanas_windrunner_heartseeker : public SpellScript
             return true;
         }
 
-    private:
+private:
         Unit* _actor;
         Unit* _victim;
     };
@@ -4418,14 +4418,14 @@ class spell_sylvanas_windrunner_ranger_heartseeker_shadow_damage : public SpellS
         return ValidateSpellInfo({ SPELL_BANSHEE_MARK });
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_MARK, true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_ranger_heartseeker_shadow_damage::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_ranger_heartseeker_shadow_damage::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -4543,7 +4543,7 @@ class spell_sylvanas_windrunner_domination_chain : public AuraScript
         AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_domination_chain::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 
-    private:
+private:
     ObjectGuid _playerGUID;
     ObjectGuid _arrowAreaTriggerGUID;
 };
@@ -4860,7 +4860,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_periodic : public AuraScript
             return true;
         }
 
-    private:
+private:
         Unit* _actor;
         Unit* _target;
     };
@@ -5219,7 +5219,7 @@ class spell_sylvanas_windrunner_haunting_wave : public SpellScript
         OnEffectLaunch += SpellEffectFn(spell_sylvanas_windrunner_haunting_wave::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 
-    private:
+private:
     uint8 _waveCount = 12;
     float _angleOffset = float(M_PI * 2) / _waveCount;
 };
@@ -5478,7 +5478,7 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
             return true;
         }
 
-    private:
+private:
         Unit* _actor;
         Position _bansheeBanePos;
         Unit* _secondActor;
@@ -5812,7 +5812,7 @@ class spell_sylvanas_windrunner_sylvanas_push : public AuraScript
         AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_sylvanas_push::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 
-    private:
+private:
     ObjectGuid _playerGUID;
     ObjectGuid _sylvanasPushAreaTriggerGUID;
 };
@@ -5904,7 +5904,7 @@ class spell_sylvanas_shadow_dagger_phase_three : public SpellScript
         OnEffectLaunch += SpellEffectFn(spell_sylvanas_shadow_dagger_phase_three::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 
-    private:
+private:
     uint8 _visualCount = 8;
     float _angleOffset = float(M_PI * 2) / _visualCount;
     std::vector<Position> _visualDestPos;
@@ -6042,7 +6042,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_3 : public SpellScript
         AfterCast += SpellCastFn(spell_sylvanas_windrunner_veil_of_darkness_phase_3::HandleAfterCast);
     }
 
-    private:
+private:
     ObjectGuid _targetGUID;
 };
 
@@ -6216,7 +6216,7 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
                 _scheduler.Schedule(500ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                    me->CastSpell(sylvanas, SPELL_WINDS_OF_ICECROWN);
+                        me->CastSpell(sylvanas, SPELL_WINDS_OF_ICECROWN);
                 });
 
                 // HACKFIX: GameObject pathing NYI.
@@ -6266,7 +6266,7 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    private:
+private:
     InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
@@ -6441,7 +6441,7 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
                 _scheduler.Schedule(8s + 47ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                    bolvar->AI()->Talk(TALK_FIRST_RUIN);
+                        bolvar->AI()->Talk(TALK_FIRST_RUIN);
                 });
                 break;
             }
@@ -6537,7 +6537,7 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
         });
     }
 
-    private:
+private:
     InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
@@ -6789,20 +6789,20 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     _scheduler.Schedule(50ms, [playerList](TaskContext /*task*/)
                     {
                         for (Player* player : playerList)
-                        player->CastSpell(player, SPELL_TELEPORT_TO_PHASE_TWO, true);
+                            player->CastSpell(player, SPELL_TELEPORT_TO_PHASE_TWO, true);
                     });
 
                     _scheduler.Schedule(100ms, [this](TaskContext /*task*/)
                     {
                         DoCastSelf(SPELL_GENERIC_ANCHOR_HERE, true);
 
-                    me->HandleEmoteCommand(EMOTE_STATE_READY1H_ALLOW_MOVEMENT);
+                        me->HandleEmoteCommand(EMOTE_STATE_READY1H_ALLOW_MOVEMENT);
 
-                    if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                        bolvar->CastSpell(bolvar, SPELL_GENERIC_ANCHOR_HERE, true);
+                        if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                            bolvar->CastSpell(bolvar, SPELL_GENERIC_ANCHOR_HERE, true);
 
-                    if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
-                        thrall->CastSpell(thrall, SPELL_GENERIC_ANCHOR_HERE, true);
+                        if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
+                            thrall->CastSpell(thrall, SPELL_GENERIC_ANCHOR_HERE, true);
                     });
 
                     _scheduler.Schedule(150ms, [this, playerList](TaskContext /*task*/)
@@ -6810,23 +6810,23 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         for (Player* player : playerList)
                         player->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
 
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_JAINA_KNEEL_THEN_STAND, 0, 0);
+                        me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
+                        me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_JAINA_KNEEL_THEN_STAND, 0, 0);
 
-                    if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                        bolvar->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
+                        if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                            bolvar->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
 
-                    if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
-                    {
-                        thrall->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
-                        thrall->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_THRALL_KNEEL_THEN_STAND, 0, 0);
-                    }
+                        if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
+                        {
+                            thrall->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
+                            thrall->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_THRALL_KNEEL_THEN_STAND, 0, 0);
+                        }
                     });
 
                     _scheduler.Schedule(1s, [sylvanas](TaskContext /*task*/)
                     {
                         if (boss_sylvanas_windrunner* sylvanasAI = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
-                        sylvanasAI->TeleportShadowcopiesToMe();
+                            sylvanasAI->TeleportShadowcopiesToMe();
                     });
 
                     _scheduler.Schedule(2s + 750ms, [this](TaskContext /*task*/)
@@ -6837,48 +6837,48 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     _scheduler.Schedule(3s + 500ms, [this, sylvanas](TaskContext /*task*/)
                     {
                         if (Creature* shadowCopy = GetShadowcopy(_instance, DATA_INDEX_00))
-                        sylvanas->SetNameplateAttachToGUID(shadowCopy->GetGUID());
+                            sylvanas->SetNameplateAttachToGUID(shadowCopy->GetGUID());
 
-                    sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_02, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 500));
+                        sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_02, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 500));
 
-                    sylvanas->SendPlayOrphanSpellVisual(SylvanasHauntingWavePos[0], SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                        sylvanas->SendPlayOrphanSpellVisual(SylvanasHauntingWavePos[0], SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
-                    if (Creature* shadowCopy = GetShadowcopy(_instance, DATA_INDEX_00))
-                        shadowCopy->CastSpell(SylvanasHauntingWavePos[0], SPELL_WINDRUNNER_MOVE, true);
+                        if (Creature* shadowCopy = GetShadowcopy(_instance, DATA_INDEX_00))
+                            shadowCopy->CastSpell(SylvanasHauntingWavePos[0], SPELL_WINDRUNNER_MOVE, true);
                     });
 
                     _scheduler.Schedule(4s, [this, sylvanas](TaskContext /*task*/)
                     {
                         sylvanas->NearTeleportTo(SylvanasHauntingWavePos[0]);
 
-                    sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
+                        sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
 
-                    sylvanas->CastSpell(sylvanas, SPELL_BANSHEE_READY_STANCE, true);
+                        sylvanas->CastSpell(sylvanas, SPELL_BANSHEE_READY_STANCE, true);
 
-                    if (Creature* jaina = _instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
-                        sylvanas->SetFacingToObject(jaina);
+                        if (Creature* jaina = _instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
+                            sylvanas->SetFacingToObject(jaina);
 
-                    sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 25050));
+                        sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 25050));
                     });
 
                     _scheduler.Schedule(5s + 578ms, [this](TaskContext /*task*/)
                     {
                         me->GetMotionMaster()->MovePoint(0, JainaPhaseTwoPos[1], false);
 
-                    if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
-                        thrall->GetMotionMaster()->MovePoint(0, ThrallPhaseTwoPos[0], false);
+                        if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
+                            thrall->GetMotionMaster()->MovePoint(0, ThrallPhaseTwoPos[0], false);
                     });
 
                     _scheduler.Schedule(6s + 200ms, [this](TaskContext /*task*/)
                     {
                         if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                        bolvar->AI()->Talk(TALK_FIRST_CHAIN);
+                            bolvar->AI()->Talk(TALK_FIRST_CHAIN);
                     });
 
                     _scheduler.Schedule(6s + 890ms, [this](TaskContext /*task*/)
                     {
                         if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                        bolvar->GetMotionMaster()->MovePoint(0, BolvarPhaseTwoPos[1], false);
+                            bolvar->GetMotionMaster()->MovePoint(0, BolvarPhaseTwoPos[1], false);
                     });
 
                     _scheduler.Schedule(8s + 93ms, [this](TaskContext /*task*/)
@@ -6896,13 +6896,13 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 _scheduler.Schedule(493ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
-                    thrall->GetMotionMaster()->MovePoint(0, ThrallPhaseTwoPos[1], false);
+                        thrall->GetMotionMaster()->MovePoint(0, ThrallPhaseTwoPos[1], false);
                 });
 
                 _scheduler.Schedule(900ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                    bolvar->GetMotionMaster()->MovePoint(0, BolvarPhaseTwoPos[2], false);
+                        bolvar->GetMotionMaster()->MovePoint(0, BolvarPhaseTwoPos[2], false);
                 });
 
                 _scheduler.Schedule(3s + 322ms, [this](TaskContext /*task*/)
@@ -6913,18 +6913,18 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 _scheduler.Schedule(5s + 593ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                    sylvanas->GetAI()->DoAction(ACTION_HAUNTING_WAVE_SECOND_CHAIN);
+                        sylvanas->GetAI()->DoAction(ACTION_HAUNTING_WAVE_SECOND_CHAIN);
                 });
 
                 _scheduler.Schedule(6s + 811ms, [this](TaskContext /*task*/)
                 {
                     me->GetMotionMaster()->MovePoint(POINT_TELEPORT_TO_THIRD_CHAIN, JainaPhaseTwoPos[3], false);
 
-                if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                    bolvar->GetMotionMaster()->MoveJump(BolvarPhaseTwoPos[3], bolvar->GetSpeed(MOVE_RUN), Movement::gravity * 1.4125f, POINT_JUMP_SECOND_CHAIN);
+                    if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                        bolvar->GetMotionMaster()->MoveJump(BolvarPhaseTwoPos[3], bolvar->GetSpeed(MOVE_RUN), Movement::gravity * 1.4125f, POINT_JUMP_SECOND_CHAIN);
 
-                if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
-                    thrall->GetMotionMaster()->MoveJump(ThrallPhaseTwoPos[2], thrall->GetSpeed(MOVE_RUN), Movement::gravity * 1.4125f, POINT_JUMP_SECOND_CHAIN);
+                    if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
+                        thrall->GetMotionMaster()->MoveJump(ThrallPhaseTwoPos[2], thrall->GetSpeed(MOVE_RUN), Movement::gravity * 1.4125f, POINT_JUMP_SECOND_CHAIN);
                 });
 
                 _scheduler.Schedule(10s + 639ms, [this](TaskContext /*task*/)
@@ -6940,13 +6940,13 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 _scheduler.Schedule(20s + 639ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                    bolvar->AI()->Talk(TALK_SECOND_CHAIN);
+                        bolvar->AI()->Talk(TALK_SECOND_CHAIN);
                 });
 
                 _scheduler.Schedule(29s + 685ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
-                    thrall->GetAI()->DoAction(ACTION_PREPARE_EARTH_BRIDGE_1);
+                        thrall->GetAI()->DoAction(ACTION_PREPARE_EARTH_BRIDGE_1);
                 });
                 break;
             }
@@ -6964,10 +6964,10 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 {
                     Position dest(-233.971f, -1304.676f, 4999.984f);
 
-                me->NearTeleportTo(dest);
+                    me->NearTeleportTo(dest);
 
-                for (Player* player : playerList)
-                    player->NearTeleportTo(dest);
+                    for (Player* player : playerList)
+                        player->NearTeleportTo(dest);
                 });
 
                 _scheduler.Schedule(980ms, [this](TaskContext /*task*/)
@@ -6979,73 +6979,73 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 {
                     Position const frontJainaPos = me->GetNearPosition(5.0f, 0.0f);
 
-                me->CastSpell(frontJainaPos, SPELL_PORTAL_TO_ORIBOS_PHASE_3);
+                    me->CastSpell(frontJainaPos, SPELL_PORTAL_TO_ORIBOS_PHASE_3);
                 });
 
                 _scheduler.Schedule(5s, [this](TaskContext /*task*/)
                 {
                     Talk(TALK_FINISHING_PORTAL_TO_PHASE_THREE);
 
-                if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                    sylvanas->GetAI()->DoAction(ACTION_INITIATE_PHASE_THREE);
+                    if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                        sylvanas->GetAI()->DoAction(ACTION_INITIATE_PHASE_THREE);
                 });
 
                 _scheduler.Schedule(12s, [this](TaskContext /*task*/)
                 {
                     Talk(TALK_FINISHED_PORTAL_TO_PHASE_THREE);
 
-                if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                    sylvanas->SetFacingTo(4.8989f);
+                    if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                        sylvanas->SetFacingTo(4.8989f);
                 });
 
                 _scheduler.Schedule(12s + 250ms, [this](TaskContext /*task*/)
                 {
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
-                me->NearTeleportTo(JainaPrePhaseThreePos);
+                    me->NearTeleportTo(JainaPrePhaseThreePos);
 
-                if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                {
-                    bolvar->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
-                    bolvar->NearTeleportTo(BolvarPrePhaseThreePos);
-                }
+                    if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                    {
+                        bolvar->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
+                        bolvar->NearTeleportTo(BolvarPrePhaseThreePos);
+                    }
 
-                if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
-                {
-                    thrall->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
-                    thrall->NearTeleportTo(ThrallPrePhaseThreePos);
-                }
+                    if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
+                    {
+                        thrall->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
+                        thrall->NearTeleportTo(ThrallPrePhaseThreePos);
+                    }
                 });
 
                 _scheduler.Schedule(12s + 300ms, [this, playerList](TaskContext /*task*/)
                 {
                     for (Player* player : playerList)
-                    player->CastSpell(me->GetPosition(), SPELL_TELEPORT_TO_PHASE_3, true);
+                        player->CastSpell(me->GetPosition(), SPELL_TELEPORT_TO_PHASE_3, true);
                 });
 
                 _scheduler.Schedule(13s, [this, playerList](TaskContext /*task*/)
                 {
                     if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                    me->SetFacingToObject(sylvanas);
+                        me->SetFacingToObject(sylvanas);
 
-                DoCastSelf(SPELL_GENERIC_ANCHOR_HERE, true);
+                    DoCastSelf(SPELL_GENERIC_ANCHOR_HERE, true);
                 });
 
                 _scheduler.Schedule(13s + 200ms, [this, playerList](TaskContext /*task*/)
                 {
                     for (Player* player : playerList)
-                    player->CastSpell(player, SPELL_PLATFORMS_SCENE, true);
+                        player->CastSpell(player, SPELL_PLATFORMS_SCENE, true);
 
-                if (Creature* anduin = _instance->GetCreature(DATA_ANDUIN_CRUCIBLE))
-                    anduin->GetAI()->DoAction(ACTION_INITIATE_PHASE_THREE);
+                    if (Creature* anduin = _instance->GetCreature(DATA_ANDUIN_CRUCIBLE))
+                        anduin->GetAI()->DoAction(ACTION_INITIATE_PHASE_THREE);
 
-                if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                    sylvanas->GetAI()->DoAction(ACTION_START_TIMERS_PHASE_THREE);
+                    if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                        sylvanas->GetAI()->DoAction(ACTION_START_TIMERS_PHASE_THREE);
                 });
 
                 _scheduler.Schedule(15s, [this](TaskContext /*task*/)
                 {
                     if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                    bolvar->AI()->Talk(TALK_PREPARE_PHASE_THREE);
+                        bolvar->AI()->Talk(TALK_PREPARE_PHASE_THREE);
                 });
 
                 _scheduler.Schedule(18s + 950ms, [this](TaskContext /*task*/)
@@ -7061,7 +7061,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 _scheduler.Schedule(20s + 200ms, [this](TaskContext /*task*/)
                 {
                     me->CastStop();
-                me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_JAINA_BREAK_BLASPHEMY, 0, 0);
+                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_JAINA_BREAK_BLASPHEMY, 0, 0);
                 });
 
                 _scheduler.Schedule(20s + 950ms, [this](TaskContext /*task*/)
@@ -7082,11 +7082,11 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         player->RemoveAura(SPELL_BLASPHEMY_STUN);
                     }
 
-                if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                    bolvar->RemoveAura(SPELL_BLASPHEMY_STUN);
+                    if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                        bolvar->RemoveAura(SPELL_BLASPHEMY_STUN);
 
-                if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
-                    thrall->RemoveAura(SPELL_BLASPHEMY_STUN);
+                    if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
+                        thrall->RemoveAura(SPELL_BLASPHEMY_STUN);
                 });
 
                 _scheduler.Schedule(24s, [this, playerList](TaskContext /*task*/)
@@ -7130,8 +7130,8 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                             sylvanas->CastSpell(InvigoratingFieldPos[i], SPELL_INVIGORATING_FIELD_ACTIVATE, true);
                     }
 
-                for (Player* player : playerList)
-                    player->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_PLAYER_ACTIVATE_FIELDS, 0, 0);
+                    for (Player* player : playerList)
+                        player->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_PLAYER_ACTIVATE_FIELDS, 0, 0);
                 });
                 break;
             }
@@ -7226,7 +7226,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
         });
     }
 
-    private:
+private:
     InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
@@ -7407,9 +7407,9 @@ struct npc_sylvanas_windrunner_anduin : public ScriptedAI
                 {
                     me->SetUnitFlag2(UNIT_FLAG2_UNTARGETABLE_BY_CLIENT);
 
-                me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(0ms));
+                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(0ms));
 
-                _events.ScheduleEvent(EVENT_RANDOM_MOVEMENT, 18s, 20s, PHASE_THREE);
+                    _events.ScheduleEvent(EVENT_RANDOM_MOVEMENT, 18s, 20s, PHASE_THREE);
                 });
                 break;
             }
@@ -7452,7 +7452,7 @@ struct npc_sylvanas_windrunner_anduin : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    private:
+private:
     InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
@@ -7627,7 +7627,7 @@ struct at_sylvanas_windrunner_calamity : AreaTriggerAI
         }
     }
 
-    private:
+private:
     InstanceScript* _instance;
 };
 
@@ -7714,7 +7714,7 @@ struct at_sylvanas_windrunner_bridges : AreaTriggerAI
         at->SetDuration(-1);
     }
 
-    private:
+private:
     InstanceScript* _instance;
 };
 
@@ -7764,11 +7764,20 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
 
         switch (at->GetMap()->GetDifficultyID())
         {
-            case DIFFICULTY_LFR_NEW: magnitude = 4.0f; break;
-            case DIFFICULTY_NORMAL_RAID: magnitude = 5.0f; break;
-            case DIFFICULTY_HEROIC_RAID: magnitude = 6.0f; break;
-            case DIFFICULTY_MYTHIC_RAID: magnitude = 8.0f; break;
-            default: magnitude = 5.0f; break;
+            case DIFFICULTY_LFR_NEW:
+                magnitude = 4.0f;
+                break;
+            case DIFFICULTY_NORMAL_RAID:
+                magnitude = 5.0f;
+                break;
+            case DIFFICULTY_HEROIC_RAID:
+                magnitude = 6.0f;
+                break;
+            case DIFFICULTY_MYTHIC_RAID:
+                magnitude = 8.0f;
+                break;
+            default:
+                break;
         }
 
         Position currentPos = at->GetPosition();
@@ -7793,7 +7802,7 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
         unit->RemoveMovementForce(at->GetGUID());
     }
 
-    private:
+private:
     InstanceScript* _instance;
     Position _lastPointPos;
 };
@@ -7816,25 +7825,8 @@ struct at_sylvanas_windrunner_blasphemy : AreaTriggerAI
         }
     }
 
-    private:
-    InstanceScript* _instance;
-};
-
-class BansheeBanePickEvent : public BasicEvent
-{
-public:
-    BansheeBanePickEvent(Unit* actor, Unit* secondActor) : _actor(actor), _secondActor(secondActor) { }
-
-    bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-    {
-        _actor->CastSpell(_secondActor, SPELL_BANSHEES_BANE, true);
-
-        return true;
-    }
-
 private:
-    Unit* _actor;
-    Unit* _secondActor;
+    InstanceScript* _instance;
 };
 
 // 27461 - Banshee's Bane
@@ -7842,6 +7834,23 @@ struct at_sylvanas_windrunner_banshee_bane : AreaTriggerAI
 {
     at_sylvanas_windrunner_banshee_bane(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
         _instance(at->GetInstanceScript()), _readyToPick(false), _updateDiff(0) { }
+
+    class BansheeBanePickEvent : public BasicEvent
+    {
+    public:
+        BansheeBanePickEvent(Unit* actor, Unit* secondActor) : _actor(actor), _secondActor(secondActor) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            _actor->CastSpell(_secondActor, SPELL_BANSHEES_BANE, true);
+
+            return true;
+        }
+
+    private:
+        Unit* _actor;
+        Unit* _secondActor;
+    };
 
     void OnUnitEnter(Unit* unit) override
     {
@@ -7866,10 +7875,12 @@ struct at_sylvanas_windrunner_banshee_bane : AreaTriggerAI
         _scheduler.Update(diff);
 
         if (!_readyToPick)
-            _scheduler.Schedule(1s + 500ms, [this](TaskContext /*task*/)
         {
-            _readyToPick = true;
-        });
+            _scheduler.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+            {
+                _readyToPick = true;
+            });
+        }
     }
 
 private:
@@ -7987,7 +7998,7 @@ struct at_sylvanas_windrunner_introduction : AreaTriggerAI
             Conversation::CreateConversation(CONVERSATION_SYLVANAS_INTRODUCTION, sylvanas, sylvanas->GetPosition(), ObjectGuid::Empty);
     }
 
-    private:
+private:
     InstanceScript* _instance;
 };
 
