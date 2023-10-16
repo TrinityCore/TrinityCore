@@ -42,7 +42,12 @@ DELETE FROM `creature_template_addon` WHERE `entry`=180803;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
 (180803, 0, 0, 1, 0, 0, 0, 4, 0, '355809');
 
--- TODO: missing scaling for Throne of the Damned.
+DELETE FROM `creature_template_difficulty` WHERE `Entry`=180803;
+INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
+(180803, 14, 0, 0, 2104, 8, 1, 1, 204469, 1611661392, 6, 50791),
+(180803, 15, 0, 0, 2105, 8, 1, 1, 204469, 1611661392, 6, 50791),
+(180803, 16, 0, 0, 2106, 8, 1, 1, 204469, 1611661392, 6, 50791),
+(180803, 17, 0, 0, 2107, 8, 1, 1, 204469, 1611661392, 6, 50791);
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=180803;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
@@ -69,8 +74,8 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=175732;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(175732, 14, 3, 3, 2104, 8, 99999999, 1, 99999999, 2097260, 65664, 50791),
-(175732, 15, 3, 3, 2105, 8, 99999999, 1, 99999999, 2097260, 65664, 50791),
+(175732, 14, 3, 3, 2104, 8, 1508.0799560546875, 1, 204623, 2097260, 65664, 50791),
+(175732, 15, 3, 3, 2105, 8, 1596.1300048828125, 1, 204624, 2097260, 65664, 50791),
 (175732, 16, 3, 3, 2106, 8, 1817.760009765625, 1, 204625, 2097260, 65664, 50791),
 (175732, 17, 3, 3, 2107, 8, 1443.760009765625, 1, 204626, 2097260, 65664, 50791);
 
@@ -162,8 +167,8 @@ UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=176920;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(176920, 14, 0, 0, 2104, 8, 99999999, 1, 99999999, 16778272, 144, 50791),
-(176920, 15, 0, 0, 2105, 8, 99999999, 1, 99999999, 16778272, 144, 50791),
+(176920, 14, 0, 0, 2104, 8, 1.20000004768371582, 1, 204759, 16778272, 144, 50791),
+(176920, 15, 0, 0, 2105, 8, 1.35000002384185791, 1, 204760, 16778272, 144, 50791),
 (176920, 16, 0, 0, 2106, 8, 2.549999952316284179, 1, 204761, 16778272, 144, 50791),
 (176920, 17, 0, 0, 2107, 8, 1.20000004768371582, 1, 204762, 16778272, 144, 50791);
 
@@ -325,8 +330,8 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=177891;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(177891, 14, 2, 2, 2104, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
-(177891, 15, 2, 2, 2105, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
+(177891, 14, 2, 2, 2104, 8, 22.18000030517578125, 1, 203458, 2097224, 128, 50791),
+(177891, 15, 2, 2, 2105, 8, 19.28000068664550781, 1, 203459, 2097224, 128, 50791),
 (177891, 16, 2, 2, 2106, 8, 16.93000030517578125, 1, 203460, 2097224, 128, 50791),
 (177891, 17, 2, 2, 2107, 8, 19.45000076293945312, 1, 203461, 2097224, 128, 50791);
 
@@ -339,8 +344,8 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=177154;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(177154, 14, 1, 1, 2104, 8, 99999999, 1, 99999999, 2097256, 128, 50791),
-(177154, 15, 1, 1, 2105, 8, 99999999, 1, 99999999, 2097256, 128, 50791),
+(177154, 14, 1, 1, 2104, 8, 1.5, 1, 204633, 2097256, 128, 50791),
+(177154, 15, 1, 1, 2105, 8, 1.5, 1, 204634, 2097256, 128, 50791),
 (177154, 16, 1, 1, 2106, 8, 1.75, 1, 204091, 2097224, 128, 50791),
 (177154, 17, 1, 1, 2107, 8, 1.5, 1, 204635, 2097256, 128, 50791);
 
@@ -351,8 +356,8 @@ UPDATE `creature_template_addon` SET `visibilityDistanceType`=3 WHERE `entry`=17
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=177889;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(177889, 14, 2, 2, 2104, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
-(177889, 15, 2, 2, 2105, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
+(177889, 14, 2, 2, 2104, 8, 23.47999954223632812, 1, 203454, 2097224, 128, 50791),
+(177889, 15, 2, 2, 2105, 8, 20.42000007629394531, 1, 203455, 2097224, 128, 50791),
 (177889, 16, 2, 2, 2106, 8, 17.87000083923339843, 1, 203456, 2097224, 128, 50791),
 (177889, 17, 2, 2, 2107, 8, 20.59000015258789062, 1, 203457, 2097224, 128, 50791);
 
@@ -363,8 +368,8 @@ UPDATE `creature_template_addon` SET `visibilityDistanceType`=3 WHERE `entry`=17
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=178008;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(178008, 14, 1, 1, 2104, 8, 0.5, 1, 99999999, 2097224, 128, 50791),
-(178008, 15, 1, 1, 2105, 8, 0.5, 1, 99999999, 2097224, 128, 50791),
+(178008, 14, 1, 1, 2104, 8, 0.5, 1, 203448, 2097224, 128, 50791),
+(178008, 15, 1, 1, 2105, 8, 0.5, 1, 203446, 2097224, 128, 41488),
 (178008, 16, 1, 1, 2106, 8, 0.5, 1, 203447, 2097224, 128, 50791),
 (178008, 17, 1, 1, 2107, 8, 0.5, 1, 203449, 2097224, 128, 50791);
 
@@ -375,8 +380,8 @@ UPDATE `creature_template_addon` SET `visibilityDistanceType`=3 WHERE `entry`=17
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=177892;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(177892, 14, 2, 2, 2104, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
-(177892, 15, 2, 2, 2105, 8, 99999999, 1, 99999999, 2097224, 128, 50791),
+(177892, 14, 2, 2, 2104, 8, 26.09000015258789062, 1, 203450, 2097224, 128, 41359),
+(177892, 15, 2, 2, 2105, 8, 22.69000053405761718, 1, 203451, 2097224, 128, 50791),
 (177892, 16, 2, 2, 2106, 8, 18.80999946594238281, 1, 203452, 2097224, 128, 50791),
 (177892, 17, 2, 2, 2107, 8, 22.87999916076660156, 1, 203453, 2097224, 128, 50791);
 
@@ -387,8 +392,8 @@ UPDATE `creature_template_addon` SET `visibilityDistanceType`=3 WHERE `entry`=17
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry`=177787;
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(177787, 14, 1, 1, 2104, 8, 2, 1, 99999999, 2097256, 128, 50791),
-(177787, 15, 1, 1, 2105, 8, 2, 1, 99999999, 2097256, 128, 50791),
+(177787, 14, 1, 1, 2104, 8, 2, 1, 201046, 2097256, 128, 50791), 
+(177787, 15, 1, 1, 2105, 8, 2, 1, 201046, 2097256, 128, 50791),
 (177787, 16, 1, 1, 2106, 8, 2, 1, 204092, 2097224, 128, 50791),
 (177787, 17, 1, 1, 2107, 8, 2, 1, 201046, 2097256, 128, 50791);
 
