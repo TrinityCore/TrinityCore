@@ -15,17 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "icecrown_citadel.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "CreatureTextMgr.h"
 #include "DBCStores.h"
 #include "GridNotifiersImpl.h"
-#include "icecrown_citadel.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"

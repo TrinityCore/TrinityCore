@@ -155,7 +155,7 @@ class TC_GAME_API ArenaTeam
         bool LoadArenaTeamFromDB(QueryResult arenaTeamDataResult);
         bool LoadMembersFromDB(QueryResult arenaTeamMembersResult);
         void LoadStatsFromDB(uint32 ArenaTeamId);
-        void SaveToDB();
+        void SaveToDB(bool forceMemberSave = false);
 
         void BroadcastPacket(WorldPacket* packet);
         void BroadcastEvent(ArenaTeamEvents event, ObjectGuid guid, uint8 strCount, std::string const& str1, std::string const& str2, std::string const& str3);

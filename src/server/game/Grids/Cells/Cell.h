@@ -91,7 +91,6 @@ struct Cell
     }
 
     bool operator == (Cell const& cell) const { return (data.All == cell.data.All); }
-    bool operator != (Cell const& cell) const { return !operator == (cell); }
     union
     {
         struct

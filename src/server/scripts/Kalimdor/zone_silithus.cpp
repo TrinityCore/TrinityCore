@@ -879,7 +879,7 @@ public:
                 Player* groupMember = nullptr;
 
                 uint8 GroupMemberCount = 0;
-                uint8 DeadMemberCount = 0;
+                //uint8 DeadMemberCount = 0;
                 uint8 FailedMemberCount = 0;
 
                 Group::MemberSlotList const& members = EventGroup->GetMemberSlots();
@@ -896,8 +896,8 @@ public:
                     }
                     ++GroupMemberCount;
 
-                    if (groupMember->isDead())
-                        ++DeadMemberCount;
+                    //if (groupMember->isDead())
+                    //    ++DeadMemberCount;
                 }
 
                 if (GroupMemberCount == FailedMemberCount || !player->IsWithinDistInMap(me, EVENT_AREA_RADIUS))

@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "DBCStores.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
@@ -257,7 +258,7 @@ class spell_gen_arena_drink : public AuraScript
     {
         if (!spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_POWER_REGEN))
         {
-            TC_LOG_ERROR("spells", "Aura %d structure has been changed - first aura is no longer SPELL_AURA_MOD_POWER_REGEN", GetId());
+            TC_LOG_ERROR("spells", "Aura {} structure has been changed - first aura is no longer SPELL_AURA_MOD_POWER_REGEN", GetId());
             return false;
         }
 
@@ -4239,7 +4240,7 @@ class spell_gen_mixology_bonus : public AuraScript
                     SetBonusValueForEffect(EFFECT_0, 5, aurEff);
                     break;
                 default:
-                    TC_LOG_ERROR("spells", "SpellId %u couldn't be processed in spell_gen_mixology_bonus", GetId());
+                    TC_LOG_ERROR("spells", "SpellId {} couldn't be processed in spell_gen_mixology_bonus", GetId());
                     break;
             }
             amount += bonus;

@@ -1,13 +1,13 @@
--- MySQL dump 10.13  Distrib 8.0.31, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.33, for Linux (x86_64)
 --
 -- Host: localhost    Database: auth
 -- ------------------------------------------------------
--- Server version	8.0.31-0ubuntu0.20.04.2
+-- Server version	8.0.33-0ubuntu0.20.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
+/*!50503 SET NAMES utf8 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -1605,7 +1605,7 @@ INSERT INTO `rbac_permissions` VALUES
 (642,'Command: reload disenchant_loot_template'),
 (643,'Command: reload event_scripts'),
 (644,'Command: reload fishing_loot_template'),
-(645,'Command: reload game_graveyard_zone'),
+(645,'Command: reload graveyard_zone'),
 (646,'Command: reload game_tele'),
 (647,'Command: reload gameobject_questender'),
 (648,'Command: reload gameobject_loot_template'),
@@ -2005,8 +2005,10 @@ INSERT INTO `updates` VALUES
 ('2022_08_15_00_auth.sql','9EED4B445CAEC5337879206849A5C194872F228D','ARCHIVED','2022-08-15 11:21:17',0),
 ('2022_10_17_00_auth.sql','EB711C5B9B3272A05DDF47CA998F87E5DE6DE238','ARCHIVED','2022-10-17 09:02:28',0),
 ('2023_01_16_00_auth.sql','8431F03DE6A036BEED6682C21F4B67F384390905','ARCHIVED','2023-01-16 11:06:30',0),
-('2023_02_05_00_auth.sql','DC8A2046EB4201D55342C541A0E9C398499E12B1','RELEASED','2023-02-05 14:50:30',0),
-('2023_02_05_01_auth.sql','336E62A8850A3E78A1D0BD3E81FFD5769184BDF8','RELEASED','2023-02-05 15:58:32',0);
+('2023_02_05_00_auth.sql','DC8A2046EB4201D55342C541A0E9C398499E12B1','ARCHIVED','2023-02-05 14:50:30',0),
+('2023_02_05_01_auth.sql','336E62A8850A3E78A1D0BD3E81FFD5769184BDF8','ARCHIVED','2023-02-05 15:58:32',0),
+('2023_05_05_00_auth.sql','DEEB1D5533658E3479FC3C988EF4B9816C511BC3','ARCHIVED','2023-05-07 11:52:00',0),
+('2023_06_14_00_auth.sql','BB8A7EB214F4F3632C4F54EA596CB7C8FBA305D5','ARCHIVED','2023-06-14 19:34:24',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2031,9 +2033,9 @@ CREATE TABLE `updates_include` (
 LOCK TABLES `updates_include` WRITE;
 /*!40000 ALTER TABLE `updates_include` DISABLE KEYS */;
 INSERT INTO `updates_include` VALUES
-('$/sql/updates/auth','RELEASED'),
 ('$/sql/custom/auth','RELEASED'),
-('$/sql/old/3.3.5a/auth','ARCHIVED');
+('$/sql/old/3.3.5a/auth','ARCHIVED'),
+('$/sql/updates/auth','RELEASED');
 /*!40000 ALTER TABLE `updates_include` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2145,4 +2147,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-16 11:08:17
+-- Dump completed on 2023-06-14 19:34:37

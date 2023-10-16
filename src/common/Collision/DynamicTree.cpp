@@ -18,10 +18,8 @@
 #include "DynamicTree.h"
 #include "BoundingIntervalHierarchyWrapper.h"
 #include "GameObjectModel.h"
-#include "Log.h"
 #include "MapTree.h"
 #include "ModelIgnoreFlags.h"
-#include "ModelInstance.h"
 #include "RegularGrid.h"
 #include "Timer.h"
 #include "VMapFactory.h"
@@ -148,28 +146,6 @@ struct DynamicTreeIntersectionCallback
     {
         did_hit = obj.intersectRay(r, distance, true, phase_mask, VMAP::ModelIgnoreFlags::Nothing);
         return did_hit;
-    }
-    bool didHit() const { return did_hit;}
-};
-
-struct DynamicTreeIntersectionCallback_WithLogger
-{
-    bool did_hit;
-    uint32 phase_mask;
-    DynamicTreeIntersectionCallback_WithLogger(uint32 phasemask) : did_hit(false), phase_mask(phasemask)
-    {
-        TC_LOG_DEBUG("maps", "Dynamic Intersection log");
-    }
-    bool operator()(G3D::Ray const& r, GameObjectModel const& obj, float& distance)
-    {
-        TC_LOG_DEBUG("maps", "testing intersection with %s", obj.name.c_str());
-        bool hit = obj.intersectRay(r, distance, true, phase_mask, VMAP::ModelIgnoreFlags::Nothing);
-        if (hit)
-        {
-            did_hit = true;
-            TC_LOG_DEBUG("maps", "result: intersects");
-        }
-        return hit;
     }
     bool didHit() const { return did_hit;}
 };

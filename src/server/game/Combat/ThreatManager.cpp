@@ -19,6 +19,7 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "TemporarySummon.h"
@@ -38,11 +39,17 @@
 #include "TSUnit.h"
 #include "TSMutable.h"
 // @tswow-end
+#include <boost/heap/fibonacci_heap.hpp>
 
 #include "Hacks/boost_1_74_fibonacci_heap.h"
-BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(ThreatManager::threat_list_heap::value_type)
 
 const CompareThreatLessThan ThreatManager::CompareThreat;
+
+class ThreatManager::Heap : public boost::heap::fibonacci_heap<ThreatReference const*, boost::heap::compare<CompareThreatLessThan>>
+{
+};
+
+BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(ThreatManager::Heap::value_type)
 
 void ThreatReference::AddThreat(float amount)
 {
@@ -84,7 +91,7 @@ void ThreatReference::UpdateOffline()
     {
         _online = ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE;
         HeapNotifyIncreased();
-        _mgr.RegisterForAIUpdate(this);
+        _mgr.RegisterForAIUpdate(GetVictim()->GetGUID());
     }
 }
 
@@ -160,6 +167,24 @@ void ThreatReference::UnregisterAndFree()
     delete this;
 }
 
+class ThreatReferenceImpl : public ThreatReference
+{
+public:
+    explicit ThreatReferenceImpl(ThreatManager* mgr, Unit* victim) : ThreatReference(mgr, victim) { }
+
+    ThreatManager::Heap::handle_type _handle;
+};
+
+void ThreatReference::HeapNotifyIncreased()
+{
+    _mgr._sortedThreatList->increase(static_cast<ThreatReferenceImpl*>(this)->_handle);
+}
+
+void ThreatReference::HeapNotifyDecreased()
+{
+    _mgr._sortedThreatList->decrease(static_cast<ThreatReferenceImpl*>(this)->_handle);
+}
+
 /*static*/ bool ThreatManager::CanHaveThreatList(Unit const* who)
 {
     Creature const* cWho = who->ToCreature();
@@ -180,7 +205,8 @@ void ThreatReference::UnregisterAndFree()
     return true;
 }
 
-ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _needClientUpdate(false), _updateTimer(THREAT_UPDATE_INTERVAL), _currentVictimRef(nullptr), _fixateRef(nullptr)
+ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _needClientUpdate(false), _updateTimer(THREAT_UPDATE_INTERVAL),
+    _sortedThreatList(std::make_unique<Heap>()), _currentVictimRef(nullptr), _fixateRef(nullptr)
 {
     for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         _singleSchoolModifiers[i] = 1.0f;
@@ -189,7 +215,7 @@ ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatLi
 ThreatManager::~ThreatManager()
 {
     ASSERT(_myThreatListEntries.empty(), "ThreatManager::~ThreatManager - %s: we still have %zu things threatening us, one of them is %s.", _owner->GetGUID().ToString().c_str(), _myThreatListEntries.size(), _myThreatListEntries.begin()->first.ToString().c_str());
-    ASSERT(_sortedThreatList.empty(), "ThreatManager::~ThreatManager - %s: we still have %zu things threatening us, one of them is %s.", _owner->GetGUID().ToString().c_str(), _sortedThreatList.size(), (*_sortedThreatList.begin())->GetVictim()->GetGUID().ToString().c_str());
+    ASSERT(_sortedThreatList->empty(), "ThreatManager::~ThreatManager - %s: we still have %zu things threatening us, one of them is %s.", _owner->GetGUID().ToString().c_str(), _sortedThreatList->size(), (*_sortedThreatList->begin())->GetVictim()->GetGUID().ToString().c_str());
     ASSERT(_threatenedByMe.empty(), "ThreatManager::~ThreatManager - %s: we are still threatening %zu things, one of them is %s.", _owner->GetGUID().ToString().c_str(), _threatenedByMe.size(), _threatenedByMe.begin()->first.ToString().c_str());
 }
 
@@ -228,7 +254,7 @@ Unit* ThreatManager::GetLastVictim() const
 
 Unit* ThreatManager::GetAnyTarget() const
 {
-    for (ThreatReference const* ref : _sortedThreatList)
+    for (ThreatReference const* ref : *_sortedThreatList)
         if (!ref->IsOffline())
             return ref->GetVictim();
     return nullptr;
@@ -237,8 +263,8 @@ Unit* ThreatManager::GetAnyTarget() const
 bool ThreatManager::IsThreatListEmpty(bool includeOffline) const
 {
     if (includeOffline)
-        return _sortedThreatList.empty();
-    for (ThreatReference const* ref : _sortedThreatList)
+        return _sortedThreatList->empty();
+    for (ThreatReference const* ref : *_sortedThreatList)
         if (ref->IsAvailable())
             return false;
     return true;
@@ -261,11 +287,44 @@ float ThreatManager::GetThreat(Unit const* who, bool includeOffline) const
     return (includeOffline || it->second->IsAvailable()) ? it->second->GetThreat() : 0.0f;
 }
 
+size_t ThreatManager::GetThreatListSize() const
+{
+    return _sortedThreatList->size();
+}
+
+Trinity::IteratorPair<ThreatManager::ThreatListIterator, std::nullptr_t> ThreatManager::GetUnsortedThreatList() const
+{
+    auto itr = _myThreatListEntries.begin();
+    auto end = _myThreatListEntries.end();
+    std::function<ThreatReference const* ()> generator = [itr, end]() mutable -> ThreatReference const*
+    {
+        if (itr == end)
+            return nullptr;
+
+        return (itr++)->second;
+    };
+    return { ThreatListIterator{ std::move(generator) }, nullptr };
+}
+
+Trinity::IteratorPair<ThreatManager::ThreatListIterator, std::nullptr_t> ThreatManager::GetSortedThreatList() const
+{
+    auto itr = _sortedThreatList->ordered_begin();
+    auto end = _sortedThreatList->ordered_end();
+    std::function<ThreatReference const* ()> generator = [itr, end]() mutable -> ThreatReference const*
+    {
+        if (itr == end)
+            return nullptr;
+
+        return *(itr++);
+    };
+    return { ThreatListIterator{ std::move(generator) }, nullptr };
+}
+
 std::vector<ThreatReference*> ThreatManager::GetModifiableThreatList()
 {
     std::vector<ThreatReference*> list;
     list.reserve(_myThreatListEntries.size());
-    for (auto it = _sortedThreatList.ordered_begin(), end = _sortedThreatList.ordered_end(); it != end; ++it)
+    for (auto it = _sortedThreatList->ordered_begin(), end = _sortedThreatList->ordered_end(); it != end; ++it)
         list.push_back(const_cast<ThreatReference*>(*it));
     return list;
 }
@@ -434,7 +493,7 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     }
 
     // ok, we're now in combat - create the threat list reference and push it to the respective managers
-    ThreatReference* ref = new ThreatReference(this, target);
+    ThreatReference* ref = new ThreatReferenceImpl(this, target);
     PutThreatListRef(target->GetGUID(), ref);
     target->GetThreatManager().PutThreatenedByMeRef(_owner->GetGUID(), ref);
 
@@ -467,10 +526,10 @@ void ThreatManager::ScaleThreat(Unit* target, float factor, bool isRaw)
 
 void ThreatManager::MatchUnitThreatToHighestThreat(Unit* target)
 {
-    if (_sortedThreatList.empty())
+    if (_sortedThreatList->empty())
         return;
 
-    auto it = _sortedThreatList.ordered_begin(), end = _sortedThreatList.ordered_end();
+    auto it = _sortedThreatList->ordered_begin(), end = _sortedThreatList->ordered_end();
     ThreatReference const* highest = *it;
     if (!highest->IsAvailable())
         return;
@@ -579,7 +638,7 @@ void ThreatManager::UpdateVictim()
 
 ThreatReference const* ThreatManager::ReselectVictim()
 {
-    if (_sortedThreatList.empty())
+    if (_sortedThreatList->empty())
         return nullptr;
 
     for (auto const& pair : _myThreatListEntries)
@@ -593,7 +652,7 @@ ThreatReference const* ThreatManager::ReselectVictim()
     if (oldVictimRef && oldVictimRef->IsOffline())
         oldVictimRef = nullptr;
     // in 99% of cases - we won't need to actually look at anything beyond the first element
-    ThreatReference const* highest = _sortedThreatList.top();
+    ThreatReference const* highest = _sortedThreatList->top();
     // if the highest reference is offline, the entire list is offline, and we indicate this
     if (!highest->IsAvailable())
         return nullptr;
@@ -611,7 +670,7 @@ ThreatReference const* ThreatManager::ReselectVictim()
         return highest;
     // If we get here, highest threat is ranged, but below 130% of current - there might be a melee that breaks 110% below us somewhere, so now we need to actually look at the next highest element
     // luckily, this is a heap, so getting the next highest element is O(log n), and we're just gonna do that repeatedly until we've seen enough targets (or find a target)
-    auto it = _sortedThreatList.ordered_begin(), end = _sortedThreatList.ordered_end();
+    auto it = _sortedThreatList->ordered_begin(), end = _sortedThreatList->ordered_end();
     while (it != end)
     {
         ThreatReference const* next = *it;
@@ -635,11 +694,12 @@ ThreatReference const* ThreatManager::ReselectVictim()
 void ThreatManager::ProcessAIUpdates()
 {
     CreatureAI* ai = ASSERT_NOTNULL(_owner->ToCreature())->AI();
-    std::vector<ThreatReference const*> v(std::move(_needsAIUpdate)); // _needsAIUpdate is now empty in case this triggers a recursive call
+    std::vector<ObjectGuid> v(std::move(_needsAIUpdate)); // _needsAIUpdate is now empty in case this triggers a recursive call
     if (!ai)
         return;
-    for (ThreatReference const* ref : v)
-        ai->JustStartedThreateningMe(ref->GetVictim());
+    for (ObjectGuid const& guid : v)
+        if (ThreatReference const* ref = Trinity::Containers::MapGetValuePtr(_myThreatListEntries, guid))
+            ai->JustStartedThreateningMe(ref->GetVictim());
 }
 
 // returns true if a is LOWER on the threat list than b
@@ -818,14 +878,14 @@ void ThreatManager::SendRemoveToClients(Unit const* victim) const
 
 void ThreatManager::SendThreatListToClients(bool newHighest) const
 {
-    WorldPacket data(newHighest ? SMSG_HIGHEST_THREAT_UPDATE : SMSG_THREAT_UPDATE, (_sortedThreatList.size() + 2) * 8); // guess
+    WorldPacket data(newHighest ? SMSG_HIGHEST_THREAT_UPDATE : SMSG_THREAT_UPDATE, (_sortedThreatList->size() + 2) * 8); // guess
     data << _owner->GetPackGUID();
     if (newHighest)
         data << _currentVictimRef->GetVictim()->GetPackGUID();
     size_t countPos = data.wpos();
     data << uint32(0); // placeholder
     uint32 count = 0;
-    for (ThreatReference const* ref : _sortedThreatList)
+    for (ThreatReference const* ref : *_sortedThreatList)
     {
         if (!ref->IsAvailable())
             continue;
@@ -843,7 +903,7 @@ void ThreatManager::PutThreatListRef(ObjectGuid const& guid, ThreatReference* re
     auto& inMap = _myThreatListEntries[guid];
     ASSERT(!inMap, "Duplicate threat reference at %p being inserted on %s for %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
     inMap = ref;
-    ref->_handle = _sortedThreatList.push(ref);
+    static_cast<ThreatReferenceImpl*>(ref)->_handle = _sortedThreatList->push(ref);
 }
 
 void ThreatManager::PurgeThreatListRef(ObjectGuid const& guid)
@@ -853,7 +913,7 @@ void ThreatManager::PurgeThreatListRef(ObjectGuid const& guid)
         return;
     ThreatReference* ref = it->second;
     _myThreatListEntries.erase(it);
-    _sortedThreatList.erase(ref->_handle);
+    _sortedThreatList->erase(static_cast<ThreatReferenceImpl*>(ref)->_handle);
 
     if (_fixateRef == ref)
         _fixateRef = nullptr;

@@ -23,6 +23,7 @@
 #include "Util.h"
 #include <utf8.h>
 #include <sstream>
+#include <cmath>
 #include <ctime>
 
 ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _storage(buffer.Move())
@@ -55,7 +56,7 @@ ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,
 
 ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, char const* value)
 {
-    message().assign(Trinity::StringFormat("Invalid %s value (%s) found in ByteBuffer", type, value));
+    message().assign(Trinity::StringFormat("Invalid {} value ({}) found in ByteBuffer", type, value));
 }
 
 ByteBuffer& ByteBuffer::operator>>(float& value)
@@ -156,7 +157,7 @@ void ByteBuffer::print_storage() const
         o << read<uint8>(i) << " - ";
     o << " ";
 
-    TC_LOG_TRACE("network", "%s", o.str().c_str());
+    TC_LOG_TRACE("network", "{}", o.str());
 }
 
 void ByteBuffer::textlike() const
@@ -173,7 +174,7 @@ void ByteBuffer::textlike() const
         o << buf;
     }
     o << " ";
-    TC_LOG_TRACE("network", "%s", o.str().c_str());
+    TC_LOG_TRACE("network", "{}", o.str());
 }
 
 void ByteBuffer::hexlike() const
@@ -205,5 +206,5 @@ void ByteBuffer::hexlike() const
         o << buf;
     }
     o << " ";
-    TC_LOG_TRACE("network", "%s", o.str().c_str());
+    TC_LOG_TRACE("network", "{}", o.str());
 }

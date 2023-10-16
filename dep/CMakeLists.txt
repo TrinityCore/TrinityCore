@@ -23,6 +23,7 @@ if(SERVERS OR TOOLS)
   add_subdirectory(jemalloc)
   add_subdirectory(argon2)
   add_subdirectory(cxxopts)
+  add_subdirectory(short_alloc)
 endif()
 
 if(SERVERS)

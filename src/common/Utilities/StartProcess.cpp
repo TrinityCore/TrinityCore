@@ -82,13 +82,28 @@ static int CreateChildProcess(T waiter, std::string const& executable,
                               std::string const& logger, std::string const& input,
                               bool secure)
 {
+#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
+#pragma warning(push)
+#pragma warning(disable:4297)
+/*
+  Silence warning with boost 1.83
+
+    boost/process/pipe.hpp(132,5): warning C4297: 'boost::process::basic_pipebuf<char,std::char_traits<char>>::~basic_pipebuf': function assumed not to throw an exception but does
+    boost/process/pipe.hpp(132,5): message : destructor or deallocator has a (possibly implicit) non-throwing exception specification
+    boost/process/pipe.hpp(124,6): message : while compiling class template member function 'boost::process::basic_pipebuf<char,std::char_traits<char>>::~basic_pipebuf(void)'
+    boost/process/pipe.hpp(304,42): message : see reference to class template instantiation 'boost::process::basic_pipebuf<char,std::char_traits<char>>' being compiled
+*/
+#endif
     ipstream outStream;
     ipstream errStream;
+#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
+#pragma warning(pop)
+#endif
 
     if (!secure)
     {
-        TC_LOG_TRACE(logger, "Starting process \"%s\" with arguments: \"%s\".",
-                executable.c_str(), boost::algorithm::join(argsVector, " ").c_str());
+        TC_LOG_TRACE(logger, "Starting process \"{}\" with arguments: \"{}\".",
+                executable, boost::algorithm::join(argsVector, " "));
     }
 
     // prepare file with only read permission (boost process opens with read_write)
@@ -129,12 +144,12 @@ static int CreateChildProcess(T waiter, std::string const& executable,
 
     auto outInfo = MakeTCLogSink([&](std::string_view msg)
     {
-        TC_LOG_INFO(logger, STRING_VIEW_FMT, STRING_VIEW_FMT_ARG(msg));
+        TC_LOG_INFO(logger, "{}", msg);
     });
 
     auto outError = MakeTCLogSink([&](std::string_view msg)
     {
-        TC_LOG_ERROR(logger, STRING_VIEW_FMT, STRING_VIEW_FMT_ARG(msg));
+        TC_LOG_ERROR(logger, "{}", msg);
     });
 
     copy(outStream, outInfo);
@@ -146,8 +161,8 @@ static int CreateChildProcess(T waiter, std::string const& executable,
 
     if (!secure)
     {
-        TC_LOG_TRACE(logger, ">> Process \"%s\" finished with return value %i.",
-                executable.c_str(), result);
+        TC_LOG_TRACE(logger, ">> Process \"{}\" finished with return value {}.",
+                executable, result);
     }
 
     return result;

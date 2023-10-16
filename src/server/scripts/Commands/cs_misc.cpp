@@ -84,6 +84,7 @@ public:
             { "commands",         HandleCommandsCommand,         rbac::RBAC_PERM_COMMAND_COMMANDS,         Console::Yes },
             { "cooldown",         HandleCooldownCommand,         rbac::RBAC_PERM_COMMAND_COOLDOWN,         Console::No },
             { "damage",           HandleDamageCommand,           rbac::RBAC_PERM_COMMAND_DAMAGE,           Console::No },
+            { "damage go",        HandleDamageGoCommand,         rbac::RBAC_PERM_COMMAND_DAMAGE,           Console::No },
             { "dev",              HandleDevCommand,              rbac::RBAC_PERM_COMMAND_DEV,              Console::No },
             { "die",              HandleDieCommand,              rbac::RBAC_PERM_COMMAND_DIE,              Console::No },
             { "dismount",         HandleDismountCommand,         rbac::RBAC_PERM_COMMAND_DISMOUNT,         Console::No },
@@ -1181,7 +1182,8 @@ public:
             char const* id = handler->extractKeyFromLink((char*)args, "Hitem");
             if (!id)
                 return false;
-            itemId = atoul(id);
+
+            itemId = Trinity::StringTo<uint32>(id).value_or(0);
         }
 
         char const* ccount = strtok(nullptr, " ");
@@ -1320,7 +1322,8 @@ public:
             char const* id = handler->extractKeyFromLink(tailArgs, "Hitem");
             if (!id)
                 return false;
-            itemId = atoul(id);
+
+            itemId = Trinity::StringTo<uint32>(id).value_or(0);
         }
 
         char const* ccount = strtok(nullptr, " ");
@@ -1558,26 +1561,19 @@ public:
     *
     * @return Several pieces of information about the character and the account
     **/
-    static bool HandlePInfoCommand(ChatHandler* handler, char const* args)
+    static bool HandlePInfoCommand(ChatHandler* handler, Optional<PlayerIdentifier> arg)
     {
-        // Define ALL the player variables!
-        Player* target;
-        ObjectGuid targetGuid;
-        std::string targetName;
-        CharacterDatabasePreparedStatement* stmt = nullptr;
+        if (!arg)
+            arg = PlayerIdentifier::FromTargetOrSelf(handler);
 
-        // To make sure we get a target, we convert our guid to an omniversal...
-        ObjectGuid parseGUID(HighGuid::Player, uint32(atoul(args)));
-
-        // ... and make sure we get a target, somehow.
-        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, targetName))
-        {
-            target = ObjectAccessor::FindPlayer(parseGUID);
-            targetGuid = parseGUID;
-        }
-        // if not, then return false. Which shouldn't happen, now should it ?
-        else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
+        if (!arg)
             return false;
+
+        // Define ALL the player variables!
+        Player* target = arg->GetConnectedPlayer();
+        ObjectGuid targetGuid = arg->GetGUID();
+        std::string targetName = arg->GetName();
+        CharacterDatabasePreparedStatement* stmt = nullptr;
 
         /* The variables we extract for the command. They are
          * default as "does not exist" to prevent problems
@@ -2245,71 +2241,8 @@ public:
         return true;
     }
 
-    static bool HandleDamageCommand(ChatHandler* handler, char const* args)
+    static bool HandleDamageCommand(ChatHandler* handler, uint32 damage, Optional<SpellSchools> school, Optional<SpellInfo const*> spellInfo)
     {
-        if (!*args)
-            return false;
-
-        char* str = strtok((char*)args, " ");
-
-        if (strcmp(str, "go") == 0)
-        {
-            char* guidStr = strtok(nullptr, " ");
-            if (!guidStr)
-            {
-                handler->SendSysMessage(LANG_BAD_VALUE);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            ObjectGuid::LowType guidLow = atoul(guidStr);
-            if (!guidLow)
-            {
-                handler->SendSysMessage(LANG_BAD_VALUE);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            char* damageStr = strtok(nullptr, " ");
-            if (!damageStr)
-            {
-                handler->SendSysMessage(LANG_BAD_VALUE);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            int32 damage = atoi(damageStr);
-            if (!damage)
-            {
-                handler->SendSysMessage(LANG_BAD_VALUE);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            if (Player* player = handler->GetSession()->GetPlayer())
-            {
-                GameObject* go = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
-                if (!go)
-                {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
-
-                if (!go->IsDestructibleBuilding())
-                {
-                    handler->SendSysMessage(LANG_INVALID_GAMEOBJECT_TYPE);
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
-
-                go->ModifyHealth(-damage, player);
-                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guidLow, -damage, go->GetGOValue()->Building.Health);
-            }
-
-            return true;
-        }
-
         Unit* target = handler->getSelectedUnit();
         if (!target || !handler->GetSession()->GetPlayer()->GetTarget())
         {
@@ -2325,16 +2258,8 @@ public:
         if (!target->IsAlive())
             return true;
 
-        int32 damage_int = atoi((char*)str);
-        if (damage_int <= 0)
-            return true;
-
-        uint32 damage = damage_int;
-
-        char* schoolStr = strtok((char*)nullptr, " ");
-
         // flat melee damage without resistence/etc reduction
-        if (!schoolStr)
+        if (!school)
         {
             Unit::DealDamage(handler->GetSession()->GetPlayer(), target, damage, nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             if (target != handler->GetSession()->GetPlayer())
@@ -2342,21 +2267,16 @@ public:
             return true;
         }
 
-        uint32 school = atoi((char*)schoolStr);
-        if (school >= MAX_SPELL_SCHOOL)
-            return false;
-
-        SpellSchoolMask schoolmask = SpellSchoolMask(1 << school);
+        SpellSchoolMask schoolmask = SpellSchoolMask(1 << *school);
 
         if (Unit::IsDamageReducedByArmor(schoolmask))
             damage = Unit::CalcArmorReducedDamage(handler->GetSession()->GetPlayer(), target, damage, nullptr, BASE_ATTACK);
 
-        char* spellStr = strtok((char*)nullptr, " ");
+        Player* attacker = handler->GetSession()->GetPlayer();
 
         // melee damage by specific school
-        if (!spellStr)
+        if (!spellInfo)
         {
-            Player* attacker = handler->GetSession()->GetPlayer();
             DamageInfo dmgInfo(attacker, target, damage, nullptr, schoolmask, SPELL_DIRECT_DAMAGE, BASE_ATTACK);
             Unit::CalcAbsorbResist(dmgInfo);
 
@@ -2375,20 +2295,33 @@ public:
 
         // non-melee damage
 
-        // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
-        uint32 spellid = handler->extractSpellIdFromLink((char*)args);
-        if (!spellid)
-            return false;
+        SpellNonMeleeDamage damageInfo(attacker, target, (*spellInfo)->Id, (*spellInfo)->SchoolMask);
+        damageInfo.damage = damage;
+        Unit::DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
+        target->DealSpellDamage(&damageInfo, true);
+        target->SendSpellNonMeleeDamageLog(&damageInfo);
+        return true;
+    }
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
-        if (!spellInfo)
+    static bool HandleDamageGoCommand(ChatHandler* handler, Variant<Hyperlink<gameobject>, ObjectGuid::LowType> spawnId, int32 damage)
+    {
+        GameObject* go = handler->GetObjectFromPlayerMapByDbGuid(*spawnId);
+        if (!go)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, *spawnId);
+            handler->SetSentErrorMessage(true);
             return false;
+        }
 
-        Player* attacker = handler->GetSession()->GetPlayer();
-        SpellNonMeleeDamage dmgInfo(attacker, target, spellid, spellInfo->GetSchoolMask());
-        Unit::DealDamageMods(dmgInfo.target, dmgInfo.damage, &dmgInfo.absorb);
-        attacker->SendSpellNonMeleeDamageLog(&dmgInfo);
-        attacker->DealSpellDamage(&dmgInfo, true);
+        if (!go->IsDestructibleBuilding())
+        {
+            handler->SendSysMessage(LANG_INVALID_GAMEOBJECT_TYPE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        go->ModifyHealth(-damage, handler->GetSession()->GetPlayer());
+        handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), *spawnId, -damage, go->GetGOValue()->Building.Health);
         return true;
     }
 

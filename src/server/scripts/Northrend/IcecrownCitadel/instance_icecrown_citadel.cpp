@@ -19,6 +19,7 @@
 #include "AreaBoundary.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "EventMap.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectMgr.h"

@@ -420,7 +420,7 @@ public:
 
     static bool HandleReloadAreaTriggerTeleportCommand(ChatHandler* handler, char const* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading AreaTrigger teleport definitions...");
+        TC_LOG_INFO("misc", "Re-Loading Area Trigger Teleports definitions...");
         sObjectMgr->LoadAreaTriggerTeleports();
         handler->SendGlobalGMSysMessage("DB table `areatrigger_teleport` reloaded.");
         return true;
@@ -493,7 +493,7 @@ public:
                 continue;
             }
 
-            TC_LOG_INFO("misc", "Reloading creature template entry %u", entry);
+            TC_LOG_INFO("misc", "Reloading creature template entry {}", entry);
 
             Field* fields = result->Fetch();
             sObjectMgr->LoadCreatureTemplate(fields);
