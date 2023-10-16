@@ -237,13 +237,13 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         void SetCombatMovement(bool allowMovement);
         bool IsCombatMovementAllowed() const { return _isCombatMovementAllowed; }
 
-        bool IsLFR() const { return me->GetMap()->IsLFR(); }
-        bool IsNormal() const { return me->GetMap()->IsNormal(); }
-        bool IsHeroic() const { return me->GetMap()->IsHeroic(); }
-        bool IsMythic() const { return me->GetMap()->IsMythic(); }
-        bool IsMythicPlus() const { return me->GetMap()->IsMythicPlus(); }
-        bool IsHeroicOrHigher() const { return me->GetMap()->IsHeroicOrHigher(); }
-        bool IsTimewalking() const { return me->GetMap()->IsTimewalking(); }
+        bool IsLFR() const;
+        bool IsNormal() const;
+        bool IsHeroic() const;
+        bool IsMythic() const;
+        bool IsMythicPlus() const;
+        bool IsHeroicOrHigher() const;
+        bool IsTimewalking() const;
 
         // return the dungeon or raid difficulty
         Difficulty GetDifficulty() const { return _difficulty; }

@@ -303,6 +303,41 @@ bool ScriptedAI::HealthAbovePct(uint32 pct) const
     return me->HealthAbovePct(pct);
 }
 
+bool ScriptedAI::IsLFR() const
+{
+    return me->GetMap()->IsLFR();
+}
+
+bool ScriptedAI::IsNormal() const
+{
+    return me->GetMap()->IsNormal();
+}
+
+bool ScriptedAI::IsHeroic() const
+{
+    return me->GetMap()->IsHeroic();
+}
+
+bool ScriptedAI::IsMythic() const
+{
+    return me->GetMap()->IsMythic();
+}
+
+bool ScriptedAI::IsMythicPlus() const
+{
+    return me->GetMap()->IsMythicPlus();
+}
+
+bool ScriptedAI::IsHeroicOrHigher() const
+{
+    return me->GetMap()->IsHeroicOrHigher();
+}
+
+bool ScriptedAI::IsTimewalking() const
+{
+    return me->GetMap()->IsTimewalking();
+}
+
 SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, float rangeMin, float rangeMax, SelectEffect effect)
 {
     // No target so we can't cast
