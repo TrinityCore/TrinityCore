@@ -1147,7 +1147,7 @@ int main(int argc, char * arg[])
     uint32 build = 0;
 
     // @tswow-begin
-    std::string data_path = Trinity::StringFormat("%s/Data",input_path);
+    std::string data_path = Trinity::StringFormat("{}/Data",input_path);
     // @tswow-end
     for (int i = 0; i < LANG_COUNT; i++)
     {
