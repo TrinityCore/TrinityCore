@@ -1281,15 +1281,9 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        CellObjectGuids const& GetCellObjectGuids(uint16 mapid, uint8 spawnMode, uint32 cell_id)
-        {
-            return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)][cell_id];
-        }
+        CellObjectGuids const* GetCellObjectGuids(uint16 mapid, uint8 spawnMode, uint32 cell_id);
 
-        CellObjectGuidsMap const& GetMapObjectGuids(uint16 mapid, uint8 spawnMode)
-        {
-            return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)];
-        }
+        CellObjectGuidsMap const* GetMapObjectGuids(uint16 mapid, uint8 spawnMode);
 
         /**
          * Gets temp summon data for all creatures of specified group.
