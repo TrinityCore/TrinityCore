@@ -3934,38 +3934,24 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
                 continue;
         #endif
 
-        if (scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_ALL)//if has instance flag add only if in it
+        if (obj && scriptholder.Difficulties.size())
         {
-            if (!(obj && obj->GetMap()->IsDungeon()))
-                continue;
-
-            // TODO: fix it for new maps and difficulties
-            switch (obj->GetMap()->GetDifficultyID())
+            bool foundValidDifficulty = false;
+            for (Difficulty difficulty : scriptholder.Difficulties)
             {
-                case DIFFICULTY_NORMAL:
-                case DIFFICULTY_10_N:
-                    if (!(scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_0))
-                        continue;
+                if (difficulty == obj->GetMap()->GetDifficultyID())
+                {
+                    foundValidDifficulty = true;
                     break;
-                case DIFFICULTY_HEROIC:
-                case DIFFICULTY_25_N:
-                    if (!(scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_1))
-                        continue;
-                    break;
-                case DIFFICULTY_10_HC:
-                    if (!(scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_2))
-                        continue;
-                    break;
-                case DIFFICULTY_25_HC:
-                    if (!(scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_3))
-                        continue;
-                    break;
-                default:
-                    break;
+                }
             }
+
+            if (!foundValidDifficulty)
+                continue;
         }
+
         mAllEventFlags |= scriptholder.event.event_flags;
-        mEvents.push_back(scriptholder);//NOTE: 'world(0)' events still get processed in ANY instance mode
+        mEvents.push_back(scriptholder);
     }
 }
 
