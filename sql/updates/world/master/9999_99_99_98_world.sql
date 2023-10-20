@@ -35,6 +35,17 @@ INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, 
 (@OGUID+0, 0, 0, 1, -0.00000004371138828, 0, 0), -- Bridge to Anduin
 (@OGUID+1, 0, 0, 1, -0.00000004371138828, 0, 0); -- Bridge after Anduin
 
+-- Smart Scripts
+DELETE FROM `smart_scripts` WHERE `entryorguid`=184297;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+(184297, 0, 0, 1, 62, 0, 100, 0, 27524, 0, 0, 0, 0, '', 85, 364475, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 'Dominated Translocator - Teleport to Cosmic Hub'),
+(184297, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 72, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 'Dominated Translocator - On Gossip Option selected - Close Menu');
+
+DELETE FROM `smart_scripts` WHERE `entryorguid`=185843;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+(185843, 0, 0, 1, 62, 0, 100, 0, 27687, 0, 0, 0, 0, '', 85, 368563, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 'Ancient Console - Teleport to Domination Grasp'),
+(185843, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 72, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 'Ancient Console - On Gossip Option selected - Close Menu');
+
 -- Creature Templates
 UPDATE `creature_template` SET `ScriptName`='npc_befouled_barrier', `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2048, `unit_flags3`=524289 WHERE `entry`=184585; -- Befouled Barrier
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_uther', `faction`=35, `speed_walk`=1.60000002384185791, `BaseAttackTime`=2000, `unit_flags`=32832 WHERE `entry`=183665; -- Uther the Lightbringer
@@ -46,7 +57,7 @@ UPDATE `creature_template` SET `faction`=1665, `BaseAttackTime`=2000, `unit_flag
 UPDATE `creature_template` SET `faction`=1665, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `unit_flags3`=1 WHERE `entry`=184599; -- Thrall
 UPDATE `creature_template` SET `ScriptName`='', `faction`=1665, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `unit_flags3`=1 WHERE `entry`=184589; -- Firim
 UPDATE `creature_template` SET `faction`=35, `npcflag`=8192, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67143680, `unit_flags3`=16777217 WHERE `entry` IN (182431, 184354); -- Ancient Translocator
-UPDATE `creature_template` SET `ScriptName`='npc_dominated_translocator', `faction`=14, `npcflag`=1, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=71354368, `unit_flags3`=16777217 WHERE `entry`=184297; -- Dominated Translocator
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `faction`=14, `npcflag`=1, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=71354368, `unit_flags3`=16777217 WHERE `entry`=184297; -- Dominated Translocator
 UPDATE `creature_template` SET `ScriptName`='boss_anduin_wrynn', `faction`=16, `speed_walk`=4.40000009536743164, `speed_run`=1.571428537368774414, `BaseAttackTime`=2000, `unit_flags`=262208 WHERE `entry`=181954; -- Anduin Wrynn
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_anduin_despair', `faction`=14, `speed_walk`=5.599999904632568359, `speed_run`=2, `BaseAttackTime`=1500, `unit_flags2`=2048 WHERE `entry`=184520; -- Anduin's Despair
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_anduin_soul', `faction`=35, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67108864, `unit_flags3`=23068672 WHERE `entry`=184519; -- Anduin's Soul
@@ -54,11 +65,11 @@ UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_anduin_doubt', `fa
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_anduin_hope', `faction`=35, `speed_walk`=0.219999998807907104, `speed_run`=0.078571431338787078, `BaseAttackTime`=2000, `unit_flags3`=6291456 WHERE `entry`=184493; -- Anduin's Hope
 UPDATE `creature_template` SET `ScriptName`='boss_remnant_of_a_fallen_king', `faction`=14, `speed_walk`=5.599999904632568359, `speed_run`=2, `BaseAttackTime`=1250, `unit_flags3`=4194304 WHERE `entry`=183463; -- Remnant of a Fallen King
 UPDATE `creature_template` SET `faction`=16, `speed_walk`=0.60000002384185791, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2048, `unit_flags3`=1 WHERE `entry`=183793; -- March of the Damned
-UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_monstrous_soul', `faction`=14, `speed_walk`=5.599999904632568359, `speed_run`=2, `BaseAttackTime`=2000, `unit_flags2`=2048, `unit_flags3`=4718592 WHERE `entry`=183671; -- Monstrous Soul
+UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_monstrous_soul', `faction`=14, `speed_walk`=5.599999904632568359, `speed_run`=2, `BaseAttackTime`=2000, `unit_flags2`=2048, `unit_flags3`=0 WHERE `entry`=183671; -- Monstrous Soul
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_fiendish_soul', `faction`=14, `BaseAttackTime`=2000, `unit_flags2`=2048, `unit_flags3`=4718592 WHERE `entry`=183669; -- Fiendish Soul
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_lost_soul', `faction`=14, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=32816, `unit_flags3`=4718592 WHERE `entry`=185607; -- Lost Soul
 UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2048, `unit_flags3`=1 WHERE `entry`=184830; -- Beacon of Hope
-UPDATE `creature_template` SET `ScriptName`='npc_ancient_console', `faction`=35, `npcflag`=1, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67160064, `unit_flags3`=16777217 WHERE `entry` IN (185843); -- Ancient Console
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `faction`=35, `npcflag`=1, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67160064, `unit_flags3`=16777217 WHERE `entry` IN (185843); -- Ancient Console
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_grim_reflection', `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2080, `unit_flags3`=4718592 WHERE `entry`=183033; -- Grim Reflection
 
 -- Template Addon
@@ -237,7 +248,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+0, 181954, 2481, 13742, 13965, '14,15,16,17', '0', 0, 0, 1, -3825.05908203125, -2715.45654296875, 91.356658935546875, 1.626035571098327636, 604800, 0, 0, 149357790, 100, 0, 0, 0, 50747), -- Anduin Wrynn (Area: Domination's Grasp - Difficulty: Mythic) CreateObject1 (Auras: 365177 - Willpower)
 (@CGUID+1, 184519, 2481, 13742, 13965, '14,15,16,17', '17797', 0, 0, 0, -3824.513916015625, -2715.24658203125, 91.35655975341796875, 1.59902, 604800, 0, 0, 164569500, 0, 0, 0, 0, 50747), -- Anduin's Soul (Area: Domination's Grasp - Difficulty: Mythic) CreateObject1 (Auras: 369016 - Ghost Visual Cosmetics)
 (@CGUID+2, 184354, 2481, 13742, 13965, '14,15,16,17', '0', 0, 0, 0, -3824.87158203125, -2620.020751953125, 79.05169677734375, 1.562330603599548339, 604800, 0, 0, 34998, 0, 0, NULL, 0, 50747), -- Ancient Translocator (Area: Domination's Grasp - Difficulty: Mythic) CreateObject1 Translocator Before Anduin
-(@CGUID+3, 184297, 2481, 13742, 13965, '14,15,16,17', '0', 0, 0, 0, -3824.897705078125, -2885.59716796875, 96.2000732421875, 1.572753190994262695, 604800, 0, 0, 34998, 0, 0, NULL, 0, 50747), -- Dominated Translocator (Area: Domination's Grasp - Difficulty: Mythic) CreateObject1 Dominated Translocator
+(@CGUID+3, 184297, 2481, 13742, 13965, '14,15,16,17', '0', 0, 0, 0, -3824.897705078125, -2885.59716796875, 96.2000732421875, 1.572753190994262695, 604800, 0, 0, 34998, 0, 0, NULL, NULL, 50747), -- Dominated Translocator (Area: Domination's Grasp - Difficulty: Mythic) CreateObject1 Dominated Translocator
 (@CGUID+4, 182431, 2481, 13742, 13965, '14,15,16,17', '0', 0, 0, 0, -3830.3056640625, -2417.88720703125, 111.1949081420898437, 1.569366693496704101, 604800, 0, 0, 34998, 0, 0, NULL, 0, 50747), -- Ancient Translocator (Area: Domination's Grasp - Difficulty: Mythic) CreateObject1 Translocator Immortal Hearth
 (@CGUID+5, 184589, 2481, 13742, 13957, '14,15,16,17', '0', 0, 0, 1, -3840.5087890625, -2615.826416015625, 79.00555419921875, 5.047886848449707031, 604800, 0, 0, 181150, 0, 0, 0, 0, 49570), -- Firim (Area: Immortal Hearth - Difficulty: Heroic) CreateObject1 (Auras: )
 (@CGUID+6, 185843, 2481, 13742, 13969, '14,15,16,17', '0', 0, 0, 0, -5485.4287109375, -3870.298583984375, 128.5279388427734375, 6.061259746551513671, 604800, 0, 0, 34998, 0, 0, NULL, 0, 50747), -- Ancient Console (Area: The Grand Design - Difficulty: Mythic) CreateObject1
@@ -287,6 +298,22 @@ DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=13 AND `SourceGroup` I
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (13, 1, 365228, 0, 1, 31, 0, 3, 181954, 0, 0, 0, 0, '', 'Anduin Wrynn Encounter- Willpower 2'),
 (13, 2, 365228, 0, 2, 31, 0, 3, 184519, 0, 0, 0, 0, '', 'Anduin Wrynn Encounter- Willpower 2');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=364239 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=4 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1, 364239, 0, 0, 31, 0, 4, 0, 0, 0, 0, 0, '', 'Anduin Wrynn Blasphemy Pre Hit Players Only'); -- Blasphemy
+
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=13 AND `SourceGroup`= (1 | 2 | 4) AND `SourceEntry`=368986 AND `SourceId`=0 AND `ElseGroup`=0);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1 | 2 | 4, 368986, 0, 0, 31, 0, 3, 183033, 0, 0, 0, 0, '', 'Dark Presence hit only Grim Reflections'); -- Dark Presence
+
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=13 AND `SourceGroup`= (1 | 2 ) AND `SourceEntry`=367932 AND `SourceId`=0 AND `ElseGroup`=0);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1 | 2, 367932, 0, 0, 31, 0, 3, 183033, 0, 0, 0, 0, '', 'Grim Fate hit only Grim Reflections'); -- Grim Fate
+
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=14 AND `SourceGroup`=27524 AND `SourceEntry`=43880);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 27524, 43880, 0, 0, 13, 0, 7, 3, 2, 0, 0, 0, '', 'Show option teleport to Cosmic Hub if Anduin Wrynn is done');
 
 -- Areatriggers Create Properties
 DELETE FROM `areatrigger_create_properties` WHERE `Id`IN (25025,24741,24740,24616,24599,24443,24429,24332,24322,24247,24093);
@@ -494,7 +521,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (1845890, 10, -3830.11, -2675.45, 91.4696, NULL, 0, 0, 0, 100, 0);
 
 -- Spell Scripts
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (367524,366848,369317,364247,361815,361817,361818,365293,365173,364239,361989,361993,361992,365021,362405,365652,362055,362402,367769,362392,368913,363233,368986,365120,367932,365872,365806,365958,365966,362500,365291,362862,362863,362771,362543,362545,363021,363022,367632,363029,365816);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (367524,366848,369317,364247,361815,361817,361818,365293,365173,361989,361993,361992,365021,362405,365652,362055,362402,367769,362392,368913,363233,365120,365872,365806,365958,365966,362500,365291,362862,362863,362771,362543,362545,363021,363022,367632,363029,365816);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (367524, 'spell_anduin_wrynn_pre_introduction'),
 (366848, 'spell_anduin_wrynn_energize_willpower_lfr'),
@@ -505,7 +532,6 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (361818, 'spell_anduin_wrynn_hopebreaker_damage'),
 (365293, 'spell_anduin_wrynn_befouled_barrier_absorb'),
 (365173, 'spell_anduin_wrynn_befouled_barrier_expire'),
-(364239, 'spell_anduin_wrynn_blasphemy_init'),
 (361989, 'spell_anduin_wrynn_blasphemy'),
 (361993, 'spell_anduin_wrynn_hopelessness_overconfidence'),
 (361992, 'spell_anduin_wrynn_hopelessness_overconfidence'),
@@ -518,9 +544,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (362392, 'spell_anduin_rain_of_despair_player_selector'),
 (368913, 'spell_anduin_wrynn_force_of_will'),
 (363233, 'spell_anduin_wrynn_march_of_the_damned'),
-(368986, 'spell_anduin_wrynn_dark_presence'),
 (365120, 'spell_anduin_wrynn_grim_reflections'),
-(367932, 'spell_anduin_wrynn_grim_fate'),
 (365872, 'spell_anduin_wrynn_beacon_of_hope'),
 (365806, 'spell_anduin_wrynn_empowered_hopebreaker_periodic'),
 (365958, 'spell_anduin_wrynn_hopelessness'),

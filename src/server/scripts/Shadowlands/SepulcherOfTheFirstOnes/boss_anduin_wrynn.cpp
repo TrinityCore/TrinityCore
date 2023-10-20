@@ -358,7 +358,6 @@ enum AnduinWrynnActions
     ACTION_ACTIVATE_REMNANT,
     ACTION_DESPAWN_REMNANT,
     ACTION_SUMMON_KINGSMOURNE_SOULS,
-    ACTION_DESPAWN_BEACON,
     ACTION_END_ENCOUNTER,
     ACTION_START_OUTRODUCTION,
     ACTION_DESPAIR_GONE,
@@ -677,6 +676,7 @@ struct boss_anduin_wrynn : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BEFOULED_BARRIER_DEBUFF);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BEFOULED_BARRIER_EXPLODE);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LOST_SOUL_DIMENSION);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FORCE_OF_WILL);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCARRED_SOUL);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WEATHER_COSMETIC);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_REMORSELESS_WINTER_PERIODIC);
@@ -819,7 +819,6 @@ struct boss_anduin_wrynn : public BossAI
             case NPC_ANDUIN_DOUBT:
             case NPC_ANDUIN_DESPAIR:
             {
-                // @TODO Alex: move despawn to spellscript?
                 if (TempSummon* tempSummon = summon->ToTempSummon())
                     tempSummon->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
                 break;
@@ -988,8 +987,6 @@ struct boss_anduin_wrynn : public BossAI
 
             case ACTION_EXIT_INTERMISSION:
             {
-                me->RemoveUnitFlag(UNIT_FLAG_STUNNED); // @TODO Alex: remove?
-
                 if (_intermissionsDone == 0)
                 {
                     PhaseEvents(PHASE_TWO);
@@ -1029,7 +1026,8 @@ struct boss_anduin_wrynn : public BossAI
         if (!UpdateVictim())
             return;
 
-        if (!me->GetVictim()->IsPlayer())
+        Unit* victim = me->GetVictim();
+        if (victim && !victim->IsPlayer())
         {
             EnterEvadeMode(EvadeReason::NoHostiles);
             return;
@@ -1368,14 +1366,23 @@ struct boss_anduin_wrynn : public BossAI
 
             PhaseEvents(PHASE_THREE);
 
-            if (Creature* remnant = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
-                remnant->GetAI()->DoAction(ACTION_DESPAWN_REMNANT);
+            std::list<Creature*> fiendishSouls;
+            GetCreatureListWithEntryInGrid(fiendishSouls, me, NPC_FIENDISH_SOUL, 300.0f);
+
+            for (Creature* fiends : fiendishSouls)
+            {
+                fiends->CastSpell(fiends, SPELL_SOUL_DESPAWN, false);
+                fiends->DespawnOrUnsummon(500ms);
+            }
 
             std::list<Creature*> marches;
             GetCreatureListWithEntryInGrid(marches, me, NPC_MARCH_OF_THE_DAMNED, 300.0f);
 
             for (Creature* march : marches)
                 march->DespawnOrUnsummon();
+
+            if (Creature* remnant = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
+                remnant->GetAI()->DoAction(ACTION_DESPAWN_REMNANT);
         }
     }
 
@@ -1388,9 +1395,8 @@ struct boss_anduin_wrynn : public BossAI
         instance->SetBossState(DATA_ANDUIN_WRYNN, DONE);
         _EnterEvadeMode();
         DoCastSelf(SPELL_ANDUIN_KNEEL_POSE);
-
-        if (Creature* beacon = instance->GetCreature(DATA_BEACON_OF_HOPE))
-            beacon->GetAI()->DoAction(ACTION_DESPAWN_BEACON);
+        if (Creature* beacon = me->FindNearestCreature(NPC_BEACON_OF_HOPE, 100.0f, true))
+            beacon->DespawnOrUnsummon();
 
         me->SetReactState(REACT_PASSIVE);
         me->SetFaction(FACTION_FRIENDLY);
@@ -1507,50 +1513,6 @@ struct npc_anduin_wrynn_beacon_of_hope : public ScriptedAI
 {
     npc_anduin_wrynn_beacon_of_hope(Creature* creature) : ScriptedAI(creature) { }
 
-    void JustAppeared() override
-    {
-        me->SetReactState(REACT_PASSIVE);
-    }
-
-    void DoAction(int32 action) override
-    {
-        switch (action)
-        {
-            case ACTION_DESPAWN_BEACON:
-            {
-                me->DespawnOrUnsummon();
-                break;
-            }
-
-            default:
-                break;
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        UpdateVictim();
-
-        _events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_NPC_DESPAWN:
-                    me->DespawnOrUnsummon(1ms);
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-    }
-
     void JustUnregisteredAreaTrigger(AreaTrigger* areaTrigger) override
     {
         switch (areaTrigger->GetSpellId())
@@ -1572,9 +1534,6 @@ struct npc_anduin_wrynn_beacon_of_hope : public ScriptedAI
                 break;
         }
     }
-
-private:
-    EventMap _events;
 };
 
 // Empty Vessel - 183452
@@ -1783,7 +1742,6 @@ struct npc_anduin_wrynn_anduin_despair : public ScriptedAI
     {
         _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         DoCastSelf(SPELL_WILLPOWER_ENERGIZE_LARGE);
-        DoCastSelf(SPELL_SOUL_DESPAWN);
 
         if (Creature* soul = me->FindNearestCreature(NPC_ANDUIN_SOUL, 300.0f))
             soul->GetAI()->DoAction(ACTION_DESPAIR_GONE);
@@ -1916,7 +1874,6 @@ struct npc_anduin_wrynn_anduin_hope : public ScriptedAI
             case POINT_ESCAPE_PLATFORM:
             {
                 DoCastSelf(SPELL_SOUL_DESPAWN);
-                me->DespawnOrUnsummon(4s);
                 break;
             }
 
@@ -1933,7 +1890,6 @@ private:
 // Fiendish Soul - 183669
 struct npc_anduin_wrynn_fiendish_soul : public ScriptedAI
 {
-public:
     npc_anduin_wrynn_fiendish_soul(Creature* creature) : ScriptedAI(creature) { }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -2014,7 +1970,6 @@ private:
 // Monstrous Soul - 183671
 struct npc_anduin_wrynn_monstrous_soul : public ScriptedAI
 {
-public:
     npc_anduin_wrynn_monstrous_soul(Creature* creature) : ScriptedAI(creature) { }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -2024,7 +1979,7 @@ public:
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (!me->HealthBelowPctDamaged(35, damage))
+        if (me->HealthBelowPctDamaged(35, damage))
             _events.ScheduleEvent(EVENT_NECROTIC_DETONATION, 1ms);
     }
 
@@ -2176,8 +2131,9 @@ struct boss_remnant_of_a_fallen_king : public BossAI
 
             case ACTION_DESPAWN_REMNANT:
             {
-                EnterEvadeMode(EvadeReason::Other);
-                me->DespawnOrUnsummon();
+                //EnterEvadeMode(EvadeReason::Other);
+                DoCastSelf(SPELL_SOUL_DESPAWN);
+                me->DespawnOrUnsummon(500ms);
                 break;
             }
 
@@ -2552,24 +2508,6 @@ struct npc_dominated_translocator : public ScriptedAI
     }
 };
 
-// 185843 - Ancient Console
-struct npc_ancient_console : public ScriptedAI
-{
-    npc_ancient_console(Creature* creature) : ScriptedAI(creature) { }
-
-    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
-    {
-        CloseGossipMenuFor(player);
-
-        // @TODO Alex: checkout if we can move this to conditions + smart_scripts
-        if (me->GetInstanceScript()->GetBossState(DATA_ANDUIN_WRYNN) != DONE)
-            return false;
-
-        player->CastSpell(player, SPELL_TELEPORT_DOMINATIONS_GRASP, false);
-        return true;
-    }
-};
-
 // 367524 - Spawn Pre-Introduction
 class spell_anduin_wrynn_pre_introduction : public AuraScript
 {
@@ -2816,7 +2754,7 @@ struct at_anduin_wrynn_march_of_the_damned : AreaTriggerAI
 
 // Befouled Barrier - 24332 AT
 float constexpr BEFOULED_BARRIER_MAX_RADIUS = 12.0f;
-float constexpr BEFOULED_BARRIER_MIN_RADIUS = 3.741063f; // @TODO Alex: maybe check min size again lul
+float constexpr BEFOULED_BARRIER_MIN_RADIUS = 4.0f;
 
 struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
 {
@@ -2876,11 +2814,7 @@ struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
 
         if (targetRadius <= BEFOULED_BARRIER_MIN_RADIUS)
         {
-            target->CastSpell(target, SPELL_BEFOULED_BARRIER_CLEAR, true);
-
-            if (Creature* creature = target->ToCreature())
-                creature->DespawnOrUnsummon();
-
+            // Players need to be able to actually enter the AT to heal it no sniff has a value lower than 4.0f
             return;
         }
 
@@ -3173,29 +3107,6 @@ class spell_anduin_wrynn_blasphemy : public SpellScript
 
 private:
     std::unordered_map<ObjectGuid /*player*/, uint32 /*spell*/> _spellAssignments;
-};
-
-// Blasphemy Pre hit - 364239
-class spell_anduin_wrynn_blasphemy_init : public SpellScript
-{
-    PrepareSpellScript(spell_anduin_wrynn_blasphemy_init);
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        // @TODO Alex: move to conditions table
-        targets.remove_if([](WorldObject* target) -> bool
-        {
-            if (target->IsPlayer())
-                return false;
-
-            return true;
-        });
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anduin_wrynn_blasphemy_init::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-    }
 };
 
 // Blasphemy ATs 361992 Overconfidence | 361993 Hopelessness
@@ -3887,7 +3798,11 @@ class spell_anduin_wrynn_soul_despawn : public SpellScript
     void OnCast()
     {
         if (Creature* creature = GetCaster()->ToCreature())
-            creature->DespawnOrUnsummon(3s);
+        {
+            if (creature->GetEntry() == NPC_ANDUIN_HOPE || creature->GetEntry() == NPC_ANDUIN_DOUBT)
+                creature->DespawnOrUnsummon(3s);
+        }
+
     }
 
     void Register() override
@@ -4017,31 +3932,6 @@ class spell_remnant_of_a_fallen_king_spawn : public AuraScript
     }
 };
 
-// Dark Presence - 368986
-class spell_anduin_wrynn_dark_presence : public SpellScript
-{
-    PrepareSpellScript(spell_anduin_wrynn_dark_presence);
-
-    void FilterTargets(std::list<WorldObject*>& unitList)
-    {
-        // @TODO Alex: move to conditions table
-        for (std::list<WorldObject*>::iterator itr = unitList.begin(); itr != unitList.end();)
-        {
-            if ((*itr)->GetEntry() == NPC_GRIM_REFLECTION)
-                ++itr;
-            else
-                unitList.erase(itr++);
-        }
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anduin_wrynn_dark_presence::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anduin_wrynn_dark_presence::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anduin_wrynn_dark_presence::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENTRY);
-    }
-};
-
 // Anduin's Soul - Lost Soul 365652
 class spell_anduin_soul_lost_soul : public SpellScript
 {
@@ -4153,7 +4043,7 @@ class spell_anduin_wrynn_lost_soul_mirror_image : public SpellScript
     }
 };
 
-// Soul Explosion - 363029 taken from DBS spell 72378
+// Soul Explosion - 363029
 class spell_friendish_soul_explosion : public SpellScript
 {
     PrepareSpellScript(spell_friendish_soul_explosion);
@@ -4310,30 +4200,6 @@ class spell_anduin_wrynn_grim_reflections : public SpellScript
     void Register() override
     {
         OnCast += SpellCastFn(spell_anduin_wrynn_grim_reflections::HandleCast);
-    }
-};
-
-// Grim Fate - 367932
-class spell_anduin_wrynn_grim_fate : public SpellScript
-{
-    PrepareSpellScript(spell_anduin_wrynn_grim_fate);
-
-    void FilterTargets(std::list<WorldObject*>& unitList)
-    {
-        // @TODO Alex: move to conditions table
-        for (std::list<WorldObject*>::iterator itr = unitList.begin(); itr != unitList.end();)
-        {
-            if ((*itr)->GetEntry() == NPC_GRIM_REFLECTION)
-                ++itr;
-            else
-                unitList.erase(itr++);
-        }
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anduin_wrynn_grim_fate::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anduin_wrynn_grim_fate::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
@@ -4756,8 +4622,6 @@ void AddSC_boss_anduin_wrynn()
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_anduin_wrynn_fiendish_soul);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_anduin_wrynn_grim_reflection);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_anduin_wrynn_beacon_of_hope);
-    RegisterSepulcherOfTheFirstOnesCreatureAI(npc_dominated_translocator);
-    RegisterSepulcherOfTheFirstOnesCreatureAI(npc_ancient_console);
 
     RegisterAreaTriggerAI(at_anduin_wrynn_pre_introduction);
     RegisterSpellScript(spell_anduin_wrynn_pre_introduction);
@@ -4771,7 +4635,6 @@ void AddSC_boss_anduin_wrynn()
     RegisterSpellScript(spell_anduin_wrynn_befouled_barrier_absorb);
     RegisterSpellScript(spell_anduin_wrynn_befouled_barrier_expire);
     RegisterAreaTriggerAI(at_anduin_wrynn_blasphemy);
-    RegisterSpellScript(spell_anduin_wrynn_blasphemy_init);
     RegisterSpellScript(spell_anduin_wrynn_blasphemy);
     RegisterSpellScript(spell_anduin_wrynn_hopelessness_overconfidence);
     RegisterAreaTriggerAI(at_anduin_wrynn_wicked_star);
@@ -4789,9 +4652,7 @@ void AddSC_boss_anduin_wrynn()
     RegisterAreaTriggerAI(at_anduin_wrynn_march_of_the_damned);
     RegisterSpellScript(spell_anduin_wrynn_march_of_the_damned);
     RegisterSpellScript(spell_friendish_soul_explosion);
-    RegisterSpellScript(spell_anduin_wrynn_dark_presence);
     RegisterSpellScript(spell_anduin_wrynn_grim_reflections);
-    RegisterSpellScript(spell_anduin_wrynn_grim_fate);
     RegisterAreaTriggerAI(at_anduin_wrynn_beacon_of_hope);
     RegisterSpellScript(spell_anduin_wrynn_beacon_of_hope);
     RegisterSpellScript(spell_anduin_wrynn_empowered_hopebreaker_periodic);
