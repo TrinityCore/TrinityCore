@@ -357,13 +357,14 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (181954, 5, 0, '|TInterface\\ICONS\\Ability_Deathknight_HungeringRuneblade.BLP:20|t Anduin begins casting |cFFFF0000|Hspell:362405|h[Kingsmourne Hungers]|h|r!', 41, 0, 100, 0, 0, 190057, 0, 0, 0, 'Kingsmourne Warning'),
 (181954, 6, 0, 'Kingsmourne hungers!', 14, 0, 100, 0, 0, 190057, 0, 214963, 0, 'Kingsmourne Hungers'),
 (181954, 7, 0, 'Your end has come!', 14, 0, 100, 0, 0, 190052, 0, 214954, 0, 'Wicked Star'),
-(181954, 8, 0, '|TInterface\\ICONS\\Spell_Priest_DivineStar_Shadow2.blp:20|t Anduin targets you with |cFFFF0000|Hspell:365017|h[Wicked Star]|h|r!', 14, 0, 100, 0, 0, 0, 0, 0, 0, 'Wicked Star Warning'),
+(181954, 8, 0, '|TInterface\\ICONS\\Spell_Priest_DivineStar_Shadow2.blp:20|t Anduin targets you with |cFFFF0000|Hspell:365017|h[Wicked Star]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Wicked Star Warning'),
 (181954, 9, 0, 'Terrors, arise and obey!', 14, 0, 100, 0, 0, 190058, 0, 214966, 0, 'Summoning'),
 (181954, 10, 0, 'Kneel!', 14, 0, 100, 0, 0, 190120, 0, 214637, 0, 'Slay 01'),
 (181954, 10, 1, 'Submit!', 14, 0, 100, 0, 0, 190121, 0, 214638, 0, 'Slay 02'),
 (181954, 11, 0, 'Fall!', 14, 0, 100, 0, 0, 190053, 0, 214955, 0, 'Empowered Hopebreaker'),
 (181954, 12, 0, 'The Light has abandoned you.', 14, 0, 100, 0, 0, 190122, 0, 214639, 0, 'Reset'),
-(183671, 13, 0, '|TInterface\\\\ICONS\\\\Tradeskill_AbominationStitching_Abominations_Mid.BLP:20|t %s begins casting |cFFFF0000|Hspell:363024|h[Necrotic Detonation]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Monstrous Soul Detonation');
+(183671, 13, 0, '|TInterface\\\\ICONS\\\\Tradeskill_AbominationStitching_Abominations_Mid.BLP:20|t %s begins casting |cFFFF0000|Hspell:363024|h[Necrotic Detonation]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Monstrous Soul Detonation'),
+(181954, 14, 0, '|TInterface\\ICONS\\Spell_Priest_DivineStar_Shadow2.blp:20|t Anduin targets you with |cFFFF0000|Hspell:367631|h[Empowered Wicked Star]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Empowered Wicked Star Warning');
 
 -- Conversations Template
 DELETE FROM `conversation_template` WHERE `Id` IN (17921, 17923, 17924, 17835, 17836);

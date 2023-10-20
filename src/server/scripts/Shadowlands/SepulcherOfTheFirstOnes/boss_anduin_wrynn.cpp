@@ -387,6 +387,7 @@ enum AnduinWrynnTexts
     SAY_EMPOWERED_HOPEBREAKER           = 11,
     SAY_DISENGAGE                       = 12,
     SAY_NECROTIC_DETONATION             = 13,
+    SAY_ANNOUNCE_EMPOWERED_WICKED_STAR  = 14,
 };
 
 enum AnduinWrynnConversations
@@ -3273,7 +3274,16 @@ class spell_anduin_wrynn_wicked_star_selector_AuraScript : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetCaster()->CastSpell(GetTarget(), SPELL_WICKED_STAR_TARGETED, true);
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+        if (!caster)
+            return;
+
+        caster->CastSpell(target, SPELL_WICKED_STAR_TARGETED, true);
+
+        if (Creature* creature = caster->ToCreature())
+            if (CreatureAI* anduinAI = creature->AI())
+                anduinAI->Talk(SAY_ANNOUNCE_WICKED_STAR, target);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3363,10 +3373,11 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
                     excludeUnit = true;
 
                 if (!excludeUnit && caster->IsValidAttackTarget(unit))
-                {
                     caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+
+                if (!excludeUnit && caster->IsValidAssistTarget(unit))
                     caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                }
+
                 _affectedUnits.push_back(unit->GetGUID());
             }
         }
@@ -3384,10 +3395,11 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
                     excludeUnit = true;
 
                 if (!excludeUnit && caster->IsValidAttackTarget(unit))
-                {
                     caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+
+                if (!excludeUnit && caster->IsValidAssistTarget(unit))
                     caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                }
+
                 _affectedUnits.push_back(unit->GetGUID());
             }
         }
@@ -3464,7 +3476,16 @@ class spell_anduin_wrynn_empowered_wicked_star_selector_AuraScript : public Aura
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetCaster()->CastSpell(GetTarget(), SPELL_WICKED_STAR_TARGETED, true);
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+        if (!caster)
+            return;
+
+        caster->CastSpell(target, SPELL_WICKED_STAR_TARGETED, true);
+
+        if (Creature* creature = caster->ToCreature())
+            if (CreatureAI* anduinAI = creature->AI())
+                anduinAI->Talk(SAY_ANNOUNCE_EMPOWERED_WICKED_STAR, target);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
