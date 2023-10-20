@@ -253,13 +253,13 @@ void SmartAIMgr::LoadSmartAIFromDB()
         bool invalidDifficulties = false;
         for (std::string_view token : Trinity::Tokenize(fields[4].GetStringView(), ',', false))
         {
-            std::optional<uint8> tokenValue = Trinity::StringTo<std::underlying_type_t<Difficulty>>(token);
+            std::optional<std::underlying_type_t<Difficulty>> tokenValue = Trinity::StringTo<std::underlying_type_t<Difficulty>>(token);
             if (!tokenValue.has_value())
             {
                 invalidDifficulties = true;
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Invalid difficulties for entryorguid ({}) source_type ({}) id ({}), skipped loading.",
                     temp.entryOrGuid, temp.GetScriptType(), temp.event_id);
-                continue;
+                break;
             }
 
             Difficulty difficultyId = Difficulty(tokenValue.value());
@@ -268,7 +268,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
                 invalidDifficulties = true;
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Invalid difficulty id ({}) for entryorguid ({}) source_type ({}) id ({}), skipped loading.",
                     difficultyId, temp.entryOrGuid, temp.GetScriptType(), temp.event_id);
-                continue;
+                break;
             }
 
             temp.Difficulties.push_back(difficultyId);
