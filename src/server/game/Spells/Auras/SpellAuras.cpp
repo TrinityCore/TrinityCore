@@ -1815,6 +1815,20 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
 
         if (GetSpellInfo()->HasAttribute(SPELL_ATTR12_ONLY_PROC_FROM_CLASS_ABILITIES) && !spell->GetSpellInfo()->HasAttribute(SPELL_ATTR13_ALLOW_CLASS_ABILITY_PROCS))
             return 0;
+
+        if (eventInfo.GetTypeMask() & TAKEN_HIT_PROC_FLAG_MASK)
+        {
+            if (spell->GetSpellInfo()->HasAttribute(SPELL_ATTR3_SUPPRESS_TARGET_PROCS)
+                && !GetSpellInfo()->HasAttribute(SPELL_ATTR7_CAN_PROC_FROM_SUPPRESSED_TARGET_PROCS))
+                return 0;
+        }
+        else
+        {
+            if (spell->GetSpellInfo()->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS)
+                && !spell->GetSpellInfo()->HasAttribute(SPELL_ATTR12_ENABLE_PROCS_FROM_SUPPRESSED_CASTER_PROCS)
+                && !GetSpellInfo()->HasAttribute(SPELL_ATTR12_CAN_PROC_FROM_SUPPRESSED_CASTER_PROCS))
+                return 0;
+        }
     }
 
     // check don't break stealth attr present

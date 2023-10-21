@@ -1436,7 +1436,7 @@ bool SpellInfo::HasTargetType(::Targets target) const
 
 bool SpellInfo::CanBeInterrupted(WorldObject const* interruptCaster, Unit const* interruptTarget, bool ignoreImmunity /*= false*/) const
 {
-    return HasAttribute(SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED)
+    return HasAttribute(SPELL_ATTR7_NO_UI_NOT_INTERRUPTIBLE)
         || HasChannelInterruptFlag(SpellAuraInterruptFlags::Damage | SpellAuraInterruptFlags::EnteringCombat)
         || (interruptTarget->IsPlayer() && InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
         || InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancels)

@@ -371,24 +371,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         petStable->SetCurrentActivePetIndex(newPetIndex);
     }
 
-    // Send fake summon spell cast - this is needed for correct cooldown application for spells
-    // Example: 46584 - without this cooldown (which should be set always when pet is loaded) isn't set clientside
-    /// @todo pets should be summoned from real cast instead of just faking it?
-    if (petInfo->CreatedBySpellId)
-    {
-        WorldPackets::Spells::SpellGo spellGo;
-        WorldPackets::Spells::SpellCastData& castData = spellGo.Cast;
-
-        castData.CasterGUID = owner->GetGUID();
-        castData.CasterUnit = owner->GetGUID();
-        castData.CastID = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, petInfo->CreatedBySpellId, map->GenerateLowGuid<HighGuid::Cast>());
-        castData.SpellID = petInfo->CreatedBySpellId;
-        castData.CastFlags = CAST_FLAG_UNKNOWN_9;
-        castData.CastTime = getMSTime();
-
-        owner->SendMessageToSet(spellGo.Write(), true);
-    }
-
     owner->SetMinion(this, true);
 
     if (!isTemporarySummon)

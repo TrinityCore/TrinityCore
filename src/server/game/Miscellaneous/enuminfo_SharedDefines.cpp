@@ -1177,38 +1177,38 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr7>::ToString(SpellAttr7 value)
 {
     switch (value)
     {
-        case SPELL_ATTR7_UNK0: return { "SPELL_ATTR7_UNK0", "Unknown attribute 0@Attr7", "" };
-        case SPELL_ATTR7_IGNORE_DURATION_MODS: return { "SPELL_ATTR7_IGNORE_DURATION_MODS", "Ignore duration modifiers", "" };
+        case SPELL_ATTR7_ALLOW_SPELL_REFLECTION: return { "SPELL_ATTR7_ALLOW_SPELL_REFLECTION", "Allow Spell Reflection", "" };
+        case SPELL_ATTR7_NO_TARGET_DURATION_MOD: return { "SPELL_ATTR7_NO_TARGET_DURATION_MOD", "No Target Duration Mod", "" };
         case SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD: return { "SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD", "Disable Aura While Dead", "" };
-        case SPELL_ATTR7_IS_CHEAT_SPELL: return { "SPELL_ATTR7_IS_CHEAT_SPELL", "Is cheat spell", "Cannot cast if caster doesn't have UnitFlag2 & UNIT_FLAG2_ALLOW_CHEAT_SPELLS" };
-        case SPELL_ATTR7_UNK4: return { "SPELL_ATTR7_UNK4", "Unknown attribute 4@Attr7", "Soulstone related?" };
-        case SPELL_ATTR7_SUMMON_TOTEM: return { "SPELL_ATTR7_SUMMON_TOTEM", "Summons player-owned totem", "" };
-        case SPELL_ATTR7_NO_PUSHBACK_ON_DAMAGE: return { "SPELL_ATTR7_NO_PUSHBACK_ON_DAMAGE", "Damage dealt by this does not cause spell pushback", "" };
-        case SPELL_ATTR7_UNK7: return { "SPELL_ATTR7_UNK7", "Unknown attribute 7@Attr7", "" };
-        case SPELL_ATTR7_HORDE_ONLY: return { "SPELL_ATTR7_HORDE_ONLY", "Horde only", "" };
-        case SPELL_ATTR7_ALLIANCE_ONLY: return { "SPELL_ATTR7_ALLIANCE_ONLY", "Alliance only", "" };
-        case SPELL_ATTR7_DISPEL_CHARGES: return { "SPELL_ATTR7_DISPEL_CHARGES", "Dispel/Spellsteal remove individual charges", "" };
-        case SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER: return { "SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER", "Can Cause Interrupt", "Only interrupt non-player casting" };
-        case SPELL_ATTR7_SILENCE_ONLY_NONPLAYER: return { "SPELL_ATTR7_SILENCE_ONLY_NONPLAYER", "Can Cause Silence", "" };
-        case SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED: return { "SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED", "No UI Not Interruptible", "Can always be interrupted, even if caster is immune" };
-        case SPELL_ATTR7_UNK14: return { "SPELL_ATTR7_UNK14", "Unknown attribute 14@Attr7", "" };
-        case SPELL_ATTR7_UNK15: return { "SPELL_ATTR7_UNK15", "Unknown attribute 15@Attr7", "Exorcism - guaranteed crit vs families?" };
-        case SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED: return { "SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED", "Only In Spellbook Until Learned", "After learning these spells become hidden in spellbook (but are visible when not learned for low level characters)" };
-        case SPELL_ATTR7_UNK17: return { "SPELL_ATTR7_UNK17", "Unknown attribute 17@Attr7", "" };
-        case SPELL_ATTR7_HAS_CHARGE_EFFECT: return { "SPELL_ATTR7_HAS_CHARGE_EFFECT", "Has charge effect", "" };
-        case SPELL_ATTR7_ZONE_TELEPORT: return { "SPELL_ATTR7_ZONE_TELEPORT", "Is zone teleport", "" };
-        case SPELL_ATTR7_UNK20: return { "SPELL_ATTR7_UNK20", "Unknown attribute 20@Attr7", "Invulnerability related?" };
-        case SPELL_ATTR7_UNK21: return { "SPELL_ATTR7_UNK21", "Unknown attribute 21@Attr7", "" };
+        case SPELL_ATTR7_DEBUG_SPELL: return { "SPELL_ATTR7_DEBUG_SPELL", "Debug Spell", "Cannot cast if caster doesn't have UnitFlag2 & UNIT_FLAG2_ALLOW_CHEAT_SPELLS" };
+        case SPELL_ATTR7_TREAT_AS_RAID_BUFF: return { "SPELL_ATTR7_TREAT_AS_RAID_BUFF", "Treat as Raid Buff", "" };
+        case SPELL_ATTR7_CAN_BE_MULTI_CAST: return { "SPELL_ATTR7_CAN_BE_MULTI_CAST", "Can Be Multi Cast", "" };
+        case SPELL_ATTR7_DONT_CAUSE_SPELL_PUSHBACK: return { "SPELL_ATTR7_DONT_CAUSE_SPELL_PUSHBACK", "Don't Cause Spell Pushback", "Damage dealt by this does not cause spell pushback" };
+        case SPELL_ATTR7_PREPARE_FOR_VEHICLE_CONTROL_END: return { "SPELL_ATTR7_PREPARE_FOR_VEHICLE_CONTROL_END", "Prepare for Vehicle Control End", "" };
+        case SPELL_ATTR7_HORDE_SPECIFIC_SPELL: return { "SPELL_ATTR7_HORDE_SPECIFIC_SPELL", "Horde Specific Spell", "" };
+        case SPELL_ATTR7_ALLIANCE_SPECIFIC_SPELL: return { "SPELL_ATTR7_ALLIANCE_SPECIFIC_SPELL", "Alliance Specific Spell", "" };
+        case SPELL_ATTR7_DISPEL_REMOVES_CHARGES: return { "SPELL_ATTR7_DISPEL_REMOVES_CHARGES", "Dispel Removes Charges", "Dispel/Spellsteal remove individual charges" };
+        case SPELL_ATTR7_CAN_CAUSE_INTERRUPT: return { "SPELL_ATTR7_CAN_CAUSE_INTERRUPT", "Can Cause Interrupt", "Only interrupt non-player casting" };
+        case SPELL_ATTR7_CAN_CAUSE_SILENCE: return { "SPELL_ATTR7_CAN_CAUSE_SILENCE", "Can Cause Silence", "" };
+        case SPELL_ATTR7_NO_UI_NOT_INTERRUPTIBLE: return { "SPELL_ATTR7_NO_UI_NOT_INTERRUPTIBLE", "No UI Not Interruptible", "Can always be interrupted, even if caster is immune" };
+        case SPELL_ATTR7_RECAST_ON_RESUMMON: return { "SPELL_ATTR7_RECAST_ON_RESUMMON", "Recast On Resummon", "" };
+        case SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START: return { "SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START", "Reset Swing Timer at spell start", "" };
+        case SPELL_ATTR7_ONLY_IN_SPELLBOOK_UNTIL_LEARNED: return { "SPELL_ATTR7_ONLY_IN_SPELLBOOK_UNTIL_LEARNED", "Only In Spellbook Until Learned", "After learning these spells become hidden in spellbook (but are visible when not learned for low level characters)" };
+        case SPELL_ATTR7_DO_NOT_LOG_PVP_KILL: return { "SPELL_ATTR7_DO_NOT_LOG_PVP_KILL", "Do Not Log PvP Kill", "" };
+        case SPELL_ATTR7_ATTACK_ON_CHARGE_TO_UNIT: return { "SPELL_ATTR7_ATTACK_ON_CHARGE_TO_UNIT", "Attack on Charge to Unit", "" };
+        case SPELL_ATTR7_REPORT_SPELL_FAILURE_TO_UNIT_TARGET: return { "SPELL_ATTR7_REPORT_SPELL_FAILURE_TO_UNIT_TARGET", "Report Spell failure to unit target", "" };
+        case SPELL_ATTR7_NO_CLIENT_FAIL_WHILE_STUNNED_FLEEING_CONFUSED: return { "SPELL_ATTR7_NO_CLIENT_FAIL_WHILE_STUNNED_FLEEING_CONFUSED", "No Client Fail While Stunned, Fleeing, Confused", "Clientside - skips stunned/fleeing/confused checks" };
+        case SPELL_ATTR7_RETAIN_COOLDOWN_THROUGH_LOAD: return { "SPELL_ATTR7_RETAIN_COOLDOWN_THROUGH_LOAD", "Retain Cooldown Through Load", "" };
         case SPELL_ATTR7_IGNORES_COLD_WEATHER_FLYING_REQUIREMENT: return { "SPELL_ATTR7_IGNORES_COLD_WEATHER_FLYING_REQUIREMENT", "Ignores Cold Weather Flying Requirement", "" };
         case SPELL_ATTR7_NO_ATTACK_DODGE: return { "SPELL_ATTR7_NO_ATTACK_DODGE", "No Attack Dodge", "" };
         case SPELL_ATTR7_NO_ATTACK_PARRY: return { "SPELL_ATTR7_NO_ATTACK_PARRY", "No Attack Parry", "" };
         case SPELL_ATTR7_NO_ATTACK_MISS: return { "SPELL_ATTR7_NO_ATTACK_MISS", "No Attack Miss", "" };
-        case SPELL_ATTR7_UNK26: return { "SPELL_ATTR7_UNK26", "Unknown attribute 26@Attr7", "" };
+        case SPELL_ATTR7_TREAT_AS_NPC_AOE: return { "SPELL_ATTR7_TREAT_AS_NPC_AOE", "Treat as NPC AoE", "" };
         case SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA: return { "SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA", "Bypass No Resurrect Aura", "" };
-        case SPELL_ATTR7_CONSOLIDATED_RAID_BUFF: return { "SPELL_ATTR7_CONSOLIDATED_RAID_BUFF", "Consolidate in raid buff frame (client only)", "" };
-        case SPELL_ATTR7_UNK29: return { "SPELL_ATTR7_UNK29", "Unknown attribute 29@Attr7", "" };
-        case SPELL_ATTR7_UNK30: return { "SPELL_ATTR7_UNK30", "Unknown attribute 30@Attr7", "" };
-        case SPELL_ATTR7_CLIENT_INDICATOR: return { "SPELL_ATTR7_CLIENT_INDICATOR", "Client indicator (client only)", "" };
+        case SPELL_ATTR7_DO_NOT_COUNT_FOR_PVP_SCOREBOARD: return { "SPELL_ATTR7_DO_NOT_COUNT_FOR_PVP_SCOREBOARD", "Do Not Count For PvP Scoreboard", "" };
+        case SPELL_ATTR7_REFLECTION_ONLY_DEFENDS: return { "SPELL_ATTR7_REFLECTION_ONLY_DEFENDS", "Reflection Only Defends", "" };
+        case SPELL_ATTR7_CAN_PROC_FROM_SUPPRESSED_TARGET_PROCS: return { "SPELL_ATTR7_CAN_PROC_FROM_SUPPRESSED_TARGET_PROCS", "Can Proc From Suppressed Target Procs", "" };
+        case SPELL_ATTR7_ALWAYS_CAST_LOG: return { "SPELL_ATTR7_ALWAYS_CAST_LOG", "Always Cast Log", "" };
         default: throw std::out_of_range("value");
     }
 }
@@ -1221,38 +1221,38 @@ TC_API_EXPORT SpellAttr7 EnumUtils<SpellAttr7>::FromIndex(size_t index)
 {
     switch (index)
     {
-        case 0: return SPELL_ATTR7_UNK0;
-        case 1: return SPELL_ATTR7_IGNORE_DURATION_MODS;
+        case 0: return SPELL_ATTR7_ALLOW_SPELL_REFLECTION;
+        case 1: return SPELL_ATTR7_NO_TARGET_DURATION_MOD;
         case 2: return SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD;
-        case 3: return SPELL_ATTR7_IS_CHEAT_SPELL;
-        case 4: return SPELL_ATTR7_UNK4;
-        case 5: return SPELL_ATTR7_SUMMON_TOTEM;
-        case 6: return SPELL_ATTR7_NO_PUSHBACK_ON_DAMAGE;
-        case 7: return SPELL_ATTR7_UNK7;
-        case 8: return SPELL_ATTR7_HORDE_ONLY;
-        case 9: return SPELL_ATTR7_ALLIANCE_ONLY;
-        case 10: return SPELL_ATTR7_DISPEL_CHARGES;
-        case 11: return SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER;
-        case 12: return SPELL_ATTR7_SILENCE_ONLY_NONPLAYER;
-        case 13: return SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED;
-        case 14: return SPELL_ATTR7_UNK14;
-        case 15: return SPELL_ATTR7_UNK15;
-        case 16: return SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED;
-        case 17: return SPELL_ATTR7_UNK17;
-        case 18: return SPELL_ATTR7_HAS_CHARGE_EFFECT;
-        case 19: return SPELL_ATTR7_ZONE_TELEPORT;
-        case 20: return SPELL_ATTR7_UNK20;
-        case 21: return SPELL_ATTR7_UNK21;
+        case 3: return SPELL_ATTR7_DEBUG_SPELL;
+        case 4: return SPELL_ATTR7_TREAT_AS_RAID_BUFF;
+        case 5: return SPELL_ATTR7_CAN_BE_MULTI_CAST;
+        case 6: return SPELL_ATTR7_DONT_CAUSE_SPELL_PUSHBACK;
+        case 7: return SPELL_ATTR7_PREPARE_FOR_VEHICLE_CONTROL_END;
+        case 8: return SPELL_ATTR7_HORDE_SPECIFIC_SPELL;
+        case 9: return SPELL_ATTR7_ALLIANCE_SPECIFIC_SPELL;
+        case 10: return SPELL_ATTR7_DISPEL_REMOVES_CHARGES;
+        case 11: return SPELL_ATTR7_CAN_CAUSE_INTERRUPT;
+        case 12: return SPELL_ATTR7_CAN_CAUSE_SILENCE;
+        case 13: return SPELL_ATTR7_NO_UI_NOT_INTERRUPTIBLE;
+        case 14: return SPELL_ATTR7_RECAST_ON_RESUMMON;
+        case 15: return SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START;
+        case 16: return SPELL_ATTR7_ONLY_IN_SPELLBOOK_UNTIL_LEARNED;
+        case 17: return SPELL_ATTR7_DO_NOT_LOG_PVP_KILL;
+        case 18: return SPELL_ATTR7_ATTACK_ON_CHARGE_TO_UNIT;
+        case 19: return SPELL_ATTR7_REPORT_SPELL_FAILURE_TO_UNIT_TARGET;
+        case 20: return SPELL_ATTR7_NO_CLIENT_FAIL_WHILE_STUNNED_FLEEING_CONFUSED;
+        case 21: return SPELL_ATTR7_RETAIN_COOLDOWN_THROUGH_LOAD;
         case 22: return SPELL_ATTR7_IGNORES_COLD_WEATHER_FLYING_REQUIREMENT;
         case 23: return SPELL_ATTR7_NO_ATTACK_DODGE;
         case 24: return SPELL_ATTR7_NO_ATTACK_PARRY;
         case 25: return SPELL_ATTR7_NO_ATTACK_MISS;
-        case 26: return SPELL_ATTR7_UNK26;
+        case 26: return SPELL_ATTR7_TREAT_AS_NPC_AOE;
         case 27: return SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA;
-        case 28: return SPELL_ATTR7_CONSOLIDATED_RAID_BUFF;
-        case 29: return SPELL_ATTR7_UNK29;
-        case 30: return SPELL_ATTR7_UNK30;
-        case 31: return SPELL_ATTR7_CLIENT_INDICATOR;
+        case 28: return SPELL_ATTR7_DO_NOT_COUNT_FOR_PVP_SCOREBOARD;
+        case 29: return SPELL_ATTR7_REFLECTION_ONLY_DEFENDS;
+        case 30: return SPELL_ATTR7_CAN_PROC_FROM_SUPPRESSED_TARGET_PROCS;
+        case 31: return SPELL_ATTR7_ALWAYS_CAST_LOG;
         default: throw std::out_of_range("index");
     }
 }
@@ -1262,38 +1262,38 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
 {
     switch (value)
     {
-        case SPELL_ATTR7_UNK0: return 0;
-        case SPELL_ATTR7_IGNORE_DURATION_MODS: return 1;
+        case SPELL_ATTR7_ALLOW_SPELL_REFLECTION: return 0;
+        case SPELL_ATTR7_NO_TARGET_DURATION_MOD: return 1;
         case SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD: return 2;
-        case SPELL_ATTR7_IS_CHEAT_SPELL: return 3;
-        case SPELL_ATTR7_UNK4: return 4;
-        case SPELL_ATTR7_SUMMON_TOTEM: return 5;
-        case SPELL_ATTR7_NO_PUSHBACK_ON_DAMAGE: return 6;
-        case SPELL_ATTR7_UNK7: return 7;
-        case SPELL_ATTR7_HORDE_ONLY: return 8;
-        case SPELL_ATTR7_ALLIANCE_ONLY: return 9;
-        case SPELL_ATTR7_DISPEL_CHARGES: return 10;
-        case SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER: return 11;
-        case SPELL_ATTR7_SILENCE_ONLY_NONPLAYER: return 12;
-        case SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED: return 13;
-        case SPELL_ATTR7_UNK14: return 14;
-        case SPELL_ATTR7_UNK15: return 15;
-        case SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED: return 16;
-        case SPELL_ATTR7_UNK17: return 17;
-        case SPELL_ATTR7_HAS_CHARGE_EFFECT: return 18;
-        case SPELL_ATTR7_ZONE_TELEPORT: return 19;
-        case SPELL_ATTR7_UNK20: return 20;
-        case SPELL_ATTR7_UNK21: return 21;
+        case SPELL_ATTR7_DEBUG_SPELL: return 3;
+        case SPELL_ATTR7_TREAT_AS_RAID_BUFF: return 4;
+        case SPELL_ATTR7_CAN_BE_MULTI_CAST: return 5;
+        case SPELL_ATTR7_DONT_CAUSE_SPELL_PUSHBACK: return 6;
+        case SPELL_ATTR7_PREPARE_FOR_VEHICLE_CONTROL_END: return 7;
+        case SPELL_ATTR7_HORDE_SPECIFIC_SPELL: return 8;
+        case SPELL_ATTR7_ALLIANCE_SPECIFIC_SPELL: return 9;
+        case SPELL_ATTR7_DISPEL_REMOVES_CHARGES: return 10;
+        case SPELL_ATTR7_CAN_CAUSE_INTERRUPT: return 11;
+        case SPELL_ATTR7_CAN_CAUSE_SILENCE: return 12;
+        case SPELL_ATTR7_NO_UI_NOT_INTERRUPTIBLE: return 13;
+        case SPELL_ATTR7_RECAST_ON_RESUMMON: return 14;
+        case SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START: return 15;
+        case SPELL_ATTR7_ONLY_IN_SPELLBOOK_UNTIL_LEARNED: return 16;
+        case SPELL_ATTR7_DO_NOT_LOG_PVP_KILL: return 17;
+        case SPELL_ATTR7_ATTACK_ON_CHARGE_TO_UNIT: return 18;
+        case SPELL_ATTR7_REPORT_SPELL_FAILURE_TO_UNIT_TARGET: return 19;
+        case SPELL_ATTR7_NO_CLIENT_FAIL_WHILE_STUNNED_FLEEING_CONFUSED: return 20;
+        case SPELL_ATTR7_RETAIN_COOLDOWN_THROUGH_LOAD: return 21;
         case SPELL_ATTR7_IGNORES_COLD_WEATHER_FLYING_REQUIREMENT: return 22;
         case SPELL_ATTR7_NO_ATTACK_DODGE: return 23;
         case SPELL_ATTR7_NO_ATTACK_PARRY: return 24;
         case SPELL_ATTR7_NO_ATTACK_MISS: return 25;
-        case SPELL_ATTR7_UNK26: return 26;
+        case SPELL_ATTR7_TREAT_AS_NPC_AOE: return 26;
         case SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA: return 27;
-        case SPELL_ATTR7_CONSOLIDATED_RAID_BUFF: return 28;
-        case SPELL_ATTR7_UNK29: return 29;
-        case SPELL_ATTR7_UNK30: return 30;
-        case SPELL_ATTR7_CLIENT_INDICATOR: return 31;
+        case SPELL_ATTR7_DO_NOT_COUNT_FOR_PVP_SCOREBOARD: return 28;
+        case SPELL_ATTR7_REFLECTION_ONLY_DEFENDS: return 29;
+        case SPELL_ATTR7_CAN_PROC_FROM_SUPPRESSED_TARGET_PROCS: return 30;
+        case SPELL_ATTR7_ALWAYS_CAST_LOG: return 31;
         default: throw std::out_of_range("value");
     }
 }
@@ -1822,8 +1822,8 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr12>::ToString(SpellAttr12 value)
 {
     switch (value)
     {
-        case SPELL_ATTR12_UNK0: return { "SPELL_ATTR12_UNK0", "Unknown attribute 0@Attr12", "" };
-        case SPELL_ATTR12_UNK1: return { "SPELL_ATTR12_UNK1", "Unknown attribute 1@Attr12", "" };
+        case SPELL_ATTR12_ENABLE_PROCS_FROM_SUPPRESSED_CASTER_PROCS: return { "SPELL_ATTR12_ENABLE_PROCS_FROM_SUPPRESSED_CASTER_PROCS", "Enable Procs from Suppressed Caster Procs", "" };
+        case SPELL_ATTR12_CAN_PROC_FROM_SUPPRESSED_CASTER_PROCS: return { "SPELL_ATTR12_CAN_PROC_FROM_SUPPRESSED_CASTER_PROCS", "Can Proc from Suppressed Caster Procs", "" };
         case SPELL_ATTR12_UNK2: return { "SPELL_ATTR12_UNK2", "Unknown attribute 2@Attr12", "" };
         case SPELL_ATTR12_UNK3: return { "SPELL_ATTR12_UNK3", "Unknown attribute 3@Attr12", "" };
         case SPELL_ATTR12_UNK4: return { "SPELL_ATTR12_UNK4", "Unknown attribute 4@Attr12", "" };
@@ -1866,8 +1866,8 @@ TC_API_EXPORT SpellAttr12 EnumUtils<SpellAttr12>::FromIndex(size_t index)
 {
     switch (index)
     {
-        case 0: return SPELL_ATTR12_UNK0;
-        case 1: return SPELL_ATTR12_UNK1;
+        case 0: return SPELL_ATTR12_ENABLE_PROCS_FROM_SUPPRESSED_CASTER_PROCS;
+        case 1: return SPELL_ATTR12_CAN_PROC_FROM_SUPPRESSED_CASTER_PROCS;
         case 2: return SPELL_ATTR12_UNK2;
         case 3: return SPELL_ATTR12_UNK3;
         case 4: return SPELL_ATTR12_UNK4;
@@ -1907,8 +1907,8 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr12>::ToIndex(SpellAttr12 value)
 {
     switch (value)
     {
-        case SPELL_ATTR12_UNK0: return 0;
-        case SPELL_ATTR12_UNK1: return 1;
+        case SPELL_ATTR12_ENABLE_PROCS_FROM_SUPPRESSED_CASTER_PROCS: return 0;
+        case SPELL_ATTR12_CAN_PROC_FROM_SUPPRESSED_CASTER_PROCS: return 1;
         case SPELL_ATTR12_UNK2: return 2;
         case SPELL_ATTR12_UNK3: return 3;
         case SPELL_ATTR12_UNK4: return 4;
