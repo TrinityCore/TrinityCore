@@ -369,6 +369,9 @@ enum AnduinWrynnActions
 
     // Monstrous Soul
     ACTION_NECROTIC_DETONATION,
+
+    // Outroduction
+    ACTION_MOVE_NPCS_ON_PLATFORM,
 };
 
 enum AnduinWrynnTexts
@@ -414,15 +417,12 @@ enum AnduinWrynnPoints
 
 enum AnduinWrynnPaths
 {
-    WAYPOINT_JAINA      = 8,
-    WAYPOINT_UTHER      = 9,
-    WAYPOINT_FIRIM      = 10,
-    WAYPOINT_SYLVANAS   = 13,
-
     PATH_INTRODUCTION_JAINA     = 1836640,
     PATH_INTRODUCTION_UTHER     = 1836650,
     PATH_INTRODUCTION_SYLVANAS  = 1836660,
     PATH_OUTRODUCTION_FIRIM     = 1845890,
+    PATH_OUTRODUCTION_THRALL    = 1845990,
+    PATH_OUTRODUCTION_BOLVAR    = 1846010,
 };
 
 enum AnduinWrynnSpellVisuals
@@ -450,6 +450,9 @@ Position const AssistersSpawnPos[3] =
 };
 
 Position const FirimOutroductionPos = { -3830.0156f, -2676.7969f, 91.56402f };
+Position const QuartermasterRahmPos = { -3824.9565f, -2673.0190f, 91.44697f, 4.7163963f };
+Position const leftKnightPos = { -3815.4097f, -2677.1824f, 91.44697f, 4.742376f };
+Position const rightKnightPos = { -3834.6807f, -2677.42360f, 91.44697f, 4.6956997f };
 
 Position const DominationGraspCenter = { -3825.0601f, -2715.4600f, 91.3567f, 1.6260f };
 
@@ -666,6 +669,19 @@ struct boss_anduin_wrynn : public BossAI
         DoZoneInCombat(sylvanas);
         DoZoneInCombat(jaina);
         DoZoneInCombat(uther);
+    }
+
+    void MoveKnightsOnPlatform()
+    {
+        Creature* rahm = me->FindNearestCreature(NPC_QUARTERMASTER_RAHM_ANDUIN, 300.0f, true);
+        Creature* leftKnight = me->FindNearestCreatureWithOptions(300.0f, { .StringId = "left_knight" });
+        Creature* rightKnight = me->FindNearestCreatureWithOptions(300.0f, { .StringId = "right_knight" });
+        if (!rahm || !leftKnight || !rightKnight)
+            return;
+
+        rahm->NearTeleportTo(QuartermasterRahmPos, false);
+        leftKnight->NearTeleportTo(leftKnightPos, false);
+        rightKnight->NearTeleportTo(rightKnightPos, false);
     }
 
     void ClearDebuffs()
@@ -924,6 +940,22 @@ struct boss_anduin_wrynn : public BossAI
                 break;
             }
 
+            case ACTION_MOVE_NPCS_ON_PLATFORM:
+            {
+                if (Creature* bolvar = me->FindNearestCreature(NPC_BOLVAR_FORDRAGON_ANDUIN, 200.0f, true))
+                {
+                    bolvar->GetMotionMaster()->MovePath(PATH_OUTRODUCTION_BOLVAR, false);
+                    scheduler.Schedule(10s, [this](TaskContext /*task*/)
+                    {
+                        MoveKnightsOnPlatform();
+                    });
+                }
+
+                if (Creature* thrall = me->FindNearestCreature(NPC_THRALL_ANDUIN, 200.0f, true))
+                    thrall->GetMotionMaster()->MovePath(PATH_OUTRODUCTION_THRALL, false);
+                break;
+            }
+
             case ACTION_START_OUTRODUCTION:
             {
                 if (Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER))
@@ -936,12 +968,23 @@ struct boss_anduin_wrynn : public BossAI
                             {
                                 firim->GetMotionMaster()->MovePath(PATH_OUTRODUCTION_FIRIM, false);
 
-                                Conversation* introductionAnduin = Conversation::CreateConversation(CONVERSATION_ANDUIN_OUTRODUCTION, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
+                                Conversation* introductionAnduin = Conversation::CreateConversation(CONVERSATION_ANDUIN_OUTRODUCTION, me, me->GetPosition(), ObjectGuid::Empty, nullptr, true);
                                 introductionAnduin->AddActor(NPC_LADY_JAINA_PROUDMOORE, 1, jaina->GetGUID());
                                 introductionAnduin->AddActor(NPC_SYLVANAS_WINDRUNNER, 2, sylvanas->GetGUID());
                                 introductionAnduin->AddActor(NPC_UTHER_THE_LIGHTBRINGER, 3, uther->GetGUID());
                                 introductionAnduin->AddActor(NPC_FIRIM, 4, firim->GetGUID());
-                                introductionAnduin->Start();
+
+                                //if (Creature* bolvar = me->FindNearestCreature(NPC_BOLVAR_FORDRAGON_ANDUIN, 200.0f, true))
+                                //{
+                                //    bolvar->GetMotionMaster()->MovePath(PATH_OUTRODUCTION_BOLVAR, false);
+                                //    scheduler.Schedule(5s, [this](TaskContext /*task*/)
+                                //    {
+                                //        MoveKnightsOnPlatform();
+                                //    });
+                                //}
+
+                                //if (Creature* thrall = me->FindNearestCreature(NPC_THRALL_ANDUIN, 200.0f, true))
+                                //    thrall->GetMotionMaster()->MovePath(PATH_OUTRODUCTION_THRALL, false);
                             }
                         }
                     }
@@ -1396,6 +1439,7 @@ struct boss_anduin_wrynn : public BossAI
         instance->SetBossState(DATA_ANDUIN_WRYNN, DONE);
         _EnterEvadeMode();
         DoCastSelf(SPELL_ANDUIN_KNEEL_POSE);
+
         if (Creature* beacon = me->FindNearestCreature(NPC_BEACON_OF_HOPE, 100.0f, true))
             beacon->DespawnOrUnsummon();
 
@@ -1404,7 +1448,7 @@ struct boss_anduin_wrynn : public BossAI
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_COMPLETED, 1);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->SetData(DATA_ANDUIN_WRYNN, DONE);
-
+        DoAction(ACTION_MOVE_NPCS_ON_PLATFORM);
         if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
         {
             if (AchievementEntry const* mythicAnduin = sAchievementStore.LookupEntry(ACHIEVEMENT_ANDUIN_MYTHIC))
@@ -3823,7 +3867,6 @@ class spell_anduin_wrynn_soul_despawn : public SpellScript
             if (creature->GetEntry() == NPC_ANDUIN_HOPE || creature->GetEntry() == NPC_ANDUIN_DOUBT)
                 creature->DespawnOrUnsummon(3s);
         }
-
     }
 
     void Register() override
@@ -4518,10 +4561,7 @@ struct at_anduin_wrynn_pre_introduction : AreaTriggerAI
 
         _firstEntry = true;
         if (Creature* anduin = _instance->GetCreature(DATA_ANDUIN_WRYNN))
-        {
             anduin->GetAI()->DoAction(ACTION_START_PRE_INTRODUCTION);
-            //anduin->GetAI()->DoAction(ACTION_START_INTRODUCTION);
-        }
     }
 
 private:

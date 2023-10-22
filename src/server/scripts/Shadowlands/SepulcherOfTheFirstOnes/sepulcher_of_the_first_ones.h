@@ -76,6 +76,10 @@ enum SepulcherOfTheFirstOnesCreatureIds
     NPC_MARCH_OF_THE_DAMNED         = 183793,
     NPC_GRIM_REFLECTION             = 183033,
     NPC_BEACON_OF_HOPE              = 184830,
+    NPC_BOLVAR_FORDRAGON_ANDUIN     = 184601,
+    NPC_QUARTERMASTER_RAHM_ANDUIN   = 186785,
+    NPC_THRALL_ANDUIN               = 184599,
+    NPC_KNIGHT_OF_EBON_BLADE_ANDUIN = 184613,
 
 };
 
