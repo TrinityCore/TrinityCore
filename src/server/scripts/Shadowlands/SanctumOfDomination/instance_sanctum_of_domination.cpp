@@ -116,7 +116,7 @@ public:
                 case GAMEOBJECT_TORGHAST_SPIKE_10:
                 case GAMEOBJECT_TORGHAST_SPIKE_11:
                 case GAMEOBJECT_TORGHAST_SPIKE_12:
-                    TorghastSpikeGUID.push_back(go->GetGUID());
+                    TorghastSpikeGUIDs.push_back(go->GetGUID());
                     break;
 
                 default:
@@ -161,7 +161,7 @@ public:
                         if (Creature* throneTeleporter = GetCreature(DATA_THRONE_OF_THE_DAMNED))
                             throneTeleporter->SetVisible(true);
 
-                        for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
+                        for (ObjectGuid const& spikeGUID : TorghastSpikeGUIDs)
                             if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
                                 torghastSpike->SetSpellVisualId(0);
                     }
@@ -238,7 +238,7 @@ public:
         ObjectGuid JainaPinnacleGUID;
         ObjectGuid ThrallPinnacleGUID;
         ObjectGuid ThroneOfTheDamnedGUID;
-        std::vector<ObjectGuid> TorghastSpikeGUID;
+        std::vector<ObjectGuid> TorghastSpikeGUIDs;
         uint8 SylvanasIntroductionData;
     };
 
