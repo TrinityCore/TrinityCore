@@ -148,7 +148,7 @@ struct boss_cragmaw_the_infested : public BossAI
         if (Creature* fetidMaggot = ObjectAccessor::GetCreature(*me, _fetidMaggotGuid))
             fetidMaggot->DespawnOrUnsummon();
 
-        if (IsHeroic() || GetDifficulty() == DIFFICULTY_MYTHIC || GetDifficulty() == DIFFICULTY_MYTHIC_KEYSTONE)
+        if (IsHeroicOrHigher())
             DoCast(SPELL_POWER_ENERGIZE_TANTRUM);
     }
 

@@ -271,7 +271,7 @@ struct boss_garothi_worldbreaker : public BossAI
             me->SetFacingTo(me->GetHomePosition().GetOrientation());
             events.Reset();
 
-            if (GetDifficulty() == DIFFICULTY_MYTHIC_RAID || GetDifficulty() == DIFFICULTY_HEROIC_RAID)
+            if (IsHeroic() || IsMythic())
                 events.ScheduleEvent(EVENT_SURGING_FEL, 8s);
 
             DoCastSelf(SPELL_APOCALYPSE_DRIVE);
@@ -826,7 +826,7 @@ class spell_garothi_cannon_chooser : public SpellScript
         }
         else if ((lastCannonEntry == NPC_DECIMATOR && annihilator) || (annihilator && !decimator))
         {
-            uint8 count = caster->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? MAX_TARGETS_SIZE :
+            uint8 count = caster->GetMap()->IsMythic() ? MAX_TARGETS_SIZE :
                 std::max<uint8>(MIN_TARGETS_SIZE, std::ceil(float(caster->GetMap()->GetPlayersCountExceptGMs()) / 5));
 
             for (uint8 i = 0; i < count; i++)
