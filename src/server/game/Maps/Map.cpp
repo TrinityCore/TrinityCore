@@ -143,7 +143,7 @@ i_mapEntry(sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(Inst
 m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
-i_gridExpiry(expiry), m_terrain(sTerrainMgr.LoadTerrain(id)),
+i_gridExpiry(expiry), m_terrain(sTerrainMgr.LoadTerrain(id)), m_forceEnabledNavMeshFilterFlags(0), m_forceDisabledNavMeshFilterFlags(0),
 i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _respawnCheckTimer(0)
 {
     for (uint32 x = 0; x < MAX_NUMBER_OF_GRIDS; ++x)
@@ -3193,16 +3193,81 @@ bool Map::IsRaid() const
     return i_mapEntry && i_mapEntry->IsRaid();
 }
 
+bool Map::IsLFR() const
+{
+    switch (i_spawnMode)
+    {
+        case DIFFICULTY_LFR:
+        case DIFFICULTY_LFR_NEW:
+        case DIFFICULTY_LFR_15TH_ANNIVERSARY:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool Map::IsNormal() const
+{
+    switch (i_spawnMode)
+    {
+        case DIFFICULTY_NORMAL:
+        case DIFFICULTY_10_N:
+        case DIFFICULTY_25_N:
+        case DIFFICULTY_NORMAL_RAID:
+        case DIFFICULTY_NORMAL_ISLAND:
+        case DIFFICULTY_NORMAL_WARFRONT:
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool Map::IsHeroic() const
 {
     if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
-        return difficulty->Flags & DIFFICULTY_FLAG_HEROIC;
+    {
+        if (difficulty->Flags & DIFFICULTY_FLAG_DISPLAY_HEROIC)
+            return true;
+    }
+
+    // compatibility purposes of old difficulties
+    switch (i_spawnMode)
+    {
+        case DIFFICULTY_10_HC:
+        case DIFFICULTY_25_HC:
+        case DIFFICULTY_HEROIC:
+        case DIFFICULTY_3_MAN_SCENARIO_HC:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool Map::IsMythic() const
+{
+    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
+        return difficulty->Flags & DIFFICULTY_FLAG_DISPLAY_MYTHIC;
     return false;
+}
+
+bool Map::IsMythicPlus() const
+{
+    return IsDungeon() && i_spawnMode == DIFFICULTY_MYTHIC_KEYSTONE;
+}
+
+bool Map::IsHeroicOrHigher() const
+{
+    return IsHeroic() || IsMythic() || IsMythicPlus();
 }
 
 bool Map::Is25ManRaid() const
 {
     return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC);
+}
+
+bool Map::IsTimewalking() const
+{
+    return (IsDungeon() && i_spawnMode == DIFFICULTY_TIMEWALKING) || (IsRaid() && i_spawnMode == DIFFICULTY_TIMEWALKING_RAID);
 }
 
 bool Map::IsBattleground() const
@@ -3417,7 +3482,7 @@ AreaTrigger* Map::GetAreaTriggerBySpawnId(ObjectGuid::LowType spawnId) const
 
 void Map::UpdateIteratorBack(Player* player)
 {
-    if (m_mapRefIter == player->GetMapRef())
+    if (&*m_mapRefIter == &player->GetMapRef())
         m_mapRefIter = m_mapRefIter->nocheck_prev();
 }
 

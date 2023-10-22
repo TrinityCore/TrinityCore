@@ -28,12 +28,10 @@
 #include "SpellDefines.h"
 #include <memory>
 
-namespace WorldPackets
+namespace WorldPackets::Spells
 {
-    namespace Spells
-    {
-        struct SpellCastData;
-    }
+struct SpellCastData;
+struct SpellHealPrediction;
 }
 
 class Aura;
@@ -145,6 +143,14 @@ enum SpellCastSource : uint8
     SPELL_CAST_SOURCE_PET = 9,
     SPELL_CAST_SOURCE_AURA = 13,
     SPELL_CAST_SOURCE_SPELL = 16,
+};
+
+enum SpellHealPredictionType : uint8
+{
+    SPELL_HEAL_PREDICTION_TARGET            = 0,
+    SPELL_HEAL_PREDICTION_TARGET_AND_CASTER = 1,
+    SPELL_HEAL_PREDICTION_TARGET_AND_BEACON = 2,
+    SPELL_HEAL_PREDICTION_TARGET_PARTY      = 3,
 };
 
 enum SpellRangeFlag
@@ -837,6 +843,7 @@ class TC_GAME_API Spell
         bool IsValidDeadOrAliveTarget(Unit const* target) const;
         void HandleLaunchPhase();
         void DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, SpellEffectInfo const& spellEffectInfo);
+        void ResetCombatTimers();
 
         void PrepareTargetProcessing();
         void FinishTargetProcessing();
@@ -887,6 +894,7 @@ class TC_GAME_API Spell
 
         void UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data);
         int32 GetSpellCastDataAmmo();
+        void UpdateSpellHealPrediction(WorldPackets::Spells::SpellHealPrediction& healPrediction, bool withPeriodic);
 
         SpellCastResult CanOpenLock(SpellEffectInfo const& effect, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------

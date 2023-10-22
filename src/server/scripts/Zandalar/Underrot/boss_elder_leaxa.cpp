@@ -92,7 +92,7 @@ struct boss_elder_leaxa : public BossAI
         Talk(SAY_AGGRO);
         me->SetAIAnimKitId(0);
         events.ScheduleEvent(EVENT_BLOOD_BOLT, 1s);
-        if (IsHeroic() || GetDifficulty() == DIFFICULTY_MYTHIC || GetDifficulty() == DIFFICULTY_MYTHIC_KEYSTONE)
+        if (IsHeroicOrHigher())
             events.ScheduleEvent(EVENT_SANGUINE_FEAST, 8s);
         events.ScheduleEvent(EVENT_CREEPING_ROT, 12s);
         events.ScheduleEvent(EVENT_BLOOD_MIRROR, 17s);

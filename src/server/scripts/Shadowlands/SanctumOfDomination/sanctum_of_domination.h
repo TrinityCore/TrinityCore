@@ -20,16 +20,25 @@
 
 #include "CreatureAIImpl.h"
 
-#define DataHeader "SOD"
+#define DataHeader "SanctumOfDomination"
 #define SODScriptName "instance_sanctum_of_domination"
-
-Position const ThroneOfTheDamnedPos = { 284.060f, -781.086f, 4105.022f, 3.91f };
-Position const SylvanasPlatformRevivePos = { 265.834f, -799.287f, 4104.977f, 3.811291f };
 
 uint32 const EncounterCount = 10;
 
+Position const SylvanasRespawnPos = { 225.73611f, -844.0746f,  4104.9882f, 1.3613f };
+Position const SylvanasPlatformRevivePos = { 265.834f, -799.287f, 4104.977f, 3.811291f };
+
 enum SanctumOfDominationDataTypes
 {
+    DATA_THE_TARRAGRUE                         = 0,
+    DATA_THE_EYE_OF_THE_JAILER                 = 1,
+    DATA_THE_NINE                              = 2,
+    DATA_REMNANT_OF_NERZHUL                    = 3,
+    DATA_SOULRENDER_DORMAZAIN                  = 4,
+    DATA_PAINSMITH_RAZNAL                      = 5,
+    DATA_GUARDIAN_OF_THE_FIRST_ONES            = 6,
+    DATA_FATESCRIBE_ROHKALO                    = 7,
+    DATA_KELTHUZAD                             = 8,
     DATA_SYLVANAS_WINDRUNNER                   = 9,
 
     // Encounter-related data
@@ -77,6 +86,16 @@ enum SanctumOfDominationCreatureIds
 
     NPC_ANDUIN_CRUCIBLE                        = 178072,
     NPC_SYLVANAS_JAILER_SOUL                   = 179262,
+
+    /* Encounter-related creatures */
+
+    /* Sylvanas Windrunner Encounter */
+    NPC_SYLVANAS_SHADOWCOPY_RIDING             = 178355,
+    NPC_BOLVAR_FORDRAGON_PINNACLE              = 178081,
+    NPC_JAINA_PROUDMOORE_PINNACLE              = 176533,
+    NPC_THRALL_PINNACLE                        = 176532,
+
+    NPC_THRONE_OF_THE_DAMNED                   = 180803
 };
 
 enum SanctumOfDominationGameObjectIds
@@ -116,7 +135,7 @@ enum SanctumOfDominationAreas
 {
     AREA_PINNACLE_OF_DOMINANCE                 = 13653,
     AREA_EDGE_OF_THE_ABYSS                     = 13654,
-    AREA_SOD_SPACE_IN_EDGE_OF_THE_ABYSS        = 13561,
+    AREA_VOID_IN_EDGE_OF_THE_ABYSS             = 13561,
     AREA_THE_CRUCIBLE                          = 13655
 };
 
@@ -125,11 +144,11 @@ enum SanctumofDominationWorldStates
     WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED     = 20346,
     WORLD_STATE_SYLVANAS_ENCOUNTER_COMPLETED   = 20347,
     WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE       = 20348,
-    WORLD_STATE_SYLVANAS_UNK_01                = 21210, // Sets to 0 several times on phase 3
-    WORLD_STATE_SYLVANAS_UNK_02                = 21166, // Sets to 1 when SPELL_FINAL_SCENE is cast on players
-    WORLD_STATE_SYLVANAS_UNK_03                = 21120, // Sets to 1 when 353687 spell is cast by NPC 179262
+    WORLD_STATE_SYLVANAS_UNK_01                = 21210, // Info: sets to 0 several times on phase 3.
+    WORLD_STATE_SYLVANAS_UNK_02                = 21166, // Info: sets to 1 when SPELL_FINAL_SCENE is cast on players.
+    WORLD_STATE_SYLVANAS_UNK_03                = 21120, // Info: sets to 1 when 353687 spell is cast by NPC 179262.
     WORLD_STATE_SYLVANAS_ACHIEVEMENT_COMPLETED = 21134,
-    WORLD_STATE_SYLVANAS_UNK_04                = 20439, // This is always 1 on INIT and the following 0
+    WORLD_STATE_SYLVANAS_UNK_04                = 20439, // Info: this is always 1 on INIT and the following are 0.
     WORLD_STATE_SYLVANAS_UNK_05                = 20440,
     WORLD_STATE_SYLVANAS_UNK_06                = 20441,
     WORLD_STATE_SYLVANAS_UNK_07                = 20442,
@@ -139,7 +158,7 @@ enum SanctumofDominationWorldStates
 template <class AI, class T>
 inline AI* GetSanctumOfDominationAI(T* obj)
 {
-    return GetInstanceAI<AI>(obj, SODScriptName);
+    return GetInstanceAI<AI>(obj, SanctumOfDominationScriptName);
 }
 
 #define RegisterSanctumOfDominationCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSanctumOfDominationAI)

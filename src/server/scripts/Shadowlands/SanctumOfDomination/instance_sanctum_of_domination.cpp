@@ -37,10 +37,24 @@ ObjectData const creatureData[] =
     { 0,                               0                                } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_THE_TARRAGRUE,              {{ 2423 }} },
+    { DATA_THE_EYE_OF_THE_JAILER,      {{ 2433 }} },
+    { DATA_THE_NINE,                   {{ 2429 }} },
+    { DATA_REMNANT_OF_NERZHUL,         {{ 2432 }} },
+    { DATA_SOULRENDER_DORMAZAIN,       {{ 2434 }} },
+    { DATA_PAINSMITH_RAZNAL,           {{ 2430 }} },
+    { DATA_GUARDIAN_OF_THE_FIRST_ONES, {{ 2436 }} },
+    { DATA_FATESCRIBE_ROHKALO,         {{ 2431 }} },
+    { DATA_KELTHUZAD,                  {{ 2422 }} },
+    { DATA_SYLVANAS_WINDRUNNER,        {{ 2435 }} }
+};
+
 class instance_sanctum_of_domination : public InstanceMapScript
 {
 public:
-    instance_sanctum_of_domination() : InstanceMapScript(SODScriptName, 2450) {}
+    instance_sanctum_of_domination() : InstanceMapScript(SODScriptName, 2450) { }
 
     struct instance_sanctum_of_domination_InstanceMapScript : public InstanceScript
     {
@@ -48,9 +62,11 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
+            LoadDungeonEncounterData(encounters);
             LoadObjectData(creatureData, nullptr);
 
-            SylvanasIntroductionData = DONE;
+            // TODO: set NOT_STARTED on merge.
+            SylvanasIntroductionState = DONE;
             SylvanasIntermissionData = 0;
         }
 
@@ -61,7 +77,31 @@ public:
             switch (creature->GetEntry())
             {
                 case NPC_SYLVANAS_SHADOWCOPY_FIGHTER:
-                    SylvanasShadowcopyGUID.push_back(creature->GetGUID());
+                    SylvanasShadowcopyGUIDs.push_back(creature->GetGUID());
+                    break;
+
+                case BOSS_SYLVANAS_WINDRUNNER:
+                    SylvanasGUID = creature->GetGUID();
+                    break;
+
+                case NPC_SYLVANAS_SHADOWCOPY_RIDING:
+                    SylvanasShadowcopyRidingGUID = creature->GetGUID();
+                    break;
+
+                case NPC_BOLVAR_FORDRAGON_PINNACLE:
+                    BolvarPinnacleGUID = creature->GetGUID();
+                    break;
+
+                case NPC_JAINA_PROUDMOORE_PINNACLE:
+                    JainaPinnacleGUID = creature->GetGUID();
+                    break;
+
+                case NPC_THRALL_PINNACLE:
+                    ThrallPinnacleGUID = creature->GetGUID();
+                    break;
+
+                case NPC_THRONE_OF_THE_DAMNED:
+                    ThroneOfTheDamnedGUID = creature->GetGUID();
                     break;
 
                 default:
@@ -85,11 +125,11 @@ public:
                 case GAMEOBJECT_TORGHAST_SPIKE_10:
                 case GAMEOBJECT_TORGHAST_SPIKE_11:
                 case GAMEOBJECT_TORGHAST_SPIKE_12:
-                    TorghastSpikeGUID.push_back(go->GetGUID());
+                    TorghastSpikeGUIDs.push_back(go->GetGUID());
                     break;
 
                 case GAMEOBJECT_INVISIBLE_WALL_PHASE_2:
-                    InvisibleWallPhaseTwoGUID.push_back(go->GetGUID());
+                    InvisibleWallPhaseTwoGUIDs.push_back(go->GetGUID());
                     break;
 
                 default:
@@ -102,29 +142,39 @@ public:
             switch (type)
             {
                 case DATA_SYLVANAS_SHADOWCOPY_00:
-                    return SylvanasShadowcopyGUID[0];
+                    return SylvanasShadowcopyGUIDs[0];
                 case DATA_SYLVANAS_SHADOWCOPY_01:
-                    return SylvanasShadowcopyGUID[1];
+                    return SylvanasShadowcopyGUIDs[1];
                 case DATA_SYLVANAS_SHADOWCOPY_02:
-                    return SylvanasShadowcopyGUID[2];
+                    return SylvanasShadowcopyGUIDs[2];
                 case DATA_SYLVANAS_SHADOWCOPY_03:
-                    return SylvanasShadowcopyGUID[3];
+                    return SylvanasShadowcopyGUIDs[3];
                 case DATA_SYLVANAS_SHADOWCOPY_04:
-                    return SylvanasShadowcopyGUID[4];
+                    return SylvanasShadowcopyGUIDs[4];
                 case DATA_SYLVANAS_SHADOWCOPY_05:
-                    return SylvanasShadowcopyGUID[5];
+                    return SylvanasShadowcopyGUIDs[5];
                 case DATA_SYLVANAS_SHADOWCOPY_06:
-                    return SylvanasShadowcopyGUID[6];
+                    return SylvanasShadowcopyGUIDs[6];
                 case DATA_SYLVANAS_SHADOWCOPY_07:
-                    return SylvanasShadowcopyGUID[7];
+                    return SylvanasShadowcopyGUIDs[7];
                 case DATA_SYLVANAS_SHADOWCOPY_08:
-                    return SylvanasShadowcopyGUID[8];
+                    return SylvanasShadowcopyGUIDs[8];
                 case DATA_SYLVANAS_SHADOWCOPY_09:
-                    return SylvanasShadowcopyGUID[9];
+                    return SylvanasShadowcopyGUIDs[9];
                 case DATA_SYLVANAS_SHADOWCOPY_10:
-                    return SylvanasShadowcopyGUID[10];
+                    return SylvanasShadowcopyGUIDs[10];
                 case DATA_SYLVANAS_SHADOWCOPY_11:
-                    return SylvanasShadowcopyGUID[11];
+                    return SylvanasShadowcopyGUIDs[11];
+                case DATA_SYLVANAS_WINDRUNNER:
+                    return SylvanasGUID;
+                case DATA_BOLVAR_FORDRAGON_PINNACLE:
+                    return BolvarPinnacleGUID;
+                case DATA_JAINA_PROUDMOORE_PINNACLE:
+                    return JainaPinnacleGUID;
+                case DATA_THRALL_PINNACLE:
+                    return ThrallPinnacleGUID;
+                case DATA_THRONE_OF_THE_DAMNED:
+                    return ThroneOfTheDamnedGUID;
                 default:
                     break;
             }
@@ -150,11 +200,11 @@ public:
                             if (Creature* throneTeleporter = GetCreature(DATA_THRONE_OF_THE_DAMNED))
                                 throneTeleporter->SetVisible(true);
 
-                            for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
+                            for (ObjectGuid const& spikeGUID : TorghastSpikeGUIDs)
                                 if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
                                     torghastSpike->SetSpellVisualId(0);
 
-                            for (ObjectGuid const& invisibleWallGUID : InvisibleWallPhaseTwoGUID)
+                            for (ObjectGuid const& invisibleWallGUID : InvisibleWallPhaseTwoGUIDs)
                                 if (GameObject* invisibleWall = instance->GetGameObject(invisibleWallGUID))
                                     invisibleWall->Respawn();
 
@@ -212,7 +262,7 @@ public:
 
                         case FAIL:
                         {
-                            SylvanasShadowcopyGUID.clear();
+                            SylvanasShadowcopyGUIDs.clear();
                             Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 1s);
                             break;
                         }
@@ -220,8 +270,6 @@ public:
                         default:
                             break;
                     }
-
-                    break;
                 }
 
                 default:
@@ -240,12 +288,18 @@ public:
                     switch (data)
                     {
                         case IN_PROGRESS:
-                            SylvanasIntroductionData = IN_PROGRESS;
+                        {
+                            SylvanasIntroductionState = IN_PROGRESS;
+
+                            if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                                sylvanas->SetHomePosition(SylvanasRespawnPos);
                             break;
+                        }
 
                         case DONE:
                         {
-                            SylvanasIntroductionData = DONE;
+                            SylvanasIntroductionState = DONE;
+
                             if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                             {
                                 sylvanas->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
@@ -262,12 +316,16 @@ public:
                 }
 
                 case DATA_SYLVANAS_INTERMISSION_FINISH:
+                {
                     --SylvanasIntermissionData;
+
                     if (GetBossState(DATA_SYLVANAS_WINDRUNNER) == IN_PROGRESS && SylvanasIntermissionData == 0)
                         if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                             if (sylvanas->IsAIEnabled())
                                 sylvanas->GetAI()->DoAction(ACTION_START_PHASE_TWO_ON_SYLVANAS);
                     break;
+                }
+
                 default:
                     break;
             }
@@ -278,9 +336,10 @@ public:
             switch (type)
             {
                 case DATA_SYLVANAS_INTRODUCTION:
-                    return SylvanasIntroductionData;
+                    return SylvanasIntroductionState;
                 case DATA_SYLVANAS_INTERMISSION_FINISH:
                     return SylvanasIntermissionData;
+
                 default:
                     break;
             }
@@ -306,7 +365,7 @@ public:
                         {
                             if (Player* player = itr->GetSource())
                             {
-                                if (player->GetAreaId() == AREA_EDGE_OF_THE_ABYSS || player->GetAreaId() == AREA_SOD_SPACE_IN_EDGE_OF_THE_ABYSS || player->GetAreaId() == AREA_THE_CRUCIBLE)
+                                if (player->GetAreaId() == AREA_EDGE_OF_THE_ABYSS || player->GetAreaId() == AREA_VOID_IN_EDGE_OF_THE_ABYSS || player->GetAreaId() == AREA_THE_CRUCIBLE)
                                     player->NearTeleportTo(SylvanasPlatformRevivePos, false);
                             }
                         }
@@ -342,13 +401,19 @@ public:
             return true;
         }
 
-    protected:
+protected:
         EventMap Events;
-        std::vector<ObjectGuid> SylvanasShadowcopyGUID;
-        std::vector<ObjectGuid> TorghastSpikeGUID;
-        std::vector<ObjectGuid> InvisibleWallPhaseTwoGUID;
-        uint8 SylvanasIntroductionData;
+        std::vector<ObjectGuid> TorghastSpikeGUIDs;
+        std::vector<ObjectGuid> InvisibleWallPhaseTwoGUIDs;
+        std::vector<ObjectGuid> SylvanasShadowcopyGUIDs;
+        uint8 SylvanasIntroductionState;
         uint8 SylvanasIntermissionData;
+        ObjectGuid SylvanasGUID;
+        ObjectGuid SylvanasShadowcopyRidingGUID;
+        ObjectGuid BolvarPinnacleGUID;
+        ObjectGuid JainaPinnacleGUID;
+        ObjectGuid ThrallPinnacleGUID;
+        ObjectGuid ThroneOfTheDamnedGUID;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

@@ -148,7 +148,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
         return effect && (GetEffectsToApply() & (1 << effect->GetEffIndex())) && Aura::EffectTypeNeedsSendingAmount(effect->GetAuraType());
     };
 
-    if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT)
+    if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_POINTS_ON_CLIENT)
         || std::find_if(GetBase()->GetAuraEffects().begin(), GetBase()->GetAuraEffects().end(), std::cref(effectNeedsAmount)) != GetBase()->GetAuraEffects().end())
         _flags |= AFLAG_SCALABLE;
 }
@@ -1815,6 +1815,20 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
 
         if (GetSpellInfo()->HasAttribute(SPELL_ATTR12_ONLY_PROC_FROM_CLASS_ABILITIES) && !spell->GetSpellInfo()->HasAttribute(SPELL_ATTR13_ALLOW_CLASS_ABILITY_PROCS))
             return 0;
+
+        if (eventInfo.GetTypeMask() & TAKEN_HIT_PROC_FLAG_MASK)
+        {
+            if (spell->GetSpellInfo()->HasAttribute(SPELL_ATTR3_SUPPRESS_TARGET_PROCS)
+                && !GetSpellInfo()->HasAttribute(SPELL_ATTR7_CAN_PROC_FROM_SUPPRESSED_TARGET_PROCS))
+                return 0;
+        }
+        else
+        {
+            if (spell->GetSpellInfo()->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS)
+                && !spell->GetSpellInfo()->HasAttribute(SPELL_ATTR12_ENABLE_PROCS_FROM_SUPPRESSED_CASTER_PROCS)
+                && !GetSpellInfo()->HasAttribute(SPELL_ATTR12_CAN_PROC_FROM_SUPPRESSED_CASTER_PROCS))
+                return 0;
+        }
     }
 
     // check don't break stealth attr present

@@ -214,12 +214,12 @@ struct boss_guarm : public BossAI
         events.ScheduleEvent(EVENT_CHECK_ENERGY, 500ms);
         events.ScheduleEvent(EVENT_OFF_THE_LEASH, 45s);
 
-        if (GetDifficulty() == DIFFICULTY_MYTHIC_RAID)
+        if (IsMythic())
         {
             events.ScheduleEvent(EVENT_VOLATILE_FOAM, 11s);
             events.ScheduleEvent(EVENT_BERSERK, 4min + 4s);
         }
-        else if (GetDifficulty() == DIFFICULTY_HEROIC_RAID)
+        else if (IsHeroic())
             events.ScheduleEvent(EVENT_BERSERK, 5min);
         else if (GetDifficulty() == DIFFICULTY_NORMAL_RAID)
             events.ScheduleEvent(EVENT_BERSERK, 6min);
@@ -300,7 +300,7 @@ struct boss_guarm : public BossAI
         me->SetReactState(REACT_AGGRESSIVE);
         events.ScheduleEvent(EVENT_FLASHING_FANGS, 16s);
         events.ScheduleEvent(EVENT_LICK, 18s);
-        if (GetDifficulty() == DIFFICULTY_MYTHIC_RAID)
+        if (IsMythic())
             events.ScheduleEvent(EVENT_VOLATILE_FOAM, 20s);
 
         // Headlong Charge

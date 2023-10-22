@@ -834,51 +834,26 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, char const* offMeshFilePath)
+    void TerrainBuilder::loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, std::vector<OffMeshData> const& offMeshConnections)
     {
-        // no meshfile input given?
-        if (offMeshFilePath == nullptr)
-            return;
-
-        FILE* fp = fopen(offMeshFilePath, "rb");
-        if (!fp)
+        for (OffMeshData const& offMeshConnection : offMeshConnections)
         {
-            printf(" loadOffMeshConnections:: input file %s not found!\n", offMeshFilePath);
-            return;
-        }
-
-        // pretty silly thing, as we parse entire file and load only the tile we need
-        // but we don't expect this file to be too large
-        char* buf = new char[512];
-        while(fgets(buf, 512, fp))
-        {
-            float p0[3], p1[3];
-            uint32 mid, tx, ty;
-            float size;
-            if (sscanf(buf, "%u %u,%u (%f %f %f) (%f %f %f) %f", &mid, &tx, &ty,
-                &p0[0], &p0[1], &p0[2], &p1[0], &p1[1], &p1[2], &size) != 10)
+            if (mapID != offMeshConnection.MapId || tileX != offMeshConnection.TileX || tileY != offMeshConnection.TileY)
                 continue;
 
-            if (mapID == mid && tileX == tx && tileY == ty)
-            {
-                meshData.offMeshConnections.append(p0[1]);
-                meshData.offMeshConnections.append(p0[2]);
-                meshData.offMeshConnections.append(p0[0]);
+            meshData.offMeshConnections.append(offMeshConnection.From[1]);
+            meshData.offMeshConnections.append(offMeshConnection.From[2]);
+            meshData.offMeshConnections.append(offMeshConnection.From[0]);
 
-                meshData.offMeshConnections.append(p1[1]);
-                meshData.offMeshConnections.append(p1[2]);
-                meshData.offMeshConnections.append(p1[0]);
+            meshData.offMeshConnections.append(offMeshConnection.To[1]);
+            meshData.offMeshConnections.append(offMeshConnection.To[2]);
+            meshData.offMeshConnections.append(offMeshConnection.To[0]);
 
-                meshData.offMeshConnectionDirs.append(1);          // 1 - both direction, 0 - one sided
-                meshData.offMeshConnectionRads.append(size);       // agent size equivalent
-                // can be used same way as polygon flags
-                meshData.offMeshConnectionsAreas.append((unsigned char)0xFF);
-                meshData.offMeshConnectionsFlags.append((unsigned short)0xFF);  // all movement masks can make this path
-            }
-
+            meshData.offMeshConnectionDirs.append(offMeshConnection.Bidirectional ? 1 : 0);
+            meshData.offMeshConnectionRads.append(offMeshConnection.Radius);    // agent size equivalent
+            // can be used same way as polygon flags
+            meshData.offMeshConnectionsAreas.append(offMeshConnection.AreaId);
+            meshData.offMeshConnectionsFlags.append(offMeshConnection.Flags);
         }
-
-        delete [] buf;
-        fclose(fp);
     }
 }
