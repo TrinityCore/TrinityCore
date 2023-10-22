@@ -3417,11 +3417,10 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
                     excludeUnit = true;
 
                 if (!excludeUnit && caster->IsValidAttackTarget(unit))
+                {
                     caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-
-                if (!excludeUnit && caster->IsValidAssistTarget(unit))
                     caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-
+                }
                 _affectedUnits.push_back(unit->GetGUID());
             }
         }
@@ -3439,11 +3438,10 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
                     excludeUnit = true;
 
                 if (!excludeUnit && caster->IsValidAttackTarget(unit))
+                {
                     caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-
-                if (!excludeUnit && caster->IsValidAssistTarget(unit))
                     caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-
+                }
                 _affectedUnits.push_back(unit->GetGUID());
             }
         }
