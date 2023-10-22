@@ -62,7 +62,7 @@ public:
             LoadDungeonEncounterData(encounters);
             LoadObjectData(creatureData, nullptr);
 
-            SylvanasIntroductionData = NOT_STARTED;
+            SylvanasIntroductionState = NOT_STARTED;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -192,13 +192,13 @@ public:
                     switch (data)
                     {
                         case IN_PROGRESS:
-                            SylvanasIntroductionData = IN_PROGRESS;
+                            SylvanasIntroductionState = IN_PROGRESS;
                             if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                                 sylvanas->SetHomePosition(SylvanasRespawnPos);
                             break;
 
                         case DONE:
-                            SylvanasIntroductionData = DONE;
+                            SylvanasIntroductionState = DONE;
                             if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                             {
                                 sylvanas->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
@@ -223,7 +223,7 @@ public:
             switch (type)
             {
                 case DATA_SYLVANAS_INTRODUCTION:
-                    return SylvanasIntroductionData;
+                    return SylvanasIntroductionState;
                 default:
                     break;
             }
@@ -239,7 +239,7 @@ public:
         ObjectGuid ThrallPinnacleGUID;
         ObjectGuid ThroneOfTheDamnedGUID;
         std::vector<ObjectGuid> TorghastSpikeGUIDs;
-        uint8 SylvanasIntroductionData;
+        uint8 SylvanasIntroductionState;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
