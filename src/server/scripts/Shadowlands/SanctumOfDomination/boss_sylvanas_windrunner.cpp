@@ -273,10 +273,12 @@ public:
         if (!instance)
             return;
 
-        instance->SetData(DATA_SYLVANAS_INTRODUCTION, IN_PROGRESS);
+        Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE);
+        if (!bolvar)
+            return;
 
-        if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-            conversation->AddActor(NPC_BOLVAR_FORDRAGON_PINNACLE, CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID, bolvar->GetGUID());
+        instance->SetData(DATA_SYLVANAS_INTRODUCTION, IN_PROGRESS);
+        conversation->AddActor(NPC_BOLVAR_FORDRAGON_PINNACLE, CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID, bolvar->GetGUID());
 
         _events.ScheduleEvent(EVENT_INTRODUCTION, 5s + 500ms);
     }
