@@ -29,15 +29,11 @@
 #include "TemporarySummon.h"
 #include <boost/heap/fibonacci_heap.hpp>
 
-#include "Hacks/boost_1_74_fibonacci_heap.h"
-
 const CompareThreatLessThan ThreatManager::CompareThreat;
 
 class ThreatManager::Heap : public boost::heap::fibonacci_heap<ThreatReference const*, boost::heap::compare<CompareThreatLessThan>>
 {
 };
-
-BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(ThreatManager::Heap::value_type)
 
 void ThreatReference::AddThreat(float amount)
 {

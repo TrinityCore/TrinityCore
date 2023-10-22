@@ -88,6 +88,8 @@ extern "C" {
 #define CASC_OPEN_FLAGS_MASK        0xFFFFFFF0  // The mask which gets open type from the dwFlags
 #define CASC_STRICT_DATA_CHECK      0x00000010  // Verify all data read from a file
 #define CASC_OVERCOME_ENCRYPTED     0x00000020  // When CascReadFile encounters a block encrypted with a key that is missing, the block is filled with zeros and returned as success
+#define CASC_OPEN_CKEY_ONCE         0x00000040  // Only opens a file with given CKey once, regardless on how many file names does it have. Used by CascLib test program
+                                                // If the file was already open before, CascOpenFile returns false and ERROR_FILE_ALREADY_OPENED
 
 #define CASC_LOCALE_ALL             0xFFFFFFFF
 #define CASC_LOCALE_ALL_WOW         0x0001F3F6  // All except enCN and enTW
@@ -129,6 +131,11 @@ extern "C" {
 #ifndef MD5_HASH_SIZE
 #define MD5_HASH_SIZE                     0x10
 #define MD5_STRING_SIZE                   0x20
+#endif
+
+#ifndef SHA1_HASH_SIZE
+#define SHA1_HASH_SIZE                    0x14
+#define SHA1_STRING_SIZE                  0x28
 #endif
 
 // Invalid values of all kind

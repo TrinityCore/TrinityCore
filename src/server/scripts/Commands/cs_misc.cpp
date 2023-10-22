@@ -1014,7 +1014,7 @@ public:
         uint32 zoneId = player->GetZoneId();
 
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(zoneId);
-        if (!areaEntry || areaEntry->ParentAreaID !=0)
+        if (!areaEntry || areaEntry->GetFlags().HasFlag(AreaFlags::IsSubzone))
         {
             handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDWRONGZONE, graveyardId, zoneId);
             handler->SetSentErrorMessage(true);
@@ -1953,11 +1953,14 @@ public:
         {
             zoneName = area->AreaName[locale];
 
-            AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
-            if (zone)
+            if (area->GetFlags().HasFlag(AreaFlags::IsSubzone))
             {
-                areaName = zoneName;
-                zoneName = zone->AreaName[locale];
+                AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
+                if (zone)
+                {
+                    areaName = zoneName;
+                    zoneName = zone->AreaName[locale];
+                }
             }
         }
 

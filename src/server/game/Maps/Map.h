@@ -260,6 +260,17 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         TerrainInfo* GetTerrain() const { return m_terrain.get(); }
 
+        // custom PathGenerator include and exclude filter flags
+        // these modify what kind of terrain types are available in current instance
+        // for example this can be used to mark offmesh connections as enabled/disabled
+        uint16 GetForceEnabledNavMeshFilterFlags() const { return m_forceEnabledNavMeshFilterFlags; }
+        void SetForceEnabledNavMeshFilterFlag(uint16 flag) { m_forceEnabledNavMeshFilterFlags |= flag; }
+        void RemoveForceEnabledNavMeshFilterFlag(uint16 flag) { m_forceEnabledNavMeshFilterFlags &= ~flag; }
+
+        uint16 GetForceDisabledNavMeshFilterFlags() const { return m_forceDisabledNavMeshFilterFlags; }
+        void SetForceDisabledNavMeshFilterFlag(uint16 flag) { m_forceDisabledNavMeshFilterFlags |= flag; }
+        void RemoveForceDisabledNavMeshFilterFlag(uint16 flag) { m_forceDisabledNavMeshFilterFlags &= ~flag; }
+
         void GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, map_liquidHeaderTypeFlags reqLiquidType = map_liquidHeaderTypeFlags::AllLiquids, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
         ZLiquidStatus GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, map_liquidHeaderTypeFlags ReqLiquidType, LiquidData* data = nullptr, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
 
@@ -618,6 +629,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         time_t i_gridExpiry;
 
         std::shared_ptr<TerrainInfo> m_terrain;
+        uint16 m_forceEnabledNavMeshFilterFlags;
+        uint16 m_forceDisabledNavMeshFilterFlags;
 
         NGridType* i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
         std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP*TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;

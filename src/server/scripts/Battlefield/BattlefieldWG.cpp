@@ -928,11 +928,18 @@ void BattlefieldWG::OnGameObjectCreate(GameObject* go)
     {
         if (workshop->GetId() == workshopId)
         {
-            WintergraspCapturePoint* capturePoint = new WintergraspCapturePoint(this, GetAttackerTeam());
+            ControlZoneHandlers[go->GetEntry()] = std::make_unique<WintergraspCapturePoint>(this, workshop);
+            if (GetAttackerTeam() == TEAM_ALLIANCE)
+            {
+                //go->SetGoArtKit(); // todo set art kit
+                go->HandleCustomTypeCommand(GameObjectType::SetControlZoneValue(100));
+            }
+            else if (GetAttackerTeam() == TEAM_HORDE)
+            {
+                //go->SetGoArtKit(); // todo set art kit
+                go->HandleCustomTypeCommand(GameObjectType::SetControlZoneValue(0));
+            }
 
-            capturePoint->SetCapturePointData(go);
-            capturePoint->LinkToWorkshop(workshop);
-            AddCapturePoint(capturePoint);
             break;
         }
     }
@@ -1185,8 +1192,9 @@ void BattlefieldWG::UpdatedDestroyedTowerCount(TeamId team)
     }
 }
 
-void BattlefieldWG::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* /*invoker*/)
+void BattlefieldWG::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* invoker)
 {
+    Battlefield::ProcessEvent(obj, eventId, invoker);
     if (!obj || !IsWarTime())
         return;
 
@@ -1311,17 +1319,34 @@ void BattlefieldWG::UpdateTenacity()
         m_tenacityTeam = TEAM_NEUTRAL;
 }
 
-WintergraspCapturePoint::WintergraspCapturePoint(BattlefieldWG* battlefield, TeamId teamInControl) : BfCapturePoint(battlefield)
+WintergraspCapturePoint::WintergraspCapturePoint(BattlefieldWG* battlefield, WintergraspWorkshop* workshop) : BattlefieldControlZoneHandler(battlefield), m_Workshop(workshop)
 {
-    m_Bf = battlefield;
-    m_team = teamInControl;
-    m_Workshop = nullptr;
 }
 
-void WintergraspCapturePoint::ChangeTeam(TeamId /*oldTeam*/)
+void WintergraspCapturePoint::HandleContestedEventHorde(GameObject* controlZone)
 {
     ASSERT(m_Workshop);
-    m_Workshop->GiveControlTo(m_team);
+    BattlefieldControlZoneHandler::HandleContestedEventHorde(controlZone);
+    m_Workshop->GiveControlTo(TEAM_NEUTRAL);
+}
+
+void WintergraspCapturePoint::HandleContestedEventAlliance(GameObject* controlZone)
+{
+    ASSERT(m_Workshop);
+    BattlefieldControlZoneHandler::HandleContestedEventAlliance(controlZone);
+    m_Workshop->GiveControlTo(TEAM_NEUTRAL);
+}
+
+void WintergraspCapturePoint::HandleProgressEventHorde(GameObject* /*controlZone*/)
+{
+    ASSERT(m_Workshop);
+    m_Workshop->GiveControlTo(TEAM_HORDE);
+}
+
+void WintergraspCapturePoint::HandleProgressEventAlliance(GameObject* /*controlZone*/)
+{
+    ASSERT(m_Workshop);
+    m_Workshop->GiveControlTo(TEAM_ALLIANCE);
 }
 
 BfGraveyardWG::BfGraveyardWG(BattlefieldWG* battlefield) : BfGraveyard(battlefield)

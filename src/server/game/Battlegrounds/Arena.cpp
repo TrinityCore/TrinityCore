@@ -244,6 +244,7 @@ void Arena::EndBattleground(uint32 winner)
                 {
                     // update achievement BEFORE personal rating update
                     uint32 rating = player->GetArenaPersonalRating(winnerArenaTeam->GetSlot());
+                    player->StartCriteria(CriteriaStartEvent::WinRankedArenaMatchWithTeamSize, 0);
                     player->UpdateCriteria(CriteriaType::WinAnyRankedArena, rating ? rating : 1);
                     player->UpdateCriteria(CriteriaType::WinArena, GetMapId());
 
@@ -269,7 +270,7 @@ void Arena::EndBattleground(uint32 winner)
                     loserArenaTeam->MemberLost(player, winnerMatchmakerRating, loserMatchmakerChange);
 
                     // Arena lost => reset the win_rated_arena having the "no_lose" condition
-                    player->ResetCriteria(CriteriaFailEvent::LoseRankedArenaMatchWithTeamSize, 0);
+                    player->FailCriteria(CriteriaFailEvent::LoseRankedArenaMatchWithTeamSize, 0);
                 }
             }
 

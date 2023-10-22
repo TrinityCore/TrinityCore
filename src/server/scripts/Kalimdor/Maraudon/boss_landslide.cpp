@@ -43,9 +43,9 @@ public:
         return GetMaraudonAI<boss_landslideAI>(creature);
     }
 
-    struct boss_landslideAI : public ScriptedAI
+    struct boss_landslideAI : public BossAI
     {
-        boss_landslideAI(Creature* creature) : ScriptedAI(creature)
+        boss_landslideAI(Creature* creature) : BossAI(creature, BOSS_LANDSLIDE)
         {
             Initialize();
         }
@@ -63,11 +63,9 @@ public:
 
         void Reset() override
         {
-            Initialize();
-        }
+            BossAI::Reset();
 
-        void JustEngagedWith(Unit* /*who*/) override
-        {
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override

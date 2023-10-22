@@ -71,6 +71,7 @@ public:
     virtual void OnStateChanged([[maybe_unused]] GOState oldState, [[maybe_unused]] GOState newState) { }
     virtual void OnRelocated() { }
     virtual bool IsNeverVisibleFor([[maybe_unused]] WorldObject const* seer, [[maybe_unused]] bool allowServersideObjects) const { return false; }
+    virtual void ActivateObject([[maybe_unused]] GameObjectActions action, [[maybe_unused]] int32 param, [[maybe_unused]] WorldObject* spellCaster = nullptr, [[maybe_unused]] uint32 spellId = 0, [[maybe_unused]] int32 effectIndex = -1) { }
 
 protected:
     GameObject& _owner;
@@ -100,6 +101,18 @@ private:
     FlagState _state;
     Player* _player;
 };
+
+class TC_GAME_API SetControlZoneValue : public GameObjectTypeBase::CustomCommand
+{
+public:
+    explicit SetControlZoneValue(Optional<uint32> value = { });
+
+    void Execute(GameObjectTypeBase& type) const override;
+
+private:
+    Optional<uint32> _value;
+};
+
 }
 
 union GameObjectValue
@@ -412,6 +425,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         FlagState GetFlagState() const;
         ObjectGuid const& GetFlagCarrierGUID() const;
         time_t GetFlagTakenFromBaseTime() const;
+
+        GuidUnorderedSet const* GetInsidePlayers() const;
 
         bool MeetsInteractCondition(Player const* user) const;
 

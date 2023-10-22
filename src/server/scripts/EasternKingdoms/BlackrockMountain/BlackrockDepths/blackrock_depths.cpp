@@ -228,7 +228,6 @@ public:
                     Event_Timer = 5000;
                     break;
                 case 5:
-                    instance->UpdateEncounterStateForKilledCreature(NPC_GRIMSTONE, me);
                     instance->SetData(TYPE_RING_OF_LAW, DONE);
                     TC_LOG_DEBUG("scripts", "npc_grimstone: event reached end and set complete.");
                     break;
@@ -373,9 +372,9 @@ public:
         return GetBlackrockDepthsAI<npc_phalanxAI>(creature);
     }
 
-    struct npc_phalanxAI : public ScriptedAI
+    struct npc_phalanxAI : public BossAI
     {
-        npc_phalanxAI(Creature* creature) : ScriptedAI(creature)
+        npc_phalanxAI(Creature* creature) : BossAI(creature, BOSS_PHALANX)
         {
             Initialize();
         }
@@ -393,6 +392,7 @@ public:
 
         void Reset() override
         {
+            _Reset();
             Initialize();
         }
 

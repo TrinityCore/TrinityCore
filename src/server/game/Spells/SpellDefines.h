@@ -137,7 +137,10 @@ enum class SpellAuraInterruptFlags2 : uint32
     TouchingGround              = 0x00040000, // NYI
     ChromieTime                 = 0x00080000, // NYI
     SplineFlightOrFreeFlight    = 0x00100000, // NYI
-    ProcOrPeriodicAttacking     = 0x00200000  // NYI
+    ProcOrPeriodicAttacking     = 0x00200000, // NYI
+    StartOfMythicPlusRun        = 0x00400000, // Implemented in Unit::AtStartOfEncounter
+    StartOfDungeonEncounter     = 0x00800000, // Implemented in Unit::AtStartOfEncounter - Similar to StartOfEncounter (but only with bosses, not m+ run or battleground)
+    EndOfDungeonEncounter       = 0x01000000, // Implemented in Unit::AtEndOfEncounter - Similar to EndOfEncounter (but only with bosses, not m+ run or battleground)
 };
 
 DEFINE_ENUM_FLAG(SpellAuraInterruptFlags2);

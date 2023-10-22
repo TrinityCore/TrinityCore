@@ -333,14 +333,6 @@ class instance_violet_hold : public InstanceMapScript
 
                 switch (type)
                 {
-                    case DATA_1ST_BOSS:
-                        if (state == DONE)
-                            UpdateEncounterStateForKilledCreature(NPC_EREKEM, nullptr);
-                        break;
-                    case DATA_2ND_BOSS:
-                        if (state == DONE)
-                            UpdateEncounterStateForKilledCreature(NPC_MORAGG, nullptr);
-                        break;
                     case DATA_CYANIGOSA:
                         if (state == DONE)
                             SetData(DATA_MAIN_EVENT_STATE, DONE);

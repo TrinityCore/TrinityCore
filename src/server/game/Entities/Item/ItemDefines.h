@@ -141,6 +141,7 @@ enum InventoryResult : uint8
     EQUIP_ERR_REAGENTBAG_WRONG_SLOT                        = 115,// Reagent Bags can only be placed in the reagent bag slot.
     EQUIP_ERR_SLOT_ONLY_REAGENTBAG                         = 116,// Only Reagent Bags can be placed in the reagent bag slot.
     EQUIP_ERR_REAGENTBAG_ITEM_TYPE                         = 117,// Only Reagents can be placed in Reagent Bags.
+    EQUIP_ERR_CANT_BULK_SELL_ITEM_WITH_REFUND              = 118,// Items that can be refunded can't be bulk sold.
 };
 
 // EnumUtils: DESCRIBE THIS
@@ -166,7 +167,10 @@ enum SellResult
     SELL_ERR_YOU_DONT_OWN_THAT_ITEM              = 4,       // DESCRIPTION You don't own that item.
     SELL_ERR_UNK                                 = 5,       // DESCRIPTION nothing appears...
     SELL_ERR_ONLY_EMPTY_BAG                      = 6,       // DESCRIPTION You can only do that with empty bags.
-    SELL_ERR_CANT_SELL_TO_THIS_MERCHANT          = 7        // DESCRIPTION You cannot sell items to this merchant.
+    SELL_ERR_CANT_SELL_TO_THIS_MERCHANT          = 7,       // DESCRIPTION You cannot sell items to this merchant.
+    SELL_ERR_MUST_REPAIR_DURABILITY              = 8,       // DESCRIPTION You must repair that item's durability to use it.
+    SELL_ERR_VENDOR_REFUSE_SCRAPPABLE_AZERITE    = 9,       // DESCRIPTION The merchant doesn't want that item. Bring it to the Scrapper to extract Titan Residuum.
+    SELL_ERR_INTERNAL_BAG_ERROR                  = 10,      // DESCRIPTION Internal Bag Error
 };
 
 // -1 from client enchantment slot number

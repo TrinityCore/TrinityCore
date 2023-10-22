@@ -1503,6 +1503,9 @@ namespace Trinity
             if (i_args.IgnoreNotOwnedPrivateObjects && !go->CheckPrivateObjectOwnerVisibility(&i_obj))
                 return false;
 
+            if (i_args.GameObjectType && go->GetGoType() != i_args.GameObjectType)
+                return false;
+
             i_customizer.Update(go);
             return true;
         }

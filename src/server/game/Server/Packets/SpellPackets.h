@@ -195,7 +195,7 @@ namespace WorldPackets
         struct TargetLocation
         {
             ObjectGuid Transport;
-            Position Location;
+            TaggedPosition<Position::XYZ> Location;
         };
 
         struct SpellTargetData
@@ -336,12 +336,6 @@ namespace WorldPackets
             float Pitch = 0.0f;
         };
 
-        struct SpellAmmo
-        {
-            int32 DisplayID = 0;
-            int8 InventoryType = 0;
-        };
-
         struct CreatureImmunities
         {
             uint32 School = 0;
@@ -374,7 +368,7 @@ namespace WorldPackets
             std::vector<SpellPowerData> RemainingPower;
             Optional<RuneData> RemainingRunes;
             MissileTrajectoryResult MissileTrajectory;
-            SpellAmmo Ammo;
+            int32 AmmoDisplayID;
             uint8 DestLocSpellCastIndex = 0;
             std::vector<TargetLocation> TargetPoints;
             CreatureImmunities Immunities;

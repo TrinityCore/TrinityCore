@@ -46,30 +46,26 @@ class boss_general_angerforge : public CreatureScript
     public:
         boss_general_angerforge() : CreatureScript("boss_general_angerforge") { }
 
-        struct boss_general_angerforgeAI : public ScriptedAI
+        struct boss_general_angerforgeAI : public BossAI
         {
-            boss_general_angerforgeAI(Creature* creature) : ScriptedAI(creature) { }
+            boss_general_angerforgeAI(Creature* creature) : BossAI(creature, BOSS_GENERAL_ANGERFORGE) { }
 
-            void Reset() override
+            void JustEngagedWith(Unit* who) override
             {
-                _events.Reset();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _events.SetPhase(PHASE_ONE);
-                _events.ScheduleEvent(EVENT_MIGHTYBLOW, 8s);
-                _events.ScheduleEvent(EVENT_HAMSTRING, 12s);
-                _events.ScheduleEvent(EVENT_CLEAVE, 16s);
+                _JustEngagedWith(who);
+                events.SetPhase(PHASE_ONE);
+                events.ScheduleEvent(EVENT_MIGHTYBLOW, 8s);
+                events.ScheduleEvent(EVENT_HAMSTRING, 12s);
+                events.ScheduleEvent(EVENT_CLEAVE, 16s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
-                if (me->HealthBelowPctDamaged(20, damage) && _events.IsInPhase(PHASE_ONE))
+                if (me->HealthBelowPctDamaged(20, damage) && events.IsInPhase(PHASE_ONE))
                 {
-                    _events.SetPhase(PHASE_TWO);
-                    _events.ScheduleEvent(EVENT_MEDIC, 0s, 0, PHASE_TWO);
-                    _events.ScheduleEvent(EVENT_ADDS, 0s, 0, PHASE_TWO);
+                    events.SetPhase(PHASE_TWO);
+                    events.ScheduleEvent(EVENT_MEDIC, 0s, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_ADDS, 0s, 0, PHASE_TWO);
                 }
             }
 
@@ -90,23 +86,23 @@ class boss_general_angerforge : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                _events.Update(diff);
+                events.Update(diff);
 
-                while (uint32 eventId = _events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_MIGHTYBLOW:
                             DoCastVictim(SPELL_MIGHTYBLOW);
-                            _events.ScheduleEvent(EVENT_MIGHTYBLOW, 18s);
+                            events.ScheduleEvent(EVENT_MIGHTYBLOW, 18s);
                             break;
                         case EVENT_HAMSTRING:
                             DoCastVictim(SPELL_HAMSTRING);
-                            _events.ScheduleEvent(EVENT_HAMSTRING, 15s);
+                            events.ScheduleEvent(EVENT_HAMSTRING, 15s);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            _events.ScheduleEvent(EVENT_CLEAVE, 9s);
+                            events.ScheduleEvent(EVENT_CLEAVE, 9s);
                             break;
                         case EVENT_MEDIC:
                             for (uint8 i = 0; i < 2; ++i)
@@ -115,7 +111,7 @@ class boss_general_angerforge : public CreatureScript
                         case EVENT_ADDS:
                             for (uint8 i = 0; i < 3; ++i)
                                 SummonAdd(me->GetVictim());
-                            _events.ScheduleEvent(EVENT_ADDS, 25s, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_ADDS, 25s, 0, PHASE_TWO);
                             break;
                         default:
                             break;
@@ -124,9 +120,6 @@ class boss_general_angerforge : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-
-        private:
-            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
