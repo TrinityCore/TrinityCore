@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.33, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.34, for Linux (x86_64)
 --
 -- Host: localhost    Database: hotfixes
 -- ------------------------------------------------------
--- Server version	8.0.33-0ubuntu0.20.04.2
+-- Server version	8.0.34-0ubuntu0.20.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1118,8 +1118,8 @@ DROP TABLE IF EXISTS `battle_pet_ability`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `battle_pet_ability` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `Name` text COLLATE utf8mb4_unicode_ci,
-  `Description` text COLLATE utf8mb4_unicode_ci,
+  `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `IconFileDataID` int NOT NULL DEFAULT '0',
   `PetTypeEnum` tinyint NOT NULL DEFAULT '0',
   `Cooldown` int unsigned NOT NULL DEFAULT '0',
@@ -1139,9 +1139,9 @@ DROP TABLE IF EXISTS `battle_pet_ability_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `battle_pet_ability_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Name_lang` text COLLATE utf8mb4_unicode_ci,
-  `Description_lang` text COLLATE utf8mb4_unicode_ci,
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Name_lang` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Description_lang` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`locale`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -1414,6 +1414,53 @@ CREATE TABLE `broadcast_text_locale` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `cfg_categories`
+--
+
+DROP TABLE IF EXISTS `cfg_categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cfg_categories` (
+  `ID` int unsigned NOT NULL DEFAULT '0',
+  `Name` text COLLATE utf8mb4_unicode_ci,
+  `LocaleMask` smallint unsigned NOT NULL DEFAULT '0',
+  `CreateCharsetMask` tinyint unsigned NOT NULL DEFAULT '0',
+  `ExistingCharsetMask` tinyint unsigned NOT NULL DEFAULT '0',
+  `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Order` tinyint NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`VerifiedBuild`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `cfg_categories_locale`
+--
+
+DROP TABLE IF EXISTS `cfg_categories_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cfg_categories_locale` (
+  `ID` int unsigned NOT NULL DEFAULT '0',
+  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Name_lang` text COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`locale`,`VerifiedBuild`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+/*!50500 PARTITION BY LIST  COLUMNS(locale)
+(PARTITION deDE VALUES IN ('deDE') ENGINE = InnoDB,
+ PARTITION esES VALUES IN ('esES') ENGINE = InnoDB,
+ PARTITION esMX VALUES IN ('esMX') ENGINE = InnoDB,
+ PARTITION frFR VALUES IN ('frFR') ENGINE = InnoDB,
+ PARTITION itIT VALUES IN ('itIT') ENGINE = InnoDB,
+ PARTITION koKR VALUES IN ('koKR') ENGINE = InnoDB,
+ PARTITION ptBR VALUES IN ('ptBR') ENGINE = InnoDB,
+ PARTITION ruRU VALUES IN ('ruRU') ENGINE = InnoDB,
+ PARTITION zhCN VALUES IN ('zhCN') ENGINE = InnoDB,
+ PARTITION zhTW VALUES IN ('zhTW') ENGINE = InnoDB) */;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `cfg_regions`
 --
 
@@ -1622,7 +1669,6 @@ CREATE TABLE `chr_classes` (
   `LowResScreenFileDataID` int unsigned NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
   `SpellTextureBlobFileDataID` int unsigned NOT NULL DEFAULT '0',
-  `RolesMask` int unsigned NOT NULL DEFAULT '0',
   `ArmorTypeMask` int unsigned NOT NULL DEFAULT '0',
   `CharStartKitUnknown901` int NOT NULL DEFAULT '0',
   `MaleCharacterCreationVisualFallback` int NOT NULL DEFAULT '0',
@@ -1644,6 +1690,7 @@ CREATE TABLE `chr_classes` (
   `ClassColorR` tinyint unsigned NOT NULL DEFAULT '0',
   `ClassColorG` tinyint unsigned NOT NULL DEFAULT '0',
   `ClassColorB` tinyint unsigned NOT NULL DEFAULT '0',
+  `RolesMask` tinyint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1789,6 +1836,7 @@ CREATE TABLE `chr_customization_element` (
   `ChrCustItemGeoModifyID` int NOT NULL DEFAULT '0',
   `ChrCustomizationVoiceID` int NOT NULL DEFAULT '0',
   `AnimKitID` int NOT NULL DEFAULT '0',
+  `ParticleColorID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2505,6 +2553,8 @@ CREATE TABLE `creature_model_data` (
   `GeoBox6` float NOT NULL DEFAULT '0',
   `Flags` int unsigned NOT NULL DEFAULT '0',
   `FileDataID` int unsigned NOT NULL DEFAULT '0',
+  `WalkSpeed` float NOT NULL DEFAULT '0',
+  `RunSpeed` float NOT NULL DEFAULT '0',
   `BloodID` int unsigned NOT NULL DEFAULT '0',
   `FootprintTextureID` int unsigned NOT NULL DEFAULT '0',
   `FootprintTextureLength` float NOT NULL DEFAULT '0',
@@ -9061,7 +9111,7 @@ CREATE TABLE `taxi_nodes` (
   `ContinentID` smallint unsigned NOT NULL DEFAULT '0',
   `ConditionID` int NOT NULL DEFAULT '0',
   `CharacterBitNumber` smallint unsigned NOT NULL DEFAULT '0',
-  `Flags` smallint unsigned NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `UiTextureKitID` int NOT NULL DEFAULT '0',
   `MinimapAtlasMemberID` int NOT NULL DEFAULT '0',
   `Facing` float NOT NULL DEFAULT '0',
@@ -9133,7 +9183,7 @@ CREATE TABLE `taxi_path_node` (
   `PathID` smallint unsigned NOT NULL DEFAULT '0',
   `NodeIndex` int NOT NULL DEFAULT '0',
   `ContinentID` smallint unsigned NOT NULL DEFAULT '0',
-  `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `Delay` int unsigned NOT NULL DEFAULT '0',
   `ArrivalEventID` int NOT NULL DEFAULT '0',
   `DepartureEventID` int NOT NULL DEFAULT '0',
@@ -10465,4 +10515,4 @@ CREATE TABLE `world_state_expression` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-07-14  8:24:54
+-- Dump completed on 2023-10-06  0:40:56

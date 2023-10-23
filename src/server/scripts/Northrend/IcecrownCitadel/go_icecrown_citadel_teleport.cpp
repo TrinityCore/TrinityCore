@@ -75,7 +75,7 @@ class icecrown_citadel_teleport : public GameObjectScript
                 if (TransportBase* transport = player->GetTransport())
                     transport->RemovePassenger(player);
 
-                player->CastSpell(player, spell->Id, true);
+                me->CastSpell(player, spell->Id, true);
                 return true;
             }
         };

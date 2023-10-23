@@ -841,7 +841,7 @@ CharactersPerRealm = 60
 
 #
 #    CharacterCreating.EvokersPerRealm
-#        Description: Limit number of death knight characters per account on this realm.
+#        Description: Limit number of evokers per account on this realm.
 #        Range:       1-60
 #        Default:     1
 
@@ -858,7 +858,7 @@ CharacterCreating.MinLevelForDemonHunter = 0
 
 #
 #    CharacterCreating.MinLevelForEvoker
-#        Description: Limit creating demon hunters only for account with another
+#        Description: Limit creating evokers only for account with another
 #                     character of specific level.
 #        Default:     50  - (Enabled, Requires at least another level 50 character)
 #                     0  - (Disabled, No requirement)

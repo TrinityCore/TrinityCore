@@ -58,6 +58,19 @@ namespace MMAP
     // contrib/extractor/system.cpp
     // src/game/Map.cpp
 
+    struct OffMeshData
+    {
+        uint32 MapId;
+        uint32 TileX;
+        uint32 TileY;
+        float From[3];
+        float To[3];
+        bool Bidirectional;
+        float Radius;
+        uint8 AreaId;
+        uint16 Flags;
+    };
+
     struct MeshData
     {
         G3D::Array<float> solidVerts;
@@ -83,7 +96,7 @@ namespace MMAP
 
             void loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData);
             bool loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData);
-            void loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, char const* offMeshFilePath);
+            void loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, std::vector<OffMeshData> const& offMeshConnections);
 
             bool usesLiquids() const { return !m_skipLiquid; }
 

@@ -211,16 +211,6 @@ class LinkedListHead
                 bool operator==(Iterator const& _Right) const = default;
                                                             // test for iterator equality
 
-                bool operator==(pointer const& _Right) const
-                {                                           // test for pointer equality
-                    return (_Ptr != _Right);
-                }
-
-                bool operator==(const_reference _Right) const
-                {                                           // test for reference equality
-                    return (_Ptr == &_Right);
-                }
-
             protected:
                 pointer _Ptr;                               // pointer to node
         };

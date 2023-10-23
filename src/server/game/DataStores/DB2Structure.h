@@ -545,6 +545,21 @@ struct BroadcastTextDurationEntry
     int32 Duration;
 };
 
+struct Cfg_CategoriesEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    uint16 LocaleMask;
+    uint8 CreateCharsetMask;
+    uint8 ExistingCharsetMask;
+    uint8 Flags;
+    int8 Order;
+
+    EnumFlag<CfgCategoriesCharsets> GetCreateCharsetMask() const { return static_cast<CfgCategoriesCharsets>(CreateCharsetMask); }
+    EnumFlag<CfgCategoriesCharsets> GetExistingCharsetMask() const { return static_cast<CfgCategoriesCharsets>(ExistingCharsetMask); }
+    EnumFlag<CfgCategoriesFlags> GetFlags() const { return static_cast<CfgCategoriesFlags>(Flags); }
+};
+
 struct Cfg_RegionsEntry
 {
     uint32 ID;
@@ -602,6 +617,9 @@ struct ChatChannelsEntry
     int32 Flags;
     int8 FactionGroup;
     int32 Ruleset;
+
+    EnumFlag<ChatChannelFlags> GetFlags() const { return static_cast<ChatChannelFlags>(Flags); }
+    ChatChannelRuleset GetRuleset() const { return static_cast<ChatChannelRuleset>(Ruleset); }
 };
 
 struct ChrClassUIDisplayEntry
@@ -1114,6 +1132,8 @@ struct CriteriaEntry
         int32 AchievementID;
 
         // CriteriaType::CompleteQuestsInZone                       = 11
+        // CriteriaType::EnterTopLevelArea                          = 225
+        // CriteriaType::LeaveTopLevelArea                          = 226
         int32 ZoneID;
 
         // CriteriaType::CurrencyGained                             = 12
@@ -1147,8 +1167,6 @@ struct CriteriaEntry
         // CriteriaType::PVPKillInArea                              = 31
         // CriteriaType::EnterArea                                  = 163
         // CriteriaType::LeaveArea                                  = 164
-        // CriteriaType::EnterTopLevelArea                          = 225
-        // CriteriaType::LeaveTopLevelArea                          = 226
         int32 AreaID;
 
         // CriteriaType::AcquireItem                                = 36
@@ -2745,6 +2763,7 @@ struct MapEntry
     {
         return ID == 609 || // Acherus (DeathKnight Start)
             ID == 1265 ||   // Assault on the Dark Portal (WoD Intro)
+            ID == 1481 ||   // Mardum (DH Start)
             ID == 2175 ||   // Exiles Reach - NPE
             ID == 2570;     // Forbidden Reach (Dracthyr/Evoker Start)
     }
