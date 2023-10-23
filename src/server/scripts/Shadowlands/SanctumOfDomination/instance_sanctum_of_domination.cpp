@@ -197,11 +197,7 @@ public:
 
                             for (ObjectGuid const& spikeGUID : TorghastSpikeGUIDs)
                                 if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
-                                    torghastSpike->SetSpellVisualId(0);
-
-                            for (ObjectGuid const& invisibleWallGUID : InvisibleWallPhaseTwoGUIDs)
-                                if (GameObject* invisibleWall = instance->GetGameObject(invisibleWallGUID))
-                                    invisibleWall->Respawn();
+                                    torghastSpike->SetSpellVisualId(SPELL_VISUAL_NONE);
 
                             SylvanasIntermissionData = 0;
                             break;
@@ -399,7 +395,6 @@ public:
     protected:
         EventMap Events;
         std::vector<ObjectGuid> TorghastSpikeGUIDs;
-        std::vector<ObjectGuid> InvisibleWallPhaseTwoGUIDs;
         std::vector<ObjectGuid> SylvanasShadowcopyGUIDs;
         uint8 SylvanasIntroductionState;
         uint8 SylvanasIntermissionData;

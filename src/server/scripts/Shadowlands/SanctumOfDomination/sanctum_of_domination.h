@@ -20,8 +20,8 @@
 
 #include "CreatureAIImpl.h"
 
-#define DataHeader "SanctumOfDominationScriptName"
-#define SODScriptName "instance_sanctum_of_domination"
+#define DataHeader "SanctumOfDomination"
+#define SanctumOfDominationScriptName "instance_sanctum_of_domination"
 
 uint32 const EncounterCount = 10;
 
@@ -124,6 +124,11 @@ enum SanctumOfDominationAreas
     AREA_EDGE_OF_THE_ABYSS                     = 13654,
     AREA_VOID_IN_EDGE_OF_THE_ABYSS             = 13561,
     AREA_THE_CRUCIBLE                          = 13655
+};
+
+enum SactumOfDominationSpellVisuals
+{
+    SPELL_VISUAL_NONE                          = 0
 };
 
 enum SanctumofDominationWorldStates
