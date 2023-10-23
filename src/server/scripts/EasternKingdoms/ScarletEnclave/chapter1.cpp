@@ -23,6 +23,7 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Log.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
