@@ -2234,7 +2234,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     me->SendPlayOrphanSpellVisual(SylvanasPhase2PrePos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                     me->NearTeleportTo(SylvanasPhase2PrePos);
                     break;
-                
+
                 case EVENT_SHADOW_DAGGER_TALK:
                     Talk(TALK_SHADOW_DAGGER);
                     break;
