@@ -188,6 +188,9 @@ enum SylvanasEventGroups
 
 enum SylvanasEvents
 {
+    /* Note: these events have gaps because we're reusing the name while adding a given size to it. Thus, we avoid
+       having to enumerate a thousand events, especially because many things happen under the same event name. */
+
     EVENT_INTRODUCTION                                     = 1,
     EVENT_WINDRUNNER                                       = 22,
     EVENT_WITHERING_FIRE                                   = 34,
@@ -288,7 +291,7 @@ enum SylvanasSpawnGroups
 
 enum SylvanasPoints
 {
-    POINT_INTRODUCTION                                     = 1
+    POINT_INTRODUCTION                                     = 0
 };
 
 enum SylvanasSpellVisualKits
@@ -1253,7 +1256,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                         _scheduler.Schedule(2s, [this, falseArrowPos](TaskContext /*task*/)
                         {
                             if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                            sylvanas->CastSpell(falseArrowPos, SPELL_DOMINATION_ARROW_FALL, true);
+                                sylvanas->CastSpell(falseArrowPos, SPELL_DOMINATION_ARROW_FALL, true);
                         });
                     }
 
@@ -1274,7 +1277,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                                     if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                                         sylvanas->CastSpell(dominationArrow, SPELL_DOMINATION_ARROW_FALL_AND_VISUAL, true);
 
-                                    if (me->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID || me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+                                    if (IsHeroicOrHigher())
                                         dominationArrow->CastSpell(dominationArrow, SPELL_DOMINATION_ARROW_CALAMITY_VISUAL);
                                 }
                             });
@@ -1352,9 +1355,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         for (Unit* target : targetedPlayers)
         {
-            float speed = 48.0f;
-
-            me->SendPlaySpellVisual(target, SPELL_VISUAL_WITHERING_FIRE_PHASE_ONE, 0, 0, speed, false);
+            me->SendPlaySpellVisual(target, SPELL_VISUAL_WITHERING_FIRE_PHASE_ONE, 0, 0, 48.0f, false);
 
             ObjectGuid targetGUID = target->GetGUID();
 
@@ -1363,8 +1364,8 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             _scheduler.Schedule(Milliseconds(timer), [this, targetGUID](TaskContext /*task*/)
             {
                 if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
-                    sylvanas->CastSpell(target, SPELL_WITHERING_FIRE);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
+                        sylvanas->CastSpell(target, SPELL_WITHERING_FIRE);
             });
         }
     }
@@ -1404,7 +1405,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 {
                     DoCastSelf(SPELL_DESECRATING_SHOT_JUMP_FRONT);
 
-                sylvanas->SetNameplateAttachToGUID(me->GetGUID());
+                    sylvanas->SetNameplateAttachToGUID(me->GetGUID());
                 });
 
                 _scheduler.Schedule(146ms, [this, sylvanas](TaskContext /*task*/)
@@ -1421,7 +1422,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 {
                     _desecratingShotStorage.clear();
 
-                sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
+                    sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
                 });
                 break;
             }
@@ -1457,7 +1458,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 _scheduler.Schedule(215ms, [this, shootingPos, sylvanas](TaskContext /*task*/)
                 {
                     sylvanas->SetNameplateAttachToGUID(me->GetGUID());
-                me->CastSpell(shootingPos, SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
+                    me->CastSpell(shootingPos, SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
                 });
 
                 _scheduler.Schedule(240ms, [this](TaskContext /*task*/)
@@ -1469,12 +1470,12 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 {
                     _desecratingShotStorage.clear();
 
-                if (copyIndex == 0)
-                {
-                    me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.5f, true, false);
+                    if (copyIndex == 0)
+                    {
+                        me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.5f, true, false);
 
-                    sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
-                }
+                        sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
+                    }
                 });
                 break;
             }
@@ -1503,20 +1504,20 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             _scheduler.Schedule(Milliseconds(timer), [this, desecratingShot](TaskContext /*task*/)
             {
                 Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
-            if (!sylvanas)
-                return;
+                if (!sylvanas)
+                    return;
 
-            sylvanas->CastSpell(desecratingShot.Pos, SPELL_DESECRATING_SHOT_TRIGGERED, true);
+                sylvanas->CastSpell(desecratingShot.Pos, SPELL_DESECRATING_SHOT_TRIGGERED, true);
 
-            std::vector<AreaTrigger*> desecratingShots = sylvanas->GetAreaTriggers(SPELL_DESECRATING_SHOT_AREATRIGGER);
+                std::vector<AreaTrigger*> desecratingShots = sylvanas->GetAreaTriggers(SPELL_DESECRATING_SHOT_AREATRIGGER);
 
-            for (AreaTrigger* desecratingAreatrigger : desecratingShots)
-            {
-                if (desecratingAreatrigger->GetPosition() != desecratingShot.Pos)
-                    continue;
+                for (AreaTrigger* desecratingAreatrigger : desecratingShots)
+                {
+                    if (desecratingAreatrigger->GetPosition() != desecratingShot.Pos)
+                        continue;
 
-                desecratingAreatrigger->Remove();
-            }
+                    desecratingAreatrigger->Remove();
+                }
             });
         }
     }
@@ -1761,8 +1762,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     Talk(TALK_WINDRUNNER_ANNOUNCE);
 
-                    // Note: no SPELL_START or SPELL_GO in the sniff.
-                    me->AddAura(SPELL_RANGER_BOW_STANCE, me);
+                    DoCastSelf(SPELL_RANGER_BOW_STANCE, CastSpellExtraArgs(TRIGGERED_NONE).SetCustomArg(false));
 
                     HandleWindrunner();
                     break;
@@ -1870,8 +1870,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     me->m_Events.KillAllEvents(true);
 
-                    // Note: no SPELL_START or SPELL_GO.
-                    me->AddAura(SPELL_RANGER_BOW_STANCE, me);
+                    DoCastSelf(SPELL_RANGER_BOW_STANCE, CastSpellExtraArgs(TRIGGERED_NONE).SetCustomArg(false));
 
                     if (Creature* shadowCopy = GetShadowcopy(instance, DATA_INDEX_00))
                         shadowCopy->GetAI()->DoAction(ACTION_START_DOMINATION_CHAINS);
@@ -2284,7 +2283,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     break;
 
                 case DATA_MELEE_COMBO_SWITCH_TO_RANGED:
-                    DoCastSelf(SPELL_RANGER_BOW_STANCE);
+                    DoCastSelf(SPELL_RANGER_BOW_STANCE, CastSpellExtraArgs(TRIGGERED_NONE).SetCustomArg(false));
                     _eventCounter[EVENT_COUNTER_MELEE_COMBO]++;
                     break;
 
@@ -2558,42 +2557,29 @@ struct boss_sylvanas_windrunner : public BossAI
                 }
                 else
                 {
-                    if (amount == 2)
+                    uint8 step = 70;
+
+                    switch (amount)
                     {
-                        Position rightLineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
-
-                        if (IsArrowPositionValid(rightLineFront, 50, additionalMilliseconds))
-                            arrowPositions.push_back(rightLineFront);
-
-                        Position rightLineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
-
-                        if (IsArrowPositionValid(rightLineBack, 50, additionalMilliseconds))
-                            arrowPositions.push_back(rightLineBack);
+                        case 2:
+                            step = 50;
+                            break;
+                        case 1:
+                            step = 60;
+                            break;
+                        default:
+                            break;
                     }
-                    else if (amount == 1)
-                    {
-                        Position middleLineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
 
-                        if (IsArrowPositionValid(middleLineFront, 60, additionalMilliseconds))
-                            arrowPositions.push_back(middleLineFront);
+                    Position lineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
 
-                        Position middleLineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
+                    if (IsArrowPositionValid(lineFront, step, additionalMilliseconds))
+                        arrowPositions.push_back(lineFront);
 
-                        if (IsArrowPositionValid(middleLineBack, 60, additionalMilliseconds))
-                            arrowPositions.push_back(middleLineBack);
-                    }
-                    else
-                    {
-                        Position leftLineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
+                    Position lineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
 
-                        if (IsArrowPositionValid(leftLineFront, 70, additionalMilliseconds))
-                            arrowPositions.push_back(leftLineFront);
-
-                        Position leftLineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
-
-                        if (IsArrowPositionValid(leftLineBack, 70, additionalMilliseconds))
-                            arrowPositions.push_back(leftLineBack);
-                    }
+                    if (IsArrowPositionValid(lineBack, step, additionalMilliseconds))
+                        arrowPositions.push_back(lineBack);
                 }
 
                 // Note: after hours of research and Pitagoras, each part of the arrow has a different travelSpeed.
@@ -2615,17 +2601,23 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 if (step != 1)
                 {
-                    Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionZ());
+                    float leftOrientation = orientation + 120.0f + float(10 * step);
+
+                    Position spiralLeft(pos.GetPositionX() + (std::cos(leftOrientation * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin(leftOrientation * float(M_PI) / 180) * distance), pos.GetPositionZ());
 
                     if (IsArrowPositionValid(spiralLeft, step, 24))
                         arrowPositions.push_back(spiralLeft);
 
-                    Position spiralRight(pos.GetPositionX() + (std::cos((orientation + 240.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 240.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionZ());
+                    float rightOrientation = orientation + 240.0f + float(10 * step);
+
+                    Position spiralRight(pos.GetPositionX() + (std::cos(rightOrientation * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin(rightOrientation * float(M_PI) / 180) * distance), pos.GetPositionZ());
 
                     if (IsArrowPositionValid(spiralRight, step, 24))
                         arrowPositions.push_back(spiralRight);
 
-                    Position spiralFront(pos.GetPositionX() + (std::cos((orientation + 360.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 360.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionZ());
+                    float frontOrientation = orientation + 360.0f + float(10 * step);
+
+                    Position spiralFront(pos.GetPositionX() + (std::cos(frontOrientation * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin(frontOrientation * float(M_PI) / 180) * distance), pos.GetPositionZ());
 
                     if (IsArrowPositionValid(spiralFront, step, 24))
                         arrowPositions.push_back(spiralFront);
@@ -2634,7 +2626,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetShadowcopyCastAI(instance, amount))
                     {
-                        shadowCopyAI->StoreDesecratingShots(pos, 0, 0.165999993681907653);
+                        shadowCopyAI->StoreDesecratingShots(pos, 0, 0.165999993681907653f);
 
                         scheduler.Schedule(Milliseconds(step * 16), [this, pos](TaskContext /*task*/)
                         {
@@ -2702,13 +2694,13 @@ struct boss_sylvanas_windrunner : public BossAI
                 scheduler.Schedule(300ms, [this, pattern](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = GetShadowcopyCastAI(instance, DATA_INDEX_01))
-                    shadowCopy1AI->StartDesecratingShotEvent(pattern, 1);
+                        shadowCopy1AI->StartDesecratingShotEvent(pattern, 1);
                 });
 
                 scheduler.Schedule(600ms, [this, pattern](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetShadowcopyCastAI(instance, DATA_INDEX_00))
-                    shadowCopyAI->StartDesecratingShotEvent(pattern, 0);
+                        shadowCopyAI->StartDesecratingShotEvent(pattern, 0);
                 });
                 break;
             }
@@ -2949,19 +2941,23 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
 
     void HandleOnCast()
     {
-        Unit* caster = GetCaster();
+        bool const* isTriggeredByHeartseeker = std::any_cast<bool>(&GetSpell()->m_customArg);
+        if (isTriggeredByHeartseeker == false && *isTriggeredByHeartseeker)
+        {
+            Unit* caster = GetCaster();
 
-        caster->RemoveAura(SPELL_RANGER_DAGGERS_STANCE);
+            caster->RemoveAura(SPELL_RANGER_DAGGERS_STANCE);
 
-        caster->CastSpell(caster, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1600));
+            caster->CastSpell(caster, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1600));
 
-        caster->SendPlaySpellVisualKit(RAND(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW, SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN), 0, 0);
+            caster->SendPlaySpellVisualKit(RAND(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW, SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN), 0, 0);
 
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(16ms));
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(359ms));
+            caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(16ms));
+            caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(359ms));
 
-        if (caster->IsInCombat())
-            caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(859ms));
+            if (caster->IsInCombat())
+                caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(859ms));
+        }
     }
 
     void Register() override
@@ -3156,43 +3152,49 @@ class spell_sylvanas_windrunner_heartseeker : public SpellScript
     class HeartseekerDamageEvent : public BasicEvent
     {
     public:
-        HeartseekerDamageEvent(Unit* actor, Unit* victim) : _actor(actor), _victim(victim) {}
+        HeartseekerDamageEvent(Unit* actor, ObjectGuid targetGUID) : _actor(actor), _targetGUID(targetGUID) {}
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            _actor->CastSpell(_victim, SPELL_RANGER_HEARTSEEKER_PHYSICAL_DAMAGE, true);
-            _actor->CastSpell(_victim, SPELL_RANGER_HEARTSEEKER_SHADOW_DAMAGE, true);
+            Unit* target = ObjectAccessor::GetUnit(*_actor, _targetGUID);
+            if (!target)
+                return false;
 
+            _actor->CastSpell(target, SPELL_RANGER_HEARTSEEKER_PHYSICAL_DAMAGE, true);
+            _actor->CastSpell(target, SPELL_RANGER_HEARTSEEKER_SHADOW_DAMAGE, true);
             return true;
         }
 
     private:
         Unit* _actor;
-        Unit* _victim;
+        ObjectGuid _targetGUID;
     };
 
     class HeartseekerMissileEvent : public BasicEvent
     {
     public:
-        HeartseekerMissileEvent(Unit* actor, Unit* victim) : _actor(actor), _victim(victim) {}
+        HeartseekerMissileEvent(Unit* actor, ObjectGuid targetGUID) : _actor(actor), _targetGUID(targetGUID) {}
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            _actor->SendPlaySpellVisual(_victim, SPELL_VISUAL_HEARTSEEKER, 0, 0, 36.0f, false);
+            Unit* target = ObjectAccessor::GetUnit(*_actor, _targetGUID);
+            if (!target)
+                return false;
 
-            uint32 timer = uint32(_actor->GetDistance(_victim) * 0.0277 * 1000);
+            _actor->SendPlaySpellVisual(target, SPELL_VISUAL_HEARTSEEKER, 0, 0, 36.0f, false);
+
+            uint32 timer = uint32(_actor->GetDistance(target) * 0.0277 * 1000);
 
             if (Aura* heartseeker = _actor->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE))
                 heartseeker->ModStackAmount(-1, AuraRemoveMode::AURA_REMOVE_BY_DEFAULT);
 
-            _actor->m_Events.AddEvent(new HeartseekerDamageEvent(_actor, _victim), _actor->m_Events.CalculateTime(Milliseconds(timer)));
-
+            _actor->m_Events.AddEvent(new HeartseekerDamageEvent(_actor, _targetGUID), _actor->m_Events.CalculateTime(Milliseconds(timer)));
             return true;
         }
 
     private:
         Unit* _actor;
-        Unit* _victim;
+        ObjectGuid _targetGUID;
     };
 
     bool Validate(SpellInfo const* spellInfo) override
@@ -3204,8 +3206,8 @@ class spell_sylvanas_windrunner_heartseeker : public SpellScript
     {
         Unit* caster = GetCaster();
 
-        // Note: there's only a SMSG_AURA_UPDATE sent after SMSG_SPELL_START. There's no SMSG_SPELL_START or SMSG_SPELL_GO for this case.
-        caster->AddAura(SPELL_RANGER_BOW_STANCE, caster);
+        // Note: there's no SMSG_SPELL_START or SMSG_SPELL_GO, but we must cast serverside. That's why we will prevent the SpellScript from doing anything with customArg.
+        caster->CastSpell(caster, SPELL_RANGER_BOW_STANCE, CastSpellExtraArgs(TRIGGERED_NONE).SetCustomArg(true));
 
         caster->CastSpell(caster, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3750));
 
@@ -3229,9 +3231,9 @@ class spell_sylvanas_windrunner_heartseeker : public SpellScript
 
         caster->SetInFront(target);
 
-        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target), caster->m_Events.CalculateTime(0ms));
-        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target), caster->m_Events.CalculateTime(265ms));
-        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target), caster->m_Events.CalculateTime(562ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target->GetGUID()), caster->m_Events.CalculateTime(0ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target->GetGUID()), caster->m_Events.CalculateTime(265ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target->GetGUID()), caster->m_Events.CalculateTime(562ms));
     }
 
     void Register() override
@@ -3641,9 +3643,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_damage : public SpellScript
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_VEIL_OF_DARKNESS_ABSORB_AURA, GetCastDifficulty());
 
-        uint8 stackAmount = spellInfo->GetEffect(EFFECT_4).CalcValue() - 1;
-
-        for (stackAmount; stackAmount > 0; stackAmount--)
+        for (uint8 stackAmount = spellInfo->GetEffect(EFFECT_4).CalcValue() - 1; stackAmount > 0; stackAmount--)
             caster->CastSpell(GetHitUnit(), SPELL_VEIL_OF_DARKNESS_ABSORB_AURA, true);
     }
 
@@ -3658,21 +3658,27 @@ class spell_sylvanas_windrunner_veil_of_darkness_periodic : public AuraScript
 {
     class VeilOfDarknessSpreadEvent : public BasicEvent
     {
-        public:
-        VeilOfDarknessSpreadEvent(Unit* actor, Unit* target) : _actor(actor), _target(target)
-        {
-        }
+    public:
+        VeilOfDarknessSpreadEvent(Unit* actor, ObjectGuid targetGUID) : _actor(actor), _targetGUID(targetGUID) {}
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            if (Creature* sylvanas = _actor->GetInstanceScript()->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                sylvanas->CastSpell(_target, SPELL_VEIL_OF_DARKNESS_ABSORB_AURA, true);
+            Unit* target = ObjectAccessor::GetUnit(*_actor, _targetGUID);
+            if (!target)
+                return false;
+
+            InstanceScript* instance = _actor->GetInstanceScript();
+            if (!instance)
+                return false;
+
+            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                sylvanas->CastSpell(target, SPELL_VEIL_OF_DARKNESS_ABSORB_AURA, true);
             return true;
         }
 
     private:
         Unit* _actor;
-        Unit* _target;
+        ObjectGuid _targetGUID;
     };
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -3702,7 +3708,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_periodic : public AuraScript
         for (Player* spreadTarget : playerList)
         {
             target->SendPlaySpellVisual(spreadTarget, SPELL_VISUAL_VEIL_OF_DARKNESS_SPREAD, 0, 0, 0.60f, true);
-            target->m_Events.AddEvent(new VeilOfDarknessSpreadEvent(target, spreadTarget), target->m_Events.CalculateTime(600ms));
+            target->m_Events.AddEvent(new VeilOfDarknessSpreadEvent(target, spreadTarget->GetGUID()), target->m_Events.CalculateTime(600ms));
         }
 
         veilOfDarknessDebuff->ModStackAmount(veilOfDarknessDebuff->GetStackAmount() - targetSize);
@@ -4665,7 +4671,7 @@ public:
                 break;
 
             case EVENT_INTRODUCTION + 18:
-                sylvanas->CastSpell(sylvanas, SPELL_RANGER_BOW_STANCE);
+                sylvanas->CastSpell(sylvanas, SPELL_RANGER_BOW_STANCE, CastSpellExtraArgs(TRIGGERED_NONE).SetCustomArg(false));
                 _events.ScheduleEvent(EVENT_INTRODUCTION + 19, 16ms);
                 break;
 
