@@ -233,8 +233,14 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             createProperties.ScriptId = sObjectMgr->GetScriptId(fields[20].GetString());
 
             if (shape == AREATRIGGER_TYPE_POLYGON)
+            {
                 if (createProperties.Shape.PolygonDatas.Height <= 0.0f)
+                {
                     createProperties.Shape.PolygonDatas.Height = 1.0f;
+                    if (createProperties.Shape.PolygonDatas.HeightTarget <= 0.0f)
+                        createProperties.Shape.PolygonDatas.HeightTarget = 1.0f;
+                }
+            }
 
             createProperties.PolygonVertices       = std::move(verticesByCreateProperties[createProperties.Id]);
             createProperties.PolygonVerticesTarget = std::move(verticesTargetByCreateProperties[createProperties.Id]);

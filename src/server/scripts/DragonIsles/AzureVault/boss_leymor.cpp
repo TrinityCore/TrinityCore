@@ -317,7 +317,7 @@ struct npc_ley_line_sprouts : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (GetDifficulty() == DIFFICULTY_MYTHIC || GetDifficulty() == DIFFICULTY_MYTHIC_KEYSTONE)
+        if (IsMythic() || IsMythicPlus())
             DoCastAOE(SPELL_VOLATILE_SAPLING, true);
 
         if (TempSummon* tempSummon = me->ToTempSummon())

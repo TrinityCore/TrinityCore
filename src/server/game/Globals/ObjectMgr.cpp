@@ -24,6 +24,7 @@
 #include "Chat.h"
 #include "Containers.h"
 #include "CreatureAIFactory.h"
+#include "CriteriaHandler.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
@@ -2377,6 +2378,19 @@ void ObjectMgr::LoadCreatures()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} creatures in {} ms", _creatureDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+CellObjectGuids const* ObjectMgr::GetCellObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 cell_id)
+{
+    if (CellObjectGuidsMap const* mapGuids = Trinity::Containers::MapGetValuePtr(_mapObjectGuidsStore, { mapid, spawnMode }))
+        return Trinity::Containers::MapGetValuePtr(*mapGuids, cell_id);
+
+    return nullptr;
+}
+
+CellObjectGuidsMap const* ObjectMgr::GetMapObjectGuids(uint32 mapid, Difficulty spawnMode)
+{
+    return Trinity::Containers::MapGetValuePtr(_mapObjectGuidsStore, { mapid, spawnMode });
 }
 
 bool ObjectMgr::HasPersonalSpawns(uint32 mapid, Difficulty spawnMode, uint32 phaseId) const
@@ -5880,6 +5894,26 @@ void ObjectMgr::LoadEventSet()
                 _eventStore.insert(node->DepartureEventID);
         }
     }
+
+    // Load all possible event ids from criterias
+    auto addCriteriaEventsToStore = [&](CriteriaList const& criteriaList)
+    {
+        for (Criteria const* criteria : criteriaList)
+            if (criteria->Entry->Asset.EventID)
+                _eventStore.insert(criteria->Entry->Asset.EventID);
+    };
+
+    std::array<CriteriaType, 2> eventCriteriaTypes = { CriteriaType::PlayerTriggerGameEvent, CriteriaType::AnyoneTriggerGameEventScenario };
+    for (CriteriaType criteriaType : eventCriteriaTypes)
+    {
+        addCriteriaEventsToStore(sCriteriaMgr->GetPlayerCriteriaByType(criteriaType, 0));
+        addCriteriaEventsToStore(sCriteriaMgr->GetGuildCriteriaByType(criteriaType));
+        addCriteriaEventsToStore(sCriteriaMgr->GetQuestObjectiveCriteriaByType(criteriaType));
+    }
+
+    for (ScenarioEntry const* scenario : sScenarioStore)
+        for (CriteriaType criteriaType : eventCriteriaTypes)
+            addCriteriaEventsToStore(sCriteriaMgr->GetScenarioCriteriaByTypeAndScenario(criteriaType, scenario->ID));
 }
 
 void ObjectMgr::LoadEventScripts()
@@ -5894,7 +5928,7 @@ void ObjectMgr::LoadEventScripts()
     for (ScriptMapMap::const_iterator itr = sEventScripts.begin(); itr != sEventScripts.end(); ++itr)
     {
         if (!IsValidEvent(itr->first))
-            TC_LOG_ERROR("sql.sql", "Table `event_scripts` has script (Id: {}) not referring to any gameobject_template (data field referencing GameEvent), any taxi path node or any spell effect {}",
+            TC_LOG_ERROR("sql.sql", "Table `event_scripts` has script (Id: {}) not referring to any gameobject_template (data field referencing GameEvent), any taxi path node, any criteria asset or any spell effect {}",
                 itr->first, SPELL_EFFECT_SEND_EVENT);
     }
 
@@ -5918,7 +5952,7 @@ void ObjectMgr::LoadEventScripts()
 
         if (!IsValidEvent(eventId))
         {
-            TC_LOG_ERROR("sql.sql", "Event (ID: {}) not referring to any gameobject_template (data field referencing GameEvent), any taxi path node or any spell effect {}",
+            TC_LOG_ERROR("sql.sql", "Event (ID: {}) not referring to any gameobject_template (data field referencing GameEvent), any taxi path node, any criteria asset or any spell effect {}",
                 eventId, SPELL_EFFECT_SEND_EVENT);
             continue;
         }

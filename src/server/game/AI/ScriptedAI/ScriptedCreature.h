@@ -237,12 +237,13 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         void SetCombatMovement(bool allowMovement);
         bool IsCombatMovementAllowed() const { return _isCombatMovementAllowed; }
 
-        // return true for heroic mode. i.e.
-        //   - for dungeon in mode 10-heroic,
-        //   - for raid in mode 10-Heroic
-        //   - for raid in mode 25-heroic
-        // DO NOT USE to check raid in mode 25-normal.
-        bool IsHeroic() const { return _isHeroic; }
+        bool IsLFR() const;
+        bool IsNormal() const;
+        bool IsHeroic() const;
+        bool IsMythic() const;
+        bool IsMythicPlus() const;
+        bool IsHeroicOrHigher() const;
+        bool IsTimewalking() const;
 
         // return the dungeon or raid difficulty
         Difficulty GetDifficulty() const { return _difficulty; }
@@ -305,7 +306,6 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     private:
         Difficulty _difficulty;
         bool _isCombatMovementAllowed;
-        bool _isHeroic;
 };
 
 class TC_GAME_API BossAI : public ScriptedAI
