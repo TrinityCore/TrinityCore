@@ -2173,8 +2173,18 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
     Unit const* unitTarget = target->ToUnit();
 
     if (HasAttribute(SPELL_ATTR8_ONLY_TARGET_IF_SAME_CREATOR))
-        if (caster != target && caster->GetGUID() != target->GetOwnerGUID())
+    {
+        auto getCreatorOrSelf = [](WorldObject const* obj)
+        {
+            ObjectGuid creator = obj->GetCreatorGUID();
+            if (creator.IsEmpty())
+                creator = obj->GetGUID();
+
+            return creator;
+        };
+        if (getCreatorOrSelf(caster) != getCreatorOrSelf(target))
             return SPELL_FAILED_BAD_TARGETS;
+    }
 
     // creature/player specific target checks
     if (unitTarget)
