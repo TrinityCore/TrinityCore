@@ -860,8 +860,7 @@ struct boss_anduin_wrynn : public BossAI
     {
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-        events.ScheduleEvent(EVENT_INTERMISSION_ONE, 5s);
-        //PhaseEvents(PHASE_ONE);
+        PhaseEvents(PHASE_ONE);
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, PHASE_ONE);
         Talk(SAY_AGGRO);
         scheduler.Schedule(10s, [this](TaskContext /*task*/)
