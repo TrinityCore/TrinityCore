@@ -642,7 +642,7 @@ struct DesecratingShotsStorage
 
 namespace SylvanasEventHelpers
 {
-    uint8 const GetDifficultyForTimer(Creature* creature)
+    uint8 GetDifficultyForTimer(Creature* creature)
     {
         uint8 difficulty = 0;
 
@@ -667,7 +667,7 @@ namespace SylvanasEventHelpers
         return difficulty;
     }
 
-    uint8 const GetWorldStatePhase(Unit* unit)
+    uint8 GetWorldStatePhase(Unit* unit)
     {
         return unit->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE);
     }
@@ -2360,12 +2360,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 SelectTargetList(targets, targetSize, SelectTargetMethod::Random, 0, 500.0f, false, true);
 
                 for (Unit* target : targets)
-                {
-                    int8 step = 1;
-
-                    while (step > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SCATTERED, targetSize, step, target->GetPosition(), target->GetOrientation()))
-                        --step;
-                }
+                    DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SCATTERED, targetSize, 1, target->GetPosition(), target->GetOrientation());
                 break;
             }
 
@@ -2446,27 +2441,40 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 float distance = 7.0f * step;
 
-                Position arrowCenter(me->GetPositionX() + (std::cos(orientation) * distance), me->GetPositionY() + (std::sin(orientation) * distance), me->GetPositionZ());
+                Position arrowCenter(me->GetPositionX() + (std::cos(orientation) * distance),
+                    me->GetPositionY() + (std::sin(orientation) * distance), me->GetPositionZ());
 
                 if (IsArrowPositionValid(arrowCenter, step, 25))
                     arrowPositions.push_back(arrowCenter);
 
-                Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionZ());
+                float innerLeftOrientation = orientation + 135.0f * float(M_PI) / 180;
+
+                Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(innerLeftOrientation) * 2.8284f),
+                    arrowCenter.GetPositionY() + (std::sin(innerLeftOrientation) * 2.8284f), arrowCenter.GetPositionZ());
 
                 if (IsArrowPositionValid(arrowInnerLeft, step, 35))
                     arrowPositions.push_back(arrowInnerLeft);
 
-                Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionZ());
+                float innerRightOrientation = orientation + -135.0f * float(M_PI) / 180;
+
+                Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(innerRightOrientation) * 2.8284f),
+                    arrowCenter.GetPositionY() + (std::sin(innerRightOrientation) * 2.8284f), arrowCenter.GetPositionZ());
 
                 if (IsArrowPositionValid(arrowInnerRight, step, 35))
                     arrowPositions.push_back(arrowInnerRight);
 
-                Position arrowOuterLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * float(M_PI) / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * float(M_PI) / 180) * 5.6568f), arrowCenter.GetPositionZ());
+                float outerLeftOrientation = orientation + 135.0f * float(M_PI) / 180;
+
+                Position arrowOuterLeft(arrowCenter.GetPositionX() + (std::cos(outerLeftOrientation) * 5.6568f),
+                    arrowCenter.GetPositionY() + (std::sin(outerLeftOrientation) * 5.6568f), arrowCenter.GetPositionZ());
 
                 if (IsArrowPositionValid(arrowOuterLeft, step, 50))
                     arrowPositions.push_back(arrowOuterLeft);
 
-                Position arrowOuterRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * float(M_PI) / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * float(M_PI) / 180) * 5.6568f), arrowCenter.GetPositionZ());
+                float outerRightOrientation = orientation + -135.0f * float(M_PI) / 180;
+
+                Position arrowOuterRight(arrowCenter.GetPositionX() + (std::cos(outerRightOrientation) * 5.6568f),
+                    arrowCenter.GetPositionY() + (std::sin(outerRightOrientation) * 5.6568f), arrowCenter.GetPositionZ());
 
                 if (IsArrowPositionValid(arrowOuterRight, step, 50))
                     arrowPositions.push_back(arrowOuterRight);
@@ -2490,12 +2498,18 @@ struct boss_sylvanas_windrunner : public BossAI
                 if (IsArrowPositionValid(arrowCenter, step, 5))
                     arrowPositions.push_back(arrowCenter);
 
-                Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * float(M_PI) / 180) * 5.196156f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * float(M_PI) / 180) * 5.196156f), arrowCenter.GetPositionZ());
+                float innerLeftOrientation = orientation + 135.0f * float(M_PI) / 180;
+
+                Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(innerLeftOrientation) * 5.196156f),
+                    arrowCenter.GetPositionY() + (std::sin(innerLeftOrientation) * 5.196156f), arrowCenter.GetPositionZ());
 
                 if (IsArrowPositionValid(arrowInnerLeft, step, 500))
                     arrowPositions.push_back(arrowInnerLeft);
 
-                Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * float(M_PI) / 180) * 5.196156f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * float(M_PI) / 180) * 5.196156f), arrowCenter.GetPositionZ());
+                float innerRightOrientation = orientation + -135.0f * float(M_PI) / 180;
+
+                Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(innerRightOrientation) * 5.196156f),
+                    arrowCenter.GetPositionY() + (std::sin(innerRightOrientation) * 5.196156f), arrowCenter.GetPositionZ());
 
                 if (IsArrowPositionValid(arrowInnerRight, step, 1000))
                     arrowPositions.push_back(arrowInnerRight);
@@ -2571,12 +2585,16 @@ struct boss_sylvanas_windrunner : public BossAI
                             break;
                     }
 
-                    Position lineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
+                    float frontOrientation = orientation + 90.0f * float(M_PI) / 180;
+
+                    Position lineFront(pos.GetPositionX() + (std::cos(frontOrientation) * pointDistance), pos.GetPositionY() + (std::sin(frontOrientation) * pointDistance), pos.GetPositionZ());
 
                     if (IsArrowPositionValid(lineFront, step, additionalMilliseconds))
                         arrowPositions.push_back(lineFront);
 
-                    Position lineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
+                    float backOrientation = orientation + -90.0f * float(M_PI) / 180;
+
+                    Position lineBack(pos.GetPositionX() + (std::cos(backOrientation) * pointDistance), pos.GetPositionY() + (std::sin(backOrientation) * pointDistance), pos.GetPositionZ());
 
                     if (IsArrowPositionValid(lineBack, step, additionalMilliseconds))
                         arrowPositions.push_back(lineBack);
@@ -2601,23 +2619,23 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 if (step != 1)
                 {
-                    float leftOrientation = orientation + 120.0f + float(10 * step);
+                    float leftOrientation = orientation + 120.0f + float(10 * step) * float(M_PI) / 180;
 
-                    Position spiralLeft(pos.GetPositionX() + (std::cos(leftOrientation * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin(leftOrientation * float(M_PI) / 180) * distance), pos.GetPositionZ());
+                    Position spiralLeft(pos.GetPositionX() + (std::cos(leftOrientation) * distance), pos.GetPositionY() + (std::sin(leftOrientation) * distance), pos.GetPositionZ());
 
                     if (IsArrowPositionValid(spiralLeft, step, 24))
                         arrowPositions.push_back(spiralLeft);
 
-                    float rightOrientation = orientation + 240.0f + float(10 * step);
+                    float rightOrientation = orientation + 240.0f + float(10 * step) * float(M_PI) / 180;
 
-                    Position spiralRight(pos.GetPositionX() + (std::cos(rightOrientation * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin(rightOrientation * float(M_PI) / 180) * distance), pos.GetPositionZ());
+                    Position spiralRight(pos.GetPositionX() + (std::cos(rightOrientation) * distance), pos.GetPositionY() + (std::sin(rightOrientation) * distance), pos.GetPositionZ());
 
                     if (IsArrowPositionValid(spiralRight, step, 24))
                         arrowPositions.push_back(spiralRight);
 
-                    float frontOrientation = orientation + 360.0f + float(10 * step);
+                    float frontOrientation = orientation + 360.0f + float(10 * step) * float(M_PI) / 180;
 
-                    Position spiralFront(pos.GetPositionX() + (std::cos(frontOrientation * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin(frontOrientation * float(M_PI) / 180) * distance), pos.GetPositionZ());
+                    Position spiralFront(pos.GetPositionX() + (std::cos(frontOrientation) * distance), pos.GetPositionY() + (std::sin(frontOrientation) * distance), pos.GetPositionZ());
 
                     if (IsArrowPositionValid(spiralFront, step, 24))
                         arrowPositions.push_back(spiralFront);
