@@ -318,6 +318,10 @@ DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=14 AND `SourceGroup`=2
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (14, 27524, 43880, 0, 0, 13, 0, 7, 3, 2, 0, 0, 0, '', 'Show option teleport to Cosmic Hub if Anduin Wrynn is done');
 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=362405 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=4 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1, 362405, 0, 0, 31, 0, 4, 0, 0, 0, 0, 0, '', 'Anduin Wrynn Kingsmourne Hungers hit Players only'); -- Kingsmourne Hungers
+
 -- Areatriggers Create Properties
 DELETE FROM `areatrigger_create_properties` WHERE `Id`IN (25025,24741,24740,24616,24599,24443,24429,24332,24322,24247,24093);
 INSERT INTO `areatrigger_create_properties` (`Id`, `AreaTriggerId`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES 
@@ -515,7 +519,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (1845890, 0, -3833, -2627.62, 79.4742, 0, 0, 1, 0, 100, 0),
 (1845890, 1, -3829.5, -2630.37, 79.7242, 0, 0, 1, 0, 100, 0),
 (1845890, 2, -3829.5, -2631.87, 79.7242, 0, 0, 1, 0, 100, 0),
-(1845890, 3, -3832, -2633.62, 78.9742, 0, 0, 0, 1, 100, 0),
+(1845890, 3, -3832, -2633.62, 78.9742, 0, 0, 1, 0, 100, 0),
 (1845890, 4, -3832.25, -2637.37, 78.2242, 0, 0, 1, 0, 100, 0),
 (1845890, 5, -3831.75, -2646.12, 78.2242, 0, 0, 1, 0, 100, 0),
 (1845890, 6, -3831.5, -2651.62, 81.2242, 0, 0, 1, 0, 100, 0),
@@ -546,20 +550,18 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 DELETE FROM `waypoint_data` WHERE `id`=1846010;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
 (1846010, 0, -3816.6367, -2631.9243, 79.808624, 0, 0, 1, 0, 100, 0),
-(1846010, 1, -3816.6367, -2634.4243, 78.808624, 0, 0, 1, 0, 100, 0),
-(1846010, 2, -3817.6367, -2636.9243, 78.308624, 0, 0, 1, 0, 100, 0),
-(1846010, 3, -3815.1367, -2639.1743, 78.308624, 0, 0, 1, 0, 100, 0),
-(1846010, 4, -3814.6367, -2641.4243, 78.558624, 0, 0, 1, 0, 100, 0),
-(1846010, 5, -3814.1367, -2643.1743, 78.558624, 0, 0, 1, 0, 100, 0),
-(1846010, 6, -3813.8867, -2644.1743, 78.808624, 0, 0, 1, 0, 100, 0),
-(1846010, 7, -3813.3867, -2645.6743, 78.808624, 0, 0, 1, 0, 100, 0),
-(1846010, 8, -3814.1367, -2658.9243, 85.558624, 0, 0, 1, 0, 100, 0),
-(1846010, 9, -3814.1367, -2667.4243, 90.308624, 0, 0, 1, 0, 100, 0),
-(1846010, 10, -3814.1367, -2669.1743, 91.058624, 0, 0, 1, 0, 100, 0),
-(1846010, 11, -3814.6367, -2670.4243, 91.308624, 0, 0, 1, 0, 100, 0),
-(1846010, 12, -3816.3867, -2672.9243, 91.308624, 0, 0, 1, 0, 100, 0),
-(1846010, 13, -3816.1367, -2677.1743, 91.558624, 0, 0, 1, 0, 100, 0),
-(1846010, 14, -3817.2275, -2682.5625, 91.525320, 0, 0, 1, 0, 100, 0);
+(1846010, 1, -3815.1367, -2639.1743, 78.308624, 0, 0, 1, 0, 100, 0),
+(1846010, 2, -3814.6367, -2641.4243, 78.558624, 0, 0, 1, 0, 100, 0),
+(1846010, 3, -3814.1367, -2643.1743, 78.558624, 0, 0, 1, 0, 100, 0),
+(1846010, 4, -3813.8867, -2644.1743, 78.808624, 0, 0, 1, 0, 100, 0),
+(1846010, 5, -3813.3867, -2645.6743, 78.808624, 0, 0, 1, 0, 100, 0),
+(1846010, 6, -3814.1367, -2658.9243, 85.558624, 0, 0, 1, 0, 100, 0),
+(1846010, 7, -3814.1367, -2667.4243, 90.308624, 0, 0, 1, 0, 100, 0),
+(1846010, 8, -3814.1367, -2669.1743, 91.058624, 0, 0, 1, 0, 100, 0),
+(1846010, 9, -3814.6367, -2670.4243, 91.308624, 0, 0, 1, 0, 100, 0),
+(1846010, 10, -3816.3867, -2672.9243, 91.308624, 0, 0, 1, 0, 100, 0),
+(1846010, 11, -3816.1367, -2677.1743, 91.558624, 0, 0, 1, 0, 100, 0),
+(1846010, 12, -3817.2275, -2682.5625, 91.525320, 0, 0, 1, 0, 100, 0);
 
 -- Spell Scripts
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (367524,366848,369317,364247,361815,361817,361818,365293,365173,361989,361993,361992,365021,362405,365652,362055,362402,367769,362392,368913,363233,365120,365872,365806,365958,365966,362500,365291,362862,362863,362771,362543,362545,363021,363022,367632,363029,365816);

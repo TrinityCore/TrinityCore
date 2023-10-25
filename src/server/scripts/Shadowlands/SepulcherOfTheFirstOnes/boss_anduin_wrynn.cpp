@@ -531,14 +531,16 @@ struct Timers : public std::list<T>
 };
 
 Timers<uint32> HopeBreakerP1{ 31900, 28000, 29900, 29900 };
-Timers<uint32> HopeBreakerP2{ 24900, 32900, 29000, 28900 };
+Timers<uint32> HopeBreakerP2{ 22000, 33300, 29000, 29000 };
+Timers<uint32> HopeBreakerP2Mythic{ 25000, 33000, 29000, 29100 };
 Timers<uint32> BefouledBarrierTimerP1{ 51900, 48000 };
 Timers<uint32> BefouledBarrierTimerP2{ 47000 };
 Timers<uint32> BlasphemyAll{ 49900, 54900 };
 Timers<uint32> DominationWordPainP1{ 13000, 13000, 10000, 15000, 13100, 12900, 13000, 13900, 12200, 14800 };
 Timers<uint32> DominationWordPainP2{ 13000, 13000, 17700, 8100, 13000, 13000, 14400, 11200, 12200 };
-Timers<uint32> WickedStarP1{ 34900, 29900 };
-Timers<uint32> WickedStarP2{ 39000, 25900, 30800, 19100 };
+Timers<uint32> WickedStarP1{ 35000, 30000 };
+Timers<uint32> WickedStarP2{ 39000, 26000, 30500, 19000 };
+Timers<uint32> WickedStarP2Mythic{ 39000, 26000, 30900, 19100 };
 
 class ActivateGhouls : public BasicEvent
 {
@@ -858,7 +860,8 @@ struct boss_anduin_wrynn : public BossAI
     {
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-        PhaseEvents(PHASE_ONE);
+        events.ScheduleEvent(EVENT_INTERMISSION_ONE, 5s);
+        //PhaseEvents(PHASE_ONE);
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, PHASE_ONE);
         Talk(SAY_AGGRO);
         scheduler.Schedule(10s, [this](TaskContext /*task*/)
@@ -1099,7 +1102,12 @@ struct boss_anduin_wrynn : public BossAI
                     if (events.IsInPhase(PHASE_ONE))
                         events.Repeat(Milliseconds(HopeBreakerP1.nextTimer()));
                     else
-                        events.Repeat(Milliseconds(HopeBreakerP2.nextTimer()));
+                    {
+                        if (me->GetMap()->GetDifficultyID() != DIFFICULTY_MYTHIC_RAID)
+                            events.Repeat(Milliseconds(HopeBreakerP2.nextTimer()));
+                        else
+                            events.Repeat(Milliseconds(HopeBreakerP2Mythic.nextTimer()));
+                    }
                     break;
                 }
 
@@ -1168,8 +1176,12 @@ struct boss_anduin_wrynn : public BossAI
                     Talk(SAY_WICKED_STAR);
                     if (events.IsInPhase(PHASE_ONE))
                         events.Repeat(Milliseconds(WickedStarP1.nextTimer()));
+                    else if (events.IsInPhase(PHASE_TWO) && (me->GetMap()->GetDifficultyID() != DIFFICULTY_MYTHIC_RAID))
+                        events.Repeat(Milliseconds(WickedStarP2.nextTimer()));
+                    else if (events.IsInPhase(PHASE_TWO) && (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID))
+                        events.Repeat(Milliseconds(WickedStarP2Mythic.nextTimer()));
                     else
-                        events.Repeat(Milliseconds(WickedStarP1.nextTimer()));
+                        events.Repeat(58500ms);
                     break;
                 }
 
@@ -1346,39 +1358,43 @@ struct boss_anduin_wrynn : public BossAI
             case PHASE_ONE:
             {
                 events.SetPhase(PHASE_ONE);
-                if (me->GetMap()->GetDifficultyID() == DIFFICULTY_LFR_NEW)
-                    DoCastSelf(SPELL_ANDUIN_WILLPOWER_PERIODIC, true);
-
-                if (me->GetMap()->GetDifficultyID() != DIFFICULTY_LFR_NEW)
-                    events.ScheduleEvent(EVENT_KINGSMOURNE_HUNGERS, 45s);
                 events.ScheduleEvent(EVENT_HOPEBREAKER, 5s);
                 events.ScheduleEvent(EVENT_BEFOULED_BARRIER, 17s);
                 events.ScheduleEvent(EVENT_BLASPHEMY, 30s);
                 events.ScheduleEvent(EVENT_WICKED_STAR, 55s);
                 events.ScheduleEvent(EVENT_DOMINATION_WORD_PAIN, 7s);
                 events.ScheduleEvent(EVENT_INTERMISSION_ONE, 150s);
+                events.ScheduleEvent(EVENT_BERSERK, 900s);
+
+                if (me->GetMap()->GetDifficultyID() == DIFFICULTY_LFR_NEW)
+                    DoCastSelf(SPELL_ANDUIN_WILLPOWER_PERIODIC, true);
+
+                if (me->GetMap()->GetDifficultyID() != DIFFICULTY_LFR_NEW)
+                    events.ScheduleEvent(EVENT_KINGSMOURNE_HUNGERS, 45s);
                 break;
             }
 
             case PHASE_TWO:
             {
                 _intermissionsDone = 1;
-                events.SetPhase(PHASE_TWO);
                 me->ModifyPower(me->GetPowerType(), 0);
+                events.SetPhase(PHASE_TWO);
+                events.ScheduleEvent(EVENT_GRIM_REFLECTIONS, 8500ms);
+                events.ScheduleEvent(EVENT_HOPEBREAKER, 13600ms);
+                events.ScheduleEvent(EVENT_WICKED_STAR, 18500ms);
+                events.ScheduleEvent(EVENT_BEFOULED_BARRIER, 80600ms);
+                events.ScheduleEvent(EVENT_INTERMISSION_TWO, 169s);
+
+                if (me->GetMap()->GetDifficultyID() != DIFFICULTY_MYTHIC_RAID)
+                    events.ScheduleEvent(EVENT_DOMINATION_WORD_PAIN, 11500ms);
+                else
+                    events.ScheduleEvent(EVENT_DOMINATION_WORD_PAIN, 10700ms);
 
                 if (me->GetMap()->GetDifficultyID() == DIFFICULTY_LFR_NEW)
                     DoCastSelf(SPELL_ANDUIN_WILLPOWER_PERIODIC, true);
 
                 if (me->GetMap()->GetDifficultyID() != DIFFICULTY_LFR_NEW)
                     events.ScheduleEvent(EVENT_KINGSMOURNE_HUNGERS, 48600ms);
-
-                events.ScheduleEvent(EVENT_GRIM_REFLECTIONS, 8500ms);
-                events.ScheduleEvent(EVENT_BEFOULED_BARRIER, 80600ms);
-                events.ScheduleEvent(EVENT_HOPEBREAKER, 13600ms);
-                events.ScheduleEvent(EVENT_WICKED_STAR, 18600ms);
-                events.ScheduleEvent(EVENT_DOMINATION_WORD_PAIN, 10600ms);
-                events.ScheduleEvent(EVENT_INTERMISSION_TWO, 169s);
-                events.ScheduleEvent(EVENT_BERSERK, 900s);
                 break;
             }
 
@@ -1388,10 +1404,14 @@ struct boss_anduin_wrynn : public BossAI
                 me->ModifyPower(me->GetPowerType(), 0);
                 events.SetPhase(PHASE_THREE);
                 Conversation::CreateConversation(CONVERSATION_ANDUIN_PHASE_THREE, me, me->GetPosition(), ObjectGuid::Empty, nullptr, true);
-                events.ScheduleEvent(EVENT_BEACON_OF_HOPE, 3s);
-                events.ScheduleEvent(EVENT_EMPOWERED_HOPEBREAKER, 11600ms);
-                events.ScheduleEvent(EVENT_HOPELESSNESS, 21800ms);
-                events.ScheduleEvent(EVENT_EMPOWERED_WICKED_STAR, 41s);
+                events.ScheduleEvent(EVENT_BEACON_OF_HOPE, 1ms);
+                events.ScheduleEvent(EVENT_EMPOWERED_HOPEBREAKER, 11500ms);
+                events.ScheduleEvent(EVENT_HOPELESSNESS, 21700ms);
+
+                if (me->GetMap()->GetDifficultyID() != DIFFICULTY_MYTHIC_RAID)
+                    events.ScheduleEvent(EVENT_WICKED_STAR, 41s);
+                else
+                    events.ScheduleEvent(EVENT_EMPOWERED_WICKED_STAR, 41s);
                 break;
             }
         }
@@ -1408,6 +1428,8 @@ struct boss_anduin_wrynn : public BossAI
                 me->SetReactState(REACT_AGGRESSIVE);
             });
 
+            scheduler.CancelAll();
+            me->SetReactState(REACT_AGGRESSIVE);
             PhaseEvents(PHASE_THREE);
 
             std::list<Creature*> fiendishSouls;
@@ -3735,18 +3757,6 @@ class spell_anduin_wrynn_kingsmourne_hungers : public SpellScript
         GetCaster()->PlayOneShotAnimKitId(ANIM_SHEATHE);
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if([](WorldObject* target) -> bool
-        {
-            if (target->GetEntry() == NPC_SYLVANAS_WINDRUNNER ||
-                target->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER ||
-                target->GetEntry() == NPC_LADY_JAINA_PROUDMOORE)
-                return true;
-            return false;
-        });
-    }
-
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
@@ -3770,7 +3780,6 @@ class spell_anduin_wrynn_kingsmourne_hungers : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anduin_wrynn_kingsmourne_hungers::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_180_DEG_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_anduin_wrynn_kingsmourne_hungers::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
         AfterCast += SpellCastFn(spell_anduin_wrynn_kingsmourne_hungers::OnCast);
     }
