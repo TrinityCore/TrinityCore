@@ -599,17 +599,17 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/, co
 
         // Outdated table or database structure - terminate core
         case ER_BAD_FIELD_ERROR:
-            TC_LOG_ERROR("sql.sql", "Bad field: Either you executed a broken TSWoW query or your database structure is not up to date: %s", sql==nullptr ? "" : sql);
+            TC_LOG_ERROR("sql.sql", "Bad field: Either you executed a broken TSWoW query or your database structure is not up to date: {}", sql==nullptr ? "" : sql);
             std::this_thread::sleep_for(std::chrono::seconds(10));
             std::abort();
             return false;
         case ER_NO_SUCH_TABLE:
-            TC_LOG_ERROR("sql.sql", "Missing table: Either you executed a broken TSWoW query or your database structure is not up to date: %s", sql==nullptr ? "" : sql);
+            TC_LOG_ERROR("sql.sql", "Missing table: Either you executed a broken TSWoW query or your database structure is not up to date: {}", sql==nullptr ? "" : sql);
             std::this_thread::sleep_for(std::chrono::seconds(10));
             ABORT();
             return false;
         case ER_PARSE_ERROR:
-            TC_LOG_ERROR("sql.sql", "Error while parsing SQL. Core fix required: %s", sql==nullptr ? "" : sql);
+            TC_LOG_ERROR("sql.sql", "Error while parsing SQL. Core fix required: {}", sql==nullptr ? "(null)" : sql);
             std::this_thread::sleep_for(std::chrono::seconds(10));
             ABORT();
             return false;
@@ -635,15 +635,15 @@ void MySQLConnection::PrepareCustomStatement(uint32 id, std::string const& sql)
     MYSQL_STMT* stmt = mysql_stmt_init(m_Mysql);
     if (!stmt)
     {
-        TC_LOG_ERROR("sql.sql", "In mysql_stmt_init(), sql: \"%s\"", sql.c_str());
-        TC_LOG_ERROR("sql.sql", "%s", mysql_error(m_Mysql));
+        TC_LOG_ERROR("sql.sql", "In mysql_stmt_init(), sql: \"{}\"", sql.c_str());
+        TC_LOG_ERROR("sql.sql", "{}", mysql_error(m_Mysql));
         return;
     }
     else
     {
         if (mysql_stmt_prepare(stmt, sql.c_str(), static_cast<unsigned long>(sql.size())))
         {
-            TC_LOG_ERROR("sql.sql", "In mysql_stmt_prepare(), sql: \"%s\" error %s", sql.c_str(),mysql_stmt_error(stmt));
+            TC_LOG_ERROR("sql.sql", "In mysql_stmt_prepare(), sql: \"{}\" error {}", sql.c_str(),mysql_stmt_error(stmt));
             mysql_stmt_close(stmt);
             return;
         }
@@ -667,7 +667,7 @@ PreparedResultSet* MySQLConnection::QueryCustomStatement(uint32 id, PreparedStat
     if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
     {
         uint32 lErrno = mysql_errno(m_Mysql);
-        TC_LOG_ERROR("sql.sql", "SQL(p): %s\n [ERROR]: [%u] %s", stmnt->getQueryString().c_str(), lErrno, mysql_stmt_error(msql_STMT));
+        TC_LOG_ERROR("sql.sql", "SQL(p): {}\n [ERROR]: [{}] {}", stmnt->getQueryString().c_str(), lErrno, mysql_stmt_error(msql_STMT));
         // TODO: exit(?)
         stmnt->ClearParameters();
         return nullptr;
@@ -676,7 +676,7 @@ PreparedResultSet* MySQLConnection::QueryCustomStatement(uint32 id, PreparedStat
     if (mysql_stmt_execute(msql_STMT))
     {
         uint32 lErrno = mysql_errno(m_Mysql);
-        TC_LOG_ERROR("sql.sql", "SQL(p): %s\n [ERROR]: [%u] %s",
+        TC_LOG_ERROR("sql.sql", "SQL(p): {}\n [ERROR]: [{}] {}",
             stmnt->getQueryString().c_str(), lErrno, mysql_stmt_error(msql_STMT));
         // TODO: exit(?)
         stmnt->ClearParameters();
@@ -684,7 +684,7 @@ PreparedResultSet* MySQLConnection::QueryCustomStatement(uint32 id, PreparedStat
     }
 
 
-    TC_LOG_DEBUG("sql.sql", "[%u ms] SQL(p): %s", getMSTimeDiff(_s, getMSTime()), stmnt->getQueryString().c_str());
+    TC_LOG_DEBUG("sql.sql", "[{} ms] SQL(p): {}", getMSTimeDiff(_s, getMSTime()), stmnt->getQueryString().c_str());
     stmnt->ClearParameters();
 
     result = reinterpret_cast<MySQLResult*>(mysql_stmt_result_metadata(msql_STMT));
