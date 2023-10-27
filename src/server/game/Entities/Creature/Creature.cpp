@@ -655,8 +655,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         }
     }
 
-    // trigger creature is always uninteractible and can not be attacked
-    if (IsTrigger())
+    // Trigger creatures without spellclick are always uninteractible and can not be attacked
+    if (IsTrigger() && !HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
         SetUninteractible(true);
 
     InitializeReactState();
