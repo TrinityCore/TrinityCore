@@ -56,7 +56,7 @@ void Transmogrification::LoadPlayerSets(Player* player)
 
     player->presetMap.clear();
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT `PresetID`, `SetName`, `SetData` FROM `custom_transmogrification_sets` WHERE Owner = %u", player->GetGUID().GetCounter());
+    QueryResult result = CharacterDatabase.PQuery("SELECT `PresetID`, `SetName`, `SetData` FROM `custom_transmogrification_sets` WHERE Owner = {}", player->GetGUID().GetCounter());
     if (!result)
         return;
 
