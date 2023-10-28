@@ -1598,7 +1598,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     // include existed nodes that have at least single not spell base (scripted) path
     for (TaxiNodesEntry const* node : sTaxiNodesStore)
     {
-        if (!(node->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE)))
+        if (!node->IsPartOfTaxiNetwork())
             continue;
 
         // valid taxi network node
@@ -1606,9 +1606,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         TaxiMask::value_type submask = TaxiMask::value_type(1 << ((node->ID - 1) % (sizeof(TaxiMask::value_type) * 8)));
 
         sTaxiNodesMask[field] |= submask;
-        if (node->Flags & TAXI_NODE_FLAG_HORDE)
+        if (node->GetFlags().HasFlag(TaxiNodeFlags::ShowOnHordeMap))
             sHordeTaxiNodesMask[field] |= submask;
-        if (node->Flags & TAXI_NODE_FLAG_ALLIANCE)
+        if (node->GetFlags().HasFlag(TaxiNodeFlags::ShowOnAllianceMap))
             sAllianceTaxiNodesMask[field] |= submask;
 
         int32 uiMapId = -1;

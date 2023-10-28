@@ -6670,10 +6670,10 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     float dist = 10000;
     uint32 id = 0;
 
-    uint32 requireFlag = (team == ALLIANCE) ? TAXI_NODE_FLAG_ALLIANCE : TAXI_NODE_FLAG_HORDE;
+    TaxiNodeFlags requireFlag = (team == ALLIANCE) ? TaxiNodeFlags::ShowOnAllianceMap : TaxiNodeFlags::ShowOnHordeMap;
     for (TaxiNodesEntry const* node : sTaxiNodesStore)
     {
-        if (!node || node->ContinentID != mapid || !(node->Flags & requireFlag))
+        if (!node || node->ContinentID != mapid || !node->GetFlags().HasFlag(requireFlag) || node->GetFlags().HasFlag(TaxiNodeFlags::IgnoreForFindNearest))
             continue;
 
         uint32 field   = uint32((node->ID - 1) / 8);

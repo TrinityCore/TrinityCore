@@ -4002,6 +4002,23 @@ struct TaxiNodesEntry
     uint32 SpecialIconConditionID;
     uint32 VisibilityConditionID;
     std::array<int32, 2> MountCreatureID;
+
+    EnumFlag<TaxiNodeFlags> GetFlags() const { return static_cast<TaxiNodeFlags>(Flags); }
+
+    bool IsPartOfTaxiNetwork() const
+    {
+        return GetFlags().HasFlag(TaxiNodeFlags::ShowOnAllianceMap | TaxiNodeFlags::ShowOnHordeMap)
+            // manually whitelisted nodes
+            || ID == 1985   // [Hidden] Argus Ground Points Hub (Ground TP out to here, TP to Vindicaar from here)
+            || ID == 1986   // [Hidden] Argus Vindicaar Ground Hub (Vindicaar TP out to here, TP to ground from here)
+            || ID == 1987   // [Hidden] Argus Vindicaar No Load Hub (Vindicaar No Load transition goes through here)
+            || ID == 2627   // [Hidden] 9.0 Bastion Ground Points Hub (Ground TP out to here, TP to Sanctum from here)
+            || ID == 2628   // [Hidden] 9.0 Bastion Ground Hub (Sanctum TP out to here, TP to ground from here)
+            || ID == 2732   // [HIDDEN] 9.2 Resonant Peaks - Teleport Network - Hidden Hub (Connects all Nodes to each other without unique paths)
+            || ID == 2835   // [Hidden] 10.0 Travel Network - Destination Input
+            || ID == 2843   // [Hidden] 10.0 Travel Network - Destination Output
+        ;
+    }
 };
 
 struct TaxiPathEntry

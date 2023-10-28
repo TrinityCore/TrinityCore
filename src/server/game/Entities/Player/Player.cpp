@@ -22409,7 +22409,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // change but I couldn't find a suitable alternative. OK to use class because only DK
     // can use this taxi.
     uint32 mount_display_id;
-    if (node->Flags & TAXI_NODE_FLAG_USE_FAVORITE_MOUNT && preferredMountDisplay)
+    if (node->GetFlags().HasFlag(TaxiNodeFlags::UsePlayerFavoriteMount) && preferredMountDisplay)
         mount_display_id = preferredMountDisplay;
     else
         mount_display_id = sObjectMgr->GetTaxiMountDisplayId(sourcenode, GetTeam(), npc == nullptr || (sourcenode == 315 && GetClass() == CLASS_DEATH_KNIGHT));
