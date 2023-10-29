@@ -315,7 +315,6 @@ void WorldSession::HandleSetRoleOpcode(WorldPackets::Party::SetRole& packet)
     if (oldRole == packet.Role)
         return;
 
-    roleChangedInform.PartyIndex = group->GetGroupCategory();
     roleChangedInform.From = GetPlayer()->GetGUID();
     roleChangedInform.ChangedUnit = packet.TargetGUID;
     roleChangedInform.OldRole = oldRole;
@@ -323,6 +322,7 @@ void WorldSession::HandleSetRoleOpcode(WorldPackets::Party::SetRole& packet)
 
     if (group)
     {
+        roleChangedInform.PartyIndex = group->GetGroupCategory();
         group->BroadcastPacket(roleChangedInform.Write(), false);
         group->SetLfgRoles(packet.TargetGUID, packet.Role);
     }
