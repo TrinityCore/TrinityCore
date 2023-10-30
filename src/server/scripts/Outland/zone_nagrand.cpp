@@ -429,7 +429,9 @@ enum PlantBannerQuests
     NPC_KIL_SORROW_DEATHSWORN        = 17148,
     NPC_GISELDA_THE_CRONE            = 18391,
     NPC_WARMAUL_REAVER               = 17138,
-    NPC_WARMAUL_SHAMAN               = 18064
+    NPC_WARMAUL_SHAMAN               = 18064,
+
+    PATH_NAGRAND_BANNER              = 4816480,
 };
 
 class npc_nagrand_banner : public CreatureScript
@@ -460,6 +462,8 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
+            _oocScheduler.Update(diff);
+
             if (!UpdateVictim())
                 return;
 
@@ -472,6 +476,21 @@ public:
         bool IsBannered()
         {
             return bannered;
+        }
+
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
+        {
+            if (pathId != PATH_NAGRAND_BANNER)
+                return;
+
+            if (waypointId == 11)
+                me->HandleEmoteCommand(EMOTE_ONESHOT_APPLAUD);
+            else if (waypointId == 4 || waypointId == 8)
+                me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+            else if (waypointId == 10)
+                me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
+            else if (waypointId == 3 || waypointId == 7)
+                me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING);
         }
 
     protected:
