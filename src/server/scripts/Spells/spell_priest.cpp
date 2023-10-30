@@ -2815,6 +2815,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_guardian_spirit);
     RegisterSpellScript(spell_pri_halo_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
+    RegisterSpellScript(spell_pri_holy_mending);
     RegisterSpellScript(spell_pri_holy_words);
     RegisterSpellScript(spell_pri_holy_word_salvation);
     RegisterSpellScript(spell_pri_holy_word_salvation_cooldown_reduction);

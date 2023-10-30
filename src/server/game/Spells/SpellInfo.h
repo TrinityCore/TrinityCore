@@ -248,11 +248,11 @@ public:
         float ResourceCoefficient;
     } Scaling;
 
-    explicit SpellEffectInfo(SpellInfo const* spellInfo);
+    explicit SpellEffectInfo();
     explicit SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry const& effect);
-    SpellEffectInfo(SpellEffectInfo const&);
+    SpellEffectInfo(SpellEffectInfo const&) = delete;
     SpellEffectInfo(SpellEffectInfo&&) noexcept;
-    SpellEffectInfo& operator=(SpellEffectInfo const&);
+    SpellEffectInfo& operator=(SpellEffectInfo const&) = delete;
     SpellEffectInfo& operator=(SpellEffectInfo&&) noexcept;
     ~SpellEffectInfo();
 
@@ -280,7 +280,7 @@ public:
     ExpectedStatType GetScalingExpectedStat() const;
 
     struct ImmunityInfo;
-    ImmunityInfo const* GetImmunityInfo() const { return _immunityInfo; }
+    ImmunityInfo const* GetImmunityInfo() const { return _immunityInfo.get(); }
 
 private:
     struct StaticData
@@ -293,7 +293,7 @@ private:
     };
     static std::array<StaticData, TOTAL_SPELL_EFFECTS> _data;
 
-    ImmunityInfo* _immunityInfo;
+    std::unique_ptr<ImmunityInfo> _immunityInfo;
 };
 
 typedef std::vector<SpellXSpellVisualEntry const*> SpellVisualVector;

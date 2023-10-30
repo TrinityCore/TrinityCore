@@ -137,6 +137,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         AreaTriggerTemplate const* GetTemplate() const;
         uint32 GetScriptId() const;
 
+        ObjectGuid GetCreatorGUID() const override { return GetCasterGuid(); }
         ObjectGuid GetOwnerGUID() const override { return GetCasterGuid(); }
         ObjectGuid const& GetCasterGuid() const { return m_areaTriggerData->Caster; }
         Unit* GetCaster() const;

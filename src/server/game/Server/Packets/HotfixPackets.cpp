@@ -78,10 +78,12 @@ WorldPacket const* DBReply::Write()
 
 WorldPacket const* AvailableHotfixes::Write()
 {
+    _worldPacket.reserve(4 + 4 + sizeof(DB2Manager::HotfixId) * Hotfixes.size());
+
     _worldPacket << int32(VirtualRealmAddress);
     _worldPacket << uint32(Hotfixes.size());
-    for (DB2Manager::HotfixContainer::value_type const& hotfixRecord : Hotfixes)
-        _worldPacket << hotfixRecord.second.front().ID;
+    for (DB2Manager::HotfixId const& hotfixId : Hotfixes)
+        _worldPacket << hotfixId;
 
     return &_worldPacket;
 }

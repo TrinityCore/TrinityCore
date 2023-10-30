@@ -22409,7 +22409,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // change but I couldn't find a suitable alternative. OK to use class because only DK
     // can use this taxi.
     uint32 mount_display_id;
-    if (node->Flags & TAXI_NODE_FLAG_USE_FAVORITE_MOUNT && preferredMountDisplay)
+    if (node->GetFlags().HasFlag(TaxiNodeFlags::UsePlayerFavoriteMount) && preferredMountDisplay)
         mount_display_id = preferredMountDisplay;
     else
         mount_display_id = sObjectMgr->GetTaxiMountDisplayId(sourcenode, GetTeam(), npc == nullptr || (sourcenode == 315 && GetClass() == CLASS_DEATH_KNIGHT));
@@ -25138,7 +25138,7 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
         }
         case ITEM_CLASS_ARMOR:
         {
-            if (!spellInfo->HasAttribute(SPELL_ATTR8_ARMOR_SPECIALIZATION))
+            if (!spellInfo->HasAttribute(SPELL_ATTR8_REQUIRES_EQUIPPED_INV_TYPES))
             {
                 // most used check: shield only
                 if (spellInfo->EquippedItemSubClassMask & (1 << ITEM_SUBCLASS_ARMOR_SHIELD))
@@ -29301,15 +29301,15 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
     return difficulty;
 }
 
-SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo) const
+SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag) const
 {
     auto overrides = m_overrideSpells.find(spellInfo->Id);
     if (overrides != m_overrideSpells.end())
         for (uint32 spellId : overrides->second)
             if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID()))
-                return Unit::GetCastSpellInfo(newInfo);
+                return Unit::GetCastSpellInfo(newInfo, triggerFlag);
 
-    return Unit::GetCastSpellInfo(spellInfo);
+    return Unit::GetCastSpellInfo(spellInfo, triggerFlag);
 }
 
 void Player::AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId)

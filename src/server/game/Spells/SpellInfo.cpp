@@ -395,7 +395,7 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 152
 } };
 
-SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo): _spellInfo(spellInfo), EffectIndex(EFFECT_0), Effect(SPELL_EFFECT_NONE), ApplyAuraName(AuraType(0)), ApplyAuraPeriod(0),
+SpellEffectInfo::SpellEffectInfo(): _spellInfo(nullptr), EffectIndex(EFFECT_0), Effect(SPELL_EFFECT_NONE), ApplyAuraName(AuraType(0)), ApplyAuraPeriod(0),
     BasePoints(0), RealPointsPerLevel(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
     BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), PositionFacing(0),
     TargetARadiusEntry(nullptr), TargetBRadiusEntry(nullptr), ChainTargets(0), ItemType(0), TriggerSpell(0),
@@ -442,15 +442,10 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry co
     _immunityInfo = nullptr;
 }
 
-SpellEffectInfo::SpellEffectInfo(SpellEffectInfo const&) = default;
 SpellEffectInfo::SpellEffectInfo(SpellEffectInfo&&) noexcept = default;
-SpellEffectInfo& SpellEffectInfo::operator=(SpellEffectInfo const&) = default;
 SpellEffectInfo& SpellEffectInfo::operator=(SpellEffectInfo&&) noexcept = default;
 
-SpellEffectInfo::~SpellEffectInfo()
-{
-    delete _immunityInfo;
-}
+SpellEffectInfo::~SpellEffectInfo() = default;
 
 bool SpellEffectInfo::IsEffect() const
 {
@@ -560,7 +555,7 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
     if (Scaling.Coefficient != 0.0f)
     {
         uint32 level = _spellInfo->SpellLevel;
-        if (target && _spellInfo->IsPositiveEffect(EffectIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
+        if (target && _spellInfo->HasAttribute(SPELL_ATTR8_USE_TARGETS_LEVEL_FOR_SPELL_SCALING))
             level = target->GetLevel();
         else if (caster && caster->IsUnit())
             level = caster->ToUnit()->GetLevel();
@@ -632,7 +627,12 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
             if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId))
                 expansion = contentTuning->ExpansionID;
 
-            int32 level = caster && caster->IsUnit() ? int32(caster->ToUnit()->GetLevel()) : 1;
+            int32 level = 1;
+            if (target && _spellInfo->HasAttribute(SPELL_ATTR8_USE_TARGETS_LEVEL_FOR_SPELL_SCALING))
+                level = target->GetLevel();
+            else if (caster && caster->IsUnit())
+                level = caster->ToUnit()->GetLevel();
+
             value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE, 0) * BasePoints / 100.0f;
         }
 
@@ -1160,12 +1160,15 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         if (!spellEffect)
             continue;
 
-        Trinity::Containers::EnsureWritableVectorIndex(_effects, spellEffect->EffectIndex, SpellEffectInfo(this)) = SpellEffectInfo(this, *spellEffect);
+        Trinity::Containers::EnsureWritableVectorIndex(_effects, spellEffect->EffectIndex) = SpellEffectInfo(this, *spellEffect);
     }
 
     // Correct EffectIndex for blank effects
     for (size_t i = 0; i < _effects.size(); ++i)
+    {
+        _effects[i]._spellInfo = this;
         _effects[i].EffectIndex = SpellEffIndex(i);
+    }
 
     _effects.shrink_to_fit();
 
@@ -1353,11 +1356,14 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, s
 
     _effects.reserve(32);
     for (SpellEffectEntry const& spellEffect : effects)
-         Trinity::Containers::EnsureWritableVectorIndex(_effects, spellEffect.EffectIndex, SpellEffectInfo(this)) = SpellEffectInfo(this, spellEffect);
+         Trinity::Containers::EnsureWritableVectorIndex(_effects, spellEffect.EffectIndex) = SpellEffectInfo(this, spellEffect);
 
     // Correct EffectIndex for blank effects
     for (size_t i = 0; i < _effects.size(); ++i)
+    {
+        _effects[i]._spellInfo = this;
         _effects[i].EffectIndex = SpellEffIndex(i);
+    }
 
     _effects.shrink_to_fit();
 }
@@ -2034,6 +2040,20 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             return SPELL_FAILED_NOT_IN_RAID_INSTANCE;
     }
 
+    if (HasAttribute(SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS))
+    {
+        MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+        if (!mapEntry || !mapEntry->IsDungeon())
+            return SPELL_FAILED_TARGET_NOT_IN_INSTANCE;
+    }
+
+    if (HasAttribute(SPELL_ATTR8_NOT_IN_BATTLEGROUND))
+    {
+        MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+        if (!mapEntry || mapEntry->IsBattleground())
+            return SPELL_FAILED_NOT_IN_BATTLEGROUND;
+    }
+
     // DB base check (if non empty then must fit at least single for allow)
     SpellAreaMapBounds saBounds = sSpellMgr->GetSpellAreaMapBounds(Id);
     if (saBounds.first != saBounds.second)
@@ -2153,6 +2173,20 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
 
     Unit const* unitTarget = target->ToUnit();
 
+    if (HasAttribute(SPELL_ATTR8_ONLY_TARGET_IF_SAME_CREATOR))
+    {
+        auto getCreatorOrSelf = [](WorldObject const* obj)
+        {
+            ObjectGuid creator = obj->GetCreatorGUID();
+            if (creator.IsEmpty())
+                creator = obj->GetGUID();
+
+            return creator;
+        };
+        if (getCreatorOrSelf(caster) != getCreatorOrSelf(target))
+            return SPELL_FAILED_BAD_TARGETS;
+    }
+
     // creature/player specific target checks
     if (unitTarget)
     {
@@ -2203,6 +2237,10 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
                 }
             }
         }
+
+        if (HasAttribute(SPELL_ATTR8_ONLY_TARGET_OWN_SUMMONS))
+            if (!unitTarget->IsSummon() || unitTarget->ToTempSummon()->GetSummonerGUID() != caster->GetGUID())
+                return SPELL_FAILED_BAD_TARGETS;
     }
     // corpse specific target checks
     else if (Corpse const* corpseTarget = target->ToCorpse())
@@ -2294,7 +2332,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
         if (HasEffect(SPELL_EFFECT_SELF_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT))
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 
-    if (HasAttribute(SPELL_ATTR8_BATTLE_RESURRECTION))
+    if (HasAttribute(SPELL_ATTR8_ENFORCE_IN_COMBAT_RESSURECTION_LIMIT))
         if (Map* map = caster->GetMap())
             if (InstanceMap* iMap = map->ToInstanceMap())
                 if (InstanceScript* instance = iMap->GetInstanceScript())
@@ -3521,7 +3559,7 @@ void SpellInfo::_LoadImmunityInfo()
             || !immuneInfo.AuraTypeImmune.empty()
             || !immuneInfo.SpellEffectImmune.empty())
         {
-            effect._immunityInfo = workBuffer.release();
+            effect._immunityInfo = std::move(workBuffer);
             workBuffer = std::make_unique<SpellEffectInfo::ImmunityInfo>();
         }
 
