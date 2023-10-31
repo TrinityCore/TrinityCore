@@ -364,7 +364,7 @@ bool BattlegroundIC::SetupBattleground()
     return true;
 }
 
-void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
+void BattlegroundIC::HandleKillUnit(Creature* unit, Unit* killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
        return;

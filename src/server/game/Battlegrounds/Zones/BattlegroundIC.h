@@ -929,7 +929,7 @@ class BattlegroundIC : public Battleground
         void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
         void SpawnLeader(uint32 teamid);
-        void HandleKillUnit(Creature* unit, Player* killer) override;
+        void HandleKillUnit(Creature* unit, Unit* killer) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
         void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/) override;
 

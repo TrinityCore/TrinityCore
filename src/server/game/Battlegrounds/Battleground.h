@@ -413,7 +413,7 @@ class TC_GAME_API Battleground : public ZoneScript
         virtual void HandleAreaTrigger(Player* /*player*/, uint32 /*trigger*/, bool /*entered*/);
         // must be implemented in BG subclass if need AND call base class generic code
         virtual void HandleKillPlayer(Player* player, Player* killer);
-        virtual void HandleKillUnit(Creature* /*creature*/, Player* /*killer*/) { }
+        virtual void HandleKillUnit(Creature* /*creature*/, Unit* /*killer*/) { }
 
         // Battleground events
         virtual void EventPlayerDroppedFlag(Player* /*player*/) { }
@@ -421,9 +421,6 @@ class TC_GAME_API Battleground : public ZoneScript
         void EventPlayerLoggedIn(Player* player);
         void EventPlayerLoggedOut(Player* player);
         void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/) override { }
-
-        // this function can be used by spell to interact with the BG map
-        virtual void DoAction(uint32 /*action*/, ObjectGuid /*var*/) { }
 
         virtual void HandlePlayerResurrect(Player* /*player*/) { }
 

@@ -542,7 +542,7 @@ class BattlegroundSA : public Battleground
         bool SetupBattleground() override;
         void Reset() override;
         /// Called when a player kill a unit in bg
-        void HandleKillUnit(Creature* creature, Player* killer) override;
+        void HandleKillUnit(Creature* creature, Unit* killer) override;
         /// Return the nearest graveyard where player can respawn
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         /// Called when someone activates an event
