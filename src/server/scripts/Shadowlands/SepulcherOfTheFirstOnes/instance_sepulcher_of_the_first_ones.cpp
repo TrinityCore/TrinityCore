@@ -27,21 +27,21 @@
 ObjectData const creatureData[] =
 {
     // Anduin Wrynn
-    { BOSS_ANDUIN_WRYNN,                        DATA_ANDUIN_WRYNN },
-    { NPC_BEFOULED_BARRIER,                     DATA_BEFOULED_BARRIER },
-    { NPC_EMPTY_VESSEL,                         DATA_EMPTY_VESSEL },
-    { NPC_GRIM_REFLECTION,                      DATA_GRIM_REFLECTION },
-    { BOSS_REMNANT_OF_A_FALLEN_KING,            DATA_REMNANT_OF_A_FALLEN_KING },
-    { NPC_UTHER_THE_LIGHTBRINGER_ANDUIN,        DATA_UTHER_THE_LIGHTBRINGER_ANDUIN },
-    { NPC_LADY_JAINA_PROUDMOORE_ANDUIN,         DATA_JAINA_PROUDMOORE_ANDUIN },
-    { NPC_SYLVANAS_WINDRUNNER_ANDUIN,           DATA_SYLVANAS_WINDRUNNER_ANDUIN },
-    { NPC_THRALL_ANDUIN,                        DATA_THRALL_ANDUIN },
-    { NPC_FIRIM_ANDUIN,                         DATA_FIRIM_ANDUIN },
-    { NPC_ANDUIN_SOUL,                          DATA_ANDUIN_SOUL },
-    { NPC_BEACON_OF_HOPE,                       DATA_BEACON_OF_HOPE },
-    { NPC_QUARTERMASTER_RAHM_ANDUIN,            DATA_QUARTERMASTER_RAHM_ANDUIN },
-    { NPC_BOLVAR_FORDRAGON_ANDUIN,              DATA_BOLVAR_FORDRAGON_ANDUIN },
-    { 0,                                        0 }
+    { BOSS_ANDUIN_WRYNN,                        DATA_ANDUIN_WRYNN                   },
+    { NPC_BEFOULED_BARRIER,                     DATA_BEFOULED_BARRIER               },
+    { NPC_EMPTY_VESSEL,                         DATA_EMPTY_VESSEL                   },
+    { NPC_GRIM_REFLECTION,                      DATA_GRIM_REFLECTION                },
+    { BOSS_REMNANT_OF_A_FALLEN_KING,            DATA_REMNANT_OF_A_FALLEN_KING       },
+    { NPC_UTHER_THE_LIGHTBRINGER_ANDUIN,        DATA_UTHER_THE_LIGHTBRINGER_ANDUIN  },
+    { NPC_LADY_JAINA_PROUDMOORE_ANDUIN,         DATA_JAINA_PROUDMOORE_ANDUIN        },
+    { NPC_SYLVANAS_WINDRUNNER_ANDUIN,           DATA_SYLVANAS_WINDRUNNER_ANDUIN     },
+    { NPC_THRALL_ANDUIN,                        DATA_THRALL_ANDUIN                  },
+    { NPC_FIRIM_ANDUIN,                         DATA_FIRIM_ANDUIN                   },
+    { NPC_ANDUIN_SOUL,                          DATA_ANDUIN_SOUL                    },
+    { NPC_BEACON_OF_HOPE,                       DATA_BEACON_OF_HOPE                 },
+    { NPC_QUARTERMASTER_RAHM_ANDUIN,            DATA_QUARTERMASTER_RAHM_ANDUIN      },
+    { NPC_BOLVAR_FORDRAGON_ANDUIN,              DATA_BOLVAR_FORDRAGON_ANDUIN        },
+    { 0,                                        0                                   }
 };
 
 ObjectData const gameObjectData[] =
@@ -152,9 +152,7 @@ public:
                             if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
                             {
                                 anduin->CastSpell(anduin, SPELL_ANDUIN_PLUNGE_KINGSMOURNE);
-                                anduin->SetUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
-                                anduin->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                                anduin->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                                anduin->SetUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                                 anduin->SetImmuneToAll(true);
                             }
                             break;
@@ -170,9 +168,7 @@ public:
                             AnduinIntroductionData = DONE;
                             if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
                             {
-                                anduin->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
-                                anduin->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                                anduin->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                                anduin->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                                 anduin->SetImmuneToAll(false);
                                 anduin->SetSpeed(MOVE_RUN, 11.0f);
                                 anduin->RemoveAurasDueToSpell(SPELL_ANDUIN_PLUNGE_KINGSMOURNE);

@@ -276,11 +276,6 @@ enum AnduinWrynnPhases
     PHASE_THREE,
 };
 
-enum AnduinWrynnData
-{
-    DATA_ABSORBED_HEALING,
-};
-
 enum AnduinWrynnEvents
 {
     // Anduin Wrynn
@@ -565,19 +560,7 @@ private:
 struct boss_anduin_wrynn : public BossAI
 {
     boss_anduin_wrynn(Creature* creature) : BossAI(creature, DATA_ANDUIN_WRYNN),
-        _slayTextOnCooldown(false), _dominationWordCount(0), _intermissionsDone(0), _encounterEnded(false)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _slayTextOnCooldown = false;
-        _dominationWordCount = 0;
-        _intermissionsDone = 0;
-        _encounterEnded = false;
-        me->SetFaction(FACTION_MONSTER);
-    }
+        _slayTextOnCooldown(false), _dominationWordCount(0), _intermissionsDone(0), _encounterEnded(false) { }
 
     void HandleIntroduction()
     {
@@ -761,7 +744,11 @@ struct boss_anduin_wrynn : public BossAI
         events.Reset();
         scheduler.CancelAll();
         me->SetPower(POWER_ENERGY, 0);
-        Initialize();
+
+        _slayTextOnCooldown = false;
+        _dominationWordCount = 0;
+        _intermissionsDone = 0;
+        _encounterEnded = false;
     }
 
     void KilledUnit(Unit* victim) override
@@ -850,7 +837,7 @@ struct boss_anduin_wrynn : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
         PhaseEvents(PHASE_ONE);
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, PHASE_ONE);
         Talk(SAY_AGGRO);
@@ -1654,21 +1641,14 @@ struct npc_anduin_wrynn_anduin_despair : public ScriptedAI
     npc_anduin_wrynn_anduin_despair(Creature* creature) : ScriptedAI(creature),
         _instance(creature->GetInstanceScript()) { }
 
-    void Reset() override
-    {
-        _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-    }
-
     void JustAppeared() override
     {
-        _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         DoCastSelf(SPELL_RAIN_OF_DESPAIR);
         DoCastSelf(SPELL_ANDUIN_SOUL_DESPAIR);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         DoCastSelf(SPELL_WILLPOWER_ENERGIZE_LARGE);
 
         if (Creature* soul = me->GetInstanceScript()->GetCreature(DATA_ANDUIN_SOUL))
@@ -1692,7 +1672,6 @@ struct npc_anduin_wrynn_anduin_doubt : public ScriptedAI
 
     void JustAppeared() override
     {
-        _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         me->SetWalk(true);
         DoCastSelf(SPELL_GHOST_VISUAL_COSMETIC, true);
         DoZoneInCombat();
@@ -1701,7 +1680,6 @@ struct npc_anduin_wrynn_anduin_doubt : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         DoCastSelf(SPELL_WILLPOWER_ENERGIZE_SMALL);
         DoCastSelf(SPELL_SOUL_DESPAWN);
 
@@ -1752,7 +1730,7 @@ struct npc_anduin_wrynn_anduin_hope : public ScriptedAI
 
     void JustAppeared() override
     {
-        _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 255);
         me->SetWalk(true);
         DoCastSelf(SPELL_ANDUIN_SLOW);
         if (IsHeroic() || IsMythic())
@@ -1884,6 +1862,7 @@ struct npc_anduin_wrynn_monstrous_soul : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
+        me->GetInstanceScript()->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 255);
         DoCastSelf(SPELL_UNRAVELING_FRENZY_PERIODIC, true);
     }
 
@@ -1913,8 +1892,14 @@ struct npc_anduin_wrynn_monstrous_soul : public ScriptedAI
         }
     }
 
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->GetInstanceScript()->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
+        me->GetInstanceScript()->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         me->DespawnOrUnsummon();
     }
 
@@ -2023,7 +2008,7 @@ struct boss_remnant_of_a_fallen_king : public BossAI
 
                 scheduler.Schedule(1500ms, [this](TaskContext /*task*/)
                 {
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
                     me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 });
 
@@ -2875,10 +2860,10 @@ struct at_anduin_wrynn_beacon_of_hope : AreaTriggerAI
     }
 
 private:
-    uint8 _chargesRemaining;
-    uint8 _entries;
-    TaskScheduler _scheduler;
     InstanceScript* _instance;
+    uint8 _entries;
+    uint8 _chargesRemaining;
+    TaskScheduler _scheduler;
 };
 
 // Fragment of Hope - 365816
