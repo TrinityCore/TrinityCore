@@ -4726,6 +4726,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Shadestep
+    ApplySpellFix({ 363976 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetB = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
     // END OF SEPULCHER OF THE FIRST ONES
 
     //

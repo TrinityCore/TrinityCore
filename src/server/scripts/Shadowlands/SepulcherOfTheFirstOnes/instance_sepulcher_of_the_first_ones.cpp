@@ -26,21 +26,30 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_ANDUIN_WRYNN,               DATA_ANDUIN_WRYNN         },
-    { NPC_BEFOULED_BARRIER,            DATA_BEFOULED_BARRIER     },
-    { NPC_EMPTY_VESSEL,                DATA_EMPTY_VESSEL         },
-    { NPC_GRIM_REFLECTION,             DATA_GRIM_REFLECTION      },
-    { BOSS_REMNANT_OF_A_FALLEN_KING,   DATA_REMNANT_OF_A_FALLEN_KING },
-    { NPC_UTHER_THE_LIGHTBRINGER,      DATA_UTHER_THE_LIGHTBRINGER },
-    { NPC_LADY_JAINA_PROUDMOORE,       DATA_JAINA_PROUDMOORE     },
-    { NPC_SYLVANAS_WINDRUNNER,         DATA_SYLVANAS_WINDRUNNER  },
-    { NPC_FIRIM,                       DATA_FIRIM                },
-    { NPC_ANDUIN_SOUL,                 DATA_ANDUIN_SOUL          },
-    { NPC_BEACON_OF_HOPE,              DATA_BEACON_OF_HOPE       },
-    {0, 0}
-
+    // Anduin Wrynn
+    { BOSS_ANDUIN_WRYNN,                        DATA_ANDUIN_WRYNN },
+    { NPC_BEFOULED_BARRIER,                     DATA_BEFOULED_BARRIER },
+    { NPC_EMPTY_VESSEL,                         DATA_EMPTY_VESSEL },
+    { NPC_GRIM_REFLECTION,                      DATA_GRIM_REFLECTION },
+    { BOSS_REMNANT_OF_A_FALLEN_KING,            DATA_REMNANT_OF_A_FALLEN_KING },
+    { NPC_UTHER_THE_LIGHTBRINGER_ANDUIN,        DATA_UTHER_THE_LIGHTBRINGER_ANDUIN },
+    { NPC_LADY_JAINA_PROUDMOORE_ANDUIN,         DATA_JAINA_PROUDMOORE_ANDUIN },
+    { NPC_SYLVANAS_WINDRUNNER_ANDUIN,           DATA_SYLVANAS_WINDRUNNER_ANDUIN },
+    { NPC_THRALL_ANDUIN,                        DATA_THRALL_ANDUIN },
+    { NPC_FIRIM_ANDUIN,                         DATA_FIRIM_ANDUIN },
+    { NPC_ANDUIN_SOUL,                          DATA_ANDUIN_SOUL },
+    { NPC_BEACON_OF_HOPE,                       DATA_BEACON_OF_HOPE },
+    { NPC_QUARTERMASTER_RAHM_ANDUIN,            DATA_QUARTERMASTER_RAHM_ANDUIN },
+    { NPC_BOLVAR_FORDRAGON_ANDUIN,              DATA_BOLVAR_FORDRAGON_ANDUIN },
+    { 0,                                        0 }
 };
 
+ObjectData const gameObjectData[] =
+{
+    { GAMEOBJECT_BRIDGE_TO_ANDUIN,              DATA_BRIDGE_TO_ANDUIN },
+    { GAMEOBJECT_BRIDGE_AFTER_ANDUIN,           DATA_BRIDGE_AFTER_ANDUIN },
+    { 0,                                        0 }
+};
 DungeonEncounterData const encounters[] =
 {
     { DATA_ANDUIN_WRYNN, {{ 2546 }} },
@@ -63,48 +72,9 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadDungeonEncounterData(encounters);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, gameObjectData);
 
             AnduinIntroductionData = NOT_STARTED;
-        }
-
-        void OnCreatureCreate(Creature* creature) override
-        {
-            InstanceScript::OnCreatureCreate(creature);
-
-            switch (creature->GetEntry())
-            {
-                case BOSS_ANDUIN_WRYNN:
-                    AnduinWrynnGUID = creature->GetGUID();
-                    break;
-
-                case BOSS_REMNANT_OF_A_FALLEN_KING:
-                    RemnantGUID = creature->GetGUID();
-                    break;
-
-                case NPC_BEACON_OF_HOPE:
-                    BeaconOfHopeGUID = creature->GetGUID();
-                    break;
-
-                case NPC_SYLVANAS_WINDRUNNER:
-                    SylvanasGUID = creature->GetGUID();
-                    break;
-
-                case NPC_UTHER_THE_LIGHTBRINGER:
-                    UtherGUID = creature->GetGUID();
-                    break;
-
-                case NPC_LADY_JAINA_PROUDMOORE:
-                    JainaGUID = creature->GetGUID();
-                    break;
-
-                case NPC_ANDUIN_SOUL:
-                    AnduinGUID = creature->GetGUID();
-                    break;
-
-                default:
-                    break;
-            }
         }
 
         bool SetBossState(uint32 id, EncounterState state) override
@@ -132,14 +102,14 @@ public:
 
                             DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 1);
 
-                            if (Creature* uther = GetCreature(DATA_UTHER_THE_LIGHTBRINGER))
+                            if (Creature* uther = GetCreature(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN))
                             {
                                 uther->SetFaction(2);
                                 uther->AI()->JustEngagedWith(anduin);
                                 uther->GetThreatManager().AddThreat(anduin, 1000);
                             }
 
-                            if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                            if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER_ANDUIN))
                             {
                                 sylvanas->SetFaction(2);
                                 sylvanas->AI()->JustEngagedWith(anduin);
@@ -147,7 +117,7 @@ public:
                                 sylvanas->GetAI()->AttackStartCaster(anduin, 25.0f);
                             }
 
-                            if (Creature* jaina = GetCreature(DATA_JAINA_PROUDMOORE))
+                            if (Creature* jaina = GetCreature(DATA_JAINA_PROUDMOORE_ANDUIN))
                             {
                                 jaina->SetFaction(2);
                                 jaina->AI()->JustEngagedWith(anduin);
@@ -232,82 +202,7 @@ public:
             return 0;
         }
 
-        void OnGameObjectCreate(GameObject* go) override
-        {
-            InstanceScript::OnGameObjectCreate(go);
-
-            switch (go->GetEntry())
-            {
-                case GAMEOBJECT_BRIDGE_TO_ANDUIN:
-                    BridgeToAnduinGUID = go->GetGUID();
-                    break;
-
-                case GAMEOBJECT_BRIDGE_AFTER_ANDUIN:
-                    BridgeAfterAnduinGUID = go->GetGUID();
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        ObjectGuid GetGuidData(uint32 type) const override
-        {
-            switch (type)
-            {
-                case DATA_ANDUIN_WRYNN:
-                    return AnduinWrynnGUID;
-
-                case DATA_BEFOULED_BARRIER:
-                    return BefouledBarrierGUID;
-
-                case DATA_EMPTY_VESSEL:
-                    return EmptyVesselGUID;
-
-                case DATA_GRIM_REFLECTION:
-                    return GrimReflectionGUID;
-
-                case DATA_REMNANT_OF_A_FALLEN_KING:
-                    return RemnantGUID;
-
-                case DATA_BEACON_OF_HOPE:
-                    return BeaconOfHopeGUID;
-
-                case DATA_UTHER_THE_LIGHTBRINGER:
-                    return UtherGUID;
-
-                case DATA_JAINA_PROUDMOORE:
-                    return JainaGUID;
-
-                case DATA_SYLVANAS_WINDRUNNER:
-                    return SylvanasGUID;
-
-                case DATA_FIRIM:
-                    return FirimGUID;
-
-                default:
-                    break;
-            }
-
-            return InstanceScript::GetGuidData(type);
-        }
-
     protected:
-        ObjectGuid AnduinWrynnGUID;
-        ObjectGuid BefouledBarrierGUID;
-        ObjectGuid EmptyVesselGUID;
-        ObjectGuid LostSoulGUID;
-        ObjectGuid GrimReflectionGUID;
-        ObjectGuid RemnantGUID;
-        ObjectGuid BeaconOfHopeGUID;
-        ObjectGuid UtherGUID;
-        ObjectGuid JainaGUID;
-        ObjectGuid SylvanasGUID;
-        ObjectGuid FirimGUID;
-        ObjectGuid AnduinGUID;
-        ObjectGuid TreasureofTheFirstOnesGUID;
-        ObjectGuid BridgeToAnduinGUID;
-        ObjectGuid BridgeAfterAnduinGUID;
         uint8 AnduinIntroductionData;
     };
 

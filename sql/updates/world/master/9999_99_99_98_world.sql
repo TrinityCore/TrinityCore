@@ -25,12 +25,12 @@ INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `WorldEffe
 (375035, 0, 16, 0, 0), -- Bridge after Anduin
 (375901, 94, 2113568, 0, 0); -- Anduin Chest loot
 
-DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+3;
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+1;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 375110, 2481, 13742, 13965, '14,15,16,17', '0', 0, -3824.822265625, -2658.32080078125, 83.4433746337890625, 4.712392330169677734, 0, 0, -0.70710563659667968, 0.707107901573181152, 604800, 255, 1, 50747),
-(@OGUID+1, 375035, 2481, 13742, 13965, '14,15,16,17', '0', 0, -3825.06591796875, -2785.4755859375, 88.5488128662109375, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 604800, 255, 1, 50747);
+(@OGUID+1, 375035, 2481, 13742, 13965, '14,15,16,17', '0', 0, -3825.06591796875, -2785.4755859375, 88.5488128662109375, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 604800, 255, 0, 50747);
 
-DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+314;
+DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+1;
 INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, `parent_rotation2`, `parent_rotation3`, `WorldEffectID`, `AIAnimKitID`) VALUES
 (@OGUID+0, 0, 0, 1, -0.00000004371138828, 0, 0), -- Bridge to Anduin
 (@OGUID+1, 0, 0, 1, -0.00000004371138828, 0, 0); -- Bridge after Anduin
@@ -47,7 +47,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (185843, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 72, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 'Ancient Console - On Gossip Option selected - Close Menu');
 
 -- Creature Templates
-UPDATE `creature_template` SET `ScriptName`='npc_befouled_barrier', `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2048, `unit_flags3`=524289 WHERE `entry`=184585; -- Befouled Barrier
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2048, `unit_flags3`=524289 WHERE `entry`=184585; -- Befouled Barrier
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_uther', `faction`=35, `speed_walk`=1.60000002384185791, `BaseAttackTime`=2000, `unit_flags`=32832 WHERE `entry`=183665; -- Uther the Lightbringer
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_jaina', `faction`=35, `speed_walk`=1.60000002384185791, `BaseAttackTime`=2000, `unit_flags`=32832 WHERE `entry`=183664; -- Lady Jaina Proudmoore
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_sylvanas', `faction`=35, `speed_walk`=1.60000002384185791, `BaseAttackTime`=2000, `unit_flags`=32832 WHERE `entry`=183666; -- Sylvanas Windrunner
@@ -68,7 +68,7 @@ UPDATE `creature_template` SET `faction`=16, `speed_walk`=0.60000002384185791, `
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_monstrous_soul', `faction`=14, `speed_walk`=5.599999904632568359, `speed_run`=2, `BaseAttackTime`=2000, `unit_flags2`=2048, `unit_flags3`=0 WHERE `entry`=183671; -- Monstrous Soul
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_fiendish_soul', `faction`=14, `BaseAttackTime`=2000, `unit_flags2`=2048, `unit_flags3`=4718592 WHERE `entry`=183669; -- Fiendish Soul
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_lost_soul', `faction`=14, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=32816, `unit_flags3`=4718592 WHERE `entry`=185607; -- Lost Soul
-UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2048, `unit_flags3`=1 WHERE `entry`=184830; -- Beacon of Hope
+UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_beacon_of_hope', `faction`=35, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2048, `unit_flags3`=1 WHERE `entry`=184830; -- Beacon of Hope
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `faction`=35, `npcflag`=1, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67160064, `unit_flags3`=16777217 WHERE `entry` IN (185843); -- Ancient Console
 UPDATE `creature_template` SET `ScriptName`='npc_anduin_wrynn_grim_reflection', `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2080, `unit_flags3`=4718592 WHERE `entry`=183033; -- Grim Reflection
 
@@ -376,11 +376,11 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 -- Conversations Template
 DELETE FROM `conversation_template` WHERE `Id` IN (17921, 17923, 17924, 17835, 17836);
 INSERT INTO `conversation_template` (`Id`, `FirstLineId`, `TextureKitId`, `ScriptName`, `VerifiedBuild`) VALUES 
-(17921, 45676, 0, 'conversation_arthas_uther', 46366), -- First Intermission
-(17923, 45757, 0, 'conversation_arthas_sylvanas', 46366), -- Second Intermission
+(17921, 45676, 0, '', 46366), -- First Intermission
+(17923, 45757, 0, '', 46366), -- Second Intermission
 (17924, 45674, 0, '', 43206), -- Anduin Phase 3
-(17835, 45384, 0, 'conversation_anduin_introduction', 46549), -- Introduction
-(17836, 45390, 0, 'conversation_anduin_outroduction', 46597); -- Outroduction
+(17835, 45384, 0, '', 46549), -- Introduction
+(17836, 45390, 0, '', 46597); -- Outroduction
 
 -- Conversation Actors
 DELETE FROM `conversation_actors` WHERE `ConversationId`=17921;
@@ -589,7 +589,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (363233, 'spell_anduin_wrynn_march_of_the_damned'),
 (365120, 'spell_anduin_wrynn_grim_reflections'),
 (365872, 'spell_anduin_wrynn_beacon_of_hope'),
-(365806, 'spell_anduin_wrynn_empowered_hopebreaker_periodic'),
+(365806, 'spell_anduin_wrynn_hopebreaker'),
 (365958, 'spell_anduin_wrynn_hopelessness'),
 (365966, 'spell_anduin_wrynn_hopelessness_expire'),
 (362500, 'spell_remnant_of_a_fallen_king_spawn'),
