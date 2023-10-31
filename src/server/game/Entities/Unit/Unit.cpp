@@ -1714,7 +1714,7 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
             discreteResistProbability[i] = std::max(0.5f - 2.5f * std::fabs(0.1f * i - averageResist), 0.0f);
     }
 
-    float roll = float(rand_norm());
+    float roll = rand_norm();
     float probabilitySum = 0.0f;
 
     uint32 resistance = 0;

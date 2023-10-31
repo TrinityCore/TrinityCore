@@ -1328,8 +1328,8 @@ void WorldObject::GetRandomPoint(Position const& pos, float distance, float& ran
     }
 
     // angle to face `obj` to `this`
-    float angle = (float)rand_norm()*static_cast<float>(2*M_PI);
-    float new_dist = (float)rand_norm() + (float)rand_norm();
+    float angle = rand_norm() * static_cast<float>(2 * M_PI);
+    float new_dist = rand_norm() + rand_norm();
     new_dist = distance * (new_dist > 1 ? new_dist - 2 : new_dist);
 
     rand_x = pos.m_positionX + new_dist * std::cos(angle);
@@ -2913,6 +2913,8 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
     }
 
     spell->m_customArg = args.CustomArg;
+    spell->m_scriptResult = args.ScriptResult;
+    spell->m_scriptWaitsForSpellHit = args.ScriptWaitsForSpellHit;
 
     return spell->prepare(*targets.Targets, args.TriggeringAura);
 }
@@ -3410,7 +3412,7 @@ Position WorldObject::GetFirstCollisionPosition(float dist, float angle)
 Position WorldObject::GetRandomNearPosition(float radius)
 {
     Position pos = GetPosition();
-    MovePosition(pos, radius * (float)rand_norm(), (float)rand_norm() * static_cast<float>(2 * M_PI));
+    MovePosition(pos, radius * rand_norm(), rand_norm() * static_cast<float>(2 * M_PI));
     return pos;
 }
 

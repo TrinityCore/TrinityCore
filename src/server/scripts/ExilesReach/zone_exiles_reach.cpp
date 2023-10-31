@@ -359,7 +359,7 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
         {
             case POSITION_SPARPOINT_ADVERTISMENT:
                 me->SetWalk(true);
-                me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_READY, me->GetFirstCollisionPosition(2.0f, (float)rand_norm() * static_cast<float>(2 * M_PI)));
+                me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_READY, me->GetFirstCollisionPosition(2.0f, rand_norm() * static_cast<float>(2 * M_PI)));
                 break;
             case POSITION_SPARPOINT_READY:
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))

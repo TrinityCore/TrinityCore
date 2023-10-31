@@ -123,7 +123,7 @@ float SpellImplicitTargetInfo::CalcDirectionAngle() const
         case TARGET_DIR_FRONT_LEFT:
             return static_cast<float>(M_PI/4);
         case TARGET_DIR_RANDOM:
-            return float(rand_norm())*static_cast<float>(2*M_PI);
+            return rand_norm() * static_cast<float>(2 * M_PI);
         default:
             return 0.0f;
     }

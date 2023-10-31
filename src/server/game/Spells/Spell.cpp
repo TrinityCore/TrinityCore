@@ -1502,7 +1502,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
             float maxDist = m_spellInfo->GetMaxRange(true);
             float dist = frand(minDist, maxDist);
             float x, y, z;
-            float angle = float(rand_norm()) * static_cast<float>(M_PI * 35.0f / 180.0f) - static_cast<float>(M_PI * 17.5f / 180.0f);
+            float angle = rand_norm() * static_cast<float>(M_PI * 35.0f / 180.0f) - static_cast<float>(M_PI * 17.5f / 180.0f);
             m_caster->GetClosePoint(x, y, z, DEFAULT_PLAYER_BOUNDING_RADIUS, dist, angle);
 
             float ground = m_caster->GetMapHeight(x, y, z);
@@ -1604,7 +1604,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
                     break;
                 case TARGET_DEST_CASTER_RANDOM:
                     if (dist > objSize)
-                        dist = objSize + (dist - objSize) * float(rand_norm());
+                        dist = objSize + (dist - objSize) * rand_norm();
                     break;
                 case TARGET_DEST_CASTER_FRONT_LEFT:
                 case TARGET_DEST_CASTER_BACK_LEFT:
@@ -1656,7 +1656,7 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffectInfo const& spellEffectIn
             float angle = targetType.CalcDirectionAngle();
             float dist = spellEffectInfo.CalcRadius(nullptr, targetIndex);
             if (targetType.GetTarget() == TARGET_DEST_TARGET_RANDOM)
-                dist *= float(rand_norm());
+                dist *= rand_norm();
 
             Position pos = dest._position;
             target->MovePositionToFirstCollision(pos, dist, angle);
@@ -1710,7 +1710,7 @@ void Spell::SelectImplicitDestDestTargets(SpellEffectInfo const& spellEffectInfo
             float angle = targetType.CalcDirectionAngle();
             float dist = spellEffectInfo.CalcRadius(m_caster, targetIndex);
             if (targetType.GetTarget() == TARGET_DEST_DEST_RANDOM)
-                dist *= float(rand_norm());
+                dist *= rand_norm();
 
             Position pos = dest._position;
             m_caster->MovePositionToFirstCollision(pos, dist, angle);
