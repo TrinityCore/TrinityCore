@@ -77,7 +77,7 @@ enum EncounterState
     TO_BE_DECIDED = 5
 };
 
-enum class EncounterDoorBehavior
+enum class EncounterDoorBehavior : uint8
 {
     OpenWhenNotInProgress   = 0, // open if encounter is not in progress
     OpenWhenDone            = 1, // open if encounter is done
@@ -140,7 +140,7 @@ struct BossInfo
     DungeonEncounterEntry const* GetDungeonEncounterForDifficulty(Difficulty difficulty) const;
 
     EncounterState state;
-    GuidSet door[uint32(EncounterDoorBehavior::Max)];
+    GuidSet door[AsUnderlyingType(EncounterDoorBehavior::Max)];
     GuidSet minion;
     CreatureBoundary boundary;
     std::array<DungeonEncounterEntry const*, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> DungeonEncounters;

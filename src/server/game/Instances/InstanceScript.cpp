@@ -350,9 +350,9 @@ void InstanceScript::AddDoor(GameObject* door, bool add)
         DoorInfo const& data = range.first->second;
 
         if (add)
-            data.bossInfo->door[uint32(data.Behavior)].insert(door->GetGUID());
+            data.bossInfo->door[AsUnderlyingType(data.Behavior)].insert(door->GetGUID());
         else
-            data.bossInfo->door[uint32(data.Behavior)].erase(door->GetGUID());
+            data.bossInfo->door[AsUnderlyingType(data.Behavior)].erase(door->GetGUID());
     }
 
     if (add)
@@ -455,9 +455,9 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                 instance->UpdateInstanceLock({ dungeonEncounter, id, state });
         }
 
-        for (uint32 behavior = 0; behavior < uint32(EncounterDoorBehavior::Max); ++behavior)
-            for (GuidSet::iterator i = bossInfo->door[behavior].begin(); i != bossInfo->door[behavior].end(); ++i)
-                if (GameObject* door = instance->GetGameObject(*i))
+        for (GuidSet const& doorSet : bossInfo->door)
+            for (ObjectGuid const& doorGUID : doorSet)
+                if (GameObject* door = instance->GetGameObject(doorGUID))
                     UpdateDoorState(door);
 
         GuidSet minions = bossInfo->minion; // Copy to prevent iterator invalidation (minion might be unsummoned in UpdateMinionState)
