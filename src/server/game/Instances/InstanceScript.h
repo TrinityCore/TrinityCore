@@ -140,7 +140,7 @@ struct BossInfo
     DungeonEncounterEntry const* GetDungeonEncounterForDifficulty(Difficulty difficulty) const;
 
     EncounterState state;
-    GuidSet door[AsUnderlyingType(EncounterDoorBehavior::Max)];
+    std::array<GuidSet, static_cast<uint8>(EncounterDoorBehavior::Max)> door;
     GuidSet minion;
     CreatureBoundary boundary;
     std::array<DungeonEncounterEntry const*, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> DungeonEncounters;
