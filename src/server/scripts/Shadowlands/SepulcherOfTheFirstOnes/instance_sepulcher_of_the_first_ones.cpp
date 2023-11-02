@@ -46,7 +46,7 @@ ObjectData const creatureData[] =
 
 DoorData const doorData[] =
 {
-    { GAMEOBJECT_BRIDGE_TO_ANDUIN,              DATA_ANDUIN_WRYNN,          DOOR_TYPE_ROOM }, // @TODO: invert logic, should open if in progress
+    { GAMEOBJECT_BRIDGE_TO_ANDUIN,              DATA_ANDUIN_WRYNN,          DOOR_TYPE_SPAWN_HOLE },
     { GAMEOBJECT_BRIDGE_AFTER_ANDUIN,           DATA_ANDUIN_WRYNN,          DOOR_TYPE_PASSAGE }, // @TODO: invert logic, should open if encounter not done
     { 0,                                        0,                          DOOR_TYPE_ROOM }
 };
