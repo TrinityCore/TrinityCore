@@ -36,8 +36,8 @@ ObjectData const creatureData[] =
 
 DoorData const doorData[] =
 {
-    { GO_KAZZARA_DOOR, DATA_KAZZARA_THE_HELLFORGED,  DOOR_TYPE_ROOM    },
-    { 0,               0,                            DOOR_TYPE_ROOM    }  // END
+    { GO_KAZZARA_DOOR, DATA_KAZZARA_THE_HELLFORGED,  EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,               0,                            EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
 ObjectData const objectData[] =
