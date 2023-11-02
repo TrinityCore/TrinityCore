@@ -46,10 +46,16 @@ ObjectData const creatureData[] =
 
 ObjectData const gameObjectData[] =
 {
-    { GAMEOBJECT_BRIDGE_TO_ANDUIN,              DATA_BRIDGE_TO_ANDUIN },
-    { GAMEOBJECT_BRIDGE_AFTER_ANDUIN,           DATA_BRIDGE_AFTER_ANDUIN },
     { 0,                                        0 }
 };
+
+DoorData const doorData[] =
+{
+    { GAMEOBJECT_BRIDGE_TO_ANDUIN,              DATA_ANDUIN_WRYNN,          DOOR_TYPE_ROOM }, // @TODO: invert logic, should open if in progress
+    { GAMEOBJECT_BRIDGE_AFTER_ANDUIN,           DATA_ANDUIN_WRYNN,          DOOR_TYPE_PASSAGE }, // @TODO: invert logic, should open if encounter not done
+    { 0,                                        0,                          DOOR_TYPE_ROOM }
+};
+
 DungeonEncounterData const encounters[] =
 {
     { DATA_ANDUIN_WRYNN, {{ 2546 }} },
@@ -73,6 +79,7 @@ public:
             SetBossNumber(EncounterCount);
             LoadDungeonEncounterData(encounters);
             LoadObjectData(creatureData, gameObjectData);
+            LoadDoorData(doorData);
 
             AnduinIntroductionData = NOT_STARTED;
         }

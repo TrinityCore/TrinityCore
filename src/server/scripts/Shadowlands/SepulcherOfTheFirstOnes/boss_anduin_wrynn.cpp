@@ -686,27 +686,6 @@ struct boss_anduin_wrynn : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_HOPELESSNESS_HOPELESSNESS_AREATRIGGER);
     }
 
-    void ToggleBridgeToAnduin(bool show)
-    {
-        GameObject* bridge = instance->GetGameObject(DATA_BRIDGE_TO_ANDUIN);
-        if (!bridge)
-            return;
-
-        if (show)
-        {
-            if (instance->GetData(DATA_ANDUIN_WRYNN_INTRODUCTION) != DONE)
-            {
-                bridge->SetLootState(GO_READY);
-                bridge->UseDoorOrButton(0, false);
-            }
-        }
-        else
-        {
-            bridge->SetGoState(GO_STATE_READY);
-            bridge->RemoveFlag(GO_FLAG_IN_USE);
-        }
-    }
-
     void JustAppeared() override
     {
         scheduler.ClearValidator();
@@ -718,8 +697,6 @@ struct boss_anduin_wrynn : public BossAI
         DoCastSelf(SPELL_DARK_ZEAL_AURA, true);
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 0);
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 0);
-
-        ToggleBridgeToAnduin(false);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -733,7 +710,6 @@ struct boss_anduin_wrynn : public BossAI
         summons.DespawnAll();
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 0);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        ToggleBridgeToAnduin(true);
     }
 
     void Reset() override
@@ -841,8 +817,6 @@ struct boss_anduin_wrynn : public BossAI
         PhaseEvents(PHASE_ONE);
         instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, PHASE_ONE);
         Talk(SAY_AGGRO);
-
-        ToggleBridgeToAnduin(false);
     }
 
     void DoAction(int32 action) override
@@ -1406,14 +1380,6 @@ struct boss_anduin_wrynn : public BossAI
         {
             instance->DoCastSpellOnPlayers(SPELL_FINAL_MOVIE);
         });
-
-        ToggleBridgeToAnduin(true);
-
-        if (GameObject* bridge = instance->GetGameObject(DATA_BRIDGE_AFTER_ANDUIN))
-        {
-            bridge->SetLootState(GO_READY);
-            bridge->UseDoorOrButton(0, false);
-        }
     }
 
 private:
