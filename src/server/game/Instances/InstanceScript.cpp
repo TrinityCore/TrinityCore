@@ -239,6 +239,9 @@ void InstanceScript::UpdateDoorState(GameObject* door)
             case DOOR_TYPE_SPAWN_HOLE:
                 open = (info.bossInfo->state == IN_PROGRESS);
                 break;
+            case DOOR_TYPE_BRIDGE_PASSAGE:
+                open = (info.bossInfo->state != DONE);
+                break;
             default:
                 break;
         }
