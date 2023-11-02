@@ -44,11 +44,6 @@ ObjectData const creatureData[] =
     { 0,                                        0                                   }
 };
 
-ObjectData const gameObjectData[] =
-{
-    { 0,                                        0 }
-};
-
 DoorData const doorData[] =
 {
     { GAMEOBJECT_BRIDGE_TO_ANDUIN,              DATA_ANDUIN_WRYNN,          DOOR_TYPE_ROOM }, // @TODO: invert logic, should open if in progress
@@ -78,7 +73,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadDungeonEncounterData(encounters);
-            LoadObjectData(creatureData, gameObjectData);
+            LoadObjectData(creatureData, nullptr);
             LoadDoorData(doorData);
 
             AnduinIntroductionData = NOT_STARTED;
