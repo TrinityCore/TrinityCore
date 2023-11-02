@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaBoundary.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "GameObject.h"
@@ -42,6 +43,11 @@ ObjectData const creatureData[] =
     { NPC_QUARTERMASTER_RAHM_ANDUIN,            DATA_QUARTERMASTER_RAHM_ANDUIN      },
     { NPC_BOLVAR_FORDRAGON_ANDUIN,              DATA_BOLVAR_FORDRAGON_ANDUIN        },
     { 0,                                        0                                   }
+};
+
+BossBoundaryData const boundaries =
+{
+    { DATA_ANDUIN_WRYNN,    new CircleBoundary(Position(-3825.0601f,-2715.4600f), 45.0) },
 };
 
 DoorData const doorData[] =
@@ -73,6 +79,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadDungeonEncounterData(encounters);
+            LoadBossBoundaries(boundaries);
             LoadObjectData(creatureData, nullptr);
             LoadDoorData(doorData);
 
@@ -86,56 +93,56 @@ public:
 
             switch (id)
             {
-                case DATA_ANDUIN_WRYNN:
+            case DATA_ANDUIN_WRYNN:
+            {
+                switch (state)
                 {
-                    switch (state)
+                case NOT_STARTED:
+                {
+                    DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 0);
+                    break;
+                }
+
+                case IN_PROGRESS:
+                {
+                    Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN);
+                    if (!anduin)
+                        return false;
+
+                    DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 1);
+
+                    if (Creature* uther = GetCreature(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN))
                     {
-                        case NOT_STARTED:
-                        {
-                            DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 0);
-                            break;
-                        }
+                        uther->SetFaction(2);
+                        uther->AI()->JustEngagedWith(anduin);
+                        uther->GetThreatManager().AddThreat(anduin, 1000);
+                    }
 
-                        case IN_PROGRESS:
-                        {
-                            Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN);
-                            if (!anduin)
-                                return false;
+                    if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER_ANDUIN))
+                    {
+                        sylvanas->SetFaction(2);
+                        sylvanas->AI()->JustEngagedWith(anduin);
+                        sylvanas->GetThreatManager().AddThreat(anduin, 1000);
+                        sylvanas->GetAI()->AttackStartCaster(anduin, 25.0f);
+                    }
 
-                            DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 1);
-
-                            if (Creature* uther = GetCreature(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN))
-                            {
-                                uther->SetFaction(2);
-                                uther->AI()->JustEngagedWith(anduin);
-                                uther->GetThreatManager().AddThreat(anduin, 1000);
-                            }
-
-                            if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER_ANDUIN))
-                            {
-                                sylvanas->SetFaction(2);
-                                sylvanas->AI()->JustEngagedWith(anduin);
-                                sylvanas->GetThreatManager().AddThreat(anduin, 1000);
-                                sylvanas->GetAI()->AttackStartCaster(anduin, 25.0f);
-                            }
-
-                            if (Creature* jaina = GetCreature(DATA_JAINA_PROUDMOORE_ANDUIN))
-                            {
-                                jaina->SetFaction(2);
-                                jaina->AI()->JustEngagedWith(anduin);
-                                jaina->GetThreatManager().AddThreat(anduin, 1000);
-                                jaina->GetAI()->AttackStartCaster(anduin, 25.0f);
-                            }
-                            break;
-                        }
-
-                        default:
-                            break;
+                    if (Creature* jaina = GetCreature(DATA_JAINA_PROUDMOORE_ANDUIN))
+                    {
+                        jaina->SetFaction(2);
+                        jaina->AI()->JustEngagedWith(anduin);
+                        jaina->GetThreatManager().AddThreat(anduin, 1000);
+                        jaina->GetAI()->AttackStartCaster(anduin, 25.0f);
                     }
                     break;
                 }
+
                 default:
                     break;
+                }
+                break;
+            }
+            default:
+                break;
             }
             return true;
         }
@@ -144,44 +151,44 @@ public:
         {
             switch (type)
             {
-                case DATA_ANDUIN_WRYNN_INTRODUCTION:
+            case DATA_ANDUIN_WRYNN_INTRODUCTION:
+            {
+                switch (data)
                 {
-                    switch (data)
+                case NOT_STARTED:
+                {
+                    AnduinIntroductionData = NOT_STARTED;
+                    if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
                     {
-                        case NOT_STARTED:
-                        {
-                            AnduinIntroductionData = NOT_STARTED;
-                            if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
-                            {
-                                anduin->CastSpell(anduin, SPELL_ANDUIN_PLUNGE_KINGSMOURNE);
-                                anduin->SetUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                                anduin->SetImmuneToAll(true);
-                            }
-                            break;
-                        }
-                        case IN_PROGRESS:
-                        {
-                            AnduinIntroductionData = IN_PROGRESS;
-                            break;
-                        }
-
-                        case DONE:
-                        {
-                            AnduinIntroductionData = DONE;
-                            if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
-                            {
-                                anduin->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                                anduin->SetImmuneToAll(false);
-                                anduin->SetSpeed(MOVE_RUN, 11.0f);
-                                anduin->RemoveAurasDueToSpell(SPELL_ANDUIN_PLUNGE_KINGSMOURNE);
-                            }
-                            break;
-                        }
-                        default:
-                            break;
+                        anduin->CastSpell(anduin, SPELL_ANDUIN_PLUNGE_KINGSMOURNE);
+                        anduin->SetUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        anduin->SetImmuneToAll(true);
                     }
+                    break;
                 }
-                break;
+                case IN_PROGRESS:
+                {
+                    AnduinIntroductionData = IN_PROGRESS;
+                    break;
+                }
+
+                case DONE:
+                {
+                    AnduinIntroductionData = DONE;
+                    if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
+                    {
+                        anduin->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        anduin->SetImmuneToAll(false);
+                        anduin->SetSpeed(MOVE_RUN, 11.0f);
+                        anduin->RemoveAurasDueToSpell(SPELL_ANDUIN_PLUNGE_KINGSMOURNE);
+                    }
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+            break;
             default:
                 break;
             }
@@ -191,10 +198,10 @@ public:
         {
             switch (type)
             {
-                case DATA_ANDUIN_WRYNN_INTRODUCTION:
-                    return AnduinIntroductionData;
-                default:
-                    break;
+            case DATA_ANDUIN_WRYNN_INTRODUCTION:
+                return AnduinIntroductionData;
+            default:
+                break;
             }
 
             return 0;
