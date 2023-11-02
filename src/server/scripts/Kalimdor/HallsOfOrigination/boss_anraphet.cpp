@@ -538,8 +538,8 @@ public:
             // Do our own calculations for the destination position.
             /// TODO: Remove this once we find a general rule for WorldObject::MovePosition (this spell shouldn't take the Z change into consideration)
             Unit* caster = GetCaster();
-            float angle = float(rand_norm()) * static_cast<float>(2 * M_PI);
-            uint32 dist = caster->GetCombatReach() + GetSpellInfo()->GetEffect(EFFECT_0).CalcRadius(caster, SpellTargetIndex::TargetB) * (float)rand_norm();
+            float angle = rand_norm() * static_cast<float>(2 * M_PI);
+            uint32 dist = caster->GetCombatReach() + GetSpellInfo()->GetEffect(EFFECT_0).CalcRadius(caster, SpellTargetIndex::TargetB) * rand_norm();
 
             float x = caster->GetPositionX() + dist * std::cos(angle);
             float y = caster->GetPositionY() + dist * std::sin(angle);

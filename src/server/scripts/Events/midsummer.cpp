@@ -307,7 +307,7 @@ class spell_midsummer_fling_torch : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        Position dest = GetCaster()->GetFirstCollisionPosition(30.0f, (float)rand_norm() * static_cast<float>(2 * M_PI));
+        Position dest = GetCaster()->GetFirstCollisionPosition(30.0f, rand_norm() * static_cast<float>(2 * M_PI));
         GetCaster()->CastSpell(dest, SPELL_FLING_TORCH_TRIGGERED, true);
         GetCaster()->CastSpell(dest, SPELL_FLING_TORCH_SHADOW);
     }
@@ -391,7 +391,7 @@ class spell_midsummer_fling_torch_catch : public SpellScript
         }
         else
         {
-            Position dest = player->GetFirstCollisionPosition(15.0f, (float)rand_norm() * static_cast<float>(2 * M_PI));
+            Position dest = player->GetFirstCollisionPosition(15.0f, rand_norm() * static_cast<float>(2 * M_PI));
             player->CastSpell(player, SPELL_TORCHES_CAUGHT);
             player->CastSpell(dest, SPELL_FLING_TORCH_TRIGGERED, true);
             player->CastSpell(dest, SPELL_FLING_TORCH_SHADOW);

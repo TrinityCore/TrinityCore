@@ -159,11 +159,11 @@ static inline Position const& GetRandomMinionSpawnPoint()
 // uniformly distribute on the circle
 static Position GetRandomPositionOnCircle(Position const& center, float radius)
 {
-    double angle = rand_norm() * 2.0 * M_PI;
-    double relDistance = rand_norm() + rand_norm();
+    float angle = float(M_PI * rand_norm() * 2.0);
+    float relDistance = rand_norm() + rand_norm();
     if (relDistance > 1)
         relDistance = 1 - relDistance;
-    return Position(center.GetPositionX() + std::sin(angle)*relDistance*radius, center.GetPositionY() + std::cos(angle)*relDistance*radius, center.GetPositionZ());
+    return Position(center.GetPositionX() + std::sin(angle) * relDistance * radius, center.GetPositionY() + std::cos(angle) * relDistance * radius, center.GetPositionZ());
 }
 
 class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI

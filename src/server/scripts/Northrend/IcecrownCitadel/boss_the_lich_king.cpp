@@ -1642,7 +1642,7 @@ struct npc_strangulate_vehicle : public ScriptedAI
                     {
                         if (me->GetExactDist(lichKing) > 10.0f)
                         {
-                            Position pos = lichKing->GetNearPosition(float(rand_norm()) * 5.0f  + 7.5f, lichKing->GetAbsoluteAngle(me));
+                            Position pos = lichKing->GetNearPosition(rand_norm() * 5.0f + 7.5f, lichKing->GetAbsoluteAngle(me));
                             me->GetMotionMaster()->MovePoint(0, pos);
                         }
                     }
