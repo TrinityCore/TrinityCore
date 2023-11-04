@@ -108,25 +108,17 @@ public:
 
                             if (Creature* uther = GetCreature(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN))
                             {
-                                uther->SetFaction(2);
-                                uther->AI()->JustEngagedWith(anduin);
-                                uther->GetThreatManager().AddThreat(anduin, 1000);
+                                uther->SetFaction(2); // hack: it should be attacking anduin even with faction 35 set
+                                uther->AI()->AttackStart(anduin);
                             }
 
-                            if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER_ANDUIN))
+                            for (uint32 data : { DATA_SYLVANAS_WINDRUNNER_ANDUIN, DATA_JAINA_PROUDMOORE_ANDUIN })
                             {
-                                sylvanas->SetFaction(2);
-                                sylvanas->AI()->JustEngagedWith(anduin);
-                                sylvanas->GetThreatManager().AddThreat(anduin, 1000);
-                                sylvanas->GetAI()->AttackStartCaster(anduin, 25.0f);
-                            }
-
-                            if (Creature* jaina = GetCreature(DATA_JAINA_PROUDMOORE_ANDUIN))
-                            {
-                                jaina->SetFaction(2);
-                                jaina->AI()->JustEngagedWith(anduin);
-                                jaina->GetThreatManager().AddThreat(anduin, 1000);
-                                jaina->GetAI()->AttackStartCaster(anduin, 25.0f);
+                                if (Creature* creature = GetCreature(data))
+                                {
+                                    creature->SetFaction(2); // hack: it should be attacking anduin even with faction 35 set
+                                    creature->AI()->AttackStartCaster(anduin, 25.0f);
+                                }
                             }
                             break;
                         }

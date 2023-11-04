@@ -293,23 +293,16 @@ enum AnduinWrynnEvents
     EVENT_GRIM_REFLECTIONS,
     EVENT_BEACON_OF_HOPE,
     EVENT_EMPOWERED_HOPEBREAKER,
-    EVENT_SUMMON_ARTHAS,
     EVENT_BANISH_SOUL,
     EVENT_BERSERK,
-    EVENT_INTRODUCTION_FINISH,
 
     // Kingsmourne Room
     EVENT_ANDUIN_SOUL,
-    EVENT_ESCAPE_PLATFORM,
-    EVENT_DESPAWN_SELF,
 
     // Remnant of a Fallen King
-    EVENT_REMNANT_INTERMISSION_ONE,
-    EVENT_REMNANT_INTERMISSION_TWO,
     EVENT_ARMY_OF_THE_DEAD,
     EVENT_SOUL_REAPER,
     EVENT_RETURN_TO_KINGSMOURNE,
-    EVENT_CANCEL_EVENTS,
 
     // Fiendish Soul
     EVENT_GHOUL_LEAP,
@@ -603,8 +596,6 @@ struct boss_anduin_wrynn : public BossAI
             jaina->SetSheath(SHEATH_STATE_RANGED);
             jaina->SetEmoteState(EMOTE_STATE_READY2H);
         }
-
-        // @TODO: assisters should attack remnant after teleport (as soon as it spawns)
     }
 
     void ForceAssistersToAttackRemnant()
@@ -619,30 +610,10 @@ struct boss_anduin_wrynn : public BossAI
             if (!creature)
                 return;
 
-            creature->GetThreatManager().AddThreat(remnant, 100000);
+            creature->AI()->AttackStart(remnant);
             creature->SetReactState(REACT_AGGRESSIVE);
         };
 
-        forceAttack(DATA_SYLVANAS_WINDRUNNER_ANDUIN);
-        forceAttack(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN);
-        forceAttack(DATA_JAINA_PROUDMOORE_ANDUIN);
-    }
-
-    void ZoneAllies() // @TODO: figure out why they aren't attacking anduin after intermission / fix naming
-    {
-        Unit* anduin = instance->GetCreature(DATA_ANDUIN_WRYNN);
-        if (!anduin)
-            return;
-
-        auto forceAttack = [this, anduin](uint32 data)
-        {
-            Creature* creature = instance->GetCreature(data);
-            if (!creature)
-                return;
-
-            creature->GetThreatManager().AddThreat(anduin, 100000);
-            DoZoneInCombat(creature);
-        };
         forceAttack(DATA_SYLVANAS_WINDRUNNER_ANDUIN);
         forceAttack(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN);
         forceAttack(DATA_JAINA_PROUDMOORE_ANDUIN);
@@ -883,6 +854,7 @@ struct boss_anduin_wrynn : public BossAI
                 scheduler.Schedule(35s, [this](TaskContext /*task*/)
                 {
                     instance->SetData(DATA_ANDUIN_WRYNN_INTRODUCTION, DONE);
+                    HandleIntroduction();
                 });
                 break;
             }
@@ -983,7 +955,6 @@ struct boss_anduin_wrynn : public BossAI
                     scheduler.Schedule(3s, [this](TaskContext /*task*/)
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
-                        ZoneAllies();
                     });
                 }
                 else if (_intermissionsDone == 1)
@@ -992,7 +963,6 @@ struct boss_anduin_wrynn : public BossAI
                     scheduler.Schedule(6s, [this](TaskContext /*task*/)
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
-                        ZoneAllies();
                     });
                 }
                 break;
@@ -1094,7 +1064,6 @@ struct boss_anduin_wrynn : public BossAI
                 case EVENT_HOPELESSNESS:
                 {
                     DoCastAOE(SPELL_HOPELESSNESS);
-                    Talk(SAY_ANNOUNCE_BLASPHEMY);
                     Talk(SAY_BLASPHEMY);
                     if (IsMythic())
                         events.Repeat(65500ms);
@@ -1246,8 +1215,8 @@ struct boss_anduin_wrynn : public BossAI
                 events.ScheduleEvent(EVENT_BLASPHEMY, 30s);
                 events.ScheduleEvent(EVENT_WICKED_STAR, 55s);
                 events.ScheduleEvent(EVENT_DOMINATION_WORD_PAIN, 7s);
-                events.ScheduleEvent(EVENT_INTERMISSION_ONE, 150s);
-                events.ScheduleEvent(EVENT_BERSERK, 900s);
+                events.ScheduleEvent(EVENT_INTERMISSION_ONE, 12s);
+                events.ScheduleEvent(EVENT_BERSERK, 15min);
 
                 if (IsLFR())
                     DoCastSelf(SPELL_ANDUIN_WILLPOWER_PERIODIC, true);
@@ -1261,7 +1230,7 @@ struct boss_anduin_wrynn : public BossAI
                 _intermissionsDone = 1;
                 me->ModifyPower(me->GetPowerType(), 0);
                 events.SetPhase(PHASE_TWO);
-                events.ScheduleEvent(EVENT_GRIM_REFLECTIONS, 8500ms);
+                events.ScheduleEvent(EVENT_GRIM_REFLECTIONS, 85s);
                 events.ScheduleEvent(EVENT_HOPEBREAKER, 13600ms);
                 events.ScheduleEvent(EVENT_WICKED_STAR, 18500ms);
                 events.ScheduleEvent(EVENT_BEFOULED_BARRIER, 80600ms);
@@ -1901,6 +1870,7 @@ struct boss_remnant_of_a_fallen_king : public BossAI
 
     void JustAppeared() override
     {
+        scheduler.ClearValidator();
         DoCastSelf(SPELL_SHADE_VISUAL);
         me->ModifyPower(me->GetPowerType(), 0);
         me->SetPower(me->GetPowerType(), 0);
@@ -1916,11 +1886,13 @@ struct boss_remnant_of_a_fallen_king : public BossAI
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        _EnterEvadeMode();
         summons.DespawnAll();
+        me->DespawnOrUnsummon();
+
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WEATHER_COSMETIC);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_REMORSELESS_WINTER_PERIODIC);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NECROTIC_CLAWS_DEBUFF);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FORCE_OF_WILL);
     }
 
     void ContinueAttacking()
@@ -1985,7 +1957,10 @@ struct boss_remnant_of_a_fallen_king : public BossAI
             case ACTION_DESPAWN_REMNANT:
             {
                 DoCastSelf(SPELL_SOUL_DESPAWN);
-                me->DespawnOrUnsummon(500ms);
+                _scheduler.Schedule(500ms, [this](TaskContext /*task*/)
+                {
+                    EnterEvadeMode(EvadeReason::Other);
+                });
                 break;
             }
             default:
@@ -1995,12 +1970,12 @@ struct boss_remnant_of_a_fallen_king : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+        _scheduler.Update(diff);
 
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff);
+        events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
@@ -2127,19 +2102,8 @@ struct npc_anduin_wrynn_sylvanas : public ScriptedAI
         _events.Reset();
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        damage = 0;
-    }
-
-    void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) override
-    {
-        damage = 0;
-    }
-
-    void JustEngagedWith(Unit* who) override
-    {
-        AddThreat(who, 5000.0f);
         _events.ScheduleEvent(EVENT_TUMBLE, 10s);
     }
 
@@ -2193,16 +2157,6 @@ struct npc_anduin_wrynn_jaina : public ScriptedAI
     void Reset() override
     {
         _events.Reset();
-    }
-
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-    {
-        damage = 0;
-    }
-
-    void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) override
-    {
-        damage = 0;
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -2274,16 +2228,6 @@ struct npc_anduin_wrynn_uther : public ScriptedAI
     void Reset() override
     {
         _events.Reset();
-    }
-
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-    {
-        damage = 0;
-    }
-
-    void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) override
-    {
-        damage = 0;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -2704,7 +2648,7 @@ struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
         if (Creature* creature = target->ToCreature())
         {
             creature->CastSpell(creature, SPELL_BEFOULED_BARRIER_CLEAR, true);
-            creature->DespawnOrUnsummon();
+            creature->DespawnOrUnsummon(1s);
         }
     }
 
@@ -3188,20 +3132,16 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
 {
     at_anduin_wrynn_wicked_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    virtual uint32 CalculateStarLaunchSpeed()
+    static constexpr float GetWickedStarSpeed(Difficulty difficulty)
     {
-        switch (at->GetMap()->GetDifficultyID())
+        // in yards per second
+        switch (difficulty)
         {
-            case DIFFICULTY_LFR_NEW:
-                return 60;
-            case DIFFICULTY_NORMAL_RAID:
-                return 50;
             case DIFFICULTY_HEROIC_RAID:
-                return 40;
             case DIFFICULTY_MYTHIC_RAID:
-                return 30;
-            default:
-                return 50;
+                return 18.0f;
+            default: // LFR + Normal
+                return 15.0f;
         }
     }
 
@@ -3209,115 +3149,59 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
     {
         if (Unit* caster = at->GetCaster())
         {
-            _casterInitialPosition = caster->GetPosition();
-            float wickedStarXOffSet = 100.0f;
-            Position destPos = _casterInitialPosition;
+            Position destPos = caster->GetPosition();
+            at->MovePositionToFirstCollision(destPos, 100.0f, 0.0f);
 
-            at->MovePositionToFirstCollision(destPos, wickedStarXOffSet, 0.0f);
+            Movement::PointsArray splinePoints;
+            splinePoints.push_back(PositionToVector3(caster->GetPosition()));
+            splinePoints.push_back(PositionToVector3(caster->GetPosition()));
+            splinePoints.push_back(PositionToVector3(destPos));
+            splinePoints.push_back(PositionToVector3(caster->GetPosition()));
+            splinePoints.push_back(PositionToVector3(caster->GetPosition()));
 
-            PathGenerator firstPath(at);
-            firstPath.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
-            G3D::Vector3 const& endPoint = firstPath.GetPath().back();
-
-            at->InitSplines(firstPath.GetPath(), static_cast<uint32>(at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * CalculateStarLaunchSpeed()));
+            float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) / GetWickedStarSpeed(at->GetMap()->GetDifficultyID()) * 1000;
+            at->InitSplines(splinePoints, timeToTarget);
         }
     }
 
-    void OnUpdate(uint32 diff) override
-    {
-        _scheduler.Update(diff);
-    }
-
-    void HandleWickedStarHit(Unit* unit)
+    void HandleWickedStarHit(Unit* unit, bool saveUnit)
     {
         if (unit->GetEntry() == NPC_SYLVANAS_WINDRUNNER_ANDUIN || unit->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER_ANDUIN ||
             unit->GetEntry() == NPC_LADY_JAINA_PROUDMOORE_ANDUIN || unit->GetEntry() == BOSS_ANDUIN_WRYNN)
             return;
 
-        if (Unit* caster = at->GetCaster())
-        {
-            if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
-            {
-                if (caster->IsValidAttackTarget(unit))
-                    caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                else if (caster->IsValidAssistTarget(unit))
-                    caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
 
+        if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
+        {
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+            else if (caster->IsValidAssistTarget(unit))
+                caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+
+            if (saveUnit)
                 _affectedUnits.push_back(unit->GetGUID());
-            }
         }
     }
 
     void OnUnitEnter(Unit* unit) override
     {
-        HandleWickedStarHit(unit);
+        HandleWickedStarHit(unit, true);
     }
 
     void OnUnitExit(Unit* unit) override
     {
-        HandleWickedStarHit(unit);
-    }
-
-    virtual void HandleNextMovement()
-    {
-        ReturnToCaster();
+        HandleWickedStarHit(unit, false);
     }
 
     void OnDestinationReached() override
     {
-        Unit* caster = at->GetCaster();
-        if (!caster)
-            return;
-
-        if (at->GetDistance(_casterInitialPosition) > 0.05f)
-        {
-            _affectedUnits.clear();
-            HandleNextMovement();
-        }
-        else
-            at->Remove();
-    }
-
-    void ReturnToCaster()
-    {
-        uint32 starReturnSpeed = 10;
-
-        switch (at->GetMap()->GetDifficultyID())
-        {
-            case DIFFICULTY_LFR_NEW:
-                starReturnSpeed = 8;
-                break;
-            case DIFFICULTY_NORMAL_RAID:
-                starReturnSpeed = 10;
-                break;
-            case DIFFICULTY_HEROIC_RAID:
-                starReturnSpeed = 12;
-                break;
-            case DIFFICULTY_MYTHIC_RAID:
-                starReturnSpeed = 14;
-                break;
-            default:
-                starReturnSpeed = 10;
-                break;
-        }
-
-        _scheduler.Schedule(0ms, [this, starReturnSpeed](TaskContext task)
-        {
-            Movement::PointsArray returnSplinePoints;
-
-            returnSplinePoints.push_back(PositionToVector3(at));
-            returnSplinePoints.push_back(PositionToVector3(at));
-            returnSplinePoints.push_back(PositionToVector3(_casterInitialPosition));
-            returnSplinePoints.push_back(PositionToVector3(_casterInitialPosition));
-
-            at->InitSplines(returnSplinePoints, static_cast<uint32>(at->GetDistance(_casterInitialPosition) / starReturnSpeed * 600));
-            task.Repeat(250ms);
-        });
+        at->Remove();
     }
 
 protected:
-    TaskScheduler _scheduler;
-    Position _casterInitialPosition;
     std::vector<ObjectGuid> _affectedUnits;
 };
 
@@ -3342,33 +3226,38 @@ struct at_anduin_wrynn_empowered_wicked_star : public at_anduin_wrynn_wicked_sta
 {
     at_anduin_wrynn_empowered_wicked_star(AreaTrigger* areatrigger) : at_anduin_wrynn_wicked_star(areatrigger) { }
 
-    uint32 CalculateStarLaunchSpeed() override
+    static float constexpr EMPOWERED_WICKED_STAR_SPEED = 14.0f; // in yards per second
+
+    void HandleMovement(float angle)
     {
-        return 50;
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        // hack: when reflection is implemented use at position instead of center; due to mmaps we are causing infinite loop if using at position after dest reach
+        Position destPos = DominationGraspCenter;
+        at->MovePositionToFirstCollision(destPos, 100.0f, angle);
+
+        Movement::PointsArray splinePoints;
+        splinePoints.push_back(PositionToVector3(at));
+        splinePoints.push_back(PositionToVector3(at));
+        splinePoints.push_back(PositionToVector3(destPos));
+        splinePoints.push_back(PositionToVector3(destPos));
+
+        float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) / EMPOWERED_WICKED_STAR_SPEED * 1000;
+        at->InitSplines(splinePoints, timeToTarget);
     }
 
-    void HandleNextMovement() override
+    void OnInitialize() override
     {
-        _scheduler.Schedule(0ms, [this](TaskContext /*task*/)
-        {
-            if (at->GetCaster()->GetFaction() == FACTION_FRIENDLY)
-            {
-                at->Remove();
-            }
-            else if (Unit* caster = at->GetCaster())
-            {
-                Position wallPosition(DominationGraspCenter);
-                caster->MovePositionToFirstCollision(wallPosition, 50.0f, frand(0, 2.0f * float(M_PI)) - caster->GetOrientation());
+        HandleMovement(0);
+    }
 
-                Movement::PointsArray returnSplinePoints;
-                returnSplinePoints.push_back(PositionToVector3(at));
-                returnSplinePoints.push_back(PositionToVector3(at));
-                returnSplinePoints.push_back(PositionToVector3(wallPosition));
-                returnSplinePoints.push_back(PositionToVector3(wallPosition));
-
-                at->InitSplines(returnSplinePoints, static_cast<uint32>(at->GetDistance(wallPosition) / 8 * 600));
-            }
-        });
+    void OnDestinationReached() override
+    {
+        // hack: angle should use physical laws for reflection
+        HandleMovement(frand(0, 2.0f * float(M_PI)));
+        _affectedUnits.clear();
     }
 };
 
@@ -3854,7 +3743,7 @@ class spell_remnant_of_a_fallen_king_return_to_kingsmourne : public AuraScript
             return;
 
         if (Creature* arthas = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
-            arthas->DespawnOrUnsummon();
+            arthas->AI()->EnterEvadeMode(EvadeReason::Other);
 
         if (Creature* anduin = instance->GetCreature(DATA_ANDUIN_WRYNN))
         {
