@@ -20,7 +20,7 @@
 
 #include "CreatureAIImpl.h"
 
-#define DataHeader "SFO"
+#define DataHeader "SepulcherOfTheFirstOnes"
 #define SFOScriptName "instance_sepulcher_of_the_first_ones"
 
 uint32 const EncounterCount = 11;
@@ -28,17 +28,20 @@ uint32 const EncounterCount = 11;
 enum SepulcherOfTheFirstOnesDataTypes
 {
     // Bosses
-    DATA_VIGILANT_CUSTODIAN         = 1,
+    DATA_VIGILANT_CUSTODIAN         = 0,
+    DATA_SKOLEX                     = 1,
+    DATA_ARTIFICER_XYMOX            = 2,
+    DATA_HALONDRUS                  = 3,
+    DATA_DAUSEGNE                   = 4,
+    DATA_PROTOTYPE_PANTHEON         = 5,
+    DATA_LIHUVIM                    = 6,
     DATA_ANDUIN_WRYNN               = 7,
-    DATA_MALGANIS                   = 8,
-    DATA_KINTESSA                   = 9,
+    DATA_LORDS_OF_DREAD             = 8,
+    DATA_RYGELON                    = 10,
+    DATA_JAILER                     = 11,
 
-    // Anduin Wrynn related
+    // Anduin Wrynn Encounter
     DATA_ANDUIN_WRYNN_INTRODUCTION,
-    DATA_ANDUIN_GAMEOBJECTS,
-    DATA_BEFOULED_BARRIER,
-    DATA_EMPTY_VESSEL,
-    DATA_GRIM_REFLECTION,
     DATA_REMNANT_OF_A_FALLEN_KING,
     DATA_SYLVANAS_WINDRUNNER_ANDUIN,
     DATA_ANDUIN_SOUL,

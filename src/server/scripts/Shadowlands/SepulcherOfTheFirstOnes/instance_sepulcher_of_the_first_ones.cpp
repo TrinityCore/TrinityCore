@@ -29,9 +29,6 @@ ObjectData const creatureData[] =
 {
     // Anduin Wrynn
     { BOSS_ANDUIN_WRYNN,                        DATA_ANDUIN_WRYNN                   },
-    { NPC_BEFOULED_BARRIER,                     DATA_BEFOULED_BARRIER               },
-    { NPC_EMPTY_VESSEL,                         DATA_EMPTY_VESSEL                   },
-    { NPC_GRIM_REFLECTION,                      DATA_GRIM_REFLECTION                },
     { BOSS_REMNANT_OF_A_FALLEN_KING,            DATA_REMNANT_OF_A_FALLEN_KING       },
     { NPC_UTHER_THE_LIGHTBRINGER_ANDUIN,        DATA_UTHER_THE_LIGHTBRINGER_ANDUIN  },
     { NPC_LADY_JAINA_PROUDMOORE_ANDUIN,         DATA_JAINA_PROUDMOORE_ANDUIN        },
@@ -47,7 +44,7 @@ ObjectData const creatureData[] =
 
 BossBoundaryData const boundaries =
 {
-    { DATA_ANDUIN_WRYNN,    new CircleBoundary(Position(-3825.0601f,-2715.4600f), 45.0) },
+    { DATA_ANDUIN_WRYNN,                        new CircleBoundary(Position(-3825.0601f,-2715.4600f), 45.0) },
 };
 
 DoorData const doorData[] =
@@ -90,41 +87,30 @@ public:
             {
                 case DATA_ANDUIN_WRYNN:
                 {
-                    switch (state)
+                    if (state == NOT_STARTED)
+                        DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 0);
+                    else if (state == IN_PROGRESS)
                     {
-                        case NOT_STARTED:
+                        Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN);
+                        if (!anduin)
+                            return false;
+
+                        DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 1);
+
+                        if (Creature* uther = GetCreature(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN))
                         {
-                            DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 0);
-                            break;
+                            uther->SetFaction(2); // hack: it should be attacking anduin even with faction 35 set
+                            uther->AI()->AttackStart(anduin);
                         }
 
-                        case IN_PROGRESS:
+                        for (uint32 data : { DATA_SYLVANAS_WINDRUNNER_ANDUIN, DATA_JAINA_PROUDMOORE_ANDUIN })
                         {
-                            Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN);
-                            if (!anduin)
-                                return false;
-
-                            DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 1);
-
-                            if (Creature* uther = GetCreature(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN))
+                            if (Creature* creature = GetCreature(data))
                             {
-                                uther->SetFaction(2); // hack: it should be attacking anduin even with faction 35 set
-                                uther->AI()->AttackStart(anduin);
+                                creature->SetFaction(2); // hack: it should be attacking anduin even with faction 35 set
+                                creature->AI()->AttackStartCaster(anduin, 25.0f);
                             }
-
-                            for (uint32 data : { DATA_SYLVANAS_WINDRUNNER_ANDUIN, DATA_JAINA_PROUDMOORE_ANDUIN })
-                            {
-                                if (Creature* creature = GetCreature(data))
-                                {
-                                    creature->SetFaction(2); // hack: it should be attacking anduin even with faction 35 set
-                                    creature->AI()->AttackStartCaster(anduin, 25.0f);
-                                }
-                            }
-                            break;
                         }
-
-                        default:
-                            break;
                     }
                     break;
                 }
