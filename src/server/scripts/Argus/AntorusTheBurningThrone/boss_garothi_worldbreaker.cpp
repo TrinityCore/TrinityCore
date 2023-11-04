@@ -125,6 +125,12 @@ enum Misc
     SUMMON_GROUP_ID_SURGING_FEL         = 0
 };
 
+enum EncounterFrameIndexes
+{
+    ENCOUNTER_FRAME_INDEX_BOSS      = 1,
+    ENCOUNTER_FRAME_INDEX_CANNONS   = 2
+};
+
 namespace TargetHandler
 {
     class VictimCheck
@@ -216,7 +222,7 @@ struct boss_garothi_worldbreaker : public BossAI
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         DoCastSelf(SPELL_MELEE);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, ENCOUNTER_FRAME_INDEX_BOSS);
         events.ScheduleEvent(EVENT_FEL_BOMBARDMENT, 9s);
         events.ScheduleEvent(EVENT_CANNON_CHOOSER, 8s);
     }
@@ -263,6 +269,9 @@ struct boss_garothi_worldbreaker : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
+        if (damage >= me->GetHealth())
+            return;
+
         if (me->HealthBelowPctDamaged(_apocalypseDriveHealthLimit[_apocalypseDriveCount], damage))
         {
             me->AttackStop();
@@ -282,14 +291,14 @@ struct boss_garothi_worldbreaker : public BossAI
 
             if (Creature* decimator = instance->GetCreature(DATA_DECIMATOR))
             {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, decimator, 2);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, decimator, ENCOUNTER_FRAME_INDEX_CANNONS);
                 decimator->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
                 decimator->SetUninteractible(false);
             }
 
             if (Creature* annihilator = instance->GetCreature(DATA_ANNIHILATOR))
             {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, annihilator, 2);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, annihilator, ENCOUNTER_FRAME_INDEX_CANNONS);
                 annihilator->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
                 annihilator->SetUninteractible(false);
             }
@@ -420,6 +429,9 @@ struct boss_garothi_worldbreaker : public BossAI
                 default:
                     break;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
 
         if (me->GetVictim() && me->GetVictim()->IsWithinMeleeRange(me))
