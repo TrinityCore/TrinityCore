@@ -1,6 +1,9 @@
 -- Sepulcher of the First Ones
 SET @CGUID := 16000000; -- Insert highest based on your db
 SET @OGUID := 10000000; -- Insert highest based on your db
+SET @ATID := 99999;
+SET @ATSPAWNID := 99999;
+
 -- Instance
 DELETE FROM `access_requirement` WHERE `mapId`=2481;
 INSERT INTO `access_requirement` (`mapId`, `difficulty`, `level_min`, `level_max`, `item`, `item2`, `quest_done_A`, `quest_done_H`, `completed_achievement`, `quest_failed_text`, `comment`) VALUES 
@@ -335,10 +338,10 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `AreaTriggerId`, `MoveCurveId
 (24332, 28422, 0, 0, 0, 0, -1, 0, 0, 0, 30000, 0, 1, 1, 0, 0, 0, 0, 0, 0, 'at_anduin_wrynn_befouled_barrier', 43206),
 (24322, 28391, 0, 0, 0, 0, -1, 0, 0, 5228, 0, 4, 1.75, 1.75, 8, 8, 2, 2, 0, 0, 'at_anduin_wrynn_wicked_star', 43206),
 (24247, 28469, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 'at_anduin_wrynn_beacon_of_hope', 43206),
-(24093, 88888, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 2, 16, 2.3, 2, 16, 2.3, 0, 0, 'at_anduin_wrynn_march_of_the_damned', 0);
+(24093, @ATID+1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 2, 16, 2.3, 2, 16, 2.3, 0, 0, 'at_anduin_wrynn_march_of_the_damned', 0);
 
 -- Areatrigger Template
-DELETE FROM `areatrigger_template` WHERE ((`Id` IN (28391,28422,28469,28470,28483,28622,88888) AND `IsServerSide`=0) OR (`Id`=99999 AND `IsServerSide`=1));
+DELETE FROM `areatrigger_template` WHERE ((`Id` IN (28391,28422,28469,28470,28483,28622,@ATID+1) AND `IsServerSide`=0) OR (`Id`=@ATID+0 AND `IsServerSide`=1));
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES 
 (28391, 0, 4, 0, 1.75, 1.75, 8, 8, 2, 2, 0, 0, 43206), -- Wicked Star
 (28422, 0, 0, 4, 1, 1, 0, 0, 0, 0, 0, 0, 43206), -- Befouled Barrier
@@ -346,12 +349,12 @@ INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data
 (28470, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 50747), -- Fragment of Hope
 (28483, 0, 0, 4, 3, 3, 0, 0, 0, 0, 0, 0, 43206), -- Hopelessness
 (28622, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 43206), -- Blasphemy
-(88888, 0, 1, 4, 2, 16, 2.3, 2, 16, 2.3, 0, 0, 0), -- Custom AT March of the Damned
-(99999, 1, 1, 0, 30, 50, 5, 30, 50, 5, 0, 0, 0); -- Introduction
+(@ATID+1, 0, 1, 4, 2, 16, 2.3, 2, 16, 2.3, 0, 0, 0), -- Custom AT March of the Damned
+(@ATID+0, 1, 1, 0, 30, 50, 5, 30, 50, 5, 0, 0, 0); -- Introduction
 
-DELETE FROM `areatrigger` WHERE `SpawnId`=99999;
+DELETE FROM `areatrigger` WHERE `SpawnId`=@ATSPAWNID+0;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `SpellForVisuals`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES 
-(99999, 99999, 1, 2481, '14,15,16,17', -3824.87, -2620.02, 79.0517, 1.56233, 1, 0, 0, 1, 30, 50, 5, 30, 50, 5, 0, 0, NULL, 'at_anduin_wrynn_pre_introduction', '', 0); -- Introduction
+(@ATSPAWNID+0, @ATID+0, 1, 2481, '14,15,16,17', -3824.87, -2620.02, 79.0517, 1.56233, 1, 0, 0, 1, 30, 50, 5, 30, 50, 5, 0, 0, NULL, 'at_anduin_wrynn_pre_introduction', '', 0); -- Introduction
 
 -- Creature Text
 DELETE FROM `creature_text` WHERE `CreatureID` IN (181954, 183671);

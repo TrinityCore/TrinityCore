@@ -83,7 +83,7 @@ public:
             LoadObjectData(creatureData, nullptr);
             LoadDoorData(doorData);
 
-            AnduinIntroductionData = NOT_STARTED;
+            AnduinIntroductionState = NOT_STARTED;
         }
 
         bool SetBossState(uint32 id, EncounterState state) override
@@ -153,44 +153,11 @@ public:
             {
                 case DATA_ANDUIN_WRYNN_INTRODUCTION:
                 {
-                    switch (data)
-                    {
-                        case NOT_STARTED:
-                        {
-                            AnduinIntroductionData = NOT_STARTED;
-                            if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
-                            {
-                                anduin->CastSpell(anduin, SPELL_ANDUIN_PLUNGE_KINGSMOURNE);
-                                anduin->SetUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                                anduin->SetImmuneToAll(true);
-                            }
-                            break;
-                        }
-                        case IN_PROGRESS:
-                        {
-                            AnduinIntroductionData = IN_PROGRESS;
-                            break;
-                        }
-
-                        case DONE:
-                        {
-                            AnduinIntroductionData = DONE;
-                            if (Creature* anduin = GetCreature(DATA_ANDUIN_WRYNN))
-                            {
-                                anduin->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                                anduin->SetImmuneToAll(false);
-                                anduin->SetSpeed(MOVE_RUN, 11.0f);
-                                anduin->RemoveAurasDueToSpell(SPELL_ANDUIN_PLUNGE_KINGSMOURNE);
-                            }
-                            break;
-                        }
-                        default:
-                            break;
-                    }
+                    AnduinIntroductionState = data;
+                    break;
                 }
-                break;
-            default:
-                break;
+                default:
+                    break;
             }
         }
 
@@ -199,7 +166,7 @@ public:
             switch (type)
             {
                 case DATA_ANDUIN_WRYNN_INTRODUCTION:
-                    return AnduinIntroductionData;
+                    return AnduinIntroductionState;
                 default:
                     break;
             }
@@ -208,7 +175,7 @@ public:
         }
 
     protected:
-        uint8 AnduinIntroductionData;
+        uint8 AnduinIntroductionState;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
