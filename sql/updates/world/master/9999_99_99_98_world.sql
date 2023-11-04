@@ -607,3 +607,14 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (367632, 'spell_anduin_wrynn_empowered_wicked_star_selector'),
 (363029, 'spell_friendish_soul_explosion'),
 (365816, 'spell_anduin_wrynn_fragment_of_hope');
+
+DELETE FROM `creature_template_sparring` WHERE `Entry` IN(183666, 183664, 183665, 181954, 183669, 183671, 183463, 183033);
+INSERT INTO `creature_template_sparring` (`Entry`, `NoNPCDamageBelowHealthPct`) VALUES
+(183666, 100), -- Sylvanas Windrunner
+(183664, 100), -- Jaina Proudmoore
+(183665, 100), -- Uther the Lightbringer
+(181954, 100), -- Anduin
+(183669, 100), -- Fiendish Soul
+(183671, 100), -- Monstrous Soul
+(183463, 100), -- Remnant
+(183033, 100); -- Grim Reflection

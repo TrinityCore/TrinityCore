@@ -62,11 +62,6 @@ DungeonEncounterData const encounters[] =
     { DATA_ANDUIN_WRYNN, {{ 2546 }} },
 };
 
-enum Spells
-{
-    SPELL_ANDUIN_PLUNGE_KINGSMOURNE = 369125,
-};
-
 class instance_sepulcher_of_the_first_ones : public InstanceMapScript
 {
 public:
