@@ -261,7 +261,7 @@ void WorldSession::HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& pack
     if (_player->IsNonMeleeSpellCast(false))
     {
         _player->InterruptNonMeleeSpells(false, packet.SpellID, false);
-        _player->CancelPendingCastRequest(); // canceling casts also cancels pending spell cast requests 
+        _player->CancelPendingCastRequest(); // canceling casts also cancels pending spell cast requests
     }
 }
 
