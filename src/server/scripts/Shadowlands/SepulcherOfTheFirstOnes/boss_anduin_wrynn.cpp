@@ -1215,7 +1215,7 @@ struct boss_anduin_wrynn : public BossAI
                 events.ScheduleEvent(EVENT_BLASPHEMY, 30s);
                 events.ScheduleEvent(EVENT_WICKED_STAR, 55s);
                 events.ScheduleEvent(EVENT_DOMINATION_WORD_PAIN, 7s);
-                events.ScheduleEvent(EVENT_INTERMISSION_ONE, 12s);
+                events.ScheduleEvent(EVENT_INTERMISSION_ONE, 150s);
                 events.ScheduleEvent(EVENT_BERSERK, 15min);
 
                 if (IsLFR())
@@ -1321,7 +1321,6 @@ struct boss_anduin_wrynn : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         DoAction(ACTION_MOVE_NPCS_ON_PLATFORM);
 
-        // @TODO: check if we core handles this magically
         if (IsMythic())
         {
             if (AchievementEntry const* mythicAnduin = sAchievementStore.LookupEntry(ACHIEVEMENT_ANDUIN_MYTHIC))
@@ -1591,20 +1590,14 @@ private:
 // 184494 - Anduin's Doubt
 struct npc_anduin_wrynn_anduin_doubt : public ScriptedAI
 {
-    npc_anduin_wrynn_anduin_doubt(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript()) { }
-
-    void Reset() override
-    {
-        _events.Reset();
-    }
+    npc_anduin_wrynn_anduin_doubt(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
         me->SetWalk(true);
         DoCastSelf(SPELL_GHOST_VISUAL_COSMETIC, true);
         DoZoneInCombat();
-        _events.ScheduleEvent(EVENT_ANDUIN_SOUL, 2s);
+        me->GetMotionMaster()->MovePoint(POINT_ANDUIN_SOUL, AnduinsSoulSpawnPosition);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -1616,32 +1609,10 @@ struct npc_anduin_wrynn_anduin_doubt : public ScriptedAI
             soul->GetAI()->DoAction(ACTION_DOUBT_GONE);
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         UpdateVictim();
-
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_ANDUIN_SOUL:
-                {
-                    // @TODO: Drop stuff if we found a way which covers stun/deathgrip
-                    me->GetMotionMaster()->MovePoint(POINT_ANDUIN_SOUL, AnduinsSoulSpawnPosition);
-                    _events.Repeat(200ms);
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
     }
-
-private:
-    InstanceScript* _instance;
-    EventMap _events;
 };
 
 // 184493 - Anduin's Hope
@@ -3159,7 +3130,7 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
             splinePoints.push_back(PositionToVector3(caster->GetPosition()));
             splinePoints.push_back(PositionToVector3(caster->GetPosition()));
 
-            float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) / GetWickedStarSpeed(at->GetMap()->GetDifficultyID()) * 1000;
+            float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) * 2 / GetWickedStarSpeed(at->GetMap()->GetDifficultyID()) * 1000;
             at->InitSplines(splinePoints, timeToTarget);
         }
     }

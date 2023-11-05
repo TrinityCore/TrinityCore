@@ -97,19 +97,14 @@ public:
 
                         DoUpdateWorldState(WORLD_STATE_ANDUIN_ENCOUNTER_STARTED, 1);
 
+                        // @TODO: uther, sylvanas and jaina should attack anduin but keep faction 35; we lack core support
                         if (Creature* uther = GetCreature(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN))
-                        {
-                            uther->SetFaction(2); // hack: it should be attacking anduin even with faction 35 set
                             uther->AI()->AttackStart(anduin);
-                        }
 
                         for (uint32 data : { DATA_SYLVANAS_WINDRUNNER_ANDUIN, DATA_JAINA_PROUDMOORE_ANDUIN })
                         {
                             if (Creature* creature = GetCreature(data))
-                            {
-                                creature->SetFaction(2); // hack: it should be attacking anduin even with faction 35 set
                                 creature->AI()->AttackStartCaster(anduin, 25.0f);
-                            }
                         }
                     }
                     break;
