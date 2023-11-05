@@ -29904,13 +29904,14 @@ void Player::ExecutePendingSpellCastRequest()
 
     // check known spell or raid marker spell (which not requires player to know it)
     SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(_pendingSpellCastRequest->CastRequest.SpellID, GetMap()->GetDifficultyID());
-    if (castingUnit->IsPlayer() && !castingUnit->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasAttribute(SPELL_ATTR8_SKIP_IS_KNOWN_CHECK))
+    Player* plrCaster = castingUnit->ToPlayer();
+    if (plrCaster && !plrCaster->HasActiveSpell(spellInfo->Id) && !spellInfo->HasAttribute(SPELL_ATTR8_SKIP_IS_KNOWN_CHECK))
     {
         bool allow = false;
 
         // allow casting of unknown spells for special lock cases
         if (GameObject* go = targets.GetGOTarget())
-            if (go->GetSpellForLock(castingUnit->ToPlayer()) == spellInfo)
+            if (go->GetSpellForLock(plrCaster) == spellInfo)
                 allow = true;
 
         // allow casting of spells triggered by clientside periodic trigger auras
@@ -29968,7 +29969,7 @@ void Player::ExecutePendingSpellCastRequest()
     }
 
     if (_pendingSpellCastRequest->CastRequest.MoveUpdate && IsPlayer())
-        ToPlayer()->GetSession()->HandleMovementOpcode(CMSG_MOVE_STOP, *_pendingSpellCastRequest->CastRequest.MoveUpdate);
+        GetSession()->HandleMovementOpcode(CMSG_MOVE_STOP, *_pendingSpellCastRequest->CastRequest.MoveUpdate);
 
     Spell* spell = new Spell(castingUnit, spellInfo, triggerFlag);
 
