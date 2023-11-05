@@ -259,7 +259,10 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 void WorldSession::HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& packet)
 {
     if (_player->IsNonMeleeSpellCast(false))
+    {
         _player->InterruptNonMeleeSpells(false, packet.SpellID, false);
+        _player->CancelPendingCastRequest(); // canceling casts also cancels pending spell cast requests 
+    }
 }
 
 void WorldSession::HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& cancelAura)
@@ -357,6 +360,11 @@ void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::Cance
     // may be better send SMSG_CANCEL_AUTO_REPEAT?
     // cancel and prepare for deleting
     _player->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+}
+
+void WorldSession::HandleCancelQueuedSpellOpcode(WorldPackets::Spells::CancelQueuedSpell& /*cancelQueuedSpell*/)
+{
+    _player->CancelPendingCastRequest();
 }
 
 void WorldSession::HandleCancelChanneling(WorldPackets::Spells::CancelChannelling& cancelChanneling)

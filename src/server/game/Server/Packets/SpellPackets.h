@@ -1060,6 +1060,14 @@ namespace WorldPackets
             uint16 OverrideID = 0;
         };
 
+        class CancelQueuedSpell final : public ClientPacket
+        {
+        public:
+            CancelQueuedSpell(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_QUEUED_SPELL, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request);
     }
 }

@@ -1249,6 +1249,9 @@ void Player::setDeathState(DeathState s)
             return;
         }
 
+        // clear all pending spell cast requests when dying
+        CancelPendingCastRequest();
+
         // drunken state is cleared on death
         SetDrunkValue(0);
         SetPower(POWER_COMBO_POINTS, 0);
