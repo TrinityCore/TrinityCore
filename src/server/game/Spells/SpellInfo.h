@@ -218,7 +218,7 @@ public:
     SpellEffectName Effect;
     AuraType  ApplyAuraName;
     uint32    ApplyAuraPeriod;
-    int32     BasePoints;
+    float     BasePoints;
     float     RealPointsPerLevel;
     float     PointsPerResource;
     float     Amplitude;

@@ -38,24 +38,6 @@ class spell_ahnkahet_combined_toxins : public AuraScript
     }
 };
 
-// 56698, 59102 - Shadow Blast
-class spell_ahnkahet_shadow_blast : public SpellScript
-{
-    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
-    {
-        Unit* target = GetHitUnit();
-        if (!target)
-            return;
-
-        SetHitDamage(target->GetMaxHealth() * GetEffectInfo().BasePoints / 100);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_ahnkahet_shadow_blast::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
 enum ShadowSickle
 {
     SPELL_SHADOW_SICKLE_TRIGGERED   = 56701,
@@ -130,7 +112,6 @@ class spell_ahnkahet_yogg_saron_whisper : public SpellScript
 void AddSC_ahnkahet()
 {
     RegisterSpellScript(spell_ahnkahet_combined_toxins);
-    RegisterSpellScript(spell_ahnkahet_shadow_blast);
     RegisterSpellScript(spell_ahnkahet_shadow_sickle);
     RegisterSpellScript(spell_ahnkahet_yogg_saron_whisper);
 }

@@ -23,6 +23,7 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Log.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
@@ -31,6 +32,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
@@ -1136,6 +1138,59 @@ class spell_chapter1_runeforging_credit : public SpellScript
     }
 };
 
+// 29102 - Hearthglen Crusader
+// 29103 - Tirisfal Crusader
+struct npc_hearthglen_crusader : public ScriptedAI
+{
+    npc_hearthglen_crusader(Creature* creature) : ScriptedAI(creature), _minimumRange(0)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(creature->m_spells[0], creature->GetMap()->GetDifficultyID());
+        if (!spellInfo)
+            return;
+
+        _minimumRange = spellInfo->GetMinRange(false);
+
+        if (!_minimumRange)
+            _minimumRange = MELEE_RANGE;
+        creature->m_CombatDistance = spellInfo->GetMaxRange(false);
+        creature->m_SightDistance = creature->m_CombatDistance;
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (!who)
+            return;
+
+        if (me->IsWithinCombatRange(who, _minimumRange))
+        {
+            if (me->Attack(who, true) && !who->IsFlying())
+                me->GetMotionMaster()->MoveChase(who);
+        }
+        else
+        {
+            if (me->Attack(who, false) && !who->IsFlying())
+                me->GetMotionMaster()->MoveChase(who, me->m_CombatDistance);
+        }
+
+        if (who->IsFlying())
+            me->GetMotionMaster()->MoveIdle();
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (!me->IsWithinCombatRange(me->GetVictim(), _minimumRange))
+            DoSpellAttackIfReady(me->m_spells[0]);
+        else
+            DoMeleeAttackIfReady();
+    }
+
+private:
+    float _minimumRange;
+};
+
 void AddSC_the_scarlet_enclave_c1()
 {
     new npc_unworthy_initiate();
@@ -1153,4 +1208,5 @@ void AddSC_the_scarlet_enclave_c1()
     RegisterCreatureAI(npc_scarlet_ghoul);
     RegisterSpellScript(spell_gift_of_the_harvester);
     RegisterSpellScript(spell_chapter1_runeforging_credit);
+    RegisterCreatureAI(npc_hearthglen_crusader);
 }

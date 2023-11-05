@@ -6560,8 +6560,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 if (!battlePetMgr->HasJournalLock())
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
-                Creature* creature = m_targets.GetUnitTarget()->ToCreature();
-                if (creature)
+                if (Creature* creature = m_targets.GetUnitTarget()->ToCreature())
                 {
                     if (playerCaster->GetSummonedBattlePetGUID().IsEmpty() || creature->GetBattlePetCompanionGUID().IsEmpty())
                         return SPELL_FAILED_NO_PET;
@@ -6579,7 +6578,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
 
                             if (spellEffectInfo.Effect == SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY)
                             {
-                                auto qualityItr = std::lower_bound(sBattlePetBreedQualityStore.begin(), sBattlePetBreedQualityStore.end(), spellEffectInfo.BasePoints, [](BattlePetBreedQualityEntry const* a1, int32 selector)
+                                auto qualityItr = std::lower_bound(sBattlePetBreedQualityStore.begin(), sBattlePetBreedQualityStore.end(), spellEffectInfo.CalcBaseValue(m_caster, creature, m_castItemEntry, m_castItemLevel), [](BattlePetBreedQualityEntry const* a1, int32 selector)
                                 {
                                     return a1->MaxQualityRoll < selector;
                                 });
@@ -7104,7 +7103,7 @@ bool Spell::CanAutoCast(Unit* target)
                     break;
                 case SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT: // this one has further checks, but i don't think they're necessary for autocast logic
                 case SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST:
-                    if (abs(spellEffectInfo.BasePoints) <= abs((*auraIt)->GetAmount()))
+                    if (abs(spellEffectInfo.CalcBaseValue(m_caster, target, 0, -1)) <= abs((*auraIt)->GetAmount()))
                         return false;
                     break;
                 case SPELL_GROUP_STACK_RULE_DEFAULT:

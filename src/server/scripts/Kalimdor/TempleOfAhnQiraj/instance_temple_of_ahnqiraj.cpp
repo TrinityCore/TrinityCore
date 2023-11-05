@@ -39,11 +39,11 @@ ObjectData const creatureData[] =
 
 DoorData const doorData[] =
 {
-    { AQ40_DOOR_1, DATA_SARTURA,       DOOR_TYPE_PASSAGE },
-    { AQ40_DOOR_1, DATA_HUHURAN,       DOOR_TYPE_PASSAGE },
-    { AQ40_DOOR_2, DATA_TWIN_EMPERORS, DOOR_TYPE_PASSAGE },
-    { AQ40_DOOR_3, DATA_SKERAM,        DOOR_TYPE_PASSAGE },
-    { 0,           0,                  DOOR_TYPE_ROOM    } // END
+    { AQ40_DOOR_1, DATA_SARTURA,       EncounterDoorBehavior::OpenWhenDone },
+    { AQ40_DOOR_1, DATA_HUHURAN,       EncounterDoorBehavior::OpenWhenDone },
+    { AQ40_DOOR_2, DATA_TWIN_EMPERORS, EncounterDoorBehavior::OpenWhenDone },
+    { AQ40_DOOR_3, DATA_SKERAM,        EncounterDoorBehavior::OpenWhenDone },
+    { 0,           0,                  EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 DungeonEncounterData const encounters[] =

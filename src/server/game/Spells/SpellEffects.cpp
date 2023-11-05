@@ -6040,7 +6040,14 @@ void Spell::EffectCreateTraitTreeConfig()
         return;
 
     newConfig.TraitSystemID = sTraitTreeStore.AssertEntry(effectInfo->MiscValue)->TraitSystemID;
-    target->CreateTraitConfig(newConfig);
+    int32 existingConfigForSystem = target->m_activePlayerData->TraitConfigs.FindIndexIf([&](UF::TraitConfig const& config)
+    {
+        return static_cast<TraitConfigType>(*config.Type) == TraitConfigType::Generic
+            && config.TraitSystemID == newConfig.TraitSystemID;
+    });
+
+    if (existingConfigForSystem < 0)
+        target->CreateTraitConfig(newConfig);
 }
 
 void Spell::EffectChangeActiveCombatTraitConfig()

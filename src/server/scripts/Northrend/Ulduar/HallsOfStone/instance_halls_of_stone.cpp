@@ -24,8 +24,8 @@
 
 DoorData const doorData[] =
 {
-    { GO_SJONNIR_DOOR, DATA_TRIBUNAL_OF_AGES, DOOR_TYPE_PASSAGE },
-    { 0,               0,                     DOOR_TYPE_ROOM    } // END
+    { GO_SJONNIR_DOOR, DATA_TRIBUNAL_OF_AGES, EncounterDoorBehavior::OpenWhenDone },
+    { 0,               0,                     EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 ObjectData const creatureData[] =

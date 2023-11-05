@@ -123,9 +123,9 @@ enum COSMisc
 
 DoorData const doorData[] =
 {
-    { GO_MALGANIS_GATE_2, DATA_MAL_GANIS, DOOR_TYPE_ROOM },
-    { GO_EXIT_GATE,       DATA_MAL_GANIS, DOOR_TYPE_PASSAGE },
-    { 0,                  0,              DOOR_TYPE_ROOM } // END
+    { GO_MALGANIS_GATE_2, DATA_MAL_GANIS, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_EXIT_GATE,       DATA_MAL_GANIS, EncounterDoorBehavior::OpenWhenDone },
+    { 0,                  0,              EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 DungeonEncounterData const encounters[] =
