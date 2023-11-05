@@ -70,7 +70,6 @@
 #include "PlayerAI.h"
 #include "QuestDef.h"
 #include "Spell.h"
-#include "SpellCastRequest.h"
 #include "ScheduledChangeAI.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
