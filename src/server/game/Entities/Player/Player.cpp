@@ -29865,7 +29865,7 @@ void Player::CancelPendingCastRequest()
 }
 
 // A spell can be queued up within 400 milliseconds before global cooldown expires or the cast finishes
-static constexpr uint16 SPELL_QUEUE_TIME_WINDOW = 400;
+static constexpr Milliseconds SPELL_QUEUE_TIME_WINDOW = 400ms;
 
 bool Player::CanRequestSpellCast(SpellInfo const* spellInfo, Unit const* castingUnit) const
 {
@@ -29874,7 +29874,7 @@ bool Player::CanRequestSpellCast(SpellInfo const* spellInfo, Unit const* casting
 
     for (CurrentSpellTypes spellSlot : { CURRENT_MELEE_SPELL, CURRENT_GENERIC_SPELL })
         if (Spell const* spell = GetCurrentSpell(spellSlot))
-            if (spell->GetRemainingCastTime() > SPELL_QUEUE_TIME_WINDOW)
+            if (Milliseconds(spell->GetRemainingCastTime()) > SPELL_QUEUE_TIME_WINDOW)
                 return false;
 
     return true;
@@ -30089,7 +30089,7 @@ bool Player::CanExecutePendingSpellCastRequest()
         return false;
 
     // Waiting for the global cooldown to expire before attempting to execute the cast request
-    if (castingUnit->GetSpellHistory()->GetRemainingGlobalCooldown(sSpellMgr->AssertSpellInfo(_pendingSpellCastRequest->CastRequest.SpellID, GetMap()->GetDifficultyID())) > 0)
+    if (castingUnit->GetSpellHistory()->GetRemainingGlobalCooldown(sSpellMgr->AssertSpellInfo(_pendingSpellCastRequest->CastRequest.SpellID, GetMap()->GetDifficultyID())) > 0ms)
         return false;
 
     return true;
