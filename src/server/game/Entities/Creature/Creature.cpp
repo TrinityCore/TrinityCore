@@ -333,6 +333,9 @@ void Creature::AddToWorld()
     ///- Register the creature for guid lookup
     if (!IsInWorld())
     {
+        if (GetMap()->IsBattlegroundOrArena())
+            setActive(true);
+
         GetMap()->GetObjectsStore().Insert<Creature>(GetGUID(), this);
         if (m_spawnId)
             GetMap()->GetCreatureBySpawnIdStore().insert(std::make_pair(m_spawnId, this));
