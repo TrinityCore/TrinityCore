@@ -33,7 +33,7 @@ struct SpellCastRequestItemData
 struct SpellCastRequest
 {
     SpellCastRequest(WorldPackets::Spells::SpellCastRequest&& castRequest, ObjectGuid castingUnitGUID, Optional<SpellCastRequestItemData> itemData = {}) :
-        CastingUnitGUID(castingUnitGUID), CastRequest(castRequest), ItemData(itemData) { }
+        CastRequest(castRequest), CastingUnitGUID(castingUnitGUID), ItemData(itemData) { }
 
     WorldPackets::Spells::SpellCastRequest CastRequest;
     ObjectGuid CastingUnitGUID;
