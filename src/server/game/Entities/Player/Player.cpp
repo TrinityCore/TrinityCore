@@ -29968,9 +29968,6 @@ void Player::ExecutePendingSpellCastRequest()
             spellInfo = actualSpellInfo;
     }
 
-    if (_pendingSpellCastRequest->CastRequest.MoveUpdate && IsPlayer())
-        GetSession()->HandleMovementOpcode(CMSG_MOVE_STOP, *_pendingSpellCastRequest->CastRequest.MoveUpdate);
-
     Spell* spell = new Spell(castingUnit, spellInfo, triggerFlag);
 
     WorldPackets::Spells::SpellPrepare spellPrepare;

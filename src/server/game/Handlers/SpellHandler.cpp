@@ -250,6 +250,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
         castingUnit = _player;
     }
 
+    if (cast.Cast.MoveUpdate.has_value())
+        HandleMovementOpcode(CMSG_MOVE_STOP, *cast.Cast.MoveUpdate);
+
     if (_player->CanRequestSpellCast(spellInfo, castingUnit))
         _player->RequestSpellCast(std::make_unique<SpellCastRequest>(std::move(cast.Cast), castingUnit->GetGUID()));
     else
