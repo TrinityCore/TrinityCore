@@ -44,14 +44,14 @@ ObjectData const creatureData[] =
 
 BossBoundaryData const boundaries =
 {
-    { DATA_ANDUIN_WRYNN,                        new CircleBoundary(Position(-3825.0601f,-2715.4600f), 45.0) },
+    { DATA_ANDUIN_WRYNN,                        new CircleBoundary({ -3825.0601f, -2715.4600f }, 45.0)},
 };
 
 DoorData const doorData[] =
 {
-    { GAMEOBJECT_BRIDGE_TO_ANDUIN,              DATA_ANDUIN_WRYNN,          DOOR_TYPE_SPAWN_HOLE },
-    { GAMEOBJECT_BRIDGE_AFTER_ANDUIN,           DATA_ANDUIN_WRYNN,          DOOR_TYPE_PASSAGE }, // @TODO: invert logic, should open if encounter not done
-    { 0,                                        0,                          DOOR_TYPE_ROOM }
+    { GAMEOBJECT_BRIDGE_TO_ANDUIN,              DATA_ANDUIN_WRYNN,          EncounterDoorBehavior::OpenWhenInProgress },
+    { GAMEOBJECT_BRIDGE_AFTER_ANDUIN,           DATA_ANDUIN_WRYNN,          EncounterDoorBehavior::OpenWhenNotDone },
+    { 0,                                        0,                          EncounterDoorBehavior::OpenWhenInProgress }
 };
 
 DungeonEncounterData const encounters[] =
