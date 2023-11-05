@@ -346,7 +346,7 @@ class boss_halion : public CreatureScript
                             events.ScheduleEvent(EVENT_BREATH, randtime(Seconds(16), Seconds(25)));
                             break;
                         case EVENT_ACTIVATE_FIREWALL:
-                            // Flame ring is activated 5 seconds after starting encounter, DOOR_TYPE_ROOM is only instant.
+                            // Flame ring is activated 5 seconds after starting encounter, EncounterStateForOpenDoor::NotInProgress is only instant.
                             for (uint8 i = DATA_FLAME_RING; i <= DATA_TWILIGHT_FLAME_RING; ++i)
                                 if (GameObject* flameRing = instance->GetGameObject(i))
                                     instance->HandleGameObject(ObjectGuid::Empty, false, flameRing);
