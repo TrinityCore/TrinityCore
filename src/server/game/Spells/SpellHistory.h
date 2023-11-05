@@ -171,6 +171,7 @@ public:
     bool HasGlobalCooldown(SpellInfo const* spellInfo) const;
     void AddGlobalCooldown(SpellInfo const* spellInfo, Duration duration);
     void CancelGlobalCooldown(SpellInfo const* spellInfo);
+    uint32 GetRemainingGlobalCooldown(SpellInfo const* spellInfo) const;
 
     void SaveCooldownStateBeforeDuel();
     void RestoreCooldownStateAfterDuel();
