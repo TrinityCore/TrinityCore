@@ -294,7 +294,6 @@ struct npc_husam_tolvir_land_mine : public NullCreatureAI
 
     void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool apply) override
     {
-
         // If our casting land mine has despawned, we also despawn alongside it.
         if (me->GetEntry() == NPC_TOLVIR_LAND_MINE_VEHICLE && !apply)
             me->DespawnOrUnsummon();
