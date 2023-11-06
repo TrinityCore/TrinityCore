@@ -1424,6 +1424,8 @@ enum ETIShivarraData
     SPELL_TRIGGER_SHIVARRA_CONV_WHEN_DEAD   = 196866
 };
 
+Position const SevisBrightflameShivarraGateway = { 1587.9618f, 2543.091f, 62.18399f, 3.49967908f };
+
 // 99915 - Sevis Brightflame (Shivarra Gateway)
 struct npc_sevis_brightflame_shivarra_gateway : public ScriptedAI
 {
@@ -1448,9 +1450,9 @@ struct npc_sevis_brightflame_shivarra_gateway : public ScriptedAI
 
     void JustAppeared() override
     {
-        if (me->HasStringId("Sevis_sacrifice_self"))
+        if (me->HasStringId("sevis_sacrifice_self"))
             SacrificeSelf();
-        else if (me->HasStringId("Sevis_sacrifice_player"))
+        else if (me->HasStringId("sevis_sacrifice_player"))
             SacrificePlayer();
     }
 
@@ -1531,6 +1533,7 @@ private:
     uint8 _soulMissileCounter;
 };
 
+// EventID 47550
 class event_sevis_sacrifice_player : public EventScript
 {
 public:
@@ -1538,18 +1541,19 @@ public:
 
     void OnTrigger(WorldObject* /*object*/, WorldObject* invoker, uint32 /*eventId*/) override
     {
-        if (Creature* creature = invoker->SummonCreature(NPC_SEVIS_BRIGHTFLAME_SHIVARRA, 1587.9618f, 2543.091f, 62.18399f, 3.49967908f, TEMPSUMMON_MANUAL_DESPAWN, 0s))
+        if (Creature* creature = invoker->SummonCreature(NPC_SEVIS_BRIGHTFLAME_SHIVARRA, SevisBrightflameShivarraGateway, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, invoker->GetGUID()))
         {
             if (Player* player = invoker->ToPlayer())
             {
                 player->KilledMonsterCredit(NPC_SEVIS_BRIGHTFLAME_SHIVARRA);
                 player->CastSpell(nullptr, SPELL_SEVIS_KILLED_ME_AURA, false);
             }
-            creature->SetScriptStringId("Sevis_sacrifice_player");
+            creature->SetScriptStringId("sevis_sacrifice_player");
         }
     }
 };
 
+// EventID 47549
 class event_sevis_sacrifice_self : public EventScript
 {
 public:
@@ -1557,11 +1561,11 @@ public:
 
     void OnTrigger(WorldObject* /*object*/, WorldObject* invoker, uint32 /*eventId*/) override
     {
-        if (Creature* creature = invoker->SummonCreature(NPC_SEVIS_BRIGHTFLAME_SHIVARRA, 1587.9618f, 2543.091f, 62.18399f, 3.49967908f, TEMPSUMMON_TIMED_DESPAWN, 60s))
+        if (Creature* creature = invoker->SummonCreature(NPC_SEVIS_BRIGHTFLAME_SHIVARRA, SevisBrightflameShivarraGateway, TEMPSUMMON_TIMED_DESPAWN, 60s, 0, 0, invoker->GetGUID()))
         {
             if (Player* player = invoker->ToPlayer())
                 player->KilledMonsterCredit(NPC_SEVIS_BRIGHTFLAME_SHIVARRA);
-            creature->SetScriptStringId("Sevis_sacrifice_self");
+            creature->SetScriptStringId("sevis_sacrifice_self");
         }
     }
 };
