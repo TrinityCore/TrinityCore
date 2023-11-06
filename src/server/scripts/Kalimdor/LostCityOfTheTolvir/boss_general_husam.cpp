@@ -37,7 +37,7 @@ enum Spells
     SPELL_SUMMON_SHOCKWAVE_TARGET_W                 = 83134,
     SPELL_MYSTIC_TRAP                               = 83644,
     SPELL_THROW_LAND_MINES                          = 83122,
-    SPELL_DETONE_TRAPS                              = 91263,
+    SPELL_DETONATE_TRAPS                            = 91263,
     SPELL_BAD_INTENTIONS                            = 83113,
     SPELL_HURL                                      = 83236,
     SPELL_THROW_VISUAL                              = 83371,
@@ -229,7 +229,7 @@ struct boss_general_husam : public BossAI
                     events.Repeat(39s);
                     break;
                 case EVENT_DETONATE_TRAPS:
-                    DoCastSelf(SPELL_DETONE_TRAPS);
+                    DoCastSelf(SPELL_DETONATE_TRAPS);
                     events.DelayEvents(2s);
                     events.Repeat(32s);
                     break;
@@ -360,7 +360,7 @@ struct npc_husam_bad_intentions_target : public NullCreatureAI
     {
         if (apply)
         {
-            me->m_Events.AddEventAtOffset([this, passenger]()
+            me->m_Events.AddEventAtOffset([&, passenger]()
             {
                 if (passenger)
                 {
