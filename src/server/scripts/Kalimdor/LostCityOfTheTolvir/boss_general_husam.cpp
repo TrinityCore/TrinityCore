@@ -17,10 +17,13 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "InstanceScript.h"
 #include "lost_city_of_the_tolvir.h"
 #include "MoveSplineInit.h"
+#include "MotionMaster.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
