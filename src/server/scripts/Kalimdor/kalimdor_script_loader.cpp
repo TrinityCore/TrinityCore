@@ -95,6 +95,9 @@ void AddSC_boss_twinemperors();
 void AddSC_boss_ouro();
 void AddSC_npc_anubisath_sentinel();
 void AddSC_instance_temple_of_ahnqiraj();
+// The Lost City of the Tol'vir
+void AddSC_boss_general_husam();
+void AddSC_instance_lost_city_of_the_tolvir();
 // Wailing caverns
 void AddSC_wailing_caverns();
 void AddSC_instance_wailing_caverns();
@@ -216,6 +219,9 @@ void AddKalimdorScripts()
     AddSC_boss_ouro();
     AddSC_npc_anubisath_sentinel();
     AddSC_instance_temple_of_ahnqiraj();
+    // The Lost City of the Tol'vir
+    AddSC_boss_general_husam();
+    AddSC_instance_lost_city_of_the_tolvir();
     // Wailing caverns
     AddSC_wailing_caverns();
     AddSC_instance_wailing_caverns();
