@@ -1463,7 +1463,7 @@ struct npc_sevis_brightflame_shivarra_gateway : public ScriptedAI
         {
             me->KillSelf();
 
-            _scheduler.Schedule(2s, [this](TaskContext task)
+            task.Schedule(2s, [this](TaskContext task)
             {
                 DoCast(SPELL_SEVIS_SOUL_MISSILE_02);
                 _soulMissileCounter++;
@@ -1491,7 +1491,7 @@ struct npc_sevis_brightflame_shivarra_gateway : public ScriptedAI
 
             me->GetMotionMaster()->MoveCloserAndStop(POINT_SEVIS_GATEWAY_SHIVARRA, summoner, 2.0f);
 
-            _scheduler.Schedule(2s, [this](TaskContext task)
+            task.Schedule(2s, [this](TaskContext task)
             {
                 me->SendPlaySpellVisualKit(SPELL_VISUAL_SACRIFICE_PLAYER, 4, 1000);
                 me->SetAIAnimKitId(ANIM_KIT_SWING_WEAPON);
