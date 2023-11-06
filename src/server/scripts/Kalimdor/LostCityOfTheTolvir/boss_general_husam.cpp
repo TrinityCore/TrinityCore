@@ -28,7 +28,7 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 
-enum Spells
+enum HusamSpells
 {
     // General Husam
     SPELL_HAMMER_FIST                               = 83654,
@@ -64,7 +64,7 @@ enum Spells
     SPELL_EJECT_ALL_PASSENGERS                      = 50630
 };
 
-enum Events
+enum HusamEvents
 {
     // General Husam
     EVENT_HAMMER_FIST = 1,
@@ -80,7 +80,7 @@ enum Events
     EVENT_CLEAR_AURAS
 };
 
-enum Actions
+enum HusamActions
 {
     // General Husam
     ACTION_SAY_DETONATE_TRAPS   = 0,
@@ -90,7 +90,7 @@ enum Actions
     ACTION_DETONATE             = 1
 };
 
-enum Texts
+enum HusamTexts
 {
     // General Husam
     SAY_AGGRO               = 0,
@@ -101,7 +101,7 @@ enum Texts
     SAY_DEATH               = 5
 };
 
-enum Misc
+enum HusamMisc
 {
     SEAT_PLAYER = 0
 };
@@ -479,7 +479,7 @@ class spell_husam_bad_intentions : public SpellScript
         {
             Unit* target = GetHitUnit();
             target->CastStop();
-            target->CastSpell(caster, GetSpellInfo()->GetEffect(EFFECT_1).BasePoints, true);
+            target->CastSpell(caster, static_cast<uint32>(GetSpellInfo()->GetEffect(EFFECT_1).BasePoints), true);
         }
     }
 
