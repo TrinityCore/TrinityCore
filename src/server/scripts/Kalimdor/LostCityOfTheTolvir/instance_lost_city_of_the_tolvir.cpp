@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "lost_city_of_the_tolvir.h"
 
 static constexpr ObjectData const creatureData[] =
