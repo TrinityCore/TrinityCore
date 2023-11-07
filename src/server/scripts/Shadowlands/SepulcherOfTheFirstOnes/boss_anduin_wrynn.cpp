@@ -334,9 +334,7 @@ enum AnduinWrynnActions
     ACTION_START_PRE_INTRODUCTION = 1,
     ACTION_START_MOVEMENT,
     ACTION_START_INTRODUCTION,
-    ACTION_FINISH_INTRODUCTION,
     ACTION_CANCEL_EVENTS,
-    ACTION_CANCEL_EVENTS_ASSISTERS,
     ACTION_ARTHAS_INTERMISSION_UTHER,
     ACTION_ARTHAS_INTERMISSION_SYLVANAS,
     ACTION_EXIT_INTERMISSION,
@@ -490,39 +488,6 @@ Position const MarchOfTheDamnedSpawnPositions[8] =
 Position const BeaconOfHopeSpawnPosition = { -3825.0417f, -2715.3923f, 91.3568f, 0.0f };
 
 Position const ChestLootSpawnPosition = { -3840.9915f, -2741.7847f, 91.26521f, 1.334929f };
-
-template<typename T>
-struct Timers : public std::list<T>
-{
-    Timers() = default;
-
-    Timers(const std::initializer_list<T>& _list) :
-        std::list<T>(_list) {};
-
-    T nextTimer()
-    {
-        if (this->empty())
-            throw std::logic_error("Timers is empty!");
-
-        T timer = this->front();
-        if (this->size() > 1)
-            this->pop_front();
-
-        return timer;
-    }
-};
-
-Timers<uint32> HopeBreakerP1{ 31900, 28000, 29900, 29900 };
-Timers<uint32> HopeBreakerP2{ 22000, 33300, 29000, 29000 };
-Timers<uint32> HopeBreakerP2Mythic{ 25000, 33000, 29000, 29100 };
-Timers<uint32> BefouledBarrierTimerP1{ 51900, 48000 };
-Timers<uint32> BefouledBarrierTimerP2{ 47000 };
-Timers<uint32> BlasphemyAll{ 49900, 54900 };
-Timers<uint32> DominationWordPainP1{ 13000, 13000, 10000, 15000, 13100, 12900, 13000, 13900, 12200, 14800 };
-Timers<uint32> DominationWordPainP2{ 13000, 13000, 17700, 8100, 13000, 13000, 14400, 11200, 12200 };
-Timers<uint32> WickedStarP1{ 35000, 30000 };
-Timers<uint32> WickedStarP2{ 39000, 26000, 30500, 19000 };
-Timers<uint32> WickedStarP2Mythic{ 39000, 26000, 30900, 19100 };
 
 class ActivateGhouls : public BasicEvent
 {
@@ -806,7 +771,6 @@ struct boss_anduin_wrynn : public BossAI
                 teleportNamed(DATA_JAINA_PROUDMOORE_ANDUIN, PreIntroductionAssistersPositions[2]);
                 break;
             }
-
             case ACTION_START_MOVEMENT:
             {
                 auto castBrokerSpawn = [this](uint32 data)
@@ -823,7 +787,6 @@ struct boss_anduin_wrynn : public BossAI
                 castBrokerSpawn(DATA_JAINA_PROUDMOORE_ANDUIN);
                 break;
             }
-
             case ACTION_START_INTRODUCTION:
             {
                 instance->SetData(DATA_ANDUIN_WRYNN_INTRODUCTION, IN_PROGRESS);
@@ -858,7 +821,6 @@ struct boss_anduin_wrynn : public BossAI
                 });
                 break;
             }
-
             case ACTION_MOVE_NPCS_ON_PLATFORM:
             {
                 if (Creature* bolvar = me->GetInstanceScript()->GetCreature(DATA_BOLVAR_FORDRAGON_ANDUIN))
@@ -873,7 +835,6 @@ struct boss_anduin_wrynn : public BossAI
                 });
                 break;
             }
-
             case ACTION_START_OUTRODUCTION:
             {
                 Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN);
@@ -905,7 +866,6 @@ struct boss_anduin_wrynn : public BossAI
                 convo->Start();
                 break;
             }
-
             case ACTION_CANCEL_EVENTS:
             {
                 events.CancelEvent(EVENT_HOPEBREAKER);
@@ -918,7 +878,6 @@ struct boss_anduin_wrynn : public BossAI
                 _dominationWordCount = 0;
                 break;
             }
-
             case ACTION_ARTHAS_INTERMISSION_UTHER:
             {
                 instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 1);
@@ -932,7 +891,6 @@ struct boss_anduin_wrynn : public BossAI
                 }
                 break;
             }
-
             case ACTION_ARTHAS_INTERMISSION_SYLVANAS:
             {
                 instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 2);
@@ -946,7 +904,6 @@ struct boss_anduin_wrynn : public BossAI
                 }
                 break;
             }
-
             case ACTION_EXIT_INTERMISSION:
             {
                 if (_intermissionsDone == 0)
@@ -967,13 +924,11 @@ struct boss_anduin_wrynn : public BossAI
                 }
                 break;
             }
-
             case ACTION_END_ENCOUNTER:
             {
                 EndEncounter();
                 break;
             }
-
             default:
                 break;
         }
@@ -1006,15 +961,6 @@ struct boss_anduin_wrynn : public BossAI
                 {
                     DoCastSelf(SPELL_HOPEBREAKER);
                     Talk(SAY_HOPEBREAKER);
-                    if (events.IsInPhase(PHASE_ONE))
-                        events.Repeat(Milliseconds(HopeBreakerP1.nextTimer()));
-                    else
-                    {
-                        if (!IsMythic())
-                            events.Repeat(Milliseconds(HopeBreakerP2.nextTimer()));
-                        else
-                            events.Repeat(Milliseconds(HopeBreakerP2Mythic.nextTimer()));
-                    }
                     break;
                 }
                 case EVENT_EMPOWERED_HOPEBREAKER:
@@ -1031,10 +977,6 @@ struct boss_anduin_wrynn : public BossAI
                 {
                     _dominationWordCount++;
                     DoCastSelf(SPELL_DOMINATION_WORD_PAIN);
-                    if (events.IsInPhase(PHASE_ONE))
-                        events.Repeat(Milliseconds(DominationWordPainP1.nextTimer()));
-                    else
-                        events.Repeat(Milliseconds(DominationWordPainP2.nextTimer()));
 
                     // its guaranteed to be last cast per phase, so we can cancel events here
                     if (events.IsInPhase(PHASE_ONE) && _dominationWordCount == 11)
@@ -1047,10 +989,6 @@ struct boss_anduin_wrynn : public BossAI
                 {
                     DoCastSelf(SPELL_BEFOULED_BARRIER);
                     Talk(SAY_BEFOULED_BARRIER);
-                    if (events.IsInPhase(PHASE_ONE))
-                        events.Repeat(Milliseconds(BefouledBarrierTimerP1.nextTimer()));
-                    else
-                        events.Repeat(Milliseconds(BefouledBarrierTimerP2.nextTimer()));
                     break;
                 }
                 case EVENT_BLASPHEMY:
@@ -1058,7 +996,6 @@ struct boss_anduin_wrynn : public BossAI
                     DoCastSelf(SPELL_BLASPHEMY);
                     Talk(SAY_ANNOUNCE_BLASPHEMY);
                     Talk(SAY_BLASPHEMY);
-                    events.Repeat(Milliseconds(BlasphemyAll.nextTimer()));
                     break;
                 }
                 case EVENT_HOPELESSNESS:
@@ -1075,13 +1012,7 @@ struct boss_anduin_wrynn : public BossAI
                 {
                     DoCastSelf(SPELL_WICKED_STAR);
                     Talk(SAY_WICKED_STAR);
-                    if (events.IsInPhase(PHASE_ONE))
-                        events.Repeat(Milliseconds(WickedStarP1.nextTimer()));
-                    else if (events.IsInPhase(PHASE_TWO) && !IsMythic())
-                        events.Repeat(Milliseconds(WickedStarP2.nextTimer()));
-                    else if (events.IsInPhase(PHASE_TWO) && IsMythic())
-                        events.Repeat(Milliseconds(WickedStarP2Mythic.nextTimer()));
-                    else
+                    if (events.IsInPhase(PHASE_THREE))
                         events.Repeat(58500ms);
                     break;
                 }
@@ -1210,11 +1141,11 @@ struct boss_anduin_wrynn : public BossAI
             case PHASE_ONE:
             {
                 events.SetPhase(PHASE_ONE);
-                events.ScheduleEvent(EVENT_HOPEBREAKER, 5s);
-                events.ScheduleEvent(EVENT_BEFOULED_BARRIER, 17s);
-                events.ScheduleEvent(EVENT_BLASPHEMY, 30s);
-                events.ScheduleEvent(EVENT_WICKED_STAR, 55s);
-                events.ScheduleEvent(EVENT_DOMINATION_WORD_PAIN, 7s);
+                events.ScheduleEventSeries(EVENT_HOPEBREAKER, { 5s, 31900ms, 28s, 29900ms, 29900ms });
+                events.ScheduleEventSeries(EVENT_BEFOULED_BARRIER, { 17s, 51900ms, 48s });
+                events.ScheduleEventSeries(EVENT_BLASPHEMY, { 30s, 49900ms, 54900ms });
+                events.ScheduleEventSeries(EVENT_WICKED_STAR, { 55s, 35s, 30s });
+                events.ScheduleEventSeries(EVENT_DOMINATION_WORD_PAIN, { 7s, 13s, 13s, 10s, 15s, 13100ms, 12900ms, 13s, 13900ms, 12200ms, 14800ms });
                 events.ScheduleEvent(EVENT_INTERMISSION_ONE, 150s);
                 events.ScheduleEvent(EVENT_BERSERK, 15min);
 
@@ -1231,15 +1162,21 @@ struct boss_anduin_wrynn : public BossAI
                 me->ModifyPower(me->GetPowerType(), 0);
                 events.SetPhase(PHASE_TWO);
                 events.ScheduleEvent(EVENT_GRIM_REFLECTIONS, 85s);
-                events.ScheduleEvent(EVENT_HOPEBREAKER, 13600ms);
-                events.ScheduleEvent(EVENT_WICKED_STAR, 18500ms);
-                events.ScheduleEvent(EVENT_BEFOULED_BARRIER, 80600ms);
+                events.ScheduleEventSeries(EVENT_BEFOULED_BARRIER, { 80600ms, 47s });
                 events.ScheduleEvent(EVENT_INTERMISSION_TWO, 169s);
 
                 if (!IsMythic())
-                    events.ScheduleEvent(EVENT_DOMINATION_WORD_PAIN, 11500ms);
+                {
+                    events.ScheduleEventSeries(EVENT_DOMINATION_WORD_PAIN, { 11500ms, 13s, 13s, 17700ms, 8100ms, 13s, 13s, 14400ms, 11200ms, 12200ms });
+                    events.ScheduleEventSeries(EVENT_HOPEBREAKER, { 13600ms, 22s, 33300ms, 29s, 29s });
+                    events.ScheduleEventSeries(EVENT_WICKED_STAR, { 18500ms, 39s, 26s, 30500ms, 19s });
+                }
                 else
-                    events.ScheduleEvent(EVENT_DOMINATION_WORD_PAIN, 10700ms);
+                {
+                    events.ScheduleEventSeries(EVENT_DOMINATION_WORD_PAIN, { 10700ms, 13s, 13s, 17700ms, 8100ms, 13s, 13s, 14400ms, 11200ms, 12200ms });
+                    events.ScheduleEventSeries(EVENT_HOPEBREAKER, { 13600ms, 25s, 33s, 29s, 29100ms });
+                    events.ScheduleEventSeries(EVENT_WICKED_STAR, { 18500ms, 39s, 26s, 30900ms, 19100ms });
+                }
 
                 if (IsLFR())
                     DoCastSelf(SPELL_ANDUIN_WILLPOWER_PERIODIC, true);
