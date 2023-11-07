@@ -120,7 +120,7 @@ struct boss_general_husam : public BossAI
         events.ScheduleEvent(EVENT_MYSTIC_TRAP, 7s, 10s);
         events.ScheduleEvent(EVENT_BAD_INTENTIONS, 12s, 13s);
         events.ScheduleEvent(EVENT_SHOCKWAVE, IsHeroic() ? 15s : 18s);
-        if (IsHeroic())
+        if (IsHeroic() || IsTimewalking())
             events.ScheduleEvent(EVENT_DETONATE_TRAPS, 22s);
     }
 
