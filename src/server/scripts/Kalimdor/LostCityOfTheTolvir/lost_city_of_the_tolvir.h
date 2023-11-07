@@ -29,12 +29,17 @@ enum LCTData
 {
     // Encounters
     BOSS_GENERAL_HUSAM      = 0,
-    BOSS_LOCKMAW_AND_AUGH   = 1,
+    BOSS_LOCKMAW            = 1,
     BOSS_HIGH_PROPHET_BARIM = 2,
     BOSS_SIAMAT             = 3,
 
-    DATA_LOCKMAW,
-    DATA_AUGH
+    DATA_SHUFFLE_ADD_STALKERS,
+    DATA_ADD_STALKER_1,
+    DATA_ADD_STALKER_2,
+    DATA_ADD_STALKER_3,
+    DATA_ADD_STALKER_4,
+    DATA_DUST_FLAIL,
+    DATA_HEROIC_AUGH_DESPAWNED
 };
 
 enum LCTCreatureIds
@@ -42,7 +47,6 @@ enum LCTCreatureIds
     // Bosses
     NPC_GENERAL_HUSAM               = 44577,
     NPC_LOCKMAW                     = 43614,
-    NPC_AUGH                        = 49045,
     NPC_HIGH_PROPHET_BARIM          = 43612,
     NPC_SIAMAT                      = 44819,
 
@@ -52,7 +56,15 @@ enum LCTCreatureIds
     NPC_SHOCKWAVE_STALKER           = 44711,
     NPC_TOLVIR_LAND_MINE_TARGET     = 44840,
     NPC_TOLVIR_LAND_MINE_VEHICLE    = 44798,
-    NPC_TOLVIR_LAND_MINE_CASTER     = 44796
+    NPC_TOLVIR_LAND_MINE_CASTER     = 44796,
+
+    /*Lockmaw*/
+    NPC_ADD_STALKER                 = 45124,
+    NPC_FRENZIED_CROCOLISK          = 43658,
+    NPC_DUST_FLAIL                  = 43655,
+    NPC_DUST_FLAIL_CASTER           = 43650,
+    NPC_AUGH_ADD_1                  = 45379,
+    NPC_AUGH_ADD_2                  = 45378,
 };
 
 template <class AI, class T>
