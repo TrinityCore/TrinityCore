@@ -1278,7 +1278,7 @@ class TC_GAME_API Unit : public WorldObject
 
         ObjectGuid GetOwnerGUID() const override { return m_unitData->SummonedBy; }
         void SetOwnerGUID(ObjectGuid owner);
-        ObjectGuid GetCreatorGUID() const { return m_unitData->CreatedBy; }
+        ObjectGuid GetCreatorGUID() const override { return m_unitData->CreatedBy; }
         void SetCreatorGUID(ObjectGuid creator) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CreatedBy), creator); }
         ObjectGuid GetMinionGUID() const { return m_unitData->Summon; }
         void SetMinionGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Summon), guid); }

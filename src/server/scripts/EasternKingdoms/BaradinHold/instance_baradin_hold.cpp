@@ -24,10 +24,10 @@
 
 DoorData const doorData[] =
 {
-    { GO_ARGALOTH_DOOR,  DATA_ARGALOTH, DOOR_TYPE_ROOM },
-    { GO_OCCUTHAR_DOOR,  DATA_OCCUTHAR, DOOR_TYPE_ROOM },
-    { GO_ALIZABAL_DOOR,  DATA_ALIZABAL, DOOR_TYPE_ROOM },
-    { 0,                 0,             DOOR_TYPE_ROOM }  // END
+    { GO_ARGALOTH_DOOR,  DATA_ARGALOTH, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_OCCUTHAR_DOOR,  DATA_OCCUTHAR, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ALIZABAL_DOOR,  DATA_ALIZABAL, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                 0,             EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
 DungeonEncounterData const encounters[] =

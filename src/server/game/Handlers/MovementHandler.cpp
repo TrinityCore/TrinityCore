@@ -685,16 +685,26 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSpline
         TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
 
         // far teleport case
-        if (curDestNode && curDestNode->ContinentID != GetPlayer()->GetMapId() && GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+        if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
         {
             if (FlightPathMovementGenerator* flight = dynamic_cast<FlightPathMovementGenerator*>(GetPlayer()->GetMotionMaster()->GetCurrentMovementGenerator()))
             {
-                // short preparations to continue flight
-                flight->SetCurrentNodeAfterTeleport();
-                TaxiPathNodeEntry const* node = flight->GetPath()[flight->GetCurrentNode()];
-                flight->SkipCurrentNode();
+                bool shouldTeleport = curDestNode && curDestNode->ContinentID != GetPlayer()->GetMapId();
+                if (!shouldTeleport)
+                {
+                    TaxiPathNodeEntry const* currentNode = flight->GetPath()[flight->GetCurrentNode()];
+                    shouldTeleport = currentNode->Flags & TAXI_PATH_NODE_FLAG_TELEPORT;
+                }
 
-                GetPlayer()->TeleportTo(curDestNode->ContinentID, node->Loc.X, node->Loc.Y, node->Loc.Z, GetPlayer()->GetOrientation());
+                if (shouldTeleport)
+                {
+                    // short preparations to continue flight
+                    flight->SetCurrentNodeAfterTeleport();
+                    TaxiPathNodeEntry const* node = flight->GetPath()[flight->GetCurrentNode()];
+                    flight->SkipCurrentNode();
+
+                    GetPlayer()->TeleportTo(curDestNode->ContinentID, node->Loc.X, node->Loc.Y, node->Loc.Z, GetPlayer()->GetOrientation());
+                }
             }
         }
 

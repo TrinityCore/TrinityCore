@@ -17,6 +17,7 @@
 
 #include "TaxiPathGraph.h"
 #include "DB2Stores.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include <boost/graph/adjacency_list.hpp>
@@ -32,8 +33,8 @@ struct EdgeCost
     uint32 Distance;
     uint32 EvaluateDistance(Player const* player) const
     {
-        uint32 requireFlag = (player->GetTeam() == ALLIANCE) ? TAXI_NODE_FLAG_ALLIANCE : TAXI_NODE_FLAG_HORDE;
-        if (!(To->Flags & requireFlag))
+        TaxiNodeFlags requireFlag = (player->GetTeam() == ALLIANCE) ? TaxiNodeFlags::ShowOnAllianceMap : TaxiNodeFlags::ShowOnHordeMap;
+        if (!To->GetFlags().HasFlag(requireFlag))
             return std::numeric_limits<uint16>::max();
 
         if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(To->ConditionID))
@@ -122,10 +123,9 @@ void AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, TaxiNodesEntry co
     }
 }
 
-vertex_descriptor GetVertexIDFromNodeID(TaxiNodesEntry const* node)
+vertex_descriptor const* GetVertexIDFromNodeID(TaxiNodesEntry const* node)
 {
-    auto itr = m_verticesByNode.find(node->ID);
-    return itr != m_verticesByNode.end() ? itr->second : std::numeric_limits<vertex_descriptor>::max();
+    return Trinity::Containers::MapGetValuePtr(m_verticesByNode, node->ID);
 }
 
 uint32 GetNodeIDFromVertexID(vertex_descriptor vertexID)
@@ -172,7 +172,7 @@ void TaxiPathGraph::Initialize()
     {
         TaxiNodesEntry const* from = sTaxiNodesStore.LookupEntry(path->FromTaxiNode);
         TaxiNodesEntry const* to = sTaxiNodesStore.LookupEntry(path->ToTaxiNode);
-        if (from && to && from->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE) && to->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE))
+        if (from && to && from->IsPartOfTaxiNetwork() && to->IsPartOfTaxiNetwork())
             AddVerticeAndEdgeFromNodeInfo(from, to, path->ID, edges);
     }
 
@@ -206,31 +206,37 @@ std::size_t TaxiPathGraph::GetCompleteNodeRoute(TaxiNodesEntry const* from, Taxi
     else
     {
         shortestPath.clear();
-        std::vector<vertex_descriptor> p(boost::num_vertices(m_graph));
-        std::vector<uint32> d(boost::num_vertices(m_graph));
 
-        boost::dijkstra_shortest_paths(m_graph, GetVertexIDFromNodeID(from),
-            boost::predecessor_map(boost::make_iterator_property_map(p.begin(), boost::get(boost::vertex_index, m_graph)))
-            .distance_map(boost::make_iterator_property_map(d.begin(), boost::get(boost::vertex_index, m_graph)))
-            .vertex_index_map(boost::get(boost::vertex_index, m_graph))
-            .distance_compare(std::less<uint32>())
-            .distance_combine(boost::closed_plus<uint32>())
-            .distance_inf(std::numeric_limits<uint32>::max())
-            .distance_zero(0)
-            .visitor(boost::dijkstra_visitor<boost::null_visitor>())
-            .weight_map(boost::make_transform_value_property_map(
-                [player](EdgeCost const& edgeCost) { return edgeCost.EvaluateDistance(player); },
-                boost::get(boost::edge_weight, m_graph))));
-
-        // found a path to the goal
-        for (vertex_descriptor v = GetVertexIDFromNodeID(to); ; v = p[v])
+        vertex_descriptor const* fromVertexId = GetVertexIDFromNodeID(from);
+        vertex_descriptor const* toVertexId = GetVertexIDFromNodeID(to);
+        if (fromVertexId && toVertexId)
         {
-            shortestPath.push_back(GetNodeIDFromVertexID(v));
-            if (v == p[v])
-                break;
-        }
+            std::vector<vertex_descriptor> p(boost::num_vertices(m_graph));
+            std::vector<uint32> d(boost::num_vertices(m_graph));
 
-        std::reverse(shortestPath.begin(), shortestPath.end());
+            boost::dijkstra_shortest_paths(m_graph, *fromVertexId,
+                boost::predecessor_map(boost::make_iterator_property_map(p.begin(), boost::get(boost::vertex_index, m_graph)))
+                .distance_map(boost::make_iterator_property_map(d.begin(), boost::get(boost::vertex_index, m_graph)))
+                .vertex_index_map(boost::get(boost::vertex_index, m_graph))
+                .distance_compare(std::less<uint32>())
+                .distance_combine(boost::closed_plus<uint32>())
+                .distance_inf(std::numeric_limits<uint32>::max())
+                .distance_zero(0)
+                .visitor(boost::dijkstra_visitor<boost::null_visitor>())
+                .weight_map(boost::make_transform_value_property_map(
+                    [player](EdgeCost const& edgeCost) { return edgeCost.EvaluateDistance(player); },
+                    boost::get(boost::edge_weight, m_graph))));
+
+            // found a path to the goal
+            for (vertex_descriptor v = *toVertexId; ; v = p[v])
+            {
+                shortestPath.push_back(GetNodeIDFromVertexID(v));
+                if (v == p[v])
+                    break;
+            }
+
+            std::reverse(shortestPath.begin(), shortestPath.end());
+        }
     }
 
     return shortestPath.size();
@@ -238,9 +244,13 @@ std::size_t TaxiPathGraph::GetCompleteNodeRoute(TaxiNodesEntry const* from, Taxi
 
 void TaxiPathGraph::GetReachableNodesMask(TaxiNodesEntry const* from, TaxiMask* mask)
 {
+    vertex_descriptor const* vertexId = GetVertexIDFromNodeID(from);
+    if (!vertexId)
+        return;
+
     boost::vector_property_map<boost::default_color_type> color(boost::num_vertices(m_graph));
     std::fill(color.storage_begin(), color.storage_end(), boost::white_color);
-    boost::depth_first_visit(m_graph, GetVertexIDFromNodeID(from), make_discover_vertex_dfs_visitor([mask](vertex_descriptor vertex)
+    boost::depth_first_visit(m_graph, *vertexId, make_discover_vertex_dfs_visitor([mask](vertex_descriptor vertex)
     {
         if (TaxiNodesEntry const* taxiNode = sTaxiNodesStore.LookupEntry(GetNodeIDFromVertexID(vertex)))
             (*mask)[(taxiNode->ID - 1) / 8] |= 1 << ((taxiNode->ID - 1) % 8);

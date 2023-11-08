@@ -33,9 +33,9 @@ EndScriptData */
 
 DoorData const doorData[] =
 {
-    { GO_GRAND_WARLOCK_CHAMBER_DOOR_1, DATA_NETHEKURSE, DOOR_TYPE_PASSAGE },
-    { GO_GRAND_WARLOCK_CHAMBER_DOOR_2, DATA_NETHEKURSE, DOOR_TYPE_PASSAGE },
-    { 0,                               0,               DOOR_TYPE_ROOM }
+    { GO_GRAND_WARLOCK_CHAMBER_DOOR_1, DATA_NETHEKURSE, EncounterDoorBehavior::OpenWhenDone },
+    { GO_GRAND_WARLOCK_CHAMBER_DOOR_2, DATA_NETHEKURSE, EncounterDoorBehavior::OpenWhenDone },
+    { 0,                               0,               EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
 DungeonEncounterData const encounters[] =

@@ -66,8 +66,8 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         void AddActor(int32 actorId, uint32 actorIdx, ObjectGuid const& actorGuid);
         void AddActor(int32 actorId, uint32 actorIdx, ConversationActorType type, uint32 creatureId, uint32 creatureDisplayInfoId);
 
-        ObjectGuid const& GetCreatorGuid() const { return _creatorGuid; }
-        ObjectGuid GetOwnerGUID() const override { return GetCreatorGuid(); }
+        ObjectGuid GetCreatorGUID() const override { return _creatorGuid; }
+        ObjectGuid GetOwnerGUID() const override { return GetCreatorGUID(); }
         uint32 GetFaction() const override { return 0; }
 
         float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }

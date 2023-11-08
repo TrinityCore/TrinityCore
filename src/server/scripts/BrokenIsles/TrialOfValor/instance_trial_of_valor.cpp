@@ -35,9 +35,9 @@ ObjectData const creatureData[] =
 
 DoorData const doorData[] =
 {
-    { GO_GUARM_BOSS_DOOR_ENTRANCE,              DATA_GUARM,     DOOR_TYPE_ROOM    },
-    { GO_GUARM_BOSS_DOOR_EXIT,                  DATA_GUARM,     DOOR_TYPE_PASSAGE },
-    { 0,                                        0,              DOOR_TYPE_ROOM    }  // END
+    { GO_GUARM_BOSS_DOOR_ENTRANCE,              DATA_GUARM,     EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_GUARM_BOSS_DOOR_EXIT,                  DATA_GUARM,     EncounterDoorBehavior::OpenWhenDone },
+    { 0,                                        0,              EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
 DungeonEncounterData const encounters[] =
