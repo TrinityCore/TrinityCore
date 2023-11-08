@@ -1421,10 +1421,15 @@ enum ETIShivarraData
     SPELL_SEVIS_CHAOS_STRIKE                = 204317,
     SPELL_SEVIS_SOUL_MISSILE_02             = 191664,
     SPELL_SEVIS_KILLED_ME_AURA              = 203292,
-    SPELL_TRIGGER_SHIVARRA_CONV_WHEN_DEAD   = 196866
+    SPELL_TRIGGER_SHIVARRA_CONV_WHEN_DEAD   = 196866,
+
+    ACTION_SACRIFICE_PLAYER                 = 1,
+    ACTION_SACRIFICE_SEVIS,
+
+    QUEST_SEVIS_SACRIFICE_TRACKER           = 40087,
 };
 
-Position const SevisBrightflameShivarraGateway = { 1587.9618f, 2543.091f, 62.18399f, 3.49967908f };
+Position const SevisBrightflameShivarraGatewayPosition = { 1587.9618f, 2543.091f, 62.18399f, 3.49967908f };
 
 // 99915 - Sevis Brightflame (Shivarra Gateway)
 struct npc_sevis_brightflame_shivarra_gateway : public ScriptedAI
@@ -1448,12 +1453,19 @@ struct npc_sevis_brightflame_shivarra_gateway : public ScriptedAI
         return false;
     }
 
-    void JustAppeared() override
+    void DoAction(int32 param) override
     {
-        if (me->HasStringId("sevis_sacrifice_self"))
-            SacrificeSelf();
-        else if (me->HasStringId("sevis_sacrifice_player"))
-            SacrificePlayer();
+        switch (param)
+        {
+            case ACTION_SACRIFICE_PLAYER:
+                SacrificePlayer();
+                break;
+            case ACTION_SACRIFICE_SEVIS:
+                SacrificeSelf();
+                break;
+            default:
+                break;
+        }
     }
 
     void SacrificeSelf()
@@ -1465,6 +1477,7 @@ struct npc_sevis_brightflame_shivarra_gateway : public ScriptedAI
         {
             me->KillSelf();
 
+            _soulMissileCounter = 0;
             task.Schedule(2s, [this](TaskContext task)
             {
                 DoCast(SPELL_SEVIS_SOUL_MISSILE_02);
@@ -1541,14 +1554,14 @@ public:
 
     void OnTrigger(WorldObject* /*object*/, WorldObject* invoker, uint32 /*eventId*/) override
     {
-        if (Creature* creature = invoker->SummonCreature(NPC_SEVIS_BRIGHTFLAME_SHIVARRA, SevisBrightflameShivarraGateway, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, invoker->GetGUID()))
+        if (Creature* creature = invoker->SummonCreature(NPC_SEVIS_BRIGHTFLAME_SHIVARRA, SevisBrightflameShivarraGatewayPosition, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, invoker->GetGUID()))
         {
             if (Player* player = invoker->ToPlayer())
             {
                 player->KilledMonsterCredit(NPC_SEVIS_BRIGHTFLAME_SHIVARRA);
                 player->CastSpell(nullptr, SPELL_SEVIS_KILLED_ME_AURA, false);
             }
-            creature->SetScriptStringId("sevis_sacrifice_player");
+            creature->AI()->DoAction(ACTION_SACRIFICE_PLAYER);
         }
     }
 };
@@ -1561,11 +1574,11 @@ public:
 
     void OnTrigger(WorldObject* /*object*/, WorldObject* invoker, uint32 /*eventId*/) override
     {
-        if (Creature* creature = invoker->SummonCreature(NPC_SEVIS_BRIGHTFLAME_SHIVARRA, SevisBrightflameShivarraGateway, TEMPSUMMON_TIMED_DESPAWN, 60s, 0, 0, invoker->GetGUID()))
+        if (Creature* creature = invoker->SummonCreature(NPC_SEVIS_BRIGHTFLAME_SHIVARRA, SevisBrightflameShivarraGatewayPosition, TEMPSUMMON_TIMED_DESPAWN, 60s, 0, 0, invoker->GetGUID()))
         {
             if (Player* player = invoker->ToPlayer())
                 player->KilledMonsterCredit(NPC_SEVIS_BRIGHTFLAME_SHIVARRA);
-            creature->SetScriptStringId("sevis_sacrifice_self");
+            creature->AI()->DoAction(ACTION_SACRIFICE_SEVIS);
         }
     }
 };
@@ -1582,6 +1595,22 @@ struct at_enter_the_illidari_shivarra_conversation : AreaTriggerAI
             return;
 
         player->CastSpell(nullptr, SPELL_TRIGGER_SHIVARRA_CONV_WHEN_DEAD, true);
+    }
+};
+
+// 38765 - Enter the Illidari: Shivarra
+class quest_enter_the_illidari_shivarra : public QuestScript
+{
+public:
+    quest_enter_the_illidari_shivarra() : QuestScript("quest_enter_the_illidari_shivarra") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus == QUEST_STATUS_NONE)
+        {
+            player->RemoveActiveQuest(QUEST_SEVIS_SACRIFICE_TRACKER, false);
+            player->RemoveRewardedQuest(QUEST_SEVIS_SACRIFICE_TRACKER);
+        }
     }
 };
 
@@ -1634,4 +1663,7 @@ void AddSC_zone_mardum()
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_IZAL_WHITEMOON_FREED>, "spell_izal_whitemoon_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_BELATH_DAWNBLADE_FREED>, "spell_belath_dawnblade_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_MANNETHREL_DARKSTAR_FREED>, "spell_mannethrel_darkstar_killcredit_set_them_free");
+
+    // Quests
+    new quest_enter_the_illidari_shivarra();
 };

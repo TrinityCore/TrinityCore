@@ -1,9 +1,7 @@
-SET @CGUID := 11000000;
-
-SET @ATID := 34;
-SET @ATIDSPAWN := 47;
-
-SET @NPCTEXTID := 11000000;
+SET @CGUID := 6000784;
+SET @ATID := 48;
+SET @ATIDSPAWN := 48;
+SET @NPCTEXTID := 560008;
 
 -- Creature
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+1;
@@ -129,7 +127,7 @@ INSERT INTO `creature_queststarter` (`id`, `quest`, `VerifiedBuild`) VALUES
 
 DELETE FROM `quest_template_addon` WHERE `ID` = 38765;
 INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `BreadcrumbForQuestId`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`, `ScriptName`) VALUES
-(38765, 0, 0, 0, 39050, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '');
+(38765, 0, 0, 0, 39050, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'quest_enter_the_illidari_shivarra');
 
 DELETE FROM `quest_objectives_completion_effect` WHERE `ObjectiveID` = 280772;
 INSERT INTO `quest_objectives_completion_effect` (`ObjectiveID`, `GameEventID`, `SpellID`, `ConversationID`, `UpdatePhaseShift`, `UpdateZoneAuras`) VALUES
