@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -1391,6 +1392,228 @@ class spell_freed_killcredit_set_them_free : public SpellScript
     }
 };
 
+enum ETIShivarraData
+{
+    NPC_SEVIS_BRIGHTFLAME_SHIVARRA          = 99915,
+
+    GOSSIP_MENU_SACRIFICE_PLAYER            = 19132,
+    GOSSIP_MENU_SACRIFICE_SEVIS             = 19133,
+
+    GOSSIP_OPTION_SACRIFICE_PLAYER          = 0,
+    GOSSIP_OPTION_SACRIFICE_SEVIS           = 0,
+
+    SAY_SEVIS_PLAYER_SACRIFICE              = 1,
+    SAY_SEVIS_GET_SACRIFICED                = 2,
+
+    ANIM_KIT_SWING_WEAPON                   = 8973,
+    ANIM_KIT_KNEEL                          = 2312,
+    ANIM_KIT_SALUTE                         = 3342,
+    ANIM_KIT_ONESHOT_GET_HIT                = 881,
+
+    SPELL_VISUAL_SACRIFICE_PLAYER           = 55406,
+
+    PATH_SEVIS_GATEWAY_SHIVARRA             = 9991500,
+
+    POINT_SEVIS_GATEWAY_SHIVARRA            = 1,
+
+    SPELL_SACRIFICE_SEVIS                   = 196731,
+    SPELL_SEVIS_SACRIFICE_ME                = 196735,
+    SPELL_SEVIS_CHAOS_STRIKE                = 204317,
+    SPELL_SEVIS_SOUL_MISSILE_02             = 191664,
+    SPELL_SEVIS_KILLED_ME_AURA              = 203292,
+    SPELL_TRIGGER_SHIVARRA_CONV_WHEN_DEAD   = 196866,
+
+    ACTION_SACRIFICE_PLAYER                 = 1,
+    ACTION_SACRIFICE_SEVIS,
+
+    QUEST_SEVIS_SACRIFICE_TRACKER           = 40087,
+};
+
+Position const SevisBrightflameShivarraGatewayPosition = { 1587.9618f, 2543.091f, 62.18399f, 3.49967908f };
+
+// 99915 - Sevis Brightflame (Shivarra Gateway)
+struct npc_sevis_brightflame_shivarra_gateway : public ScriptedAI
+{
+    npc_sevis_brightflame_shivarra_gateway(Creature* creature) : ScriptedAI(creature), _soulMissileCounter(0) { }
+
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    {
+        if (menuId == GOSSIP_MENU_SACRIFICE_PLAYER && gossipListId == GOSSIP_OPTION_SACRIFICE_PLAYER)
+        {
+            CloseGossipMenuFor(player);
+            player->CastSpell(nullptr, SPELL_SEVIS_SACRIFICE_ME, false);
+            return true;
+        }
+        else if (menuId == GOSSIP_MENU_SACRIFICE_SEVIS && gossipListId == GOSSIP_OPTION_SACRIFICE_SEVIS)
+        {
+            CloseGossipMenuFor(player);
+            player->CastSpell(me, SPELL_SACRIFICE_SEVIS, false);
+            return true;
+        }
+        return false;
+    }
+
+    void DoAction(int32 param) override
+    {
+        switch (param)
+        {
+            case ACTION_SACRIFICE_PLAYER:
+                SacrificePlayer();
+                break;
+            case ACTION_SACRIFICE_SEVIS:
+                SacrificeSelf();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void SacrificeSelf()
+    {
+        me->PlayOneShotAnimKitId(ANIM_KIT_ONESHOT_GET_HIT);
+        Talk(SAY_SEVIS_GET_SACRIFICED, me);
+
+        _scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            me->KillSelf();
+
+            _soulMissileCounter = 0;
+            task.Schedule(2s, [this](TaskContext task)
+            {
+                DoCast(SPELL_SEVIS_SOUL_MISSILE_02);
+                _soulMissileCounter++;
+
+                if (_soulMissileCounter < 3)
+                    task.Repeat(2s);
+            });
+        });
+    }
+
+    void SacrificePlayer()
+    {
+        me->DespawnOrUnsummon(22s);
+        Talk(SAY_SEVIS_PLAYER_SACRIFICE, me);
+
+        _scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            TempSummon* summon = me->ToTempSummon();
+            if (!summon)
+                return;
+
+            Unit* summoner = summon->GetSummonerUnit();
+            if (!summoner)
+                return;
+
+            me->GetMotionMaster()->MoveCloserAndStop(POINT_SEVIS_GATEWAY_SHIVARRA, summoner, 2.0f);
+
+            task.Schedule(2s, [this](TaskContext task)
+            {
+                me->SendPlaySpellVisualKit(SPELL_VISUAL_SACRIFICE_PLAYER, 4, 1000);
+                me->SetAIAnimKitId(ANIM_KIT_SWING_WEAPON);
+                DoCast(SPELL_SEVIS_CHAOS_STRIKE);
+
+                task.Schedule(2s, [this](TaskContext task)
+                {
+                    me->SetAIAnimKitId(ANIM_KIT_KNEEL);
+
+                    task.Schedule(5s, [this](TaskContext task)
+                    {
+                        me->SetAIAnimKitId(ANIM_KIT_SALUTE);
+
+                        task.Schedule(3s, [this](TaskContext task)
+                        {
+                            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SEVIS_MOUNT, 0, 0);
+                            me->SetMountDisplayId(DISPLAY_ID_SEVIS_MOUNT);
+
+                            task.Schedule(2s, [this](TaskContext /*task*/)
+                            {
+                                me->GetMotionMaster()->MovePath(PATH_SEVIS_GATEWAY_SHIVARRA, false);
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+    uint8 _soulMissileCounter;
+};
+
+// EventID 47550
+class event_sevis_sacrifice_player : public EventScript
+{
+public:
+    event_sevis_sacrifice_player() : EventScript("event_sevis_sacrifice_player") { }
+
+    void OnTrigger(WorldObject* /*object*/, WorldObject* invoker, uint32 /*eventId*/) override
+    {
+        if (Creature* creature = invoker->SummonCreature(NPC_SEVIS_BRIGHTFLAME_SHIVARRA, SevisBrightflameShivarraGatewayPosition, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, invoker->GetGUID()))
+        {
+            if (Player* player = invoker->ToPlayer())
+            {
+                player->KilledMonsterCredit(NPC_SEVIS_BRIGHTFLAME_SHIVARRA);
+                player->CastSpell(nullptr, SPELL_SEVIS_KILLED_ME_AURA, false);
+            }
+            creature->AI()->DoAction(ACTION_SACRIFICE_PLAYER);
+        }
+    }
+};
+
+// EventID 47549
+class event_sevis_sacrifice_self : public EventScript
+{
+public:
+    event_sevis_sacrifice_self() : EventScript("event_sevis_sacrifice_self") { }
+
+    void OnTrigger(WorldObject* /*object*/, WorldObject* invoker, uint32 /*eventId*/) override
+    {
+        if (Creature* creature = invoker->SummonCreature(NPC_SEVIS_BRIGHTFLAME_SHIVARRA, SevisBrightflameShivarraGatewayPosition, TEMPSUMMON_TIMED_DESPAWN, 60s, 0, 0, invoker->GetGUID()))
+        {
+            if (Player* player = invoker->ToPlayer())
+                player->KilledMonsterCredit(NPC_SEVIS_BRIGHTFLAME_SHIVARRA);
+            creature->AI()->DoAction(ACTION_SACRIFICE_SEVIS);
+        }
+    }
+};
+
+// XX - Mardum - Trigger Conversation for Quest "Enter the Illidari: Shivarra"
+struct at_enter_the_illidari_shivarra_conversation : AreaTriggerAI
+{
+    at_enter_the_illidari_shivarra_conversation(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player || !player->HasAura(SPELL_SEVIS_KILLED_ME_AURA))
+            return;
+
+        player->CastSpell(nullptr, SPELL_TRIGGER_SHIVARRA_CONV_WHEN_DEAD, true);
+    }
+};
+
+// 38765 - Enter the Illidari: Shivarra
+class quest_enter_the_illidari_shivarra : public QuestScript
+{
+public:
+    quest_enter_the_illidari_shivarra() : QuestScript("quest_enter_the_illidari_shivarra") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus == QUEST_STATUS_NONE)
+        {
+            player->RemoveActiveQuest(QUEST_SEVIS_SACRIFICE_TRACKER, false);
+            player->RemoveRewardedQuest(QUEST_SEVIS_SACRIFICE_TRACKER);
+        }
+    }
+};
+
 void AddSC_zone_mardum()
 {
     // Creature
@@ -1403,6 +1626,7 @@ void AddSC_zone_mardum()
     RegisterCreatureAI(npc_illidari_fighting_invasion_begins);
     RegisterCreatureAI(npc_inquisitor_baleful_molten_shore);
     RegisterCreatureAI(npc_baleful_beaming_eye);
+    RegisterCreatureAI(npc_sevis_brightflame_shivarra_gateway);
 
     // AISelector
     new FactoryCreatureScript<CreatureAI, &KaynSunfuryNearLegionBannerAISelector>("npc_kayn_sunfury_ashtongue_intro");
@@ -1415,6 +1639,11 @@ void AddSC_zone_mardum()
 
     // AreaTrigger
     RegisterAreaTriggerAI(at_enter_the_illidari_ashtongue_allari_killcredit);
+    RegisterAreaTriggerAI(at_enter_the_illidari_shivarra_conversation);
+
+    // EventScript
+    new event_sevis_sacrifice_player();
+    new event_sevis_sacrifice_self();
 
     // Conversation
     new conversation_the_invasion_begins();
@@ -1434,4 +1663,7 @@ void AddSC_zone_mardum()
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_IZAL_WHITEMOON_FREED>, "spell_izal_whitemoon_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_BELATH_DAWNBLADE_FREED>, "spell_belath_dawnblade_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_MANNETHREL_DARKSTAR_FREED>, "spell_mannethrel_darkstar_killcredit_set_them_free");
+
+    // Quests
+    new quest_enter_the_illidari_shivarra();
 };
