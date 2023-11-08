@@ -26,12 +26,12 @@
 
 DoorData const doorData[] =
 {
-    { GO_GAL_DARAH_DOOR_1,              DATA_GAL_DARAH,         DOOR_TYPE_PASSAGE },
-    { GO_GAL_DARAH_DOOR_2,              DATA_GAL_DARAH,         DOOR_TYPE_PASSAGE },
-    { GO_GAL_DARAH_DOOR_3,              DATA_GAL_DARAH,         DOOR_TYPE_ROOM    },
-    { GO_ECK_THE_FEROCIOUS_DOOR,        DATA_MOORABI,           DOOR_TYPE_PASSAGE },
-    { GO_ECK_THE_FEROCIOUS_DOOR_BEHIND, DATA_ECK_THE_FEROCIOUS, DOOR_TYPE_PASSAGE },
-    { 0,                                0,                      DOOR_TYPE_ROOM    } // END
+    { GO_GAL_DARAH_DOOR_1,              DATA_GAL_DARAH,         EncounterDoorBehavior::OpenWhenDone },
+    { GO_GAL_DARAH_DOOR_2,              DATA_GAL_DARAH,         EncounterDoorBehavior::OpenWhenDone },
+    { GO_GAL_DARAH_DOOR_3,              DATA_GAL_DARAH,         EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ECK_THE_FEROCIOUS_DOOR,        DATA_MOORABI,           EncounterDoorBehavior::OpenWhenDone },
+    { GO_ECK_THE_FEROCIOUS_DOOR_BEHIND, DATA_ECK_THE_FEROCIOUS, EncounterDoorBehavior::OpenWhenDone },
+    { 0,                                0,                      EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 ObjectData const creatureData[] =

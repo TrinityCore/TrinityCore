@@ -109,7 +109,7 @@ WorldPacket const* GossipMessage::Write()
     _worldPacket << uint32(GossipOptions.size());
     _worldPacket << uint32(GossipText.size());
     _worldPacket.WriteBit(TextID.has_value());
-    _worldPacket.WriteBit(TextID2.has_value());
+    _worldPacket.WriteBit(BroadcastTextID.has_value());
     _worldPacket.FlushBits();
 
     for (ClientGossipOptions const& options : GossipOptions)
@@ -118,8 +118,8 @@ WorldPacket const* GossipMessage::Write()
     if (TextID)
         _worldPacket << int32(*TextID);
 
-    if (TextID2)
-        _worldPacket << int32(*TextID2);
+    if (BroadcastTextID)
+        _worldPacket << int32(*BroadcastTextID);
 
     for (ClientGossipText const& text : GossipText)
         _worldPacket << text;

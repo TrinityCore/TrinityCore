@@ -52,12 +52,12 @@ ObjectData const gameObjectData[] =
 
 DoorData const doorData[] =
 {
-    { GO_SUNWELL_RAID_GATE_2  , DATA_SELIN_FIREHEART,       DOOR_TYPE_PASSAGE   },
-    { GO_ASSEMBLY_CHAMBER_DOOR, DATA_SELIN_FIREHEART,       DOOR_TYPE_ROOM      },
-    { GO_SUNWELL_RAID_GATE_5,   DATA_VEXALLUS,              DOOR_TYPE_PASSAGE   },
-    { GO_SUNWELL_RAID_GATE_4,   DATA_PRIESTESS_DELRISSA,    DOOR_TYPE_PASSAGE   },
-    { GO_ASYLUM_DOOR,           DATA_KAELTHAS_SUNSTRIDER,   DOOR_TYPE_ROOM      },
-    { 0,                        0,                          DOOR_TYPE_ROOM      } // END
+    { GO_SUNWELL_RAID_GATE_2  , DATA_SELIN_FIREHEART,       EncounterDoorBehavior::OpenWhenDone },
+    { GO_ASSEMBLY_CHAMBER_DOOR, DATA_SELIN_FIREHEART,       EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_SUNWELL_RAID_GATE_5,   DATA_VEXALLUS,              EncounterDoorBehavior::OpenWhenDone },
+    { GO_SUNWELL_RAID_GATE_4,   DATA_PRIESTESS_DELRISSA,    EncounterDoorBehavior::OpenWhenDone },
+    { GO_ASYLUM_DOOR,           DATA_KAELTHAS_SUNSTRIDER,   EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                        0,                          EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 DungeonEncounterData const encounters[] =

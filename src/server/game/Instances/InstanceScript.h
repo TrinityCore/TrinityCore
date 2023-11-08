@@ -77,12 +77,13 @@ enum EncounterState
     TO_BE_DECIDED = 5
 };
 
-enum DoorType
+enum class EncounterDoorBehavior : uint8
 {
-    DOOR_TYPE_ROOM          = 0,    // Door can open if encounter is not in progress
-    DOOR_TYPE_PASSAGE       = 1,    // Door can open if encounter is done
-    DOOR_TYPE_SPAWN_HOLE    = 2,    // Door can open if encounter is in progress, typically used for spawning places
-    MAX_DOOR_TYPES
+    OpenWhenNotInProgress   = 0, // open if encounter is not in progress
+    OpenWhenDone            = 1, // open if encounter is done
+    OpenWhenInProgress      = 2, // open if encounter is in progress, typically used for spawning places
+    OpenWhenNotDone         = 3, // open if encounter is not done
+    Max
 };
 
 static constexpr uint32 MAX_DUNGEON_ENCOUNTERS_PER_BOSS = 4;
@@ -96,7 +97,7 @@ struct DungeonEncounterData
 struct DoorData
 {
     uint32 entry, bossId;
-    DoorType type;
+    EncounterDoorBehavior Behavior;
 };
 
 struct BossBoundaryEntry
@@ -139,7 +140,7 @@ struct BossInfo
     DungeonEncounterEntry const* GetDungeonEncounterForDifficulty(Difficulty difficulty) const;
 
     EncounterState state;
-    GuidSet door[MAX_DOOR_TYPES];
+    std::array<GuidSet, static_cast<uint8>(EncounterDoorBehavior::Max)> door;
     GuidSet minion;
     CreatureBoundary boundary;
     std::array<DungeonEncounterEntry const*, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> DungeonEncounters;
@@ -147,10 +148,10 @@ struct BossInfo
 
 struct DoorInfo
 {
-    explicit DoorInfo(BossInfo* _bossInfo, DoorType _type)
-        : bossInfo(_bossInfo), type(_type) { }
+    explicit DoorInfo(BossInfo* _bossInfo, EncounterDoorBehavior _behavior)
+        : bossInfo(_bossInfo), Behavior(_behavior) { }
     BossInfo* bossInfo;
-    DoorType type;
+    EncounterDoorBehavior Behavior;
 };
 
 struct MinionInfo

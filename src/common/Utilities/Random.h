@@ -40,11 +40,11 @@ TC_COMMON_API Milliseconds randtime(Milliseconds min, Milliseconds max);
 /* Return a random number in the range min..max */
 TC_COMMON_API float frand(float min, float max);
 
-/* Return a random double from 0.0 to 1.0 (exclusive). */
-TC_COMMON_API double rand_norm();
+/* Return a random float from 0.0 to 1.0 (exclusive). */
+TC_COMMON_API float rand_norm();
 
-/* Return a random double from 0.0 to 100.0 (exclusive). */
-TC_COMMON_API double rand_chance();
+/* Return a random float from 0.0 to 100.0 (exclusive). */
+TC_COMMON_API float rand_chance();
 
 /* Return a random number in the range 0..count (exclusive) with each value having a different chance of happening */
 TC_COMMON_API uint32 urandweighted(size_t count, double const* chances);

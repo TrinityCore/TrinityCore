@@ -183,7 +183,7 @@ void InstanceScript::LoadDoorData(DoorData const* data)
     while (data->entry)
     {
         if (data->bossId < bosses.size())
-            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type)));
+            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->Behavior)));
 
         ++data;
     }
@@ -228,16 +228,19 @@ void InstanceScript::UpdateDoorState(GameObject* door)
     for (; range.first != range.second && open; ++range.first)
     {
         DoorInfo const& info = range.first->second;
-        switch (info.type)
+        switch (info.Behavior)
         {
-            case DOOR_TYPE_ROOM:
+            case EncounterDoorBehavior::OpenWhenNotInProgress:
                 open = (info.bossInfo->state != IN_PROGRESS);
                 break;
-            case DOOR_TYPE_PASSAGE:
+            case EncounterDoorBehavior::OpenWhenDone:
                 open = (info.bossInfo->state == DONE);
                 break;
-            case DOOR_TYPE_SPAWN_HOLE:
+            case EncounterDoorBehavior::OpenWhenInProgress:
                 open = (info.bossInfo->state == IN_PROGRESS);
+                break;
+            case EncounterDoorBehavior::OpenWhenNotDone:
+                open = (info.bossInfo->state != DONE);
                 break;
             default:
                 break;
@@ -347,11 +350,9 @@ void InstanceScript::AddDoor(GameObject* door, bool add)
         DoorInfo const& data = range.first->second;
 
         if (add)
-        {
-            data.bossInfo->door[data.type].insert(door->GetGUID());
-        }
+            data.bossInfo->door[AsUnderlyingType(data.Behavior)].insert(door->GetGUID());
         else
-            data.bossInfo->door[data.type].erase(door->GetGUID());
+            data.bossInfo->door[AsUnderlyingType(data.Behavior)].erase(door->GetGUID());
     }
 
     if (add)
@@ -454,9 +455,9 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                 instance->UpdateInstanceLock({ dungeonEncounter, id, state });
         }
 
-        for (uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
-            for (GuidSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
-                if (GameObject* door = instance->GetGameObject(*i))
+        for (GuidSet const& doorSet : bossInfo->door)
+            for (ObjectGuid const& doorGUID : doorSet)
+                if (GameObject* door = instance->GetGameObject(doorGUID))
                     UpdateDoorState(door);
 
         GuidSet minions = bossInfo->minion; // Copy to prevent iterator invalidation (minion might be unsummoned in UpdateMinionState)
