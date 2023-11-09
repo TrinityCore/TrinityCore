@@ -497,7 +497,7 @@ enum class CriteriaFlags : uint8
 
 DEFINE_ENUM_FLAG(CriteriaFlags);
 
-enum class CriteriaType : uint8
+enum class CriteriaType : int16
 {
     KillCreature                                   = 0,   // Kill NPC "{Creature}"
     WinBattleground                                = 1,   // Win battleground "{Map}"
@@ -744,7 +744,9 @@ enum class CriteriaType : uint8
 
     PerksProgramMonthComplete                      = 249, /*NYI*/
     CompleteTrackingQuest                          = 250, /*NYI*/
-    Count
+
+    GainLevels                                     = 253, // Gain levels
+    Count                                          = 257
 };
 
 enum class CriteriaTreeFlags : uint16
@@ -1686,6 +1688,11 @@ enum class ModifierTreeType : int32
     PlayerHasCompletedQuestWithLabel                                    = 372, /*NYI*/ // Player has previously completed quest with {QuestLabel}
     LegacyLootIsEnabled                                                 = 373, /*NYI*/
     PlayerZPositionBelow                                                = 374,
+    PlayerWeaponHighWatermarkAboveOrEqual                               = 375, /*NYI*/
+    PlayerHeadHighWatermarkAboveOrEqual                                 = 376, /*NYI*/
+    PlayerHasDisplayedCurrencyLessThan                                  = 377, /*NYI*/ // Player has {CurrencyTypes} less than {#Amount} (value visible in ui is taken into account, not raw value)
+
+    PlayerIsOnMapWithExpansion                                          = 380, // Player is on map that has {ExpansionID}
 };
 
 enum class ModifierTreeOperator : int8
@@ -1714,7 +1721,7 @@ enum MountFlags
     MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
 };
 
-enum class PhaseEntryFlags : uint16
+enum class PhaseEntryFlags : int32
 {
     ReadOnly                = 0x001,
     InternalPhase           = 0x002,
@@ -1768,7 +1775,7 @@ enum class PlayerInteractionType : int32
     Registrar                   = 11,
     Vendor                      = 12,
     PetitionVendor              = 13,
-    TabardVendor                = 14,
+    GuildTabardVendor                = 14,
     TalentMaster                = 15,
     SpecializationMaster        = 16,
     MailInfo                    = 17,
@@ -1818,7 +1825,8 @@ enum class PlayerInteractionType : int32
     TraitSystem                 = 61,
     BarbersChoice               = 62,
     JailersTowerBuffs           = 63,
-    MajorFactionRenown          = 64
+    MajorFactionRenown          = 64,
+    PersonalTabardVendor        = 65
 };
 
 enum class PowerTypeFlags : int16

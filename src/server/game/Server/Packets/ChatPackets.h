@@ -259,7 +259,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 MessageID = 0;
-            std::string StringParam;
+            std::string_view StringParam;
         };
 
         class ChatRegisterAddonPrefixes final : public ClientPacket

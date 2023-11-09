@@ -60,7 +60,7 @@ namespace WorldPackets
             uint8 Race            = RACE_NONE;
             uint8 Class           = CLASS_NONE;
             uint8 Sex             = GENDER_NONE;
-            Array<ChrCustomizationChoice, 125> Customizations;
+            Array<ChrCustomizationChoice, 250> Customizations;
             Optional<int32> TemplateSet;
             bool IsTrialBoost     = false;
             bool UseNPE           = false;
@@ -81,7 +81,7 @@ namespace WorldPackets
             ObjectGuid CharGUID;
             uint8 SexID             = GENDER_NONE;
             std::string CharName;
-            Array<ChrCustomizationChoice, 125> Customizations;
+            Array<ChrCustomizationChoice, 250> Customizations;
         };
 
         struct CharRaceOrFactionChangeInfo
@@ -92,7 +92,7 @@ namespace WorldPackets
             ObjectGuid Guid;
             bool FactionChange      = false;
             std::string Name;
-            Array<ChrCustomizationChoice, 125> Customizations;
+            Array<ChrCustomizationChoice, 250> Customizations;
         };
 
         struct CharacterUndeleteInfo
@@ -103,6 +103,15 @@ namespace WorldPackets
 
             /// Server side data
             std::string Name;
+        };
+
+        struct CustomTabardInfo
+        {
+            int32 EmblemStyle = -1;
+            int32 EmblemColor = -1;
+            int32 BorderStyle = -1;
+            int32 BorderColor = -1;
+            int32 BackgroundColor = -1;
         };
 
         class EnumCharactersResult final : public ServerPacket
@@ -163,6 +172,9 @@ namespace WorldPackets
                 std::array<VisualItemInfo, 35> VisualItems = { };
                 std::vector<std::string> MailSenders;
                 std::vector<uint32> MailSenderTypes;
+                bool RpeResetAvailable = false;
+                bool RpeResetQuestClearAvailable = false;
+                CustomTabardInfo PersonalTabard;
             };
 
             struct RaceUnlock
@@ -171,6 +183,7 @@ namespace WorldPackets
                 bool HasExpansion     = false;
                 bool HasAchievement   = false;
                 bool HasHeritageArmor = false;
+                bool IsLocked         = false;
             };
 
             struct UnlockedConditionalAppearance
@@ -201,7 +214,6 @@ namespace WorldPackets
             bool IsNewPlayerRestricted            = false; ///< forbids using level boost and class trials
             bool IsNewPlayer                      = false; ///< forbids hero classes and allied races
             bool IsTrialAccountRestricted         = false;
-            bool IsAlliedRacesCreationAllowed     = false;
 
             int32 MaxCharacterLevel     = 1;
             Optional<uint32> DisabledClassesMask;
@@ -366,7 +378,7 @@ namespace WorldPackets
             std::string Name;
             uint8 SexID             = 0;
             uint8 RaceID            = RACE_NONE;
-            Array<ChrCustomizationChoice, 125> const* Customizations = nullptr;
+            Array<ChrCustomizationChoice, 250> const* Customizations = nullptr;
         };
 
         class CharFactionChangeResult final : public ServerPacket
@@ -637,7 +649,7 @@ namespace WorldPackets
             void Read() override;
 
             uint8 NewSex = 0;
-            Array<ChrCustomizationChoice, 125> Customizations;
+            Array<ChrCustomizationChoice, 250> Customizations;
             int32 CustomizedRace = 0;
             int32 CustomizedChrModelID = 0;
         };
@@ -691,7 +703,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 FactionIndex = 0;
+            uint16 FactionIndex = 0;
         };
 
         class SetFactionNotAtWar final : public ClientPacket
@@ -701,7 +713,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 FactionIndex = 0;
+            uint16 FactionIndex = 0;
         };
 
         class SetFactionInactive final : public ClientPacket
@@ -745,7 +757,7 @@ namespace WorldPackets
             ObjectGuid CharGUID;
             std::string CharName;
             uint8 SexID = 0;
-            Array<ChrCustomizationChoice, 125> const& Customizations;
+            Array<ChrCustomizationChoice, 250> const& Customizations;
         };
 
         class CharCustomizeFailure final : public ServerPacket
@@ -779,6 +791,27 @@ namespace WorldPackets
 
             ObjectGuid Player;
             int32 ResultCode = 0;
+        };
+
+        class SavePersonalEmblem final : public ClientPacket
+        {
+        public:
+            SavePersonalEmblem(WorldPacket&& packet) : ClientPacket(CMSG_SAVE_PERSONAL_EMBLEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Vendor;
+            CustomTabardInfo PersonalTabard;
+        };
+
+        class PlayerSavePersonalEmblem final : public ServerPacket
+        {
+        public:
+            explicit PlayerSavePersonalEmblem(int32 error) : ServerPacket(SMSG_PLAYER_SAVE_PERSONAL_EMBLEM, 4), Error(error) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Error;
         };
     }
 }

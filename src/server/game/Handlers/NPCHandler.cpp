@@ -39,27 +39,48 @@
 #include "Trainer.h"
 #include "WorldPacket.h"
 
-void WorldSession::HandleTabardVendorActivateOpcode(WorldPackets::NPC::Hello& packet)
+enum class TabardVendorType : int32
 {
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_TABARDDESIGNER, UNIT_NPC_FLAG_2_NONE);
+    Guild       = 0,
+    Personal    = 1,
+};
+
+void WorldSession::HandleTabardVendorActivateOpcode(WorldPackets::NPC::TabardVendorActivate const& tabardVendorActivate)
+{
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(tabardVendorActivate.Vendor, UNIT_NPC_FLAG_TABARDDESIGNER, UNIT_NPC_FLAG_2_NONE);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTabardVendorActivateOpcode - {} not found or you can not interact with him.", packet.Unit.ToString());
+        TC_LOG_DEBUG("network", "WORLD: HandleTabardVendorActivateOpcode - {} not found or you can not interact with him.", tabardVendorActivate.Vendor.ToString());
         return;
     }
+
+    TabardVendorType type = TabardVendorType(tabardVendorActivate.Type);
+    if (type != TabardVendorType::Guild && type != TabardVendorType::Personal)
+        return;
 
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    SendTabardVendorActivate(packet.Unit);
+    SendTabardVendorActivate(tabardVendorActivate.Vendor, TabardVendorType(tabardVendorActivate.Type));
 }
 
-void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
+void WorldSession::SendTabardVendorActivate(ObjectGuid guid, TabardVendorType type)
 {
     WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
     npcInteraction.Npc = guid;
-    npcInteraction.InteractionType = PlayerInteractionType::TabardVendor;
+    npcInteraction.InteractionType = [&]
+    {
+        switch (type)
+        {
+            case TabardVendorType::Guild:
+                return PlayerInteractionType::GuildTabardVendor;
+            case TabardVendorType::Personal:
+                return PlayerInteractionType::PersonalTabardVendor;
+            default:
+                ABORT_MSG("Unsupported tabard vendor type %d", AsUnderlyingType(type));
+        }
+    }();
     npcInteraction.Success = true;
     SendPacket(npcInteraction.Write());
 }

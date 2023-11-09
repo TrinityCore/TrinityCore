@@ -234,6 +234,12 @@ void SpiritHealerActivate::Read()
     _worldPacket >> Healer;
 }
 
+void TabardVendorActivate::Read()
+{
+    _worldPacket >> Vendor;
+    _worldPacket >> Type;
+}
+
 void TrainerBuySpell::Read()
 {
     _worldPacket >> TrainerGUID;

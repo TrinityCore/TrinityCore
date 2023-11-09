@@ -738,12 +738,11 @@ void EmblemInfo::ReadPacket(WorldPackets::Guild::SaveGuildEmblem& packet)
     m_backgroundColor = packet.Bg;
 }
 
-bool EmblemInfo::ValidateEmblemColors() const
+bool EmblemInfo::ValidateEmblemColors(uint32 /*style*/, uint32 color, uint32 /*borderStyle*/, uint32 borderColor, uint32 backgroundColor)
 {
-    return sGuildColorBackgroundStore.LookupEntry(m_backgroundColor) &&
-           sGuildColorBorderStore.LookupEntry(m_borderColor) &&
-           sGuildColorEmblemStore.LookupEntry(m_color);
-
+    return sGuildColorBackgroundStore.LookupEntry(backgroundColor) &&
+           sGuildColorBorderStore.LookupEntry(borderColor) &&
+           sGuildColorEmblemStore.LookupEntry(color);
 }
 
 bool EmblemInfo::LoadFromDB(Field* fields)

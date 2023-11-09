@@ -115,6 +115,7 @@ namespace WorldPackets
             Optional<uint32> FirstCraftOperationID;
             Optional<Timestamp<>> NextRechargeTime;
             Optional<Timestamp<>> RechargeCycleStartTime;
+            Optional<int32> OverflownCurrencyID;    // what currency was originally changed but couldn't be incremented because of a cap
             bool SuppressChatLog = false;
         };
 
@@ -558,7 +559,7 @@ namespace WorldPackets
 
         struct PhaseShiftDataPhase
         {
-            uint16 PhaseFlags = 0;
+            uint32 PhaseFlags = 0;
             uint16 Id = 0;
         };
 

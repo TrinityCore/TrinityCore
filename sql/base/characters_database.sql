@@ -1961,6 +1961,11 @@ CREATE TABLE `characters` (
   `honorRestState` tinyint unsigned NOT NULL DEFAULT '2',
   `honorRestBonus` float NOT NULL DEFAULT '0',
   `lastLoginBuild` int unsigned NOT NULL DEFAULT '0',
+  `personalTabardEmblemStyle` int NOT NULL DEFAULT '-1',
+  `personalTabardEmblemColor` int NOT NULL DEFAULT '-1',
+  `personalTabardBorderStyle` int NOT NULL DEFAULT '-1',
+  `personalTabardBorderColor` int NOT NULL DEFAULT '-1',
+  `personalTabardBackgroundColor` int NOT NULL DEFAULT '-1',
   PRIMARY KEY (`guid`),
   KEY `idx_account` (`account`),
   KEY `idx_online` (`online`),
@@ -3716,7 +3721,8 @@ INSERT INTO `updates` VALUES
 ('2023_09_14_00_characters.sql','DAC56929C724C2971A4476400F2439CBDFAF3C5C','ARCHIVED','2023-09-13 22:20:22',0),
 ('2023_09_30_00_characters.sql','4326C642870633873F163085D278DB9B7449D9C3','ARCHIVED','2023-09-30 16:34:19',0),
 ('2023_10_06_00_characters.sql','FFAFF1F0916BB9DC58345466E0BB1A15A4611836','ARCHIVED','2023-10-06 00:40:46',0),
-('2023_11_02_00_characters.sql','1A76A843F204901C8598DA5682029E815477E427','RELEASED','2023-11-02 18:59:41',0);
+('2023_11_02_00_characters.sql','1A76A843F204901C8598DA5682029E815477E427','RELEASED','2023-11-02 18:59:41',0),
+('2023_11_09_00_characters.sql','1A3D7CA6890353DA55793FE8D925CC8C54965A69','RELEASED','2023-11-09 00:56:31',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

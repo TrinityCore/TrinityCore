@@ -144,7 +144,7 @@ namespace WorldPackets
 
         struct PartyMemberPhase
         {
-            uint16 Flags = 0u;
+            uint32 Flags = 0u;
             uint16 Id = 0u;
         };
 
