@@ -254,7 +254,7 @@ struct MapLoadInfo
         { FT_INT, 3, true },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1349477, -1, 24, 24, 0x43E626E4, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance{ 1349477, -1, 24, 24, 0x15542FE8, MetaFields, -1 };
 
     static constexpr DB2FieldMeta Fields[28] =
     {
