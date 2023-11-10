@@ -571,6 +571,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::DamageDealt:
             case CriteriaType::HealingDone:
             case CriteriaType::EarnArtifactXPForAzeriteItem:
+            case CriteriaType::GainLevels:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             case CriteriaType::KillCreature:
@@ -1213,6 +1214,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::CompleteAnyReplayQuest:
         case CriteriaType::BuyItemsFromVendors:
         case CriteriaType::SellItemsToVendors:
+        case CriteriaType::GainLevels:
             return progress->Counter >= requiredAmount;
         case CriteriaType::EarnAchievement:
         case CriteriaType::CompleteQuest:
@@ -1377,6 +1379,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::CompleteAnyReplayQuest:
         case CriteriaType::BuyItemsFromVendors:
         case CriteriaType::SellItemsToVendors:
+        case CriteriaType::GainLevels:
             if (!miscValue1)
                 return false;
             break;
@@ -3569,9 +3572,18 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                     break;
                 case 123: // Shadowlands Season 1 End
                     // timestamp = unknown
-                    break;;
+                    break;
                 case 149: // Shadowlands Season 2 End
                     // timestamp = unknown
+                    break;
+                case 349: // Dragonflight Season 3 Start (pre-season)
+                    eventTimestamp = time_t(1699340400); // November 7, 2023 8:00
+                    break;
+                case 350: // Dragonflight Season 3 Start
+                    eventTimestamp = time_t(1699945200); // November 14, 2023 8:00
+                    break;
+                case 352: // Dragonflight Season 3 End
+                    // eventTimestamp = time_t(); unknown
                     break;
                 default:
                     break;
@@ -3942,6 +3954,13 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (referencePlayer->GetPositionZ() >= reqValue)
                 return false;
             break;
+        case ModifierTreeType::PlayerIsOnMapWithExpansion: // 380
+        {
+            MapEntry const* mapEntry = referencePlayer->GetMap()->GetEntry();
+            if (mapEntry->ExpansionID != reqValue)
+                return false;
+            break;
+        }
         default:
             return false;
     }
@@ -4415,6 +4434,24 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaType type)
             return "MythicPlusRatingAttained";
         case CriteriaType::SpentTalentPoint:
             return "SpentTalentPoint";
+        case CriteriaType::MythicPlusDisplaySeasonEnded:
+            return "MythicPlusDisplaySeasonEnded";
+        case CriteriaType::WinRatedSoloShuffleRound:
+            return "WinRatedSoloShuffleRound";
+        case CriteriaType::ParticipateInRatedSoloShuffleRound:
+            return "ParticipateInRatedSoloShuffleRound";
+        case CriteriaType::ReputationAmountGained:
+            return "ReputationAmountGained";
+        case CriteriaType::FulfillAnyCraftingOrder:
+            return "FulfillAnyCraftingOrder";
+        case CriteriaType::FulfillCraftingOrderType:
+            return "FulfillCraftingOrderType";
+        case CriteriaType::PerksProgramMonthComplete:
+            return "PerksProgramMonthComplete";
+        case CriteriaType::CompleteTrackingQuest:
+            return "CompleteTrackingQuest";
+        case CriteriaType::GainLevels:
+            return "GainLevels";
         default:
             return "MissingType";
     }
@@ -4635,11 +4672,11 @@ void CriteriaMgr::LoadCriteriaList()
     uint32 questObjectiveCriterias = 0;
     for (CriteriaEntry const* criteriaEntry : sCriteriaStore)
     {
-        ASSERT(criteriaEntry->Type < uint8(CriteriaType::Count), "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
+        ASSERT(criteriaEntry->Type < AsUnderlyingType(CriteriaType::Count), "CriteriaType::Count must be greater than or equal to %u but is currently equal to %u",
             criteriaEntry->Type + 1, uint32(CriteriaType::Count));
-        ASSERT(criteriaEntry->StartEvent < uint8(CriteriaStartEvent::Count), "CriteriaStartEvent::Count must be greater than or equal to %u but is currently equal to %u",
+        ASSERT(criteriaEntry->StartEvent < AsUnderlyingType(CriteriaStartEvent::Count), "CriteriaStartEvent::Count must be greater than or equal to %u but is currently equal to %u",
             criteriaEntry->StartEvent + 1, uint32(CriteriaStartEvent::Count));
-        ASSERT(criteriaEntry->FailEvent < uint8(CriteriaFailEvent::Count), "CriteriaFailEvent::Count must be greater than or equal to %u but is currently equal to %u",
+        ASSERT(criteriaEntry->FailEvent < AsUnderlyingType(CriteriaFailEvent::Count), "CriteriaFailEvent::Count must be greater than or equal to %u but is currently equal to %u",
             criteriaEntry->FailEvent + 1, uint32(CriteriaFailEvent::Count));
 
         auto treeItr = _criteriaTreeByCriteria.find(criteriaEntry->ID);

@@ -2411,6 +2411,8 @@ void Player::GiveLevel(uint8 level)
     StartCriteria(CriteriaStartEvent::ReachLevel, level);
     UpdateCriteria(CriteriaType::ReachLevel);
     UpdateCriteria(CriteriaType::ActivelyReachLevel, level);
+    if (level > oldLevel)
+        UpdateCriteria(CriteriaType::GainLevels, level - oldLevel);
 
     PushQuests();
 
@@ -14079,11 +14081,12 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
                 case GossipOptionNpc::Binder:
                 case GossipOptionNpc::Banker:
                 case GossipOptionNpc::PetitionVendor:
-                case GossipOptionNpc::TabardVendor:
+                case GossipOptionNpc::GuildTabardVendor:
                 case GossipOptionNpc::Auctioneer:
                 case GossipOptionNpc::Mailbox:
                 case GossipOptionNpc::Transmogrify:
                 case GossipOptionNpc::AzeriteRespec:
+                case GossipOptionNpc::PersonalTabardVendor:
                     break;                                         // No checks
                 case GossipOptionNpc::CemeterySelect:
                     canTalk = false;                               // Deprecated
@@ -14302,7 +14305,7 @@ void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 me
             {
                 PlayerInteractionType::None, PlayerInteractionType::Vendor, PlayerInteractionType::TaxiNode,
                 PlayerInteractionType::Trainer, PlayerInteractionType::SpiritHealer, PlayerInteractionType::Binder,
-                PlayerInteractionType::Banker, PlayerInteractionType::PetitionVendor, PlayerInteractionType::TabardVendor,
+                PlayerInteractionType::Banker, PlayerInteractionType::PetitionVendor, PlayerInteractionType::GuildTabardVendor,
                 PlayerInteractionType::BattleMaster, PlayerInteractionType::Auctioneer, PlayerInteractionType::TalentMaster,
                 PlayerInteractionType::StableMaster, PlayerInteractionType::None, PlayerInteractionType::GuildBanker,
                 PlayerInteractionType::None, PlayerInteractionType::None, PlayerInteractionType::None,
@@ -14317,7 +14320,8 @@ void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 me
                 PlayerInteractionType::LegendaryCrafting, PlayerInteractionType::NewPlayerGuide, PlayerInteractionType::LegendaryCrafting,
                 PlayerInteractionType::Renown, PlayerInteractionType::BlackMarketAuctioneer, PlayerInteractionType::PerksProgramVendor,
                 PlayerInteractionType::ProfessionsCraftingOrder, PlayerInteractionType::Professions, PlayerInteractionType::ProfessionsCustomerOrder,
-                PlayerInteractionType::TraitSystem, PlayerInteractionType::BarbersChoice, PlayerInteractionType::MajorFactionRenown
+                PlayerInteractionType::TraitSystem, PlayerInteractionType::BarbersChoice, PlayerInteractionType::MajorFactionRenown,
+                PlayerInteractionType::PersonalTabardVendor
             };
 
             PlayerInteractionType interactionType = GossipOptionNpcToInteractionType[AsUnderlyingType(gossipOptionNpc)];
@@ -17218,9 +17222,9 @@ void Player::_LoadDeclinedNames(PreparedQueryResult result)
     if (!result)
         return;
 
-    m_declinedname = std::make_unique<DeclinedName>();
+    auto declinedNames = m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::DeclinedNames, 0);
     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        m_declinedname->name[i] = (*result)[i].GetString();
+        SetUpdateFieldValue(declinedNames.ModifyValue(&UF::DeclinedNames::Name, i), (*result)[i].GetString());
 }
 
 void Player::_LoadArenaTeamInfo(PreparedQueryResult result)
@@ -17435,7 +17439,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         // "resettalents_time, primarySpecialization, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, summonedPetNumber, at_login, zone, online, death_expire_time, taxi_path, dungeonDifficulty, "
         // "totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
         // "health, power1, power2, power3, power4, power5, power6, power7, power8, power9, power10, instance_id, activeTalentGroup, lootSpecId, exploredZones, knownTitles, actionBars, "
-        // "raidDifficulty, legacyRaidDifficulty, fishingSteps, honor, honorLevel, honorRestState, honorRestBonus, numRespecs "
+        // "raidDifficulty, legacyRaidDifficulty, fishingSteps, honor, honorLevel, honorRestState, honorRestBonus, numRespecs, "
+        // "personalTabardEmblemStyle, personalTabardEmblemColor, personalTabardBorderStyle, personalTabardBorderColor, personalTabardBackgroundColor "
         // "FROM characters c LEFT JOIN character_fishingsteps cfs ON c.guid = cfs.guid WHERE c.guid = ?", CONNECTION_ASYNC);
 
         ObjectGuid::LowType guid;
@@ -17504,8 +17509,13 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         PlayerRestState honorRestState;
         float honorRestBonus;
         uint8 numRespecs;
+        int32 personalTabardEmblemStyle;
+        int32 personalTabardEmblemColor;
+        int32 personalTabardBorderStyle;
+        int32 personalTabardBorderColor;
+        int32 personalTabardBackgroundColor;
 
-        PlayerLoadData(Field* fields)
+        explicit PlayerLoadData(Field const* fields)
         {
             std::size_t i = 0;
             guid = fields[i++].GetUInt64();
@@ -17575,6 +17585,11 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             honorRestState = PlayerRestState(fields[i++].GetUInt8());
             honorRestBonus = fields[i++].GetFloat();
             numRespecs = fields[i++].GetUInt8();
+            personalTabardEmblemStyle = fields[i++].GetInt32();
+            personalTabardEmblemColor = fields[i++].GetInt32();
+            personalTabardBorderStyle = fields[i++].GetInt32();
+            personalTabardBorderColor = fields[i++].GetInt32();
+            personalTabardBackgroundColor = fields[i++].GetInt32();
         }
 
     } fields(result->Fetch());
@@ -17608,8 +17623,10 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         return false;
     }
 
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Name), m_name);
+
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::WowAccount), GetSession()->GetAccountGUID());
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BnetAccount), GetSession()->GetBattlenetAccountGUID());
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::BnetAccount), GetSession()->GetBattlenetAccountGUID());
 
     if (!IsValidGender(fields.gender))
     {
@@ -18185,6 +18202,9 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             ++runes;
         }
     }
+
+    SetPersonalTabard(fields.personalTabardEmblemStyle, fields.personalTabardEmblemColor, fields.personalTabardBorderStyle,
+        fields.personalTabardBorderColor, fields.personalTabardBackgroundColor);
 
     TC_LOG_DEBUG("entities.player.loading", "Player::LoadFromDB: The value of player '{}' after load item and aura is: ", m_name);
     outDebugValues();
@@ -22242,6 +22262,16 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid)
 {
     sPetitionMgr->RemoveSignaturesBySigner(guid);
     sPetitionMgr->RemovePetitionsByOwner(guid);
+}
+
+void Player::SetPersonalTabard(uint32 style, uint32 color, uint32 borderStyle, uint32 borderColor, uint32 backgroundColor)
+{
+    auto personalTabard = m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PersonalTabard);
+    SetUpdateFieldValue(personalTabard.ModifyValue(&UF::CustomTabardInfo::EmblemStyle), style);
+    SetUpdateFieldValue(personalTabard.ModifyValue(&UF::CustomTabardInfo::EmblemColor), color);
+    SetUpdateFieldValue(personalTabard.ModifyValue(&UF::CustomTabardInfo::BorderStyle), borderStyle);
+    SetUpdateFieldValue(personalTabard.ModifyValue(&UF::CustomTabardInfo::BorderColor), borderColor);
+    SetUpdateFieldValue(personalTabard.ModifyValue(&UF::CustomTabardInfo::BackgroundColor), backgroundColor);
 }
 
 void Player::LeaveAllArenaTeams(ObjectGuid guid)

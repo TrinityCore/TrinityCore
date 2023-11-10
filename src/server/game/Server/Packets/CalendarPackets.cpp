@@ -52,6 +52,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Calendar::CalendarSendCal
     data << uint8(inviteInfo.Moderator);
     data << uint8(inviteInfo.InviteType);
     data << inviteInfo.InviterGuid;
+    data.WriteBit(inviteInfo.IgnoreFriendAndGuildRestriction);
+    data.FlushBits();
 
     return data;
 }
@@ -265,13 +267,13 @@ WorldPacket const* WorldPackets::Calendar::CalendarSendCalendar::Write()
     _worldPacket << uint32(Events.size());
     _worldPacket << uint32(RaidLockouts.size());
 
-    for (auto const& invite : Invites)
-        _worldPacket << invite;
-
-    for (auto const& lockout : RaidLockouts)
+    for (CalendarSendCalendarRaidLockoutInfo const& lockout : RaidLockouts)
         _worldPacket << lockout;
 
-    for (auto const& event : Events)
+    for (CalendarSendCalendarInviteInfo const& invite : Invites)
+        _worldPacket << invite;
+
+    for (CalendarSendCalendarEventInfo const& event : Events)
         _worldPacket << event;
 
     return &_worldPacket;

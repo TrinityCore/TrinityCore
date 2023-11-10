@@ -256,7 +256,11 @@ class TC_GAME_API EmblemInfo
         bool LoadFromDB(Field* fields);
         void SaveToDB(ObjectGuid::LowType guildId) const;
         void ReadPacket(WorldPackets::Guild::SaveGuildEmblem& packet);
-        bool ValidateEmblemColors() const;
+        bool ValidateEmblemColors() const
+        {
+            return ValidateEmblemColors(m_style, m_color, m_borderStyle, m_borderColor, m_backgroundColor);
+        }
+        static bool ValidateEmblemColors(uint32 style, uint32 color, uint32 borderStyle, uint32 borderColor, uint32 backgroundColor);
 
         uint32 GetStyle() const { return m_style; }
         uint32 GetColor() const { return m_color; }

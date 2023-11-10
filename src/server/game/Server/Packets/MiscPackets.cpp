@@ -66,6 +66,7 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     _worldPacket.WriteBit(FirstCraftOperationID.has_value());
     _worldPacket.WriteBit(NextRechargeTime.has_value());
     _worldPacket.WriteBit(RechargeCycleStartTime.has_value());
+    _worldPacket.WriteBit(OverflownCurrencyID.has_value());
     _worldPacket.FlushBits();
 
     if (WeeklyQuantity)
@@ -97,6 +98,9 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
 
     if (RechargeCycleStartTime)
         _worldPacket << *RechargeCycleStartTime;
+
+    if (OverflownCurrencyID)
+        _worldPacket << int32(*OverflownCurrencyID);
 
     return &_worldPacket;
 }
@@ -434,7 +438,7 @@ WorldPacket const* WorldPackets::Misc::EnableBarberShop::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Misc::PhaseShiftDataPhase const& phaseShiftDataPhase)
 {
-    data << uint16(phaseShiftDataPhase.PhaseFlags);
+    data << uint32(phaseShiftDataPhase.PhaseFlags);
     data << uint16(phaseShiftDataPhase.Id);
     return data;
 }

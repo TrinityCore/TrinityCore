@@ -192,16 +192,15 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CONVERSATION_LINE, line->Id, creator))
             continue;
 
-        lines.emplace_back();
+        ConversationLineEntry const* convoLine = sConversationLineStore.LookupEntry(line->Id); // never null for conversationTemplate->Lines
 
-        UF::ConversationLine& lineField = lines.back();
+        UF::ConversationLine& lineField = lines.emplace_back();
         lineField.ConversationLineID = line->Id;
+        lineField.BroadcastTextID = convoLine->BroadcastTextID;
         lineField.UiCameraID = line->UiCameraID;
         lineField.ActorIndex = line->ActorIdx;
         lineField.Flags = line->Flags;
         lineField.ChatType = line->ChatType;
-
-        ConversationLineEntry const* convoLine = sConversationLineStore.LookupEntry(line->Id); // never null for conversationTemplate->Lines
 
         for (LocaleConstant locale = LOCALE_enUS; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
         {

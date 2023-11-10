@@ -61,9 +61,9 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
     packet.ServerTime = currTime;
 
     CalendarInviteStore playerInvites = sCalendarMgr->GetPlayerInvites(guid);
-    for (auto const& invite : playerInvites)
+    for (CalendarInvite const* invite : playerInvites)
     {
-        WorldPackets::Calendar::CalendarSendCalendarInviteInfo inviteInfo;
+        WorldPackets::Calendar::CalendarSendCalendarInviteInfo& inviteInfo = packet.Invites.emplace_back();
         inviteInfo.EventID = invite->GetEventId();
         inviteInfo.InviteID = invite->GetInviteId();
         inviteInfo.InviterGuid = invite->GetSenderGUID();
@@ -71,14 +71,12 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
         inviteInfo.Moderator = invite->GetRank();
         if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(invite->GetEventId()))
             inviteInfo.InviteType = calendarEvent->IsGuildEvent() && calendarEvent->GetGuildId() == _player->GetGuildId();
-
-        packet.Invites.push_back(inviteInfo);
     }
 
     CalendarEventStore playerEvents = sCalendarMgr->GetPlayerEvents(guid);
-    for (auto const& event : playerEvents)
+    for (CalendarEvent const* event : playerEvents)
     {
-        WorldPackets::Calendar::CalendarSendCalendarEventInfo eventInfo;
+        WorldPackets::Calendar::CalendarSendCalendarEventInfo& eventInfo = packet.Events.emplace_back();
         eventInfo.EventID = event->GetEventId();
         eventInfo.Date = event->GetDate();
         eventInfo.EventClubID = event->GetGuildId();
@@ -87,20 +85,15 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
         eventInfo.Flags = event->GetFlags();
         eventInfo.OwnerGuid = event->GetOwnerGUID();
         eventInfo.TextureID = event->GetTextureId();
-
-        packet.Events.push_back(eventInfo);
     }
 
     for (InstanceLock const* lock : sInstanceLockMgr.GetInstanceLocksForPlayer(_player->GetGUID()))
     {
-        WorldPackets::Calendar::CalendarSendCalendarRaidLockoutInfo lockoutInfo;
-
+        WorldPackets::Calendar::CalendarSendCalendarRaidLockoutInfo& lockoutInfo = packet.RaidLockouts.emplace_back();
         lockoutInfo.MapID = lock->GetMapId();
         lockoutInfo.DifficultyID = lock->GetDifficultyId();
         lockoutInfo.ExpireTime = int32(std::max(std::chrono::duration_cast<Seconds>(lock->GetEffectiveExpiryTime() - GameTime::GetSystemTime()).count(), SI64LIT(0)));
         lockoutInfo.InstanceID = lock->GetInstanceId();
-
-        packet.RaidLockouts.push_back(lockoutInfo);
     }
 
     SendPacket(packet.Write());

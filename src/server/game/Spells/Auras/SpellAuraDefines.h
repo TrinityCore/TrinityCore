@@ -635,6 +635,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_REQUIRED_MOUNT_CAPABILITY_FLAGS          = 541,
     SPELL_AURA_542                                          = 542,
     SPELL_AURA_543                                          = 543,
+    SPELL_AURA_544                                          = 544,
     TOTAL_AURAS
 };
 

@@ -142,7 +142,7 @@ void WorldPackets::Party::RequestPartyMemberStats::Read()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberPhase const& phase)
 {
-    data << uint16(phase.Flags);
+    data << uint32(phase.Flags);
     data << uint16(phase.Id);
 
     return data;

@@ -263,6 +263,10 @@ WorldPacket const* WorldPackets::Battleground::PVPOptionsEnabled::Write()
     _worldPacket.WriteBit(WargameArenas);
     _worldPacket.WriteBit(RatedArenas);
     _worldPacket.WriteBit(ArenaSkirmish);
+    _worldPacket.WriteBit(SoloShuffle);
+    _worldPacket.WriteBit(RatedSoloShuffle);
+    _worldPacket.WriteBit(BattlegroundBlitz);
+    _worldPacket.WriteBit(RatedBattlegroundBlitz);
     _worldPacket.FlushBits();
     return &_worldPacket;
 }

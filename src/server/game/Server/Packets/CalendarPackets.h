@@ -167,6 +167,7 @@ namespace WorldPackets
             uint8 Status = 0;
             uint8 Moderator = 0;
             uint8 InviteType = 0;
+            bool IgnoreFriendAndGuildRestriction = false;
         };
 
         struct CalendarSendCalendarRaidLockoutInfo

@@ -16,7 +16,6 @@
  */
 
 #include "SystemPackets.h"
-#include "Errors.h"
 
 namespace WorldPackets::System
 {
@@ -130,9 +129,14 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(ChatDisabledByPlayer);
     _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
     _worldPacket.WriteBit(AddonsDisabled);
-    _worldPacket.WriteBit(Unused1000);
+    _worldPacket.WriteBit(WarGamesEnabled);
     _worldPacket.WriteBit(ContentTrackingEnabled);
     _worldPacket.WriteBit(IsSellAllJunkEnabled);
+    _worldPacket.WriteBit(IsGroupFinderEnabled);
+    _worldPacket.WriteBit(IsLFDEnabled);
+
+    _worldPacket.WriteBit(IsLFREnabled);
+    _worldPacket.WriteBit(IsPremadeGroupEnabled);
 
     _worldPacket.FlushBits();
 
@@ -254,22 +258,6 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 
     for (DebugTimeEventInfo const& debugTimeEventInfo : DebugTimeEvents)
         _worldPacket << debugTimeEventInfo;
-
-    return &_worldPacket;
-}
-
-WorldPacket const* MOTD::Write()
-{
-    ASSERT(Text);
-    _worldPacket.WriteBits(Text->size(), 4);
-    _worldPacket.FlushBits();
-
-    for (std::string const& line : *Text)
-    {
-        _worldPacket.WriteBits(line.length(), 7);
-        _worldPacket.FlushBits();
-        _worldPacket.WriteString(line);
-    }
 
     return &_worldPacket;
 }

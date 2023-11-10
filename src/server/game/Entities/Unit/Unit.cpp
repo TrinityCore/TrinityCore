@@ -12072,27 +12072,11 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
         }
     }
 
-    uint32 modelid = 0;
     SpellShapeshiftFormEntry const* formEntry = sSpellShapeshiftFormStore.LookupEntry(form);
-    if (formEntry && formEntry->CreatureDisplayID[0])
-    {
-        // Take the alliance modelid as default
-        if (GetTypeId() != TYPEID_PLAYER)
-            return formEntry->CreatureDisplayID[0];
-        else
-        {
-            if (Player::TeamForRace(GetRace()) == ALLIANCE)
-                modelid = formEntry->CreatureDisplayID[0];
-            else
-                modelid = formEntry->CreatureDisplayID[1];
+    if (formEntry && formEntry->CreatureDisplayID)
+        return formEntry->CreatureDisplayID;
 
-            // If the player is horde but there are no values for the horde modelid - take the alliance modelid
-            if (!modelid && Player::TeamForRace(GetRace()) == HORDE)
-                modelid = formEntry->CreatureDisplayID[0];
-        }
-    }
-
-    return modelid;
+    return 0;
 }
 
 void Unit::JumpTo(float speedXY, float speedZ, float angle, Optional<Position> dest)
@@ -13820,4 +13804,10 @@ std::string Unit::GetDebugInfo() const
     }
 
     return sstr.str();
+}
+
+DeclinedName::DeclinedName(UF::DeclinedNames const& uf)
+{
+    for (std::size_t i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        name[i] = uf.Name[i];
 }

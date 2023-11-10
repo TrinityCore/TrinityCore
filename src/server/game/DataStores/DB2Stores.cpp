@@ -274,6 +274,7 @@ DB2Storage<SceneScriptEntry>                    sSceneScriptStore("SceneScript.d
 DB2Storage<SceneScriptGlobalTextEntry>          sSceneScriptGlobalTextStore("SceneScriptGlobalText.db2", &SceneScriptGlobalTextLoadInfo::Instance);
 DB2Storage<SceneScriptPackageEntry>             sSceneScriptPackageStore("SceneScriptPackage.db2", &SceneScriptPackageLoadInfo::Instance);
 DB2Storage<SceneScriptTextEntry>                sSceneScriptTextStore("SceneScriptText.db2", &SceneScriptTextLoadInfo::Instance);
+DB2Storage<ServerMessagesEntry>                 sServerMessagesStore("ServerMessages.db2", &ServerMessagesLoadInfo::Instance);
 DB2Storage<SkillLineEntry>                      sSkillLineStore("SkillLine.db2", &SkillLineLoadInfo::Instance);
 DB2Storage<SkillLineAbilityEntry>               sSkillLineAbilityStore("SkillLineAbility.db2", &SkillLineAbilityLoadInfo::Instance);
 DB2Storage<SkillLineXTraitTreeEntry>            sSkillLineXTraitTreeStore("SkillLineXTraitTree.db2", &SkillLineXTraitTreeLoadInfo::Instance);
@@ -869,6 +870,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sSceneScriptGlobalTextStore);
     LOAD_DB2(sSceneScriptPackageStore);
     LOAD_DB2(sSceneScriptTextStore);
+    LOAD_DB2(sServerMessagesStore);
     LOAD_DB2(sSkillLineStore);
     LOAD_DB2(sSkillLineAbilityStore);
     LOAD_DB2(sSkillLineXTraitTreeStore);

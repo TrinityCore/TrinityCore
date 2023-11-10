@@ -41,6 +41,12 @@ std::array<uint32, 4> const CandysSpells =
     SPELL_HALLOWS_END_CANDY_GHOST
 };
 
+enum HallowsEndMiscSpells
+{
+    SPELL_HALLOWS_END_DUMMY_NUKE                  = 21912,
+    SPELL_HALLOWS_END_DREAD_FERTILIZER            = 191546
+};
+
 // 24930 - Hallow's End Candy
 class spell_hallow_end_candy : public SpellScript
 {
@@ -290,6 +296,26 @@ class spell_hallow_end_wand : public SpellScript
     }
 };
 
+// 191547 - Powder Blast
+class spell_hallows_end_powder_blast : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HALLOWS_END_DUMMY_NUKE, SPELL_HALLOWS_END_DREAD_FERTILIZER });
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_HALLOWS_END_DUMMY_NUKE);
+        eventInfo.GetProcTarget()->CastSpell(GetTarget(), SPELL_HALLOWS_END_DREAD_FERTILIZER);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_hallows_end_powder_blast::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_event_hallows_end()
 {
     RegisterSpellScript(spell_hallow_end_candy);
@@ -298,4 +324,5 @@ void AddSC_event_hallows_end()
     RegisterSpellScript(spell_hallow_end_trick_or_treat);
     RegisterSpellScript(spell_hallow_end_tricky_treat);
     RegisterSpellScript(spell_hallow_end_wand);
+    RegisterSpellScript(spell_hallows_end_powder_blast);
 }

@@ -323,12 +323,16 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            bool RatedBattlegrounds = false;
+            bool PugBattlegrounds = false;
+            bool WargameBattlegrounds = false;
             bool WargameArenas = false;
             bool RatedArenas = false;
-            bool WargameBattlegrounds = false;
             bool ArenaSkirmish = false;
-            bool PugBattlegrounds = false;
-            bool RatedBattlegrounds = false;
+            bool SoloShuffle = false;
+            bool RatedSoloShuffle = false;
+            bool BattlegroundBlitz = false;
+            bool RatedBattlegroundBlitz = false; // solo rbg
         };
 
         class RequestBattlefieldStatus final : public ClientPacket
