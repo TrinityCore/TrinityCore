@@ -22,6 +22,9 @@ void AddSC_torghast_spell_scripts();
 void AddSC_boss_sylvanas_windrunner();
 void AddSC_instance_sanctum_of_domination();
 
+void AddSC_boss_anduin_wrynn();
+void AddSC_instance_sepulcher_of_the_first_ones();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddShadowlandsScripts()
@@ -32,4 +35,8 @@ void AddShadowlandsScripts()
     // Sanctum of Domination
     AddSC_boss_sylvanas_windrunner();
     AddSC_instance_sanctum_of_domination();
+
+    // Sepulcher of The First Ones
+    AddSC_boss_anduin_wrynn();
+    AddSC_instance_sepulcher_of_the_first_ones();
 }
