@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Duration.h"
 #include <map>
+#include <queue>
 
 class TC_COMMON_API EventMap
 {
@@ -49,6 +50,7 @@ class TC_COMMON_API EventMap
      * Key: Time as TimePoint when the event should occur.
      */
     using EventStore = std::multimap<TimePoint, Event>;
+    typedef std::map<uint32 /*event data*/, std::queue<Milliseconds>> EventSeriesStore;
 
 public:
     EventMap() : _time(TimePoint::min()), _phaseMask(0) { }
@@ -255,6 +257,31 @@ public:
      */
     bool HasEventScheduled(EventId eventId) const;
 
+    /**
+    * @name ScheduleNextFromSeries
+    * @brief Schedules specified event with next timer from series
+    * @param full event data, including group and phase
+    */
+    void ScheduleNextFromSeries(uint32 eventData);
+
+    /**
+    * @name ScheduleEventSeries
+    * @brief Schedules specified event with first value of the series and then requeues with the next
+    * @param eventId of the event.
+    * @param group of the event.
+    * @param phase of the event.
+    * @param timeSeries specifying the times the event should be automatically scheduled after each trigger (first value is initial schedule)
+    */
+    void ScheduleEventSeries(uint32 eventId, uint8 group, uint8 phase, std::initializer_list<Milliseconds> const& timeSeries);
+
+    /**
+    * @name ScheduleEventSeries
+    * @brief Schedules specified event with first value of the series and then requeues with the next
+    * @param eventId of the event.
+    * @param timeSeries specifying the times the event should be automatically scheduled after each trigger (first value is initial schedule)
+    */
+    void ScheduleEventSeries(uint32 eventId, std::initializer_list<Milliseconds> const& series);
+
 private:
     /**
     * @name _time
@@ -292,6 +319,12 @@ private:
     * @brief Stores information on the most recently executed event
     */
     Event _lastEvent;
+
+    /**
+    * @name _timerSeries
+    * @brief Stores information about time series which requeue itself until series is empty
+    */
+    EventSeriesStore _timerSeries;
 };
 
 #endif // TRINITYCORE_EVENT_MAP_H
