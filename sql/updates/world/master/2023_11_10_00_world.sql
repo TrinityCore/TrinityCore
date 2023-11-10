@@ -1,8 +1,8 @@
 -- Sepulcher of the First Ones
 SET @CGUID := 8000002; -- Insert highest based on your db
 SET @OGUID := 8000012; -- Insert highest based on your db
-SET @ATID := 47;
-SET @ATSPAWNID := 47;
+SET @ATID := 49;
+SET @ATSPAWNID := 49;
 
 -- Instance
 DELETE FROM `access_requirement` WHERE `mapId`=2481;

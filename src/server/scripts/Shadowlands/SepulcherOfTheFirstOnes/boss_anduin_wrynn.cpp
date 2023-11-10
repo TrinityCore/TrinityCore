@@ -334,7 +334,6 @@ enum AnduinWrynnActions
     ACTION_START_PRE_INTRODUCTION = 1,
     ACTION_START_MOVEMENT,
     ACTION_START_INTRODUCTION,
-    ACTION_CANCEL_EVENTS,
     ACTION_ARTHAS_INTERMISSION_UTHER,
     ACTION_ARTHAS_INTERMISSION_SYLVANAS,
     ACTION_EXIT_INTERMISSION,
@@ -517,7 +516,7 @@ private:
 struct boss_anduin_wrynn : public BossAI
 {
     boss_anduin_wrynn(Creature* creature) : BossAI(creature, DATA_ANDUIN_WRYNN),
-        _slayTextOnCooldown(false), _dominationWordCount(0), _intermissionsDone(0), _encounterEnded(false) { }
+        _slayTextOnCooldown(false), _intermissionsDone(0), _encounterEnded(false) { }
 
     void HandleIntroduction()
     {
@@ -646,14 +645,12 @@ struct boss_anduin_wrynn : public BossAI
     void Reset() override
     {
         _Reset();
-        _dominationWordCount = 0;
         me->SummonCreatureGroup(SPAWN_GROUP_INITIAL);
         events.Reset();
         scheduler.CancelAll();
         me->SetPower(POWER_ENERGY, 0);
 
         _slayTextOnCooldown = false;
-        _dominationWordCount = 0;
         _intermissionsDone = 0;
         _encounterEnded = false;
     }
@@ -866,18 +863,6 @@ struct boss_anduin_wrynn : public BossAI
                 convo->Start();
                 break;
             }
-            case ACTION_CANCEL_EVENTS:
-            {
-                events.CancelEvent(EVENT_HOPEBREAKER);
-                events.CancelEvent(EVENT_DOMINATION_WORD_PAIN);
-                events.CancelEvent(EVENT_BEFOULED_BARRIER);
-                events.CancelEvent(EVENT_KINGSMOURNE_HUNGERS);
-                events.CancelEvent(EVENT_WICKED_STAR);
-                events.CancelEvent(EVENT_BLASPHEMY);
-                events.CancelEvent(EVENT_GRIM_REFLECTIONS);
-                _dominationWordCount = 0;
-                break;
-            }
             case ACTION_ARTHAS_INTERMISSION_UTHER:
             {
                 instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 1);
@@ -975,14 +960,7 @@ struct boss_anduin_wrynn : public BossAI
                 }
                 case EVENT_DOMINATION_WORD_PAIN:
                 {
-                    _dominationWordCount++;
                     DoCastSelf(SPELL_DOMINATION_WORD_PAIN);
-
-                    // its guaranteed to be last cast per phase, so we can cancel events here
-                    if (events.IsInPhase(PHASE_ONE) && _dominationWordCount == 11)
-                        DoAction(ACTION_CANCEL_EVENTS);
-                    else if (events.IsInPhase(PHASE_TWO) && _dominationWordCount == 12)
-                        DoAction(ACTION_CANCEL_EVENTS);
                     break;
                 }
                 case EVENT_BEFOULED_BARRIER:
@@ -1031,14 +1009,12 @@ struct boss_anduin_wrynn : public BossAI
                     DoCastSelf(SPELL_KINGSMOURNE_HUNGERS);
                     Talk(SAY_ANNOUNCE_KINGSMOURNE_HUNGERS);
                     Talk(SAY_KINGSMOURNE_HUNGERS);
-                    events.Repeat(1min);
                     break;
                 }
                 case EVENT_GRIM_REFLECTIONS:
                 {
                     Talk(SAY_GRIM_REFLECTIONS);
                     DoCastSelf(SPELL_GRIM_REFLECTIONS);
-                    events.Repeat(87s);
                     break;
                 }
                 case EVENT_BEACON_OF_HOPE:
@@ -1152,7 +1128,7 @@ struct boss_anduin_wrynn : public BossAI
                 if (IsLFR())
                     DoCastSelf(SPELL_ANDUIN_WILLPOWER_PERIODIC, true);
                 else
-                    events.ScheduleEvent(EVENT_KINGSMOURNE_HUNGERS, 45s);
+                    events.ScheduleEventSeries(EVENT_KINGSMOURNE_HUNGERS, { 45s, 1min });
                 break;
             }
 
@@ -1161,7 +1137,7 @@ struct boss_anduin_wrynn : public BossAI
                 _intermissionsDone = 1;
                 me->ModifyPower(me->GetPowerType(), 0);
                 events.SetPhase(PHASE_TWO);
-                events.ScheduleEvent(EVENT_GRIM_REFLECTIONS, 85s);
+                events.ScheduleEventSeries(EVENT_GRIM_REFLECTIONS, { 8700ms, 87s });
                 events.ScheduleEventSeries(EVENT_BEFOULED_BARRIER, { 80600ms, 47s });
                 events.ScheduleEvent(EVENT_INTERMISSION_TWO, 169s);
 
@@ -1181,7 +1157,7 @@ struct boss_anduin_wrynn : public BossAI
                 if (IsLFR())
                     DoCastSelf(SPELL_ANDUIN_WILLPOWER_PERIODIC, true);
                 else
-                    events.ScheduleEvent(EVENT_KINGSMOURNE_HUNGERS, 48600ms);
+                    events.ScheduleEventSeries(EVENT_KINGSMOURNE_HUNGERS, { 48600ms, 1min });
                 break;
             }
 
@@ -1283,7 +1259,6 @@ struct boss_anduin_wrynn : public BossAI
 
 private:
     bool _slayTextOnCooldown;
-    uint8 _dominationWordCount;
     uint8 _intermissionsDone;
     bool _encounterEnded;
     TaskScheduler scheduler;
@@ -1782,7 +1757,6 @@ struct boss_remnant_of_a_fallen_king : public BossAI
         DoCastSelf(SPELL_SHADE_VISUAL);
         me->ModifyPower(me->GetPowerType(), 0);
         me->SetPower(me->GetPowerType(), 0);
-        me->SetFaction(16);
         for (MapReference const& players : me->GetMap()->GetPlayers())
         {
             if (Player* player = players.GetSource())
@@ -1796,6 +1770,9 @@ struct boss_remnant_of_a_fallen_king : public BossAI
     {
         summons.DespawnAll();
         me->DespawnOrUnsummon();
+
+        if (Creature* anduin = instance->GetCreature(DATA_ANDUIN_WRYNN))
+            anduin->AI()->EnterEvadeMode(EvadeReason::NoHostiles);
 
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WEATHER_COSMETIC);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_REMORSELESS_WINTER_PERIODIC);
@@ -2283,7 +2260,6 @@ public:
             GetTarget()->SetHealth(1);
             GetTarget()->CastSpell(GetTarget(), SPELL_ANDUIN_KNEEL_POSE);
             GetTarget()->GetAI()->DoAction(ACTION_END_ENCOUNTER);
-            GetTarget()->SetFaction(FACTION_FRIENDLY);
             _triggered = true;
         }
     }
@@ -3057,22 +3033,24 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
     {
         if (Unit* caster = at->GetCaster())
         {
+            at->SetOrientation(caster->GetOrientation());
+
             Position destPos = caster->GetPosition();
             at->MovePositionToFirstCollision(destPos, 100.0f, 0.0f);
 
             Movement::PointsArray splinePoints;
-            splinePoints.push_back(PositionToVector3(caster->GetPosition()));
-            splinePoints.push_back(PositionToVector3(caster->GetPosition()));
+            splinePoints.push_back(PositionToVector3(at->GetPosition()));
+            splinePoints.push_back(PositionToVector3(at->GetPosition()));
             splinePoints.push_back(PositionToVector3(destPos));
-            splinePoints.push_back(PositionToVector3(caster->GetPosition()));
-            splinePoints.push_back(PositionToVector3(caster->GetPosition()));
+            splinePoints.push_back(PositionToVector3(at->GetPosition()));
+            splinePoints.push_back(PositionToVector3(at->GetPosition()));
 
             float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) * 2 / GetWickedStarSpeed(at->GetMap()->GetDifficultyID()) * 1000;
             at->InitSplines(splinePoints, timeToTarget);
         }
     }
 
-    void HandleWickedStarHit(Unit* unit, bool saveUnit)
+    void OnUnitEnter(Unit* unit) override
     {
         if (unit->GetEntry() == NPC_SYLVANAS_WINDRUNNER_ANDUIN || unit->GetEntry() == NPC_UTHER_THE_LIGHTBRINGER_ANDUIN ||
             unit->GetEntry() == NPC_LADY_JAINA_PROUDMOORE_ANDUIN || unit->GetEntry() == BOSS_ANDUIN_WRYNN)
@@ -3082,35 +3060,16 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
         if (!caster)
             return;
 
-        if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
-        {
-            if (caster->IsValidAttackTarget(unit))
-                caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-            else if (caster->IsValidAssistTarget(unit))
-                caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-
-            if (saveUnit)
-                _affectedUnits.push_back(unit->GetGUID());
-        }
-    }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        HandleWickedStarHit(unit, true);
-    }
-
-    void OnUnitExit(Unit* unit) override
-    {
-        HandleWickedStarHit(unit, false);
+        if (caster->IsValidAttackTarget(unit))
+            caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+        else if (caster->IsValidAssistTarget(unit))
+            caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
     }
 
     void OnDestinationReached() override
     {
         at->Remove();
     }
-
-protected:
-    std::vector<ObjectGuid> _affectedUnits;
 };
 
 // 367632 - Empowered Wicked Star
@@ -3165,7 +3124,6 @@ struct at_anduin_wrynn_empowered_wicked_star : public at_anduin_wrynn_wicked_sta
     {
         // hack: angle should use physical laws for reflection
         HandleMovement(frand(0, 2.0f * float(M_PI)));
-        _affectedUnits.clear();
     }
 };
 
