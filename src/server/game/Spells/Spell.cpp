@@ -2917,9 +2917,11 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
                 procVictim |= PROC_FLAG_TAKE_ANY_DAMAGE;
 
                 // sparring
-                if (Creature* victimCreature = damageInfo.target->ToCreature())
-                    damageInfo.damage = victimCreature->CalculateDamageForSparring(damageInfo.attacker, damageInfo.damage);
-
+                if (damageInfo.target != damageInfo.attacker)
+                {
+                    if (Creature* victimCreature = damageInfo.target->ToCreature())
+                        damageInfo.damage = victimCreature->CalculateDamageForSparring(damageInfo.attacker, damageInfo.damage);
+                }
                 spell->m_damage = damageInfo.damage;
 
                 caster->DealSpellDamage(&damageInfo, true);
