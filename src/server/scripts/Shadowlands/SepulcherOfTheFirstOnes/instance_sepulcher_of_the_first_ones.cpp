@@ -18,10 +18,8 @@
 #include "AreaBoundary.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "Player.h"
 #include "ScriptMgr.h"
 #include "sepulcher_of_the_first_ones.h"
 
