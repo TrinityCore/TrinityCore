@@ -2453,6 +2453,7 @@ void World::SetInitialWorldSettings()
     ///- Initialize Battlegrounds
     TC_LOG_INFO("server.loading", "Starting Battleground System");
     sBattlegroundMgr->LoadBattlegroundTemplates();
+    sBattlegroundMgr->LoadBattlegroundPlayerScoreTemplates();
 
     ///- Initialize outdoor pvp
     TC_LOG_INFO("server.loading", "Starting Outdoor PvP System");

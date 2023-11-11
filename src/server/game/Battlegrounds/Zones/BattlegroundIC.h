@@ -920,42 +920,10 @@ enum HonorRewards
     WINNER_HONOR_AMOUNT     = 500
 };
 
-struct BattlegroundICScore final : public BattlegroundScore
+enum BG_IC_Player_Scores_Index
 {
-    friend class BattlegroundIC;
-
-    protected:
-        BattlegroundICScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
-
-        void UpdateScore(uint32 type, uint32 value) override
-        {
-            switch (type)
-            {
-                case SCORE_BASES_ASSAULTED:
-                    BasesAssaulted += value;
-                    break;
-                case SCORE_BASES_DEFENDED:
-                    BasesDefended += value;
-                    break;
-                default:
-                    BattlegroundScore::UpdateScore(type, value);
-                    break;
-            }
-        }
-
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
-        {
-            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
-
-            playerData.Stats.emplace_back(IC_OBJECTIVE_ASSAULT_BASE, BasesAssaulted);
-            playerData.Stats.emplace_back(IC_OBJECTIVE_DEFEND_BASE, BasesDefended);
-        }
-
-        uint32 GetAttr1() const final override { return BasesAssaulted; }
-        uint32 GetAttr2() const final override { return BasesDefended; }
-
-        uint32 BasesAssaulted;
-        uint32 BasesDefended;
+    BG_IC_SCORE_INDEX_ASSAULT_BASE = 0,
+    BG_IC_SCORE_INDEX_DEFEND_BASE  = 1
 };
 
 class BattlegroundIC : public Battleground

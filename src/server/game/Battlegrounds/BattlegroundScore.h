@@ -22,6 +22,8 @@
 #include "ObjectGuid.h"
 #include <string>
 
+struct BattlegroundPlayerScoreTemplate;
+
 enum ScoreType
 {
     // ALL
@@ -54,43 +56,44 @@ enum ScoreType
 
 struct BattlegroundScore
 {
-    friend class Arena;
-    friend class Battleground;
+    BattlegroundScore(ObjectGuid playerGuid, uint32 team, BattlegroundPlayerScoreTemplate const* playerScoreTemplate);
+    virtual ~BattlegroundScore();
 
-    protected:
-        BattlegroundScore(ObjectGuid playerGuid, uint32 team);
-        virtual ~BattlegroundScore();
+    void UpdateScore(uint32 type, uint32 value);
+    void UpdateBattlegroundSpecificStat(uint8 index, uint32 value);
 
-        virtual void UpdateScore(uint32 type, uint32 value);
+    // For Logging purpose
+    virtual std::string ToString() const { return ""; }
 
-        virtual void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const;
+    uint32 GetKillingBlows() const { return KillingBlows; }
+    uint32 GetDeaths() const { return Deaths; }
+    uint32 GetHonorableKills() const { return HonorableKills; }
+    uint32 GetBonusHonor() const { return BonusHonor; }
+    uint32 GetDamageDone() const { return DamageDone; }
+    uint32 GetHealingDone() const { return HealingDone; }
 
-        // For Logging purpose
-        virtual std::string ToString() const { return ""; }
+    uint32 GetAttr1() const { return !Stats.empty() ? Stats[0].second : 0; }
+    uint32 GetAttr2() const { return Stats.size() >= 2 ? Stats[1].second : 0; }
+    uint32 GetAttr3() const { return Stats.size() >= 3 ? Stats[2].second : 0; }
+    uint32 GetAttr4() const { return Stats.size() >= 4 ? Stats[3].second : 0; }
+    uint32 GetAttr5() const { return Stats.size() >= 5 ? Stats[4].second : 0; }
 
-        uint32 GetKillingBlows() const    { return KillingBlows; }
-        uint32 GetDeaths() const          { return Deaths; }
-        uint32 GetHonorableKills() const  { return HonorableKills; }
-        uint32 GetBonusHonor() const      { return BonusHonor; }
-        uint32 GetDamageDone() const      { return DamageDone; }
-        uint32 GetHealingDone() const     { return HealingDone; }
+    virtual void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const;
 
-        virtual uint32 GetAttr1() const { return 0; }
-        virtual uint32 GetAttr2() const { return 0; }
-        virtual uint32 GetAttr3() const { return 0; }
-        virtual uint32 GetAttr4() const { return 0; }
-        virtual uint32 GetAttr5() const { return 0; }
+protected:
 
-        ObjectGuid PlayerGuid;
-        uint8 TeamId; // PvPTeamId
+    ObjectGuid PlayerGuid;
+    uint8 TeamId; // PvPTeamId
 
-        // Default score, present in every type
-        uint32 KillingBlows;
-        uint32 Deaths;
-        uint32 HonorableKills;
-        uint32 BonusHonor;
-        uint32 DamageDone;
-        uint32 HealingDone;
+    // Default score, present in every type
+    uint32 KillingBlows;
+    uint32 Deaths;
+    uint32 HonorableKills;
+    uint32 BonusHonor;
+    uint32 DamageDone;
+    uint32 HealingDone;
+
+    std::vector<std::pair<uint32, uint32>> Stats;
 };
 
 #endif // TRINITY_BATTLEGROUND_SCORE_H

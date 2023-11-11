@@ -438,14 +438,6 @@ void BattlegroundAV::StartingEventOpenDoors()
     TriggerGameEvent(BG_AV_EVENT_START_BATTLE);
 }
 
-void BattlegroundAV::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
-{
-    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
-    Battleground::AddPlayer(player, queueId);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new BattlegroundAVScore(player->GetGUID(), player->GetBGTeam());
-}
-
 void BattlegroundAV::EndBattleground(uint32 winner)
 {
     //calculate bonuskills for both teams:
@@ -523,31 +515,6 @@ void BattlegroundAV::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
-}
-
-bool BattlegroundAV::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
-{
-    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
-        return false;
-
-    switch (type)
-    {
-        case SCORE_GRAVEYARDS_ASSAULTED:
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AV_OBJECTIVE_ASSAULT_GRAVEYARD);
-            break;
-        case SCORE_GRAVEYARDS_DEFENDED:
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AV_OBJECTIVE_DEFEND_GRAVEYARD);
-            break;
-        case SCORE_TOWERS_ASSAULTED:
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AV_OBJECTIVE_ASSAULT_TOWER);
-            break;
-        case SCORE_TOWERS_DEFENDED:
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AV_OBJECTIVE_DEFEND_TOWER);
-            break;
-        default:
-            break;
-    }
-    return true;
 }
 
 void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
@@ -924,7 +891,7 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
             herold->AI()->Talk(team == ALLIANCE ? nodeInfo->TextIds.AllianceCapture : nodeInfo->TextIds.HordeCapture);
 
     // update the statistic for the defending player
-    UpdatePlayerScore(player, IsTower(node) ? SCORE_TOWERS_DEFENDED : SCORE_GRAVEYARDS_DEFENDED, 1);
+    UpdateBattlegroundSpecificStat(player, IsTower(node) ? SCORE_INDEX_DEFEND_TOWER : SCORE_INDEX_DEFEND_GRAVEYARD, 1);
 }
 
 void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
@@ -1013,7 +980,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
             herold->AI()->Talk(team == ALLIANCE ? nodeInfo->TextIds.AllianceAttack : nodeInfo->TextIds.HordeAttack);
 
     // update the statistic for the assaulting player
-    UpdatePlayerScore(player, (IsTower(node)) ? SCORE_TOWERS_ASSAULTED : SCORE_GRAVEYARDS_ASSAULTED, 1);
+    UpdateBattlegroundSpecificStat(player, (IsTower(node)) ? SCORE_INDEX_ASSAULT_TOWER : SCORE_INDEX_ASSAULT_GRAVEYARD, 1);
 }
 
 void BattlegroundAV::UpdateNodeWorldState(BG_AV_Nodes node)

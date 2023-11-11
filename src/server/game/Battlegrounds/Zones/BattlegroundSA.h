@@ -313,6 +313,12 @@ enum BG_SA_Objectives
     BG_SA_DEMOLISHERS_DESTROYED = 232
 };
 
+enum BG_SA_Player_Scores_Index
+{
+    BG_SA_SCORE_INDEX_GATES_DESTROYED       = 0,
+    BG_SA_SCORE_INDEX_DEMOLISHERS_DESTROYED = 1
+};
+
 Position const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ] =
 {
     { 1411.57f, 108.163f, 28.692f, 5.441f },
@@ -528,44 +534,6 @@ struct BG_SA_RoundScore
     uint32 time;
 };
 
-struct BattlegroundSAScore final : public BattlegroundScore
-{
-    friend class BattlegroundSA;
-
-    protected:
-        BattlegroundSAScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), DemolishersDestroyed(0), GatesDestroyed(0) { }
-
-        void UpdateScore(uint32 type, uint32 value) override
-        {
-            switch (type)
-            {
-                case SCORE_DESTROYED_DEMOLISHER:
-                    DemolishersDestroyed += value;
-                    break;
-                case SCORE_DESTROYED_WALL:
-                    GatesDestroyed += value;
-                    break;
-                default:
-                    BattlegroundScore::UpdateScore(type, value);
-                    break;
-            }
-        }
-
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
-        {
-            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
-
-            playerData.Stats.emplace_back(BG_SA_DEMOLISHERS_DESTROYED, DemolishersDestroyed);
-            playerData.Stats.emplace_back(BG_SA_GATES_DESTROYED, GatesDestroyed);
-        }
-
-        uint32 GetAttr1() const final override { return DemolishersDestroyed; }
-        uint32 GetAttr2() const final override { return GatesDestroyed; }
-
-        uint32 DemolishersDestroyed;
-        uint32 GatesDestroyed;
-};
-
 /// Class for manage Strand of Ancient battleground
 class BattlegroundSA : public Battleground
 {
@@ -617,8 +585,6 @@ class BattlegroundSA : public Battleground
 
         // Control Phase Shift
         bool IsSpellAllowed(uint32 spellId, Player const* player) const override;
-
-        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
 
     private:
 

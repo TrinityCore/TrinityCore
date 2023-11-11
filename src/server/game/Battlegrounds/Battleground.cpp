@@ -1013,7 +1013,10 @@ void Battleground::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
     m_Players[player->GetGUID()] = bp;
 
     if (!isInBattleground)
+    {
         UpdatePlayersCountByTeam(team, false);                  // +1 player
+        PlayerScores[player->GetGUID()] = CreateNewBattlegroundScore(player);
+    }
 
     WorldPackets::Battleground::BattlegroundPlayerJoined playerJoined;
     playerJoined.Guid = player->GetGUID();
@@ -1305,6 +1308,11 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchSta
     pvpLogData.PlayerCount[PVP_TEAM_ALLIANCE] = int8(GetPlayersCountByTeam(ALLIANCE));
 }
 
+BattlegroundScore const* Battleground::GetBattlegroundScore(Player* player) const
+{
+    return Trinity::Containers::MapGetValuePtr(PlayerScores, player->GetGUID());
+}
+
 bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
 {
     BattlegroundScoreMap::const_iterator itr = PlayerScores.find(player->GetGUID());
@@ -1317,6 +1325,12 @@ bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, 
         itr->second->UpdateScore(type, value);
 
     return true;
+}
+
+void Battleground::UpdateBattlegroundSpecificStat(Player* player, uint8 statIndex, uint32 value)
+{
+    if (BattlegroundScore* score = Trinity::Containers::MapGetValuePtr(PlayerScores, player->GetGUID()))
+        score->UpdateBattlegroundSpecificStat(statIndex, value);
 }
 
 bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 /*respawnTime*/, GOState goState)
@@ -1644,6 +1658,11 @@ void Battleground::RemovePlayerPosition(ObjectGuid guid)
     });
 
     _playerPositions.erase(itr, _playerPositions.end());
+}
+
+BattlegroundScore* Battleground::CreateNewBattlegroundScore(Player* player) const
+{
+    return new BattlegroundScore(player->GetGUID(), player->GetBGTeam(), _playerScoreTemplate);
 }
 
 void Battleground::EndNow()

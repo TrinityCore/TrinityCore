@@ -244,10 +244,7 @@ void BattlegroundIC::StartingEventOpenDoors()
 
 void BattlegroundIC::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
 {
-    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player, queueId);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new BattlegroundICScore(player->GetGUID(), player->GetBGTeam());
 
     if (nodePoint[NODE_TYPE_QUARRY].nodeState == (GetPlayerTeam(player->GetGUID()) == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         player->CastSpell(player, SPELL_QUARRY, true);
@@ -436,7 +433,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
                     if (!BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1 + uint32(nodePoint[i].nodeType) - 2].IsEmpty())
                         DelCreature(BG_IC_NPC_SPIRIT_GUIDE_1 + uint32(nodePoint[i].nodeType) - 2);
 
-                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+                UpdateBattlegroundSpecificStat(player, BG_IC_SCORE_INDEX_ASSAULT_BASE, 1);
 
                 if (nodePoint[i].faction == TEAM_ALLIANCE)
                     SendBroadcastText(ICNodes[i].TextAssaulted, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
@@ -456,7 +453,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
                     SendBroadcastText(ICNodes[i].TextDefended, CHAT_MSG_BG_SYSTEM_HORDE, player);
 
                 HandleCapturedNodes(&nodePoint[i], true);
-                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+                UpdateBattlegroundSpecificStat(player, BG_IC_SCORE_INDEX_DEFEND_BASE, 1);
             }
 
             GameObject* banner = GetBGObject(nodePoint[i].gameobject_type);

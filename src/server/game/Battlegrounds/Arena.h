@@ -67,6 +67,8 @@ class TC_GAME_API Arena : public Battleground
 
         void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics& pvpLogData) const override;
 
+        BattlegroundScore* CreateNewBattlegroundScore(Player* player) const override;
+
     private:
         void RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket) override;
         void CheckWinConditions() override;

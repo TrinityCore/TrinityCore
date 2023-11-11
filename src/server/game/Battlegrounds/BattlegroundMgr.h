@@ -24,6 +24,8 @@
 #include "BattlegroundQueue.h"
 #include <unordered_map>
 
+#include "MapUtils.h"
+
 class Battleground;
 struct BattlemasterListEntry;
 
@@ -57,6 +59,13 @@ struct BattlegroundTemplate
     uint16 GetMaxPlayersPerTeam() const;
     uint8 GetMinLevel() const;
     uint8 GetMaxLevel() const;
+};
+
+struct BattlegroundPlayerScoreTemplate
+{
+    int32 MapId;
+    BattlegroundTypeId Id;
+    std::vector<uint32> PvpStatIds;
 };
 
 namespace WorldPackets
@@ -134,6 +143,7 @@ class TC_GAME_API BattlegroundMgr
         uint32 GetMaxRatingDifference() const;
         uint32 GetRatingDiscardTimer()  const;
         void LoadBattleMastersEntry();
+        void LoadBattlegroundPlayerScoreTemplates();
         void CheckBattleMasters();
         BattlegroundTypeId GetBattleMasterBG(uint32 entry) const
         {
@@ -150,6 +160,18 @@ class TC_GAME_API BattlegroundMgr
                 return &itr->second;
             return nullptr;
         }
+
+        BattlegroundPlayerScoreTemplate const* GetPlayerScoreTemplate(int32 mapId, BattlegroundTypeId bgTypeId) const
+        {
+            if (BattlegroundPlayerScoreTemplate const* scoreTemplate = Trinity::Containers::MapGetValuePtr(_playerScoreTemplates, { mapId, bgTypeId }))
+                return scoreTemplate;
+
+            if (bgTypeId != BATTLEGROUND_TYPE_NONE)
+                return GetPlayerScoreTemplate(mapId, BATTLEGROUND_TYPE_NONE);
+
+            return nullptr;
+        }
+
     private:
         uint32 CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
         static bool IsArenaType(BattlegroundTypeId bgTypeId);
@@ -176,6 +198,7 @@ class TC_GAME_API BattlegroundMgr
         bool   m_ArenaTesting;
         bool   m_Testing;
         BattleMastersMap mBattleMastersMap;
+        std::map<std::pair<int32 /*mapId*/, BattlegroundTypeId>, BattlegroundPlayerScoreTemplate> _playerScoreTemplates;
 
         BattlegroundTemplate const* GetBattlegroundTemplateByMapId(uint32 mapId)
         {
@@ -186,7 +209,7 @@ class TC_GAME_API BattlegroundMgr
         }
 
         typedef std::map<BattlegroundTypeId, BattlegroundTemplate> BattlegroundTemplateMap;
-        typedef std::map<uint32 /*mapId*/, BattlegroundTemplate*> BattlegroundMapTemplateContainer;
+        typedef std::map<int32 /*mapId*/, BattlegroundTemplate*> BattlegroundMapTemplateContainer;
         BattlegroundTemplateMap _battlegroundTemplates;
         BattlegroundMapTemplateContainer _battlegroundMapTemplates;
 };

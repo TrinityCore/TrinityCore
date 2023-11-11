@@ -18,7 +18,7 @@
 #include "ArenaScore.h"
 #include <sstream>
 
-ArenaScore::ArenaScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team)
+ArenaScore::ArenaScore(ObjectGuid playerGuid, uint32 team, BattlegroundPlayerScoreTemplate const* playerScoreTemplate) : BattlegroundScore(playerGuid, team, playerScoreTemplate)
 {
 }
 

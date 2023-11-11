@@ -41,10 +41,7 @@ Arena::Arena(BattlegroundTemplate const* battlegroundTemplate) : Battleground(ba
 
 void Arena::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
 {
-    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player, queueId);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new ArenaScore(player->GetGUID(), player->GetBGTeam());
 
     if (player->GetBGTeam() == ALLIANCE)        // gold
     {
@@ -105,6 +102,11 @@ void Arena::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics
             pvpLogData.Ratings->PrematchMMR[i] = _arenaTeamScores[i].PreMatchMMR;
         }
     }
+}
+
+BattlegroundScore* Arena::CreateNewBattlegroundScore(Player* player) const
+{
+    return new ArenaScore(player->GetGUID(), player->GetBGTeam(), GetPlayerScoreTemplate());
 }
 
 void Arena::RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket)
