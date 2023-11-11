@@ -3959,6 +3959,9 @@ void Spell::EffectKnockBack()
     if (speedxy < 0.01f && speedz < 0.01f)
         return;
 
+    if (speedxy < 0.01f)
+        speedxy = 0.05f;
+
     Position origin;
     if (effectInfo->Effect == SPELL_EFFECT_KNOCK_BACK_DEST)
     {
