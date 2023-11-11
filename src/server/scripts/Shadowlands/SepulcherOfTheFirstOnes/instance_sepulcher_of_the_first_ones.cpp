@@ -39,7 +39,9 @@ ObjectData const creatureData[] =
     { NPC_BEACON_OF_HOPE,                       DATA_BEACON_OF_HOPE                 },
     { NPC_QUARTERMASTER_RAHM_ANDUIN,            DATA_QUARTERMASTER_RAHM_ANDUIN      },
     { NPC_BOLVAR_FORDRAGON_ANDUIN,              DATA_BOLVAR_FORDRAGON_ANDUIN        },
-    { 0,                                        0                                   }
+    { 0,                                        0                                   },
+
+    // Lords of Dread
 };
 
 BossBoundaryData const boundaries =
