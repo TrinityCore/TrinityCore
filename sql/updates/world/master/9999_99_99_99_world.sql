@@ -2348,12 +2348,11 @@ CREATE PROCEDURE drop_waypoint_scripts_related() BEGIN
     (26044, 0, 3, 0, 40, 0, 100, 0, 6, 10045280, 0, 0, 80, 2604400, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On waypoint 6 of path 10045280 reached - Self: Start timed action list id 2604400'), -- waypoint_script.id = 12556600
     (26044, 0, 4, 0, 40, 0, 100, 0, 25, 10045280, 0, 0, 80, 2604400, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On waypoint 25 of path 10045280 reached - Self: Start timed action list id 2604400'); -- waypoint_script.id = 12556600
 
-  
     DROP TABLE IF EXISTS `waypoint_scripts`;
     
     ALTER TABLE `waypoint_data` 
         DROP COLUMN `action`,
-        DROP COLUMN `action_chance`,
+        DROP COLUMN `action_chance`;
   END IF;
 END;;
 
