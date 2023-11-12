@@ -209,7 +209,7 @@ class TC_GAME_API BattlegroundMgr
         }
 
         typedef std::map<BattlegroundTypeId, BattlegroundTemplate> BattlegroundTemplateMap;
-        typedef std::map<int32 /*mapId*/, BattlegroundTemplate*> BattlegroundMapTemplateContainer;
+        typedef std::map<uint32 /*mapId*/, BattlegroundTemplate*> BattlegroundMapTemplateContainer;
         BattlegroundTemplateMap _battlegroundTemplates;
         BattlegroundMapTemplateContainer _battlegroundMapTemplates;
 };
