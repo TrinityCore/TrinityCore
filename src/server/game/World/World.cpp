@@ -804,11 +804,6 @@ void World::LoadConfigSettings(bool reload)
         m_bool_configs[CONFIG_INSTANCEMAP_LOAD_GRIDS] = false;
     }
     m_bool_configs[CONFIG_BATTLEGROUNDMAP_LOAD_GRIDS] = sConfigMgr->GetBoolDefault("BattlegroundMapLoadAllGrids", true);
-    if (m_bool_configs[CONFIG_BATTLEGROUNDMAP_LOAD_GRIDS] && m_bool_configs[CONFIG_GRID_UNLOAD])
-    {
-        TC_LOG_ERROR("server.loading", "BattlegroundMapLoadAllGrids enabled, but GridUnload also enabled. GridUnload must be disabled to enable battleground map pre-loading. Battleground map pre-loading disabled");
-        m_bool_configs[CONFIG_BATTLEGROUNDMAP_LOAD_GRIDS] = false;
-    }
     m_int_configs[CONFIG_INTERVAL_SAVE] = sConfigMgr->GetIntDefault("PlayerSaveInterval", 15 * MINUTE * IN_MILLISECONDS);
     m_int_configs[CONFIG_INTERVAL_DISCONNECT_TOLERANCE] = sConfigMgr->GetIntDefault("DisconnectToleranceInterval", 0);
     m_bool_configs[CONFIG_STATS_SAVE_ONLY_ON_LOGOUT] = sConfigMgr->GetBoolDefault("PlayerSave.Stats.SaveOnlyOnLogout", true);
