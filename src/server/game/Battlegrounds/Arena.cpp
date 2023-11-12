@@ -106,7 +106,7 @@ void Arena::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics
 
 BattlegroundScore* Arena::CreateNewBattlegroundScore(Player* player) const
 {
-    return new ArenaScore(player->GetGUID(), player->GetBGTeam(), GetPlayerScoreTemplate());
+    return new ArenaScore(player->GetGUID(), player->GetBGTeam(), GetPvpStatIds());
 }
 
 void Arena::RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket)

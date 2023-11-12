@@ -21,6 +21,7 @@
 #include "BattlegroundPackets.h"
 #include "ObjectGuid.h"
 #include <string>
+#include <vector>
 
 struct BattlegroundPlayerScoreTemplate;
 
@@ -56,7 +57,7 @@ enum ScoreType
 
 struct BattlegroundScore
 {
-    BattlegroundScore(ObjectGuid playerGuid, uint32 team, BattlegroundPlayerScoreTemplate const* playerScoreTemplate);
+    BattlegroundScore(ObjectGuid playerGuid, uint32 team, std::vector<uint32> const* pvpStatIds);
     virtual ~BattlegroundScore();
 
     void UpdateScore(uint32 type, uint32 value);

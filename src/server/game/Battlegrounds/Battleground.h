@@ -312,8 +312,7 @@ class TC_GAME_API Battleground : public ZoneScript
         void SetRated(bool state)           { m_IsRated = state; }
         void SetArenaType(uint8 type)       { m_ArenaType = type; }
         void SetWinner(PvPTeamId winnerTeamId) { _winnerTeamId = winnerTeamId; }
-        void SetPlayerScoreTemplate(BattlegroundPlayerScoreTemplate const* playerScoreTemplate) { _playerScoreTemplate = playerScoreTemplate; }
-        BattlegroundPlayerScoreTemplate const* GetPlayerScoreTemplate() const { return _playerScoreTemplate; }
+        std::vector<uint32> const* GetPvpStatIds() const { return _pvpStatIds; }
 
         void ModifyStartDelayTime(int diff) { m_StartDelayTime -= diff; }
         void SetStartDelayTime(int Time)    { m_StartDelayTime = Time; }
@@ -348,7 +347,7 @@ class TC_GAME_API Battleground : public ZoneScript
         uint32 GetMapId() const;
 
         // Map pointers
-        void SetBgMap(BattlegroundMap* map) { m_Map = map; }
+        void SetBgMap(BattlegroundMap* map);
         BattlegroundMap* GetBgMap() const;
         BattlegroundMap* FindBgMap() const { return m_Map; }
 
@@ -612,7 +611,7 @@ class TC_GAME_API Battleground : public ZoneScript
 
         BattlegroundTemplate const* _battlegroundTemplate;
         PVPDifficultyEntry const* _pvpDifficultyEntry;
-        BattlegroundPlayerScoreTemplate const* _playerScoreTemplate;
+        std::vector<uint32> const* _pvpStatIds;
 
         std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition> _playerPositions;
 };

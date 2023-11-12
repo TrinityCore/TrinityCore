@@ -3130,6 +3130,21 @@ struct PVPItemEntry
     uint8 ItemLevelDelta;
 };
 
+struct PVPScoreboardLayoutEntry
+{
+    uint32 ID;
+    int32 PVPStatID;
+    int32 PVPScoreboardColumnHeaderID;
+    int32 OrderIndex;
+};
+
+struct PVPStatEntry
+{
+    LocalizedString Description;
+    uint32 ID;
+    int32 MapID;
+};
+
 struct PvpSeasonEntry
 {
     uint32 ID;

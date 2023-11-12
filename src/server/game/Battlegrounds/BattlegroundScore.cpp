@@ -22,11 +22,11 @@
 #include "ObjectAccessor.h"
 #include "SharedDefines.h"
 
-BattlegroundScore::BattlegroundScore(ObjectGuid playerGuid, uint32 team, BattlegroundPlayerScoreTemplate const* playerScoreTemplate) : PlayerGuid(playerGuid), TeamId(team == ALLIANCE ? PVP_TEAM_ALLIANCE : PVP_TEAM_HORDE),
+BattlegroundScore::BattlegroundScore(ObjectGuid playerGuid, uint32 team, std::vector<uint32> const* pvpStatIds) : PlayerGuid(playerGuid), TeamId(team == ALLIANCE ? PVP_TEAM_ALLIANCE : PVP_TEAM_HORDE),
     KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0)
 {
-    if (playerScoreTemplate)
-        for (uint32 pvpStatId : playerScoreTemplate->PvpStatIds)
+    if (pvpStatIds)
+        for (uint32 pvpStatId : *pvpStatIds)
             Stats.emplace_back(pvpStatId, 0);
 }
 

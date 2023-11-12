@@ -383,7 +383,6 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundQueueTypeId que
     bg->SetStatus(STATUS_WAIT_JOIN); // start the joining of the bg
     bg->SetArenaType(queueId.TeamSize);
     bg->SetRated(queueId.Rated);
-    bg->SetPlayerScoreTemplate(GetPlayerScoreTemplate(bg_template->BattlemasterEntry->MapID[0], bgTypeId));
 
     return bg;
 }
@@ -644,49 +643,6 @@ void BattlegroundMgr::LoadBattleMastersEntry()
     CheckBattleMasters();
 
     TC_LOG_INFO("server.loading", ">> Loaded {} battlemaster entries in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void BattlegroundMgr::LoadBattlegroundPlayerScoreTemplates()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _playerScoreTemplates.clear();                                  // need for reload case
-
-    QueryResult result = WorldDatabase.Query("SELECT MapID, BattlemasterListID, PvpStatID FROM battleground_player_score_template ORDER BY MapID, BattlemasterListID, OrderIndex");
-
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 battleground player score templates. DB table `battleground_player_score_template` is empty!");
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        ++count;
-
-        Field const* fields = result->Fetch();
-
-        int32 mapId = fields[0].GetInt32();
-        if (!sMapStore.LookupEntry(mapId))
-        {
-            TC_LOG_ERROR("sql.sql", "Table `battleground_player_score_template` contains unknown mapID: {}.", mapId);
-            continue;
-        }
-
-        BattlegroundTypeId battlemasterListId = BattlegroundTypeId(fields[1].GetUInt32());
-        if (battlemasterListId != BATTLEGROUND_TYPE_NONE && !sBattlemasterListStore.LookupEntry(battlemasterListId))
-        {
-            TC_LOG_ERROR("sql.sql", "Table `battleground_player_score_template` contains unknown battlemasterListID: {}.", battlemasterListId);
-            continue;
-        }
-
-        BattlegroundPlayerScoreTemplate& playerScoreTemplate = _playerScoreTemplates[{ mapId, battlemasterListId }];
-        playerScoreTemplate.PvpStatIds.push_back(fields[2].GetUInt32());
-    } while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded {} battleground player score templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BattlegroundMgr::CheckBattleMasters()

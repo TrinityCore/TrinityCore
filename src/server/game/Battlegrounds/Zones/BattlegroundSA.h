@@ -315,8 +315,8 @@ enum BG_SA_Objectives
 
 enum BG_SA_Player_Scores_Index
 {
-    BG_SA_SCORE_INDEX_GATES_DESTROYED       = 0,
-    BG_SA_SCORE_INDEX_DEMOLISHERS_DESTROYED = 1
+    BG_SA_SCORE_INDEX_DEMOLISHERS_DESTROYED = 0,
+    BG_SA_SCORE_INDEX_GATES_DESTROYED       = 1,
 };
 
 Position const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ] =

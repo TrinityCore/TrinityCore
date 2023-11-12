@@ -196,8 +196,8 @@ enum BG_AB_Events
 
 enum BG_AB_Player_Scores_Index
 {
-    BG_AB_SCORE_INDEX_ASSAULT_BASE = 0,
-    BG_AB_SCORE_INDEX_DEFEND_BASE = 1,
+    BG_AB_SCORE_INDEX_ASSAULT_BASE  = 0,
+    BG_AB_SCORE_INDEX_DEFEND_BASE   = 1,
 };
 
 // Tick intervals and given points: case 0, 1, 2, 3, 4, 5 captured nodes

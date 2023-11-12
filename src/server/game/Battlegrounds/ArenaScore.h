@@ -25,7 +25,7 @@ struct TC_GAME_API ArenaScore : public BattlegroundScore
     friend class Arena;
 
     protected:
-        ArenaScore(ObjectGuid playerGuid, uint32 team, BattlegroundPlayerScoreTemplate const* playerScoreTemplate);
+        ArenaScore(ObjectGuid playerGuid, uint32 team, std::vector<uint32> const* pvpStatIds);
 
         void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override;
 

@@ -137,8 +137,8 @@ enum BG_WS_AreaTriggers
 
 enum BG_WS_Player_Scores_Index
 {
-    BG_WS_SCORE_INDEX_CAPTURE_FLAG = 0,
-    BG_WS_SCORE_INDEX_RETURN_FLAG = 1,
+    BG_WS_SCORE_INDEX_RETURN_FLAG   = 0,
+    BG_WS_SCORE_INDEX_CAPTURE_FLAG  = 1
 };
 
 static constexpr uint32 WS_EVENT_START_BATTLE = 35912;

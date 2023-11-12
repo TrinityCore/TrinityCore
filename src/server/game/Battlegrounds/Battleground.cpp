@@ -55,7 +55,7 @@ void Battleground::BroadcastWorker(Do& _do)
             _do(player);
 }
 
-Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _battlegroundTemplate(battlegroundTemplate), _pvpDifficultyEntry(nullptr)
+Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _battlegroundTemplate(battlegroundTemplate), _pvpDifficultyEntry(nullptr), _pvpStatIds(nullptr)
 {
     ASSERT(_battlegroundTemplate, "Nonexisting Battleground Template passed to battleground ctor!");
 
@@ -1465,6 +1465,15 @@ uint32 Battleground::GetMapId() const
     return _battlegroundTemplate->BattlemasterEntry->MapID[0];
 }
 
+void Battleground::SetBgMap(BattlegroundMap* map)
+{
+    m_Map = map;
+    if (map)
+        _pvpStatIds = sDB2Manager.GetPVPStatIDsForMap(map->GetId());
+    else
+        _pvpStatIds = nullptr;
+}
+
 void Battleground::SpawnBGObject(uint32 type, uint32 respawntime)
 {
     if (Map* map = FindBgMap())
@@ -1662,7 +1671,7 @@ void Battleground::RemovePlayerPosition(ObjectGuid guid)
 
 BattlegroundScore* Battleground::CreateNewBattlegroundScore(Player* player) const
 {
-    return new BattlegroundScore(player->GetGUID(), player->GetBGTeam(), _playerScoreTemplate);
+    return new BattlegroundScore(player->GetGUID(), player->GetBGTeam(), _pvpStatIds);
 }
 
 void Battleground::EndNow()
