@@ -462,8 +462,6 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            _oocScheduler.Update(diff);
-
             if (!UpdateVictim())
                 return;
 

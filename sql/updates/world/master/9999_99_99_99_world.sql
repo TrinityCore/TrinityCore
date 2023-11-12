@@ -120,7 +120,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=2621701 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (2621701, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1.0 seconds - Self: Set emote state to 69');
 
-UPDATE `waypoint_data` SET `orientation`=5.37 WHERE `action`=477;
+UPDATE `waypoint_data` SET `orientation`=5.37, `action`=0 WHERE `action`=477;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 478
@@ -305,7 +305,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1134
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=0.104771 WHERE `action`=1134;
+UPDATE `waypoint_data` SET `orientation`=0.104771, `action`=0 WHERE `action`=1134;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1137
@@ -478,7 +478,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (2481200, 9, 7, 0, 0, 0, 100, 0, 75000, 75000, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 2.95678, 'After 75.0 seconds - Self: Set orientation to 2.95678'),
 (2481200, 9, 8, 0, 0, 0, 100, 0, 71000, 71000, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0.742216, 'After 71.0 seconds - Self: Set orientation to 0.742216');
 
-UPDATE `waypoint_data` SET `orientation`=1.26624 WHERE `action`=1160;
+UPDATE `waypoint_data` SET `orientation`=1.26624, `action`=0 WHERE `action`=1160;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1162
@@ -500,12 +500,12 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1164
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=5.18363 WHERE `action`=1164;
+UPDATE `waypoint_data` SET `orientation`=5.18363, `action`=0 WHERE `action`=1164;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1165
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=4.10152 WHERE `action`=1165;
+UPDATE `waypoint_data` SET `orientation`=4.10152, `action`=0 WHERE `action`=1165;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1168
@@ -787,57 +787,57 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 684681
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=3.83972 WHERE `action`=684681;
+UPDATE `waypoint_data` SET `orientation`=3.83972, `action`=0 WHERE `action`=684681;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 684691
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=1.5708 WHERE `action`=684691;
+UPDATE `waypoint_data` SET `orientation`=1.5708, `action`=0 WHERE `action`=684691;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 684701
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=1.41372 WHERE `action`=684701;
+UPDATE `waypoint_data` SET `orientation`=1.41372, `action`=0 WHERE `action`=684701;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 686261
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=1.27409 WHERE `action`=686261;
+UPDATE `waypoint_data` SET `orientation`=1.27409, `action`=0 WHERE `action`=686261;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1128651
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=2.9147 WHERE `action`=1128651;
+UPDATE `waypoint_data` SET `orientation`=2.9147, `action`=0 WHERE `action`=1128651;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1128652
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=5.20108 WHERE `action`=1128652;
+UPDATE `waypoint_data` SET `orientation`=5.20108, `action`=0 WHERE `action`=1128652;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1128661
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=0.855211 WHERE `action`=1128661;
+UPDATE `waypoint_data` SET `orientation`=0.855211, `action`=0 WHERE `action`=1128661;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1128662
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=0.890118 WHERE `action`=1128662;
+UPDATE `waypoint_data` SET `orientation`=0.890118, `action`=0 WHERE `action`=1128662;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1128663
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=0.0698132 WHERE `action`=1128663;
+UPDATE `waypoint_data` SET `orientation`=0.0698132, `action`=0 WHERE `action`=1128663;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1336191
 -- AffectedPaths = 1
-UPDATE `waypoint_data` SET `orientation`=1.46608 WHERE `action`=1336191;
+UPDATE `waypoint_data` SET `orientation`=1.46608, `action`=0 WHERE `action`=1336191;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1336192
 -- AffectedPaths = 2
-UPDATE `waypoint_data` SET `orientation`=4.63913 WHERE `action`=1336192;
+UPDATE `waypoint_data` SET `orientation`=4.63913, `action`=0 WHERE `action`=1336192;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1378561
@@ -846,7 +846,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=1089900 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (1089900, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3.0 seconds - Self: Set emote state to 69');
 
-UPDATE `waypoint_data` SET `orientation`=5.75959 WHERE `action`=1378561;
+UPDATE `waypoint_data` SET `orientation`=5.75959, `action`=0 WHERE `action`=1378561;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1378562
@@ -856,7 +856,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (1089901, 9, 0, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 17, 133, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 4.0 seconds - Self: Set emote state to 133'),
 (1089901, 9, 1, 0, 0, 0, 100, 0, 35000, 35000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 35.0 seconds - Self: Set emote state to 0');
 
-UPDATE `waypoint_data` SET `orientation`=0.715585 WHERE `action`=1378562;
+UPDATE `waypoint_data` SET `orientation`=0.715585, `action`=0 WHERE `action`=1378562;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1378563
@@ -866,7 +866,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (1089902, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 17, 28, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1.0 seconds - Self: Set emote state to 28'),
 (1089902, 9, 1, 0, 0, 0, 100, 0, 21000, 21000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 21.0 seconds - Self: Set emote state to 0');
 
-UPDATE `waypoint_data` SET `orientation`=1.80131 WHERE `action`=1378563;
+UPDATE `waypoint_data` SET `orientation`=1.80131, `action`=0 WHERE `action`=1378563;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 1380451
@@ -883,7 +883,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (909701, 9, 0, 0, 0, 0, 100, 0, 7000, 7000, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 7.0 seconds - Self: Set emote state to 69'),
 (909701, 9, 1, 0, 0, 0, 100, 0, 9000, 9000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 9.0 seconds - Self: Set emote state to 0');
 
-UPDATE `waypoint_data` SET `orientation`=3.89208 WHERE `action`=1380452;
+UPDATE `waypoint_data` SET `orientation`=3.89208, `action`=0 WHERE `action`=1380452;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 2026160
@@ -892,7 +892,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=1725900 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (1725900, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1.0 seconds - Self: Set emote state to 234');
 
-UPDATE `waypoint_data` SET `orientation`=0.907571 WHERE `action`=2026160;
+UPDATE `waypoint_data` SET `orientation`=0.907571, `action`=0 WHERE `action`=2026160;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 2026161
@@ -901,7 +901,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=1725901 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (1725901, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1.0 seconds - Self: Set emote state to 234');
 
-UPDATE `waypoint_data` SET `orientation`=3.29867 WHERE `action`=2026161;
+UPDATE `waypoint_data` SET `orientation`=3.29867, `action`=0 WHERE `action`=2026161;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 2026250
@@ -910,7 +910,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=1726400 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (1726400, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1.0 seconds - Self: Set emote state to 234');
 
-UPDATE `waypoint_data` SET `orientation`=2.33874 WHERE `action`=2026250;
+UPDATE `waypoint_data` SET `orientation`=2.33874, `action`=0 WHERE `action`=2026250;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 2026251
@@ -919,7 +919,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=1726401 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (1726401, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1.0 seconds - Self: Set emote state to 234');
 
-UPDATE `waypoint_data` SET `orientation`=0.191986 WHERE `action`=2026251;
+UPDATE `waypoint_data` SET `orientation`=0.191986, `action`=0 WHERE `action`=2026251;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 2026270
@@ -928,7 +928,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=1726402 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (1726402, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1.0 seconds - Self: Set emote state to 234');
 
-UPDATE `waypoint_data` SET `orientation`=5.11381 WHERE `action`=2026270;
+UPDATE `waypoint_data` SET `orientation`=5.11381, `action`=0 WHERE `action`=2026270;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 2026271
@@ -937,7 +937,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=1726403 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (1726403, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1.0 seconds - Self: Set emote state to 234');
 
-UPDATE `waypoint_data` SET `orientation`=4.79965 WHERE `action`=2026271;
+UPDATE `waypoint_data` SET `orientation`=4.79965, `action`=0 WHERE `action`=2026271;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- waypoint_scripts.id = 3848250
@@ -2339,4 +2339,26 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (26044, 0, 3, 0, 40, 0, 100, 0, 6, 10045280, 0, 0, 80, 2604400, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On waypoint 6 of path 10045280 reached - Self: Start timed action list id 2604400'), -- waypoint_script.id = 12556600
 (26044, 0, 4, 0, 40, 0, 100, 0, 25, 10045280, 0, 0, 80, 2604400, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On waypoint 25 of path 10045280 reached - Self: Start timed action list id 2604400'); -- waypoint_script.id = 12556600
 
--- DROP TABLE IF EXISTS `waypoint_scripts`;
+DELETE FROM `command` WHERE `name`='reload waypoint_scripts';
+DELETE FROM `command` WHERE `name`='wp event';
+    
+DROP PROCEDURE IF EXISTS drop_waypoint_scripts_related;
+
+DELIMITER ;;
+CREATE PROCEDURE drop_waypoint_scripts_related() BEGIN
+  IF EXISTS (SELECT * FROM `information_schema`.`columns` WHERE `table_schema`=SCHEMA() AND `table_name`='waypoint_scripts') THEN
+    DROP TABLE IF EXISTS `waypoint_scripts`;
+    
+    ALTER TABLE `waypoint_data` 
+        DROP COLUMN `action`,
+        DROP COLUMN `action_chance`,
+        DROP COLUMN `wpguid`;
+        
+  END IF;
+END;;
+
+DELIMITER ;
+CALL drop_waypoint_scripts_related();
+
+DROP PROCEDURE IF EXISTS drop_waypoint_scripts_related;
+
