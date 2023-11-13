@@ -21,7 +21,6 @@
 #include "BattlegroundPackets.h"
 #include "ObjectGuid.h"
 #include <string>
-#include <vector>
 
 struct BattlegroundPlayerScoreTemplate;
 
@@ -33,35 +32,16 @@ enum ScoreType
     SCORE_HONORABLE_KILLS       = 3,
     SCORE_BONUS_HONOR           = 4,
     SCORE_DAMAGE_DONE           = 5,
-    SCORE_HEALING_DONE          = 6,
-
-    // WS, EY and TP
-    SCORE_FLAG_CAPTURES         = 7,
-    SCORE_FLAG_RETURNS          = 8,
-
-    // AB and IC
-    SCORE_BASES_ASSAULTED       = 9,
-    SCORE_BASES_DEFENDED        = 10,
-
-    // AV
-    SCORE_GRAVEYARDS_ASSAULTED  = 11,
-    SCORE_GRAVEYARDS_DEFENDED   = 12,
-    SCORE_TOWERS_ASSAULTED      = 13,
-    SCORE_TOWERS_DEFENDED       = 14,
-    SCORE_MINES_CAPTURED        = 15,
-
-    // SOTA
-    SCORE_DESTROYED_DEMOLISHER  = 16,
-    SCORE_DESTROYED_WALL        = 17
+    SCORE_HEALING_DONE          = 6
 };
 
 struct BattlegroundScore
 {
-    BattlegroundScore(ObjectGuid playerGuid, uint32 team, std::vector<uint32> const* pvpStatIds);
+    BattlegroundScore(ObjectGuid playerGuid, uint32 team, std::unordered_set<uint32> const* pvpStatIds);
     virtual ~BattlegroundScore();
 
     void UpdateScore(uint32 type, uint32 value);
-    void UpdateBattlegroundSpecificStat(uint8 index, uint32 value);
+    void UpdatePvpStat(uint32 pvpStatID, uint32 value);
 
     // For Logging purpose
     virtual std::string ToString() const { return ""; }
@@ -73,11 +53,11 @@ struct BattlegroundScore
     uint32 GetDamageDone() const { return DamageDone; }
     uint32 GetHealingDone() const { return HealingDone; }
 
-    uint32 GetAttr1() const { return !Stats.empty() ? Stats[0].second : 0; }
-    uint32 GetAttr2() const { return Stats.size() >= 2 ? Stats[1].second : 0; }
-    uint32 GetAttr3() const { return Stats.size() >= 3 ? Stats[2].second : 0; }
-    uint32 GetAttr4() const { return Stats.size() >= 4 ? Stats[3].second : 0; }
-    uint32 GetAttr5() const { return Stats.size() >= 5 ? Stats[4].second : 0; }
+    uint32 GetAttr1() const { return GetAttr(0); }
+    uint32 GetAttr2() const { return GetAttr(1); }
+    uint32 GetAttr3() const { return GetAttr(2); }
+    uint32 GetAttr4() const { return GetAttr(3); }
+    uint32 GetAttr5() const { return GetAttr(4); }
 
     virtual void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const;
 
@@ -94,7 +74,11 @@ protected:
     uint32 DamageDone;
     uint32 HealingDone;
 
-    std::vector<std::pair<uint32, uint32>> Stats;
+    std::map<uint32, uint32> PvpStats;
+private:
+    uint32 GetAttr(uint8 index) const;
+
+    std::unordered_set<uint32> const* _validPvpStatIds;
 };
 
 #endif // TRINITY_BATTLEGROUND_SCORE_H

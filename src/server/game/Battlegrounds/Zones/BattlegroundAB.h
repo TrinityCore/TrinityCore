@@ -137,12 +137,6 @@ enum BG_AB_Sounds
     BG_AB_SOUND_NEAR_VICTORY_HORDE      = 8457
 };
 
-enum BG_AB_Objectives
-{
-    AB_OBJECTIVE_ASSAULT_BASE           = 926,
-    AB_OBJECTIVE_DEFEND_BASE            = 927
-};
-
 enum BG_AB_ExploitTeleportLocations
 {
     AB_EXPLOIT_TELEPORT_LOCATION_ALLIANCE = 7056,
@@ -194,10 +188,10 @@ enum BG_AB_Events
     AB_EVENT_DEFENDED_LUMBER_MILL_ALLIANCE      = 39392
 };
 
-enum BG_AB_Player_Scores_Index
+enum BG_AB_PVP_Stats
 {
-    BG_AB_SCORE_INDEX_ASSAULT_BASE  = 0,
-    BG_AB_SCORE_INDEX_DEFEND_BASE   = 1,
+    BG_AB_PVP_STAT_BASES_ASSAULTED  = 926,
+    BG_AB_PVP_STAT_BASES_DEFENDED   = 927,
 };
 
 // Tick intervals and given points: case 0, 1, 2, 3, 4, 5 captured nodes

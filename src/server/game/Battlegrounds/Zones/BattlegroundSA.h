@@ -19,7 +19,6 @@
 #define __BATTLEGROUNDSA_H
 
 #include "Battleground.h"
-#include "BattlegroundScore.h"
 #include "Object.h"
 
 #define BG_SA_FLAG_AMOUNT           3
@@ -307,16 +306,10 @@ enum BG_SA_Objects
     BG_SA_MAXOBJ = BG_SA_BOMB+68
 };
 
-enum BG_SA_Objectives
+enum BG_SA_PVP_Stats
 {
-    BG_SA_GATES_DESTROYED       = 231,
-    BG_SA_DEMOLISHERS_DESTROYED = 232
-};
-
-enum BG_SA_Player_Scores_Index
-{
-    BG_SA_SCORE_INDEX_DEMOLISHERS_DESTROYED = 0,
-    BG_SA_SCORE_INDEX_GATES_DESTROYED       = 1,
+    BG_SA_PVP_STAT_GATES_DESTROYED       = 231,
+    BG_SA_PVP_STAT_DEMOLISHERS_DESTROYED = 232
 };
 
 Position const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ] =

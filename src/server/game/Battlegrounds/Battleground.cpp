@@ -35,6 +35,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -1327,10 +1328,10 @@ bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, 
     return true;
 }
 
-void Battleground::UpdateBattlegroundSpecificStat(Player* player, uint8 statIndex, uint32 value)
+void Battleground::UpdatePvpStat(Player* player, uint32 pvpStatId, uint32 value)
 {
     if (BattlegroundScore* score = Trinity::Containers::MapGetValuePtr(PlayerScores, player->GetGUID()))
-        score->UpdateBattlegroundSpecificStat(statIndex, value);
+        score->UpdatePvpStat(pvpStatId, value);
 }
 
 bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 /*respawnTime*/, GOState goState)

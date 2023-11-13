@@ -16,6 +16,7 @@
  */
 
 #include "BattlegroundSA.h"
+#include "BattlegroundScore.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DB2Stores.h"
@@ -563,7 +564,7 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                             {
                                 if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
                                 {
-                                    UpdateBattlegroundSpecificStat(player, BG_SA_SCORE_INDEX_GATES_DESTROYED, 1);
+                                    UpdatePvpStat(player, BG_SA_PVP_STAT_GATES_DESTROYED, 1);
                                     if (rewardHonor)
                                         UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(1));
                                 }
@@ -589,7 +590,7 @@ void BattlegroundSA::HandleKillUnit(Creature* creature, Player* killer)
 {
     if (creature->GetEntry() == NPC_DEMOLISHER_SA)
     {
-        UpdateBattlegroundSpecificStat(killer, BG_SA_SCORE_INDEX_DEMOLISHERS_DESTROYED, 1);
+        UpdatePvpStat(killer, BG_SA_PVP_STAT_DEMOLISHERS_DESTROYED, 1);
         int32 worldStateId = Attackers == TEAM_HORDE ? BG_SA_DESTROYED_HORDE_VEHICLES : BG_SA_DESTROYED_ALLIANCE_VEHICLES;
         int32 currentDestroyedVehicles = sWorldStateMgr->GetValue(worldStateId, GetBgMap());
         UpdateWorldState(worldStateId, currentDestroyedVehicles + 1);

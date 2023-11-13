@@ -19,7 +19,6 @@
 #define __BATTLEGROUNDIC_H
 
 #include "Battleground.h"
-#include "BattlegroundScore.h"
 #include "Object.h"
 
 const uint32 BG_IC_Factions[2] =
@@ -726,12 +725,6 @@ enum Spells
     SPELL_LAUNCH_NO_FALLING_DAMAGE          = 66251
 };
 
-enum BG_IC_Objectives
-{
-    IC_OBJECTIVE_ASSAULT_BASE   = 245,
-    IC_OBJECTIVE_DEFEND_BASE    = 246
-};
-
 enum ICWorldStates
 {
     BG_IC_ALLIANCE_REINFORCEMENTS_SET   = 4221,
@@ -920,10 +913,10 @@ enum HonorRewards
     WINNER_HONOR_AMOUNT     = 500
 };
 
-enum BG_IC_Player_Scores_Index
+enum BG_IC_PVP_Stats
 {
-    BG_IC_SCORE_INDEX_ASSAULT_BASE = 0,
-    BG_IC_SCORE_INDEX_DEFEND_BASE  = 1
+    BG_IC_PVP_STAT_BASES_ASSAULTED = 245,
+    BG_IC_PVP_STAT_BASES_DEFENDED  = 246
 };
 
 class BattlegroundIC : public Battleground

@@ -516,7 +516,7 @@ namespace
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByWmoGroup[MAX_UI_MAP_SYSTEM];
     std::unordered_set<int32> _uiMapPhases;
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
-    std::unordered_map<uint32, std::vector<uint32>> _pvpStatIdsByMap;
+    std::unordered_map<uint32, std::unordered_set<uint32>> _pvpStatIdsByMap;
 }
 
 template<typename T>
@@ -1626,23 +1626,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             sOldContinentsNodesMask[field] |= submask;
     }
 
-    std::unordered_map<uint32, std::vector<std::pair<uint32, uint32>>> pvpStatIdsByMapPair;
     for (PVPScoreboardLayoutEntry const* layout : sPVPScoreboardLayoutStore)
         if (PVPStatEntry const* pvpStat = sPVPStatStore.LookupEntry(layout->PVPStatID))
-            pvpStatIdsByMapPair[pvpStat->MapID].emplace_back(layout->OrderIndex, layout->PVPStatID);
-
-    // Define a custom comparator to sort based on the first element of the pair
-    auto compareFirstElement = [](std::pair<uint32, uint32> const& lhs, std::pair<uint32, uint32> const& rhs) {
-        return lhs.first < rhs.first;
-    };
-
-    for (auto& [mapId, pvpStatIdOrderPair] : pvpStatIdsByMapPair)
-    {
-        std::sort(pvpStatIdOrderPair.begin(), pvpStatIdOrderPair.end(), compareFirstElement);
-        _pvpStatIdsByMap[mapId].reserve(pvpStatIdOrderPair.size());
-        for (auto const& [orderIndex, statId] : pvpStatIdOrderPair)
-            _pvpStatIdsByMap[mapId].emplace_back(statId);
-    }
+            _pvpStatIdsByMap[pvpStat->MapID].insert(layout->PVPStatID);
 
     TC_LOG_INFO("server.loading", ">> Initialized {} DB2 data stores in {} ms", _stores.size(), GetMSTimeDiffToNow(oldMSTime));
 
@@ -3376,7 +3362,7 @@ WMOAreaTableEntry const* DB2Manager::GetWMOAreaTable(int32 rootId, int32 adtId, 
     return Trinity::Containers::MapGetValuePtr(_wmoAreaTableLookup, WMOAreaTableKey(int16(rootId), int8(adtId), groupId));
 }
 
-std::vector<uint32> const* DB2Manager::GetPVPStatIDsForMap(uint32 mapId) const
+std::unordered_set<uint32> const* DB2Manager::GetPVPStatIDsForMap(uint32 mapId) const
 {
     return Trinity::Containers::MapGetValuePtr(_pvpStatIdsByMap, mapId);
 }

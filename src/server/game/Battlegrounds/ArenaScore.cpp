@@ -18,7 +18,7 @@
 #include "ArenaScore.h"
 #include <sstream>
 
-ArenaScore::ArenaScore(ObjectGuid playerGuid, uint32 team, std::vector<uint32> const* pvpStatIds) : BattlegroundScore(playerGuid, team, pvpStatIds)
+ArenaScore::ArenaScore(ObjectGuid playerGuid, uint32 team, std::unordered_set<uint32> const* pvpStatIds) : BattlegroundScore(playerGuid, team, pvpStatIds)
 {
 }
 

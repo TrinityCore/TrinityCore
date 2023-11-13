@@ -22,17 +22,12 @@
 #include "ObjectAccessor.h"
 #include "SharedDefines.h"
 
-BattlegroundScore::BattlegroundScore(ObjectGuid playerGuid, uint32 team, std::vector<uint32> const* pvpStatIds) : PlayerGuid(playerGuid), TeamId(team == ALLIANCE ? PVP_TEAM_ALLIANCE : PVP_TEAM_HORDE),
-    KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0)
+BattlegroundScore::BattlegroundScore(ObjectGuid playerGuid, uint32 team, std::unordered_set<uint32> const* pvpStatIds) : PlayerGuid(playerGuid), TeamId(team == ALLIANCE ? PVP_TEAM_ALLIANCE : PVP_TEAM_HORDE),
+    KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0), _validPvpStatIds(pvpStatIds)
 {
-    if (pvpStatIds)
-        for (uint32 pvpStatId : *pvpStatIds)
-            Stats.emplace_back(pvpStatId, 0);
 }
 
-BattlegroundScore::~BattlegroundScore()
-{
-}
+BattlegroundScore::~BattlegroundScore() = default;
 
 void BattlegroundScore::UpdateScore(uint32 type, uint32 value)
 {
@@ -62,17 +57,29 @@ void BattlegroundScore::UpdateScore(uint32 type, uint32 value)
     }
 }
 
-void BattlegroundScore::UpdateBattlegroundSpecificStat(uint8 index, uint32 value)
+void BattlegroundScore::UpdatePvpStat(uint32 pvpStatID, uint32 value)
 {
-    if (index > Stats.size())
+    if (!_validPvpStatIds)
+        return;
+
+    if (!_validPvpStatIds->contains(pvpStatID))
     {
-        TC_LOG_WARN("bg.scores", "Tried updating player stat with index {}. But Stats only contains {} elements.", index, Stats.size());
+        TC_LOG_WARN("bg.scores", "Tried updating PvpStat {} but this stat is not allowed on this map", pvpStatID);
         return;
     }
 
-    Stats[index].second += value;
+    PvpStats[pvpStatID] += value;
     if (Player* player = ObjectAccessor::FindConnectedPlayer(PlayerGuid))
-        player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, Stats[index].first);
+        player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, pvpStatID);
+}
+
+uint32 BattlegroundScore::GetAttr(uint8 index) const
+{
+    auto const& itr = std::next(PvpStats.begin(), index);
+    if (itr == PvpStats.end())
+        return 0;
+
+    return itr->second;
 }
 
 void BattlegroundScore::BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const
@@ -91,6 +98,6 @@ void BattlegroundScore::BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::
     playerData.DamageDone = DamageDone;
     playerData.HealingDone = HealingDone;
 
-    for (auto const& stats : Stats)
-        playerData.Stats.emplace_back(stats.first, stats.second);
+    for (auto const& pvpStat : PvpStats)
+        playerData.Stats.emplace_back(pvpStat.first, pvpStat.second);
 }

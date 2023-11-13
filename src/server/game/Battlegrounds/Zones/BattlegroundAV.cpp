@@ -891,7 +891,7 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
             herold->AI()->Talk(team == ALLIANCE ? nodeInfo->TextIds.AllianceCapture : nodeInfo->TextIds.HordeCapture);
 
     // update the statistic for the defending player
-    UpdateBattlegroundSpecificStat(player, IsTower(node) ? SCORE_INDEX_DEFEND_TOWER : SCORE_INDEX_DEFEND_GRAVEYARD, 1);
+    UpdatePvpStat(player, IsTower(node) ? BG_AV_PVP_STAT_TOWERS_DEFENDED : BG_AV_PVP_STAT_GRAVEYARDS_DEFENDED, 1);
 }
 
 void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
@@ -980,7 +980,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
             herold->AI()->Talk(team == ALLIANCE ? nodeInfo->TextIds.AllianceAttack : nodeInfo->TextIds.HordeAttack);
 
     // update the statistic for the assaulting player
-    UpdateBattlegroundSpecificStat(player, (IsTower(node)) ? SCORE_INDEX_ASSAULT_TOWER : SCORE_INDEX_ASSAULT_GRAVEYARD, 1);
+    UpdatePvpStat(player, (IsTower(node)) ? BG_AV_PVP_STAT_TOWERS_ASSAULTED : BG_AV_PVP_STAT_GRAVEYARDS_ASSAULTED, 1);
 }
 
 void BattlegroundAV::UpdateNodeWorldState(BG_AV_Nodes node)

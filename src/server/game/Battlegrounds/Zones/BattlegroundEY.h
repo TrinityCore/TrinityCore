@@ -140,14 +140,9 @@ enum EYBattlegroundPointState
     EY_POINT_UNDER_CONTROL      = 3
 };
 
-enum BG_EY_Objectives
+enum BG_EY_PVP_Stats
 {
-    EY_OBJECTIVE_CAPTURE_FLAG   = 183
-};
-
-enum BG_EY_Player_Scores_Index
-{
-    BG_EY_SCORE_INDEX_CAPTURE_FLAG = 0
+    BG_EY_PVP_STAT_FLAG_CAPTURES = 183
 };
 
 enum BG_EY_ExploitTeleportLocations

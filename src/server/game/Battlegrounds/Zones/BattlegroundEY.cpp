@@ -295,7 +295,7 @@ void BattlegroundEY::OnCaptureFlag(AreaTrigger* areaTrigger, Player* player)
     UpdateWorldState(NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_ON_BASE);
     UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_ON_BASE);
 
-    UpdateBattlegroundSpecificStat(player, BG_EY_SCORE_INDEX_CAPTURE_FLAG, 1);
+    UpdatePvpStat(player, BG_EY_PVP_STAT_FLAG_CAPTURES, 1);
 
     player->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
     player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);

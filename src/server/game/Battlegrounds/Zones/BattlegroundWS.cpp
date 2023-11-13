@@ -384,7 +384,7 @@ void BattlegroundWS::OnFlagStateChange(GameObject* flagInBase, FlagState /*oldVa
                 if (player)
                 {
                     // flag got returned to base by player interaction
-                    UpdateBattlegroundSpecificStat(player, BG_WS_SCORE_INDEX_RETURN_FLAG, 1);      // +1 flag returns
+                    UpdatePvpStat(player, BG_WS_PVP_STAT_FLAG_RETURNS, 1);      // +1 flag returns
 
                     if (team == ALLIANCE)
                     {
@@ -521,7 +521,7 @@ void BattlegroundWS::OnCaptureFlag(AreaTrigger* /*areaTrigger*/, Player* player)
     }
 
     // 4. update criteria's for achievement, player score etc.
-    UpdateBattlegroundSpecificStat(player, BG_WS_SCORE_INDEX_CAPTURE_FLAG, 1);      // +1 flag captures
+    UpdatePvpStat(player, BG_WS_PVP_STAT_FLAG_CAPTURES, 1);      // +1 flag captures
 
     // 5. Remove all related auras
     RemoveAssaultDebuffFromPlayer(player);

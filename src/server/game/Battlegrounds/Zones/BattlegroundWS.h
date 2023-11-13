@@ -123,22 +123,16 @@ enum BG_WS_CarrierDebuffs
     SPELL_CAPTURED_HORDE_COSMETIC_FX    = 262512,
 };
 
-enum BG_WS_Objectives
-{
-    WS_OBJECTIVE_CAPTURE_FLAG   = 928,
-    WS_OBJECTIVE_RETURN_FLAG    = 929
-};
-
 enum BG_WS_AreaTriggers
 {
     AT_CAPTURE_POINT_ALLIANCE   = 30,
     AT_CAPTURE_POINT_HORDE      = 31
 };
 
-enum BG_WS_Player_Scores_Index
+enum BG_WS_PVP_Stats
 {
-    BG_WS_SCORE_INDEX_RETURN_FLAG   = 0,
-    BG_WS_SCORE_INDEX_CAPTURE_FLAG  = 1
+    BG_WS_PVP_STAT_FLAG_CAPTURES = 928,
+    BG_WS_PVP_STAT_FLAG_RETURNS  = 929
 };
 
 static constexpr uint32 WS_EVENT_START_BATTLE = 35912;

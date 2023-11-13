@@ -27,8 +27,6 @@
 #include <map>
 #include <vector>
 
-#include "MapUtils.h"
-
 class BattlegroundMap;
 class Creature;
 class GameObject;
@@ -312,7 +310,7 @@ class TC_GAME_API Battleground : public ZoneScript
         void SetRated(bool state)           { m_IsRated = state; }
         void SetArenaType(uint8 type)       { m_ArenaType = type; }
         void SetWinner(PvPTeamId winnerTeamId) { _winnerTeamId = winnerTeamId; }
-        std::vector<uint32> const* GetPvpStatIds() const { return _pvpStatIds; }
+        std::unordered_set<uint32> const* GetPvpStatIds() const { return _pvpStatIds; }
 
         void ModifyStartDelayTime(int diff) { m_StartDelayTime -= diff; }
         void SetStartDelayTime(int Time)    { m_StartDelayTime = Time; }
@@ -388,7 +386,7 @@ class TC_GAME_API Battleground : public ZoneScript
         BattlegroundScore const* GetBattlegroundScore(Player* player) const;
 
         virtual bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true);
-        void UpdateBattlegroundSpecificStat(Player* player, uint8 statIndex, uint32 value);
+        void UpdatePvpStat(Player* player, uint32 pvpStatId, uint32 value);
 
         static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         uint32 GetPlayersCountByTeam(uint32 Team) const { return m_PlayersCount[GetTeamIndexByTeamId(Team)]; }
@@ -611,7 +609,7 @@ class TC_GAME_API Battleground : public ZoneScript
 
         BattlegroundTemplate const* _battlegroundTemplate;
         PVPDifficultyEntry const* _pvpDifficultyEntry;
-        std::vector<uint32> const* _pvpStatIds;
+        std::unordered_set<uint32> const* _pvpStatIds;
 
         std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition> _playerPositions;
 };
