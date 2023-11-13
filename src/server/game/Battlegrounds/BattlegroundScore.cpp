@@ -16,9 +16,9 @@
  */
 
 #include "BattlegroundScore.h"
-
 #include "BattlegroundMgr.h"
 #include "Errors.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "SharedDefines.h"
 
