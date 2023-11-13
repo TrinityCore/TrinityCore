@@ -191,7 +191,12 @@ class spell_destroying : public SpellScript
 {
     void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->ToCreature()->DespawnOrUnsummon(); // @TODO: Spawntracking should cause despawn for casting player only and respawn on abandon quest
+        Creature* creature = GetHitUnit()->ToCreature();
+
+        if (!creature)
+            return;
+
+        creature->DespawnOrUnsummon(); // @TODO: Spawntracking should cause despawn for casting player only and respawn on abandon quest
     }
 
     void Register() override
@@ -299,7 +304,7 @@ private:
     EventMap events;
 };
 
-// 164979 - (Serverside/Non-DB2) Trigger Ariok 
+// 164979 - (Serverside/Non-DB2) Trigger Ariok
 class spell_trigger_ariok : public SpellScript
 {
     void HandleOnHit(SpellEffIndex /*effIndex*/)
