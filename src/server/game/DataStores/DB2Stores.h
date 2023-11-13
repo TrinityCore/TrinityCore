@@ -27,6 +27,7 @@
 #include <set>
 #include <span>
 #include <vector>
+#include <unordered_set>
 
  // temporary hack until includes are sorted out (don't want to pull in Windows.h)
 #ifdef GetClassName
