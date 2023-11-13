@@ -20,6 +20,7 @@
 
 #include "BattlegroundPackets.h"
 #include "ObjectGuid.h"
+#include <map>
 #include <string>
 
 struct BattlegroundPlayerScoreTemplate;
