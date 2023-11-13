@@ -21627,3 +21627,829 @@ void AACenter::AA_SendHuoyueAddonDongtai(Player* player, uint32 zu) {
         }
     }
 }
+
+//附加伤害
+void AACenter::AA_ModifyDamage(Unit* unit, Unit* victim, uint32& damage_tmp, SpellInfo const* spellInfo, bool isDot, bool isHeal)
+{
+    bool isPVP = false;
+    if (unit && (unit->GetTypeId() == TYPEID_PLAYER || unit->aa_pet_id > 0 || unit->aa_petzhan_id > 0)) {
+        if (victim) {
+            if (victim->GetTypeId() == TYPEID_PLAYER || victim->aa_pet_id > 0 || victim->aa_petzhan_id > 0) {
+                isPVP = true;
+            }
+        }
+    }
+    else {
+        isPVP = false;
+    }
+
+    //宠物伤害修改
+    if (unit && unit->GetOwner() && unit->aa_pet_id > 0) {
+        if (Player* player = unit->GetOwner()->ToPlayer()) {
+            AA_Pet conf = aaCenter.aa_pets[unit->aa_pet_id];
+            if (conf.id > 0) {
+                if (isHeal) {
+                    if (conf.zhiliao > 0) {
+                        int32 value = player->GetUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS);
+                        damage_tmp += value * conf.zhiliao * 0.01;
+                    }
+                }
+                else if (aaCenter.AA_IsSpell_Mofa(spellInfo)) {
+                    if (conf.fashu > 0) {
+                        int32 value = player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_NORMAL);
+                        damage_tmp += value * conf.fashu * 0.01;
+                    }
+                }
+                else {
+                    if (conf.shanghai > 0) {
+                        uint32 ap = player->CalculateDamage(BASE_ATTACK, false, true, 1);
+                        uint32 rap = player->CalculateDamage(RANGED_ATTACK, false, true, 1);
+                        int32 value = ap > rap ? ap : rap;
+                        damage_tmp += value * conf.shanghai * 0.01;
+                    }
+                }
+            }
+        }
+    }
+    //战宠伤害修改
+    if (unit && unit->GetOwner() && unit->aa_petzhan_id > 0) {
+        AA_Character_PetZhan conf = aaCenter.aa_character_petzhans[unit->aa_petzhan_id];
+        if (Player* player = unit->GetOwner()->ToPlayer()) {
+            // 宠物属性 = 继承x人物属性 + 资质x成长x等级除以10
+            if (conf.id > 0) {
+                if (isHeal) {
+                    uint32 value1 = player->GetUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS) * conf.jicheng;
+                    damage_tmp += value1;
+                    if (conf.zhiliao > 0) {
+                        uint32 value2 = conf.zhiliao;
+                        value2 *= conf.chengzhang;
+                        value2 *= conf.level;
+                        value2 *= 0.1;
+                        damage_tmp += value2;
+                    }
+                }
+                else if (aaCenter.AA_IsSpell_Mofa(spellInfo)) {
+                    uint32 value1 = player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_NORMAL) * conf.jicheng;
+                    damage_tmp += value1;
+                    if (conf.fashu > 0) {
+                        uint32 value2 = conf.fashu;
+                        value2 *= conf.chengzhang;
+                        value2 *= conf.level;
+                        value2 *= 0.1;
+                        damage_tmp += value2;
+                    }
+                }
+                else {
+                    uint32 ap = player->CalculateDamage(BASE_ATTACK, false, true, 1);
+                    uint32 rap = player->CalculateDamage(RANGED_ATTACK, false, true, 1);
+                    uint32 value1 = ap > rap ? ap : rap;
+                    value1 *= conf.jicheng;
+                    damage_tmp += value1;
+                    if (conf.shanghai > 0) {
+                        uint32 value2 = conf.shanghai;
+                        value2 *= conf.chengzhang;
+                        value2 *= conf.level;
+                        value2 *= 0.1;
+                        damage_tmp += value2;
+                    }
+                }
+            }
+        }
+    }
+    //战宠给主人加伤害
+    if (unit && unit->ToPlayer()) {
+        //战宠给主人加血量
+        std::vector<uint32> ids = aaCenter.aa_character_petzhan_owner[unit->ToPlayer()->GetGUIDLow()];
+        for (auto& it : ids)
+        {
+            AA_Character_PetZhan conf = aaCenter.aa_character_petzhans[it];
+            if (conf.is_heti == 1) {
+                if (isHeal) {
+                    if (conf.zhiliao > 0) {
+                        uint32 value2 = conf.zhiliao;
+                        value2 *= conf.qihe;
+                        value2 *= conf.level;
+                        value2 *= 0.1;
+                        damage_tmp += value2;
+                    }
+                }
+                else if (aaCenter.AA_IsSpell_Mofa(spellInfo)) {
+                    if (conf.fashu > 0) {
+                        uint32 value2 = conf.fashu;
+                        value2 *= conf.qihe;
+                        value2 *= conf.level;
+                        value2 *= 0.1;
+                        damage_tmp += value2;
+                    }
+                }
+                else {
+                    if (conf.shanghai > 0) {
+                        uint32 value2 = conf.shanghai;
+                        value2 *= conf.qihe;
+                        value2 *= conf.level;
+                        value2 *= 0.1;
+                        damage_tmp += value2;
+                    }
+                }
+            }
+        }
+    }
+
+    //生物伤害修改
+    if (unit && unit->ToCreature()) {
+        Creature* creature = unit->ToCreature();
+        if (creature->aa_id > 0) {
+            AA_Creature conf = aaCenter.aa_creatures[creature->aa_id];
+            if (conf.id > 0) {
+                if (isHeal) {
+                    uint32 fmval_count = 0;
+                    uint32 dmgmin = conf.health_spell_min;
+                    uint32 dmgmax = conf.health_spell_max;
+                    if (dmgmin >= dmgmax) {
+                        fmval_count = dmgmin;
+                    }
+                    else {
+                        fmval_count = (rand() % (dmgmax - dmgmin + 1)) + dmgmin;
+                    }
+                    damage_tmp = fmval_count > 0 ? fmval_count : damage_tmp;
+
+                    if (conf.health_spell > 0) {
+                        damage_tmp *= (conf.health_spell / 100.0);
+                    }
+                }
+                else if (isDot) {
+                    uint32 fmval_count = 0;
+                    if (conf.damage_dot_min >= conf.damage_dot_max) {
+                        fmval_count = conf.damage_dot_min;
+                    }
+                    else {
+                        fmval_count = (rand() % (conf.damage_dot_max - conf.damage_dot_min + 1)) + conf.damage_dot_min;
+                    }
+                    damage_tmp = fmval_count > 0 ? fmval_count : damage_tmp;
+
+                    if (conf.damage_dot > 0) {
+                        damage_tmp *= (conf.damage_dot / 100.0);
+                    }
+                }
+                else {
+                    if (aaCenter.AA_IsSpell_Mofa(spellInfo)) {
+                        uint32 fmval_count = 0;
+                        if (conf.damage_spell_min >= conf.damage_spell_max) {
+                            fmval_count = conf.damage_spell_min;
+                        }
+                        else {
+                            fmval_count = (rand() % (conf.damage_spell_max - conf.damage_spell_min + 1)) + conf.damage_spell_min;
+                        }
+                        damage_tmp = fmval_count > 0 ? fmval_count : damage_tmp;
+
+                        if (conf.damage_spell > 0) {
+                            damage_tmp *= (conf.damage_spell / 100.0);
+                        }
+                    }
+                    else {
+                        uint32 fmval_count = 0;
+                        uint32 dmgmin = conf.damage_min;
+                        uint32 dmgmax = conf.damage_max;
+                        if (dmgmin >= dmgmax) {
+                            fmval_count = dmgmin;
+                        }
+                        else {
+                            fmval_count = (rand() % (dmgmax - dmgmin + 1)) + dmgmin;
+                        }
+                        damage_tmp = fmval_count > 0 ? fmval_count : damage_tmp;
+
+                        if (conf.damage > 0) {
+                            damage_tmp *= (conf.damage / 100.0);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //属性调整技能、光环
+    if (unit && spellInfo) {
+        float v = 0;
+        AA_Spell_Conf conf = aaCenter.aa_spell_confs[spellInfo->Id];
+        if (isPVP) {
+            if (isHeal) {
+                //_属性调整_技能 pvp治疗
+                if (conf.healing_pvp > 0) {
+                    v += (conf.healing_pvp - 1);
+                }
+                //_属性调整_光环 pvp治疗
+                if (aaCenter.aa_aura_conf_heal_pvps[spellInfo->Id].size() > 0) {
+                    for (auto aura : aaCenter.aa_aura_conf_heal_pvps[spellInfo->Id]) {
+                        if (!unit->HasAura(aura)) {
+                            continue;
+                        }
+                        AA_Aura_Conf aconf = aaCenter.aa_aura_confs[aura];
+                        if (aconf.heal_pvp != "" && aconf.heal_pvp != "0") {
+                            std::map<float, float> heal_pvp; heal_pvp.clear();
+                            if (aconf.heal_pvp != "" && aconf.heal_pvp != "0") {
+                                aaCenter.AA_StringToMapFloat(aconf.heal_pvp, heal_pvp);
+                            }
+                            float v1 = heal_pvp[spellInfo->Id];
+                            v += (v1 - 1);
+                        }
+                    }
+                }
+            }
+            else {
+                //_属性调整_技能 pvp伤害
+                if (conf.dmg_pvp > 0) {
+                    v += (conf.dmg_pvp - 1);
+                }
+                //_属性调整_光环 pvp伤害
+                if (aaCenter.aa_aura_conf_spell_pvps[spellInfo->Id].size() > 0) {
+                    for (auto aura : aaCenter.aa_aura_conf_spell_pvps[spellInfo->Id]) {
+                        if (!unit->HasAura(aura)) {
+                            continue;
+                        }
+                        AA_Aura_Conf aconf = aaCenter.aa_aura_confs[aura];
+                        if (aconf.spell_pvp != "" && aconf.spell_pvp != "0") {
+                            std::map<float, float> spell_pvp; spell_pvp.clear();
+                            if (aconf.spell_pvp != "" && aconf.spell_pvp != "0") {
+                                aaCenter.AA_StringToMapFloat(aconf.spell_pvp, spell_pvp);
+                            }
+                            float v1 = spell_pvp[spellInfo->Id];
+                            v += (v1 - 1);
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            if (isHeal) {
+                //_属性调整_技能 pve伤害
+                if (conf.healing_pve > 0) {
+                    v += (conf.healing_pve - 1);
+                }
+                //_属性调整_光环 pve治疗
+                if (aaCenter.aa_aura_conf_heal_pves[spellInfo->Id].size() > 0) {
+                    for (auto aura : aaCenter.aa_aura_conf_heal_pves[spellInfo->Id]) {
+                        if (!unit->HasAura(aura)) {
+                            continue;
+                        }
+                        AA_Aura_Conf aconf = aaCenter.aa_aura_confs[aura];
+                        if (aconf.heal_pve != "" && aconf.heal_pve != "0") {
+                            std::map<float, float> heal_pve; heal_pve.clear();
+                            if (aconf.heal_pve != "" && aconf.heal_pve != "0") {
+                                aaCenter.AA_StringToMapFloat(aconf.heal_pve, heal_pve);
+                            }
+                            float v1 = heal_pve[spellInfo->Id];
+                            v += (v1 - 1);
+                        }
+                    }
+                }
+            }
+            else {
+                //_属性调整_技能 pve伤害
+                if (conf.dmg_pve > 0) {
+                    v += (conf.dmg_pve - 1);
+                }
+                //_属性调整_光环 pve伤害
+                if (aaCenter.aa_aura_conf_spell_pves[spellInfo->Id].size() > 0) {
+                    for (auto aura : aaCenter.aa_aura_conf_spell_pves[spellInfo->Id]) {
+                        if (!unit->HasAura(aura)) {
+                            continue;
+                        }
+                        AA_Aura_Conf aconf = aaCenter.aa_aura_confs[aura];
+                        if (aconf.spell_pve != "" && aconf.spell_pve != "0") {
+                            std::map<float, float> spell_pve; spell_pve.clear();
+                            if (aconf.spell_pve != "" && aconf.spell_pve != "0") {
+                                aaCenter.AA_StringToMapFloat(aconf.spell_pve, spell_pve);
+                            }
+                            float v1 = spell_pve[spellInfo->Id];
+                            v += (v1 - 1);
+                        }
+                    }
+                }
+            }
+        }
+        damage_tmp += (damage_tmp * v);
+        damage_tmp = damage_tmp > 0 ? damage_tmp : 0;
+    }
+
+    AA_Pet conf_pet;
+    //宠物调整,治疗伤害
+    if (unit && unit->aa_pet_id > 0) {
+        conf_pet = aaCenter.aa_pets[unit->aa_pet_id];
+    }
+    //高级属性修改
+    if (unit && victim && unit->IsAlive() && victim->IsAlive()) {
+        if (isPVP) {
+            if (isHeal) {
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 205) > 0) {
+                    damage_tmp += (damage_tmp * (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 205) / 100.0));
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //被攻击者-玩家或仆从，攻击者是人物 = PVP受到魔法伤害减少
+                if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 211) > 0) {
+                    damage_tmp += (damage_tmp * (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 211) / 100.0));
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //攻击者-玩家或仆从，被攻击者是人物 = PVP魔法伤害增加
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 204) > 0) {
+                    damage_tmp += aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 204);
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //被攻击者-玩家或仆从，攻击者是人物 = PVP受到魔法伤害减少
+                if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 210) > 0) {
+                    damage_tmp += aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 210);
+                }
+                //aawow 职业属性平衡,治疗伤害
+                AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(unit);
+                if (conf.class1 > 0) {
+                    if (conf.zlshbl > 0) {
+                        damage_tmp = damage_tmp * (conf.zlshbl / 100.0);
+                    }
+                    if (conf.zlshsx > 0 && damage_tmp > conf.zlshsx) {
+                        damage_tmp = conf.zlshsx;
+                    }
+                }
+                //宠物，治疗伤害
+                if (conf_pet.id > 0) {
+                    if (conf_pet.zlshbl > 0) {
+                        damage_tmp = damage_tmp * (conf_pet.zlshbl / 100.0);
+                    }
+                    if (conf_pet.zlshsx > 0 && damage_tmp > conf_pet.zlshsx) {
+                        damage_tmp = conf_pet.zlshsx;
+                    }
+                }
+            }
+            else if (!aaCenter.AA_IsSpell_Mofa(spellInfo)) {
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //攻击者-玩家或仆从，被攻击者是人物 = PVP物理伤害增加百分比
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 201) > 0) {
+                    damage_tmp += (damage_tmp * (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 201) / 100.0));
+                }
+                //攻击者-玩家或仆从，被攻击者是人物 = PVP物理伤害增加
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 200) > 0) {
+                    uint32 damage = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 200) * 0.5;
+                    damage_tmp += damage;
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //被攻击者-玩家或仆从，攻击者是人物 = PVP受到物理伤害减少百分比
+                if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 207) > 0) {
+                    uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 207);
+                    damage = damage > 100 ? 100 : damage;
+                    damage_tmp -= (damage_tmp * (damage / 100.0));
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //被攻击者-玩家或仆从，攻击者是人物 = PVP受到物理伤害减少
+                if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 206) > 0) {
+                    uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 206) * 0.5;
+                    if (damage_tmp > damage) {
+                        damage_tmp -= damage;
+                    }
+                    else {
+                        damage_tmp = 0;
+                    }
+                }
+            }
+            else {
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //攻击者-玩家或仆从，被攻击者是人物 = PVP魔法伤害增加
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 203) > 0) {
+                    damage_tmp += (damage_tmp * aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 203) / 100.0);
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //攻击者-玩家或仆从，被攻击者是人物 = PVP魔法伤害增加
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 202) > 0) {
+                    damage_tmp += aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 202);
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //被攻击者-玩家或仆从，攻击者是人物 = PVP受到魔法伤害减少
+                if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 209) > 0) {
+                    uint32 damage1 = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 209);
+                    damage1 = damage1 > 100 ? 100 : damage1;
+                    damage_tmp -= (damage_tmp * (damage1 / 100.0));
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //被攻击者-玩家或仆从，攻击者是人物 = PVP受到魔法伤害减少
+                if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 208) > 0) {
+                    uint32 damage1 = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 208);
+                    if (damage_tmp > damage1) {
+                        damage_tmp -= damage1;
+                    }
+                    else {
+                        damage_tmp = 0;
+                    }
+                }
+            }
+            //aawow 职业属性平衡,物理伤害增加
+            AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(unit);
+            if (conf.class1 > 0) {
+                if (!aaCenter.AA_IsSpell_Mofa(spellInfo)) {
+                    if (conf.ptshbl > 0) {
+                        damage_tmp *= (conf.ptshbl / 100.0);
+                    }
+                    if (conf.ptshsx > 0 && damage_tmp > (conf.ptshsx * 0.5)) {
+                        damage_tmp = (conf.ptshsx * 0.5);
+                    }
+                }
+                else {
+                    if (conf.jnshbl > 0) {
+                        damage_tmp *= (conf.jnshbl / 100.0);
+                    }
+                    if (conf.jnshsx > 0 && damage_tmp > conf.jnshsx) {
+                        damage_tmp = conf.jnshsx;
+                    }
+                }
+            }
+            //宠物，物理伤害增加
+            if (conf_pet.id > 0) {
+                if (!aaCenter.AA_IsSpell_Mofa(spellInfo)) {
+                    if (conf_pet.ptshbl > 0) {
+                        damage_tmp *= (conf_pet.ptshbl / 100.0);
+                    }
+                    if (conf_pet.ptshsx > 0 && damage_tmp > (conf_pet.ptshsx * 0.5)) {
+                        damage_tmp = (conf_pet.ptshsx * 0.5);
+                    }
+                }
+                else {
+                    if (conf_pet.jnshbl > 0) {
+                        damage_tmp *= (conf_pet.jnshbl / 100.0);
+                    }
+                    if (conf_pet.jnshsx > 0 && damage_tmp > conf_pet.jnshsx) {
+                        damage_tmp = conf_pet.jnshsx;
+                    }
+                }
+            }
+            //aawow 职业属性平衡 pvp受伤百分比
+            conf = aaCenter.AA_GetPlayerStatConfWithMap(victim);
+            if (conf.jianshangpvp != 0 && conf.jianshangpvp != 100) {
+                damage_tmp *= (conf.jianshangpvp * 0.01);
+            }
+
+            //宠物，pvp受伤百分比
+            if (victim && victim->aa_pet_id > 0) {
+                AA_Pet conf_pet = aaCenter.aa_pets[victim->aa_pet_id];
+                if (conf_pet.id > 0) {
+                    if (conf_pet.jianshangpvp != 0 && conf_pet.jianshangpvp != 100) {
+                        damage_tmp *= (conf_pet.jianshangpvp * 0.01);
+                    }
+                }
+            }
+        }
+        else {
+            if (isHeal) {
+                //觉醒属性，PVE魔法伤害增加-攻击目标
+                //攻击者-玩家或仆从，被攻击者是怪物 = PVE魔法伤害增加
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 305) > 0) {
+                    damage_tmp += (damage_tmp * (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 305) / 100.0));
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //被攻击者-玩家或仆从，攻击者是怪物 = PVE受到魔法伤害减少
+                if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 311) > 0) {
+                    damage_tmp += (damage_tmp * (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 311) / 100.0));
+                }
+                //觉醒属性，PVE魔法伤害增加-攻击目标
+                //攻击者-玩家或仆从，被攻击者是怪物 = PVE魔法伤害增加
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 304) > 0) {
+                    damage_tmp += aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 304);
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //被攻击者-玩家或仆从，攻击者是怪物 = PVE受到魔法伤害减少
+                if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 310) > 0) {
+                    damage_tmp += aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 310);
+                }
+                //aawow 职业属性平衡,治疗伤害
+                AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(unit);
+                if (conf.class1 > 0) {
+                    if (conf.czlshbl > 0) {
+                        damage_tmp = damage_tmp * (conf.czlshbl / 100.0);
+                    }
+                    if (conf.zlshsx > 0 && damage_tmp > conf.zlshsx) {
+                        damage_tmp = conf.zlshsx;
+                    }
+                }
+                //宠物,治疗伤害
+                if (conf_pet.id > 0) {
+                    if (conf_pet.czlshbl > 0) {
+                        damage_tmp = damage_tmp * (conf_pet.czlshbl / 100.0);
+                    }
+                    if (conf_pet.zlshsx > 0 && damage_tmp > conf_pet.zlshsx) {
+                        damage_tmp = conf_pet.zlshsx;
+                    }
+                }
+            }
+            else if (!aaCenter.AA_IsSpell_Mofa(spellInfo)) {
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //攻击者-玩家或仆从，被攻击者是人物 = PVP物理魔法增加百分比
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 301) > 0) {
+                    damage_tmp += (damage_tmp * (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 301) / 100.0));
+                }
+                //攻击者-玩家或仆从，被攻击者是人物 = PVP魔法伤害增加
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 300) > 0) {
+                    uint32 damage = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 300) * 0.5;
+                    damage_tmp += damage;
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //被攻击者-玩家或仆从，攻击者是人物 = PVP受到魔法伤害减少百分比
+                if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 307) > 0) {
+                    uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 307);
+                    damage = damage > 100 ? 100 : damage;
+                    damage_tmp -= (damage_tmp * (damage / 100.0));
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //被攻击者-玩家或仆从，攻击者是人物 = PVP受到魔法伤害减少
+                if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 306) > 0) {
+                    uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 306) * 0.5;
+                    if (damage_tmp > damage) {
+                        damage_tmp -= damage;
+                    }
+                    else {
+                        damage_tmp = 0;
+                    }
+                }
+            }
+            else {
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //攻击者-玩家或仆从，被攻击者是人物 = PVP魔法伤害增加
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 303) > 0) {
+                    damage_tmp += (damage_tmp * aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 303) / 100.0);
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //攻击者-玩家或仆从，被攻击者是人物 = PVP魔法伤害增加
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 302) > 0) {
+                    damage_tmp += aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 302);
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //被攻击者-玩家或仆从，攻击者是人物 = PVP受到魔法伤害减少
+                if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 309) > 0) {
+                    uint32 damage1 = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 309);
+                    damage1 = damage1 > 100 ? 100 : damage1;
+                    damage_tmp -= (damage_tmp * (damage1 / 100.0));
+                }
+                //觉醒属性，PVP魔法伤害增加-攻击目标
+                //被攻击者-玩家或仆从，攻击者是人物 = PVP受到魔法伤害减少
+                if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 308) > 0) {
+                    uint32 damage1 = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 308);
+                    if (damage_tmp > damage1) {
+                        damage_tmp -= damage1;
+                    }
+                    else {
+                        damage_tmp = 0;
+                    }
+                }
+            }
+            //aawow 职业属性平衡,物理伤害增加
+            AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(unit);
+            if (conf.class1 > 0) {
+                if (!aaCenter.AA_IsSpell_Mofa(spellInfo)) {
+                    if (conf.cptshbl > 0) {
+                        damage_tmp *= (conf.cptshbl / 100.0);
+                    }
+                    if (conf.ptshsx > 0 && damage_tmp > (conf.ptshsx * 0.5)) {
+                        damage_tmp = (conf.ptshsx * 0.5);
+                    }
+                }
+                else {
+                    if (conf.cjnshbl > 0) {
+                        damage_tmp *= (conf.cjnshbl / 100.0);
+                    }
+                    if (conf.jnshsx > 0 && damage_tmp > conf.jnshsx) {
+                        damage_tmp = conf.jnshsx;
+                    }
+                }
+            }
+            //宠物,物理伤害增加
+            if (conf_pet.id > 0) {
+                if (!aaCenter.AA_IsSpell_Mofa(spellInfo)) {
+                    if (conf_pet.cptshbl > 0) {
+                        damage_tmp *= (conf_pet.cptshbl / 100.0);
+                    }
+                    if (conf_pet.ptshsx > 0 && damage_tmp > (conf_pet.ptshsx * 0.5)) {
+                        damage_tmp = (conf_pet.ptshsx * 0.5);
+                    }
+                }
+                else {
+                    if (conf_pet.cjnshbl > 0) {
+                        damage_tmp *= (conf_pet.cjnshbl / 100.0);
+                    }
+                    if (conf_pet.jnshsx > 0 && damage_tmp > conf_pet.jnshsx) {
+                        damage_tmp = conf_pet.jnshsx;
+                    }
+                }
+            }
+            //aawow 职业属性平衡 pve受伤百分比
+            conf = aaCenter.AA_GetPlayerStatConfWithMap(victim);
+            if (conf.jianshangpve != 0 && conf.jianshangpve != 100) {
+                damage_tmp *= (conf.jianshangpve * 0.01);
+            }
+
+            //宠物，pve受伤百分比
+            if (victim && victim->aa_pet_id > 0) {
+                AA_Pet conf_pet = aaCenter.aa_pets[victim->aa_pet_id];
+                if (conf_pet.id > 0) {
+                    if (conf_pet.jianshangpve != 0 && conf_pet.jianshangpve != 100) {
+                        damage_tmp *= (conf_pet.jianshangpve * 0.01);
+                    }
+                }
+            }
+        }
+    }
+}
+
+//附加真实伤害
+void AACenter::AA_ModifyZhenshi(Unit* unit, Unit* victim, uint32& damage_tmp, SpellInfo const* spellInfo, bool isDot, bool isHeal)
+{
+    bool isPVP = false;
+    if (unit && (unit->GetTypeId() == TYPEID_PLAYER || unit->aa_pet_id > 0 || unit->aa_petzhan_id > 0)) {
+        if (victim) {
+            if (victim->GetTypeId() == TYPEID_PLAYER || victim->aa_pet_id > 0 || victim->aa_petzhan_id > 0) {
+                isPVP = true;
+            }
+        }
+    }
+    else {
+        isPVP = false;
+    }
+
+    if (victim && victim->ToPlayer())
+    {
+        if (spellInfo)
+        {
+            int i = 0;
+        }
+    }
+
+    uint32 zhenshi = 0;
+    if (unit && victim && unit->IsAlive() && victim->IsAlive() && unit != victim) {
+        //PVP PVE真实伤害
+        if (unit->aa_zhenshi_time >= 500) {
+            unit->aa_zhenshi_time = 0;
+            if (isPVP) {
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 222) > 0) {
+                    zhenshi = zhenshi + aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 222);
+                }
+                {
+                    uint32 chanceMax = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 228);
+                    if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 227) > 0 && chanceMax > 0) {
+                        uint32 chanceVal = rand() % 100;
+                        if (chanceVal <= chanceMax)
+                        {
+                            zhenshi = zhenshi + aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 227);
+                        }
+                    }
+                }
+                {
+                    uint32 chanceMax = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 230);
+                    if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 229) > 0 && chanceMax > 0) {
+                        uint32 qiege = victim->GetMaxHealth() * aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 229) / 100;
+                        zhenshi = zhenshi + qiege;
+                    }
+                }
+            }
+            else {
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 322) > 0) {
+                    zhenshi = zhenshi + aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 322);
+                }
+                {
+                    uint32 chanceMax = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 328);
+                    if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 327) > 0 && chanceMax > 0) {
+                        uint32 chanceVal = rand() % 100;
+                        if (chanceVal < chanceMax) {
+                            zhenshi = zhenshi + aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 327);
+                        }
+                    }
+                }
+                {
+                    uint32 chanceMax = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 330);
+                    if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 329) > 0 && chanceMax > 0) {
+                        uint32 chanceVal = rand() % 100;
+                        if (chanceVal < chanceMax) {
+                            uint32 qiege = victim->GetMaxHealth() * aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 329) / 100;
+                            zhenshi = zhenshi + qiege;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (Creature* creature = unit->ToCreature()) {
+            bool isOk = false;
+            if (victim->GetOwner() && victim->GetOwner()->ToPlayer()) {
+                isOk = true;
+            }
+            if (victim->ToPlayer()) {
+                isOk = true;
+            }
+            if (creature->aa_id > 0 && isOk) {
+                AA_Creature conf = aaCenter.aa_creatures[creature->aa_id];
+                if (isDot) {
+                    if (conf.qiegepoint_dot > 0) {
+                        zhenshi += victim->GetMaxHealth() * conf.qiegepoint_dot * 0.01;
+                    }
+                    if (conf.qiegevalue_dot > 0) {
+                        zhenshi += conf.qiegevalue_dot;
+                    }
+                }
+                else {
+                    if (aaCenter.AA_IsSpell_Mofa(spellInfo)) {
+                        if (conf.qiegepoint_mf > 0) {
+                            zhenshi += victim->GetMaxHealth() * conf.qiegepoint_mf * 0.01;
+                        }
+                        if (conf.qiegevalue_mf > 0) {
+                            zhenshi += conf.qiegevalue_mf;
+                        }
+                    }
+                    else {
+                        if (conf.qiegepoint_wl > 0) {
+                            zhenshi += victim->GetMaxHealth() * conf.qiegepoint_wl * 0.01;
+                        }
+                        if (conf.qiegevalue_wl > 0) {
+                            zhenshi += conf.qiegevalue_wl;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (spellInfo && aaCenter.aa_spell_confs.find(spellInfo->Id) != aaCenter.aa_spell_confs.end()) {
+            AA_Spell_Conf conf = aaCenter.aa_spell_confs[spellInfo->Id];
+            if (conf.a_qiege_hp > 0) {
+                zhenshi += unit->GetHealth() * conf.a_qiege_hp * 0.01;
+            }
+            if (conf.a_qiege_hplost > 0) {
+                zhenshi += (unit->GetMaxHealth() - unit->GetHealth()) * conf.a_qiege_hplost * 0.01;
+            }
+            if (conf.a_qiege_hpmax > 0) {
+                zhenshi += unit->GetMaxHealth() * conf.a_qiege_hpmax * 0.01;
+            }
+            if (conf.v_qiege_hp > 0) {
+                zhenshi += victim->GetHealth() * conf.v_qiege_hp * 0.01;
+            }
+            if (conf.v_qiege_hplost > 0) {
+                zhenshi += (victim->GetMaxHealth() - victim->GetHealth()) * conf.v_qiege_hplost * 0.01;
+            }
+            if (conf.v_qiege_hpmax > 0) {
+                zhenshi += victim->GetMaxHealth() * conf.v_qiege_hpmax * 0.01;
+            }
+        }
+    }
+    if (victim) {
+        if (aaCenter.AA_IsSpell_Mofa(spellInfo)) {
+            if (Creature* c = victim->ToCreature()) {
+                AA_Creature conf;
+                if (c->aa_id > 0) {
+                    conf = aaCenter.aa_creatures[c->aa_id];
+                }
+                if (conf.jianshang_mf != 0 && conf.jianshang_mf != 100) {
+                    damage_tmp *= (conf.jianshang_mf / 100.0);
+                }
+                if (conf.qiege == 1) {
+                    damage_tmp += zhenshi;
+                }
+                //生物受伤上限
+                if (conf.shangxian > 0) {
+                    uint32 shangxian = conf.shangxian * 0.5;
+                    if (damage_tmp > shangxian) {
+                        damage_tmp = shangxian;
+                    }
+                }
+            }
+            else {
+                damage_tmp += zhenshi;
+            }
+        }
+        else {
+            //生物物理受伤百分比
+            if (Creature* c = victim->ToCreature()) {
+                AA_Creature conf;
+                if (c->aa_id > 0) {
+                    conf = aaCenter.aa_creatures[c->aa_id];
+                }
+                if (conf.jianshang_wl != 0 && conf.jianshang_wl != 100) {
+                    damage_tmp *= (conf.jianshang_wl / 100.0);
+                }
+                if (conf.qiege == 1) {
+                    damage_tmp += zhenshi;
+                }
+                //生物受伤上限
+                if (conf.shangxian > 0) {
+                    uint32 shangxian = conf.shangxian * 0.5;
+                    if (damage_tmp > shangxian) {
+                        damage_tmp = shangxian;
+                    }
+                }
+            }
+            else {
+                damage_tmp += zhenshi;
+            }
+        }
+    }
+}
+bool AACenter::AA_IsSpell_Mofa(SpellInfo const* spellInfo)
+{
+    if (spellInfo && spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
+    {
+        if (spellInfo->Id == 75 || spellInfo->Id == 6660) {
+            return false;
+        }
+        return true;
+    }
+    return false;
+}

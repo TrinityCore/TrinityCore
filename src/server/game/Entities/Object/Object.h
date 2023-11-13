@@ -149,6 +149,7 @@ class TC_GAME_API Object
 {
     public:
         uint32 aa_id = 0;
+        uint32 aa_pet_id = 0;
         virtual ~Object();
 
         bool IsInWorld() const { return m_inWorld; }
@@ -476,6 +477,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
     protected:
         explicit WorldObject(bool isWorldObject); //note: here it means if it is in grid object list or world object list
     public:
+        uint32 aa_petzhan_id = 0;
         std::map<uint32, uint32> aa_fm_values;
         std::map<uint32, uint32> aa_aura_values;
         std::map<uint32, bool> aa_spells;

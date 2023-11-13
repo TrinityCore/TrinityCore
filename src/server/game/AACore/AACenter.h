@@ -1038,6 +1038,17 @@ struct AA_Pet
     std::string pet_auras = "";
     std::string player_spells = "";
     std::string player_auras = "";
+    uint32 ptshsx = 0;//100' COMMENT '普通伤害上限',
+    float ptshbl = 0;//100' COMMENT 'PVP普通伤害倍率 公式为:PVP普通伤害 乘以 ptshbl',
+    float cptshbl = 0;//100' COMMENT 'PVE普通伤害倍率 公式为:PVE普通伤害 乘以 cptshbl',
+    uint32 jnshsx = 0;//100' COMMENT '技能伤害上限',
+    float jnshbl = 0;//100' COMMENT 'PVP技能伤害倍率 公式为:PVP技能伤害 乘以 jnshbl',
+    float cjnshbl = 0;//100' COMMENT 'PVE技能伤害倍率 公式为:PVE技能伤害 乘以 cjnshbl',
+    uint32 zlshsx = 0;//100' COMMENT '治疗伤害上限',
+    float zlshbl = 0;//100' COMMENT 'PVP治疗伤害倍率 公式为:PVP治疗伤害 乘以 zlshbl',
+    float czlshbl = 0;//100' COMMENT 'PVE治疗伤害倍率 公式为:PVE治疗伤害 乘以 czlshbl',
+    float jianshangpvp = 0;
+    float jianshangpve = 0;
 };
 
 struct AA_Pet_Id {
@@ -1511,12 +1522,21 @@ struct AA_Creature {
     uint32 damage_spell_min = 0;
     uint32 damage_spell_max = 0;
     float damage_spell = 0;
+    uint32 damage_dot_min = 0;
+    uint32 damage_dot_max = 0;
+    float damage_dot = 0;
     uint32 health_spell_min = 0;
     uint32 health_spell_max = 0;
     float health_spell = 0;
     int32 jianshang_wl = 0;
     int32 jianshang_mf = 0;
     uint32 shangxian = 0;
+    uint32 qiegevalue_wl = 0;
+    float qiegepoint_wl = 0;
+    uint32 qiegevalue_mf = 0;
+    float qiegepoint_mf = 0;
+    uint32 qiegevalue_dot = 0;
+    float qiegepoint_dot = 0;
     uint32 qiege = 0;
     std::string ais = "";
     uint32 nonsuch_group = 0;
@@ -2535,6 +2555,14 @@ public:
     uint32 aa_dati_id = 0;
     uint32 aa_dati_Time = 0;
 
+    //修改攻击
+    void AA_ModifyDamage(Unit* unit, Unit* victim, uint32& damage1, SpellInfo const* spellInfo = nullptr, bool isDot = false, bool isHeal = false);
+
+    //附加真实伤害
+    void AA_ModifyZhenshi(Unit* unit, Unit* victim, uint32& damage1, SpellInfo const* spellInfo = nullptr, bool isDot = false, bool isHeal = false);
+
+    //判断射击技能改为普通伤害
+    bool AA_IsSpell_Mofa(SpellInfo const* spellInfo);
 private:
     AACenter() {
         std::cout << "constructor called!" << std::endl;

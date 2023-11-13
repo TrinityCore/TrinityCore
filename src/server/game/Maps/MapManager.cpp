@@ -150,14 +150,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
 
     Map* map = nullptr;
     uint32 newInstanceId = 0;                       // instanceId of the resulting map
-
-    uint32 aa_instanceid_old = 0;
-    int32 aa_teleport_nandu = -2;
-    ObjectGuid::LowType guidlow = player->GetGUID().GetCounter();
-    bool aa_hasCundang = true;
-    bool aa_hasData = true;
-    bool aa_hasMap = true;
-
+    uint32 instanceid_save = 0;
     if (entry->IsBattlegroundOrArena())
     {
         // instantiate or find existing bg map for player
@@ -165,9 +158,6 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
         newInstanceId = player->GetBattlegroundId();
         if (!newInstanceId)
             return nullptr;
-
-        aa_teleport_nandu = -2;
-        player->aa_teleport_nandu = -2;
 
         map = FindMap_i(mapId, newInstanceId);
         if (!map)
@@ -203,10 +193,8 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
                 newInstanceId = group ? group->GetRecentInstanceId(mapId) : player->GetRecentInstanceId(mapId);
 
             // If not found or instance is not a normal dungeon, generate new one
-            if (!newInstanceId) {
+            if (!newInstanceId)
                 newInstanceId = GenerateInstanceId();
-                aa_hasData = false;
-            }
 
             instanceLock = sInstanceLockMgr.CreateInstanceLockForNewInstance(instanceOwnerGuid, entries, newInstanceId);
         }
@@ -222,11 +210,8 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
             map = nullptr;
         }
 
-        aa_teleport_nandu = player->aa_teleport_nandu == -2 ? aaCenter.aa_minstancevalues[newInstanceId][3] : player->aa_teleport_nandu;
-
         if (!map)
         {
-            aa_hasMap = false;
             map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, player->GetTeamId(), group);
             if (group)
                 group->SetRecentInstance(mapId, instanceOwnerGuid, newInstanceId);
@@ -234,43 +219,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
                 player->SetRecentInstance(mapId, newInstanceId);
         }
 
-        //1、第一次进地图。
-        //没有存档，没有Data，没有地图。清理进度
-        if (!aa_hasCundang && !aa_hasData && !aa_hasMap) {
-            aa_instanceid_old = newInstanceId;
-        }
-
-        //2、如果切换了难度。清理进度，清理存档
-        if (map && !map->HavePlayers() && aaCenter.aa_minstancevalues[newInstanceId][3] != player->aa_teleport_nandu) {
-            if (player->GetSession()->PlayerLoading()) // pussywizard: crashfix (assert(passengers.empty) fail in ~transport), could be added to a transport during loading from db
-                return nullptr;
-
-            MapMapType::iterator iter = i_maps.begin();
-            while (iter != i_maps.end())
-            {
-                if (iter->second->GetInstanceId() == newInstanceId)
-                {
-                    if (DestroyMap(iter->second))
-                        iter = i_maps.erase(iter);
-                    else
-                        ++iter;
-
-                    continue;
-                }
-
-                ++iter;
-            }
-
-            instanceLock = sInstanceLockMgr.CreateInstanceLockForNewInstance(instanceOwnerGuid, entries, newInstanceId);
-            map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, player->GetTeamId(), group);
-
-            if (group)
-                group->SetRecentInstance(mapId, instanceOwnerGuid, newInstanceId);
-            else
-                player->SetRecentInstance(mapId, newInstanceId);
-
-            aa_instanceid_old = newInstanceId;
-        }
+        instanceid_save = newInstanceId;
     }
     else if (entry->IsGarrison())
     {
@@ -293,28 +242,29 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
     if (map)
         i_maps[{ map->GetId(), map->GetInstanceId() }] = map;
 
-    if (aa_instanceid_old) { //重置副本信息
-        aaCenter.aa_map_instance_values.erase(aa_instanceid_old);
-        aaCenter.aa_player_instance_values.erase(aa_instanceid_old);
-        CharacterDatabase.PExecute("delete from _数据玩家instance where instance = {}", aa_instanceid_old);
-        CharacterDatabase.PExecute("delete from _数据地图instance where instance = {}", aa_instanceid_old);
-        aaCenter.aa_minstancevalues.erase(aa_instanceid_old);
-        aaCenter.aa_minstancebools.erase(aa_instanceid_old);
-        aaCenter.aa_pinstancevalues.erase(aa_instanceid_old);
-        aaCenter.aa_pinstancebools.erase(aa_instanceid_old);
+    int32 aa_teleport_nandu = player->aa_teleport_nandu != -2 ? player->aa_teleport_nandu : aaCenter.aa_minstancevalues[instanceid_save][3];
+    //重置副本信息
+    if (player->aa_teleport_nandu != -2) {
+        //如果切换过难度，删除旧难度
+        if (instanceid_save > 0 && player->aa_teleport_nandu != aaCenter.aa_minstancevalues[instanceid_save][3])
+        {
+            aaCenter.aa_map_instance_values.erase(instanceid_save);
+            aaCenter.aa_player_instance_values.erase(instanceid_save);
+            CharacterDatabase.PExecute("delete from _数据玩家instance where instance = {}", instanceid_save);
+            CharacterDatabase.PExecute("delete from _数据地图instance where instance = {}", instanceid_save);
+            aaCenter.aa_minstancevalues.erase(instanceid_save);
+            aaCenter.aa_minstancebools.erase(instanceid_save);
+            aaCenter.aa_pinstancevalues.erase(instanceid_save);
+            aaCenter.aa_pinstancebools.erase(instanceid_save);
+        }
     }
+    //改变当前秘境难度
+    int32 instanceid_new = map->GetInstanceId();
+    aaCenter.aa_minstancevalues[instanceid_new][3] = aa_teleport_nandu;
+    aaCenter.AA_UpdateValueBools(instanceid_new, 3, true);
+    aaCenter.AA_UpdateValueBools(instanceid_new, 3, true, player->GetGUIDLow());
 
-    uint32 instanceid = map != nullptr ? map->GetInstanceId() : 0;
-
-    if (aa_teleport_nandu != -2) {
-        std::string str = "";
-        //改变当前秘境难度
-        aaCenter.aa_minstancevalues[instanceid][3] = aa_teleport_nandu;
-        player->aa_teleport_nandu = -2;
-        aaCenter.AA_UpdateValueBools(instanceid, 3, true);
-        aaCenter.AA_UpdateValueBools(instanceid, 3, true, guidlow);
-    }
-
+    player->aa_teleport_nandu = -2;
     return map;
 }
 
