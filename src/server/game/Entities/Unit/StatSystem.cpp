@@ -129,6 +129,8 @@ bool Player::UpdateStats(Stats stat)
         case STAT_INTELLECT:
             UpdateSpellCritChance();
             break;
+        case STAT_SPIRIT:
+            break;
         default:
             break;
     }
@@ -1084,6 +1086,7 @@ bool Guardian::UpdateStats(Stats stat)
         case STAT_AGILITY:          UpdateArmor();                       break;
         case STAT_STAMINA:          UpdateMaxHealth();                   break;
         case STAT_INTELLECT:        UpdateMaxPower(POWER_MANA);          break;
+        case STAT_SPIRIT:
         default:
             break;
     }

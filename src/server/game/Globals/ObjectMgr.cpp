@@ -4159,7 +4159,8 @@ void ObjectMgr::LoadPlayerInfo()
 
         uint32 oldMSTime = getMSTime();
 
-        QueryResult raceStatsResult = WorldDatabase.Query("SELECT race, str, agi, sta, inte FROM player_racestats");
+        //                                                        0     1    2    3    4     5
+        QueryResult raceStatsResult = WorldDatabase.Query("SELECT race, str, agi, sta, inte, spi FROM player_racestats");
 
         if (!raceStatsResult)
         {
@@ -4183,8 +4184,8 @@ void ObjectMgr::LoadPlayerInfo()
 
         } while (raceStatsResult->NextRow());
 
-        //                                                  0      1     2    3    4    5
-        QueryResult result  = WorldDatabase.Query("SELECT class, level, str, agi, sta, inte FROM player_classlevelstats");
+        //                                                0      1      2    3    4    5     6
+        QueryResult result  = WorldDatabase.Query("SELECT class, level, str, agi, sta, inte, spi FROM player_classlevelstats");
 
         if (!result)
         {
