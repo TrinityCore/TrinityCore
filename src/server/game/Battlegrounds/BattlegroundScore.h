@@ -75,7 +75,7 @@ protected:
     uint32 DamageDone;
     uint32 HealingDone;
 
-    std::map<uint32, uint32> PvpStats;
+    std::map<uint32 /*pvpStatID*/, uint32 /*value*/> PvpStats;
 private:
     uint32 GetAttr(uint8 index) const;
 
