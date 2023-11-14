@@ -54,11 +54,7 @@ struct BattlegroundScore
     uint32 GetDamageDone() const { return DamageDone; }
     uint32 GetHealingDone() const { return HealingDone; }
 
-    uint32 GetAttr1() const { return GetAttr(0); }
-    uint32 GetAttr2() const { return GetAttr(1); }
-    uint32 GetAttr3() const { return GetAttr(2); }
-    uint32 GetAttr4() const { return GetAttr(3); }
-    uint32 GetAttr5() const { return GetAttr(4); }
+    uint32 GetAttr(uint8 index) const;
 
     virtual void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const;
 
@@ -77,7 +73,6 @@ protected:
 
     std::map<uint32 /*pvpStatID*/, uint32 /*value*/> PvpStats;
 private:
-    uint32 GetAttr(uint8 index) const;
 
     std::unordered_set<uint32> const* _validPvpStatIds;
 };

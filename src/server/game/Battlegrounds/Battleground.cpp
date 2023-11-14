@@ -743,11 +743,11 @@ void Battleground::EndBattleground(uint32 winner)
             stmt->setUInt32(6,  score->second->GetBonusHonor());
             stmt->setUInt32(7,  score->second->GetDamageDone());
             stmt->setUInt32(8,  score->second->GetHealingDone());
-            stmt->setUInt32(9,  score->second->GetAttr1());
-            stmt->setUInt32(10, score->second->GetAttr2());
-            stmt->setUInt32(11, score->second->GetAttr3());
-            stmt->setUInt32(12, score->second->GetAttr4());
-            stmt->setUInt32(13, score->second->GetAttr5());
+            stmt->setUInt32(9,  score->second->GetAttr(0));
+            stmt->setUInt32(10, score->second->GetAttr(1));
+            stmt->setUInt32(11, score->second->GetAttr(2));
+            stmt->setUInt32(12, score->second->GetAttr(3));
+            stmt->setUInt32(13, score->second->GetAttr(4));
 
             CharacterDatabase.Execute(stmt);
         }
