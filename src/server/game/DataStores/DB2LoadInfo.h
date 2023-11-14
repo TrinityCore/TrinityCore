@@ -26,7 +26,7 @@
 
 struct AchievementLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[17] =
+    static constexpr DB2FieldMeta Fields[15] =
     {
         { false, FT_STRING, "Description" },
         { false, FT_STRING, "Title" },
@@ -41,13 +41,11 @@ struct AchievementLoadInfo
         { true, FT_INT, "Flags" },
         { true, FT_SHORT, "UiOrder" },
         { true, FT_INT, "IconFileID" },
-        { true, FT_INT, "RewardItemID" },
         { false, FT_INT, "CriteriaTree" },
         { true, FT_SHORT, "SharesCriteria" },
-        { true, FT_INT, "CovenantID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 17, &AchievementMeta::Instance, HOTFIX_SEL_ACHIEVEMENT };
+    static constexpr DB2LoadInfo Instance{ Fields, 15, &AchievementMeta::Instance, HOTFIX_SEL_ACHIEVEMENT };
 };
 
 struct AchievementCategoryLoadInfo
@@ -86,7 +84,7 @@ struct AdventureJournalLoadInfo
         { true, FT_INT, "ItemID" },
         { false, FT_INT, "ItemQuantity" },
         { false, FT_SHORT, "CurrencyType" },
-        { false, FT_INT, "CurrencyQuantity" },
+        { false, FT_BYTE, "CurrencyQuantity" },
         { false, FT_SHORT, "UiMapID" },
         { false, FT_INT, "BonusPlayerConditionID1" },
         { false, FT_INT, "BonusPlayerConditionID2" },
@@ -176,6 +174,7 @@ struct AreaTableLoadInfo
         { false, FT_SHORT, "UwAmbience" },
         { false, FT_SHORT, "ZoneMusic" },
         { false, FT_SHORT, "UwZoneMusic" },
+        { true, FT_BYTE, "ExplorationLevel" },
         { false, FT_SHORT, "IntroSound" },
         { false, FT_INT, "UwIntroSound" },
         { false, FT_BYTE, "FactionGroupMask" },
@@ -185,7 +184,6 @@ struct AreaTableLoadInfo
         { false, FT_BYTE, "WildBattlePetLevelMin" },
         { false, FT_BYTE, "WildBattlePetLevelMax" },
         { false, FT_BYTE, "WindSettingsID" },
-        { true, FT_INT, "ContentTuningID" },
         { true, FT_INT, "Flags1" },
         { true, FT_INT, "Flags2" },
         { false, FT_SHORT, "LiquidTypeID1" },
@@ -199,14 +197,15 @@ struct AreaTableLoadInfo
 
 struct AreaTriggerLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[17] =
+    static constexpr DB2FieldMeta Fields[18] =
     {
+        { false, FT_STRING, "Message" },
         { false, FT_FLOAT, "PosX" },
         { false, FT_FLOAT, "PosY" },
         { false, FT_FLOAT, "PosZ" },
         { false, FT_INT, "ID" },
         { true, FT_SHORT, "ContinentID" },
-        { true, FT_INT, "PhaseUseFlags" },
+        { true, FT_BYTE, "PhaseUseFlags" },
         { true, FT_SHORT, "PhaseID" },
         { true, FT_SHORT, "PhaseGroupID" },
         { false, FT_FLOAT, "Radius" },
@@ -216,11 +215,11 @@ struct AreaTriggerLoadInfo
         { false, FT_FLOAT, "BoxYaw" },
         { true, FT_BYTE, "ShapeType" },
         { true, FT_SHORT, "ShapeID" },
-        { true, FT_INT, "AreaTriggerActionSetID" },
+        { true, FT_SHORT, "AreaTriggerActionSetID" },
         { true, FT_BYTE, "Flags" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 17, &AreaTriggerMeta::Instance, HOTFIX_SEL_AREA_TRIGGER };
+    static constexpr DB2LoadInfo Instance{ Fields, 18, &AreaTriggerMeta::Instance, HOTFIX_SEL_AREA_TRIGGER };
 };
 
 struct ArmorLocationLoadInfo
@@ -260,7 +259,7 @@ struct ArtifactLoadInfo
 
 struct ArtifactAppearanceLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[16] =
+    static constexpr DB2FieldMeta Fields[15] =
     {
         { false, FT_STRING, "Name" },
         { false, FT_INT, "ID" },
@@ -277,10 +276,9 @@ struct ArtifactAppearanceLoadInfo
         { false, FT_INT, "UiAltItemAppearanceID" },
         { false, FT_BYTE, "Flags" },
         { false, FT_SHORT, "UiCameraID" },
-        { false, FT_INT, "UsablePlayerConditionID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 16, &ArtifactAppearanceMeta::Instance, HOTFIX_SEL_ARTIFACT_APPEARANCE };
+    static constexpr DB2LoadInfo Instance{ Fields, 15, &ArtifactAppearanceMeta::Instance, HOTFIX_SEL_ARTIFACT_APPEARANCE };
 };
 
 struct ArtifactAppearanceSetLoadInfo
@@ -579,21 +577,6 @@ struct AzeriteTierUnlockSetLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 2, &AzeriteTierUnlockSetMeta::Instance, HOTFIX_SEL_AZERITE_TIER_UNLOCK_SET };
 };
 
-struct AzeriteUnlockMappingLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[6] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "ItemLevel" },
-        { true, FT_INT, "ItemBonusListHead" },
-        { true, FT_INT, "ItemBonusListShoulders" },
-        { true, FT_INT, "ItemBonusListChest" },
-        { false, FT_INT, "AzeriteUnlockMappingSetID" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 6, &AzeriteUnlockMappingMeta::Instance, HOTFIX_SEL_AZERITE_UNLOCK_MAPPING };
-};
-
 struct BankBagSlotPricesLoadInfo
 {
     static constexpr DB2FieldMeta Fields[2] =
@@ -622,9 +605,9 @@ struct BarberShopStyleLoadInfo
 {
     static constexpr DB2FieldMeta Fields[8] =
     {
-        { false, FT_INT, "ID" },
         { false, FT_STRING, "DisplayName" },
         { false, FT_STRING, "Description" },
+        { false, FT_INT, "ID" },
         { false, FT_BYTE, "Type" },
         { false, FT_FLOAT, "CostModifier" },
         { false, FT_BYTE, "Race" },
@@ -654,15 +637,14 @@ struct BattlePetAbilityLoadInfo
 
 struct BattlePetBreedQualityLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[4] =
+    static constexpr DB2FieldMeta Fields[3] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "MaxQualityRoll" },
         { false, FT_FLOAT, "StateMultiplier" },
         { true, FT_BYTE, "QualityEnum" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 4, &BattlePetBreedQualityMeta::Instance, HOTFIX_SEL_BATTLE_PET_BREED_QUALITY };
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &BattlePetBreedQualityMeta::Instance, HOTFIX_SEL_BATTLE_PET_BREED_QUALITY };
 };
 
 struct BattlePetBreedStateLoadInfo
@@ -670,7 +652,7 @@ struct BattlePetBreedStateLoadInfo
     static constexpr DB2FieldMeta Fields[4] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "BattlePetStateID" },
+        { false, FT_BYTE, "BattlePetStateID" },
         { false, FT_SHORT, "Value" },
         { false, FT_INT, "BattlePetBreedID" },
     };
@@ -680,7 +662,7 @@ struct BattlePetBreedStateLoadInfo
 
 struct BattlePetSpeciesLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[12] =
+    static constexpr DB2FieldMeta Fields[11] =
     {
         { false, FT_STRING, "Description" },
         { false, FT_STRING, "SourceText" },
@@ -693,10 +675,9 @@ struct BattlePetSpeciesLoadInfo
         { true, FT_BYTE, "SourceTypeEnum" },
         { true, FT_INT, "CardUIModelSceneID" },
         { true, FT_INT, "LoadoutUIModelSceneID" },
-        { true, FT_INT, "CovenantID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 12, &BattlePetSpeciesMeta::Instance, HOTFIX_SEL_BATTLE_PET_SPECIES };
+    static constexpr DB2LoadInfo Instance{ Fields, 11, &BattlePetSpeciesMeta::Instance, HOTFIX_SEL_BATTLE_PET_SPECIES };
 };
 
 struct BattlePetSpeciesStateLoadInfo
@@ -704,7 +685,7 @@ struct BattlePetSpeciesStateLoadInfo
     static constexpr DB2FieldMeta Fields[4] =
     {
         { false, FT_INT, "ID" },
-        { false, FT_SHORT, "BattlePetStateID" },
+        { false, FT_BYTE, "BattlePetStateID" },
         { true, FT_INT, "Value" },
         { false, FT_INT, "BattlePetSpeciesID" },
     };
@@ -730,7 +711,7 @@ struct BattlemasterListLoadInfo
         { true, FT_BYTE, "GroupsAllowed" },
         { true, FT_BYTE, "MaxGroupSize" },
         { true, FT_SHORT, "HolidayWorldState" },
-        { true, FT_INT, "Flags" },
+        { true, FT_BYTE, "Flags" },
         { true, FT_INT, "IconFileDataID" },
         { true, FT_INT, "RequiredPlayerConditionID" },
         { true, FT_SHORT, "MapID1" },
@@ -780,19 +761,6 @@ struct BroadcastTextLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 17, &BroadcastTextMeta::Instance, HOTFIX_SEL_BROADCAST_TEXT };
 };
 
-struct BroadcastTextDurationLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[4] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "BroadcastTextID" },
-        { true, FT_INT, "Locale" },
-        { true, FT_INT, "Duration" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 4, &BroadcastTextDurationMeta::Instance, HOTFIX_SEL_BROADCAST_TEXT_DURATION };
-};
-
 struct CfgCategoriesLoadInfo
 {
     static constexpr DB2FieldMeta Fields[7] =
@@ -824,23 +792,6 @@ struct CfgRegionsLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 6, &Cfg_RegionsMeta::Instance, HOTFIX_SEL_CFG_REGIONS };
 };
 
-struct ChallengeModeItemBonusOverrideLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[8] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "ItemBonusTreeGroupID" },
-        { true, FT_INT, "DstItemBonusTreeID" },
-        { true, FT_BYTE, "Type" },
-        { true, FT_INT, "Value" },
-        { true, FT_INT, "MythicPlusSeasonID" },
-        { true, FT_INT, "PvPSeasonID" },
-        { false, FT_INT, "SrcItemBonusTreeID" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 8, &ChallengeModeItemBonusOverrideMeta::Instance, HOTFIX_SEL_CHALLENGE_MODE_ITEM_BONUS_OVERRIDE };
-};
-
 struct CharTitlesLoadInfo
 {
     static constexpr DB2FieldMeta Fields[5] =
@@ -859,11 +810,11 @@ struct CharacterLoadoutLoadInfo
 {
     static constexpr DB2FieldMeta Fields[5] =
     {
-        { false, FT_INT, "ID" },
         { true, FT_LONG, "RaceMask" },
+        { false, FT_INT, "ID" },
         { true, FT_BYTE, "ChrClassID" },
         { true, FT_INT, "Purpose" },
-        { true, FT_BYTE, "ItemContext" },
+        { true, FT_BYTE, "ModID" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 5, &CharacterLoadoutMeta::Instance, HOTFIX_SEL_CHARACTER_LOADOUT };
@@ -885,9 +836,9 @@ struct ChatChannelsLoadInfo
 {
     static constexpr DB2FieldMeta Fields[6] =
     {
-        { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "Shortcut" },
+        { false, FT_INT, "ID" },
         { true, FT_INT, "Flags" },
         { true, FT_BYTE, "FactionGroup" },
         { true, FT_INT, "Ruleset" },
@@ -911,50 +862,36 @@ struct ChrClassUiDisplayLoadInfo
 
 struct ChrClassesLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[39] =
+    static constexpr DB2FieldMeta Fields[25] =
     {
         { false, FT_STRING, "Name" },
         { false, FT_STRING_NOT_LOCALIZED, "Filename" },
         { false, FT_STRING, "NameMale" },
         { false, FT_STRING, "NameFemale" },
         { false, FT_STRING_NOT_LOCALIZED, "PetNameToken" },
-        { false, FT_STRING, "Description" },
-        { false, FT_STRING, "RoleInfoString" },
-        { false, FT_STRING, "DisabledString" },
-        { false, FT_STRING, "HyphenatedNameMale" },
-        { false, FT_STRING, "HyphenatedNameFemale" },
         { false, FT_INT, "ID" },
         { false, FT_INT, "CreateScreenFileDataID" },
         { false, FT_INT, "SelectScreenFileDataID" },
         { false, FT_INT, "IconFileDataID" },
         { false, FT_INT, "LowResScreenFileDataID" },
         { true, FT_INT, "Flags" },
-        { false, FT_INT, "SpellTextureBlobFileDataID" },
+        { true, FT_INT, "StartingLevel" },
         { false, FT_INT, "ArmorTypeMask" },
-        { true, FT_INT, "CharStartKitUnknown901" },
-        { true, FT_INT, "MaleCharacterCreationVisualFallback" },
-        { true, FT_INT, "MaleCharacterCreationIdleVisualFallback" },
-        { true, FT_INT, "FemaleCharacterCreationVisualFallback" },
-        { true, FT_INT, "FemaleCharacterCreationIdleVisualFallback" },
-        { true, FT_INT, "CharacterCreationIdleGroundVisualFallback" },
-        { true, FT_INT, "CharacterCreationGroundVisualFallback" },
-        { true, FT_INT, "AlteredFormCharacterCreationIdleVisualFallback" },
-        { true, FT_INT, "CharacterCreationAnimLoopWaitTimeMsFallback" },
         { false, FT_SHORT, "CinematicSequenceID" },
         { false, FT_SHORT, "DefaultSpec" },
+        { false, FT_BYTE, "HasStrengthAttackBonus" },
         { false, FT_BYTE, "PrimaryStatPriority" },
         { false, FT_BYTE, "DisplayPower" },
         { false, FT_BYTE, "RangedAttackPowerPerAgility" },
         { false, FT_BYTE, "AttackPowerPerAgility" },
         { false, FT_BYTE, "AttackPowerPerStrength" },
         { false, FT_BYTE, "SpellClassSet" },
-        { false, FT_BYTE, "ClassColorR" },
-        { false, FT_BYTE, "ClassColorG" },
-        { false, FT_BYTE, "ClassColorB" },
         { false, FT_BYTE, "RolesMask" },
+        { false, FT_BYTE, "DamageBonusStat" },
+        { false, FT_BYTE, "HasRelicSlot" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 39, &ChrClassesMeta::Instance, HOTFIX_SEL_CHR_CLASSES };
+    static constexpr DB2LoadInfo Instance{ Fields, 25, &ChrClassesMeta::Instance, HOTFIX_SEL_CHR_CLASSES };
 };
 
 struct ChrClassesXPowerTypesLoadInfo
@@ -992,22 +929,21 @@ struct ChrCustomizationChoiceLoadInfo
 
 struct ChrCustomizationDisplayInfoLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[6] =
+    static constexpr DB2FieldMeta Fields[5] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "ShapeshiftFormID" },
         { true, FT_INT, "DisplayID" },
         { false, FT_FLOAT, "BarberShopMinCameraDistance" },
         { false, FT_FLOAT, "BarberShopHeightOffset" },
-        { false, FT_FLOAT, "BarberShopCameraZoomOffset" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 6, &ChrCustomizationDisplayInfoMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_DISPLAY_INFO };
+    static constexpr DB2LoadInfo Instance{ Fields, 5, &ChrCustomizationDisplayInfoMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_DISPLAY_INFO };
 };
 
 struct ChrCustomizationElementLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[14] =
+    static constexpr DB2FieldMeta Fields[13] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "ChrCustomizationChoiceID" },
@@ -1022,15 +958,14 @@ struct ChrCustomizationElementLoadInfo
         { true, FT_INT, "ChrCustomizationVoiceID" },
         { true, FT_INT, "AnimKitID" },
         { true, FT_INT, "ParticleColorID" },
-        { true, FT_INT, "ChrCustGeoComponentLinkID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 14, &ChrCustomizationElementMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_ELEMENT };
+    static constexpr DB2LoadInfo Instance{ Fields, 13, &ChrCustomizationElementMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_ELEMENT };
 };
 
 struct ChrCustomizationOptionLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[13] =
+    static constexpr DB2FieldMeta Fields[12] =
     {
         { false, FT_STRING, "Name" },
         { false, FT_INT, "ID" },
@@ -1044,19 +979,18 @@ struct ChrCustomizationOptionLoadInfo
         { true, FT_INT, "ChrCustomizationID" },
         { true, FT_INT, "ChrCustomizationReqID" },
         { true, FT_INT, "UiOrderIndex" },
-        { true, FT_INT, "AddedInPatch" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 13, &ChrCustomizationOptionMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_OPTION };
+    static constexpr DB2LoadInfo Instance{ Fields, 12, &ChrCustomizationOptionMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_OPTION };
 };
 
 struct ChrCustomizationReqLoadInfo
 {
     static constexpr DB2FieldMeta Fields[9] =
     {
-        { false, FT_INT, "ID" },
         { true, FT_LONG, "RaceMask" },
         { false, FT_STRING, "ReqSource" },
+        { false, FT_INT, "ID" },
         { true, FT_INT, "Flags" },
         { true, FT_INT, "ClassMask" },
         { true, FT_INT, "AchievementID" },
@@ -1126,7 +1060,7 @@ struct ChrRaceXChrModelLoadInfo
 
 struct ChrRacesLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[63] =
+    static constexpr DB2FieldMeta Fields[68] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING_NOT_LOCALIZED, "ClientPrefix" },
@@ -1145,17 +1079,14 @@ struct ChrRacesLoadInfo
         { false, FT_STRING, "ShortNameLower" },
         { false, FT_STRING, "ShortNameLowerFemale" },
         { true, FT_INT, "Flags" },
-        { true, FT_INT, "FactionID" },
-        { true, FT_INT, "CinematicSequenceID" },
+        { false, FT_INT, "MaleDisplayID" },
+        { false, FT_INT, "FemaleDisplayID" },
+        { false, FT_INT, "HighResMaleDisplayID" },
+        { false, FT_INT, "HighResFemaleDisplayID" },
         { true, FT_INT, "ResSicknessSpellID" },
         { true, FT_INT, "SplashSoundID" },
-        { true, FT_INT, "Alliance" },
-        { true, FT_INT, "RaceRelated" },
-        { true, FT_INT, "UnalteredVisualRaceID" },
-        { true, FT_INT, "DefaultClassID" },
         { true, FT_INT, "CreateScreenFileDataID" },
         { true, FT_INT, "SelectScreenFileDataID" },
-        { true, FT_INT, "NeutralRaceID" },
         { true, FT_INT, "LowResScreenFileDataID" },
         { true, FT_INT, "AlteredFormStartVisualKitID1" },
         { true, FT_INT, "AlteredFormStartVisualKitID2" },
@@ -1166,14 +1097,11 @@ struct ChrRacesLoadInfo
         { true, FT_INT, "HeritageArmorAchievementID" },
         { true, FT_INT, "StartingLevel" },
         { true, FT_INT, "UiDisplayOrder" },
-        { true, FT_INT, "MaleModelFallbackRaceID" },
-        { true, FT_INT, "FemaleModelFallbackRaceID" },
-        { true, FT_INT, "MaleTextureFallbackRaceID" },
-        { true, FT_INT, "FemaleTextureFallbackRaceID" },
         { true, FT_INT, "PlayableRaceBit" },
+        { true, FT_INT, "FemaleSkeletonFileDataID" },
+        { true, FT_INT, "MaleSkeletonFileDataID" },
         { true, FT_INT, "HelmetAnimScalingRaceID" },
         { true, FT_INT, "TransmogrifyDisabledSlotMask" },
-        { true, FT_INT, "UnalteredVisualCustomizationRaceID" },
         { false, FT_FLOAT, "AlteredFormCustomizeOffsetFallback1" },
         { false, FT_FLOAT, "AlteredFormCustomizeOffsetFallback2" },
         { false, FT_FLOAT, "AlteredFormCustomizeOffsetFallback3" },
@@ -1184,16 +1112,27 @@ struct ChrRacesLoadInfo
         { false, FT_FLOAT, "Unknown910_21" },
         { false, FT_FLOAT, "Unknown910_22" },
         { false, FT_FLOAT, "Unknown910_23" },
-        { true, FT_INT, "Unknown1000" },
+        { true, FT_SHORT, "FactionID" },
+        { true, FT_SHORT, "CinematicSequenceID" },
         { true, FT_BYTE, "BaseLanguage" },
         { true, FT_BYTE, "CreatureType" },
+        { true, FT_BYTE, "Alliance" },
+        { true, FT_BYTE, "RaceRelated" },
+        { true, FT_BYTE, "UnalteredVisualRaceID" },
+        { true, FT_BYTE, "DefaultClassID" },
+        { true, FT_BYTE, "NeutralRaceID" },
+        { true, FT_BYTE, "MaleModelFallbackRaceID" },
         { true, FT_BYTE, "MaleModelFallbackSex" },
+        { true, FT_BYTE, "FemaleModelFallbackRaceID" },
         { true, FT_BYTE, "FemaleModelFallbackSex" },
+        { true, FT_BYTE, "MaleTextureFallbackRaceID" },
         { true, FT_BYTE, "MaleTextureFallbackSex" },
+        { true, FT_BYTE, "FemaleTextureFallbackRaceID" },
         { true, FT_BYTE, "FemaleTextureFallbackSex" },
+        { true, FT_BYTE, "UnalteredVisualCustomizationRaceID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 63, &ChrRacesMeta::Instance, HOTFIX_SEL_CHR_RACES };
+    static constexpr DB2LoadInfo Instance{ Fields, 68, &ChrRacesMeta::Instance, HOTFIX_SEL_CHR_RACES };
 };
 
 struct ChrSpecializationLoadInfo
@@ -1221,7 +1160,7 @@ struct ChrSpecializationLoadInfo
 
 struct CinematicCameraLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[8] =
+    static constexpr DB2FieldMeta Fields[7] =
     {
         { false, FT_INT, "ID" },
         { false, FT_FLOAT, "OriginX" },
@@ -1230,10 +1169,9 @@ struct CinematicCameraLoadInfo
         { false, FT_INT, "SoundID" },
         { false, FT_FLOAT, "OriginFacing" },
         { false, FT_INT, "FileDataID" },
-        { false, FT_INT, "ConversationID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 8, &CinematicCameraMeta::Instance, HOTFIX_SEL_CINEMATIC_CAMERA };
+    static constexpr DB2LoadInfo Instance{ Fields, 7, &CinematicCameraMeta::Instance, HOTFIX_SEL_CINEMATIC_CAMERA };
 };
 
 struct CinematicSequencesLoadInfo
@@ -1286,59 +1224,25 @@ struct ConditionalContentTuningLoadInfo
 
 struct ContentTuningLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[13] =
+    static constexpr DB2FieldMeta Fields[6] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "Flags" },
-        { true, FT_INT, "ExpansionID" },
         { true, FT_INT, "MinLevel" },
         { true, FT_INT, "MaxLevel" },
-        { true, FT_INT, "MinLevelType" },
-        { true, FT_INT, "MaxLevelType" },
-        { true, FT_INT, "TargetLevelDelta" },
-        { true, FT_INT, "TargetLevelMaxDelta" },
-        { true, FT_INT, "TargetLevelMin" },
-        { true, FT_INT, "TargetLevelMax" },
-        { true, FT_INT, "MinItemLevel" },
-        { false, FT_FLOAT, "QuestXpMultiplier" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 13, &ContentTuningMeta::Instance, HOTFIX_SEL_CONTENT_TUNING };
-};
-
-struct ContentTuningXExpectedLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[5] =
-    {
-        { false, FT_INT, "ID" },
+        { true, FT_INT, "Flags" },
         { true, FT_INT, "ExpectedStatModID" },
-        { true, FT_INT, "MinMythicPlusSeasonID" },
-        { true, FT_INT, "MaxMythicPlusSeasonID" },
-        { false, FT_INT, "ContentTuningID" },
+        { true, FT_INT, "DifficultyESMID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &ContentTuningXExpectedMeta::Instance, HOTFIX_SEL_CONTENT_TUNING_X_EXPECTED };
-};
-
-struct ContentTuningXLabelLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[3] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "LabelID" },
-        { false, FT_INT, "ContentTuningID" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &ContentTuningXLabelMeta::Instance, HOTFIX_SEL_CONTENT_TUNING_X_LABEL };
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &ContentTuningMeta::Instance, HOTFIX_SEL_CONTENT_TUNING };
 };
 
 struct ConversationLineLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[10] =
+    static constexpr DB2FieldMeta Fields[9] =
     {
         { false, FT_INT, "ID" },
         { false, FT_INT, "BroadcastTextID" },
-        { false, FT_INT, "Unused1020" },
         { false, FT_INT, "SpellVisualKitID" },
         { true, FT_INT, "AdditionalDuration" },
         { false, FT_SHORT, "NextConversationLineID" },
@@ -1348,21 +1252,7 @@ struct ConversationLineLoadInfo
         { false, FT_BYTE, "EndAnimation" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 10, &ConversationLineMeta::Instance, HOTFIX_SEL_CONVERSATION_LINE };
-};
-
-struct CorruptionEffectsLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[5] =
-    {
-        { false, FT_INT, "ID" },
-        { false, FT_FLOAT, "MinCorruption" },
-        { true, FT_INT, "Aura" },
-        { true, FT_INT, "PlayerConditionID" },
-        { true, FT_INT, "Flags" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &CorruptionEffectsMeta::Instance, HOTFIX_SEL_CORRUPTION_EFFECTS };
+    static constexpr DB2LoadInfo Instance{ Fields, 9, &ConversationLineMeta::Instance, HOTFIX_SEL_CONVERSATION_LINE };
 };
 
 struct CreatureDisplayInfoLoadInfo
@@ -1404,23 +1294,31 @@ struct CreatureDisplayInfoLoadInfo
 
 struct CreatureDisplayInfoExtraLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[7] =
+    static constexpr DB2FieldMeta Fields[15] =
     {
         { false, FT_INT, "ID" },
         { true, FT_BYTE, "DisplayRaceID" },
         { true, FT_BYTE, "DisplaySexID" },
         { true, FT_BYTE, "DisplayClassID" },
+        { true, FT_BYTE, "SkinID" },
+        { true, FT_BYTE, "FaceID" },
+        { true, FT_BYTE, "HairStyleID" },
+        { true, FT_BYTE, "HairColorID" },
+        { true, FT_BYTE, "FacialHairID" },
         { true, FT_BYTE, "Flags" },
         { true, FT_INT, "BakeMaterialResourcesID" },
         { true, FT_INT, "HDBakeMaterialResourcesID" },
+        { false, FT_BYTE, "CustomDisplayOption1" },
+        { false, FT_BYTE, "CustomDisplayOption2" },
+        { false, FT_BYTE, "CustomDisplayOption3" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 7, &CreatureDisplayInfoExtraMeta::Instance, HOTFIX_SEL_CREATURE_DISPLAY_INFO_EXTRA };
+    static constexpr DB2LoadInfo Instance{ Fields, 15, &CreatureDisplayInfoExtraMeta::Instance, HOTFIX_SEL_CREATURE_DISPLAY_INFO_EXTRA };
 };
 
 struct CreatureFamilyLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[11] =
+    static constexpr DB2FieldMeta Fields[12] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
@@ -1430,17 +1328,18 @@ struct CreatureFamilyLoadInfo
         { true, FT_BYTE, "MaxScaleLevel" },
         { true, FT_SHORT, "PetFoodMask" },
         { true, FT_BYTE, "PetTalentType" },
+        { true, FT_INT, "CategoryEnumID" },
         { true, FT_INT, "IconFileID" },
         { true, FT_SHORT, "SkillLine1" },
         { true, FT_SHORT, "SkillLine2" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 11, &CreatureFamilyMeta::Instance, HOTFIX_SEL_CREATURE_FAMILY };
+    static constexpr DB2LoadInfo Instance{ Fields, 12, &CreatureFamilyMeta::Instance, HOTFIX_SEL_CREATURE_FAMILY };
 };
 
 struct CreatureModelDataLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[40] =
+    static constexpr DB2FieldMeta Fields[34] =
     {
         { false, FT_INT, "ID" },
         { false, FT_FLOAT, "GeoBox1" },
@@ -1451,8 +1350,6 @@ struct CreatureModelDataLoadInfo
         { false, FT_FLOAT, "GeoBox6" },
         { false, FT_INT, "Flags" },
         { false, FT_INT, "FileDataID" },
-        { false, FT_FLOAT, "WalkSpeed" },
-        { false, FT_FLOAT, "RunSpeed" },
         { false, FT_INT, "BloodID" },
         { false, FT_INT, "FootprintTextureID" },
         { false, FT_FLOAT, "FootprintTextureLength" },
@@ -1478,13 +1375,9 @@ struct CreatureModelDataLoadInfo
         { false, FT_FLOAT, "OverrideNameScale" },
         { false, FT_FLOAT, "OverrideSelectionRadius" },
         { false, FT_FLOAT, "TamedPetBaseScale" },
-        { true, FT_BYTE, "Unknown820_1" },
-        { false, FT_FLOAT, "Unknown820_2" },
-        { false, FT_FLOAT, "Unknown820_31" },
-        { false, FT_FLOAT, "Unknown820_32" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 40, &CreatureModelDataMeta::Instance, HOTFIX_SEL_CREATURE_MODEL_DATA };
+    static constexpr DB2LoadInfo Instance{ Fields, 34, &CreatureModelDataMeta::Instance, HOTFIX_SEL_CREATURE_MODEL_DATA };
 };
 
 struct CreatureTypeLoadInfo
@@ -1547,9 +1440,9 @@ struct CurrencyContainerLoadInfo
         { true, FT_INT, "MinAmount" },
         { true, FT_INT, "MaxAmount" },
         { true, FT_INT, "ContainerIconID" },
-        { true, FT_BYTE, "ContainerQuality" },
+        { true, FT_INT, "ContainerQuality" },
         { true, FT_INT, "OnLootSpellVisualKitID" },
-        { false, FT_INT, "CurrencyTypesID" },
+        { false, FT_INT, "CurrencyTypeID" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 9, &CurrencyContainerMeta::Instance, HOTFIX_SEL_CURRENCY_CONTAINER };
@@ -1557,12 +1450,12 @@ struct CurrencyContainerLoadInfo
 
 struct CurrencyTypesLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[19] =
+    static constexpr DB2FieldMeta Fields[14] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
-        { true, FT_INT, "CategoryID" },
+        { false, FT_BYTE, "CategoryID" },
         { true, FT_INT, "InventoryIconFileID" },
         { false, FT_INT, "SpellWeight" },
         { false, FT_BYTE, "SpellCategory" },
@@ -1570,17 +1463,12 @@ struct CurrencyTypesLoadInfo
         { false, FT_INT, "MaxEarnablePerWeek" },
         { true, FT_BYTE, "Quality" },
         { true, FT_INT, "FactionID" },
-        { true, FT_INT, "ItemGroupSoundsID" },
-        { true, FT_INT, "XpQuestDifficulty" },
         { true, FT_INT, "AwardConditionID" },
-        { true, FT_INT, "MaxQtyWorldStateID" },
-        { false, FT_INT, "RechargingAmountPerCycle" },
-        { false, FT_INT, "RechargingCycleDurationMS" },
         { true, FT_INT, "Flags1" },
         { true, FT_INT, "Flags2" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 19, &CurrencyTypesMeta::Instance, HOTFIX_SEL_CURRENCY_TYPES };
+    static constexpr DB2LoadInfo Instance{ Fields, 14, &CurrencyTypesMeta::Instance, HOTFIX_SEL_CURRENCY_TYPES };
 };
 
 struct CurveLoadInfo
@@ -1604,7 +1492,7 @@ struct CurvePointLoadInfo
         { false, FT_FLOAT, "PreSLSquishPosX" },
         { false, FT_FLOAT, "PreSLSquishPosY" },
         { false, FT_INT, "ID" },
-        { false, FT_INT, "CurveID" },
+        { true, FT_INT, "CurveID" },
         { false, FT_BYTE, "OrderIndex" },
     };
 
@@ -1655,12 +1543,12 @@ struct DifficultyLoadInfo
         { false, FT_BYTE, "FallbackDifficultyID" },
         { false, FT_BYTE, "MinPlayers" },
         { false, FT_BYTE, "MaxPlayers" },
-        { false, FT_SHORT, "Flags" },
+        { false, FT_BYTE, "Flags" },
         { false, FT_BYTE, "ItemContext" },
         { false, FT_BYTE, "ToggleDifficultyID" },
-        { false, FT_INT, "GroupSizeHealthCurveID" },
-        { false, FT_INT, "GroupSizeDmgCurveID" },
-        { false, FT_INT, "GroupSizeSpellPointsCurveID" },
+        { false, FT_SHORT, "GroupSizeHealthCurveID" },
+        { false, FT_SHORT, "GroupSizeDmgCurveID" },
+        { false, FT_SHORT, "GroupSizeSpellPointsCurveID" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 14, &DifficultyMeta::Instance, HOTFIX_SEL_DIFFICULTY };
@@ -1668,21 +1556,19 @@ struct DifficultyLoadInfo
 
 struct DungeonEncounterLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[10] =
+    static constexpr DB2FieldMeta Fields[8] =
     {
         { false, FT_STRING, "Name" },
         { false, FT_INT, "ID" },
         { true, FT_SHORT, "MapID" },
         { true, FT_INT, "DifficultyID" },
         { true, FT_INT, "OrderIndex" },
-        { true, FT_INT, "CompleteWorldStateID" },
         { true, FT_BYTE, "Bit" },
         { true, FT_INT, "Flags" },
-        { true, FT_INT, "SpellIconFileID" },
         { true, FT_INT, "Faction" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 10, &DungeonEncounterMeta::Instance, HOTFIX_SEL_DUNGEON_ENCOUNTER };
+    static constexpr DB2LoadInfo Instance{ Fields, 8, &DungeonEncounterMeta::Instance, HOTFIX_SEL_DUNGEON_ENCOUNTER };
 };
 
 struct DurabilityCostsLoadInfo
@@ -1825,17 +1711,17 @@ struct FactionLoadInfo
 {
     static constexpr DB2FieldMeta Fields[35] =
     {
-        { false, FT_INT, "ID" },
         { true, FT_LONG, "ReputationRaceMask1" },
         { true, FT_LONG, "ReputationRaceMask2" },
         { true, FT_LONG, "ReputationRaceMask3" },
         { true, FT_LONG, "ReputationRaceMask4" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
+        { false, FT_INT, "ID" },
         { true, FT_SHORT, "ReputationIndex" },
         { false, FT_SHORT, "ParentFactionID" },
         { false, FT_BYTE, "Expansion" },
-        { false, FT_INT, "FriendshipRepID" },
+        { false, FT_BYTE, "FriendshipRepID" },
         { true, FT_INT, "Flags" },
         { false, FT_SHORT, "ParagonFactionID" },
         { true, FT_INT, "RenownFactionID" },
@@ -1898,32 +1784,28 @@ struct FactionTemplateLoadInfo
 
 struct FriendshipRepReactionLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[5] =
+    static constexpr DB2FieldMeta Fields[4] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Reaction" },
-        { false, FT_INT, "FriendshipRepID" },
+        { false, FT_BYTE, "FriendshipRepID" },
         { false, FT_SHORT, "ReactionThreshold" },
-        { true, FT_INT, "OverrideColor" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &FriendshipRepReactionMeta::Instance, HOTFIX_SEL_FRIENDSHIP_REP_REACTION };
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &FriendshipRepReactionMeta::Instance, HOTFIX_SEL_FRIENDSHIP_REP_REACTION };
 };
 
 struct FriendshipReputationLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[7] =
+    static constexpr DB2FieldMeta Fields[4] =
     {
         { false, FT_STRING, "Description" },
-        { false, FT_STRING, "StandingModified" },
-        { false, FT_STRING, "StandingChanged" },
         { false, FT_INT, "ID" },
-        { true, FT_INT, "FactionID" },
-        { true, FT_INT, "TextureFileID" },
-        { true, FT_INT, "Flags" },
+        { true, FT_INT, "Field34146722002" },
+        { true, FT_INT, "Field34146722003" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 7, &FriendshipReputationMeta::Instance, HOTFIX_SEL_FRIENDSHIP_REPUTATION };
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &FriendshipReputationMeta::Instance, HOTFIX_SEL_FRIENDSHIP_REPUTATION };
 };
 
 struct GameobjectArtKitLoadInfo
@@ -1942,9 +1824,10 @@ struct GameobjectArtKitLoadInfo
 
 struct GameobjectDisplayInfoLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[14] =
+    static constexpr DB2FieldMeta Fields[12] =
     {
         { false, FT_INT, "ID" },
+        { false, FT_STRING_NOT_LOCALIZED, "ModelName" },
         { false, FT_FLOAT, "GeoBoxMinX" },
         { false, FT_FLOAT, "GeoBoxMinY" },
         { false, FT_FLOAT, "GeoBoxMinZ" },
@@ -1955,12 +1838,9 @@ struct GameobjectDisplayInfoLoadInfo
         { true, FT_SHORT, "ObjectEffectPackageID" },
         { false, FT_FLOAT, "OverrideLootEffectScale" },
         { false, FT_FLOAT, "OverrideNameScale" },
-        { true, FT_INT, "AlternateDisplayType" },
-        { true, FT_INT, "ClientCreatureDisplayInfoID" },
-        { true, FT_INT, "ClientItemID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 14, &GameObjectDisplayInfoMeta::Instance, HOTFIX_SEL_GAMEOBJECT_DISPLAY_INFO };
+    static constexpr DB2LoadInfo Instance{ Fields, 12, &GameObjectDisplayInfoMeta::Instance, HOTFIX_SEL_GAMEOBJECT_DISPLAY_INFO };
 };
 
 struct GameobjectsLoadInfo
@@ -1976,13 +1856,13 @@ struct GameobjectsLoadInfo
         { false, FT_FLOAT, "Rot3" },
         { false, FT_FLOAT, "Rot4" },
         { false, FT_INT, "ID" },
-        { true, FT_INT, "OwnerID" },
+        { false, FT_SHORT, "OwnerID" },
         { true, FT_INT, "DisplayID" },
         { false, FT_FLOAT, "Scale" },
-        { true, FT_INT, "TypeID" },
-        { true, FT_INT, "PhaseUseFlags" },
-        { true, FT_INT, "PhaseID" },
-        { true, FT_INT, "PhaseGroupID" },
+        { false, FT_BYTE, "TypeID" },
+        { false, FT_BYTE, "PhaseUseFlags" },
+        { false, FT_SHORT, "PhaseID" },
+        { false, FT_SHORT, "PhaseGroupID" },
         { true, FT_INT, "PropValue1" },
         { true, FT_INT, "PropValue2" },
         { true, FT_INT, "PropValue3" },
@@ -2000,14 +1880,14 @@ struct GarrAbilityLoadInfo
 {
     static constexpr DB2FieldMeta Fields[8] =
     {
-        { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
+        { false, FT_INT, "ID" },
         { false, FT_BYTE, "GarrAbilityCategoryID" },
         { true, FT_BYTE, "GarrFollowerTypeID" },
         { true, FT_INT, "IconFileDataID" },
         { false, FT_SHORT, "FactionChangeGarrAbilityID" },
-        { true, FT_INT, "Flags" },
+        { false, FT_SHORT, "Flags" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 8, &GarrAbilityMeta::Instance, HOTFIX_SEL_GARR_ABILITY };
@@ -2026,7 +1906,7 @@ struct GarrBuildingLoadInfo
         { true, FT_BYTE, "BuildingType" },
         { true, FT_INT, "HordeGameObjectID" },
         { true, FT_INT, "AllianceGameObjectID" },
-        { true, FT_INT, "GarrSiteID" },
+        { false, FT_BYTE, "GarrSiteID" },
         { false, FT_BYTE, "UpgradeLevel" },
         { true, FT_INT, "BuildSeconds" },
         { false, FT_SHORT, "CurrencyTypeID" },
@@ -2041,7 +1921,7 @@ struct GarrBuildingLoadInfo
         { false, FT_SHORT, "GarrAbilityID" },
         { false, FT_SHORT, "BonusGarrAbilityID" },
         { false, FT_SHORT, "GoldCost" },
-        { true, FT_INT, "Flags" },
+        { false, FT_BYTE, "Flags" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 25, &GarrBuildingMeta::Instance, HOTFIX_SEL_GARR_BUILDING };
@@ -2066,14 +1946,14 @@ struct GarrClassSpecLoadInfo
 {
     static constexpr DB2FieldMeta Fields[8] =
     {
-        { false, FT_INT, "ID" },
         { false, FT_STRING, "ClassSpec" },
         { false, FT_STRING, "ClassSpecMale" },
         { false, FT_STRING, "ClassSpecFemale" },
+        { false, FT_INT, "ID" },
         { false, FT_SHORT, "UiTextureAtlasMemberID" },
         { false, FT_SHORT, "GarrFollItemSetID" },
         { false, FT_BYTE, "FollowerClassLimit" },
-        { true, FT_INT, "Flags" },
+        { false, FT_BYTE, "Flags" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 8, &GarrClassSpecMeta::Instance, HOTFIX_SEL_GARR_CLASS_SPEC };
@@ -2081,20 +1961,20 @@ struct GarrClassSpecLoadInfo
 
 struct GarrFollowerLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[34] =
+    static constexpr DB2FieldMeta Fields[32] =
     {
-        { false, FT_INT, "ID" },
         { false, FT_STRING, "HordeSourceText" },
         { false, FT_STRING, "AllianceSourceText" },
         { false, FT_STRING, "TitleName" },
+        { false, FT_INT, "ID" },
         { true, FT_BYTE, "GarrTypeID" },
         { true, FT_BYTE, "GarrFollowerTypeID" },
         { true, FT_INT, "HordeCreatureID" },
         { true, FT_INT, "AllianceCreatureID" },
         { false, FT_BYTE, "HordeGarrFollRaceID" },
         { false, FT_BYTE, "AllianceGarrFollRaceID" },
-        { true, FT_INT, "HordeGarrClassSpecID" },
-        { true, FT_INT, "AllianceGarrClassSpecID" },
+        { false, FT_BYTE, "HordeGarrClassSpecID" },
+        { false, FT_BYTE, "AllianceGarrClassSpecID" },
         { true, FT_BYTE, "Quality" },
         { false, FT_BYTE, "FollowerLevel" },
         { false, FT_SHORT, "ItemLevelWeapon" },
@@ -2113,13 +1993,11 @@ struct GarrFollowerLoadInfo
         { false, FT_INT, "HordeSlottingBroadcastTextID" },
         { false, FT_INT, "AllySlottingBroadcastTextID" },
         { false, FT_BYTE, "ChrClassID" },
-        { true, FT_INT, "Flags" },
+        { false, FT_BYTE, "Flags" },
         { false, FT_BYTE, "Gender" },
-        { true, FT_INT, "AutoCombatantID" },
-        { true, FT_INT, "CovenantID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 34, &GarrFollowerMeta::Instance, HOTFIX_SEL_GARR_FOLLOWER };
+    static constexpr DB2LoadInfo Instance{ Fields, 32, &GarrFollowerMeta::Instance, HOTFIX_SEL_GARR_FOLLOWER };
 };
 
 struct GarrFollowerXAbilityLoadInfo
@@ -2138,9 +2016,8 @@ struct GarrFollowerXAbilityLoadInfo
 
 struct GarrMissionLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[34] =
+    static constexpr DB2FieldMeta Fields[31] =
     {
-        { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "Location" },
         { false, FT_STRING, "Description" },
@@ -2148,6 +2025,7 @@ struct GarrMissionLoadInfo
         { false, FT_FLOAT, "MapPosY" },
         { false, FT_FLOAT, "WorldPosX" },
         { false, FT_FLOAT, "WorldPosY" },
+        { false, FT_INT, "ID" },
         { true, FT_BYTE, "GarrTypeID" },
         { false, FT_BYTE, "GarrMissionTypeID" },
         { true, FT_BYTE, "GarrFollowerTypeID" },
@@ -2157,9 +2035,8 @@ struct GarrMissionLoadInfo
         { false, FT_BYTE, "OfferedGarrMissionTextureID" },
         { false, FT_SHORT, "UiTextureKitID" },
         { false, FT_INT, "EnvGarrMechanicID" },
-        { true, FT_INT, "EnvGarrMechanicTypeID" },
+        { false, FT_BYTE, "EnvGarrMechanicTypeID" },
         { false, FT_INT, "PlayerConditionID" },
-        { true, FT_INT, "GarrMissionSetID" },
         { true, FT_BYTE, "TargetLevel" },
         { false, FT_SHORT, "TargetItemLevel" },
         { true, FT_INT, "MissionDuration" },
@@ -2171,12 +2048,10 @@ struct GarrMissionLoadInfo
         { false, FT_BYTE, "FollowerDeathChance" },
         { false, FT_INT, "AreaID" },
         { true, FT_INT, "Flags" },
-        { false, FT_FLOAT, "AutoMissionScalar" },
-        { true, FT_INT, "AutoMissionScalarCurveID" },
-        { true, FT_INT, "AutoCombatantEnvCasterID" },
+        { true, FT_INT, "GarrMissionSetID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 34, &GarrMissionMeta::Instance, HOTFIX_SEL_GARR_MISSION };
+    static constexpr DB2LoadInfo Instance{ Fields, 31, &GarrMissionMeta::Instance, HOTFIX_SEL_GARR_MISSION };
 };
 
 struct GarrPlotLoadInfo
@@ -2258,48 +2133,32 @@ struct GarrSiteLevelPlotInstLoadInfo
 
 struct GarrTalentTreeLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[13] =
+    static constexpr DB2FieldMeta Fields[8] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
-        { true, FT_BYTE, "GarrTypeID" },
+        { true, FT_INT, "GarrTypeID" },
         { true, FT_INT, "ClassID" },
         { true, FT_BYTE, "MaxTiers" },
         { true, FT_BYTE, "UiOrder" },
-        { true, FT_INT, "Flags" },
+        { true, FT_BYTE, "Flags" },
         { false, FT_SHORT, "UiTextureKitID" },
-        { true, FT_INT, "GarrTalentTreeType" },
-        { true, FT_INT, "PlayerConditionID" },
-        { false, FT_BYTE, "FeatureTypeIndex" },
-        { true, FT_BYTE, "FeatureSubtypeIndex" },
-        { true, FT_INT, "CurrencyID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 13, &GarrTalentTreeMeta::Instance, HOTFIX_SEL_GARR_TALENT_TREE };
+    static constexpr DB2LoadInfo Instance{ Fields, 8, &GarrTalentTreeMeta::Instance, HOTFIX_SEL_GARR_TALENT_TREE };
 };
 
 struct GemPropertiesLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[3] =
+    static constexpr DB2FieldMeta Fields[4] =
     {
         { false, FT_INT, "ID" },
         { false, FT_SHORT, "EnchantId" },
         { true, FT_INT, "Type" },
+        { false, FT_SHORT, "MinItemLevel" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &GemPropertiesMeta::Instance, HOTFIX_SEL_GEM_PROPERTIES };
-};
-
-struct GlobalCurveLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[3] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "CurveID" },
-        { true, FT_INT, "Type" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &GlobalCurveMeta::Instance, HOTFIX_SEL_GLOBAL_CURVE };
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &GemPropertiesMeta::Instance, HOTFIX_SEL_GEM_PROPERTIES };
 };
 
 struct GlyphBindableSpellLoadInfo
@@ -2316,16 +2175,17 @@ struct GlyphBindableSpellLoadInfo
 
 struct GlyphPropertiesLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[5] =
+    static constexpr DB2FieldMeta Fields[6] =
     {
         { false, FT_INT, "ID" },
         { false, FT_INT, "SpellID" },
         { false, FT_BYTE, "GlyphType" },
         { false, FT_BYTE, "GlyphExclusiveCategoryID" },
         { true, FT_INT, "SpellIconFileDataID" },
+        { false, FT_INT, "GlyphSlotFlags" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &GlyphPropertiesMeta::Instance, HOTFIX_SEL_GLYPH_PROPERTIES };
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &GlyphPropertiesMeta::Instance, HOTFIX_SEL_GLYPH_PROPERTIES };
 };
 
 struct GlyphRequiredSpecLoadInfo
@@ -2342,27 +2202,24 @@ struct GlyphRequiredSpecLoadInfo
 
 struct GossipNpcOptionLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[16] =
+    static constexpr DB2FieldMeta Fields[13] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "GossipNpcOption" },
         { true, FT_INT, "LFGDungeonsID" },
-        { true, FT_INT, "TrainerID" },
-        { true, FT_INT, "GarrFollowerTypeID" },
-        { true, FT_INT, "CharShipmentID" },
-        { true, FT_INT, "GarrTalentTreeID" },
-        { true, FT_INT, "UiMapID" },
-        { true, FT_INT, "UiItemInteractionID" },
-        { true, FT_INT, "Unknown_1000_8" },
-        { true, FT_INT, "Unknown_1000_9" },
-        { true, FT_INT, "CovenantID" },
+        { true, FT_INT, "Field34146722002" },
+        { true, FT_INT, "Field34146722003" },
+        { true, FT_INT, "Field34146722004" },
+        { true, FT_INT, "Field34146722005" },
+        { true, FT_INT, "Field34146722006" },
+        { true, FT_INT, "Field34146722007" },
+        { true, FT_INT, "Field34146722008" },
+        { true, FT_INT, "Field34146722009" },
+        { true, FT_INT, "Field34146722010" },
         { true, FT_INT, "GossipOptionID" },
-        { true, FT_INT, "TraitTreeID" },
-        { true, FT_INT, "ProfessionID" },
-        { true, FT_INT, "Unknown_1002_14" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 16, &GossipNPCOptionMeta::Instance, HOTFIX_SEL_GOSSIP_NPC_OPTION };
+    static constexpr DB2LoadInfo Instance{ Fields, 13, &GossipNPCOptionMeta::Instance, HOTFIX_SEL_GOSSIP_NPC_OPTION };
 };
 
 struct GuildColorBackgroundLoadInfo
@@ -2446,7 +2303,7 @@ struct HeirloomLoadInfo
 
 struct HolidaysLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[57] =
+    static constexpr DB2FieldMeta Fields[48] =
     {
         { false, FT_INT, "ID" },
         { false, FT_SHORT, "Region" },
@@ -2456,6 +2313,7 @@ struct HolidaysLoadInfo
         { false, FT_BYTE, "Priority" },
         { true, FT_BYTE, "CalendarFilterType" },
         { false, FT_BYTE, "Flags" },
+        { false, FT_INT, "WorldStateExpressionID" },
         { false, FT_SHORT, "Duration1" },
         { false, FT_SHORT, "Duration2" },
         { false, FT_SHORT, "Duration3" },
@@ -2482,16 +2340,6 @@ struct HolidaysLoadInfo
         { false, FT_INT, "Date14" },
         { false, FT_INT, "Date15" },
         { false, FT_INT, "Date16" },
-        { false, FT_INT, "Date17" },
-        { false, FT_INT, "Date18" },
-        { false, FT_INT, "Date19" },
-        { false, FT_INT, "Date20" },
-        { false, FT_INT, "Date21" },
-        { false, FT_INT, "Date22" },
-        { false, FT_INT, "Date23" },
-        { false, FT_INT, "Date24" },
-        { false, FT_INT, "Date25" },
-        { false, FT_INT, "Date26" },
         { false, FT_BYTE, "CalendarFlags1" },
         { false, FT_BYTE, "CalendarFlags2" },
         { false, FT_BYTE, "CalendarFlags3" },
@@ -2507,7 +2355,7 @@ struct HolidaysLoadInfo
         { true, FT_INT, "TextureFileDataID3" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 57, &HolidaysMeta::Instance, HOTFIX_SEL_HOLIDAYS };
+    static constexpr DB2LoadInfo Instance{ Fields, 48, &HolidaysMeta::Instance, HOTFIX_SEL_HOLIDAYS };
 };
 
 struct ImportPriceArmorLoadInfo
@@ -2559,38 +2407,64 @@ struct ImportPriceWeaponLoadInfo
 
 struct ItemLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[12] =
+    static constexpr DB2FieldMeta Fields[39] =
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "ClassID" },
         { false, FT_BYTE, "SubclassID" },
         { false, FT_BYTE, "Material" },
         { true, FT_BYTE, "InventoryType" },
+        { true, FT_INT, "RequiredLevel" },
         { false, FT_BYTE, "SheatheType" },
+        { false, FT_SHORT, "RandomSelect" },
+        { false, FT_SHORT, "ItemRandomSuffixGroupID" },
         { true, FT_BYTE, "SoundOverrideSubclassID" },
+        { false, FT_SHORT, "ScalingStatDistributionID" },
         { true, FT_INT, "IconFileDataID" },
         { false, FT_BYTE, "ItemGroupSoundsID" },
         { true, FT_INT, "ContentTuningID" },
-        { true, FT_INT, "ModifiedCraftingReagentItemID" },
-        { true, FT_INT, "CraftingQualityID" },
+        { false, FT_INT, "MaxDurability" },
+        { false, FT_BYTE, "AmmunitionType" },
+        { true, FT_INT, "ScalingStatValue" },
+        { false, FT_BYTE, "DamageType1" },
+        { false, FT_BYTE, "DamageType2" },
+        { false, FT_BYTE, "DamageType3" },
+        { false, FT_BYTE, "DamageType4" },
+        { false, FT_BYTE, "DamageType5" },
+        { true, FT_SHORT, "Resistances1" },
+        { true, FT_SHORT, "Resistances2" },
+        { true, FT_SHORT, "Resistances3" },
+        { true, FT_SHORT, "Resistances4" },
+        { true, FT_SHORT, "Resistances5" },
+        { true, FT_SHORT, "Resistances6" },
+        { true, FT_SHORT, "Resistances7" },
+        { false, FT_SHORT, "MinDamage1" },
+        { false, FT_SHORT, "MinDamage2" },
+        { false, FT_SHORT, "MinDamage3" },
+        { false, FT_SHORT, "MinDamage4" },
+        { false, FT_SHORT, "MinDamage5" },
+        { false, FT_SHORT, "MaxDamage1" },
+        { false, FT_SHORT, "MaxDamage2" },
+        { false, FT_SHORT, "MaxDamage3" },
+        { false, FT_SHORT, "MaxDamage4" },
+        { false, FT_SHORT, "MaxDamage5" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 12, &ItemMeta::Instance, HOTFIX_SEL_ITEM };
+    static constexpr DB2LoadInfo Instance{ Fields, 39, &ItemMeta::Instance, HOTFIX_SEL_ITEM };
 };
 
 struct ItemAppearanceLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[6] =
+    static constexpr DB2FieldMeta Fields[5] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "DisplayType" },
+        { false, FT_BYTE, "DisplayType" },
         { true, FT_INT, "ItemDisplayInfoID" },
         { true, FT_INT, "DefaultIconFileDataID" },
         { true, FT_INT, "UiOrder" },
-        { true, FT_INT, "PlayerConditionID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 6, &ItemAppearanceMeta::Instance, HOTFIX_SEL_ITEM_APPEARANCE };
+    static constexpr DB2LoadInfo Instance{ Fields, 5, &ItemAppearanceMeta::Instance, HOTFIX_SEL_ITEM_APPEARANCE };
 };
 
 struct ItemArmorQualityLoadInfo
@@ -2671,24 +2545,6 @@ struct ItemBonusLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 8, &ItemBonusMeta::Instance, HOTFIX_SEL_ITEM_BONUS };
 };
 
-struct ItemBonusListGroupEntryLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[9] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "ItemBonusListGroupID" },
-        { true, FT_INT, "ItemBonusListID" },
-        { true, FT_INT, "ItemLevelSelectorID" },
-        { true, FT_INT, "SequenceValue" },
-        { true, FT_INT, "ItemExtendedCostID" },
-        { true, FT_INT, "PlayerConditionID" },
-        { true, FT_INT, "Flags" },
-        { true, FT_INT, "ItemLogicalCostGroupID" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 9, &ItemBonusListGroupEntryMeta::Instance, HOTFIX_SEL_ITEM_BONUS_LIST_GROUP_ENTRY };
-};
-
 struct ItemBonusListLevelDeltaLoadInfo
 {
     static constexpr DB2FieldMeta Fields[2] =
@@ -2700,35 +2556,19 @@ struct ItemBonusListLevelDeltaLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 2, &ItemBonusListLevelDeltaMeta::Instance, HOTFIX_SEL_ITEM_BONUS_LIST_LEVEL_DELTA };
 };
 
-struct ItemBonusTreeLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[3] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "Flags" },
-        { true, FT_INT, "InventoryTypeSlotMask" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &ItemBonusTreeMeta::Instance, HOTFIX_SEL_ITEM_BONUS_TREE };
-};
-
 struct ItemBonusTreeNodeLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[10] =
+    static constexpr DB2FieldMeta Fields[6] =
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "ItemContext" },
         { false, FT_SHORT, "ChildItemBonusTreeID" },
         { false, FT_SHORT, "ChildItemBonusListID" },
         { false, FT_SHORT, "ChildItemLevelSelectorID" },
-        { true, FT_INT, "ChildItemBonusListGroupID" },
-        { true, FT_INT, "IblGroupPointsModSetID" },
-        { true, FT_INT, "MinMythicPlusLevel" },
-        { true, FT_INT, "MaxMythicPlusLevel" },
         { false, FT_INT, "ParentItemBonusTreeID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 10, &ItemBonusTreeNodeMeta::Instance, HOTFIX_SEL_ITEM_BONUS_TREE_NODE };
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &ItemBonusTreeNodeMeta::Instance, HOTFIX_SEL_ITEM_BONUS_TREE_NODE };
 };
 
 struct ItemChildEquipmentLoadInfo
@@ -2736,9 +2576,9 @@ struct ItemChildEquipmentLoadInfo
     static constexpr DB2FieldMeta Fields[4] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "ParentItemID" },
         { true, FT_INT, "ChildItemID" },
         { false, FT_BYTE, "ChildItemEquipSlot" },
+        { true, FT_INT, "ParentItemID" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 4, &ItemChildEquipmentMeta::Instance, HOTFIX_SEL_ITEM_CHILD_EQUIPMENT };
@@ -2760,19 +2600,18 @@ struct ItemClassLoadInfo
 
 struct ItemContextPickerEntryLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[8] =
+    static constexpr DB2FieldMeta Fields[7] =
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "ItemCreationContext" },
         { false, FT_BYTE, "OrderIndex" },
         { true, FT_INT, "PVal" },
-        { true, FT_INT, "LabelID" },
         { false, FT_INT, "Flags" },
         { false, FT_INT, "PlayerConditionID" },
         { false, FT_INT, "ItemContextPickerID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 8, &ItemContextPickerEntryMeta::Instance, HOTFIX_SEL_ITEM_CONTEXT_PICKER_ENTRY };
+    static constexpr DB2LoadInfo Instance{ Fields, 7, &ItemContextPickerEntryMeta::Instance, HOTFIX_SEL_ITEM_CONTEXT_PICKER_ENTRY };
 };
 
 struct ItemCurrencyCostLoadInfo
@@ -2895,7 +2734,7 @@ struct ItemDisenchantLootLoadInfo
 
 struct ItemEffectLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[9] =
+    static constexpr DB2FieldMeta Fields[10] =
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "LegacySlotIndex" },
@@ -2906,9 +2745,10 @@ struct ItemEffectLoadInfo
         { false, FT_SHORT, "SpellCategoryID" },
         { true, FT_INT, "SpellID" },
         { false, FT_SHORT, "ChrSpecializationID" },
+        { true, FT_INT, "ParentItemID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 9, &ItemEffectMeta::Instance, HOTFIX_SEL_ITEM_EFFECT };
+    static constexpr DB2LoadInfo Instance{ Fields, 10, &ItemEffectMeta::Instance, HOTFIX_SEL_ITEM_EFFECT };
 };
 
 struct ItemExtendedCostLoadInfo
@@ -2949,15 +2789,14 @@ struct ItemExtendedCostLoadInfo
 
 struct ItemLevelSelectorLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[4] =
+    static constexpr DB2FieldMeta Fields[3] =
     {
         { false, FT_INT, "ID" },
         { false, FT_SHORT, "MinItemLevel" },
         { false, FT_SHORT, "ItemLevelSelectorQualitySetID" },
-        { false, FT_SHORT, "AzeriteUnlockMappingSet" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 4, &ItemLevelSelectorMeta::Instance, HOTFIX_SEL_ITEM_LEVEL_SELECTOR };
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &ItemLevelSelectorMeta::Instance, HOTFIX_SEL_ITEM_LEVEL_SELECTOR };
 };
 
 struct ItemLevelSelectorQualityLoadInfo
@@ -3070,11 +2909,11 @@ struct ItemSearchNameLoadInfo
 {
     static constexpr DB2FieldMeta Fields[17] =
     {
-        { false, FT_INT, "ID" },
         { true, FT_LONG, "AllowableRace" },
         { false, FT_STRING, "Display" },
+        { false, FT_INT, "ID" },
         { false, FT_BYTE, "OverallQualityID" },
-        { true, FT_INT, "ExpansionID" },
+        { true, FT_BYTE, "ExpansionID" },
         { false, FT_SHORT, "MinFactionID" },
         { true, FT_INT, "MinReputation" },
         { true, FT_INT, "AllowableClass" },
@@ -3139,7 +2978,7 @@ struct ItemSetSpellLoadInfo
 
 struct ItemSparseLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[98] =
+    static constexpr DB2FieldMeta Fields[130] =
     {
         { false, FT_INT, "ID" },
         { true, FT_LONG, "AllowableRace" },
@@ -3148,14 +2987,11 @@ struct ItemSparseLoadInfo
         { false, FT_STRING, "Display2" },
         { false, FT_STRING, "Display1" },
         { false, FT_STRING, "Display" },
-        { true, FT_INT, "ExpansionID" },
         { false, FT_FLOAT, "DmgVariance" },
-        { true, FT_INT, "LimitCategory" },
         { false, FT_INT, "DurationInInventory" },
         { false, FT_FLOAT, "QualityModifier" },
         { false, FT_INT, "BagFamily" },
         { true, FT_INT, "StartQuestID" },
-        { true, FT_INT, "LanguageID" },
         { false, FT_FLOAT, "ItemRange" },
         { false, FT_FLOAT, "StatPercentageOfSocket1" },
         { false, FT_FLOAT, "StatPercentageOfSocket2" },
@@ -3194,9 +3030,11 @@ struct ItemSparseLoadInfo
         { true, FT_INT, "ModifiedCraftingReagentItemID" },
         { true, FT_INT, "ContentTuningID" },
         { true, FT_INT, "PlayerLevelToItemLevelCurveID" },
+        { false, FT_INT, "MaxDurability" },
         { false, FT_SHORT, "ItemNameDescriptionID" },
         { false, FT_SHORT, "RequiredTransmogHoliday" },
         { false, FT_SHORT, "RequiredHoliday" },
+        { false, FT_SHORT, "LimitCategory" },
         { false, FT_SHORT, "GemProperties" },
         { false, FT_SHORT, "SocketMatchEnchantmentId" },
         { false, FT_SHORT, "TotemCategoryID" },
@@ -3212,6 +3050,37 @@ struct ItemSparseLoadInfo
         { false, FT_SHORT, "RequiredSkill" },
         { false, FT_SHORT, "ItemLevel" },
         { true, FT_SHORT, "AllowableClass" },
+        { false, FT_SHORT, "ItemRandomSuffixGroupID" },
+        { false, FT_SHORT, "RandomSelect" },
+        { false, FT_SHORT, "MinDamage1" },
+        { false, FT_SHORT, "MinDamage2" },
+        { false, FT_SHORT, "MinDamage3" },
+        { false, FT_SHORT, "MinDamage4" },
+        { false, FT_SHORT, "MinDamage5" },
+        { false, FT_SHORT, "MaxDamage1" },
+        { false, FT_SHORT, "MaxDamage2" },
+        { false, FT_SHORT, "MaxDamage3" },
+        { false, FT_SHORT, "MaxDamage4" },
+        { false, FT_SHORT, "MaxDamage5" },
+        { true, FT_SHORT, "Resistances1" },
+        { true, FT_SHORT, "Resistances2" },
+        { true, FT_SHORT, "Resistances3" },
+        { true, FT_SHORT, "Resistances4" },
+        { true, FT_SHORT, "Resistances5" },
+        { true, FT_SHORT, "Resistances6" },
+        { true, FT_SHORT, "Resistances7" },
+        { false, FT_SHORT, "ScalingStatDistributionID" },
+        { true, FT_SHORT, "StatModifierBonusAmount1" },
+        { true, FT_SHORT, "StatModifierBonusAmount2" },
+        { true, FT_SHORT, "StatModifierBonusAmount3" },
+        { true, FT_SHORT, "StatModifierBonusAmount4" },
+        { true, FT_SHORT, "StatModifierBonusAmount5" },
+        { true, FT_SHORT, "StatModifierBonusAmount6" },
+        { true, FT_SHORT, "StatModifierBonusAmount7" },
+        { true, FT_SHORT, "StatModifierBonusAmount8" },
+        { true, FT_SHORT, "StatModifierBonusAmount9" },
+        { true, FT_SHORT, "StatModifierBonusAmount10" },
+        { false, FT_BYTE, "ExpansionID" },
         { false, FT_BYTE, "ArtifactID" },
         { false, FT_BYTE, "SpellWeight" },
         { false, FT_BYTE, "SpellWeightCategory" },
@@ -3221,6 +3090,7 @@ struct ItemSparseLoadInfo
         { false, FT_BYTE, "SheatheType" },
         { false, FT_BYTE, "Material" },
         { false, FT_BYTE, "PageMaterialID" },
+        { false, FT_BYTE, "LanguageID" },
         { false, FT_BYTE, "Bonding" },
         { false, FT_BYTE, "DamageDamageType" },
         { true, FT_BYTE, "StatModifierBonusStat1" },
@@ -3236,12 +3106,13 @@ struct ItemSparseLoadInfo
         { false, FT_BYTE, "ContainerSlots" },
         { false, FT_BYTE, "RequiredPVPMedal" },
         { false, FT_BYTE, "RequiredPVPRank" },
-        { true, FT_BYTE, "RequiredLevel" },
         { true, FT_BYTE, "InventoryType" },
         { true, FT_BYTE, "OverallQualityID" },
+        { false, FT_BYTE, "AmmunitionType" },
+        { true, FT_BYTE, "RequiredLevel" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 98, &ItemSparseMeta::Instance, HOTFIX_SEL_ITEM_SPARSE };
+    static constexpr DB2LoadInfo Instance{ Fields, 130, &ItemSparseMeta::Instance, HOTFIX_SEL_ITEM_SPARSE };
 };
 
 struct ItemSpecLoadInfo
@@ -3284,29 +3155,16 @@ struct ItemXBonusTreeLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 3, &ItemXBonusTreeMeta::Instance, HOTFIX_SEL_ITEM_X_BONUS_TREE };
 };
 
-struct ItemXItemEffectLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[3] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "ItemEffectID" },
-        { false, FT_INT, "ItemID" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &ItemXItemEffectMeta::Instance, HOTFIX_SEL_ITEM_X_ITEM_EFFECT };
-};
-
 struct JournalEncounterLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[13] =
+    static constexpr DB2FieldMeta Fields[12] =
     {
+        { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
         { false, FT_FLOAT, "MapX" },
         { false, FT_FLOAT, "MapY" },
-        { false, FT_INT, "ID" },
         { false, FT_SHORT, "JournalInstanceID" },
-        { false, FT_SHORT, "DungeonEncounterID" },
         { false, FT_INT, "OrderIndex" },
         { false, FT_SHORT, "FirstSectionID" },
         { false, FT_SHORT, "UiMapID" },
@@ -3315,7 +3173,7 @@ struct JournalEncounterLoadInfo
         { true, FT_BYTE, "DifficultyMask" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 13, &JournalEncounterMeta::Instance, HOTFIX_SEL_JOURNAL_ENCOUNTER };
+    static constexpr DB2LoadInfo Instance{ Fields, 12, &JournalEncounterMeta::Instance, HOTFIX_SEL_JOURNAL_ENCOUNTER };
 };
 
 struct JournalEncounterSectionLoadInfo
@@ -3347,9 +3205,9 @@ struct JournalInstanceLoadInfo
 {
     static constexpr DB2FieldMeta Fields[10] =
     {
-        { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
+        { false, FT_INT, "ID" },
         { false, FT_SHORT, "MapID" },
         { true, FT_INT, "BackgroundFileDataID" },
         { true, FT_INT, "ButtonFileDataID" },
@@ -3364,14 +3222,13 @@ struct JournalInstanceLoadInfo
 
 struct JournalTierLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[3] =
+    static constexpr DB2FieldMeta Fields[2] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
-        { true, FT_INT, "PlayerConditionID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &JournalTierMeta::Instance, HOTFIX_SEL_JOURNAL_TIER };
+    static constexpr DB2LoadInfo Instance{ Fields, 2, &JournalTierMeta::Instance, HOTFIX_SEL_JOURNAL_TIER };
 };
 
 struct KeychainLoadInfo
@@ -3435,7 +3292,7 @@ struct LanguageWordsLoadInfo
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING_NOT_LOCALIZED, "Word" },
-        { false, FT_INT, "LanguageID" },
+        { false, FT_BYTE, "LanguageID" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 3, &LanguageWordsMeta::Instance, HOTFIX_SEL_LANGUAGE_WORDS };
@@ -3458,11 +3315,13 @@ struct LanguagesLoadInfo
 
 struct LfgDungeonsLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[31] =
+    static constexpr DB2FieldMeta Fields[35] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
+        { false, FT_BYTE, "MinLevel" },
+        { false, FT_SHORT, "MaxLevel" },
         { false, FT_BYTE, "TypeID" },
         { true, FT_BYTE, "Subtype" },
         { true, FT_BYTE, "Faction" },
@@ -3476,6 +3335,9 @@ struct LfgDungeonsLoadInfo
         { false, FT_BYTE, "GroupID" },
         { false, FT_BYTE, "OrderIndex" },
         { false, FT_INT, "RequiredPlayerConditionId" },
+        { false, FT_BYTE, "TargetLevel" },
+        { false, FT_BYTE, "TargetLevelMin" },
+        { false, FT_SHORT, "TargetLevelMax" },
         { false, FT_SHORT, "RandomID" },
         { false, FT_SHORT, "ScenarioID" },
         { false, FT_SHORT, "FinalEncounterID" },
@@ -3488,12 +3350,11 @@ struct LfgDungeonsLoadInfo
         { false, FT_SHORT, "BonusReputationAmount" },
         { false, FT_SHORT, "MentorItemLevel" },
         { false, FT_BYTE, "MentorCharLevel" },
-        { true, FT_INT, "ContentTuningID" },
         { true, FT_INT, "Flags1" },
         { true, FT_INT, "Flags2" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 31, &LFGDungeonsMeta::Instance, HOTFIX_SEL_LFG_DUNGEONS };
+    static constexpr DB2LoadInfo Instance{ Fields, 35, &LFGDungeonsMeta::Instance, HOTFIX_SEL_LFG_DUNGEONS };
 };
 
 struct LightLoadInfo
@@ -3587,10 +3448,9 @@ struct LiquidTypeLoadInfo
 
 struct LockLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[34] =
+    static constexpr DB2FieldMeta Fields[33] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "Flags" },
         { true, FT_INT, "Index1" },
         { true, FT_INT, "Index2" },
         { true, FT_INT, "Index3" },
@@ -3625,7 +3485,7 @@ struct LockLoadInfo
         { false, FT_BYTE, "Action8" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 34, &LockMeta::Instance, HOTFIX_SEL_LOCK };
+    static constexpr DB2LoadInfo Instance{ Fields, 33, &LockMeta::Instance, HOTFIX_SEL_LOCK };
 };
 
 struct MailTemplateLoadInfo
@@ -3641,7 +3501,7 @@ struct MailTemplateLoadInfo
 
 struct MapLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[28] =
+    static constexpr DB2FieldMeta Fields[25] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING_NOT_LOCALIZED, "Directory" },
@@ -3650,8 +3510,6 @@ struct MapLoadInfo
         { false, FT_STRING, "MapDescription1" },
         { false, FT_STRING, "PvpShortDescription" },
         { false, FT_STRING, "PvpLongDescription" },
-        { false, FT_FLOAT, "CorpseX" },
-        { false, FT_FLOAT, "CorpseY" },
         { false, FT_BYTE, "MapType" },
         { true, FT_BYTE, "InstanceType" },
         { false, FT_BYTE, "ExpansionID" },
@@ -3662,18 +3520,17 @@ struct MapLoadInfo
         { true, FT_SHORT, "CosmeticParentMapID" },
         { false, FT_BYTE, "TimeOffset" },
         { false, FT_FLOAT, "MinimapIconScale" },
+        { true, FT_INT, "RaidOffset" },
         { true, FT_SHORT, "CorpseMapID" },
         { false, FT_BYTE, "MaxPlayers" },
         { true, FT_SHORT, "WindSettingsID" },
         { true, FT_INT, "ZmpFileDataID" },
-        { true, FT_INT, "WdtFileDataID" },
-        { true, FT_INT, "NavigationMaxDistance" },
         { true, FT_INT, "Flags1" },
         { true, FT_INT, "Flags2" },
         { true, FT_INT, "Flags3" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 28, &MapMeta::Instance, HOTFIX_SEL_MAP };
+    static constexpr DB2LoadInfo Instance{ Fields, 25, &MapMeta::Instance, HOTFIX_SEL_MAP };
 };
 
 struct MapChallengeModeLoadInfo
@@ -3700,14 +3557,14 @@ struct MapDifficultyLoadInfo
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Message" },
-        { true, FT_INT, "DifficultyID" },
-        { true, FT_INT, "LockID" },
-        { true, FT_BYTE, "ResetInterval" },
-        { true, FT_INT, "MaxPlayers" },
-        { true, FT_INT, "ItemContext" },
         { true, FT_INT, "ItemContextPickerID" },
-        { true, FT_INT, "Flags" },
         { true, FT_INT, "ContentTuningID" },
+        { false, FT_BYTE, "DifficultyID" },
+        { false, FT_BYTE, "LockID" },
+        { false, FT_BYTE, "ResetInterval" },
+        { false, FT_BYTE, "MaxPlayers" },
+        { false, FT_BYTE, "ItemContext" },
+        { false, FT_BYTE, "Flags" },
         { false, FT_INT, "MapID" },
     };
 
@@ -3728,18 +3585,6 @@ struct MapDifficultyXConditionLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 5, &MapDifficultyXConditionMeta::Instance, HOTFIX_SEL_MAP_DIFFICULTY_X_CONDITION };
 };
 
-struct MawPowerLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[3] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "SpellID" },
-        { true, FT_INT, "MawPowerRarityID" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &MawPowerMeta::Instance, HOTFIX_SEL_MAW_POWER };
-};
-
 struct ModifierTreeLoadInfo
 {
     static constexpr DB2FieldMeta Fields[8] =
@@ -3751,7 +3596,7 @@ struct ModifierTreeLoadInfo
         { true, FT_INT, "Type" },
         { true, FT_INT, "Asset" },
         { true, FT_INT, "SecondaryAsset" },
-        { true, FT_INT, "TertiaryAsset" },
+        { true, FT_BYTE, "TertiaryAsset" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 8, &ModifierTreeMeta::Instance, HOTFIX_SEL_MODIFIER_TREE };
@@ -3759,43 +3604,39 @@ struct ModifierTreeLoadInfo
 
 struct MountLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[13] =
+    static constexpr DB2FieldMeta Fields[11] =
     {
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "SourceText" },
         { false, FT_STRING, "Description" },
         { false, FT_INT, "ID" },
         { false, FT_SHORT, "MountTypeID" },
-        { true, FT_INT, "Flags" },
+        { false, FT_SHORT, "Flags" },
         { true, FT_BYTE, "SourceTypeEnum" },
         { true, FT_INT, "SourceSpellID" },
         { false, FT_INT, "PlayerConditionID" },
         { false, FT_FLOAT, "MountFlyRideHeight" },
         { true, FT_INT, "UiModelSceneID" },
-        { true, FT_INT, "MountSpecialRiderAnimKitID" },
-        { true, FT_INT, "MountSpecialSpellVisualKitID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 13, &MountMeta::Instance, HOTFIX_SEL_MOUNT };
+    static constexpr DB2LoadInfo Instance{ Fields, 11, &MountMeta::Instance, HOTFIX_SEL_MOUNT };
 };
 
 struct MountCapabilityLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[10] =
+    static constexpr DB2FieldMeta Fields[8] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "Flags" },
+        { false, FT_BYTE, "Flags" },
         { false, FT_SHORT, "ReqRidingSkill" },
         { false, FT_SHORT, "ReqAreaID" },
         { false, FT_INT, "ReqSpellAuraID" },
         { true, FT_INT, "ReqSpellKnownID" },
         { true, FT_INT, "ModSpellAuraID" },
         { true, FT_SHORT, "ReqMapID" },
-        { true, FT_INT, "PlayerConditionID" },
-        { true, FT_INT, "FlightCapabilityID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 10, &MountCapabilityMeta::Instance, HOTFIX_SEL_MOUNT_CAPABILITY };
+    static constexpr DB2LoadInfo Instance{ Fields, 8, &MountCapabilityMeta::Instance, HOTFIX_SEL_MOUNT_CAPABILITY };
 };
 
 struct MountTypeXCapabilityLoadInfo
@@ -3826,17 +3667,16 @@ struct MountXDisplayLoadInfo
 
 struct MovieLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[6] =
+    static constexpr DB2FieldMeta Fields[5] =
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "Volume" },
         { false, FT_BYTE, "KeyID" },
         { false, FT_INT, "AudioFileDataID" },
         { false, FT_INT, "SubtitleFileDataID" },
-        { false, FT_INT, "SubtitleFileFormat" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 6, &MovieMeta::Instance, HOTFIX_SEL_MOVIE };
+    static constexpr DB2LoadInfo Instance{ Fields, 5, &MovieMeta::Instance, HOTFIX_SEL_MOVIE };
 };
 
 struct MythicPlusSeasonLoadInfo
@@ -3953,7 +3793,7 @@ struct PhaseLoadInfo
     static constexpr DB2FieldMeta Fields[2] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "Flags" },
+        { false, FT_SHORT, "Flags" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 2, &PhaseMeta::Instance, HOTFIX_SEL_PHASE };
@@ -3973,14 +3813,16 @@ struct PhaseXPhaseGroupLoadInfo
 
 struct PlayerConditionLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[160] =
+    static constexpr DB2FieldMeta Fields[147] =
     {
-        { false, FT_INT, "ID" },
         { true, FT_LONG, "RaceMask" },
         { false, FT_STRING, "FailureDescription" },
+        { false, FT_INT, "ID" },
+        { false, FT_SHORT, "MinLevel" },
+        { false, FT_SHORT, "MaxLevel" },
         { true, FT_INT, "ClassMask" },
         { false, FT_INT, "SkillLogic" },
-        { true, FT_INT, "LanguageID" },
+        { false, FT_BYTE, "LanguageID" },
         { false, FT_BYTE, "MinLanguage" },
         { true, FT_INT, "MaxLanguage" },
         { false, FT_SHORT, "MaxFactionID" },
@@ -3996,7 +3838,7 @@ struct PlayerConditionLoadInfo
         { false, FT_BYTE, "ItemFlags" },
         { false, FT_INT, "AuraSpellLogic" },
         { false, FT_SHORT, "WorldStateExpressionID" },
-        { true, FT_INT, "WeatherID" },
+        { false, FT_BYTE, "WeatherID" },
         { false, FT_BYTE, "PartyStatus" },
         { false, FT_BYTE, "LifetimeMaxPVPRank" },
         { false, FT_INT, "AchievementLogic" },
@@ -4013,10 +3855,10 @@ struct PlayerConditionLoadInfo
         { true, FT_INT, "MaxAvgItemLevel" },
         { false, FT_SHORT, "MinAvgEquippedItemLevel" },
         { false, FT_SHORT, "MaxAvgEquippedItemLevel" },
-        { true, FT_INT, "PhaseUseFlags" },
+        { false, FT_BYTE, "PhaseUseFlags" },
         { false, FT_SHORT, "PhaseID" },
         { false, FT_INT, "PhaseGroupID" },
-        { true, FT_INT, "Flags" },
+        { false, FT_BYTE, "Flags" },
         { true, FT_BYTE, "ChrSpecializationIndex" },
         { true, FT_BYTE, "ChrSpecializationRole" },
         { false, FT_INT, "ModifierTreeID" },
@@ -4030,9 +3872,6 @@ struct PlayerConditionLoadInfo
         { true, FT_BYTE, "MinExpansionTier" },
         { false, FT_BYTE, "MinPVPRank" },
         { false, FT_BYTE, "MaxPVPRank" },
-        { true, FT_INT, "ContentTuningID" },
-        { true, FT_INT, "CovenantID" },
-        { false, FT_INT, "TraitNodeEntryLogic" },
         { false, FT_SHORT, "SkillID1" },
         { false, FT_SHORT, "SkillID2" },
         { false, FT_SHORT, "SkillID3" },
@@ -4123,21 +3962,9 @@ struct PlayerConditionLoadInfo
         { false, FT_INT, "QuestKillMonster6" },
         { true, FT_INT, "MovementFlags1" },
         { true, FT_INT, "MovementFlags2" },
-        { true, FT_INT, "TraitNodeEntryID1" },
-        { true, FT_INT, "TraitNodeEntryID2" },
-        { true, FT_INT, "TraitNodeEntryID3" },
-        { true, FT_INT, "TraitNodeEntryID4" },
-        { false, FT_SHORT, "TraitNodeEntryMinRank1" },
-        { false, FT_SHORT, "TraitNodeEntryMinRank2" },
-        { false, FT_SHORT, "TraitNodeEntryMinRank3" },
-        { false, FT_SHORT, "TraitNodeEntryMinRank4" },
-        { false, FT_SHORT, "TraitNodeEntryMaxRank1" },
-        { false, FT_SHORT, "TraitNodeEntryMaxRank2" },
-        { false, FT_SHORT, "TraitNodeEntryMaxRank3" },
-        { false, FT_SHORT, "TraitNodeEntryMaxRank4" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 160, &PlayerConditionMeta::Instance, HOTFIX_SEL_PLAYER_CONDITION };
+    static constexpr DB2LoadInfo Instance{ Fields, 147, &PlayerConditionMeta::Instance, HOTFIX_SEL_PLAYER_CONDITION };
 };
 
 struct PowerDisplayLoadInfo
@@ -4159,9 +3986,9 @@ struct PowerTypeLoadInfo
 {
     static constexpr DB2FieldMeta Fields[13] =
     {
+        { false, FT_INT, "ID" },
         { false, FT_STRING_NOT_LOCALIZED, "NameGlobalStringTag" },
         { false, FT_STRING_NOT_LOCALIZED, "CostGlobalStringTag" },
-        { false, FT_INT, "ID" },
         { true, FT_BYTE, "PowerTypeEnum" },
         { true, FT_INT, "MinPower" },
         { true, FT_INT, "MaxBasePower" },
@@ -4233,7 +4060,7 @@ struct PvpSeasonLoadInfo
 
 struct PvpTalentLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[10] =
+    static constexpr DB2FieldMeta Fields[9] =
     {
         { false, FT_STRING, "Description" },
         { false, FT_INT, "ID" },
@@ -4244,10 +4071,9 @@ struct PvpTalentLoadInfo
         { true, FT_INT, "ActionBarSpellID" },
         { true, FT_INT, "PvpTalentCategoryID" },
         { true, FT_INT, "LevelRequired" },
-        { true, FT_INT, "PlayerConditionID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 10, &PvpTalentMeta::Instance, HOTFIX_SEL_PVP_TALENT };
+    static constexpr DB2LoadInfo Instance{ Fields, 9, &PvpTalentMeta::Instance, HOTFIX_SEL_PVP_TALENT };
 };
 
 struct PvpTalentCategoryLoadInfo
@@ -4279,8 +4105,8 @@ struct PvpTierLoadInfo
 {
     static constexpr DB2FieldMeta Fields[9] =
     {
-        { false, FT_STRING, "Name" },
         { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
         { true, FT_SHORT, "MinRating" },
         { true, FT_SHORT, "MaxRating" },
         { true, FT_INT, "PrevTier" },
@@ -4329,16 +4155,15 @@ struct QuestInfoLoadInfo
 
 struct QuestLineXQuestLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[5] =
+    static constexpr DB2FieldMeta Fields[4] =
     {
         { false, FT_INT, "ID" },
         { false, FT_INT, "QuestLineID" },
         { false, FT_INT, "QuestID" },
         { false, FT_INT, "OrderIndex" },
-        { true, FT_INT, "Flags" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &QuestLineXQuestMeta::Instance, HOTFIX_SEL_QUEST_LINE_X_QUEST };
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &QuestLineXQuestMeta::Instance, HOTFIX_SEL_QUEST_LINE_X_QUEST };
 };
 
 struct QuestMoneyRewardLoadInfo
@@ -4389,14 +4214,13 @@ struct QuestSortLoadInfo
 
 struct QuestV2LoadInfo
 {
-    static constexpr DB2FieldMeta Fields[3] =
+    static constexpr DB2FieldMeta Fields[2] =
     {
         { false, FT_INT, "ID" },
         { false, FT_SHORT, "UniqueBitFlag" },
-        { true, FT_INT, "UiQuestDetailsTheme" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &QuestV2Meta::Instance, HOTFIX_SEL_QUEST_V2 };
+    static constexpr DB2LoadInfo Instance{ Fields, 2, &QuestV2Meta::Instance, HOTFIX_SEL_QUEST_V2 };
 };
 
 struct QuestXpLoadInfo
@@ -4421,28 +4245,10 @@ struct QuestXpLoadInfo
 
 struct RandPropPointsLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[35] =
+    static constexpr DB2FieldMeta Fields[17] =
     {
         { false, FT_INT, "ID" },
-        { false, FT_FLOAT, "DamageReplaceStatF" },
-        { false, FT_FLOAT, "DamageSecondaryF" },
         { true, FT_INT, "DamageReplaceStat" },
-        { true, FT_INT, "DamageSecondary" },
-        { false, FT_FLOAT, "EpicF1" },
-        { false, FT_FLOAT, "EpicF2" },
-        { false, FT_FLOAT, "EpicF3" },
-        { false, FT_FLOAT, "EpicF4" },
-        { false, FT_FLOAT, "EpicF5" },
-        { false, FT_FLOAT, "SuperiorF1" },
-        { false, FT_FLOAT, "SuperiorF2" },
-        { false, FT_FLOAT, "SuperiorF3" },
-        { false, FT_FLOAT, "SuperiorF4" },
-        { false, FT_FLOAT, "SuperiorF5" },
-        { false, FT_FLOAT, "GoodF1" },
-        { false, FT_FLOAT, "GoodF2" },
-        { false, FT_FLOAT, "GoodF3" },
-        { false, FT_FLOAT, "GoodF4" },
-        { false, FT_FLOAT, "GoodF5" },
         { false, FT_INT, "Epic1" },
         { false, FT_INT, "Epic2" },
         { false, FT_INT, "Epic3" },
@@ -4460,7 +4266,7 @@ struct RandPropPointsLoadInfo
         { false, FT_INT, "Good5" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 35, &RandPropPointsMeta::Instance, HOTFIX_SEL_RAND_PROP_POINTS };
+    static constexpr DB2LoadInfo Instance{ Fields, 17, &RandPropPointsMeta::Instance, HOTFIX_SEL_RAND_PROP_POINTS };
 };
 
 struct RewardPackLoadInfo
@@ -4568,14 +4374,13 @@ struct SceneScriptGlobalTextLoadInfo
 
 struct SceneScriptPackageLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[3] =
+    static constexpr DB2FieldMeta Fields[2] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING_NOT_LOCALIZED, "Name" },
-        { true, FT_INT, "Unknown915" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &SceneScriptPackageMeta::Instance, HOTFIX_SEL_SCENE_SCRIPT_PACKAGE };
+    static constexpr DB2LoadInfo Instance{ Fields, 2, &SceneScriptPackageMeta::Instance, HOTFIX_SEL_SCENE_SCRIPT_PACKAGE };
 };
 
 struct SceneScriptTextLoadInfo
@@ -4603,7 +4408,7 @@ struct ServerMessagesLoadInfo
 
 struct SkillLineLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[15] =
+    static constexpr DB2FieldMeta Fields[13] =
     {
         { false, FT_STRING, "DisplayName" },
         { false, FT_STRING, "AlternateVerb" },
@@ -4618,11 +4423,9 @@ struct SkillLineLoadInfo
         { true, FT_INT, "ParentTierIndex" },
         { false, FT_SHORT, "Flags" },
         { true, FT_INT, "SpellBookSpellID" },
-        { true, FT_INT, "ExpansionNameSharedStringID" },
-        { true, FT_INT, "HordeExpansionNameSharedStringID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 15, &SkillLineMeta::Instance, HOTFIX_SEL_SKILL_LINE };
+    static constexpr DB2LoadInfo Instance{ Fields, 13, &SkillLineMeta::Instance, HOTFIX_SEL_SKILL_LINE };
 };
 
 struct SkillLineAbilityLoadInfo
@@ -4630,8 +4433,6 @@ struct SkillLineAbilityLoadInfo
     static constexpr DB2FieldMeta Fields[17] =
     {
         { true, FT_LONG, "RaceMask" },
-        { false, FT_STRING, "AbilityVerb" },
-        { false, FT_STRING, "AbilityAllVerb" },
         { false, FT_INT, "ID" },
         { true, FT_SHORT, "SkillLine" },
         { true, FT_INT, "Spell" },
@@ -4641,11 +4442,13 @@ struct SkillLineAbilityLoadInfo
         { true, FT_BYTE, "AcquireMethod" },
         { true, FT_SHORT, "TrivialSkillLineRankHigh" },
         { true, FT_SHORT, "TrivialSkillLineRankLow" },
-        { true, FT_INT, "Flags" },
+        { true, FT_BYTE, "Flags" },
         { true, FT_BYTE, "NumSkillUps" },
         { true, FT_SHORT, "UniqueBit" },
         { true, FT_SHORT, "TradeSkillCategoryID" },
         { true, FT_SHORT, "SkillupSkillLineID" },
+        { true, FT_INT, "CharacterPoints1" },
+        { true, FT_INT, "CharacterPoints2" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 17, &SkillLineAbilityMeta::Instance, HOTFIX_SEL_SKILL_LINE_ABILITY };
@@ -4681,28 +4484,14 @@ struct SkillRaceClassInfoLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 8, &SkillRaceClassInfoMeta::Instance, HOTFIX_SEL_SKILL_RACE_CLASS_INFO };
 };
 
-struct SoulbindConduitRankLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[5] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "RankIndex" },
-        { true, FT_INT, "SpellID" },
-        { false, FT_FLOAT, "AuraPointsOverride" },
-        { false, FT_INT, "SoulbindConduitID" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &SoulbindConduitRankMeta::Instance, HOTFIX_SEL_SOULBIND_CONDUIT_RANK };
-};
-
 struct SoundKitLoadInfo
 {
     static constexpr DB2FieldMeta Fields[17] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "SoundType" },
+        { false, FT_BYTE, "SoundType" },
         { false, FT_FLOAT, "VolumeFloat" },
-        { true, FT_INT, "Flags" },
+        { false, FT_SHORT, "Flags" },
         { false, FT_FLOAT, "MinDistance" },
         { false, FT_FLOAT, "DistanceCutoff" },
         { false, FT_BYTE, "EAXDef" },
@@ -4754,7 +4543,7 @@ struct SpellAuraOptionsLoadInfo
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "DifficultyID" },
-        { false, FT_SHORT, "CumulativeAura" },
+        { false, FT_INT, "CumulativeAura" },
         { true, FT_INT, "ProcCategoryRecovery" },
         { false, FT_BYTE, "ProcChance" },
         { true, FT_INT, "ProcCharges" },
@@ -4769,38 +4558,35 @@ struct SpellAuraOptionsLoadInfo
 
 struct SpellAuraRestrictionsLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[15] =
+    static constexpr DB2FieldMeta Fields[11] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "DifficultyID" },
-        { true, FT_INT, "CasterAuraState" },
-        { true, FT_INT, "TargetAuraState" },
-        { true, FT_INT, "ExcludeCasterAuraState" },
-        { true, FT_INT, "ExcludeTargetAuraState" },
+        { false, FT_BYTE, "DifficultyID" },
+        { false, FT_BYTE, "CasterAuraState" },
+        { false, FT_BYTE, "TargetAuraState" },
+        { false, FT_BYTE, "ExcludeCasterAuraState" },
+        { false, FT_BYTE, "ExcludeTargetAuraState" },
         { true, FT_INT, "CasterAuraSpell" },
         { true, FT_INT, "TargetAuraSpell" },
         { true, FT_INT, "ExcludeCasterAuraSpell" },
         { true, FT_INT, "ExcludeTargetAuraSpell" },
-        { true, FT_INT, "CasterAuraType" },
-        { true, FT_INT, "TargetAuraType" },
-        { true, FT_INT, "ExcludeCasterAuraType" },
-        { true, FT_INT, "ExcludeTargetAuraType" },
         { false, FT_INT, "SpellID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 15, &SpellAuraRestrictionsMeta::Instance, HOTFIX_SEL_SPELL_AURA_RESTRICTIONS };
+    static constexpr DB2LoadInfo Instance{ Fields, 11, &SpellAuraRestrictionsMeta::Instance, HOTFIX_SEL_SPELL_AURA_RESTRICTIONS };
 };
 
 struct SpellCastTimesLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[3] =
+    static constexpr DB2FieldMeta Fields[4] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "Base" },
+        { true, FT_SHORT, "PerLevel" },
         { true, FT_INT, "Minimum" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &SpellCastTimesMeta::Instance, HOTFIX_SEL_SPELL_CAST_TIMES };
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &SpellCastTimesMeta::Instance, HOTFIX_SEL_SPELL_CAST_TIMES };
 };
 
 struct SpellCastingRequirementsLoadInfo
@@ -4874,30 +4660,30 @@ struct SpellClassOptionsLoadInfo
 
 struct SpellCooldownsLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[7] =
+    static constexpr DB2FieldMeta Fields[6] =
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "DifficultyID" },
         { true, FT_INT, "CategoryRecoveryTime" },
         { true, FT_INT, "RecoveryTime" },
         { true, FT_INT, "StartRecoveryTime" },
-        { true, FT_INT, "AuraSpellID" },
         { false, FT_INT, "SpellID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 7, &SpellCooldownsMeta::Instance, HOTFIX_SEL_SPELL_COOLDOWNS };
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &SpellCooldownsMeta::Instance, HOTFIX_SEL_SPELL_COOLDOWNS };
 };
 
 struct SpellDurationLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[3] =
+    static constexpr DB2FieldMeta Fields[4] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "Duration" },
+        { false, FT_INT, "DurationPerLevel" },
         { true, FT_INT, "MaxDuration" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &SpellDurationMeta::Instance, HOTFIX_SEL_SPELL_DURATION };
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &SpellDurationMeta::Instance, HOTFIX_SEL_SPELL_DURATION };
 };
 
 struct SpellEffectLoadInfo
@@ -4905,16 +4691,18 @@ struct SpellEffectLoadInfo
     static constexpr DB2FieldMeta Fields[36] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_SHORT, "EffectAura" },
         { true, FT_INT, "DifficultyID" },
         { true, FT_INT, "EffectIndex" },
         { false, FT_INT, "Effect" },
         { false, FT_FLOAT, "EffectAmplitude" },
         { true, FT_INT, "EffectAttributes" },
+        { true, FT_SHORT, "EffectAura" },
         { true, FT_INT, "EffectAuraPeriod" },
+        { true, FT_INT, "EffectBasePoints" },
         { false, FT_FLOAT, "EffectBonusCoefficient" },
         { false, FT_FLOAT, "EffectChainAmplitude" },
         { true, FT_INT, "EffectChainTargets" },
+        { true, FT_INT, "EffectDieSides" },
         { true, FT_INT, "EffectItemType" },
         { true, FT_INT, "EffectMechanic" },
         { false, FT_FLOAT, "EffectPointsPerResource" },
@@ -4927,8 +4715,6 @@ struct SpellEffectLoadInfo
         { false, FT_FLOAT, "Variance" },
         { false, FT_FLOAT, "ResourceCoefficient" },
         { false, FT_FLOAT, "GroupSizeBasePointsCoefficient" },
-        { false, FT_FLOAT, "EffectBasePoints" },
-        { true, FT_INT, "ScalingClass" },
         { true, FT_INT, "EffectMiscValue1" },
         { true, FT_INT, "EffectMiscValue2" },
         { false, FT_INT, "EffectRadiusIndex1" },
@@ -4989,23 +4775,21 @@ struct SpellInterruptsLoadInfo
 
 struct SpellItemEnchantmentLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[32] =
+    static constexpr DB2FieldMeta Fields[30] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "HordeName" },
-        { true, FT_INT, "Duration" },
         { false, FT_INT, "EffectArg1" },
         { false, FT_INT, "EffectArg2" },
         { false, FT_INT, "EffectArg3" },
         { false, FT_FLOAT, "EffectScalingPoints1" },
         { false, FT_FLOAT, "EffectScalingPoints2" },
         { false, FT_FLOAT, "EffectScalingPoints3" },
-        { false, FT_INT, "IconFileDataID" },
-        { true, FT_INT, "MinItemLevel" },
-        { true, FT_INT, "MaxItemLevel" },
-        { false, FT_INT, "TransmogUseConditionID" },
+        { false, FT_INT, "GemItemID" },
+        { false, FT_INT, "TransmogUnlockConditionID" },
         { false, FT_INT, "TransmogCost" },
+        { false, FT_INT, "IconFileDataID" },
         { true, FT_SHORT, "EffectPointsMin1" },
         { true, FT_SHORT, "EffectPointsMin2" },
         { true, FT_SHORT, "EffectPointsMin3" },
@@ -5025,7 +4809,7 @@ struct SpellItemEnchantmentLoadInfo
         { false, FT_BYTE, "MaxLevel" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 32, &SpellItemEnchantmentMeta::Instance, HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT };
+    static constexpr DB2LoadInfo Instance{ Fields, 30, &SpellItemEnchantmentMeta::Instance, HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT };
 };
 
 struct SpellItemEnchantmentConditionLoadInfo
@@ -5113,10 +4897,10 @@ struct SpellLevelsLoadInfo
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "DifficultyID" },
+        { true, FT_SHORT, "BaseLevel" },
         { true, FT_SHORT, "MaxLevel" },
+        { true, FT_SHORT, "SpellLevel" },
         { false, FT_BYTE, "MaxPassiveAuraLevel" },
-        { true, FT_INT, "BaseLevel" },
-        { true, FT_INT, "SpellLevel" },
         { false, FT_INT, "SpellID" },
     };
 
@@ -5125,7 +4909,7 @@ struct SpellLevelsLoadInfo
 
 struct SpellMiscLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[31] =
+    static constexpr DB2FieldMeta Fields[29] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "Attributes1" },
@@ -5155,12 +4939,10 @@ struct SpellMiscLoadInfo
         { true, FT_INT, "ActiveIconFileDataID" },
         { true, FT_INT, "ContentTuningID" },
         { true, FT_INT, "ShowFutureSpellPlayerConditionID" },
-        { true, FT_INT, "SpellVisualScript" },
-        { true, FT_INT, "ActiveSpellVisualScript" },
         { false, FT_INT, "SpellID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 31, &SpellMiscMeta::Instance, HOTFIX_SEL_SPELL_MISC };
+    static constexpr DB2LoadInfo Instance{ Fields, 29, &SpellMiscMeta::Instance, HOTFIX_SEL_SPELL_MISC };
 };
 
 struct SpellNameLoadInfo
@@ -5176,7 +4958,7 @@ struct SpellNameLoadInfo
 
 struct SpellPowerLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[15] =
+    static constexpr DB2FieldMeta Fields[14] =
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "OrderIndex" },
@@ -5187,7 +4969,6 @@ struct SpellPowerLoadInfo
         { true, FT_INT, "AltPowerBarID" },
         { false, FT_FLOAT, "PowerCostPct" },
         { false, FT_FLOAT, "PowerCostMaxPct" },
-        { false, FT_FLOAT, "OptionalCostPct" },
         { false, FT_FLOAT, "PowerPctPerSecond" },
         { true, FT_BYTE, "PowerType" },
         { true, FT_INT, "RequiredAuraSpellID" },
@@ -5195,7 +4976,7 @@ struct SpellPowerLoadInfo
         { false, FT_INT, "SpellID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 15, &SpellPowerMeta::Instance, HOTFIX_SEL_SPELL_POWER };
+    static constexpr DB2LoadInfo Instance{ Fields, 14, &SpellPowerMeta::Instance, HOTFIX_SEL_SPELL_POWER };
 };
 
 struct SpellPowerDifficultyLoadInfo
@@ -5228,7 +5009,7 @@ struct SpellProcsPerMinuteModLoadInfo
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "Type" },
-        { true, FT_INT, "Param" },
+        { true, FT_SHORT, "Param" },
         { false, FT_FLOAT, "Coeff" },
         { false, FT_INT, "SpellProcsPerMinuteID" },
     };
@@ -5269,7 +5050,7 @@ struct SpellRangeLoadInfo
 
 struct SpellReagentsLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[34] =
+    static constexpr DB2FieldMeta Fields[18] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "SpellID" },
@@ -5289,25 +5070,9 @@ struct SpellReagentsLoadInfo
         { true, FT_SHORT, "ReagentCount6" },
         { true, FT_SHORT, "ReagentCount7" },
         { true, FT_SHORT, "ReagentCount8" },
-        { true, FT_SHORT, "ReagentRecraftCount1" },
-        { true, FT_SHORT, "ReagentRecraftCount2" },
-        { true, FT_SHORT, "ReagentRecraftCount3" },
-        { true, FT_SHORT, "ReagentRecraftCount4" },
-        { true, FT_SHORT, "ReagentRecraftCount5" },
-        { true, FT_SHORT, "ReagentRecraftCount6" },
-        { true, FT_SHORT, "ReagentRecraftCount7" },
-        { true, FT_SHORT, "ReagentRecraftCount8" },
-        { false, FT_BYTE, "ReagentSource1" },
-        { false, FT_BYTE, "ReagentSource2" },
-        { false, FT_BYTE, "ReagentSource3" },
-        { false, FT_BYTE, "ReagentSource4" },
-        { false, FT_BYTE, "ReagentSource5" },
-        { false, FT_BYTE, "ReagentSource6" },
-        { false, FT_BYTE, "ReagentSource7" },
-        { false, FT_BYTE, "ReagentSource8" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 34, &SpellReagentsMeta::Instance, HOTFIX_SEL_SPELL_REAGENTS };
+    static constexpr DB2LoadInfo Instance{ Fields, 18, &SpellReagentsMeta::Instance, HOTFIX_SEL_SPELL_REAGENTS };
 };
 
 struct SpellReagentsCurrencyLoadInfo
@@ -5325,16 +5090,17 @@ struct SpellReagentsCurrencyLoadInfo
 
 struct SpellScalingLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[5] =
+    static constexpr DB2FieldMeta Fields[6] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "SpellID" },
+        { true, FT_INT, "Class" },
         { false, FT_INT, "MinScalingLevel" },
         { false, FT_INT, "MaxScalingLevel" },
         { true, FT_SHORT, "ScalesFromItemLevel" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &SpellScalingMeta::Instance, HOTFIX_SEL_SPELL_SCALING };
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &SpellScalingMeta::Instance, HOTFIX_SEL_SPELL_SCALING };
 };
 
 struct SpellShapeshiftLoadInfo
@@ -5355,11 +5121,10 @@ struct SpellShapeshiftLoadInfo
 
 struct SpellShapeshiftFormLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[18] =
+    static constexpr DB2FieldMeta Fields[21] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
-        { false, FT_INT, "CreatureDisplayID" },
         { true, FT_BYTE, "CreatureType" },
         { true, FT_INT, "Flags" },
         { true, FT_INT, "AttackIconFileID" },
@@ -5367,6 +5132,10 @@ struct SpellShapeshiftFormLoadInfo
         { true, FT_SHORT, "CombatRoundTime" },
         { false, FT_FLOAT, "DamageVariance" },
         { false, FT_SHORT, "MountTypeID" },
+        { false, FT_INT, "CreatureDisplayID1" },
+        { false, FT_INT, "CreatureDisplayID2" },
+        { false, FT_INT, "CreatureDisplayID3" },
+        { false, FT_INT, "CreatureDisplayID4" },
         { false, FT_INT, "PresetSpellID1" },
         { false, FT_INT, "PresetSpellID2" },
         { false, FT_INT, "PresetSpellID3" },
@@ -5377,7 +5146,7 @@ struct SpellShapeshiftFormLoadInfo
         { false, FT_INT, "PresetSpellID8" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 18, &SpellShapeshiftFormMeta::Instance, HOTFIX_SEL_SPELL_SHAPESHIFT_FORM };
+    static constexpr DB2LoadInfo Instance{ Fields, 21, &SpellShapeshiftFormMeta::Instance, HOTFIX_SEL_SPELL_SHAPESHIFT_FORM };
 };
 
 struct SpellTargetRestrictionsLoadInfo
@@ -5415,7 +5184,7 @@ struct SpellTotemsLoadInfo
 
 struct SpellVisualLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[21] =
+    static constexpr DB2FieldMeta Fields[23] =
     {
         { false, FT_INT, "ID" },
         { false, FT_FLOAT, "MissileCastOffset1" },
@@ -5438,14 +5207,16 @@ struct SpellVisualLoadInfo
         { false, FT_INT, "LowViolenceSpellVisualID" },
         { false, FT_INT, "RaidSpellVisualMissileSetID" },
         { true, FT_INT, "ReducedUnexpectedCameraMovementSpellVisualID" },
+        { false, FT_SHORT, "AreaModel" },
+        { true, FT_BYTE, "HasMissile" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 21, &SpellVisualMeta::Instance, HOTFIX_SEL_SPELL_VISUAL };
+    static constexpr DB2LoadInfo Instance{ Fields, 23, &SpellVisualMeta::Instance, HOTFIX_SEL_SPELL_VISUAL };
 };
 
 struct SpellVisualEffectNameLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[16] =
+    static constexpr DB2FieldMeta Fields[15] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "ModelFileDataID" },
@@ -5462,15 +5233,14 @@ struct SpellVisualEffectNameLoadInfo
         { false, FT_INT, "RibbonQualityID" },
         { true, FT_INT, "DissolveEffectID" },
         { true, FT_INT, "ModelPosition" },
-        { true, FT_BYTE, "Unknown901" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 16, &SpellVisualEffectNameMeta::Instance, HOTFIX_SEL_SPELL_VISUAL_EFFECT_NAME };
+    static constexpr DB2LoadInfo Instance{ Fields, 15, &SpellVisualEffectNameMeta::Instance, HOTFIX_SEL_SPELL_VISUAL_EFFECT_NAME };
 };
 
 struct SpellVisualMissileLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[22] =
+    static constexpr DB2FieldMeta Fields[20] =
     {
         { false, FT_FLOAT, "CastOffset1" },
         { false, FT_FLOAT, "CastOffset2" },
@@ -5491,12 +5261,10 @@ struct SpellVisualMissileLoadInfo
         { false, FT_INT, "Flags" },
         { false, FT_SHORT, "SpellMissileMotionID" },
         { false, FT_INT, "AnimKitID" },
-        { true, FT_BYTE, "ClutterLevel" },
-        { true, FT_INT, "DecayTimeAfterImpact" },
-        { false, FT_INT, "SpellVisualMissileSetID" },
+        { false, FT_SHORT, "SpellVisualMissileSetID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 22, &SpellVisualMissileMeta::Instance, HOTFIX_SEL_SPELL_VISUAL_MISSILE };
+    static constexpr DB2LoadInfo Instance{ Fields, 20, &SpellVisualMissileMeta::Instance, HOTFIX_SEL_SPELL_VISUAL_MISSILE };
 };
 
 struct SpellVisualKitLoadInfo
@@ -5504,10 +5272,10 @@ struct SpellVisualKitLoadInfo
     static constexpr DB2FieldMeta Fields[7] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_BYTE, "FallbackPriority" },
-        { true, FT_INT, "FallbackSpellVisualKitId" },
+        { false, FT_INT, "FallbackSpellVisualKitId" },
         { false, FT_SHORT, "DelayMin" },
         { false, FT_SHORT, "DelayMax" },
+        { false, FT_FLOAT, "FallbackPriority" },
         { true, FT_INT, "Flags1" },
         { true, FT_INT, "Flags2" },
     };
@@ -5523,7 +5291,7 @@ struct SpellXSpellVisualLoadInfo
         { false, FT_BYTE, "DifficultyID" },
         { false, FT_INT, "SpellVisualID" },
         { false, FT_FLOAT, "Probability" },
-        { true, FT_INT, "Flags" },
+        { false, FT_BYTE, "Flags" },
         { true, FT_INT, "Priority" },
         { true, FT_INT, "SpellIconFileID" },
         { true, FT_INT, "ActiveIconFileID" },
@@ -5581,27 +5349,44 @@ struct TactKeyLoadInfo
 
 struct TalentLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[11] =
+    static constexpr DB2FieldMeta Fields[28] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Description" },
         { false, FT_BYTE, "TierID" },
         { false, FT_BYTE, "Flags" },
         { false, FT_BYTE, "ColumnIndex" },
+        { false, FT_SHORT, "TabID" },
         { false, FT_BYTE, "ClassID" },
         { false, FT_SHORT, "SpecID" },
         { false, FT_INT, "SpellID" },
         { false, FT_INT, "OverridesSpellID" },
-        { false, FT_BYTE, "CategoryMask1" },
-        { false, FT_BYTE, "CategoryMask2" },
+        { false, FT_INT, "RequiredSpellID" },
+        { true, FT_INT, "CategoryMask1" },
+        { true, FT_INT, "CategoryMask2" },
+        { true, FT_INT, "SpellRank1" },
+        { true, FT_INT, "SpellRank2" },
+        { true, FT_INT, "SpellRank3" },
+        { true, FT_INT, "SpellRank4" },
+        { true, FT_INT, "SpellRank5" },
+        { true, FT_INT, "SpellRank6" },
+        { true, FT_INT, "SpellRank7" },
+        { true, FT_INT, "SpellRank8" },
+        { true, FT_INT, "SpellRank9" },
+        { true, FT_INT, "PrereqTalent1" },
+        { true, FT_INT, "PrereqTalent2" },
+        { true, FT_INT, "PrereqTalent3" },
+        { true, FT_INT, "PrereqRank1" },
+        { true, FT_INT, "PrereqRank2" },
+        { true, FT_INT, "PrereqRank3" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 11, &TalentMeta::Instance, HOTFIX_SEL_TALENT };
+    static constexpr DB2LoadInfo Instance{ Fields, 28, &TalentMeta::Instance, HOTFIX_SEL_TALENT };
 };
 
 struct TaxiNodesLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[20] =
+    static constexpr DB2FieldMeta Fields[19] =
     {
         { false, FT_STRING, "Name" },
         { false, FT_FLOAT, "PosX" },
@@ -5612,12 +5397,11 @@ struct TaxiNodesLoadInfo
         { false, FT_FLOAT, "FlightMapOffsetX" },
         { false, FT_FLOAT, "FlightMapOffsetY" },
         { false, FT_INT, "ID" },
-        { false, FT_SHORT, "ContinentID" },
+        { false, FT_INT, "ContinentID" },
         { true, FT_INT, "ConditionID" },
         { false, FT_SHORT, "CharacterBitNumber" },
         { true, FT_INT, "Flags" },
         { true, FT_INT, "UiTextureKitID" },
-        { true, FT_INT, "MinimapAtlasMemberID" },
         { false, FT_FLOAT, "Facing" },
         { false, FT_INT, "SpecialIconConditionID" },
         { false, FT_INT, "VisibilityConditionID" },
@@ -5625,7 +5409,7 @@ struct TaxiNodesLoadInfo
         { true, FT_INT, "MountCreatureID2" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 20, &TaxiNodesMeta::Instance, HOTFIX_SEL_TAXI_NODES };
+    static constexpr DB2LoadInfo Instance{ Fields, 19, &TaxiNodesMeta::Instance, HOTFIX_SEL_TAXI_NODES };
 };
 
 struct TaxiPathLoadInfo
@@ -6020,23 +5804,9 @@ struct TraitTreeXTraitCurrencyLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 4, &TraitTreeXTraitCurrencyMeta::Instance, HOTFIX_SEL_TRAIT_TREE_X_TRAIT_CURRENCY };
 };
 
-struct TransmogIllusionLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[5] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "UnlockConditionID" },
-        { true, FT_INT, "TransmogCost" },
-        { true, FT_INT, "SpellItemEnchantmentID" },
-        { true, FT_INT, "Flags" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &TransmogIllusionMeta::Instance, HOTFIX_SEL_TRANSMOG_ILLUSION };
-};
-
 struct TransmogSetLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[13] =
+    static constexpr DB2FieldMeta Fields[10] =
     {
         { false, FT_STRING, "Name" },
         { false, FT_INT, "ID" },
@@ -6046,22 +5816,19 @@ struct TransmogSetLoadInfo
         { false, FT_INT, "TransmogSetGroupID" },
         { true, FT_INT, "ItemNameDescriptionID" },
         { false, FT_SHORT, "ParentTransmogSetID" },
-        { false, FT_BYTE, "Unknown810" },
         { false, FT_BYTE, "ExpansionID" },
-        { true, FT_INT, "PatchID" },
         { true, FT_SHORT, "UiOrder" },
-        { true, FT_INT, "PlayerConditionID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 13, &TransmogSetMeta::Instance, HOTFIX_SEL_TRANSMOG_SET };
+    static constexpr DB2LoadInfo Instance{ Fields, 10, &TransmogSetMeta::Instance, HOTFIX_SEL_TRANSMOG_SET };
 };
 
 struct TransmogSetGroupLoadInfo
 {
     static constexpr DB2FieldMeta Fields[2] =
     {
-        { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
+        { false, FT_INT, "ID" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 2, &TransmogSetGroupMeta::Instance, HOTFIX_SEL_TRANSMOG_SET_GROUP };
@@ -6120,7 +5887,7 @@ struct UiMapLoadInfo
         { false, FT_INT, "ID" },
         { true, FT_INT, "ParentUiMapID" },
         { true, FT_INT, "Flags" },
-        { true, FT_BYTE, "System" },
+        { false, FT_BYTE, "System" },
         { false, FT_BYTE, "Type" },
         { true, FT_INT, "BountySetID" },
         { false, FT_INT, "BountyDisplayLocation" },
@@ -6163,7 +5930,7 @@ struct UiMapAssignmentLoadInfo
 
 struct UiMapLinkLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[12] =
+    static constexpr DB2FieldMeta Fields[11] =
     {
         { false, FT_FLOAT, "UiMinX" },
         { false, FT_FLOAT, "UiMinY" },
@@ -6173,13 +5940,12 @@ struct UiMapLinkLoadInfo
         { true, FT_INT, "ParentUiMapID" },
         { true, FT_INT, "OrderIndex" },
         { true, FT_INT, "ChildUiMapID" },
-        { true, FT_INT, "PlayerConditionID" },
         { true, FT_INT, "OverrideHighlightFileDataID" },
         { true, FT_INT, "OverrideHighlightAtlasID" },
         { true, FT_INT, "Flags" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 12, &UiMapLinkMeta::Instance, HOTFIX_SEL_UI_MAP_LINK };
+    static constexpr DB2LoadInfo Instance{ Fields, 11, &UiMapLinkMeta::Instance, HOTFIX_SEL_UI_MAP_LINK };
 };
 
 struct UiMapXMapArtLoadInfo
@@ -6193,31 +5959,6 @@ struct UiMapXMapArtLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 4, &UiMapXMapArtMeta::Instance, HOTFIX_SEL_UI_MAP_X_MAP_ART };
-};
-
-struct UiSplashScreenLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[16] =
-    {
-        { false, FT_INT, "ID" },
-        { false, FT_STRING, "Header" },
-        { false, FT_STRING, "TopLeftFeatureTitle" },
-        { false, FT_STRING, "TopLeftFeatureDesc" },
-        { false, FT_STRING, "BottomLeftFeatureTitle" },
-        { false, FT_STRING, "BottomLeftFeatureDesc" },
-        { false, FT_STRING, "RightFeatureTitle" },
-        { false, FT_STRING, "RightFeatureDesc" },
-        { true, FT_INT, "AllianceQuestID" },
-        { true, FT_INT, "HordeQuestID" },
-        { true, FT_BYTE, "ScreenType" },
-        { true, FT_INT, "TextureKitID" },
-        { true, FT_INT, "SoundKitID" },
-        { true, FT_INT, "PlayerConditionID" },
-        { true, FT_INT, "CharLevelConditionID" },
-        { true, FT_INT, "RequiredTimeEventPassed" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 16, &UISplashScreenMeta::Instance, HOTFIX_SEL_UI_SPLASH_SCREEN };
 };
 
 struct UnitConditionLoadInfo
@@ -6266,7 +6007,7 @@ struct UnitPowerBarLoadInfo
         { false, FT_STRING, "ToolTip" },
         { false, FT_INT, "MinPower" },
         { false, FT_INT, "MaxPower" },
-        { false, FT_INT, "StartPower" },
+        { false, FT_SHORT, "StartPower" },
         { false, FT_BYTE, "CenterPower" },
         { false, FT_FLOAT, "RegenerationPeace" },
         { false, FT_FLOAT, "RegenerationCombat" },
@@ -6293,7 +6034,7 @@ struct UnitPowerBarLoadInfo
 
 struct VehicleLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[28] =
+    static constexpr DB2FieldMeta Fields[29] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "Flags" },
@@ -6312,6 +6053,7 @@ struct VehicleLoadInfo
         { false, FT_SHORT, "VehicleUIIndicatorID" },
         { true, FT_INT, "MissileTargetingID" },
         { false, FT_SHORT, "VehiclePOITypeID" },
+        { true, FT_INT, "UiLocomotionType" },
         { false, FT_SHORT, "SeatID1" },
         { false, FT_SHORT, "SeatID2" },
         { false, FT_SHORT, "SeatID3" },
@@ -6325,12 +6067,12 @@ struct VehicleLoadInfo
         { false, FT_SHORT, "PowerDisplayID3" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 28, &VehicleMeta::Instance, HOTFIX_SEL_VEHICLE };
+    static constexpr DB2LoadInfo Instance{ Fields, 29, &VehicleMeta::Instance, HOTFIX_SEL_VEHICLE };
 };
 
 struct VehicleSeatLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[66] =
+    static constexpr DB2FieldMeta Fields[67] =
     {
         { false, FT_INT, "ID" },
         { false, FT_FLOAT, "AttachmentOffsetX" },
@@ -6382,6 +6124,7 @@ struct VehicleSeatLoadInfo
         { false, FT_INT, "EnterUISoundID" },
         { false, FT_INT, "ExitUISoundID" },
         { true, FT_INT, "UiSkinFileDataID" },
+        { true, FT_INT, "UiSkin" },
         { false, FT_FLOAT, "CameraEnteringDelay" },
         { false, FT_FLOAT, "CameraEnteringDuration" },
         { false, FT_FLOAT, "CameraExitingDelay" },
@@ -6400,7 +6143,7 @@ struct VehicleSeatLoadInfo
         { true, FT_SHORT, "CameraModeID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 66, &VehicleSeatMeta::Instance, HOTFIX_SEL_VEHICLE_SEAT };
+    static constexpr DB2LoadInfo Instance{ Fields, 67, &VehicleSeatMeta::Instance, HOTFIX_SEL_VEHICLE_SEAT };
 };
 
 struct WmoAreaTableLoadInfo
