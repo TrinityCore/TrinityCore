@@ -20,6 +20,7 @@
 #include "Errors.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "SharedDefines.h"
 
 BattlegroundScore::BattlegroundScore(ObjectGuid playerGuid, uint32 team, std::unordered_set<uint32> const* pvpStatIds) : PlayerGuid(playerGuid), TeamId(team == ALLIANCE ? PVP_TEAM_ALLIANCE : PVP_TEAM_HORDE),
