@@ -26446,6 +26446,7 @@ bool Player::CanSeeSpellClickOn(Creature const* c) const
 void Player::SendTalentsInfoData()
 {
     WorldPackets::Talent::UpdateTalentData packet;
+    /*
     packet.Info.PrimarySpecialization = AsUnderlyingType(GetPrimarySpecialization());
 
     for (uint8 i = 0; i < MAX_SPECIALIZATIONS; ++i)
@@ -26518,6 +26519,7 @@ void Player::SendTalentsInfoData()
         if (!groupInfoPkt.TalentIDs.empty() || !groupInfoPkt.PvPTalents.empty() || i == GetActiveTalentGroup())
             packet.Info.TalentGroups.push_back(groupInfoPkt);
     }
+    */
 
     SendDirectMessage(packet.Write());
 }

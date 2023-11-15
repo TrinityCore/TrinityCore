@@ -31,24 +31,36 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::PvPTalent const& 
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::TalentInfo const& talentInfo)
+{
+    data << uint32(talentInfo.TalentID);
+    data << uint8(talentInfo.Rank);
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::TalentGroupInfo const& talentGroupInfo)
+{
+    data << uint32(talentGroupInfo.GlyphInfo.size());
+    data << uint32(talentGroupInfo.TalentInfos.size());
+    data << uint32(talentGroupInfo.SpecID);
+
+    for (uint16 glyph : talentGroupInfo.GlyphInfo)
+        data << uint16(glyph);
+
+    for (auto& talentInfo : talentGroupInfo.TalentInfos)
+        data << talentInfo;
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 {
-    _worldPacket << uint8(Info.ActiveGroup);
-    _worldPacket << uint32(Info.PrimarySpecialization);
-    _worldPacket << uint32(Info.TalentGroups.size());
+    _worldPacket << uint8(ActiveGroup);
+    _worldPacket << uint32(UnspentTalentPoints);
+    _worldPacket << uint32(TalentGroupInfos.size());
 
-    for (auto& talentGroupInfo : Info.TalentGroups)
-    {
-        _worldPacket << uint32(talentGroupInfo.SpecID);
-        _worldPacket << uint32(talentGroupInfo.TalentIDs.size());
-        _worldPacket << uint32(talentGroupInfo.PvPTalents.size());
-
-        for (uint16 talent : talentGroupInfo.TalentIDs)
-            _worldPacket << uint16(talent);
-
-        for (PvPTalent talent : talentGroupInfo.PvPTalents)
-            _worldPacket << talent;
-    }
+    for (auto& talentGroupInfo : TalentGroupInfos)
+        _worldPacket << talentGroupInfo;
 
     return &_worldPacket;
 }
