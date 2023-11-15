@@ -5384,6 +5384,23 @@ struct TalentLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 28, &TalentMeta::Instance, HOTFIX_SEL_TALENT };
 };
 
+struct TalentTabLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[8] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { false, FT_STRING_NOT_LOCALIZED, "BackgroundFile" },
+        { true, FT_INT, "OrderIndex" },
+        { true, FT_INT, "RaceMask" },
+        { true, FT_INT, "ClassMask" },
+        { true, FT_INT, "PetTalentMask" },
+        { true, FT_INT, "SpellIconID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 8, &TalentTabMeta::Instance, HOTFIX_SEL_TALENT_TAB };
+};
+
 struct TaxiNodesLoadInfo
 {
     static constexpr DB2FieldMeta Fields[19] =

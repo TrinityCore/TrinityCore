@@ -3809,6 +3809,18 @@ struct TalentEntry
     std::array<int32, 3> PrereqRank;
 };
 
+struct TalentTabEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    char const* BackgroundFile;
+    int32 OrderIndex;
+    int32 RaceMask;
+    int32 ClassMask;
+    int32 PetTalentMask;
+    int32 SpellIconID;
+};
+
 struct TaxiNodesEntry
 {
     LocalizedString Name;
