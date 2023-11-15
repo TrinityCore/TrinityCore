@@ -1833,6 +1833,13 @@ struct GlyphBindableSpellEntry
     uint32 GlyphPropertiesID;
 };
 
+struct GlyphSlotEntry
+{
+    uint32 ID;
+    int32 Tooltip;
+    uint32 Type;
+};
+
 struct GlyphPropertiesEntry
 {
     uint32 ID;

@@ -707,6 +707,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_GLYPH_BINDABLE_SPELL, "SELECT ID, SpellID, GlyphPropertiesID FROM glyph_bindable_spell WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_GLYPH_BINDABLE_SPELL, "SELECT MAX(ID) + 1 FROM glyph_bindable_spell", CONNECTION_SYNCH);
 
+    // GlyphSlot.db2
+    PrepareStatement(HOTFIX_SEL_GLYPH_SLOT, "SELECT ID, Tooltip, Type FROM glyph_slot WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_GLYPH_SLOT, "SELECT MAX(ID) + 1 FROM glyph_slot", CONNECTION_SYNCH);
+
     // GlyphProperties.db2
     PrepareStatement(HOTFIX_SEL_GLYPH_PROPERTIES, "SELECT ID, SpellID, GlyphType, GlyphExclusiveCategoryID, SpellIconFileDataID, GlyphSlotFlags"
         " FROM glyph_properties WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

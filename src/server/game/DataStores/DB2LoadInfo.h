@@ -2173,6 +2173,18 @@ struct GlyphBindableSpellLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 3, &GlyphBindableSpellMeta::Instance, HOTFIX_SEL_GLYPH_BINDABLE_SPELL };
 };
 
+struct GlyphSlotLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "Tooltip" },
+        { false, FT_INT, "Type" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &GlyphSlotMeta::Instance, HOTFIX_SEL_GLYPH_SLOT };
+};
+
 struct GlyphPropertiesLoadInfo
 {
     static constexpr DB2FieldMeta Fields[6] =
