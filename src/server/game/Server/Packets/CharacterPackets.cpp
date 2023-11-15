@@ -234,7 +234,6 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo con
     data << uint32(charInfo.MailSenders.size());
     data << uint32(charInfo.MailSenderTypes.size());
     data << uint32(charInfo.OverrideSelectScreenFileDataID);
-    data << charInfo.PersonalTabard;
 
     for (ChrCustomizationChoice const& customization : charInfo.Customizations)
         data << customization;
@@ -246,6 +245,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo con
     data.WriteBit(charInfo.FirstLogin);
     data.WriteBit(charInfo.BoostInProgress);
     data.WriteBits(charInfo.unkWod61x, 5);
+    data.WriteBits(0, 2); // unknown
     data.WriteBit(charInfo.RpeResetAvailable);
     data.WriteBit(charInfo.RpeResetQuestClearAvailable);
 
