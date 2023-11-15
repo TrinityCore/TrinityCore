@@ -345,7 +345,7 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
         return nullptr;
 
     // Silenced so we can't cast
-    if (me->IsSilenced(school ? SpellSchoolMask(school) : SPELL_SCHOOL_MASK_MAGIC))
+    if (me->HasUnitFlag(UNIT_FLAG_SILENCED))
         return nullptr;
 
     // Using the extended script system we first create a list of viable spells

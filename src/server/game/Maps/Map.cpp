@@ -3305,9 +3305,7 @@ bool Map::IsAlwaysActive() const
 
 bool Map::GetEntrancePos(int32 &mapid, float &x, float &y)
 {
-    if (!i_mapEntry)
-        return false;
-    return i_mapEntry->GetEntrancePos(mapid, x, y);
+    return false;
 }
 
 uint32 InstanceMap::GetMaxPlayers() const

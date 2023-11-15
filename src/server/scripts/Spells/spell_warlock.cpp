@@ -159,7 +159,7 @@ class spell_warl_chaos_bolt : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetCaster()->ToPlayer()->m_activePlayerData->SpellCritPercentage));
+        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetCaster()->ToPlayer()->m_activePlayerData->SpellCritPercentage[0]));
     }
 
     void CalcCritChance(Unit const* /*victim*/, float& critChance)

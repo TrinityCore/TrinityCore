@@ -69,15 +69,7 @@ void Conversation::Update(uint32 diff)
     sScriptMgr->OnConversationUpdate(this, diff);
 
     if (GetDuration() > Milliseconds(diff))
-    {
         _duration -= Milliseconds(diff);
-        DoWithSuppressingObjectUpdates([&]()
-        {
-            // Only sent in CreateObject
-            ApplyModUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Progress), int32(diff), true);
-            const_cast<UF::ConversationData&>(*m_conversationData).ClearChanged(&UF::ConversationData::Progress);
-        });
-    }
     else
     {
         Remove(); // expired
@@ -196,11 +188,9 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
         UF::ConversationLine& lineField = lines.emplace_back();
         lineField.ConversationLineID = line->Id;
-        lineField.BroadcastTextID = convoLine->BroadcastTextID;
         lineField.UiCameraID = line->UiCameraID;
         lineField.ActorIndex = line->ActorIdx;
         lineField.Flags = line->Flags;
-        lineField.ChatType = line->ChatType;
 
         for (LocaleConstant locale = LOCALE_enUS; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
         {
@@ -210,9 +200,6 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
             _lineStartTimes[{ locale, line->Id }] = _lastLineEndTimes[locale];
             if (locale == DEFAULT_LOCALE)
                 lineField.StartTime = _lastLineEndTimes[locale].count();
-
-            if (int32 const* broadcastTextDuration = sDB2Manager.GetBroadcastTextDuration(convoLine->BroadcastTextID, locale))
-                _lastLineEndTimes[locale] += Milliseconds(*broadcastTextDuration);
 
             _lastLineEndTimes[locale] += Milliseconds(convoLine->AdditionalDuration);
         }
@@ -233,7 +220,7 @@ bool Conversation::Start()
     for (UF::ConversationLine const& line : *m_conversationData->Lines)
     {
         UF::ConversationActor const* actor = line.ActorIndex < m_conversationData->Actors.size() ? &m_conversationData->Actors[line.ActorIndex] : nullptr;
-        if (!actor || (!actor->CreatureID && actor->ActorGUID.IsEmpty() && !actor->NoActorObject))
+        if (!actor || (!actor->CreatureID && actor->ActorGUID.IsEmpty()))
         {
             TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: {}) due to missing actor (Idx: {}).", GetEntry(), line.ActorIndex);
             return false;
@@ -255,7 +242,6 @@ void Conversation::AddActor(int32 actorId, uint32 actorIdx, ObjectGuid const& ac
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::ActorGUID), actorGuid);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Id), actorId);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Type), AsUnderlyingType(ConversationActorType::WorldObject));
-    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::NoActorObject), 0);
 }
 
 void Conversation::AddActor(int32 actorId, uint32 actorIdx, ConversationActorType type, uint32 creatureId, uint32 creatureDisplayInfoId)
@@ -266,7 +252,6 @@ void Conversation::AddActor(int32 actorId, uint32 actorIdx, ConversationActorTyp
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::ActorGUID), ObjectGuid::Empty);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Id), actorId);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Type), AsUnderlyingType(type));
-    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::NoActorObject), type == ConversationActorType::WorldObject ? 1 : 0);
 }
 
 Milliseconds const* Conversation::GetLineStartTime(LocaleConstant locale, int32 lineId) const
@@ -288,11 +273,7 @@ int32 Conversation::GetLineDuration(LocaleConstant locale, int32 lineId)
         return 0;
     }
 
-    int32 const* textDuration = sDB2Manager.GetBroadcastTextDuration(convoLine->BroadcastTextID, locale);
-    if (!textDuration)
-        return 0;
-
-    return *textDuration + convoLine->AdditionalDuration;
+    return 0;
 }
 
 Milliseconds Conversation::GetLineEndTime(LocaleConstant locale, int32 lineId) const

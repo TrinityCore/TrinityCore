@@ -17,8 +17,6 @@
 
 #include "Item.h"
 #include "ArtifactPackets.h"
-#include "AzeriteEmpoweredItem.h"
-#include "AzeriteItem.h"
 #include "Bag.h"
 #include "CollectionMgr.h"
 #include "Common.h"
@@ -54,12 +52,6 @@ Item* NewItemOrBag(ItemTemplate const* proto)
     if (proto->GetInventoryType() == INVTYPE_BAG)
         return new Bag();
 
-    if (sDB2Manager.IsAzeriteItem(proto->GetId()))
-        return new AzeriteItem();
-
-    if (sDB2Manager.GetAzeriteEmpoweredItem(proto->GetId()))
-        return new AzeriteEmpoweredItem();
-
     return new Item();
 }
 
@@ -89,7 +81,7 @@ void AddItemsSetItem(Player* player, Item const* item)
         {
             uint32 maxLevel = sDB2Manager.GetCurveXAxisRange(item->GetBonus()->PlayerLevelToItemLevelCurveId).second;
 
-            if (Optional<ContentTuningLevels> contentTuning = sDB2Manager.GetContentTuningData(item->GetBonus()->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask, true))
+            if (Optional<ContentTuningLevels> contentTuning = sDB2Manager.GetContentTuningData(item->GetBonus()->ContentTuningId, true))
                 maxLevel = std::min<uint32>(maxLevel, contentTuning->MaxLevel);
 
             if (player->GetLevel() > maxLevel)
@@ -1474,7 +1466,6 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::ID), 0);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Duration), 0);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Charges), 0);
-    SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Inactive), 0);
     SetState(ITEM_CHANGED, GetOwner());
 }
 
@@ -2277,8 +2268,7 @@ uint32 Item::GetItemLevel(Player const* owner) const
     uint32 maxItemLevel = itemTemplate->HasFlag(ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP) ? 0 : owner->m_unitData->MaxItemLevel;
     bool pvpBonus = owner->IsUsingPvpItemLevels();
     uint32 azeriteLevel = 0;
-    if (AzeriteItem const* azeriteItem = ToAzeriteItem())
-        azeriteLevel = azeriteItem->GetEffectiveLevel();
+
     return Item::GetItemLevel(itemTemplate, _bonusData, owner->GetLevel(), GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL),
         minItemLevel, minItemLevelCutoff, maxItemLevel, pvpBonus, azeriteLevel);
 }
@@ -2297,7 +2287,7 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
     {
         if (fixedLevel)
             level = fixedLevel;
-        else if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(bonusData.ContentTuningId, 0, true))
+        else if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(bonusData.ContentTuningId, true))
             level = std::min(std::max(int16(level), levels->MinLevel), levels->MaxLevel);
 
         itemLevel = uint32(sDB2Manager.GetCurveValueAt(bonusData.PlayerLevelToItemLevelCurveId, level));
@@ -2677,10 +2667,6 @@ void Item::ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enc
                             SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData)
                                 .ModifyValue(&UF::ItemData::ArtifactPowers, artifactPowerIndex)
                                 .ModifyValue(&UF::ArtifactPower::CurrentRankWithBonus), newRank);
-
-                            if (IsEquipped())
-                                if (ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerID, newRank ? newRank - 1 : 0))
-                                    owner->ApplyArtifactPowerRank(this, artifactPowerRank, newRank != 0);
                         }
                     }
                     break;
@@ -2697,10 +2683,6 @@ void Item::ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enc
                         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData)
                             .ModifyValue(&UF::ItemData::ArtifactPowers, *artifactPowerIndex)
                             .ModifyValue(&UF::ArtifactPower::CurrentRankWithBonus), newRank);
-
-                        if (IsEquipped())
-                            if (ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(m_itemData->ArtifactPowers[*artifactPowerIndex].ArtifactPowerID, newRank ? newRank - 1 : 0))
-                                owner->ApplyArtifactPowerRank(this, artifactPowerRank, newRank != 0);
                     }
                     break;
                 }
@@ -2726,10 +2708,6 @@ void Item::ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enc
                                         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData)
                                             .ModifyValue(&UF::ItemData::ArtifactPowers, artifactPowerIndex)
                                             .ModifyValue(&UF::ArtifactPower::CurrentRankWithBonus), newRank);
-
-                                        if (IsEquipped())
-                                            if (ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerID, newRank ? newRank - 1 : 0))
-                                                owner->ApplyArtifactPowerRank(this, artifactPowerRank, newRank != 0);
                                     }
                                 }
                             }
@@ -2790,7 +2768,7 @@ void Item::SetFixedLevel(uint8 level)
 
     if (_bonusData.PlayerLevelToItemLevelCurveId)
     {
-        if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(_bonusData.ContentTuningId, 0, true))
+        if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(_bonusData.ContentTuningId, true))
             level = std::min(std::max(int16(level), levels->MinLevel), levels->MaxLevel);
 
         SetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL, level);

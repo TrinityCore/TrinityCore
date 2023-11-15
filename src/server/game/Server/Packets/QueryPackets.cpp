@@ -177,7 +177,7 @@ bool PlayerGuidLookupData::Initialize(ObjectGuid const& guid, Player const* play
         ClassID       = player->GetClass();
         Level         = player->GetLevel();
 
-        if (UF::DeclinedNames const* names = player->GetDeclinedNames())
+        if (DeclinedName const* names = player->GetDeclinedNames())
             DeclinedNames = *names;
     }
     else

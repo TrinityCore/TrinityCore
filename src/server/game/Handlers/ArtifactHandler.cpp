@@ -106,8 +106,6 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
 
     if (artifact->IsEquipped())
     {
-        _player->ApplyArtifactPowerRank(artifact, artifactPowerRank, true);
-
         for (UF::ArtifactPower const& power : artifact->m_itemData->ArtifactPowers)
         {
             ArtifactPowerEntry const* scaledArtifactPowerEntry = sArtifactPowerStore.AssertEntry(power.ArtifactPowerID);
@@ -119,9 +117,6 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
                 continue;
 
             artifact->SetArtifactPower(power.ArtifactPowerID, power.PurchasedRank, power.CurrentRankWithBonus + 1);
-
-            _player->ApplyArtifactPowerRank(artifact, scaledArtifactPowerRank, false);
-            _player->ApplyArtifactPowerRank(artifact, scaledArtifactPowerRank, true);
         }
     }
 
@@ -226,10 +221,6 @@ void WorldSession::HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmAr
             continue;
 
         artifact->SetArtifactPower(artifactPower.ArtifactPowerID, artifactPower.PurchasedRank - oldPurchasedRank, artifactPower.CurrentRankWithBonus - oldPurchasedRank);
-
-        if (artifact->IsEquipped())
-            if (ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerID, 0))
-                _player->ApplyArtifactPowerRank(artifact, artifactPowerRank, false);
     }
 
     for (UF::ArtifactPower const& power : artifact->m_itemData->ArtifactPowers)
@@ -243,8 +234,6 @@ void WorldSession::HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmAr
             continue;
 
         artifact->SetArtifactPower(power.ArtifactPowerID, power.PurchasedRank, 0);
-
-        _player->ApplyArtifactPowerRank(artifact, scaledArtifactPowerRank, false);
     }
 
     artifact->SetArtifactXP(newAmount);

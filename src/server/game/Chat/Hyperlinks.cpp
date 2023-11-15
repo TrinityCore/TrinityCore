@@ -234,22 +234,6 @@ struct LinkValidator<LinkTags::battlePetAbil>
 };
 
 template <>
-struct LinkValidator<LinkTags::conduit>
-{
-    static bool IsTextValid(SoulbindConduitRankEntry const* rank, std::string_view text)
-    {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(rank->SpellID, DIFFICULTY_NONE))
-            return LinkValidator<LinkTags::spell>::IsTextValid(info, text);
-        return false;
-    }
-
-    static bool IsColorValid(SoulbindConduitRankEntry const*, HyperlinkColor c)
-    {
-        return c == CHAT_LINK_COLOR_SPELL;
-    }
-};
-
-template <>
 struct LinkValidator<LinkTags::currency>
 {
     static bool IsTextValid(CurrencyLinkData const& data, std::string_view text)
@@ -498,22 +482,6 @@ struct LinkValidator<LinkTags::quest>
 };
 
 template <>
-struct LinkValidator<LinkTags::mawpower>
-{
-    static bool IsTextValid(MawPowerEntry const* mawPower, std::string_view text)
-    {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(mawPower->SpellID, DIFFICULTY_NONE))
-            return LinkValidator<LinkTags::spell>::IsTextValid(info, text);
-        return false;
-    }
-
-    static bool IsColorValid(MawPowerEntry const*, HyperlinkColor c)
-    {
-        return c == CHAT_LINK_COLOR_SPELL;
-    }
-};
-
-template <>
 struct LinkValidator<LinkTags::mount>
 {
     static bool IsTextValid(MountLinkData const& data, std::string_view text)
@@ -604,26 +572,6 @@ struct LinkValidator<LinkTags::transmogappearance>
 };
 
 template <>
-struct LinkValidator<LinkTags::transmogillusion>
-{
-    static bool IsTextValid(SpellItemEnchantmentEntry const* enchantment, std::string_view text)
-    {
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (enchantment->Name[i] == text)
-                return true;
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (enchantment->HordeName[i] == text)
-                return true;
-        return false;
-    }
-
-    static bool IsColorValid(SpellItemEnchantmentEntry const*, HyperlinkColor c)
-    {
-        return c == CHAT_LINK_COLOR_TRANSMOG;
-    }
-};
-
-template <>
 struct LinkValidator<LinkTags::transmogset>
 {
     static bool IsTextValid(TransmogSetEntry const* set, std::string_view text)
@@ -698,7 +646,6 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     TryValidateAs(battlePetAbil);
     TryValidateAs(clubFinder);
     TryValidateAs(clubTicket);
-    TryValidateAs(conduit);
     TryValidateAs(creature);
     TryValidateAs(creature_entry);
     TryValidateAs(currency);
@@ -715,7 +662,6 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     TryValidateAs(itemset);
     TryValidateAs(journal);
     TryValidateAs(keystone);
-    TryValidateAs(mawpower);
     TryValidateAs(mount);
     TryValidateAs(outfit);
     TryValidateAs(player);
@@ -730,7 +676,6 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     TryValidateAs(title);
     TryValidateAs(trade);
     TryValidateAs(transmogappearance);
-    TryValidateAs(transmogillusion);
     TryValidateAs(transmogset);
     TryValidateAs(worldmap);
     return false;

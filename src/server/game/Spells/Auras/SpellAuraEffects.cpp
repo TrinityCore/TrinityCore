@@ -2377,7 +2377,7 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
 
     if (apply)
     {
-        target->SetSilencedSchoolMask(SpellSchoolMask(GetMiscValue()));
+        target->SetUnitFlag(UNIT_FLAG_SILENCED);
 
         // call functions which may have additional effects after changing state of unit
         // Stop cast only spells vs PreventionType & SPELL_PREVENTION_TYPE_SILENCE
@@ -2389,14 +2389,11 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
     }
     else
     {
-        int32 silencedSchoolMask = 0;
-        for (AuraEffect const* auraEffect : target->GetAuraEffectsByType(SPELL_AURA_MOD_SILENCE))
-            silencedSchoolMask |= auraEffect->GetMiscValue();
+        // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+        if (target->HasAuraType(SPELL_AURA_MOD_SILENCE) || target->HasAuraType(SPELL_AURA_MOD_PACIFY_SILENCE))
+            return;
 
-        for (AuraEffect const* auraEffect : target->GetAuraEffectsByType(SPELL_AURA_MOD_PACIFY_SILENCE))
-            silencedSchoolMask |= auraEffect->GetMiscValue();
-
-        target->ReplaceAllSilencedSchoolMask(SpellSchoolMask(silencedSchoolMask));
+        target->RemoveUnitFlag(UNIT_FLAG_SILENCED);
     }
 }
 
@@ -4007,8 +4004,6 @@ void AuraEffect::HandleModManaCostPct(AuraApplication const* aurApp, uint8 mode,
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
-
-    aurApp->GetTarget()->ApplyModManaCostMultiplier(GetAmount() / 100.0f, apply);
 }
 
 void AuraEffect::HandleAuraModPowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4564,10 +4559,6 @@ void AuraEffect::HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, b
         return;
 
     Unit* target = aurApp->GetTarget();
-
-    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        if (GetMiscValue() & (1 << i))
-            target->ApplyModManaCostModifier(SpellSchools(i), GetAmount(), apply);
 }
 
 void AuraEffect::HandleArenaPreparation(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -6284,11 +6275,6 @@ void AuraEffect::HandleCosmeticMounted(AuraApplication const* aurApp, uint8 mode
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (apply)
-        aurApp->GetTarget()->SetCosmeticMountDisplayId(GetMiscValue());
-    else
-        aurApp->GetTarget()->SetCosmeticMountDisplayId(0); // set cosmetic mount to 0, even if multiple auras are active; tested with zandalari racial + divine steed
-
     Player* playerTarget = aurApp->GetTarget()->ToPlayer();
     if (!playerTarget)
         return;
@@ -6305,16 +6291,6 @@ void AuraEffect::HandleModRequiredMountCapabilityFlags(AuraApplication const* au
     if (!playerTarget)
         return;
 
-    if (apply)
-        playerTarget->SetRequiredMountCapabilityFlag(GetMiscValue());
-    else
-    {
-        int32 mountCapabilityFlags = 0;
-        for (AuraEffect* otherAura : playerTarget->GetAuraEffectsByType(GetAuraType()))
-            mountCapabilityFlags |= otherAura->GetMiscValue();
-
-        playerTarget->ReplaceAllRequiredMountCapabilityFlags(mountCapabilityFlags);
-    }
 }
 
 void AuraEffect::HandleSuppressItemPassiveEffectBySpellLabel(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const

@@ -16,7 +16,6 @@
  */
 
 #include "Spell.h"
-#include "AzeriteEmpoweredItem.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
@@ -5190,7 +5189,6 @@ void Spell::SendChannelUpdate(uint32 time)
     {
         unitCaster->ClearChannelObjects();
         unitCaster->SetChannelSpellId(0);
-        unitCaster->SetChannelVisual({});
     }
 
     WorldPackets::Spells::SpellChannelUpdate spellChannelUpdate;
@@ -5252,7 +5250,6 @@ void Spell::SendChannelStart(uint32 duration)
                 creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, unitCaster->m_unitData->ChannelObjects[0]));
 
     unitCaster->SetChannelSpellId(m_spellInfo->Id);
-    unitCaster->SetChannelVisual(m_SpellVisual);
 
     WorldPackets::Spells::SpellChannelStart spellChannelStart;
     spellChannelStart.CasterGUID = unitCaster->GetGUID();
@@ -6578,21 +6575,6 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                                 if (!(battlePetType & (1 << battlePetSpecies->PetTypeEnum)))
                                     return SPELL_FAILED_WRONG_BATTLE_PET_TYPE;
 
-                            if (spellEffectInfo.Effect == SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY)
-                            {
-                                auto qualityItr = std::lower_bound(sBattlePetBreedQualityStore.begin(), sBattlePetBreedQualityStore.end(), spellEffectInfo.CalcBaseValue(m_caster, creature, m_castItemEntry, m_castItemLevel), [](BattlePetBreedQualityEntry const* a1, int32 selector)
-                                {
-                                    return a1->MaxQualityRoll < selector;
-                                });
-
-                                BattlePets::BattlePetBreedQuality quality = BattlePets::BattlePetBreedQuality::Poor;
-                                if (qualityItr != sBattlePetBreedQualityStore.end())
-                                    quality = BattlePets::BattlePetBreedQuality(qualityItr->QualityEnum);
-
-                                if (battlePet->PacketInfo.Quality >= AsUnderlyingType(quality))
-                                    return SPELL_FAILED_CANT_UPGRADE_BATTLE_PET;
-                            }
-
                             if (spellEffectInfo.Effect == SPELL_EFFECT_GRANT_BATTLEPET_LEVEL || spellEffectInfo.Effect == SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE)
                                 if (battlePet->PacketInfo.Level >= BattlePets::MAX_BATTLE_PET_LEVEL)
                                     return GRANT_PET_LEVEL_FAIL;
@@ -6903,7 +6885,7 @@ SpellCastResult Spell::CheckCasterAuras(int32* param1) const
         else if ((m_spellInfo->Mechanic & MECHANIC_IMMUNE_SHIELD) && m_caster->ToUnit() && m_caster->ToUnit()->HasAuraWithMechanic(1 << MECHANIC_BANISH))
             result = SPELL_FAILED_STUNNED;
     }
-    else if (unitCaster->IsSilenced(m_spellSchoolMask) && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_SILENCE && !CheckSpellCancelsSilence(param1))
+    else if (unitCaster->HasUnitFlag(UNIT_FLAG_SILENCED) && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_SILENCE && !CheckSpellCancelsSilence(param1))
         result = SPELL_FAILED_SILENCED;
     else if (unitflag & UNIT_FLAG_PACIFIED && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_PACIFY && !CheckSpellCancelsPacify(param1))
         result = SPELL_FAILED_PACIFIED;
@@ -7783,36 +7765,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                  break;
             }
             case SPELL_EFFECT_RESPEC_AZERITE_EMPOWERED_ITEM:
-            {
-                Item const* item = m_targets.GetItemTarget();
-                if (!item)
-                    return SPELL_FAILED_AZERITE_EMPOWERED_ONLY;
-
-                if (item->GetOwnerGUID() != m_caster->GetGUID())
-                    return SPELL_FAILED_DONT_REPORT;
-
-                AzeriteEmpoweredItem const* azeriteEmpoweredItem = item->ToAzeriteEmpoweredItem();
-                if (!azeriteEmpoweredItem)
-                    return SPELL_FAILED_AZERITE_EMPOWERED_ONLY;
-
-                bool hasSelections = false;
-                for (int32 tier = 0; tier < MAX_AZERITE_EMPOWERED_TIER; ++tier)
-                {
-                    if (azeriteEmpoweredItem->GetSelectedAzeritePower(tier))
-                    {
-                        hasSelections = true;
-                        break;
-                    }
-                }
-
-                if (!hasSelections)
-                    return SPELL_FAILED_AZERITE_EMPOWERED_NO_CHOICES_TO_UNDO;
-
-                if (!m_caster->ToPlayer()->HasEnoughMoney(azeriteEmpoweredItem->GetRespecCost()))
-                    return SPELL_FAILED_DONT_REPORT;
-
                 break;
-            }
             default:
                 break;
         }
@@ -9387,14 +9340,6 @@ CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringAura(AuraEffect const* trig
         OriginalCastId = triggeringAura->GetBase()->GetCastId();
 
     return *this;
-}
-
-SpellCastVisual::operator UF::SpellCastVisual() const
-{
-    UF::SpellCastVisual visual;
-    visual.SpellXSpellVisualID = SpellXSpellVisualID;
-    visual.ScriptVisualID = ScriptVisualID;
-    return visual;
 }
 
 SpellCastVisual::operator WorldPackets::Spells::SpellCastVisual() const

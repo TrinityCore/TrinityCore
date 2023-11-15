@@ -22,11 +22,6 @@
 #include "EnumFlag.h"
 #include <string>
 
-namespace UF
-{
-struct DeclinedNames;
-}
-
 #define MIN_MELEE_REACH             2.0f
 #define NOMINAL_MELEE_RANGE         5.0f
 #define MELEE_RANGE                 (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
@@ -154,7 +149,7 @@ enum UnitFlags : uint32
     UNIT_FLAG_LOOTING               = 0x00000400,           // loot animation
     UNIT_FLAG_PET_IN_COMBAT         = 0x00000800,           // on player pets: whether the pet is chasing a target to attack || on other units: whether any of the unit's minions is in combat
     UNIT_FLAG_PVP_ENABLING          = 0x00001000,           // changed in 3.0.3, now UNIT_BYTES_2_OFFSET_PVP_FLAG from UNIT_FIELD_BYTES_2
-    UNIT_FLAG_FORCE_NAMEPLATE       = 0x00002000,           // Force show nameplate, 9.0
+    UNIT_FLAG_SILENCED              = 0x00002000,           // silenced
     UNIT_FLAG_CANT_SWIM             = 0x00004000,           // TITLE Can't Swim
     UNIT_FLAG_CAN_SWIM              = 0x00008000,           // TITLE Can Swim DESCRIPTION shows swim animation in water
     UNIT_FLAG_NON_ATTACKABLE_2      = 0x00010000,           // removes attackable icon, if on yourself, cannot assist self but can cast TARGET_SELF spells - added by SPELL_AURA_MOD_UNATTACKABLE
@@ -478,8 +473,6 @@ enum HitInfo
 struct TC_GAME_API DeclinedName
 {
     DeclinedName() = default;
-    DeclinedName(UF::DeclinedNames const& uf);
-
     std::string name[MAX_DECLINED_NAME_CASES];
 };
 

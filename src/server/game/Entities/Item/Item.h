@@ -240,10 +240,6 @@ class TC_GAME_API Item : public Object
 
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return nullptr; }
         Bag const* ToBag() const { if (IsBag()) return reinterpret_cast<Bag const*>(this); else return nullptr; }
-        AzeriteItem* ToAzeriteItem() { return IsAzeriteItem() ? reinterpret_cast<AzeriteItem*>(this) : nullptr; }
-        AzeriteItem const* ToAzeriteItem() const { return IsAzeriteItem() ? reinterpret_cast<AzeriteItem const*>(this) : nullptr; }
-        AzeriteEmpoweredItem* ToAzeriteEmpoweredItem() { return IsAzeriteEmpoweredItem() ? reinterpret_cast<AzeriteEmpoweredItem*>(this) : nullptr; }
-        AzeriteEmpoweredItem const* ToAzeriteEmpoweredItem() const { return IsAzeriteEmpoweredItem() ? reinterpret_cast<AzeriteEmpoweredItem const*>(this) : nullptr; }
 
         bool IsRefundable() const { return HasItemFlag(ITEM_FIELD_FLAG_REFUNDABLE); }
         bool IsBOPTradeable() const { return HasItemFlag(ITEM_FIELD_FLAG_BOP_TRADEABLE); }

@@ -42,19 +42,17 @@
 namespace lfg
 {
 
-LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0), group(0), contentTuningId(0),
+LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0), group(0), minlevel(0), maxlevel(0),
     difficulty(DIFFICULTY_NONE), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f), requiredItemLevel(0), finalDungeonEncounterId(0)
 {
 }
 
 LFGDungeonData::LFGDungeonData(LFGDungeonsEntry const* dbc) : id(dbc->ID), name(dbc->Name[sWorld->GetDefaultDbcLocale()]), map(dbc->MapID),
     type(uint8(dbc->TypeID)), expansion(uint8(dbc->ExpansionLevel)), group(uint8(dbc->GroupID)),
-    contentTuningId(uint32(dbc->ContentTuningID)), difficulty(Difficulty(dbc->DifficultyID)),
+    minlevel(dbc->MinLevel), maxlevel(dbc->MaxLevel), difficulty(Difficulty(dbc->DifficultyID)),
     seasonal((dbc->Flags[0] & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
     requiredItemLevel(0), finalDungeonEncounterId(0)
 {
-    if (JournalEncounterEntry const* journalEncounter = sJournalEncounterStore.LookupEntry(dbc->FinalEncounterID))
-        finalDungeonEncounterId = journalEncounter->DungeonEncounterID;
 }
 
 LFGMgr::LFGMgr() : m_QueueTimer(0), m_lfgProposalId(1),
@@ -1759,13 +1757,10 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
                 return LFG_LOCKSTATUS_RAID_LOCKED;
             if (sInstanceLockMgr.FindActiveInstanceLock(guid, { dungeon->map, Difficulty(dungeon->difficulty) }))
                 return LFG_LOCKSTATUS_RAID_LOCKED;
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->contentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
-            {
-                if (levels->MinLevel > level)
-                    return LFG_LOCKSTATUS_TOO_LOW_LEVEL;
-                if (levels->MaxLevel < level)
-                    return LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
-            }
+            if (dungeon->minlevel > level)
+                return LFG_LOCKSTATUS_TOO_LOW_LEVEL;
+            if (dungeon->maxlevel < level)
+                return LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
             if (dungeon->seasonal && !IsSeasonActive(dungeon->id))
                 return LFG_LOCKSTATUS_NOT_IN_SEASON;
             if (dungeon->requiredItemLevel > player->GetAverageItemLevel())
@@ -2212,9 +2207,8 @@ LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion,
         if (dungeon.expansion > expansion)
             continue;
 
-        if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon.contentTuningId, contentTuningReplacementConditionMask))
-            if (levels->MinLevel > level || level > levels->MaxLevel)
-                continue;
+        if (dungeon.minlevel > level || level > dungeon.maxlevel)
+            continue;
 
         randomDungeons.insert(dungeon.Entry());
     }

@@ -111,13 +111,6 @@ bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTre
         if (referencePlayer->GetSession()->HasPermission(rbac::RBAC_PERM_CANNOT_EARN_REALM_FIRST_ACHIEVEMENTS))
             return false;
 
-    if (achievement->CovenantID && referencePlayer->m_playerData->CovenantID != achievement->CovenantID)
-    {
-        TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: {} Type {} Achievement {}) Wrong covenant",
-            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
-        return false;
-    }
-
     return CriteriaHandler::CanUpdateCriteriaTree(criteria, tree, referencePlayer);
 }
 

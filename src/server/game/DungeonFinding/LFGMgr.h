@@ -301,7 +301,8 @@ struct LFGDungeonData
     uint8 type;
     uint8 expansion;
     uint8 group;
-    uint32 contentTuningId;
+    uint8 minlevel;
+    uint8 maxlevel;
     Difficulty difficulty;
     bool seasonal;
     float x, y, z, o;

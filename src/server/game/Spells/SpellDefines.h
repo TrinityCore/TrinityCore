@@ -39,11 +39,6 @@ enum Difficulty : uint8;
 enum ProcFlags : uint32;
 enum ProcFlags2 : int32;
 
-namespace UF
-{
-    struct SpellCastVisual;
-}
-
 namespace WorldPackets
 {
     namespace Spells
@@ -504,7 +499,6 @@ struct SpellCastVisual
     uint32 SpellXSpellVisualID = 0;
     uint32 ScriptVisualID = 0;
 
-    operator UF::SpellCastVisual() const;
     operator WorldPackets::Spells::SpellCastVisual() const;
 };
 

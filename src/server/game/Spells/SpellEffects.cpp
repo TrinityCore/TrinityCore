@@ -18,8 +18,6 @@
 #include "Spell.h"
 #include "AccountMgr.h"
 #include "AreaTrigger.h"
-#include "AzeriteEmpoweredItem.h"
-#include "AzeriteItem.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "BattlePetMgr.h"
@@ -2508,7 +2506,7 @@ void Spell::EffectEnchantItemTmp()
     }
 
     // select enchantment duration
-    uint32 duration = pEnchant->Duration;
+    uint32 duration = m_damage;
 
     // item can be in trade slot and have owner diff. from caster
     Player* item_owner = itemTarget->GetOwner();
@@ -3823,7 +3821,7 @@ void Spell::EffectSkinning()
         if (!contentTuning)
             return;
 
-        uint32 skinningSkill = player->GetProfessionSkillForExp(skill, contentTuning->ExpansionID);
+        uint32 skinningSkill = player->GetProfessionSkillForExp(skill, 0);
         if (!skinningSkill)
             return;
 
@@ -5528,17 +5526,6 @@ void Spell::EffectChangeBattlePetQuality()
 
     if (!unitTarget || !unitTarget->IsCreature())
         return;
-
-    auto qualityItr = std::lower_bound(sBattlePetBreedQualityStore.begin(), sBattlePetBreedQualityStore.end(), damage, [](BattlePetBreedQualityEntry const* a1, int32 selector)
-    {
-        return a1->MaxQualityRoll < selector;
-    });
-
-    BattlePets::BattlePetBreedQuality quality = BattlePets::BattlePetBreedQuality::Poor;
-    if (qualityItr != sBattlePetBreedQualityStore.end())
-        quality = BattlePets::BattlePetBreedQuality(qualityItr->QualityEnum);
-
-    playerCaster->GetSession()->GetBattlePetMgr()->ChangeBattlePetQuality(unitTarget->GetBattlePetCompanionGUID(), quality);
 }
 
 void Spell::EffectLaunchQuestChoice()
@@ -5830,69 +5817,10 @@ void Spell::EffectLearnTransmogSet()
 
 void Spell::EffectRespecAzeriteEmpoweredItem()
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
-        return;
-
-    if (!itemTarget || !itemTarget->IsAzeriteEmpoweredItem())
-        return;
-
-    Player* owner = m_caster->ToPlayer();
-    if (!owner)
-        return;
-
-    AzeriteEmpoweredItem* azeriteEmpoweredItem = itemTarget->ToAzeriteEmpoweredItem();
-    owner->ModifyMoney(-azeriteEmpoweredItem->GetRespecCost());
-
-    // reapply all item mods - item level change affects stats and auras
-    if (azeriteEmpoweredItem->IsEquipped())
-        owner->_ApplyItemMods(azeriteEmpoweredItem, azeriteEmpoweredItem->GetSlot(), false);
-
-    azeriteEmpoweredItem->ClearSelectedAzeritePowers();
-
-    if (azeriteEmpoweredItem->IsEquipped())
-        owner->_ApplyItemMods(azeriteEmpoweredItem, azeriteEmpoweredItem->GetSlot(), true);
-
-    azeriteEmpoweredItem->SetState(ITEM_CHANGED, owner);
-    owner->SetNumRespecs(owner->GetNumRespecs() + 1);
 }
 
 void Spell::EffectLearnAzeriteEssencePower()
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
-        return;
-
-    Player* playerTarget = unitTarget ? unitTarget->ToPlayer() : nullptr;
-    if (!playerTarget)
-        return;
-
-    Item* heartOfAzeroth = playerTarget->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere);
-    if (!heartOfAzeroth)
-        return;
-
-    AzeriteItem* azeriteItem = heartOfAzeroth->ToAzeriteItem();
-    if (!azeriteItem)
-        return;
-
-    // remove old rank and apply new one
-    if (azeriteItem->IsEquipped())
-    {
-        if (UF::SelectedAzeriteEssences const* selectedEssences = azeriteItem->GetSelectedAzeriteEssences())
-        {
-            for (int32 slot = 0; slot < MAX_AZERITE_ESSENCE_SLOT; ++slot)
-            {
-                if (selectedEssences->AzeriteEssenceID[slot] == uint32(effectInfo->MiscValue))
-                {
-                    bool major = AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(slot)->Type) == AzeriteItemMilestoneType::MajorEssence;
-                    playerTarget->ApplyAzeriteEssence(azeriteItem, effectInfo->MiscValue, MAX_AZERITE_ESSENCE_RANK, major, false);
-                    playerTarget->ApplyAzeriteEssence(azeriteItem, effectInfo->MiscValue, effectInfo->MiscValueB, major, false);
-                    break;
-                }
-            }
-        }
-    }
-
-    azeriteItem->SetEssenceRank(effectInfo->MiscValue, effectInfo->MiscValueB);
-    azeriteItem->SetState(ITEM_CHANGED, playerTarget);
 }
 
 void Spell::EffectCreatePrivateConversation()
@@ -5940,18 +5868,6 @@ void Spell::EffectGrantBattlePetExperience()
 
 void Spell::EffectLearnTransmogIllusion()
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
-        return;
-
-    Player* player = Object::ToPlayer(unitTarget);
-    if (!player)
-        return;
-
-    uint32 illusionId = effectInfo->MiscValue;
-    if (!sTransmogIllusionStore.LookupEntry(illusionId))
-        return;
-
-    player->GetSession()->GetCollectionMgr()->AddTransmogIllusion(illusionId);
 }
 
 void Spell::EffectModifyAuraStacks()

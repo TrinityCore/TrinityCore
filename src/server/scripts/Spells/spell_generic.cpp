@@ -5003,7 +5003,7 @@ class spell_gen_skinning : public SpellScript
         if (!contentTuning)
             return;
 
-        uint32 skinningSkill = player->GetProfessionSkillForExp(SKILL_SKINNING, contentTuning->ExpansionID);
+        uint32 skinningSkill = player->GetProfessionSkillForExp(SKILL_SKINNING, 0);
         if (!skinningSkill)
             return;
 

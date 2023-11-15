@@ -684,8 +684,7 @@ public:
                         if (handler->GetSession())
                         {
                             int32 maxLevel = 0;
-                            if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second.GetContentTuningId(),
-                                handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ContentTuningConditionMask))
+                            if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second.GetContentTuningId()))
                                 maxLevel = questLevels->MaxLevel;
 
                             int32 scalingFactionGroup = 0;
@@ -744,8 +743,7 @@ public:
                 if (handler->GetSession())
                 {
                     int32 maxLevel = 0;
-                    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second.GetContentTuningId(),
-                        handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ContentTuningConditionMask))
+                    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second.GetContentTuningId()))
                         maxLevel = questLevels->MaxLevel;
 
                     int32 scalingFactionGroup = 0;
@@ -814,8 +812,7 @@ public:
             if (handler->GetSession())
             {
                 int32 maxLevel = 0;
-                if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(quest->GetContentTuningId(),
-                    handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ContentTuningConditionMask))
+                if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(quest->GetContentTuningId()))
                     maxLevel = questLevels->MaxLevel;
 
                 int32 scalingFactionGroup = 0;

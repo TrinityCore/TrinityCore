@@ -17,7 +17,6 @@
 
 #include "GameObject.h"
 #include "ArtifactPackets.h"
-#include "AzeriteItem.h"
 #include "AzeritePackets.h"
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
@@ -2183,7 +2182,7 @@ uint8 GameObject::GetLevelForTarget(WorldObject const* target) const
     if (GetGoType() == GAMEOBJECT_TYPE_TRAP)
     {
         if (Player const* player = target->ToPlayer())
-            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(GetGOInfo()->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(GetGOInfo()->ContentTuningId))
                 return uint8(std::clamp<int16>(player->GetLevel(), userLevels->MinLevel, userLevels->MaxLevel));
 
         if (Unit const* targetUnit = target->ToUnit())
@@ -2865,16 +2864,12 @@ void GameObject::Use(Unit* user)
                     }
 
                     // Update the correct fishing skill according to the area's ContentTuning
-                    ContentTuningEntry const* areaContentTuning = DB2Manager::GetContentTuningForArea(areaEntry);
-                    if (!areaContentTuning)
-                        break;
-
-                    player->UpdateFishingSkill(areaContentTuning->ExpansionID);
+                    player->UpdateFishingSkill(0);
 
                     // Send loot
                     int32 areaFishingLevel = sObjectMgr->GetFishingBaseSkillLevel(areaEntry);
 
-                    uint32 playerFishingSkill = player->GetProfessionSkillForExp(SKILL_FISHING, areaContentTuning->ExpansionID);
+                    uint32 playerFishingSkill = player->GetProfessionSkillForExp(SKILL_FISHING, 0);
                     int32 playerFishingLevel = player->GetSkillValue(playerFishingSkill);
 
                     int32 roll = irand(1, 100);
@@ -3073,11 +3068,11 @@ void GameObject::Use(Unit* user)
                 return;
 
             //required lvl checks!
-            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId))
                 if (player->GetLevel() < userLevels->MaxLevel)
                     return;
 
-            if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, targetPlayer->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId))
                 if (targetPlayer->GetLevel() < targetLevels->MaxLevel)
                     return;
 
@@ -3294,41 +3289,6 @@ void GameObject::Use(Unit* user)
             if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(info->itemForge.conditionID1))
                 if (!sConditionMgr->IsPlayerMeetingCondition(player, playerCondition))
                     return;
-
-            switch (info->itemForge.ForgeType)
-            {
-                case 0: // Artifact Forge
-                case 1: // Relic Forge
-                {
-                    Aura const* artifactAura = player->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE);
-                    Item const* item = artifactAura ? player->GetItemByGuid(artifactAura->GetCastItemGUID()) : nullptr;
-                    if (!item)
-                    {
-                        player->SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_MUST_EQUIP_ARTIFACT).Write());
-                        return;
-                    }
-
-                    WorldPackets::Artifact::OpenArtifactForge openArtifactForge;
-                    openArtifactForge.ArtifactGUID = item->GetGUID();
-                    openArtifactForge.ForgeGUID = GetGUID();
-                    player->SendDirectMessage(openArtifactForge.Write());
-                    break;
-                }
-                case 2: // Heart Forge
-                {
-                    Item const* item = player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere);
-                    if (!item)
-                        return;
-
-                    WorldPackets::GameObject::GameObjectInteraction openHeartForge;
-                    openHeartForge.ObjectGUID = GetGUID();
-                    openHeartForge.InteractionType = PlayerInteractionType::AzeriteForge;
-                    player->SendDirectMessage(openHeartForge.Write());
-                    break;
-                }
-                default:
-                    break;
-            }
             return;
         }
         case GAMEOBJECT_TYPE_UI_LINK:

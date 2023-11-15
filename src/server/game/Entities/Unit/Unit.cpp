@@ -6846,7 +6846,7 @@ float Unit::SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSch
                 crit_chance = 0.0f;
             // For other schools
             else if (Player const* thisPlayer = ToPlayer())
-                crit_chance = thisPlayer->m_activePlayerData->SpellCritPercentage;
+                crit_chance = thisPlayer->m_activePlayerData->SpellCritPercentage[GetFirstSchoolInMask(schoolMask)];
             else
                 crit_chance = (float)m_baseSpellCritChance;
             break;
@@ -7141,14 +7141,7 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
 
     // Healing done percent
     if (Player const* thisPlayer = ToPlayer())
-    {
-        float maxModDamagePercentSchool = 0.0f;
-        for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
-            if (spellProto->GetSchoolMask() & (1 << i))
-                maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, thisPlayer->m_activePlayerData->ModHealingDonePercent[i]);
-
-        DoneTotalMod *= maxModDamagePercentSchool;
-    }
+        DoneTotalMod *= thisPlayer->m_activePlayerData->ModHealingDonePercent;
     else // SPELL_AURA_MOD_HEALING_DONE_PERCENT is included in m_activePlayerData->ModHealingDonePercent for players
         DoneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
 
@@ -7912,11 +7905,6 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 
         if (mountCapability->ReqSpellKnownID && !HasSpell(mountCapability->ReqSpellKnownID))
             continue;
-
-        if (Player const* thisPlayer = ToPlayer())
-            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountCapability->PlayerConditionID))
-                if (!ConditionMgr::IsPlayerMeetingCondition(thisPlayer, playerCondition))
-                    continue;
 
         return mountCapability;
     }
@@ -9114,19 +9102,16 @@ void Unit::UpdateResistances(uint32 school)
         value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
         SetResistance(SpellSchools(school), int32(value));
-        SetBonusResistanceMod(SpellSchools(school), int32(value - baseValue));
     }
     else
         UpdateArmor();
 }
 
-float Unit::GetTotalAttackPowerValue(WeaponAttackType attType, bool includeWeapon /*= true*/) const
+float Unit::GetTotalAttackPowerValue(WeaponAttackType attType) const
 {
     if (attType == RANGED_ATTACK)
     {
         float ap = m_unitData->RangedAttackPower + m_unitData->RangedAttackPowerModPos + m_unitData->RangedAttackPowerModNeg;
-        if (includeWeapon)
-            ap += std::max<float>(m_unitData->MainHandWeaponAttackPower, m_unitData->RangedWeaponAttackPower);
         if (ap < 0)
             return 0.0f;
         return ap * (1.0f + m_unitData->RangedAttackPowerMultiplier);
@@ -9134,16 +9119,6 @@ float Unit::GetTotalAttackPowerValue(WeaponAttackType attType, bool includeWeapo
     else
     {
         float ap = m_unitData->AttackPower + m_unitData->AttackPowerModPos + m_unitData->AttackPowerModNeg;
-        if (includeWeapon)
-        {
-            if (attType == BASE_ATTACK)
-                ap += std::max<float>(m_unitData->MainHandWeaponAttackPower, m_unitData->RangedWeaponAttackPower);
-            else
-            {
-                ap += m_unitData->OffHandWeaponAttackPower;
-                ap /= 2;
-            }
-        }
         if (ap < 0)
             return 0.0f;
         return ap * (1.0f + m_unitData->AttackPowerMultiplier);
@@ -12074,11 +12049,27 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
         }
     }
 
+    uint32 modelId = 0;
     SpellShapeshiftFormEntry const* formEntry = sSpellShapeshiftFormStore.LookupEntry(form);
-    if (formEntry && formEntry->CreatureDisplayID)
-        return formEntry->CreatureDisplayID;
+    if (formEntry && formEntry->CreatureDisplayID[0])
+    {
+        // Take the alliance modelid as default
+        if (GetTypeId() != TYPEID_PLAYER)
+            return formEntry->CreatureDisplayID[0];
+        else
+        {
+            if (Player::TeamForRace(GetRace()) == ALLIANCE)
+                modelId = formEntry->CreatureDisplayID[0];
+            else
+                modelId = formEntry->CreatureDisplayID[1];
 
-    return 0;
+            // If the player is horde but there are no values for the horde modelid - take the alliance modelid
+            if (!modelId && Player::TeamForRace(GetRace()) == HORDE)
+                modelId = formEntry->CreatureDisplayID[0];
+        }
+    }
+
+    return modelId;
 }
 
 void Unit::JumpTo(float speedXY, float speedZ, float angle, Optional<Position> dest)
@@ -13806,10 +13797,4 @@ std::string Unit::GetDebugInfo() const
     }
 
     return sstr.str();
-}
-
-DeclinedName::DeclinedName(UF::DeclinedNames const& uf)
-{
-    for (std::size_t i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        name[i] = uf.Name[i];
 }
