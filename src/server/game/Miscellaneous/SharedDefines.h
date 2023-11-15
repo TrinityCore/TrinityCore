@@ -384,6 +384,14 @@ enum ItemQualities
     MAX_ITEM_QUALITY
 };
 
+constexpr uint8 MIN_TALENT_GROUP = 0;
+constexpr uint8 MAX_TALENT_GROUP = 1;
+constexpr uint8 MIN_TALENT_GROUPS = 1;
+constexpr uint8 MAX_TALENT_GROUPS = 2;
+constexpr uint8 MAX_GLYPH_SLOT_INDEX = 6;
+constexpr uint8 MIN_SPECIALIZATION_LEVEL = 10;
+constexpr uint8 MAX_SPECIALIZATIONS = 4;
+
 enum SpellCategory
 {
     SPELL_CATEGORY_FOOD             = 11,
