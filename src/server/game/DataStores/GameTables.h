@@ -54,8 +54,6 @@ struct GtBaseMPEntry
     float DeathKnight = 0.0f;
     float Monk = 0.0f;
     float DemonHunter = 0.0f;
-    float Evoker = 0.0f;
-    float Adventurer = 0.0f;
 };
 
 struct GtBattlePetXPEntry
@@ -66,7 +64,7 @@ struct GtBattlePetXPEntry
 
 struct GtCombatRatingsEntry
 {
-    float Amplify = 0.0f;
+    float WeaponSkill = 0.0f;
     float DefenseSkill = 0.0f;
     float Dodge = 0.0f;
     float Parry = 0.0f;
@@ -77,27 +75,27 @@ struct GtCombatRatingsEntry
     float CritMelee = 0.0f;
     float CritRanged = 0.0f;
     float CritSpell = 0.0f;
-    float Corruption = 0.0f;
-    float CorruptionResistance = 0.0f;
-    float Speed = 0.0f;
-    float ResilienceCritTaken = 0.0f;
-    float ResiliencePlayerDamage = 0.0f;
-    float Lifesteal = 0.0f;
+    float HitTakenMelee = 0.0f;
+    float HitTakenRanged = 0.0f;
+    float HitTakenSpell = 0.0f;
+    float CritTakenMelee = 0.0f;
+    float CritTakenRanged = 0.0f;
+    float CritTakenSpell = 0.0f;
     float HasteMelee = 0.0f;
     float HasteRanged = 0.0f;
     float HasteSpell = 0.0f;
-    float Avoidance = 0.0f;
-    float Sturdiness = 0.0f;
-    float Unused7 = 0.0f;
-    float Expertise = 0.0f;
-    float ArmorPenetration = 0.0f;
-    float Mastery = 0.0f;
-    float PvPPower = 0.0f;
-    float Cleave = 0.0f;
-    float VersatilityDamageDone = 0.0f;
-    float VersatilityHealingDone = 0.0f;
-    float VersatilityDamageTaken = 0.0f;
-    float Unused12 = 0.0f;
+    float Unknown0 = 0.0f;
+    float Unknown1 = 0.0f;
+    float Unknown2 = 0.0f;
+    float Unknown3 = 0.0f;
+    float Unknown4 = 0.0f;
+    float Unknown5 = 0.0f;
+    float Unknown6 = 0.0f;
+    float Unknown7 = 0.0f;
+    float Unknown8 = 0.0f;
+    float Unknown9 = 0.0f;
+    float Unknown10 = 0.0f;
+    float Unknown11 = 0.0f;
 };
 
 struct GtCombatRatingsMultByILvl
@@ -137,17 +135,12 @@ struct GtSpellScalingEntry
     float DeathKnight = 0.0f;
     float Monk = 0.0f;
     float DemonHunter = 0.0f;
-    float Evoker = 0.0f;
-    float Adventurer = 0.0f;
     float Item = 0.0f;
     float Consumable = 0.0f;
     float Gem1 = 0.0f;
     float Gem2 = 0.0f;
     float Gem3 = 0.0f;
     float Health = 0.0f;
-    float DamageReplaceStat = 0.0f;
-    float DamageSecondary = 0.0f;
-    float ManaConsumable = 0.0f;
 };
 
 struct GtStaminaMultByILvl
@@ -198,7 +191,6 @@ TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGam
 TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
 TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
-TC_GAME_API extern GameTable<GtStaminaMultByILvl>                   sStaminaMultByILvlGameTable;
 TC_GAME_API extern GameTable<GtXpEntry>                             sXpGameTable;
 
 TC_GAME_API void LoadGameTables(std::string const& dataPath);
@@ -232,10 +224,6 @@ inline float GetGameTableColumnForClass(T const* row, int32 class_)
             return row->Druid;
         case CLASS_DEMON_HUNTER:
             return row->DemonHunter;
-        case CLASS_EVOKER:
-            return row->Evoker;
-        case CLASS_ADVENTURER:
-            return row->Adventurer;
         default:
             break;
     }
@@ -271,10 +259,6 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Druid;
         case CLASS_DEMON_HUNTER:
             return row->DemonHunter;
-        case CLASS_EVOKER:
-            return row->Evoker;
-        case CLASS_ADVENTURER:
-            return row->Adventurer;
         case -1:
         case -7:
             return row->Item;
@@ -288,12 +272,6 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Gem3;
         case -6:
             return row->Health;
-        case -8:
-            return row->DamageReplaceStat;
-        case -9:
-            return row->DamageSecondary;
-        case -10:
-            return row->ManaConsumable;
         default:
             break;
     }
@@ -305,8 +283,5 @@ inline float GetBattlePetXPPerLevel(GtBattlePetXPEntry const* row)
 {
     return row->Wins * row->Xp;
 }
-
-template<class T>
-float GetIlvlStatMultiplier(T const* row, InventoryType invType);
 
 #endif // GameTables_h__

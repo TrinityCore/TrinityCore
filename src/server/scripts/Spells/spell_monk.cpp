@@ -129,8 +129,8 @@ class spell_monk_life_cocoon : public SpellScript
     void CalculateAbsorb(SpellEffIndex /*effIndex*/)
     {
         int32 absorb = GetCaster()->CountPctFromMaxHealth(GetEffectValue());
-        if (Player* player = GetCaster()->ToPlayer())
-            AddPct(absorb, player->GetRatingBonusValue(CR_VERSATILITY_HEALING_DONE));
+        //if (Player* player = GetCaster()->ToPlayer())
+        //    AddPct(absorb, player->GetRatingBonusValue(CR_VERSATILITY_HEALING_DONE));
 
         if (AuraEffect* calmingCoalescence = GetCaster()->GetAuraEffect(SPELL_MONK_CALMING_COALESCENCE, EFFECT_0, GetCaster()->GetGUID()))
         {

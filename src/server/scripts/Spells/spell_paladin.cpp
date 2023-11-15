@@ -1329,8 +1329,8 @@ class spell_pal_shield_of_vengeance : public AuraScript
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         amount = CalculatePct(GetUnitOwner()->GetMaxHealth(), GetEffectInfo(EFFECT_1).CalcValue());
-        if (Player const* player = GetUnitOwner()->ToPlayer())
-            AddPct(amount, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + player->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
+        //if (Player const* player = GetUnitOwner()->ToPlayer())
+        //    AddPct(amount, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + player->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
 
         _initialAmount = amount;
     }

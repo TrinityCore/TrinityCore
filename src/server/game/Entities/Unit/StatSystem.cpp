@@ -450,7 +450,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
     float versaDmgMod = 1.0f;
 
-    AddPct(versaDmgMod, GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + float(GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY)));
+    //AddPct(versaDmgMod, GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + float(GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY)));
 
     SpellShapeshiftFormEntry const* shapeshift = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
     if (shapeshift && shapeshift->CombatRoundTime)
@@ -543,7 +543,7 @@ void Player::UpdateMastery()
     }
 
     float value = GetTotalAuraModifier(SPELL_AURA_MASTERY);
-    value += GetRatingBonusValue(CR_MASTERY);
+    //value += GetRatingBonusValue(CR_MASTERY);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Mastery), value);
 
     ChrSpecializationEntry const* chrSpec = GetPrimarySpecializationEntry();
@@ -572,7 +572,7 @@ void Player::UpdateMastery()
 void Player::UpdateVersatilityDamageDone()
 {
     // No proof that CR_VERSATILITY_DAMAGE_DONE is allways = ActivePlayerData::Versatility
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Versatility), m_activePlayerData->CombatRatings[CR_VERSATILITY_DAMAGE_DONE]);
+    //SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Versatility), m_activePlayerData->CombatRatings[CR_VERSATILITY_DAMAGE_DONE]);
 
     if (GetClass() == CLASS_HUNTER)
         UpdateDamagePhysical(RANGED_ATTACK);
@@ -584,7 +584,7 @@ void Player::UpdateHealingDonePercentMod()
 {
     float value = 1.0f;
 
-    AddPct(value, GetRatingBonusValue(CR_VERSATILITY_HEALING_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
+    //AddPct(value, GetRatingBonusValue(CR_VERSATILITY_HEALING_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
 
     for (AuraEffect const* auraEffect : GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT))
         AddPct(value, auraEffect->GetAmount());

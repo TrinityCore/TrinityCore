@@ -305,7 +305,7 @@ TC_GAME_API extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];
 
 enum CombatRating
 {
-    CR_AMPLIFY                          = 0,
+    CR_WEAPON_SKILL                     = 0,
     CR_DEFENSE_SKILL                    = 1,
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
@@ -316,30 +316,23 @@ enum CombatRating
     CR_CRIT_MELEE                       = 8,
     CR_CRIT_RANGED                      = 9,
     CR_CRIT_SPELL                       = 10,
-    CR_CORRUPTION                       = 11,
-    CR_CORRUPTION_RESISTANCE            = 12,
-    CR_SPEED                            = 13,
-    CR_RESILIENCE_CRIT_TAKEN            = 14,
-    CR_RESILIENCE_PLAYER_DAMAGE         = 15,
-    CR_LIFESTEAL                        = 16,
+    CR_HIT_TAKEN_MELEE                  = 11,
+    CR_HIT_TAKEN_RANGED                 = 12,
+    CR_HIT_TAKEN_SPELL                  = 13,
+    CR_CRIT_TAKEN_MELEE                 = 14,
+    CR_CRIT_TAKEN_RANGED                = 15,
+    CR_CRIT_TAKEN_SPELL                 = 16,
     CR_HASTE_MELEE                      = 17,
     CR_HASTE_RANGED                     = 18,
     CR_HASTE_SPELL                      = 19,
-    CR_AVOIDANCE                        = 20,
-    CR_STURDINESS                       = 21,
-    CR_UNUSED_7                         = 22,
+    CR_WEAPON_SKILL_MAINHAND            = 20,
+    CR_WEAPON_SKILL_OFFHAND             = 21,
+    CR_WEAPON_SKILL_RANGED              = 22,
     CR_EXPERTISE                        = 23,
-    CR_ARMOR_PENETRATION                = 24,
-    CR_MASTERY                          = 25,
-    CR_PVP_POWER                        = 26,
-    CR_CLEAVE                           = 27,
-    CR_VERSATILITY_DAMAGE_DONE          = 28,
-    CR_VERSATILITY_HEALING_DONE         = 29,
-    CR_VERSATILITY_DAMAGE_TAKEN         = 30,
-    CR_UNUSED_12                        = 31
+    CR_ARMOR_PENETRATION                = 24
 };
 
-#define MAX_COMBAT_RATING         32
+#define MAX_COMBAT_RATING         25
 
 enum UnitTypeMask
 {
@@ -1056,7 +1049,7 @@ class TC_GAME_API Unit : public WorldObject
         void DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilityLoss);
 
         // player or player's pet resilience (-1%)
-        uint32 GetDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE, 1.0f, 100.0f, damage); }
+        uint32 GetDamageReduction(uint32 damage) const { return 0; }
 
         virtual bool CanApplyResilience() const;
         static void ApplyResilience(Unit const* victim, int32* damage);

@@ -604,9 +604,9 @@ class spell_item_corruption_grasping_tendrils : public AuraScript
 
     void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
-        Player* player = GetUnitOwner()->ToPlayer();
-        amount = std::clamp(10.0f + player->GetRatingBonusValue(CR_CORRUPTION) - player->GetRatingBonusValue(CR_CORRUPTION_RESISTANCE), 0.0f, 99.0f);
-        canBeRecalculated = false;
+        //Player* player = GetUnitOwner()->ToPlayer();
+        //amount = std::clamp(10.0f + player->GetRatingBonusValue(CR_CORRUPTION) - player->GetRatingBonusValue(CR_CORRUPTION_RESISTANCE), 0.0f, 99.0f);
+        //canBeRecalculated = false;
     }
 
     void Register() override

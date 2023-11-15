@@ -5249,8 +5249,8 @@ inline float GetGameTableColumnForCombatRating(GtCombatRatingsEntry const* row, 
 {
     switch (rating)
     {
-        case CR_AMPLIFY:
-            return row->Amplify;
+        case CR_WEAPON_SKILL:
+            return row->WeaponSkill;
         case CR_DEFENSE_SKILL:
             return row->DefenseSkill;
         case CR_DODGE:
@@ -5271,48 +5271,24 @@ inline float GetGameTableColumnForCombatRating(GtCombatRatingsEntry const* row, 
             return row->CritRanged;
         case CR_CRIT_SPELL:
             return row->CritSpell;
-        case CR_CORRUPTION:
-            return row->Corruption;
-        case CR_CORRUPTION_RESISTANCE:
-            return row->CorruptionResistance;
-        case CR_SPEED:
-            return row->Speed;
-        case CR_RESILIENCE_CRIT_TAKEN:
-            return row->ResilienceCritTaken;
-        case CR_RESILIENCE_PLAYER_DAMAGE:
-            return row->ResiliencePlayerDamage;
-        case CR_LIFESTEAL:
-            return row->Lifesteal;
+        case CR_HIT_TAKEN_MELEE:
+            return row->HitTakenMelee;
+        case CR_HIT_TAKEN_RANGED:
+            return row->HitTakenRanged;
+        case CR_HIT_TAKEN_SPELL:
+            return row->HitTakenSpell;
+        case CR_CRIT_TAKEN_MELEE:
+            return row->HitTakenMelee;
+        case CR_CRIT_TAKEN_RANGED:
+            return row->HitTakenMelee;
+        case CR_CRIT_TAKEN_SPELL:
+            return row->HitTakenMelee;
         case CR_HASTE_MELEE:
             return row->HasteMelee;
         case CR_HASTE_RANGED:
             return row->HasteRanged;
         case CR_HASTE_SPELL:
             return row->HasteSpell;
-        case CR_AVOIDANCE:
-            return row->Avoidance;
-        case CR_STURDINESS:
-            return row->Sturdiness;
-        case CR_UNUSED_7:
-            return row->Unused7;
-        case CR_EXPERTISE:
-            return row->Expertise;
-        case CR_ARMOR_PENETRATION:
-            return row->ArmorPenetration;
-        case CR_MASTERY:
-            return row->Mastery;
-        case CR_PVP_POWER:
-            return row->PvPPower;
-        case CR_CLEAVE:
-            return row->Cleave;
-        case CR_VERSATILITY_DAMAGE_DONE:
-            return row->VersatilityDamageDone;
-        case CR_VERSATILITY_HEALING_DONE:
-            return row->VersatilityHealingDone;
-        case CR_VERSATILITY_DAMAGE_TAKEN:
-            return row->VersatilityDamageTaken;
-        case CR_UNUSED_12:
-            return row->Unused12;
         default:
             break;
     }
@@ -5390,7 +5366,7 @@ void Player::UpdateRating(CombatRating cr)
 
     switch (cr)
     {
-        case CR_AMPLIFY:
+        case CR_WEAPON_SKILL:
         case CR_DEFENSE_SKILL:
             break;
         case CR_DODGE:
@@ -5426,14 +5402,15 @@ void Player::UpdateRating(CombatRating cr)
             if (affectStats)
                 UpdateSpellCritChance();
             break;
-        case CR_CORRUPTION:
-        case CR_CORRUPTION_RESISTANCE:
-            UpdateCorruption();
+        case CR_HIT_TAKEN_MELEE:                            // Implemented in Unit::MeleeMissChanceCalc
+        case CR_HIT_TAKEN_RANGED:
             break;
-        case CR_SPEED:
-        case CR_RESILIENCE_PLAYER_DAMAGE:
-        case CR_RESILIENCE_CRIT_TAKEN:
-        case CR_LIFESTEAL:
+        case CR_HIT_TAKEN_SPELL:                            // Implemented in Unit::MagicSpellHitResult
+            break;
+        case CR_CRIT_TAKEN_MELEE:                           // Implemented in Unit::RollMeleeOutcomeAgainst (only for chance to crit)
+        case CR_CRIT_TAKEN_RANGED:
+            break;
+        case CR_CRIT_TAKEN_SPELL:                           // Implemented in Unit::SpellCriticalBonus (only for chance to crit)
             break;
         case CR_HASTE_MELEE:
         case CR_HASTE_RANGED:
@@ -5466,9 +5443,9 @@ void Player::UpdateRating(CombatRating cr)
             }
             break;
         }
-        case CR_AVOIDANCE:
-        case CR_STURDINESS:
-        case CR_UNUSED_7:
+        case CR_WEAPON_SKILL_MAINHAND:                      // Implemented in Unit::RollMeleeOutcomeAgainst
+        case CR_WEAPON_SKILL_OFFHAND:
+        case CR_WEAPON_SKILL_RANGED:
             break;
         case CR_EXPERTISE:
             if (affectStats)
@@ -5480,21 +5457,6 @@ void Player::UpdateRating(CombatRating cr)
         case CR_ARMOR_PENETRATION:
             if (affectStats)
                 UpdateArmorPenetration(amount);
-            break;
-        case CR_MASTERY:
-            UpdateMastery();
-            break;
-        case CR_PVP_POWER:
-        case CR_CLEAVE:
-            break;
-        case CR_VERSATILITY_DAMAGE_DONE:
-            UpdateVersatilityDamageDone();
-            break;
-        case CR_VERSATILITY_HEALING_DONE:
-            UpdateHealingDonePercentMod();
-            break;
-        case CR_VERSATILITY_DAMAGE_TAKEN:
-        case CR_UNUSED_12:
             break;
     }
 }
@@ -7790,8 +7752,8 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
 
     uint32 itemLevel = item->GetItemLevel(this);
     float combatRatingMultiplier = 1.0f;
-    if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(itemLevel))
-        combatRatingMultiplier = GetIlvlStatMultiplier(ratingMult, proto->GetInventoryType());
+    //if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(itemLevel))
+    //    combatRatingMultiplier = GetIlvlStatMultiplier(ratingMult, proto->GetInventoryType());
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
@@ -7829,8 +7791,8 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             //     break;
             case ITEM_MOD_STAMINA:                          //modify stamina
             {
-                if (GtStaminaMultByILvl const* staminaMult = sStaminaMultByILvlGameTable.GetRow(itemLevel))
-                    val = int32(val * GetIlvlStatMultiplier(staminaMult, proto->GetInventoryType()));
+                //if (GtStaminaMultByILvl const* staminaMult = sStaminaMultByILvlGameTable.GetRow(itemLevel))
+                 //   val = int32(val * GetIlvlStatMultiplier(staminaMult, proto->GetInventoryType()));
                 HandleStatFlatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(val), apply);
                 UpdateStatBuffMod(STAT_STAMINA);
                 break;
@@ -7877,9 +7839,9 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             // case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
             //     ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(val), apply);
             //     break;
-            case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
-                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE, int32(val), apply);
-                break;
+            //case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
+            //    ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE, int32(val), apply);
+            //    break;
             // case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
             //     ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
             //     break;
@@ -7912,9 +7874,9 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             //     ApplyRatingMod(CR_CRIT_TAKEN_RANGED, int32(val), apply);
             //     ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
             //     break;
-            case ITEM_MOD_RESILIENCE_RATING:
-                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE, int32(val * combatRatingMultiplier), apply);
-                break;
+            //case ITEM_MOD_RESILIENCE_RATING:
+            //    ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE, int32(val * combatRatingMultiplier), apply);
+            //    break;
             case ITEM_MOD_HASTE_RATING:
                 ApplyRatingMod(CR_HASTE_MELEE, int32(val * combatRatingMultiplier), apply);
                 ApplyRatingMod(CR_HASTE_RANGED, int32(val * combatRatingMultiplier), apply);
@@ -7930,11 +7892,11 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             case ITEM_MOD_RANGED_ATTACK_POWER:
                 HandleStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), apply);
                 break;
-            case ITEM_MOD_VERSATILITY:
-                ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(val * combatRatingMultiplier), apply);
-                ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(val * combatRatingMultiplier), apply);
-                ApplyRatingMod(CR_VERSATILITY_HEALING_DONE, int32(val * combatRatingMultiplier), apply);
-                break;
+            //case ITEM_MOD_VERSATILITY:
+            //    ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(val * combatRatingMultiplier), apply);
+            //    ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(val * combatRatingMultiplier), apply);
+            //    ApplyRatingMod(CR_VERSATILITY_HEALING_DONE, int32(val * combatRatingMultiplier), apply);
+            //    break;
             case ITEM_MOD_MANA_REGENERATION:
                 ApplyManaRegenBonus(int32(val), apply);
                 break;
@@ -7950,9 +7912,9 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             case ITEM_MOD_SPELL_PENETRATION:
                 ApplySpellPenetrationBonus(val, apply);
                 break;
-            case ITEM_MOD_MASTERY_RATING:
-                ApplyRatingMod(CR_MASTERY, int32(val * combatRatingMultiplier), apply);
-                break;
+            //case ITEM_MOD_MASTERY_RATING:
+            //    ApplyRatingMod(CR_MASTERY, int32(val * combatRatingMultiplier), apply);
+            //    break;
             case ITEM_MOD_EXTRA_ARMOR:
                 HandleStatFlatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(val), apply);
                 break;
@@ -7974,27 +7936,27 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             case ITEM_MOD_ARCANE_RESISTANCE:
                 HandleStatFlatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(val), apply);
                 break;
-            case ITEM_MOD_PVP_POWER:
-                ApplyRatingMod(CR_PVP_POWER, int32(val), apply);
-                break;
-            case ITEM_MOD_CORRUPTION:
-                ApplyRatingMod(CR_CORRUPTION, int32(val), apply);
-                break;
-            case ITEM_MOD_CORRUPTION_RESISTANCE:
-                ApplyRatingMod(CR_CORRUPTION_RESISTANCE, int32(val), apply);
-                break;
-            case ITEM_MOD_CR_SPEED:
-                ApplyRatingMod(CR_SPEED, int32(val * combatRatingMultiplier), apply);
-                break;
-            case ITEM_MOD_CR_LIFESTEAL:
-                ApplyRatingMod(CR_LIFESTEAL, int32(val * combatRatingMultiplier), apply);
-                break;
-            case ITEM_MOD_CR_AVOIDANCE:
-                ApplyRatingMod(CR_AVOIDANCE, int32(val * combatRatingMultiplier), apply);
-                break;
-            case ITEM_MOD_CR_STURDINESS:
-                ApplyRatingMod(CR_STURDINESS, int32(val * combatRatingMultiplier), apply);
-                break;
+            //case ITEM_MOD_PVP_POWER:
+            //    ApplyRatingMod(CR_PVP_POWER, int32(val), apply);
+            //    break;
+            //case ITEM_MOD_CORRUPTION:
+            //    ApplyRatingMod(CR_CORRUPTION, int32(val), apply);
+            //    break;
+            //case ITEM_MOD_CORRUPTION_RESISTANCE:
+            //    ApplyRatingMod(CR_CORRUPTION_RESISTANCE, int32(val), apply);
+            //    break;
+            //case ITEM_MOD_CR_SPEED:
+            //    ApplyRatingMod(CR_SPEED, int32(val * combatRatingMultiplier), apply);
+            //    break;
+            //case ITEM_MOD_CR_LIFESTEAL:
+            //    ApplyRatingMod(CR_LIFESTEAL, int32(val * combatRatingMultiplier), apply);
+            //    break;
+            //case ITEM_MOD_CR_AVOIDANCE:
+            //    ApplyRatingMod(CR_AVOIDANCE, int32(val * combatRatingMultiplier), apply);
+            //    break;
+            //case ITEM_MOD_CR_STURDINESS:
+            //    ApplyRatingMod(CR_STURDINESS, int32(val * combatRatingMultiplier), apply);
+            //    break;
             case ITEM_MOD_AGI_STR_INT:
                 HandleStatFlatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), apply);
                 HandleStatFlatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(val), apply);
@@ -13445,10 +13407,10 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         //     ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
                         //     ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
                         //     break;
-                        case ITEM_MOD_RESILIENCE_RATING:
-                            ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE, enchant_amount, apply);
-                            TC_LOG_DEBUG("entities.player.items", "+ {} RESILIENCE", enchant_amount);
-                            break;
+                        //case ITEM_MOD_RESILIENCE_RATING:
+                        //    ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE, enchant_amount, apply);
+                        //    TC_LOG_DEBUG("entities.player.items", "+ {} RESILIENCE", enchant_amount);
+                        //    break;
                         case ITEM_MOD_HASTE_RATING:
                             ApplyRatingMod(CR_HASTE_MELEE, enchant_amount, apply);
                             ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
@@ -13492,16 +13454,16 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             HandleBaseModFlatValue(SHIELD_BLOCK_VALUE, float(enchant_amount), apply);
                             TC_LOG_DEBUG("entities.player.items", "+ {} BLOCK_VALUE", enchant_amount);
                             break;
-                        case ITEM_MOD_MASTERY_RATING:
-                            ApplyRatingMod(CR_MASTERY, enchant_amount, apply);
-                            TC_LOG_DEBUG("entities.player.items", "+ {} MASTERY", enchant_amount);
-                            break;
-                        case ITEM_MOD_VERSATILITY:
-                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, enchant_amount, apply);
-                            ApplyRatingMod(CR_VERSATILITY_HEALING_DONE, enchant_amount, apply);
-                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, enchant_amount, apply);
-                            TC_LOG_DEBUG("entities.player.items", "+ {} VERSATILITY", enchant_amount);
-                            break;
+                       //case ITEM_MOD_MASTERY_RATING:
+                       //    ApplyRatingMod(CR_MASTERY, enchant_amount, apply);
+                       //    TC_LOG_DEBUG("entities.player.items", "+ {} MASTERY", enchant_amount);
+                       //    break;
+                       // case ITEM_MOD_VERSATILITY:
+                       //     ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, enchant_amount, apply);
+                       //     ApplyRatingMod(CR_VERSATILITY_HEALING_DONE, enchant_amount, apply);
+                       //     ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, enchant_amount, apply);
+                       //     TC_LOG_DEBUG("entities.player.items", "+ {} VERSATILITY", enchant_amount);
+                       //     break;
                         default:
                             break;
                     }
@@ -16032,7 +15994,7 @@ int32 Player::GetQuestSlotObjectiveData(uint16 slot, QuestObjective const& objec
     if (!objective.IsStoringFlag())
         return GetQuestSlotCounter(slot, objective.StorageIndex);
 
-    return uint8((GetQuestSlotState(slot) > objective.StorageIndex) != 0);
+    return uint8((GetQuestSlotState(slot) & objective.StorageIndex) != 0);
 }
 
 void Player::SetQuestSlot(uint16 slot, uint32 quest_id)
@@ -20567,7 +20529,7 @@ void Player::_SaveStats(CharacterDatabaseTransaction trans) const
     stmt->setUInt32(index++, m_unitData->AttackPower);
     stmt->setUInt32(index++, m_unitData->RangedAttackPower);
     stmt->setUInt32(index++, GetBaseSpellPowerBonus());
-    stmt->setUInt32(index, m_activePlayerData->CombatRatings[CR_RESILIENCE_PLAYER_DAMAGE]);
+    stmt->setUInt32(index, 0); // m_activePlayerData->CombatRatings[CR_RESILIENCE_PLAYER_DAMAGE]
     stmt->setFloat(index++, m_activePlayerData->Mastery);
     stmt->setInt32(index++, m_activePlayerData->Versatility);
 
