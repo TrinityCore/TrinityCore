@@ -40,27 +40,33 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::TalentInfo const&
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::TalentGroupInfo const& talentGroupInfo)
 {
-    data << uint32(talentGroupInfo.GlyphInfo.size());
-    data << uint32(talentGroupInfo.TalentInfos.size());
-    data << uint32(talentGroupInfo.SpecID);
+    data << uint8(talentGroupInfo.Talents.size());
+    data << uint32(talentGroupInfo.Talents.size());
 
-    for (uint16 glyph : talentGroupInfo.GlyphInfo)
-        data << uint16(glyph);
+    data << uint8(talentGroupInfo.GlyphIDs.size());
+    data << uint32(talentGroupInfo.GlyphIDs.size());
 
-    for (auto& talentInfo : talentGroupInfo.TalentInfos)
-        data << talentInfo;
+    data << uint8(talentGroupInfo.SpecID);
+
+    for (auto const& talent : talentGroupInfo.Talents)
+        data << talent;
+
+    for (uint16 glyphId : talentGroupInfo.GlyphIDs)
+        data << uint16(glyphId);
 
     return data;
 }
 
 WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 {
-    _worldPacket << uint8(ActiveGroup);
     _worldPacket << uint32(UnspentTalentPoints);
+    _worldPacket << uint8(ActiveGroup);
     _worldPacket << uint32(TalentGroupInfos.size());
 
-    for (auto& talentGroupInfo : TalentGroupInfos)
+    for (auto const& talentGroupInfo : TalentGroupInfos)
         _worldPacket << talentGroupInfo;
+
+    _worldPacket.WriteBit(IsPetTalents);
 
     return &_worldPacket;
 }

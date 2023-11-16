@@ -41,9 +41,9 @@ namespace WorldPackets
 
         struct TalentGroupInfo
         {
-            uint8 SpecID = 0;
-            std::vector<TalentInfo> TalentInfos;
-            std::vector<uint16> GlyphInfo;
+            int32 SpecID = 0;
+            std::vector<uint16> Talents;
+            std::vector<uint16> GlyphIDs;
         };
 
         class UpdateTalentData final : public ServerPacket
@@ -55,6 +55,7 @@ namespace WorldPackets
 
             uint32 UnspentTalentPoints = 0;
             uint8 ActiveGroup = 0;
+            bool IsPetTalents = false;
             std::vector<TalentGroupInfo> TalentGroupInfos;
         };
 
