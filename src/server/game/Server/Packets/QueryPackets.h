@@ -212,8 +212,8 @@ namespace WorldPackets
 
             uint32 TextID = 0;
             bool Allow = false;
-            std::array<float, MAX_NPC_TEXT_OPTIONS> Probabilities;
-            std::array<uint32, MAX_NPC_TEXT_OPTIONS> BroadcastTextID;
+            std::array<float, MAX_NPC_TEXT_OPTIONS> Probabilities = { };
+            std::array<uint32, MAX_NPC_TEXT_OPTIONS> BroadcastTextID = { };
         };
 
         class QueryGameObject final : public ClientPacket
