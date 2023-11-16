@@ -135,8 +135,11 @@ namespace WorldPackets
         {
             int32 QuestID                   = 0;
             int32 QuestType                 = 0; // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
-            int32 ContentTuningID           = 0;
+            int32 QuestLevel                = 0;
+            int32 QuestScalingFactionGroup  = 0;
+            int32 QuestMaxScalingLevel      = 0;
             int32 QuestPackageID            = 0;
+            int32 QuestMinLevel             = 0;
             int32 QuestSortID               = 0; // zone or sort to display in quest log
             int32 QuestInfoID               = 0;
             int32 SuggestedGroupNum         = 0;

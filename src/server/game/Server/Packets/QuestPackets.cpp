@@ -104,8 +104,11 @@ WorldPacket const* QueryQuestInfoResponse::Write()
     {
         _worldPacket << int32(Info.QuestID);
         _worldPacket << int32(Info.QuestType);
+        _worldPacket << int32(Info.QuestLevel);
+        _worldPacket << int32(Info.QuestScalingFactionGroup);
+        _worldPacket << int32(Info.QuestMaxScalingLevel);
         _worldPacket << int32(Info.QuestPackageID);
-        _worldPacket << int32(Info.ContentTuningID);
+        _worldPacket << int32(Info.QuestMinLevel);
         _worldPacket << int32(Info.QuestSortID);
         _worldPacket << int32(Info.QuestInfoID);
         _worldPacket << int32(Info.SuggestedGroupNum);

@@ -551,10 +551,8 @@ class TC_GAME_API Quest
         void LoadConditionalConditionalQuestCompletionLog(Field* fields);
 
         uint32 XPValue(Player const* player) const;
-        static uint32 XPValue(Player const* player, uint32 contentTuningId, uint32 xpDifficulty, float xpMultiplier = 1.0f, int32 expansion = -1);
+        static uint32 XPValue(Player const* player, int32 questLevel, uint32 xpDifficulty, float xpMultiplier = 1.0f);
         uint32 MoneyValue(Player const* player) const;
-        uint32 MaxMoneyValue() const;
-        uint32 GetMaxMoneyReward() const;
         Optional<QuestTagType> GetQuestTag() const;
         bool IsImportant() const;
 
@@ -578,8 +576,11 @@ class TC_GAME_API Quest
         // table data accessors:
         uint32 GetQuestId() const { return _id; }
         uint32 GetQuestType() const { return _type; }
+        int32  GetQuestLevel() const { return _level; };
+        int32  GetQuestScalingFactionGroup() const { return _scalingFactionGroup; };
+        int32  GetQuestMaxScalingLevel() const { return _maxScalingLevel; };
         uint32 GetQuestPackageID() const { return _packageID; }
-        uint32 GetContentTuningId() const { return _contentTuningID; }
+        int32  GetQuestMinLevel() const { return _minLevel; }
         int32  GetZoneOrSort() const { return _questSortID; }
         uint32 GetMaxLevel() const { return _maxLevel; }
         uint32 GetQuestInfoID() const { return _questInfoID; }
@@ -725,8 +726,11 @@ class TC_GAME_API Quest
         // wdb data (quest query response)
         uint32 _id = 0;
         uint32 _type = 0;
+        int32 _level = 0;
+        int32 _scalingFactionGroup = 0;
+        int32 _maxScalingLevel = 0;
         uint32 _packageID = 0;
-        uint32 _contentTuningID = 0;
+        int32 _minLevel = 0;
         int32 _questSortID = 0;
         uint32 _questInfoID = 0;
         uint32 _suggestedPlayers = 0;

@@ -279,7 +279,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
         {
             WorldPackets::NPC::ClientGossipText& text = packet.GossipText[count];
             text.QuestID = questID;
-            text.ContentTuningID = quest->GetContentTuningId();
+            text.ContentTuningID = 0;
             text.QuestType = item.QuestIcon;
             text.QuestFlags[0] = quest->GetFlags();
             text.QuestFlags[1] = quest->GetFlagsEx();
@@ -407,7 +407,7 @@ void PlayerMenu::SendQuestGiverQuestListMessage(Object* questgiver)
             questList.QuestDataText.emplace_back();
             WorldPackets::NPC::ClientGossipText& text = questList.QuestDataText.back();
             text.QuestID = questID;
-            text.ContentTuningID = quest->GetContentTuningId();
+            text.ContentTuningID = 0;
             text.QuestType = questMenuItem.QuestIcon;
             text.QuestFlags[0] = quest->GetFlags();
             text.QuestFlags[1] = quest->GetFlagsEx();

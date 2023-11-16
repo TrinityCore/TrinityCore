@@ -863,5 +863,5 @@ bool ReputationMgr::CanGainParagonReputationForFaction(FactionEntry const* facti
     if (!quest)
         return false;
 
-    return _player->GetLevel() >= _player->GetQuestMinLevel(quest);
+    return _player->GetLevel() >= quest->GetQuestMinLevel();
 }

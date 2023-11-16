@@ -13787,51 +13787,6 @@ uint32 Player::GetGossipMenuForSource(WorldObject* source)
 /***                    QUEST SYSTEM                   ***/
 /*********************************************************/
 
-int32 Player::GetQuestMinLevel(Quest const* quest) const
-{
-    return GetQuestMinLevel(quest->GetContentTuningId());
-}
-
-int32 Player::GetQuestMinLevel(uint32 contentTuningId) const
-{
-    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(contentTuningId))
-    {
-        ChrRacesEntry const* race = sChrRacesStore.AssertEntry(GetRace());
-        FactionTemplateEntry const* raceFaction = sFactionTemplateStore.AssertEntry(race->FactionID);
-        int32 questFactionGroup = sContentTuningStore.AssertEntry(contentTuningId)->GetScalingFactionGroup();
-        if (questFactionGroup && raceFaction->FactionGroup != questFactionGroup)
-            return questLevels->MaxLevel;
-
-        return questLevels->MinLevelWithDelta;
-    }
-
-    return 0;
-}
-
-int32 Player::GetQuestLevel(Quest const* quest) const
-{
-    if (!quest)
-        return 0;
-
-    return GetQuestLevel(quest->GetContentTuningId());
-}
-
-int32 Player::GetQuestLevel(uint32 contentTuningId) const
-{
-    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(contentTuningId))
-    {
-        int32 minLevel = GetQuestMinLevel(contentTuningId);
-        int32 maxLevel = questLevels->MaxLevel;
-        int32 level = GetLevel();
-        if (level >= minLevel)
-            return std::min(level, maxLevel);
-
-        return minLevel;
-    }
-
-    return 0;
-}
-
 void Player::PrepareQuestMenu(ObjectGuid guid)
 {
     QuestRelationResult objectQR;
@@ -13972,7 +13927,7 @@ bool Player::CanSeeStartQuest(Quest const* quest) const
         SatisfyQuestDay(quest, false) && SatisfyQuestWeek(quest, false) &&
         SatisfyQuestMonth(quest, false) && SatisfyQuestSeasonal(quest, false) && SatisfyQuestExpansion(quest, false))
     {
-        return int32(GetLevel() + sWorld->getIntConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF)) >= GetQuestMinLevel(quest);
+        return int32(GetLevel() + sWorld->getIntConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF)) >= quest->GetQuestMinLevel();
     }
 
     return false;
@@ -14931,7 +14886,7 @@ bool Player::SatisfyQuestLevel(Quest const* qInfo, bool msg) const
 
 bool Player::SatisfyQuestMinLevel(Quest const* qInfo, bool msg) const
 {
-    if (GetLevel() < GetQuestMinLevel(qInfo))
+    if (GetLevel() < qInfo->GetQuestMinLevel())
     {
         if (msg)
         {
