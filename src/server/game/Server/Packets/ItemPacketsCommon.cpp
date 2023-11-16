@@ -49,6 +49,9 @@ bool ItemModList::operator==(ItemModList const& r) const
 void ItemInstance::Initialize(::Item const* item)
 {
     ItemID = item->GetEntry();
+    RandomPropertiesSeed = item->m_itemData->PropertySeed;
+    RandomPropertiesID = item->m_itemData->RandomPropertiesID;
+
     std::vector<int32> const& bonusListIds = item->GetBonusListIDs();
     if (!bonusListIds.empty())
     {
@@ -203,6 +206,8 @@ ByteBuffer& operator>>(ByteBuffer& data, ItemModList& itemModList)
 ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance)
 {
     data << int32(itemInstance.ItemID);
+    data << int32(itemInstance.RandomPropertiesSeed);
+    data << int32(itemInstance.RandomPropertiesID);
 
     data.WriteBit(itemInstance.ItemBonus.has_value());
     data.FlushBits();
@@ -218,6 +223,8 @@ ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance)
 ByteBuffer& operator>>(ByteBuffer& data, ItemInstance& itemInstance)
 {
     data >> itemInstance.ItemID;
+    data >> itemInstance.RandomPropertiesSeed;
+    data >> itemInstance.RandomPropertiesID;
 
     bool hasItemBonus = data.ReadBit();
     data.ResetBitPos();
