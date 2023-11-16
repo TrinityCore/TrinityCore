@@ -53,13 +53,6 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
             SetTaximaskNode(27);    // Rut'theran Village, Teldrassil
             SetTaximaskNode(49);    // Moonglade (Alliance)
             SetTaximaskNode(94);    // The Exodar
-            SetTaximaskNode(456);   // Dolanaar, Teldrassil
-            SetTaximaskNode(457);   // Darnassus, Teldrassil
-            SetTaximaskNode(582);   // Goldshire, Elwynn
-            SetTaximaskNode(589);   // Eastvale Logging Camp, Elwynn
-            SetTaximaskNode(619);   // Kharanos, Dun Morogh
-            SetTaximaskNode(620);   // Gol'Bolar Quarry, Dun Morogh
-            SetTaximaskNode(624);   // Azure Watch, Azuremyst Isle
             break;
         case RACE_ORC:
         case RACE_UNDEAD_PLAYER:
@@ -73,13 +66,6 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
             SetTaximaskNode(23);    // Orgrimmar, Durotar
             SetTaximaskNode(69);    // Moonglade (Horde)
             SetTaximaskNode(82);    // Silvermoon City
-            SetTaximaskNode(384);   // The Bulwark, Tirisfal
-            SetTaximaskNode(402);   // Bloodhoof Village, Mulgore
-            SetTaximaskNode(460);   // Brill, Tirisfal Glades
-            SetTaximaskNode(536);   // Sen'jin Village, Durotar
-            SetTaximaskNode(537);   // Razor Hill, Durotar
-            SetTaximaskNode(625);   // Fairbreeze Village, Eversong Woods
-            SetTaximaskNode(631);   // Falconwing Square, Eversong Woods
             break;
     }
 
