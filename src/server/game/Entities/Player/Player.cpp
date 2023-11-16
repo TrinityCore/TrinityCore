@@ -6120,7 +6120,7 @@ void Player::SendActionButtons(uint32 state) const
     SendDirectMessage(packet.Write());
 }
 
-bool Player::IsActionButtonDataValid(uint8 button, uint64 action, uint8 type) const
+bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) const
 {
     if (button >= MAX_ACTION_BUTTONS)
     {
@@ -6196,7 +6196,7 @@ bool Player::IsActionButtonDataValid(uint8 button, uint64 action, uint8 type) co
     return true;
 }
 
-ActionButton* Player::AddActionButton(uint8 button, uint64 action, uint8 type)
+ActionButton* Player::AddActionButton(uint8 button, uint32 action, uint8 type)
 {
     if (!IsActionButtonDataValid(button, action, type))
         return nullptr;
@@ -17713,7 +17713,7 @@ void Player::_LoadActions(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
             uint8 button = fields[0].GetUInt8();
-            uint64 action = fields[1].GetUInt64();
+            uint32 action = fields[1].GetUInt32();
             uint8 type = fields[2].GetUInt8();
 
             if (ActionButton* ab = AddActionButton(button, action, type))
@@ -19505,7 +19505,7 @@ void Player::_SaveActions(CharacterDatabaseTransaction trans)
                 stmt->setUInt8(1, GetActiveTalentGroup());
                 stmt->setInt32(2, traitConfigId);
                 stmt->setUInt8(3, itr->first);
-                stmt->setUInt64(4, itr->second.GetAction());
+                stmt->setUInt32(4, itr->second.GetAction());
                 stmt->setUInt8(5, uint8(itr->second.GetType()));
                 trans->Append(stmt);
 
@@ -19514,7 +19514,7 @@ void Player::_SaveActions(CharacterDatabaseTransaction trans)
                 break;
             case ACTIONBUTTON_CHANGED:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACTION);
-                stmt->setUInt64(0, itr->second.GetAction());
+                stmt->setUInt32(0, itr->second.GetAction());
                 stmt->setUInt8(1, uint8(itr->second.GetType()));
                 stmt->setUInt64(2, GetGUID().GetCounter());
                 stmt->setUInt8(3, itr->first);

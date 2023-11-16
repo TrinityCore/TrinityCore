@@ -748,8 +748,8 @@ void WorldSession::HandleRequestAccountData(WorldPackets::ClientConfig::RequestA
 
 void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionButton& packet)
 {
-    uint64 action = ACTION_BUTTON_ACTION(packet.Action);
-    uint8 type = ACTION_BUTTON_TYPE(packet.Action);
+    uint32 action = ACTION_BUTTON_ACTION(packet.Action);
+    uint32 type = ACTION_BUTTON_TYPE(packet.Action);
 
     TC_LOG_DEBUG("network", "CMSG_SET_ACTION_BUTTON Button: {} Action: {} Type: {}", packet.Index, action, uint32(type));
 
