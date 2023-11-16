@@ -130,7 +130,6 @@ namespace WorldPackets
             Optional<MonsterSplineSpellEffectExtraData> SpellEffectExtraData;
             Optional<MonsterSplineJumpExtraData> JumpExtraData;
             Optional<MonsterSplineAnimTierTransition> AnimTierTransition;
-            Optional<MonsterSplineUnknown901> Unknown901;
             float FaceDirection         = 0.0f;
             ObjectGuid FaceGUID;
             TaggedPosition<Position::XYZ> FaceSpot;
@@ -139,6 +138,7 @@ namespace WorldPackets
         struct MovementMonsterSpline
         {
             uint32 ID = 0;
+            TaggedPosition<Position::XYZ> Destination;
             bool CrzTeleport = false;
             uint8 StopDistanceTolerance = 0;    // Determines how far from spline destination the mover is allowed to stop in place 0, 0, 3.0, 2.76, numeric_limits<float>::max, 1.1, float(INT_MAX); default before this field existed was distance 3.0 (index 2)
             MovementSpline Move;

@@ -312,7 +312,6 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     data.WriteBit(movementSpline.SpellEffectExtraData.has_value());
     data.WriteBit(movementSpline.JumpExtraData.has_value());
     data.WriteBit(movementSpline.AnimTierTransition.has_value());
-    data.WriteBit(movementSpline.Unknown901.has_value());
     data.FlushBits();
 
     if (movementSpline.SplineFilter)
@@ -347,15 +346,13 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     if (movementSpline.AnimTierTransition)
         data << *movementSpline.AnimTierTransition;
 
-    if (movementSpline.Unknown901)
-        data << *movementSpline.Unknown901;
-
     return data;
 }
 
 ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementMonsterSpline const& movementMonsterSpline)
 {
     data << movementMonsterSpline.ID;
+    data << movementMonsterSpline.Destination;
     data.WriteBit(movementMonsterSpline.CrzTeleport);
     data.WriteBits(movementMonsterSpline.StopDistanceTolerance, 3);
 
