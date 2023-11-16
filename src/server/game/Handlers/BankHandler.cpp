@@ -269,18 +269,16 @@ void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStor
     if (!pItem)
         return;
 
+    ItemPosCountVec dest;
+    InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false, true);
+    if (msg != EQUIP_ERR_OK)
     {
-        ItemPosCountVec dest;
-        InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false, true);
-        if (msg != EQUIP_ERR_OK)
-        {
-            _player->SendEquipError(msg, pItem, nullptr);
-            return;
-        }
-
-        _player->RemoveItem(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot, true);
-        _player->BankItem(dest, pItem, true);
+        _player->SendEquipError(msg, pItem, nullptr);
+        return;
     }
+
+    _player->RemoveItem(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot, true);
+    _player->BankItem(dest, pItem, true);
 }
 
 void WorldSession::SendShowBank(ObjectGuid guid)

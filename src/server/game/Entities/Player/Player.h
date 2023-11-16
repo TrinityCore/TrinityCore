@@ -669,41 +669,47 @@ enum InventorySlots : uint8                                 // 4 slots
     INVENTORY_SLOT_BAG_END      = 34
 };
 
+enum ReagentBagSlots : uint8                                // 1 slot
+{
+    REAGENT_BAG_SLOT_START  = 34,
+    REAGENT_BAG_SLOT_END    = 35
+};
+
 enum InventoryPackSlots : uint8                             // 24 slots
 {
-    INVENTORY_SLOT_ITEM_START   = 34,
-    INVENTORY_SLOT_ITEM_END     = 58
+    INVENTORY_SLOT_ITEM_START   = 35,
+    INVENTORY_SLOT_ITEM_END     = 59
 };
 
 enum BankItemSlots                                          // 28 slots
 {
-    BANK_SLOT_ITEM_START        = 58,
-    BANK_SLOT_ITEM_END          = 86
+    BANK_SLOT_ITEM_START        = 59,
+    BANK_SLOT_ITEM_END          = 87
 };
 
 enum BankBagSlots                                           // 7 slots
 {
-    BANK_SLOT_BAG_START         = 86,
-    BANK_SLOT_BAG_END           = 93
+    BANK_SLOT_BAG_START         = 87,
+    BANK_SLOT_BAG_END           = 94
 };
 
 enum BuyBackSlots                                           // 12 slots
 {
     // stored in m_buybackitems
-    BUYBACK_SLOT_START          = 93,
-    BUYBACK_SLOT_END            = 105
+    BUYBACK_SLOT_START          = 94,
+    BUYBACK_SLOT_END            = 106
 };
 
-enum KeyRingSlots : uint8                                   // 32 slots
+enum KeyRingSlots                                           // 32 slots
 {
-    KEYRING_SLOT_START          = 105,
-    KEYRING_SLOT_END            = 137
+    KEYRING_SLOT_START          = 106,
+    KEYRING_SLOT_END            = 138,
 };
 
 enum ChildEquipmentSlots
 {
-    CHILD_EQUIPMENT_SLOT_START  = 137,
-    CHILD_EQUIPMENT_SLOT_END    = 141,
+    CHILD_EQUIPMENT_SLOT_START   = 138,
+    CHILD_EQUIPMENT_SLOT_END     = 141,
 };
 
 // slots past 214 are guessed (unused in client)
@@ -741,10 +747,10 @@ enum class ItemSearchLocation
     Equipment       = 0x01,
     Inventory       = 0x02,
     Bank            = 0x04,
-    KeyRing         = 0x08,
+    ReagentBank     = 0x08,
 
     Default         = Equipment | Inventory,
-    Everywhere      = Equipment | Inventory | Bank | KeyRing
+    Everywhere      = Equipment | Inventory | Bank | ReagentBank
 };
 
 DEFINE_ENUM_FLAG(ItemSearchLocation);
@@ -1279,6 +1285,16 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
                         if (callback(pItem) == ItemSearchCallbackResult::Stop)
                             return false;
 
+                for (uint8 i = KEYRING_SLOT_START; i < KEYRING_SLOT_END; ++i)
+                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                        if (callback(pItem) == ItemSearchCallbackResult::Stop)
+                            return false;
+
+                for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                        if (callback(pItem) == ItemSearchCallbackResult::Stop)
+                            return false;
+
                 for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
                     if (Bag* pBag = GetBagByPos(i))
                         for (uint32 j = 0; j < GetBagSize(pBag); ++j)
@@ -1302,9 +1318,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
                                     return false;
             }
 
-            if (flag.HasFlag(ItemSearchLocation::KeyRing))
+            if (flag.HasFlag(ItemSearchLocation::ReagentBank))
             {
-                for (uint8 i = KEYRING_SLOT_START; i < KEYRING_SLOT_END; ++i)
+                for (uint8 i = REAGENT_BAG_SLOT_START; i < REAGENT_BAG_SLOT_END; ++i)
                     if (Bag* bag = GetBagByPos(i))
                         for (uint32 j = 0; j < GetBagSize(bag); ++j)
                             if (Item* pItem = GetItemInBag(bag, j))
@@ -1344,6 +1360,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static bool IsBagPos(uint16 pos);
         static bool IsBankPos(uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
         static bool IsBankPos(uint8 bag, uint8 slot);
+        static bool IsChildEquipmentPos(uint16 pos) { return IsChildEquipmentPos(pos >> 8, pos & 255); }
+        static bool IsChildEquipmentPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) const { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const;
         uint8 GetInventorySlotCount() const { return m_activePlayerData->NumBackpackSlots; }
