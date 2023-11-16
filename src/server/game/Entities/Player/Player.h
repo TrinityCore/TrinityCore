@@ -669,35 +669,41 @@ enum InventorySlots : uint8                                 // 4 slots
     INVENTORY_SLOT_BAG_END      = 34
 };
 
-enum InventoryPackSlots : uint8                             // 28 slots
+enum InventoryPackSlots : uint8                             // 24 slots
 {
     INVENTORY_SLOT_ITEM_START   = 34,
-    INVENTORY_SLOT_ITEM_END     = 62
+    INVENTORY_SLOT_ITEM_END     = 58
 };
 
 enum BankItemSlots                                          // 28 slots
 {
-    BANK_SLOT_ITEM_START        = 62,
-    BANK_SLOT_ITEM_END          = 90
+    BANK_SLOT_ITEM_START        = 58,
+    BANK_SLOT_ITEM_END          = 86
 };
 
 enum BankBagSlots                                           // 7 slots
 {
-    BANK_SLOT_BAG_START         = 90,
-    BANK_SLOT_BAG_END           = 97
+    BANK_SLOT_BAG_START         = 86,
+    BANK_SLOT_BAG_END           = 93
 };
 
 enum BuyBackSlots                                           // 12 slots
 {
     // stored in m_buybackitems
-    BUYBACK_SLOT_START          = 97,
-    BUYBACK_SLOT_END            = 109
+    BUYBACK_SLOT_START          = 93,
+    BUYBACK_SLOT_END            = 105
 };
 
 enum KeyRingSlots : uint8                                   // 32 slots
 {
-    KEYRING_SLOT_START          = 109,
-    KEYRING_SLOT_END            = 141
+    KEYRING_SLOT_START          = 105,
+    KEYRING_SLOT_END            = 137
+};
+
+enum ChildEquipmentSlots
+{
+    CHILD_EQUIPMENT_SLOT_START  = 137,
+    CHILD_EQUIPMENT_SLOT_END    = 141,
 };
 
 // slots past 214 are guessed (unused in client)
