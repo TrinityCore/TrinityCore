@@ -117,13 +117,6 @@ namespace WorldPackets
             int32 DisplayID = 0;
         };
 
-        struct QuestCompleteDisplaySpell
-        {
-            int32 SpellID = 0;
-            int32 PlayerConditionID = 0;
-            int32 Type = 0;
-        };
-
         struct ConditionalQuestText
         {
             int32 PlayerConditionID = 0;
@@ -150,7 +143,7 @@ namespace WorldPackets
             int32 RewardMoneyDifficulty     = 0;
             float RewardMoneyMultiplier     = 1.0f;
             int32 RewardBonusMoney          = 0;
-            std::vector<QuestCompleteDisplaySpell> RewardDisplaySpell; // reward spell, this spell will be displayed (icon)
+            std::array<int32, QUEST_REWARD_DISPLAY_SPELL_COUNT> RewardDisplaySpell = { }; // reward spell, this spell will be displayed (icon)
             int32 RewardSpell               = 0;
             int32 RewardHonor               = 0;
             float RewardKillHonor           = 0.0f;
@@ -194,8 +187,6 @@ namespace WorldPackets
             int32 QuestSessionBonus         = 0;
             int32 QuestGiverCreatureID      = 0; // used to select ConditionalQuestText
             std::vector<QuestObjective> Objectives;
-            std::vector<ConditionalQuestText> ConditionalQuestDescription;
-            std::vector<ConditionalQuestText> ConditionalQuestCompletionLog;
             int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = { };
             int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = { };
             int32 ItemDrop[QUEST_ITEM_DROP_COUNT] = { };

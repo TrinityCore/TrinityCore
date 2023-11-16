@@ -44,6 +44,7 @@ namespace WorldPackets
 
 #define QUEST_ITEM_DROP_COUNT 4
 #define QUEST_REWARD_CHOICES_COUNT 6
+#define QUEST_REWARD_DISPLAY_SPELL_COUNT 3
 #define QUEST_REWARD_ITEM_COUNT 4
 #define QUEST_DEPLINK_COUNT 10
 #define QUEST_REWARD_REPUTATIONS_COUNT 5
@@ -507,16 +508,6 @@ struct QuestObjective
 
 using QuestObjectives = std::vector<QuestObjective>;
 
-struct QuestRewardDisplaySpell
-{
-    QuestRewardDisplaySpell() : SpellId(0), PlayerConditionId(0), Type(QuestCompleteSpellType::LegacyBehavior) { }
-    QuestRewardDisplaySpell(uint32 spellId, uint32 playerConditionId, QuestCompleteSpellType type) : SpellId(spellId), PlayerConditionId(playerConditionId), Type(type) { }
-
-    uint32 SpellId;
-    uint32 PlayerConditionId;
-    QuestCompleteSpellType Type;
-};
-
 struct QuestConditionalText
 {
     int32 PlayerConditionId = 0;
@@ -677,7 +668,7 @@ class TC_GAME_API Quest
         bool CanIncreaseRewardedQuestCounters() const;
 
         // multiple values
-        std::vector<QuestRewardDisplaySpell> RewardDisplaySpell;
+        std::array<int32, QUEST_REWARD_DISPLAY_SPELL_COUNT> RewardDisplaySpell = { };
         std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemId = { };
         std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemCount = { };
         std::array<uint32, QUEST_ITEM_DROP_COUNT> ItemDrop = { };

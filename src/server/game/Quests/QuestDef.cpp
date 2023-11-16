@@ -143,8 +143,13 @@ Quest::~Quest()
 void Quest::LoadRewardDisplaySpell(Field* fields)
 {
     uint32 spellId = fields[1].GetUInt32();
-    uint32 playerConditionId = fields[2].GetUInt32();
-    uint32 type = fields[3].GetUInt32();
+    uint32 idx = fields[2].GetUInt32();
+
+    if (idx >= QUEST_REWARD_DISPLAY_SPELL_COUNT)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has a Spell ({}) set for quest {} at Index {} which is out of bounds. Skipped.", spellId, fields[0].GetUInt32(), idx);
+        return;
+    }
 
     if (!sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
     {
@@ -152,19 +157,7 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
         return;
     }
 
-    if (playerConditionId && !sPlayerConditionStore.LookupEntry(playerConditionId))
-    {
-        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing PlayerCondition ({}) set for quest {} and spell {}. Set to 0.", playerConditionId, fields[0].GetUInt32(), spellId);
-        playerConditionId = 0;
-    }
-
-    if (type >= AsUnderlyingType(QuestCompleteSpellType::Max))
-    {
-        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` invalid type value ({}) set for quest {} and spell {}. Set to 0.", type, fields[0].GetUInt32(), spellId);
-        type = AsUnderlyingType(QuestCompleteSpellType::LegacyBehavior);
-    }
-
-    RewardDisplaySpell.emplace_back(spellId, playerConditionId, QuestCompleteSpellType(type));
+    RewardDisplaySpell[idx] = spellId;
 }
 
 void Quest::LoadRewardChoiceItems(Field* fields)
@@ -461,17 +454,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
     rewards.ArtifactCategoryID      = GetArtifactCategoryId();
     rewards.Title                   = GetRewTitle();
     rewards.FactionFlags            = GetRewardReputationMask();
-    auto displaySpellItr = rewards.SpellCompletionDisplayID.begin();
-    for (QuestRewardDisplaySpell displaySpell : RewardDisplaySpell)
-    {
-        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(displaySpell.PlayerConditionId))
-            if (!ConditionMgr::IsPlayerMeetingCondition(player, playerCondition))
-                continue;
-
-        *displaySpellItr = displaySpell.SpellId;
-        if (++displaySpellItr == rewards.SpellCompletionDisplayID.end())
-            break;
-    }
+    rewards.SpellCompletionDisplayID = RewardDisplaySpell;
 
     rewards.SpellCompletionID       = GetRewSpell();
     rewards.SkillLineID             = GetRewardSkillId();
@@ -601,19 +584,6 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.PortraitGiverName = GetPortraitGiverName();
     response.Info.PortraitTurnInText = GetPortraitTurnInText();
     response.Info.PortraitTurnInName = GetPortraitTurnInName();
-    std::transform(GetConditionalQuestDescription().begin(), GetConditionalQuestDescription().end(), std::back_inserter(response.Info.ConditionalQuestDescription), [loc](QuestConditionalText const& text)
-    {
-        std::string_view content = text.Text[LOCALE_enUS];
-        ObjectMgr::GetLocaleString(text.Text, loc, content);
-        return WorldPackets::Quest::ConditionalQuestText { text.PlayerConditionId, text.QuestgiverCreatureId, content };
-    });
-
-    std::transform(GetConditionalQuestCompletionLog().begin(), GetConditionalQuestCompletionLog().end(), std::back_inserter(response.Info.ConditionalQuestCompletionLog), [loc](QuestConditionalText const& text)
-    {
-        std::string_view content = text.Text[LOCALE_enUS];
-        ObjectMgr::GetLocaleString(text.Text, loc, content);
-        return WorldPackets::Quest::ConditionalQuestText { text.PlayerConditionId, text.QuestgiverCreatureId, content };
-    });
 
     if (loc != LOCALE_enUS)
     {
@@ -651,13 +621,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.RewardMoneyDifficulty = GetRewMoneyDifficulty();
     response.Info.RewardMoneyMultiplier = GetMoneyMultiplier();
     response.Info.RewardBonusMoney = GetRewMoneyMaxLevel();
-    for (QuestRewardDisplaySpell displaySpell : RewardDisplaySpell)
-    {
-        WorldPackets::Quest::QuestCompleteDisplaySpell& rewardDisplaySpell = response.Info.RewardDisplaySpell.emplace_back();
-        rewardDisplaySpell.SpellID = displaySpell.SpellId;
-        rewardDisplaySpell.PlayerConditionID = displaySpell.PlayerConditionId;
-        rewardDisplaySpell.Type = int32(displaySpell.Type);
-    }
+    response.Info.RewardDisplaySpell = RewardDisplaySpell;
 
     response.Info.RewardSpell = GetRewSpell();
 

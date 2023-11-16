@@ -14690,13 +14690,9 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     }
     else
     {
-        for (QuestRewardDisplaySpell displaySpell : quest->RewardDisplaySpell)
+        for (int32 displaySpell : quest->RewardDisplaySpell)
         {
-            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(displaySpell.PlayerConditionId))
-                if (!ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
-                    continue;
-
-            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(displaySpell.SpellId, GetMap()->GetDifficultyID());
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(displaySpell, GetMap()->GetDifficultyID());
             Unit* caster = this;
             if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
                 if (Unit* unit = questGiver->ToUnit())
@@ -20257,7 +20253,7 @@ void Player::_SaveStats(CharacterDatabaseTransaction trans) const
     stmt->setFloat(index++, m_activePlayerData->ParryPercentage);
     stmt->setFloat(index++, m_activePlayerData->CritPercentage);
     stmt->setFloat(index++, m_activePlayerData->RangedCritPercentage);
-    stmt->setFloat(index++, m_activePlayerData->SpellCritPercentage[0]); // @todo (3.4.3): in wotlk spell crit percentage was split by spell school
+    stmt->setFloat(index++, 0.f); // m_activePlayerData->SpellCritPercentage// @todo (3.4.3): in wotlk spell crit percentage was split by spell school
     stmt->setUInt32(index++, m_unitData->AttackPower);
     stmt->setUInt32(index++, m_unitData->RangedAttackPower);
     stmt->setUInt32(index++, GetBaseSpellPowerBonus());
