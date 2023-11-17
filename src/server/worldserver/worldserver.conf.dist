@@ -920,9 +920,9 @@ StartPlayerLevel = 1
 #    StartDeathKnightPlayerLevel
 #        Description: Starting level for death knights after creation.
 #        Range:       1-MaxPlayerLevel
-#        Default:     8
+#        Default:     55
 
-StartDeathKnightPlayerLevel = 8
+StartDeathKnightPlayerLevel = 55
 
 #
 #    StartDemonHunterPlayerLevel
