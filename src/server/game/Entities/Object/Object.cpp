@@ -726,7 +726,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
         bool HasSceneInstanceIDs = !player->GetSceneMgr().GetSceneTemplateByInstanceMap().empty();
         bool HasRuneState = ToUnit()->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
-        bool HasActionButtons = player->IsLoading();
+        bool HasActionButtons = true;
 
         data->WriteBit(HasSceneInstanceIDs);
         data->WriteBit(HasRuneState);
