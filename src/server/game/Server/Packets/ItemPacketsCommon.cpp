@@ -132,9 +132,6 @@ bool ItemBonusKey::operator==(ItemBonusKey const& right) const
     if (BonusListIDs != right.BonusListIDs)
         return false;
 
-    if (Modifications != right.Modifications)
-        return false;
-
     return true;
 }
 
@@ -244,13 +241,9 @@ ByteBuffer& operator<<(ByteBuffer& data, ItemBonusKey const& itemBonusKey)
 {
     data << int32(itemBonusKey.ItemID);
     data << uint32(itemBonusKey.BonusListIDs.size());
-    data << uint32(itemBonusKey.Modifications.size());
 
     if (!itemBonusKey.BonusListIDs.empty())
         data.append(itemBonusKey.BonusListIDs.data(), itemBonusKey.BonusListIDs.size());
-
-    for (ItemMod const& modification : itemBonusKey.Modifications)
-        data << modification;
 
     return data;
 }
