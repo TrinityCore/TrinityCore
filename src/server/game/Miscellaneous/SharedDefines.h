@@ -109,25 +109,18 @@ constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
     switch (expansion)
     {
         case EXPANSION_CLASSIC:
-            return 30;
-        case EXPANSION_THE_BURNING_CRUSADE:
-            return 30;
-        case EXPANSION_WRATH_OF_THE_LICH_KING:
-            return 30;
-        case EXPANSION_CATACLYSM:
-            return 35;
-        case EXPANSION_MISTS_OF_PANDARIA:
-            return 35;
-        case EXPANSION_WARLORDS_OF_DRAENOR:
-            return 40;
-        case EXPANSION_LEGION:
-            return 45;
-        case EXPANSION_BATTLE_FOR_AZEROTH:
-            return 50;
-        case EXPANSION_SHADOWLANDS:
             return 60;
-        case EXPANSION_DRAGONFLIGHT:
+        case EXPANSION_THE_BURNING_CRUSADE:
             return 70;
+        case EXPANSION_WRATH_OF_THE_LICH_KING:
+        case EXPANSION_CATACLYSM: // since we do support retail accounts, we will make all newer expansions follow the support max level
+        case EXPANSION_MISTS_OF_PANDARIA:
+        case EXPANSION_WARLORDS_OF_DRAENOR:
+        case EXPANSION_LEGION:
+        case EXPANSION_BATTLE_FOR_AZEROTH:
+        case EXPANSION_SHADOWLANDS:
+        case EXPANSION_DRAGONFLIGHT:
+            return 80;
         default:
             break;
     }
