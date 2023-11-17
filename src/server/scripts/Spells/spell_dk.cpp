@@ -97,9 +97,11 @@ class spell_dk_advantage_t10_4p : public AuraScript
             if (!player  || caster->GetClass() != CLASS_DEATH_KNIGHT)
                 return false;
 
+            /*
             for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
                 if (player->GetRuneCooldown(i) == 0)
                     return false;
+                    */
 
             return true;
         }

@@ -821,6 +821,7 @@ void Player::UpdateAllRunesRegen()
     if (GetClass() != CLASS_DEATH_KNIGHT)
         return;
 
+    /*
     uint32 runeIndex = GetPowerIndex(POWER_RUNES);
     if (runeIndex == MAX_POWERS)
         return;
@@ -830,6 +831,7 @@ void Player::UpdateAllRunesRegen()
     uint32 cooldown = GetRuneBaseCooldown();
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, runeIndex), float(1 * IN_MILLISECONDS) / float(cooldown) - runeEntry->RegenPeace);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, runeIndex), float(1 * IN_MILLISECONDS) / float(cooldown) - runeEntry->RegenCombat);
+    */
 }
 
 void Player::_ApplyAllStatBonuses()
@@ -911,14 +913,6 @@ uint32 Creature::GetPowerIndex(Powers power) const
     {
         case POWER_COMBO_POINTS:
             return 2;
-        case POWER_ALTERNATE_POWER:
-            return 1;
-        case POWER_ALTERNATE_QUEST:
-            return 3;
-        case POWER_ALTERNATE_ENCOUNTER:
-            return 4;
-        case POWER_ALTERNATE_MOUNT:
-            return 5;
         default:
             break;
     }

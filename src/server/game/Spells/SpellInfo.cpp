@@ -4025,9 +4025,6 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
                 case POWER_MANA:
                     powerCost += int32(CalculatePct(unitCaster->GetCreateMana(), power->PowerCostPct));
                     break;
-                case POWER_ALTERNATE_POWER:
-                    TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type POWER_ALTERNATE_POWER in spell {}", Id);
-                    return {};
                 default:
                 {
                     if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(Powers(power->PowerType)))

@@ -182,16 +182,6 @@ class spell_mage_arcane_barrage : public SpellScript
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void ConsumeArcaneCharges()
-    {
-        Unit* caster = GetCaster();
-
-        // Consume all arcane charges
-        if (int32 arcaneCharges = -caster->ModifyPower(POWER_ARCANE_CHARGES, -caster->GetMaxPower(POWER_ARCANE_CHARGES), false))
-            if (AuraEffect const* auraEffect = caster->GetAuraEffect(SPELL_MAGE_ARCANE_BARRAGE_R3, EFFECT_0, caster->GetGUID()))
-                caster->CastSpell(caster, SPELL_MAGE_ARCANE_BARRAGE_ENERGIZE, { SPELLVALUE_BASE_POINT0, arcaneCharges * auraEffect->GetAmount() / 100 });
-    }
-
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (GetHitUnit()->GetGUID() != _primaryTarget)
@@ -207,7 +197,6 @@ class spell_mage_arcane_barrage : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_barrage::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         OnEffectLaunchTarget += SpellEffectFn(spell_mage_arcane_barrage::MarkPrimaryTarget, EFFECT_1, SPELL_EFFECT_DUMMY);
-        AfterCast += SpellCastFn(spell_mage_arcane_barrage::ConsumeArcaneCharges);
     }
 
     ObjectGuid _primaryTarget;

@@ -465,9 +465,6 @@ class spell_pal_divine_purpose : public AuraScript
         if (!procSpell)
             return false;
 
-        if (!procSpell->HasPowerTypeCost(POWER_HOLY_POWER))
-            return false;
-
         return roll_chance_i(aurEff->GetAmount());
     }
 
@@ -636,14 +633,6 @@ class spell_pal_fist_of_justice : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_HAMMER_OF_JUSTICE });
     }
 
-    bool CheckEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
-    {
-        if (Spell const* procSpell = eventInfo.GetProcSpell())
-            return procSpell->HasPowerTypeCost(POWER_HOLY_POWER);
-
-        return false;
-    }
-
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*procInfo*/)
     {
         int32 value = aurEff->GetAmount() / 10;
@@ -653,7 +642,6 @@ class spell_pal_fist_of_justice : public AuraScript
 
     void Register() override
     {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pal_fist_of_justice::CheckEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_pal_fist_of_justice::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
@@ -1255,16 +1243,6 @@ class spell_pal_righteous_protector : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_AVENGING_WRATH, SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS });
     }
 
-    bool CheckEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
-    {
-        if (SpellInfo const* procSpell = eventInfo.GetSpellInfo())
-            _baseHolyPowerCost = procSpell->CalcPowerCost(POWER_HOLY_POWER, false, eventInfo.GetActor(), eventInfo.GetSchoolMask());
-        else
-            _baseHolyPowerCost.reset();
-
-        return _baseHolyPowerCost.has_value();
-    }
-
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         int32 value = aurEff->GetAmount() * 100 * _baseHolyPowerCost->Amount;
@@ -1275,7 +1253,6 @@ class spell_pal_righteous_protector : public AuraScript
 
     void Register() override
     {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pal_righteous_protector::CheckEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_pal_righteous_protector::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 
@@ -1306,9 +1283,6 @@ class spell_pal_selfless_healer : public AuraScript
 {
     bool CheckEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
-        if (Spell const* procSpell = eventInfo.GetProcSpell())
-            return procSpell->HasPowerTypeCost(POWER_HOLY_POWER);
-
         return false;
     }
 

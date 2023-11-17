@@ -1684,10 +1684,10 @@ void Player::RegenerateAll()
     m_foodEmoteTimerCount += m_regenTimer;
 
     for (Powers power = POWER_MANA; power < MAX_POWERS; power = Powers(power + 1))
-        if (power != POWER_RUNES)
-            Regenerate(power);
+        Regenerate(power);
 
     // Runes act as cooldowns, and they don't need to send any data
+    /*
     if (GetClass() == CLASS_DEATH_KNIGHT)
     {
         uint32 regeneratedRunes = 0;
@@ -1707,6 +1707,7 @@ void Player::RegenerateAll()
             ++regeneratedRunes;
         }
     }
+    */
 
     if (m_regenTimerCount >= 2000)
     {
@@ -1784,28 +1785,25 @@ void Player::Regenerate(Powers power)
         RATE_POWER_RAGE_LOSS,
         RATE_POWER_FOCUS,
         RATE_POWER_ENERGY,
-        RATE_POWER_COMBO_POINTS_LOSS,
-        MAX_RATES, // runes
+        MAX_RATES, // happiness
         RATE_POWER_RUNIC_POWER_LOSS,
-        RATE_POWER_SOUL_SHARDS,
-        RATE_POWER_LUNAR_POWER,
-        RATE_POWER_HOLY_POWER,
-        MAX_RATES, // alternate
-        RATE_POWER_MAELSTROM,
-        RATE_POWER_CHI,
-        RATE_POWER_INSANITY,
-        MAX_RATES, // burning embers, unused
-        MAX_RATES, // demonic fury, unused
-        RATE_POWER_ARCANE_CHARGES,
-        RATE_POWER_FURY,
-        RATE_POWER_PAIN,
-        RATE_POWER_ESSENCE,
+        MAX_RATES, // unused
+        MAX_RATES, // unused
+        MAX_RATES, // unused
+        MAX_RATES, // unused
+        MAX_RATES, // unused
+        MAX_RATES, // unused
+        MAX_RATES, // unused
+        MAX_RATES, // unused
+        RATE_POWER_COMBO_POINTS_LOSS,
+        MAX_RATES, // unused
+        MAX_RATES, // unused
+        MAX_RATES, // unused
+        MAX_RATES, // unused
+        MAX_RATES, // unused
         MAX_RATES, // runes
         MAX_RATES, // runes
-        MAX_RATES, // runes
-        MAX_RATES, // alternate
-        MAX_RATES, // alternate
-        MAX_RATES, // alternate
+        MAX_RATES  // runes
     };
 
     if (RatesForPower[power] != MAX_RATES)
@@ -1975,9 +1973,6 @@ void Player::ResetAllPowers()
             break;
         case POWER_RUNIC_POWER:
             SetPower(POWER_RUNIC_POWER, 0);
-            break;
-        case POWER_LUNAR_POWER:
-            SetPower(POWER_LUNAR_POWER, 0);
             break;
         default:
             break;
@@ -4493,7 +4488,6 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
         SetPower(POWER_RAGE, 0);
         SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY) * restore_percent);
         SetPower(POWER_FOCUS, GetMaxPower(POWER_FOCUS) * restore_percent);
-        SetPower(POWER_LUNAR_POWER, 0);
     }
 
     // trigger update zone for alive state zone updates
@@ -17828,8 +17822,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     for (; loadedPowers < MAX_POWERS_PER_CLASS; ++loadedPowers)
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Power, loadedPowers), 0);
 
-    SetPower(POWER_LUNAR_POWER, 0);
     // Init rune recharge
+    /*
     if (GetPowerIndex(POWER_RUNES) != MAX_POWERS)
     {
         int32 runes = GetPower(POWER_RUNES);
@@ -17841,6 +17835,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             ++runes;
         }
     }
+    */
 
     TC_LOG_DEBUG("entities.player.loading", "Player::LoadFromDB: The value of player '{}' after load item and aura is: ", m_name);
     outDebugValues();
@@ -25019,7 +25014,6 @@ void Player::ResurrectUsingRequestDataImpl()
     SetPower(POWER_RAGE, 0);
     SetFullPower(POWER_ENERGY);
     SetFullPower(POWER_FOCUS);
-    SetPower(POWER_LUNAR_POWER, 0);
 
     if (uint32 aura = resurrectAura)
         CastSpell(this, aura, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
@@ -25602,13 +25596,16 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
 
 uint8 Player::GetRunesState() const
 {
-    return uint8(m_runes->RuneState & ((1 << GetMaxPower(POWER_RUNES)) - 1));
+    return 0;
+    
+    //return uint8(m_runes->RuneState & ((1 << GetMaxPower(POWER_RUNES)) - 1));
 }
 
 uint32 Player::GetRuneBaseCooldown() const
 {
     float cooldown = RUNE_BASE_COOLDOWN;
 
+    /*
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
         if ((*i)->GetMiscValue() == POWER_RUNES)
@@ -25623,6 +25620,7 @@ uint32 Player::GetRuneBaseCooldown() const
     hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_3);
 
     cooldown *=  1.0f - (hastePct / 100.0f);
+    */
 
     return cooldown;
 }
@@ -25631,9 +25629,11 @@ void Player::SetRuneCooldown(uint8 index, uint32 cooldown)
 {
     m_runes->Cooldown[index] = cooldown;
     m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
+    /*
     int32 activeRunes = std::count(std::begin(m_runes->Cooldown), &m_runes->Cooldown[std::min(GetMaxPower(POWER_RUNES), MAX_RUNES)], 0u);
     if (activeRunes != GetPower(POWER_RUNES))
         SetPower(POWER_RUNES, activeRunes);
+    */
 }
 
 void Runes::SetRuneState(uint8 index, bool set /*= true*/)
@@ -25655,6 +25655,7 @@ void Runes::SetRuneState(uint8 index, bool set /*= true*/)
 
 void Player::ResyncRunes() const
 {
+    /*
     uint32 maxRunes = uint32(GetMaxPower(POWER_RUNES));
 
     WorldPackets::Spells::ResyncRunes data(maxRunes);
@@ -25666,6 +25667,7 @@ void Player::ResyncRunes() const
         data.Runes.Cooldowns.push_back(uint8((baseCd - float(GetRuneCooldown(i))) / baseCd * 255));
 
     SendDirectMessage(data.Write());
+    */
 }
 
 void Player::InitRunes()
@@ -25673,6 +25675,9 @@ void Player::InitRunes()
     if (GetClass() != CLASS_DEATH_KNIGHT)
         return;
 
+    return;
+
+    /*
     uint32 runeIndex = GetPowerIndex(POWER_RUNES);
     if (runeIndex == MAX_POWERS)
         return;
@@ -25685,6 +25690,7 @@ void Player::InitRunes()
 
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, runeIndex), 0.0f);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, runeIndex), 0.0f);
+    */
 }
 
 void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, ItemContext context, bool broadcast, bool createdByPlayer)

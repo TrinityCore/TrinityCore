@@ -143,20 +143,11 @@ class spell_sha_aftershock : public AuraScript
 
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        if (Spell const* procSpell = eventInfo.GetProcSpell())
-            if (Optional<int32> cost = procSpell->GetPowerTypeCostAmount(POWER_MAELSTROM))
-                return cost > 0 && roll_chance_i(aurEff->GetAmount());
-
         return false;
     }
 
     void HandleEffectProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
-        Spell const* procSpell = eventInfo.GetProcSpell();
-        int32 energize = *procSpell->GetPowerTypeCostAmount(POWER_MAELSTROM);
-
-        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_AFTERSHOCK_ENERGIZE, CastSpellExtraArgs(energize)
-            .AddSpellMod(SPELLVALUE_BASE_POINT0, energize));
     }
 
     void Register() override

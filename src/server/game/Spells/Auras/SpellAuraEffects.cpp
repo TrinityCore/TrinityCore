@@ -3831,8 +3831,8 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
     // Update manaregen value
     if (GetMiscValue() == POWER_MANA)
         target->ToPlayer()->UpdateManaRegen();
-    else if (GetMiscValue() == POWER_RUNES)
-        target->ToPlayer()->UpdateAllRunesRegen();
+    //else if (GetMiscValue() == POWER_RUNES)
+    //    target->ToPlayer()->UpdateAllRunesRegen();
     // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
 }
 
@@ -5992,10 +5992,12 @@ void AuraEffect::HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode,
     if (!powerEntry)
         return;
 
+    /*
     if (apply)
         aurApp->GetTarget()->SetMaxPower(POWER_ALTERNATE_POWER, powerEntry->MaxPower);
     else
         aurApp->GetTarget()->SetMaxPower(POWER_ALTERNATE_POWER, 0);
+    */
 }
 
 void AuraEffect::HandleModSpellCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const

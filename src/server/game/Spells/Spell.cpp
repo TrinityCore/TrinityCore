@@ -4686,8 +4686,8 @@ void Spell::SendSpellStart()
         && std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellPowerCost const& cost) { return cost.Power != POWER_HEALTH; }) != m_powerCost.end())
         castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
-    if (HasPowerTypeCost(POWER_RUNES))
-        castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
+    //if (HasPowerTypeCost(POWER_RUNES))
+    //    castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR8_HEAL_PREDICTION) && m_casttime && m_caster->IsUnit())
         castFlags |= CAST_FLAG_HEAL_PREDICTION;
@@ -4722,6 +4722,7 @@ void Spell::SendSpellStart()
         }
     }
 
+    /*
     if (castFlags & CAST_FLAG_RUNE_LIST) // rune cooldowns list
     {
         castData.RemainingRunes.emplace();
@@ -4747,6 +4748,7 @@ void Spell::SendSpellStart()
                 castData.RemainingRunes->Cooldowns.push_back(0);
         }
     }
+    */
 
     if (castFlags & CAST_FLAG_PROJECTILE)
         castData.AmmoDisplayID = GetSpellCastDataAmmo();
@@ -4787,7 +4789,7 @@ void Spell::SendSpellGo()
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->ToPlayer()->GetClass() == CLASS_DEATH_KNIGHT)
-        && HasPowerTypeCost(POWER_RUNES)
+        //&& HasPowerTypeCost(POWER_RUNES)
         && !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST))
     {
         castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
@@ -4838,12 +4840,15 @@ void Spell::SendSpellGo()
         Player* player = ASSERT_NOTNULL(m_caster->ToPlayer());
         castData.RemainingRunes->Start = m_runesState; // runes state before
         castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
+
+        /*
         for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
         {
             // float casts ensure the division is performed on floats as we need float result
             float baseCd = float(player->GetRuneBaseCooldown());
             castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
         }
+        */
     }
 
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)
@@ -5408,11 +5413,13 @@ void Spell::TakePower()
             }
         }
 
+        /*
         if (powerType == POWER_RUNES)
         {
             TakeRunePower(hit);
             continue;
         }
+        */
 
         if (!cost.Amount)
             continue;
@@ -5436,6 +5443,7 @@ void Spell::TakePower()
 
 SpellCastResult Spell::CheckRuneCost() const
 {
+    /*
     int32 runeCost = std::accumulate(m_powerCost.begin(), m_powerCost.end(), 0, [](int32 totalCost, SpellPowerCost const& cost)
     {
         return totalCost + (cost.Power == POWER_RUNES ? cost.Amount : 0);
@@ -5458,12 +5466,14 @@ SpellCastResult Spell::CheckRuneCost() const
 
     if (readyRunes < runeCost)
         return SPELL_FAILED_NO_POWER;                       // not sure if result code is correct
+    */
 
     return SPELL_CAST_OK;
 }
 
 void Spell::TakeRunePower(bool didHit)
 {
+    /*
     if (m_caster->GetTypeId() != TYPEID_PLAYER || m_caster->ToPlayer()->GetClass() != CLASS_DEATH_KNIGHT)
         return;
 
@@ -5483,6 +5493,7 @@ void Spell::TakeRunePower(bool didHit)
             --runeCost;
         }
     }
+    */
 }
 
 void Spell::TakeReagents()
@@ -7257,12 +7268,14 @@ SpellCastResult Spell::CheckPower() const
         }
 
         //check rune cost only if a spell has PowerType == POWER_RUNES
+        /*
         if (cost.Power == POWER_RUNES)
         {
             SpellCastResult failReason = CheckRuneCost();
             if (failReason != SPELL_CAST_OK)
                 return failReason;
         }
+        */
 
         // Check power amount
         if (int32(unitCaster->GetPower(cost.Power)) < cost.Amount)
