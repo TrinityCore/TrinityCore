@@ -9730,6 +9730,10 @@ InventoryResult Player::CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemP
     // empty specific slot - check item fit to slot
     if (!pItem2 || swap)
     {
+        // Reagent bags are not supported in Classic
+        if (slot == REAGENT_BAG_SLOT_START)
+            return EQUIP_ERR_WRONG_BAG_TYPE;
+
         if (bag == INVENTORY_SLOT_BAG_0)
         {
             // keyring case
@@ -9869,6 +9873,10 @@ InventoryResult Player::CanStoreItem_InInventorySlots(uint8 slot_begin, uint8 sl
     {
         // skip specific slot already processed in first called CanStoreItem_InSpecificSlot
         if (INVENTORY_SLOT_BAG_0 == skip_bag && j == skip_slot)
+            continue;
+
+        // Reagent bags are not supported in Classic
+        if (j == REAGENT_BAG_SLOT_START)
             continue;
 
         Item* pItem2 = GetItemByPos(INVENTORY_SLOT_BAG_0, j);
