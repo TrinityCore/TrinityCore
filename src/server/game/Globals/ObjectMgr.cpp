@@ -921,13 +921,13 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0      1             2                     3                     4                5
-    QueryResult result = WorldDatabase.Query("SELECT Entry, DifficultyID, LevelScalingDeltaMin, LevelScalingDeltaMax, ContentTuningID, HealthScalingExpansion, "
-    //   6               7             8              9               10                    11         12
+    //                                               0      1             2         3         4
+    QueryResult result = WorldDatabase.Query("SELECT Entry, DifficultyID, MinLevel, MaxLevel, HealthScalingExpansion, "
+    //   5               6             7              8               9                     10         11
         "HealthModifier, ManaModifier, ArmorModifier, DamageModifier, CreatureDifficultyID, TypeFlags, TypeFlags2, "
-    //   13      14                15          16       17
+    //   12      13                14          15       16
         "LootID, PickPocketLootID, SkinLootID, GoldMin, GoldMax,"
-    //   18            19            20            21            22            23            24            25
+    //   17            18            19            20            21            22            23            24
         "StaticFlags1, StaticFlags2, StaticFlags3, StaticFlags4, StaticFlags5, StaticFlags6, StaticFlags7, StaticFlags8 "
         "FROM creature_template_difficulty ORDER BY Entry");
 
@@ -953,28 +953,49 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
         }
 
         CreatureDifficulty creatureDifficulty;
-        creatureDifficulty.DeltaLevelMin          = fields[2].GetInt16();
-        creatureDifficulty.DeltaLevelMax          = fields[3].GetInt16();
-        creatureDifficulty.ContentTuningID        = fields[4].GetInt32();
-        creatureDifficulty.HealthScalingExpansion = fields[5].GetInt32();
-        creatureDifficulty.HealthModifier         = fields[6].GetFloat();
-        creatureDifficulty.ManaModifier           = fields[7].GetFloat();
-        creatureDifficulty.ArmorModifier          = fields[8].GetFloat();
-        creatureDifficulty.DamageModifier         = fields[9].GetFloat();
-        creatureDifficulty.CreatureDifficultyID   = fields[10].GetInt32();
-        creatureDifficulty.TypeFlags              = fields[11].GetUInt32();
-        creatureDifficulty.TypeFlags2             = fields[12].GetUInt32();
-        creatureDifficulty.LootID                 = fields[13].GetUInt32();
-        creatureDifficulty.PickPocketLootID       = fields[14].GetUInt32();
-        creatureDifficulty.SkinLootID             = fields[15].GetUInt32();
-        creatureDifficulty.GoldMin                = fields[16].GetUInt32();
-        creatureDifficulty.GoldMax                = fields[17].GetUInt32();
-        creatureDifficulty.StaticFlags            = CreatureStaticFlagsHolder(CreatureStaticFlags(fields[18].GetUInt32()), CreatureStaticFlags2(fields[19].GetUInt32()),
-            CreatureStaticFlags3(fields[20].GetUInt32()), CreatureStaticFlags4(fields[21].GetUInt32()), CreatureStaticFlags5(fields[22].GetUInt32()),
-            CreatureStaticFlags6(fields[23].GetUInt32()), CreatureStaticFlags7(fields[24].GetUInt32()),  CreatureStaticFlags8(fields[25].GetUInt32()));
+        creatureDifficulty.MinLevel               = fields[2].GetUInt8();
+        creatureDifficulty.MaxLevel               = fields[3].GetUInt8();
+        creatureDifficulty.HealthScalingExpansion = fields[4].GetInt32();
+        creatureDifficulty.HealthModifier         = fields[5].GetFloat();
+        creatureDifficulty.ManaModifier           = fields[6].GetFloat();
+        creatureDifficulty.ArmorModifier          = fields[7].GetFloat();
+        creatureDifficulty.DamageModifier         = fields[8].GetFloat();
+        creatureDifficulty.CreatureDifficultyID   = fields[9].GetInt32();
+        creatureDifficulty.TypeFlags              = fields[10].GetUInt32();
+        creatureDifficulty.TypeFlags2             = fields[11].GetUInt32();
+        creatureDifficulty.LootID                 = fields[12].GetUInt32();
+        creatureDifficulty.PickPocketLootID       = fields[13].GetUInt32();
+        creatureDifficulty.SkinLootID             = fields[14].GetUInt32();
+        creatureDifficulty.GoldMin                = fields[15].GetUInt32();
+        creatureDifficulty.GoldMax                = fields[16].GetUInt32();
+        creatureDifficulty.StaticFlags            = CreatureStaticFlagsHolder(CreatureStaticFlags(fields[17].GetUInt32()), CreatureStaticFlags2(fields[18].GetUInt32()),
+            CreatureStaticFlags3(fields[19].GetUInt32()), CreatureStaticFlags4(fields[20].GetUInt32()), CreatureStaticFlags5(fields[21].GetUInt32()),
+            CreatureStaticFlags6(fields[22].GetUInt32()), CreatureStaticFlags7(fields[23].GetUInt32()),  CreatureStaticFlags8(fields[24].GetUInt32()));
 
         // TODO: Check if this still applies
         creatureDifficulty.DamageModifier *= Creature::_GetDamageMod(itr->second.rank);
+
+        if (creatureDifficulty.MinLevel == 0 || creatureDifficulty.MaxLevel == 0)
+        {
+            if (creatureDifficulty.MinLevel == 0)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature_template_difficulty` lists creature (ID: {}) has MinLevel set to 0 but the allowed minimum is 1. Ignored and set to 1.", entry);
+                creatureDifficulty.MinLevel = 1;
+            }
+
+            if (creatureDifficulty.MaxLevel == 0)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature_template_difficulty` lists creature (ID: {}) has MaxLevel set to 0 but the allowed minimum is 1. Ignored and set to 1.", entry);
+                creatureDifficulty.MaxLevel = 1;
+            }
+        }
+
+        if (creatureDifficulty.MinLevel > creatureDifficulty.MaxLevel)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature_template_difficulty` lists creature (ID: {}) with a higher MinLevel ({}) than MaxLevel ({}). MaxLevel will be set to MinLevel value.",
+                entry, creatureDifficulty.MinLevel, creatureDifficulty.MaxLevel);
+            creatureDifficulty.MinLevel = creatureDifficulty.MaxLevel;
+        }
 
         if (creatureDifficulty.HealthScalingExpansion < EXPANSION_LEVEL_CURRENT || creatureDifficulty.HealthScalingExpansion >= MAX_EXPANSIONS)
         {
@@ -9957,8 +9978,8 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
-    //                                               0      1      2         3            4
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basemana, attackpower, rangedattackpower FROM creature_classlevelstats");
+
+    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2 FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -9979,10 +10000,29 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         CreatureBaseStats stats;
 
-        stats.BaseMana = fields[2].GetUInt32();
+        for (uint8 i = 0; i <= CURRENT_EXPANSION; ++i)
+        {
+            stats.BaseHealth[i] = fields[2 + i].GetUInt16();
 
-        stats.AttackPower = fields[3].GetUInt16();
-        stats.RangedAttackPower = fields[4].GetUInt16();
+            if (stats.BaseHealth[i] == 0)
+            {
+                TC_LOG_ERROR("sql.sql", "Creature base stats for class {}, level {} has invalid zero base HP[{}] - set to 1", Class, Level, i);
+                stats.BaseHealth[i] = 1;
+            }
+
+            stats.BaseDamage[i] = fields[9 + i].GetFloat();
+            if (stats.BaseDamage[i] < 0.0f)
+            {
+                TC_LOG_ERROR("sql.sql", "Creature base stats for class {}, level {} has invalid negative base damage[{}] - set to 0.0", Class, Level, i);
+                stats.BaseDamage[i] = 0.0f;
+            }
+        }
+
+        stats.BaseMana = fields[5].GetUInt16();
+        stats.BaseArmor = fields[6].GetUInt16();
+
+        stats.AttackPower = fields[7].GetUInt16();
+        stats.RangedAttackPower = fields[8].GetUInt16();
 
         _creatureBaseStatsStore[MAKE_PAIR16(Level, Class)] = stats;
 

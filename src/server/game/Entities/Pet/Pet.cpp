@@ -905,15 +905,17 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     {
         // remove elite bonuses included in DB values
         CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(petlevel, cinfo->unit_class);
-        ApplyLevelScaling();
+        float healthmod = _GetHealthMod(cinfo->rank);
+        uint32 basehp = stats->GenerateHealth(m_creatureDifficulty);
+        uint32 health = uint32(basehp * healthmod);
+        uint32 mana = stats->GenerateMana(m_creatureDifficulty);
 
-        CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-        SetCreateHealth(std::max(sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, petlevel, creatureDifficulty->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cinfo->unit_class), 0) * creatureDifficulty->HealthModifier * _GetHealthMod(cinfo->rank), 1.0f));
         SetCreateMana(stats->BaseMana);
         SetCreateStat(STAT_STRENGTH, 22);
         SetCreateStat(STAT_AGILITY, 22);
         SetCreateStat(STAT_STAMINA, 25);
         SetCreateStat(STAT_INTELLECT, 28);
+        SetCreateStat(STAT_SPIRIT, 27);
     }
 
     // Power
@@ -1068,7 +1070,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                      * should be copied here (or moved to another method or if that function should be called here
                      * or not just for this default case)
                      */
-                    float basedamage = GetBaseDamageForLevel(petlevel);
+                    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(petlevel, cinfo->unit_class);
+                    float basedamage = stats->GenerateBaseDamage(m_creatureDifficulty);
 
                     float weaponBaseMinDamage = basedamage;
                     float weaponBaseMaxDamage = basedamage * 1.5f;

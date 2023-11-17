@@ -102,7 +102,7 @@ enum Expansions
     MAX_ACCOUNT_EXPANSIONS
 };
 
-#define CURRENT_EXPANSION EXPANSION_DRAGONFLIGHT
+#define CURRENT_EXPANSION EXPANSION_WRATH_OF_THE_LICH_KING
 
 constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
 {
@@ -113,7 +113,7 @@ constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
         case EXPANSION_THE_BURNING_CRUSADE:
             return 70;
         case EXPANSION_WRATH_OF_THE_LICH_KING:
-        case EXPANSION_CATACLYSM: // since we do support retail accounts, we will make all newer expansions follow the support max level
+        case EXPANSION_CATACLYSM: // since we do support retail accounts, we will make all newer expansions follow the supported max level
         case EXPANSION_MISTS_OF_PANDARIA:
         case EXPANSION_WARLORDS_OF_DRAENOR:
         case EXPANSION_LEGION:
