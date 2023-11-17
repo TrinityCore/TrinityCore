@@ -15020,6 +15020,9 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     {
         for (int32 displaySpell : quest->RewardDisplaySpell)
         {
+            if (!displaySpell)
+                continue;
+
             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(displaySpell, GetMap()->GetDifficultyID());
             Unit* caster = this;
             if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
