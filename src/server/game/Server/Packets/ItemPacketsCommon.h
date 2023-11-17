@@ -82,7 +82,6 @@ namespace WorldPackets
         {
             int32 ItemID = 0;
             std::vector<int32> BonusListIDs;
-            std::vector<ItemMod> Modifications;
 
             bool operator==(ItemBonusKey const& right) const;
         };
