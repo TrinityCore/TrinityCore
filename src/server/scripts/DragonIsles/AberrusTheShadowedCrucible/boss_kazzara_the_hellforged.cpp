@@ -713,7 +713,7 @@ void AddSC_boss_kazzara_the_hellforged()
     RegisterSpellScript(spell_kazzara_ray_of_anguish_trigger);
     RegisterSpellScript(spell_kazzara_terror_claws);
     RegisterSpellScript(spell_kazzara_terror_claws_periodic);
- 
+
     RegisterAreaTriggerAI(at_kazzara_dread_rift);
     RegisterAreaTriggerAI(at_kazzara_molten_scar);
     RegisterAreaTriggerAI(at_kazzara_ray_of_anguish);
