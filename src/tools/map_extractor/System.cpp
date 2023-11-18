@@ -1333,22 +1333,27 @@ void ExtractGameTables()
         { 1391662, "ArtifactLevelXP.txt" },
         { 1391663, "BarberShopCostBase.txt" },
         { 1391664, "BaseMp.txt" },
-        { 4494528, "BaseProfessionRatings.txt" },
         { 1391665, "BattlePetTypeDamageMod.txt" },
         { 1391666, "BattlePetXP.txt" },
+        { 1391667, "ChallengeModeDamage.txt" },
+        { 1391668, "ChallengeModeHealth.txt" },
         { 1391669, "CombatRatings.txt" },
         { 1391670, "CombatRatingsMultByILvl.txt" },
         { 1391671, "HonorLevel.txt" },
         { 1391642, "HpPerSta.txt" },
-        { 2012881, "ItemLevelByLevel.txt" },
-        { 1726830, "ItemLevelSquish.txt" },
         { 1391643, "ItemSocketCostPerLevel.txt" },
         { 1391651, "NPCManaCostScaler.txt" },
-        { 4492239, "ProfessionRatings.txt" },
         { 1391659, "SandboxScaling.txt" },
         { 1391660, "SpellScaling.txt" },
-        { 1980632, "StaminaMultByILvl.txt" },
-        { 1391661, "xp.txt" }
+        { 2200979, "ShieldBlockRegular.txt" },
+        { 2238239, "OCTRegenMP.txt" },
+        { 2238240, "RegenMPPerSpt.txt" },
+        { 3953485, "OCTRegenHP.txt" },
+        { 3953486, "RegenHPPerSpt.txt" },
+        { 3999262, "ChanceToMeleeCrit.txt" },
+        { 3999263, "ChanceToMeleeCritBase.txt" },
+        { 3999264, "ChanceToSpellCritBase.txt" },
+        { 3999265, "ChanceToSpellCrit.txt" }
     };
 
     uint32 count = 0;
