@@ -135,7 +135,7 @@ namespace WorldPackets
         class LearnPvpTalentFailed final : public ServerPacket
         {
         public:
-            LearnPvpTalentFailed() : ServerPacket(SMSG_LEARN_PVP_TALENT_FAILED, 1 + 4 + 4 + (2 + 1) * MAX_PVP_TALENT_SLOTS) { }
+            LearnPvpTalentFailed() : ServerPacket(SMSG_LEARN_PVP_TALENT_FAILED, 1 + 4 + 4 + (2 + 1)) { }
 
             WorldPacket const* Write() override;
 

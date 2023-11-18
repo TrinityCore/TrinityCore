@@ -6125,16 +6125,6 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
 
 void AuraEffect::HandleAuraPvpTalents(AuraApplication const* auraApp, uint8 mode, bool apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
-        return;
-
-    if (Player* target = auraApp->GetTarget()->ToPlayer())
-    {
-        if (apply)
-            target->TogglePvpTalents(true);
-        else if (!target->HasAuraType(SPELL_AURA_PVP_TALENTS))
-            target->TogglePvpTalents(false);
-    }
 }
 
 void AuraEffect::HandleLinkedSummon(AuraApplication const* aurApp, uint8 mode, bool apply) const

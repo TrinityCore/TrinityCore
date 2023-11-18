@@ -472,7 +472,6 @@ namespace
     PhaseGroupContainer _phasesByGroup;
     PowerTypesContainer _powerTypes;
     std::unordered_map<uint32, uint8> _pvpItemBonus;
-    PvpTalentSlotUnlockEntry const* _pvpTalentSlotUnlock[MAX_PVP_TALENT_SLOTS];
     std::unordered_map<uint32, std::vector<QuestLineXQuestEntry const*>> _questsByQuestLine;
     QuestPackageItemContainer _questPackages;
     std::unordered_map<uint32, std::vector<RewardPackXCurrencyTypeEntry const*>> _rewardPackCurrencyTypes;
@@ -1345,19 +1344,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (PVPItemEntry const* pvpItem : sPVPItemStore)
         _pvpItemBonus[pvpItem->ItemID] = pvpItem->ItemLevelDelta;
-
-    for (PvpTalentSlotUnlockEntry const* talentUnlock : sPvpTalentSlotUnlockStore)
-    {
-        ASSERT(talentUnlock->Slot < (1 << MAX_PVP_TALENT_SLOTS));
-        for (int8 i = 0; i < MAX_PVP_TALENT_SLOTS; ++i)
-        {
-            if (talentUnlock->Slot & (1 << i))
-            {
-                ASSERT(!_pvpTalentSlotUnlock[i]);
-                _pvpTalentSlotUnlock[i] = talentUnlock;
-            }
-        }
-    }
 
     for (QuestLineXQuestEntry const* questLineQuest : sQuestLineXQuestStore)
         _questsByQuestLine[questLineQuest->QuestLineID].push_back(questLineQuest);
@@ -2605,36 +2591,6 @@ PVPDifficultyEntry const* DB2Manager::GetBattlegroundBracketById(uint32 mapid, B
             return entry;
 
     return nullptr;
-}
-
-uint32 DB2Manager::GetRequiredLevelForPvpTalentSlot(uint8 slot, Classes class_) const
-{
-    ASSERT(slot < MAX_PVP_TALENT_SLOTS);
-    if (_pvpTalentSlotUnlock[slot])
-    {
-        switch (class_)
-        {
-            case CLASS_DEATH_KNIGHT:
-                return _pvpTalentSlotUnlock[slot]->DeathKnightLevelRequired;
-            case CLASS_DEMON_HUNTER:
-                return _pvpTalentSlotUnlock[slot]->DemonHunterLevelRequired;
-            default:
-                break;
-        }
-        return _pvpTalentSlotUnlock[slot]->LevelRequired;
-    }
-
-    return 0;
-}
-
-int32 DB2Manager::GetPvpTalentNumSlotsAtLevel(uint32 level, Classes class_) const
-{
-    int32 slots = 0;
-    for (uint8 slot = 0; slot < MAX_PVP_TALENT_SLOTS; ++slot)
-        if (level >= GetRequiredLevelForPvpTalentSlot(slot, class_))
-            ++slots;
-
-    return slots;
 }
 
 std::vector<QuestLineXQuestEntry const*> const* DB2Manager::GetQuestsForQuestLine(uint32 questLineId) const

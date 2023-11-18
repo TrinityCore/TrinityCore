@@ -4990,15 +4990,7 @@ void Spell::EffectActivateSpec()
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player* player = unitTarget->ToPlayer();
-    uint32 specID = m_misc.SpecializationId;
-    ChrSpecializationEntry const* spec = sChrSpecializationStore.AssertEntry(specID);
-
-    // Safety checks done in Spell::CheckCast
-    if (!spec->IsPetSpecialization())
-        player->ActivateTalentGroup(spec);
-    else
-        player->GetPet()->SetSpecialization(specID);
+    unitTarget->ToPlayer()->ActivateTalentGroup(static_cast<uint8>(effectInfo->BasePoints));
 }
 
 void Spell::EffectPlaySound()
