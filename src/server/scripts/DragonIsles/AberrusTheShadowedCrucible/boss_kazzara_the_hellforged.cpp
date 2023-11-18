@@ -65,7 +65,7 @@ enum KazzaraSpells
     SPELL_RAY_OF_ANGUISH_AURA_10_SECONDS    = 409256,
     SPELL_RAY_OF_ANGUISH_AURA_45_SECONDS    = 411925,
     SPELL_RAY_OF_ANGUISH_DECREASE_SPEED     = 402299,
-    SPELL_RAY_OF_ANGUISH_FIXATE             = 402253, 
+    SPELL_RAY_OF_ANGUISH_FIXATE             = 402253,
     SPELL_RAY_OF_ANGUISH_MISSILE            = 402187,
     SPELL_RAYS_OF_ANGUISH                   = 407069,
     SPELL_RAYS_OF_ANGUISH_RIFTS_CHECK       = 407068,
@@ -713,7 +713,7 @@ void AddSC_boss_kazzara_the_hellforged()
     RegisterSpellScript(spell_kazzara_ray_of_anguish_trigger);
     RegisterSpellScript(spell_kazzara_terror_claws);
     RegisterSpellScript(spell_kazzara_terror_claws_periodic);
-    
+ 
     RegisterAreaTriggerAI(at_kazzara_dread_rift);
     RegisterAreaTriggerAI(at_kazzara_molten_scar);
     RegisterAreaTriggerAI(at_kazzara_ray_of_anguish);
