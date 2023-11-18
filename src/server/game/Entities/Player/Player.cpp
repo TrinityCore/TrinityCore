@@ -1763,15 +1763,14 @@ void Player::Regenerate(Powers power)
         return;
 
     float addvalue = 0.0f;
-    if (!IsInCombat())
-    {
-        if (powerType->GetFlags().HasFlag(PowerTypeFlags::UseRegenInterrupt) && m_regenInterruptTimestamp + Milliseconds(powerType->RegenInterruptTimeMS) < GameTime::Now())
-            return;
 
-        addvalue = (powerType->RegenPeace + m_unitData->PowerRegenFlatModifier[powerIndex]) * 0.001f * m_regenTimer;
-    }
-    else if (power != POWER_MANA || !IsPowerRegenInterruptedByMP5Rule())
+    if (power == POWER_MANA && IsPowerRegenInterruptedByMP5Rule())
         addvalue = (powerType->RegenCombat + m_unitData->PowerRegenInterruptedFlatModifier[powerIndex]) * 0.001f * m_regenTimer;
+    else
+        addvalue = (powerType->RegenPeace + m_unitData->PowerRegenFlatModifier[powerIndex]) * 0.001f * m_regenTimer;
+
+    if (powerType->GetFlags().HasFlag(PowerTypeFlags::UseRegenInterrupt) && m_regenInterruptTimestamp + Milliseconds(powerType->RegenInterruptTimeMS) < GameTime::Now())
+        return;
 
     static Rates const RatesForPower[MAX_POWERS] =
     {
