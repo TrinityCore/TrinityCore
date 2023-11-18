@@ -5438,6 +5438,9 @@ void Spell::TakePower()
         }
 
         unitCaster->ModifyPower(powerType, -cost.Amount);
+
+        if (powerType == POWER_MANA)
+            unitCaster->SetMP5RegenerationInterruptTime(GameTime::GetGameTimeMS());
     }
 }
 

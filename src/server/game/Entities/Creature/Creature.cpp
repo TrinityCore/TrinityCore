@@ -929,9 +929,13 @@ void Creature::Regenerate(Powers power)
         // Combat and any controlled creature
         if (IsInCombat() || GetCharmerOrOwnerGUID().IsEmpty())
         {
-            float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
+            if (!IsPowerRegenInterruptedByMP5Rule())
+            {
+                float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
+                float Spirit = GetStat(STAT_SPIRIT);
 
-            addvalue = uint32((27.0f / 5.0f + 17.0f) * ManaIncreaseRate);
+                addvalue = uint32((Spirit / 5.0f + 17.0f) * ManaIncreaseRate);
+            }
         }
         else
             addvalue = maxValue / 3;

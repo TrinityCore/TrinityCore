@@ -813,8 +813,8 @@ void Player::UpdateManaRegen()
     if (modManaRegenInterrupt > 100)
         modManaRegenInterrupt = 100;
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, manaIndex), power_regen_mp5 + CalculatePct(power_regen, modManaRegenInterrupt));
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, manaIndex), power_regen_mp5 + power_regen);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, manaIndex), power_regen_mp5 + CalculatePct(power_regen, modManaRegenInterrupt));
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, manaIndex), power_regen_mp5 + power_regen);
 }
 
 void Player::UpdateAllRunesRegen()

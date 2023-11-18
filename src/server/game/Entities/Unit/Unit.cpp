@@ -325,6 +325,7 @@ Unit::Unit(bool isWorldObject) :
 
     m_movementCounter = 0;
 
+    _regenMP5InterruptStartTime = 0;
     m_state = 0;
     m_deathState = ALIVE;
 
@@ -7710,6 +7711,11 @@ int32 Unit::MeleeDamageBonusTaken(Unit* attacker, int32 pdamage, WeaponAttackTyp
 
     float tmpDamage = float(pdamage + TakenFlatBenefit) * TakenTotalMod;
     return int32(std::max(tmpDamage, 0.0f));
+}
+
+bool Unit::IsPowerRegenInterruptedByMP5Rule() const
+{
+    return Milliseconds(getMSTimeDiff(_regenMP5InterruptStartTime, GameTime::GetGameTimeMS())) < 5s;
 }
 
 void Unit::ApplySpellImmune(uint32 spellId, SpellImmunity op, uint32 type, bool apply)

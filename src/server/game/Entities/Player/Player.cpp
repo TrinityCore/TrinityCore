@@ -1770,7 +1770,7 @@ void Player::Regenerate(Powers power)
 
         addvalue = (powerType->RegenPeace + m_unitData->PowerRegenFlatModifier[powerIndex]) * 0.001f * m_regenTimer;
     }
-    else
+    else if (power != POWER_MANA || !IsPowerRegenInterruptedByMP5Rule())
         addvalue = (powerType->RegenCombat + m_unitData->PowerRegenInterruptedFlatModifier[powerIndex]) * 0.001f * m_regenTimer;
 
     static Rates const RatesForPower[MAX_POWERS] =
