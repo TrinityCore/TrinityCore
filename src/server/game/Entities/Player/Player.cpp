@@ -1912,6 +1912,10 @@ void Player::RegenerateHealth()
         return;
 
     float HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
+
+    if (GetLevel() < 15)
+        HealthIncreaseRate = sWorld->getRate(RATE_HEALTH) * (2.066f - (GetLevel() * 0.066f));
+
     float addValue = 0.0f;
 
     // polymorphed case
@@ -1920,15 +1924,10 @@ void Player::RegenerateHealth()
     // normal regen case (maybe partly in combat case)
     else if (!IsInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
     {
-        addValue = HealthIncreaseRate;
+        addValue = OCTRegenHPPerSpirit() * HealthIncreaseRate;
 
         if (!IsInCombat())
         {
-            if (GetLevel() < 15)
-                addValue = (0.20f * ((float)GetMaxHealth()) / GetLevel() * HealthIncreaseRate);
-            else
-                addValue = 0.015f * ((float)GetMaxHealth()) * HealthIncreaseRate;
-
             addValue *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
 
             addValue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * 0.4f;
@@ -5261,6 +5260,37 @@ inline float GetGameTableColumnForCombatRating(GtCombatRatingsEntry const* row, 
     }
 
     return 1.0f;
+}
+
+float Player::OCTRegenHPPerSpirit() const
+{
+    GtOCTRegenHPEntry const* baseGt = sOCTRegenHPGameTable.GetRow(GetLevel());
+    GtRegenHPPerSptEntry  const* moreGt = sRegenHPPerSptGameTable.GetRow(GetLevel());
+    if (!baseGt || !moreGt)
+        return 0.0f;
+
+    float baseRatio = GetRegenGameTableColumnForClass(baseGt, GetClass());
+    float moreRatiob = GetRegenGameTableColumnForClass(moreGt, GetClass());
+
+    // Formula from PaperDollFrame script
+    float spirit = GetStat(STAT_SPIRIT);
+    float baseSpirit = spirit;
+    if (baseSpirit > 50)
+        baseSpirit = 50;
+    float moreSpirit = spirit - baseSpirit;
+    float regen = baseSpirit * baseRatio + moreSpirit * moreRatiob;
+    return regen;
+}
+
+float Player::OCTRegenMPPerSpirit() const
+{
+    GtRegenMPPerSptEntry const* gt = sRegenMPPerSptGameTable.GetRow(GetLevel());
+    if (!gt)
+        return 0.0f;
+
+    float ratio = GetRegenGameTableColumnForClass(gt, GetClass());
+    // Formula from PaperDollFrame script
+    return static_cast<float>(GetStat(STAT_SPIRIT)) * ratio;
 }
 
 float Player::GetRatingMultiplier(CombatRating cr) const

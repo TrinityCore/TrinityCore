@@ -1607,7 +1607,7 @@ void SpellMgr::LoadSpellProcs()
                             continue;
 
                         if (spellEffectInfo.ApplyAuraName == SPELL_AURA_ADD_PCT_MODIFIER || spellEffectInfo.ApplyAuraName == SPELL_AURA_ADD_FLAT_MODIFIER
-                            || spellEffectInfo.ApplyAuraName == SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL || spellEffectInfo.ApplyAuraName == SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL
+                            || spellEffectInfo.ApplyAuraName == SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL
                             || spellEffectInfo.ApplyAuraName == SPELL_AURA_IGNORE_SPELL_COOLDOWN)
                         {
                             found = true;
@@ -2516,7 +2516,6 @@ void SpellMgr::LoadSpellInfoStore()
             case SPELL_AURA_ADD_FLAT_MODIFIER:
             case SPELL_AURA_ADD_PCT_MODIFIER:
             case SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL:
-            case SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL:
                 ASSERT(effect->EffectMiscValue[0] < MAX_SPELLMOD, "MAX_SPELLMOD must be at least %d", effect->EffectMiscValue[0] + 1);
                 break;
             default:

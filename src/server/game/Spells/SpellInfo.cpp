@@ -4864,7 +4864,6 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             }
             case SPELL_AURA_ADD_FLAT_MODIFIER:          // mods
             case SPELL_AURA_ADD_PCT_MODIFIER:
-            case SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL:
             case SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL:
             {
                 switch (SpellModOp(effect.MiscValue))

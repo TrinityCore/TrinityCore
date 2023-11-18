@@ -121,6 +121,66 @@ struct GtNpcManaCostScalerEntry
     float Scaler = 0.0f;
 };
 
+struct GtOCTRegenHPEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtOCTRegenMPEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtRegenHPPerSptEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtRegenMPPerSptEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
 struct GtSpellScalingEntry
 {
     float Rogue = 0.0f;
@@ -190,6 +250,10 @@ TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>             sCombatRatin
 TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable;
 TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
 TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
+TC_GAME_API extern GameTable<GtOCTRegenHPEntry>                     sOCTRegenHPGameTable;
+TC_GAME_API extern GameTable<GtOCTRegenMPEntry>                     sOCTRegenMPGameTable;
+TC_GAME_API extern GameTable<GtRegenHPPerSptEntry>                  sRegenHPPerSptGameTable;
+TC_GAME_API extern GameTable<GtRegenMPPerSptEntry>                  sRegenMPPerSptGameTable;
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
 TC_GAME_API extern GameTable<GtXpEntry>                             sXpGameTable;
 
@@ -226,6 +290,40 @@ inline float GetGameTableColumnForClass(T const* row, int32 class_)
             return row->DemonHunter;
         default:
             break;
+    }
+
+    return 0.0f;
+}
+
+template<class T>
+inline float GetRegenGameTableColumnForClass(T const* row, int32 class_)
+{
+    switch (class_)
+    {
+    case CLASS_WARRIOR:
+        return row->Warrior;
+    case CLASS_PALADIN:
+        return row->Paladin;
+    case CLASS_HUNTER:
+        return row->Hunter;
+    case CLASS_ROGUE:
+        return row->Rogue;
+    case CLASS_PRIEST:
+        return row->Priest;
+    case CLASS_DEATH_KNIGHT:
+        return row->DeathKnight;
+    case CLASS_SHAMAN:
+        return row->Shaman;
+    case CLASS_MAGE:
+        return row->Mage;
+    case CLASS_WARLOCK:
+        return row->Warlock;
+    case CLASS_MONK:
+        return row->Monk;
+    case CLASS_DRUID:
+        return row->Druid;
+    default:
+        break;
     }
 
     return 0.0f;
