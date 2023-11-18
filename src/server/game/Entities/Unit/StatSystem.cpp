@@ -255,17 +255,16 @@ void Player::UpdateArmor()
     float value = GetFlatModifierValue(unitMod, BASE_VALUE);    // base armor
     value *= GetPctModifierValue(unitMod, BASE_PCT);            // armor percent
 
-    // SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT counts as base armor
-    GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT, [this, &value](AuraEffect const* aurEff) {
-        int32 miscValue = aurEff->GetMiscValue();
-        Stats stat = (miscValue != -2) ? Stats(miscValue) : GetPrimaryStat();
-        value += CalculatePct(float(GetStat(stat)), aurEff->GetAmount());
-        return true;
-    });
-
     float baseValue = value;
 
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE);        // bonus armor from auras and items
+
+    //add dynamic flat mods
+    AuraEffectList const& mResbyIntellect = GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
+    for (AuraEffect const* aurEff : GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT))
+        if (aurEff->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
+            value += CalculatePct(GetStat(Stats(aurEff->GetMiscValueB())), aurEff->GetAmount());
+
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
     value *= GetTotalAuraMultiplier(SPELL_AURA_MOD_BONUS_ARMOR_PCT);
 
@@ -289,25 +288,6 @@ float Player::GetHealthBonusFromStamina() const
     float moreStam = stamina - baseStam;
 
     return moreStam * ratio;
-}
-
-Stats Player::GetPrimaryStat() const
-{
-    uint8 primaryStatPriority = [&]() -> uint8
-    {
-        if (ChrSpecializationEntry const* specialization = GetPrimarySpecializationEntry())
-            return specialization->PrimaryStatPriority;
-
-        return sChrClassesStore.AssertEntry(GetClass())->PrimaryStatPriority;
-    }();
-
-    if (primaryStatPriority >= 4)
-        return STAT_STRENGTH;
-
-    if (primaryStatPriority >= 2)
-        return STAT_AGILITY;
-
-    return STAT_INTELLECT;
 }
 
 void Player::UpdateMaxHealth()
