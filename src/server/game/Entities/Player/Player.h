@@ -2010,6 +2010,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdateFishingSkill(int32 expansion);
 
         float GetHealthBonusFromStamina() const;
+        float GetManaBonusFromIntellect() const;
 
         bool UpdateStats(Stats stat) override;
         bool UpdateAllStats() override;

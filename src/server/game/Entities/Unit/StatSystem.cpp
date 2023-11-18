@@ -290,6 +290,16 @@ float Player::GetHealthBonusFromStamina() const
     return moreStam * ratio;
 }
 
+float Player::GetManaBonusFromIntellect() const
+{
+    float intellect = GetStat(STAT_INTELLECT);
+
+    float baseInt = std::min(20.0f, intellect);
+    float moreInt = intellect - baseInt;
+
+    return baseInt + (moreInt * 15.0f);
+}
+
 void Player::UpdateMaxHealth()
 {
     UnitMods unitMod = UNIT_MOD_HEALTH;
@@ -315,9 +325,11 @@ void Player::UpdateMaxPower(Powers power)
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(power));
 
+    float bonusPower = (power == POWER_MANA && GetCreatePowerValue(power) > 0) ? GetManaBonusFromIntellect() : 0.f;
+
     float value = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreatePowerValue(power);
     value *= GetPctModifierValue(unitMod, BASE_PCT);
-    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + bonusPower;
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
     SetMaxPower(power, (int32)std::lroundf(value));
