@@ -25,6 +25,7 @@
 #include "ScriptedCreature.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "Unit.h"
 #include "aberrus_the_shadowed_crucible.h"
 
 enum KazzaraSpells
@@ -534,6 +535,9 @@ class spell_kazzara_energize : public AuraScript
     void PeriodicTick(AuraEffect const* aurEff)
     {
         Spell* currentChanneledSpell = GetTarget()->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
+
+        if (!currentChanneledSpell)
+            return;
 
         if (currentChanneledSpell && (currentChanneledSpell->GetSpellInfo()->Id == SPELL_HELLSTEEL_CARNAGE_80_PCT
             || currentChanneledSpell->GetSpellInfo()->Id == SPELL_HELLSTEEL_CARNAGE_60_PCT
