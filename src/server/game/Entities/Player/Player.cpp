@@ -2358,7 +2358,6 @@ void Player::GiveLevel(uint8 level)
 
     UpdateSkillsForLevel();
     LearnDefaultSkills();
-    LearnSpecializationSpells();
 
     // save base values (bonuses already included in stored stats
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
@@ -17123,7 +17122,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         uint8 is_logout_resting;
         uint32 resettalents_cost;
         time_t resettalents_time;
-        uint32 primarySpecialization;
+        uint8 activeTalentGroup;
+        uint8 bonusTalentGroups;
         float trans_x;
         float trans_y;
         float trans_z;
@@ -17146,7 +17146,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         uint32 health;
         std::array<uint32, MAX_POWERS_PER_CLASS> powers;
         uint32 instance_id;
-        uint8 activeTalentGroup;
         uint32 lootSpecId;
         std::string exploredZones;
         std::string knownTitles;
@@ -17198,7 +17197,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             is_logout_resting = fields[i++].GetUInt8();
             resettalents_cost = fields[i++].GetUInt32();
             resettalents_time = fields[i++].GetInt64();
-            primarySpecialization = fields[i++].GetUInt32();
+            activeTalentGroup = fields[i++].GetUInt8();
+            bonusTalentGroups = fields[i++].GetUInt8();
             trans_x = fields[i++].GetFloat();
             trans_y = fields[i++].GetFloat();
             trans_z = fields[i++].GetFloat();
@@ -17222,7 +17222,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             for (uint32& power : powers)
                 power = fields[i++].GetUInt32();
             instance_id = fields[i++].GetUInt32();
-            activeTalentGroup = fields[i++].GetUInt8();
             lootSpecId = fields[i++].GetUInt32();
             exploredZones = fields[i++].GetString();
             knownTitles = fields[i++].GetString();
@@ -17710,8 +17709,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     UpdateSkillsForLevel(); //update skills after load, to make sure they are correctly update at player load
 
     SetNumRespecs(fields.numRespecs);
-    SetPrimarySpecialization(fields.primarySpecialization);
     SetActiveTalentGroup(fields.activeTalentGroup);
+    SetBonusTalentGroupCount(fields.bonusTalentGroups);
 
     uint32 lootSpecId = fields.lootSpecId;
     if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(lootSpecId))
@@ -17726,8 +17725,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     GetSession()->GetCollectionMgr()->LoadMounts();
     GetSession()->GetCollectionMgr()->LoadItemAppearances();
     GetSession()->GetCollectionMgr()->LoadTransmogIllusions();
-
-    LearnSpecializationSpells();
 
     _LoadGlyphs(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GLYPHS));
     _LoadAuras(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURAS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURA_EFFECTS), time_diff);
@@ -19469,7 +19466,8 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         //save, but in tavern/city
         stmt->setUInt32(index++, GetTalentResetCost());
         stmt->setInt64(index++, GetTalentResetTime());
-        stmt->setUInt32(index++, AsUnderlyingType(GetPrimarySpecialization()));
+        stmt->setUInt8(index++, GetActiveTalentGroup());
+        stmt->setUInt8(index++, GetBonusTalentGroupCount());
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt32(index++, 0); // summonedPetNumber
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
@@ -19491,9 +19489,6 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
             stmt->setUInt32(index++, m_unitData->Power[i]);
 
         stmt->setUInt32(index++, GetSession()->GetLatency());
-
-        stmt->setUInt8(index++, GetActiveTalentGroup());
-
         stmt->setUInt32(index++, GetLootSpecId());
 
         ss.str("");
@@ -19602,7 +19597,8 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt32(index++, GetTalentResetCost());
         stmt->setInt64(index++, GetTalentResetTime());
         stmt->setUInt8(index++, GetNumRespecs());
-        stmt->setUInt32(index++, AsUnderlyingType(GetPrimarySpecialization()));
+        stmt->setUInt8(index++, GetActiveTalentGroup());
+        stmt->setUInt8(index++, GetBonusTalentGroupCount());
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         if (PetStable const* petStable = GetPetStable())
             stmt->setUInt32(index++, petStable->GetCurrentPet() && petStable->GetCurrentPet()->Health > 0 ? petStable->GetCurrentPet()->PetNumber : 0); // summonedPetNumber
@@ -19628,9 +19624,6 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
             stmt->setUInt32(index++, m_unitData->Power[i]);
 
         stmt->setUInt32(index++, GetSession()->GetLatency());
-
-        stmt->setUInt8(index++, GetActiveTalentGroup());
-
         stmt->setUInt32(index++, GetLootSpecId());
 
         ss.str("");
@@ -26378,9 +26371,7 @@ void Player::SendTalentsInfoData()
     uint8 activeGroup = GetActiveTalentGroup();
     packet.ActiveGroup = activeGroup;
 
-    printf("sending talent info data for group %u\n", activeGroup);
-
-    for (uint8 i = 0; i < MAX_SPECIALIZATIONS; ++i)
+    for (uint8 i = 0; i < (1 + GetBonusTalentGroupCount()); ++i)
     {
         WorldPackets::Talent::TalentGroupInfo& groupInfo = packet.TalentGroupInfos.emplace_back();
         groupInfo.SpecID = MAX_SPECIALIZATIONS;
@@ -27036,9 +27027,6 @@ void Player::ActivateTalentGroup(uint8 talentGroup)
 
     ApplyTraitConfig(m_activePlayerData->ActiveCombatTraitConfigID, false);
 
-    // Remove spec specific spells
-    RemoveSpecializationSpells();
-
     for (uint32 glyphId : GetGlyphs(GetActiveTalentGroup()))
         RemoveAurasDueToSpell(sGlyphPropertiesStore.AssertEntry(glyphId)->SpellID);
 
@@ -27066,8 +27054,6 @@ void Player::ActivateTalentGroup(uint8 talentGroup)
                 AddOverrideSpell(talentInfo->OverridesSpellID, talentInfo->SpellID);
         }
     }
-
-    LearnSpecializationSpells();
 
     InitTalentForLevel();
 
@@ -28676,48 +28662,6 @@ void Player::RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId)
         m_overrideSpells.erase(overrides);
 }
 
-void Player::LearnSpecializationSpells()
-{
-    if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(AsUnderlyingType(GetPrimarySpecialization())))
-    {
-        for (size_t j = 0; j < specSpells->size(); ++j)
-        {
-            SpecializationSpellsEntry const* specSpell = (*specSpells)[j];
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(specSpell->SpellID, DIFFICULTY_NONE);
-            if (!spellInfo || spellInfo->SpellLevel > GetLevel())
-                continue;
-
-            LearnSpell(specSpell->SpellID, true);
-            if (specSpell->OverridesSpellID)
-                AddOverrideSpell(specSpell->OverridesSpellID, specSpell->SpellID);
-        }
-    }
-}
-
-void Player::RemoveSpecializationSpells()
-{
-    for (uint32 i = 0; i < MAX_SPECIALIZATIONS; ++i)
-    {
-        if (ChrSpecializationEntry const* specialization = sDB2Manager.GetChrSpecializationByIndex(GetClass(), i))
-        {
-            if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(specialization->ID))
-            {
-                for (size_t j = 0; j < specSpells->size(); ++j)
-                {
-                    SpecializationSpellsEntry const* specSpell = (*specSpells)[j];
-                    RemoveSpell(specSpell->SpellID, true);
-                    if (specSpell->OverridesSpellID)
-                        RemoveOverrideSpell(specSpell->OverridesSpellID, specSpell->SpellID);
-                }
-            }
-
-            for (uint32 j = 0; j < MAX_MASTERY_SPELLS; ++j)
-                if (uint32 mastery = specialization->MasterySpellID[j])
-                    RemoveAurasDueToSpell(mastery);
-        }
-    }
-}
-
 void Player::AddSpellCategoryCooldownMod(int32 spellCategoryId, int32 mod)
 {
     int32 categoryIndex = m_activePlayerData->CategoryCooldownMods.FindIndexIf([spellCategoryId](UF::CategoryCooldownMod const& mod)
@@ -28777,6 +28721,20 @@ void Player::RemoveSocial()
 uint32 Player::GetDefaultSpecId() const
 {
     return ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))->ID;
+}
+void Player::SetBonusTalentGroupCount(uint8 amount)
+{
+    if (_specializationInfo.BonusGroups == amount)
+        return;
+
+    _specializationInfo.BonusGroups = std::min<uint8>(amount, MAX_SPECIALIZATIONS - 1);
+    if (GetActiveTalentGroup() > amount)
+    {
+        ResetTalents(true);
+        ActivateTalentGroup(0);
+    }
+    else
+        SendTalentsInfoData();
 }
 
 ChrSpecializationEntry const* Player::GetPrimarySpecializationEntry() const

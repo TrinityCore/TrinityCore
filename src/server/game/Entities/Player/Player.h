@@ -1065,13 +1065,14 @@ enum TalentLearnResult : int32
 struct TC_GAME_API SpecializationInfo
 {
 
-    SpecializationInfo() : ResetTalentsCost(0), ResetTalentsTime(0), ActiveGroup(0) { }
+    SpecializationInfo() : ResetTalentsCost(0), ResetTalentsTime(0), ActiveGroup(0), BonusGroups(0) { }
 
     PlayerTalentMap Talents[MAX_SPECIALIZATIONS];
     std::vector<uint32> Glyphs[MAX_SPECIALIZATIONS];
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
     uint8 ActiveGroup;
+    uint8 BonusGroups;
 
 private:
     SpecializationInfo(SpecializationInfo const&) = delete;
@@ -1793,8 +1794,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetOverrideSpellsId(int32 overrideSpellsId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::OverrideSpellsID), overrideSpellsId);  }
         void AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
         void RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
-        void LearnSpecializationSpells();
-        void RemoveSpecializationSpells();
         void AddSpellCategoryCooldownMod(int32 spellCategoryId, int32 mod);
         void RemoveSpellCategoryCooldownMod(int32 spellCategoryId, int32 mod);
         void SetSpellFavorite(uint32 spellId, bool favorite);
@@ -1822,7 +1821,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         ChrSpecialization GetPrimarySpecialization() const { return ChrSpecialization(*m_playerData->CurrentSpecID); }
         void SetPrimarySpecialization(uint32 spec) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CurrentSpecID), spec); }
         uint8 GetActiveTalentGroup() const { return _specializationInfo.ActiveGroup; }
-        void SetActiveTalentGroup(uint8 group){ _specializationInfo.ActiveGroup = group; }
+        void SetActiveTalentGroup(uint8 group) { _specializationInfo.ActiveGroup = group; }
+        uint8 GetBonusTalentGroupCount() const { return _specializationInfo.BonusGroups; }
+        void SetBonusTalentGroupCount(uint8 amount);
         uint32 GetDefaultSpecId() const;
         ChrSpecializationEntry const* GetPrimarySpecializationEntry() const;
 
