@@ -173,8 +173,7 @@ struct boss_kazzara_the_hellforged : public BossAI
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
-        me->SetPowerType(POWER_ENERGY);
-        me->AddAura(SPELL_OVERRIDE_POWER_DISPLAY, me);
+        DoCastSelf(SPELL_OVERRIDE_POWER_DISPLAY, true);
         DoCastSelf(SPELL_PERIODIC_ENERGIZE);
         events.ScheduleEvent(EVENT_RAYS_OF_ANGUISH, 24s);
         events.ScheduleEvent(EVENT_TERROR_CLAWS, 5s);
@@ -185,21 +184,22 @@ struct boss_kazzara_the_hellforged : public BossAI
 
     void DamageTaken(Unit* /*killer*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_HELLSTEEL_CARNAGE_40_PCT, DIFFICULTY_NONE);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_HELLSTEEL_CARNAGE_40_PCT, DIFFICULTY_NONE);
+
+        if (!spellInfo)
+            return;
 
         if (me->HealthBelowPct(spellInfo->GetEffect(EFFECT_2).CalcValue(me)) && !_under80Percent)
         {
             Talk(SAY_ARMOR_80_PCT);
             DoAction(ACTION_HEALTH_BELOW_80_PCT);
         }
-
-        if (me->HealthBelowPct(spellInfo->GetEffect(EFFECT_3).CalcValue(me)) && !_under60Percent)
+        else if (me->HealthBelowPct(spellInfo->GetEffect(EFFECT_3).CalcValue(me)) && !_under60Percent)
         {
             Talk(SAY_ARMOR_60_PCT);
             DoAction(ACTION_HEALTH_BELOW_60_PCT);
         }
-
-        if (me->HealthBelowPct(spellInfo->GetEffect(EFFECT_4).CalcValue(me)) && !_under40Percent)
+        else if (me->HealthBelowPct(spellInfo->GetEffect(EFFECT_4).CalcValue(me)) && !_under40Percent)
         {
             Talk(SAY_ARMOR_40_PCT);
             DoAction(ACTION_HEALTH_BELOW_40_PCT);
@@ -320,6 +320,7 @@ struct boss_kazzara_the_hellforged : public BossAI
                 case EVENT_DREAD_RIFT:
                     DoCastSelf(SPELL_DREAD_RIFTS);
                     events.ScheduleEvent(EVENT_DREAD_RIFT, 34s);
+                    break;
                 default:
                     break;
             }
@@ -579,9 +580,11 @@ class spell_kazzara_terror_claws : public SpellScript
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(GetHitUnit(), SPELL_TERROR_CLAWS_DAMAGE, true);
-        caster->CastSpell(GetHitUnit(), SPELL_TERROR_CLAWS_SHADOWFLAME_DAMAGE, true);
-        caster->CastSpell(GetHitUnit(), SPELL_TERROR_CLAWS_PERIODIC_AURA, true);
+        Unit* target = GetHitUnit();
+
+        caster->CastSpell(target, SPELL_TERROR_CLAWS_DAMAGE, true);
+        caster->CastSpell(target, SPELL_TERROR_CLAWS_SHADOWFLAME_DAMAGE, true);
+        caster->CastSpell(target, SPELL_TERROR_CLAWS_PERIODIC_AURA, true);
     }
 
     void Register() override
