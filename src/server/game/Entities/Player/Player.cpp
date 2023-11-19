@@ -1779,24 +1779,27 @@ void Player::Regenerate(Powers power)
         RATE_POWER_FOCUS,
         RATE_POWER_ENERGY,
         MAX_RATES, // happiness
+        MAX_RATES, // runes
         RATE_POWER_RUNIC_POWER_LOSS,
-        MAX_RATES, // unused
-        MAX_RATES, // unused
-        MAX_RATES, // unused
-        MAX_RATES, // unused
-        MAX_RATES, // unused
-        MAX_RATES, // unused
-        MAX_RATES, // unused
-        MAX_RATES, // unused
-        RATE_POWER_COMBO_POINTS_LOSS,
-        MAX_RATES, // unused
-        MAX_RATES, // unused
-        MAX_RATES, // unused
-        MAX_RATES, // unused
-        MAX_RATES, // unused
+        RATE_POWER_SOUL_SHARDS,
+        RATE_POWER_LUNAR_POWER,
+        RATE_POWER_HOLY_POWER,
+        MAX_RATES, // alternate
+        RATE_POWER_MAELSTROM,
+        RATE_POWER_CHI,
+        RATE_POWER_INSANITY,
+        RATE_POWER_COMBO_POINTS_LOSS, // combo points
+        MAX_RATES, // demonic fury, unused
+        RATE_POWER_ARCANE_CHARGES,
+        RATE_POWER_FURY,
+        RATE_POWER_PAIN,
+        RATE_POWER_ESSENCE,
         MAX_RATES, // runes
         MAX_RATES, // runes
-        MAX_RATES  // runes
+        MAX_RATES, // runes
+        MAX_RATES, // alternate
+        MAX_RATES, // alternate
+        MAX_RATES, // alternate
     };
 
     if (RatesForPower[power] != MAX_RATES)

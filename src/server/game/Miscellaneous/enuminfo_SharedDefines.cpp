@@ -111,11 +111,28 @@ TC_API_EXPORT EnumText EnumUtils<Powers>::ToString(Powers value)
         case POWER_RAGE: return { "POWER_RAGE", "Rage", "" };
         case POWER_FOCUS: return { "POWER_FOCUS", "Focus", "" };
         case POWER_ENERGY: return { "POWER_ENERGY", "Energy", "" };
-        case POWER_COMBO_POINTS: return { "POWER_COMBO_POINTS", "Combo Points", "" };
+        case POWER_HAPPINESS: return { "POWER_HAPPINESS", "Happiness", "" };
+        case POWER_RUNES: return { "POWER_RUNES", "Runes", "" };
         case POWER_RUNIC_POWER: return { "POWER_RUNIC_POWER", "Runic Power", "" };
+        case POWER_SOUL_SHARDS: return { "POWER_SOUL_SHARDS", "Soul Shards", "" };
+        case POWER_LUNAR_POWER: return { "POWER_LUNAR_POWER", "Lunar Power", "" };
+        case POWER_HOLY_POWER: return { "POWER_HOLY_POWER", "Holy Power", "" };
+        case POWER_ALTERNATE_POWER: return { "POWER_ALTERNATE_POWER", "Alternate", "" };
+        case POWER_MAELSTROM: return { "POWER_MAELSTROM", "Maelstrom", "" };
+        case POWER_CHI: return { "POWER_CHI", "Chi", "" };
+        case POWER_INSANITY: return { "POWER_INSANITY", "Insanity", "" };
+        case POWER_COMBO_POINTS: return { "POWER_COMBO_POINTS", "Combo Points", "" };
+        case POWER_DEMONIC_FURY: return { "POWER_DEMONIC_FURY", "Demonic Fury (Obsolete)", "" };
+        case POWER_ARCANE_CHARGES: return { "POWER_ARCANE_CHARGES", "Arcane Charges", "" };
+        case POWER_FURY: return { "POWER_FURY", "Fury", "" };
+        case POWER_PAIN: return { "POWER_PAIN", "Pain", "" };
+        case POWER_ESSENCE: return { "POWER_ESSENCE", "Essence", "" };
         case POWER_RUNE_BLOOD: return { "POWER_RUNE_BLOOD", "Blood Runes", "" };
         case POWER_RUNE_FROST: return { "POWER_RUNE_FROST", "Frost Runes", "" };
         case POWER_RUNE_UNHOLY: return { "POWER_RUNE_UNHOLY", "Unholy Runes", "" };
+        case POWER_ALTERNATE_QUEST: return { "POWER_ALTERNATE_QUEST", "Alternate (Quest)", "" };
+        case POWER_ALTERNATE_ENCOUNTER: return { "POWER_ALTERNATE_ENCOUNTER", "Alternate (Encounter)", "" };
+        case POWER_ALTERNATE_MOUNT: return { "POWER_ALTERNATE_MOUNT", "Alternate (Mount)", "" };
         default: throw std::out_of_range("value");
     }
 }
