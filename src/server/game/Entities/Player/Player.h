@@ -1147,6 +1147,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         int64 GetBarberShopCost(Trinity::IteratorPair<UF::ChrCustomizationChoice const*> newCustomizations) const;
 
+        uint32 _questRewardedTalentPoints;
+
         PlayerSocial* GetSocial() const { return m_social; }
         void RemoveSocial();
 
@@ -1828,6 +1830,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
         void SendTalentsInfoData();
+        uint32 CalculateTalentsPoints() const;
         TalentLearnResult LearnTalent(uint32 talentId, int32* spellOnCooldown);
         bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;

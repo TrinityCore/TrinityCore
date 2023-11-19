@@ -189,6 +189,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     memset(m_items, 0, sizeof(Item*)*PLAYER_SLOTS_COUNT);
 
+    _questRewardedTalentPoints = 0;
     m_social = nullptr;
 
     // group is initialized in the reference constructor
@@ -14973,6 +14974,12 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
             SetTitle(titleEntry);
     }
 
+    if (quest->GetRewardSkillPoints())
+    {
+        _questRewardedTalentPoints += quest->GetRewardSkillPoints();
+        InitTalentForLevel();
+    }
+
     // Send reward mail
     if (uint32 mail_template_id = quest->GetRewMailTemplateId())
     {
@@ -18826,6 +18833,9 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                 if (quest->GetRewTitle())
                     if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetRewTitle()))
                         SetTitle(titleEntry);
+
+                if (quest->GetRewardSkillPoints())
+                    _questRewardedTalentPoints += quest->GetRewardSkillPoints();
 
                 // Skip loading special quests - they are also added to rewarded quests but only once and remain there forever
                 // instead add them separately from load daily/weekly/monthly/seasonal
@@ -26404,7 +26414,7 @@ void Player::SendTalentsInfoData()
         }
 
         if (i == activeGroup)
-            packet.UnspentTalentPoints = std::max<int32>(0, DB2Manager::GetNumTalentsAtLevel(GetLevel(), Classes(GetClass())) - groupInfo.Talents.size());
+            packet.UnspentTalentPoints = std::max<int32>(0, CalculateTalentsPoints() - groupInfo.Talents.size());
 
         std::vector<uint32> glyphs = GetGlyphs(activeGroup);
         glyphs.resize(MAX_GLYPH_SLOT_INDEX, 0); // Blizzard always sends 6 glyph slots, no matter if they are used or not
@@ -26414,6 +26424,11 @@ void Player::SendTalentsInfoData()
     }
 
     SendDirectMessage(packet.Write());
+}
+
+uint32 Player::CalculateTalentsPoints() const
+{
+    return DB2Manager::GetNumTalentsAtLevel(GetLevel(), Classes(GetClass())) + _questRewardedTalentPoints;
 }
 
 void Player::SendEquipmentSetList()
