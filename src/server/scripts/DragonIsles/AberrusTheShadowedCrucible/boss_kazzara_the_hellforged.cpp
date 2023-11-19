@@ -103,9 +103,10 @@ enum KazzaraEvents
     EVENT_WINGS_OF_EXTINCTION               = 3,
     EVENT_ENERGIZE                          = 4,
     EVENT_DREAD_RIFT                        = 5,
+    EVENT_CHECK_ENERGY                      = 6,
 
     // Ray of Anguish
-    EVENT_MOLTEN_SCAR                       = 6
+    EVENT_MOLTEN_SCAR                       = 7
 };
 
 enum KazzaraActions
@@ -179,6 +180,7 @@ struct boss_kazzara_the_hellforged : public BossAI
         events.ScheduleEvent(EVENT_TERROR_CLAWS, 5s);
         events.ScheduleEvent(EVENT_WINGS_OF_EXTINCTION, 14s);
         events.ScheduleEvent(EVENT_DREAD_RIFT, 12s);
+        events.ScheduleEvent(EVENT_CHECK_ENERGY, 500ms);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
     }
 
@@ -283,18 +285,6 @@ struct boss_kazzara_the_hellforged : public BossAI
 
         events.Update(diff);
 
-        if (me->GetPower(me->GetPowerType()) == 100 && !me->HasUnitState(UNIT_STATE_CASTING))
-        {
-            me->RemoveAurasDueToSpell(SPELL_PERIODIC_ENERGIZE);
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 70.0f, true))
-            {
-                Talk(SAY_HELLBEAM);
-                Talk(SAY_HELLBEAM_ALERT);
-                DoCast(target, SPELL_HELLBEAM);
-                events.ScheduleEvent(EVENT_ENERGIZE, 1s);
-            }
-        }
-
         while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
@@ -321,6 +311,22 @@ struct boss_kazzara_the_hellforged : public BossAI
                     DoCastSelf(SPELL_DREAD_RIFTS);
                     events.ScheduleEvent(EVENT_DREAD_RIFT, 34s);
                     break;
+                case EVENT_CHECK_ENERGY:
+                {
+                    if (me->GetPower(me->GetPowerType()) == 100 && !me->HasUnitState(UNIT_STATE_CASTING))
+                    {
+                        me->RemoveAurasDueToSpell(SPELL_PERIODIC_ENERGIZE);
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 70.0f, true))
+                        {
+                            Talk(SAY_HELLBEAM);
+                            Talk(SAY_HELLBEAM_ALERT);
+                            DoCast(target, SPELL_HELLBEAM);
+                            events.ScheduleEvent(EVENT_ENERGIZE, 1s);
+                        }
+                    }
+                    events.ScheduleEvent(EVENT_CHECK_ENERGY, 500ms);
+                    break;
+                }
                 default:
                     break;
             }
@@ -373,7 +379,7 @@ struct npc_ray_of_anguish : public ScriptedAI
         DoCastSelf(SPELL_RAY_OF_ANGUISH_AREATRIGGER);
         DoCastSelf(SPELL_MOLTEN_SCAR_AREATRIGGER);
         DoCastSelf(SPELL_RAY_OF_ANGUISH_DECREASE_SPEED);
-        events.ScheduleEvent(EVENT_RAYS_OF_ANGUISH, 100ms, 400ms);
+        _events.ScheduleEvent(EVENT_RAYS_OF_ANGUISH, 100ms, 400ms);
     }
 
     void UpdateAI(uint32 diff) override
@@ -381,15 +387,15 @@ struct npc_ray_of_anguish : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        events.Update(diff);
+        _events.Update(diff);
 
-        while (uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = _events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_MOLTEN_SCAR:
                     DoCastSelf(SPELL_MOLTEN_SCAR_AREATRIGGER);
-                    events.ScheduleEvent(EVENT_RAYS_OF_ANGUISH, 100ms, 400ms);
+                    _events.ScheduleEvent(EVENT_RAYS_OF_ANGUISH, 100ms, 400ms);
                     break;
                 default:
                     break;
@@ -397,7 +403,7 @@ struct npc_ray_of_anguish : public ScriptedAI
         }
     }
 private:
-    EventMap events;
+    EventMap _events;
 };
 
 // 406525 - Dread Rift
@@ -464,6 +470,20 @@ class spell_kazzara_dread_rift_player_select : public SpellScript
 // 407196 - Dread Rifts
 class spell_kazzara_dread_rifts : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_DREAD_RIFTS_3_TARGETS,
+            SPELL_DREAD_RIFTS_4_TARGETS,
+            SPELL_DREAD_RIFTS_5_TARGETS,
+            SPELL_DREAD_RIFTS_6_TARGETS,
+            SPELL_INFERNAL_HEART_40_PCT,
+            SPELL_INFERNAL_HEART_60_PCT,
+            SPELL_INFERNAL_HEART_80_PCT
+        });
+    }
+
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         uint32 spellId = SPELL_DREAD_RIFTS_3_TARGETS;
@@ -501,6 +521,16 @@ class spell_kazzara_dread_rifts : public SpellScript
 // 402538 - Energize
 class spell_kazzara_energize : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_HELLSTEEL_CARNAGE_80_PCT,
+            SPELL_HELLSTEEL_CARNAGE_60_PCT,
+            SPELL_HELLSTEEL_CARNAGE_40_PCT
+        });
+    }
+
     void PeriodicTick(AuraEffect const* aurEff)
     {
         Spell* currentChanneledSpell = GetTarget()->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
@@ -541,6 +571,16 @@ class spell_kazzara_hellbeam_consume_energy : public SpellScript
 // 402260 - Ray of Anguish
 class spell_kazzara_ray_of_anguish_trigger : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RAY_OF_ANGUISH_AURA_45_SECONDS,
+            SPELL_RAY_OF_ANGUISH_MISSILE,
+            SPELL_RAY_OF_ANGUISH_AURA_10_SECONDS
+        });
+    }
+
     void HandleHitAura(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_RAY_OF_ANGUISH_AURA_45_SECONDS, true);
