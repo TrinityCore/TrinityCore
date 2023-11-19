@@ -2414,20 +2414,17 @@ bool Player::IsMaxLevel() const
 void Player::InitTalentForLevel()
 {
     uint8 level = GetLevel();
+    int32 talentPoints = CalculateTalentsPoints();
     if (level < MIN_SPECIALIZATION_LEVEL)
     {
         // Remove all talent points
         ResetTalents(true);
     }
-    else
-    {
-        int32 talentTiers = DB2Manager::GetNumTalentsAtLevel(level, Classes(GetClass()));
-        if (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_MORE_TALENTS_THAN_ALLOWED))
-            for (int32 t = talentTiers; t < MAX_TALENT_TIERS; ++t)
-                for (uint32 c = 0; c < MAX_TALENT_COLUMNS; ++c)
-                    for (TalentEntry const* talent : sDB2Manager.GetTalentsByPosition(GetClass(), t, c))
-                        RemoveTalent(talent);
-    }
+    else if (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_MORE_TALENTS_THAN_ALLOWED))
+        if (GetSpentTalentPointsCount() > talentPoints)
+            ResetTalents(true);
+
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::MaxTalentTiers), talentPoints);
 
     if (!GetSession()->PlayerLoading())
         SendTalentsInfoData(); // update at client
@@ -26370,6 +26367,7 @@ void Player::SendTalentsInfoData()
 
     uint8 activeGroup = GetActiveTalentGroup();
     packet.ActiveGroup = activeGroup;
+    packet.UnspentTalentPoints = CalculateTalentsPoints() - GetSpentTalentPointsCount();
 
     for (uint8 i = 0; i < (1 + GetBonusTalentGroupCount()); ++i)
     {
@@ -26403,9 +26401,6 @@ void Player::SendTalentsInfoData()
                 groupInfo.Talents.push_back(uint16(pair.first));
             }
         }
-
-        if (i == activeGroup)
-            packet.UnspentTalentPoints = std::max<int32>(0, CalculateTalentsPoints() - groupInfo.Talents.size());
 
         std::vector<uint32> glyphs = GetGlyphs(activeGroup);
         glyphs.resize(MAX_GLYPH_SLOT_INDEX, 0); // Blizzard always sends 6 glyph slots, no matter if they are used or not
@@ -28735,6 +28730,12 @@ void Player::SetBonusTalentGroupCount(uint8 amount)
     }
     else
         SendTalentsInfoData();
+}
+
+uint32 Player::GetSpentTalentPointsCount() const
+{
+    PlayerTalentMap const& talentMap = _specializationInfo.Talents[GetActiveTalentGroup()];
+    return std::count_if(talentMap.begin(), talentMap.end(), [](auto const& pair)  { return (pair.second != PLAYERSPELL_REMOVED); });
 }
 
 ChrSpecializationEntry const* Player::GetPrimarySpecializationEntry() const

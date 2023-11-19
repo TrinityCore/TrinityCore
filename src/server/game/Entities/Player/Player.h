@@ -1824,6 +1824,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetActiveTalentGroup(uint8 group) { _specializationInfo.ActiveGroup = group; }
         uint8 GetBonusTalentGroupCount() const { return _specializationInfo.BonusGroups; }
         void SetBonusTalentGroupCount(uint8 amount);
+        uint32 GetSpentTalentPointsCount() const;
         uint32 GetDefaultSpecId() const;
         ChrSpecializationEntry const* GetPrimarySpecializationEntry() const;
 
