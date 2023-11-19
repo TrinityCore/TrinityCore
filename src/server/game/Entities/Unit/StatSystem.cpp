@@ -280,9 +280,6 @@ void Player::UpdateArmor()
 float Player::GetHealthBonusFromStamina() const
 {
     float ratio = 10.0f;
-    if (GtHpPerStaEntry const* hpBase = sHpPerStaGameTable.GetRow(GetLevel()))
-        ratio = hpBase->Health;
-
     float stamina = GetStat(STAT_STAMINA);
     float baseStam = std::min(20.0f, stamina);
     float moreStam = stamina - baseStam;
