@@ -20,5 +20,5 @@ INSERT INTO `player_racestats` (`race`, `str`, `agi`, `sta`, `inte`, `spi`, `com
 (6, 5, -4, 1, -4, 2, 'Tauren'),
 (7, -5, 2, 0, 3, 0, 'Gnome'),
 (8, 1, -2, 0, -4, 1, 'Troll'),
-(10, -3, 1, 0, 2, 0, 'Blood Elf'),
-(11, -3, 2, 0, 3, -2, 'Draenei');
+(10, -3, 2, 0, 3, -2, 'Blood Elf'),
+(11, 1, -3, 0, 0, 2, 'Draenei');
