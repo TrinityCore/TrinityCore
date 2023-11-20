@@ -5873,26 +5873,18 @@ void ObjectMgr::LoadEventSet()
     }
 
     // Load all possible event ids from spells
-    for (SpellNameEntry const* spellNameEntry : sSpellNameStore)
-        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellNameEntry->ID, DIFFICULTY_NONE))
-            for (SpellEffectInfo const& spellEffectInfo : spell->GetEffects())
-                if (spellEffectInfo.IsEffect(SPELL_EFFECT_SEND_EVENT))
-                    if (spellEffectInfo.MiscValue)
-                        _eventStore.insert(spellEffectInfo.MiscValue);
+    for (SpellEffectEntry const* spellEffect : sSpellEffectStore)
+        if (spellEffect->Effect == SPELL_EFFECT_SEND_EVENT && spellEffect->EffectMiscValue[0])
+            _eventStore.insert(spellEffect->EffectMiscValue[0]);
 
     // Load all possible event ids from taxi path nodes
-    for (size_t path_idx = 0; path_idx < sTaxiPathNodesByPath.size(); ++path_idx)
+    for (TaxiPathNodeEntry const* node : sTaxiPathNodeStore)
     {
-        for (size_t node_idx = 0; node_idx < sTaxiPathNodesByPath[path_idx].size(); ++node_idx)
-        {
-            TaxiPathNodeEntry const* node = sTaxiPathNodesByPath[path_idx][node_idx];
+        if (node->ArrivalEventID)
+            _eventStore.insert(node->ArrivalEventID);
 
-            if (node->ArrivalEventID)
-                _eventStore.insert(node->ArrivalEventID);
-
-            if (node->DepartureEventID)
-                _eventStore.insert(node->DepartureEventID);
-        }
+        if (node->DepartureEventID)
+            _eventStore.insert(node->DepartureEventID);
     }
 
     // Load all possible event ids from criterias
@@ -5914,6 +5906,14 @@ void ObjectMgr::LoadEventSet()
     for (ScenarioEntry const* scenario : sScenarioStore)
         for (CriteriaType criteriaType : eventCriteriaTypes)
             addCriteriaEventsToStore(sCriteriaMgr->GetScenarioCriteriaByTypeAndScenario(criteriaType, scenario->ID));
+
+    for (auto const& [gameEventId, _] : sCriteriaMgr->GetCriteriaByStartEvent(CriteriaStartEvent::SendEvent))
+        if (gameEventId)
+            _eventStore.insert(gameEventId);
+
+    for (auto const& [gameEventId, _] : sCriteriaMgr->GetCriteriaByFailEvent(CriteriaFailEvent::SendEvent))
+        if (gameEventId)
+            _eventStore.insert(gameEventId);
 }
 
 void ObjectMgr::LoadEventScripts()
