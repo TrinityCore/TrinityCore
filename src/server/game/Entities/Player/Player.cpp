@@ -28728,8 +28728,6 @@ void Player::SetBonusTalentGroupCount(uint8 amount)
         ResetTalents(true);
         ActivateTalentGroup(0);
     }
-    else
-        SendTalentsInfoData();
 }
 
 uint32 Player::GetSpentTalentPointsCount() const

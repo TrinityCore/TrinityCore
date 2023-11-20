@@ -4990,7 +4990,9 @@ void Spell::EffectTalentSpecCount()
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->SetBonusTalentGroupCount(static_cast<uint8>(effectInfo->BasePoints));
+    Player* playerCaster = unitTarget->ToPlayer();
+    playerCaster->SetBonusTalentGroupCount(static_cast<uint8>(effectInfo->BasePoints));
+    playerCaster->SendTalentsInfoData();
 }
 
 void Spell::EffectTalentSpecSelect()
