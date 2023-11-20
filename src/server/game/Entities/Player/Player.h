@@ -264,7 +264,13 @@ struct PlayerCurrency
     CurrencyDbFlags Flags;
 };
 
-typedef std::unordered_map<uint32, PlayerSpellState> PlayerTalentMap;
+struct PlayerTalentState
+{
+    PlayerSpellState State = PLAYERSPELL_UNCHANGED;
+    uint8 Rank = 0;
+};
+
+typedef std::unordered_map<uint32, PlayerTalentState> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell> PlayerSpellMap;
 typedef std::unordered_set<SpellModifier*> SpellModContainer;
 typedef std::unordered_map<uint32, PlayerCurrency> PlayerCurrenciesMap;
@@ -1047,24 +1053,8 @@ struct GroupUpdateCounter
     int32 UpdateSequenceNumber;
 };
 
-enum TalentLearnResult : int32
-{
-    TALENT_LEARN_OK                                     = 0,
-    TALENT_FAILED_UNKNOWN                               = 1,
-    TALENT_FAILED_NOT_ENOUGH_TALENTS_IN_PRIMARY_TREE    = 2,
-    TALENT_FAILED_NO_PRIMARY_TREE_SELECTED              = 3,
-    TALENT_FAILED_CANT_DO_THAT_RIGHT_NOW                = 4,
-    TALENT_FAILED_AFFECTING_COMBAT                      = 5,
-    TALENT_FAILED_CANT_REMOVE_TALENT                    = 6,
-    TALENT_FAILED_CANT_DO_THAT_CHALLENGE_MODE_ACTIVE    = 7,
-    TALENT_FAILED_REST_AREA                             = 8,
-    TALENT_FAILED_UNSPENT_TALENT_POINTS                 = 9,
-    TALENT_FAILED_IN_PVP_MATCH                          = 10
-};
-
 struct TC_GAME_API SpecializationInfo
 {
-
     SpecializationInfo() : ResetTalentsCost(0), ResetTalentsTime(0), ActiveGroup(0), BonusGroups(0) { }
 
     PlayerTalentMap Talents[MAX_SPECIALIZATIONS];
@@ -1818,6 +1808,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetTalentResetCost(uint32 cost)  { _specializationInfo.ResetTalentsCost = cost; }
         time_t GetTalentResetTime() const { return _specializationInfo.ResetTalentsTime; }
         void SetTalentResetTime(time_t time_)  { _specializationInfo.ResetTalentsTime = time_; }
+        PlayerTalentMap const& GetPlayerTalentMap(uint8 talentGroupId) const { return _specializationInfo.Talents[talentGroupId]; }
+        PlayerTalentMap& GetPlayerTalentMap(uint8 talentGroupId) { return _specializationInfo.Talents[talentGroupId]; }
+
         ChrSpecialization GetPrimarySpecialization() const { return ChrSpecialization(*m_playerData->CurrentSpecID); }
         void SetPrimarySpecialization(uint32 spec) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CurrentSpecID), spec); }
         uint8 GetActiveTalentGroup() const { return _specializationInfo.ActiveGroup; }
@@ -1833,9 +1826,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void InitTalentForLevel();
         void SendTalentsInfoData();
         uint32 CalculateTalentsPoints() const;
-        TalentLearnResult LearnTalent(uint32 talentId, int32* spellOnCooldown);
-        bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning);
-        bool HasTalent(uint32 spell_id, uint8 spec) const;
+        bool LearnTalent(uint32 talentId, uint16 requestedRank);
+        bool AddTalent(TalentEntry const* talent, uint16 rank, uint8 talentGroupId, bool learning);
         void RemoveTalent(TalentEntry const* talent);
 
         void EnablePvpRules(bool dueToCombat = false);
@@ -1847,8 +1839,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Dual Spec
         void ActivateTalentGroup(uint8 talentGroup);
 
-        PlayerTalentMap const* GetTalentMap(uint8 spec) const { return &_specializationInfo.Talents[spec]; }
-        PlayerTalentMap* GetTalentMap(uint8 spec) { return &_specializationInfo.Talents[spec]; }
         std::vector<uint32> const& GetGlyphs(uint8 spec) const { return _specializationInfo.Glyphs[spec]; }
         std::vector<uint32>& GetGlyphs(uint8 spec) { return _specializationInfo.Glyphs[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }

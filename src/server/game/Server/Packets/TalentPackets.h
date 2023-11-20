@@ -42,7 +42,7 @@ namespace WorldPackets
         struct TalentGroupInfo
         {
             int32 SpecID = 0;
-            std::vector<uint16> Talents;
+            std::vector<TalentInfo> Talents;
             std::vector<uint16> GlyphIDs;
         };
 
@@ -142,6 +142,17 @@ namespace WorldPackets
             uint32 Reason = 0;
             int32 SpellID = 0;
             std::vector<PvPTalent> Talents;
+        };
+
+        class LearnTalent final : public ClientPacket
+        {
+        public:
+            LearnTalent(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_TALENT, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 TalentID = 0;
+            uint16 RequestedRank = 0;
         };
     }
 }

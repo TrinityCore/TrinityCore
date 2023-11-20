@@ -78,6 +78,12 @@ void WorldPackets::Talent::LearnTalents::Read()
         _worldPacket >> Talents[i];
 }
 
+void WorldPackets::Talent::LearnTalent::Read()
+{
+    _worldPacket >> TalentID;
+    _worldPacket >> RequestedRank;
+}
+
 WorldPacket const* WorldPackets::Talent::RespecWipeConfirm::Write()
 {
     _worldPacket << int8(RespecType);

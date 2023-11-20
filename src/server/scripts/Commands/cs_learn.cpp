@@ -183,6 +183,7 @@ public:
 
     static bool HandleLearnAllTalentsCommand(ChatHandler* handler)
     {
+        /*
         Player* player = handler->GetSession()->GetPlayer();
         uint32 playerClass = player->GetClass();
 
@@ -209,6 +210,7 @@ public:
         player->SendTalentsInfoData();
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_CLASS_TALENTS);
+        */
         return true;
     }
 

@@ -2129,6 +2129,7 @@ DEFINE_ENUM_FLAG(SummonPropertiesFlags);
 
 #define MAX_TALENT_TIERS 11
 #define MAX_TALENT_COLUMNS 4
+#define MAX_TALENT_RANK 9
 
 enum class TaxiNodeFlags : int32
 {

@@ -733,6 +733,7 @@ namespace WorldPackets
 
     namespace Talent
     {
+        class LearnTalent;
         class LearnTalents;
         class LearnPvpTalents;
         class ConfirmRespecWipe;
@@ -1514,6 +1515,7 @@ class TC_GAME_API WorldSession
 
         void HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& packet);
         void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
+        void HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& packet);
         void HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe);
         void HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet);
         void HandleTradeSkillSetFavorite(WorldPackets::Spells::TradeSkillSetFavorite const& tradeSkillSetFavorite);
