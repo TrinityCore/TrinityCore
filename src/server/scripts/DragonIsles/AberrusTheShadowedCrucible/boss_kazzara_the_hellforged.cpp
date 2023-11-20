@@ -23,9 +23,9 @@
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
-#include "Unit.h"
 #include "aberrus_the_shadowed_crucible.h"
 
 enum KazzaraSpells
