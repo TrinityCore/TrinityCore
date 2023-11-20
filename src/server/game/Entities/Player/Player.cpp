@@ -2746,8 +2746,6 @@ bool Player::AddTalent(TalentEntry const* talent, uint16 rank, uint8 talentGroup
     auto itr = talentMap.find(talent->ID);
     if (itr != talentMap.end())
     {
-
-
         itr->second.State = PLAYERSPELL_UNCHANGED;
         itr->second.Rank = static_cast<uint8>(rank);
     }
@@ -2758,7 +2756,7 @@ bool Player::AddTalent(TalentEntry const* talent, uint16 rank, uint8 talentGroup
     if (GetActiveTalentGroup() != talentGroupId)
         return true;
 
-    LearnSpell(spellInfo->Id, true);
+    LearnSpell(spellInfo->Id, false);
     if (talent->OverridesSpellID)
         AddOverrideSpell(talent->OverridesSpellID, talent->SpellID);
 
