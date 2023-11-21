@@ -234,9 +234,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::string ServerTimeTZ;
-            std::string GameTimeTZ;
-            std::string ServerRegionalTZ;
+            std::string_view ServerTimeTZ;
+            std::string_view GameTimeTZ;
+            std::string_view ServerRegionalTZ;
         };
     }
 }

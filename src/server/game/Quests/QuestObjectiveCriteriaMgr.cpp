@@ -25,6 +25,7 @@
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 QuestObjectiveCriteriaMgr::QuestObjectiveCriteriaMgr(Player* owner) : _owner(owner)
 {
@@ -187,7 +188,8 @@ void QuestObjectiveCriteriaMgr::SendAllData(Player const* /*receiver*/) const
         criteriaUpdate.PlayerGUID = _owner->GetGUID();
         criteriaUpdate.Flags = 0;
 
-        criteriaUpdate.CurrentTime = criteriaProgres.second.Date;
+        criteriaUpdate.CurrentTime.SetUtcTimeFromUnixTime(criteriaProgres.second.Date);
+        criteriaUpdate.CurrentTime += _owner->GetSession()->GetTimezoneOffset();
         criteriaUpdate.CreationTime = 0;
 
         SendPacket(criteriaUpdate.Write());
@@ -222,7 +224,8 @@ void QuestObjectiveCriteriaMgr::SendCriteriaUpdate(Criteria const* criteria, Cri
     if (criteria->Entry->StartTimer)
         criteriaUpdate.Flags = timedCompleted ? 1 : 0; // 1 is for keeping the counter at 0 in client
 
-    criteriaUpdate.CurrentTime = progress->Date;
+    criteriaUpdate.CurrentTime.SetUtcTimeFromUnixTime(progress->Date);
+    criteriaUpdate.CurrentTime += _owner->GetSession()->GetTimezoneOffset();
     criteriaUpdate.ElapsedTime = timeElapsed;
     criteriaUpdate.CreationTime = 0;
 

@@ -19,6 +19,7 @@
 #define _REALMLIST_H
 
 #include "Define.h"
+#include "Duration.h"
 #include "Realm.h"
 #include <array>
 #include <map>
@@ -91,7 +92,8 @@ public:
     std::vector<uint8> GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build) const;
     std::vector<uint8> GetRealmList(uint32 build, std::string const& subRegion) const;
     uint32 JoinRealm(uint32 realmAddress, uint32 build, boost::asio::ip::address const& clientAddress, std::array<uint8, 32> const& clientSecret,
-        LocaleConstant locale, std::string const& os, std::string accountName, bgs::protocol::game_utilities::v1::ClientResponse* response) const;
+        LocaleConstant locale, std::string const& os, Minutes timezoneOffset, std::string const& accountName,
+        bgs::protocol::game_utilities::v1::ClientResponse* response) const;
 
 private:
     RealmList();
