@@ -85,6 +85,12 @@ ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid)
     return buf;
 }
 
+ByteBuffer& operator<<(ByteBuffer& buf, PackedGuidWriter const& guid)
+{
+    buf.appendPackGUID(guid.Guid.GetRawValue());
+    return buf;
+}
+
 ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid)
 {
     buf.readPackGUID(reinterpret_cast<uint64&>(guid.Guid));
