@@ -145,3 +145,8 @@ WorldPacket const* WorldPackets::Talent::LearnPvpTalentFailed::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Talent::RemoveGlyph::Read()
+{
+    _worldPacket >> GlyphSlot;
+}

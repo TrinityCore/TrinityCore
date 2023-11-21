@@ -1055,10 +1055,13 @@ struct GroupUpdateCounter
 
 struct TC_GAME_API SpecializationInfo
 {
-    SpecializationInfo() : ResetTalentsCost(0), ResetTalentsTime(0), ActiveGroup(0), BonusGroups(0) { }
+    SpecializationInfo() : ResetTalentsCost(0), ResetTalentsTime(0), ActiveGroup(0), BonusGroups(0)
+    {
+        Glyphs.fill({});
+    }
 
     PlayerTalentMap Talents[MAX_SPECIALIZATIONS];
-    std::vector<uint32> Glyphs[MAX_SPECIALIZATIONS];
+    std::array<std::array<uint32, MAX_GLYPH_SLOT_INDEX>, MAX_SPECIALIZATIONS > Glyphs;
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
     uint8 ActiveGroup;
@@ -1811,6 +1814,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         PlayerTalentMap const& GetPlayerTalentMap(uint8 talentGroupId) const { return _specializationInfo.Talents[talentGroupId]; }
         PlayerTalentMap& GetPlayerTalentMap(uint8 talentGroupId) { return _specializationInfo.Talents[talentGroupId]; }
 
+        std::array<uint32, MAX_GLYPH_SLOT_INDEX>& GetGlyphs(uint8 talentGroupId) { return _specializationInfo.Glyphs[talentGroupId]; }
+        std::array<uint32, MAX_GLYPH_SLOT_INDEX> const& GetGlyphs(uint8 talentGroupId) const { return _specializationInfo.Glyphs[talentGroupId]; }
+
         ChrSpecialization GetPrimarySpecialization() const { return ChrSpecialization(*m_playerData->CurrentSpecID); }
         void SetPrimarySpecialization(uint32 spec) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CurrentSpecID), spec); }
         uint8 GetActiveTalentGroup() const { return _specializationInfo.ActiveGroup; }
@@ -1824,6 +1830,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool ResetTalents(bool noCost = false);
         uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
+        void InitGlyphsForLevel();
+        void SetGlyph(uint8 slot, uint32 glyph);
+        uint32 GetGlyph(uint8 slot) const { return m_activePlayerData->Glyphs[slot]; }
+        void SetGlyphSlot(uint8 slot, uint32 id) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphSlots, slot), id); }
+        uint32 GetGlyphSlot(uint8 slot) const { return m_activePlayerData->GlyphSlots[slot]; }
         void SendTalentsInfoData();
         uint32 CalculateTalentsPoints() const;
         bool LearnTalent(uint32 talentId, uint8 requestedRank);
@@ -1839,8 +1850,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Dual Spec
         void ActivateTalentGroup(uint8 talentGroup);
 
-        std::vector<uint32> const& GetGlyphs(uint8 spec) const { return _specializationInfo.Glyphs[spec]; }
-        std::vector<uint32>& GetGlyphs(uint8 spec) { return _specializationInfo.Glyphs[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
         void StartLoadingActionButtons(std::function<void()>&& callback = nullptr);
         void LoadActions(PreparedQueryResult result);

@@ -154,6 +154,16 @@ namespace WorldPackets
             int32 TalentID = 0;
             uint16 RequestedRank = 0;
         };
+
+        class RemoveGlyph final : public ClientPacket
+        {
+        public:
+            RemoveGlyph(WorldPacket&& packet) : ClientPacket(CMSG_REMOVE_GLYPH, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 GlyphSlot = 0;
+        };
     }
 }
 

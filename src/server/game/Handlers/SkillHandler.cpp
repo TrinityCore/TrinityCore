@@ -84,3 +84,22 @@ void WorldSession::HandleTradeSkillSetFavorite(WorldPackets::Spells::TradeSkillS
 
     _player->SetSpellFavorite(tradeSkillSetFavorite.RecipeID, tradeSkillSetFavorite.IsFavorite);
 }
+
+void WorldSession::HandleRemoveGlyphOpcode(WorldPackets::Talent::RemoveGlyph& packet)
+{
+    if (packet.GlyphSlot >= MAX_GLYPH_SLOT_INDEX)
+    {
+        TC_LOG_DEBUG("network", "Client sent wrong glyph slot number in opcode CMSG_REMOVE_GLYPH {}", packet.GlyphSlot);
+        return;
+    }
+
+    if (uint32 glyph = _player->GetGlyph(packet.GlyphSlot))
+    {
+        if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
+        {
+            _player->RemoveAurasDueToSpell(gp->SpellID);
+            _player->SetGlyph(packet.GlyphSlot, 0);
+            _player->SendTalentsInfoData();
+        }
+    }
+}

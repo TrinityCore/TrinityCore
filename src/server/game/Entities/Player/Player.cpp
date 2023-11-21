@@ -496,6 +496,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     // base stats and related field values
     InitStatsForLevel();
     InitTaxiNodesForLevel();
+    InitGlyphsForLevel();
     InitTalentForLevel();
     InitializeSkillFields();
     InitPrimaryProfessions();                               // to max set before any spell added
@@ -2366,6 +2367,7 @@ void Player::GiveLevel(uint8 level)
     SetCreateHealth(0);
     SetCreateMana(basemana);
 
+    InitGlyphsForLevel();
     InitTalentForLevel();
     InitTaxiNodesForLevel();
 
@@ -17715,6 +17717,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     // reset stats before loading any modifiers
     InitStatsForLevel();
+    InitGlyphsForLevel();
     InitTaxiNodesForLevel();
     InitRunes();
 
@@ -18195,7 +18198,12 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
 void Player::_LoadGlyphAuras()
 {
     for (uint32 glyphId : GetGlyphs(GetActiveTalentGroup()))
+    {
+        if (!glyphId)
+            continue;
+
         CastSpell(this, sGlyphPropertiesStore.AssertEntry(glyphId)->SpellID, true);
+    }
 }
 
 void Player::LoadCorpse(PreparedQueryResult result)
@@ -25564,6 +25572,36 @@ int64 Player::GetBarberShopCost(Trinity::IteratorPair<UF::ChrCustomizationChoice
     return cost;
 }
 
+void Player::InitGlyphsForLevel()
+{
+    for (GlyphSlotEntry const* glyphSlot : sGlyphSlotStore)
+        if (glyphSlot->Tooltip)
+            SetGlyphSlot(glyphSlot->Tooltip - 1, glyphSlot->ID);
+
+    uint8 level = GetLevel();
+    uint32 value = 0;
+
+    // 0x3F = 0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 for 80 level
+    if (level >= 15)
+        value |= (0x01 | 0x02);
+    if (level >= 30)
+        value |= 0x08;
+    if (level >= 50)
+        value |= 0x04;
+    if (level >= 70)
+        value |= 0x10;
+    if (level >= 80)
+        value |= 0x20;
+
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphsEnabled), value);
+}
+
+void Player::SetGlyph(uint8 slot, uint32 glyph)
+{
+    GetGlyphs(GetActiveTalentGroup())[slot] = glyph;
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Glyphs, slot), glyph);
+}
+
 bool Player::isTotalImmune() const
 {
     AuraEffectList const& immune = GetAuraEffectsByType(SPELL_AURA_SCHOOL_IMMUNITY);
@@ -26422,10 +26460,7 @@ void Player::SendTalentsInfoData()
             groupInfo.Talents.push_back({ pair.first, pair.second.Rank });
         }
 
-        std::vector<uint32> glyphs = GetGlyphs(activeGroup);
-        glyphs.resize(MAX_GLYPH_SLOT_INDEX, 0); // Blizzard always sends 6 glyph slots, no matter if they are used or not
-        groupInfo.GlyphIDs.reserve(MAX_GLYPH_SLOT_INDEX);
-        for (uint32 glyph : glyphs)
+        for (uint32 glyph : GetGlyphs(activeGroup))
             groupInfo.GlyphIDs.push_back(glyph);
     }
 
@@ -26651,7 +26686,7 @@ void Player::SetMap(Map* map)
 
 void Player::_LoadGlyphs(PreparedQueryResult result)
 {
-    // SELECT talentGroup, glyphId from character_glyphs WHERE guid = ?
+    // SELECT talentGroup, glyphSlot, glyphId from character_glyphs WHERE guid = ?
     if (!result)
         return;
 
@@ -26659,15 +26694,19 @@ void Player::_LoadGlyphs(PreparedQueryResult result)
     {
         Field* fields = result->Fetch();
 
-        uint8 spec = fields[0].GetUInt8();
-        if (spec >= MAX_SPECIALIZATIONS || !sDB2Manager.GetChrSpecializationByIndex(GetClass(), spec))
+        uint8 talentGroupId = fields[0].GetUInt8();
+        if (talentGroupId >= MAX_SPECIALIZATIONS)
             continue;
 
-        uint16 glyphId = fields[1].GetUInt16();
+        uint8 glyphSlot = fields[1].GetUInt8();
+        if (glyphSlot >= MAX_GLYPH_SLOT_INDEX)
+            continue;
+
+        uint16 glyphId = fields[2].GetUInt16();
         if (!sGlyphPropertiesStore.LookupEntry(glyphId))
             continue;
 
-        GetGlyphs(spec).push_back(glyphId);
+        SetGlyph(glyphSlot, glyphId);
 
     } while (result->NextRow());
 }
@@ -26680,13 +26719,14 @@ void Player::_SaveGlyphs(CharacterDatabaseTransaction trans) const
 
     for (uint8 spec = 0; spec < MAX_SPECIALIZATIONS; ++spec)
     {
-        for (uint32 glyphId : GetGlyphs(spec))
+        for (uint8 i = 0; i < GetGlyphs(spec).size(); ++i)
         {
             uint8 index = 0;
-
+            uint32 glyphId = GetGlyphs(spec)[i];
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GLYPHS);
             stmt->setUInt64(index++, GetGUID().GetCounter());
             stmt->setUInt8(index++, spec);
+            stmt->setUInt8(index++, i);
             stmt->setUInt16(index++, uint16(glyphId));
 
             trans->Append(stmt);
