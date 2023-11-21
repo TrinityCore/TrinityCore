@@ -397,9 +397,6 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastData const& spellCastData)
     data.WriteBit(spellCastData.AmmoInventoryType.has_value());
     data.FlushBits();
 
-    for (SpellMissStatus const& missStatus : spellCastData.MissStatus)
-        data << missStatus;
-
     data << spellCastData.Target;
 
     for (ObjectGuid const& hitTarget : spellCastData.HitTargets)
@@ -407,6 +404,9 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastData const& spellCastData)
 
     for (ObjectGuid const& missTarget : spellCastData.MissTargets)
         data << missTarget;
+
+    for (SpellMissStatus const& missStatus : spellCastData.MissStatus)
+        data << missStatus;
 
     for (SpellPowerData const& power : spellCastData.RemainingPower)
         data << power;
