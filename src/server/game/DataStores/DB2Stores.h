@@ -122,6 +122,7 @@ TC_GAME_API extern DB2Storage<GarrSiteLevelPlotInstEntry>           sGarrSiteLev
 TC_GAME_API extern DB2Storage<GarrTalentTreeEntry>                  sGarrTalentTreeStore;
 TC_GAME_API extern DB2Storage<GemPropertiesEntry>                   sGemPropertiesStore;
 TC_GAME_API extern DB2Storage<GlyphPropertiesEntry>                 sGlyphPropertiesStore;
+TC_GAME_API extern DB2Storage<GlyphSlotEntry>                       sGlyphSlotStore;
 TC_GAME_API extern DB2Storage<GossipNPCOptionEntry>                 sGossipNPCOptionStore;
 TC_GAME_API extern DB2Storage<GuildColorBackgroundEntry>            sGuildColorBackgroundStore;
 TC_GAME_API extern DB2Storage<GuildColorBorderEntry>                sGuildColorBorderStore;
@@ -505,6 +506,7 @@ public:
     void Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const;
     bool IsUiMapPhase(uint32 phaseId) const;
     WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const;
+    std::vector<ItemEffectEntry const*> const* GetItemEffectsForItemId(uint32 itemId) const;
 
 private:
     friend class DB2HotfixGeneratorBase;

@@ -3334,6 +3334,10 @@ void ObjectMgr::LoadItemTemplates()
         for (auto& specs : itemTemplate.Specializations)
             if (specs.count() == 0)
                 specs.set();
+
+        if (std::vector<ItemEffectEntry const*> const* itemEffects = sDB2Manager.GetItemEffectsForItemId(sparse->ID))
+            for (ItemEffectEntry const* itemEffect : *itemEffects)
+                itemTemplate.Effects.push_back(itemEffect);
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded {} item templates in {} ms", _itemTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));

@@ -460,6 +460,7 @@ namespace
     ItemModifiedAppearanceByItemContainer _itemModifiedAppearancesByItem;
     ItemSetSpellContainer _itemSetSpells;
     ItemSpecOverridesContainer _itemSpecOverrides;
+    std::unordered_map<uint32 /*itemId*/, std::vector<ItemEffectEntry const*>> _itemEffectsByItemId;
     std::vector<JournalTierEntry const*> _journalTiersByIndex;
     MapDifficultyContainer _mapDifficulties;
     std::unordered_map<uint32, DB2Manager::MapDifficultyConditionsContainer> _mapDifficultyConditions;
@@ -731,6 +732,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sGlyphBindableSpellStore);
     LOAD_DB2(sGlyphPropertiesStore);
     LOAD_DB2(sGlyphRequiredSpecStore);
+    LOAD_DB2(sGlyphSlotStore);
     LOAD_DB2(sGossipNPCOptionStore);
     LOAD_DB2(sGuildColorBackgroundStore);
     LOAD_DB2(sGuildColorBorderStore);
@@ -1229,6 +1231,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (ItemCurrencyCostEntry const* itemCurrencyCost : sItemCurrencyCostStore)
         _itemsWithCurrencyCost.insert(itemCurrencyCost->ItemID);
+
+    for (ItemEffectEntry const* itemEffect : sItemEffectStore)
+        _itemEffectsByItemId[itemEffect->ParentItemID].push_back(itemEffect);
 
     for (ItemLimitCategoryConditionEntry const* condition : sItemLimitCategoryConditionStore)
         _itemCategoryConditions[condition->ParentItemLimitCategoryID].push_back(condition);
@@ -3160,4 +3165,9 @@ bool DB2Manager::MountTypeXCapabilityEntryComparator::Compare(MountTypeXCapabili
     if (left->MountTypeID == right->MountTypeID)
         return left->OrderIndex < right->OrderIndex;
     return left->MountTypeID < right->MountTypeID;
+}
+
+std::vector<ItemEffectEntry const*> const* DB2Manager::GetItemEffectsForItemId(uint32 itemId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_itemEffectsByItemId, itemId);
 }
