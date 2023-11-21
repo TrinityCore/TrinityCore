@@ -19,12 +19,12 @@
 #include "AchievementMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerDataStore.h"
-#include "Battleground.h"
 #include "BattlePetMgr.h"
+#include "Battleground.h"
 #include "Containers.h"
 #include "ConversationDataStore.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
 #include "GameTime.h"
@@ -32,8 +32,8 @@
 #include "InstanceScenario.h"
 #include "InstanceScript.h"
 #include "Item.h"
-#include "LanguageMgr.h"
 #include "LFGMgr.h"
+#include "LanguageMgr.h"
 #include "Log.h"
 #include "LootMgr.h"
 #include "Map.h"
@@ -53,6 +53,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include "WorldStateMgr.h"
+#include "WowTime.h"
 #include <random>
 #include <sstream>
 
@@ -3264,15 +3265,18 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->Time[0])
     {
-        ByteBuffer unpacker;
-        unpacker << condition->Time[0];
-        time_t from = unpacker.ReadPackedTime();
-        unpacker.rpos(0);
-        unpacker.wpos(0);
-        unpacker << condition->Time[1];
-        time_t to = unpacker.ReadPackedTime();
+        WowTime time0;
+        time0.SetPackedTime(condition->Time[0]);
 
-        if (GameTime::GetGameTime() < from || GameTime::GetGameTime() > to)
+        if (condition->Time[1])
+        {
+            WowTime time1;
+            time1.SetPackedTime(condition->Time[1]);
+
+            if (!GameTime::GetWowTime()->IsInRange(time0, time1))
+                return false;
+        }
+        else if (*GameTime::GetWowTime() != time0)
             return false;
     }
 

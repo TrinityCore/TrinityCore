@@ -51,6 +51,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include "WorldStateMgr.h"
+#include "WowTime.h"
 
 bool CriteriaData::IsValid(Criteria const* criteria)
 {
@@ -2242,14 +2243,12 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::TimeBetween: // 109
         {
-            ByteBuffer unpacker;
-            unpacker << reqValue;
-            time_t from = unpacker.ReadPackedTime();
-            unpacker.rpos(0);
-            unpacker.wpos(0);
-            unpacker << secondaryAsset;
-            time_t to = unpacker.ReadPackedTime();
-            if (GameTime::GetGameTime() < from || GameTime::GetGameTime() > to)
+            WowTime from;
+            from.SetPackedTime(reqValue);
+            WowTime to;
+            to.SetPackedTime(secondaryAsset);
+
+            if (!GameTime::GetWowTime()->IsInRange(from, to))
                 return false;
             break;
         }

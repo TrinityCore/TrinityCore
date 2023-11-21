@@ -34,11 +34,11 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "Realm.h"
 #include "ScriptMgr.h"
+#include "Timezone.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
+#include "WowTime.h"
 #include <boost/dynamic_bitset.hpp>
 #include <numeric>
 #include <sstream>
@@ -1916,13 +1916,13 @@ void AuctionHouseObject::SendAuctionInvoice(AuctionPosting const* auction, Playe
     // owner exist (online or offline)
     if ((owner || sCharacterCache->HasCharacterCacheEntry(auction->Owner)) && !sAuctionBotConfig->IsBotChar(auction->Owner))
     {
-        ByteBuffer tempBuffer;
-        tempBuffer.AppendPackedTime(GameTime::GetGameTime() + sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
-        uint32 eta = tempBuffer.read<uint32>();
+        WowTime eta = *GameTime::GetUtcWowTime();
+        eta += Seconds(sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
+        eta += owner->GetSession()->GetTimezoneOffset();
 
         MailDraft(AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType::Invoice, auction),
             AuctionHouseMgr::BuildAuctionInvoiceMailBody(auction->Bidder, auction->BidAmount, auction->BuyoutOrUnitPrice, auction->Deposit,
-                CalculateAuctionHouseCut(auction->BidAmount), sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY), eta))
+                CalculateAuctionHouseCut(auction->BidAmount), sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY), eta.GetPackedTime()))
             .SendMailTo(trans, MailReceiver(owner, auction->Owner), this, MAIL_CHECK_MASK_COPIED);
     }
 }
