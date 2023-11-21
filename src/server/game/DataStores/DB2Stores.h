@@ -250,6 +250,7 @@ TC_GAME_API extern DB2Storage<SpellVisualKitEntry>                  sSpellVisual
 TC_GAME_API extern DB2Storage<SpellXSpellVisualEntry>               sSpellXSpellVisualStore;
 TC_GAME_API extern DB2Storage<SummonPropertiesEntry>                sSummonPropertiesStore;
 TC_GAME_API extern DB2Storage<TalentEntry>                          sTalentStore;
+TC_GAME_API extern DB2Storage<TalentTabEntry>                       sTalentTabStore;
 TC_GAME_API extern DB2Storage<TaxiNodesEntry>                       sTaxiNodesStore;
 TC_GAME_API extern DB2Storage<TaxiPathEntry>                        sTaxiPathStore;
 TC_GAME_API extern DB2Storage<TraitCondEntry>                       sTraitCondStore;

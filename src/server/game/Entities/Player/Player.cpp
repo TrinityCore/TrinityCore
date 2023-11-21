@@ -26121,15 +26121,13 @@ bool Player::LearnTalent(uint32 talentId, uint8 requestedRank)
     if (!talentInfo)
         return false;
 
-    /*
     TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
     if (!talentTabInfo)
-        return;
+        return false;
 
     // prevent learn talent for different class (cheating)
     if (!(GetClassMask() & talentTabInfo->ClassMask))
-        return;
-    */
+        return false;
 
     // Check for existing talents
 
@@ -26163,21 +26161,23 @@ bool Player::LearnTalent(uint32 talentId, uint8 requestedRank)
     }
 
     // Find out how many points we have in this field
-    /*
     uint32 spentPoints = 0;
-    uint32 tTab = talentInfo->TabID;
     if (talentInfo->TierID > 0)
+    {
         for (TalentEntry const* tmpTalent : sTalentStore) // the way talents are tracked
-            if (tmpTalent->TabID == tTab)
-                for (uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
-                    if (tmpTalent->SpellRank[rank] != 0)
-                        if (HasSpell(tmpTalent->SpellRank[rank]))
-                            spentPoints += (rank + 1);
+        {
+            if (tmpTalent->TabID != talentInfo->TabID)
+                continue;
 
-    // not have required min points spent in talent tree
-    if (spentPoints < (talentInfo->TierID * NEEDED_TALENT_POINT_PER_TIER))
-        return;
-    >*/
+            for (size_t i = 0; i < tmpTalent->SpellRank.size(); ++i)
+                if (tmpTalent->SpellRank[i] != 0 && HasSpell(tmpTalent->SpellRank[i]))
+                    spentPoints += (i + 1);
+        }
+
+        // not have required min points spent in talent tree
+        if (spentPoints < static_cast<uint32>(talentInfo->TierID * NEEDED_TALENT_POINT_PER_TIER))
+            return false;
+    }
 
     // spell not set in talent.dbc
     uint32 spellId = talentInfo->SpellRank[requestedRank];
