@@ -1826,8 +1826,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void InitTalentForLevel();
         void SendTalentsInfoData();
         uint32 CalculateTalentsPoints() const;
-        bool LearnTalent(uint32 talentId, uint16 requestedRank);
-        bool AddTalent(TalentEntry const* talent, uint16 rank, uint8 talentGroupId, bool learning);
+        bool LearnTalent(uint32 talentId, uint8 requestedRank);
+        bool AddTalent(TalentEntry const* talent, uint8 rank, uint8 talentGroupId, bool learning);
         void RemoveTalent(TalentEntry const* talent);
 
         void EnablePvpRules(bool dueToCombat = false);

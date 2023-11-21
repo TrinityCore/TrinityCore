@@ -32,8 +32,7 @@ void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& 
 
 void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& packet)
 {
-    if (_player->LearnTalent(packet.TalentID, packet.RequestedRank))
-        _player->SendTalentsInfoData();
+    _player->LearnTalent(packet.TalentID, packet.RequestedRank);
 }
 
 void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& /*packet*/)

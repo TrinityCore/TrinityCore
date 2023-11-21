@@ -2711,34 +2711,18 @@ void DeleteSpellFromAllPlayers(uint32 spellId)
     CharacterDatabase.Execute(stmt);
 }
 
-bool Player::AddTalent(TalentEntry const* talent, uint16 rank, uint8 talentGroupId, bool learning)
+bool Player::AddTalent(TalentEntry const* talent, uint8 rank, uint8 talentGroupId, bool learning)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellRank[rank], DIFFICULTY_NONE);
     if (!spellInfo)
     {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: {}) does not exist. Deleting for all characters in `character_spell` and `character_talent`.", talent->SpellRank[rank]);
-            DeleteSpellFromAllPlayers(talent->SpellRank[rank]);
-        }
-        else
-            TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: {}) does not exist", talent->SpellRank[rank]);
-
+        TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: {}) does not exist", talent->SpellRank[rank]);
         return false;
-    }
+    }   
 
     if (!SpellMgr::IsSpellValid(spellInfo, this, false))
     {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: {}) is invalid. Deleting for all characters in `character_spell` and `character_talent`.", talent->SpellRank[rank]);
-            DeleteSpellFromAllPlayers(talent->SpellRank[rank]);
-        }
-        else
-            TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: {}) is invalid", talent->SpellRank[rank]);
-
+        TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: {}) is invalid", talent->SpellRank[rank]);
         return false;
     }
 
@@ -2746,19 +2730,30 @@ bool Player::AddTalent(TalentEntry const* talent, uint16 rank, uint8 talentGroup
     auto itr = talentMap.find(talent->ID);
     if (itr != talentMap.end())
     {
+        // Remove the previously learned talent
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellRank[itr->second.Rank], DIFFICULTY_NONE))
+        {
+            RemoveSpell(spellInfo->Id, true);
+
+            // search for spells that the talent teaches and unlearn them
+            for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+                if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && spellEffectInfo.TriggerSpell > 0)
+                    RemoveSpell(spellEffectInfo.TriggerSpell, true);
+        }
+
         itr->second.State = PLAYERSPELL_UNCHANGED;
         itr->second.Rank = static_cast<uint8>(rank);
     }
     else
-        talentMap[talent->ID] = { PLAYERSPELL_UNCHANGED, static_cast<uint8>(rank) };
+        talentMap[talent->ID] = { PLAYERSPELL_UNCHANGED, rank };
 
     // Inactive talent groups will only be initialized
-    if (GetActiveTalentGroup() != talentGroupId)
-        return true;
-
-    LearnSpell(spellInfo->Id, false);
-    if (talent->OverridesSpellID)
-        AddOverrideSpell(talent->OverridesSpellID, talent->SpellID);
+    if (GetActiveTalentGroup() == talentGroupId)
+    {
+        LearnSpell(spellInfo->Id, true);
+        if (talent->OverridesSpellID)
+            AddOverrideSpell(talent->OverridesSpellID, talent->SpellID);
+    }
 
     if (learning)
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::ChangeTalent);
@@ -2774,19 +2769,15 @@ void Player::RemoveTalent(TalentEntry const* talent)
         return;
 
     uint32 spellId = talent->SpellRank[itr->second.Rank];
-    if (!spellId)
-        return;
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
+    {
+        RemoveSpell(spellId, true);
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
-    if (!spellInfo)
-        return;
-
-    RemoveSpell(spellId, true);
-
-    // search for spells that the talent teaches and unlearn them
-    for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
-        if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && spellEffectInfo.TriggerSpell > 0)
-            RemoveSpell(spellEffectInfo.TriggerSpell, true);
+        // search for spells that the talent teaches and unlearn them
+        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+            if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && spellEffectInfo.TriggerSpell > 0)
+                RemoveSpell(spellEffectInfo.TriggerSpell, true);
+    }
 
     if (talent->OverridesSpellID)
         RemoveOverrideSpell(talent->OverridesSpellID, talent->SpellID);
@@ -26117,7 +26108,7 @@ bool Player::ModifierTreeSatisfied(uint32 modifierTreeId) const
 
 static constexpr uint8 NEEDED_TALENT_POINT_PER_TIER = 5;
 
-bool Player::LearnTalent(uint32 talentId, uint16 requestedRank)
+bool Player::LearnTalent(uint32 talentId, uint8 requestedRank)
 {
     //  No talent points left to spend, skip learn request
     if (!m_activePlayerData->CharacterPoints)
@@ -26196,16 +26187,14 @@ bool Player::LearnTalent(uint32 talentId, uint16 requestedRank)
         return false;
     }
 
-    // already known
-    if (HasSpell(spellId))
+    if (!AddTalent(talentInfo, requestedRank, GetActiveTalentGroup(), true))
         return false;
-
-    AddTalent(talentInfo, requestedRank, GetActiveTalentGroup(), true);
 
     TC_LOG_DEBUG("misc", "Player::LearnTalent: TalentID: {} Spell: {} Group: {}\n", talentId, spellId, uint32(GetActiveTalentGroup()));
 
     // update free talent points
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CharacterPoints), static_cast<int32>(CalculateTalentsPoints() - GetSpentTalentPointsCount()));
+    SendTalentsInfoData();
     return true;
 }
 
@@ -27029,16 +27018,23 @@ void Player::ActivateTalentGroup(uint8 talentGroup)
         if (!talentEntry)
             continue;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentEntry->SpellRank[pair.second.Rank], DIFFICULTY_NONE);
-        if (!spellInfo)
-            continue;
+        for (auto it = talentEntry->SpellRank.rbegin(); it != talentEntry->SpellRank.rend(); ++it)
+        {
+            uint32 spellId = *it;
+            if (!spellId)
+                continue;
 
-        RemoveSpell(spellInfo->Id, true);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
+            if (!spellInfo)
+                continue;
 
-        // search for spells that the talent teaches and unlearn them
-        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
-            if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && spellEffectInfo.TriggerSpell > 0)
-                RemoveSpell(spellEffectInfo.TriggerSpell, true);
+            RemoveSpell(spellInfo->Id, true);
+
+            // search for spells that the talent teaches and unlearn them
+            for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+                if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && spellEffectInfo.TriggerSpell > 0)
+                    RemoveSpell(spellEffectInfo.TriggerSpell, true);
+        }
 
         if (talentEntry->OverridesSpellID)
             RemoveOverrideSpell(talentEntry->OverridesSpellID, talentEntry->SpellID);
