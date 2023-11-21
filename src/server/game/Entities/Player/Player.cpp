@@ -26460,7 +26460,7 @@ void Player::SendTalentsInfoData()
             groupInfo.Talents.push_back({ pair.first, pair.second.Rank });
         }
 
-        for (uint32 glyph : GetGlyphs(activeGroup))
+        for (uint32 glyph : GetGlyphs(i))
             groupInfo.GlyphIDs.push_back(glyph);
     }
 
@@ -27085,7 +27085,12 @@ void Player::ActivateTalentGroup(uint8 talentGroup)
     ApplyTraitConfig(m_activePlayerData->ActiveCombatTraitConfigID, false);
 
     for (uint32 glyphId : GetGlyphs(GetActiveTalentGroup()))
+    {
+        if (!glyphId)
+            continue;
+
         RemoveAurasDueToSpell(sGlyphPropertiesStore.AssertEntry(glyphId)->SpellID);
+    }
 
     SetActiveTalentGroup(talentGroup);
     SetPrimarySpecialization(0);
@@ -27124,7 +27129,12 @@ void Player::ActivateTalentGroup(uint8 talentGroup)
             SetVisibleItemSlot(i, equippedItem);
 
     for (uint32 glyphId : GetGlyphs(talentGroup))
+    {
+        if (!glyphId)
+            continue;
+
         CastSpell(this, sGlyphPropertiesStore.AssertEntry(glyphId)->SpellID, true);
+    }
 
     Unit::AuraEffectList const& shapeshiftAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
     for (AuraEffect* aurEff : shapeshiftAuras)
