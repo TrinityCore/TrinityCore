@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Duration.h"
+#include <string>
 
 namespace Trinity::Timezone
 {
