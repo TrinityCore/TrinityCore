@@ -26232,7 +26232,6 @@ bool Player::LearnTalent(uint32 talentId, uint8 requestedRank)
 
     // update free talent points
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CharacterPoints), static_cast<int32>(CalculateTalentsPoints() - GetSpentTalentPointsCount()));
-    SendTalentsInfoData();
     return true;
 }
 

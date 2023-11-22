@@ -155,6 +155,16 @@ namespace WorldPackets
             uint16 RequestedRank = 0;
         };
 
+        class LearnPreviewTalents final : public ClientPacket
+        {
+        public:
+            LearnPreviewTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_PREVIEW_TALENTS, std::move(packet)) { }
+
+            void Read() override;
+
+            Array<TalentInfo, 60> Talents;
+        };
+
         class RemoveGlyph final : public ClientPacket
         {
         public:

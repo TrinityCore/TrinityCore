@@ -32,7 +32,16 @@ void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& 
 
 void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& packet)
 {
-    _player->LearnTalent(packet.TalentID, packet.RequestedRank);
+    if (_player->LearnTalent(packet.TalentID, packet.RequestedRank))
+        _player->SendTalentsInfoData();
+}
+
+void WorldSession::HandleLearnPreviewTalentsOpcode(WorldPackets::Talent::LearnPreviewTalents& packet)
+{
+    for (WorldPackets::Talent::TalentInfo const& talent : packet.Talents)
+        _player->LearnTalent(talent.TalentID, talent.Rank);
+
+    _player->SendTalentsInfoData();
 }
 
 void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& /*packet*/)
