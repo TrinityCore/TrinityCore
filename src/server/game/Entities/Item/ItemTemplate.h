@@ -823,6 +823,8 @@ struct TC_GAME_API ItemTemplate
     float  GetDmgVariance() const { return ExtendedData->DmgVariance; }
     uint8 GetArtifactID() const { return ExtendedData->ArtifactID; }
     uint8 GetRequiredExpansion() const { return ExtendedData->ExpansionID; }
+    int16 GetResistance(SpellSchools school) const { return ExtendedData->Resistances[school]; }
+    int16 GetShieldBlockValue() const { return BasicData->Resistances[SPELL_SCHOOL_NORMAL]; }
 
     uint32 MaxDurability;
     std::vector<ItemEffectEntry const*> Effects;
@@ -874,7 +876,6 @@ struct TC_GAME_API ItemTemplate
     inline bool HasFlag(ItemFlagsCustom customFlag) const { return (FlagsCu & customFlag) != 0; }
 
     char const* GetDefaultLocaleName() const;
-    uint32 GetArmor(uint32 itemLevel) const;
     float GetDPS(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
     bool IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const;

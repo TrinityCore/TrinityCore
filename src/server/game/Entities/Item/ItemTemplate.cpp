@@ -139,66 +139,6 @@ char const* ItemTemplate::GetDefaultLocaleName() const
     return ExtendedData->Display[sWorld->GetDefaultDbcLocale()];
 }
 
-uint32 ItemTemplate::GetArmor(uint32 itemLevel) const
-{
-    uint32 quality = ItemQualities(GetQuality()) != ITEM_QUALITY_HEIRLOOM ? ItemQualities(GetQuality()) : ITEM_QUALITY_RARE;
-    if (quality > ITEM_QUALITY_ARTIFACT)
-        return 0;
-
-    // all items but shields
-    if (GetClass() != ITEM_CLASS_ARMOR || GetSubClass() != ITEM_SUBCLASS_ARMOR_SHIELD)
-    {
-        ItemArmorQualityEntry const* armorQuality = sItemArmorQualityStore.LookupEntry(itemLevel);
-        ItemArmorTotalEntry const* armorTotal = sItemArmorTotalStore.LookupEntry(itemLevel);
-        if (!armorQuality || !armorTotal)
-            return 0;
-
-        uint32 inventoryType = GetInventoryType();
-        if (inventoryType == INVTYPE_ROBE)
-            inventoryType = INVTYPE_CHEST;
-
-        ArmorLocationEntry const* location = sArmorLocationStore.LookupEntry(inventoryType);
-        if (!location)
-            return 0;
-
-        if (GetSubClass() < ITEM_SUBCLASS_ARMOR_CLOTH || GetSubClass() > ITEM_SUBCLASS_ARMOR_PLATE)
-            return 0;
-
-        float total = 1.0f;
-        float locationModifier = 1.0f;
-        switch (GetSubClass())
-        {
-            case ITEM_SUBCLASS_ARMOR_CLOTH:
-                total = armorTotal->Cloth;
-                locationModifier = location->Clothmodifier;
-                break;
-            case ITEM_SUBCLASS_ARMOR_LEATHER:
-                total = armorTotal->Leather;
-                locationModifier = location->Leathermodifier;
-                break;
-            case ITEM_SUBCLASS_ARMOR_MAIL:
-                total = armorTotal->Mail;
-                locationModifier = location->Chainmodifier;
-                break;
-            case ITEM_SUBCLASS_ARMOR_PLATE:
-                total = armorTotal->Plate;
-                locationModifier = location->Platemodifier;
-                break;
-            default:
-                break;
-        }
-
-        return uint32(armorQuality->Qualitymod[quality] * total * locationModifier + 0.5f);
-    }
-
-    // shields
-    ItemArmorShieldEntry const* shield = sItemArmorShieldStore.LookupEntry(itemLevel);
-    if (!shield)
-        return 0;
-
-    return uint32(shield->Quality[quality] + 0.5f);
-}
-
 float ItemTemplate::GetDPS(uint32 itemLevel) const
 {
     uint32 quality = ItemQualities(GetQuality()) != ITEM_QUALITY_HEIRLOOM ? ItemQualities(GetQuality()) : ITEM_QUALITY_RARE;
