@@ -181,6 +181,18 @@ struct GtRegenMPPerSptEntry
     float Druid = 0.0f;
 };
 
+struct GtShieldBlockRegularEntry
+{
+    float Poor = 0.0f;
+    float Standard = 0.0f;
+    float Good = 0.0f;
+    float Superior = 0.0f;
+    float Epic = 0.0f;
+    float Legendary = 0.0f;
+    float Artifact = 0.0f;
+    float ScalingStat = 0.0f;
+};
+
 struct GtSpellScalingEntry
 {
     float Rogue = 0.0f;
@@ -254,6 +266,7 @@ TC_GAME_API extern GameTable<GtOCTRegenHPEntry>                     sOCTRegenHPG
 TC_GAME_API extern GameTable<GtOCTRegenMPEntry>                     sOCTRegenMPGameTable;
 TC_GAME_API extern GameTable<GtRegenHPPerSptEntry>                  sRegenHPPerSptGameTable;
 TC_GAME_API extern GameTable<GtRegenMPPerSptEntry>                  sRegenMPPerSptGameTable;
+TC_GAME_API extern GameTable<GtShieldBlockRegularEntry>             sShieldBlockRegularGameTable;
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
 TC_GAME_API extern GameTable<GtXpEntry>                             sXpGameTable;
 
@@ -380,6 +393,33 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
 inline float GetBattlePetXPPerLevel(GtBattlePetXPEntry const* row)
 {
     return row->Wins * row->Xp;
+}
+
+inline float GetShieldBlockRegularColumnForQuality(GtShieldBlockRegularEntry const* row, ItemQualities quality)
+{
+    switch (quality)
+    {
+        case ITEM_QUALITY_POOR:
+            return row->Poor;
+        case ITEM_QUALITY_NORMAL:
+            return row->Standard;
+        case ITEM_QUALITY_UNCOMMON:
+            return row->Good;
+        case ITEM_QUALITY_RARE:
+            return row->Superior;
+        case ITEM_QUALITY_EPIC:
+            return row->Epic;
+        case ITEM_QUALITY_LEGENDARY:
+            return row->Legendary;
+        case ITEM_QUALITY_ARTIFACT:
+            return row->Artifact;
+        case ITEM_QUALITY_HEIRLOOM:
+            return row->ScalingStat;
+        default:
+            break;
+    }
+
+    return 0.0f;
 }
 
 #endif // GameTables_h__

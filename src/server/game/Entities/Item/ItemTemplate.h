@@ -824,7 +824,7 @@ struct TC_GAME_API ItemTemplate
     uint8 GetArtifactID() const { return ExtendedData->ArtifactID; }
     uint8 GetRequiredExpansion() const { return ExtendedData->ExpansionID; }
     int16 GetResistance(SpellSchools school) const { return ExtendedData->Resistances[school]; }
-    int16 GetShieldBlockValue() const { return BasicData->Resistances[SPELL_SCHOOL_NORMAL]; }
+    int16 GetShieldBlockValue(uint32 itemLevel) const;
 
     uint32 MaxDurability;
     std::vector<ItemEffectEntry const*> Effects;

@@ -39,6 +39,7 @@ GameTable<GtOCTRegenHPEntry>                    sOCTRegenHPGameTable;
 GameTable<GtOCTRegenMPEntry>                    sOCTRegenMPGameTable;
 GameTable<GtRegenHPPerSptEntry>                 sRegenHPPerSptGameTable;
 GameTable<GtRegenMPPerSptEntry>                 sRegenMPPerSptGameTable;
+GameTable<GtShieldBlockRegularEntry>            sShieldBlockRegularGameTable;
 GameTable<GtSpellScalingEntry>                  sSpellScalingGameTable;
 GameTable<GtXpEntry>                            sXpGameTable;
 
@@ -129,6 +130,7 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sOCTRegenMPGameTable, "OCTRegenMP.txt");
     LOAD_GT(sRegenHPPerSptGameTable, "RegenHPPerSpt.txt");
     LOAD_GT(sRegenMPPerSptGameTable, "RegenMPPerSpt.txt");
+    LOAD_GT(sShieldBlockRegularGameTable, "ShieldBlockRegular.txt");
     LOAD_GT(sSpellScalingGameTable, "SpellScaling.txt");
     LOAD_GT(sXpGameTable, "xp.txt");
 

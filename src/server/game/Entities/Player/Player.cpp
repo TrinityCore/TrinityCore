@@ -7802,6 +7802,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
         return;
 
     uint32 itemLevel = item->GetItemLevel(this);
+
     float combatRatingMultiplier = 1.0f;
     //if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(itemLevel))
     //    combatRatingMultiplier = GetIlvlStatMultiplier(ratingMult, proto->GetInventoryType());
@@ -8041,7 +8042,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
         if (int16 resistance = proto->GetResistance(SpellSchools(i)))
             HandleStatFlatModifier(UnitMods(UNIT_MOD_ARMOR + i), BASE_VALUE, float(resistance), apply);
 
-    if (int16 shieldBlockValue = proto->GetShieldBlockValue())
+    if (int16 shieldBlockValue = proto->GetShieldBlockValue(itemLevel))
         if (proto->GetClass() == ITEM_CLASS_ARMOR && proto->GetSubClass() == ITEM_SUBCLASS_ARMOR_SHIELD)
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ShieldBlock), apply ? shieldBlockValue : 0);
 
