@@ -140,7 +140,6 @@ DumpTable const DumpTables[] =
     { "character_equipmentsets",          DTT_EQSET_TABLE}, // must be after item_instance
     { "character_gifts",                  DTT_ITEM_GIFT  }, // must be after item_instance
     { "item_instance_gems",               DTT_ITEM_TABLE }, // must be after item_instance
-    { "item_instance_modifiers",          DTT_ITEM_TABLE }, // must be after item_instance
     { "item_instance_transmog",           DTT_ITEM_TABLE }, // must be after item_instance
 };
 
