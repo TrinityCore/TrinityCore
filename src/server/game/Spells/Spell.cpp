@@ -6098,7 +6098,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 if (!pet->HaveInDiet(foodItem->GetTemplate()))
                     return SPELL_FAILED_WRONG_PET_FOOD;
 
-                if (foodItem->GetTemplate()->GetBaseItemLevel() + 30 <= pet->GetLevel())
+                if (foodItem->GetTemplate()->GetItemLevel() + 30 <= pet->GetLevel())
                    return SPELL_FAILED_FOOD_LOWLEVEL;
 
                 if (m_caster->ToPlayer()->IsInCombat() || pet->IsInCombat())
@@ -7564,9 +7564,9 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                 // Apply item level restriction if the enchanting spell has max level restrition set
                 if (m_CastItem && m_spellInfo->MaxLevel > 0)
                 {
-                    if (item->GetTemplate()->GetBaseItemLevel() < (uint32)m_CastItem->GetTemplate()->GetBaseRequiredLevel())
+                    if (item->GetTemplate()->GetItemLevel() < (uint32)m_CastItem->GetTemplate()->GetBaseRequiredLevel())
                         return SPELL_FAILED_LOWLEVEL;
-                    if (item->GetTemplate()->GetBaseItemLevel() > m_spellInfo->MaxLevel)
+                    if (item->GetTemplate()->GetItemLevel() > m_spellInfo->MaxLevel)
                         return SPELL_FAILED_HIGHLEVEL;
                 }
                 break;

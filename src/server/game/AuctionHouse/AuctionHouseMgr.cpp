@@ -84,7 +84,7 @@ AuctionsBucketKey AuctionsBucketKey::ForItem(Item const* item)
 
 AuctionsBucketKey AuctionsBucketKey::ForCommodity(ItemTemplate const* itemTemplate)
 {
-    return { itemTemplate->GetId(), uint16(itemTemplate->GetBaseItemLevel()), 0, 0 };
+    return { itemTemplate->GetId(), uint16(itemTemplate->GetItemLevel()), 0, 0 };
 }
 
 void AuctionsBucketData::BuildBucketInfo(WorldPackets::AuctionHouse::BucketInfo* bucketInfo, Player const* player) const
@@ -884,7 +884,7 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
                 break;
             case ITEM_CLASS_GEM:
             case ITEM_CLASS_ITEM_ENHANCEMENT:
-                bucket->SortLevel = itemTemplate->GetBaseItemLevel();
+                bucket->SortLevel = itemTemplate->GetItemLevel();
                 break;
             case ITEM_CLASS_CONSUMABLE:
                 bucket->SortLevel = std::max<uint8>(1, bucket->RequiredLevel);

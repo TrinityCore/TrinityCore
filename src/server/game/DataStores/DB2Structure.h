@@ -3168,7 +3168,7 @@ struct ScalingStatValuesEntry
     uint32 ID;
     int32 Charlevel;
     int32 WeaponDPS1H;
-    int32 WeaponDPS2h;
+    int32 WeaponDPS2H;
     int32 SpellcasterDPS1H;
     int32 SpellcasterDPS2H;
     int32 RangedDPS;
@@ -3176,7 +3176,7 @@ struct ScalingStatValuesEntry
     int32 SpellPower;
     int32 ShoulderBudget;
     int32 TrinketBudget;
-    int32 WeaponBudget;
+    int32 WeaponBudget1H;
     int32 PrimaryBudget;
     int32 RangedBudget;
     int32 TertiaryBudget;
@@ -3189,6 +3189,68 @@ struct ScalingStatValuesEntry
     int32 LeatherChestArmor;
     int32 MailChestArmor;
     int32 PlateChestArmor;
+
+    int32 getssdMultiplier(uint32 mask) const
+    {
+        if (mask & 0x4001F)
+        {
+            if (mask & 0x00000001) return ShoulderBudget;
+            if (mask & 0x00000002) return TrinketBudget;
+            if (mask & 0x00000004) return WeaponBudget1H;
+            if (mask & 0x00000008) return PrimaryBudget;
+            if (mask & 0x00000010) return RangedBudget;
+            if (mask & 0x00040000) return TertiaryBudget;
+        }
+        return 0;
+    }
+
+    int32 getArmorMod(uint32 mask) const
+    {
+        if (mask & 0x00F001E0)
+        {
+            if (mask & 0x00000020) return ClothShoulderArmor;
+            if (mask & 0x00000040) return LeatherShoulderArmor;
+            if (mask & 0x00000080) return MailShoulderArmor;
+            if (mask & 0x00000100) return PlateShoulderArmor;
+
+            if (mask & 0x00080000) return ClothCloakArmor;
+            if (mask & 0x00100000) return ClothChestArmor;
+            if (mask & 0x00200000) return LeatherChestArmor;
+            if (mask & 0x00400000) return MailChestArmor;
+            if (mask & 0x00800000) return PlateChestArmor;
+        }
+        return 0;
+    }
+
+    int32 getDPSMod(uint32 mask) const
+    {
+        if (mask & 0x7E00)
+        {
+            if (mask & 0x00000200) return WeaponDPS1H;
+            if (mask & 0x00000400) return WeaponDPS2H;
+            if (mask & 0x00000800) return SpellcasterDPS1H;
+            if (mask & 0x00001000) return SpellcasterDPS2H;
+            if (mask & 0x00002000) return RangedDPS;
+            if (mask & 0x00004000) return WandDPS;
+        }
+        return 0;
+    }
+
+    bool isTwoHand(uint32 mask) const
+    {
+        if (mask & 0x7E00)
+        {
+            if (mask & 0x00000400) return true;
+            if (mask & 0x00001000) return true;
+        }
+        return false;
+    }
+
+    int32 getSpellBonus(uint32 mask) const
+    {
+        if (mask & 0x00008000) return SpellPower;
+        return 0;
+    }
 };
 
 struct SceneScriptEntry

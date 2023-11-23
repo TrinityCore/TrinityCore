@@ -410,7 +410,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, WorldObject co
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
             if (!itemTemplate)
                 return false;
-            return itemTemplate->GetBaseItemLevel() >= EquippedItem.ItemLevel && itemTemplate->GetQuality() >= EquippedItem.Quality;
+            return itemTemplate->GetItemLevel() >= EquippedItem.ItemLevel && itemTemplate->GetQuality() >= EquippedItem.Quality;
         }
         case CRITERIA_DATA_TYPE_MAP_ID:
             return source->GetMapId() == Map.Id;
@@ -1718,7 +1718,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             // miscValue1 is itemid
             ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-            if (!item || item->GetBaseItemLevel() < reqValue)
+            if (!item || item->GetItemLevel() < reqValue)
                 return false;
             break;
         }

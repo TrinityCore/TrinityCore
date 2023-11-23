@@ -1327,8 +1327,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SCALING_STAT_DISTRIBUTION, "SELECT MAX(ID) + 1 FROM scaling_stat_distribution", CONNECTION_SYNCH);
 
     // ScalingStatValues.db2
-    PrepareStatement(HOTFIX_SEL_SCALING_STAT_VALUES, "SELECT ID, Charlevel, WeaponDPS1H, WeaponDPS2h, SpellcasterDPS1H, SpellcasterDPS2H, RangedDPS, "
-        "WandDPS, SpellPower, ShoulderBudget, TrinketBudget, WeaponBudget, PrimaryBudget, RangedBudget, TertiaryBudget, ClothShoulderArmor, "
+    PrepareStatement(HOTFIX_SEL_SCALING_STAT_VALUES, "SELECT ID, Charlevel, WeaponDPS1H, WeaponDPS2H, SpellcasterDPS1H, SpellcasterDPS2H, RangedDPS, "
+        "WandDPS, SpellPower, ShoulderBudget, TrinketBudget, WeaponBudget1H, PrimaryBudget, RangedBudget, TertiaryBudget, ClothShoulderArmor, "
         "LeatherShoulderArmor, MailShoulderArmor, PlateShoulderArmor, ClothCloakArmor, ClothChestArmor, LeatherChestArmor, MailChestArmor, "
         "PlateChestArmor FROM scaling_stat_values WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SCALING_STAT_VALUES, "SELECT MAX(ID) + 1 FROM scaling_stat_values", CONNECTION_SYNCH);

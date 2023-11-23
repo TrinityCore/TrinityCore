@@ -2286,11 +2286,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect const* aurEff) const override;
 
-        void _ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras = true);
+        void _ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras = true, bool onlyForScalingItems = false);
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
         void _ApplyAllLevelScaleItemMods(bool apply);
-        void _ApplyItemBonuses(Item* item, uint8 slot, bool apply);
+        void _ApplyItemBonuses(Item* item, uint8 slot, bool apply, bool onlyForScalingItems = false);
         void _ApplyWeaponDamage(uint8 slot, Item* item, bool apply);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot) const;
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);

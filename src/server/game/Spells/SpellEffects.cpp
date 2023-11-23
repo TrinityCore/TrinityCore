@@ -3491,7 +3491,7 @@ void Spell::EffectFeedPet()
     ExecuteLogEffectDestroyItem(SpellEffectName(effectInfo->Effect), foodItem->GetEntry());
 
     int32 pct;
-    int32 levelDiff = int32(pet->GetLevel()) - int32(foodItem->GetTemplate()->GetBaseItemLevel());
+    int32 levelDiff = int32(pet->GetLevel()) - int32(foodItem->GetTemplate()->GetItemLevel());
     if (levelDiff >= 30)
         return;
     else if (levelDiff >= 20)

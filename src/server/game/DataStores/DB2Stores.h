@@ -499,6 +499,7 @@ public:
     bool IsUiMapPhase(uint32 phaseId) const;
     WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const;
     std::vector<ItemEffectEntry const*> const* GetItemEffectsForItemId(uint32 itemId) const;
+    ScalingStatValuesEntry const* GetScalingStatValuesForLevel(uint32 characterLevel) const;
 
 private:
     friend class DB2HotfixGeneratorBase;

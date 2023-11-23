@@ -786,7 +786,7 @@ struct TC_GAME_API ItemTemplate
     InventoryType GetInventoryType() const { return InventoryType(ExtendedData->InventoryType); }
     int32 GetAllowableClass() const { return ExtendedData->AllowableClass; }
     Trinity::RaceMask<int64> GetAllowableRace() const { return ExtendedData->AllowableRace; }
-    uint32 GetBaseItemLevel() const { return ExtendedData->ItemLevel; }
+    uint32 GetItemLevel() const { return ExtendedData->ItemLevel; }
     int32 GetBaseRequiredLevel() const { return ExtendedData->RequiredLevel; }
     uint32 GetRequiredSkill() const { return ExtendedData->RequiredSkill; }
     uint32 GetRequiredSkillRank() const { return ExtendedData->RequiredSkillRank; }
@@ -826,6 +826,8 @@ struct TC_GAME_API ItemTemplate
     uint8 GetRequiredExpansion() const { return ExtendedData->ExpansionID; }
     int16 GetResistance(SpellSchools school) const { return ExtendedData->Resistances[school]; }
     int16 GetShieldBlockValue(uint32 itemLevel) const;
+    uint16 GetScalingStatDistributionID() const { return ExtendedData->ScalingStatDistributionID; }
+    int32 GetScalingStatValue() const { return BasicData->ScalingStatValue; }
 
     uint32 MaxDurability;
     std::vector<ItemEffectEntry const*> Effects;

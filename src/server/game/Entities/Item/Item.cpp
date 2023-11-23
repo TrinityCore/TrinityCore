@@ -1139,7 +1139,7 @@ void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem, uint32 gemScalin
                 BonusData gemBonus;
                 gemBonus.Initialize(gemTemplate);
 
-                uint32 gemBaseItemLevel = gemTemplate->GetBaseItemLevel();
+                uint32 gemBaseItemLevel = gemTemplate->GetItemLevel();
                 if (gemBonus.PlayerLevelToItemLevelCurveId)
                     if (uint32 scaledIlvl = uint32(sDB2Manager.GetCurveValueAt(gemBonus.PlayerLevelToItemLevelCurveId, gemScalingLevel)))
                         gemBaseItemLevel = scaledIlvl;
@@ -1564,16 +1564,7 @@ bool Item::HasStats() const
     ItemTemplate const* proto = GetTemplate();
     Player const* owner = GetOwner();
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if ((owner ? GetItemStatValue(i, owner) : proto->GetStatPercentEditor(i)) != 0)
-            return true;
-
-    return false;
-}
-
-bool Item::HasStats(WorldPackets::Item::ItemInstance const& /*itemInstance*/, BonusData const* bonus)
-{
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (bonus->ItemStatBonusAmount[i] != 0)
+        if (proto->GetStatModifierBonusAmount(i) != 0)
             return true;
 
     return false;
@@ -1895,7 +1886,7 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
     if (!itemTemplate)
         return MIN_ITEM_LEVEL;
 
-    uint32 itemLevel = itemTemplate->GetBaseItemLevel();
+    uint32 itemLevel = itemTemplate->GetItemLevel();
 
     if (bonusData.PlayerLevelToItemLevelCurveId)
     {
@@ -1927,12 +1918,6 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
     }
 
     return std::min(std::max(itemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
-}
-
-float Item::GetItemStatValue(uint32 index, Player const* owner) const
-{
-    ASSERT(index < MAX_ITEM_PROTO_STATS);
-    return static_cast<float>(_bonusData.ItemStatBonusAmount[index]);
 }
 
 ItemDisenchantLootEntry const* Item::GetDisenchantLoot(Player const* owner) const
@@ -2150,11 +2135,6 @@ void BonusData::Initialize(ItemTemplate const* proto)
     Quality = proto->GetQuality();
     ItemLevelBonus = 0;
     RequiredLevel = proto->GetBaseRequiredLevel();
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        ItemStatType[i] = proto->GetStatModifierBonusStat(i);
-
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        ItemStatBonusAmount[i] = proto->GetStatModifierBonusAmount(i);
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         ItemStatSocketCostMultiplier[i] = proto->GetStatPercentageOfSocket(i);

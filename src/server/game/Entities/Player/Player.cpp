@@ -7705,7 +7705,7 @@ void Player::DuelComplete(DuelCompleteType type)
 
 //---------------------------------------------------------//
 
-void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras /*= true*/)
+void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras /*= true*/, bool onlyForScalingItems /*= false*/)
 {
     if (slot >= INVENTORY_SLOT_BAG_END || !item)
         return;
@@ -7723,7 +7723,7 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
     if (item->GetSocketColor(0))                              //only (un)equipping of items with sockets can influence metagems, so no need to waste time with normal items
         CorrectMetaGemEnchants(slot, apply);
 
-    _ApplyItemBonuses(item, slot, apply);
+    _ApplyItemBonuses(item, slot, apply, onlyForScalingItems);
     ApplyItemEquipSpell(item, apply);
     if (updateItemAuras)
     {
@@ -7739,27 +7739,44 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
     TC_LOG_DEBUG("entities.player.items", "Player::_ApplyItemMods: completed");
 }
 
-void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
+void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply, bool onlyForScalingItems /*= false*/)
 {
     ItemTemplate const* proto = item->GetTemplate();
     if (slot >= INVENTORY_SLOT_BAG_END || !proto)
         return;
 
-    uint32 itemLevel = item->GetItemLevel(this);
+    ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(proto->GetScalingStatDistributionID());
+    ScalingStatValuesEntry const* ssv = proto->GetScalingStatValue() != 0 ? sDB2Manager.GetScalingStatValuesForLevel(std::clamp<uint32>(GetLevel(), ssd->MinLevel, ssd->MaxLevel)) : nullptr;
 
-    float combatRatingMultiplier = 1.0f;
-    //if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(itemLevel))
-    //    combatRatingMultiplier = GetIlvlStatMultiplier(ratingMult, proto->GetInventoryType());
+    if (onlyForScalingItems && (!ssd || !ssv))
+        return;
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
-        int32 statType = item->GetItemStatType(i);
-        if (statType == -1)
-            continue;
+        int32 statType = 0;
+        int32 val = 0;
 
-        float val = item->GetItemStatValue(i, this);
+        if (ssd && ssv)
+        {
+            statType = ssd->StatID[i];
+            if (statType == -1)
+                continue;
+
+            val = (ssv->getssdMultiplier(proto->GetScalingStatValue()) * ssd->Bonus[i]) / 10000;
+        }
+        else
+        {
+            statType = proto->GetStatModifierBonusStat(i);
+            if (statType == -1)
+                continue;
+
+            val = proto->GetStatModifierBonusAmount(i);
+        }
+
         if (val == 0)
             continue;
+
+        float const combatRatingMultiplier = 1.0f;
 
         switch (statType)
         {
@@ -7982,11 +7999,24 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
         }
     }
 
+    // Apply Spell Power from ScalingStatValue if set
+    if (ssv)
+        if (int32 spellbonus = ssv->getSpellBonus(proto->GetScalingStatValue()))
+            ApplySpellPowerBonus(spellbonus, apply);
+
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+    {
+        SpellSchools school = SpellSchools(i);
+        int16 resistance = proto->GetResistance(school);
+        if (school == SPELL_SCHOOL_NORMAL && ssv)
+            if (uint32 ssvarmor = ssv->getArmorMod(proto->GetScalingStatValue()))
+                resistance = ssvarmor;
+
         if (int16 resistance = proto->GetResistance(SpellSchools(i)))
             HandleStatFlatModifier(UnitMods(UNIT_MOD_ARMOR + i), BASE_VALUE, float(resistance), apply);
+    }
 
-    if (int16 shieldBlockValue = proto->GetShieldBlockValue(itemLevel))
+    if (int16 shieldBlockValue = proto->GetShieldBlockValue(proto->GetItemLevel()))
         if (proto->GetClass() == ITEM_CLASS_ARMOR && proto->GetSubClass() == ITEM_SUBCLASS_ARMOR_SHIELD)
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ShieldBlock), apply ? shieldBlockValue : 0);
 
@@ -8611,7 +8641,7 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
             if (!CanUseAttackType(Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType())))
                 continue;
 
-            _ApplyItemMods(m_items[i], i, apply);
+            _ApplyItemMods(m_items[i], i, apply, true);
 
             // Update item sets for heirlooms
             if (sDB2Manager.GetHeirloomByItemId(m_items[i]->GetEntry()) && m_items[i]->GetTemplate()->GetItemSet())
@@ -22355,7 +22385,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 
     if (crItem->maxcount != 0) // bought
     {
-        if (pProto->GetQuality() > ITEM_QUALITY_EPIC || (pProto->GetQuality() == ITEM_QUALITY_EPIC && pProto->GetBaseItemLevel() >= MinNewsItemLevel))
+        if (pProto->GetQuality() > ITEM_QUALITY_EPIC || (pProto->GetQuality() == ITEM_QUALITY_EPIC && pProto->GetItemLevel() >= MinNewsItemLevel))
             if (Guild* guild = GetGuild())
                 guild->AddGuildNews(GUILD_NEWS_ITEM_PURCHASED, GetGUID(), 0, item);
 

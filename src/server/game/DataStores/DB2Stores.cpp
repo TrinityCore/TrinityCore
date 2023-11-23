@@ -478,6 +478,7 @@ namespace
     std::unordered_set<uint8> _spellFamilyNames;
     SpellProcsPerMinuteModContainer _spellProcsPerMinuteMods;
     std::unordered_map<int32, std::vector<SpellVisualMissileEntry const*>> _spellVisualMissilesBySet;
+    std::unordered_map<uint32, ScalingStatValuesEntry const*> _scalingStatValuesByLevel;
     TalentsByPosition _talentsByPosition;
     std::unordered_map<std::pair<uint32, uint32>, TaxiPathEntry const*> _taxiPaths;
     ToyItemIdsContainer _toys;
@@ -1340,6 +1341,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (SpellVisualMissileEntry const* spellVisualMissile : sSpellVisualMissileStore)
         _spellVisualMissilesBySet[spellVisualMissile->SpellVisualMissileSetID].push_back(spellVisualMissile);
+
+    for (ScalingStatValuesEntry const* scalingStatValue : sScalingStatValuesStore)
+        _scalingStatValuesByLevel[scalingStatValue->Charlevel] = scalingStatValue;
 
     for (TalentEntry const* talentInfo : sTalentStore)
     {
@@ -3050,4 +3054,9 @@ bool DB2Manager::MountTypeXCapabilityEntryComparator::Compare(MountTypeXCapabili
 std::vector<ItemEffectEntry const*> const* DB2Manager::GetItemEffectsForItemId(uint32 itemId) const
 {
     return Trinity::Containers::MapGetValuePtr(_itemEffectsByItemId, itemId);
+}
+
+ScalingStatValuesEntry const* DB2Manager::GetScalingStatValuesForLevel(uint32 characterLevel) const
+{
+    return Trinity::Containers::MapGetValuePtr(_scalingStatValuesByLevel, characterLevel);
 }
