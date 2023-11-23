@@ -61,7 +61,6 @@
 #include "GuildMgr.h"
 #include "InstanceLockMgr.h"
 #include "IPLocation.h"
-#include "ItemBonusMgr.h"
 #include "Language.h"
 #include "LanguageMgr.h"
 #include "LFGMgr.h"
@@ -1960,12 +1959,6 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Enchant Spells Proc datas...");
     sSpellMgr->LoadSpellEnchantProcData();
-
-    TC_LOG_INFO("server.loading", "Loading item bonus data...");
-    ItemBonusMgr::Load();
-
-    TC_LOG_INFO("server.loading", "Loading Random item bonus list definitions...");
-    LoadItemRandomBonusListTemplates();
 
     TC_LOG_INFO("server.loading", "Loading Disables");                         // must be before loading quests and items
     DisableMgr::LoadDisables();

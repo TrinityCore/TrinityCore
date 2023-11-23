@@ -18,7 +18,6 @@
 #include "Hyperlinks.h"
 #include "DB2Stores.h"
 #include "Item.h"
-#include "ItemBonusMgr.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
@@ -106,28 +105,14 @@ bool Trinity::Hyperlinks::LinkTags::api::StoreTo(ApiLinkData& val, std::string_v
     return true;
 }
 
-bool Trinity::Hyperlinks::LinkTags::apower::StoreTo(ArtifactPowerLinkData& val, std::string_view text)
+bool Trinity::Hyperlinks::LinkTags::apower::StoreTo(ArtifactPowerLinkData& /*val*/, std::string_view /*text*/)
 {
-    HyperlinkDataTokenizer t(text);
-    uint32 artifactPowerId;
-    if (!(t.TryConsumeTo(artifactPowerId) && t.TryConsumeTo(val.PurchasedRank) && t.TryConsumeTo(val.CurrentRankWithBonus) && t.IsEmpty()))
-        return false;
-    if (!sArtifactPowerStore.LookupEntry(artifactPowerId))
-        return false;
-    val.ArtifactPower = sDB2Manager.GetArtifactPowerRank(artifactPowerId, std::max<uint8>(val.CurrentRankWithBonus, 1));
-    if (val.ArtifactPower)
-        return false;
-    return true;
+    return false;
 }
 
-bool Trinity::Hyperlinks::LinkTags::azessence::StoreTo(AzeriteEssenceLinkData& val, std::string_view text)
+bool Trinity::Hyperlinks::LinkTags::azessence::StoreTo(AzeriteEssenceLinkData& /*val*/, std::string_view /*text*/)
 {
-    HyperlinkDataTokenizer t(text);
-    uint32 azeriteEssenceId;
-    if (!t.TryConsumeTo(azeriteEssenceId))
-        return false;
-    return (val.Essence = sAzeriteEssenceStore.LookupEntry(azeriteEssenceId)) && t.TryConsumeTo(val.Rank)
-        && sDB2Manager.GetAzeriteEssencePower(azeriteEssenceId, val.Rank) && t.IsEmpty();
+    return false;
 }
 
 bool Trinity::Hyperlinks::LinkTags::battlepet::StoreTo(BattlePetLinkData& val, std::string_view text)
@@ -286,18 +271,12 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string
     {
         if (!t.TryConsumeTo(itemBonusListID))
             return false;
-
-        evaluatedBonus.AddBonusList(itemBonusListID);
     }
 
     if (!val.ItemBonusListIDs.empty() && val.ItemBonusListIDs[0] == 3524) // default uninitialized bonus
     {
-        val.ItemBonusListIDs = ItemBonusMgr::GetBonusListsForItem(itemId, ItemContext(val.Context));
-
         // reset bonuses
         evaluatedBonus.Initialize(val.Item);
-        for (int32 itemBonusListID : val.ItemBonusListIDs)
-            evaluatedBonus.AddBonusList(itemBonusListID);
     }
 
     val.Quality = evaluatedBonus.Quality;

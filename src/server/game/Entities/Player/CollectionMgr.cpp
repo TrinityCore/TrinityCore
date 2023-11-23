@@ -266,9 +266,6 @@ void CollectionMgr::UpgradeHeirloom(uint32 itemId, int32 castItem)
         }
     }
 
-    for (Item* item : player->GetItemListByEntry(itemId, true))
-        item->AddBonuses(bonusId);
-
     // Get heirloom offset to update only one part of dynamic field
     auto const& heirlooms = player->m_activePlayerData->Heirlooms;
     uint32 offset = uint32(std::distance(heirlooms.begin(), std::find(heirlooms.begin(), heirlooms.end(), int32(itemId))));
@@ -321,20 +318,6 @@ void CollectionMgr::CheckHeirloomUpgrades(Item* item)
 
             return;
         }
-
-        std::vector<int32> const& bonusListIDs = item->GetBonusListIDs();
-
-        for (uint32 bonusId : bonusListIDs)
-        {
-            if (bonusId != itr->second.bonusId)
-            {
-                item->ClearBonuses();
-                break;
-            }
-        }
-
-        if (std::find(bonusListIDs.begin(), bonusListIDs.end(), int32(itr->second.bonusId)) == bonusListIDs.end())
-            item->AddBonuses(itr->second.bonusId);
     }
 }
 

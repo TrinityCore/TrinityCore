@@ -588,7 +588,7 @@ bool Player::StoreNewItemInBestSlots(uint32 itemId, uint32 amount, ItemContext c
     InventoryResult msg = CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, itemId, amount);
     if (msg == EQUIP_ERR_OK)
     {
-        StoreNewItem(sDest, itemId, true, GenerateItemRandomBonusListId(itemId), GuidSet(), context);
+        StoreNewItem(sDest, itemId, true, GuidSet(), context);
         return true;                                        // stored
     }
 
@@ -2375,10 +2375,6 @@ void Player::GiveLevel(uint8 level)
 
     _ApplyAllLevelScaleItemMods(true); // Moved to above SetFullHealth so player will have full health from Heirlooms
 
-    if (Aura const* artifactAura = GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
-        if (Item* artifact = GetItemByGuid(artifactAura->GetCastItemGUID()))
-            artifact->CheckArtifactRelicSlotUnlock(this);
-
     // Only health and mana are set to maximum.
     SetFullHealth();
     for (PowerTypeEntry const* powerType : sPowerTypeStore)
@@ -3935,35 +3931,11 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
                 if (resultItems)
                 {
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_ARTIFACT);
-                    stmt->setUInt64(0, guid);
-                    PreparedQueryResult artifactResult = CharacterDatabase.Query(stmt);
-
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE);
-                    stmt->setUInt64(0, guid);
-                    PreparedQueryResult azeriteResult = CharacterDatabase.Query(stmt);
-
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE_MILESTONE_POWER);
-                    stmt->setUInt64(0, guid);
-                    PreparedQueryResult azeriteItemMilestonePowersResult = CharacterDatabase.Query(stmt);
-
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE_UNLOCKED_ESSENCE);
-                    stmt->setUInt64(0, guid);
-                    PreparedQueryResult azeriteItemUnlockedEssencesResult = CharacterDatabase.Query(stmt);
-
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE_EMPOWERED);
-                    stmt->setUInt64(0, guid);
-                    PreparedQueryResult azeriteEmpoweredItemResult = CharacterDatabase.Query(stmt);
-
-                    std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo> additionalData;
-                    ItemAdditionalLoadInfo::Init(&additionalData, artifactResult, azeriteResult, azeriteItemMilestonePowersResult,
-                        azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult);
-
                     do
                     {
                         Field* fields = resultItems->Fetch();
                         uint64 mailId = fields[44].GetUInt64();
-                        if (Item* mailItem = _LoadMailedItem(playerguid, nullptr, mailId, nullptr, fields, Trinity::Containers::MapGetValuePtr(additionalData, fields[0].GetUInt64())))
+                        if (Item* mailItem = _LoadMailedItem(playerguid, nullptr, mailId, nullptr, fields))
                             itemsByMail[mailId].push_back(mailItem);
 
                     } while (resultItems->NextRow());
@@ -4161,31 +4133,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_ARTIFACT_BY_OWNER);
-            stmt->setUInt64(0, guid);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_ARTIFACT_POWERS_BY_OWNER);
-            stmt->setUInt64(0, guid);
-            trans->Append(stmt);
-
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_MODIFIERS_BY_OWNER);
-            stmt->setUInt64(0, guid);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_BY_OWNER);
-            stmt->setUInt64(0, guid);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER_BY_OWNER);
-            stmt->setUInt64(0, guid);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE_BY_OWNER);
-            stmt->setUInt64(0, guid);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_EMPOWERED_BY_OWNER);
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
@@ -9335,21 +9283,6 @@ Item* Player::GetShield(bool useable) const
     return item;
 }
 
-Item* Player::GetChildItemByGuid(ObjectGuid guid) const
-{
-    Item* result = nullptr;
-    ForEachItem(ItemSearchLocation::Equipment | ItemSearchLocation::Inventory, [&result, guid](Item* item)
-    {
-        if (item->GetGUID() == guid)
-        {
-            result = item;
-            return ItemSearchCallbackResult::Stop;
-        }
-        return ItemSearchCallbackResult::Continue;
-    });
-    return result;
-}
-
 WeaponAttackType Player::GetAttackBySlot(uint8 slot, InventoryType inventoryType)
 {
     switch (slot)
@@ -10830,46 +10763,6 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
     return !swap ? EQUIP_ERR_ITEM_NOT_FOUND : EQUIP_ERR_CANT_SWAP;
 }
 
-InventoryResult Player::CanEquipChildItem(Item* parentItem) const
-{
-    Item* childItem = GetChildItemByGuid(parentItem->GetChildItem());
-    if (!childItem)
-        return EQUIP_ERR_OK;
-
-    ItemChildEquipmentEntry const* childEquipement = sDB2Manager.GetItemChildEquipment(parentItem->GetEntry());
-    if (!childEquipement)
-        return EQUIP_ERR_OK;
-
-    Item* dstItem = GetItemByPos(INVENTORY_SLOT_BAG_0, childEquipement->ChildItemEquipSlot);
-    if (!dstItem)
-        return EQUIP_ERR_OK;
-
-    uint16 childDest = (INVENTORY_SLOT_BAG_0 << 8) | childEquipement->ChildItemEquipSlot;
-    InventoryResult msg = CanUnequipItem(childDest, !childItem->IsBag());
-    if (msg != EQUIP_ERR_OK)
-        return msg;
-
-    // check dest->src move possibility
-    uint16 src = parentItem->GetPos();
-    ItemPosCountVec dest;
-    if (IsInventoryPos(src))
-    {
-        msg = CanStoreItem(parentItem->GetBagSlot(), NULL_SLOT, dest, dstItem, true);
-        if (msg != EQUIP_ERR_OK)
-            msg = CanStoreItem(NULL_BAG, NULL_SLOT, dest, dstItem, true);
-    }
-    else if (IsBankPos(src))
-    {
-        msg = CanBankItem(parentItem->GetBagSlot(), NULL_SLOT, dest, dstItem, true);
-        if (msg != EQUIP_ERR_OK)
-            msg = CanBankItem(NULL_BAG, NULL_SLOT, dest, dstItem, true);
-    }
-    else if (IsEquipmentPos(src))
-        return EQUIP_ERR_CANT_SWAP;
-
-    return msg;
-}
-
 InventoryResult Player::CanUnequipItem(uint16 pos, bool swap) const
 {
     // Applied only to equipped items and bank bags
@@ -11261,22 +11154,16 @@ InventoryResult Player::CanRollNeedForItem(ItemTemplate const* proto, Map const*
 }
 
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
-Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomBonusListId randomBonusListId /*= 0*/,
-    GuidSet const& allowedLooters /*= GuidSet()*/, ItemContext context /*= ItemContext::NONE*/,
-    std::vector<int32> const* bonusListIDs /*= std::vector<int32>()*/, bool addToCollection /*= true*/)
+Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, GuidSet const& allowedLooters /*= GuidSet()*/, ItemContext context /*= ItemContext::NONE*/, bool addToCollection /*= true*/)
 {
     uint32 count = 0;
     for (ItemPosCountVec::const_iterator itr = pos.begin(); itr != pos.end(); ++itr)
         count += itr->count;
 
-    Item* item = Item::CreateItem(itemId, count, context, this, bonusListIDs == nullptr);
+    Item* item = Item::CreateItem(itemId, count, context, this);
     if (item)
     {
         item->SetItemFlag(ITEM_FIELD_FLAG_NEW_ITEM);
-
-        if (bonusListIDs)
-            item->SetBonuses(*bonusListIDs);
-
         item = StoreItem(pos, item, update);
 
         ItemAddedQuestCheck(itemId, count);
@@ -11284,7 +11171,6 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         UpdateCriteria(CriteriaType::AcquireItem, itemId, count);
 
         item->SetFixedLevel(GetLevel());
-        item->SetItemRandomBonusList(randomBonusListId);
 
         if (allowedLooters.size() > 1 && item->GetTemplate()->GetMaxStackSize() == 1 && item->IsSoulBound())
         {
@@ -11307,21 +11193,6 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
 
         if (addToCollection)
             GetSession()->GetCollectionMgr()->OnItemAdded(item);
-
-        if (ItemChildEquipmentEntry const* childItemEntry = sDB2Manager.GetItemChildEquipment(itemId))
-        {
-            if (ItemTemplate const* childTemplate = sObjectMgr->GetItemTemplate(childItemEntry->ChildItemID))
-            {
-                ItemPosCountVec childDest;
-                CanStoreItem_InInventorySlots(CHILD_EQUIPMENT_SLOT_START, CHILD_EQUIPMENT_SLOT_END, childDest, childTemplate, count, false, nullptr, NULL_BAG, NULL_SLOT);
-                if (Item* childItem = StoreNewItem(childDest, childTemplate->GetId(), update, {}, {}, context, {}, addToCollection))
-                {
-                    childItem->SetCreator(item->GetGUID());
-                    childItem->SetItemFlag(ITEM_FIELD_FLAG_CHILD);
-                    item->SetChildItem(childItem->GetGUID());
-                }
-            }
-        }
 
         if (item->GetTemplate()->GetInventoryType() != INVTYPE_NON_EQUIP)
             UpdateAverageItemLevelTotal();
@@ -11351,8 +11222,6 @@ Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
 
         lastItem = _StoreItem(pos, pItem, count, true, update);
     }
-
-    AutoUnequipChildItem(lastItem);
 
     return lastItem;
 }
@@ -11588,105 +11457,6 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
     return pItem;
 }
 
-void Player::EquipChildItem(uint8 parentBag, uint8 parentSlot, Item* parentItem)
-{
-    if (ItemChildEquipmentEntry const* itemChildEquipment = sDB2Manager.GetItemChildEquipment(parentItem->GetEntry()))
-    {
-        if (Item* childItem = GetChildItemByGuid(parentItem->GetChildItem()))
-        {
-            uint16 childDest = (INVENTORY_SLOT_BAG_0 << 8) | itemChildEquipment->ChildItemEquipSlot;
-            if (childItem->GetPos() != childDest)
-            {
-                Item* dstItem = GetItemByPos(childDest);
-                if (!dstItem)                                      // empty slot, simple case
-                {
-                    RemoveItem(childItem->GetBagSlot(), childItem->GetSlot(), true);
-                    EquipItem(childDest, childItem, true);
-                    AutoUnequipOffhandIfNeed();
-                }
-                else                                                    // have currently equipped item, not simple case
-                {
-                    uint8 dstbag = dstItem->GetBagSlot();
-                    uint8 dstslot = dstItem->GetSlot();
-
-                    InventoryResult msg = CanUnequipItem(childDest, !childItem->IsBag());
-                    if (msg != EQUIP_ERR_OK)
-                    {
-                        SendEquipError(msg, dstItem);
-                        return;
-                    }
-
-                    // check dest->src move possibility but try to store currently equipped item in the bag where the parent item is
-                    ItemPosCountVec sSrc;
-                    uint16 eSrc = 0;
-                    if (IsInventoryPos(parentBag, parentSlot))
-                    {
-                        msg = CanStoreItem(parentBag, NULL_SLOT, sSrc, dstItem, true);
-                        if (msg != EQUIP_ERR_OK)
-                            msg = CanStoreItem(NULL_BAG, NULL_SLOT, sSrc, dstItem, true);
-                    }
-                    else if (IsBankPos(parentBag, parentSlot))
-                    {
-                        msg = CanBankItem(parentBag, NULL_SLOT, sSrc, dstItem, true);
-                        if (msg != EQUIP_ERR_OK)
-                            msg = CanBankItem(NULL_BAG, NULL_SLOT, sSrc, dstItem, true);
-                    }
-                    else if (IsEquipmentPos(parentBag, parentSlot))
-                    {
-                        msg = CanEquipItem(parentSlot, eSrc, dstItem, true);
-                        if (msg == EQUIP_ERR_OK)
-                            msg = CanUnequipItem(eSrc, true);
-                    }
-
-                    if (msg != EQUIP_ERR_OK)
-                    {
-                        SendEquipError(msg, dstItem, childItem);
-                        return;
-                    }
-
-                    // now do moves, remove...
-                    RemoveItem(dstbag, dstslot, false);
-                    RemoveItem(childItem->GetBagSlot(), childItem->GetSlot(), false);
-
-                    // add to dest
-                    EquipItem(childDest, childItem, true);
-
-                    // add to src
-                    if (IsInventoryPos(parentBag, parentSlot))
-                        StoreItem(sSrc, dstItem, true);
-                    else if (IsBankPos(parentBag, parentSlot))
-                        BankItem(sSrc, dstItem, true);
-                    else if (IsEquipmentPos(parentBag, parentSlot))
-                        EquipItem(eSrc, dstItem, true);
-
-                    AutoUnequipOffhandIfNeed();
-                }
-            }
-        }
-    }
-}
-
-void Player::AutoUnequipChildItem(Item* parentItem)
-{
-    if (sDB2Manager.GetItemChildEquipment(parentItem->GetEntry()))
-    {
-        if (Item* childItem = GetChildItemByGuid(parentItem->GetChildItem()))
-        {
-            if (IsChildEquipmentPos(childItem->GetPos()))
-                return;
-
-            ItemPosCountVec dest;
-            uint32 count = childItem->GetCount();
-            InventoryResult result = CanStoreItem_InInventorySlots(CHILD_EQUIPMENT_SLOT_START, CHILD_EQUIPMENT_SLOT_END, dest, childItem->GetTemplate(), count, false, childItem, NULL_BAG, NULL_SLOT);
-            if (result != EQUIP_ERR_OK)
-                return;
-
-            RemoveItem(childItem->GetBagSlot(), childItem->GetSlot(), true);
-            StoreItem(dest, childItem, true);
-        }
-    }
-}
-
 void Player::QuickEquipItem(uint16 pos, Item* pItem)
 {
     if (pItem)
@@ -11841,8 +11611,6 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
         pItem->SetSlot(NULL_SLOT);
         if (IsInWorld() && update)
             pItem->SendUpdateToPlayer(this);
-
-        AutoUnequipChildItem(pItem);
 
         if (bag == INVENTORY_SLOT_BAG_0)
             UpdateAverageItemLevelEquipped();
@@ -12504,7 +12272,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
         {
             if (IsEquipmentPos(src))
             {
-                AutoUnequipChildItem(parentItem);   // we need to unequip child first since it cannot go into whatever is going to happen next
                 SwapItem(dst, src);                 // src is now empty
                 SwapItem(parentItem->GetPos(), dst);// dst is now empty
                 return;
@@ -12517,7 +12284,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
         {
             if (IsEquipmentPos(dst))
             {
-                AutoUnequipChildItem(parentItem);   // we need to unequip child first since it cannot go into whatever is going to happen next
                 SwapItem(src, dst);                 // dst is now empty
                 SwapItem(parentItem->GetPos(), src);// src is now empty
                 return;
@@ -12646,9 +12412,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
         else
             return;
 
-        if (msg == EQUIP_ERR_OK && IsEquipmentPos(dst) && !pSrcItem->GetChildItem().IsEmpty())
-            msg = CanEquipChildItem(pSrcItem);
-
         // can be merge/fill
         if (msg == EQUIP_ERR_OK)
         {
@@ -12663,9 +12426,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 else if (IsEquipmentPos(dst))
                 {
                     EquipItem(eDest, pSrcItem, true);
-                    if (!pSrcItem->GetChildItem().IsEmpty())
-                        EquipChildItem(srcbag, srcslot, pSrcItem);
-
                     AutoUnequipOffhandIfNeed();
                 }
             }
@@ -12722,9 +12482,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
         if (msg == EQUIP_ERR_OK)
             msg = CanUnequipItem(eDest2, true);
     }
-
-    if (msg == EQUIP_ERR_OK && IsEquipmentPos(dst) && !pSrcItem->GetChildItem().IsEmpty())
-        msg = CanEquipChildItem(pSrcItem);
 
     if (msg != EQUIP_ERR_OK)
     {
@@ -12811,8 +12568,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
     else if (IsEquipmentPos(dst))
     {
         EquipItem(eDest, pSrcItem, true);
-        if (!pSrcItem->GetChildItem().IsEmpty())
-            EquipChildItem(srcbag, srcslot, pSrcItem);
     }
 
     // add to src
@@ -14803,7 +14558,7 @@ void Player::RewardQuestPackage(uint32 questPackageId, ItemContext context, uint
                 ItemPosCountVec dest;
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemQuantity) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomBonusListId(questPackageItem->ItemID), {}, context);
+                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, {}, context);
                     SendNewItem(item, questPackageItem->ItemQuantity, true, false);
                 }
             }
@@ -14822,7 +14577,7 @@ void Player::RewardQuestPackage(uint32 questPackageId, ItemContext context, uint
                 ItemPosCountVec dest;
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemQuantity) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomBonusListId(questPackageItem->ItemID), {}, context);
+                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, {}, context);
                     SendNewItem(item, questPackageItem->ItemQuantity, true, false);
                 }
             }
@@ -14882,7 +14637,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
                 ItemPosCountVec dest;
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardItemCount[i]) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId), {}, ItemContext::Quest_Reward);
+                    Item* item = StoreNewItem(dest, itemId, true, {}, ItemContext::Quest_Reward);
                     SendNewItem(item, quest->RewardItemCount[i], true, false);
                 }
                 else if (quest->IsDFQuest())
@@ -14927,7 +14682,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
                         ItemPosCountVec dest;
                         if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, rewardId, quest->RewardChoiceItemCount[i]) == EQUIP_ERR_OK)
                         {
-                            Item* item = StoreNewItem(dest, rewardId, true, GenerateItemRandomBonusListId(rewardId), {}, ItemContext::Quest_Reward);
+                            Item* item = StoreNewItem(dest, rewardId, true, {}, ItemContext::Quest_Reward);
                             SendNewItem(item, quest->RewardChoiceItemCount[i], true, false);
                         }
                     }
@@ -17779,13 +17534,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     // must be before inventory (some items required reputation check)
     m_reputationMgr->LoadFromDB(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_REPUTATION));
 
-    _LoadInventory(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INVENTORY),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARTIFACTS),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AZERITE),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AZERITE_MILESTONE_POWERS),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AZERITE_UNLOCKED_ESSENCES),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AZERITE_EMPOWERED),
-        time_diff);
+    _LoadInventory(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INVENTORY), time_diff);
 
     if (IsVoidStorageUnlocked())
         _LoadVoidStorage(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_VOID_STORAGE));
@@ -17796,13 +17545,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     StartLoadingActionButtons();
 
     // unread mails and next delivery time, actual mails not loaded
-    _LoadMail(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAILS),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_ARTIFACT),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE_MILESTONE_POWER),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE_UNLOCKED_ESSENCE),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE_EMPOWERED));
+    _LoadMail(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAILS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS));
 
     m_social = sSocialMgr->LoadFromDB(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SOCIAL_LIST), GetGUID());
 
@@ -18231,9 +17974,7 @@ void Player::LoadCorpse(PreparedQueryResult result)
     RemoveAtLoginFlag(AT_LOGIN_RESURRECT);
 }
 
-void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult artifactsResult, PreparedQueryResult azeriteResult,
-    PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult,
-    PreparedQueryResult azeriteEmpoweredItemResult, uint32 timeDiff)
+void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 {
     //           0          1            2                3      4         5        6      7             8                 9          10          11    12
     // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
@@ -18263,10 +18004,6 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
     //expected to be equipped before offhand items (@todo fixme)
 
-    std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo> additionalData;
-    ItemAdditionalLoadInfo::Init(&additionalData, artifactsResult, azeriteResult, azeriteItemMilestonePowersResult,
-        azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult);
-
     if (result)
     {
         uint32 zoneId = GetZoneId();
@@ -18283,36 +18020,13 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                if (ItemAdditionalLoadInfo* addionalDataPtr = Trinity::Containers::MapGetValuePtr(additionalData, fields[0].GetUInt64()))
-                {
-                    if (item->GetTemplate()->GetArtifactID() && addionalDataPtr->Artifact)
-                        item->LoadArtifactData(this, addionalDataPtr->Artifact->Xp, addionalDataPtr->Artifact->ArtifactAppearanceId,
-                            addionalDataPtr->Artifact->ArtifactTierId, addionalDataPtr->Artifact->ArtifactPowers);
-                }
-
-                ObjectGuid bagGuid = fields[51].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[51].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[52].GetUInt8();
+                ObjectGuid bagGuid = fields[49].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[49].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[50].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
                 GetSession()->GetCollectionMgr()->AddItemAppearance(item);
 
                 InventoryResult err = EQUIP_ERR_OK;
-                if (item->HasItemFlag(ITEM_FIELD_FLAG_CHILD))
-                {
-                    if (Item* parent = GetItemByGuid(item->GetCreator()))
-                    {
-                        parent->SetChildItem(item->GetGUID());
-                        item->CopyArtifactDataFromParent(parent);
-                    }
-                    else
-                    {
-                        TC_LOG_ERROR("entities.player", "Player::_LoadInventory: Player '{}' ({}) has child item ({}, entry: {}) which can't be loaded into inventory because parent item was not found (Bag {}, slot: {}). Item will be sent by mail.",
-                            GetName(), GetGUID().ToString(), item->GetGUID().ToString(), item->GetEntry(), bagGuid.ToString(), slot);
-                        item->DeleteFromInventoryDB(trans);
-                        problematicItems.push_back(item);
-                        continue;
-                    }
-                }
 
                 // Item is not in bag
                 if (!bagGuid)
@@ -18431,15 +18145,8 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         uint32 itemEntry = fields[1].GetUInt32();
         uint8 slot = fields[2].GetUInt8();
         ObjectGuid creatorGuid = fields[3].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt64()) : ObjectGuid::Empty;
-        ItemRandomBonusListId randomBonusListId = fields[4].GetUInt32();
-        uint32 fixedScalingLevel = fields[5].GetUInt32();
-        uint32 artifactKnowledgeLevel = fields[6].GetUInt32();
-        ItemContext context = ItemContext(fields[7].GetUInt8());
-        std::vector<int32> bonusListIDs;
-        for (std::string_view bonusListIDtoken : Trinity::Tokenize(fields[8].GetStringView(), ' ', false))
-            if (Optional<int32> bonusListID = Trinity::StringTo<int32>(bonusListIDtoken))
-                bonusListIDs.push_back(*bonusListID);
-
+        uint32 fixedScalingLevel = fields[4].GetUInt32();
+        ItemContext context = ItemContext(fields[5].GetUInt8());
         if (!itemId)
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage: Player '{}' ({}) has an item with an invalid id (item id: {}, entry: {}).",
@@ -18461,8 +18168,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
             continue;
         }
 
-        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomBonusListId, fixedScalingLevel, artifactKnowledgeLevel,
-            context, bonusListIDs);
+        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, fixedScalingLevel, context);
 
         WorldPackets::Item::ItemInstance voidInstance;
         voidInstance.Initialize(_voidStorageItems[slot]);
@@ -18600,7 +18306,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
 }
 
 // load mailed item which should receive current player
-Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint64 mailId, Mail* mail, Field* fields, ItemAdditionalLoadInfo* addionalData)
+Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint64 mailId, Mail* mail, Field* fields)
 {
     ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
     uint32 itemEntry = fields[1].GetUInt32();
@@ -18625,7 +18331,7 @@ Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint
 
     Item* item = NewItemOrBag(proto);
 
-    ObjectGuid ownerGuid = fields[51].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[51].GetUInt64()) : ObjectGuid::Empty;
+    ObjectGuid ownerGuid = fields[49].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[49].GetUInt64()) : ObjectGuid::Empty;
     if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
     {
         TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: {}) in mail ({}) doesn't exist, deleted from mail.", itemGuid, mailId);
@@ -18641,13 +18347,6 @@ Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint
         return nullptr;
     }
 
-    if (addionalData)
-    {
-        if (item->GetTemplate()->GetArtifactID() && addionalData->Artifact)
-            item->LoadArtifactData(player, addionalData->Artifact->Xp, addionalData->Artifact->ArtifactAppearanceId,
-                addionalData->Artifact->ArtifactTierId, addionalData->Artifact->ArtifactPowers);
-    }
-
     if (mail)
         mail->AddItem(itemGuid, itemEntry);
 
@@ -18657,8 +18356,7 @@ Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint
     return item;
 }
 
-void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mailItemsResult, PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult,
-    PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult, PreparedQueryResult azeriteEmpoweredItemResult)
+void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mailItemsResult)
 {
     std::unordered_map<uint64, Mail*> mailById;
 
@@ -18699,15 +18397,12 @@ void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mail
 
     if (mailItemsResult)
     {
-        std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo> additionalData;
-        ItemAdditionalLoadInfo::Init(&additionalData, artifactResult, azeriteItemResult, azeriteItemMilestonePowersResult,
-            azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult);
 
         do
         {
             Field* fields = mailItemsResult->Fetch();
-            uint64 mailId = fields[52].GetUInt64();
-            _LoadMailedItem(GetGUID(), this, mailId, mailById[mailId], fields, Trinity::Containers::MapGetValuePtr(additionalData, fields[0].GetUInt64()));
+            uint64 mailId = fields[50].GetUInt64();
+            _LoadMailedItem(GetGUID(), this, mailId, mailById[mailId], fields);
         } while (mailItemsResult->NextRow());
     }
 
@@ -20114,14 +19809,8 @@ void Player::_SaveVoidStorage(CharacterDatabaseTransaction trans)
             stmt->setUInt32(2, _voidStorageItems[i]->ItemEntry);
             stmt->setUInt8(3, i);
             stmt->setUInt64(4, _voidStorageItems[i]->CreatorGuid.GetCounter());
-            stmt->setUInt32(5, _voidStorageItems[i]->RandomBonusListId);
-            stmt->setUInt32(6, _voidStorageItems[i]->FixedScalingLevel);
-            stmt->setUInt32(7, _voidStorageItems[i]->ArtifactKnowledgeLevel);
-            stmt->setUInt8(8, AsUnderlyingType(_voidStorageItems[i]->Context));
-            std::ostringstream bonusListIDs;
-            for (int32 bonusListID : _voidStorageItems[i]->BonusListIDs)
-                bonusListIDs << bonusListID << ' ';
-            stmt->setString(9, bonusListIDs.str());
+            stmt->setUInt32(5, _voidStorageItems[i]->FixedScalingLevel);
+            stmt->setUInt8(6, AsUnderlyingType(_voidStorageItems[i]->Context));
         }
 
         trans->Append(stmt);
@@ -22267,7 +21956,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
     }
 
     Item* it = bStore ?
-        StoreNewItem(vDest, item, true, GenerateItemRandomBonusListId(item), {}, ItemContext::Vendor, &crItem->BonusListIDs, false) :
+        StoreNewItem(vDest, item, true, {}, ItemContext::Vendor, false) :
         EquipNewItem(uiDest, item, ItemContext::Vendor, true);
     if (it)
     {
@@ -25800,7 +25489,7 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
     InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
     if (msg == EQUIP_ERR_OK)
     {
-        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomBonusListId, item->GetAllowedLooters(), item->context);
+        Item* newitem = StoreNewItem(dest, item->itemid, true, item->GetAllowedLooters(), item->context);
 
         if (ffaItem)
         {
@@ -27647,7 +27336,7 @@ bool Player::AddItem(uint32 itemId, uint32 count)
         return false;
     }
 
-    Item* item = StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId));
+    Item* item = StoreNewItem(dest, itemId, true);
     if (item)
         SendNewItem(item, count, true, false);
     else

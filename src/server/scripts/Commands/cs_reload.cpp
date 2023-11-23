@@ -882,7 +882,6 @@ public:
     static bool HandleReloadItemRandomBonusListTemplatesCommand(ChatHandler* handler, char const* /*args*/)
     {
         TC_LOG_INFO("misc", "Re-Loading Random item bonus list definitions...");
-        LoadItemRandomBonusListTemplates();
         handler->SendGlobalGMSysMessage("DB table `item_random_bonus_list_template` reloaded.");
         return true;
     }

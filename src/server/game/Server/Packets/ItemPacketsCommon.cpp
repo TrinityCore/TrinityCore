@@ -52,14 +52,6 @@ void ItemInstance::Initialize(::Item const* item)
     RandomPropertiesSeed = item->m_itemData->PropertySeed;
     RandomPropertiesID = item->m_itemData->RandomPropertiesID;
 
-    std::vector<int32> const& bonusListIds = item->GetBonusListIDs();
-    if (!bonusListIds.empty())
-    {
-        ItemBonus.emplace();
-        ItemBonus->BonusListIDs.insert(ItemBonus->BonusListIDs.end(), bonusListIds.begin(), bonusListIds.end());
-        ItemBonus->Context = item->GetContext();
-    }
-
     for (UF::ItemMod mod : item->m_itemData->Modifiers->Values)
         Modifications.Values.emplace_back(mod.Value, ItemModifier(mod.Type));
 }
@@ -81,15 +73,6 @@ void ItemInstance::Initialize(UF::SocketedGem const* gem)
 void ItemInstance::Initialize(::LootItem const& lootItem)
 {
     ItemID = lootItem.itemid;
-
-    if (!lootItem.BonusListIDs.empty() || lootItem.randomBonusListId)
-    {
-        ItemBonus.emplace();
-        ItemBonus->BonusListIDs = lootItem.BonusListIDs;
-        ItemBonus->Context = lootItem.context;
-        if (lootItem.randomBonusListId)
-            ItemBonus->BonusListIDs.push_back(lootItem.randomBonusListId);
-    }
 }
 
 void ItemInstance::Initialize(::VoidStorageItem const* voidItem)
@@ -98,16 +81,6 @@ void ItemInstance::Initialize(::VoidStorageItem const* voidItem)
 
     if (voidItem->FixedScalingLevel)
         Modifications.Values.emplace_back(voidItem->FixedScalingLevel, ITEM_MODIFIER_TIMEWALKER_LEVEL);
-
-    if (voidItem->ArtifactKnowledgeLevel)
-        Modifications.Values.emplace_back(voidItem->ArtifactKnowledgeLevel, ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL);
-
-    if (!voidItem->BonusListIDs.empty())
-    {
-        ItemBonus.emplace();
-        ItemBonus->Context = voidItem->Context;
-        ItemBonus->BonusListIDs = voidItem->BonusListIDs;
-    }
 }
 
 bool ItemInstance::operator==(ItemInstance const& r) const

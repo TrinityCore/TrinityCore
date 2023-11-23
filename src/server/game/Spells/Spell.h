@@ -403,8 +403,6 @@ class TC_GAME_API Spell
         void EffectApplyEnchantIllusion();
         void EffectUpdatePlayerPhase();
         void EffectUpdateZoneAurasAndPhases();
-        void EffectGiveArtifactPower();
-        void EffectGiveArtifactPowerNoBonus();
         void EffectPlaySceneScriptPackage();
         void EffectCreateSceneObject();
         void EffectCreatePrivateSceneObject();
@@ -412,8 +410,6 @@ class TC_GAME_API Spell
         void EffectGiveHonor();
         void EffectJumpCharge();
         void EffectLearnTransmogSet();
-        void EffectRespecAzeriteEmpoweredItem();
-        void EffectLearnAzeriteEssencePower();
         void EffectCreatePrivateConversation();
         void EffectSendChatMessage();
         void EffectGrantBattlePetExperience();
@@ -506,7 +502,7 @@ class TC_GAME_API Spell
         uint32 getState() const { return m_spellState; }
         void setState(uint32 state) { m_spellState = state; }
 
-        void DoCreateItem(uint32 itemId, ItemContext context = ItemContext::NONE, std::vector<int32> const* bonusListIDs = nullptr);
+        void DoCreateItem(uint32 itemId, ItemContext context = ItemContext::NONE);
 
         bool CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEffectInfo, Position const* losPosition) const;
         bool CheckEffectTarget(GameObject const* target, SpellEffectInfo const& spellEffectInfo) const;

@@ -139,12 +139,6 @@ DumpTable const DumpTables[] =
     { "item_instance",                    DTT_ITEM       }, // must be after character_inventory and mail_items
     { "character_equipmentsets",          DTT_EQSET_TABLE}, // must be after item_instance
     { "character_gifts",                  DTT_ITEM_GIFT  }, // must be after item_instance
-    { "item_instance_artifact",           DTT_ITEM_TABLE }, // must be after item_instance
-    { "item_instance_artifact_powers",    DTT_ITEM_TABLE }, // must be after item_instance
-    { "item_instance_azerite",            DTT_ITEM_TABLE }, // must be after item_instance
-    { "item_instance_azerite_empowered",  DTT_ITEM_TABLE }, // must be after item_instance
-    { "item_instance_azerite_milestone_power", DTT_ITEM_TABLE }, // must be after item_instance
-    { "item_instance_azerite_unlocked_essence", DTT_ITEM_TABLE }, // must be after item_instance
     { "item_instance_gems",               DTT_ITEM_TABLE }, // must be after item_instance
     { "item_instance_modifiers",          DTT_ITEM_TABLE }, // must be after item_instance
     { "item_instance_transmog",           DTT_ITEM_TABLE }, // must be after item_instance

@@ -36,7 +36,6 @@
 #include "GuildMgr.h"
 #include "InstanceScript.h"
 #include "Item.h"
-#include "ItemBonusMgr.h"
 #include "Language.h"
 #include "LFGMgr.h"
 #include "Log.h"
@@ -9823,15 +9822,6 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, VendorItem const& vItem, 
             else
                 TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount`=0 for item {} of vendor (Entry: {}) but `incrtime`<>0, ignore", vItem.item, vendor_entry);
             return false;
-        }
-
-        for (int32 bonusListId : vItem.BonusListIDs)
-        {
-            if (ItemBonusMgr::GetItemBonuses(bonusListId).empty())
-            {
-                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have Item (Entry: {}) with invalid bonus {} for vendor ({}), ignore", vItem.item, bonusListId, vendor_entry);
-                return false;
-            }
         }
     }
 

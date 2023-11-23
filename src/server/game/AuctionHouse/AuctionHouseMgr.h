@@ -364,7 +364,7 @@ class TC_GAME_API AuctionHouseMgr
         static std::string BuildItemAuctionMailSubject(AuctionMailType type, AuctionPosting const* auction);
         static std::string BuildCommodityAuctionMailSubject(AuctionMailType type, uint32 itemId, uint32 itemCount);
         static std::string BuildAuctionMailSubject(uint32 itemId, AuctionMailType type, uint32 auctionId, uint32 itemCount, uint32 battlePetSpeciesId,
-            ItemContext context, std::vector<int32> const& bonusListIds);
+            ItemContext context);
         static std::string BuildAuctionWonMailBody(ObjectGuid guid, uint64 bid, uint64 buyout);
         static std::string BuildAuctionSoldMailBody(ObjectGuid guid, uint64 bid, uint64 buyout, uint32 deposit, uint64 consignment);
         static std::string BuildAuctionInvoiceMailBody(ObjectGuid guid, uint64 bid, uint64 buyout, uint32 deposit, uint64 consignment, uint32 moneyDelay, uint32 eta);

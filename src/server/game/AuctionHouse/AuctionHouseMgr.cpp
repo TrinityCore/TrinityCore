@@ -73,7 +73,7 @@ AuctionsBucketKey AuctionsBucketKey::ForItem(Item const* item)
         return
         {
             item->GetEntry(),
-            uint16(Item::GetItemLevel(itemTemplate, *item->GetBonus(), 0, item->GetRequiredLevel(), 0, 0, 0, false, 0)),
+            uint16(Item::GetItemLevel(itemTemplate, *item->GetBonus(), 0, item->GetRequiredLevel(), 0, 0, 0, false)),
             uint16(item->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID)),
             uint16(item->GetBonus()->Suffix)
         };
@@ -448,16 +448,15 @@ uint64 AuctionHouseMgr::GetItemAuctionDeposit(Player const* player, Item const* 
 std::string AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType type, AuctionPosting const* auction)
 {
     return BuildAuctionMailSubject(auction->Items[0]->GetEntry(), type, auction->Id, auction->GetTotalItemCount(),
-        auction->Items[0]->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID), auction->Items[0]->GetContext(), auction->Items[0]->GetBonusListIDs());
+        auction->Items[0]->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID), auction->Items[0]->GetContext());
 }
 
 std::string AuctionHouseMgr::BuildCommodityAuctionMailSubject(AuctionMailType type, uint32 itemId, uint32 itemCount)
 {
-    return BuildAuctionMailSubject(itemId, type, 0, itemCount, 0, ItemContext::NONE, {});
+    return BuildAuctionMailSubject(itemId, type, 0, itemCount, 0, ItemContext::NONE);
 }
 
-std::string AuctionHouseMgr::BuildAuctionMailSubject(uint32 itemId, AuctionMailType type, uint32 auctionId, uint32 itemCount, uint32 battlePetSpeciesId,
-    ItemContext context, std::vector<int32> const& bonusListIds)
+std::string AuctionHouseMgr::BuildAuctionMailSubject(uint32 itemId, AuctionMailType type, uint32 auctionId, uint32 itemCount, uint32 battlePetSpeciesId, ItemContext context)
 {
     std::ostringstream strm;
     strm
@@ -471,11 +470,7 @@ std::string AuctionHouseMgr::BuildAuctionMailSubject(uint32 itemId, AuctionMailT
         << "0:"
         << "0:"
         << "0:"
-        << uint32(context) << ':'
-        << bonusListIds.size();
-
-    for (int32 bonusListId : bonusListIds)
-        strm << ':' << bonusListId;
+        << uint32(context);
 
     return strm.str();
 }

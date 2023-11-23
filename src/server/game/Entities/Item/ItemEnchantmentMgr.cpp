@@ -19,7 +19,6 @@
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
-#include "ItemBonusMgr.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "ObjectMgr.h"
@@ -36,52 +35,6 @@ namespace
     };
 
     std::unordered_map<uint32, RandomBonusListIds> _storage;
-}
-
-void LoadItemRandomBonusListTemplates()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _storage.clear();
-
-    //                                               0   1            2
-    QueryResult result = WorldDatabase.Query("SELECT Id, BonusListID, Chance FROM item_random_bonus_list_template");
-
-    if (result)
-    {
-        uint32 count = 0;
-
-        do
-        {
-            Field* fields = result->Fetch();
-
-            uint32 id = fields[0].GetUInt32();
-            uint32 bonusListId = fields[1].GetUInt32();
-            float chance = fields[2].GetFloat();
-
-            if (ItemBonusMgr::GetItemBonuses(bonusListId).empty())
-            {
-                TC_LOG_ERROR("sql.sql", "Bonus list {} used in `item_random_bonus_list_template` by id {} doesn't have exist in ItemBonus.db2", bonusListId, id);
-                continue;
-            }
-
-            if (chance < 0.000001f || chance > 100.0f)
-            {
-                TC_LOG_ERROR("sql.sql", "Bonus list {} used in `item_random_bonus_list_template` by id {} has invalid chance {}", bonusListId, id, chance);
-                continue;
-            }
-
-            RandomBonusListIds& ids = _storage[id];
-            ids.BonusListIDs.push_back(bonusListId);
-            ids.Chances.push_back(chance);
-
-            ++count;
-        } while (result->NextRow());
-
-        TC_LOG_INFO("server.loading", ">> Loaded {} Random item bonus list definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    }
-    else
-        TC_LOG_INFO("server.loading", ">> Loaded 0 Random item bonus list definitions. DB table `item_random_bonus_list_template` is empty.");
 }
 
 ItemRandomBonusListId GenerateItemRandomBonusListId(uint32 item_id)

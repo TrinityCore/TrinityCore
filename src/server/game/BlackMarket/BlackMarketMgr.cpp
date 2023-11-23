@@ -297,10 +297,6 @@ void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, CharacterDataba
     if (!item)
         return;
 
-    if (templ->Item.ItemBonus)
-        for (int32 bonusList : templ->Item.ItemBonus->BonusListIDs)
-            item->AddBonuses(bonusList);
-
     item->SetOwnerGUID(bidderGuid);
 
     item->SaveToDB(trans);

@@ -19,7 +19,6 @@
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
-#include "ItemBonusMgr.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Loot.h"
@@ -960,7 +959,6 @@ std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> GenerateDungeonEncounterPe
 
         std::unique_ptr<Loot>& loot = tempLoot[tapper];
         loot.reset(new Loot(lootOwner->GetMap(), lootOwner->GetGUID(), type, nullptr));
-        loot->SetItemContext(ItemBonusMgr::GetContextForPlayer(mapDifficulty, tapper));
         loot->SetDungeonEncounterId(dungeonEncounterId);
         loot->generateMoneyLoot(minMoney, maxMoney);
     }

@@ -31,7 +31,6 @@
 #include "Group.h"
 #include "InstanceScript.h"
 #include "Item.h"
-#include "ItemBonusMgr.h"
 #include "LanguageMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -3013,14 +3012,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::GarrisonTalentResearchInProgress: // 207 NYI
             return false;
         case ModifierTreeType::PlayerEquippedArtifactAppearanceSet: // 208
-        {
-            if (Aura const* artifactAura = referencePlayer->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
-                if (Item* artifact = referencePlayer->GetItemByGuid(artifactAura->GetCastItemGUID()))
-                    if (ArtifactAppearanceEntry const* artifactAppearance = sArtifactAppearanceStore.LookupEntry(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID)))
-                        if (artifactAppearance->ArtifactAppearanceSetID == reqValue)
-                            break;
             return false;
-        }
         case ModifierTreeType::PlayerHasCurrencyEqual: // 209
             if (referencePlayer->GetCurrencyQuantity(reqValue) != secondaryAsset)
                 return false;
@@ -3056,14 +3048,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case ModifierTreeType::ArtifactTraitUnlockedCountEqualOrGreaterThan: // 217
-        {
-            Item const* artifact = referencePlayer->GetItemByEntry(secondaryAsset, ItemSearchLocation::Everywhere);
-            if (!artifact)
-                return false;
-            if (artifact->GetTotalUnlockedArtifactPowers() < reqValue)
-                return false;
-            break;
-        }
+            return false;
         case ModifierTreeType::ParagonReputationLevelEqualOrGreaterThan: // 218
             if (referencePlayer->GetReputationMgr().GetParagonLevel(miscValue1) < int32(reqValue))
                 return false;
@@ -3087,23 +3072,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case ModifierTreeType::PlayerHasItemWithBonusListFromTreeAndQuality: // 222
-        {
-            std::vector<int32> bonusListIDs = ItemBonusMgr::GetAllBonusListsForTree(reqValue);
-            if (bonusListIDs.empty())
-                return false;
-
-            bool bagScanReachedEnd = referencePlayer->ForEachItem(ItemSearchLocation::Everywhere, [&bonusListIDs](Item const* item)
-            {
-                bool hasBonus = std::any_of(item->GetBonusListIDs().begin(), item->GetBonusListIDs().end(), [&bonusListIDs](int32 bonusListID)
-                {
-                    return std::find(bonusListIDs.begin(), bonusListIDs.end(), bonusListID) != bonusListIDs.end();
-                });
-                return hasBonus ? ItemSearchCallbackResult::Stop : ItemSearchCallbackResult::Continue;
-            });
-            if (bagScanReachedEnd)
-                return false;
-            break;
-        }
+            return false;
         case ModifierTreeType::PlayerHasEmptyInventorySlotCountEqualOrGreaterThan: // 223
             if (referencePlayer->GetFreeInventorySlotCount(ItemSearchLocation::Inventory) < reqValue)
                 return false;
@@ -3111,20 +3080,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerHasItemInHistoryOfProgressiveEvent: // 224 NYI
             return false;
         case ModifierTreeType::PlayerHasArtifactPowerRankCountPurchasedEqualOrGreaterThan: // 225
-        {
-            Aura const* artifactAura = referencePlayer->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE);
-            if (!artifactAura)
-                return false;
-            Item const* artifact = referencePlayer->GetItemByGuid(artifactAura->GetCastItemGUID());
-            if (!artifact)
-                return false;
-            UF::ArtifactPower const* artifactPower = artifact->GetArtifactPower(secondaryAsset);
-            if (!artifactPower)
-                return false;
-            if (artifactPower->PurchasedRank < reqValue)
-                return false;
-            break;
-        }
+            return false;
         case ModifierTreeType::PlayerHasBoosted: // 226
             if (referencePlayer->HasLevelBoosted())
                 return false;
@@ -3563,9 +3519,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerIsInAnyChromieTime: // 301
             return false;
         case ModifierTreeType::ItemIsAzeriteArmor: // 302
-            if (!sDB2Manager.GetAzeriteEmpoweredItem(miscValue1))
-                return false;
-            break;
+            return false;
         case ModifierTreeType::PlayerHasRuneforgePower: // 303
             return false;
         case ModifierTreeType::PlayerInChromieTimeForScaling: // 304

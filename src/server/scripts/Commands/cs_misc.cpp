@@ -30,7 +30,6 @@
 #include "IpAddress.h"
 #include "IPLocation.h"
 #include "Item.h"
-#include "ItemBonusMgr.h"
 #include "Language.h"
 #include "MiscPackets.h"
 #include "MMapFactory.h"
@@ -1233,14 +1232,7 @@ public:
 
         ItemContext itemContext = ItemContext::NONE;
         if (context)
-        {
             itemContext = ItemContext(Trinity::StringTo<uint8>(context).value_or(0));
-            if (itemContext < ItemContext::Max)
-            {
-                std::vector<int32> contextBonuses = ItemBonusMgr::GetBonusListsForItem(itemId, itemContext);
-                bonusListIDs.insert(bonusListIDs.begin(), contextBonuses.begin(), contextBonuses.end());
-            }
-        }
 
         Player* player = handler->GetSession()->GetPlayer();
         Player* playerTarget = handler->getSelectedPlayer();
@@ -1298,8 +1290,7 @@ public:
             return false;
         }
 
-        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId), GuidSet(), itemContext,
-            bonusListIDs.empty() ? nullptr : &bonusListIDs);
+        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GuidSet(), itemContext);
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)
@@ -1399,14 +1390,7 @@ public:
 
         ItemContext itemContext = ItemContext::NONE;
         if (context)
-        {
             itemContext = ItemContext(Trinity::StringTo<uint8>(context).value_or(0));
-            if (itemContext < ItemContext::Max)
-            {
-                std::vector<int32> contextBonuses = ItemBonusMgr::GetBonusListsForItem(itemId, itemContext);
-                bonusListIDs.insert(bonusListIDs.begin(), contextBonuses.begin(), contextBonuses.end());
-            }
-        }
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
         if (!itemTemplate)
@@ -1459,8 +1443,7 @@ public:
             return false;
         }
 
-        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId), GuidSet(), itemContext,
-            bonusListIDs.empty() ? nullptr : &bonusListIDs);
+        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GuidSet(), itemContext);
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)
@@ -1481,7 +1464,7 @@ public:
         return true;
     }
 
-    static bool HandleAddItemSetCommand(ChatHandler* handler, Variant<Hyperlink<itemset>, uint32> itemSetId, Optional<std::string_view> bonuses, Optional<uint8> context)
+    static bool HandleAddItemSetCommand(ChatHandler* handler, Variant<Hyperlink<itemset>, uint32> itemSetId, Optional<std::string_view> /*bonuses*/, Optional<uint8> context)
     {
         // prevent generation all items with itemset field value '0'
         if (*itemSetId == 0)
@@ -1492,12 +1475,6 @@ public:
         }
 
         std::vector<int32> bonusListIDs;
-
-        // semicolon separated bonuslist ids (parse them after all arguments are extracted by strtok!)
-        if (bonuses)
-            for (std::string_view token : Trinity::Tokenize(*bonuses, ';', false))
-                if (Optional<int32> bonusListId = Trinity::StringTo<int32>(token); bonusListId && *bonusListId)
-                    bonusListIDs.push_back(*bonusListId);
 
         ItemContext itemContext = ItemContext::NONE;
         if (context)
@@ -1520,15 +1497,7 @@ public:
             InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemTemplatePair.first, 1);
             if (msg == EQUIP_ERR_OK)
             {
-                std::vector<int32> bonusListIDsForItem = bonusListIDs; // copy, bonuses for each depending on context might be different for each item
-                if (itemContext < ItemContext::Max)
-                {
-                    std::vector<int32> contextBonuses = ItemBonusMgr::GetBonusListsForItem(itemTemplatePair.first, itemContext);
-                    bonusListIDsForItem.insert(bonusListIDsForItem.begin(), contextBonuses.begin(), contextBonuses.end());
-                }
-
-                Item* item = playerTarget->StoreNewItem(dest, itemTemplatePair.first, true, {}, GuidSet(), itemContext,
-                    bonusListIDsForItem.empty() ? nullptr : &bonusListIDsForItem);
+                Item* item = playerTarget->StoreNewItem(dest, itemTemplatePair.first, true, GuidSet(), itemContext);
 
                 // remove binding (let GM give it to another player later)
                 if (player == playerTarget)

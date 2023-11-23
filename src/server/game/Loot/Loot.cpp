@@ -22,7 +22,6 @@
 #include "GameTime.h"
 #include "Group.h"
 #include "Item.h"
-#include "ItemBonusMgr.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -52,7 +51,6 @@ LootItem::LootItem(LootStoreItem const& li)
 
     needs_quest = li.needs_quest;
 
-    randomBonusListId = GenerateItemRandomBonusListId(itemid);
     context = ItemContext::NONE;
     count = 0;
     is_looted = false;
@@ -568,7 +566,7 @@ ItemDisenchantLootEntry const* LootRoll::GetItemDisenchantLoot() const
         return nullptr;
 
     ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(m_lootItem->itemid);
-    uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, 1, 0, 0, 0, 0, false, 0);
+    uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, 1, 0, 0, 0, 0, false);
     return Item::GetDisenchantLoot(itemTemplate, bonusData.Quality, itemLevel);
 }
 
@@ -839,7 +837,6 @@ void Loot::AddItem(LootStoreItem const& item)
         generatedLoot.context = _itemContext;
         generatedLoot.count = std::min(count, proto->GetMaxStackSize());
         generatedLoot.LootListId = items.size();
-        generatedLoot.BonusListIDs = ItemBonusMgr::GetBonusListsForItem(generatedLoot.itemid, _itemContext);
 
         items.push_back(generatedLoot);
         count -= proto->GetMaxStackSize();
@@ -888,7 +885,7 @@ bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool
 
         --unlootedCount;
 
-        Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, lootItem->randomBonusListId, GuidSet(), lootItem->context, &lootItem->BonusListIDs);
+        Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, GuidSet(), lootItem->context);
         player->SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast);
         player->ApplyItemLootedSpell(pItem, true);
     }

@@ -202,20 +202,8 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
     Item* dstItem = _player->GetItemByPos(dest);
     if (!dstItem)                                      // empty slot, simple case
     {
-        if (!srcItem->GetChildItem().IsEmpty())
-        {
-            InventoryResult childEquipResult = _player->CanEquipChildItem(srcItem);
-            if (childEquipResult != EQUIP_ERR_OK)
-            {
-                _player->SendEquipError(msg, srcItem);
-                return;
-            }
-        }
-
         _player->RemoveItem(autoEquipItem.PackSlot, autoEquipItem.Slot, true);
         _player->EquipItem(dest, srcItem, true);
-        if (!srcItem->GetChildItem().IsEmpty())
-            _player->EquipChildItem(autoEquipItem.PackSlot, autoEquipItem.Slot, srcItem);
 
         _player->AutoUnequipOffhandIfNeed();
     }
@@ -259,9 +247,6 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
                     msg = _player->CanUnequipItem(eSrc, true);
             }
 
-            if (msg == EQUIP_ERR_OK && Player::IsEquipmentPos(dest) && !srcItem->GetChildItem().IsEmpty())
-                msg = _player->CanEquipChildItem(srcItem);
-
             if (msg != EQUIP_ERR_OK)
             {
                 _player->SendEquipError(msg, dstItem, srcItem);
@@ -282,9 +267,6 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
                 _player->BankItem(sSrc, dstItem, true);
             else if (_player->IsEquipmentPos(src))
                 _player->EquipItem(eSrc, dstItem, true);
-
-            if (Player::IsEquipmentPos(dest) && !srcItem->GetChildItem().IsEmpty())
-                _player->EquipChildItem(autoEquipItem.PackSlot, autoEquipItem.Slot, srcItem);
         }
         else
         {
@@ -292,7 +274,6 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
             {
                 if (Player::IsEquipmentPos(dest))
                 {
-                    _player->AutoUnequipChildItem(parentItem);
                     // dest is now empty
                     _player->SwapItem(src, dest);
                     // src is now empty
@@ -957,8 +938,6 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
             gems[i] = gem;
             gemData[i].ItemId = gem->GetEntry();
             gemData[i].Context = gem->m_itemData->Context;
-            for (std::size_t b = 0; b < gem->GetBonusListIDs().size() && b < 16; ++b)
-                gemData[i].BonusListIDs[b] = gem->GetBonusListIDs()[b];
 
             gemProperties[i] = sGemPropertiesStore.LookupEntry(gem->GetTemplate()->GetGemProperties());
         }
@@ -1104,15 +1083,6 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
 
     if (itemTarget->IsEquipped())
         _player->_ApplyItemMods(itemTarget, itemTarget->GetSlot(), true);
-
-    if (Item* childItem = _player->GetChildItemByGuid(itemTarget->GetChildItem()))
-    {
-        if (childItem->IsEquipped())
-            _player->_ApplyItemMods(childItem, childItem->GetSlot(), false);
-        childItem->CopyArtifactDataFromParent(itemTarget);
-        if (childItem->IsEquipped())
-            _player->_ApplyItemMods(childItem, childItem->GetSlot(), true);
-    }
 
     bool SocketBonusToBeActivated = itemTarget->GemsFitSockets();//current socketbonus state
     if (SocketBonusActivated ^ SocketBonusToBeActivated)     //if there was a change...

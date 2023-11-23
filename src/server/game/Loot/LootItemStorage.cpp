@@ -35,7 +35,7 @@ namespace
 
 StoredLootItem::StoredLootItem(LootItem const& lootItem) : ItemId(lootItem.itemid), Count(lootItem.count), ItemIndex(lootItem.LootListId), FollowRules(lootItem.follow_loot_rules),
 FFA(lootItem.freeforall), Blocked(lootItem.is_blocked), Counted(lootItem.is_counted), UnderThreshold(lootItem.is_underthreshold),
-NeedsQuest(lootItem.needs_quest), RandomBonusListId(lootItem.randomBonusListId), Context(lootItem.context), BonusListIDs(lootItem.BonusListIDs)
+NeedsQuest(lootItem.needs_quest), Context(lootItem.context)
 {
 }
 
@@ -79,11 +79,7 @@ void LootItemStorage::LoadStorageFromDB()
             lootItem.is_counted = fields[7].GetBool();
             lootItem.is_underthreshold = fields[8].GetBool();
             lootItem.needs_quest = fields[9].GetBool();
-            lootItem.randomBonusListId = fields[10].GetUInt32();
-            lootItem.context = ItemContext(fields[11].GetUInt8());
-            for (std::string_view bonusList : Trinity::Tokenize(fields[12].GetStringView(), ' ', false))
-                if (Optional<int32> bonusListID = Trinity::StringTo<int32>(bonusList))
-                    lootItem.BonusListIDs.push_back(*bonusListID);
+            lootItem.context = ItemContext(fields[10].GetUInt8());
 
             storedContainer.AddLootItem(lootItem, trans);
 
@@ -150,9 +146,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
             li.is_counted = storedItemPair.second.Counted;
             li.is_underthreshold = storedItemPair.second.UnderThreshold;
             li.needs_quest = storedItemPair.second.NeedsQuest;
-            li.randomBonusListId = storedItemPair.second.RandomBonusListId;
             li.context = storedItemPair.second.Context;
-            li.BonusListIDs = storedItemPair.second.BonusListIDs;
 
             // Copy the extra loot conditions from the item in the loot template
             lt->CopyConditions(&li);
@@ -293,12 +287,7 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabas
     stmt->setBool(7, lootItem.is_counted);
     stmt->setBool(8, lootItem.is_underthreshold);
     stmt->setBool(9, lootItem.needs_quest);
-    stmt->setInt32(10, lootItem.randomBonusListId);
-    stmt->setUInt8(11, AsUnderlyingType(lootItem.context));
-    std::ostringstream bonusListIDs;
-    for (int32 bonusListID : lootItem.BonusListIDs)
-        bonusListIDs << bonusListID << ' ';
-    stmt->setString(12, bonusListIDs.str());
+    stmt->setUInt8(10, AsUnderlyingType(lootItem.context));
     trans->Append(stmt);
 }
 

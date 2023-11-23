@@ -45,9 +45,7 @@ struct StoredLootItem
     bool Counted;
     bool UnderThreshold;
     bool NeedsQuest;
-    ItemRandomBonusListId RandomBonusListId;
     ItemContext Context;
-    std::vector<int32> BonusListIDs;
 };
 
 class StoredLootContainer

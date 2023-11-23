@@ -119,13 +119,6 @@ namespace WorldPackets
         class AreaTrigger;
     }
 
-    namespace Artifact
-    {
-        class ArtifactAddPower;
-        class ArtifactSetAppearance;
-        class ConfirmArtifactRespec;
-    }
-
     namespace AuctionHouse
     {
         class AuctionBrowseQuery;
@@ -150,14 +143,6 @@ namespace WorldPackets
     namespace Auth
     {
         enum class ConnectToSerial : uint32;
-    }
-
-    namespace Azerite
-    {
-        class AzeriteEmpoweredItemSelectPower;
-        class AzeriteEmpoweredItemViewed;
-        class AzeriteEssenceUnlockMilestone;
-        class AzeriteEssenceActivateEssence;
     }
 
     namespace Bank
@@ -1819,20 +1804,8 @@ class TC_GAME_API WorldSession
 
         void HandleQueryRealmName(WorldPackets::Query::QueryRealmName& queryRealmName);
 
-        // Artifact
-        void HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPower& artifactAddPower);
-        void HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance);
-        void HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmArtifactRespec& confirmArtifactRespec);
-
         // Scenario
         void HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioPOI& queryScenarioPOI);
-
-        // Azerite
-        void HandleAzeriteEssenceUnlockMilestone(WorldPackets::Azerite::AzeriteEssenceUnlockMilestone& azeriteEssenceUnlockMilestone);
-        void HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::AzeriteEssenceActivateEssence& azeriteEssenceActivateEssence);
-        void HandleAzeriteEmpoweredItemViewed(WorldPackets::Azerite::AzeriteEmpoweredItemViewed& azeriteEmpoweredItemViewed);
-        void HandleAzeriteEmpoweredItemSelectPower(WorldPackets::Azerite::AzeriteEmpoweredItemSelectPower& azeriteEmpoweredItemSelectPower);
-        void SendAzeriteRespecNPC(ObjectGuid npc);
 
         void HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLatestSplashScreen& requestLatestSplashScreen);
 
