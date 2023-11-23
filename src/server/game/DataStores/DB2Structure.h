@@ -3153,6 +3153,44 @@ struct ScenarioStepEntry
     }
 };
 
+struct ScalingStatDistributionEntry
+{
+    uint32 ID;
+    uint16 PlayerLevelToItemLevelCurveID;
+    int32 MinLevel;
+    int32 MaxLevel;
+    std::array<int32, 10> Bonus;
+    std::array<int32, 10> StatID;
+};
+
+struct ScalingStatValuesEntry
+{
+    uint32 ID;
+    int32 Charlevel;
+    int32 WeaponDPS1H;
+    int32 WeaponDPS2h;
+    int32 SpellcasterDPS1H;
+    int32 SpellcasterDPS2H;
+    int32 RangedDPS;
+    int32 WandDPS;
+    int32 SpellPower;
+    int32 ShoulderBudget;
+    int32 TrinketBudget;
+    int32 WeaponBudget;
+    int32 PrimaryBudget;
+    int32 RangedBudget;
+    int32 TertiaryBudget;
+    int32 ClothShoulderArmor;
+    int32 LeatherShoulderArmor;
+    int32 MailShoulderArmor;
+    int32 PlateShoulderArmor;
+    int32 ClothCloakArmor;
+    int32 ClothChestArmor;
+    int32 LeatherChestArmor;
+    int32 MailChestArmor;
+    int32 PlateChestArmor;
+};
+
 struct SceneScriptEntry
 {
     uint32 ID;

@@ -4359,6 +4359,72 @@ struct ScenarioStepLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 12, &ScenarioStepMeta::Instance, HOTFIX_SEL_SCENARIO_STEP };
 };
 
+struct ScalingStatDistributionLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[24] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_SHORT, "PlayerLevelToItemLevelCurveID" },
+        { true, FT_INT, "MinLevel" },
+        { true, FT_INT, "MaxLevel" },
+        { true, FT_INT, "Bonus1" },
+        { true, FT_INT, "Bonus2" },
+        { true, FT_INT, "Bonus3" },
+        { true, FT_INT, "Bonus4" },
+        { true, FT_INT, "Bonus5" },
+        { true, FT_INT, "Bonus6" },
+        { true, FT_INT, "Bonus7" },
+        { true, FT_INT, "Bonus8" },
+        { true, FT_INT, "Bonus9" },
+        { true, FT_INT, "Bonus10" },
+        { true, FT_INT, "StatID1" },
+        { true, FT_INT, "StatID2" },
+        { true, FT_INT, "StatID3" },
+        { true, FT_INT, "StatID4" },
+        { true, FT_INT, "StatID5" },
+        { true, FT_INT, "StatID6" },
+        { true, FT_INT, "StatID7" },
+        { true, FT_INT, "StatID8" },
+        { true, FT_INT, "StatID9" },
+        { true, FT_INT, "StatID10" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 24, &ScalingStatDistributionMeta::Instance, HOTFIX_SEL_SCALING_STAT_DISTRIBUTION };
+};
+
+struct ScalingStatValuesLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[24] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "Charlevel" },
+        { true, FT_INT, "WeaponDPS1H" },
+        { true, FT_INT, "WeaponDPS2h" },
+        { true, FT_INT, "SpellcasterDPS1H" },
+        { true, FT_INT, "SpellcasterDPS2H" },
+        { true, FT_INT, "RangedDPS" },
+        { true, FT_INT, "WandDPS" },
+        { true, FT_INT, "SpellPower" },
+        { true, FT_INT, "ShoulderBudget" },
+        { true, FT_INT, "TrinketBudget" },
+        { true, FT_INT, "WeaponBudget" },
+        { true, FT_INT, "PrimaryBudget" },
+        { true, FT_INT, "RangedBudget" },
+        { true, FT_INT, "TertiaryBudget" },
+        { true, FT_INT, "ClothShoulderArmor" },
+        { true, FT_INT, "LeatherShoulderArmor" },
+        { true, FT_INT, "MailShoulderArmor" },
+        { true, FT_INT, "PlateShoulderArmor" },
+        { true, FT_INT, "ClothCloakArmor" },
+        { true, FT_INT, "ClothChestArmor" },
+        { true, FT_INT, "LeatherChestArmor" },
+        { true, FT_INT, "MailChestArmor" },
+        { true, FT_INT, "PlateChestArmor" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 24, &ScalingStatValuesMeta::Instance, HOTFIX_SEL_SCALING_STAT_VALUES };
+};
+
 struct SceneScriptLoadInfo
 {
     static constexpr DB2FieldMeta Fields[4] =

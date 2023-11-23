@@ -1320,6 +1320,19 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_SCENARIO_STEP, "SELECT ID, Description_lang, Title_lang FROM scenario_step_locale WHERE (`VerifiedBuild` > 0) = ?"
         " AND locale = ?", CONNECTION_SYNCH);
 
+    // ScalingStatDistribution.db2
+    PrepareStatement(HOTFIX_SEL_SCALING_STAT_DISTRIBUTION, "SELECT ID, PlayerLevelToItemLevelCurveID, MinLevel, MaxLevel, Bonus1, Bonus2, Bonus3, "
+        "Bonus4, Bonus5, Bonus6, Bonus7, Bonus8, Bonus9, Bonus10, StatID1, StatID2, StatID3, StatID4, StatID5, StatID6, StatID7, StatID8, StatID9, "
+        "StatID10 FROM scaling_stat_distribution WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_SCALING_STAT_DISTRIBUTION, "SELECT MAX(ID) + 1 FROM scaling_stat_distribution", CONNECTION_SYNCH);
+
+    // ScalingStatValues.db2
+    PrepareStatement(HOTFIX_SEL_SCALING_STAT_VALUES, "SELECT ID, Charlevel, WeaponDPS1H, WeaponDPS2h, SpellcasterDPS1H, SpellcasterDPS2H, RangedDPS, "
+        "WandDPS, SpellPower, ShoulderBudget, TrinketBudget, WeaponBudget, PrimaryBudget, RangedBudget, TertiaryBudget, ClothShoulderArmor, "
+        "LeatherShoulderArmor, MailShoulderArmor, PlateShoulderArmor, ClothCloakArmor, ClothChestArmor, LeatherChestArmor, MailChestArmor, "
+        "PlateChestArmor FROM scaling_stat_values WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_SCALING_STAT_VALUES, "SELECT MAX(ID) + 1 FROM scaling_stat_values", CONNECTION_SYNCH);
+
     // SceneScript.db2
     PrepareStatement(HOTFIX_SEL_SCENE_SCRIPT, "SELECT ID, FirstSceneScriptID, NextSceneScriptID, Unknown915 FROM scene_script"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

@@ -206,6 +206,8 @@ TC_GAME_API extern DB2Storage<RewardPackEntry>                      sRewardPackS
 TC_GAME_API extern DB2Storage<ScenarioEntry>                        sScenarioStore;
 TC_GAME_API extern DB2Storage<ScenarioStepEntry>                    sScenarioStepStore;
 TC_GAME_API extern DB2Storage<SkillLineEntry>                       sSkillLineStore;
+TC_GAME_API extern DB2Storage<ScalingStatDistributionEntry>         sScalingStatDistributionStore;
+TC_GAME_API extern DB2Storage<ScalingStatValuesEntry>               sScalingStatValuesStore;
 TC_GAME_API extern DB2Storage<SceneScriptPackageEntry>              sSceneScriptPackageStore;
 TC_GAME_API extern DB2Storage<ServerMessagesEntry>                  sServerMessagesStore;
 TC_GAME_API extern DB2Storage<SkillLineAbilityEntry>                sSkillLineAbilityStore;
