@@ -1862,15 +1862,15 @@ struct GossipNPCOptionEntry
     uint32 ID;
     int32 GossipNpcOption;
     int32 LFGDungeonsID;
-    int32 Field34146722002;
-    int32 Field34146722003;
-    int32 Field34146722004;
-    int32 Field34146722005;
-    int32 Field34146722006;
-    int32 Field34146722007;
-    int32 Field34146722008;
-    int32 Field34146722009;
-    int32 Field34146722010;
+    int32 Unk341_1;
+    int32 Unk341_2;
+    int32 Unk341_3;
+    int32 Unk341_4;
+    int32 Unk341_5;
+    int32 Unk341_6;
+    int32 Unk341_7;
+    int32 Unk341_8;
+    int32 Unk341_9;
     int32 GossipOptionID;
 };
 
