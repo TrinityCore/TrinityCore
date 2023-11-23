@@ -117,8 +117,8 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Creature>(Creature* att
 template<>
 bool ContentTuningParams::GenerateDataForUnits<Unit, Unit>(Unit* attacker, Unit* target)
 {
-    if (Player* playerAttacker = attacker->ToPlayer())
-        if (Player* playerTarget = target->ToPlayer())
+    if (Player* playerAttacker = Object::ToPlayer(attacker))
+        if (Player* playerTarget = Object::ToPlayer(target))
             return GenerateDataForUnits(playerAttacker, playerTarget);
 
     return false;
