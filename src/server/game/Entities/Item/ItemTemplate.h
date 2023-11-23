@@ -879,8 +879,8 @@ struct TC_GAME_API ItemTemplate
     inline bool HasFlag(ItemFlagsCustom customFlag) const { return (FlagsCu & customFlag) != 0; }
 
     char const* GetDefaultLocaleName() const;
-    float GetDPS(uint32 itemLevel) const;
-    void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
+    float GetDPS() const;
+    void GetDamage(float& minDamage, float& maxDamage) const;
     bool IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const;
     static std::size_t CalculateItemSpecBit(ChrSpecializationEntry const* spec);
 };

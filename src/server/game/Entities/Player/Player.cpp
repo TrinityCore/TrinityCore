@@ -7746,7 +7746,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply, bool onlyForS
         return;
 
     ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(proto->GetScalingStatDistributionID());
-    ScalingStatValuesEntry const* ssv = proto->GetScalingStatValue() != 0 ? sDB2Manager.GetScalingStatValuesForLevel(std::clamp<uint32>(GetLevel(), ssd->MinLevel, ssd->MaxLevel)) : nullptr;
+    ScalingStatValuesEntry const* ssv = (ssd && proto->GetScalingStatValue() != 0) ? sDB2Manager.GetScalingStatValuesForLevel(std::clamp<uint32>(GetLevel(), ssd->MinLevel, ssd->MaxLevel)) : nullptr;
 
     if (onlyForScalingItems && (!ssd || !ssv))
         return;
@@ -8008,11 +8008,12 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply, bool onlyForS
     {
         SpellSchools school = SpellSchools(i);
         int16 resistance = proto->GetResistance(school);
+
         if (school == SPELL_SCHOOL_NORMAL && ssv)
             if (uint32 ssvarmor = ssv->getArmorMod(proto->GetScalingStatValue()))
                 resistance = ssvarmor;
 
-        if (int16 resistance = proto->GetResistance(SpellSchools(i)))
+        if (resistance)
             HandleStatFlatModifier(UnitMods(UNIT_MOD_ARMOR + i), BASE_VALUE, float(resistance), apply);
     }
 
@@ -8032,10 +8033,11 @@ void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
     if (!IsInFeralForm() && apply && !CanUseAttackType(attType))
         return;
 
+    static constexpr uint8 const MAX_ITEM_PROTO_DAMAGES = 5;
+
     float damage = 0.0f;
-    uint32 itemLevel = item->GetItemLevel(this);
     float minDamage, maxDamage;
-    proto->GetDamage(itemLevel, minDamage, maxDamage);
+    proto->GetDamage(minDamage, maxDamage);
 
     if (minDamage > 0)
     {

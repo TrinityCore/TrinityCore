@@ -140,13 +140,14 @@ char const* ItemTemplate::GetDefaultLocaleName() const
     return ExtendedData->Display[sWorld->GetDefaultDbcLocale()];
 }
 
-float ItemTemplate::GetDPS(uint32 itemLevel) const
+float ItemTemplate::GetDPS() const
 {
     uint32 quality = ItemQualities(GetQuality()) != ITEM_QUALITY_HEIRLOOM ? ItemQualities(GetQuality()) : ITEM_QUALITY_RARE;
     if (GetClass() != ITEM_CLASS_WEAPON || quality > ITEM_QUALITY_ARTIFACT)
         return 0.0f;
 
     float dps = 0.0f;
+    uint32 itemLevel = GetItemLevel();
     switch (GetInventoryType())
     {
         case INVTYPE_AMMO:
@@ -193,10 +194,10 @@ float ItemTemplate::GetDPS(uint32 itemLevel) const
     return dps;
 }
 
-void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const
+void ItemTemplate::GetDamage(float& minDamage, float& maxDamage) const
 {
     minDamage = maxDamage = 0.0f;
-    float dps = GetDPS(itemLevel);
+    float dps = GetDPS();
     if (dps > 0.0f)
     {
         float avgDamage = dps * GetDelay() * 0.001f;
