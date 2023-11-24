@@ -51,6 +51,9 @@ enum FreyaYells
 enum FreyaSpells
 {
     // Freya
+    SPELL_FREYA_DUMMY_GREEN                      = 63295,
+    SPELL_FREYA_DUMMY_YELLOW                     = 63292,
+    SPELL_FREYA_DUMMY_BLUE                       = 63294,
     SPELL_ATTUNED_TO_NATURE                      = 62519,
     SPELL_TOUCH_OF_EONAR                         = 62528,
     SPELL_SUNBEAM                                = 62623,
@@ -155,6 +158,7 @@ enum FreyaSpells
 
 enum FreyaNpcs
 {
+    NPC_CHANNEL_STALKER_FREYA                    = 33575,
     NPC_SUN_BEAM                                 = 33170,
     NPC_DETONATING_LASHER                        = 32918,
     NPC_ANCIENT_CONSERVATOR                      = 33203,
@@ -204,11 +208,16 @@ enum FreyaEvents
     EVENT_FLUX                                   = 17
 };
 
-enum Misc
+enum FreyaMisc
 {
     TIME_DIFFERENCE                             = 10000, // If difference between waveTime and WAVE_TIME is bigger then TIME_DIFFERENCE, schedule EVENT_WAVE in 10 seconds
     DATA_GETTING_BACK_TO_NATURE                 = 1,
     DATA_KNOCK_ON_WOOD                          = 2
+};
+
+enum FreyaPaths
+{
+    PATH_FREYA_IDLE = 10924320,
 };
 
 constexpr Seconds FREYA_WAVE_TIME = 60s; // Normal wave is one minute
@@ -685,6 +694,28 @@ class boss_freya : public CreatureScript
                         summoned->DespawnOrUnsummon(5s);
                         summons.Despawn(summoned);
                         break;
+                }
+            }
+
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
+            {
+                if (pathId != PATH_FREYA_IDLE)
+                    return;
+
+                if (waypointId == 4)
+                {
+                    if (Creature* creature = me->FindNearestCreature(NPC_CHANNEL_STALKER_FREYA, 30.0f))
+                        DoCast(creature, SPELL_FREYA_DUMMY_GREEN);
+                }
+                else if (waypointId == 10)
+                {
+                    if (Creature* creature = me->FindNearestCreature(NPC_CHANNEL_STALKER_FREYA, 30.0f))
+                        DoCast(creature, SPELL_FREYA_DUMMY_YELLOW);
+                }
+                else if (waypointId == 18)
+                {
+                    if (Creature* creature = me->FindNearestCreature(NPC_CHANNEL_STALKER_FREYA, 30.0f))
+                        DoCast(creature, SPELL_FREYA_DUMMY_BLUE);
                 }
             }
         };

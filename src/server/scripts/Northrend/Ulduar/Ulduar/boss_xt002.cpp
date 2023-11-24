@@ -135,6 +135,11 @@ enum Misc
     GROUP_SEARING_GRAVITY          = 1
 };
 
+enum XT002Paths
+{
+    PATH_XT002_IDLE = 10884320
+};
+
 struct boss_xt002 : public BossAI
 {
     boss_xt002(Creature* creature) : BossAI(creature, DATA_XT002)
@@ -182,6 +187,8 @@ struct boss_xt002 : public BossAI
 
     void JustEngagedWith(Unit* who) override
     {
+        scheduler.CancelAll();
+
         Talk(SAY_AGGRO);
         BossAI::JustEngagedWith(who);
         events.ScheduleEvent(EVENT_SEARING_LIGHT, Is25ManRaid() ? 9s : 11s, GROUP_SEARING_GRAVITY, PHASE_1);
@@ -381,6 +388,31 @@ struct boss_xt002 : public BossAI
 
         if (events.IsInPhase(PHASE_1))
             DoMeleeAttackIfReady();
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId != PATH_XT002_IDLE)
+            return;
+
+        if (waypointId == 3 || waypointId == 9)
+        {
+            me->SetEmoteState(EMOTE_STATE_SPELL_CHANNEL_OMNI);
+
+            scheduler.Schedule(11s, [this](TaskContext /*task*/)
+            {
+                me->SetEmoteState(EMOTE_ONESHOT_NONE);
+            });
+        }
+        else if (waypointId == 13)
+        {
+            me->SetEmoteState(EMOTE_STATE_DANCE);
+
+            scheduler.Schedule(30s, [this](TaskContext /*task*/)
+            {
+                me->SetEmoteState(EMOTE_ONESHOT_NONE);
+            });
+        }
     }
 
 private:
