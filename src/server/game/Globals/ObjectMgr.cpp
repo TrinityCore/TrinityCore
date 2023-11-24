@@ -74,7 +74,6 @@
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
-ScriptMapMap sWaypointScripts;
 
 std::string GetScriptsTableNameByType(ScriptsType type)
 {
@@ -83,7 +82,6 @@ std::string GetScriptsTableNameByType(ScriptsType type)
     {
         case SCRIPTS_SPELL:         res = "spell_scripts";      break;
         case SCRIPTS_EVENT:         res = "event_scripts";      break;
-        case SCRIPTS_WAYPOINT:      res = "waypoint_scripts";   break;
         default: break;
     }
     return res;
@@ -96,7 +94,6 @@ ScriptMapMap* GetScriptsMapByType(ScriptsType type)
     {
         case SCRIPTS_SPELL:         res = &sSpellScripts;       break;
         case SCRIPTS_EVENT:         res = &sEventScripts;       break;
-        case SCRIPTS_WAYPOINT:      res = &sWaypointScripts;    break;
         default: break;
     }
     return res;
@@ -5944,35 +5941,6 @@ void ObjectMgr::LoadEventScripts()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} event scripts in {} ms", _eventScriptStore.size(), GetMSTimeDiffToNow(oldMSTime));
-}
-
-//Load WP Scripts
-void ObjectMgr::LoadWaypointScripts()
-{
-    LoadScripts(SCRIPTS_WAYPOINT);
-
-    std::set<uint32> actionSet;
-
-    for (ScriptMapMap::const_iterator itr = sWaypointScripts.begin(); itr != sWaypointScripts.end(); ++itr)
-        actionSet.insert(itr->first);
-
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_ACTION);
-    PreparedQueryResult result = WorldDatabase.Query(stmt);
-
-    if (result)
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-            uint32 action = fields[0].GetUInt32();
-
-            actionSet.erase(action);
-        }
-        while (result->NextRow());
-    }
-
-    for (std::set<uint32>::iterator itr = actionSet.begin(); itr != actionSet.end(); ++itr)
-        TC_LOG_ERROR("sql.sql", "There is no waypoint which links to the waypoint script {}", *itr);
 }
 
 void ObjectMgr::LoadSpellScriptNames()

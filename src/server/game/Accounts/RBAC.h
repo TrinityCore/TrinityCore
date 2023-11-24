@@ -575,7 +575,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP_STACK_RULES         = 703,
     RBAC_PERM_COMMAND_RELOAD_TRINITY_STRING                  = 704,
     // 705 previously used, do not reuse
-    RBAC_PERM_COMMAND_RELOAD_WAYPOINT_SCRIPTS                = 706,
+    // 706 previously used, do not reuse
     RBAC_PERM_COMMAND_RELOAD_WAYPOINT_DATA                   = 707,
     RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY                = 708,
     RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY      = 709,
