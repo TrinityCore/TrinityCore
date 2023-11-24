@@ -349,8 +349,10 @@ public:
         return itr != _criteriaTreeByCriteria.end() ? &itr->second : nullptr;
     }
 
+    std::unordered_map<int32, CriteriaList> const& GetCriteriaByStartEvent(CriteriaStartEvent startEvent) const;
     CriteriaList const* GetCriteriaByStartEvent(CriteriaStartEvent startEvent, int32 asset) const;
 
+    std::unordered_map<int32, CriteriaList> const& GetCriteriaByFailEvent(CriteriaFailEvent failEvent) const;
     CriteriaList const* GetCriteriaByFailEvent(CriteriaFailEvent failEvent, int32 asset) const;
 
     CriteriaDataSet const* GetCriteriaDataSet(Criteria const* Criteria) const

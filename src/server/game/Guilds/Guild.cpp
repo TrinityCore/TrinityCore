@@ -226,7 +226,7 @@ void Guild::NewsLogEntry::WritePacket(WorldPackets::Guild::GuildNews& newsPacket
     WorldPackets::Guild::GuildNewsEvent newsEvent;
     newsEvent.Id = int32(GetGUID());
     newsEvent.MemberGuid = GetPlayerGuid();
-    newsEvent.CompletedDate = uint32(GetTimestamp());
+    newsEvent.CompletedDate.SetUtcTimeFromUnixTime(GetTimestamp());
     newsEvent.Flags = int32(GetFlags());
     newsEvent.Type = int32(GetType());
 
@@ -1306,7 +1306,8 @@ void Guild::HandleRoster(WorldSession* session)
     WorldPackets::Guild::GuildRoster roster;
 
     roster.NumAccounts = int32(m_accountsNumber);
-    roster.CreateDate = uint32(m_createdDate);
+    roster.CreateDate.SetUtcTimeFromUnixTime(m_createdDate);
+    roster.CreateDate += session->GetTimezoneOffset();
     roster.GuildFlags = 0;
 
     roster.MemberData.reserve(m_members.size());
@@ -2183,7 +2184,10 @@ void Guild::SendNewsUpdate(WorldSession* session) const
     packet.NewsEvents.reserve(newsLog.size());
 
     for (NewsLogEntry const& newsLogEntry : newsLog)
+    {
         newsLogEntry.WritePacket(packet);
+        packet.NewsEvents.back().CompletedDate += session->GetTimezoneOffset();
+    }
 
     session->SendPacket(packet.Write());
 
@@ -2688,12 +2692,15 @@ void Guild::BroadcastPacket(WorldPacket const* packet) const
             player->SendDirectMessage(packet);
 }
 
-void Guild::BroadcastPacketIfTrackingAchievement(WorldPacket const* packet, uint32 criteriaId) const
+std::vector<Player*> Guild::GetMembersTrackingCriteria(uint32 criteriaId) const
 {
+    std::vector<Player*> members;
     for (auto const& [guid, member] : m_members)
         if (member.IsTrackingCriteriaId(criteriaId))
             if (Player* player = member.FindPlayer())
-                player->GetSession()->SendPacket(packet);
+                members.push_back(player);
+
+    return members;
 }
 
 void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, GuildRankOrder minRank)
@@ -3599,10 +3606,16 @@ void Guild::AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value
     NewsLogEntry& news = m_newsLog.AddEvent(trans, m_id, m_newsLog.GetNextGUID(), GuildNews(type), guid, flags, value);
     CharacterDatabase.CommitTransaction(trans);
 
-    WorldPackets::Guild::GuildNews newsPacket;
-    newsPacket.NewsEvents.reserve(1);
-    news.WritePacket(newsPacket);
-    BroadcastPacket(newsPacket.Write());
+    auto packetBuilder = [&](Player const* receiver)
+    {
+        WorldPackets::Guild::GuildNews newsPacket;
+        newsPacket.NewsEvents.reserve(1);
+        news.WritePacket(newsPacket);
+        newsPacket.NewsEvents.back().CompletedDate += receiver->GetSession()->GetTimezoneOffset();
+
+        receiver->SendDirectMessage(newsPacket.Write());
+    };
+    BroadcastWorker(packetBuilder);
 }
 
 bool Guild::HasAchieved(uint32 achievementId) const
@@ -3637,5 +3650,6 @@ void Guild::HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool stick
     WorldPackets::Guild::GuildNews newsPacket;
     newsPacket.NewsEvents.reserve(1);
     itr->WritePacket(newsPacket);
+    newsPacket.NewsEvents.back().CompletedDate += session->GetTimezoneOffset();
     session->SendPacket(newsPacket.Write());
 }

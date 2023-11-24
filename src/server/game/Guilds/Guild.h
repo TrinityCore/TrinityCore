@@ -810,7 +810,6 @@ class TC_GAME_API Guild
         void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::string_view msg, std::string_view prefix, bool isLogged) const;
         void BroadcastPacketToRank(WorldPacket const* packet, GuildRankId rankId) const;
         void BroadcastPacket(WorldPacket const* packet) const;
-        void BroadcastPacketIfTrackingAchievement(WorldPacket const* packet, uint32 criteriaId) const;
 
         void MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, GuildRankOrder minRank);
 
@@ -831,6 +830,7 @@ class TC_GAME_API Guild
         bool IsMember(ObjectGuid guid) const;
         uint32 GetMembersCount() const { return uint32(m_members.size()); }
         uint64 GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const;
+        std::vector<Player*> GetMembersTrackingCriteria(uint32 criteriaId) const;
 
         // Bank
         void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);

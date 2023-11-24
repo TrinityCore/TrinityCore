@@ -33,6 +33,7 @@
 #include "GitRevision.h"
 #include "IPLocation.h"
 #include "IpNetwork.h"
+#include "Locales.h"
 #include "LoginRESTService.h"
 #include "MySQLThreading.h"
 #include "OpenSSLCrypto.h"
@@ -88,6 +89,8 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, f
 int main(int argc, char** argv)
 {
     signal(SIGABRT, &Trinity::AbortHandler);
+
+    Trinity::Locale::Init();
 
     auto configFile = fs::absolute(_TRINITY_BNET_CONFIG);
     auto configDir  = fs::absolute(_TRINITY_BNET_CONFIG_DIR);
