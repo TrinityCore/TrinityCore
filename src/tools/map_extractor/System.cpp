@@ -17,6 +17,7 @@
 
 #include "dbcfile.h"
 #include "Banner.h"
+#include "Locales.h"
 #include "mpq_libmpq04.h"
 #include "StringFormat.h"
 
@@ -1120,6 +1121,8 @@ inline void CloseMPQFiles()
 
 int main(int argc, char * arg[])
 {
+    Trinity::Locale::Init();
+
     Trinity::Banner::Show("Map & DBC Extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     HandleArgs(argc, arg);

@@ -33,6 +33,7 @@
 #include "IoContext.h"
 #include "IPLocation.h"
 #include "GitRevision.h"
+#include "Locales.h"
 #include "MySQLThreading.h"
 #include "OpenSSLCrypto.h"
 #include "ProcessPriority.h"
@@ -84,6 +85,8 @@ int main(int argc, char** argv)
 {
     Trinity::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_AUTHSERVER;
     signal(SIGABRT, &Trinity::AbortHandler);
+
+    Trinity::Locale::Init();
 
     auto configFile = fs::absolute(_TRINITY_REALM_CONFIG);
     std::string configService;
