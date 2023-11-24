@@ -23,6 +23,7 @@
 #include "DBFilesClientList.h"
 #include "ExtractorDB2LoadInfo.h"
 #include "IteratorPair.h"
+#include "Locales.h"
 #include "MapDefines.h"
 #include "StringFormat.h"
 #include "adt.h"
@@ -1469,6 +1470,8 @@ static bool RetardCheck()
 
 int main(int argc, char * arg[])
 {
+    Trinity::Locale::Init();
+
     Trinity::Banner::Show("Map & DBC Extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     PrintProgress = isatty(fileno(stdout));
