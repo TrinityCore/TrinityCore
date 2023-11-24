@@ -1671,23 +1671,17 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     }
 
     if (G3D::fuzzyLe(armor, 0.0f))
-        return damage;
+        armor = 0.0f;
 
-    Classes attackerClass = CLASS_WARRIOR;
-    if (attacker)
-    {
-        attackerLevel = attacker->GetLevelForTarget(victim);
-        attackerClass = Classes(attacker->GetClass());
-    }
+    float levelModifier = attacker ? attacker->GetLevel() : attackerLevel;
+    if (levelModifier > 59.f)
+        levelModifier = levelModifier + 4.5f * (levelModifier - 59.f);
 
-    // Expansion and ContentTuningID necessary? Does Player get a ContentTuningID too ?
-    float armorConstant = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, attackerLevel, -2, 0, attackerClass, 0);
+    float damageReduction = 0.1f * armor / (8.5f * levelModifier + 40.f);
+    damageReduction /= (1.0f + damageReduction);
 
-    if (!(armor + armorConstant))
-        return damage;
-
-    float mitigation = std::min(armor / (armor + armorConstant), 0.85f);
-    return uint32(std::max(damage * (1.0f - mitigation), 0.0f));
+    RoundToInterval(damageReduction, 0.f, 0.75f);
+    return uint32(std::ceil(std::max(damage * (1.0f - damageReduction), 0.0f)));
 }
 
 /*static*/ uint32 Unit::CalcSpellResistedDamage(Unit const* attacker, Unit* victim, uint32 damage, SpellSchoolMask schoolMask, SpellInfo const* spellInfo)
