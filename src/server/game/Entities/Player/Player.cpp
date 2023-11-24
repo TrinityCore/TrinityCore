@@ -8033,22 +8033,40 @@ void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
     if (!IsInFeralForm() && apply && !CanUseAttackType(attType))
         return;
 
-    static constexpr uint8 const MAX_ITEM_PROTO_DAMAGES = 5;
+    ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(proto->GetScalingStatDistributionID());
+    ScalingStatValuesEntry const* ssv = (ssd && proto->GetScalingStatValue() != 0) ? sDB2Manager.GetScalingStatValuesForLevel(std::clamp<uint32>(GetLevel(), ssd->MinLevel, ssd->MaxLevel)) : nullptr;
 
     float damage = 0.0f;
-    float minDamage, maxDamage;
-    proto->GetDamage(minDamage, maxDamage);
-
-    if (minDamage > 0)
+    //for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
     {
-        damage = apply ? minDamage : BASE_MINDAMAGE;
-        SetBaseWeaponDamage(attType, MINDAMAGE, damage);
-    }
+        float minDamage = proto->GetMinDamage(0);
+        float maxDamage = proto->GetMaxDamage(0);
 
-    if (maxDamage  > 0)
-    {
-        damage = apply ? maxDamage : BASE_MAXDAMAGE;
-        SetBaseWeaponDamage(attType, MAXDAMAGE, damage);
+        // If set dpsMod in ScalingStatValue use it for min (70% from average), max (130% from average) damage
+        if (ssv)
+        {
+            int32 extraDPS = ssv->getDPSMod(proto->GetScalingStatValue());
+            if (extraDPS)
+            {
+                float average = extraDPS * proto->GetDelay() / 1000.0f;
+                float mod = ssv->isTwoHand(proto->GetScalingStatValue()) ? 0.2f : 0.3f;
+
+                minDamage = (1.0f - mod) * average;
+                maxDamage = (1.0f + mod) * average;
+            }
+        }
+
+        if (minDamage > 0)
+        {
+            damage = apply ? minDamage : BASE_MINDAMAGE;
+            SetBaseWeaponDamage(attType, MINDAMAGE, damage);
+        }
+
+        if (maxDamage > 0)
+        {
+            damage = apply ? maxDamage : BASE_MAXDAMAGE;
+            SetBaseWeaponDamage(attType, MAXDAMAGE, damage);
+        }
     }
 
     SpellShapeshiftFormEntry const* shapeshift = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());

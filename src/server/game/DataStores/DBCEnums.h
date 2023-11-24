@@ -949,6 +949,7 @@ enum class GlobalCurve : int32
 #define MAX_ITEM_PROTO_ZONES 2
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
+static constexpr uint8 const MAX_ITEM_PROTO_DAMAGES = 5;
 
 enum GlyphSlotType
 {

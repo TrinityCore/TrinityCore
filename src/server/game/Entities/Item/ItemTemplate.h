@@ -828,6 +828,8 @@ struct TC_GAME_API ItemTemplate
     int16 GetShieldBlockValue(uint32 itemLevel) const;
     uint16 GetScalingStatDistributionID() const { return ExtendedData->ScalingStatDistributionID; }
     int32 GetScalingStatValue() const { return BasicData->ScalingStatValue; }
+    uint16 GetMinDamage(uint8 index) const { return BasicData->MinDamage[index]; }
+    uint16 GetMaxDamage(uint8 index) const { return BasicData->MaxDamage[index]; }
 
     uint32 MaxDurability;
     std::vector<ItemEffectEntry const*> Effects;

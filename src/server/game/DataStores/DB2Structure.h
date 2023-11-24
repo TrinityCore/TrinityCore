@@ -1987,8 +1987,8 @@ struct ItemEntry
     int32 ScalingStatValue;
     std::array<uint8, 5> DamageType;
     std::array<int16, 7> Resistances;
-    std::array<uint16, 5> MinDamage;
-    std::array<uint16, 5> MaxDamage;
+    std::array<uint16, MAX_ITEM_PROTO_DAMAGES> MinDamage;
+    std::array<uint16, MAX_ITEM_PROTO_DAMAGES> MaxDamage;
 };
 
 struct ItemAppearanceEntry
