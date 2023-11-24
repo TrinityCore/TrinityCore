@@ -17,11 +17,12 @@
 
 #include "Timezone.h"
 #include "Hash.h"
+#include "Locales.h"
 #include "MapUtils.h"
 #include "Util.h"
 #include <boost/locale/date_time_facet.hpp>
-#include <boost/locale/generator.hpp>
 #include <chrono>
+#include <memory>
 #include <unordered_map>
 
 namespace
@@ -95,7 +96,11 @@ std::unordered_map<uint32, Minutes, std::identity> InitTimezoneHashDb()
     return hashToOffset;
 }
 
-std::unordered_map<uint32, Minutes, std::identity> const _timezoneOffsetsByHash = InitTimezoneHashDb();
+std::unordered_map<uint32, Minutes, std::identity> const& GetTimezoneOffsetsByHash()
+{
+    static std::unordered_map<uint32, Minutes, std::identity> timezoneMap = InitTimezoneHashDb();
+    return timezoneMap;
+}
 
 using ClientSupportedTimezone = std::pair<Minutes, std::string>;
 std::array<ClientSupportedTimezone, 11> const _clientSupportedTimezones =
@@ -118,7 +123,7 @@ namespace Trinity::Timezone
 {
 Minutes GetOffsetByHash(uint32 hash)
 {
-    if (Minutes const* offset = Containers::MapGetValuePtr(_timezoneOffsetsByHash, hash))
+    if (Minutes const* offset = Containers::MapGetValuePtr(GetTimezoneOffsetsByHash(), hash))
         return *offset;
 
     return 0min;
@@ -150,8 +155,7 @@ std::string GetSystemZoneName()
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     return std::string(std::chrono::current_zone()->name());
 #else
-    static std::locale calendarLocale = boost::locale::generator().generate("");
-    std::unique_ptr<boost::locale::abstract_calendar> p(std::use_facet<class boost::locale::calendar_facet>(calendarLocale).create_calendar());
+    std::unique_ptr<boost::locale::abstract_calendar> p(std::use_facet<class boost::locale::calendar_facet>(Locale::GetCalendarLocale()).create_calendar());
     return p->get_timezone();
 #endif
 }
