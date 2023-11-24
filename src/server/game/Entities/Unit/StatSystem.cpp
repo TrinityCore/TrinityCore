@@ -120,6 +120,7 @@ bool Player::UpdateStats(Stats stat)
     switch (stat)
     {
         case STAT_AGILITY:
+            UpdateArmor();
             UpdateAllCritPercentages();
             UpdateDodgePercentage();
             break;
@@ -143,7 +144,6 @@ bool Player::UpdateStats(Stats stat)
         UpdateAttackPowerAndDamage(true);
     }
 
-    UpdateArmor();
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
     return true;
@@ -254,7 +254,7 @@ void Player::UpdateArmor()
 
     float value = GetFlatModifierValue(unitMod, BASE_VALUE);    // base armor
     value *= GetPctModifierValue(unitMod, BASE_PCT);            // armor percent
-
+    value += GetStat(STAT_AGILITY) * 2.0f;                      // armor bonus from stats
     float baseValue = value;
 
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE);        // bonus armor from auras and items
@@ -279,16 +279,21 @@ void Player::UpdateArmor()
 
 float Player::GetHealthBonusFromStamina() const
 {
-    float ratio = 10.0f;
     float stamina = GetStat(STAT_STAMINA);
-    return stamina * ratio;
+    float baseStam = std::min(20.0f, stamina);
+    float moreStam = stamina - baseStam;
+
+    return baseStam + (moreStam * 10.0f);
 }
 
 float Player::GetManaBonusFromIntellect() const
 {
     float intellect = GetStat(STAT_INTELLECT);
 
-    return intellect * 15.0f;
+    float baseInt = std::min(20.0f, intellect);
+    float moreInt = intellect - baseInt;
+
+    return baseInt + (moreInt * 15.0f);
 }
 
 void Player::UpdateMaxHealth()

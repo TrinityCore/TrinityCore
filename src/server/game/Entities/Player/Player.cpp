@@ -5278,13 +5278,12 @@ float Player::GetRatingBonusValue(CombatRating cr) const
 
 float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
 {
-    float baseExpertise = 7.5f;
     switch (attType)
     {
         case BASE_ATTACK:
-            return baseExpertise + m_activePlayerData->MainhandExpertise / 4.0f;
+            return m_activePlayerData->MainhandExpertise / 4.0f;
         case OFF_ATTACK:
-            return baseExpertise + m_activePlayerData->OffhandExpertise / 4.0f;
+            return m_activePlayerData->OffhandExpertise / 4.0f;
         default:
             break;
     }
