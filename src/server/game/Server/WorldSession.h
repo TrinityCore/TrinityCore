@@ -714,6 +714,7 @@ namespace WorldPackets
         class CancelGrowthAura;
         class CancelMountAura;
         class CancelModSpeedNoControlAuras;
+        class CancelQueuedSpell;
         class PetCancelAura;
         class CancelCast;
         class CastSpell;
@@ -1512,6 +1513,7 @@ class TC_GAME_API WorldSession
         void HandleCancelMountAuraOpcode(WorldPackets::Spells::CancelMountAura& cancelMountAura);
         void HandleCancelModSpeedNoControlAuras(WorldPackets::Spells::CancelModSpeedNoControlAuras& cancelModSpeedNoControlAuras);
         void HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::CancelAutoRepeatSpell& cancelAutoRepeatSpell);
+        void HandleCancelQueuedSpellOpcode(WorldPackets::Spells::CancelQueuedSpell& cancelQueuedSpell);
         void HandleMissileTrajectoryCollision(WorldPackets::Spells::MissileTrajectoryCollision& packet);
         void HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMissileTrajectory& packet);
 
