@@ -23,8 +23,11 @@
 #include "Player.h"
 #include "SharedDefines.h"
 
+#include <sstream>
+
 BattlegroundScore::BattlegroundScore(ObjectGuid playerGuid, uint32 team, std::unordered_set<uint32> const* pvpStatIds) : PlayerGuid(playerGuid), TeamId(team == ALLIANCE ? PVP_TEAM_ALLIANCE : PVP_TEAM_HORDE),
-    KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0), _validPvpStatIds(pvpStatIds)
+    KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0),
+    PreMatchRating(0), PreMatchMMR(0), PostMatchRating(0), PostMatchMMR(0), _validPvpStatIds(pvpStatIds)
 {
 }
 
@@ -99,6 +102,27 @@ void BattlegroundScore::BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::
     playerData.DamageDone = DamageDone;
     playerData.HealingDone = HealingDone;
 
-    for (auto const& pvpStat : PvpStats)
-        playerData.Stats.emplace_back(pvpStat.first, pvpStat.second);
+    if (PreMatchRating)
+        playerData.PreMatchRating = PreMatchRating;
+
+    if (PostMatchRating != PreMatchRating)
+        playerData.RatingChange = int32(PostMatchRating) - PreMatchRating;
+
+    if (PreMatchMMR)
+        playerData.PreMatchMMR = PreMatchMMR;
+
+    if (PostMatchMMR != PreMatchMMR)
+        playerData.MmrChange = int32(PostMatchMMR) - PreMatchMMR;
+
+    for (const auto& [pvpStatID, value] : PvpStats)
+        playerData.Stats.emplace_back(pvpStatID, value);
+}
+
+std::string BattlegroundScore::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Damage done: " << DamageDone << ", Healing done: " << HealingDone << ", Killing blows: " << KillingBlows
+        << ", PreMatchRating: " << PreMatchRating << ", PreMatchMMR: " << PreMatchMMR
+        << ", PostMatchRating: " << PostMatchRating << ", PostMatchMMR: " << PostMatchMMR;
+    return stream.str();
 }

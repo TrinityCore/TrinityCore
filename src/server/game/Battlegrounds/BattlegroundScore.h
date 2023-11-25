@@ -45,7 +45,7 @@ struct BattlegroundScore
     void UpdatePvpStat(uint32 pvpStatID, uint32 value);
 
     // For Logging purpose
-    virtual std::string ToString() const { return ""; }
+    std::string ToString() const;
 
     uint32 GetKillingBlows() const { return KillingBlows; }
     uint32 GetDeaths() const { return Deaths; }
@@ -56,7 +56,7 @@ struct BattlegroundScore
 
     uint32 GetAttr(uint8 index) const;
 
-    virtual void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const;
+    void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const;
 
 protected:
 
@@ -71,9 +71,14 @@ protected:
     uint32 DamageDone;
     uint32 HealingDone;
 
-    std::map<uint32 /*pvpStatID*/, uint32 /*value*/> PvpStats;
-private:
+    uint32 PreMatchRating;
+    uint32 PreMatchMMR;
+    uint32 PostMatchRating;
+    uint32 PostMatchMMR;
 
+    std::map<uint32 /*pvpStatID*/, uint32 /*value*/> PvpStats;
+
+private:
     std::unordered_set<uint32> const* _validPvpStatIds;
 };
 

@@ -17,6 +17,8 @@
 
 #include "Arena.h"
 #include "ArenaTeamMgr.h"
+#include "BattlegroundPackets.h"
+#include "BattlegroundScore.h"
 #include "GuildMgr.h"
 #include "Guild.h"
 #include "Log.h"
@@ -102,11 +104,6 @@ void Arena::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics
             pvpLogData.Ratings->PrematchMMR[i] = _arenaTeamScores[i].PreMatchMMR;
         }
     }
-}
-
-BattlegroundScore* Arena::CreateNewBattlegroundScore(Player* player) const
-{
-    return new ArenaScore(player->GetGUID(), player->GetBGTeam(), GetPvpStatIds());
 }
 
 void Arena::RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket)
