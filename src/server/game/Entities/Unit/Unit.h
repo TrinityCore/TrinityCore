@@ -1237,7 +1237,7 @@ class TC_GAME_API Unit : public WorldObject
         void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false);
 
         bool IsPlayingHoverAnim() const { return _playHoverAnim; }
-        void SetPlayHoverAnim(bool enable);
+        void SetPlayHoverAnim(bool enable, bool sendUpdate = true);
         void CalculateHoverHeight();
         void SetHoverHeight(float hoverHeight) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::HoverHeight), hoverHeight); }
 
