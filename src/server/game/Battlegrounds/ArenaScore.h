@@ -18,6 +18,8 @@
 #ifndef TRINITY_ARENA_SCORE_H
 #define TRINITY_ARENA_SCORE_H
 
+#include "Define.h"
+
 struct TC_GAME_API ArenaTeamScore
 {
     ArenaTeamScore();
