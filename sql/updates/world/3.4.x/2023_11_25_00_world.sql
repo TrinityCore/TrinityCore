@@ -21574,7 +21574,9 @@ INSERT INTO `gameobject_template`(`entry`,`type`,`displayId`,`name`,`IconName`,`
 (215419,6,0,'Luck of the Lotus','','','',1,0,0,0,130653,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',-18019),
 (244605,6,9958,'Underbelly Hoard Trap','','','',0.5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',22566);
 
-insert  into `gameobject_template_addon`(`entry`,`faction`,`flags`,`mingold`,`maxgold`,`artkit0`,`artkit1`,`artkit2`,`artkit3`) values 
+
+TRUNCATE TABLE `gameobject_template_addon`;
+INSERT INTO `gameobject_template_addon`(`entry`,`faction`,`flags`,`mingold`,`maxgold`,`artkit0`,`artkit1`,`artkit2`,`artkit3`) VALUES 
 (4,14,0,0,0,0,0,0,0),
 (31,84,4,0,0,0,0,0,0),
 (32,12,4,0,0,0,0,0,0),
@@ -43075,5 +43077,3 @@ insert  into `gameobject_template_addon`(`entry`,`faction`,`flags`,`mingold`,`ma
 (211067,0,0,0,0,0,0,0,0),
 (211068,0,0,0,0,0,0,0,0),
 (211084,0,0,0,0,0,0,0,0);
-
-DELETE FROM `gameobject_template_addon` WHERE `entry` NOT IN (SELECT `entry` FROM `gameobject_template`);
