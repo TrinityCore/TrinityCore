@@ -497,8 +497,6 @@ class TC_GAME_API Battleground : public ZoneScript
             return &itr->second;
         }
 
-        virtual BattlegroundScore* CreateNewBattlegroundScore(Player* player) const;
-
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();

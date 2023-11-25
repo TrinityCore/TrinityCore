@@ -1016,7 +1016,7 @@ void Battleground::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
     if (!isInBattleground)
     {
         UpdatePlayersCountByTeam(team, false);                  // +1 player
-        PlayerScores[player->GetGUID()] = CreateNewBattlegroundScore(player);
+        PlayerScores[player->GetGUID()] = new BattlegroundScore(player->GetGUID(), player->GetBGTeam(), _pvpStatIds);
     }
 
     WorldPackets::Battleground::BattlegroundPlayerJoined playerJoined;
@@ -1668,11 +1668,6 @@ void Battleground::RemovePlayerPosition(ObjectGuid guid)
     });
 
     _playerPositions.erase(itr, _playerPositions.end());
-}
-
-BattlegroundScore* Battleground::CreateNewBattlegroundScore(Player* player) const
-{
-    return new BattlegroundScore(player->GetGUID(), player->GetBGTeam(), _pvpStatIds);
 }
 
 void Battleground::EndNow()
