@@ -200,7 +200,7 @@ class TC_GAME_API Item : public Object
 
         bool IsFitToSpellRequirements(SpellInfo const* spellInfo) const;
         bool IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) const;
-        bool GemsFitSockets() const;
+        bool HasAllSocketsFilledWithMatchingColors() const;
 
         uint32 GetCount() const { return m_itemData->StackCount; }
         void SetCount(uint32 value);

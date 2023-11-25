@@ -343,6 +343,7 @@ enum BAG_FAMILY_MASK
 
 enum SocketColor
 {
+    SOCKET_COLOR_NONE                           = 0x000000,
     SOCKET_COLOR_META                           = 0x000001,
     SOCKET_COLOR_RED                            = 0x000002,
     SOCKET_COLOR_YELLOW                         = 0x000004,

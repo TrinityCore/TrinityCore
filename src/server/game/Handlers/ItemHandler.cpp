@@ -1054,7 +1054,7 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
         }
     }
 
-    bool SocketBonusActivated = itemTarget->GemsFitSockets();    //save state of socketbonus
+    bool hadSocketBonusActive = itemTarget->HasAllSocketsFilledWithMatchingColors();    //save state of socketbonus
     _player->ToggleMetaGemsActive(slot, false);             //turn off all metagems (except for the target item)
 
     //if a meta gem is being equipped, all information has to be written to the item before testing if the conditions for the gem are met
@@ -1080,11 +1080,11 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
     for (uint32 enchantmentSlot = SOCK_ENCHANTMENT_SLOT; enchantmentSlot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchantmentSlot)
         _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchantmentSlot), true);
 
-    bool SocketBonusToBeActivated = itemTarget->GemsFitSockets();//current socketbonus state
-    if (SocketBonusActivated ^ SocketBonusToBeActivated)     //if there was a change...
+    bool socketBonusToBeActivated = itemTarget->HasAllSocketsFilledWithMatchingColors();//current socketbonus state
+    if (hadSocketBonusActive != socketBonusToBeActivated)     //if there was a change...
     {
         _player->ApplyEnchantment(itemTarget, BONUS_ENCHANTMENT_SLOT, false);
-        itemTarget->SetEnchantment(BONUS_ENCHANTMENT_SLOT, (SocketBonusToBeActivated ? itemTarget->GetTemplate()->GetSocketBonus() : 0), 0, 0, _player->GetGUID());
+        itemTarget->SetEnchantment(BONUS_ENCHANTMENT_SLOT, (socketBonusToBeActivated ? itemTarget->GetTemplate()->GetSocketBonus() : 0), 0, 0, _player->GetGUID());
         _player->ApplyEnchantment(itemTarget, BONUS_ENCHANTMENT_SLOT, true);
         //it is not displayed, client has an inbuilt system to determine if the bonus is activated
     }
