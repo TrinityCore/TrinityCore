@@ -305,8 +305,6 @@ Item::Item()
     m_paidMoney = 0;
     m_paidExtendedCost = 0;
 
-    m_gemScalingLevels = { };
-
     memset(&_bonusData, 0, sizeof(_bonusData));
 }
 
@@ -456,7 +454,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_GEMS);
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 uint32 i = 0;
-                uint32 const gemFields = 4;
+                uint32 const gemFields = 3;
                 for (UF::SocketedGem const& gemData : m_itemData->Gems)
                 {
                     if (gemData.ItemID)
@@ -468,14 +466,12 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
                                 gemBonusListIDs << bonusListID << ' ';
                         stmt->setString(2 + i * gemFields, gemBonusListIDs.str());
                         stmt->setUInt8(3 + i * gemFields, gemData.Context);
-                        stmt->setUInt32(4 + i * gemFields, m_gemScalingLevels[i]);
                     }
                     else
                     {
                         stmt->setUInt32(1 + i * gemFields, 0);
                         stmt->setString(2 + i * gemFields, "");
                         stmt->setUInt8(3 + i * gemFields, 0);
-                        stmt->setUInt32(4 + i * gemFields, 0);
                     }
                     ++i;
                 }
@@ -484,7 +480,6 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
                     stmt->setUInt32(1 + i * gemFields, 0);
                     stmt->setString(2 + i * gemFields, "");
                     stmt->setUInt8(3 + i * gemFields, 0);
-                    stmt->setUInt32(4 + i * gemFields, 0);
                 }
                 trans->Append(stmt);
             }
@@ -695,7 +690,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_4, fields[33].GetUInt32());
     SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_5, fields[34].GetUInt32());
 
-    uint32 const gemFields = 4;
+    uint32 const gemFields = 3;
     ItemDynamicFieldGems gemData[MAX_GEM_SOCKETS];
     memset(gemData, 0, sizeof(gemData));
     for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
@@ -709,11 +704,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
         gemData[i].Context = fields[37 + i * gemFields].GetUInt8();
         if (gemData[i].ItemId)
-            SetGem(i, &gemData[i], fields[38 + i * gemFields].GetUInt32());
+            SetGem(i, &gemData[i]);
     }
-
-    SetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL, fields[47].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[48].GetUInt32());
 
     // Enchants must be loaded after all other bonus/scaling data
     std::vector<std::string_view> enchantmentTokens = Trinity::Tokenize(fields[8].GetStringView(), ' ', false);
@@ -1125,30 +1117,9 @@ UF::SocketedGem const* Item::GetGem(uint16 slot) const
     return slot < m_itemData->Gems.size() ? &m_itemData->Gems[slot] : nullptr;
 }
 
-void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem, uint32 gemScalingLevel)
+void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem)
 {
     ASSERT(slot < MAX_GEM_SOCKETS);
-    m_gemScalingLevels[slot] = gemScalingLevel;
-    _bonusData.GemItemLevelBonus[slot] = 0;
-    if (ItemTemplate const* gemTemplate = sObjectMgr->GetItemTemplate(gem->ItemId))
-    {
-        if (GemPropertiesEntry const* gemProperties = sGemPropertiesStore.LookupEntry(gemTemplate->GetGemProperties()))
-        {
-            if (SpellItemEnchantmentEntry const* gemEnchant = sSpellItemEnchantmentStore.LookupEntry(gemProperties->EnchantId))
-            {
-                BonusData gemBonus;
-                gemBonus.Initialize(gemTemplate);
-
-                uint32 gemBaseItemLevel = gemTemplate->GetItemLevel();
-                if (gemBonus.PlayerLevelToItemLevelCurveId)
-                    if (uint32 scaledIlvl = uint32(sDB2Manager.GetCurveValueAt(gemBonus.PlayerLevelToItemLevelCurveId, gemScalingLevel)))
-                        gemBaseItemLevel = scaledIlvl;
-
-                _bonusData.GemRelicType[slot] = gemBonus.RelicType;
-            }
-        }
-    }
-
     auto gemField = m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Gems, slot);
     SetUpdateFieldValue(gemField.ModifyValue(&UF::SocketedGem::ItemID), gem->ItemId);
     SetUpdateFieldValue(gemField.ModifyValue(&UF::SocketedGem::Context), gem->Context);
@@ -1162,6 +1133,7 @@ bool Item::GemsFitSockets() const
     for (UF::SocketedGem const& gemData : m_itemData->Gems)
     {
         SocketColor color = GetTemplate()->GetSocketColor(gemSlot);
+        ++gemSlot;
         if (!color) // no socket slot
             continue;
 
@@ -1900,9 +1872,6 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
 
     itemLevel += bonusData.ItemLevelBonus;
 
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
-        itemLevel += bonusData.GemItemLevelBonus[i];
-
     uint32 itemLevelBeforeUpgrades = itemLevel;
 
     if (pvpBonus)
@@ -2140,12 +2109,7 @@ void BonusData::Initialize(ItemTemplate const* proto)
         ItemStatSocketCostMultiplier[i] = proto->GetStatPercentageOfSocket(i);
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
-    {
         SocketColor[i] = proto->GetSocketColor(i);
-        GemItemLevelBonus[i] = 0;
-        GemRelicType[i] = -1;
-        GemRelicRankBonus[i] = 0;
-    }
 
     Bonding = proto->GetBonding();
 

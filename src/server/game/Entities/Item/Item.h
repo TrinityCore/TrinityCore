@@ -78,9 +78,6 @@ struct BonusData
     uint32 ContentTuningId;
     uint32 PlayerLevelToItemLevelCurveId;
     uint32 DisenchantLootId;
-    uint32 GemItemLevelBonus[MAX_ITEM_PROTO_SOCKETS];
-    int32 GemRelicType[MAX_ITEM_PROTO_SOCKETS];
-    uint16 GemRelicRankBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 RelicType;
     int32 RequiredLevelOverride;
     uint32 Suffix;
@@ -232,7 +229,7 @@ class TC_GAME_API Item : public Object
         uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return m_itemData->Enchantment[slot].Duration; }
         uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return m_itemData->Enchantment[slot].Charges; }
         UF::SocketedGem const* GetGem(uint16 slot) const;
-        void SetGem(uint16 slot, ItemDynamicFieldGems const* gem, uint32 gemScalingLevel);
+        void SetGem(uint16 slot, ItemDynamicFieldGems const* gem);
 
         std::string const& GetText() const { return m_text; }
         void SetText(std::string const& text) { m_text = text; }
@@ -375,6 +372,5 @@ class TC_GAME_API Item : public Object
         uint64 m_paidMoney;
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
-        std::array<uint32, MAX_ITEM_PROTO_SOCKETS> m_gemScalingLevels;
 };
 #endif

@@ -1059,19 +1059,15 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
 
     //if a meta gem is being equipped, all information has to be written to the item before testing if the conditions for the gem are met
 
-    //remove ALL mods - gem can change item level
-    if (itemTarget->IsEquipped())
-        _player->_ApplyItemMods(itemTarget, itemTarget->GetSlot(), false);
+    //remove ALL enchants
+    for (uint32 enchanmentSlot = SOCK_ENCHANTMENT_SLOT; enchanmentSlot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchanmentSlot)
+        _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchanmentSlot), false);
 
     for (uint16 i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
         if (gems[i])
         {
-            uint32 gemScalingLevel = _player->GetLevel();
-            if (uint32 fixedLevel = gems[i]->GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL))
-                gemScalingLevel = fixedLevel;
-
-            itemTarget->SetGem(i, &gemData[i], gemScalingLevel);
+            itemTarget->SetGem(i, &gemData[i]);
 
             if (gemProperties[i] && gemProperties[i]->EnchantId)
                 itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i), gemProperties[i]->EnchantId, 0, 0, _player->GetGUID());
@@ -1081,8 +1077,8 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
         }
     }
 
-    if (itemTarget->IsEquipped())
-        _player->_ApplyItemMods(itemTarget, itemTarget->GetSlot(), true);
+    for (uint32 enchantmentSlot = SOCK_ENCHANTMENT_SLOT; enchantmentSlot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchantmentSlot)
+        _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchantmentSlot), true);
 
     bool SocketBonusToBeActivated = itemTarget->GemsFitSockets();//current socketbonus state
     if (SocketBonusActivated ^ SocketBonusToBeActivated)     //if there was a change...

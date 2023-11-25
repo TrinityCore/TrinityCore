@@ -3150,34 +3150,7 @@ struct ItemSpecStats
             }
         }
         else if (item->ClassID == ITEM_CLASS_GEM)
-        {
             ItemType = 7;
-            if (GemPropertiesEntry const* gem = sGemPropertiesStore.LookupEntry(sparse->GemProperties))
-            {
-                if (gem->Type & SOCKET_COLOR_RELIC_IRON)
-                    AddStat(ITEM_SPEC_STAT_RELIC_IRON);
-                if (gem->Type & SOCKET_COLOR_RELIC_BLOOD)
-                    AddStat(ITEM_SPEC_STAT_RELIC_BLOOD);
-                if (gem->Type & SOCKET_COLOR_RELIC_SHADOW)
-                    AddStat(ITEM_SPEC_STAT_RELIC_SHADOW);
-                if (gem->Type & SOCKET_COLOR_RELIC_FEL)
-                    AddStat(ITEM_SPEC_STAT_RELIC_FEL);
-                if (gem->Type & SOCKET_COLOR_RELIC_ARCANE)
-                    AddStat(ITEM_SPEC_STAT_RELIC_ARCANE);
-                if (gem->Type & SOCKET_COLOR_RELIC_FROST)
-                    AddStat(ITEM_SPEC_STAT_RELIC_FROST);
-                if (gem->Type & SOCKET_COLOR_RELIC_FIRE)
-                    AddStat(ITEM_SPEC_STAT_RELIC_FIRE);
-                if (gem->Type & SOCKET_COLOR_RELIC_WATER)
-                    AddStat(ITEM_SPEC_STAT_RELIC_WATER);
-                if (gem->Type & SOCKET_COLOR_RELIC_LIFE)
-                    AddStat(ITEM_SPEC_STAT_RELIC_LIFE);
-                if (gem->Type & SOCKET_COLOR_RELIC_WIND)
-                    AddStat(ITEM_SPEC_STAT_RELIC_WIND);
-                if (gem->Type & SOCKET_COLOR_RELIC_HOLY)
-                    AddStat(ITEM_SPEC_STAT_RELIC_HOLY);
-            }
-        }
         else
             ItemType = 0;
 
