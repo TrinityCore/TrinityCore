@@ -131,7 +131,7 @@ struct boss_telash_greywing : public BossAI
             }
         }
     }
- 
+
     void UpdateAI(uint32 diff) override
     {
         scheduler.Update(diff);
