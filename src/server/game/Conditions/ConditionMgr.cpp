@@ -161,7 +161,14 @@ ConditionSourceInfo::ConditionSourceInfo(WorldObject const* target0, WorldObject
     mConditionTargets[0] = target0;
     mConditionTargets[1] = target1;
     mConditionTargets[2] = target2;
-    mConditionMap = target0 ? target0->GetMap() : nullptr;
+    if (target0)
+        mConditionMap = target0->GetMap();
+    else if (target1)
+        mConditionMap = target1->GetMap();
+    else if (target2)
+        mConditionMap = target2->GetMap();
+    else
+        mConditionMap =  nullptr;
     mLastFailedCondition = nullptr;
 }
 
