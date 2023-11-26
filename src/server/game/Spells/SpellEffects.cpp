@@ -754,6 +754,8 @@ void Spell::EffectTriggerMissileSpell()
     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
     args.SetOriginalCaster(m_originalCasterGUID);
     args.SetTriggeringSpell(this);
+    args.SetCustomArg(m_customArg);
+
     // set basepoints for trigger with value effect
     if (effectInfo->Effect == SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
