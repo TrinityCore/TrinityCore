@@ -21,6 +21,7 @@
  * Scriptnames of files in this file should be prefixed with "spell_dk_".
  */
 
+#include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "ScriptMgr.h"
 #include "Containers.h"
