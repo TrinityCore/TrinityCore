@@ -346,7 +346,7 @@ class spell_telash_activate_vault_rune : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_VAULT_RUNE_AT_AURA });
+        return ValidateSpellInfo({ SPELL_VAULT_RUNE_AT_AURA, SPELL_INACTIVE_VAULT_RUNE });
     }
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
@@ -374,6 +374,11 @@ static Position const TelashJumpBackPositions[] =
 class spell_telash_absolute_zero_damage : public SpellScript
 {
     PrepareSpellScript(spell_telash_absolute_zero_damage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ABSOLUTE_ZERO_JUMP_BACK, SPELL_VAULT_RUNE_AT_AURA, SPELL_VAULT_RUNE_SHIELD });
+    }
 
     void HandleAfterCast()
     {
