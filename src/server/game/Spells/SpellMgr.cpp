@@ -4697,6 +4697,30 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF MARDUM SPELLS
 
     //
+    // MAW OF SOULS SPELLS
+    //
+    // 193460 - Bane
+    ApplySpellFix({ 193460 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->ApplyAuraPeriod = 1000;
+        });
+    });
+
+    // 193465 - Bane
+    ApplySpellFix({ 193465 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            // Normal difficulty should also be using the regular heroic+ AreaTriggerCreateProperties
+            spellEffectInfo->MiscValue = 5838;
+        });
+    });
+
+    // ENDOF MAW OF SOULS SPELLS
+
+    //
     // ANTORUS THE BURNING THRONE SPELLS
     //
 
