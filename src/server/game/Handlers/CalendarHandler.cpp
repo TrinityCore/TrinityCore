@@ -310,84 +310,86 @@ void WorldSession::HandleCalendarInvite(WorldPackets::Calendar::CalendarInvite& 
 {
     ObjectGuid playerGuid = _player->GetGUID();
 
-    ObjectGuid inviteeGuid;
-    uint32 inviteeTeam = 0;
-    ObjectGuid::LowType inviteeGuildId = UI64LIT(0);
+    Optional<uint64> eventId;
+    if (!calendarEventInvite.Creating)
+        eventId = calendarEventInvite.EventID;
+
+    bool isSignUp = calendarEventInvite.IsSignUp;
+
+    std::string inviteeName = calendarEventInvite.Name;
 
     if (!normalizePlayerName(calendarEventInvite.Name))
         return;
 
-    if (Player* player = ObjectAccessor::FindConnectedPlayerByName(calendarEventInvite.Name))
+    auto createInvite = [this, playerGuid, inviteeName, eventId, isSignUp](ObjectGuid const& inviteeGuid, uint32 inviteeTeam, ObjectGuid::LowType inviteeGuildId, bool inviteeIsIngoring)
     {
-        // Invitee is online
-        inviteeGuid = player->GetGUID();
-        inviteeTeam = player->GetTeam();
-        inviteeGuildId = player->GetGuildId();
-    }
-    else
-    {
-        // Invitee offline, get data from storage
-        ObjectGuid guid = sCharacterCache->GetCharacterGuidByName(calendarEventInvite.Name);
-        if (!guid.IsEmpty())
+        if (!_player || _player->GetGUID() != playerGuid)
+            return;
+
+        if (_player->GetTeam() != inviteeTeam && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CALENDAR))
         {
-            if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(guid))
-            {
-                inviteeGuid = guid;
-                inviteeTeam = Player::TeamForRace(characterInfo->Race);
-                inviteeGuildId = characterInfo->GuildId;
-            }
-        }
-    }
-
-    if (!inviteeGuid)
-    {
-        sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_PLAYER_NOT_FOUND);
-        return;
-    }
-
-    if (_player->GetTeam() != inviteeTeam && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CALENDAR))
-    {
-        sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_NOT_ALLIED);
-        return;
-    }
-
-    if (QueryResult result = CharacterDatabase.PQuery("SELECT flags FROM character_social WHERE guid = {} AND friend = {}", inviteeGuid.GetCounter(), playerGuid.GetCounter()))
-    {
-        Field* fields = result->Fetch();
-        if (fields[0].GetUInt8() & SOCIAL_FLAG_IGNORED)
-        {
-            sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_IGNORING_YOU_S, calendarEventInvite.Name.c_str());
+            sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_NOT_ALLIED);
             return;
         }
-    }
 
-    if (!calendarEventInvite.Creating)
-    {
-        if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarEventInvite.EventID))
+        if (inviteeIsIngoring)
         {
-            if (calendarEvent->IsGuildEvent() && calendarEvent->GetGuildId() == inviteeGuildId)
+            sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_IGNORING_YOU_S, inviteeName.c_str());
+            return;
+        }
+
+        if (eventId)
+        {
+            if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(*eventId))
             {
-                // we can't invite guild members to guild events
+                if (calendarEvent->IsGuildEvent() && calendarEvent->GetGuildId() == inviteeGuildId)
+                {
+                    // we can't invite guild members to guild events
+                    sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_NO_GUILD_INVITES);
+                    return;
+                }
+
+                CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), *eventId, inviteeGuid, playerGuid, CALENDAR_DEFAULT_RESPONSE_TIME, CALENDAR_STATUS_INVITED, CALENDAR_RANK_PLAYER, "");
+                sCalendarMgr->AddInvite(calendarEvent, invite);
+            }
+            else
+                sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_EVENT_INVALID);
+        }
+        else
+        {
+            if (isSignUp && inviteeGuildId == _player->GetGuildId())
+            {
                 sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_NO_GUILD_INVITES);
                 return;
             }
 
-            CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEventInvite.EventID, inviteeGuid, playerGuid, CALENDAR_DEFAULT_RESPONSE_TIME, CALENDAR_STATUS_INVITED, CALENDAR_RANK_PLAYER, "");
-            sCalendarMgr->AddInvite(calendarEvent, invite);
+            CalendarInvite invite(sCalendarMgr->GetFreeInviteId(), 0L, inviteeGuid, playerGuid, CALENDAR_DEFAULT_RESPONSE_TIME, CALENDAR_STATUS_INVITED, CALENDAR_RANK_PLAYER, "");
+            sCalendarMgr->SendCalendarEventInvite(invite);
         }
-        else
-            sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_EVENT_INVALID);
+    };
+
+    if (Player* player = ObjectAccessor::FindConnectedPlayerByName(calendarEventInvite.Name))
+    {
+        // Invitee is online
+        createInvite(player->GetGUID(), player->GetTeam(), player->GetGuildId(), player->GetSocial()->HasIgnore(playerGuid, GetAccountGUID()));
     }
     else
     {
-        if (calendarEventInvite.IsSignUp && inviteeGuildId == _player->GetGuildId())
+        // Invitee offline, get data from storage
+        CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByName(inviteeName);
+        if (!characterInfo)
         {
-            sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_NO_GUILD_INVITES);
+            sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_PLAYER_NOT_FOUND);
             return;
         }
 
-        CalendarInvite invite(sCalendarMgr->GetFreeInviteId(), 0L, inviteeGuid, playerGuid, CALENDAR_DEFAULT_RESPONSE_TIME, CALENDAR_STATUS_INVITED, CALENDAR_RANK_PLAYER, "");
-        sCalendarMgr->SendCalendarEventInvite(invite);
+        GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(Trinity::StringFormat("SELECT 1 FROM character_social cs INNER JOIN characters friend_character ON cs.friend = friend_character.guid WHERE cs.guid = {} AND friend_character.account = {} AND (cs.flags & {}) <> 0",
+            characterInfo->Guid.GetCounter(), characterInfo->AccountId, SOCIAL_FLAG_IGNORED).c_str()))
+            .WithCallback([inviteeGuid = characterInfo->Guid, inviteeTeam = Player::TeamForRace(characterInfo->Race), inviteeGuildId = characterInfo->GuildId, continuation = std::move(createInvite)](QueryResult result)
+        {
+            bool isIgnoring = result != nullptr;
+            continuation(inviteeGuid, inviteeTeam, inviteeGuildId, isIgnoring);
+        });
     }
 }
 
