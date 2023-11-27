@@ -722,8 +722,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_GLYPH_REQUIRED_SPEC, "SELECT MAX(ID) + 1 FROM glyph_required_spec", CONNECTION_SYNCH);
 
     // GossipNpcOption.db2
-    PrepareStatement(HOTFIX_SEL_GOSSIP_NPC_OPTION, "SELECT ID, GossipNpcOption, LFGDungeonsID, Unk341_1, Unk341_2, Unk341_3, Unk341_4, Unk341_5, Unk341_6, "
-        "Unk341_7, Unk341_8, Unk341_9, GossipOptionID FROM gossip_npc_option WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_GOSSIP_NPC_OPTION, "SELECT ID, GossipNpcOption, LFGDungeonsID, Unk341_1, Unk341_2, Unk341_3, Unk341_4, Unk341_5, "
+        "Unk341_6, Unk341_7, Unk341_8, Unk341_9, GossipOptionID FROM gossip_npc_option WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_GOSSIP_NPC_OPTION, "SELECT MAX(ID) + 1 FROM gossip_npc_option", CONNECTION_SYNCH);
 
     // GuildColorBackground.db2
@@ -929,6 +929,20 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // ItemPriceBase.db2
     PrepareStatement(HOTFIX_SEL_ITEM_PRICE_BASE, "SELECT ID, ItemLevel, Armor, Weapon FROM item_price_base WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_PRICE_BASE, "SELECT MAX(ID) + 1 FROM item_price_base", CONNECTION_SYNCH);
+
+    // ItemRandomProperties.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_RANDOM_PROPERTIES, "SELECT ID, Name, Enchantment1, Enchantment2, Enchantment3, Enchantment4, Enchantment5"
+        " FROM item_random_properties WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_RANDOM_PROPERTIES, "SELECT MAX(ID) + 1 FROM item_random_properties", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_RANDOM_PROPERTIES, "SELECT ID, Name_lang FROM item_random_properties_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
+
+    // ItemRandomSuffix.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_RANDOM_SUFFIX, "SELECT ID, Name, Enchantment1, Enchantment2, Enchantment3, Enchantment4, Enchantment5, "
+        "AllocationPct1, AllocationPct2, AllocationPct3, AllocationPct4, AllocationPct5 FROM item_random_suffix WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_RANDOM_SUFFIX, "SELECT MAX(ID) + 1 FROM item_random_suffix", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_RANDOM_SUFFIX, "SELECT ID, Name_lang FROM item_random_suffix_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
 
     // ItemSearchName.db2
     PrepareStatement(HOTFIX_SEL_ITEM_SEARCH_NAME, "SELECT AllowableRace, Display, ID, OverallQualityID, ExpansionID, MinFactionID, MinReputation, "

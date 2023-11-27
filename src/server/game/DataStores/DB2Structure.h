@@ -2240,6 +2240,21 @@ struct ItemPriceBaseEntry
     float Weapon;
 };
 
+struct ItemRandomPropertiesEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    std::array<uint16, 5> Enchantment;
+};
+
+struct ItemRandomSuffixEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    std::array<uint16, 5> Enchantment;
+    std::array<uint16, 5> AllocationPct;
+};
+
 struct ItemSearchNameEntry
 {
     Trinity::RaceMask<int64> AllowableRace;

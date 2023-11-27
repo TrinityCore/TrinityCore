@@ -195,6 +195,8 @@ DB2Storage<ItemModifiedAppearanceEntry>         sItemModifiedAppearanceStore("It
 DB2Storage<ItemModifiedAppearanceExtraEntry>    sItemModifiedAppearanceExtraStore("ItemModifiedAppearanceExtra.db2", &ItemModifiedAppearanceExtraLoadInfo::Instance);
 DB2Storage<ItemNameDescriptionEntry>            sItemNameDescriptionStore("ItemNameDescription.db2", &ItemNameDescriptionLoadInfo::Instance);
 DB2Storage<ItemPriceBaseEntry>                  sItemPriceBaseStore("ItemPriceBase.db2", &ItemPriceBaseLoadInfo::Instance);
+DB2Storage<ItemRandomPropertiesEntry>           sItemRandomPropertiesStore("ItemRandomProperties.db2", &ItemRandomPropertiesLoadInfo::Instance);
+DB2Storage<ItemRandomSuffixEntry>               sItemRandomSuffixStore("ItemRandomSuffix.db2", &ItemRandomSuffixLoadInfo::Instance);
 DB2Storage<ItemSearchNameEntry>                 sItemSearchNameStore("ItemSearchName.db2", &ItemSearchNameLoadInfo::Instance);
 DB2Storage<ItemSetEntry>                        sItemSetStore("ItemSet.db2", &ItemSetLoadInfo::Instance);
 DB2Storage<ItemSetSpellEntry>                   sItemSetSpellStore("ItemSetSpell.db2", &ItemSetSpellLoadInfo::Instance);

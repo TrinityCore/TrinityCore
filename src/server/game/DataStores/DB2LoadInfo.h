@@ -2917,6 +2917,43 @@ struct ItemPriceBaseLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 4, &ItemPriceBaseMeta::Instance, HOTFIX_SEL_ITEM_PRICE_BASE };
 };
 
+struct ItemRandomPropertiesLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[7] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { false, FT_SHORT, "Enchantment1" },
+        { false, FT_SHORT, "Enchantment2" },
+        { false, FT_SHORT, "Enchantment3" },
+        { false, FT_SHORT, "Enchantment4" },
+        { false, FT_SHORT, "Enchantment5" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 7, &ItemRandomPropertiesMeta::Instance, HOTFIX_SEL_ITEM_RANDOM_PROPERTIES };
+};
+
+struct ItemRandomSuffixLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[12] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { false, FT_SHORT, "Enchantment1" },
+        { false, FT_SHORT, "Enchantment2" },
+        { false, FT_SHORT, "Enchantment3" },
+        { false, FT_SHORT, "Enchantment4" },
+        { false, FT_SHORT, "Enchantment5" },
+        { false, FT_SHORT, "AllocationPct1" },
+        { false, FT_SHORT, "AllocationPct2" },
+        { false, FT_SHORT, "AllocationPct3" },
+        { false, FT_SHORT, "AllocationPct4" },
+        { false, FT_SHORT, "AllocationPct5" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 12, &ItemRandomSuffixMeta::Instance, HOTFIX_SEL_ITEM_RANDOM_SUFFIX };
+};
+
 struct ItemSearchNameLoadInfo
 {
     static constexpr DB2FieldMeta Fields[17] =
