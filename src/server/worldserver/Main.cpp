@@ -35,6 +35,7 @@
 #include "InstanceLockMgr.h"
 #include "IoContext.h"
 #include "IpNetwork.h"
+#include "Locales.h"
 #include "MapManager.h"
 #include "Metric.h"
 #include "MySQLThreading.h"
@@ -129,6 +130,8 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, f
 extern int main(int argc, char** argv)
 {
     signal(SIGABRT, &Trinity::AbortHandler);
+
+    Trinity::Locale::Init();
 
     auto configFile = fs::absolute(_TRINITY_CORE_CONFIG);
     auto configDir  = fs::absolute(_TRINITY_CORE_CONFIG_DIR);

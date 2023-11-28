@@ -21,13 +21,17 @@
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
+#include "Hash.h"
 #include "IPLocation.h"
-#include "QueryCallback.h"
 #include "LoginRESTService.h"
+#include "MapUtils.h"
 #include "ProtobufJSON.h"
+#include "QueryCallback.h"
 #include "RealmList.h"
-#include "ServiceDispatcher.h"
 #include "RealmList.pb.h"
+#include "ServiceDispatcher.h"
+#include "Timezone.h"
+#include <rapidjson/document.h>
 #include <zlib.h>
 
 void Battlenet::Session::AccountInfo::LoadResult(PreparedQueryResult result)
@@ -228,6 +232,26 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
     _locale = logonRequest->locale();
     _os = logonRequest->platform();
     _build = logonRequest->application_version();
+
+    _timezoneOffset = [&]
+    {
+        if (!logonRequest->has_device_id())
+            return 0min;
+
+        rapidjson::Document doc;
+        doc.Parse(logonRequest->device_id());
+        if (doc.HasParseError())
+            return 0min;
+
+        auto itr = doc.FindMember("UTCO");
+        if (itr == doc.MemberEnd())
+            return 0min;
+
+        if (!itr->value.IsUint())
+            return 0min;
+
+        return Trinity::Timezone::GetOffsetByHash(itr->value.GetUint());
+    }();
 
     if (logonRequest->has_cached_web_credentials())
         return VerifyWebCredentials(logonRequest->cached_web_credentials(), continuation);
@@ -670,7 +694,8 @@ uint32 Battlenet::Session::GetRealmList(std::unordered_map<std::string, Variant 
 uint32 Battlenet::Session::JoinRealm(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
     if (Variant const* realmAddress = GetParam(params, "Param_RealmAddress"))
-        return sRealmList->JoinRealm(realmAddress->uint_value(), _build, GetRemoteIpAddress(), _clientSecret, GetLocaleByName(_locale), _os, _gameAccountInfo->Name, response);
+        return sRealmList->JoinRealm(realmAddress->uint_value(), _build, GetRemoteIpAddress(), _clientSecret, GetLocaleByName(_locale),
+            _os, _timezoneOffset, _gameAccountInfo->Name, response);
 
     return ERROR_WOW_SERVICES_INVALID_JOIN_TICKET;
 }

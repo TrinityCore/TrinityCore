@@ -24,6 +24,7 @@
 #include "StringFormat.h"
 #include "VMapDefinitions.h"
 #include "vmapexport.h"
+#include "Locales.h"
 #include "wdtfile.h"
 #include "wmo.h"
 #include <algorithm>
@@ -445,6 +446,8 @@ static bool RetardCheck()
 
 int main(int argc, char ** argv)
 {
+    Trinity::Locale::Init();
+
     Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     bool success = true;

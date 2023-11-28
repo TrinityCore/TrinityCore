@@ -1128,7 +1128,6 @@ struct npc_baleful_beaming_eye : public ScriptedAI
     void JustAppeared() override
     {
         me->SetDisplayId(DISPLAYID_BALEFUL_EYE, true);
-        me->SetPlayHoverAnim(true);
         DoCastSelf(SPELL_BALEFUL_BEAMING_EYE_CREATE_AT);
         // ToDo: rotation isn't changing orientation, turnspeed should be random
         me->GetMotionMaster()->MoveRotate(0, 10000, RAND(ROTATE_DIRECTION_LEFT, ROTATE_DIRECTION_RIGHT));

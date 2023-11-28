@@ -5290,7 +5290,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
 {
     WorldPackets::CombatLog::SpellNonMeleeDamageLog packet;
     packet.Me = log->target->GetGUID();
-    packet.CasterGUID = log->attacker->GetGUID();
+    packet.CasterGUID = log->attacker ? log->attacker->GetGUID() : ObjectGuid::Empty;
     packet.CastID = log->castId;
     packet.SpellID = log->Spell ? log->Spell->Id : 0;
     packet.Visual = log->SpellVisual;
@@ -12839,6 +12839,16 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
             SetAnimTier(AnimTier::Ground);
     }
 
+    if (IsAlive())
+    {
+        if (IsGravityDisabled() || IsHovering())
+            SetPlayHoverAnim(true);
+        else
+            SetPlayHoverAnim(false);
+    }
+    else if (IsPlayer()) // To update player who dies while flying/hovering
+        SetPlayHoverAnim(false, false);
+
     return true;
 }
 
@@ -13054,6 +13064,16 @@ bool Unit::SetHover(bool enable, bool updateAnimTier /*= true*/)
         else
             SetAnimTier(AnimTier::Ground);
     }
+
+    if (IsAlive())
+    {
+        if (IsGravityDisabled() || IsHovering())
+            SetPlayHoverAnim(true);
+        else
+            SetPlayHoverAnim(false);
+    }
+    else if (IsPlayer()) // To update player who dies while flying/hovering
+        SetPlayHoverAnim(false, false);
 
     return true;
 }
@@ -13366,9 +13386,15 @@ void Unit::UpdateMovementForcesModMagnitude()
     }
 }
 
-void Unit::SetPlayHoverAnim(bool enable)
+void Unit::SetPlayHoverAnim(bool enable, bool sendUpdate /*= true*/)
 {
+    if (IsPlayingHoverAnim() == enable)
+        return;
+
     _playHoverAnim = enable;
+
+    if (!sendUpdate)
+        return;
 
     WorldPackets::Misc::SetPlayHoverAnim data;
     data.UnitGUID = GetGUID();

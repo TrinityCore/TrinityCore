@@ -34,7 +34,7 @@ enum WaypointMoveType
 
 struct WaypointNode
 {
-    WaypointNode() : id(0), x(0.f), y(0.f), z(0.f), delay(0), eventId(0), moveType(WAYPOINT_MOVE_TYPE_RUN), eventChance(0) { }
+    WaypointNode() : id(0), x(0.f), y(0.f), z(0.f), delay(0), moveType(WAYPOINT_MOVE_TYPE_RUN) { }
     WaypointNode(uint32 _id, float _x, float _y, float _z, Optional<float> _orientation = { }, uint32 _delay = 0)
     {
         id = _id;
@@ -43,18 +43,14 @@ struct WaypointNode
         z = _z;
         orientation = _orientation;
         delay = _delay;
-        eventId = 0;
         moveType = WAYPOINT_MOVE_TYPE_WALK;
-        eventChance = 100;
     }
 
     uint32 id;
     float x, y, z;
     Optional<float> orientation;
     uint32 delay;
-    uint32 eventId;
     uint32 moveType;
-    uint8 eventChance;
 };
 
 struct WaypointPath

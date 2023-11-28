@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include "WowTime.h"
 #include <array>
 #include <map>
 
@@ -81,8 +82,8 @@ namespace WorldPackets
 
             float NewSpeed = 0.0f;
             int32 ServerTimeHolidayOffset = 0;
-            uint32 GameTime = 0;
-            uint32 ServerTime = 0;
+            WowTime GameTime;
+            WowTime ServerTime;
             int32 GameTimeHolidayOffset = 0;
         };
 
