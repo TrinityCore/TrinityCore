@@ -50,6 +50,9 @@ enum KazzaraSpells
     SPELL_HELLSTEEL_CARNAGE_40_PCT          = 401319,
     SPELL_HELLSTEEL_CARNAGE_60_PCT          = 401318,
     SPELL_HELLSTEEL_CARNAGE_80_PCT          = 401316,
+    SPELL_HELLSTEEL_CARNAGE_TRANSFORM_40_PCT = 401335,
+    SPELL_HELLSTEEL_CARNAGE_TRANSFORM_60_PCT = 401331,
+    SPELL_HELLSTEEL_CARNAGE_TRANSFORM_80_PCT = 401328,
     SPELL_HELLSTEEL_FRAGMENTS_40_PCT        = 404595,
     SPELL_HELLSTEEL_FRAGMENTS_60_PCT        = 404593,
     SPELL_HELLSTEEL_FRAGMENTS_80_PCT        = 404553,
@@ -573,6 +576,76 @@ class spell_kazzara_hellbeam_consume_energy : public SpellScript
     }
 };
 
+// 401328 - Hellsteel Carnage
+// 401331 - Hellsteel Carnage
+// 401335 - Hellsteel Carnage
+class spell_kazzara_hellsteel_carnage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_HELLSTEEL_CARNAGE_TRANSFORM_80_PCT,
+            SPELL_HELLSTEEL_FRAGMENTS_80_PCT,
+            SPELL_HELLSTEEL_CARNAGE_TRANSFORM_60_PCT,
+            SPELL_HELLSTEEL_FRAGMENTS_60_PCT,
+            SPELL_HELLSTEEL_CARNAGE_TRANSFORM_40_PCT,
+            SPELL_HELLSTEEL_FRAGMENTS_40_PCT
+        });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        uint32 spellId = GetSpellInfo()->Id;
+
+        switch (spellId)
+        {
+            case SPELL_HELLSTEEL_CARNAGE_TRANSFORM_80_PCT:
+            {
+                spellId = SPELL_HELLSTEEL_FRAGMENTS_80_PCT;
+                break;
+            }
+            case SPELL_HELLSTEEL_CARNAGE_TRANSFORM_60_PCT:
+            {
+                spellId = SPELL_HELLSTEEL_FRAGMENTS_60_PCT;
+                break;
+            }
+            case SPELL_HELLSTEEL_CARNAGE_TRANSFORM_40_PCT:
+            {
+                spellId = SPELL_HELLSTEEL_FRAGMENTS_40_PCT;
+                break;
+            }
+            default:
+                break;
+        }
+
+        GetCaster()->CastSpell(GetCaster(), spellId, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_kazzara_hellsteel_carnage::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// 404555 - Hellsteel Fragment
+// 404589 - Hellsteel Fragment
+// 404591 - Hellsteel Fragment
+class spell_kazzara_hellsteel_fragment : public SpellScript
+{
+    void SetDest(SpellDestination& dest) const
+    {
+        Unit* caster = GetCaster();
+        Position const pos = caster->GetRandomPoint(*caster, frand(5.0f, 60.0f));
+        dest.Relocate(pos);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_kazzara_hellsteel_fragment::SetDest, EFFECT_0, TARGET_DEST_DEST_RANDOM);
+    }
+};
+
 // 402260 - Ray of Anguish
 class spell_kazzara_ray_of_anguish_trigger : public SpellScript
 {
@@ -758,6 +831,8 @@ void AddSC_boss_kazzara_the_hellforged()
     RegisterSpellScript(spell_kazzara_dread_rifts);
     RegisterSpellScript(spell_kazzara_energize);
     RegisterSpellScript(spell_kazzara_hellbeam_consume_energy);
+    RegisterSpellScript(spell_kazzara_hellsteel_carnage);
+    RegisterSpellScript(spell_kazzara_hellsteel_fragment);
     RegisterSpellScript(spell_kazzara_ray_of_anguish_trigger);
     RegisterSpellScript(spell_kazzara_terror_claws);
     RegisterSpellScript(spell_kazzara_terror_claws_periodic);
