@@ -20,9 +20,34 @@
 
 #include "Common.h"
 
-using ItemRandomBonusListId = uint32;
+struct ItemRandomProperties
+{
+    ItemRandomProperties(int32 randomPropertiesId = 0, int32 randomPropertiesSeed = 0) : RandomPropertiesID(randomPropertiesId), RandomPropertiesSeed(randomPropertiesSeed) { }
 
-TC_GAME_API ItemRandomBonusListId GenerateItemRandomBonusListId(uint32 item_id);
-TC_GAME_API float GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType, uint32 subclass);
+    int32 RandomPropertiesID = 0;
+    int32 RandomPropertiesSeed = 0;
+};
+
+
+struct RandomEnchantmentData
+{
+    std::vector<uint16> EnchantmentIDs;
+    std::vector<double> Chances;
+};
+
+
+class TC_GAME_API ItemEnchantmentMgr
+{
+public:
+    static ItemEnchantmentMgr* instance();
+
+    void LoadRandomEnchantmentsTable();
+    ItemRandomProperties GenerateRandomProperties(uint32 itemId);
+
+private:
+    std::unordered_map<uint32, RandomEnchantmentData> _storage;
+};
+
+#define sItemEnchantmentMgr ItemEnchantmentMgr::instance()
 
 #endif

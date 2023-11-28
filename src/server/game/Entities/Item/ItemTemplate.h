@@ -811,6 +811,8 @@ struct TC_GAME_API ItemTemplate
     int32 GetScalingStatValue() const { return BasicData->ScalingStatValue; }
     uint16 GetMinDamage(uint8 index) const { return BasicData->MinDamage[index]; }
     uint16 GetMaxDamage(uint8 index) const { return BasicData->MaxDamage[index]; }
+    uint16 GetRandomSuffixGroupID() const { return BasicData->ItemRandomSuffixGroupID; }
+    uint16 GetRandomSelect() const { return BasicData->RandomSelect; }
 
     uint32 MaxDurability;
     std::vector<ItemEffectEntry const*> Effects;
@@ -822,7 +824,6 @@ struct TC_GAME_API ItemTemplate
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
     float SpellPPMRate;
-    uint32 RandomBonusListTemplateId;
     std::bitset<MAX_CLASSES * MAX_SPECIALIZATIONS> Specializations[3];  // one set for 1-40 level range and another for 41-109 and one for 110
     uint32 ItemSpecClassMask;
 

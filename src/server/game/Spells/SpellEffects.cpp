@@ -1365,7 +1365,7 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
     if (num_to_add)
     {
         // create the new item and store it
-        Item* pItem = player->StoreNewItem(dest, newitemid, true, GuidSet(), context);
+        Item* pItem = player->StoreNewItem(dest, newitemid, true, sItemEnchantmentMgr->GenerateRandomProperties(newitemid), GuidSet(), context);
 
         // was it successful? return error if not
         if (!pItem)

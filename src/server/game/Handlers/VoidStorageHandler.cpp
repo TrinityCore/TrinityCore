@@ -148,7 +148,8 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
             continue;
         }
 
-        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetCreator(), item->GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL), item->GetContext());
+        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetCreator(), item->GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL),
+            ItemRandomProperties(item->m_itemData->RandomPropertiesID, item->m_itemData->PropertySeed), item->GetContext());
 
         WorldPackets::VoidStorage::VoidItem voidItem;
         voidItem.Guid = ObjectGuid::Create<HighGuid::Item>(itemVS.ItemId);
@@ -185,7 +186,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
             return;
         }
 
-        Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, GuidSet(), itemVS->Context);
+        Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->RandomProperties, GuidSet(), itemVS->Context);
         item->SetCreator(itemVS->CreatorGuid);
         item->SetBinding(true);
         GetCollectionMgr()->AddItemAppearance(item);

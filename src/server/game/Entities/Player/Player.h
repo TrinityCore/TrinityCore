@@ -1006,15 +1006,16 @@ struct BGData
 struct VoidStorageItem
 {
     VoidStorageItem() : ItemId(0), ItemEntry(0), FixedScalingLevel(0), Context(ItemContext::NONE) { }
-    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid const& creator, uint32 fixedScalingLevel, ItemContext context) :
-        ItemId(id), ItemEntry(entry), CreatorGuid(creator), FixedScalingLevel(fixedScalingLevel), Context(context) { }
+    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid const& creator, uint32 fixedScalingLevel, ItemRandomProperties randomProperties, ItemContext context) :
+        ItemId(id), ItemEntry(entry), CreatorGuid(creator), FixedScalingLevel(fixedScalingLevel), RandomProperties(randomProperties), Context(context) { }
     VoidStorageItem(VoidStorageItem&& vsi) noexcept : ItemId(vsi.ItemId), ItemEntry(vsi.ItemEntry), CreatorGuid(vsi.CreatorGuid),
-        FixedScalingLevel(vsi.FixedScalingLevel), Context(vsi.Context) { }
+        FixedScalingLevel(vsi.FixedScalingLevel), RandomProperties(vsi.RandomProperties), Context(vsi.Context) { }
 
     uint64 ItemId;
     uint32 ItemEntry;
     ObjectGuid CreatorGuid;
     uint32 FixedScalingLevel;
+    ItemRandomProperties RandomProperties;
     ItemContext Context;
 };
 
@@ -1365,7 +1366,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem, bool skipRequiredLevelCheck = false) const;
         InventoryResult CanRollNeedForItem(ItemTemplate const* item, Map const* map, bool restrictOnlyLfg) const;
-        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, GuidSet const& allowedLooters = GuidSet(),
+        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomProperties randomProperties = ItemRandomProperties(), GuidSet const& allowedLooters = GuidSet(),
             ItemContext context = ItemContext::NONE, bool addToCollection = true);
         Item* StoreItem(ItemPosCountVec const& pos, Item* pItem, bool update);
         Item* EquipNewItem(uint16 pos, uint32 item, ItemContext context, bool update);

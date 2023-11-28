@@ -26,63 +26,80 @@
 #include <list>
 #include <vector>
 
-namespace
+/*static*/ ItemEnchantmentMgr* ItemEnchantmentMgr::instance()
 {
-    struct RandomBonusListIds
-    {
-        std::vector<int32> BonusListIDs;
-        std::vector<double> Chances;
-    };
-
-    std::unordered_map<uint32, RandomBonusListIds> _storage;
+    static ItemEnchantmentMgr instance;
+    return &instance;
 }
 
-ItemRandomBonusListId GenerateItemRandomBonusListId(uint32 item_id)
+void ItemEnchantmentMgr::LoadRandomEnchantmentsTable()
 {
-    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
-    if (!itemProto)
-        return 0;
+    uint32 oldMSTime = getMSTime();
 
-    // item must have one from this field values not null if it can have random enchantments
-    if (!itemProto->RandomBonusListTemplateId)
-        return 0;
+    _storage.clear();
 
-    auto tab = _storage.find(itemProto->RandomBonusListTemplateId);
-    if (tab == _storage.end())
+    //                                               0   1              2
+    QueryResult result = WorldDatabase.Query("SELECT Id, EnchantmentId, Chance FROM item_random_enchantment_template");
+
+    if (result)
     {
-        TC_LOG_ERROR("sql.sql", "Item RandomBonusListTemplateId id #{} used in `item_template_addon` but it does not have records in `item_random_bonus_list_template` table.", itemProto->RandomBonusListTemplateId);
-        return 0;
+        uint32 count = 0;
+
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint32 id = fields[0].GetUInt32();
+            uint32 enchantmentId = fields[1].GetUInt32();
+            float chance = fields[2].GetFloat();
+
+            if (!sItemRandomPropertiesStore.LookupEntry(enchantmentId) && !sItemRandomSuffixStore.LookupEntry(enchantmentId))
+            {
+                TC_LOG_ERROR("sql.sql", "ItemRandomProperties/ItemRandomSuffix Id {} used in `item_random_enchantment_template` by id {} doesn't have exist in its corresponding db2 file.", enchantmentId, id);
+                continue;
+            }
+
+            if (chance < 0.000001f || chance > 100.0f)
+            {
+                TC_LOG_ERROR("sql.sql", "Enchantment Id {} used in `item_random_enchantment_template` by id {} has invalid chance {}", enchantmentId, id, chance);
+                continue;
+            }
+
+            RandomEnchantmentData& ids = _storage[id];
+            ids.EnchantmentIDs.push_back(enchantmentId);
+            ids.Chances.push_back(chance);
+
+            ++count;
+        } while (result->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded {} Random item enchantment definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
-
-    return *Trinity::Containers::SelectRandomWeightedContainerElement(tab->second.BonusListIDs, std::span(tab->second.Chances));
+    else
+        TC_LOG_INFO("server.loading", ">> Loaded 0 Random item bonus list definitions. DB table `item_random_enchantment_template` is empty.");
 }
 
-TC_GAME_API float GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType, uint32 subClass)
+static int32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType)
 {
-    uint32 propIndex;
+    uint32 propIndex = 0;
 
     switch (inventoryType)
     {
+        // Items of that type don`t have points
+        case INVTYPE_NON_EQUIP:
+        case INVTYPE_BAG:
+        case INVTYPE_TABARD:
+        case INVTYPE_AMMO:
+        case INVTYPE_QUIVER:
+        case INVTYPE_RELIC:
+            return 0;
+            // Select point coefficient
         case INVTYPE_HEAD:
         case INVTYPE_BODY:
         case INVTYPE_CHEST:
         case INVTYPE_LEGS:
-        case INVTYPE_RANGED:
         case INVTYPE_2HWEAPON:
         case INVTYPE_ROBE:
-        case INVTYPE_THROWN:
             propIndex = 0;
-            break;
-        case INVTYPE_RANGEDRIGHT:
-            if (subClass == ITEM_SUBCLASS_WEAPON_WAND)
-                propIndex = 3;
-            else
-                propIndex = 0;
-            break;
-        case INVTYPE_WEAPON:
-        case INVTYPE_WEAPONMAINHAND:
-        case INVTYPE_WEAPONOFFHAND:
-            propIndex = 3;
             break;
         case INVTYPE_SHOULDERS:
         case INVTYPE_WAIST:
@@ -99,7 +116,14 @@ TC_GAME_API float GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint
         case INVTYPE_HOLDABLE:
             propIndex = 2;
             break;
-        case INVTYPE_RELIC:
+        case INVTYPE_WEAPON:
+        case INVTYPE_WEAPONMAINHAND:
+        case INVTYPE_WEAPONOFFHAND:
+            propIndex = 3;
+            break;
+        case INVTYPE_RANGED:
+        case INVTYPE_THROWN:
+        case INVTYPE_RANGEDRIGHT:
             propIndex = 4;
             break;
         default:
@@ -124,4 +148,57 @@ TC_GAME_API float GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint
     }
 
     return 0;
+}
+
+ItemRandomProperties ItemEnchantmentMgr::GenerateRandomProperties(uint32 itemId)
+{
+    ItemRandomProperties properties;
+    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemId);
+    if (!itemProto)
+        return properties;
+
+    if (!itemProto->GetRandomSelect() && !itemProto->GetRandomSuffixGroupID())
+        return properties;
+
+    if (uint16 randomSelect = itemProto->GetRandomSelect())
+    {
+        auto tab = _storage.find(randomSelect);
+        if (tab == _storage.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Item RandomSelect Id {} used but it does not have records in `item_random_enchantment_template` table.", randomSelect);
+            return properties;
+        }
+
+        uint32 randomPropertiesId = *Trinity::Containers::SelectRandomWeightedContainerElement(tab->second.EnchantmentIDs, std::span(tab->second.Chances));
+        ItemRandomPropertiesEntry const* randomPropertiesEntry = sItemRandomPropertiesStore.LookupEntry(randomPropertiesId);
+        if (!randomPropertiesEntry)
+        {
+            TC_LOG_ERROR("sql.sql", "Enchantment Id {} used but it doesn't have records in 'ItemRandomProperties.db2'", randomPropertiesId);
+            return properties;
+        }
+
+        properties.RandomPropertiesID = static_cast<int32>(randomPropertiesEntry->ID);
+    }
+    else if (uint16 randomSuffix = itemProto->GetRandomSuffixGroupID())
+    {
+        auto tab = _storage.find(randomSuffix);
+        if (tab == _storage.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Item RandomSuffixGroupID Id {} used but it does not have records in `item_random_enchantment_template` table.", randomSuffix);
+            return properties;
+        }
+
+        uint32 randomSuffixId = *Trinity::Containers::SelectRandomWeightedContainerElement(tab->second.EnchantmentIDs, std::span(tab->second.Chances));
+        ItemRandomSuffixEntry const* randomSuffixEntry = sItemRandomSuffixStore.LookupEntry(randomSuffixId);
+        if (!randomSuffixEntry)
+        {
+            TC_LOG_ERROR("sql.sql", "Enchantment id Id {} used but it doesn't have records in 'ItemRandomSuffixEntry.db2'", randomSuffixId);
+            return properties;
+        }
+
+        properties.RandomPropertiesID = -static_cast<int32>(randomSuffixEntry->ID);
+        properties.RandomPropertiesSeed = GetRandomPropertyPoints(itemProto->GetItemLevel(), itemProto->GetQuality(), itemProto->GetInventoryType());
+    }
+
+    return properties;
 }

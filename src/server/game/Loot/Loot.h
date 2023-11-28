@@ -176,6 +176,7 @@ struct TC_GAME_API LootItem
 {
     uint32  itemid;
     uint32  LootListId;
+    ItemRandomProperties randomProperties;
     ItemContext context;
     ConditionContainer conditions;                          // additional loot condition
     GuidSet allowedGUIDs;

@@ -35,7 +35,7 @@ namespace
 
 StoredLootItem::StoredLootItem(LootItem const& lootItem) : ItemId(lootItem.itemid), Count(lootItem.count), ItemIndex(lootItem.LootListId), FollowRules(lootItem.follow_loot_rules),
 FFA(lootItem.freeforall), Blocked(lootItem.is_blocked), Counted(lootItem.is_counted), UnderThreshold(lootItem.is_underthreshold),
-NeedsQuest(lootItem.needs_quest), Context(lootItem.context)
+NeedsQuest(lootItem.needs_quest), RandomProperties(lootItem.randomProperties), Context(lootItem.context)
 {
 }
 
@@ -79,7 +79,9 @@ void LootItemStorage::LoadStorageFromDB()
             lootItem.is_counted = fields[7].GetBool();
             lootItem.is_underthreshold = fields[8].GetBool();
             lootItem.needs_quest = fields[9].GetBool();
-            lootItem.context = ItemContext(fields[10].GetUInt8());
+            lootItem.randomProperties.RandomPropertiesID = fields[10].GetInt32();
+            lootItem.randomProperties.RandomPropertiesSeed = fields[11].GetInt32();
+            lootItem.context = ItemContext(fields[12].GetUInt8());
 
             storedContainer.AddLootItem(lootItem, trans);
 
@@ -146,6 +148,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
             li.is_counted = storedItemPair.second.Counted;
             li.is_underthreshold = storedItemPair.second.UnderThreshold;
             li.needs_quest = storedItemPair.second.NeedsQuest;
+            li.randomProperties = storedItemPair.second.RandomProperties;
             li.context = storedItemPair.second.Context;
 
             // Copy the extra loot conditions from the item in the loot template
@@ -276,7 +279,7 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabas
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_ITEMS);
 
-    // container_id, item_id, item_count, item_index, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_prop, rnd_suffix
+    // container_id, item_id, item_count, item_index, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, random_properties_id, random_properties_seed, context
     stmt->setUInt64(0, _containerId);
     stmt->setUInt32(1, lootItem.itemid);
     stmt->setUInt32(2, lootItem.count);
@@ -287,7 +290,9 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabas
     stmt->setBool(7, lootItem.is_counted);
     stmt->setBool(8, lootItem.is_underthreshold);
     stmt->setBool(9, lootItem.needs_quest);
-    stmt->setUInt8(10, AsUnderlyingType(lootItem.context));
+    stmt->setInt32(9, lootItem.randomProperties.RandomPropertiesID);
+    stmt->setInt32(10, lootItem.randomProperties.RandomPropertiesSeed);
+    stmt->setUInt8(11, AsUnderlyingType(lootItem.context));
     trans->Append(stmt);
 }
 

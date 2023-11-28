@@ -51,6 +51,7 @@ LootItem::LootItem(LootStoreItem const& li)
 
     needs_quest = li.needs_quest;
 
+    randomProperties = sItemEnchantmentMgr->GenerateRandomProperties(itemid);
     context = ItemContext::NONE;
     count = 0;
     is_looted = false;
@@ -885,7 +886,7 @@ bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool
 
         --unlootedCount;
 
-        Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, GuidSet(), lootItem->context);
+        Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, lootItem->randomProperties, GuidSet(), lootItem->context);
         player->SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast);
         player->ApplyItemLootedSpell(pItem, true);
     }

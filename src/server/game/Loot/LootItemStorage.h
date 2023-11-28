@@ -45,6 +45,7 @@ struct StoredLootItem
     bool Counted;
     bool UnderThreshold;
     bool NeedsQuest;
+    ItemRandomProperties RandomProperties;
     ItemContext Context;
 };
 

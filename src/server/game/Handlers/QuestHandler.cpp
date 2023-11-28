@@ -834,7 +834,7 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceRespons
             ItemPosCountVec dest;
             if (_player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.Id, item.Quantity) == EQUIP_ERR_OK)
             {
-                Item* newItem = _player->StoreNewItem(dest, item.Id, true, {}, ItemContext::Quest_Reward);
+                Item* newItem = _player->StoreNewItem(dest, item.Id, true, sItemEnchantmentMgr->GenerateRandomProperties(item.Id), {}, ItemContext::Quest_Reward);
                 _player->SendNewItem(newItem, item.Quantity, true, false);
             }
         }

@@ -431,6 +431,8 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA));
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL));
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID));
+            stmt->setInt32(++index, m_itemData->RandomPropertiesID);
+            stmt->setInt32(++index, m_itemData->PropertySeed);
             stmt->setUInt8(++index, uint8(m_itemData->Context));
 
             stmt->setUInt64(++index, GetGUID().GetCounter());
@@ -662,47 +664,48 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, fields[14].GetUInt16());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[15].GetUInt32());
 
-    SetContext(ItemContext(fields[16].GetUInt8()));
+    SetItemRandomProperties(ItemRandomProperties(fields[16].GetInt32(), fields[17].GetInt32()));
+    SetContext(ItemContext(fields[18].GetUInt8()));
 
     // load charges after bonuses, they can add more item effects
     std::vector<std::string_view> tokens = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
     for (uint8 i = 0; i < m_itemData->SpellCharges.size() && i < _bonusData.EffectCount && i < tokens.size(); ++i)
         SetSpellCharges(i, Trinity::StringTo<int32>(tokens[i]).value_or(0));
 
-    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[17].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[18].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2, fields[19].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3, fields[20].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4, fields[21].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_5, fields[22].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[19].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[20].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2, fields[21].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3, fields[22].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4, fields[23].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_5, fields[24].GetUInt32());
 
-    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS, fields[23].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1, fields[24].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2, fields[25].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3, fields[26].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4, fields[27].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_5, fields[28].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS, fields[25].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1, fields[26].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2, fields[27].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3, fields[28].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4, fields[29].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_5, fields[30].GetUInt32());
 
-    SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_ALL_SPECS, fields[29].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_1, fields[30].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_2, fields[31].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_3, fields[32].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_4, fields[33].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_5, fields[34].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_ALL_SPECS, fields[31].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_1, fields[32].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_2, fields[33].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_3, fields[34].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_4, fields[35].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_5, fields[36].GetUInt32());
 
     uint32 const gemFields = 3;
     ItemDynamicFieldGems gemData[MAX_GEM_SOCKETS];
     memset(gemData, 0, sizeof(gemData));
     for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
-        gemData[i].ItemId = fields[35 + i * gemFields].GetUInt32();
-        std::vector<std::string_view> gemBonusListIDs = Trinity::Tokenize(fields[36 + i * gemFields].GetStringView(), ' ', false);
+        gemData[i].ItemId = fields[37 + i * gemFields].GetUInt32();
+        std::vector<std::string_view> gemBonusListIDs = Trinity::Tokenize(fields[38 + i * gemFields].GetStringView(), ' ', false);
         uint32 b = 0;
         for (std::string_view token : gemBonusListIDs)
             if (Optional<uint16> bonusListID = Trinity::StringTo<uint16>(token))
                 gemData[i].BonusListIDs[b++] = *bonusListID;
 
-        gemData[i].Context = fields[37 + i * gemFields].GetUInt8();
+        gemData[i].Context = fields[39 + i * gemFields].GetUInt8();
         if (gemData[i].ItemId)
             SetGem(i, &gemData[i]);
     }
@@ -798,6 +801,43 @@ uint32 Item::GetSkill()
 {
     ItemTemplate const* proto = GetTemplate();
     return proto->GetSkill();
+}
+
+void Item::SetItemRandomProperties(ItemRandomProperties randomProperties)
+{
+    if (!randomProperties.RandomPropertiesID)
+        return;
+
+    if (randomProperties.RandomPropertiesID > 0)
+    {
+        ItemRandomPropertiesEntry const* randomPropertiesEntry = sItemRandomPropertiesStore.LookupEntry(randomProperties.RandomPropertiesID);
+        if (randomPropertiesEntry)
+        {
+            if (m_itemData->RandomPropertiesID != randomProperties.RandomPropertiesID)
+            {
+                SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::RandomPropertiesID), randomProperties.RandomPropertiesID);
+                SetState(ITEM_CHANGED, GetOwner());
+            }
+            for (uint32 i = PROP_ENCHANTMENT_SLOT_2; i < PROP_ENCHANTMENT_SLOT_2 + 3; ++i)
+                SetEnchantment(EnchantmentSlot(i), randomPropertiesEntry->Enchantment[i - PROP_ENCHANTMENT_SLOT_2], 0, 0);
+        }
+    }
+    else
+    {
+        ItemRandomSuffixEntry const* randomSuffixEntry = sItemRandomSuffixStore.LookupEntry(std::abs(randomProperties.RandomPropertiesID));
+        if (randomSuffixEntry)
+        {
+            if (m_itemData->RandomPropertiesID != randomProperties.RandomPropertiesID || !m_itemData->PropertySeed)
+            {
+                SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::RandomPropertiesID), randomProperties.RandomPropertiesID);
+                SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::PropertySeed), randomProperties.RandomPropertiesSeed);
+                SetState(ITEM_CHANGED, GetOwner());
+            }
+
+            for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i < PROP_ENCHANTMENT_SLOT_0 + 3; ++i)
+                SetEnchantment(EnchantmentSlot(i), randomSuffixEntry->Enchantment[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
+        }
+    }
 }
 
 void Item::SetState(ItemUpdateState state, Player* forplayer)

@@ -588,7 +588,7 @@ bool Player::StoreNewItemInBestSlots(uint32 itemId, uint32 amount, ItemContext c
     InventoryResult msg = CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, itemId, amount);
     if (msg == EQUIP_ERR_OK)
     {
-        StoreNewItem(sDest, itemId, true, GuidSet(), context);
+        StoreNewItem(sDest, itemId, true, sItemEnchantmentMgr->GenerateRandomProperties(itemId), GuidSet(), context);
         return true;                                        // stored
     }
 
@@ -3934,7 +3934,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     do
                     {
                         Field* fields = resultItems->Fetch();
-                        uint64 mailId = fields[44].GetUInt64();
+                        uint64 mailId = fields[46].GetUInt64();
                         if (Item* mailItem = _LoadMailedItem(playerguid, nullptr, mailId, nullptr, fields))
                             itemsByMail[mailId].push_back(mailItem);
 
@@ -11199,7 +11199,7 @@ InventoryResult Player::CanRollNeedForItem(ItemTemplate const* proto, Map const*
 }
 
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
-Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, GuidSet const& allowedLooters /*= GuidSet()*/, ItemContext context /*= ItemContext::NONE*/, bool addToCollection /*= true*/)
+Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomProperties randomProperties /*= ItemRandomProperties()*/, GuidSet const& allowedLooters /*= GuidSet()*/, ItemContext context /*= ItemContext::NONE*/, bool addToCollection /*= true*/)
 {
     uint32 count = 0;
     for (ItemPosCountVec::const_iterator itr = pos.begin(); itr != pos.end(); ++itr)
@@ -11216,6 +11216,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         UpdateCriteria(CriteriaType::AcquireItem, itemId, count);
 
         item->SetFixedLevel(GetLevel());
+        item->SetItemRandomProperties(randomProperties);
 
         if (allowedLooters.size() > 1 && item->GetTemplate()->GetMaxStackSize() == 1 && item->IsSoulBound())
         {
@@ -13167,49 +13168,41 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                     }
                     break;
                 case ITEM_ENCHANTMENT_TYPE_RESISTANCE:
-                    if (pEnchant->ScalingClass)
+                    if (!enchant_amount)
                     {
-                        int32 scalingClass = pEnchant->ScalingClass;
-                        if ((*m_unitData->MinItemLevel || *m_unitData->MaxItemLevel) && pEnchant->ScalingClassRestricted)
-                            scalingClass = pEnchant->ScalingClassRestricted;
-
-                        uint8 minLevel = pEnchant->GetFlags().HasFlag(SpellItemEnchantmentFlags::ScaleAsAGem) ? 1 : 60;
-                        uint8 scalingLevel = GetLevel();
-                        uint8 maxLevel = uint8(pEnchant->MaxLevel ? pEnchant->MaxLevel : sSpellScalingGameTable.GetTableRowCount() - 1);
-
-                        if (minLevel > GetLevel())
-                            scalingLevel = minLevel;
-                        else if (maxLevel < GetLevel())
-                            scalingLevel = maxLevel;
-
-                        if (GtSpellScalingEntry const* spellScaling = sSpellScalingGameTable.GetRow(scalingLevel))
-                            enchant_amount = uint32(pEnchant->EffectScalingPoints[s] * GetSpellScalingColumnForClass(spellScaling, scalingClass));
+                        ItemRandomSuffixEntry const* randomSuffixEntries = sItemRandomSuffixStore.LookupEntry(std::abs(item->m_itemData->RandomPropertiesID));
+                        if (randomSuffixEntries)
+                        {
+                            for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
+                            {
+                                if (randomSuffixEntries->Enchantment[k] == enchant_id)
+                                {
+                                    enchant_amount = uint32((static_cast<double>(randomSuffixEntries->AllocationPct[k]) * item->m_itemData->PropertySeed) / 10000);
+                                    break;
+                                }
+                            }
+                        }
                     }
-                    enchant_amount = std::max(enchant_amount, 1u);
+
                     HandleStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + enchant_spell_id), TOTAL_VALUE, float(enchant_amount), apply);
                     break;
                 case ITEM_ENCHANTMENT_TYPE_STAT:
                 {
-                    if (pEnchant->ScalingClass)
+                    if (!enchant_amount)
                     {
-                        int32 scalingClass = pEnchant->ScalingClass;
-                        if ((*m_unitData->MinItemLevel || *m_unitData->MaxItemLevel) && pEnchant->ScalingClassRestricted)
-                            scalingClass = pEnchant->ScalingClassRestricted;
-
-                        uint8 minLevel = pEnchant->GetFlags().HasFlag(SpellItemEnchantmentFlags::ScaleAsAGem) ? 1 : 60;
-                        uint8 scalingLevel = GetLevel();
-                        uint8 maxLevel = uint8(pEnchant->MaxLevel ? pEnchant->MaxLevel : sSpellScalingGameTable.GetTableRowCount() - 1);
-
-                        if (minLevel > GetLevel())
-                            scalingLevel = minLevel;
-                        else if (maxLevel < GetLevel())
-                            scalingLevel = maxLevel;
-
-                        if (GtSpellScalingEntry const* spellScaling = sSpellScalingGameTable.GetRow(scalingLevel))
-                            enchant_amount = uint32(pEnchant->EffectScalingPoints[s] * GetSpellScalingColumnForClass(spellScaling, scalingClass));
+                        ItemRandomSuffixEntry const* randomSuffixEntry = sItemRandomSuffixStore.LookupEntry(std::abs(item->m_itemData->RandomPropertiesID));
+                        if (randomSuffixEntry)
+                        {
+                            for (uint8 k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
+                            {
+                                if (randomSuffixEntry->Enchantment[k] == enchant_id)
+                                {
+                                    enchant_amount = uint32((static_cast<double>(randomSuffixEntry->AllocationPct[k]) * item->m_itemData->PropertySeed) / 10000);
+                                    break;
+                                }
+                            }
+                        }
                     }
-
-                    enchant_amount = std::max(enchant_amount, 1u);
 
                     TC_LOG_DEBUG("entities.player.items", "Adding {} to stat nb {}", enchant_amount, enchant_spell_id);
                     switch (enchant_spell_id)
@@ -14603,7 +14596,7 @@ void Player::RewardQuestPackage(uint32 questPackageId, ItemContext context, uint
                 ItemPosCountVec dest;
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemQuantity) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, {}, context);
+                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, sItemEnchantmentMgr->GenerateRandomProperties(questPackageItem->ItemID), {}, context);
                     SendNewItem(item, questPackageItem->ItemQuantity, true, false);
                 }
             }
@@ -14622,7 +14615,7 @@ void Player::RewardQuestPackage(uint32 questPackageId, ItemContext context, uint
                 ItemPosCountVec dest;
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemQuantity) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, {}, context);
+                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, sItemEnchantmentMgr->GenerateRandomProperties(questPackageItem->ItemID), {}, context);
                     SendNewItem(item, questPackageItem->ItemQuantity, true, false);
                 }
             }
@@ -14682,7 +14675,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
                 ItemPosCountVec dest;
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardItemCount[i]) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, itemId, true, {}, ItemContext::Quest_Reward);
+                    Item* item = StoreNewItem(dest, itemId, true, sItemEnchantmentMgr->GenerateRandomProperties(itemId), {}, ItemContext::Quest_Reward);
                     SendNewItem(item, quest->RewardItemCount[i], true, false);
                 }
                 else if (quest->IsDFQuest())
@@ -14727,7 +14720,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
                         ItemPosCountVec dest;
                         if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, rewardId, quest->RewardChoiceItemCount[i]) == EQUIP_ERR_OK)
                         {
-                            Item* item = StoreNewItem(dest, rewardId, true, {}, ItemContext::Quest_Reward);
+                            Item* item = StoreNewItem(dest, rewardId, true, sItemEnchantmentMgr->GenerateRandomProperties(rewardId), {}, ItemContext::Quest_Reward);
                             SendNewItem(item, quest->RewardChoiceItemCount[i], true, false);
                         }
                     }
@@ -18062,8 +18055,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid bagGuid = fields[44].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[44].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[45].GetUInt8();
+                ObjectGuid bagGuid = fields[46].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[44].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[47].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
                 GetSession()->GetCollectionMgr()->AddItemAppearance(item);
@@ -18188,6 +18181,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         uint8 slot = fields[2].GetUInt8();
         ObjectGuid creatorGuid = fields[3].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt64()) : ObjectGuid::Empty;
         uint32 fixedScalingLevel = fields[4].GetUInt32();
+        ItemRandomProperties randomProperties = ItemRandomProperties(fields[5].GetInt32(), fields[6].GetInt32());
         ItemContext context = ItemContext(fields[5].GetUInt8());
         if (!itemId)
         {
@@ -18210,7 +18204,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
             continue;
         }
 
-        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, fixedScalingLevel, context);
+        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, fixedScalingLevel, randomProperties, context);
 
         WorldPackets::Item::ItemInstance voidInstance;
         voidInstance.Initialize(_voidStorageItems[slot]);
@@ -19852,7 +19846,9 @@ void Player::_SaveVoidStorage(CharacterDatabaseTransaction trans)
             stmt->setUInt8(3, i);
             stmt->setUInt64(4, _voidStorageItems[i]->CreatorGuid.GetCounter());
             stmt->setUInt32(5, _voidStorageItems[i]->FixedScalingLevel);
-            stmt->setUInt8(6, AsUnderlyingType(_voidStorageItems[i]->Context));
+            stmt->setInt32(6, _voidStorageItems[i]->RandomProperties.RandomPropertiesID);
+            stmt->setInt32(7, _voidStorageItems[i]->RandomProperties.RandomPropertiesSeed);
+            stmt->setUInt8(8, AsUnderlyingType(_voidStorageItems[i]->Context));
         }
 
         trans->Append(stmt);
@@ -21987,7 +21983,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
     }
 
     Item* it = bStore ?
-        StoreNewItem(vDest, item, true, {}, ItemContext::Vendor, false) :
+        StoreNewItem(vDest, item, true, sItemEnchantmentMgr->GenerateRandomProperties(item), {}, ItemContext::Vendor, false) :
         EquipNewItem(uiDest, item, ItemContext::Vendor, true);
     if (it)
     {
@@ -25520,7 +25516,7 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
     InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
     if (msg == EQUIP_ERR_OK)
     {
-        Item* newitem = StoreNewItem(dest, item->itemid, true, item->GetAllowedLooters(), item->context);
+        Item* newitem = StoreNewItem(dest, item->itemid, true, sItemEnchantmentMgr->GenerateRandomProperties(item->itemid), item->GetAllowedLooters(), item->context);
 
         if (ffaItem)
         {
@@ -27367,7 +27363,7 @@ bool Player::AddItem(uint32 itemId, uint32 count)
         return false;
     }
 
-    Item* item = StoreNewItem(dest, itemId, true);
+    Item* item = StoreNewItem(dest, itemId, true, sItemEnchantmentMgr->GenerateRandomProperties(itemId));
     if (item)
         SendNewItem(item, count, true, false);
     else

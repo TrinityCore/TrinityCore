@@ -550,7 +550,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     return int32(round(value));
 }
 
-int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const
+int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 /*itemLevel*/) const
 {
     if (Scaling.Coefficient != 0.0f)
     {
@@ -575,6 +575,7 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
             if (!Scaling.Class)
                 return 0;
 
+            /*
             uint32 effectiveItemLevel = itemLevel != -1 ? uint32(itemLevel) : 1u;
             if (_spellInfo->Scaling.ScalesFromItemLevel || _spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL))
             {
@@ -594,6 +595,7 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
             }
             else
                 value = GetSpellScalingColumnForClass(sSpellScalingGameTable.GetRow(level), Scaling.Class);
+            */
         }
 
         value *= Scaling.Coefficient;
@@ -4250,12 +4252,15 @@ inline float CalcPPMItemLevelMod(SpellProcsPerMinuteModEntry const* mod, int32 i
     if (itemLevel == mod->Param)
         return 0.0f;
 
+    /*
     float itemLevelPoints = GetRandomPropertyPoints(itemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
     float basePoints = GetRandomPropertyPoints(mod->Param, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
     if (itemLevelPoints == basePoints)
         return 0.0f;
 
     return ((itemLevelPoints / basePoints) - 1.0f) * mod->Coeff;
+    */
+    return 0;
 }
 
 float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const

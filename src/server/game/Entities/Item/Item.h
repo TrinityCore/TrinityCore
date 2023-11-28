@@ -221,6 +221,8 @@ class TC_GAME_API Item : public Object
 
         uint32 GetSkill();
 
+        void SetItemRandomProperties(ItemRandomProperties randomProperties);
+
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, ObjectGuid caster = ObjectGuid::Empty);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
         void SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges);

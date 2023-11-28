@@ -1290,7 +1290,7 @@ public:
             return false;
         }
 
-        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GuidSet(), itemContext);
+        Item* item = playerTarget->StoreNewItem(dest, itemId, true, sItemEnchantmentMgr->GenerateRandomProperties(itemId), GuidSet(), itemContext);
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)
@@ -1443,7 +1443,7 @@ public:
             return false;
         }
 
-        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GuidSet(), itemContext);
+        Item* item = playerTarget->StoreNewItem(dest, itemId, true, sItemEnchantmentMgr->GenerateRandomProperties(itemId), GuidSet(), itemContext);
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)
@@ -1497,7 +1497,7 @@ public:
             InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemTemplatePair.first, 1);
             if (msg == EQUIP_ERR_OK)
             {
-                Item* item = playerTarget->StoreNewItem(dest, itemTemplatePair.first, true, GuidSet(), itemContext);
+                Item* item = playerTarget->StoreNewItem(dest, itemTemplatePair.first, true, sItemEnchantmentMgr->GenerateRandomProperties(itemTemplatePair.first), GuidSet(), itemContext);
 
                 // remove binding (let GM give it to another player later)
                 if (player == playerTarget)

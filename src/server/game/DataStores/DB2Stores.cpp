@@ -770,6 +770,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sItemModifiedAppearanceExtraStore);
     LOAD_DB2(sItemNameDescriptionStore);
     LOAD_DB2(sItemPriceBaseStore);
+    LOAD_DB2(sItemRandomPropertiesStore);
+    LOAD_DB2(sItemRandomSuffixStore);
     LOAD_DB2(sItemSearchNameStore);
     LOAD_DB2(sItemSetStore);
     LOAD_DB2(sItemSetSpellStore);
