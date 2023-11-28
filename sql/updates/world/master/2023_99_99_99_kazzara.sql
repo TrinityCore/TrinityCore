@@ -29,7 +29,7 @@ INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data
 (31951, 0, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 50000);
 
 -- Spells
-DELETE FROM `spell_script_names` WHERE `spell_id`IN (402538, 402547, 404744, 404743, 406525, 406517, 407196, 402260, 401328, 401331, 401335, 404555, 404589, 404591);
+DELETE FROM `spell_script_names` WHERE `spell_id`IN (402538, 402547, 404744, 404743, 406525, 406517, 407196, 402260, 401328, 401331, 401335);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (402538, 'spell_kazzara_energize'),
 (402547, 'spell_kazzara_hellbeam_consume_energy'),
@@ -41,10 +41,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (402260, 'spell_kazzara_ray_of_anguish_trigger'),
 (401328, 'spell_kazzara_hellsteel_carnage'),
 (401331, 'spell_kazzara_hellsteel_carnage'),
-(401335, 'spell_kazzara_hellsteel_carnage'),
-(404555, 'spell_kazzara_hellsteel_fragment'),
-(404589, 'spell_kazzara_hellsteel_fragment'),
-(404591, 'spell_kazzara_hellsteel_fragment');
+(401335, 'spell_kazzara_hellsteel_carnage');
 
 -- Difficulties
 DELETE FROM `creature_template_difficulty` WHERE `Entry` IN (203832, 202167, 201261);

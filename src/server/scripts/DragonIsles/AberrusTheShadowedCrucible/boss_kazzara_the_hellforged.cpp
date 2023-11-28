@@ -628,24 +628,6 @@ class spell_kazzara_hellsteel_carnage : public SpellScript
     }
 };
 
-// 404555 - Hellsteel Fragment
-// 404589 - Hellsteel Fragment
-// 404591 - Hellsteel Fragment
-class spell_kazzara_hellsteel_fragment : public SpellScript
-{
-    void SetDest(SpellDestination& dest) const
-    {
-        Unit* caster = GetCaster();
-        Position const pos = caster->GetRandomPoint(*caster, frand(5.0f, 60.0f));
-        dest.Relocate(pos);
-    }
-
-    void Register() override
-    {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_kazzara_hellsteel_fragment::SetDest, EFFECT_0, TARGET_DEST_DEST_RANDOM);
-    }
-};
-
 // 402260 - Ray of Anguish
 class spell_kazzara_ray_of_anguish_trigger : public SpellScript
 {
@@ -832,7 +814,6 @@ void AddSC_boss_kazzara_the_hellforged()
     RegisterSpellScript(spell_kazzara_energize);
     RegisterSpellScript(spell_kazzara_hellbeam_consume_energy);
     RegisterSpellScript(spell_kazzara_hellsteel_carnage);
-    RegisterSpellScript(spell_kazzara_hellsteel_fragment);
     RegisterSpellScript(spell_kazzara_ray_of_anguish_trigger);
     RegisterSpellScript(spell_kazzara_terror_claws);
     RegisterSpellScript(spell_kazzara_terror_claws_periodic);
