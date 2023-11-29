@@ -182,6 +182,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
 
     WorldPackets::Query::CreatureStats& stats = queryTemp.Stats;
 
+    stats.Cilivilan = Civilian;
     stats.Leader = RacialLeader;
 
     stats.Name[0] = Name;

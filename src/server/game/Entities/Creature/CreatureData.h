@@ -537,6 +537,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  MovementType;
     CreatureMovementData Movement;
     float   ModExperience;
+    bool    Civilian;
     bool    RacialLeader;
     uint32  movementId;
     int32   WidgetSetID;
