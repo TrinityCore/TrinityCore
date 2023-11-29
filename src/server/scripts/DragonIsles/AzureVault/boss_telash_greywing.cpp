@@ -19,6 +19,7 @@
 #include "AreaTriggerAI.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
