@@ -530,6 +530,7 @@ struct TC_GAME_API CreatureTemplate
     CreatureFamily  family;                                 // enum CreatureFamily values (optional)
     uint32  trainer_class;
     uint32  type;                                           // enum CreatureType values
+    uint32  PetSpellDataID;
     int32   resistance[MAX_SPELL_SCHOOL];
     uint32  spells[MAX_CREATURE_SPELLS];
     uint32  VehicleId;
