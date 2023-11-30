@@ -257,8 +257,6 @@ struct at_telash_greywing_vault_rune : AreaTriggerAI
 // 389453 - Ice Power (periodic)
 class spell_telash_ice_power_perodic : public AuraScript
 {
-    PrepareAuraScript(spell_telash_ice_power_perodic);
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
@@ -274,8 +272,6 @@ class spell_telash_ice_power_perodic : public AuraScript
 // 386781 - Frost Bomb
 class spell_telash_frost_bomb_cast : public SpellScript
 {
-    PrepareSpellScript(spell_telash_frost_bomb_cast);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FROST_BOMB_AURA });
@@ -295,8 +291,6 @@ class spell_telash_frost_bomb_cast : public SpellScript
 // 386881 - Frost Bomb
 class spell_telash_frost_bomb_aura : public AuraScript
 {
-    PrepareAuraScript(spell_telash_frost_bomb_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FROST_BOMB_DAMAGE, SPELL_FROZEN_GROUND_AT });
@@ -323,8 +317,6 @@ class spell_telash_frost_bomb_aura : public AuraScript
 // 387928 - Absolute Zero
 class spell_telash_absolute_zero_cast : public SpellScript
 {
-    PrepareSpellScript(spell_telash_absolute_zero_cast);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ABSOLUTE_ZERO_JUMP });
@@ -345,8 +337,6 @@ class spell_telash_absolute_zero_cast : public SpellScript
 // 390209 - Activate Vault Rune
 class spell_telash_activate_vault_rune : public SpellScript
 {
-    PrepareSpellScript(spell_telash_activate_vault_rune);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_VAULT_RUNE_AT_AURA, SPELL_INACTIVE_VAULT_RUNE });
@@ -376,8 +366,6 @@ static Position const TelashJumpBackPositions[] =
 // 388008 - Absolute Zero
 class spell_telash_absolute_zero_damage : public SpellScript
 {
-    PrepareSpellScript(spell_telash_absolute_zero_damage);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ABSOLUTE_ZERO_JUMP_BACK, SPELL_VAULT_RUNE_AT_AURA, SPELL_VAULT_RUNE_SHIELD });
