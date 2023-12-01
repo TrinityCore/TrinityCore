@@ -86,6 +86,8 @@ int main(int argc, char** argv)
     Trinity::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_AUTHSERVER;
     signal(SIGABRT, &Trinity::AbortHandler);
 
+    Trinity::VerifyOsVersion();
+
     Trinity::Locale::Init();
 
     auto configFile = fs::absolute(_TRINITY_REALM_CONFIG);

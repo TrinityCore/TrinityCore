@@ -298,6 +298,8 @@ std::unordered_map<uint32, uint8> LoadLiquid()
 
 int main(int argc, char** argv)
 {
+    Trinity::VerifyOsVersion();
+
     Trinity::Locale::Init();
 
     Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);

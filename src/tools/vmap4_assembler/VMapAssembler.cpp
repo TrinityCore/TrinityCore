@@ -21,9 +21,12 @@
 #include "TileAssembler.h"
 #include "Banner.h"
 #include "Locales.h"
+#include "Util.h"
 
 int main(int argc, char* argv[])
 {
+    Trinity::VerifyOsVersion();
+
     Trinity::Locale::Init();
 
     Trinity::Banner::Show("VMAP assembler", [](char const* text) { std::cout << text << std::endl; }, nullptr);
