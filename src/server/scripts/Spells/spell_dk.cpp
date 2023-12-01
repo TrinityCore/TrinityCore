@@ -879,11 +879,11 @@ struct at_dk_death_and_decay : AreaTriggerAI
 {
     at_dk_death_and_decay(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    void OnUnitEnter(Unit* /*unit*/) override
+    void OnUnitEnter(Unit* unit) override
     {
         if (Unit* caster = at->GetCaster())
         {
-            if (!caster->IsPlayer())
+            if (caster != unit)
                 return;
 
             if (caster->HasAura(SPELL_DK_UNHOLY_GROUND_TALENT))
@@ -891,11 +891,11 @@ struct at_dk_death_and_decay : AreaTriggerAI
         }
     }
 
-    void OnUnitExit(Unit* /*unit*/) override
+    void OnUnitExit(Unit* unit) override
     {
         if (Unit* caster = at->GetCaster())
         {
-            if (!caster->IsPlayer())
+            if (caster != unit)
                 return;
 
             caster->RemoveAura(SPELL_DK_UNHOLY_GROUND_HASTE);
