@@ -131,6 +131,8 @@ extern int main(int argc, char** argv)
 {
     signal(SIGABRT, &Trinity::AbortHandler);
 
+    Trinity::VerifyOsVersion();
+
     Trinity::Locale::Init();
 
     auto configFile = fs::absolute(_TRINITY_CORE_CONFIG);

@@ -243,7 +243,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
     RTL_OSVERSIONINFOEXW osvi = { };
     osvi.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOEXW);
     NTSTATUS bVersionEx = RtlGetVersion((PRTL_OSVERSIONINFOW)&osvi);
-    if (bVersionEx < 0)
+    if (FAILED(bVersionEx))
     {
         osvi.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOW);
         if (!RtlGetVersion((PRTL_OSVERSIONINFOW)&osvi))
