@@ -30,7 +30,6 @@
 #include "StringConvert.h"
 #include "WorldSession.h"
 #include "WowTime.h"
-#include <sstream>
 
 CalendarInvite::CalendarInvite() : _inviteId(1), _eventId(0), _invitee(), _senderGUID(), _responseTime(0),
 _status(CALENDAR_STATUS_INVITED), _rank(CALENDAR_RANK_PLAYER), _note() { }
@@ -470,9 +469,7 @@ uint32 CalendarMgr::GetPlayerNumPending(ObjectGuid guid)
 
 std::string CalendarEvent::BuildCalendarMailSubject(ObjectGuid remover) const
 {
-    std::ostringstream strm;
-    strm << remover.ToString() << ':' << _title;
-    return strm.str();
+    return Trinity::StringFormat("{}:{}", remover.ToString(), _title);
 }
 
 std::string CalendarEvent::BuildCalendarMailBody(Player const* invitee) const
@@ -528,7 +525,7 @@ void CalendarMgr::SendCalendarEventUpdateAlert(CalendarEvent const& calendarEven
     auto packetBuilder = [&](Player const* receiver)
     {
         WorldPackets::Calendar::CalendarEventUpdatedAlert packet;
-        packet.ClearPending = true; // FIXME
+        packet.ClearPending = calendarEvent.GetOwnerGUID() == receiver->GetGUID();
         packet.Date.SetUtcTimeFromUnixTime(calendarEvent.GetDate());
         packet.Date += receiver->GetSession()->GetTimezoneOffset();
         packet.Description = calendarEvent.GetDescription();
@@ -556,7 +553,7 @@ void CalendarMgr::SendCalendarEventStatus(CalendarEvent const& calendarEvent, Ca
     auto packetBuilder = [&](Player const* receiver)
     {
         WorldPackets::Calendar::CalendarInviteStatus packet;
-        packet.ClearPending = true; // FIXME
+        packet.ClearPending = invite.GetInviteeGUID() == receiver->GetGUID();
         packet.Date.SetUtcTimeFromUnixTime(calendarEvent.GetDate());
         packet.Date += receiver->GetSession()->GetTimezoneOffset();
         packet.EventID = calendarEvent.GetEventId();
@@ -578,7 +575,7 @@ void CalendarMgr::SendCalendarEventRemovedAlert(CalendarEvent const& calendarEve
     auto packetBuilder = [&](Player const* receiver)
     {
         WorldPackets::Calendar::CalendarEventRemovedAlert packet;
-        packet.ClearPending = true; // FIXME
+        packet.ClearPending = calendarEvent.GetOwnerGUID() == receiver->GetGUID();
         packet.Date.SetUtcTimeFromUnixTime(calendarEvent.GetDate());
         packet.Date += receiver->GetSession()->GetTimezoneOffset();
         packet.EventID = calendarEvent.GetEventId();

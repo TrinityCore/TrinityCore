@@ -430,7 +430,7 @@ WorldPacket const* WorldPackets::Calendar::CalendarCommandResult::Write()
 WorldPacket const* WorldPackets::Calendar::CalendarRaidLockoutAdded::Write()
 {
     _worldPacket << uint64(InstanceID);
-    _worldPacket << uint32(ServerTime);
+    _worldPacket << ServerTime;
     _worldPacket << int32(MapID);
     _worldPacket << uint32(DifficultyID);
     _worldPacket << int32(TimeRemaining);
