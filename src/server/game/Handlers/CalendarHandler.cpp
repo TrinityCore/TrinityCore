@@ -195,9 +195,6 @@ void WorldSession::HandleCalendarAddEvent(WorldPackets::Calendar::CalendarAddEve
 
 void WorldSession::HandleCalendarUpdateEvent(WorldPackets::Calendar::CalendarUpdateEvent& calendarUpdateEvent)
 {
-    ObjectGuid guid = _player->GetGUID();
-    time_t oldEventTime = time_t(0);
-
     calendarUpdateEvent.EventInfo.Time -= GetTimezoneOffset();
 
     // prevent events in the past
@@ -206,7 +203,7 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPackets::Calendar::CalendarUpd
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarUpdateEvent.EventInfo.EventID))
     {
-        oldEventTime = calendarEvent->GetDate();
+        time_t oldEventTime = calendarEvent->GetDate();
 
         calendarEvent->SetType(CalendarEventType(calendarUpdateEvent.EventInfo.EventType));
         calendarEvent->SetFlags(calendarUpdateEvent.EventInfo.Flags);
@@ -219,7 +216,7 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPackets::Calendar::CalendarUpd
         sCalendarMgr->SendCalendarEventUpdateAlert(*calendarEvent, oldEventTime);
     }
     else
-        sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_INVALID);
+        sCalendarMgr->SendCalendarCommandResult(_player->GetGUID(), CALENDAR_ERROR_EVENT_INVALID);
 }
 
 void WorldSession::HandleCalendarRemoveEvent(WorldPackets::Calendar::CalendarRemoveEvent& calendarRemoveEvent)
@@ -561,7 +558,7 @@ void WorldSession::SendCalendarRaidLockoutAdded(InstanceLock const* lock)
 {
     WorldPackets::Calendar::CalendarRaidLockoutAdded calendarRaidLockoutAdded;
     calendarRaidLockoutAdded.InstanceID = lock->GetInstanceId();
-    calendarRaidLockoutAdded.ServerTime = uint32(GameTime::GetGameTime());
+    calendarRaidLockoutAdded.ServerTime = *GameTime::GetWowTime();
     calendarRaidLockoutAdded.MapID = int32(lock->GetMapId());
     calendarRaidLockoutAdded.DifficultyID = lock->GetDifficultyId();
     calendarRaidLockoutAdded.TimeRemaining = int32(std::chrono::duration_cast<Seconds>(lock->GetEffectiveExpiryTime() - GameTime::GetSystemTime()).count());
