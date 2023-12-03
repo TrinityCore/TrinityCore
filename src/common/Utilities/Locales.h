@@ -1,6 +1,6 @@
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
- *
+
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
@@ -15,26 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef TRINITYCORE_LOCALE_H
+#define TRINITYCORE_LOCALE_H
 
-#include "BankPackets.h"
-#include "CalendarPackets.h"
-#include "CharacterPackets.h"
-#include "ChatPackets.h"
-#include "CombatLogPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "LFGPackets.h"
-#include "NPCPackets.h"
-#include "MailPackets.h"
-#include "MiscPackets.h"
-#include "PetPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "SystemPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
+#include "Define.h"
+#include <locale>
 
-#endif // AllPackets_h__
+namespace Trinity::Locale
+{
+TC_COMMON_API void Init();
+TC_COMMON_API std::locale const& GetGlobalLocale();
+TC_COMMON_API std::locale const& GetCalendarLocale();
+}
+
+#endif // TRINITYCORE_LOCALE_H

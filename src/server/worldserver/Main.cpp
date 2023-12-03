@@ -33,6 +33,7 @@
 #include "GitRevision.h"
 #include "InstanceSaveMgr.h"
 #include "IoContext.h"
+#include "Locales.h"
 #include "MapManager.h"
 #include "Metric.h"
 #include "MySQLThreading.h"
@@ -125,6 +126,10 @@ extern int main(int argc, char** argv)
 {
     Trinity::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
     signal(SIGABRT, &Trinity::AbortHandler);
+
+    Trinity::VerifyOsVersion();
+
+    Trinity::Locale::Init();
 
     auto configFile = fs::absolute(_TRINITY_CORE_CONFIG);
     std::string configService;

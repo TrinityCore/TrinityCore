@@ -115,6 +115,12 @@ struct PackedGuidReader
     ObjectGuid& Guid;
 };
 
+struct PackedGuidWriter
+{
+    explicit PackedGuidWriter(ObjectGuid const& guid) : Guid(guid) { }
+    ObjectGuid const& Guid;
+};
+
 class TC_GAME_API ObjectGuid
 {
     public:
@@ -139,7 +145,7 @@ class TC_GAME_API ObjectGuid
         void Set(uint64 guid) { _guid = guid; }
         void Clear() { _guid = 0; }
 
-        PackedGuid WriteAsPacked() const;
+        PackedGuidWriter WriteAsPacked() const { return PackedGuidWriter(*this); }
 
         uint64   GetRawValue() const { return _guid; }
         HighGuid GetHigh() const { return HighGuid((_guid >> 48) & 0x0000FFFF); }
@@ -293,9 +299,8 @@ TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
 TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid&       guid);
 
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
+TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuidWriter const& guid);
 TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid);
-
-inline PackedGuid ObjectGuid::WriteAsPacked() const { return PackedGuid(*this); }
 
 namespace std
 {
