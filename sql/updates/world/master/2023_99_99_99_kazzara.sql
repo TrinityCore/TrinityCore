@@ -70,7 +70,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (201261, 2, 0, 'My beautiful armor!', 14, 0, 100, 0, 0, 223205, 238519, 0, 'Kazzara, the Hellforged'),
 (201261, 3, 0, 'Anguish and sorrow.', 14, 0, 100, 0, 0, 223215, 238537, 0, 'Kazzara, the Hellforged'),
 (201261, 4, 0, 'Torment!', 14, 0, 100, 0, 0, 223208, 238528, 0, 'Kazzara, the Hellforged to Player'),
-(201261, 5, 0, '|TInterface\\ICONS\\Ability_Warlock_ShadowFlame.blp:20|t %s begins casting |cFFFF0000|Hspell:400430|h[Hellbeam]|h|r!', 41, 0, 100, 0, 0, 223208, 0, 0, 'Kazzara, the Hellforged to Player'),
+(201261, 5, 0, '|TInterface\\ICONS\\Ability_Warlock_ShadowFlame.blp:20|t %s begins casting |cFFFF0000|Hspell:400430|h[Hellbeam]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 'Kazzara, the Hellforged to Player'),
 (201261, 6, 0, 'Surrender to terror!', 14, 0, 100, 0, 0, 223212, 238534, 0, 'Kazzara, the Hellforged to Player'),
 (201261, 7, 0, 'I will peel your flesh from bone!', 14, 0, 100, 0, 0, 223206, 238520, 0, 'Kazzara, the Hellforged'),
 (201261, 8, 0, 'My flesh splits, but your agony will be greater!', 14, 0, 100, 0, 0, 223207, 238523, 0, 'Kazzara, the Hellforged'),
