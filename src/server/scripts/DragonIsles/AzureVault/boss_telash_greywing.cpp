@@ -35,24 +35,24 @@
 enum TelashSpells
 {
     // Telash
-    SPELL_ICE_POWER_PERIODIC        = 389453,
-    SPELL_FROST_BOMB_CAST           = 386781,
-    SPELL_FROST_BOMB_AURA           = 386881,
-    SPELL_FROST_BOMB_DAMAGE         = 386910,
-    SPELL_FROZEN_GROUND_AT          = 387149,
-    SPELL_ICY_DEVASTATOR            = 387151,
-    SPELL_ABSOLUTE_ZERO_CAST        = 387928,
-    SPELL_ABSOLUTE_ZERO_JUMP        = 387981,
-    SPELL_ABSOLUTE_ZERO_JUMP_BACK   = 388082,
-    SPELL_ABSOLUTE_ZERO_SHIELD      = 388084,
-    SPELL_ABSOLUTE_ZERO_DAMAGE      = 388008,
-    SPELL_ACTIVATE_VAULT_RUNE       = 390209,
-    SPELL_VAULT_RUNE_AT_AURA        = 388065,
-    SPELL_VAULT_RUNE_SHIELD         = 390201,
-    SPELL_INACTIVE_VAULT_RUNE       = 390238,
+    SPELL_POWER_ENERGIZE_ICE_POWER_PERIODIC     = 389453,
+    SPELL_FROST_BOMB_CAST                       = 386781,
+    SPELL_FROST_BOMB_AURA                       = 386881,
+    SPELL_FROST_BOMB_DAMAGE                     = 386910,
+    SPELL_FROZEN_GROUND_AT                      = 387149,
+    SPELL_ICY_DEVASTATOR                        = 387151,
+    SPELL_ABSOLUTE_ZERO_CAST                    = 387928,
+    SPELL_ABSOLUTE_ZERO_JUMP                    = 387981,
+    SPELL_ABSOLUTE_ZERO_JUMP_BACK               = 388082,
+    SPELL_ABSOLUTE_ZERO_SHIELD                  = 388084,
+    SPELL_ABSOLUTE_ZERO_DAMAGE                  = 388008,
+    SPELL_ACTIVATE_VAULT_RUNE                   = 390209,
+    SPELL_VAULT_RUNE_AT_AURA                    = 388065,
+    SPELL_VAULT_RUNE_SHIELD                     = 390201,
+    SPELL_INACTIVE_VAULT_RUNE                   = 390238,
 
     // Conversation
-    SPELL_TELASH_APPROACH_CONV      = 389379
+    SPELL_TELASH_APPROACH_CONV                  = 389379
 };
 
 enum TelashEvents
@@ -87,7 +87,7 @@ struct boss_telash_greywing : public BossAI
     void JustAppeared() override
     {
         me->SummonCreatureGroup(SUMMON_GROUP_TELASH_VAULT_RUNES);
-        me->SetPower(POWER_ENERGY, 60);
+        me->SetPower(me->GetPowerType(), 60);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -95,7 +95,7 @@ struct boss_telash_greywing : public BossAI
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
         Talk(SAY_AGGRO);
-        DoCast(SPELL_ICE_POWER_PERIODIC);
+        DoCast(SPELL_POWER_ENERGIZE_ICE_POWER_PERIODIC);
         events.ScheduleEvent(EVENT_FROST_BOMBS, 4s);
         events.ScheduleEvent(EVENT_ICY_DEVASTATOR, 14s);
         events.ScheduleEvent(EVENT_ABSOLUTE_ZERO, 500ms);
@@ -125,7 +125,7 @@ struct boss_telash_greywing : public BossAI
             }
             else if (_isInCenter == true)
             {
-                DoCastSelf(SPELL_ICE_POWER_PERIODIC);
+                DoCastSelf(SPELL_POWER_ENERGIZE_ICE_POWER_PERIODIC);
                 me->RemoveAurasDueToSpell(SPELL_ABSOLUTE_ZERO_SHIELD);
                 me->SetReactState(REACT_AGGRESSIVE);
                 events.ScheduleEvent(EVENT_FROST_BOMBS, 12s + 200ms);
@@ -138,6 +138,7 @@ struct boss_telash_greywing : public BossAI
     void UpdateAI(uint32 diff) override
     {
         scheduler.Update(diff);
+
         if (!UpdateVictim())
             return;
 
@@ -170,7 +171,7 @@ struct boss_telash_greywing : public BossAI
                         Talk(SAY_ANNOUNCE_ABSOLUTE_ZERO);
                         me->SetReactState(REACT_PASSIVE);
                         me->SetDisableGravity(true, true);
-                        me->RemoveAurasDueToSpell(SPELL_ICE_POWER_PERIODIC);
+                        me->RemoveAurasDueToSpell(SPELL_POWER_ENERGIZE_ICE_POWER_PERIODIC);
                         DoCastSelf(SPELL_ABSOLUTE_ZERO_CAST);
                         DoCastSelf(SPELL_ABSOLUTE_ZERO_SHIELD);
                         DoCastSelf(SPELL_ACTIVATE_VAULT_RUNE);
@@ -260,7 +261,7 @@ class spell_telash_ice_power_perodic : public AuraScript
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
-        target->SetPower(POWER_ENERGY, target->GetPower(POWER_ENERGY) + 2);
+        target->SetPower(target->GetPowerType(), target->GetPower(POWER_ENERGY) + 2);
     }
 
     void Register() override
