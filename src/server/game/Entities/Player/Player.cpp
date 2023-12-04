@@ -1046,13 +1046,12 @@ void Player::Update(uint32 p_time)
 
     Unit::AIUpdateTick(p_time);
 
-    // Update items that have just a limited lifetime
+    // Once per second, update items that have just a limited lifetime
     if (now > m_Last_tick)
+    {
         UpdateItemDuration(uint32(now - m_Last_tick));
-
-    // check every second
-    if (now > m_Last_tick + 1)
         UpdateSoulboundTradeItems();
+    }
 
     // If mute expired, remove it from the DB
     if (GetSession()->m_muteTime && GetSession()->m_muteTime < now)

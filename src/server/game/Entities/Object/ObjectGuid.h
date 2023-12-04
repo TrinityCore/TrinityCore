@@ -18,12 +18,13 @@
 #ifndef ObjectGuid_h__
 #define ObjectGuid_h__
 
-#include "ByteBuffer.h"
 #include "Define.h"
+#include <array>
 #include <functional>
 #include <list>
 #include <memory>
 #include <set>
+#include <string>
 #include <type_traits>
 #include <vector>
 #include <unordered_set>
@@ -106,6 +107,7 @@ GUID_TRAIT_MAP_SPECIFIC(HighGuid::GameObject)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::DynamicObject)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::Corpse)
 
+class ByteBuffer;
 class ObjectGuid;
 class PackedGuid;
 
@@ -265,17 +267,16 @@ class TC_GAME_API PackedGuid
     friend TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
 
     public:
-        explicit PackedGuid() : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { _packedGuid.appendPackGUID(0); }
-        explicit PackedGuid(uint64 guid) : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { _packedGuid.appendPackGUID(guid); }
-        explicit PackedGuid(ObjectGuid guid) : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { _packedGuid.appendPackGUID(guid.GetRawValue()); }
+        explicit PackedGuid() : _packedSize(1), _packedGuid() { }
+        explicit PackedGuid(ObjectGuid guid) { Set(guid); }
 
-        void Set(uint64 guid) { _packedGuid.wpos(0); _packedGuid.appendPackGUID(guid); }
-        void Set(ObjectGuid guid) { _packedGuid.wpos(0); _packedGuid.appendPackGUID(guid.GetRawValue()); }
+        void Set(ObjectGuid guid);
 
-        std::size_t size() const { return _packedGuid.size(); }
+        std::size_t size() const { return _packedSize; }
 
     private:
-        ByteBuffer _packedGuid;
+        uint8 _packedSize;
+        std::array<uint8, PACKED_GUID_MIN_BUFFER_SIZE> _packedGuid;
 };
 
 class TC_GAME_API ObjectGuidGenerator
