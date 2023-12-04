@@ -2315,7 +2315,7 @@ void Spell::EffectLearnSkill()
         return;
 
     uint16 skillval = std::max<uint16>(1, playerTarget->GetPureSkillValue(skillid));
-    uint16 maxSkillVal = tier->Value[damage - 1];
+    uint16 maxSkillVal = tier->GetValueForTierIndex(damage - 1);
 
     if (rcEntry->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
         skillval = maxSkillVal;
@@ -4581,7 +4581,7 @@ void Spell::EffectSkill()
         return;
 
     uint16 skillval = std::max<uint16>(1, playerTarget->GetPureSkillValue(skillid));
-    uint16 maxSkillVal = tier->Value[damage - 1];
+    uint16 maxSkillVal = tier->GetValueForTierIndex(damage - 1);
 
     if (rcEntry->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
         skillval = maxSkillVal;
