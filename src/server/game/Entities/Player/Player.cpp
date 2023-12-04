@@ -4829,30 +4829,32 @@ void Player::RepopAtGraveyard()
         SpawnCorpseBones();
     }
 
-    WorldSafeLocsEntry const* closestGrave = nullptr;
-    if (Battleground* bg = GetBattleground())
-        closestGrave = bg->GetClosestGraveyard(this);
-    else if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetMap(), GetZoneId()))
-        closestGrave = bf->GetClosestGraveyard(this);
-    else if (InstanceScript* instance = GetInstanceScript())
-        closestGrave = sObjectMgr->GetWorldSafeLoc(instance->GetEntranceLocation());
+    WorldSafeLocsEntry const* ClosestGrave;
 
-    if (!closestGrave)
-        closestGrave = sObjectMgr->GetClosestGraveyard(*this, GetTeam(), this);
+    // Special handle for battleground maps
+    if (Battleground* bg = GetBattleground())
+        ClosestGrave = bg->GetClosestGraveyard(this);
+    else
+    {
+        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetMap(), GetZoneId()))
+            ClosestGrave = bf->GetClosestGraveyard(this);
+        else
+            ClosestGrave = sObjectMgr->GetClosestGraveyard(*this, GetTeam(), this);
+    }
 
     // stop countdown until repop
     m_deathTimer = 0;
 
     // if no grave found, stay at the current location
     // and don't show spirit healer location
-    if (closestGrave)
+    if (ClosestGrave)
     {
-        TeleportTo(closestGrave->Loc, shouldResurrect ? TELE_REVIVE_AT_TELEPORT : TELE_TO_NONE);
+        TeleportTo(ClosestGrave->Loc, shouldResurrect ? TELE_REVIVE_AT_TELEPORT : TELE_TO_NONE);
         if (isDead())                                        // not send if alive, because it used in TeleportTo()
         {
             WorldPackets::Misc::DeathReleaseLoc packet;
-            packet.MapID = closestGrave->Loc.GetMapId();
-            packet.Loc = closestGrave->Loc;
+            packet.MapID = ClosestGrave->Loc.GetMapId();
+            packet.Loc = ClosestGrave->Loc;
             SendDirectMessage(packet.Write());
         }
     }
