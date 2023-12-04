@@ -26,10 +26,6 @@
 #include "SpellPackets.h"
 #include "TalentPackets.h"
 
-void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet)
-{
-}
-
 void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& packet)
 {
     if (_player->LearnTalent(packet.TalentID, packet.RequestedRank))
@@ -42,10 +38,6 @@ void WorldSession::HandleLearnPreviewTalentsOpcode(WorldPackets::Talent::LearnPr
         _player->LearnTalent(talent.TalentID, talent.Rank);
 
     _player->SendTalentsInfoData();
-}
-
-void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& /*packet*/)
-{
 }
 
 void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe)

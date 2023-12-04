@@ -6072,8 +6072,6 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return SPELL_FAILED_GLYPH_NO_SPEC;
 
-                Player* caster = m_caster->ToPlayer();
-
                 if (uint32 glyphId = spellEffectInfo.MiscValue)
                 {
                     GlyphPropertiesEntry const* glyphProperties = sGlyphPropertiesStore.LookupEntry(glyphId);

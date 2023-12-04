@@ -260,7 +260,6 @@ void Player::UpdateArmor()
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE);        // bonus armor from auras and items
 
     //add dynamic flat mods
-    AuraEffectList const& mResbyIntellect = GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
     for (AuraEffect const* aurEff : GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT))
         if (aurEff->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
             value += CalculatePct(GetStat(Stats(aurEff->GetMiscValueB())), aurEff->GetAmount());
@@ -1119,14 +1118,13 @@ void Guardian::UpdateResistances(uint32 school)
 {
     if (school > SPELL_SCHOOL_NORMAL)
     {
-        float baseValue = GetFlatModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + school), BASE_VALUE);
-        float bonusValue = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school)) - baseValue;
+        float value = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
 
         // hunter and warlock pets gain 40% of owner's resistance
         if (IsPet())
-            baseValue += float(CalculatePct(m_owner->GetResistance(SpellSchools(school)), 40));
+            value += float(CalculatePct(m_owner->GetResistance(SpellSchools(school)), 40));
 
-        SetResistance(SpellSchools(school), int32(baseValue));
+        SetResistance(SpellSchools(school), int32(value));
     }
     else
         UpdateArmor();

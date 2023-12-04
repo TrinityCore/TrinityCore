@@ -910,7 +910,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         uint32 health = uint32(basehp * healthmod);
         uint32 mana = stats->GenerateMana(m_creatureDifficulty);
 
-        SetCreateMana(stats->BaseMana);
+        SetCreateHealth(health);
+        SetCreateMana(mana);
         SetCreateStat(STAT_STRENGTH, 22);
         SetCreateStat(STAT_AGILITY, 22);
         SetCreateStat(STAT_STAMINA, 25);

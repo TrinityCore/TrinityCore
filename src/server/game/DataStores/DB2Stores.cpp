@@ -2101,7 +2101,7 @@ EmotesTextSoundEntry const* DB2Manager::GetTextSoundEmoteFor(uint32 emote, uint8
 }
 
 
-float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int32 expansion, uint32 contentTuningId, Classes unitClass, int32 mythicPlusMilestoneSeason) const
+float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int32 expansion, uint32 contentTuningId, Classes unitClass) const
 {
     auto expectedStatItr = _expectedStatsByLevel.find(std::make_pair(level, expansion));
     if (expectedStatItr == _expectedStatsByLevel.end())

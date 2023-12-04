@@ -25117,7 +25117,7 @@ void Player::AtExitCombat()
 float Player::GetBlockPercent(uint8 attackerLevel) const
 {
     float blockArmor = float(*m_activePlayerData->ShieldBlock);
-    float armorConstant = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, attackerLevel, -2, 0, CLASS_NONE, 0);
+    float armorConstant = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, attackerLevel, -2, 0, CLASS_NONE);
 
     if (!(blockArmor + armorConstant))
         return 0;

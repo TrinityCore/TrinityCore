@@ -290,10 +290,7 @@ bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerT
 
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
     if (position.SpellForVisuals)
-    {
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(*position.SpellForVisuals, DIFFICULTY_NONE);
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellForVisuals), *position.SpellForVisuals);
-    }
 
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::BoundsRadius2D), _shape.GetMaxSearchRadius());
     if (IsServerSide())

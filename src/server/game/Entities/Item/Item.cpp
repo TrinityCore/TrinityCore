@@ -1583,7 +1583,6 @@ bool Item::IsValidTransmogrificationTarget() const
 bool Item::HasStats() const
 {
     ItemTemplate const* proto = GetTemplate();
-    Player const* owner = GetOwner();
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         if (proto->GetStatModifierBonusAmount(i) != 0)
             return true;
