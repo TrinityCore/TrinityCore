@@ -3535,7 +3535,7 @@ GameObject.CheckInvalidPosition = 0
 #     EnableAELoot
 #        Description: Enables/Disables the AE loot feature. AE loot allows players to loot multiple corpses within a 30 yards radius at once.
 #        Default:     0  - (Disabled)
-                      1  - (Enabled)
+#                     1  - (Enabled)
 
 EnableAELoot = 0
 
