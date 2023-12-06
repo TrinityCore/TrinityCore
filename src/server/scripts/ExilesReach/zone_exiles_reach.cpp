@@ -2106,7 +2106,8 @@ public:
                 if (!injured)
                     break;
 
-                injured->SummonPersonalClone(InjuredNpcPositionAbandonedCamp, TEMPSUMMON_TIMED_DESPAWN, 2s, 0, 0, player);
+                Creature* injuredTemp = injured->SummonPersonalClone(InjuredNpcPositionAbandonedCamp, TEMPSUMMON_TIMED_DESPAWN, 2s, 0, 0, player);
+                injuredTemp->SetAIAnimKitId(ANIMATION_KIT_INJURED);
                 break;
             }
             default:
