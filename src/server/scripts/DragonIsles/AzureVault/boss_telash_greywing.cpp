@@ -57,7 +57,7 @@ enum TelashSpells
 
 enum TelashEvents
 {
-    EVENT_FROST_BOMBS       = 1,
+    EVENT_FROST_BOMB       = 1,
     EVENT_ICY_DEVASTATOR    = 2,
     EVENT_ABSOLUTE_ZERO     = 3
 };
@@ -65,6 +65,11 @@ enum TelashEvents
 enum TelashSummonGroups
 {
     SUMMON_GROUP_TELASH_VAULT_RUNES = 0
+};
+
+enum TelashActions
+{
+    ACTION_RESCHEDULE_SPELLS = 1,
 };
 
 enum TelashText
@@ -79,10 +84,17 @@ enum TelashText
 
 Position const TelashJumpPosition = { -5336.8003f, 1066.6493f, 344.32678f };
 
+Position const TelashJumpBackPositions[] =
+{
+    { -5350.0835f, 1089.8976f, 340.5709f, 5.0882f },
+    { -5310.4464f, 1066.8134f, 340.5967f, 3.9184f },
+    { -5350.3934f, 1043.9323f, 340.5894f, 2.0924f }
+};
+
 // 186737 - Telash Greywing
 struct boss_telash_greywing : public BossAI
 {
-    boss_telash_greywing(Creature* creature) : BossAI(creature, DATA_TELASH_GREYWING), _isInCenter(false) { }
+    boss_telash_greywing(Creature* creature) : BossAI(creature, DATA_TELASH_GREYWING), _isInCenter(false), _frostBombRemaining(0), _icyDevastatorRemaining(0) { }
 
     void JustAppeared() override
     {
@@ -94,18 +106,22 @@ struct boss_telash_greywing : public BossAI
     {
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+
+        _frostBombRemaining = 1;
+        _icyDevastatorRemaining = 1;
+
         Talk(SAY_AGGRO);
         DoCast(SPELL_POWER_ENERGIZE_ICE_POWER_PERIODIC);
-        events.ScheduleEvent(EVENT_FROST_BOMBS, 4s);
-        events.ScheduleEvent(EVENT_ICY_DEVASTATOR, 14s);
+        events.ScheduleEvent(EVENT_FROST_BOMB, 3500ms);
+        events.ScheduleEvent(EVENT_ICY_DEVASTATOR, 14500ms);
         events.ScheduleEvent(EVENT_ABSOLUTE_ZERO, 500ms);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        Reset();
-        me->DespawnOrUnsummon(5s, 30s);
         summons.DespawnAll();
+        _EnterEvadeMode();
+        _DespawnAtEvade();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -118,18 +134,16 @@ struct boss_telash_greywing : public BossAI
     {
         if (id == EVENT_JUMP)
         {
-            if (_isInCenter == false)
+            if (!_isInCenter)
             {
                 DoCastSelf(SPELL_ABSOLUTE_ZERO_DAMAGE);
                 _isInCenter = true;
             }
-            else if (_isInCenter == true)
+            else
             {
                 DoCastSelf(SPELL_POWER_ENERGIZE_ICE_POWER_PERIODIC);
                 me->RemoveAurasDueToSpell(SPELL_ABSOLUTE_ZERO_SHIELD);
                 me->SetReactState(REACT_AGGRESSIVE);
-                events.ScheduleEvent(EVENT_FROST_BOMBS, 12s + 200ms);
-                events.ScheduleEvent(EVENT_ICY_DEVASTATOR, IsMythicPlus() ? (19s + 600ms) : (23s + 200ms));
                 _isInCenter = false;
             }
         }
@@ -142,30 +156,57 @@ struct boss_telash_greywing : public BossAI
         if (!UpdateVictim())
             return;
 
+        events.Update(diff);
+
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-
-        events.Update(diff);
 
         while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
-                case EVENT_FROST_BOMBS:
+                case EVENT_FROST_BOMB:
+                {
                     Talk(SAY_FROST_BOMB);
                     DoCastSelf(SPELL_FROST_BOMB_CAST);
-                    events.ScheduleEvent(EVENT_FROST_BOMBS, 15s);
+
+                    _frostBombRemaining--;
+                    if (!_frostBombRemaining)
+                    {
+                        if (_icyDevastatorRemaining == 1)
+                        {
+                            events.CancelEvent(EVENT_ICY_DEVASTATOR);
+                            events.ScheduleEvent(EVENT_ICY_DEVASTATOR, 10800ms);
+                        }
+                        break;
+                    }
+
+                    events.ScheduleEvent(EVENT_FROST_BOMB, _frostBombRemaining == 2 ? 18200ms : 15800ms);
                     break;
+                }
                 case EVENT_ICY_DEVASTATOR:
+                {
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 75.0f, true))
                     {
                         Talk(SAY_ICY_DEVASTATOR);
                         DoCast(target, SPELL_ICY_DEVASTATOR);
-                        events.ScheduleEvent(EVENT_ICY_DEVASTATOR, 23s);
+
+                        _icyDevastatorRemaining--;
+                        if (!_icyDevastatorRemaining)
+                        {
+                            if (_frostBombRemaining == 1)
+                            {
+                                events.CancelEvent(EVENT_FROST_BOMB);
+                                events.ScheduleEvent(EVENT_FROST_BOMB, 7300ms);
+                            }
+                            break;
+                        }
+                        events.ScheduleEvent(EVENT_ICY_DEVASTATOR, 23100ms);
                     }
                     break;
+                }
                 case EVENT_ABSOLUTE_ZERO:
-                    if (me->GetPower(POWER_ENERGY) >= 100)
+                    if (me->GetPower(me->GetPowerType()) >= 100)
                     {
                         Talk(SAY_FLY_TO_MIDDLE);
                         Talk(SAY_ANNOUNCE_ABSOLUTE_ZERO);
@@ -175,7 +216,7 @@ struct boss_telash_greywing : public BossAI
                         DoCastSelf(SPELL_ABSOLUTE_ZERO_CAST);
                         DoCastSelf(SPELL_ABSOLUTE_ZERO_SHIELD);
                         DoCastSelf(SPELL_ACTIVATE_VAULT_RUNE);
-                        events.CancelEvent(EVENT_FROST_BOMBS);
+                        events.CancelEvent(EVENT_FROST_BOMB);
                         events.CancelEvent(EVENT_ICY_DEVASTATOR);
                     }
                     events.Repeat(500ms);
@@ -188,8 +229,23 @@ struct boss_telash_greywing : public BossAI
         }
         DoMeleeAttackIfReady();
     }
+
+    void DoAction(int32 param) override
+    {
+        if (param == ACTION_RESCHEDULE_SPELLS)
+        {
+            _frostBombRemaining = 3;
+            _icyDevastatorRemaining = 2;
+
+            events.ScheduleEvent(EVENT_FROST_BOMB, 4300ms);
+            events.ScheduleEvent(EVENT_ICY_DEVASTATOR, 15200ms);
+        }
+    }
+
 private:
     bool _isInCenter;
+    uint8 _frostBombRemaining;
+    uint8 _icyDevastatorRemaining;
 };
 
 // 30743 - Vault Rune
@@ -225,6 +281,7 @@ struct at_telash_greywing_vault_rune : AreaTriggerAI
 
             if (player->isDead())
                 continue;
+
             return;
         }
 
@@ -249,14 +306,18 @@ struct at_telash_greywing_vault_rune : AreaTriggerAI
             if (player->isDead())
                 continue;
 
-            at->GetCaster()->CastSpell(at->GetCaster(), SPELL_INACTIVE_VAULT_RUNE, true);
+            Unit* caster = at->GetCaster();
+            if (!caster)
+                return;
+
+            caster->CastSpell(caster, SPELL_INACTIVE_VAULT_RUNE, true);
             break;
         }
     }
 };
 
 // 389453 - Ice Power (periodic)
-class spell_telash_ice_power_perodic : public AuraScript
+class spell_telash_ice_power_periodic : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
@@ -266,7 +327,7 @@ class spell_telash_ice_power_perodic : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_telash_ice_power_perodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_telash_ice_power_periodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -294,7 +355,11 @@ class spell_telash_frost_bomb_aura : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_FROST_BOMB_DAMAGE, SPELL_FROZEN_GROUND_AT });
+        return ValidateSpellInfo(
+        {
+            SPELL_FROST_BOMB_DAMAGE,
+            SPELL_FROZEN_GROUND_AT
+        });
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -325,7 +390,6 @@ class spell_telash_absolute_zero_cast : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        // spell targets a GroupAI so we change it to Dest Dest
         GetCaster()->CastSpell(TelashJumpPosition, SPELL_ABSOLUTE_ZERO_JUMP, true);
     }
 
@@ -340,7 +404,11 @@ class spell_telash_activate_vault_rune : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_VAULT_RUNE_AT_AURA, SPELL_INACTIVE_VAULT_RUNE });
+        return ValidateSpellInfo(
+        {
+            SPELL_VAULT_RUNE_AT_AURA,
+            SPELL_INACTIVE_VAULT_RUNE
+        });
     }
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
@@ -357,45 +425,47 @@ class spell_telash_activate_vault_rune : public SpellScript
     }
 };
 
-static Position const TelashJumpBackPositions[] =
-{
-    { -5350.0835f, 1089.8976f, 340.5709f, 5.0882f },
-    { -5310.4464f, 1066.8134f, 340.5967f, 3.9184f },
-    { -5350.3934f, 1043.9323f, 340.5894f, 2.0924f }
-};
-
 // 388008 - Absolute Zero
 class spell_telash_absolute_zero_damage : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_ABSOLUTE_ZERO_JUMP_BACK, SPELL_VAULT_RUNE_AT_AURA, SPELL_VAULT_RUNE_SHIELD });
+        return ValidateSpellInfo(
+        {
+            SPELL_ABSOLUTE_ZERO_JUMP_BACK,
+            SPELL_VAULT_RUNE_AT_AURA,
+            SPELL_VAULT_RUNE_SHIELD
+        });
+    }
+
+    Position const& GetClosestPositionToMaxThreatTarget(Unit* victim)
+    {
+        float nearestDist = std::numeric_limits<float>::max();
+        Position const* nearestPos = &TelashJumpBackPositions[0];
+
+        for (Position const& pos : TelashJumpBackPositions)
+        {
+            float dist = victim->GetDistance(pos);
+            if (dist < nearestDist)
+            {
+                nearestDist = dist;
+                nearestPos = &pos;
+            }
+        }
+
+        return *nearestPos;
     }
 
     void HandleAfterCast()
     {
         Unit* caster = GetCaster();
-        Unit* victim = caster->GetAI()->SelectTarget(SelectTargetMethod::MaxThreat);
+        UnitAI* casterAI = caster->GetAI();
+        Unit* victim = casterAI->SelectTarget(SelectTargetMethod::MaxThreat);
         if (!victim)
             return;
 
-        float currentDistance = 1000.0f;
-        Position const* currentPosition = nullptr;
-
-        for (Position const& pos : TelashJumpBackPositions)
-        {
-            float dist = victim->GetDistance(pos);
-            if (dist < currentDistance)
-            {
-                currentDistance = dist;
-                currentPosition = &pos;
-            }
-        }
-
-        if (!currentPosition)
-            return;
-
-        caster->CastSpell(*currentPosition, SPELL_ABSOLUTE_ZERO_JUMP_BACK, true);
+        casterAI->DoAction(ACTION_RESCHEDULE_SPELLS);
+        caster->CastSpell(GetClosestPositionToMaxThreatTarget(victim), SPELL_ABSOLUTE_ZERO_JUMP_BACK, true);
     }
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
@@ -420,7 +490,7 @@ void AddSC_boss_telash_greywing()
     RegisterAreaTriggerAI(at_telash_greywing_vault_rune);
 
     // Spells
-    RegisterSpellScript(spell_telash_ice_power_perodic);
+    RegisterSpellScript(spell_telash_ice_power_periodic);
     RegisterSpellScript(spell_telash_frost_bomb_cast);
     RegisterSpellScript(spell_telash_frost_bomb_aura);
     RegisterSpellScript(spell_telash_absolute_zero_cast);

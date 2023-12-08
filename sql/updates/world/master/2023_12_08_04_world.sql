@@ -57,7 +57,7 @@ INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, 
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (389453, 386781, 386881, 387928, 390209, 388008);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(389453, 'spell_telash_ice_power_perodic'),
+(389453, 'spell_telash_ice_power_periodic'),
 (386781, 'spell_telash_frost_bomb_cast'),
 (386881, 'spell_telash_frost_bomb_aura'),
 (387928, 'spell_telash_absolute_zero_cast'),
