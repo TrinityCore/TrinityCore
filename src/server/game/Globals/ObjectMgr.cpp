@@ -7907,6 +7907,23 @@ int32 ObjectMgr::GetFishingBaseSkillLevel(AreaTableEntry const* areaEntry) const
     return 0;
 }
 
+SkillTiersEntry const* ObjectMgr::GetSkillTier(uint32 skillTierId) const
+{
+    auto itr = _skillTiers.find(skillTierId);
+    return itr != _skillTiers.end() ? &itr->second : nullptr;
+}
+
+uint32 SkillTiersEntry::GetValueForTierIndex(uint32 tierIndex) const
+{
+    if (tierIndex >= MAX_SKILL_STEP)
+        tierIndex = MAX_SKILL_STEP - 1;
+
+    while (Value[tierIndex] == 0 && tierIndex > 0)
+        --tierIndex;
+
+    return Value[tierIndex];
+}
+
 void ObjectMgr::LoadPetNames()
 {
     uint32 oldMSTime = getMSTime();
