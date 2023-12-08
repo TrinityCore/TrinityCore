@@ -112,10 +112,13 @@ public:
         _readBuffer.Normalize();
         _readBuffer.EnsureFreeSpace();
         _socket.async_read_some(boost::asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()),
-            std::bind(&Socket<T, Stream>::ReadHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+            [self = this->shared_from_this()](boost::system::error_code const& error, size_t transferredBytes)
+            {
+                self->ReadHandlerInternal(error, transferredBytes);
+            });
     }
 
-    void AsyncReadWithCallback(void (T::*callback)(boost::system::error_code, std::size_t))
+    void AsyncReadWithCallback(void (T::*callback)(boost::system::error_code const&, std::size_t))
     {
         if (!IsOpen())
             return;
@@ -123,7 +126,10 @@ public:
         _readBuffer.Normalize();
         _readBuffer.EnsureFreeSpace();
         _socket.async_read_some(boost::asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()),
-            std::bind(callback, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+            [self = this->shared_from_this(), callback](boost::system::error_code const& error, size_t transferredBytes)
+            {
+                (self.get()->*callback)(error, transferredBytes);
+            });
     }
 
     void QueuePacket(MessageBuffer&& buffer)
@@ -170,11 +176,17 @@ protected:
 
 #ifdef TC_SOCKET_USE_IOCP
         MessageBuffer& buffer = _writeQueue.front();
-        _socket.async_write_some(boost::asio::buffer(buffer.GetReadPointer(), buffer.GetActiveSize()), std::bind(&Socket<T, Stream>::WriteHandler,
-            this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+        _socket.async_write_some(boost::asio::buffer(buffer.GetReadPointer(), buffer.GetActiveSize()),
+            [self = this->shared_from_this()](boost::system::error_code const& error, std::size_t transferedBytes)
+            {
+                self->WriteHandler(error, transferedBytes);
+            });
 #else
-        _socket.async_write_some(boost::asio::null_buffers(), std::bind(&Socket<T, Stream>::WriteHandlerWrapper,
-            this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+        _socket.async_write_some(boost::asio::null_buffers(),
+            [self = this->shared_from_this()](boost::system::error_code const& error, std::size_t transferedBytes)
+            {
+                self->WriteHandlerWrapper(error, transferedBytes);
+            });
 #endif
 
         return false;
@@ -195,7 +207,7 @@ protected:
     }
 
 private:
-    void ReadHandlerInternal(boost::system::error_code error, size_t transferredBytes)
+    void ReadHandlerInternal(boost::system::error_code const& error, size_t transferredBytes)
     {
         if (error)
         {
@@ -209,7 +221,7 @@ private:
 
 #ifdef TC_SOCKET_USE_IOCP
 
-    void WriteHandler(boost::system::error_code error, std::size_t transferedBytes)
+    void WriteHandler(boost::system::error_code const& error, std::size_t transferedBytes)
     {
         if (!error)
         {
@@ -229,7 +241,7 @@ private:
 
 #else
 
-    void WriteHandlerWrapper(boost::system::error_code /*error*/, std::size_t /*transferedBytes*/)
+    void WriteHandlerWrapper(boost::system::error_code const& /*error*/, std::size_t /*transferedBytes*/)
     {
         _isWritingAsync = false;
         HandleQueue();

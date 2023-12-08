@@ -47,7 +47,7 @@ void Battlenet::Session::AccountInfo::LoadResult(PreparedQueryResult result)
     IsBanned = fields[6].GetUInt64() != 0;
     IsPermanenetlyBanned = fields[7].GetUInt64() != 0;
 
-    static uint32 const GameAccountFieldsOffset = 8;
+    static constexpr uint32 GameAccountFieldsOffset = 8;
 
     do
     {
@@ -56,7 +56,7 @@ void Battlenet::Session::AccountInfo::LoadResult(PreparedQueryResult result)
     } while (result->NextRow());
 }
 
-void Battlenet::Session::GameAccountInfo::LoadResult(Field* fields)
+void Battlenet::Session::GameAccountInfo::LoadResult(Field const* fields)
 {
     // a.id, a.username, ab.unbandate, ab.unbandate = ab.bandate, aa.SecurityLevel
     Id = fields[0].GetUInt32();
@@ -74,18 +74,17 @@ void Battlenet::Session::GameAccountInfo::LoadResult(Field* fields)
 }
 
 Battlenet::Session::Session(boost::asio::ip::tcp::socket&& socket) : BattlenetSocket(std::move(socket)), _accountInfo(new AccountInfo()), _gameAccountInfo(nullptr), _locale(),
-    _os(), _build(0), _ipCountry(), _authed(false), _requestToken(0)
+    _os(), _build(0), _timezoneOffset(0min), _ipCountry(), _clientSecret(), _authed(false), _requestToken(0)
 {
     _headerLengthBuffer.Resize(2);
 }
 
-Battlenet::Session::~Session()
-{
-}
+Battlenet::Session::~Session() = default;
 
 void Battlenet::Session::AsyncHandshake()
 {
-    underlying_stream().async_handshake(boost::asio::ssl::stream_base::server, std::bind(&Session::HandshakeHandler, shared_from_this(), std::placeholders::_1));
+    underlying_stream().async_handshake(boost::asio::ssl::stream_base::server,
+        [sess = shared_from_this()](boost::system::error_code const& error) { sess->HandshakeHandler(error); });
 }
 
 void Battlenet::Session::Start()
@@ -99,7 +98,8 @@ void Battlenet::Session::Start()
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::CheckIpCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt)
+        .WithPreparedCallback([sess = shared_from_this()](PreparedQueryResult result) { sess->CheckIpCallback(std::move(result)); }));
 }
 
 void Battlenet::Session::CheckIpCallback(PreparedQueryResult result)
@@ -429,10 +429,10 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
         logonResult.set_error_code(0);
         logonResult.mutable_account_id()->set_low(_accountInfo->Id);
         logonResult.mutable_account_id()->set_high(UI64LIT(0x100000000000000));
-        for (auto itr = _accountInfo->GameAccounts.begin(); itr != _accountInfo->GameAccounts.end(); ++itr)
+        for (auto const& [id, gameAccountInfo] : accountInfo->GameAccounts)
         {
             EntityId* gameAccountId = logonResult.add_game_account_id();
-            gameAccountId->set_low(itr->second.Id);
+            gameAccountId->set_low(gameAccountInfo.Id);
             gameAccountId->set_high(UI64LIT(0x200000200576F57));
         }
 
