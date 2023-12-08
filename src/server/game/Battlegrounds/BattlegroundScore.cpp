@@ -29,6 +29,9 @@ BattlegroundScore::BattlegroundScore(ObjectGuid playerGuid, uint32 team, std::un
     KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0),
     PreMatchRating(0), PreMatchMMR(0), PostMatchRating(0), PostMatchMMR(0), _validPvpStatIds(pvpStatIds)
 {
+    if (_validPvpStatIds)
+        for (uint32 pvpStatId : *_validPvpStatIds)
+            PvpStats[pvpStatId] = 0;
 }
 
 BattlegroundScore::~BattlegroundScore() = default;
