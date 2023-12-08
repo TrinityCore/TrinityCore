@@ -196,7 +196,8 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, Characte
     {
         WowTime eta = *GameTime::GetUtcWowTime();
         eta += Seconds(sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
-        eta += owner->GetSession()->GetTimezoneOffset();
+        if (owner)
+            eta += owner->GetSession()->GetTimezoneOffset();
 
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_SALE_PENDING),
             AuctionEntry::BuildAuctionInvoiceMailBody(ObjectGuid::Create<HighGuid::Player>(auction->bidder), auction->bid, auction->buyout, auction->deposit,
