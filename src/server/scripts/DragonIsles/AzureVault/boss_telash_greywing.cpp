@@ -57,7 +57,7 @@ enum TelashSpells
 
 enum TelashEvents
 {
-    EVENT_FROST_BOMB       = 1,
+    EVENT_FROST_BOMB        = 1,
     EVENT_ICY_DEVASTATOR    = 2,
     EVENT_ABSOLUTE_ZERO     = 3
 };
