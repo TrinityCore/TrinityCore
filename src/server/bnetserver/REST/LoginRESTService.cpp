@@ -124,7 +124,7 @@ bool LoginRESTService::Start(Trinity::Asio::IoContext* ioContext)
 
     _loginTicketDuration = sConfigMgr->GetIntDefault("LoginREST.TicketDuration", 3600);
 
-    _thread = std::thread(std::bind(&LoginRESTService::Run, this));
+    _thread = std::thread(&LoginRESTService::Run, this);
     return true;
 }
 

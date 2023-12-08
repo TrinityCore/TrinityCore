@@ -39,35 +39,15 @@ struct RealmBuildInfo
     std::array<uint8, 16> Mac64AuthSeed;
 };
 
-namespace boost
+namespace bgs::protocol::game_utilities::v1
 {
-    namespace system
-    {
-        class error_code;
-    }
+class ClientResponse;
+class GetAllValuesForAttributeResponse;
 }
 
-namespace bgs
+namespace JSON::RealmList
 {
-    namespace protocol
-    {
-        namespace game_utilities
-        {
-            namespace v1
-            {
-                class ClientResponse;
-                class GetAllValuesForAttributeResponse;
-            }
-        }
-    }
-}
-
-namespace JSON
-{
-    namespace RealmList
-    {
-        class RealmListUpdates;
-    }
+class RealmListUpdates;
 }
 
 /// Storage object for the list of realms on the server
@@ -99,7 +79,7 @@ private:
     RealmList();
 
     void LoadBuildInfo();
-    void UpdateRealms(boost::system::error_code const& error);
+    void UpdateRealms();
     void UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
         boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr,
         uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
@@ -114,4 +94,5 @@ private:
 };
 
 #define sRealmList RealmList::Instance()
+
 #endif

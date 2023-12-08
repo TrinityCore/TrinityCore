@@ -398,7 +398,10 @@ class instance_violet_hold : public InstanceMapScript
                             DoUpdateWorldState(WORLD_STATE_VH_SHOW, 1);
 
                             WaveCount = 1;
-                            Scheduler.Async(std::bind(&instance_violet_hold_InstanceMapScript::AddWave, this));
+                            Scheduler.Async([this]
+                            {
+                                AddWave();
+                            });
 
                             for (uint8 i = 0; i < ActivationCrystalCount; ++i)
                                 if (GameObject* crystal = instance->GetGameObject(ActivationCrystalGUIDs[i]))

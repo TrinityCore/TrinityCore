@@ -226,7 +226,7 @@ void Metric::ScheduleSend()
     if (_enabled)
     {
         _batchTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
-        _batchTimer->async_wait(std::bind(&Metric::SendBatch, this));
+        _batchTimer->async_wait([this](boost::system::error_code const&){ SendBatch(); });
     }
     else
     {
