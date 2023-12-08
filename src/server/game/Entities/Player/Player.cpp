@@ -3152,7 +3152,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                         case SKILL_RANGE_RANK:
                         {
                             SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcInfo->SkillTierID);
-                            new_skill_max_value = tier->Value[spellLearnSkill->step - 1];
+                            new_skill_max_value = tier->GetValueForTierIndex(spellLearnSkill->step - 1);
                             break;
                         }
                         default:
@@ -3427,7 +3427,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
                             case SKILL_RANGE_RANK:
                             {
                                 SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcInfo->SkillTierID);
-                                new_skill_max_value = tier->Value[prevSkill->step - 1];
+                                new_skill_max_value = tier->GetValueForTierIndex(prevSkill->step - 1);
                                 break;
                             }
                             default:
@@ -5886,6 +5886,12 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
         // Activate and update skill line
         if (newVal)
         {
+            // enable parent skill line if missing
+            if (skillEntry->ParentSkillLineID && skillEntry->ParentTierIndex > 0 && GetSkillStep(skillEntry->ParentSkillLineID) < skillEntry->ParentTierIndex)
+                if (SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
+                    if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
+                        SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(GetPureSkillValue(skillEntry->ParentSkillLineID), 1), tier->GetValueForTierIndex(skillEntry->ParentTierIndex - 1));
+
             // if skill value is going down, update enchantments before setting the new value
             if (newVal < currVal)
                 UpdateSkillEnchantments(id, currVal, newVal);
@@ -6015,7 +6021,7 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
                     if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
                     {
                         uint16 skillval = GetPureSkillValue(skillEntry->ParentSkillLineID);
-                        SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(skillval, 1), tier->Value[skillEntry->ParentTierIndex - 1]);
+                        SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(skillval, 1), tier->GetValueForTierIndex(skillEntry->ParentTierIndex - 1));
                     }
                 }
             }
@@ -24354,7 +24360,7 @@ void Player::LearnDefaultSkill(SkillRaceClassInfoEntry const* rcInfo)
         case SKILL_RANGE_RANK:
         {
             SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcInfo->SkillTierID);
-            uint16 maxValue = tier->Value[0];
+            uint16 maxValue = tier->GetValueForTierIndex(0);
             uint16 skillValue = 1;
             if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
                 skillValue = maxValue;
@@ -26201,7 +26207,6 @@ void Player::_LoadSkills(PreparedQueryResult result)
     // SetPQuery(PLAYER_LOGIN_QUERY_LOADSKILLS,          "SELECT skill, value, max, professionSlot FROM character_skills WHERE guid = '{}'", GUID_LOPART(m_guid));
 
     Races race = Races(GetRace());
-    uint32 count = 0;
     std::unordered_map<uint32, uint32> loadedSkillValues;
     std::vector<uint16> loadedProfessionsWithoutSlot; // fixup old characters
     if (result)
@@ -26286,18 +26291,27 @@ void Player::_LoadSkills(PreparedQueryResult result)
     }
 
     // Learn skill rewarded spells after all skills have been loaded to prevent learning a skill from them before its loaded with proper value from DB
-    for (auto const& skill : loadedSkillValues)
+    for (auto const& [skillId, skillValue] : loadedSkillValues)
     {
-        LearnSkillRewardedSpells(skill.first, skill.second, race);
-        if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(skill.first))
+        LearnSkillRewardedSpells(skillId, skillValue, race);
+
+        // enable parent skill line if missing
+        SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(skillId);
+        if (skillEntry->ParentSkillLineID && skillEntry->ParentTierIndex > 0 && GetSkillStep(skillEntry->ParentSkillLineID) < skillEntry->ParentTierIndex)
+            if (SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
+                if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
+                    SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(GetPureSkillValue(skillEntry->ParentSkillLineID), 1), tier->GetValueForTierIndex(skillEntry->ParentTierIndex - 1));
+
+        if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(skillId))
         {
             for (auto childItr = childSkillLines->begin(); childItr != childSkillLines->end() && mSkillStatus.size() < PLAYER_MAX_SKILLS; ++childItr)
             {
                 if (mSkillStatus.find((*childItr)->ID) == mSkillStatus.end())
                 {
-                    SetSkillLineId(count, (*childItr)->ID);
-                    SetSkillStartingRank(count, 1);
-                    mSkillStatus.insert(SkillStatusMap::value_type((*childItr)->ID, SkillStatusData(count, SKILL_UNCHANGED)));
+                    uint32 pos = mSkillStatus.size();
+                    SetSkillLineId(pos, (*childItr)->ID);
+                    SetSkillStartingRank(pos, 1);
+                    mSkillStatus.insert(SkillStatusMap::value_type((*childItr)->ID, SkillStatusData(pos, SKILL_UNCHANGED)));
                 }
             }
         }
