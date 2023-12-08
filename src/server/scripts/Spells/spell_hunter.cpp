@@ -138,7 +138,7 @@ class spell_hun_aspect_of_the_turtle : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo ({ SPELL_HUNTER_ASPECT_OF_THE_TURTLE_PACIFY_AURA });
+        return ValidateSpellInfo({ SPELL_HUNTER_ASPECT_OF_THE_TURTLE_PACIFY_AURA });
     }
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
