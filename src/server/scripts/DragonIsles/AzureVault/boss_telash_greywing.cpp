@@ -460,6 +460,9 @@ class spell_telash_absolute_zero_damage : public SpellScript
     {
         Unit* caster = GetCaster();
         UnitAI* casterAI = caster->GetAI();
+        if (!casterAI)
+            return;
+
         Unit* victim = casterAI->SelectTarget(SelectTargetMethod::MaxThreat);
         if (!victim)
             return;
