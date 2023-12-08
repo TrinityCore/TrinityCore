@@ -886,12 +886,10 @@ struct at_dk_death_and_decay : AreaTriggerAI
     {
         if (Unit* caster = at->GetCaster())
         {
-            if (caster->HasAura(SPELL_DK_UNHOLY_GROUND_TALENT))
+            if (caster == unit)
             {
-                if (caster != unit)
-                    return;
-
-                caster->CastSpell(caster, SPELL_DK_UNHOLY_GROUND_HASTE);
+                if (caster->HasAura(SPELL_DK_UNHOLY_GROUND_TALENT))
+                    caster->CastSpell(caster, SPELL_DK_UNHOLY_GROUND_HASTE);
             }
         }
     }
