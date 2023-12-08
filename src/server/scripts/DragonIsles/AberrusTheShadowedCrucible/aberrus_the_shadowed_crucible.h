@@ -38,11 +38,14 @@ enum AberrusDataTypes
     DATA_ECHO_OF_NELTHARION             = 7,
     DATA_SCALECOMMANDER_SARKARETH       = 8,
 
-    // Additional Data
+    // Creatures
+    DATA_SARKARETH_AT_KAZZARA,
+
+    // Gameobjects
     DATA_KAZZARA_GATE,
 
     // Misc
-    DATA_KAZZARA_INTRO_DONE
+    DATA_KAZZARA_INTRO_STATE
 };
 
 enum AberrusCreatureIds
@@ -64,6 +67,13 @@ enum AberrusCreatureIds
     BOSS_MAGMORAX                       = 201579,
     BOSS_ECHO_OF_NELTHARION             = 204223,
     BOSS_SCALECOMMANDER_SARKARETH       = 205319,
+
+    // Kazzara Trash
+    NPC_SCALECOMMANDER_SARKARETH_AT_KAZZARA = 202416,
+    NPC_SUNDERED_DEVASTATOR             = 198869,
+    NPC_SUNDERED_SCALEGUARD             = 198871,
+    NPC_SUNDERED_MANAWEAVER             = 198872,
+    NPC_SUNDERED_EDGELORD               = 198873,
 
     // Misc
     NPC_SABELLIAN_AT_ABERRUS_ENTRANCE   = 201575

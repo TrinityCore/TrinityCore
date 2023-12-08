@@ -420,7 +420,6 @@ typedef std::multimap<uint32 /*spell id*/, std::pair<uint32 /*script id*/, bool 
 typedef std::pair<SpellScriptsContainer::iterator, SpellScriptsContainer::iterator> SpellScriptsBounds;
 TC_GAME_API extern ScriptMapMap sSpellScripts;
 TC_GAME_API extern ScriptMapMap sEventScripts;
-TC_GAME_API extern ScriptMapMap sWaypointScripts;
 
 std::string GetScriptsTableNameByType(ScriptsType type);
 ScriptMapMap* GetScriptsMapByType(ScriptsType type);
@@ -970,6 +969,8 @@ struct SkillTiersEntry
 {
     uint32      ID;                                         // 0
     uint32      Value[MAX_SKILL_STEP];                      // 1-16
+
+    uint32 GetValueForTierIndex(uint32 tierIndex) const;
 };
 
 SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry);
@@ -1295,7 +1296,6 @@ class TC_GAME_API ObjectMgr
 
         void LoadEventScripts();
         void LoadSpellScripts();
-        void LoadWaypointScripts();
 
         void LoadSpellScriptNames();
         void ValidateSpellScripts();
@@ -1411,11 +1411,7 @@ class TC_GAME_API ObjectMgr
 
         int32 GetFishingBaseSkillLevel(AreaTableEntry const* areaEntry) const;
 
-        SkillTiersEntry const* GetSkillTier(uint32 skillTierId) const
-        {
-            auto itr = _skillTiers.find(skillTierId);
-            return itr != _skillTiers.end() ? &itr->second : nullptr;
-        }
+        SkillTiersEntry const* GetSkillTier(uint32 skillTierId) const;
 
         void ReturnOrDeleteOldMails(bool serverUp);
 

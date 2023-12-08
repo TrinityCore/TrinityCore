@@ -1372,7 +1372,6 @@ struct npc_anduin_wrynn_anduin_soul : public ScriptedAI
     {
         me->SetDisableGravity(true, true);
         me->SetHoverHeight(1.0);
-        me->SetPlayHoverAnim(true);
         DoCastSelf(SPELL_LOST_SOUL_PERIODIC);
     }
 

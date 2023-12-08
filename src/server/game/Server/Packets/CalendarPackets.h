@@ -487,7 +487,7 @@ namespace WorldPackets
             uint64 InstanceID = 0;
             uint32 DifficultyID = 0;
             int32 TimeRemaining = 0;
-            uint32 ServerTime = 0;
+            WowTime ServerTime;
             int32 MapID = 0;
         };
 

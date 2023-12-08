@@ -77,7 +77,6 @@
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
-ScriptMapMap sWaypointScripts;
 
 std::string GetScriptsTableNameByType(ScriptsType type)
 {
@@ -86,7 +85,6 @@ std::string GetScriptsTableNameByType(ScriptsType type)
     {
         case SCRIPTS_SPELL:         res = "spell_scripts";      break;
         case SCRIPTS_EVENT:         res = "event_scripts";      break;
-        case SCRIPTS_WAYPOINT:      res = "waypoint_scripts";   break;
         default: break;
     }
     return res;
@@ -99,7 +97,6 @@ ScriptMapMap* GetScriptsMapByType(ScriptsType type)
     {
         case SCRIPTS_SPELL:         res = &sSpellScripts;       break;
         case SCRIPTS_EVENT:         res = &sEventScripts;       break;
-        case SCRIPTS_WAYPOINT:      res = &sWaypointScripts;    break;
         default: break;
     }
     return res;
@@ -1630,9 +1627,8 @@ CreatureSummonedData const* ObjectMgr::GetCreatureSummonedData(uint32 entryId) c
 CreatureModel const* ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data /*= nullptr*/)
 {
     // Load creature model (display id)
-    if (data && data->displayid)
-        if (CreatureModel const* model = cinfo->GetModelWithDisplayId(data->displayid))
-            return model;
+    if (data && data->display)
+        return &*data->display;
 
     if (!(cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER))
         if (CreatureModel const* model = cinfo->GetRandomValidModel())
@@ -2174,7 +2170,8 @@ void ObjectMgr::LoadCreatures()
         data.id             = entry;
         data.mapId          = fields[2].GetUInt16();
         data.spawnPoint.Relocate(fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat(), fields[6].GetFloat());
-        data.displayid      = fields[7].GetUInt32();
+        if (uint32 displayId = fields[7].GetUInt32())
+            data.display.emplace(displayId, DEFAULT_PLAYER_DISPLAY_SCALE, 1.0f);
         data.equipmentId    = fields[8].GetInt8();
         data.spawntimesecs  = fields[9].GetUInt32();
         data.wander_distance = fields[10].GetFloat();
@@ -5962,35 +5959,6 @@ void ObjectMgr::LoadEventScripts()
     TC_LOG_INFO("server.loading", ">> Loaded {} event scripts in {} ms", _eventScriptStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-//Load WP Scripts
-void ObjectMgr::LoadWaypointScripts()
-{
-    LoadScripts(SCRIPTS_WAYPOINT);
-
-    std::set<uint32> actionSet;
-
-    for (ScriptMapMap::const_iterator itr = sWaypointScripts.begin(); itr != sWaypointScripts.end(); ++itr)
-        actionSet.insert(itr->first);
-
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_ACTION);
-    PreparedQueryResult result = WorldDatabase.Query(stmt);
-
-    if (result)
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-            uint32 action = fields[0].GetUInt32();
-
-            actionSet.erase(action);
-        }
-        while (result->NextRow());
-    }
-
-    for (std::set<uint32>::iterator itr = actionSet.begin(); itr != actionSet.end(); ++itr)
-        TC_LOG_ERROR("sql.sql", "There is no waypoint which links to the waypoint script {}", *itr);
-}
-
 void ObjectMgr::LoadSpellScriptNames()
 {
     uint32 oldMSTime = getMSTime();
@@ -7937,6 +7905,23 @@ int32 ObjectMgr::GetFishingBaseSkillLevel(AreaTableEntry const* areaEntry) const
     TC_LOG_ERROR("sql.sql", "Fishable areaId {} is not properly defined in `skill_fishing_base_level`.", areaEntry->ID);
 
     return 0;
+}
+
+SkillTiersEntry const* ObjectMgr::GetSkillTier(uint32 skillTierId) const
+{
+    auto itr = _skillTiers.find(skillTierId);
+    return itr != _skillTiers.end() ? &itr->second : nullptr;
+}
+
+uint32 SkillTiersEntry::GetValueForTierIndex(uint32 tierIndex) const
+{
+    if (tierIndex >= MAX_SKILL_STEP)
+        tierIndex = MAX_SKILL_STEP - 1;
+
+    while (Value[tierIndex] == 0 && tierIndex > 0)
+        --tierIndex;
+
+    return Value[tierIndex];
 }
 
 void ObjectMgr::LoadPetNames()

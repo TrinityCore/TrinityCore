@@ -40,7 +40,7 @@ struct boss_kazzara_the_hellforged : public BossAI
 
     void JustAppeared() override
     {
-        if (!instance->GetData(DATA_KAZZARA_INTRO_DONE))
+        if (instance->GetData(DATA_KAZZARA_INTRO_STATE) != DONE)
         {
             me->SetUninteractible(true);
             me->SetImmuneToAll(true);

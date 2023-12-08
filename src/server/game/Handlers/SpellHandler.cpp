@@ -36,6 +36,7 @@
 #include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
+#include "SpellCastRequest.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "TemporarySummon.h"
@@ -44,96 +45,22 @@
 
 void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
 {
-    Player* user = _player;
-
     // ignore for remote control state
-    if (user->GetUnitBeingMoved() != user)
+    if (_player->GetUnitBeingMoved() != _player)
         return;
 
-    Item* item = user->GetUseableItemByPos(packet.PackSlot, packet.Slot);
-    if (!item)
+    // Skip casting invalid spells right away
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(packet.Cast.SpellID, _player->GetMap()->GetDifficultyID());
+    if (!spellInfo)
     {
-        user->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
-        return;
-    }
-
-    if (item->GetGUID() != packet.CastItem)
-    {
-        user->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
+        TC_LOG_ERROR("network", "WorldSession::HandleUseItemOpcode: attempted to cast a non-existing spell (Id: {})", packet.Cast.SpellID);
         return;
     }
 
-    ItemTemplate const* proto = item->GetTemplate();
-    if (!proto)
-    {
-        user->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, nullptr);
-        return;
-    }
-
-    // some item classes can be used only in equipped state
-    if (proto->GetInventoryType() != INVTYPE_NON_EQUIP && !item->IsEquipped())
-    {
-        user->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, nullptr);
-        return;
-    }
-
-    InventoryResult msg = user->CanUseItem(item);
-    if (msg != EQUIP_ERR_OK)
-    {
-        user->SendEquipError(msg, item, nullptr);
-        return;
-    }
-
-    // only allow conjured consumable, bandage, poisons (all should have the 2^21 item flag set in DB)
-    if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && !proto->HasFlag(ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS) && user->InArena())
-    {
-        user->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, item, nullptr);
-        return;
-    }
-
-    // don't allow items banned in arena
-    if (proto->HasFlag(ITEM_FLAG_NOT_USEABLE_IN_ARENA) && user->InArena())
-    {
-        user->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, item, nullptr);
-        return;
-    }
-
-    if (user->IsInCombat())
-    {
-        for (ItemEffectEntry const* effect : item->GetEffects())
-        {
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effect->SpellID, user->GetMap()->GetDifficultyID()))
-            {
-                if (!spellInfo->CanBeUsedInCombat(user))
-                {
-                    user->SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, item, nullptr);
-                    return;
-                }
-            }
-        }
-    }
-
-    // check also  BIND_ON_ACQUIRE and BIND_QUEST for .additem or .additemset case by GM (not binded at adding to inventory)
-    if (item->GetBonding() == BIND_ON_USE || item->GetBonding() == BIND_ON_ACQUIRE || item->GetBonding() == BIND_QUEST)
-    {
-        if (!item->IsSoulBound())
-        {
-            item->SetState(ITEM_CHANGED, user);
-            item->SetBinding(true);
-            GetCollectionMgr()->AddItemAppearance(item);
-        }
-    }
-
-    user->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ItemUse);
-
-    SpellCastTargets targets(user, packet.Cast);
-
-    // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
-    if (!sScriptMgr->OnItemUse(user, item, targets, packet.Cast.CastID))
-    {
-        // no script or script not process request by self
-        user->CastItemUseSpell(item, targets, packet.Cast.CastID, packet.Cast.Misc);
-    }
+    if (_player->CanRequestSpellCast(spellInfo, _player))
+        _player->RequestSpellCast(std::make_unique<SpellCastRequest>(std::move(packet.Cast), _player->GetGUID(), SpellCastRequestItemData(packet.PackSlot, packet.Slot, packet.CastItem)));
+    else
+        Spell::SendCastResult(_player, spellInfo, {}, packet.Cast.CastID, SPELL_FAILED_SPELL_IN_PROGRESS);
 }
 
 void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
@@ -299,103 +226,46 @@ void WorldSession::HandleGameobjectReportUse(WorldPackets::GameObject::GameObjRe
 
 void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 {
+    // Skip casting invalid spells right away
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cast.Cast.SpellID, _player->GetMap()->GetDifficultyID());
+    if (!spellInfo)
+    {
+        TC_LOG_ERROR("network", "WorldSession::HandleCastSpellOpcode: attempted to cast a non-existing spell (Id: {})", cast.Cast.SpellID);
+        return;
+    }
+
     // ignore for remote control state (for player case)
     Unit* mover = _player->GetUnitBeingMoved();
     if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
         return;
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cast.Cast.SpellID, mover->GetMap()->GetDifficultyID());
-    if (!spellInfo)
-    {
-        TC_LOG_ERROR("network", "WORLD: unknown spell id {}", cast.Cast.SpellID);
-        return;
-    }
-
-    Unit* caster = mover;
-    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(spellInfo->Id))
+    Unit* castingUnit = mover;
+    if (castingUnit->IsCreature() && !castingUnit->ToCreature()->HasSpell(spellInfo->Id))
     {
         // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
         // change caster to player and let him cast
-        if (!_player->IsOnVehicle(caster) || spellInfo->CheckVehicle(_player) != SPELL_CAST_OK)
+        if (!_player->IsOnVehicle(castingUnit) || spellInfo->CheckVehicle(_player) != SPELL_CAST_OK)
             return;
 
-        caster = _player;
+        castingUnit = _player;
     }
 
-    TriggerCastFlags triggerFlag = TRIGGERED_NONE;
-
-    // client provided targets
-    SpellCastTargets targets(caster, cast.Cast);
-
-    // check known spell or raid marker spell (which not requires player to know it)
-    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasAttribute(SPELL_ATTR8_SKIP_IS_KNOWN_CHECK))
-    {
-        bool allow = false;
-
-        // allow casting of unknown spells for special lock cases
-        if (GameObject* go = targets.GetGOTarget())
-            if (go->GetSpellForLock(caster->ToPlayer()) == spellInfo)
-                allow = true;
-
-        // allow casting of spells triggered by clientside periodic trigger auras
-        if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellInfo->Id))
-        {
-            allow = true;
-            triggerFlag = TRIGGERED_FULL_MASK;
-        }
-
-        if (!allow)
-            return;
-    }
-
-    // Check possible spell cast overrides
-    spellInfo = caster->GetCastSpellInfo(spellInfo, triggerFlag);
-
-    if (spellInfo->IsPassive())
-        return;
-
-    // can't use our own spells when we're in possession of another unit,
-    if (_player->isPossessing())
-        return;
-
-    // Client is resending autoshot cast opcode when other spell is cast during shoot rotation
-    // Skip it to prevent "interrupt" message
-    // Also check targets! target may have changed and we need to interrupt current spell
-    if (spellInfo->IsAutoRepeatRangedSpell())
-        if (Spell* spell = caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
-            if (spell->m_spellInfo == spellInfo && spell->m_targets.GetUnitTargetGUID() == targets.GetUnitTargetGUID())
-                return;
-
-    // auto-selection buff level base at target level (in spellInfo)
-    if (targets.GetUnitTarget())
-    {
-        SpellInfo const* actualSpellInfo = spellInfo->GetAuraRankForLevel(targets.GetUnitTarget()->GetLevelForTarget(caster));
-
-        // if rank not found then function return NULL but in explicit cast case original spell can be cast and later failed with appropriate error message
-        if (actualSpellInfo)
-            spellInfo = actualSpellInfo;
-    }
-
-    if (cast.Cast.MoveUpdate)
+    if (cast.Cast.MoveUpdate.has_value())
         HandleMovementOpcode(CMSG_MOVE_STOP, *cast.Cast.MoveUpdate);
 
-    Spell* spell = new Spell(caster, spellInfo, triggerFlag);
-
-    WorldPackets::Spells::SpellPrepare spellPrepare;
-    spellPrepare.ClientCastID = cast.Cast.CastID;
-    spellPrepare.ServerCastID = spell->m_castId;
-    SendPacket(spellPrepare.Write());
-
-    spell->m_fromClient = true;
-    spell->m_misc.Raw.Data[0] = cast.Cast.Misc[0];
-    spell->m_misc.Raw.Data[1] = cast.Cast.Misc[1];
-    spell->prepare(targets);
+    if (_player->CanRequestSpellCast(spellInfo, castingUnit))
+        _player->RequestSpellCast(std::make_unique<SpellCastRequest>(std::move(cast.Cast), castingUnit->GetGUID()));
+    else
+        Spell::SendCastResult(_player, spellInfo, {}, cast.Cast.CastID, SPELL_FAILED_SPELL_IN_PROGRESS);
 }
 
 void WorldSession::HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& packet)
 {
     if (_player->IsNonMeleeSpellCast(false))
+    {
         _player->InterruptNonMeleeSpells(false, packet.SpellID, false);
+        _player->CancelPendingCastRequest(); // canceling casts also cancels pending spell cast requests
+    }
 }
 
 void WorldSession::HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& cancelAura)
@@ -493,6 +363,11 @@ void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::Cance
     // may be better send SMSG_CANCEL_AUTO_REPEAT?
     // cancel and prepare for deleting
     _player->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+}
+
+void WorldSession::HandleCancelQueuedSpellOpcode(WorldPackets::Spells::CancelQueuedSpell& /*cancelQueuedSpell*/)
+{
+    _player->CancelPendingCastRequest();
 }
 
 void WorldSession::HandleCancelChanneling(WorldPackets::Spells::CancelChannelling& cancelChanneling)

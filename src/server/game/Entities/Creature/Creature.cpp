@@ -1439,7 +1439,7 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
     CreatureTemplate const* cinfo = GetCreatureTemplate();
     if (cinfo)
     {
-        for (CreatureModel model : cinfo->Models)
+        for (CreatureModel const& model : cinfo->Models)
             if (displayId && displayId == model.CreatureDisplayID)
                 displayId = 0;
 
@@ -1460,7 +1460,10 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
         data.spawnId = m_spawnId;
     ASSERT(data.spawnId == m_spawnId);
     data.id = GetEntry();
-    data.displayid = displayId;
+    if (displayId)
+        data.display.emplace(displayId, DEFAULT_PLAYER_DISPLAY_SCALE, 1.0f);
+    else
+        data.display.reset();
     data.equipmentId = GetCurrentEquipmentId();
     if (!GetTransport())
     {

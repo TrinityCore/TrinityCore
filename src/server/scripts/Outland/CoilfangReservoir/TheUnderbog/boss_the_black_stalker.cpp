@@ -35,7 +35,7 @@ like lack of delays between packets makes it work differently too.
 Of course as was said above player can be pulled towards 2 times in a row but that looks like a rare case.
 */
 
-enum Spells
+enum BlackStalkerSpells
 {
     SPELL_LEVITATE                      = 31704,
     SPELL_CHAIN_LIGHTNING               = 31717,
@@ -52,13 +52,18 @@ enum Spells
     SPELL_SUMMON_SPORE_STRIDER          = 38755
 };
 
-enum Events
+enum BlackStalkerEvents
 {
     EVENT_LEASH_CHECK                   = 1,
     EVENT_LEVITATE,
     EVENT_CHAIN_LIGHTNING,
     EVENT_STATIC_CHARGE,
     EVENT_SUMMON_SPORE_STRIDER
+};
+
+enum BlackStalkerPaths
+{
+    PATH_BLACK_STALKER_IDLE             = 4346960,
 };
 
 struct boss_the_black_stalker : public BossAI
@@ -68,6 +73,8 @@ struct boss_the_black_stalker : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+        scheduler.CancelAll();
+
         _events.ScheduleEvent(EVENT_LEASH_CHECK, 5s);
         _events.ScheduleEvent(EVENT_LEVITATE, 8s, 18s);
         _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 0s, 3s);
@@ -128,6 +135,20 @@ struct boss_the_black_stalker : public BossAI
         }
 
         DoMeleeAttackIfReady();
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId != PATH_BLACK_STALKER_IDLE)
+            return;
+
+        if (waypointId == 2 || waypointId == 4 || waypointId == 6)
+        {
+            scheduler.Schedule(2s, [this](TaskContext /*task*/)
+            {
+                me->HandleEmoteCommand(EMOTE_ONESHOT_EAT);
+            });
+        }
     }
 
 private:
