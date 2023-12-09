@@ -1,5 +1,4 @@
 -- Combat quest and Northbound
-
 DELETE FROM `creature_queststarter` WHERE `id`=156651 AND `quest` IN (59254,59339);
 DELETE FROM `creature_queststarter` WHERE `id`=175031 AND `quest` = 55173;
 DELETE FROM `creature_queststarter` WHERE `id`=166906 AND `quest` IN (59933,59934);
@@ -22,7 +21,7 @@ INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
 (154327, 55173, 45745), -- Northbound Alliance turn in to Austin Huxworth
 (166906, 59933, 45745), -- Enhanced Combat Tactics Horde turn in to Warlord Breka Grimaxe
 (166906, 59934, 45745), -- Enhanced Combat Tactics Horde Monk turn in to Warlord Breka Grimaxe
-(166996, 59935, 45745), -- Northbound Horde turn in to Mithdran Dawntracker
+(166996, 59935, 45745); -- Northbound Horde turn in to Mithdran Dawntracker
 
 DELETE FROM `quest_template_addon` WHERE `ID` IN (59254,59339,59933,59934);
 INSERT INTO `quest_template_addon` (`ID`,`AllowableClasses`,`PrevQuestID`,`NextQuestID`,`ScriptName`) VALUES
