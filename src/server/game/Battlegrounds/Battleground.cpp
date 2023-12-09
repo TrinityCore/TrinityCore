@@ -1289,20 +1289,20 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchSta
     pvpLogData.Statistics.reserve(GetPlayerScoresSize());
     for (auto const& score : PlayerScores)
     {
-        WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics playerData;
-        score.second->BuildPvPLogPlayerDataPacket(playerData);
-
-        if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerData.PlayerGUID))
+        if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), score.first))
         {
+            WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics playerData;
+            score.second->BuildPvPLogPlayerDataPacket(playerData);
+
             playerData.IsInWorld = true;
             playerData.PrimaryTalentTree = AsUnderlyingType(player->GetPrimarySpecialization());
             playerData.Sex = player->GetGender();
             playerData.Race = player->GetRace();
             playerData.Class = player->GetClass();
             playerData.HonorLevel = player->GetHonorLevel();
-        }
 
-        pvpLogData.Statistics.push_back(playerData);
+            pvpLogData.Statistics.push_back(playerData);
+        }
     }
 
     pvpLogData.PlayerCount[PVP_TEAM_HORDE] = int8(GetPlayersCountByTeam(HORDE));
