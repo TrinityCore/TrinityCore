@@ -4218,19 +4218,6 @@ struct PvpItemLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 3, &PVPItemMeta::Instance, HOTFIX_SEL_PVP_ITEM };
 };
 
-struct PvpScoreboardLayoutLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[4] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "PVPStatID" },
-        { true, FT_INT, "PVPScoreboardColumnHeaderID" },
-        { true, FT_INT, "OrderIndex" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 4, &PVPScoreboardLayoutMeta::Instance, HOTFIX_SEL_PVP_SCOREBOARD_LAYOUT };
-};
-
 struct PvpStatLoadInfo
 {
     static constexpr DB2FieldMeta Fields[3] =
