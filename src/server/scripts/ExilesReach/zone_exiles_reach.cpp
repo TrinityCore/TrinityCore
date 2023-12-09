@@ -2247,13 +2247,9 @@ enum EnhancedCombatTrainer
 {
     ACTOR_ID_ALLIANCE_ENHANCED_TRAINING = 74771,
     ACTOR_ID_HORDE_ENHANCED_TRAINING = 76285,
-
     CARGE_CATAGORY_ID_CHARGE_SPELL = 1386,
-
     CONVERSATION_PREFIGHT_WALK_ENHANCED = 13710, // Walk out
     CONVERSATION_USE_SPELLS_AT_RANGE = 13630,
-
-
     CONVERSATION_SHADOW_WORD_PAIN_PRIEST = 13892,
     CONVERSATION_READY_COMBAT = 14440,
     //Warrior
@@ -2283,7 +2279,6 @@ enum EnhancedCombatTrainer
     CONVERSATION_SINISTER_STRIKE_THREE_ROGUE = 14493,
     CONVERSATION_FIVE_COMBO_POINTS_ROGUE = 14494,
     CONVERSATION_FAILED_EVISCERATE_ROGUE = 14495,
-
     // All classes
     EVENT_COMBAT_TRAINING_WALK_AND_TALK = 1,
     EVENT_COMBAT_TRAINING_FACE_PLAYER = 2,
@@ -2299,24 +2294,18 @@ enum EnhancedCombatTrainer
     EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE = 9,
     // Priest Class
     EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST = 10,
-
     NPC_ALLIANCE_SPARING_PARTNER_ENHANCED = 164577,
     NPC_HORDE_SPARING_PARTNER_ENHANCED = 166916,
     NPC_INVISBUNNY_CAMP = 167761,
-
     PATH_COMBAT_TRAINER_HOME = 10512100,
-
     POSITION_WALK_POINT_ENHANCED_TRAINING = 1,
     POSITION_RUN_POINT_ENHANCED_TRAINING = 2,
     POSITION_TRAINING_POINT_ENHANCED_TRAINING = 3,
-
     QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE = 59254,
     QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE_MONK = 59339,
     QUEST_ENHANCED_COMBAT_TACTICS_HORDE = 59933,
     QUEST_ENHANCED_COMBAT_TACTICS_HORDE_MONK = 59934,
-
     SPELL_DRINK_HEALING_POTION = 320229,
-
     SPELL_CHARGE = 100,
     SPELL_SLAM = 1464,
     SPELL_CHARGE_KNOCKBACK_WARRIOR = 320583,
@@ -2943,7 +2932,6 @@ void AddSC_zone_exiles_reach()
     new quest_brace_for_impact();
     new player_exiles_reach_ship_crash();
     new scene_alliance_and_horde_ship();
-
     // Beach
     RegisterSpellScript(spell_knocked_down_exiles_reach_beach);
     new scene_alliance_and_horde_crash();
@@ -2973,7 +2961,6 @@ void AddSC_zone_exiles_reach()
     new quest_finding_the_lost_expedition_alliance();
     new quest_finding_the_lost_expedition_horde();
     RegisterSpellScript(spell_summon_survivor_beach);
-
     // Abandoned Camp
     new GenericCreatureScript<npc_captain_abandoned_camp_exiles_reach<QUEST_COOKING_MEAT_ALLIANCE, CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE>>("npc_captain_garrick_abandoned_camp");
     new GenericCreatureScript<npc_captain_abandoned_camp_exiles_reach<QUEST_COOKING_MEAT_HORDE, CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE>>("npc_warlord_grimaxe_abandoned_camp");
