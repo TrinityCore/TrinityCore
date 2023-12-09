@@ -1274,11 +1274,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_PVP_ITEM, "SELECT ID, ItemID, ItemLevelDelta FROM pvp_item WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PVP_ITEM, "SELECT MAX(ID) + 1 FROM pvp_item", CONNECTION_SYNCH);
 
-    // PvpScoreboardLayout.db2
-    PrepareStatement(HOTFIX_SEL_PVP_SCOREBOARD_LAYOUT, "SELECT ID, PVPStatID, PVPScoreboardColumnHeaderID, OrderIndex FROM pvp_scoreboard_layout"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PVP_SCOREBOARD_LAYOUT, "SELECT MAX(ID) + 1 FROM pvp_scoreboard_layout", CONNECTION_SYNCH);
-
     // PvpStat.db2
     PrepareStatement(HOTFIX_SEL_PVP_STAT, "SELECT Description, ID, MapID FROM pvp_stat WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PVP_STAT, "SELECT MAX(ID) + 1 FROM pvp_stat", CONNECTION_SYNCH);
