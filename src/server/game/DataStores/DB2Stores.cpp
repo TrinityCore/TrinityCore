@@ -1626,9 +1626,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             sOldContinentsNodesMask[field] |= submask;
     }
 
-    for (PVPScoreboardLayoutEntry const* layout : sPVPScoreboardLayoutStore)
-        if (PVPStatEntry const* pvpStat = sPVPStatStore.LookupEntry(layout->PVPStatID))
-            _pvpStatIdsByMap[pvpStat->MapID].insert(layout->PVPStatID);
+    for (PVPStatEntry const* pvpStat : sPVPStatStore)
+        _pvpStatIdsByMap[pvpStat->MapID].insert(pvpStat->ID);
 
     TC_LOG_INFO("server.loading", ">> Initialized {} DB2 data stores in {} ms", _stores.size(), GetMSTimeDiffToNow(oldMSTime));
 
