@@ -1419,7 +1419,7 @@ struct npc_alliance_survivors_beach_laying : public ScriptedAI
         {
             player->KilledMonsterCredit(me->GetEntry());
             Conversation::CreateConversation(ConversationId, player, *player, player->GetGUID(), nullptr);
-            player->UpdateVisibilityForPlayer(); // Needed to make survivor stand
+            player->UpdateVisibilityForPlayer(); // Needed to make survivor stand instantly
         }
     }
 };
