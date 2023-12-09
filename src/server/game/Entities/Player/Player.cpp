@@ -8294,7 +8294,10 @@ void Player::UpdateWeaponDependentCritAuras(WeaponAttackType attackType)
     }
 
     float amount = 0.0f;
-    amount += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT, std::bind(&Unit::CheckAttackFitToAuraRequirement, this, attackType, std::placeholders::_1));
+    amount += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT, [this, attackType](AuraEffect const* aurEff)
+    {
+        return CheckAttackFitToAuraRequirement(attackType, aurEff);
+    });
 
     // these auras don't have item requirement (only Combat Expertise in 3.3.5a)
     amount += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);

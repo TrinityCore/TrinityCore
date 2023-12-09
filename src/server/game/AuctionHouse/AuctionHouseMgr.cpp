@@ -1917,7 +1917,8 @@ void AuctionHouseObject::SendAuctionInvoice(AuctionPosting const* auction, Playe
     {
         WowTime eta = *GameTime::GetUtcWowTime();
         eta += Seconds(sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
-        eta += owner->GetSession()->GetTimezoneOffset();
+        if (owner)
+            eta += owner->GetSession()->GetTimezoneOffset();
 
         MailDraft(AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType::Invoice, auction),
             AuctionHouseMgr::BuildAuctionInvoiceMailBody(auction->Bidder, auction->BidAmount, auction->BuyoutOrUnitPrice, auction->Deposit,

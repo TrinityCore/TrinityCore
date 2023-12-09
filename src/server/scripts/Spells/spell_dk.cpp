@@ -21,6 +21,8 @@
  * Scriptnames of files in this file should be prefixed with "spell_dk_".
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "ObjectMgr.h"
@@ -40,6 +42,7 @@ enum DeathKnightSpells
     SPELL_DK_ARMY_SKELETON_TRANSFORM            = 127527,
     SPELL_DK_ARMY_SPIKED_GHOUL_TRANSFORM        = 127525,
     SPELL_DK_ARMY_SUPER_ZOMBIE_TRANSFORM        = 127526,
+    SPELL_DK_BLINDING_SLEET_SLOW                = 317898,
     SPELL_DK_BLOOD                              = 137008,
     SPELL_DK_BLOOD_PLAGUE                       = 55078,
     SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535,
@@ -74,8 +77,10 @@ enum DeathKnightSpells
     SPELL_DK_SLUDGE_BELCHER_SUMMON              = 212027,
     SPELL_DK_DEATH_STRIKE_ENABLER               = 89832, // Server Side
     SPELL_DK_TIGHTENING_GRASP                   = 206970,
-    SPELL_DK_TIGHTENING_GRASP_SLOW              = 143375,
+    //SPELL_DK_TIGHTENING_GRASP_SLOW              = 143375, // dropped in BfA
     SPELL_DK_UNHOLY                             = 137007,
+    SPELL_DK_UNHOLY_GROUND_HASTE                = 374271,
+    SPELL_DK_UNHOLY_GROUND_TALENT               = 374265,
     SPELL_DK_UNHOLY_VIGOR                       = 196263,
     SPELL_DK_VOLATILE_SHIELDING                 = 207188,
     SPELL_DK_VOLATILE_SHIELDING_DAMAGE          = 207194
@@ -226,6 +231,26 @@ class spell_dk_army_transform : public SpellScript
     }
 };
 
+// 207167 - Blinding Sleet
+class spell_dk_blinding_sleet : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_BLINDING_SLEET_SLOW });
+    }
+
+    void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+            GetTarget()->CastSpell(GetTarget(), SPELL_DK_BLINDING_SLEET_SLOW, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dk_blinding_sleet::HandleOnRemove, EFFECT_0, SPELL_AURA_MOD_CONFUSE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 50842 - Blood Boil
 class spell_dk_blood_boil : public SpellScript
 {
@@ -298,41 +323,20 @@ class spell_dk_dancing_rune_weapon : public AuraScript
     }
 };
 
-// 43265 - Death and Decay
-class spell_dk_death_and_decay : public SpellScript
+// 43265 - Death and Decay (Aura)
+class spell_dk_death_and_decay : public AuraScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    void HandleDummyTick(AuraEffect const* aurEff)
     {
-        return ValidateSpellInfo({ SPELL_DK_TIGHTENING_GRASP, SPELL_DK_TIGHTENING_GRASP_SLOW });
-    }
-
-    void HandleDummy()
-    {
-        if (GetCaster()->HasAura(SPELL_DK_TIGHTENING_GRASP))
-            if (WorldLocation const* pos = GetExplTargetDest())
-                GetCaster()->CastSpell(*pos, SPELL_DK_TIGHTENING_GRASP_SLOW, true);
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_DK_DEATH_AND_DECAY_DAMAGE, aurEff);
     }
 
     void Register() override
     {
-        OnCast += SpellCastFn(spell_dk_death_and_decay::HandleDummy);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_death_and_decay::HandleDummyTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
-
-// 43265 - Death and Decay (Aura)
-class spell_dk_death_and_decay_AuraScript : public AuraScript
-    {
-        void HandleDummyTick(AuraEffect const* aurEff)
-        {
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(GetTarget(), SPELL_DK_DEATH_AND_DECAY_DAMAGE, aurEff);
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_death_and_decay_AuraScript::HandleDummyTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
 
 // 47541 - Death Coil
 class spell_dk_death_coil : public SpellScript
@@ -894,14 +898,38 @@ class spell_dk_vampiric_blood : public AuraScript
     }
 };
 
+// 43265 - Death and Decay
+struct at_dk_death_and_decay : AreaTriggerAI
+{
+    at_dk_death_and_decay(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster == unit)
+            {
+                if (caster->HasAura(SPELL_DK_UNHOLY_GROUND_TALENT))
+                    caster->CastSpell(caster, SPELL_DK_UNHOLY_GROUND_HASTE);
+            }
+        }
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        unit->RemoveAurasDueToSpell(SPELL_DK_UNHOLY_GROUND_HASTE);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterSpellScript(spell_dk_advantage_t10_4p);
     RegisterSpellScript(spell_dk_anti_magic_shell);
     RegisterSpellScript(spell_dk_army_transform);
+    RegisterSpellScript(spell_dk_blinding_sleet);
     RegisterSpellScript(spell_dk_blood_boil);
     RegisterSpellScript(spell_dk_dancing_rune_weapon);
-    RegisterSpellAndAuraScriptPair(spell_dk_death_and_decay, spell_dk_death_and_decay_AuraScript);
+    RegisterSpellScript(spell_dk_death_and_decay);
     RegisterSpellScript(spell_dk_death_coil);
     RegisterSpellScript(spell_dk_death_gate);
     RegisterSpellScript(spell_dk_death_grip_initial);
@@ -922,4 +950,6 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_rime);
     RegisterSpellScript(spell_dk_t20_2p_rune_empowered);
     RegisterSpellScript(spell_dk_vampiric_blood);
+
+    RegisterAreaTriggerAI(at_dk_death_and_decay);
 }
