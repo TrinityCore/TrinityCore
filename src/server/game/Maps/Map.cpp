@@ -548,6 +548,9 @@ bool Map::AddToMap(T* obj)
         return false; //Should delete object
     }
 
+    if (IsAlwaysActive())
+        obj->setActive(true);
+
     Cell cell(cellCoord);
     if (obj->isActiveObject())
         EnsureGridLoadedForActiveObject(cell, obj);
@@ -2859,7 +2862,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     player->AddInstanceEnterTime(GetInstanceId(), GameTime::GetGameTime());
 
     MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
-    if (entries.MapDifficulty->HasResetSchedule() && i_instanceLock && !i_instanceLock->IsNew())
+    if (entries.MapDifficulty->HasResetSchedule() && i_instanceLock && !i_instanceLock->IsNew() && i_data)
     {
         if (!entries.MapDifficulty->IsUsingEncounterLocks())
         {
@@ -2992,7 +2995,7 @@ InstanceResetResult InstanceMap::Reset(InstanceResetMethod method)
         {
             case InstanceResetMethod::Manual:
                 // notify the players to leave the instance so it can be reset
-                for (MapReference& ref : m_mapRefManager)
+                for (MapReference const& ref : m_mapRefManager)
                     ref.GetSource()->SendResetFailedNotify(GetId());
                 break;
             case InstanceResetMethod::OnChangeDifficulty:
@@ -3006,20 +3009,25 @@ InstanceResetResult InstanceMap::Reset(InstanceResetMethod method)
                 raidInstanceMessage.DifficultyID = GetDifficultyID();
                 raidInstanceMessage.Write();
 
-                WorldPackets::Instance::PendingRaidLock pendingRaidLock;
-                pendingRaidLock.TimeUntilLock = 60000;
-                pendingRaidLock.CompletedMask = i_instanceLock->GetData()->CompletedEncountersMask;
-                pendingRaidLock.Extending = true;
-                pendingRaidLock.WarningOnly = GetEntry()->IsFlexLocking();
-                pendingRaidLock.Write();
-
-                for (MapReference& ref : m_mapRefManager)
-                {
+                for (MapReference const& ref : m_mapRefManager)
                     ref.GetSource()->SendDirectMessage(raidInstanceMessage.GetRawPacket());
-                    ref.GetSource()->SendDirectMessage(pendingRaidLock.GetRawPacket());
 
-                    if (!pendingRaidLock.WarningOnly)
-                        ref.GetSource()->SetPendingBind(GetInstanceId(), 60000);
+                if (i_data)
+                {
+                    WorldPackets::Instance::PendingRaidLock pendingRaidLock;
+                    pendingRaidLock.TimeUntilLock = 60000;
+                    pendingRaidLock.CompletedMask = i_instanceLock->GetData()->CompletedEncountersMask;
+                    pendingRaidLock.Extending = true;
+                    pendingRaidLock.WarningOnly = GetEntry()->IsFlexLocking();
+                    pendingRaidLock.Write();
+
+                    for (MapReference const& ref : m_mapRefManager)
+                    {
+                        ref.GetSource()->SendDirectMessage(pendingRaidLock.GetRawPacket());
+
+                        if (!pendingRaidLock.WarningOnly)
+                            ref.GetSource()->SetPendingBind(GetInstanceId(), 60000);
+                    }
                 }
                 break;
             }
@@ -3293,6 +3301,11 @@ bool Map::IsScenario() const
 bool Map::IsGarrison() const
 {
     return i_mapEntry && i_mapEntry->IsGarrison();
+}
+
+bool Map::IsAlwaysActive() const
+{
+    return IsBattlegroundOrArena();
 }
 
 bool Map::GetEntrancePos(int32 &mapid, float &x, float &y)

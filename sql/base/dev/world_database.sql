@@ -1616,7 +1616,7 @@ CREATE TABLE `gameobject` (
   `animprogress` tinyint unsigned NOT NULL DEFAULT '0',
   `state` tinyint unsigned NOT NULL DEFAULT '0',
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `StringId` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `StringId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Gameobject System';
@@ -1780,7 +1780,7 @@ CREATE TABLE `gameobject_template` (
   `ContentTuningId` int NOT NULL DEFAULT '0',
   `AIName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `StringId` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `StringId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`),
   KEY `idx_name` (`name`)
@@ -4027,6 +4027,7 @@ CREATE TABLE `smart_scripts` (
   `source_type` tinyint unsigned NOT NULL DEFAULT '0',
   `id` smallint unsigned NOT NULL DEFAULT '0',
   `link` smallint unsigned NOT NULL DEFAULT '0',
+  `Difficulties` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `event_type` tinyint unsigned NOT NULL DEFAULT '0',
   `event_phase_mask` smallint unsigned NOT NULL DEFAULT '0',
   `event_chance` tinyint unsigned NOT NULL DEFAULT '100',
@@ -4869,4 +4870,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-10-06  0:40:52
+-- Dump completed on 2023-11-15  0:53:53

@@ -205,7 +205,10 @@ struct npc_guard_shattrath_faction : public GuardAI
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, std::bind(&GuardAI::DoMeleeAttackIfReady, this));
+        _scheduler.Update(diff, [this]
+        {
+            DoMeleeAttackIfReady();
+        });
     }
 
     void ScheduleVanish()

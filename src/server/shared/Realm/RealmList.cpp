@@ -53,7 +53,7 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
 
     LoadBuildInfo();
     // Get the content of the realmlist table in the database
-    UpdateRealms(boost::system::error_code());
+    UpdateRealms();
 }
 
 void RealmList::Close()
@@ -113,11 +113,8 @@ void RealmList::UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint
     realm.Port = port;
 }
 
-void RealmList::UpdateRealms(boost::system::error_code const& error)
+void RealmList::UpdateRealms()
 {
-    if (error)
-        return;
-
     TC_LOG_DEBUG("realmlist", "Updating Realm List...");
 
     LoginDatabasePreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
@@ -207,7 +204,13 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     if (_updateInterval)
     {
         _updateTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
-        _updateTimer->async_wait(std::bind(&RealmList::UpdateRealms, this, std::placeholders::_1));
+        _updateTimer->async_wait([this](boost::system::error_code const& error)
+        {
+            if (error)
+                return;
+
+            UpdateRealms();
+        });
     }
 }
 
@@ -369,7 +372,7 @@ std::vector<uint8> RealmList::GetRealmList(uint32 build, std::string const& subR
 }
 
 uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, boost::asio::ip::address const& clientAddress, std::array<uint8, 32> const& clientSecret,
-    LocaleConstant locale, std::string const& os, std::string accountName, bgs::protocol::game_utilities::v1::ClientResponse* response) const
+    LocaleConstant locale, std::string const& os, Minutes timezoneOffset, std::string const& accountName, bgs::protocol::game_utilities::v1::ClientResponse* response) const
 {
     std::shared_lock<std::shared_mutex> lock(_realmsMutex);
     if (Realm const* realm = GetRealm(Battlenet::RealmHandle(realmAddress)))
@@ -400,15 +403,17 @@ uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, boost::asio::ip::
         std::array<uint8, 32> serverSecret = Trinity::Crypto::GetRandomBytes<32>();
 
         std::array<uint8, 64> keyData;
-        memcpy(&keyData[0], clientSecret.data(), 32);
-        memcpy(&keyData[32], serverSecret.data(), 32);
+        auto keyDestItr = keyData.begin();
+        keyDestItr = std::copy(clientSecret.begin(), clientSecret.end(), keyDestItr);
+        keyDestItr = std::copy(serverSecret.begin(), serverSecret.end(), keyDestItr);
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LOGIN_INFO);
         stmt->setBinary(0, keyData);
         stmt->setString(1, clientAddress.to_string());
         stmt->setUInt8(2, locale);
         stmt->setString(3, os);
-        stmt->setString(4, accountName);
+        stmt->setInt16(4, timezoneOffset.count());
+        stmt->setString(5, accountName);
         LoginDatabase.DirectExecute(stmt);
 
         bgs::protocol::Attribute* attribute = response->add_attribute();

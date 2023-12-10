@@ -714,6 +714,7 @@ namespace WorldPackets
         class CancelGrowthAura;
         class CancelMountAura;
         class CancelModSpeedNoControlAuras;
+        class CancelQueuedSpell;
         class PetCancelAura;
         class CancelCast;
         class CastSpell;
@@ -960,7 +961,7 @@ class TC_GAME_API WorldSession
 {
     public:
         WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time,
-            std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+            std::string os, Minutes timezoneOffset, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
@@ -1143,6 +1144,9 @@ class TC_GAME_API WorldSession
         // Locales
         LocaleConstant GetSessionDbcLocale() const { return m_sessionDbcLocale; }
         LocaleConstant GetSessionDbLocaleIndex() const { return m_sessionDbLocaleIndex; }
+
+        Minutes GetTimezoneOffset() const { return _timezoneOffset; }
+
         char const* GetTrinityString(uint32 entry) const;
 
         uint32 GetLatency() const { return m_latency; }
@@ -1509,6 +1513,7 @@ class TC_GAME_API WorldSession
         void HandleCancelMountAuraOpcode(WorldPackets::Spells::CancelMountAura& cancelMountAura);
         void HandleCancelModSpeedNoControlAuras(WorldPackets::Spells::CancelModSpeedNoControlAuras& cancelModSpeedNoControlAuras);
         void HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::CancelAutoRepeatSpell& cancelAutoRepeatSpell);
+        void HandleCancelQueuedSpellOpcode(WorldPackets::Spells::CancelQueuedSpell& cancelQueuedSpell);
         void HandleMissileTrajectoryCollision(WorldPackets::Spells::MissileTrajectoryCollision& packet);
         void HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMissileTrajectory& packet);
 
@@ -1937,6 +1942,7 @@ class TC_GAME_API WorldSession
         bool m_playerSave;
         LocaleConstant m_sessionDbcLocale;
         LocaleConstant m_sessionDbLocaleIndex;
+        Minutes _timezoneOffset;
         std::atomic<uint32> m_latency;
         AccountData _accountData[NUM_ACCOUNT_DATA_TYPES];
         uint32 _tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];

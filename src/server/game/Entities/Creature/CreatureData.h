@@ -613,7 +613,7 @@ struct EquipmentInfo
 struct CreatureData : public SpawnData
 {
     CreatureData() : SpawnData(SPAWN_TYPE_CREATURE) { }
-    uint32 displayid = 0;
+    Optional<CreatureModel> display;
     int8 equipmentId = 0;
     float wander_distance = 0.0f;
     uint32 currentwaypoint = 0;

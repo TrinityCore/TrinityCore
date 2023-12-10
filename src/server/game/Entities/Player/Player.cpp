@@ -112,6 +112,7 @@
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
+#include "SpellCastRequest.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
@@ -944,6 +945,10 @@ void Player::Update(uint32 p_time)
     Unit::Update(p_time);
     SetCanDelayTeleport(false);
 
+    // Unit::Update updates the spell history and spell states. We can now check if we can launch another pending cast.
+    if (CanExecutePendingSpellCastRequest())
+        ExecutePendingSpellCastRequest();
+
     time_t now = GameTime::GetGameTime();
 
     UpdatePvPFlag(now);
@@ -1243,6 +1248,9 @@ void Player::setDeathState(DeathState s)
             TC_LOG_ERROR("entities.player", "Player::setDeathState: Attempted to kill a dead player '{}' ({})", GetName(), GetGUID().ToString());
             return;
         }
+
+        // clear all pending spell cast requests when dying
+        CancelPendingCastRequest();
 
         // drunken state is cleared on death
         SetDrunkValue(0);
@@ -3144,7 +3152,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                         case SKILL_RANGE_RANK:
                         {
                             SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcInfo->SkillTierID);
-                            new_skill_max_value = tier->Value[spellLearnSkill->step - 1];
+                            new_skill_max_value = tier->GetValueForTierIndex(spellLearnSkill->step - 1);
                             break;
                         }
                         default:
@@ -3419,7 +3427,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
                             case SKILL_RANGE_RANK:
                             {
                                 SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcInfo->SkillTierID);
-                                new_skill_max_value = tier->Value[prevSkill->step - 1];
+                                new_skill_max_value = tier->GetValueForTierIndex(prevSkill->step - 1);
                                 break;
                             }
                             default:
@@ -5878,6 +5886,12 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
         // Activate and update skill line
         if (newVal)
         {
+            // enable parent skill line if missing
+            if (skillEntry->ParentSkillLineID && skillEntry->ParentTierIndex > 0 && GetSkillStep(skillEntry->ParentSkillLineID) < skillEntry->ParentTierIndex)
+                if (SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
+                    if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
+                        SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(GetPureSkillValue(skillEntry->ParentSkillLineID), 1), tier->GetValueForTierIndex(skillEntry->ParentTierIndex - 1));
+
             // if skill value is going down, update enchantments before setting the new value
             if (newVal < currVal)
                 UpdateSkillEnchantments(id, currVal, newVal);
@@ -6007,7 +6021,7 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
                     if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
                     {
                         uint16 skillval = GetPureSkillValue(skillEntry->ParentSkillLineID);
-                        SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(skillval, 1), tier->Value[skillEntry->ParentTierIndex - 1]);
+                        SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(skillval, 1), tier->GetValueForTierIndex(skillEntry->ParentTierIndex - 1));
                     }
                 }
             }
@@ -8280,7 +8294,10 @@ void Player::UpdateWeaponDependentCritAuras(WeaponAttackType attackType)
     }
 
     float amount = 0.0f;
-    amount += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT, std::bind(&Unit::CheckAttackFitToAuraRequirement, this, attackType, std::placeholders::_1));
+    amount += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT, [this, attackType](AuraEffect const* aurEff)
+    {
+        return CheckAttackFitToAuraRequirement(attackType, aurEff);
+    });
 
     // these auras don't have item requirement (only Combat Expertise in 3.3.5a)
     amount += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
@@ -24023,8 +24040,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
     static float const TimeSpeed = 0.01666667f;
     WorldPackets::Misc::LoginSetTimeSpeed loginSetTimeSpeed;
     loginSetTimeSpeed.NewSpeed = TimeSpeed;
-    loginSetTimeSpeed.GameTime = GameTime::GetGameTime();
-    loginSetTimeSpeed.ServerTime = GameTime::GetGameTime();
+    loginSetTimeSpeed.GameTime = *GameTime::GetWowTime();
+    loginSetTimeSpeed.ServerTime = *GameTime::GetWowTime();
     loginSetTimeSpeed.GameTimeHolidayOffset = 0; /// @todo
     loginSetTimeSpeed.ServerTimeHolidayOffset = 0; /// @todo
     SendDirectMessage(loginSetTimeSpeed.Write());
@@ -24346,7 +24363,7 @@ void Player::LearnDefaultSkill(SkillRaceClassInfoEntry const* rcInfo)
         case SKILL_RANGE_RANK:
         {
             SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcInfo->SkillTierID);
-            uint16 maxValue = tier->Value[0];
+            uint16 maxValue = tier->GetValueForTierIndex(0);
             uint16 skillValue = 1;
             if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
                 skillValue = maxValue;
@@ -26193,7 +26210,6 @@ void Player::_LoadSkills(PreparedQueryResult result)
     // SetPQuery(PLAYER_LOGIN_QUERY_LOADSKILLS,          "SELECT skill, value, max, professionSlot FROM character_skills WHERE guid = '{}'", GUID_LOPART(m_guid));
 
     Races race = Races(GetRace());
-    uint32 count = 0;
     std::unordered_map<uint32, uint32> loadedSkillValues;
     std::vector<uint16> loadedProfessionsWithoutSlot; // fixup old characters
     if (result)
@@ -26278,18 +26294,27 @@ void Player::_LoadSkills(PreparedQueryResult result)
     }
 
     // Learn skill rewarded spells after all skills have been loaded to prevent learning a skill from them before its loaded with proper value from DB
-    for (auto const& skill : loadedSkillValues)
+    for (auto const& [skillId, skillValue] : loadedSkillValues)
     {
-        LearnSkillRewardedSpells(skill.first, skill.second, race);
-        if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(skill.first))
+        LearnSkillRewardedSpells(skillId, skillValue, race);
+
+        // enable parent skill line if missing
+        SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(skillId);
+        if (skillEntry->ParentSkillLineID && skillEntry->ParentTierIndex > 0 && GetSkillStep(skillEntry->ParentSkillLineID) < skillEntry->ParentTierIndex)
+            if (SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
+                if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
+                    SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(GetPureSkillValue(skillEntry->ParentSkillLineID), 1), tier->GetValueForTierIndex(skillEntry->ParentTierIndex - 1));
+
+        if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(skillId))
         {
             for (auto childItr = childSkillLines->begin(); childItr != childSkillLines->end() && mSkillStatus.size() < PLAYER_MAX_SKILLS; ++childItr)
             {
                 if (mSkillStatus.find((*childItr)->ID) == mSkillStatus.end())
                 {
-                    SetSkillLineId(count, (*childItr)->ID);
-                    SetSkillStartingRank(count, 1);
-                    mSkillStatus.insert(SkillStatusMap::value_type((*childItr)->ID, SkillStatusData(count, SKILL_UNCHANGED)));
+                    uint32 pos = mSkillStatus.size();
+                    SetSkillLineId(pos, (*childItr)->ID);
+                    SetSkillStartingRank(pos, 1);
+                    mSkillStatus.insert(SkillStatusMap::value_type((*childItr)->ID, SkillStatusData(pos, SKILL_UNCHANGED)));
                 }
             }
         }
@@ -29856,4 +29881,263 @@ bool TraitMgr::PlayerDataAccessor::HasAchieved(int32 achievementId) const
 uint32 TraitMgr::PlayerDataAccessor::GetPrimarySpecialization() const
 {
     return AsUnderlyingType(_player->GetPrimarySpecialization());
+}
+
+void Player::RequestSpellCast(std::unique_ptr<SpellCastRequest> castRequest)
+{
+    // We are overriding an already existing spell cast request so inform the client that the old cast is being replaced
+    if (_pendingSpellCastRequest)
+        CancelPendingCastRequest();
+
+    _pendingSpellCastRequest = std::move(castRequest);
+
+    // If we can process the cast request right now, do it.
+    if (CanExecutePendingSpellCastRequest())
+        ExecutePendingSpellCastRequest();
+}
+
+void Player::CancelPendingCastRequest()
+{
+    if (!_pendingSpellCastRequest)
+        return;
+
+    // We have to inform the client that the cast has been canceled. Otherwise the cast button will remain highlightened
+    WorldPackets::Spells::CastFailed castFailed;
+    castFailed.CastID = _pendingSpellCastRequest->CastRequest.CastID;
+    castFailed.SpellID = _pendingSpellCastRequest->CastRequest.SpellID;
+    castFailed.Reason = SPELL_FAILED_DONT_REPORT;
+    SendDirectMessage(castFailed.Write());
+
+    _pendingSpellCastRequest = nullptr;
+}
+
+// A spell can be queued up within 400 milliseconds before global cooldown expires or the cast finishes
+static constexpr Milliseconds SPELL_QUEUE_TIME_WINDOW = 400ms;
+
+bool Player::CanRequestSpellCast(SpellInfo const* spellInfo, Unit const* castingUnit) const
+{
+    if (castingUnit->GetSpellHistory()->GetRemainingGlobalCooldown(spellInfo) > SPELL_QUEUE_TIME_WINDOW)
+        return false;
+
+    for (CurrentSpellTypes spellSlot : { CURRENT_MELEE_SPELL, CURRENT_GENERIC_SPELL })
+        if (Spell const* spell = GetCurrentSpell(spellSlot))
+            if (Milliseconds(spell->GetRemainingCastTime()) > SPELL_QUEUE_TIME_WINDOW)
+                return false;
+
+    return true;
+}
+
+void Player::ExecutePendingSpellCastRequest()
+{
+    if (!_pendingSpellCastRequest)
+        return;
+
+    TriggerCastFlags triggerFlag = TRIGGERED_NONE;
+
+    Unit* castingUnit = _pendingSpellCastRequest->CastingUnitGUID == GetGUID() ? this : ObjectAccessor::GetUnit(*this, _pendingSpellCastRequest->CastingUnitGUID);
+
+    // client provided targets
+    SpellCastTargets targets(castingUnit, _pendingSpellCastRequest->CastRequest);
+
+    // The spell cast has been requested by using an item. Handle the cast accordingly.
+    if (_pendingSpellCastRequest->ItemData.has_value())
+    {
+        if (ProcessItemCast(*_pendingSpellCastRequest, targets))
+            _pendingSpellCastRequest = nullptr;
+        else
+            CancelPendingCastRequest();
+        return;
+    }
+
+    // check known spell or raid marker spell (which not requires player to know it)
+    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(_pendingSpellCastRequest->CastRequest.SpellID, GetMap()->GetDifficultyID());
+    Player* plrCaster = castingUnit->ToPlayer();
+    if (plrCaster && !plrCaster->HasActiveSpell(spellInfo->Id) && !spellInfo->HasAttribute(SPELL_ATTR8_SKIP_IS_KNOWN_CHECK))
+    {
+        bool allow = false;
+
+        // allow casting of unknown spells for special lock cases
+        if (GameObject* go = targets.GetGOTarget())
+            if (go->GetSpellForLock(plrCaster) == spellInfo)
+                allow = true;
+
+        // allow casting of spells triggered by clientside periodic trigger auras
+        if (castingUnit->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellInfo->Id))
+        {
+            allow = true;
+            triggerFlag = TRIGGERED_FULL_MASK;
+        }
+
+        if (!allow)
+        {
+            CancelPendingCastRequest();
+            return;
+        }
+    }
+
+    // Check possible spell cast overrides
+    spellInfo = castingUnit->GetCastSpellInfo(spellInfo, triggerFlag);
+    if (spellInfo->IsPassive())
+    {
+        CancelPendingCastRequest();
+        return;
+    }
+
+    // can't use our own spells when we're in possession of another unit
+    if (isPossessing())
+    {
+        CancelPendingCastRequest();
+        return;
+    }
+
+    // Client is resending autoshot cast opcode when other spell is cast during shoot rotation
+    // Skip it to prevent "interrupt" message
+    // Also check targets! target may have changed and we need to interrupt current spell
+    if (spellInfo->IsAutoRepeatRangedSpell())
+    {
+        if (Spell* spell = castingUnit->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (spell->m_spellInfo == spellInfo && spell->m_targets.GetUnitTargetGUID() == targets.GetUnitTargetGUID())
+            {
+                CancelPendingCastRequest();
+                return;
+            }
+        }
+    }
+
+    // auto-selection buff level base at target level (in spellInfo)
+    if (targets.GetUnitTarget())
+    {
+        SpellInfo const* actualSpellInfo = spellInfo->GetAuraRankForLevel(targets.GetUnitTarget()->GetLevelForTarget(this));
+
+        // if rank not found then function return NULL but in explicit cast case original spell can be cast and later failed with appropriate error message
+        if (actualSpellInfo)
+            spellInfo = actualSpellInfo;
+    }
+
+    Spell* spell = new Spell(castingUnit, spellInfo, triggerFlag);
+
+    WorldPackets::Spells::SpellPrepare spellPrepare;
+    spellPrepare.ClientCastID = _pendingSpellCastRequest->CastRequest.CastID;
+    spellPrepare.ServerCastID = spell->m_castId;
+    SendDirectMessage(spellPrepare.Write());
+
+    spell->m_fromClient = true;
+    spell->m_misc.Raw.Data[0] = _pendingSpellCastRequest->CastRequest.Misc[0];
+    spell->m_misc.Raw.Data[1] = _pendingSpellCastRequest->CastRequest.Misc[1];
+    spell->prepare(targets);
+
+    _pendingSpellCastRequest = nullptr;
+}
+
+bool Player::ProcessItemCast(SpellCastRequest& castRequest, SpellCastTargets const& targets)
+{
+    Item* item = GetUseableItemByPos(castRequest.ItemData->PackSlot, castRequest.ItemData->Slot);
+    if (!item)
+    {
+        SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
+        return false;
+    }
+
+    if (item->GetGUID() != castRequest.ItemData->CastItem)
+    {
+        SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
+        return false;
+    }
+
+    ItemTemplate const* proto = item->GetTemplate();
+    if (!proto)
+    {
+        SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, nullptr);
+        return false;
+    }
+
+    // some item classes can be used only in equipped state
+    if (proto->GetInventoryType() != INVTYPE_NON_EQUIP && !item->IsEquipped())
+    {
+        SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, nullptr);
+        return false;
+    }
+
+    InventoryResult msg = CanUseItem(item);
+    if (msg != EQUIP_ERR_OK)
+    {
+        SendEquipError(msg, item, nullptr);
+        return false;
+    }
+
+    // only allow conjured consumable, bandage, poisons (all should have the 2^21 item flag set in DB)
+    if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && !proto->HasFlag(ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS) && InArena())
+    {
+        SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, item, nullptr);
+        return false;
+    }
+
+    // don't allow items banned in arena
+    if (proto->HasFlag(ITEM_FLAG_NOT_USEABLE_IN_ARENA) && InArena())
+    {
+        SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, item, nullptr);
+        return false;
+    }
+
+    if (IsInCombat())
+    {
+        for (ItemEffectEntry const* effect : item->GetEffects())
+        {
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effect->SpellID, GetMap()->GetDifficultyID()))
+            {
+                if (!spellInfo->CanBeUsedInCombat(this))
+                {
+                    SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, item, nullptr);
+                    return false;
+                }
+            }
+        }
+    }
+
+    // check also  BIND_ON_ACQUIRE and BIND_QUEST for .additem or .additemset case by GM (not binded at adding to inventory)
+    if (item->GetBonding() == BIND_ON_USE || item->GetBonding() == BIND_ON_ACQUIRE || item->GetBonding() == BIND_QUEST)
+    {
+        if (!item->IsSoulBound())
+        {
+            item->SetState(ITEM_CHANGED, this);
+            item->SetBinding(true);
+            GetSession()->GetCollectionMgr()->AddItemAppearance(item);
+        }
+    }
+
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ItemUse);
+
+    // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
+    if (!sScriptMgr->OnItemUse(this, item, targets, castRequest.CastRequest.CastID))
+    {
+        // no script or script not process request by self
+        CastItemUseSpell(item, targets, castRequest.CastRequest.CastID, castRequest.CastRequest.Misc);
+    }
+
+    return true;
+}
+
+bool Player::CanExecutePendingSpellCastRequest()
+{
+    if (!_pendingSpellCastRequest)
+        return false;
+
+    Unit const* castingUnit = _pendingSpellCastRequest->CastingUnitGUID == GetGUID() ? this : ObjectAccessor::GetUnit(*this, _pendingSpellCastRequest->CastingUnitGUID);
+    if (!castingUnit || !castingUnit->IsInWorld() || (castingUnit != this && GetUnitBeingMoved() != castingUnit))
+    {
+        // If the casting unit is no longer available, just cancel the entire spell cast request and be done with it
+        CancelPendingCastRequest();
+        return false;
+    }
+
+    // Generic and melee spells have to wait, channeled spells can be processed immediately.
+    if (!castingUnit->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && castingUnit->HasUnitState(UNIT_STATE_CASTING))
+        return false;
+
+    // Waiting for the global cooldown to expire before attempting to execute the cast request
+    if (castingUnit->GetSpellHistory()->GetRemainingGlobalCooldown(sSpellMgr->AssertSpellInfo(_pendingSpellCastRequest->CastRequest.SpellID, GetMap()->GetDifficultyID())) > 0ms)
+        return false;
+
+    return true;
 }

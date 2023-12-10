@@ -121,19 +121,16 @@ public:
 
     static bool HandleServerDebugCommand(ChatHandler* handler, char const* /*args*/)
     {
-        uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
         std::string dbPortOutput;
 
-        {
-            uint16 dbPort = 0;
-            if (QueryResult res = LoginDatabase.PQuery("SELECT port FROM realmlist WHERE id = {}", realm.Id.Realm))
-                dbPort = (*res)[0].GetUInt16();
+        uint16 dbPort = 0;
+        if (QueryResult res = LoginDatabase.PQuery("SELECT port FROM realmlist WHERE id = {}", realm.Id.Realm))
+            dbPort = (*res)[0].GetUInt16();
 
-            if (dbPort)
-                dbPortOutput = Trinity::StringFormat("Realmlist (Realm Id: {}) configured in port {}", realm.Id.Realm, dbPort);
-            else
-                dbPortOutput = Trinity::StringFormat("Realm Id: {} not found in `realmlist` table. Please check your setup", realm.Id.Realm);
-        }
+        if (dbPort)
+            dbPortOutput = Trinity::StringFormat("Realmlist (Realm Id: {}) configured in port {}", realm.Id.Realm, dbPort);
+        else
+            dbPortOutput = Trinity::StringFormat("Realm Id: {} not found in `realmlist` table. Please check your setup", realm.Id.Realm);
 
         handler->PSendSysMessage("%s", GitRevision::GetFullVersion());
         handler->PSendSysMessage("Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
@@ -171,7 +168,7 @@ public:
             handler->PSendSysMessage("Automatic database updates are enabled for the following databases: %s", availableUpdateDatabases.c_str());
         }
 
-        handler->PSendSysMessage("Worldserver listening connections on port {}", worldPort);
+        handler->PSendSysMessage("Worldserver listening connections on port %u", sWorld->getIntConfig(CONFIG_PORT_WORLD));
         handler->PSendSysMessage("%s", dbPortOutput.c_str());
 
         bool vmapIndoorCheck = sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK);

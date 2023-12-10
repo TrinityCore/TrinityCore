@@ -81,7 +81,10 @@ void WorldSocket::Start()
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback([self = shared_from_this()](PreparedQueryResult result)
+    {
+        self->CheckIpCallback(std::move(result));
+    }));
 }
 
 void WorldSocket::CheckIpCallback(PreparedQueryResult result)
@@ -117,7 +120,7 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
     QueuePacket(std::move(initializer));
 }
 
-void WorldSocket::InitializeHandler(boost::system::error_code error, std::size_t transferedBytes)
+void WorldSocket::InitializeHandler(boost::system::error_code const& error, std::size_t transferedBytes)
 {
     if (error)
     {
@@ -626,6 +629,7 @@ struct AccountInfo
         int64 MuteTime;
         uint32 Recruiter;
         std::string OS;
+        Minutes TimezoneOffset;
         bool IsRectuiter;
         AccountTypes Security;
         bool IsBanned;
@@ -633,11 +637,11 @@ struct AccountInfo
 
     bool IsBanned() const { return BattleNet.IsBanned || Game.IsBanned; }
 
-    explicit AccountInfo(Field* fields)
+    explicit AccountInfo(Field const* fields)
     {
-        //           0              1           2          3                4            5           6          7            8     9     10                11
-        // SELECT a.id, a.session_key, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, ba.locale, a.recruiter, a.os, ba.id, aa.SecurityLevel,
-        //                                                              12                                                            13    14
+        //           0              1           2          3                4            5           6          7            8     9                 10     11                12
+        // SELECT a.id, a.session_key, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, ba.locale, a.recruiter, a.os, a.timezone_offset, ba.id, aa.SecurityLevel,
+        //                                                              13                                                            14    15
         // bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id
         // FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id LEFT JOIN account_access aa ON a.id = aa.AccountID AND aa.RealmID IN (-1, ?)
         // LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account_banned ab ON a.id = ab.id LEFT JOIN account r ON a.id = r.recruiter
@@ -652,11 +656,12 @@ struct AccountInfo
         BattleNet.Locale = LocaleConstant(fields[7].GetUInt8());
         Game.Recruiter = fields[8].GetUInt32();
         Game.OS = fields[9].GetString();
-        BattleNet.Id = fields[10].GetUInt32();
-        Game.Security = AccountTypes(fields[11].GetUInt8());
-        BattleNet.IsBanned = fields[12].GetUInt32() != 0;
-        Game.IsBanned = fields[13].GetUInt32() != 0;
-        Game.IsRectuiter = fields[14].GetUInt32() != 0;
+        Game.TimezoneOffset = Minutes(fields[10].GetInt16());
+        BattleNet.Id = fields[11].GetUInt32();
+        Game.Security = AccountTypes(fields[12].GetUInt8());
+        BattleNet.IsBanned = fields[13].GetUInt32() != 0;
+        Game.IsBanned = fields[14].GetUInt32() != 0;
+        Game.IsRectuiter = fields[15].GetUInt32() != 0;
 
         if (BattleNet.Locale >= TOTAL_LOCALES)
             BattleNet.Locale = LOCALE_enUS;
@@ -670,7 +675,10 @@ void WorldSocket::HandleAuthSession(std::shared_ptr<WorldPackets::Auth::AuthSess
     stmt->setInt32(0, int32(realm.Id.Realm));
     stmt->setString(1, authSession->RealmJoinTicket);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback([this, authSession = std::move(authSession)](PreparedQueryResult result) mutable
+    {
+        HandleAuthSessionCallback(std::move(authSession), std::move(result));
+    }));
 }
 
 void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession, PreparedQueryResult result)
@@ -868,13 +876,16 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     _authed = true;
     _worldSession = new WorldSession(account.Game.Id, std::move(authSession->RealmJoinTicket), account.BattleNet.Id, shared_from_this(), account.Game.Security,
-        account.Game.Expansion, mutetime, account.Game.OS, account.BattleNet.Locale, account.Game.Recruiter, account.Game.IsRectuiter);
+        account.Game.Expansion, mutetime, account.Game.OS, account.Game.TimezoneOffset, account.BattleNet.Locale, account.Game.Recruiter, account.Game.IsRectuiter);
 
     // Initialize Warden system only if it is enabled by config
     if (wardenActive)
         _worldSession->InitWarden(_sessionKey);
 
-    _queryProcessor.AddCallback(_worldSession->LoadPermissionsAsync().WithPreparedCallback(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(_worldSession->LoadPermissionsAsync().WithPreparedCallback([this](PreparedQueryResult result)
+    {
+        LoadSessionPermissionsCallback(std::move(result));
+    }));
     AsyncRead();
 }
 
@@ -903,7 +914,10 @@ void WorldSocket::HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth:
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_CONTINUED_SESSION);
     stmt->setUInt32(0, accountId);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthContinuedSessionCallback, this, authSession, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback([this, authSession = std::move(authSession)](PreparedQueryResult result) mutable
+    {
+        HandleAuthContinuedSessionCallback(std::move(authSession), std::move(result));
+    }));
 }
 
 void WorldSocket::HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession, PreparedQueryResult result)

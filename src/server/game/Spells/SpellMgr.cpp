@@ -4746,6 +4746,24 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx8 |= SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG;
     });
 
+    // Jump to Center (DNT)
+    ApplySpellFix({ 387981 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
+    // Jump to Platform (DNT)
+    ApplySpellFix({ 388082 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
     // ENDOF THE AZURE VAULT SPELLS
     //
     // Summon Master Li Fei

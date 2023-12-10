@@ -19,6 +19,7 @@
 #define Session_h__
 
 #include "AsyncCallbackProcessor.h"
+#include "Duration.h"
 #include "Realm.h"
 #include "SslContext.h"
 #include "SslSocket.h"
@@ -79,7 +80,7 @@ namespace Battlenet
 
         struct GameAccountInfo
         {
-            void LoadResult(Field* fields);
+            void LoadResult(Field const* fields);
 
             uint32 Id;
             std::string Name;
@@ -173,6 +174,7 @@ namespace Battlenet
         std::string _locale;
         std::string _os;
         uint32 _build;
+        Minutes _timezoneOffset;
 
         std::string _ipCountry;
 

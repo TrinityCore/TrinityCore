@@ -128,7 +128,7 @@ protected:
     ReadDataHandlerResult ReadDataHandler();
 private:
     void CheckIpCallback(PreparedQueryResult result);
-    void InitializeHandler(boost::system::error_code error, std::size_t transferedBytes);
+    void InitializeHandler(boost::system::error_code const& error, std::size_t transferedBytes);
 
     /// writes network.opcode log
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock

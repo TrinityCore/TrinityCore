@@ -519,8 +519,6 @@ class TC_SHARED_API ByteBuffer
 
         std::string ReadString(uint32 length, bool requireValidUtf8 = true);
 
-        uint32 ReadPackedTime();
-
         uint8* contents()
         {
             if (_storage.empty())
@@ -623,8 +621,6 @@ class TC_SHARED_API ByteBuffer
 
             return resultSize;
         }
-
-        void AppendPackedTime(time_t time);
 
         void put(size_t pos, uint8 const* src, size_t cnt);
 

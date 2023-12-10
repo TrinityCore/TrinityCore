@@ -62,6 +62,7 @@ struct PvpTalentEntry;
 struct QuestPackageItemEntry;
 struct RewardPackEntry;
 struct SkillRaceClassInfoEntry;
+struct SpellCastRequest;
 struct TalentEntry;
 struct TrainerSpell;
 struct TransferAbortParams;
@@ -3210,6 +3211,19 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool _usePvpItemLevels;
         ObjectGuid _areaSpiritHealerGUID;
+
+        // Spell cast request handling
+    public:
+        // Queues up a spell cast request that has been received via packet and processes it whenever possible.
+        void RequestSpellCast(std::unique_ptr<SpellCastRequest> castRequest);
+        void CancelPendingCastRequest();
+        bool CanRequestSpellCast(SpellInfo const* spell, Unit const* castingUnit) const;
+
+    private:
+        std::unique_ptr<SpellCastRequest> _pendingSpellCastRequest;
+        void ExecutePendingSpellCastRequest();
+        bool ProcessItemCast(SpellCastRequest& castRequest, SpellCastTargets const& targets);
+        bool CanExecutePendingSpellCastRequest();
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item const* item);
