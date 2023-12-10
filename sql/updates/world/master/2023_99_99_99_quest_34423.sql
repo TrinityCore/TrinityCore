@@ -6,13 +6,13 @@ SET @TRIGGER_ID := 60000000;
 
 -- Creature
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+5;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
-(@CGUID+0, 83670, 1265, 7025, 7041, '0', 3670, 0, 0, 0, 3976.389892578125, -2900.079833984375, 64.0878143310546875, 0, 120, 0, 0, 4000, 0, 0, NULL, NULL, NULL, NULL, 51754), -- Blood Ritual Orb (Area: Heartblood - Difficulty: 0) CreateObject1
-(@CGUID+1, 83670, 1265, 7025, 7041, '0', 3670, 0, 0, 0, 3982.326416015625, -2936.484375, 65.94042205810546875, 0, 120, 0, 0, 4000, 0, 0, NULL, NULL, NULL, NULL, 51754), -- Blood Ritual Orb (Area: Heartblood - Difficulty: 0) CreateObject1
-(@CGUID+2, 83670, 1265, 7025, 7039, '0', 3670, 0, 0, 0, 3984.259521484375, -2948.079833984375, 95.44586181640625, 0, 120, 0, 0, 4000, 0, 0, NULL, NULL, NULL, NULL, 51754), -- Blood Ritual Orb (Area: The Bleeding Altar - Difficulty: 0) CreateObject1
-(@CGUID+3, 81895, 1265, 7025, 7041, '0', 3670, 0, 0, 1, 3979.263916015625, -2918.310791015625, 60.87252426147460937, 1.824910879135131835, 120, 0, 0, 4000, 0, 0, NULL, NULL, NULL, NULL, 51754), -- Bleeding Hollow Bloodchosen (Area: Heartblood - Difficulty: 0) CreateObject1 (Auras: 164870 - Ritual of Blood)
-(@CGUID+4, 81926, 1265, 7025, 7041, '0', 0, 0, 0, 0, 3979.822998046875, -2921.005126953125, 60.87251663208007812, 1.738257527351379394, 120, 0, 0, 4000, 0, 0, NULL, NULL, NULL, NULL, 51754), -- Kilrogg Deadeye (Area: Heartblood - Difficulty: 0) CreateObject1
-(@CGUID+5, 78560, 1265, 7025, 7129, '0', 3414, 0, 0, 1, 4191.4990234375, -2786.998291015625, 26.83084297180175781, 0.145585432648658752, 120, 0, 0, 640000, 9573, 0, NULL, NULL, NULL, NULL, 51972); -- Archmage Khadgar (Area: Tar'thog Bridge - Difficulty: 0) CreateObject1
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `StringID`, `VerifiedBuild`) VALUES
+(@CGUID+0, 83670, 1265, 7025, 7041, '0', 3670, 0, 0, 0, 3976.389892578125, -2900.079833984375, 64.0878143310546875, 0, 120, 0, 0, 4000, 0, 0, NULL, NULL, NULL, NULL, 'west_orb', 51754), -- Blood Ritual Orb (Area: Heartblood - Difficulty: 0) CreateObject1
+(@CGUID+1, 83670, 1265, 7025, 7041, '0', 3670, 0, 0, 0, 3982.326416015625, -2936.484375, 65.94042205810546875, 0, 120, 0, 0, 4000, 0, 0, NULL, NULL, NULL, NULL, 'middle_orb', 51754), -- Blood Ritual Orb (Area: Heartblood - Difficulty: 0) CreateObject1
+(@CGUID+2, 83670, 1265, 7025, 7039, '0', 3670, 0, 0, 0, 3984.259521484375, -2948.079833984375, 95.44586181640625, 0, 120, 0, 0, 4000, 0, 0, NULL, NULL, NULL, NULL, '', 51754), -- Blood Ritual Orb (Area: The Bleeding Altar - Difficulty: 0) CreateObject1
+(@CGUID+3, 81895, 1265, 7025, 7041, '0', 3670, 0, 0, 1, 3979.263916015625, -2918.310791015625, 60.87252426147460937, 1.824910879135131835, 120, 0, 0, 4000, 0, 0, NULL, NULL, NULL, NULL, '', 51754), -- Bleeding Hollow Bloodchosen (Area: Heartblood - Difficulty: 0) CreateObject1 (Auras: 164870 - Ritual of Blood)
+(@CGUID+4, 81926, 1265, 7025, 7041, '0', 0, 0, 0, 0, 3979.822998046875, -2921.005126953125, 60.87251663208007812, 1.738257527351379394, 120, 0, 0, 4000, 0, 0, NULL, NULL, NULL, NULL, '', 51754), -- Kilrogg Deadeye (Area: Heartblood - Difficulty: 0) CreateObject1
+(@CGUID+5, 78560, 1265, 7025, 7129, '0', 3414, 0, 0, 1, 4191.4990234375, -2786.998291015625, 26.83084297180175781, 0.145585432648658752, 120, 0, 0, 640000, 9573, 0, NULL, NULL, NULL, NULL, '', 51972); -- Archmage Khadgar (Area: Tar'thog Bridge - Difficulty: 0) CreateObject1
 
 DELETE FROM `creature_summoned_data` WHERE `CreatureID`=80087;
 INSERT INTO `creature_summoned_data` (`CreatureID`, `CreatureIDVisibleToSummoner`, `GroundMountDisplayID`, `FlyingMountDisplayID`) VALUES
@@ -29,7 +29,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`
 
 UPDATE `creature_template` SET `unit_flags2`=18432 WHERE `entry`=78556; -- Ariok
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `ScriptName`='npc_ariok' WHERE `entry`=80087; -- Liberated Frostwolf Prisoner
-UPDATE `creature_template` SET `unit_flags3`=16777216, `AIName`='SmartAI' WHERE `entry`=83670; -- Blood Ritual Orb
+UPDATE `creature_template` SET `unit_flags3`=16777216, `ScriptName`='npc_blood_ritual_orb' WHERE `entry`=83670; -- Blood Ritual Orb
 UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=81926; -- Kilrogg Deadeye
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`IN (83670, 81926);
@@ -147,10 +147,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (78556, 0, 0, 1, 62, 0, 100, 0, 16641, 0, 0, 0, 0, '', 72, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 'Ariok - On Gossip Option 0 Selected - Close Gossip'),
 (78556, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 85, 159278, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 'Ariok - On Gossip Option 0 Selected - Invoker Cast \'Speak with Ariok Credit\'');
 
-DELETE FROM `smart_scripts` WHERE `entryorguid`= 83670 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(83670, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 170044, 0, 0, 0, 0, 0, 0, 19, 81895, 0, 0, 0, 0, 0, 0, 0, 'Blood Ritual Orb - On Spawn - Cast spell 170044 to Bleeding Hollow Bloodchosen');
-
 -- Text
 DELETE FROM `creature_text` WHERE `CreatureID` IN (80087, 81926);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -191,31 +187,45 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 UPDATE `scene_template` SET `ScriptName` = 'scene_bleeding_hollow_kilrogg_reveal' WHERE `SceneId`=694;
 
 -- Areatrigger
-DELETE FROM `areatrigger` WHERE `SpawnId` IN (42, 47);
+DELETE FROM `areatrigger` WHERE `SpawnId` BETWEEN @TRIGGER_SPAWN_ID+0 AND @TRIGGER_SPAWN_ID+3;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `SpellForVisuals`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES
 (@TRIGGER_SPAWN_ID+0, @TRIGGER_ID+0, 1, 1265, '0', 3982.48, -2936.61, 62.6424, 1.72932, 0, 0, 0, 0, 70, 70, 0, 0, 0, 0, 0, 0, NULL, '', NULL, 0),
-(@TRIGGER_SPAWN_ID+1, @TRIGGER_ID+1, 1, 1265, '0', 4187.81, -2779.99, 26.9349, 3.31491, 0, 0, 0, 1, 20, 20, 10, 20, 20, 10, 0, 0, NULL, '', NULL, 0);
+(@TRIGGER_SPAWN_ID+1, @TRIGGER_ID+1, 1, 1265, '0', 4187.81, -2779.99, 26.9349, 3.31491, 0, 0, 0, 1, 20, 20, 10, 20, 20, 10, 0, 0, NULL, '', NULL, 0),
+(@TRIGGER_SPAWN_ID+2, @TRIGGER_ID+2, 1, 1265, '0', 4046.79, -2940.89, 62.1408, 1.66231, 0, 0, 0, 1, 30, 20, 10, 30, 20, 10, 0, 0, NULL, 'at_altar_altercation_kilrogg_talk', NULL, 0),
+(@TRIGGER_SPAWN_ID+3, @TRIGGER_ID+3, 1, 1265, '0', 3921.71, -2962.14, 62.3053, 1.66231, 0, 0, 0, 1, 30, 20, 10, 30, 20, 10, 0, 0, NULL, 'at_altar_altercation_kilrogg_talk', NULL, 0);
 
-DELETE FROM `areatrigger_template` WHERE `Id` IN (34, 35) AND `IsServerSide`=1;
+DELETE FROM `areatrigger_template` WHERE `Id` BETWEEN @TRIGGER_ID+0 AND @TRIGGER_ID+3;
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES
 (@TRIGGER_ID+0, 1, 0, 0, 70, 70, 0, 0, 0, 0, 0, 0, 0),
-(@TRIGGER_ID+1, 1, 1, 0, 20, 20, 10, 20, 20, 10, 0, 0, 0);
+(@TRIGGER_ID+1, 1, 1, 0, 20, 20, 10, 20, 20, 10, 0, 0, 0),
+(@TRIGGER_ID+2, 1, 1, 0, 30, 20, 10, 30, 20, 10, 0, 0, 0),
+(@TRIGGER_ID+3, 1, 1, 0, 30, 20, 10, 30, 20, 10, 0, 0, 0);
 
-DELETE FROM `areatrigger_template_actions` WHERE `AreaTriggerId` IN (34,35) AND `IsServerSide`=1;
+DELETE FROM `areatrigger_template_actions` WHERE `AreaTriggerId` BETWEEN @TRIGGER_ID+0 AND @TRIGGER_ID+2;
 INSERT INTO `areatrigger_template_actions` (`AreaTriggerId`, `IsServerSide`, `ActionType`, `ActionParam`, `TargetType`) VALUES
-(34, 1, 0, 161637, 0),
-(35, 1, 0, 169070, 0);
+(@TRIGGER_ID+0, 1, 0, 161637, 0),
+(@TRIGGER_ID+1, 1, 0, 169070, 0);
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=28 AND `SourceGroup`=34 AND `SourceEntry`=1;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=28 AND `SourceGroup`=@TRIGGER_ID+0 AND `SourceEntry`=1;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(28, 34, 1, 0, 0, 47, 0, 34423, 8, 0, 0, 0, 0, '', 'Only trigger areatrigger when quest 34423 is taken'),
-(28, 34, 1, 0, 0, 48, 0, 273075, 0, 1, 0, 0, 0, '', 'Only trigger areatrigger when questobjective 273075 is completed'),
-(28, 34, 1, 0, 0, 48, 0, 273677, 0, 1, 1, 0, 0, '', 'Only trigger areatrigger when questobjective 273677 is not completed');
+(28, @TRIGGER_ID+0, 1, 0, 0, 47, 0, 34423, 8, 0, 0, 0, 0, '', 'Only trigger areatrigger when quest 34423 is taken'),
+(28, @TRIGGER_ID+0, 1, 0, 0, 48, 0, 273075, 0, 1, 0, 0, 0, '', 'Only trigger areatrigger when questobjective 273075 is completed'),
+(28, @TRIGGER_ID+0, 1, 0, 0, 48, 0, 273677, 0, 1, 1, 0, 0, '', 'Only trigger areatrigger when questobjective 273677 is not completed');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=28 AND `SourceGroup`=35 AND `SourceEntry`=1;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=28 AND `SourceGroup`=@TRIGGER_ID+1 AND `SourceEntry`=1;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(28, 35, 1, 0, 0, 47, 0, 34423, 8, 0, 0, 0, 0, '', 'Only trigger areatrigger when quest 34423 is taken'),
-(28, 35, 1, 0, 0, 48, 0, 274409, 0, 0, 0, 0, 0, '', 'Only trigger areatrigger when has quest objective 274409 active');
+(28, @TRIGGER_ID+1, 1, 0, 0, 47, 0, 34423, 8, 0, 0, 0, 0, '', 'Only trigger areatrigger when quest 34423 is taken'),
+(28, @TRIGGER_ID+1, 1, 0, 0, 48, 0, 274409, 0, 0, 0, 0, 0, '', 'Only trigger areatrigger when has quest objective 274409 active');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=28 AND `SourceGroup`=@TRIGGER_ID+2 AND `SourceEntry`=1;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(28, @TRIGGER_ID+2, 1, 0, 0, 47, 0, 34423, 8, 0, 0, 0, 0, '', 'Only trigger areatrigger when quest 34423 is taken'),
+(28, @TRIGGER_ID+2, 1, 0, 0, 48, 0, 273678, 0, 0, 0, 0, 0, '', 'Only trigger areatrigger when has quest objective 273678 active');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=28 AND `SourceGroup`=@TRIGGER_ID+3 AND `SourceEntry`=1;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(28, @TRIGGER_ID+3, 1, 0, 0, 47, 0, 34423, 8, 0, 0, 0, 0, '', 'Only trigger areatrigger when quest 34423 is taken'),
+(28, @TRIGGER_ID+3, 1, 0, 0, 48, 0, 273678, 0, 0, 0, 0, 0, '', 'Only trigger areatrigger when has quest objective 273678 active');
 
 -- Serverside spells
 DELETE FROM `serverside_spell` WHERE `Id`IN (164979, 167547) AND `DifficultyID`=0;

@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "QuestDef.h"
@@ -28,11 +30,15 @@ enum AssaultOnTheDarkPortalSpells
 {
     SPELL_ALTAR_ALTERCATION_CANCEL_AURAS = 167547, // Serverside Spell
     SPELL_BLEEDING_HOLLOW_HOLDOUT        = 164609,
+    SPELL_BLEEDING_HOLLOW_KILROGG_REVEAL = 161771,
     SPELL_BLEEDING_HOLLOW_TRAIL_OF_FLAME = 164611,
+    SPELL_BLEEDING_HOLLOW_SNEAKY_ARMY    = 165061,
+    SPELL_BLOOD_RITUAL_ORB_BEAM          = 170044,
     SPELL_CANCEL_PHASE_AURA              = 165053,
     SPELL_CANCEL_TRAIL_OF_FLAME_VISUAL   = 165993,
     SPELL_DARK_PORTAL_RUN_AWAY           = 158985,
     SPELL_HUT_CREDIT                     = 164613, // Serverside Spell
+    SPELL_ON_ALTAR                       = 161637,
     SPELL_PUSH_ARMY                      = 165072,
     SPELL_TRAIL_OF_FLAME_LARGE           = 165991,
     SPELL_UPDATE_PHASE_SHIFT_PLAYER      = 82238
@@ -41,6 +47,43 @@ enum AssaultOnTheDarkPortalSpells
 enum AssaultOnTheDarkPortalQuests
 {
     QUEST_FLAG_ARMY_PUSHED        = 35297
+};
+
+enum AssaultOnTheDarkPortalNPCs
+{
+    NPC_ARIOK                       = 80087,
+    NPC_KILROGG                     = 81926,
+    NPC_BLEEDING_HOLLOW_BLOODCHOSEN = 81895
+};
+
+enum Texts
+{
+    // Ariok
+    SAY_INTRO_1  = 0,
+    SAY_INTRO_2  = 1,
+    SAY_INTRO_3  = 2,
+    SAY_ALTAR_1  = 3,
+    SAY_ALTAR_2  = 4,
+    SAY_ALTAR_3  = 5,
+    SAY_ALTAR_4  = 6,
+
+    // Kilrogg
+    SAY_0        = 0,
+    SAY_1        = 1
+};
+
+enum Actions
+{
+    ACTION_INTRO      = 1,
+    ACTION_ALTAR      = 2
+};
+
+enum Events
+{
+    EVENT_TALK_1 = 1,
+    EVENT_TALK_2,
+    EVENT_TALK_3,
+    EVENT_ALTAR
 };
 
 // 621 - Dark Portal: Run away
@@ -206,31 +249,6 @@ class spell_destroying : public SpellScript
 };
 
 // 80087 - Ariok
-enum Texts
-{
-    SAY_INTRO_1  = 0,
-    SAY_INTRO_2  = 1,
-    SAY_INTRO_3  = 2,
-    SAY_ALTAR_1  = 3,
-    SAY_ALTAR_2  = 4,
-    SAY_ALTAR_3  = 5,
-    SAY_ALTAR_4  = 6
-};
-
-enum Actions
-{
-    ACTION_INTRO = 1,
-    ACTION_ALTAR = 2
-};
-
-enum Events
-{
-    EVENT_TALK_1 = 1,
-    EVENT_TALK_2,
-    EVENT_TALK_3,
-    EVENT_ALTAR
-};
-
 struct npc_ariok : public FollowerAI
 {
     npc_ariok(Creature* creature) : FollowerAI(creature) { }
@@ -314,12 +332,68 @@ class spell_trigger_ariok : public SpellScript
         if (!creature)
             return;
 
-        creature->AI()->DoAction(ACTION_ALTAR);
+        if (GetCaster()->HasAura(SPELL_ON_ALTAR))
+            creature->AI()->DoAction(ACTION_ALTAR);
+        else if (GetCaster()->HasAura(SPELL_BLEEDING_HOLLOW_KILROGG_REVEAL))
+        {
+            creature->AI()->Talk(SAY_ALTAR_4);
+            creature->DespawnOrUnsummon();
+        }
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_trigger_ariok::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 83670 - Blood Ritual Orb
+struct npc_blood_ritual_orb : public CreatureAI
+{
+    npc_blood_ritual_orb(Creature* creature) : CreatureAI(creature) { }
+
+    void JustAppeared() override
+    {
+        if (Creature* bloodChosen = me->FindNearestCreature(NPC_BLEEDING_HOLLOW_BLOODCHOSEN, 50.0f))
+            me->CastSpell(bloodChosen, SPELL_BLOOD_RITUAL_ORB_BEAM, true);
+    }
+
+    void OnSpellClick(Unit* clicker, bool /*spellClickHandled*/) override
+    {
+        Creature* kilrogg = clicker->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_KILROGG, .IgnorePhases = true });
+        Creature* ariok = clicker->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_ARIOK, .IsSummon = true, .IgnorePhases = true, .OwnerGuid = clicker->GetGUID() });
+
+        if (!ariok || !kilrogg)
+            return;
+
+        if (me->HasStringId("west_orb"))
+            kilrogg->AI()->Talk(SAY_0, clicker);
+        else if (me->HasStringId("middle_orb"))
+        {
+            clicker->CastSpell(clicker, SPELL_BLEEDING_HOLLOW_SNEAKY_ARMY, true);
+            ariok->AI()->Talk(SAY_ALTAR_3);
+        }
+    }
+
+    void UpdateAI(uint32 /*diff*/) override { }
+};
+
+// Id - SET ID
+struct at_altar_altercation_kilrogg_talk : AreaTriggerAI
+{
+    at_altar_altercation_kilrogg_talk(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player)
+            return;
+
+        Creature* kilrogg = unit->FindNearestCreature(NPC_KILROGG, 100.0f);
+        if (!kilrogg)
+            return;
+
+        kilrogg->AI()->Talk(SAY_1, player);
     }
 };
 
@@ -336,4 +410,6 @@ void AddSC_assault_on_the_dark_portal()
     RegisterSpellScript(spell_destroying);
     RegisterCreatureAI(npc_ariok);
     RegisterSpellScript(spell_trigger_ariok);
+    RegisterCreatureAI(npc_blood_ritual_orb);
+    RegisterAreaTriggerAI(at_altar_altercation_kilrogg_talk);
 };
