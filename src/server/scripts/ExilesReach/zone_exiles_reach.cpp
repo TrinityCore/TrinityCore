@@ -2245,77 +2245,80 @@ class spell_summon_combat_trainer : public SpellScript
 
 enum EnhancedCombatTrainer
 {
-    ACTOR_ID_ALLIANCE_ENHANCED_TRAINING = 74771,
-    ACTOR_ID_HORDE_ENHANCED_TRAINING = 76285,
-    CARGE_CATAGORY_ID_CHARGE_SPELL = 1386,
-    CONVERSATION_PREFIGHT_WALK_ENHANCED = 13710, // Walk out
-    CONVERSATION_USE_SPELLS_AT_RANGE = 13630,
-    CONVERSATION_SHADOW_WORD_PAIN_PRIEST = 13892,
-    CONVERSATION_READY_COMBAT = 14440,
+    ACTOR_ID_ALLIANCE_ENHANCED_TRAINING           = 74771,
+    ACTOR_ID_HORDE_ENHANCED_TRAINING              = 76285,
+    CARGE_CATAGORY_ID_CHARGE_SPELL                = 1386,
+    CONVERSATION_PREFIGHT_WALK_ENHANCED           = 13710, // Walk out
+    CONVERSATION_USE_SPELLS_AT_RANGE              = 13630,
+    CONVERSATION_SHADOW_WORD_PAIN_PRIEST          = 13892,
+    CONVERSATION_READY_COMBAT                     = 14440,
     //Warrior
-    CONVERSATION_READY_COMBAT_WARRIOR = 14441,
-    CONVERSATION_CHARGE_ZERO_RES_ENHANCED = 14444, // First response
-    CONVERSATION_SLAM_ENHANCED = 14447, // Slam
-    CONVERSATION_CHARGE_ONE_RES_ENHANCED = 14448, // Second response
-    CONVERSATION_CHARGE_FINAL_ENHANCED = 14449, // Third response
-    CONVERSATION_CHARGE_KICKBACK = 13611,
+    CONVERSATION_READY_COMBAT_WARRIOR             = 14441,
+    CONVERSATION_CHARGE_ZERO_RES_ENHANCED         = 14444, // First response
+    CONVERSATION_SLAM_ENHANCED                    = 14447, // Slam
+    CONVERSATION_CHARGE_ONE_RES_ENHANCED          = 14448, // Second response
+    CONVERSATION_CHARGE_FINAL_ENHANCED            = 14449, // Third response
+    CONVERSATION_CHARGE_KICKBACK                  = 13611,
     //Paladin
-    CONVERSATION_HOLY_POWER_ONE_PALADIN = 14452,
-    CONVERSATION_CRUSADER_STRIKE_ONE_PALADIN = 14453,
-    CONVERSATION_CRUSADER_STRIKE_TWO_PALADIN = 14454,
-    CONVERSATION_SHIELD_SLAM_ONE_PALADIN = 14455,
-    CONVERSATION_HOLY_POWER_TWO_PALADIN = 14456,
-    CONVERSATION_SHIELD_SLAM_TWO_PALADIN = 14457,
-    CONVERSATION_CRUSADER_STRIKE_THREE_PALADIN = 14458,
-    CONVERSATION_HOLY_POWER_THREE_PALADIN = 14459,
+    CONVERSATION_HOLY_POWER_ONE_PALADIN           = 14452,
+    CONVERSATION_CRUSADER_STRIKE_ONE_PALADIN      = 14453,
+    CONVERSATION_CRUSADER_STRIKE_TWO_PALADIN      = 14454,
+    CONVERSATION_SHIELD_SLAM_ONE_PALADIN          = 14455,
+    CONVERSATION_HOLY_POWER_TWO_PALADIN           = 14456,
+    CONVERSATION_SHIELD_SLAM_TWO_PALADIN          = 14457,
+    CONVERSATION_CRUSADER_STRIKE_THREE_PALADIN    = 14458,
+    CONVERSATION_HOLY_POWER_THREE_PALADIN         = 14459,
     //Rogue
-    CONVERSATION_SINISTER_STRIKE_ONE_ROGUE = 14486,
-    CONVERSATION_REGULAR_ATTACKS_ROGUE = 14487,
-    CONVERSATION_THREE_COMBO_POINTS_ROGUE = 14488,
-    CONVERSATION_THREE_COMBO_EVISCERATE_ROGUE = 14489,
-    CONVERSATION_SINISTER_STRIKE_TWO_ROGUE = 14490,
-    CONVERSATION_FOUR_COMBO_POINTS_ROGUE = 14491,
-    CONVERSATION_FOUR_COMBO_EVISCERATE_ROGUE = 14492,
-    CONVERSATION_SINISTER_STRIKE_THREE_ROGUE = 14493,
-    CONVERSATION_FIVE_COMBO_POINTS_ROGUE = 14494,
-    CONVERSATION_FAILED_EVISCERATE_ROGUE = 14495,
+    CONVERSATION_SINISTER_STRIKE_ONE_ROGUE        = 14486,
+    CONVERSATION_REGULAR_ATTACKS_ROGUE            = 14487,
+    CONVERSATION_THREE_COMBO_POINTS_ROGUE         = 14488,
+    CONVERSATION_THREE_COMBO_EVISCERATE_ROGUE     = 14489,
+    CONVERSATION_SINISTER_STRIKE_TWO_ROGUE        = 14490,
+    CONVERSATION_FOUR_COMBO_POINTS_ROGUE          = 14491,
+    CONVERSATION_FOUR_COMBO_EVISCERATE_ROGUE      = 14492,
+    CONVERSATION_SINISTER_STRIKE_THREE_ROGUE      = 14493,
+    CONVERSATION_FIVE_COMBO_POINTS_ROGUE          = 14494,
+    CONVERSATION_FAILED_EVISCERATE_ROGUE          = 14495,
     // All classes
-    EVENT_COMBAT_TRAINING_WALK_AND_TALK = 1,
-    EVENT_COMBAT_TRAINING_FACE_PLAYER = 2,
-    EVENT_COMBAT_RUN_BACK = 3,
-    EVENT_COMBAT_TRAINING_END = 4,
-    EVENT_COMBAT_CHECK_PLAYER = 5,
+    EVENT_COMBAT_TRAINING_WALK_AND_TALK           = 1,
+    EVENT_COMBAT_TRAINING_FACE_PLAYER             = 2,
+    EVENT_COMBAT_RUN_BACK                         = 3,
+    EVENT_COMBAT_TRAINING_END                     = 4,
+    EVENT_COMBAT_CHECK_PLAYER                     = 5,
     // Used by some class
-    EVENT_COMBAT_TRAINING_RESET_RANGE_CHECK = 6,
+    EVENT_COMBAT_TRAINING_RESET_RANGE_CHECK       = 6,
     // Warrior class
-    EVENT_COMBAT_TRAINING_RESET_WARRIOR = 7,
-    EVENT_COMBAT_TRAINING_CHARGE_CHECK_WARRIOR = 8,
+    EVENT_COMBAT_TRAINING_RESET_WARRIOR           = 7,
+    EVENT_COMBAT_TRAINING_CHARGE_CHECK_WARRIOR    = 8,
     // Rogue Class
-    EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE = 9,
+    EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE    = 9,
     // Priest Class
     EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST = 10,
-    NPC_ALLIANCE_SPARING_PARTNER_ENHANCED = 164577,
-    NPC_HORDE_SPARING_PARTNER_ENHANCED = 166916,
-    NPC_INVISBUNNY_CAMP = 167761,
-    PATH_COMBAT_TRAINER_HOME = 10512100,
-    POSITION_WALK_POINT_ENHANCED_TRAINING = 1,
-    POSITION_RUN_POINT_ENHANCED_TRAINING = 2,
-    POSITION_TRAINING_POINT_ENHANCED_TRAINING = 3,
-    QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE = 59254,
-    QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE_MONK = 59339,
-    QUEST_ENHANCED_COMBAT_TACTICS_HORDE = 59933,
-    QUEST_ENHANCED_COMBAT_TACTICS_HORDE_MONK = 59934,
-    SPELL_DRINK_HEALING_POTION = 320229,
-    SPELL_CHARGE = 100,
-    SPELL_SLAM = 1464,
-    SPELL_CHARGE_KNOCKBACK_WARRIOR = 320583,
-    SPELL_SHIELD_OF_THE_RIGHTEOUS = 53600,
-    SPELL_CRUSADER_STRIKE = 35395,
-    SPELL_SINISTER_STRIKE = 1752,
-    SPELL_EVISCERATE = 196819,
-    SPELL_SMITE = 585,
-    SPELL_SHADOW_WORD_PAIN = 589,
-    SPELL_CHARGE_KNOCKBACK = 320605,
+    NPC_ALLIANCE_SPARING_PARTNER_ENHANCED         = 164577,
+    NPC_ALLIANCE_SPARING_PARTNER_ENHANCED2        = 164775,
+    NPC_HORDE_SPARING_PARTNER_ENHANCED            = 166916,
+    NPC_INVISBUNNY_CAMP                           = 167761,
+    PATH_COMBAT_TRAINER_HOME                      = 10512100,
+    POSITION_WALK_POINT_ENHANCED_TRAINING         = 1,
+    POSITION_RUN_POINT_ENHANCED_TRAINING          = 2,
+    POSITION_TRAINING_POINT_ENHANCED_TRAINING     = 3,
+    QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE        = 59254,
+    QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE_MONK   = 59339,
+    QUEST_ENHANCED_COMBAT_TACTICS_HORDE           = 59933,
+    QUEST_ENHANCED_COMBAT_TACTICS_HORDE_MONK      = 59934,
+    SPELL_DRINK_HEALING_POTION                    = 320229,
+    SPELL_CHARGE                                  = 100,
+    SPELL_SLAM                                    = 1464,
+    SPELL_CHARGE_KNOCKBACK_WARRIOR                = 320583,
+    SPELL_SHIELD_OF_THE_RIGHTEOUS                 = 53600,
+    SPELL_CRUSADER_STRIKE                         = 35395,
+    SPELL_SINISTER_STRIKE                         = 1752,
+    SPELL_EVISCERATE                              = 196819,
+    SPELL_SMITE                                   = 585,
+    SPELL_SHADOW_WORD_PAIN                        = 589,
+    SPELL_CHARGE_KNOCKBACK                        = 320605,
+    SPELL_TIGER_PALM                              = 100780,
+    SPELL_BLACKOUT_KICK                           = 100784
 };
 
 struct npc_sparring_partner_combat_training : public ScriptedAI
@@ -2385,76 +2388,96 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
         switch (uiId)
         {
-        case POSITION_WALK_POINT_ENHANCED_TRAINING:
-        {
-            me->SetWalk(false);
-            me->GetMotionMaster()->MovePoint(POSITION_RUN_POINT_ENHANCED_TRAINING, -231.5225f, -2480.5276f, 19.019197f);
-        }
-        break;
-        case POSITION_RUN_POINT_ENHANCED_TRAINING:
-        {
-            std::list<Creature*> sparpoints;
-            GetCreatureListWithEntryInGrid(sparpoints, me, NPC_INVISBUNNY_CAMP, 100.0f);
-            Trinity::Containers::RandomResize(sparpoints, 1);
+            case POSITION_WALK_POINT_ENHANCED_TRAINING:
+            {
+                me->SetWalk(false);
+                me->GetMotionMaster()->MovePoint(POSITION_RUN_POINT_ENHANCED_TRAINING, -231.5225f, -2480.5276f, 19.019197f);
+            }
+            break;
+            case POSITION_RUN_POINT_ENHANCED_TRAINING:
+            {
+                std::list<Creature*> sparpoints;
+                GetCreatureListWithEntryInGrid(sparpoints, me, NPC_INVISBUNNY_CAMP, 100.0f);
+                Trinity::Containers::RandomResize(sparpoints, 1);
 
-            for (Creature* creature : sparpoints)
-                me->GetMotionMaster()->MovePoint(POSITION_TRAINING_POINT_ENHANCED_TRAINING, creature->GetPosition());
-        }
-        break;
-        case POSITION_TRAINING_POINT_ENHANCED_TRAINING:
-        {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                me->SetFacingToObject(player);
+                for (Creature* creature : sparpoints)
+                    me->GetMotionMaster()->MovePoint(POSITION_TRAINING_POINT_ENHANCED_TRAINING, creature->GetPosition());
+            }
+            break;
+            case POSITION_TRAINING_POINT_ENHANCED_TRAINING:
+            {
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    me->SetFacingToObject(player);
 
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
-            _events.ScheduleEvent(EVENT_COMBAT_CHECK_PLAYER, 1s);
+                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+                _events.ScheduleEvent(EVENT_COMBAT_CHECK_PLAYER, 1s);
 
-            switch (_playerClass)
-            {
-            case CLASS_WARRIOR:
-            {
-                ConversationWithPlayer(CONVERSATION_READY_COMBAT_WARRIOR);
-                _slamCheck = true;
-                _chargeCheck = true;
+                switch (_playerClass)
+                {
+                    case CLASS_WARRIOR:
+                    {
+                        ConversationWithPlayer(CONVERSATION_READY_COMBAT_WARRIOR);
+                        _slamCheck = true;
+                        _chargeCheck = true;
+                        break;
+                    }
+                    case CLASS_PALADIN:
+                    {
+                        ConversationWithPlayer(CONVERSATION_READY_COMBAT);
+                        _crusaderCheck = true;
+                        _rightiousCheck = true;
+                        break;
+                    }
+                    case CLASS_ROGUE:
+                    {
+                        ConversationWithPlayer(CONVERSATION_READY_COMBAT);
+                        _sinisterStrikeCheck = true;
+                        _comboPointCheck = true;
+                        break;
+                    }
+                    case CLASS_PRIEST:
+                    {
+                        ConversationWithPlayer(CONVERSATION_READY_COMBAT);
+                        me->SetTemplateRooted(true);
+                        _smiteCheck = true;
+                        _rangeCheck = true;
+                        break;
+                    }
+                    case CLASS_SHAMAN:
+                    {
+                        ConversationWithPlayer(CONVERSATION_READY_COMBAT);
+                        me->SetTemplateRooted(true);
+                        _rangeCheck = true;
+                        break;
+                    }
+                    case CLASS_MAGE:
+                    {
+                        ConversationWithPlayer(CONVERSATION_READY_COMBAT);
+                        break;
+                    }
+                    case CLASS_WARLOCK:
+                    {
+                        ConversationWithPlayer(CONVERSATION_READY_COMBAT);
+                        break;
+                    }
+                    case CLASS_MONK:
+                    {
+                        ConversationWithPlayer(CONVERSATION_READY_COMBAT);
+                        break;
+                    }
+                    case CLASS_DRUID:
+                    {
+                        ConversationWithPlayer(CONVERSATION_READY_COMBAT);
+                        break;
+                    }
+                    default:
+                        break;
+                    }
+                }
                 break;
-            }
-            case CLASS_PALADIN:
-            {
-                ConversationWithPlayer(CONVERSATION_READY_COMBAT);
-                _crusaderCheck = true;
-                _rightiousCheck = true;
-                break;
-            }
-            case CLASS_ROGUE:
-            {
-                ConversationWithPlayer(CONVERSATION_READY_COMBAT);
-                _sinisterStrikeCheck = true;
-                _comboPointCheck = true;
-                break;
-            }
-            case CLASS_PRIEST:
-            {
-                ConversationWithPlayer(CONVERSATION_READY_COMBAT);
-                me->SetTemplateRooted(true);
-                _smiteCheck = true;
-                _rangeCheck = true;
-                break;
-            }
-            case CLASS_SHAMAN:
-            {
-                ConversationWithPlayer(CONVERSATION_READY_COMBAT);
-                me->SetTemplateRooted(true);
-                _rangeCheck = true;
-                break;
-            }
             default:
                 break;
             }
-        }
-        break;
-        default:
-            break;
-        }
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -2514,52 +2537,31 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
     {
         switch (_playerClass)
         {
-        case CLASS_WARRIOR:
-        {
-            // Slam does not hit creature
-            if ((spellInfo->Id == SPELL_SLAM) && _slamCheck)
+            case CLASS_WARRIOR:
             {
-                _slamCheck = false;
-                Milliseconds _existingTime = _events.GetTimeUntilEvent(EVENT_COMBAT_TRAINING_RESET_WARRIOR);
-                _events.RescheduleEvent(EVENT_COMBAT_TRAINING_RESET_WARRIOR, 10s + _existingTime);
-                ConversationWithPlayer(CONVERSATION_SLAM_ENHANCED);
-            }
-
-            if (spellInfo->Id != SPELL_CHARGE)
-                return;
-
-            _chargeCheck = false;
-
-            ++_questCredits;
-
-            if (_questCredits == 1)
-                ConversationWithPlayer(CONVERSATION_CHARGE_ZERO_RES_ENHANCED);
-            else if (_questCredits == 2)
-                ConversationWithPlayer(CONVERSATION_CHARGE_ONE_RES_ENHANCED);
-
-            if (Player* player = caster->ToPlayer())
-            {
-                player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
-
-                if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                // Slam does not hit creature
+                if ((spellInfo->Id == SPELL_SLAM) && _slamCheck)
                 {
-                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
-                    _events.CancelEvent(EVENT_COMBAT_CHECK_PLAYER);
+                    _slamCheck = false;
+                    Milliseconds _existingTime = _events.GetTimeUntilEvent(EVENT_COMBAT_TRAINING_RESET_WARRIOR);
+                    _events.RescheduleEvent(EVENT_COMBAT_TRAINING_RESET_WARRIOR, 10s + _existingTime);
+                    ConversationWithPlayer(CONVERSATION_SLAM_ENHANCED);
                 }
-                else
-                {
-                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_WARRIOR, 10s);
-                }
-            }
-            break;
-        }
-        case CLASS_PALADIN:
-        {
-            if (spellInfo->Id == SPELL_SHIELD_OF_THE_RIGHTEOUS)
-            {
+
+                if (spellInfo->Id != SPELL_CHARGE)
+                    return;
+
+                _chargeCheck = false;
+
+                ++_questCredits;
+
+                if (_questCredits == 1)
+                    ConversationWithPlayer(CONVERSATION_CHARGE_ZERO_RES_ENHANCED);
+                else if (_questCredits == 2)
+                    ConversationWithPlayer(CONVERSATION_CHARGE_ONE_RES_ENHANCED);
+
                 if (Player* player = caster->ToPlayer())
                 {
-                    ++_questCredits;
                     player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
 
                     if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
@@ -2569,56 +2571,19 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                     }
                     else
                     {
-                        // Update strike bool
-                        if (_questCredits == 1)
-                        {
-                            ConversationWithPlayer(CONVERSATION_SHIELD_SLAM_ONE_PALADIN);
-                            _events.CancelEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE);
-                        }
-                        else if (_questCredits == 2)
-                            ConversationWithPlayer(CONVERSATION_SHIELD_SLAM_TWO_PALADIN);
-
-                        _crusaderCheck = true;
+                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_WARRIOR, 10s);
                     }
                 }
+                break;
             }
-
-            if (spellInfo->Id == SPELL_CRUSADER_STRIKE)
+            case CLASS_PALADIN:
             {
-                if (_crusaderCheck)
+                if (spellInfo->Id == SPELL_SHIELD_OF_THE_RIGHTEOUS)
                 {
-                    switch (_questCredits)
-                    {
-                    case 0:
-                        ConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_ONE_PALADIN);
-                        break;
-                    case 1:
-                        ConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_TWO_PALADIN);
-                        break;
-                    case 2:
-                        ConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_THREE_PALADIN);
-                        break;
-                    default:
-                        break;
-                    }
-                    _crusaderCheck = false;
-                    _rightiousCheck = true;
-                }
-            }
-            break;
-        }
-        case CLASS_ROGUE:
-        {
-            if (spellInfo->Id == SPELL_EVISCERATE)
-            {
-                _comboPointCheck = true;
-                if (Player* player = caster->ToPlayer())
-                {
-                    if (_combopoints >= (_questCredits + 3))
+                    if (Player* player = caster->ToPlayer())
                     {
                         ++_questCredits;
                         player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
-                        _events.CancelEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE);
 
                         if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
                         {
@@ -2629,100 +2594,207 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         {
                             // Update strike bool
                             if (_questCredits == 1)
-                                ConversationWithPlayer(CONVERSATION_THREE_COMBO_EVISCERATE_ROGUE);
+                            {
+                                ConversationWithPlayer(CONVERSATION_SHIELD_SLAM_ONE_PALADIN);
+                                _events.CancelEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE);
+                            }
                             else if (_questCredits == 2)
-                                ConversationWithPlayer(CONVERSATION_FOUR_COMBO_EVISCERATE_ROGUE);
-                            _sinisterStrikeCheck = true;
+                                ConversationWithPlayer(CONVERSATION_SHIELD_SLAM_TWO_PALADIN);
+
+                            _crusaderCheck = true;
                         }
                     }
-                    else
+                }
+
+                if (spellInfo->Id == SPELL_CRUSADER_STRIKE)
+                {
+                    if (_crusaderCheck)
                     {
-                        ConversationWithPlayer(CONVERSATION_FAILED_EVISCERATE_ROGUE);
+                        switch (_questCredits)
+                        {
+                        case 0:
+                            ConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_ONE_PALADIN);
+                            break;
+                        case 1:
+                            ConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_TWO_PALADIN);
+                            break;
+                        case 2:
+                            ConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_THREE_PALADIN);
+                            break;
+                        default:
+                            break;
+                        }
+                        _crusaderCheck = false;
+                        _rightiousCheck = true;
                     }
                 }
+                break;
             }
-
-            if (spellInfo->Id == SPELL_SINISTER_STRIKE)
+            case CLASS_ROGUE:
             {
-                if (!_questCredits)
+                if (spellInfo->Id == SPELL_EVISCERATE)
                 {
-                    _events.CancelEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE);
-                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE, 8s, 20s);
+                    _comboPointCheck = true;
+                    if (Player* player = caster->ToPlayer())
+                    {
+                        if (_combopoints >= (_questCredits + 3))
+                        {
+                            ++_questCredits;
+                            player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+                            _events.CancelEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE);
+
+                            if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                            {
+                                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                                _events.CancelEvent(EVENT_COMBAT_CHECK_PLAYER);
+                            }
+                            else
+                            {
+                                // Update strike bool
+                                if (_questCredits == 1)
+                                    ConversationWithPlayer(CONVERSATION_THREE_COMBO_EVISCERATE_ROGUE);
+                                else if (_questCredits == 2)
+                                    ConversationWithPlayer(CONVERSATION_FOUR_COMBO_EVISCERATE_ROGUE);
+                                _sinisterStrikeCheck = true;
+                            }
+                        }
+                        else
+                        {
+                            ConversationWithPlayer(CONVERSATION_FAILED_EVISCERATE_ROGUE);
+                        }
+                    }
                 }
 
-                if (_sinisterStrikeCheck)
+                if (spellInfo->Id == SPELL_SINISTER_STRIKE)
                 {
-                    switch (_questCredits)
+                    if (!_questCredits)
                     {
-                    case 0:
-                        ConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_ONE_ROGUE);
-                        break;
-                    case 1:
-                        ConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_TWO_ROGUE);
-                        break;
-                    case 2:
-                        ConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_THREE_ROGUE);
-                        break;
-                    default:
-                        break;
+                        _events.CancelEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE);
+                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE, 8s, 20s);
                     }
-                    _sinisterStrikeCheck = false;
+
+                    if (_sinisterStrikeCheck)
+                    {
+                        switch (_questCredits)
+                        {
+                        case 0:
+                            ConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_ONE_ROGUE);
+                            break;
+                        case 1:
+                            ConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_TWO_ROGUE);
+                            break;
+                        case 2:
+                            ConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_THREE_ROGUE);
+                            break;
+                        default:
+                            break;
+                        }
+                        _sinisterStrikeCheck = false;
+                    }
                 }
+                break;
             }
-            break;
-        }
-        case CLASS_PRIEST:
-        {
-            if (spellInfo->Id == SPELL_SHADOW_WORD_PAIN)
+            case CLASS_PRIEST:
+            {
+                if (spellInfo->Id == SPELL_SHADOW_WORD_PAIN)
+                {
+                    if (Player* player = caster->ToPlayer())
+                    {
+                        _events.CancelEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST);
+
+                        _rangeCheck = false;
+
+                        if (!_shadowWordPainCheck)
+                        {
+                            if (_preCombatCheck)
+                            {
+                                ConversationWithPlayer(14461);
+                                me->SetTemplateRooted(false);
+                                _preCombatCheck = false;
+                            }
+                            else
+                                ConversationWithPlayer(14462);
+
+                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST, 13s);
+                        }
+                        else
+                        {
+                            ++_questCredits;
+                            _shadowWordPainCheck = false;
+                            player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+
+                            if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                            {
+                                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                                _events.CancelEvent(EVENT_COMBAT_CHECK_PLAYER);
+                            }
+                            else
+                            {
+                                ConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_PRIEST);
+                                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST, 13s);
+                            }
+                        }
+                    }
+                }
+
+                if (spellInfo->Id == SPELL_SMITE)
+                {
+                    if (_preCombatCheck)
+                        ConversationWithPlayer(14460);
+                }
+                break;
+            }
+            case CLASS_SHAMAN:
             {
                 if (Player* player = caster->ToPlayer())
                 {
-                    _events.CancelEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST);
 
-                    _rangeCheck = false;
+                }
+                break;
+            }
+            case CLASS_MAGE:
+            {
+                if (Player* player = caster->ToPlayer())
+                {
 
-                    if (!_shadowWordPainCheck)
-                    {
-                        if (_preCombatCheck)
-                        {
-                            ConversationWithPlayer(14461);
-                            me->SetTemplateRooted(false);
-                            _preCombatCheck = false;
-                        }
-                        else
-                            ConversationWithPlayer(14462);
+                }
+                break;
+            }
+            case CLASS_WARLOCK:
+            {
+                if (Player* player = caster->ToPlayer())
+                {
 
-                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST, 13s);
-                    }
-                    else
-                    {
-                        ++_questCredits;
-                        _shadowWordPainCheck = false;
+                }
+                break;
+            }
+            case CLASS_DRUID:
+            {
+                if (Player* player = caster->ToPlayer())
+                {
+
+                }
+                break;
+            }
+            case CLASS_MONK:
+            {
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (spellInfo->Id == SPELL_TIGER_PALM)
                         player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+                    if (spellInfo->Id == SPELL_BLACKOUT_KICK)
+                        player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED2);
 
-                        if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
-                        {
-                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
-                            _events.CancelEvent(EVENT_COMBAT_CHECK_PLAYER);
-                        }
-                        else
-                        {
-                            ConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_PRIEST);
-                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST, 13s);
-                        }
+                    if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                    {
+                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                        _events.CancelEvent(EVENT_COMBAT_CHECK_PLAYER);
                     }
                 }
+                break;
             }
-
-            if (spellInfo->Id == SPELL_SMITE)
-            {
-                if (_preCombatCheck)
-                    ConversationWithPlayer(14460);
-            }
-            break;
-        }
-        default:
-            break;
+            default:
+                break;
         }
     }
 
