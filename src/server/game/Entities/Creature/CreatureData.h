@@ -656,7 +656,7 @@ enum InhabitTypeValues
 // `creature_addon` table
 struct CreatureAddon
 {
-    uint32 path_id;
+    uint32 PathId;
     uint32 mount;
     uint8 standState;
     uint8 animTier;

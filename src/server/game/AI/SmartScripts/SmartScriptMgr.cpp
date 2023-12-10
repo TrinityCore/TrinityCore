@@ -1879,7 +1879,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_WP_START:
         {
             WaypointPath const* path = sWaypointMgr->GetPath(e.action.wpStart.pathID);
-            if (!path || path->nodes.empty())
+            if (!path || path->Nodes.empty())
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Creature {} Event {} Action {} uses non-existent WaypointPath id {}, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpStart.pathID);
                 return false;
