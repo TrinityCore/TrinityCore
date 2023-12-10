@@ -2345,7 +2345,8 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
         if (player->GetTeam() == ALLIANCE)
         {
-            _team = 0;
+            _allianceGUID = me->GetGUID();
+            _hordeGUID = ObjectGuid::Empty;
             _summonSpellAura = SPELL_SUMMON_CAPTAIN_GARRICK_COMBAT;
 
             if (_playerClass == CLASS_MONK)
@@ -2355,7 +2356,8 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
         }
         else
         {
-            _team = 1;
+            _allianceGUID = ObjectGuid::Empty;
+            _hordeGUID = me->GetGUID();
             _summonSpellAura = SPELL_SUMMON_WARLORD_GRIMAXE_COMBAT;
 
             if (_playerClass == CLASS_MONK)
@@ -2505,17 +2507,8 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
             Conversation* conversation = Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr, false);
-
-            if (_team) // If Horde
-            {
-                conversation->AddActor(ACTOR_ID_ALLIANCE_ENHANCED_TRAINING, 0, ObjectGuid::Empty);
-                conversation->AddActor(ACTOR_ID_HORDE_ENHANCED_TRAINING, 1, me->GetGUID());
-            }
-            else // If Alliance
-            {
-                conversation->AddActor(ACTOR_ID_ALLIANCE_ENHANCED_TRAINING, 0, me->GetGUID());
-                conversation->AddActor(ACTOR_ID_HORDE_ENHANCED_TRAINING, 1, ObjectGuid::Empty);
-            }
+            conversation->AddActor(ACTOR_ID_ALLIANCE_ENHANCED_TRAINING, 0, _allianceGUID);
+            conversation->AddActor(ACTOR_ID_HORDE_ENHANCED_TRAINING, 1, _hordeGUID);
             conversation->Start();
         }
     }
@@ -2961,12 +2954,13 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
     }
 private:
     // Used by all classes
-    uint8 _team;
     int8 _questCredits = 0;
     uint32 _questID;
     uint32 _summonSpellAura;
     uint32 _playerClass;
     EventMap _events;
+    ObjectGuid _allianceGUID;
+    ObjectGuid _hordeGUID;
     ObjectGuid _playerGUID;
     // Used by Warrior class
     bool _slamCheck = false;
