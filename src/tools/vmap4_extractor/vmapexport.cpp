@@ -20,6 +20,8 @@
 #include "dbcfile.h"
 #include "StringFormat.h"
 #include "vmapexport.h"
+#include "Locales.h"
+#include "Util.h"
 #include "wdtfile.h"
 #include "wmo.h"
 #include "mpq_libmpq04.h"
@@ -406,6 +408,10 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 
 int main(int argc, char ** argv)
 {
+    Trinity::VerifyOsVersion();
+
+    Trinity::Locale::Init();
+
     Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     bool success = true;

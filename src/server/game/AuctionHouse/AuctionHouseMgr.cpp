@@ -31,11 +31,10 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
+#include "WowTime.h"
 
 enum eAuctionHouse
 {
@@ -195,12 +194,14 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, Characte
     // owner exist (online or offline)
     if ((owner || owner_accId) && !sAuctionBotConfig->IsBotChar(auction->owner))
     {
-        ByteBuffer timePacker;
-        timePacker.AppendPackedTime(GameTime::GetGameTime() + sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
+        WowTime eta = *GameTime::GetUtcWowTime();
+        eta += Seconds(sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
+        if (owner)
+            eta += owner->GetSession()->GetTimezoneOffset();
 
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_SALE_PENDING),
             AuctionEntry::BuildAuctionInvoiceMailBody(ObjectGuid::Create<HighGuid::Player>(auction->bidder), auction->bid, auction->buyout, auction->deposit,
-                auction->GetAuctionCut(), sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY), timePacker.read<uint32>()))
+                auction->GetAuctionCut(), sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY), eta.GetPackedTime()))
             .SendMailTo(trans, MailReceiver(owner, auction->owner), auction, MAIL_CHECK_MASK_COPIED);
     }
 }

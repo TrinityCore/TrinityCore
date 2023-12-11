@@ -31,11 +31,27 @@
 #include <ctime>
 #include <boost/core/demangle.hpp>
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-  #include <sys/socket.h>
-  #include <netinet/in.h>
-  #include <arpa/inet.h>
+void Trinity::VerifyOsVersion()
+{
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    auto isWindowsBuildGreaterOrEqual = [](DWORD build)
+    {
+        OSVERSIONINFOEX osvi = { sizeof(osvi), 0, 0, build, 0, {0}, 0, 0, 0, 0 };
+        ULONGLONG conditionMask = 0;
+        VER_SET_CONDITION(conditionMask, VER_BUILDNUMBER, VER_GREATER_EQUAL);
+
+        return VerifyVersionInfo(&osvi, VER_BUILDNUMBER, conditionMask);
+    };
+
+    if (!isWindowsBuildGreaterOrEqual(TRINITY_REQUIRED_WINDOWS_BUILD))
+    {
+        OSVERSIONINFOEX osvi = { sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0, 0, 0 };
+        GetVersionEx((LPOSVERSIONINFO)&osvi);
+        ABORT_MSG("TrinityCore requires Windows 10 19H1 (1903) or Windows Server 2019 (1903) - require build number 10.0.%d but found %d.%d.%d",
+            TRINITY_REQUIRED_WINDOWS_BUILD, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber);
+    }
 #endif
+}
 
 std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, bool keepEmpty)
 {
@@ -58,8 +74,19 @@ std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
 struct tm* localtime_r(time_t const* time, struct tm *result)
 {
-    localtime_s(result, time);
+    if (localtime_s(result, time) != 0)
+        return nullptr;
     return result;
+}
+struct tm* gmtime_r(time_t const* time, struct tm* result)
+{
+    if (gmtime_s(result, time) != 0)
+        return nullptr;
+    return result;
+}
+time_t timegm(struct tm* tm)
+{
+    return _mkgmtime(tm);
 }
 #endif
 
@@ -68,17 +95,6 @@ tm TimeBreakdown(time_t time)
     tm timeLocal;
     localtime_r(&time, &timeLocal);
     return timeLocal;
-}
-
-time_t LocalTimeToUTCTime(time_t time)
-{
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
-    return time + _timezone;
-#elif defined(__DragonFly__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-    return timegm(gmtime(&time));
-#else
-    return time + timezone;
-#endif
 }
 
 time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
