@@ -1611,6 +1611,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         int64 GetQuestSlotEndTime(uint16 slot) const;
         bool GetQuestSlotObjectiveFlag(uint16 slot, int8 objectiveIndex) const;
         int32 GetQuestSlotObjectiveData(uint16 slot, QuestObjective const& objective) const;
+        int32 GetQuestSlotObjectiveData(uint32 questId, uint32 objectiveId) const;
         void SetQuestSlot(uint16 slot, uint32 quest_id);
         void SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count);
         void SetQuestSlotState(uint16 slot, uint32 state);
@@ -1644,6 +1645,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetQuestObjectiveData(QuestObjective const& objective, int32 data);
         bool IsQuestObjectiveCompletable(uint16 slot, Quest const* quest, QuestObjective const& objective) const;
         bool IsQuestObjectiveComplete(uint16 slot, Quest const* quest, QuestObjective const& objective) const;
+        bool IsQuestObjectiveComplete(uint32 questId, uint32 objectiveId) const;
         bool IsQuestObjectiveProgressBarComplete(uint16 slot, Quest const* quest) const;
         void SendQuestComplete(uint32 questId) const;
         void SendQuestReward(Quest const* quest, Creature const* questGiver, uint32 xp, bool hideChatMessage) const;
