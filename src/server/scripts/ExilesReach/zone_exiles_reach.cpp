@@ -3047,7 +3047,7 @@ struct areatrigger_aggro_radius_check : AreaTriggerAI
         if (!player)
             return;
 
-        Creature* trainer = at->GetCaster()->ToCreature();
+        Unit* trainer = at->GetCaster();
 
         if (!trainer)
             at->RemoveFromWorld();
