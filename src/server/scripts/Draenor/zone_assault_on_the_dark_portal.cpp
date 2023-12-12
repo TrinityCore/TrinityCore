@@ -391,7 +391,7 @@ struct npc_altar_altercation_blood_ritual_orb : public ScriptedAI
     }
 };
 
-// Id - SET ID
+// Id - 52
 struct at_altar_altercation_kilrogg_talk : AreaTriggerAI
 {
     at_altar_altercation_kilrogg_talk(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
@@ -410,7 +410,7 @@ struct at_altar_altercation_kilrogg_talk : AreaTriggerAI
     }
 };
 
-// Id - SET ID
+// Id - 50
 struct at_altar_altercation_reach_altar : AreaTriggerAI
 {
     at_altar_altercation_reach_altar(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
