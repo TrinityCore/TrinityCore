@@ -3047,29 +3047,29 @@ struct areatrigger_aggro_radius_check : AreaTriggerAI
         if (!player)
             return;
 
-        Unit* trainer = at->GetCaster();
-
-        if (!trainer)
-            at->RemoveFromWorld();
-        else
+        Unit* caster = at->GetCaster();
+        if (!caster)
         {
-            switch (player->GetClass())
-            {
-                case CLASS_WARRIOR:
-                    trainer->CastSpell(player, 320583);
-                    break;
-                case CLASS_PRIEST:
-                case CLASS_SHAMAN:
-                case CLASS_MAGE:
-                case CLASS_WARLOCK:
-                    trainer->CastSpell(player, 320605);
-                    break;
-                case CLASS_DRUID:
-                    trainer->CastSpell(player, 320767);
-                    break;
-                default:
-                    break;
-            }
+            at->RemoveFromWorld();
+            return;
+        }
+
+        switch (player->GetClass())
+        {
+            case CLASS_WARRIOR:
+                trainer->CastSpell(player, 320583);
+                break;
+            case CLASS_PRIEST:
+            case CLASS_SHAMAN:
+            case CLASS_MAGE:
+            case CLASS_WARLOCK:
+                trainer->CastSpell(player, 320605);
+                break;
+            case CLASS_DRUID:
+                trainer->CastSpell(player, 320767);
+                break;
+            default:
+                break;
         }
     }
 };
