@@ -150,6 +150,7 @@ class TC_GAME_API BattlegroundMgr
                 return &itr->second;
             return nullptr;
         }
+
     private:
         uint32 CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
         static bool IsArenaType(BattlegroundTypeId bgTypeId);

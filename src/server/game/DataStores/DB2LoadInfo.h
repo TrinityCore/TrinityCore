@@ -4218,6 +4218,18 @@ struct PvpItemLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 3, &PVPItemMeta::Instance, HOTFIX_SEL_PVP_ITEM };
 };
 
+struct PvpStatLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { false, FT_STRING, "Description" },
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "MapID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &PVPStatMeta::Instance, HOTFIX_SEL_PVP_STAT };
+};
+
 struct PvpSeasonLoadInfo
 {
     static constexpr DB2FieldMeta Fields[4] =

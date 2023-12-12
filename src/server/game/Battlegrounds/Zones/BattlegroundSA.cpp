@@ -16,6 +16,7 @@
  */
 
 #include "BattlegroundSA.h"
+#include "BattlegroundScore.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DB2Stores.h"
@@ -29,6 +30,12 @@
 #include "Random.h"
 #include "UpdateData.h"
 #include "WorldStateMgr.h"
+
+enum StrandOfTheAncientsPvpStats
+{
+    PVP_STAT_GATES_DESTROYED        = 231,
+    PVP_STAT_DEMOLISHERS_DESTROYED  = 232
+};
 
 BattlegroundSA::BattlegroundSA(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
@@ -432,8 +439,6 @@ void BattlegroundSA::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
 {
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player, queueId);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new BattlegroundSAScore(player->GetGUID(), player->GetBGTeam());
 
     SendTransportInit(player);
 
@@ -565,7 +570,7 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                             {
                                 if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
                                 {
-                                    UpdatePlayerScore(player, SCORE_DESTROYED_WALL, 1);
+                                    UpdatePvpStat(player, PVP_STAT_GATES_DESTROYED, 1);
                                     if (rewardHonor)
                                         UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(1));
                                 }
@@ -591,7 +596,7 @@ void BattlegroundSA::HandleKillUnit(Creature* creature, Player* killer)
 {
     if (creature->GetEntry() == NPC_DEMOLISHER_SA)
     {
-        UpdatePlayerScore(killer, SCORE_DESTROYED_DEMOLISHER, 1);
+        UpdatePvpStat(killer, PVP_STAT_DEMOLISHERS_DESTROYED, 1);
         int32 worldStateId = Attackers == TEAM_HORDE ? BG_SA_DESTROYED_HORDE_VEHICLES : BG_SA_DESTROYED_ALLIANCE_VEHICLES;
         int32 currentDestroyedVehicles = sWorldStateMgr->GetValue(worldStateId, GetBgMap());
         UpdateWorldState(worldStateId, currentDestroyedVehicles + 1);
@@ -1012,24 +1017,5 @@ bool BattlegroundSA::IsSpellAllowed(uint32 spellId, Player const* /*player*/) co
            break;
     }
 
-    return true;
-}
-
-bool BattlegroundSA::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor /*= true*/)
-{
-    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
-        return false;
-
-    switch (type)
-    {
-        case SCORE_DESTROYED_DEMOLISHER:
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, BG_SA_DEMOLISHERS_DESTROYED);
-            break;
-        case SCORE_DESTROYED_WALL:
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, BG_SA_GATES_DESTROYED);
-            break;
-        default:
-            break;
-    }
     return true;
 }

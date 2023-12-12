@@ -31,6 +31,11 @@
 #include "SpellInfo.h"
 #include "Util.h"
 
+enum EyeOfTheStormPvpStats
+{
+    PVP_STAT_FLAG_CAPTURES = 183
+};
+
 BattlegroundEY::BattlegroundEY(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     BgObjects.resize(0);
@@ -295,7 +300,7 @@ void BattlegroundEY::OnCaptureFlag(AreaTrigger* areaTrigger, Player* player)
     UpdateWorldState(NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_ON_BASE);
     UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_ON_BASE);
 
-    UpdatePlayerScore(player, SCORE_FLAG_CAPTURES, 1);
+    UpdatePvpStat(player, PVP_STAT_FLAG_CAPTURES, 1);
 
     player->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
     player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
@@ -347,14 +352,6 @@ void BattlegroundEY::OnFlagStateChange(GameObject* /*flagInBase*/, FlagState /*o
     }
 
     UpdateWorldState(NETHERSTORM_FLAG, AsUnderlyingType(newValue));
-}
-
-void BattlegroundEY::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
-{
-    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
-    Battleground::AddPlayer(player, queueId);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new BattlegroundEYScore(player->GetGUID(), player->GetBGTeam());
 }
 
 void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
@@ -451,17 +448,6 @@ void BattlegroundEY::EventTeamCapturedPoint(TeamId teamId, uint32 point, GameObj
 
     UpdateWorldState(m_PointsIconStruct[point].WorldStateControlIndex, 0);
     UpdatePointsCount(teamId);
-}
-
-bool BattlegroundEY::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
-{
-    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
-        return false;
-
-    if (type == SCORE_FLAG_CAPTURES)
-        player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, EY_OBJECTIVE_CAPTURE_FLAG);
-
-    return true;
 }
 
 WorldSafeLocsEntry const* BattlegroundEY::GetExploitTeleportLocation(Team team)
