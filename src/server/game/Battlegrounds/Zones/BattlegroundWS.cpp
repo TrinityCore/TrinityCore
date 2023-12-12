@@ -45,6 +45,12 @@ uint32 BG_WSG_Honor[2][BG_WSG_REWARD_NUM] =
     {60, 40, 80}  // holiday
 };
 
+enum WarsongGulchPvpStats
+{
+    PVP_STAT_FLAG_CAPTURES  = 928,
+    PVP_STAT_FLAG_RETURNS   = 929
+};
+
 BattlegroundWS::BattlegroundWS(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     BgObjects.resize(0);
@@ -181,14 +187,6 @@ void BattlegroundWS::StartingEventOpenDoors()
     TriggerGameEvent(WS_EVENT_START_BATTLE);
 }
 
-void BattlegroundWS::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
-{
-    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
-    Battleground::AddPlayer(player, queueId);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new BattlegroundWGScore(player->GetGUID(), player->GetBGTeam());
-}
-
 FlagState BattlegroundWS::GetFlagState(TeamId team) const
 {
     if (GameObject* gameObject = FindBgMap()->GetGameObject(_flags[team]))
@@ -314,25 +312,6 @@ void BattlegroundWS::HandleKillPlayer(Player* player, Player* killer)
     Battleground::HandleKillPlayer(player, killer);
 }
 
-bool BattlegroundWS::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
-{
-    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
-        return false;
-
-    switch (type)
-    {
-        case SCORE_FLAG_CAPTURES:                           // flags captured
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, WS_OBJECTIVE_CAPTURE_FLAG);
-            break;
-        case SCORE_FLAG_RETURNS:                            // flags returned
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, WS_OBJECTIVE_RETURN_FLAG);
-            break;
-        default:
-            break;
-    }
-    return true;
-}
-
 WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveyard(Player* player)
 {
     return sObjectMgr->GetClosestGraveyard(*player, player->GetBGTeam(), player);
@@ -411,7 +390,7 @@ void BattlegroundWS::OnFlagStateChange(GameObject* flagInBase, FlagState /*oldVa
                 if (player)
                 {
                     // flag got returned to base by player interaction
-                    UpdatePlayerScore(player, SCORE_FLAG_RETURNS, 1);      // +1 flag returns
+                    UpdatePvpStat(player, PVP_STAT_FLAG_RETURNS, 1);      // +1 flag returns
 
                     if (team == ALLIANCE)
                     {
@@ -548,7 +527,7 @@ void BattlegroundWS::OnCaptureFlag(AreaTrigger* /*areaTrigger*/, Player* player)
     }
 
     // 4. update criteria's for achievement, player score etc.
-    UpdatePlayerScore(player, SCORE_FLAG_CAPTURES, 1);      // +1 flag captures
+    UpdatePvpStat(player, PVP_STAT_FLAG_CAPTURES, 1);      // +1 flag captures
 
     // 5. Remove all related auras
     RemoveAssaultDebuffFromPlayer(player);
