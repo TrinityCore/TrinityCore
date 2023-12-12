@@ -31,6 +31,11 @@
 #include "SpellInfo.h"
 #include "Util.h"
 
+enum EyeOfTheStormPvpStats
+{
+    PVP_STAT_FLAG_CAPTURES = 183
+};
+
 BattlegroundEY::BattlegroundEY(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     BgObjects.resize(0);
@@ -295,7 +300,7 @@ void BattlegroundEY::OnCaptureFlag(AreaTrigger* areaTrigger, Player* player)
     UpdateWorldState(NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_ON_BASE);
     UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_ON_BASE);
 
-    UpdatePvpStat(player, BG_EY_PVP_STAT_FLAG_CAPTURES, 1);
+    UpdatePvpStat(player, PVP_STAT_FLAG_CAPTURES, 1);
 
     player->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
     player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);

@@ -45,6 +45,12 @@ uint32 BG_WSG_Honor[2][BG_WSG_REWARD_NUM] =
     {60, 40, 80}  // holiday
 };
 
+enum WarsongGulchPvpStats
+{
+    PVP_STAT_FLAG_CAPTURES  = 928,
+    PVP_STAT_FLAG_RETURNS   = 929
+};
+
 BattlegroundWS::BattlegroundWS(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     BgObjects.resize(0);
@@ -384,7 +390,7 @@ void BattlegroundWS::OnFlagStateChange(GameObject* flagInBase, FlagState /*oldVa
                 if (player)
                 {
                     // flag got returned to base by player interaction
-                    UpdatePvpStat(player, BG_WS_PVP_STAT_FLAG_RETURNS, 1);      // +1 flag returns
+                    UpdatePvpStat(player, PVP_STAT_FLAG_RETURNS, 1);      // +1 flag returns
 
                     if (team == ALLIANCE)
                     {
@@ -521,7 +527,7 @@ void BattlegroundWS::OnCaptureFlag(AreaTrigger* /*areaTrigger*/, Player* player)
     }
 
     // 4. update criteria's for achievement, player score etc.
-    UpdatePvpStat(player, BG_WS_PVP_STAT_FLAG_CAPTURES, 1);      // +1 flag captures
+    UpdatePvpStat(player, PVP_STAT_FLAG_CAPTURES, 1);      // +1 flag captures
 
     // 5. Remove all related auras
     RemoveAssaultDebuffFromPlayer(player);

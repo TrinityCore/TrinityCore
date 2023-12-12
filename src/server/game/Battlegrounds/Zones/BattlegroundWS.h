@@ -129,12 +129,6 @@ enum BG_WS_AreaTriggers
     AT_CAPTURE_POINT_HORDE      = 31
 };
 
-enum BG_WS_PVP_Stats
-{
-    BG_WS_PVP_STAT_FLAG_CAPTURES = 928,
-    BG_WS_PVP_STAT_FLAG_RETURNS  = 929
-};
-
 static constexpr uint32 WS_EVENT_START_BATTLE = 35912;
 
 static constexpr Seconds FLAG_ASSAULT_TIMER = 30s;

@@ -31,6 +31,12 @@
 #include "UpdateData.h"
 #include "WorldStateMgr.h"
 
+enum StrandOfTheAncientsPvpStats
+{
+    PVP_STAT_GATES_DESTROYED        = 231,
+    PVP_STAT_DEMOLISHERS_DESTROYED  = 232
+};
+
 BattlegroundSA::BattlegroundSA(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = 0; // handle by Kanrethad
@@ -564,7 +570,7 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                             {
                                 if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
                                 {
-                                    UpdatePvpStat(player, BG_SA_PVP_STAT_GATES_DESTROYED, 1);
+                                    UpdatePvpStat(player, PVP_STAT_GATES_DESTROYED, 1);
                                     if (rewardHonor)
                                         UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(1));
                                 }
@@ -590,7 +596,7 @@ void BattlegroundSA::HandleKillUnit(Creature* creature, Player* killer)
 {
     if (creature->GetEntry() == NPC_DEMOLISHER_SA)
     {
-        UpdatePvpStat(killer, BG_SA_PVP_STAT_DEMOLISHERS_DESTROYED, 1);
+        UpdatePvpStat(killer, PVP_STAT_DEMOLISHERS_DESTROYED, 1);
         int32 worldStateId = Attackers == TEAM_HORDE ? BG_SA_DESTROYED_HORDE_VEHICLES : BG_SA_DESTROYED_ALLIANCE_VEHICLES;
         int32 currentDestroyedVehicles = sWorldStateMgr->GetValue(worldStateId, GetBgMap());
         UpdateWorldState(worldStateId, currentDestroyedVehicles + 1);

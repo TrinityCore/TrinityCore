@@ -188,12 +188,6 @@ enum BG_AB_Events
     AB_EVENT_DEFENDED_LUMBER_MILL_ALLIANCE      = 39392
 };
 
-enum BG_AB_PVP_Stats
-{
-    BG_AB_PVP_STAT_BASES_ASSAULTED  = 926,
-    BG_AB_PVP_STAT_BASES_DEFENDED   = 927,
-};
-
 // Tick intervals and given points: case 0, 1, 2, 3, 4, 5 captured nodes
 const uint32 BG_AB_TickInterval = 2000;
 const uint32 BG_AB_TickPoints[6] = { 0, 2, 3, 4, 7, 60 };

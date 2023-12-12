@@ -913,12 +913,6 @@ enum HonorRewards
     WINNER_HONOR_AMOUNT     = 500
 };
 
-enum BG_IC_PVP_Stats
-{
-    BG_IC_PVP_STAT_BASES_ASSAULTED = 245,
-    BG_IC_PVP_STAT_BASES_DEFENDED  = 246
-};
-
 class BattlegroundIC : public Battleground
 {
     public:

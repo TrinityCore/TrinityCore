@@ -25,6 +25,15 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 
+enum AlteracValleyPvpStats
+{
+    PVP_STAT_TOWERS_ASSAULTED       = 61,
+    PVP_STAT_GRAVEYARDS_ASSAULTED   = 63,
+    PVP_STAT_TOWERS_DEFENDED        = 64,
+    PVP_STAT_GRAVEYARDS_DEFENDED    = 65,
+    PVP_STAT_SECONDARY_OBJECTIVES   = 82
+};
+
 BattlegroundAV::BattlegroundAV(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     BgObjects.resize(BG_AV_OBJECT_MAX);
@@ -891,7 +900,7 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
             herold->AI()->Talk(team == ALLIANCE ? nodeInfo->TextIds.AllianceCapture : nodeInfo->TextIds.HordeCapture);
 
     // update the statistic for the defending player
-    UpdatePvpStat(player, IsTower(node) ? BG_AV_PVP_STAT_TOWERS_DEFENDED : BG_AV_PVP_STAT_GRAVEYARDS_DEFENDED, 1);
+    UpdatePvpStat(player, IsTower(node) ? PVP_STAT_TOWERS_DEFENDED : PVP_STAT_GRAVEYARDS_DEFENDED, 1);
 }
 
 void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
@@ -980,7 +989,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
             herold->AI()->Talk(team == ALLIANCE ? nodeInfo->TextIds.AllianceAttack : nodeInfo->TextIds.HordeAttack);
 
     // update the statistic for the assaulting player
-    UpdatePvpStat(player, (IsTower(node)) ? BG_AV_PVP_STAT_TOWERS_ASSAULTED : BG_AV_PVP_STAT_GRAVEYARDS_ASSAULTED, 1);
+    UpdatePvpStat(player, (IsTower(node)) ? PVP_STAT_TOWERS_ASSAULTED : PVP_STAT_GRAVEYARDS_ASSAULTED, 1);
 }
 
 void BattlegroundAV::UpdateNodeWorldState(BG_AV_Nodes node)

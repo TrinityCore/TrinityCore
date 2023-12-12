@@ -306,12 +306,6 @@ enum BG_SA_Objects
     BG_SA_MAXOBJ = BG_SA_BOMB+68
 };
 
-enum BG_SA_PVP_Stats
-{
-    BG_SA_PVP_STAT_GATES_DESTROYED       = 231,
-    BG_SA_PVP_STAT_DEMOLISHERS_DESTROYED = 232
-};
-
 Position const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ] =
 {
     { 1411.57f, 108.163f, 28.692f, 5.441f },

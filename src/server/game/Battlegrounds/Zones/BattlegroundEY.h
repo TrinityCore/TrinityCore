@@ -140,11 +140,6 @@ enum EYBattlegroundPointState
     EY_POINT_UNDER_CONTROL      = 3
 };
 
-enum BG_EY_PVP_Stats
-{
-    BG_EY_PVP_STAT_FLAG_CAPTURES = 183
-};
-
 enum BG_EY_ExploitTeleportLocations
 {
     EY_EXPLOIT_TELEPORT_LOCATION_ALLIANCE   = 3773,
