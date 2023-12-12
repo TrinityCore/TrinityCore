@@ -99,7 +99,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 -- Conversation for Sparring Partner
 DELETE FROM `conversation_actors` WHERE `ConversationId` IN (13611,13630,13631,13632,13633,13634,13635,13710,13892,13893,13895,14440,14441,14444,14447,14448,14449,14452,14453,14454,14455,14456,14457,14458,14459);
-DELETE FROM `conversation_actors` WHERE `ConversationId` IN (14460,14461,14462,14463,14466,14467,14468,14472,14473,14474,14475,14476,14477,14486,14487,14488,14489,14490,14491,14492,14493,14494,14495);
+DELETE FROM `conversation_actors` WHERE `ConversationId` IN (14460,14461,14462,14463,14465,14466,14467,14468,14471,14472,14473,14474,14475,14476,14477,14486,14487,14488,14489,14490,14491,14492,14493,14494,14495);
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
 (13611,74771,0,0,0,0,0,0,45745), -- Alliance Sparring Partner
 (13611,76285,0,1,0,0,0,0,45745), -- Horde Sparring Partner
@@ -159,12 +159,16 @@ INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`Conve
 (14462,76285,0,1,0,0,0,0,45745), -- Horde Sparring Partner
 (14463,74771,0,0,0,0,0,0,45745), -- Alliance Sparring Partner
 (14463,76285,0,1,0,0,0,0,45745), -- Horde Sparring Partner
+(14465,74771,0,0,0,0,0,0,45745), -- Alliance Sparring Partner
+(14465,76285,0,1,0,0,0,0,45745), -- Horde Sparring Partner
 (14466,74771,0,0,0,0,0,0,45745), -- Alliance Sparring Partner
 (14466,76285,0,1,0,0,0,0,45745), -- Horde Sparring Partner
 (14467,74771,0,0,0,0,0,0,45745), -- Alliance Sparring Partner
 (14467,76285,0,1,0,0,0,0,45745), -- Horde Sparring Partner
 (14468,74771,0,0,0,0,0,0,45745), -- Alliance Sparring Partner
 (14468,76285,0,1,0,0,0,0,45745), -- Horde Sparring Partner
+(14471,74771,0,0,0,0,0,0,45745), -- Alliance Sparring Partner
+(14471,76285,0,1,0,0,0,0,45745), -- Horde Sparring Partner
 (14472,74771,0,0,0,0,0,0,45745), -- Alliance Sparring Partner
 (14472,76285,0,1,0,0,0,0,45745), -- Horde Sparring Partner
 (14473,74771,0,0,0,0,0,0,45745), -- Alliance Sparring Partner
@@ -199,7 +203,7 @@ INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`Conve
 (14495,76285,0,1,0,0,0,0,45745); -- Horde Sparring Partner
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (34011,34012,34013,34014,34015,34016,34017,34018,34019,34020,34021,34022,34024,34025,36204,34173,36160,34690,34691,34692,34693,34697,34698,36206,36207,36163,36164,36170,36171,36175,36176,36177,36178,36179,36180,33931,33932,33933,36181,36182,36183,36161,36162);
-DELETE FROM `conversation_line_template` WHERE `Id` IN (36188,36189,36190,36191,36192,36193,36194,36195,36196,36197,36198,36199,36200,36201,36202,36203,36208,36209,36210,36211,36212,36213,36214,36215,36218,36219,36224,36225,36226,36227,36228,36229,36231,36232,36235,36236,36237,36238,36242,36243,36244,36245,36246,36247,36248,36249,36250,36251,36252,36253,36254,36255,36256,36257,36258);
+DELETE FROM `conversation_line_template` WHERE `Id` IN (36188,36189,36190,36191,36192,36193,36194,36195,36196,36197,36198,36199,36200,36201,36202,36203,36208,36209,36210,36211,36212,36213,36214,36215,36218,36219,36222,36223,36224,36225,36226,36227,36228,36229,36231,36232,36233,36234,36235,36236,36237,36238,36242,36243,36244,36245,36246,36247,36248,36249,36250,36251,36252,36253,36254,36255,36256,36257,36258);
 DELETE FROM `conversation_line_template` WHERE `Id` IN (36259,36260,36261,36262,36275,36276,36277,36278,36279,36280,36281,36282,36283,36284,36285,36286,36287,36288,36289,36290,36291,36292,36293,36294);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES
 (33931,0,0,0,45745), -- Alliance
@@ -271,6 +275,8 @@ INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`
 (36215,0,1,0,45745), -- Horde
 (36218,0,1,0,45745), -- Horde
 (36219,0,1,0,45745), -- Horde
+(36222,0,0,0,45745), -- Alliance
+(36223,0,1,0,45745), -- Horde
 (36224,0,0,0,45745), -- Alliance
 (36225,0,1,0,45745), -- Horde
 (36226,0,0,0,45745), -- Alliance
@@ -279,6 +285,8 @@ INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`
 (36229,0,1,0,45745), -- Horde
 (36231,0,1,0,45745), -- Horde
 (36232,0,1,0,45745), -- Horde
+(36233,0,0,0,45745), -- Alliance
+(36234,0,1,0,45745), -- Horde
 (36235,0,0,0,45745), -- Alliance
 (36236,0,1,0,45745), -- Horde
 (36237,0,0,0,45745), -- Alliance
@@ -326,7 +334,7 @@ INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`
 (36294,0,1,0,45745); -- Horde
 
 DELETE FROM `conversation_template` WHERE `Id` IN (13630,13631,13632,13633,13634,13635,13710,13892,13893,13895,14441,14444,14447,14448,14449,13611,14440);
-DELETE FROM `conversation_template` WHERE `Id` IN (14452,14453,14454,14455,14456,14457,14458,14459,14460,14461,14462,14463,14466,14467,14468,14472,14473,14474,14475,14476,14477);
+DELETE FROM `conversation_template` WHERE `Id` IN (14452,14453,14454,14455,14456,14457,14458,14459,14460,14461,14462,14463,14465,14466,14467,14468,14471,14472,14473,14474,14475,14476,14477);
 DELETE FROM `conversation_template` WHERE `Id` IN (14486,14487,14488,14489,14490,14491,14492,14493,14494,14495);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
 (13630,34011,0,'',45745),
@@ -358,9 +366,11 @@ INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptNa
 (14461,36210,0,'',45745),
 (14462,36212,0,'',45745),
 (14463,36214,0,'',45745),
+(14465,36222,0,'',45745),
 (14466,36224,0,'',45745),
 (14467,36226,0,'',45745),
 (14468,36228,0,'',45745),
+(14471,36233,0,'',45745),
 (14472,36235,0,'',45745),
 (14473,36237,0,'',45745),
 (14474,36242,0,'',45745),
@@ -381,7 +391,7 @@ INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptNa
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (34011,36204,34173,36160,36163,36164,36170,36171,36175,36176,36177,36178,36179,36180,33931,33932,33933,36181,36182,36183,36161,36162);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (36188,36189,36190,36191,36192,36193,36194,36195,36196,36197,36198,36199,36200,36201,36202,36203,36208,36209,36210,36211,36212,36213,36214,36215);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (36275,36276,36277,36278,36279,36280,36281,36282,36283,36284,36285,36286,36287,36288,36289,36290,36291,36292,36293,36294,34690,34691,36206,36207,34012,34013,34014,36249,36250,36251,34015,34016,34017,36246,36247,36248,34018,34019,36244,36245,36252,36253);
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (34020,34021,34022,36256,36257,36258,34024,34025,36254,36255,36259,36260,36261,36262,34697,34698,36218,36219,36224,36225,36226,36227,36228,36229,34692,34693,36231,36232,36235,36236,36237,36238,36242,36243);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (34020,34021,34022,36256,36257,36258,34024,34025,36254,36255,36259,36260,36261,36262,34697,34698,36218,36219,36224,36225,36226,36227,36228,36229,34692,34693,36231,36232,36235,36236,36237,36238,36242,36243,36222,36223,36233,36234);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (29,0,34011,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 34011 if team is Alliance'),
 (29,0,36204,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36204 if team is Horde'),
@@ -548,4 +558,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (29,0,36237,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36237 if team is Alliance'),
 (29,0,36238,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36238 if team is Horde'),
 (29,0,36242,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36242 if team is Alliance'),
-(29,0,36243,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36243 if team is Horde');
+(29,0,36243,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36243 if team is Horde'),
+(29,0,36222,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36222 if team is Alliance'),
+(29,0,36223,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36223 if team is Horde'),
+(29,0,36233,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36233 if team is Alliance'),
+(29,0,36234,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36234 if team is Horde');

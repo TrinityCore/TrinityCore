@@ -2246,122 +2246,134 @@ class spell_summon_combat_trainer : public SpellScript
 
 enum EnhancedCombatTrainer
 {
-    ACTOR_ID_ALLIANCE_ENHANCED_TRAINING             = 74771,
-    ACTOR_ID_HORDE_ENHANCED_TRAINING                = 76285,
+    ACTOR_ID_ALLIANCE_ENHANCED_TRAINING               = 74771,
+    ACTOR_ID_HORDE_ENHANCED_TRAINING                  = 76285,
 
-    CARGE_CATAGORY_ID_CHARGE_SPELL                  = 1386,
+    CARGE_CATAGORY_ID_CHARGE_SPELL                    = 1386,
 
-    CONVERSATION_PREFIGHT_WALK_ENHANCED             = 13710, // Walk out
-    CONVERSATION_USE_SPELLS_AT_RANGE                = 13630,
-    CONVERSATION_READY_COMBAT                       = 14440,
+    CONVERSATION_PREFIGHT_WALK_ENHANCED               = 13710,
+    CONVERSATION_USE_SPELLS_AT_RANGE                  = 13630,
+    CONVERSATION_READY_COMBAT                         = 14440,
     // Warrior
-    CONVERSATION_READY_COMBAT_WARRIOR               = 14441,
-    CONVERSATION_CHARGE_ZERO_RES_ENHANCED           = 14444, // First response
-    CONVERSATION_SLAM_ENHANCED                      = 14447, // Slam
-    CONVERSATION_CHARGE_ONE_RES_ENHANCED            = 14448, // Second response
-    CONVERSATION_CHARGE_FINAL_ENHANCED              = 14449, // Third response
-    CONVERSATION_CHARGE_KICKBACK                    = 13611,
+    CONVERSATION_READY_COMBAT_WARRIOR                 = 14441,
+    CONVERSATION_CHARGE_ZERO_RES_ENHANCED             = 14444,
+    CONVERSATION_SLAM_ENHANCED                        = 14447,
+    CONVERSATION_CHARGE_ONE_RES_ENHANCED              = 14448,
+    CONVERSATION_CHARGE_FINAL_ENHANCED                = 14449,
+    CONVERSATION_CHARGE_KICKBACK                      = 13611,
     // Paladin
-    CONVERSATION_HOLY_POWER_ONE_PALADIN             = 14452,
-    CONVERSATION_CRUSADER_STRIKE_ONE_PALADIN        = 14453,
-    CONVERSATION_CRUSADER_STRIKE_TWO_PALADIN        = 14454,
-    CONVERSATION_SHIELD_SLAM_ONE_PALADIN            = 14455,
-    CONVERSATION_HOLY_POWER_TWO_PALADIN             = 14456,
-    CONVERSATION_SHIELD_SLAM_TWO_PALADIN            = 14457,
-    CONVERSATION_CRUSADER_STRIKE_THREE_PALADIN      = 14458,
-    CONVERSATION_HOLY_POWER_THREE_PALADIN           = 14459,
+    CONVERSATION_HOLY_POWER_ONE_PALADIN               = 14452,
+    CONVERSATION_CRUSADER_STRIKE_ONE_PALADIN          = 14453,
+    CONVERSATION_CRUSADER_STRIKE_TWO_PALADIN          = 14454,
+    CONVERSATION_SHIELD_SLAM_ONE_PALADIN              = 14455,
+    CONVERSATION_HOLY_POWER_TWO_PALADIN               = 14456,
+    CONVERSATION_SHIELD_SLAM_TWO_PALADIN              = 14457,
+    CONVERSATION_CRUSADER_STRIKE_THREE_PALADIN        = 14458,
+    CONVERSATION_HOLY_POWER_THREE_PALADIN             = 14459,
     // Rogue
-    CONVERSATION_SINISTER_STRIKE_ONE_ROGUE          = 14486,
-    CONVERSATION_REGULAR_ATTACKS_ROGUE              = 14487,
-    CONVERSATION_THREE_COMBO_POINTS_ROGUE           = 14488,
-    CONVERSATION_THREE_COMBO_EVISCERATE_ROGUE       = 14489,
-    CONVERSATION_SINISTER_STRIKE_TWO_ROGUE          = 14490,
-    CONVERSATION_FOUR_COMBO_POINTS_ROGUE            = 14491,
-    CONVERSATION_FOUR_COMBO_EVISCERATE_ROGUE        = 14492,
-    CONVERSATION_SINISTER_STRIKE_THREE_ROGUE        = 14493,
-    CONVERSATION_FIVE_COMBO_POINTS_ROGUE            = 14494,
-    CONVERSATION_FAILED_EVISCERATE_ROGUE            = 14495,
+    CONVERSATION_SINISTER_STRIKE_ONE_ROGUE            = 14486,
+    CONVERSATION_REGULAR_ATTACKS_ROGUE                = 14487,
+    CONVERSATION_THREE_COMBO_POINTS_ROGUE             = 14488,
+    CONVERSATION_THREE_COMBO_EVISCERATE_ROGUE         = 14489,
+    CONVERSATION_SINISTER_STRIKE_TWO_ROGUE            = 14490,
+    CONVERSATION_FOUR_COMBO_POINTS_ROGUE              = 14491,
+    CONVERSATION_FOUR_COMBO_EVISCERATE_ROGUE          = 14492,
+    CONVERSATION_SINISTER_STRIKE_THREE_ROGUE          = 14493,
+    CONVERSATION_FIVE_COMBO_POINTS_ROGUE              = 14494,
+    CONVERSATION_FAILED_EVISCERATE_ROGUE              = 14495,
     // Priest
-    CONVERSATION_SHADOW_WORD_PAIN_SUCCESS_PRIEST    = 13892,
-    CONVERSATION_SMITE_PRE_COMBAT_PRIEST            = 14460,
-    CONVERSATION_SHADOW_WORD_PAIN_PRE_COMBAT_PRIEST = 14461,
-    CONVERSATION_SHADOW_WORD_PAIN_TOO_SOON_PRIEST   = 14462,
-    CONVERSATION_SHADOW_WORD_PAIN_FADING_PRIEST     = 14463,
+    CONVERSATION_SHADOW_WORD_PAIN_QUEST_CREDIT_PRIEST = 13892,
+    CONVERSATION_SMITE_PRE_COMBAT_PRIEST              = 14460,
+    CONVERSATION_SHADOW_WORD_PAIN_PRE_COMBAT_PRIEST   = 14461,
+    CONVERSATION_SHADOW_WORD_PAIN_TOO_SOON_PRIEST     = 14462,
+    CONVERSATION_SHADOW_WORD_PAIN_FADING_PRIEST       = 14463,
     // Shaman
-    CONVERSATION_LIGHTNINGBOLT_FIRST_SHAMAN         = 13631,
-    CONVERSATION_PRIMAL_STRIKE_FIRST_SHAMAN         = 13632,
-    CONVERSATION_PRIMAL_STRIKE_CREDIT_SHAMAN        = 13633,
-    CONVERSATION_LIGHTNINGBOLT_RANGE_SHAMAN         = 14475,
+    CONVERSATION_LIGHTNINGBOLT_FIRST_SHAMAN           = 13631,
+    CONVERSATION_PRIMAL_STRIKE_FIRST_SHAMAN           = 13632,
+    CONVERSATION_PRIMAL_STRIKE_QUEST_CREDIT_SHAMAN    = 13633,
+    CONVERSATION_LIGHTNINGBOLT_RANGE_SHAMAN           = 14475,
     // Mage
-    CONVERSATION_FIRE_BLAST_MAGE_CREDIT             = 13635,
-    CONVERSATION_FIRE_BLAST_MAGE_NO_CREDIT          = 14477,
-    CONVERSATION_FROSTBOLT_MAGE                     = 13634,
-    CONVERSATION_FROSTBOLT_MAGE_CLOSE               = 14476,
+    CONVERSATION_FROSTBOLT_MAGE                       = 13634,
+    CONVERSATION_FIRE_BLAST_QUEST_CREDIT_MAGE         = 13635,
+    CONVERSATION_FROSTBOLT_CLOSE_MAGE                 = 14476,
+    CONVERSATION_FIRE_BLAST_MAGE_NO_CREDIT            = 14477,
+    // Warlock
+    CONVERSATION_CORRUPTION_QUEST_CREDIT_WARLOCK      = 13895,
+    CONVERSATION_SHADOW_BOLT_PRE_COMBAT_WARLOCK       = 14465,
+    CONVERSATION_CORRUPTION_CAST_PRE_COMBAT_WARLOCK   = 14466,
+    CONVERSATION_CORRUPTION_CAST_TOO_SOON_WARLOCK     = 14467,
+    CONVERSATION_CORRUPTION_IS_FADING_WARLOCK         = 14468,
+    //Druid
+    CONVERSATION_MOONFIRE_QUEST_CREDIT_DRUID          = 13893,
+    CONVERSATION_WRATH_PRE_COMBAT_DRUID               = 14471,
+    CONVERSATION_MOONFIRE_CAST_PRE_COMBAT_DRUID       = 14472,
+    CONVERSATION_MOONFIRE_CAST_TOO_SOON_DRUID         = 14473,
+    CONVERSATION_MOONFIRE_WEARING_OFF_DRUID           = 14474,
     // All classes
-    EVENT_COMBAT_TRAINING_WALK_AND_TALK             = 1,
-    EVENT_COMBAT_TRAINING_FACE_PLAYER               = 2,
-    EVENT_COMBAT_RUN_BACK                           = 3,
-    EVENT_COMBAT_TRAINING_END                       = 4,
-    EVENT_COMBAT_CHECK_PLAYER                       = 5,
+    EVENT_COMBAT_TRAINING_WALK_AND_TALK               = 1,
+    EVENT_COMBAT_TRAINING_FACE_PLAYER                 = 2,
+    EVENT_COMBAT_RUN_BACK                             = 3,
+    EVENT_COMBAT_TRAINING_END                         = 4,
+    EVENT_COMBAT_CHECK_PLAYER                         = 5,
     // Warrior class
-    EVENT_COMBAT_TRAINING_RESET_WARRIOR             = 6,
+    EVENT_COMBAT_TRAINING_RESET_WARRIOR               = 6,
     // Rogue Class
-    EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE      = 7,
+    EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE        = 7,
     // Priest Class
-    EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST   = 8,
+    EVENT_COMBAT_TRAINING_SPELL_FADING                = 8,
     // Shaman Class
-    EVENT_COMBAT_TRAINING_RESET_SHAMAN              = 9,
-    EVENT_COMBAT_TRAINING_AGGRO_CHECK_SHAMAN        = 10,
+    EVENT_COMBAT_TRAINING_RESET_SHAMAN                = 9,
+    EVENT_COMBAT_TRAINING_AGGRO_CHECK_SHAMAN          = 10,
     // Mage Class
-    EVENT_COMBAT_TRAINING_RESET_MAGE                = 11,
-    EVENT_COMBAT_TRAINING_AGGRO_CHECK_MAGE          = 12,
+    EVENT_COMBAT_TRAINING_RESET_MAGE                  = 11,
+    EVENT_COMBAT_TRAINING_AGGRO_CHECK_MAGE            = 12,
 
-    NPC_ALLIANCE_SPARING_PARTNER_ENHANCED           = 164577,
-    NPC_ALLIANCE_SPARING_PARTNER_ENHANCED2          = 164775,
-    NPC_HORDE_SPARING_PARTNER_ENHANCED              = 166916,
-    NPC_INVISBUNNY_CAMP                             = 167761,
+    NPC_ALLIANCE_SPARING_PARTNER_ENHANCED             = 164577,
+    NPC_ALLIANCE_SPARING_PARTNER_ENHANCED2            = 164775,
+    NPC_HORDE_SPARING_PARTNER_ENHANCED                = 166916,
+    NPC_INVISBUNNY_CAMP                               = 167761,
 
-    PATH_COMBAT_TRAINER_HOME                        = 10512100,
+    PATH_COMBAT_TRAINER_HOME                          = 10512100,
 
-    POSITION_WALK_POINT_ENHANCED_TRAINING           = 1,
-    POSITION_RUN_POINT_ENHANCED_TRAINING            = 2,
-    POSITION_TRAINING_POINT_ENHANCED_TRAINING       = 3,
+    POSITION_WALK_POINT_ENHANCED_TRAINING             = 1,
+    POSITION_RUN_POINT_ENHANCED_TRAINING              = 2,
+    POSITION_TRAINING_POINT_ENHANCED_TRAINING         = 3,
 
-    QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE          = 59254,
-    QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE_MONK     = 59339,
-    QUEST_ENHANCED_COMBAT_TACTICS_HORDE             = 59933,
-    QUEST_ENHANCED_COMBAT_TACTICS_HORDE_MONK        = 59934,
+    QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE            = 59254,
+    QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE_MONK       = 59339,
+    QUEST_ENHANCED_COMBAT_TACTICS_HORDE               = 59933,
+    QUEST_ENHANCED_COMBAT_TACTICS_HORDE_MONK          = 59934,
 
-    SPELL_DRINK_HEALING_POTION                      = 320229,
-    SPELL_KNOCKBACK                                 = 320735,
-    SPELL_CHARGE_KNOCKBACK_DRUID                    = 320767,
-    SPELL_CHARGE                                    = 100,
-    SPELL_SLAM                                      = 1464,
-    SPELL_CHARGE_KNOCKBACK_WARRIOR                  = 320583,
-    SPELL_SHIELD_OF_THE_RIGHTEOUS                   = 53600,
-    SPELL_CRUSADER_STRIKE                           = 35395,
-    SPELL_SINISTER_STRIKE                           = 1752,
-    SPELL_EVISCERATE                                = 196819,
-    SPELL_SMITE                                     = 585,
-    SPELL_SHADOW_WORD_PAIN                          = 589,
-    SPELL_CHARGE_KNOCKBACK                          = 320605,
-    SPELL_PRIMAL_STRIKE                             = 73899,
-    SPELL_LIGHTNING_BOLT                            = 188196,
-    SPELL_FIRE_BLAST                                = 319836,
-    SPELL_FROSTBOLT                                 = 116,
-    SPELL_CORRUPTION                                = 172,
-    SPELL_SHADOWBOLT                                = 686,
-    SPELL_MOONFIRE                                  = 164812,
-    SPELL_WRATH                                     = 5176,
-    SPELL_TIGER_PALM                                = 100780,
-    SPELL_BLACKOUT_KICK                             = 100784,
-    SPELL_RANGED_ROOT_DNT                           = 320608,
-    SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR            = 320741,
-    SPELL_AGGRO_RADIUS_CHECK_DNT_PRIEST             = 320649,
-    SPELL_AGGRO_RADIUS_CHECK_DNT_SHAMAN             = 320705,
-    SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE       = 320741,
-    SPELL_AGGRO_RADIUS_CHECK_DNT_WARLOCK            = 320606,
-    SPELL_AGGRO_RADIUS_CHECK_DNT_DRUID              = 320766
+    SPELL_DRINK_HEALING_POTION                        = 320229,
+    SPELL_KNOCKBACK                                   = 320735,
+    SPELL_CHARGE_KNOCKBACK_DRUID                      = 320767,
+    SPELL_CHARGE                                      = 100,
+    SPELL_SLAM                                        = 1464,
+    SPELL_CHARGE_KNOCKBACK_WARRIOR                    = 320583,
+    SPELL_SHIELD_OF_THE_RIGHTEOUS                     = 53600,
+    SPELL_CRUSADER_STRIKE                             = 35395,
+    SPELL_SINISTER_STRIKE                             = 1752,
+    SPELL_EVISCERATE                                  = 196819,
+    SPELL_SMITE                                       = 585,
+    SPELL_SHADOW_WORD_PAIN                            = 589,
+    SPELL_CHARGE_KNOCKBACK                            = 320605,
+    SPELL_PRIMAL_STRIKE                               = 73899,
+    SPELL_LIGHTNING_BOLT                              = 188196,
+    SPELL_FIRE_BLAST                                  = 319836,
+    SPELL_FROSTBOLT                                   = 116,
+    SPELL_CORRUPTION                                  = 172,
+    SPELL_SHADOWBOLT                                  = 686,
+    SPELL_MOONFIRE                                    = 164812,
+    SPELL_WRATH                                       = 5176,
+    SPELL_TIGER_PALM                                  = 100780,
+    SPELL_BLACKOUT_KICK                               = 100784,
+    SPELL_RANGED_ROOT_DNT                             = 320608,
+    SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR              = 320741,
+    SPELL_AGGRO_RADIUS_CHECK_DNT_PRIEST               = 320649,
+    SPELL_AGGRO_RADIUS_CHECK_DNT_SHAMAN               = 320705,
+    SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE         = 320741,
+    SPELL_AGGRO_RADIUS_CHECK_DNT_WARLOCK              = 320606,
+    SPELL_AGGRO_RADIUS_CHECK_DNT_DRUID                = 320766
 };
 
 struct npc_sparring_partner_combat_training : public ScriptedAI
@@ -2464,20 +2476,20 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT_WARRIOR);
                         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
-                        _slamCheck = true;
+                        _senondaryCheck = true;
                         break;
                     }
                     case CLASS_PALADIN:
                     {
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
-                        _crusaderCheck = true;
+                        _senondaryCheck = true;
                         _rightiousCheck = true;
                         break;
                     }
                     case CLASS_ROGUE:
                     {
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
-                        _sinisterStrikeCheck = true;
+                        _senondaryCheck = true;
                         _comboPointCheck = true;
                         break;
                     }
@@ -2486,7 +2498,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_PRIEST);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
-                        _smiteCheck = true;
+                        _senondaryCheck = true;
                         break;
                     }
                     case CLASS_SHAMAN:
@@ -2494,7 +2506,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_SHAMAN);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
-                        _LightningboltCheck = true;
+                        _senondaryCheck = true;
                         break;
                     }
                     case CLASS_MAGE:
@@ -2502,7 +2514,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
-                        _frostboltCheck = true;
+                        _senondaryCheck = true;
                         break;
                     }
                     case CLASS_WARLOCK:
@@ -2510,6 +2522,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARLOCK);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
+                        _senondaryCheck = true;
                         break;
                     }
                     case CLASS_DRUID:
@@ -2517,6 +2530,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_DRUID);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
+                        _senondaryCheck = true;
                         break;
                     }
                     case CLASS_MONK:
@@ -2588,11 +2602,10 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
         {
             case CLASS_WARRIOR:
             {
-                if ((spellInfo->Id == SPELL_SLAM) && _slamCheck)
+                if ((spellInfo->Id == SPELL_SLAM) && _senondaryCheck)
                 {
-                    _slamCheck = false;
-                    Milliseconds _existingTime = _events.GetTimeUntilEvent(EVENT_COMBAT_TRAINING_RESET_WARRIOR);
-                    _events.RescheduleEvent(EVENT_COMBAT_TRAINING_RESET_WARRIOR, 10s + _existingTime);
+                    _senondaryCheck = false;
+                    _events.RescheduleEvent(EVENT_COMBAT_TRAINING_RESET_WARRIOR, 10s);
                     ConversationWithPlayer(CONVERSATION_SLAM_ENHANCED);
                 }
 
@@ -2644,13 +2657,13 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         else if (_questCredits == 2)
                             ConversationWithPlayer(CONVERSATION_SHIELD_SLAM_TWO_PALADIN);
 
-                        _crusaderCheck = true;
+                        _senondaryCheck = true;
                     }
                 }
 
                 if (spellInfo->Id == SPELL_CRUSADER_STRIKE)
                 {
-                    if (_crusaderCheck)
+                    if (_senondaryCheck)
                     {
                         switch (_questCredits)
                         {
@@ -2666,7 +2679,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                             default:
                                 break;
                         }
-                        _crusaderCheck = false;
+                        _senondaryCheck = false;
                         _rightiousCheck = true;
                     }
                 }
@@ -2695,7 +2708,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                                 ConversationWithPlayer(CONVERSATION_THREE_COMBO_EVISCERATE_ROGUE);
                             else if (_questCredits == 2)
                                 ConversationWithPlayer(CONVERSATION_FOUR_COMBO_EVISCERATE_ROGUE);
-                            _sinisterStrikeCheck = true;
+                            _senondaryCheck = true;
                         }
                     }
                     else
@@ -2707,12 +2720,9 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                 if (spellInfo->Id == SPELL_SINISTER_STRIKE)
                 {
                     if (!_questCredits)
-                    {
-                        _events.CancelEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE);
-                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE, 8s, 20s);
-                    }
+                        _events.RescheduleEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE, 8s, 20s);
 
-                    if (_sinisterStrikeCheck)
+                    if (_senondaryCheck)
                     {
                         switch (_questCredits)
                         {
@@ -2728,7 +2738,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                             default:
                                 break;
                         }
-                        _sinisterStrikeCheck = false;
+                        _senondaryCheck = false;
                     }
                 }
                 break;
@@ -2737,25 +2747,27 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
             {
                 if (spellInfo->Id == SPELL_SHADOW_WORD_PAIN)
                 {
-                    _events.CancelEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST);
+                    _events.CancelEvent(EVENT_COMBAT_TRAINING_SPELL_FADING);
 
-                    if (!_shadowWordPainCheck)
+                    if (!_mainSpellCheck)
                     {
-                        if (_preCombatCheck)
+                        if (_senondaryCheck)
                         {
                             ConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_PRE_COMBAT_PRIEST);
+                            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
                             me->RemoveAura(SPELL_RANGED_ROOT_DNT);
-                            _preCombatCheck = false;
+                            _senondaryCheck = false;
                         }
                         else
                             ConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_TOO_SOON_PRIEST);
 
-                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST, 13s);
+                        _convoID = CONVERSATION_SHADOW_WORD_PAIN_FADING_PRIEST;
+                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SPELL_FADING, 13s);
                     }
                     else
                     {
                         ++_questCredits;
-                        _shadowWordPainCheck = false;
+                        _mainSpellCheck = false;
                         player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
 
                         if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
@@ -2764,15 +2776,16 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         }
                         else
                         {
-                            ConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_SUCCESS_PRIEST);
-                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST, 13s);
+                            ConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_QUEST_CREDIT_PRIEST);
+                            _convoID = CONVERSATION_SHADOW_WORD_PAIN_FADING_PRIEST;
+                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SPELL_FADING, 13s);
                         }
                     }
                 }
 
                 if (spellInfo->Id == SPELL_SMITE)
                 {
-                    if (_preCombatCheck)
+                    if (_senondaryCheck)
                         ConversationWithPlayer(CONVERSATION_SMITE_PRE_COMBAT_PRIEST);
                 }
                 break;
@@ -2786,14 +2799,12 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
                     ++_counter;
 
-                    if (_counter == 1)
+                    if (_counter < 3)
                     {
-                        ConversationWithPlayer(CONVERSATION_PRIMAL_STRIKE_FIRST_SHAMAN);
+                        if (_counter == 1)
+                            ConversationWithPlayer(CONVERSATION_PRIMAL_STRIKE_FIRST_SHAMAN);
                         return;
                     }
-
-                    if (_counter < 3)
-                        return;
 
                     _counter = 0;
                     ++_questCredits;
@@ -2805,7 +2816,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                     }
                     else
                     {
-                        ConversationWithPlayer(CONVERSATION_PRIMAL_STRIKE_CREDIT_SHAMAN);
+                        ConversationWithPlayer(CONVERSATION_PRIMAL_STRIKE_QUEST_CREDIT_SHAMAN);
                         me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
                         _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_SHAMAN, 3s);
                     }
@@ -2815,10 +2826,10 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                 {
                     me->RemoveAura(SPELL_RANGED_ROOT_DNT);
                     me->RemoveAura(SPELL_AGGRO_RADIUS_CHECK_DNT_SHAMAN);
-                    if (_LightningboltCheck)
+                    if (_senondaryCheck)
                     {
                         ConversationWithPlayer(CONVERSATION_LIGHTNINGBOLT_FIRST_SHAMAN);
-                        _LightningboltCheck = false;
+                        _senondaryCheck = false;
                     }
                     else
                     {
@@ -2844,7 +2855,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         }
                         else
                         {
-                            ConversationWithPlayer(CONVERSATION_FIRE_BLAST_MAGE_CREDIT);
+                            ConversationWithPlayer(CONVERSATION_FIRE_BLAST_QUEST_CREDIT_MAGE);
                             me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
                             _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_MAGE, 4s);
                         }
@@ -2859,15 +2870,15 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                 {
                     me->RemoveAura(SPELL_RANGED_ROOT_DNT);
                     me->RemoveAura(SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
-                    if (_frostboltCheck)
+                    if (_senondaryCheck)
                     {
                         ConversationWithPlayer(CONVERSATION_FROSTBOLT_MAGE);
-                        _frostboltCheck = false;
+                        _senondaryCheck = false;
                     }
                     else
                     {
                         if (player->IsWithinDist(me, 2.0f))
-                            ConversationWithPlayer(CONVERSATION_FROSTBOLT_MAGE_CLOSE);
+                            ConversationWithPlayer(CONVERSATION_FROSTBOLT_CLOSE_MAGE);
                     }
                 }
                 break;
@@ -2876,24 +2887,46 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
             {
                 if (spellInfo->Id == SPELL_CORRUPTION)
                 {
-                    ++_questCredits;
-                    player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+                    _events.CancelEvent(EVENT_COMBAT_TRAINING_SPELL_FADING);
 
-                    if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                    if (!_mainSpellCheck)
                     {
-                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                        if (_senondaryCheck)
+                        {
+                            ConversationWithPlayer(CONVERSATION_CORRUPTION_CAST_PRE_COMBAT_WARLOCK);
+                            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+                            me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+                            _senondaryCheck = false;
+                        }
+                        else
+                            ConversationWithPlayer(CONVERSATION_CORRUPTION_CAST_TOO_SOON_WARLOCK);
+
+                        _convoID = CONVERSATION_CORRUPTION_IS_FADING_WARLOCK;
+                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SPELL_FADING, 11s);
                     }
                     else
                     {
-                        ConversationWithPlayer(13895);
+                        ++_questCredits;
+                        _mainSpellCheck = false;
+                        player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+
+                        if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                        {
+                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                        }
+                        else
+                        {
+                            ConversationWithPlayer(CONVERSATION_CORRUPTION_QUEST_CREDIT_WARLOCK);
+                            _convoID = CONVERSATION_CORRUPTION_IS_FADING_WARLOCK;
+                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SPELL_FADING, 11s);
+                        }
                     }
                 }
 
                 if (spellInfo->Id == SPELL_SHADOWBOLT)
                 {
-                    ConversationWithPlayer(14466);
-                    me->RemoveAura(SPELL_RANGED_ROOT_DNT);
-                    me->RemoveAura(SPELL_AGGRO_RADIUS_CHECK_DNT_WARLOCK);
+                    if (_senondaryCheck)
+                        ConversationWithPlayer(CONVERSATION_SHADOW_BOLT_PRE_COMBAT_WARLOCK);
                 }
                 break;
             }
@@ -2901,24 +2934,46 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
             {
                 if (spellInfo->Id == SPELL_MOONFIRE)
                 {
-                    ++_questCredits;
-                    player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+                    _events.CancelEvent(EVENT_COMBAT_TRAINING_SPELL_FADING);
 
-                    if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                    if (!_mainSpellCheck)
                     {
-                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                        if (_senondaryCheck)
+                        {
+                            ConversationWithPlayer(CONVERSATION_MOONFIRE_CAST_PRE_COMBAT_DRUID);
+                            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+                            me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+                            _senondaryCheck = false;
+                        }
+                        else
+                            ConversationWithPlayer(CONVERSATION_MOONFIRE_CAST_TOO_SOON_DRUID);
+
+                        _convoID = CONVERSATION_MOONFIRE_WEARING_OFF_DRUID;
+                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SPELL_FADING, 14s);
                     }
                     else
                     {
-                        ConversationWithPlayer(13893);
+                        ++_questCredits;
+                        _mainSpellCheck = false;
+                        player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+
+                        if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                        {
+                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                        }
+                        else
+                        {
+                            ConversationWithPlayer(CONVERSATION_MOONFIRE_QUEST_CREDIT_DRUID);
+                            _convoID = CONVERSATION_MOONFIRE_WEARING_OFF_DRUID;
+                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SPELL_FADING, 14s);
+                        }
                     }
                 }
 
                 if (spellInfo->Id == SPELL_WRATH)
                 {
-                    ConversationWithPlayer(14472);
-                    me->RemoveAura(SPELL_RANGED_ROOT_DNT);
-                    me->RemoveAura(SPELL_AGGRO_RADIUS_CHECK_DNT_DRUID);
+                    if (_senondaryCheck)
+                        ConversationWithPlayer(CONVERSATION_WRATH_PRE_COMBAT_DRUID);
                 }
                 break;
             }
@@ -3032,7 +3087,6 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         _comboPointCheck = false;
                     }
                 }
-
                 _events.ScheduleEvent(EVENT_COMBAT_CHECK_PLAYER, 500ms);
                 break;
             }
@@ -3051,9 +3105,9 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                 ConversationWithPlayer(CONVERSATION_REGULAR_ATTACKS_ROGUE);
                 _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE, 8s, 20s);
                 break;
-            case EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST:
-                ConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_FADING_PRIEST);
-                _shadowWordPainCheck = true;
+            case EVENT_COMBAT_TRAINING_SPELL_FADING:
+                ConversationWithPlayer(_convoID);
+                _mainSpellCheck = true;
                 break;
             case EVENT_COMBAT_TRAINING_RESET_SHAMAN:
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
@@ -3065,7 +3119,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
             case EVENT_COMBAT_TRAINING_AGGRO_CHECK_SHAMAN:
                 me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_SHAMAN);
                 me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
-                _LightningboltCheck = true;
+                _senondaryCheck = true;
                 break;
             case EVENT_COMBAT_TRAINING_RESET_MAGE:
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
@@ -3077,7 +3131,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
             case EVENT_COMBAT_TRAINING_AGGRO_CHECK_MAGE:
                 me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
                 me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
-                _frostboltCheck = true;
+                _senondaryCheck = true;
                 break;
             default:
                 break;
@@ -3093,28 +3147,19 @@ private:
     int8 _counter = 0;
     int8 _questCredits = 0;
     uint32 _questID;
+    uint32 _convoID;
     uint32 _summonSpellAura;
     uint32 _playerClass;
     EventMap _events;
     ObjectGuid _allianceGUID;
     ObjectGuid _hordeGUID;
     ObjectGuid _playerGUID;
-    // Used by Warrior class
-    bool _slamCheck = false;
+    bool _mainSpellCheck = false;
+    bool _senondaryCheck = false;
     // Used by Paladin class
-    bool _crusaderCheck = false;
     bool _rightiousCheck = false;
     // used by rogue class
-    bool _sinisterStrikeCheck = false;
     bool _comboPointCheck = false;
-    // Used by Priest
-    bool _smiteCheck = false;
-    bool _shadowWordPainCheck = false;
-    bool _preCombatCheck = true;
-    // Used by Shaman
-    bool _LightningboltCheck = false;
-    // Uses by mage
-    bool _frostboltCheck = false;
 };
 
 struct areatrigger_aggro_radius_check : AreaTriggerAI
