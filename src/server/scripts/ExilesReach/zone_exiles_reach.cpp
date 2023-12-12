@@ -2280,6 +2280,11 @@ enum EnhancedCombatTrainer
     CONVERSATION_SINISTER_STRIKE_THREE_ROGUE      = 14493,
     CONVERSATION_FIVE_COMBO_POINTS_ROGUE          = 14494,
     CONVERSATION_FAILED_EVISCERATE_ROGUE          = 14495,
+    //Mage
+    CONVERSATION_FIRE_BLAST_MAGE_CREDIT           = 13635,
+    CONVERSATION_FIRE_BLAST_MAGE_NO_CREDIT        = 14477,
+    CONVERSATION_FROSTBOLT_MAGE                   = 13634,
+    CONVERSATION_FROSTBOLT_MAGE_CLOSE             = 14476,
     // All classes
     EVENT_COMBAT_TRAINING_WALK_AND_TALK           = 1,
     EVENT_COMBAT_TRAINING_FACE_PLAYER             = 2,
@@ -2292,6 +2297,8 @@ enum EnhancedCombatTrainer
     EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE    = 7,
     // Priest Class
     EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST = 8,
+
+    EVENT_COMBAT_TRAINING_RESET_MAGE              = 9,
 
     NPC_ALLIANCE_SPARING_PARTNER_ENHANCED         = 164577,
     NPC_ALLIANCE_SPARING_PARTNER_ENHANCED2        = 164775,
@@ -2472,6 +2479,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         me->CastSpell(me, AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
+                        _frostboltCheck = true;
                         break;
                     }
                     case CLASS_WARLOCK:
@@ -2549,6 +2557,10 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
         switch (_playerClass)
         {
             case CLASS_WARRIOR:
@@ -2574,19 +2586,15 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                 else if (_questCredits == 2)
                     ConversationWithPlayer(CONVERSATION_CHARGE_ONE_RES_ENHANCED);
 
-                if (Player* player = caster->ToPlayer())
-                {
-                    player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+                player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
 
-                    if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
-                    {
-                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
-                        //_events.CancelEvent(EVENT_COMBAT_CHECK_PLAYER);
-                    }
-                    else
-                    {
-                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_WARRIOR, 10s);
-                    }
+                if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                {
+                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                }
+                else
+                {
+                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_WARRIOR, 10s);
                 }
                 break;
             }
@@ -2594,29 +2602,26 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
             {
                 if (spellInfo->Id == SPELL_SHIELD_OF_THE_RIGHTEOUS)
                 {
-                    if (Player* player = caster->ToPlayer())
+                    ++_questCredits;
+                    player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+
+                    if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
                     {
-                        ++_questCredits;
-                        player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
-
-                        if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                        _events.CancelEvent(EVENT_COMBAT_CHECK_PLAYER);
+                    }
+                    else
+                    {
+                        // Update strike bool
+                        if (_questCredits == 1)
                         {
-                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
-                            _events.CancelEvent(EVENT_COMBAT_CHECK_PLAYER);
+                            ConversationWithPlayer(CONVERSATION_SHIELD_SLAM_ONE_PALADIN);
+                            _events.CancelEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE);
                         }
-                        else
-                        {
-                            // Update strike bool
-                            if (_questCredits == 1)
-                            {
-                                ConversationWithPlayer(CONVERSATION_SHIELD_SLAM_ONE_PALADIN);
-                                _events.CancelEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE);
-                            }
-                            else if (_questCredits == 2)
-                                ConversationWithPlayer(CONVERSATION_SHIELD_SLAM_TWO_PALADIN);
+                        else if (_questCredits == 2)
+                            ConversationWithPlayer(CONVERSATION_SHIELD_SLAM_TWO_PALADIN);
 
-                            _crusaderCheck = true;
-                        }
+                        _crusaderCheck = true;
                     }
                 }
 
@@ -2649,33 +2654,30 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                 if (spellInfo->Id == SPELL_EVISCERATE)
                 {
                     _comboPointCheck = true;
-                    if (Player* player = caster->ToPlayer())
+                    if (_combopoints >= (_questCredits + 3))
                     {
-                        if (_combopoints >= (_questCredits + 3))
-                        {
-                            ++_questCredits;
-                            player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
-                            _events.CancelEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE);
+                        ++_questCredits;
+                        player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+                        _events.CancelEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE);
 
-                            if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
-                            {
-                                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
-                                _events.CancelEvent(EVENT_COMBAT_CHECK_PLAYER);
-                            }
-                            else
-                            {
-                                // Update strike bool
-                                if (_questCredits == 1)
-                                    ConversationWithPlayer(CONVERSATION_THREE_COMBO_EVISCERATE_ROGUE);
-                                else if (_questCredits == 2)
-                                    ConversationWithPlayer(CONVERSATION_FOUR_COMBO_EVISCERATE_ROGUE);
-                                _sinisterStrikeCheck = true;
-                            }
+                        if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                        {
+                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                            _events.CancelEvent(EVENT_COMBAT_CHECK_PLAYER);
                         }
                         else
                         {
-                            ConversationWithPlayer(CONVERSATION_FAILED_EVISCERATE_ROGUE);
+                            // Update strike bool
+                            if (_questCredits == 1)
+                                ConversationWithPlayer(CONVERSATION_THREE_COMBO_EVISCERATE_ROGUE);
+                            else if (_questCredits == 2)
+                                ConversationWithPlayer(CONVERSATION_FOUR_COMBO_EVISCERATE_ROGUE);
+                            _sinisterStrikeCheck = true;
                         }
+                    }
+                    else
+                    {
+                        ConversationWithPlayer(CONVERSATION_FAILED_EVISCERATE_ROGUE);
                     }
                 }
 
@@ -2712,38 +2714,35 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
             {
                 if (spellInfo->Id == SPELL_SHADOW_WORD_PAIN)
                 {
-                    if (Player* player = caster->ToPlayer())
+                    _events.CancelEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST);
+
+                    if (!_shadowWordPainCheck)
                     {
-                        _events.CancelEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST);
-
-                        if (!_shadowWordPainCheck)
+                        if (_preCombatCheck)
                         {
-                            if (_preCombatCheck)
-                            {
-                                ConversationWithPlayer(14461);
-                                me->RemoveAura(SPELL_RANGED_ROOT_DNT);
-                                _preCombatCheck = false;
-                            }
-                            else
-                                ConversationWithPlayer(14462);
+                            ConversationWithPlayer(14461);
+                            me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+                            _preCombatCheck = false;
+                        }
+                        else
+                            ConversationWithPlayer(14462);
 
-                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST, 13s);
+                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST, 13s);
+                    }
+                    else
+                    {
+                        ++_questCredits;
+                        _shadowWordPainCheck = false;
+                        player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+
+                        if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                        {
+                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
                         }
                         else
                         {
-                            ++_questCredits;
-                            _shadowWordPainCheck = false;
-                            player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
-
-                            if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
-                            {
-                                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
-                            }
-                            else
-                            {
-                                ConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_PRIEST);
-                                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST, 13s);
-                            }
+                            ConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_PRIEST);
+                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SHADOW_WORD_PAIN_PRIEST, 13s);
                         }
                     }
                 }
@@ -2757,39 +2756,37 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
             }
             case CLASS_SHAMAN:
             {
-                if (Player* player = caster->ToPlayer())
+                if (spellInfo->Id == SPELL_PRIMAL_STRIKE)
                 {
-                    if (spellInfo->Id == SPELL_PRIMAL_STRIKE)
-                    {
-                        ++_questCredits;
-                        player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+                    ++_questCredits;
+                    player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
 
-                        if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
-                        {
-                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
-                        }
-                        else
-                        {
-                            ConversationWithPlayer(13633);
-                        }
-                    }
-
-                    if (spellInfo->Id == SPELL_LIGHTNING_BOLT)
+                    if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
                     {
-                        ConversationWithPlayer(13631);
-                        me->RemoveAura(SPELL_RANGED_ROOT_DNT);
-                        me->RemoveAura(AGGRO_RADIUS_CHECK_DNT_SHAMAN);
+                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
                     }
+                    else
+                    {
+                        ConversationWithPlayer(13633);
+                    }
+                }
+
+                if (spellInfo->Id == SPELL_LIGHTNING_BOLT)
+                {
+                    ConversationWithPlayer(13631);
+                    me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+                    me->RemoveAura(AGGRO_RADIUS_CHECK_DNT_SHAMAN);
                 }
                 break;
             }
             case CLASS_MAGE:
             {
-                if (Player* player = caster->ToPlayer())
+                if (spellInfo->Id == SPELL_FIRE_BLAST)
                 {
-                    if (spellInfo->Id == SPELL_FIRE_BLAST)
+                    ++_questCredits;
+
+                    if (player->IsWithinDist(me, 3.0f))
                     {
-                        ++_questCredits;
                         player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
 
                         if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
@@ -2798,88 +2795,94 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         }
                         else
                         {
-                            ConversationWithPlayer(13635);
+                            ConversationWithPlayer(CONVERSATION_FIRE_BLAST_MAGE_CREDIT);
+                            me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_MAGE, 4s);
                         }
                     }
-
-                    if (spellInfo->Id == SPELL_FROSTBOLT)
+                    else
                     {
-                        me->RemoveAura(SPELL_RANGED_ROOT_DNT);
-                        me->RemoveAura(AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
-                        ConversationWithPlayer(13634);
+                        ConversationWithPlayer(CONVERSATION_FIRE_BLAST_MAGE_NO_CREDIT);
+                    }
+                }
+
+                if (spellInfo->Id == SPELL_FROSTBOLT)
+                {
+                    me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+                    me->RemoveAura(AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
+                    if (_frostboltCheck)
+                    {
+                        ConversationWithPlayer(CONVERSATION_FROSTBOLT_MAGE);
+                        _frostboltCheck = false;
+                    }
+                    else
+                    {
+                        if (player->IsWithinDist(me, 3.0f))
+                            ConversationWithPlayer(CONVERSATION_FROSTBOLT_MAGE_CLOSE);
                     }
                 }
                 break;
             }
             case CLASS_WARLOCK:
             {
-                if (Player* player = caster->ToPlayer())
+                if (spellInfo->Id == SPELL_CORRUPTION)
                 {
-                    if (spellInfo->Id == SPELL_CORRUPTION)
-                    {
-                        ++_questCredits;
-                        player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
-
-                        if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
-                        {
-                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
-                        }
-                        else
-                        {
-                            ConversationWithPlayer(13895);
-                        }
-                    }
-
-                    if (spellInfo->Id == SPELL_SHADOWBOLT)
-                    {
-                        ConversationWithPlayer(14466);
-                        me->RemoveAura(SPELL_RANGED_ROOT_DNT);
-                        me->RemoveAura(AGGRO_RADIUS_CHECK_DNT_WARLOCK);
-                    }
-                }
-                break;
-            }
-            case CLASS_DRUID:
-            {
-                if (Player* player = caster->ToPlayer())
-                {
-                    if (spellInfo->Id == SPELL_MOONFIRE)
-                    {
-                        ++_questCredits;
-                        player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
-
-                        if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
-                        {
-                            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
-                        }
-                        else
-                        {
-                            ConversationWithPlayer(13893);
-                        }
-                    }
-
-                    if (spellInfo->Id == SPELL_WRATH)
-                    {
-                        ConversationWithPlayer(14472);
-                        me->RemoveAura(SPELL_RANGED_ROOT_DNT);
-                        me->RemoveAura(AGGRO_RADIUS_CHECK_DNT_DRUID);
-                    }
-                }
-                break;
-            }
-            case CLASS_MONK:
-            {
-                if (Player* player = caster->ToPlayer())
-                {
-                    if (spellInfo->Id == SPELL_TIGER_PALM)
-                        player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
-                    if (spellInfo->Id == SPELL_BLACKOUT_KICK)
-                        player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED2);
+                    ++_questCredits;
+                    player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
 
                     if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
                     {
                         _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
                     }
+                    else
+                    {
+                        ConversationWithPlayer(13895);
+                    }
+                }
+
+                if (spellInfo->Id == SPELL_SHADOWBOLT)
+                {
+                    ConversationWithPlayer(14466);
+                    me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+                    me->RemoveAura(AGGRO_RADIUS_CHECK_DNT_WARLOCK);
+                }
+                break;
+            }
+            case CLASS_DRUID:
+            {
+                if (spellInfo->Id == SPELL_MOONFIRE)
+                {
+                    ++_questCredits;
+                    player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+
+                    if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                    {
+                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                    }
+                    else
+                    {
+                        ConversationWithPlayer(13893);
+                    }
+                }
+
+                if (spellInfo->Id == SPELL_WRATH)
+                {
+                    ConversationWithPlayer(14472);
+                    me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+                    me->RemoveAura(AGGRO_RADIUS_CHECK_DNT_DRUID);
+                }
+                break;
+            }
+            case CLASS_MONK:
+            {
+                if (spellInfo->Id == SPELL_TIGER_PALM)
+                    player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED);
+                if (spellInfo->Id == SPELL_BLACKOUT_KICK)
+                    player->KilledMonsterCredit(NPC_ALLIANCE_SPARING_PARTNER_ENHANCED2);
+
+                if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                {
+                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
                 }
                 break;
             }
@@ -3003,6 +3006,14 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                 ConversationWithPlayer(14463);
                 _shadowWordPainCheck = true;
                 break;
+            case EVENT_COMBAT_TRAINING_RESET_MAGE:
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                {
+                    me->CastSpell(player, SPELL_CHARGE_KNOCKBACK_WARRIOR);
+                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    _frostboltCheck = true;
+                }
+                break;
             default:
                 break;
             }
@@ -3036,6 +3047,8 @@ private:
     bool _smiteCheck = false;
     bool _shadowWordPainCheck = false;
     bool _preCombatCheck = true;
+    // Uses by mage
+    bool _frostboltCheck = false;
 };
 
 struct areatrigger_aggro_radius_check : AreaTriggerAI
@@ -3048,7 +3061,8 @@ struct areatrigger_aggro_radius_check : AreaTriggerAI
         if (!player)
             return;
 
-        Unit* caster = at->GetCaster();
+        Creature* caster = at->GetCaster()->ToCreature();
+
         if (!caster)
         {
             at->RemoveFromWorld();
@@ -3091,6 +3105,9 @@ class spell_knockback_charge_enhanced_training : public SpellScript
 
         Player* player = GetHitUnit()->ToPlayer();
         if (!player)
+            return;
+
+        if (player->GetClass() == CLASS_MAGE)
             return;
 
         Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
