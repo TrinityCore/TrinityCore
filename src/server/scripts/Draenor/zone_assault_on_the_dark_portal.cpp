@@ -51,34 +51,34 @@ enum AssaultOnTheDarkPortalQuests
 
 enum AssaultOnTheDarkPortalNPCs
 {
-    NPC_ARIOK                       = 80087,
-    NPC_KILROGG                     = 81926,
+    NPC_ALTAR_ALTERCATION_ARIOK     = 80087,
+    NPC_ALTAR_ALTERCATION_KILROGG   = 81926,
     NPC_BLEEDING_HOLLOW_BLOODCHOSEN = 81895
 };
 
-enum Texts
+enum AssaultOnTheDarkPortalTexts
 {
     // Ariok
-    SAY_INTRO_1  = 0,
-    SAY_INTRO_2  = 1,
-    SAY_INTRO_3  = 2,
-    SAY_ALTAR_1  = 3,
-    SAY_ALTAR_2  = 4,
-    SAY_ALTAR_3  = 5,
-    SAY_ALTAR_4  = 6,
+    SAY_ARIOK_INTRO_1               = 0,
+    SAY_ARIOK_INTRO_2               = 1,
+    SAY_ARIOK_INTRO_3               = 2,
+    SAY_ARIOK_ON_ALTAR_1            = 3,
+    SAY_ARIOK_ON_ALTAR_2            = 4,
+    SAY_ARIOK_MIDDLE_ORB_INTERACT   = 5,
+    SAY_ARIOK_ALTAR_KILROGG_REVEAL  = 6,
 
     // Kilrogg
-    SAY_0        = 0,
-    SAY_1        = 1
+    SAY_KILROGG_WEST_ORB_INTERACT   = 0,
+    SAY_KILROGG_ENTER_ALTAR_AT      = 1
 };
 
-enum Actions
+enum AssaultOnTheDarkPortalActions
 {
-    ACTION_INTRO      = 1,
-    ACTION_ALTAR      = 2
+    ACTION_INTRO        = 1,
+    ACTION_ON_ALTAR     = 2
 };
 
-enum Events
+enum AssaultOnTheDarkPortalEvents
 {
     EVENT_TALK_1 = 1,
     EVENT_TALK_2,
@@ -193,7 +193,7 @@ public:
 };
 
 // 161618 - Summon Ariok
-class spell_summon_ariok : public SpellScript
+class spell_altar_altercation_summon_ariok : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -207,7 +207,7 @@ class spell_summon_ariok : public SpellScript
 
     void Register() override
     {
-        BeforeCast += SpellCastFn(spell_summon_ariok::HandleOnCast);
+        BeforeCast += SpellCastFn(spell_altar_altercation_summon_ariok::HandleOnCast);
     }
 };
 
@@ -230,7 +230,7 @@ public:
 };
 
 // 167955 - Destroying
-class spell_destroying : public SpellScript
+class spell_altar_altercation_destroying : public SpellScript
 {
     void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
@@ -244,14 +244,14 @@ class spell_destroying : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_destroying::HandleOnHit, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_altar_altercation_destroying::HandleOnHit, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 80087 - Ariok
-struct npc_ariok : public FollowerAI
+struct npc_altar_altercation_ariok : public FollowerAI
 {
-    npc_ariok(Creature* creature) : FollowerAI(creature) { }
+    npc_altar_altercation_ariok(Creature* creature) : FollowerAI(creature) { }
 
     void JustAppeared() override
     {
@@ -278,9 +278,9 @@ struct npc_ariok : public FollowerAI
                 events.ScheduleEvent(EVENT_TALK_1, 1s);
                 break;
             }
-            case ACTION_ALTAR:
+            case ACTION_ON_ALTAR:
             {
-                Talk(SAY_ALTAR_1);
+                Talk(SAY_ARIOK_ON_ALTAR_1);
                 me->AddUnitState(UNIT_STATE_ROOT);
                 events.ScheduleEvent(EVENT_ALTAR, 5s + 400ms);
                 break;
@@ -299,19 +299,19 @@ struct npc_ariok : public FollowerAI
             switch (eventId)
             {
                 case EVENT_TALK_1:
-                    Talk(SAY_INTRO_1);
+                    Talk(SAY_ARIOK_INTRO_1);
                     events.ScheduleEvent(EVENT_TALK_2, 5s + 700ms);
                     break;
                 case EVENT_TALK_2:
-                    Talk(SAY_INTRO_2);
+                    Talk(SAY_ARIOK_INTRO_2);
                     events.ScheduleEvent(EVENT_TALK_3, 7s + 400ms);
                     break;
                 case EVENT_TALK_3:
-                    Talk(SAY_INTRO_3);
+                    Talk(SAY_ARIOK_INTRO_3);
                     break;
                 case EVENT_ALTAR:
                     me->ClearUnitState(UNIT_STATE_ROOT);
-                    Talk(SAY_ALTAR_2);
+                    Talk(SAY_ARIOK_ON_ALTAR_2);
                     break;
                 default:
                     break;
@@ -323,7 +323,7 @@ private:
 };
 
 // 164979 - (Serverside/Non-DB2) Trigger Ariok
-class spell_trigger_ariok : public SpellScript
+class spell_trigger_ariok_altar_altercation : public SpellScript
 {
     void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
@@ -333,24 +333,24 @@ class spell_trigger_ariok : public SpellScript
             return;
 
         if (GetCaster()->HasAura(SPELL_ON_ALTAR))
-            creature->AI()->DoAction(ACTION_ALTAR);
+            creature->AI()->DoAction(ACTION_ON_ALTAR);
         else if (GetCaster()->HasAura(SPELL_BLEEDING_HOLLOW_KILROGG_REVEAL))
         {
-            creature->AI()->Talk(SAY_ALTAR_4);
+            creature->AI()->Talk(SAY_ARIOK_ALTAR_KILROGG_REVEAL);
             creature->DespawnOrUnsummon();
         }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_trigger_ariok::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_trigger_ariok_altar_altercation::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 83670 - Blood Ritual Orb
-struct npc_blood_ritual_orb : public CreatureAI
+struct npc_altar_altercation_blood_ritual_orb : public ScriptedAI
 {
-    npc_blood_ritual_orb(Creature* creature) : CreatureAI(creature) { }
+    npc_altar_altercation_blood_ritual_orb(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -360,22 +360,29 @@ struct npc_blood_ritual_orb : public CreatureAI
 
     void OnSpellClick(Unit* clicker, bool /*spellClickHandled*/) override
     {
-        Creature* kilrogg = clicker->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_KILROGG, .IgnorePhases = true });
-        Creature* ariok = clicker->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_ARIOK, .IsSummon = true, .IgnorePhases = true, .OwnerGuid = clicker->GetGUID() });
-
-        if (!ariok || !kilrogg)
-            return;
-
         if (me->HasStringId("west_orb"))
-            kilrogg->AI()->Talk(SAY_0, clicker);
+        {
+            Creature* kilrogg = clicker->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_ALTAR_ALTERCATION_KILROGG, .IgnorePhases = true });
+            if (!kilrogg)
+                return;
+
+            kilrogg->AI()->Talk(SAY_KILROGG_WEST_ORB_INTERACT, clicker);
+        }
         else if (me->HasStringId("middle_orb"))
         {
+            Creature* ariok = clicker->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_ALTAR_ALTERCATION_ARIOK, .IsSummon = true, .IgnorePhases = true, .OwnerGuid = clicker->GetGUID() });
+            if (!ariok)
+                return;
+
             clicker->CastSpell(clicker, SPELL_BLEEDING_HOLLOW_SNEAKY_ARMY, true);
-            ariok->AI()->Talk(SAY_ALTAR_3);
+            ariok->AI()->Talk(SAY_ARIOK_MIDDLE_ORB_INTERACT);
         }
     }
 
-    void UpdateAI(uint32 /*diff*/) override { }
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        UpdateVictim();
+    }
 };
 
 // Id - SET ID
@@ -389,11 +396,11 @@ struct at_altar_altercation_kilrogg_talk : AreaTriggerAI
         if (!player)
             return;
 
-        Creature* kilrogg = unit->FindNearestCreature(NPC_KILROGG, 100.0f);
+        Creature* kilrogg = unit->FindNearestCreature(NPC_ALTAR_ALTERCATION_KILROGG, 100.0f);
         if (!kilrogg)
             return;
 
-        kilrogg->AI()->Talk(SAY_1, player);
+        kilrogg->AI()->Talk(SAY_KILROGG_ENTER_ALTAR_AT, player);
     }
 };
 
@@ -404,12 +411,13 @@ void AddSC_assault_on_the_dark_portal()
     new quest_blaze_of_glory();
     new scene_bleeding_hollow_holdout();
     new scene_bleeding_hollow_trail_of_flame();
+
     new quest_altar_altercation();
-    RegisterSpellScript(spell_summon_ariok);
+    RegisterSpellScript(spell_altar_altercation_summon_ariok);
     new scene_bleeding_hollow_kilrogg_reveal();
-    RegisterSpellScript(spell_destroying);
-    RegisterCreatureAI(npc_ariok);
-    RegisterSpellScript(spell_trigger_ariok);
-    RegisterCreatureAI(npc_blood_ritual_orb);
+    RegisterSpellScript(spell_altar_altercation_destroying);
+    RegisterCreatureAI(npc_altar_altercation_ariok);
+    RegisterSpellScript(spell_trigger_ariok_altar_altercation);
+    RegisterCreatureAI(npc_altar_altercation_blood_ritual_orb);
     RegisterAreaTriggerAI(at_altar_altercation_kilrogg_talk);
 };

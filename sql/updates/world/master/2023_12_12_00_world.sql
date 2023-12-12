@@ -1,8 +1,8 @@
-SET @CGUID := 60000000;
-SET @OGUID := 60000000;
+SET @CGUID := 5000327;
+SET @OGUID := 5000055;
 
-SET @TRIGGER_SPAWN_ID := 60000000;
-SET @TRIGGER_ID := 60000000;
+SET @TRIGGER_SPAWN_ID := 50;
+SET @TRIGGER_ID := 50;
 
 -- Creature
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+5;
@@ -28,8 +28,8 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`
 (81926, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, ''); -- 81926 (Kilrogg Deadeye)
 
 UPDATE `creature_template` SET `unit_flags2`=18432 WHERE `entry`=78556; -- Ariok
-UPDATE `creature_template` SET `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `ScriptName`='npc_ariok' WHERE `entry`=80087; -- Liberated Frostwolf Prisoner
-UPDATE `creature_template` SET `unit_flags3`=16777216, `ScriptName`='npc_blood_ritual_orb' WHERE `entry`=83670; -- Blood Ritual Orb
+UPDATE `creature_template` SET `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `ScriptName`='npc_altar_altercation_ariok' WHERE `entry`=80087; -- Liberated Frostwolf Prisoner
+UPDATE `creature_template` SET `unit_flags3`=16777216, `ScriptName`='npc_altar_altercation_blood_ritual_orb' WHERE `entry`=83670; -- Blood Ritual Orb
 UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=81926; -- Kilrogg Deadeye
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`IN (83670, 81926);
@@ -163,9 +163,9 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 -- Spell
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (161618, 167955, 164979);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(161618,'spell_summon_ariok'),
-(167955,'spell_destroying'),
-(164979,'spell_trigger_ariok');
+(161618,'spell_altar_altercation_summon_ariok'),
+(167955,'spell_altar_altercation_destroying'),
+(164979,'spell_trigger_ariok_altar_altercation');
 
 DELETE FROM `spell_target_position` WHERE `ID`=161618 AND `EffectIndex`=0;
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
@@ -192,14 +192,13 @@ INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, 
 (@TRIGGER_SPAWN_ID+0, @TRIGGER_ID+0, 1, 1265, '0', 3982.48, -2936.61, 62.6424, 1.72932, 0, 0, 0, 0, 70, 70, 0, 0, 0, 0, 0, 0, NULL, '', NULL, 0),
 (@TRIGGER_SPAWN_ID+1, @TRIGGER_ID+1, 1, 1265, '0', 4187.81, -2779.99, 26.9349, 3.31491, 0, 0, 0, 1, 20, 20, 10, 20, 20, 10, 0, 0, NULL, '', NULL, 0),
 (@TRIGGER_SPAWN_ID+2, @TRIGGER_ID+2, 1, 1265, '0', 4046.79, -2940.89, 62.1408, 1.66231, 0, 0, 0, 1, 30, 20, 10, 30, 20, 10, 0, 0, NULL, 'at_altar_altercation_kilrogg_talk', NULL, 0),
-(@TRIGGER_SPAWN_ID+3, @TRIGGER_ID+3, 1, 1265, '0', 3921.71, -2962.14, 62.3053, 1.66231, 0, 0, 0, 1, 30, 20, 10, 30, 20, 10, 0, 0, NULL, 'at_altar_altercation_kilrogg_talk', NULL, 0);
+(@TRIGGER_SPAWN_ID+3, @TRIGGER_ID+2, 1, 1265, '0', 3921.71, -2962.14, 62.3053, 1.66231, 0, 0, 0, 1, 30, 20, 10, 30, 20, 10, 0, 0, NULL, 'at_altar_altercation_kilrogg_talk', NULL, 0);
 
-DELETE FROM `areatrigger_template` WHERE `Id` BETWEEN @TRIGGER_ID+0 AND @TRIGGER_ID+3;
+DELETE FROM `areatrigger_template` WHERE `Id` BETWEEN @TRIGGER_ID+0 AND @TRIGGER_ID+2;
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES
 (@TRIGGER_ID+0, 1, 0, 0, 70, 70, 0, 0, 0, 0, 0, 0, 0),
 (@TRIGGER_ID+1, 1, 1, 0, 20, 20, 10, 20, 20, 10, 0, 0, 0),
-(@TRIGGER_ID+2, 1, 1, 0, 30, 20, 10, 30, 20, 10, 0, 0, 0),
-(@TRIGGER_ID+3, 1, 1, 0, 30, 20, 10, 30, 20, 10, 0, 0, 0);
+(@TRIGGER_ID+2, 1, 1, 0, 30, 20, 10, 30, 20, 10, 0, 0, 0);
 
 DELETE FROM `areatrigger_template_actions` WHERE `AreaTriggerId` BETWEEN @TRIGGER_ID+0 AND @TRIGGER_ID+2;
 INSERT INTO `areatrigger_template_actions` (`AreaTriggerId`, `IsServerSide`, `ActionType`, `ActionParam`, `TargetType`) VALUES
