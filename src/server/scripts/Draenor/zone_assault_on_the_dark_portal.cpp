@@ -415,23 +415,6 @@ struct at_altar_altercation_reach_altar : AreaTriggerAI
 {
     at_altar_altercation_reach_altar(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    bool IsQuestObjectiveComplete(Player* player, uint32 questId, uint32 objectiveId)
-    {
-        Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_ALTAR_ALTERCATION);
-        if (!quest)
-            return false;
-
-        uint16 slot = player->FindQuestSlot(QUEST_ALTAR_ALTERCATION);
-        if (slot >= MAX_QUEST_LOG_SIZE)
-            return false;
-
-        QuestObjective const* obj = sObjectMgr->GetQuestObjective(objectiveId);
-        if (!obj)
-            return false;
-
-        return player->IsQuestObjectiveComplete(slot, quest, *obj);
-    }
-
     void OnUnitEnter(Unit* unit) override
     {
         Player* player = unit->ToPlayer();
