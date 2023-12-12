@@ -46,7 +46,14 @@ enum AssaultOnTheDarkPortalSpells
 
 enum AssaultOnTheDarkPortalQuests
 {
-    QUEST_FLAG_ARMY_PUSHED        = 35297
+    QUEST_FLAG_ARMY_PUSHED          = 35297,
+    QUEST_ALTAR_ALTERCATION         = 34423,
+};
+
+enum AssaultOnTheDarkPortalQuestObjectives
+{
+    OBJECTIVE_ALTAR_ALTERCATION_SPEAK_WITH_ARIOK    = 273075,
+    OBJECTIVE_ALTAR_ALTERCATION_ESCORT_ARIOK        = 273677,
 };
 
 enum AssaultOnTheDarkPortalNPCs
@@ -235,7 +242,6 @@ class spell_altar_altercation_destroying : public SpellScript
     void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
         Creature* creature = GetHitUnit()->ToCreature();
-
         if (!creature)
             return;
 
@@ -332,13 +338,13 @@ class spell_trigger_ariok_altar_altercation : public SpellScript
         if (!creature)
             return;
 
-        if (GetCaster()->HasAura(SPELL_ON_ALTAR))
-            creature->AI()->DoAction(ACTION_ON_ALTAR);
-        else if (GetCaster()->HasAura(SPELL_BLEEDING_HOLLOW_KILROGG_REVEAL))
+        if (GetCaster()->HasAura(SPELL_BLEEDING_HOLLOW_KILROGG_REVEAL))
         {
             creature->AI()->Talk(SAY_ARIOK_ALTAR_KILROGG_REVEAL);
             creature->DespawnOrUnsummon();
         }
+        else if (GetCaster()->HasAura(SPELL_ON_ALTAR))
+            creature->AI()->DoAction(ACTION_ON_ALTAR);
     }
 
     void Register() override
@@ -362,7 +368,7 @@ struct npc_altar_altercation_blood_ritual_orb : public ScriptedAI
     {
         if (me->HasStringId("west_orb"))
         {
-            Creature* kilrogg = clicker->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_ALTAR_ALTERCATION_KILROGG, .IgnorePhases = true });
+            Creature* kilrogg = clicker->FindNearestCreatureWithOptions(50.0f, { .CreatureId = NPC_ALTAR_ALTERCATION_KILROGG, .IgnorePhases = true });
             if (!kilrogg)
                 return;
 
@@ -370,7 +376,7 @@ struct npc_altar_altercation_blood_ritual_orb : public ScriptedAI
         }
         else if (me->HasStringId("middle_orb"))
         {
-            Creature* ariok = clicker->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_ALTAR_ALTERCATION_ARIOK, .IsSummon = true, .IgnorePhases = true, .OwnerGuid = clicker->GetGUID() });
+            Creature* ariok = clicker->FindNearestCreatureWithOptions(50.0f, { .CreatureId = NPC_ALTAR_ALTERCATION_ARIOK, .IsSummon = true, .IgnorePhases = true, .OwnerGuid = clicker->GetGUID() });
             if (!ariok)
                 return;
 
@@ -404,6 +410,49 @@ struct at_altar_altercation_kilrogg_talk : AreaTriggerAI
     }
 };
 
+// Id - SET ID
+struct at_altar_altercation_reach_altar : AreaTriggerAI
+{
+    at_altar_altercation_reach_altar(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    bool IsQuestObjectiveComplete(Player* player, uint32 questId, uint32 objectiveId)
+    {
+        Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_ALTAR_ALTERCATION);
+        if (!quest)
+            return false;
+
+        uint16 slot = player->FindQuestSlot(QUEST_ALTAR_ALTERCATION);
+        if (slot >= MAX_QUEST_LOG_SIZE)
+            return false;
+
+        QuestObjective const* obj = sObjectMgr->GetQuestObjective(objectiveId);
+        if (!obj)
+            return false;
+
+        return player->IsQuestObjectiveComplete(slot, quest, *obj);
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player)
+            return;
+
+        if (!player->IsQuestObjectiveComplete(QUEST_ALTAR_ALTERCATION, OBJECTIVE_ALTAR_ALTERCATION_SPEAK_WITH_ARIOK))
+            return;
+
+        if (player->IsQuestObjectiveComplete(QUEST_ALTAR_ALTERCATION, OBJECTIVE_ALTAR_ALTERCATION_ESCORT_ARIOK))
+            return;
+
+        player->CastSpell(nullptr, SPELL_ON_ALTAR);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        unit->RemoveAurasDueToSpell(SPELL_ON_ALTAR);
+    }
+};
+
 void AddSC_assault_on_the_dark_portal()
 {
     new scene_dark_portal_run_away();
@@ -420,4 +469,5 @@ void AddSC_assault_on_the_dark_portal()
     RegisterSpellScript(spell_trigger_ariok_altar_altercation);
     RegisterCreatureAI(npc_altar_altercation_blood_ritual_orb);
     RegisterAreaTriggerAI(at_altar_altercation_kilrogg_talk);
+    RegisterAreaTriggerAI(at_altar_altercation_reach_altar);
 };
