@@ -2625,17 +2625,17 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                     {
                         switch (_questCredits)
                         {
-                        case 0:
-                            ConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_ONE_PALADIN);
-                            break;
-                        case 1:
-                            ConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_TWO_PALADIN);
-                            break;
-                        case 2:
-                            ConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_THREE_PALADIN);
-                            break;
-                        default:
-                            break;
+                            case 0:
+                                ConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_ONE_PALADIN);
+                                break;
+                            case 1:
+                                ConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_TWO_PALADIN);
+                                break;
+                            case 2:
+                                ConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_THREE_PALADIN);
+                                break;
+                            default:
+                                break;
                         }
                         _crusaderCheck = false;
                         _rightiousCheck = true;
@@ -2690,17 +2690,17 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                     {
                         switch (_questCredits)
                         {
-                        case 0:
-                            ConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_ONE_ROGUE);
-                            break;
-                        case 1:
-                            ConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_TWO_ROGUE);
-                            break;
-                        case 2:
-                            ConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_THREE_ROGUE);
-                            break;
-                        default:
-                            break;
+                            case 0:
+                                ConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_ONE_ROGUE);
+                                break;
+                            case 1:
+                                ConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_TWO_ROGUE);
+                                break;
+                            case 2:
+                                ConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_THREE_ROGUE);
+                                break;
+                            default:
+                                break;
                         }
                         _sinisterStrikeCheck = false;
                     }
@@ -2769,7 +2769,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         }
                         else
                         {
-                            ConversationWithPlayer(13633);         
+                            ConversationWithPlayer(13633);
                         }
                     }
 
@@ -2964,17 +2964,17 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                     {
                         switch (_questCredits)
                         {
-                        case 0:
-                            ConversationWithPlayer(CONVERSATION_THREE_COMBO_POINTS_ROGUE);
-                            break;
-                        case 1:
-                            ConversationWithPlayer(CONVERSATION_FOUR_COMBO_POINTS_ROGUE);
-                            break;
-                        case 2:
-                            ConversationWithPlayer(CONVERSATION_FIVE_COMBO_POINTS_ROGUE);
-                            break;
-                        default:
-                            break;
+                            case 0:
+                                ConversationWithPlayer(CONVERSATION_THREE_COMBO_POINTS_ROGUE);
+                                break;
+                            case 1:
+                                ConversationWithPlayer(CONVERSATION_FOUR_COMBO_POINTS_ROGUE);
+                                break;
+                            case 2:
+                                ConversationWithPlayer(CONVERSATION_FIVE_COMBO_POINTS_ROGUE);
+                                break;
+                            default:
+                                break;
                         }
                         _comboPointCheck = false;
                     }
