@@ -2,7 +2,7 @@ SET @TRIGGER_SPAWN_ID := 50;
 SET @TRIGGER_ID := 50;
 
 DELETE FROM `areatrigger_template` WHERE `Id` BETWEEN @TRIGGER_ID+0 AND @TRIGGER_ID+3;
-INSERT INTO `world`.`areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES
+INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES
 (@TRIGGER_ID+0, 0, 1, 4, 2, 16, 2.3, 2, 16, 2.3, 0, 0, 0),
 (@TRIGGER_ID+1, 1, 0, 0, 70, 70, 0, 0, 0, 0, 0, 0, 0),
 (@TRIGGER_ID+2, 1, 1, 0, 20, 20, 10, 20, 20, 10, 0, 0, 0),
