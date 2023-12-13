@@ -3390,8 +3390,8 @@ void Creature::ExitVehicle(Position const* /*exitPosition*/)
     bool const isInVehicle = GetVehicle();
     Unit::ExitVehicle();
 
-    // if the creature exits a vehicle, set it's home position to the
+    // if alive creature exits a vehicle, set it's home position to the
     // exited position so it won't run away (home) and evade if it's hostile
-    if (isInVehicle)
+    if (isInVehicle && IsAlive())
         SetHomePosition(GetPosition());
 }
