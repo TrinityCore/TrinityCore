@@ -1,4 +1,8 @@
--- Combat quest and Northbound
+-- Filled in by Trinity team for new areatrigger
+SET @ID := 54;
+SET @SPAWNID := 54;
+
+-- Enhanced Combat Tactics and Northbound quest
 DELETE FROM `creature_queststarter` WHERE `id`=156651 AND `quest` IN (59254,59339);
 DELETE FROM `creature_queststarter` WHERE `id`=175031 AND `quest` = 55173;
 DELETE FROM `creature_queststarter` WHERE `id`=166906 AND `quest` IN (59933,59934);
@@ -52,7 +56,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (320175,'spell_summon_combat_trainer'),
 (325181,'spell_summon_combat_trainer');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (320735,320605,320767);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (320605,320767);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (320605,'spell_knockback_charge_enhanced_training'),
 (320767,'spell_knockback_charge_enhanced_training');
@@ -567,7 +571,17 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 -- Northbound Quest
 
+-- Create new serverside areatrigger for approching Quillboar Briarpatch for follower spawn
+DELETE FROM `areatrigger` WHERE `SpawnId`=@SPAWNID;
+INSERT INTO `areatrigger` (`SpawnId`,`AreaTriggerId`,`IsServerSide`,`MapId`,`PosX`,`PosY`,`PosZ`,`Orientation`,`PhaseUseFlags`,`PhaseId`,`PhaseGroup`,`Shape`,`ShapeData0`,`ShapeData1`,`ShapeData2`,`ShapeData3`,`ShapeData4`,`ShapeData5`,`ShapeData6`,`ShapeData7`,`ScriptName`,`Comment`) VALUES
+(@SPAWNID,@ID,1,2175,-175,-2585,33.567165,2.361945,0,0,0,1,2,60,30,8,60,30,0,0,'areatrigger_northbound','Exiles Reach - Northbond check');
+-- Add new serverside areatrigger for approching Quillboar Brarpatch to template
+DELETE FROM `areatrigger_template` WHERE `Id`=@ID;
+INSERT INTO `areatrigger_template` (`Id`,`IsServerSide`,`Type`,`Flags`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`Data6`,`Data7`,`VerifiedBuild`) VALUES
+(@ID,1,1,0,2,60,30,8,60,30,0,0,0);
+
 UPDATE `creature` SET `StringId`="huxworth_briarpatch" WHERE `guid`=1051267;
+UPDATE `creature` SET `StringId`="dawntracker_briarpatch" WHERE `guid`=1051270;
 
 DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (165360,175034);
 INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`) VALUES
@@ -581,67 +595,75 @@ INSERT INTO `creature_equip_template` (`CreatureID`,`ID`,`ItemID1`,`AppearanceMo
 
 UPDATE `creature_template` SET `ScriptName`="npc_leader_northbound" WHERE `entry` IN (165360,175034);
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (305661,344383,305665);
+-- Spawn Conditions for 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry`=156651 AND `ConditionValue1`=55173;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry`=166906 AND `ConditionValue1`=59935;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(32,5,156651,0,0,47,0,55173,1,0,0,0,0,'','Spawn of creature with entry 156651 requires Quest 55173 not taken'),
+(32,5,166906,0,0,47,0,55173,1,0,0,0,0,'','Spawn of creature with entry 166906 requires Quest 59935 not taken');
+
+-- Spawn Conditions for 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry` IN (156662,166997) AND `SourceId`=0 AND `ElseGroup`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(32,5,156662,0,0,1,0,305660,0,0,1,0,0,'','Spawn of creature with entry 156662 if player does not has aura 305660'),
+(32,5,166997,0,0,1,0,344382,0,0,1,0,0,'','Spawn of creature with entry 166997 if player does not has aura 344382');
+
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (305661,344383,305665,344385);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (305661,'spell_summon_leader_northbound'),
 (344383,'spell_summon_leader_northbound'),
-(305665,'spell_scene_linger_northbound');
+(305665,'spell_scene_linger_northbound'),
+(344385,'spell_scene_linger_northbound');
 
 DELETE FROM `quest_template_addon` WHERE `ID` IN (55173,59935);
 INSERT INTO `quest_template_addon` (`ID`,`AllowableClasses`,`PrevQuestID`,`NextQuestID`,`ScriptName`) VALUES
 (55173,0,0,0,'quest_northbound_alliance'), -- Alliance
 (59935,0,0,0,'quest_northbound_horde'); -- Horde
 
+DELETE FROM `phase_area` WHERE `AreaId`=10452 AND `PhaseId` IN (13846,15312);
+INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
+(10452,13846, 'Cosmetic - NPE - Austin Huxworth scout at Quilboar Briarpatch'),
+(10452,15312, 'Cosmetic - NPE - Mithdran Dawntracker scout at Quilboar Briarpatch');
+
 -- Conversation leaders
-DELETE FROM `conversation_actors` WHERE `ConversationId` IN (12066,12070);
+DELETE FROM `conversation_actors` WHERE `ConversationId` IN (12066,14499,12070);
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
 (12066,71310,0,1,0,0,0,0,45745), -- Alliance Leader
 (12066,71297,0,2,0,0,0,0,45745), -- Alliance Survivor
+(14499,79890,0,1,0,0,0,0,45745), -- Horde Leader
+(14499,79888,0,2,0,0,0,0,45745), -- Horde Survivor
 (12070,71317,0,0,0,0,0,0,45745), -- Alliance guy
 (12070,76319,0,1,0,0,0,0,45745); -- Horde guy
 
-DELETE FROM `conversation_line_template` WHERE `Id` IN (29348,29349,29350,29351,29367,36321);
+DELETE FROM `conversation_line_template` WHERE `Id` IN (29348,29349,29350,29351,36300,36301,36302,36303,29367,36321);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES
 (29348,0,0,0,45745), -- Player
 (29349,0,1,0,45745), -- Alliance
 (29350,0,2,0,45745), -- Alliance
 (29351,0,1,0,45745), -- Alliance
-
+(36300,0,0,0,45745), -- Player
+(36301,0,1,0,45745), -- Horde
+(36302,0,2,0,45745), -- Horde
+(36303,0,1,0,45745), -- Horde
 (29367,0,0,0,45745), -- Alliance
 (36321,0,1,0,45745); -- Horde
 
-DELETE FROM `conversation_template` WHERE `Id` IN (12066,12070);
+DELETE FROM `conversation_template` WHERE `Id` IN (12066,14499,12070);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
 (12066,29348,0,'',45745),
+(14499,36300,0,'',45745),
 (12070,29367,0,'',45745);
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (29348,29349,29350,29351,29367,36321);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (29348,29349,29350,29351,36300,36301,36302,36303,29367,36321);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (29,0,29348,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29348 if team is Alliance'),
 (29,0,29349,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29349 if team is Alliance'),
 (29,0,29350,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29350 if team is Alliance'),
 (29,0,29351,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29351 if team is Alliance'),
-
+(29,0,36300,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36300 if team is Horde'),
+(29,0,36301,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36301 if team is Horde'),
+(29,0,36302,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36302 if team is Horde'),
+(29,0,36303,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36303 if team is Horde'),
 (29,0,29367,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29367 if team is Alliance'),
 (29,0,36321,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36321 if team is Horde');
-
-SET @ID := 54;
-SET @SPAWNID := 54;
--- Create new serverside areatrigger for approching Quillboar Briarpatch for follower spawn
-DELETE FROM `areatrigger` WHERE `SpawnId`=@SPAWNID;
-INSERT INTO `areatrigger` (`SpawnId`,`AreaTriggerId`,`IsServerSide`,`MapId`,`PosX`,`PosY`,`PosZ`,`Orientation`,`PhaseUseFlags`,`PhaseId`,`PhaseGroup`,`Shape`,`ShapeData0`,`ShapeData1`,`ShapeData2`,`ShapeData3`,`ShapeData4`,`ShapeData5`,`ShapeData6`,`ShapeData7`,`ScriptName`,`Comment`) VALUES
-(@SPAWNID,@ID,1,2175,-175,-2585,33.567165,2.361945,0,0,0,1,2,60,30,8,60,30,0,0,'areatrigger_northbound','Exiles Reach - Northbond check');
--- Add new serverside areatrigger for approching Quillboar Brarpatch to template
-DELETE FROM `areatrigger_template` WHERE `Id`=@ID;
-INSERT INTO `areatrigger_template` (`Id`,`IsServerSide`,`Type`,`Flags`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`Data6`,`Data7`,`VerifiedBuild`) VALUES
-(@ID,1,1,0,2,60,30,8,60,30,0,0,0);
-
--- Spawn Conditions for 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry` IN (156651) AND `SourceId`=0 AND `ConditionValue1`=55173;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(32,5,156651,0,0,47,0,55173,1,0,0,0,0,'','Spawn of creature with entry 156651 requires Quest 55173 not taken');
-
--- Spawn Conditions for 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry` IN (156662) AND `SourceId`=0 AND `ElseGroup`=0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(32,5,156662,0,0,1,0,305660,0,0,1,0,0,'','Spawn of creature with entry 156662 if player does not has aura 305660');

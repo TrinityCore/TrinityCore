@@ -3242,8 +3242,8 @@ enum Northbound
     SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND = 344382
 };
 
-Position const GarrickQuillboarBriarpatchPosition = { -249.059006f, -2492.520020f, 18.0742f };
-Position const GrimaxeQuillboarBriarpatchPosition = { -249.20117f, -2492.6191f, 17.964903f };
+Position const GarrickQuillboarBriarpatchPosition = { -142.62154f, -2641.0364f, 48.775497f };
+Position const GrimaxeQuillboarBriarpatchPosition = { -142.56076f, -2640.9915f, 48.755478f };
 
 // 165360 - Alliance Survivor
 // This script is used by Captian Garrick Follower for Northbound quest
@@ -3260,16 +3260,33 @@ struct npc_leader_northbound : public ScriptedAI
         if (!player)
             return;
 
-        Creature* survivor = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "alaria_standing_abandoned_camp" : "alaira_standing_abandoned_camp", 5.0f);
+        Creature* survivor = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "alaria_standing_abandoned_camp" : "wonza_standing_abandoned_camp", 5.0f);
 
         if (!survivor)
             return;
 
+        if (player->GetTeam() == ALLIANCE)
+        {
+            _convo = 12066;
+            _actorIDone = 71310;
+            _actorIDtwo = 71297;
+            _runto = GarrickQuillboarBriarpatchPosition;
+            _lingerSpell = 305665;
+        }
+        else
+        {
+            _convo = 14499;
+            _actorIDone = 79890;
+            _actorIDtwo = 79888;
+            _runto = GrimaxeQuillboarBriarpatchPosition;
+            _lingerSpell = 344385;
+        }
+
         // Needs work for horde
-        Conversation* conversation = Conversation::CreateConversation(12066, player, *player, player->GetGUID(), nullptr, false);
+        Conversation* conversation = Conversation::CreateConversation(_convo, player, *player, player->GetGUID(), nullptr, false);
         conversation->AddActor(0, 0, player->GetGUID());
-        conversation->AddActor(71310, 1, player->GetTeam() == ALLIANCE ? me->GetGUID() : ObjectGuid::Empty);
-        conversation->AddActor(71297, 2, survivor->GetGUID());
+        conversation->AddActor(_actorIDone, 1, me->GetGUID());
+        conversation->AddActor(_actorIDtwo, 2, survivor->GetGUID());
         conversation->Start();
     }
 
@@ -3287,10 +3304,10 @@ struct npc_leader_northbound : public ScriptedAI
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         // Needs work for horde
-        if (spellInfo->Id == 305665)
+        if (spellInfo->Id == _lingerSpell)
         {
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
-            me->GetMotionMaster()->MovePoint(0, -142.62154f, -2641.0364f, 48.775497f, false);
+            me->GetMotionMaster()->MovePoint(0, _runto, false);
         }
         return;
     }
@@ -3308,6 +3325,10 @@ struct npc_leader_northbound : public ScriptedAI
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
             player->CastSpell(player, 305666);
             player->RemoveAura(305660);
+
+            //player->CastSpell(player, 305666);
+            player->RemoveAura(344382);
+
             player->UpdateVisibilityForPlayer();
         }
     }
@@ -3332,6 +3353,11 @@ struct npc_leader_northbound : public ScriptedAI
 private:
     EventMap _events;
     ObjectGuid _playerGUID;
+    uint32 _convo;
+    uint32 _actorIDone;
+    uint32 _actorIDtwo;
+    Position _runto;
+    uint32 _lingerSpell;
 };
 
 // 55173 - Northbound
@@ -3417,15 +3443,15 @@ struct areatrigger_northbound : AreaTriggerAI
         if (!player)
             return;
 
-        if (!player->HasAura(305660))
-            return;
-
-        if (player->HasAura(305665))
-            return;
-
         if (player->GetTeam() == ALLIANCE)
         {
             if (player->GetQuestStatus(QUEST_NORTHBOND_ALLIANCE) != QUEST_STATUS_COMPLETE)
+                return;
+
+            if (!player->HasAura(305660))
+                return;
+
+            if (player->HasAura(305665))
                 return;
 
             player->CastSpell(player, 305665); // Scene Linger (DNT)
@@ -3435,7 +3461,13 @@ struct areatrigger_northbound : AreaTriggerAI
             if (player->GetQuestStatus(QUEST_NORTHBOND_HORDE) != QUEST_STATUS_COMPLETE)
                 return;
 
-            player->CastSpell(player, 305665); // Scene Linger (DNT)
+            if (!player->HasAura(344382))
+                return;
+
+            if (player->HasAura(344385))
+                return;
+
+            player->CastSpell(player, 344385); // Scene Linger (DNT)
         }
     }
 };
@@ -3454,7 +3486,7 @@ class spell_scene_linger_northbound: public SpellScript
         if (!player)
             return;
 
-        Creature* scout = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "huxworth_briarpatch" : "huxworth_briarpatch", 100.0f);
+        Creature* scout = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "huxworth_briarpatch" : "dawntracker_briarpatch", 100.0f);
 
         if (!scout)
             return;
