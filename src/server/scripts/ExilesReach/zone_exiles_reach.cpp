@@ -3235,11 +3235,23 @@ class spell_knockback_charge_enhanced_training : public SpellScript
 
 enum Northbound
 {
+    CONVERSATION_QUEST_NORTHBOUND_ACCEPT_ALLIANCE    = 12066,
+    CONVERSATION_QUEST_NORTHBOUND_ACCEPT_HORDE       = 14499,
+
+    ACTOR_ID_0_NORTHBOUND_ACCEPT_ALLIANCE            = 71310,
+    ACTOR_ID_1_NORTHBOUND_ACCEPT_ALLIANCE            = 71297,
+    ACTOR_ID_0_NORTHBOUND_ACCEPT_HORDE               = 79890,
+    ACTOR_ID_1_NORTHBOUND_ACCEPT_HORDE               = 79888,
+    ACTOR_ID_0_NORTHBOUND_AREATRIGGER_ALLIANCE       = 71317,
+    ACTOR_ID_1_NORTHBOUND_AREATRIGGER_HORDE          = 76319,
+
     QUEST_NORTHBOND_ALLIANCE                         = 55173,
     QUEST_NORTHBOND_HORDE                            = 59935,
 
     SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN_NORTHBOUND = 305660,
-    SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND = 344382
+    SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND = 344382,
+    SPELL_LINGER_NORTHBOUND_ALLIANCE                 = 305665,
+    SPELL_LINGER_NORTHBOUND_HORDE                    = 344385,
 };
 
 Position const GarrickQuillboarBriarpatchPosition = { -142.62154f, -2641.0364f, 48.775497f };
@@ -3267,19 +3279,21 @@ struct npc_leader_northbound : public ScriptedAI
 
         if (player->GetTeam() == ALLIANCE)
         {
-            _convo = 12066;
-            _actorIDone = 71310;
-            _actorIDtwo = 71297;
+            _convo = CONVERSATION_QUEST_NORTHBOUND_ACCEPT_ALLIANCE;
+            _actorIDone = ACTOR_ID_0_NORTHBOUND_ACCEPT_ALLIANCE;
+            _actorIDtwo = ACTOR_ID_1_NORTHBOUND_ACCEPT_ALLIANCE;
             _runto = GarrickQuillboarBriarpatchPosition;
-            _lingerSpell = 305665;
+            _lingerSpell = SPELL_LINGER_NORTHBOUND_ALLIANCE;
+            _guardianSpell = SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN_NORTHBOUND;
         }
         else
         {
-            _convo = 14499;
-            _actorIDone = 79890;
-            _actorIDtwo = 79888;
+            _convo = CONVERSATION_QUEST_NORTHBOUND_ACCEPT_HORDE;
+            _actorIDone = ACTOR_ID_0_NORTHBOUND_ACCEPT_HORDE;
+            _actorIDtwo = ACTOR_ID_1_NORTHBOUND_ACCEPT_HORDE;
             _runto = GrimaxeQuillboarBriarpatchPosition;
-            _lingerSpell = 344385;
+            _lingerSpell = SPELL_LINGER_NORTHBOUND_HORDE;
+            _guardianSpell = SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND;
         }
 
         // Needs work for horde
@@ -3317,18 +3331,12 @@ struct npc_leader_northbound : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE || uiId != 0)
             return;
 
-        // Needs work for horde
         me->SetFacingTo(6.0737457275390625);
 
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->CastSpell(player, 305666);
-            player->RemoveAura(305660);
-
-            //player->CastSpell(player, 305666);
-            player->RemoveAura(344382);
-
+            player->RemoveAura(_guardianSpell);
             player->UpdateVisibilityForPlayer();
         }
     }
@@ -3343,7 +3351,7 @@ struct npc_leader_northbound : public ScriptedAI
             {
                 case EVENT_FOLLOW_PLAYER:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->GetMotionMaster()->MoveFollow(player, 0.0f, 0.0f);
+                        me->GetMotionMaster()->MoveFollow(player, 0.5f, 2.5f);
                     break;
                 default:
                     break;
@@ -3358,6 +3366,7 @@ private:
     uint32 _actorIDtwo;
     Position _runto;
     uint32 _lingerSpell;
+    uint32 _guardianSpell;
 };
 
 // 55173 - Northbound
@@ -3410,8 +3419,10 @@ public:
     }
 };
 
-// 165360 - Summon Admiral Garrick Guardian
-// 175034 - Summon Warlord Grimaxe
+// -249.08333 Y: -2492.6008 Z: 18.0897 0.582385361194610595 HORDE
+// -249.05904 Y: -2492.5227 Z: 18.157574 0.659374177455902099
+// Spell 305661 "Summon Admiral Garrick Guardian" Summons Alliance Entry: 165360
+// Spell 344383 "Summon Admiral Garrick Guardian" Summons Horde Entry: 175034
 class spell_summon_leader_northbound : public SpellScript
 {
     void SelectTarget(WorldObject*& target)
@@ -3448,31 +3459,31 @@ struct areatrigger_northbound : AreaTriggerAI
             if (player->GetQuestStatus(QUEST_NORTHBOND_ALLIANCE) != QUEST_STATUS_COMPLETE)
                 return;
 
-            if (!player->HasAura(305660))
+            if (!player->HasAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN_NORTHBOUND))
                 return;
 
-            if (player->HasAura(305665))
+            if (player->HasAura(SPELL_LINGER_NORTHBOUND_ALLIANCE))
                 return;
 
-            player->CastSpell(player, 305665); // Scene Linger (DNT)
+            player->CastSpell(player, SPELL_LINGER_NORTHBOUND_ALLIANCE);
         }
         else
         {
             if (player->GetQuestStatus(QUEST_NORTHBOND_HORDE) != QUEST_STATUS_COMPLETE)
                 return;
 
-            if (!player->HasAura(344382))
+            if (!player->HasAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND))
                 return;
 
-            if (player->HasAura(344385))
+            if (player->HasAura(SPELL_LINGER_NORTHBOUND_HORDE))
                 return;
 
-            player->CastSpell(player, 344385); // Scene Linger (DNT)
+            player->CastSpell(player, SPELL_LINGER_NORTHBOUND_HORDE);
         }
     }
 };
 
-// Spell 305665
+// Spells 305665 & 344385 Handle conversation
 class spell_scene_linger_northbound: public SpellScript
 {
     void HandleLaunch(SpellEffIndex effIndex)
@@ -3493,8 +3504,8 @@ class spell_scene_linger_northbound: public SpellScript
 
         scout->SetVisible(true);
         Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
-        conversation->AddActor(71317, 0, player->GetTeam() == ALLIANCE ? scout->GetGUID() : ObjectGuid::Empty);
-        conversation->AddActor(76319, 1, player->GetTeam() == ALLIANCE ? ObjectGuid::Empty : scout->GetGUID());
+        conversation->AddActor(ACTOR_ID_0_NORTHBOUND_AREATRIGGER_ALLIANCE, 0, player->GetTeam() == ALLIANCE ? scout->GetGUID() : ObjectGuid::Empty);
+        conversation->AddActor(ACTOR_ID_1_NORTHBOUND_AREATRIGGER_HORDE, 1, player->GetTeam() == ALLIANCE ? ObjectGuid::Empty : scout->GetGUID());
         conversation->Start();
     }
 
