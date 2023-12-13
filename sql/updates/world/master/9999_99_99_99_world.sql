@@ -600,14 +600,12 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry`=166906 AND `ConditionValue1`=59935;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (32,5,156651,0,0,47,0,55173,1,0,0,0,0,'','Spawn of creature with entry 156651 requires Quest 55173 not taken'),
-(32,5,166906,0,0,47,0,55173,1,0,0,0,0,'','Spawn of creature with entry 166906 requires Quest 59935 not taken');
-
+(32,5,166906,0,0,47,0,59935,1,0,0,0,0,'','Spawn of creature with entry 166906 requires Quest 59935 not taken');
 -- Spawn Conditions for 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry` IN (156662,166997) AND `SourceId`=0 AND `ElseGroup`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (32,5,156662,0,0,1,0,305660,0,0,1,0,0,'','Spawn of creature with entry 156662 if player does not has aura 305660'),
 (32,5,166997,0,0,1,0,344382,0,0,1,0,0,'','Spawn of creature with entry 166997 if player does not has aura 344382');
-
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (305661,344383,305665,344385);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
