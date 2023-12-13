@@ -3283,7 +3283,7 @@ struct npc_leader_northbound : public ScriptedAI
 
         _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 3s);
     }
-   
+
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         // Needs work for horde
