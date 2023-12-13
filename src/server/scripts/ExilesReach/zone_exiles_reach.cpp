@@ -3308,7 +3308,7 @@ struct npc_leader_northbound : public ScriptedAI
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
             player->CastSpell(player, 305666);
             player->RemoveAura(305660);
-            player->UpdateVisibilityForPlayer();    
+            player->UpdateVisibilityForPlayer();
         }
     }
 
@@ -3540,5 +3540,5 @@ void AddSC_zone_exiles_reach()
     new quest_northbound_horde();
     RegisterSpellScript(spell_summon_leader_northbound);
     RegisterAreaTriggerAI(areatrigger_northbound);
-    RegisterSpellScript(spell_scene_linger_northbound);   
+    RegisterSpellScript(spell_scene_linger_northbound);
 }
