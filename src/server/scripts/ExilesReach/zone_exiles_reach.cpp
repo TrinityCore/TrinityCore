@@ -1523,10 +1523,10 @@ struct npc_lana_jordan_beach_laying : public ScriptedAI
 
 enum ExilesReachMurlocsData
 {
-    ITEM_STITCHED_CLOTH_SHOES = 174791,
-    ITEM_STITCHED_LEATHER_BOOTS = 174792,
-    ITEM_LINKED_MAIL_BOOTS = 174793,
-    ITEM_DENTED_PLATE_BOOTS = 174794,
+    ITEM_STITCHED_CLOTH_SHOES           = 174791,
+    ITEM_STITCHED_LEATHER_BOOTS         = 174792,
+    ITEM_LINKED_MAIL_BOOTS              = 174793,
+    ITEM_DENTED_PLATE_BOOTS             = 174794,
 
     QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED = 58883
 };
@@ -2319,7 +2319,7 @@ enum EnhancedCombatTrainer
     EVENT_COMBAT_TRAINING_RESET_WARRIOR               = 6,
     // Rogue Class
     EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE        = 7,
-    // Priest Class
+    // Priest, Warloc, Druid Class
     EVENT_COMBAT_TRAINING_SPELL_FADING                = 8,
     // Shaman Class
     EVENT_COMBAT_TRAINING_RESET_SHAMAN                = 9,
@@ -3233,6 +3233,246 @@ class spell_knockback_charge_enhanced_training : public SpellScript
     }
 };
 
+enum Northbound
+{
+    QUEST_NORTHBOND_ALLIANCE                         = 55173,
+    QUEST_NORTHBOND_HORDE                            = 59935,
+
+    SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN_NORTHBOUND = 305660,
+    SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND = 344382
+};
+
+Position const GarrickQuillboarBriarpatchPosition = { -249.059006f, -2492.520020f, 18.0742f };
+Position const GrimaxeQuillboarBriarpatchPosition = { -249.20117f, -2492.6191f, 17.964903f };
+
+// 165360 - Alliance Survivor
+// This script is used by Captian Garrick Follower for Northbound quest
+struct npc_leader_northbound : public ScriptedAI
+{
+    npc_leader_northbound(Creature* creature) : ScriptedAI(creature) {}
+
+    void JustAppeared() override
+    {
+        Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
+
+        player->UpdateVisibilityForPlayer();
+
+        if (!player)
+            return;
+
+        Creature* survivor = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "alaria_standing_abandoned_camp" : "alaira_standing_abandoned_camp", 5.0f);
+
+        if (!survivor)
+            return;
+
+        // Needs work for horde
+        Conversation* conversation = Conversation::CreateConversation(12066, player, *player, player->GetGUID(), nullptr, false);
+        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(71310, 1, player->GetTeam() == ALLIANCE ? me->GetGUID() : ObjectGuid::Empty);
+        conversation->AddActor(71297, 2, survivor->GetGUID());
+        conversation->Start();
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        Player* player = summoner->ToPlayer();
+        if (!player)
+            return;
+
+        _playerGUID = player->GetGUID();
+
+        _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 3s);
+    }
+   
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        // Needs work for horde
+        if (spellInfo->Id == 305665)
+        {
+            me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
+            me->GetMotionMaster()->MovePoint(0, -142.62154f, -2641.0364f, 48.775497f, false);
+        }
+        return;
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType != POINT_MOTION_TYPE || uiId != 0)
+            return;
+
+        // Needs work for horde
+        me->SetFacingTo(6.0737457275390625);
+
+        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        {
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+            player->CastSpell(player, 305666);
+            player->RemoveAura(305660);
+            player->UpdateVisibilityForPlayer();    
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FOLLOW_PLAYER:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        me->GetMotionMaster()->MoveFollow(player, 0.0f, 0.0f);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+};
+
+// 55173 - Northbound
+// 59935 - Northbound
+class quest_northbound : public QuestScript
+{
+public:
+    quest_northbound(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, uint32 summonSpellId)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->CastSpell(player, summonSpellId);
+                break;
+            case QUEST_STATUS_NONE:
+                player->RemoveAura(summonSpellId);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->UpdateVisibilityForPlayer();
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// 55173 - Northbound
+class quest_northbound_alliance : public quest_northbound
+{
+public:
+    quest_northbound_alliance() : quest_northbound("quest_northbound_alliance") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN_NORTHBOUND);
+    }
+};
+
+// 59935 - Northbound
+class quest_northbound_horde : public quest_northbound
+{
+public:
+    quest_northbound_horde() : quest_northbound("quest_northbound_horde") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND);
+    }
+};
+
+// 165360 - Summon Admiral Garrick Guardian
+// 175034 - Summon Warlord Grimaxe
+class spell_summon_leader_northbound : public SpellScript
+{
+    void SelectTarget(WorldObject*& target)
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster)
+            return;
+
+        Creature* survivor = FindCreatureIgnorePhase(caster, caster->GetTeam() == ALLIANCE ? "garrick_camp" : "grimaxe_camp", 5.0f);
+        if (!survivor)
+            return;
+
+        target = survivor;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_leader_northbound::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
+    }
+};
+
+struct areatrigger_northbound : AreaTriggerAI
+{
+    areatrigger_northbound(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player)
+            return;
+
+        if (!player->HasAura(305660))
+            return;
+
+        if (player->HasAura(305665))
+            return;
+
+        if (player->GetTeam() == ALLIANCE)
+        {
+            if (player->GetQuestStatus(QUEST_NORTHBOND_ALLIANCE) != QUEST_STATUS_COMPLETE)
+                return;
+
+            player->CastSpell(player, 305665); // Scene Linger (DNT)
+        }
+        else
+        {
+            if (player->GetQuestStatus(QUEST_NORTHBOND_HORDE) != QUEST_STATUS_COMPLETE)
+                return;
+
+            player->CastSpell(player, 305665); // Scene Linger (DNT)
+        }
+    }
+};
+
+// Spell 305665
+class spell_scene_linger_northbound: public SpellScript
+{
+    void HandleLaunch(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        Player* player = GetHitUnit()->ToPlayer();
+        if (!player)
+            return;
+
+        Creature* scout = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "huxworth_briarpatch" : "huxworth_briarpatch", 100.0f);
+
+        if (!scout)
+            return;
+
+        scout->SetVisible(true);
+        Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
+        conversation->AddActor(71317, 0, player->GetTeam() == ALLIANCE ? scout->GetGUID() : ObjectGuid::Empty);
+        conversation->AddActor(76319, 1, player->GetTeam() == ALLIANCE ? ObjectGuid::Empty : scout->GetGUID());
+        conversation->Start();
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_scene_linger_northbound::HandleLaunch, EFFECT_2, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+        OnEffectHitTarget += SpellEffectFn(spell_scene_linger_northbound::HandleEffect, EFFECT_2, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+    }
+};
+
 void AddSC_zone_exiles_reach()
 {
     // Ship
@@ -3288,9 +3528,17 @@ void AddSC_zone_exiles_reach()
     new quest_cooking_meat_horde();
     RegisterAreaTriggerAI(areatrigger_find_the_lost_expedition);
     RegisterAreaTriggerAI(areatrigger_find_the_lost_expedition_follower);
+    // Quest Enhanced Combat Tactics
     new quest_enhanced_combat_tactics();
     RegisterSpellScript(spell_summon_combat_trainer);
     RegisterCreatureAI(npc_sparring_partner_combat_training);
     RegisterAreaTriggerAI(areatrigger_aggro_radius_check);
     RegisterSpellScript(spell_knockback_charge_enhanced_training);
+    // Quest Northbound
+    RegisterCreatureAI(npc_leader_northbound);
+    new quest_northbound_alliance();
+    new quest_northbound_horde();
+    RegisterSpellScript(spell_summon_leader_northbound);
+    RegisterAreaTriggerAI(areatrigger_northbound);
+    RegisterSpellScript(spell_scene_linger_northbound);   
 }

@@ -43,6 +43,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- Alaria is missing questgiver flag
 UPDATE `creature_template` SET `npcflag`=2 WHERE entry=175031;
 
+-- Enhanced Combat Tactics Quest
+
 UPDATE `creature_template` SET `ScriptName`="npc_sparring_partner_combat_training" WHERE `entry` IN (164577,166916);
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (320175,325181);
@@ -52,7 +54,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (320735,320605,320767);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(320735,'spell_knockback_charge_enhanced_training'),
 (320605,'spell_knockback_charge_enhanced_training'),
 (320767,'spell_knockback_charge_enhanced_training');
 
@@ -563,3 +564,84 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (29,0,36223,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36223 if team is Horde'),
 (29,0,36233,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36233 if team is Alliance'),
 (29,0,36234,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36234 if team is Horde');
+
+-- Northbound Quest
+
+UPDATE `creature` SET `StringId`="huxworth_briarpatch" WHERE `guid`=1051267;
+
+DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (165360,175034);
+INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`) VALUES
+(165360,164605,NULL,NULL),
+(175034,166918,NULL,NULL);
+
+DELETE FROM `creature_equip_template` WHERE `CreatureID` IN (165360,175034);
+INSERT INTO `creature_equip_template` (`CreatureID`,`ID`,`ItemID1`,`AppearanceModID1`,`ItemVisual1`,`ItemID2`,`AppearanceModID2`,`ItemVisual2`,`ItemID3`,`AppearanceModID3`,`ItemVisual3`,`VerifiedBuild`) VALUES
+(165360,1,163887,0,0,163891,0,0,0,0,0,50000),
+(175034,1,165616,0,0,0,0,0,0,0,0,50000);
+
+UPDATE `creature_template` SET `ScriptName`="npc_leader_northbound" WHERE `entry` IN (165360,175034);
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (305661,344383,305665);
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(305661,'spell_summon_leader_northbound'),
+(344383,'spell_summon_leader_northbound'),
+(305665,'spell_scene_linger_northbound');
+
+DELETE FROM `quest_template_addon` WHERE `ID` IN (55173,59935);
+INSERT INTO `quest_template_addon` (`ID`,`AllowableClasses`,`PrevQuestID`,`NextQuestID`,`ScriptName`) VALUES
+(55173,0,0,0,'quest_northbound_alliance'), -- Alliance
+(59935,0,0,0,'quest_northbound_horde'); -- Horde
+
+-- Conversation leaders
+DELETE FROM `conversation_actors` WHERE `ConversationId` IN (12066,12070);
+INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
+(12066,71310,0,1,0,0,0,0,45745), -- Alliance Leader
+(12066,71297,0,2,0,0,0,0,45745), -- Alliance Survivor
+(12070,71317,0,0,0,0,0,0,45745), -- Alliance guy
+(12070,76319,0,1,0,0,0,0,45745); -- Horde guy
+
+DELETE FROM `conversation_line_template` WHERE `Id` IN (29348,29349,29350,29351,29367,36321);
+INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES
+(29348,0,0,0,45745), -- Player
+(29349,0,1,0,45745), -- Alliance
+(29350,0,2,0,45745), -- Alliance
+(29351,0,1,0,45745), -- Alliance
+
+(29367,0,0,0,45745), -- Alliance
+(36321,0,1,0,45745); -- Horde
+
+DELETE FROM `conversation_template` WHERE `Id` IN (12066,12070);
+INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
+(12066,29348,0,'',45745),
+(12070,29367,0,'',45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (29348,29349,29350,29351,29367,36321);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(29,0,29348,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29348 if team is Alliance'),
+(29,0,29349,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29349 if team is Alliance'),
+(29,0,29350,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29350 if team is Alliance'),
+(29,0,29351,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29351 if team is Alliance'),
+
+(29,0,29367,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29367 if team is Alliance'),
+(29,0,36321,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36321 if team is Horde');
+
+SET @ID := 54;
+SET @SPAWNID := 54;
+-- Create new serverside areatrigger for approching Quillboar Briarpatch for follower spawn
+DELETE FROM `areatrigger` WHERE `SpawnId`=@SPAWNID;
+INSERT INTO `areatrigger` (`SpawnId`,`AreaTriggerId`,`IsServerSide`,`MapId`,`PosX`,`PosY`,`PosZ`,`Orientation`,`PhaseUseFlags`,`PhaseId`,`PhaseGroup`,`Shape`,`ShapeData0`,`ShapeData1`,`ShapeData2`,`ShapeData3`,`ShapeData4`,`ShapeData5`,`ShapeData6`,`ShapeData7`,`ScriptName`,`Comment`) VALUES
+(@SPAWNID,@ID,1,2175,-175,-2585,33.567165,2.361945,0,0,0,1,2,60,30,8,60,30,0,0,'areatrigger_northbound','Exiles Reach - Northbond check');
+-- Add new serverside areatrigger for approching Quillboar Brarpatch to template
+DELETE FROM `areatrigger_template` WHERE `Id`=@ID;
+INSERT INTO `areatrigger_template` (`Id`,`IsServerSide`,`Type`,`Flags`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`Data6`,`Data7`,`VerifiedBuild`) VALUES
+(@ID,1,1,0,2,60,30,8,60,30,0,0,0);
+
+-- Spawn Conditions for 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry` IN (156651) AND `SourceId`=0 AND `ConditionValue1`=55173;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(32,5,156651,0,0,47,0,55173,1,0,0,0,0,'','Spawn of creature with entry 156651 requires Quest 55173 not taken');
+
+-- Spawn Conditions for 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry` IN (156662) AND `SourceId`=0 AND `ElseGroup`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(32,5,156662,0,0,1,0,305660,0,0,1,0,0,'','Spawn of creature with entry 156662 if player does not has aura 305660');
