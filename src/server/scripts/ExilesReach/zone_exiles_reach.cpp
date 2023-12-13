@@ -1838,7 +1838,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
                 }
                 case EVENT_FOLLOW_PLAYER:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->GetMotionMaster()->MoveFollow(player, 0.0f, 0.0f);
+                        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
                     break;
@@ -1935,7 +1935,7 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
                 }
                 case EVENT_FOLLOW_PLAYER:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->GetMotionMaster()->MoveFollow(player, 0.0f, 0.0f);
+                        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
                     break;
@@ -2446,10 +2446,8 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
         switch (uiId)
         {
             case POSITION_WALK_POINT_ENHANCED_TRAINING:
-            {
                 me->SetWalk(false);
                 me->GetMotionMaster()->MovePoint(POSITION_RUN_POINT_ENHANCED_TRAINING, -231.5225f, -2480.5276f, 19.019197f);
-            }
             break;
             case POSITION_RUN_POINT_ENHANCED_TRAINING:
             {
@@ -2472,77 +2470,59 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                 switch (_playerClass)
                 {
                     case CLASS_WARRIOR:
-                    {
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT_WARRIOR);
                         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
                         _senondaryCheck = true;
                         break;
-                    }
                     case CLASS_PALADIN:
-                    {
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
-                        _senondaryCheck = true;
                         _rightiousCheck = true;
-                        break;
-                    }
-                    case CLASS_ROGUE:
-                    {
-                        ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         _senondaryCheck = true;
-                        _comboPointCheck = true;
                         break;
-                    }
+                    case CLASS_ROGUE:
+                        ConversationWithPlayer(CONVERSATION_READY_COMBAT);
+                        _comboPointCheck = true;
+                        _senondaryCheck = true;
+                        break;
                     case CLASS_PRIEST:
-                    {
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_PRIEST);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
                         _senondaryCheck = true;
                         break;
-                    }
                     case CLASS_SHAMAN:
-                    {
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_SHAMAN);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
                         _senondaryCheck = true;
                         break;
-                    }
                     case CLASS_MAGE:
-                    {
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
                         _senondaryCheck = true;
                         break;
-                    }
                     case CLASS_WARLOCK:
-                    {
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARLOCK);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
                         _senondaryCheck = true;
                         break;
-                    }
                     case CLASS_DRUID:
-                    {
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_DRUID);
                         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
                         _senondaryCheck = true;
                         break;
-                    }
                     case CLASS_MONK:
-                    {
                         ConversationWithPlayer(CONVERSATION_READY_COMBAT);
                         break;
-                    }
                     default:
                         break;
-                    }
                 }
                 break;
+            }
             default:
                 break;
             }
@@ -2556,7 +2536,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
             me->SetHealth(1);
         }
 
-        if (me->HealthBelowPctDamaged(10, damage))
+        if (me->HealthBelowPctDamaged(20, damage))
         {
             me->CastSpell(me, SPELL_DRINK_HEALING_POTION);
         }
@@ -3351,7 +3331,7 @@ struct npc_leader_northbound : public ScriptedAI
             {
                 case EVENT_FOLLOW_PLAYER:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->GetMotionMaster()->MoveFollow(player, 0.5f, 2.5f);
+                        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
                     break;
@@ -3419,8 +3399,6 @@ public:
     }
 };
 
-// -249.08333 Y: -2492.6008 Z: 18.0897 0.582385361194610595 HORDE
-// -249.05904 Y: -2492.5227 Z: 18.157574 0.659374177455902099
 // Spell 305661 "Summon Admiral Garrick Guardian" Summons Alliance Entry: 165360
 // Spell 344383 "Summon Admiral Garrick Guardian" Summons Horde Entry: 175034
 class spell_summon_leader_northbound : public SpellScript
