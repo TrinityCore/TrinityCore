@@ -2398,7 +2398,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
         if (player->GetTeam() == ALLIANCE)
         {
-            _hordeGUID = ObjectGuid::Empty;
+            _allianceGUID = me->GetGUID();
             _summonSpellAura = SPELL_SUMMON_CAPTAIN_GARRICK_COMBAT;
 
             if (_playerClass == CLASS_MONK)
