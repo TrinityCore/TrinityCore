@@ -1112,9 +1112,7 @@ class TC_DATABASE_API HotfixDatabaseConnection : public MySQLConnection
 public:
     typedef HotfixDatabaseStatements Statements;
 
-    //- Constructors for sync and async connections
-    HotfixDatabaseConnection(MySQLConnectionInfo& connInfo);
-    HotfixDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    HotfixDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
     ~HotfixDatabaseConnection();
 
     //- Loads database type specific prepared statements
