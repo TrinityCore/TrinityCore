@@ -15,6 +15,209 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "Containers.h"
+#include "Conversation.h"
+#include "CreatureAIImpl.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PhasingHandler.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+
+enum TidesOfWarData
+{
+    QUEST_TIDES_OF_WAR              = 46727,
+
+    MOVIE_POST_TIDES_OF_WAR         = 858,
+
+    NPC_JAINA_TIDES_OF_WAR          = 120590,
+    NPC_ANDUIN_TIDES_OF_WAR         = 120756,
+    NPC_VISION_OF_SAILORS_MEMORY    = 139645,
+
+    SPELL_JAINA_ARCANE_CHANNEL      = 54219,
+    SPELL_POST_CONV_TIDES_OF_WAR    = 281343,
+
+    CONV_START_COUNCIL              = 4857,
+    CONV_FINISH_COUNCIL             = 8709,
+
+    CONV_LINE_JAINA_WALK            = 19485,
+    CONV_LINE_JAINA_CREDIT          = 19486,
+
+    PATH_JAINA_VISION_START         = 12059000,
+    PATH_JAINA_VISION_FINISH        = 12059001
+};
+
+enum TidesOfWarEvents
+{
+    EVENT_JAINA_WALK            = 1,
+    EVENT_TIDES_OF_WAR_CREDIT
+};
+
+// XX - Stormwind Keep - Tides of War
+struct at_stormwind_keep_tides_of_war : AreaTriggerAI
+{
+    at_stormwind_keep_tides_of_war(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player || player->GetQuestStatus(QUEST_TIDES_OF_WAR) != QUEST_STATUS_INCOMPLETE)
+            return;
+
+        Conversation::CreateConversation(CONV_START_COUNCIL, unit, unit->GetPosition(), unit->GetGUID());
+    }
+};
+
+// 4857 - Conversation
+class conversation_stormwind_keep_council_start : public ConversationScript
+{
+public:
+    conversation_stormwind_keep_council_start() : ConversationScript("conversation_stormwind_keep_council_start") { }
+
+    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    {
+        Creature* jainaObject = GetClosestCreatureWithOptions(creator, 30.0f, { .CreatureId = NPC_JAINA_TIDES_OF_WAR, .IgnorePhases = true });
+        if (!jainaObject)
+            return;
+
+        TempSummon* jainaClone = jainaObject->SummonPersonalClone(jainaObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        if (!jainaClone)
+            return;
+
+        conversation->AddActor(CONV_START_COUNCIL, 3, jainaClone->GetGUID());
+        conversation->Start();
+    }
+
+    void OnConversationStart(Conversation* conversation) override
+    {
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
+
+        if (Milliseconds const* jainaWalkStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONV_LINE_JAINA_WALK))
+            _events.ScheduleEvent(EVENT_JAINA_WALK, *jainaWalkStartTime);
+
+        _events.ScheduleEvent(EVENT_TIDES_OF_WAR_CREDIT, conversation->GetLineEndTime(privateOwnerLocale, CONV_LINE_JAINA_CREDIT));
+    }
+
+    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    {
+        _events.Update(diff);
+
+        switch (_events.ExecuteEvent())
+        {
+            case EVENT_JAINA_WALK:
+            {
+                Creature* jainaClone = conversation->GetActorCreature(3);
+                if (!jainaClone)
+                    break;
+
+                jainaClone->GetMotionMaster()->MovePath(PATH_JAINA_VISION_START, false);
+                break;
+            }
+            case EVENT_TIDES_OF_WAR_CREDIT:
+            {
+                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
+                if (!privateObjectOwner)
+                    break;
+
+                privateObjectOwner->ToPlayer()->KilledMonsterCredit(NPC_ANDUIN_TIDES_OF_WAR);
+                privateObjectOwner->SummonCreature(NPC_VISION_OF_SAILORS_MEMORY, -8384.131f, 324.383f, 148.443f, 1.559973f, TEMPSUMMON_MANUAL_DESPAWN, 0s, privateObjectOwner->GetGUID());
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+// 120590 - Jaina Proudmoore
+struct npc_jaina_proudmoore_tides_of_war : public ScriptedAI
+{
+    npc_jaina_proudmoore_tides_of_war(Creature* creature) : ScriptedAI(creature) { }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+    {
+        if (pathId == PATH_JAINA_VISION_START)
+        {
+            me->SetFacingTo(5.1164f);
+            me->CastSpell(nullptr, SPELL_JAINA_ARCANE_CHANNEL, false);
+
+            _scheduler.Schedule(14s, [this](TaskContext /*context*/)
+            {
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                me->GetMotionMaster()->MovePath(PATH_JAINA_VISION_FINISH, false);
+            });
+        }
+        else if (pathId == PATH_JAINA_VISION_FINISH)
+            me->DespawnOrUnsummon();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 858 - Movie
+class player_conv_after_movie_tides_of_war : public PlayerScript
+{
+public:
+    player_conv_after_movie_tides_of_war() : PlayerScript("player_conv_after_movie_tides_of_war") { }
+
+    void OnMovieComplete(Player* player, uint32 movieId) override
+    {
+        if (movieId == MOVIE_POST_TIDES_OF_WAR)
+        {
+            Creature* jainaObject = GetClosestCreatureWithOptions(player, 30.0f, { .CreatureId = NPC_JAINA_TIDES_OF_WAR, .IgnorePhases = true, .PrivateObjectOwnerGuid = player->GetGUID() });
+            if (!jainaObject)
+                return;
+
+            jainaObject->DespawnOrUnsummon();
+            player->CastSpell(player, SPELL_POST_CONV_TIDES_OF_WAR, true);
+        }
+    }
+};
+
+// 284807 - Despawn
+class spell_stormwind_despawn_sailor_memory : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetHitUnit()->ToCreature())
+            creature->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_stormwind_despawn_sailor_memory::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_stormwind_city()
 {
+    // Creature
+    RegisterCreatureAI(npc_jaina_proudmoore_tides_of_war);
+
+    // Conversation
+    new conversation_stormwind_keep_council_start();
+
+    // PlayerScript
+    new player_conv_after_movie_tides_of_war();
+
+    // AreaTrigger
+    RegisterAreaTriggerAI(at_stormwind_keep_tides_of_war);
+
+    // Spells
+    RegisterSpellScript(spell_stormwind_despawn_sailor_memory);
 }
