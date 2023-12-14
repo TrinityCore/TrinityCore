@@ -57,11 +57,10 @@ class TC_DATABASE_API MySQLConnection
     friend class PingOperation;
 
     public:
-        MySQLConnection(MySQLConnectionInfo& connInfo);                               //!< Constructor for synchronous connections.
-        MySQLConnection(ProducerConsumerQueue<SQLOperation*>* queue, MySQLConnectionInfo& connInfo);  //!< Constructor for asynchronous connections.
+        MySQLConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
         virtual ~MySQLConnection();
 
-        virtual uint32 Open();
+        uint32 Open();
         void Close();
 
         bool PrepareStatements();
@@ -81,6 +80,8 @@ class TC_DATABASE_API MySQLConnection
         void Ping();
 
         uint32 GetLastError();
+
+        void StartDatabaseWorkerThread(ProducerConsumerQueue<SQLOperation*>* queue);
 
     protected:
         /// Tries to acquire lock. If lock is acquired by another thread
@@ -105,7 +106,6 @@ class TC_DATABASE_API MySQLConnection
     private:
         bool _HandleMySQLErrno(uint32 errNo, uint8 attempts = 5);
 
-        ProducerConsumerQueue<SQLOperation*>* m_queue;      //!< Queue shared with other asynchronous connections.
         std::unique_ptr<DatabaseWorker> m_worker;           //!< Core worker task.
         MySQLHandle*          m_Mysql;                      //!< MySQL Handle.
         MySQLConnectionInfo&  m_connectionInfo;             //!< Connection info (used for logging)

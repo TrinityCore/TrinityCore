@@ -382,9 +382,13 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
             switch (type)
             {
             case IDX_ASYNC:
-                return std::make_unique<T>(_queue.get(), *_connectionInfo);
+            {
+                auto c = std::make_unique<T>(*_connectionInfo, CONNECTION_ASYNC);
+                c->StartDatabaseWorkerThread(_queue.get());
+                return c;
+            }
             case IDX_SYNCH:
-                return std::make_unique<T>(*_connectionInfo);
+                return std::make_unique<T>(*_connectionInfo, CONNECTION_SYNCH);
             default:
                 ABORT();
             }
