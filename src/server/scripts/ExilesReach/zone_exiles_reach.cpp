@@ -2398,7 +2398,6 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
         if (player->GetTeam() == ALLIANCE)
         {
-            _allianceGUID = me->GetGUID();
             _hordeGUID = ObjectGuid::Empty;
             _summonSpellAura = SPELL_SUMMON_CAPTAIN_GARRICK_COMBAT;
 
@@ -2409,7 +2408,6 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
         }
         else
         {
-            _allianceGUID = ObjectGuid::Empty;
             _hordeGUID = me->GetGUID();
             _summonSpellAura = SPELL_SUMMON_WARLORD_GRIMAXE_COMBAT;
 
@@ -2528,16 +2526,10 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->GetHealth() <= damage)
-        {
-            damage = 0;
-            me->SetHealth(1);
-        }
+        damage = me->GetHealth() - 1;
 
         if (me->HealthBelowPctDamaged(20, damage))
-        {
             me->CastSpell(me, SPELL_DRINK_HEALING_POTION);
-        }
     }
 
     void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
