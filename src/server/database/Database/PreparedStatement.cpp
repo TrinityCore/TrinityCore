@@ -118,37 +118,21 @@ void PreparedStatementBase::setNull(const uint8 index)
 }
 
 //- Execution
-PreparedStatementTask::PreparedStatementTask(PreparedStatementBase* stmt, bool async) :
-m_stmt(stmt), m_result(nullptr)
+PreparedQueryResult PreparedStatementTask::Query(MySQLConnection* conn, PreparedStatementBase* stmt)
 {
-    m_has_result = async; // If it's async, then there's a result
-    if (async)
-        m_result = new PreparedQueryResultPromise();
-}
-
-PreparedStatementTask::~PreparedStatementTask()
-{
-    delete m_stmt;
-    if (m_has_result && m_result != nullptr)
-        delete m_result;
-}
-
-bool PreparedStatementTask::Execute()
-{
-    if (m_has_result)
+    PreparedResultSet* result = conn->Query(stmt);
+    if (!result || !result->GetRowCount())
     {
-        PreparedResultSet* result = m_conn->Query(m_stmt);
-        if (!result || !result->GetRowCount())
-        {
-            delete result;
-            m_result->set_value(PreparedQueryResult(nullptr));
-            return false;
-        }
-        m_result->set_value(PreparedQueryResult(result));
-        return true;
+        delete result;
+        result = nullptr;
     }
 
-    return m_conn->Execute(m_stmt);
+    return PreparedQueryResult(result);
+}
+
+bool PreparedStatementTask::Execute(MySQLConnection* conn, PreparedStatementBase* stmt)
+{
+    return conn->Execute(stmt);
 }
 
 template<typename T>

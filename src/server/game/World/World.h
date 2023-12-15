@@ -754,7 +754,7 @@ class TC_GAME_API World
 
         void ForceGameEventUpdate();
 
-        void UpdateRealmCharCount(uint32 accid);
+        void UpdateRealmCharCount(uint32 accountId);
 
         LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if (m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
 
