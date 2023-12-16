@@ -3251,9 +3251,6 @@ struct npc_leader_northbound : public ScriptedAI
 
         Creature* survivor = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "alaria_standing_abandoned_camp" : "wonza_standing_abandoned_camp", 5.0f);
 
-        if (!survivor)
-            return;
-
         if (player->GetTeam() == ALLIANCE)
         {
             _convo = CONVERSATION_QUEST_NORTHBOUND_ACCEPT_ALLIANCE;
@@ -3272,6 +3269,9 @@ struct npc_leader_northbound : public ScriptedAI
             _lingerSpell = SPELL_LINGER_NORTHBOUND_HORDE;
             _guardianSpell = SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND;
         }
+
+        if (!survivor)
+            return;
 
         // Needs work for horde
         Conversation* conversation = Conversation::CreateConversation(_convo, player, *player, player->GetGUID(), nullptr, false);
@@ -3559,4 +3559,4 @@ void AddSC_zone_exiles_reach()
     RegisterSpellScript(spell_summon_leader_northbound);
     RegisterAreaTriggerAI(areatrigger_northbound);
     RegisterSpellScript(spell_scene_linger_northbound);
-}
+};
