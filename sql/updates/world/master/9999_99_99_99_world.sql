@@ -626,14 +626,14 @@ INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13846,15312) AND `SourceEntry` IN (10452);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(26,13846,10452,0,0,47,0,55173,66,0,0,0,0,'','Apply PHASE 13846 IF Quest 55173 IS complete | rewarded'),
-(26,13846,10452,0,0,47,0,55186,74,0,1,0,0,'','Apply PHASE 13846 IF Quest 55186 IS NOT IN Progress | complete | rewarded'),
-(26,13846,10452,0,1,47,0,55173,66,0,0,0,0,'','Apply PHASE 13846 IF Quest 55173 IS complete | rewarded'),
-(26,13846,10452,0,1,47,0,55184,74,0,1,0,0,'','Apply PHASE 13846 IF Quest 55184 IS NOT IN Progress | complete | rewarded'),
-(26,15312,10452,0,0,47,0,59935,66,0,0,0,0,'','Apply PHASE 15312 IF Quest 59935 IS complete | rewarded'),
-(26,15312,10452,0,0,47,0,59938,74,0,1,0,0,'','Apply PHASE 15312 IF Quest 59938 IS NOT IN Progress | complete | rewarded'),
-(26,15312,10452,0,1,47,0,59935,66,0,0,0,0,'','Apply PHASE 15312 IF Quest 59935 IS complete | rewarded'),
-(26,15312,10452,0,1,47,0,59939,74,0,1,0,0,'','Apply PHASE 15312 IF Quest 59939 IS NOT IN Progress | complete | rewarded');
+(26,13846,10452,0,0,47,0,55173,74,0,0,0,0,'','Apply PHASE 13846 IF Quest 55173 IS in Progress | complete | rewarded'),
+(26,13846,10452,0,0,47,0,55186,74,0,1,0,0,'','Apply PHASE 13846 IF Quest 55186 IS NOT in Progress | complete | rewarded'),
+(26,13846,10452,0,1,47,0,55173,74,0,0,0,0,'','Apply PHASE 13846 IF Quest 55173 IS in Progress | complete | rewarded'),
+(26,13846,10452,0,1,47,0,55184,74,0,1,0,0,'','Apply PHASE 13846 IF Quest 55184 IS NOT in Progress | complete | rewarded'),
+(26,15312,10452,0,0,47,0,59935,74,0,0,0,0,'','Apply PHASE 15312 IF Quest 59935 IS in Progress | complete | rewarded'),
+(26,15312,10452,0,0,47,0,59938,74,0,1,0,0,'','Apply PHASE 15312 IF Quest 59938 IS NOT in Progress | complete | rewarded'),
+(26,15312,10452,0,1,47,0,59935,74,0,0,0,0,'','Apply PHASE 15312 IF Quest 59935 IS in Progress | complete | rewarded'),
+(26,15312,10452,0,1,47,0,59939,74,0,1,0,0,'','Apply PHASE 15312 IF Quest 59939 IS NOT in Progress | complete | rewarded');
 
 -- Conversation leaders
 DELETE FROM `conversation_actors` WHERE `ConversationId` IN (12066,14499,12070);
