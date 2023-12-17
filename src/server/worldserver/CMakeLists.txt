@@ -51,7 +51,8 @@ target_link_libraries(worldserver
   PUBLIC
     scripts
     game
-    readline)
+    readline
+    gsoap)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}

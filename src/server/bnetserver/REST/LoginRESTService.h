@@ -18,98 +18,59 @@
 #ifndef LoginRESTService_h__
 #define LoginRESTService_h__
 
-#include "Define.h"
-#include "IoContext.h"
+#include "HttpService.h"
 #include "Login.pb.h"
-#include "Session.h"
-#include <boost/asio/ip/tcp.hpp>
-#include <atomic>
-#include <thread>
+#include "LoginHttpSession.h"
 
-class AsyncRequest;
-struct soap;
-struct soap_plugin;
-
+namespace Battlenet
+{
 enum class BanMode
 {
     BAN_IP = 0,
     BAN_ACCOUNT = 1
 };
 
-class LoginRESTService
+class LoginRESTService : public Trinity::Net::Http::HttpService<LoginHttpSession>
 {
 public:
-    LoginRESTService() : _ioContext(nullptr), _stopped(false), _port(0), _loginTicketDuration(0) { }
+    using RequestHandlerResult = Trinity::Net::Http::RequestHandlerResult;
+    using HttpRequest = Trinity::Net::Http::Request;
+    using HttpResponse = Trinity::Net::Http::Response;
+    using HttpRequestContext = Trinity::Net::Http::RequestContext;
+    using HttpSessionState = Trinity::Net::Http::SessionState;
+
+    LoginRESTService() : HttpService("login"), _port(0), _loginTicketDuration(0) { }
 
     static LoginRESTService& Instance();
 
-    bool Start(Trinity::Asio::IoContext* ioContext);
-    void Stop();
+    bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int32 threadCount = 1) override;
 
     std::string const& GetHostnameForClient(boost::asio::ip::address const& address) const;
-    int32 GetPort() const { return _port; }
+    uint16 GetPort() const { return _port; }
 
 private:
-    void Run();
+    static void OnSocketAccept(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex);
 
-    friend int32 handle_get_plugin(soap* soapClient);
-    friend int32 handle_post_plugin(soap* soapClient);
+    static std::string ExtractAuthorization(HttpRequest const& request);
 
-    using HttpMethodHandlerMap = std::unordered_map<std::string, int32(LoginRESTService::*)(std::shared_ptr<AsyncRequest>)>;
-    int32 HandleHttpRequest(soap* soapClient, char const* method, HttpMethodHandlerMap const& handlers);
+    RequestHandlerResult HandleGetForm(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
+    RequestHandlerResult HandleGetGameAccounts(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
+    RequestHandlerResult HandleGetPortal(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
 
-    int32 HandleGetForm(std::shared_ptr<AsyncRequest> request);
-    int32 HandleGetGameAccounts(std::shared_ptr<AsyncRequest> request);
-    int32 HandleGetPortal(std::shared_ptr<AsyncRequest> request);
+    RequestHandlerResult HandlePostLogin(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
+    RequestHandlerResult HandlePostRefreshLoginTicket(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
 
-    int32 HandlePostLogin(std::shared_ptr<AsyncRequest> request);
-    int32 HandlePostRefreshLoginTicket(std::shared_ptr<AsyncRequest> request);
+    static std::string CalculateShaPassHash(std::string const& name, std::string const& password);
 
-    int32 SendResponse(soap* soapClient, google::protobuf::Message const& response);
-
-    void HandleAsyncRequest(std::shared_ptr<AsyncRequest> request);
-
-    std::string CalculateShaPassHash(std::string const& name, std::string const& password);
-
-    struct ResponseCodePlugin
-    {
-        static char const* const PluginId;
-        static int32 Init(soap* s, soap_plugin*, void*);
-        static int32 Copy(soap* s, soap_plugin* dst, soap_plugin* src);
-        static void Destroy(soap* s, soap_plugin* p);
-        static int32 ChangeResponse(soap* s, int32 originalResponse, uint64 contentLength);
-
-        static ResponseCodePlugin* GetForClient(soap* s);
-
-        int32(*fresponse)(soap* s, int32 status, uint64 length);
-        int32 ErrorCode;
-    };
-
-    struct ContentTypePlugin
-    {
-        static char const* const PluginId;
-        static int32 Init(soap* s, soap_plugin* p, void*);
-        static void Destroy(soap* s, soap_plugin* p);
-        static int32 OnSetHeader(soap* s, char const* key, char const* value);
-
-        int32(*fposthdr)(soap* s, char const* key, char const* value);
-        char const* ContentType;
-    };
-
-    Trinity::Asio::IoContext* _ioContext;
-    std::thread _thread;
-    std::atomic<bool> _stopped;
-    Battlenet::JSON::Login::FormInputs _formInputs;
+    JSON::Login::FormInputs _formInputs;
     std::string _bindIP;
-    int32 _port;
+    uint16 _port;
     std::array<std::string, 2> _hostnames;
     std::array<boost::asio::ip::address, 2> _addresses;
     uint32 _loginTicketDuration;
-
-    HttpMethodHandlerMap _getHandlers;
-    HttpMethodHandlerMap _postHandlers;
 };
+}
 
-#define sLoginService LoginRESTService::Instance()
+#define sLoginService Battlenet::LoginRESTService::Instance()
 
 #endif // LoginRESTService_h__

@@ -18,14 +18,13 @@
 #ifndef __SOCKET_H__
 #define __SOCKET_H__
 
-#include "MessageBuffer.h"
 #include "Log.h"
-#include <atomic>
-#include <queue>
-#include <memory>
-#include <functional>
-#include <type_traits>
+#include "MessageBuffer.h"
 #include <boost/asio/ip/tcp.hpp>
+#include <atomic>
+#include <memory>
+#include <queue>
+#include <type_traits>
 
 #define READ_BLOCK_SIZE 4096
 #ifdef BOOST_ASIO_HAS_IOCP
@@ -63,11 +62,18 @@ template<class T, class Stream = boost::asio::ip::tcp::socket>
 class Socket : public std::enable_shared_from_this<T>
 {
 public:
-    explicit Socket(boost::asio::ip::tcp::socket&& socket) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()),
-        _remotePort(_socket.remote_endpoint().port()), _readBuffer(), _closed(false), _closing(false), _isWritingAsync(false)
+    template<typename... Args>
+    explicit Socket(boost::asio::ip::tcp::socket&& socket, Args&&... args) : _socket(std::move(socket), std::forward<Args>(args)...),
+        _remoteAddress(_socket.remote_endpoint().address()), _remotePort(_socket.remote_endpoint().port()),
+        _closed(false), _closing(false), _isWritingAsync(false)
     {
         _readBuffer.Resize(READ_BLOCK_SIZE);
     }
+
+    Socket(Socket const& other) = delete;
+    Socket(Socket&& other) = delete;
+    Socket& operator=(Socket const& other) = delete;
+    Socket& operator=(Socket&& other) = delete;
 
     virtual ~Socket()
     {

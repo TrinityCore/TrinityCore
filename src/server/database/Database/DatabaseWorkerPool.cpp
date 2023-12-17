@@ -35,6 +35,7 @@
 #include "MySQLWorkaround.h"
 #include <boost/asio/use_future.hpp>
 #include <mysqld_error.h>
+#include <utility>
 #ifdef TRINITY_DEBUG
 #include <sstream>
 #include <boost/stacktrace.hpp>
