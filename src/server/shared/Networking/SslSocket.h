@@ -24,11 +24,11 @@
 
 namespace boostssl = boost::asio::ssl;
 
-template<class SslContext, class Stream = boostssl::stream<boost::asio::ip::tcp::socket>>
+template<class Stream = boostssl::stream<boost::asio::ip::tcp::socket>>
 class SslSocket
 {
 public:
-    explicit SslSocket(boost::asio::ip::tcp::socket&& socket) : _sslSocket(std::move(socket), SslContext::instance())
+    explicit SslSocket(boost::asio::ip::tcp::socket&& socket, boost::asio::ssl::context& sslContext) : _sslSocket(std::move(socket), sslContext)
     {
         _sslSocket.set_verify_mode(boostssl::verify_none);
     }
