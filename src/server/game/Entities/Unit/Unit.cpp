@@ -12743,6 +12743,7 @@ void Unit::SetFacingTo(float ori, bool force)
 
     //GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_PRIORITY_HIGHEST);
     init.Launch();
+    UpdateSplineMovement(1);
 }
 
 void Unit::SetFacingToObject(WorldObject const* object, bool force)
@@ -12758,6 +12759,7 @@ void Unit::SetFacingToObject(WorldObject const* object, bool force)
 
     //GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_PRIORITY_HIGHEST);
     init.Launch();
+    UpdateSplineMovement(1);
 }
 
 void Unit::SetFacingToPoint(Position const& point, bool force)
@@ -12775,6 +12777,7 @@ void Unit::SetFacingToPoint(Position const& point, bool force)
 
     //GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_PRIORITY_HIGHEST);
     init.Launch();
+    UpdateSplineMovement(1);
 }
 
 bool Unit::SetWalk(bool enable)
