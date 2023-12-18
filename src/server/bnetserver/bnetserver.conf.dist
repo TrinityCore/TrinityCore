@@ -434,6 +434,10 @@ Appender.Bnet=2,2,0,Bnet.log,w
 
 Logger.root=3,Console Bnet
 Logger.realmlist=3,Console Bnet
+Logger.server.http=3,Console Bnet
+Logger.server.http.login=3,Console Bnet
+Logger.server.http.dispatcher.login=3,Console Bnet
+Logger.server.http.session.login=3,Console Bnet
 Logger.session=3,Console Bnet
 Logger.session.packets=3,Console Bnet
 Logger.sql.updates=3,Console Bnet

@@ -73,7 +73,7 @@ RequestHandlerResult DispatcherService::HandleRequest(std::shared_ptr<AbstractSo
     SystemTimePoint responseDate = SystemTimePoint::clock::now();
     context.response.set(boost::beast::http::field::date, StringFormat("{:%a, %d %b %Y %T GMT}", responseDate - Timezone::GetSystemZoneOffsetAt(responseDate)));
     context.response.set(boost::beast::http::field::server, BOOST_BEAST_VERSION_STRING);
-    context.response.keep_alive(context.response.keep_alive());
+    context.response.keep_alive(context.request.keep_alive());
 
     if (!context.handler)
         return HandlePathNotFound(std::move(session), context);
@@ -192,12 +192,15 @@ std::shared_ptr<SessionState> SessionService::FindAndRefreshSessionState(std::st
 
 void SessionService::MarkSessionInactive(boost::uuids::uuid const& id)
 {
+    bool wasActive = true;
     {
         std::unique_lock inactiveSessionsLock{ _inactiveSessionsMutex };
-        _inactiveSessions.insert(id);
+        wasActive = _inactiveSessions.insert(id).second;
     }
 
+    if (wasActive)
     {
+        std::shared_lock lock{ _sessionsMutex };
         auto itr = _sessions.find(id);
         if (itr != _sessions.end())
         {

@@ -26,8 +26,6 @@
 #include "ProtobufJSON.h"
 #include "Resolver.h"
 #include "Util.h"
-#include <boost/uuid/string_generator.hpp>
-#include <fmt/chrono.h>
 
 namespace Battlenet
 {
@@ -78,7 +76,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), _hostnames[0], std::to_string(_port));
     if (!externalAddress)
     {
-        TC_LOG_ERROR("server.rest", "Could not resolve LoginREST.ExternalAddress {}", _hostnames[0]);
+        TC_LOG_ERROR("server.http.login", "Could not resolve LoginREST.ExternalAddress {}", _hostnames[0]);
         return false;
     }
 
@@ -88,7 +86,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     Optional<boost::asio::ip::tcp::endpoint> localAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), _hostnames[1], std::to_string(_port));
     if (!localAddress)
     {
-        TC_LOG_ERROR("server.rest", "Could not resolve LoginREST.LocalAddress {}", _hostnames[1]);
+        TC_LOG_ERROR("server.http.login", "Could not resolve LoginREST.LocalAddress {}", _hostnames[1]);
         return false;
     }
 
@@ -288,7 +286,7 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLogin(std::sh
                 uint32 maxWrongPassword = uint32(sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0));
 
                 if (sConfigMgr->GetBoolDefault("WrongPass.Logging", false))
-                    TC_LOG_DEBUG("server.rest", "[{}, Account {}, Id {}] Attempted to connect with wrong password!", ip_address, login, accountId);
+                    TC_LOG_DEBUG("server.http.login", "[{}, Account {}, Id {}] Attempted to connect with wrong password!", ip_address, login, accountId);
 
                 if (maxWrongPassword)
                 {
@@ -299,7 +297,7 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLogin(std::sh
 
                     ++failedLogins;
 
-                    TC_LOG_DEBUG("server.rest", "MaxWrongPass : {}, failed_login : {}", maxWrongPassword, accountId);
+                    TC_LOG_DEBUG("server.http.login", "MaxWrongPass : {}, failed_login : {}", maxWrongPassword, accountId);
 
                     if (failedLogins >= maxWrongPassword)
                     {
