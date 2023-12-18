@@ -594,7 +594,7 @@ void AreaTrigger::UpdateTargetList()
 
     switch (_shape.Type)
     {
-    case AreaTriggerShapeType::Sphere:
+        case AreaTriggerShapeType::Sphere:
             SearchUnitInSphere(targetList);
             break;
         case AreaTriggerShapeType::Box:
