@@ -126,9 +126,9 @@ public:
             ToStdStringView(context.request.target()), context.response.result_int());
         if (sLog->ShouldLog("server.http", LOG_LEVEL_TRACE))
         {
-            sLog->OutMessage("server.http", LOG_LEVEL_TRACE, "{} Request: ", this->GetClientInfo(),
+            sLog->OutMessage("server.http", LOG_LEVEL_TRACE, "{} Request: {}", this->GetClientInfo(),
                 CanLogRequestContent(context) ? SerializeRequest(context.request) : "<REDACTED>");
-            sLog->OutMessage("server.http", LOG_LEVEL_TRACE, "{} Response: ", this->GetClientInfo(),
+            sLog->OutMessage("server.http", LOG_LEVEL_TRACE, "{} Response: {}", this->GetClientInfo(),
                 CanLogResponseContent(context) ? std::string_view(reinterpret_cast<char const*>(buffer.GetBasePointer()), buffer.GetActiveSize()) : "<REDACTED>");
         }
 
