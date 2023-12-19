@@ -17,10 +17,12 @@
 
 #include "WaypointManager.h"
 #include "DatabaseEnv.h"
+#include "Field.h"
 #include "GridDefines.h"
 #include "Log.h"
 #include "MapUtils.h"
 #include "ObjectAccessor.h"
+#include "Optional.h"
 #include "TemporarySummon.h"
 #include "Unit.h"
 
