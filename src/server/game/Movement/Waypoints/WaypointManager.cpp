@@ -17,7 +17,6 @@
 
 #include "WaypointManager.h"
 #include "DatabaseEnv.h"
-#include "Field.h"
 #include "GridDefines.h"
 #include "Log.h"
 #include "MapUtils.h"

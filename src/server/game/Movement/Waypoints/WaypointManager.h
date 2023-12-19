@@ -19,6 +19,8 @@
 #define TRINITY_WAYPOINTMANAGER_H
 
 #include "Define.h"
+#include "Field.h"
+#include "ObjectGuid.h"
 #include "WaypointDefines.h"
 #include <unordered_map>
 

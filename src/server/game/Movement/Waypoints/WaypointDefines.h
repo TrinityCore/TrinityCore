@@ -65,7 +65,7 @@ struct WaypointNode
     uint32 Id;
     float X;
     float Y;
-    float Z;;
+    float Z;
     Optional<float> Orientation;
     uint32 Delay;
     WaypointMoveType MoveType;
