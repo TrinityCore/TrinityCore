@@ -5308,7 +5308,7 @@ void Spell::EffectCreateAreaTrigger()
     AreaTriggerCreatePropertiesId createPropertiesId = { uint32(effectInfo->MiscValue), false };
     int32 duration = GetSpellInfo()->CalcDuration(GetCaster());
 
-    AreaTrigger::CreateAreaTrigger(createPropertiesId, destTarget->GetPosition(), duration, m_SpellVisual, unitCaster, nullptr, GetSpellInfo(), this);
+    AreaTrigger::CreateAreaTrigger(createPropertiesId, destTarget->GetPosition(), duration, unitCaster, nullptr, m_SpellVisual, GetSpellInfo(), this);
 }
 
 void Spell::EffectRemoveTalent()

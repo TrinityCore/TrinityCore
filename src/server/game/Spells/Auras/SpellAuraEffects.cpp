@@ -6117,7 +6117,7 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
     if (apply)
     {
         AreaTriggerCreatePropertiesId createPropertiesId = { uint32(GetMiscValue()), false };
-        AreaTrigger::CreateAreaTrigger(createPropertiesId, *target, GetBase()->GetDuration(), GetBase()->GetSpellVisual(), GetCaster(), target, GetSpellInfo(), nullptr, this);
+        AreaTrigger::CreateAreaTrigger(createPropertiesId, *target, GetBase()->GetDuration(), GetCaster(), target, GetBase()->GetSpellVisual(), GetSpellInfo(), nullptr, this);
     }
     else
     {
