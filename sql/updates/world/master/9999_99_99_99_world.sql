@@ -138,5 +138,5 @@ DROP PROCEDURE IF EXISTS areatrigger_refactor;
 
 DELETE FROM `trinity_string` WHERE `entry` IN (1997, 1998);
 INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
-(1997,'You have entered WorldObject areatrigger %u (IsCustom: %u IsSpawn: %u GUID: %u).'),
-(1998,'You have left WorldObject areatrigger %u (IsCustom: %u IsSpawn: %u GUID: %u).');
+(1997,'You have entered areatrigger entity %u (IsCustom: %u IsSpawn: %u GUID: %u).'),
+(1998,'You have left areatrigger entity %u (IsCustom: %u IsSpawn: %u GUID: %u).');
