@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Field.h"
 #include "ObjectGuid.h"
+#include "Position.h"
 #include "WaypointDefines.h"
 #include <unordered_map>
 
