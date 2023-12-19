@@ -883,7 +883,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
         duel_hasEnded = true;
     }
-    else if (victim->IsCreature() && damageTaken >= health && victim->ToCreature()->HasFlag(CREATURE_STATIC_FLAG_UNKILLABLE))
+    else if (victim->IsCreature() && victim != attacker && damageTaken >= health && victim->ToCreature()->HasFlag(CREATURE_STATIC_FLAG_UNKILLABLE))
     {
         damageTaken = health - 1;
 
