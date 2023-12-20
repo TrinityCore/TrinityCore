@@ -14955,7 +14955,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     for (QuestObjective const& obj : quest->GetObjectives())
     {
-        m_questObjectiveStatus.emplace(std::make_pair(QuestObjectiveType(obj.Type), obj.ObjectID), QuestObjectiveStatusData { questStatusItr, &obj });
+        m_questObjectiveStatus.emplace(std::make_pair(QuestObjectiveType(obj.Type), obj.ObjectID), QuestObjectiveStatusData { questStatusItr, obj.ID });
         switch (obj.Type)
         {
             case QUEST_OBJECTIVE_MIN_REPUTATION:
@@ -16553,18 +16553,18 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 /*count*/)
     for (QuestObjectiveStatusMap::value_type const& objectiveItr : Trinity::Containers::MapEqualRange(m_questObjectiveStatus, { QUEST_OBJECTIVE_ITEM, entry }))
     {
         uint32 questId = objectiveItr.second.QuestStatusItr->first;
-        Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
         uint16 logSlot = objectiveItr.second.QuestStatusItr->second.Slot;
-        QuestObjective const& objective = *objectiveItr.second.Objective;
+        Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+        QuestObjective const* objective = sObjectMgr->GetQuestObjective(objectiveItr.second.ObjectiveId);
 
-        if (!IsQuestObjectiveCompletable(logSlot, quest, objective))
+        if (!quest || !objective || !IsQuestObjectiveCompletable(logSlot, quest, *objective))
             continue;
 
         int32 newItemCount = GetItemCount(entry, false);  // we may have more than what the status shows, so we have to iterate inventory
 
-        if (newItemCount < objective.Amount)
+        if (newItemCount < objective->Amount)
         {
-            SetQuestObjectiveData(objective, newItemCount);
+            SetQuestObjectiveData(*objective, newItemCount);
             IncompleteQuest(questId);
         }
     }
@@ -16651,37 +16651,39 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
     {
         uint32 questId = objectiveItr.second.QuestStatusItr->first;
         Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+        if (!quest)
+            continue;
 
         if (!QuestObjective::CanAlwaysBeProgressedInRaid(objectiveType))
             if (GetGroup() && GetGroup()->isRaidGroup() && !quest->IsAllowedInRaid(GetMap()->GetDifficultyID()))
                 continue;
 
         uint16 logSlot = objectiveItr.second.QuestStatusItr->second.Slot;
-        QuestObjective const& objective = *objectiveItr.second.Objective;
-        if (!IsQuestObjectiveCompletable(logSlot, quest, objective))
+        QuestObjective const* objective = sObjectMgr->GetQuestObjective(objectiveItr.second.ObjectiveId);
+        if (!objective || !IsQuestObjectiveCompletable(logSlot, quest, *objective))
             continue;
 
         if (quest->HasFlagEx(QUEST_FLAGS_EX_NO_CREDIT_FOR_PROXY))
-            if (objective.Type == QUEST_OBJECTIVE_MONSTER && victimGuid.IsEmpty())
+            if (objective->Type == QUEST_OBJECTIVE_MONSTER && victimGuid.IsEmpty())
                 continue;
 
-        bool objectiveWasComplete = IsQuestObjectiveComplete(logSlot, quest, objective);
+        bool objectiveWasComplete = IsQuestObjectiveComplete(logSlot, quest, *objective);
         if (!objectiveWasComplete || addCount < 0)
         {
             bool objectiveIsNowComplete = false;
-            if (objective.IsStoringValue())
+            if (objective->IsStoringValue())
             {
-                if (objectiveType == QUEST_OBJECTIVE_PLAYERKILLS && objective.Flags & QUEST_OBJECTIVE_FLAG_KILL_PLAYERS_SAME_FACTION)
+                if (objectiveType == QUEST_OBJECTIVE_PLAYERKILLS && objective->Flags & QUEST_OBJECTIVE_FLAG_KILL_PLAYERS_SAME_FACTION)
                     if (Player const* victim = ObjectAccessor::GetPlayer(GetMap(), victimGuid))
                         if (victim->GetEffectiveTeam() != GetEffectiveTeam())
                             continue;
 
-                int32 currentProgress = GetQuestSlotObjectiveData(logSlot, objective);
-                if (addCount > 0 ? (currentProgress < objective.Amount) : (currentProgress > 0))
+                int32 currentProgress = GetQuestSlotObjectiveData(logSlot, *objective);
+                if (addCount > 0 ? (currentProgress < objective->Amount) : (currentProgress > 0))
                 {
-                    int32 newProgress = std::clamp<int32>(currentProgress + addCount, 0, objective.Amount);
-                    SetQuestObjectiveData(objective, newProgress);
-                    if (addCount > 0 && !(objective.Flags & QUEST_OBJECTIVE_FLAG_HIDE_CREDIT_MSG))
+                    int32 newProgress = std::clamp<int32>(currentProgress + addCount, 0, objective->Amount);
+                    SetQuestObjectiveData(*objective, newProgress);
+                    if (addCount > 0 && !(objective->Flags & QUEST_OBJECTIVE_FLAG_HIDE_CREDIT_MSG))
                     {
                         switch (objectiveType)
                         {
@@ -16691,41 +16693,41 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
                                 SendQuestUpdateAddPlayer(quest, newProgress);
                                 break;
                             default:
-                                SendQuestUpdateAddCredit(quest, victimGuid, objective, newProgress);
+                                SendQuestUpdateAddCredit(quest, victimGuid, *objective, newProgress);
                                 break;
                         }
                     }
 
-                    objectiveIsNowComplete = IsQuestObjectiveComplete(logSlot, quest, objective);
+                    objectiveIsNowComplete = IsQuestObjectiveComplete(logSlot, quest, *objective);
                 }
             }
-            else if (objective.IsStoringFlag())
+            else if (objective->IsStoringFlag())
             {
-                SetQuestObjectiveData(objective, addCount > 0);
+                SetQuestObjectiveData(*objective, addCount > 0);
 
-                if (addCount > 0 && !(objective.Flags & QUEST_OBJECTIVE_FLAG_HIDE_CREDIT_MSG))
-                    SendQuestUpdateAddCreditSimple(objective);
+                if (addCount > 0 && !(objective->Flags & QUEST_OBJECTIVE_FLAG_HIDE_CREDIT_MSG))
+                    SendQuestUpdateAddCreditSimple(*objective);
 
-                objectiveIsNowComplete = IsQuestObjectiveComplete(logSlot, quest, objective);
+                objectiveIsNowComplete = IsQuestObjectiveComplete(logSlot, quest, *objective);
             }
             else
             {
                 switch (objectiveType)
                 {
                     case QUEST_OBJECTIVE_CURRENCY:
-                        objectiveIsNowComplete = GetCurrencyQuantity(objectId) + addCount >= objective.Amount;
+                        objectiveIsNowComplete = GetCurrencyQuantity(objectId) + addCount >= objective->Amount;
                         break;
                     case QUEST_OBJECTIVE_LEARNSPELL:
                         objectiveIsNowComplete = addCount != 0;
                         break;
                     case QUEST_OBJECTIVE_MIN_REPUTATION:
-                        objectiveIsNowComplete = GetReputationMgr().GetReputation(objectId) + addCount >= objective.Amount;
+                        objectiveIsNowComplete = GetReputationMgr().GetReputation(objectId) + addCount >= objective->Amount;
                         break;
                     case QUEST_OBJECTIVE_MAX_REPUTATION:
-                        objectiveIsNowComplete = GetReputationMgr().GetReputation(objectId) + addCount <= objective.Amount;
+                        objectiveIsNowComplete = GetReputationMgr().GetReputation(objectId) + addCount <= objective->Amount;
                         break;
                     case QUEST_OBJECTIVE_MONEY:
-                        objectiveIsNowComplete = int64(GetMoney()) + addCount >= objective.Amount;
+                        objectiveIsNowComplete = int64(GetMoney()) + addCount >= objective->Amount;
                         break;
                     case QUEST_OBJECTIVE_PROGRESS_BAR:
                         objectiveIsNowComplete = IsQuestObjectiveProgressBarComplete(logSlot, quest);
@@ -16736,7 +16738,7 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
                 }
             }
 
-            if (objective.Flags & QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR)
+            if (objective->Flags & QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR)
             {
                 if (IsQuestObjectiveProgressBarComplete(logSlot, quest))
                 {
@@ -16754,26 +16756,26 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
             if (objectiveWasComplete != objectiveIsNowComplete)
                 anyObjectiveChangedCompletionState = true;
 
-            if (objectiveIsNowComplete && objective.CompletionEffect)
+            if (objectiveIsNowComplete && objective->CompletionEffect)
             {
-                if (objective.CompletionEffect->GameEventId)
-                    GameEvents::Trigger(*objective.CompletionEffect->GameEventId, this, nullptr);
-                if (objective.CompletionEffect->SpellId)
-                    CastSpell(this, *objective.CompletionEffect->SpellId, true);
-                if (objective.CompletionEffect->ConversationId)
-                    Conversation::CreateConversation(*objective.CompletionEffect->ConversationId, this, GetPosition(), GetGUID());
-                if (objective.CompletionEffect->UpdatePhaseShift)
+                if (objective->CompletionEffect->GameEventId)
+                    GameEvents::Trigger(*objective->CompletionEffect->GameEventId, this, nullptr);
+                if (objective->CompletionEffect->SpellId)
+                    CastSpell(this, *objective->CompletionEffect->SpellId, true);
+                if (objective->CompletionEffect->ConversationId)
+                    Conversation::CreateConversation(*objective->CompletionEffect->ConversationId, this, GetPosition(), GetGUID());
+                if (objective->CompletionEffect->UpdatePhaseShift)
                     updatePhaseShift = true;
-                if (objective.CompletionEffect->UpdateZoneAuras)
+                if (objective->CompletionEffect->UpdateZoneAuras)
                     updateZoneAuras = true;
             }
 
             if (objectiveIsNowComplete)
             {
-                if (CanCompleteQuest(questId, objective.ID))
+                if (CanCompleteQuest(questId, objective->ID))
                     CompleteQuest(questId);
             }
-            else if (!(objective.Flags & QUEST_OBJECTIVE_FLAG_OPTIONAL) && objectiveItr.second.QuestStatusItr->second.Status == QUEST_STATUS_COMPLETE)
+            else if (!(objective->Flags & QUEST_OBJECTIVE_FLAG_OPTIONAL) && objectiveItr.second.QuestStatusItr->second.Status == QUEST_STATUS_COMPLETE)
                 IncompleteQuest(questId);
         }
     }
@@ -16796,9 +16798,9 @@ bool Player::HasQuestForItem(uint32 itemid) const
     // Search incomplete objective first
     for (QuestObjectiveStatusMap::value_type const& objectiveItr : Trinity::Containers::MapEqualRange(m_questObjectiveStatus, { QUEST_OBJECTIVE_ITEM, itemid }))
     {
-        Quest const* qInfo = ASSERT_NOTNULL(sObjectMgr->GetQuestTemplate(objectiveItr.second.QuestStatusItr->first));
-        QuestObjective const& objective = *objectiveItr.second.Objective;
-        if (!IsQuestObjectiveCompletable(objectiveItr.second.QuestStatusItr->second.Slot, qInfo, objective))
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(objectiveItr.second.QuestStatusItr->first);
+        QuestObjective const* objective = sObjectMgr->GetQuestObjective(objectiveItr.second.ObjectiveId);
+        if (!qInfo || !objective || !IsQuestObjectiveCompletable(objectiveItr.second.QuestStatusItr->second.Slot, qInfo, *objective))
             continue;
 
         // hide quest if player is in raid-group and quest is no raid quest
@@ -16806,7 +16808,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
             if (!InBattleground()) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
                 continue;
 
-        if (!IsQuestObjectiveComplete(objectiveItr.second.QuestStatusItr->second.Slot, qInfo, objective))
+        if (!IsQuestObjectiveComplete(objectiveItr.second.QuestStatusItr->second.Slot, qInfo, *objective))
             return true;
     }
 
@@ -19187,7 +19189,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                     questStatusData.Slot = slot;
 
                     for (QuestObjective const& obj : quest->GetObjectives())
-                        m_questObjectiveStatus.emplace(std::make_pair(QuestObjectiveType(obj.Type), obj.ObjectID), QuestObjectiveStatusData{ questStatusItr, &obj });
+                        m_questObjectiveStatus.emplace(std::make_pair(QuestObjectiveType(obj.Type), obj.ObjectID), QuestObjectiveStatusData{ questStatusItr, obj.ID });
 
                     SetQuestSlot(slot, quest_id);
                     SetQuestSlotEndTime(slot, endTime);
@@ -24970,8 +24972,8 @@ bool Player::HasQuestForGO(int32 GOId) const
     for (QuestObjectiveStatusMap::value_type const& objectiveItr : Trinity::Containers::MapEqualRange(m_questObjectiveStatus, { QUEST_OBJECTIVE_GAMEOBJECT, GOId }))
     {
         Quest const* qInfo = ASSERT_NOTNULL(sObjectMgr->GetQuestTemplate(objectiveItr.second.QuestStatusItr->first));
-        QuestObjective const& objective = *objectiveItr.second.Objective;
-        if (!IsQuestObjectiveCompletable(objectiveItr.second.QuestStatusItr->second.Slot, qInfo, objective))
+        QuestObjective const* objective = sObjectMgr->GetQuestObjective(objectiveItr.second.ObjectiveId);
+        if (!qInfo || !objective || !IsQuestObjectiveCompletable(objectiveItr.second.QuestStatusItr->second.Slot, qInfo, *objective))
             continue;
 
         // hide quest if player is in raid-group and quest is no raid quest
@@ -24979,7 +24981,7 @@ bool Player::HasQuestForGO(int32 GOId) const
             if (!InBattleground()) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
                 continue;
 
-        if (!IsQuestObjectiveComplete(objectiveItr.second.QuestStatusItr->second.Slot, qInfo, objective))
+        if (!IsQuestObjectiveComplete(objectiveItr.second.QuestStatusItr->second.Slot, qInfo, *objective))
             return true;
     }
 
