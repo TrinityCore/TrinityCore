@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Field.h"
+#include "Hash.h"
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "WaypointDefines.h"
@@ -53,6 +54,7 @@ class TC_GAME_API WaypointMgr
         WaypointNode const* GetNode(uint32 pathId, uint32 nodeId) const;
         WaypointPath const* GetPathByVisualGUID(ObjectGuid guid) const;
         WaypointNode const* GetNodeByVisualGUID(ObjectGuid guid) const;
+
     private:
         WaypointMgr() { }
 
