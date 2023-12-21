@@ -479,8 +479,7 @@ enum ClassTrainers
     QUEST_PROVING_PIT_MONK    = 31161,
 };
 
-uint32 const EchoIslandTrainerPitPointsSize = 9;
-Position const EchoIslandTrainersPitPoints[EchoIslandTrainerPitPointsSize] =
+Position const EchoIslandTrainersPitPoints[9] =
 {
     { -1158.99f, -5421.14f, 13.218976f }, // Nortet Pit
     { -1137.0f, -5528.23f, 11.979752f },  // Tunari Pit
@@ -493,19 +492,7 @@ Position const EchoIslandTrainersPitPoints[EchoIslandTrainerPitPointsSize] =
     { -1151.54f, -5429.86f, 13.29182f }   // Zabrax Pit
 };
 
-uint32 const EchoIslandTrainersPitFacingSize = 9;
-float const EchoIslandTrainersPoints[EchoIslandTrainersPitFacingSize] =
-{
-    { 0.2094395f }, // Nortet Pit Facing
-    { 3.1764990f }, // Tunari Pit Facing
-    { 1.7278759f }, // Seratha Pit Facing
-    { 1.4835298f }, // Legati Pit Facing
-    { 4.904375f },  // Nekali Pit Facing
-    { 3.3161256f }, // Ertezza Pit Facing
-    { 0.3141593f }, // Zentabra Pit Facing
-    { 4.956735f },  // Voldreka Pit
-    { 1.256637f }   // Zabrax Pit
-};
+float const EchoIslandTrainersPoints[9] = { 0.2094395f, 3.1764990f, 1.7278759f, 1.4835298f, 4.904375f, 3.3161256f, 0.3141593f, 4.956735f, 1.256637f };
 
 template<uint8 PitPos, uint32 QuestID>
 struct npc_echo_isles_class_trainer : public ScriptedAI
