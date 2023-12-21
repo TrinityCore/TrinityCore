@@ -1,0 +1,173 @@
+-- Darkspear Training Grounds
+
+SET @CGUID := XXXXXX;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID AND @CGUID+2;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `VerifiedBuild`) VALUES
+(@CGUID,63310,1,6453,4865,'0',0,0,-1,0,0,-1149.3906,-5441.252,12.12974,0.0860126,120,0,0,1,0,0,NULL,NULL,52607), -- Zabrax <Monk Trainer>
+(@CGUID+1,63309,1,6453,4865,'0',0,0,-1,0,0,-1144.7935,-5441.1426,12.064628,3.116011,120,0,0,1,0,0,NULL,NULL,52607), -- Tsu the Wanderer
+(@CGUID+2,90113,1,6453,4865,'0',0,0,-1,0,0,-1310.9911,-5557.339,21.042166,5.863887,120,0,0,1,0,0,NULL,NULL,52607); -- Ardsami
+
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_nortet" WHERE `entry` = 38037;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_tunari" WHERE `entry` = 38245;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_seratha" WHERE `entry` = 38246;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_legati" WHERE `entry` = 38244;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_nekali" WHERE `entry` = 38242;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_ertezza" WHERE `entry` = 38247;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_zentabra" WHERE `entry` = 38243;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_voldreka" WHERE `entry` = 42618;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_zabrax" WHERE `entry` = 63310;
+
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_tiki_target" WHERE `entry` = 38038;
+
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_darkspear_jailor" WHERE `entry` = 39062;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_captive_spitescale_scout" WHERE `entry` = 38142;
+
+UPDATE `creature` SET `StringId`="darkspear_jailor_one" WHERE `guid`=309155;
+UPDATE `creature` SET `StringId`="darkspear_jailor_two" WHERE `guid`=309082;
+UPDATE `creature` SET `StringId`="captive_spitescale_scout_one" WHERE `guid`=309164;
+UPDATE `creature` SET `StringId`="captive_spitescale_scout_two" WHERE `guid`=309093;
+
+DELETE FROM `creature_text` WHERE `CreatureID` IN (39062,38142);
+INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
+(39062, 0, 0, 'Get in the pit and show us your stuff, $G boy:girl;.', 12, 0, 100, 1, 0, 0, 0, 0, 'Darkspear Jailor'),
+(38142, 0, 0, 'They sssend you to your death, youngling.', 12, 0, 100, 0, 0, 0, 0, 0, 'Captive Spitescale Scout');
+
+-- Pathing for Darkspear Jailor One
+SET @NPC := 309155;
+SET @PATH := @NPC * 10;
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH, @PATH+1);
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`wpguid`) VALUES
+(@PATH,1,-1136.5938, -5425.422, 13.735447,NULL,0,1,0),
+(@PATH,2,-1135.8698, -5416.757, 13.26898,NULL,0,1,0),
+(@PATH+1,1,-1137.3177, -5429.087, 13.701913,NULL,0,0,0),
+(@PATH+1,2,-1143.191, -5429.9634, 13.863617,NULL,0,0,0);
+
+-- Pathing for Darkspear Jailor Two
+SET @NPC := 309082;
+SET @PATH := @NPC * 10;
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH, @PATH+1);
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`wpguid`) VALUES
+(@PATH,1,-1158.1224,-5524.829,12.020827,NULL,0,1,0),
+(@PATH,2,-1157.1224,-5521.829,12.270827,NULL,0,1,0),
+(@PATH,3,-1153.5295,-5518.6094,12.005672,NULL,0,1,0),
+(@PATH+1,1,-1156.4045,-5521.3184,12.229713,NULL,0,0,0),
+(@PATH+1,2,-1157.6545,-5522.8184,12.229713,NULL,0,0,0),
+(@PATH+1,3,-1159.2795,-5530.028,11.953753,NULL,0,0,0);
+
+-- The Rise of the Darkspear "Monk"
+DELETE FROM `creature_queststarter` WHERE `id`=37951 AND `quest` = 31159;
+INSERT INTO `creature_queststarter` (`id`, `quest`, `VerifiedBuild`) VALUES
+(37951, 31159, 52607);
+
+-- Fix Monk quest chain
+DELETE FROM `quest_template_addon` WHERE `ID` IN (31159,31158,31160,31161,31163);
+INSERT INTO `quest_template_addon` (`ID`,`AllowableClasses`,`PrevQuestID`,`NextQuestID`) VALUES
+(31159,512,0,0),
+(31158,512,31159,0),
+(31160,512,31158,0),
+(31161,512,31160,0),
+(31163,512,31161,0);
+
+DELETE FROM `creature_text` WHERE `CreatureID` IN (38037,38245,38246,38244,38242,38247,38243,42618,63310);
+INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
+-- Nortet "Warrior Trainer"
+(38037, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Nortet'),
+(38037, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Nortet'),
+-- Tunari "Priest Trainer"
+(38245, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Tunari'),
+(38245, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Tunari'),
+-- Seratha "Mage Trainer"
+(38246, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Seratha'),
+(38246, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Seratha'),
+-- Legati "Rogue Trainer"
+(38244, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Legati'),
+(38244, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Legati'),
+-- Nekali "Shaman Trainer"
+(38242, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Nekali'),
+(38242, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Nekali'),
+-- Ertezza "Hunter Trainer"
+(38247, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Ertezza'),
+(38247, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Ertezza'),
+-- Zentabra "Druid Trainer"
+(38243, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Zentabra'),
+(38243, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Zentabra'),
+-- Voldreka "Warlock Trainer"
+(42618, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Voldreka'),
+(42618, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Voldreka'),
+-- Zabrax "Monk Trainer"
+(63310, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Zabrax'),
+(63310, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Zabrax');
+
+-- Warrior Quest
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24639;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24642;
+-- Priest Quest
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24783;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24786;
+-- Mage Quest
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24751;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24754;
+-- Rogue Quest
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24771;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24774;
+-- Shaman Quest
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24759;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24762;
+-- Hunter Quest
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24777;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24780;
+-- Druid Quest
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24765;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24768;
+-- Warlock Quest
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 26273;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 26276;
+-- Monk Quest
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 31158;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 31161;
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (91404);
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(91404,'spell_summon_zuni');
+
+-- Old spell has been replaced
+DELETE FROM `playercreateinfo_cast_spell` WHERE spell IN (71033,91404);
+INSERT INTO `playercreateinfo_cast_spell` (`raceMask`,`classMask`,`createMode`,`spell`,`note`) VALUES
+(128,2015,0,91404,"Troll - Summon Zuni (Lvl 1)");
+
+-- Fix Warrior questline
+UPDATE `quest_template_addon` SET `PrevQuestID`=24642 WHERE `ID`=24643;
+-- Fix Priest questline
+UPDATE `quest_template_addon` SET `PrevQuestID`=24786 WHERE `ID`=24787;
+DELETE FROM `creature_queststarter` WHERE `quest` = 24784;
+DELETE FROM `disables` WHERE `sourceType` = 1 AND `entry` = 24784;
+INSERT INTO `disables` (`sourceType`,`entry`,`flags`,`comment`) VALUES
+(1,24784,0,"Deprecated quest: Learnin' tha Word");
+-- Fix mage questline
+UPDATE `quest_template_addon` SET `PrevQuestID`=24754 WHERE `ID`=24755;
+-- Fix rogue questline
+UPDATE `quest_template_addon` SET `PrevQuestID`=24774 WHERE `ID`=24775;
+-- Fix shaman questline
+UPDATE `quest_template_addon` SET `PrevQuestID`=24762 WHERE `ID`=24763;
+-- Fix Hunter questline
+UPDATE `quest_template_addon` SET `PrevQuestID`=24780 WHERE `ID`=24781;
+-- Fix Druid questline
+UPDATE `quest_template_addon` SET `PrevQuestID`=24768 WHERE `ID`=24769;
+-- Fix Warlock questline
+UPDATE `quest_template_addon` SET `PrevQuestID`=26276 WHERE `ID`=26277;
+
+-- Condition for Gossip menu option allow Monk to do Proving Pit quest
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=10974 AND `ElseGroup`=9;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(15, 10974, 1, 0, 9, 8, 0, 31161, 0, 0, 1, 0, 0, '', 'Show gossip menu 10974 option id 1 if quest Proving Pit has not been rewarded.'),
+(15, 10974, 1, 0, 9, 47, 0, 31161, 10, 0, 0, 0, 0, '', 'Show gossip menu 10974 option id 1 if quest Proving Pit has been taken.');
+
+-- Add missing gossip menu for Jailor
+DELETE FROM `gossip_menu` WHERE `MenuID`=10973;
+INSERT INTO `gossip_menu` (`MenuID`,`TextID`,`VerifiedBuild`) VALUES
+(10973,15252,50000);
+
+-- Prevent player from stopping Jailor movement when opening gossip
+DELETE FROM `creature_template_movement` WHERE `CreatureId`= 39062;
+INSERT INTO `creature_template_movement` (`CreatureId`,`Ground`,`Swim`,`Flight`,`Rooted`,`Chase`,`Random`,`InteractionPauseTimer`) VALUES
+(39062,1,0,0,0,0,0,0);

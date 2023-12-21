@@ -24,6 +24,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "ScriptedGossip.h"
+#include "PassiveAI.h"
 
 /*######
 ## Quest 37446: Lazy Peons
@@ -177,9 +178,550 @@ private:
     bool _shipInPort;
 };
 
+
+// Echo Isles
+
+class spell_summon_zuni : public SpellScript
+{
+    void SetDest(SpellDestination& dest)
+    {
+        dest.Relocate({ - 1173.4531f, -5266.401f, 0.85905945f, 0.0f });
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_zuni::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+    }
+};
+
+enum TikiTarget
+{
+    SPELL_ARCANE_MISSILES_TRAINER = 83470,
+    SPELL_TIKI_TARGET_VISUAL_1    = 71064,
+    SPELL_TIKI_TARGET_VISUAL_2    = 71065,
+    SPELL_TIKI_TARGET_VISUAL_3    = 71066,
+    SPELL_TIKI_TARGET_DEATH       = 71240
+};
+
+uint32 const TiKiTargetMask[3] = { SPELL_TIKI_TARGET_VISUAL_1, SPELL_TIKI_TARGET_VISUAL_2, SPELL_TIKI_TARGET_VISUAL_3 };
+
+struct npc_tiki_target : public ScriptedAI
+{
+    npc_tiki_target(Creature* creature) : ScriptedAI(creature) { _credited = false; }
+
+    void JustAppeared() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->SetTemplateRooted(true);
+        DoCast(me, TiKiTargetMask[urand(0, 2)]);
+        DoCast(me, SPELL_ARCANE_MISSILES_TRAINER);
+    }
+
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->GetHealth() <= damage)
+        {
+            damage = 0;
+            me->SetHealth(1);
+
+            if (!_credited)
+            {
+                _credited = true;
+
+                DoCast(me, SPELL_TIKI_TARGET_DEATH);
+
+                if (Player* player = attacker->ToPlayer())
+                    player->KilledMonsterCredit(me->GetEntry());
+
+                me->DespawnOrUnsummon(2s, 13s);
+            }
+
+        }
+    }
+private:
+    bool _credited;
+};
+
+enum DarkspearJailor
+{
+    EVENT_PLAYER_ACCEPT_CHALLENGE = 1,
+    EVENT_WALK_BACK_TO_HOME       = 2,
+
+    GOSSIP_EVENT_IN_PROGRESS_ID   = 10973,
+    GOSSIP_EVENT_IN_PROGRESS_TEXT = 15252,
+
+    NPC_DARKSPEAR_JAILOR          = 39062,
+    NPC_CAPTIVE_SPITESCALE_SCOUT  = 38142,
+
+    PATH_CAGE_ONE                 = 3091550,
+    PATH_HOME_ONE                 = 3091551,
+    PATH_CAGE_TWO                 = 3090820,
+    PATH_HOME_TWO                 = 3090821,
+
+    SAY_GET_IN_THE_PIT            = 0,
+
+    SPELL_ACTIVATE_DNT            = 227105,
+};
+
+struct npc_darkspear_jailor : public ScriptedAI
+{
+    npc_darkspear_jailor(Creature* creature) : ScriptedAI(creature) { _facing = 0.0f, _pathCage = 0, _pathHome = 0; _eventInProgress = false; }
+
+    void JustAppeared() override
+    {
+        _facing = me->GetOrientation();
+
+        if (me->HasStringId("darkspear_jailor_one"))
+        {
+            _pathCage = PATH_CAGE_ONE;
+            _pathHome = PATH_HOME_ONE;
+        }
+        else if(me->HasStringId("darkspear_jailor_two"))
+        {
+            _pathCage = PATH_CAGE_TWO;
+            _pathHome = PATH_HOME_TWO;
+        }
+    }
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        if (data == 1)
+            _eventInProgress = false;
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+    {
+        if (pathId == _pathCage)
+        {
+            me->HandleEmoteCommand(EMOTE_ONESHOT_USE_STANDING);
+            me->CastSpell(me, SPELL_ACTIVATE_DNT);
+            _events.ScheduleEvent(EVENT_WALK_BACK_TO_HOME, 1s);
+        }
+        else if (pathId == _pathHome)
+        {
+            me->SetFacingTo(_facing);
+        }
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        player->KilledMonsterCredit(NPC_DARKSPEAR_JAILOR);
+        Talk(SAY_GET_IN_THE_PIT, player);
+        CloseGossipMenuFor(player);
+        _eventInProgress = true;
+        _events.ScheduleEvent(EVENT_PLAYER_ACCEPT_CHALLENGE, 2s);
+        return true;
+    }
+
+    bool OnGossipHello(Player* player) override
+    {
+        if (_eventInProgress)
+        {
+            //AddGossipItemFor(player, GOSSIP_EVENT_IN_PROGRESS_ID, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            SendGossipMenuFor(player, GOSSIP_EVENT_IN_PROGRESS_TEXT, me->GetGUID());
+            return true;
+        }
+        return false;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PLAYER_ACCEPT_CHALLENGE:
+                    me->GetMotionMaster()->MovePath(_pathCage, false);
+                    break;
+                case EVENT_WALK_BACK_TO_HOME:
+                    if (Creature* scout = me->FindNearestCreature(NPC_CAPTIVE_SPITESCALE_SCOUT, 5.0f, true))
+                        scout->AI()->SetData(1, 1);
+                    me->GetMotionMaster()->MovePath(_pathHome, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    bool _eventInProgress;
+    uint32 _pathCage;
+    uint32 _pathHome;
+    float _facing;
+};
+
+enum CaptiveSpitescaleScout
+{
+    EVENT_UPDATE_JAILOR_GOSSIP    = 1,
+    EVENT_TALK_TO_PLAYER          = 2,
+    EVENT_DESPAWN_OUT_OF_COMBAT   = 3,
+    EVENT_CAST_FROSTBOLT          = 4,
+
+    SAY_SSEND_YOU_TO_YOUR_DEATH   = 0,
+
+    SPELL_FROST_SHOCK             = 15089
+};
+
+struct npc_captive_spitescale_scout : public ScriptedAI
+{
+    npc_captive_spitescale_scout(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_UPDATE_JAILOR_GOSSIP, 2s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+        me->DespawnOrUnsummon(10s, 7s);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        me->DespawnOrUnsummon(0s, 2s);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.CancelEvent(EVENT_DESPAWN_OUT_OF_COMBAT);
+        _events.ScheduleEvent(EVENT_CAST_FROSTBOLT, 2s, 4s);
+    }
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        if (data == 1)
+        {
+            me->SetWalk(true);
+
+            if (me->HasStringId("captive_spitescale_scout_one"))
+                me->GetMotionMaster()->MovePoint(0, -1142.49f, -5415.59f, 10.597655f);
+            else if (me->HasStringId("captive_spitescale_scout_two"))
+                me->GetMotionMaster()->MovePoint(0, -1149.03f, -5526.18f, 8.1045685f);
+        }
+    }
+
+    void MovementInform(uint32 /*type*/, uint32 id) override
+    {
+        if (id == 0)
+        {
+            _events.ScheduleEvent(EVENT_TALK_TO_PLAYER, 1s);
+            _events.ScheduleEvent(EVENT_DESPAWN_OUT_OF_COMBAT, 100s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_UPDATE_JAILOR_GOSSIP:
+                    if (Creature* jailer = me->FindNearestCreature(NPC_DARKSPEAR_JAILOR, 25.0f, true))
+                        jailer->AI()->SetData(1, 1);
+                    break;
+                case EVENT_TALK_TO_PLAYER:
+                    Talk(SAY_SSEND_YOU_TO_YOUR_DEATH);
+                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    break;
+                case EVENT_DESPAWN_OUT_OF_COMBAT:
+                    me->DespawnOrUnsummon(0s, 2s);
+                    break;
+                case EVENT_CAST_FROSTBOLT:
+                    DoCastVictim(SPELL_FROST_SHOCK);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    ObjectGuid _jailorGUID;
+};
+
+enum ClassTrainers
+{
+    EVENT_MOVE_PIT            = 1,
+    EVENT_MOVE_HOME           = 2,
+
+    NPC_TRAINER_NORTET        = 38037, // Warrior Trainer
+    NPC_TRAINER_TUNARI        = 38245, // Priest Trainer
+    NPC_TRAINER_SERATHA       = 38246, // Mage Trainer
+    NPC_TRAINER_LEGATI        = 38244, // Rogue Trainer
+    NPC_TRAINER_NEKALI        = 38242, // Shaman Trainer
+    NPC_TRAINER_ERTEZZA       = 38247, // Hunter Trainer
+    NPC_TRAINER_ZENTABRA      = 38243, // Druid Trainer
+    NPC_TRAINER_VOLDREKA      = 42618, // Warlock Trainer
+    NPC_TRAINER_ZABRAX        = 63310, // Monk Trainer
+
+    QUEST_PROVING_PIT_WARRIOR = 24642,
+    QUEST_PROVING_PIT_PRIEST  = 24786,
+    QUEST_PROVING_PIT_MAGE    = 24754,
+    QUEST_PROVING_PIT_ROGUE   = 24774,
+    QUEST_PROVING_PIT_SHAMAN  = 24762,
+    QUEST_PROVING_PIT_HUNTER  = 24780,
+    QUEST_PROVING_PIT_DRUID   = 24768,
+    QUEST_PROVING_PIT_WARLOCK = 26276,
+    QUEST_PROVING_PIT_MONK    = 31161,
+};
+
+uint32 const EchoIslandTrainerPitPointsSize = 9;
+Position const EchoIslandTrainersPitPoints[EchoIslandTrainerPitPointsSize] =
+{
+    { -1158.99f, -5421.14f, 13.218976f }, // Nortet Pit
+    { -1137.0f, -5528.23f, 11.979752f },  // Tunari Pit
+    { -1145.95f, -5543.13f, 12.48863f },  // Seratha Pit
+    { -1146.67f, -5430.05f, 13.596256f }, // Legati Pit
+    { -1152.22f, -5407.6f, 13.263395f },  // Nekali Pit
+    { -1136.46f, -5525.13f, 11.99673f },  // Ertezza Pit
+    { -1158.81f, -5533.08f, 11.939185f }, // Zentabra Pit
+    { -1149.92f, -5407.46f, 13.235063f }, // Voldreka Pit
+    { -1151.54f, -5429.86f, 13.29182f }   // Zabrax Pit
+};
+
+uint32 const EchoIslandTrainersPitFacingSize = 9;
+float const EchoIslandTrainersPoints[EchoIslandTrainersPitFacingSize] =
+{
+    { 0.2094395f }, // Nortet Pit Facing
+    { 3.1764990f }, // Tunari Pit Facing
+    { 1.7278759f }, // Seratha Pit Facing
+    { 1.4835298f }, // Legati Pit Facing
+    { 4.904375f },  // Nekali Pit Facing
+    { 3.3161256f }, // Ertezza Pit Facing
+    { 0.3141593f }, // Zentabra Pit Facing
+    { 4.956735f },  // Voldreka Pit
+    { 1.256637f }   // Zabrax Pit
+};
+
+template<uint8 PitPos, uint32 QuestID>
+struct npc_echo_isles_class_trainer : public ScriptedAI
+{
+    npc_echo_isles_class_trainer(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _canPath = true;
+        _homePosition = me->GetPosition();
+        _facingHome = me->GetOrientation();
+    }
+
+    void MovementInform(uint32 /*type*/, uint32 id) override
+    {
+        if (id == 0)
+        {
+            me->SetFacingTo(EchoIslandTrainersPoints[PitPos]);
+        }
+        else if (id == 1)
+        {
+            me->SetFacingTo(_facingHome);
+            _canPath = true;
+        }
+    }
+
+    void OnQuestAccept(Player* /*player*/, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QuestID)
+        {
+            if (_canPath)
+            {
+                _events.ScheduleEvent(EVENT_MOVE_PIT, 2s);
+                _canPath = false;
+            }
+        }
+    }
+
+    void OnQuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
+    {
+        if (quest->GetQuestId() == QuestID)
+            _events.RescheduleEvent(EVENT_MOVE_HOME, 60s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_MOVE_PIT:
+                    me->SetWalk(true);
+                    me->GetMotionMaster()->MovePoint(0, EchoIslandTrainersPitPoints[PitPos]);
+                    _events.ScheduleEvent(EVENT_MOVE_HOME, 300s);
+                    break;
+                case EVENT_MOVE_HOME:
+                    me->SetWalk(true);
+                    me->GetMotionMaster()->MovePoint(1, _homePosition);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    bool _canPath;
+    float _facingHome;
+    Position _homePosition;
+};
+
+enum QuestCompleteSay
+{
+    QUEST_THE_BASICS_HITTING_THINGS_WARRIOR = 24639,
+    QUEST_THE_BASICS_HITTING_THINGS_PRIEST  = 24783,
+    QUEST_THE_BASICS_HITTING_THINGS_MAGE    = 24751,
+    QUEST_THE_BASICS_HITTING_THINGS_ROGUE   = 24771,
+    QUEST_THE_BASICS_HITTING_THINGS_SHAMAN  = 24759,
+    QUEST_THE_BASICS_HITTING_THINGS_HUNTER  = 24777,
+    QUEST_THE_BASICS_HITTING_THINGS_DRUID   = 24765,
+    QUEST_THE_BASICS_HITTING_THINGS_WARLOCK = 26273,
+    QUEST_THE_BASICS_HITTING_THINGS_MONK    = 31158,
+
+    SAY_NOT_BAD   = 0,
+    SAY_WELL_DONE = 1
+};
+
+class quest_the_basics_hitting_things : public QuestScript
+{
+public:
+    quest_the_basics_hitting_things() : QuestScript("quest_the_basics_hitting_things") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus == QUEST_STATUS_COMPLETE)
+        {
+            uint32 _creatureEntry = 0;
+
+            switch (quest->GetQuestId())
+            {
+                case QUEST_THE_BASICS_HITTING_THINGS_WARRIOR:
+                    _creatureEntry = NPC_TRAINER_NORTET;
+                    break;
+                case QUEST_THE_BASICS_HITTING_THINGS_PRIEST:
+                    _creatureEntry = NPC_TRAINER_TUNARI;
+                    break;
+                case QUEST_THE_BASICS_HITTING_THINGS_MAGE:
+                    _creatureEntry = NPC_TRAINER_SERATHA;
+                    break;
+                case QUEST_THE_BASICS_HITTING_THINGS_ROGUE:
+                    _creatureEntry = NPC_TRAINER_LEGATI;
+                    break;
+                case QUEST_THE_BASICS_HITTING_THINGS_SHAMAN:
+                    _creatureEntry = NPC_TRAINER_NEKALI;
+                    break;
+                case QUEST_THE_BASICS_HITTING_THINGS_HUNTER:
+                    _creatureEntry = NPC_TRAINER_ERTEZZA;
+                    break;
+                case QUEST_THE_BASICS_HITTING_THINGS_DRUID:
+                    _creatureEntry = NPC_TRAINER_ZENTABRA;
+                    break;
+                case QUEST_THE_BASICS_HITTING_THINGS_WARLOCK:
+                    _creatureEntry = NPC_TRAINER_VOLDREKA;
+                    break;
+                case QUEST_THE_BASICS_HITTING_THINGS_MONK:
+                    _creatureEntry = NPC_TRAINER_ZABRAX;
+                    break;
+                default:
+                    break;
+            }
+
+            if (Creature* creature = player->FindNearestCreature(_creatureEntry, 50.0f, true))
+                creature->AI()->Talk(SAY_NOT_BAD, player);
+        }
+    }
+};
+
+class quest_proving_pit : public QuestScript
+{
+public:
+    quest_proving_pit() : QuestScript("quest_proving_pit") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus == QUEST_STATUS_COMPLETE)
+        {
+            uint32 _creatureEntry = 0;
+
+            switch (quest->GetQuestId())
+            {
+                case QUEST_PROVING_PIT_WARRIOR:
+                    _creatureEntry = NPC_TRAINER_NORTET;
+                    break;
+                case QUEST_PROVING_PIT_PRIEST:
+                    _creatureEntry = NPC_TRAINER_TUNARI;
+                    break;
+                case QUEST_PROVING_PIT_MAGE:
+                    _creatureEntry = NPC_TRAINER_SERATHA;
+                    break;
+                case QUEST_PROVING_PIT_ROGUE:
+                    _creatureEntry = NPC_TRAINER_LEGATI;
+                    break;
+                case QUEST_PROVING_PIT_SHAMAN:
+                    _creatureEntry = NPC_TRAINER_NEKALI;
+                    break;
+                case QUEST_PROVING_PIT_HUNTER:
+                    _creatureEntry = NPC_TRAINER_ERTEZZA;
+                    break;
+                case QUEST_PROVING_PIT_DRUID:
+                    _creatureEntry = NPC_TRAINER_ZENTABRA;
+                    break;
+                case QUEST_PROVING_PIT_WARLOCK:
+                    _creatureEntry = NPC_TRAINER_VOLDREKA;
+                    break;
+                case QUEST_PROVING_PIT_MONK:
+                    _creatureEntry = NPC_TRAINER_ZABRAX;
+                    break;
+                default:
+                    break;
+            }
+
+            if (Creature* creature = player->FindNearestCreature(_creatureEntry, 50.0f, true))
+                creature->AI()->Talk(SAY_WELL_DONE, player);
+        }
+    }
+};
+
 void AddSC_durotar()
 {
     new npc_lazy_peon();
     RegisterSpellScript(spell_voodoo);
     RegisterCreatureAI(npc_mithaka);
+
+    // Echo Isles
+    RegisterSpellScript(spell_summon_zuni);
+    RegisterCreatureAI(npc_tiki_target);
+    RegisterCreatureAI(npc_darkspear_jailor);
+    RegisterCreatureAI(npc_captive_spitescale_scout);
+    new GenericCreatureScript<npc_echo_isles_class_trainer<0, QUEST_PROVING_PIT_WARRIOR>>("npc_nortet");
+    new GenericCreatureScript<npc_echo_isles_class_trainer<1, QUEST_PROVING_PIT_PRIEST>>("npc_tunari");
+    new GenericCreatureScript<npc_echo_isles_class_trainer<2, QUEST_PROVING_PIT_MAGE>>("npc_seratha");
+    new GenericCreatureScript<npc_echo_isles_class_trainer<3, QUEST_PROVING_PIT_ROGUE>>("npc_legati");
+    new GenericCreatureScript<npc_echo_isles_class_trainer<4, QUEST_PROVING_PIT_SHAMAN>>("npc_nekali");
+    new GenericCreatureScript<npc_echo_isles_class_trainer<5, QUEST_PROVING_PIT_HUNTER>>("npc_ertezza");
+    new GenericCreatureScript<npc_echo_isles_class_trainer<6, QUEST_PROVING_PIT_DRUID>>("npc_zentabra");
+    new GenericCreatureScript<npc_echo_isles_class_trainer<7, QUEST_PROVING_PIT_WARLOCK>>("npc_voldreka");
+    new GenericCreatureScript<npc_echo_isles_class_trainer<8, QUEST_PROVING_PIT_MONK>>("npc_zabrax");
+    new quest_the_basics_hitting_things();
+    new quest_proving_pit();
 }
