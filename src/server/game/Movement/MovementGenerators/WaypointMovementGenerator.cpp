@@ -292,13 +292,6 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
             _nextMoveTime.Reset(waitTime);
     }
 
-    if (waypoint.eventId && urand(0, 99) < waypoint.eventChance)
-    {
-        TC_LOG_DEBUG("maps.script", "Creature movement start script {} at point {} for {}.", waypoint.eventId, _currentNode, owner->GetGUID().ToString());
-        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
-        owner->GetMap()->ScriptsStart(sWaypointScripts, waypoint.eventId, owner, nullptr);
-    }
-
     // inform AI
     if (CreatureAI* AI = owner->AI())
     {

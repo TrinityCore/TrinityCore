@@ -330,6 +330,15 @@ BaseMapLoadAllGrids = 0
 InstanceMapLoadAllGrids = 0
 
 #
+#    BattlegroundMapLoadAllGrids
+#        Description: Load all grids for battleground maps upon load.
+#                     Upon loading an battleground map, all creatures/objects in the map will be pre-loaded
+#        Default:     1 - (Preload all grids in the instance upon load)
+#                     0 - (Don't preload all base maps, dynamically load as used)
+
+BattlegroundMapLoadAllGrids = 1
+
+#
 #    SocketTimeOutTime
 #        Description: Time (in milliseconds) after which a connection being idle on the character
 #                     selection screen is disconnected.

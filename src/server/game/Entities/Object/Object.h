@@ -625,7 +625,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObjectWithOptions(float range, FindGameObjectOptions const& options) const;
         GameObject* FindNearestUnspawnedGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
-        Player* SelectNearestPlayer(float distance) const;
+        Player*     SelectNearestPlayer(float range) const;
 
         virtual ObjectGuid GetCreatorGUID() const = 0;
         virtual ObjectGuid GetOwnerGUID() const = 0;

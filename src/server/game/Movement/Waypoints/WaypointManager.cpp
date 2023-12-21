@@ -24,8 +24,8 @@ void WaypointMgr::Load()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0    1         2           3          4            5           6        7      8           9
-    QueryResult result = WorldDatabase.Query("SELECT id, point, position_x, position_y, position_z, orientation, move_type, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
+    //                                                0    1         2           3          4            5           6        7
+    QueryResult result = WorldDatabase.Query("SELECT id, point, position_x, position_y, position_z, orientation, move_type, delay FROM waypoint_data ORDER BY id, point");
 
     if (!result)
     {
@@ -64,8 +64,6 @@ void WaypointMgr::Load()
         }
 
         waypoint.delay = fields[7].GetUInt32();
-        waypoint.eventId = fields[8].GetUInt32();
-        waypoint.eventChance = fields[9].GetInt16();
 
         WaypointPath& path = _waypointStore[pathId];
         path.id = pathId;
@@ -123,8 +121,6 @@ void WaypointMgr::ReloadPath(uint32 id)
         }
 
         waypoint.delay = fields[6].GetUInt32();
-        waypoint.eventId = fields[7].GetUInt32();
-        waypoint.eventChance = fields[8].GetUInt8();
 
         values.push_back(std::move(waypoint));
     }

@@ -432,6 +432,12 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                     dungeonEncounter = bossInfo->GetDungeonEncounterForDifficulty(instance->GetDifficultyID());
                     if (dungeonEncounter)
                     {
+                        instance->DoOnPlayers([&](Player* player)
+                        {
+                            if (!player->IsLockedToDungeonEncounter(dungeonEncounter->ID))
+                                player->UpdateCriteria(CriteriaType::DefeatDungeonEncounterWhileElegibleForLoot, dungeonEncounter->ID);
+                        });
+
                         DoUpdateCriteria(CriteriaType::DefeatDungeonEncounter, dungeonEncounter->ID);
                         SendBossKillCredit(dungeonEncounter->ID);
                         if (dungeonEncounter->CompleteWorldStateID)

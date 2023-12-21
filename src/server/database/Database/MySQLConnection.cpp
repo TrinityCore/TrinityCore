@@ -17,7 +17,7 @@
 
 #include "MySQLConnection.h"
 #include "Common.h"
-#include "DatabaseWorker.h"
+#include "IoContext.h"
 #include "Log.h"
 #include "MySQLHacks.h"
 #include "MySQLPreparedStatement.h"
@@ -47,23 +47,13 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
         ssl.assign(tokens[5]);
 }
 
-MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
+MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags) :
 m_reconnecting(false),
 m_prepareError(false),
-m_queue(nullptr),
 m_Mysql(nullptr),
 m_connectionInfo(connInfo),
-m_connectionFlags(CONNECTION_SYNCH) { }
-
-MySQLConnection::MySQLConnection(ProducerConsumerQueue<SQLOperation*>* queue, MySQLConnectionInfo& connInfo) :
-m_reconnecting(false),
-m_prepareError(false),
-m_queue(queue),
-m_Mysql(nullptr),
-m_connectionInfo(connInfo),
-m_connectionFlags(CONNECTION_ASYNC)
+m_connectionFlags(connectionFlags)
 {
-    m_worker = std::make_unique<DatabaseWorker>(m_queue, this);
 }
 
 MySQLConnection::~MySQLConnection()
@@ -74,7 +64,11 @@ MySQLConnection::~MySQLConnection()
 void MySQLConnection::Close()
 {
     // Stop the worker thread before the statements are cleared
-    m_worker.reset();
+    if (m_workerThread)
+    {
+        m_workerThread->join();
+        m_workerThread.reset();
+    }
 
     m_stmts.clear();
 
@@ -450,6 +444,24 @@ void MySQLConnection::Ping()
 uint32 MySQLConnection::GetLastError()
 {
     return mysql_errno(m_Mysql);
+}
+
+void MySQLConnection::StartWorkerThread(Trinity::Asio::IoContext* context)
+{
+    m_workerThread = std::make_unique<std::thread>([context]
+    {
+        boost::asio::executor_work_guard executorWorkGuard = boost::asio::make_work_guard(context->get_executor());
+
+        context->run();
+    });
+}
+
+std::thread::id MySQLConnection::GetWorkerThreadId() const
+{
+    if (m_workerThread)
+        return m_workerThread->get_id();
+
+    return {};
 }
 
 bool MySQLConnection::LockIfReady()

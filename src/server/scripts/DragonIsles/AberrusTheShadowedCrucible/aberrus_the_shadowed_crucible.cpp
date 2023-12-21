@@ -193,7 +193,7 @@ public:
 
                 if (InstanceScript* instance = conversation->GetInstanceScript())
                 {
-                    instance->SetData(DATA_KAZZARA_INTRO_DONE, 1);
+                    instance->SetData(DATA_KAZZARA_INTRO_STATE, DONE);
                     if (Creature* kazzara = instance->GetCreature(DATA_KAZZARA_THE_HELLFORGED))
                         kazzara->AI()->DoAction(ACTION_START_KAZZARA_INTRO);
                 }

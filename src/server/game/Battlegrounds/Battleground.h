@@ -36,6 +36,7 @@ class Transport;
 class Unit;
 class WorldObject;
 class WorldPacket;
+struct BattlegroundPlayerScoreTemplate;
 struct BattlegroundScore;
 struct BattlegroundTemplate;
 struct PVPDifficultyEntry;
@@ -309,6 +310,7 @@ class TC_GAME_API Battleground : public ZoneScript
         void SetRated(bool state)           { m_IsRated = state; }
         void SetArenaType(uint8 type)       { m_ArenaType = type; }
         void SetWinner(PvPTeamId winnerTeamId) { _winnerTeamId = winnerTeamId; }
+        std::unordered_set<uint32> const* GetPvpStatIds() const { return _pvpStatIds; }
 
         void ModifyStartDelayTime(int diff) { m_StartDelayTime -= diff; }
         void SetStartDelayTime(int Time)    { m_StartDelayTime = Time; }
@@ -343,7 +345,7 @@ class TC_GAME_API Battleground : public ZoneScript
         uint32 GetMapId() const;
 
         // Map pointers
-        void SetBgMap(BattlegroundMap* map) { m_Map = map; }
+        void SetBgMap(BattlegroundMap* map);
         BattlegroundMap* GetBgMap() const;
         BattlegroundMap* FindBgMap() const { return m_Map; }
 
@@ -380,7 +382,11 @@ class TC_GAME_API Battleground : public ZoneScript
         void SetBgRaid(uint32 TeamID, Group* bg_raid);
 
         virtual void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics& pvpLogData) const;
+
+        BattlegroundScore const* GetBattlegroundScore(Player* player) const;
+
         virtual bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePvpStat(Player* player, uint32 pvpStatId, uint32 value);
 
         static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         uint32 GetPlayersCountByTeam(uint32 Team) const { return m_PlayersCount[GetTeamIndexByTeamId(Team)]; }
@@ -601,6 +607,7 @@ class TC_GAME_API Battleground : public ZoneScript
 
         BattlegroundTemplate const* _battlegroundTemplate;
         PVPDifficultyEntry const* _pvpDifficultyEntry;
+        std::unordered_set<uint32> const* _pvpStatIds;
 
         std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition> _playerPositions;
 };

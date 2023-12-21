@@ -140,11 +140,6 @@ enum EYBattlegroundPointState
     EY_POINT_UNDER_CONTROL      = 3
 };
 
-enum BG_EY_Objectives
-{
-    EY_OBJECTIVE_CAPTURE_FLAG   = 183
-};
-
 enum BG_EY_ExploitTeleportLocations
 {
     EY_EXPLOIT_TELEPORT_LOCATION_ALLIANCE   = 3773,
@@ -260,38 +255,6 @@ const std::array<BattlegroundEYCapturingPointStruct, EY_POINTS_MAX> m_CapturingP
     BattlegroundEYCapturingPointStruct(BG_EY_TEXT_ALLIANCE_TAKEN_MAGE_TOWER, BG_EY_TEXT_HORDE_TAKEN_MAGE_TOWER)
 };
 
-struct BattlegroundEYScore final : public BattlegroundScore
-{
-    friend class BattlegroundEY;
-
-    protected:
-        BattlegroundEYScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), FlagCaptures(0) { }
-
-        void UpdateScore(uint32 type, uint32 value) override
-        {
-            switch (type)
-            {
-                case SCORE_FLAG_CAPTURES:   // Flags captured
-                    FlagCaptures += value;
-                    break;
-                default:
-                    BattlegroundScore::UpdateScore(type, value);
-                    break;
-            }
-        }
-
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
-        {
-            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
-
-            playerData.Stats.emplace_back(EY_OBJECTIVE_CAPTURE_FLAG, FlagCaptures);
-        }
-
-        uint32 GetAttr1() const final override { return FlagCaptures; }
-
-        uint32 FlagCaptures;
-};
-
 class BattlegroundEY : public Battleground
 {
     public:
@@ -299,7 +262,6 @@ class BattlegroundEY : public Battleground
         ~BattlegroundEY();
 
         /* inherited from BattlegroundClass */
-        void AddPlayer(Player* player, BattlegroundQueueTypeId queueId) override;
         void StartingEventOpenDoors() override;
 
         void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
@@ -309,7 +271,6 @@ class BattlegroundEY : public Battleground
         void Reset() override;
         void UpdateTeamScore(uint32 Team);
         void EndBattleground(uint32 winner) override;
-        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
 
         uint32 GetPrematureWinner() override;
 

@@ -636,14 +636,17 @@ void WorldSession::HandleRequestRatedPvpInfo(WorldPackets::Battleground::Request
 
 void WorldSession::HandleGetPVPOptionsEnabled(WorldPackets::Battleground::GetPVPOptionsEnabled& /*getPvPOptionsEnabled*/)
 {
-    // This packet is completely irrelevant, it triggers PVP_TYPES_ENABLED lua event but that is not handled in interface code as of 6.1.2
     WorldPackets::Battleground::PVPOptionsEnabled pvpOptionsEnabled;
+    pvpOptionsEnabled.RatedBattlegrounds = false;
+    pvpOptionsEnabled.PugBattlegrounds = true;
+    pvpOptionsEnabled.WargameBattlegrounds = false;
     pvpOptionsEnabled.WargameArenas = false;
     pvpOptionsEnabled.RatedArenas = false;
-    pvpOptionsEnabled.WargameBattlegrounds = false;
     pvpOptionsEnabled.ArenaSkirmish = false;
-    pvpOptionsEnabled.PugBattlegrounds = true;
-    pvpOptionsEnabled.RatedBattlegrounds = false;
+    pvpOptionsEnabled.SoloShuffle = false;
+    pvpOptionsEnabled.RatedSoloShuffle = false;
+    pvpOptionsEnabled.BattlegroundBlitz = false;
+    pvpOptionsEnabled.RatedBattlegroundBlitz = false;
     SendPacket(pvpOptionsEnabled.Write());
 }
 

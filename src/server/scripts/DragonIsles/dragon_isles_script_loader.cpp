@@ -25,6 +25,7 @@ void AddSC_ruby_life_pools();
 // Azure Vault
 void AddSC_instance_azure_vault();
 void AddSC_boss_leymor();
+void AddSC_boss_telash_greywing();
 
 // Aberrus the Shadowed Crucible
 void AddSC_instance_aberrus_the_shadowed_crucible();
@@ -44,6 +45,7 @@ void AddDragonIslesScripts()
     // Azure Vault
     AddSC_instance_azure_vault();
     AddSC_boss_leymor();
+    AddSC_boss_telash_greywing();
 
     // Aberrus the Shadowed Crucible
     AddSC_instance_aberrus_the_shadowed_crucible();

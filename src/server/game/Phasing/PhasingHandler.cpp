@@ -538,9 +538,10 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
 
     if (phaseId)
         phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr);
-    else if (std::vector<uint32> const* phasesInGroup = sDB2Manager.GetPhasesForGroup(phaseGroupId))
-        for (uint32 phaseInGroup : *phasesInGroup)
-            phaseShift.AddPhase(phaseInGroup, GetPhaseFlags(phaseInGroup), nullptr);
+    else if (phaseGroupId)
+        if (std::vector<uint32> const* phasesInGroup = sDB2Manager.GetPhasesForGroup(phaseGroupId))
+            for (uint32 phaseInGroup : *phasesInGroup)
+                phaseShift.AddPhase(phaseInGroup, GetPhaseFlags(phaseInGroup), nullptr);
 
     if (phaseShift.Phases.empty() || phaseShift.HasPhase(DEFAULT_PHASE))
     {

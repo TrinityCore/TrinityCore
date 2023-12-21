@@ -120,24 +120,24 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Creature>(Creature* att
 template<>
 bool ContentTuningParams::GenerateDataForUnits<Unit, Unit>(Unit* attacker, Unit* target)
 {
-    if (Player* playerAttacker = attacker->ToPlayer())
+    if (Player* playerAttacker = Object::ToPlayer(attacker))
     {
-        if (Player* playerTarget = target->ToPlayer())
+        if (Player* playerTarget = Object::ToPlayer(target))
             return GenerateDataForUnits(playerAttacker, playerTarget);
-        else if (Creature* creatureTarget = target->ToCreature())
+        else if (Creature* creatureTarget = Object::ToCreature(target))
         {
             if (creatureTarget->HasScalableLevels())
                 return GenerateDataForUnits(playerAttacker, creatureTarget);
         }
     }
-    else if (Creature* creatureAttacker = attacker->ToCreature())
+    else if (Creature* creatureAttacker = Object::ToCreature(attacker))
     {
-        if (Player* playerTarget = target->ToPlayer())
+        if (Player* playerTarget = Object::ToPlayer(target))
         {
             if (creatureAttacker->HasScalableLevels())
                 return GenerateDataForUnits(creatureAttacker, playerTarget);
         }
-        else if (Creature* creatureTarget = target->ToCreature())
+        else if (Creature* creatureTarget = Object::ToCreature(target))
         {
             if (creatureAttacker->HasScalableLevels() || creatureTarget->HasScalableLevels())
                 return GenerateDataForUnits(creatureAttacker, creatureTarget);

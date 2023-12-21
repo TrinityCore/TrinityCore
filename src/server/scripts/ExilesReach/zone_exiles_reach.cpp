@@ -1418,8 +1418,8 @@ struct npc_alliance_survivors_beach_laying : public ScriptedAI
         if (Player* player = caster->ToPlayer())
         {
             player->KilledMonsterCredit(me->GetEntry());
-
             Conversation::CreateConversation(ConversationId, player, *player, player->GetGUID(), nullptr);
+            player->UpdateVisibilityForPlayer(); // Needed to make survivor stand instantly
         }
     }
 };
@@ -1729,14 +1729,8 @@ CreatureAI* AustinBeachStandingAISelector(Creature* creature)
 
 enum LostExpeditionFollowerData
 {
-    ACTOR_ID_EMPTY                              = 0,
     ACTOR_ID_ALLIANCE_SURVIVOR                  = 69830,
     ACTOR_ID_HORDE_SURVIVOR                     = 76283,
-
-    ACTOR_INDEX_SURVIVOR_ZERO                   = 0,
-    ACTOR_INDEX_SURVIVOR_ONE,
-    ACTOR_INDEX_SURVIVOR_TWO,
-    ACTOR_INDEX_SURVIVOR_THREE,
 
     AREA_ABANDONED_CAMP                         = 10452,
 
@@ -1787,7 +1781,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
         if (Player* player = caster->ToPlayer())
         {
             Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
-            conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
+            conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, 1, me->GetGUID());
             conversation->Start();
 
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
@@ -1833,7 +1827,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
                     else
                     {
                         Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_ALLIANCE_SURVIVOR, player, *player, _playerGUID, nullptr, false);
-                        conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
+                        conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, 1, me->GetGUID());
                         conversation->Start();
 
                         _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 2s);
@@ -1884,7 +1878,7 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
         if (Player* player = caster->ToPlayer())
         {
             Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
-            conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, ACTOR_INDEX_SURVIVOR_THREE, me->GetGUID());
+            conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 3, me->GetGUID());
             conversation->Start();
 
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
@@ -1930,7 +1924,7 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
                     else
                     {
                         Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR, player, *player, _playerGUID, nullptr, false);
-                        conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, ACTOR_INDEX_SURVIVOR_TWO, me->GetGUID());
+                        conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 2, me->GetGUID());
                         conversation->Start();
 
                         _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 2s);
@@ -2106,7 +2100,8 @@ public:
                 if (!injured)
                     break;
 
-                injured->SummonPersonalClone(InjuredNpcPositionAbandonedCamp, TEMPSUMMON_TIMED_DESPAWN, 2s, 0, 0, player);
+                Creature* injuredTemp = injured->SummonPersonalClone(InjuredNpcPositionAbandonedCamp, TEMPSUMMON_TIMED_DESPAWN, 2s, 0, 0, player);
+                injuredTemp->SetAIAnimKitId(ANIMATION_KIT_INJURED);
                 break;
             }
             default:

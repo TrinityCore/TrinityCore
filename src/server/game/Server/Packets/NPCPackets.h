@@ -235,6 +235,17 @@ namespace WorldPackets
             ObjectGuid Healer;
         };
 
+        class TabardVendorActivate final : public ClientPacket
+        {
+        public:
+            TabardVendorActivate(WorldPacket&& packet) : ClientPacket(CMSG_TABARD_VENDOR_ACTIVATE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Vendor;
+            int32 Type = 0;
+        };
+
         class TrainerBuySpell final : public ClientPacket
         {
         public:
