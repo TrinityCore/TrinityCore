@@ -178,7 +178,6 @@ private:
     bool _shipInPort;
 };
 
-
 // Echo Isles
 
 class spell_summon_zuni : public SpellScript
@@ -235,7 +234,6 @@ struct npc_tiki_target : public ScriptedAI
 
                 me->DespawnOrUnsummon(2s, 13s);
             }
-
         }
     }
 private:
@@ -248,7 +246,7 @@ enum DarkspearJailor
     EVENT_WALK_BACK_TO_HOME       = 2,
 
     GOSSIP_EVENT_IN_PROGRESS_ID   = 10973,
-    GOSSIP_EVENT_IN_PROGRESS_TEXT = 15252,
+    TEXT_GOSSIP_EVENT_IN_PROGRESS = 15252,
 
     NPC_DARKSPEAR_JAILOR          = 39062,
     NPC_CAPTIVE_SPITESCALE_SCOUT  = 38142,
@@ -318,7 +316,7 @@ struct npc_darkspear_jailor : public ScriptedAI
         if (_eventInProgress)
         {
             //AddGossipItemFor(player, GOSSIP_EVENT_IN_PROGRESS_ID, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            SendGossipMenuFor(player, GOSSIP_EVENT_IN_PROGRESS_TEXT, me->GetGUID());
+            SendGossipMenuFor(player, TEXT_GOSSIP_EVENT_IN_PROGRESS, me->GetGUID());
             return true;
         }
         return false;
