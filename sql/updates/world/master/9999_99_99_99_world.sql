@@ -1,6 +1,6 @@
 -- Darkspear Training Grounds
 
-SET @CGUID := XXXXXX;
+SET @CGUID := 90001000;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID AND @CGUID+2;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `VerifiedBuild`) VALUES
 (@CGUID,63310,1,6453,4865,'0',0,0,-1,0,0,-1149.3906,-5441.252,12.12974,0.0860126,120,0,0,1,0,0,NULL,NULL,52607), -- Zabrax <Monk Trainer>
