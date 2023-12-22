@@ -109,6 +109,8 @@ void AddSC_instance_throne_of_the_four_winds();
 void AddSC_boss_general_husam();
 void AddSC_boss_lockmaw();
 void AddSC_instance_lost_city_of_the_tolvir();
+// The Vortex Pinnacle
+void AddSC_instance_vortex_pinnacle();
 // Wailing caverns
 void AddSC_wailing_caverns();
 void AddSC_instance_wailing_caverns();
@@ -244,6 +246,8 @@ void AddKalimdorScripts()
     AddSC_boss_general_husam();
     AddSC_boss_lockmaw();
     AddSC_instance_lost_city_of_the_tolvir();
+    // The Vortex Pinnacle
+    AddSC_instance_vortex_pinnacle();
     // Wailing caverns
     AddSC_wailing_caverns();
     AddSC_instance_wailing_caverns();
