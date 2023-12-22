@@ -52,6 +52,12 @@ void AddSC_boss_mal_ganis();
 void AddSC_boss_meathook();
 void AddSC_culling_of_stratholme();
 void AddSC_instance_culling_of_stratholme();
+// CoT End Time
+void AddSC_instance_end_time();
+// CoT Hour of Twilight
+void AddSC_instance_hour_of_twilight();
+// CoT Well of Eternity
+void AddSC_instance_well_of_eternity();
 // Dire Maul
 void AddSC_instance_dire_maul();
 // Dragon Soul
@@ -181,6 +187,12 @@ void AddKalimdorScripts()
     AddSC_boss_meathook();
     AddSC_culling_of_stratholme();
     AddSC_instance_culling_of_stratholme();
+    // CoT End Time
+    AddSC_instance_end_time();
+    // CoT Hour of Twilight
+    AddSC_instance_hour_of_twilight();
+    // CoT Well of Eternity
+    AddSC_instance_well_of_eternity();
     // Dire Maul
     AddSC_instance_dire_maul();
     // Dragon Soul
