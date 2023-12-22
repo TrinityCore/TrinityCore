@@ -456,6 +456,112 @@ public:
     }
 };
 
+Position const RockjawInvaderSpawnPoints[7] =
+{
+    { -6237.6807f, 375.5191f, 385.44696f, 5.168368339538574218f },
+    { -6299.6113f, 347.11978f, 377.25546f, 6.068230628967285156f },
+    { -6208.724f, 354.3229f, 387.3534f, 4.338659286499023437f },
+    { -6261.8228f, 371.06598f, 383.35944f, 5.383506298065185546f },
+    { -6253.722f, 340.1389f, 382.50888f, 5.957066535949707031f },
+    { -6286.6113f, 316.9566f, 376.9441f, 6.195390701293945312f },
+    { -6204.599f, 304.64932f, 388.9596f, 2.362043619155883789f }
+};
+
+enum JorenIronstock
+{
+    EVENT_SUMMON_ROCKJAW_INVADER      = 1,
+    EVENT_ALLOW_SHOOT_ROCKJAW_INVADER = 2,
+
+    NPC_ROCKJAW_INVADER               = 37070,
+
+    SAY_SHOOT_ROCKJAW                 = 0,
+
+    SPELL_SHOOT                       = 70014
+};
+
+struct npc_joren_ironstock : public ScriptedAI
+{
+    npc_joren_ironstock(Creature* creature) : ScriptedAI(creature) { _shoot = true,  _spawnPos = 0;}
+
+    void JustAppeared() override
+    {
+        me->SetTemplateRooted(true);
+        _events.ScheduleEvent(EVENT_SUMMON_ROCKJAW_INVADER, 1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SUMMON_ROCKJAW_INVADER:
+                    {
+                        if (_spawnPos == 8)
+                            _spawnPos = 0;
+
+                        Creature* RockjawInvader = me->SummonCreature(NPC_ROCKJAW_INVADER, RockjawInvaderSpawnPoints[_spawnPos], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180s);
+                        //RockjawInvader->AI()->AttackStart(me);
+                        //RockjawInvader->AI()->AttackStart(me);
+                        ++_spawnPos;
+                        _events.ScheduleEvent(EVENT_SUMMON_ROCKJAW_INVADER, 3s, 20s);
+                    }
+                    break;
+                case EVENT_ALLOW_SHOOT_ROCKJAW_INVADER:
+                    _shoot = true;
+                break;
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        if (Creature* victim = me->GetVictim()->ToCreature())
+        {
+            if (victim->GetEntry() == NPC_ROCKJAW_INVADER && _shoot)
+            {
+                _shoot = false;
+                DoCastVictim(SPELL_SHOOT);
+                _events.ScheduleEvent(EVENT_ALLOW_SHOOT_ROCKJAW_INVADER, 3s);
+                if (urand(0, 1))
+                    Talk(SAY_SHOOT_ROCKJAW, victim);
+                victim->DespawnOrUnsummon(18s);
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    uint8 _spawnPos;
+    bool _shoot;
+};
+
+struct npc_rockjaw_invader : public ScriptedAI
+{
+    npc_rockjaw_invader(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(WorldObject* summonerWO) override
+    {
+        Unit* summoner = summonerWO->ToUnit();
+
+        if (summoner)
+            me->AI()->AttackStart(summoner);
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
 void AddSC_dun_morogh_area_coldridge_valley()
 {
     new npc_wounded_coldridge_mountaineer();
@@ -464,4 +570,6 @@ void AddSC_dun_morogh_area_coldridge_valley()
     new spell_a_trip_to_ironforge_quest_complete();
     new spell_follow_that_gyrocopter_quest_start();
     new spell_low_health();
+    RegisterCreatureAI(npc_joren_ironstock);
+    RegisterCreatureAI(npc_rockjaw_invader);
 }
