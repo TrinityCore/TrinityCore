@@ -15,22 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_SHADOWFANG_H
-#define DEF_SHADOWFANG_H
+#ifndef _Shadownfang_Keep_h__
+#define _Shadownfang_Keep_h__
 
 #include "CreatureAIImpl.h"
 
-#define SFKScriptName "instance_shadowfang_keep"
-#define DataHeader "SK"
+constexpr char const* SFKScriptName = "instance_shadowfang_keep";
+constexpr char const* DataHeader = "SFK";
 
-enum SKDataTypes
+constexpr uint32 const EncounterCount = 6;
+
+enum SFKDataTypes
 {
-    TYPE_FREE_NPC               = 1,
-    TYPE_RETHILGORE             = 2,
-    TYPE_FENRUS                 = 3,
-    TYPE_NANDOS                 = 4,
-    BOSS_ARUGAL                 = 5,
-    DATA_APOTHECARY_HUMMEL      = 6
+    // Encounters
+    BOSS_BARON_ASHBURY          = 0,
+    BOSS_BARON_SILVERLAINE      = 1,
+    BOSS_COMMANDER_SPRINGVALE   = 2,
+    BOSS_LORD_WALDEN            = 3,
+    BOSS_LORD_GODFREY           = 4,
+    BOSS_APOTHECARY_HUMMEL      = 5
+};
+
+enum SFKCreatureIds
+{
+    // Bosses
+    NPC_BARON_ASHBURY           = 46962,
+    NPC_BARON_SILVERLAINE       = 3887,
+    NPC_COMMANDER_SPRINGVALE    = 4278,
+    NPC_LORD_WALDEN             = 46963,
+    NPC_LORD_GODFREY            = 46964
 };
 
 template <class AI, class T>
@@ -41,4 +54,4 @@ inline AI* GetShadowfangKeepAI(T* obj)
 
 #define RegisterShadowfangKeepCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetShadowfangKeepAI)
 
-#endif
+#endif // _Shadownfang_Keep_h__
