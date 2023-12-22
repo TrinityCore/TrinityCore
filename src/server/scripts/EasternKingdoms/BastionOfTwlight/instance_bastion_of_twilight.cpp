@@ -41,11 +41,11 @@ DoorData const doorData[] =
 
 DungeonEncounterData const encounters[] =
 {
-    { BOSS_HALFUS_WYRMBREAKER,      {{ 1030 }}              },
-    { BOSS_THERALION_AND_VALIONA,   {{ 1032 }}              },
-    { BOSS_ASCENDANT_COUNCIL,       {{ 1028 }}              },
-    { BOSS_CHOGALL,                 {{ 1029 }}              },
-    { BOSS_SINESTRA,                {{ 0, 0, 1082, 1083 }}  }
+    { BOSS_HALFUS_WYRMBREAKER,      {{ 1030 }}          },
+    { BOSS_THERALION_AND_VALIONA,   {{ 1032 }}          },
+    { BOSS_ASCENDANT_COUNCIL,       {{ 1028 }}          },
+    { BOSS_CHOGALL,                 {{ 1029 }}          },
+    { BOSS_SINESTRA,                {{ 1082, 1083 }}    }
 };
 
 class instance_bastion_of_twilight : public InstanceMapScript
