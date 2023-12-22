@@ -54,6 +54,8 @@ void AddSC_culling_of_stratholme();
 void AddSC_instance_culling_of_stratholme();
 // Dire Maul
 void AddSC_instance_dire_maul();
+// Dragon Soul
+void AddSC_instance_dragon_soul();
 // Ragefire Chasm
 void AddSC_instance_ragefire_chasm();
 // Maraudon
@@ -181,6 +183,8 @@ void AddKalimdorScripts()
     AddSC_instance_culling_of_stratholme();
     // Dire Maul
     AddSC_instance_dire_maul();
+    // Dragon Soul
+    AddSC_instance_dragon_soul();
     // Ragefire Chasm
     AddSC_instance_ragefire_chasm();
     //Maraudon
