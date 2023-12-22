@@ -56,10 +56,11 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (320175,'spell_summon_combat_trainer'),
 (325181,'spell_summon_combat_trainer');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (320605,320767);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (320605,320767, 320583);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (320605,'spell_knockback_charge_enhanced_training'),
-(320767,'spell_knockback_charge_enhanced_training');
+(320767,'spell_knockback_charge_enhanced_training'),
+(320583,'spell_knockback_charge_enhanced_training');
 
 DELETE FROM `areatrigger_template` WHERE `Id` IN (19470,19479,19461,19457,19482);
 INSERT INTO `areatrigger_template` (`Id`,`IsServerSide`,`Type`,`Flags`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`Data6`,`Data7`,`VerifiedBuild`) VALUES
@@ -71,11 +72,11 @@ INSERT INTO `areatrigger_template` (`Id`,`IsServerSide`,`Type`,`Flags`,`Data0`,`
 
 DELETE FROM `areatrigger_create_properties` WHERE `Id` IN (19470,19479,19461,19457,19482);
 INSERT INTO `areatrigger_create_properties` (`Id`,`AreaTriggerId`,`MoveCurveId`,`ScaleCurveId`,`MorphCurveId`,`FacingCurveId`,`AnimId`,`AnimKitId`,`DecalPropertiesId`,`TimeToTarget`,`TimeToTargetScale`,`Shape`,`ShapeData0`,`ShapeData1`,`ShapeData2`,`ShapeData3`,`ShapeData4`,`ShapeData5`,`ShapeData6`,`ShapeData7`,`ScriptName`,`VerifiedBuild`) VALUES
-(19470,19479,0,0,0,0,-1,0,0,0,0,4,10,10,4,4,0,0,0,0,'areatrigger_aggro_radius_check',0),
-(19479,19479,0,0,0,0,-1,0,0,0,0,4,10,10,4,4,0,0,0,0,'areatrigger_aggro_radius_check',0),
-(19461,19461,0,0,0,0,-1,0,0,0,0,4,10,10,4,4,0,0,0,0,'areatrigger_aggro_radius_check',0),
-(19457,19457,0,0,0,0,-1,0,0,0,0,4,10,10,4,4,0,0,0,0,'areatrigger_aggro_radius_check',0),
-(19482,19482,0,0,0,0,-1,0,0,0,0,4,10,10,4,4,0,0,0,0,'areatrigger_aggro_radius_check',0);
+(19470,19479,0,0,0,0,-1,0,0,0,0,4,10,10,4,4,0,0,0,0,'at_aggro_radius_check_enhanced_combat_tactics',0),
+(19479,19479,0,0,0,0,-1,0,0,0,0,4,10,10,4,4,0,0,0,0,'at_aggro_radius_check_enhanced_combat_tactics',0),
+(19461,19461,0,0,0,0,-1,0,0,0,0,4,10,10,4,4,0,0,0,0,'at_aggro_radius_check_enhanced_combat_tactics',0),
+(19457,19457,0,0,0,0,-1,0,0,0,0,4,10,10,4,4,0,0,0,0,'at_aggro_radius_check_enhanced_combat_tactics',0),
+(19482,19482,0,0,0,0,-1,0,0,0,0,4,10,10,4,4,0,0,0,0,'at_aggro_radius_check_enhanced_combat_tactics',0);
 
 DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (164577,166916);
 INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`) VALUES
@@ -574,7 +575,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- Create new serverside areatrigger for approching Quillboar Briarpatch for follower spawn
 DELETE FROM `areatrigger` WHERE `SpawnId`=@SPAWNID;
 INSERT INTO `areatrigger` (`SpawnId`,`AreaTriggerId`,`IsServerSide`,`MapId`,`PosX`,`PosY`,`PosZ`,`Orientation`,`PhaseUseFlags`,`PhaseId`,`PhaseGroup`,`Shape`,`ShapeData0`,`ShapeData1`,`ShapeData2`,`ShapeData3`,`ShapeData4`,`ShapeData5`,`ShapeData6`,`ShapeData7`,`ScriptName`,`Comment`) VALUES
-(@SPAWNID,@ID,1,2175,-175,-2585,33.567165,2.361945,0,0,0,1,2,60,30,8,60,30,0,0,'areatrigger_northbound','Exiles Reach - Northbond check');
+(@SPAWNID,@ID,1,2175,-175,-2585,33.567165,2.361945,0,0,0,1,2,60,30,8,60,30,0,0,'at_northbound_linger','Exiles Reach - Northbound check');
 -- Add new serverside areatrigger for approching Quillboar Brarpatch to template
 DELETE FROM `areatrigger_template` WHERE `Id`=@ID;
 INSERT INTO `areatrigger_template` (`Id`,`IsServerSide`,`Type`,`Flags`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`Data6`,`Data7`,`VerifiedBuild`) VALUES
@@ -666,13 +667,5 @@ INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptNa
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (29348,29349,29350,29351,36300,36301,36302,36303,29367,36321);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(29,0,29348,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29348 if team is Alliance'),
-(29,0,29349,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29349 if team is Alliance'),
-(29,0,29350,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29350 if team is Alliance'),
-(29,0,29351,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29351 if team is Alliance'),
-(29,0,36300,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36300 if team is Horde'),
-(29,0,36301,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36301 if team is Horde'),
-(29,0,36302,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36302 if team is Horde'),
-(29,0,36303,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36303 if team is Horde'),
 (29,0,29367,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29367 if team is Alliance'),
 (29,0,36321,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36321 if team is Horde');
