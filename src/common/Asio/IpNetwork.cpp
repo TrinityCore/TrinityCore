@@ -17,9 +17,9 @@
 
 #include "IpNetwork.h"
 #include "IpAddress.h"
-#include <algorithm>
 #include <boost/asio/ip/network_v4.hpp>
 #include <boost/asio/ip/network_v6.hpp>
+#include <algorithm>
 
 namespace
 {
