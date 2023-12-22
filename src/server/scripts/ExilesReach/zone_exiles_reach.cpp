@@ -2690,7 +2690,7 @@ private:
 // 166916 - Horde Sparring Partner
 struct npc_sparring_partner_enhanced_combat_training_paladin : public npc_sparring_partner_combat_training
 {
-    npc_sparring_partner_enhanced_combat_training_paladin(Creature* creature) : npc_sparring_partner_combat_training(creature), _holyPowerCheck(false), _secondaryCheck(false) { }
+    npc_sparring_partner_enhanced_combat_training_paladin(Creature* creature) : npc_sparring_partner_combat_training(creature), _secondaryCheck(false), _holyPowerCheck(false) { }
 
     void OnReadyPointReached() override
     {
@@ -2817,7 +2817,7 @@ struct npc_sparring_partner_enhanced_combat_training_hunter : public npc_sparrin
 // 166916 - Horde Sparring Partner
 struct npc_sparring_partner_enhanced_combat_training_rogue : public npc_sparring_partner_combat_training
 {
-    npc_sparring_partner_enhanced_combat_training_rogue(Creature* creature) : npc_sparring_partner_combat_training(creature), _comboPointsCounter(0), _comboPointCheck(false), _secondaryCheck(false) { }
+    npc_sparring_partner_enhanced_combat_training_rogue(Creature* creature) : npc_sparring_partner_combat_training(creature), _comboPointsCounter(0), _secondaryCheck(false), _comboPointCheck(false) { }
 
     void OnReadyPointReached() override
     {
@@ -3332,7 +3332,7 @@ struct npc_sparring_partner_enhanced_combat_training_monk : public npc_sparring_
 // 166916 - Horde Sparring Partner
 struct npc_sparring_partner_enhanced_combat_training_druid : public npc_sparring_partner_combat_training
 {
-    npc_sparring_partner_enhanced_combat_training_druid(Creature* creature) : npc_sparring_partner_combat_training(creature), _moonfireInPandemicWindow(false), _hitByMoonfire(false) { }
+    npc_sparring_partner_enhanced_combat_training_druid(Creature* creature) : npc_sparring_partner_combat_training(creature), _hitByMoonfire(false), _moonfireInPandemicWindow(false) { }
 
     void OnReadyPointReached() override
     {
