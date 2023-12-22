@@ -70,9 +70,7 @@ void AddSC_boss_flamegor();
 void AddSC_boss_chromaggus();
 void AddSC_boss_nefarian();
 void AddSC_instance_blackwing_lair();
-void AddSC_deadmines();                      //Deadmines
-void AddSC_instance_deadmines();
-void AddSC_boss_mr_smite();
+void AddSC_instance_deadmines();             //Deadmines
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
 void AddSC_instance_grim_batol();            //Grim Batol
@@ -267,9 +265,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_chromaggus();
     AddSC_boss_nefarian();
     AddSC_instance_blackwing_lair();
-    AddSC_deadmines();                      //Deadmines
-    AddSC_boss_mr_smite();
-    AddSC_instance_deadmines();
+    AddSC_instance_deadmines();             //Deadmines
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();
     AddSC_instance_grim_batol();            //Grim Batol
