@@ -3597,7 +3597,6 @@ struct npc_leader_northbound : public ScriptedAI
             _guardianSpellId = SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND;
         }
 
-
         // @TODO: Needs work for horde
         Conversation* conversation = Conversation::CreateConversation(_conversationId, player, *player, player->GetGUID(), nullptr, false);
         if (!conversation)
