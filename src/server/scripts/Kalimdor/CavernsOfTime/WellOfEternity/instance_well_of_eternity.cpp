@@ -32,14 +32,14 @@ DungeonEncounterData const encounters[] =
     { BOSS_MANNOROTH,       {{ 1274 }}  }
 };
 
-class instance_well_of_eternityy : public InstanceMapScript
+class instance_well_of_eternity : public InstanceMapScript
 {
 public:
-    instance_well_of_eternityy() : InstanceMapScript(WoEScriptName, 939) { }
+    instance_well_of_eternity() : InstanceMapScript(WoEScriptName, 939) { }
 
-    struct instance_well_of_eternityy_InstanceMapScript : public InstanceScript
+    struct instance_well_of_eternity_InstanceMapScript : public InstanceScript
     {
-        instance_well_of_eternityy_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+        instance_well_of_eternity_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
@@ -50,11 +50,11 @@ public:
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
-        return new instance_well_of_eternityy_InstanceMapScript(map);
+        return new instance_well_of_eternity_InstanceMapScript(map);
     }
 };
 
 void AddSC_instance_well_of_eternity()
 {
-    new instance_well_of_eternityy();
+    new instance_well_of_eternity();
 }
