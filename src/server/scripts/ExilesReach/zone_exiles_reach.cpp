@@ -31,6 +31,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "ScriptSystem.h"
+#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
