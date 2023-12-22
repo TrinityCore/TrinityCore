@@ -21,7 +21,7 @@
 #include "CreatureAIImpl.h"
 
 constexpr char const* DataHeader = "HOT";
-constexpr char const* HoTScriptName = "instance_throne_of_the_four_winds";
+constexpr char const* HoTScriptName = "instance_hour_of_twilight";
 
 constexpr uint32 const EncounterCount = 3;
 
@@ -33,17 +33,12 @@ enum TotFWDataTypes
     BOSS_ARCHBISHOP_BENEDICTUS  = 2
 };
 
-enum TotFWCreatureIds
-{
-    // Bosses
-};
-
 template <class AI, class T>
-inline AI* GetThroneOfTheFourWindsAI(T* obj)
+inline AI* GetGetHourOfTwilightAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, HoTScriptName);
 }
 
-#define RegisterThroneOfTheFourWindsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetThroneOfTheFourWindsAI)
+#define RegisterHourOfTwilightAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetGetHourOfTwilightAI)
 
 #endif // _Hour_of_Twilight_h__
