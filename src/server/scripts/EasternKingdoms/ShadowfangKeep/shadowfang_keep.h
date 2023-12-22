@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _Shadownfang_Keep_h__
-#define _Shadownfang_Keep_h__
+#ifndef _Shadowfang_Keep_h__
+#define _Shadowfang_Keep_h__
 
 #include "CreatureAIImpl.h"
 
@@ -33,7 +33,13 @@ enum SFKDataTypes
     BOSS_COMMANDER_SPRINGVALE   = 2,
     BOSS_LORD_WALDEN            = 3,
     BOSS_LORD_GODFREY           = 4,
-    BOSS_APOTHECARY_HUMMEL      = 5
+    BOSS_APOTHECARY_HUMMEL      = 5,
+
+    // Additional data
+    /*The doors within this instance are all tied to events before becoming actual doors so we have to manually manage them*/
+    DATA_ARUGAL_DOOR,
+    DATA_SORCERER_GATE,
+    DATA_COURTYARD_DOOR
 };
 
 enum SFKCreatureIds
@@ -46,6 +52,13 @@ enum SFKCreatureIds
     NPC_LORD_GODFREY            = 46964
 };
 
+enum SKGameObjectIds
+{
+    GO_COURTYARD_DOOR   = 18895,
+    GO_SORCERERS_DOOR   = 18972,
+    GO_ARUGALS_LAIR     = 18971
+};
+
 template <class AI, class T>
 inline AI* GetShadowfangKeepAI(T* obj)
 {
@@ -54,4 +67,4 @@ inline AI* GetShadowfangKeepAI(T* obj)
 
 #define RegisterShadowfangKeepCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetShadowfangKeepAI)
 
-#endif // _Shadownfang_Keep_h__
+#endif // _Shadowfang_Keep_h__

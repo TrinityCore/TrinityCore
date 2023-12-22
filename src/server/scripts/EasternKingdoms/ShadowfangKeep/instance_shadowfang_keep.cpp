@@ -29,6 +29,14 @@ ObjectData const creatureData[] =
     { 0,                        0                           } // END
 };
 
+ObjectData const gameobjectData[] =
+{
+    { GO_COURTYARD_DOOR,    DATA_COURTYARD_DOOR },
+    { GO_SORCERERS_DOOR,    DATA_SORCERER_GATE  },
+    { GO_ARUGALS_LAIR,      DATA_ARUGAL_DOOR    },
+    { 0,                    0                   } // END
+};
+
 DungeonEncounterData const encounters[] =
 {
     { BOSS_BARON_ASHBURY,           {{ 1069 }}  },
@@ -50,7 +58,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, gameobjectData);
             LoadDungeonEncounterData(encounters);
         }
     };
