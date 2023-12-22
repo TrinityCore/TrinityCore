@@ -503,7 +503,7 @@ struct npc_joren_ironstock : public ScriptedAI
                         RockjawInvader->AI()->AttackStart(me);
                         ++_spawnPos;
 
-                        if (_spawnPos == 8)
+                        if (_spawnPos == 7)
                             _spawnPos = 0;
 
                         _events.ScheduleEvent(EVENT_SUMMON_ROCKJAW_INVADER, 3s, 20s);
