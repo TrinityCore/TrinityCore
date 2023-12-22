@@ -499,13 +499,13 @@ struct npc_joren_ironstock : public ScriptedAI
             {
                 case EVENT_SUMMON_ROCKJAW_INVADER:
                     {
+                        Creature* RockjawInvader = me->SummonCreature(NPC_ROCKJAW_INVADER, RockjawInvaderSpawnPoints[_spawnPos], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180s);
+                        RockjawInvader->AI()->AttackStart(me);
+                        ++_spawnPos;
+
                         if (_spawnPos == 8)
                             _spawnPos = 0;
 
-                        Creature* RockjawInvader = me->SummonCreature(NPC_ROCKJAW_INVADER, RockjawInvaderSpawnPoints[_spawnPos], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180s);
-                        //RockjawInvader->AI()->AttackStart(me);
-                        //RockjawInvader->AI()->AttackStart(me);
-                        ++_spawnPos;
                         _events.ScheduleEvent(EVENT_SUMMON_ROCKJAW_INVADER, 3s, 20s);
                     }
                     break;
@@ -541,27 +541,6 @@ private:
     bool _shoot;
 };
 
-struct npc_rockjaw_invader : public ScriptedAI
-{
-    npc_rockjaw_invader(Creature* creature) : ScriptedAI(creature) { }
-
-    void IsSummonedBy(WorldObject* summonerWO) override
-    {
-        Unit* summoner = summonerWO->ToUnit();
-
-        if (summoner)
-            me->AI()->AttackStart(summoner);
-    }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
-    }
-};
-
 void AddSC_dun_morogh_area_coldridge_valley()
 {
     new npc_wounded_coldridge_mountaineer();
@@ -571,5 +550,4 @@ void AddSC_dun_morogh_area_coldridge_valley()
     new spell_follow_that_gyrocopter_quest_start();
     new spell_low_health();
     RegisterCreatureAI(npc_joren_ironstock);
-    RegisterCreatureAI(npc_rockjaw_invader);
 }
