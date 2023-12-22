@@ -26,6 +26,7 @@ void AddSC_boss_alizabal();                  //Baradin Hold
 void AddSC_boss_occuthar();
 void AddSC_boss_pit_lord_argaloth();
 void AddSC_instance_baradin_hold();
+void AddSC_instance_bastion_of_twilight();   //Bastion of Twilight
 void AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
 void AddSC_boss_corla();
 void AddSC_boss_karsh_steelbender();
@@ -59,6 +60,7 @@ void AddSC_boss_gizrul_the_slavener();
 void AddSC_boss_urok_doomhowl();
 void AddSC_boss_lord_valthalak();
 void AddSC_instance_blackrock_spire();
+void AddSC_instance_blackwing_descent();     //Blackwing Descent
 void AddSC_boss_razorgore();                 //Blackwing lair
 void AddSC_boss_vaelastrasz();
 void AddSC_boss_broodlord();
@@ -219,6 +221,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_occuthar();
     AddSC_boss_pit_lord_argaloth();
     AddSC_instance_baradin_hold();
+    AddSC_instance_bastion_of_twilight();   //Bastion of Twilight
     AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
     AddSC_boss_corla();
     AddSC_boss_karsh_steelbender();
@@ -252,6 +255,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_urok_doomhowl();
     AddSC_boss_lord_valthalak();
     AddSC_instance_blackrock_spire();
+    AddSC_instance_blackwing_descent();     //Blackwing Descent
     AddSC_boss_razorgore();                 //Blackwing lair
     AddSC_boss_vaelastrasz();
     AddSC_boss_broodlord();
