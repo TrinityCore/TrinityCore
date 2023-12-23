@@ -101,7 +101,7 @@ CREATE PROCEDURE areatrigger_refactor() BEGIN
   (@CPC_ID+38, 1, 51, 1, 0, 70, 70, 0, 0, 0, 0, 0, 0),
   (@CPC_ID+39, 1, 52, 1, 1, 20, 20, 10, 20, 20, 10, 0, 0),
   (@CPC_ID+40, 1, 53, 1, 1, 30, 20, 10, 30, 20, 10, 0, 0),
-  (@CPC_ID+41, 1, 54, 1, 1, 8, 60, 30, 8, 60, 30, 0, 0),
+  (@CPC_ID+41, 1, 54, 1, 1, 2, 60, 30, 2, 60, 30, 0, 0),
   (@CPC_ID+42, 1, 17635, 0, 4, 40, 40, 10, 10, 0, 0, 0, 0);
 
   IF NOT EXISTS (SELECT * FROM `information_schema`.`columns` WHERE `table_schema`=SCHEMA() AND `table_name`='areatrigger' AND `column_name`='IsCustom') THEN
