@@ -2797,25 +2797,6 @@ private:
 
 // 164577 - Alliance Sparring Partner
 // 166916 - Horde Sparring Partner
-struct npc_sparring_partner_enhanced_combat_training_hunter : public npc_sparring_partner_combat_training
-{
-    npc_sparring_partner_enhanced_combat_training_hunter(Creature* creature) : npc_sparring_partner_combat_training(creature) { }
-
-    void OnReadyPointReached() override
-    {
-        StartConversationWithPlayer(CONVERSATION_READY_COMBAT);
-    }
-
-    /*void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
-    {
-        Player* player = caster->ToPlayer();
-        if (!player)
-            return;
-    }*/
-};
-
-// 164577 - Alliance Sparring Partner
-// 166916 - Horde Sparring Partner
 struct npc_sparring_partner_enhanced_combat_training_rogue : public npc_sparring_partner_combat_training
 {
     npc_sparring_partner_enhanced_combat_training_rogue(Creature* creature) : npc_sparring_partner_combat_training(creature), _comboPointsCounter(0), _secondaryCheck(false), _comboPointCheck(false) { }
@@ -3438,8 +3419,6 @@ CreatureAI* SparringPartnerEnhancedCombatTrainingSelector(Creature* creature)
             return new npc_sparring_partner_enhanced_combat_training_warrior(creature);
         case CLASS_PALADIN:
             return new npc_sparring_partner_enhanced_combat_training_paladin(creature);
-        case CLASS_HUNTER:
-            return new npc_sparring_partner_enhanced_combat_training_hunter(creature);
         case CLASS_ROGUE:
             return new npc_sparring_partner_enhanced_combat_training_rogue(creature);
         case CLASS_PRIEST:
