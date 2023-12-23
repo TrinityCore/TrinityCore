@@ -111,6 +111,7 @@ void AddSC_boss_lockmaw();
 void AddSC_instance_lost_city_of_the_tolvir();
 // The Vortex Pinnacle
 void AddSC_instance_vortex_pinnacle();
+void AddSC_vortex_pinnacle();
 // Wailing caverns
 void AddSC_wailing_caverns();
 void AddSC_instance_wailing_caverns();
@@ -248,6 +249,7 @@ void AddKalimdorScripts()
     AddSC_instance_lost_city_of_the_tolvir();
     // The Vortex Pinnacle
     AddSC_instance_vortex_pinnacle();
+    AddSC_vortex_pinnacle();
     // Wailing caverns
     AddSC_wailing_caverns();
     AddSC_instance_wailing_caverns();
