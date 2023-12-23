@@ -17,7 +17,7 @@
 
 #include "vortex_pinnacle.h"
 #include "Creature.h"
-#include "DB2Structure.h".h"
+#include "DB2Structure.h"
 #include "EventMap.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
