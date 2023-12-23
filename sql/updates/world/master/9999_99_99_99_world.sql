@@ -53,12 +53,12 @@ CREATE PROCEDURE areatrigger_refactor() BEGIN
 
   UPDATE `areatrigger_template` SET `Flags`=0x0;
   UPDATE `areatrigger_template` SET `Flags`=0x1 WHERE `Id` BETWEEN 1 AND 33;
-  UPDATE `areatrigger_template` SET `Flags`=0x1 WHERE `Id` BETWEEN 42 AND 53;
+  UPDATE `areatrigger_template` SET `Flags`=0x1 WHERE `Id` BETWEEN 42 AND 54;
 
   UPDATE `areatrigger_template` SET `IsCustom`=0, `Flags`=0x1 WHERE `Id`=17635;
 
   SET @CPC_ID := 1;
-  DELETE FROM `areatrigger_create_properties` WHERE `IsCustom`=1 AND `Id` BETWEEN @CPC_ID+0 AND @CPC_ID+41;
+  DELETE FROM `areatrigger_create_properties` WHERE `IsCustom`=1 AND `Id` BETWEEN @CPC_ID+0 AND @CPC_ID+42;
   INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`) VALUES
   (@CPC_ID+0, 1, 1, 1, 1, 3, 1, 3, 3, 1, 3, 0, 0),
   (@CPC_ID+1, 1, 2, 1, 1, 1.25977, 1.27927, 3.70216, 1.25977, 1.27927, 3.70216, 0, 0),
@@ -101,7 +101,8 @@ CREATE PROCEDURE areatrigger_refactor() BEGIN
   (@CPC_ID+38, 1, 51, 1, 0, 70, 70, 0, 0, 0, 0, 0, 0),
   (@CPC_ID+39, 1, 52, 1, 1, 20, 20, 10, 20, 20, 10, 0, 0),
   (@CPC_ID+40, 1, 53, 1, 1, 30, 20, 10, 30, 20, 10, 0, 0),
-  (@CPC_ID+41, 1, 17635, 0, 4, 40, 40, 10, 10, 0, 0, 0, 0);
+  (@CPC_ID+41, 1, 54, 1, 1, 8, 60, 30, 8, 60, 30, 0, 0),
+  (@CPC_ID+42, 1, 17635, 0, 4, 40, 40, 10, 10, 0, 0, 0, 0);
 
   IF NOT EXISTS (SELECT * FROM `information_schema`.`columns` WHERE `table_schema`=SCHEMA() AND `table_name`='areatrigger' AND `column_name`='IsCustom') THEN
 
