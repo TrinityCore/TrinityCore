@@ -3577,7 +3577,6 @@ struct npc_leader_northbound : public ScriptedAI
             _guardianSpellId = SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND;
         }
 
-        // @TODO: Needs work for horde
         Conversation* conversation = Conversation::CreateConversation(_conversationId, player, *player, player->GetGUID(), nullptr, false);
         if (!conversation)
             return;
@@ -3601,7 +3600,6 @@ struct npc_leader_northbound : public ScriptedAI
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        // @TODO: Needs work for horde
         if (spellInfo->Id == _lingerSpellId)
         {
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
@@ -3791,7 +3789,6 @@ class spell_scene_linger_northbound: public SpellScript
         if (!scout)
             return;
 
-        //scout->SetVisible(true); // hack
         Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
         if (!conversation)
             return;
