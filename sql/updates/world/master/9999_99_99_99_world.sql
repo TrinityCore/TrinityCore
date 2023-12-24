@@ -48,3 +48,7 @@ INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`
 DELETE FROM `conversation_template` WHERE `Id` IN (14613);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
 (14613,36602,0,'',45745);
+
+DELETE FROM `quest_template` WHERE `ID`=55607;
+INSERT INTO `quest_template` (`ID`,`QuestType`,`RewardXPMultiplier`,`RewardMoneyMultiplier`,`RewardArtifactXPMultiplier`,`Flags`,`LogTitle`) VALUES
+(55607,2,1,1,1,1024, '[Hidden Tracker] Quest Taming The Wilds Complete');

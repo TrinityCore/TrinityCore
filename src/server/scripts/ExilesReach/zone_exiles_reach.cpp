@@ -3809,7 +3809,9 @@ class spell_scene_linger_northbound: public SpellScript
 
 enum TamingTheWilds
 {
-
+    QUEST_TAMING_THE_WILDS_ALLIANCE         = 59342,
+    QUEST_TAMING_THE_WILDS_HORDE            = 59937,
+    QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE = 55607
 };
 
 class quest_taming_the_wilds : public QuestScript
@@ -3817,13 +3819,16 @@ class quest_taming_the_wilds : public QuestScript
 public:
     quest_taming_the_wilds(char const* script) : QuestScript(script) { }
 
-    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view creatureString)
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view creatureString, uint32 QuestID)
     {
         switch (newStatus)
         {
             case QUEST_STATUS_INCOMPLETE:
                 if (Creature* survivor = FindCreatureIgnorePhase(player, creatureString, 5.0f))
                     survivor->SummonPersonalClone(survivor->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+
+                if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) == QUEST_STATUS_COMPLETE)
+                    player->SetQuestStatus(QuestID, QUEST_STATUS_COMPLETE, true);
                 break;
             default:
                 break;
@@ -3839,7 +3844,7 @@ public:
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
-        HandleQuestStatusChange(player, newStatus, "huxworth_briarpatch");
+        HandleQuestStatusChange(player, newStatus, "huxworth_briarpatch", QUEST_TAMING_THE_WILDS_ALLIANCE);
     }
 };
 
@@ -3851,29 +3856,31 @@ public:
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
-        HandleQuestStatusChange(player, newStatus, "dawntracker_briarpatch");
+        HandleQuestStatusChange(player, newStatus, "dawntracker_briarpatch", QUEST_TAMING_THE_WILDS_HORDE);
     }
 };
 
 enum HuxsworthDawntrackerHunterQuest
 {
-    CONVERSATION_HORDE_TRAINER       = 14613,
-    CONVERSATION_HORDE_ACTOR         = 76440,
+    CONVERSATION_HORDE_TRAINER           = 14613,
+    CONVERSATION_HORDE_ACTOR             = 76440,
 
-    EVENT_ME_TURN_TO_PLAYER          = 1,
-    EVENT_ME_END_OF_CAST             = 2,
+    EVENT_ME_TURN_TO_PLAYER              = 1,
+    EVENT_ME_END_OF_CAST                 = 2,
 
-    QUEST_OBJECTIVE_TRAINED_ALLIANCE = 84761,
-    QUEST_OBJECTIVE_TRAINED_HORDE    = 85021,
+    QUEST_OBJECTIVE_TRAINED_ALLIANCE     = 84761,
+    QUEST_OBJECTIVE_TRAINED_HORDE        = 85021,
+    QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE = 84759,
+    QUEST_OBJECTIVE_BEAST_TAMED_HORDE    = 85023,
 
-    SPELL_TUTORIAL_HEALTH_DNT        = 316840,
-    SPELL_LEARNING_TAME_BEAST        = 320852,
-    SPELL_TAME_BEAST                 = 320840,
-    SPELL_CALL_PET                   = 320842,
+    SPELL_TUTORIAL_HEALTH_DNT            = 316840,
+    SPELL_LEARNING_TAME_BEAST            = 320852,
+    SPELL_TAME_BEAST                     = 320840,
+    SPELL_CALL_PET                       = 320842,
 
-    SAY_PET_TRAINING_ALLIANCE        = 0,
-    SAY_FIND_A_BEAST_ALLIANCE        = 1,
-    SAY_FIND_A_BEAST_HORDE           = 0
+    SAY_PET_TRAINING_ALLIANCE            = 0,
+    SAY_FIND_A_BEAST_ALLIANCE            = 1,
+    SAY_FIND_A_BEAST_HORDE               = 0
 };
 
 // This script is used by Austin Huxworth for Taming The Wild quest
@@ -4043,7 +4050,12 @@ class spell_tutorial_health_dnt : public SpellScript
     {
         // This shouldn't happen until tame beast spell completes
         if (Player* player = GetCaster()->ToPlayer())
-            player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, 84759, 1);
+        {
+            if (player->GetTeam() == ALLIANCE)
+                player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE, 1);
+            else
+                player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_BEAST_TAMED_HORDE, 1);     
+        }        
     }
 
     void Register() override
