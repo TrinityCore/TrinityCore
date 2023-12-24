@@ -192,7 +192,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
 
     stats.CreatureType = type;
     stats.CreatureFamily = family;
-    stats.Classification = rank;
+    stats.Classification = uint32(rank);
 
     for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
         stats.ProxyCreatureID[i] = KillCredit[i];
@@ -1114,19 +1114,25 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Posit
     if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS && map->IsDungeon())
         m_respawnDelay = 0; // special value, prevents respawn for dungeon bosses unless overridden
 
-    switch (cinfo->rank)
+    switch (GetCreatureClassification())
     {
-        case CREATURE_ELITE_RARE:
-            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_RARE);
-            break;
-        case CREATURE_ELITE_ELITE:
+        case CreatureClassifications::Elite:
             m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_ELITE);
             break;
-        case CREATURE_ELITE_RAREELITE:
-            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_RAREELITE);
+        case CreatureClassifications::RareElite:
+            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_RARE_ELITE);
             break;
-        case CREATURE_ELITE_WORLDBOSS:
-            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_WORLDBOSS);
+        case CreatureClassifications::Obsolete:
+            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_OBSOLETE);
+            break;
+        case CreatureClassifications::Rare:
+            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_RARE);
+            break;
+        case CreatureClassifications::Trivial:
+            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_TRIVIAL);
+            break;
+        case CreatureClassifications::MinusMob:
+            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_MINUS_MOB);
             break;
         default:
             m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_NORMAL);
@@ -1574,12 +1580,12 @@ void Creature::SelectLevel()
 void Creature::UpdateLevelDependantStats()
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
-    uint32 rank = IsPet() ? 0 : cInfo->rank;
+    CreatureClassifications classification = cInfo->rank;
     uint8 level = GetLevel();
     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
 
     // health
-    float healthmod = _GetHealthMod(rank);
+    float healthmod = _GetHealthMod(classification);
 
     uint32 basehp = GetMaxHealthByLevel(level);
     uint32 health = uint32(basehp * healthmod);
@@ -1641,22 +1647,26 @@ void Creature::SelectWildBattlePetLevel()
     }
 }
 
-float Creature::_GetHealthMod(int32 Rank)
+float Creature::_GetHealthMod(CreatureClassifications classification)
 {
-    switch (Rank)                                           // define rates for each elite rank
+    switch (classification)
     {
-        case CREATURE_ELITE_NORMAL:
+        case CreatureClassifications::Normal:
             return sWorld->getRate(RATE_CREATURE_NORMAL_HP);
-        case CREATURE_ELITE_ELITE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_HP);
-        case CREATURE_ELITE_RAREELITE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_RAREELITE_HP);
-        case CREATURE_ELITE_WORLDBOSS:
-            return sWorld->getRate(RATE_CREATURE_ELITE_WORLDBOSS_HP);
-        case CREATURE_ELITE_RARE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_RARE_HP);
+        case CreatureClassifications::Elite:
+            return sWorld->getRate(RATE_CREATURE_ELITE_HP);
+        case CreatureClassifications::RareElite:
+            return sWorld->getRate(RATE_CREATURE_RARE_ELITE_HP);
+        case CreatureClassifications::Obsolete:
+            return sWorld->getRate(RATE_CREATURE_OBSOLETE_HP);
+        case CreatureClassifications::Rare:
+            return sWorld->getRate(RATE_CREATURE_RARE_HP);
+        case CreatureClassifications::Trivial:
+            return sWorld->getRate(RATE_CREATURE_TRIVIAL_HP);
+        case CreatureClassifications::MinusMob:
+            return sWorld->getRate(RATE_CREATURE_MINUS_MOB_HP);
         default:
-            return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_HP);
+            return sWorld->getRate(RATE_CREATURE_ELITE_HP);
     }
 }
 
@@ -1666,41 +1676,49 @@ void Creature::LowerPlayerDamageReq(uint64 unDamage)
         m_PlayerDamageReq > unDamage ? m_PlayerDamageReq -= unDamage : m_PlayerDamageReq = 0;
 }
 
-float Creature::_GetDamageMod(int32 Rank)
+float Creature::_GetDamageMod(CreatureClassifications classification)
 {
-    switch (Rank)                                           // define rates for each elite rank
+    switch (classification)
     {
-        case CREATURE_ELITE_NORMAL:
+        case CreatureClassifications::Normal:
             return sWorld->getRate(RATE_CREATURE_NORMAL_DAMAGE);
-        case CREATURE_ELITE_ELITE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_DAMAGE);
-        case CREATURE_ELITE_RAREELITE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_RAREELITE_DAMAGE);
-        case CREATURE_ELITE_WORLDBOSS:
-            return sWorld->getRate(RATE_CREATURE_ELITE_WORLDBOSS_DAMAGE);
-        case CREATURE_ELITE_RARE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_RARE_DAMAGE);
+        case CreatureClassifications::Elite:
+            return sWorld->getRate(RATE_CREATURE_ELITE_DAMAGE);
+        case CreatureClassifications::RareElite:
+            return sWorld->getRate(RATE_CREATURE_RARE_ELITE_DAMAGE);
+        case CreatureClassifications::Obsolete:
+            return sWorld->getRate(RATE_CREATURE_OBSOLETE_DAMAGE);
+        case CreatureClassifications::Rare:
+            return sWorld->getRate(RATE_CREATURE_RARE_DAMAGE);
+        case CreatureClassifications::Trivial:
+            return sWorld->getRate(RATE_CREATURE_TRIVIAL_DAMAGE);
+        case CreatureClassifications::MinusMob:
+            return sWorld->getRate(RATE_CREATURE_MINUS_MOB_DAMAGE);
         default:
-            return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_DAMAGE);
+            return sWorld->getRate(RATE_CREATURE_ELITE_DAMAGE);
     }
 }
 
-float Creature::GetSpellDamageMod(int32 Rank) const
+float Creature::GetSpellDamageMod(CreatureClassifications classification) const
 {
-    switch (Rank)                                           // define rates for each elite rank
+    switch (classification)
     {
-        case CREATURE_ELITE_NORMAL:
+        case CreatureClassifications::Normal:
             return sWorld->getRate(RATE_CREATURE_NORMAL_SPELLDAMAGE);
-        case CREATURE_ELITE_ELITE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_SPELLDAMAGE);
-        case CREATURE_ELITE_RAREELITE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_RAREELITE_SPELLDAMAGE);
-        case CREATURE_ELITE_WORLDBOSS:
-            return sWorld->getRate(RATE_CREATURE_ELITE_WORLDBOSS_SPELLDAMAGE);
-        case CREATURE_ELITE_RARE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_RARE_SPELLDAMAGE);
+        case CreatureClassifications::Elite:
+            return sWorld->getRate(RATE_CREATURE_ELITE_SPELLDAMAGE);
+        case CreatureClassifications::RareElite:
+            return sWorld->getRate(RATE_CREATURE_RARE_ELITE_SPELLDAMAGE);
+        case CreatureClassifications::Obsolete:
+            return sWorld->getRate(RATE_CREATURE_OBSOLETE_SPELLDAMAGE);
+        case CreatureClassifications::Rare:
+            return sWorld->getRate(RATE_CREATURE_RARE_SPELLDAMAGE);
+        case CreatureClassifications::Trivial:
+            return sWorld->getRate(RATE_CREATURE_TRIVIAL_SPELLDAMAGE);
+        case CreatureClassifications::MinusMob:
+            return sWorld->getRate(RATE_CREATURE_MINUS_MOB_SPELLDAMAGE);
         default:
-            return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_SPELLDAMAGE);
+            return sWorld->getRate(RATE_CREATURE_ELITE_SPELLDAMAGE);
     }
 }
 
@@ -2444,13 +2462,12 @@ bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInf
     return Unit::IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute);
 }
 
-bool Creature::isElite() const
+bool Creature::IsElite() const
 {
     if (IsPet())
         return false;
 
-    uint32 rank = GetCreatureTemplate()->rank;
-    return rank != CREATURE_ELITE_NORMAL && rank != CREATURE_ELITE_RARE;
+    return !HasClassification(CreatureClassifications::Normal) && !HasClassification(CreatureClassifications::Rare) && !HasClassification(CreatureClassifications::MinusMob);
 }
 
 bool Creature::isWorldBoss() const

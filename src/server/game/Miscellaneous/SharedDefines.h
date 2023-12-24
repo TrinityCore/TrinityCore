@@ -4727,15 +4727,15 @@ enum CreatureTypeFlags2
     CREATURE_TYPE_FLAG_2_UNK8 = 0x00000080
 };
 
-enum CreatureEliteType
+enum class CreatureClassifications : uint32
 {
-    CREATURE_ELITE_NORMAL          = 0,
-    CREATURE_ELITE_ELITE           = 1,
-    CREATURE_ELITE_RAREELITE       = 2,
-    CREATURE_ELITE_WORLDBOSS       = 3,
-    CREATURE_ELITE_RARE            = 4,
-    CREATURE_ELITE_TRIVIAL         = 5, // found in 2.2.3 for 2 mobs
-    CREATURE_WEAK                  = 6
+    Normal                    = 0,
+    Elite                     = 1,
+    RareElite                 = 2,
+    Obsolete                  = 3,
+    Rare                      = 4,
+    Trivial                   = 5,
+    MinusMob                  = 6
 };
 
 // Holidays.dbc (9.0.2.37176)
