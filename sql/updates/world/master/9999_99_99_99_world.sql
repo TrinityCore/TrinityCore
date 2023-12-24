@@ -18,7 +18,7 @@ DELETE FROM `creature_queststarter` WHERE `id`=154327 AND `quest` IN (59342);
 DELETE FROM `creature_queststarter` WHERE `id`=166996 AND `quest` IN (59937);
 INSERT INTO `creature_queststarter` (`id`, `quest`, `VerifiedBuild`) VALUES
 (154327, 59342, 45745), -- Taming the Wilds accept from Austin Huxworth "Hunter only"
-(166996, 59937, 45745), -- Taming the Wilds accept from Mithdran Dawntracker "Hunter only"
+(166996, 59937, 45745); -- Taming the Wilds accept from Mithdran Dawntracker "Hunter only"
 
 DELETE FROM `creature_questender` WHERE `id`=154327 AND `quest`=59342;
 DELETE FROM `creature_questender` WHERE `id`=166996 AND `quest`=59937;
@@ -29,7 +29,7 @@ INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
 DELETE FROM `quest_template_addon` WHERE `ID` IN (59342,59937);
 INSERT INTO `quest_template_addon` (`ID`,`AllowableClasses`,`PrevQuestID`,`NextQuestID`,`ScriptName`) VALUES
 (59342,4,55173,0,'quest_taming_the_wilds_alliance'), -- Alliance "Hunter only"
-(59937,4,59935,0,'quest_taming_the_wilds_horde'), -- Horde "Hunter only"
+(59937,4,59935,0,'quest_taming_the_wilds_horde'); -- Horde "Hunter only"
 
 -- Spell data
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (316841);
@@ -39,7 +39,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- Conversation data
 DELETE FROM `conversation_actors` WHERE `ConversationId` IN (14613);
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(14613,76440,0,0,0,0,0,0,45745), -- Mithdran Dawntracker
+(14613,76440,0,0,0,0,0,0,45745); -- Mithdran Dawntracker
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (36602);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES
