@@ -1966,7 +1966,7 @@ void Creature::SetSpawnHealth()
         curhealth = m_creatureData->curhealth;
         if (curhealth)
         {
-            curhealth = uint32(curhealth*GetHealthMod(GetCreatureTemplate()->rank));
+            curhealth = uint32(curhealth*GetHealthMod(GetCreatureTemplate()->Classification));
             if (curhealth < 1)
                 curhealth = 1;
         }
