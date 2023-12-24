@@ -98,7 +98,7 @@ public:
         if (!path_number)
         {
             if (target)
-                pathid = target->GetWaypointPath();
+                pathid = target->GetWaypointPathId();
             else
             {
                 WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_PATH_NODE_MAX_PATHID);
@@ -399,7 +399,7 @@ public:
                 return false;
             }
 
-            pathid = target->GetWaypointPath();
+            pathid = target->GetWaypointPathId();
         }
         else
         {
@@ -444,11 +444,10 @@ public:
 
             handler->SendSysMessage("|cff00ffffDEBUG: .wp show info:|r");
             handler->PSendSysMessage("|cff00ff00Show info: Path Id: |r|cff00ffff%u|r", path->Id);
+            handler->PSendSysMessage("|cff00ff00Show info: Path MoveType: |r|cff00ffff%u|r", AsUnderlyingType(path->MoveType));
             handler->PSendSysMessage("|cff00ff00Show info: Path Flags: |r|cff00ffff%u|r", path->Flags.AsUnderlyingType());
-            handler->PSendSysMessage("|cff00ff00Show info: Path Type: |r|cff00ffff%u|r", AsUnderlyingType(path->Type));
             handler->PSendSysMessage("|cff00ff00Show info: Node Id: |r|cff00ffff%u|r", node->Id);
             handler->PSendSysMessage("|cff00ff00Show info: Node Delay: |r|cff00ffff%u|r", node->Id);
-            handler->PSendSysMessage("|cff00ff00Show info: Node MoveType: |r|cff00ffff%u|r", AsUnderlyingType(node->MoveType));
 
             return true;
         }

@@ -124,7 +124,7 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
     if (_loadedFromDB)
     {
         if (!_pathId)
-            _pathId = owner->GetWaypointPath();
+            _pathId = owner->GetWaypointPathId();
 
         _path = sWaypointMgr->GetPath(_pathId);
     }
@@ -387,23 +387,24 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     if (waypoint.Orientation.has_value() && waypoint.Delay > 0)
         init.SetFacing(*waypoint.Orientation);
 
-    switch (waypoint.MoveType)
+    switch (_path->MoveType)
     {
-        case WAYPOINT_MOVE_TYPE_LAND:
+        case WaypointMoveType::Land:
             init.SetAnimation(AnimTier::Ground);
             break;
-        case WAYPOINT_MOVE_TYPE_TAKEOFF:
+        case WaypointMoveType::TakeOff:
             init.SetAnimation(AnimTier::Hover);
             break;
-        case WAYPOINT_MOVE_TYPE_RUN:
+        case WaypointMoveType::Run:
             init.SetWalk(false);
             break;
-        case WAYPOINT_MOVE_TYPE_WALK:
+        case WaypointMoveType::Walk:
             init.SetWalk(true);
             break;
         default:
             break;
     }
+
     switch (_speedSelectionMode) // overrides move type from each waypoint if set
     {
         case MovementWalkRunSpeedSelectionMode::Default:

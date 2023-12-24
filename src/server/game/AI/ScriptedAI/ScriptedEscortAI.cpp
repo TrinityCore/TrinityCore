@@ -265,7 +265,7 @@ void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientati
     Trinity::NormalizeMapCoord(y);
 
     WaypointNode waypoint(id, x, y, z, orientation, waitTime.count());
-    waypoint.MoveType = run ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+    waypoint.MoveType = run ? WaypointMoveType::Run : WaypointMoveType::Walk;
     _path.Nodes.push_back(std::move(waypoint));
 }
 

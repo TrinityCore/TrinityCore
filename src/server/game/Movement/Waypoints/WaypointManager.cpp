@@ -38,8 +38,8 @@ void WaypointMgr::_LoadPaths()
 
     _pathStore.clear();
 
-    //                                                    0     1      2
-    QueryResult result = WorldDatabase.Query("SELECT PathId, Type, Flags FROM waypoint_path");
+    //                                                    0         1      2
+    QueryResult result = WorldDatabase.Query("SELECT PathId, MoveType, Flags FROM waypoint_path");
 
     if (!result)
     {
@@ -61,8 +61,8 @@ void WaypointMgr::_LoadPaths()
 void WaypointMgr::_LoadPathNodes()
 {
     uint32 oldMSTime = getMSTime();
-    //                                                    0       1          2          3          4            5         6      7
-    QueryResult result = WorldDatabase.Query("SELECT PathId, NodeId, PositionX, PositionY, PositionZ, Orientation, MoveType, Delay FROM waypoint_path_node ORDER BY PathId, NodeId");
+    //                                                    0       1          2          3          4            5      6
+    QueryResult result = WorldDatabase.Query("SELECT PathId, NodeId, PositionX, PositionY, PositionZ, Orientation, Delay FROM waypoint_path_node ORDER BY PathId, NodeId");
 
     if (!result)
     {
@@ -89,7 +89,13 @@ void WaypointMgr::LoadPathFromDB(Field* fields)
 
     WaypointPath& path = _pathStore[pathId];
     path.Id = pathId;
-    path.Type = (WaypointPathType)fields[1].GetUInt8();
+    path.MoveType = (WaypointMoveType)fields[1].GetUInt8();
+
+    if (path.MoveType >= WaypointMoveType::Max)
+    {
+        TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has invalid MoveType {}, ignoring", pathId, AsUnderlyingType(path.MoveType));
+        return;
+    }
     path.Flags = (WaypointPathFlags)fields[2].GetUInt8();
     path.Nodes.clear();
 }
@@ -114,14 +120,7 @@ void WaypointMgr::LoadPathNodesFromDB(Field* fields)
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
 
-    WaypointNode waypoint(fields[1].GetUInt32(), x, y, z, o, fields[7].GetUInt32());
-    waypoint.MoveType = (WaypointMoveType)fields[6].GetUInt32();
-
-    if (waypoint.MoveType >= WAYPOINT_MOVE_TYPE_MAX)
-    {
-        TC_LOG_ERROR("sql.sql", "PathId {}, NodeId {} in `waypoint_path_node` has invalid MoveType, ignoring", pathId, waypoint.Id);
-        return;
-    }
+    WaypointNode waypoint(fields[1].GetUInt32(), x, y, z, o, fields[6].GetUInt32());
 
     WaypointPath& path = _pathStore[pathId];
     path.Nodes.push_back(std::move(waypoint));

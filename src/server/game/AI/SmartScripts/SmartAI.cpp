@@ -535,8 +535,8 @@ void SmartAI::JustReachedHome()
     {
         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType(MOTION_SLOT_DEFAULT) != WAYPOINT_MOTION_TYPE)
         {
-            if (me->GetWaypointPath())
-                me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
+            if (me->GetWaypointPathId())
+                me->GetMotionMaster()->MovePath(me->GetWaypointPathId(), true);
         }
 
         me->ResumeMovement();
