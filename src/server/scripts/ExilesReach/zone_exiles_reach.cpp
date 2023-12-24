@@ -3869,7 +3869,11 @@ enum HuxsworthDawntrackerHunterQuest
     SPELL_TUTORIAL_HEALTH_DNT        = 316840,
     SPELL_LEARNING_TAME_BEAST        = 320852,
     SPELL_TAME_BEAST                 = 320840,
-    SPELL_CALL_PET                   = 320842
+    SPELL_CALL_PET                   = 320842,
+
+    SAY_PET_TRAINING_ALLIANCE        = 0,
+    SAY_FIND_A_BEAST_ALLIANCE        = 1,
+    SAY_FIND_A_BEAST_HORDE           = 0
 };
 
 // This script is used by Austin Huxworth for Taming The Wild quest
@@ -3910,7 +3914,7 @@ struct npc_huxsworth_hunter_quest_private : public ScriptedAI
                 {
                     me->SetFacingToObject(player);
                     me->SetEmoteState(EMOTE_STATE_TALK);
-                    Talk(0);
+                    Talk(SAY_PET_TRAINING_ALLIANCE);
                     player->CastSpell(player, SPELL_LEARNING_TAME_BEAST);
                     _events.ScheduleEvent(EVENT_ME_END_OF_CAST, 8s);
                 }
@@ -3923,7 +3927,7 @@ struct npc_huxsworth_hunter_quest_private : public ScriptedAI
                     player->CastSpell(player, SPELL_TAME_BEAST);
                     player->CastSpell(player, SPELL_CALL_PET);
                     me->SetEmoteState(EMOTE_STATE_NONE);
-                    Talk(1);
+                    Talk(SAY_FIND_A_BEAST_ALLIANCE);
                 }
                 me->DespawnOrUnsummon(4s);
                 break;
@@ -3990,7 +3994,7 @@ struct npc_dawntracker_hunter_quest_private : public ScriptedAI
                     player->CastSpell(player, SPELL_TAME_BEAST);
                     player->CastSpell(player, SPELL_CALL_PET);
                     me->SetEmoteState(EMOTE_STATE_NONE);
-                    Talk(0);
+                    Talk(SAY_FIND_A_BEAST_HORDE);
                 }
                 me->DespawnOrUnsummon(4s);
                 break;

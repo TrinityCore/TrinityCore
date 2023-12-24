@@ -11,7 +11,7 @@ DELETE FROM `creature_text` WHERE `CreatureID` IN (154327,166996) AND `GroupID` 
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (154327, 0, 0, 'We don''t have much time. You''ll have to learn fast.', 12, 0, 100, 0, 0, 152920, 190162, 0, 'Austin Huxworth'),
 (154327, 1, 0, 'I''ve taught you the basics. Now find a beast and tame it.', 12, 0, 100, 0, 0, 152921, 190163, 0, 'Austin Huxworth'),
-(166996, 1, 0, 'That shall have to do for now. Find a beast and tame it.', 12, 0, 100, 0, 0, 156740, 196683, 0, 'Mithdran Dawntracker');
+(166996, 0, 0, 'That shall have to do for now. Find a beast and tame it.', 12, 0, 100, 0, 0, 156740, 196683, 0, 'Mithdran Dawntracker');
 
 -- Quest data
 DELETE FROM `creature_queststarter` WHERE `id`=154327 AND `quest` IN (59342);
