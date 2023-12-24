@@ -369,7 +369,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetRespawnCompatibilityMode(bool mode = true) { m_respawnCompatibilityMode = mode; }
         bool GetRespawnCompatibilityMode() { return m_respawnCompatibilityMode; }
 
-        static float _GetDamageMod(CreatureClassifications classification);
+        static float GetDamageMod(CreatureClassifications classification);
 
         float m_SightDistance, m_CombatDistance;
 
@@ -439,7 +439,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         // vendor items
         VendorItemCounts m_vendorItemCounts;
 
-        static float _GetHealthMod(CreatureClassifications classification);
+        static float GetHealthMod(CreatureClassifications classification);
 
         GuidUnorderedSet m_tapList;
         bool m_dontClearTapListOnEvade;

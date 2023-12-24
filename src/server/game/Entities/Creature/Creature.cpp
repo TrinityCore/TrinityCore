@@ -1585,7 +1585,7 @@ void Creature::UpdateLevelDependantStats()
     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
 
     // health
-    float healthmod = _GetHealthMod(classification);
+    float healthmod = GetHealthMod(classification);
 
     uint32 basehp = GetMaxHealthByLevel(level);
     uint32 health = uint32(basehp * healthmod);
@@ -1647,7 +1647,7 @@ void Creature::SelectWildBattlePetLevel()
     }
 }
 
-float Creature::_GetHealthMod(CreatureClassifications classification)
+float Creature::GetHealthMod(CreatureClassifications classification)
 {
     switch (classification)
     {
@@ -1676,7 +1676,7 @@ void Creature::LowerPlayerDamageReq(uint64 unDamage)
         m_PlayerDamageReq > unDamage ? m_PlayerDamageReq -= unDamage : m_PlayerDamageReq = 0;
 }
 
-float Creature::_GetDamageMod(CreatureClassifications classification)
+float Creature::GetDamageMod(CreatureClassifications classification)
 {
     switch (classification)
     {
@@ -1966,7 +1966,7 @@ void Creature::SetSpawnHealth()
         curhealth = m_creatureData->curhealth;
         if (curhealth)
         {
-            curhealth = uint32(curhealth*_GetHealthMod(GetCreatureTemplate()->rank));
+            curhealth = uint32(curhealth*GetHealthMod(GetCreatureTemplate()->rank));
             if (curhealth < 1)
                 curhealth = 1;
         }
