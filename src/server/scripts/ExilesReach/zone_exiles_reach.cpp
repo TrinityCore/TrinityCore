@@ -4076,7 +4076,7 @@ class spell_tutorial_health_dnt : public SpellScript
                 player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE, 1);
             else
                 player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_BEAST_TAMED_HORDE, 1);
-        }        
+        }
     }
 
     void Register() override
