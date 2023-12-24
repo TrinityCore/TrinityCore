@@ -3811,7 +3811,14 @@ enum TamingTheWilds
 {
     QUEST_TAMING_THE_WILDS_ALLIANCE         = 59342,
     QUEST_TAMING_THE_WILDS_HORDE            = 59937,
-    QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE = 55607
+    QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE = 55607,
+
+    QUEST_OBJECTIVE_TRAINED_ALLIANCE        = 84761,
+    QUEST_OBJECTIVE_TRAINED_HORDE           = 85021,
+    QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE    = 84759,
+    QUEST_OBJECTIVE_BEAST_TAMED_HORDE       = 85023,
+
+    SPELL_TAME_BEAST                        = 1515
 };
 
 class quest_taming_the_wilds : public QuestScript
@@ -3819,7 +3826,7 @@ class quest_taming_the_wilds : public QuestScript
 public:
     quest_taming_the_wilds(char const* script) : QuestScript(script) { }
 
-    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view creatureString, uint32 QuestID)
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view creatureString, uint32 QuestObjective1, uint32 QuestObjective2)
     {
         switch (newStatus)
         {
@@ -3827,8 +3834,11 @@ public:
                 if (Creature* survivor = FindCreatureIgnorePhase(player, creatureString, 5.0f))
                     survivor->SummonPersonalClone(survivor->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
 
-                if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) == QUEST_STATUS_COMPLETE)
-                    player->SetQuestStatus(QuestID, QUEST_STATUS_COMPLETE, true);
+                if (player->HasSpell(SPELL_TAME_BEAST))
+                    player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QuestObjective1, 1);
+
+                if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) == QUEST_STATUS_REWARDED)
+                    player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QuestObjective2, 1);
                 break;
             default:
                 break;
@@ -3844,7 +3854,7 @@ public:
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
-        HandleQuestStatusChange(player, newStatus, "huxworth_briarpatch", QUEST_TAMING_THE_WILDS_ALLIANCE);
+        HandleQuestStatusChange(player, newStatus, "huxworth_briarpatch", QUEST_OBJECTIVE_TRAINED_ALLIANCE, QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE);
     }
 };
 
@@ -3856,7 +3866,7 @@ public:
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
-        HandleQuestStatusChange(player, newStatus, "dawntracker_briarpatch", QUEST_TAMING_THE_WILDS_HORDE);
+        HandleQuestStatusChange(player, newStatus, "dawntracker_briarpatch", QUEST_OBJECTIVE_TRAINED_HORDE, QUEST_OBJECTIVE_BEAST_TAMED_HORDE);
     }
 };
 
@@ -3868,15 +3878,10 @@ enum HuxsworthDawntrackerHunterQuest
     EVENT_ME_TURN_TO_PLAYER              = 1,
     EVENT_ME_END_OF_CAST                 = 2,
 
-    QUEST_OBJECTIVE_TRAINED_ALLIANCE     = 84761,
-    QUEST_OBJECTIVE_TRAINED_HORDE        = 85021,
-    QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE = 84759,
-    QUEST_OBJECTIVE_BEAST_TAMED_HORDE    = 85023,
-
     SPELL_TUTORIAL_HEALTH_DNT            = 316840,
     SPELL_LEARNING_TAME_BEAST            = 320852,
-    SPELL_TAME_BEAST                     = 320840,
-    SPELL_CALL_PET                       = 320842,
+    SPELL_LEARN_TAME_BEAST               = 320840,
+    SPELL_LEARN_CALL_PET                 = 320842,
 
     SAY_PET_TRAINING_ALLIANCE            = 0,
     SAY_FIND_A_BEAST_ALLIANCE            = 1,
@@ -3929,10 +3934,18 @@ struct npc_huxsworth_hunter_quest_private : public ScriptedAI
             case EVENT_ME_END_OF_CAST:
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                 {
-                    player->CastSpell(player, SPELL_TUTORIAL_HEALTH_DNT);
-                    player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_TRAINED_ALLIANCE, 1);
-                    player->CastSpell(player, SPELL_TAME_BEAST);
-                    player->CastSpell(player, SPELL_CALL_PET);
+                    if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) != QUEST_STATUS_REWARDED)
+                    {
+                        player->CastSpell(player, SPELL_TUTORIAL_HEALTH_DNT);
+                    }
+
+                    if (!player->HasSpell(SPELL_TAME_BEAST))
+                    {
+                        player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_TRAINED_ALLIANCE, 1);
+                        player->CastSpell(player, SPELL_LEARN_TAME_BEAST);
+                        player->CastSpell(player, SPELL_LEARN_CALL_PET);
+                    }
+
                     me->SetEmoteState(EMOTE_STATE_NONE);
                     Talk(SAY_FIND_A_BEAST_ALLIANCE);
                 }
@@ -3996,10 +4009,18 @@ struct npc_dawntracker_hunter_quest_private : public ScriptedAI
             case EVENT_ME_END_OF_CAST:
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                 {
-                    player->CastSpell(player, SPELL_TUTORIAL_HEALTH_DNT);
-                    player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_TRAINED_HORDE, 1);
-                    player->CastSpell(player, SPELL_TAME_BEAST);
-                    player->CastSpell(player, SPELL_CALL_PET);
+                    if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) != QUEST_STATUS_REWARDED)
+                    {
+                        player->CastSpell(player, SPELL_TUTORIAL_HEALTH_DNT);
+                    }
+
+                    if (!player->HasSpell(SPELL_TAME_BEAST))
+                    {
+                        player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_TRAINED_HORDE, 1);
+                        player->CastSpell(player, SPELL_LEARN_TAME_BEAST);
+                        player->CastSpell(player, SPELL_LEARN_CALL_PET);
+                    }
+
                     me->SetEmoteState(EMOTE_STATE_NONE);
                     Talk(SAY_FIND_A_BEAST_HORDE);
                 }
@@ -4054,7 +4075,7 @@ class spell_tutorial_health_dnt : public SpellScript
             if (player->GetTeam() == ALLIANCE)
                 player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE, 1);
             else
-                player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_BEAST_TAMED_HORDE, 1);     
+                player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_BEAST_TAMED_HORDE, 1);
         }        
     }
 
