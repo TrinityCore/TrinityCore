@@ -192,7 +192,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
 
     stats.CreatureType = type;
     stats.CreatureFamily = family;
-    stats.Classification = uint32(rank);
+    stats.Classification = uint32(Classification);
 
     for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
         stats.ProxyCreatureID[i] = KillCredit[i];
