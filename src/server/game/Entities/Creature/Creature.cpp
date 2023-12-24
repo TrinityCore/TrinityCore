@@ -1580,7 +1580,7 @@ void Creature::SelectLevel()
 void Creature::UpdateLevelDependantStats()
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureClassifications classification = IsPet() ? CreatureClassifications::Normal : cInfo->rank;
+    CreatureClassifications classification = IsPet() ? CreatureClassifications::Normal : cInfo->Classification;
     uint8 level = GetLevel();
     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
 
