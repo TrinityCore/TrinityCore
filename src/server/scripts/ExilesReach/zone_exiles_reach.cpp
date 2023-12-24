@@ -3805,8 +3805,11 @@ class spell_scene_linger_northbound: public SpellScript
     }
 };
 
-// Taming the Wild Quest
+// ***********************************************************************
+// * Scripting in this section occurs after reaching Quilboar Briarpatch *
+// ***********************************************************************
 
+// Taming the Wild Quest
 enum TamingTheWilds
 {
     QUEST_TAMING_THE_WILDS_ALLIANCE         = 59342,
@@ -3834,6 +3837,7 @@ public:
                 if (Creature* survivor = FindCreatureIgnorePhase(player, creatureString, 5.0f))
                     survivor->SummonPersonalClone(survivor->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
 
+                // Hacks QUEST_OBJECTIVE_CRITERIA_TREE needs research
                 if (player->HasSpell(SPELL_TAME_BEAST))
                     player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QuestObjective1, 1);
 
