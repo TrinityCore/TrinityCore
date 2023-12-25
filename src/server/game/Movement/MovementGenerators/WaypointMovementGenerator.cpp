@@ -263,8 +263,12 @@ void WaypointMovementGenerator<Creature>::DoFinalize(Creature* owner, bool activ
 
 void WaypointMovementGenerator<Creature>::MovementInform(Creature* owner)
 {
-    if (owner->AI())
-        owner->AI()->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
+    WaypointNode const& waypoint = _path->Nodes.at(_currentNode);
+    if (CreatureAI* AI = owner->AI())
+    {
+        AI->MovementInform(WAYPOINT_MOTION_TYPE, waypoint.Id);
+        AI->WaypointReached(waypoint.Id, _path->Id);
+    }
 }
 
 void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
@@ -294,12 +298,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
             _nextMoveTime.Reset(waitTime);
     }
 
-    // inform AI
-    if (CreatureAI* AI = owner->AI())
-    {
-        AI->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
-        AI->WaypointReached(waypoint.Id, _path->Id);
-    }
+    MovementInform(owner);
 
     owner->UpdateCurrentWaypointInfo(waypoint.Id, _path->Id);
 }
