@@ -81,7 +81,7 @@ public:
 
     struct boss_temple_guardian_anhuurAI : public BossAI
     {
-        boss_temple_guardian_anhuurAI(Creature* creature) : BossAI(creature, DATA_TEMPLE_GUARDIAN_ANHUUR)
+        boss_temple_guardian_anhuurAI(Creature* creature) : BossAI(creature, BOSS_TEMPLE_GUARDIAN_ANHUUR)
         {
             Initialize();
         }
@@ -200,7 +200,7 @@ public:
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             _JustReachedHome();
-            instance->SetBossState(DATA_TEMPLE_GUARDIAN_ANHUUR, FAIL);
+            instance->SetBossState(BOSS_TEMPLE_GUARDIAN_ANHUUR, FAIL);
         }
 
         void UpdateAI(uint32 diff) override
@@ -326,7 +326,7 @@ class spell_anhuur_disable_beacon_beams : public SpellScriptLoader
                     return;
 
                 if (InstanceScript* instance = caster->GetInstanceScript())
-                    if (Creature* anhuur = instance->GetCreature(DATA_TEMPLE_GUARDIAN_ANHUUR))
+                    if (Creature* anhuur = instance->GetCreature(BOSS_TEMPLE_GUARDIAN_ANHUUR))
                         if (CreatureAI* ai = anhuur->AI())
                             ai->DoAction(ACTION_DISABLE_BEACON);
             }

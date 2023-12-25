@@ -20,26 +20,26 @@
 
 #include "CreatureAIImpl.h"
 
-#define DataHeader "HOO"
+constexpr char const* DataHeader = "HOO";
 #define HoOScriptName "instance_halls_of_origination"
 
-uint32 const EncounterCount = 12;
+constexpr uint32 const EncounterCount = 12;
 
 enum HOOData
 {
     // Bosses
-    DATA_TEMPLE_GUARDIAN_ANHUUR,
-    DATA_EARTHRAGER_PTAH,
-    DATA_VAULT_OF_LIGHTS,
-    DATA_FIRE_WARDEN,
-    DATA_EARTH_WARDEN,
-    DATA_WATER_WARDEN,
-    DATA_AIR_WARDEN,
-    DATA_ANRAPHET,
-    DATA_ISISET,
-    DATA_AMMUNAE,
-    DATA_SETESH,
-    DATA_RAJH,
+    BOSS_TEMPLE_GUARDIAN_ANHUUR,
+    BOSS_EARTHRAGER_PTAH,
+    BOSS_VAULT_OF_LIGHTS,
+    BOSS_FIRE_WARDEN,
+    BOSS_EARTH_WARDEN,
+    BOSS_WATER_WARDEN,
+    BOSS_AIR_WARDEN,
+    BOSS_ANRAPHET,
+    BOSS_ISISET,
+    BOSS_AMMUNAE,
+    BOSS_SETESH,
+    BOSS_RAJH,
 
     // Temple Guardian Anhuur
     DATA_ANHUUR_GUID,
@@ -56,23 +56,23 @@ enum HOOData
 
 enum HOOCreatures
 {
-    BOSS_TEMPLE_GUARDIAN_ANHUUR     = 39425,
+    NPC_TEMPLE_GUARDIAN_ANHUUR      = 39425,
     NPC_CAVE_IN_STALKER             = 40183,
     NPC_SEARING_LIGHT               = 40283,
 
-    BOSS_EARTHRAGER_PTAH            = 39428,
+    NPC_EARTHRAGER_PTAH             = 39428,
     NPC_BEETLE_STALKER              = 40459, // Summons both Jeweled Scarab and Dustbone Horror
     NPC_JEWELED_SCARAB              = 40458,
     NPC_DUSTBONE_HORROR             = 40450,
     NPC_QUICKSAND                   = 40503, // Summoned by a spell not in dbc (75550)
 
-    BOSS_ANRAPHET                   = 39788,
+    NPC_ANRAPHET                    = 39788,
     NPC_FIRE_WARDEN                 = 39800,
     NPC_EARTH_WARDEN                = 39801,
     NPC_WATER_WARDEN                = 39802,
     NPC_AIR_WARDEN                  = 39803,
 
-    WARDEN_ENTRY_DATA_DELTA         = NPC_FIRE_WARDEN - uint8(DATA_FIRE_WARDEN),
+    WARDEN_ENTRY_DATA_DELTA         = NPC_FIRE_WARDEN - uint8(BOSS_FIRE_WARDEN),
 
     NPC_BRANN_BRONZEBEARD_0         = 39908,
     NPC_OMEGA_STANCE                = 41194,

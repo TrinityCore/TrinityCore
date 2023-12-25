@@ -80,7 +80,7 @@ public:
 
     bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
     {
-        if (!_instance || _instance->GetBossState(DATA_EARTHRAGER_PTAH) != IN_PROGRESS)
+        if (!_instance || _instance->GetBossState(BOSS_EARTHRAGER_PTAH) != IN_PROGRESS)
             return true;    // delete event
 
         _owner->CastSpell(_owner, SPELL_SUMMON_JEWELED_SCARAB);
@@ -99,7 +99,7 @@ public:
 
     struct boss_earthrager_ptahAI : public BossAI
     {
-        boss_earthrager_ptahAI(Creature* creature) : BossAI(creature, DATA_EARTHRAGER_PTAH), _summonDeaths(0), _hasDispersed(false) { }
+        boss_earthrager_ptahAI(Creature* creature) : BossAI(creature, BOSS_EARTHRAGER_PTAH), _summonDeaths(0), _hasDispersed(false) { }
 
         void Cleanup()
         {
@@ -197,7 +197,7 @@ public:
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             _JustReachedHome();
-            instance->SetBossState(DATA_EARTHRAGER_PTAH, FAIL);
+            instance->SetBossState(BOSS_EARTHRAGER_PTAH, FAIL);
         }
 
         void UpdateAI(uint32 diff) override

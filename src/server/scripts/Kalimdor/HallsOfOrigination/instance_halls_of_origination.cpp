@@ -25,30 +25,30 @@
 
 DoorData const doorData[] =
 {
-    {GO_ANHUURS_DOOR,                 DATA_TEMPLE_GUARDIAN_ANHUUR, EncounterDoorBehavior::OpenWhenDone },
-    {GO_ANHUURS_BRIDGE,               DATA_TEMPLE_GUARDIAN_ANHUUR, EncounterDoorBehavior::OpenWhenDone },
-    {GO_DOODAD_ULDUM_ELEVATOR_COL01,  DATA_TEMPLE_GUARDIAN_ANHUUR, EncounterDoorBehavior::OpenWhenDone },
-    {GO_VAULT_OF_LIGHTS_DOOR,         DATA_VAULT_OF_LIGHTS,        EncounterDoorBehavior::OpenWhenDone },
-    {GO_DOODAD_ULDUM_LIGHTMACHINE_02, DATA_EARTH_WARDEN,           EncounterDoorBehavior::OpenWhenDone },
-    {GO_DOODAD_ULDUM_LASERBEAMS01,    DATA_EARTH_WARDEN,           EncounterDoorBehavior::OpenWhenDone },
-    {GO_DOODAD_ULDUM_LIGHTMACHINE_01, DATA_FIRE_WARDEN,            EncounterDoorBehavior::OpenWhenDone },
-    {GO_DOODAD_ULDUM_LASERBEAMS_01,   DATA_FIRE_WARDEN,            EncounterDoorBehavior::OpenWhenDone },
-    {GO_DOODAD_ULDUM_LIGHTMACHINE_03, DATA_WATER_WARDEN,           EncounterDoorBehavior::OpenWhenDone },
-    {GO_DOODAD_ULDUM_LASERBEAMS_03,   DATA_WATER_WARDEN,           EncounterDoorBehavior::OpenWhenDone },
-    {GO_DOODAD_ULDUM_LIGHTMACHINE_04, DATA_AIR_WARDEN,             EncounterDoorBehavior::OpenWhenDone },
-    {GO_DOODAD_ULDUM_LASERBEAMS_02,   DATA_AIR_WARDEN,             EncounterDoorBehavior::OpenWhenDone },
-    {0,                              0,                            EncounterDoorBehavior::OpenWhenNotInProgress }
+    { GO_ANHUURS_DOOR,                  BOSS_TEMPLE_GUARDIAN_ANHUUR,    EncounterDoorBehavior::OpenWhenDone },
+    { GO_ANHUURS_BRIDGE,                BOSS_TEMPLE_GUARDIAN_ANHUUR,    EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOODAD_ULDUM_ELEVATOR_COL01,   BOSS_TEMPLE_GUARDIAN_ANHUUR,    EncounterDoorBehavior::OpenWhenDone },
+    { GO_VAULT_OF_LIGHTS_DOOR,          BOSS_VAULT_OF_LIGHTS,           EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOODAD_ULDUM_LIGHTMACHINE_02,  BOSS_EARTH_WARDEN,              EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOODAD_ULDUM_LASERBEAMS01,     BOSS_EARTH_WARDEN,              EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOODAD_ULDUM_LIGHTMACHINE_01,  BOSS_FIRE_WARDEN,               EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOODAD_ULDUM_LASERBEAMS_01,    BOSS_FIRE_WARDEN,               EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOODAD_ULDUM_LIGHTMACHINE_03,  BOSS_WATER_WARDEN,              EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOODAD_ULDUM_LASERBEAMS_03,    BOSS_WATER_WARDEN,              EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOODAD_ULDUM_LIGHTMACHINE_04,  BOSS_AIR_WARDEN,                EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOODAD_ULDUM_LASERBEAMS_02,    BOSS_AIR_WARDEN,                EncounterDoorBehavior::OpenWhenDone },
+    { 0,                                0,                              EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
 DungeonEncounterData const encounters[] =
 {
-    { DATA_TEMPLE_GUARDIAN_ANHUUR, {{ 1080 }} },
-    { DATA_EARTHRAGER_PTAH, {{ 1076 }} },
-    { DATA_ANRAPHET, {{ 1075 }} },
-    { DATA_ISISET, {{ 1077 }} },
-    { DATA_AMMUNAE, {{ 1074 }} },
-    { DATA_SETESH, {{ 1079 }} },
-    { DATA_RAJH, {{ 1078 }} }
+    { BOSS_TEMPLE_GUARDIAN_ANHUUR,  {{ 1080 }} },
+    { BOSS_EARTHRAGER_PTAH,         {{ 1076 }} },
+    { BOSS_ANRAPHET,                {{ 1075 }} },
+    { BOSS_ISISET,                  {{ 1077 }} },
+    { BOSS_AMMUNAE,                 {{ 1074 }} },
+    { BOSS_SETESH,                  {{ 1079 }} },
+    { BOSS_RAJH,                    {{ 1078 }} }
 };
 
 class instance_halls_of_origination : public InstanceMapScript

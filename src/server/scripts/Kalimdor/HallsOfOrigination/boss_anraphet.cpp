@@ -139,7 +139,7 @@ public:
 
     struct boss_anraphetAI : public BossAI
     {
-        boss_anraphetAI(Creature* creature) : BossAI(creature, DATA_ANRAPHET) { }
+        boss_anraphetAI(Creature* creature) : BossAI(creature, BOSS_ANRAPHET) { }
 
         void ScheduleCombatEvents()
         {
@@ -191,7 +191,7 @@ public:
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             _JustReachedHome();
-            instance->SetBossState(DATA_ANRAPHET, FAIL);
+            instance->SetBossState(BOSS_ANRAPHET, FAIL);
         }
 
         void DoAction(int32 action) override
@@ -338,12 +338,12 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
 
             bool OnGossipSelect(Player* /*player*/, uint32 menuId, uint32 action) override
             {
-                if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
+                if (_instance->GetBossState(BOSS_VAULT_OF_LIGHTS) == DONE)
                     return true;
 
                 if (menuId == GOSSIP_MENU_START_INTRO && !action)
                 {
-                    _instance->SetBossState(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
+                    _instance->SetBossState(BOSS_VAULT_OF_LIGHTS, IN_PROGRESS);
                     _currentPoint = 0;
                     events.Reset();
                     me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
@@ -391,7 +391,7 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                             break;
                         case EVENT_BRANN_UNLOCK_DOOR:
                             Talk(BRANN_SAY_UNLOCK_DOOR);
-                            _instance->SetBossState(DATA_VAULT_OF_LIGHTS, DONE);
+                            _instance->SetBossState(BOSS_VAULT_OF_LIGHTS, DONE);
                             _instance->TriggerGameEvent(ACHIEV_VAULT_OF_LIGHTS_EVENT);
                             events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 3500ms);
                             break;
