@@ -2467,7 +2467,7 @@ bool Creature::IsElite() const
     if (IsPet())
         return false;
 
-    return !HasClassification(CreatureClassifications::Normal) && !HasClassification(CreatureClassifications::Rare) && !HasClassification(CreatureClassifications::MinusMob);
+    return HasClassification(CreatureClassifications::Elite) || HasClassification(CreatureClassifications::RareElite));
 }
 
 bool Creature::isWorldBoss() const
