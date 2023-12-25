@@ -1,2 +1,2 @@
 ALTER TABLE `creature_template`
-	RENAME COLUMN `rank` TO `Classification`;
+	CHANGE COLUMN `rank` `Classification` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' AFTER `scale`;
