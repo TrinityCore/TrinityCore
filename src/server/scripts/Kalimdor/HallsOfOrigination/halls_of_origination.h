@@ -122,4 +122,6 @@ inline AI* GetHallsOfOriginationAI(Creature* creature)
     return GetInstanceAI<AI>(creature, HoOScriptName);
 }
 
+#define RegisterHallsOfOriginationCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetHallsOfOriginationAI)
+
 #endif // HALLS_OF_ORIGINATION_H
