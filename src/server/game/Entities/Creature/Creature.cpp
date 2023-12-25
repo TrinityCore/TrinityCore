@@ -1708,7 +1708,7 @@ float Creature::GetSpellDamageMod(CreatureClassifications classification) const
         case CreatureClassifications::Elite:
             return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE_ELITE);
         case CreatureClassifications::RareElite:
-            return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE_RARE_ELITE);
+            return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE_RAREELITE);
         case CreatureClassifications::Obsolete:
             return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE_OBSOLETE);
         case CreatureClassifications::Rare:
