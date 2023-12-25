@@ -68,7 +68,7 @@ struct WaypointNode
 
 struct WaypointPath
 {
-    WaypointPath() : Id(0), Flags(WaypointPathFlags::None), MoveType(WaypointMoveType::Walk) { }
+    WaypointPath() : Id(0), MoveType(WaypointMoveType::Walk), Flags(WaypointPathFlags::None) { }
     WaypointPath(uint32 id, std::vector<WaypointNode>&& nodes, WaypointMoveType moveType = WaypointMoveType::Walk, WaypointPathFlags flags = WaypointPathFlags::None)
     {
         Id = id;
