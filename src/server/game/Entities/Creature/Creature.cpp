@@ -1652,21 +1652,21 @@ float Creature::GetHealthMod(CreatureClassifications classification)
     switch (classification)
     {
         case CreatureClassifications::Normal:
-            return sWorld->getRate(RATE_CREATURE_NORMAL_HP);
+            return sWorld->getRate(RATE_CREATURE_HP_NORMAL);
         case CreatureClassifications::Elite:
-            return sWorld->getRate(RATE_CREATURE_ELITE_HP);
+            return sWorld->getRate(RATE_CREATURE_HP_ELITE);
         case CreatureClassifications::RareElite:
-            return sWorld->getRate(RATE_CREATURE_RARE_ELITE_HP);
+            return sWorld->getRate(RATE_CREATURE_HP_RAREELITE);
         case CreatureClassifications::Obsolete:
-            return sWorld->getRate(RATE_CREATURE_OBSOLETE_HP);
+            return sWorld->getRate(RATE_CREATURE_HP_OBSOLETE);
         case CreatureClassifications::Rare:
-            return sWorld->getRate(RATE_CREATURE_RARE_HP);
+            return sWorld->getRate(RATE_CREATURE_HP_RARE);
         case CreatureClassifications::Trivial:
-            return sWorld->getRate(RATE_CREATURE_TRIVIAL_HP);
+            return sWorld->getRate(RATE_CREATURE_HP_TRIVIAL);
         case CreatureClassifications::MinusMob:
-            return sWorld->getRate(RATE_CREATURE_MINUS_MOB_HP);
+            return sWorld->getRate(RATE_CREATURE_HP_MINUSMOB);
         default:
-            return sWorld->getRate(RATE_CREATURE_ELITE_HP);
+            return sWorld->getRate(RATE_CREATURE_HP_ELITE);
     }
 }
 
@@ -1681,21 +1681,21 @@ float Creature::GetDamageMod(CreatureClassifications classification)
     switch (classification)
     {
         case CreatureClassifications::Normal:
-            return sWorld->getRate(RATE_CREATURE_NORMAL_DAMAGE);
+            return sWorld->getRate(RATE_CREATURE_DAMAGE_NORMAL);
         case CreatureClassifications::Elite:
-            return sWorld->getRate(RATE_CREATURE_ELITE_DAMAGE);
+            return sWorld->getRate(RATE_CREATURE_DAMAGE_ELITE);
         case CreatureClassifications::RareElite:
-            return sWorld->getRate(RATE_CREATURE_RARE_ELITE_DAMAGE);
+            return sWorld->getRate(RATE_CREATURE_DAMAGE_RAREELITE);
         case CreatureClassifications::Obsolete:
-            return sWorld->getRate(RATE_CREATURE_OBSOLETE_DAMAGE);
+            return sWorld->getRate(RATE_CREATURE_DAMAGE_OBSOLETE);
         case CreatureClassifications::Rare:
-            return sWorld->getRate(RATE_CREATURE_RARE_DAMAGE);
+            return sWorld->getRate(RATE_CREATURE_DAMAGE_RARE);
         case CreatureClassifications::Trivial:
-            return sWorld->getRate(RATE_CREATURE_TRIVIAL_DAMAGE);
+            return sWorld->getRate(RATE_CREATURE_DAMAGE_TRIVIAL);
         case CreatureClassifications::MinusMob:
-            return sWorld->getRate(RATE_CREATURE_MINUS_MOB_DAMAGE);
+            return sWorld->getRate(RATE_CREATURE_DAMAGE_MINUSMOB);
         default:
-            return sWorld->getRate(RATE_CREATURE_ELITE_DAMAGE);
+            return sWorld->getRate(RATE_CREATURE_DAMAGE_ELITE);
     }
 }
 
@@ -1704,21 +1704,21 @@ float Creature::GetSpellDamageMod(CreatureClassifications classification) const
     switch (classification)
     {
         case CreatureClassifications::Normal:
-            return sWorld->getRate(RATE_CREATURE_NORMAL_SPELLDAMAGE);
+            return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE_NORMAL);
         case CreatureClassifications::Elite:
-            return sWorld->getRate(RATE_CREATURE_ELITE_SPELLDAMAGE);
+            return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE_ELITE);
         case CreatureClassifications::RareElite:
-            return sWorld->getRate(RATE_CREATURE_RARE_ELITE_SPELLDAMAGE);
+            return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE_RARE_ELITE);
         case CreatureClassifications::Obsolete:
-            return sWorld->getRate(RATE_CREATURE_OBSOLETE_SPELLDAMAGE);
+            return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE_OBSOLETE);
         case CreatureClassifications::Rare:
-            return sWorld->getRate(RATE_CREATURE_RARE_SPELLDAMAGE);
+            return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE_RARE);
         case CreatureClassifications::Trivial:
-            return sWorld->getRate(RATE_CREATURE_TRIVIAL_SPELLDAMAGE);
+            return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE_TRIVIAL);
         case CreatureClassifications::MinusMob:
-            return sWorld->getRate(RATE_CREATURE_MINUS_MOB_SPELLDAMAGE);
+            return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE_MINUSMOB);
         default:
-            return sWorld->getRate(RATE_CREATURE_ELITE_SPELLDAMAGE);
+            return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE_ELITE);
     }
 }
 
