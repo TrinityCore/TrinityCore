@@ -1120,7 +1120,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Posit
             m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_ELITE);
             break;
         case CreatureClassifications::RareElite:
-            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_RARE_ELITE);
+            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_RAREELITE);
             break;
         case CreatureClassifications::Obsolete:
             m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_OBSOLETE);
@@ -1132,7 +1132,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Posit
             m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_TRIVIAL);
             break;
         case CreatureClassifications::MinusMob:
-            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_MINUS_MOB);
+            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_MINUSMOB);
             break;
         default:
             m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_NORMAL);
