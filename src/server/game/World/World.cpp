@@ -679,7 +679,7 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_CREATURE_DAMAGE_MINUSMOB]          = sConfigMgr->GetFloatDefault("Rate.Creature.Damage.MinusMob", 1.0f);
     rate_values[RATE_CREATURE_SPELLDAMAGE_NORMAL]       = sConfigMgr->GetFloatDefault("Rate.Creature.SpellDamage.Normal", 1.0f);
     rate_values[RATE_CREATURE_SPELLDAMAGE_ELITE]        = sConfigMgr->GetFloatDefault("Rate.Creature.SpellDamage.Elite", 1.0f);
-    rate_values[RATE_CREATURE_SPELLDAMAGE_RARE_ELITE]   = sConfigMgr->GetFloatDefault("Rate.Creature.SpellDamage.RareElite", 1.0f);
+    rate_values[RATE_CREATURE_SPELLDAMAGE_RAREELITE]    = sConfigMgr->GetFloatDefault("Rate.Creature.SpellDamage.RareElite", 1.0f);
     rate_values[RATE_CREATURE_SPELLDAMAGE_OBSOLETE]     = sConfigMgr->GetFloatDefault("Rate.Creature.SpellDamage.Obsolete", 1.0f);
     rate_values[RATE_CREATURE_SPELLDAMAGE_RARE]         = sConfigMgr->GetFloatDefault("Rate.Creature.SpellDamage.Rare", 1.0f);
     rate_values[RATE_CREATURE_SPELLDAMAGE_TRIVIAL]      = sConfigMgr->GetFloatDefault("Rate.Creature.SpellDamage.Trivial", 1.0f);
