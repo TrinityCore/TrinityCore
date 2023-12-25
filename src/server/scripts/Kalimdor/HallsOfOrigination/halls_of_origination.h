@@ -27,19 +27,21 @@ constexpr uint32 const EncounterCount = 12;
 
 enum HOOData
 {
-    // Bosses
+    // Encounters
     BOSS_TEMPLE_GUARDIAN_ANHUUR,
     BOSS_EARTHRAGER_PTAH,
-    BOSS_VAULT_OF_LIGHTS,
-    BOSS_FIRE_WARDEN,
-    BOSS_EARTH_WARDEN,
-    BOSS_WATER_WARDEN,
-    BOSS_AIR_WARDEN,
     BOSS_ANRAPHET,
     BOSS_ISISET,
     BOSS_AMMUNAE,
     BOSS_SETESH,
     BOSS_RAJH,
+
+    // Event Boss States
+    BOSS_VAULT_OF_LIGHTS,
+    BOSS_FIRE_WARDEN,
+    BOSS_EARTH_WARDEN,
+    BOSS_WATER_WARDEN,
+    BOSS_AIR_WARDEN,
 
     // Temple Guardian Anhuur
     DATA_ANHUUR_GUID,
@@ -52,6 +54,9 @@ enum HOOData
     DATA_BRANN_0_GUID,
     DATA_DEAD_ELEMENTALS,
     DATA_ANRAPHET_GUID,
+
+    // Events
+    DATA_LIFT_OF_THE_MAKERS
 };
 
 enum HOOCreatures
@@ -99,6 +104,8 @@ enum HOOGameObjects
     GO_DOODAD_ULDUM_LASERBEAMS_01   = 207663, // Matches GO_DOODAD_ULDUM_LIGHTMACHINE_01
     GO_DOODAD_ULDUM_LASERBEAMS_02   = 207664, // Matches GO_DOODAD_ULDUM_LIGHTMACHINE_04
     GO_DOODAD_ULDUM_LASERBEAMS_03   = 207665, // Matches GO_DOODAD_ULDUM_LIGHTMACHINE_03
+
+    GO_LIFT_OF_THE_MAKERS           = 207547
 };
 
 enum HOOMisc
@@ -116,12 +123,13 @@ enum HOOGlobalActions
     ACTION_OMEGA_TRIGGER,
 };
 
-template<typename AI>
-inline AI* GetHallsOfOriginationAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetHallsOfOriginationAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, HoOScriptName);
+    return GetInstanceAI<AI>(obj, HoOScriptName);
 }
 
 #define RegisterHallsOfOriginationCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetHallsOfOriginationAI)
+#define RegisterHallsOfOriginationGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetHallsOfOriginationAI)
 
 #endif // HALLS_OF_ORIGINATION_H

@@ -40,6 +40,12 @@ DoorData const doorData[] =
     { 0,                                0,                              EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
+ObjectData const gameObjectData[] =
+{
+    { GO_LIFT_OF_THE_MAKERS,            DATA_LIFT_OF_THE_MAKERS             },
+    { 0,                                0                                   } //END
+};
+
 DungeonEncounterData const encounters[] =
 {
     { BOSS_TEMPLE_GUARDIAN_ANHUUR,  {{ 1080 }} },
@@ -62,6 +68,7 @@ class instance_halls_of_origination : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadObjectData(nullptr, gameObjectData);
                 LoadDoorData(doorData);
                 LoadDungeonEncounterData(encounters);
                 _deadElementals = 0;
@@ -69,6 +76,8 @@ class instance_halls_of_origination : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
                     case GO_ANHUURS_BRIDGE:
@@ -107,6 +116,8 @@ class instance_halls_of_origination : public InstanceMapScript
 
             void OnGameObjectRemove(GameObject* go) override
             {
+                InstanceScript::OnGameObjectRemove(go);
+
                 switch (go->GetEntry())
                 {
                     case GO_ANHUURS_BRIDGE:
@@ -128,6 +139,8 @@ class instance_halls_of_origination : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case BOSS_TEMPLE_GUARDIAN_ANHUUR:
@@ -155,9 +168,9 @@ class instance_halls_of_origination : public InstanceMapScript
                 return 0;
             }
 
-            ObjectGuid GetGuidData(uint32 index) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
-                switch (index)
+                switch (type)
                 {
                     case DATA_ANHUUR_BRIDGE:
                         return AnhuursBridgeGUID;
@@ -175,7 +188,7 @@ class instance_halls_of_origination : public InstanceMapScript
                         return AnraphetGUID;
                 }
 
-                return ObjectGuid::Empty;
+                return InstanceScript::GetGuidData(type);
             }
 
             void IncreaseDeadElementals(uint32 inc)
@@ -192,6 +205,8 @@ class instance_halls_of_origination : public InstanceMapScript
 
             void OnUnitDeath(Unit* unit) override
             {
+                InstanceScript::OnUnitDeath(unit);
+
                 Creature* creature = unit->ToCreature();
                 if (!creature)
                     return;
