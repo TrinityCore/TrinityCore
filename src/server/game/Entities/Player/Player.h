@@ -548,7 +548,7 @@ typedef std::map<uint32, QuestStatusData> QuestStatusMap;
 struct QuestObjectiveStatusData
 {
     QuestStatusMap::iterator QuestStatusItr;
-    QuestObjective const* Objective;
+    uint32 ObjectiveId;
 };
 
 using QuestObjectiveStatusMap = std::unordered_multimap<std::pair<QuestObjectiveType, int32>, QuestObjectiveStatusData>;
