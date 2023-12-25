@@ -170,7 +170,7 @@ struct boss_anraphet : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         Talk(ANRAPHET_SAY_DEATH);
 
-        if (Creature* brann = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BRANN_0_GUID)))
+        if (Creature* brann = instance->GetCreature(DATA_BRANN_BRONZEBEARD))
             brann->AI()->DoAction(ACTION_ANRAPHET_DIED);
 
         _JustDied();
@@ -289,7 +289,7 @@ struct npc_alpha_beam : public ScriptedAI
 
     void IsSummonedBy(WorldObject* /*summoner*/) override
     {
-        if (Creature* anraphet = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ANRAPHET_GUID)))
+        if (Creature* anraphet = _instance->GetCreature(BOSS_ANRAPHET))
             anraphet->CastSpell(me, SPELL_ALPHA_BEAMS_BACK_CAST);
     }
 
@@ -330,22 +330,22 @@ struct npc_brann_bronzebeard_anraphet : public CreatureAI
     {
         switch (action)
         {
-        case ACTION_ELEMENTAL_DIED:
-        {
-            uint32 dead = _instance->GetData(DATA_DEAD_ELEMENTALS);
-            Talk(BRANN_1_ELEMENTAL_DEAD + dead - 1);
-            if (dead == 4)
+            case ACTION_ELEMENTAL_DIED:
             {
-                _instance->DoCastSpellOnPlayers(SPELL_VAULT_OF_LIGHTS_CREDIT);
-                if (Creature* anraphet = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ANRAPHET_GUID)))
-                    anraphet->AI()->DoAction(ACTION_ANRAPHET_INTRO);
+                uint32 dead = _instance->GetData(DATA_DEAD_ELEMENTALS);
+                Talk(BRANN_1_ELEMENTAL_DEAD + dead - 1);
+                if (dead == 4)
+                {
+                    _instance->DoCastSpellOnPlayers(SPELL_VAULT_OF_LIGHTS_CREDIT);
+                    if (Creature* anraphet = _instance->GetCreature(BOSS_ANRAPHET))
+                        anraphet->AI()->DoAction(ACTION_ANRAPHET_INTRO);
+                }
+                break;
             }
-            break;
-        }
-        case ACTION_ANRAPHET_DIED:
-            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-            events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 1s);
-            break;
+            case ACTION_ANRAPHET_DIED:
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 1s);
+                break;
         }
     }
 

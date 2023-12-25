@@ -38,8 +38,8 @@ struct go_hoo_the_makers_lift_controller : public GameObjectAI
         ClearGossipMenuFor(player);
         player->PlayerTalkClass->SendCloseGossip();
 
-            if (GameObject* elevator = _instance->GetGameObject(DATA_LIFT_OF_THE_MAKERS))
-                elevator->SetGoState(GOState(GO_STATE_TRANSPORT_ACTIVE + gossipListId));
+        if (GameObject* elevator = _instance->GetGameObject(DATA_LIFT_OF_THE_MAKERS))
+            elevator->SetGoState(GOState(GO_STATE_TRANSPORT_ACTIVE + gossipListId));
 
         return false;
     }

@@ -40,6 +40,15 @@ DoorData const doorData[] =
     { 0,                                0,                              EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
+ObjectData const creatureData[] =
+{
+    { NPC_TEMPLE_GUARDIAN_ANHUUR,       BOSS_TEMPLE_GUARDIAN_ANHUUR },
+    { NPC_ANRAPHET,                     BOSS_ANRAPHET               },
+    { NPC_EARTHRAGER_PTAH,              BOSS_EARTHRAGER_PTAH        },
+    { NPC_BRANN_BRONZEBEARD_0,          DATA_BRANN_BRONZEBEARD      },
+    { 0,                                0                           } //END
+};
+
 ObjectData const gameObjectData[] =
 {
     { GO_LIFT_OF_THE_MAKERS,            DATA_LIFT_OF_THE_MAKERS             },
@@ -68,7 +77,7 @@ class instance_halls_of_origination : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(nullptr, gameObjectData);
+                LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
                 LoadDungeonEncounterData(encounters);
                 _deadElementals = 0;
@@ -137,24 +146,6 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            void OnCreatureCreate(Creature* creature) override
-            {
-                InstanceScript::OnCreatureCreate(creature);
-
-                switch (creature->GetEntry())
-                {
-                    case BOSS_TEMPLE_GUARDIAN_ANHUUR:
-                        TempleGuardianAnhuurGUID = creature->GetGUID();
-                        break;
-                    case NPC_BRANN_BRONZEBEARD_0:
-                        BrannBronzebeardGUID = creature->GetGUID();
-                        break;
-                    case BOSS_ANRAPHET:
-                        AnraphetGUID = creature->GetGUID();
-                        break;
-                }
-            }
-
             uint32 GetData(uint32 data) const override
             {
                 switch (data)
@@ -180,12 +171,6 @@ class instance_halls_of_origination : public InstanceMapScript
                         return AnhuurLeftBeaconGUID;
                     case DATA_ANHUUR_RIGHT_BEACON:
                         return AnhuurRightBeaconGUID;
-                    case DATA_ANHUUR_GUID:
-                        return TempleGuardianAnhuurGUID;
-                    case DATA_BRANN_0_GUID:
-                        return BrannBronzebeardGUID;
-                    case DATA_ANRAPHET_GUID:
-                        return AnraphetGUID;
                 }
 
                 return InstanceScript::GetGuidData(type);
@@ -221,7 +206,7 @@ class instance_halls_of_origination : public InstanceMapScript
                         SetBossState(data, IN_PROGRESS); // Needs to be set to IN_PROGRESS or else the gameobjects state won't be updated
                         SetBossState(data, DONE);
                         IncreaseDeadElementals(1);
-                        if (Creature* brann = instance->GetCreature(BrannBronzebeardGUID))
+                        if (Creature* brann = GetCreature(DATA_BRANN_BRONZEBEARD))
                             brann->AI()->DoAction(ACTION_ELEMENTAL_DIED);
                         break;
                 }
@@ -234,13 +219,10 @@ class instance_halls_of_origination : public InstanceMapScript
             }
 
         protected:
-            ObjectGuid TempleGuardianAnhuurGUID;
             ObjectGuid AnhuursBridgeGUID;
             ObjectGuid AnhuursDoorGUID;
             ObjectGuid AnhuurRightBeaconGUID;
             ObjectGuid AnhuurLeftBeaconGUID;
-            ObjectGuid BrannBronzebeardGUID;
-            ObjectGuid AnraphetGUID;
             ObjectGuid AnraphetDoorGUID;
             ObjectGuid SunMirrorGUID;
             uint32 _deadElementals;
