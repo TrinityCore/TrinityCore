@@ -160,7 +160,7 @@ std::string LoginRESTService::ExtractAuthorization(HttpRequest const& request)
     return ticket;
 }
 
-LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetForm(std::shared_ptr<LoginHttpSession> /*session*/, HttpRequestContext& context)
+LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetForm(std::shared_ptr<LoginHttpSession> /*session*/, HttpRequestContext& context) const
 {
     context.response.set(boost::beast::http::field::content_type, "application/json;charset=utf-8");
     context.response.body() = ::JSON::Serialize(_formInputs);
