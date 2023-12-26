@@ -136,7 +136,7 @@ UPDATE `creature_template_difficulty` SET `DifficultyID`=0, `ContentTuningID`=10
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=778, `VerifiedBuild`=52649 WHERE `DifficultyID`=0 AND `Entry`=123252;
 
 UPDATE `creature_template_difficulty` ctd
-LEFT JOIN `creature_template_difficulty` ctd2 ON ctd.`Entry`=ctd2.`Entry` AND ctd.`DifficultyID`!=ctd2.`DifficultyID`
+INNER JOIN `creature_template_difficulty` ctd2 ON ctd.`Entry`=ctd2.`Entry` AND ctd.`DifficultyID`!=ctd2.`DifficultyID`
 SET
     ctd.`LevelScalingDeltaMin`=ctd2.`LevelScalingDeltaMin`,
     ctd.`LevelScalingDeltaMax`=ctd2.`LevelScalingDeltaMax`,
@@ -144,10 +144,10 @@ SET
     ctd.`DamageModifier`=ctd2.`DamageModifier`,
     ctd.`LootID`=ctd2.`LootID`,
     ctd.`PickPocketLootID`=ctd2.`PickPocketLootID`,
-	ctd.`SkinLootID`=ctd2.`SkinLootID`,
-	ctd.`GoldMin`=ctd2.`GoldMin`,
-	ctd.`GoldMax`=ctd2.`GoldMax`,
-	ctd.`VerifiedBuild`=52649
+    ctd.`SkinLootID`=ctd2.`SkinLootID`,
+    ctd.`GoldMin`=ctd2.`GoldMin`,
+    ctd.`GoldMax`=ctd2.`GoldMax`,
+    ctd.`VerifiedBuild`=52649
 WHERE ctd.`DifficultyID`=0
 AND ctd.`Entry` IN (22876,23524,23523,23502,23469,23451,23448,23436,23429,23421,23420,23419,23418,23417,23412,23411,23410,23403,23402,23401,23400,23399,23398,23397,23394,23374,23371,23351,23339,23337,23336,23330,23319,23318,23288,23259,23239,23237,23236,23235,23232,23226,23223,23222,23216,23215,23210,23197,23196,23191,23172,23159,23158,23157,23147,23124,23123,23095,23089,23084,23083,23080,23049,23047,23030,23028,23018,22997,22996,22984,22965,22964,22963,22962,22960,22959,22957,22956,22955,22954,22953,22952,22951,22950,22949,22948,22947,22946,22945,22939,22929,22917,22898,22896,22887,22886,22885,22884,22883,22882,22881,22880,22879,22878,22877,22875,22874,22873,22871,22869,22856,22855,22853,22849,22848,22847,22846,22845,22844,22841);
 
