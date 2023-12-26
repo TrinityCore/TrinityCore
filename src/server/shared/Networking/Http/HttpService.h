@@ -61,8 +61,9 @@ public:
 
     RequestHandlerResult HandleRequest(std::shared_ptr<AbstractSocket> session, RequestContext& context);
 
-    RequestHandlerResult HandlePathNotFound(std::shared_ptr<AbstractSocket> session, RequestContext& context);
-    RequestHandlerResult HandleUnauthorized(std::shared_ptr<AbstractSocket> session, RequestContext& context);
+    static RequestHandlerResult HandleBadRequest(std::shared_ptr<AbstractSocket> session, RequestContext& context);
+    static RequestHandlerResult HandleUnauthorized(std::shared_ptr<AbstractSocket> session, RequestContext& context);
+    static RequestHandlerResult HandlePathNotFound(std::shared_ptr<AbstractSocket> session, RequestContext& context);
 
 protected:
     void RegisterHandler(boost::beast::http::verb method, std::string_view path,
@@ -179,7 +180,6 @@ protected:
         return threads;
     }
 
-private:
     Asio::IoContext* _ioContext;
     std::string _logger;
 };
