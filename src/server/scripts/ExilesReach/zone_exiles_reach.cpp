@@ -4046,7 +4046,7 @@ CreatureAI* HuxsworthBriarpatchSelector(Creature* creature)
     {
         if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
         {
-            if ((privateObjectOwner->GetQuestStatus(59342) == QUEST_STATUS_INCOMPLETE))
+            if ((privateObjectOwner->GetQuestStatus(QUEST_TAMING_THE_WILDS_ALLIANCE) == QUEST_STATUS_INCOMPLETE))
                 return new npc_huxsworth_hunter_quest_private(creature);
         }
     }
@@ -4060,7 +4060,7 @@ CreatureAI* DawntrackerBriarpatchSelector(Creature* creature)
     {
         if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
         {
-            if ((privateObjectOwner->GetQuestStatus(59937) == QUEST_STATUS_INCOMPLETE))
+            if ((privateObjectOwner->GetQuestStatus(QUEST_TAMING_THE_WILDS_HORDE) == QUEST_STATUS_INCOMPLETE))
                 return new npc_dawntracker_hunter_quest_private(creature);
         }
     }
