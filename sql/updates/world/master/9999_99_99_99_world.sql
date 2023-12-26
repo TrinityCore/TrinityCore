@@ -35,10 +35,10 @@ CREATE PROCEDURE areatrigger_refactor() BEGIN
         DROP COLUMN `Data5`,
         DROP COLUMN `Data6`,
         DROP COLUMN `Data7`,
-        RENAME COLUMN `IsServerSide` TO `IsCustom`;
+        CHANGE COLUMN `IsServerSide` `IsCustom` tinyint unsigned NOT NULL;
 
     ALTER TABLE `areatrigger_template_actions`
-        RENAME COLUMN IsServerSide TO IsCustom;
+        CHANGE COLUMN `IsServerSide` `IsCustom` tinyint unsigned NOT NULL;
 
   END IF;
 
@@ -126,8 +126,8 @@ CREATE PROCEDURE areatrigger_refactor() BEGIN
         DROP COLUMN `ShapeData5`,
         DROP COLUMN `ShapeData6`,
         DROP COLUMN `ShapeData7`,
-        RENAME COLUMN `AreaTriggerId` TO `AreaTriggerCreatePropertiesId`,
-        RENAME COLUMN `IsServerSide` TO `IsCustom`;
+        CHANGE COLUMN `AreaTriggerId` `AreaTriggerCreatePropertiesId` int unsigned NOT NULL,
+        CHANGE COLUMN `IsServerSide` `IsCustom` tinyint unsigned NOT NULL;
 
   END IF;
 END;;
