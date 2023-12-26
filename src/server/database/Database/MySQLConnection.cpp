@@ -382,7 +382,7 @@ void MySQLConnection::CommitTransaction()
 
 int MySQLConnection::ExecuteTransaction(std::shared_ptr<TransactionBase> transaction)
 {
-    std::vector<SQLElementData> const& queries = transaction->m_queries;
+    std::vector<TransactionData> const& queries = transaction->m_queries;
     if (queries.empty())
         return -1;
 
@@ -390,35 +390,12 @@ int MySQLConnection::ExecuteTransaction(std::shared_ptr<TransactionBase> transac
 
     for (auto itr = queries.begin(); itr != queries.end(); ++itr)
     {
-        SQLElementData const& data = *itr;
-        switch (itr->type)
+        if (!std::visit([this](auto&& data) { return this->Execute(TransactionData::ToExecutable(data)); }, itr->query))
         {
-            case SQL_ELEMENT_PREPARED:
-            {
-                PreparedStatementBase* stmt = data.element.stmt;
-                ASSERT(stmt);
-                if (!Execute(stmt))
-                {
-                    TC_LOG_WARN("sql.sql", "Transaction aborted. {} queries not executed.", (uint32)queries.size());
-                    int errorCode = GetLastError();
-                    RollbackTransaction();
-                    return errorCode;
-                }
-            }
-            break;
-            case SQL_ELEMENT_RAW:
-            {
-                char const* sql = data.element.query;
-                ASSERT(sql);
-                if (!Execute(sql))
-                {
-                    TC_LOG_WARN("sql.sql", "Transaction aborted. {} queries not executed.", (uint32)queries.size());
-                    int errorCode = GetLastError();
-                    RollbackTransaction();
-                    return errorCode;
-                }
-            }
-            break;
+            TC_LOG_WARN("sql.sql", "Transaction aborted. {} queries not executed.", queries.size());
+            int errorCode = GetLastError();
+            RollbackTransaction();
+            return errorCode;
         }
     }
 
