@@ -4004,8 +4004,11 @@ struct npc_dawntracker_hunter_quest_private : public ScriptedAI
                     me->SetFacingToObject(player);
                     me->SetEmoteState(EMOTE_STATE_TALK);
                     Conversation* conversation = Conversation::CreateConversation(CONVERSATION_HORDE_TRAINER, player, *player, player->GetGUID(), nullptr, false);
-                    conversation->AddActor(CONVERSATION_HORDE_ACTOR, 0, me->GetGUID());
-                    conversation->Start();
+                    if (conversation)
+                    {
+                        conversation->AddActor(CONVERSATION_HORDE_ACTOR, 0, me->GetGUID());
+                        conversation->Start();
+                    }
                     player->CastSpell(player, SPELL_LEARNING_TAME_BEAST);
                     _events.ScheduleEvent(EVENT_ME_END_OF_CAST, 8s);
                 }
