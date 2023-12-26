@@ -71,32 +71,32 @@ INSERT INTO `quest_template_addon` (`ID`,`AllowableClasses`,`PrevQuestID`,`NextQ
 DELETE FROM `creature_text` WHERE `CreatureID` IN (38037,38245,38246,38244,38242,38247,38243,42618,63310);
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 -- Nortet "Warrior Trainer"
-(38037, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Nortet'),
-(38037, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Nortet'),
+(38037, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 37928, 0, 'Nortet'),
+(38037, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 37898, 0, 'Nortet'),
 -- Tunari "Priest Trainer"
-(38245, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Tunari'),
-(38245, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Tunari'),
+(38245, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 37928, 0, 'Tunari'),
+(38245, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 37898, 0, 'Tunari'),
 -- Seratha "Mage Trainer"
-(38246, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Seratha'),
-(38246, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Seratha'),
+(38246, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 37928, 0, 'Seratha'),
+(38246, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 37898, 0, 'Seratha'),
 -- Legati "Rogue Trainer"
-(38244, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Legati'),
-(38244, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Legati'),
+(38244, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 37928, 0, 'Legati'),
+(38244, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 37898, 0, 'Legati'),
 -- Nekali "Shaman Trainer"
-(38242, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Nekali'),
-(38242, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Nekali'),
+(38242, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 37928, 0, 'Nekali'),
+(38242, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 37898, 0, 'Nekali'),
 -- Ertezza "Hunter Trainer"
-(38247, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Ertezza'),
-(38247, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Ertezza'),
+(38247, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 37928, 0, 'Ertezza'),
+(38247, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 37898, 0, 'Ertezza'),
 -- Zentabra "Druid Trainer"
-(38243, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Zentabra'),
-(38243, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Zentabra'),
+(38243, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 37928, 0, 'Zentabra'),
+(38243, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 37898, 0, 'Zentabra'),
 -- Voldreka "Warlock Trainer"
-(42618, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Voldreka'),
-(42618, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Voldreka'),
+(42618, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 37928, 0, 'Voldreka'),
+(42618, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 37898, 0, 'Voldreka'),
 -- Zabrax "Monk Trainer"
-(63310, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 0, 0, 'Zabrax'),
-(63310, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 0, 0, 'Zabrax');
+(63310, 0, 0, 'Not bad, $n. Not bad.', 12, 0, 100, 0, 0, 0, 37928, 0, 'Zabrax'),
+(63310, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 37898, 0, 'Zabrax');
 
 -- Warrior Quest
 UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24639;

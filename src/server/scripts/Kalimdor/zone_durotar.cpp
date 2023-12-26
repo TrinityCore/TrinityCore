@@ -363,10 +363,15 @@ enum CaptiveSpitescaleScout
     EVENT_DESPAWN_OUT_OF_COMBAT   = 3,
     EVENT_CAST_FROSTBOLT          = 4,
 
+    POINT_PRISIONER_POSITION      = 0,
+
     SAY_SSEND_YOU_TO_YOUR_DEATH   = 0,
 
     SPELL_FROST_SHOCK             = 15089
 };
+
+Position const PRISIONER_POSITION_ONE = { -1142.49f, -5415.59f, 10.597655f };
+Position const PRISIONER_POSITION_TWO = { -1149.03f, -5526.18f, 8.1045685f };
 
 struct npc_captive_spitescale_scout : public ScriptedAI
 {
@@ -401,9 +406,9 @@ struct npc_captive_spitescale_scout : public ScriptedAI
             me->SetWalk(true);
 
             if (me->HasStringId("captive_spitescale_scout_one"))
-                me->GetMotionMaster()->MovePoint(0, -1142.49f, -5415.59f, 10.597655f);
+                me->GetMotionMaster()->MovePoint(POINT_PRISIONER_POSITION, PRISIONER_POSITION_ONE);
             else if (me->HasStringId("captive_spitescale_scout_two"))
-                me->GetMotionMaster()->MovePoint(0, -1149.03f, -5526.18f, 8.1045685f);
+                me->GetMotionMaster()->MovePoint(POINT_PRISIONER_POSITION, PRISIONER_POSITION_TWO);
         }
     }
 
@@ -479,6 +484,7 @@ enum ClassTrainers
     QUEST_PROVING_PIT_MONK    = 31161,
 };
 
+// Path point to proving pit fo trainers
 Position const EchoIslandTrainersPitPoints[9] =
 {
     { -1158.99f, -5421.14f, 13.218976f }, // Nortet Pit
@@ -492,6 +498,7 @@ Position const EchoIslandTrainersPitPoints[9] =
     { -1151.54f, -5429.86f, 13.29182f }   // Zabrax Pit
 };
 
+// Facing direction at pit for trainers
 float const EchoIslandTrainersPoints[9] = { 0.2094395f, 3.1764990f, 1.7278759f, 1.4835298f, 4.904375f, 3.3161256f, 0.3141593f, 4.956735f, 1.256637f };
 
 template<uint8 PitPos, uint32 QuestID>
