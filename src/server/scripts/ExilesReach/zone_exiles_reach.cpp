@@ -3805,6 +3805,315 @@ class spell_scene_linger_northbound: public SpellScript
     }
 };
 
+// ***********************************************************************
+// * Scripting in this section occurs after reaching Quilboar Briarpatch *
+// ***********************************************************************
+
+// Taming the Wild Quest
+enum TamingTheWilds
+{
+    QUEST_TAMING_THE_WILDS_ALLIANCE         = 59342,
+    QUEST_TAMING_THE_WILDS_HORDE            = 59937,
+    QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE = 55607,
+
+    QUEST_OBJECTIVE_TRAINED_ALLIANCE        = 84761,
+    QUEST_OBJECTIVE_TRAINED_HORDE           = 85021,
+    QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE    = 84759,
+    QUEST_OBJECTIVE_BEAST_TAMED_HORDE       = 85023,
+
+    SPELL_TAME_BEAST                        = 1515
+};
+
+// 59342 - Taming the Wilds
+// 59937 - Taming the Wilds
+class quest_taming_the_wilds : public QuestScript
+{
+public:
+    quest_taming_the_wilds(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view creatureString, uint32 questObjective1, uint32 questObjective2)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                if (Creature* survivor = FindCreatureIgnorePhase(player, creatureString, 5.0f))
+                    survivor->SummonPersonalClone(survivor->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+
+                // Hacks QUEST_OBJECTIVE_CRITERIA_TREE needs research
+                if (player->HasSpell(SPELL_TAME_BEAST))
+                    player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, questObjective1, 1);
+
+                if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) == QUEST_STATUS_REWARDED)
+                    player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, questObjective2, 1);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// 59342 - Taming The Wild
+class quest_taming_the_wilds_alliance : public quest_taming_the_wilds
+{
+public:
+    quest_taming_the_wilds_alliance() : quest_taming_the_wilds("quest_taming_the_wilds_alliance") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "huxworth_briarpatch", QUEST_OBJECTIVE_TRAINED_ALLIANCE, QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE);
+    }
+};
+
+// 59937 - Taming The Wild
+class quest_taming_the_wilds_horde : public quest_taming_the_wilds
+{
+public:
+    quest_taming_the_wilds_horde() : quest_taming_the_wilds("quest_taming_the_wilds_horde") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "dawntracker_briarpatch", QUEST_OBJECTIVE_TRAINED_HORDE, QUEST_OBJECTIVE_BEAST_TAMED_HORDE);
+    }
+};
+
+enum TamingTheWildsData
+{
+    CONVERSATION_HORDE_TRAINER          = 14613,
+    CONVERSATION_HORDE_ACTOR            = 76440,
+
+    EVENT_ME_TURN_TO_PLAYER             = 1,
+    EVENT_ME_END_OF_CAST                = 2,
+
+    SPELL_TUTORIAL_HEALTH_DNT           = 316840,
+    SPELL_LEARNING_TAME_BEAST           = 320852,
+    SPELL_LEARN_TAME_BEAST              = 320840,
+    SPELL_LEARN_CALL_PET                = 320842,
+    SPELL_TAME_BEAST_EFFECT             = 13481,
+
+    SAY_PET_TRAINING_ALLIANCE           = 0,
+    SAY_FIND_A_BEAST_ALLIANCE           = 1,
+    SAY_FIND_A_BEAST_HORDE              = 0
+};
+
+// 154327 - Austin Huxsworth
+struct npc_huxsworth_hunter_quest_private : public ScriptedAI
+{
+    npc_huxsworth_hunter_quest_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    void JustAppeared() override
+    {
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        _events.ScheduleEvent(EVENT_ME_TURN_TO_PLAYER, 1s);
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        Player* player = summoner->ToPlayer();
+        if (!player)
+            return;
+
+        _playerGUID = player->GetGUID();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ME_TURN_TO_PLAYER:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        me->SetFacingToObject(player);
+                        me->SetEmoteState(EMOTE_STATE_TALK);
+                        Talk(SAY_PET_TRAINING_ALLIANCE);
+                        player->CastSpell(player, SPELL_LEARNING_TAME_BEAST);
+                        _events.ScheduleEvent(EVENT_ME_END_OF_CAST, 8s);
+                    }
+                    break;
+                case EVENT_ME_END_OF_CAST:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) != QUEST_STATUS_REWARDED)
+                            player->CastSpell(player, SPELL_TUTORIAL_HEALTH_DNT);
+
+                        if (!player->HasSpell(SPELL_TAME_BEAST))
+                        {
+                            player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_TRAINED_ALLIANCE, 1);
+                            player->CastSpell(player, SPELL_LEARN_TAME_BEAST);
+                            player->CastSpell(player, SPELL_LEARN_CALL_PET);
+                        }
+
+                        me->SetEmoteState(EMOTE_STATE_NONE);
+                        Talk(SAY_FIND_A_BEAST_ALLIANCE);
+                    }
+                    me->DespawnOrUnsummon(4s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+};
+
+// 166996 - Mithdran Dawntracker
+struct npc_dawntracker_hunter_quest_private : public ScriptedAI
+{
+    npc_dawntracker_hunter_quest_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    void JustAppeared() override
+    {
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        _events.ScheduleEvent(EVENT_ME_TURN_TO_PLAYER, 1s);
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        Player* player = summoner->ToPlayer();
+        if (!player)
+            return;
+
+        _playerGUID = player->GetGUID();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ME_TURN_TO_PLAYER:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        me->SetFacingToObject(player);
+                        me->SetEmoteState(EMOTE_STATE_TALK);
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_HORDE_TRAINER, player, *player, player->GetGUID(), nullptr, false);
+                        if (conversation)
+                        {
+                            conversation->AddActor(CONVERSATION_HORDE_ACTOR, 0, me->GetGUID());
+                            conversation->Start();
+                        }
+                        player->CastSpell(player, SPELL_LEARNING_TAME_BEAST);
+                        _events.ScheduleEvent(EVENT_ME_END_OF_CAST, 8s);
+                    }
+                    break;
+                case EVENT_ME_END_OF_CAST:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) != QUEST_STATUS_REWARDED)
+                            player->CastSpell(player, SPELL_TUTORIAL_HEALTH_DNT);
+
+                        if (!player->HasSpell(SPELL_TAME_BEAST))
+                        {
+                            player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_TRAINED_HORDE, 1);
+                            player->CastSpell(player, SPELL_LEARN_TAME_BEAST);
+                            player->CastSpell(player, SPELL_LEARN_CALL_PET);
+                        }
+
+                        me->SetEmoteState(EMOTE_STATE_NONE);
+                        Talk(SAY_FIND_A_BEAST_HORDE);
+                    }
+                    me->DespawnOrUnsummon(4s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+};
+
+CreatureAI* HuxsworthBriarpatchSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+        {
+            if ((privateObjectOwner->GetQuestStatus(QUEST_TAMING_THE_WILDS_ALLIANCE) == QUEST_STATUS_INCOMPLETE))
+                return new npc_huxsworth_hunter_quest_private(creature);
+        }
+    }
+
+    return new NullCreatureAI(creature);
+};
+
+CreatureAI* DawntrackerBriarpatchSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+        {
+            if ((privateObjectOwner->GetQuestStatus(QUEST_TAMING_THE_WILDS_HORDE) == QUEST_STATUS_INCOMPLETE))
+                return new npc_dawntracker_hunter_quest_private(creature);
+        }
+    }
+
+    return new NullCreatureAI(creature);
+};
+
+// 316840 - Tutorial - Health (DNT)
+class spell_tutorial_health_dnt_proc_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TAME_BEAST_EFFECT });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->Id == SPELL_TAME_BEAST_EFFECT)
+            return true;
+        return false;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_tutorial_health_dnt_proc_aura::CheckProc);
+    }
+};
+
+// 316841 - Tutorial - Health (DNT)
+class spell_tutorial_health_dnt : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        // This shouldn't happen until tame beast spell completes
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            if (player->GetTeam() == ALLIANCE)
+                player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE, 1);
+            else
+                player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_BEAST_TAMED_HORDE, 1);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_tutorial_health_dnt::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_zone_exiles_reach()
 {
     // Ship
@@ -3873,4 +4182,11 @@ void AddSC_zone_exiles_reach()
     RegisterSpellScript(spell_summon_leader_northbound);
     RegisterAreaTriggerAI(at_northbound_linger);
     RegisterSpellScript(spell_scene_linger_northbound);
+    // Quest Taming The Wilds
+    new quest_taming_the_wilds_alliance();
+    new quest_taming_the_wilds_horde();
+    new FactoryCreatureScript<CreatureAI, &HuxsworthBriarpatchSelector>("npc_huxsworth_briarpatch");
+    new FactoryCreatureScript<CreatureAI, &DawntrackerBriarpatchSelector>("npc_dawntracker_briarpatch");
+    RegisterSpellScript(spell_tutorial_health_dnt_proc_aura);
+    RegisterSpellScript(spell_tutorial_health_dnt);
 };
