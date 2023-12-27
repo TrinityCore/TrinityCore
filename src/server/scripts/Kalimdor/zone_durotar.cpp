@@ -245,6 +245,9 @@ enum DarkspearJailor
     EVENT_PLAYER_ACCEPT_CHALLENGE = 1,
     EVENT_WALK_BACK_TO_HOME       = 2,
 
+    GOSSIP_JAILOR_EVENT_NOT_READY = 10973,
+    GOSSIP_JAILOR_EVENT_READY     = 10974,
+
     GOSSIP_EVENT_IN_PROGRESS_ID   = 10973,
     TEXT_GOSSIP_EVENT_IN_PROGRESS = 15252,
 
@@ -267,6 +270,7 @@ struct npc_darkspear_jailor : public ScriptedAI
 
     void JustAppeared() override
     {
+        me->SetGossipMenuId(GOSSIP_JAILOR_EVENT_READY);
         _facing = me->GetOrientation();
 
         if (me->HasStringId("darkspear_jailor_one"))
@@ -284,7 +288,11 @@ struct npc_darkspear_jailor : public ScriptedAI
     void SetData(uint32 /*type*/, uint32 data) override
     {
         if (data == 1)
+        {
             _eventInProgress = false;
+            me->SetGossipMenuId(GOSSIP_JAILOR_EVENT_READY);
+        }
+
     }
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
@@ -307,19 +315,9 @@ struct npc_darkspear_jailor : public ScriptedAI
         Talk(SAY_GET_IN_THE_PIT, player);
         CloseGossipMenuFor(player);
         _eventInProgress = true;
+        me->SetGossipMenuId(GOSSIP_JAILOR_EVENT_NOT_READY);
         _events.ScheduleEvent(EVENT_PLAYER_ACCEPT_CHALLENGE, 2s);
         return true;
-    }
-
-    bool OnGossipHello(Player* player) override
-    {
-        if (_eventInProgress)
-        {
-            //AddGossipItemFor(player, GOSSIP_EVENT_IN_PROGRESS_ID, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            SendGossipMenuFor(player, TEXT_GOSSIP_EVENT_IN_PROGRESS, me->GetGUID());
-            return true;
-        }
-        return false;
     }
 
     void UpdateAI(uint32 diff) override
