@@ -32,9 +32,10 @@ INSERT INTO `quest_template_addon` (`ID`,`AllowableClasses`,`PrevQuestID`,`NextQ
 (59937,4,59935,0,'quest_taming_the_wilds_horde'); -- Horde "Hunter only"
 
 -- Spell data
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (316841);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (316840, 316841);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(316841,'spell_tutorial_health_dnt');
+(316840, 'spell_tutorial_health_dnt_proc_aura'),
+(316841, 'spell_tutorial_health_dnt');
 
 -- Conversation data
 DELETE FROM `conversation_actors` WHERE `ConversationId` IN (14613);
