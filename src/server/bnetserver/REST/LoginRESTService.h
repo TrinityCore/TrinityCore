@@ -24,6 +24,18 @@
 
 namespace Battlenet
 {
+enum class SrpVersion : int8
+{
+    v1  = 1,
+    v2  = 2
+};
+
+enum class SrpHashFunction
+{
+    Sha256  = 0,
+    Sha512  = 1
+};
+
 enum class BanMode
 {
     BAN_IP = 0,
@@ -48,19 +60,24 @@ public:
     std::string const& GetHostnameForClient(boost::asio::ip::address const& address) const;
     uint16 GetPort() const { return _port; }
 
+    std::shared_ptr<Trinity::Net::Http::SessionState> CreateNewSessionState(boost::asio::ip::address const& address) override;
+
 private:
     static void OnSocketAccept(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex);
 
     static std::string ExtractAuthorization(HttpRequest const& request);
 
-    RequestHandlerResult HandleGetForm(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
-    RequestHandlerResult HandleGetGameAccounts(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
-    RequestHandlerResult HandleGetPortal(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
+    RequestHandlerResult HandleGetForm(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const;
+    static RequestHandlerResult HandleGetGameAccounts(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
+    RequestHandlerResult HandleGetPortal(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const;
 
-    RequestHandlerResult HandlePostLogin(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
-    RequestHandlerResult HandlePostRefreshLoginTicket(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
+    RequestHandlerResult HandlePostLogin(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const;
+    RequestHandlerResult HandlePostRefreshLoginTicket(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const;
 
-    static std::string CalculateShaPassHash(std::string const& name, std::string const& password);
+    static std::unique_ptr<Trinity::Crypto::SRP::BnetSRP6Base> CreateSrpImplementation(SrpVersion version, SrpHashFunction hashFunction,
+        std::string const& username, Trinity::Crypto::SRP::Salt const& salt, Trinity::Crypto::SRP::Verifier const& verifier);
+
+    void MigrateLegacyPasswordHashes() const;
 
     JSON::Login::FormInputs _formInputs;
     std::string _bindIP;

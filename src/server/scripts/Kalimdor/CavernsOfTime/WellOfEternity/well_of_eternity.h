@@ -15,8 +15,36 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "deadmines.h"
+#ifndef _Well_of_Eternity_h__
+#define _Well_of_Eternity_h__
 
-void AddSC_deadmines()
+#include "CreatureAIImpl.h"
+
+constexpr char const* DataHeader = "WOE";
+constexpr char const* WoEScriptName = "instance_well_of_eternity";
+
+constexpr uint32 const EncounterCount = 3;
+
+enum WoEDataTypes
 {
+    // Encounters
+    BOSS_PEROTHARN              = 0,
+    BOSS_QUEEN_AZSHARA          = 1,
+    BOSS_MANNOROTH              = 2
+};
+
+enum WoECreatureIds
+{
+    // Bosses
+    NPC_PEROTHARN = 55085
+};
+
+template <class AI, class T>
+inline AI* GetWellOfEnernityAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, WoEScriptName);
 }
+
+#define RegisterWellOfEternityCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetWellOfEnernityAI)
+
+#endif // _Well_of_Eternity_h__
