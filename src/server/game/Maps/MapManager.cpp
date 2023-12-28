@@ -74,12 +74,10 @@ Map* MapManager::CreateWorldMap(uint32 mapId, uint32 instanceId)
     Map* map = new Map(mapId, i_gridCleanUpDelay, instanceId, DIFFICULTY_NONE);
     map->LoadRespawnTimes();
     map->LoadCorpseData();
+    map->InitSpawnGroupState();
 
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
-    {
-        map->InitSpawnGroupState();
         map->LoadAllCells();
-    }
 
     return map;
 }
@@ -110,12 +108,10 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
 
     map->CreateInstanceData();
     map->SetInstanceScenario(sScenarioMgr->CreateInstanceScenario(map, team));
+    map->InitSpawnGroupState();
 
     if (sWorld->getBoolConfig(CONFIG_INSTANCEMAP_LOAD_GRIDS))
-    {
-        map->InitSpawnGroupState();
         map->LoadAllCells();
-    }
 
     return map;
 }
@@ -128,12 +124,10 @@ BattlegroundMap* MapManager::CreateBattleground(uint32 mapId, uint32 instanceId,
     ASSERT(map->IsBattlegroundOrArena());
     map->SetBG(bg);
     bg->SetBgMap(map);
+    map->InitSpawnGroupState();
 
     if (sWorld->getBoolConfig(CONFIG_BATTLEGROUNDMAP_LOAD_GRIDS))
-    {
-        map->InitSpawnGroupState();
         map->LoadAllCells();
-    }
 
     return map;
 }
