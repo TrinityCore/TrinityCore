@@ -1787,23 +1787,29 @@ CreatureFamilyFleeDelay = 7000
 WorldBossLevelDiff = 3
 
 #
-#    Corpse.Decay.NORMAL
-#    Corpse.Decay.RARE
-#    Corpse.Decay.ELITE
-#    Corpse.Decay.RAREELITE
-#    Corpse.Decay.WORLDBOSS
+#    Corpse.Decay.Normal
+#    Corpse.Decay.Elite
+#    Corpse.Decay.RareElite
+#    Corpse.Decay.Obsolete
+#    Corpse.Decay.Rare
+#    Corpse.Decay.Trivial
+#    Corpse.Decay.MinusMob
 #        Description: Time (in seconds) until creature corpse will decay if not looted or skinned.
-#        Default:     300  - (5 Minutes, Corpse.Decay.NORMAL)
-#                     300  - (5 Minutes, Corpse.Decay.RARE)
-#                     300  - (5 Minutes, Corpse.Decay.ELITE)
-#                     300  - (5 Minutes, Corpse.Decay.RAREELITE)
-#                     3600 - (1 Hour, Corpse.Decay.WORLDBOSS)
+#        Default:     300  - (5 Minutes,   Corpse.Decay.Normal)
+#                     300  - (5 Minutes,   Corpse.Decay.Elite)
+#                     300  - (5 Minutes,   Corpse.Decay.RareElite)
+#                     3600 - (1 Hour,      Corpse.Decay.Obsolete)
+#                     300 -  (5 Minutes,   Corpse.Decay.Rare)
+#                     300 -  (5 Minutes,   Corpse.Decay.Trivial)
+#                     150 -  (2.5 Minutes, Corpse.Decay.MinusMob)
 
-Corpse.Decay.NORMAL    = 300
-Corpse.Decay.RARE      = 300
-Corpse.Decay.ELITE     = 300
-Corpse.Decay.RAREELITE = 300
-Corpse.Decay.WORLDBOSS = 3600
+Corpse.Decay.Normal    = 300
+Corpse.Decay.Elite     = 300
+Corpse.Decay.RareElite = 300
+Corpse.Decay.Obsolete  = 3600
+Corpse.Decay.Rare      = 300
+Corpse.Decay.Trivial   = 300
+Corpse.Decay.MinusMob  = 150
 
 #
 #    Rate.Corpse.Decay.Looted
@@ -1814,62 +1820,79 @@ Corpse.Decay.WORLDBOSS = 3600
 Rate.Corpse.Decay.Looted = 0.5
 
 #
-#    Rate.Creature.Normal.Damage
-#    Rate.Creature.Elite.Elite.Damage
-#    Rate.Creature.Elite.RARE.Damage
-#    Rate.Creature.Elite.RAREELITE.Damage
-#    Rate.Creature.Elite.WORLDBOSS.Damage
+#    Rate.Creature.Damage.Normal
+#    Rate.Creature.Damage.Elite
+#    Rate.Creature.Damage.RareElite
+#    Rate.Creature.Damage.Obsolete
+#    Rate.Creature.Damage.Rare
+#    Rate.Creature.Damage.Trivial
+#    Rate.Creature.Damage.MinusMob
 #        Description: Multiplier for creature melee damage.
-#        Default:     1 - (Rate.Creature.Normal.Damage)
-#                     1 - (Rate.Creature.Elite.Elite.Damage)
-#                     1 - (Rate.Creature.Elite.RARE.Damage)
-#                     1 - (Rate.Creature.Elite.RAREELITE.Damage)
-#                     1 - (Rate.Creature.Elite.WORLDBOSS.Damage)
-#
+#        Default:     1 - (Rate.Creature.Damage.Normal)
+#                     1 - (Rate.Creature.Damage.Elite)
+#                     1 - (Rate.Creature.Damage.RareElite)
+#                     1 - (Rate.Creature.Damage.Obsolete)
+#                     1 - (Rate.Creature.Damage.Rare)
+#                     1 - (Rate.Creature.Damage.Trivial)
+#                     1 - (Rate.Creature.Damage.MinusMob)
 
-Rate.Creature.Normal.Damage          = 1
-Rate.Creature.Elite.Elite.Damage     = 1
-Rate.Creature.Elite.RARE.Damage      = 1
-Rate.Creature.Elite.RAREELITE.Damage = 1
-Rate.Creature.Elite.WORLDBOSS.Damage = 1
+Rate.Creature.Damage.Normal    = 1
+Rate.Creature.Damage.Elite     = 1
+Rate.Creature.Damage.RareElite = 1
+Rate.Creature.Damage.Obsolete  = 1
+Rate.Creature.Damage.Rare      = 1
+Rate.Creature.Damage.Trivial   = 1
+Rate.Creature.Damage.MinusMob  = 1
 
 #
-#    Rate.Creature.Normal.SpellDamage
-#    Rate.Creature.Elite.Elite.SpellDamage
-#    Rate.Creature.Elite.RARE.SpellDamage
-#    Rate.Creature.Elite.RAREELITE.SpellDamage
-#    Rate.Creature.Elite.WORLDBOSS.SpellDamage
+#    Rate.Creature.SpellDamage.Normal
+#    Rate.Creature.SpellDamage.Elite
+#    Rate.Creature.SpellDamage.RareElite
+#    Rate.Creature.SpellDamage.Obsolete
+#    Rate.Creature.SpellDamage.Rare
+#    Rate.Creature.SpellDamage.Trivial
+#    Rate.Creature.SpellDamage.MinusMob
 #        Description: Multiplier for creature spell damage.
-#        Default:     1 - (Rate.Creature.Normal.SpellDamage)
-#                     1 - (Rate.Creature.Elite.Elite.SpellDamage)
-#                     1 - (Rate.Creature.Elite.RARE.SpellDamage)
-#                     1 - (Rate.Creature.Elite.RAREELITE.SpellDamage)
-#                     1 - (Rate.Creature.Elite.WORLDBOSS.SpellDamage)
+#        Default:     1 - (Rate.Creature.SpellDamage.Normal)
+#                     1 - (Rate.Creature.SpellDamage.Elite)
+#                     1 - (Rate.Creature.SpellDamage.RareElite)
+#                     1 - (Rate.Creature.SpellDamage.Obsolete)
+#                     1 - (Rate.Creature.SpellDamage.Rare)
+#                     1 - (Rate.Creature.SpellDamage.Trivial)
+#                     1 - (Rate.Creature.SpellDamage.MinusMob)
 
-Rate.Creature.Normal.SpellDamage          = 1
-Rate.Creature.Elite.Elite.SpellDamage     = 1
-Rate.Creature.Elite.RARE.SpellDamage      = 1
-Rate.Creature.Elite.RAREELITE.SpellDamage = 1
-Rate.Creature.Elite.WORLDBOSS.SpellDamage = 1
+Rate.Creature.SpellDamage.Normal    = 1
+Rate.Creature.SpellDamage.Elite     = 1
+Rate.Creature.SpellDamage.RareElite = 1
+Rate.Creature.SpellDamage.Obsolete  = 1
+Rate.Creature.SpellDamage.Rare      = 1
+Rate.Creature.SpellDamage.Trivial   = 1
+Rate.Creature.SpellDamage.MinusMob  = 1
 
 #
-#    Rate.Creature.Normal.HP
-#    Rate.Creature.Elite.Elite.HP
-#    Rate.Creature.Elite.RARE.HP
-#    Rate.Creature.Elite.RAREELITE.HP
-#    Rate.Creature.Elite.WORLDBOSS.HP
-#        Description: Multiplier for creature health.
-#        Default:     1 - (Rate.Creature.Normal.HP)
-#                     1 - (Rate.Creature.Elite.Elite.HP)
-#                     1 - (Rate.Creature.Elite.RARE.HP)
-#                     1 - (Rate.Creature.Elite.RAREELITE.HP)
-#                     1 - (Rate.Creature.Elite.WORLDBOSS.HP)
+#    Rate.Creature.HP.Normal
+#    Rate.Creature.HP.Elite
+#    Rate.Creature.HP.RareElite
+#    Rate.Creature.HP.Obsolete
+#    Rate.Creature.HP.Rare
+#    Rate.Creature.HP.Trivial
+#    Rate.Creature.HP.MinusMob
+#        Description: Multiplier for creature spell damage.
+#        Default:     1 - (Rate.Creature.HP.Normal)
+#                     1 - (Rate.Creature.HP.Elite)
+#                     1 - (Rate.Creature.HP.RareElite)
+#                     1 - (Rate.Creature.HP.Obsolete)
+#                     1 - (Rate.Creature.HP.Rare)
+#                     1 - (Rate.Creature.HP.Trivial)
+#                     1 - (Rate.Creature.HP.MinusMob)
 
-Rate.Creature.Normal.HP          = 1
-Rate.Creature.Elite.Elite.HP     = 1
-Rate.Creature.Elite.RARE.HP      = 1
-Rate.Creature.Elite.RAREELITE.HP = 1
-Rate.Creature.Elite.WORLDBOSS.HP = 1
+Rate.Creature.HP.Normal    = 1
+Rate.Creature.HP.Elite     = 1
+Rate.Creature.HP.RareElite = 1
+Rate.Creature.HP.Obsolete  = 1
+Rate.Creature.HP.Rare      = 1
+Rate.Creature.HP.Trivial   = 1
+Rate.Creature.HP.MinusMob  = 1
 
 #
 #    Creature.PickPocketRefillDelay
