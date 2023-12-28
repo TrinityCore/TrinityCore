@@ -653,10 +653,10 @@ class TC_GAME_API World
         void SendGlobalText(char const* text, WorldSession* self);
         void SendGMText(uint32 string_id, ...);
         void SendServerMessage(ServerMessageType messageID, std::string_view stringParam = {}, Player const* player = nullptr);
-        void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
-        void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
-        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
-        void SendZoneText(uint32 zone, const char *text, WorldSession* self = nullptr, uint32 team = 0);
+        void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, Team team = TEAM_OTHER);
+        void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, Team team = TEAM_OTHER);
+        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, Team team = TEAM_OTHER);
+        void SendZoneText(uint32 zone, const char *text, WorldSession* self = nullptr, Team team = TEAM_OTHER);
 
         /// Are we in the middle of a shutdown?
         bool IsShuttingDown() const { return m_ShutdownTimer > 0; }

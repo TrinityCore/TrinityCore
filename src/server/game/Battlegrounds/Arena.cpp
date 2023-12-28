@@ -217,7 +217,7 @@ void Arena::EndBattleground(Team winner)
 
             for (auto const& i : GetPlayers())
             {
-                uint32 team = i.second.Team;
+                Team team = i.second.Team;
 
                 if (i.second.OfflineRemoveTime)
                 {

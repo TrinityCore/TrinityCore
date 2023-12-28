@@ -365,7 +365,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, WorldObject co
         case CRITERIA_DATA_TYPE_T_TEAM:
             if (!target || target->GetTypeId() != TYPEID_PLAYER)
                 return false;
-            return target->ToPlayer()->GetTeam() == Team.Team;
+            return target->ToPlayer()->GetTeam() == ::Team(Team.Team);
         case CRITERIA_DATA_TYPE_S_DRUNK:
             return Player::GetDrunkenstateByValue(source->GetDrunkValue()) >= DrunkenState(Drunk.State);
         case CRITERIA_DATA_TYPE_HOLIDAY:

@@ -703,7 +703,7 @@ void Battleground::EndBattleground(Team winner)
 
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
-        uint32 team = itr->second.Team;
+        Team team = itr->second.Team;
 
         Player* player = _GetPlayer(itr, "EndBattleground");
         if (!player)

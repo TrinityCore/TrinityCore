@@ -159,14 +159,14 @@ class OPvPCapturePointNA : public OPvPCapturePoint
 
         uint32 GetAliveGuardsCount() const;
         uint32 GetControllingFaction() const;
-        void FactionTakeOver(uint32 team); // called when a faction takes control
+        void FactionTakeOver(Team team); // called when a faction takes control
         void UpdateWyvernRoostWorldState(uint32 roost);
 
         void SetControlZoneGUID(ObjectGuid guid) { _controlZoneGUID = guid; }
     private:
         bool m_capturable;
         uint32 m_GuardsAlive;
-        uint32 m_ControllingFaction;
+        Team m_ControllingFaction;
         uint32 m_WyvernStateNorth;
         uint32 m_WyvernStateSouth;
         uint32 m_WyvernStateEast;

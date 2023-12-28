@@ -672,9 +672,9 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, Team team, bool initial)
 bool BattlegroundAV::CanActivateGO(int32 GOId, uint32 team) const
 {
     if (GOId == BG_AV_OBJECTID_MINE_N)
-         return (m_Mine_Owner[AV_NORTH_MINE] == team);
+         return (m_Mine_Owner[AV_NORTH_MINE] == Team(team));
     if (GOId == BG_AV_OBJECTID_MINE_S)
-         return (m_Mine_Owner[AV_SOUTH_MINE] == team);
+         return (m_Mine_Owner[AV_SOUTH_MINE] == Team(team));
     return true; //cause it's no mine'object it is ok if this is true
 }
 
@@ -842,7 +842,7 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
     ASSERT(GetStatus() == STATUS_IN_PROGRESS);
     BG_AV_Nodes node = GetNodeThroughObject(object);
 
-    uint32 owner = m_Nodes[node].Owner; //maybe should name it prevowner
+    Team owner = m_Nodes[node].Owner; //maybe should name it prevowner
     Team team = GetPlayerTeam(player->GetGUID());
 
     if (owner == team || m_Nodes[node].State != POINT_ASSAULTED)
