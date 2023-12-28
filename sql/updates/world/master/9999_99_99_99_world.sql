@@ -197,12 +197,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14, 14187, 15275, 0, 0, 15, 0, 128, 0, 0, 0, 0, 0, '', 'Show gossip menu 14187 text id 15275 if player is a Mage.'),
 (14, 14187, 15265, 0, 0, 15, 0, 128, 0, 0, 1, 0, 0, '', 'Show gossip menu 14187 text id 15265 if player is not a Mage.');
 
---Mage trainer
+-- Mage trainer
 DELETE FROM `gossip_menu_option` WHERE `MenuID` IN (20690,14187);
 INSERT INTO `gossip_menu_option` (`MenuID`, `GossipOptionID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextID`, `Language`, `Flags`, `ActionMenuID`, `ActionPoiID`, `GossipNpcOptionID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `SpellID`, `OverrideIconID`, `VerifiedBuild`) VALUES
-(20690, 47058,  1, 0, 'I would like to unlearn Arcane Momentum and Blink the direction I am facing.', 0, 0, 0, 0, 0, NULL, 0, 0, 'Are you sure you would like me to remove the knowledge of Arcane Momentum from your memory?', 0, NULL, NULL, 52649),
-(20690, 47057,  0, 0, 'I would like to learn the Arcane Momentum technique and be able to Blink in the direction I am moving.', 0, 0, 0, 0, 0, NULL,0, 0, 'Are you sure you would like to learn this new technique?', 0, NULL, NULL, 52649),
-(14187, 31252,  9, 0, 'I want to talk about the Arcane Momentum technique.', 0, 0, 0, 20690, 0, NULL, 0, 0, NULL, 0, NULL, NULL, 52649);
+(20690, 47058, 1, 0, 'I would like to unlearn Arcane Momentum and Blink the direction I am facing.', 0, 0, 0, 0, 0, NULL, 0, 0, 'Are you sure you would like me to remove the knowledge of Arcane Momentum from your memory?', 0, NULL, NULL, 52649),
+(20690, 47057, 0, 0, 'I would like to learn the Arcane Momentum technique and be able to Blink in the direction I am moving.', 0, 0, 0, 0, 0, NULL,0, 0, 'Are you sure you would like to learn this new technique?', 0, NULL, NULL, 52649),
+(14187, 31252, 9, 0, 'I want to talk about the Arcane Momentum technique.', 0, 0, 0, 20690, 0, NULL, 0, 0, NULL, 0, NULL, NULL, 52649);
 
 -- Condition for source Gossip menu option condition Mage trainer
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup` IN (14187,20690);
