@@ -227,3 +227,47 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (14, 14184, 15272, 0, 0, 15, 0, 1024, 0, 0, 0, 0, 0, '', 'Show gossip menu 14184 text id 15272 if player is a Druid.'),
 (14, 14184, 15265, 0, 0, 15, 0, 1024, 0, 0, 1, 0, 0, '', 'Show gossip menu 14184 text id 15265 if player is not a Druid.');
+
+-- Add gossip for Zabrax <Monk Trainer> Entry: 63310
+DELETE FROM `creature_template_gossip` WHERE `CreatureID`=63310;
+INSERT INTO `creature_template_gossip` (`CreatureID`,`MenuID`,`VerifiedBuild`) VALUES
+(63310,13865,52649);
+
+-- Zabrax <Monk Trainer> Entry: 63310
+DELETE FROM `gossip_menu` WHERE `MenuID`=13865;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(13865, 20034, 52649);
+
+-- Add gossip for Ortezza <Hunter Trainer> Entry: 38247
+DELETE FROM `creature_template_gossip` WHERE `CreatureID`=38247;
+INSERT INTO `creature_template_gossip` (`CreatureID`,`MenuID`,`VerifiedBuild`) VALUES
+(38247,14188,52649);
+
+-- Ortezza <Hunter Trainer> Entry: 38247
+DELETE FROM `gossip_menu` WHERE `MenuID`=14188;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14188, 15276, 52649),
+(14188, 15265, 52649);
+
+-- Condition for source Gossip menu condition Hunter Trainer
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14188;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(14, 14188, 15276, 0, 0, 15, 0, 4, 0, 0, 0, 0, 0, '', 'Show gossip menu 14188 text id 15276 if player is a Hunter.'),
+(14, 14188, 15265, 0, 0, 15, 0, 4, 0, 0, 1, 0, 0, '', 'Show gossip menu 14188 text id 15265 if player is not a Hunter.');
+
+-- Add gossip for Tunari <Priest Trainer> Entry: 38245
+DELETE FROM `creature_template_gossip` WHERE `CreatureID`=38245;
+INSERT INTO `creature_template_gossip` (`CreatureID`,`MenuID`,`VerifiedBuild`) VALUES
+(38245,14186,52649);
+
+-- Tunari <Priest Trainer> Entry: 38245
+DELETE FROM `gossip_menu` WHERE `MenuID`=14186;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14186, 15274, 52649),
+(14186, 15265, 52649);
+
+-- Condition for source Gossip menu condition Priest Trainer
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14186;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(14, 14186, 15274, 0, 0, 15, 0, 16, 0, 0, 0, 0, 0, '', 'Show gossip menu 14186 text id 15274 if player is a Priest.'),
+(14, 14186, 15265, 0, 0, 15, 0, 16, 0, 0, 1, 0, 0, '', 'Show gossip menu 14186 text id 15265 if player is not a Priest.');
