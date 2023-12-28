@@ -425,7 +425,7 @@ uint32 BattlegroundQueue::GetPlayersInQueue(TeamId id)
     return m_SelectionPools[id].GetPlayerCount();
 }
 
-bool BattlegroundQueue::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, uint32 side)
+bool BattlegroundQueue::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, Team side)
 {
     // set side if needed
     if (side)
@@ -701,9 +701,9 @@ bool BattlegroundQueue::CheckSkirmishForSameFaction(BattlegroundBracketId bracke
 {
     if (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() < minPlayersPerTeam && m_SelectionPools[TEAM_HORDE].GetPlayerCount() < minPlayersPerTeam)
         return false;
-    uint32 teamIndex = TEAM_ALLIANCE;
-    uint32 otherTeam = TEAM_HORDE;
-    uint32 otherTeamId = HORDE;
+    TeamId teamIndex = TEAM_ALLIANCE;
+    TeamId otherTeam = TEAM_HORDE;
+    Team otherTeamId = HORDE;
     if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() == minPlayersPerTeam)
     {
         teamIndex = TEAM_HORDE;
