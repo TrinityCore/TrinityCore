@@ -1008,7 +1008,7 @@ void BattlegroundAV::UpdateNodeWorldState(BG_AV_Nodes node)
     }
 
     if (node == BG_AV_NODES_SNOWFALL_GRAVE)
-        UpdateWorldState(AV_WS_SNOWFALL_GRAVEYARD_UNCONTROLLED, m_Nodes[node].Owner == AV_NEUTRAL_TEAM);
+        UpdateWorldState(AV_WS_SNOWFALL_GRAVEYARD_UNCONTROLLED, m_Nodes[node].Owner == TEAM_OTHER);
 }
 
 void BattlegroundAV::SendMineWorldStates(uint32 mine)
