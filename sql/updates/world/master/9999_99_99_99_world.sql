@@ -210,3 +210,20 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (15, 14187, 9, 0, 0, 15, 0, 128, 0, 0, 0, 0, 0, '', 'Show gossip menu 14187 option id 9 if player is a Mage.'),
 (15, 20690, 0, 0, 0, 25, 0, 56384, 0, 0, 1, 0, 0, '', 'Show gossip menu 20690 option id 0 if target does not have aura Arcane Momentum (effect 0).'),
 (15, 20690, 1, 0, 0, 25, 0, 56384, 0, 0, 0, 0, 0, '', 'Show gossip menu 20690 option id 1 if target has aura Arcane Momentum (effect 0).');
+
+-- Add gossip for Zen'tabra <Druid Trainer> Entry: 38243
+DELETE FROM `creature_template_gossip` WHERE `CreatureID`=38243;
+INSERT INTO `creature_template_gossip` (`CreatureID`,`MenuID`,`VerifiedBuild`) VALUES
+(38243,14184,52649);
+
+-- Zen'tabra <Druid Trainer> Entry: 38243
+DELETE FROM `gossip_menu` WHERE `MenuID`=14184;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14184, 15272, 52649),
+(14184, 15265, 52649);
+
+-- Condition for source Gossip menu condition Druid Trainer
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14184;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(14, 14184, 15272, 0, 0, 15, 0, 1024, 0, 0, 0, 0, 0, '', 'Show gossip menu 14184 text id 15272 if player is a Druid.'),
+(14, 14184, 15265, 0, 0, 15, 0, 1024, 0, 0, 1, 0, 0, '', 'Show gossip menu 14184 text id 15265 if player is not a Druid.');
