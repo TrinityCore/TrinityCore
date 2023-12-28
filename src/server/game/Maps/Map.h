@@ -714,6 +714,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void AddFarSpellCallback(FarSpellCallback&& callback);
 
         void UpdateSpawnGroupConditions();
+        void InitSpawnGroupState();
 
     private:
         // Type specific code for add/remove to/from grid

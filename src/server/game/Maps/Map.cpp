@@ -2487,6 +2487,22 @@ void Map::UpdateSpawnGroupConditions()
     }
 }
 
+void Map::InitSpawnGroupState()
+{
+    std::vector<uint32> const* spawnGroups = sObjectMgr->GetSpawnGroupsForMap(GetId());
+    if (!spawnGroups)
+        return;
+
+    for (uint32 spawnGroupId : *spawnGroups)
+    {
+        bool shouldBeActive = sConditionMgr->IsMapMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPAWN_GROUP, spawnGroupId, this);
+        if (shouldBeActive)
+            SetSpawnGroupActive(spawnGroupId, true);
+        else
+            SetSpawnGroupInactive(spawnGroupId);
+    }
+}
+
 ObjectGuidGenerator& Map::GetGuidSequenceGenerator(HighGuid high)
 {
     auto itr = _guidGenerators.find(high);
