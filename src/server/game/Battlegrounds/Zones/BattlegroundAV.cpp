@@ -918,7 +918,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     {
         if (object == BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE) //initial capping
         {
-            if (!(owner == AV_NEUTRAL_TEAM && m_Nodes[node].TotalOwner == AV_NEUTRAL_TEAM))
+            if (!(owner == TEAM_OTHER && m_Nodes[node].TotalOwner == AV_NEUTRAL_TEAM))
                 return;
 
             if (team == ALLIANCE)
@@ -959,7 +959,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     //if snowfall gots capped it can be handled like all other graveyards
     if (m_Nodes[node].TotalOwner != AV_NEUTRAL_TEAM)
     {
-        ASSERT(m_Nodes[node].Owner != AV_NEUTRAL_TEAM);
+        ASSERT(m_Nodes[node].Owner != TEAM_OTHER);
         if (team == ALLIANCE)
             SpawnBGObject(object-22, RESPAWN_IMMEDIATELY);
         else
