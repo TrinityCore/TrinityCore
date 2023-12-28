@@ -427,7 +427,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.speed_walk             = fields[12].GetFloat();
     creatureTemplate.speed_run              = fields[13].GetFloat();
     creatureTemplate.scale                  = fields[14].GetFloat();
-    creatureTemplate.rank                   = uint32(fields[15].GetUInt8());
+    creatureTemplate.Classification         = CreatureClassifications(fields[15].GetUInt8());
     creatureTemplate.dmgschool              = uint32(fields[16].GetInt8());
     creatureTemplate.BaseAttackTime         = fields[17].GetUInt32();
     creatureTemplate.RangeAttackTime        = fields[18].GetUInt32();
@@ -973,7 +973,7 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
             CreatureStaticFlags6(fields[23].GetUInt32()), CreatureStaticFlags7(fields[24].GetUInt32()),  CreatureStaticFlags8(fields[25].GetUInt32()));
 
         // TODO: Check if this still applies
-        creatureDifficulty.DamageModifier *= Creature::_GetDamageMod(itr->second.rank);
+        creatureDifficulty.DamageModifier *= Creature::GetDamageMod(itr->second.Classification);
 
         if (creatureDifficulty.HealthScalingExpansion < EXPANSION_LEVEL_CURRENT || creatureDifficulty.HealthScalingExpansion >= MAX_EXPANSIONS)
         {
