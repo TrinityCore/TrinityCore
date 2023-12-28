@@ -458,28 +458,36 @@ private:
 
 enum ClassTrainers
 {
-    EVENT_MOVE_PIT            = 1,
-    EVENT_MOVE_HOME           = 2,
+    EVENT_MOVE_PIT                 = 1,
+    EVENT_MOVE_HOME                = 2,
 
-    NPC_TRAINER_NORTET        = 38037, // Warrior Trainer
-    NPC_TRAINER_TUNARI        = 38245, // Priest Trainer
-    NPC_TRAINER_SERATHA       = 38246, // Mage Trainer
-    NPC_TRAINER_LEGATI        = 38244, // Rogue Trainer
-    NPC_TRAINER_NEKALI        = 38242, // Shaman Trainer
-    NPC_TRAINER_ERTEZZA       = 38247, // Hunter Trainer
-    NPC_TRAINER_ZENTABRA      = 38243, // Druid Trainer
-    NPC_TRAINER_VOLDREKA      = 42618, // Warlock Trainer
-    NPC_TRAINER_ZABRAX        = 63310, // Monk Trainer
+    GOSSIP_ARCANE_MOMENTUN         = 20690,
 
-    QUEST_PROVING_PIT_WARRIOR = 24642,
-    QUEST_PROVING_PIT_PRIEST  = 24786,
-    QUEST_PROVING_PIT_MAGE    = 24754,
-    QUEST_PROVING_PIT_ROGUE   = 24774,
-    QUEST_PROVING_PIT_SHAMAN  = 24762,
-    QUEST_PROVING_PIT_HUNTER  = 24780,
-    QUEST_PROVING_PIT_DRUID   = 24768,
-    QUEST_PROVING_PIT_WARLOCK = 26276,
-    QUEST_PROVING_PIT_MONK    = 31161,
+    GOSSIP_OPTION_TRAIN_MOMENTUM   = 0,
+    GOSSIP_OPTION_UNTRAIN_MOMENTUM = 1,
+
+    NPC_TRAINER_NORTET             = 38037, // Warrior Trainer
+    NPC_TRAINER_TUNARI             = 38245, // Priest Trainer
+    NPC_TRAINER_SERATHA            = 38246, // Mage Trainer
+    NPC_TRAINER_LEGATI             = 38244, // Rogue Trainer
+    NPC_TRAINER_NEKALI             = 38242, // Shaman Trainer
+    NPC_TRAINER_ERTEZZA            = 38247, // Hunter Trainer
+    NPC_TRAINER_ZENTABRA           = 38243, // Druid Trainer
+    NPC_TRAINER_VOLDREKA           = 42618, // Warlock Trainer
+    NPC_TRAINER_ZABRAX             = 63310, // Monk Trainer
+
+    QUEST_PROVING_PIT_WARRIOR      = 24642,
+    QUEST_PROVING_PIT_PRIEST       = 24786,
+    QUEST_PROVING_PIT_MAGE         = 24754,
+    QUEST_PROVING_PIT_ROGUE        = 24774,
+    QUEST_PROVING_PIT_SHAMAN       = 24762,
+    QUEST_PROVING_PIT_HUNTER       = 24780,
+    QUEST_PROVING_PIT_DRUID        = 24768,
+    QUEST_PROVING_PIT_WARLOCK      = 26276,
+    QUEST_PROVING_PIT_MONK         = 31161,
+
+    SPELL_LEARN_ARCANE_MOMENTUM    = 232062,
+    SPELL_UNLEARN_ARCANE_MOMENTUM  = 232063
 };
 
 // Path point to proving pit fo trainers
@@ -540,6 +548,29 @@ struct npc_echo_isles_class_trainer : public ScriptedAI
     {
         if (quest->GetQuestId() == QuestID)
             _events.RescheduleEvent(EVENT_MOVE_HOME, 60s);
+    }
+
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    {
+        // Use by Mage
+        if (menuId == GOSSIP_ARCANE_MOMENTUN)
+        {
+            CloseGossipMenuFor(player);
+
+            switch (gossipListId)
+            {
+                case GOSSIP_OPTION_TRAIN_MOMENTUM:
+                    player->CastSpell(player, SPELL_LEARN_ARCANE_MOMENTUM);
+                    break;
+                case GOSSIP_OPTION_UNTRAIN_MOMENTUM:
+                    player->CastSpell(player, SPELL_UNLEARN_ARCANE_MOMENTUM);
+                    break;
+                default:
+                    break;
+            }
+            return true;
+        }
+        return false;
     }
 
     void UpdateAI(uint32 diff) override

@@ -171,3 +171,42 @@ INSERT INTO `gossip_menu` (`MenuID`,`TextID`,`VerifiedBuild`) VALUES
 DELETE FROM `creature_template_movement` WHERE `CreatureId`= 39062;
 INSERT INTO `creature_template_movement` (`CreatureId`,`Ground`,`Swim`,`Flight`,`Rooted`,`Chase`,`Random`,`InteractionPauseTimer`) VALUES
 (39062,1,0,0,0,0,0,0);
+
+-- Nortet Warrior trainer Entry: 38037
+DELETE FROM `gossip_menu` WHERE `MenuID`=14182;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14182, 15257, 52649),
+(14182, 15265, 52649);
+
+-- Condition for source Gossip menu condition Warrior trainer
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14182;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(14, 14182, 15257, 0, 0, 15, 0, 1, 0, 0, 0, 0, 0, '', 'Show gossip menu 14182 text id 15257 if player is a Warrior.'),
+(14, 14182, 15265, 0, 0, 15, 0, 1, 0, 0, 1, 0, 0, '', 'Show gossip menu 14182 text id 15265 if player is not a Warrior.');
+
+-- Seratha Mage trainer Entry: 38246
+UPDATE `creature_template_gossip` SET `MenuID`=14187,`VerifiedBuild`=52649 WHERE `CreatureID`=38246;
+DELETE FROM `gossip_menu` WHERE `MenuID`=14187;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14187, 15275, 52649),
+(14187, 15265, 52649);
+
+-- Condition for source Gossip menu condition Mage trainer
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14187;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(14, 14187, 15275, 0, 0, 15, 0, 128, 0, 0, 0, 0, 0, '', 'Show gossip menu 14187 text id 15275 if player is a Mage.'),
+(14, 14187, 15265, 0, 0, 15, 0, 128, 0, 0, 1, 0, 0, '', 'Show gossip menu 14187 text id 15265 if player is not a Mage.');
+
+--Mage trainer
+DELETE FROM `gossip_menu_option` WHERE `MenuID` IN (20690,14187);
+INSERT INTO `gossip_menu_option` (`MenuID`, `GossipOptionID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextID`, `Language`, `Flags`, `ActionMenuID`, `ActionPoiID`, `GossipNpcOptionID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `SpellID`, `OverrideIconID`, `VerifiedBuild`) VALUES
+(20690, 47058,  1, 0, 'I would like to unlearn Arcane Momentum and Blink the direction I am facing.', 0, 0, 0, 0, 0, NULL, 0, 0, 'Are you sure you would like me to remove the knowledge of Arcane Momentum from your memory?', 0, NULL, NULL, 52649),
+(20690, 47057,  0, 0, 'I would like to learn the Arcane Momentum technique and be able to Blink in the direction I am moving.', 0, 0, 0, 0, 0, NULL,0, 0, 'Are you sure you would like to learn this new technique?', 0, NULL, NULL, 52649),
+(14187, 31252,  9, 0, 'I want to talk about the Arcane Momentum technique.', 0, 0, 0, 20690, 0, NULL, 0, 0, NULL, 0, NULL, NULL, 52649);
+
+-- Condition for source Gossip menu option condition Mage trainer
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup` IN (14187,20690);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(15, 14187, 9, 0, 0, 15, 0, 128, 0, 0, 0, 0, 0, '', 'Show gossip menu 14187 option id 9 if player is a Mage.'),
+(15, 20690, 0, 0, 0, 25, 0, 56384, 0, 0, 1, 0, 0, '', 'Show gossip menu 20690 option id 0 if target does not have aura Arcane Momentum (effect 0).'),
+(15, 20690, 1, 0, 0, 25, 0, 56384, 0, 0, 0, 0, 0, '', 'Show gossip menu 20690 option id 1 if target has aura Arcane Momentum (effect 0).');
