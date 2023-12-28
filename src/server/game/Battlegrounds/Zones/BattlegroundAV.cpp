@@ -800,7 +800,7 @@ uint32 BattlegroundAV::GetObjectThroughNode(BG_AV_Nodes node)
                 return node+29;
         }
     }
-    else if (m_Nodes[node].Owner == AV_NEUTRAL_TEAM)
+    else if (m_Nodes[node].Owner == TEAM_OTHER)
         return BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE;
     TC_LOG_ERROR("bg.battleground", "BattlegroundAV: Error! GetPlaceNode couldn't resolve node {}", node);
     ABORT();
