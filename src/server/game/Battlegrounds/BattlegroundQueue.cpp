@@ -715,7 +715,7 @@ bool BattlegroundQueue::CheckSkirmishForSameFaction(BattlegroundBracketId bracke
     //store last ginfo pointer
     GroupQueueInfo* ginfo = m_SelectionPools[teamIndex].SelectedGroups.back();
     //set itr_team to group that was added to selection pool latest
-    GroupsQueueType::iterator itr_team = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].begin();
+    GroupsQueueType::iterator itr_team = m_QueuedGroups[bracket_id][uint8(BG_QUEUE_NORMAL_ALLIANCE) + uint8(teamIndex)].begin();
     for (; itr_team != m_QueuedGroups[bracket_id][uint8(BG_QUEUE_NORMAL_ALLIANCE) + uint8(teamIndex)].end(); ++itr_team)
         if (ginfo == *itr_team)
             break;
