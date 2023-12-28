@@ -158,7 +158,7 @@ class OPvPCapturePointNA : public OPvPCapturePoint
         int32 HandleOpenGo(Player* player, GameObject* go) override;
 
         uint32 GetAliveGuardsCount() const;
-        uint32 GetControllingFaction() const;
+        Team GetControllingFaction() const;
         void FactionTakeOver(Team team); // called when a faction takes control
         void UpdateWyvernRoostWorldState(uint32 roost);
 

@@ -164,7 +164,7 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount() const
     return std::count_if(guards.begin(), guards.end(), [](WorldObject* guard) { return guard->IsUnit() && guard->ToUnit()->IsAlive(); });
 }
 
-uint32 OPvPCapturePointNA::GetControllingFaction() const
+Team OPvPCapturePointNA::GetControllingFaction() const
 {
     return m_ControllingFaction;
 }
