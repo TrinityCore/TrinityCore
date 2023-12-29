@@ -2877,7 +2877,7 @@ void World::ForceGameEventUpdate()
 }
 
 /// Send a packet to all players (except self if mentioned)
-void World::SendGlobalMessage(WorldPacket const* packet, WorldSession* self, uint32 team)
+void World::SendGlobalMessage(WorldPacket const* packet, WorldSession* self, Optional<Team> team)
 {
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2886,7 +2886,7 @@ void World::SendGlobalMessage(WorldPacket const* packet, WorldSession* self, uin
             itr->second->GetPlayer() &&
             itr->second->GetPlayer()->IsInWorld() &&
             itr->second != self &&
-            (team == 0 || itr->second->GetPlayer()->GetTeam() == team))
+            (!team || itr->second->GetPlayer()->GetTeam() == team))
         {
             itr->second->SendPacket(packet);
         }
@@ -2894,7 +2894,7 @@ void World::SendGlobalMessage(WorldPacket const* packet, WorldSession* self, uin
 }
 
 /// Send a packet to all GMs (except self if mentioned)
-void World::SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self, uint32 team)
+void World::SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self, Optional<Team> team)
 {
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
@@ -3039,7 +3039,7 @@ void World::SendGlobalText(char const* text, WorldSession* self)
 }
 
 /// Send a packet to all players (or players selected team) in the zone (except self if mentioned)
-bool World::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self, uint32 team)
+bool World::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self, Optional<Team> team)
 {
     bool foundPlayerToSend = false;
     SessionMap::const_iterator itr;
@@ -3051,7 +3051,7 @@ bool World::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession
             itr->second->GetPlayer()->IsInWorld() &&
             itr->second->GetPlayer()->GetZoneId() == zone &&
             itr->second != self &&
-            (team == 0 || itr->second->GetPlayer()->GetTeam() == team))
+            (!team || itr->second->GetPlayer()->GetTeam() == team))
         {
             itr->second->SendPacket(packet);
             foundPlayerToSend = true;
@@ -3062,7 +3062,7 @@ bool World::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession
 }
 
 /// Send a System Message to all players in the zone (except self if mentioned)
-void World::SendZoneText(uint32 zone, char const* text, WorldSession* self, uint32 team)
+void World::SendZoneText(uint32 zone, char const* text, WorldSession* self, Optional<Team> team)
 {
     WorldPackets::Chat::Chat packet;
     packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, text);
