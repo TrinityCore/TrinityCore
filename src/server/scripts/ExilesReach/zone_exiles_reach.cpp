@@ -3967,6 +3967,95 @@ private:
     ObjectGuid _playerGUID;
 };
 
+enum HuxsworthBriarpatch
+{
+    CONVERSATION_BRIARPATCH_ALLIANCE        = 12073,
+
+    CONVERSATION_ACTOR_GARRICK_BRIARPATCH   = 71326,
+    CONVERSATION_ACTOR_HUXSWORTH_BRIARPATCH = 71327,
+
+    EVENT_HUXSWORTH_GARRICK_CONVERSATION    = 1,
+    EVENT_HUXSWORTH_GARRICK_RUN_BRIARPATCH  = 2,
+};
+
+// 154327 - Austin Huxsworth
+struct npc_huxsworth_briarpatch_quest_private : public ScriptedAI
+{
+    npc_huxsworth_briarpatch_quest_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    void JustAppeared() override
+    {
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        if (Creature* garrick = ObjectAccessor::GetCreature(*me, _garrickGUID))
+            garrick->SetStandState(UNIT_STAND_STATE_STAND);
+
+        _events.ScheduleEvent(EVENT_HUXSWORTH_GARRICK_CONVERSATION, 2s);
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        Player* player = summoner->ToPlayer();
+        if (!player)
+            return;
+
+        _playerGUID = player->GetGUID();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_HUXSWORTH_GARRICK_CONVERSATION:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_BRIARPATCH_ALLIANCE, player, *player, player->GetGUID(), nullptr, false);
+                        if (!conversation)
+                            break;
+
+                        conversation->AddActor(CONVERSATION_ACTOR_GARRICK_BRIARPATCH, 0, _garrickGUID);
+                        conversation->AddActor(CONVERSATION_ACTOR_HUXSWORTH_BRIARPATCH, 1, me->GetGUID());
+                        conversation->Start();
+                        _events.ScheduleEvent(EVENT_HUXSWORTH_GARRICK_RUN_BRIARPATCH, 13s);
+                    }
+                    break;
+                }
+                case EVENT_HUXSWORTH_GARRICK_RUN_BRIARPATCH:
+                    if (Creature* garrick = ObjectAccessor::GetCreature(*me, _garrickGUID))
+                    {
+                        garrick->GetMotionMaster()->MovePoint(0, -112.92383f, -2640.541f, 52.35042f);
+                        garrick->DespawnOrUnsummon(3s);
+                    }
+                    me->GetMotionMaster()->MovePoint(0, -112.61979f, -2645.9775f, 52.22835f);
+                    me->DespawnOrUnsummon(3s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+public:
+    void SetGarrickGUID(ObjectGuid garrickGUID)
+    {
+        _garrickGUID = garrickGUID;
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+    ObjectGuid _garrickGUID;
+};
+
 // 166996 - Mithdran Dawntracker
 struct npc_dawntracker_hunter_quest_private : public ScriptedAI
 {
@@ -4044,6 +4133,95 @@ private:
     ObjectGuid _playerGUID;
 };
 
+enum DawntrackerBriarpatch
+{
+    CONVERSATION_BRIARPATCH_HORDE               = 14513,
+
+    CONVERSATION_ACTOR_GRIMAXE_BRIARPATCH       = 76330,
+    CONVERSATION_ACTOR_DAWNTRACKER_BRIARPATCH   = 76331,
+
+    EVENT_DAWNTRACKER_GRIMAXE_CONVERSATION      = 1,
+    EVENT_DAWNTRACKER_GRIMAXE_RUN_BRIARPATCH    = 2,
+};
+
+// 166996 - Mithdran Dawntracker
+struct npc_dawntracker_briarpatch_quest_private : public ScriptedAI
+{
+    npc_dawntracker_briarpatch_quest_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    void JustAppeared() override
+    {
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        if (Creature* grimaxe = ObjectAccessor::GetCreature(*me, _grimaxeGUID))
+            grimaxe->SetStandState(UNIT_STAND_STATE_STAND);
+
+        _events.ScheduleEvent(EVENT_DAWNTRACKER_GRIMAXE_CONVERSATION, 2s);
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        Player* player = summoner->ToPlayer();
+        if (!player)
+            return;
+
+        _playerGUID = player->GetGUID();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_DAWNTRACKER_GRIMAXE_CONVERSATION:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_BRIARPATCH_HORDE, player, *player, player->GetGUID(), nullptr, false);
+                        if (!conversation)
+                            break;
+
+                        conversation->AddActor(CONVERSATION_ACTOR_GRIMAXE_BRIARPATCH, 0, _grimaxeGUID);
+                        conversation->AddActor(CONVERSATION_ACTOR_DAWNTRACKER_BRIARPATCH, 1, me->GetGUID());
+                        conversation->Start();
+                        _events.ScheduleEvent(EVENT_HUXSWORTH_GARRICK_RUN_BRIARPATCH, 13s);
+                    }
+                    break;
+                }
+                case EVENT_DAWNTRACKER_GRIMAXE_RUN_BRIARPATCH:
+                    if (Creature* grimaxe = ObjectAccessor::GetCreature(*me, _grimaxeGUID))
+                    {
+                        grimaxe->GetMotionMaster()->MovePoint(0, -112.92383f, -2640.541f, 52.35042f);
+                        grimaxe->DespawnOrUnsummon(2s);
+                    }
+                    me->GetMotionMaster()->MovePoint(0, -112.61979f, -2645.9775f, 52.22835f);
+                    me->DespawnOrUnsummon(2s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+public:
+    void SetGrimaxeGUID(ObjectGuid grimaxeGUID)
+    {
+        _grimaxeGUID = grimaxeGUID;
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+    ObjectGuid _grimaxeGUID;
+};
+
 CreatureAI* HuxsworthBriarpatchSelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
@@ -4052,9 +4230,10 @@ CreatureAI* HuxsworthBriarpatchSelector(Creature* creature)
         {
             if ((privateObjectOwner->GetQuestStatus(QUEST_TAMING_THE_WILDS_ALLIANCE) == QUEST_STATUS_INCOMPLETE))
                 return new npc_huxsworth_hunter_quest_private(creature);
+            else
+                return new npc_huxsworth_briarpatch_quest_private(creature);
         }
     }
-
     return new NullCreatureAI(creature);
 };
 
@@ -4066,9 +4245,10 @@ CreatureAI* DawntrackerBriarpatchSelector(Creature* creature)
         {
             if ((privateObjectOwner->GetQuestStatus(QUEST_TAMING_THE_WILDS_HORDE) == QUEST_STATUS_INCOMPLETE))
                 return new npc_dawntracker_hunter_quest_private(creature);
+            else
+                return new npc_dawntracker_briarpatch_quest_private(creature);
         }
     }
-
     return new NullCreatureAI(creature);
 };
 
@@ -4111,6 +4291,617 @@ class spell_tutorial_health_dnt : public SpellScript
     void Register() override
     {
         OnEffectHit += SpellEffectFn(spell_tutorial_health_dnt::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum QuilboarQuest
+{
+    AREA_BRIARPATCH                                  = 10503,
+
+    QUEST_DOWN_WITH_THE_QUILBOAR_ALLIANCE            = 55186,
+    QUEST_FORBIDDON_QUILBOAR_NECROMANY_ALLIANCE      = 55184,
+    QUEST_DOWN_WITH_THE_QUILBOAR_HORDE               = 59938,
+    QUEST_FORBIDDON_QUILBOAR_NECROMANY_HORDE         = 59939,
+
+    SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_ALLIANCE = 298984,
+    SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_HORDE    = 325309
+};
+
+// 55186 - Quest Down with the Quilboar & 55184 - Forbidden Quilboar Necromancy "Alliance"
+// 59938 - Quest Down with the Quilboar & 59939 - Forbidden Quilboar Necromancy "Horde"
+class quest_briarpatch : public QuestScript
+{
+public:
+    quest_briarpatch(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, uint32 questDown, uint32 questForbiddon, uint32 spellValidated)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                if ((player->GetQuestStatus(questDown) != QUEST_STATUS_NONE) && (player->GetQuestStatus(questForbiddon) != QUEST_STATUS_NONE))
+                {
+                    player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                    player->CastSpell(player, spellValidated);
+                }
+                break;
+            case QUEST_STATUS_NONE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// 55186 - Quest Down with the Quilboar & 55184 - Forbidden Quilboar Necromancy "Alliance"
+class quest_briarpatch_alliance : public quest_briarpatch
+{
+public:
+    quest_briarpatch_alliance() : quest_briarpatch("quest_briarpatch_alliance") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, QUEST_DOWN_WITH_THE_QUILBOAR_ALLIANCE, QUEST_FORBIDDON_QUILBOAR_NECROMANY_ALLIANCE, SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_ALLIANCE);
+    }
+};
+
+// 59938 - Quest Down with the Quilboar & 59939 - Forbidden Quilboar Necromancy "Horde"
+class quest_briarpatch_horde : public quest_briarpatch
+{
+public:
+    quest_briarpatch_horde() : quest_briarpatch("quest_briarpatch_horde") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, QUEST_DOWN_WITH_THE_QUILBOAR_HORDE, QUEST_FORBIDDON_QUILBOAR_NECROMANY_HORDE, SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_HORDE);
+    }
+};
+
+// 298984 - Validated Quest Accept
+class spell_validated_quest_accept_briarpatch_alliance : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            Creature* huxsworth = FindCreatureIgnorePhase(player, "huxworth_briarpatch", 10.0f);
+            Creature* garrick = FindCreatureIgnorePhase(player, "garrick_briarpatch", 10.0f);
+            if (!huxsworth || !garrick)
+                return;
+
+            Creature* huxsworthPersonal = huxsworth->SummonPersonalClone(huxsworth->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            Creature* garrickPersonal = garrick->SummonPersonalClone(garrick->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            if (!huxsworthPersonal || !garrickPersonal)
+                return;
+
+            if (npc_huxsworth_briarpatch_quest_private* personalAI = CAST_AI(npc_huxsworth_briarpatch_quest_private, huxsworthPersonal->AI()))
+            {
+                personalAI->SetGarrickGUID(garrickPersonal->GetGUID());
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_validated_quest_accept_briarpatch_alliance::HandleScript, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+    }
+};
+
+// 325309 - Validated Quest Accept
+class spell_validated_quest_accept_briarpatch_horde : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            Creature* dawntracker = FindCreatureIgnorePhase(player, "dawntracker_briarpatch", 10.0f);
+            Creature* grimaxe = FindCreatureIgnorePhase(player, "grimaxe_briarpatch", 10.0f);
+            if (!dawntracker || !grimaxe)
+                return;
+
+            Creature* dawntrackerPersonal = dawntracker->SummonPersonalClone(dawntracker->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            Creature* grimaxePersonal = grimaxe->SummonPersonalClone(grimaxe->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            if (!dawntrackerPersonal || !grimaxePersonal)
+                return;
+
+            if (npc_dawntracker_briarpatch_quest_private* personalAI = CAST_AI(npc_dawntracker_briarpatch_quest_private, dawntrackerPersonal->AI()))
+            {
+                personalAI->SetGrimaxeGUID(grimaxePersonal->GetGUID());
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_validated_quest_accept_briarpatch_horde::HandleScript, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+    }
+};
+
+enum Geolord
+{
+    CONVERSATION_GEOLORD_AGGRO = 13712,
+
+    CONVERSATION_ACTOR_GEOLORD = 70670,
+    CONVERSATION_ACTOR_LINDIE  = 71238,
+    CONVERSATION_ACTOR_CORK    = 75976,
+
+    EVENT_CAST_EARTH_BOLT      = 1,
+    EVENT_CAST_UPHEAVAL        = 2,
+     
+    NPC_CORK_FIZZLEPOP         = 167008,
+    NPC_LINDIE_SPRINGSTOCK     = 154301,
+
+    SPELL_NECROTIC_RITUAL_DNT  = 305513,
+    SPELL_EARTH_BOLT           = 270453,
+    SPELL_UPHEAVAL             = 319273
+};
+
+// This script is used by Geolord Grek'og for Down with the Quilboar quest
+struct npc_geolord_grekog : public ScriptedAI
+{
+    npc_geolord_grekog(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        uint32 _entry = NPC_LINDIE_SPRINGSTOCK;
+        std::string_view creatureString = "briarpatch_bunny_alliance";
+
+        if (me->GetInstanceId())
+        {
+            _entry = NPC_CORK_FIZZLEPOP;
+            creatureString = "Briarpatch_bunny_horde";
+        }
+
+        Creature* bunny = FindCreatureIgnorePhase(me, creatureString, 25.0f);
+
+        if (!bunny)
+            return;
+
+        Creature* prisoner = bunny->SummonCreature(_entry, 16.4271f, -2511.82f, 78.8215f, 5.66398f, TEMPSUMMON_MANUAL_DESPAWN);
+        _prisonerGUID = prisoner->GetGUID();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* prisoner = ObjectAccessor::GetCreature(*me, _prisonerGUID))
+            prisoner->AI()->SetData(1, 1);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        if (Player* player = who->ToPlayer())
+        {
+            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_GEOLORD_AGGRO, player, *player, player->GetGUID(), nullptr, false);
+
+            if (!conversation)
+                return;
+
+            conversation->AddActor(CONVERSATION_ACTOR_GEOLORD, 0, me->GetGUID());
+            conversation->AddActor(CONVERSATION_ACTOR_LINDIE, 1, ObjectGuid::Empty);
+            conversation->AddActor(CONVERSATION_ACTOR_CORK, 2, ObjectGuid::Empty);
+            conversation->Start();
+
+            _events.ScheduleEvent(EVENT_CAST_EARTH_BOLT, 3s, 5s);
+            _events.ScheduleEvent(EVENT_CAST_UPHEAVAL, 10s, 15s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CAST_EARTH_BOLT:
+                {
+                    DoCastVictim(SPELL_EARTH_BOLT);
+                    _events.ScheduleEvent(EVENT_CAST_EARTH_BOLT, 10s, 12s);
+                    break;
+                }
+                case EVENT_CAST_UPHEAVAL:
+                {
+                    DoCastSelf(SPELL_UPHEAVAL);
+                    _events.ScheduleEvent(EVENT_CAST_UPHEAVAL, 10s, 15s);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    ObjectGuid _prisonerGUID;
+};
+
+enum BriarpatchPrisoner
+{
+    EVENT_RUN_TO_PLAINS = 1,
+
+    SAY_GET_OUT_OF_HERE = 0
+};
+
+// This script is used by Cork Fizzlepop and Lindie Springstock for Down with the Quilboar quest
+struct npc_briarpatch_prisoner : public ScriptedAI
+{
+    npc_briarpatch_prisoner(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->SetDisableGravity(true);
+        me->SetTemplateRooted(true);
+        me->CastSpell(me, SPELL_NECROTIC_RITUAL_DNT);
+    }
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        if (data == 1)
+        {
+            Position jumpto = { 19.5174f, -2513.75f, 74.0545f, me->GetOrientation() };
+            me->RemoveAllAuras();
+            me->SetDisableGravity(false);
+            me->SetTemplateRooted(false);
+            me->GetMotionMaster()->MoveJump(jumpto, 7.9894905f, 19.29110336303710937f);
+            Talk(SAY_GET_OUT_OF_HERE);
+            _events.ScheduleEvent(EVENT_RUN_TO_PLAINS, 4s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case EVENT_RUN_TO_PLAINS:
+                me->GetMotionMaster()->MovePoint(0, 51.005207f, -2485.644f, 78.15223f);
+                me->DespawnOrUnsummon(5s);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+enum OgreOverseerQuilboarText
+{
+    SAY_AGGRO = 0,
+    SAY_DEATH = 1,
+};
+
+enum ExilesReachQuilboarData
+{
+    ITEM_STITCHED_CLOTH_TUNIC      = 174811,
+    ITEM_STITCHED_LEATHER_TUNIC    = 174812,
+    ITEM_LINKED_MAIL_HAUBERK       = 174813,
+    ITEM_DENTED_CHESTPLATE         = 174814,
+
+    QUEST_BRIARPATCH_CHEST_DROPPED = 58904
+};
+
+enum QuilboarWarriorGeomancer
+{
+    EVENT_CHECK_FOR_AURA       = 1,
+    EVENT_BRUTAL_STRIKE        = 2,
+    EVENT_GEOMANCER_EARTH_BOLT = 2,
+
+    SPELL_NECROTIC_BURST       = 313261,
+    SPELL_QUILBOAR_SLEEP_DNT   = 313265,
+    SPELL_BRUTAL_STRIKE        = 317383,
+    SPELL_GEOMANCER_EARTH_BOLT = 321188
+};
+
+struct npc_quilboar_warrior : public ScriptedAI
+{
+    npc_quilboar_warrior(Creature* creature) : ScriptedAI(creature) { _outOfCombat = false; }
+
+    void JustAppeared() override
+    {
+        Reset();
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_CHECK_FOR_AURA, 1s);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        _outOfCombat = false;
+
+        if (me->HasAura(SPELL_QUILBOAR_SLEEP_DNT))
+        {
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->RemoveAura(SPELL_QUILBOAR_SLEEP_DNT);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+        }
+
+        if (!urand(0, 2))
+            Talk(SAY_AGGRO, who);
+
+        _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 3s, 5s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        if (!urand(0, 2))
+            Talk(SAY_DEATH, killer);
+
+        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        {
+            for (LootItem const& lootItem : loot->items)
+            {
+                if (lootItem.itemid == ITEM_STITCHED_CLOTH_TUNIC || lootItem.itemid == ITEM_STITCHED_LEATHER_TUNIC || lootItem.itemid == ITEM_LINKED_MAIL_HAUBERK || lootItem.itemid == ITEM_DENTED_CHESTPLATE)
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                        player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (_outOfCombat)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CHECK_FOR_AURA:
+                    if (me->HasAura(SPELL_QUILBOAR_SLEEP_DNT))
+                        me->SetReactState(REACT_PASSIVE);
+
+                    _outOfCombat = true;
+                    break;
+                case EVENT_BRUTAL_STRIKE:
+                    DoCastVictim(SPELL_BRUTAL_STRIKE);
+                    _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 8s, 12s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    bool _outOfCombat;
+};
+
+struct npc_quilboar_geomancer : public ScriptedAI
+{
+    npc_quilboar_geomancer(Creature* creature) : ScriptedAI(creature) { _outOfCombat = false; }
+
+    void JustAppeared() override
+    {
+        Reset();
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_CHECK_FOR_AURA, 1s);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        _outOfCombat = false;
+
+        if (me->HasAura(SPELL_QUILBOAR_SLEEP_DNT))
+        {
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->RemoveAura(SPELL_QUILBOAR_SLEEP_DNT);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+        }
+
+        if (!urand(0, 2))
+            Talk(SAY_AGGRO, who);
+
+        _events.ScheduleEvent(EVENT_GEOMANCER_EARTH_BOLT, 3s, 5s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        if (!urand(0, 2))
+            Talk(SAY_DEATH, killer);
+
+        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        {
+            for (LootItem const& lootItem : loot->items)
+            {
+                if (lootItem.itemid == ITEM_STITCHED_CLOTH_TUNIC || lootItem.itemid == ITEM_STITCHED_LEATHER_TUNIC || lootItem.itemid == ITEM_LINKED_MAIL_HAUBERK || lootItem.itemid == ITEM_DENTED_CHESTPLATE)
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                        player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (_outOfCombat)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CHECK_FOR_AURA:
+                    if (me->HasAura(SPELL_QUILBOAR_SLEEP_DNT))
+                        me->SetReactState(REACT_PASSIVE);
+
+                    _outOfCombat = true;
+                    break;
+                case EVENT_GEOMANCER_EARTH_BOLT:
+                    DoCastVictim(SPELL_GEOMANCER_EARTH_BOLT);
+                    _events.ScheduleEvent(EVENT_GEOMANCER_EARTH_BOLT, 3s, 10s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    bool _outOfCombat;
+};
+
+enum ExilesReachOgreOverseerData
+{
+    EVENT_OVERSEER_BACKHAND                 = 1,
+    EVENT_OVERSEER_EARTHSHATTER             = 2,
+
+    ITEM_BATTERED_CLOAK                     = 11847,
+    ITEM_OVERSEERS_MANDATE                  = 174790,
+
+    QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED = 56051,
+
+    SPELL_BACKHAND                          = 276991,
+    SPELL_EARTHSHATTER                      = 319292
+};
+
+struct npc_ogre_overseer : public ScriptedAI
+{
+    npc_ogre_overseer(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        Talk(SAY_AGGRO, who);
+
+        _events.ScheduleEvent(EVENT_OVERSEER_BACKHAND, 5s);
+        _events.ScheduleEvent(EVENT_OVERSEER_EARTHSHATTER, 10s, 15s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        Talk(SAY_DEATH, killer);
+
+        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        {
+            for (LootItem const& lootItem : loot->items)
+            {
+                if (lootItem.itemid == ITEM_BATTERED_CLOAK || lootItem.itemid == ITEM_OVERSEERS_MANDATE)
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                        player->SetRewardedQuest(QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_OVERSEER_BACKHAND:
+                    DoCastVictim(SPELL_BACKHAND);
+                    _events.ScheduleEvent(EVENT_OVERSEER_BACKHAND, 15s, 20s);
+                    break;
+                case EVENT_OVERSEER_EARTHSHATTER:
+                    DoCastSelf(SPELL_EARTHSHATTER);
+                    _events.ScheduleEvent(EVENT_OVERSEER_EARTHSHATTER, 15s, 20s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+};
+
+enum BriarpathPlainsAreatrigger
+{
+    CONVERSATION_DOWN_WITH_THE_QUILLBOAR_COMPLETE_ALLIANCE = 12076,
+    CONVERSATION_DOWN_WITH_THE_QUILLBOAR_COMPLETE_HORDE    = 14514
+};
+
+struct at_briarpatch_to_plains : AreaTriggerAI
+{
+    at_briarpatch_to_plains(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player)
+            return;
+
+        if (!at->GetInstanceId()) //  //player->GetTeam() == ALLIANCE
+        {
+            if (player->GetQuestStatus(QUEST_DOWN_WITH_THE_QUILBOAR_ALLIANCE) != QUEST_STATUS_COMPLETE)
+                return;
+
+            bool _convoRunning = false;
+
+            std::vector<WorldObject*> objs;
+            Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(player->GetGUID(), CONVERSATION_DOWN_WITH_THE_QUILLBOAR_COMPLETE_ALLIANCE);
+            Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(nullptr, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
+            Cell::VisitGridObjects(player, checker, 100.0f);
+
+            for (WorldObject* obj : objs)
+            {
+                if (Conversation* convo = obj->ToConversation())
+                    _convoRunning = true;
+            }
+
+            if (!_convoRunning)
+                Conversation::CreateConversation(CONVERSATION_DOWN_WITH_THE_QUILLBOAR_COMPLETE_ALLIANCE, player, *player, player->GetGUID(), nullptr);
+        }
+        else
+        {
+            if (player->GetQuestStatus(QUEST_DOWN_WITH_THE_QUILBOAR_HORDE) != QUEST_STATUS_COMPLETE)
+                return;
+
+            bool _convoRunning = false;
+
+            std::vector<WorldObject*> objs;
+            Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(player->GetGUID(), CONVERSATION_DOWN_WITH_THE_QUILLBOAR_COMPLETE_HORDE);
+            Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(nullptr, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
+            Cell::VisitGridObjects(player, checker, 100.0f);
+
+            for (WorldObject* obj : objs)
+            {
+                if (Conversation* convo = obj->ToConversation())
+                    _convoRunning = true;
+            }
+
+            if (!_convoRunning)
+                Conversation::CreateConversation(CONVERSATION_DOWN_WITH_THE_QUILLBOAR_COMPLETE_HORDE, player, *player, player->GetGUID(), nullptr);
+        }
     }
 };
 
@@ -4189,4 +4980,16 @@ void AddSC_zone_exiles_reach()
     new FactoryCreatureScript<CreatureAI, &DawntrackerBriarpatchSelector>("npc_dawntracker_briarpatch");
     RegisterSpellScript(spell_tutorial_health_dnt_proc_aura);
     RegisterSpellScript(spell_tutorial_health_dnt);
+    // Briarpatch
+    new quest_briarpatch_alliance();
+    new quest_briarpatch_horde();
+    RegisterSpellScript(spell_validated_quest_accept_briarpatch_alliance);
+    RegisterSpellScript(spell_validated_quest_accept_briarpatch_horde);
+    RegisterCreatureAI(npc_geolord_grekog);
+    new GenericCreatureScript<npc_briarpatch_prisoner>("npc_cork_fizzlepop");
+    new GenericCreatureScript<npc_briarpatch_prisoner>("npc_lindie_springstock");
+    RegisterCreatureAI(npc_quilboar_warrior);
+    RegisterCreatureAI(npc_quilboar_geomancer);
+    RegisterCreatureAI(npc_ogre_overseer);
+    RegisterAreaTriggerAI(at_briarpatch_to_plains);
 };
