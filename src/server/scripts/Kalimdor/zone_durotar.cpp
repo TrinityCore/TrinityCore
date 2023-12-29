@@ -242,6 +242,9 @@ private:
 
 enum DarkspearJailor
 {
+    DATASET_EVENT_COMPLETE        = 1,
+    DATASET_MOVE_TO_PRISIONER     = 1,
+
     EVENT_PLAYER_ACCEPT_CHALLENGE = 1,
     EVENT_WALK_BACK_TO_HOME       = 2,
 
@@ -287,7 +290,7 @@ struct npc_durotar_darkspear_jailor : public ScriptedAI
 
     void SetData(uint32 /*type*/, uint32 data) override
     {
-        if (data == 1)
+        if (data == DATASET_EVENT_COMPLETE)
         {
             _eventInProgress = false;
             me->SetGossipMenuId(GOSSIP_JAILOR_EVENT_READY);
@@ -333,7 +336,7 @@ struct npc_durotar_darkspear_jailor : public ScriptedAI
                     break;
                 case EVENT_WALK_BACK_TO_HOME:
                     if (Creature* scout = me->FindNearestCreature(NPC_CAPTIVE_SPITESCALE_SCOUT, 5.0f, true))
-                        scout->AI()->SetData(1, 1);
+                        scout->AI()->SetData(DATASET_MOVE_TO_PRISIONER, DATASET_MOVE_TO_PRISIONER);
                     me->GetMotionMaster()->MovePath(_pathHome, false);
                     break;
                 default:
@@ -399,7 +402,7 @@ struct npc_durotar_captive_spitescale_scout : public ScriptedAI
 
     void SetData(uint32 /*type*/, uint32 data) override
     {
-        if (data == 1)
+        if (data == DATASET_MOVE_TO_PRISIONER)
         {
             me->SetWalk(true);
 
@@ -412,7 +415,7 @@ struct npc_durotar_captive_spitescale_scout : public ScriptedAI
 
     void MovementInform(uint32 /*type*/, uint32 id) override
     {
-        if (id == 0)
+        if (id == POINT_PRISIONER_POSITION)
         {
             _events.ScheduleEvent(EVENT_TALK_TO_PLAYER, 1s);
             _events.ScheduleEvent(EVENT_DESPAWN_OUT_OF_COMBAT, 100s);
@@ -429,7 +432,7 @@ struct npc_durotar_captive_spitescale_scout : public ScriptedAI
             {
                 case EVENT_UPDATE_JAILOR_GOSSIP:
                     if (Creature* jailer = me->FindNearestCreature(NPC_DARKSPEAR_JAILOR, 25.0f, true))
-                        jailer->AI()->SetData(1, 1);
+                        jailer->AI()->SetData(DATASET_MOVE_TO_PRISIONER, DATASET_MOVE_TO_PRISIONER);
                     break;
                 case EVENT_TALK_TO_PLAYER:
                     Talk(SAY_SSEND_YOU_TO_YOUR_DEATH);
@@ -476,6 +479,9 @@ enum ClassTrainers
     NPC_TRAINER_VOLDREKA           = 42618, // Warlock Trainer
     NPC_TRAINER_ZABRAX             = 63310, // Monk Trainer
 
+    POINT_TRAINER_AT_PIT           = 0,
+    POINT_TRAINER_HOME             = 1,
+
     QUEST_PROVING_PIT_WARRIOR      = 24642,
     QUEST_PROVING_PIT_PRIEST       = 24786,
     QUEST_PROVING_PIT_MAGE         = 24754,
@@ -521,11 +527,11 @@ struct npc_durotar_echo_isles_class_trainer : public ScriptedAI
 
     void MovementInform(uint32 /*type*/, uint32 id) override
     {
-        if (id == 0)
+        if (id == POINT_TRAINER_AT_PIT)
         {
             me->SetFacingTo(EchoIslandTrainersPoints[PitPos]);
         }
-        else if (id == 1)
+        else if (id == POINT_TRAINER_HOME)
         {
             me->SetFacingTo(_facingHome);
             _canPath = true;
@@ -583,12 +589,12 @@ struct npc_durotar_echo_isles_class_trainer : public ScriptedAI
             {
                 case EVENT_MOVE_PIT:
                     me->SetWalk(true);
-                    me->GetMotionMaster()->MovePoint(0, EchoIslandTrainersPitPoints[PitPos]);
+                    me->GetMotionMaster()->MovePoint(POINT_TRAINER_AT_PIT, EchoIslandTrainersPitPoints[PitPos]);
                     _events.ScheduleEvent(EVENT_MOVE_HOME, 300s);
                     break;
                 case EVENT_MOVE_HOME:
                     me->SetWalk(true);
-                    me->GetMotionMaster()->MovePoint(1, _homePosition);
+                    me->GetMotionMaster()->MovePoint(POINT_TRAINER_HOME, _homePosition);
                     break;
                 default:
                     break;
