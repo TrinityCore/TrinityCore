@@ -26,11 +26,9 @@ UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_ertezza" WHERE
 UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_zentabra" WHERE `entry` = 38243;
 UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_voldreka" WHERE `entry` = 42618;
 UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_zabrax" WHERE `entry` = 63310;
-
-UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_tiki_target_durotar" WHERE `entry` = 38038;
-
-UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_darkspear_jailor_durotar" WHERE `entry` = 39062;
-UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_captive_spitescale_scout" WHERE `entry` = 38142;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_durotar_tiki_target" WHERE `entry` = 38038;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_durotar_darkspear_jailor" WHERE `entry` = 39062;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_durotar_captive_spitescale_scout" WHERE `entry` = 38142;
 
 UPDATE `creature` SET `StringId`="darkspear_jailor_one" WHERE `guid`=309155;
 UPDATE `creature` SET `StringId`="darkspear_jailor_two" WHERE `guid`=309082;

@@ -204,9 +204,9 @@ enum TikiTarget
 
 uint32 const TiKiTargetMask[3] = { SPELL_TIKI_TARGET_VISUAL_1, SPELL_TIKI_TARGET_VISUAL_2, SPELL_TIKI_TARGET_VISUAL_3 };
 
-struct npc_tiki_target_durotar : public ScriptedAI
+struct npc_durotar_tiki_target : public ScriptedAI
 {
-    npc_tiki_target_durotar(Creature* creature) : ScriptedAI(creature) { _credited = false; }
+    npc_durotar_tiki_target(Creature* creature) : ScriptedAI(creature) { _credited = false; }
 
     void JustAppeared() override
     {
@@ -264,9 +264,9 @@ enum DarkspearJailor
     SPELL_ACTIVATE_DNT            = 227105,
 };
 
-struct npc_darkspear_jailor_durotar : public ScriptedAI
+struct npc_durotar_darkspear_jailor : public ScriptedAI
 {
-    npc_darkspear_jailor_durotar(Creature* creature) : ScriptedAI(creature) { _facing = 0.0f, _pathCage = 0, _pathHome = 0; _eventInProgress = false; }
+    npc_durotar_darkspear_jailor(Creature* creature) : ScriptedAI(creature) { _facing = 0.0f, _pathCage = 0, _pathHome = 0; _eventInProgress = false; }
 
     void JustAppeared() override
     {
@@ -371,9 +371,9 @@ enum CaptiveSpitescaleScout
 Position const PRISIONER_POSITION_ONE = { -1142.49f, -5415.59f, 10.597655f };
 Position const PRISIONER_POSITION_TWO = { -1149.03f, -5526.18f, 8.1045685f };
 
-struct npc_captive_spitescale_scout : public ScriptedAI
+struct npc_durotar_captive_spitescale_scout : public ScriptedAI
 {
-    npc_captive_spitescale_scout(Creature* creature) : ScriptedAI(creature) { }
+    npc_durotar_captive_spitescale_scout(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -382,7 +382,7 @@ struct npc_captive_spitescale_scout : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+        me->SetImmuneToPC(true);
         me->DespawnOrUnsummon(10s, 7s);
     }
 
@@ -433,7 +433,7 @@ struct npc_captive_spitescale_scout : public ScriptedAI
                     break;
                 case EVENT_TALK_TO_PLAYER:
                     Talk(SAY_SSEND_YOU_TO_YOUR_DEATH);
-                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
                     break;
                 case EVENT_DESPAWN_OUT_OF_COMBAT:
                     me->DespawnOrUnsummon(0s, 2s);
@@ -508,9 +508,9 @@ Position const EchoIslandTrainersPitPoints[9] =
 float const EchoIslandTrainersPoints[9] = { 0.2094395f, 3.1764990f, 1.7278759f, 1.4835298f, 4.904375f, 3.3161256f, 0.3141593f, 4.956735f, 1.256637f };
 
 template<uint8 PitPos, uint32 QuestID>
-struct npc_echo_isles_class_trainer : public ScriptedAI
+struct npc_durotar_echo_isles_class_trainer : public ScriptedAI
 {
-    npc_echo_isles_class_trainer(Creature* creature) : ScriptedAI(creature) { }
+    npc_durotar_echo_isles_class_trainer(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -731,18 +731,18 @@ void AddSC_durotar()
 
     // Echo Isles
     RegisterSpellScript(spell_durotar_summon_zuni);
-    RegisterCreatureAI(npc_tiki_target_durotar);
-    RegisterCreatureAI(npc_darkspear_jailor_durotar);
-    RegisterCreatureAI(npc_captive_spitescale_scout);
-    new GenericCreatureScript<npc_echo_isles_class_trainer<0, QUEST_PROVING_PIT_WARRIOR>>("npc_nortet");
-    new GenericCreatureScript<npc_echo_isles_class_trainer<1, QUEST_PROVING_PIT_PRIEST>>("npc_tunari");
-    new GenericCreatureScript<npc_echo_isles_class_trainer<2, QUEST_PROVING_PIT_MAGE>>("npc_seratha");
-    new GenericCreatureScript<npc_echo_isles_class_trainer<3, QUEST_PROVING_PIT_ROGUE>>("npc_legati");
-    new GenericCreatureScript<npc_echo_isles_class_trainer<4, QUEST_PROVING_PIT_SHAMAN>>("npc_nekali");
-    new GenericCreatureScript<npc_echo_isles_class_trainer<5, QUEST_PROVING_PIT_HUNTER>>("npc_ertezza");
-    new GenericCreatureScript<npc_echo_isles_class_trainer<6, QUEST_PROVING_PIT_DRUID>>("npc_zentabra");
-    new GenericCreatureScript<npc_echo_isles_class_trainer<7, QUEST_PROVING_PIT_WARLOCK>>("npc_voldreka");
-    new GenericCreatureScript<npc_echo_isles_class_trainer<8, QUEST_PROVING_PIT_MONK>>("npc_zabrax");
+    RegisterCreatureAI(npc_durotar_tiki_target);
+    RegisterCreatureAI(npc_durotar_darkspear_jailor);
+    RegisterCreatureAI(npc_durotar_captive_spitescale_scout);
+    new GenericCreatureScript<npc_durotar_echo_isles_class_trainer<0, QUEST_PROVING_PIT_WARRIOR>>("npc_nortet");
+    new GenericCreatureScript<npc_durotar_echo_isles_class_trainer<1, QUEST_PROVING_PIT_PRIEST>>("npc_tunari");
+    new GenericCreatureScript<npc_durotar_echo_isles_class_trainer<2, QUEST_PROVING_PIT_MAGE>>("npc_seratha");
+    new GenericCreatureScript<npc_durotar_echo_isles_class_trainer<3, QUEST_PROVING_PIT_ROGUE>>("npc_legati");
+    new GenericCreatureScript<npc_durotar_echo_isles_class_trainer<4, QUEST_PROVING_PIT_SHAMAN>>("npc_nekali");
+    new GenericCreatureScript<npc_durotar_echo_isles_class_trainer<5, QUEST_PROVING_PIT_HUNTER>>("npc_ertezza");
+    new GenericCreatureScript<npc_durotar_echo_isles_class_trainer<6, QUEST_PROVING_PIT_DRUID>>("npc_zentabra");
+    new GenericCreatureScript<npc_durotar_echo_isles_class_trainer<7, QUEST_PROVING_PIT_WARLOCK>>("npc_voldreka");
+    new GenericCreatureScript<npc_durotar_echo_isles_class_trainer<8, QUEST_PROVING_PIT_MONK>>("npc_zabrax");
     new quest_the_basics_hitting_things();
     new quest_proving_pit();
 }
