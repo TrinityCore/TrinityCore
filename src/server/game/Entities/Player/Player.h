@@ -976,7 +976,7 @@ class Player;
 struct BGData
 {
     BGData() : bgInstanceID(0), bgTypeID(BATTLEGROUND_TYPE_NONE), bgAfkReportedCount(0), bgAfkReportedTimer(0),
-        bgTeam(0), mountSpell(0), queueId(BATTLEGROUND_QUEUE_NONE) { ClearTaxiPath(); }
+        bgTeam(TEAM_OTHER), mountSpell(0), queueId(BATTLEGROUND_QUEUE_NONE) { ClearTaxiPath(); }
 
     uint32 bgInstanceID;                    ///< This variable is set to bg->m_InstanceID,
                                             ///  when player is teleported to BG - (it is battleground's GUID)
@@ -986,7 +986,7 @@ struct BGData
     uint8              bgAfkReportedCount;
     time_t             bgAfkReportedTimer;
 
-    uint32 bgTeam;                          ///< What side the player will be added to
+    Team bgTeam;                          ///< What side the player will be added to
 
     uint32 mountSpell;
     uint32 taxiPath[2];
@@ -2177,10 +2177,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AddExploredZones(uint32 pos, uint64 mask) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, pos), mask); }
         void RemoveExploredZones(uint32 pos, uint64 mask) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, pos), mask); }
 
-        static uint32 TeamForRace(uint8 race);
+        static Team TeamForRace(uint8 race);
         static TeamId TeamIdForRace(uint8 race);
         static uint8 GetFactionGroupForRace(uint8 race);
-        uint32 GetTeam() const { return m_team; }
+        Team GetTeam() const { return m_team; }
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void SetFactionForRace(uint8 race);
 
@@ -2355,8 +2355,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         WorldLocation const& GetBattlegroundEntryPoint() const { return m_bgData.joinPos; }
         void SetBattlegroundEntryPoint();
 
-        void SetBGTeam(uint32 team);
-        uint32 GetBGTeam() const;
+        void SetBGTeam(Team team);
+        Team GetBGTeam() const;
 
         void LeaveBattleground(bool teleportToEntryPoint = true);
         bool CanJoinToBattleground(BattlegroundTemplate const* bg) const;
@@ -2919,7 +2919,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void outDebugValues() const;
 
-        uint32 m_team;
+        Team m_team;
         uint32 m_nextSave;
         bool m_customizationsChanged;
         std::array<ChatFloodThrottle, ChatFloodThrottle::MAX> m_chatFloodData;

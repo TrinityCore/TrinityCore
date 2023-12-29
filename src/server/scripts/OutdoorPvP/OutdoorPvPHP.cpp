@@ -246,7 +246,7 @@ void HPControlZoneHandler::HandleProgressEventHorde(GameObject* controlZone)
     if (GuidUnorderedSet const* guidSet = controlZone->GetInsidePlayers())
         for (ObjectGuid const& guid : *guidSet)
             if (Player* player = ObjectAccessor::GetPlayer(*controlZone, guid))
-                if (player->GetTeam() == TEAM_HORDE)
+                if (player->GetTeam() == HORDE)
                     player->KilledMonsterCredit(_killCredit);
 }
 
@@ -268,7 +268,7 @@ void HPControlZoneHandler::HandleProgressEventAlliance(GameObject* controlZone)
     if (GuidUnorderedSet const* guidSet = controlZone->GetInsidePlayers())
         for (ObjectGuid const& guid : *guidSet)
             if (Player* player = ObjectAccessor::GetPlayer(*controlZone, guid))
-                if (player->GetTeam() == TEAM_ALLIANCE)
+                if (player->GetTeam() == ALLIANCE)
                     player->KilledMonsterCredit(_killCredit);
 }
 
