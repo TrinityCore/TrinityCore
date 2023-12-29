@@ -4428,7 +4428,7 @@ enum Geolord
 
     EVENT_CAST_EARTH_BOLT      = 1,
     EVENT_CAST_UPHEAVAL        = 2,
-     
+
     NPC_CORK_FIZZLEPOP         = 167008,
     NPC_LINDIE_SPRINGSTOCK     = 154301,
 
