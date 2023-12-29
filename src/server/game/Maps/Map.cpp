@@ -2452,6 +2452,16 @@ bool Map::IsSpawnGroupActive(uint32 groupId) const
     return (_toggledSpawnGroupIds.find(groupId) != _toggledSpawnGroupIds.end()) != !(data->flags & SPAWNGROUP_FLAG_MANUAL_SPAWN);
 }
 
+void Map::InitSpawnGroupState()
+{
+    std::vector<uint32> const* spawnGroups = sObjectMgr->GetSpawnGroupsForMap(GetId());
+    if (!spawnGroups)
+        return;
+
+    for (uint32 spawnGroupId : *spawnGroups)
+        SetSpawnGroupActive(spawnGroupId, sConditionMgr->IsMapMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPAWN_GROUP, spawnGroupId, this));
+}
+
 void Map::UpdateSpawnGroupConditions()
 {
     std::vector<uint32> const* spawnGroups = sObjectMgr->GetSpawnGroupsForMap(GetId());
@@ -2481,22 +2491,6 @@ void Map::UpdateSpawnGroupConditions()
             SpawnGroupSpawn(spawnGroupId);
         else if (spawnGroupTemplate->flags & SPAWNGROUP_FLAG_DESPAWN_ON_CONDITION_FAILURE)
             SpawnGroupDespawn(spawnGroupId, true);
-        else
-            SetSpawnGroupInactive(spawnGroupId);
-    }
-}
-
-void Map::InitSpawnGroupState()
-{
-    std::vector<uint32> const* spawnGroups = sObjectMgr->GetSpawnGroupsForMap(GetId());
-    if (!spawnGroups)
-        return;
-
-    for (uint32 spawnGroupId : *spawnGroups)
-    {
-        bool shouldBeActive = sConditionMgr->IsMapMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPAWN_GROUP, spawnGroupId, this);
-        if (shouldBeActive)
-            SetSpawnGroupActive(spawnGroupId, true);
         else
             SetSpawnGroupInactive(spawnGroupId);
     }

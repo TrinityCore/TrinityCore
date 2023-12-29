@@ -136,6 +136,7 @@ GarrisonMap* MapManager::CreateGarrison(uint32 mapId, uint32 instanceId, Player*
 {
     GarrisonMap* map = new GarrisonMap(mapId, i_gridCleanUpDelay, instanceId, owner->GetGUID());
     ASSERT(map->IsGarrison());
+    map->InitSpawnGroupState();
     return map;
 }
 
