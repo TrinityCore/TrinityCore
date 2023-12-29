@@ -1,11 +1,21 @@
+-- Set by TC Devs
+SET @CGUID := 90009000; -- 3 needed
+SET @NPCTEXTID :=90009000; -- 3 needed
+
 -- Darkspear Training Grounds
 
-SET @CGUID := 90001000;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID AND @CGUID+2;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `VerifiedBuild`) VALUES
 (@CGUID,63310,1,6453,4865,'0',0,0,-1,0,0,-1149.3906,-5441.252,12.12974,0.0860126,120,0,0,1,0,0,NULL,NULL,52607), -- Zabrax <Monk Trainer>
 (@CGUID+1,63309,1,6453,4865,'0',0,0,-1,0,0,-1144.7935,-5441.1426,12.064628,3.116011,120,0,0,1,0,0,NULL,NULL,52607), -- Tsu the Wanderer
 (@CGUID+2,90113,1,6453,4865,'0',0,0,-1,0,0,-1310.9911,-5557.339,21.042166,5.863887,120,0,0,1,0,0,NULL,NULL,52607); -- Ardsami
+
+-- Troll Trainer Gossip
+DELETE FROM `npc_text` WHERE `ID` BETWEEN @NPCTEXTID+0 AND @NPCTEXTID+2;
+INSERT INTO `npc_text` (`ID`, `Probability0`, `Probability1`, `Probability2`, `Probability3`, `Probability4`, `Probability5`, `Probability6`, `Probability7`, `BroadcastTextId0`, `BroadcastTextId1`, `BroadcastTextId2`, `BroadcastTextId3`, `BroadcastTextId4`, `BroadcastTextId5`, `BroadcastTextId6`, `BroadcastTextId7`, `VerifiedBuild`) VALUES
+(@NPCTEXTID+0, 1, 0, 0, 0, 0, 0, 0, 0, 42493, 0, 0, 0, 0, 0, 0, 0, 52649), -- Voldreka <Warlock Trainer> Entry: 42618
+(@NPCTEXTID+1, 1, 0, 0, 0, 0, 0, 0, 0, 37957, 0, 0, 0, 0, 0, 0, 0, 52649), -- Legati <Rogue Trainer> Entry: 38244 
+(@NPCTEXTID+2, 1, 0, 0, 0, 0, 0, 0, 0, 37932, 0, 0, 0, 0, 0, 0, 0, 52649); -- Nekali <Shaman Trainer> Entry: 38242
 
 UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_nortet" WHERE `entry` = 38037;
 UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_tunari" WHERE `entry` = 38245;
@@ -271,3 +281,49 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (14, 14186, 15274, 0, 0, 15, 0, 16, 0, 0, 0, 0, 0, '', 'Show gossip menu 14186 text id 15274 if player is a Priest.'),
 (14, 14186, 15265, 0, 0, 15, 0, 16, 0, 0, 1, 0, 0, '', 'Show gossip menu 14186 text id 15265 if player is not a Priest.');
+
+-- Nekali <Shaman Trainer> Entry: 38242
+DELETE FROM `gossip_menu` WHERE `MenuID`=14183;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14183, @NPCTEXTID+2, 52649),
+(14183, 15265, 52649);
+
+-- Condition for source Gossip menu condition Shaman Trainer
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14183;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(14, 14183, @NPCTEXTID+2, 0, 0, 15, 0, 64, 0, 0, 0, 0, 0, '', 'Show gossip menu 14183 text id @NPCTEXTID+2 if player is a Shaman.'),
+(14, 14183, 15265, 0, 0, 15, 0, 64, 0, 0, 1, 0, 0, '', 'Show gossip menu 14183 text id 15265 if player is not a Shaman.');
+
+-- Add gossip for Legati <Rogue Trainer> Entry: 38244
+DELETE FROM `creature_template_gossip` WHERE `CreatureID`=38244;
+INSERT INTO `creature_template_gossip` (`CreatureID`,`MenuID`,`VerifiedBuild`) VALUES
+(38244,14185,52649);
+
+-- Legati <Rogue Trainer> Entry: 38244
+DELETE FROM `gossip_menu` WHERE `MenuID`=14185;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14185, @NPCTEXTID+1, 52649),
+(14185, 15265, 52649);
+
+-- Condition for source Gossip menu condition Rogue Trainer
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14185;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(14, 14185, @NPCTEXTID+1, 0, 0, 15, 0, 8, 0, 0, 0, 0, 0, '', 'Show gossip menu 14185 text id XXXXX if player is a Rogue.'),
+(14, 14185, 15265, 0, 0, 15, 0, 8, 0, 0, 1, 0, 0, '', 'Show gossip menu 14185 text id 15265 if player is not a Rogue.');
+
+-- Add gossip for Voldreka <Warlock Trainer> Entry: 42618
+DELETE FROM `creature_template_gossip` WHERE `CreatureID`=42618;
+INSERT INTO `creature_template_gossip` (`CreatureID`,`MenuID`,`VerifiedBuild`) VALUES
+(42618,14196,52649);
+
+-- Voldreka <Warlock Trainer> Entry: 42618
+DELETE FROM `gossip_menu` WHERE `MenuID`=14196;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14196, @NPCTEXTID+0, 52649),
+(14196, 15265, 52649);
+
+-- Condition for source Gossip menu condition Warlock Trainer
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14196;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(14, 14196, @NPCTEXTID+0, 0, 0, 15, 0, 256, 0, 0, 0, 0, 0, '', 'Show gossip menu 14196 text id XXXXX if player is a Warlock.'),
+(14, 14196, 15265, 0, 0, 15, 0, 256, 0, 0, 1, 0, 0, '', 'Show gossip menu 14196 text id 15265 if player is not a Warlock.');
