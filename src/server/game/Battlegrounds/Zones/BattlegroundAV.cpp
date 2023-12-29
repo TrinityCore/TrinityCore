@@ -785,7 +785,7 @@ bool BattlegroundAV::SetupBattleground()
     return true;
 }
 
-void BattlegroundAV::AssaultNode(BG_AV_Nodes node, uint16 team)
+void BattlegroundAV::AssaultNode(BG_AV_Nodes node, Team team)
 {
     _nodes[node].PrevOwner  = _nodes[node].Owner;
     _nodes[node].Owner      = team;
@@ -801,7 +801,7 @@ void BattlegroundAV::DestroyNode(BG_AV_Nodes node)
     _nodes[node].State      = (_nodes[node].Tower)? POINT_DESTROYED : POINT_CONTROLED;
 }
 
-void BattlegroundAV::InitNode(BG_AV_Nodes node, uint16 team, bool tower)
+void BattlegroundAV::InitNode(BG_AV_Nodes node, Team team, bool tower)
 {
     _nodes[node].TotalOwner = team;
     _nodes[node].Owner      = team;
@@ -812,7 +812,7 @@ void BattlegroundAV::InitNode(BG_AV_Nodes node, uint16 team, bool tower)
     _nodes[node].Tower      = tower;
 }
 
-void BattlegroundAV::DefendNode(BG_AV_Nodes node, uint16 team)
+void BattlegroundAV::DefendNode(BG_AV_Nodes node, Team team)
 {
     _nodes[node].PrevOwner  = _nodes[node].Owner;
     _nodes[node].Owner      = team;
@@ -820,7 +820,7 @@ void BattlegroundAV::DefendNode(BG_AV_Nodes node, uint16 team)
     _nodes[node].State      = POINT_CONTROLED;
 }
 
-uint32 BattlegroundAV::GetPrematureWinner()
+Team BattlegroundAV::GetPrematureWinner()
 {
     uint32 allianceScore = _teamResources[GetTeamIndexByTeamId(ALLIANCE)];
     uint32 hordeScore = _teamResources[GetTeamIndexByTeamId(HORDE)];
