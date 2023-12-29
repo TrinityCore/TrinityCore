@@ -106,7 +106,7 @@ void BattlegroundAV::HandleKillPlayer(Player* player, Player* killer)
         return;
 
     Battleground::HandleKillPlayer(player, killer);
-    UpdateScore(Team(GetPlayerTeam(player->GetGUID())), -1);
+    UpdateScore(GetPlayerTeam(player->GetGUID()), -1);
 }
 
 void BattlegroundAV::HandleKillUnit(Creature* unit, Unit* killer)
@@ -157,7 +157,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Unit* killer)
         if (_mineInfo[AlteracValleyMine::North].Owner != TEAM_OTHER)
             return;
 
-        Team killerTeam = static_cast<Team>(GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID()));
+        Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
         ChangeMineOwner(AlteracValleyMine::North, killerTeam);
     }
     else if (entry == BG_AV_CREATURE_TASKMASTER_SNIVVLE)
@@ -165,17 +165,17 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Unit* killer)
         if (_mineInfo[AlteracValleyMine::South].Owner != TEAM_OTHER)
             return;
 
-        Team killerTeam = static_cast<Team>(GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID()));
+        Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
         ChangeMineOwner(AlteracValleyMine::South, killerTeam);
     }
     else if (entry == BG_AV_CREATURE_UMI_THORSON || entry == BG_AV_CREATURE_KEETAR)
     {
-        Team killerTeam = static_cast<Team>(GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID()));
+        Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
         ChangeMineOwner(AlteracValleyMine::North, killerTeam);
     }
     else if (entry == BG_AV_CREATURE_AGI_RUMBLESTOMP || entry == BG_AV_CREATURE_MASHA_SWIFTCUT)
     {
-        Team killerTeam = static_cast<Team>(GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID()));
+        Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
         ChangeMineOwner(AlteracValleyMine::South, killerTeam);
     }
 }
@@ -185,7 +185,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;//maybe we should log this, cause this must be a cheater or a big bug
     Team team = GetPlayerTeam(player->GetGUID());
-    uint8 teamIndex = GetTeamIndexByTeamId(team);
+    TeamId teamIndex = GetTeamIndexByTeamId(team);
     /// @todo add reputation, events (including quest not available anymore, next quest available, go/npc de/spawning)and maybe honor
     TC_LOG_DEBUG("bg.battleground", "BG_AV Quest {} completed", questid);
     switch (questid)
