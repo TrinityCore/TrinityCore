@@ -69,7 +69,6 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
     m_ArenaType         = 0;
     _winnerTeamId       = PVP_TEAM_NEUTRAL;
     m_StartTime         = 0;
-    m_CountdownTimer    = 0;
     m_ResetStatTimer    = 0;
     m_ValidStartPositionTimer = 0;
     m_Events            = 0;
@@ -206,10 +205,7 @@ void Battleground::Update(uint32 diff)
     // Update start time and reset stats timer
     SetElapsedTime(GetElapsedTime() + diff);
     if (GetStatus() == STATUS_WAIT_JOIN)
-    {
         m_ResetStatTimer += diff;
-        m_CountdownTimer += diff;
-    }
 
     PostUpdateImpl(diff);
 }
@@ -347,23 +343,6 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 player->ResetAllPowers();
-    }
-
-    // Send packet every 10 seconds until the 2nd field reach 0
-    if (m_CountdownTimer >= 10000)
-    {
-        Seconds countdownMaxForBGType = Seconds(isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX);
-
-        WorldPackets::Misc::StartTimer startTimer;
-        startTimer.Type         = WorldPackets::Misc::StartTimer::Pvp;
-        startTimer.TimeLeft     = std::chrono::duration_cast<Seconds>(countdownMaxForBGType - Milliseconds(GetElapsedTime()));
-        startTimer.TotalTime    = countdownMaxForBGType;
-
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                player->SendDirectMessage(startTimer.Write());
-
-        m_CountdownTimer = 0;
     }
 
     if (!(m_Events & BG_STARTING_EVENT_1))
@@ -1076,17 +1055,7 @@ void Battleground::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
     else
     {
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
-        {
             player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
-
-            Seconds countdownMaxForBGType = Seconds(isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX);
-
-            WorldPackets::Misc::StartTimer startTimer;
-            startTimer.Type         = WorldPackets::Misc::StartTimer::Pvp;
-            startTimer.TimeLeft     = std::chrono::duration_cast<Seconds>(countdownMaxForBGType - Milliseconds(GetElapsedTime()));
-            startTimer.TotalTime    = countdownMaxForBGType;
-            player->SendDirectMessage(startTimer.Write());
-        }
 
         if (bp.Mercenary)
         {
@@ -1120,6 +1089,9 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, Team team)
         group = new Group;
         SetBgRaid(team, group);
         group->Create(player);
+        Seconds countdownMaxForBGType = Seconds(isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX);
+        Seconds passedTime = (m_Events & BG_STARTING_EVENT_1) != 0 ? countdownMaxForBGType - Seconds(GetStartDelayTime() / 1000) : 0s;
+        group->StartCountdown(WorldPackets::Misc::TimerType::Pvp, countdownMaxForBGType, passedTime);
     }
     else                                            // raid already exist
     {

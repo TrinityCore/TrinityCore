@@ -760,6 +760,13 @@ WorldPacket const* WorldPackets::Misc::StartTimer::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Misc::QueryCountdownTimer::Read()
+{
+    uint32 timerType = 0;
+    _worldPacket >> timerType;
+    TimerType = WorldPackets::Misc::TimerType(timerType);
+}
+
 void WorldPackets::Misc::ConversationLineStarted::Read()
 {
     _worldPacket >> ConversationGUID;

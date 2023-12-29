@@ -46,6 +46,14 @@ enum class InstanceResetMethod : uint8;
 enum class InstanceResetResult : uint8;
 enum LootMethod : uint8;
 
+namespace WorldPackets
+{
+    namespace Misc
+    {
+        enum TimerType : int32;
+    }
+}
+
 #define MAX_GROUP_SIZE      5
 #define MAX_RAID_SIZE       40
 #define MAX_RAID_SUBGROUPS  MAX_RAID_SIZE / MAX_GROUP_SIZE
@@ -201,6 +209,26 @@ class TC_GAME_API Group
         };
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
+
+        class CountdownInfo
+        {
+        public:
+            CountdownInfo() : _startTime(0), _endTime(0) { }
+
+            Seconds GetTimeLeft() const;
+
+            Seconds GetTotalTime() const
+            {
+                return Seconds(_endTime - _startTime);
+            }
+
+            void StartCountdown(Seconds duration, Seconds passedTime = 0s);
+            bool IsRunning() const;
+
+        private:
+            time_t _startTime;
+            time_t _endTime;
+        };
 
     protected:
         typedef MemberSlotList::iterator member_witerator;
@@ -379,6 +407,9 @@ class TC_GAME_API Group
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
 
+        void StartCountdown(WorldPackets::Misc::TimerType timerType, Seconds duration, Seconds passedTime = 0s);
+        CountdownInfo const* GetCountdownInfo(WorldPackets::Misc::TimerType timerType) const;
+
     protected:
         bool _setMembersGroup(ObjectGuid guid, uint8 group);
         void _homebindIfInstance(Player* player);
@@ -423,5 +454,7 @@ class TC_GAME_API Group
         // Raid markers
         std::array<std::unique_ptr<RaidMarker>, RAID_MARKERS_COUNT> m_markers;
         uint32              m_activeMarkers;
+
+        std::array<std::unique_ptr<CountdownInfo>, 3> _countdowns;
 };
 #endif

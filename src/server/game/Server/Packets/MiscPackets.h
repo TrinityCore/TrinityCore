@@ -926,16 +926,16 @@ namespace WorldPackets
             ObjectGuid SourceGuid;
         };
 
+        enum TimerType : int32
+        {
+            Pvp = 0,
+            ChallengeMode = 1,
+            PlayerCountdown = 2
+        };
+
         class StartTimer final : public ServerPacket
         {
         public:
-            enum TimerType : int32
-            {
-                Pvp             = 0,
-                ChallengeMode   = 1,
-                PlayerCountdown = 2
-            };
-
             StartTimer() : ServerPacket(SMSG_START_TIMER, 12) { }
 
             WorldPacket const* Write() override;
@@ -943,6 +943,16 @@ namespace WorldPackets
             Duration<Seconds> TotalTime;
             Duration<Seconds> TimeLeft;
             TimerType Type = Pvp;
+        };
+
+        class QueryCountdownTimer final : public ClientPacket
+        {
+        public:
+            QueryCountdownTimer(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_COUNTDOWN_TIMER, std::move(packet)) { }
+
+            void Read() override;
+
+            WorldPackets::Misc::TimerType TimerType = Pvp;
         };
 
         class ConversationLineStarted final : public ClientPacket
