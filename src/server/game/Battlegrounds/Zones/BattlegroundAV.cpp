@@ -421,7 +421,7 @@ void BattlegroundAV::EndBattleground(Team winner)
 
 void BattlegroundAV::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*team*/)
 {
-   if (!player)
+    if (!player)
     {
         TC_LOG_ERROR("bg.battleground", "bg_AV no player at remove");
         return;
@@ -763,7 +763,6 @@ void BattlegroundAV::UpdateNodeWorldState(BG_AV_Nodes node)
 
     if (node == BG_AV_NODES_SNOWFALL_GRAVE)
         UpdateWorldState(AV_WS_SNOWFALL_GRAVEYARD_UNCONTROLLED, _nodes[node].Owner == TEAM_OTHER);
-
 }
 
 void BattlegroundAV::SendMineWorldStates(AlteracValleyMine mine)
@@ -777,7 +776,7 @@ void BattlegroundAV::SendMineWorldStates(AlteracValleyMine mine)
 
 WorldSafeLocsEntry const* BattlegroundAV::GetExploitTeleportLocation(Team team)
 {
-    return sObjectMgr->GetWorldSafeLoc(team == ALLIANCE ? AV_EXPLOIT_TELEPORT_LOCATION_ALLIANCE: AV_EXPLOIT_TELEPORT_LOCATION_HORDE);
+    return sObjectMgr->GetWorldSafeLoc(team == ALLIANCE ? AV_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : AV_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
 bool BattlegroundAV::SetupBattleground()
