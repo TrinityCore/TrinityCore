@@ -180,16 +180,16 @@ private:
 
 // Echo Isles
 
-class spell_summon_zuni : public SpellScript
+class spell_durotar_summon_zuni : public SpellScript
 {
     void SetDest(SpellDestination& dest)
     {
-        dest.Relocate({ - 1173.4531f, -5266.401f, 0.85905945f, 0.0f });
+        dest.Relocate({ -1173.4531f, -5266.401f, 0.85905945f, 0.0f });
     }
 
     void Register() override
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_zuni::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_durotar_summon_zuni::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
     }
 };
 
@@ -204,16 +204,16 @@ enum TikiTarget
 
 uint32 const TiKiTargetMask[3] = { SPELL_TIKI_TARGET_VISUAL_1, SPELL_TIKI_TARGET_VISUAL_2, SPELL_TIKI_TARGET_VISUAL_3 };
 
-struct npc_tiki_target : public ScriptedAI
+struct npc_tiki_target_durotar : public ScriptedAI
 {
-    npc_tiki_target(Creature* creature) : ScriptedAI(creature) { _credited = false; }
+    npc_tiki_target_durotar(Creature* creature) : ScriptedAI(creature) { _credited = false; }
 
     void JustAppeared() override
     {
         me->SetReactState(REACT_PASSIVE);
         me->SetTemplateRooted(true);
-        DoCast(me, TiKiTargetMask[urand(0, 2)]);
-        DoCast(me, SPELL_ARCANE_MISSILES_TRAINER);
+        DoCastSelf(TiKiTargetMask[urand(0, 2)]);
+        DoCastSelf(SPELL_ARCANE_MISSILES_TRAINER);
     }
 
     void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -227,7 +227,7 @@ struct npc_tiki_target : public ScriptedAI
             {
                 _credited = true;
 
-                DoCast(me, SPELL_TIKI_TARGET_DEATH);
+                DoCastSelf(SPELL_TIKI_TARGET_DEATH);
 
                 if (Player* player = attacker->ToPlayer())
                     player->KilledMonsterCredit(me->GetEntry());
@@ -264,9 +264,9 @@ enum DarkspearJailor
     SPELL_ACTIVATE_DNT            = 227105,
 };
 
-struct npc_darkspear_jailor : public ScriptedAI
+struct npc_darkspear_jailor_durotar : public ScriptedAI
 {
-    npc_darkspear_jailor(Creature* creature) : ScriptedAI(creature) { _facing = 0.0f, _pathCage = 0, _pathHome = 0; _eventInProgress = false; }
+    npc_darkspear_jailor_durotar(Creature* creature) : ScriptedAI(creature) { _facing = 0.0f, _pathCage = 0, _pathHome = 0; _eventInProgress = false; }
 
     void JustAppeared() override
     {
@@ -730,9 +730,9 @@ void AddSC_durotar()
     RegisterCreatureAI(npc_mithaka);
 
     // Echo Isles
-    RegisterSpellScript(spell_summon_zuni);
-    RegisterCreatureAI(npc_tiki_target);
-    RegisterCreatureAI(npc_darkspear_jailor);
+    RegisterSpellScript(spell_durotar_summon_zuni);
+    RegisterCreatureAI(npc_tiki_target_durotar);
+    RegisterCreatureAI(npc_darkspear_jailor_durotar);
     RegisterCreatureAI(npc_captive_spitescale_scout);
     new GenericCreatureScript<npc_echo_isles_class_trainer<0, QUEST_PROVING_PIT_WARRIOR>>("npc_nortet");
     new GenericCreatureScript<npc_echo_isles_class_trainer<1, QUEST_PROVING_PIT_PRIEST>>("npc_tunari");

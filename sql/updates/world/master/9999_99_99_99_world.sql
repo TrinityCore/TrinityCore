@@ -27,9 +27,9 @@ UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_zentabra" WHER
 UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_voldreka" WHERE `entry` = 42618;
 UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_zabrax" WHERE `entry` = 63310;
 
-UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_tiki_target" WHERE `entry` = 38038;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_tiki_target_durotar" WHERE `entry` = 38038;
 
-UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_darkspear_jailor" WHERE `entry` = 39062;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_darkspear_jailor_durotar" WHERE `entry` = 39062;
 UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_captive_spitescale_scout" WHERE `entry` = 38142;
 
 UPDATE `creature` SET `StringId`="darkspear_jailor_one" WHERE `guid`=309155;
@@ -138,7 +138,7 @@ UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` 
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (91404);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(91404,'spell_summon_zuni');
+(91404,'spell_durotar_summon_zuni');
 
 -- Old spell has been replaced
 DELETE FROM `playercreateinfo_cast_spell` WHERE spell IN (71033,91404);
