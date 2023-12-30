@@ -130,3 +130,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@PATH, 0, -8384.636, 325.9323, 147.1476, NULL, 0),
 (@PATH, 1, -8383.877, 328.8299, 147.0882, NULL, 0),
 (@PATH, 2, -8383.272, 329.5139, 147.0765, NULL, 0);
+
+DELETE FROM `creature_questender` WHERE (`id`=120756 AND `quest`=46727);
+INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
+(120756, 46727, 52649); -- Battle for Azeroth: Tides of War ended by Anduin Wrynn
