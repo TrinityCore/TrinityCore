@@ -190,7 +190,7 @@ struct npc_sanitron_5000 : public ScriptedAI
                 {
                     Talk(SAY_SANITRON_DESTROY);
                     DoCast(SPELL_SANITRON_COSMETIC_EXPLOSION);
-                    task.Schedule(1s, [this](TaskContext task)
+                    task.Schedule(1s, [this](TaskContext /*task*/)
                     {
                         if (Creature* technician = me->FindNearestCreatureWithOptions(30.0f, { .CreatureId = NPC_SAFE_TECHNICIAN, .StringId = "SafeTechnicianSanitron" }))
                             technician->AI()->DoAction(ACTION_TECHNICIAN_START_EVENT);
