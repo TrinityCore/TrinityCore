@@ -37,7 +37,7 @@ INSERT INTO `quest_request_items` (`ID`, `EmoteOnComplete`, `EmoteOnIncomplete`,
 (27635, 0, 1, 0, 0, 'I bet you\'re feeling better already.', 52607); -- Decontamination
 
 -- Condition
-DELETE FROM `Conditions` WHERE `SourceTypeOrReferenceId` = 18 AND `SourceGroup` = 46185 AND `SourceEntry` = 86106;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 18 AND `SourceGroup` = 46185 AND `SourceEntry` = 86106;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (18, 46185, 86106, 0, 0, 47, 0, 27635, 8, 0, 0, 0, 0, '', 'Allow Spellclick if Quest 27635 is in progress');
 
