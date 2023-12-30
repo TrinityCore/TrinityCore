@@ -484,7 +484,7 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
     if (Battleground* bg = GetBattleground(instanceId, bgTypeId))
     {
         uint32 mapid = bg->GetMapId();
-        uint32 team = player->GetBGTeam();
+        Team team = player->GetBGTeam();
 
         WorldSafeLocsEntry const* pos = bg->GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(team));
         TC_LOG_DEBUG("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending {} to map {}, {} (bgType {})", player->GetName(), mapid, pos->Loc.ToString(), bgTypeId);
