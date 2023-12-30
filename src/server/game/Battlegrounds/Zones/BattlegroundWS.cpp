@@ -378,7 +378,7 @@ void BattlegroundWS::OnGameObjectCreate(GameObject* gameObject)
 
 void BattlegroundWS::OnAreaTriggerCreate(AreaTrigger* areaTrigger)
 {
-    if (!areaTrigger->IsServerSide())
+    if (!areaTrigger->IsStaticSpawn())
         return;
 
     switch (areaTrigger->GetEntry())
