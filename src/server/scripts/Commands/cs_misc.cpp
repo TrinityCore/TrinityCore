@@ -1498,6 +1498,8 @@ public:
             if (msg == EQUIP_ERR_OK)
             {
                 Item* item = playerTarget->StoreNewItem(dest, itemTemplatePair.first, true, sItemEnchantmentMgr->GenerateRandomProperties(itemTemplatePair.first), GuidSet(), itemContext);
+                if (!item)
+                    continue;
 
                 // remove binding (let GM give it to another player later)
                 if (player == playerTarget)

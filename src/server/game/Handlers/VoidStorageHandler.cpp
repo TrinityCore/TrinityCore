@@ -186,10 +186,12 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
             return;
         }
 
-        Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->RandomProperties, GuidSet(), itemVS->Context);
-        item->SetCreator(itemVS->CreatorGuid);
-        item->SetBinding(true);
-        GetCollectionMgr()->AddItemAppearance(item);
+        if (Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->RandomProperties, GuidSet(), itemVS->Context))
+        {
+            item->SetCreator(itemVS->CreatorGuid);
+            item->SetBinding(true);
+            GetCollectionMgr()->AddItemAppearance(item);
+        }
 
         voidStorageTransferChanges.RemovedItems.push_back(ObjectGuid::Create<HighGuid::Item>(itemVS->ItemId));
 
