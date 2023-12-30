@@ -4,6 +4,7 @@ SET @GUID := 9008000; -- Two required
 -- New areatrigger
 SET @ID := 65; -- One required
 SET @SPAWNID := 65; -- One required
+SET @CREATEPROPID := 65; -- One required
 
 -- Briar Patch
 
