@@ -26,6 +26,7 @@ void AddSC_boss_alizabal();                  //Baradin Hold
 void AddSC_boss_occuthar();
 void AddSC_boss_pit_lord_argaloth();
 void AddSC_instance_baradin_hold();
+void AddSC_instance_bastion_of_twilight();   //Bastion of Twilight
 void AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
 void AddSC_boss_corla();
 void AddSC_boss_karsh_steelbender();
@@ -59,6 +60,7 @@ void AddSC_boss_gizrul_the_slavener();
 void AddSC_boss_urok_doomhowl();
 void AddSC_boss_lord_valthalak();
 void AddSC_instance_blackrock_spire();
+void AddSC_instance_blackwing_descent();     //Blackwing Descent
 void AddSC_boss_razorgore();                 //Blackwing lair
 void AddSC_boss_vaelastrasz();
 void AddSC_boss_broodlord();
@@ -68,11 +70,10 @@ void AddSC_boss_flamegor();
 void AddSC_boss_chromaggus();
 void AddSC_boss_nefarian();
 void AddSC_instance_blackwing_lair();
-void AddSC_deadmines();                      //Deadmines
-void AddSC_instance_deadmines();
-void AddSC_boss_mr_smite();
+void AddSC_instance_deadmines();             //Deadmines
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
+void AddSC_instance_grim_batol();            //Grim Batol
 void AddSC_boss_attumen();                   //Karazhan
 void AddSC_boss_curator();
 void AddSC_boss_maiden_of_virtue();
@@ -165,6 +166,7 @@ void AddSC_instance_the_stockade();          //The Stockade
 void AddSC_boss_hogger();
 void AddSC_boss_randolph_moloch();
 void AddSC_boss_lord_overheat();
+void AddSC_instance_throne_of_the_tides();   //Throne of the Tides
 void AddSC_boss_akilzon();                   //Zul'Aman
 void AddSC_boss_halazzi();
 void AddSC_boss_hex_lord_malacrass();
@@ -219,6 +221,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_occuthar();
     AddSC_boss_pit_lord_argaloth();
     AddSC_instance_baradin_hold();
+    AddSC_instance_bastion_of_twilight();   //Bastion of Twilight
     AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
     AddSC_boss_corla();
     AddSC_boss_karsh_steelbender();
@@ -252,6 +255,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_urok_doomhowl();
     AddSC_boss_lord_valthalak();
     AddSC_instance_blackrock_spire();
+    AddSC_instance_blackwing_descent();     //Blackwing Descent
     AddSC_boss_razorgore();                 //Blackwing lair
     AddSC_boss_vaelastrasz();
     AddSC_boss_broodlord();
@@ -261,11 +265,10 @@ void AddEasternKingdomsScripts()
     AddSC_boss_chromaggus();
     AddSC_boss_nefarian();
     AddSC_instance_blackwing_lair();
-    AddSC_deadmines();                      //Deadmines
-    AddSC_boss_mr_smite();
-    AddSC_instance_deadmines();
+    AddSC_instance_deadmines();             //Deadmines
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();
+    AddSC_instance_grim_batol();            //Grim Batol
     AddSC_boss_attumen();                   //Karazhan
     AddSC_boss_curator();
     AddSC_boss_maiden_of_virtue();
@@ -354,6 +357,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_hogger();
     AddSC_boss_randolph_moloch();
     AddSC_boss_lord_overheat();
+    AddSC_instance_throne_of_the_tides();   //Throne of the Tides
     AddSC_boss_archaedas();                 //Uldaman
     AddSC_boss_ironaya();
     AddSC_uldaman();

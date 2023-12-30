@@ -132,442 +132,347 @@ Position const BrannIntroWaypoint[MAX_BRANN_WAYPOINTS_INTRO] =
     {-35.04861f, 366.6563f, 89.77447f, 0.0f},
 };
 
-class boss_anraphet : public CreatureScript
+struct boss_anraphet : public BossAI
 {
-public:
-    boss_anraphet() : CreatureScript("boss_anraphet") { }
+    boss_anraphet(Creature* creature) : BossAI(creature, BOSS_ANRAPHET) { }
 
-    struct boss_anraphetAI : public BossAI
+    void ScheduleCombatEvents()
     {
-        boss_anraphetAI(Creature* creature) : BossAI(creature, DATA_ANRAPHET) { }
+        events.ScheduleEvent(EVENT_ANRAPHET_NEMESIS_STRIKE, 8s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_ANRAPHET_ALPHA_BEAMS, 10s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, 35s, 0, PHASE_COMBAT);
+    }
 
-        void ScheduleCombatEvents()
-        {
-            events.ScheduleEvent(EVENT_ANRAPHET_NEMESIS_STRIKE, 8s, 0, PHASE_COMBAT);
-            events.ScheduleEvent(EVENT_ANRAPHET_ALPHA_BEAMS, 10s, 0, PHASE_COMBAT);
-            events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, 35s, 0, PHASE_COMBAT);
-        }
-
-        void Reset() override
-        {
-            _Reset();
-            me->SetWalk(false);
-            events.SetPhase(PHASE_INTRO);
-            if (instance->GetData(DATA_DEAD_ELEMENTALS) == 4)
-            {
-                // Set to combat automatically, Brann's event won't repeat
-                me->SetUninteractible(false);
-                events.SetPhase(PHASE_COMBAT);
-                ScheduleCombatEvents();
-                me->SetHomePosition(AnraphetActivatePos);
-            }
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-            Talk(ANRAPHET_SAY_AGGRO);
-            BossAI::JustEngagedWith(who);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            Talk(ANRAPHET_SAY_DEATH);
-
-            if (Creature* brann = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BRANN_0_GUID)))
-                brann->AI()->DoAction(ACTION_ANRAPHET_DIED);
-
-            _JustDied();
-        }
-
-        void KilledUnit(Unit* victim) override
-        {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
-                Talk(ANRAPHET_SAY_KILL);
-        }
-
-        void JustReachedHome() override
-        {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            _JustReachedHome();
-            instance->SetBossState(DATA_ANRAPHET, FAIL);
-        }
-
-        void DoAction(int32 action) override
-        {
-            if (action == ACTION_ANRAPHET_INTRO)
-                events.ScheduleEvent(EVENT_ANRAPHET_APPEAR, 6s, 0, PHASE_INTRO);
-        }
-
-        void MovementInform(uint32 type, uint32 point) override
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            if (point == POINT_ANRAPHET_ACTIVATE)
-            {
-                events.ScheduleEvent(EVENT_ANRAPHET_ACTIVATE, 1500ms, 0, PHASE_INTRO);
-                me->SetHomePosition(AnraphetActivatePos);
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if ((events.GetPhaseMask() & PHASE_MASK_COMBAT) && (!UpdateVictim() || !CheckInRoom()))
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_ANRAPHET_APPEAR:
-                        me->SetWalk(true);
-                        me->GetMotionMaster()->MovePoint(POINT_ANRAPHET_ACTIVATE, AnraphetActivatePos);
-                        break;
-                    case EVENT_ANRAPHET_ACTIVATE:
-                        me->SetWalk(false);
-                        Talk(ANRAPHET_SAY_INTRO);
-                        events.ScheduleEvent(EVENT_ANRAPHET_DESTROY, 17500ms, 0, PHASE_INTRO);
-                        return;
-                    case EVENT_ANRAPHET_DESTROY:
-                        DoCastAOE(SPELL_DESTRUCTION_PROTOCOL);
-                        events.ScheduleEvent(EVENT_ANRAPHET_READY, 6s, 0, PHASE_INTRO);
-                        break;
-                    case EVENT_ANRAPHET_READY:
-                        me->SetUninteractible(false);
-                        events.SetPhase(PHASE_COMBAT);
-                        ScheduleCombatEvents();
-                        break;
-                    case EVENT_ANRAPHET_NEMESIS_STRIKE:
-                        DoCastVictim(SPELL_NEMESIS_STRIKE);
-                        events.ScheduleEvent(EVENT_ANRAPHET_NEMESIS_STRIKE, 21500ms, 0, PHASE_COMBAT);
-                        break;
-                    case EVENT_ANRAPHET_ALPHA_BEAMS:
-                        DoCast(me, SPELL_ALPHA_BEAMS);
-                        events.ScheduleEvent(EVENT_ANRAPHET_CRUMBLING_RUIN, 12500ms, 0, PHASE_COMBAT);
-                        events.ScheduleEvent(EVENT_ANRAPHET_ALPHA_BEAMS, 40s, 45s, 0, PHASE_COMBAT);
-                        break;
-                    case EVENT_ANRAPHET_OMEGA_STANCE:
-                        DoCast(me, SPELL_OMEGA_STANCE_SUMMON);
-                        DoCast(me, SPELL_OMEGA_STANCE);
-                        Talk(ANRAPHET_SAY_OMEGA_STANCE);
-                        events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, 45s, 50s, 0, PHASE_COMBAT);
-                        events.ScheduleEvent(EVENT_ANRAPHET_CRUMBLING_RUIN, 13s, 0, PHASE_COMBAT);
-                        break;
-                    case EVENT_ANRAPHET_CRUMBLING_RUIN:
-                        DoCast(me, SPELL_CRUMBLING_RUIN);
-                        break;
-                }
-            }
-
-            if (events.GetPhaseMask() & PHASE_MASK_COMBAT)
-                DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void Reset() override
     {
-        return GetHallsOfOriginationAI<boss_anraphetAI>(creature);
+        _Reset();
+        me->SetWalk(false);
+        events.SetPhase(PHASE_INTRO);
+        if (instance->GetData(DATA_DEAD_ELEMENTALS) == 4)
+        {
+            // Set to combat automatically, Brann's event won't repeat
+            me->SetUninteractible(false);
+            events.SetPhase(PHASE_COMBAT);
+            ScheduleCombatEvents();
+            me->SetHomePosition(AnraphetActivatePos);
+        }
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+        Talk(ANRAPHET_SAY_AGGRO);
+        BossAI::JustEngagedWith(who);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        Talk(ANRAPHET_SAY_DEATH);
+
+        if (Creature* brann = instance->GetCreature(DATA_BRANN_BRONZEBEARD))
+            brann->AI()->DoAction(ACTION_ANRAPHET_DIED);
+
+        _JustDied();
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(ANRAPHET_SAY_KILL);
+    }
+
+    void JustReachedHome() override
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _JustReachedHome();
+        instance->SetBossState(BOSS_ANRAPHET, FAIL);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_ANRAPHET_INTRO)
+            events.ScheduleEvent(EVENT_ANRAPHET_APPEAR, 6s, 0, PHASE_INTRO);
+    }
+
+    void MovementInform(uint32 type, uint32 point) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (point == POINT_ANRAPHET_ACTIVATE)
+        {
+            events.ScheduleEvent(EVENT_ANRAPHET_ACTIVATE, 1500ms, 0, PHASE_INTRO);
+            me->SetHomePosition(AnraphetActivatePos);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if ((events.GetPhaseMask() & PHASE_MASK_COMBAT) && (!UpdateVictim() || !CheckInRoom()))
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ANRAPHET_APPEAR:
+                    me->SetWalk(true);
+                    me->GetMotionMaster()->MovePoint(POINT_ANRAPHET_ACTIVATE, AnraphetActivatePos);
+                    break;
+                case EVENT_ANRAPHET_ACTIVATE:
+                    me->SetWalk(false);
+                    Talk(ANRAPHET_SAY_INTRO);
+                    events.ScheduleEvent(EVENT_ANRAPHET_DESTROY, 17500ms, 0, PHASE_INTRO);
+                    return;
+                case EVENT_ANRAPHET_DESTROY:
+                    DoCastAOE(SPELL_DESTRUCTION_PROTOCOL);
+                    events.ScheduleEvent(EVENT_ANRAPHET_READY, 6s, 0, PHASE_INTRO);
+                    break;
+                case EVENT_ANRAPHET_READY:
+                    me->SetUninteractible(false);
+                    events.SetPhase(PHASE_COMBAT);
+                    ScheduleCombatEvents();
+                    break;
+                case EVENT_ANRAPHET_NEMESIS_STRIKE:
+                    DoCastVictim(SPELL_NEMESIS_STRIKE);
+                    events.ScheduleEvent(EVENT_ANRAPHET_NEMESIS_STRIKE, 21500ms, 0, PHASE_COMBAT);
+                    break;
+                case EVENT_ANRAPHET_ALPHA_BEAMS:
+                    DoCast(me, SPELL_ALPHA_BEAMS);
+                    events.ScheduleEvent(EVENT_ANRAPHET_CRUMBLING_RUIN, 12500ms, 0, PHASE_COMBAT);
+                    events.ScheduleEvent(EVENT_ANRAPHET_ALPHA_BEAMS, 40s, 45s, 0, PHASE_COMBAT);
+                    break;
+                case EVENT_ANRAPHET_OMEGA_STANCE:
+                    DoCast(me, SPELL_OMEGA_STANCE_SUMMON);
+                    DoCast(me, SPELL_OMEGA_STANCE);
+                    Talk(ANRAPHET_SAY_OMEGA_STANCE);
+                    events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, 45s, 50s, 0, PHASE_COMBAT);
+                    events.ScheduleEvent(EVENT_ANRAPHET_CRUMBLING_RUIN, 13s, 0, PHASE_COMBAT);
+                    break;
+                case EVENT_ANRAPHET_CRUMBLING_RUIN:
+                    DoCast(me, SPELL_CRUMBLING_RUIN);
+                    break;
+            }
+        }
+
+        if (events.GetPhaseMask() & PHASE_MASK_COMBAT)
+            DoMeleeAttackIfReady();
     }
 };
 
-class npc_omega_stance : public CreatureScript
+struct npc_omega_stance : public ScriptedAI
 {
-    public:
-        npc_omega_stance() : CreatureScript("npc_omega_stance") { }
+    npc_omega_stance(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_omega_stanceAI : public ScriptedAI
-        {
-            npc_omega_stanceAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void IsSummonedBy(WorldObject* /*who*/) override
-            {
-                DoCast(me, SPELL_OMEGA_STANCE_SPIDER_TRIGGER, true);
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override { }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetHallsOfOriginationAI<npc_omega_stanceAI>(creature);
-        }
-};
-
-class npc_alpha_beam : public CreatureScript
-{
-    public:
-        npc_alpha_beam() : CreatureScript("npc_alpha_beam") { }
-
-        struct npc_alpha_beamAI : public ScriptedAI
-        {
-            npc_alpha_beamAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-            void IsSummonedBy(WorldObject* /*summoner*/) override
-            {
-                if (Creature* anraphet = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ANRAPHET_GUID)))
-                    anraphet->CastSpell(me, SPELL_ALPHA_BEAMS_BACK_CAST);
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override { } // Never evade
-
-            private:
-                InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetHallsOfOriginationAI<npc_alpha_beamAI>(creature);
-        }
-};
-
-class npc_brann_bronzebeard_anraphet : public CreatureScript
-{
-    public:
-        npc_brann_bronzebeard_anraphet() : CreatureScript("npc_brann_bronzebeard_anraphet") { }
-
-        struct npc_brann_bronzebeard_anraphetAI : public CreatureAI
-        {
-            npc_brann_bronzebeard_anraphetAI(Creature* creature) : CreatureAI(creature), _currentPoint(0), _instance(creature->GetInstanceScript()) { }
-
-            bool OnGossipSelect(Player* /*player*/, uint32 menuId, uint32 action) override
-            {
-                if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
-                    return true;
-
-                if (menuId == GOSSIP_MENU_START_INTRO && !action)
-                {
-                    _instance->SetBossState(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
-                    _currentPoint = 0;
-                    events.Reset();
-                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                    me->SetWalk(true);
-                    Talk(BRANN_SAY_DOOR_INTRO);
-                    events.ScheduleEvent(EVENT_BRANN_UNLOCK_DOOR, 7500ms);
-                }
-                return false;
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_ELEMENTAL_DIED:
-                    {
-                        uint32 dead = _instance->GetData(DATA_DEAD_ELEMENTALS);
-                        Talk(BRANN_1_ELEMENTAL_DEAD + dead - 1);
-                        if (dead == 4)
-                        {
-                            _instance->DoCastSpellOnPlayers(SPELL_VAULT_OF_LIGHTS_CREDIT);
-                            if (Creature* anraphet = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ANRAPHET_GUID)))
-                                anraphet->AI()->DoAction(ACTION_ANRAPHET_INTRO);
-                        }
-                        break;
-                    }
-                    case ACTION_ANRAPHET_DIED:
-                        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                        events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 1s);
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_BRANN_MOVE_INTRO:
-                            if (_currentPoint < MAX_BRANN_WAYPOINTS_INTRO)
-                                me->GetMotionMaster()->MovePoint(_currentPoint, BrannIntroWaypoint[_currentPoint]);
-                            break;
-                        case EVENT_BRANN_UNLOCK_DOOR:
-                            Talk(BRANN_SAY_UNLOCK_DOOR);
-                            _instance->SetBossState(DATA_VAULT_OF_LIGHTS, DONE);
-                            _instance->TriggerGameEvent(ACHIEV_VAULT_OF_LIGHTS_EVENT);
-                            events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 3500ms);
-                            break;
-                        case EVENT_BRANN_THINK:
-                            Talk(BRANN_SAY_THINK);
-                            events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_1, 6s);
-                            break;
-                        case EVENT_BRANN_SET_ORIENTATION_1:
-                            me->SetFacingTo(5.445427f);
-                            Talk(BRANN_SAY_MIRRORS);
-                            events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_2, 1s);
-                            break;
-                        case EVENT_BRANN_SET_ORIENTATION_2:
-                            me->SetFacingTo(0.6283185f);
-                            events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_3, 2500ms);
-                            break;
-                        case EVENT_BRANN_SET_ORIENTATION_3:
-                            me->SetFacingTo(0.01745329f);
-                            events.ScheduleEvent(EVENT_BRANN_SAY_ELEMENTALS, 200ms);
-                            break;
-                        case EVENT_BRANN_SAY_ELEMENTALS:
-                            Talk(BRANN_SAY_ELEMENTALS);
-                            events.ScheduleEvent(EVENT_BRANN_SAY_GET_IT, 3500ms);
-                            break;
-                        case EVENT_BRANN_SAY_GET_IT:
-                            Talk(BRANN_SAY_GET_IT);
-                            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                            break;
-                        case EVENT_BRANN_SET_ORIENTATION_4:
-                            me->SetFacingTo(3.141593f);
-                            break;
-                    }
-                }
-            }
-
-            void MovementInform(uint32 movementType, uint32 pointId) override
-            {
-                if (movementType != POINT_MOTION_TYPE)
-                    return;
-
-                _currentPoint = pointId + 1;
-                Milliseconds delay = 1ms;
-
-                switch (pointId)
-                {
-                    case 0:
-                        Talk(BRANN_SAY_TROGGS);
-                        events.ScheduleEvent(EVENT_BRANN_THINK, 15s);
-                        return;
-                    case 1:
-                        Talk(BRANN_SAY_ANRAPHET_DIED);
-                        delay = 1s;
-                        break;
-                    case 14:
-                        Talk(BRANN_SAY_MOMENT);
-                        delay = 2200ms;
-                        break;
-                    case 16:
-                        events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_4, 6s);
-                        return;
-                    default:
-                        break;
-                }
-
-                events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, delay);
-            }
-
-        protected:
-            EventMap events;
-            uint32 _currentPoint;
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetHallsOfOriginationAI<npc_brann_bronzebeard_anraphetAI>(creature);
-        }
-};
-
-class spell_anraphet_alpha_beams : public SpellScriptLoader
-{
-public:
-    spell_anraphet_alpha_beams() : SpellScriptLoader("spell_anraphet_alpha_beams") { }
-
-    class spell_anraphet_alpha_beams_SpellScript : public SpellScript
+    void IsSummonedBy(WorldObject* /*who*/) override
     {
-        void FilterTargets(std::list<WorldObject*>& targets)
+        DoCast(me, SPELL_OMEGA_STANCE_SPIDER_TRIGGER, true);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override { }
+};
+
+struct npc_alpha_beam : public ScriptedAI
+{
+    npc_alpha_beam(Creature* creature) : ScriptedAI(creature), _instance(nullptr) { }
+
+    void InitializeAI() override
+    {
+        _instance = me->GetInstanceScript();
+    }
+
+    void IsSummonedBy(WorldObject* /*summoner*/) override
+    {
+        if (Creature* anraphet = _instance->GetCreature(BOSS_ANRAPHET))
+            anraphet->CastSpell(me, SPELL_ALPHA_BEAMS_BACK_CAST);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override { } // Never evade
+
+private:
+    InstanceScript* _instance;
+};
+
+struct npc_brann_bronzebeard_anraphet : public CreatureAI
+{
+    npc_brann_bronzebeard_anraphet(Creature* creature) : CreatureAI(creature), _currentPoint(0), _instance(nullptr) { }
+
+    void InitializeAI() override
+    {
+        _instance = me->GetInstanceScript();
+    }
+
+    bool OnGossipSelect(Player* /*player*/, uint32 menuId, uint32 action) override
+    {
+        if (_instance->GetBossState(BOSS_VAULT_OF_LIGHTS) == DONE)
+            return true;
+
+        if (menuId == GOSSIP_MENU_START_INTRO && !action)
         {
-            if (targets.empty())
+            _instance->SetBossState(BOSS_VAULT_OF_LIGHTS, IN_PROGRESS);
+            _currentPoint = 0;
+            events.Reset();
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            me->SetWalk(true);
+            Talk(BRANN_SAY_DOOR_INTRO);
+            events.ScheduleEvent(EVENT_BRANN_UNLOCK_DOOR, 7500ms);
+        }
+        return false;
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_ELEMENTAL_DIED:
+            {
+                uint32 dead = _instance->GetData(DATA_DEAD_ELEMENTALS);
+                Talk(BRANN_1_ELEMENTAL_DEAD + dead - 1);
+                if (dead == 4)
+                {
+                    _instance->DoCastSpellOnPlayers(SPELL_VAULT_OF_LIGHTS_CREDIT);
+                    if (Creature* anraphet = _instance->GetCreature(BOSS_ANRAPHET))
+                        anraphet->AI()->DoAction(ACTION_ANRAPHET_INTRO);
+                }
+                break;
+            }
+            case ACTION_ANRAPHET_DIED:
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 1s);
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BRANN_MOVE_INTRO:
+                    if (_currentPoint < MAX_BRANN_WAYPOINTS_INTRO)
+                        me->GetMotionMaster()->MovePoint(_currentPoint, BrannIntroWaypoint[_currentPoint]);
+                    break;
+                case EVENT_BRANN_UNLOCK_DOOR:
+                    Talk(BRANN_SAY_UNLOCK_DOOR);
+                    _instance->SetBossState(BOSS_VAULT_OF_LIGHTS, DONE);
+                    _instance->TriggerGameEvent(ACHIEV_VAULT_OF_LIGHTS_EVENT);
+                    events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 3500ms);
+                    break;
+                case EVENT_BRANN_THINK:
+                    Talk(BRANN_SAY_THINK);
+                    events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_1, 6s);
+                    break;
+                case EVENT_BRANN_SET_ORIENTATION_1:
+                    me->SetFacingTo(5.445427f);
+                    Talk(BRANN_SAY_MIRRORS);
+                    events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_2, 1s);
+                    break;
+                case EVENT_BRANN_SET_ORIENTATION_2:
+                    me->SetFacingTo(0.6283185f);
+                    events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_3, 2500ms);
+                    break;
+                case EVENT_BRANN_SET_ORIENTATION_3:
+                    me->SetFacingTo(0.01745329f);
+                    events.ScheduleEvent(EVENT_BRANN_SAY_ELEMENTALS, 200ms);
+                    break;
+                case EVENT_BRANN_SAY_ELEMENTALS:
+                    Talk(BRANN_SAY_ELEMENTALS);
+                    events.ScheduleEvent(EVENT_BRANN_SAY_GET_IT, 3500ms);
+                    break;
+                case EVENT_BRANN_SAY_GET_IT:
+                    Talk(BRANN_SAY_GET_IT);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    break;
+                case EVENT_BRANN_SET_ORIENTATION_4:
+                    me->SetFacingTo(3.141593f);
+                    break;
+            }
+        }
+    }
+
+    void MovementInform(uint32 movementType, uint32 pointId) override
+    {
+        if (movementType != POINT_MOTION_TYPE)
+            return;
+
+        _currentPoint = pointId + 1;
+        Milliseconds delay = 1ms;
+
+        switch (pointId)
+        {
+            case 0:
+                Talk(BRANN_SAY_TROGGS);
+                events.ScheduleEvent(EVENT_BRANN_THINK, 15s);
                 return;
-
-            WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-            targets.clear();
-            targets.push_back(target);
+            case 1:
+                Talk(BRANN_SAY_ANRAPHET_DIED);
+                delay = 1s;
+                break;
+            case 14:
+                Talk(BRANN_SAY_MOMENT);
+                delay = 2200ms;
+                break;
+            case 16:
+                events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_4, 6s);
+                return;
+            default:
+                break;
         }
 
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anraphet_alpha_beams_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        }
-    };
+        events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, delay);
+    }
 
-    SpellScript* GetSpellScript() const override
+protected:
+    EventMap events;
+    uint32 _currentPoint;
+    InstanceScript* _instance;
+};
+
+class spell_anraphet_alpha_beams : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        return new spell_anraphet_alpha_beams_SpellScript();
+        if (targets.empty())
+            return;
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anraphet_alpha_beams::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 // 77106 - Omega Stance (Summon)
-class spell_anraphet_omega_stance_summon : public SpellScriptLoader
+class spell_anraphet_omega_stance_summon : public SpellScript
 {
-public:
-    spell_anraphet_omega_stance_summon() : SpellScriptLoader("spell_anraphet_omega_stance_summon") { }
-
-    class spell_anraphet_omega_stance_summon_SpellScript : public SpellScript
+    void SetDest(SpellDestination& dest)
     {
-        void SetDest(SpellDestination& dest)
-        {
-            dest.RelocateOffset({ 0.0f, 0.0f, 30.0f, 0.0f });
-        }
-
-        void Register() override
-        {
-            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_anraphet_omega_stance_summon_SpellScript::SetDest, EFFECT_0, TARGET_DEST_DEST);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_anraphet_omega_stance_summon_SpellScript();
+        dest.RelocateOffset({ 0.0f, 0.0f, 30.0f, 0.0f });
     }
-};
 
-// 77127 Omega Stance Spider Effect
-class spell_anraphet_omega_stance_spider_effect : public SpellScriptLoader
-{
-public:
-    spell_anraphet_omega_stance_spider_effect() : SpellScriptLoader("spell_anraphet_omega_stance_spider_effect") { }
-
-    class spell_anraphet_omega_stance_spider_effect_SpellScript : public SpellScript
+    void Register() override
     {
-        void SetDest(SpellDestination& dest)
-        {
-            // Do our own calculations for the destination position.
-            /// TODO: Remove this once we find a general rule for WorldObject::MovePosition (this spell shouldn't take the Z change into consideration)
-            Unit* caster = GetCaster();
-            float angle = rand_norm() * static_cast<float>(2 * M_PI);
-            uint32 dist = caster->GetCombatReach() + GetSpellInfo()->GetEffect(EFFECT_0).CalcRadius(caster, SpellTargetIndex::TargetB) * rand_norm();
-
-            float x = caster->GetPositionX() + dist * std::cos(angle);
-            float y = caster->GetPositionY() + dist * std::sin(angle);
-            float z = caster->GetMap()->GetHeight(caster->GetPhaseShift(), x, y, caster->GetPositionZ());
-            float o = dest._position.GetOrientation();
-
-            dest.Relocate({ x, y, z, o });
-        }
-
-        void Register() override
-        {
-            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_anraphet_omega_stance_spider_effect_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_anraphet_omega_stance_spider_effect_SpellScript();
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_anraphet_omega_stance_summon::SetDest, EFFECT_0, TARGET_DEST_DEST);
     }
 };
 
 void AddSC_boss_anraphet()
 {
-    new boss_anraphet();
-    new spell_anraphet_alpha_beams();
-    new npc_brann_bronzebeard_anraphet();
-    new npc_alpha_beam();
-    new spell_anraphet_omega_stance_summon();
-    new spell_anraphet_omega_stance_spider_effect();
-    new npc_omega_stance();
+    RegisterHallsOfOriginationCreatureAI(boss_anraphet);
+    RegisterHallsOfOriginationCreatureAI(npc_brann_bronzebeard_anraphet);
+    RegisterHallsOfOriginationCreatureAI(npc_alpha_beam);
+    RegisterHallsOfOriginationCreatureAI(npc_omega_stance);
+    RegisterSpellScript(spell_anraphet_alpha_beams);
+    RegisterSpellScript(spell_anraphet_omega_stance_summon);
 }

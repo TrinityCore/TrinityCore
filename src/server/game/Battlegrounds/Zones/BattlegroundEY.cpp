@@ -101,14 +101,14 @@ void BattlegroundEY::StartingEventOpenDoors()
     TriggerGameEvent(BG_EY_EVENT_START_BATTLE);
 }
 
-void BattlegroundEY::AddPoints(uint32 Team, uint32 Points)
+void BattlegroundEY::AddPoints(Team team, uint32 Points)
 {
-    TeamId team_index = GetTeamIndexByTeamId(Team);
+    TeamId team_index = GetTeamIndexByTeamId(team);
     m_TeamScores[team_index] += Points;
     m_HonorScoreTics[team_index] += Points;
     if (m_HonorScoreTics[team_index] >= m_HonorTics)
     {
-        RewardHonorToTeam(GetBonusHonorFromKill(1), Team);
+        RewardHonorToTeam(GetBonusHonorFromKill(1), team);
         m_HonorScoreTics[team_index] -= m_HonorTics;
     }
     UpdateTeamScore(team_index);
@@ -186,7 +186,7 @@ void BattlegroundEY::RemoveAssaultDebuffFromPlayer(Player* player)
     player->RemoveAurasDueToSpell(BG_EY_BRUTAL_ASSAULT_SPELL);
 }
 
-void BattlegroundEY::UpdateTeamScore(uint32 Team)
+void BattlegroundEY::UpdateTeamScore(TeamId Team)
 {
     uint32 score = GetTeamScore(Team);
 
@@ -205,7 +205,7 @@ void BattlegroundEY::UpdateTeamScore(uint32 Team)
         UpdateWorldState(EY_HORDE_RESOURCES, score);
 }
 
-void BattlegroundEY::EndBattleground(uint32 winner)
+void BattlegroundEY::EndBattleground(Team winner)
 {
     // Win reward
     if (winner == ALLIANCE)
@@ -455,7 +455,7 @@ WorldSafeLocsEntry const* BattlegroundEY::GetExploitTeleportLocation(Team team)
     return sObjectMgr->GetWorldSafeLoc(team == ALLIANCE ? EY_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EY_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
-uint32 BattlegroundEY::GetPrematureWinner()
+Team BattlegroundEY::GetPrematureWinner()
 {
     if (GetTeamScore(TEAM_ALLIANCE) > GetTeamScore(TEAM_HORDE))
         return ALLIANCE;

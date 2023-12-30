@@ -15,30 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SQLOPERATION_H
-#define _SQLOPERATION_H
+#ifndef TRINITYCORE_HTTP_SESSION_STATE_H
+#define TRINITYCORE_HTTP_SESSION_STATE_H
 
-#include "DatabaseEnvFwd.h"
+#include "Duration.h"
+#include <boost/asio/ip/address.hpp>
+#include <boost/uuid/uuid.hpp>
 
-//- Union that holds element data
-union SQLElementUnion
+namespace Trinity::Net::Http
 {
-    PreparedStatementBase* stmt;
-    char const* query;
-};
-
-//- Type specifier of our element data
-enum SQLElementDataType
+struct SessionState
 {
-    SQL_ELEMENT_RAW,
-    SQL_ELEMENT_PREPARED
+    boost::uuids::uuid Id = { };
+    boost::asio::ip::address RemoteAddress;
+    TimePoint InactiveTimestamp = TimePoint::max();
 };
+}
 
-//- The element
-struct SQLElementData
-{
-    SQLElementUnion element;
-    SQLElementDataType type;
-};
-
-#endif
+#endif // TRINITYCORE_HTTP_SESSION_STATE_H

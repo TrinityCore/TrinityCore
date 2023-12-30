@@ -243,11 +243,11 @@ bool CharacterCache::GetCharacterNameByGuid(ObjectGuid guid, std::string& name) 
     return true;
 }
 
-uint32 CharacterCache::GetCharacterTeamByGuid(ObjectGuid guid) const
+Team CharacterCache::GetCharacterTeamByGuid(ObjectGuid guid) const
 {
     auto itr = _characterCacheStore.find(guid);
     if (itr == _characterCacheStore.end())
-        return 0;
+        return TEAM_OTHER;
 
     return Player::TeamForRace(itr->second.Race);
 }

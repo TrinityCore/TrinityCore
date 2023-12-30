@@ -713,6 +713,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         typedef std::function<void(Map*)> FarSpellCallback;
         void AddFarSpellCallback(FarSpellCallback&& callback);
 
+        void InitSpawnGroupState();
         void UpdateSpawnGroupConditions();
 
     private:

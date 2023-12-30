@@ -449,7 +449,6 @@ class TC_GAME_API Item : public Object
         UF::UpdateField<UF::ItemData, 0, TYPEID_ITEM> m_itemData;
 
     protected:
-        void ApplyBonusList(uint32 itemBonusListId);
         BonusData _bonusData;
 
     private:
