@@ -24,6 +24,8 @@
 #include "Player.h"
 #include "CellImpl.h"
 #include "Containers.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
