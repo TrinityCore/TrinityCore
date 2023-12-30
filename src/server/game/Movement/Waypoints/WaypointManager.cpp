@@ -186,7 +186,7 @@ void WaypointMgr::ReloadPath(uint32 pathId)
     }
 }
 
-bool WaypointMgr::VisualizePath(Unit* owner, WaypointPath const* path, Optional<uint32> displayId)
+void WaypointMgr::VisualizePath(Unit* owner, WaypointPath const* path, Optional<uint32> displayId)
 {
     for (WaypointNode const& node : path->Nodes)
     {
@@ -209,7 +209,6 @@ bool WaypointMgr::VisualizePath(Unit* owner, WaypointPath const* path, Optional<
         _nodeToVisualWaypointGUIDsMap[pathNodePair] = summon->GetGUID();
         _visualWaypointGUIDToNodeMap[summon->GetGUID()] = std::pair<WaypointPath const*, WaypointNode const*>(path, &node);
     }
-    return true;
 }
 
 void WaypointMgr::DevisualizePath(Unit* owner, WaypointPath const* path)
