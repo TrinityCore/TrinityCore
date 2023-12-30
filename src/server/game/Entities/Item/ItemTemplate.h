@@ -837,6 +837,7 @@ struct TC_GAME_API ItemTemplate
     uint32 RandomBonusListTemplateId;
     std::bitset<MAX_CLASSES * MAX_SPECIALIZATIONS> Specializations[3];  // one set for 1-40 level range and another for 41-109 and one for 110
     uint32 ItemSpecClassMask;
+    int32 QuestLogItemId;
 
     // helpers
     bool CanChangeEquipStateInCombat() const;

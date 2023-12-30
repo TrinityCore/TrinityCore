@@ -26,6 +26,12 @@
 #include "UnitAI.h"
 #include "Vehicle.h"
 
+enum IsleOfConquestPvpStats
+{
+    PVP_STAT_BASES_ASSAULTED    = 245,
+    PVP_STAT_BASES_DEFENDED     = 246
+};
+
 BattlegroundIC::BattlegroundIC(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     BgObjects.resize(MAX_NORMAL_GAMEOBJECTS_SPAWNS + MAX_AIRSHIPS_SPAWNS + MAX_HANGAR_TELEPORTERS_SPAWNS + MAX_FORTRESS_TELEPORTERS_SPAWNS + MAX_HANGAR_TELEPORTER_EFFECTS_SPAWNS + MAX_FORTRESS_TELEPORTER_EFFECTS_SPAWNS);
@@ -244,10 +250,7 @@ void BattlegroundIC::StartingEventOpenDoors()
 
 void BattlegroundIC::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
 {
-    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player, queueId);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new BattlegroundICScore(player->GetGUID(), player->GetBGTeam());
 
     if (nodePoint[NODE_TYPE_QUARRY].nodeState == (GetPlayerTeam(player->GetGUID()) == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         player->CastSpell(player, SPELL_QUARRY, true);
@@ -436,7 +439,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
                     if (!BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1 + uint32(nodePoint[i].nodeType) - 2].IsEmpty())
                         DelCreature(BG_IC_NPC_SPIRIT_GUIDE_1 + uint32(nodePoint[i].nodeType) - 2);
 
-                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_ASSAULTED, 1);
 
                 if (nodePoint[i].faction == TEAM_ALLIANCE)
                     SendBroadcastText(ICNodes[i].TextAssaulted, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
@@ -456,7 +459,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
                     SendBroadcastText(ICNodes[i].TextDefended, CHAT_MSG_BG_SYSTEM_HORDE, player);
 
                 HandleCapturedNodes(&nodePoint[i], true);
-                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_DEFENDED, 1);
             }
 
             GameObject* banner = GetBGObject(nodePoint[i].gameobject_type);
@@ -470,7 +473,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
             if (!AddObject(nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry, cords[0], cords[1], cords[2], cords[3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
             {
                 TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning a banner (type: {}, entry: {}). Isle of Conquest BG cancelled.", nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry);
-                EndBattleground(0);
+                EndBattleground(TEAM_OTHER);
             }
 
             GetBGObject(nodePoint[i].gameobject_type)->SetFaction(nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_Factions[1] : BG_IC_Factions[0]);

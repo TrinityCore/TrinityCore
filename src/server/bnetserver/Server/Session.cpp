@@ -30,6 +30,7 @@
 #include "RealmList.h"
 #include "RealmList.pb.h"
 #include "ServiceDispatcher.h"
+#include "SslContext.h"
 #include "Timezone.h"
 #include <rapidjson/document.h>
 #include <zlib.h>
@@ -73,7 +74,8 @@ void Battlenet::Session::GameAccountInfo::LoadResult(Field const* fields)
         DisplayName = Name;
 }
 
-Battlenet::Session::Session(boost::asio::ip::tcp::socket&& socket) : BattlenetSocket(std::move(socket)), _accountInfo(new AccountInfo()), _gameAccountInfo(nullptr), _locale(),
+Battlenet::Session::Session(boost::asio::ip::tcp::socket&& socket) : BattlenetSocket(std::move(socket), SslContext::instance()),
+    _accountInfo(new AccountInfo()), _gameAccountInfo(nullptr), _locale(),
     _os(), _build(0), _timezoneOffset(0min), _ipCountry(), _clientSecret(), _authed(false), _requestToken(0)
 {
     _headerLengthBuffer.Resize(2);

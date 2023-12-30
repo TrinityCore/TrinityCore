@@ -88,6 +88,8 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     {
         case ALLIANCE: SetTaximaskNode(100); break;
         case HORDE:    SetTaximaskNode(99);  break;
+        default:
+            break;
     }
 
     // level dependent taxi hubs

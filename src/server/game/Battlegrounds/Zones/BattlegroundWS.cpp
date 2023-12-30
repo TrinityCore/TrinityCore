@@ -45,6 +45,12 @@ uint32 BG_WSG_Honor[2][BG_WSG_REWARD_NUM] =
     {60, 40, 80}  // holiday
 };
 
+enum WarsongGulchPvpStats
+{
+    PVP_STAT_FLAG_CAPTURES  = 928,
+    PVP_STAT_FLAG_RETURNS   = 929
+};
+
 BattlegroundWS::BattlegroundWS(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     BgObjects.resize(0);
@@ -56,7 +62,7 @@ BattlegroundWS::BattlegroundWS(BattlegroundTemplate const* battlegroundTemplate)
 
     _bothFlagsKept = false;
 
-    _lastFlagCaptureTeam = 0;
+    _lastFlagCaptureTeam = TEAM_OTHER;
     m_ReputationCapture = 0;
     m_HonorWinKills = 0;
     m_HonorEndKills = 0;
@@ -79,7 +85,7 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
             if (GetTeamScore(TEAM_ALLIANCE) == 0)
             {
                 if (GetTeamScore(TEAM_HORDE) == 0) // No one scored - result is tie
-                    EndBattleground(0);
+                    EndBattleground(TEAM_OTHER);
                 else // Horde has more points and thus wins
                     EndBattleground(HORDE);
             }
@@ -181,14 +187,6 @@ void BattlegroundWS::StartingEventOpenDoors()
     TriggerGameEvent(WS_EVENT_START_BATTLE);
 }
 
-void BattlegroundWS::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
-{
-    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
-    Battleground::AddPlayer(player, queueId);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new BattlegroundWGScore(player->GetGUID(), player->GetBGTeam());
-}
-
 FlagState BattlegroundWS::GetFlagState(TeamId team) const
 {
     if (GameObject* gameObject = FindBgMap()->GetGameObject(_flags[team]))
@@ -246,7 +244,7 @@ void BattlegroundWS::UpdateFlagState(uint32 team, FlagState value)
     }
 }
 
-void BattlegroundWS::UpdateTeamScore(uint32 team)
+void BattlegroundWS::UpdateTeamScore(TeamId team)
 {
     if (team == TEAM_ALLIANCE)
         UpdateWorldState(BG_WS_FLAG_CAPTURES_ALLIANCE, GetTeamScore(team));
@@ -279,7 +277,7 @@ void BattlegroundWS::Reset()
         m_HonorWinKills = 1;
         m_HonorEndKills = 2;
     }
-    _lastFlagCaptureTeam             = 0;
+    _lastFlagCaptureTeam             = TEAM_OTHER;
     _bothFlagsKept                   = false;
 
     _doors.clear();
@@ -289,7 +287,7 @@ void BattlegroundWS::Reset()
     _capturePointAreaTriggers = { };
 }
 
-void BattlegroundWS::EndBattleground(uint32 winner)
+void BattlegroundWS::EndBattleground(Team winner)
 {
     // Win reward
     if (winner == ALLIANCE)
@@ -314,25 +312,6 @@ void BattlegroundWS::HandleKillPlayer(Player* player, Player* killer)
     Battleground::HandleKillPlayer(player, killer);
 }
 
-bool BattlegroundWS::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
-{
-    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
-        return false;
-
-    switch (type)
-    {
-        case SCORE_FLAG_CAPTURES:                           // flags captured
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, WS_OBJECTIVE_CAPTURE_FLAG);
-            break;
-        case SCORE_FLAG_RETURNS:                            // flags returned
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, WS_OBJECTIVE_RETURN_FLAG);
-            break;
-        default:
-            break;
-    }
-    return true;
-}
-
 WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveyard(Player* player)
 {
     return sObjectMgr->GetClosestGraveyard(*player, player->GetBGTeam(), player);
@@ -343,7 +322,7 @@ WorldSafeLocsEntry const* BattlegroundWS::GetExploitTeleportLocation(Team team)
     return sObjectMgr->GetWorldSafeLoc(team == ALLIANCE ? WS_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : WS_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
-uint32 BattlegroundWS::GetPrematureWinner()
+Team BattlegroundWS::GetPrematureWinner()
 {
     if (GetTeamScore(TEAM_ALLIANCE) > GetTeamScore(TEAM_HORDE))
         return ALLIANCE;
@@ -378,7 +357,7 @@ void BattlegroundWS::OnGameObjectCreate(GameObject* gameObject)
 
 void BattlegroundWS::OnAreaTriggerCreate(AreaTrigger* areaTrigger)
 {
-    if (!areaTrigger->IsServerSide())
+    if (!areaTrigger->IsStaticSpawn())
         return;
 
     switch (areaTrigger->GetEntry())
@@ -396,7 +375,7 @@ void BattlegroundWS::OnAreaTriggerCreate(AreaTrigger* areaTrigger)
 
 void BattlegroundWS::OnFlagStateChange(GameObject* flagInBase, FlagState /*oldValue*/, FlagState newValue, Player* player)
 {
-    uint32 team = flagInBase->GetEntry() == BG_WS_OBJECT_HORDE_FLAG_IN_BASE ? HORDE : ALLIANCE;
+    Team team = flagInBase->GetEntry() == BG_WS_OBJECT_HORDE_FLAG_IN_BASE ? HORDE : ALLIANCE;
     TeamId otherTeamId = GetTeamIndexByTeamId(GetOtherTeam(team));
 
     UpdateFlagState(team, newValue);
@@ -411,7 +390,7 @@ void BattlegroundWS::OnFlagStateChange(GameObject* flagInBase, FlagState /*oldVa
                 if (player)
                 {
                     // flag got returned to base by player interaction
-                    UpdatePlayerScore(player, SCORE_FLAG_RETURNS, 1);      // +1 flag returns
+                    UpdatePvpStat(player, PVP_STAT_FLAG_RETURNS, 1);      // +1 flag returns
 
                     if (team == ALLIANCE)
                     {
@@ -488,7 +467,7 @@ bool BattlegroundWS::CanCaptureFlag(AreaTrigger* areaTrigger, Player* player)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return false;
 
-    uint32 team = GetPlayerTeam(player->GetGUID());
+    Team team = GetPlayerTeam(player->GetGUID());
     TeamId teamId = GetTeamIndexByTeamId(team);
     TeamId otherTeamId = GetTeamIndexByTeamId(GetOtherTeam(team));
 
@@ -505,9 +484,9 @@ bool BattlegroundWS::CanCaptureFlag(AreaTrigger* areaTrigger, Player* player)
 
 void BattlegroundWS::OnCaptureFlag(AreaTrigger* /*areaTrigger*/, Player* player)
 {
-    uint32 winner = 0;
+    Team winner = TEAM_OTHER;
 
-    uint32 team = GetPlayerTeam(player->GetGUID());
+    Team team = GetPlayerTeam(player->GetGUID());
     TeamId teamId = GetTeamIndexByTeamId(team);
     TeamId otherTeamId = GetTeamIndexByTeamId(GetOtherTeam(team));
 
@@ -548,7 +527,7 @@ void BattlegroundWS::OnCaptureFlag(AreaTrigger* /*areaTrigger*/, Player* player)
     }
 
     // 4. update criteria's for achievement, player score etc.
-    UpdatePlayerScore(player, SCORE_FLAG_CAPTURES, 1);      // +1 flag captures
+    UpdatePvpStat(player, PVP_STAT_FLAG_CAPTURES, 1);      // +1 flag captures
 
     // 5. Remove all related auras
     RemoveAssaultDebuffFromPlayer(player);

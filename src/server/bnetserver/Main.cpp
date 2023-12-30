@@ -200,21 +200,29 @@ int main(int argc, char** argv)
 
     Trinity::Net::ScanLocalNetworks();
 
-    // Start the listening port (acceptor) for auth connections
-    int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
-    if (bnport < 0 || bnport > 0xFFFF)
+    std::string httpBindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
+    int32 httpPort = sConfigMgr->GetIntDefault("LoginREST.Port", 8081);
+    if (httpPort <= 0 || httpPort > 0xFFFF)
     {
-        TC_LOG_ERROR("server.bnetserver", "Specified battle.net port ({}) out of allowed range (1-65535)", bnport);
+        TC_LOG_ERROR("server.bnetserver", "Specified login service port ({}) out of allowed range (1-65535)", httpPort);
         return 1;
     }
 
-    if (!sLoginService.Start(ioContext.get()))
+    if (!sLoginService.StartNetwork(*ioContext, httpBindIp, httpPort))
     {
         TC_LOG_ERROR("server.bnetserver", "Failed to initialize login service");
         return 1;
     }
 
-    std::shared_ptr<void> sLoginServiceHandle(nullptr, [](void*) { sLoginService.Stop(); });
+    std::shared_ptr<void> sLoginServiceHandle(nullptr, [](void*) { sLoginService.StopNetwork(); });
+
+    // Start the listening port (acceptor) for auth connections
+    int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
+    if (bnport <= 0 || bnport > 0xFFFF)
+    {
+        TC_LOG_ERROR("server.bnetserver", "Specified battle.net port ({}) out of allowed range (1-65535)", bnport);
+        return 1;
+    }
 
     // Get the list of realms for the server
     sRealmList->Initialize(*ioContext, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));

@@ -17,6 +17,7 @@
 
 #include "Locales.h"
 #include <boost/locale/generator.hpp>
+#include <clocale>
 
 namespace
 {

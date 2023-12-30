@@ -425,7 +425,7 @@ uint32 BattlegroundQueue::GetPlayersInQueue(TeamId id)
     return m_SelectionPools[id].GetPlayerCount();
 }
 
-bool BattlegroundQueue::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, uint32 side)
+bool BattlegroundQueue::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, Team side)
 {
     // set side if needed
     if (side)
@@ -701,9 +701,9 @@ bool BattlegroundQueue::CheckSkirmishForSameFaction(BattlegroundBracketId bracke
 {
     if (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() < minPlayersPerTeam && m_SelectionPools[TEAM_HORDE].GetPlayerCount() < minPlayersPerTeam)
         return false;
-    uint32 teamIndex = TEAM_ALLIANCE;
-    uint32 otherTeam = TEAM_HORDE;
-    uint32 otherTeamId = HORDE;
+    TeamId teamIndex = TEAM_ALLIANCE;
+    TeamId otherTeam = TEAM_HORDE;
+    Team otherTeamId = HORDE;
     if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() == minPlayersPerTeam)
     {
         teamIndex = TEAM_HORDE;
@@ -715,16 +715,16 @@ bool BattlegroundQueue::CheckSkirmishForSameFaction(BattlegroundBracketId bracke
     //store last ginfo pointer
     GroupQueueInfo* ginfo = m_SelectionPools[teamIndex].SelectedGroups.back();
     //set itr_team to group that was added to selection pool latest
-    GroupsQueueType::iterator itr_team = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].begin();
-    for (; itr_team != m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end(); ++itr_team)
+    GroupsQueueType::iterator itr_team = m_QueuedGroups[bracket_id][uint8(BG_QUEUE_NORMAL_ALLIANCE) + uint8(teamIndex)].begin();
+    for (; itr_team != m_QueuedGroups[bracket_id][uint8(BG_QUEUE_NORMAL_ALLIANCE) + uint8(teamIndex)].end(); ++itr_team)
         if (ginfo == *itr_team)
             break;
-    if (itr_team == m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end())
+    if (itr_team == m_QueuedGroups[bracket_id][uint8(BG_QUEUE_NORMAL_ALLIANCE) + uint8(teamIndex)].end())
         return false;
     GroupsQueueType::iterator itr_team2 = itr_team;
     ++itr_team2;
     //invite players to other selection pool
-    for (; itr_team2 != m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end(); ++itr_team2)
+    for (; itr_team2 != m_QueuedGroups[bracket_id][uint8(BG_QUEUE_NORMAL_ALLIANCE) + uint8(teamIndex)].end(); ++itr_team2)
     {
         //if selection pool is full then break;
         if (!(*itr_team2)->IsInvitedToBGInstanceGUID && !m_SelectionPools[otherTeam].AddGroup(*itr_team2, minPlayersPerTeam))
@@ -739,15 +739,15 @@ bool BattlegroundQueue::CheckSkirmishForSameFaction(BattlegroundBracketId bracke
         //set correct team
         (*itr)->Team = otherTeamId;
         //add team to other queue
-        m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + otherTeam].push_front(*itr);
+        m_QueuedGroups[bracket_id][uint8(BG_QUEUE_NORMAL_ALLIANCE) + uint8(otherTeam)].push_front(*itr);
         //remove team from old queue
         GroupsQueueType::iterator itr2 = itr_team;
         ++itr2;
-        for (; itr2 != m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end(); ++itr2)
+        for (; itr2 != m_QueuedGroups[bracket_id][uint8(BG_QUEUE_NORMAL_ALLIANCE) + uint8(teamIndex)].end(); ++itr2)
         {
             if (*itr2 == *itr)
             {
-                m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].erase(itr2);
+                m_QueuedGroups[bracket_id][uint8(BG_QUEUE_NORMAL_ALLIANCE) + uint8(teamIndex)].erase(itr2);
                 break;
             }
         }

@@ -3130,6 +3130,13 @@ struct PVPItemEntry
     uint8 ItemLevelDelta;
 };
 
+struct PVPStatEntry
+{
+    LocalizedString Description;
+    uint32 ID;
+    int32 MapID;
+};
+
 struct PvpSeasonEntry
 {
     uint32 ID;
