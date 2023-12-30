@@ -16,7 +16,7 @@ DELETE FROM `areatrigger_create_properties` WHERE `Id`=@ATCP+0 AND `IsCustom`=1;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@ATCP+0, 1, @ATID+0, 1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 20, 20, 12, 20, 20, 12, 0, 0, 'at_stormwind_keep_tides_of_war', 0);
 
-DELETE FROM `areatrigger` WHERE `SpawnId` = @ATIDSPAWN+0 AND `IsCustom` = 1;
+DELETE FROM `areatrigger` WHERE `SpawnId` = @ATIDSPAWN+0;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `SpellForVisuals`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES 
 (@ATIDSPAWN+0, @ATCP+0, 1, 0, '0', -8390.378, 319.124, 147.014, 0.653896, 0, 8480, 0, NULL, '', 'Stormwind Keep Tides of War', 0);
 
