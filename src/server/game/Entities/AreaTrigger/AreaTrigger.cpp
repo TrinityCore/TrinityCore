@@ -181,10 +181,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
     if (caster)
         PhasingHandler::InheritPhaseShift(this, caster);
     else if (IsStaticSpawn() && spawnData)
-    {
-        if (spawnData->phaseUseFlags || spawnData->phaseId || spawnData->phaseGroup)
-            PhasingHandler::InitDbPhaseShift(GetPhaseShift(), spawnData->phaseUseFlags, spawnData->phaseId, spawnData->phaseGroup);
-    }
+        PhasingHandler::InitDbPhaseShift(GetPhaseShift(), spawnData->phaseUseFlags, spawnData->phaseId, spawnData->phaseGroup);
 
     if (target && GetCreateProperties() && GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAttached))
         m_movementInfo.transport.guid = target->GetGUID();
@@ -833,7 +830,13 @@ AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
 uint32 AreaTrigger::GetScriptId() const
 {
     if (_spawnId)
-        return ASSERT_NOTNULL(sAreaTriggerDataStore->GetAreaTriggerSpawn(_spawnId))->scriptId;
+    {
+        if (AreaTriggerSpawn const* spawn = ASSERT_NOTNULL(sAreaTriggerDataStore->GetAreaTriggerSpawn(_spawnId)))
+        {
+            if (spawn->scriptId)
+                return spawn->scriptId;
+        }
+    }
 
     if (AreaTriggerCreateProperties const* createProperties = GetCreateProperties())
         return createProperties->ScriptId;

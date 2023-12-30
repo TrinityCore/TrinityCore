@@ -1,5 +1,6 @@
-SET @ATID := 34;
-SET @ATIDSPAWN := 50;
+SET @ATID := 55;
+SEt @ATCP := 44;
+SET @ATIDSPAWN := 55;
 
 -- Update Template
 UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=139645; -- Vision of Sailor's Memory
@@ -7,13 +8,17 @@ UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'npc_jaina_proudmoo
 UPDATE `creature_template` SET `npcflag`=0 WHERE `entry`=120788; -- Genn Greymane
 
 -- Serverside AT
-DELETE FROM `areatrigger_template` WHERE `Id` = @ATID+0 AND `IsServerSide` = 1;
-INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES
-(@ATID+0, 1, 1, 0, 20, 20, 12, 20, 20, 12, 0, 0, 0);
+DELETE FROM `areatrigger_template` WHERE `Id` = @ATID+0 AND `IsCustom` = 1;
+INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES 
+(@ATID+0, 1, 1, 0);
 
-DELETE FROM `areatrigger` WHERE `SpawnId` = @ATIDSPAWN AND `IsServerSide` = 1;
-INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `Comment`) VALUES
-(@ATIDSPAWN, @ATID, 1, 0, -8390.378, 319.124, 147.014, 0.653896, 0, 8480, 0, 1, 20, 20, 12, 20, 20, 12, 0, 0, 'at_stormwind_keep_tides_of_war', 'Stormwind Keep Tides of War');
+DELETE FROM `areatrigger_create_properties` WHERE `Id`=@ATCP+0 AND `IsCustom`=1;
+INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES 
+(@ATCP+0, 1, @ATID+0, 1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 20, 20, 12, 20, 20, 12, 0, 0, 'at_stormwind_keep_tides_of_war', 0);
+
+DELETE FROM `areatrigger` WHERE `SpawnId` = @ATIDSPAWN+0 AND `IsCustom` = 1;
+INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `SpellForVisuals`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES 
+(@ATIDSPAWN+0, @ATCP+0, 1, 0, '0', -8390.378, 319.124, 147.014, 0.653896, 0, 8480, 0, NULL, '', 'Stormwind Keep Tides of War', 0);
 
 -- Template Addon
 DELETE FROM `creature_template_addon` WHERE `entry` = 120590;
@@ -23,7 +28,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`
 -- ScriptNames
 DELETE FROM `spell_script_names` WHERE `spell_id` = 284807;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(284807, 'spell_stormwind_despawn_sailor_memory');
+(284807, 'spell_despawn_sailor_memory');
 
 -- Creature Movement
 DELETE FROM `creature_template_movement` WHERE `CreatureId` = 139645;
@@ -57,7 +62,7 @@ INSERT INTO `conversation_template` (`Id`, `FirstLineID`, `TextureKitId`, `Verif
 (4857, 19476, 0, 52393),
 (4818, 10748, 0, 52393);
 
-UPDATE `conversation_template` SET `ScriptName` = 'conversation_stormwind_keep_council_start' WHERE `Id` = 4857;
+UPDATE `conversation_template` SET `ScriptName` = 'conversation_start_council_tides_of_war' WHERE `Id` = 4857;
 
 DELETE FROM `conversation_actors` WHERE (`ConversationId`=4818 AND `Idx`=0) OR (`ConversationId`=8709 AND `Idx` IN (0,1,2)) OR (`ConversationId`=4857 AND `Idx` IN (3,1,2,0));
 INSERT INTO `conversation_actors` (`ConversationId`, `ConversationActorId`, `ConversationActorGuid`, `Idx`, `CreatureId`, `CreatureDisplayInfoId`, `NoActorObject`, `ActivePlayerObject`, `VerifiedBuild`) VALUES
