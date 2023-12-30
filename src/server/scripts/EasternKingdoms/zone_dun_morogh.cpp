@@ -17,8 +17,9 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
-#include "ScriptMgr.h"
 #include "MotionMaster.h"
+#include "Player.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Vehicle.h"
 
