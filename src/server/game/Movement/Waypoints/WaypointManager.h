@@ -42,7 +42,7 @@ class TC_GAME_API WaypointMgr
         void LoadPathNodesFromDB(Field* fields);
         void DoPostLoadingChecks();
 
-        bool VisualizePath(Unit* owner, WaypointPath const* path, Optional<uint32> displayId);
+        void VisualizePath(Unit* owner, WaypointPath const* path, Optional<uint32> displayId);
         void DevisualizePath(Unit* owner, WaypointPath const* path);
 
         void MoveNode(WaypointPath const* path, WaypointNode const* node, Position const& pos);

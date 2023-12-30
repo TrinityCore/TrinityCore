@@ -432,7 +432,7 @@ bool WaypointMovementGenerator<Creature>::ComputeNextNode()
     if ((_currentNode == _path->Nodes.size() - 1) && !_repeating)
         return false;
 
-    if (!_followPathBackwardsFromEndToStart || !*_followPathBackwardsFromEndToStart || _path->Nodes.size() < WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES)
+    if (!_followPathBackwardsFromEndToStart.value_or(false) || _path->Nodes.size() < WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES)
         _currentNode = (_currentNode + 1) % _path->Nodes.size();
     else
     {
