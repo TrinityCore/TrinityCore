@@ -4432,6 +4432,8 @@ enum Geolord
     NPC_CORK_FIZZLEPOP         = 167008,
     NPC_LINDIE_SPRINGSTOCK     = 154301,
 
+    SET_DATA_FREE_PRISONER     = 1,
+
     SPELL_NECROTIC_RITUAL_DNT  = 305513,
     SPELL_EARTH_BOLT           = 270453,
     SPELL_UPHEAVAL             = 319273
@@ -4465,7 +4467,7 @@ struct npc_geolord_grekog : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         if (Creature* prisoner = ObjectAccessor::GetCreature(*me, _prisonerGUID))
-            prisoner->AI()->SetData(1, 1);
+            prisoner->AI()->SetData(SET_DATA_FREE_PRISONER, SET_DATA_FREE_PRISONER);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -4543,7 +4545,7 @@ struct npc_briarpatch_prisoner : public ScriptedAI
 
     void SetData(uint32 /*type*/, uint32 data) override
     {
-        if (data == 1)
+        if (data == SET_DATA_FREE_PRISONER)
         {
             Position jumpto = { 19.5174f, -2513.75f, 74.0545f, me->GetOrientation() };
             me->RemoveAllAuras();
@@ -4874,7 +4876,7 @@ struct at_briarpatch_to_plains : AreaTriggerAI
 
             for (WorldObject* obj : objs)
             {
-                if (Conversation* convo = obj->ToConversation())
+                if (obj->ToConversation())
                     _convoRunning = true;
             }
 
@@ -4895,7 +4897,7 @@ struct at_briarpatch_to_plains : AreaTriggerAI
 
             for (WorldObject* obj : objs)
             {
-                if (Conversation* convo = obj->ToConversation())
+                if (obj->ToConversation())
                     _convoRunning = true;
             }
 
