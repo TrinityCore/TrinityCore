@@ -222,7 +222,7 @@ class TC_GAME_API Group
                 return Seconds(_endTime - _startTime);
             }
 
-            void StartCountdown(Seconds duration, Seconds passedTime = 0s);
+            void StartCountdown(Seconds duration, Optional<time_t> startTime = { });
             bool IsRunning() const;
 
         private:
@@ -407,7 +407,7 @@ class TC_GAME_API Group
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
 
-        void StartCountdown(WorldPackets::Misc::TimerType timerType, Seconds duration, Seconds passedTime = 0s);
+        void StartCountdown(WorldPackets::Misc::TimerType timerType, Seconds duration, Optional<time_t> startTime = { });
         CountdownInfo const* GetCountdownInfo(WorldPackets::Misc::TimerType timerType) const;
 
     protected:

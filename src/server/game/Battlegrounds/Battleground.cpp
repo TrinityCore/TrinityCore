@@ -56,7 +56,7 @@ void Battleground::BroadcastWorker(Do& _do)
             _do(player);
 }
 
-Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _battlegroundTemplate(battlegroundTemplate), _pvpDifficultyEntry(nullptr), _pvpStatIds(nullptr)
+Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _battlegroundTemplate(battlegroundTemplate), _pvpDifficultyEntry(nullptr), _pvpStatIds(nullptr), _preparationStartTime(0)
 {
     ASSERT(_battlegroundTemplate, "Nonexisting Battleground Template passed to battleground ctor!");
 
@@ -362,6 +362,11 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             EndNow();
             return;
         }
+
+        _preparationStartTime = GameTime::GetGameTime();
+        for (Group* group : m_BgRaids)
+            if (group)
+                group->StartCountdown(WorldPackets::Misc::TimerType::Pvp, Seconds(StartDelayTimes[BG_STARTING_EVENT_FIRST] / 1000), _preparationStartTime);
 
         StartingEventCloseDoors();
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FIRST]);
@@ -1089,9 +1094,11 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, Team team)
         group = new Group;
         SetBgRaid(team, group);
         group->Create(player);
-        Seconds countdownMaxForBGType = Seconds(isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX);
-        Seconds passedTime = (m_Events & BG_STARTING_EVENT_1) != 0 ? countdownMaxForBGType - Seconds(GetStartDelayTime() / 1000) : 0s;
-        group->StartCountdown(WorldPackets::Misc::TimerType::Pvp, countdownMaxForBGType, passedTime);
+        Seconds countdownMaxForBGType = Seconds(StartDelayTimes[BG_STARTING_EVENT_FIRST]  / 1000);
+        if (_preparationStartTime)
+            group->StartCountdown(WorldPackets::Misc::TimerType::Pvp, countdownMaxForBGType, _preparationStartTime);
+        else
+            group->StartCountdown(WorldPackets::Misc::TimerType::Pvp, countdownMaxForBGType);
     }
     else                                            // raid already exist
     {

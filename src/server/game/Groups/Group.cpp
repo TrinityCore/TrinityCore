@@ -44,9 +44,9 @@ Seconds Group::CountdownInfo::GetTimeLeft() const
     return Seconds(std::max<time_t>(_endTime - GameTime::GetGameTime(), 0));
 }
 
-void Group::CountdownInfo::StartCountdown(Seconds duration, Seconds passedTime)
+void Group::CountdownInfo::StartCountdown(Seconds duration, Optional<time_t> startTime)
 {
-    _startTime = GameTime::GetGameTime() - passedTime.count();
+    _startTime = startTime ? *startTime : GameTime::GetGameTime();
     _endTime = _startTime + duration.count();
 }
 
@@ -1423,12 +1423,12 @@ void Group::BroadcastGroupUpdate(void)
     }
 }
 
-void Group::StartCountdown(WorldPackets::Misc::TimerType timerType, Seconds duration, Seconds passedTime)
+void Group::StartCountdown(WorldPackets::Misc::TimerType timerType, Seconds duration, Optional<time_t> startTime)
 {
     if (!_countdowns[AsUnderlyingType(timerType)])
         _countdowns[AsUnderlyingType(timerType)] = std::make_unique<CountdownInfo>();
 
-    _countdowns[AsUnderlyingType(timerType)]->StartCountdown(duration, passedTime);
+    _countdowns[AsUnderlyingType(timerType)]->StartCountdown(duration, startTime);
 }
 
 Group::CountdownInfo const* Group::GetCountdownInfo(WorldPackets::Misc::TimerType timerType) const
