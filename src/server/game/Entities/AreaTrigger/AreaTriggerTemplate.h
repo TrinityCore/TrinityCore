@@ -119,6 +119,7 @@ struct AreaTriggerActionParam
 
     // ActivateGameObject
     Optional<ObjectGuid> Guid;
+    Optional<std::string_view> StringId;
 
     // CaptureFlag
     Optional<::TeamId> TeamId;
