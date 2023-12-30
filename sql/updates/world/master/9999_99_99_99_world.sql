@@ -34,6 +34,7 @@ UPDATE `creature_template` SET `ScriptName`="npc_lindie_springstock" WHERE `entr
 UPDATE `creature_template` SET `ScriptName`="npc_quilboar_warrior" WHERE `entry`=150237;
 UPDATE `creature_template` SET `ScriptName`="npc_quilboar_geomancer" WHERE `entry`=150238;
 UPDATE `creature_template` SET `ScriptName`="npc_ogre_overseer" WHERE `entry`=156676;
+UPDATE `creature_template` SET `ScriptName`="npc_captain_garrick" WHERE `entry`=156280;
 
 UPDATE `creature_template_movement` SET `Ground`=1, `Flight`=0 WHERE `CreatureId` IN (167008,154301);
 

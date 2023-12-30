@@ -1031,7 +1031,7 @@ public:
     }
 };
 
-CreatureAI* CaptainGarrickShipAISelector(Creature* creature)
+CreatureAI* CaptainGarrickAISelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
     {
@@ -4915,7 +4915,7 @@ void AddSC_zone_exiles_reach()
     new quest_stand_your_ground();
     RegisterCreatureAI(npc_sparring_partner_exiles_reach);
     RegisterSpellScript(spell_summon_sparring_partner);
-    new FactoryCreatureScript<CreatureAI, &CaptainGarrickShipAISelector>("npc_captain_garrick_ship");
+    new FactoryCreatureScript<CreatureAI, &CaptainGarrickAISelector>("npc_captain_garrick");
     RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_lower_ship", npc_ship_captain_warming_up_private, NullCreatureAI);
     RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_upper_ship", npc_ship_captain_brace_for_impact_private, NullCreatureAI);
     RegisterPrivatePublicCreatureAIPair("npc_cole_ship", npc_first_mate_brace_for_impact_private, npc_first_mate_stand_your_ground);
