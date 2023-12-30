@@ -4862,14 +4862,14 @@ struct at_briarpatch_to_plains : AreaTriggerAI
         if (!player)
             return;
 
-        if (!at->GetInstanceId()) //  //player->GetTeam() == ALLIANCE
+        std::vector<WorldObject*> objs;
+        bool _convoRunning = false;
+
+        if (player->GetTeam() == ALLIANCE)
         {
             if (player->GetQuestStatus(QUEST_DOWN_WITH_THE_QUILBOAR_ALLIANCE) != QUEST_STATUS_COMPLETE)
                 return;
 
-            bool _convoRunning = false;
-
-            std::vector<WorldObject*> objs;
             Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(player->GetGUID(), CONVERSATION_DOWN_WITH_THE_QUILLBOAR_COMPLETE_ALLIANCE);
             Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(nullptr, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
             Cell::VisitGridObjects(player, checker, 100.0f);
@@ -4888,9 +4888,6 @@ struct at_briarpatch_to_plains : AreaTriggerAI
             if (player->GetQuestStatus(QUEST_DOWN_WITH_THE_QUILBOAR_HORDE) != QUEST_STATUS_COMPLETE)
                 return;
 
-            bool _convoRunning = false;
-
-            std::vector<WorldObject*> objs;
             Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(player->GetGUID(), CONVERSATION_DOWN_WITH_THE_QUILLBOAR_COMPLETE_HORDE);
             Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(nullptr, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
             Cell::VisitGridObjects(player, checker, 100.0f);
