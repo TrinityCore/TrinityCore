@@ -68,6 +68,8 @@ struct at_stormwind_keep_tides_of_war : AreaTriggerAI
     }
 };
 
+Position const VisionOfSailorsMemoryPosition = { -8384.131f, 324.383f, 148.443f, 1.559973f };
+
 // 4857 - Conversation
 class conversation_start_council_tides_of_war : public ConversationScript
 {
@@ -138,7 +140,7 @@ public:
                     break;
 
                 player->KilledMonsterCredit(NPC_ANDUIN_TIDES_OF_WAR);
-                privateObjectOwner->SummonCreature(NPC_VISION_OF_SAILORS_MEMORY, -8384.131f, 324.383f, 148.443f, 1.559973f, TEMPSUMMON_MANUAL_DESPAWN, 0s, privateObjectOwner->GetGUID());
+                privateObjectOwner->SummonCreature(NPC_VISION_OF_SAILORS_MEMORY, VisionOfSailorsMemoryPosition, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, privateObjectOwner->GetGUID());
                 break;
             }
             default:
