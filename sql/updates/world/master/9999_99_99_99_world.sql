@@ -15,12 +15,15 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 
 -- Create new serverside areatrigger for leaving Quillboar Briarpatch conversation "Used Phase 13878 Not sure if right phase"
 DELETE FROM `areatrigger` WHERE `SpawnId`=@SPAWNID;
-INSERT INTO `areatrigger` (`SpawnId`,`AreaTriggerId`,`IsServerSide`,`MapId`,`PosX`,`PosY`,`PosZ`,`Orientation`,`PhaseUseFlags`,`PhaseId`,`PhaseGroup`,`Shape`,`ShapeData0`,`ShapeData1`,`ShapeData2`,`ShapeData3`,`ShapeData4`,`ShapeData5`,`ShapeData6`,`ShapeData7`,`ScriptName`,`Comment`) VALUES
-(@SPAWNID,@ID,1,2175,71.47106,-2463.159,87.024765,0.79634166,0,13878,0,1,4,60,30,4,60,30,0,0,'at_briarpatch_to_plains','Exiles Reach - Down with Quilboar quest complete');
+INSERT INTO `areatrigger` (`SpawnId`,`AreaTriggerId`,`IsServerSide`,`MapId`,`PosX`,`PosY`,`PosZ`,`Orientation`,`PhaseUseFlags`,`PhaseId`,`PhaseGroup`,`ScriptName`,`Comment`) VALUES
+(@SPAWNID,@CREATEPROPID,1,2175,71.47106,-2463.159,87.024765,0.79634166,0,13878,0,'at_briarpatch_to_plains','Exiles Reach - Down with Quilboar quest complete');
+DELETE FROM `areatrigger_create_properties` WHERE `Id`=@CREATEPROPID AND `IsCustom`=1;
+INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
+(@CREATEPROPID, 1, @ID, 1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1,4,60,30,4,60,30,0,0, '', 0);
 -- Add new serverside areatrigger for leaving Quillboar Brarpatch to template
-DELETE FROM `areatrigger_template` WHERE `Id`=@ID;
-INSERT INTO `areatrigger_template` (`Id`,`IsServerSide`,`Type`,`Flags`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`Data6`,`Data7`,`VerifiedBuild`) VALUES
-(@ID,1,1,0,4,60,30,4,60,30,0,0,0);
+DELETE FROM `areatrigger_template` WHERE `Id`=@ID AND `IsCustom`=1;
+INSERT INTO `areatrigger_template` (`Id`,`IsCustom`,`Flags`,`VerifiedBuild`) VALUES
+(@ID,1,1,0);
 
 UPDATE `creature` SET `spawntimesecs`=120 WHERE `id` IN (151091,150237,150238,156676);
 UPDATE `creature` SET `PhaseId`=15276 WHERE `guid` IN (1051256,1051265);
