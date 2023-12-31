@@ -3110,6 +3110,11 @@ bool Unit::IsUnderWater() const
     return GetLiquidStatus() & LIQUID_MAP_UNDER_WATER;
 }
 
+bool Unit::IsOnOceanFloor() const
+{
+    return GetLiquidStatus() & LIQUID_MAP_OCEAN_FLOOR;
+}
+
 void Unit::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
 {
     ZLiquidStatus oldLiquidStatus = GetLiquidStatus();
