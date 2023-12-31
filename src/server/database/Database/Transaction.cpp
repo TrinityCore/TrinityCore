@@ -16,6 +16,7 @@
  */
 
 #include "Transaction.h"
+#include "Errors.h"
 #include "Log.h"
 #include "MySQLConnection.h"
 #include "PreparedStatement.h"
@@ -32,19 +33,15 @@ std::mutex TransactionTask::_deadlockLock;
 //- Append a raw ad-hoc query to the transaction
 void TransactionBase::Append(char const* sql)
 {
-    SQLElementData data;
-    data.type = SQL_ELEMENT_RAW;
-    data.element.query = strdup(sql);
-    m_queries.push_back(data);
+    ASSERT(sql);
+    m_queries.emplace_back(std::in_place_type<std::string>, sql);
 }
 
 //- Append a prepared statement to the transaction
 void TransactionBase::AppendPreparedStatement(PreparedStatementBase* stmt)
 {
-    SQLElementData data;
-    data.type = SQL_ELEMENT_PREPARED;
-    data.element.stmt = stmt;
-    m_queries.push_back(data);
+    ASSERT(stmt);
+    m_queries.emplace_back(std::in_place_type<std::unique_ptr<PreparedStatementBase>>, stmt);
 }
 
 void TransactionBase::Cleanup()
@@ -52,19 +49,6 @@ void TransactionBase::Cleanup()
     // This might be called by explicit calls to Cleanup or by the auto-destructor
     if (_cleanedUp)
         return;
-
-    for (SQLElementData const& data : m_queries)
-    {
-        switch (data.type)
-        {
-            case SQL_ELEMENT_PREPARED:
-                delete data.element.stmt;
-            break;
-            case SQL_ELEMENT_RAW:
-                free((void*)(data.element.query));
-            break;
-        }
-    }
 
     m_queries.clear();
     _cleanedUp = true;

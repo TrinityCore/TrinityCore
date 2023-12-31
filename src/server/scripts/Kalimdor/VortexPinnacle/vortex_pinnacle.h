@@ -25,20 +25,27 @@ constexpr char const* VPScriptName = "instance_vortex_pinnacle";
 
 constexpr uint32 const EncounterCount = 3;
 
-enum TotFWDataTypes
+enum VPDataTypes
 {
     // Encounters
     BOSS_GRAND_VIZIER_ERTAN = 0,
     BOSS_ALTAIRUS           = 1,
-    BOSS_ASAAD              = 2
+    BOSS_ASAAD              = 2,
+
+    // Shortcuts
+    DATA_SLIPSTREAM_LANDING_ZONE_1,
+    DATA_SLIPSTREAM_LANDING_ZONE_2
 };
 
-enum TotFWCreatureIds
+enum VPreatureIds
 {
     // Bosses
-    NPC_GRAND_VIZIER_ERTAN  = 43878,
-    NPC_ALTAIRUS            = 43873,
-    NPC_ASAAD               = 43875
+    NPC_GRAND_VIZIER_ERTAN      = 43878,
+    NPC_ALTAIRUS                = 43873,
+    NPC_ASAAD                   = 43875,
+
+    // Shortcuts
+    NPC_SLIPSTREAM_LANDING_ZONE = 45504
 };
 
 template <class AI, class T>

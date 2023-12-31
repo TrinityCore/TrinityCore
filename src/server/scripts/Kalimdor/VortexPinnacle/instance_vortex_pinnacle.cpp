@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "vortex_pinnacle.h"
+#include "Creature.h"
 #include "InstanceScript.h"
 
 ObjectData const creatureData[] =
@@ -34,6 +35,10 @@ DungeonEncounterData const encounters[] =
     { BOSS_ASAAD,               {{ 1042 }}  }
 };
 
+// These StringIds must be set in DB to properly identify the first and second landing zone for the entrance shortcut teleporters
+constexpr std::string_view SlipStreamLandingZoneStringId1 = "vp_slipstream_landing_zone_1";
+constexpr std::string_view SlipStreamLandingZoneStringId2 = "vp_slipstream_landing_zone_2";
+
 class instance_vortex_pinnacle : public InstanceMapScript
 {
 public:
@@ -47,6 +52,40 @@ public:
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
             LoadDungeonEncounterData(encounters);
+        }
+
+        void OnCreatureCreate(Creature* creature) override
+        {
+            InstanceScript::OnCreatureCreate(creature);
+
+            switch (creature->GetEntry())
+            {
+                case NPC_SLIPSTREAM_LANDING_ZONE:
+                    if (creature->HasStringId(SlipStreamLandingZoneStringId1))
+                        AddObject(creature, DATA_SLIPSTREAM_LANDING_ZONE_1, true);
+                    else if (creature->HasStringId(SlipStreamLandingZoneStringId2))
+                        AddObject(creature, DATA_SLIPSTREAM_LANDING_ZONE_2, true);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void OnCreatureRemove(Creature* creature) override
+        {
+            InstanceScript::OnCreatureRemove(creature);
+
+            switch (creature->GetEntry())
+            {
+                case NPC_SLIPSTREAM_LANDING_ZONE:
+                    if (creature->HasStringId(SlipStreamLandingZoneStringId1))
+                        AddObject(creature, DATA_SLIPSTREAM_LANDING_ZONE_1, false);
+                    else if (creature->HasStringId(SlipStreamLandingZoneStringId2))
+                        AddObject(creature, DATA_SLIPSTREAM_LANDING_ZONE_2, false);
+                    break;
+                default:
+                    break;
+            }
         }
     };
 

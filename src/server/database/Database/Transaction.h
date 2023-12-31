@@ -20,13 +20,24 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
-#include "SQLOperation.h"
 #include "StringFormat.h"
 #include <functional>
 #include <mutex>
+#include <variant>
 #include <vector>
 
 class MySQLConnection;
+
+struct TransactionData
+{
+    std::variant<std::unique_ptr<PreparedStatementBase>, std::string> query;
+
+    template<typename... Args>
+    TransactionData(Args&&... args) : query(std::forward<Args>(args)...) { }
+
+    static PreparedStatementBase* ToExecutable(std::unique_ptr<PreparedStatementBase> const& stmt) { return stmt.get(); }
+    static char const* ToExecutable(std::string const& sql) { return sql.c_str(); }
+};
 
 /*! Transactions, high level class. */
 class TC_DATABASE_API TransactionBase
@@ -39,6 +50,10 @@ class TC_DATABASE_API TransactionBase
 
     public:
         TransactionBase() : _cleanedUp(false) { }
+        TransactionBase(TransactionBase const&) = delete;
+        TransactionBase(TransactionBase &&) noexcept = default;
+        TransactionBase& operator=(TransactionBase const&) = delete;
+        TransactionBase& operator=(TransactionBase &&) noexcept = default;
         virtual ~TransactionBase() { Cleanup(); }
 
         void Append(char const* sql);
@@ -53,7 +68,7 @@ class TC_DATABASE_API TransactionBase
     protected:
         void AppendPreparedStatement(PreparedStatementBase* statement);
         void Cleanup();
-        std::vector<SQLElementData> m_queries;
+        std::vector<TransactionData> m_queries;
 
     private:
         bool _cleanedUp;

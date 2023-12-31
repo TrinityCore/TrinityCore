@@ -648,6 +648,16 @@ namespace WorldPackets
             int32 Count = 0;
         };
 
+        class QuestForceRemoved final : public ServerPacket
+        {
+        public:
+            explicit QuestForceRemoved(int32 questId) : ServerPacket(SMSG_QUEST_FORCE_REMOVED, 4), QuestID(questId) { }
+
+            WorldPacket const* Write() override;
+
+            int32 QuestID = 0;
+        };
+
         class RequestWorldQuestUpdate final : public ClientPacket
         {
         public:

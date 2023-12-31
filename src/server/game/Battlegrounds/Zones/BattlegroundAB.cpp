@@ -193,7 +193,7 @@ void BattlegroundAB::_CalculateTeamNodes(uint8& alliance, uint8& horde)
     }
 }
 
-uint32 BattlegroundAB::GetPrematureWinner()
+Team BattlegroundAB::GetPrematureWinner()
 {
     // How many bases each team owns
     uint8 ally = 0, horde = 0;
@@ -481,7 +481,7 @@ void BattlegroundAB::Reset()
     _capturePoints.clear();
 }
 
-void BattlegroundAB::EndBattleground(uint32 winner)
+void BattlegroundAB::EndBattleground(Team winner)
 {
     // Win reward
     if (winner == ALLIANCE)

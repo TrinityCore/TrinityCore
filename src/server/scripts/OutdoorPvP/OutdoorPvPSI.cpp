@@ -40,7 +40,7 @@ uint32 const OutdoorPvPSIBuffZones[OutdoorPvPSIBuffZonesNum] = { 1377, 3428, 342
 OutdoorPvPSI::OutdoorPvPSI(Map* map) : OutdoorPvP(map)
 {
     m_TypeId = OUTDOOR_PVP_SI;
-    m_LastController = 0;
+    m_LastController = TEAM_OTHER;
 }
 
 void OutdoorPvPSI::SendRemoveWorldStates(Player* player)
