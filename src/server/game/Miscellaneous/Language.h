@@ -1013,7 +1013,9 @@ enum TrinityStrings
     LANG_CMDPARSER_CURRENCY_NO_EXIST      = 1516, // master branch ONLY
     LANG_CMDPARSER_QUEST_NO_EXIST         = 1517, // RESERVED future cherry-pick
 
-    // 1516-1998 - free
+    // 1516-1996 - free
+    LANG_DEBUG_AREATRIGGER_ENTITY_ENTERED = 1997, // master branch ONLY
+    LANG_DEBUG_AREATRIGGER_ENTITY_LEFT    = 1998, // master branch ONLY
     LANG_DEBUG_AREATRIGGER_LEFT           = 1999, // master branch ONLY
     // Ticket Strings 2000-2030
     LANG_COMMAND_TICKETNEW                = 2000,
