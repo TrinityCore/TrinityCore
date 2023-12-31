@@ -5314,7 +5314,7 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
                     break;
 
                 case EVENT_STRIKE_BOAR:
-                    if (Creature* deadBoar = me->FindNearestCreatureWithOptions(10.0f, FindCreatureOptions().SetStringId("darktusk_boar_dead")))
+                    if (Creature* deadBoar = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "darktusk_boar_dead" }))
                         me->CastSpell(deadBoar, SPELL_BLOODY_STRIKE, true);
                     _events.Repeat(5s, 7s);
                     break;
@@ -5347,7 +5347,7 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
         if (!isRare)
             DoCastSelf(SPELL_KILL_ME_QUEST);
 
-        if (me->FindNearestCreatureWithOptions(10.0f, FindCreatureOptions().SetStringId("darktusk_boar_dead")))
+        if (me->FindNearestCreatureWithOptions(10.0f, { .StringId = "darktusk_boar_dead" }))
             _events.ScheduleEvent(EVENT_STRIKE_BOAR, 2s, 12s);
         else
             _events.ScheduleEvent(EVENT_SNIFFING, 2s, 12s);
