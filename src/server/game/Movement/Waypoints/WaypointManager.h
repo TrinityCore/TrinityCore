@@ -54,6 +54,7 @@ class TC_GAME_API WaypointMgr
         WaypointNode const* GetNode(uint32 pathId, uint32 nodeId) const;
         WaypointPath const* GetPathByVisualGUID(ObjectGuid guid) const;
         WaypointNode const* GetNodeByVisualGUID(ObjectGuid guid) const;
+        ObjectGuid const& GetVisualGUIDByNode(uint32 pathId, uint32 nodeId) const;
 
     private:
         WaypointMgr() { }

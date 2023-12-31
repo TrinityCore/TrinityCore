@@ -310,3 +310,12 @@ WaypointNode const* WaypointMgr::GetNodeByVisualGUID(ObjectGuid guid) const
 
     return itr->second.second;
 }
+
+ObjectGuid const& WaypointMgr::GetVisualGUIDByNode(uint32 pathId, uint32 nodeId) const
+{
+    auto itr = _nodeToVisualWaypointGUIDsMap.find(std::make_pair(pathId, nodeId));
+    if (itr == _nodeToVisualWaypointGUIDsMap.end())
+        return ObjectGuid::Empty;
+
+    return itr->second;
+}

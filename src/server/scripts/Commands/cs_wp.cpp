@@ -470,8 +470,10 @@ public:
             if (target)
                 displayId = target->GetDisplayId();
 
-            bool success = sWaypointMgr->VisualizePath(handler->GetPlayer(), path, displayId);
-            if (!success)
+            sWaypointMgr->VisualizePath(handler->GetPlayer(), path, displayId);
+
+            ObjectGuid const& guid = sWaypointMgr->GetVisualGUIDByNode(path->Id, path->Nodes.front().Id);
+            if (!guid.IsEmpty())
             {
                 handler->SendSysMessage("|cff00ff00Path with id %u is already showing.|r", pathid);
                 return true;
