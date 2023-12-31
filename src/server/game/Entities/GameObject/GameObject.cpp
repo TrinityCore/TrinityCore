@@ -96,7 +96,7 @@ WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
         for (int32 item : *items)
             stats.QuestItems.push_back(item);
 
-    memcpy(stats.Data, raw.data, MAX_GAMEOBJECT_DATA * sizeof(int32));
+    memcpy(stats.Data.data(), raw.data, MAX_GAMEOBJECT_DATA * sizeof(int32));
     stats.ContentTuningId = ContentTuningId;
 
     queryTemp.Write();
