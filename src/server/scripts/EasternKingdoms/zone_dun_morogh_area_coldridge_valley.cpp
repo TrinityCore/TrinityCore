@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Containers.h"
 #include "ScriptMgr.h"
 #include "CombatAI.h"
 #include "MotionMaster.h"
@@ -467,78 +468,84 @@ Position const RockjawInvaderSpawnPoints[7] =
     { -6204.599f, 304.64932f, 388.9596f, 2.362043619155883789f }
 };
 
-enum JorenIronstock
+enum JorenIronstockData
 {
-    EVENT_SUMMON_ROCKJAW_INVADER      = 1,
-    EVENT_ALLOW_SHOOT_ROCKJAW_INVADER = 2,
+    NPC_ROCKJAW_INVADER                 = 37070,
 
-    NPC_ROCKJAW_INVADER               = 37070,
+    SAY_SHOOT_ROCKJAW                   = 0,
 
-    SAY_SHOOT_ROCKJAW                 = 0,
-
-    SPELL_SHOOT                       = 70014
+    SPELL_SHOOT                         = 70014
 };
 
+// 37081 - Joren Ironstock
 struct npc_joren_ironstock : public ScriptedAI
 {
-    npc_joren_ironstock(Creature* creature) : ScriptedAI(creature) { _shoot = true,  _spawnPos = 0;}
+    npc_joren_ironstock(Creature* creature) : ScriptedAI(creature) { }
+
+    void EnqueueInvader(Unit* invader, Seconds minTime = 1s, Seconds maxTime = 9s)
+    {
+        _scheduler.Schedule(minTime, maxTime, [this, guid = invader->GetGUID()](TaskContext /*task*/)
+        {
+            _invadersToShoot.push_back(guid);
+        });
+    }
 
     void JustAppeared() override
     {
         me->SetTemplateRooted(true);
-        _events.ScheduleEvent(EVENT_SUMMON_ROCKJAW_INVADER, 1s);
+
+        _scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            if (Creature* invader = me->SummonCreature(NPC_ROCKJAW_INVADER, Trinity::Containers::SelectRandomContainerElement(RockjawInvaderSpawnPoints), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 18s))
+            {
+                invader->SetScriptStringId("joren_invader");
+                invader->AI()->SetGUID(me->GetGUID());
+                if (me->HasInArc(float(M_PI), invader) && !me->IsInCombat())
+                    EnqueueInvader(invader, 1s, 3s);
+                else
+                    EnqueueInvader(invader, 5s, 8s);
+                invader->AI()->AttackStart(me);
+            }
+            task.Repeat(3s, 20s);
+        });
+
+        _scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            if (!_invadersToShoot.empty())
+            {
+                ObjectGuid guid = _invadersToShoot.front();
+                _invadersToShoot.pop_front();
+
+                Creature* invader = ObjectAccessor::GetCreature(*me, guid);
+                if (invader && invader->IsAlive())
+                {
+                    SpellCastResult result = DoCast(invader, SPELL_SHOOT);
+                    if (result == SpellCastResult::SPELL_CAST_OK)
+                    {
+                        if (roll_chance_i(50))
+                            Talk(SAY_SHOOT_ROCKJAW, invader);
+                    }
+                    else
+                        _invadersToShoot.push_back(guid);
+                }
+            }
+            task.Repeat(1s);
+        });
     }
 
     void UpdateAI(uint32 diff) override
     {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_SUMMON_ROCKJAW_INVADER:
-                    {
-                        Creature* RockjawInvader = me->SummonCreature(NPC_ROCKJAW_INVADER, RockjawInvaderSpawnPoints[_spawnPos], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180s);
-                        RockjawInvader->AI()->AttackStart(me);
-                        ++_spawnPos;
-
-                        if (_spawnPos == 7)
-                            _spawnPos = 0;
-
-                        _events.ScheduleEvent(EVENT_SUMMON_ROCKJAW_INVADER, 3s, 20s);
-                    }
-                    break;
-                case EVENT_ALLOW_SHOOT_ROCKJAW_INVADER:
-                    _shoot = true;
-                break;
-                default:
-                    break;
-            }
-        }
+        _scheduler.Update(diff);
 
         if (!UpdateVictim())
             return;
 
-        if (Creature* victim = me->GetVictim()->ToCreature())
-        {
-            if (victim->GetEntry() == NPC_ROCKJAW_INVADER && _shoot)
-            {
-                _shoot = false;
-                DoCastVictim(SPELL_SHOOT);
-                _events.ScheduleEvent(EVENT_ALLOW_SHOOT_ROCKJAW_INVADER, 3s);
-                if (urand(0, 1))
-                    Talk(SAY_SHOOT_ROCKJAW, victim);
-                victim->DespawnOrUnsummon(18s);
-            }
-        }
-
         DoMeleeAttackIfReady();
     }
+
 private:
-    EventMap _events;
-    uint8 _spawnPos;
-    bool _shoot;
+    TaskScheduler _scheduler;
+    std::deque<ObjectGuid> _invadersToShoot;
 };
 
 void AddSC_dun_morogh_area_coldridge_valley()
