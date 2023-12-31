@@ -18,8 +18,8 @@
 #include "AzeriteItem.h"
 #include "AzeritePackets.h"
 #include "ConditionMgr.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Player.h"
@@ -172,13 +172,13 @@ void AzeriteItem::LoadAzeriteItemData(Player const* owner, AzeriteItemData& azer
             selectedEssences.ModifyValue(&UF::SelectedAzeriteEssences::AzeriteEssenceID, i).SetValue(selectedEssenceData.AzeriteEssenceId[i]);
         }
 
-        if (owner && owner->GetPrimarySpecialization() == selectedEssenceData.SpecializationId)
-            selectedEssences.ModifyValue(&UF::SelectedAzeriteEssences::Enabled).SetValue(1);
+        if (owner && owner->GetPrimarySpecialization() == ChrSpecialization(selectedEssenceData.SpecializationId))
+            selectedEssences.ModifyValue(&UF::SelectedAzeriteEssences::Enabled).SetValue(true);
     }
 
     // add selected essences for current spec
     if (owner && !GetSelectedAzeriteEssences())
-        CreateSelectedAzeriteEssences(owner->GetPrimarySpecialization());
+        CreateSelectedAzeriteEssences(AsUnderlyingType(owner->GetPrimarySpecialization()));
 
     if (needSave)
     {
@@ -362,7 +362,7 @@ void AzeriteItem::SetSelectedAzeriteEssences(uint32 specializationId)
     int32 index = m_azeriteItemData->SelectedEssences.FindIndexIf([](UF::SelectedAzeriteEssences const& essences) { return essences.Enabled == 1; });
     if (index >= 0)
         SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::SelectedEssences, index)
-            .ModifyValue(&UF::SelectedAzeriteEssences::Enabled), 0);
+            .ModifyValue(&UF::SelectedAzeriteEssences::Enabled), false);
 
     index = m_azeriteItemData->SelectedEssences.FindIndexIf([specializationId](UF::SelectedAzeriteEssences const& essences)
     {
@@ -371,7 +371,7 @@ void AzeriteItem::SetSelectedAzeriteEssences(uint32 specializationId)
 
     if (index >= 0)
         SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::SelectedEssences, index)
-            .ModifyValue(&UF::SelectedAzeriteEssences::Enabled), 1);
+            .ModifyValue(&UF::SelectedAzeriteEssences::Enabled), true);
     else
         CreateSelectedAzeriteEssences(specializationId);
 }
@@ -380,7 +380,7 @@ void AzeriteItem::CreateSelectedAzeriteEssences(uint32 specializationId)
 {
     auto selectedEssences = AddDynamicUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::SelectedEssences));
     selectedEssences.ModifyValue(&UF::SelectedAzeriteEssences::SpecializationID).SetValue(specializationId);
-    selectedEssences.ModifyValue(&UF::SelectedAzeriteEssences::Enabled).SetValue(1);
+    selectedEssences.ModifyValue(&UF::SelectedAzeriteEssences::Enabled).SetValue(true);
 }
 
 void AzeriteItem::SetSelectedAzeriteEssence(uint8 slot, uint32 azeriteEssenceId)

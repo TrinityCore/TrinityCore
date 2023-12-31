@@ -98,6 +98,7 @@ namespace WorldPackets
             int32 ContentTuningID = 0;
             int32 QuestType     = 0;
             bool Repeatable     = false;
+            bool Important      = false;
             std::string QuestTitle;
             int32 QuestFlags[2] = { };
         };
@@ -115,8 +116,8 @@ namespace WorldPackets
             int32 FriendshipFactionID = 0;
             ObjectGuid GossipGUID;
             std::vector<ClientGossipText> GossipText;
-            Optional<int32> TextID;
-            Optional<int32> TextID2;
+            Optional<int32> TextID;             // in classic variants this still holds npc_text id
+            Optional<int32> BroadcastTextID;
             int32 GossipID = 0;
         };
 
@@ -232,6 +233,17 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Healer;
+        };
+
+        class TabardVendorActivate final : public ClientPacket
+        {
+        public:
+            TabardVendorActivate(WorldPacket&& packet) : ClientPacket(CMSG_TABARD_VENDOR_ACTIVATE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Vendor;
+            int32 Type = 0;
         };
 
         class TrainerBuySpell final : public ClientPacket

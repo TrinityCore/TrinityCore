@@ -119,28 +119,6 @@ namespace WorldPackets
             std::vector<PetSpellHistory> SpellHistory;
         };
 
-        struct PetStableInfo
-        {
-            uint32 PetSlot = 0;
-            uint32 PetNumber = 0;
-            uint32 CreatureID = 0;
-            uint32 DisplayID = 0;
-            uint32 ExperienceLevel = 0;
-            uint8 PetFlags = 0;
-            std::string PetName;
-        };
-
-        class PetStableList final : public ServerPacket
-        {
-        public:
-            PetStableList() : ServerPacket(SMSG_PET_STABLE_LIST, 18 + 2) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid StableMaster;
-            std::vector<PetStableInfo> Pets;
-        };
-
         class PetStableResult final : public ServerPacket
         {
         public:
@@ -278,6 +256,19 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 Result = 0;
+        };
+
+        class PetMode final : public ServerPacket
+        {
+        public:
+            PetMode() : ServerPacket(SMSG_PET_MODE, 16 + 2 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PetGUID;
+            ReactStates ReactState = REACT_PASSIVE;
+            CommandStates CommandState = COMMAND_STAY;
+            uint8 Flag = 0;
         };
     }
 }

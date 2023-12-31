@@ -19,7 +19,7 @@
 #define FTREE_FLAG_USE_CONTENT_FLAGS  0x0004        // The FILE_NODE also contains content flags
 
 #define CFN_FLAG_FOLDER               0x0001        // This item is a folder
-#define CFN_FLAG_MOUNT_POINT          0x0002        // This item is a mount point.
+#define CFN_FLAG_MOUNT_POINT          0x0002        // This item is a mount point
 
 // Common structure for holding a single folder/file node
 typedef struct _CASC_FILE_NODE
@@ -82,7 +82,7 @@ class CASC_FILE_TREE
     // Retrieve the maximum FileDataId ever inserted
     DWORD GetNextFileDataId();
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
     void DumpFileDataIds(const char * szFileName)
     {
         FileDataIds.Dump(szFileName);
@@ -93,7 +93,7 @@ class CASC_FILE_TREE
 
     PCASC_FILE_NODE InsertNew(PCASC_CKEY_ENTRY pCKeyEntry);
     PCASC_FILE_NODE InsertNew();
-    bool InsertToHashTable(PCASC_FILE_NODE pFileNode);
+    bool InsertToNameMap(PCASC_FILE_NODE pFileNode);
     bool InsertToIdTable(PCASC_FILE_NODE pFileNode);
 
     bool SetNodePlainName(PCASC_FILE_NODE pFileNode, const char * szPlainName, const char * szPlainNameEnd);

@@ -327,3 +327,17 @@ WorldPacket const* WorldPackets::Chat::CanLocalWhisperTargetResponse::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Chat::UpdateAADCStatus::Read()
+{
+    ChatDisabled = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Chat::UpdateAADCStatusResponse::Write()
+{
+    _worldPacket.WriteBit(Success);
+    _worldPacket.WriteBit(ChatDisabled);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

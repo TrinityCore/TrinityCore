@@ -42,8 +42,8 @@ PathGenerator::PathGenerator(WorldObject const* owner) :
     if (DisableMgr::IsPathfindingEnabled(_source->GetMapId()))
     {
         MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
-        _navMesh = mmap->GetNavMesh(mapId);
-        _navMeshQuery = mmap->GetNavMeshQuery(mapId, _source->GetInstanceId());
+        _navMeshQuery = mmap->GetNavMeshQuery(mapId, _source->GetMapId(), _source->GetInstanceId());
+        _navMesh = _navMeshQuery ? _navMeshQuery->getAttachedNavMesh() : mmap->GetNavMesh(mapId);
     }
 
     CreateFilter();
@@ -674,6 +674,9 @@ void PathGenerator::CreateFilter()
 
 void PathGenerator::UpdateFilter()
 {
+    _filter.setIncludeFlags(_filter.getIncludeFlags() | _source->GetMap()->GetForceEnabledNavMeshFilterFlags());
+    _filter.setExcludeFlags(_filter.getExcludeFlags() | _source->GetMap()->GetForceDisabledNavMeshFilterFlags());
+
     // allow creatures to cheat and use different movement types if they are moved
     // forcefully into terrain they can't normally move in
     if (Unit const* _sourceUnit = _source->ToUnit())
@@ -694,25 +697,20 @@ void PathGenerator::UpdateFilter()
     }
 }
 
-NavTerrainFlag PathGenerator::GetNavTerrain(float x, float y, float z)
+NavTerrainFlag PathGenerator::GetNavTerrain(float x, float y, float z) const
 {
     LiquidData data;
     ZLiquidStatus liquidStatus = _source->GetMap()->GetLiquidStatus(_source->GetPhaseShift(), x, y, z, map_liquidHeaderTypeFlags::AllLiquids, &data, _source->GetCollisionHeight());
     if (liquidStatus == LIQUID_MAP_NO_WATER)
         return NAV_GROUND;
 
-    data.type_flags &= map_liquidHeaderTypeFlags::DarkWater;
-    switch (data.type_flags)
-    {
-        case map_liquidHeaderTypeFlags::Water:
-        case map_liquidHeaderTypeFlags::Ocean:
-            return NAV_WATER;
-        case map_liquidHeaderTypeFlags::Magma:
-        case map_liquidHeaderTypeFlags::Slime:
-            return NAV_MAGMA_SLIME;
-        default:
-            return NAV_GROUND;
-    }
+    if (data.type_flags.HasFlag(map_liquidHeaderTypeFlags::Water | map_liquidHeaderTypeFlags::Ocean))
+        return NAV_WATER;
+
+    if (data.type_flags.HasFlag(map_liquidHeaderTypeFlags::Magma | map_liquidHeaderTypeFlags::Slime))
+        return NAV_MAGMA_SLIME;
+
+    return NAV_GROUND;
 }
 
 bool PathGenerator::HaveTile(const G3D::Vector3& p) const

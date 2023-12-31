@@ -16,6 +16,7 @@
  */
 
 #include "BattlegroundSA.h"
+#include "BattlegroundScore.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DB2Stores.h"
@@ -29,6 +30,12 @@
 #include "Random.h"
 #include "UpdateData.h"
 #include "WorldStateMgr.h"
+
+enum StrandOfTheAncientsPvpStats
+{
+    PVP_STAT_GATES_DESTROYED        = 231,
+    PVP_STAT_DEMOLISHERS_DESTROYED  = 232
+};
 
 BattlegroundSA::BattlegroundSA(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
@@ -415,7 +422,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
                 RoundScores[1].time = BG_SA_ROUNDLENGTH;
                 RoundScores[1].winner = (Attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
                 if (RoundScores[0].time == RoundScores[1].time)
-                    EndBattleground(0);
+                    EndBattleground(TEAM_OTHER);
                 else if (RoundScores[0].time < RoundScores[1].time)
                     EndBattleground(RoundScores[0].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
                 else
@@ -428,12 +435,10 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
     }
 }
 
-void BattlegroundSA::AddPlayer(Player* player)
+void BattlegroundSA::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
 {
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
-    Battleground::AddPlayer(player);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new BattlegroundSAScore(player->GetGUID(), player->GetBGTeam());
+    Battleground::AddPlayer(player, queueId);
 
     SendTransportInit(player);
 
@@ -485,15 +490,15 @@ void BattlegroundSA::TeleportToEntrancePosition(Player* player)
             // player->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
 
             if (urand(0, 1))
-                player->TeleportTo(607, 2682.936f, -830.368f, 15.0f, 2.895f, 0);
+                player->TeleportTo(607, 2682.936f, -830.368f, 15.0f, 2.895f);
             else
-                player->TeleportTo(607, 2577.003f, 980.261f, 15.0f, 0.807f, 0);
+                player->TeleportTo(607, 2577.003f, 980.261f, 15.0f, 0.807f);
         }
         else
-            player->TeleportTo(607, 1600.381f, -106.263f, 8.8745f, 3.78f, 0);
+            player->TeleportTo(607, 1600.381f, -106.263f, 8.8745f, 3.78f);
     }
     else
-        player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
+        player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f);
 }
 
 void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* invoker /*= nullptr*/)
@@ -565,7 +570,7 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                             {
                                 if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
                                 {
-                                    UpdatePlayerScore(player, SCORE_DESTROYED_WALL, 1);
+                                    UpdatePvpStat(player, PVP_STAT_GATES_DESTROYED, 1);
                                     if (rewardHonor)
                                         UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(1));
                                 }
@@ -591,7 +596,7 @@ void BattlegroundSA::HandleKillUnit(Creature* creature, Player* killer)
 {
     if (creature->GetEntry() == NPC_DEMOLISHER_SA)
     {
-        UpdatePlayerScore(killer, SCORE_DESTROYED_DEMOLISHER, 1);
+        UpdatePvpStat(killer, PVP_STAT_DEMOLISHERS_DESTROYED, 1);
         int32 worldStateId = Attackers == TEAM_HORDE ? BG_SA_DESTROYED_HORDE_VEHICLES : BG_SA_DESTROYED_ALLIANCE_VEHICLES;
         int32 currentDestroyedVehicles = sWorldStateMgr->GetValue(worldStateId, GetBgMap());
         UpdateWorldState(worldStateId, currentDestroyedVehicles + 1);
@@ -631,9 +636,15 @@ void BattlegroundSA::DemolisherStartState(bool start)
         if (Creature* dem = GetBGCreature(i))
         {
             if (start)
-                dem->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+            {
+                dem->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                dem->SetUninteractible(true);
+            }
             else
-                dem->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+            {
+                dem->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                dem->SetUninteractible(false);
+            }
         }
     }
 }
@@ -893,7 +904,7 @@ void BattlegroundSA::TitanRelicActivated(Player* clicker)
                 }
 
                 if (RoundScores[0].time == RoundScores[1].time)
-                    EndBattleground(0);
+                    EndBattleground(TEAM_OTHER);
                 else if (RoundScores[0].time < RoundScores[1].time)
                     EndBattleground(RoundScores[0].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
                 else
@@ -909,7 +920,7 @@ void BattlegroundSA::ToggleTimer()
     UpdateWorldState(BG_SA_ENABLE_TIMER, TimerEnabled);
 }
 
-void BattlegroundSA::EndBattleground(uint32 winner)
+void BattlegroundSA::EndBattleground(Team winner)
 {
     // honor reward for winning
     if (winner == ALLIANCE)
@@ -1006,24 +1017,5 @@ bool BattlegroundSA::IsSpellAllowed(uint32 spellId, Player const* /*player*/) co
            break;
     }
 
-    return true;
-}
-
-bool BattlegroundSA::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor /*= true*/)
-{
-    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
-        return false;
-
-    switch (type)
-    {
-        case SCORE_DESTROYED_DEMOLISHER:
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, BG_SA_DEMOLISHERS_DESTROYED);
-            break;
-        case SCORE_DESTROYED_WALL:
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, BG_SA_GATES_DESTROYED);
-            break;
-        default:
-            break;
-    }
     return true;
 }

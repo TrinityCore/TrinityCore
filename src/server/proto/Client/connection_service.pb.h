@@ -472,6 +472,13 @@ class TC_PROTO_API ConnectResponse : public ::google::protobuf::Message {
   inline ::std::string* release_ciid();
   inline void set_allocated_ciid(::std::string* ciid);
 
+  // optional uint32 connected_region = 10;
+  inline bool has_connected_region() const;
+  inline void clear_connected_region();
+  static const int kConnectedRegionFieldNumber = 10;
+  inline ::google::protobuf::uint32 connected_region() const;
+  inline void set_connected_region(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.connection.v1.ConnectResponse)
  private:
   inline void set_has_server_id();
@@ -492,6 +499,8 @@ class TC_PROTO_API ConnectResponse : public ::google::protobuf::Message {
   inline void clear_has_binary_content_handle_array();
   inline void set_has_ciid();
   inline void clear_has_ciid();
+  inline void set_has_connected_region();
+  inline void clear_has_connected_region();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -506,6 +515,7 @@ class TC_PROTO_API ConnectResponse : public ::google::protobuf::Message {
   ::google::protobuf::uint64 server_time_;
   ::bgs::protocol::connection::v1::ConnectionMeteringContentHandles* binary_content_handle_array_;
   ::std::string* ciid_;
+  ::google::protobuf::uint32 connected_region_;
   friend void TC_PROTO_API protobuf_AddDesc_connection_5fservice_2eproto();
   friend void protobuf_AssignDesc_connection_5fservice_2eproto();
   friend void protobuf_ShutdownFile_connection_5fservice_2eproto();
@@ -1946,6 +1956,30 @@ inline void ConnectResponse::set_allocated_ciid(::std::string* ciid) {
     ciid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.connection.v1.ConnectResponse.ciid)
+}
+
+// optional uint32 connected_region = 10;
+inline bool ConnectResponse::has_connected_region() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
+}
+inline void ConnectResponse::set_has_connected_region() {
+  _has_bits_[0] |= 0x00000200u;
+}
+inline void ConnectResponse::clear_has_connected_region() {
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline void ConnectResponse::clear_connected_region() {
+  connected_region_ = 0u;
+  clear_has_connected_region();
+}
+inline ::google::protobuf::uint32 ConnectResponse::connected_region() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.connection.v1.ConnectResponse.connected_region)
+  return connected_region_;
+}
+inline void ConnectResponse::set_connected_region(::google::protobuf::uint32 value) {
+  set_has_connected_region();
+  connected_region_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.connection.v1.ConnectResponse.connected_region)
 }
 
 // -------------------------------------------------------------------

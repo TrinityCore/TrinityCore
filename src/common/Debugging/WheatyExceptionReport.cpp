@@ -243,7 +243,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
     RTL_OSVERSIONINFOEXW osvi = { };
     osvi.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOEXW);
     NTSTATUS bVersionEx = RtlGetVersion((PRTL_OSVERSIONINFOW)&osvi);
-    if (bVersionEx < 0)
+    if (FAILED(bVersionEx))
     {
         osvi.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOW);
         if (!RtlGetVersion((PRTL_OSVERSIONINFOW)&osvi))
@@ -468,14 +468,14 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
     {
         IWbemServices* tmp = nullptr;
         HRESULT hres = loc->ConnectServer(
-            bstr_t(L"ROOT\\CIMV2"),  // Object path of WMI namespace
-            nullptr,                   // User name. NULL = current user
-            nullptr,                   // User password. NULL = current
-            nullptr,                   // Locale. NULL indicates current
-            0,                         // Security flags.
-            nullptr,                   // Authority (for example, Kerberos)
-            nullptr,                   // Context object
-            &tmp                       // pointer to IWbemServices proxy
+            bstr_t(L"ROOT\\CIMV2"),         // Object path of WMI namespace
+            nullptr,                        // User name. NULL = current user
+            nullptr,                        // User password. NULL = current
+            nullptr,                        // Locale. NULL indicates current
+            WBEM_FLAG_CONNECT_USE_MAX_WAIT, // Security flags.
+            nullptr,                        // Authority (for example, Kerberos)
+            nullptr,                        // Context object
+            &tmp                            // pointer to IWbemServices proxy
         );
 
         if (FAILED(hres))

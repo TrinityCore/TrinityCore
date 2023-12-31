@@ -18,24 +18,17 @@
 #ifndef _ADHOCSTATEMENT_H
 #define _ADHOCSTATEMENT_H
 
-#include "Define.h"
 #include "DatabaseEnvFwd.h"
-#include "SQLOperation.h"
+#include "Define.h"
+
+class MySQLConnection;
 
 /*! Raw, ad-hoc query. */
-class TC_DATABASE_API BasicStatementTask : public SQLOperation
+class TC_DATABASE_API BasicStatementTask
 {
-    public:
-        BasicStatementTask(char const* sql, bool async = false);
-        ~BasicStatementTask();
-
-        bool Execute() override;
-        QueryResultFuture GetFuture() const { return m_result->get_future(); }
-
-    private:
-        char const* m_sql;      //- Raw query to be executed
-        bool m_has_result;
-        QueryResultPromise* m_result;
+public:
+    static QueryResult Query(MySQLConnection* conn, char const* sql);
+    static bool Execute(MySQLConnection* conn, char const* sql);
 };
 
 #endif

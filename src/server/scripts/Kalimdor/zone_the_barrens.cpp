@@ -283,7 +283,7 @@ public:
                             if (!creature)
                                 continue;
                             creature->SetFaction(35);
-                            creature->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            creature->SetUninteractible(true);
                             creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             creature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                             AffrayChallenger[i] = creature->GetGUID();
@@ -320,7 +320,7 @@ public:
                             Creature* creature = ObjectAccessor::GetCreature(*me, AffrayChallenger[Wave]);
                             if (creature && (creature->IsAlive()))
                             {
-                                creature->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                                creature->SetUninteractible(false);
                                 creature->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                                 creature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                                 creature->SetFaction(14);
@@ -352,7 +352,7 @@ public:
                             }
                             else // Makes BIG WILL attackable.
                             {
-                                creature->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                                creature->SetUninteractible(false);
                                 creature->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                                 creature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                                 creature->SetFaction(14);

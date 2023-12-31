@@ -1501,15 +1501,6 @@ enum BG_AV_QuestIds
     AV_QUEST_H_RIDER_TAME   = 7001
 };
 
-enum BG_AV_Objectives
-{
-    AV_OBJECTIVE_ASSAULT_TOWER      = 61,
-    AV_OBJECTIVE_ASSAULT_GRAVEYARD  = 63,
-    AV_OBJECTIVE_DEFEND_TOWER       = 64,
-    AV_OBJECTIVE_DEFEND_GRAVEYARD   = 65,
-    AV_OBJECTIVE_SECONDARY_OBJECTIVE= 82
-};
-
 struct StaticNodeInfo
 {
     BG_AV_Nodes NodeId;
@@ -1580,68 +1571,12 @@ struct BG_AV_NodeInfo
     BG_AV_States PrevState;
     uint32       Timer;
     uint16       TotalOwner;
-    uint16       Owner;
+    Team         Owner;
     uint16       PrevOwner;
     bool         Tower;
 };
 
 inline BG_AV_Nodes &operator++(BG_AV_Nodes& i) { return i = BG_AV_Nodes(i + 1); }
-
-struct BattlegroundAVScore final : public BattlegroundScore
-{
-    friend class BattlegroundAV;
-
-    protected:
-        BattlegroundAVScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0) { }
-
-        void UpdateScore(uint32 type, uint32 value) override
-        {
-            switch (type)
-            {
-                case SCORE_GRAVEYARDS_ASSAULTED:
-                    GraveyardsAssaulted += value;
-                    break;
-                case SCORE_GRAVEYARDS_DEFENDED:
-                    GraveyardsDefended += value;
-                    break;
-                case SCORE_TOWERS_ASSAULTED:
-                    TowersAssaulted += value;
-                    break;
-                case SCORE_TOWERS_DEFENDED:
-                    TowersDefended += value;
-                    break;
-                case SCORE_MINES_CAPTURED:
-                    MinesCaptured += value;
-                    break;
-                default:
-                    BattlegroundScore::UpdateScore(type, value);
-                    break;
-            }
-        }
-
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
-        {
-            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
-
-            playerData.Stats.emplace_back(AV_OBJECTIVE_ASSAULT_GRAVEYARD, GraveyardsAssaulted);
-            playerData.Stats.emplace_back(AV_OBJECTIVE_DEFEND_GRAVEYARD, GraveyardsDefended);
-            playerData.Stats.emplace_back(AV_OBJECTIVE_ASSAULT_TOWER, TowersAssaulted);
-            playerData.Stats.emplace_back(AV_OBJECTIVE_DEFEND_TOWER, TowersDefended);
-            playerData.Stats.emplace_back(AV_OBJECTIVE_SECONDARY_OBJECTIVE, MinesCaptured);
-        }
-
-        uint32 GetAttr1() const final override { return GraveyardsAssaulted; }
-        uint32 GetAttr2() const final override { return GraveyardsDefended; }
-        uint32 GetAttr3() const final override { return TowersAssaulted; }
-        uint32 GetAttr4() const final override { return TowersDefended; }
-        uint32 GetAttr5() const final override { return MinesCaptured; }
-
-        uint32 GraveyardsAssaulted;
-        uint32 GraveyardsDefended;
-        uint32 TowersAssaulted;
-        uint32 TowersDefended;
-        uint32 MinesCaptured;
-};
 
 class BattlegroundAV : public Battleground
 {
@@ -1650,7 +1585,6 @@ class BattlegroundAV : public Battleground
         ~BattlegroundAV();
 
         /* inherited from BattlegroundClass */
-        void AddPlayer(Player* player) override;
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 
@@ -1660,8 +1594,7 @@ class BattlegroundAV : public Battleground
         void Reset() override;
 
         /*general stuff*/
-        void UpdateScore(uint16 team, int16 points);
-        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
+        void UpdateScore(Team team, int16 points);
 
         /*handlestuff*/ //these are functions which get called from extern
         void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj) override;
@@ -1670,12 +1603,12 @@ class BattlegroundAV : public Battleground
         void HandleQuestComplete(uint32 questid, Player* player) override;
         bool CanActivateGO(int32 GOId, uint32 team) const override;
 
-        void EndBattleground(uint32 winner) override;
+        void EndBattleground(Team winner) override;
 
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
-        uint32 GetPrematureWinner() override;
+        Team GetPrematureWinner() override;
 
     private:
         void PostUpdateImpl(uint32 diff) override;
@@ -1685,10 +1618,10 @@ class BattlegroundAV : public Battleground
         void EventPlayerDefendsPoint(Player* player, uint32 object);
         void EventPlayerDestroyedPoint(BG_AV_Nodes node);
 
-        void AssaultNode(BG_AV_Nodes node, uint16 team);
+        void AssaultNode(BG_AV_Nodes node, Team team);
         void DestroyNode(BG_AV_Nodes node);
-        void InitNode(BG_AV_Nodes node, uint16 team, bool tower);
-        void DefendNode(BG_AV_Nodes node, uint16 team);
+        void InitNode(BG_AV_Nodes node, Team team, bool tower);
+        void DefendNode(BG_AV_Nodes node, Team team);
 
         void PopulateNode(BG_AV_Nodes node);
         void DePopulateNode(BG_AV_Nodes node);
@@ -1706,7 +1639,7 @@ class BattlegroundAV : public Battleground
         bool IsTower(BG_AV_Nodes node) { return m_Nodes[node].Tower; }
 
         /*mine*/
-        void ChangeMineOwner(uint8 mine, uint32 team, bool initial = false);
+        void ChangeMineOwner(uint8 mine, Team team, bool initial = false);
 
         /*worldstates*/
         void SendMineWorldStates(uint32 mine);
@@ -1721,7 +1654,7 @@ class BattlegroundAV : public Battleground
 
         BG_AV_NodeInfo m_Nodes[BG_AV_NODES_MAX];
 
-        uint32 m_Mine_Owner[2];
+        Team m_Mine_Owner[2];
         uint32 m_Mine_PrevOwner[2]; //only for worldstates needed
         int32 m_Mine_Timer; //ticks for both teams
         uint32 m_Mine_Reclaim_Timer[2];

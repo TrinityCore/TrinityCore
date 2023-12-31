@@ -24,6 +24,8 @@
 #include "StringFormat.h"
 #include "VMapDefinitions.h"
 #include "vmapexport.h"
+#include "Locales.h"
+#include "Util.h"
 #include "wdtfile.h"
 #include "wmo.h"
 #include <algorithm>
@@ -445,6 +447,10 @@ static bool RetardCheck()
 
 int main(int argc, char ** argv)
 {
+    Trinity::VerifyOsVersion();
+
+    Trinity::Locale::Init();
+
     Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     bool success = true;
@@ -524,11 +530,11 @@ int main(int argc, char ** argv)
     {
         printf("Read Map.dbc file... ");
 
-        DB2CascFileSource source(CascStorage, MapLoadInfo::Instance()->Meta->FileDataId);
+        DB2CascFileSource source(CascStorage, MapLoadInfo::Instance.Meta->FileDataId);
         DB2FileLoader db2;
         try
         {
-            db2.Load(&source, MapLoadInfo::Instance());
+            db2.Load(&source, &MapLoadInfo::Instance);
         }
         catch (std::exception const& e)
         {

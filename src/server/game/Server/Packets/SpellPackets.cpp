@@ -153,9 +153,7 @@ WorldPacket const* AuraUpdate::Write()
 ByteBuffer& operator>>(ByteBuffer& buffer, TargetLocation& location)
 {
     buffer >> location.Transport;
-    buffer >> location.Location.m_positionX;
-    buffer >> location.Location.m_positionY;
-    buffer >> location.Location.m_positionZ;
+    buffer >> location.Location;
     return buffer;
 }
 
@@ -290,9 +288,7 @@ WorldPacket const* SpellPrepare::Write()
 ByteBuffer& operator<<(ByteBuffer& data, TargetLocation const& targetLocation)
 {
     data << targetLocation.Transport;
-    data << float(targetLocation.Location.m_positionX);
-    data << float(targetLocation.Location.m_positionY);
-    data << float(targetLocation.Location.m_positionZ);
+    data << targetLocation.Location;
     return data;
 }
 
@@ -328,11 +324,10 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellTargetData const& spellTargetData)
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellMissStatus const& spellMissStatus)
 {
-    data.WriteBits(spellMissStatus.Reason, 4);
+    data << uint8(spellMissStatus.Reason);
     if (spellMissStatus.Reason == SPELL_MISS_REFLECT)
-        data.WriteBits(spellMissStatus.ReflectStatus, 4);
+        data << uint8(spellMissStatus.ReflectStatus);
 
-    data.FlushBits();
     return data;
 }
 
@@ -367,13 +362,6 @@ ByteBuffer& operator<<(ByteBuffer& data, MissileTrajectoryResult const& missileT
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, SpellAmmo const& spellAmmo)
-{
-    data << int32(spellAmmo.DisplayID);
-    data << int8(spellAmmo.InventoryType);
-    return data;
-}
-
 ByteBuffer& operator<<(ByteBuffer& data, CreatureImmunities const& immunities)
 {
     data << int32(immunities.School);
@@ -401,7 +389,7 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastData const& spellCastData)
     data << uint32(spellCastData.CastFlagsEx);
     data << uint32(spellCastData.CastTime);
     data << spellCastData.MissileTrajectory;
-    data << int32(spellCastData.Ammo.DisplayID);
+    data << int32(spellCastData.AmmoDisplayID);
     data << uint8(spellCastData.DestLocSpellCastIndex);
     data << spellCastData.Immunities;
     data << spellCastData.Predict;
@@ -414,9 +402,6 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastData const& spellCastData)
     data.WriteBits(spellCastData.TargetPoints.size(), 16);
     data.FlushBits();
 
-    for (SpellMissStatus const& missStatus : spellCastData.MissStatus)
-        data << missStatus;
-
     data << spellCastData.Target;
 
     for (ObjectGuid const& hitTarget : spellCastData.HitTargets)
@@ -427,6 +412,9 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastData const& spellCastData)
 
     for (SpellHitStatus const& hitStatus : spellCastData.HitStatus)
         data << hitStatus;
+
+    for (SpellMissStatus const& missStatus : spellCastData.MissStatus)
+        data << missStatus;
 
     for (SpellPowerData const& power : spellCastData.RemainingPower)
         data << power;

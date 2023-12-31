@@ -30,6 +30,7 @@
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "StringConvert.h"
 #include "Timer.h"
 #include "UnitDefines.h"
 #include "Util.h"
@@ -137,6 +138,15 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     }
                     break;
                 }
+                case SMART_SCRIPT_TYPE_EVENT:
+                {
+                    if (!sObjectMgr->IsValidEvent((uint32)temp.entryOrGuid))
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Event id ({}) does not exist, skipped loading.", uint32(temp.entryOrGuid));
+                        continue;
+                    }
+                    break;
+                }
                 case SMART_SCRIPT_TYPE_QUEST:
                 {
                     if (!sObjectMgr->GetQuestTemplate((uint32)temp.entryOrGuid))
@@ -166,11 +176,11 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     }
                     break;
                 }
-                case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE:
+                case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM:
                 {
                     if (!sAreaTriggerDataStore->GetAreaTriggerTemplate({ (uint32)temp.entryOrGuid, true }))
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: AreaTrigger entry ({} IsServerSide true) does not exist, skipped loading.", uint32(temp.entryOrGuid));
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: AreaTrigger entry ({} IsCustom true) does not exist, skipped loading.", uint32(temp.entryOrGuid));
                         continue;
                     }
                     break;
@@ -239,37 +249,65 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.source_type = source_type;
         temp.event_id = fields[2].GetUInt16();
         temp.link = fields[3].GetUInt16();
-        temp.event.type = (SMART_EVENT)fields[4].GetUInt8();
-        temp.event.event_phase_mask = fields[5].GetUInt16();
-        temp.event.event_chance = fields[6].GetUInt8();
-        temp.event.event_flags = fields[7].GetUInt16();
 
-        temp.event.raw.param1 = fields[8].GetUInt32();
-        temp.event.raw.param2 = fields[9].GetUInt32();
-        temp.event.raw.param3 = fields[10].GetUInt32();
-        temp.event.raw.param4 = fields[11].GetUInt32();
-        temp.event.raw.param5 = fields[12].GetUInt32();
+        bool invalidDifficulties = false;
+        for (std::string_view token : Trinity::Tokenize(fields[4].GetStringView(), ',', false))
+        {
+            std::optional<std::underlying_type_t<Difficulty>> tokenValue = Trinity::StringTo<std::underlying_type_t<Difficulty>>(token);
+            if (!tokenValue.has_value())
+            {
+                invalidDifficulties = true;
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Invalid difficulties for entryorguid ({}) source_type ({}) id ({}), skipped loading.",
+                    temp.entryOrGuid, temp.GetScriptType(), temp.event_id);
+                break;
+            }
 
-        temp.event.param_string = fields[13].GetString();
+            Difficulty difficultyId = Difficulty(tokenValue.value());
+            if (difficultyId && !sDifficultyStore.LookupEntry(difficultyId))
+            {
+                invalidDifficulties = true;
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Invalid difficulty id ({}) for entryorguid ({}) source_type ({}) id ({}), skipped loading.",
+                    difficultyId, temp.entryOrGuid, temp.GetScriptType(), temp.event_id);
+                break;
+            }
 
-        temp.action.type = (SMART_ACTION)fields[14].GetUInt8();
-        temp.action.raw.param1 = fields[15].GetUInt32();
-        temp.action.raw.param2 = fields[16].GetUInt32();
-        temp.action.raw.param3 = fields[17].GetUInt32();
-        temp.action.raw.param4 = fields[18].GetUInt32();
-        temp.action.raw.param5 = fields[19].GetUInt32();
-        temp.action.raw.param6 = fields[20].GetUInt32();
-        temp.action.raw.param7 = fields[21].GetUInt32();
+            temp.Difficulties.push_back(difficultyId);
+        }
 
-        temp.target.type = (SMARTAI_TARGETS)fields[22].GetUInt8();
-        temp.target.raw.param1 = fields[23].GetUInt32();
-        temp.target.raw.param2 = fields[24].GetUInt32();
-        temp.target.raw.param3 = fields[25].GetUInt32();
-        temp.target.raw.param4 = fields[26].GetUInt32();
-        temp.target.x = fields[27].GetFloat();
-        temp.target.y = fields[28].GetFloat();
-        temp.target.z = fields[29].GetFloat();
-        temp.target.o = fields[30].GetFloat();
+        if (invalidDifficulties)
+            continue;
+
+        temp.event.type = (SMART_EVENT)fields[5].GetUInt8();
+        temp.event.event_phase_mask = fields[6].GetUInt16();
+        temp.event.event_chance = fields[7].GetUInt8();
+        temp.event.event_flags = fields[8].GetUInt16();
+
+        temp.event.raw.param1 = fields[9].GetUInt32();
+        temp.event.raw.param2 = fields[10].GetUInt32();
+        temp.event.raw.param3 = fields[11].GetUInt32();
+        temp.event.raw.param4 = fields[12].GetUInt32();
+        temp.event.raw.param5 = fields[13].GetUInt32();
+
+        temp.event.param_string = fields[14].GetString();
+
+        temp.action.type = (SMART_ACTION)fields[15].GetUInt8();
+        temp.action.raw.param1 = fields[16].GetUInt32();
+        temp.action.raw.param2 = fields[17].GetUInt32();
+        temp.action.raw.param3 = fields[18].GetUInt32();
+        temp.action.raw.param4 = fields[19].GetUInt32();
+        temp.action.raw.param5 = fields[20].GetUInt32();
+        temp.action.raw.param6 = fields[21].GetUInt32();
+        temp.action.raw.param7 = fields[22].GetUInt32();
+
+        temp.target.type = (SMARTAI_TARGETS)fields[23].GetUInt8();
+        temp.target.raw.param1 = fields[24].GetUInt32();
+        temp.target.raw.param2 = fields[25].GetUInt32();
+        temp.target.raw.param3 = fields[26].GetUInt32();
+        temp.target.raw.param4 = fields[27].GetUInt32();
+        temp.target.x = fields[28].GetFloat();
+        temp.target.y = fields[29].GetFloat();
+        temp.target.z = fields[30].GetFloat();
+        temp.target.o = fields[31].GetFloat();
 
         //check target
         if (!IsTargetValid(temp))
@@ -451,6 +489,7 @@ SmartScriptHolder& SmartAIMgr::FindLinkedEvent(SmartAIEventList& list, uint32 li
         case SMART_EVENT_SCENE_TRIGGER:
         case SMART_EVENT_SCENE_CANCEL:
         case SMART_EVENT_SCENE_COMPLETE:
+        case SMART_EVENT_SEND_EVENT_TRIGGER:
             return true;
         default:
             return false;
@@ -804,6 +843,7 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_ON_SPELL_FAILED: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_START: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_DESPAWN: return NO_PARAMS;
+            case SMART_EVENT_SEND_EVENT_TRIGGER: return NO_PARAMS;
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1068,19 +1108,25 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
     if (e.action.type <= 0 || e.action.type >= SMART_ACTION_END)
     {
-        TC_LOG_ERROR("sql.sql", "SmartAIMgr: EntryOrGuid {} using event({}) has invalid action type ({}), skipped.", e.entryOrGuid, e.event_id, e.GetActionType());
+        TC_LOG_ERROR("sql.sql", "SmartAIMgr: EntryOrGuid {} using event ({}) has invalid action type ({}), skipped.", e.entryOrGuid, e.event_id, e.GetActionType());
         return false;
     }
 
     if (e.event.event_phase_mask > SMART_EVENT_PHASE_ALL)
     {
-        TC_LOG_ERROR("sql.sql", "SmartAIMgr: EntryOrGuid {} using event({}) has invalid phase mask ({}), skipped.", e.entryOrGuid, e.event_id, e.event.event_phase_mask);
+        TC_LOG_ERROR("sql.sql", "SmartAIMgr: EntryOrGuid {} using event ({}) has invalid phase mask ({}), skipped.", e.entryOrGuid, e.event_id, e.event.event_phase_mask);
         return false;
     }
 
     if (e.event.event_flags > SMART_EVENT_FLAGS_ALL)
     {
-        TC_LOG_ERROR("sql.sql", "SmartAIMgr: EntryOrGuid {} using event({}) has invalid event flags ({}), skipped.", e.entryOrGuid, e.event_id, e.event.event_flags);
+        TC_LOG_ERROR("sql.sql", "SmartAIMgr: EntryOrGuid {} using event ({}) has invalid event flags ({}), skipped.", e.entryOrGuid, e.event_id, e.event.event_flags);
+        return false;
+    }
+
+    if (e.event.event_flags & SMART_EVENT_FLAGS_DEPRECATED)
+    {
+        TC_LOG_ERROR("sql.sql", "SmartAIMgr: EntryOrGuid {} using event ({}) has deprecated event flags ({}), skipped.", e.entryOrGuid, e.event_id, e.event.event_flags);
         return false;
     }
 
@@ -1272,9 +1318,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             case SMART_EVENT_AREATRIGGER_ONTRIGGER:
             {
-                if (e.event.areatrigger.id && (e.GetScriptType() == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY || e.GetScriptType() == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE))
+                if (e.event.areatrigger.id && (e.GetScriptType() == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY || e.GetScriptType() == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM))
                 {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} areatrigger param not supported for SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY and SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} areatrigger param not supported for SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY and SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                     return false;
                 }
                 if (e.event.areatrigger.id && !IsAreaTriggerValid(e, e.event.areatrigger.id))
@@ -1442,6 +1488,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_SCENE_CANCEL:
             case SMART_EVENT_SCENE_COMPLETE:
             case SMART_EVENT_SCENE_TRIGGER:
+            case SMART_EVENT_SEND_EVENT_TRIGGER:
                 break;
             // Unused
             case SMART_EVENT_TARGET_HEALTH_PCT:
@@ -1661,9 +1708,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_CALL_GROUPEVENTHAPPENS:
             if (Quest const* qid = sObjectMgr->GetQuestTemplate(e.action.quest.quest))
             {
-                if (!qid->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT))
+                if (!qid->HasFlag(QUEST_FLAGS_COMPLETION_EVENT) && !qid->HasFlag(QUEST_FLAGS_COMPLETION_AREA_TRIGGER))
                 {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} SpecialFlags for Quest entry {} does not include FLAGS_EXPLORATION_OR_EVENT(2), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.quest.quest);
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} Flags for Quest entry {} does not include QUEST_FLAGS_COMPLETION_EVENT or QUEST_FLAGS_COMPLETION_AREA_TRIGGER, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.quest.quest);
                     return false;
                 }
             }
@@ -2060,7 +2107,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
 
-            if (areaEntry->ParentAreaID != 0)
+            if (areaEntry->ParentAreaID != 0 && areaEntry->GetFlags().HasFlag(AreaFlags::IsSubzone))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses subzone (ID: {}) instead of zone, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.overrideLight.zoneId);
                 return false;
@@ -2089,7 +2136,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
 
-            if (areaEntry->ParentAreaID != 0)
+            if (areaEntry->ParentAreaID != 0 && areaEntry->GetFlags().HasFlag(AreaFlags::IsSubzone))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses subzone (ID: {}) instead of zone, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.overrideWeather.zoneId);
                 return false;

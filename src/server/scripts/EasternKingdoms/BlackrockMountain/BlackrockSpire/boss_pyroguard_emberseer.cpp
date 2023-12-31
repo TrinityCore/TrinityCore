@@ -77,7 +77,7 @@ struct boss_pyroguard_emberseer : public BossAI
 
     void Reset() override
     {
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(true);
         me->SetImmuneToPC(true);
         events.Reset();
         // Apply auras on spawn and reset
@@ -140,7 +140,7 @@ struct boss_pyroguard_emberseer : public BossAI
                 me->CastSpell(me, SPELL_EMBERSEER_FULL_STRENGTH);
                 Talk(EMOTE_FREE_OF_BONDS);
                 Talk(YELL_FREE_OF_BONDS);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetImmuneToPC(false);
                 events.ScheduleEvent(EVENT_ENTER_COMBAT, 2s);
             }

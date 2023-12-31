@@ -29,9 +29,9 @@
 
 DoorData const doorData[] =
 {
-    { GO_ARCANE_DOOR_LEFT,  DATA_KAELTHAS, DOOR_TYPE_ROOM/*, BOUNDARY_SW  */ },
-    { GO_ARCANE_DOOR_RIGHT, DATA_KAELTHAS, DOOR_TYPE_ROOM/*, BOUNDARY_SE  */ },
-    {                    0,             0, DOOR_TYPE_ROOM } // END
+    { GO_ARCANE_DOOR_LEFT,  DATA_KAELTHAS, EncounterDoorBehavior::OpenWhenNotInProgress/*, BOUNDARY_SW  */ },
+    { GO_ARCANE_DOOR_RIGHT, DATA_KAELTHAS, EncounterDoorBehavior::OpenWhenNotInProgress/*, BOUNDARY_SE  */ },
+    {                    0,             0, EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 ObjectData const creatureData[] =

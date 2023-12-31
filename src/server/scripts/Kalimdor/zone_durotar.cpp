@@ -128,8 +128,6 @@ enum VoodooSpells
 // 17009 - Voodoo
 class spell_voodoo : public SpellScript
 {
-    PrepareSpellScript(spell_voodoo);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BREW, SPELL_GHOSTLY, SPELL_HEX1, SPELL_HEX2, SPELL_HEX3, SPELL_GROW, SPELL_LAUNCH });

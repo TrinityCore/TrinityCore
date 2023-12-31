@@ -259,7 +259,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 MessageID = 0;
-            std::string StringParam;
+            std::string_view StringParam;
         };
 
         class ChatRegisterAddonPrefixes final : public ClientPacket
@@ -346,6 +346,27 @@ namespace WorldPackets
 
             ObjectGuid WhisperTarget;
             ChatWhisperTargetStatus Status = {};
+        };
+
+        class UpdateAADCStatus final : public ClientPacket
+        {
+        public:
+            UpdateAADCStatus(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_AADC_STATUS, std::move(packet)) { }
+
+            void Read() override;
+
+            bool ChatDisabled = false;
+        };
+
+        class UpdateAADCStatusResponse final : public ServerPacket
+        {
+        public:
+            UpdateAADCStatusResponse() : ServerPacket(SMSG_UPDATE_AADC_STATUS_RESPONSE, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool Success = false;
+            bool ChatDisabled = false;
         };
     }
 }

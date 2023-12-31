@@ -273,7 +273,8 @@ bool MoveSplineInitArgs::_checkPathLengths() const
 }
 
 MoveSplineInitArgs::MoveSplineInitArgs(size_t path_capacity /*= 16*/) : path_Idx_offset(0), velocity(0.f),
-parabolic_amplitude(0.f), vertical_acceleration(0.0f), effect_start_time_percent(0.f), splineId(0), initialOrientation(0.f),
+parabolic_amplitude(0.f), vertical_acceleration(0.0f), effect_start_time_percent(0.f), effect_start_time(0ms),
+splineId(0), initialOrientation(0.f),
 walk(false), HasVelocity(false), TransformForTransport(true)
 {
     path.reserve(path_capacity);

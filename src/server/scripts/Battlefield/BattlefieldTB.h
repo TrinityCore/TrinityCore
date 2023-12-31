@@ -533,12 +533,32 @@ TBGraveyardInfo const TBGraveyards[BATTLEFIELD_TB_GRAVEYARD_MAX] =
  * Tol Barad capture point *
  * ####################### */
 
-class TolBaradCapturePoint : public BfCapturePoint
+class TolBaradCapturePoint : public BattlefieldControlZoneHandler
 {
     public:
-        TolBaradCapturePoint(BattlefieldTB* battlefield, TeamId teamInControl);
+        TolBaradCapturePoint(BattlefieldTB* battlefield, TBCapturePointSpawnData const& data);
 
-        void SendChangePhase() override;
+        void HandleContestedEventHorde([[maybe_unused]] GameObject* controlZone) override;
+        void HandleContestedEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+        void HandleProgressEventHorde([[maybe_unused]] GameObject* controlZone) override;
+        void HandleProgressEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+        void HandleNeutralEventHorde([[maybe_unused]] GameObject* controlZone) override;
+        void HandleNeutralEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+        void HandleNeutralEvent([[maybe_unused]] GameObject* controlZone) override;
+
+        uint32 GetWorldStateHordeControlled() const { return _worldstateHordeControlled; }
+        uint32 GetWorldStateAllianceControlled() const { return _worldstateAllianceControlled; }
+
+    private:
+        uint32 _textIdHordeCaptured;
+        uint32 _textIdAllianceCaptured;
+        uint32 _textIdHordeLost;
+        uint32 _textIdAllianceLost;
+        uint32 _worldstateHordeControlled;
+        uint32 _worldstateAllianceControlled;
+        uint32 _worldstateHordeCapturing;
+        uint32 _worldstateAllianceCapturing;
+        uint32 _worldstateNeutral;
 };
 
 /* ##################### *

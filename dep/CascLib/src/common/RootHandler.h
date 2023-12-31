@@ -17,7 +17,7 @@
 #define CASC_MNDX_ROOT_SIGNATURE        0x58444E4D  // 'MNDX'
 #define CASC_TVFS_ROOT_SIGNATURE        0x53465654  // 'TVFS'
 #define CASC_DIABLO3_ROOT_SIGNATURE     0x8007D0C4
-#define CASC_WOW82_ROOT_SIGNATURE       0x4D465354  // 'TSFM', WoW since 8.2
+#define CASC_WOW_ROOT_SIGNATURE         0x4D465354  // 'TSFM', since WoW build 30080 (8.2.0)
 
 #define DUMP_LEVEL_ROOT_FILE                     1  // Dump root file
 #define DUMP_LEVEL_ENCODING_FILE                 2  // Dump root file + encoding file

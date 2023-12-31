@@ -47,6 +47,7 @@ char const* CASC::HumanReadableCASCError(uint32 error)
         case ERROR_ACCESS_DENIED: return "ACCESS_DENIED";
         case ERROR_FILE_NOT_FOUND: return "FILE_NOT_FOUND";
         case ERROR_FILE_ENCRYPTED: return "FILE_ENCRYPTED";
+        case ERROR_FILE_OFFLINE: return "FILE_OFFLINE";
         default: return "UNKNOWN";
     }
 }
@@ -98,7 +99,12 @@ namespace
 
         // Read the response status line.
         boost::asio::streambuf response;
-        boost::asio::read_until(socket, response, "\r\n");
+        boost::asio::read_until(socket, response, "\r\n", error);
+        if (error)
+        {
+            printf("Downloading tact key list failed to read HTTP response status %s", error.message().c_str());
+            return {};
+        }
 
         // Check that response is OK.
         std::string http_version;
@@ -118,6 +124,11 @@ namespace
 
         // Read the response headers, which are terminated by a blank line.
         boost::asio::read_until(socket, response, "\r\n\r\n");
+        if (error)
+        {
+            printf("Downloading tact key list failed to read HTTP response headers %s", error.message().c_str());
+            return {};
+        }
 
         // Process the response headers.
         std::string header;
@@ -207,6 +218,15 @@ CASC::Storage* CASC::Storage::OpenRemote(boost::filesystem::path const& path, ui
         printf("Error opening remote casc storage: %s\n", HumanReadableCASCError(lastError));
         CascCloseStorage(handle);
         SetCascError(lastError);
+        return nullptr;
+    }
+
+    DWORD features = 0;
+    if (!GetStorageInfo(handle, CascStorageFeatures, &features) || !(features & CASC_FEATURE_ONLINE))
+    {
+        printf("Local casc storage detected in cache path \"%s\" (or its parent directory). Remote storage not opened!\n", args.szLocalPath);
+        CascCloseStorage(handle);
+        SetCascError(ERROR_FILE_OFFLINE);
         return nullptr;
     }
 

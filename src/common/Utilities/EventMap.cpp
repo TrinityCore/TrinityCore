@@ -85,6 +85,7 @@ uint32 EventMap::ExecuteEvent()
             uint32 eventId = (itr->second & 0x0000FFFF);
             _lastEvent = itr->second; // include phase/group
             _eventMap.erase(itr);
+            ScheduleNextFromSeries(_lastEvent);
             return eventId;
         }
     }
@@ -139,6 +140,14 @@ void EventMap::CancelEvent(uint32 eventId)
         else
             ++itr;
     }
+
+    for (EventSeriesStore::iterator itr = _timerSeries.begin(); itr != _timerSeries.end();)
+    {
+        if (eventId == (itr->first & 0x0000FFFF))
+            _timerSeries.erase(itr++);
+        else
+            ++itr;
+    }
 }
 
 void EventMap::CancelEventGroup(uint32 group)
@@ -153,6 +162,14 @@ void EventMap::CancelEventGroup(uint32 group)
         else
             ++itr;
     }
+
+    for (EventSeriesStore::iterator itr = _timerSeries.begin(); itr != _timerSeries.end();)
+    {
+        if (itr->first & (1 << (group + 15)))
+            _timerSeries.erase(itr++);
+        else
+            ++itr;
+    }
 }
 
 Milliseconds EventMap::GetTimeUntilEvent(uint32 eventId) const
@@ -162,4 +179,41 @@ Milliseconds EventMap::GetTimeUntilEvent(uint32 eventId) const
             return std::chrono::duration_cast<Milliseconds>(itr.first - _time);
 
     return Milliseconds::max();
+}
+
+void EventMap::ScheduleNextFromSeries(uint32 eventData)
+{
+    EventSeriesStore::iterator itr = _timerSeries.find(eventData);
+    if (itr == _timerSeries.end())
+        return;
+
+    if (itr->first != eventData)
+        return;
+
+    if (itr->second.size() == 0)
+        return;
+
+    Milliseconds time = itr->second.front();
+    itr->second.pop();
+
+    ScheduleEvent(eventData, time);
+}
+
+void EventMap::ScheduleEventSeries(uint32 eventId, uint8 group, uint8 phase, std::initializer_list<Milliseconds> const& timeSeries)
+{
+    if (group && group <= 8)
+        eventId |= (1 << (group + 15));
+
+    if (phase && phase <= 8)
+        eventId |= (1 << (phase + 23));
+
+    for (Milliseconds const& time : timeSeries)
+        _timerSeries[eventId].push(time);
+
+    ScheduleNextFromSeries(eventId);
+}
+
+void EventMap::ScheduleEventSeries(uint32 eventId, std::initializer_list<Milliseconds> const& timeSeries)
+{
+    ScheduleEventSeries(eventId, 0, 0, timeSeries);
 }

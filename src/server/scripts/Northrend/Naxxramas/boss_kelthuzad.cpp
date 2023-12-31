@@ -159,11 +159,11 @@ static inline Position const& GetRandomMinionSpawnPoint()
 // uniformly distribute on the circle
 static Position GetRandomPositionOnCircle(Position const& center, float radius)
 {
-    double angle = rand_norm() * 2.0 * M_PI;
-    double relDistance = rand_norm() + rand_norm();
+    float angle = float(M_PI * rand_norm() * 2.0);
+    float relDistance = rand_norm() + rand_norm();
     if (relDistance > 1)
         relDistance = 1 - relDistance;
-    return Position(center.GetPositionX() + std::sin(angle)*relDistance*radius, center.GetPositionY() + std::cos(angle)*relDistance*radius, center.GetPositionZ());
+    return Position(center.GetPositionX() + std::sin(angle) * relDistance * radius, center.GetPositionY() + std::cos(angle) * relDistance * radius, center.GetPositionZ());
 }
 
 class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
@@ -223,7 +223,7 @@ struct boss_kelthuzad : public BossAI
                 return;
             _Reset();
             me->SetReactState(REACT_PASSIVE);
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
             me->SetImmuneToPC(true);
             _skeletonCount = 0;
             _bansheeCount = 0;
@@ -428,7 +428,7 @@ struct boss_kelthuzad : public BossAI
                     case EVENT_PHASE_TWO:
                         me->CastStop();
                         events.SetPhase(PHASE_TWO);
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(false);
                         me->SetImmuneToPC(false);
                         ResetThreatList();
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -856,8 +856,6 @@ private:
 // 28410 - Chains of Kel'Thuzad
 class spell_kelthuzad_chains : public AuraScript
 {
-    PrepareAuraScript(spell_kelthuzad_chains);
-
     void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
     {
         aurEff->HandleAuraModScale(GetTargetApplication(), mode, true);
@@ -878,8 +876,6 @@ class spell_kelthuzad_chains : public AuraScript
 // 27819 - Detonate Mana
 class spell_kelthuzad_detonate_mana : public AuraScript
 {
-    PrepareAuraScript(spell_kelthuzad_detonate_mana);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_MANA_DETONATION_DAMAGE });
@@ -908,8 +904,6 @@ class spell_kelthuzad_detonate_mana : public AuraScript
 // 27808 - Frost Blast
 class spell_kelthuzad_frost_blast : public AuraScript
 {
-    PrepareAuraScript(spell_kelthuzad_frost_blast);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FROST_BLAST_DMG });

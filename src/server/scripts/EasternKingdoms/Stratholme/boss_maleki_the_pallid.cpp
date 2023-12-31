@@ -48,28 +48,18 @@ class boss_maleki_the_pallid : public CreatureScript
 public:
     boss_maleki_the_pallid() : CreatureScript("boss_maleki_the_pallid") { }
 
-    struct boss_maleki_the_pallidAI : public ScriptedAI
+    struct boss_maleki_the_pallidAI : public BossAI
     {
-        boss_maleki_the_pallidAI(Creature* creature) : ScriptedAI(creature)
+        boss_maleki_the_pallidAI(Creature* creature) : BossAI(creature, BOSS_MALEKI_THE_PALLID)
         {
-            instance = me->GetInstanceScript();
         }
 
-        void Reset() override
+        void JustEngagedWith(Unit* who) override
         {
-            _events.Reset();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _events.ScheduleEvent(EVENT_FROSTBOLT, 1s);
-            _events.ScheduleEvent(EVENT_ICETOMB, 16s);
-            _events.ScheduleEvent(EVENT_DRAINLIFE, 31s);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(TYPE_PALLID, IN_PROGRESS);
+            _JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_FROSTBOLT, 1s);
+            events.ScheduleEvent(EVENT_ICETOMB, 16s);
+            events.ScheduleEvent(EVENT_DRAINLIFE, 31s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -78,29 +68,29 @@ public:
             if (!UpdateVictim())
                 return;
 
-            _events.Update(diff);
+            events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            while (uint32 eventId = _events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
                     case EVENT_FROSTBOLT:
                         if (rand32() % 90)
                             DoCastVictim(SPELL_FROSTBOLT);
-                        _events.ScheduleEvent(EVENT_FROSTBOLT, 3500ms);
+                        events.ScheduleEvent(EVENT_FROSTBOLT, 3500ms);
                         break;
                     case EVENT_ICETOMB:
                         if (rand32() % 65)
                             DoCastVictim(SPELL_ICETOMB);
-                        _events.ScheduleEvent(EVENT_ICETOMB, 28s);
+                        events.ScheduleEvent(EVENT_ICETOMB, 28s);
                         break;
                     case EVENT_DRAINLIFE:
                         if (rand32() % 55)
                             DoCastVictim(SPELL_DRAINLIFE);
-                        _events.ScheduleEvent(EVENT_DRAINLIFE, 31s);
+                        events.ScheduleEvent(EVENT_DRAINLIFE, 31s);
                         break;
                     default:
                         break;
@@ -109,10 +99,6 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
-    private:
-        EventMap _events;
-        InstanceScript* instance;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

@@ -23,6 +23,31 @@
 #define BRDScriptName "instance_blackrock_depths"
 #define DataHeader "BRD"
 
+enum BRDBossIds
+{
+    BOSS_HIGH_INTERROGATOR_GERSTAHN = 0,
+    BOSS_LORD_ROCCOR                = 1,
+    BOSS_HOUNDMASTER_GREBMAR        = 2,
+    BOSS_RING_OF_LAW                = 3,
+    BOSS_PYROMANCER_LOREGRAIN       = 4,
+    BOSS_LORD_INCENDIUS             = 5,
+    BOSS_WARDER_STILGISS            = 6,
+    BOSS_FINEOUS_DARKVIRE           = 7,
+    BOSS_BAELGAR                    = 8,
+    BOSS_GENERAL_ANGERFORGE         = 9,
+    BOSS_GOLEM_LORD_ARGELMACH       = 10,
+    BOSS_HURLEY_BLACKBREATH         = 11,
+    BOSS_PHALANX                    = 12,
+    BOSS_RIBBLY_SCREWSPIGOT         = 13,
+    BOSS_PLUGGER_SPAZZRING          = 14,
+    BOSS_AMBASSADOR_FLAMELASH       = 15,
+    BOSS_THE_SEVEN                  = 16,
+    BOSS_MAGMUS                     = 17,
+    BOSS_EMPEROR_DAGRAN_THAURISSAN  = 18,
+
+    MAX_ENCOUNTER
+};
+
 enum BRDDataTypes
 {
     TYPE_RING_OF_LAW        = 1,

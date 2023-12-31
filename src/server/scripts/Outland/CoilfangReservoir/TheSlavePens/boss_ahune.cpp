@@ -256,7 +256,7 @@ struct boss_ahune : public BossAI
         me->RemoveAurasDueToSpell(SPELL_STAY_SUBMERGED);
         DoCastSelf(SPELL_STAND);
         DoCastSelf(SPELL_RESURFACE, true);
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
         events.ScheduleEvent(EVENT_SYNCH_HEALTH, 3s);
     }
 
@@ -303,7 +303,7 @@ struct npc_frozen_core : public ScriptedAI
     {
         if (action == ACTION_AHUNE_RETREAT)
         {
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
             me->SetImmuneToPC(false);
             me->RemoveAurasDueToSpell(SPELL_ICE_SPEAR_CONTROL_AURA);
             _events.ScheduleEvent(EVENT_SYNCH_HEALTH, 3s, 0, PHASE_TWO);
@@ -312,7 +312,7 @@ struct npc_frozen_core : public ScriptedAI
         {
             _events.Reset();
             DoCastSelf(SPELL_ICE_SPEAR_CONTROL_AURA);
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
             me->SetImmuneToPC(true);
         }
     }
@@ -667,8 +667,6 @@ private:
 // 46430 - Synch Health
 class spell_ahune_synch_health : public SpellScript
 {
-    PrepareSpellScript(spell_ahune_synch_health);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         GetHitUnit()->SetHealth(GetCaster()->GetHealth());
@@ -683,8 +681,6 @@ class spell_ahune_synch_health : public SpellScript
 // 45926 - Summoning Rhyme Aura
 class spell_summoning_rhyme_aura : public AuraScript
 {
-    PrepareAuraScript(spell_summoning_rhyme_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FORCE_WHISP_FLIGHT, SPELL_SUMMONING_RHYME_BONFIRE });
@@ -727,8 +723,6 @@ class spell_summoning_rhyme_aura : public AuraScript
 // 46878 - Summon Ice Spear Delayer
 class spell_summon_ice_spear_delayer : public AuraScript
 {
-    PrepareAuraScript(spell_summon_ice_spear_delayer);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ICE_SPEAR_KNOCKBACK });
@@ -750,8 +744,6 @@ class spell_summon_ice_spear_delayer : public AuraScript
 // 46371 - Ice Spear Control Aura
 class spell_ice_spear_control_aura : public AuraScript
 {
-    PrepareAuraScript(spell_ice_spear_control_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ICE_SPEAR_TARGET_PICKER });
@@ -772,8 +764,6 @@ class spell_ice_spear_control_aura : public AuraScript
 // 46372 - Ice Spear Target Picker
 class spell_ice_spear_target_picker : public SpellScript
 {
-    PrepareSpellScript(spell_ice_spear_target_picker);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_ICE_SPEAR_BUNNY });
@@ -804,8 +794,6 @@ class spell_ice_spear_target_picker : public SpellScript
 // 46320 - Spell Slippery Floor Periodic
 class spell_slippery_floor_periodic : public SpellScript
 {
-    PrepareSpellScript(spell_slippery_floor_periodic);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SLIPPERY_FLOOR_SLIP });
@@ -830,8 +818,6 @@ class spell_slippery_floor_periodic : public SpellScript
 // 46146 - Ahune Spanky Hands
 class spell_ahune_spanky_hands : public AuraScript
 {
-    PrepareAuraScript(spell_ahune_spanky_hands);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_COLD_SLAP });
@@ -852,8 +838,6 @@ class spell_ahune_spanky_hands : public AuraScript
 // 46843 - Minion Despawner
 class spell_ahune_minion_despawner : public SpellScript
 {
-    PrepareSpellScript(spell_ahune_minion_despawner);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (GetHitCreature())
@@ -869,8 +853,6 @@ class spell_ahune_minion_despawner : public SpellScript
 // 46398 - Spell Ice Bombardment Dest Picker
 class spell_ice_bombardment_dest_picker : public SpellScript
 {
-    PrepareSpellScript(spell_ice_bombardment_dest_picker);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ICE_BOMBARDMENT });

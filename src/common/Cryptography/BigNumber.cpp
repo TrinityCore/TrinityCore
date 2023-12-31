@@ -120,7 +120,7 @@ BigNumber& BigNumber::operator%=(BigNumber const& bn)
     BN_CTX *bnctx;
 
     bnctx = BN_CTX_new();
-    BN_mod(_bn, _bn, bn._bn, bnctx);
+    BN_nnmod(_bn, _bn, bn._bn, bnctx);
     BN_CTX_free(bnctx);
 
     return *this;
@@ -132,7 +132,7 @@ BigNumber& BigNumber::operator<<=(int n)
     return *this;
 }
 
-int BigNumber::CompareTo(BigNumber const& bn) const
+int32 BigNumber::CompareTo(BigNumber const& bn) const
 {
     return BN_cmp(_bn, bn._bn);
 }
@@ -164,6 +164,11 @@ BigNumber BigNumber::ModExp(BigNumber const& bn1, BigNumber const& bn2) const
 int32 BigNumber::GetNumBytes() const
 {
     return BN_num_bytes(_bn);
+}
+
+int32 BigNumber::GetNumBits() const
+{
+    return BN_num_bits(_bn);
 }
 
 uint32 BigNumber::AsDword() const

@@ -653,8 +653,6 @@ struct boss_four_horsemen_sir : public boss_four_horsemen_baseAI
 // 28835 - Mark of Zeliek
 class spell_four_horsemen_mark : public AuraScript
 {
-    PrepareAuraScript(spell_four_horsemen_mark);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
