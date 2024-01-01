@@ -91,8 +91,8 @@ BattlegroundAV::BattlegroundAV(BattlegroundTemplate const* battlegroundTemplate)
         _captainBuffTimer[i].Reset(120000 + urand(0, 4) * 60); //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes @todo get the right times
     }
 
-    _mineInfo[AlteracValleyMine::North] = { TEAM_OTHER, { AV_WS_IRONDEEP_MINE_OWNER, AV_WS_IRONDEEP_MINE_ALLIANCE_CONTROLLED, AV_WS_IRONDEEP_MINE_HORDE_CONTROLLED, AV_WS_IRONDEEP_MINE_TROGG_CONTROLLED, TEXT_IRONDEEP_MINE_ALLIANCE_TAKEN, TEXT_IRONDEEP_MINE_HORDE_TAKEN } };
-    _mineInfo[AlteracValleyMine::South] = { TEAM_OTHER, { AV_WS_COLDTOOTH_MINE_OWNER, AV_WS_COLDTOOTH_MINE_ALLIANCE_CONTROLLED, AV_WS_COLDTOOTH_MINE_HORDE_CONTROLLED, AV_WS_COLDTOOTH_MINE_KOBOLD_CONTROLLED, TEXT_COLDTOOTH_MINE_ALLIANCE_TAKEN, TEXT_COLDTOOTH_MINE_HORDE_TAKEN } };
+    _mineInfo[uint8(AlteracValleyMine::North)] = { TEAM_OTHER, { AV_WS_IRONDEEP_MINE_OWNER, AV_WS_IRONDEEP_MINE_ALLIANCE_CONTROLLED, AV_WS_IRONDEEP_MINE_HORDE_CONTROLLED, AV_WS_IRONDEEP_MINE_TROGG_CONTROLLED, TEXT_IRONDEEP_MINE_ALLIANCE_TAKEN, TEXT_IRONDEEP_MINE_HORDE_TAKEN } };
+    _mineInfo[uint8(AlteracValleyMine::South)] = { TEAM_OTHER, { AV_WS_COLDTOOTH_MINE_OWNER, AV_WS_COLDTOOTH_MINE_ALLIANCE_CONTROLLED, AV_WS_COLDTOOTH_MINE_HORDE_CONTROLLED, AV_WS_COLDTOOTH_MINE_KOBOLD_CONTROLLED, TEXT_COLDTOOTH_MINE_ALLIANCE_TAKEN, TEXT_COLDTOOTH_MINE_HORDE_TAKEN } };
 
     for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_STONEHEART_GRAVE; ++i) //alliance graves
         InitNode(i, ALLIANCE, false);
@@ -169,7 +169,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Unit* killer)
         case BG_AV_CREATURE_MORLOCH:
         {
             // if mine is not owned by morloch, then nothing happens
-            if (_mineInfo[AlteracValleyMine::North].Owner != TEAM_OTHER)
+            if (_mineInfo[uint8(AlteracValleyMine::North)].Owner != TEAM_OTHER)
                 break;
 
             Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
@@ -178,7 +178,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Unit* killer)
         }
         case BG_AV_CREATURE_TASKMASTER_SNIVVLE:
         {
-            if (_mineInfo[AlteracValleyMine::South].Owner != TEAM_OTHER)
+            if (_mineInfo[uint8(AlteracValleyMine::South)].Owner != TEAM_OTHER)
                 break;
 
             Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
@@ -330,7 +330,7 @@ void BattlegroundAV::PostUpdateImpl(uint32 diff)
     _mineResourceTimer.Update(diff);
     if (_mineResourceTimer.Passed())
     {
-        for (auto const& [mine, info] : _mineInfo)
+        for (AlteracValleyMineInfo const& info : _mineInfo)
         {
             if (info.Owner == TEAM_OTHER)
                 continue;
@@ -522,14 +522,16 @@ void BattlegroundAV::ChangeMineOwner(AlteracValleyMine mine, Team team, bool ini
     if (team != ALLIANCE && team != HORDE)
         team = TEAM_OTHER;
 
-    if (_mineInfo[mine].Owner == team && !initial)
+    AlteracValleyMineInfo& mineInfo = _mineInfo[uint8(mine)];
+
+    if (mineInfo.Owner == team && !initial)
         return;
 
-    _mineInfo[mine].Owner = team;
+    mineInfo.Owner = team;
 
     SendMineWorldStates(mine);
 
-    uint8 textId = team == ALLIANCE ? _mineInfo[mine].StaticInfo.TextIdAlliance : _mineInfo[mine].StaticInfo.TextIdHorde;
+    uint8 textId = team == ALLIANCE ? mineInfo.StaticInfo.TextIdAlliance : mineInfo.StaticInfo.TextIdHorde;
 
     std::string stringId = team == ALLIANCE ? "bg_av_herald_mine_alliance" : "bg_av_herald_mine_horde";
 
@@ -788,11 +790,11 @@ void BattlegroundAV::UpdateNodeWorldState(BG_AV_Nodes node)
 
 void BattlegroundAV::SendMineWorldStates(AlteracValleyMine mine)
 {
-    ASSERT(_mineInfo.contains(mine), "Non-existing mine passed to BattlegroundAV::SendMineWorldStates: %u", AsUnderlyingType(mine));
-    UpdateWorldState(_mineInfo[mine].StaticInfo.WorldStateHordeControlled, _mineInfo[mine].Owner == HORDE);
-    UpdateWorldState(_mineInfo[mine].StaticInfo.WorldStateAllianceControlled, _mineInfo[mine].Owner == ALLIANCE);
-    UpdateWorldState(_mineInfo[mine].StaticInfo.WorldStateNeutralControlled, _mineInfo[mine].Owner == TEAM_OTHER);
-    UpdateWorldState(_mineInfo[mine].StaticInfo.WorldStateOwner, _mineInfo[mine].Owner == HORDE ? 2 : _mineInfo[mine].Owner == ALLIANCE ? 1 : 0);
+    AlteracValleyMineInfo& mineInfo = _mineInfo[uint8(mine)];
+    UpdateWorldState(mineInfo.StaticInfo.WorldStateHordeControlled, mineInfo.Owner == HORDE);
+    UpdateWorldState(mineInfo.StaticInfo.WorldStateAllianceControlled, mineInfo.Owner == ALLIANCE);
+    UpdateWorldState(mineInfo.StaticInfo.WorldStateNeutralControlled, mineInfo.Owner == TEAM_OTHER);
+    UpdateWorldState(mineInfo.StaticInfo.WorldStateOwner, mineInfo.Owner == HORDE ? 2 : mineInfo.Owner == ALLIANCE ? 1 : 0);
 }
 
 WorldSafeLocsEntry const* BattlegroundAV::GetExploitTeleportLocation(Team team)

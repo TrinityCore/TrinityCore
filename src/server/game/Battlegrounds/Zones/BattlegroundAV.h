@@ -94,7 +94,7 @@ constexpr Seconds BG_AV_MINE_RESOURCE_TIMER = 45s;
 
 enum class AlteracValleyMine : uint8
 {
-    North,
+    North = 0,
     South
 };
 
@@ -624,7 +624,7 @@ class BattlegroundAV : public Battleground
 
         TimeTracker _mineResourceTimer; //ticks for both teams
 
-        std::unordered_map<AlteracValleyMine, AlteracValleyMineInfo> _mineInfo;
+        std::array<AlteracValleyMineInfo, 2> _mineInfo;
 
         std::array<TimeTracker, PVP_TEAMS_COUNT> _captainBuffTimer;
 
