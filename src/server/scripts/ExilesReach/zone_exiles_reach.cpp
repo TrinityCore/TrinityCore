@@ -2459,7 +2459,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                 break;
         }
 
-        return player->GetQuestSlotObjectiveData(_questID, objectiveId);
+        return player->GetQuestObjectiveData(_questID, objectiveId);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override

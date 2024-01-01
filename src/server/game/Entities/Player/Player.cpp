@@ -16435,7 +16435,7 @@ int32 Player::GetQuestSlotObjectiveData(uint16 slot, QuestObjective const& objec
     return GetQuestSlotObjectiveFlag(slot, objective.StorageIndex) ? 1 : 0;
 }
 
-int32 Player::GetQuestSlotObjectiveData(uint32 questId, uint32 objectiveId) const
+int32 Player::GetQuestObjectiveData(uint32 questId, uint32 objectiveId) const
 {
     uint16 slot = FindQuestSlot(questId);
     if (slot >= MAX_QUEST_LOG_SIZE)
