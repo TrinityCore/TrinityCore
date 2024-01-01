@@ -64,6 +64,17 @@ enum AlteracValleyResourceLoss
     RESOURCE_LOSS_CAPTAIN   = -100
 };
 
+enum AlteracValleySpells
+{
+    SPELL_COMPLETE_ALTERAC_VALLEY_QUEST = 23658,
+};
+
+enum AlteracValleyFactions
+{
+    FACTION_FROSTWOLF_CLAN  = 729,
+    FACTION_STORMPIKE_GUARD = 730,
+};
+
 BattlegroundAV::BattlegroundAV(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     BgObjects.resize(0);
@@ -116,67 +127,79 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Unit* killer)
         return;
 
     uint32 entry = unit->GetEntry();
+    switch (unit->GetEntry())
+    {
+        case BG_AV_CREATURE_VANNDAR:
+        {
+            UpdateWorldState(AV_WS_VANDAAR_ALIVE, 0);
+            CastSpellOnTeam(SPELL_COMPLETE_ALTERAC_VALLEY_QUEST, HORDE); //this is a spell which finishes a quest where a player has to kill the boss
+            RewardReputationToTeam(FACTION_FROSTWOLF_CLAN, REP_GAIN_BOSS, HORDE);
+            RewardHonorToTeam(GetBonusHonorFromKill(HONOR_KILL_BONUS_BOSS), HORDE);
+            EndBattleground(HORDE);
+            break;
+        }
+        case BG_AV_CREATURE_DREKTHAR:
+        {
+            UpdateWorldState(AV_WS_DREKTHAR_ALIVE, 0);
+            CastSpellOnTeam(SPELL_COMPLETE_ALTERAC_VALLEY_QUEST, ALLIANCE); //this is a spell which finishes a quest where a player has to kill the boss
+            RewardReputationToTeam(FACTION_STORMPIKE_GUARD, REP_GAIN_BOSS, ALLIANCE);
+            RewardHonorToTeam(GetBonusHonorFromKill(HONOR_KILL_BONUS_BOSS), ALLIANCE);
+            EndBattleground(ALLIANCE);
+            break;
+        }
+        case BG_AV_CREATURE_BALINDA:
+        {
+            UpdateWorldState(AV_WS_BALINDA_ALIVE, 0);
+            RewardReputationToTeam(FACTION_FROSTWOLF_CLAN, REP_GAIN_CAPTAIN, HORDE);
+            RewardHonorToTeam(GetBonusHonorFromKill(HONOR_KILL_BONUS_CAPTAIN), HORDE);
+            UpdateScore(ALLIANCE, RESOURCE_LOSS_CAPTAIN);
+            if (Creature* herald = FindHerald("bg_av_herald_horde_win"))
+                herald->AI()->Talk(TEXT_STORMPIKE_GENERAL_DEAD);
+            break;
+        }
+        case BG_AV_CREATURE_GALVANGAR:
+        {
+            UpdateWorldState(AV_WS_GALVAGAR_ALIVE, 0);
+            RewardReputationToTeam(FACTION_STORMPIKE_GUARD, REP_GAIN_CAPTAIN, ALLIANCE);
+            RewardHonorToTeam(GetBonusHonorFromKill(HONOR_KILL_BONUS_CAPTAIN), ALLIANCE);
+            UpdateScore(HORDE, RESOURCE_LOSS_CAPTAIN);
+            if (Creature* herald = FindHerald("bg_av_herald_alliance_win"))
+                herald->AI()->Talk(TEXT_FROSTWOLF_GENERAL_DEAD);
+            break;
+        }
+        case BG_AV_CREATURE_MORLOCH:
+        {
+            // if mine is not owned by morloch, then nothing happens
+            if (_mineInfo[AlteracValleyMine::North].Owner != TEAM_OTHER)
+                break;
 
-    if (entry == BG_AV_CREATURE_VANNDAR)
-    {
-        UpdateWorldState(AV_WS_VANDAAR_ALIVE, 0);
-        CastSpellOnTeam(23658, HORDE); //this is a spell which finishes a quest where a player has to kill the boss
-        RewardReputationToTeam(729, REP_GAIN_BOSS, HORDE);
-        RewardHonorToTeam(GetBonusHonorFromKill(HONOR_KILL_BONUS_BOSS), HORDE);
-        EndBattleground(HORDE);
-    }
-    else if (entry == BG_AV_CREATURE_DREKTHAR)
-    {
-        UpdateWorldState(AV_WS_DREKTHAR_ALIVE, 0);
-        CastSpellOnTeam(23658, ALLIANCE); //this is a spell which finishes a quest where a player has to kill the boss
-        RewardReputationToTeam(730, REP_GAIN_BOSS, ALLIANCE);
-        RewardHonorToTeam(GetBonusHonorFromKill(HONOR_KILL_BONUS_BOSS), ALLIANCE);
-        EndBattleground(ALLIANCE);
-    }
-    else if (entry == BG_AV_CREATURE_BALINDA)
-    {
-        UpdateWorldState(AV_WS_BALINDA_ALIVE, 0);
-        RewardReputationToTeam(729, REP_GAIN_CAPTAIN, HORDE);
-        RewardHonorToTeam(GetBonusHonorFromKill(HONOR_KILL_BONUS_CAPTAIN), HORDE);
-        UpdateScore(ALLIANCE, RESOURCE_LOSS_CAPTAIN);
-        if (Creature* herald = FindHerald("bg_av_herald_horde_win"))
-            herald->AI()->Talk(TEXT_STORMPIKE_GENERAL_DEAD);
-    }
-    else if (entry == BG_AV_CREATURE_GALVANGAR)
-    {
-        UpdateWorldState(AV_WS_GALVAGAR_ALIVE, 0);
-        RewardReputationToTeam(730, REP_GAIN_CAPTAIN, ALLIANCE);
-        RewardHonorToTeam(GetBonusHonorFromKill(HONOR_KILL_BONUS_CAPTAIN), ALLIANCE);
-        UpdateScore(HORDE, RESOURCE_LOSS_CAPTAIN);
-        if (Creature* herald = FindHerald("bg_av_herald_alliance_win"))
-            herald->AI()->Talk(TEXT_FROSTWOLF_GENERAL_DEAD);
-    }
-    else if (entry == BG_AV_CREATURE_MORLOCH)
-    {
-        // if mine is not owned by morloch, then nothing happens
-        if (_mineInfo[AlteracValleyMine::North].Owner != TEAM_OTHER)
-            return;
+            Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
+            ChangeMineOwner(AlteracValleyMine::North, killerTeam);
+            break;
+        }
+        case BG_AV_CREATURE_TASKMASTER_SNIVVLE:
+        {
+            if (_mineInfo[AlteracValleyMine::South].Owner != TEAM_OTHER)
+                break;
 
-        Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
-        ChangeMineOwner(AlteracValleyMine::North, killerTeam);
-    }
-    else if (entry == BG_AV_CREATURE_TASKMASTER_SNIVVLE)
-    {
-        if (_mineInfo[AlteracValleyMine::South].Owner != TEAM_OTHER)
-            return;
-
-        Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
-        ChangeMineOwner(AlteracValleyMine::South, killerTeam);
-    }
-    else if (entry == BG_AV_CREATURE_UMI_THORSON || entry == BG_AV_CREATURE_KEETAR)
-    {
-        Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
-        ChangeMineOwner(AlteracValleyMine::North, killerTeam);
-    }
-    else if (entry == BG_AV_CREATURE_AGI_RUMBLESTOMP || entry == BG_AV_CREATURE_MASHA_SWIFTCUT)
-    {
-        Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
-        ChangeMineOwner(AlteracValleyMine::South, killerTeam);
+            Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
+            ChangeMineOwner(AlteracValleyMine::South, killerTeam);
+            break;
+        }
+        case BG_AV_CREATURE_UMI_THORSON:
+        case BG_AV_CREATURE_KEETAR:
+        {
+            Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
+            ChangeMineOwner(AlteracValleyMine::North, killerTeam);
+            break;
+        }
+        case BG_AV_CREATURE_AGI_RUMBLESTOMP:
+        case BG_AV_CREATURE_MASHA_SWIFTCUT:
+        {
+            Team killerTeam = GetPlayerTeam(Coalesce<Unit>(killer->GetCharmerOrOwnerPlayerOrPlayerItself(), killer)->GetGUID());
+            ChangeMineOwner(AlteracValleyMine::South, killerTeam);
+            break;
+        }
     }
 }
 
@@ -270,7 +293,6 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
             break;
         default:
             TC_LOG_DEBUG("bg.battleground", "BG_AV Quest {} completed but is not interesting at all", questid);
-            return; //was no interesting quest at all
             break;
     }
 }
@@ -320,7 +342,7 @@ void BattlegroundAV::PostUpdateImpl(uint32 diff)
         _mineResourceTimer.Reset(BG_AV_MINE_RESOURCE_TIMER);
     }
 
-    for (uint8 i = 0; i <= 1; i++)//0=alliance, 1=horde
+    for (uint8 i = TEAM_ALLIANCE; i <= TEAM_HORDE; i++)
     {
         if (!IsCaptainAlive(TeamId(i)))
             continue;
@@ -350,8 +372,7 @@ bool BattlegroundAV::IsCaptainAlive(TeamId teamId) const
 {
     if (teamId == TEAM_HORDE)
         return GetBgMap()->GetWorldStateValue(AV_WS_GALVAGAR_ALIVE) == 1;
-
-    if (teamId == TEAM_ALLIANCE)
+    else if (teamId == TEAM_ALLIANCE)
         return GetBgMap()->GetWorldStateValue(AV_WS_BALINDA_ALIVE) == 1;
 
     return false;
@@ -382,8 +403,8 @@ void BattlegroundAV::EndBattleground(Team winner)
 {
     //calculate bonuskills for both teams:
     //first towers:
-    std::array<uint8, PVP_TEAMS_COUNT> kills = { 0, 0 }; // 0 = Alliance 1 = Horde
-    std::array<uint8, PVP_TEAMS_COUNT> rep = { 0, 0 };   // 0 = Alliance 1 = Horde
+    std::array<uint8, PVP_TEAMS_COUNT> kills = { 0, 0 };
+    std::array<uint8, PVP_TEAMS_COUNT> rep = { 0, 0 };
 
     for (BG_AV_Nodes i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_FROSTWOLF_WTOWER; ++i)
     {
@@ -391,13 +412,13 @@ void BattlegroundAV::EndBattleground(Team winner)
         {
             if (_nodes[i].Owner == ALLIANCE)
             {
-                rep[0]   += REP_GAIN_SURVIVING_TOWER;
-                kills[0] += HONOR_KILL_BONUS_SURVIVING_TOWER;
+                rep[TEAM_ALLIANCE]   += REP_GAIN_SURVIVING_TOWER;
+                kills[TEAM_ALLIANCE] += HONOR_KILL_BONUS_SURVIVING_TOWER;
             }
             else
             {
-                rep[1]   += REP_GAIN_SURVIVING_TOWER;
-                kills[1] += HONOR_KILL_BONUS_SURVIVING_TOWER;
+                rep[TEAM_HORDE]   += REP_GAIN_SURVIVING_TOWER;
+                kills[TEAM_HORDE] += HONOR_KILL_BONUS_SURVIVING_TOWER;
             }
         }
     }
@@ -410,7 +431,7 @@ void BattlegroundAV::EndBattleground(Team winner)
             rep[i]   += REP_GAIN_SURVIVING_CAPTAIN;
         }
         if (rep[i] != 0)
-            RewardReputationToTeam(i == 0 ? 730 : 729, rep[i], i == 0 ? ALLIANCE : HORDE);
+            RewardReputationToTeam(i == 0 ? FACTION_STORMPIKE_GUARD : FACTION_FROSTWOLF_CLAN, rep[i], i == 0 ? ALLIANCE : HORDE);
         if (kills[i] != 0)
             RewardHonorToTeam(GetBonusHonorFromKill(kills[i]), i == 0 ? ALLIANCE : HORDE);
     }
@@ -469,7 +490,7 @@ void BattlegroundAV::EventPlayerDestroyedPoint(GameObject* gameobject)
     if (IsTower(node))
     {
         UpdateScore((owner == ALLIANCE) ? HORDE : ALLIANCE, RESOURCE_LOSS_TOWER);
-        RewardReputationToTeam(owner == ALLIANCE ? 730 : 729, REP_GAIN_DESTROY_TOWER, owner);
+        RewardReputationToTeam(owner == ALLIANCE ? FACTION_STORMPIKE_GUARD : FACTION_FROSTWOLF_CLAN, REP_GAIN_DESTROY_TOWER, owner);
         RewardHonorToTeam(GetBonusHonorFromKill(HONOR_KILL_BONUS_DESTROY_TOWER), owner);
     }
 
@@ -492,7 +513,7 @@ void BattlegroundAV::DoAction(uint32 actionId, WorldObject* source, WorldObject*
                 HandleInteractCapturableObject(source->ToPlayer(), target->ToGameObject());
             break;
         default:
-            TC_LOG_ERROR("server.error", "BattlegroundAV::DoAction: {}. Unhandled action.", actionId);
+            TC_LOG_ERROR("bg.battleground", "BattlegroundAV::DoAction: {}. Unhandled action.", actionId);
             break;
     }
 }
@@ -722,6 +743,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     BG_AV_Nodes node = GetNodeThroughObject(object);
     Team owner = _nodes[node].Owner; //maybe name it prevowner
     Team team  = GetPlayerTeam(player->GetGUID());
+
     TC_LOG_DEBUG("bg.battleground", "bg_av: player assaults point object {} node {}", object, node);
     if (owner == team || team == _nodes[node].TotalOwner)
         return; //surely a gm used this object
