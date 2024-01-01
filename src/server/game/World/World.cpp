@@ -3531,19 +3531,6 @@ void World::DailyReset()
         if (Player* player = itr->second->GetPlayer())
             player->DailyReset();
 
-    {
-        std::ostringstream questIds;
-        questIds << "DELETE cq, cqo FROM character_queststatus cq LEFT JOIN character_queststatus_objectives cqo ON cq.quest = cqo.quest WHERE cq.quest IN (";
-        for (auto const& [questId, quest] : sObjectMgr->GetQuestTemplates())
-        {
-            if (quest.IsDaily() && quest.HasFlagEx(QUEST_FLAGS_EX_REMOVE_ON_PERIODIC_RESET))
-                questIds << questId << ',';
-        }
-        questIds << "0)";
-
-        CharacterDatabase.Execute(questIds.str().c_str());
-    }
-
     // reselect pools
     sQuestPoolMgr->ChangeDailyQuests();
 
@@ -3579,19 +3566,6 @@ void World::ResetWeeklyQuests()
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (Player* player = itr->second->GetPlayer())
             player->ResetWeeklyQuestStatus();
-
-    {
-        std::ostringstream questIds;
-        questIds << "DELETE cq, cqo FROM character_queststatus cq LEFT JOIN character_queststatus_objectives cqo ON cq.quest = cqo.quest WHERE cq.quest IN (";
-        for (auto const& [questId, quest] : sObjectMgr->GetQuestTemplates())
-        {
-            if (quest.IsWeekly() && quest.HasFlagEx(QUEST_FLAGS_EX_REMOVE_ON_PERIODIC_RESET))
-                questIds << questId << ',';
-        }
-        questIds << "0)";
-
-        CharacterDatabase.Execute(questIds.str().c_str());
-    }
 
     // reselect pools
     sQuestPoolMgr->ChangeWeeklyQuests();
