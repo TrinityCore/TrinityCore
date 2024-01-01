@@ -276,7 +276,7 @@ void TFControlZoneHandler::HandleProgressEventHorde(GameObject* controlZone)
     if (GuidUnorderedSet const* guidSet = controlZone->GetInsidePlayers())
         for (ObjectGuid const& guid : *guidSet)
             if (Player* player = ObjectAccessor::GetPlayer(*controlZone, guid))
-                if (player->GetTeam() == TEAM_HORDE)
+                if (player->GetTeam() == HORDE)
                     player->AreaExploredOrEventHappens(TF_HORDE_QUEST);
 
     OutdoorPvPControlZoneHandler::HandleProgressEventHorde(controlZone);
@@ -294,7 +294,7 @@ void TFControlZoneHandler::HandleProgressEventAlliance(GameObject* controlZone)
     if (GuidUnorderedSet const* guidSet = controlZone->GetInsidePlayers())
         for (ObjectGuid const& guid : *guidSet)
             if (Player* player = ObjectAccessor::GetPlayer(*controlZone, guid))
-                if (player->GetTeam() == TEAM_ALLIANCE)
+                if (player->GetTeam() == ALLIANCE)
                     player->AreaExploredOrEventHappens(TF_ALLY_QUEST);
 
     OutdoorPvPControlZoneHandler::HandleProgressEventAlliance(controlZone);

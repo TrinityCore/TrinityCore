@@ -19,9 +19,15 @@
 #define TRINITYCORE_LOGIN_HTTP_SESSION_H
 
 #include "HttpSslSocket.h"
+#include "SRP6.h"
 
 namespace Battlenet
 {
+struct LoginSessionState : public Trinity::Net::Http::SessionState
+{
+    std::unique_ptr<Trinity::Crypto::SRP::BnetSRP6Base> Srp;
+};
+
 class LoginHttpSession : public Trinity::Net::Http::SslSocket<LoginHttpSession>
 {
 public:
@@ -35,6 +41,8 @@ public:
     void CheckIpCallback(PreparedQueryResult result);
 
     Trinity::Net::Http::RequestHandlerResult RequestHandler(Trinity::Net::Http::RequestContext& context) override;
+
+    LoginSessionState* GetSessionState() const { return static_cast<LoginSessionState*>(_state.get()); }
 
 protected:
     std::shared_ptr<Trinity::Net::Http::SessionState> ObtainSessionState(Trinity::Net::Http::RequestContext& context) const override;

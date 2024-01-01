@@ -3794,7 +3794,7 @@ void SmartScript::OnUpdate(uint32 const diff)
     if ((mScriptType == SMART_SCRIPT_TYPE_CREATURE
         || mScriptType == SMART_SCRIPT_TYPE_GAMEOBJECT
         || mScriptType == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY
-        || mScriptType == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE)
+        || mScriptType == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM)
         && !GetBaseObject())
         return;
 
@@ -3975,7 +3975,7 @@ void SmartScript::GetScript()
             FillScript(std::move(e), go, nullptr, nullptr, nullptr, 0);
             break;
         case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY:
-        case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE:
+        case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM:
             e = sSmartScriptMgr->GetScript((int32)areaTrigger->GetEntry(), mScriptType);
             FillScript(std::move(e), areaTrigger, nullptr, nullptr, nullptr, 0);
             break;
@@ -4086,8 +4086,8 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, Sce
                 break;
             case TYPEID_AREATRIGGER:
                 areaTrigger = obj->ToAreaTrigger();
-                mScriptType = areaTrigger->IsServerSide() ? SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE : SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY;
-                TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is AreaTrigger {}, IsServerSide {}", areaTrigger->GetEntry(), uint32(areaTrigger->IsServerSide()));
+                mScriptType = areaTrigger->IsCustom() ? SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM : SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY;
+                TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is AreaTrigger {}, IsCustom {}", areaTrigger->GetEntry(), uint32(areaTrigger->IsCustom()));
                 break;
             default:
                 TC_LOG_ERROR("misc", "SmartScript::OnInitialize: Unhandled TypeID !WARNING!");

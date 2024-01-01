@@ -520,6 +520,7 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, GuildRankId 
     m_logoutTime(GameTime::GetGameTime()),
     m_accountId(0),
     m_rankId(rankId),
+    m_bankWithdraw(),
     m_bankWithdrawMoney(0),
     m_achievementPoints(0),
     m_totalActivity(0),
@@ -1430,8 +1431,8 @@ void Guild::HandleSetAchievementTracking(WorldSession* session, uint32 const* ac
             }
         }
 
+        GetAchievementMgr().SendAllTrackedCriterias(player, criteriaIds);
         member->SetTrackedCriteriaIds(std::move(criteriaIds));
-        GetAchievementMgr().SendAllTrackedCriterias(player, member->GetTrackedCriteriaIds());
     }
 }
 

@@ -138,7 +138,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
         return;
     }
 
-    auto mailCountCheckContinuation = [this, player = _player, receiverGuid, mailInfo = std::move(sendMail.Info), reqmoney, cost](uint32 receiverTeam, uint64 mailsCount, uint8 receiverLevel, uint32 receiverAccountId, uint32 receiverBnetAccountId) mutable
+    auto mailCountCheckContinuation = [this, player = _player, receiverGuid, mailInfo = std::move(sendMail.Info), reqmoney, cost](Team receiverTeam, uint64 mailsCount, uint8 receiverLevel, uint32 receiverAccountId, uint32 receiverBnetAccountId) mutable
     {
         if (_player != player)
             return;

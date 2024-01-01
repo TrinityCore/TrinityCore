@@ -427,7 +427,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.speed_walk             = fields[12].GetFloat();
     creatureTemplate.speed_run              = fields[13].GetFloat();
     creatureTemplate.scale                  = fields[14].GetFloat();
-    creatureTemplate.rank                   = uint32(fields[15].GetUInt8());
+    creatureTemplate.Classification         = CreatureClassifications(fields[15].GetUInt8());
     creatureTemplate.dmgschool              = uint32(fields[16].GetInt8());
     creatureTemplate.BaseAttackTime         = fields[17].GetUInt32();
     creatureTemplate.RangeAttackTime        = fields[18].GetUInt32();
@@ -973,7 +973,7 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
             CreatureStaticFlags6(fields[23].GetUInt32()), CreatureStaticFlags7(fields[24].GetUInt32()),  CreatureStaticFlags8(fields[25].GetUInt32()));
 
         // TODO: Check if this still applies
-        creatureDifficulty.DamageModifier *= Creature::_GetDamageMod(itr->second.rank);
+        creatureDifficulty.DamageModifier *= Creature::GetDamageMod(itr->second.Classification);
 
         if (creatureDifficulty.HealthScalingExpansion < EXPANSION_LEVEL_CURRENT || creatureDifficulty.HealthScalingExpansion >= MAX_EXPANSIONS)
         {
@@ -3256,6 +3256,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.SpellPPMRate = 0.0f;
         itemTemplate.RandomBonusListTemplateId = 0;
         itemTemplate.ItemSpecClassMask = 0;
+        itemTemplate.QuestLogItemId = 0;
 
         if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDB2Manager.GetItemSpecOverrides(sparse->ID))
         {
@@ -3328,7 +3329,7 @@ void ObjectMgr::LoadItemTemplateAddon()
     uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance, RandomBonusListTemplateId FROM item_template_addon");
+    QueryResult result = WorldDatabase.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance, RandomBonusListTemplateId, QuestLogItemId FROM item_template_addon");
     if (result)
     {
         do
@@ -3355,6 +3356,7 @@ void ObjectMgr::LoadItemTemplateAddon()
             itemTemplate->MaxMoneyLoot = maxMoneyLoot;
             itemTemplate->SpellPPMRate = fields[5].GetFloat();
             itemTemplate->RandomBonusListTemplateId = fields[6].GetUInt32();
+            itemTemplate->QuestLogItemId = fields[7].GetInt32();
             ++count;
         } while (result->NextRow());
     }

@@ -1369,25 +1369,19 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
     if (num_to_add)
     {
         // create the new item and store it
-        Item* pItem = player->StoreNewItem(dest, newitemid, true, GenerateItemRandomBonusListId(newitemid), GuidSet(), context, bonusListIDs);
-
-        // was it successful? return error if not
-        if (!pItem)
+        if (Item* pItem = player->StoreNewItem(dest, newitemid, true, GenerateItemRandomBonusListId(newitemid), GuidSet(), context, bonusListIDs))
         {
-            player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
-            return;
+            // set the "Crafted by ..." property of the item
+            if (pItem->GetTemplate()->HasSignature())
+                pItem->SetCreator(player->GetGUID());
+
+            // send info to the client
+            player->SendNewItem(pItem, num_to_add, true, true);
+
+            if (pItem->GetQuality() > ITEM_QUALITY_EPIC || (pItem->GetQuality() == ITEM_QUALITY_EPIC && pItem->GetItemLevel(player) >= MinNewsItemLevel))
+                if (Guild* guild = player->GetGuild())
+                    guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
         }
-
-        // set the "Crafted by ..." property of the item
-        if (pItem->GetTemplate()->HasSignature())
-            pItem->SetCreator(player->GetGUID());
-
-        // send info to the client
-        player->SendNewItem(pItem, num_to_add, true, true);
-
-        if (pItem->GetQuality() > ITEM_QUALITY_EPIC || (pItem->GetQuality() == ITEM_QUALITY_EPIC && pItem->GetItemLevel(player) >= MinNewsItemLevel))
-            if (Guild* guild = player->GetGuild())
-                guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
 
         // we succeeded in creating at least one item, so a levelup is possible
         player->UpdateCraftSkill(m_spellInfo);
@@ -1597,11 +1591,6 @@ void Spell::EffectOpenLock()
                 return;
             }
         }
-        else if (goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT)
-        {
-            gameObjTarget->AssaultCapturePoint(player);
-            return;
-        }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {
             //CanUseBattlegroundObject() already called in CheckCast()
@@ -1612,11 +1601,6 @@ void Spell::EffectOpenLock()
                     bg->EventPlayerClickedOnFlag(player, gameObjTarget);
                 return;
             }
-        }
-        else if (goInfo->type == GAMEOBJECT_TYPE_NEW_FLAG)
-        {
-            gameObjTarget->Use(player);
-            return;
         }
         else if (m_spellInfo->Id == 1842 && gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && gameObjTarget->GetOwner())
         {
@@ -3832,7 +3816,7 @@ void Spell::EffectSkinning()
         if (uint32 pureSkillValue = player->GetPureSkillValue(skinningSkill))
         {
             // Double chances for elites
-            player->UpdateGatherSkill(skinningSkill, pureSkillValue, reqValue, creature->isElite() ? 2 : 1);
+            player->UpdateGatherSkill(skinningSkill, pureSkillValue, reqValue, creature->IsElite() ? 2 : 1);
         }
     }
 }
@@ -5305,9 +5289,10 @@ void Spell::EffectCreateAreaTrigger()
     if (!unitCaster || !m_targets.HasDst())
         return;
 
+    AreaTriggerCreatePropertiesId createPropertiesId = { uint32(effectInfo->MiscValue), false };
     int32 duration = GetSpellInfo()->CalcDuration(GetCaster());
 
-    AreaTrigger::CreateAreaTrigger(effectInfo->MiscValue, unitCaster, nullptr, GetSpellInfo(), destTarget->GetPosition(), duration, m_SpellVisual, this);
+    AreaTrigger::CreateAreaTrigger(createPropertiesId, destTarget->GetPosition(), duration, unitCaster, nullptr, m_SpellVisual, GetSpellInfo(), this);
 }
 
 void Spell::EffectRemoveTalent()

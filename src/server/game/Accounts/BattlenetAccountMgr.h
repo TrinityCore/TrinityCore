@@ -25,6 +25,7 @@ class QueryCallback;
 enum class AccountOpResult : uint8;
 
 #define MAX_BNET_EMAIL_STR 320
+#define MAX_BNET_PASS_STR 128
 
 namespace Battlenet
 {
@@ -42,7 +43,7 @@ namespace Battlenet
         [[nodiscard]] TC_GAME_API QueryCallback GetIdByGameAccountAsync(uint32 gameAccountId);
         TC_GAME_API uint8 GetMaxIndex(uint32 accountId);
 
-        TC_GAME_API std::string CalculateShaPassHash(std::string_view name, std::string_view password);
+        TC_GAME_API std::string GetSrpUsername(std::string name);
     }
 }
 

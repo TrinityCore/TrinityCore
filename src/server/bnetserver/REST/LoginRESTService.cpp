@@ -25,6 +25,7 @@
 #include "IteratorPair.h"
 #include "ProtobufJSON.h"
 #include "Resolver.h"
+#include "Timer.h"
 #include "Util.h"
 
 namespace Battlenet
@@ -47,7 +48,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
         return HandleGetForm(std::move(session), context);
     });
 
-    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/gameAccounts/", [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/gameAccounts/", [](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandleGetGameAccounts(std::move(session), context);
     });
@@ -105,7 +106,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     input->set_input_id("password");
     input->set_type("password");
     input->set_label("Password");
-    input->set_max_length(16);
+    input->set_max_length(128);
 
     input = _formInputs.add_inputs();
     input->set_input_id("log_in_submit");
@@ -113,6 +114,8 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     input->set_label("Log In");
 
     _loginTicketDuration = sConfigMgr->GetIntDefault("LoginREST.TicketDuration", 3600);
+
+    MigrateLegacyPasswordHashes();
 
     _acceptor->AsyncAcceptWithCallback<&LoginRESTService::OnSocketAccept>();
     return true;
@@ -157,7 +160,7 @@ std::string LoginRESTService::ExtractAuthorization(HttpRequest const& request)
     return ticket;
 }
 
-LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetForm(std::shared_ptr<LoginHttpSession> /*session*/, HttpRequestContext& context)
+LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetForm(std::shared_ptr<LoginHttpSession> /*session*/, HttpRequestContext& context) const
 {
     context.response.set(boost::beast::http::field::content_type, "application/json;charset=utf-8");
     context.response.body() = ::JSON::Serialize(_formInputs);
@@ -213,17 +216,17 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetGameAccounts(s
     return RequestHandlerResult::Async;
 }
 
-LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetPortal(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
+LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetPortal(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const
 {
     context.response.set(boost::beast::http::field::content_type, "text/plain");
     context.response.body() = Trinity::StringFormat("{}:{}", GetHostnameForClient(session->GetRemoteIpAddress()), sConfigMgr->GetIntDefault("BattlenetPort", 1119));
     return RequestHandlerResult::Handled;
 }
 
-LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLogin(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
+LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLogin(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const
 {
-    JSON::Login::LoginForm loginForm;
-    if (!::JSON::Deserialize(context.request.body(), &loginForm))
+    std::shared_ptr<JSON::Login::LoginForm> loginForm = std::make_shared<JSON::Login::LoginForm>();
+    if (!::JSON::Deserialize(context.request.body(), loginForm.get()))
     {
         JSON::Login::LoginResult loginResult;
         loginResult.set_authentication_state(JSON::Login::LOGIN);
@@ -238,27 +241,22 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLogin(std::sh
         return RequestHandlerResult::Handled;
     }
 
-    std::string login;
-    std::string password;
-
-    for (int32 i = 0; i < loginForm.inputs_size(); ++i)
+    auto getInputValue = [](JSON::Login::LoginForm const* loginForm, std::string_view inputId) -> std::string
     {
-        if (loginForm.inputs(i).input_id() == "account_name")
-            login = loginForm.inputs(i).value();
-        else if (loginForm.inputs(i).input_id() == "password")
-            password = loginForm.inputs(i).value();
-    }
+        for (int32 i = 0; i < loginForm->inputs_size(); ++i)
+            if (loginForm->inputs(i).input_id() == inputId)
+                return loginForm->inputs(i).value();
+        return "";
+    };
 
+    std::string login(getInputValue(loginForm.get(), "account_name"));
     Utf8ToUpperOnlyLatin(login);
-    Utf8ToUpperOnlyLatin(password);
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_AUTHENTICATION);
     stmt->setString(0, login);
 
-    std::string sentPasswordHash = CalculateShaPassHash(login, password);
-
     session->QueueQuery(LoginDatabase.AsyncQuery(stmt)
-        .WithChainingPreparedCallback([this, session, context = std::move(context), login = std::move(login), sentPasswordHash = std::move(sentPasswordHash)](QueryCallback& callback, PreparedQueryResult result) mutable
+        .WithChainingPreparedCallback([this, session, context = std::move(context), loginForm = std::move(loginForm), getInputValue](QueryCallback& callback, PreparedQueryResult result) mutable
     {
         if (!result)
         {
@@ -270,15 +268,33 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLogin(std::sh
             return;
         }
 
+        std::string login(getInputValue(loginForm.get(), "account_name"));
+        Utf8ToUpperOnlyLatin(login);
+        bool passwordCorrect = false;
+
         Field* fields = result->Fetch();
         uint32 accountId = fields[0].GetUInt32();
-        std::string pass_hash = fields[1].GetString();
-        uint32 failedLogins = fields[2].GetUInt32();
-        std::string loginTicket = fields[3].GetString();
-        uint32 loginTicketExpiry = fields[4].GetUInt32();
-        bool isBanned = fields[5].GetUInt64() != 0;
+        if (!session->GetSessionState()->Srp)
+        {
+            SrpVersion version = SrpVersion(fields[1].GetInt8());
+            std::string srpUsername = ByteArrayToHexStr(Trinity::Crypto::SHA256::GetDigestOf(login));
+            Trinity::Crypto::SRP::Salt s = fields[2].GetBinary<Trinity::Crypto::SRP::SALT_LENGTH>();
+            Trinity::Crypto::SRP::Verifier v = fields[3].GetBinary();
+            session->GetSessionState()->Srp = CreateSrpImplementation(version, SrpHashFunction::Sha256, srpUsername, s, v);
 
-        if (sentPasswordHash != pass_hash)
+            std::string password(getInputValue(loginForm.get(), "password"));
+            if (version == SrpVersion::v1)
+                Utf8ToUpperOnlyLatin(password);
+
+            passwordCorrect = session->GetSessionState()->Srp->CheckCredentials(srpUsername, password);
+        }
+
+        uint32 failedLogins = fields[4].GetUInt32();
+        std::string loginTicket = fields[5].GetString();
+        uint32 loginTicketExpiry = fields[6].GetUInt32();
+        bool isBanned = fields[7].GetUInt64() != 0;
+
+        if (!passwordCorrect)
         {
             if (!isBanned)
             {
@@ -358,7 +374,7 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLogin(std::sh
     return RequestHandlerResult::Async;
 }
 
-LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostRefreshLoginTicket(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
+LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostRefreshLoginTicket(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const
 {
     std::string ticket = ExtractAuthorization(context.request);
     if (ticket.empty())
@@ -397,23 +413,100 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostRefreshLoginT
     return RequestHandlerResult::Async;
 }
 
-std::string LoginRESTService::CalculateShaPassHash(std::string const& name, std::string const& password)
+std::unique_ptr<Trinity::Crypto::SRP::BnetSRP6Base> LoginRESTService::CreateSrpImplementation(SrpVersion version, SrpHashFunction hashFunction,
+    std::string const& username, Trinity::Crypto::SRP::Salt const& salt, Trinity::Crypto::SRP::Verifier const& verifier)
 {
-    Trinity::Crypto::SHA256 email;
-    email.UpdateData(name);
-    email.Finalize();
+    if (version == SrpVersion::v2)
+    {
+        if (hashFunction == SrpHashFunction::Sha256)
+            return std::make_unique<Trinity::Crypto::SRP::BnetSRP6v2<Trinity::Crypto::SHA256>>(username, salt, verifier);
+        if (hashFunction == SrpHashFunction::Sha512)
+            return std::make_unique<Trinity::Crypto::SRP::BnetSRP6v2<Trinity::Crypto::SHA512>>(username, salt, verifier);
+    }
 
-    Trinity::Crypto::SHA256 sha;
-    sha.UpdateData(ByteArrayToHexStr(email.GetDigest()));
-    sha.UpdateData(":");
-    sha.UpdateData(password);
-    sha.Finalize();
+    if (version == SrpVersion::v1)
+    {
+        if (hashFunction == SrpHashFunction::Sha256)
+            return std::make_unique<Trinity::Crypto::SRP::BnetSRP6v1<Trinity::Crypto::SHA256>>(username, salt, verifier);
+        if (hashFunction == SrpHashFunction::Sha512)
+            return std::make_unique<Trinity::Crypto::SRP::BnetSRP6v1<Trinity::Crypto::SHA512>>(username, salt, verifier);
+    }
 
-    return ByteArrayToHexStr(sha.GetDigest(), true);
+    return nullptr;
+}
+
+std::shared_ptr<Trinity::Net::Http::SessionState> LoginRESTService::CreateNewSessionState(boost::asio::ip::address const& address)
+{
+    std::shared_ptr<LoginSessionState> state = std::make_shared<LoginSessionState>();
+    InitAndStoreSessionState(state, address);
+    return state;
 }
 
 void LoginRESTService::OnSocketAccept(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
 {
     sLoginService.OnSocketOpen(std::move(sock), threadIndex);
+}
+
+void LoginRESTService::MigrateLegacyPasswordHashes() const
+{
+    if (!LoginDatabase.Query("SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = SCHEMA() AND TABLE_NAME = 'battlenet_accounts' AND COLUMN_NAME = 'sha_pass_hash'"))
+        return;
+
+    TC_LOG_INFO(_logger, "Updating password hashes...");
+    uint32 const start = getMSTime();
+    // the auth update query nulls salt/verifier if they cannot be converted
+    // if they are non-null but s/v have been cleared, that means a legacy tool touched our auth DB (otherwise, the core might've done it itself, it used to use those hacks too)
+    QueryResult result = LoginDatabase.Query("SELECT id, sha_pass_hash, IF((salt IS null) OR (verifier IS null), 0, 1) AS shouldWarn FROM battlenet_accounts WHERE sha_pass_hash != DEFAULT(sha_pass_hash) OR salt IS NULL OR verifier IS NULL");
+    if (!result)
+    {
+        TC_LOG_INFO(_logger, ">> No password hashes to update - this took us {} ms to realize", GetMSTimeDiffToNow(start));
+        return;
+    }
+
+    bool hadWarning = false;
+    uint32 c = 0;
+    LoginDatabaseTransaction tx = LoginDatabase.BeginTransaction();
+    do
+    {
+        uint32 const id = (*result)[0].GetUInt32();
+
+        Trinity::Crypto::SRP::Salt salt = Trinity::Crypto::GetRandomBytes<Trinity::Crypto::SRP::SALT_LENGTH>();
+        BigNumber x = Trinity::Crypto::SHA256::GetDigestOf(salt, HexStrToByteArray<Trinity::Crypto::SHA256::DIGEST_LENGTH>((*result)[1].GetString(), true));
+        Trinity::Crypto::SRP::Verifier verifier = Trinity::Crypto::SRP::BnetSRP6v1Base::g.ModExp(x, Trinity::Crypto::SRP::BnetSRP6v1Base::N).ToByteVector();
+
+        if ((*result)[2].GetInt64())
+        {
+            if (!hadWarning)
+            {
+                hadWarning = true;
+                TC_LOG_WARN(_logger,
+                    "       ========\n"
+                    "(!) You appear to be using an outdated external account management tool.\n"
+                    "(!) Update your external tool.\n"
+                    "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
+                    "       ========");
+            }
+        }
+
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LOGON);
+        stmt->setInt8(0, AsUnderlyingType(SrpVersion::v1));
+        stmt->setBinary(1, salt);
+        stmt->setBinary(2, verifier);
+        stmt->setUInt32(3, id);
+        tx->Append(stmt);
+
+        tx->Append(Trinity::StringFormat("UPDATE battlenet_accounts SET sha_pass_hash = DEFAULT(sha_pass_hash) WHERE id = {}", id).c_str());
+
+        if (tx->GetSize() >= 10000)
+        {
+            LoginDatabase.CommitTransaction(tx);
+            tx = LoginDatabase.BeginTransaction();
+        }
+
+        ++c;
+    } while (result->NextRow());
+    LoginDatabase.CommitTransaction(tx);
+
+    TC_LOG_INFO(_logger, ">> {} password hashes updated in {} ms", c, GetMSTimeDiffToNow(start));
 }
 }
