@@ -387,6 +387,7 @@ void BattlegroundIC::HandleKillUnit(Creature* unit, Unit* killer)
     {
         if (Player* killerPlayer = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
             killerPlayer->CastSpell(killerPlayer, SPELL_DESTROYED_VEHICLE_ACHIEVEMENT, true);
+    }
 }
 
 void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
