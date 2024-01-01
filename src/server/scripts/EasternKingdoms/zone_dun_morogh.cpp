@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "MotionMaster.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -124,11 +125,11 @@ enum DecontaminationData
 };
 
 // 46185 - Sanitron 5000
-struct npc_sanitron_5000 : public ScriptedAI
+struct npc_sanitron_5000 : public NullCreatureAI
 {
-    npc_sanitron_5000(Creature* creature) : ScriptedAI(creature) { }
+    npc_sanitron_5000(Creature* creature) : NullCreatureAI(creature) { }
 
-    uint32 GetPathId()
+    uint32 GetPathId() const
     {
         if (me->HasStringId("SanitronLeft"))
             return PATH_SANITRON_LEFT_START;
@@ -232,9 +233,9 @@ private:
 Position const SafeTechnicianSanitron = { -5178.169f, 696.795f, 288.22797f };
 
 // 46230 - S.A.F.E Technician
-struct npc_safe_technician_sanitron : public ScriptedAI
+struct npc_safe_technician_sanitron : public NullCreatureAI
 {
-    npc_safe_technician_sanitron(Creature* creature) : ScriptedAI(creature), _isEventStarted(false) { }
+    npc_safe_technician_sanitron(Creature* creature) : NullCreatureAI(creature), _isEventStarted(false) { }
 
     void DoAction(int32 action) override
     {
@@ -271,14 +272,13 @@ struct npc_safe_technician_sanitron : public ScriptedAI
                     {
                         me->SetWalk(true);
                         me->SetEmoteState(EMOTE_STATE_NONE);
-                        me->GetMotionMaster()->MovePoint(POINT_SAFE_TECHNICIAN_FINISH, me->GetHomePosition());
+                        me->GetMotionMaster()->MovePoint(POINT_SAFE_TECHNICIAN_FINISH, me->GetHomePosition(), true, me->GetHomePosition().GetOrientation());
                     });
                 });
             });
         }
         else if (pointId == POINT_SAFE_TECHNICIAN_FINISH)
         {
-            me->SetFacingTo(me->GetHomePosition().GetOrientation());
             me->SetEmoteState(EMOTE_STATE_WORK_MINING);
             _isEventStarted = false;
         }
