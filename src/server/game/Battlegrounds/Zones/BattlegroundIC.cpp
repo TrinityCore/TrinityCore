@@ -361,7 +361,7 @@ bool BattlegroundIC::SetupBattleground()
     return true;
 }
 
-void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
+void BattlegroundIC::HandleKillUnit(Creature* unit, Unit* killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
        return;
@@ -381,7 +381,9 @@ void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
     //Achievement Mowed Down
     // TO-DO: This should be done on the script of each vehicle of the BG.
     if (unit->IsVehicle())
-        killer->CastSpell(killer, SPELL_DESTROYED_VEHICLE_ACHIEVEMENT, true);
+    {
+        if (Player* killerPlayer = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+            killerPlayer->CastSpell(killerPlayer, SPELL_DESTROYED_VEHICLE_ACHIEVEMENT, true);
 }
 
 void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)

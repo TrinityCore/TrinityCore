@@ -587,11 +587,12 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
     }
 }
 
-void BattlegroundSA::HandleKillUnit(Creature* creature, Player* killer)
+void BattlegroundSA::HandleKillUnit(Creature* creature, Unit* killer)
 {
     if (creature->GetEntry() == NPC_DEMOLISHER_SA)
     {
-        UpdatePlayerScore(killer, SCORE_DESTROYED_DEMOLISHER, 1);
+        if (Player* killerPlayer = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+            UpdatePlayerScore(killerPlayer, SCORE_DESTROYED_DEMOLISHER, 1);
         int32 worldStateId = Attackers == TEAM_HORDE ? BG_SA_DESTROYED_HORDE_VEHICLES : BG_SA_DESTROYED_ALLIANCE_VEHICLES;
         int32 currentDestroyedVehicles = sWorldStateMgr->GetValue(worldStateId, GetBgMap());
         UpdateWorldState(worldStateId, currentDestroyedVehicles + 1);
