@@ -271,7 +271,7 @@ enum DarkspearJailorData
 // 39062 - Darkspear Jailor
 struct npc_darkspear_jailor : public ScriptedAI
 {
-    npc_darkspear_jailor(Creature* creature) : ScriptedAI(creature), _pathCage(0), _pathHome(0), _eventInProgress(false) { }
+    npc_darkspear_jailor(Creature* creature) : ScriptedAI(creature), _eventInProgress(false), _pathCage(0), _pathHome(0) { }
 
     void JustAppeared() override
     {
