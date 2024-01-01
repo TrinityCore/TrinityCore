@@ -422,9 +422,6 @@ class TC_GAME_API Battleground : public ZoneScript
         void EventPlayerLoggedOut(Player* player);
         void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/) override { }
 
-        // this function can be used by spell to interact with the BG map
-        virtual void DoAction(uint32 /*action*/, ObjectGuid /*var*/) { }
-
         virtual void HandlePlayerResurrect(Player* /*player*/) { }
 
         // Death related
