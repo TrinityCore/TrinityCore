@@ -27,7 +27,7 @@ INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags
 -- ScriptNames
 DELETE FROM `spell_script_names` WHERE `spell_id` = 279998;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(279998, 'spell_skip_kultiras_intro');
+(279998, 'spell_kultiras_skip_intro');
 
 -- Serverside spell
 DELETE FROM `serverside_spell` WHERE `Id` = 247285;

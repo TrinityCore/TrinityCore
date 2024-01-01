@@ -54,6 +54,9 @@ enum TidesOfWarData
 enum NationOfKulTirasData
 {
     QUEST_NATION_OF_KULTIRAS            = 46728,
+    QUEST_NATION_OF_KULTIRAS_NPE        = 59641,
+    QUEST_OUT_LIKE_FLYNN                = 47098,
+    QUEST_DAUGHTER_OF_THE_SEA           = 51341,
 
     SAY_JAINA_LEAVE_COUNCIL             = 0,
 
@@ -61,7 +64,7 @@ enum NationOfKulTirasData
     SPELL_SKIP_KULTIRAS_INTRO           = 279998,
     SPELL_SKIP_TOLDAGOR_TELEPORT        = 247285,
 
-    CONV_JAINA_LEAVE_COUNCIL            = 4896,
+    CONVERSATION_JAINA_LEAVE_COUNCIL    = 4896,
 
     ACTION_JAINA_LEAVE_COUNCIL          = 1,
 
@@ -179,15 +182,18 @@ struct npc_jaina_proudmoore_tides_of_war : public ScriptedAI
 
     bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
     {
-        if (menuId == GOSSIP_MENU_NATION_OF_KULTIRAS && gossipListId == GOSSIP_OPTION_START_KULTIRAS_INTRO)
+        if (menuId == GOSSIP_MENU_NATION_OF_KULTIRAS)
         {
-            CloseGossipMenuFor(player);
-            // @ToDo: script start of TolDagor intro
-        }
-        else if (menuId == GOSSIP_MENU_NATION_OF_KULTIRAS && gossipListId == GOSSIP_OPTION_SKIP_KULTIRAS_INTRO)
-        {
-            CloseGossipMenuFor(player);
-            player->CastSpell(nullptr, SPELL_SKIP_KULTIRAS_INTRO, false);
+            if (gossipListId == GOSSIP_OPTION_START_KULTIRAS_INTRO)
+            {
+                CloseGossipMenuFor(player);
+                // @TODO: script start of TolDagor intro
+            }
+            else if (gossipListId == GOSSIP_OPTION_SKIP_KULTIRAS_INTRO)
+            {
+                CloseGossipMenuFor(player);
+                player->CastSpell(nullptr, SPELL_SKIP_KULTIRAS_INTRO, false);
+            }
         }
         return true;
     }
@@ -225,7 +231,7 @@ struct npc_jaina_proudmoore_tides_of_war : public ScriptedAI
                         if (!privateObjectOwner)
                             return;
 
-                        Conversation::CreateConversation(CONV_JAINA_LEAVE_COUNCIL, privateObjectOwner, *privateObjectOwner, privateObjectOwner->GetGUID(), nullptr, true);
+                        Conversation::CreateConversation(CONVERSATION_JAINA_LEAVE_COUNCIL, privateObjectOwner, *privateObjectOwner, privateObjectOwner->GetGUID(), nullptr, true);
                         me->DespawnOrUnsummon();
                     });
                 });
@@ -301,15 +307,8 @@ struct npc_anduin_wrynn_nation_of_kultiras : public ScriptedAI
     }
 };
 
-enum SkipTolDagorQuestData
-{
-    QUEST_NATION_OF_KULTIRAS_NPE    = 59641,
-    QUEST_OUT_LIKE_FLYNN            = 47098,
-    QUEST_DAUGHTER_OF_THE_SEA       = 51341
-};
-
 // 279998 - Kul Tiras: Skip Intro
-class spell_skip_kultiras_intro : public SpellScript
+class spell_kultiras_skip_intro : public SpellScript
 {
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
@@ -322,7 +321,7 @@ class spell_skip_kultiras_intro : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_skip_kultiras_intro::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_kultiras_skip_intro::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -343,5 +342,5 @@ void AddSC_stormwind_city()
 
     // Spells
     RegisterSpellScript(spell_despawn_sailor_memory);
-    RegisterSpellScript(spell_skip_kultiras_intro);
+    RegisterSpellScript(spell_kultiras_skip_intro);
 }
