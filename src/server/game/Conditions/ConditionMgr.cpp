@@ -323,7 +323,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_TEAM:
         {
             if (Player const* player = object->ToPlayer())
-                condMeets = player->GetTeam() == ConditionValue1;
+                condMeets = player->GetTeam() == Team(ConditionValue1);
             break;
         }
         case CONDITION_CLASS:

@@ -422,7 +422,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
                 RoundScores[1].time = BG_SA_ROUNDLENGTH;
                 RoundScores[1].winner = (Attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
                 if (RoundScores[0].time == RoundScores[1].time)
-                    EndBattleground(0);
+                    EndBattleground(TEAM_OTHER);
                 else if (RoundScores[0].time < RoundScores[1].time)
                     EndBattleground(RoundScores[0].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
                 else
@@ -904,7 +904,7 @@ void BattlegroundSA::TitanRelicActivated(Player* clicker)
                 }
 
                 if (RoundScores[0].time == RoundScores[1].time)
-                    EndBattleground(0);
+                    EndBattleground(TEAM_OTHER);
                 else if (RoundScores[0].time < RoundScores[1].time)
                     EndBattleground(RoundScores[0].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
                 else
@@ -920,7 +920,7 @@ void BattlegroundSA::ToggleTimer()
     UpdateWorldState(BG_SA_ENABLE_TIMER, TimerEnabled);
 }
 
-void BattlegroundSA::EndBattleground(uint32 winner)
+void BattlegroundSA::EndBattleground(Team winner)
 {
     // honor reward for winning
     if (winner == ALLIANCE)

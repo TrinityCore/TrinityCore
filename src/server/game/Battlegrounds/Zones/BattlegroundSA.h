@@ -562,7 +562,7 @@ class BattlegroundSA : public Battleground
         }
 
         /// Called on battleground ending
-        void EndBattleground(uint32 winner) override;
+        void EndBattleground(Team winner) override;
 
         /// Called when a player leave battleground
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;

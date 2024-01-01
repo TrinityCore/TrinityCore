@@ -15,30 +15,38 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SQLOPERATION_H
-#define _SQLOPERATION_H
+#ifndef _End_Time_h__
+#define _End_Time_h__
 
-#include "DatabaseEnvFwd.h"
+#include "CreatureAIImpl.h"
 
-//- Union that holds element data
-union SQLElementUnion
+constexpr char const* DataHeader = "ET";
+constexpr char const* ETScriptName = "instance_end_time";
+
+constexpr uint32 const EncounterCount = 5;
+
+enum ETWDataTypes
 {
-    PreparedStatementBase* stmt;
-    char const* query;
+    // Encounters
+    BOSS_ECHO_OF_BAINE      = 0,
+    BOSS_ECHO_OF_SYLVANAS   = 1,
+    BOSS_ECHO_OF_JAINA      = 2,
+    BOSS_ECHO_OF_TYRANDE    = 3,
+    BOSS_MUROZOND           = 4
 };
 
-//- Type specifier of our element data
-enum SQLElementDataType
+enum ETCreatureIds
 {
-    SQL_ELEMENT_RAW,
-    SQL_ELEMENT_PREPARED
+    // Bosses
+    NPC_MUROZOND            = 54432
 };
 
-//- The element
-struct SQLElementData
+template <class AI, class T>
+inline AI* GetEndTimeAI(T* obj)
 {
-    SQLElementUnion element;
-    SQLElementDataType type;
-};
+    return GetInstanceAI<AI>(obj, ETScriptName);
+}
 
-#endif
+#define RegisterEndTimeCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetEndTimeAI)
+
+#endif // _End_Time_h__

@@ -81,15 +81,21 @@ RequestHandlerResult DispatcherService::HandleRequest(std::shared_ptr<AbstractSo
     return context.handler->Func(std::move(session), context);
 }
 
-RequestHandlerResult DispatcherService::HandlePathNotFound(std::shared_ptr<AbstractSocket> /*session*/, RequestContext& context)
+RequestHandlerResult DispatcherService::HandleBadRequest(std::shared_ptr<AbstractSocket> /*session*/, RequestContext& context)
 {
-    context.response.result(boost::beast::http::status::not_found);
+    context.response.result(boost::beast::http::status::bad_request);
     return RequestHandlerResult::Handled;
 }
 
 RequestHandlerResult DispatcherService::HandleUnauthorized(std::shared_ptr<AbstractSocket> /*session*/, RequestContext& context)
 {
     context.response.result(boost::beast::http::status::unauthorized);
+    return RequestHandlerResult::Handled;
+}
+
+RequestHandlerResult DispatcherService::HandlePathNotFound(std::shared_ptr<AbstractSocket> /*session*/, RequestContext& context)
+{
+    context.response.result(boost::beast::http::status::not_found);
     return RequestHandlerResult::Handled;
 }
 

@@ -240,6 +240,12 @@ bool Conversation::Start()
         }
     }
 
+    if (IsInWorld())
+    {
+        TC_LOG_ERROR("entities.conversation", "Attempted to start conversation (Id: {}) multiple times.", GetEntry());
+        return true; // returning true to not cause delete in Conversation::CreateConversation if convo is already started in ConversationScript::OnConversationCreate
+    }
+
     if (!GetMap()->AddToMap(this))
         return false;
 

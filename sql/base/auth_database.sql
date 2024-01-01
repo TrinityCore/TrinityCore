@@ -419,7 +419,9 @@ DROP TABLE IF EXISTS `battlenet_accounts`;
 CREATE TABLE `battlenet_accounts` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
   `email` varchar(320) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `sha_pass_hash` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `srp_version` tinyint(3) NOT NULL DEFAULT '1',
+  `salt` binary(32) NOT NULL,
+  `verifier` blob NOT NULL,
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
   `failed_logins` int unsigned NOT NULL DEFAULT '0',
@@ -945,6 +947,8 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (192,792),
 (192,793),
 (192,794),
+(192,795),
+(192,796),
 (192,835),
 (192,844),
 (192,845),
@@ -2233,6 +2237,8 @@ INSERT INTO `rbac_permissions` VALUES
 (792,'Command: ahbot reload'),
 (793,'Command: ahbot status'),
 (794,'Command: .guild info'),
+(795,'Command: instance setbossstate'),
+(796,'Command: instance getbossstate'),
 (797,'Command: pvpstats'),
 (798,'Command: .mod xp'),
 (802,'Command: .ticket bug'),
@@ -2773,7 +2779,9 @@ INSERT INTO `updates` VALUES
 ('2023_12_12_00_auth.sql','EDC092787956178A08D15B9245EE4716ED0847B0','RELEASED','2023-12-12 05:47:47',0),
 ('2023_12_13_00_auth.sql','C3D6AA45BECD5A7F8A420FE0022AAF6A349C5E3F','RELEASED','2023-12-13 06:42:48',0),
 ('2023_12_19_00_auth.sql','6761E7111F613E57A7D684E18E38FCA3F5CD66A6','RELEASED','2023-12-19 08:54:36',0),
-('2023_12_21_00_auth.sql','DB294EF35C00AA92C79786F7A0BFBCE739D4E193','RELEASED','2023-12-21 09:08:30',0);
+('2023_12_21_00_auth.sql','DB294EF35C00AA92C79786F7A0BFBCE739D4E193','RELEASED','2023-12-21 09:08:30',0),
+('2023_12_24_00_auth.sql','F59B3A895750FD83177324B89BFCEBD8A43DD577','RELEASED','2023-12-24 06:24:58',0),
+('2023_12_26_00_auth.sql','5C8716F7F6E2792E15A42BDA8F2D855A7DE95FC5','RELEASED','2023-12-26 13:38:58',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
