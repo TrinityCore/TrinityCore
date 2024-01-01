@@ -384,7 +384,10 @@ void BattlegroundIC::HandleKillUnit(Creature* unit, Unit* killer)
     //Achievement Mowed Down
     // TO-DO: This should be done on the script of each vehicle of the BG.
     if (unit->IsVehicle())
-        killer->CastSpell(killer, SPELL_DESTROYED_VEHICLE_ACHIEVEMENT, true);
+    {
+        if (Player* killerPlayer = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+            killerPlayer->CastSpell(killerPlayer, SPELL_DESTROYED_VEHICLE_ACHIEVEMENT, true);
+    }
 }
 
 void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)

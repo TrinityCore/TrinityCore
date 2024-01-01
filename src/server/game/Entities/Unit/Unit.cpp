@@ -10957,10 +10957,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
             if (Battleground* bg = bgMap->GetBG())
             {
                 if (Player* playerVictim = victim->ToPlayer())
-                {
-                    if (player)
-                        bg->HandleKillPlayer(playerVictim, player);
-                }
+                    bg->HandleKillPlayer(playerVictim, player);
                 else
                     bg->HandleKillUnit(victim->ToCreature(), attacker);
             }
