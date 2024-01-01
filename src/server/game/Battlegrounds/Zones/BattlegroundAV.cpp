@@ -126,7 +126,6 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Unit* killer)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    uint32 entry = unit->GetEntry();
     switch (unit->GetEntry())
     {
         case BG_AV_CREATURE_VANNDAR:
