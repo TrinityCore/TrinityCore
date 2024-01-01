@@ -1599,7 +1599,7 @@ class BattlegroundAV : public Battleground
         /*handlestuff*/ //these are functions which get called from extern
         void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
-        void HandleKillUnit(Creature* unit, Player* killer) override;
+        void HandleKillUnit(Creature* unit, Unit* killer) override;
         void HandleQuestComplete(uint32 questid, Player* player) override;
         bool CanActivateGO(int32 GOId, uint32 team) const override;
 

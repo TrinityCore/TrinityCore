@@ -73,12 +73,15 @@ void BattlegroundAV::HandleKillPlayer(Player* player, Player* killer)
     UpdateScore(GetPlayerTeam(player->GetGUID()), -1);
 }
 
-void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
+void BattlegroundAV::HandleKillUnit(Creature* unit, Unit* killer)
 {
     TC_LOG_DEBUG("bg.battleground", "bg_av HandleKillUnit {}", unit->GetEntry());
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
+
     uint32 entry = unit->GetEntry();
+    Player* killerPlayer = killer->GetCharmerOrOwnerPlayerOrPlayerItself();
+
     /*
     uint32 triggerSpawnID = 0;
     if (creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_A_CAPTAIN][0])
@@ -148,10 +151,10 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
         if (Creature* herold = GetBGCreature(AV_CPLACE_HERALD))
             herold->AI()->Talk(TEXT_FROSTWOLF_GENERAL_DEAD);
     }
-    else if (entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_N_4] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_A_4] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_H_4])
-        ChangeMineOwner(AV_NORTH_MINE, GetPlayerTeam(killer->GetGUID()));
-    else if (entry == BG_AV_CreatureInfo[AV_NPC_S_MINE_N_4] || entry == BG_AV_CreatureInfo[AV_NPC_S_MINE_A_4] || entry == BG_AV_CreatureInfo[AV_NPC_S_MINE_H_4])
-        ChangeMineOwner(AV_SOUTH_MINE, GetPlayerTeam(killer->GetGUID()));
+    else if ((entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_N_4] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_A_4] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_H_4]) && killerPlayer)
+        ChangeMineOwner(AV_NORTH_MINE, GetPlayerTeam(killerPlayer->GetGUID()));
+    else if ((entry == BG_AV_CreatureInfo[AV_NPC_S_MINE_N_4] || entry == BG_AV_CreatureInfo[AV_NPC_S_MINE_A_4] || entry == BG_AV_CreatureInfo[AV_NPC_S_MINE_H_4]) && killerPlayer)
+        ChangeMineOwner(AV_SOUTH_MINE, GetPlayerTeam(killerPlayer->GetGUID()));
 }
 
 void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
