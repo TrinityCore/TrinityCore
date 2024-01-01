@@ -35,7 +35,7 @@ like lack of delays between packets makes it work differently too.
 Of course as was said above player can be pulled towards 2 times in a row but that looks like a rare case.
 */
 
-enum Spells
+enum BlackStalkerSpells
 {
     SPELL_LEVITATE                      = 31704,
     SPELL_CHAIN_LIGHTNING               = 31717,
@@ -52,13 +52,18 @@ enum Spells
     SPELL_SUMMON_SPORE_STRIDER          = 38755
 };
 
-enum Events
+enum BlackStalkerEvents
 {
     EVENT_LEASH_CHECK                   = 1,
     EVENT_LEVITATE,
     EVENT_CHAIN_LIGHTNING,
     EVENT_STATIC_CHARGE,
     EVENT_SUMMON_SPORE_STRIDER
+};
+
+enum BlackStalkerPaths
+{
+    PATH_BLACK_STALKER_IDLE             = 4346960,
 };
 
 struct boss_the_black_stalker : public BossAI
@@ -68,6 +73,8 @@ struct boss_the_black_stalker : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+        scheduler.CancelAll();
+
         _events.ScheduleEvent(EVENT_LEASH_CHECK, 5s);
         _events.ScheduleEvent(EVENT_LEVITATE, 8s, 18s);
         _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 0s, 3s);
@@ -130,6 +137,20 @@ struct boss_the_black_stalker : public BossAI
         DoMeleeAttackIfReady();
     }
 
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId != PATH_BLACK_STALKER_IDLE)
+            return;
+
+        if (waypointId == 2 || waypointId == 4 || waypointId == 6)
+        {
+            scheduler.Schedule(2s, [this](TaskContext /*task*/)
+            {
+                me->HandleEmoteCommand(EMOTE_ONESHOT_EAT);
+            });
+        }
+    }
+
 private:
     EventMap _events;
     SummonList _summons;
@@ -138,8 +159,6 @@ private:
 // 31704 - Levitate
 class spell_the_black_stalker_levitate : public SpellScript
 {
-    PrepareSpellScript(spell_the_black_stalker_levitate);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LEVITATION_PULSE });
@@ -159,8 +178,6 @@ class spell_the_black_stalker_levitate : public SpellScript
 // 31701 - Levitation Pulse
 class spell_the_black_stalker_levitation_pulse : public SpellScript
 {
-    PrepareSpellScript(spell_the_black_stalker_levitation_pulse);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SOMEONE_GRAB_ME });
@@ -180,8 +197,6 @@ class spell_the_black_stalker_levitation_pulse : public SpellScript
 // 31702 - Someone Grab Me
 class spell_the_black_stalker_someone_grab_me : public SpellScript
 {
-    PrepareSpellScript(spell_the_black_stalker_someone_grab_me);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MAGNETIC_PULL, SPELL_SUSPENSION });
@@ -202,8 +217,6 @@ class spell_the_black_stalker_someone_grab_me : public SpellScript
 // 31703 - Magnetic Pull
 class spell_the_black_stalker_magnetic_pull : public SpellScript
 {
-    PrepareSpellScript(spell_the_black_stalker_magnetic_pull);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUSPENSION_PRIMER });
@@ -223,8 +236,6 @@ class spell_the_black_stalker_magnetic_pull : public SpellScript
 // 38756 - Summon Spore Strider
 class spell_the_black_stalker_summon_spore_strider : public SpellScript
 {
-    PrepareSpellScript(spell_the_black_stalker_summon_spore_strider);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_SPORE_STRIDER });

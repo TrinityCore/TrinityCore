@@ -184,7 +184,7 @@ namespace WorldPackets
             int32 AcceptedSoundKitID        = 0;
             int32 CompleteSoundKitID        = 0;
             int32 AreaGroupID               = 0;
-            int32 TimeAllowed               = 0;
+            int64 TimeAllowed               = 0;
             int32 TreasurePickerID          = 0;
             int32 Expansion                 = 0;
             int32 ManagedWorldStateID       = 0;
@@ -646,6 +646,16 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 Count = 0;
+        };
+
+        class QuestForceRemoved final : public ServerPacket
+        {
+        public:
+            explicit QuestForceRemoved(int32 questId) : ServerPacket(SMSG_QUEST_FORCE_REMOVED, 4), QuestID(questId) { }
+
+            WorldPacket const* Write() override;
+
+            int32 QuestID = 0;
         };
 
         class RequestWorldQuestUpdate final : public ClientPacket

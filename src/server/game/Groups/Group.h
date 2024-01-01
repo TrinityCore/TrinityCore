@@ -38,6 +38,7 @@ class WorldObject;
 class WorldPacket;
 class WorldSession;
 
+struct BattlegroundTemplate;
 struct ItemDisenchantLootEntry;
 struct MapEntry;
 
@@ -89,7 +90,7 @@ enum GroupType
     GROUP_TYPE_WORLD_PVP    = 4
 };
 
-enum GroupFlags
+enum GroupFlags : uint16
 {
     GROUP_FLAG_NONE                 = 0x000,
     GROUP_FLAG_FAKE_RAID            = 0x001,
@@ -101,6 +102,7 @@ enum GroupFlags
     GROUP_FLAG_EVERYONE_ASSISTANT   = 0x040, // Script_IsEveryoneAssistant()
     GROUP_FLAG_GUILD_GROUP          = 0x100,
     GROUP_FLAG_CROSS_FACTION        = 0x200,
+    GROUP_FLAG_RESTRICT_PINGS       = 0x400, // C_PartyInfo::Script_GetRestrictPings()
 
     GROUP_MASK_BGRAID                = GROUP_FLAG_FAKE_RAID | GROUP_FLAG_RAID,
 };
@@ -169,6 +171,18 @@ struct RaidMarker
     }
 };
 
+enum class PingSubjectType : uint8
+{
+    Attack          = 0,
+    Warning         = 1,
+    Assist          = 2,
+    OnMyWay         = 3,
+    AlertThreat     = 4,
+    AlertNotThreat  = 5,
+
+    Max
+};
+
 /** request member stats checken **/
 /// @todo uninvite people that not accepted invite
 class TC_GAME_API Group
@@ -208,7 +222,7 @@ class TC_GAME_API Group
         bool AddLeaderInvite(Player* player);
         bool AddMember(Player* player);
         bool RemoveMember(ObjectGuid guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = nullptr);
-        void ChangeLeader(ObjectGuid guid, int8 partyIndex = 0);
+        void ChangeLeader(ObjectGuid guid);
         void SetLootMethod(LootMethod method);
         void SetLooterGuid(ObjectGuid guid);
         void SetMasterLooterGuid(ObjectGuid guid);
@@ -218,12 +232,14 @@ class TC_GAME_API Group
         void SetLfgRoles(ObjectGuid guid, uint8 roles);
         uint8 GetLfgRoles(ObjectGuid guid);
         void SetEveryoneIsAssistant(bool apply);
+        bool IsRestrictPingsToAssistants() const;
+        void SetRestrictPingsToAssistants(bool restrictPingsToAssistants);
 
         // Update
         void UpdateReadyCheck(uint32 diff);
 
         // Ready check
-        void StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, Milliseconds duration = Milliseconds(READYCHECK_DURATION));
+        void StartReadyCheck(ObjectGuid starterGuid, Milliseconds duration = Milliseconds(READYCHECK_DURATION));
         void EndReadyCheck();
 
         bool IsReadyCheckStarted(void) const { return m_readyCheckStarted; }
@@ -239,7 +255,7 @@ class TC_GAME_API Group
         // Raid Markers
         void AddRaidMarker(uint8 markerId, uint32 mapId, float positionX, float positionY, float positionZ, ObjectGuid transportGuid = ObjectGuid::Empty);
         void DeleteRaidMarker(uint8 markerId);
-        void SendRaidMarkersChanged(WorldSession* session = nullptr, int8 partyIndex = 0);
+        void SendRaidMarkersChanged(WorldSession* session = nullptr);
 
         // properties accessories
         bool IsFull() const;
@@ -292,11 +308,11 @@ class TC_GAME_API Group
 
         void SetBattlegroundGroup(Battleground* bg);
         void SetBattlefieldGroup(Battlefield* bf);
-        GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid) const;
+        GroupJoinBattlegroundResult CanJoinBattlegroundQueue(BattlegroundTemplate const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid) const;
 
         void ChangeMembersGroup(ObjectGuid guid, uint8 group);
         void SwapMembersGroups(ObjectGuid firstGuid, ObjectGuid secondGuid);
-        void SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy, uint8 partyIndex);
+        void SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy);
         void SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags flag);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
 
@@ -311,7 +327,7 @@ class TC_GAME_API Group
 
         // -no description-
         //void SendInit(WorldSession* session);
-        void SendTargetIconList(WorldSession* session, int8 partyIndex = 0);
+        void SendTargetIconList(WorldSession* session);
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = nullptr);
         void SendUpdateDestroyGroupToPlayer(Player* player) const;

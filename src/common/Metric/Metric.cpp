@@ -18,8 +18,8 @@
 #include "Metric.h"
 #include "Config.h"
 #include "DeadlineTimer.h"
+#include "IoContext.h"
 #include "Log.h"
-#include "Strand.h"
 #include "Util.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -226,7 +226,7 @@ void Metric::ScheduleSend()
     if (_enabled)
     {
         _batchTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
-        _batchTimer->async_wait(std::bind(&Metric::SendBatch, this));
+        _batchTimer->async_wait([this](boost::system::error_code const&){ SendBatch(); });
     }
     else
     {

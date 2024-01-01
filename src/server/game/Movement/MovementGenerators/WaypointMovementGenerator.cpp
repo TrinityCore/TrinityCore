@@ -292,13 +292,6 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
             _nextMoveTime.Reset(waitTime);
     }
 
-    if (waypoint.eventId && urand(0, 99) < waypoint.eventChance)
-    {
-        TC_LOG_DEBUG("maps.script", "Creature movement start script {} at point {} for {}.", waypoint.eventId, _currentNode, owner->GetGUID().ToString());
-        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
-        owner->GetMap()->ScriptsStart(sWaypointScripts, waypoint.eventId, owner, nullptr);
-    }
-
     // inform AI
     if (CreatureAI* AI = owner->AI())
     {
@@ -389,7 +382,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     //! but formationDest contains global coordinates
     init.MoveTo(waypoint.x, waypoint.y, waypoint.z, _generatePath);
 
-    if (waypoint.orientation.has_value() && waypoint.delay > 0)
+    if (waypoint.orientation.has_value() && (waypoint.delay > 0 || _currentNode == _path->nodes.size() - 1))
         init.SetFacing(*waypoint.orientation);
 
     switch (waypoint.moveType)

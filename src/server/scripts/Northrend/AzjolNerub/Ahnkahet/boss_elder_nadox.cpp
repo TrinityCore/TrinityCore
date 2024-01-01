@@ -217,8 +217,6 @@ private:
 // 56159 - Swarm
 class spell_ahn_kahet_swarm : public SpellScript
 {
-    PrepareSpellScript(spell_ahn_kahet_swarm);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SWARM_BUFF });

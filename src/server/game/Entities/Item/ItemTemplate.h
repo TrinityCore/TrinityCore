@@ -298,7 +298,18 @@ enum ItemFlags4
     ITEM_FLAG4_SQUISH_USING_ITEM_LEVEL_AS_PLAYER_LEVEL          = 0x00004000,
     ITEM_FLAG4_ALWAYS_SHOW_SELL_PRICE_IN_TOOLTIP                = 0x00008000,
     ITEM_FLAG4_COSMETIC_ITEM                                    = 0x00010000,
-    ITEM_FLAG4_NO_SPELL_EFFECT_TOOLTIP_PREFIXES                 = 0x00020000
+    ITEM_FLAG4_NO_SPELL_EFFECT_TOOLTIP_PREFIXES                 = 0x00020000,
+    ITEM_FLAG4_IGNORE_COSMETIC_COLLECTION_BEHAVIOR              = 0x00040000,
+    ITEM_FLAG4_NPC_ONLY                                         = 0x00080000,
+    ITEM_FLAG4_NOT_RESTORABLE                                   = 0x00100000,
+    ITEM_FLAG4_DONT_DISPLAY_AS_CRAFTING_REAGENT                 = 0x00200000,
+    ITEM_FLAG4_DISPLAY_REAGENT_QUALITY_AS_CRAFTED_QUALITY       = 0x00400000,
+    ITEM_FLAG4_NO_SALVAGE                                       = 0x00800000,
+    ITEM_FLAG4_RECRAFTABLE                                      = 0x01000000,
+    ITEM_FLAG4_CC_TRINKET                                       = 0x02000000,
+    ITEM_FLAG4_KEEP_THROUGH_FACTION_CHANGE                      = 0x04000000,
+    ITEM_FLAG4_NOT_MULTICRAFTABLE                               = 0x08000000,
+    ITEM_FLAG4_DONT_REPORT_LOOT_LOG_TO_SELF                     = 0x10000000,
 };
 
 enum ItemFlagsCustom
@@ -826,6 +837,7 @@ struct TC_GAME_API ItemTemplate
     uint32 RandomBonusListTemplateId;
     std::bitset<MAX_CLASSES * MAX_SPECIALIZATIONS> Specializations[3];  // one set for 1-40 level range and another for 41-109 and one for 110
     uint32 ItemSpecClassMask;
+    int32 QuestLogItemId;
 
     // helpers
     bool CanChangeEquipStateInCombat() const;

@@ -385,8 +385,6 @@ class spell_destroy_karangs_banner : public SpellScriptLoader
 
         class spell_destroy_karangs_banner_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_destroy_karangs_banner_SpellScript);
-
             void HandleAfterCast()
             {
                 if (GameObject* banner = GetCaster()->FindNearestGameObject(GO_BANNER, GetSpellInfo()->GetMaxRange(true)))

@@ -77,6 +77,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText)
     data << int32(gossipText.QuestFlags[1]);
 
     data.WriteBit(gossipText.Repeatable);
+    data.WriteBit(gossipText.Important);
     data.WriteBits(gossipText.QuestTitle.size(), 9);
     data.FlushBits();
 
@@ -108,7 +109,7 @@ WorldPacket const* GossipMessage::Write()
     _worldPacket << uint32(GossipOptions.size());
     _worldPacket << uint32(GossipText.size());
     _worldPacket.WriteBit(TextID.has_value());
-    _worldPacket.WriteBit(TextID2.has_value());
+    _worldPacket.WriteBit(BroadcastTextID.has_value());
     _worldPacket.FlushBits();
 
     for (ClientGossipOptions const& options : GossipOptions)
@@ -117,8 +118,8 @@ WorldPacket const* GossipMessage::Write()
     if (TextID)
         _worldPacket << int32(*TextID);
 
-    if (TextID2)
-        _worldPacket << int32(*TextID2);
+    if (BroadcastTextID)
+        _worldPacket << int32(*BroadcastTextID);
 
     for (ClientGossipText const& text : GossipText)
         _worldPacket << text;
@@ -130,12 +131,12 @@ ByteBuffer& operator<<(ByteBuffer& data, VendorItem const& item)
 {
     data << uint64(item.Price);
     data << uint32(item.MuID);
+    data << int32(item.Type);
     data << int32(item.Durability);
     data << int32(item.StackCount);
     data << int32(item.Quantity);
     data << int32(item.ExtendedCostID);
     data << int32(item.PlayerConditionFailed);
-    data.WriteBits(item.Type, 3);
     data.WriteBit(item.Locked);
     data.WriteBit(item.DoNotFilterOnVendor);
     data.WriteBit(item.Refundable);
@@ -231,6 +232,12 @@ WorldPacket const* GossipPOI::Write()
 void SpiritHealerActivate::Read()
 {
     _worldPacket >> Healer;
+}
+
+void TabardVendorActivate::Read()
+{
+    _worldPacket >> Vendor;
+    _worldPacket >> Type;
 }
 
 void TrainerBuySpell::Read()

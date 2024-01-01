@@ -221,8 +221,6 @@ enum MagicalChainsHauler
 // 84238 - Magical Chains (Hauler)
 class spell_silverpine_magical_chains_hauler : public AuraScript
 {
-    PrepareAuraScript(spell_silverpine_magical_chains_hauler);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
@@ -938,8 +936,6 @@ enum RaiseForsakenCometh
 // 83173 - Raise Forsaken
 class spell_silverpine_raise_forsaken_83173 : public AuraScript
 {
-    PrepareAuraScript(spell_silverpine_raise_forsaken_83173);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
@@ -1083,8 +1079,6 @@ enum SpellForsakenTrooperMasterScriptCometh
 // 83149 - Forsaken Trooper Master Script (Forsaken High Command)
 class spell_silverpine_forsaken_trooper_masterscript_high_command : public SpellScript
 {
-    PrepareSpellScript(spell_silverpine_forsaken_trooper_masterscript_high_command);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
@@ -1298,8 +1292,6 @@ private:
 // 80365 - Flurry of Claws
 class spell_silverpine_flurry_of_claws : public AuraScript
 {
-    PrepareAuraScript(spell_silverpine_flurry_of_claws);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
@@ -1486,7 +1478,7 @@ struct npc_silverpine_forsaken_bat : public VehicleAI
                 {
                     player->KilledMonsterCredit(NPC_BAT_HANDLER_MAGGOTBREATH);
 
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
 
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 17.794235f);
                     me->GetMotionMaster()->MovePath(PATH_BAT_TO_LAKE, false);
@@ -1724,7 +1716,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
             DoCastSelf(SPELL_STEALTH);
 
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
 
             _playerSkipped = true;
         }
@@ -1879,7 +1871,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
                 case EVENT_RANE_SKIPS_PATH + 1:
                     DoCastSelf(SPELL_STEALTH);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 500ms);
                     break;
 
@@ -2381,7 +2373,7 @@ struct npc_silverpine_armoire : public VehicleAI
                         {
                             yorick->RemoveAura(SPELL_STEALTH);
 
-                            yorick->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            yorick->SetUninteractible(false);
 
                             bloodfang->CastSpell(yorick, SPELL_RIDE_REVERSE_CAST_EXSANGUINATE, true);
 
@@ -3223,8 +3215,6 @@ private:
 // 83840 - Despawn All Summons
 class spell_silverpine_despawn_all_summons_steel_thunder : public SpellScript
 {
-    PrepareSpellScript(spell_silverpine_despawn_all_summons_steel_thunder);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
@@ -3414,7 +3404,7 @@ struct npc_silverpine_orc_crate : public ScriptedAI
     {
         if (summoner->GetEntry() == NPC_ORC_SEA_PUP)
         {
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
 
             me->EnterVehicle(summoner->ToUnit());
         }
@@ -3429,8 +3419,6 @@ enum PickUpOrcCrate
 // 83838 - Pick Up Orc Crate
 class spell_silverpine_pick_up_orc_crate : public SpellScript
 {
-    PrepareSpellScript(spell_silverpine_pick_up_orc_crate);
-
     bool Validate(SpellInfo const* /*spellInfi*/) override
     {
         return ValidateSpellInfo
@@ -3749,8 +3737,6 @@ private:
 // 83902 - Release Diseased Mutant Bush Chicken
 class spell_silverpine_release_diseased_mutant_bush_chicken : public SpellScript
 {
-    PrepareSpellScript(spell_silverpine_release_diseased_mutant_bush_chicken);
-
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
@@ -3820,8 +3806,6 @@ enum FreeWebbedVictim
 // 83919 - Free Webbed Victim
 class spell_silverpine_free_webbed_victim_random : public SpellScript
 {
-    PrepareSpellScript(spell_silverpine_free_webbed_victim_random);
-
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
@@ -4112,8 +4096,6 @@ enum BondoftheValkyr
 // 83979 - Bond of the Val'kyr
 class spell_silverpine_bond_of_the_valkyr : public AuraScript
 {
-    PrepareAuraScript(spell_silverpine_bond_of_the_valkyr);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_AGATHA_FENRIS });
@@ -4410,8 +4392,6 @@ enum NotifyAgatha
 // 83990 - Notify Agatha
 class spell_silverpine_notify_agatha : public SpellScript
 {
-    PrepareSpellScript(spell_silverpine_notify_agatha);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_RISE_FORSAKEN_FENRIS });
@@ -4473,8 +4453,6 @@ enum SpellForsakenTrooperMasterScriptFenrisIsle
 // 83997 - Forsaken Trooper Master Script (Fenris Isle)
 class spell_silverpine_forsaken_trooper_masterscript_fenris_isle : public SpellScript
 {
-    PrepareSpellScript(spell_silverpine_forsaken_trooper_masterscript_fenris_isle);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
@@ -4864,8 +4842,6 @@ enum SummonFenrisActors
 // 84053 - Summon Fenris Actors
 class spell_silverpine_summon_fenris_keep_actors : public SpellScript
 {
-    PrepareSpellScript(spell_silverpine_summon_fenris_keep_actors);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo

@@ -99,7 +99,7 @@ struct boss_noth : public BossAI
         _Reset();
 
         me->SetReactState(REACT_AGGRESSIVE);
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
 
         balconyCount = 0;
         events.SetPhase(PHASE_NONE);
@@ -235,7 +235,7 @@ struct boss_noth : public BossAI
                 case EVENT_BALCONY:
                     events.SetPhase(PHASE_BALCONY);
                     me->SetReactState(REACT_PASSIVE);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     me->AttackStop();
                     me->StopMoving();
                     me->RemoveAllAuras();
@@ -291,7 +291,7 @@ struct boss_noth : public BossAI
                     EnterPhaseGround();
                     break;
                 case EVENT_GROUND_ATTACKABLE:
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetReactState(REACT_AGGRESSIVE);
                     break;
             }

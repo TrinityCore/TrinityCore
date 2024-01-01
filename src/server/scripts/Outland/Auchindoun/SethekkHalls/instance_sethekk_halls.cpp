@@ -23,8 +23,8 @@
 
 DoorData const doorData[] =
 {
-    { GO_IKISS_DOOR, DATA_TALON_KING_IKISS, DOOR_TYPE_PASSAGE },
-    { 0,             0,                     DOOR_TYPE_ROOM    } // END
+    { GO_IKISS_DOOR, DATA_TALON_KING_IKISS, EncounterDoorBehavior::OpenWhenDone },
+    { 0,             0,                     EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 ObjectData const gameObjectData[] =

@@ -100,15 +100,25 @@ bool BattlefieldTB::SetupBattlefield()
     // Create capture points
     for (uint8 i = 0; i < TB_BASE_COUNT; i++)
     {
-        TolBaradCapturePoint* capturePoint = new TolBaradCapturePoint(this, GetDefenderTeam());
-
         //Spawn flag pole
         if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, QuaternionData::fromEulerAnglesZYX(TBCapturePoints[i].pos.GetOrientation(), 0.0f, 0.0f)))
         {
-            go->SetGoArtKit(GetDefenderTeam() == TEAM_ALLIANCE ? TB_GO_ARTKIT_FLAG_ALLIANCE : TB_GO_ARTKIT_FLAG_HORDE);
-            capturePoint->SetCapturePointData(go);
+            std::unique_ptr<TolBaradCapturePoint> controlZone = std::make_unique<TolBaradCapturePoint>(this, TBCapturePoints[i]);
+            if (GetDefenderTeam() == TEAM_ALLIANCE)
+            {
+                sWorldStateMgr->SetValue(controlZone->GetWorldStateAllianceControlled(), 1, false, GetMap());
+                go->HandleCustomTypeCommand(GameObjectType::SetControlZoneValue(100));
+                go->SetGoArtKit(TB_GO_ARTKIT_FLAG_ALLIANCE);
+            }
+            else if (GetDefenderTeam() == TEAM_HORDE)
+            {
+                sWorldStateMgr->SetValue(controlZone->GetWorldStateHordeControlled(), 1, false, GetMap());
+                go->HandleCustomTypeCommand(GameObjectType::SetControlZoneValue(0));
+                go->SetGoArtKit(TB_GO_ARTKIT_FLAG_HORDE);
+            }
+
+            ControlZoneHandlers[go->GetEntry()] = std::move(controlZone);
         }
-        AddCapturePoint(capturePoint);
     }
 
     // Spawn towers
@@ -379,23 +389,29 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
     if (GetState() == BATTLEFIELD_INACTIVE)
     {
         // Delete capture points
-        for (BfCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-            itr->second->DelCapturePoint();
-        m_capturePoints.clear();
+        ControlZoneHandlers.clear();
 
         // Create capture points
         for (uint8 i = 0; i < TB_BASE_COUNT; i++)
         {
-            TolBaradCapturePoint* capturePoint = new TolBaradCapturePoint(this, GetDefenderTeam());
-
-            //Spawn flag pole
             if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, QuaternionData::fromEulerAnglesZYX(TBCapturePoints[i].pos.GetOrientation(), 0.0f, 0.0f)))
             {
-                go->SetGoArtKit(GetDefenderTeam() == TEAM_ALLIANCE ? TB_GO_ARTKIT_FLAG_ALLIANCE : TB_GO_ARTKIT_FLAG_HORDE);
-                capturePoint->SetCapturePointData(go);
-            }
+                std::unique_ptr<TolBaradCapturePoint> controlZone = std::make_unique<TolBaradCapturePoint>(this, TBCapturePoints[i]);
+                if (GetDefenderTeam() == TEAM_ALLIANCE)
+                {
+                    sWorldStateMgr->SetValue(controlZone->GetWorldStateAllianceControlled(), 1, false, GetMap());
+                    go->HandleCustomTypeCommand(GameObjectType::SetControlZoneValue(100));
+                    go->SetGoArtKit(TB_GO_ARTKIT_FLAG_ALLIANCE);
+                }
+                else if (GetDefenderTeam() == TEAM_HORDE)
+                {
+                    sWorldStateMgr->SetValue(controlZone->GetWorldStateHordeControlled(), 1, false, GetMap());
+                    go->HandleCustomTypeCommand(GameObjectType::SetControlZoneValue(0));
+                    go->SetGoArtKit(TB_GO_ARTKIT_FLAG_HORDE);
+                }
 
-            AddCapturePoint(capturePoint);
+                ControlZoneHandlers[go->GetEntry()] = std::move(controlZone);
+            }
         }
 
         for (ObjectGuid guid : BattleInactiveNPCs)
@@ -558,8 +574,9 @@ void BattlefieldTB::OnGameObjectCreate(GameObject* go)
     }
 }
 
-void BattlefieldTB::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* /*invoker*/)
+void BattlefieldTB::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* invoker)
 {
+    Battlefield::ProcessEvent(obj, eventId, invoker);
     if (!IsWarTime())
         return;
 
@@ -644,9 +661,19 @@ void BattlefieldTB::UpdateCapturedBaseCount()
 {
     uint32 numCapturedBases = 0; // How many bases attacker has captured
 
-    for (BfCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        if (itr->second->GetTeamId() == GetAttackerTeam())
-            numCapturedBases += 1;
+    // these world states are either 0 or 1
+    if (GetAttackerTeam() == TEAM_ALLIANCE)
+    {
+        numCapturedBases += sWorldStateMgr->GetValue(WS_BATTLEFIELD_TB_GARRISON_ALLIANCE_CONTROLLED, GetMap());
+        numCapturedBases += sWorldStateMgr->GetValue(WS_BATTLEFIELD_TB_VIGIL_ALLIANCE_CONTROLLED, GetMap());
+        numCapturedBases += sWorldStateMgr->GetValue(WS_BATTLEFIELD_TB_SLAGWORKS_ALLIANCE_CONTROLLED, GetMap());
+    }
+    else if (GetAttackerTeam() == TEAM_HORDE)
+    {
+        numCapturedBases += sWorldStateMgr->GetValue(WS_BATTLEFIELD_TB_GARRISON_HORDE_CONTROLLED, GetMap());
+        numCapturedBases += sWorldStateMgr->GetValue(WS_BATTLEFIELD_TB_VIGIL_HORDE_CONTROLLED, GetMap());
+        numCapturedBases += sWorldStateMgr->GetValue(WS_BATTLEFIELD_TB_SLAGWORKS_HORDE_CONTROLLED, GetMap());
+    }
 
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_BUILDINGS_CAPTURED, numCapturedBases, false, m_Map);
 
@@ -676,76 +703,65 @@ void BattlefieldTB::PromotePlayer(Player* killer)
     killer->CastSpell(killer, SPELL_TB_VETERAN, true);
 }
 
-TolBaradCapturePoint::TolBaradCapturePoint(BattlefieldTB* battlefield, TeamId teamInControl) : BfCapturePoint(battlefield)
+TolBaradCapturePoint::TolBaradCapturePoint(BattlefieldTB* battlefield, TBCapturePointSpawnData const& data) : BattlefieldControlZoneHandler(battlefield),
+    _textIdHordeCaptured(data.textGained[TEAM_HORDE]), _textIdAllianceCaptured(data.textGained[TEAM_ALLIANCE]),
+    _textIdHordeLost(data.textLost[TEAM_HORDE]), _textIdAllianceLost(data.textLost[TEAM_ALLIANCE]),
+    _worldstateHordeControlled(data.wsControlled[TEAM_HORDE]), _worldstateAllianceControlled(data.wsControlled[TEAM_ALLIANCE]),
+    _worldstateHordeCapturing(data.wsCapturing[TEAM_HORDE]), _worldstateAllianceCapturing(data.wsCapturing[TEAM_ALLIANCE]),
+    _worldstateNeutral(data.wsNeutral)
 {
-    m_Bf = battlefield;
-    m_team = teamInControl;
-    m_value = teamInControl == TEAM_ALLIANCE ? m_maxValue : -m_maxValue;
-    m_State = teamInControl == TEAM_ALLIANCE ? BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE : BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE;
 }
 
-void TolBaradCapturePoint::SendChangePhase()
+void TolBaradCapturePoint::HandleContestedEventHorde(GameObject* controlZone)
 {
-    if (m_OldState == m_State)
-        return;
+    BattlefieldControlZoneHandler::HandleContestedEventHorde(controlZone);
+}
 
-    // Find out index
-    uint8 iBase = TB_BASE_COUNT;
-    for (uint8 i = 0; i < TB_BASE_COUNT; i++)
-        if (GetCapturePointEntry() == TBCapturePoints[i].entryFlagPole[m_Bf->GetDefenderTeam()])
-            iBase = i;
+void TolBaradCapturePoint::HandleContestedEventAlliance(GameObject* controlZone)
+{
+    BattlefieldControlZoneHandler::HandleContestedEventAlliance(controlZone);
+}
 
-    if (iBase == TB_BASE_COUNT)
-        return;
+void TolBaradCapturePoint::HandleProgressEventHorde(GameObject* controlZone)
+{
+    BattlefieldControlZoneHandler::HandleProgressEventHorde(controlZone);
+    GetBattlefield()->SendWarning(_textIdHordeCaptured);
+    controlZone->SetGoArtKit(TB_GO_ARTKIT_FLAG_HORDE);
+    sWorldStateMgr->SetValue(_worldstateHordeControlled, 1, false, controlZone->GetMap());
+    sWorldStateMgr->SetValue(_worldstateHordeCapturing, 0, false, controlZone->GetMap());
+    GetBattlefield()->ProcessEvent(nullptr, EVENT_COUNT_CAPTURED_BASE, nullptr);
+}
 
-    // Turn off previous world state icon
-    switch (m_OldState)
-    {
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE:
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE:
-            sWorldStateMgr->SetValue(TBCapturePoints[iBase].wsControlled[GetTeamId()], 0, false, m_Bf->GetMap());
-            break;
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
-            sWorldStateMgr->SetValue(TBCapturePoints[iBase].wsCapturing[TEAM_ALLIANCE], 0, false, m_Bf->GetMap());
-            break;
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
-            sWorldStateMgr->SetValue(TBCapturePoints[iBase].wsCapturing[TEAM_HORDE], 0, false, m_Bf->GetMap());
-            break;
-        default:
-            break;
-    }
+void TolBaradCapturePoint::HandleProgressEventAlliance(GameObject* controlZone)
+{
+    BattlefieldControlZoneHandler::HandleProgressEventAlliance(controlZone);
+    GetBattlefield()->SendWarning(_textIdAllianceCaptured);
+    controlZone->SetGoArtKit(TB_GO_ARTKIT_FLAG_ALLIANCE);
+    sWorldStateMgr->SetValue(_worldstateAllianceControlled, 1, false, controlZone->GetMap());
+    sWorldStateMgr->SetValue(_worldstateAllianceCapturing, 0, false, controlZone->GetMap());
+    GetBattlefield()->ProcessEvent(nullptr, EVENT_COUNT_CAPTURED_BASE, nullptr);
+}
 
-    // Turn on new world state icon and send warning
-    switch (m_State)
-    {
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE:
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE:
-            m_Bf->SendWarning(TBCapturePoints[iBase].textGained[GetTeamId()]);
-            sWorldStateMgr->SetValue(TBCapturePoints[iBase].wsControlled[GetTeamId()], 1, false, m_Bf->GetMap());
-            GetCapturePointGo()->SetGoArtKit(GetTeamId() == TEAM_ALLIANCE ? TB_GO_ARTKIT_FLAG_ALLIANCE : TB_GO_ARTKIT_FLAG_HORDE);
-            break;
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
-            m_Bf->SendWarning(TBCapturePoints[iBase].textLost[TEAM_HORDE]);
-            [[fallthrough]];
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
-            sWorldStateMgr->SetValue(TBCapturePoints[iBase].wsCapturing[TEAM_ALLIANCE], 1, false, m_Bf->GetMap());
-            GetCapturePointGo()->SetGoArtKit(TB_GO_ARTKIT_FLAG_NONE);
-            break;
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
-            m_Bf->SendWarning(TBCapturePoints[iBase].textLost[TEAM_ALLIANCE]);
-            [[fallthrough]];
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
-            sWorldStateMgr->SetValue(TBCapturePoints[iBase].wsCapturing[TEAM_HORDE], 1, false, m_Bf->GetMap());
-            GetCapturePointGo()->SetGoArtKit(TB_GO_ARTKIT_FLAG_NONE);
-            break;
-        default:
-            break;
-    }
+void TolBaradCapturePoint::HandleNeutralEventHorde(GameObject* controlZone)
+{
+    GetBattlefield()->SendWarning(_textIdHordeLost);
+    sWorldStateMgr->SetValue(_worldstateHordeControlled, 0, false, controlZone->GetMap());
+    sWorldStateMgr->SetValue(_worldstateAllianceCapturing, 1, false, controlZone->GetMap());
+    BattlefieldControlZoneHandler::HandleNeutralEventHorde(controlZone);
+}
 
-    // Update counter
-    m_Bf->ProcessEvent(nullptr, EVENT_COUNT_CAPTURED_BASE, nullptr);
+void TolBaradCapturePoint::HandleNeutralEventAlliance(GameObject* controlZone)
+{
+    GetBattlefield()->SendWarning(_textIdAllianceLost);
+    sWorldStateMgr->SetValue(_worldstateAllianceControlled, 0, false, controlZone->GetMap());
+    sWorldStateMgr->SetValue(_worldstateHordeCapturing, 1, false, controlZone->GetMap());
+    BattlefieldControlZoneHandler::HandleNeutralEventAlliance(controlZone);
+}
+
+void TolBaradCapturePoint::HandleNeutralEvent(GameObject* controlZone)
+{
+    BattlefieldControlZoneHandler::HandleNeutralEvent(controlZone);
+    controlZone->SetGoArtKit(TB_GO_ARTKIT_FLAG_NONE);
 }
 
 class Battlefield_tol_barad : public BattlefieldScript

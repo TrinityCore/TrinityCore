@@ -204,8 +204,6 @@ private:
 // 35268, 39346 - Inferno
 class spell_nethermancer_sepethrea_inferno : public AuraScript
 {
-    PrepareAuraScript(spell_nethermancer_sepethrea_inferno);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_INFERNO_DAMAGE });

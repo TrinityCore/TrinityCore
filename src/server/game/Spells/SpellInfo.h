@@ -218,7 +218,7 @@ public:
     SpellEffectName Effect;
     AuraType  ApplyAuraName;
     uint32    ApplyAuraPeriod;
-    int32     BasePoints;
+    float     BasePoints;
     float     RealPointsPerLevel;
     float     PointsPerResource;
     float     Amplitude;
@@ -230,8 +230,8 @@ public:
     float     PositionFacing;
     SpellImplicitTargetInfo TargetA;
     SpellImplicitTargetInfo TargetB;
-    SpellRadiusEntry const* RadiusEntry;
-    SpellRadiusEntry const* MaxRadiusEntry;
+    SpellRadiusEntry const* TargetARadiusEntry;
+    SpellRadiusEntry const* TargetBRadiusEntry;
     int32     ChainTargets;
     uint32    ItemType;
     uint32    TriggerSpell;
@@ -248,11 +248,11 @@ public:
         float ResourceCoefficient;
     } Scaling;
 
-    explicit SpellEffectInfo(SpellInfo const* spellInfo);
+    explicit SpellEffectInfo();
     explicit SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry const& effect);
-    SpellEffectInfo(SpellEffectInfo const&);
+    SpellEffectInfo(SpellEffectInfo const&) = delete;
     SpellEffectInfo(SpellEffectInfo&&) noexcept;
-    SpellEffectInfo& operator=(SpellEffectInfo const&);
+    SpellEffectInfo& operator=(SpellEffectInfo const&) = delete;
     SpellEffectInfo& operator=(SpellEffectInfo&&) noexcept;
     ~SpellEffectInfo();
 
@@ -269,9 +269,8 @@ public:
     float CalcValueMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
     float CalcDamageMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
 
-    bool HasRadius() const;
-    bool HasMaxRadius() const;
-    float CalcRadius(WorldObject* caster = nullptr, Spell* = nullptr) const;
+    bool HasRadius(SpellTargetIndex targetIndex) const;
+    float CalcRadius(WorldObject* caster = nullptr, SpellTargetIndex targetIndex = SpellTargetIndex::TargetA, Spell* = nullptr) const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool destSet = false, uint32 mask = 0) const;
@@ -281,7 +280,7 @@ public:
     ExpectedStatType GetScalingExpectedStat() const;
 
     struct ImmunityInfo;
-    ImmunityInfo const* GetImmunityInfo() const { return _immunityInfo; }
+    ImmunityInfo const* GetImmunityInfo() const { return _immunityInfo.get(); }
 
 private:
     struct StaticData
@@ -294,7 +293,7 @@ private:
     };
     static std::array<StaticData, TOTAL_SPELL_EFFECTS> _data;
 
-    ImmunityInfo* _immunityInfo;
+    std::unique_ptr<ImmunityInfo> _immunityInfo;
 };
 
 typedef std::vector<SpellXSpellVisualEntry const*> SpellVisualVector;
@@ -425,6 +424,11 @@ class TC_GAME_API SpellInfo
 
         uint32 ExplicitTargetMask = 0;
         SpellChainNode const* ChainEntry = nullptr;
+        struct
+        {
+            int32 MaxTargets = 0;               // The amount of targets after the damage decreases by the Square Root AOE formula
+            int32 NumNonDiminishedTargets = 0;  // The amount of targets that still take the full amount before the damage decreases by the Square Root AOE formula
+        } SqrtDamageAndHealingDiminishing;
 
         explicit SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data);
         explicit SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, std::vector<SpellEffectEntry> const& effects);
@@ -491,12 +495,11 @@ class TC_GAME_API SpellInfo
         bool IsRequiringDeadTarget() const;
         bool IsAllowingDeadTarget() const;
         bool IsGroupBuff() const;
-        bool CanBeUsedInCombat() const;
+        bool CanBeUsedInCombat(Unit const* caster) const;
         bool IsPositive() const;
         bool IsPositiveEffect(uint8 effIndex) const;
         bool IsChanneled() const;
         bool IsMoveAllowedChannel() const;
-        bool NeedsComboPoints() const;
         bool IsNextMeleeSwingSpell() const;
         bool IsRangedWeaponSpell() const;
         bool IsAutoRepeatRangedSpell() const;
@@ -601,6 +604,9 @@ class TC_GAME_API SpellInfo
         void _LoadAuraState();
         void _LoadSpellDiminishInfo();
         void _LoadImmunityInfo();
+        void _LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTargets,
+            Optional<SpellEffIndex> maxTargetsEffectValueHolder,
+            Optional<SpellEffIndex> numNonDiminishedTargetsEffectValueHolder);
 
         // unloading helpers
         void _UnloadImplicitTargetConditionLists();

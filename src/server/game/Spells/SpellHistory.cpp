@@ -668,6 +668,9 @@ void SpellHistory::ResetAllCooldowns()
 
 bool SpellHistory::HasCooldown(SpellInfo const* spellInfo, uint32 itemId /*= 0*/) const
 {
+    if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_IGNORE_SPELL_COOLDOWN, spellInfo))
+        return false;
+
     if (_spellCooldowns.count(spellInfo->Id) != 0)
         return true;
 
@@ -925,7 +928,7 @@ int32 SpellHistory::GetChargeRecoveryTime(uint32 chargeCategoryId) const
     if (_owner->HasAuraType(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE))
         recoveryTimeF *= _owner->m_unitData->ModSpellHaste;
 
-    if (_owner->HasAuraType(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN))
+    if (_owner->HasAuraTypeWithMiscvalue(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN, chargeCategoryId))
         recoveryTimeF *= _owner->m_unitData->ModHasteRegen;
 
     return int32(std::floor(recoveryTimeF));
@@ -945,6 +948,22 @@ void SpellHistory::AddGlobalCooldown(SpellInfo const* spellInfo, Duration durati
 void SpellHistory::CancelGlobalCooldown(SpellInfo const* spellInfo)
 {
     _globalCooldowns[spellInfo->StartRecoveryCategory] = Clock::time_point(Clock::duration(0));
+}
+
+SpellHistory::Duration SpellHistory::GetRemainingGlobalCooldown(SpellInfo const* spellInfo) const
+{
+    Clock::time_point end;
+    auto cdItr = _globalCooldowns.find(spellInfo->StartRecoveryCategory);
+    if (cdItr == _globalCooldowns.end())
+        return Duration::zero();
+
+    end = cdItr->second;
+    Clock::time_point now = GameTime::GetTime<Clock>();
+    if (end < now)
+        return Duration::zero();
+
+    Clock::duration remaining = end - now;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(remaining);
 }
 
 Player* SpellHistory::GetPlayerOwner() const

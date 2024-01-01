@@ -25,9 +25,9 @@
 
 DoorData const doorData[] =
 {
-    { GO_REFECTORY_DOOR,        DATA_BLACKHEART_THE_INCITER,    DOOR_TYPE_PASSAGE },
-    { GO_SCREAMING_HALL_DOOR,   DATA_GRANDMASTER_VORPIL,        DOOR_TYPE_PASSAGE },
-    { 0,                        0,                              DOOR_TYPE_ROOM } // END
+    { GO_REFECTORY_DOOR,        DATA_BLACKHEART_THE_INCITER,    EncounterDoorBehavior::OpenWhenDone },
+    { GO_SCREAMING_HALL_DOOR,   DATA_GRANDMASTER_VORPIL,        EncounterDoorBehavior::OpenWhenDone },
+    { 0,                        0,                              EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 DungeonEncounterData const encounters[] =

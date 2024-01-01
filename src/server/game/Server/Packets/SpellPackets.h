@@ -195,7 +195,7 @@ namespace WorldPackets
         struct TargetLocation
         {
             ObjectGuid Transport;
-            Position Location;
+            TaggedPosition<Position::XYZ> Location;
         };
 
         struct SpellTargetData
@@ -336,12 +336,6 @@ namespace WorldPackets
             float Pitch = 0.0f;
         };
 
-        struct SpellAmmo
-        {
-            int32 DisplayID = 0;
-            int8 InventoryType = 0;
-        };
-
         struct CreatureImmunities
         {
             uint32 School = 0;
@@ -374,7 +368,7 @@ namespace WorldPackets
             std::vector<SpellPowerData> RemainingPower;
             Optional<RuneData> RemainingRunes;
             MissileTrajectoryResult MissileTrajectory;
-            SpellAmmo Ammo;
+            int32 AmmoDisplayID = 0;
             uint8 DestLocSpellCastIndex = 0;
             std::vector<TargetLocation> TargetPoints;
             CreatureImmunities Immunities;
@@ -1064,6 +1058,14 @@ namespace WorldPackets
             void Read() override;
 
             uint16 OverrideID = 0;
+        };
+
+        class CancelQueuedSpell final : public ClientPacket
+        {
+        public:
+            CancelQueuedSpell(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_QUEUED_SPELL, std::move(packet)) { }
+
+            void Read() override { }
         };
 
         ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request);

@@ -23,6 +23,7 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Log.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
@@ -31,6 +32,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
@@ -355,8 +357,6 @@ class go_acherus_soul_prison : public GameObjectScript
 // 51519 - Death Knight Initiate Visual
 class spell_death_knight_initiate_visual : public SpellScript
 {
-    PrepareSpellScript(spell_death_knight_initiate_visual);
-
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
         Creature* target = GetHitCreature();
@@ -545,6 +545,18 @@ enum Misc_VBN
     QUEST_DEATH_CHALLENGE = 12733
 };
 
+enum Paths_VBN
+{
+    PATH_DEATH_KNIGHT_INITIATE      = 10361360,
+    PATH_DEATH_KNIGHT_INITIATE2     = 10361440,
+    PATH_DEATH_KNIGHT_INITIATE3     = 10362320,
+    PATH_DEATH_KNIGHT_INITIATE4     = 10362400,
+    PATH_DEATH_KNIGHT_INITIATE5     = 10362480,
+    PATH_DEATH_KNIGHT_INITIATE6     = 10363520,
+    PATH_DEATH_KNIGHT_INITIATE7     = 10363680,
+    PATH_DEATH_KNIGHT_INITIATE8     = 10363760,
+};
+
 class npc_death_knight_initiate : public CreatureScript
 {
 public:
@@ -692,6 +704,25 @@ public:
                 SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             }
             return true;
+        }
+
+        void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+        {
+            switch (pathId)
+            {
+                case PATH_DEATH_KNIGHT_INITIATE:
+                case PATH_DEATH_KNIGHT_INITIATE2:
+                case PATH_DEATH_KNIGHT_INITIATE3:
+                case PATH_DEATH_KNIGHT_INITIATE4:
+                case PATH_DEATH_KNIGHT_INITIATE5:
+                case PATH_DEATH_KNIGHT_INITIATE6:
+                case PATH_DEATH_KNIGHT_INITIATE7:
+                case PATH_DEATH_KNIGHT_INITIATE8:
+                    me->DespawnOrUnsummon(1s);
+                    break;
+                default:
+                    break;
+            }
         }
     };
 
@@ -841,8 +872,6 @@ enum HorseSeats
 // 52265 - Repo
 class spell_stable_master_repo : public AuraScript
 {
-    PrepareAuraScript(spell_stable_master_repo);
-
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Creature* creature = GetTarget()->ToCreature();
@@ -865,8 +894,6 @@ class spell_stable_master_repo : public AuraScript
 // 52264 - Deliver Stolen Horse
 class spell_deliver_stolen_horse : public SpellScript
 {
-    PrepareSpellScript(spell_deliver_stolen_horse);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DELIVER_STOLEN_HORSE, SPELL_EFFECT_STOLEN_HORSE });
@@ -922,7 +949,7 @@ public:
 
             deathcharger->RestoreFaction();
             deathcharger->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-            deathcharger->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            deathcharger->SetUninteractible(true);
             if (!me->GetVehicle() && deathcharger->IsVehicle() && deathcharger->GetVehicleKit()->HasEmptySeat(0))
                 me->EnterVehicle(deathcharger);
         }
@@ -936,7 +963,7 @@ public:
             if (killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->IsVehicle())
             {
                 deathcharger->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-                deathcharger->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                deathcharger->SetUninteractible(false);
                 deathcharger->SetFaction(FACTION_SCARLET_CRUSADE_2);
             }
         }
@@ -1079,8 +1106,6 @@ enum GiftOfTheHarvester
 // 52479 - Gift of the Harvester
 class spell_gift_of_the_harvester : public SpellScript
 {
-    PrepareSpellScript(spell_gift_of_the_harvester);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -1125,8 +1150,6 @@ enum Runeforging
    327082 - Rune of the Apocalypse */
 class spell_chapter1_runeforging_credit : public SpellScript
 {
-    PrepareSpellScript(spell_chapter1_runeforging_credit);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_RUNEFORGING_CREDIT }) &&
@@ -1146,6 +1169,156 @@ class spell_chapter1_runeforging_credit : public SpellScript
     }
 };
 
+enum HearthglenCrusaderPaths : uint32
+{
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN    = 10445360,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN2   = 10445600,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN3   = 10448640,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN4   = 10449200,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN5   = 10452240,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN6   = 10452880,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN7   = 10452960,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN8   = 10453040,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN9   = 10453520,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN10  = 10453680,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN11  = 10454000,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN12  = 10454080,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN13  = 10454160,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN14  = 10454320,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN15  = 10454560,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN16  = 10459440,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN17  = 10460320,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN18  = 10463040,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN19  = 10463120,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN20  = 10463280,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN21  = 10463360,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN22  = 10463520,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN23  = 10463680,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN24  = 10463840,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN25  = 10464080,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN26  = 10464160,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN27  = 10464240,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN28  = 10464320,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN29  = 10464400,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN30  = 10464480,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN31  = 10464720,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN32  = 10464800,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN33  = 10464880,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN34  = 10464960,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN35  = 10465040,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN36  = 10465520,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN37  = 10465600,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN38  = 10466000,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN39  = 10466160,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN40  = 10466320,
+    PATH_HEARTHGLEN_CRUSADER_DESPAWN41  = 10466400,
+};
+
+// 29102 - Hearthglen Crusader
+// 29103 - Tirisfal Crusader
+struct npc_hearthglen_crusader : public ScriptedAI
+{
+    npc_hearthglen_crusader(Creature* creature) : ScriptedAI(creature), _minimumRange(0)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(creature->m_spells[0], creature->GetMap()->GetDifficultyID());
+        if (!spellInfo)
+            return;
+
+        _minimumRange = spellInfo->GetMinRange(false);
+
+        if (!_minimumRange)
+            _minimumRange = MELEE_RANGE;
+        creature->m_CombatDistance = spellInfo->GetMaxRange(false);
+        creature->m_SightDistance = creature->m_CombatDistance;
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (!who)
+            return;
+
+        if (me->IsWithinCombatRange(who, _minimumRange))
+        {
+            if (me->Attack(who, true) && !who->IsFlying())
+                me->GetMotionMaster()->MoveChase(who);
+        }
+        else
+        {
+            if (me->Attack(who, false) && !who->IsFlying())
+                me->GetMotionMaster()->MoveChase(who, me->m_CombatDistance);
+        }
+
+        if (who->IsFlying())
+            me->GetMotionMaster()->MoveIdle();
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (!me->IsWithinCombatRange(me->GetVictim(), _minimumRange))
+            DoSpellAttackIfReady(me->m_spells[0]);
+        else
+            DoMeleeAttackIfReady();
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+    {
+        switch (pathId)
+        {
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN2:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN3:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN4:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN5:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN6:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN7:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN8:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN9:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN10:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN11:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN12:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN13:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN14:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN15:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN16:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN17:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN18:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN19:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN20:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN21:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN22:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN23:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN24:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN25:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN26:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN27:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN28:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN29:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN30:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN31:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN32:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN33:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN34:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN35:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN36:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN37:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN38:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN39:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN40:
+            case PATH_HEARTHGLEN_CRUSADER_DESPAWN41:
+                me->DespawnOrUnsummon(1s);
+                break;
+            default:
+                break;
+        }
+    }
+
+private:
+    float _minimumRange;
+};
+
 void AddSC_the_scarlet_enclave_c1()
 {
     new npc_unworthy_initiate();
@@ -1163,4 +1336,5 @@ void AddSC_the_scarlet_enclave_c1()
     RegisterCreatureAI(npc_scarlet_ghoul);
     RegisterSpellScript(spell_gift_of_the_harvester);
     RegisterSpellScript(spell_chapter1_runeforging_credit);
+    RegisterCreatureAI(npc_hearthglen_crusader);
 }

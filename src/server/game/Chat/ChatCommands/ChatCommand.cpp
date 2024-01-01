@@ -153,8 +153,9 @@ static void LogCommandUsage(WorldSession const& session, uint32 permission, std:
     {
         LocaleConstant locale = session.GetSessionDbcLocale();
         areaName = area->AreaName[locale];
-        if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
-            zoneName = zone->AreaName[locale];
+        if (area->GetFlags().HasFlag(AreaFlags::IsSubzone))
+            if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
+                zoneName = zone->AreaName[locale];
     }
 
     sLog->OutCommand(session.GetAccountId(), "Command: {} [Player: {} ({}) (Account: {}) X: {} Y: {} Z: {} Map: {} ({}) Area: {} ({}) Zone: {} Selected: {} ({})]",
@@ -403,7 +404,7 @@ namespace Trinity::Impl::ChatCommands
                     if (prefix.empty())
                         return Trinity::StringFormat("{}{}{}", match, COMMAND_DELIMITER, suffix);
                     else
-                        return Trinity::StringFormat("{}{}{}{}", prefix, COMMAND_DELIMITER, match, COMMAND_DELIMITER, suffix);
+                        return Trinity::StringFormat("{}{}{}{}{}", prefix, COMMAND_DELIMITER, match, COMMAND_DELIMITER, suffix);
                 });
 
                 vec.emplace_back(possibility(it1->first));

@@ -12,106 +12,14 @@
 #include "CascLib.h"
 #include "CascCommon.h"
 
-//-----------------------------------------------------------------------------
-// Structure definitions for CMF files
+// Implemented in "overwatch/apm.cpp"
+DWORD LoadApplicationPackageManifestFile(TCascStorage * hs, CASC_FILE_TREE & FileTree, PCASC_CKEY_ENTRY pCKeyEntry, const char * szApmFileName);
 
-#define MAX_LINE_ELEMENTS   8
-
-typedef struct _CMF_HEADER_V3
-{
-    DWORD BuildVersion;
-    DWORD Unknown0;
-    DWORD Unknown1;
-    DWORD Unknown2;
-    DWORD Unknown3;
-    DWORD DataCount;
-    DWORD Unknown4;
-    DWORD EntryCount;
-    DWORD Magic;
-} CMF_HEADER_V3, *PCMF_HEADER_V3;
-
-typedef struct _CMF_HEADER_V2
-{
-    DWORD BuildVersion;
-    DWORD Unknown0;
-    DWORD Unknown1;
-    DWORD Unknown2;
-    DWORD DataCount;
-    DWORD Unknown3;
-    DWORD EntryCount;
-    DWORD Magic;
-} CMF_HEADER_V2, *PCMF_HEADER_V2;
-
-typedef struct _CMF_HEADER_V1
-{
-    DWORD BuildVersion;
-    DWORD Unknown0;
-    DWORD DataCount;
-    DWORD Unknown1;
-    DWORD EntryCount;
-    DWORD Magic;
-} CMF_HEADER_V1, *PCMF_HEADER_V1;
+// Implemented in "overwatch/cmf.cpp"
+DWORD LoadContentManifestFile(TCascStorage * hs, CASC_FILE_TREE & FileTree, PCASC_CKEY_ENTRY pCKeyEntry, const char * szFileName);
 
 //-----------------------------------------------------------------------------
 // Structure definitions for APM files
-
-// In-memory format
-typedef struct _APM_ENTRY
-{
-    DWORD     Index;
-    ULONGLONG HashA;
-    ULONGLONG HashB;
-} APM_ENTRY, *PAPM_ENTRY;
-
-// On-disk format, size = 0x14
-typedef struct _APM_ENTRY_V2
-{
-    DWORD     Index;
-    DWORD     HashA_Lo;                     // Must split the hashes in order to make this structure properly aligned
-    DWORD     HashA_Hi;
-    DWORD     HashB_Lo;
-    DWORD     HashB_Hi;
-} APM_ENTRY_V2, *PAPM_ENTRY_V2;
-
-// On-disk format, size = 0x0C
-typedef struct _APM_ENTRY_V1
-{
-    DWORD     Index;
-    DWORD     HashA_Lo;                     // Must split the hashes in order to make this structure properly aligned
-    DWORD     HashA_Hi;
-} APM_ENTRY_V1, *PAPM_ENTRY_V1;
-
-// In-memory format
-typedef struct _APM_PACKAGE_ENTRY
-{
-    ULONGLONG PackageGUID;                  // 077 file
-    ULONGLONG Unknown1;
-    DWORD Unknown2;
-    DWORD Unknown3;
-    ULONGLONG Unknown4;
-} APM_PACKAGE_ENTRY, *PAPM_PACKAGE_ENTRY;
-
-// On-disk format
-typedef struct _APM_PACKAGE_ENTRY_V2
-{
-    ULONGLONG PackageGUID;                  // 077 file
-    ULONGLONG Unknown1;
-    DWORD Unknown2;
-    DWORD Unknown3;
-    ULONGLONG Unknown4;
-} APM_PACKAGE_ENTRY_V2, *PAPM_PACKAGE_ENTRY_V2;
-
-// On-disk format
-typedef struct _APM_PACKAGE_ENTRY_V1
-{
-    ULONGLONG EntryPointGUID;               // virtual most likely
-    ULONGLONG PrimaryGUID;                  // real
-    ULONGLONG SecondaryGUID;                // real
-    ULONGLONG Key;                          // encryption
-    ULONGLONG PackageGUID;                  // 077 file
-    ULONGLONG Unknown1;
-    DWORD Unknown2;
-} APM_PACKAGE_ENTRY_V1, *PAPM_PACKAGE_ENTRY_V1;
 
 typedef struct _APM_HEADER_V3
 {
@@ -126,7 +34,7 @@ typedef struct _APM_HEADER_V3
     // Followed by the array of APM_ENTRY (count is in "EntryCount")
     // Followed by the array of APM_PACKAGE (count is in "PackageCount")
 
-} APM_HEADER_V3, *PAPM_HEADER_V3;
+} APM_HEADER_V3, * PAPM_HEADER_V3;
 
 typedef struct _APM_HEADER_V2
 {
@@ -140,7 +48,7 @@ typedef struct _APM_HEADER_V2
     // Followed by the array of APM_ENTRY (count is in "EntryCount")
     // Followed by the array of APM_PACKAGE (count is in "PackageCount")
 
-} APM_HEADER_V2, *PAPM_HEADER_V2;
+} APM_HEADER_V2, * PAPM_HEADER_V2;
 
 typedef struct _APM_HEADER_V1
 {
@@ -153,224 +61,218 @@ typedef struct _APM_HEADER_V1
     // Followed by the array of APM_ENTRY (count is in "EntryCount")
     // Followed by the array of APM_PACKAGE (count is in "PackageCount")
 
-} APM_HEADER_V1, *PAPM_HEADER_V1;
+} APM_HEADER_V1, * PAPM_HEADER_V1;
+
+// On-disk format, size = 0x0C
+typedef struct _APM_ENTRY_V1
+{
+    DWORD     Index;
+    DWORD     HashA_Lo;                     // Must split the hashes in order to make this structure properly aligned
+    DWORD     HashA_Hi;
+} APM_ENTRY_V1, * PAPM_ENTRY_V1;
+
+// On-disk format, size = 0x14
+typedef struct _APM_ENTRY_V2
+{
+    DWORD     Index;
+    DWORD     HashA_Lo;                     // Must split the hashes in order to make this structure properly aligned
+    DWORD     HashA_Hi;
+    DWORD     HashB_Lo;
+    DWORD     HashB_Hi;
+} APM_ENTRY_V2, *PAPM_ENTRY_V2;
+
+// On-disk format
+typedef struct _APM_PACKAGE_ENTRY_V1
+{
+    ULONGLONG EntryPointGUID;               // virtual most likely
+    ULONGLONG PrimaryGUID;                  // real
+    ULONGLONG SecondaryGUID;                // real
+    ULONGLONG Key;                          // encryption
+    ULONGLONG PackageGUID;                  // 077 file
+    ULONGLONG Unknown1;
+    DWORD Unknown2;
+} APM_PACKAGE_ENTRY_V1, * PAPM_PACKAGE_ENTRY_V1;
+
+// On-disk format
+typedef struct _APM_PACKAGE_ENTRY_V2
+{
+    ULONGLONG PackageGUID;                  // 077 file
+    ULONGLONG Unknown1;
+    DWORD Unknown2;
+    DWORD Unknown3;
+    ULONGLONG Unknown4;
+} APM_PACKAGE_ENTRY_V2, *PAPM_PACKAGE_ENTRY_V2;
 
 //-----------------------------------------------------------------------------
-// Handler classes
+// Local functions (non-class)
 
-/*
-struct TCmfFile
+static bool IsManifestFolderName(const char * szFileName, const char * szManifestFolder, size_t nLength)
 {
-    TCmfFile()
+    if(!_strnicmp(szFileName, szManifestFolder, nLength))
     {
-        memset(this, 0, sizeof(TCmfFile));
+        return (szFileName[nLength] == '\\' || szFileName[nLength] == '/');
     }
+    return false;
+}
 
-    LPBYTE CaptureHeader(LPBYTE pbCmfData, LPBYTE pbCmfEnd)
-    {
-        DWORD BuildNumber = *(PDWORD)pbCmfData;
+//-----------------------------------------------------------------------------
+// Public functions (non-class)
 
-        // Check the newest header version
-        if(BuildNumber >= 45104 && BuildNumber != 45214)
-        {
-            PCMF_HEADER_V3 pHeader3 = (PCMF_HEADER_V3)pbCmfData;
-            
-            if((LPBYTE)(pHeader3 + 1) > pbCmfEnd)
-                return NULL;
-
-            BuildVersion = pHeader3->BuildVersion;
-            DataCount = pHeader3->DataCount;
-            EntryCount = pHeader3->EntryCount;
-            Magic = pHeader3->Magic;
-            return (LPBYTE)(pHeader3 + 1);
-        }
-
-        else if(BuildNumber >= 39028)
-        {
-            // TODO
-            assert(false);
-            return NULL;
-        }
-
-        else
-        {
-            // TODO
-            assert(false);
-            return NULL;
-        }
-    }
-
-    DWORD BuildVersion;
-    DWORD DataCount;
-    DWORD EntryCount;
-    DWORD Magic;
-};
-
-struct TApmFile
+static void BinaryReverse64(LPBYTE GuidReversed, LPBYTE pbGuid)
 {
-    TApmFile()
-    {
-        memset(this, 0, sizeof(TApmFile));
-    }
+    GuidReversed[0] = pbGuid[7];
+    GuidReversed[1] = pbGuid[6];
+    GuidReversed[2] = pbGuid[5];
+    GuidReversed[3] = pbGuid[4];
+    GuidReversed[4] = pbGuid[3];
+    GuidReversed[5] = pbGuid[2];
+    GuidReversed[6] = pbGuid[1];
+    GuidReversed[7] = pbGuid[0];
+}
 
-    ~TApmFile()
-    {
-        CASC_FREE(pApmPackages);
-        CASC_FREE(pApmEntries);
-    }
+static const char * ExtractAssetSubString(char * szBuffer, size_t ccBuffer, const char * szPlainName)
+{
+    char * szBufferEnd = szBuffer + ccBuffer - 1;
 
-    LPBYTE CaptureHeader(LPBYTE pbApmData, LPBYTE pbApmEnd)
+    while(szBuffer < szBufferEnd && szPlainName[0] != 0 && szPlainName[0] != '.' && szPlainName[0] != '_')
+        *szBuffer++ = *szPlainName++;
+
+    if(szBuffer <= szBufferEnd)
+        szBuffer[0] = 0;
+    return szPlainName;
+}
+
+static const char * AppendAssetSubString(char * szBuffer, size_t ccBuffer, const char * szPlainName)
+{
+    char * szBufferPtr = szBuffer + strlen(szBuffer);
+    char * szBufferEnd = szBuffer + ccBuffer - 1;
+
+    if(szBufferPtr < szBufferEnd)
+        *szBufferPtr++ = '-';
+
+    while(szBufferPtr < szBufferEnd && szPlainName[0] != '_')
+        *szBufferPtr++ = *szPlainName++;
+
+    szBufferPtr[0] = 0;
+    return szPlainName;
+}
+
+size_t BuildAssetFileNameTemplate(
+    char * szNameTemplate,
+    size_t ccNameTemplate,
+    const char * szPrefix,
+    const char * szAssetName)
+{
+    const char * szFileName = "0000000000000000";           // Base name for 64-bit GUID
+    const char * szFileExt = NULL;
+    char * szBufferEnd = szNameTemplate + ccNameTemplate;
+    char * szBufferPtr = szNameTemplate;
+    char * szPlainName;
+    char szPlatform[64] = {0};
+    char szLocale[64] = {0};
+    char szAsset[64] = {0};
+
+    // Parse the plain name
+    while(szAssetName[0] != '.')
     {
-        // Check the data size for the largest possible header size
-        if((pbApmData + sizeof(APM_HEADER_V3)) < pbApmEnd)
+        // Watch start of the new field
+        if(szAssetName[0] == '_')
         {
-            // Try the version 3
-            PAPM_HEADER_V3 pApmFile3 = (PAPM_HEADER_V3)(pbApmData);
-            if(pApmFile3->ZeroValue1 == 0 && pApmFile3->ZeroValue2 == 0 && pApmFile3->PackageCount && pApmFile3->EntryCount && pApmFile3->Checksum)
+            // Extract platform from "_SP"
+            if(szAssetName[1] == 'S' && szAssetName[2] == 'P' && !_strnicmp(szAssetName, "_SPWin_", 7))
             {
-                BuildNumber  = pApmFile3->BuildNumber;
-                PackageCount = pApmFile3->PackageCount;
-                EntryCount   = pApmFile3->EntryCount;
-                Checksum     = pApmFile3->Checksum;
-                return pbApmData + 0x24;
+                CascStrCopy(szPlatform, _countof(szPlatform), "Windows");
+                szAssetName += 6;
+                continue;
             }
 
-            // Try the version 2
-            PAPM_HEADER_V2 pApmFile2 = (PAPM_HEADER_V2)(pbApmData);
-            if(pApmFile2->ZeroValue1 == 0 && pApmFile2->PackageCount && pApmFile2->EntryCount && pApmFile2->Checksum)
+            // Extract "RDEV" or "RCN"
+            if(szAssetName[1] == 'R')
             {
-                BuildNumber  = pApmFile2->BuildNumber;
-                PackageCount = pApmFile2->PackageCount;
-                EntryCount   = pApmFile2->EntryCount;
-                Checksum     = pApmFile2->Checksum;
-                return pbApmData + 0x20;
+                szAssetName = AppendAssetSubString(szPlatform, _countof(szPlatform), szAssetName + 1);
+                continue;
             }
 
-            // Try the version 1 (build 24919)
-            PAPM_HEADER_V1 pApmHeader1 = (PAPM_HEADER_V1)(pbApmData);
-            if(pApmHeader1->BuildVersion != 0 && pApmHeader1->PackageCount && pApmHeader1->EntryCount && pApmHeader1->Checksum)
+            // Extract locale
+            if(szAssetName[1] == 'L')
             {
-                BuildNumber  = pApmHeader1->BuildNumber;
-                PackageCount = pApmHeader1->PackageCount;
-                EntryCount   = pApmHeader1->EntryCount;
-                Checksum     = pApmHeader1->Checksum;
-                return pbApmData + 0x18;
+                szAssetName = ExtractAssetSubString(szLocale, _countof(szLocale), szAssetName + 2);
+                continue;
             }
+
+            // Ignore "_EExt"
+            if(szAssetName[1] == 'E' && szAssetName[2] == 'E')
+            {
+                szAssetName += 5;
+                continue;
+            }
+
+            // Extract the asset name
+            szAssetName = ExtractAssetSubString(szAsset, _countof(szAsset), szAssetName + 1);
+
+            // Extract a possible extension
+            //if(!_stricmp(szAsset, "speech"))
+            //    szFileExt = ".wav";
+            //if(!_stricmp(szAsset, "text"))
+            //    szFileExt = ".text";
+            continue;
         }
-
-        return NULL;
+        szAssetName++;
     }
 
-    LPBYTE CaptureArrayOfEntries(LPBYTE pbArrayOfEntries, LPBYTE pbApmEnd)
+    // Combine the path like "%PREFIX%\\%PLATFORM%-%DEV%\\%LOCALE%\\%ASSET%\\%PLAIN_NAME%.%EXTENSSION%"
+    if(szPrefix && szPrefix[0])
+        szBufferPtr += CascStrPrintf(szBufferPtr, (szBufferEnd - szBufferPtr), "%s\\", szPrefix);
+    if(szPlatform[0])
+        szBufferPtr += CascStrPrintf(szBufferPtr, (szBufferEnd - szBufferPtr), "%s\\", szPlatform);
+    if(szLocale[0])
+        szBufferPtr += CascStrPrintf(szBufferPtr, (szBufferEnd - szBufferPtr), "%s\\", szLocale);
+    if(szAsset[0])
+        szBufferPtr += CascStrPrintf(szBufferPtr, (szBufferEnd - szBufferPtr), "%s\\", szAsset);
+    szPlainName = szBufferPtr;
+
+    // Append file name and extension
+    if(szFileName && szFileName[0])
+        szBufferPtr += CascStrPrintf(szBufferPtr, (szBufferEnd - szBufferPtr), "%s", szFileName);
+    if(szFileExt && szFileExt[0])
+        CascStrPrintf(szBufferPtr, (szBufferEnd - szBufferPtr), "%s", szFileExt);
+
+    // Return the length of the path
+    return (szPlainName - szNameTemplate);
+}
+
+DWORD InsertAssetFile(
+    TCascStorage * hs,
+    CASC_FILE_TREE & FileTree,
+    char * szFileName,
+    size_t nPlainName,              // Offset of the plain name in the name template
+    LPBYTE pbCKey,
+    LPBYTE pbGuid)
+{
+    PCASC_CKEY_ENTRY pCKeyEntry;
+    DWORD dwErrCode = ERROR_SUCCESS;
+    BYTE GuidReversed[8];
+
+    // Try to find the CKey
+    if((pCKeyEntry = FindCKeyEntry_CKey(hs, pbCKey)) != NULL)
     {
-        // Allocate array of entries
-        pApmEntries = CASC_ALLOC<APM_ENTRY>(EntryCount);
-        if(pApmEntries != NULL)
-        {
-            // The newest format
-            if(BuildNumber > 45104 && BuildNumber != 45214)
-            {
-                PAPM_ENTRY_V2 pEntry2 = (PAPM_ENTRY_V2)pbArrayOfEntries;
-                LPBYTE pbEntriesEnd = (LPBYTE)(pEntry2 + EntryCount);
+        // Save the character at the end of the name (dot or EOS)
+        char chSaveChar = szFileName[nPlainName + 16];
 
-                if(pbEntriesEnd <= pbApmEnd)
-                {
-                    for(DWORD i = 0; i < EntryCount; i++)
-                    {
-                        pApmEntries[i].Index = pEntry2->Index;
-                        pApmEntries[i].HashA = MAKE_OFFSET64(pEntry2->HashA_Hi, pEntry2->HashA_Lo);
-                        pApmEntries[i].HashB = MAKE_OFFSET64(pEntry2->HashB_Hi, pEntry2->HashB_Lo);
-                    }
+        // Imprint the GUID as binary value
+        BinaryReverse64(GuidReversed, pbGuid);
+        StringFromBinary(GuidReversed, sizeof(GuidReversed), szFileName + nPlainName);
+        szFileName[nPlainName + 16] = chSaveChar;
 
-                    return pbEntriesEnd;
-                }
-            }
-            else
-            {
-                PAPM_ENTRY_V1 pEntry1 = (PAPM_ENTRY_V1)pbArrayOfEntries;
-                LPBYTE pbEntriesEnd = (LPBYTE)(pEntry1 + EntryCount);
-
-                if(pbEntriesEnd <= pbApmEnd)
-                {
-                    for(DWORD i = 0; i < EntryCount; i++)
-                    {
-                        pApmEntries[i].Index = pEntry1->Index;
-                        pApmEntries[i].HashA = MAKE_OFFSET64(pEntry1->HashA_Hi, pEntry1->HashA_Lo);
-                        pApmEntries[i].HashB = 0;
-                    }
-
-                    return pbEntriesEnd;
-                }
-            }
-        }
-
-        return NULL;
+        // Insert the asset to the file tree
+        if(FileTree.InsertByName(pCKeyEntry, szFileName) == NULL)
+            dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
     }
-
-    LPBYTE CapturePackageEntries(LPBYTE pbArrayOfEntries, LPBYTE pbApmEnd)
-    {
-        // Allocate array of entries
-        pApmPackages = CASC_ALLOC_ZERO<APM_PACKAGE_ENTRY>(PackageCount);
-        if(pApmPackages != NULL)
-        {
-            // The newest format
-            if(BuildNumber > 45104 && BuildNumber != 45214)
-            {
-                PAPM_PACKAGE_ENTRY_V2 pEntry2 = (PAPM_PACKAGE_ENTRY_V2)pbArrayOfEntries;
-                LPBYTE pbEntriesEnd = (LPBYTE)(pEntry2 + PackageCount);
-
-                if(pbEntriesEnd <= pbApmEnd)
-                {
-                    for(DWORD i = 0; i < PackageCount; i++)
-                    {
-                        pApmPackages[i].PackageGUID = pEntry2[i].PackageGUID;
-                        pApmPackages[i].Unknown1 = pEntry2[i].Unknown1;
-                        pApmPackages[i].Unknown2 = pEntry2[i].Unknown2;
-                        pApmPackages[i].Unknown3 = pEntry2[i].Unknown3;
-                        pApmPackages[i].Unknown4 = pEntry2[i].Unknown4;
-                    }
-
-                    return pbEntriesEnd;
-                }
-            }
-            else
-            {
-                PAPM_PACKAGE_ENTRY_V1 pEntry1 = (PAPM_PACKAGE_ENTRY_V1)pbArrayOfEntries;
-                LPBYTE pbEntriesEnd = (LPBYTE)(pEntry1 + PackageCount);
-
-                if(pbEntriesEnd <= pbApmEnd)
-                {
-                    for(DWORD i = 0; i < PackageCount; i++)
-                    {
-                        // TODO!!!
-                        pApmPackages[i].PackageGUID = pEntry1->PackageGUID;
-                    }
-
-                    return pbEntriesEnd;
-                }
-            }
-        }
-
-        return NULL;
-    }
-
-    PAPM_ENTRY pApmEntries;
-    PAPM_PACKAGE_ENTRY pApmPackages;
-    ULONGLONG BuildNumber;
-    DWORD PackageCount;
-    DWORD EntryCount;
-    DWORD Checksum;
-    size_t HeaderSize;
-
-    // Followed by the array of APM_ENTRY (count is in "EntryCount")
-    // Followed by the array of APM_PACKAGE (count is in "PackageCount")
-
-};
-*/
+    return dwErrCode;
+}
 
 //-----------------------------------------------------------------------------
 // Handler definition for OVERWATCH root file
-
 //
 // -------------------------------------
 // Overwatch ROOT file (build 24919):
@@ -397,97 +299,12 @@ struct TRootHandler_OW : public TFileTreeRoot
         // We have file names and return CKey as result of search
         dwFeatures |= (CASC_FEATURE_FILE_NAMES | CASC_FEATURE_ROOT_CKEY);
     }
-/*
-    bool IsManifestFolderName(const char * szFileName, const char * szManifestFolder, size_t nLength)
-    {
-        if(!_strnicmp(szFileName, szManifestFolder, nLength))
-        {
-            return (szFileName[nLength] == '\\' || szFileName[nLength] == '/');
-        }
-        return false;
-    }
 
-    bool IsApmFileName(const char * szFileName)
-    {
-        const char * szExtension;
-
-        if(IsManifestFolderName(szFileName, "Manifest", 8) || IsManifestFolderName(szFileName, "TactManifest", 12))
-        {
-            szExtension = GetFileExtension(szFileName);
-            if(!_stricmp(szExtension, ".apm"))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    DWORD LoadApmFile(TCascStorage * hs, CONTENT_KEY & CKey, const char * szFileName)
-    {
-        TApmFile ApmFile;
-        LPBYTE pbApmData;
-        DWORD cbApmData = 0;
-        DWORD dwErrCode = ERROR_BAD_FORMAT;
-
-        pbApmData = LoadInternalFileToMemory(hs, CKey.Value, CASC_OPEN_BY_CKEY, &cbApmData);
-        if(pbApmData != NULL)
-        {
-            LPBYTE pbApmEnd = pbApmData + cbApmData;
-            LPBYTE pbApmPtr = pbApmData;
-            
-            pbApmPtr = ApmFile.CaptureHeader(pbApmPtr, pbApmEnd);
-            if(pbApmPtr == NULL)
-                return ERROR_BAD_FORMAT;
-
-            // Read the array of entries
-            pbApmPtr = ApmFile.CaptureArrayOfEntries(pbApmPtr, pbApmEnd);
-            if(pbApmPtr == NULL)
-                return ERROR_BAD_FORMAT;
-
-            // Read the array of package entries
-            pbApmPtr = ApmFile.CapturePackageEntries(pbApmPtr, pbApmEnd);
-            if(pbApmPtr == NULL)
-                return ERROR_BAD_FORMAT;
-
-            CASC_FREE(pbApmData);
-        }
-
-        return dwErrCode;
-    }
-
-    static DWORD LoadCmfFile(TCascStorage * hs, CONTENT_KEY & CKey, const char * szFileName)
-    {
-        TCmfFile CmfFile;
-        LPBYTE pbCmfData;
-        DWORD cbCmfData = 0;
-        DWORD dwErrCode = ERROR_BAD_FORMAT;
-
-        pbCmfData = LoadInternalFileToMemory(hs, CKey.Value, CASC_OPEN_BY_CKEY, &cbCmfData);
-        if(pbCmfData != NULL)
-        {
-            LPBYTE pbCmfEnd = pbCmfData + cbCmfData;
-            LPBYTE pbCmfPtr = pbCmfData;
-
-            // Capture the CMF header
-            pbCmfPtr = CmfFile.CaptureHeader(pbCmfPtr, pbCmfEnd);
-            if(pbCmfPtr == NULL)
-                return ERROR_BAD_FORMAT;
-
-//          if(CmfFile.Magic >= 0x636D6614)
-//              DecryptCmfFile(
-
-            CASC_FREE(pbCmfData);
-        }
-
-        return dwErrCode;
-    }
-*/
-    int Load(TCascStorage * hs, CASC_CSV & Csv, size_t nFileNameIndex, size_t nCKeyIndex)
+    DWORD Load(TCascStorage * hs, CASC_CSV & Csv, size_t nFileNameIndex, size_t nCKeyIndex)
     {
         PCASC_CKEY_ENTRY pCKeyEntry;
-//      size_t ApmFiles[0x80];
-//      size_t nApmFiles = 0;
+        size_t nFileCount;
+        DWORD dwErrCode = ERROR_SUCCESS;
         BYTE CKey[MD5_HASH_SIZE];
 
         CASCLIB_UNUSED(hs);
@@ -509,49 +326,43 @@ struct TRootHandler_OW : public TFileTreeRoot
                     {
                         // Insert the file name and the CKey into the tree
                         FileTree.InsertByName(pCKeyEntry, FileName.szValue);
-
-                        // If the file name is actually an asset, we need to parse that asset and load files in it
-//                      if(IsApmFileName(szFileName))
-//                      {
-//                          ApmFiles[nApmFiles++] = FileTree_IndexOf(&pRootHandler->FileTree, pFileNode1);
-//                      }
                     }
                 }
             }
         }
-/*
-        // Load all CMF+APM files
-        if(dwErrCode == ERROR_SUCCESS)
+
+        // Get the total file count that we loaded so far
+        nFileCount = FileTree.GetCount();
+
+        // Parse Content Manifest Files (.cmf)
+        for(size_t i = 0; i < nFileCount && dwErrCode == ERROR_SUCCESS; i++)
         {
-            for(size_t i = 0; i < nApmFiles; i++)
+            PCASC_FILE_NODE pFileNode;
+            const char * szExtension;
+            char szFileName[MAX_PATH];
+
+            // Get the n-th file
+            pFileNode = (PCASC_FILE_NODE)FileTree.PathAt(szFileName, _countof(szFileName), i);
+            if(pFileNode != NULL)
             {
-                char szApmFile[MAX_PATH + 1];
-                char szCmfFile[MAX_PATH + 1];
+                if(IsManifestFolderName(szFileName, "Manifest", 8) || IsManifestFolderName(szFileName, "TactManifest", 12))
+                {
+                    // Retrieve the file extension
+                    szExtension = GetFileExtension(szFileName);
 
-                // Get the n-th item and its name
-                pFileNode1 = (PCASC_FILE_NODE)FileTree_PathAt(&pRootHandler->FileTree, szApmFile, MAX_PATH, ApmFiles[i]);
-                if(pFileNode1 == NULL)
-                    break;
-
-                if(strcmp(szApmFile, "TactManifest\\Win_SPWin_RDEV_LenUS_EExt.apm"))
-                    continue;
-
-                // Get the name of thew CMF file
-                CascStrCopy(szCmfFile, _countof(szCmfFile), szApmFile);
-                CascStrCopy((char *)GetFileExtension(szCmfFile), 5, ".cmf");
-                pFileNode2 = (PCASC_FILE_NODE)FileTree_Find(&pRootHandler->FileTree, szCmfFile);
-                if(pFileNode2 == NULL)
-                    break;
-
-                // Create the map of CMF entries
-                dwErrCode = LoadCmfFile(hs, pFileNode2->CKey, szCmfFile);
-                if(dwErrCode != ERROR_SUCCESS)
-                    break;
-
+                    // Check for content manifest files
+                    if(!_stricmp(szExtension, ".cmf"))
+                    {
+                        dwErrCode = LoadContentManifestFile(hs, FileTree, pFileNode->pCKeyEntry, szFileName);
+                    }
+                    else if(!_stricmp(szExtension, ".apm"))
+                    {
+                        dwErrCode = LoadApplicationPackageManifestFile(hs, FileTree, pFileNode->pCKeyEntry, szFileName);
+                    }
+                }
             }
         }
-*/
-        return ERROR_SUCCESS;
+        return dwErrCode;
     }
 };
 

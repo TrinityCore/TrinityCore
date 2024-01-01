@@ -272,8 +272,6 @@ void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientati
     waypoint.orientation = orientation;
     waypoint.moveType = run ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
     waypoint.delay = waitTime.count();
-    waypoint.eventId = 0;
-    waypoint.eventChance = 100;
     _path.nodes.push_back(std::move(waypoint));
 }
 
@@ -389,7 +387,7 @@ bool EscortAI::AssistPlayerInCombatAgainst(Unit* who)
         return false;
 
     // experimental (unknown) flag not present
-    if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_ASSIST))
+    if (!(me->GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_CAN_ASSIST))
         return false;
 
     // not a player

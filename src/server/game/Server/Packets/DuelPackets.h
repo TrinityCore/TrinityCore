@@ -33,6 +33,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid TargetGUID;
+            bool ToTheDeath = false;
         };
 
         class CanDuelResult final : public ServerPacket
@@ -85,13 +86,14 @@ namespace WorldPackets
         class DuelRequested final : public ServerPacket
         {
         public:
-            DuelRequested() : ServerPacket(SMSG_DUEL_REQUESTED, 16 * 3) { }
+            DuelRequested() : ServerPacket(SMSG_DUEL_REQUESTED, 16 * 3 + 1) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid ArbiterGUID;
             ObjectGuid RequestedByGUID;
             ObjectGuid RequestedByWowAccount;
+            bool ToTheDeath = false;
         };
 
         class DuelResponse : public ClientPacket

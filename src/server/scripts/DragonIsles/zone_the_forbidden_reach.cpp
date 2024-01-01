@@ -50,8 +50,6 @@ std::array<std::pair<uint32, Position>, 4> LoginRoomData =
 // 369728 - Dracthyr Login
 class spell_dracthyr_login : public SpellScript
 {
-    PrepareSpellScript(spell_dracthyr_login);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRACTHYR_MOVIE_ROOM_01, SPELL_DRACTHYR_MOVIE_ROOM_02, SPELL_DRACTHYR_MOVIE_ROOM_03, SPELL_DRACTHYR_MOVIE_ROOM_04 });
