@@ -1,6 +1,6 @@
 -- Set by TC Devs
-SET @CGUID := 90009000; -- 3 needed
-SET @NPCTEXTID :=90009000; -- 3 needed
+SET @CGUID := 3000463; -- 3 needed
+SET @NPCTEXTID := 530002; -- 3 needed
 
 -- Darkspear Training Grounds
 
@@ -27,8 +27,8 @@ UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_zentabra" WHER
 UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_voldreka" WHERE `entry` = 42618;
 UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_zabrax" WHERE `entry` = 63310;
 UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_durotar_tiki_target" WHERE `entry` = 38038;
-UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_durotar_darkspear_jailor" WHERE `entry` = 39062;
-UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_durotar_captive_spitescale_scout" WHERE `entry` = 38142;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_darkspear_jailor" WHERE `entry` = 39062;
+UPDATE `creature_template` SET `AIName` = "", `ScriptName` = "npc_captive_spitescale_scout" WHERE `entry` = 38142;
 
 UPDATE `creature` SET `StringId`="darkspear_jailor_one" WHERE `guid`=309155;
 UPDATE `creature` SET `StringId`="darkspear_jailor_two" WHERE `guid`=309082;
@@ -42,17 +42,17 @@ INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language
 
 -- Pathing for Darkspear Jailor One
 SET @NPC := 309155;
-SET @PATH := @NPC * 10;
+SET @PATH := @NPC * 100;
 DELETE FROM `waypoint_data` WHERE `id` IN (@PATH, @PATH+1);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`wpguid`) VALUES
 (@PATH,1,-1136.5938, -5425.422, 13.735447,NULL,0,1,0),
 (@PATH,2,-1135.8698, -5416.757, 13.26898,NULL,0,1,0),
 (@PATH+1,1,-1137.3177, -5429.087, 13.701913,NULL,0,0,0),
-(@PATH+1,2,-1143.191, -5429.9634, 13.863617,NULL,0,0,0);
+(@PATH+1,2,-1143.191, -5429.9634, 13.863617, 1.85005,0,0,0);
 
 -- Pathing for Darkspear Jailor Two
 SET @NPC := 309082;
-SET @PATH := @NPC * 10;
+SET @PATH := @NPC * 100;
 DELETE FROM `waypoint_data` WHERE `id` IN (@PATH, @PATH+1);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`wpguid`) VALUES
 (@PATH,1,-1158.1224,-5524.829,12.020827,NULL,0,1,0),
@@ -60,7 +60,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,3,-1153.5295,-5518.6094,12.005672,NULL,0,1,0),
 (@PATH+1,1,-1156.4045,-5521.3184,12.229713,NULL,0,0,0),
 (@PATH+1,2,-1157.6545,-5522.8184,12.229713,NULL,0,0,0),
-(@PATH+1,3,-1159.2795,-5530.028,11.953753,NULL,0,0,0);
+(@PATH+1,3,-1159.2795,-5530.028,11.953753, 6.19592,0,0,0);
 
 -- The Rise of the Darkspear "Monk"
 DELETE FROM `creature_queststarter` WHERE `id`=37951 AND `quest` = 31159;
@@ -107,32 +107,32 @@ INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language
 (63310, 1, 0, 'Well done, $n!', 12, 0, 100, 0, 0, 0, 37898, 0, 'Zabrax');
 
 -- Warrior Quest
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24639;
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24642;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things_warrior" WHERE `ID` = 24639;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit_warrior" WHERE `ID` = 24642;
 -- Priest Quest
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24783;
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24786;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things_priest" WHERE `ID` = 24783;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit_priest" WHERE `ID` = 24786;
 -- Mage Quest
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24751;
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24754;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things_mage" WHERE `ID` = 24751;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit_mage" WHERE `ID` = 24754;
 -- Rogue Quest
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24771;
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24774;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things_rogue" WHERE `ID` = 24771;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit_rogue" WHERE `ID` = 24774;
 -- Shaman Quest
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24759;
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24762;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things_shaman" WHERE `ID` = 24759;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit_shaman" WHERE `ID` = 24762;
 -- Hunter Quest
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24777;
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24780;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things_hunter" WHERE `ID` = 24777;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit_hunter" WHERE `ID` = 24780;
 -- Druid Quest
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 24765;
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 24768;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things_druid" WHERE `ID` = 24765;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit_druid" WHERE `ID` = 24768;
 -- Warlock Quest
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 26273;
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 26276;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things_warlock" WHERE `ID` = 26273;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit_warlock" WHERE `ID` = 26276;
 -- Monk Quest
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things" WHERE `ID` = 31158;
-UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit" WHERE `ID` = 31161;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_the_basics_hitting_things_monk" WHERE `ID` = 31158;
+UPDATE `quest_template_addon` SET `ScriptName` = "quest_proving_pit_monk" WHERE `ID` = 31161;
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (91404);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
