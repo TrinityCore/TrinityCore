@@ -593,6 +593,8 @@ float GridMap::getLiquidLevel(float x, float y) const
     return _liquidMap[cx_int*_liquidWidth + cy_int];
 }
 
+constexpr float GROUND_LEVEL_OFFSET_HACK = 0.02f; // due to floating point precision issues, we have to resort to a small hack to fix inconsistencies in liquids
+
 // Get water state on map
 ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, Optional<map_liquidHeaderTypeFlags> ReqLiquidType, LiquidData* data, float collisionHeight) const
 {
@@ -656,11 +658,11 @@ ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, Optional<map_l
 
     // Get water level
     float liquid_level = _liquidMap ? _liquidMap[lx_int*_liquidWidth + ly_int] : _liquidLevel;
-    // Get ground level (sub 0.2 for fix some errors)
+    // Get ground level (sub 0.02 for fix some errors)
     float ground_level = getHeight(x, y);
 
     // Check water level and ground level
-    if (liquid_level < ground_level || z < ground_level)
+    if (liquid_level < (ground_level - GROUND_LEVEL_OFFSET_HACK) || z < (ground_level - GROUND_LEVEL_OFFSET_HACK))
         return LIQUID_MAP_NO_WATER;
 
     // All ok in water -> store data
