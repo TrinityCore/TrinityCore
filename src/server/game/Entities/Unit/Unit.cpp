@@ -3110,6 +3110,11 @@ bool Unit::IsUnderWater() const
     return GetLiquidStatus() & LIQUID_MAP_UNDER_WATER;
 }
 
+bool Unit::IsOnOceanFloor() const
+{
+    return GetLiquidStatus() & LIQUID_MAP_OCEAN_FLOOR;
+}
+
 void Unit::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
 {
     ZLiquidStatus oldLiquidStatus = GetLiquidStatus();
@@ -10950,14 +10955,20 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
     //        pvp->HandlePlayerActivityChangedpVictim->ToPlayer();
 
     // battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
-    if (player && player->InBattleground())
+    if (attacker)
     {
-        if (Battleground* bg = player->GetBattleground())
+        if (BattlegroundMap* bgMap = victim->GetMap()->ToBattlegroundMap())
         {
-            if (Player* playerVictim = victim->ToPlayer())
-                bg->HandleKillPlayer(playerVictim, player);
-            else
-                bg->HandleKillUnit(victim->ToCreature(), player);
+            if (Battleground* bg = bgMap->GetBG())
+            {
+                if (Player* playerVictim = victim->ToPlayer())
+                {
+                    if (player)
+                        bg->HandleKillPlayer(playerVictim, player);
+                }
+                else
+                    bg->HandleKillUnit(victim->ToCreature(), attacker);
+            }
         }
     }
 
