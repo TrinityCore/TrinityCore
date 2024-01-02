@@ -677,12 +677,18 @@ ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, Optional<map_l
     // For speed check as int values
     float delta = liquid_level - z;
 
-    if (delta > collisionHeight)                   // Under water
-        return LIQUID_MAP_UNDER_WATER;
-    if (delta > 0.0f)                   // In water
-        return LIQUID_MAP_IN_WATER;
-    if (delta > -0.1f)                   // Walk on water
-        return LIQUID_MAP_WATER_WALK;
-                                      // Above water
-    return LIQUID_MAP_ABOVE_WATER;
+    uint32 status = LIQUID_MAP_ABOVE_WATER; // Above water
+
+    if (delta > collisionHeight)            // Under water
+        status = LIQUID_MAP_UNDER_WATER;
+    else if (delta > 0.0f)                  // In water
+        status = LIQUID_MAP_IN_WATER;
+    else if (delta > -0.1f)                 // Walk on water
+        status = LIQUID_MAP_WATER_WALK;
+
+    if (status != LIQUID_MAP_ABOVE_WATER)
+        if (std::fabs(ground_level - z) <= GROUND_HEIGHT_TOLERANCE)
+            status |= LIQUID_MAP_OCEAN_FLOOR;
+
+    return static_cast<ZLiquidStatus>(status);
 }
