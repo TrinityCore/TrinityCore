@@ -1175,7 +1175,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
                     {
                         SpellDestination dest(*m_caster);
                         if (st->target_mapId == m_caster->GetMapId() && m_caster->IsInDist(st->target_X, st->target_Y, st->target_Z, range))
-                            dest = SpellDestination(st->target_X, st->target_Y, st->target_Z, st->target_Orientation);
+                            dest = SpellDestination(st->target_X, st->target_Y, st->target_Z, st->target_Orientation.value_or(0.f));
                         else
                         {
                             float randomRadius = spellEffectInfo.CalcRadius(m_caster, targetIndex);
@@ -1485,9 +1485,9 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
             {
                 /// @todo fix this check
                 if (m_spellInfo->HasEffect(SPELL_EFFECT_TELEPORT_UNITS) || m_spellInfo->HasEffect(SPELL_EFFECT_TELEPORT_WITH_SPELL_VISUAL_KIT_LOADING_SCREEN) || m_spellInfo->HasEffect(SPELL_EFFECT_BIND))
-                    dest = SpellDestination(st->target_X, st->target_Y, st->target_Z, st->target_Orientation, (int32)st->target_mapId);
+                    dest = SpellDestination(st->target_X, st->target_Y, st->target_Z, st->target_Orientation.value_or(0.f), (int32)st->target_mapId);
                 else if (st->target_mapId == m_caster->GetMapId())
-                    dest = SpellDestination(st->target_X, st->target_Y, st->target_Z, st->target_Orientation);
+                    dest = SpellDestination(st->target_X, st->target_Y, st->target_Z, st->target_Orientation.value_or(0.f));
             }
             else
             {
