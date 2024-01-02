@@ -1198,7 +1198,7 @@ void SpellMgr::LoadSpellTargetPositions()
         if (!st.target_Orientation)
         {
             // target facing is in degrees for 6484 & 9268... (blizz sucks)
-            if (spellInfo->GetEffect(effIndex).PositionFacing > 2 * M_PI)
+            if (spellInfo->GetEffect(effIndex).PositionFacing > 2 * float(M_PI))
                 st.target_Orientation = spellInfo->GetEffect(effIndex).PositionFacing * float(M_PI) / 180;
             else
                 st.target_Orientation = spellInfo->GetEffect(effIndex).PositionFacing;
