@@ -20,6 +20,7 @@
 #include "Garrison.h"
 #include "Map.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "Unit.h"
 
 // XX - Garrison enter/exit AreaTrigger
