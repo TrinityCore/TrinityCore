@@ -662,7 +662,7 @@ ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, Optional<map_l
     float ground_level = getHeight(x, y);
 
     // Check water level and ground level
-    if (liquid_level < (ground_level - GROUND_LEVEL_OFFSET_HACK ) || z < (ground_level - GROUND_LEVEL_OFFSET_HACK ))
+    if (liquid_level < (ground_level - GROUND_LEVEL_OFFSET_HACK) || z < (ground_level - GROUND_LEVEL_OFFSET_HACK))
         return LIQUID_MAP_NO_WATER;
 
     // All ok in water -> store data
