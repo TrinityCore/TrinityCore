@@ -51,6 +51,29 @@ enum TidesOfWarData
     PATH_JAINA_VISION_FINISH                = 12059001
 };
 
+enum NationOfKulTirasData
+{
+    QUEST_NATION_OF_KULTIRAS            = 46728,
+    QUEST_NATION_OF_KULTIRAS_NPE        = 59641,
+    QUEST_OUT_LIKE_FLYNN                = 47098,
+    QUEST_DAUGHTER_OF_THE_SEA           = 51341,
+
+    SAY_JAINA_LEAVE_COUNCIL             = 0,
+
+    SPELL_JAINA_TELEPORT                = 40163,
+    SPELL_SKIP_KULTIRAS_INTRO           = 279998,
+    SPELL_SKIP_TOLDAGOR_TELEPORT        = 247285,
+
+    CONVERSATION_JAINA_LEAVE_COUNCIL    = 4896,
+
+    ACTION_JAINA_LEAVE_COUNCIL          = 1,
+
+    GOSSIP_MENU_NATION_OF_KULTIRAS      = 22328,
+
+    GOSSIP_OPTION_START_KULTIRAS_INTRO  = 0,
+    GOSSIP_OPTION_SKIP_KULTIRAS_INTRO   = 1
+};
+
 // 55 - Stormwind Keep - Tides of War
 struct at_stormwind_keep_tides_of_war : AreaTriggerAI
 {
@@ -157,6 +180,24 @@ struct npc_jaina_proudmoore_tides_of_war : public ScriptedAI
 {
     npc_jaina_proudmoore_tides_of_war(Creature* creature) : ScriptedAI(creature) { }
 
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    {
+        if (menuId == GOSSIP_MENU_NATION_OF_KULTIRAS)
+        {
+            if (gossipListId == GOSSIP_OPTION_START_KULTIRAS_INTRO)
+            {
+                CloseGossipMenuFor(player);
+                // @TODO: script start of TolDagor intro
+            }
+            else if (gossipListId == GOSSIP_OPTION_SKIP_KULTIRAS_INTRO)
+            {
+                CloseGossipMenuFor(player);
+                player->CastSpell(nullptr, SPELL_SKIP_KULTIRAS_INTRO, false);
+            }
+        }
+        return true;
+    }
+
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
         if (pathId == PATH_JAINA_VISION_START)
@@ -172,6 +213,30 @@ struct npc_jaina_proudmoore_tides_of_war : public ScriptedAI
         }
         else if (pathId == PATH_JAINA_VISION_FINISH)
             me->DespawnOrUnsummon();
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_JAINA_LEAVE_COUNCIL)
+        {
+            _scheduler.Schedule(1s, [this](TaskContext task)
+            {
+                Talk(SAY_JAINA_LEAVE_COUNCIL, me);
+                task.Schedule(4s, [this](TaskContext task)
+                {
+                    DoCastSelf(SPELL_JAINA_TELEPORT);
+                    task.Schedule(2s, [this](TaskContext /*task*/)
+                    {
+                        Unit* privateObjectOwner = ObjectAccessor::GetUnit(*me, me->GetPrivateObjectOwner());
+                        if (!privateObjectOwner)
+                            return;
+
+                        Conversation::CreateConversation(CONVERSATION_JAINA_LEAVE_COUNCIL, privateObjectOwner, *privateObjectOwner, privateObjectOwner->GetGUID(), nullptr, true);
+                        me->DespawnOrUnsummon();
+                    });
+                });
+            });
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -218,10 +283,53 @@ class spell_despawn_sailor_memory : public SpellScript
     }
 };
 
+// 120756 - Anduin Wrynn
+struct npc_anduin_wrynn_nation_of_kultiras : public ScriptedAI
+{
+    npc_anduin_wrynn_nation_of_kultiras(Creature* creature) : ScriptedAI(creature) { }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_NATION_OF_KULTIRAS)
+        {
+            PhasingHandler::OnConditionChange(player);
+
+            Creature* jainaObject = GetClosestCreatureWithOptions(player, 15.0f, { .CreatureId = NPC_JAINA_TIDES_OF_WAR, .IgnorePhases = true });
+            if (!jainaObject)
+                return;
+
+            TempSummon* jainaClone = jainaObject->SummonPersonalClone(jainaObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player->ToPlayer());
+            if (!jainaClone)
+                return;
+
+            jainaClone->AI()->DoAction(ACTION_JAINA_LEAVE_COUNCIL);
+        }
+    }
+};
+
+// 279998 - Kul Tiras: Skip Intro
+class spell_kultiras_skip_intro : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            player->CastSpell(nullptr, SPELL_SKIP_TOLDAGOR_TELEPORT, false);
+            player->SkipQuests({ QUEST_NATION_OF_KULTIRAS, QUEST_NATION_OF_KULTIRAS_NPE, QUEST_OUT_LIKE_FLYNN, QUEST_DAUGHTER_OF_THE_SEA });
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_kultiras_skip_intro::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_stormwind_city()
 {
     // Creature
     RegisterCreatureAI(npc_jaina_proudmoore_tides_of_war);
+    RegisterCreatureAI(npc_anduin_wrynn_nation_of_kultiras);
 
     // Conversation
     new conversation_start_council_tides_of_war();
@@ -234,4 +342,5 @@ void AddSC_stormwind_city()
 
     // Spells
     RegisterSpellScript(spell_despawn_sailor_memory);
+    RegisterSpellScript(spell_kultiras_skip_intro);
 }
