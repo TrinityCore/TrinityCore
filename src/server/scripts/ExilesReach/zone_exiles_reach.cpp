@@ -4539,6 +4539,8 @@ enum BriarpatchPrisoner
     SAY_GET_OUT_OF_HERE = 0
 };
 
+Position const JumpTo = { 19.5174f, -2513.75f, 74.0545f };
+
 // 167008 - Cork Fizzlepop
 // 154301 - Lindie Springstock
 struct npc_briarpatch_prisoner : public ScriptedAI
@@ -4555,12 +4557,11 @@ struct npc_briarpatch_prisoner : public ScriptedAI
     void SetData(uint32 /*type*/, uint32 data) override
     {
         if (data == SET_DATA_FREE_PRISONER)
-        {
-            Position jumpto = { 19.5174f, -2513.75f, 74.0545f, me->GetOrientation() };
+        {  
             me->RemoveAllAuras();
             me->SetDisableGravity(false);
             me->SetTemplateRooted(false);
-            me->GetMotionMaster()->MoveJump(jumpto, 7.9894905f, 19.29110336303710937f);
+            me->GetMotionMaster()->MoveJump(JumpTo, 7.9894905f, 19.29110336303710937f);
             Talk(SAY_GET_OUT_OF_HERE);
             _events.ScheduleEvent(EVENT_RUN_TO_PLAINS, 4s);
         }
@@ -4774,6 +4775,11 @@ struct npc_ogre_overseer : public ScriptedAI
 {
     npc_ogre_overseer(Creature* creature) : ScriptedAI(creature) { }
 
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
     void JustEngagedWith(Unit* who) override
     {
         Talk(SAY_AGGRO, who);
@@ -4795,7 +4801,7 @@ struct npc_ogre_overseer : public ScriptedAI
 
                 for (LootItem const& lootItem : loot->items)
                 {
-                    if (lootItem.itemid == ITEM_BATTERED_CLOAK || lootItem.itemid == ITEM_OVERSEERS_MANDATE)
+                    if (lootItem.itemid == ITEM_BATTERED_CLOAK)
                     {
                         player->SetRewardedQuest(QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED);
                         break;

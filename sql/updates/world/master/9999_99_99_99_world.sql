@@ -214,13 +214,32 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=313265;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (313265, 'spell_quilboar_sleep_dnt');
 
--- Fix a previous commit
+-- Fix previous commits
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15315,15318,13779,13776) AND `SourceEntry` = 0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (26,15315,0,0,0,47,0,59938,66,0,0,0,0,'','Apply Phase 15315 if Quest 59938 (Down with the Quilboar) is completed or rewarded'),
 (26,15318,0,0,0,47,0,59938,66,0,0,0,0,'','Apply Phase 15318 if Quest 59938 (Down with the Quilboar) is completed or rewarded'),
 (26,13779,0,0,0,47,0,55186,66,0,0,0,0,'','Apply Phase 13779 if Quest 55186 (Down with the Quilboar) is completed or rewarded'),
 (26,13776,0,0,0,47,0,55186,66,0,0,0,0,'','Apply Phase 13776 if Quest 55186 (Down with the Quilboar) is completed or rewarded');
+
+-- Loot for Quilboar Warrior & Quilboar Geomancer
+SET @ID := 150237;
+UPDATE `creature_template_difficulty` SET `LootID`=@ID, GoldMin=4, GoldMax=20 WHERE `Entry` IN (@ID,@ID+1);
+DELETE FROM `creature_loot_template` WHERE `Entry` IN (@ID);
+INSERT INTO `creature_loot_template` (`Entry`,`Item`,`Reference`,`Chance`,`QuestRequired`,`LootMode`,`GroupId`,`MinCount`,`MaxCount`,`Comment`) VALUES
+(@ID,771,0,20,0,1,1,1,1,'Quilboar Warrior/Geomancer - Chipped Boar Tusk'),
+(@ID,174811,0,20,0,1,2,1,1,'Quilboar Warrior/Geomancer - Stitched Cloth Tunic'),
+(@ID,174812,0,20,0,1,3,1,1,'Quilboar Warrior/Geomancer - Stitched Leather Tunic'),
+(@ID,174813,0,20,0,1,4,1,1,'Quilboar Warrior/Geomancer - Linked Mail Hauberk'),
+(@ID,174814,0,20,0,1,5,1,1,'Quilboar Warrior/Geomancer - Dented Chestplate'),
+(@ID,0,10100,15,0,1,6,1,1,'Quilboar Warrior/Geomancer - Poor Quality Table Level 1 to 5');
+
+-- Loot for Geolord Grek'og
+SET @ID := 151091;
+UPDATE `creature_template_difficulty` SET `LootID`=@ID, GoldMin=4, GoldMax=20 WHERE `Entry` IN (@ID);
+DELETE FROM `creature_loot_template` WHERE `Entry` IN (@ID);
+INSERT INTO `creature_loot_template` (`Entry`,`Item`,`Reference`,`Chance`,`QuestRequired`,`LootMode`,`GroupId`,`MinCount`,`MaxCount`,`Comment`) VALUES
+(@ID,771,0,100,0,1,0,1,1,'Geolord Grek''og - Chipped Boar Tusk');
 
 -- ********* HACK HACKITY HACK HACK to allow Geolord Conversation ***********
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (34176,36346);
