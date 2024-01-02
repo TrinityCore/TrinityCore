@@ -4309,8 +4309,10 @@ enum QuilboarQuest
     SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_HORDE    = 325309
 };
 
-// 55186 - Quest Down with the Quilboar & 55184 - Forbidden Quilboar Necromancy "Alliance"
-// 59938 - Quest Down with the Quilboar & 59939 - Forbidden Quilboar Necromancy "Horde"
+// 55186 - Quest Down with the Quilboar "Alliance"
+// 55184 - Forbidden Quilboar Necromancy "Alliance"
+// 59938 - Quest Down with the Quilboar "Horde"
+// 59939 - Forbidden Quilboar Necromancy "Horde"
 class quest_briarpatch : public QuestScript
 {
 public:
@@ -4336,7 +4338,8 @@ public:
     }
 };
 
-// 55186 - Quest Down with the Quilboar & 55184 - Forbidden Quilboar Necromancy "Alliance"
+// 55186 - Quest Down with the Quilboar "Alliance"
+// 55184 - Forbidden Quilboar Necromancy "Alliance"
 class quest_briarpatch_alliance : public quest_briarpatch
 {
 public:
@@ -4348,7 +4351,8 @@ public:
     }
 };
 
-// 59938 - Quest Down with the Quilboar & 59939 - Forbidden Quilboar Necromancy "Horde"
+// 59938 - Quest Down with the Quilboar "Horde"
+// 59939 - Forbidden Quilboar Necromancy "Horde"
 class quest_briarpatch_horde : public quest_briarpatch
 {
 public:
@@ -4441,7 +4445,9 @@ enum Geolord
     SPELL_UPHEAVAL             = 319273
 };
 
-// This script is used by Geolord Grek'og for Down with the Quilboar quest
+Position const PrisonerPosition = { 16.4271f, -2511.82f, 78.8215f, 5.66398f  };
+
+// 151091 - Geolord Grek'og
 struct npc_geolord_grekog : public ScriptedAI
 {
     npc_geolord_grekog(Creature* creature) : ScriptedAI(creature) { }
@@ -4462,7 +4468,7 @@ struct npc_geolord_grekog : public ScriptedAI
         if (!bunny)
             return;
 
-        Creature* prisoner = bunny->SummonCreature(_entry, 16.4271f, -2511.82f, 78.8215f, 5.66398f, TEMPSUMMON_MANUAL_DESPAWN);
+        Creature* prisoner = bunny->SummonCreature(_entry, PrisonerPosition, TEMPSUMMON_MANUAL_DESPAWN);
         _prisonerGUID = prisoner->GetGUID();
     }
 
@@ -4533,7 +4539,8 @@ enum BriarpatchPrisoner
     SAY_GET_OUT_OF_HERE = 0
 };
 
-// This script is used by Cork Fizzlepop and Lindie Springstock for Down with the Quilboar quest
+// 167008 - Cork Fizzlepop
+// 154301 - Lindie Springstock
 struct npc_briarpatch_prisoner : public ScriptedAI
 {
     npc_briarpatch_prisoner(Creature* creature) : ScriptedAI(creature) { }
@@ -4608,6 +4615,7 @@ enum QuilboarWarriorGeomancer
     SPELL_GEOMANCER_EARTH_BOLT = 321188
 };
 
+// 150237 - Quilboar Warrior
 struct npc_quilboar_warrior : public ScriptedAI
 {
     npc_quilboar_warrior(Creature* creature) : ScriptedAI(creature) { _outOfCombat = false; }
@@ -4634,7 +4642,7 @@ struct npc_quilboar_warrior : public ScriptedAI
             me->SetStandState(UNIT_STAND_STATE_STAND);
         }
 
-        if (!urand(0, 2))
+        if (roll_chance_f(33.33f))
             Talk(SAY_AGGRO, who);
 
         _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 3s, 5s);
@@ -4642,16 +4650,24 @@ struct npc_quilboar_warrior : public ScriptedAI
 
     void JustDied(Unit* killer) override
     {
-        if (!urand(0, 2))
+        if (roll_chance_f(33.33f))
             Talk(SAY_DEATH, killer);
 
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        if (Player* player = killer->ToPlayer())
         {
-            for (LootItem const& lootItem : loot->items)
+            for (auto const& [playerGuid, loot] : me->m_personalLoot)
             {
-                if (lootItem.itemid == ITEM_STITCHED_CLOTH_TUNIC || lootItem.itemid == ITEM_STITCHED_LEATHER_TUNIC || lootItem.itemid == ITEM_LINKED_MAIL_HAUBERK || lootItem.itemid == ITEM_DENTED_CHESTPLATE)
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                if (player->IsQuestRewarded(QUEST_BRIARPATCH_CHEST_DROPPED))
+                    break;
+
+                for (LootItem const& lootItem : loot->items)
+                {
+                    if (lootItem.itemid == ITEM_STITCHED_CLOTH_TUNIC || lootItem.itemid == ITEM_STITCHED_LEATHER_TUNIC || lootItem.itemid == ITEM_LINKED_MAIL_HAUBERK || lootItem.itemid == ITEM_DENTED_CHESTPLATE)
+                    {
                         player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
+                        break;
+                    }
+                }
             }
         }
     }
@@ -4693,6 +4709,7 @@ private:
     bool _outOfCombat;
 };
 
+// 150238 - Quilboar Geomancer
 struct npc_quilboar_geomancer : public ScriptedAI
 {
     npc_quilboar_geomancer(Creature* creature) : ScriptedAI(creature) { _outOfCombat = false; }
@@ -4719,7 +4736,7 @@ struct npc_quilboar_geomancer : public ScriptedAI
             me->SetStandState(UNIT_STAND_STATE_STAND);
         }
 
-        if (!urand(0, 2))
+        if (roll_chance_f(33.33f))
             Talk(SAY_AGGRO, who);
 
         _events.ScheduleEvent(EVENT_GEOMANCER_EARTH_BOLT, 3s, 5s);
@@ -4727,16 +4744,24 @@ struct npc_quilboar_geomancer : public ScriptedAI
 
     void JustDied(Unit* killer) override
     {
-        if (!urand(0, 2))
+        if (roll_chance_f(33.33f))
             Talk(SAY_DEATH, killer);
 
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        if (Player* player = killer->ToPlayer())
         {
-            for (LootItem const& lootItem : loot->items)
+            for (auto const& [playerGuid, loot] : me->m_personalLoot)
             {
-                if (lootItem.itemid == ITEM_STITCHED_CLOTH_TUNIC || lootItem.itemid == ITEM_STITCHED_LEATHER_TUNIC || lootItem.itemid == ITEM_LINKED_MAIL_HAUBERK || lootItem.itemid == ITEM_DENTED_CHESTPLATE)
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                if (player->IsQuestRewarded(QUEST_BRIARPATCH_CHEST_DROPPED))
+                    break;
+
+                for (LootItem const& lootItem : loot->items)
+                {
+                    if (lootItem.itemid == ITEM_STITCHED_CLOTH_TUNIC || lootItem.itemid == ITEM_STITCHED_LEATHER_TUNIC || lootItem.itemid == ITEM_LINKED_MAIL_HAUBERK || lootItem.itemid == ITEM_DENTED_CHESTPLATE)
+                    {
                         player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
+                        break;
+                    }
+                }
             }
         }
     }
@@ -4791,6 +4816,7 @@ enum ExilesReachOgreOverseerData
     SPELL_EARTHSHATTER                      = 319292
 };
 
+// 156676 - Ogre Overseer
 struct npc_ogre_overseer : public ScriptedAI
 {
     npc_ogre_overseer(Creature* creature) : ScriptedAI(creature) { }
@@ -4807,13 +4833,21 @@ struct npc_ogre_overseer : public ScriptedAI
     {
         Talk(SAY_DEATH, killer);
 
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        if (Player* player = killer->ToPlayer())
         {
-            for (LootItem const& lootItem : loot->items)
+            for (auto const& [playerGuid, loot] : me->m_personalLoot)
             {
-                if (lootItem.itemid == ITEM_BATTERED_CLOAK || lootItem.itemid == ITEM_OVERSEERS_MANDATE)
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                if (player->IsQuestRewarded(QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED))
+                    break;
+
+                for (LootItem const& lootItem : loot->items)
+                {
+                    if (lootItem.itemid == ITEM_BATTERED_CLOAK || lootItem.itemid == ITEM_OVERSEERS_MANDATE)
+                    {
                         player->SetRewardedQuest(QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED);
+                        break;
+                    }
+                }
             }
         }
     }
@@ -4987,8 +5021,8 @@ void AddSC_zone_exiles_reach()
     RegisterSpellScript(spell_validated_quest_accept_briarpatch_alliance);
     RegisterSpellScript(spell_validated_quest_accept_briarpatch_horde);
     RegisterCreatureAI(npc_geolord_grekog);
-    new GenericCreatureScript<npc_briarpatch_prisoner>("npc_cork_fizzlepop");
-    new GenericCreatureScript<npc_briarpatch_prisoner>("npc_lindie_springstock");
+    new GenericCreatureScript<npc_briarpatch_prisoner>("npc_cork_fizzlepop_briarpatch");
+    new GenericCreatureScript<npc_briarpatch_prisoner>("npc_lindie_springstock_briarpatch");
     RegisterCreatureAI(npc_quilboar_warrior);
     RegisterCreatureAI(npc_quilboar_geomancer);
     RegisterCreatureAI(npc_ogre_overseer);

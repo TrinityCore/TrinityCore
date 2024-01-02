@@ -11,8 +11,8 @@ SET @CREATEPROPID := 65; -- One required
 -- Add missing spawns
 DELETE FROM `creature` WHERE `guid` IN (@GUID,@GUID+1);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `ScriptName`, `StringId`, `VerifiedBuild`) VALUES
-(@GUID,155371,2175,10424,10503,0,0,15314,0,-1,0,0,9.38368,-2514.89,75.9253,0,7200,0,0,124,0,0,NULL,NULL,NULL,NULL,'','Briarpatch_bunny_horde',52649),
-(@GUID+1,155371,2175,10424,10503,0,0,15314,0,-1,0,0,18.2743,-2503.75,76.9619,0,7200,0,0,124,0,0,NULL,NULL,NULL,NULL,'',NULL,52649);
+(@GUID,155371,2175,10424,10503,'0',0,15314,0,-1,0,0,9.38368,-2514.89,75.9253,0,7200,0,0,124,0,0,NULL,NULL,NULL,NULL,'','Briarpatch_bunny_horde',52649),
+(@GUID+1,155371,2175,10424,10503,'0',0,15314,0,-1,0,0,18.2743,-2503.75,76.9619,0,7200,0,0,124,0,0,NULL,NULL,NULL,NULL,'',NULL,52649);
 
 -- Create new serverside areatrigger for leaving Quillboar Briarpatch conversation "Used Phase 13878 Not sure if right phase"
 DELETE FROM `areatrigger` WHERE `SpawnId`=@SPAWNID;
@@ -33,8 +33,8 @@ DELETE FROM `creature` WHERE `Id` IN (167008,154301);
 UPDATE `creature_template` SET `flags_extra`=128 WHERE `entry`=155371;
 
 UPDATE `creature_template` SET `ScriptName`="npc_geolord_grekog" WHERE `entry`=151091;
-UPDATE `creature_template` SET `ScriptName`="npc_cork_fizzlepop" WHERE `entry`=167008;
-UPDATE `creature_template` SET `ScriptName`="npc_lindie_springstock" WHERE `entry`=154301;
+UPDATE `creature_template` SET `ScriptName`="npc_cork_fizzlepop_briarpatch" WHERE `entry`=167008;
+UPDATE `creature_template` SET `ScriptName`="npc_lindie_springstock_briarpatch" WHERE `entry`=154301;
 UPDATE `creature_template` SET `ScriptName`="npc_quilboar_warrior" WHERE `entry`=150237;
 UPDATE `creature_template` SET `ScriptName`="npc_quilboar_geomancer" WHERE `entry`=150238;
 UPDATE `creature_template` SET `ScriptName`="npc_ogre_overseer" WHERE `entry`=156676;
