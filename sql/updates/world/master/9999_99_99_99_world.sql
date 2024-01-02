@@ -209,6 +209,11 @@ INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language
 (154301, 0, 0, 'I knew the Alliance would rescue us! Let''s get out of here!', 12, 0, 100, 0, 0, 152861, 176943, 0, 'Lindie Springstock rescued'),
 (167008, 0, 0, 'And that''s why I always bet on the Horde! Let''s scram!', 12, 0, 100, 0, 0, 156983, 196265, 0, 'Lindie Springstock rescued');
 
+-- Spellscript
+DELETE FROM `spell_script_names` WHERE `spell_id`=313265;
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(313265, 'spell_quilboar_sleep_dnt');
+
 -- Fix a previous commit
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15315,15318,13779,13776) AND `SourceEntry` = 0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES

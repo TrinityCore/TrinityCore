@@ -4605,9 +4605,8 @@ enum ExilesReachQuilboarData
 
 enum QuilboarWarriorGeomancer
 {
-    EVENT_CHECK_FOR_AURA       = 1,
-    EVENT_BRUTAL_STRIKE        = 2,
-    EVENT_GEOMANCER_EARTH_BOLT = 2,
+    EVENT_BRUTAL_STRIKE        = 1,
+    EVENT_GEOMANCER_EARTH_BOLT = 1,
 
     SPELL_NECROTIC_BURST       = 313261,
     SPELL_QUILBOAR_SLEEP_DNT   = 313265,
@@ -4618,29 +4617,16 @@ enum QuilboarWarriorGeomancer
 // 150237 - Quilboar Warrior
 struct npc_quilboar_warrior : public ScriptedAI
 {
-    npc_quilboar_warrior(Creature* creature) : ScriptedAI(creature) { _outOfCombat = false; }
-
-    void JustAppeared() override
-    {
-        Reset();
-    }
+    npc_quilboar_warrior(Creature* creature) : ScriptedAI(creature) { }
 
     void Reset() override
     {
         _events.Reset();
-        _events.ScheduleEvent(EVENT_CHECK_FOR_AURA, 1s);
     }
 
     void JustEngagedWith(Unit* who) override
     {
-        _outOfCombat = false;
-
-        if (me->HasAura(SPELL_QUILBOAR_SLEEP_DNT))
-        {
-            me->SetReactState(REACT_AGGRESSIVE);
-            me->RemoveAura(SPELL_QUILBOAR_SLEEP_DNT);
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-        }
+        me->RemoveAura(SPELL_QUILBOAR_SLEEP_DNT);
 
         if (roll_chance_f(33.33f))
             Talk(SAY_AGGRO, who);
@@ -4674,7 +4660,7 @@ struct npc_quilboar_warrior : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (_outOfCombat)
+        if (!UpdateVictim())
             return;
 
         _events.Update(diff);
@@ -4683,12 +4669,6 @@ struct npc_quilboar_warrior : public ScriptedAI
         {
             switch (eventId)
             {
-                case EVENT_CHECK_FOR_AURA:
-                    if (me->HasAura(SPELL_QUILBOAR_SLEEP_DNT))
-                        me->SetReactState(REACT_PASSIVE);
-
-                    _outOfCombat = true;
-                    break;
                 case EVENT_BRUTAL_STRIKE:
                     DoCastVictim(SPELL_BRUTAL_STRIKE);
                     _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 8s, 12s);
@@ -4698,43 +4678,26 @@ struct npc_quilboar_warrior : public ScriptedAI
             }
         }
 
-        if (!UpdateVictim())
-            return;
-
         DoMeleeAttackIfReady();
     }
 
 private:
     EventMap _events;
-    bool _outOfCombat;
 };
 
 // 150238 - Quilboar Geomancer
 struct npc_quilboar_geomancer : public ScriptedAI
 {
-    npc_quilboar_geomancer(Creature* creature) : ScriptedAI(creature) { _outOfCombat = false; }
-
-    void JustAppeared() override
-    {
-        Reset();
-    }
+    npc_quilboar_geomancer(Creature* creature) : ScriptedAI(creature) { }
 
     void Reset() override
     {
         _events.Reset();
-        _events.ScheduleEvent(EVENT_CHECK_FOR_AURA, 1s);
     }
 
     void JustEngagedWith(Unit* who) override
     {
-        _outOfCombat = false;
-
-        if (me->HasAura(SPELL_QUILBOAR_SLEEP_DNT))
-        {
-            me->SetReactState(REACT_AGGRESSIVE);
-            me->RemoveAura(SPELL_QUILBOAR_SLEEP_DNT);
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-        }
+        me->RemoveAura(SPELL_QUILBOAR_SLEEP_DNT);
 
         if (roll_chance_f(33.33f))
             Talk(SAY_AGGRO, who);
@@ -4768,7 +4731,7 @@ struct npc_quilboar_geomancer : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (_outOfCombat)
+        if (!UpdateVictim())
             return;
 
         _events.Update(diff);
@@ -4777,12 +4740,6 @@ struct npc_quilboar_geomancer : public ScriptedAI
         {
             switch (eventId)
             {
-                case EVENT_CHECK_FOR_AURA:
-                    if (me->HasAura(SPELL_QUILBOAR_SLEEP_DNT))
-                        me->SetReactState(REACT_PASSIVE);
-
-                    _outOfCombat = true;
-                    break;
                 case EVENT_GEOMANCER_EARTH_BOLT:
                     DoCastVictim(SPELL_GEOMANCER_EARTH_BOLT);
                     _events.ScheduleEvent(EVENT_GEOMANCER_EARTH_BOLT, 3s, 10s);
@@ -4792,14 +4749,10 @@ struct npc_quilboar_geomancer : public ScriptedAI
             }
         }
 
-        if (!UpdateVictim())
-            return;
-
         DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;
-    bool _outOfCombat;
 };
 
 enum ExilesReachOgreOverseerData
@@ -4940,6 +4893,32 @@ struct at_briarpatch_to_plains : AreaTriggerAI
     }
 };
 
+class spell_quilboar_sleep_dnt : public AuraScript
+{
+    void ApplyEffect(AuraEffect const* /* aurEff */, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* target = GetTarget()->ToCreature())
+        {
+            target->SetReactState(REACT_PASSIVE);
+        }
+    }
+
+    void RemoveEffect(AuraEffect const* /* aurEff */, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* target = GetTarget()->ToCreature())
+        {
+            target->SetReactState(REACT_AGGRESSIVE);
+            target->SetStandState(UNIT_STAND_STATE_STAND);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_quilboar_sleep_dnt::RemoveEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_quilboar_sleep_dnt::ApplyEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_zone_exiles_reach()
 {
     // Ship
@@ -5027,4 +5006,5 @@ void AddSC_zone_exiles_reach()
     RegisterCreatureAI(npc_quilboar_geomancer);
     RegisterCreatureAI(npc_ogre_overseer);
     RegisterAreaTriggerAI(at_briarpatch_to_plains);
+    RegisterSpellScript(spell_quilboar_sleep_dnt);
 };
