@@ -40,6 +40,7 @@
 #include "Transport.h"
 #include "Loot.h"
 #include "SpellHistory.h"
+#include "WorldStateMgr.h"
 
 template<class privateAI, class publicAI>
 CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
@@ -4442,7 +4443,9 @@ enum Geolord
 
     SPELL_NECROTIC_RITUAL_DNT  = 305513,
     SPELL_EARTH_BOLT           = 270453,
-    SPELL_UPHEAVAL             = 319273
+    SPELL_UPHEAVAL             = 319273,
+
+    WORLDSTATE_HORDE           = 4486
 };
 
 Position const PrisonerPosition = { 16.4271f, -2511.82f, 78.8215f, 5.66398f  };
@@ -4457,7 +4460,7 @@ struct npc_geolord_grekog : public ScriptedAI
         uint32 _entry = NPC_LINDIE_SPRINGSTOCK;
         std::string_view creatureString = "briarpatch_bunny_alliance";
 
-        if (me->GetInstanceId())
+        if (sWorldStateMgr->GetValue(WORLDSTATE_HORDE, me->GetMap()) == 1)
         {
             _entry = NPC_CORK_FIZZLEPOP;
             creatureString = "Briarpatch_bunny_horde";
@@ -4557,7 +4560,7 @@ struct npc_briarpatch_prisoner : public ScriptedAI
     void SetData(uint32 /*type*/, uint32 data) override
     {
         if (data == SET_DATA_FREE_PRISONER)
-        {  
+        {
             me->RemoveAllAuras();
             me->SetDisableGravity(false);
             me->SetTemplateRooted(false);

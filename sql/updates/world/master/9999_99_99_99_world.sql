@@ -177,7 +177,7 @@ DELETE FROM `creature_text` WHERE `CreatureID` IN (150237,156676) AND `GroupID` 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (150238) AND `GroupID` IN (0,1,2);
 DELETE FROM `creature_text` WHERE `CreatureID` IN (154301,167008) AND `GroupID` IN (0);
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
-(150237, 0, 0, 'The geolord demands your demise!', 12, 0, 100, 0, 0, 150271, 178951, 0, 'Quilboar Warrior aggro'),
+(150237, 0, 0, 'The geolord demands your demise!', 12, 0, 100, 0, 0, 150271, 176076, 0, 'Quilboar Warrior aggro'),
 (150237, 0, 1, 'The ogres give us strength!', 12, 0, 100, 0, 0, 150276, 176074, 0, 'Quilboar Warrior aggro'),
 (150237, 0, 2, 'Your blood will earn our reward!', 12, 0, 100, 0, 0, 150277, 176075, 0, 'Quilboar Warrior aggro'),
 (150237, 0, 3, 'We serve the geolord!', 12, 0, 100, 0, 0, 150279, 176077, 0, 'Quilboar Warrior aggro'),
@@ -190,7 +190,7 @@ INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language
 (150237, 1, 2, 'Ogres... will... kill you...', 12, 0, 100, 0, 0, 150286, 176085, 0, 'Quilboar Warrior death'),
 (150237, 1, 3, 'The geolord... will not... lose...', 12, 0, 100, 0, 0, 150287, 176086, 0, 'Quilboar Warrior death'),
 (150237, 1, 4, 'Thorns... take... you...', 12, 0, 100, 0, 0, 150288, 176088, 0, 'Quilboar Warrior death'),
-(150238, 0, 0, 'The geolord demands your demise!', 12, 0, 100, 0, 0, 150271, 178951, 0, 'Quilboar Geomancer aggro'),
+(150238, 0, 0, 'The geolord demands your demise!', 12, 0, 100, 0, 0, 150271, 176076, 0, 'Quilboar Geomancer aggro'),
 (150238, 0, 1, 'The ogres give us strength!', 12, 0, 100, 0, 0, 150276, 176074, 0, 'Quilboar Geomancer aggro'),
 (150238, 0, 2, 'Your blood will earn our reward!', 12, 0, 100, 0, 0, 150277, 176075, 0, 'Quilboar Geomancer aggro'),
 (150238, 0, 3, 'We serve the geolord!', 12, 0, 100, 0, 0, 150279, 176077, 0, 'Quilboar Geomancer aggro'),
@@ -215,6 +215,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (313265, 'spell_quilboar_sleep_dnt');
 
 -- Fix previous commits
+
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15315,15318,13779,13776) AND `SourceEntry` = 0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (26,15315,0,0,0,47,0,59938,66,0,0,0,0,'','Apply Phase 15315 if Quest 59938 (Down with the Quilboar) is completed or rewarded'),
@@ -227,12 +228,12 @@ SET @ID := 150237;
 UPDATE `creature_template_difficulty` SET `LootID`=@ID, GoldMin=4, GoldMax=20 WHERE `Entry` IN (@ID,@ID+1);
 DELETE FROM `creature_loot_template` WHERE `Entry` IN (@ID);
 INSERT INTO `creature_loot_template` (`Entry`,`Item`,`Reference`,`Chance`,`QuestRequired`,`LootMode`,`GroupId`,`MinCount`,`MaxCount`,`Comment`) VALUES
-(@ID,771,0,20,0,1,1,1,1,'Quilboar Warrior/Geomancer - Chipped Boar Tusk'),
-(@ID,174811,0,20,0,1,2,1,1,'Quilboar Warrior/Geomancer - Stitched Cloth Tunic'),
-(@ID,174812,0,20,0,1,3,1,1,'Quilboar Warrior/Geomancer - Stitched Leather Tunic'),
-(@ID,174813,0,20,0,1,4,1,1,'Quilboar Warrior/Geomancer - Linked Mail Hauberk'),
-(@ID,174814,0,20,0,1,5,1,1,'Quilboar Warrior/Geomancer - Dented Chestplate'),
-(@ID,0,10100,15,0,1,6,1,1,'Quilboar Warrior/Geomancer - Poor Quality Table Level 1 to 5');
+(@ID,771,0,20,0,1,0,1,1,'Quilboar Warrior/Geomancer - Chipped Boar Tusk'),
+(@ID,174811,0,20,0,1,0,1,1,'Quilboar Warrior/Geomancer - Stitched Cloth Tunic'),
+(@ID,174812,0,20,0,1,0,1,1,'Quilboar Warrior/Geomancer - Stitched Leather Tunic'),
+(@ID,174813,0,20,0,1,0,1,1,'Quilboar Warrior/Geomancer - Linked Mail Hauberk'),
+(@ID,174814,0,20,0,1,0,1,1,'Quilboar Warrior/Geomancer - Dented Chestplate'),
+(@ID,0,10100,15,0,1,0,1,1,'Quilboar Warrior/Geomancer - Poor Quality Table Level 1 to 5');
 
 -- Loot for Geolord Grek'og
 SET @ID := 151091;
