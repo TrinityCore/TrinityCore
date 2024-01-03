@@ -678,7 +678,7 @@ void ObjectMgr::LoadCreatureSummonedData()
     uint32 oldMSTime = getMSTime();
 
     //                                               0           1                            2                     3                     4
-    QueryResult result = WorldDatabase.Query("SELECT CreatureID, CreatureIDVisibleToSummoner, GroundMountDisplayID, FlyingMountDisplayID, QuestsToDespawnOnQuestRemove FROM creature_summoned_data");
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, CreatureIDVisibleToSummoner, GroundMountDisplayID, FlyingMountDisplayID, DespawnOnQuestsRemoved FROM creature_summoned_data");
 
     if (!result)
     {
@@ -734,13 +734,13 @@ void ObjectMgr::LoadCreatureSummonedData()
 
         if (!fields[4].IsNull())
         {
-            summonedData.QuestsToDespawnOnQuestRemove.emplace();
+            summonedData.DespawnOnQuestsRemoved.emplace();
             for (std::string_view questStr : Trinity::Tokenize(fields[4].GetStringView(), ',', false))
             {
                 if (Optional<uint32> questId = Trinity::StringTo<uint32>(questStr))
                 {
                     // quests aren't loaded yet, we cannot validate them
-                    summonedData.QuestsToDespawnOnQuestRemove->push_back(*questId);
+                    summonedData.DespawnOnQuestsRemoved->push_back(*questId);
                 }
             }
         }

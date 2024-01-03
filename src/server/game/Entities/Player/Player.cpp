@@ -16393,9 +16393,9 @@ void Player::DespawnPersonalSpawnsForQuest(uint32 questId)
         if (!summonedData)
             continue;
 
-        if (summonedData->QuestsToDespawnOnQuestRemove)
+        if (summonedData->DespawnOnQuestsRemoved)
         {
-            if (std::find(summonedData->QuestsToDespawnOnQuestRemove->begin(), summonedData->QuestsToDespawnOnQuestRemove->end(), questId) != summonedData->QuestsToDespawnOnQuestRemove->end())
+            if (std::find(summonedData->DespawnOnQuestsRemoved->begin(), summonedData->DespawnOnQuestsRemoved->end(), questId) != summonedData->DespawnOnQuestsRemoved->end())
                 creature->DespawnOrUnsummon();
         }
     }
