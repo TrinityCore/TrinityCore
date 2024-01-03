@@ -230,13 +230,17 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
 bool Conversation::Start()
 {
-    for (UF::ConversationLine const& line : *m_conversationData->Lines)
+    ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(GetEntry()); // never null, already checked in ::Create / ::CreateConversation
+    if (!conversationTemplate->Flags.HasFlag(ConversationFlags::AllowWithoutSpawnedActor))
     {
-        UF::ConversationActor const* actor = line.ActorIndex < m_conversationData->Actors.size() ? &m_conversationData->Actors[line.ActorIndex] : nullptr;
-        if (!actor || (!actor->CreatureID && actor->ActorGUID.IsEmpty() && !actor->NoActorObject))
+        for (UF::ConversationLine const& line : *m_conversationData->Lines)
         {
-            TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: {}) due to missing actor (Idx: {}).", GetEntry(), line.ActorIndex);
-            return false;
+            UF::ConversationActor const* actor = line.ActorIndex < m_conversationData->Actors.size() ? &m_conversationData->Actors[line.ActorIndex] : nullptr;
+            if (!actor || (!actor->CreatureID && actor->ActorGUID.IsEmpty() && !actor->NoActorObject))
+            {
+                TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: {}) due to missing actor (Idx: {}).", GetEntry(), line.ActorIndex);
+                return false;
+            }
         }
     }
 
