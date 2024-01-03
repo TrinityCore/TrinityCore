@@ -37,7 +37,7 @@ UPDATE `gameobject` SET `StringId`='vision_brazier_garrosh_voljin' WHERE `guid`=
 UPDATE `gameobject` SET `StringId`='vision_brazier_thrall' WHERE `guid`=201970;
 
 -- Remove extra spawns of 202434 and 202444 Vision Braziers
-DELETE FROM `gameobject` WHERE `guid` IN (202464,218489,219660,219739); 
+DELETE FROM `gameobject` WHERE `guid` IN (202464,218489,219660,219739);
 
 -- Add invisibility to both Vision Braziers
 DELETE FROM `gameobject_addon` WHERE `guid` IN (201961,201970);
