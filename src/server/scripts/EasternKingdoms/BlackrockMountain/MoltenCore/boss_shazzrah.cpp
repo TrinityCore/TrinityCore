@@ -112,8 +112,6 @@ struct boss_shazzrah : public BossAI
 // 23138 - Gate of Shazzrah
 class spell_shazzrah_gate_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_shazzrah_gate_dummy);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAZZRAH_GATE });

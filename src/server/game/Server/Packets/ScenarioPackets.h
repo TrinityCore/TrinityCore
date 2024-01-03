@@ -26,101 +26,100 @@
 
 struct ScenarioPOI;
 
-namespace WorldPackets
+namespace WorldPackets::Scenario
 {
-    namespace Scenario
-    {
-        struct BonusObjectiveData
-        {
-            int32 BonusObjectiveID = 0;
-            bool ObjectiveComplete = false;
-        };
+struct BonusObjectiveData
+{
+    int32 BonusObjectiveID = 0;
+    bool ObjectiveComplete = false;
+};
 
-        struct ScenarioSpellUpdate
-        {
-            uint32 SpellID = 0;
-            bool Usable = true;
-        };
+struct ScenarioSpellUpdate
+{
+    uint32 SpellID = 0;
+    bool Usable = true;
+};
 
-        class ScenarioState final : public ServerPacket
-        {
-        public:
-            ScenarioState() : ServerPacket(SMSG_SCENARIO_STATE) { }
+class ScenarioState final : public ServerPacket
+{
+public:
+    ScenarioState() : ServerPacket(SMSG_SCENARIO_STATE) { }
 
-            WorldPacket const* Write() override;
+    WorldPacket const* Write() override;
 
-            int32 ScenarioID = 0;
-            int32 CurrentStep = -1;
-            uint32 DifficultyID = 0;
-            uint32 WaveCurrent = 0;
-            uint32 WaveMax = 0;
-            uint32 TimerDuration = 0;
-            std::vector<WorldPackets::Achievement::CriteriaProgress> CriteriaProgress;
-            std::vector<BonusObjectiveData> BonusObjectives;
-            std::vector<uint32> PickedSteps;
-            std::vector<ScenarioSpellUpdate> Spells;
-            ObjectGuid PlayerGUID;
-            bool ScenarioComplete = false;
-        };
+    ObjectGuid ScenarioGUID;
+    int32 ScenarioID = 0;
+    int32 CurrentStep = -1;
+    uint32 DifficultyID = 0;
+    uint32 WaveCurrent = 0;
+    uint32 WaveMax = 0;
+    uint32 TimerDuration = 0;
+    std::vector<Achievement::CriteriaProgress> CriteriaProgress;
+    std::vector<BonusObjectiveData> BonusObjectives;
+    std::vector<uint32> PickedSteps;
+    std::vector<ScenarioSpellUpdate> Spells;
+    ObjectGuid PlayerGUID;
+    bool ScenarioComplete = false;
+};
 
-        class ScenarioProgressUpdate final : public ServerPacket
-        {
-        public:
-            ScenarioProgressUpdate() : ServerPacket(SMSG_SCENARIO_PROGRESS_UPDATE) { }
+class ScenarioProgressUpdate final : public ServerPacket
+{
+public:
+    ScenarioProgressUpdate() : ServerPacket(SMSG_SCENARIO_PROGRESS_UPDATE) { }
 
-            WorldPacket const* Write() override;
+    WorldPacket const* Write() override;
 
-            WorldPackets::Achievement::CriteriaProgress CriteriaProgress;
-        };
+    Achievement::CriteriaProgress CriteriaProgress;
+};
 
-        class ScenarioCompleted final : public ServerPacket
-        {
-        public:
-            ScenarioCompleted(uint32 scenarioId) : ServerPacket(SMSG_SCENARIO_COMPLETED, 4), ScenarioID(scenarioId) { }
+class ScenarioCompleted final : public ServerPacket
+{
+public:
+    ScenarioCompleted(uint32 scenarioId) : ServerPacket(SMSG_SCENARIO_COMPLETED, 4), ScenarioID(scenarioId) { }
 
-            WorldPacket const* Write() override;
+    WorldPacket const* Write() override;
 
-            uint32 ScenarioID = 0;
-        };
+    uint32 ScenarioID = 0;
+};
 
-        class ScenarioVacate final : public ServerPacket
-        {
-        public:
-            ScenarioVacate() : ServerPacket(SMSG_SCENARIO_VACATE, 4 + 4 + 1) { }
+class ScenarioVacate final : public ServerPacket
+{
+public:
+    ScenarioVacate() : ServerPacket(SMSG_SCENARIO_VACATE, 4 + 4 + 1) { }
 
-            WorldPacket const* Write() override;
+    WorldPacket const* Write() override;
 
-            int32 ScenarioID = 0;
-            int32 Unk1 = 0;
-            uint8 Unk2 = 0;
-        };
+    ObjectGuid ScenarioGUID;
+    int32 ScenarioID = 0;
+    int32 Unk1 = 0;
+    uint8 Unk2 = 0;
+};
 
-        class QueryScenarioPOI final : public ClientPacket
-        {
-        public:
-            QueryScenarioPOI(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_SCENARIO_POI, std::move(packet)) { }
+class QueryScenarioPOI final : public ClientPacket
+{
+public:
+    QueryScenarioPOI(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_SCENARIO_POI, std::move(packet)) { }
 
-            void Read() override;
+    void Read() override;
 
-            Array<int32, MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE> MissingScenarioPOIs;
-        };
+    Array<int32, MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE> MissingScenarioPOIs;
+};
 
-        struct ScenarioPOIData
-        {
-            int32 CriteriaTreeID = 0;
-            std::vector<ScenarioPOI> const* ScenarioPOIs = nullptr;
-        };
+struct ScenarioPOIData
+{
+    int32 CriteriaTreeID = 0;
+    std::vector<ScenarioPOI> const* ScenarioPOIs = nullptr;
+};
 
-        class ScenarioPOIs final : public ServerPacket
-        {
-        public:
-            ScenarioPOIs() : ServerPacket(SMSG_SCENARIO_POIS) { }
+class ScenarioPOIs final : public ServerPacket
+{
+public:
+    ScenarioPOIs() : ServerPacket(SMSG_SCENARIO_POIS) { }
 
-            WorldPacket const* Write() override;
+    WorldPacket const* Write() override;
 
-            std::vector<ScenarioPOIData> ScenarioPOIDataStats;
-        };
-    }
+    std::vector<ScenarioPOIData> ScenarioPOIDataStats;
+};
 }
 
 #endif // ScenarioPackets_h__

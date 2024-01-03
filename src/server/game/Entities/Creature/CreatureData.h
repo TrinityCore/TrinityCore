@@ -359,7 +359,7 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_UNUSED_25            = 0x02000000,
     CREATURE_FLAG_EXTRA_UNUSED_26            = 0x04000000,
     CREATURE_FLAG_EXTRA_UNUSED_27            = 0x08000000,
-    CREATURE_FLAG_EXTRA_DUNGEON_BOSS         = 0x10000000,       // creature is a dungeon boss (SET DYNAMICALLY, DO NOT ADD IN DB)
+    CREATURE_FLAG_EXTRA_DUNGEON_BOSS         = 0x10000000,       // creature is a dungeon boss
     CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING   = 0x20000000,       // creature ignore pathfinding
     CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK   = 0x40000000,       // creature is immune to knockback effects
     CREATURE_FLAG_EXTRA_UNUSED_31            = 0x80000000,
@@ -518,7 +518,7 @@ struct TC_GAME_API CreatureTemplate
     float   speed_walk;
     float   speed_run;
     float   scale;
-    uint32  rank;
+    CreatureClassifications  Classification;
     uint32  dmgschool;
     uint32  BaseAttackTime;
     uint32  RangeAttackTime;
@@ -613,17 +613,17 @@ struct EquipmentInfo
 struct CreatureData : public SpawnData
 {
     CreatureData() : SpawnData(SPAWN_TYPE_CREATURE) { }
-    uint32 displayid = 0;
+    Optional<CreatureModel> display;
     int8 equipmentId = 0;
     float wander_distance = 0.0f;
     uint32 currentwaypoint = 0;
     uint32 curhealth = 0;
     uint32 curmana = 0;
     uint8 movementType = 0;
-    uint64 npcflag;
-    uint32 unit_flags = 0;                                  // enum UnitFlags mask values
-    uint32 unit_flags2 = 0;                                 // enum UnitFlags2 mask values
-    uint32 unit_flags3 = 0;                                 // enum UnitFlags3 mask values
+    Optional<uint64> npcflag;
+    Optional<uint32> unit_flags;                                  // enum UnitFlags mask values
+    Optional<uint32> unit_flags2;                                 // enum UnitFlags2 mask values
+    Optional<uint32> unit_flags3;                                 // enum UnitFlags3 mask values
 };
 
 struct CreatureModelInfo

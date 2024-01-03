@@ -159,7 +159,7 @@ public:
             if (spellInfo->Id == SPELL_INFERNAL_RELAY)
             {
                 me->SetDisplayId(me->GetNativeDisplayId());
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 HellfireTimer = 4000;
                 CleanupTimer = 170000;
             }
@@ -453,7 +453,7 @@ public:
                         Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
                         if (axe)
                         {
-                            axe->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            axe->SetUninteractible(true);
                             axe->SetFaction(me->GetFaction());
                             axes[i] = axe->GetGUID();
                             if (target)
@@ -551,29 +551,7 @@ public:
                 } else EnfeebleTimer -= diff;
             }
 
-            if (phase == 2)
-                DoMeleeAttacksIfReady();
-            else
-                DoMeleeAttackIfReady();
-        }
-
-        void DoMeleeAttacksIfReady()
-        {
-            if (me->IsWithinMeleeRange(me->GetVictim()) && !me->IsNonMeleeSpellCast(false))
-            {
-                //Check for base attack
-                if (me->isAttackReady() && me->GetVictim())
-                {
-                    me->AttackerStateUpdate(me->GetVictim());
-                    me->resetAttackTimer();
-                }
-                //Check for offhand attack
-                if (me->isAttackReady(OFF_ATTACK) && me->GetVictim())
-                {
-                    me->AttackerStateUpdate(me->GetVictim(), OFF_ATTACK);
-                    me->resetAttackTimer(OFF_ATTACK);
-                }
-            }
+            DoMeleeAttackIfReady();
         }
 
         void Cleanup(Creature* infernal, InfernalPoint *point)

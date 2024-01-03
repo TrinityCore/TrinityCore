@@ -19,12 +19,14 @@
 #define _REALMLIST_H
 
 #include "Define.h"
+#include "Duration.h"
 #include "Realm.h"
 #include <array>
 #include <map>
+#include <memory>
 #include <shared_mutex>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 struct RealmBuildInfo
 {
@@ -37,35 +39,15 @@ struct RealmBuildInfo
     std::array<uint8, 16> Mac64AuthSeed;
 };
 
-namespace boost
+namespace bgs::protocol::game_utilities::v1
 {
-    namespace system
-    {
-        class error_code;
-    }
+class ClientResponse;
+class GetAllValuesForAttributeResponse;
 }
 
-namespace bgs
+namespace JSON::RealmList
 {
-    namespace protocol
-    {
-        namespace game_utilities
-        {
-            namespace v1
-            {
-                class ClientResponse;
-                class GetAllValuesForAttributeResponse;
-            }
-        }
-    }
-}
-
-namespace JSON
-{
-    namespace RealmList
-    {
-        class RealmListUpdates;
-    }
+class RealmListUpdates;
 }
 
 /// Storage object for the list of realms on the server
@@ -90,15 +72,16 @@ public:
     std::vector<uint8> GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build) const;
     std::vector<uint8> GetRealmList(uint32 build, std::string const& subRegion) const;
     uint32 JoinRealm(uint32 realmAddress, uint32 build, boost::asio::ip::address const& clientAddress, std::array<uint8, 32> const& clientSecret,
-        LocaleConstant locale, std::string const& os, std::string accountName, bgs::protocol::game_utilities::v1::ClientResponse* response) const;
+        LocaleConstant locale, std::string const& os, Minutes timezoneOffset, std::string const& accountName,
+        bgs::protocol::game_utilities::v1::ClientResponse* response) const;
 
 private:
     RealmList();
 
     void LoadBuildInfo();
-    void UpdateRealms(boost::system::error_code const& error);
+    void UpdateRealms();
     void UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
-        boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr, boost::asio::ip::address&& localSubmask,
+        boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr,
         uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
     std::vector<RealmBuildInfo> _builds;
@@ -111,4 +94,5 @@ private:
 };
 
 #define sRealmList RealmList::Instance()
+
 #endif

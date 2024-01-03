@@ -174,16 +174,16 @@ bool Weather::ReGenerate()
     }
     else if (u < 90)
     {
-        m_intensity = (float)rand_norm() * 0.3333f;
+        m_intensity = rand_norm() * 0.3333f;
     }
     else
     {
         // Severe change, but how severe?
         rnd = urand(0, 99);
         if (rnd < 50)
-            m_intensity = (float)rand_norm() * 0.3333f + 0.3334f;
+            m_intensity = rand_norm() * 0.3333f + 0.3334f;
         else
-            m_intensity = (float)rand_norm() * 0.3333f + 0.6667f;
+            m_intensity = rand_norm() * 0.3333f + 0.6667f;
     }
 
     // return true only in case weather changes

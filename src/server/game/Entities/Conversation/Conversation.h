@@ -66,8 +66,8 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         void AddActor(int32 actorId, uint32 actorIdx, ObjectGuid const& actorGuid);
         void AddActor(int32 actorId, uint32 actorIdx, ConversationActorType type, uint32 creatureId, uint32 creatureDisplayInfoId);
 
-        ObjectGuid const& GetCreatorGuid() const { return _creatorGuid; }
-        ObjectGuid GetOwnerGUID() const override { return GetCreatorGuid(); }
+        ObjectGuid GetCreatorGUID() const override { return _creatorGuid; }
+        ObjectGuid GetOwnerGUID() const override { return GetCreatorGUID(); }
         uint32 GetFaction() const override { return 0; }
 
         float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }
@@ -78,6 +78,12 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
 
         Milliseconds const* GetLineStartTime(LocaleConstant locale, int32 lineId) const;
         Milliseconds GetLastLineEndTime(LocaleConstant locale) const;
+        static int32 GetLineDuration(LocaleConstant locale, int32 lineId);
+        Milliseconds GetLineEndTime(LocaleConstant locale, int32 lineId) const;
+
+        LocaleConstant GetPrivateObjectOwnerLocale() const;
+        Unit* GetActorUnit(uint32 actorIdx) const;
+        Creature* GetActorCreature(uint32 actorIdx) const;
 
         uint32 GetScriptId() const;
 

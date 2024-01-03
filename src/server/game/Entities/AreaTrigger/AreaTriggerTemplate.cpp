@@ -21,14 +21,17 @@
 #include <cstring>
 #include <cmath>
 
-AreaTriggerScaleInfo::AreaTriggerScaleInfo()
+AreaTriggerScaleCurvePointsTemplate::AreaTriggerScaleCurvePointsTemplate() : Mode(CurveInterpolationMode::Linear), Points()
 {
-    memset(Data.Raw, 0, sizeof(Data.Raw));
+}
+
+AreaTriggerScaleCurveTemplate::AreaTriggerScaleCurveTemplate() : StartTimeOffset(0), Curve(1.0f)
+{
 }
 
 AreaTriggerShapeInfo::AreaTriggerShapeInfo()
 {
-    Type = AREATRIGGER_TYPE_MAX;
+    Type = AreaTriggerShapeType::Max;
     memset(DefaultDatas.Data, 0, sizeof(DefaultDatas.Data));
 }
 
@@ -36,16 +39,33 @@ float AreaTriggerShapeInfo::GetMaxSearchRadius() const
 {
     switch (Type)
     {
-        case AREATRIGGER_TYPE_SPHERE:
+        case AreaTriggerShapeType::Sphere:
             return std::max(SphereDatas.Radius, SphereDatas.RadiusTarget);
-        case AREATRIGGER_TYPE_BOX:
-            return std::sqrt(BoxDatas.Extents[0] * BoxDatas.Extents[0] + BoxDatas.Extents[1] * BoxDatas.Extents[1]);
-        case AREATRIGGER_TYPE_CYLINDER:
+        case AreaTriggerShapeType::Box:
+            return std::sqrt(std::max(
+                BoxDatas.Extents[0] * BoxDatas.Extents[0] + BoxDatas.Extents[1] * BoxDatas.Extents[1],
+                BoxDatas.ExtentsTarget[0] * BoxDatas.ExtentsTarget[0] + BoxDatas.ExtentsTarget[1] * BoxDatas.ExtentsTarget[1]));
+        case AreaTriggerShapeType::Polygon:
+        {
+            Position center(0.0f, 0.0f);
+            float maxSearchRadius = 0.0f;
+
+            for (TaggedPosition<Position::XY> const& vertex : PolygonVertices)
+                maxSearchRadius = std::max(maxSearchRadius, center.GetExactDist2d(vertex));
+
+            for (TaggedPosition<Position::XY> const& vertex : PolygonVerticesTarget)
+                maxSearchRadius = std::max(maxSearchRadius, center.GetExactDist2d(vertex));
+
+            return maxSearchRadius;
+        }
+        case AreaTriggerShapeType::Cylinder:
             return std::max(CylinderDatas.Radius, CylinderDatas.RadiusTarget);
-        case AREATRIGGER_TYPE_DISK:
+        case AreaTriggerShapeType::Disk:
             return std::max(DiskDatas.OuterRadius, DiskDatas.OuterRadiusTarget);
-        case AREATRIGGER_TYPE_BOUNDED_PLANE:
-            return std::sqrt(BoundedPlaneDatas.Extents[0] * BoundedPlaneDatas.Extents[0] / 4 + BoundedPlaneDatas.Extents[1] * BoundedPlaneDatas.Extents[1] / 4);
+        case AreaTriggerShapeType::BoundedPlane:
+            return std::sqrt(std::max(
+                BoundedPlaneDatas.Extents[0] * BoundedPlaneDatas.Extents[0] / 4 + BoundedPlaneDatas.Extents[1] * BoundedPlaneDatas.Extents[1] / 4,
+                BoundedPlaneDatas.ExtentsTarget[0] * BoundedPlaneDatas.ExtentsTarget[0] / 4 + BoundedPlaneDatas.ExtentsTarget[1] * BoundedPlaneDatas.ExtentsTarget[1] / 4));
         default:
             break;
     }
@@ -53,19 +73,17 @@ float AreaTriggerShapeInfo::GetMaxSearchRadius() const
     return 0.0f;
 }
 
-AreaTriggerTemplate::AreaTriggerTemplate()
+AreaTriggerTemplate::AreaTriggerTemplate() : Flags(AreaTriggerFlag::None)
 {
     Id = { 0, false };
-    Flags = 0;
 }
 
-AreaTriggerTemplate::~AreaTriggerTemplate()
-{
-}
+AreaTriggerTemplate::~AreaTriggerTemplate() = default;
 
-AreaTriggerCreateProperties::AreaTriggerCreateProperties()
+AreaTriggerCreateProperties::AreaTriggerCreateProperties() : Flags(AreaTriggerCreatePropertiesFlag::None)
 {
-    Id = 0;
+    Id = { 0, false };
+    Template = nullptr;
 
     MoveCurveId = 0;
     ScaleCurveId = 0;
@@ -80,44 +98,14 @@ AreaTriggerCreateProperties::AreaTriggerCreateProperties()
     TimeToTarget = 0;
     TimeToTargetScale = 0;
 
-    // legacy code from before it was known what each curve field does
-    // wtf? thats not how you pack curve data
-    float tmp = 1.0000001f;
-    memcpy(&ExtraScale.Data.Raw[5], &tmp, sizeof(tmp));
-    // also OverrideActive does nothing on ExtraScale
-    ExtraScale.Data.Structured.OverrideActive = 1;
-
-    Template = nullptr;
+    ExtraScale.emplace();
 
     ScriptId = 0;
 }
 
-AreaTriggerCreateProperties::~AreaTriggerCreateProperties()
-{
-}
+AreaTriggerCreateProperties::~AreaTriggerCreateProperties() = default;
 
 bool AreaTriggerCreateProperties::HasSplines() const
 {
     return SplinePoints.size() >= 2;
-}
-
-float AreaTriggerCreateProperties::GetMaxSearchRadius() const
-{
-    if (Shape.Type == AREATRIGGER_TYPE_POLYGON)
-    {
-        Position center(0.0f, 0.0f);
-        float maxSearchRadius = 0.0f;
-
-        for (TaggedPosition<Position::XY> const& vertice : PolygonVertices)
-        {
-            float pointDist = center.GetExactDist2d(vertice);
-
-            if (pointDist > maxSearchRadius)
-                maxSearchRadius = pointDist;
-        }
-
-        return maxSearchRadius;
-    }
-
-    return Shape.GetMaxSearchRadius();
 }

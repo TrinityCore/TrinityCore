@@ -25,7 +25,7 @@ namespace WorldPackets
 {
     namespace Reputation
     {
-        static constexpr uint16 FactionCount = 443;
+        static constexpr uint16 FactionCount = 1000;
 
         class InitializeFactions final : public ServerPacket
         {

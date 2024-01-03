@@ -40,6 +40,8 @@ enum class TimeFormat : uint8
 
 namespace Trinity
 {
+    TC_COMMON_API void VerifyOsVersion();
+
     TC_COMMON_API std::vector<std::string_view> Tokenize(std::string_view str, char sep, bool keepEmpty);
 
     /* this would return string_view into temporary otherwise */
@@ -54,8 +56,9 @@ TC_COMMON_API Optional<int64> MoneyStringToMoney(std::string const& moneyString)
 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
 TC_COMMON_API struct tm* localtime_r(time_t const* time, struct tm *result);
+TC_COMMON_API struct tm* gmtime_r(time_t const* time, struct tm *result);
+TC_COMMON_API time_t timegm(struct tm* tm);
 #endif
-TC_COMMON_API time_t LocalTimeToUTCTime(time_t time);
 TC_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime = true);
 TC_COMMON_API tm TimeBreakdown(time_t t);
 
@@ -157,23 +160,28 @@ inline bool isCyrillicCharacter(wchar_t wchar)
     return false;
 }
 
-inline bool isEastAsianCharacter(wchar_t wchar)
+inline bool isKoreanCharacter(wchar_t wchar)
 {
     if (wchar >= 0x1100 && wchar <= 0x11F9)                  // Hangul Jamo
         return true;
-    if (wchar >= 0x3041 && wchar <= 0x30FF)                  // Hiragana + Katakana
-        return true;
     if (wchar >= 0x3131 && wchar <= 0x318E)                  // Hangul Compatibility Jamo
-        return true;
-    if (wchar >= 0x31F0 && wchar <= 0x31FF)                  // Katakana Phonetic Ext.
-        return true;
-    if (wchar >= 0x3400 && wchar <= 0x4DB5)                  // CJK Ideographs Ext. A
-        return true;
-    if (wchar >= 0x4E00 && wchar <= 0x9FC3)                  // Unified CJK Ideographs
         return true;
     if (wchar >= 0xAC00 && wchar <= 0xD7A3)                  // Hangul Syllables
         return true;
     if (wchar >= 0xFF01 && wchar <= 0xFFEE)                  // Halfwidth forms
+        return true;
+    return false;
+}
+
+inline bool isChineseCharacter(wchar_t wchar)
+{
+    if (wchar >= 0x4E00 && wchar <= 0x9FFF)                  // Unified CJK Ideographs
+        return true;
+    if (wchar >= 0x3400 && wchar <= 0x4DBF)                  // CJK Ideographs Ext. A
+        return true;
+    if (wchar >= 0x3100 && wchar <= 0x312C)                  // Bopomofo
+        return true;
+    if (wchar >= 0xF900 && wchar <= 0xFAFF)                  // CJK Compatibility Ideographs
         return true;
     return false;
 }
@@ -226,10 +234,18 @@ inline bool isCyrillicString(std::wstring_view wstr, bool numericOrSpace)
     return true;
 }
 
-inline bool isEastAsianString(std::wstring_view wstr, bool numericOrSpace)
+inline bool isKoreanString(std::wstring_view wstr, bool numericOrSpace)
 {
     for (wchar_t c : wstr)
-        if (!isEastAsianCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
+        if (!isKoreanCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
+            return false;
+    return true;
+}
+
+inline bool isChineseString(std::wstring_view wstr, bool numericOrSpace)
+{
+    for (wchar_t c : wstr)
+        if (!isChineseCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
             return false;
     return true;
 }

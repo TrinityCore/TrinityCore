@@ -128,7 +128,8 @@ class boss_kirtonos_the_herald : public CreatureScript
                 events.ScheduleEvent(INTRO_1, 500ms);
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_PASSIVE);
-                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                me->SetUninteractible(true);
                 Talk(EMOTE_SUMMONED);
             }
 
@@ -178,7 +179,8 @@ class boss_kirtonos_the_herald : public CreatureScript
                             case INTRO_5:
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                                 me->SetVirtualItem(0, uint32(WEAPON_KIRTONOS_STAFF));
-                                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                                me->SetUninteractible(false);
+                                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 events.ScheduleEvent(INTRO_6, 5s);
                                 break;

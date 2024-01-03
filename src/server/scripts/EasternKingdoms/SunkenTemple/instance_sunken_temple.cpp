@@ -26,6 +26,7 @@ EndScriptData */
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "Unit.h"
 #include "sunken_temple.h"
 
 enum Gameobject
@@ -47,6 +48,17 @@ enum CreatureIds
     NPC_MALFURION_STORMRAGE     = 15362
 };
 
+static constexpr DungeonEncounterData Encounters[]
+{
+    { BOSS_AVATAR_OF_HAKKAR, { { 492 } } },
+    { BOSS_JAMMALAN_THE_PROPHET, { { 488 } } },
+    { BOSS_DREAMSCYTHE, { { 486 } } },
+    { BOSS_WEAVER, { { 487 } } },
+    { BOSS_MORPHAZ, { { 490 } } },
+    { BOSS_HAZZAS, { { 491 } } },
+    { BOSS_SHADE_OF_ERANIKUS, { { 493 } } },
+};
+
 class instance_sunken_temple : public InstanceMapScript
 {
 public:
@@ -62,6 +74,8 @@ public:
         instance_sunken_temple_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            SetBossNumber(MAX_ENCOUNTER);
+            LoadDungeonEncounterData(Encounters);
             State = 0;
 
             s1 = false;
@@ -88,6 +102,21 @@ public:
         bool s4;
         bool s5;
         bool s6;
+
+        void OnUnitDeath(Unit* unit) override
+        {
+            switch (unit->GetEntry())
+            {
+                case NPC_AVATAR_OF_HAKKAR:      SetBossState(BOSS_AVATAR_OF_HAKKAR, DONE); break;
+                case NPC_JAMMALAN_THE_PROPHET:  SetBossState(BOSS_JAMMALAN_THE_PROPHET, DONE); break;
+                case NPC_DREAMSCYTHE:           SetBossState(BOSS_DREAMSCYTHE, DONE); break;
+                case NPC_WEAVER:                SetBossState(BOSS_WEAVER, DONE); break;
+                case NPC_MORPHAZ:               SetBossState(BOSS_MORPHAZ, DONE); break;
+                case NPC_HAZZAS:                SetBossState(BOSS_HAZZAS, DONE); break;
+                case NPC_SHADE_OF_ERANIKUS:     SetBossState(BOSS_SHADE_OF_ERANIKUS, DONE); break;
+                default:                        break;
+            }
+        }
 
         void OnGameObjectCreate(GameObject* go) override
         {

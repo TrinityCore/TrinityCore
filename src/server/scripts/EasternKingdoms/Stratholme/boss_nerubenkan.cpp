@@ -23,7 +23,6 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
@@ -45,12 +44,11 @@ public:
         return GetStratholmeAI<boss_nerubenkanAI>(creature);
     }
 
-    struct boss_nerubenkanAI : public ScriptedAI
+    struct boss_nerubenkanAI : public BossAI
     {
-        boss_nerubenkanAI(Creature* creature) : ScriptedAI(creature)
+        boss_nerubenkanAI(Creature* creature) : BossAI(creature, BOSS_NERUB_ENKAN)
         {
             Initialize();
-            instance = me->GetInstanceScript();
         }
 
         void Initialize()
@@ -61,8 +59,6 @@ public:
             RaiseUndeadScarab_Timer = 3000;
         }
 
-        InstanceScript* instance;
-
         uint32 EncasingWebs_Timer;
         uint32 PierceArmor_Timer;
         uint32 CryptScarabs_Timer;
@@ -70,16 +66,8 @@ public:
 
         void Reset() override
         {
+            _Reset();
             Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(TYPE_NERUB, IN_PROGRESS);
         }
 
         void RaiseUndeadScarab(Unit* victim)

@@ -47,10 +47,9 @@ class Player;
 class Unit;
 struct DungeonEncounterEntry;
 struct InstanceSpawnGroupInfo;
-enum class CriteriaType : uint8;
+enum class CriteriaType : int16;
 enum class CriteriaStartEvent : uint8;
 enum Difficulty : uint8;
-enum EncounterCreditType : uint8;
 
 enum EncounterFrameType
 {
@@ -78,12 +77,13 @@ enum EncounterState
     TO_BE_DECIDED = 5
 };
 
-enum DoorType
+enum class EncounterDoorBehavior : uint8
 {
-    DOOR_TYPE_ROOM          = 0,    // Door can open if encounter is not in progress
-    DOOR_TYPE_PASSAGE       = 1,    // Door can open if encounter is done
-    DOOR_TYPE_SPAWN_HOLE    = 2,    // Door can open if encounter is in progress, typically used for spawning places
-    MAX_DOOR_TYPES
+    OpenWhenNotInProgress   = 0, // open if encounter is not in progress
+    OpenWhenDone            = 1, // open if encounter is done
+    OpenWhenInProgress      = 2, // open if encounter is in progress, typically used for spawning places
+    OpenWhenNotDone         = 3, // open if encounter is not done
+    Max
 };
 
 static constexpr uint32 MAX_DUNGEON_ENCOUNTERS_PER_BOSS = 4;
@@ -97,7 +97,7 @@ struct DungeonEncounterData
 struct DoorData
 {
     uint32 entry, bossId;
-    DoorType type;
+    EncounterDoorBehavior Behavior;
 };
 
 struct BossBoundaryEntry
@@ -140,7 +140,7 @@ struct BossInfo
     DungeonEncounterEntry const* GetDungeonEncounterForDifficulty(Difficulty difficulty) const;
 
     EncounterState state;
-    GuidSet door[MAX_DOOR_TYPES];
+    std::array<GuidSet, static_cast<uint8>(EncounterDoorBehavior::Max)> door;
     GuidSet minion;
     CreatureBoundary boundary;
     std::array<DungeonEncounterEntry const*, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> DungeonEncounters;
@@ -148,10 +148,10 @@ struct BossInfo
 
 struct DoorInfo
 {
-    explicit DoorInfo(BossInfo* _bossInfo, DoorType _type)
-        : bossInfo(_bossInfo), type(_type) { }
+    explicit DoorInfo(BossInfo* _bossInfo, EncounterDoorBehavior _behavior)
+        : bossInfo(_bossInfo), Behavior(_behavior) { }
     BossInfo* bossInfo;
-    DoorType type;
+    EncounterDoorBehavior Behavior;
 };
 
 struct MinionInfo
@@ -284,16 +284,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Checks boss requirements (one boss required to kill other)
         virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = nullptr) const { return true; }
 
-        // Checks encounter state at kill/spellcast
-        void UpdateEncounterStateForKilledCreature(uint32 creatureId, Unit* source);
-        void UpdateEncounterStateForSpellCast(uint32 spellId, Unit* source);
-
-        // Used only during loading
-        void SetCompletedEncountersMask(uint32 newMask);
-
-        // Returns completed encounters mask for packets
-        uint32 GetCompletedEncounterMask() const { return completedEncounters; }
-
         bool IsEncounterCompleted(uint32 dungeonEncounterId) const;
         bool IsEncounterCompletedInMaskByBossId(uint32 completedEncountersMask, uint32 bossId) const;
 
@@ -371,7 +361,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
     private:
         static void LoadObjectData(ObjectData const* creatureData, ObjectInfoMap& objectInfo);
         void LoadDungeonEncounterData(uint32 bossId, std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> const& dungeonEncounterIds);
-        void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
+        void UpdateLfgEncounterState(BossInfo const* bossInfo);
 
         std::string headers;
         std::vector<BossInfo> bosses;
@@ -381,7 +371,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _creatureInfo;
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
-        uint32 completedEncounters; // DEPRECATED, REMOVE
         std::vector<InstanceSpawnGroupInfo> const* const _instanceSpawnGroups;
         std::unordered_set<uint32> _activatedAreaTriggers;
         uint32 _entranceId;

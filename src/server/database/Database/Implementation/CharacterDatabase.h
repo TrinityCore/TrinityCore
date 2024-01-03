@@ -653,9 +653,7 @@ class TC_DATABASE_API CharacterDatabaseConnection : public MySQLConnection
 public:
     typedef CharacterDatabaseStatements Statements;
 
-    //- Constructors for sync and async connections
-    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo);
-    CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
     ~CharacterDatabaseConnection();
 
     //- Loads database type specific prepared statements

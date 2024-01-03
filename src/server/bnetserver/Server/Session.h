@@ -19,16 +19,14 @@
 #define Session_h__
 
 #include "AsyncCallbackProcessor.h"
-#include "Realm.h"
-#include "SslContext.h"
-#include "SslSocket.h"
-#include "Socket.h"
+#include "Duration.h"
 #include "QueryResult.h"
+#include "Realm.h"
+#include "Socket.h"
+#include "SslSocket.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <google/protobuf/message.h>
 #include <memory>
-
-using boost::asio::ip::tcp;
 
 namespace pb = google::protobuf;
 
@@ -66,9 +64,9 @@ using namespace bgs::protocol;
 
 namespace Battlenet
 {
-    class Session : public Socket<Session, SslSocket<SslContext>>
+    class Session : public Socket<Session, SslSocket<>>
     {
-        typedef Socket<Session, SslSocket<SslContext>> BattlenetSocket;
+        typedef Socket<Session, SslSocket<>> BattlenetSocket;
 
     public:
         struct LastPlayedCharacterInfo
@@ -81,7 +79,7 @@ namespace Battlenet
 
         struct GameAccountInfo
         {
-            void LoadResult(Field* fields);
+            void LoadResult(Field const* fields);
 
             uint32 Id;
             std::string Name;
@@ -111,7 +109,7 @@ namespace Battlenet
             std::unordered_map<uint32, GameAccountInfo> GameAccounts;
         };
 
-        explicit Session(tcp::socket&& socket);
+        explicit Session(boost::asio::ip::tcp::socket&& socket);
         ~Session();
 
         void Start() override;
@@ -175,6 +173,7 @@ namespace Battlenet
         std::string _locale;
         std::string _os;
         uint32 _build;
+        Minutes _timezoneOffset;
 
         std::string _ipCountry;
 

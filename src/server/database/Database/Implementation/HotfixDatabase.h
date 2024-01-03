@@ -182,6 +182,10 @@ enum HotfixDatabaseStatements : uint32
     HOTFIX_SEL_BROADCAST_TEXT_DURATION,
     HOTFIX_SEL_BROADCAST_TEXT_DURATION_MAX_ID,
 
+    HOTFIX_SEL_CFG_CATEGORIES,
+    HOTFIX_SEL_CFG_CATEGORIES_MAX_ID,
+    HOTFIX_SEL_CFG_CATEGORIES_LOCALE,
+
     HOTFIX_SEL_CFG_REGIONS,
     HOTFIX_SEL_CFG_REGIONS_MAX_ID,
 
@@ -252,6 +256,9 @@ enum HotfixDatabaseStatements : uint32
 
     HOTFIX_SEL_CINEMATIC_SEQUENCES,
     HOTFIX_SEL_CINEMATIC_SEQUENCES_MAX_ID,
+
+    HOTFIX_SEL_CONDITIONAL_CHR_MODEL,
+    HOTFIX_SEL_CONDITIONAL_CHR_MODEL_MAX_ID,
 
     HOTFIX_SEL_CONDITIONAL_CONTENT_TUNING,
     HOTFIX_SEL_CONDITIONAL_CONTENT_TUNING_MAX_ID,
@@ -722,6 +729,10 @@ enum HotfixDatabaseStatements : uint32
     HOTFIX_SEL_PVP_ITEM,
     HOTFIX_SEL_PVP_ITEM_MAX_ID,
 
+    HOTFIX_SEL_PVP_STAT,
+    HOTFIX_SEL_PVP_STAT_MAX_ID,
+    HOTFIX_SEL_PVP_STAT_LOCALE,
+
     HOTFIX_SEL_PVP_SEASON,
     HOTFIX_SEL_PVP_SEASON_MAX_ID,
 
@@ -796,6 +807,10 @@ enum HotfixDatabaseStatements : uint32
 
     HOTFIX_SEL_SCENE_SCRIPT_TEXT,
     HOTFIX_SEL_SCENE_SCRIPT_TEXT_MAX_ID,
+
+    HOTFIX_SEL_SERVER_MESSAGES,
+    HOTFIX_SEL_SERVER_MESSAGES_MAX_ID,
+    HOTFIX_SEL_SERVER_MESSAGES_LOCALE,
 
     HOTFIX_SEL_SKILL_LINE,
     HOTFIX_SEL_SKILL_LINE_MAX_ID,
@@ -1123,9 +1138,7 @@ class TC_DATABASE_API HotfixDatabaseConnection : public MySQLConnection
 public:
     typedef HotfixDatabaseStatements Statements;
 
-    //- Constructors for sync and async connections
-    HotfixDatabaseConnection(MySQLConnectionInfo& connInfo);
-    HotfixDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    HotfixDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
     ~HotfixDatabaseConnection();
 
     //- Loads database type specific prepared statements

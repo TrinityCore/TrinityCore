@@ -19,48 +19,11 @@
 #define __BATTLEGROUNDBFG_H
 
 #include "Battleground.h"
-#include "BattlegroundScore.h"
 
 enum BG_BFG_Objectives
 {
     BFG_OBJECTIVE_BASES_ASSAULTED   = 370,
     BFG_OBJECTIVE_BASES_DEFENDED    = 371
-};
-
-class BattlegroundBFGScore final : public BattlegroundScore
-{
-    protected:
-        BattlegroundBFGScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
-
-        void UpdateScore(uint32 type, uint32 value) override
-        {
-            switch (type)
-            {
-                case SCORE_BASES_ASSAULTED:
-                    BasesAssaulted += value;
-                    break;
-                case SCORE_BASES_DEFENDED:
-                    BasesDefended += value;
-                    break;
-                default:
-                    BattlegroundScore::UpdateScore(type, value);
-                    break;
-            }
-        }
-
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
-        {
-            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
-
-            playerData.Stats.emplace_back(BFG_OBJECTIVE_BASES_ASSAULTED, BasesAssaulted);
-            playerData.Stats.emplace_back(BFG_OBJECTIVE_BASES_DEFENDED, BasesDefended);
-        }
-
-        uint32 GetAttr1() const final override { return BasesAssaulted; }
-        uint32 GetAttr2() const final override { return BasesDefended; }
-
-        uint32 BasesAssaulted;
-        uint32 BasesDefended;
 };
 
 class BattlegroundBFG : public Battleground

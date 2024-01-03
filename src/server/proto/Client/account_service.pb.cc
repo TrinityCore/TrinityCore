@@ -87,6 +87,18 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* GetAuthorizedDataResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   GetAuthorizedDataResponse_reflection_ = NULL;
+const ::google::protobuf::Descriptor* GetAccountInfoRequest_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  GetAccountInfoRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* GetAccountInfoResponse_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  GetAccountInfoResponse_reflection_ = NULL;
+const ::google::protobuf::Descriptor* GetAccountPlatformRestrictionsRequest_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  GetAccountPlatformRestrictionsRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* GetAccountPlatformRestrictionsResponse_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  GetAccountPlatformRestrictionsResponse_reflection_ = NULL;
 const ::google::protobuf::Descriptor* AccountStateNotification_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   AccountStateNotification_reflection_ = NULL;
@@ -446,7 +458,67 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetAuthorizedDataResponse));
-  AccountStateNotification_descriptor_ = file->message_type(21);
+  GetAccountInfoRequest_descriptor_ = file->message_type(21);
+  static const int GetAccountInfoRequest_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountInfoRequest, account_id_),
+  };
+  GetAccountInfoRequest_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      GetAccountInfoRequest_descriptor_,
+      GetAccountInfoRequest::default_instance_,
+      GetAccountInfoRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountInfoRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountInfoRequest, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(GetAccountInfoRequest));
+  GetAccountInfoResponse_descriptor_ = file->message_type(22);
+  static const int GetAccountInfoResponse_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountInfoResponse, account_info_),
+  };
+  GetAccountInfoResponse_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      GetAccountInfoResponse_descriptor_,
+      GetAccountInfoResponse::default_instance_,
+      GetAccountInfoResponse_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountInfoResponse, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountInfoResponse, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(GetAccountInfoResponse));
+  GetAccountPlatformRestrictionsRequest_descriptor_ = file->message_type(23);
+  static const int GetAccountPlatformRestrictionsRequest_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountPlatformRestrictionsRequest, account_id_),
+  };
+  GetAccountPlatformRestrictionsRequest_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      GetAccountPlatformRestrictionsRequest_descriptor_,
+      GetAccountPlatformRestrictionsRequest::default_instance_,
+      GetAccountPlatformRestrictionsRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountPlatformRestrictionsRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountPlatformRestrictionsRequest, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(GetAccountPlatformRestrictionsRequest));
+  GetAccountPlatformRestrictionsResponse_descriptor_ = file->message_type(24);
+  static const int GetAccountPlatformRestrictionsResponse_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountPlatformRestrictionsResponse, restriction_info_),
+  };
+  GetAccountPlatformRestrictionsResponse_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      GetAccountPlatformRestrictionsResponse_descriptor_,
+      GetAccountPlatformRestrictionsResponse::default_instance_,
+      GetAccountPlatformRestrictionsResponse_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountPlatformRestrictionsResponse, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountPlatformRestrictionsResponse, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(GetAccountPlatformRestrictionsResponse));
+  AccountStateNotification_descriptor_ = file->message_type(25);
   static const int AccountStateNotification_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountStateNotification, account_state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountStateNotification, subscriber_id_),
@@ -464,7 +536,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AccountStateNotification));
-  GameAccountStateNotification_descriptor_ = file->message_type(22);
+  GameAccountStateNotification_descriptor_ = file->message_type(26);
   static const int GameAccountStateNotification_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountStateNotification, game_account_state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountStateNotification, subscriber_id_),
@@ -482,7 +554,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GameAccountStateNotification));
-  GameAccountNotification_descriptor_ = file->message_type(23);
+  GameAccountNotification_descriptor_ = file->message_type(27);
   static const int GameAccountNotification_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountNotification, game_accounts_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountNotification, subscriber_id_),
@@ -499,7 +571,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GameAccountNotification));
-  GameAccountSessionNotification_descriptor_ = file->message_type(24);
+  GameAccountSessionNotification_descriptor_ = file->message_type(28);
   static const int GameAccountSessionNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountSessionNotification, game_account_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountSessionNotification, session_info_),
@@ -572,6 +644,14 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     GetAuthorizedDataResponse_descriptor_, &GetAuthorizedDataResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    GetAccountInfoRequest_descriptor_, &GetAccountInfoRequest::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    GetAccountInfoResponse_descriptor_, &GetAccountInfoResponse::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    GetAccountPlatformRestrictionsRequest_descriptor_, &GetAccountPlatformRestrictionsRequest::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    GetAccountPlatformRestrictionsResponse_descriptor_, &GetAccountPlatformRestrictionsResponse::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     AccountStateNotification_descriptor_, &AccountStateNotification::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     GameAccountStateNotification_descriptor_, &GameAccountStateNotification::default_instance());
@@ -626,6 +706,14 @@ void protobuf_ShutdownFile_account_5fservice_2eproto() {
   delete GetAuthorizedDataRequest_reflection_;
   delete GetAuthorizedDataResponse::default_instance_;
   delete GetAuthorizedDataResponse_reflection_;
+  delete GetAccountInfoRequest::default_instance_;
+  delete GetAccountInfoRequest_reflection_;
+  delete GetAccountInfoResponse::default_instance_;
+  delete GetAccountInfoResponse_reflection_;
+  delete GetAccountPlatformRestrictionsRequest::default_instance_;
+  delete GetAccountPlatformRestrictionsRequest_reflection_;
+  delete GetAccountPlatformRestrictionsResponse::default_instance_;
+  delete GetAccountPlatformRestrictionsResponse_reflection_;
   delete AccountStateNotification::default_instance_;
   delete AccountStateNotification_reflection_;
   delete GameAccountStateNotification::default_instance_;
@@ -711,78 +799,95 @@ void protobuf_AddDesc_account_5fservice_2eproto() {
     "ocol.EntityIdB\006\202\371+\002\020\001\022\013\n\003tag\030\002 \003(\t\022\032\n\022pr"
     "ivileged_network\030\003 \001(\010\"R\n\031GetAuthorizedD"
     "ataResponse\0225\n\004data\030\001 \003(\0132\'.bgs.protocol"
-    ".account.v1.AuthorizedData\"\324\001\n\030AccountSt"
-    "ateNotification\022<\n\raccount_state\030\001 \001(\0132%"
-    ".bgs.protocol.account.v1.AccountState\022\031\n"
-    "\rsubscriber_id\030\002 \001(\004B\002\030\001\022\?\n\014account_tags"
-    "\030\003 \001(\0132).bgs.protocol.account.v1.Account"
-    "FieldTags\022\036\n\026subscription_completed\030\004 \001("
-    "\010\"\352\001\n\034GameAccountStateNotification\022E\n\022ga"
-    "me_account_state\030\001 \001(\0132).bgs.protocol.ac"
-    "count.v1.GameAccountState\022\031\n\rsubscriber_"
-    "id\030\002 \001(\004B\002\030\001\022H\n\021game_account_tags\030\003 \001(\0132"
-    "-.bgs.protocol.account.v1.GameAccountFie"
-    "ldTags\022\036\n\026subscription_completed\030\004 \001(\010\"\262"
-    "\001\n\027GameAccountNotification\022\?\n\rgame_accou"
-    "nts\030\001 \003(\0132(.bgs.protocol.account.v1.Game"
-    "AccountList\022\025\n\rsubscriber_id\030\002 \001(\004\022\?\n\014ac"
-    "count_tags\030\003 \001(\0132).bgs.protocol.account."
-    "v1.AccountFieldTags\"\250\001\n\036GameAccountSessi"
-    "onNotification\022@\n\014game_account\030\001 \001(\0132*.b"
-    "gs.protocol.account.v1.GameAccountHandle"
-    "\022D\n\014session_info\030\002 \001(\0132..bgs.protocol.ac"
-    "count.v1.GameSessionUpdateInfo2\314\013\n\016Accou"
-    "ntService\022y\n\016ResolveAccount\022..bgs.protoc"
-    "ol.account.v1.ResolveAccountRequest\032/.bg"
-    "s.protocol.account.v1.ResolveAccountResp"
-    "onse\"\006\202\371+\002\010\r\022|\n\tSubscribe\0222.bgs.protocol"
-    ".account.v1.SubscriptionUpdateRequest\0323."
-    "bgs.protocol.account.v1.SubscriptionUpda"
-    "teResponse\"\006\202\371+\002\010\031\022_\n\013Unsubscribe\0222.bgs."
-    "protocol.account.v1.SubscriptionUpdateRe"
-    "quest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\032\022|\n\017G"
-    "etAccountState\022/.bgs.protocol.account.v1"
-    ".GetAccountStateRequest\0320.bgs.protocol.a"
-    "ccount.v1.GetAccountStateResponse\"\006\202\371+\002\010"
-    "\036\022\210\001\n\023GetGameAccountState\0223.bgs.protocol"
-    ".account.v1.GetGameAccountStateRequest\0324"
-    ".bgs.protocol.account.v1.GetGameAccountS"
-    "tateResponse\"\006\202\371+\002\010\037\022p\n\013GetLicenses\022+.bg"
-    "s.protocol.account.v1.GetLicensesRequest"
-    "\032,.bgs.protocol.account.v1.GetLicensesRe"
-    "sponse\"\006\202\371+\002\010 \022\227\001\n\030GetGameTimeRemainingI"
-    "nfo\0228.bgs.protocol.account.v1.GetGameTim"
-    "eRemainingInfoRequest\0329.bgs.protocol.acc"
-    "ount.v1.GetGameTimeRemainingInfoResponse"
-    "\"\006\202\371+\002\010!\022\207\001\n\022GetGameSessionInfo\0222.bgs.pr"
-    "otocol.account.v1.GetGameSessionInfoRequ"
-    "est\0323.bgs.protocol.account.v1.GetGameSes"
-    "sionInfoResponse\"\010\202\371+\004\010\"P\001\022p\n\013GetCAISInf"
-    "o\022+.bgs.protocol.account.v1.GetCAISInfoR"
-    "equest\032,.bgs.protocol.account.v1.GetCAIS"
-    "InfoResponse\"\006\202\371+\002\010#\022\202\001\n\021GetAuthorizedDa"
-    "ta\0221.bgs.protocol.account.v1.GetAuthoriz"
-    "edDataRequest\0322.bgs.protocol.account.v1."
-    "GetAuthorizedDataResponse\"\006\202\371+\002\010%\022\216\001\n\025Ge"
-    "tSignedAccountState\0225.bgs.protocol.accou"
-    "nt.v1.GetSignedAccountStateRequest\0326.bgs"
-    ".protocol.account.v1.GetSignedAccountSta"
-    "teResponse\"\006\202\371+\002\010,\0329\202\371+/\n$bnet.protocol."
-    "account.AccountService*\007account\212\371+\002\020\0012\220\004"
-    "\n\017AccountListener\022m\n\025OnAccountStateUpdat"
-    "ed\0221.bgs.protocol.account.v1.AccountStat"
-    "eNotification\032\031.bgs.protocol.NO_RESPONSE"
-    "\"\006\202\371+\002\010\001\022u\n\031OnGameAccountStateUpdated\0225."
-    "bgs.protocol.account.v1.GameAccountState"
-    "Notification\032\031.bgs.protocol.NO_RESPONSE\""
-    "\006\202\371+\002\010\002\022n\n\025OnGameAccountsUpdated\0220.bgs.p"
-    "rotocol.account.v1.GameAccountNotificati"
-    "on\032\031.bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\003P\001\022"
-    "t\n\024OnGameSessionUpdated\0227.bgs.protocol.a"
-    "ccount.v1.GameAccountSessionNotification"
-    "\032\031.bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\004P\001\0321\202"
-    "\371+\'\n#bnet.protocol.account.AccountNotify"
-    "8\001\212\371+\002\010\001B\005H\002\200\001\000", 5455);
+    ".account.v1.AuthorizedData\"K\n\025GetAccount"
+    "InfoRequest\0222\n\naccount_id\030\001 \001(\0132\026.bgs.pr"
+    "otocol.EntityIdB\006\202\371+\002\020\001\"T\n\026GetAccountInf"
+    "oResponse\022:\n\014account_info\030\001 \001(\0132$.bgs.pr"
+    "otocol.account.v1.AccountInfo\"[\n%GetAcco"
+    "untPlatformRestrictionsRequest\0222\n\naccoun"
+    "t_id\030\001 \001(\0132\026.bgs.protocol.EntityIdB\006\202\371+\002"
+    "\020\001\"{\n&GetAccountPlatformRestrictionsResp"
+    "onse\022Q\n\020restriction_info\030\001 \001(\01327.bgs.pro"
+    "tocol.account.v1.AccountPlatformRestrict"
+    "ionInfo\"\324\001\n\030AccountStateNotification\022<\n\r"
+    "account_state\030\001 \001(\0132%.bgs.protocol.accou"
+    "nt.v1.AccountState\022\031\n\rsubscriber_id\030\002 \001("
+    "\004B\002\030\001\022\?\n\014account_tags\030\003 \001(\0132).bgs.protoc"
+    "ol.account.v1.AccountFieldTags\022\036\n\026subscr"
+    "iption_completed\030\004 \001(\010\"\352\001\n\034GameAccountSt"
+    "ateNotification\022E\n\022game_account_state\030\001 "
+    "\001(\0132).bgs.protocol.account.v1.GameAccoun"
+    "tState\022\031\n\rsubscriber_id\030\002 \001(\004B\002\030\001\022H\n\021gam"
+    "e_account_tags\030\003 \001(\0132-.bgs.protocol.acco"
+    "unt.v1.GameAccountFieldTags\022\036\n\026subscript"
+    "ion_completed\030\004 \001(\010\"\262\001\n\027GameAccountNotif"
+    "ication\022\?\n\rgame_accounts\030\001 \003(\0132(.bgs.pro"
+    "tocol.account.v1.GameAccountList\022\025\n\rsubs"
+    "criber_id\030\002 \001(\004\022\?\n\014account_tags\030\003 \001(\0132)."
+    "bgs.protocol.account.v1.AccountFieldTags"
+    "\"\250\001\n\036GameAccountSessionNotification\022@\n\014g"
+    "ame_account\030\001 \001(\0132*.bgs.protocol.account"
+    ".v1.GameAccountHandle\022D\n\014session_info\030\002 "
+    "\001(\0132..bgs.protocol.account.v1.GameSessio"
+    "nUpdateInfo2\363\r\n\016AccountService\022y\n\016Resolv"
+    "eAccount\022..bgs.protocol.account.v1.Resol"
+    "veAccountRequest\032/.bgs.protocol.account."
+    "v1.ResolveAccountResponse\"\006\202\371+\002\010\r\022|\n\tSub"
+    "scribe\0222.bgs.protocol.account.v1.Subscri"
+    "ptionUpdateRequest\0323.bgs.protocol.accoun"
+    "t.v1.SubscriptionUpdateResponse\"\006\202\371+\002\010\031\022"
+    "_\n\013Unsubscribe\0222.bgs.protocol.account.v1"
+    ".SubscriptionUpdateRequest\032\024.bgs.protoco"
+    "l.NoData\"\006\202\371+\002\010\032\022|\n\017GetAccountState\022/.bg"
+    "s.protocol.account.v1.GetAccountStateReq"
+    "uest\0320.bgs.protocol.account.v1.GetAccoun"
+    "tStateResponse\"\006\202\371+\002\010\036\022\210\001\n\023GetGameAccoun"
+    "tState\0223.bgs.protocol.account.v1.GetGame"
+    "AccountStateRequest\0324.bgs.protocol.accou"
+    "nt.v1.GetGameAccountStateResponse\"\006\202\371+\002\010"
+    "\037\022p\n\013GetLicenses\022+.bgs.protocol.account."
+    "v1.GetLicensesRequest\032,.bgs.protocol.acc"
+    "ount.v1.GetLicensesResponse\"\006\202\371+\002\010 \022\227\001\n\030"
+    "GetGameTimeRemainingInfo\0228.bgs.protocol."
+    "account.v1.GetGameTimeRemainingInfoReque"
+    "st\0329.bgs.protocol.account.v1.GetGameTime"
+    "RemainingInfoResponse\"\006\202\371+\002\010!\022\207\001\n\022GetGam"
+    "eSessionInfo\0222.bgs.protocol.account.v1.G"
+    "etGameSessionInfoRequest\0323.bgs.protocol."
+    "account.v1.GetGameSessionInfoResponse\"\010\202"
+    "\371+\004\010\"P\001\022p\n\013GetCAISInfo\022+.bgs.protocol.ac"
+    "count.v1.GetCAISInfoRequest\032,.bgs.protoc"
+    "ol.account.v1.GetCAISInfoResponse\"\006\202\371+\002\010"
+    "#\022\202\001\n\021GetAuthorizedData\0221.bgs.protocol.a"
+    "ccount.v1.GetAuthorizedDataRequest\0322.bgs"
+    ".protocol.account.v1.GetAuthorizedDataRe"
+    "sponse\"\006\202\371+\002\010%\022\216\001\n\025GetSignedAccountState"
+    "\0225.bgs.protocol.account.v1.GetSignedAcco"
+    "untStateRequest\0326.bgs.protocol.account.v"
+    "1.GetSignedAccountStateResponse\"\006\202\371+\002\010,\022"
+    "y\n\016GetAccountInfo\022..bgs.protocol.account"
+    ".v1.GetAccountInfoRequest\032/.bgs.protocol"
+    ".account.v1.GetAccountInfoResponse\"\006\202\371+\002"
+    "\010-\022\251\001\n\036GetAccountPlatformRestrictions\022>."
+    "bgs.protocol.account.v1.GetAccountPlatfo"
+    "rmRestrictionsRequest\032\?.bgs.protocol.acc"
+    "ount.v1.GetAccountPlatformRestrictionsRe"
+    "sponse\"\006\202\371+\002\010.\0329\202\371+/\n$bnet.protocol.acco"
+    "unt.AccountService*\007account\212\371+\002\020\0012\220\004\n\017Ac"
+    "countListener\022m\n\025OnAccountStateUpdated\0221"
+    ".bgs.protocol.account.v1.AccountStateNot"
+    "ification\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371"
+    "+\002\010\001\022u\n\031OnGameAccountStateUpdated\0225.bgs."
+    "protocol.account.v1.GameAccountStateNoti"
+    "fication\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+"
+    "\002\010\002\022n\n\025OnGameAccountsUpdated\0220.bgs.proto"
+    "col.account.v1.GameAccountNotification\032\031"
+    ".bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\003P\001\022t\n\024O"
+    "nGameSessionUpdated\0227.bgs.protocol.accou"
+    "nt.v1.GameAccountSessionNotification\032\031.b"
+    "gs.protocol.NO_RESPONSE\"\010\202\371+\004\010\004P\001\0321\202\371+\'\n"
+    "#bnet.protocol.account.AccountNotify8\001\212\371"
+    "+\002\010\001B\005H\002\200\001\000", 6131);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "account_service.proto", &protobuf_RegisterTypes);
   ResolveAccountRequest::default_instance_ = new ResolveAccountRequest();
@@ -806,6 +911,10 @@ void protobuf_AddDesc_account_5fservice_2eproto() {
   GetCAISInfoResponse::default_instance_ = new GetCAISInfoResponse();
   GetAuthorizedDataRequest::default_instance_ = new GetAuthorizedDataRequest();
   GetAuthorizedDataResponse::default_instance_ = new GetAuthorizedDataResponse();
+  GetAccountInfoRequest::default_instance_ = new GetAccountInfoRequest();
+  GetAccountInfoResponse::default_instance_ = new GetAccountInfoResponse();
+  GetAccountPlatformRestrictionsRequest::default_instance_ = new GetAccountPlatformRestrictionsRequest();
+  GetAccountPlatformRestrictionsResponse::default_instance_ = new GetAccountPlatformRestrictionsResponse();
   AccountStateNotification::default_instance_ = new AccountStateNotification();
   GameAccountStateNotification::default_instance_ = new GameAccountStateNotification();
   GameAccountNotification::default_instance_ = new GameAccountNotification();
@@ -831,6 +940,10 @@ void protobuf_AddDesc_account_5fservice_2eproto() {
   GetCAISInfoResponse::default_instance_->InitAsDefaultInstance();
   GetAuthorizedDataRequest::default_instance_->InitAsDefaultInstance();
   GetAuthorizedDataResponse::default_instance_->InitAsDefaultInstance();
+  GetAccountInfoRequest::default_instance_->InitAsDefaultInstance();
+  GetAccountInfoResponse::default_instance_->InitAsDefaultInstance();
+  GetAccountPlatformRestrictionsRequest::default_instance_->InitAsDefaultInstance();
+  GetAccountPlatformRestrictionsResponse::default_instance_->InitAsDefaultInstance();
   AccountStateNotification::default_instance_->InitAsDefaultInstance();
   GameAccountStateNotification::default_instance_->InitAsDefaultInstance();
   GameAccountNotification::default_instance_->InitAsDefaultInstance();
@@ -2453,6 +2566,302 @@ void GetAuthorizedDataResponse::Swap(GetAuthorizedDataResponse* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int GetAccountInfoRequest::kAccountIdFieldNumber;
+#endif  // !_MSC_VER
+
+GetAccountInfoRequest::GetAccountInfoRequest()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.account.v1.GetAccountInfoRequest)
+}
+
+void GetAccountInfoRequest::InitAsDefaultInstance() {
+  account_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
+}
+
+GetAccountInfoRequest::GetAccountInfoRequest(const GetAccountInfoRequest& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.account.v1.GetAccountInfoRequest)
+}
+
+void GetAccountInfoRequest::SharedCtor() {
+  _cached_size_ = 0;
+  account_id_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+GetAccountInfoRequest::~GetAccountInfoRequest() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.account.v1.GetAccountInfoRequest)
+  SharedDtor();
+}
+
+void GetAccountInfoRequest::SharedDtor() {
+  if (this != default_instance_) {
+    delete account_id_;
+  }
+}
+
+void GetAccountInfoRequest::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* GetAccountInfoRequest::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return GetAccountInfoRequest_descriptor_;
+}
+
+const GetAccountInfoRequest& GetAccountInfoRequest::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_account_5fservice_2eproto();
+  return *default_instance_;
+}
+
+GetAccountInfoRequest* GetAccountInfoRequest::default_instance_ = NULL;
+
+GetAccountInfoRequest* GetAccountInfoRequest::New() const {
+  return new GetAccountInfoRequest;
+}
+
+void GetAccountInfoRequest::Swap(GetAccountInfoRequest* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata GetAccountInfoRequest::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = GetAccountInfoRequest_descriptor_;
+  metadata.reflection = GetAccountInfoRequest_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int GetAccountInfoResponse::kAccountInfoFieldNumber;
+#endif  // !_MSC_VER
+
+GetAccountInfoResponse::GetAccountInfoResponse()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.account.v1.GetAccountInfoResponse)
+}
+
+void GetAccountInfoResponse::InitAsDefaultInstance() {
+  account_info_ = const_cast< ::bgs::protocol::account::v1::AccountInfo*>(&::bgs::protocol::account::v1::AccountInfo::default_instance());
+}
+
+GetAccountInfoResponse::GetAccountInfoResponse(const GetAccountInfoResponse& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.account.v1.GetAccountInfoResponse)
+}
+
+void GetAccountInfoResponse::SharedCtor() {
+  _cached_size_ = 0;
+  account_info_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+GetAccountInfoResponse::~GetAccountInfoResponse() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.account.v1.GetAccountInfoResponse)
+  SharedDtor();
+}
+
+void GetAccountInfoResponse::SharedDtor() {
+  if (this != default_instance_) {
+    delete account_info_;
+  }
+}
+
+void GetAccountInfoResponse::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* GetAccountInfoResponse::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return GetAccountInfoResponse_descriptor_;
+}
+
+const GetAccountInfoResponse& GetAccountInfoResponse::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_account_5fservice_2eproto();
+  return *default_instance_;
+}
+
+GetAccountInfoResponse* GetAccountInfoResponse::default_instance_ = NULL;
+
+GetAccountInfoResponse* GetAccountInfoResponse::New() const {
+  return new GetAccountInfoResponse;
+}
+
+void GetAccountInfoResponse::Swap(GetAccountInfoResponse* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata GetAccountInfoResponse::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = GetAccountInfoResponse_descriptor_;
+  metadata.reflection = GetAccountInfoResponse_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int GetAccountPlatformRestrictionsRequest::kAccountIdFieldNumber;
+#endif  // !_MSC_VER
+
+GetAccountPlatformRestrictionsRequest::GetAccountPlatformRestrictionsRequest()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.account.v1.GetAccountPlatformRestrictionsRequest)
+}
+
+void GetAccountPlatformRestrictionsRequest::InitAsDefaultInstance() {
+  account_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
+}
+
+GetAccountPlatformRestrictionsRequest::GetAccountPlatformRestrictionsRequest(const GetAccountPlatformRestrictionsRequest& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.account.v1.GetAccountPlatformRestrictionsRequest)
+}
+
+void GetAccountPlatformRestrictionsRequest::SharedCtor() {
+  _cached_size_ = 0;
+  account_id_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+GetAccountPlatformRestrictionsRequest::~GetAccountPlatformRestrictionsRequest() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.account.v1.GetAccountPlatformRestrictionsRequest)
+  SharedDtor();
+}
+
+void GetAccountPlatformRestrictionsRequest::SharedDtor() {
+  if (this != default_instance_) {
+    delete account_id_;
+  }
+}
+
+void GetAccountPlatformRestrictionsRequest::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* GetAccountPlatformRestrictionsRequest::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return GetAccountPlatformRestrictionsRequest_descriptor_;
+}
+
+const GetAccountPlatformRestrictionsRequest& GetAccountPlatformRestrictionsRequest::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_account_5fservice_2eproto();
+  return *default_instance_;
+}
+
+GetAccountPlatformRestrictionsRequest* GetAccountPlatformRestrictionsRequest::default_instance_ = NULL;
+
+GetAccountPlatformRestrictionsRequest* GetAccountPlatformRestrictionsRequest::New() const {
+  return new GetAccountPlatformRestrictionsRequest;
+}
+
+void GetAccountPlatformRestrictionsRequest::Swap(GetAccountPlatformRestrictionsRequest* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata GetAccountPlatformRestrictionsRequest::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = GetAccountPlatformRestrictionsRequest_descriptor_;
+  metadata.reflection = GetAccountPlatformRestrictionsRequest_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int GetAccountPlatformRestrictionsResponse::kRestrictionInfoFieldNumber;
+#endif  // !_MSC_VER
+
+GetAccountPlatformRestrictionsResponse::GetAccountPlatformRestrictionsResponse()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.account.v1.GetAccountPlatformRestrictionsResponse)
+}
+
+void GetAccountPlatformRestrictionsResponse::InitAsDefaultInstance() {
+  restriction_info_ = const_cast< ::bgs::protocol::account::v1::AccountPlatformRestrictionInfo*>(&::bgs::protocol::account::v1::AccountPlatformRestrictionInfo::default_instance());
+}
+
+GetAccountPlatformRestrictionsResponse::GetAccountPlatformRestrictionsResponse(const GetAccountPlatformRestrictionsResponse& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.account.v1.GetAccountPlatformRestrictionsResponse)
+}
+
+void GetAccountPlatformRestrictionsResponse::SharedCtor() {
+  _cached_size_ = 0;
+  restriction_info_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+GetAccountPlatformRestrictionsResponse::~GetAccountPlatformRestrictionsResponse() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.account.v1.GetAccountPlatformRestrictionsResponse)
+  SharedDtor();
+}
+
+void GetAccountPlatformRestrictionsResponse::SharedDtor() {
+  if (this != default_instance_) {
+    delete restriction_info_;
+  }
+}
+
+void GetAccountPlatformRestrictionsResponse::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* GetAccountPlatformRestrictionsResponse::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return GetAccountPlatformRestrictionsResponse_descriptor_;
+}
+
+const GetAccountPlatformRestrictionsResponse& GetAccountPlatformRestrictionsResponse::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_account_5fservice_2eproto();
+  return *default_instance_;
+}
+
+GetAccountPlatformRestrictionsResponse* GetAccountPlatformRestrictionsResponse::default_instance_ = NULL;
+
+GetAccountPlatformRestrictionsResponse* GetAccountPlatformRestrictionsResponse::New() const {
+  return new GetAccountPlatformRestrictionsResponse;
+}
+
+void GetAccountPlatformRestrictionsResponse::Swap(GetAccountPlatformRestrictionsResponse* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata GetAccountPlatformRestrictionsResponse::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = GetAccountPlatformRestrictionsResponse_descriptor_;
+  metadata.reflection = GetAccountPlatformRestrictionsResponse_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
 const int AccountStateNotification::kAccountStateFieldNumber;
 const int AccountStateNotification::kSubscriberIdFieldNumber;
 const int AccountStateNotification::kAccountTagsFieldNumber;
@@ -2817,6 +3226,12 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 44:
       ParseAndHandleGetSignedAccountState(token, methodId, buffer);
       break;
+    case 45:
+      ParseAndHandleGetAccountInfo(token, methodId, buffer);
+      break;
+    case 46:
+      ParseAndHandleGetAccountPlatformRestrictions(token, methodId, buffer);
+      break;
     default:
       LogInvalidMethod(methodId);
       SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
@@ -2876,6 +3291,16 @@ uint32 AccountService::HandleGetAuthorizedData(::bgs::protocol::account::v1::Get
 
 uint32 AccountService::HandleGetSignedAccountState(::bgs::protocol::account::v1::GetSignedAccountStateRequest const* request, ::bgs::protocol::account::v1::GetSignedAccountStateResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
   LogUnimplementedServerMethod("AccountService.GetSignedAccountState", request);
+  return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+uint32 AccountService::HandleGetAccountInfo(::bgs::protocol::account::v1::GetAccountInfoRequest const* request, ::bgs::protocol::account::v1::GetAccountInfoResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("AccountService.GetAccountInfo", request);
+  return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+uint32 AccountService::HandleGetAccountPlatformRestrictions(::bgs::protocol::account::v1::GetAccountPlatformRestrictionsRequest const* request, ::bgs::protocol::account::v1::GetAccountPlatformRestrictionsResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("AccountService.GetAccountPlatformRestrictions", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
@@ -3040,6 +3465,36 @@ void AccountService::ParseAndHandleGetSignedAccountState(uint32 token, uint32 me
   std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "AccountService.GetSignedAccountState", ::bgs::protocol::account::v1::GetSignedAccountStateResponse::descriptor());
   ::bgs::protocol::account::v1::GetSignedAccountStateResponse response;
   uint32 status = HandleGetSignedAccountState(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void AccountService::ParseAndHandleGetAccountInfo(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::account::v1::GetAccountInfoRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("AccountService.GetAccountInfo");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("AccountService.GetAccountInfo", "bgs.protocol.account.v1.GetAccountInfoRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "AccountService.GetAccountInfo", ::bgs::protocol::account::v1::GetAccountInfoResponse::descriptor());
+  ::bgs::protocol::account::v1::GetAccountInfoResponse response;
+  uint32 status = HandleGetAccountInfo(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void AccountService::ParseAndHandleGetAccountPlatformRestrictions(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::account::v1::GetAccountPlatformRestrictionsRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("AccountService.GetAccountPlatformRestrictions");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("AccountService.GetAccountPlatformRestrictions", "bgs.protocol.account.v1.GetAccountPlatformRestrictionsRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "AccountService.GetAccountPlatformRestrictions", ::bgs::protocol::account::v1::GetAccountPlatformRestrictionsResponse::descriptor());
+  ::bgs::protocol::account::v1::GetAccountPlatformRestrictionsResponse response;
+  uint32 status = HandleGetAccountPlatformRestrictions(&request, &response, continuation);
   if (continuation)
     continuation(this, status, &response);
 }

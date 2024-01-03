@@ -157,7 +157,13 @@ namespace WorldPackets
             bool ChatDisabledByPlayer                = false;
             bool LFGListCustomRequiresAuthenticator  = false;
             bool AddonsDisabled                      = false;
-            bool Unused1000                          = false;
+            bool WarGamesEnabled                     = false; // classic only
+            bool ContentTrackingEnabled              = false;
+            bool IsSellAllJunkEnabled                = false;
+            bool IsGroupFinderEnabled                = true;  // classic only
+            bool IsLFDEnabled                        = true;  // classic only
+            bool IsLFREnabled                        = true;  // classic only
+            bool IsPremadeGroupEnabled               = true;  // classic only
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
@@ -218,16 +224,7 @@ namespace WorldPackets
             Optional<int32> LaunchETA;
             std::vector<DebugTimeEventInfo> DebugTimeEvents;
             int32 Unused1007                         = 0;
-        };
-
-        class MOTD final : public ServerPacket
-        {
-        public:
-            MOTD() : ServerPacket(SMSG_MOTD) { }
-
-            WorldPacket const* Write() override;
-
-            std::vector<std::string> const* Text = nullptr;
+            Optional<std::string> RealmHiddenAlert;
         };
 
         class SetTimeZoneInformation final : public ServerPacket
@@ -237,9 +234,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::string ServerTimeTZ;
-            std::string GameTimeTZ;
-            std::string ServerRegionalTZ;
+            std::string_view ServerTimeTZ;
+            std::string_view GameTimeTZ;
+            std::string_view ServerRegionalTZ;
         };
     }
 }

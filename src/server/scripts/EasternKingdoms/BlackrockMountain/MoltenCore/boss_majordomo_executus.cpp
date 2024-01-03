@@ -103,7 +103,6 @@ struct boss_majordomo : public BossAI
 
             if (!me->FindNearestCreature(NPC_FLAMEWAKER_HEALER, 100.0f) && !me->FindNearestCreature(NPC_FLAMEWAKER_ELITE, 100.0f))
             {
-                instance->UpdateEncounterStateForKilledCreature(me->GetEntry(), me);
                 me->SetFaction(FACTION_FRIENDLY);
                 EnterEvadeMode();
                 Talk(SAY_DEFEAT);

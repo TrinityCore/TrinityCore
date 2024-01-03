@@ -36,8 +36,8 @@ WorldPacket const* WorldPackets::Misc::InvalidatePlayer::Write()
 
 WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
 {
-    _worldPacket.AppendPackedTime(ServerTime);
-    _worldPacket.AppendPackedTime(GameTime);
+    _worldPacket << ServerTime;
+    _worldPacket << GameTime;
     _worldPacket << float(NewSpeed);
     _worldPacket << uint32(ServerTimeHolidayOffset);
     _worldPacket << uint32(GameTimeHolidayOffset);
@@ -66,6 +66,7 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     _worldPacket.WriteBit(FirstCraftOperationID.has_value());
     _worldPacket.WriteBit(NextRechargeTime.has_value());
     _worldPacket.WriteBit(RechargeCycleStartTime.has_value());
+    _worldPacket.WriteBit(OverflownCurrencyID.has_value());
     _worldPacket.FlushBits();
 
     if (WeeklyQuantity)
@@ -97,6 +98,9 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
 
     if (RechargeCycleStartTime)
         _worldPacket << *RechargeCycleStartTime;
+
+    if (OverflownCurrencyID)
+        _worldPacket << int32(*OverflownCurrencyID);
 
     return &_worldPacket;
 }
@@ -407,9 +411,11 @@ WorldPacket const* WorldPackets::Misc::PlayMusic::Write()
 
 void WorldPackets::Misc::RandomRollClient::Read()
 {
+    bool hasPartyIndex = _worldPacket.ReadBit();
     _worldPacket >> Min;
     _worldPacket >> Max;
-    _worldPacket >> PartyIndex;
+    if (hasPartyIndex)
+        _worldPacket >> PartyIndex.emplace();
 }
 
 WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
@@ -432,7 +438,7 @@ WorldPacket const* WorldPackets::Misc::EnableBarberShop::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Misc::PhaseShiftDataPhase const& phaseShiftDataPhase)
 {
-    data << uint16(phaseShiftDataPhase.PhaseFlags);
+    data << uint32(phaseShiftDataPhase.PhaseFlags);
     data << uint16(phaseShiftDataPhase.Id);
     return data;
 }
@@ -783,7 +789,7 @@ WorldPacket const* WorldPackets::Misc::DisplayToast::Write()
             _worldPacket.WriteBit(BonusRoll);
             _worldPacket << Item;
             _worldPacket << int32(LootSpec);
-            _worldPacket << int32(Gender);
+            _worldPacket << int8(Gender);
             break;
         case DisplayToastType::NewCurrency:
             _worldPacket << uint32(CurrencyID);

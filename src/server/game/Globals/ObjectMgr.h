@@ -48,7 +48,6 @@ enum class GossipOptionFlags : int32;
 enum class GossipOptionNpc : uint8;
 struct AccessRequirement;
 struct DeclinedName;
-struct DungeonEncounterEntry;
 struct FactionEntry;
 struct PlayerInfo;
 struct PlayerLevelInfo;
@@ -94,7 +93,7 @@ struct TempSummonData
     uint32 entry;        ///< Entry of summoned creature
     Position pos;        ///< Position, where should be creature spawned
     TempSummonType type; ///< Summon type, see TempSummonType for available types
-    uint32 time;         ///< Despawn time, usable only with certain temp summon types
+    Milliseconds time;   ///< Despawn time, usable only with certain temp summon types
 };
 
 #pragma pack(pop)
@@ -421,7 +420,6 @@ typedef std::multimap<uint32 /*spell id*/, std::pair<uint32 /*script id*/, bool 
 typedef std::pair<SpellScriptsContainer::iterator, SpellScriptsContainer::iterator> SpellScriptsBounds;
 TC_GAME_API extern ScriptMapMap sSpellScripts;
 TC_GAME_API extern ScriptMapMap sEventScripts;
-TC_GAME_API extern ScriptMapMap sWaypointScripts;
 
 std::string GetScriptsTableNameByType(ScriptsType type);
 ScriptMapMap* GetScriptsMapByType(ScriptsType type);
@@ -578,7 +576,6 @@ struct QuestRelationResult
                 }
 
                 bool operator==(Iterator const& other) const { return _it == other._it; }
-                bool operator!=(Iterator const& other) const { return _it != other._it; }
 
                 Iterator& operator++() { ++_it; skip(); return *this; }
                 Iterator operator++(int) { Iterator t = *this; ++*this; return t; }
@@ -972,6 +969,8 @@ struct SkillTiersEntry
 {
     uint32      ID;                                         // 0
     uint32      Value[MAX_SKILL_STEP];                      // 1-16
+
+    uint32 GetValueForTierIndex(uint32 tierIndex) const;
 };
 
 SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry);
@@ -992,26 +991,6 @@ struct ExtendedPlayerName
 };
 
 ExtendedPlayerName ExtractExtendedPlayerName(std::string const& name);
-
-enum EncounterCreditType : uint8
-{
-    ENCOUNTER_CREDIT_KILL_CREATURE  = 0,
-    ENCOUNTER_CREDIT_CAST_SPELL     = 1
-};
-
-struct DungeonEncounter
-{
-    DungeonEncounter(DungeonEncounterEntry const* _dbcEntry, EncounterCreditType _creditType, uint32 _creditEntry, uint32 _lastEncounterDungeon)
-        : dbcEntry(_dbcEntry), creditType(_creditType), creditEntry(_creditEntry), lastEncounterDungeon(_lastEncounterDungeon) { }
-
-    DungeonEncounterEntry const* dbcEntry;
-    EncounterCreditType creditType;
-    uint32 creditEntry;
-    uint32 lastEncounterDungeon;
-};
-
-typedef std::vector<DungeonEncounter> DungeonEncounterList;
-typedef std::unordered_map<uint64, DungeonEncounterList> DungeonEncounterContainer;
 
 struct TerrainSwapInfo
 {
@@ -1095,6 +1074,9 @@ class TC_GAME_API ObjectMgr
         typedef std::unordered_map<uint32, uint32> AreaTriggerScriptContainer;
 
         typedef std::unordered_map<uint64, AccessRequirement> AccessRequirementContainer;
+
+        typedef std::set<uint32> EventContainer;
+        typedef std::unordered_map<uint32, uint32> EventScriptContainer;
 
         typedef std::unordered_map<uint32, RepRewardRate > RepRewardRateContainer;
         typedef std::unordered_map<uint32, ReputationOnKillEntry> RepOnKillContainer;
@@ -1218,6 +1200,11 @@ class TC_GAME_API ObjectMgr
             return _gameObjectForQuestStore.find(entry) != _gameObjectForQuestStore.end();
         }
 
+        bool IsValidEvent(uint32 eventId) const
+        {
+            return _eventStore.find(eventId) != _eventStore.end();
+        }
+
         NpcText const* GetNpcText(uint32 textID) const;
         QuestGreeting const* GetQuestGreeting(TypeID type, uint32 id) const;
         QuestGreetingLocale const* GetQuestGreetingLocale(TypeID type, uint32 id) const;
@@ -1238,6 +1225,7 @@ class TC_GAME_API ObjectMgr
         AreaTriggerStruct const* GetMapEntranceTrigger(uint32 Map) const;
 
         uint32 GetAreaTriggerScriptId(uint32 trigger_id) const;
+        uint32 GetEventScriptId(uint32 eventId) const;
         SpellScriptsBounds GetSpellScriptsBounds(uint32 spellId);
 
         RepRewardRate const* GetRepRewardRate(uint32 factionId) const
@@ -1281,8 +1269,6 @@ class TC_GAME_API ObjectMgr
         VehicleTemplate const* GetVehicleTemplate(Vehicle* veh) const;
         VehicleAccessoryList const* GetVehicleAccessoryList(Vehicle* veh) const;
 
-        DungeonEncounterList const* GetDungeonEncounterList(uint32 mapId, Difficulty difficulty) const;
-
         void LoadQuests();
         void LoadQuestStartersAndEnders();
         void LoadGameobjectQuestStarters();
@@ -1304,11 +1290,12 @@ class TC_GAME_API ObjectMgr
             return _exclusiveQuestGroups.equal_range(exclusiveGroupId);
         }
 
+        std::vector<Difficulty> ParseSpawnDifficulties(std::string_view difficultyString, std::string_view table, ObjectGuid::LowType spawnId, uint32 mapId, std::set<Difficulty> const& mapDifficulties);
+
         bool LoadTrinityStrings();
 
         void LoadEventScripts();
         void LoadSpellScripts();
-        void LoadWaypointScripts();
 
         void LoadSpellScriptNames();
         void ValidateSpellScripts();
@@ -1355,7 +1342,6 @@ class TC_GAME_API ObjectMgr
         void LoadGossipMenuItemsLocales();
         void LoadPointOfInterestLocales();
         void LoadInstanceTemplate();
-        void LoadInstanceEncounters();
         void LoadMailLevelRewards();
         void LoadVehicleTemplateAccessories();
         void LoadVehicleTemplate();
@@ -1425,11 +1411,7 @@ class TC_GAME_API ObjectMgr
 
         int32 GetFishingBaseSkillLevel(AreaTableEntry const* areaEntry) const;
 
-        SkillTiersEntry const* GetSkillTier(uint32 skillTierId) const
-        {
-            auto itr = _skillTiers.find(skillTierId);
-            return itr != _skillTiers.end() ? &itr->second : nullptr;
-        }
+        SkillTiersEntry const* GetSkillTier(uint32 skillTierId) const;
 
         void ReturnOrDeleteOldMails(bool serverUp);
 
@@ -1474,15 +1456,9 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        CellObjectGuids const& GetCellObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 cell_id)
-        {
-            return _mapObjectGuidsStore[{ mapid, spawnMode }][cell_id];
-        }
+        CellObjectGuids const* GetCellObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 cell_id);
 
-        CellObjectGuidsMap const& GetMapObjectGuids(uint32 mapid, Difficulty spawnMode)
-        {
-            return _mapObjectGuidsStore[{ mapid, spawnMode }];
-        }
+        CellObjectGuidsMap const* GetMapObjectGuids(uint32 mapid, Difficulty spawnMode);
 
         bool HasPersonalSpawns(uint32 mapid, Difficulty spawnMode, uint32 phaseId) const;
         CellObjectGuids const* GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint32 cell_id) const;
@@ -1807,8 +1783,10 @@ class TC_GAME_API ObjectMgr
         AreaTriggerContainer _areaTriggerStore;
         AreaTriggerScriptContainer _areaTriggerScriptStore;
         AccessRequirementContainer _accessRequirementStore;
-        DungeonEncounterContainer _dungeonEncounterStore;
         std::unordered_map<uint32, WorldSafeLocsEntry> _worldSafeLocs;
+
+        EventContainer _eventStore;
+        EventScriptContainer _eventScriptStore;
 
         RepRewardRateContainer _repRewardRateStore;
         RepOnKillContainer _repOnKillStore;
@@ -1864,6 +1842,7 @@ class TC_GAME_API ObjectMgr
         std::unordered_map<uint32, std::vector<TerrainSwapInfo*>> _terrainSwapInfoByMap;
 
     private:
+        void LoadEventSet();
         void LoadScripts(ScriptsType type);
         void LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table);
         QuestRelationResult GetQuestRelationsFrom(QuestRelations const& map, uint32 key, bool onlyActive) const { return { map.equal_range(key), onlyActive }; }

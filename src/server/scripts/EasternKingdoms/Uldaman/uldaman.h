@@ -23,16 +23,36 @@
 #define UldamanScriptName "instance_uldaman"
 #define DataHeader "UD"
 
-#define MAX_ENCOUNTER                   3
+enum UDBossIds
+{
+    BOSS_REVELOSH               = 0,
+    BOSS_THE_LOST_DWARVES       = 1,
+    BOSS_IRONAYA                = 2,
+    BOSS_ANCIENT_STONE_KEEPER   = 3,
+    BOSS_GALGANN_FIREHAMMER     = 4,
+    BOSS_GRIMLOK                = 5,
+    BOSS_ARCHAEDAS              = 6,
+    BOSS_OBSIDIAN_SENTINEL      = 7,
+
+    MAX_ENCOUNTER
+};
 
 enum UDDataTypes
 {
     DATA_ALTAR_DOORS                    = 1,
-    DATA_ANCIENT_DOOR                   = 2,
     DATA_IRONAYA_DOOR                   = 3,
     DATA_STONE_KEEPERS                  = 4,
     DATA_MINIONS                        = 5,
     DATA_IRONAYA_SEAL                   = 6,
+};
+
+enum UDCreatureIds
+{
+    NPC_REVELOSH                = 6910,
+    NPC_ANCIENT_STONE_KEEPER    = 7206,
+    NPC_GALGANN_FIREHAMMER      = 7291,
+    NPC_GRIMLOK                 = 4854,
+    NPC_OBSIDIAN_SENTINEL       = 7023,
 };
 
 enum UDGameObjectIds

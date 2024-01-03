@@ -306,8 +306,6 @@ struct npc_baltharus_the_warborn_clone : public BossAI
 // 74505 - Enervating Brand
 class spell_baltharus_enervating_brand_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_baltharus_enervating_brand_trigger);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_SIPHONED_MIGHT });

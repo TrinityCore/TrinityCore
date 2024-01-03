@@ -18,8 +18,11 @@
 #ifndef _QUERYHOLDER_H
 #define _QUERYHOLDER_H
 
-#include "SQLOperation.h"
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 #include <vector>
+
+class MySQLConnection;
 
 class TC_DATABASE_API SQLQueryHolderBase
 {
@@ -47,20 +50,10 @@ public:
     }
 };
 
-class TC_DATABASE_API SQLQueryHolderTask : public SQLOperation
+class TC_DATABASE_API SQLQueryHolderTask
 {
-    private:
-        std::shared_ptr<SQLQueryHolderBase> m_holder;
-        QueryResultHolderPromise m_result;
-
-    public:
-        explicit SQLQueryHolderTask(std::shared_ptr<SQLQueryHolderBase> holder)
-            : m_holder(std::move(holder)) { }
-
-        ~SQLQueryHolderTask();
-
-        bool Execute() override;
-        QueryResultHolderFuture GetFuture() { return m_result.get_future(); }
+public:
+    static bool Execute(MySQLConnection* conn, SQLQueryHolderBase* holder);
 };
 
 class TC_DATABASE_API SQLQueryHolderCallback

@@ -775,8 +775,6 @@ uint32 const CocoonSummonSpells[10] =
 // 30950 - Free Webbed Creature
 class spell_free_webbed : public SpellScript
 {
-    PrepareSpellScript(spell_free_webbed);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(CocoonSummonSpells);
@@ -796,8 +794,6 @@ class spell_free_webbed : public SpellScript
 // 31009 - Free Webbed Creature
 class spell_free_webbed_on_quest : public SpellScript
 {
-    PrepareSpellScript(spell_free_webbed_on_quest);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_FREE_WEBBED_11 });

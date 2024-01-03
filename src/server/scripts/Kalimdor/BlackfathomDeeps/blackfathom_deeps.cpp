@@ -209,8 +209,6 @@ public:
 
     class spell_subjugator_korul_darkness_calls_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_subjugator_korul_darkness_calls_SpellScript);
-
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
             if (Unit* hitUnit = GetHitUnit())

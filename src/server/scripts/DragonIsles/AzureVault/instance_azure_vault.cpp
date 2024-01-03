@@ -36,9 +36,9 @@ ObjectData const creatureData[] =
 
 DoorData const doorData[] =
 {
-    { GO_ARCANE_VAULTS_DOOR_LEYMOR_ENTRANCE,    DATA_LEYMOR,  DOOR_TYPE_ROOM    },
-    { GO_ARCANE_VAULTS_DOOR_LEYMOR_EXIT,        DATA_LEYMOR,  DOOR_TYPE_PASSAGE },
-    { 0,                                        0,            DOOR_TYPE_ROOM    }  // END
+    { GO_ARCANE_VAULTS_DOOR_LEYMOR_ENTRANCE,    DATA_LEYMOR,  EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ARCANE_VAULTS_DOOR_LEYMOR_EXIT,        DATA_LEYMOR,  EncounterDoorBehavior::OpenWhenDone },
+    { 0,                                        0,            EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
 DungeonEncounterData const encounters[] =

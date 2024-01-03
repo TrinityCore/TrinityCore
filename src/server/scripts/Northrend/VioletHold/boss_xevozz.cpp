@@ -128,8 +128,10 @@ struct boss_xevozz : public BossAI
         if (!UpdateVictim())
             return;
 
-        scheduler.Update(diff,
-            std::bind(&BossAI::DoMeleeAttackIfReady, this));
+        scheduler.Update(diff, [this]
+        {
+            DoMeleeAttackIfReady();
+        });
     }
 
     void ScheduleTasks() override
@@ -234,8 +236,6 @@ private:
 // 54164 - Summon Players
 class spell_xevozz_summon_players : public SpellScript
 {
-    PrepareSpellScript(spell_xevozz_summon_players);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MAGIC_PULL });

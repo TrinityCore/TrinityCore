@@ -36,7 +36,7 @@ void ConversationDataStore::LoadConversationTemplates()
 
     std::unordered_map<uint32, std::vector<ConversationActorTemplate>> actorsByConversation;
 
-    if (QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, UiCameraID, ActorIdx, Flags FROM conversation_line_template"))
+    if (QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, UiCameraID, ActorIdx, Flags, ChatType FROM conversation_line_template"))
     {
         uint32 oldMSTime = getMSTime();
 
@@ -57,6 +57,7 @@ void ConversationDataStore::LoadConversationTemplates()
             conversationLine.UiCameraID = fields[1].GetUInt32();
             conversationLine.ActorIdx   = fields[2].GetUInt8();
             conversationLine.Flags      = fields[3].GetUInt8();
+            conversationLine.ChatType   = fields[4].GetUInt8();
         }
         while (lineTemplates->NextRow());
 

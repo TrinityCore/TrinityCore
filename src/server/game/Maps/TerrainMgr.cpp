@@ -163,6 +163,14 @@ void TerrainInfo::LoadMapAndVMap(int32 gx, int32 gy)
     LoadMapAndVMapImpl(gx, gy);
 }
 
+void TerrainInfo::LoadMMapInstance(uint32 mapId, uint32 instanceId)
+{
+    LoadMMapInstanceImpl(mapId, instanceId);
+
+    for (std::shared_ptr<TerrainInfo> const& childTerrain : _childTerrain)
+        childTerrain->LoadMMapInstanceImpl(mapId, instanceId);
+}
+
 void TerrainInfo::LoadMapAndVMapImpl(int32 gx, int32 gy)
 {
     LoadMap(gx, gy);
@@ -173,6 +181,11 @@ void TerrainInfo::LoadMapAndVMapImpl(int32 gx, int32 gy)
         childTerrain->LoadMapAndVMapImpl(gx, gy);
 
     _loadedGrids[GetBitsetIndex(gx, gy)] = true;
+}
+
+void TerrainInfo::LoadMMapInstanceImpl(uint32 mapId, uint32 instanceId)
+{
+    MMAP::MMapFactory::createOrGetMMapManager()->loadMapInstance(sWorld->GetDataPath(), _mapId, mapId, instanceId);
 }
 
 void TerrainInfo::LoadMap(int32 gx, int32 gy)
@@ -240,6 +253,14 @@ void TerrainInfo::UnloadMap(int32 gx, int32 gy)
     // unload later
 }
 
+void TerrainInfo::UnloadMMapInstance(uint32 mapId, uint32 instanceId)
+{
+    UnloadMMapInstanceImpl(mapId, instanceId);
+
+    for (std::shared_ptr<TerrainInfo> const& childTerrain : _childTerrain)
+        childTerrain->UnloadMMapInstanceImpl(mapId, instanceId);
+}
+
 void TerrainInfo::UnloadMapImpl(int32 gx, int32 gy)
 {
     _gridMap[gx][gy] = nullptr;
@@ -250,6 +271,11 @@ void TerrainInfo::UnloadMapImpl(int32 gx, int32 gy)
         childTerrain->UnloadMapImpl(gx, gy);
 
     _loadedGrids[GetBitsetIndex(gx, gy)] = false;
+}
+
+void TerrainInfo::UnloadMMapInstanceImpl(uint32 mapId, uint32 instanceId)
+{
+    MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(_mapId, mapId, instanceId);
 }
 
 GridMap* TerrainInfo::GetGrid(uint32 mapId, float x, float y, bool loadIfMissing /*= true*/)
@@ -416,14 +442,19 @@ void TerrainInfo::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, 
         data.liquidInfo->type_flags = map_liquidHeaderTypeFlags(1 << liquidFlagType);
 
         float delta = wmoData->liquidInfo->level - z;
+        uint32 status = LIQUID_MAP_ABOVE_WATER;
         if (delta > collisionHeight)
-            data.liquidStatus = LIQUID_MAP_UNDER_WATER;
+            status = LIQUID_MAP_UNDER_WATER;
         else if (delta > 0.0f)
-            data.liquidStatus = LIQUID_MAP_IN_WATER;
+            status = LIQUID_MAP_IN_WATER;
         else if (delta > -0.1f)
-            data.liquidStatus = LIQUID_MAP_WATER_WALK;
-        else
-            data.liquidStatus = LIQUID_MAP_ABOVE_WATER;
+            status = LIQUID_MAP_WATER_WALK;
+
+        if (status != LIQUID_MAP_ABOVE_WATER)
+            if (std::fabs(wmoData->floorZ - z) <= GROUND_HEIGHT_TOLERANCE)
+                status |= LIQUID_MAP_OCEAN_FLOOR;
+
+        data.liquidStatus = static_cast<ZLiquidStatus>(status);
     }
     // look up liquid data from grid map
     if (gmap && useGridLiquid)
@@ -498,12 +529,23 @@ ZLiquidStatus TerrainInfo::GetLiquidStatus(PhaseShift const& phaseShift, uint32 
             float delta = liquid_level - z;
 
             // Get position delta
-            if (delta > collisionHeight)                   // Under water
-                return LIQUID_MAP_UNDER_WATER;
-            if (delta > 0.0f)                   // In water
-                return LIQUID_MAP_IN_WATER;
-            if (delta > -0.1f)                   // Walk on water
-                return LIQUID_MAP_WATER_WALK;
+            uint32 status = LIQUID_MAP_ABOVE_WATER;
+            if (delta > collisionHeight)            // Under water
+                status = LIQUID_MAP_UNDER_WATER;
+            else if (delta > 0.0f)                  // In water
+                status = LIQUID_MAP_IN_WATER;
+            else if (delta > -0.1f)                 // Walk on water
+                status = LIQUID_MAP_WATER_WALK;
+
+            if (status != LIQUID_MAP_ABOVE_WATER)
+            {
+                if (status != LIQUID_MAP_ABOVE_WATER)
+                    if (std::fabs(ground_level - z) <= GROUND_HEIGHT_TOLERANCE)
+                        status |= LIQUID_MAP_OCEAN_FLOOR;
+
+                return static_cast<ZLiquidStatus>(status);
+            }
+
             result = LIQUID_MAP_ABOVE_WATER;
         }
     }
@@ -620,7 +662,7 @@ uint32 TerrainInfo::GetZoneId(PhaseShift const& phaseShift, uint32 mapId, float 
 {
     uint32 areaId = GetAreaId(phaseShift, mapId, x, y, z, dynamicMapTree);
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
-        if (area->ParentAreaID)
+        if (area->ParentAreaID && area->GetFlags().HasFlag(AreaFlags::IsSubzone))
             return area->ParentAreaID;
 
     return areaId;
@@ -630,7 +672,7 @@ void TerrainInfo::GetZoneAndAreaId(PhaseShift const& phaseShift, uint32 mapId, u
 {
     areaid = zoneid = GetAreaId(phaseShift, mapId, x, y, z, dynamicMapTree);
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaid))
-        if (area->ParentAreaID)
+        if (area->ParentAreaID && area->GetFlags().HasFlag(AreaFlags::IsSubzone))
             zoneid = area->ParentAreaID;
 }
 

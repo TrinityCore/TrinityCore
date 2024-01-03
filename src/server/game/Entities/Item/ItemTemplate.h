@@ -307,6 +307,9 @@ enum ItemFlags4
     ITEM_FLAG4_NO_SALVAGE                                       = 0x00800000,
     ITEM_FLAG4_RECRAFTABLE                                      = 0x01000000,
     ITEM_FLAG4_CC_TRINKET                                       = 0x02000000,
+    ITEM_FLAG4_KEEP_THROUGH_FACTION_CHANGE                      = 0x04000000,
+    ITEM_FLAG4_NOT_MULTICRAFTABLE                               = 0x08000000,
+    ITEM_FLAG4_DONT_REPORT_LOOT_LOG_TO_SELF                     = 0x10000000,
 };
 
 enum ItemFlagsCustom
@@ -834,6 +837,7 @@ struct TC_GAME_API ItemTemplate
     uint32 RandomBonusListTemplateId;
     std::bitset<MAX_CLASSES * MAX_SPECIALIZATIONS> Specializations[3];  // one set for 1-40 level range and another for 41-109 and one for 110
     uint32 ItemSpecClassMask;
+    int32 QuestLogItemId;
 
     // helpers
     bool CanChangeEquipStateInCombat() const;

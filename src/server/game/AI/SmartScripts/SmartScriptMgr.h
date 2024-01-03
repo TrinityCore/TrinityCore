@@ -18,6 +18,7 @@
 #ifndef TRINITY_SMARTSCRIPTMGR_H
 #define TRINITY_SMARTSCRIPTMGR_H
 
+#include "DBCEnums.h"
 #include "Define.h"
 #include "ObjectGuid.h"
 #include "WaypointDefines.h"
@@ -186,8 +187,9 @@ enum SMART_EVENT
     SMART_EVENT_ON_SPELL_FAILED          = 84,      // SpellID, CooldownMin, CooldownMax
     SMART_EVENT_ON_SPELL_START           = 85,      // SpellID, CooldownMin, CooldownMax
     SMART_EVENT_ON_DESPAWN               = 86,      // NONE
+    SMART_EVENT_SEND_EVENT_TRIGGER       = 87,      // NONE
 
-    SMART_EVENT_END                      = 87
+    SMART_EVENT_END                      = 88
 };
 
 struct SmartEvent
@@ -1444,19 +1446,19 @@ struct SmartTarget
 
 enum SmartScriptType
 {
-    SMART_SCRIPT_TYPE_CREATURE = 0, //done
-    SMART_SCRIPT_TYPE_GAMEOBJECT = 1, //done
-    SMART_SCRIPT_TYPE_AREATRIGGER = 2, //done
-    SMART_SCRIPT_TYPE_EVENT = 3, //
-    SMART_SCRIPT_TYPE_GOSSIP = 4, //
-    SMART_SCRIPT_TYPE_QUEST = 5, //done
-    SMART_SCRIPT_TYPE_SPELL = 6, //
-    SMART_SCRIPT_TYPE_TRANSPORT = 7, //
-    SMART_SCRIPT_TYPE_INSTANCE = 8, //
-    SMART_SCRIPT_TYPE_TIMED_ACTIONLIST = 9, //
-    SMART_SCRIPT_TYPE_SCENE = 10, //done
-    SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY = 11,
-    SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE = 12,
+    SMART_SCRIPT_TYPE_CREATURE                      = 0,
+    SMART_SCRIPT_TYPE_GAMEOBJECT                    = 1,
+    SMART_SCRIPT_TYPE_AREATRIGGER                   = 2,
+    SMART_SCRIPT_TYPE_EVENT                         = 3,
+    SMART_SCRIPT_TYPE_GOSSIP                        = 4,  // NYI
+    SMART_SCRIPT_TYPE_QUEST                         = 5,
+    SMART_SCRIPT_TYPE_SPELL                         = 6,  // NYI
+    SMART_SCRIPT_TYPE_TRANSPORT                     = 7,  // NYI
+    SMART_SCRIPT_TYPE_INSTANCE                      = 8,  // NYI
+    SMART_SCRIPT_TYPE_TIMED_ACTIONLIST              = 9,
+    SMART_SCRIPT_TYPE_SCENE                         = 10,
+    SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY            = 11,
+    SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM     = 12,
     SMART_SCRIPT_TYPE_MAX
 };
 
@@ -1478,19 +1480,19 @@ enum SmartAITypeMaskId
 
 const uint32 SmartAITypeMask[SMART_SCRIPT_TYPE_MAX][2] =
 {
-    {SMART_SCRIPT_TYPE_CREATURE,                      SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {SMART_SCRIPT_TYPE_GAMEOBJECT,                    SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
-    {SMART_SCRIPT_TYPE_AREATRIGGER,                   SMART_SCRIPT_TYPE_MASK_AREATRIGGER },
-    {SMART_SCRIPT_TYPE_EVENT,                         SMART_SCRIPT_TYPE_MASK_EVENT },
-    {SMART_SCRIPT_TYPE_GOSSIP,                        SMART_SCRIPT_TYPE_MASK_GOSSIP },
-    {SMART_SCRIPT_TYPE_QUEST,                         SMART_SCRIPT_TYPE_MASK_QUEST },
-    {SMART_SCRIPT_TYPE_SPELL,                         SMART_SCRIPT_TYPE_MASK_SPELL },
-    {SMART_SCRIPT_TYPE_TRANSPORT,                     SMART_SCRIPT_TYPE_MASK_TRANSPORT },
-    {SMART_SCRIPT_TYPE_INSTANCE,                      SMART_SCRIPT_TYPE_MASK_INSTANCE },
-    {SMART_SCRIPT_TYPE_TIMED_ACTIONLIST,              SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST },
-    {SMART_SCRIPT_TYPE_SCENE,                         SMART_SCRIPT_TYPE_MASK_SCENE },
-    {SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY,            SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY },
-    {SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE, SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY }
+    {SMART_SCRIPT_TYPE_CREATURE,                  SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_SCRIPT_TYPE_GAMEOBJECT,                SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
+    {SMART_SCRIPT_TYPE_AREATRIGGER,               SMART_SCRIPT_TYPE_MASK_AREATRIGGER },
+    {SMART_SCRIPT_TYPE_EVENT,                     SMART_SCRIPT_TYPE_MASK_EVENT },
+    {SMART_SCRIPT_TYPE_GOSSIP,                    SMART_SCRIPT_TYPE_MASK_GOSSIP },
+    {SMART_SCRIPT_TYPE_QUEST,                     SMART_SCRIPT_TYPE_MASK_QUEST },
+    {SMART_SCRIPT_TYPE_SPELL,                     SMART_SCRIPT_TYPE_MASK_SPELL },
+    {SMART_SCRIPT_TYPE_TRANSPORT,                 SMART_SCRIPT_TYPE_MASK_TRANSPORT },
+    {SMART_SCRIPT_TYPE_INSTANCE,                  SMART_SCRIPT_TYPE_MASK_INSTANCE },
+    {SMART_SCRIPT_TYPE_TIMED_ACTIONLIST,          SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST },
+    {SMART_SCRIPT_TYPE_SCENE,                     SMART_SCRIPT_TYPE_MASK_SCENE },
+    {SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY,        SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY },
+    {SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM, SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY }
 };
 
 const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
@@ -1582,23 +1584,24 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_ON_SPELL_FAILED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_SPELL_START,            SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_DESPAWN,                SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_SEND_EVENT_TRIGGER,        SMART_SCRIPT_TYPE_MASK_EVENT }
 };
 
 enum SmartEventFlags
 {
-    SMART_EVENT_FLAG_NOT_REPEATABLE        = 0x001,                     //Event can not repeat
-    SMART_EVENT_FLAG_DIFFICULTY_0          = 0x002,                     //Event only occurs in instance difficulty 0
-    SMART_EVENT_FLAG_DIFFICULTY_1          = 0x004,                     //Event only occurs in instance difficulty 1
-    SMART_EVENT_FLAG_DIFFICULTY_2          = 0x008,                     //Event only occurs in instance difficulty 2
-    SMART_EVENT_FLAG_DIFFICULTY_3          = 0x010,                     //Event only occurs in instance difficulty 3
-    SMART_EVENT_FLAG_RESERVED_5            = 0x020,
-    SMART_EVENT_FLAG_RESERVED_6            = 0x040,
-    SMART_EVENT_FLAG_DEBUG_ONLY            = 0x080,                     //Event only occurs in debug build
-    SMART_EVENT_FLAG_DONT_RESET            = 0x100,                     //Event will not reset in SmartScript::OnReset()
-    SMART_EVENT_FLAG_WHILE_CHARMED         = 0x200,                     //Event occurs even if AI owner is charmed
+    SMART_EVENT_FLAG_NOT_REPEATABLE           = 0x001,                     // Event can not repeat
+    SMART_EVENT_FLAG_DIFFICULTY_0_DEPRECATED  = 0x002,                     // UNUSED, DO NOT REUSE
+    SMART_EVENT_FLAG_DIFFICULTY_1_DEPRECATED  = 0x004,                     // UNUSED, DO NOT REUSE
+    SMART_EVENT_FLAG_DIFFICULTY_2_DEPRECATED  = 0x008,                     // UNUSED, DO NOT REUSE
+    SMART_EVENT_FLAG_DIFFICULTY_3_DEPRECATED  = 0x010,                     // UNUSED, DO NOT REUSE
+    SMART_EVENT_FLAG_RESERVED_5               = 0x020,
+    SMART_EVENT_FLAG_RESERVED_6               = 0x040,
+    SMART_EVENT_FLAG_DEBUG_ONLY               = 0x080,                     //Event only occurs in debug build
+    SMART_EVENT_FLAG_DONT_RESET               = 0x100,                     //Event will not reset in SmartScript::OnReset()
+    SMART_EVENT_FLAG_WHILE_CHARMED            = 0x200,                     //Event occurs even if AI owner is charmed
 
-    SMART_EVENT_FLAG_DIFFICULTY_ALL        = (SMART_EVENT_FLAG_DIFFICULTY_0|SMART_EVENT_FLAG_DIFFICULTY_1|SMART_EVENT_FLAG_DIFFICULTY_2|SMART_EVENT_FLAG_DIFFICULTY_3),
-    SMART_EVENT_FLAGS_ALL                  = (SMART_EVENT_FLAG_NOT_REPEATABLE|SMART_EVENT_FLAG_DIFFICULTY_ALL|SMART_EVENT_FLAG_RESERVED_5|SMART_EVENT_FLAG_RESERVED_6|SMART_EVENT_FLAG_DEBUG_ONLY|SMART_EVENT_FLAG_DONT_RESET|SMART_EVENT_FLAG_WHILE_CHARMED),
+    SMART_EVENT_FLAGS_DEPRECATED              = (SMART_EVENT_FLAG_DIFFICULTY_0_DEPRECATED | SMART_EVENT_FLAG_DIFFICULTY_1_DEPRECATED | SMART_EVENT_FLAG_DIFFICULTY_2_DEPRECATED | SMART_EVENT_FLAG_DIFFICULTY_3_DEPRECATED),
+    SMART_EVENT_FLAGS_ALL                     = (SMART_EVENT_FLAG_NOT_REPEATABLE| SMART_EVENT_FLAGS_DEPRECATED | SMART_EVENT_FLAG_RESERVED_5 | SMART_EVENT_FLAG_RESERVED_6 | SMART_EVENT_FLAG_DEBUG_ONLY | SMART_EVENT_FLAG_DONT_RESET | SMART_EVENT_FLAG_WHILE_CHARMED),
 
     // Temp flags, used only at runtime, never stored in DB
     SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL = 0x40000000,              //Event occurs no matter what roll_chance_i(e.event.event_chance) returns.
@@ -1626,6 +1629,7 @@ struct SmartScriptHolder
     SmartScriptType source_type;
     uint32 event_id;
     uint32 link;
+    std::vector<Difficulty> Difficulties;
 
     SmartEvent event;
     SmartAction action;

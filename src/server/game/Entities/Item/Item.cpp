@@ -146,7 +146,7 @@ void AddItemsSetItem(Player* player, Item const* item)
 
             eff->SetBonuses.insert(itemSetSpell);
             // spell cast only if fit form requirement, in other case will cast at form change
-            if (!itemSetSpell->ChrSpecID || itemSetSpell->ChrSpecID == player->GetPrimarySpecialization())
+            if (!itemSetSpell->ChrSpecID || ChrSpecialization(itemSetSpell->ChrSpecID) == player->GetPrimarySpecialization())
                 player->ApplyEquipSpell(spellInfo, nullptr, true);
         }
     }
@@ -1543,24 +1543,31 @@ void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem, uint32 gemScalin
 
 bool Item::GemsFitSockets() const
 {
-    uint32 gemSlot = 0;
-    for (UF::SocketedGem const& gemData : m_itemData->Gems)
+    for (uint32 gemSlot = 0; gemSlot < MAX_ITEM_PROTO_SOCKETS; ++gemSlot)
     {
-        SocketColor color = GetTemplate()->GetSocketColor(gemSlot);
-        if (!color) // no socket slot
+        uint8 SocketColor = GetTemplate()->GetSocketColor(gemSlot);
+
+        if (!SocketColor) // no socket slot
             continue;
 
-        uint32 GemColor = 0;
+        if (gemSlot >= m_itemData->Gems.size()) // no gems on this socket
+            return false;
 
-        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemData.ItemID);
-        if (gemProto)
+        uint8 GemColor = 0;
+
+        uint32 gemid = m_itemData->Gems[gemSlot].ItemID;
+        if (gemid)
         {
-            GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GetGemProperties());
-            if (gemProperty)
-                GemColor = gemProperty->Type;
+            ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemid);
+            if (gemProto)
+            {
+                GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GetGemProperties());
+                if (gemProperty)
+                    GemColor = gemProperty->Type;
+            }
         }
 
-        if (!(GemColor & SocketColorToGemTypeMask[color])) // bad gem color on this socket
+        if (!(GemColor & SocketColorToGemTypeMask[SocketColor])) // bad gem color on this socket
             return false;
     }
     return true;
@@ -2480,6 +2487,19 @@ uint16 Item::GetVisibleAppearanceModId(Player const* owner) const
         return transmog->ItemAppearanceModifierID;
 
     return uint16(GetAppearanceModId());
+}
+
+uint32 Item::GetVisibleModifiedAppearanceId(Player const* owner) const
+{
+    uint32 itemModifiedAppearanceId = GetModifier(AppearanceModifierSlotBySpec[owner->GetActiveTalentGroup()]);
+    if (!itemModifiedAppearanceId)
+        itemModifiedAppearanceId = GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS);
+
+    if (!itemModifiedAppearanceId)
+        if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = GetItemModifiedAppearance())
+            itemModifiedAppearanceId = itemModifiedAppearance->ID;
+
+    return itemModifiedAppearanceId;
 }
 
 int32 Item::GetVisibleSecondaryModifiedAppearanceId(Player const* owner) const

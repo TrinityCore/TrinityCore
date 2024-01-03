@@ -232,7 +232,7 @@ struct boss_muru : public BossAI
     {
         _Reset();
         Initialize();
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
         me->SetVisible(true);
     }
 
@@ -279,7 +279,7 @@ struct boss_muru : public BossAI
             _phase = PHASE_TWO;
             me->RemoveAllAuras();
             DoCast(me, SPELL_OPEN_ALL_PORTALS, true);
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
 
             scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
             {
@@ -372,7 +372,7 @@ struct npc_dark_fiend : public ScriptedAI
         _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
 
             if (Creature* _summoner = ObjectAccessor::GetCreature(*me, _summonerGUID))
                 if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0))
@@ -510,8 +510,6 @@ private:
 // 46050 - Summon Blood Elves Script
 class spell_summon_blood_elves_script : public SpellScript
 {
-    PrepareSpellScript(spell_summon_blood_elves_script);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(SummonBloodElvesSpells);
@@ -532,8 +530,6 @@ class spell_summon_blood_elves_script : public SpellScript
 // 45996 - Darkness
 class spell_muru_darkness : public SpellScript
 {
-    PrepareSpellScript(spell_muru_darkness);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(SummonDarkFiendSpells);
@@ -554,8 +550,6 @@ class spell_muru_darkness : public SpellScript
 // 45934 - Dark Fiend
 class spell_dark_fiend_skin : public AuraScript
 {
-    PrepareAuraScript(spell_dark_fiend_skin);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
@@ -580,8 +574,6 @@ class spell_dark_fiend_skin : public AuraScript
 // 46205 - Transform Visual Missile Periodic
 class spell_transform_visual_missile_periodic : public AuraScript
 {
-    PrepareAuraScript(spell_transform_visual_missile_periodic);
-
     void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
         GetTarget()->CastSpell(nullptr, RAND(TRANSFORM_VISUAL_MISSILE_1, TRANSFORM_VISUAL_MISSILE_2), true);
@@ -596,8 +588,6 @@ class spell_transform_visual_missile_periodic : public AuraScript
 // 46041 - Summon Blood Elves Periodic
 class spell_summon_blood_elves_periodic : public AuraScript
 {
-    PrepareAuraScript(spell_summon_blood_elves_periodic);
-
     void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
         GetTarget()->CastSpell(nullptr, SPELL_SUMMON_BLOOD_ELVES_SCRIPT, true);
@@ -612,8 +602,6 @@ class spell_summon_blood_elves_periodic : public AuraScript
 // 46284 - Negative Energy Periodic
 class spell_muru_negative_energy_periodic : public AuraScript
 {
-    PrepareAuraScript(spell_muru_negative_energy_periodic);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });

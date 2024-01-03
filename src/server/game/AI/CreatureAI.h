@@ -32,7 +32,7 @@ class GameObject;
 class PlayerAI;
 class WorldObject;
 struct Position;
-enum class QuestGiverStatus : uint32;
+enum class QuestGiverStatus : uint64;
 
 typedef std::vector<AreaBoundary const*> CreatureBoundary;
 
@@ -97,6 +97,9 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         // Called for reaction when initially engaged - this will always happen _after_ JustEnteredCombat
         virtual void JustEngagedWith(Unit* /*who*/) { }
+
+        // Called when the creature reaches 0 health (or 1 if unkillable).
+        virtual void OnHealthDepleted(Unit* /*attacker*/, bool /*isKill*/) { }
 
         // Called when the creature is killed
         virtual void JustDied(Unit* /*killer*/) { }

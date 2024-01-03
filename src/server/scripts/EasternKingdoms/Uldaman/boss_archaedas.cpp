@@ -67,12 +67,11 @@ class boss_archaedas : public CreatureScript
         {
         }
 
-        struct boss_archaedasAI : public ScriptedAI
+        struct boss_archaedasAI : public BossAI
         {
-            boss_archaedasAI(Creature* creature) : ScriptedAI(creature)
+            boss_archaedasAI(Creature* creature) : BossAI(creature, BOSS_ARCHAEDAS)
             {
                 Initialize();
-                instance = me->GetInstanceScript();
             }
 
             void Initialize()
@@ -93,15 +92,15 @@ class boss_archaedas : public CreatureScript
 
             bool bGuardiansAwake;
             bool bVaultWalkersAwake;
-            InstanceScript* instance;
 
             void Reset() override
             {
+                _Reset();
                 Initialize();
 
                 instance->SetData(0, 5);    // respawn any dead minions
                 me->SetFaction(FACTION_FRIENDLY);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->AddAura(SPELL_FREEZE_ANIM, me);
             }
@@ -114,17 +113,18 @@ class boss_archaedas : public CreatureScript
                 {
                     DoCast(minion, SPELL_AWAKEN_VAULT_WALKER, flag);
                     minion->CastSpell(minion, SPELL_ARCHAEDAS_AWAKEN, true);
-                    minion->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    minion->SetUninteractible(false);
                     minion->SetControlled(false, UNIT_STATE_ROOT);
                     minion->SetFaction(FACTION_MONSTER);
                     minion->RemoveAura(SPELL_MINION_FREEZE_ANIM);
                 }
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
+                _JustEngagedWith(who);
                 me->SetFaction(FACTION_MONSTER);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }
 
@@ -208,7 +208,7 @@ class boss_archaedas : public CreatureScript
 
             void JustDied (Unit* /*killer*/) override
             {
-                instance->SetData(DATA_ANCIENT_DOOR, DONE);      // open the vault door
+                _JustDied();
                 instance->SetData(DATA_MINIONS, SPECIAL);        // deactivate his minions
             }
         };
@@ -264,7 +264,7 @@ class npc_archaedas_minions : public CreatureScript
                 Initialize();
 
                 me->SetFaction(35);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->RemoveAllAuras();
                 me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
@@ -274,7 +274,7 @@ class npc_archaedas_minions : public CreatureScript
             {
                 me->SetFaction(FACTION_MONSTER);
                 me->RemoveAllAuras();
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetControlled(false, UNIT_STATE_ROOT);
                 bAmIAwake = true;
             }
@@ -353,7 +353,7 @@ class npc_stonekeepers : public CreatureScript
             void Reset() override
             {
                 me->SetFaction(FACTION_FRIENDLY);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->RemoveAllAuras();
                 me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
@@ -362,7 +362,7 @@ class npc_stonekeepers : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_FRIENDLY);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }
 

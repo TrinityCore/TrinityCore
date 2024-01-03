@@ -40,8 +40,9 @@
 #include "common/RootHandler.h"
 #include "common/Sockets.h"
 
-// Headers from Alexander Peslyak's MD5 implementation
-#include "md5/md5.h"
+// Headers for hashes used in CascLib
+#include "hashes/md5.h"
+#include "hashes/sha1.h"
 
 // For HashStringJenkins
 #include "jenkins/lookup.h"
@@ -296,7 +297,7 @@ struct TCascStorage
     LPTSTR  szCdnPath;                              // Remote CDN sub path for the product
     LPSTR   szRegion;                               // Product region. Only when "versions" is used as storage root file
     LPSTR   szBuildKey;                             // Product build key, aka MD5 of the build file
-    DWORD dwDefaultLocale;                          // Default locale, read from ".build.info"
+    DWORD dwDefaultLocale;                          // Mask of installed localles
     DWORD dwBuildNumber;                            // Product build number
     DWORD dwRefCount;                               // Number of references
     DWORD dwFeatures;                               // List of CASC features. See CASC_FEATURE_XXX

@@ -170,8 +170,6 @@ class spell_shadow_portal : public SpellScriptLoader
 
         class spell_shadow_portal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_shadow_portal_SpellScript);
-
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
@@ -289,8 +287,6 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
 
         class spell_shadow_portal_rooms_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_shadow_portal_rooms_SpellScript);
-
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();

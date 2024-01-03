@@ -22,6 +22,11 @@
 #include "EnumFlag.h"
 #include <string>
 
+namespace UF
+{
+struct DeclinedNames;
+}
+
 #define MIN_MELEE_REACH             2.0f
 #define NOMINAL_MELEE_RANGE         5.0f
 #define MELEE_RANGE                 (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
@@ -223,7 +228,7 @@ enum UnitFlags2 : uint32
                                                                    UNIT_FLAG2_MIRROR_IMAGE | UNIT_FLAG2_FORCE_MOVEMENT | UNIT_FLAG2_DISARM_OFFHAND |
                                                                    UNIT_FLAG2_DISABLE_PRED_STATS | UNIT_FLAG2_ALLOW_CHANGING_TALENTS | UNIT_FLAG2_DISARM_RANGED |
                                                                 /* UNIT_FLAG2_REGENERATE_POWER | */ UNIT_FLAG2_RESTRICT_PARTY_INTERACTION |
-                                                                   UNIT_FLAG2_PREVENT_SPELL_CLICK | UNIT_FLAG2_INTERACT_WHILE_HOSTILE | /* UNIT_FLAG2_UNK2 | */
+                                                                   UNIT_FLAG2_PREVENT_SPELL_CLICK | /* UNIT_FLAG2_INTERACT_WHILE_HOSTILE | */ /* UNIT_FLAG2_UNK2 | */
                                                                 /* UNIT_FLAG2_PLAY_DEATH_ANIM | */ UNIT_FLAG2_ALLOW_CHEAT_SPELLS | UNIT_FLAG2_SUPPRESS_HIGHLIGHT_WHEN_TARGETED_OR_MOUSED_OVER |
                                                                    UNIT_FLAG2_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS | UNIT_FLAG2_LARGE_AOI | UNIT_FLAG2_GIGANTIC_AOI | UNIT_FLAG2_NO_ACTIONS |
                                                                    UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS | UNIT_FLAG2_DONT_GENERATE_COMBAT_LOG_WHEN_ENGAGED_WITH_NPCS | UNIT_FLAG2_ATTACKER_IGNORES_MINIMUM_RANGES |
@@ -342,6 +347,7 @@ enum NPCFlags2 : uint32
     UNIT_NPC_FLAG_2_AZERITE_RESPEC          = 0x00004000,   // TITLE is azerite respec
     UNIT_NPC_FLAG_2_ISLANDS_QUEUE           = 0x00008000,   // TITLE is islands queue
     UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION   = 0x00010000,
+    UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER= 0x00200000,   // TITLE is personal tabard designer
 };
 
 DEFINE_ENUM_FLAG(NPCFlags2);
@@ -469,8 +475,11 @@ enum HitInfo
 
 #define MAX_DECLINED_NAME_CASES 5
 
-struct DeclinedName
+struct TC_GAME_API DeclinedName
 {
+    DeclinedName() = default;
+    DeclinedName(UF::DeclinedNames const& uf);
+
     std::string name[MAX_DECLINED_NAME_CASES];
 };
 

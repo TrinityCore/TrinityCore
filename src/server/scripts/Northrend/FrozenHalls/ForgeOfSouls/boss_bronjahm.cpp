@@ -241,29 +241,25 @@ private:
 // 68793, 69050 - Magic's Bane
 class spell_bronjahm_magic_bane : public SpellScript
 {
-    PrepareSpellScript(spell_bronjahm_magic_bane);
-
-    void RecalculateDamage(SpellEffIndex /*effIndex*/)
+    void CalculateDamage(Unit const* victim, int32& damage, int32& /*flatMod*/, float& /*pctMod*/) const
     {
-        if (GetHitUnit()->GetPowerType() != POWER_MANA)
+        if (victim->GetPowerType() != POWER_MANA)
             return;
 
         int32 const maxDamage = GetCaster()->GetMap()->IsHeroic() ? 15000 : 10000;
-        int32 newDamage = GetEffectValue() + (GetHitUnit()->GetMaxPower(POWER_MANA) / 2);
-        SetEffectValue(std::min<int32>(maxDamage, newDamage));
+        int32 newDamage = damage + (victim->GetMaxPower(POWER_MANA) / 2);
+        damage = std::min(maxDamage, newDamage);
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_bronjahm_magic_bane::RecalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_bronjahm_magic_bane::CalculateDamage);
     }
 };
 
 // 68861 - Consume Soul
 class spell_bronjahm_consume_soul : public SpellScript
 {
-    PrepareSpellScript(spell_bronjahm_consume_soul);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -290,8 +286,6 @@ static uint32 const SoulstormVisualSpells[] =
 
 class spell_bronjahm_soulstorm_visual : public AuraScript
 {
-    PrepareAuraScript(spell_bronjahm_soulstorm_visual);
-
     void HandlePeriodicTick(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
@@ -307,8 +301,6 @@ class spell_bronjahm_soulstorm_visual : public AuraScript
 // 68921, 69049 - Soulstorm
 class spell_bronjahm_soulstorm_targeting : public SpellScript
 {
-    PrepareSpellScript(spell_bronjahm_soulstorm_targeting);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Unit* caster = GetCaster();
@@ -344,5 +336,5 @@ void AddSC_boss_bronjahm()
     RegisterSpellScriptWithArgs(spell_bronjahm_soulstorm_visual, "spell_bronjahm_soulstorm_channel");
     RegisterSpellScriptWithArgs(spell_bronjahm_soulstorm_visual, "spell_bronjahm_soulstorm_visual");
     RegisterSpellScript(spell_bronjahm_soulstorm_targeting);
-    RegisterSpellScript(achievement_bronjahm_soul_power);
+    new achievement_bronjahm_soul_power();
 }
