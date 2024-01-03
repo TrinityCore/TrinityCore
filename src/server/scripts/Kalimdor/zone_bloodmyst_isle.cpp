@@ -357,10 +357,6 @@ public:
         {
             _events.Update(diff);
 
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
             if (UpdateVictim())
             {
                 while (uint32 eventId = _events.ExecuteEvent())
@@ -387,8 +383,9 @@ public:
                             Unit* target = nullptr;
                             if (me->GetHealthPct() < 85)
                                 target = me;
-                            else if (player->GetHealthPct() < 85)
-                                target = player;
+                            else if (Player* player = GetPlayerForEscort())
+                                if (player->GetHealthPct() < 85)
+                                    target = player;
                             if (target)
                             {
                                 DoCast(target, SPELL_HEALING_SURGE);
@@ -444,7 +441,8 @@ public:
                             _phase = PHASE_PLANT_FIRST_WORK;
                             break;
                         case PHASE_PLANT_FIRST_WORK: // plant first explosives stage 2 work
-                            Talk(SAY_LEGOSO_4, player);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_LEGOSO_4, player);
                             _moveTimer = 17.5 * AsUnderlyingType(IN_MILLISECONDS);
                             _phase = PHASE_PLANT_FIRST_FINISH;
                             break;
@@ -509,7 +507,8 @@ public:
                             _phase = PHASE_FEEL_SIRONAS_2;
                             break;
                         case PHASE_FEEL_SIRONAS_2: // legoso exclamation before sironas 1.2
-                            Talk(SAY_LEGOSO_11, player);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_LEGOSO_11, player);
                             _moveTimer = 4 * IN_MILLISECONDS;
                             _phase = PHASE_CONTINUE;
                             break;
@@ -519,7 +518,8 @@ public:
                             _phase = PHASE_MEET_SIRONAS_TURN;
                             break;
                         case PHASE_MEET_SIRONAS_TURN: // legoso exclamation before sironas 2.2
-                            me->SetFacingToObject(player);
+                            if (Player* player = GetPlayerForEscort())
+                                me->SetFacingToObject(player);
                             _moveTimer = 1 * IN_MILLISECONDS;
                             _phase = PHASE_MEET_SIRONAS_SPEECH;
                             break;
@@ -550,7 +550,8 @@ public:
                                 if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData(), 0s))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
-                            Talk(SAY_LEGOSO_15, player);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_LEGOSO_15, player);
                             _moveTimer = 1 * IN_MILLISECONDS;
                             _phase = PHASE_PLANT_SECOND_WAIT;
                             break;
@@ -632,7 +633,8 @@ public:
                             _phase = PHASE_SIRONAS_SLAIN_EMOTE_2;
                             break;
                         case PHASE_SIRONAS_SLAIN_EMOTE_2: // legoso exclamation after battle - stage 1.3
-                            player->GroupEventHappens(QUEST_ENDING_THEIR_WORLD, me);
+                            if (Player* player = GetPlayerForEscort())
+                                player->GroupEventHappens(QUEST_ENDING_THEIR_WORLD, me);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
                             _moveTimer = 5 * IN_MILLISECONDS;
                             _phase = PHASE_SIRONAS_SLAIN_SPEECH_2;
