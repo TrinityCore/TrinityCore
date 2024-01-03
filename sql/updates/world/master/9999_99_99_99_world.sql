@@ -30,8 +30,8 @@ UPDATE `creature` SET `spawntimesecs`=120 WHERE `id` IN (151091,150237,150238,15
 UPDATE `creature` SET `PhaseId`=15276 WHERE `guid` IN (1051256,1051265);
 UPDATE `creature` SET `StringId`='briarpatch_bunny_alliance' WHERE `guid` IN (1051256);
 DELETE FROM `creature` WHERE `Id` IN (167008,154301);
-UPDATE `creature_template` SET `flags_extra`=128 WHERE `entry`=155371;
 
+UPDATE `creature_template` SET `flags_extra`=128 WHERE `entry`=155371;
 UPDATE `creature_template` SET `ScriptName`="npc_geolord_grekog" WHERE `entry`=151091;
 UPDATE `creature_template` SET `ScriptName`="npc_cork_fizzlepop_briarpatch" WHERE `entry`=167008;
 UPDATE `creature_template` SET `ScriptName`="npc_lindie_springstock_briarpatch" WHERE `entry`=154301;
@@ -214,6 +214,9 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=313265;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (313265, 'spell_quilboar_sleep_dnt');
 
+-- Fix Ref loot "Thanks Meji"
+UPDATE `reference_loot_template` SET `GroupId`=1 WHERE `Entry`=10100;
+
 -- Fix previous commits
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15315,15318,13779,13776) AND `SourceEntry` = 0;
@@ -234,6 +237,22 @@ INSERT INTO `creature_loot_template` (`Entry`,`Item`,`Reference`,`Chance`,`Quest
 (@ID,174813,0,20,0,1,0,1,1,'Quilboar Warrior/Geomancer - Linked Mail Hauberk'),
 (@ID,174814,0,20,0,1,0,1,1,'Quilboar Warrior/Geomancer - Dented Chestplate'),
 (@ID,0,10100,15,0,1,0,1,1,'Quilboar Warrior/Geomancer - Poor Quality Table Level 1 to 5');
+
+-- Conditions for class loot
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=1 AND `SourceGroup`=@ID;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(1,@ID,174811,0,0,15,0,400,0,0,0,0,0,'','Item drops for cloth wearer'),
+(1,@ID,174811,0,0,47,0,58882,64,0,1,0,0,'','Item drops if quest 58882 is not rewarded'),
+(1,@ID,174812,0,0,15,0,3592,0,0,0,0,0,'','Item drops for leather wearer'),
+(1,@ID,174812,0,0,47,0,58882,64,0,1,0,0,'','Item drops if quest 58882 is not rewarded'),
+(1,@ID,174813,0,0,15,0,4168,0,0,0,0,0,'','Item drops for mail wearer'),
+(1,@ID,174813,0,0,47,0,58882,64,0,1,0,0,'','Item drops if quest 58882 is not rewarded'),
+(1,@ID,174814,0,0,15,0,35,0,0,0,0,0,'','Item drops for plate wearer'),
+(1,@ID,174814,0,0,47,0,58882,64,0,1,0,0,'','Item drops if quest 58882 is not rewarded');
+
+DELETE FROM `quest_template` WHERE `ID`=58882;
+INSERT INTO `quest_template` (`ID`,`QuestType`,`RewardXPMultiplier`,`RewardMoneyMultiplier`,`RewardArtifactXPMultiplier`,`Flags`,`LogTitle`) VALUES
+(58882,2,1,1,1,1024, '[Hidden Tracker] Quilboar Briarpatch Chestpiece Dropped');
 
 -- Loot for Geolord Grek'og
 SET @ID := 151091;
