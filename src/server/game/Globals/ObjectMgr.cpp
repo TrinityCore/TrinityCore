@@ -732,7 +732,7 @@ void ObjectMgr::LoadCreatureSummonedData()
 
         if (!fields[4].IsNull())
         {
-            summonedData.DespawnOnQuestsRemoved.emplace();
+            std::vector<uint32> questList;
             for (std::string_view questStr : Trinity::Tokenize(fields[4].GetStringView(), ',', false))
             {
                 Optional<uint32> questId = Trinity::StringTo<uint32>(questStr);
@@ -744,12 +744,14 @@ void ObjectMgr::LoadCreatureSummonedData()
                 {
                     TC_LOG_ERROR("sql.sql", "Table `creature_summoned_data` references non-existing quest {} in DespawnOnQuestsRemoved for creature {}, skipping",
                         *questId, creatureId);
-                    summonedData.DespawnOnQuestsRemoved = {};
-                    break;
+                    continue;
                 }
 
-                summonedData.DespawnOnQuestsRemoved->push_back(*questId);
+                questList.push_back(*questId);
             }
+
+            if (!questList.empty())
+                summonedData.DespawnOnQuestsRemoved = std::move(questList);
         }
 
     } while (result->NextRow());
