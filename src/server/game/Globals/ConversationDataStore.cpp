@@ -225,7 +225,7 @@ void ConversationDataStore::LoadConversationTemplates()
             conversationTemplate.FirstLineId        = fields[1].GetUInt32();
             conversationTemplate.TextureKitId       = fields[2].GetUInt32();
             conversationTemplate.Flags              = (ConversationFlags)fields[3].GetUInt8();
-            conversationTemplate.ScriptId           = sObjectMgr->GetScriptId(fields[3].GetString());
+            conversationTemplate.ScriptId           = sObjectMgr->GetScriptId(fields[4].GetString());
 
             conversationTemplate.Actors = std::move(actorsByConversation[conversationTemplate.Id]);
 
