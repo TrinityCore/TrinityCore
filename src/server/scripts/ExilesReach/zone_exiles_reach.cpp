@@ -4439,7 +4439,7 @@ enum Geolord
     NPC_CORK_FIZZLEPOP         = 167008,
     NPC_LINDIE_SPRINGSTOCK     = 154301,
 
-    SET_DATA_FREE_PRISONER     = 1,
+    ACTION_FREE_PRISONER       = 1,
 
     SPELL_NECROTIC_RITUAL_DNT  = 305513,
     SPELL_EARTH_BOLT           = 270453,
@@ -4478,7 +4478,7 @@ struct npc_geolord_grekog : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         if (Creature* prisoner = ObjectAccessor::GetCreature(*me, _prisonerGUID))
-            prisoner->AI()->SetData(SET_DATA_FREE_PRISONER, SET_DATA_FREE_PRISONER);
+            prisoner->AI()->DoAction(ACTION_FREE_PRISONER);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -4557,9 +4557,9 @@ struct npc_briarpatch_prisoner : public ScriptedAI
         me->CastSpell(me, SPELL_NECROTIC_RITUAL_DNT);
     }
 
-    void SetData(uint32 /*type*/, uint32 data) override
+    void DoAction(int32 param) override
     {
-        if (data == SET_DATA_FREE_PRISONER)
+        if (param == ACTION_FREE_PRISONER)
         {
             me->RemoveAllAuras();
             me->SetDisableGravity(false);
