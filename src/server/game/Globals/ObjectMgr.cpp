@@ -396,8 +396,6 @@ void ObjectMgr::LoadCreatureTemplates()
     // We load the creature models after loading but before checking
     LoadCreatureTemplateModels();
 
-    LoadCreatureSummonedData();
-
     // Checking needs to be done after loading because of the difficulty self referencing
     for (auto const& ctPair : _creatureTemplateStore)
         CheckCreatureTemplate(&ctPair.second);
@@ -737,11 +735,20 @@ void ObjectMgr::LoadCreatureSummonedData()
             summonedData.DespawnOnQuestsRemoved.emplace();
             for (std::string_view questStr : Trinity::Tokenize(fields[4].GetStringView(), ',', false))
             {
-                if (Optional<uint32> questId = Trinity::StringTo<uint32>(questStr))
+                Optional<uint32> questId = Trinity::StringTo<uint32>(questStr);
+                if (!questId)
+                    continue;
+
+                Quest const* quest = GetQuestTemplate(*questId);
+                if (!quest)
                 {
-                    // quests aren't loaded yet, we cannot validate them
-                    summonedData.DespawnOnQuestsRemoved->push_back(*questId);
+                    TC_LOG_ERROR("sql.sql", "Table `creature_summoned_data` references non-existing quest {} in DespawnOnQuestsRemoved for creature {}, skipping",
+                        *questId, creatureId);
+                    summonedData.DespawnOnQuestsRemoved = {};
+                    break;
                 }
+
+                summonedData.DespawnOnQuestsRemoved->push_back(*questId);
             }
         }
 
