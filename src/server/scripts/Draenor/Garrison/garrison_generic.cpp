@@ -23,14 +23,14 @@
 #include "ScriptMgr.h"
 #include "Unit.h"
 
-// XX - Garrison enter/exit AreaTrigger
-struct at_garrison_enter_exit : AreaTriggerAI
+// XX - Garrison enter AreaTrigger
+struct at_garrison_enter : AreaTriggerAI
 {
-    at_garrison_enter_exit(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    at_garrison_enter(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnInitialize() override
     {
-        at->setActive(true);
+        at->setActive(true); // has to be active, otherwise the at is unloaded before we are able to leave it
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -38,24 +38,29 @@ struct at_garrison_enter_exit : AreaTriggerAI
         Player* player = unit->ToPlayer();
         if (!player)
             return;
-
-        if (unit->GetMap()->Instanceable())
-            return;
-
+        
         Garrison* garrison = player->GetGarrison();
         if (!garrison)
             return;
 
         garrison->Enter();
     }
+};
+
+// XX - Garrison exit AreaTrigger
+struct at_garrison_exit : AreaTriggerAI
+{
+    at_garrison_exit(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnInitialize() override
+    {
+        at->setActive(true); // has to be active, otherwise the at is unloaded before we are able to leave it
+    }
 
     void OnUnitExit(Unit* unit) override
     {
         Player* player = unit->ToPlayer();
         if (!player)
-            return;
-
-        if (!unit->GetMap()->Instanceable())
             return;
 
         Garrison* garrison = player->GetGarrison();
@@ -69,5 +74,6 @@ struct at_garrison_enter_exit : AreaTriggerAI
 void AddSC_garrison_generic()
 {
     // AreaTrigger
-    RegisterAreaTriggerAI(at_garrison_enter_exit);
+    RegisterAreaTriggerAI(at_garrison_enter);
+    RegisterAreaTriggerAI(at_garrison_exit);
 }

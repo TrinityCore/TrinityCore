@@ -9,8 +9,8 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) 
 
 DELETE FROM `areatrigger` WHERE `SpawnId` BETWEEN @ATIDSPAWN+0 AND @ATIDSPAWN+1;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `SpellForVisuals`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES 
-(@ATIDSPAWN+0, @ATCP+0, 1, 1116, '0', 1900.9937, 221.3306, 76.9551, 0, 0, 0, 0, NULL, 'at_garrison_enter_exit', 'Enter Garrison Alliance V1', 0),
-(@ATIDSPAWN+1, @ATCP+0, 1, 1158, '1', 1900.9937, 221.3306, 76.9551, 0, 0, 0, 0, NULL, 'at_garrison_enter_exit', 'Leave Garrison Alliance V1', 0);
+(@ATIDSPAWN+0, @ATCP+0, 1, 1116, '0', 1900.9937, 221.3306, 76.9551, 0, 0, 0, 0, NULL, 'at_garrison_enter', 'Enter Garrison Alliance V1', 0),
+(@ATIDSPAWN+1, @ATCP+0, 1, 1158, '1', 1900.9937, 221.3306, 76.9551, 0, 0, 0, 0, NULL, 'at_garrison_exit', 'Leave Garrison Alliance V1', 0);
 
 DELETE FROM `areatrigger_create_properties` WHERE `Id`=@ATCP+0 AND `IsCustom`=1;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES 
