@@ -26,6 +26,16 @@
 #include "ScriptedGossip.h"
 #include "PassiveAI.h"
 
+static Creature* FindCreatureIgnorePhase(WorldObject const* obj, std::string_view stringId, float range = 100.0f)
+{
+    return obj->FindNearestCreatureWithOptions(range, { .StringId = stringId, .IgnorePhases = true });
+}
+
+static GameObject* FindGameObjectIgnorePhase(WorldObject const* obj, std::string_view stringId, float range = 100.0f)
+{
+    return obj->FindNearestGameObjectWithOptions(range, { .StringId = stringId });
+}
+
 /*######
 ## Quest 37446: Lazy Peons
 ## npc_lazy_peon
@@ -650,6 +660,575 @@ public:
     }
 };
 
+enum VolginVision
+{
+    EVENT_VOLJIN_VISION_SCRIPT_1       = 1,
+    EVENT_VOLJIN_VISION_SCRIPT_2       = 2,
+    EVENT_VOLJIN_VISION_SCRIPT_3       = 3,
+    EVENT_VOLJIN_VISION_SCRIPT_4       = 4,
+    EVENT_VOLJIN_VISION_SCRIPT_5       = 5,
+    EVENT_VOLJIN_VISION_SCRIPT_6       = 6,
+    EVENT_VOLJIN_VISION_SCRIPT_7       = 7,
+    EVENT_VOLJIN_VISION_SCRIPT_8       = 8,
+    EVENT_VOLJIN_VISION_SCRIPT_9       = 9,
+    EVENT_VOLJIN_VISION_SCRIPT_10      = 10,
+    EVENT_VOLJIN_VISION_SCRIPT_11      = 11,
+    EVENT_VOLJIN_VISION_SCRIPT_12      = 12,
+    EVENT_VOLJIN_VISION_SCRIPT_13      = 13,
+    EVENT_VOLJIN_VISION_SCRIPT_14      = 14,
+    EVENT_VOLJIN_VISION_SCRIPT_15      = 15,
+    EVENT_VOLJIN_VISION_SCRIPT_16      = 16,
+    EVENT_VOLJIN_VISION_SCRIPT_17      = 17,
+    EVENT_VOLJIN_VISION_SCRIPT_18      = 18,
+    EVENT_VOLJIN_VISION_SCRIPT_19      = 19,
+    EVENT_VOLJIN_VISION_SCRIPT_20      = 20,
+    EVENT_VOLJIN_VISION_SCRIPT_21      = 21,
+    EVENT_VOLJIN_VISION_SCRIPT_22      = 22,
+
+    GOSSIP_MENU_GARROSH_VISION         = 11112,
+    GOSSIP_MENU_THRALL_VISION          = 11127,
+    GOSSIP_MENU_VISION_IN_PROGRESS     = 11126,
+
+    QUEST_MORE_THAN_EXPECTED_WARRIOR   = 24643,
+    QUEST_MORE_THAN_EXPECTED_MAGE      = 24755,
+    QUEST_MORE_THAN_EXPECTED_SHAMAN    = 24763,
+    QUEST_MORE_THAN_EXPECTED_ROGUE     = 24775,
+    QUEST_MORE_THAN_EXPECTED_HUNTER    = 24781,
+    QUEST_MORE_THAN_EXPECTED_PRIEST    = 24787,
+    QUEST_MORE_THAN_EXPECTED_DRUID     = 24769,
+    QUEST_MORE_THAN_EXPECTED_WARLOCK   = 26277,
+    QUEST_MORE_THAN_EXPECTED_MONK      = 31163,
+    QUEST_AN_ANCIENT_ENEMY             = 24814,
+
+    SAY_GORROSH_VISION_SCRIPT_TEXT_0   = 0,
+    SAY_GORROSH_VISION_SCRIPT_TEXT_1   = 1,
+    SAY_GORROSH_VISION_SCRIPT_TEXT_2   = 2,
+    SAY_GORROSH_VISION_SCRIPT_TEXT_3   = 3,
+    SAY_GORROSH_VISION_SCRIPT_TEXT_4   = 4,
+
+    SAY_VOLJIN_VISION_SCRIPT_TEXT_0    = 0,
+    SAY_VOLJIN_VISION_SCRIPT_TEXT_1    = 1,
+    SAY_VOLJIN_VISION_SCRIPT_TEXT_2    = 2,
+    SAY_VOLJIN_VISION_SCRIPT_TEXT_3    = 3,
+    SAY_VOLJIN_VISION_SCRIPT_TEXT_4    = 4,
+    SAY_VOLJIN_VISION_SCRIPT_TEXT_5    = 5,
+    SAY_VOLJIN_VISION_SCRIPT_TEXT_6    = 6,
+
+    SAY_THRALL_VISION_SCRIPT_TEXT_0    = 0,
+    SAY_THRALL_VISION_SCRIPT_TEXT_1    = 1,
+    SAY_THRALL_VISION_SCRIPT_TEXT_2    = 2,
+    SAY_THRALL_VISION_SCRIPT_TEXT_3    = 3,
+    SAY_THRALL_VISION_SCRIPT_TEXT_4    = 4,
+    SAY_THRALL_VISION_SCRIPT_TEXT_5    = 5,
+    SAY_THRALL_VISION_SCRIPT_TEXT_6    = 6,
+    SAY_THRALL_VISION_SCRIPT_TEXT_7    = 7,
+
+    SAY_VOLJIN_SCRIPT_TEXT_0           = 0,
+    SAY_VOLJIN_SCRIPT_TEXT_1           = 1,
+    SAY_VOLJIN_SCRIPT_TEXT_2           = 2,
+    SAY_VOLJIN_SCRIPT_TEXT_3           = 3,
+    SAY_VOLJIN_SCRIPT_TEXT_4           = 4,
+    SAY_VOLJIN_SCRIPT_TEXT_5           = 5,
+    SAY_VOLJIN_SCRIPT_TEXT_6           = 6,
+    SAY_VOLJIN_SCRIPT_TEXT_7           = 7,
+    SAY_VOLJIN_SCRIPT_TEXT_8           = 8,
+    SAY_VOLJIN_SCRIPT_TEXT_9           = 9,
+    SAY_VOLJIN_SCRIPT_TEXT_10          = 10,
+    SAY_VOLJIN_SCRIPT_TEXT_11          = 11,
+    SAY_VOLJIN_SCRIPT_TEXT_12          = 12,
+    SAY_VOLJIN_SCRIPT_TEXT_13          = 13,
+    SAY_VOLJIN_SCRIPT_TEXT_14          = 14,
+
+    SPELL_RITES_OF_VISION              = 73169,
+    SPELL_VOLGINS_VISION_SMOKE         = 73158,
+    SPELL_GENERIC_QUEST_INVISIBILITY_1 = 49414,
+    SPELL_GENERIC_QUEST_INVISIBILITY_2 = 49415,
+    SPELL_GENERIC_QUEST_INVISIBILITY_8 = 78718,
+
+};
+
+struct npc_volgin_garrosh_vision : public ScriptedAI
+{
+    npc_volgin_garrosh_vision(Creature* creature) : ScriptedAI(creature) { _scriptRunning = false; }
+
+    void JustAppeared() override
+    {
+        me->SetGossipMenuId(GOSSIP_MENU_GARROSH_VISION);
+    }
+
+    void OnQuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
+    {
+        if (_scriptRunning)
+            return;
+
+        switch (quest->GetQuestId())
+        {
+            case QUEST_MORE_THAN_EXPECTED_WARRIOR:
+            case QUEST_MORE_THAN_EXPECTED_MAGE:
+            case QUEST_MORE_THAN_EXPECTED_SHAMAN:
+            case QUEST_MORE_THAN_EXPECTED_ROGUE:
+            case QUEST_MORE_THAN_EXPECTED_HUNTER:
+            case QUEST_MORE_THAN_EXPECTED_PRIEST:
+            case QUEST_MORE_THAN_EXPECTED_DRUID:
+            case QUEST_MORE_THAN_EXPECTED_WARLOCK:
+            case QUEST_MORE_THAN_EXPECTED_MONK:
+                _scriptRunning = true;
+                _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_1, 0s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_1, 0s);
+        CloseGossipMenuFor(player);
+        _scriptRunning = true;
+        return false;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!_scriptRunning)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_VOLJIN_VISION_SCRIPT_1:
+                {
+                    // Gonna find everyone before running script
+                    Creature* garrosh = FindCreatureIgnorePhase(me, "vision_of_garrosh", 10.0f);
+                    Creature* volgin = FindCreatureIgnorePhase(me, "vision_of_voljin", 10.0f);
+                    Creature* bunny = FindCreatureIgnorePhase(me, "echo_isles_quest_bunny_voljin", 10.0f);
+                    GameObject* brazier = FindGameObjectIgnorePhase(me, "vision_brazier_garrosh_voljin", 10.0f);
+
+                    if (garrosh && volgin && bunny && brazier)
+                    {
+                        me->SetGossipMenuId(GOSSIP_MENU_VISION_IN_PROGRESS);
+                        _garoshGUID = garrosh->GetGUID();
+                        _volginGUID = volgin->GetGUID();
+                        _bunnyGUID = bunny->GetGUID();
+                        _brazierGUID = brazier->GetGUID();
+                        _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_2, 0s);
+                    }
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_2:
+                {
+                    me->SetFacingTo(3.97935f);
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_0);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_3, 3s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_3:
+                {
+                    DoCastSelf(SPELL_RITES_OF_VISION);
+                    if (Creature* bunny = ObjectAccessor::GetCreature(*me, _bunnyGUID))
+                        bunny->AI()->DoCastSelf(SPELL_VOLGINS_VISION_SMOKE);
+                    if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, _brazierGUID))
+                        brazier->SetGoState(GO_STATE_ACTIVE);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_4, 4s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_4:
+                {
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                    {
+                        garrosh->AI()->DoCastSelf(SPELL_GENERIC_QUEST_INVISIBILITY_1);
+                        garrosh->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_8);
+                    }
+
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_5, 1s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_5:
+                {
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                        garrosh->AI()->Talk(SAY_GORROSH_VISION_SCRIPT_TEXT_0);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_6, 7s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_6:
+                {
+                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
+                    {
+                        volgin->AI()->DoCastSelf(SPELL_GENERIC_QUEST_INVISIBILITY_1);
+                        volgin->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_8);
+                    }
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_7, 4s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_7:
+                {
+                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
+                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_0);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_8, 11s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_8:
+                {
+                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
+                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_1);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_9, 6s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_9:
+                {
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                        garrosh->AI()->Talk(SAY_GORROSH_VISION_SCRIPT_TEXT_1);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_10, 11s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_10:
+                {
+                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
+                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_2);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_11, 11s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_11:
+                {
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                        garrosh->AI()->Talk(SAY_GORROSH_VISION_SCRIPT_TEXT_2);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_12, 16s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_12:
+                {
+                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
+                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_3);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_13, 16s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_13:
+                {
+                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
+                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_4);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_14, 15s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_14:
+                {
+                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
+                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_5);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_15, 17s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_15:
+                {
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                        garrosh->AI()->Talk(SAY_GORROSH_VISION_SCRIPT_TEXT_3);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_16, 3s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_16:
+                {
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                        garrosh->AI()->Talk(SAY_GORROSH_VISION_SCRIPT_TEXT_4);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_17, 3s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_17:
+                {
+                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
+                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_6);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_18, 9s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_18:
+                {
+                    me->RemoveAura(SPELL_RITES_OF_VISION);
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                    {
+                        garrosh->AI()->DoCastSelf(SPELL_GENERIC_QUEST_INVISIBILITY_8);
+                        garrosh->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_1);
+                    }
+
+                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
+                    {
+                        volgin->AI()->DoCastSelf(SPELL_GENERIC_QUEST_INVISIBILITY_8);
+                        volgin->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_1);
+                    }
+                    if (Creature* bunny = ObjectAccessor::GetCreature(*me, _bunnyGUID))
+                        bunny->RemoveAura(SPELL_VOLGINS_VISION_SMOKE);
+                    if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, _brazierGUID))
+                        brazier->SetGoState(GO_STATE_READY);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_19, 2s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_19:
+                {
+                    me->SetFacingTo(0.837758f);
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_1);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_20, 9s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_20:
+                {
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_2);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_21, 16s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_21:
+                {
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_3);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_22, 8s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_22:
+                {
+                    me->SetGossipMenuId(GOSSIP_MENU_GARROSH_VISION);
+                    _scriptRunning = false;
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    bool _scriptRunning;
+    ObjectGuid _playerGUID;
+    ObjectGuid _garoshGUID;
+    ObjectGuid _volginGUID;
+    ObjectGuid _bunnyGUID;
+    ObjectGuid _brazierGUID;
+};
+
+struct npc_volgin_thrall_vision : public ScriptedAI
+{
+    npc_volgin_thrall_vision(Creature* creature) : ScriptedAI(creature) { _scriptRunning = false; }
+
+    void JustAppeared() override
+    {
+        me->SetGossipMenuId(GOSSIP_MENU_THRALL_VISION);
+    }
+
+    void OnQuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
+    {
+        if (_scriptRunning)
+            return;
+
+        if (quest->GetQuestId() == QUEST_AN_ANCIENT_ENEMY)
+        {
+            _scriptRunning = true;
+            _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_1, 0s);
+        }
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_1, 0s);
+        CloseGossipMenuFor(player);
+        _scriptRunning = true;
+        return false;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!_scriptRunning)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_VOLJIN_VISION_SCRIPT_1:
+                {
+                    // Gonna find everyone before running script
+                    Creature* thrall = FindCreatureIgnorePhase(me, "vision_of_thrall", 10.0f);
+                    Creature* bunny = FindCreatureIgnorePhase(me, "echo_isles_quest_bunny_thrall", 10.0f);
+                    GameObject* brazier = FindGameObjectIgnorePhase(me, "vision_brazier_thrall", 10.0f);
+
+                    if (thrall && bunny && brazier)
+                    {
+                        me->SetGossipMenuId(GOSSIP_MENU_VISION_IN_PROGRESS);
+                        _thrallGUID = thrall->GetGUID();
+                        _bunnyGUID = bunny->GetGUID();
+                        _brazierGUID = brazier->GetGUID();
+                        _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_2, 0s);
+                    }
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_2:
+                {
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_4);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_3, 9s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_3:
+                {
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_5);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_4, 8s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_4:
+                {
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_6);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_5, 7s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_5:
+                {
+                    DoCastSelf(SPELL_RITES_OF_VISION);
+                    me->SetFacingTo(3.97935f);
+                    if (Creature* bunny = ObjectAccessor::GetCreature(*me, _bunnyGUID))
+                        bunny->AI()->DoCastSelf(SPELL_VOLGINS_VISION_SMOKE);
+                    if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, _brazierGUID))
+                        brazier->SetGoState(GO_STATE_ACTIVE);
+                    if (Creature* thrall = ObjectAccessor::GetCreature(*me, _thrallGUID))
+                    {
+                        thrall->AI()->DoCastSelf(SPELL_GENERIC_QUEST_INVISIBILITY_2);
+                        thrall->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_8);
+                    }
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_6, 5s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_6:
+                {
+                    if (Creature* thrall = ObjectAccessor::GetCreature(*me, _thrallGUID))
+                        thrall->AI()->Talk(SAY_THRALL_VISION_SCRIPT_TEXT_0);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_7, 4s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_7:
+                {
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_7);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_8, 6s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_8:
+                {
+                    if (Creature* thrall = ObjectAccessor::GetCreature(*me, _thrallGUID))
+                        thrall->AI()->Talk(SAY_THRALL_VISION_SCRIPT_TEXT_1);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_9, 11s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_9:
+                {
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_8);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_10, 18s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_10:
+                {
+                    if (Creature* thrall = ObjectAccessor::GetCreature(*me, _thrallGUID))
+                        thrall->AI()->Talk(SAY_THRALL_VISION_SCRIPT_TEXT_2);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_11, 6s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_11:
+                {
+                    if (Creature* thrall = ObjectAccessor::GetCreature(*me, _thrallGUID))
+                        thrall->AI()->Talk(SAY_THRALL_VISION_SCRIPT_TEXT_3);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_12, 12s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_12:
+                {
+                    if (Creature* thrall = ObjectAccessor::GetCreature(*me, _thrallGUID))
+                        thrall->AI()->Talk(SAY_THRALL_VISION_SCRIPT_TEXT_4);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_13, 18s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_13:
+                {
+                    if (Creature* thrall = ObjectAccessor::GetCreature(*me, _thrallGUID))
+                        thrall->AI()->Talk(SAY_THRALL_VISION_SCRIPT_TEXT_5);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_14, 17s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_14:
+                {
+                    if (Creature* thrall = ObjectAccessor::GetCreature(*me, _thrallGUID))
+                        thrall->AI()->Talk(SAY_THRALL_VISION_SCRIPT_TEXT_6);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_15, 9s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_15:
+                {
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_9);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_16, 11s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_16:
+                {
+                    if (Creature* thrall = ObjectAccessor::GetCreature(*me, _thrallGUID))
+                        thrall->AI()->Talk(SAY_THRALL_VISION_SCRIPT_TEXT_7);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_17, 6s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_17:
+                {
+                    me->RemoveAura(SPELL_RITES_OF_VISION);
+                    me->SetFacingTo(0.837758f);
+                    if (Creature* thrall = ObjectAccessor::GetCreature(*me, _thrallGUID))
+                    {
+                        thrall->AI()->DoCastSelf(SPELL_GENERIC_QUEST_INVISIBILITY_8);
+                        thrall->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_2);
+                    }
+                    if (Creature* bunny = ObjectAccessor::GetCreature(*me, _bunnyGUID))
+                        bunny->RemoveAura(SPELL_VOLGINS_VISION_SMOKE);
+                    if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, _brazierGUID))
+                        brazier->SetGoState(GO_STATE_READY);
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_10);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_18, 8s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_18:
+                {
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_11);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_19, 9s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_19:
+                {
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_12);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_20, 17s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_20:
+                {
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_13);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_21, 11s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_21:
+                {
+                    Talk(SAY_VOLJIN_SCRIPT_TEXT_14);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_22, 11s);
+                    break;
+                }
+                case EVENT_VOLJIN_VISION_SCRIPT_22:
+                {
+                    me->SetGossipMenuId(GOSSIP_MENU_THRALL_VISION);
+                    _scriptRunning = false;
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    bool _scriptRunning;
+    ObjectGuid _playerGUID;
+    ObjectGuid _thrallGUID;
+    ObjectGuid _bunnyGUID;
+    ObjectGuid _brazierGUID;
+};
+
 void AddSC_durotar()
 {
     new npc_lazy_peon();
@@ -688,4 +1267,6 @@ void AddSC_durotar()
     new quest_proving_pit<NPC_TRAINER_ZENTABRA>("quest_proving_pit_druid");
     new quest_proving_pit<NPC_TRAINER_VOLDREKA>("quest_proving_pit_warlock");
     new quest_proving_pit<NPC_TRAINER_ZABRAX>("quest_proving_pit_monk");
+    RegisterCreatureAI(npc_volgin_garrosh_vision);
+    RegisterCreatureAI(npc_volgin_thrall_vision);
 }
