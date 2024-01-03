@@ -25,6 +25,7 @@
 #include "SpellScript.h"
 #include "ScriptedGossip.h"
 #include "PassiveAI.h"
+#include "ObjectAccessor.h"
 
 static Creature* FindCreatureIgnorePhase(WorldObject const* obj, std::string_view stringId, float range = 100.0f)
 {
