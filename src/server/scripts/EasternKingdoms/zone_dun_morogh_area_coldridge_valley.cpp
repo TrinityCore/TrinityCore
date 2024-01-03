@@ -486,7 +486,7 @@ struct npc_joren_ironstock : public ScriptedAI
     {
         _scheduler.Schedule(minTime, maxTime, [this, guid = invader->GetGUID()](TaskContext /*task*/)
         {
-            _invadersToShoot.push_back(guid);
+            _invadersToShoot.push(guid);
         });
     }
 
@@ -498,8 +498,6 @@ struct npc_joren_ironstock : public ScriptedAI
         {
             if (Creature* invader = me->SummonCreature(NPC_ROCKJAW_INVADER, Trinity::Containers::SelectRandomContainerElement(RockjawInvaderSpawnPoints), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 18s))
             {
-                invader->SetScriptStringId("joren_invader");
-                invader->AI()->SetGUID(me->GetGUID());
                 if (me->HasInArc(float(M_PI), invader) && !me->IsInCombat())
                     EnqueueInvader(invader, 1s, 3s);
                 else
@@ -514,7 +512,7 @@ struct npc_joren_ironstock : public ScriptedAI
             if (!_invadersToShoot.empty())
             {
                 ObjectGuid guid = _invadersToShoot.front();
-                _invadersToShoot.pop_front();
+                _invadersToShoot.pop();
 
                 Creature* invader = ObjectAccessor::GetCreature(*me, guid);
                 if (invader && invader->IsAlive())
@@ -526,7 +524,7 @@ struct npc_joren_ironstock : public ScriptedAI
                             Talk(SAY_SHOOT_ROCKJAW, invader);
                     }
                     else
-                        _invadersToShoot.push_back(guid);
+                        _invadersToShoot.push(guid);
                 }
             }
             task.Repeat(1s);
@@ -545,7 +543,7 @@ struct npc_joren_ironstock : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    std::deque<ObjectGuid> _invadersToShoot;
+    std::queue<ObjectGuid> _invadersToShoot;
 };
 
 void AddSC_dun_morogh_area_coldridge_valley()
