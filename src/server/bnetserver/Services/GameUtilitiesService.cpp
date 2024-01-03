@@ -16,7 +16,6 @@
  */
 
 #include "GameUtilitiesService.h"
-#include "Session.h"
 
 Battlenet::Services::GameUtilities::GameUtilities(Session* session) : GameUtilitiesService(session)
 {
