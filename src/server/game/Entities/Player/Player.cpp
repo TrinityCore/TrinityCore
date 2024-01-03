@@ -16385,7 +16385,7 @@ void Player::SkipQuests(std::vector<uint32> const& questIds)
 void Player::DespawnPersonalSpawnsForQuest(uint32 questId)
 {
     std::list<Creature*> creatureList;
-    GetCreatureListWithOptionsInGrid(creatureList, 100.0f, FindCreatureOptions().SetIgnoreNotOwnedPrivateObjects(true).SetIgnorePhases(true).SetPrivateObjectOwner(GetGUID()));
+    GetCreatureListWithOptionsInGrid(creatureList, 100.0f, { .IgnorePhases = true, .PrivateObjectOwnerGuid = GetGUID() });
 
     for (Creature* creature : creatureList)
     {
