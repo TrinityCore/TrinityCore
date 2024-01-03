@@ -38,7 +38,7 @@ struct at_garrison_enter : AreaTriggerAI
         Player* player = unit->ToPlayer();
         if (!player)
             return;
-        
+
         Garrison* garrison = player->GetGarrison();
         if (!garrison)
             return;
