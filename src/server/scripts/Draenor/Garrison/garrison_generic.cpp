@@ -30,7 +30,7 @@ struct at_garrison_enter : AreaTriggerAI
 
     void OnInitialize() override
     {
-        at->setActive(true); // has to be active, otherwise the at is unloaded before we are able to leave it
+        at->setActive(true); // has to be active, otherwise the at is no longer updated before we are able to leave it
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -54,7 +54,7 @@ struct at_garrison_exit : AreaTriggerAI
 
     void OnInitialize() override
     {
-        at->setActive(true); // has to be active, otherwise the at is unloaded before we are able to leave it
+        at->setActive(true); // has to be active, otherwise the at is no longer updated before we are able to leave it
     }
 
     void OnUnitExit(Unit* unit) override
