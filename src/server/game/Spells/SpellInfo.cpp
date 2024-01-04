@@ -2468,78 +2468,7 @@ void SpellInfo::_LoadSpellDiminishInfo()
 
     auto diminishingLimitDurationCompute = [this](DiminishingGroup group) -> int32
     {
-        auto isGroupDurationLimited = [group]() -> bool
-        {
-            switch (group)
-            {
-                case DIMINISHING_BANISH:
-                case DIMINISHING_CONTROLLED_STUN:
-                case DIMINISHING_CONTROLLED_ROOT:
-                case DIMINISHING_CYCLONE:
-                case DIMINISHING_DISORIENT:
-                case DIMINISHING_ENTRAPMENT:
-                case DIMINISHING_FEAR:
-                case DIMINISHING_HORROR:
-                case DIMINISHING_MIND_CONTROL:
-                case DIMINISHING_OPENING_STUN:
-                case DIMINISHING_ROOT:
-                case DIMINISHING_STUN:
-                case DIMINISHING_SLEEP:
-                case DIMINISHING_LIMITONLY:
-                    return true;
-                default:
-                    return false;
-            }
-        };
-
-        if (!isGroupDurationLimited())
-            return 0;
-
-        // Explicit diminishing duration
-        switch (SpellFamilyName)
-        {
-            case SPELLFAMILY_DRUID:
-            {
-                // Faerie Fire - limit to 40 seconds in PvP (3.1)
-                if (SpellFamilyFlags[0] & 0x400)
-                    return 40 * IN_MILLISECONDS;
-                break;
-            }
-            case SPELLFAMILY_HUNTER:
-            {
-                // Wyvern Sting
-                if (SpellFamilyFlags[1] & 0x1000)
-                    return 6 * IN_MILLISECONDS;
-                // Hunter's Mark
-                if (SpellFamilyFlags[0] & 0x400)
-                    return 120 * IN_MILLISECONDS;
-                break;
-            }
-            case SPELLFAMILY_PALADIN:
-            {
-                // Repentance - limit to 6 seconds in PvP
-                if (SpellFamilyFlags[0] & 0x4)
-                    return 6 * IN_MILLISECONDS;
-                break;
-            }
-            case SPELLFAMILY_WARLOCK:
-            {
-                // Banish - limit to 6 seconds in PvP
-                if (SpellFamilyFlags[1] & 0x8000000)
-                    return 6 * IN_MILLISECONDS;
-                // Curse of Tongues - limit to 12 seconds in PvP
-                else if (SpellFamilyFlags[2] & 0x800)
-                    return 12 * IN_MILLISECONDS;
-                // Curse of Elements - limit to 120 seconds in PvP
-                else if (SpellFamilyFlags[1] & 0x200)
-                    return 120 * IN_MILLISECONDS;
-                break;
-            }
-            default:
-                break;
-        }
-
-        return 10 * IN_MILLISECONDS;
+        return 0;
     };
 
     SpellDiminishInfo triggeredInfo, normalInfo;
