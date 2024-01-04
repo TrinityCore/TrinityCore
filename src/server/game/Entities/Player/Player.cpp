@@ -1518,6 +1518,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             }
 
             SendDirectMessage(transferPending.Write());
+
+            RemovePlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME);
+            SetTransportServerTime(0);
         }
 
         // remove from old map now
@@ -1654,9 +1657,6 @@ void Player::RemoveFromWorld()
             GetName(), GetGUID().ToString(), viewpoint->GetEntry(), viewpoint->GetTypeId());
         SetViewpoint(viewpoint, false);
     }
-
-    RemovePlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME);
-    SetTransportServerTime(0);
 }
 
 void Player::SetObjectScale(float scale)
