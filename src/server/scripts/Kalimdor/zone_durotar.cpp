@@ -748,9 +748,9 @@ enum VolginVision
 
 };
 
-struct npc_volgin_garrosh_vision : public ScriptedAI
+struct npc_voljin_garrosh_vision : public ScriptedAI
 {
-    npc_volgin_garrosh_vision(Creature* creature) : ScriptedAI(creature) { _scriptRunning = false; }
+    npc_voljin_garrosh_vision(Creature* creature) : ScriptedAI(creature) { _scriptRunning = false; }
 
     void JustAppeared() override
     {
@@ -804,15 +804,15 @@ struct npc_volgin_garrosh_vision : public ScriptedAI
                 {
                     // Gonna find everyone before running script
                     Creature* garrosh = FindCreatureIgnorePhase(me, "vision_of_garrosh", 10.0f);
-                    Creature* volgin = FindCreatureIgnorePhase(me, "vision_of_voljin", 10.0f);
+                    Creature* voljin = FindCreatureIgnorePhase(me, "vision_of_voljin", 10.0f);
                     Creature* bunny = FindCreatureIgnorePhase(me, "echo_isles_quest_bunny_voljin", 10.0f);
                     GameObject* brazier = FindGameObjectIgnorePhase(me, "vision_brazier_garrosh_voljin", 10.0f);
 
-                    if (garrosh && volgin && bunny && brazier)
+                    if (garrosh && voljin && bunny && brazier)
                     {
                         me->SetGossipMenuId(GOSSIP_MENU_VISION_IN_PROGRESS);
                         _garoshGUID = garrosh->GetGUID();
-                        _volginGUID = volgin->GetGUID();
+                        _voljinGUID = voljin->GetGUID();
                         _bunnyGUID = bunny->GetGUID();
                         _brazierGUID = brazier->GetGUID();
                         _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_2, 0s);
@@ -856,25 +856,25 @@ struct npc_volgin_garrosh_vision : public ScriptedAI
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_6:
                 {
-                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
+                    if (Creature* voljin = ObjectAccessor::GetCreature(*me, _voljinGUID))
                     {
-                        volgin->AI()->DoCastSelf(SPELL_GENERIC_QUEST_INVISIBILITY_1);
-                        volgin->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_8);
+                        voljin->AI()->DoCastSelf(SPELL_GENERIC_QUEST_INVISIBILITY_1);
+                        voljin->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_8);
                     }
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_7, 4s);
                     break;
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_7:
                 {
-                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
-                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_0);
+                    if (Creature* voljin = ObjectAccessor::GetCreature(*me, _voljinGUID))
+                        voljin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_0);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_8, 11s);
                     break;
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_8:
                 {
-                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
-                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_1);
+                    if (Creature* voljin = ObjectAccessor::GetCreature(*me, _voljinGUID))
+                        voljin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_1);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_9, 6s);
                     break;
                 }
@@ -887,8 +887,8 @@ struct npc_volgin_garrosh_vision : public ScriptedAI
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_10:
                 {
-                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
-                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_2);
+                    if (Creature* voljin = ObjectAccessor::GetCreature(*me, _voljinGUID))
+                        voljin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_2);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_11, 11s);
                     break;
                 }
@@ -901,22 +901,22 @@ struct npc_volgin_garrosh_vision : public ScriptedAI
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_12:
                 {
-                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
-                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_3);
+                    if (Creature* voljin = ObjectAccessor::GetCreature(*me, _voljinGUID))
+                        voljin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_3);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_13, 16s);
                     break;
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_13:
                 {
-                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
-                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_4);
+                    if (Creature* voljin = ObjectAccessor::GetCreature(*me, _voljinGUID))
+                        voljin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_4);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_14, 15s);
                     break;
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_14:
                 {
-                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
-                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_5);
+                    if (Creature* voljin = ObjectAccessor::GetCreature(*me, _voljinGUID))
+                        voljin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_5);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_15, 17s);
                     break;
                 }
@@ -936,8 +936,8 @@ struct npc_volgin_garrosh_vision : public ScriptedAI
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_17:
                 {
-                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
-                        volgin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_6);
+                    if (Creature* voljin = ObjectAccessor::GetCreature(*me, _voljinGUID))
+                        voljin->AI()->Talk(SAY_VOLJIN_VISION_SCRIPT_TEXT_6);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_18, 9s);
                     break;
                 }
@@ -950,10 +950,10 @@ struct npc_volgin_garrosh_vision : public ScriptedAI
                         garrosh->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_1);
                     }
 
-                    if (Creature* volgin = ObjectAccessor::GetCreature(*me, _volginGUID))
+                    if (Creature* voljin = ObjectAccessor::GetCreature(*me, _voljinGUID))
                     {
-                        volgin->AI()->DoCastSelf(SPELL_GENERIC_QUEST_INVISIBILITY_8);
-                        volgin->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_1);
+                        voljin->AI()->DoCastSelf(SPELL_GENERIC_QUEST_INVISIBILITY_8);
+                        voljin->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_1);
                     }
                     if (Creature* bunny = ObjectAccessor::GetCreature(*me, _bunnyGUID))
                         bunny->RemoveAura(SPELL_VOLGINS_VISION_SMOKE);
@@ -998,14 +998,14 @@ private:
     bool _scriptRunning;
     ObjectGuid _playerGUID;
     ObjectGuid _garoshGUID;
-    ObjectGuid _volginGUID;
+    ObjectGuid _voljinGUID;
     ObjectGuid _bunnyGUID;
     ObjectGuid _brazierGUID;
 };
 
-struct npc_volgin_thrall_vision : public ScriptedAI
+struct npc_voljin_thrall_vision : public ScriptedAI
 {
-    npc_volgin_thrall_vision(Creature* creature) : ScriptedAI(creature) { _scriptRunning = false; }
+    npc_voljin_thrall_vision(Creature* creature) : ScriptedAI(creature) { _scriptRunning = false; }
 
     void JustAppeared() override
     {
@@ -1268,6 +1268,6 @@ void AddSC_durotar()
     new quest_proving_pit<NPC_TRAINER_ZENTABRA>("quest_proving_pit_druid");
     new quest_proving_pit<NPC_TRAINER_VOLDREKA>("quest_proving_pit_warlock");
     new quest_proving_pit<NPC_TRAINER_ZABRAX>("quest_proving_pit_monk");
-    RegisterCreatureAI(npc_volgin_garrosh_vision);
-    RegisterCreatureAI(npc_volgin_thrall_vision);
+    RegisterCreatureAI(npc_voljin_garrosh_vision);
+    RegisterCreatureAI(npc_voljin_thrall_vision);
 }

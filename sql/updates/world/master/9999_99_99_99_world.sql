@@ -8,7 +8,7 @@ DELETE FROM `creature` WHERE `guid` IN (@GUID,@GUID+1,@GUID+2);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `ScriptName`, `StringId`, `VerifiedBuild`) VALUES
 (@GUID,38003,1,0,0,0,0,0,0,-1,0,0,-1322.48,-5608.93,25.0355,3.97935,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'','echo_isles_quest_bunny_thrall',0), -- Echo Isles Quest Bunny Invisibility 2
 (@GUID+1,38939,1,0,0,0,0,0,0,-1,0,0,-1323.3073, -5609.903, 25.305038, 0.9250245,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'','vision_of_thrall',0), -- Vision of Thrall <Warchief> Invisibility 2
-(@GUID+2,38966,1,0,0,0,0,0,0,-1,0,1,-1318.08,-5603.77,23.8027,0.837758,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'npc_volgin_thrall_vision',NULL,0); -- Vol'jin Invisibility 2
+(@GUID+2,38966,1,0,0,0,0,0,0,-1,0,1,-1318.08,-5603.77,23.8027,0.837758,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'npc_voljin_thrall_vision',NULL,0); -- Vol'jin Invisibility 2
 
 -- Add different Invisibilities to Vol'jin, Echo Isles Quest Bunny above Vision Braziers, and Vision of Thrall
 DELETE FROM `creature_addon` WHERE `guid` IN (309032,309030,@GUID,@GUID+2);
@@ -27,7 +27,7 @@ INSERT INTO `creature_template_movement` (`CreatureId`,`Ground`,`Swim`,`Flight`,
 (38939,0,0,0,1,0,0,0);
 
 -- Vol'jin is facing the wrong way
-UPDATE `creature` SET `orientation`= 0.837758, `ScriptName`='npc_volgin_garrosh_vision' WHERE `guid`=309032;
+UPDATE `creature` SET `orientation`= 0.837758, `ScriptName`='npc_voljin_garrosh_vision' WHERE `guid`=309032;
 
 -- Add String IDs for scripting
 UPDATE `creature` SET `StringId`='vision_of_garrosh' WHERE `guid`=309028;
