@@ -429,7 +429,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
 bool WaypointMovementGenerator<Creature>::ComputeNextNode()
 {
-    if ((_currentNode == _path->Nodes.size() - 1) && !_repeating)
+    if ((_currentNode == _path->Nodes.size() - 1) && (!_repeating || _path->Nodes.size() == 1))
         return false;
 
     if (!_followPathBackwardsFromEndToStart.value_or(false) || _path->Nodes.size() < WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES)
@@ -440,7 +440,7 @@ bool WaypointMovementGenerator<Creature>::ComputeNextNode()
         {
             if (++_currentNode >= _path->Nodes.size())
             {
-                _currentNode -= 2;
+                _currentNode -= WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES;
                 _isReturningToStart = true;
             }
         }
