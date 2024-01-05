@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "SharedDefines.h"
 #include <string>
 
 struct CharacterCacheEntry
@@ -62,7 +63,7 @@ class TC_GAME_API CharacterCache
 
         ObjectGuid GetCharacterGuidByName(std::string const& name) const;
         bool GetCharacterNameByGuid(ObjectGuid guid, std::string& name) const;
-        uint32 GetCharacterTeamByGuid(ObjectGuid guid) const;
+        Team GetCharacterTeamByGuid(ObjectGuid guid) const;
         uint32 GetCharacterAccountIdByGuid(ObjectGuid guid) const;
         uint32 GetCharacterAccountIdByName(std::string const& name) const;
         uint8 GetCharacterLevelByGuid(ObjectGuid guid) const;

@@ -365,7 +365,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, WorldObject co
         case CRITERIA_DATA_TYPE_T_TEAM:
             if (!target || target->GetTypeId() != TYPEID_PLAYER)
                 return false;
-            return target->ToPlayer()->GetTeam() == Team.Team;
+            return target->ToPlayer()->GetTeam() == ::Team(Team.Team);
         case CRITERIA_DATA_TYPE_S_DRUNK:
             return Player::GetDrunkenstateByValue(source->GetDrunkValue()) >= DrunkenState(Drunk.State);
         case CRITERIA_DATA_TYPE_HOLIDAY:
@@ -378,7 +378,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, WorldObject co
             if (!bg)
                 return false;
 
-            uint32 score = bg->GetTeamScore(bg->GetPlayerTeam(source->GetGUID()) == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE);
+            uint32 score = bg->GetTeamScore(bg->GetPlayerTeam(source->GetGUID()) == ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE);
             return score >= BattlegroundScore.Min && score <= BattlegroundScore.Max;
         }
         case CRITERIA_DATA_TYPE_INSTANCE_SCRIPT:

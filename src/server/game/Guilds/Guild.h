@@ -352,9 +352,8 @@ class TC_GAME_API Guild
                 uint32 GetTotalReputation() const { return m_totalReputation; }
                 uint32 GetWeekReputation() const { return m_weekReputation; }
 
-                std::set<uint32> const& GetTrackedCriteriaIds() const { return m_trackedCriteriaIds; }
                 void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds = std::move(criteriaIds); }
-                bool IsTrackingCriteriaId(uint32 criteriaId) const { return m_trackedCriteriaIds.find(criteriaId) != m_trackedCriteriaIds.end();  }
+                bool IsTrackingCriteriaId(uint32 criteriaId) const { return m_trackedCriteriaIds && m_trackedCriteriaIds->contains(criteriaId);  }
 
                 bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
@@ -366,8 +365,8 @@ class TC_GAME_API Guild
 
                 void UpdateBankTabWithdrawValue(CharacterDatabaseTransaction trans, uint8 tabId, uint32 amount);
                 void UpdateBankMoneyWithdrawValue(CharacterDatabaseTransaction trans, uint64 amount);
-                uint32 GetBankTabWithdrawValue(uint8 tabId) const { return m_bankWithdraw[tabId]; };
-                uint64 GetBankMoneyWithdrawValue() const { return m_bankWithdrawMoney; };
+                uint32 GetBankTabWithdrawValue(uint8 tabId) const { return m_bankWithdraw[tabId]; }
+                uint64 GetBankMoneyWithdrawValue() const { return m_bankWithdrawMoney; }
                 void ResetValues(bool weekly = false);
 
                 Player* FindPlayer() const;
@@ -391,7 +390,7 @@ class TC_GAME_API Guild
                 std::string m_publicNote;
                 std::string m_officerNote;
 
-                std::set<uint32> m_trackedCriteriaIds;
+                Optional<std::set<uint32>> m_trackedCriteriaIds;
 
                 std::array<uint32, GUILD_BANK_MAX_TABS> m_bankWithdraw;
                 uint64 m_bankWithdrawMoney;

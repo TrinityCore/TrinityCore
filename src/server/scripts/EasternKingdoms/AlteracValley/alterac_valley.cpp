@@ -16,7 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "BattlegroundAV.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
+
+#include <chrono>
 
 enum Spells
 {
@@ -24,16 +30,7 @@ enum Spells
     SPELL_CLEAVE                                  = 40504,
     SPELL_DEMORALIZING_SHOUT                      = 23511,
     SPELL_ENRAGE                                  = 8599,
-    SPELL_WHIRLWIND                               = 13736,
-
-    SPELL_NORTH_MARSHAL                           = 45828,
-    SPELL_SOUTH_MARSHAL                           = 45829,
-    SPELL_STONEHEARTH_MARSHAL                     = 45830,
-    SPELL_ICEWING_MARSHAL                         = 45831,
-    SPELL_ICEBLOOD_WARMASTER                      = 45822,
-    SPELL_TOWER_POINT_WARMASTER                   = 45823,
-    SPELL_WEST_FROSTWOLF_WARMASTER                = 45824,
-    SPELL_EAST_FROSTWOLF_WARMASTER                = 45826
+    SPELL_WHIRLWIND                               = 13736
 };
 
 enum Creatures
@@ -58,41 +55,12 @@ enum Events
     EVENT_CHECK_RESET          = 6
 };
 
-struct SpellPair
-{
-    uint32 npcEntry;
-    uint32 spellId;
-};
-
-uint8 const MAX_SPELL_PAIRS = 8;
-SpellPair const _auraPairs[MAX_SPELL_PAIRS] =
-{
-    { NPC_NORTH_MARSHAL,            SPELL_NORTH_MARSHAL },
-    { NPC_SOUTH_MARSHAL,            SPELL_SOUTH_MARSHAL },
-    { NPC_STONEHEARTH_MARSHAL,      SPELL_STONEHEARTH_MARSHAL },
-    { NPC_ICEWING_MARSHAL,          SPELL_ICEWING_MARSHAL },
-    { NPC_EAST_FROSTWOLF_WARMASTER, SPELL_EAST_FROSTWOLF_WARMASTER },
-    { NPC_WEST_FROSTWOLF_WARMASTER, SPELL_WEST_FROSTWOLF_WARMASTER },
-    { NPC_TOWER_POINT_WARMASTER,    SPELL_TOWER_POINT_WARMASTER },
-    { NPC_ICEBLOOD_WARMASTER,       SPELL_ICEBLOOD_WARMASTER }
-};
-
 struct npc_av_marshal_or_warmaster : public ScriptedAI
 {
-    npc_av_marshal_or_warmaster(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _hasAura = false;
-    }
+    npc_av_marshal_or_warmaster(Creature* creature) : ScriptedAI(creature) { }
 
     void Reset() override
     {
-        Initialize();
-
         events.Reset();
         events.ScheduleEvent(EVENT_CHARGE_TARGET, 2s, 12s);
         events.ScheduleEvent(EVENT_CLEAVE, 1s, 11s);
@@ -109,16 +77,6 @@ struct npc_av_marshal_or_warmaster : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        // I have a feeling this isn't blizzlike, but owell, I'm only passing by and cleaning up.
-        if (!_hasAura)
-        {
-            for (uint8 i = 0; i < MAX_SPELL_PAIRS; ++i)
-                if (_auraPairs[i].npcEntry == me->GetEntry())
-                    DoCast(me, _auraPairs[i].spellId);
-
-            _hasAura = true;
-        }
-
         if (!UpdateVictim())
             return;
 
@@ -172,10 +130,58 @@ struct npc_av_marshal_or_warmaster : public ScriptedAI
 
 private:
     EventMap events;
-    bool _hasAura;
+};
+
+struct go_av_capturable_object : public GameObjectAI
+{
+    go_av_capturable_object(GameObject* go) : GameObjectAI(go) { }
+
+    void Reset() override
+    {
+        me->setActive(true);
+    }
+
+    bool OnGossipHello(Player* player) override
+    {
+        if (me->GetGoState() != GO_STATE_READY)
+            return true;
+
+        if (ZoneScript* zonescript = me->GetZoneScript())
+        {
+            zonescript->DoAction(ACTION_AV_INTERACT_CAPTURABLE_OBJECT, player, me);
+            return false;
+        }
+
+        return true;
+    }
+};
+
+struct go_av_contested_object : public go_av_capturable_object
+{
+    go_av_contested_object(GameObject* go) : go_av_capturable_object(go) { }
+
+    void Reset() override
+    {
+        go_av_capturable_object::Reset();
+        _scheduler.Schedule(4min, [&](TaskContext)
+        {
+            if (ZoneScript* zonescript = me->GetZoneScript())
+                zonescript->DoAction(ACTION_AV_CAPTURE_CAPTURABLE_OBJECT, me, me);
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 void AddSC_alterac_valley()
 {
     RegisterCreatureAI(npc_av_marshal_or_warmaster);
+    RegisterGameObjectAI(go_av_capturable_object);
+    RegisterGameObjectAI(go_av_contested_object);
 }

@@ -367,6 +367,11 @@ enum QuestObjectiveFlags
     QUEST_OBJECTIVE_FLAG_IGNORE_SOULBOUND_ITEMS             = 0x0200,
 };
 
+enum QuestObjectiveFlags2
+{
+    QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM = 0x1   // Item is bound to a single objective, only increments the counter for one quest if multiple require the same item and is not stored in inventory
+};
+
 enum class QuestCompleteSpellType : uint32
 {
     LegacyBehavior  = 0,

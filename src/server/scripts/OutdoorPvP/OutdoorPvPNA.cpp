@@ -164,12 +164,12 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount() const
     return std::count_if(guards.begin(), guards.end(), [](WorldObject* guard) { return guard->IsUnit() && guard->ToUnit()->IsAlive(); });
 }
 
-uint32 OPvPCapturePointNA::GetControllingFaction() const
+Team OPvPCapturePointNA::GetControllingFaction() const
 {
     return m_ControllingFaction;
 }
 
-void OPvPCapturePointNA::FactionTakeOver(uint32 team)
+void OPvPCapturePointNA::FactionTakeOver(Team team)
 {
     m_ControllingFaction = team;
     m_GuardsAlive = NA_GUARDS_MAX;
@@ -207,7 +207,7 @@ void OPvPCapturePointNA::FactionTakeOver(uint32 team)
     UpdateWyvernRoostWorldState(NA_ROOST_E);
 }
 
-OPvPCapturePointNA::OPvPCapturePointNA(OutdoorPvP* pvp) : OPvPCapturePoint(pvp), m_capturable(true), m_GuardsAlive(0), m_ControllingFaction(0), m_WyvernStateNorth(0), m_WyvernStateSouth(0), m_WyvernStateEast(0),
+OPvPCapturePointNA::OPvPCapturePointNA(OutdoorPvP* pvp) : OPvPCapturePoint(pvp), m_capturable(true), m_GuardsAlive(0), m_ControllingFaction(TEAM_OTHER), m_WyvernStateNorth(0), m_WyvernStateSouth(0), m_WyvernStateEast(0),
     m_WyvernStateWest(0), m_RespawnTimer(NA_RESPAWN_TIME), m_GuardCheckTimer(NA_GUARD_CHECK_TIME)
 {
 

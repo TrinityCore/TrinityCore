@@ -542,7 +542,7 @@ class BattlegroundSA : public Battleground
         bool SetupBattleground() override;
         void Reset() override;
         /// Called when a player kill a unit in bg
-        void HandleKillUnit(Creature* creature, Player* killer) override;
+        void HandleKillUnit(Creature* creature, Unit* killer) override;
         /// Return the nearest graveyard where player can respawn
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         /// Called when someone activates an event
@@ -562,7 +562,7 @@ class BattlegroundSA : public Battleground
         }
 
         /// Called on battleground ending
-        void EndBattleground(uint32 winner) override;
+        void EndBattleground(Team winner) override;
 
         /// Called when a player leave battleground
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;

@@ -269,10 +269,10 @@ class BattlegroundEY : public Battleground
         WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
         bool SetupBattleground() override;
         void Reset() override;
-        void UpdateTeamScore(uint32 Team);
-        void EndBattleground(uint32 winner) override;
+        void UpdateTeamScore(TeamId Team);
+        void EndBattleground(Team winner) override;
 
-        uint32 GetPrematureWinner() override;
+        Team GetPrematureWinner() override;
 
         void ProcessEvent(WorldObject* target, uint32 eventId, WorldObject* invoker) override;
         void PostUpdateImpl(uint32 diff) override;
@@ -289,10 +289,10 @@ class BattlegroundEY : public Battleground
 
     private:
         /* Scorekeeping */
-        void AddPoints(uint32 Team, uint32 Points);
+        void AddPoints(Team team, uint32 Points);
 
-        void RemovePoint(uint32 TeamID, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
-        void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
+        void RemovePoint(Team team, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(team)] -= Points; }
+        void SetTeamPoint(Team team, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(team)] = Points; }
 
         uint8 GetControlledBaseCount(TeamId teamId) const;
 
