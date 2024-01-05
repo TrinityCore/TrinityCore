@@ -122,7 +122,7 @@ enum Stances
     MAX_STANCE
 };
 
-// These values must be sync with the data in waypoint_data.
+// These values must be sync with the data in waypoint_path_node.
 // Each of these points is going to trigger a Charge Up sequence
 static std::array<uint8, 2> const ChargeUpWaypointIds = { 7, 15 };
 // Each of these points is going to remove the Tempoary Electrical Charge buff from General Bjarngrim

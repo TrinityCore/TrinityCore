@@ -1121,7 +1121,7 @@ void MotionMaster::MovePath(WaypointPath const& path, bool repeatable, Optional<
     Optional<float> wanderDistanceAtPathEnds, bool followPathBackwardsFromEndToStart, bool generatePath)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MovePath: '{}', starts moving over path Id: {} (repeatable: {})",
-        _owner->GetGUID().ToString(), path.id, repeatable ? "YES" : "NO");
+        _owner->GetGUID().ToString(), path.Id, repeatable ? "YES" : "NO");
     Add(new WaypointMovementGenerator<Creature>(path, repeatable, duration, speed, speedSelectionMode, waitTimeRangeAtPathEnd,
         wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, generatePath), MOTION_SLOT_DEFAULT);
 }
