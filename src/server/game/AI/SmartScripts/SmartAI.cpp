@@ -33,7 +33,7 @@
 #include "WaypointManager.h"
 
 SmartAI::SmartAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, scriptId), _charmed(false), _followCreditType(0), _followArrivedTimer(0), _followCredit(0), _followArrivedEntry(0), _followDistance(0.f), _followAngle(0.f),
-    _escortState(SMART_ESCORT_NONE), _escortNPCFlags(0), _escortInvokerCheckTimer(1000), _currentWaypointNode(0), _waypointReached(false), _waypointPauseTimer(0), _waypointPauseForced(false), _repeatWaypointPath(false),
+    _escortState(SMART_ESCORT_NONE), _escortNPCFlags(0), _escortInvokerCheckTimer(1000), _currentWaypointNodeId(0), _waypointReached(false), _waypointPauseTimer(0), _waypointPauseForced(false), _repeatWaypointPath(false),
     _OOCReached(false), _waypointPathEnded(false), _run(true), _evadeDisabled(false), _canCombatMove(true), _invincibilityHPLevel(0), _despawnTime(0), _despawnState(0), _vehicleConditionsTimer(0),
     _gossipReturn(false), _escortQuestId(0)
 {
@@ -57,7 +57,7 @@ void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* in
     if (!path)
         return;
 
-    _currentWaypointNode = nodeId;
+    _currentWaypointNodeId = nodeId;
     _waypointPathEnded = false;
 
     _repeatWaypointPath = repeat;
@@ -80,7 +80,7 @@ WaypointPath const* SmartAI::LoadPath(uint32 entry)
         return nullptr;
 
     WaypointPath const* path = sWaypointMgr->GetPath(entry);
-    if (!path || path->nodes.empty())
+    if (!path || path->Nodes.empty())
     {
         GetScript()->SetPathId(0);
         return nullptr;
@@ -105,7 +105,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
 
     if (HasEscortState(SMART_ESCORT_PAUSED))
     {
-        TC_LOG_ERROR("scripts.ai.sai", "SmartAI::PausePath: Creature wanted to pause waypoint (current waypoint: {}) movement while already paused, ignoring. ({})", _currentWaypointNode, me->GetGUID().ToString());
+        TC_LOG_ERROR("scripts.ai.sai", "SmartAI::PausePath: Creature wanted to pause waypoint (current waypoint: {}) movement while already paused, ignoring. ({})", _currentWaypointNodeId, me->GetGUID().ToString());
         return;
     }
 
@@ -122,7 +122,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
         _waypointReached = false;
 
     AddEscortState(SMART_ESCORT_PAUSED);
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_PAUSED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_PAUSED, nullptr, _currentWaypointNodeId, GetScript()->GetPathId());
 }
 
 bool SmartAI::CanResumePath()
@@ -170,7 +170,7 @@ void SmartAI::StopPath(uint32 DespawnTime, uint32 quest, bool fail)
 
     me->GetMotionMaster()->MoveIdle();
 
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_STOPPED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_STOPPED, nullptr, _currentWaypointNodeId, GetScript()->GetPathId());
 
     EndPath(fail);
 }
@@ -235,7 +235,7 @@ void SmartAI::EndPath(bool fail)
         return;
 
     uint32 pathid = GetScript()->GetPathId();
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_ENDED, nullptr, _currentWaypointNode, pathid);
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_ENDED, nullptr, _currentWaypointNodeId, pathid);
 
     if (_repeatWaypointPath)
     {
@@ -251,7 +251,7 @@ void SmartAI::EndPath(bool fail)
 
 void SmartAI::ResumePath()
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_RESUMED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_RESUMED, nullptr, _currentWaypointNodeId, GetScript()->GetPathId());
 
     RemoveEscortState(SMART_ESCORT_PAUSED);
 
@@ -349,9 +349,9 @@ void SmartAI::WaypointReached(uint32 nodeId, uint32 pathId)
         return;
     }
 
-    _currentWaypointNode = nodeId;
+    _currentWaypointNodeId = nodeId;
 
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_REACHED, nullptr, _currentWaypointNode, pathId);
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_REACHED, nullptr, _currentWaypointNodeId, pathId);
 
     if (_waypointPauseTimer && !_waypointPauseForced)
     {
@@ -362,7 +362,7 @@ void SmartAI::WaypointReached(uint32 nodeId, uint32 pathId)
     else if (HasEscortState(SMART_ESCORT_ESCORTING) && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
         WaypointPath const* path = sWaypointMgr->GetPath(pathId);
-        if (path && _currentWaypointNode == path->nodes.back().id)
+        if (path && _currentWaypointNodeId == path->Nodes.back().Id)
             _waypointPathEnded = true;
         else
             SetRun(_run);
@@ -535,8 +535,8 @@ void SmartAI::JustReachedHome()
     {
         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType(MOTION_SLOT_DEFAULT) != WAYPOINT_MOTION_TYPE)
         {
-            if (me->GetWaypointPath())
-                me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
+            if (me->GetWaypointPathId())
+                me->GetMotionMaster()->MovePath(me->GetWaypointPathId(), true);
         }
 
         me->ResumeMovement();
