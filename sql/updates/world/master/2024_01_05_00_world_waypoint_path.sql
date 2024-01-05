@@ -25,10 +25,10 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 1 AND 4;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 1, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 2, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 3, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID+3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 4, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+3, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+3, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 1, 0, '', 40, 0, 100, 0, 2, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 2 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 2, 0, '', 40, 0, 100, 0, 0, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 0 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 3, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID+3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 4, 0, '', 40, 0, 100, 0, 0, @ORIGINAL_PATHID+3, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 0 of path ', @ORIGINAL_PATHID+3, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     SET @ORIGINAL_PATHID := 25211360;
     DELETE FROM `waypoint_data` WHERE `id`=@ORIGINAL_PATHID AND `point`=2;
@@ -50,10 +50,10 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 5 AND 8;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 5, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 6, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 7, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID+3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 8, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+3, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+3, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 5, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 6, 0, '', 40, 0, 100, 0, 0, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 0 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 7, 0, '', 40, 0, 100, 0, 0, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID+3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 0 of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 8, 0, '', 40, 0, 100, 0, 0, @ORIGINAL_PATHID+3, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 0 of path ', @ORIGINAL_PATHID+3, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     SET @ORIGINAL_PATHID := 25212240;
     DELETE FROM `waypoint_data` WHERE `id`=@ORIGINAL_PATHID AND `point`=2;
@@ -75,10 +75,10 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 9 AND 12;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 9, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 10, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 11, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID+3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 12, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+3, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+3, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 9, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 10, 0, '', 40, 0, 100, 0, 0, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 0 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 11, 0, '', 40, 0, 100, 0, 0, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID+3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 0 of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 12, 0, '', 40, 0, 100, 0, 0, @ORIGINAL_PATHID+3, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 0 of path ', @ORIGINAL_PATHID+3, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     SET @ORIGINAL_PATHID := 5599040;
     DELETE FROM `waypoint_data` WHERE `id`=@ORIGINAL_PATHID AND `point`=2;
@@ -90,8 +90,8 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 11 AND 12;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 11, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 12, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 11, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 12, 0, '', 40, 0, 100, 0, 0, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 0 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     UPDATE `smart_scripts` SET `event_param1`=0, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `source_type`=0 AND `id`=1;
 
@@ -106,8 +106,8 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 13 AND 14;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 13, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 14, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 13, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 14, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     UPDATE `smart_scripts` SET `event_param1`=1, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `source_type`=0 AND `id`=2;
 
@@ -122,8 +122,8 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 0 AND 2;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 0, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 1, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 0, 0, '', 40, 0, 100, 0, 17, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 17 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 1, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     SET @ORIGINAL_PATHID := 10066160;
     DELETE FROM `waypoint_data` WHERE `id`=@ORIGINAL_PATHID AND `point`=5;
@@ -144,9 +144,9 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 0 AND 2;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 0, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 1, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 2, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 0, 0, '', 40, 0, 100, 0, 4, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 4 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 1, 0, '', 40, 0, 100, 0, 0, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 0 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 2, 0, '', 40, 0, 100, 0, 4, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 4 of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     SET @ORIGINAL_PATHID := 24502880;
     DELETE FROM `waypoint_data` WHERE `id`=@ORIGINAL_PATHID AND `point` BETWEEN 5 AND 12;
@@ -165,8 +165,8 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 0 AND 4;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 0, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 1, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 0, 0, '', 40, 0, 100, 0, 4, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 4 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 1, 0, '', 40, 0, 100, 0, 7, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 7 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     UPDATE `waypoint_data` SET `move_type`=1 WHERE `id`=24743840 AND `point`=39;
     UPDATE `waypoint_data` SET `move_type`=1 WHERE `id`=20038160 AND `point`=4;
@@ -254,11 +254,11 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 0 AND 4;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 0, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 1, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 2, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID+3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 3, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+3, 0, 0, 53, 0, @ORIGINAL_PATHID+4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+3, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 4, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+4, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+4, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 0, 0, '', 40, 0, 100, 0, 14, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 14 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 1, 0, '', 40, 0, 100, 0, 6, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 6 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 2, 0, '', 40, 0, 100, 0, 21, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID+3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 21 of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 3, 0, '', 40, 0, 100, 0, 22, @ORIGINAL_PATHID+3, 0, 0, 53, 0, @ORIGINAL_PATHID+4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 22 of path ', @ORIGINAL_PATHID+3, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 4, 0, '', 40, 0, 100, 0, 6, @ORIGINAL_PATHID+4, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 6 of path ', @ORIGINAL_PATHID+4, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     SET @ORIGINAL_PATHID := 84126160;
     DELETE FROM `waypoint_data` WHERE `id`=@ORIGINAL_PATHID AND `point` BETWEEN 15 AND 21;
@@ -340,11 +340,11 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 5 AND 9;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 5, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 6, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 7, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID+3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 8, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+3, 0, 0, 53, 0, @ORIGINAL_PATHID+4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+3, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 9, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+4, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+4, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 5, 0, '', 40, 0, 100, 0, 14, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 14 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 6, 0, '', 40, 0, 100, 0, 6, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 6 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 7, 0, '', 40, 0, 100, 0, 21, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID+3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 21 of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 8, 0, '', 40, 0, 100, 0, 22, @ORIGINAL_PATHID+3, 0, 0, 53, 0, @ORIGINAL_PATHID+4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 22 of path ', @ORIGINAL_PATHID+3, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 9, 0, '', 40, 0, 100, 0, 6, @ORIGINAL_PATHID+4, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 6 of path ', @ORIGINAL_PATHID+4, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     SET @ORIGINAL_PATHID := 28762640;
     DELETE FROM `waypoint_data` WHERE `id`=@ORIGINAL_PATHID AND `point` BETWEEN 2 AND 6;
@@ -360,8 +360,8 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 24 AND 25;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 24, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 25, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 24, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 25, 0, '', 40, 0, 100, 0, 4, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 4 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     UPDATE `smart_scripts` SET `event_param1`=3, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `id`=6;
     UPDATE `smart_scripts` SET `event_param1`=1, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `id`=12;
@@ -381,8 +381,8 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 26 AND 27;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 26, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 27, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 26, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 27, 0, '', 40, 0, 100, 0, 4, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 4 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     UPDATE `smart_scripts` SET `event_param1`=3, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `id`=7;
     UPDATE `smart_scripts` SET `event_param1`=1, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `id`=14;
@@ -402,8 +402,8 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 28 AND 29;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 28, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 29, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 28, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 29, 0, '', 40, 0, 100, 0, 4, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 4 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     UPDATE `smart_scripts` SET `event_param1`=3, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `id`=8;
     UPDATE `smart_scripts` SET `event_param1`=1, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `id`=16;
@@ -423,8 +423,8 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 30 AND 31;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 30, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 31, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 30, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 31, 0, '', 40, 0, 100, 0, 4, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 4 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     UPDATE `smart_scripts` SET `event_param1`=3, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `id`=9;
     UPDATE `smart_scripts` SET `event_param1`=1, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `id`=18;
@@ -444,8 +444,8 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 32 AND 33;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 32, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 33, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 32, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 33, 0, '', 40, 0, 100, 0, 4, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 4 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     UPDATE `smart_scripts` SET `event_param1`=3, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `id`=10;
     UPDATE `smart_scripts` SET `event_param1`=1, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `id`=20;
@@ -465,8 +465,8 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 34 AND 35;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 34, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 35, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 34, 0, '', 40, 0, 100, 0, 1, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 1 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 35, 0, '', 40, 0, 100, 0, 4, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 4 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive'));
 
     UPDATE `smart_scripts` SET `event_param1`=3, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `id`=11;
     UPDATE `smart_scripts` SET `event_param1`=1, `event_param2`=@ORIGINAL_PATHID+1 WHERE `entryorguid`=@ENTRY AND `id`=22;
@@ -529,10 +529,10 @@ CREATE PROCEDURE waypoint_data_refactor() BEGIN
     DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY AND `id` BETWEEN 0 AND 4;
     UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
     INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-    (@ENTRY, 0, 0, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 1, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 2, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID+3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive')),
-    (@ENTRY, 0, 3, 0, '', 58, 0, 100, 0, 0xFFFFFFFF, @ORIGINAL_PATHID+3, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path ', @ORIGINAL_PATHID+3, ' ended - Self: Start path, walk, do not repeat, Passive'));
+    (@ENTRY, 0, 0, 0, '', 40, 0, 100, 0, 2, @ORIGINAL_PATHID, 0, 0, 53, 0, @ORIGINAL_PATHID+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 2 of path ', @ORIGINAL_PATHID+0, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 1, 0, '', 40, 0, 100, 0, 9, @ORIGINAL_PATHID+1, 0, 0, 53, 0, @ORIGINAL_PATHID+2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 4 of path ', @ORIGINAL_PATHID+1, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 2, 0, '', 40, 0, 100, 0, 4, @ORIGINAL_PATHID+2, 0, 0, 53, 0, @ORIGINAL_PATHID+3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 9 of path ', @ORIGINAL_PATHID+2, ' ended - Self: Start path, walk, do not repeat, Passive')),
+    (@ENTRY, 0, 3, 0, '', 40, 0, 100, 0, 16, @ORIGINAL_PATHID+3, 0, 0, 53, 0, @ORIGINAL_PATHID, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On waypoint 16 of path ', @ORIGINAL_PATHID+3, ' ended - Self: Start path, walk, do not repeat, Passive'));
   
     DROP TABLE IF EXISTS `waypoint_path`;
     CREATE TABLE `waypoint_path`  (
