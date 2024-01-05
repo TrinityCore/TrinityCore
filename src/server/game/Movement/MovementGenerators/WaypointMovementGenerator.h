@@ -85,7 +85,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         MovementWalkRunSpeedSelectionMode _speedSelectionMode;
         Optional<std::pair<Milliseconds, Milliseconds>> _waitTimeRangeAtPathEnd;
         Optional<float> _wanderDistanceAtPathEnds;
-        Optional<bool> _followPathBackwardsFromEndToStart;
+        bool _followPathBackwardsFromEndToStart;
         bool _isReturningToStart;
         bool _generatePath;
 };
