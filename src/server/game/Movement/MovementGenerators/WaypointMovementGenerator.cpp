@@ -137,6 +137,9 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
 
     _followPathBackwardsFromEndToStart = _path->Flags.HasFlag(WaypointPathFlags::FollowPathBackwardsFromEndToStart);
 
+    if (_path->Nodes.size() == 1)
+        _repeating = false;
+
     owner->StopMoving();
 
     _nextMoveTime.Reset(1000);
@@ -429,7 +432,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
 bool WaypointMovementGenerator<Creature>::ComputeNextNode()
 {
-    if ((_currentNode == _path->Nodes.size() - 1) && (!_repeating || _path->Nodes.size() == 1))
+    if ((_currentNode == _path->Nodes.size() - 1) && !_repeating)
         return false;
 
     if (!_followPathBackwardsFromEndToStart.value_or(false) || _path->Nodes.size() < WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES)
