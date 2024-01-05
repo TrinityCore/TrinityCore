@@ -625,7 +625,7 @@ public:
 
     bool operator()(Creature* target) const
     {
-        if (!target->IsAlive() || (_checkCasting && target->HasUnitState(UNIT_STATE_CASTING)) || target->GetWaypointPath() || _owner->GetDistance(target) > 10.0f)
+        if (!target->IsAlive() || (_checkCasting && target->HasUnitState(UNIT_STATE_CASTING)) || target->GetWaypointPathId() || _owner->GetDistance(target) > 10.0f)
             return false;
 
         switch (target->GetEntry())
@@ -779,7 +779,7 @@ struct DarkFallenAI : public ScriptedAI
 
     void Reset() override
     {
-        IsDoingEmotes = me->GetWaypointPath() ? false : true;
+        IsDoingEmotes = me->GetWaypointPathId() ? false : true;
         Scheduler.CancelAll();
         Scheduler.SetValidator([this]
         {

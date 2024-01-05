@@ -19,17 +19,31 @@
 #include "DatabaseEnv.h"
 #include "GridDefines.h"
 #include "Log.h"
+#include "MapUtils.h"
+#include "ObjectAccessor.h"
+#include "Optional.h"
+#include "TemporarySummon.h"
+#include "Unit.h"
 
-void WaypointMgr::Load()
+void WaypointMgr::LoadPaths()
+{
+    _LoadPaths();
+    _LoadPathNodes();
+    DoPostLoadingChecks();
+}
+
+void WaypointMgr::_LoadPaths()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0    1         2           3          4            5           6        7
-    QueryResult result = WorldDatabase.Query("SELECT id, point, position_x, position_y, position_z, orientation, move_type, delay FROM waypoint_data ORDER BY id, point");
+    _pathStore.clear();
+
+    //                                                    0         1      2
+    QueryResult result = WorldDatabase.Query("SELECT PathId, MoveType, Flags FROM waypoint_path");
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 waypoints. DB table `waypoint_data` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 waypoint paths. DB table `waypoint_path` is empty!");
         return;
     }
 
@@ -37,42 +51,92 @@ void WaypointMgr::Load()
 
     do
     {
-        Field* fields = result->Fetch();
-        uint32 pathId = fields[0].GetUInt32();
-        float x = fields[2].GetFloat();
-        float y = fields[3].GetFloat();
-        float z = fields[4].GetFloat();
-        Optional<float> o;
-        if (!fields[5].IsNull())
-            o = fields[5].GetFloat();
+        LoadPathFromDB(result->Fetch());
+        ++count;
+    } while (result->NextRow());
 
-        Trinity::NormalizeMapCoord(x);
-        Trinity::NormalizeMapCoord(y);
+    TC_LOG_INFO("server.loading", ">> Loaded {} waypoint paths in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
 
-        WaypointNode waypoint;
-        waypoint.id = fields[1].GetUInt32();
-        waypoint.x = x;
-        waypoint.y = y;
-        waypoint.z = z;
-        waypoint.orientation = o;
-        waypoint.moveType = fields[6].GetUInt32();
+void WaypointMgr::_LoadPathNodes()
+{
+    uint32 oldMSTime = getMSTime();
+    //                                                    0       1          2          3          4            5      6
+    QueryResult result = WorldDatabase.Query("SELECT PathId, NodeId, PositionX, PositionY, PositionZ, Orientation, Delay FROM waypoint_path_node ORDER BY PathId, NodeId");
 
-        if (waypoint.moveType >= WAYPOINT_MOVE_TYPE_MAX)
-        {
-            TC_LOG_ERROR("sql.sql", "Waypoint {} in waypoint_data has invalid move_type, ignoring", waypoint.id);
-            continue;
-        }
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 waypoint path nodes. DB table `waypoint_path_node` is empty!");
+        return;
+    }
 
-        waypoint.delay = fields[7].GetUInt32();
+    uint32 count = 0;
 
-        WaypointPath& path = _waypointStore[pathId];
-        path.id = pathId;
-        path.nodes.push_back(std::move(waypoint));
+    do
+    {
+        LoadPathNodesFromDB(result->Fetch());
         ++count;
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded {} waypoints in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} waypoint path nodes in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    DoPostLoadingChecks();
+}
+
+void WaypointMgr::LoadPathFromDB(Field* fields)
+{
+    uint32 pathId = fields[0].GetUInt32();
+
+    WaypointPath& path = _pathStore[pathId];
+    path.Id = pathId;
+    path.MoveType = (WaypointMoveType)fields[1].GetUInt8();
+
+    if (path.MoveType >= WaypointMoveType::Max)
+    {
+        TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has invalid MoveType {}, ignoring", pathId, AsUnderlyingType(path.MoveType));
+        return;
+    }
+    path.Flags = (WaypointPathFlags)fields[2].GetUInt8();
+    path.Nodes.clear();
+}
+
+void WaypointMgr::LoadPathNodesFromDB(Field* fields)
+{
+    uint32 pathId = fields[0].GetUInt32();
+
+    if (_pathStore.find(pathId) == _pathStore.end())
+    {
+        TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path_node` does not exist in `waypoint_path`, ignoring", pathId);
+        return;
+    }
+
+    float x = fields[2].GetFloat();
+    float y = fields[3].GetFloat();
+    float z = fields[4].GetFloat();
+    Optional<float> o;
+    if (!fields[5].IsNull())
+        o = fields[5].GetFloat();
+
+    Trinity::NormalizeMapCoord(x);
+    Trinity::NormalizeMapCoord(y);
+
+    WaypointNode waypoint(fields[1].GetUInt32(), x, y, z, o, fields[6].GetUInt32());
+
+    WaypointPath& path = _pathStore[pathId];
+    path.Nodes.push_back(std::move(waypoint));
+}
+
+void WaypointMgr::DoPostLoadingChecks()
+{
+    for (auto const& path : _pathStore)
+    {
+        WaypointPath pathInfo = path.second;
+        if (pathInfo.Nodes.empty())
+            TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has no assigned nodes in `waypoint_path_node`", pathInfo.Id);
+
+        if (pathInfo.Flags.HasFlag(WaypointPathFlags::FollowPathBackwardsFromEndToStart) && pathInfo.Nodes.size() < WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES)
+            TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has FollowPathBackwardsFromEndToStart set, but only {} nodes, requires {}", pathInfo.Id, pathInfo.Nodes.size(), WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES);
+    }
 }
 
 WaypointMgr* WaypointMgr::instance()
@@ -81,61 +145,177 @@ WaypointMgr* WaypointMgr::instance()
     return &instance;
 }
 
-void WaypointMgr::ReloadPath(uint32 id)
+void WaypointMgr::ReloadPath(uint32 pathId)
 {
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_ID);
-
-    stmt->setUInt32(0, id);
-
-    PreparedQueryResult result = WorldDatabase.Query(stmt);
-
-    if (!result)
-        return;
-
-    std::vector<WaypointNode> values;
-    do
+    // waypoint_path
     {
-        Field* fields = result->Fetch();
-        float x = fields[1].GetFloat();
-        float y = fields[2].GetFloat();
-        float z = fields[3].GetFloat();
-        Optional<float> o;
-        if (!fields[4].IsNull())
-            o = fields[4].GetFloat();
+        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_PATH_BY_PATHID);
+        stmt->setUInt32(0, pathId);
 
-        Trinity::NormalizeMapCoord(x);
-        Trinity::NormalizeMapCoord(y);
+        PreparedQueryResult result = WorldDatabase.Query(stmt);
 
-        WaypointNode waypoint;
-        waypoint.id = fields[0].GetUInt32();
-        waypoint.x = x;
-        waypoint.y = y;
-        waypoint.z = z;
-        waypoint.orientation = o;
-        waypoint.moveType = fields[5].GetUInt32();
-
-        if (waypoint.moveType >= WAYPOINT_MOVE_TYPE_MAX)
+        if (!result)
         {
-            TC_LOG_ERROR("sql.sql", "Waypoint {} in waypoint_data has invalid move_type, ignoring", waypoint.id);
-            continue;
+            TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` not found, ignoring", pathId);
+            return;
         }
 
-        waypoint.delay = fields[6].GetUInt32();
-
-        values.push_back(std::move(waypoint));
+        do
+        {
+            LoadPathFromDB(result->Fetch());
+        } while (result->NextRow());
     }
-    while (result->NextRow());
 
-    WaypointPath& path = _waypointStore[id];
-    path.id = id;
-    path.nodes = std::move(values);
+    // waypoint_path_data
+    {
+        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_PATH_NODE_BY_PATHID);
+        stmt->setUInt32(0, pathId);
+
+        PreparedQueryResult result = WorldDatabase.Query(stmt);
+
+        if (!result)
+        {
+            TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path_node` not found, ignoring", pathId);
+            return;
+        }
+
+        do
+        {
+            LoadPathNodesFromDB(result->Fetch());
+        } while (result->NextRow());
+    }
 }
 
-WaypointPath const* WaypointMgr::GetPath(uint32 id) const
+void WaypointMgr::VisualizePath(Unit* owner, WaypointPath const* path, Optional<uint32> displayId)
 {
-    auto itr = _waypointStore.find(id);
-    if (itr != _waypointStore.end())
-        return &itr->second;
+    for (WaypointNode const& node : path->Nodes)
+    {
+        std::pair<uint32, uint32> pathNodePair(path->Id, node.Id);
 
+        auto itr = _nodeToVisualWaypointGUIDsMap.find(pathNodePair);
+        if (itr != _nodeToVisualWaypointGUIDsMap.end())
+            continue;
+
+        TempSummon* summon = owner->SummonCreature(VISUAL_WAYPOINT, node.X, node.Y, node.Z, node.Orientation ? *node.Orientation : 0.0f);
+        if (!summon)
+            continue;
+
+        if (displayId)
+        {
+            summon->SetDisplayId(*displayId, true);
+            summon->SetObjectScale(0.5f);
+        }
+
+        _nodeToVisualWaypointGUIDsMap[pathNodePair] = summon->GetGUID();
+        _visualWaypointGUIDToNodeMap[summon->GetGUID()] = std::pair<WaypointPath const*, WaypointNode const*>(path, &node);
+    }
+}
+
+void WaypointMgr::DevisualizePath(Unit* owner, WaypointPath const* path)
+{
+    for (WaypointNode const& node : path->Nodes)
+    {
+        std::pair<uint32, uint32> pathNodePair(path->Id, node.Id);
+        auto itr = _nodeToVisualWaypointGUIDsMap.find(pathNodePair);
+        if (itr == _nodeToVisualWaypointGUIDsMap.end())
+            continue;
+
+        Creature* creature = ObjectAccessor::GetCreature(*owner, itr->second);
+        if (!creature)
+            continue;
+
+        _visualWaypointGUIDToNodeMap.erase(itr->second);
+        _nodeToVisualWaypointGUIDsMap.erase(pathNodePair);
+
+        creature->DespawnOrUnsummon();
+    }
+}
+
+void WaypointMgr::MoveNode(WaypointPath const* path, WaypointNode const* node, Position const& pos)
+{
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_PATH_NODE_POSITION);
+    stmt->setFloat(0, pos.GetPositionX());
+    stmt->setFloat(1, pos.GetPositionY());
+    stmt->setFloat(2, pos.GetPositionZ());
+    stmt->setFloat(3, pos.GetOrientation());
+    stmt->setUInt32(4, path->Id);
+    stmt->setUInt32(5, node->Id);
+    WorldDatabase.Execute(stmt);
+}
+
+void WaypointMgr::DeleteNode(WaypointPath const* path, WaypointNode const* node)
+{
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_WAYPOINT_PATH_NODE);
+    stmt->setUInt32(0, path->Id);
+    stmt->setUInt32(1, node->Id);
+    WorldDatabase.Execute(stmt);
+
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_PATH_NODE);
+    stmt->setUInt32(0, path->Id);
+    stmt->setUInt32(1, node->Id);
+    WorldDatabase.Execute(stmt);
+}
+
+void WaypointMgr::DeleteNode(uint32 pathId, uint32 nodeId)
+{
+    WaypointPath const* path = GetPath(pathId);
+    if (!path)
+        return;
+
+    WaypointNode const* node = GetNode(path, nodeId);
+    if (!node)
+        return;
+
+    DeleteNode(path, node);
+}
+
+WaypointPath const* WaypointMgr::GetPath(uint32 pathId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_pathStore, pathId);
+}
+
+WaypointNode const* WaypointMgr::GetNode(WaypointPath const* path, uint32 nodeId) const
+{
+    for (WaypointNode const& node : path->Nodes)
+    {
+        if (node.Id == nodeId)
+            return &node;
+    }
     return nullptr;
+}
+
+WaypointNode const* WaypointMgr::GetNode(uint32 pathId, uint32 nodeId) const
+{
+    WaypointPath const* path = GetPath(pathId);
+    if (!path)
+        return nullptr;
+
+    return GetNode(path->Id, nodeId);
+}
+
+WaypointPath const* WaypointMgr::GetPathByVisualGUID(ObjectGuid guid) const
+{
+    auto itr = _visualWaypointGUIDToNodeMap.find(guid);
+    if (itr == _visualWaypointGUIDToNodeMap.end())
+        return nullptr;
+
+    return itr->second.first;
+}
+
+WaypointNode const* WaypointMgr::GetNodeByVisualGUID(ObjectGuid guid) const
+{
+    auto itr = _visualWaypointGUIDToNodeMap.find(guid);
+    if (itr == _visualWaypointGUIDToNodeMap.end())
+        return nullptr;
+
+    return itr->second.second;
+}
+
+ObjectGuid const& WaypointMgr::GetVisualGUIDByNode(uint32 pathId, uint32 nodeId) const
+{
+    auto itr = _nodeToVisualWaypointGUIDsMap.find(std::make_pair(pathId, nodeId));
+    if (itr == _nodeToVisualWaypointGUIDsMap.end())
+        return ObjectGuid::Empty;
+
+    return itr->second;
 }
