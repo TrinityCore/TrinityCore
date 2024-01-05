@@ -287,7 +287,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
         _nextMoveTime.Reset(waypoint.Delay);
     }
 
-    if (_waitTimeRangeAtPathEnd && _followPathBackwardsFromEndToStart && *_followPathBackwardsFromEndToStart
+    if (_waitTimeRangeAtPathEnd && _followPathBackwardsFromEndToStart
         && ((_isReturningToStart && _currentNode == 0) || (!_isReturningToStart && _currentNode == _path->Nodes.size() - 1)))
     {
         owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
@@ -435,7 +435,7 @@ bool WaypointMovementGenerator<Creature>::ComputeNextNode()
     if ((_currentNode == _path->Nodes.size() - 1) && !_repeating)
         return false;
 
-    if (!_followPathBackwardsFromEndToStart.value_or(false) || _path->Nodes.size() < WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES)
+    if (!_followPathBackwardsFromEndToStart || _path->Nodes.size() < WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES)
         _currentNode = (_currentNode + 1) % _path->Nodes.size();
     else
     {
