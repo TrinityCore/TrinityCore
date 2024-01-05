@@ -256,7 +256,7 @@ class npc_twilight_torturer : public CreatureScript
             void Reset() override
             {
                 Initialize();
-                if (!me->GetWaypointPath())
+                if (!me->GetWaypointPathId())
                     _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, 6s, 18s);
             }
 
@@ -356,7 +356,7 @@ class npc_twilight_sadist : public CreatureScript
             void Reset() override
             {
                 _combatPhase = false;
-                if (!me->GetWaypointPath())
+                if (!me->GetWaypointPathId())
                     _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, 6s, 18s);
             }
 
