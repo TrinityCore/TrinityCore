@@ -447,7 +447,9 @@ enum TrinityStrings
     LANG_COMMAND_LEARN_ALL_RECIPES_HELP   = 392,
     LANG_COMMAND_LEARN_ALL_TALENTS_HELP   = 393,
     LANG_COMMAND_LEARN_ALL_PETTALENT_HELP = 394,
-    // Room for more level 2                395-399 not used
+    LANG_COMMAND_BG_START_HELP            = 395,
+    LANG_COMMAND_BG_STOP_HELP             = 396,
+    // Room for more level 2                397-399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED                 = 400,
