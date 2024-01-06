@@ -7414,11 +7414,13 @@ void Player::SetInGuild(ObjectGuid::LowType guildId)
     if (guildId)
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::GuildGUID), ObjectGuid::Create<HighGuid::Guild>(guildId));
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::GuildClubMemberID), GetGUID().GetCounter());
         SetPlayerFlag(PLAYER_FLAGS_GUILD_LEVEL_ENABLED);
     }
     else
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::GuildGUID), ObjectGuid::Empty);
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::GuildClubMemberID), 0);
         RemovePlayerFlag(PLAYER_FLAGS_GUILD_LEVEL_ENABLED);
     }
 
