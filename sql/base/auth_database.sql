@@ -473,6 +473,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (192,796),
 (192,835),
 (193,48),
+(193,52),
 (193,194),
 (193,197),
 (194,1),
@@ -1171,6 +1172,7 @@ INSERT INTO `rbac_permissions` VALUES
 (49,'Forces to enter the email for confirmation on password change'),
 (50,'Allow user to check his own email with .account'),
 (51,'Allow trading between factions'),
+(52,'No battleground deserter debuff'),
 (192,'Role: Sec Level Administrator'),
 (193,'Role: Sec Level Gamemaster'),
 (194,'Role: Sec Level Moderator'),
@@ -2010,7 +2012,8 @@ INSERT INTO `updates` VALUES
 ('2023_02_05_01_auth.sql','336E62A8850A3E78A1D0BD3E81FFD5769184BDF8','ARCHIVED','2023-02-05 15:58:32',0),
 ('2023_05_05_00_auth.sql','DEEB1D5533658E3479FC3C988EF4B9816C511BC3','ARCHIVED','2023-05-07 11:52:00',0),
 ('2023_06_14_00_auth.sql','BB8A7EB214F4F3632C4F54EA596CB7C8FBA305D5','ARCHIVED','2023-06-14 19:34:24',0),
-('2023_11_21_00_auth.sql','146E5E6EF94C5DB78343372A8FDB32B062B80040','RELEASED','2023-11-21 11:24:11',0);
+('2023_11_21_00_auth.sql','146E5E6EF94C5DB78343372A8FDB32B062B80040','RELEASED','2023-11-21 11:24:11',0),
+('2024_01_06_00_auth.sql','767D697594D5471B67CC0FDF0D7BB15374116A71','RELEASED','2024-01-06 09:53:51',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2075,7 +2078,7 @@ DROP TABLE IF EXISTS `vw_log_history`;
 /*!50001 DROP VIEW IF EXISTS `vw_log_history`*/;
 SET @saved_cs_client     = @@character_set_client;
 /*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `vw_log_history` AS SELECT 
+/*!50001 CREATE VIEW `vw_log_history` AS SELECT
  1 AS `First Logged`,
  1 AS `Last Logged`,
  1 AS `Occurrences`,
@@ -2093,7 +2096,7 @@ DROP TABLE IF EXISTS `vw_rbac`;
 /*!50001 DROP VIEW IF EXISTS `vw_rbac`*/;
 SET @saved_cs_client     = @@character_set_client;
 /*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `vw_rbac` AS SELECT 
+/*!50001 CREATE VIEW `vw_rbac` AS SELECT
  1 AS `Permission ID`,
  1 AS `Permission Group`,
  1 AS `Security Level`,
