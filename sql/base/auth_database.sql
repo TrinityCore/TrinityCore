@@ -2291,6 +2291,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (192,853),
 (192,854),
 (193,48),
+(193,52),
 (193,194),
 (193,197),
 (194,1),
@@ -3006,6 +3007,7 @@ INSERT INTO `rbac_permissions` VALUES
 (49,'Forces to enter the email for confirmation on password change'),
 (50,'Allow user to check his own email with .account'),
 (51,'Allow trading between factions'),
+(52,'No battleground deserter debuff'),
 (192,'Role: Sec Level Administrator'),
 (193,'Role: Sec Level Gamemaster'),
 (194,'Role: Sec Level Moderator'),
@@ -4117,6 +4119,7 @@ INSERT INTO `updates` VALUES
 ('2023_12_24_00_auth.sql','F59B3A895750FD83177324B89BFCEBD8A43DD577','ARCHIVED','2023-12-24 06:24:58',0),
 ('2023_12_26_00_auth.sql','5C8716F7F6E2792E15A42BDA8F2D855A7DE95FC5','ARCHIVED','2023-12-26 13:38:58',0),
 ('2024_01_05_00_auth.sql','7F401D473B08BBE5212551E96A86F85107CE7C8E','ARCHIVED','2023-12-19 10:05:39',0),
+('2024_01_06_00_auth.sql','767D697594D5471B67CC0FDF0D7BB15374116A71','RELEASED','2024-01-06 09:53:51',0),
 ('2024_01_10_00_auth.sql','75F06894D95986AEAB2933F141DB7693FABB0324','ARCHIVED','2024-01-10 11:14:55',0),
 ('2024_01_21_00_auth.sql','5F12B88EAADC5390AD42843290BD13CEF3BF2E0B','ARCHIVED','2024-01-21 21:21:50',0),
 ('2024_01_23_00_auth.sql','55E3C2CC1FAF02916EB47711CD2278443F7AA183','ARCHIVED','2024-01-23 09:40:35',0),
@@ -4352,7 +4355,7 @@ DROP TABLE IF EXISTS `vw_log_history`;
 /*!50001 DROP VIEW IF EXISTS `vw_log_history`*/;
 SET @saved_cs_client     = @@character_set_client;
 /*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `vw_log_history` AS SELECT 
+/*!50001 CREATE VIEW `vw_log_history` AS SELECT
  1 AS `First Logged`,
  1 AS `Last Logged`,
  1 AS `Occurrences`,
@@ -4370,7 +4373,7 @@ DROP TABLE IF EXISTS `vw_rbac`;
 /*!50001 DROP VIEW IF EXISTS `vw_rbac`*/;
 SET @saved_cs_client     = @@character_set_client;
 /*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `vw_rbac` AS SELECT 
+/*!50001 CREATE VIEW `vw_rbac` AS SELECT
  1 AS `Permission ID`,
  1 AS `Permission Group`,
  1 AS `Security Level`,
