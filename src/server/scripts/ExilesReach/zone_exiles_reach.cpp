@@ -337,16 +337,6 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
         _events.ScheduleEvent(EVENT_MOVE_TO_A_POSITION, 1s);
     }
 
-    void IsSummonedBy(WorldObject* summonerWO) override
-    {
-        Unit* summoner = summonerWO->ToUnit();
-
-        if (!summoner || !summoner->IsPlayer())
-            return;
-
-        _playerGUID = summoner->GetGUID();
-    }
-
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         if (!me->IsAlive())
@@ -370,8 +360,8 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
                 me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_READY, me->GetFirstCollisionPosition(2.0f, rand_norm() * static_cast<float>(2 * M_PI)));
                 break;
             case POSITION_SPARPOINT_READY:
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    me->SetFacingToObject(player);
+                if (Unit* owner = me->GetOwner())
+                    me->SetFacingToObject(owner);
                 me->SetImmuneToPC(false);
                 me->SetUninteractible(false);
                 break;
@@ -385,11 +375,11 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
         if (pathId != _path)
             return;
 
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        if (Unit* owner = me->GetOwner())
         {
             me->DespawnOrUnsummon();
-            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->CastSpell(player, SPELL_COMBAT_TRAINING_COMPLETE);
+            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+            owner->CastSpell(owner, SPELL_COMBAT_TRAINING_COMPLETE);
         }
     }
 
@@ -404,7 +394,7 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
             me->SetUninteractible(true);
             _events.CancelEvent(EVENT_JUMP_BEHIND);
 
-            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+            if (Player* player = me->GetAffectingPlayer())
             {
                 me->SetFacingToObject(player);
                 Talk(TALK_SPARING_COMPLETE, player);
@@ -435,9 +425,9 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
 
     void StartPrivateConversation(uint32 conversationId)
     {
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        if (Unit* owner = me->GetOwner())
         {
-            Conversation* conversation = Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr, false);
+            Conversation* conversation = Conversation::CreateConversation(conversationId, owner, *owner, owner->GetGUID(), nullptr, false);
             conversation->AddActor(_actorId, _actorIndex, me->GetGUID());
             conversation->Start();
         }
@@ -497,7 +487,6 @@ private:
     uint8 _actorIndex;
     uint32 _actorId;
     uint32 _path;
-    ObjectGuid _playerGUID;
 };
 
 enum FirstMateStandYourGroundData
@@ -1772,12 +1761,6 @@ struct npc_garrick_summoned_beach : public ScriptedAI
 
     void IsSummonedBy(WorldObject* summoner) override
     {
-        Player* player = summoner->ToPlayer();
-        if (!player)
-            return;
-
-        _playerGUID = player->GetGUID();
-
         _events.ScheduleEvent(EVENT_INITIAL_SPAWN_CHECK, 1s);
     }
 
@@ -1791,9 +1774,9 @@ struct npc_garrick_summoned_beach : public ScriptedAI
 
         _reachedCamp = true;
 
-        if (Player* player = caster->ToPlayer())
+        if (Unit* owner = me->GetOwner())
         {
-            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
+            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false);
             conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, 1, me->GetGUID());
             conversation->Start();
 
@@ -1807,10 +1790,10 @@ struct npc_garrick_summoned_beach : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
             return;
 
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        if (Unit* owner = me->GetOwner())
         {
-            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
+            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+            owner->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
         }
     }
 
@@ -1824,22 +1807,22 @@ struct npc_garrick_summoned_beach : public ScriptedAI
             {
                 case EVENT_INITIAL_SPAWN_CHECK:
                 {
-                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-                    if (!player)
+                    Unit* owner = me->GetOwner();
+                    if (!owner)
                         break;
 
-                    Creature* survivor = FindCreatureIgnorePhase(player, "spawn_check");
+                    Creature* survivor = FindCreatureIgnorePhase(owner, "spawn_check");
 
                     if (!survivor)
                     {
-                        if (player->GetAreaId() != AREA_ABANDONED_CAMP)
-                            player->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
+                        if (owner->GetAreaId() != AREA_ABANDONED_CAMP)
+                            owner->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
                         else
                             _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 0s);
                     }
                     else
                     {
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_ALLIANCE_SURVIVOR, player, *player, _playerGUID, nullptr, false);
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_ALLIANCE_SURVIVOR, owner, *owner, owner->GetGUID(), nullptr, false);
                         conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, 1, me->GetGUID());
                         conversation->Start();
 
@@ -1848,8 +1831,8 @@ struct npc_garrick_summoned_beach : public ScriptedAI
                     break;
                 }
                 case EVENT_FOLLOW_PLAYER:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
+                    if (Unit* owner = me->GetOwner())
+                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
                     break;
@@ -1858,7 +1841,6 @@ struct npc_garrick_summoned_beach : public ScriptedAI
     }
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     bool _reachedCamp;
 };
 
@@ -1870,11 +1852,6 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
 
     void IsSummonedBy(WorldObject* summoner) override
     {
-        Player* player = summoner->ToPlayer();
-        if (!player)
-            return;
-
-        _playerGUID = player->GetGUID();
         _reachedCamp = false;
 
         _events.ScheduleEvent(EVENT_INITIAL_SPAWN_CHECK, 1s);
@@ -1888,9 +1865,9 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
         if (_reachedCamp)
             return;
 
-        if (Player* player = caster->ToPlayer())
+        if (Unit* owner = me->GetOwner())
         {
-            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
+            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false);
             conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 3, me->GetGUID());
             conversation->Start();
 
@@ -1904,10 +1881,10 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
             return;
 
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        if (Unit* owner = me->GetOwner())
         {
-            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
+            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+            owner->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
         }
     }
 
@@ -1921,22 +1898,22 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
             {
                 case EVENT_INITIAL_SPAWN_CHECK:
                 {
-                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-                    if (!player)
+                    Unit* owner = me->GetOwner();
+                    if (!owner)
                         break;
 
-                    Creature* survivor = FindCreatureIgnorePhase(player, "spawn_check");
+                    Creature* survivor = FindCreatureIgnorePhase(owner, "spawn_check");
 
                     if (!survivor)
                     {
-                        if (player->GetAreaId() != AREA_ABANDONED_CAMP)
-                            player->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
+                        if (owner->GetAreaId() != AREA_ABANDONED_CAMP)
+                            owner->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
                         else
                             _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 0s);
                     }
                     else
                     {
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR, player, *player, _playerGUID, nullptr, false);
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR, owner, *owner, owner->GetGUID(), nullptr, false);
                         conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 2, me->GetGUID());
                         conversation->Start();
 
@@ -1945,8 +1922,8 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
                     break;
                 }
                 case EVENT_FOLLOW_PLAYER:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
+                    if (Unit* owner = me->GetOwner())
+                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
                     break;
@@ -1955,7 +1932,6 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
     }
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     bool _reachedCamp;
 };
 
@@ -2418,15 +2394,9 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
     void IsSummonedBy(WorldObject* summonerWO) override
     {
-        Unit* summoner = summonerWO->ToUnit();
-        if (!summoner)
-            return;
-
-        Player* player = summoner->ToPlayer();
+        Player* player = summonerWO->GetAffectingPlayer();
         if (!player)
             return;
-
-        _playerGUID = player->GetGUID();
 
         if (player->GetTeam() == ALLIANCE)
         {
@@ -2450,7 +2420,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
     uint8 GetQuestCredits()
     {
-        Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
+        Player* player = me->GetAffectingPlayer();
         if (!player)
             return 0;
 
@@ -2503,11 +2473,11 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
             }
             case POINT_TRAINING_POINT_ENHANCED_TRAINING:
             {
-                Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-                if (!player)
+                Unit* owner = me->GetOwner();
+                if (!owner)
                     break;
 
-                me->SetFacingToObject(player);
+                me->SetFacingToObject(owner);
                 me->SetImmuneToPC(false);
                 me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 _events.ScheduleEvent(EVENT_COMBAT_CHECK_PLAYER, 1s);
@@ -2536,7 +2506,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
     void StartConversationWithPlayer(uint32 conversationId)
     {
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        if (Player* player = me->GetAffectingPlayer())
         {
             Conversation* conversation = Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr, false);
             if (!conversation)
@@ -2553,10 +2523,10 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
         // Used to check if reached home
         if (pathId == PATH_COMBAT_TRAINER_HOME)
         {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+            if (Unit* owner = me->GetOwner())
             {
-                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-                player->RemoveAura(_summonSpellAuraID);
+                owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+                owner->RemoveAura(_summonSpellAuraID);
             }
         }
     }
@@ -2578,8 +2548,8 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                 case EVENT_COMBAT_TRAINING_FACE_PLAYER:
                 {
                     // Used by all classes
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->SetFacingToObject(player);
+                    if (Unit* owner = me->GetOwner())
+                        me->SetFacingToObject(owner);
 
                     me->SetImmuneToPC(false);
                     me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
@@ -2590,9 +2560,9 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                     me->SetImmuneToPC(true);
                     me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->RemoveAllAuras();
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* owner = me->GetOwner())
                     {
-                        me->SetFacingToObject(player);
+                        me->SetFacingToObject(owner);
                         StartConversationWithPlayer(CONVERSATION_CHARGE_FINAL_ENHANCED);
                         _events.ScheduleEvent(EVENT_COMBAT_RUN_BACK, 4s);
                     }
@@ -2618,7 +2588,6 @@ protected:
     uint32 _questID;
     uint32 _summonSpellAuraID;
     EventMap _events;
-    ObjectGuid _playerGUID;
 };
 
 // 164577 - Alliance Sparring Partner
@@ -2716,9 +2685,9 @@ struct npc_sparring_partner_enhanced_combat_training_paladin : public npc_sparri
             {
                 if (_holyPowerCheck) // Used by paladin
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* owner = me->GetOwner())
                     {
-                        if (player->GetPower(POWER_HOLY_POWER) >= 3)
+                        if (owner->GetPower(POWER_HOLY_POWER) >= 3)
                         {
                             switch (GetQuestCredits())
                             {
@@ -2818,10 +2787,6 @@ struct npc_sparring_partner_enhanced_combat_training_rogue : public npc_sparring
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-        if (!player)
-            return;
-
         if (!GetQuestCredits())
             _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE, 8s, 20s);
     }
@@ -2838,8 +2803,8 @@ struct npc_sparring_partner_enhanced_combat_training_rogue : public npc_sparring
             {
                 if (_comboPointCheck) // Used by rogue
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        _comboPointsCounter = player->GetPower(POWER_COMBO_POINTS);
+                    if (Unit* owner = me->GetOwner())
+                        _comboPointsCounter = owner->GetPower(POWER_COMBO_POINTS);
 
                     if (_comboPointsCounter >= (GetQuestCredits() + 3))
                     {
@@ -3043,9 +3008,9 @@ struct npc_sparring_partner_enhanced_combat_training_shaman : public npc_sparrin
         switch (eventId)
         {
             case EVENT_COMBAT_TRAINING_RESET_SHAMAN:
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                if (Unit* owner = me->GetOwner())
                 {
-                    me->CastSpell(player, SPELL_KNOCKBACK);
+                    me->CastSpell(owner, SPELL_KNOCKBACK);
                     _events.ScheduleEvent(EVENT_COMBAT_TRAINING_AGGRO_CHECK_SHAMAN, 2s);
                 }
                 break;
@@ -3136,9 +3101,9 @@ struct npc_sparring_partner_enhanced_combat_training_mage : public npc_sparring_
         switch (eventId)
         {
             case EVENT_COMBAT_TRAINING_RESET_MAGE:
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                if (Unit* owner = me->GetOwner())
                 {
-                    me->CastSpell(player, SPELL_KNOCKBACK);
+                    me->CastSpell(owner, SPELL_KNOCKBACK);
                     _events.ScheduleEvent(EVENT_COMBAT_TRAINING_AGGRO_CHECK_MAGE, 2s);
                 }
                 break;
@@ -3556,7 +3521,7 @@ struct npc_leader_northbound : public ScriptedAI
 
     void JustAppeared() override
     {
-        Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
+        Player* player = me->GetAffectingPlayer();
         if (!player)
             return;
 
@@ -3597,12 +3562,6 @@ struct npc_leader_northbound : public ScriptedAI
 
     void IsSummonedBy(WorldObject* summoner) override
     {
-        Player* player = summoner->ToPlayer();
-        if (!player)
-            return;
-
-        _playerGUID = player->GetGUID();
-
         _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 3s);
     }
 
@@ -3626,7 +3585,7 @@ struct npc_leader_northbound : public ScriptedAI
 
         me->SetFacingTo(6.0737457275390625);
 
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        if (Player* player = me->GetAffectingPlayer())
         {
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
             player->RemoveAura(_guardianSpellId);
@@ -3643,8 +3602,8 @@ struct npc_leader_northbound : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_FOLLOW_PLAYER:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
+                    if (Unit* owner = me->GetOwner())
+                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
                     break;
@@ -3654,7 +3613,6 @@ struct npc_leader_northbound : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     uint32 _conversationId;
     uint32 _actorIdOne;
     uint32 _actorIdTwo;
@@ -3919,15 +3877,6 @@ struct npc_huxsworth_hunter_quest_private : public ScriptedAI
         _events.ScheduleEvent(EVENT_ME_TURN_TO_PLAYER, 1s);
     }
 
-    void IsSummonedBy(WorldObject* summoner) override
-    {
-        Player* player = summoner->ToPlayer();
-        if (!player)
-            return;
-
-        _playerGUID = player->GetGUID();
-    }
-
     void UpdateAI(uint32 diff) override
     {
         _events.Update(diff);
@@ -3937,17 +3886,17 @@ struct npc_huxsworth_hunter_quest_private : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_ME_TURN_TO_PLAYER:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* owner = me->GetOwner())
                     {
-                        me->SetFacingToObject(player);
+                        me->SetFacingToObject(owner);
                         me->SetEmoteState(EMOTE_STATE_TALK);
                         Talk(SAY_PET_TRAINING_ALLIANCE);
-                        player->CastSpell(player, SPELL_LEARNING_TAME_BEAST);
+                        owner->CastSpell(owner, SPELL_LEARNING_TAME_BEAST);
                         _events.ScheduleEvent(EVENT_ME_END_OF_CAST, 8s);
                     }
                     break;
                 case EVENT_ME_END_OF_CAST:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Player* player = me->GetAffectingPlayer())
                     {
                         if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) != QUEST_STATUS_REWARDED)
                             player->CastSpell(player, SPELL_TUTORIAL_HEALTH_DNT);
@@ -3972,7 +3921,6 @@ struct npc_huxsworth_hunter_quest_private : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
 };
 
 enum HuxsworthBriarpatchData
