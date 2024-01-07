@@ -40,6 +40,8 @@ enum class TimeFormat : uint8
 
 namespace Trinity
 {
+    TC_COMMON_API void VerifyOsVersion();
+
     TC_COMMON_API std::vector<std::string_view> Tokenize(std::string_view str, char sep, bool keepEmpty);
 
     /* this would return string_view into temporary otherwise */

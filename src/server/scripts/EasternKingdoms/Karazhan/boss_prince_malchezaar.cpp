@@ -551,29 +551,7 @@ public:
                 } else EnfeebleTimer -= diff;
             }
 
-            if (phase == 2)
-                DoMeleeAttacksIfReady();
-            else
-                DoMeleeAttackIfReady();
-        }
-
-        void DoMeleeAttacksIfReady()
-        {
-            if (me->IsWithinMeleeRange(me->GetVictim()) && !me->IsNonMeleeSpellCast(false))
-            {
-                //Check for base attack
-                if (me->isAttackReady() && me->GetVictim())
-                {
-                    me->AttackerStateUpdate(me->GetVictim());
-                    me->resetAttackTimer();
-                }
-                //Check for offhand attack
-                if (me->isAttackReady(OFF_ATTACK) && me->GetVictim())
-                {
-                    me->AttackerStateUpdate(me->GetVictim(), OFF_ATTACK);
-                    me->resetAttackTimer(OFF_ATTACK);
-                }
-            }
+            DoMeleeAttackIfReady();
         }
 
         void Cleanup(Creature* infernal, InfernalPoint *point)

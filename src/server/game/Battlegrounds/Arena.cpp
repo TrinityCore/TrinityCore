@@ -17,6 +17,8 @@
 
 #include "Arena.h"
 #include "ArenaTeamMgr.h"
+#include "BattlegroundPackets.h"
+#include "BattlegroundScore.h"
 #include "GuildMgr.h"
 #include "Guild.h"
 #include "Log.h"
@@ -41,10 +43,7 @@ Arena::Arena(BattlegroundTemplate const* battlegroundTemplate) : Battleground(ba
 
 void Arena::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
 {
-    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player, queueId);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new ArenaScore(player->GetGUID(), player->GetBGTeam());
 
     if (player->GetBGTeam() == ALLIANCE)        // gold
     {
@@ -115,7 +114,7 @@ void Arena::RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket
         if (itr != m_Players.end()) // check if the player was a participant of the match, or only entered through gm command (appear)
         {
             // if the player was a match participant, calculate rating
-            uint32 team = itr->second.Team;
+            Team team = itr->second.Team;
 
             ArenaTeam* winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(team)));
             ArenaTeam* loserArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(team));
@@ -143,7 +142,7 @@ void Arena::CheckWinConditions()
         EndBattleground(ALLIANCE);
 }
 
-void Arena::EndBattleground(uint32 winner)
+void Arena::EndBattleground(Team winner)
 {
     // arena rating calculation
     if (isRated())
@@ -160,17 +159,17 @@ void Arena::EndBattleground(uint32 winner)
 
         // In case of arena draw, follow this logic:
         // winnerArenaTeam => ALLIANCE, loserArenaTeam => HORDE
-        ArenaTeam* winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(winner == 0 ? uint32(ALLIANCE) : winner));
-        ArenaTeam* loserArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(winner == 0 ? uint32(HORDE) : GetOtherTeam(winner)));
+        ArenaTeam* winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(winner == TEAM_OTHER ? ALLIANCE : winner));
+        ArenaTeam* loserArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(winner == TEAM_OTHER ? HORDE : GetOtherTeam(winner)));
 
         if (winnerArenaTeam && loserArenaTeam && winnerArenaTeam != loserArenaTeam)
         {
             // In case of arena draw, follow this logic:
             // winnerMatchmakerRating => ALLIANCE, loserMatchmakerRating => HORDE
             loserTeamRating = loserArenaTeam->GetRating();
-            loserMatchmakerRating = GetArenaMatchmakerRating(winner == 0 ? uint32(HORDE) : GetOtherTeam(winner));
+            loserMatchmakerRating = GetArenaMatchmakerRating(winner == TEAM_OTHER ? HORDE : GetOtherTeam(winner));
             winnerTeamRating = winnerArenaTeam->GetRating();
-            winnerMatchmakerRating = GetArenaMatchmakerRating(winner == 0 ? uint32(ALLIANCE) : winner);
+            winnerMatchmakerRating = GetArenaMatchmakerRating(winner == TEAM_OTHER ? ALLIANCE : winner);
 
             if (winner != 0)
             {
@@ -218,7 +217,7 @@ void Arena::EndBattleground(uint32 winner)
 
             for (auto const& i : GetPlayers())
             {
-                uint32 team = i.second.Team;
+                Team team = i.second.Team;
 
                 if (i.second.OfflineRemoveTime)
                 {

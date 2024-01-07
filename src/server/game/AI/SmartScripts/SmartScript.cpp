@@ -2066,17 +2066,17 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         for (uint32 pathId : waypoints)
                         {
                             WaypointPath const* path = sWaypointMgr->GetPath(pathId);
-                            if (!path || path->nodes.empty())
+                            if (!path || path->Nodes.empty())
                                 continue;
 
-                            for (WaypointNode const& waypoint : path->nodes)
+                            for (WaypointNode const& waypoint : path->Nodes)
                             {
-                                float distamceToThisNode = creature->GetDistance(waypoint.x, waypoint.y, waypoint.z);
-                                if (distamceToThisNode < distanceToClosest)
+                                float distanceToThisNode = creature->GetDistance(waypoint.X, waypoint.Y, waypoint.Z);
+                                if (distanceToThisNode < distanceToClosest)
                                 {
-                                    distanceToClosest = distamceToThisNode;
+                                    distanceToClosest = distanceToThisNode;
                                     closest.first = pathId;
-                                    closest.second = waypoint.id;
+                                    closest.second = waypoint.Id;
                                 }
                             }
                         }
@@ -3794,7 +3794,7 @@ void SmartScript::OnUpdate(uint32 const diff)
     if ((mScriptType == SMART_SCRIPT_TYPE_CREATURE
         || mScriptType == SMART_SCRIPT_TYPE_GAMEOBJECT
         || mScriptType == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY
-        || mScriptType == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE)
+        || mScriptType == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM)
         && !GetBaseObject())
         return;
 
@@ -3975,7 +3975,7 @@ void SmartScript::GetScript()
             FillScript(std::move(e), go, nullptr, nullptr, nullptr, 0);
             break;
         case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY:
-        case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE:
+        case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM:
             e = sSmartScriptMgr->GetScript((int32)areaTrigger->GetEntry(), mScriptType);
             FillScript(std::move(e), areaTrigger, nullptr, nullptr, nullptr, 0);
             break;
@@ -4086,8 +4086,8 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, Sce
                 break;
             case TYPEID_AREATRIGGER:
                 areaTrigger = obj->ToAreaTrigger();
-                mScriptType = areaTrigger->IsServerSide() ? SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE : SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY;
-                TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is AreaTrigger {}, IsServerSide {}", areaTrigger->GetEntry(), uint32(areaTrigger->IsServerSide()));
+                mScriptType = areaTrigger->IsCustom() ? SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM : SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY;
+                TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is AreaTrigger {}, IsCustom {}", areaTrigger->GetEntry(), uint32(areaTrigger->IsCustom()));
                 break;
             default:
                 TC_LOG_ERROR("misc", "SmartScript::OnInitialize: Unhandled TypeID !WARNING!");

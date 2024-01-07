@@ -193,8 +193,10 @@ struct boss_ichoron : public BossAI
             _isFrenzy = true;
         }
 
-        scheduler.Update(diff,
-            std::bind(&BossAI::DoMeleeAttackIfReady, this));
+        scheduler.Update(diff, [this]
+        {
+            DoMeleeAttackIfReady();
+        });
     }
 
     void ScheduleTasks() override

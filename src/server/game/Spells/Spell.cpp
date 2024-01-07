@@ -1604,7 +1604,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
                     break;
                 case TARGET_DEST_CASTER_RANDOM:
                     if (dist > objSize)
-                        dist = objSize + (dist - objSize) * rand_norm();
+                        dist = objSize + (dist - objSize);
                     break;
                 case TARGET_DEST_CASTER_FRONT_LEFT:
                 case TARGET_DEST_CASTER_BACK_LEFT:
@@ -1655,8 +1655,6 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffectInfo const& spellEffectIn
         {
             float angle = targetType.CalcDirectionAngle();
             float dist = spellEffectInfo.CalcRadius(nullptr, targetIndex);
-            if (targetType.GetTarget() == TARGET_DEST_TARGET_RANDOM)
-                dist *= rand_norm();
 
             Position pos = dest._position;
             target->MovePositionToFirstCollision(pos, dist, angle);
@@ -1709,8 +1707,6 @@ void Spell::SelectImplicitDestDestTargets(SpellEffectInfo const& spellEffectInfo
         {
             float angle = targetType.CalcDirectionAngle();
             float dist = spellEffectInfo.CalcRadius(m_caster, targetIndex);
-            if (targetType.GetTarget() == TARGET_DEST_DEST_RANDOM)
-                dist *= rand_norm();
 
             Position pos = dest._position;
             m_caster->MovePositionToFirstCollision(pos, dist, angle);

@@ -19,7 +19,6 @@
 #define __BATTLEGROUNDIC_H
 
 #include "Battleground.h"
-#include "BattlegroundScore.h"
 #include "Object.h"
 
 const uint32 BG_IC_Factions[2] =
@@ -726,12 +725,6 @@ enum Spells
     SPELL_LAUNCH_NO_FALLING_DAMAGE          = 66251
 };
 
-enum BG_IC_Objectives
-{
-    IC_OBJECTIVE_ASSAULT_BASE   = 245,
-    IC_OBJECTIVE_DEFEND_BASE    = 246
-};
-
 enum ICWorldStates
 {
     BG_IC_ALLIANCE_REINFORCEMENTS_SET   = 4221,
@@ -920,44 +913,6 @@ enum HonorRewards
     WINNER_HONOR_AMOUNT     = 500
 };
 
-struct BattlegroundICScore final : public BattlegroundScore
-{
-    friend class BattlegroundIC;
-
-    protected:
-        BattlegroundICScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
-
-        void UpdateScore(uint32 type, uint32 value) override
-        {
-            switch (type)
-            {
-                case SCORE_BASES_ASSAULTED:
-                    BasesAssaulted += value;
-                    break;
-                case SCORE_BASES_DEFENDED:
-                    BasesDefended += value;
-                    break;
-                default:
-                    BattlegroundScore::UpdateScore(type, value);
-                    break;
-            }
-        }
-
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
-        {
-            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
-
-            playerData.Stats.emplace_back(IC_OBJECTIVE_ASSAULT_BASE, BasesAssaulted);
-            playerData.Stats.emplace_back(IC_OBJECTIVE_DEFEND_BASE, BasesDefended);
-        }
-
-        uint32 GetAttr1() const final override { return BasesAssaulted; }
-        uint32 GetAttr2() const final override { return BasesDefended; }
-
-        uint32 BasesAssaulted;
-        uint32 BasesDefended;
-};
-
 class BattlegroundIC : public Battleground
 {
     public:
@@ -974,7 +929,7 @@ class BattlegroundIC : public Battleground
         void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
         void SpawnLeader(uint32 teamid);
-        void HandleKillUnit(Creature* unit, Player* killer) override;
+        void HandleKillUnit(Creature* unit, Unit* killer) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
         void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/) override;
 

@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Containers.h"
 #include "ScriptMgr.h"
 #include "CombatAI.h"
 #include "MotionMaster.h"
@@ -456,6 +457,95 @@ public:
     }
 };
 
+Position const RockjawInvaderSpawnPoints[7] =
+{
+    { -6237.6807f, 375.5191f, 385.44696f, 5.168368339538574218f },
+    { -6299.6113f, 347.11978f, 377.25546f, 6.068230628967285156f },
+    { -6208.724f, 354.3229f, 387.3534f, 4.338659286499023437f },
+    { -6261.8228f, 371.06598f, 383.35944f, 5.383506298065185546f },
+    { -6253.722f, 340.1389f, 382.50888f, 5.957066535949707031f },
+    { -6286.6113f, 316.9566f, 376.9441f, 6.195390701293945312f },
+    { -6204.599f, 304.64932f, 388.9596f, 2.362043619155883789f }
+};
+
+enum JorenIronstockData
+{
+    NPC_ROCKJAW_INVADER                 = 37070,
+
+    SAY_SHOOT_ROCKJAW                   = 0,
+
+    SPELL_SHOOT                         = 70014
+};
+
+// 37081 - Joren Ironstock
+struct npc_joren_ironstock : public ScriptedAI
+{
+    npc_joren_ironstock(Creature* creature) : ScriptedAI(creature) { }
+
+    void EnqueueInvader(Unit* invader, Seconds minTime = 1s, Seconds maxTime = 9s)
+    {
+        _scheduler.Schedule(minTime, maxTime, [this, guid = invader->GetGUID()](TaskContext /*task*/)
+        {
+            _invadersToShoot.push(guid);
+        });
+    }
+
+    void JustAppeared() override
+    {
+        me->SetTemplateRooted(true);
+
+        _scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            if (Creature* invader = me->SummonCreature(NPC_ROCKJAW_INVADER, Trinity::Containers::SelectRandomContainerElement(RockjawInvaderSpawnPoints), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 18s))
+            {
+                if (me->HasInArc(float(M_PI), invader) && !me->IsInCombat())
+                    EnqueueInvader(invader, 1s, 3s);
+                else
+                    EnqueueInvader(invader, 5s, 8s);
+                invader->AI()->AttackStart(me);
+            }
+            task.Repeat(3s, 20s);
+        });
+
+        _scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            if (!_invadersToShoot.empty())
+            {
+                ObjectGuid guid = _invadersToShoot.front();
+                _invadersToShoot.pop();
+
+                Creature* invader = ObjectAccessor::GetCreature(*me, guid);
+                if (invader && invader->IsAlive())
+                {
+                    SpellCastResult result = DoCast(invader, SPELL_SHOOT);
+                    if (result == SpellCastResult::SPELL_CAST_OK)
+                    {
+                        if (roll_chance_i(50))
+                            Talk(SAY_SHOOT_ROCKJAW, invader);
+                    }
+                    else
+                        _invadersToShoot.push(guid);
+                }
+            }
+            task.Repeat(1s);
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    TaskScheduler _scheduler;
+    std::queue<ObjectGuid> _invadersToShoot;
+};
+
 void AddSC_dun_morogh_area_coldridge_valley()
 {
     new npc_wounded_coldridge_mountaineer();
@@ -464,4 +554,5 @@ void AddSC_dun_morogh_area_coldridge_valley()
     new spell_a_trip_to_ironforge_quest_complete();
     new spell_follow_that_gyrocopter_quest_start();
     new spell_low_health();
+    RegisterCreatureAI(npc_joren_ironstock);
 }

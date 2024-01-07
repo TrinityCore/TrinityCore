@@ -3669,21 +3669,6 @@ class spell_remnant_of_a_fallen_king_army_of_the_dead : public SpellScript
     }
 };
 
-// 362863 - Echoes of Andorhal
-class spell_remnant_of_a_fallen_king_echoes_of_andorhal : public SpellScript
-{
-    void SetDest(SpellDestination& dest) const
-    {
-        Position const echoesSummon = GetCaster()->GetRandomPoint(DominationGraspCenter, frand(20.5f, 30.0f));
-        dest.Relocate(echoesSummon);
-    }
-
-    void Register() override
-    {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_remnant_of_a_fallen_king_echoes_of_andorhal::SetDest, EFFECT_0, TARGET_DEST_DEST_RANDOM);
-    }
-};
-
 // 362543 - Remorseless Winter
 class spell_remnant_of_a_fallen_king_remorseless_winter_periodic : public AuraScript
 {
@@ -3868,7 +3853,6 @@ void AddSC_boss_anduin_wrynn()
     RegisterSpellScript(spell_remnant_of_a_fallen_king_spawn);
     RegisterSpellScript(spell_remnant_of_a_fallen_king_energize_runic_power);
     RegisterSpellScript(spell_remnant_of_a_fallen_king_army_of_the_dead);
-    RegisterSpellScript(spell_remnant_of_a_fallen_king_echoes_of_andorhal);
     RegisterSpellScript(spell_remnant_of_a_fallen_king_soul_reaper);
     RegisterSpellScript(spell_remnant_of_a_fallen_king_remorseless_winter_periodic);
     RegisterSpellScript(spell_remnant_of_a_fallen_king_remorseless_winter_damage);

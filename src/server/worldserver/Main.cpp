@@ -104,7 +104,10 @@ public:
     static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
     {
         freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(5));
-        freezeDetector->_timer.async_wait(std::bind(&FreezeDetector::Handler, std::weak_ptr<FreezeDetector>(freezeDetector), std::placeholders::_1));
+        freezeDetector->_timer.async_wait([freezeDetectorRef = std::weak_ptr(freezeDetector)](boost::system::error_code const& error) mutable
+        {
+            Handler(std::move(freezeDetectorRef), error);
+        });
     }
 
     static void Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error);
@@ -130,6 +133,8 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, f
 extern int main(int argc, char** argv)
 {
     signal(SIGABRT, &Trinity::AbortHandler);
+
+    Trinity::VerifyOsVersion();
 
     Trinity::Locale::Init();
 
@@ -594,7 +599,10 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
             }
 
             freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));
-            freezeDetector->_timer.async_wait(std::bind(&FreezeDetector::Handler, freezeDetectorRef, std::placeholders::_1));
+            freezeDetector->_timer.async_wait([freezeDetectorRef = std::move(freezeDetectorRef)](boost::system::error_code const& error) mutable
+            {
+                Handler(std::move(freezeDetectorRef), error);
+            });
         }
     }
 }

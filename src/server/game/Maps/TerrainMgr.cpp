@@ -442,14 +442,19 @@ void TerrainInfo::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, 
         data.liquidInfo->type_flags = map_liquidHeaderTypeFlags(1 << liquidFlagType);
 
         float delta = wmoData->liquidInfo->level - z;
+        uint32 status = LIQUID_MAP_ABOVE_WATER;
         if (delta > collisionHeight)
-            data.liquidStatus = LIQUID_MAP_UNDER_WATER;
+            status = LIQUID_MAP_UNDER_WATER;
         else if (delta > 0.0f)
-            data.liquidStatus = LIQUID_MAP_IN_WATER;
+            status = LIQUID_MAP_IN_WATER;
         else if (delta > -0.1f)
-            data.liquidStatus = LIQUID_MAP_WATER_WALK;
-        else
-            data.liquidStatus = LIQUID_MAP_ABOVE_WATER;
+            status = LIQUID_MAP_WATER_WALK;
+
+        if (status != LIQUID_MAP_ABOVE_WATER)
+            if (std::fabs(wmoData->floorZ - z) <= GROUND_HEIGHT_TOLERANCE)
+                status |= LIQUID_MAP_OCEAN_FLOOR;
+
+        data.liquidStatus = static_cast<ZLiquidStatus>(status);
     }
     // look up liquid data from grid map
     if (gmap && useGridLiquid)
@@ -524,12 +529,23 @@ ZLiquidStatus TerrainInfo::GetLiquidStatus(PhaseShift const& phaseShift, uint32 
             float delta = liquid_level - z;
 
             // Get position delta
-            if (delta > collisionHeight)                   // Under water
-                return LIQUID_MAP_UNDER_WATER;
-            if (delta > 0.0f)                   // In water
-                return LIQUID_MAP_IN_WATER;
-            if (delta > -0.1f)                   // Walk on water
-                return LIQUID_MAP_WATER_WALK;
+            uint32 status = LIQUID_MAP_ABOVE_WATER;
+            if (delta > collisionHeight)            // Under water
+                status = LIQUID_MAP_UNDER_WATER;
+            else if (delta > 0.0f)                  // In water
+                status = LIQUID_MAP_IN_WATER;
+            else if (delta > -0.1f)                 // Walk on water
+                status = LIQUID_MAP_WATER_WALK;
+
+            if (status != LIQUID_MAP_ABOVE_WATER)
+            {
+                if (status != LIQUID_MAP_ABOVE_WATER)
+                    if (std::fabs(ground_level - z) <= GROUND_HEIGHT_TOLERANCE)
+                        status |= LIQUID_MAP_OCEAN_FLOOR;
+
+                return static_cast<ZLiquidStatus>(status);
+            }
+
             result = LIQUID_MAP_ABOVE_WATER;
         }
     }

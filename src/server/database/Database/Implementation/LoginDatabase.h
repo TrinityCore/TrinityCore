@@ -129,8 +129,9 @@ enum LoginDatabaseStatements : uint32
     LOGIN_INS_BNET_ACCOUNT,
     LOGIN_SEL_BNET_ACCOUNT_EMAIL_BY_ID,
     LOGIN_SEL_BNET_ACCOUNT_ID_BY_EMAIL,
-    LOGIN_UPD_BNET_PASSWORD,
+    LOGIN_UPD_BNET_LOGON,
     LOGIN_SEL_BNET_CHECK_PASSWORD,
+    LOGIN_SEL_BNET_CHECK_PASSWORD_BY_EMAIL,
     LOGIN_UPD_BNET_ACCOUNT_LOCK,
     LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY,
     LOGIN_SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT,
@@ -184,9 +185,7 @@ class TC_DATABASE_API LoginDatabaseConnection : public MySQLConnection
 public:
     typedef LoginDatabaseStatements Statements;
 
-    //- Constructors for sync and async connections
-    LoginDatabaseConnection(MySQLConnectionInfo& connInfo);
-    LoginDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    LoginDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
     ~LoginDatabaseConnection();
 
     //- Loads database type specific prepared statements

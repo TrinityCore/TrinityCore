@@ -27,42 +27,6 @@ enum BG_TP_Objectives
     BG_TP_FLAG_RETURNS  = 291
 };
 
-class BattlegroundTPScore final : public BattlegroundScore
-{
-    protected:
-        BattlegroundTPScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), FlagCaptures(0), FlagReturns(0) { }
-
-        void UpdateScore(uint32 type, uint32 value) override
-        {
-            switch (type)
-            {
-                case SCORE_FLAG_CAPTURES:
-                    FlagCaptures += value;
-                    break;
-                case SCORE_FLAG_RETURNS:
-                    FlagReturns += value;
-                    break;
-                default:
-                    BattlegroundScore::UpdateScore(type, value);
-                    break;
-            }
-        }
-
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
-        {
-            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
-
-            playerData.Stats.emplace_back(BG_TP_FLAG_CAPTURES, FlagCaptures);
-            playerData.Stats.emplace_back(BG_TP_FLAG_RETURNS, FlagReturns);
-        }
-
-        uint32 GetAttr1() const final override { return FlagCaptures; }
-        uint32 GetAttr2() const final override { return FlagReturns; }
-
-        uint32 FlagCaptures;
-        uint32 FlagReturns;
-};
-
 class BattlegroundTP : public Battleground
 {
     public:

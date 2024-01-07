@@ -883,7 +883,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
         duel_hasEnded = true;
     }
-    else if (victim->IsCreature() && damageTaken >= health && victim->ToCreature()->HasFlag(CREATURE_STATIC_FLAG_UNKILLABLE))
+    else if (victim->IsCreature() && victim != attacker && damageTaken >= health && victim->ToCreature()->HasFlag(CREATURE_STATIC_FLAG_UNKILLABLE))
     {
         damageTaken = health - 1;
 
@@ -3108,6 +3108,11 @@ bool Unit::IsInWater() const
 bool Unit::IsUnderWater() const
 {
     return GetLiquidStatus() & LIQUID_MAP_UNDER_WATER;
+}
+
+bool Unit::IsOnOceanFloor() const
+{
+    return GetLiquidStatus() & LIQUID_MAP_OCEAN_FLOOR;
 }
 
 void Unit::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
@@ -6635,7 +6640,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
 
     // Pet damage?
     if (GetTypeId() == TYPEID_UNIT && !IsPet())
-        DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->rank);
+        DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->Classification);
 
     // Versatility
     if (Player* modOwner = GetSpellModOwner())
@@ -9013,15 +9018,18 @@ void Unit::UpdateDamagePctDoneMods(WeaponAttackType attackType)
     }
 
     factor *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, [attackType, this](AuraEffect const* aurEff) -> bool
-        {
-            if (!(aurEff->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL))
-                return false;
+    {
+        if (!(aurEff->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL))
+            return false;
 
-            return CheckAttackFitToAuraRequirement(attackType, aurEff);
-        });
+        return CheckAttackFitToAuraRequirement(attackType, aurEff);
+    });
 
     if (attackType == OFF_ATTACK)
-        factor *= GetTotalAuraMultiplier(SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT, std::bind(&Unit::CheckAttackFitToAuraRequirement, this, attackType, std::placeholders::_1));
+        factor *= GetTotalAuraModifier(SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT, [this, attackType](AuraEffect const* aurEff)
+        {
+            return CheckAttackFitToAuraRequirement(attackType, aurEff);
+        });
 
     SetStatPctModifier(unitMod, TOTAL_PCT, factor);
 }
@@ -10947,14 +10955,20 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
     //        pvp->HandlePlayerActivityChangedpVictim->ToPlayer();
 
     // battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
-    if (player && player->InBattleground())
+    if (attacker)
     {
-        if (Battleground* bg = player->GetBattleground())
+        if (BattlegroundMap* bgMap = victim->GetMap()->ToBattlegroundMap())
         {
-            if (Player* playerVictim = victim->ToPlayer())
-                bg->HandleKillPlayer(playerVictim, player);
-            else
-                bg->HandleKillUnit(victim->ToCreature(), player);
+            if (Battleground* bg = bgMap->GetBG())
+            {
+                if (Player* playerVictim = victim->ToPlayer())
+                {
+                    if (player)
+                        bg->HandleKillPlayer(playerVictim, player);
+                }
+                else
+                    bg->HandleKillUnit(victim->ToCreature(), attacker);
+            }
         }
     }
 

@@ -729,6 +729,10 @@ enum HotfixDatabaseStatements : uint32
     HOTFIX_SEL_PVP_ITEM,
     HOTFIX_SEL_PVP_ITEM_MAX_ID,
 
+    HOTFIX_SEL_PVP_STAT,
+    HOTFIX_SEL_PVP_STAT_MAX_ID,
+    HOTFIX_SEL_PVP_STAT_LOCALE,
+
     HOTFIX_SEL_PVP_SEASON,
     HOTFIX_SEL_PVP_SEASON_MAX_ID,
 
@@ -1134,9 +1138,7 @@ class TC_DATABASE_API HotfixDatabaseConnection : public MySQLConnection
 public:
     typedef HotfixDatabaseStatements Statements;
 
-    //- Constructors for sync and async connections
-    HotfixDatabaseConnection(MySQLConnectionInfo& connInfo);
-    HotfixDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    HotfixDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
     ~HotfixDatabaseConnection();
 
     //- Loads database type specific prepared statements

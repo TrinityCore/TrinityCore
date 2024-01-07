@@ -19,7 +19,6 @@
 #define __BATTLEGROUNDSA_H
 
 #include "Battleground.h"
-#include "BattlegroundScore.h"
 #include "Object.h"
 
 #define BG_SA_FLAG_AMOUNT           3
@@ -307,12 +306,6 @@ enum BG_SA_Objects
     BG_SA_MAXOBJ = BG_SA_BOMB+68
 };
 
-enum BG_SA_Objectives
-{
-    BG_SA_GATES_DESTROYED       = 231,
-    BG_SA_DEMOLISHERS_DESTROYED = 232
-};
-
 Position const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ] =
 {
     { 1411.57f, 108.163f, 28.692f, 5.441f },
@@ -528,44 +521,6 @@ struct BG_SA_RoundScore
     uint32 time;
 };
 
-struct BattlegroundSAScore final : public BattlegroundScore
-{
-    friend class BattlegroundSA;
-
-    protected:
-        BattlegroundSAScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), DemolishersDestroyed(0), GatesDestroyed(0) { }
-
-        void UpdateScore(uint32 type, uint32 value) override
-        {
-            switch (type)
-            {
-                case SCORE_DESTROYED_DEMOLISHER:
-                    DemolishersDestroyed += value;
-                    break;
-                case SCORE_DESTROYED_WALL:
-                    GatesDestroyed += value;
-                    break;
-                default:
-                    BattlegroundScore::UpdateScore(type, value);
-                    break;
-            }
-        }
-
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
-        {
-            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
-
-            playerData.Stats.emplace_back(BG_SA_DEMOLISHERS_DESTROYED, DemolishersDestroyed);
-            playerData.Stats.emplace_back(BG_SA_GATES_DESTROYED, GatesDestroyed);
-        }
-
-        uint32 GetAttr1() const final override { return DemolishersDestroyed; }
-        uint32 GetAttr2() const final override { return GatesDestroyed; }
-
-        uint32 DemolishersDestroyed;
-        uint32 GatesDestroyed;
-};
-
 /// Class for manage Strand of Ancient battleground
 class BattlegroundSA : public Battleground
 {
@@ -587,7 +542,7 @@ class BattlegroundSA : public Battleground
         bool SetupBattleground() override;
         void Reset() override;
         /// Called when a player kill a unit in bg
-        void HandleKillUnit(Creature* creature, Player* killer) override;
+        void HandleKillUnit(Creature* creature, Unit* killer) override;
         /// Return the nearest graveyard where player can respawn
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         /// Called when someone activates an event
@@ -607,7 +562,7 @@ class BattlegroundSA : public Battleground
         }
 
         /// Called on battleground ending
-        void EndBattleground(uint32 winner) override;
+        void EndBattleground(Team winner) override;
 
         /// Called when a player leave battleground
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
@@ -617,8 +572,6 @@ class BattlegroundSA : public Battleground
 
         // Control Phase Shift
         bool IsSpellAllowed(uint32 spellId, Player const* player) const override;
-
-        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
 
     private:
 

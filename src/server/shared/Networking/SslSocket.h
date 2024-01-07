@@ -24,11 +24,11 @@
 
 namespace boostssl = boost::asio::ssl;
 
-template<class SslContext>
+template<class Stream = boostssl::stream<boost::asio::ip::tcp::socket>>
 class SslSocket
 {
 public:
-    explicit SslSocket(boost::asio::ip::tcp::socket&& socket) : _socket(std::move(socket)), _sslSocket(_socket, SslContext::instance())
+    explicit SslSocket(boost::asio::ip::tcp::socket&& socket, boost::asio::ssl::context& sslContext) : _sslSocket(std::move(socket), sslContext)
     {
         _sslSocket.set_verify_mode(boostssl::verify_none);
     }
@@ -36,13 +36,13 @@ public:
     // adapting tcp::socket api
     void close(boost::system::error_code& error)
     {
-        _socket.close(error);
+        _sslSocket.lowest_layer().close(error);
     }
 
     void shutdown(boost::asio::socket_base::shutdown_type what, boost::system::error_code& shutdownError)
     {
         _sslSocket.shutdown(shutdownError);
-        _socket.shutdown(what, shutdownError);
+        _sslSocket.lowest_layer().shutdown(what, shutdownError);
     }
 
     template<typename MutableBufferSequence, typename ReadHandlerType>
@@ -66,12 +66,12 @@ public:
     template<typename SettableSocketOption>
     void set_option(SettableSocketOption const& option, boost::system::error_code& error)
     {
-        _socket.set_option(option, error);
+        _sslSocket.lowest_layer().set_option(option, error);
     }
 
     boost::asio::ip::tcp::socket::endpoint_type remote_endpoint() const
     {
-        return _socket.remote_endpoint();
+        return _sslSocket.lowest_layer().remote_endpoint();
     }
 
     // ssl api
@@ -81,9 +81,8 @@ public:
         _sslSocket.async_handshake(type, std::move(handler));
     }
 
-private:
-    boost::asio::ip::tcp::socket _socket;
-    boostssl::stream<boost::asio::ip::tcp::socket&> _sslSocket;
+protected:
+    Stream _sslSocket;
 };
 
 #endif // SslSocket_h__

@@ -207,7 +207,7 @@ struct npc_thrall_old_hillsbrad : public EscortAI
     void InitializeAI() override
     {
         /* correct respawn positions after wipe cannot be used because of how waypoints are set up for this creature
-         * it would require splitting the path into 4 segments, moving it out of waypoint_data table and changing
+         * it would require splitting the path into 4 segments, moving it out of waypoint_path_node table and changing
          * all waypoint ids in WaypointReached function
         switch (instance->GetData(TYPE_THRALL_EVENT))
         {

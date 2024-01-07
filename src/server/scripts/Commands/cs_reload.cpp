@@ -163,7 +163,7 @@ public:
             { "support",                       rbac::RBAC_PERM_COMMAND_RELOAD_SUPPORT_SYSTEM,                   true,  &HandleReloadSupportSystemCommand,              "" },
             { "trainer",                       rbac::RBAC_PERM_COMMAND_RELOAD_TRAINER,                          true,  &HandleReloadTrainerCommand,                    "" },
             { "trinity_string",                rbac::RBAC_PERM_COMMAND_RELOAD_TRINITY_STRING,                   true,  &HandleReloadTrinityStringCommand,              "" },
-            { "waypoint_data",                 rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_DATA,                    true,  &HandleReloadWpCommand,                         "" },
+            { "waypoint_path",                 rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_PATH,                    true,  &HandleReloadWpCommand,                         "" },
             { "vehicle_template",              rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE,                 true,  &HandleReloadVehicleTemplateCommand,            "" },
             { "vehicle_accessory",             rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY,                 true,  &HandleReloadVehicleAccessoryCommand,           "" },
             { "vehicle_template_accessory",    rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY,       true,  &HandleReloadVehicleTemplateAccessoryCommand,   "" },
@@ -908,12 +908,12 @@ public:
     static bool HandleReloadWpCommand(ChatHandler* handler, char const* args)
     {
         if (*args != 'a')
-            TC_LOG_INFO("misc", "Re-Loading Waypoints data from 'waypoints_data'");
+            TC_LOG_INFO("misc", "Re-Loading Waypoints data from 'waypoint_path' and 'waypoint_path_node'");
 
-        sWaypointMgr->Load();
+        sWaypointMgr->LoadPaths();
 
         if (*args != 'a')
-            handler->SendGlobalGMSysMessage("DB Table 'waypoint_data' reloaded.");
+            handler->SendGlobalGMSysMessage("DB Tables 'waypoint_path' and 'waypoint_path_node' reloaded.");
 
         return true;
     }
