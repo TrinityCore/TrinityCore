@@ -18,9 +18,11 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 DELETE FROM `areatrigger` WHERE `SpawnId`=@SPAWNID;
 INSERT INTO `areatrigger` (`SpawnId`,`AreaTriggerCreatePropertiesId`,`IsCustom`,`MapId`,`PosX`,`PosY`,`PosZ`,`Orientation`,`PhaseUseFlags`,`PhaseId`,`PhaseGroup`,`ScriptName`,`Comment`) VALUES
 (@SPAWNID,@CREATEPROPID,1,2175,71.47106,-2463.159,87.024765,0.79634166,0,13878,0,'at_briarpatch_to_plains','Exiles Reach - Down with Quilboar quest complete');
+
 DELETE FROM `areatrigger_create_properties` WHERE `Id`=@CREATEPROPID AND `IsCustom`=1;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
 (@CREATEPROPID, 1, @ID, 1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1,4,60,30,4,60,30,0,0, '', 0);
+
 -- Add new serverside areatrigger for leaving Quillboar Brarpatch to template
 DELETE FROM `areatrigger_template` WHERE `Id`=@ID AND `IsCustom`=1;
 INSERT INTO `areatrigger_template` (`Id`,`IsCustom`,`Flags`,`VerifiedBuild`) VALUES
@@ -254,17 +256,14 @@ DELETE FROM `quest_template` WHERE `ID`=58882;
 INSERT INTO `quest_template` (`ID`,`QuestType`,`RewardXPMultiplier`,`RewardMoneyMultiplier`,`RewardArtifactXPMultiplier`,`Flags`,`LogTitle`) VALUES
 (58882,2,1,1,1,1024, '[Hidden Tracker] Quilboar Briarpatch Chestpiece Dropped');
 
+-- fix due to accidental removal
+DELETE FROM `quest_template` WHERE `ID`=58904;
+INSERT INTO `quest_template` (`ID`, `QuestType`, `QuestPackageID`, `ContentTuningID`, `QuestSortID`, `QuestInfoID`, `SuggestedGroupNum`, `RewardNextQuest`, `RewardXPDifficulty`, `RewardXPMultiplier`, `RewardMoneyDifficulty`, `RewardMoneyMultiplier`, `RewardBonusMoney`, `RewardDisplaySpell1`, `RewardDisplaySpell2`, `RewardDisplaySpell3`, `RewardSpell`, `RewardHonor`, `RewardKillHonor`, `StartItem`, `RewardArtifactXPDifficulty`, `RewardArtifactXPMultiplier`, `RewardArtifactCategoryID`, `Flags`, `FlagsEx`, `FlagsEx2`, `RewardItem1`, `RewardAmount1`, `RewardItem2`, `RewardAmount2`, `RewardItem3`, `RewardAmount3`, `RewardItem4`, `RewardAmount4`, `ItemDrop1`, `ItemDropQuantity1`, `ItemDrop2`, `ItemDropQuantity2`, `ItemDrop3`, `ItemDropQuantity3`, `ItemDrop4`, `ItemDropQuantity4`, `RewardChoiceItemID1`, `RewardChoiceItemQuantity1`, `RewardChoiceItemDisplayID1`, `RewardChoiceItemID2`, `RewardChoiceItemQuantity2`, `RewardChoiceItemDisplayID2`, `RewardChoiceItemID3`, `RewardChoiceItemQuantity3`, `RewardChoiceItemDisplayID3`, `RewardChoiceItemID4`, `RewardChoiceItemQuantity4`, `RewardChoiceItemDisplayID4`, `RewardChoiceItemID5`, `RewardChoiceItemQuantity5`, `RewardChoiceItemDisplayID5`, `RewardChoiceItemID6`, `RewardChoiceItemQuantity6`, `RewardChoiceItemDisplayID6`, `POIContinent`, `POIx`, `POIy`, `POIPriority`, `RewardTitle`, `RewardArenaPoints`, `RewardSkillLineID`, `RewardNumSkillUps`, `PortraitGiver`, `PortraitGiverMount`, `PortraitGiverModelSceneID`, `PortraitTurnIn`, `RewardFactionID1`, `RewardFactionValue1`, `RewardFactionOverride1`, `RewardFactionCapIn1`, `RewardFactionID2`, `RewardFactionValue2`, `RewardFactionOverride2`, `RewardFactionCapIn2`, `RewardFactionID3`, `RewardFactionValue3`, `RewardFactionOverride3`, `RewardFactionCapIn3`, `RewardFactionID4`, `RewardFactionValue4`, `RewardFactionOverride4`, `RewardFactionCapIn4`, `RewardFactionID5`, `RewardFactionValue5`, `RewardFactionOverride5`, `RewardFactionCapIn5`, `RewardFactionFlags`, `RewardCurrencyID1`, `RewardCurrencyQty1`, `RewardCurrencyID2`, `RewardCurrencyQty2`, `RewardCurrencyID3`, `RewardCurrencyQty3`, `RewardCurrencyID4`, `RewardCurrencyQty4`, `AcceptedSoundKitID`, `CompleteSoundKitID`, `AreaGroupID`, `TimeAllowed`, `AllowableRaces`, `TreasurePickerID`, `Expansion`, `ManagedWorldStateID`, `QuestSessionBonus`, `LogTitle`, `LogDescription`, `QuestDescription`, `AreaDescription`, `PortraitGiverText`, `PortraitGiverName`, `PortraitTurnInText`, `PortraitTurnInName`, `QuestCompletionLog`, `VerifiedBuild`) VALUES 
+(58904, 2, 0, 0, 10833, 255, 0, 0, 5, 1, 5, 1, 219400, 0, 0, 0, 0, 0, 0, 174867, 0, 1, 0, 34082816, 32768, 4096, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 890, 878, 0, 0, 18446744073709551615, 0, 7, 0, 0, 'Shards of Corruption', 'Collect $0oa Shards of Corruption.', '<You feel the pull of something dark and inhuman on your mind, it\'s writhing tendrils digging in, tugging at your sanity. You feel compelled to collect more shards... all of them.>', '', '', '', '', '', 'Locate the Idol of Iniquity.', 35435);
+
 -- Loot for Geolord Grek'og
 SET @ID := 151091;
 UPDATE `creature_template_difficulty` SET `LootID`=@ID, GoldMin=4, GoldMax=20 WHERE `Entry` IN (@ID);
 DELETE FROM `creature_loot_template` WHERE `Entry` IN (@ID);
 INSERT INTO `creature_loot_template` (`Entry`,`Item`,`Reference`,`Chance`,`QuestRequired`,`LootMode`,`GroupId`,`MinCount`,`MaxCount`,`Comment`) VALUES
 (@ID,771,0,100,0,1,0,1,1,'Geolord Grek''og - Chipped Boar Tusk');
-
--- ********* HACK HACKITY HACK HACK to allow Geolord Conversation ***********
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (34176,36346);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(29,0,34176,0,0,6,0,469,0,0,0,0,0,'','AND0 Allow conversation line 29375 if team is Alliance'),
-(29,0,34176,0,0,6,0,67,0,0,0,0,0,'','AND0 Allow conversation line 29375 if team is Horde'),
-(29,0,36346,0,0,6,0,469,0,0,0,0,0,'','AND0 Allow conversation line 29376 if team is Alliance'),
-(29,0,36346,0,0,6,0,67,0,0,0,0,0,'','AND0 Allow conversation line 29376 if team is Horde');
