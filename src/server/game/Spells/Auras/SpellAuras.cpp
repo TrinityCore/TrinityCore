@@ -857,7 +857,7 @@ void Aura::Update(uint32 diff, Unit* caster)
         }
 
         if (m_duration && !IsRemoved())
-            UpdateHeartbeatResist(diff, caster);
+            UpdateHeartbeatResist(diff, this->GetUnitOwner());
     }
 }
 
