@@ -28,13 +28,11 @@ struct ItemRandomProperties
     int32 RandomPropertiesSeed = 0;
 };
 
-
 struct RandomEnchantmentData
 {
     std::vector<uint16> EnchantmentIDs;
     std::vector<double> Chances;
 };
-
 
 class TC_GAME_API ItemEnchantmentMgr
 {

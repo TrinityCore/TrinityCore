@@ -1893,7 +1893,6 @@ Optional<ContentTuningLevels> DB2Manager::GetContentTuningData(uint32 contentTun
     if (forItem && contentTuning->GetFlags().HasFlag(ContentTuningFlag::DisabledForItem))
         return {};
 
-
     ContentTuningLevels levels;
     levels.MinLevel = contentTuning->MinLevel;
     levels.MaxLevel = contentTuning->MaxLevel;
@@ -2099,7 +2098,6 @@ EmotesTextSoundEntry const* DB2Manager::GetTextSoundEmoteFor(uint32 emote, uint8
 
     return nullptr;
 }
-
 
 float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int32 expansion, uint32 /*contentTuningId*/, Classes unitClass) const
 {
