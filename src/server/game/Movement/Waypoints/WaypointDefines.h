@@ -19,51 +19,68 @@
 #define TRINITY_WAYPOINTDEFINES_H
 
 #include "Define.h"
+#include "EnumFlag.h"
 #include "Optional.h"
 #include <vector>
 
-enum WaypointMoveType
-{
-    WAYPOINT_MOVE_TYPE_WALK,
-    WAYPOINT_MOVE_TYPE_RUN,
-    WAYPOINT_MOVE_TYPE_LAND,
-    WAYPOINT_MOVE_TYPE_TAKEOFF,
+#define WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES 2
 
-    WAYPOINT_MOVE_TYPE_MAX
+enum class WaypointMoveType : uint8
+{
+    Walk        = 0,
+    Run         = 1,
+    Land        = 2,
+    TakeOff     = 3,
+
+    Max
 };
+
+enum class WaypointPathFlags : uint8
+{
+    None                                = 0x00,
+    FollowPathBackwardsFromEndToStart   = 0x01,
+};
+
+DEFINE_ENUM_FLAG(WaypointPathFlags);
 
 struct WaypointNode
 {
-    WaypointNode() : id(0), x(0.f), y(0.f), z(0.f), delay(0), moveType(WAYPOINT_MOVE_TYPE_RUN) { }
-    WaypointNode(uint32 _id, float _x, float _y, float _z, Optional<float> _orientation = { }, uint32 _delay = 0)
+    WaypointNode() : Id(0), X(0.f), Y(0.f), Z(0.f), Delay(0), MoveType(WaypointMoveType::Walk) { }
+    WaypointNode(uint32 id, float x, float y, float z, Optional<float> orientation = { }, uint32 delay = 0)
     {
-        id = _id;
-        x = _x;
-        y = _y;
-        z = _z;
-        orientation = _orientation;
-        delay = _delay;
-        moveType = WAYPOINT_MOVE_TYPE_WALK;
+        Id = id;
+        X = x;
+        Y = y;
+        Z = z;
+        Orientation = orientation;
+        Delay = delay;
+        MoveType = WaypointMoveType::Walk;
     }
 
-    uint32 id;
-    float x, y, z;
-    Optional<float> orientation;
-    uint32 delay;
-    uint32 moveType;
+    uint32 Id;
+    float X;
+    float Y;
+    float Z;
+    Optional<float> Orientation;
+    uint32 Delay;
+    WaypointMoveType MoveType;
 };
 
 struct WaypointPath
 {
-    WaypointPath() : id(0) { }
-    WaypointPath(uint32 _id, std::vector<WaypointNode>&& _nodes)
+    WaypointPath() : Id(0), MoveType(WaypointMoveType::Walk), Flags(WaypointPathFlags::None) { }
+    WaypointPath(uint32 id, std::vector<WaypointNode>&& nodes, WaypointMoveType moveType = WaypointMoveType::Walk, WaypointPathFlags flags = WaypointPathFlags::None)
     {
-        id = _id;
-        nodes = _nodes;
+        Id = id;
+        Nodes = nodes;
+        Flags = flags;
+        MoveType = moveType;
     }
 
-    std::vector<WaypointNode> nodes;
-    uint32 id;
+    std::vector<WaypointNode> Nodes;
+    uint32 Id;
+    WaypointMoveType MoveType;
+    EnumFlag<WaypointPathFlags> Flags = WaypointPathFlags::None;
 };
 
 #endif
