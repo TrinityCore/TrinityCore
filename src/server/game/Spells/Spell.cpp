@@ -2787,6 +2787,11 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, bool scaleAura, TargetInfo& 
         }
 
         hitInfo.AuraDuration = Aura::CalcMaxDuration(hitInfo.AuraSpellInfo, origCaster);
+        // Pre-TBC: heartbeat is enabled in both pve and pvp
+        if (bool heartbeat = true)
+        {
+            hitInfo.HitAura->SetHeartbeatResist(hitInfo.heartbeatResistChance, hitInfo.AuraDuration, uint32(diminishLevel));
+        }
 
         // unit is immune to aura if it was diminished to 0 duration
         if (!hitInfo.Positive && !unit->ApplyDiminishingToDuration(hitInfo.AuraSpellInfo, triggered, hitInfo.AuraDuration, origCaster, diminishLevel))
