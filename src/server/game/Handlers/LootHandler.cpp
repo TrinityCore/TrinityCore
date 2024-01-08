@@ -35,6 +35,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellMgr.h"
+#include "World.h"
 
 class AELootCreatureCheck
 {
