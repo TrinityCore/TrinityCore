@@ -16382,10 +16382,10 @@ void Player::SkipQuests(std::vector<uint32> const& questIds)
         UpdateObjectVisibility();
 }
 
-void Player::DespawnPersonalSpawnsForQuest(uint32 questId)
+void Player::DespawnPersonalSummonsForQuest(uint32 questId)
 {
     std::list<Creature*> creatureList;
-    GetCreatureListWithOptionsInGrid(creatureList, 100.0f, { .IgnorePhases = true, .PrivateObjectOwnerGuid = GetGUID() });
+    GetCreatureListWithOptionsInGrid(creatureList, 100.0f, { .IgnorePhases = true, .PrivateObjectOwnerGuid = GetGUID() }); // we might want to replace this with SummonList in Player at some point
 
     for (Creature* creature : creatureList)
     {
@@ -24839,7 +24839,7 @@ void Player::DailyReset()
         SetQuestSlot(slot, 0);
         AbandonQuest(questId);
         RemoveActiveQuest(questId);
-        DespawnPersonalSpawnsForQuest(questId);
+        DespawnPersonalSummonsForQuest(questId);
 
         if (quest->GetLimitTime())
             RemoveTimedQuest(questId);
@@ -24879,7 +24879,7 @@ void Player::ResetWeeklyQuestStatus()
         SetQuestSlot(slot, 0);
         AbandonQuest(questId);
         RemoveActiveQuest(questId);
-        DespawnPersonalSpawnsForQuest(questId);
+        DespawnPersonalSummonsForQuest(questId);
 
         if (quest->GetLimitTime())
             RemoveTimedQuest(questId);
