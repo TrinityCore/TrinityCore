@@ -4038,6 +4038,7 @@ void Spell::EffectQuestClear()
 
     player->RemoveActiveQuest(quest_id, false);
     player->RemoveRewardedQuest(quest_id);
+    player->DespawnPersonalSummonsForQuest(quest_id);
 
     sScriptMgr->OnQuestStatusChange(player, quest_id);
     sScriptMgr->OnQuestStatusChange(player, quest, oldStatus, QUEST_STATUS_NONE);
