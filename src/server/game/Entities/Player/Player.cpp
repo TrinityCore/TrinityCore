@@ -2722,7 +2722,7 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 rank, uint8 talentGroupI
     {
         TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: {}) does not exist", talent->SpellRank[rank]);
         return false;
-    }   
+    }
 
     if (!SpellMgr::IsSpellValid(spellInfo, this, false))
     {
@@ -25407,7 +25407,6 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
 uint8 Player::GetRunesState() const
 {
     return 0;
-    
     //return uint8(m_runes->RuneState & ((1 << GetMaxPower(POWER_RUNES)) - 1));
 }
 
