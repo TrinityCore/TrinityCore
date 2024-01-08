@@ -593,6 +593,8 @@ float GridMap::getLiquidLevel(float x, float y) const
     return _liquidMap[cx_int*_liquidWidth + cy_int];
 }
 
+constexpr float GROUND_LEVEL_OFFSET_HACK = 0.02f; // due to floating point precision issues, we have to resort to a small hack to fix inconsistencies in liquids
+
 // Get water state on map
 ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, Optional<map_liquidHeaderTypeFlags> ReqLiquidType, LiquidData* data, float collisionHeight) const
 {
@@ -656,11 +658,11 @@ ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, Optional<map_l
 
     // Get water level
     float liquid_level = _liquidMap ? _liquidMap[lx_int*_liquidWidth + ly_int] : _liquidLevel;
-    // Get ground level (sub 0.2 for fix some errors)
+    // Get ground level (sub 0.02 for fix some errors)
     float ground_level = getHeight(x, y);
 
     // Check water level and ground level
-    if (liquid_level < ground_level || z < ground_level)
+    if (liquid_level < (ground_level - GROUND_LEVEL_OFFSET_HACK) || z < (ground_level - GROUND_LEVEL_OFFSET_HACK))
         return LIQUID_MAP_NO_WATER;
 
     // All ok in water -> store data
@@ -675,12 +677,18 @@ ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, Optional<map_l
     // For speed check as int values
     float delta = liquid_level - z;
 
-    if (delta > collisionHeight)                   // Under water
-        return LIQUID_MAP_UNDER_WATER;
-    if (delta > 0.0f)                   // In water
-        return LIQUID_MAP_IN_WATER;
-    if (delta > -0.1f)                   // Walk on water
-        return LIQUID_MAP_WATER_WALK;
-                                      // Above water
-    return LIQUID_MAP_ABOVE_WATER;
+    uint32 status = LIQUID_MAP_ABOVE_WATER; // Above water
+
+    if (delta > collisionHeight)            // Under water
+        status = LIQUID_MAP_UNDER_WATER;
+    else if (delta > 0.0f)                  // In water
+        status = LIQUID_MAP_IN_WATER;
+    else if (delta > -0.1f)                 // Walk on water
+        status = LIQUID_MAP_WATER_WALK;
+
+    if (status != LIQUID_MAP_ABOVE_WATER)
+        if (std::fabs(ground_level - z) <= GROUND_HEIGHT_TOLERANCE)
+            status |= LIQUID_MAP_OCEAN_FLOOR;
+
+    return static_cast<ZLiquidStatus>(status);
 }
