@@ -2106,6 +2106,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     targetInfo.Healing    = 0;
     targetInfo.IsCrit     = false;
     targetInfo.ScaleAura  = false;
+    targetInfo.heartbeatResistChance = 0;
     if (m_auraScaleMask && targetInfo.EffectMask == m_auraScaleMask && m_caster != target)
     {
         SpellInfo const* auraSpell = m_spellInfo->GetFirstRankSpell();

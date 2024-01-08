@@ -217,6 +217,8 @@ class TC_GAME_API Aura
 
         bool IsProcOnCooldown(TimePoint now) const;
         void AddProcCooldown(TimePoint cooldownEnd);
+        void SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLevel);
+        void UpdateHeartbeatResist(uint32 diff, Unit* target);
         void ResetProcCooldown();
         bool IsUsingCharges() const { return m_isUsingCharges; }
         void SetUsingCharges(bool val) { m_isUsingCharges = val; }
@@ -291,6 +293,10 @@ class TC_GAME_API Aura
 
         AuraEffect* m_effects[MAX_SPELL_EFFECTS];
         ApplicationMap m_applications;
+
+        float m_heartbeatResistChance;                      // Chance to break this spell due to heartbeat resistance
+        int32 m_heartbeatResistInterval;                    // Heartbeat resistance periodic interval
+        int32 m_heartbeatResistTimer;                       // Timer for heartbeat resistance
 
         bool m_isRemoved:1;
         bool m_isSingleTarget:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example

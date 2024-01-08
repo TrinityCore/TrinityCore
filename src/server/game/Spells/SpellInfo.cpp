@@ -2364,7 +2364,7 @@ void SpellInfo::_LoadSpellDiminishInfo()
                     return DIMINISHING_LIMITONLY;
                 // Scatter Shot (own diminishing)
                 else if ((SpellFamilyFlags[0] & 0x40000) && SpellIconID == 132)
-                    return DIMINISHING_SCATTER_SHOT;
+                    return DIMINISHING_DISORIENT;
                 // Entrapment (own diminishing)
                 else if (SpellVisual[0] == 7484 && SpellIconID == 20)
                     return DIMINISHING_ENTRAPMENT;

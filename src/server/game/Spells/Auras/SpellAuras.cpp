@@ -855,6 +855,9 @@ void Aura::Update(uint32 diff, Unit* caster)
                 }
             }
         }
+
+        if (m_duration && !IsRemoved())
+            UpdateHeartbeatResist(diff, caster);
     }
 }
 
@@ -1964,6 +1967,45 @@ bool Aura::IsProcOnCooldown(TimePoint now) const
 void Aura::AddProcCooldown(TimePoint cooldownEnd)
 {
     m_procCooldown = cooldownEnd;
+}
+
+void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLevel)
+{
+    // NOTE: This is an experimental approximation of heartbeat resist mechanics, more research is required
+    // Main points in common cited by independent sources:
+    // * Break attempts become more frequent as hit count rises
+    // * Break chance becomes higher as hit count rises
+    m_heartbeatResistChance = (0.01f * chance * (1 + drLevel));
+    m_heartbeatResistInterval = std::max(1000, int32(uint32(originalDuration) / (2 + drLevel)));
+    m_heartbeatResistTimer = m_heartbeatResistInterval;
+}
+
+void Aura::UpdateHeartbeatResist(uint32 diff, Unit* target)
+{
+    sWorld->SendServerMessage(SERVER_MSG_STRING, fmt::format("heartbeat: {0}", m_heartbeatResistChance), target->ToPlayer());
+    if (m_heartbeatResistChance == 0.0f || !m_heartbeatResistInterval || m_heartbeatResistTimer <= 0)
+        return;
+
+    m_heartbeatResistTimer -= diff;
+
+    while (m_heartbeatResistTimer < 0)
+    {
+        m_heartbeatResistTimer += m_heartbeatResistInterval;
+
+
+        const bool resist = roll_chance_f(m_heartbeatResistChance);
+
+        if (resist)
+        {
+            if (target)
+            {
+                sWorld->SendServerMessage(SERVER_MSG_STRING, "heartbeat removing aura", target->ToPlayer());
+                target->RemoveAura(this, AURA_REMOVE_BY_CANCEL);
+
+            }
+            return;
+        }
+    }
 }
 
 void Aura::ResetProcCooldown()

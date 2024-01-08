@@ -157,6 +157,7 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
 
         if (_bothFlagsKept)
         {
+            /*
             _flagSpellForceTimer += diff;
             if (_flagDebuffState == 0 && _flagSpellForceTimer >= 10*MINUTE*IN_MILLISECONDS)  //10 minutes
             {
@@ -182,6 +183,7 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
                 }
                 _flagDebuffState = 2;
             }
+            */
         }
         else if ((_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_BASE || _flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_WAIT_RESPAWN) &&
          (_flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_ON_BASE || _flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_WAIT_RESPAWN))
@@ -216,8 +218,8 @@ void BattlegroundWS::StartingEventCloseDoors()
     for (uint32 i = BG_WS_OBJECT_A_FLAG; i <= BG_WS_OBJECT_BERSERKBUFF_2; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
 
-    UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 1);
-    UpdateWorldState(BG_WS_STATE_TIMER, 25);
+    UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 0);
+    UpdateWorldState(BG_WS_STATE_TIMER, 180);
 }
 
 void BattlegroundWS::StartingEventOpenDoors()
@@ -437,7 +439,7 @@ void BattlegroundWS::EventPlayerDroppedFlag(Player* player)
             else if (_flagDebuffState == 2)
               player->RemoveAurasDueToSpell(WS_SPELL_BRUTAL_ASSAULT);
             _flagState[TEAM_HORDE] = BG_WS_FLAG_STATE_ON_GROUND;
-            player->CastSpell(player, BG_WS_SPELL_WARSONG_FLAG_DROPPED, true);
+            //player->CastSpell(player, BG_WS_SPELL_WARSONG_FLAG_DROPPED, true);
             set = true;
         }
     }
