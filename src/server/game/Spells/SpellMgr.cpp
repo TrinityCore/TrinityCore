@@ -1166,8 +1166,6 @@ void SpellMgr::LoadSpellTargetPositions()
         st.target_X           = fields[3].GetFloat();
         st.target_Y           = fields[4].GetFloat();
         st.target_Z           = fields[5].GetFloat();
-        if (!fields[6].IsNull())
-            st.target_Orientation = fields[6].GetFloat();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(st.target_mapId);
         if (!mapEntry)
@@ -1195,7 +1193,9 @@ void SpellMgr::LoadSpellTargetPositions()
             continue;
         }
 
-        if (!st.target_Orientation)
+        if (!fields[6].IsNull())
+            st.target_Orientation = fields[6].GetFloat();
+        else
         {
             // target facing is in degrees for 6484 & 9268... (blizz sucks)
             if (spellInfo->GetEffect(effIndex).PositionFacing > 2 * float(M_PI))

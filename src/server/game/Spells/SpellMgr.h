@@ -406,7 +406,7 @@ struct SpellTargetPosition
     float  target_X;
     float  target_Y;
     float  target_Z;
-    Optional<float> target_Orientation;
+    float  target_Orientation;
 };
 
 typedef std::map<std::pair<uint32 /*spell_id*/, SpellEffIndex /*effIndex*/>, SpellTargetPosition> SpellTargetPositionMap;
