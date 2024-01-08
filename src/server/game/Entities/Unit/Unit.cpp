@@ -9083,9 +9083,6 @@ void Unit::UpdateResistances(uint32 school)
 
         float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
         value *= GetPctModifierValue(unitMod, BASE_PCT);
-
-        float baseValue = value;
-
         value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
         value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 

@@ -300,7 +300,7 @@ class TC_GAME_API FormulaScript : public ScriptObject
         virtual void OnZeroDifferenceCalculation(uint8& diff, uint8 playerLevel);
 
         // Called after calculating base experience gain.
-        virtual void OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel);
+        virtual void OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel, ContentLevels content);
 
         // Called after calculating experience gain.
         virtual void OnGainCalculation(uint32& gain, Player* player, Unit* unit);
@@ -1107,7 +1107,7 @@ class TC_GAME_API ScriptMgr
         void OnGrayLevelCalculation(uint8& grayLevel, uint8 playerLevel);
         void OnColorCodeCalculation(XPColorChar& color, uint8 playerLevel, uint8 mobLevel);
         void OnZeroDifferenceCalculation(uint8& diff, uint8 playerLevel);
-        void OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel);
+        void OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel, ContentLevels content);
         void OnGainCalculation(uint32& gain, Player* player, Unit* unit);
         void OnGroupRateCalculation(float& rate, uint32 count, bool isRaid);
 

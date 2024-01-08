@@ -264,7 +264,7 @@ Milliseconds Conversation::GetLastLineEndTime(LocaleConstant locale) const
     return _lastLineEndTimes[locale];
 }
 
-int32 Conversation::GetLineDuration(LocaleConstant locale, int32 lineId)
+int32 Conversation::GetLineDuration(LocaleConstant /*locale*/, int32 lineId)
 {
     ConversationLineEntry const* convoLine = sConversationLineStore.LookupEntry(lineId);
     if (!convoLine)

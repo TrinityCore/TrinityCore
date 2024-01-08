@@ -223,15 +223,6 @@ struct GtStaminaMultByILvl
     float JewelryMultiplier = 0.0f;
 };
 
-struct GtXpEntry
-{
-    float Total = 0.0f;
-    float PerKill = 0.0f;
-    float Junk = 0.0f;
-    float Stats = 0.0f;
-    float Divisor = 0.0f;
-};
-
 template<class T>
 class GameTable
 {
@@ -268,7 +259,6 @@ TC_GAME_API extern GameTable<GtRegenHPPerSptEntry>                  sRegenHPPerS
 TC_GAME_API extern GameTable<GtRegenMPPerSptEntry>                  sRegenMPPerSptGameTable;
 TC_GAME_API extern GameTable<GtShieldBlockRegularEntry>             sShieldBlockRegularGameTable;
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
-TC_GAME_API extern GameTable<GtXpEntry>                             sXpGameTable;
 
 TC_GAME_API void LoadGameTables(std::string const& dataPath);
 

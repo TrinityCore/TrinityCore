@@ -389,21 +389,19 @@ uint32 Quest::XPValue(Player const* player) const
     if (!player)
         return 0;
 
-    QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(questLevel);
+    int32 quest_level = (questLevel == -1 ? player->GetLevel() : questLevel);
+
+    QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(quest_level);
     if (!questXp || xpDifficulty >= 10)
         return 0;
 
-    float multiplier = 1.0f;
-    if (questLevel != player->GetLevel())
-        multiplier = sXpGameTable.GetRow(std::min<int32>(player->GetLevel(), questLevel))->Divisor / sXpGameTable.GetRow(player->GetLevel())->Divisor;
-
-    int32 diffFactor = 2 * (questLevel - player->GetLevel()) + 20;
+    int32 diffFactor = 2 * (quest_level - player->GetLevel()) + 20;
     if (diffFactor < 1)
         diffFactor = 1;
     else if (diffFactor > 10)
         diffFactor = 10;
 
-    uint32 xp = RoundXPValue(diffFactor * questXp->Difficulty[xpDifficulty] / 10 * multiplier);
+    uint32 xp = RoundXPValue(diffFactor * questXp->Difficulty[xpDifficulty] / 10);
     if (sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO))
     {
         uint32 minScaledXP = RoundXPValue(questXp->Difficulty[xpDifficulty] * xpMultiplier) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;

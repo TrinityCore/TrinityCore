@@ -4293,55 +4293,94 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        _playerXPperLevel.resize(sXpGameTable.GetTableRowCount(), 0);
+        _playerXPperLevel.resize(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+        for (uint32 level = 0; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+            _playerXPperLevel[level] = 0;
 
         //                                               0      1
         QueryResult result = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
 
-        // load the DBC's levels at first...
-        for (uint32 level = 1; level < sXpGameTable.GetTableRowCount(); ++level)
-            _playerXPperLevel[level] = sXpGameTable.GetRow(level)->Total;
+        if (!result)
+        {
+            TC_LOG_ERROR("server.loading", ">> Loaded 0 xp for level definitions. DB table `player_xp_for_level` is empty.");
+            ABORT();
+        }
 
         uint32 count = 0;
 
-        // ...overwrite if needed (custom values)
-        if (result)
+        do
         {
-            do
+            Field* fields = result->Fetch();
+
+            uint32 current_level = fields[0].GetUInt8();
+            uint32 current_xp = fields[1].GetUInt32();
+
+            if (current_level >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
             {
-                Field* fields = result->Fetch();
-
-                uint32 current_level = fields[0].GetUInt8();
-                uint32 current_xp = fields[1].GetUInt32();
-
-                if (current_level >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+                if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
+                    TC_LOG_ERROR("sql.sql", "Wrong (> {}) level {} in `player_xp_for_level` table, ignoring.", STRONG_MAX_LEVEL, current_level);
+                else
                 {
-                    if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
-                        TC_LOG_ERROR("sql.sql", "Wrong (> {}) level {} in `player_xp_for_level` table, ignoring.", STRONG_MAX_LEVEL, current_level);
-                    else
-                    {
-                        TC_LOG_INFO("misc", "Unused (> MaxPlayerLevel in worldserver.conf) level {} in `player_xp_for_level` table, ignoring.", current_level);
-                        ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
-                    }
-                    continue;
+                    TC_LOG_INFO("misc", "Unused (> MaxPlayerLevel in worldserver.conf) level {} in `player_xp_for_levels` table, ignoring.", current_level);
+                    ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
                 }
-                //PlayerXPperLevel
-                _playerXPperLevel[current_level] = current_xp;
-                ++count;
-            } while (result->NextRow());
-        }
+                continue;
+            }
+            //PlayerXPperLevel
+            _playerXPperLevel[current_level] = current_xp;
+            ++count;
+        } while (result->NextRow());
 
-        // fill level gaps - only accounting levels > MAX_LEVEL
+        // fill level gaps
         for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
         {
             if (_playerXPperLevel[level] == 0)
             {
-                TC_LOG_ERROR("sql.sql", "Level {} does not have XP for level data. Using data of level [{}] + 12000.", level + 1, level);
-                _playerXPperLevel[level] = _playerXPperLevel[level - 1] + 12000;
+                TC_LOG_ERROR("sql.sql", "Level {} does not have XP for level data. Using data of level [{}] + 100.", level + 1, level);
+                _playerXPperLevel[level] = _playerXPperLevel[level - 1] + 100;
             }
         }
 
-        TC_LOG_INFO("server.loading", ">> Loaded {} xp for level definition(s) from database in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} xp for level definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+
+        //// ...overwrite if needed (custom values)
+        //if (result)
+        //{
+        //    do
+        //    {
+        //        Field* fields = result->Fetch();
+        //
+        //        uint32 current_level = fields[0].GetUInt8();
+        //        uint32 current_xp = fields[1].GetUInt32();
+        //
+        //        if (current_level >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        //        {
+        //            if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
+        //                TC_LOG_ERROR("sql.sql", "Wrong (> {}) level {} in `player_xp_for_level` table, ignoring.", STRONG_MAX_LEVEL, current_level);
+        //            else
+        //            {
+        //                TC_LOG_INFO("misc", "Unused (> MaxPlayerLevel in worldserver.conf) level {} in `player_xp_for_level` table, ignoring.", current_level);
+        //                ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
+        //            }
+        //            continue;
+        //        }
+        //        //PlayerXPperLevel
+        //        _playerXPperLevel[current_level] = current_xp;
+        //        ++count;
+        //    } while (result->NextRow());
+        //}
+        //
+        //// fill level gaps - only accounting levels > MAX_LEVEL
+        //for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+        //{
+        //    if (_playerXPperLevel[level] == 0)
+        //    {
+        //        TC_LOG_ERROR("sql.sql", "Level {} does not have XP for level data. Using data of level [{}] + 12000.", level + 1, level);
+        //        _playerXPperLevel[level] = _playerXPperLevel[level - 1] + 12000;
+        //    }
+        //}
+        //
+        //TC_LOG_INFO("server.loading", ">> Loaded {} xp for level definition(s) from database in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 }
 
@@ -6842,7 +6881,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation con
 
     // at entrance map for corpse map
     bool foundEntr = false;
-    float distEntr = 10000;
+    //float distEntr = 10000;
     WorldSafeLocsEntry const* entryEntr = nullptr;
 
     // some where other
@@ -6898,13 +6937,13 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation con
             // at entrance map calculate distance (2D);
             if (foundEntr)
             {
-                distEntr = 0.f;
+                //distEntr = 0.f;
                 entryEntr = entry;
             }
             else
             {
                 foundEntr = true;
-                distEntr = 0.f;
+                //distEntr = 0.f;
                 entryEntr = entry;
             }
         }

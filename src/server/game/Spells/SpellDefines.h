@@ -497,7 +497,6 @@ struct TC_GAME_API CastSpellExtraArgs
 struct SpellCastVisual
 {
     uint32 SpellXSpellVisualID = 0;
-    uint32 ScriptVisualID = 0;
 
     operator WorldPackets::Spells::SpellCastVisual() const;
 };

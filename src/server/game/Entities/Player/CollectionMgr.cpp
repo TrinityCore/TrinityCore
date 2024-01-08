@@ -929,7 +929,7 @@ void CollectionMgr::SaveAccountTransmogIllusions(LoginDatabaseTransaction trans)
     }));
 }
 
-void CollectionMgr::AddTransmogIllusion(uint32 transmogIllusionId)
+void CollectionMgr::AddTransmogIllusion(uint32 /*transmogIllusionId*/)
 {
 }
 

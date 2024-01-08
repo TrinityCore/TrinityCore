@@ -5389,7 +5389,7 @@ void Spell::TakePower()
     for (SpellPowerCost& cost : m_powerCost)
     {
         Powers powerType = Powers(cost.Power);
-        bool hit = true;
+        //bool hit = true;
         if (unitCaster->GetTypeId() == TYPEID_PLAYER)
         {
             if (m_spellInfo->HasAttribute(SPELL_ATTR1_DISCOUNT_POWER_ON_MISS))
@@ -5400,7 +5400,7 @@ void Spell::TakePower()
                     auto ihit = std::find_if(std::begin(m_UniqueTargetInfo), std::end(m_UniqueTargetInfo), [&](TargetInfo const& targetInfo) { return targetInfo.TargetGUID == targetGUID && targetInfo.MissCondition != SPELL_MISS_NONE; });
                     if (ihit != std::end(m_UniqueTargetInfo))
                     {
-                        hit = false;
+                        //hit = false;
                         //lower spell cost on fail (by talent aura)
                         if (Player* modOwner = unitCaster->GetSpellModOwner())
                             modOwner->ApplySpellMod(m_spellInfo, SpellModOp::PowerCostOnMiss, cost.Amount);
@@ -5470,7 +5470,7 @@ SpellCastResult Spell::CheckRuneCost() const
     return SPELL_CAST_OK;
 }
 
-void Spell::TakeRunePower(bool didHit)
+void Spell::TakeRunePower(bool /*didHit*/)
 {
     /*
     if (m_caster->GetTypeId() != TYPEID_PLAYER || m_caster->ToPlayer()->GetClass() != CLASS_DEATH_KNIGHT)
@@ -8065,7 +8065,7 @@ bool Spell::IsPositive() const
 
 bool Spell::IsNeedSendToClient() const
 {
-    return m_SpellVisual.SpellXSpellVisualID || m_SpellVisual.ScriptVisualID || m_spellInfo->IsChanneled() ||
+    return m_SpellVisual.SpellXSpellVisualID || m_spellInfo->IsChanneled() ||
         (m_spellInfo->HasAttribute(SPELL_ATTR8_AURA_POINTS_ON_CLIENT)) || m_spellInfo->HasHitDelay() || (!m_triggeredByAuraSpell && !IsTriggered()) ||
         m_spellInfo->HasAttribute(SPELL_ATTR7_ALWAYS_CAST_LOG);
 }
@@ -9276,5 +9276,5 @@ CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringAura(AuraEffect const* trig
 
 SpellCastVisual::operator WorldPackets::Spells::SpellCastVisual() const
 {
-    return { int32(SpellXSpellVisualID), int32(ScriptVisualID) };
+    return { int32(SpellXSpellVisualID) };
 }

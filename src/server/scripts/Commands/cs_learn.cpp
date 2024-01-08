@@ -181,7 +181,7 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllTalentsCommand(ChatHandler* handler)
+    static bool HandleLearnAllTalentsCommand(ChatHandler* /*handler*/)
     {
         /*
         Player* player = handler->GetSession()->GetPlayer();

@@ -8174,4 +8174,11 @@ enum WorldState : uint32
     WS_WAR_MODE_ALLIANCE_BUFF_VALUE = 17043,
 };
 
+enum ContentLevels : uint8
+{
+    CONTENT_1_60 = 0,
+    CONTENT_61_70,
+    CONTENT_71_80
+};
+
 #endif

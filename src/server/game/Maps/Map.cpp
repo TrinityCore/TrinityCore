@@ -3308,7 +3308,7 @@ bool Map::IsAlwaysActive() const
     return IsBattlegroundOrArena();
 }
 
-bool Map::GetEntrancePos(int32 &mapid, float &x, float &y)
+bool Map::GetEntrancePos(int32& /*mapid*/ , float& /*x*/, float& /*y*/)
 {
     return false;
 }

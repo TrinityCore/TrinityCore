@@ -873,7 +873,7 @@ class TC_GAME_API Unit : public WorldObject
         float GetStat(Stats stat) const { return float(m_unitData->Stats[stat]); }
         void SetStat(Stats stat, int32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Stats, stat), val); }
         uint32 GetArmor() const { return GetResistance(SPELL_SCHOOL_NORMAL); }
-        void SetArmor(int32 val, int32 bonusVal) { SetResistance(SPELL_SCHOOL_NORMAL, val); }
+        void SetArmor(int32 val, int32 /*bonusVal*/) { SetResistance(SPELL_SCHOOL_NORMAL, val); }
 
         int32 GetResistance(SpellSchools school) const { return m_unitData->Resistances[school]; }
         int32 GetResistance(SpellSchoolMask mask) const;

@@ -86,7 +86,7 @@ namespace WorldPackets
         struct SpellCastVisual
         {
             int32 SpellXSpellVisualID = 0;
-            int32 ScriptVisualID = 0;
+            //int32 ScriptVisualID = 0;
         };
 
         struct SpellSupportInfo

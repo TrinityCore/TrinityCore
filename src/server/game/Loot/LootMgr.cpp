@@ -947,7 +947,7 @@ bool LootTemplate::isReference(uint32 id)
 }
 
 std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> GenerateDungeonEncounterPersonalLoot(uint32 dungeonEncounterId, uint32 lootId, LootStore const& store,
-    LootType type, WorldObject const* lootOwner, uint32 minMoney, uint32 maxMoney, uint16 lootMode, MapDifficultyEntry const* mapDifficulty,
+    LootType type, WorldObject const* lootOwner, uint32 minMoney, uint32 maxMoney, uint16 lootMode, MapDifficultyEntry const* /*mapDifficulty*/,
     std::vector<Player*> const& tappers)
 {
     std::unordered_map<Player*, std::unique_ptr<Loot>> tempLoot;
