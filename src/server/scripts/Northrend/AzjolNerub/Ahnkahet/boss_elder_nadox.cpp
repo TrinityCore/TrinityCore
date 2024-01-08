@@ -167,8 +167,6 @@ struct boss_elder_nadox : public BossAI
             DoCastSelf(SPELL_SUMMON_SWARM_GUARD);
             _guardianSummoned = true;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -206,8 +204,6 @@ struct npc_ahnkahar_nerubian : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

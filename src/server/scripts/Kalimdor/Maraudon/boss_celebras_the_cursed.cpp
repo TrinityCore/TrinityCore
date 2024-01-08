@@ -105,8 +105,6 @@ public:
                 CorruptForcesTimer = 20000;
             }
             else CorruptForcesTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };

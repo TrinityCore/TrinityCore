@@ -284,8 +284,6 @@ class boss_slabhide : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

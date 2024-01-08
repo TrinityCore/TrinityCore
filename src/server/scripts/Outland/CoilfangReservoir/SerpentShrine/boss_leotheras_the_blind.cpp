@@ -166,8 +166,6 @@ struct npc_inner_demon : public ScriptedAI
             DoCastVictim(SPELL_SHADOWBOLT, false);
             ShadowBolt_Timer = 10000;
         } else ShadowBolt_Timer -= diff;
-
-       DoMeleeAttackIfReady();
     }
 };
 
@@ -229,6 +227,7 @@ struct boss_leotheras_the_blind : public BossAI
         me->SetDisplayId(MODEL_NIGHTELF);
         me->SetVirtualItem(0, 0);
         me->SetVirtualItem(1, 0);
+        me->SetCanMelee(true);
         DoCast(me, SPELL_DUAL_WIELD, true);
         me->SetCorpseDelay(1000*60*60);
         _Reset();
@@ -472,12 +471,12 @@ struct boss_leotheras_the_blind : public BossAI
                     Talk(SAY_SWITCH_TO_DEMON);
                     me->SetVirtualItem(0, 0);
                     me->SetVirtualItem(1, 0);
+                    me->SetCanMelee(false);
                     DemonForm = true;
                     NeedThreatReset = true;
                     SwitchToDemon_Timer = 45000;
                 } else SwitchToDemon_Timer -= diff;
             }
-            DoMeleeAttackIfReady();
         }
         else
         {
@@ -543,6 +542,7 @@ struct boss_leotheras_the_blind : public BossAI
                 //switch to nightelf form
                 me->SetDisplayId(MODEL_NIGHTELF);
                 me->LoadEquipment();
+                me->SetCanMelee(true);
 
                 CastConsumingMadness();
                 DespawnDemon();
@@ -757,7 +757,6 @@ struct npc_greyheart_spellbinder : public ScriptedAI
             }
             Earthshock_Timer = urand(8000, 15000);
         } else Earthshock_Timer -= diff;
-        DoMeleeAttackIfReady();
     }
 };
 

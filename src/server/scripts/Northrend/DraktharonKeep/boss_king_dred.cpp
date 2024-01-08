@@ -152,8 +152,6 @@ struct boss_king_dred : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -194,8 +192,6 @@ struct npc_drakkari_gutripper : public ScriptedAI
         }
         else
             GutRipTimer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -239,8 +235,6 @@ struct npc_drakkari_scytheclaw : public ScriptedAI
         }
         else
             uiRendTimer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override

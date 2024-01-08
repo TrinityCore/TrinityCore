@@ -216,8 +216,6 @@ public:
                     m_uiMindControl_Timer = 15000;
                 } else m_uiMindControl_Timer -= uiDiff;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 

@@ -308,8 +308,6 @@ struct boss_general_bjarngrim : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
  private:
@@ -367,8 +365,6 @@ struct npc_bjarngrim_stormforged_lieutenant : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;

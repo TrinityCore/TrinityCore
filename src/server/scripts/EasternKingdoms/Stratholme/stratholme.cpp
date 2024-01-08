@@ -290,8 +290,6 @@ public:
                 TouchTimer = 7000;
             }
             else TouchTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
         void ReceiveEmote(Player* player, uint32 emote) override

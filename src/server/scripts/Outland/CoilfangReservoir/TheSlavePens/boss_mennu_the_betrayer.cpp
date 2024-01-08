@@ -122,8 +122,6 @@ struct boss_mennu_the_betrayer : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 

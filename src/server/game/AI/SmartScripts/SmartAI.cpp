@@ -283,21 +283,13 @@ void SmartAI::UpdateAI(uint32 diff)
 
     CheckConditions(diff);
 
-    bool hasVictim = UpdateVictim();
+    UpdateVictim();
 
     GetScript()->OnUpdate(diff);
 
     UpdatePath(diff);
     UpdateFollow(diff);
     UpdateDespawn(diff);
-
-    if (!IsAIControlled())
-        return;
-
-    if (!hasVictim)
-        return;
-
-    DoMeleeAttackIfReady();
 }
 
 bool SmartAI::IsEscortInvokerInRange()

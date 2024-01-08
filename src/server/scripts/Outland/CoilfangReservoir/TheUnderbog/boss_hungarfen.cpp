@@ -89,10 +89,7 @@ struct boss_hungarfen : public BossAI
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
 
         if (!HealthAbovePct(20) && !_roared)
         {

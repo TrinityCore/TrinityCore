@@ -207,8 +207,6 @@ struct boss_keleseth : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void SummonSkeletons()
@@ -244,6 +242,7 @@ struct npc_vrykul_skeleton : public ScriptedAI
             {
                 // from sniffs
                 me->SetUninteractible(true);
+                me->SetCanMelee(false);
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
 
                 events.Reset();
@@ -285,6 +284,7 @@ struct npc_vrykul_skeleton : public ScriptedAI
                     DoCast(me, SPELL_SHADOW_FISSURE, true);
                     DoCastAOE(SPELL_BONE_ARMOR, true);
                     me->SetUninteractible(false);
+                    me->SetCanMelee(true);
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     me->GetMotionMaster()->MoveChase(me->GetVictim());
                     events.ScheduleEvent(EVENT_DECREPIFY, 4s, 6s);
@@ -296,9 +296,6 @@ struct npc_vrykul_skeleton : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        if (!me->IsUninteractible())
-            DoMeleeAttackIfReady();
     }
 
 private:

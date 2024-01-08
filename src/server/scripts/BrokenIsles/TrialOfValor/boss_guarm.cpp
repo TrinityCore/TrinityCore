@@ -291,8 +291,6 @@ struct boss_guarm : public BossAI
             default:
                 break;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override

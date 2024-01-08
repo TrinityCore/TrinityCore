@@ -292,8 +292,6 @@ struct boss_ragnaros : public BossAI
                         break;
                 }
             }
-
-            DoMeleeAttackIfReady();
         }
     }
 
@@ -315,14 +313,6 @@ struct npc_son_of_flame : public ScriptedAI //didnt work correctly in EAI for me
     void JustDied(Unit* /*killer*/) override
     {
         instance->SetData(DATA_RAGNAROS_ADDS, 1);
-    }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:

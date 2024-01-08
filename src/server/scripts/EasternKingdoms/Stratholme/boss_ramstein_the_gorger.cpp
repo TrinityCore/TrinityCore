@@ -101,8 +101,6 @@ public:
                 DoCastVictim(SPELL_KNOCKOUT);
                 Knockout_Timer = 10000;
             } else Knockout_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };

@@ -111,8 +111,6 @@ class boss_pit_lord_argaloth : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 
