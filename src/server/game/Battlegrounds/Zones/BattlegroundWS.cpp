@@ -439,7 +439,7 @@ void BattlegroundWS::EventPlayerDroppedFlag(Player* player)
             else if (_flagDebuffState == 2)
               player->RemoveAurasDueToSpell(WS_SPELL_BRUTAL_ASSAULT);
             _flagState[TEAM_HORDE] = BG_WS_FLAG_STATE_ON_GROUND;
-            //player->CastSpell(player, BG_WS_SPELL_WARSONG_FLAG_DROPPED, true);
+            player->CastSpell(player, BG_WS_SPELL_WARSONG_FLAG_DROPPED, true);
             set = true;
         }
     }
@@ -463,7 +463,7 @@ void BattlegroundWS::EventPlayerDroppedFlag(Player* player)
 
     if (set)
     {
-        player->CastSpell(player, SPELL_RECENTLY_DROPPED_FLAG, true);
+        //player->CastSpell(player, SPELL_RECENTLY_DROPPED_FLAG, true);
         UpdateFlagState(player->GetTeam(), 1);
 
         if (player->GetTeam() == ALLIANCE)
