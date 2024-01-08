@@ -265,9 +265,6 @@ public:
                         break;
                 }
             }
-
-            if (events.GetPhaseMask() & PHASE_MASK_COMBAT)
-                DoMeleeAttackIfReady();
         }
     };
 

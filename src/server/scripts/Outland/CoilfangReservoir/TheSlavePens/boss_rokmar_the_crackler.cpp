@@ -113,8 +113,6 @@ struct boss_rokmar_the_crackler : public BossAI
             DoCast(me, SPELL_FRENZY);
             rokmarFrenzy = true;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

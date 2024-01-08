@@ -275,8 +275,6 @@ struct boss_lord_marrowgar : public BossAI
         // 10 seconds since encounter start Bone Slice replaces melee attacks
         if (_boneSlice && !me->GetCurrentSpell(CURRENT_MELEE_SPELL))
             DoCastVictim(SPELL_BONE_SLICE);
-
-        DoMeleeAttackIfReady();
     }
 
     void MovementInform(uint32 type, uint32 id) override

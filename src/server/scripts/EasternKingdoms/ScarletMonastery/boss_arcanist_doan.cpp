@@ -107,8 +107,6 @@ struct boss_arcanist_doan : public BossAI
             DoCastSelf(SPELL_ARCANE_BUBBLE);
             DoCastAOE(SPELL_DETONATION);
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

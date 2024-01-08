@@ -158,7 +158,6 @@ struct npc_sylvanas_fos : public ScriptedAI
             return;
 
         events.Update(diff);
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -255,8 +254,6 @@ struct npc_jaina_fos: public ScriptedAI
             return;
 
         events.Update(diff);
-
-        DoMeleeAttackIfReady();
     }
 };
 

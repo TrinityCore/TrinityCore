@@ -248,10 +248,7 @@ void EscortAI::UpdateAI(uint32 diff)
 
 void EscortAI::UpdateEscortAI(uint32 /*diff*/)
 {
-    if (!UpdateVictim())
-        return;
-
-    DoMeleeAttackIfReady();
+    UpdateVictim();
 }
 
 void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, bool run)

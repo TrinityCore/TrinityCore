@@ -611,7 +611,10 @@ protected:
 
 struct boss_prince_keleseth_icc : public BloodPrincesBossAI
 {
-    boss_prince_keleseth_icc(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_KELESETH) { }
+    boss_prince_keleseth_icc(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_KELESETH)
+    {
+        me->SetCanMelee(false);
+    }
 
     void ScheduleEvents() override
     {
@@ -671,8 +674,6 @@ struct boss_prince_keleseth_icc : public BloodPrincesBossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        // does not melee
     }
 };
 
@@ -745,8 +746,6 @@ struct boss_prince_taldaram_icc : public BloodPrincesBossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -841,8 +840,6 @@ struct boss_prince_valanar_icc : public BloodPrincesBossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 

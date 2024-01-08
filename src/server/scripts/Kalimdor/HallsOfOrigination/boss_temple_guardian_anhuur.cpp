@@ -258,8 +258,6 @@ public:
                     }
                 }
             }
-
-            DoMeleeAttackIfReady();
         }
 
     private:

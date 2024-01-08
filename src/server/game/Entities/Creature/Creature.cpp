@@ -843,6 +843,8 @@ void Creature::Update(uint32 diff)
 
             Unit::AIUpdateTick(diff);
 
+            DoMeleeAttackIfReady();
+
             // creature can be dead after UpdateAI call
             // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
             if (!IsAlive())

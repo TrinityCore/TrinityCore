@@ -204,8 +204,6 @@ public:
                     }
                 } else uiTimer -= uiDiff;
             }
-
-            DoMeleeAttackIfReady();
         }
 
         void MovementInform(uint32 uiType, uint32 /*uiId*/) override

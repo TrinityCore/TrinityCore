@@ -166,8 +166,6 @@ struct npc_av_marshal_or_warmaster : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

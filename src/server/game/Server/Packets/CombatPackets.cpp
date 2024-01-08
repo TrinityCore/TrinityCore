@@ -96,7 +96,7 @@ WorldPacket const* WorldPackets::Combat::AIReaction::Write()
 
 WorldPacket const* WorldPackets::Combat::AttackSwingError::Write()
 {
-    _worldPacket.WriteBits(Reason, 3);
+    _worldPacket.WriteBits(AsUnderlyingType(Reason), 3);
     _worldPacket.FlushBits();
     return &_worldPacket;
 }

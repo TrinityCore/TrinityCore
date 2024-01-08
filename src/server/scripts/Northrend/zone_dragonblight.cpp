@@ -341,7 +341,6 @@ struct npc_commander_eligor_dawnbringer : public ScriptedAI
                     break;
             }
         }
-        DoMeleeAttackIfReady();
     }
     private:
         EventMap _events;

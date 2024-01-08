@@ -109,7 +109,6 @@ public:
                 RebuffTimer -= diff;
             if (!UpdateVictim())
                 return;
-            DoMeleeAttackIfReady();
         }
     };
 };

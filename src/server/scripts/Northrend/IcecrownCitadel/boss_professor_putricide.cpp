@@ -697,8 +697,6 @@ struct boss_professor_putricide : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -753,8 +751,6 @@ class npc_putricide_oozeAI : public ScriptedAI
 
             if (!_newTargetSelectTimer && !me->IsNonMeleeSpellCast(false, false, true, false, true))
                 _newTargetSelectTimer = 1000;
-
-            DoMeleeAttackIfReady();
 
             if (!_newTargetSelectTimer)
                 return;

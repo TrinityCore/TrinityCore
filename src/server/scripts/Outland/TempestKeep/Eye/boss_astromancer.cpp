@@ -395,8 +395,6 @@ struct boss_high_astromancer_solarian : public BossAI
             me->SetArmor(WV_ARMOR, 0);
             me->SetDisplayId(MODEL_VOIDWALKER);
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -470,8 +468,6 @@ struct npc_solarium_priest : public ScriptedAI
         }
         else
             aoesilenceTimer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 

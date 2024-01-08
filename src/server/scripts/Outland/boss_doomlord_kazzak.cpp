@@ -155,8 +155,6 @@ struct boss_doomlord_kazzak : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

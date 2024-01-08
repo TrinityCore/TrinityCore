@@ -140,8 +140,6 @@ class boss_occuthar : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

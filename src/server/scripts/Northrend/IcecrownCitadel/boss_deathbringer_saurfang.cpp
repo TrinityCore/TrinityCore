@@ -534,8 +534,6 @@ struct boss_deathbringer_saurfang : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     uint32 GetData(uint32 type) const override

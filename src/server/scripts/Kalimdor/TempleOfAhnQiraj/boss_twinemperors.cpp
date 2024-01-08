@@ -468,8 +468,6 @@ public:
             } else Teleport_Timer -= diff;
 
             CheckEnrage(diff);
-
-            DoMeleeAttackIfReady();
         }
     };
 

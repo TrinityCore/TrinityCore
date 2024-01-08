@@ -127,8 +127,6 @@ struct boss_epoch_hunter : public BossAI
             DoCast(me, SPELL_MAGIC_DISRUPTION_AURA);
             Mda_Timer = 15000;
         } else Mda_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 

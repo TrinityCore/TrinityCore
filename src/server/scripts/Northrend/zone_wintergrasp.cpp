@@ -254,8 +254,6 @@ struct npc_wg_queue : public ScriptedAI
             FrostArmor_Timer = 180000;
         }
         else FrostArmor_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
     bool OnGossipHello(Player* player) override

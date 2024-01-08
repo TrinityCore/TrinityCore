@@ -213,8 +213,6 @@ struct boss_vaelastrasz : public BossAI
             Talk(SAY_HALFLIFE);
             HasYelled = true;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
