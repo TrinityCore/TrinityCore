@@ -19,6 +19,7 @@
 #define ConversationDataStore_h__
 
 #include "Define.h"
+#include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include <variant>
 #include <vector>
@@ -74,11 +75,22 @@ struct ConversationLineTemplate
     uint8 ChatType;
 };
 
+enum class ConversationFlags : uint8
+{
+    None                        = 0x00,
+    MultipleConversationType    = 0x01, // NYI purpose unknown
+    IsTalkingHeadConversation   = 0x02, // implicitly implemented when conversation_actors.ActivePlayerObject == 0 && conversation_actors.NoActorObject == 0 && conversation_actors.ConversationActorGuid == 0
+    AllowWithoutSpawnedActor    = 0x04,
+};
+
+DEFINE_ENUM_FLAG(ConversationFlags);
+
 struct ConversationTemplate
 {
     uint32 Id;
     uint32 FirstLineId;     // Link to ConversationLine.db2
     uint32 TextureKitId;    // Background texture
+    EnumFlag<ConversationFlags> Flags = ConversationFlags::None;
 
     std::vector<ConversationActorTemplate> Actors;
     std::vector<ConversationLineTemplate const*> Lines;
