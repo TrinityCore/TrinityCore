@@ -385,9 +385,6 @@ struct boss_xt002 : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        if (events.IsInPhase(PHASE_1))
-            DoMeleeAttackIfReady();
     }
 
     void WaypointReached(uint32 waypointId, uint32 pathId) override
@@ -567,10 +564,7 @@ struct npc_pummeller : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:
@@ -667,10 +661,7 @@ struct npc_life_spark : public ScriptedAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:

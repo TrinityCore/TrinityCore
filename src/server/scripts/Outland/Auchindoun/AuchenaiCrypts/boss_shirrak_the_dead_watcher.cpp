@@ -150,8 +150,6 @@ struct boss_shirrak_the_dead_watcher : public BossAI
             }
             FocusFire_Timer = 15000 + (rand32() % 5000);
         } else FocusFire_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -192,8 +190,6 @@ struct npc_focus_fire : public ScriptedAI
 
             FieryBlast_Timer = 1000;
         } else FieryBlast_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 

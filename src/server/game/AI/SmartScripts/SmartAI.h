@@ -253,7 +253,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 _escortState;
         uint32 _escortNPCFlags;
         uint32 _escortInvokerCheckTimer;
-        uint32 _currentWaypointNode;
+        uint32 _currentWaypointNodeId;
         bool _waypointReached;
         uint32 _waypointPauseTimer;
         bool _waypointPauseForced;

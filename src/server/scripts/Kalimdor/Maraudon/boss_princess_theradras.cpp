@@ -115,8 +115,6 @@ public:
                 ThrashTimer = 18000;
             }
             else ThrashTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };

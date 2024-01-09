@@ -1218,8 +1218,6 @@ class npc_guardian_of_yogg_saron : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void IsSummonedBy(WorldObject* summoner) override
@@ -1392,8 +1390,6 @@ class npc_crusher_tentacle : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -1517,8 +1513,6 @@ class npc_immortal_guardian : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

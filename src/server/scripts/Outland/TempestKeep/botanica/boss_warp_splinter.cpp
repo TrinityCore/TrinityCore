@@ -137,8 +137,6 @@ struct boss_warp_splinter : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -160,14 +158,6 @@ struct npc_warp_splinter_sapling : public ScriptedAI
             DoCastSelf(SPELL_MOONFIRE_VISUAL);
             me->DespawnOrUnsummon(2s);
         }
-    }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
     }
 };
 

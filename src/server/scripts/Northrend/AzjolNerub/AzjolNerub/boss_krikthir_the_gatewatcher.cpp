@@ -285,8 +285,6 @@ struct boss_krik_thir : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -452,8 +450,6 @@ struct npc_watcher_gashra : public npc_gatewatcher_petAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     private:
@@ -519,8 +515,6 @@ struct npc_watcher_narjil : public npc_gatewatcher_petAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     private:
@@ -586,8 +580,6 @@ struct npc_watcher_silthik : public npc_gatewatcher_petAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     private:
@@ -638,8 +630,6 @@ struct npc_anub_ar_warrior : public npc_gatewatcher_petAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -689,8 +679,6 @@ struct npc_anub_ar_skirmisher : public npc_gatewatcher_petAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
@@ -749,8 +737,6 @@ struct npc_anub_ar_shadowcaster : public npc_gatewatcher_petAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 

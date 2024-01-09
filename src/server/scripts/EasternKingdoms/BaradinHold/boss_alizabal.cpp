@@ -245,8 +245,6 @@ class boss_alizabal : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

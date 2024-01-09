@@ -282,8 +282,6 @@ public:
                         break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
                 break;
             default:
                 break;
@@ -1069,31 +1067,22 @@ struct npc_scarlet_ghoul : public ScriptedAI
                 Player* plrOwner = owner->ToPlayer();
                 if (plrOwner && plrOwner->IsInCombat())
                 {
-                    if (plrOwner->getAttackerForHelper() && plrOwner->getAttackerForHelper()->GetEntry() == NPC_GHOSTS)
-                        AttackStart(plrOwner->getAttackerForHelper());
+                    Unit* newTarget = plrOwner->getAttackerForHelper();
+                    if (newTarget && newTarget->GetEntry() == NPC_GHOSTS)
+                        AttackStart(newTarget);
                     else
                         FindMinions(owner);
                 }
             }
         }
 
-        if (!UpdateVictim() || !me->GetVictim())
+        if (!UpdateVictim())
             return;
+    }
 
-        //ScriptedAI::UpdateAI(diff);
-        //Check if we have a current target
-        if (me->EnsureVictim()->GetEntry() == NPC_GHOSTS)
-        {
-            if (me->isAttackReady())
-            {
-                //If we are within range melee the target
-                if (me->IsWithinMeleeRange(me->GetVictim()))
-                {
-                    me->AttackerStateUpdate(me->GetVictim());
-                    me->resetAttackTimer();
-                }
-            }
-        }
+    bool CanAIAttack(Unit const* target) const override
+    {
+        return target->GetEntry() == NPC_GHOSTS;
     }
 };
 
@@ -1259,8 +1248,6 @@ struct npc_hearthglen_crusader : public ScriptedAI
 
         if (!me->IsWithinCombatRange(me->GetVictim(), _minimumRange))
             DoSpellAttackIfReady(me->m_spells[0]);
-        else
-            DoMeleeAttackIfReady();
     }
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override

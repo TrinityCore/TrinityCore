@@ -94,8 +94,6 @@ public:
                 //15 seconds until we should cast this again
                 RavenousClaw_Timer = 15000;
             } else RavenousClaw_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 

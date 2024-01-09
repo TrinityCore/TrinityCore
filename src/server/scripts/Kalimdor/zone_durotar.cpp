@@ -110,7 +110,6 @@ public:
                 RebuffTimer -= diff;
             if (!UpdateVictim())
                 return;
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -342,8 +341,6 @@ struct npc_darkspear_jailor : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;
@@ -447,8 +444,6 @@ struct npc_captive_spitescale_scout : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -590,8 +585,6 @@ struct npc_echo_isles_class_trainer : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:

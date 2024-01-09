@@ -485,8 +485,6 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;
@@ -1552,14 +1550,6 @@ struct npc_murloc_spearhunter_watershaper : public ScriptedAI
             }
         }
     }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
-    }
 };
 
 // 150228 - Murloc Spearhunter
@@ -2602,8 +2592,6 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
 protected:

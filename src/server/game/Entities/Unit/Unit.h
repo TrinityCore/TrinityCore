@@ -1053,7 +1053,8 @@ class TC_GAME_API Unit : public WorldObject
         void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProcContainer& procAuras);
 
         void HandleEmoteCommand(Emote emoteId, Player* target = nullptr, Trinity::IteratorPair<int32 const*> spellVisualKitIds = {}, int32 sequenceVariation = 0);
-        void AttackerStateUpdate (Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
+        void DoMeleeAttackIfReady();
+        void AttackerStateUpdate(Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
 
         void CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
         void DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss);
@@ -1957,7 +1958,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 m_procDeep;               // tracked for proc system correctness (what spells should proc what)
         int32 m_procChainLength;        // tracked to protect against infinite proc loops (hard limit, will disallow procs even if they should happen)
 
-        typedef std::list<DynamicObject*> DynObjectList;
+        typedef std::vector<DynamicObject*> DynObjectList;
         DynObjectList m_dynObj;
 
         typedef std::list<GameObject*> GameObjectList;

@@ -86,8 +86,6 @@ class boss_magmus : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void JustDied(Unit* /*killer*/) override

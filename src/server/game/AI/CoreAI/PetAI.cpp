@@ -80,15 +80,6 @@ void PetAI::UpdateAI(uint32 diff)
             StopAttack();
             return;
         }
-
-        // Check before attacking to prevent pets from leaving stay position
-        if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
-        {
-            if (me->GetCharmInfo()->IsCommandAttack() || (me->GetCharmInfo()->IsAtStay() && me->IsWithinMeleeRange(me->GetVictim())))
-                DoMeleeAttackIfReady();
-        }
-        else
-            DoMeleeAttackIfReady();
     }
     else
     {

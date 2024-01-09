@@ -280,8 +280,6 @@ struct boss_mandokir : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -325,14 +323,6 @@ struct npc_ohgan : public ScriptedAI
             if (creature->GetEntry() == NPC_CHAINED_SPIRIT)
                 DoCastAOE(SPELL_OHGAN_ORDERS, true);
         }
-    }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:

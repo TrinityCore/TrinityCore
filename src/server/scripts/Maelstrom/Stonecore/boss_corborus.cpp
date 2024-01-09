@@ -228,8 +228,6 @@ class boss_corborus : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void JustSummoned(Creature* summon) override
@@ -303,8 +301,6 @@ class npc_rock_borer : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

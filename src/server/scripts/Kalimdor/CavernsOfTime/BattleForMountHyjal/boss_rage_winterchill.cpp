@@ -153,8 +153,6 @@ public:
                 DoCast(SelectTarget(SelectTargetMethod::Random, 0, 40, true), SPELL_ICEBOLT);
                 IceboltTimer = 11000 + rand32() % 20000;
             } else IceboltTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };

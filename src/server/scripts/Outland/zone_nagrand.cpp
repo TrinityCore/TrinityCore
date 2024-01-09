@@ -197,8 +197,6 @@ public:
             }
             else
                 FrostShockTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
         void OnQuestAccept(Player* player, Quest const* quest) override
@@ -392,8 +390,6 @@ public:
                 DoCastVictim(SPELL_KUR_FROST_SHOCK);
                 FrostShockTimer = urand(7500, 15000);
             } else FrostShockTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
         void OnQuestAccept(Player* player, Quest const* quest) override
@@ -465,10 +461,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
+            scheduler.Update(diff);
         }
 
         bool IsBannered()
@@ -544,10 +537,7 @@ public:
                 interrupt_cooldown = 0;
             }
 
-            scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
+            scheduler.Update(diff);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
