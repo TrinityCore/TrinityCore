@@ -178,7 +178,7 @@ void ConversationDataStore::LoadConversationTemplates()
                 actor.Data.emplace<ConversationActorActivePlayerTemplate>();
             else if (noActorObject)
                 actor.Data.emplace<ConversationActorNoObjectTemplate>();
-            else if (data.SpawnId)
+            else if (data.SpawnId || !data.CreatureId) // @TODO: remove CreatureId check when actor flags are implemented
                 actor.Data.emplace<ConversationActorWorldObjectTemplate>();
             else
                 actor.Data.emplace<ConversationActorTalkingHeadTemplate>();
