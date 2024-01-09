@@ -6301,7 +6301,7 @@ void AuraEffect::HandleMountRestrictions(AuraApplication const* aurApp, uint8 mo
     aurApp->GetTarget()->UpdateMountCapability();
 }
 
-void AuraEffect::HandleCosmeticMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleCosmeticMounted(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
@@ -6313,7 +6313,7 @@ void AuraEffect::HandleCosmeticMounted(AuraApplication const* aurApp, uint8 mode
     playerTarget->SendMovementSetCollisionHeight(playerTarget->GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Force);
 }
 
-void AuraEffect::HandleModRequiredMountCapabilityFlags(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModRequiredMountCapabilityFlags(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
