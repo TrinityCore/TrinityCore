@@ -19,6 +19,8 @@
 #define _ITEM_ENCHANTMENT_MGR_H
 
 #include "Common.h"
+#include <unordered_map>
+#include <vector>
 
 struct ItemRandomProperties
 {

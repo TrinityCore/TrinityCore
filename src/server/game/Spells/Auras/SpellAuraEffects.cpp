@@ -6025,7 +6025,7 @@ void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mod
         target->GetMap()->SendZoneWeather(target->GetZoneId(), target);
 }
 
-void AuraEffect::HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleEnableAltPower(AuraApplication const* /*aurApp*/, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
