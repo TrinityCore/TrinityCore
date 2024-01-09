@@ -1982,9 +1982,10 @@ void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLe
 
 void Aura::UpdateHeartbeatResist(uint32 diff, Unit* target)
 {
-    sWorld->SendServerMessage(SERVER_MSG_STRING, fmt::format("heartbeat: {0}", m_heartbeatResistChance), target->ToPlayer());
     if (m_heartbeatResistChance == 0.0f || !m_heartbeatResistInterval || m_heartbeatResistTimer <= 0)
         return;
+
+    sWorld->SendServerMessage(SERVER_MSG_STRING, fmt::format("heartbeat: {0} {1} {2}", m_heartbeatResistChance, this->GetSpellInfo()->SpellName[sWorld->GetDefaultDbcLocale()], target->ToUnit()->GetName()), target->ToPlayer());
 
     m_heartbeatResistTimer -= diff;
 
