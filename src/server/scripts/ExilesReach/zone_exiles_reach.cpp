@@ -1749,12 +1749,12 @@ struct npc_garrick_summoned_beach : public ScriptedAI
 {
     npc_garrick_summoned_beach(Creature* creature) : ScriptedAI(creature), _reachedCamp(false) {}
 
-    void IsSummonedBy(WorldObject* summoner) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         _events.ScheduleEvent(EVENT_INITIAL_SPAWN_CHECK, 1s);
     }
 
-    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id != SPELL_GARRICK_PING)
             return;
@@ -1840,14 +1840,14 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
 {
     npc_grimaxe_summoned_beach(Creature* creature) : ScriptedAI(creature), _reachedCamp(false) {}
 
-    void IsSummonedBy(WorldObject* summoner) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         _reachedCamp = false;
 
         _events.ScheduleEvent(EVENT_INITIAL_SPAWN_CHECK, 1s);
     }
 
-    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id != SPELL_GARRICK_PING)
             return;
@@ -3548,7 +3548,7 @@ struct npc_leader_northbound : public ScriptedAI
         conversation->Start();
     }
 
-    void IsSummonedBy(WorldObject* summoner) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 3s);
     }
@@ -4435,8 +4435,6 @@ struct npc_geolord_grekog : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;
@@ -4590,8 +4588,6 @@ struct npc_quilboar_warrior : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -4661,8 +4657,6 @@ struct npc_quilboar_geomancer : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;
@@ -4746,8 +4740,6 @@ struct npc_ogre_overseer : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;
