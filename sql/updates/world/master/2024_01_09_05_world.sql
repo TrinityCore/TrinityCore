@@ -1,18 +1,10 @@
 -- Set by TC Devs
--- Two new creature spawns
-SET @GUID := 8000020; -- Two required
 -- New areatrigger
 SET @ID := 58; -- One required
 SET @SPAWNID := 58; -- One required
 SET @CREATEPROPID := 46; -- One required
 
 -- Briar Patch
-
--- Add missing spawns
-DELETE FROM `creature` WHERE `guid` IN (@GUID,@GUID+1);
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `ScriptName`, `StringId`, `VerifiedBuild`) VALUES
-(@GUID,155371,2175,10424,10503,'0',0,15314,0,-1,0,0,9.38368,-2514.89,75.9253,0,7200,0,0,124,0,0,NULL,NULL,NULL,NULL,'','Briarpatch_bunny_horde',52649),
-(@GUID+1,155371,2175,10424,10503,'0',0,15314,0,-1,0,0,18.2743,-2503.75,76.9619,0,7200,0,0,124,0,0,NULL,NULL,NULL,NULL,'',NULL,52649);
 
 -- Create new serverside areatrigger for leaving Quillboar Briarpatch conversation "Used Phase 13878 Not sure if right phase"
 DELETE FROM `areatrigger` WHERE `SpawnId`=@SPAWNID;

@@ -4337,25 +4337,26 @@ class spell_validated_quest_accept_briarpatch_horde : public SpellScript
 
 enum GeolordData
 {
-    CONVERSATION_GEOLORD_AGGRO = 13712,
+    CONVERSATION_GEOLORD_AGGRO  = 13712,
 
-    CONVERSATION_ACTOR_GEOLORD = 70670,
-    CONVERSATION_ACTOR_LINDIE  = 71238,
-    CONVERSATION_ACTOR_CORK    = 75976,
+    CONVERSATION_ACTOR_GEOLORD  = 70670,
+    CONVERSATION_ACTOR_LINDIE   = 71238,
+    CONVERSATION_ACTOR_CORK     = 75976,
 
-    EVENT_CAST_EARTH_BOLT      = 1,
-    EVENT_CAST_UPHEAVAL        = 2,
+    EVENT_CAST_EARTH_BOLT       = 1,
+    EVENT_CAST_UPHEAVAL         = 2,
 
-    NPC_CORK_FIZZLEPOP         = 167008,
-    NPC_LINDIE_SPRINGSTOCK     = 154301,
+    NPC_CORK_FIZZLEPOP          = 167008,
+    NPC_LINDIE_SPRINGSTOCK      = 154301,
+    NPC_INVIS_BUNNY_GEOLORD     = 155371,
 
-    ACTION_FREE_PRISONER       = 1,
+    ACTION_FREE_PRISONER        = 1,
 
-    SPELL_NECROTIC_RITUAL_DNT  = 305513,
-    SPELL_EARTH_BOLT           = 270453,
-    SPELL_UPHEAVAL             = 319273,
+    SPELL_NECROTIC_RITUAL_DNT   = 305513,
+    SPELL_EARTH_BOLT            = 270453,
+    SPELL_UPHEAVAL              = 319273,
 
-    WORLDSTATE_HORDE           = 4486
+    WORLDSTATE_HORDE            = 4486
 };
 
 Position const PrisonerPosition = { 16.4271f, -2511.82f, 78.8215f, 5.66398f  };
@@ -4368,15 +4369,11 @@ struct npc_geolord_grekog : public ScriptedAI
     void JustAppeared() override
     {
         uint32 prisonerEntry = NPC_LINDIE_SPRINGSTOCK;
-        std::string_view bunnyStringId = "briarpatch_bunny_alliance";
 
         if (sWorldStateMgr->GetValue(WORLDSTATE_HORDE, me->GetMap()) == 1)
-        {
             prisonerEntry = NPC_CORK_FIZZLEPOP;
-            bunnyStringId = "Briarpatch_bunny_horde";
-        }
 
-        Creature* bunny = FindCreatureIgnorePhase(me, bunnyStringId, 25.0f);
+        Creature* bunny = me->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_INVIS_BUNNY_GEOLORD, .IgnorePhases = true });
         if (!bunny)
             return;
 
@@ -4752,16 +4749,12 @@ struct at_briarpatch_to_plains : AreaTriggerAI
     void StartConversation(Player* player, uint32 conversationId)
     {
         std::vector<WorldObject*> objs;
-        bool convoRunning = false;
 
         Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(player->GetGUID(), conversationId);
         Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(nullptr, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
         Cell::VisitGridObjects(player, checker, 100.0f);
 
-        if (!objs.empty())
-            convoRunning = true;
-
-        if (!convoRunning)
+        if (objs.empty())
             Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr);
     }
 
