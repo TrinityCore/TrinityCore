@@ -2099,7 +2099,7 @@ void Player::Regenerate(Powers power)
         else
             m_powerFraction[power] = addvalue - integerValue;
     }
-    if (m_regenTimerCount >= 2000)
+    if (m_regenTimerCount >= 2000 || curValue == maxValue || curValue == 0)
         SetPower(power, curValue);
     else
         UpdateUInt32Value(UNIT_FIELD_POWER1 + AsUnderlyingType(power), curValue);
