@@ -97,7 +97,7 @@ INSERT INTO `quest_request_items` (`ID`, `EmoteOnComplete`, `EmoteOnIncomplete`,
 
 DELETE FROM `creature_queststarter` WHERE (`id`=124630 AND `quest`=46729);
 INSERT INTO `creature_queststarter` (`id`, `quest`, `VerifiedBuild`) VALUES
-(124630, 46729, 52649); -- The Old Knight offered Kul Tiran Guard
+(124630, 46729, 52649); -- The Old Knight offered by Kul Tiran Guard
 
 UPDATE `creature_queststarter` SET `VerifiedBuild`=52649 WHERE (`id`=121235 AND `quest`=47099);
 
@@ -114,6 +114,14 @@ SET @ENTRY := 121235;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@ENTRY, 0, 0, 1, '', 19, 0, 100, 0, 47099, 0, 0, 0, 85, 247532, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On player accepted quest 47099 - Player who accepted quest: Cast spell 247532 on self'),
-(@ENTRY, 0, 1, 2, '', 61, 0, 100, 0, 0, 0, 0, 0, 85, 247663, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On player accepted quest 47099 - Player who accepted quest: Cast spell 247663 on self'),
-(@ENTRY, 0, 2, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 85, 82238, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On player accepted quest 47099 - Player who accepted quest: Cast spell 82238 on self');
+(@ENTRY, 0, 0, 1, '', 61, 0, 100, 0, 0, 0, 0, 0, 85, 247663, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On player accepted quest 47099 - Player who accepted quest: Cast spell 247663 on self'),
+(@ENTRY, 0, 1, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 85, 82238, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On player accepted quest 47099 - Player who accepted quest: Cast spell 82238 on self');
+
+DELETE FROM `spell_area` WHERE `spell` IN(247532);
+INSERT INTO `spell_area` (`area`, `spell`, `quest_start`, `quest_start_status`, `quest_end`, `quest_end_status`, `flags`, `aura_spell`, `racemask`, `gender`) VALUES
+(8717, 247532, 47099, 74, 46729, 9, 3, 0, 0, 2); -- Get Your Bearings - Tradewinds Market
+
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 17) AND (`SourceEntry` IN (247532));
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUES 
+(17, 0, 247532, 0, 0, 48, 0, 335127, 0, 0, 0, 'Caster of the spell has quest objective 335127 == 0'),
+(17, 0, 247532, 0, 1, 9, 0, 46729, 0, 0, 1, 'Caster of the spell has quest NOT taken');

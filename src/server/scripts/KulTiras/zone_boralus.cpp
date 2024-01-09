@@ -33,14 +33,17 @@ enum GetYourBearingsData
 {
     QUEST_GET_YOUR_BEARINGS             = 47099,
 
-    OBJECTIVE_FERRY_DOCK_VISITED        = 124588,
-    OBJECTIVE_COUNTING_HOUSE_VISITED    = 124586,
-    OBJECTIVE_SNUG_HARBOR_INN_VISITED   = 124768,
-    OBJECTIVE_FLIGHT_MASTER_VISITED     = 124587,
+    KILL_CREDIT_FERRY_DOCK_VISITED      = 124588,
+    KILL_CREDIT_COUNTING_HOUSE_VISITED  = 124586,
+    KILL_CREDIT_SNUG_HARBOR_INN_VISITED = 124768,
+    KILL_CREDIT_FLIGHT_MASTER_VISITED   = 124587,
+
+    OBJECTIVE_FERRY_DOCK_VISITED        = 291081,
+    OBJECTIVE_COUNTING_HOUSE_VISITED    = 291079,
+    OBJECTIVE_SNUG_HARBOR_INN_VISITED   = 291080,
+    OBJECTIVE_FLIGHT_MASTER_VISITED     = 291171,
 
     NPC_SUMMONED_KULTIRAN_GUARD         = 124630,
-
-    EVENT_TAELIA_SET_FACING             = 1,
 
     CONVO_ACTOR_KULTIRAN_GUARD          = 59582,
 
@@ -53,13 +56,14 @@ enum GetYourBearingsData
     SPELL_HUB_TOUR_CONVO_FLIGHT_MASTER  = 247753
 };
 
-// 124630 - (summon) Taelia
+// 124630 - Taelia
 struct npc_taelia_get_your_bearings : public ScriptedAI
 {
     npc_taelia_get_your_bearings(Creature* creature) : ScriptedAI(creature) { }
 
     void IsSummonedBy(WorldObject* summoner) override
     {
+        // might be handled by SummonProperties
         if (Player* player = summoner->ToPlayer())
             me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
     }
@@ -70,33 +74,11 @@ struct npc_taelia_get_your_bearings : public ScriptedAI
             return;
 
         if (pointId == POINT_KULTIRAN_GUARD)
-            _events.ScheduleEvent(EVENT_TAELIA_SET_FACING, 0s);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
         {
-            switch (eventId)
-            {
-                case EVENT_TAELIA_SET_FACING:
-                {
-                    if (Unit* summoner = me->GetOwner())
-                    {
-                        me->SetFacingToObject(summoner);
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
+            if (Unit* summoner = me->GetOwner())
+                me->SetFacingToObject(summoner);
         }
     }
-
-private:
-    EventMap _events;
 };
 
 // 5360 - Conversation
@@ -117,32 +99,37 @@ public:
 };
 
 // XX - Boralus - Get your Bearings (Ferry)
-struct at_boralus_get_your_bearings_ferry : AreaTriggerAI
+// XX - Boralus - Get your Bearings (Bank)
+// XX - Boralus - Get your Bearings (Inn)
+// XX - Boralus - Get your Bearings (Flightmaster)
+template<uint32 QuestId, uint32 ObjectiveId, uint32 SpellId>
+struct at_boralus_get_your_bearings : AreaTriggerAI
 {
-    at_boralus_get_your_bearings_ferry(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    at_boralus_get_your_bearings(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnUnitEnter(Unit* unit) override
     {
         Player* player = unit->ToPlayer();
-        if (!player || player->GetQuestStatus(QUEST_GET_YOUR_BEARINGS) != QUEST_STATUS_INCOMPLETE || player->GetQuestObjectiveData(QUEST_GET_YOUR_BEARINGS, OBJECTIVE_FERRY_DOCK_VISITED))
+        if (!player || player->GetQuestStatus(QuestId) != QUEST_STATUS_INCOMPLETE || player->GetQuestObjectiveData(QuestId, ObjectiveId))
             return;
 
-        player->CastSpell(nullptr, SPELL_HUB_TOUR_CONVO_FERRY, false);
+        player->CastSpell(nullptr, SpellId, false);
     }
 };
 
-Position const TaeliaFerryPos = { 1039.5955f, -598.00653f, 1.458778f };
-
 // 5362 - Conversation - Get your Bearings (Ferry)
-class conversation_boralus_hub_tour_ferry : public ConversationScript
+class conversation_boralus_hub_tour : public ConversationScript
 {
 public:
-    conversation_boralus_hub_tour_ferry() : ConversationScript("conversation_boralus_hub_tour_ferry") { }
+    conversation_boralus_hub_tour(char const* scriptName) : ConversationScript(scriptName) { }
 
     enum ConversationFerryData
     {
-        EVENT_TAELIA_FERRY_CREDIT   = 1
+        EVENT_TAELIA_CREDIT   = 1
     };
+
+    virtual Position const& GetGuardMovePosition() = 0;
+    virtual uint32 GetKillCreditId() = 0;
 
     void OnConversationCreate(Conversation* conversation, Unit* creator) override
     {
@@ -151,7 +138,7 @@ public:
             return;
 
         kultiranGuard->GetMotionMaster()->Clear();
-        kultiranGuard->GetMotionMaster()->MovePoint(POINT_KULTIRAN_GUARD, TaeliaFerryPos);
+        kultiranGuard->GetMotionMaster()->MovePoint(POINT_KULTIRAN_GUARD, GetGuardMovePosition());
 
         conversation->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
         conversation->Start();
@@ -161,7 +148,7 @@ public:
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        _events.ScheduleEvent(EVENT_TAELIA_FERRY_CREDIT, conversation->GetLastLineEndTime(privateOwnerLocale));
+        _events.ScheduleEvent(EVENT_TAELIA_CREDIT, conversation->GetLastLineEndTime(privateOwnerLocale));
     }
 
     void OnConversationUpdate(Conversation* conversation, uint32 diff) override
@@ -170,18 +157,18 @@ public:
 
         switch (_events.ExecuteEvent())
         {
-            case EVENT_TAELIA_FERRY_CREDIT:
+            case EVENT_TAELIA_CREDIT:
             {
-                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
-                if (!privateObjectOwner)
+                Player* player = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
+                if (!player)
                     break;
 
-                Creature* kultiranGuard = privateObjectOwner->FindNearestCreatureWithOptions(50.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = privateObjectOwner->GetGUID() });
+                Creature* kultiranGuard = player->FindNearestCreatureWithOptions(50.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = player->GetGUID() });
                 if (!kultiranGuard)
                     break;
 
-                privateObjectOwner->ToPlayer()->KilledMonsterCredit(OBJECTIVE_FERRY_DOCK_VISITED);
-                kultiranGuard->GetMotionMaster()->MoveFollow(privateObjectOwner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                player->KilledMonsterCredit(GetKillCreditId());
+                kultiranGuard->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
                 break;
             }
             default:
@@ -192,239 +179,80 @@ private:
     EventMap _events;
 };
 
-// XX - Boralus - Get your Bearings (Counting House)
-struct at_boralus_get_your_bearings_counting_house : AreaTriggerAI
+Position const TaeliaFerryPos = { 1039.5955f, -598.00653f, 1.458778f };
+
+// 5362 - Conversation - Get your Bearings (Ferry)
+class conversation_boralus_hub_tour_ferry : public conversation_boralus_hub_tour
 {
-    at_boralus_get_your_bearings_counting_house(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+public:
+    conversation_boralus_hub_tour_ferry() : conversation_boralus_hub_tour("conversation_boralus_hub_tour_ferry") { }
 
-    void OnUnitEnter(Unit* unit) override
+    Position const& GetGuardMovePosition()
     {
-        Player* player = unit->ToPlayer();
-        if (!player || player->GetQuestStatus(QUEST_GET_YOUR_BEARINGS) != QUEST_STATUS_INCOMPLETE || player->GetQuestObjectiveData(QUEST_GET_YOUR_BEARINGS, OBJECTIVE_COUNTING_HOUSE_VISITED))
-            return;
+        return TaeliaFerryPos;
+    }
 
-        player->CastSpell(nullptr, SPELL_HUB_TOUR_CONVO_BANK, false);
+    uint32 GetKillCreditId()
+    {
+        return KILL_CREDIT_FERRY_DOCK_VISITED;
     }
 };
 
 Position const TaeliaBankPos = { 1118.7385f, -622.4115f, 17.76035f };
 
 // 5365 - Conversation Get your Bearings (Counting House)
-class conversation_boralus_hub_tour_counting_house : public ConversationScript
+class conversation_boralus_hub_tour_counting_house : public conversation_boralus_hub_tour
 {
 public:
-    conversation_boralus_hub_tour_counting_house() : ConversationScript("conversation_boralus_hub_tour_counting_house") { }
+    conversation_boralus_hub_tour_counting_house() : conversation_boralus_hub_tour("conversation_boralus_hub_tour_counting_house") { }
 
-    enum ConversationBankData
+    Position const& GetGuardMovePosition()
     {
-        EVENT_TAELIA_BANK_CREDIT    = 1
-    };
-
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
-    {
-        Creature* kultiranGuard = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = creator->GetGUID() });
-        if (!kultiranGuard)
-            return;
-
-        kultiranGuard->GetMotionMaster()->Clear();
-        kultiranGuard->GetMotionMaster()->MovePoint(POINT_KULTIRAN_GUARD, TaeliaBankPos);
-
-        conversation->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
-        conversation->Start();
+        return TaeliaBankPos;
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    uint32 GetKillCreditId()
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
-
-        _events.ScheduleEvent(EVENT_TAELIA_BANK_CREDIT, conversation->GetLastLineEndTime(privateOwnerLocale));
-    }
-
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
-    {
-        _events.Update(diff);
-
-        switch (_events.ExecuteEvent())
-        {
-            case EVENT_TAELIA_BANK_CREDIT:
-            {
-                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
-                if (!privateObjectOwner)
-                    break;
-
-                Creature* kultiranGuard = privateObjectOwner->FindNearestCreatureWithOptions(50.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = privateObjectOwner->GetGUID() });
-                if (!kultiranGuard)
-                    break;
-
-                privateObjectOwner->ToPlayer()->KilledMonsterCredit(OBJECTIVE_COUNTING_HOUSE_VISITED);
-                kultiranGuard->GetMotionMaster()->MoveFollow(privateObjectOwner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-private:
-    EventMap _events;
-};
-
-// XX - Boralus Get your Bearings (Harbor Inn)
-struct at_boralus_get_your_bearings_inn : AreaTriggerAI
-{
-    at_boralus_get_your_bearings_inn(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        Player* player = unit->ToPlayer();
-        if (!player || player->GetQuestStatus(QUEST_GET_YOUR_BEARINGS) != QUEST_STATUS_INCOMPLETE || player->GetQuestObjectiveData(QUEST_GET_YOUR_BEARINGS, OBJECTIVE_SNUG_HARBOR_INN_VISITED))
-            return;
-
-        player->CastSpell(nullptr, SPELL_HUB_TOUR_CONVO_INN, false);
+        return KILL_CREDIT_COUNTING_HOUSE_VISITED;
     }
 };
 
 Position const TaeliaInnPos = { 1177.39f, -587.682f, 31.557224f };
 
 // 5375 - Conversation Get your Bearings (Harbor Inn)
-class conversation_boralus_hub_tour_harbor_inn : public ConversationScript
+class conversation_boralus_hub_tour_harbor_inn : public conversation_boralus_hub_tour
 {
 public:
-    conversation_boralus_hub_tour_harbor_inn() : ConversationScript("conversation_boralus_hub_tour_harbor_inn") { }
+    conversation_boralus_hub_tour_harbor_inn() : conversation_boralus_hub_tour("conversation_boralus_hub_tour_harbor_inn") { }
 
-    enum ConversationInnData
+    Position const& GetGuardMovePosition()
     {
-        CONVO_LINE_INN_CREDIT   = 17269,
-
-        EVENT_TAELIA_INN_CREDIT = 1
-    };
-
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
-    {
-        Creature* kultiranGuard = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = creator->GetGUID() });
-        if (!kultiranGuard)
-            return;
-
-        kultiranGuard->GetMotionMaster()->Clear();
-        kultiranGuard->GetMotionMaster()->MovePoint(POINT_KULTIRAN_GUARD, TaeliaInnPos);
-
-        conversation->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
-        conversation->Start();
+        return TaeliaInnPos;
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    uint32 GetKillCreditId()
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
-
-        _events.ScheduleEvent(EVENT_TAELIA_INN_CREDIT, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_INN_CREDIT));
-    }
-
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
-    {
-        _events.Update(diff);
-
-        switch (_events.ExecuteEvent())
-        {
-            case EVENT_TAELIA_INN_CREDIT:
-            {
-                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
-                if (!privateObjectOwner)
-                    break;
-
-                Creature* kultiranGuard = privateObjectOwner->FindNearestCreatureWithOptions(50.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = privateObjectOwner->GetGUID() });
-                if (!kultiranGuard)
-                    break;
-
-                privateObjectOwner->ToPlayer()->KilledMonsterCredit(OBJECTIVE_SNUG_HARBOR_INN_VISITED);
-                kultiranGuard->GetMotionMaster()->MoveFollow(privateObjectOwner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-private:
-    EventMap _events;
-};
-
-// XX - Boralus Get your Bearings (Flight Master)
-struct at_boralus_get_your_bearings_flight_master : AreaTriggerAI
-{
-    at_boralus_get_your_bearings_flight_master(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        Player* player = unit->ToPlayer();
-        if (!player || player->GetQuestStatus(QUEST_GET_YOUR_BEARINGS) != QUEST_STATUS_INCOMPLETE || player->GetQuestObjectiveData(QUEST_GET_YOUR_BEARINGS, OBJECTIVE_FLIGHT_MASTER_VISITED))
-            return;
-
-        player->CastSpell(nullptr, SPELL_HUB_TOUR_CONVO_FLIGHT_MASTER, false);
+        return KILL_CREDIT_SNUG_HARBOR_INN_VISITED;
     }
 };
 
 Position const TaeliaFlightMasterPos = { 1149.82f, -471.071f, 30.503826f };
 
 // 5366 - Conversation Get your Bearings (Flight Master)
-class conversation_boralus_hub_tour_flight_master : public ConversationScript
+class conversation_boralus_hub_tour_flight_master : public conversation_boralus_hub_tour
 {
 public:
-    conversation_boralus_hub_tour_flight_master() : ConversationScript("conversation_boralus_hub_tour_flight_master") { }
+    conversation_boralus_hub_tour_flight_master() : conversation_boralus_hub_tour("conversation_boralus_hub_tour_flight_master") { }
 
-    enum ConversationInnData
+    Position const& GetGuardMovePosition()
     {
-        CONVO_LINE_FLIGHT_MASTER_CREDIT     = 17271,
-
-        EVENT_TAELIA_FLIGHT_MASTER_CREDIT   = 1
-    };
-
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
-    {
-        Creature* kultiranGuard = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = creator->GetGUID() });
-        if (!kultiranGuard)
-            return;
-
-        kultiranGuard->GetMotionMaster()->Clear();
-        kultiranGuard->GetMotionMaster()->MovePoint(POINT_KULTIRAN_GUARD_FLIGHT_MASTER, TaeliaFlightMasterPos);
-
-        conversation->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
-        conversation->Start();
+        return TaeliaFlightMasterPos;
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    uint32 GetKillCreditId()
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
-
-        _events.ScheduleEvent(EVENT_TAELIA_FLIGHT_MASTER_CREDIT, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_FLIGHT_MASTER_CREDIT));
+        return KILL_CREDIT_FLIGHT_MASTER_VISITED;
     }
-
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
-    {
-        _events.Update(diff);
-
-        switch (_events.ExecuteEvent())
-        {
-            case EVENT_TAELIA_FLIGHT_MASTER_CREDIT:
-            {
-                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
-                if (!privateObjectOwner)
-                    break;
-
-                Creature* kultiranGuard = privateObjectOwner->FindNearestCreatureWithOptions(50.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = privateObjectOwner->GetGUID() });
-                if (!kultiranGuard)
-                    break;
-
-                privateObjectOwner->ToPlayer()->KilledMonsterCredit(OBJECTIVE_FLIGHT_MASTER_VISITED);
-                kultiranGuard->GetMotionMaster()->MoveFollow(privateObjectOwner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-private:
-    EventMap _events;
 };
 
 void AddSC_zone_boralus()
@@ -440,8 +268,8 @@ void AddSC_zone_boralus()
     new conversation_boralus_hub_tour_flight_master();
 
     // AreaTrigger
-    RegisterAreaTriggerAI(at_boralus_get_your_bearings_ferry);
-    RegisterAreaTriggerAI(at_boralus_get_your_bearings_counting_house);
-    RegisterAreaTriggerAI(at_boralus_get_your_bearings_inn);
-    RegisterAreaTriggerAI(at_boralus_get_your_bearings_flight_master);
+    new GenericAreaTriggerEntityScript<at_boralus_get_your_bearings<QUEST_GET_YOUR_BEARINGS, OBJECTIVE_FERRY_DOCK_VISITED, SPELL_HUB_TOUR_CONVO_FERRY>>("at_boralus_get_your_bearings_ferry");
+    new GenericAreaTriggerEntityScript<at_boralus_get_your_bearings<QUEST_GET_YOUR_BEARINGS, OBJECTIVE_COUNTING_HOUSE_VISITED, SPELL_HUB_TOUR_CONVO_BANK>>("at_boralus_get_your_bearings_counting_house");
+    new GenericAreaTriggerEntityScript<at_boralus_get_your_bearings<QUEST_GET_YOUR_BEARINGS, OBJECTIVE_SNUG_HARBOR_INN_VISITED, SPELL_HUB_TOUR_CONVO_INN>>("at_boralus_get_your_bearings_inn");
+    new GenericAreaTriggerEntityScript<at_boralus_get_your_bearings<QUEST_GET_YOUR_BEARINGS, OBJECTIVE_FLIGHT_MASTER_VISITED, SPELL_HUB_TOUR_CONVO_FLIGHT_MASTER>>("at_boralus_get_your_bearings_flight_master");
 }
