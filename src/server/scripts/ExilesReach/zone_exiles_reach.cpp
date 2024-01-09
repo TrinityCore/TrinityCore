@@ -4394,14 +4394,7 @@ struct npc_geolord_grekog : public ScriptedAI
     {
         if (Player* player = who->ToPlayer())
         {
-            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_GEOLORD_AGGRO, player, *player, player->GetGUID(), nullptr, false);
-            if (!conversation)
-                return;
-
-            conversation->AddActor(CONVERSATION_ACTOR_GEOLORD, 0, me->GetGUID());
-            conversation->AddActor(CONVERSATION_ACTOR_LINDIE, 1, ObjectGuid::Empty);
-            conversation->AddActor(CONVERSATION_ACTOR_CORK, 2, ObjectGuid::Empty);
-            conversation->Start();
+            Conversation::CreateConversation(CONVERSATION_GEOLORD_AGGRO, player, *player, player->GetGUID(), nullptr, true);
 
             _events.ScheduleEvent(EVENT_CAST_EARTH_BOLT, 3s, 5s);
             _events.ScheduleEvent(EVENT_CAST_UPHEAVAL, 10s, 15s);

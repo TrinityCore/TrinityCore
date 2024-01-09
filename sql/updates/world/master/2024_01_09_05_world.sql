@@ -1,10 +1,10 @@
 -- Set by TC Devs
 -- Two new creature spawns
-SET @GUID := 9008000; -- Two required
+SET @GUID := 8000020; -- Two required
 -- New areatrigger
-SET @ID := 65; -- One required
-SET @SPAWNID := 65; -- One required
-SET @CREATEPROPID := 65; -- One required
+SET @ID := 58; -- One required
+SET @SPAWNID := 58; -- One required
+SET @CREATEPROPID := 46; -- One required
 
 -- Briar Patch
 
@@ -79,8 +79,8 @@ INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`
 (36346,0,2,0,52649);
 
 DELETE FROM `conversation_template` WHERE `Id` IN (13712);
-INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
-(13712,34175,0,'',52649);
+INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`Flags`,`ScriptName`,`VerifiedBuild`) VALUES
+(13712,34175,0,0x04,'',52649);
 
 -- Conversation entering plains
 DELETE FROM `conversation_actors` WHERE `ConversationId` IN (12076,14514);
