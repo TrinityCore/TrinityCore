@@ -267,3 +267,11 @@ UPDATE `creature_template_difficulty` SET `LootID`=@ID, GoldMin=4, GoldMax=20 WH
 DELETE FROM `creature_loot_template` WHERE `Entry` IN (@ID);
 INSERT INTO `creature_loot_template` (`Entry`,`Item`,`Reference`,`Chance`,`QuestRequired`,`LootMode`,`GroupId`,`MinCount`,`MaxCount`,`Comment`) VALUES
 (@ID,771,0,100,0,1,0,1,1,'Geolord Grek''og - Chipped Boar Tusk');
+
+UPDATE `creature_summoned_data` SET `DespawnOnQuestsRemoved`='59342,55186,55184' WHERE `CreatureID`=154327; -- Austin Huxworth
+UPDATE `creature_summoned_data` SET `DespawnOnQuestsRemoved`='59937,59938,59939' WHERE `CreatureID`=166996; -- Mithdran Dawntracker
+
+DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN(156662, 166997);
+INSERT INTO `creature_summoned_data` (`CreatureID`, `DespawnOnQuestsRemoved`) VALUES
+(156662, '55186,55184'), -- Garrick
+(166997, '59938,59939'); -- Grimaxe
