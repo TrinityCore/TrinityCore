@@ -4216,9 +4216,9 @@ class spell_tutorial_health_dnt : public SpellScript
 enum QuilboarQuest
 {
     QUEST_DOWN_WITH_THE_QUILBOAR_ALLIANCE            = 55186,
-    QUEST_FORBIDDON_QUILBOAR_NECROMANY_ALLIANCE      = 55184,
+    QUEST_FORBIDDEN_QUILBOAR_NECROMANY_ALLIANCE      = 55184,
     QUEST_DOWN_WITH_THE_QUILBOAR_HORDE               = 59938,
-    QUEST_FORBIDDON_QUILBOAR_NECROMANY_HORDE         = 59939,
+    QUEST_FORBIDDEN_QUILBOAR_NECROMANY_HORDE         = 59939,
 
     SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_ALLIANCE = 298984,
     SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_HORDE    = 325309
@@ -4233,12 +4233,12 @@ class quest_briarpatch : public QuestScript
 public:
     quest_briarpatch(char const* script) : QuestScript(script) { }
 
-    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, uint32 questDown, uint32 questForbiddon, uint32 spellValidated)
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, uint32 questDown, uint32 questForbidden, uint32 spellValidated)
     {
         switch (newStatus)
         {
             case QUEST_STATUS_INCOMPLETE:
-                if (player->GetQuestStatus(questDown) != QUEST_STATUS_NONE && player->GetQuestStatus(questForbiddon) != QUEST_STATUS_NONE)
+                if (player->GetQuestStatus(questDown) != QUEST_STATUS_NONE && player->GetQuestStatus(questForbidden) != QUEST_STATUS_NONE)
                 {
                     player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
                     player->CastSpell(player, spellValidated);
@@ -4262,7 +4262,7 @@ public:
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
-        HandleQuestStatusChange(player, newStatus, QUEST_DOWN_WITH_THE_QUILBOAR_ALLIANCE, QUEST_FORBIDDON_QUILBOAR_NECROMANY_ALLIANCE, SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_ALLIANCE);
+        HandleQuestStatusChange(player, newStatus, QUEST_DOWN_WITH_THE_QUILBOAR_ALLIANCE, QUEST_FORBIDDEN_QUILBOAR_NECROMANY_ALLIANCE, SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_ALLIANCE);
     }
 };
 
@@ -4275,7 +4275,7 @@ public:
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
-        HandleQuestStatusChange(player, newStatus, QUEST_DOWN_WITH_THE_QUILBOAR_HORDE, QUEST_FORBIDDON_QUILBOAR_NECROMANY_HORDE, SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_HORDE);
+        HandleQuestStatusChange(player, newStatus, QUEST_DOWN_WITH_THE_QUILBOAR_HORDE, QUEST_FORBIDDEN_QUILBOAR_NECROMANY_HORDE, SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_HORDE);
     }
 };
 
