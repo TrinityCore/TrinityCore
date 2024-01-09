@@ -3874,17 +3874,17 @@ struct npc_huxsworth_hunter_quest_private : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_ME_TURN_TO_PLAYER:
-                    if (Unit* owner = me->GetOwner())
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
                     {
-                        me->SetFacingToObject(owner);
+                        me->SetFacingToObject(player);
                         me->SetEmoteState(EMOTE_STATE_TALK);
                         Talk(SAY_PET_TRAINING_ALLIANCE);
-                        owner->CastSpell(owner, SPELL_LEARNING_TAME_BEAST);
+                        player->CastSpell(player, SPELL_LEARNING_TAME_BEAST);
                         _events.ScheduleEvent(EVENT_ME_END_OF_CAST, 8s);
                     }
                     break;
                 case EVENT_ME_END_OF_CAST:
-                    if (Player* player = me->GetAffectingPlayer())
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
                     {
                         if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) != QUEST_STATUS_REWARDED)
                             player->CastSpell(player, SPELL_TUTORIAL_HEALTH_DNT);
@@ -3954,9 +3954,9 @@ struct npc_huxsworth_briarpatch_quest_private : public ScriptedAI
             {
                 case EVENT_HUXSWORTH_GARRICK_CONVERSATION:
                 {
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
                     {
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_BRIARPATCH_ALLIANCE, owner, *owner, owner->GetGUID(), nullptr, false);
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_BRIARPATCH_ALLIANCE, player, *player, player->GetGUID(), nullptr, false);
                         if (!conversation)
                             break;
 
@@ -4018,22 +4018,22 @@ struct npc_dawntracker_hunter_quest_private : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_ME_TURN_TO_PLAYER:
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
                     {
-                        me->SetFacingToObject(owner);
+                        me->SetFacingToObject(player);
                         me->SetEmoteState(EMOTE_STATE_TALK);
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_HORDE_TRAINER, owner, *owner, owner->GetGUID(), nullptr, false);
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_HORDE_TRAINER, player, *player, player->GetGUID(), nullptr, false);
                         if (conversation)
                         {
                             conversation->AddActor(CONVERSATION_HORDE_ACTOR, 0, me->GetGUID());
                             conversation->Start();
                         }
-                        owner->CastSpell(owner, SPELL_LEARNING_TAME_BEAST);
+                        player->CastSpell(player, SPELL_LEARNING_TAME_BEAST);
                         _events.ScheduleEvent(EVENT_ME_END_OF_CAST, 8s);
                     }
                     break;
                 case EVENT_ME_END_OF_CAST:
-                    if (Player* player = me->GetAffectingPlayer())
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
                     {
                         if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) != QUEST_STATUS_REWARDED)
                             player->CastSpell(player, SPELL_TUTORIAL_HEALTH_DNT);
@@ -4102,9 +4102,9 @@ struct npc_dawntracker_briarpatch_quest_private : public ScriptedAI
             {
                 case EVENT_DAWNTRACKER_GRIMAXE_CONVERSATION:
                 {
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
                     {
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_BRIARPATCH_HORDE, owner, *owner, owner->GetGUID(), nullptr, false);
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_BRIARPATCH_HORDE, player, *player, player->GetGUID(), nullptr, false);
                         if (!conversation)
                             break;
 
