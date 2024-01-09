@@ -212,7 +212,7 @@ void ConversationDataStore::LoadConversationTemplates()
         return lineId;
     };
 
-    if (QueryResult templates = WorldDatabase.Query("SELECT Id, FirstLineId, TextureKitId, ScriptName FROM conversation_template"))
+    if (QueryResult templates = WorldDatabase.Query("SELECT Id, FirstLineId, TextureKitId, Flags, ScriptName FROM conversation_template"))
     {
         uint32 oldMSTime = getMSTime();
 
@@ -224,7 +224,8 @@ void ConversationDataStore::LoadConversationTemplates()
             conversationTemplate.Id                 = fields[0].GetUInt32();
             conversationTemplate.FirstLineId        = fields[1].GetUInt32();
             conversationTemplate.TextureKitId       = fields[2].GetUInt32();
-            conversationTemplate.ScriptId           = sObjectMgr->GetScriptId(fields[3].GetString());
+            conversationTemplate.Flags              = (ConversationFlags)fields[3].GetUInt8();
+            conversationTemplate.ScriptId           = sObjectMgr->GetScriptId(fields[4].GetString());
 
             conversationTemplate.Actors = std::move(actorsByConversation[conversationTemplate.Id]);
 
