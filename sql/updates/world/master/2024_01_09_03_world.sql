@@ -1,6 +1,6 @@
-SET @ATID := 10000;
-SEt @ATCP := 10000;
-SET @ATIDSPAWN := 10000;
+SET @ATID := 58;
+SEt @ATCP := 46;
+SET @ATIDSPAWN := 58;
 
 -- Update Template
 UPDATE `creature_template` SET `npcflag`=2, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `AIName` = '', `ScriptName` = 'npc_taelia_get_your_bearings' WHERE `entry`=124630; -- Kul Tiran Guard
