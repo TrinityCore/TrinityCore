@@ -122,8 +122,6 @@ class boss_romogg_bonecrusher : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

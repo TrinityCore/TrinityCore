@@ -78,8 +78,6 @@ struct npc_dragonflayer_forge_master : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -249,8 +247,6 @@ struct npc_enslaved_proto_drake : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

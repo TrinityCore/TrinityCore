@@ -917,7 +917,6 @@ class boss_leviathan_mk_ii : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -1337,8 +1336,6 @@ class npc_mimiron_assault_bot : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

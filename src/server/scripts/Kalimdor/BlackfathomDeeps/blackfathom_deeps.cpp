@@ -151,8 +151,6 @@ struct npc_blackfathom_deeps_event : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

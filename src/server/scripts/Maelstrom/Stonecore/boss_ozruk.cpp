@@ -174,8 +174,6 @@ class boss_ozruk : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

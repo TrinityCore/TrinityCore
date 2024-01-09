@@ -257,8 +257,6 @@ class boss_gruul : public CreatureScript
                     }
                     else
                         m_uiGroundSlamTimer -= diff;
-
-                    DoMeleeAttackIfReady();
                 }
             }
         };

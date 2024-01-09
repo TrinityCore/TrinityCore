@@ -390,8 +390,6 @@ struct boss_jedoga_shadowseeker : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

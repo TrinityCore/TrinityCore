@@ -95,8 +95,6 @@ class boss_doctor_theolen_krastinov : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

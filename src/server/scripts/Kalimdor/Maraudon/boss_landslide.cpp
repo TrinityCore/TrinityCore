@@ -100,8 +100,6 @@ public:
                 }
                 else LandslideTimer -= diff;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 };

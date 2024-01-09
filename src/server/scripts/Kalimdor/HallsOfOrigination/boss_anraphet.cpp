@@ -260,9 +260,6 @@ struct boss_anraphet : public BossAI
                     break;
             }
         }
-
-        if (events.GetPhaseMask() & PHASE_MASK_COMBAT)
-            DoMeleeAttackIfReady();
     }
 };
 

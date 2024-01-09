@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "UnitDefines.h"
 
 class Unit;
 enum Powers : int8;
@@ -41,20 +42,12 @@ namespace WorldPackets
         class AttackSwingError final : public ServerPacket
         {
         public:
-            enum AttackSwingErr : uint8
-            {
-                NotInRange = 0,
-                BadFacing = 1,
-                CantAttack = 2,
-                DeadTarget = 3
-            };
-
             AttackSwingError() : ServerPacket(SMSG_ATTACK_SWING_ERROR, 4) { }
             AttackSwingError(AttackSwingErr reason) : ServerPacket(SMSG_ATTACK_SWING_ERROR, 4), Reason(reason) { }
 
             WorldPacket const* Write() override;
 
-            AttackSwingErr Reason = CantAttack;
+            AttackSwingErr Reason = AttackSwingErr::CantAttack;
         };
 
         class AttackStop final : public ClientPacket

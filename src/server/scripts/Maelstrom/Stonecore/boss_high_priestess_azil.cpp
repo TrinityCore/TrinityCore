@@ -292,8 +292,6 @@ class boss_high_priestess_azil : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

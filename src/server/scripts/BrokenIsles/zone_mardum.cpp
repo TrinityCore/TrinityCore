@@ -620,8 +620,6 @@ struct npc_illidari_fighting_invasion_begins : public ScriptedAI
             default:
                 break;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1110,8 +1108,6 @@ struct npc_inquisitor_baleful_molten_shore : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

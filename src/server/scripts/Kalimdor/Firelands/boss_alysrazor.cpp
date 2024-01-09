@@ -238,8 +238,6 @@ class npc_harbinger_of_flame : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -482,8 +480,6 @@ class npc_egg_pile : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

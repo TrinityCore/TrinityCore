@@ -147,10 +147,7 @@ void FollowerAI::UpdateAI(uint32 uiDiff)
 
 void FollowerAI::UpdateFollowerAI(uint32 /*uiDiff*/)
 {
-    if (!UpdateVictim())
-        return;
-
-    DoMeleeAttackIfReady();
+    UpdateVictim();
 }
 
 void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, uint32 quest)

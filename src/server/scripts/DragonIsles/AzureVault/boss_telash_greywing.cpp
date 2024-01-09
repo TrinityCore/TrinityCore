@@ -227,7 +227,6 @@ struct boss_telash_greywing : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-        DoMeleeAttackIfReady();
     }
 
     void DoAction(int32 param) override

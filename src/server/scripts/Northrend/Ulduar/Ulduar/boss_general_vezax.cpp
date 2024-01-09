@@ -216,8 +216,6 @@ class boss_general_vezax : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
@@ -364,8 +362,6 @@ class boss_saronite_animus : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

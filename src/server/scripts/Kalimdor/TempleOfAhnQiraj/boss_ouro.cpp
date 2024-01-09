@@ -140,8 +140,6 @@ public:
                 Submerged = false;
                 Submerge_Timer = urand(60000, 120000);
             } else Back_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 

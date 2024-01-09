@@ -299,8 +299,6 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                     }
                     else
                         Summon_Assistant_Timer -= diff;
-
-                    DoMeleeAttackIfReady();
                 }
 
                 if (resetcheck_timer <= diff)

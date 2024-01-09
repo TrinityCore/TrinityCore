@@ -147,8 +147,6 @@ public:
             }
             else
                 Revenge_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
         void DoAction(int32 /*param*/) override
@@ -327,7 +325,6 @@ public:
             else
             {
                 me->SetSheath(SHEATH_STATE_MELEE);
-                DoMeleeAttackIfReady();
             }
         }
 
