@@ -254,8 +254,6 @@ struct boss_gluth : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void MovementInform(uint32 /*type*/, uint32 id) override
@@ -381,8 +379,6 @@ struct npc_zombie_chow : public ScriptedAI
                     me->StopMoving();
             }
         }
-        else if (state == STATE_ZOMBIE_NORMAL)
-            DoMeleeAttackIfReady();
     }
 
     void SetData(uint32 id, uint32 value) override
@@ -394,6 +390,7 @@ struct npc_zombie_chow : public ScriptedAI
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->AttackStop();
+                me->SetCanMelee(false);
                 me->SetTarget(ObjectGuid::Empty);
                 // at this point, the zombie should be non attacking and non moving.
 
@@ -410,6 +407,7 @@ struct npc_zombie_chow : public ScriptedAI
                 // and loose aggro behavior
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->AttackStop();
+                me->SetCanMelee(false);
                 me->SetTarget(ObjectGuid::Empty);
 
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true); // not sure if this is blizz-like but this is very convenient

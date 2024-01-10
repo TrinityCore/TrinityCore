@@ -454,8 +454,6 @@ public:
                     me->SetInCombatWith(player);
                 }
             } // end: support for quest 10190
-
-            DoMeleeAttackIfReady();
         }
     };
 };

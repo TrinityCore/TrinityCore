@@ -505,8 +505,6 @@ struct boss_sister_svalna : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -778,8 +776,6 @@ struct npc_crok_scourgebane : public EscortAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
     bool CanAIAttack(Unit const* target) const override
@@ -985,8 +981,6 @@ struct npc_captain_arnath : public npc_argent_captainAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1055,8 +1049,6 @@ struct npc_captain_brandon : public npc_argent_captainAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -1114,8 +1106,6 @@ struct npc_captain_grondel : public npc_argent_captainAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -1169,8 +1159,6 @@ struct npc_captain_rupert : public npc_argent_captainAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -1366,8 +1354,6 @@ struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

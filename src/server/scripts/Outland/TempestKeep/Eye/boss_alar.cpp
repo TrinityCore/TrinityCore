@@ -442,19 +442,9 @@ struct boss_alar : public BossAI
                 FlamePatch_Timer -= diff;
         }
 
-        DoMeleeAttackIfReady();
-    }
-
-    void DoMeleeAttackIfReady()
-    {
         if (me->isAttackReady() && !me->IsNonMeleeSpellCast(false))
         {
-            if (me->IsWithinMeleeRange(me->GetVictim()))
-            {
-                me->AttackerStateUpdate(me->GetVictim());
-                me->resetAttackTimer();
-            }
-            else
+            if (!me->IsWithinMeleeRange(me->GetVictim()))
             {
                 if (Unit* target = me->SelectNearestTargetInAttackDistance(5))
                     AttackStart(target);
@@ -533,8 +523,6 @@ struct npc_ember_of_alar : public ScriptedAI
             me->KillSelf();
             //me->SetVisibility(VISIBILITY_OFF);
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 

@@ -271,8 +271,6 @@ struct boss_wrath_scryer_soccothrates : public BossAI
                 dalliah->AI()->Talk(SAY_SOCCOTHRATES_25_PERCENT);
             dalliahTaunt = true;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

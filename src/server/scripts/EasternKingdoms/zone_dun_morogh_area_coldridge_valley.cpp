@@ -537,8 +537,6 @@ struct npc_joren_ironstock : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:

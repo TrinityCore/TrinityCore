@@ -432,8 +432,6 @@ struct npc_sinclari_vh : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
     void ScheduleIntro()
@@ -920,10 +918,7 @@ struct violet_hold_trashAI : public EscortAI
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
     virtual void ScheduledTasks() { }

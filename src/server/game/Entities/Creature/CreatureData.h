@@ -640,6 +640,7 @@ struct CreatureSummonedData
     Optional<uint32> CreatureIDVisibleToSummoner;
     Optional<uint32> GroundMountDisplayID;
     Optional<uint32> FlyingMountDisplayID;
+    Optional<std::vector<uint32>> DespawnOnQuestsRemoved;
 };
 
 enum InhabitTypeValues

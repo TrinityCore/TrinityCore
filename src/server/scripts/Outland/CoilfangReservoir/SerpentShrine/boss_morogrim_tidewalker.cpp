@@ -266,8 +266,6 @@ struct boss_morogrim_tidewalker : public BossAI
                 WateryGlobules_Timer = 25000;
             } else WateryGlobules_Timer -= diff;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 

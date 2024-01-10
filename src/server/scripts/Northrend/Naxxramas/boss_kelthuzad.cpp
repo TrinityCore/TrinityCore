@@ -508,8 +508,6 @@ struct boss_kelthuzad : public BossAI
                 DoCastVictim(SPELL_FROSTBOLT_SINGLE);
                 _frostboltCooldown = 3 * IN_MILLISECONDS;
             }
-            else
-                DoMeleeAttackIfReady();
         }
 
         uint32 GetData(uint32 data) const override
@@ -691,8 +689,6 @@ struct npc_kelthuzad_skeleton : public npc_kelthuzad_minionAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -706,8 +702,6 @@ struct npc_kelthuzad_banshee : public npc_kelthuzad_minionAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -729,8 +723,6 @@ struct npc_kelthuzad_abomination : public npc_kelthuzad_minionAI
         }
         else
             _woundTimer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* killer) override
@@ -817,8 +809,6 @@ struct npc_kelthuzad_guardian : public ScriptedAI
             }
             else
                 _bloodTapTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
     private:

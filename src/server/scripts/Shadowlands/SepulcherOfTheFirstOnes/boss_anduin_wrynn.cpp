@@ -1026,8 +1026,6 @@ struct boss_anduin_wrynn : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void StartIntermission(uint8 intermissionNum)
@@ -1631,8 +1629,6 @@ struct npc_anduin_wrynn_fiendish_soul : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1711,7 +1707,6 @@ struct npc_anduin_wrynn_monstrous_soul : public ScriptedAI
                     break;
             }
         }
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1865,8 +1860,6 @@ struct boss_remnant_of_a_fallen_king : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1951,6 +1944,7 @@ struct npc_anduin_wrynn_sylvanas : public ScriptedAI
     void JustAppeared() override
     {
         me->SetReactState(REACT_AGGRESSIVE);
+        me->SetCanMelee(false); // DoSpellAttackIfReady
     }
 
     void Reset() override
@@ -2008,6 +2002,7 @@ struct npc_anduin_wrynn_jaina : public ScriptedAI
     void JustAppeared() override
     {
         me->SetReactState(REACT_AGGRESSIVE);
+        me->SetCanMelee(false); // DoSpellAttackIfReady
     }
 
     void Reset() override
@@ -2126,8 +2121,6 @@ struct npc_anduin_wrynn_uther : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

@@ -291,8 +291,6 @@ struct boss_brutallus : public BossAI
 
             if (!UpdateVictim())
                 return;
-
-            DoMeleeAttackIfReady();
         }
 
         if (!UpdateVictim() || IsIntro)
@@ -324,8 +322,6 @@ struct boss_brutallus : public BossAI
             DoCast(me, SPELL_BERSERK);
             Enraged = true;
         } else BerserkTimer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 

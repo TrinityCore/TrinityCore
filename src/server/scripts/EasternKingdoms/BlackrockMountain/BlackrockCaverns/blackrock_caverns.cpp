@@ -202,8 +202,6 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -313,8 +311,6 @@ class npc_twilight_torturer : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -414,8 +410,6 @@ class npc_twilight_sadist : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -489,7 +483,6 @@ class npc_mad_prisoner : public CreatureScript
                             break;
                     }
                 }
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -559,8 +552,6 @@ class npc_crazed_mage : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -653,8 +644,6 @@ class npc_raz_the_crazed : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
