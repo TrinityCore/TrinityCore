@@ -27,16 +27,6 @@
 #include "PassiveAI.h"
 #include "ObjectAccessor.h"
 
-static Creature* FindCreatureIgnorePhase(WorldObject const* obj, std::string_view stringId, float range = 100.0f)
-{
-    return obj->FindNearestCreatureWithOptions(range, { .StringId = stringId, .IgnorePhases = true });
-}
-
-static GameObject* FindGameObjectIgnorePhase(WorldObject const* obj, std::string_view stringId, float range = 100.0f)
-{
-    return obj->FindNearestGameObjectWithOptions(range, { .StringId = stringId });
-}
-
 /*######
 ## Quest 37446: Lazy Peons
 ## npc_lazy_peon
@@ -654,7 +644,7 @@ public:
     }
 };
 
-enum VolginVision
+enum VoljinVisionData
 {
     EVENT_VOLJIN_VISION_SCRIPT_1       = 1,
     EVENT_VOLJIN_VISION_SCRIPT_2       = 2,
@@ -734,13 +724,13 @@ enum VolginVision
     SAY_VOLJIN_SCRIPT_TEXT_14          = 14,
 
     SPELL_RITES_OF_VISION              = 73169,
-    SPELL_VOLGINS_VISION_SMOKE         = 73158,
+    SPELL_VOLJINS_VISION_SMOKE         = 73158,
     SPELL_GENERIC_QUEST_INVISIBILITY_1 = 49414,
     SPELL_GENERIC_QUEST_INVISIBILITY_2 = 49415,
     SPELL_GENERIC_QUEST_INVISIBILITY_8 = 78718,
-
 };
 
+// 38966 - Vol'jin (specific script for guid 309032)
 struct npc_voljin_garrosh_vision : public ScriptedAI
 {
     npc_voljin_garrosh_vision(Creature* creature) : ScriptedAI(creature) { _scriptRunning = false; }
@@ -748,6 +738,19 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
     void JustAppeared() override
     {
         me->SetGossipMenuId(GOSSIP_MENU_GARROSH_VISION);
+
+        Creature* garrosh = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "vision_of_garrosh", .IgnorePhases = true });
+        Creature* voljin = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "vision_of_voljin", .IgnorePhases = true });
+        Creature* bunny = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "vision_brazier_bunny_garrosh", .IgnorePhases = true });
+        GameObject* brazier = me->FindNearestGameObjectWithOptions(10.0f, { .StringId = "vision_brazier_garrosh_voljin" });
+
+        if (!garrosh || !voljin || !bunny || !brazier)
+            return;
+
+        _garroshGUID = garrosh->GetGUID();
+        _voljinGUID = voljin->GetGUID();
+        _bunnyGUID = bunny->GetGUID();
+        _brazierGUID = brazier->GetGUID();
     }
 
     void OnQuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
@@ -776,8 +779,8 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
 
     bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
-        _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_1, 0s);
         CloseGossipMenuFor(player);
+        _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_1, 0s);
         _scriptRunning = true;
         return false;
     }
@@ -795,21 +798,8 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
             {
                 case EVENT_VOLJIN_VISION_SCRIPT_1:
                 {
-                    // Gonna find everyone before running script
-                    Creature* garrosh = FindCreatureIgnorePhase(me, "vision_of_garrosh", 10.0f);
-                    Creature* voljin = FindCreatureIgnorePhase(me, "vision_of_voljin", 10.0f);
-                    Creature* bunny = FindCreatureIgnorePhase(me, "echo_isles_quest_bunny_voljin", 10.0f);
-                    GameObject* brazier = FindGameObjectIgnorePhase(me, "vision_brazier_garrosh_voljin", 10.0f);
-
-                    if (garrosh && voljin && bunny && brazier)
-                    {
-                        me->SetGossipMenuId(GOSSIP_MENU_VISION_IN_PROGRESS);
-                        _garoshGUID = garrosh->GetGUID();
-                        _voljinGUID = voljin->GetGUID();
-                        _bunnyGUID = bunny->GetGUID();
-                        _brazierGUID = brazier->GetGUID();
-                        _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_2, 0s);
-                    }
+                    me->SetGossipMenuId(GOSSIP_MENU_VISION_IN_PROGRESS);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_2, 0s);
                     break;
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_2:
@@ -823,7 +813,7 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
                 {
                     DoCastSelf(SPELL_RITES_OF_VISION);
                     if (Creature* bunny = ObjectAccessor::GetCreature(*me, _bunnyGUID))
-                        bunny->AI()->DoCastSelf(SPELL_VOLGINS_VISION_SMOKE);
+                        bunny->AI()->DoCastSelf(SPELL_VOLJINS_VISION_SMOKE);
                     if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, _brazierGUID))
                         brazier->SetGoState(GO_STATE_ACTIVE);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_4, 4s);
@@ -831,7 +821,7 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_4:
                 {
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
                         garrosh->AI()->DoCastSelf(SPELL_GENERIC_QUEST_INVISIBILITY_1);
                         garrosh->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_8);
@@ -842,7 +832,7 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_5:
                 {
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                         garrosh->AI()->Talk(SAY_GORROSH_VISION_SCRIPT_TEXT_0);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_6, 7s);
                     break;
@@ -873,7 +863,7 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_9:
                 {
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                         garrosh->AI()->Talk(SAY_GORROSH_VISION_SCRIPT_TEXT_1);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_10, 11s);
                     break;
@@ -887,7 +877,7 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_11:
                 {
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                         garrosh->AI()->Talk(SAY_GORROSH_VISION_SCRIPT_TEXT_2);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_12, 16s);
                     break;
@@ -915,14 +905,14 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_15:
                 {
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                         garrosh->AI()->Talk(SAY_GORROSH_VISION_SCRIPT_TEXT_3);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_16, 3s);
                     break;
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_16:
                 {
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                         garrosh->AI()->Talk(SAY_GORROSH_VISION_SCRIPT_TEXT_4);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_17, 3s);
                     break;
@@ -937,7 +927,7 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
                 case EVENT_VOLJIN_VISION_SCRIPT_18:
                 {
                     me->RemoveAura(SPELL_RITES_OF_VISION);
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garoshGUID))
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
                         garrosh->AI()->DoCastSelf(SPELL_GENERIC_QUEST_INVISIBILITY_8);
                         garrosh->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_1);
@@ -949,7 +939,7 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
                         voljin->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_1);
                     }
                     if (Creature* bunny = ObjectAccessor::GetCreature(*me, _bunnyGUID))
-                        bunny->RemoveAura(SPELL_VOLGINS_VISION_SMOKE);
+                        bunny->RemoveAura(SPELL_VOLJINS_VISION_SMOKE);
                     if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, _brazierGUID))
                         brazier->SetGoState(GO_STATE_READY);
                     _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_19, 2s);
@@ -989,13 +979,13 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
 private:
     EventMap _events;
     bool _scriptRunning;
-    ObjectGuid _playerGUID;
-    ObjectGuid _garoshGUID;
+    ObjectGuid _garroshGUID;
     ObjectGuid _voljinGUID;
     ObjectGuid _bunnyGUID;
     ObjectGuid _brazierGUID;
 };
 
+// 38966 - Vol'jin (specific script for guid 3000469)
 struct npc_voljin_thrall_vision : public ScriptedAI
 {
     npc_voljin_thrall_vision(Creature* creature) : ScriptedAI(creature) { _scriptRunning = false; }
@@ -1003,6 +993,17 @@ struct npc_voljin_thrall_vision : public ScriptedAI
     void JustAppeared() override
     {
         me->SetGossipMenuId(GOSSIP_MENU_THRALL_VISION);
+
+        Creature* thrall = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "vision_of_thrall", .IgnorePhases = true });
+        Creature* bunny = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "vision_brazier_bunny_thrall", .IgnorePhases = true });
+        GameObject* brazier = me->FindNearestGameObjectWithOptions(10.0f, { .StringId = "vision_brazier_thrall" });
+
+        if (!thrall || !bunny || !brazier)
+            return;
+
+        _thrallGUID = thrall->GetGUID();
+        _bunnyGUID = bunny->GetGUID();
+        _brazierGUID = brazier->GetGUID();
     }
 
     void OnQuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
@@ -1038,19 +1039,8 @@ struct npc_voljin_thrall_vision : public ScriptedAI
             {
                 case EVENT_VOLJIN_VISION_SCRIPT_1:
                 {
-                    // Gonna find everyone before running script
-                    Creature* thrall = FindCreatureIgnorePhase(me, "vision_of_thrall", 10.0f);
-                    Creature* bunny = FindCreatureIgnorePhase(me, "echo_isles_quest_bunny_thrall", 10.0f);
-                    GameObject* brazier = FindGameObjectIgnorePhase(me, "vision_brazier_thrall", 10.0f);
-
-                    if (thrall && bunny && brazier)
-                    {
-                        me->SetGossipMenuId(GOSSIP_MENU_VISION_IN_PROGRESS);
-                        _thrallGUID = thrall->GetGUID();
-                        _bunnyGUID = bunny->GetGUID();
-                        _brazierGUID = brazier->GetGUID();
-                        _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_2, 0s);
-                    }
+                    me->SetGossipMenuId(GOSSIP_MENU_VISION_IN_PROGRESS);
+                    _events.ScheduleEvent(EVENT_VOLJIN_VISION_SCRIPT_2, 0s);
                     break;
                 }
                 case EVENT_VOLJIN_VISION_SCRIPT_2:
@@ -1076,7 +1066,7 @@ struct npc_voljin_thrall_vision : public ScriptedAI
                     DoCastSelf(SPELL_RITES_OF_VISION);
                     me->SetFacingTo(3.97935f);
                     if (Creature* bunny = ObjectAccessor::GetCreature(*me, _bunnyGUID))
-                        bunny->AI()->DoCastSelf(SPELL_VOLGINS_VISION_SMOKE);
+                        bunny->AI()->DoCastSelf(SPELL_VOLJINS_VISION_SMOKE);
                     if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, _brazierGUID))
                         brazier->SetGoState(GO_STATE_ACTIVE);
                     if (Creature* thrall = ObjectAccessor::GetCreature(*me, _thrallGUID))
@@ -1171,7 +1161,7 @@ struct npc_voljin_thrall_vision : public ScriptedAI
                         thrall->RemoveAura(SPELL_GENERIC_QUEST_INVISIBILITY_2);
                     }
                     if (Creature* bunny = ObjectAccessor::GetCreature(*me, _bunnyGUID))
-                        bunny->RemoveAura(SPELL_VOLGINS_VISION_SMOKE);
+                        bunny->RemoveAura(SPELL_VOLJINS_VISION_SMOKE);
                     if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, _brazierGUID))
                         brazier->SetGoState(GO_STATE_READY);
                     Talk(SAY_VOLJIN_SCRIPT_TEXT_10);
@@ -1217,7 +1207,6 @@ struct npc_voljin_thrall_vision : public ScriptedAI
 private:
     EventMap _events;
     bool _scriptRunning;
-    ObjectGuid _playerGUID;
     ObjectGuid _thrallGUID;
     ObjectGuid _bunnyGUID;
     ObjectGuid _brazierGUID;
