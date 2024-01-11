@@ -237,7 +237,7 @@ public:
     uint32    TriggerSpell;
     flag128   SpellClassMask;
     float     BonusCoefficientFromAP;
-    std::vector<Condition*>* ImplicitTargetConditions;
+    std::shared_ptr<std::vector<Condition>> ImplicitTargetConditions;
     EnumFlag<SpellEffectAttributes> EffectAttributes;
     // SpellScalingEntry
     struct ScalingInfo

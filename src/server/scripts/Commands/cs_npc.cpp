@@ -1225,7 +1225,7 @@ public:
         {
             handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL, "Standard items", loot->items.size());
             for (LootItem const& item : loot->items)
-                if (!item.is_looted && !item.freeforall && item.conditions.empty())
+                if (!item.is_looted && !item.freeforall && item.conditions.IsEmpty())
                     _ShowLootEntry(handler, item.itemid, item.count);
 
             if (!loot->GetPlayerFFAItems().empty())
