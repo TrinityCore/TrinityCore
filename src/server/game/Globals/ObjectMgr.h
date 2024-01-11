@@ -755,14 +755,14 @@ struct GossipMenuItems
     uint32              BoxBroadcastTextID;
     Optional<int32>     SpellID;
     Optional<int32>     OverrideIconID;
-    ConditionContainer  Conditions;
+    ConditionsReference Conditions;
 };
 
 struct GossipMenus
 {
     uint32              MenuID;
     uint32              TextID;
-    ConditionContainer  Conditions;
+    ConditionsReference Conditions;
 };
 
 struct GossipMenuAddon
@@ -836,7 +836,7 @@ struct WorldSafeLocsEntry
 struct GraveyardData
 {
     uint32 safeLocId;
-    ConditionContainer Conditions;
+    ConditionsReference Conditions;
 };
 
 typedef std::multimap<uint32, GraveyardData> GraveyardContainer;

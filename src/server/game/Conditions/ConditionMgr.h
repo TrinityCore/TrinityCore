@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Hash.h"
 #include <array>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -183,7 +184,10 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_TRAINER_SPELL                  = 31,
     CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY           = 32,
     CONDITION_SOURCE_TYPE_SPAWN_GROUP                    = 33,
-    CONDITION_SOURCE_TYPE_MAX                            = 34  // MAX
+
+    CONDITION_SOURCE_TYPE_MAX_DB_ALLOWED,
+    CONDITION_SOURCE_TYPE_REFERENCE_CONDITION            = CONDITION_SOURCE_TYPE_MAX_DB_ALLOWED, // internal, not set in db
+    CONDITION_SOURCE_TYPE_MAX                            // MAX
 };
 
 enum RelationType
@@ -217,6 +221,23 @@ struct TC_GAME_API ConditionSourceInfo
     Condition const* mLastFailedCondition;
     ConditionSourceInfo(WorldObject const* target0, WorldObject const* target1 = nullptr, WorldObject const* target2 = nullptr);
     ConditionSourceInfo(Map const* map);
+};
+
+struct TC_GAME_API ConditionId
+{
+    uint32 SourceGroup = 0;
+    int32 SourceEntry = 0;
+    uint32 SourceId = 0;
+
+    std::size_t GetHash() const;
+    bool operator==(ConditionId const& right) const = default;
+    std::strong_ordering operator<=>(ConditionId const& right) const = default;
+};
+
+template<>
+struct std::hash<ConditionId>
+{
+    std::size_t operator()(ConditionId const& id) const noexcept { return id.GetHash(); }
 };
 
 struct TC_GAME_API Condition
@@ -264,13 +285,9 @@ struct TC_GAME_API Condition
     std::string ToString(bool ext = false) const; /// For logging purpose
 };
 
-typedef std::vector<Condition*> ConditionContainer;
-typedef std::unordered_map<uint32 /*SourceEntry*/, ConditionContainer> ConditionsByEntryMap;
+typedef std::vector<Condition> ConditionContainer;
+typedef std::unordered_map<ConditionId, std::shared_ptr<ConditionContainer>> ConditionsByEntryMap; // stored as shared_ptr to give out weak_ptrs to hold by other code (ownership not shared)
 typedef std::array<ConditionsByEntryMap, CONDITION_SOURCE_TYPE_MAX> ConditionEntriesByTypeArray;
-typedef std::unordered_map<uint32, ConditionsByEntryMap> ConditionEntriesByCreatureIdMap;
-typedef std::unordered_map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionsByEntryMap> SmartEventConditionContainer;
-typedef std::unordered_map<uint32, ConditionContainer> ConditionReferenceContainer;//only used for references
-typedef std::unordered_map<std::pair<int32, bool>, ConditionContainer> ConditionEntriesByAreaTriggerIdMap;
 
 class TC_GAME_API ConditionMgr
 {
@@ -296,7 +313,7 @@ class TC_GAME_API ConditionMgr
         bool IsMapMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, Map const* map) const;
         bool HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry) const;
         bool IsObjectMeetingSpellClickConditions(uint32 creatureId, uint32 spellId, WorldObject const* clicker, WorldObject const* target) const;
-        ConditionContainer const* GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId) const;
+        bool HasConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId) const;
         bool IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player const* player, Unit const* vehicle) const;
         bool IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit const* unit, WorldObject const* baseObject) const;
         bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player const* player, Creature const* vendor) const;
@@ -319,37 +336,61 @@ class TC_GAME_API ConditionMgr
             bool HasConditionValue2;
             bool HasConditionValue3;
         };
-        static char const* const StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX];
+        static char const* const StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX_DB_ALLOWED];
         static ConditionTypeInfo const StaticConditionTypeData[CONDITION_MAX];
 
     private:
         bool isSourceTypeValid(Condition* cond) const;
-        bool addToLootTemplate(Condition* cond, LootTemplate* loot) const;
-        bool addToGossipMenus(Condition* cond) const;
-        bool addToGossipMenuItems(Condition* cond) const;
-        bool addToSpellImplicitTargetConditions(Condition* cond) const;
-        bool addToPhases(Condition* cond) const;
-        bool addToGraveyardData(Condition* cond) const;
+        void addToLootTemplate(ConditionId const& id, std::shared_ptr<std::vector<Condition>> conditions, LootTemplate* loot) const;
+        void addToGossipMenus(ConditionId const& id, std::shared_ptr<std::vector<Condition>> conditions) const;
+        void addToGossipMenuItems(ConditionId const& id, std::shared_ptr<std::vector<Condition>> conditions) const;
+        void addToSpellImplicitTargetConditions(Condition const& cond) const;
+        void addToPhases(ConditionId const& id, std::shared_ptr<std::vector<Condition>> conditions) const;
+        void addToGraveyardData(ConditionId const& id, std::shared_ptr<std::vector<Condition>> conditions) const;
         bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
 
         static void LogUselessConditionValue(Condition* cond, uint8 index, uint32 value);
 
         void Clean(); // free up resources
-        std::vector<Condition*> AllocatedMemoryStore; // some garbage collection :)
 
         ConditionEntriesByTypeArray     ConditionStore;
-        ConditionReferenceContainer     ConditionReferenceStore;
-        ConditionEntriesByCreatureIdMap VehicleSpellConditionStore;
-        ConditionEntriesByCreatureIdMap SpellClickEventConditionStore;
-        ConditionEntriesByCreatureIdMap NpcVendorConditionContainerStore;
-        SmartEventConditionContainer    SmartEventConditionStore;
 
         std::unordered_set<uint32> SpellsUsedInSpellClickConditions;
-        ConditionEntriesByAreaTriggerIdMap AreaTriggerConditionContainerStore;
-        ConditionEntriesByCreatureIdMap TrainerSpellConditionContainerStore;
-        std::unordered_map<std::pair<uint32 /*object type*/, uint32 /*object id*/>, ConditionContainer> ObjectVisibilityConditionStore;
 };
 
 #define sConditionMgr ConditionMgr::instance()
+
+struct ConditionsReference
+{
+    bool Meets(WorldObject const* object) const
+    {
+        if (std::shared_ptr<std::vector<Condition>> conditions = Conditions.lock())
+            return sConditionMgr->IsObjectMeetToConditions(object, *conditions);
+        return true;
+    }
+
+    bool Meets(WorldObject const* object1, WorldObject const* object2) const
+    {
+        if (std::shared_ptr<std::vector<Condition>> conditions = Conditions.lock())
+            return sConditionMgr->IsObjectMeetToConditions(object1, object2, *conditions);
+        return true;
+    }
+
+    bool Meets(ConditionSourceInfo& sourceInfo) const
+    {
+        if (std::shared_ptr<std::vector<Condition>> conditions = Conditions.lock())
+            return sConditionMgr->IsObjectMeetToConditions(sourceInfo, *conditions);
+        return true;
+    }
+
+    bool IsEmpty() const
+    {
+        if (std::shared_ptr<std::vector<Condition>> conditions = Conditions.lock())
+            return conditions->empty();
+        return true;
+    }
+
+    std::weak_ptr<ConditionContainer> Conditions;
+};
 
 #endif

@@ -46,7 +46,7 @@ struct TC_GAME_API LootStoreItem
     uint8 groupid;
     uint8 mincount;                                        // mincount for drop items
     uint8 maxcount;                                        // max drop count for the item mincount or Ref multiplicator
-    ConditionContainer conditions;                         // additional loot condition
+    ConditionsReference conditions;                        // additional loot condition
 
     // Constructor
     // displayid is filled in IsValid() which must be called after
@@ -85,7 +85,6 @@ class TC_GAME_API LootStore
         bool HaveQuestLootForPlayer(uint32 loot_id, Player const* player) const;
 
         LootTemplate const* GetLootFor(uint32 loot_id) const;
-        void ResetConditions();
         LootTemplate* GetLootForConditionFill(uint32 loot_id);
 
         char const* GetName() const { return m_name; }
@@ -115,7 +114,6 @@ class TC_GAME_API LootTemplate
         // Rolls for every item in the template and adds the rolled items the the loot
         void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId, Player const* personalLooter = nullptr) const;
         void ProcessPersonalLoot(std::unordered_map<Player*, std::unique_ptr<Loot>>& personalLoot, bool rate, uint16 lootMode) const;
-        void CopyConditions(ConditionContainer const& conditions);
         void CopyConditions(LootItem* li) const;
 
         // True if template includes at least 1 drop for the player
@@ -128,7 +126,7 @@ class TC_GAME_API LootTemplate
         // Checks integrity of the template
         void Verify(LootStore const& store, uint32 Id) const;
         void CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const;
-        bool addConditionItem(Condition* cond);
+        bool LinkConditions(ConditionId const& id, ConditionsReference reference);
         bool isReference(uint32 id);
 
     private:
