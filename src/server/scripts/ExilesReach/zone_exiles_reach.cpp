@@ -4805,6 +4805,576 @@ class spell_quilboar_sleep_dnt : public AuraScript
     }
 };
 
+// **************************************************************
+// * Scripting in this section occurs after reaching The Plains *
+// **************************************************************
+
+enum LindieSpringStock
+{
+    CONVERSATION_RESIZE_COPTER_ALLIANCE = 12078,
+    CONVERSATION_RESIZE_COPTER_HORDE    = 14516,
+
+    CONVERSATION_ACTOR_GOBLIN_ALLIANCE  = 71345,
+    CONVERSATION_ACTOR_GOBLIN_HORDE     = 76337,
+    CONVERSATION_ACTOR_COPTER           = 71344,
+
+    EVENT_CONVERSATION                  = 1,
+    EVENT_RESIZE_COPTER_1               = 2,
+    EVENT_RESIZE_COPTER_2               = 3,
+    EVENT_RESIZE_COPTER_3               = 4,
+    EVENT_RESIZE_COPTER_4               = 5,
+    EVENT_RESIZE_COPTER_5               = 6,
+    EVENT_RESIZE_COPTER_6               = 7,
+
+    NPC_LINDIE_SPRINGSTOCK_PLAINS       = 149899,
+
+    QUEST_THE_SCOUT_O_MATIC_5000        = 55193,
+    QUEST_THE_CHOPPY_BOOSTER_MK5        = 59940,
+
+    SPELL_RE_SIZING                     = 313269,
+    SPELL_GROW_ONE                      = 129310,
+    SPELL_GROW_TWO                      = 94214,
+    SPELL_GROW_THREE                    = 111701
+};
+
+Position const MiniChopperJumpPosition = { 107.979f, -2414.13f, 95.6243f };
+
+struct npc_goblin_plains_make_copter_private : public ScriptedAI
+{
+    npc_goblin_plains_make_copter_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        if (me->GetEntry() == NPC_LINDIE_SPRINGSTOCK_PLAINS)
+        {
+            _conversationId = CONVERSATION_RESIZE_COPTER_ALLIANCE;
+            _conversationActorId = CONVERSATION_ACTOR_GOBLIN_ALLIANCE;
+            _timer = 1350ms;
+        }
+        else
+        {
+            _conversationId = CONVERSATION_RESIZE_COPTER_HORDE;
+            _conversationActorId = CONVERSATION_ACTOR_GOBLIN_HORDE;
+            _timer = 750ms;
+        }
+
+        _events.ScheduleEvent(EVENT_CONVERSATION, 1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CONVERSATION:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
+                    {
+                        Conversation* conversation = Conversation::CreateConversation(_conversationId, player, *player, player->GetGUID(), nullptr, false);
+                        if (!conversation)
+                            break;
+
+                        conversation->AddActor(_conversationActorId, 0, me->GetGUID());
+                        conversation->AddActor(CONVERSATION_ACTOR_COPTER, 1, _copterGUID);
+                        conversation->Start();
+                    }
+
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                    {
+                        copter->GetMotionMaster()->MoveJump(MiniChopperJumpPosition, 19.29f, 6.99f);
+                    }
+
+                    _events.ScheduleEvent(EVENT_RESIZE_COPTER_1, 6s);
+                    break;
+                }
+                case EVENT_RESIZE_COPTER_1:
+                {
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                    {
+                        me->SetFacingTo(0.488383f);
+                        me->CastSpell(copter, SPELL_RE_SIZING);
+                        copter->CastSpell(copter, SPELL_GROW_ONE);
+                    }
+                    _events.ScheduleEvent(EVENT_RESIZE_COPTER_2, 2s);
+                    break;
+                }
+                case EVENT_RESIZE_COPTER_2:
+                {
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                        copter->RemoveAura(SPELL_GROW_ONE);
+
+                    _events.ScheduleEvent(EVENT_RESIZE_COPTER_3, _timer);
+                    break;
+                }
+                case EVENT_RESIZE_COPTER_3:
+                {
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                        copter->CastSpell(copter, SPELL_GROW_TWO);
+
+                    _events.ScheduleEvent(EVENT_RESIZE_COPTER_4, _timer);
+                    break;
+                }
+                case EVENT_RESIZE_COPTER_4:
+                {
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                        copter->RemoveAura(SPELL_GROW_TWO);
+
+                    _events.ScheduleEvent(EVENT_RESIZE_COPTER_5, _timer);
+                    break;
+                }
+                case EVENT_RESIZE_COPTER_5:
+                {
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                        copter->CastSpell(copter, SPELL_GROW_THREE);
+
+                    me->CastStop(SPELL_RE_SIZING);
+                    me->SetFacingTo(4.50382f);
+                    me->DespawnOrUnsummon(27s);
+                    _events.ScheduleEvent(EVENT_RESIZE_COPTER_6, _timer);
+                    break;
+                }
+                case EVENT_RESIZE_COPTER_6:
+                {
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                    {
+                        copter->RemoveAura(SPELL_GROW_THREE);
+                        copter->DespawnOrUnsummon(2s);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+public:
+    void SetCopterGUID(ObjectGuid copterGUID)
+    {
+        _copterGUID = copterGUID;
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _copterGUID;
+    uint32 _conversationId = 0;
+    uint32 _conversationActorId = 0;
+    Milliseconds _timer = 0ms;
+};
+
+CreatureAI* LindieSpringstockSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+        {
+            if ((privateObjectOwner->GetQuestStatus(QUEST_THE_SCOUT_O_MATIC_5000) == QUEST_STATUS_INCOMPLETE))
+                return new npc_goblin_plains_make_copter_private(creature);
+        }
+    }
+    return new NullCreatureAI(creature);
+};
+
+CreatureAI* CorkFizzlepopSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+        {
+            if ((privateObjectOwner->GetQuestStatus(QUEST_THE_CHOPPY_BOOSTER_MK5) == QUEST_STATUS_INCOMPLETE))
+                return new npc_goblin_plains_make_copter_private(creature);
+        }
+    }
+    return new NullCreatureAI(creature);
+};
+
+enum CopterRide
+{
+    AREA_DARKMAUL_PLAINS                       = 10588,
+
+    CONVERSATION_RIDE_TO_OGRE_RUINS_ALLIANCE   = 12083,
+    CONVERSATION_RIDE_FROM_OGRE_RUINS_ALLIANCE = 12084,
+    CONVERSATION_RIDE_TO_OGRE_RUINS_HORDE      = 14517,
+    CONVERSATION_RIDE_FROM_OGRE_RUINS_HORDE    = 14520,
+
+    EVENT_START_SCOUT_OGRE_RUINS               = 1,
+    EVENT_RETURN_FROM_OGRE_RUINS               = 2,
+    EVENT_CHECK_AREA                           = 3,
+
+    NPC_SCOUT_O_MATIC_5000                     = 156518,
+    NPC_CHOPPY_BOOSTER_MK5                     = 167027,
+
+    PATH_WONSA_PLAINS                          = 90097090,
+    PATH_BO_PLAINS                             = 90097100,
+    PATH_LANA_PLAINS                           = 90097110,
+    PATH_JINHAKE_PLAINS                        = 90097120,
+    PATH_THROG_PLAINS                          = 90097130,
+
+    SPELL_SCENE_OGRE_RUINS_ALLIANCE            = 321342,
+    SPELL_SCENE_OGRE_RUINS_HORDE               = 326626,
+    SPELL_ROPED_DNT                            = 303067,
+    SPELL_SCOUT_O_MATIC_PING_DNT               = 321340,
+    SCOUT_O_MATIC_DESUMMON                     = 305548
+};
+
+Position const ScoutPathOne[] =
+{
+    { 115.21007f, -2420.2239f, 135.10031f },
+    { 156.11806f, -2398.1390f, 138.27547f },
+    { 182.06944f, -2381.7917f, 138.27547f },
+    { 211.51910f, -2379.6284f, 138.27547f }
+};
+size_t const pathSizeOne = std::extent<decltype(ScoutPathOne)>::value;
+
+Position const ScoutPathTwo[] =
+{
+    { 174.54167f, -2386.8213f, 124.66746f },
+    { 107.87153f, -2414.177f,  95.68774f  }
+};
+size_t const pathSizeTwo = std::extent<decltype(ScoutPathTwo)>::value;
+
+//
+struct npc_scoutomatic_5000 : public ScriptedAI
+{
+    npc_scoutomatic_5000(Creature* creature) : ScriptedAI(creature) { _returnFlight = false; }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if(Player* player = summoner->ToPlayer())
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
+        {
+            me->CastSpell(passenger, SPELL_ROPED_DNT);
+            _events.ScheduleEvent(EVENT_START_SCOUT_OGRE_RUINS, 3s);
+        }
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType == EFFECT_MOTION_TYPE && uiId == pathSizeOne)
+            if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+                player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_ALLIANCE, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
+
+        if (!_returnFlight)
+            return;
+
+        if (uiType == EFFECT_MOTION_TYPE && uiId == pathSizeTwo)
+            if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+            {
+                //player->CastSpell(player, SCOUT_O_MATIC_DESUMMON, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
+                // HACK
+                player->RemoveAura(305533);
+                player->RemoveAura(305532);
+                player->RemoveAura(305522);
+                //player->RemoveAura(326625);
+                // HACK
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+            }
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_SCOUT_O_MATIC_PING_DNT)
+        {
+            if (Player* player = caster->ToPlayer())
+                player->KilledMonsterCredit(NPC_SCOUT_O_MATIC_5000);
+
+            _events.ScheduleEvent(EVENT_RETURN_FROM_OGRE_RUINS, 1s);
+        }
+        return;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_START_SCOUT_OGRE_RUINS:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+                    {
+                        me->SetSpeed(MOVE_WALK, 4.5f);
+                        me->GetMotionMaster()->MoveSmoothPath(uint32(pathSizeOne), ScoutPathOne, pathSizeOne, true, true);
+                        Conversation::CreateConversation(CONVERSATION_RIDE_TO_OGRE_RUINS_ALLIANCE, player, *player, player->GetGUID(), nullptr);
+                    }
+                    break;
+                }
+                case EVENT_RETURN_FROM_OGRE_RUINS:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+                    {
+                        _returnFlight = true;
+                        me->SetSpeed(MOVE_WALK, 4.5f);
+                        me->GetMotionMaster()->MoveSmoothPath(uint32(pathSizeTwo), ScoutPathTwo, pathSizeTwo, true, true);
+                        Conversation::CreateConversation(CONVERSATION_RIDE_FROM_OGRE_RUINS_ALLIANCE, player, *player, player->GetGUID(), nullptr);
+                        _events.ScheduleEvent(EVENT_CHECK_AREA, 3s);
+                    }
+                    break;
+                }
+                break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    bool _returnFlight;
+};
+
+Position const HordeCrewPersonalSpawnLocation[] =
+{
+    { 50.920593f, -2477.466f, 79.444374f, 0.8753076f },
+    { 60.51328f, -2476.4822f, 81.034775f, 0.9128374f },
+    { 53.08128f, -2476.5154f, 79.822624f, 0.9394135f },
+    { 53.281864f, -2480.052f, 79.18003f, 0.78539818f },
+    { 53.936935f, -2475.588f, 80.24179f, 0.91009599f }
+};
+
+Position const HordeCrewPersonalWaypoint[] =
+{
+    { 95.664930f, -2423.9133f, 90.917786f },
+    { 100.55903f, -2424.5972f, 90.15397f  },
+    { 95.635414f, -2418.3716f, 91.03652f  },
+    { 93.152780f, -2417.3733f, 91.710266f },
+    { 95.940970f, -2421.5105f, 90.92242f  }
+};
+
+struct npc_choppy_booster_scout : public ScriptedAI
+{
+    npc_choppy_booster_scout(Creature* creature) : ScriptedAI(creature) { _returnFlight = false; }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (Player* player = summoner->ToPlayer())
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
+        {
+            me->CastSpell(passenger, SPELL_ROPED_DNT);
+            _events.ScheduleEvent(EVENT_START_SCOUT_OGRE_RUINS, 3s);
+        }
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType == EFFECT_MOTION_TYPE && uiId == pathSizeOne)
+            if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+                player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_HORDE, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
+
+        if (!_returnFlight)
+            return;
+
+        if (uiType == EFFECT_MOTION_TYPE && uiId == pathSizeTwo)
+            if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+            {
+                //player->CastSpell(player, SCOUT_O_MATIC_DESUMMON, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
+                // HACK
+                player->RemoveAura(305533);
+                player->RemoveAura(305532);
+                //player->RemoveAura(305522);
+                player->RemoveAura(326625);
+                // HACK
+
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+            }
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_SCOUT_O_MATIC_PING_DNT)
+        {
+            if (Player* player = caster->ToPlayer())
+                player->KilledMonsterCredit(NPC_CHOPPY_BOOSTER_MK5);
+
+            _events.ScheduleEvent(EVENT_RETURN_FROM_OGRE_RUINS, 1s);
+        }
+        return;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_START_SCOUT_OGRE_RUINS:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+                    {
+                        me->SetSpeed(MOVE_WALK, 4.85f);
+                        me->GetMotionMaster()->MoveSmoothPath(uint32(pathSizeOne), ScoutPathOne, pathSizeOne, true, true);
+                        Conversation::CreateConversation(CONVERSATION_RIDE_TO_OGRE_RUINS_HORDE, player, *player, player->GetGUID(), nullptr);
+                    }
+                    break;
+                }
+                case EVENT_RETURN_FROM_OGRE_RUINS:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+                    {
+                        _returnFlight = true;
+                        me->SetSpeed(MOVE_WALK, 4.25f);
+                        me->GetMotionMaster()->MoveSmoothPath(uint32(pathSizeTwo), ScoutPathTwo, pathSizeTwo, true, true);
+                        Conversation::CreateConversation(CONVERSATION_RIDE_FROM_OGRE_RUINS_HORDE, player, *player, player->GetGUID(), nullptr);
+                        _events.ScheduleEvent(EVENT_CHECK_AREA, 3s);
+                    }
+                    break;
+                }
+                case EVENT_CHECK_AREA:
+                    if (me->GetAreaId() == AREA_DARKMAUL_PLAINS)
+                    {
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+                        {
+                            Creature* wonsa = FindCreatureIgnorePhase(player, "wonsa_darkmaul_plains");
+                            Creature* bo = FindCreatureIgnorePhase(player, "bo_darkmaul_plains");
+                            Creature* lana = FindCreatureIgnorePhase(player, "lana_darkmaul_plains");
+                            Creature* jinhake = FindCreatureIgnorePhase(player, "jinhake_darkmaul_plains");
+                            Creature* throg = FindCreatureIgnorePhase(player, "throg_darkmaul_plains");
+
+                            if (!wonsa && !bo && !lana && !jinhake && !throg)
+                                break;
+
+                            Creature* wonsaPersinal = wonsa->SummonPersonalClone(HordeCrewPersonalSpawnLocation[0], TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                            Creature* boPersinal = bo->SummonPersonalClone(HordeCrewPersonalSpawnLocation[1], TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                            Creature* lanaPersinal = lana->SummonPersonalClone(HordeCrewPersonalSpawnLocation[2], TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                            Creature* jinhakePersinal = jinhake->SummonPersonalClone(HordeCrewPersonalSpawnLocation[3], TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                            Creature* throgPersinal = throg->SummonPersonalClone(HordeCrewPersonalSpawnLocation[4], TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+
+                            wonsaPersinal->GetMotionMaster()->MovePath(PATH_WONSA_PLAINS, false);
+                            boPersinal->GetMotionMaster()->MovePath(PATH_BO_PLAINS, false);
+                            lanaPersinal->GetMotionMaster()->MovePath(PATH_LANA_PLAINS, false);
+                            jinhakePersinal->GetMotionMaster()->MovePath(PATH_JINHAKE_PLAINS, false);
+                            throgPersinal->GetMotionMaster()->MovePath(PATH_THROG_PLAINS, false);
+                        }
+                    }
+                    else
+                        _events.ScheduleEvent(EVENT_CHECK_AREA, 500ms);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    bool _returnFlight;
+};
+
+CreatureAI* ChoppyBoosterSelector(Creature* creature)
+{
+    if (Player* player = ObjectAccessor::GetPlayer(*creature, creature->GetOwnerGUID()))
+    {
+        if ((player->GetQuestStatus(QUEST_THE_CHOPPY_BOOSTER_MK5) == QUEST_STATUS_INCOMPLETE))
+            return new npc_choppy_booster_scout(creature);
+    }
+    return new NullCreatureAI(creature);
+};
+
+struct npc_horde_crew_plains_private : public ScriptedAI
+{
+    npc_horde_crew_plains_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        me->DespawnOrUnsummon();
+    }
+};
+
+CreatureAI* HordeCrewPlainsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        return new npc_horde_crew_plains_private(creature);
+    }
+    return new NullCreatureAI(creature);
+};
+
+Position const CopterPosition = { 100.583f, -2417.87f, 90.268f, 0.0f };
+
+// Quest 55193 - The Scout-o-Matic 5000 "Alliance"
+// Quest 59940 - The Choppy Booster Mk. 5 "Horde"
+class quest_scout_chopper : public QuestScript
+{
+public:
+    quest_scout_chopper(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view goblinString, std::string_view copterString)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+            {
+                Creature* goblin = FindCreatureIgnorePhase(player, goblinString, 10.0f);
+                Creature* copter = FindCreatureIgnorePhase(player, copterString, 10.0f);
+                if (!goblin || !copter)
+                    return;
+
+                Creature* goblinPersonal = goblin->SummonPersonalClone(goblin->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                Creature* copterPersonal = copter->SummonPersonalClone(CopterPosition, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                if (!goblinPersonal || !copterPersonal)
+                    return;
+
+                copterPersonal->SetObjectScale(0.2f);
+                copterPersonal->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+
+                if (npc_goblin_plains_make_copter_private* personalAI = CAST_AI(npc_goblin_plains_make_copter_private, goblinPersonal->AI()))
+                {
+                    personalAI->SetCopterGUID(copterPersonal->GetGUID());
+                }
+
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            }
+            case QUEST_STATUS_NONE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// Quest 55193 - The Scout-o-Matic 5000 "Alliance"
+class quest_scout_o_matic_5000 : public quest_scout_chopper
+{
+public:
+    quest_scout_o_matic_5000() : quest_scout_chopper("quest_scout_o_matic_5000") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "lindie_springstock_plains", "scout_o_matic");
+    }
+};
+
+// Quest 59940 - The Choppy Booster Mk. 5 "Horde"
+class quest_choppy_booster_mk5 : public quest_scout_chopper
+{
+public:
+    quest_choppy_booster_mk5() : quest_scout_chopper("quest_choppy_booster_mk5") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "cork_fizzlepop_plains", "choppy_booster");
+    }
+};
+
 void AddSC_zone_exiles_reach()
 {
     // Ship
@@ -4893,4 +5463,12 @@ void AddSC_zone_exiles_reach()
     RegisterCreatureAI(npc_ogre_overseer);
     RegisterAreaTriggerAI(at_briarpatch_to_plains);
     RegisterSpellScript(spell_quilboar_sleep_dnt);
+    // Plains
+    new quest_scout_o_matic_5000();
+    new quest_choppy_booster_mk5();
+    new FactoryCreatureScript<CreatureAI, &LindieSpringstockSelector>("npc_lindie_springstock_plains");
+    new FactoryCreatureScript<CreatureAI, &CorkFizzlepopSelector>("npc_cork_fizzlepop_plains");
+    RegisterCreatureAI(npc_scoutomatic_5000);
+    new FactoryCreatureScript<CreatureAI, &ChoppyBoosterSelector>("npc_choppy_booster");
+    new FactoryCreatureScript<CreatureAI, &HordeCrewPlainsSelector>("npc_horde_crew_plains");
 };
