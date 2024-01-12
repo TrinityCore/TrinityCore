@@ -97,63 +97,64 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX_D
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
 {
-    { "None",                     false, false, false },
-    { "Aura",                      true, true,  true  },
-    { "Item Stored",               true, true,  true  },
-    { "Item Equipped",             true, false, false },
-    { "Zone",                      true, false, false },
-    { "Reputation",                true, true,  false },
-    { "Team",                      true, false, false },
-    { "Skill",                     true, true,  false },
-    { "Quest Rewarded",            true, false, false },
-    { "Quest Taken",               true, false, false },
-    { "Drunken",                   true, false, false },
-    { "WorldState",                true, true,  false },
-    { "Active Event",              true, false, false },
-    { "Instance Info",             true, true,  true  },
-    { "Quest None",                true, false, false },
-    { "Class",                     true, false, false },
-    { "Race",                      true, false, false },
-    { "Achievement",               true, false, false },
-    { "Title",                     true, false, false },
-    { "SpawnMask",                 true, false, false },
-    { "Gender",                    true, false, false },
-    { "Unit State",                true, false, false },
-    { "Map",                       true, false, false },
-    { "Area",                      true, false, false },
-    { "CreatureType",              true, false, false },
-    { "Spell Known",               true, false, false },
-    { "Phase",                     true, false, false },
-    { "Level",                     true, true,  false },
-    { "Quest Completed",           true, false, false },
-    { "Near Creature",             true, true,  true  },
-    { "Near GameObject",           true, true,  false },
-    { "Object Entry or Guid",      true, true,  true  },
-    { "Object TypeMask",           true, false, false },
-    { "Relation",                  true, true,  false },
-    { "Reaction",                  true, true,  false },
-    { "Distance",                  true, true,  true  },
-    { "Alive",                    false, false, false },
-    { "Health Value",              true, true,  false },
-    { "Health Pct",                true, true,  false },
-    { "Realm Achievement",         true, false, false },
-    { "In Water",                 false, false, false },
-    { "Terrain Swap",              true, false, false },
-    { "Sit/stand state",           true,  true, false },
-    { "Daily Quest Completed",     true, false, false },
-    { "Charmed",                  false, false, false },
-    { "Pet type",                  true, false, false },
-    { "On Taxi",                  false, false, false },
-    { "Quest state mask",          true,  true, false },
-    { "Quest objective progress",  true, false,  true },
-    { "Map Difficulty",            true, false, false },
-    { "Is Gamemaster",             true, false, false },
-    { "Object Entry or Guid",      true, true,  true  },
-    { "Object TypeMask",           true, false, false },
-    { "BattlePet Species Learned", true, true,  true  },
-    { "On Scenario Step",          true, false, false },
-    { "Scene In Progress",         true, false, false },
-    { "Player Condition",          true, false, false },
+    { "None",                     false, false, false, false },
+    { "Aura",                      true, true,  true,  false },
+    { "Item Stored",               true, true,  true,  false },
+    { "Item Equipped",             true, false, false, false },
+    { "Zone",                      true, false, false, false },
+    { "Reputation",                true, true,  false, false },
+    { "Team",                      true, false, false, false },
+    { "Skill",                     true, true,  false, false },
+    { "Quest Rewarded",            true, false, false, false },
+    { "Quest Taken",               true, false, false, false },
+    { "Drunken",                   true, false, false, false },
+    { "WorldState",                true, true,  false, false },
+    { "Active Event",              true, false, false, false },
+    { "Instance Info",             true, true,  true,  false },
+    { "Quest None",                true, false, false, false },
+    { "Class",                     true, false, false, false },
+    { "Race",                      true, false, false, false },
+    { "Achievement",               true, false, false, false },
+    { "Title",                     true, false, false, false },
+    { "SpawnMask",                 true, false, false, false },
+    { "Gender",                    true, false, false, false },
+    { "Unit State",                true, false, false, false },
+    { "Map",                       true, false, false, false },
+    { "Area",                      true, false, false, false },
+    { "CreatureType",              true, false, false, false },
+    { "Spell Known",               true, false, false, false },
+    { "Phase",                     true, false, false, false },
+    { "Level",                     true, true,  false, false },
+    { "Quest Completed",           true, false, false, false },
+    { "Near Creature",             true, true,  true,  false },
+    { "Near GameObject",           true, true,  false, false },
+    { "Object Entry or Guid",      true, true,  true,  false },
+    { "Object TypeMask",           true, false, false, false },
+    { "Relation",                  true, true,  false, false },
+    { "Reaction",                  true, true,  false, false },
+    { "Distance",                  true, true,  true,  false },
+    { "Alive",                    false, false, false, false },
+    { "Health Value",              true, true,  false, false },
+    { "Health Pct",                true, true,  false, false },
+    { "Realm Achievement",         true, false, false, false },
+    { "In Water",                 false, false, false, false },
+    { "Terrain Swap",              true, false, false, false },
+    { "Sit/stand state",           true, true,  false, false },
+    { "Daily Quest Completed",     true, false, false, false },
+    { "Charmed",                  false, false, false, false },
+    { "Pet type",                  true, false, false, false },
+    { "On Taxi",                  false, false, false, false },
+    { "Quest state mask",          true, true,  false, false },
+    { "Quest objective progress",  true, false, true,  false },
+    { "Map Difficulty",            true, false, false, false },
+    { "Is Gamemaster",             true, false, false, false },
+    { "Object Entry or Guid",      true, true,  true,  false },
+    { "Object TypeMask",           true, false, false, false },
+    { "BattlePet Species Learned", true, true,  true,  false },
+    { "On Scenario Step",          true, false, false, false },
+    { "Scene In Progress",         true, false, false, false },
+    { "Player Condition",          true, false, false, false },
+    { "String ID",                false, false, false, true }
 };
 
 ConditionSourceInfo::ConditionSourceInfo(WorldObject const* target0, WorldObject const* target1, WorldObject const* target2)
@@ -663,6 +664,14 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_PRIVATE_OBJECT:
         {
             condMeets = !object->GetPrivateObjectOwner().IsEmpty();
+            break;
+        }
+        case CONDITION_STRING_ID:
+        {
+            if (Creature const* creature = object->ToCreature())
+                condMeets = creature->HasStringId(ConditionStringValue1);
+            else if (GameObject const* go = object->ToGameObject())
+                condMeets = go->HasStringId(ConditionStringValue1);
             break;
         }
         default:
@@ -1259,7 +1268,8 @@ void ConditionMgr::LoadConditions(bool isReload)
     }
 
     QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, "
-                                             " ConditionValue1, ConditionValue2, ConditionValue3, NegativeCondition, ErrorType, ErrorTextId, ScriptName FROM conditions");
+                                             "ConditionValue1, ConditionValue2, ConditionValue3, ConditionStringValue1, "
+                                             "NegativeCondition, ErrorType, ErrorTextId, ScriptName FROM conditions");
 
     if (!result)
     {
@@ -1292,10 +1302,11 @@ void ConditionMgr::LoadConditions(bool isReload)
         cond.ConditionValue1           = fields[7].GetUInt32();
         cond.ConditionValue2           = fields[8].GetUInt32();
         cond.ConditionValue3           = fields[9].GetUInt32();
-        cond.NegativeCondition         = fields[10].GetBool();
-        cond.ErrorType                 = fields[11].GetUInt32();
-        cond.ErrorTextId               = fields[12].GetUInt32();
-        cond.ScriptId                  = sObjectMgr->GetScriptId(fields[13].GetString());
+        cond.ConditionStringValue1     = fields[10].GetString();
+        cond.NegativeCondition         = fields[11].GetBool();
+        cond.ErrorType                 = fields[12].GetUInt32();
+        cond.ErrorTextId               = fields[13].GetUInt32();
+        cond.ScriptId                  = sObjectMgr->GetScriptId(fields[14].GetString());
 
         if (iConditionTypeOrReference >= 0)
             cond.ConditionType = ConditionTypes(iConditionTypeOrReference);
@@ -2692,13 +2703,20 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         LogUselessConditionValue(cond, 2, cond->ConditionValue2);
     if (cond->ConditionValue3 && !StaticConditionTypeData[cond->ConditionType].HasConditionValue3)
         LogUselessConditionValue(cond, 3, cond->ConditionValue3);
+    if (!cond->ConditionStringValue1.empty() && !StaticConditionTypeData[cond->ConditionType].HasConditionStringValue1)
+        LogUselessConditionValue(cond, 1, cond->ConditionStringValue1);
 
     return true;
 }
 
-void ConditionMgr::LogUselessConditionValue(Condition* cond, uint8 index, uint32 value)
+void ConditionMgr::LogUselessConditionValue(Condition const* cond, uint8 index, uint32 value)
 {
     TC_LOG_ERROR("sql.sql", "{} has useless data in ConditionValue{} ({})!", cond->ToString(true), index, value);
+}
+
+void ConditionMgr::LogUselessConditionValue(Condition const* cond, uint8 index, std::string_view value)
+{
+    TC_LOG_ERROR("sql.sql", "{} has useless data in ConditionStringValue{} ({})!", cond->ToString(true), index, value);
 }
 
 void ConditionMgr::Clean()
