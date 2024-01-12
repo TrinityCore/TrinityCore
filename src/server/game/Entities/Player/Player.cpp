@@ -14000,7 +14000,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
 
     for (auto const& [_, gossipMenuItem] : menuItemBounds)
     {
-        if (!sConditionMgr->IsObjectMeetToConditions(this, source, gossipMenuItem.Conditions))
+        if (!gossipMenuItem.Conditions.Meets(this, source))
             continue;
 
         bool canTalk = true;
@@ -14326,7 +14326,7 @@ uint32 Player::GetGossipTextId(uint32 menuId, WorldObject* source)
         if (!itr->second.TextID)
             continue;
 
-        if (sConditionMgr->IsObjectMeetToConditions(this, source, itr->second.Conditions))
+        if (itr->second.Conditions.Meets(this, source))
             textId = itr->second.TextID;
     }
 
@@ -14352,7 +14352,7 @@ uint32 Player::GetGossipMenuForSource(WorldObject* source)
 
                 for (GossipMenusContainer::const_iterator itr = menuBounds.first; itr != menuBounds.second; ++itr)
                 {
-                    if (!sConditionMgr->IsObjectMeetToConditions(this, source, itr->second.Conditions))
+                    if (!itr->second.Conditions.Meets(this, source))
                         continue;
 
                     menuIdToShow = menuId;
@@ -25130,7 +25130,7 @@ void Player::UpdateVisibleGameobjectsOrSpellClicks()
             auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(obj->GetEntry());
             for (auto const& clickPair : clickBounds)
             {
-                if (sConditionMgr->GetConditionsForSpellClickEvent(obj->GetEntry(), clickPair.second.spellId))
+                if (sConditionMgr->HasConditionsForSpellClickEvent(obj->GetEntry(), clickPair.second.spellId))
                 {
                     UF::ObjectData::Base objMask;
                     UF::UnitData::Base unitMask;

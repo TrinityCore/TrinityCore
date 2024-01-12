@@ -75,10 +75,10 @@ bool LootItem::AllowedForPlayer(Player const* player, Loot const* loot) const
 }
 
 bool LootItem::AllowedForPlayer(Player const* player, Loot const* loot, uint32 itemid, bool needs_quest, bool follow_loot_rules, bool strictUsabilityCheck,
-    ConditionContainer const& conditions)
+    ConditionsReference const& conditions)
 {
     // DB conditions check
-    if (!sConditionMgr->IsObjectMeetToConditions(player, conditions))
+    if (!conditions.Meets(player))
         return false;
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
@@ -956,7 +956,7 @@ bool Loot::hasItemForAll() const
         return true;
 
     for (LootItem const& item : items)
-        if (!item.is_looted && item.follow_loot_rules && !item.freeforall && item.conditions.empty())
+        if (!item.is_looted && item.follow_loot_rules && !item.freeforall && item.conditions.IsEmpty())
             return true;
     return false;
 }
