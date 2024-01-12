@@ -2434,13 +2434,15 @@ float WorldObject::MeleeSpellMissChance(Unit const* /*victim*/, WeaponAttackType
     return 0.0f;
 }
 
-SpellMissInfo WorldObject::MeleeSpellHitResult(Unit* /*victim*/, SpellInfo const* /*spellInfo*/) const
+SpellMissInfo WorldObject::MeleeSpellHitResult(Unit* /*victim*/, SpellInfo const* /*spellInfo*/, uint32* /*heartbeatResistChance*/) const
 {
     return SPELL_MISS_NONE;
 }
 
-SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const
+SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo, uint32* heartbeatResistChance) const
 {
+    Die<UnitCombatDieSide, UNIT_COMBAT_DIE_HIT, NUM_UNIT_COMBAT_DIE_SIDES> die;
+
     // Can`t miss on dead target (on skinning for example)
     if (!victim->IsAlive() && victim->GetTypeId() != TYPEID_PLAYER)
         return SPELL_MISS_NONE;
@@ -2485,6 +2487,20 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
     if (Unit const* unit = ToUnit())
         HitChance += int32(unit->m_modSpellHitChance * 100.0f);
+    float heartbeatBreakChance = (100 - (HitChance * .01f));
+    if (heartbeatBreakChance < 1)
+    {
+        //we are hit capped, but need to initialize this value to something other than 0
+        heartbeatBreakChance = 1;
+    }
+    die.set(UNIT_COMBAT_DIE_RESIST, heartbeatBreakChance);
+
+    // Memorize heartbeat resist chance if needed:
+    if (heartbeatResistChance && spellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
+    {
+        float initialHeartbeatChance = (die.chance[UNIT_COMBAT_DIE_RESIST] + die.chance[UNIT_COMBAT_DIE_MISS]);
+        *heartbeatResistChance = initialHeartbeatChance * .01f;
+    }
 
     RoundToInterval(HitChance, 0, 10000);
 
@@ -2541,7 +2557,7 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
 //   Parry
 // For spells
 //   Resist
-SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect /*= false*/) const
+SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect /*= false*/, uint32* heartbeatResistChance) const
 {
     // Check for immune
     if (victim->IsImmunedToSpell(spellInfo, this))
@@ -2581,11 +2597,11 @@ SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellIn
     {
         case SPELL_DAMAGE_CLASS_RANGED:
         case SPELL_DAMAGE_CLASS_MELEE:
-            return MeleeSpellHitResult(victim, spellInfo);
+            return MeleeSpellHitResult(victim, spellInfo, heartbeatResistChance);
         case SPELL_DAMAGE_CLASS_NONE:
             return SPELL_MISS_NONE;
         case SPELL_DAMAGE_CLASS_MAGIC:
-            return MagicSpellHitResult(victim, spellInfo);
+            return MagicSpellHitResult(victim, spellInfo, heartbeatResistChance);
     }
     return SPELL_MISS_NONE;
 }

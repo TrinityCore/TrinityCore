@@ -63,6 +63,56 @@ typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 
 float const DEFAULT_COLLISION_HEIGHT = 2.03128f; // Most common value in dbc
 
+/* Convert floating point chance to premultiplied integer chance (100.00 = 10000). */
+inline uint32 chance_u(float chance)
+{
+    return uint32(::roundf(std::max(0.0f, chance) * 100)); // Nearest 2 decimal places
+}
+
+enum UnitCombatDieSide
+{
+    UNIT_COMBAT_DIE_MISS,
+    UNIT_COMBAT_DIE_RESIST,
+    UNIT_COMBAT_DIE_DODGE,
+    UNIT_COMBAT_DIE_PARRY,
+    UNIT_COMBAT_DIE_DEFLECT,
+    UNIT_COMBAT_DIE_BLOCK,
+    UNIT_COMBAT_DIE_GLANCE,
+    UNIT_COMBAT_DIE_CRIT,
+    UNIT_COMBAT_DIE_CRUSH,
+    UNIT_COMBAT_DIE_HIT,
+};
+
+/* An abstract die for combat rolls with premultiplied integer chances */
+template<class Side, Side Default, uint8 Sides>
+struct Die
+{
+    // MSVC++13-friendly initialization, switch to {0} when we end support for it
+    explicit Die() { for (uint8 i = 0; i < Sides; ++i) chance[i] = 0; }
+    Side roll(uint32 random)
+    {
+        uint32 rolling = 0;
+        for (uint8 side = 0; side < Sides; ++side)
+        {
+            if (chance[side])
+            {
+                rolling += chance[side];
+                if (random <= rolling)
+                    return Side(side);
+            }
+        }
+        return Default;
+    }
+    void set(uint8 side, float chancef)
+    {
+        if (side < Sides)
+            chance[side] = chance_u(chancef);
+    }
+    uint32 chance[Sides];
+};
+
+#define NUM_UNIT_COMBAT_DIE_SIDES (UNIT_COMBAT_DIE_HIT + 1)
+
 class TC_GAME_API Object
 {
     public:
@@ -435,9 +485,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void ModSpellDurationTime(SpellInfo const* spellInfo, int32& durationTime, Spell* spell = nullptr) const;
 
         virtual float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, int32 skillDiff, uint32 spellId) const;
-        virtual SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
-        SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
-        SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect = false) const;
+        virtual SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo, uint32* heartbeatResistChance = nullptr) const;
+        SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo, uint32* heartbeatResistChance = nullptr) const;
+        SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect = false, uint32* heartbeatResistChance = nullptr) const;
         void SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo);
 
         virtual uint32 GetFaction() const = 0;

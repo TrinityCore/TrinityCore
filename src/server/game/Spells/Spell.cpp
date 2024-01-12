@@ -2116,7 +2116,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
 
     // Calculate hit result
     WorldObject* caster = m_originalCaster ? m_originalCaster : m_caster;
-    targetInfo.MissCondition = caster->SpellHitResult(target, m_spellInfo, m_canReflect && !(IsPositive() && m_caster->IsFriendlyTo(target)));
+    targetInfo.MissCondition = caster->SpellHitResult(target, m_spellInfo, m_canReflect && !(IsPositive() && m_caster->IsFriendlyTo(target)), &targetInfo.heartbeatResistChance);
 
     // Spell have speed - need calculate incoming time
     // Incoming time is zero for self casts. At least I think so.
@@ -2787,11 +2787,6 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, bool scaleAura, TargetInfo& 
         }
 
         hitInfo.AuraDuration = Aura::CalcMaxDuration(hitInfo.AuraSpellInfo, origCaster);
-        // Pre-TBC: heartbeat is enabled in both pve and pvp
-        if (bool heartbeat = true)
-        {
-            hitInfo.HitAura->SetHeartbeatResist(hitInfo.heartbeatResistChance, hitInfo.AuraDuration, uint32(diminishLevel));
-        }
 
         // unit is immune to aura if it was diminished to 0 duration
         if (!hitInfo.Positive && !unit->ApplyDiminishingToDuration(hitInfo.AuraSpellInfo, triggered, hitInfo.AuraDuration, origCaster, diminishLevel))
@@ -2867,6 +2862,12 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
             }
             else
                 hitInfo.HitAura->AddStaticApplication(unit, aura_effmask);
+
+            // Pre-TBC: heartbeat is enabled in both pve and pvp
+            if (bool heartbeat = true && hitInfo.DRGroup != DIMINISHING_NONE)
+            {
+                hitInfo.HitAura->SetHeartbeatResist(hitInfo.heartbeatResistChance, hitInfo.AuraDuration, uint32(unit->GetDiminishing(hitInfo.DRGroup)));
+            }
         }
     }
 
@@ -3340,6 +3341,7 @@ void Spell::_cast(bool skipCheck)
                 if (spellEffectInfo.IsUnitOwnedAuraEffect())
                     aura_effmask |= 1 << spellEffectInfo.EffectIndex;
 
+            /*
             if (aura_effmask)
             {
                 bool const triggered = m_triggeredByAuraSpell != nullptr;
@@ -3352,6 +3354,7 @@ void Spell::_cast(bool skipCheck)
                         {
                             if (target->HasStrongerAuraWithDR(m_spellInfo, caster, triggered))
                             {
+                                //thomas todo remove
                                 cleanupSpell(SPELL_FAILED_AURA_BOUNCED);
                                 return;
                             }
@@ -3359,6 +3362,7 @@ void Spell::_cast(bool skipCheck)
                     }
                 }
             }
+            */
         }
     }
     // The spell focusing is making sure that we have a valid cast target guid when we need it so only check for a guid value here.
