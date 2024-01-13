@@ -369,7 +369,7 @@ void WorldSession::HandleRequestCemeteryList(WorldPackets::Misc::RequestCemetery
     for (auto it = range.first; it != range.second && graveyardIds.size() < 16; ++it) // client max
     {
         ConditionSourceInfo conditionSource(_player);
-        if (!sConditionMgr->IsObjectMeetToConditions(conditionSource, it->second.Conditions))
+        if (!it->second.Conditions.Meets(conditionSource))
             continue;
 
         graveyardIds.push_back(it->first);

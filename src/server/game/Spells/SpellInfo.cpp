@@ -5059,18 +5059,8 @@ void SpellInfo::_InitializeSpellPositivity()
 void SpellInfo::_UnloadImplicitTargetConditionLists()
 {
     // find the same instances of ConditionList and delete them.
-    for (SpellEffectInfo const& effect : _effects)
-    {
-        ConditionContainer* cur = effect.ImplicitTargetConditions;
-        if (!cur)
-            continue;
-
-        for (size_t j = effect.EffectIndex; j < _effects.size(); ++j)
-            if (_effects[j].ImplicitTargetConditions == cur)
-                _effects[j].ImplicitTargetConditions = nullptr;
-
-        delete cur;
-    }
+    for (SpellEffectInfo& effect : _effects)
+        effect.ImplicitTargetConditions = nullptr;
 }
 
 bool SpellInfo::MeetsFutureSpellPlayerCondition(Player const* player) const

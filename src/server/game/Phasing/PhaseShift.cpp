@@ -25,7 +25,7 @@ PhaseShift& PhaseShift::operator=(PhaseShift const& right) = default;
 PhaseShift& PhaseShift::operator=(PhaseShift&& right) noexcept = default;
 PhaseShift::~PhaseShift() = default;
 
-bool PhaseShift::AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references /*= 1*/)
+bool PhaseShift::AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition> const* areaConditions, int32 references /*= 1*/)
 {
     auto insertResult = Phases.emplace(phaseId, flags, nullptr);
     ModifyPhasesReferences(insertResult.first, references);

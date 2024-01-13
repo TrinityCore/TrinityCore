@@ -2525,7 +2525,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
             continue;
 
         std::vector<WorldObject*> units;
-        ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions;
+        ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions.get();
 
         float radius = spellEffectInfo.CalcRadius(ref);
         float extraSearchRadius = 0.0f;
@@ -2647,7 +2647,7 @@ void DynObjAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit*
             selectionType = spellEffectInfo.TargetB.GetCheckType();
 
         std::vector<Unit*> units;
-        ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions;
+        ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions.get();
 
         Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetDynobjOwner(), dynObjOwnerCaster, dynObjOwnerCaster, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
         Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetDynobjOwner(), units, check);
