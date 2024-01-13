@@ -2498,8 +2498,9 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     // Memorize heartbeat resist chance if needed:
     if (heartbeatResistChance && spellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
     {
-        float initialHeartbeatChance = (die.chance[UNIT_COMBAT_DIE_RESIST] + die.chance[UNIT_COMBAT_DIE_MISS]);
-        *heartbeatResistChance = initialHeartbeatChance * .01f;
+        //float initialHeartbeatChance = (die.chance[UNIT_COMBAT_DIE_RESIST] + die.chance[UNIT_COMBAT_DIE_MISS]);
+        //*heartbeatResistChance = initialHeartbeatChance * .01f;
+        *heartbeatResistChance = 1;
     }
 
     RoundToInterval(HitChance, 0, 10000);

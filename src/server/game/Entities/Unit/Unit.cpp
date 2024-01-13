@@ -2155,6 +2155,9 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     // Miss chance based on melee
     int32 miss_chance = int32(MeleeSpellMissChance(victim, attType, attackerWeaponSkill - victimMaxSkillValueForLevel, 0) * 100.0f);
 
+    Die<UnitCombatDieSide, UNIT_COMBAT_DIE_HIT, NUM_UNIT_COMBAT_DIE_SIDES> die;
+    die.set(UNIT_COMBAT_DIE_MISS, miss_chance);
+
     // Critical hit chance
     int32 crit_chance = int32(GetUnitCriticalChanceAgainst(attType, victim) * 100.0f);
 
@@ -2397,6 +2400,10 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 {
     WeaponAttackType attType = BASE_ATTACK;
 
+    // Memorize heartbeat resist chance if needed:
+    if (heartbeatResistChance && spellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
+        *heartbeatResistChance = 1;
+
     // Check damage class instead of attack type to correctly handle judgements
     // - they are meele, but can't be dodged/parried/deflected because of ranged dmg class
     if (spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
@@ -2533,6 +2540,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         if (roll < tmp)
             return SPELL_MISS_BLOCK;
     }
+
 
     return SPELL_MISS_NONE;
 }

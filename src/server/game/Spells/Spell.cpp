@@ -2864,7 +2864,8 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                 hitInfo.HitAura->AddStaticApplication(unit, aura_effmask);
 
             // Pre-TBC: heartbeat is enabled in both pve and pvp
-            if (bool heartbeat = true && hitInfo.DRGroup != DIMINISHING_NONE)
+            bool hasAttr = hitInfo.AuraSpellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK);
+            if (bool heartbeat = true && hitInfo.DRGroup != DIMINISHING_NONE && hitInfo.AuraSpellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
             {
                 hitInfo.HitAura->SetHeartbeatResist(hitInfo.heartbeatResistChance, hitInfo.AuraDuration, uint32(unit->GetDiminishing(hitInfo.DRGroup)));
             }
