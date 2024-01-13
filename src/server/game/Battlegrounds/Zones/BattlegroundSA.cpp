@@ -418,7 +418,7 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
             {
                 if (GateInfo const* gate = GetGate(obj->GetEntry()))
                 {
-                    uint8 gateId = gate->GameObjectId;
+                    uint32 gateId = gate->GameObjectId;
 
                     // damaged
                     if (eventId == go->GetGOInfo()->destructibleBuilding.DamagedEvent)
