@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "BattlegroundSA.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "ZoneScript.h"
 
