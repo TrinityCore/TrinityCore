@@ -63,14 +63,19 @@ enum STRCreatureIds
     NPC_CRIMSON_INITATE                 = 10420,
     NPC_CRIMSON_GALLANT                 = 10424,
 
-    NPC_TIMMY_THE_CRUEL                 = 10808
+    NPC_TIMMY_THE_CRUEL                 = 10808,
+
+    // Rat trap
+    NPC_PLAGUED_RAT                     = 10441,
+    NPC_PLAGUED_INSECT                  = 10461,
+    NPC_PLAGUED_MAGGOT                  = 10536,
 };
 
 enum STRGameobjectIds
 {
     GO_DOOR_HALAZZI                     = 186303,
     GO_SERVICE_ENTRANCE                 = 175368,
-    GO_GAUNTLET_GATE1                   = 175357,
+    GO_GAUNTLET_GATE1                   = 175357,   
     GO_ZIGGURAT1                        = 175380,  // baroness
     GO_ZIGGURAT2                        = 175379,  // nerub'enkan
     GO_ZIGGURAT3                        = 175381,  // maleki
@@ -79,7 +84,12 @@ enum STRGameobjectIds
     GO_PORT_GAUNTLET                    = 175374,  // port from gauntlet to slaugther
     GO_PORT_SLAUGTHER                   = 175373,  // port at slaugther
     GO_PORT_ELDERS                      = 175377,  // port at elders square
-    GO_YSIDA_CAGE                       = 181071
+    GO_YSIDA_CAGE                       = 181071,
+
+    GO_PORT_TRAP_GATE_1                 = 175351,  // Portcullis used in the gate traps (rats trap)
+    GO_PORT_TRAP_GATE_2                 = 175350,  // Scarlet side
+    GO_PORT_TRAP_GATE_3                 = 175355,  // Undead side
+    GO_PORT_TRAP_GATE_4                 = 175354,
 };
 
 enum STRQuestIds
