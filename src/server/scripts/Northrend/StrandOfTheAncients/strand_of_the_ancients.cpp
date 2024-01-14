@@ -19,6 +19,7 @@
 #include "BattlegroundSA.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "Player.h"
 #include "ZoneScript.h"
 
 struct go_sota_capturable_object : public GameObjectAI
