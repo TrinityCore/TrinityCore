@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Player.h"
+#include "SpellScript.h"
 #include "ZoneScript.h"
 
 struct go_sota_capturable_object : public GameObjectAI
