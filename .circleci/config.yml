@@ -93,7 +93,7 @@ jobs:
             docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:$(echo $CIRCLE_BRANCH | tr '/' '-' | tr '[:upper:]' '[:lower:]') .
             docker save $image_prefix | gzip > ../../docker.tar.gz
             if [ "$DOCKERHUB_PUSH_IMAGES" == "TRUE" ]; then
-              if [ "$CIRCLE_BRANCH" == "3.3.5" ] || [ "$CIRCLE_BRANCH" == "master" ]; then
+              if [ "$CIRCLE_BRANCH" == "3.3.5" ] || [ "$CIRCLE_BRANCH" == "master" ] || [ "$CIRCLE_BRANCH" == "wotlk_classic" ]; then
                 docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
                 echo "Pushing docker image to dockerhub"
                 docker push --all-tags $image_prefix
