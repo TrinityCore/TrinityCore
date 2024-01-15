@@ -2682,7 +2682,7 @@ void Player::InitTalentForLevel()
         // Remove all talent points
         if (m_usedTalentCount > 0)                           // Free any used talents
         {
-            ResetTalents();
+            ResetTalents(true);
             SetFreeTalentPoints(0);
         }
     }
@@ -2700,7 +2700,7 @@ void Player::InitTalentForLevel()
         if (m_usedTalentCount > talentPointsForLevel)
         {
             if (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_MORE_TALENTS_THAN_ALLOWED))
-                ResetTalents();
+                ResetTalents(true);
             else
                 SetFreeTalentPoints(0);
         }
@@ -3879,9 +3879,9 @@ void Player::IncreaseResetTalentsCostAndCounters(uint32 lastResetTalentsCost)
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
 }
 
-bool Player::ResetTalents()
+bool Player::ResetTalents(bool involuntarily /*= false*/)
 {
-    sScriptMgr->OnPlayerTalentsReset(this);
+    sScriptMgr->OnPlayerTalentsReset(this, involuntarily);
 
     // not need after this call
     if (HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
@@ -3942,13 +3942,8 @@ bool Player::ResetTalents()
 
     SetFreeTalentPoints(talentPointsForLevel);
 
-    /* when prev line will dropped use next line
-    if (Pet* pet = GetPet())
-    {
-        if (pet->getPetType() == HUNTER_PET && !pet->GetCreatureTemplate()->IsTameable(CanTameExoticPets()))
-            RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
-    }
-    */
+    if (involuntarily)
+        SendDirectMessage(WorldPackets::Skills::TalentsInvoluntarilyReset(false).Write());
 
     return true;
 }

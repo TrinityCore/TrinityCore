@@ -29,3 +29,10 @@ void WorldPackets::Skills::TalentWipeConfirm::Read()
 {
     _worldPacket >> TrainerGuid;
 }
+
+WorldPacket const* WorldPackets::Skills::TalentsInvoluntarilyReset::Write()
+{
+    _worldPacket << uint8(IsPetTalents);
+
+    return &_worldPacket;
+}

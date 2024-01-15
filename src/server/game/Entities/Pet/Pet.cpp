@@ -26,6 +26,7 @@
 #include "PetPackets.h"
 #include "Player.h"
 #include "QueryHolder.h"
+#include "SkillPackets.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
@@ -1642,7 +1643,7 @@ void Pet::InitPetCreateSpells()
     CastPetAuras(false);
 }
 
-bool Pet::resetTalents()
+bool Pet::resetTalents(bool involuntarily /*= false*/)
 {
     Player* player = GetOwner();
 
@@ -1712,10 +1713,14 @@ bool Pet::resetTalents()
 
     if (!m_loading)
         player->PetSpellInitialize();
+
+    if (involuntarily)
+        player->SendDirectMessage(WorldPackets::Skills::TalentsInvoluntarilyReset(true).Write());
+
     return true;
 }
 
-void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* onlinePet /*= nullptr*/)
+void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* onlinePet /*= nullptr*/, bool involuntarily /*= false*/)
 {
     // not need after this call
     if (owner->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
@@ -1723,7 +1728,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* onlinePet /*= nullptr*/)
 
     // reset for online
     if (onlinePet)
-        onlinePet->resetTalents();
+        onlinePet->resetTalents(involuntarily);
 
     PetStable* petStable = owner->GetPetStable();
     if (!petStable)
@@ -1747,6 +1752,9 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* onlinePet /*= nullptr*/)
     // no offline pets
     if (petIds.empty())
         return;
+
+    if (!onlinePet)
+        owner->SendDirectMessage(WorldPackets::Skills::TalentsInvoluntarilyReset(true).Write());
 
     bool need_comma = false;
     std::ostringstream ss;

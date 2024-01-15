@@ -46,6 +46,17 @@ namespace WorldPackets
 
                 ObjectGuid TrainerGuid;
         };
+
+        class TalentsInvoluntarilyReset : public ServerPacket
+        {
+            public:
+                TalentsInvoluntarilyReset() : ServerPacket(SMSG_TALENTS_INVOLUNTARILY_RESET, 1) { }
+                TalentsInvoluntarilyReset(uint8 isPetTalents) : ServerPacket(SMSG_TALENTS_INVOLUNTARILY_RESET, 1), IsPetTalents(isPetTalents) { }
+
+                WorldPacket const* Write() override;
+
+                uint8 IsPetTalents = 0;
+        };
     }
 }
 
