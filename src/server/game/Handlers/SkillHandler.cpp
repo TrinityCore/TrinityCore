@@ -72,17 +72,24 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPackets::Skills::TalentWip
     if (!trainer->CanResetTalents(_player, false))
         return;
 
+    uint32 cost = _player->ResetTalentsCost();
+    if (!_player->HasEnoughMoney(cost))
+        return; // // silently return, client should display the error by itself
+
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     if (!_player->ResetTalents())
     {
-        _player->SendTalentWipeConfirm(ObjectGuid::Empty); // Special case: "You have not spent any talent points."
+        _player->SendTalentWipeConfirm(ObjectGuid::Empty);
         return;
     }
 
+    _player->ModifyMoney(-(int32)cost);
+    _player->IncreaseResetTalentsCostAndCounters(cost);
     _player->SendTalentsInfoData(false);
+
     trainer->CastSpell(_player, 14867 /*SPELL_UNTALENT_VISUAL_EFFECT*/, true);
 }
 

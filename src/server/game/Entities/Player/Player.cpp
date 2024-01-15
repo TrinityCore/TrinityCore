@@ -2682,7 +2682,7 @@ void Player::InitTalentForLevel()
         // Remove all talent points
         if (m_usedTalentCount > 0)                           // Free any used talents
         {
-            ResetTalents(true); /// @todo: Has to (collectively) be renamed to ResetTalents
+            ResetTalents();
             SetFreeTalentPoints(0);
         }
     }
@@ -2700,7 +2700,7 @@ void Player::InitTalentForLevel()
         if (m_usedTalentCount > talentPointsForLevel)
         {
             if (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_MORE_TALENTS_THAN_ALLOWED))
-                ResetTalents(true);
+                ResetTalents();
             else
                 SetFreeTalentPoints(0);
         }
@@ -3870,9 +3870,18 @@ uint32 Player::ResetTalentsCost() const
     }
 }
 
-bool Player::ResetTalents(bool no_cost)
+void Player::IncreaseResetTalentsCostAndCounters(uint32 lastResetTalentsCost)
 {
-    sScriptMgr->OnPlayerTalentsReset(this, no_cost);
+    m_resetTalentsCost = lastResetTalentsCost;
+    m_resetTalentsTime = GameTime::GetGameTime();
+
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, lastResetTalentsCost);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
+}
+
+bool Player::ResetTalents()
+{
+    sScriptMgr->OnPlayerTalentsReset(this);
 
     // not need after this call
     if (HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
@@ -3884,19 +3893,6 @@ bool Player::ResetTalents(bool no_cost)
     {
         SetFreeTalentPoints(talentPointsForLevel);
         return false;
-    }
-
-    uint32 cost = 0;
-
-    if (!no_cost && !sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST))
-    {
-        cost = ResetTalentsCost();
-
-        if (!HasEnoughMoney(cost))
-        {
-            SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, nullptr, 0, 0);
-            return false;
-        }
     }
 
     RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
@@ -3945,16 +3941,6 @@ bool Player::ResetTalents(bool no_cost)
     CharacterDatabase.CommitTransaction(trans);
 
     SetFreeTalentPoints(talentPointsForLevel);
-
-    if (!no_cost)
-    {
-        ModifyMoney(-(int32)cost);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, cost);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
-
-        m_resetTalentsCost = cost;
-        m_resetTalentsTime = GameTime::GetGameTime();
-    }
 
     /* when prev line will dropped use next line
     if (Pet* pet = GetPet())
