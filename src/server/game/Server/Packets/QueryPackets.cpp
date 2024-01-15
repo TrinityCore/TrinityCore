@@ -175,6 +175,7 @@ bool PlayerGuidLookupData::Initialize(ObjectGuid const& guid, Player const* play
 
         AccountID     = player->GetSession()->GetAccountGUID();
         BnetAccountID = player->GetSession()->GetBattlenetAccountGUID();
+        GuildClubMemberID = player->GetGuildClubMemberId();
         Name          = player->GetName();
         Race          = player->GetRace();
         Sex           = player->GetNativeGender();

@@ -7425,6 +7425,11 @@ void Player::SetInGuild(ObjectGuid::LowType guildId)
     }
 
     sCharacterCache->UpdateCharacterGuildId(GetGUID(), guildId);
+
+    // We always want to send this to make sure to get proper club settings for GMs.
+    // This also makes sure that the club is enabled/disabled after joining or leaving a guild.
+    // When full communities, club and guild finder are implemented this can be replaced.
+    GetSession()->SendFeatureSystemStatus();
 }
 
 void Player::SetArenaTeamInfoField(uint8 /*slot*/, ArenaTeamInfoType /*type*/, uint32 /*value*/)

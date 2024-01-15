@@ -115,6 +115,8 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
     if (ObjectGuid::LowType guildId = fields[11].GetUInt64())
         GuildGUID = ObjectGuid::Create<HighGuid::Guild>(guildId);
 
+    GuildClubMemberID = Guid.GetCounter();
+
     uint32 playerFlags  = fields[12].GetUInt32();
     uint32 atLoginFlags = fields[13].GetUInt16();
 

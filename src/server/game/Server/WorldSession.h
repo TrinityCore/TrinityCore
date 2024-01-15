@@ -39,6 +39,8 @@
 #include <map>
 #include <memory>
 #include <unordered_map>
+#include "club_member_id.pb.h"
+#include "club_request.pb.h"
 
 class BlackMarketEntry;
 class CollectionMgr;
@@ -1001,6 +1003,11 @@ class TC_GAME_API WorldSession
         std::string const& GetAccountName() const { return _accountName; }
         uint32 GetBattlenetAccountId() const { return _battlenetAccountId; }
         ObjectGuid GetBattlenetAccountGUID() const { return ObjectGuid::Create<HighGuid::BNetAccount>(GetBattlenetAccountId()); }
+        void CreateClubMemberId(::bgs::protocol::club::v1::MemberId* memberId) const
+        {
+            memberId->mutable_account_id()->set_id(GetAccountId());
+            memberId->set_unique_id(GetPlayer() ? GetPlayer()->GetGUID().GetCounter() : 0);
+        }
         Player* GetPlayer() const { return _player; }
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;
@@ -1552,7 +1559,7 @@ class TC_GAME_API WorldSession
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);
         void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& chatMessageWhisper);
         void HandleChatMessageChannelOpcode(WorldPackets::Chat::ChatMessageChannel& chatMessageChannel);
-        void HandleChatMessage(ChatMsg type, Language lang, std::string msg, std::string target = "", Optional<ObjectGuid> channelGuid = {});
+        void HandleChatMessage(ChatMsg type, Language lang, std::string msg, ::bgs::protocol::club::v1::CreateMessageResponse* senderMessageResponse = nullptr, std::string target = "", Optional<ObjectGuid> channelGuid = {});
         void HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMessage& chatAddonMessage);
         void HandleChatAddonMessageTargetedOpcode(WorldPackets::Chat::ChatAddonMessageTargeted& chatAddonMessageTargeted);
         void HandleChatAddonMessage(ChatMsg type, std::string prefix, std::string text, bool isLogged, std::string target = "", Optional<ObjectGuid> channelGuid = {});

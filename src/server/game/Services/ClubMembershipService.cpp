@@ -23,10 +23,21 @@ Battlenet::Services::ClubMembershipService::ClubMembershipService(WorldSession* 
 
 uint32 Battlenet::Services::ClubMembershipService::HandleSubscribe(club::v1::membership::SubscribeRequest const* request, club::v1::membership::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
-    return ERROR_RPC_NOT_IMPLEMENTED;
+    Player* player = _session->GetPlayer();
+
+    if (!player)
+        return ERROR_INTERNAL;
+
+    Guild* guild = player->GetGuild();
+
+    if (!guild)
+        return ERROR_OK;
+
+    return guild->HandleClubMemberSubscribe(response, _session);
 }
 
-uint32 Battlenet::Services::ClubMembershipService::HandleUnsubscribe(club::v1::membership::UnsubscribeRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation)
+uint32 Battlenet::ClubMembershipService::HandleUnsubscribe(club::v1::membership::UnsubscribeRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
-    return ERROR_RPC_NOT_IMPLEMENTED;
+    // We just have to signal the client that the unsubscribe request came through.
+    return ERROR_OK;
 }

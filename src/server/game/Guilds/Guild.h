@@ -27,6 +27,10 @@
 #include "SharedDefines.h"
 #include <set>
 #include <unordered_map>
+#include <club_member_id.pb.h>
+#include <club_listener.pb.h>
+#include <club_service.pb.h>
+#include <club_membership_service.pb.h>
 
 class GuildAchievementMgr;
 class Item;
@@ -71,6 +75,24 @@ enum GuildMemberData
     GUILD_MEMBER_DATA_ZONEID,
     GUILD_MEMBER_DATA_ACHIEVEMENT_POINTS,
     GUILD_MEMBER_DATA_LEVEL,
+};
+
+// Base Club/Community roles. Do not change.
+enum class ClubRoleIdentifier : uint32
+{
+    Owner     = 1,
+    Leader    = 2,
+    Moderator = 3,
+    Member    = 4
+};
+
+// Base Club/Community chat stream types. Do not change.
+enum class ClubStreamType : uint32
+{
+    General = 0,
+    Guild   = 1,
+    Officer = 2,
+    Other   = 3
 };
 
 enum class GuildRankId : uint8
@@ -356,6 +378,12 @@ class TC_GAME_API Guild
                 bool IsTrackingCriteriaId(uint32 criteriaId) const { return m_trackedCriteriaIds && m_trackedCriteriaIds->contains(criteriaId);  }
 
                 bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
+
+                void CreateClubMemberId(::bgs::protocol::club::v1::MemberId* memberId) const
+                {
+                    memberId->mutable_account_id()->set_id(m_accountId);
+                    memberId->set_unique_id(m_guid.GetCounter());
+                }
 
                 void ChangeRank(CharacterDatabaseTransaction trans, GuildRankId newRank);
 
@@ -773,6 +801,13 @@ class TC_GAME_API Guild
         void UpdateMemberData(Player* player, uint8 dataid, uint32 value);
         void OnPlayerStatusChange(Player* player, uint32 flag, bool state);
 
+        // Handle client club commands
+        uint32 HandleClubSubscribe(::bgs::protocol::club::v1::SubscribeNotification* response, WorldSession* session);
+        uint32 HandleClubSubscriberStateChanged(::bgs::protocol::club::v1::SubscriberStateChangedNotification* response, WorldSession* session);
+        uint32 HandleGetMembers(bgs::protocol::club::v1::GetMembersResponse* response);
+        uint32 HandleClubMemberSubscribe(bgs::protocol::club::v1::membership::SubscribeResponse* response, WorldSession* session);
+        uint32 HandleClubStreams(bgs::protocol::club::v1::GetStreamsResponse* response, WorldSession* session);
+
         // Send info to client
         void SendGuildRankInfo(WorldSession* session) const;
         void SendEventLog(WorldSession* session) const;
@@ -805,9 +840,11 @@ class TC_GAME_API Guild
         bool Validate();
 
         // Broadcasts
-        void BroadcastToGuild(WorldSession* session, bool officerOnly, std::string_view msg, uint32 language = LANG_UNIVERSAL) const;
+        void BroadcastToGuild(WorldSession* session, bool officerOnly, std::string_view msg, ::bgs::protocol::club::v1::CreateMessageResponse* senderMessageResponse, uint32 language = LANG_UNIVERSAL) const;
         void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::string_view msg, std::string_view prefix, bool isLogged) const;
         void BroadcastPacketToRank(WorldPacket const* packet, GuildRankId rankId) const;
+        void CreateSenderMessageResponse(bgs::protocol::club::v1::CreateMessageResponse* senderMessageResponse, std::string_view msg, const uint64& messageTime, const Member& Member) const;
+        void CreateMemberMessageNotification(::bgs::protocol::club::v1::StreamMessageAddedNotification* messageAddedNotification, WorldSession* session, bool officerOnly, std::string_view msg, const uint64& messageTime) const;
         void BroadcastPacket(WorldPacket const* packet) const;
 
         void MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, GuildRankOrder minRank);
