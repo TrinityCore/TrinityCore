@@ -2400,7 +2400,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 {
     WeaponAttackType attType = BASE_ATTACK;
 
-    // Memorize heartbeat resist chance if needed:
+        // Memorize heartbeat resist chance if needed:
     if (heartbeatResistChance && spellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
         *heartbeatResistChance = 1;
 
@@ -2920,7 +2920,7 @@ void Unit::_UpdateAutoRepeatSpell()
     }
 
     // apply delay (Auto Shot (spellID 75) not affected)
-    if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500 && autoRepeatSpellInfo->Id != 75)
+    if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500)
         setAttackTimer(RANGED_ATTACK, 500);
     m_AutoRepeatFirstCast = false;
 

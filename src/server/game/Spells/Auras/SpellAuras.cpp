@@ -433,6 +433,9 @@ m_procCooldown(TimePoint::min())
     if (m_spellInfo->ManaPerSecond || m_spellInfo->ManaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
 
+    m_heartbeatResistChance = 0;
+    m_heartbeatResistInterval = 0;
+    m_heartbeatResistTimer = 0;
     m_maxDuration = CalcMaxDuration(createInfo.Caster);
     m_duration = m_maxDuration;
     m_procCharges = CalcMaxCharges(createInfo.Caster);
@@ -856,7 +859,8 @@ void Aura::Update(uint32 diff, Unit* caster)
             }
         }
 
-        if (m_duration && !IsRemoved() )
+       
+        if (m_duration && m_heartbeatResistChance >= 1 && m_owner->IsPlayer() && !IsRemoved())
             UpdateHeartbeatResist(diff, this->GetUnitOwner());
     }
 }
@@ -1975,10 +1979,6 @@ void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLe
     // Main points in common cited by independent sources:
     // * Break attempts become more frequent as hit count rises
     // * Break chance becomes higher as hit count rises
-    if (drLevel <= 0)
-    {
-        return;
-    }
     if (chance > 0 && chance < 100)
     {
         //hit cap scenario, need at least a 1% chance to break.
@@ -2025,8 +2025,8 @@ void Aura::UpdateHeartbeatResist(uint32 diff, Unit* target)
             return;
         }
 
-        std::string str = "Break out roll failed.";
-        sWorld->SendServerMessage(SERVER_MSG_STRING, str.c_str());
+        //std::string str = "Break out roll failed.";
+        //sWorld->SendServerMessage(SERVER_MSG_STRING, str.c_str());
     }
 }
 

@@ -294,7 +294,7 @@ class TC_GAME_API Aura
         AuraEffect* m_effects[MAX_SPELL_EFFECTS];
         ApplicationMap m_applications;
 
-        float m_heartbeatResistChance;                      // Chance to break this spell due to heartbeat resistance
+        float m_heartbeatResistChance = 0;                      // Chance to break this spell due to heartbeat resistance
         int32 m_heartbeatResistInterval;                    // Heartbeat resistance periodic interval
         int32 m_heartbeatResistTimer;                       // Timer for heartbeat resistance
 
