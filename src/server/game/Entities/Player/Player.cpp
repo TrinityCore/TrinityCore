@@ -3872,7 +3872,9 @@ uint32 Player::ResetTalentsCost() const
 
 void Player::IncreaseResetTalentsCostAndCounters(uint32 lastResetTalentsCost)
 {
-    m_resetTalentsCost = lastResetTalentsCost;
+    if (lastResetTalentsCost > 0) // We don't want to reset the accumulated talent reset cost if we decide to temporarily enable CONFIG_NO_RESET_TALENT_COST
+        m_resetTalentsCost = lastResetTalentsCost;
+
     m_resetTalentsTime = GameTime::GetGameTime();
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, lastResetTalentsCost);
