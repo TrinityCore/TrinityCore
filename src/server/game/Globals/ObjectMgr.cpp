@@ -1017,7 +1017,7 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
             creatureDifficulty.MinLevel = creatureDifficulty.MaxLevel;
         }
 
-        if (creatureDifficulty.HealthScalingExpansion < EXPANSION_LEVEL_CURRENT || creatureDifficulty.HealthScalingExpansion >= CURRENT_EXPANSION)
+        if (creatureDifficulty.HealthScalingExpansion < EXPANSION_LEVEL_CURRENT || creatureDifficulty.HealthScalingExpansion > CURRENT_EXPANSION)
         {
             TC_LOG_ERROR("sql.sql", "Table `creature_template_difficulty` lists creature (ID: {}) with invalid `HealthScalingExpansion` {}. Ignored and set to 0.",
                 entry, creatureDifficulty.HealthScalingExpansion);
