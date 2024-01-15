@@ -15,14 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WorldSession.h"
 #include "Common.h"
 #include "DBCStores.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
+#include "SkillPackets.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
 
 void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
 {
@@ -57,37 +58,32 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
     recvPacket.rfinish();
 }
 
-void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
+void WorldSession::HandleTalentWipeConfirmOpcode(WorldPackets::Skills::TalentWipeConfirm& packet)
 {
     TC_LOG_DEBUG("network", "MSG_TALENT_WIPE_CONFIRM");
-    ObjectGuid guid;
-    recvData >> guid;
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
-    if (!unit)
+    Creature* trainer = GetPlayer()->GetNPCIfCanInteractWith(packet.TrainerGuid, UNIT_NPC_FLAG_TRAINER);
+    if (!trainer)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTalentWipeConfirmOpcode - {} not found or you can't interact with him.", guid.ToString());
+        TC_LOG_DEBUG("network", "WORLD: HandleTalentWipeConfirmOpcode - {} not found or you can't interact with him.", packet.TrainerGuid);
         return;
     }
 
-    if (!unit->CanResetTalents(_player, false))
+    if (!trainer->CanResetTalents(_player, false))
         return;
 
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if (!(_player->ResetTalents()))
+    if (!_player->ResetTalents())
     {
-        WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8+4);    //you have not any talent
-        data << uint64(0);
-        data << uint32(0);
-        SendPacket(&data);
+        _player->SendTalentWipeConfirm(ObjectGuid::Empty); // Special case: "You have not spent any talent points."
         return;
     }
 
     _player->SendTalentsInfoData(false);
-    unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
+    trainer->CastSpell(_player, 14867 /*SPELL_UNTALENT_VISUAL_EFFECT*/, true);
 }
 
 void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)

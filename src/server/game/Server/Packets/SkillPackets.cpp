@@ -15,27 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
-
-#include "BankPackets.h"
-#include "CalendarPackets.h"
-#include "CharacterPackets.h"
-#include "ChatPackets.h"
-#include "CombatLogPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "LFGPackets.h"
-#include "MailPackets.h"
-#include "MiscPackets.h"
-#include "NPCPackets.h"
-#include "PetPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
 #include "SkillPackets.h"
-#include "SpellPackets.h"
-#include "SystemPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
 
-#endif // AllPackets_h__
+WorldPacket const* WorldPackets::Skills::TalentWipe::Write()
+{
+    _worldPacket << TrainerGuid;
+    _worldPacket << uint32(Cost);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Skills::TalentWipeConfirm::Read()
+{
+    _worldPacket >> TrainerGuid;
+}
