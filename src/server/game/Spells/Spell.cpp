@@ -5397,9 +5397,12 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             return castResult;
     }
 
-    // Triggered spells also have range check
+    // Triggered spells also have range check. no they don't
     /// @todo determine if there is some flag to enable/disable the check
-    castResult = CheckRange(strict);
+    if(!IsTriggered())
+    {
+        castResult = CheckRange(strict);
+    }
     if (castResult != SPELL_CAST_OK)
         return castResult;
 

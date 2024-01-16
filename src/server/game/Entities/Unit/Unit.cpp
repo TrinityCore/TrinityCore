@@ -2920,12 +2920,12 @@ void Unit::_UpdateAutoRepeatSpell()
     }
 
     //hunter autoshot change
-    if (m_currentSpells[CURRENT_GENERIC_SPELL] && getAttackTimer(RANGED_ATTACK) < 500)
+    if ((m_currentSpells[CURRENT_GENERIC_SPELL] || m_currentSpells[CURRENT_CHANNELED_SPELL]) && getAttackTimer(RANGED_ATTACK) < 500)
     {
         setAttackTimer(RANGED_ATTACK, 500);
     }
 
-    // apply delay (Auto Shot (spellID 75) not affected)
+    // apply delay (Auto Shot (spellID 75) not affected) (just kidding lol)
     if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500)
         setAttackTimer(RANGED_ATTACK, 500);
     m_AutoRepeatFirstCast = false;
