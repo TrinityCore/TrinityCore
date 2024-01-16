@@ -36,7 +36,7 @@ uint32 Battlenet::Services::ClubService::HandleGetClubType(club::v1::GetClubType
     return ERROR_NOT_IMPLEMENTED;
 }
 
-uint32 Battlenet::ClubService::HandleSubscribe(club::v1::SubscribeRequest const* /*request*/, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 Battlenet::Services::ClubService::HandleSubscribe(club::v1::SubscribeRequest const* /*request*/, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     Player* player = _session->GetPlayer();
 
@@ -71,7 +71,7 @@ uint32 Battlenet::ClubService::HandleSubscribe(club::v1::SubscribeRequest const*
     return bnetStatus;
 }
 
-uint32 Battlenet::ClubService::HandleGetMembers(club::v1::GetMembersRequest const* /*request*/, club::v1::GetMembersResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 Battlenet::Services::ClubService::HandleGetMembers(club::v1::GetMembersRequest const* /*request*/, club::v1::GetMembersResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     Player* player = _session->GetPlayer();
 
@@ -86,7 +86,7 @@ uint32 Battlenet::ClubService::HandleGetMembers(club::v1::GetMembersRequest cons
     return guild->HandleGetMembers(response);
 }
 
-uint32 Battlenet::ClubService::HandleGetStreams(club::v1::GetStreamsRequest const* /*request*/, club::v1::GetStreamsResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 Battlenet::Services::ClubService::HandleGetStreams(club::v1::GetStreamsRequest const* /*request*/, club::v1::GetStreamsResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     Player* player = _session->GetPlayer();
 
@@ -101,7 +101,7 @@ uint32 Battlenet::ClubService::HandleGetStreams(club::v1::GetStreamsRequest cons
     return guild->HandleClubStreams(response, _session);
 }
 
-uint32 Battlenet::ClubService::HandleSubscribeStream(club::v1::SubscribeStreamRequest const* request, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 Battlenet::Services::ClubService::HandleSubscribeStream(club::v1::SubscribeStreamRequest const* request, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     Player* player = _session->GetPlayer();
 
@@ -121,13 +121,13 @@ uint32 Battlenet::ClubService::HandleSubscribeStream(club::v1::SubscribeStreamRe
     return ERROR_OK;
 }
 
-uint32 Battlenet::ClubService::HandleUnsubscribeStream(club::v1::UnsubscribeStreamRequest const* /*request*/, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 Battlenet::Services::ClubService::HandleUnsubscribeStream(club::v1::UnsubscribeStreamRequest const* /*request*/, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     // We just have to signal the client that the unsubscribe request came through.
     return ERROR_OK;
 }
 
-uint32 Battlenet::ClubService::HandleSetStreamFocus(club::v1::SetStreamFocusRequest const* /*request*/, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 Battlenet::Services::ClubService::HandleSetStreamFocus(club::v1::SetStreamFocusRequest const* /*request*/, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     Player* player = _session->GetPlayer();
 
@@ -142,7 +142,7 @@ uint32 Battlenet::ClubService::HandleSetStreamFocus(club::v1::SetStreamFocusRequ
     return ERROR_OK;
 }
 
-uint32 Battlenet::ClubService::HandleAdvanceStreamViewTime(club::v1::AdvanceStreamViewTimeRequest const* /*request*/, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 Battlenet::Services::ClubService::HandleAdvanceStreamViewTime(club::v1::AdvanceStreamViewTimeRequest const* /*request*/, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     Player* player = _session->GetPlayer();
 
