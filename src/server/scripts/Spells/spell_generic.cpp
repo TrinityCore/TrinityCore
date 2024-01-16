@@ -26,6 +26,7 @@
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
+#include "CommonPredicates.h"
 #include "Containers.h"
 #include "CreatureAI.h"
 #include "DB2Stores.h"
@@ -2991,7 +2992,7 @@ class spell_gen_replenishment : public SpellScript
 
         if (targets.size() > maxTargets)
         {
-            targets.sort(Trinity::PowerPctOrderPred(POWER_MANA));
+            targets.sort(Trinity::Predicates::PowerPctOrderPred(POWER_MANA));
             targets.resize(maxTargets);
         }
     }
