@@ -26,7 +26,7 @@ class Unit;
 class SpellInfo;
 enum class ConversationActorType : uint32;
 
-class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversation>
+class TC_GAME_API Conversation final : public WorldObject, public GridObject<Conversation>
 {
     public:
         Conversation();
