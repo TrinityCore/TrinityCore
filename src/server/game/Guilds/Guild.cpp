@@ -1200,7 +1200,6 @@ void Guild::Disband()
     WorldPackets::Guild::GuildEventDisbanded packet;
 
     auto writtenPacket = packet.Write();
-    BroadcastPacket(packet.Write());
 
     // We have to send old guild and new club packets so we use a custom broadcast loop here.
     for (auto const& [guid, member] : m_members)
@@ -1536,7 +1535,7 @@ uint32 Guild::HandleClubMemberSubscribe(club::v1::membership::SubscribeResponse*
     return ERROR_OK;
 }
 
-uint32 Guild::HandleClubStreams(bgs::protocol::club::v1::GetStreamsResponse* response, WorldSession* session)
+uint32 Guild::HandleClubStreams(bgs::protocol::club::v1::GetStreamsResponse* response, WorldSession* /*session*/)
 {
     // General guild channel.
     auto generalGuildChannelStream = response->add_stream();
@@ -2617,6 +2616,7 @@ void Guild::SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelf
         eventPacket.OldLeaderName = oldLeader->GetName();
         eventPacket.OldLeaderVirtualRealmAddress = GetVirtualRealmAddress();
     }
+
     auto packet = eventPacket.Write();
 
     // We have to send old guild and new club packets so we use a custom broadcast loop here.
@@ -2630,19 +2630,25 @@ void Guild::SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelf
 
             memberRoleChangeNotification.set_club_id(m_id);
 
-            auto newLeaderRoleAssignment = memberRoleChangeNotification.add_assignment();
+            if (newLeader)
+            {
+                auto newLeaderRoleAssignment = memberRoleChangeNotification.add_assignment();
 
-            newLeader->CreateClubMemberId(newLeaderRoleAssignment->mutable_member_id());
+                newLeader->CreateClubMemberId(newLeaderRoleAssignment->mutable_member_id());
 
-            // Owner/GuildMaster role is always 1.
-            newLeaderRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Owner));
+                // Owner/GuildMaster role is always 1.
+                newLeaderRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Owner));
+            }
 
-            auto oldLeaderRoleAssignment = memberRoleChangeNotification.add_assignment();
+            if (oldLeader)
+            {
+                auto oldLeaderRoleAssignment = memberRoleChangeNotification.add_assignment();
 
-            oldLeader->CreateClubMemberId(oldLeaderRoleAssignment->mutable_member_id());
+                oldLeader->CreateClubMemberId(oldLeaderRoleAssignment->mutable_member_id());
 
-            // Non owner members in guilds get the lowest club/community role after a guild master change.
-            oldLeaderRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
+                // Non owner members in guilds get the lowest club/community role after a guild master change.
+                oldLeaderRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
+            }
 
             Battlenet::WorldserverService<::bgs::protocol::club::v1::ClubListener>(player->GetSession()).OnMemberRoleChanged(&memberRoleChangeNotification, true, true);
         }
@@ -2682,7 +2688,7 @@ void Guild::SendEventPlayerLeft(Member* leaver, Member* remover, bool isRemoved)
 
                 auto removedMemberAssignment = memberRemovedNotification.add_member();
 
-                member.CreateClubMemberId(removedMemberAssignment->mutable_id());
+                leaver->CreateClubMemberId(removedMemberAssignment->mutable_id());
 
                 if (isRemoved)
                     removedMemberAssignment->set_reason(::bgs::protocol::club::v1::ClubRemovedReason::CLUB_REMOVED_REASON_MEMBER_KICKED);
@@ -2711,7 +2717,7 @@ void Guild::SendEventPlayerLeft(Member* leaver, Member* remover, bool isRemoved)
                 else
                     clubRemovedNotification.set_reason(::bgs::protocol::club::v1::ClubRemovedReason::CLUB_REMOVED_REASON_MEMBER_LEFT);
 
-                member.CreateClubMemberId(clubRemovedNotification.mutable_member_id());
+                leaver->CreateClubMemberId(clubRemovedNotification.mutable_member_id());
 
                 Battlenet::WorldserverService<bgs::protocol::club::v1::membership::ClubMembershipListener>(player->GetSession()).OnClubRemoved(&clubRemovedNotification, true, true);
             }
@@ -3150,7 +3156,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
         return false;
     }
 
-    Member& member = memberIt->second;
+    Member& newMember = memberIt->second;
     std::string name;
     if (player)
     {
@@ -3158,13 +3164,13 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
         player->SetGuildIdInvited(UI64LIT(0));
         player->SetGuildRank(AsUnderlyingType(*rankId));
         player->SetGuildLevel(GetLevel());
-        member.SetStats(player);
+        newMember.SetStats(player);
         SendLoginInfo(player->GetSession());
         name = player->GetName();
     }
     else
     {
-        member.ResetFlags();
+        newMember.ResetFlags();
 
         bool ok = false;
         // Player must exist
@@ -3174,7 +3180,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
         {
             Field* fields = result->Fetch();
             name = fields[0].GetString();
-            member.SetStats(
+            newMember.SetStats(
                 name,
                 fields[1].GetUInt8(),
                 fields[2].GetUInt8(),
@@ -3184,7 +3190,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
                 fields[6].GetUInt32(),
                 0);
 
-            ok = member.CheckStats();
+            ok = newMember.CheckStats();
         }
 
         if (!ok)
@@ -3195,7 +3201,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
         sCharacterCache->UpdateCharacterGuildId(guid, GetId());
     }
 
-    member.SaveToDB(trans);
+    newMember.SaveToDB(trans);
 
     _UpdateAccountsNumber();
     _LogEvent(GUILD_EVENT_LOG_JOIN_GUILD, lowguid);
@@ -3212,10 +3218,10 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
     {
         if (Player* guildPlayer = member.FindConnectedPlayer())
         {
-            guildPlayer->GetSession()->SendPacket(packet);
+            guildPlayer->SendDirectMessage(packet);
 
-            // Notify other guild members.
-            if (!member.IsSamePlayer(player->GetGUID()))
+            // Notify other online guild members.
+            if (player && !member.IsSamePlayer(player->GetGUID()))
             {
                 ::bgs::protocol::club::v1::MemberAddedNotification memberAddedNotification;
 
@@ -4021,14 +4027,14 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
 
 void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, GuildRankId rank)
 {
-    Member* member = GetMember(targetGuid);
-    ASSERT(member);
+    Member* targetMember = GetMember(targetGuid);
+    ASSERT(targetMember);
 
     WorldPackets::Guild::GuildSendRankChange rankChange;
     rankChange.Officer = setterGuid;
     rankChange.Other = targetGuid;
     rankChange.RankID = AsUnderlyingType(rank);
-    rankChange.Promote = (rank < member->GetRankId());
+    rankChange.Promote = (rank < targetMember->GetRankId());
 
     auto packet = rankChange.Write();
 
@@ -4044,7 +4050,7 @@ void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, G
 
             auto changedRoleAssignment = memberRoleChangeNotification.add_assignment();
 
-            member.CreateClubMemberId(changedRoleAssignment->mutable_member_id());
+            targetMember->CreateClubMemberId(changedRoleAssignment->mutable_member_id());
 
             if (rank == GuildRankId::GuildMaster)
                 changedRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Owner));
@@ -4060,7 +4066,7 @@ void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, G
     }
 
     CharacterDatabaseTransaction trans;
-    member->ChangeRank(trans, rank);
+    targetMember->ChangeRank(trans, rank);
 
     TC_LOG_DEBUG("network", "SMSG_GUILD_RANKS_UPDATE [Broadcast] Target: {}, Issuer: {}, RankId: {}",
         targetGuid.ToString(), setterGuid.ToString(), uint32(rank));
