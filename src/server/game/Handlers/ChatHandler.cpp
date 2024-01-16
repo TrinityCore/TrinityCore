@@ -147,7 +147,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
 {
     Player* sender = GetPlayer();
 
-    if (lang == LANG_UNIVERSAL && type != CHAT_MSG_EMOTE)
+    if (lang == LANG_UNIVERSAL && type != CHAT_MSG_EMOTE && senderMessageResponse == nullptr)
     {
         TC_LOG_ERROR("entities.player.cheat", "CMSG_MESSAGECHAT: Possible hacking-attempt: {} tried to send a message in universal language", GetPlayerInfo());
         SendNotification(LANG_UNKNOWN_LANGUAGE);
