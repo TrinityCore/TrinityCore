@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "CharmInfo.h"
 #include "CombatAI.h"
 #include "Containers.h"
 #include "CreatureTextMgr.h"
