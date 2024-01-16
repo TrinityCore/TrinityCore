@@ -439,6 +439,11 @@ void WorldSession::HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& 
     WorldPackets::Petition::TurnInPetitionResult resultPacket;
     resultPacket.Result = int32(PETITION_TURN_OK);
     SendPacket(resultPacket.Write());
+
+    // We always want to send this to make sure to get proper club settings for GMs.
+    // This also makes sure that the club is enabled/disabled after joining or leaving a guild.
+    // When full communities, club and guild finder are implemented this can be replaced.
+    SendFeatureSystemStatus();
 }
 
 void WorldSession::HandlePetitionShowList(WorldPackets::Petition::PetitionShowList& packet)
