@@ -19,7 +19,6 @@
 #include "BattlenetRpcErrorCodes.h"
 #include "Guild.h"
 
-
 Battlenet::Services::ClubService::ClubService(WorldSession* session) : BaseService(session) { }
 
 uint32 Battlenet::Services::ClubService::HandleGetClubType(club::v1::GetClubTypeRequest const* request, club::v1::GetClubTypeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
