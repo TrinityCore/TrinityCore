@@ -2971,7 +2971,6 @@ void Creature::AllLootRemovedFromCorpse()
                     return false;
 
                 hasSkinningLoot = true;
-                break;
             }
         }
 
