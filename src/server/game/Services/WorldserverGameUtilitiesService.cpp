@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WorldserverService.h"
+#include "WorldserverGameUtilitiesService.h"
 #include "BattlenetRpcErrorCodes.h"
 #include "IpAddress.h"
 #include "Log.h"
@@ -26,17 +26,17 @@
 #include "World.h"
 #include <zlib.h>
 
-std::unordered_map<std::string, Battlenet::GameUtilitiesService::ClientRequestHandler> const Battlenet::GameUtilitiesService::ClientRequestHandlers =
+std::unordered_map<std::string, Battlenet::Services::GameUtilitiesService::ClientRequestHandler> const Battlenet::Services::GameUtilitiesService::ClientRequestHandlers =
 {
     { "Command_RealmListRequest_v1", &GameUtilitiesService::HandleRealmListRequest },
     { "Command_RealmJoinRequest_v1", &GameUtilitiesService::HandleRealmJoinRequest }
 };
 
-Battlenet::GameUtilitiesService::GameUtilitiesService(WorldSession* session) : BaseService(session)
+Battlenet::Services::GameUtilitiesService::GameUtilitiesService(WorldSession* session) : BaseService(session)
 {
 }
 
-uint32 Battlenet::GameUtilitiesService::HandleProcessClientRequest(game_utilities::v1::ClientRequest const* request, game_utilities::v1::ClientResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 Battlenet::Services::GameUtilitiesService::HandleProcessClientRequest(game_utilities::v1::ClientRequest const* request, game_utilities::v1::ClientResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     Attribute const* command = nullptr;
     std::unordered_map<std::string, Variant const*> params;
@@ -83,7 +83,7 @@ static Variant const* GetParam(std::unordered_map<std::string, Variant const*> c
     return itr != params.end() ? itr->second : nullptr;
 }
 
-uint32 Battlenet::GameUtilitiesService::HandleRealmListRequest(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
+uint32 Battlenet::Services::GameUtilitiesService::HandleRealmListRequest(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
     std::string subRegionId;
     if (Variant const* subRegion = GetParam(params, "Command_RealmListRequest_v1"))
@@ -122,7 +122,7 @@ uint32 Battlenet::GameUtilitiesService::HandleRealmListRequest(std::unordered_ma
     return ERROR_OK;
 }
 
-uint32 Battlenet::GameUtilitiesService::HandleRealmJoinRequest(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
+uint32 Battlenet::Services::GameUtilitiesService::HandleRealmJoinRequest(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
     if (Variant const* realmAddress = GetParam(params, "Param_RealmAddress"))
         return sRealmList->JoinRealm(uint32(realmAddress->uint_value()), realm.Build, Trinity::Net::make_address(_session->GetRemoteAddress()), _session->GetRealmListSecret(),
@@ -131,7 +131,7 @@ uint32 Battlenet::GameUtilitiesService::HandleRealmJoinRequest(std::unordered_ma
     return ERROR_WOW_SERVICES_INVALID_JOIN_TICKET;
 }
 
-uint32 Battlenet::GameUtilitiesService::HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 Battlenet::Services::GameUtilitiesService::HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     if (request->attribute_key().find("Command_RealmListRequest_v1") == 0)
     {
