@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GameUtilitiesService_h__
-#define GameUtilitiesService_h__
+#ifndef WorldserverGameUtilitiesService_h__
+#define WorldserverGameUtilitiesService_h__
 
-#include "Service.h"
+#include "WorldserverService.h"
 #include "game_utilities_service.pb.h"
 
 namespace Battlenet
@@ -27,17 +27,24 @@ namespace Battlenet
 
     namespace Services
     {
-        class GameUtilities : public Service<game_utilities::v1::GameUtilitiesService>
+        class GameUtilitiesService : public WorldserverService<game_utilities::v1::GameUtilitiesService>
         {
-            typedef Service<game_utilities::v1::GameUtilitiesService> GameUtilitiesService;
+            typedef WorldserverService<game_utilities::v1::GameUtilitiesService> BaseService;
 
         public:
-            GameUtilities(Session* session);
+            GameUtilitiesService(WorldSession* session);
 
             uint32 HandleProcessClientRequest(game_utilities::v1::ClientRequest const* request, game_utilities::v1::ClientResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
             uint32 HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+
+        private:
+            using ClientRequestHandler = uint32(GameUtilitiesService::*)(std::unordered_map<std::string, Variant const*> const&, game_utilities::v1::ClientResponse*);
+            static std::unordered_map<std::string, ClientRequestHandler> const ClientRequestHandlers;
+
+            uint32 HandleRealmListRequest(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response);
+            uint32 HandleRealmJoinRequest(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response);
         };
     }
 }
 
-#endif // GameUtilitiesService_h__
+#endif // WorldserverGameUtilitiesService_h__
