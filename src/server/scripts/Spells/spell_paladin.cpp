@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "CommonPredicates.h"
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "Group.h"
@@ -692,7 +693,7 @@ class spell_pal_glyph_of_holy_light : public SpellScript
 
         if (targets.size() > maxTargets)
         {
-            targets.sort(Trinity::HealthPctOrderPred());
+            targets.sort(Trinity::Predicates::HealthPctOrderPred());
             targets.resize(maxTargets);
         }
     }
@@ -897,7 +898,7 @@ class spell_pal_holy_prism_selector : public SpellScript
         {
             if (GetSpellInfo()->Id == SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY)
             {
-                targets.sort(Trinity::HealthPctOrderPred());
+                targets.sort(Trinity::Predicates::HealthPctOrderPred());
                 targets.resize(maxTargets);
             }
             else
