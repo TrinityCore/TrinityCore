@@ -82,7 +82,6 @@
 #include "Realm.h"
 #include "ReputationMgr.h"
 #include "SkillDiscovery.h"
-#include "SkillPackets.h"
 #include "SocialMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -91,6 +90,7 @@
 #include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "StringConvert.h"
+#include "TalentPackets.h"
 #include "TicketMgr.h"
 #include "TradeData.h"
 #include "Trainer.h"
@@ -3945,7 +3945,7 @@ bool Player::ResetTalents(bool involuntarily /*= false*/)
     SetFreeTalentPoints(talentPointsForLevel);
 
     if (involuntarily)
-        SendDirectMessage(WorldPackets::Skills::TalentsInvoluntarilyReset(false).Write());
+        SendDirectMessage(WorldPackets::Talents::InvoluntarilyReset(false).Write());
 
     return true;
 }
@@ -9425,7 +9425,7 @@ void Player::SetBindPoint(ObjectGuid guid) const
 
 void Player::SendTalentWipeConfirm(ObjectGuid trainerGuid) const
 {
-    SendDirectMessage(WorldPackets::Skills::TalentWipe(trainerGuid, ResetTalentsCost()).Write());
+    SendDirectMessage(WorldPackets::Talents::Wipe(trainerGuid, ResetTalentsCost()).Write());
 }
 
 void Player::ResetPetTalents()

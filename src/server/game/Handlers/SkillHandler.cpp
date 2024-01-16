@@ -21,7 +21,7 @@
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
-#include "SkillPackets.h"
+#include "TalentPackets.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
@@ -58,7 +58,7 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
     recvPacket.rfinish();
 }
 
-void WorldSession::HandleTalentWipeConfirmOpcode(WorldPackets::Skills::TalentWipeConfirm& packet)
+void WorldSession::HandleTalentWipeConfirmOpcode(WorldPackets::Talents::WipeConfirm& packet)
 {
     TC_LOG_DEBUG("network", "MSG_TALENT_WIPE_CONFIRM");
 

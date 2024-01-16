@@ -16,9 +16,9 @@
  */
 
 #include "ObjectGuid.h"
-#include "SkillPackets.h"
+#include "TalentPackets.h"
 
-WorldPacket const* WorldPackets::Skills::TalentWipe::Write()
+WorldPacket const* WorldPackets::Talents::Wipe::Write()
 {
     _worldPacket << TrainerGuid;
     _worldPacket << uint32(Cost);
@@ -26,12 +26,12 @@ WorldPacket const* WorldPackets::Skills::TalentWipe::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Skills::TalentWipeConfirm::Read()
+void WorldPackets::Talents::WipeConfirm::Read()
 {
     _worldPacket >> TrainerGuid;
 }
 
-WorldPacket const* WorldPackets::Skills::TalentsInvoluntarilyReset::Write()
+WorldPacket const* WorldPackets::Talents::InvoluntarilyReset::Write()
 {
     _worldPacket << uint8(IsPetTalents);
 

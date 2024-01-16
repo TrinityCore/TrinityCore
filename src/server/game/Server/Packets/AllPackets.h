@@ -32,9 +32,9 @@
 #include "PetPackets.h"
 #include "QueryPackets.h"
 #include "QuestPackets.h"
-#include "SkillPackets.h"
 #include "SpellPackets.h"
 #include "SystemPackets.h"
+#include "TalentPackets.h"
 #include "TotemPackets.h"
 #include "WorldStatePackets.h"
 

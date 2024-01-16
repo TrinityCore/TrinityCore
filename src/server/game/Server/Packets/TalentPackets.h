@@ -15,20 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SkillPackets_h__
-#define SkillPackets_h__
+#ifndef TalentPackets_h__
+#define TalentPackets_h__
 
 #include "Packet.h"
 
 namespace WorldPackets
 {
-    namespace Skills
+    namespace Talents
     {
-        class TalentWipe : public ServerPacket
+        class Wipe : public ServerPacket
         {
             public:
-                TalentWipe() : ServerPacket(MSG_TALENT_WIPE_CONFIRM, 8 + 4) { }
-                TalentWipe(ObjectGuid trainerGuid, uint32 cost) :
+                Wipe() : ServerPacket(MSG_TALENT_WIPE_CONFIRM, 8 + 4) { }
+                Wipe(ObjectGuid trainerGuid, uint32 cost) :
                     ServerPacket(MSG_TALENT_WIPE_CONFIRM, 8 + 4), TrainerGuid(trainerGuid), Cost(cost) { }
 
                 WorldPacket const* Write() override;
@@ -37,21 +37,21 @@ namespace WorldPackets
                 uint32 Cost = 0;
         };
 
-        class TalentWipeConfirm : public ClientPacket
+        class WipeConfirm : public ClientPacket
         {
             public:
-                TalentWipeConfirm(WorldPacket&& packet) : ClientPacket(MSG_TALENT_WIPE_CONFIRM, std::move(packet)) { }
+                WipeConfirm(WorldPacket&& packet) : ClientPacket(MSG_TALENT_WIPE_CONFIRM, std::move(packet)) { }
 
                 void Read() override;
 
                 ObjectGuid TrainerGuid;
         };
 
-        class TalentsInvoluntarilyReset : public ServerPacket
+        class InvoluntarilyReset : public ServerPacket
         {
             public:
-                TalentsInvoluntarilyReset() : ServerPacket(SMSG_TALENTS_INVOLUNTARILY_RESET, 1) { }
-                TalentsInvoluntarilyReset(uint8 isPetTalents) : ServerPacket(SMSG_TALENTS_INVOLUNTARILY_RESET, 1), IsPetTalents(isPetTalents) { }
+                InvoluntarilyReset() : ServerPacket(SMSG_TALENTS_INVOLUNTARILY_RESET, 1) { }
+                InvoluntarilyReset(uint8 isPetTalents) : ServerPacket(SMSG_TALENTS_INVOLUNTARILY_RESET, 1), IsPetTalents(isPetTalents) { }
 
                 WorldPacket const* Write() override;
 
@@ -60,4 +60,4 @@ namespace WorldPackets
     }
 }
 
-#endif // SkillPackets_h__
+#endif // TalentPackets_h__

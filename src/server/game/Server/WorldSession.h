@@ -239,9 +239,9 @@ namespace WorldPackets
         class CancelChannelling;
     }
 
-    namespace Skills
+    namespace Talents
     {
-        class TalentWipeConfirm;
+        class WipeConfirm;
     }
 
     namespace Totem
@@ -916,7 +916,7 @@ class TC_GAME_API WorldSession
 
         void HandleLearnTalentOpcode(WorldPacket& recvPacket);
         void HandleLearnPreviewTalents(WorldPacket& recvPacket);
-        void HandleTalentWipeConfirmOpcode(WorldPackets::Skills::TalentWipeConfirm& packet);
+        void HandleTalentWipeConfirmOpcode(WorldPackets::Talents::WipeConfirm& packet);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
 
         void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);

@@ -26,13 +26,13 @@
 #include "PetPackets.h"
 #include "Player.h"
 #include "QueryHolder.h"
-#include "SkillPackets.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
+#include "TalentPackets.h"
 #include "Unit.h"
 #include "Util.h"
 #include "WorldPacket.h"
@@ -1715,7 +1715,7 @@ bool Pet::resetTalents(bool involuntarily /*= false*/)
         player->PetSpellInitialize();
 
     if (involuntarily)
-        player->SendDirectMessage(WorldPackets::Skills::TalentsInvoluntarilyReset(true).Write());
+        player->SendDirectMessage(WorldPackets::Talents::InvoluntarilyReset(true).Write());
 
     return true;
 }
@@ -1754,7 +1754,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* onlinePet /*= nullptr*/, 
         return;
 
     if (!onlinePet)
-        owner->SendDirectMessage(WorldPackets::Skills::TalentsInvoluntarilyReset(true).Write());
+        owner->SendDirectMessage(WorldPackets::Talents::InvoluntarilyReset(true).Write());
 
     bool need_comma = false;
     std::ostringstream ss;
