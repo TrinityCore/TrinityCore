@@ -16,6 +16,7 @@
  */
 
 #include "Pet.h"
+#include "CharmInfo.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"

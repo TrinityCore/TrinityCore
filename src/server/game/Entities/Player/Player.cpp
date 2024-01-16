@@ -36,6 +36,7 @@
 #include "CharacterDatabaseCleaner.h"
 #include "CharacterTemplateDataStore.h"
 #include "CharacterPackets.h"
+#include "CharmInfo.h"
 #include "Chat.h"
 #include "ChatPackets.h"
 #include "ChatTextBuilder.h"
