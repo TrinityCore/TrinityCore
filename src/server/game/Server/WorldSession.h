@@ -1003,11 +1003,7 @@ class TC_GAME_API WorldSession
         std::string const& GetAccountName() const { return _accountName; }
         uint32 GetBattlenetAccountId() const { return _battlenetAccountId; }
         ObjectGuid GetBattlenetAccountGUID() const { return ObjectGuid::Create<HighGuid::BNetAccount>(GetBattlenetAccountId()); }
-        void CreateClubMemberId(::bgs::protocol::club::v1::MemberId* memberId) const
-        {
-            memberId->mutable_account_id()->set_id(GetAccountId());
-            memberId->set_unique_id(GetPlayer() ? GetPlayer()->GetGUID().GetCounter() : 0);
-        }
+        void CreateClubMemberId(::bgs::protocol::club::v1::MemberId* memberId) const;
         Player* GetPlayer() const { return _player; }
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;
