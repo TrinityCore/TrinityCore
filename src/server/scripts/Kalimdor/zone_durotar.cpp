@@ -742,7 +742,7 @@ struct npc_voljin_garrosh_vision : public ScriptedAI
         Creature* garrosh = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "vision_of_garrosh", .IgnorePhases = true });
         Creature* voljin = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "vision_of_voljin", .IgnorePhases = true });
         Creature* bunny = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "vision_brazier_bunny_garrosh", .IgnorePhases = true });
-        GameObject* brazier = me->FindNearestGameObjectWithOptions(10.0f, { .StringId = "vision_brazier_garrosh_voljin" });
+        GameObject* brazier = me->FindNearestGameObjectWithOptions(10.0f, { .StringId = "vision_brazier_garrosh_voljin", .IgnorePhases = true });
 
         if (!garrosh || !voljin || !bunny || !brazier)
             return;
@@ -996,7 +996,7 @@ struct npc_voljin_thrall_vision : public ScriptedAI
 
         Creature* thrall = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "vision_of_thrall", .IgnorePhases = true });
         Creature* bunny = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "vision_brazier_bunny_thrall", .IgnorePhases = true });
-        GameObject* brazier = me->FindNearestGameObjectWithOptions(10.0f, { .StringId = "vision_brazier_thrall" });
+        GameObject* brazier = me->FindNearestGameObjectWithOptions(10.0f, { .StringId = "vision_brazier_thrall", .IgnorePhases = true });
 
         if (!thrall || !bunny || !brazier)
             return;
