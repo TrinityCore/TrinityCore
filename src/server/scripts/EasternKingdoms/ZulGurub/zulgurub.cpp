@@ -18,7 +18,6 @@
 #include "zulgurub.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
-#include "ScriptMgr.h"
 #include "GameEventMgr.h"
 
  /*######
@@ -55,7 +54,7 @@ class go_brazier_of_madness : public GameObjectScript
 public:
     go_brazier_of_madness() : GameObjectScript("go_brazier_of_madness") { }
 
-    struct go_brazier_of_madnessAI : public GameObjectAI 
+    struct go_brazier_of_madnessAI : public GameObjectAI
     {
         go_brazier_of_madnessAI(GameObject* go) : GameObjectAI(go) { }
 
