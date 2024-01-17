@@ -81,7 +81,6 @@ public:
     }
 };
 
-
 void AddSC_zulgurub()
 {
     new go_brazier_of_madness();
