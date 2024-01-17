@@ -733,7 +733,7 @@ enum VoljinVisionData
 // 38966 - Vol'jin (specific script for guid 309032)
 struct npc_voljin_garrosh_vision : public ScriptedAI
 {
-    npc_voljin_garrosh_vision(Creature* creature) : ScriptedAI(creature) { _scriptRunning = false; }
+    npc_voljin_garrosh_vision(Creature* creature) : ScriptedAI(creature), _scriptRunning(false) { }
 
     void JustAppeared() override
     {
@@ -988,7 +988,7 @@ private:
 // 38966 - Vol'jin (specific script for guid 3000469)
 struct npc_voljin_thrall_vision : public ScriptedAI
 {
-    npc_voljin_thrall_vision(Creature* creature) : ScriptedAI(creature) { _scriptRunning = false; }
+    npc_voljin_thrall_vision(Creature* creature) : ScriptedAI(creature), _scriptRunning(false) { }
 
     void JustAppeared() override
     {
