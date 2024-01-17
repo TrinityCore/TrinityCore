@@ -33,6 +33,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "WorldSession.h"
 #include <iomanip>
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
