@@ -18,6 +18,7 @@
 #include "ClubMembershipService.h"
 #include "BattlenetRpcErrorCodes.h"
 #include "Guild.h"
+#include "Player.h"
 
 Battlenet::Services::ClubMembershipService::ClubMembershipService(WorldSession* session) : BaseService(session) {}
 
