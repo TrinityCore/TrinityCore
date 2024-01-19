@@ -79,8 +79,8 @@ enum StrandOfTheAncientSpells
 
 Position const spawnPositionOnTransport[] =
 {
-    {0.0f, 0.0f, 9.35f, 0.0f }, // not sniffed!
-    {-6.0f, -3.0f, 8.6f, 0.0f }
+    { 0.0f, 5.0f, 9.6f, 3.14f },
+    { -6.0f, -3.0f, 8.6f, 0.0f }
 };
 
 BattlegroundSA::BattlegroundSA(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
@@ -355,6 +355,10 @@ void BattlegroundSA::TeleportPlayers() const
     }
 }
 
+// This function teleports player to entrance position, but it's not implemented correctly
+// It is also used on round swap; which should be handled by the following spells: 52365, 52528, 53464, 53465 (Split Teleport (FACTION) (Boat X))
+// This spell however cannot work with current system because of grid limitations.
+// On battleground start, this function should work fine, except that it is called to late and we need a NearTeleport to solve this.
 void BattlegroundSA::TeleportToEntrancePosition(Player* player) const
 {
     if (GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID())) == Attackers)
