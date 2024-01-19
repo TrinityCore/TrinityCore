@@ -19,6 +19,7 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GameEventMgr.h"
+#include "ScriptMgr.h"
 
  /*######
  ## go_brazier_of_madness
