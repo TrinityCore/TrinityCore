@@ -73,7 +73,7 @@ RealmID = 1
 #        Example:     "@prefix@/share/trinitycore"
 #        Default:     "."
 
-DataDir = "."
+DataDir = "/home/brokilodeluxe/wow/data/"
 
 #
 #    LogsDir
@@ -82,7 +82,7 @@ DataDir = "."
 #                     Logs directory must exists, or log file creation will be disabled.
 #        Default:     "" - (Log files will be stored in the current path)
 
-LogsDir = ""
+LogsDir = "Logs"
 
 #
 #    LoginDatabaseInfo
@@ -107,9 +107,9 @@ LogsDir = ""
 #    The SSL option will enable TLS when connecting to the specified database. If not provided or
 #    any value other than 'ssl' is set, TLS will not be used.
 
-LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
-WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
-CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+LoginDatabaseInfo     = "138.197.110.226;3306;trinity;trinity;auth"
+WorldDatabaseInfo     = "138.197.110.226;3306;trinity;trinity;world"
+CharacterDatabaseInfo = "138.197.110.226;3306;trinity;trinity;characters"
 
 #
 #    LoginDatabase.WorkerThreads
@@ -485,7 +485,7 @@ MapUpdate.Threads = 1
 #        Default:     0 - (Disabled)
 #                     1 - (Enable)
 
-CleanCharacterDB = 0
+CleanCharacterDB = 1
 
 #
 #    PersistentCharacterCleanFlags
@@ -555,7 +555,7 @@ PacketLogFile = ""
 #                     16 - (FFA_PVP, Free for all PvP mode like arena PvP in all zones except rest
 #                          activated places and sanctuaries)
 
-GameType = 0
+GameType = 16
 
 #
 #    RealmZone
@@ -604,7 +604,7 @@ RealmZone = 1
 #                         placed in clientdir/Fonts.
 #                     3 - (Enabled, Basic Latin characters + server timezone specific)
 
-StrictPlayerNames = 0
+StrictPlayerNames = 1
 
 #
 #    StrictCharterNames
@@ -618,7 +618,7 @@ StrictPlayerNames = 0
 #                         placed in clientdir/Fonts.
 #                     3 - (Enabled, Basic Latin characters + server timezone specific)
 
-StrictCharterNames = 0
+StrictCharterNames = 1
 
 #
 #    StrictPetNames
@@ -632,7 +632,7 @@ StrictCharterNames = 0
 #                         placed in clientdir/Fonts.
 #                     3 - (Enabled, Basic Latin characters + server timezone specific)
 
-StrictPetNames = 0
+StrictPetNames = 1
 
 #
 #    DBC.Locale
@@ -704,9 +704,9 @@ MinPetName = 2
 #                     2000000 - (200 Gold)
 
 Guild.CharterCost = 1000
-ArenaTeam.CharterCost.2v2 = 800000
-ArenaTeam.CharterCost.3v3 = 1200000
-ArenaTeam.CharterCost.5v5 = 2000000
+ArenaTeam.CharterCost.2v2 = 1000
+ArenaTeam.CharterCost.3v3 = 1000
+ArenaTeam.CharterCost.5v5 = 1000
 
 #
 #    MaxWhoListReturns
@@ -741,7 +741,7 @@ CharacterCreating.Disabled = 0
 #                     512  - (Disabled, Blood Elf)
 #                     1024 - (Disabled, Draenei)
 
-CharacterCreating.Disabled.RaceMask = 0
+CharacterCreating.Disabled.RaceMask = 1536
 
 #
 #    CharacterCreating.Disabled.ClassMask
@@ -759,7 +759,7 @@ CharacterCreating.Disabled.RaceMask = 0
 #                     256  - (Disabled, Warlock)
 #                     1024 - (Disabled, Druid)
 
-CharacterCreating.Disabled.ClassMask = 0
+CharacterCreating.Disabled.ClassMask = 32
 
 #
 #    CharactersPerAccount
@@ -803,7 +803,7 @@ CharacterCreating.MinLevelForDeathKnight = 55
 #                     1 - (Show intro only for first character of selected race)
 #                     2 - (Disable intro for all classes)
 
-SkipCinematics = 0
+SkipCinematics = 2
 
 #
 #    MaxPlayerLevel
@@ -812,7 +812,7 @@ SkipCinematics = 0
 #        Range:       1-255
 #        Default:     80
 
-MaxPlayerLevel = 80
+MaxPlayerLevel = 60
 
 #
 #    MinDualSpecLevel
@@ -827,7 +827,7 @@ MinDualSpecLevel = 40
 #        Range:       1-MaxPlayerLevel
 #        Default:     1
 
-StartPlayerLevel = 1
+StartPlayerLevel = 60
 
 #
 #    StartDeathKnightPlayerLevel
@@ -850,7 +850,7 @@ StartPlayerMoney = 0
 #        Description: Maximum honor points a character can have.
 #        Default:     75000
 
-MaxHonorPoints = 75000
+MaxHonorPoints = 100000
 
 #
 #    StartHonorPoints
@@ -906,7 +906,7 @@ DisableWaterBreath = 4
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllFlightPaths = 0
+AllFlightPaths = 1
 
 #
 #    InstantFlightPaths
@@ -924,7 +924,7 @@ InstantFlightPaths = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AlwaysMaxSkillForLevel = 0
+AlwaysMaxSkillForLevel = 1
 
 #
 #    ActivateWeather
@@ -1560,7 +1560,7 @@ Warden.BanDuration = 86400
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Calendar = 0
+AllowTwoSide.Interaction.Calendar = 1
 
 #
 #    AllowTwoSide.Interaction.Channel
@@ -1568,7 +1568,7 @@ AllowTwoSide.Interaction.Calendar = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Channel = 0
+AllowTwoSide.Interaction.Channel = 1
 
 #
 #    AllowTwoSide.Interaction.Group
@@ -1576,7 +1576,7 @@ AllowTwoSide.Interaction.Channel = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Group = 0
+AllowTwoSide.Interaction.Group = 1
 
 #
 #    AllowTwoSide.Interaction.Guild
@@ -1584,7 +1584,7 @@ AllowTwoSide.Interaction.Group = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Guild = 0
+AllowTwoSide.Interaction.Guild = 1
 
 #
 #    AllowTwoSide.Interaction.Auction
@@ -1601,7 +1601,7 @@ AllowTwoSide.Interaction.Guild = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Auction = 0
+AllowTwoSide.Interaction.Auction = 1
 
 #
 #    AllowTwoSide.Trade
@@ -1609,7 +1609,7 @@ AllowTwoSide.Interaction.Auction = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Trade = 0
+AllowTwoSide.Trade = 1
 
 #
 #    TalentsInspecting
@@ -1619,7 +1619,7 @@ AllowTwoSide.Trade = 0
 #        Default:     1 - (Enabled for characters of the same faction)
 #                     0 - (Talent inspecting is disabled)
 
-TalentsInspecting = 1
+TalentsInspecting = 2
 
 #
 ###################################################################################################
@@ -2403,7 +2403,7 @@ Rate.Auction.Cut     = 1
 #        Description: Honor gain rate.
 #        Default:     1
 
-Rate.Honor = 1
+Rate.Honor = 0
 
 #
 #    Rate.ArenaPoints
@@ -2520,14 +2520,14 @@ DurabilityLoss.InPvP = 0
 #        Note:        On 3.3.5 client always shows log message "Your items have lost 10% durability"
 #        Default:     10
 
-DurabilityLoss.OnDeath = 10
+DurabilityLoss.OnDeath = 0
 
 #
 #    DurabilityLossChance.Damage
 #        Description: Chance to lose durability on one equipped item from damage.
 #        Default:     0.5 - (100/0.5 = 200, Each 200 damage one equipped item will use durability)
 
-DurabilityLossChance.Damage = 0.5
+DurabilityLossChance.Damage = 0
 
 #
 #    DurabilityLossChance.Absorb
@@ -2535,7 +2535,7 @@ DurabilityLossChance.Damage = 0.5
 #        Default:     0.5 - (100/0.5 = 200, Each 200 absorbed damage one equipped item will lose
 #                           durability)
 
-DurabilityLossChance.Absorb = 0.5
+DurabilityLossChance.Absorb = 0
 
 #
 #    DurabilityLossChance.Parry
@@ -2543,7 +2543,7 @@ DurabilityLossChance.Absorb = 0.5
 #        Default:     0.05 - (100/0.05 = 2000, Each 2000 parried damage the main weapon will lose
 #                            durability)
 
-DurabilityLossChance.Parry = 0.05
+DurabilityLossChance.Parry = 0
 
 #
 #    DurabilityLossChance.Block
@@ -2551,7 +2551,7 @@ DurabilityLossChance.Parry = 0.05
 #        Default:     0.05 - (100/0.05 = 2000, Each 2000 blocked damage the shield will lose
 #                            durability)
 
-DurabilityLossChance.Block = 0.05
+DurabilityLossChance.Block = 0
 
 #
 #    Death.SicknessLevel
@@ -2681,7 +2681,7 @@ Battleground.QueueAnnouncer.PlayerOnly = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Battleground.StoreStatistics.Enable = 0
+Battleground.StoreStatistics.Enable = 1
 
 #
 #    Battleground.TrackDeserters.Enable
@@ -2689,7 +2689,7 @@ Battleground.StoreStatistics.Enable = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Battleground.TrackDeserters.Enable = 0
+Battleground.TrackDeserters.Enable = 1
 
 #
 #    Battleground.InvitationType
@@ -3161,7 +3161,7 @@ XP.Boost.Rate = 2.0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-PlayerStart.AllSpells = 0
+PlayerStart.AllSpells = 1
 
 #
 #    PlayerStart.MapsExplored
@@ -3169,7 +3169,7 @@ PlayerStart.AllSpells = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-PlayerStart.MapsExplored = 0
+PlayerStart.MapsExplored = 1
 
 #
 #    HonorPointsAfterDuel
@@ -3185,14 +3185,14 @@ HonorPointsAfterDuel = 0
 #        Default:     0  - (Disabled)
 #                     1  - (Enabled)
 
-ResetDuelCooldowns = 0
+ResetDuelCooldowns = 1
 
 #    ResetDuelHealthMana
 #        Description: Reset health and mana before duel starts and restore them when duel ends.
 #        Default:     0  - (Disabled)
 #                     1  - (Enabled)
 
-ResetDuelHealthMana = 0
+ResetDuelHealthMana = 1
 
 #
 #    AlwaysMaxWeaponSkill
@@ -3201,7 +3201,7 @@ ResetDuelHealthMana = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AlwaysMaxWeaponSkill = 0
+AlwaysMaxWeaponSkill = 1
 
 #
 #    PvPToken.Enable
@@ -3261,7 +3261,7 @@ Guild.AllowMultipleGuildMaster = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ShowKickInWorld = 0
+ShowKickInWorld = 1
 
 #     ShowMuteInWorld
 #        Description: Determines whether a message is broadcast to the entire server when a
@@ -3269,7 +3269,7 @@ ShowKickInWorld = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ShowMuteInWorld = 0
+ShowMuteInWorld = 1
 
 #
 #     ShowBanInWorld
@@ -3278,14 +3278,14 @@ ShowMuteInWorld = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ShowBanInWorld = 0
+ShowBanInWorld = 1
 
 #
 #     PlayerStart.String
 #        Description: String to be displayed at first login of newly created characters.
 #         Default:    "" - (Disabled)
 
-PlayerStart.String = ""
+PlayerStart.String = "Welcome to CENTURION"
 
 #
 #     LevelReq.Trade
