@@ -34,11 +34,13 @@ EndScriptData */
 #include "MotionMaster.h"
 #include "Player.h"
 #include "stratholme.h"
+#include "Pet.h"
 
 enum InstanceEvents
 {
     EVENT_BARON_RUN         = 1,
-    EVENT_SLAUGHTER_SQUARE  = 2
+    EVENT_SLAUGHTER_SQUARE  = 2,
+    EVENT_RAT_TRAP_CLOSE    = 3,
 };
 
 enum StratholmeMisc
@@ -48,6 +50,17 @@ enum StratholmeMisc
 
 Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
 EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
+
+static STRCreatureIds const plaguedCrittersCreatures[] =
+{
+    NPC_PLAGUED_RAT, NPC_PLAGUED_MAGGOT, NPC_PLAGUED_INSECT
+};
+
+Position const GateTrapPos[] =                         // Positions of the two Gate Traps 3919.88 -3547.34 134.269
+{
+    {3612.29f, -3335.39f, 124.077f, 3.14159f},         // Scarlet side
+    {3919.88f, -3547.34f, 134.269f, 2.94961f}          // Undead side
+};
 
 class instance_stratholme : public InstanceMapScript
 {
@@ -68,6 +81,8 @@ class instance_stratholme : public InstanceMapScript
 
                 timmySpawned = false;
                 scarletsKilled = 0;
+
+                events.ScheduleEvent(EVENT_RAT_TRAP_CLOSE, 15s);
             }
 
             uint32 EncounterState[MAX_ENCOUNTER];
@@ -95,6 +110,37 @@ class instance_stratholme : public InstanceMapScript
             GuidSet abomnationGUID;
             EventMap events;
 
+            GuidVector TrapGatesGUIDs[2]; //two gate areas
+            std::map<TempSummon*, uint8> PlaguedGatesGUIDs;
+
+            void DoGateTrap(GuidVector& gate)
+            {
+                // close the gate, but in two minutes it will open on its own
+                UpdateGoState(gate[0], GO_STATE_READY, 2 * IN_MILLISECONDS * MINUTE);
+                UpdateGoState(gate[1], GO_STATE_READY, 2 * IN_MILLISECONDS * MINUTE);
+                if (gate == TrapGatesGUIDs[0])
+                    DoSpawnPlaguedCritters(0);
+                else
+                    DoSpawnPlaguedCritters(1);
+            }
+
+            void DoSpawnPlaguedCritters(uint8 uiGate)
+            {
+                Map::PlayerList const& players = instance->GetPlayers();
+                if (Player* player = players.begin()->GetSource())
+                {
+                    uint32 uiEntry = plaguedCrittersCreatures[urand(0, 2)];
+                    for (uint8 i = 0; i < 30; ++i)
+                    {
+                        float fX, fY, fZ;
+                        player->GetRandomPoint(GateTrapPos[uiGate], 6.0f, fX, fY, fZ);
+                        PlaguedGatesGUIDs.insert({ player->SummonCreature(uiEntry, fX, fY, fZ, 0, TEMPSUMMON_DEAD_DESPAWN, 0s), uiGate });
+                        //Position pos(fX, fY, fZ);
+                        //instance->SummonCreature(uiEntry, pos);
+                    }
+                }
+            }
+
             void OnUnitDeath(Unit* who) override
             {
                 switch (who->GetEntry())
@@ -119,6 +165,22 @@ class instance_stratholme : public InstanceMapScript
                         }
                         break;
                     }
+                    case NPC_PLAGUED_RAT:
+                    case NPC_PLAGUED_INSECT:
+                    case NPC_PLAGUED_MAGGOT:
+                    {
+                        //auto el = PlaguedGatesGUIDs.begin();
+                        auto el = PlaguedGatesGUIDs.find(who->ToTempSummon());
+                        uint8 uiGate = el->second;
+                        if (el != PlaguedGatesGUIDs.end())
+                            PlaguedGatesGUIDs.erase(el);
+                        if (PlaguedGatesGUIDs.empty())
+                        {
+                            UpdateGoState(TrapGatesGUIDs[uiGate][0], GO_STATE_ACTIVE);
+                            UpdateGoState(TrapGatesGUIDs[uiGate][1], GO_STATE_ACTIVE);
+                        }
+                        break;
+                    }
                 }
             }
 
@@ -136,16 +198,15 @@ class instance_stratholme : public InstanceMapScript
                 return false;
             }
 
-            //if withRestoreTime true, then newState will be ignored and GO should be restored to original state after 10 seconds
-            void UpdateGoState(ObjectGuid goGuid, uint32 newState, bool withRestoreTime)
+            //if restoreTime is not 0, then newState will be ignored and GO should be restored to original state after "restoreTime" millisecond
+            void UpdateGoState(ObjectGuid goGuid, uint32 newState, uint32 restoreTime = 0U)
             {
                 if (!goGuid)
                     return;
-
                 if (GameObject* go = instance->GetGameObject(goGuid))
                 {
-                    if (withRestoreTime)
-                        go->UseDoorOrButton(10);
+                    if (restoreTime)
+                        go->UseDoorOrButton(restoreTime);
                     else
                         go->SetGoState((GOState)newState);
                 }
@@ -241,6 +302,18 @@ class instance_stratholme : public InstanceMapScript
                         break;
                     case GO_YSIDA_CAGE:
                         ysidaCageGUID = go->GetGUID();
+                        break;
+                    case GO_PORT_TRAP_GATE_1:
+                        TrapGatesGUIDs[0].push_back(go->GetGUID());
+                        break;
+                    case GO_PORT_TRAP_GATE_2:
+                        TrapGatesGUIDs[0].push_back(go->GetGUID());
+                        break;
+                    case GO_PORT_TRAP_GATE_3:
+                        TrapGatesGUIDs[1].push_back(go->GetGUID());
+                        break;
+                    case GO_PORT_TRAP_GATE_4:
+                        TrapGatesGUIDs[1].push_back(go->GetGUID());
                         break;
                 }
             }
@@ -504,6 +577,38 @@ class instance_stratholme : public InstanceMapScript
                                 TC_LOG_DEBUG("scripts", "Instance Stratholme: Black guard sentries spawned. Opening gates to baron.");
                             }
                             break;
+                        case EVENT_RAT_TRAP_CLOSE:
+                        {
+                            bool isClose = false;
+                            for (size_t i = 0; i < 2; ++i)
+                            {
+                                // Check that the trap is not on cooldown, if so check if player/pet is in range
+                                Map::PlayerList const& players = instance->GetPlayers();
+                                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                {
+                                    if (Player* player = itr->GetSource())
+                                    {
+                                        if (!player->IsGameMaster() && player->IsWithinDist2d(GateTrapPos[i].GetPositionX(), GateTrapPos[i].GetPositionY(), 5.5f))
+                                        {
+                                            DoGateTrap(TrapGatesGUIDs[i]);
+                                            isClose = true;
+                                            break;
+                                        }
+
+                                        Pet* pet = player->GetPet();
+                                        if (!player->IsGameMaster() && pet && pet->IsWithinDist2d(GateTrapPos[i].GetPositionX(), GateTrapPos[i].GetPositionY(), 5.5f))
+                                        {
+                                            DoGateTrap(TrapGatesGUIDs[i]);
+                                            isClose = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (!isClose) //if you haven't already fallen into the trap, update it
+                                events.ScheduleEvent(EVENT_RAT_TRAP_CLOSE, 30s);
+                            break;
+                        }
                         default:
                             break;
                     }
