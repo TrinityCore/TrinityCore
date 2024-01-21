@@ -310,7 +310,7 @@ WorldPacket const* WorldPackets::Chat::ChatPlayerAmbiguous::Write()
 
 WorldPacket const* WorldPackets::Chat::ChatRestricted::Write()
 {
-    _worldPacket << uint8(Reason);
+    _worldPacket << int32(Reason);
 
     return &_worldPacket;
 }

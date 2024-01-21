@@ -143,10 +143,13 @@ enum PlayerSkillsConstants
     PLAYER_MAX_SKILLS   = UF::size<decltype(UF::SkillInfo::SkillLineID)>()
 };
 
-enum PlayerExplorationConstants
+enum PlayerDataFlagConstants
 {
-    PLAYER_EXPLORED_ZONES_SIZE  = UF::size<decltype(UF::ActivePlayerData::ExploredZones)>(),
-    PLAYER_EXPLORED_ZONES_BITS  = UF::size_of_value_type<decltype(UF::ActivePlayerData::ExploredZones)>() * 8
+    PLAYER_EXPLORED_ZONES_BITS  = UF::size_of_value_type<decltype(UF::ActivePlayerData::DataFlags)::value_type>() * 8,
+
+    PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX   = 1,
+    PLAYER_DATA_FLAG_CHARACTER_INDEX        = 2,
+    PLAYER_DATA_FLAG_ACCOUNT_INDEX          = 3,
 };
 
 enum SpellModType : uint8
@@ -2223,8 +2226,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ProcessDelayedOperations();
 
         void CheckAreaExploreAndOutdoor(void);
-        void AddExploredZones(uint32 pos, uint64 mask) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, pos), mask); }
-        void RemoveExploredZones(uint32 pos, uint64 mask) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, pos), mask); }
+        void AddExploredZones(uint32 pos, uint64 mask);
+        void RemoveExploredZones(uint32 pos, uint64 mask);
+        bool HasExploredZone(uint32 areaId) const;
 
         static Team TeamForRace(uint8 race);
         static TeamId TeamIdForRace(uint8 race);

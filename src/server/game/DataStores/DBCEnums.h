@@ -163,6 +163,8 @@ enum class AreaFlags2 : uint32
 
 DEFINE_ENUM_FLAG(AreaFlags2);
 
+inline constexpr size_t PLAYER_EXPLORED_ZONES_SIZE = 240;
+
 enum class AreaMountFlags : uint8
 {
     None                            = 0x0,

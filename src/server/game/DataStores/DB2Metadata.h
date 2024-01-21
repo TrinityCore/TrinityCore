@@ -2878,15 +2878,15 @@ struct ConditionalChrModelMeta
 {
     static constexpr DB2MetaField Fields[6] =
     {
-        { FT_INT, 1, true },
         { FT_INT, 1, false },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5211412, 1, 6, 6, 0x4467B29C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5211412, 0, 6, 6, 0xACE42127, Fields, 1 };
 };
 
 struct ConditionalContentTuningMeta
@@ -3095,7 +3095,7 @@ struct CovenantMeta
 
 struct CraftingDataMeta
 {
-    static constexpr DB2MetaField Fields[15] =
+    static constexpr DB2MetaField Fields[16] =
     {
         { FT_INT, 1, false },
         { FT_INT, 1, true },
@@ -3112,9 +3112,10 @@ struct CraftingDataMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4545611, 0, 15, 15, 0xAC3DA43D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4545611, 0, 16, 16, 0xE8316F5C, Fields, -1 };
 };
 
 struct CraftingDataEnchantQualityMeta
@@ -8152,6 +8153,74 @@ struct ModelRibbonQualityMeta
     static constexpr DB2Meta Instance{ 1399953, -1, 2, 1, 0x682023A4, Fields, 1 };
 };
 
+struct ModelSoundMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5393273, -1, 2, 2, 0x9A4E453C, Fields, -1 };
+};
+
+struct ModelSoundAnimEntryMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5393274, -1, 2, 2, 0x98809C50, Fields, 0 };
+};
+
+struct ModelSoundEntryMeta
+{
+    static constexpr DB2MetaField Fields[1] =
+    {
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5393275, -1, 1, 1, 0x870082C7, Fields, 0 };
+};
+
+struct ModelSoundOverrideMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5393276, -1, 2, 2, 0x5A6FC74A, Fields, 0 };
+};
+
+struct ModelSoundOverrideNameMeta
+{
+    static constexpr DB2MetaField Fields[1] =
+    {
+        { FT_STRING_NOT_LOCALIZED, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5512584, -1, 1, 1, 0x0F422F8A, Fields, -1 };
+};
+
+struct ModelSoundTagEntryMeta
+{
+    static constexpr DB2MetaField Fields[6] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5393277, -1, 6, 6, 0x66973320, Fields, 5 };
+};
+
 struct ModifiedCraftingCategoryMeta
 {
     static constexpr DB2MetaField Fields[5] =
@@ -8913,6 +8982,19 @@ struct PerksActivityMeta
     static constexpr DB2Meta Instance{ 4519766, 2, 7, 7, 0x4FF9AFB2, Fields, -1 };
 };
 
+struct PerksActivityConditionMeta
+{
+    static constexpr DB2MetaField Fields[4] =
+    {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5524226, 0, 4, 3, 0x6DD21FC7, Fields, 3 };
+};
+
 struct PerksActivityTagMeta
 {
     static constexpr DB2MetaField Fields[2] =
@@ -9042,14 +9124,15 @@ struct PerksVendorItemUIGroupMeta
 
 struct PerksVendorItemUIInfoMeta
 {
-    static constexpr DB2MetaField Fields[3] =
+    static constexpr DB2MetaField Fields[4] =
     {
         { FT_INT, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4281312, 0, 3, 3, 0x6D14E9E7, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4281312, 0, 4, 4, 0x8F2F6861, Fields, -1 };
 };
 
 struct PerksVendorItemXIntervalMeta
@@ -9211,6 +9294,26 @@ struct PlayerConditionMeta
     };
 
     static constexpr DB2Meta Instance{ 1045411, -1, 84, 84, 0xEE0F1EDC, Fields, -1 };
+};
+
+struct PlayerDataFlagAccountMeta
+{
+    static constexpr DB2MetaField Fields[1] =
+    {
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5426706, -1, 1, 1, 0x5C476AE6, Fields, -1 };
+};
+
+struct PlayerDataFlagCharacterMeta
+{
+    static constexpr DB2MetaField Fields[1] =
+    {
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5426708, -1, 1, 1, 0x5C476AE6, Fields, -1 };
 };
 
 struct PositionerMeta
@@ -13120,7 +13223,7 @@ struct UIDungeonScoreRarityMeta
 
 struct UIEventToastMeta
 {
-    static constexpr DB2MetaField Fields[21] =
+    static constexpr DB2MetaField Fields[22] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
@@ -13143,9 +13246,10 @@ struct UIEventToastMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3946498, 6, 21, 21, 0x1B94BDE2, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3946498, 6, 22, 22, 0xE0B754D7, Fields, -1 };
 };
 
 struct UIExpansionDisplayInfoMeta
