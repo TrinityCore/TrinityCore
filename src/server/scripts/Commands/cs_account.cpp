@@ -788,7 +788,8 @@ public:
             return false;
         }
 
-        sAccountMgr->UpdateAccountAccess(nullptr, accountId, securityLevel, realmID);
+        WorldSession const* session = sWorld->FindSession(accountId);
+        sAccountMgr->UpdateAccountAccess(session ? session->GetRBACData() : nullptr, accountId, securityLevel, realmID);
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, accountName->c_str(), securityLevel);
         return true;
