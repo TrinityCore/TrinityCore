@@ -349,6 +349,7 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_INCREASE_REPUTATION     = 18,   // requires the player to gain X reputation with a faction
     QUEST_OBJECTIVE_AREA_TRIGGER_ENTER      = 19,
     QUEST_OBJECTIVE_AREA_TRIGGER_EXIT       = 20,
+    QUEST_OBJECTIVE_KILL_WITH_LABEL         = 21,
 
     MAX_QUEST_OBJECTIVE_TYPE
 };
@@ -466,6 +467,7 @@ struct QuestObjective
             case QUEST_OBJECTIVE_HAVE_CURRENCY:
             case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
             case QUEST_OBJECTIVE_INCREASE_REPUTATION:
+            case QUEST_OBJECTIVE_KILL_WITH_LABEL:
                 return true;
             default:
                 break;

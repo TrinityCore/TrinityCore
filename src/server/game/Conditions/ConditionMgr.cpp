@@ -3089,7 +3089,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     {
         for (std::size_t i = 0; i < condition->Explored.size(); ++i)
             if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(condition->Explored[i]))
-                if (area->AreaBit != -1 && !(player->m_activePlayerData->ExploredZones[area->AreaBit / PLAYER_EXPLORED_ZONES_BITS] & (UI64LIT(1) << (uint32(area->AreaBit) % PLAYER_EXPLORED_ZONES_BITS))))
+                if (!player->HasExploredZone(area->ID))
                     return false;
     }
 
