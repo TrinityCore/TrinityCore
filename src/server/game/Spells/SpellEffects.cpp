@@ -60,6 +60,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "SpellAuras.h"
 
 SpellEffectHandlerFn SpellEffectHandlers[TOTAL_SPELL_EFFECTS] =
 {
@@ -692,8 +693,232 @@ void Spell::EffectSchoolDMG()
     }
 }
 
+void Spell::MangosDummyPort()
+{
+    // selection by spell family
+    switch (m_spellInfo->SpellFamilyName)
+    {
+    case SPELLFAMILY_GENERIC:
+    {
+        switch (m_spellInfo->Id)
+        {
+        case 13006:                                 // Gnomish Shrink Ray (ItemID: 10716)
+        {
+            if (unitTarget && m_CastItem)
+            {
+                uint32 roll = urand(0, 99);
+                // These rates are hella random; someone feel free to correct them
+                if (roll < 3)                                         // Whole party will grow
+                    m_caster->CastSpell(m_caster, 13004);
+                else if (roll < 6)                                    // Whole party will shrink
+                    m_caster->CastSpell(m_caster, 13010);
+                else if (roll < 9)                                    // Whole enemy 'team' will grow
+                    m_caster->CastSpell(unitTarget, 13004);
+                else if (roll < 12)                                    // Whole enemy 'team' will shrink
+                    m_caster->CastSpell(unitTarget, 13010);
+                else if (roll < 24)                                   // Caster will shrink
+                    m_caster->CastSpell(m_caster, 13003);
+                else                                                  // Enemy target will shrink
+                    m_caster->CastSpell(unitTarget, 13003);
+            }
+
+            return;
+        }
+        case 17770:                                 // Wolfshead Helm Energy
+        {
+            m_caster->CastSpell(m_caster, 29940);
+            return;
+        }
+        case 18350:                                 // Dummy Trigger
+        {
+            if (m_triggeredByAuraSpell && unitTarget)
+            {
+                switch (m_triggeredByAuraSpell->Id)
+                {
+                case 13810: // Frost Trap Aura
+                {
+                    // Need to check casting of entrapment on every pulse
+                    // Chose this route so that whole proc system doesnt have to run
+                    // IDs are in reverse order because its more likely someone will have max rank
+                    float chance = 0.f;
+                    uint32 entrapmentIDs[] = { 19390, 19389, 19388 , 19387, 19184 };
+                    for (uint32 spellId : entrapmentIDs)
+                        if (Aura* holder = m_caster->ToUnit()->GetAura(spellId))
+                        {
+                            chance = holder->GetSpellInfo()->ProcChance;
+                            break;
+                        }
+
+                    if (roll_chance_f(chance))
+                        m_caster->CastSpell(unitTarget, 19185);
+                    break;
+                }
+
+                case 28821: // tier 3 set bonus Lightning Shield
+                {
+                    // Need remove self if Lightning Shield not active
+                    Unit::AuraMap const& auras = unitTarget->GetOwnedAuras();
+                    for (const auto& aura : auras)
+                    {
+                        SpellInfo const* spell = aura.second->GetSpellInfo();
+                        if (spell->SpellFamilyName == SPELLFAMILY_SHAMAN
+                            && spell->SpellFamilyFlags & flag96(0x0000000000000400))
+                            return;
+                    }
+
+                    unitTarget->RemoveAurasDueToSpell(28820);
+                    break;
+                }
+
+                }
+            }
+
+            return;
+        }
+        case 20572:                                 // Blood Fury
+        {
+            if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                m_caster->CastSpell(m_caster, 23230);
+                damage = uint32(damage * (m_caster->ToUnit()->GetTotalAttackPowerValue(BASE_ATTACK)) / 100);
+                CastSpellExtraArgs args;
+                args.AddSpellBP0(damage);
+                m_caster->CastSpell(m_caster, 23234, args);
+            }
+
+            return;
+        }
+        case 20577:                                 // Cannibalize
+        {
+            m_caster->CastSpell(nullptr, 20578, TRIGGERED_NONE);
+            return;
+        }
+        case 23453:                                 // Gnomish Transporter - Ultrasafe Transporter: Gadgetzan
+        {
+            // Roll chance for major malfunction (1/6); 23441 = success | 23446 = malfunction (missed destination)
+            m_caster->CastSpell(m_caster, (urand(0, 5) ? 23441 : 23446));
+
+            return;
+        }
+        }
+
+        // All IconID Check in there
+        switch (m_spellInfo->SpellIconID)
+        {
+            // Berserking (troll racial traits)
+        case 1661:
+        {
+            uint32 healthPerc = uint32((float(m_caster->ToUnit()->GetHealth()) / m_caster->ToUnit()->GetMaxHealth()) * 100);
+            int32 haste_mod = 10;
+            if (healthPerc <= 40)
+                haste_mod = 30;
+            if (healthPerc < 100 && healthPerc > 40)
+                haste_mod = 10 + (100 - healthPerc) / 3;
+
+            // haste_mod is the same for all effects
+            int32 hasteModBasePoints0 = haste_mod;    // Haste Melee
+            int32 hasteModBasePoints1 = haste_mod;    // Haste Range
+            int32 hasteModBasePoints2 = haste_mod;    // Haste Cast
+
+            CastSpellExtraArgs args;
+            args.AddSpellBP0(hasteModBasePoints0);
+            args.AddSpellBP1(hasteModBasePoints2);
+            args.AddSpellBP2(hasteModBasePoints1);
+
+            // FIXME: custom spell required this aura state by some unknown reason, we not need remove it anyway
+            m_caster->ToUnit()->ModifyAuraState(AURA_STATE_BERSERKING, true);
+            m_caster->ToUnit()->CastSpell(m_caster, 26635, args);
+            return;
+        }
+        }
+        break;
+    }
+    case SPELLFAMILY_MAGE:
+    {
+        switch (m_spellInfo->Id)
+        {
+        case 12472:                                 // Cold Snap
+        {
+            if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                // immediately finishes the cooldown on Frost spells
+                /*
+                auto cdCheck = [](SpellEntry const& spellEntry) -> bool
+                {
+                    if (spellEntry.SpellFamilyName != SPELLFAMILY_MAGE)
+                        return false;
+                    if ((GetSpellSchoolMask(&spellEntry) & SPELL_SCHOOL_MASK_FROST) && GetSpellRecoveryTime(&spellEntry) > 0)
+                        return true;
+                    return false;
+                };
+                static_cast<Player*>(m_caster)->RemoveSomeCooldown(cdCheck);
+                */
+            }
+
+            return;
+        }
+        }
+        break;
+    }
+    case SPELLFAMILY_WARRIOR:
+    {
+        switch (m_spellInfo->Id)
+        {
+        case 21977:                  // Warrior's Wrath
+        {
+            if (unitTarget)
+                m_caster->CastSpell(unitTarget, 21887); // spell mod
+
+            return;
+        }
+        }
+
+        break;
+    }
+    case SPELLFAMILY_PRIEST:
+    {
+        switch (m_spellInfo->Id)
+        {
+        case 28598:                                 // Touch of Weakness triggered spell
+        {
+            if (!unitTarget || !m_triggeredByAuraSpell)
+                return;
+
+            uint32 spellid;
+            switch (m_triggeredByAuraSpell->Id)
+            {
+            case 2652:  spellid = 2943; break; // Rank 1
+            case 19261: spellid = 19249; break; // Rank 2
+            case 19262: spellid = 19251; break; // Rank 3
+            case 19264: spellid = 19252; break; // Rank 4
+            case 19265: spellid = 19253; break; // Rank 5
+            case 19266: spellid = 19254; break; // Rank 6
+            case 25461: spellid = 25460; break; // Rank 7
+                m_caster->CastSpell(unitTarget, spellid);
+                return;
+            }
+        }
+        break;
+        }
+    case SPELLFAMILY_DRUID:
+        break;
+
+    case SPELLFAMILY_ROGUE:
+        break;
+    case SPELLFAMILY_HUNTER:
+        break;
+    case SPELLFAMILY_PALADIN:
+        break;
+    case SPELLFAMILY_SHAMAN:
+        break;
+    }
+    }
+}
+
+
 void Spell::EffectDummy()
 {
+    MangosDummyPort();
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -709,6 +934,8 @@ void Spell::EffectDummy()
             return;
         }
     }
+
+
 
     // normal DB scripted effect
     TC_LOG_DEBUG("spells", "Spell ScriptStart spellid {} in EffectDummy({})", m_spellInfo->Id, uint32(effectInfo->EffectIndex));

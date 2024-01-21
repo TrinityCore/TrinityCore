@@ -695,7 +695,7 @@ void Pet::Update(uint32 diff)
 
             if (m_happinessTimer <= diff)
             {
-                LoseHappiness();
+                SetMaxHappiness();
                 m_happinessTimer = 7500;
             }
             else
@@ -709,15 +709,16 @@ void Pet::Update(uint32 diff)
     Creature::Update(diff);
 }
 
-void Pet::LoseHappiness()
+void Pet::SetMaxHappiness()
 {
     uint32 curValue = GetPower(POWER_HAPPINESS);
+    int32 maxPower = (int32)GetMaxPower(POWER_HAPPINESS);
+    ModifyPower(POWER_HAPPINESS, maxPower); //just keep pet happy tbh
     if (curValue <= 0)
         return;
     int32 addvalue = 670;                                   //value is 70/35/17/8/4 (per min) * 1000 / 8 (timer 7.5 secs)
     if (IsInCombat())                                        //we know in combat happiness fades faster, multiplier guess
         addvalue = int32(addvalue * 1.5f);
-    ModifyPower(POWER_HAPPINESS, -addvalue);
 }
 
 HappinessState Pet::GetHappinessState()
@@ -1978,14 +1979,8 @@ void Pet::SynchronizeLevelWithOwner()
     {
         // always same level
         case SUMMON_PET:
-            GivePetLevel(owner->GetLevel());
-            break;
-        // can't be greater owner level
         case HUNTER_PET:
-            if (GetLevel() > owner->GetLevel())
-                GivePetLevel(owner->GetLevel());
-            else if (GetLevel() + 5 < owner->GetLevel())
-                GivePetLevel(owner->GetLevel() - 5);
+            GivePetLevel(owner->GetLevel());
             break;
         default:
             break;

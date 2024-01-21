@@ -966,6 +966,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffectInfo const& spellEffectInfo,
     switch (targetType.GetTarget())
     {
         case TARGET_UNIT_CHANNEL_TARGET:
+        case TARGET_UNIT_TARGET_ENEMY:
         {
             WorldObject* target = ObjectAccessor::GetUnit(*m_caster, m_originalCaster->GetChannelObjectGuid());
             CallScriptObjectTargetSelectHandlers(target, spellEffectInfo.EffectIndex, targetType);
@@ -2316,7 +2317,10 @@ void Spell::TargetInfo::PreprocessTarget(Spell* spell)
         _spellHitTarget = spell->m_caster->ToUnit();
 
     if (spell->m_originalCaster && MissCondition != SPELL_MISS_EVADE && !spell->m_originalCaster->IsFriendlyTo(unit) && (!spell->m_spellInfo->IsPositive() || spell->m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && (spell->m_spellInfo->HasInitialAggro() || unit->IsEngaged()))
-        unit->SetInCombatWith(spell->m_originalCaster);
+    {
+        if(spell->m_spellInfo->Id != 14309 && spell->m_spellInfo->Id != 14308 && spell->m_spellInfo->Id != 3355 && spell->m_spellInfo->Id != 13810 && spell->m_spellInfo->Id != 63487 && spell->m_spellInfo->Id != 67035 && spell->m_spellInfo->Id != 72216 && spell->m_spellInfo->Id != 19185) //freezing/frost traps don't put you in combat
+            unit->SetInCombatWith(spell->m_originalCaster);
+    }
 
     spell->CallScriptBeforeHitHandlers(MissCondition);
 
@@ -2570,7 +2574,13 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         if (MissCondition != SPELL_MISS_EVADE && _spellHitTarget && !spell->m_caster->IsFriendlyTo(unit) && (!spell->IsPositive() || spell->m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
         {
             if (Unit* unitCaster = spell->m_caster->ToUnit())
-                unitCaster->AtTargetAttacked(unit, spell->m_spellInfo->HasInitialAggro());
+            {
+                bool id = (spell->m_spellInfo->Id == 19185 || spell->m_spellInfo->Id == 18350);
+                if (!id) //freezing/frost traps/entrapment don't put you in combat
+                {
+                    unitCaster->AtTargetAttacked(unit, spell->m_spellInfo->HasInitialAggro());
+                }
+            }
 
             if (!unit->IsStandState())
                 unit->SetStandState(UNIT_STAND_STATE_STAND);
@@ -2764,7 +2774,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, bool scaleAura, TargetInfo& 
             diminishLevel = unit->GetDiminishing(hitInfo.DRGroup);
             DiminishingReturnsType type = m_spellInfo->GetDiminishingReturnsGroupType(triggered);
             // Increase Diminishing on unit, current informations for actually casts will use values above
-            if (type == DRTYPE_ALL || (type == DRTYPE_PLAYER && unit->IsAffectedByDiminishingReturns()))
+             if (type == DRTYPE_ALL || (type == DRTYPE_PLAYER && unit->IsAffectedByDiminishingReturns()))
                 unit->IncrDiminishing(m_spellInfo, triggered);
         }
 
@@ -7629,7 +7639,8 @@ void Spell::PreprocessSpellLaunch(TargetInfo& targetInfo)
         return;
 
     // This will only cause combat - the target will engage once the projectile hits (in Spell::TargetInfo::PreprocessTarget)
-    if (m_originalCaster && targetInfo.MissCondition != SPELL_MISS_EVADE && !m_originalCaster->IsFriendlyTo(targetUnit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && (m_spellInfo->HasInitialAggro() || targetUnit->IsEngaged()))
+    if (m_originalCaster && targetInfo.MissCondition != SPELL_MISS_EVADE && !m_originalCaster->IsFriendlyTo(targetUnit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && (m_spellInfo->HasInitialAggro() || targetUnit->IsEngaged())
+        && (m_spellInfo->Id != 14309 && m_spellInfo->Id != 14308 && m_spellInfo->Id != 3355 && m_spellInfo->Id != 13810 && m_spellInfo->Id != 63487 && m_spellInfo->Id != 67035 && m_spellInfo->Id != 72216 && m_spellInfo->Id != 19185)) //freezing/frost traps don't put you in combat
         m_originalCaster->SetInCombatWith(targetUnit, true);
 
     Unit* unit = nullptr;

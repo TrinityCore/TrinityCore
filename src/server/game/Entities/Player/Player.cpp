@@ -3840,6 +3840,11 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
 
 uint32 Player::ResetTalentsCost() const
 {
+    //first time is free
+    if (m_resetTalentsTime == 0)
+    {
+        return 0;
+    }
     return 1 * GOLD;
 }
 
@@ -7200,8 +7205,13 @@ void Player::DuelComplete(DuelCompleteType type)
                 opponent->CastSpell(opponent, 52994, true);
 
             // Honor points after duel (the winner) - ImpConfig
-            if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
-                opponent->RewardHonor(nullptr, 1, amount);
+            // transfer honor points
+            if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL) &&
+                this->GetHonorPoints() >= amount)
+            {
+                this->ModifyHonorPoints(-1 * amount);
+                opponent->ModifyHonorPoints(amount);
+            }
 
             break;
         default:

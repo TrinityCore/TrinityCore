@@ -34,7 +34,7 @@ enum MageSpells
 {
     SPELL_MAGE_BLAZING_SPEED                     = 31643,
     SPELL_MAGE_BURNOUT                           = 44450,
-    SPELL_MAGE_COLD_SNAP                         = 11958,
+    SPELL_MAGE_COLD_SNAP                         = 12472,
     SPELL_MAGE_FOCUS_MAGIC_PROC                  = 54648,
     SPELL_MAGE_FROST_WARDING_R1                  = 11189,
     SPELL_MAGE_FROST_WARDING_TRIGGERED           = 57776,
@@ -284,7 +284,7 @@ class spell_mage_burnout : public AuraScript
     }
 };
 
-// 11958 - Cold Snap
+// 12472 - Cold Snap
 class spell_mage_cold_snap : public SpellScript
 {
     PrepareSpellScript(spell_mage_cold_snap);

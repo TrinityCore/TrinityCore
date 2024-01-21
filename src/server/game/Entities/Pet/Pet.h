@@ -79,7 +79,7 @@ class TC_GAME_API Pet : public Guardian
                 return m_autospells[pos];
         }
 
-        void LoseHappiness();
+        void SetMaxHappiness();
         HappinessState GetHappinessState();
         void GivePetXP(uint32 xp);
         void GivePetLevel(uint8 level);

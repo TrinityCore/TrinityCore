@@ -2280,6 +2280,12 @@ void SpellInfo::_LoadSpellDiminishInfo()
                 // Crystallize (Keristrasza heroic)
                 else if (Id == 48179)
                     return DIMINISHING_NONE;
+                // Entrapment (own diminishing)
+                else if (Id == 19185)
+                    return DIMINISHING_ENTRAPMENT;
+                // Entrapment (own diminishing)
+                else if (Id == 19229 || Id == 23694)
+                    return DIMINISHING_ROOT;
                 break;
             }
             // Event spells
@@ -2362,12 +2368,9 @@ void SpellInfo::_LoadSpellDiminishInfo()
                 // Hunter's Mark
                 if ((SpellFamilyFlags[0] & 0x400) && SpellIconID == 538)
                     return DIMINISHING_LIMITONLY;
-                // Scatter Shot (own diminishing)
+                // Scatter Shot (disorient)
                 else if ((SpellFamilyFlags[0] & 0x40000) && SpellIconID == 132)
                     return DIMINISHING_DISORIENT;
-                // Entrapment (own diminishing)
-                else if (SpellVisual[0] == 7484 && SpellIconID == 20)
-                    return DIMINISHING_ENTRAPMENT;
                 // Wyvern Sting mechanic is MECHANIC_SLEEP but the diminishing is DIMINISHING_DISORIENT
                 else if ((SpellFamilyFlags[1] & 0x1000) && SpellIconID == 1721)
                     return DIMINISHING_DISORIENT;

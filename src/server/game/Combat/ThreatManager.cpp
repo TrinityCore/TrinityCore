@@ -442,6 +442,14 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         }
     }
 
+    if (spell)
+    {
+        if (spell->Id == 14309 || spell->Id == 14308 || spell->Id == 3355 || spell->Id == 13810 || spell->Id == 63487 || spell->Id == 67035 || spell->Id == 72216 || spell->Id == 19185) //freezing/frost traps don't put you in combat
+        {
+            return;
+        }
+    }
+
     // ensure we're in combat (threat implies combat!)
     if (!_owner->GetCombatManager().SetInCombatWith(target)) // if this returns false, we're not actually in combat, and thus cannot have threat!
         return;                                              // typical causes: bad scripts trying to add threat to GMs, dead targets etc

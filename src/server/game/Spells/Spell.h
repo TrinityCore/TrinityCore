@@ -157,6 +157,7 @@ class TC_GAME_API Spell
         void EffectDistract();
         void EffectPull();
         void EffectSchoolDMG();
+        void MangosDummyPort();
         void EffectEnvironmentalDMG();
         void EffectInstaKill();
         void EffectDummy();
