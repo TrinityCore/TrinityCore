@@ -4842,9 +4842,9 @@ enum LindieSpringStock
 
 Position const MiniChopperJumpPosition = { 107.979f, -2414.13f, 95.6243f };
 
-struct npc_goblin_plains_make_copter_private : public ScriptedAI
+struct npc_gnome_goblin_plains_make_copter_private : public ScriptedAI
 {
-    npc_goblin_plains_make_copter_private(Creature* creature) : ScriptedAI(creature) { }
+    npc_gnome_goblin_plains_make_copter_private(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -4975,7 +4975,7 @@ CreatureAI* LindieSpringstockSelector(Creature* creature)
         if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
         {
             if ((privateObjectOwner->GetQuestStatus(QUEST_THE_SCOUT_O_MATIC_5000) == QUEST_STATUS_INCOMPLETE))
-                return new npc_goblin_plains_make_copter_private(creature);
+                return new npc_gnome_goblin_plains_make_copter_private(creature);
         }
     }
     return new NullCreatureAI(creature);
@@ -4988,7 +4988,7 @@ CreatureAI* CorkFizzlepopSelector(Creature* creature)
         if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
         {
             if ((privateObjectOwner->GetQuestStatus(QUEST_THE_CHOPPY_BOOSTER_MK5) == QUEST_STATUS_INCOMPLETE))
-                return new npc_goblin_plains_make_copter_private(creature);
+                return new npc_gnome_goblin_plains_make_copter_private(creature);
         }
     }
     return new NullCreatureAI(creature);
@@ -5337,7 +5337,7 @@ public:
                 copterPersonal->SetObjectScale(0.2f);
                 copterPersonal->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
 
-                if (npc_goblin_plains_make_copter_private* personalAI = CAST_AI(npc_goblin_plains_make_copter_private, goblinPersonal->AI()))
+                if (npc_gnome_goblin_plains_make_copter_private* personalAI = CAST_AI(npc_gnome_goblin_plains_make_copter_private, goblinPersonal->AI()))
                 {
                     personalAI->SetCopterGUID(copterPersonal->GetGUID());
                 }
