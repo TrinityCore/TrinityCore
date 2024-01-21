@@ -282,7 +282,10 @@ public:
     {
         // Remove aura if player drops quest
         if (newStatus == QUEST_STATUS_NONE)
+        {
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
             player->CastSpell(player, SPELL_COMBAT_TRAINING_COMPLETE);
+        }
     }
 };
 
