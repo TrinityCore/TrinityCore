@@ -5012,11 +5012,13 @@ enum CopterRide
     NPC_SCOUT_O_MATIC_5000                     = 156518,
     NPC_CHOPPY_BOOSTER_MK5                     = 167027,
 
-    PATH_WONSA_PLAINS                          = 90097090,
-    PATH_BO_PLAINS                             = 90097100,
-    PATH_LANA_PLAINS                           = 90097110,
-    PATH_JINHAKE_PLAINS                        = 90097120,
-    PATH_THROG_PLAINS                          = 90097130,
+    PATH_COPTER_TO_RUINS                       = 90097000, // Needs value changed when guids asigned in sql
+    PATH_COPTER_FROM_RUINS                     = 90097001, // Needs value changed when guids asigned in sql
+    PATH_WONSA_PLAINS                          = 90097090, // Needs value changed when guids asigned in sql
+    PATH_BO_PLAINS                             = 90097100, // Needs value changed when guids asigned in sql
+    PATH_LANA_PLAINS                           = 90097110, // Needs value changed when guids asigned in sql
+    PATH_JINHAKE_PLAINS                        = 90097120, // Needs value changed when guids asigned in sql
+    PATH_THROG_PLAINS                          = 90097130, // Needs value changed when guids asigned in sql
 
     SPELL_SCENE_OGRE_RUINS_ALLIANCE            = 321342,
     SPELL_SCENE_OGRE_RUINS_HORDE               = 326626,
@@ -5025,26 +5027,10 @@ enum CopterRide
     SCOUT_O_MATIC_DESUMMON                     = 305548
 };
 
-Position const ScoutPathOne[] =
-{
-    { 115.21007f, -2420.2239f, 135.10031f },
-    { 156.11806f, -2398.1390f, 138.27547f },
-    { 182.06944f, -2381.7917f, 138.27547f },
-    { 211.51910f, -2379.6284f, 138.27547f }
-};
-size_t const pathSizeOne = std::extent<decltype(ScoutPathOne)>::value;
-
-Position const ScoutPathTwo[] =
-{
-    { 174.54167f, -2386.8213f, 124.66746f },
-    { 107.87153f, -2414.177f,  95.68774f  }
-};
-size_t const pathSizeTwo = std::extent<decltype(ScoutPathTwo)>::value;
-
 // <156526> - <Scout-o-Matic 5000>
 struct npc_scoutomatic_5000 : public ScriptedAI
 {
-    npc_scoutomatic_5000(Creature* creature) : ScriptedAI(creature), _returnFlight(false) { }
+    npc_scoutomatic_5000(Creature* creature) : ScriptedAI(creature) { }
 
     void IsSummonedBy(WorldObject* summoner) override
     {
@@ -5061,27 +5047,28 @@ struct npc_scoutomatic_5000 : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId) override
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (uiType == EFFECT_MOTION_TYPE && uiId == pathSizeOne)
-            if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
-                player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_ALLIANCE, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
-
-        if (!_returnFlight)
+        Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID());
+        if (!player)
             return;
 
-        if (uiType == EFFECT_MOTION_TYPE && uiId == pathSizeTwo)
-            if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
-            {
-                //player->CastSpell(player, SCOUT_O_MATIC_DESUMMON, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
-                // HACK
-                player->RemoveAura(305533);
-                player->RemoveAura(305532);
-                player->RemoveAura(305522);
-                //player->RemoveAura(326625);
-                // HACK
-                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            }
+        // Used to check if reached home
+        if (pathId == PATH_COPTER_TO_RUINS)
+        {
+            player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_ALLIANCE, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
+        }
+        else
+        {
+            //player->CastSpell(player, SCOUT_O_MATIC_DESUMMON, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
+            // HACK
+            player->RemoveAura(305533);
+            player->RemoveAura(305532);
+            player->RemoveAura(305522);
+            //player->RemoveAura(326625);
+            // HACK
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+        }
     }
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
@@ -5108,8 +5095,8 @@ struct npc_scoutomatic_5000 : public ScriptedAI
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
                     {
-                        me->SetSpeed(MOVE_WALK, 4.5f);
-                        me->GetMotionMaster()->MoveSmoothPath(uint32(pathSizeOne), ScoutPathOne, pathSizeOne, true, true);
+                        me->SetSpeed(MOVE_WALK, 5.5f);
+                        me->GetMotionMaster()->MovePath(PATH_COPTER_TO_RUINS, false);
                         Conversation::CreateConversation(CONVERSATION_RIDE_TO_OGRE_RUINS_ALLIANCE, player, *player, player->GetGUID(), nullptr);
                     }
                     break;
@@ -5118,9 +5105,8 @@ struct npc_scoutomatic_5000 : public ScriptedAI
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
                     {
-                        _returnFlight = true;
-                        me->SetSpeed(MOVE_WALK, 4.5f);
-                        me->GetMotionMaster()->MoveSmoothPath(uint32(pathSizeTwo), ScoutPathTwo, pathSizeTwo, true, true);
+                        me->SetSpeed(MOVE_WALK, 5.0f);
+                        me->GetMotionMaster()->MovePath(PATH_COPTER_FROM_RUINS, false);
                         Conversation::CreateConversation(CONVERSATION_RIDE_FROM_OGRE_RUINS_ALLIANCE, player, *player, player->GetGUID(), nullptr);
                         _events.ScheduleEvent(EVENT_CHECK_AREA, 3s);
                     }
@@ -5135,7 +5121,6 @@ struct npc_scoutomatic_5000 : public ScriptedAI
 
 private:
     EventMap _events;
-    bool _returnFlight;
 };
 
 Position const HordeCrewPersonalSpawnLocation[] =
@@ -5159,7 +5144,7 @@ Position const HordeCrewPersonalWaypoint[] =
 // <167905> - <Choppy Booster Mk. 5>
 struct npc_choppy_booster_scout : public ScriptedAI
 {
-    npc_choppy_booster_scout(Creature* creature) : ScriptedAI(creature), _returnFlight(false) { }
+    npc_choppy_booster_scout(Creature* creature) : ScriptedAI(creature) { }
 
     void IsSummonedBy(WorldObject* summoner) override
     {
@@ -5172,32 +5157,32 @@ struct npc_choppy_booster_scout : public ScriptedAI
         if (apply && passenger->IsPlayer())
         {
             me->CastSpell(passenger, SPELL_ROPED_DNT);
-            _events.ScheduleEvent(EVENT_START_SCOUT_OGRE_RUINS, 3s);
+            _events.ScheduleEvent(EVENT_START_SCOUT_OGRE_RUINS, 2s);
         }
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId) override
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (uiType == EFFECT_MOTION_TYPE && uiId == pathSizeOne)
-            if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
-                player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_HORDE, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
-
-        if (!_returnFlight)
+        Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID());
+        if (!player)
             return;
 
-        if (uiType == EFFECT_MOTION_TYPE && uiId == pathSizeTwo)
-            if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
-            {
-                //player->CastSpell(player, SCOUT_O_MATIC_DESUMMON, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
-                // HACK
-                player->RemoveAura(305533);
-                player->RemoveAura(305532);
-                //player->RemoveAura(305522);
-                player->RemoveAura(326625);
-                // HACK
-
-                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            }
+        // Used to check if reached home
+        if (pathId == PATH_COPTER_TO_RUINS)
+        {
+            player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_HORDE, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
+        }
+        else
+        {
+            //player->CastSpell(player, SCOUT_O_MATIC_DESUMMON, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
+            // HACK
+            player->RemoveAura(305533);
+            player->RemoveAura(305532);
+            //player->RemoveAura(305522);
+            player->RemoveAura(326625);
+            // HACK
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+        }
     }
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
@@ -5224,8 +5209,8 @@ struct npc_choppy_booster_scout : public ScriptedAI
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
                     {
-                        me->SetSpeed(MOVE_WALK, 4.85f);
-                        me->GetMotionMaster()->MoveSmoothPath(uint32(pathSizeOne), ScoutPathOne, pathSizeOne, true, true);
+                        me->SetSpeed(MOVE_WALK, 6.0f);
+                        me->GetMotionMaster()->MovePath(PATH_COPTER_TO_RUINS, false);
                         Conversation::CreateConversation(CONVERSATION_RIDE_TO_OGRE_RUINS_HORDE, player, *player, player->GetGUID(), nullptr);
                     }
                     break;
@@ -5234,9 +5219,8 @@ struct npc_choppy_booster_scout : public ScriptedAI
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
                     {
-                        _returnFlight = true;
-                        me->SetSpeed(MOVE_WALK, 4.25f);
-                        me->GetMotionMaster()->MoveSmoothPath(uint32(pathSizeTwo), ScoutPathTwo, pathSizeTwo, true, true);
+                        me->SetSpeed(MOVE_WALK, 4.5f);
+                        me->GetMotionMaster()->MovePath(PATH_COPTER_FROM_RUINS, false);
                         Conversation::CreateConversation(CONVERSATION_RIDE_FROM_OGRE_RUINS_HORDE, player, *player, player->GetGUID(), nullptr);
                         _events.ScheduleEvent(EVENT_CHECK_AREA, 3s);
                     }
@@ -5280,7 +5264,6 @@ struct npc_choppy_booster_scout : public ScriptedAI
 
 private:
     EventMap _events;
-    bool _returnFlight;
 };
 
 CreatureAI* ChoppyBoosterSelector(Creature* creature)

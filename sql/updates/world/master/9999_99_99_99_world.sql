@@ -536,3 +536,27 @@ INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`Pos
 (@PATH,50,93.83203,-2424.2578,91.31187,NULL,0),
 (@PATH,51,95.05859,-2422.6797,91.06852,NULL,0),
 (@PATH,52,95.94097,-2421.5105,90.92242,0.8034459,0);
+
+-- Pathing for Scout-o-Matic 5000 Entry: 156526
+-- Pathing for Choppy Booster Mk. 5 Entry: 167905
+SET @PATH := @GUID * 10;
+DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
+INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
+(@PATH,0,0,'Exile\'s Reach - Copter ride to Ogre Ruins');
+DELETE FROM `waypoint_path_node` WHERE `PathId` IN (@PATH);
+INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`,`Delay`) VALUES
+(@PATH,1,115.21007,-2420.2239,135.10031,NULL,0),
+(@PATH,2,156.11806,-2398.1390,138.27547,NULL,0),
+(@PATH,3,182.06944,-2381.7917,138.27547,NULL,0),
+(@PATH,4,211.51910,-2379.6284,138.27547,NULL,0);
+
+-- Pathing for Scout-o-Matic 5000 Entry: 156526
+-- Pathing for Choppy Booster Mk. 5 Entry: 167905
+SET @PATH := (@GUID * 10) + 1;
+DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
+INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
+(@PATH,0,0,'Exile\'s Reach - Copter ride from Ogre Ruins');
+DELETE FROM `waypoint_path_node` WHERE `PathId` IN (@PATH);
+INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`,`Delay`) VALUES
+(@PATH,1,174.54167,-2386.8213,124.66746,NULL,0),
+(@PATH,2,107.87153,-2414.177,95.68774,NULL,0);
