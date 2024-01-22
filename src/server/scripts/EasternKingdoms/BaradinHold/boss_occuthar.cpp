@@ -61,7 +61,7 @@ class boss_occuthar : public CreatureScript
 
         struct boss_occutharAI : public BossAI
         {
-            boss_occutharAI(Creature* creature) : BossAI(creature, DATA_OCCUTHAR),
+            boss_occutharAI(Creature* creature) : BossAI(creature, BOSS_OCCUTHAR),
                 _vehicle(me->GetVehicleKit())
             {
                 ASSERT(_vehicle);
@@ -168,7 +168,7 @@ class npc_eyestalk : public CreatureScript
             void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 // player is the spellcaster so register summon manually
-                if (Creature* occuthar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_OCCUTHAR)))
+                if (Creature* occuthar =  _instance->GetCreature(BOSS_OCCUTHAR))
                     occuthar->AI()->JustSummoned(me);
             }
 
@@ -299,7 +299,7 @@ class spell_occuthar_eyes_of_occuthar_vehicle : public SpellScriptLoader
             {
                 Position pos = GetHitUnit()->GetPosition();
 
-                if (Creature* occuthar = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript()->GetGuidData(DATA_OCCUTHAR)))
+                if (Creature* occuthar = GetCaster()->GetInstanceScript()->GetCreature(BOSS_OCCUTHAR))
                 {
                     if (Creature* creature = occuthar->SummonCreature(NPC_EYE_OF_OCCUTHAR, pos))
                         creature->CastSpell(GetHitUnit(), SPELL_GAZE_OF_OCCUTHAR, false);
