@@ -763,6 +763,7 @@ void GameObject::Update(uint32 diff)
                     break;
                 case GAMEOBJECT_TYPE_TRAP:
                 {
+                    //todo thomas what is going on here
                     GameObjectTemplate const* goInfo = GetGOInfo();
                     if (goInfo->trap.type == 2 && goInfo->trap.spellId)
                     {

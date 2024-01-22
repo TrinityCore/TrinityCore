@@ -3411,7 +3411,8 @@ void Unit::_ApplyAura(AuraApplication* aurApp, uint8 effMask)
     // apply effects of the aura
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (effMask & 1 << i && (!aurApp->GetRemoveMode()))
+        bool frostTrapStart = i == 0 && aurApp->GetBase()->m_spellInfo->Id == 13810;
+        if (frostTrapStart || (effMask & 1 << i && (!aurApp->GetRemoveMode())))
             aurApp->_HandleEffect(i, true);
     }
 
@@ -8647,6 +8648,11 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
     int32 slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED);
     if (slow)
         AddPct(speed, slow);
+    else
+    {
+        int x = 0;
+        //what is happening
+    }
 
     if (float minSpeedMod = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
     {

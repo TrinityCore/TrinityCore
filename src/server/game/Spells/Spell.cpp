@@ -2575,8 +2575,9 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         {
             if (Unit* unitCaster = spell->m_caster->ToUnit())
             {
-                bool id = (spell->m_spellInfo->Id == 19185 || spell->m_spellInfo->Id == 18350);
-                if (!id) //freezing/frost traps/entrapment don't put you in combat
+                bool isEntrap = (spell->m_spellInfo->Id == 19185);
+                bool fromFrostTrap = (spell->m_triggeredByAuraSpell && spell->m_triggeredByAuraSpell->Id == 13810);
+                if (!isEntrap && !fromFrostTrap) //freezing/frost traps/entrapment don't put you in combat
                 {
                     unitCaster->AtTargetAttacked(unit, spell->m_spellInfo->HasInitialAggro());
                 }
@@ -3071,7 +3072,8 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
 
     uint32 param1 = 0, param2 = 0;
     SpellCastResult result = CheckCast(true, &param1, &param2);
-    if (result != SPELL_CAST_OK && !IsAutoRepeat())          //always cast autorepeat dummy for triggering
+    bool skipCheck = m_spellInfo->Id == 13810; //frost trap should always trigger?
+    if (!skipCheck && result != SPELL_CAST_OK && !IsAutoRepeat())          //always cast autorepeat dummy for triggering
     {
         // Periodic auras should be interrupted when aura triggers a spell which can't be cast
         // for example bladestorm aura should be removed on disarm as of patch 3.3.5
@@ -5330,7 +5332,9 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         m_targets.GetDstPos()->GetPosition(x, y, z);
 
         if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !m_spellInfo->HasAttribute(SPELL_ATTR5_SKIP_CHECKCAST_LOS_CHECK) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOS(x, y, z, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+        {
             return SPELL_FAILED_LINE_OF_SIGHT;
+        }
     }
 
     // check pet presence
