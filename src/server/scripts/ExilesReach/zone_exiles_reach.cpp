@@ -5042,7 +5042,7 @@ size_t const pathSizeTwo = std::extent<decltype(ScoutPathTwo)>::value;
 //
 struct npc_scoutomatic_5000 : public ScriptedAI
 {
-    npc_scoutomatic_5000(Creature* creature) : ScriptedAI(creature) { _returnFlight = false; }
+    npc_scoutomatic_5000(Creature* creature) : ScriptedAI(creature), _returnFlight(false) { }
 
     void IsSummonedBy(WorldObject* summoner) override
     {
