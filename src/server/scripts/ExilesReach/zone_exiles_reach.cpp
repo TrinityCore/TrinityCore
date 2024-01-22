@@ -5132,15 +5132,6 @@ Position const HordeCrewPersonalSpawnLocation[] =
     { 53.936935f, -2475.588f, 80.24179f, 0.91009599f }
 };
 
-Position const HordeCrewPersonalWaypoint[] =
-{
-    { 95.664930f, -2423.9133f, 90.917786f },
-    { 100.55903f, -2424.5972f, 90.15397f  },
-    { 95.635414f, -2418.3716f, 91.03652f  },
-    { 93.152780f, -2417.3733f, 91.710266f },
-    { 95.940970f, -2421.5105f, 90.92242f  }
-};
-
 // <167905> - <Choppy Booster Mk. 5>
 struct npc_choppy_booster_scout : public ScriptedAI
 {
