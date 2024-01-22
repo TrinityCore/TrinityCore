@@ -5052,7 +5052,7 @@ struct npc_scoutomatic_5000 : public ScriptedAI
 
     void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
     {
-        if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
+        if (apply && passenger->IsPlayer())
         {
             me->CastSpell(passenger, SPELL_ROPED_DNT);
             _events.ScheduleEvent(EVENT_START_SCOUT_OGRE_RUINS, 3s);
