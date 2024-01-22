@@ -5156,7 +5156,7 @@ Position const HordeCrewPersonalWaypoint[] =
 
 struct npc_choppy_booster_scout : public ScriptedAI
 {
-    npc_choppy_booster_scout(Creature* creature) : ScriptedAI(creature) { _returnFlight = false; }
+    npc_choppy_booster_scout(Creature* creature) : ScriptedAI(creature), _returnFlight(false) { }
 
     void IsSummonedBy(WorldObject* summoner) override
     {
