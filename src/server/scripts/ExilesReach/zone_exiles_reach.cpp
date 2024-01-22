@@ -5053,7 +5053,6 @@ struct npc_scoutomatic_5000 : public ScriptedAI
         if (!player)
             return;
 
-        // Used to check if reached home
         if (pathId == PATH_COPTER_TO_RUINS)
         {
             player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_ALLIANCE, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
@@ -5158,7 +5157,6 @@ struct npc_choppy_booster_scout : public ScriptedAI
         if (!player)
             return;
 
-        // Used to check if reached home
         if (pathId == PATH_COPTER_TO_RUINS)
         {
             player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_HORDE, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
