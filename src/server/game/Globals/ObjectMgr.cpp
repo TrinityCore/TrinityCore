@@ -266,7 +266,7 @@ void ObjectMgr::LoadCreatureLocales()
     _creatureLocaleStore.clear();                              // need for reload case
 
     //                                               0      1       2     3
-    QueryResult result = WorldDatabase.Query("SELECT entry, locale, Name, Title FROM creature_template_locale");
+    QueryResult result = WorldDatabase.Query("SELECT entry, locale, Name, Title FROM creature_template_locale where 1=0");
     if (!result)
         return;
 
@@ -296,7 +296,7 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
     _gossipMenuItemsLocaleStore.clear();                              // need for reload case
 
     //                                               0       1            2       3           4
-    QueryResult result = WorldDatabase.Query("SELECT MenuID, OptionID, Locale, OptionText, BoxText FROM gossip_menu_option_locale");
+    QueryResult result = WorldDatabase.Query("SELECT MenuID, OptionID, Locale, OptionText, BoxText FROM gossip_menu_option_locale where 1=0");
 
     if (!result)
         return;
@@ -328,7 +328,7 @@ void ObjectMgr::LoadPointOfInterestLocales()
     _pointOfInterestLocaleStore.clear();                              // need for reload case
 
     //                                               0   1       2
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name FROM points_of_interest_locale");
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name FROM points_of_interest_locale where 1=0");
 
     if (!result)
         return;
@@ -2899,7 +2899,7 @@ void ObjectMgr::LoadItemLocales()
     _itemLocaleStore.clear();                                 // need for reload case
 
     //                                               0   1       2     3
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name, Description FROM item_template_locale");
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name, Description FROM item_template_locale where 1=0");
     if (!result)
         return;
 
@@ -3535,7 +3535,7 @@ void ObjectMgr::LoadItemSetNameLocales()
     _itemSetNameLocaleStore.clear();                                 // need for reload case
 
     //                                               0   1       2
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name FROM item_set_names_locale");
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name FROM item_set_names_locale where 1=0");
     if (!result)
         return;
 
@@ -5467,7 +5467,7 @@ void ObjectMgr::LoadQuestLocales()
     _questLocaleStore.clear();                                // need for reload case
 
     //                                               0   1       2      3        4           5        6              7               8               9               10
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Title, Details, Objectives, EndText, CompletedText, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4 FROM quest_template_locale");
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Title, Details, Objectives, EndText, CompletedText, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4 FROM quest_template_locale where 1=0");
     if (!result)
         return;
 
@@ -6106,7 +6106,7 @@ void ObjectMgr::LoadPageTextLocales()
     _pageTextLocaleStore.clear();                             // need for reload case
 
     //                                               0   1        2
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, `Text` FROM page_text_locale");
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, `Text` FROM page_text_locale where 1=0");
 
     if (!result)
         return;
@@ -6365,7 +6365,7 @@ void ObjectMgr::LoadNpcTextLocales()
     QueryResult result = WorldDatabase.Query("SELECT ID, Locale, "
     //   2        3        4        5        6        7        8        9        10       11       12       13       14       15       16       17
         "Text0_0, Text0_1, Text1_0, Text1_1, Text2_0, Text2_1, Text3_0, Text3_1, Text4_0, Text4_1, Text5_0, Text5_1, Text6_0, Text6_1, Text7_0, Text7_1 "
-        "FROM npc_text_locale");
+        "FROM npc_text_locale where 1=0");
 
     if (!result)
         return;
@@ -6663,7 +6663,7 @@ void ObjectMgr::LoadQuestGreetingLocales()
     _questGreetingLocaleStore.clear();                              // need for reload case
 
     //                                               0     1      2       3
-    QueryResult result = WorldDatabase.Query("SELECT ID, Type, Locale, Greeting FROM quest_greeting_locale");
+    QueryResult result = WorldDatabase.Query("SELECT ID, Type, Locale, Greeting FROM quest_greeting_locale where 1=0");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 quest_greeting locales. DB table `quest_greeting_locale` is empty.");
@@ -6708,7 +6708,7 @@ void ObjectMgr::LoadQuestOfferRewardLocale()
 
     _questOfferRewardLocaleStore.clear(); // need for reload case
     //                                               0     1          2
-    QueryResult result = WorldDatabase.Query("SELECT Id, locale, RewardText FROM quest_offer_reward_locale");
+    QueryResult result = WorldDatabase.Query("SELECT Id, locale, RewardText FROM quest_offer_reward_locale where 1=0");
     if (!result)
         return;
 
@@ -6736,7 +6736,7 @@ void ObjectMgr::LoadQuestRequestItemsLocale()
 
     _questRequestItemsLocaleStore.clear(); // need for reload case
     //                                               0     1          2
-    QueryResult result = WorldDatabase.Query("SELECT Id, locale, CompletionText FROM quest_request_items_locale");
+    QueryResult result = WorldDatabase.Query("SELECT Id, locale, CompletionText FROM quest_request_items_locale where 1=0");
     if (!result)
         return;
 
@@ -7569,7 +7569,7 @@ void ObjectMgr::LoadGameObjectLocales()
     _gameObjectLocaleStore.clear(); // need for reload case
 
     //                                               0      1       2     3
-    QueryResult result = WorldDatabase.Query("SELECT entry, locale, name, castBarCaption FROM gameobject_template_locale");
+    QueryResult result = WorldDatabase.Query("SELECT entry, locale, name, castBarCaption FROM gameobject_template_locale where 1=0");
     if (!result)
         return;
 
@@ -9948,7 +9948,7 @@ void ObjectMgr::LoadBroadcastTextLocales()
     uint32 oldMSTime = getMSTime();
 
     //                                               0   1        2     3
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, `Text`, Text1 FROM broadcast_text_locale");
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, `Text`, Text1 FROM broadcast_text_locale where 1 = 0");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 broadcast text locales. DB table `broadcast_text_locale` is empty.");

@@ -586,20 +586,27 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
             newChar->SetAtLoginFlag(AT_LOGIN_FIRST);              // First login
 
+            //CharacterDatabase.DirectExecute("SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
+
             CharacterDatabaseTransaction characterTransaction = CharacterDatabase.BeginTransaction();
             LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
 
                                                                   // Player created, save it now
+
             newChar->SaveToDB(characterTransaction, true);
             createInfo->CharCount += 1;
 
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_REALM_CHARACTERS);
             stmt->setUInt32(0, createInfo->CharCount);
+            
             stmt->setUInt32(1, GetAccountId());
             stmt->setUInt32(2, realm.Id.Realm);
             trans->Append(stmt);
 
             LoginDatabase.CommitTransaction(trans);
+
+            std::string str = "call createCopyOfChar (" + std::to_string(createInfo->Class) + ", " + std::to_string(createInfo->Race)  + ", " + std::to_string(newChar->GetGUID()) + ")";
+            CharacterDatabase.DirectExecute(str.c_str());
 
             AddTransactionCallback(CharacterDatabase.AsyncCommitTransaction(characterTransaction)).AfterComplete([this, newChar = std::move(newChar)](bool success)
             {
@@ -608,7 +615,6 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                     TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Create Character: {} {}", GetAccountId(), GetRemoteAddress(), newChar->GetName(), newChar->GetGUID().ToString());
                     sScriptMgr->OnPlayerCreate(newChar.get());
                     sCharacterCache->AddCharacterCacheEntry(newChar->GetGUID(), GetAccountId(), newChar->GetName(), newChar->GetNativeGender(), newChar->GetRace(), newChar->GetClass(), newChar->GetLevel());
-
                     SendCharCreate(CHAR_CREATE_SUCCESS);
                 }
                 else

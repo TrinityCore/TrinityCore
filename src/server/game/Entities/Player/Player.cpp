@@ -19408,7 +19408,7 @@ void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create /* = false
             ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << ' ';
 
         stmt->setString(index++, ss.str());
-        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
+        stmt->setUInt8(index++, 15);
         stmt->setUInt32(index++, m_grantableLevels);
     }
     else
