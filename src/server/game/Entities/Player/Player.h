@@ -1062,7 +1062,7 @@ enum class ZonePVPTypeOverride : uint32
     Combat      = 4
 };
 
-class TC_GAME_API Player : public Unit, public GridObject<Player>
+class TC_GAME_API Player final : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
     friend class CinematicMgr;
