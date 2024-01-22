@@ -5043,7 +5043,7 @@ struct npc_scoutomatic_5000 : public ScriptedAI
         if (apply && passenger->IsPlayer())
         {
             me->CastSpell(passenger, SPELL_ROPED_DNT);
-            _events.ScheduleEvent(EVENT_START_SCOUT_OGRE_RUINS, 3s);
+            _events.ScheduleEvent(EVENT_START_SCOUT_OGRE_RUINS, 2s);
         }
     }
 
