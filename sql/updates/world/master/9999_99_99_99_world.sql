@@ -159,11 +159,11 @@ INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptNa
 (14520,36369,0,'',52649);
 
 -- Phase Area
-DELETE FROM `phase_area` WHERE `AreaId`=10424 AND `PhaseId` IN (13766,15319,13784,15327,13785,15553);
-DELETE FROM `phase_area` WHERE `AreaId`=10588 AND `PhaseId` IN (13785,15553);
+DELETE FROM `phase_area` WHERE `AreaId`=10424 AND `PhaseId` IN (13784,15327);
+DELETE FROM `phase_area` WHERE `AreaId`=10588 AND `PhaseId` IN (13766,15319,13785,15553);
 INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
-(10424,13766, 'Cosmetic - NPE - See The Scout-o-Matic 5000 at Plains'),
-(10424,15319, 'Cosmetic - NPE - See The Choppy Booster Mk. 5 at Plains'),
+(10588,13766, 'Cosmetic - NPE - See The Scout-o-Matic 5000 at Plains'),
+(10588,15319, 'Cosmetic - NPE - See The Choppy Booster Mk. 5 at Plains'),
 (10424,13784, 'Cosmetic - NPE - See Henry Garrick at Orge Ruins'),
 (10424,15327, 'Cosmetic - NPE - See Shuja Grimaxe at Orge Ruins'),
 (10588,13785, 'Cosmetic - NPE - See Alliance crew at Darkmaul Plains'),
@@ -186,13 +186,13 @@ UPDATE `phase_name` SET `Name`='Cosmetic - NPE - See Austin Huxworth at Darkmaul
 UPDATE `phase_name` SET `Name`='Cosmetic - NPE - See bound Lightspawn' WHERE `ID`=13878;
 
 -- Phase Conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13766,15319,13784,15327) AND `SourceEntry`=10424;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13785,15553) AND `SourceEntry`=10588;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13784,15327) AND `SourceEntry`=10424;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13766,15319,13785,15553) AND `SourceEntry`=10588;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(26,13766,10424, 0, 0, 47, 0, 55193, 74, 0, 0, 0, 0, '', 'See The Scout-o-Matic 5000 at Plains if quest The Scout-o-Matic 5000 is inprogress | completed | rewarded Alliance.'),
-(26,13766,10424, 0, 0, 1, 0, 305522, 0, 0, 1, 0, 0, '', 'See The Scout-o-Matic 5000 at Plains if player doses not have aura 305522.'),
-(26,15319,10424, 0, 0, 47, 0, 59940, 74, 0, 0, 0, 0, '', 'See The Choppy Booster Mk. 5 at Plains if quest The Choppy Booster Mk. 5 is inprogress | completed | rewarded Horde.'),
-(26,15319,10424, 0, 0, 1, 0, 326625, 0, 0, 1, 0, 0, '', 'See The Choppy Booster Mk. 5 at Plains if player doses not have aura 326625.'),
+(26,13766,10588, 0, 0, 47, 0, 55193, 74, 0, 0, 0, 0, '', 'See The Scout-o-Matic 5000 at Plains if quest The Scout-o-Matic 5000 is inprogress | completed | rewarded Alliance.'),
+(26,13766,10588, 0, 0, 1, 0, 305522, 0, 0, 1, 0, 0, '', 'See The Scout-o-Matic 5000 at Plains if player doses not have aura 305522.'),
+(26,15319,10588, 0, 0, 47, 0, 59940, 74, 0, 0, 0, 0, '', 'See The Choppy Booster Mk. 5 at Plains if quest The Choppy Booster Mk. 5 is inprogress | completed | rewarded Horde.'),
+(26,15319,10588, 0, 0, 1, 0, 326625, 0, 0, 1, 0, 0, '', 'See The Choppy Booster Mk. 5 at Plains if player doses not have aura 326625.'),
 (26,13784,10424, 0, 0, 47, 0, 55186, 64, 0, 0, 0, 0, '', 'AND0 See Henry Garrick at Orge Ruins if quest Down with the Quilboar has been rewarded Alliance.'),
 (26,13784,10424, 0, 0, 47, 0, 55184, 64, 0, 0, 0, 0, '', 'AND0 See Henry Garrick at Orge Ruins if quest Forbidden Quilboar Necromancy has been rewarded Alliance.'),
 (26,15327,10424, 0, 0, 47, 0, 59938, 64, 0, 0, 0, 0, '', 'AND0 See Shuja Grimaxe at Orge Ruins if quest Down with the Quilboar has been rewarded Horde.'),

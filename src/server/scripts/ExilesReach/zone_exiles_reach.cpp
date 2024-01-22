@@ -4842,6 +4842,8 @@ enum LindieSpringStock
 
 Position const MiniChopperJumpPosition = { 107.979f, -2414.13f, 95.6243f };
 
+// <149899> - <Lindie Springstock>
+// <167019> - <Cork Fizzlepop>
 struct npc_gnome_goblin_plains_make_copter_private : public ScriptedAI
 {
     npc_gnome_goblin_plains_make_copter_private(Creature* creature) : ScriptedAI(creature) { }
@@ -5039,7 +5041,7 @@ Position const ScoutPathTwo[] =
 };
 size_t const pathSizeTwo = std::extent<decltype(ScoutPathTwo)>::value;
 
-//
+// <156526> - <Scout-o-Matic 5000>
 struct npc_scoutomatic_5000 : public ScriptedAI
 {
     npc_scoutomatic_5000(Creature* creature) : ScriptedAI(creature), _returnFlight(false) { }
@@ -5154,6 +5156,7 @@ Position const HordeCrewPersonalWaypoint[] =
     { 95.940970f, -2421.5105f, 90.92242f  }
 };
 
+// <167905> - <Choppy Booster Mk. 5>
 struct npc_choppy_booster_scout : public ScriptedAI
 {
     npc_choppy_booster_scout(Creature* creature) : ScriptedAI(creature), _returnFlight(false) { }
