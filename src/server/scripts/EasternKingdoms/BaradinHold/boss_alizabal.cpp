@@ -70,7 +70,7 @@ class at_alizabal_intro : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* alizabal = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_ALIZABAL)))
+                if (Creature* alizabal = instance->GetCreature(BOSS_ALIZABAL))
                     alizabal->AI()->DoAction(ACTION_INTRO);
             return true;
         }
@@ -83,7 +83,7 @@ class boss_alizabal : public CreatureScript
 
         struct boss_alizabalAI : public BossAI
         {
-            boss_alizabalAI(Creature* creature) : BossAI(creature, DATA_ALIZABAL) { }
+            boss_alizabalAI(Creature* creature) : BossAI(creature, BOSS_ALIZABAL) { }
 
             void Reset() override
             {

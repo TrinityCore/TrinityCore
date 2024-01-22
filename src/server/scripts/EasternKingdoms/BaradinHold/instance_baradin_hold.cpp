@@ -18,23 +18,30 @@
 #include "ScriptMgr.h"
 #include "baradin_hold.h"
 #include "Creature.h"
-#include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 
 DoorData const doorData[] =
 {
-    { GO_ARGALOTH_DOOR,  DATA_ARGALOTH, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { GO_OCCUTHAR_DOOR,  DATA_OCCUTHAR, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { GO_ALIZABAL_DOOR,  DATA_ALIZABAL, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ARGALOTH_DOOR,  BOSS_ARGALOTH, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_OCCUTHAR_DOOR,  BOSS_OCCUTHAR, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ALIZABAL_DOOR,  BOSS_ALIZABAL, EncounterDoorBehavior::OpenWhenNotInProgress },
     { 0,                 0,             EncounterDoorBehavior::OpenWhenNotInProgress }  // END
+};
+
+ObjectData const creatureData[] =
+{
+    { NPC_ARGALOTH, BOSS_ARGALOTH   },
+    { NPC_OCCUTHAR, BOSS_OCCUTHAR   },
+    { NPC_ALIZABAL, BOSS_ALIZABAL   },
+    { 0,            0               } // END
 };
 
 DungeonEncounterData const encounters[] =
 {
-    { DATA_ARGALOTH, {{ 1033 }} },
-    { DATA_OCCUTHAR, {{ 1250 }} },
-    { DATA_ALIZABAL, {{ 1332 }} }
+    { BOSS_ARGALOTH, {{ 1033 }} },
+    { BOSS_OCCUTHAR, {{ 1250 }} },
+    { BOSS_ALIZABAL, {{ 1332 }} }
 };
 
 class instance_baradin_hold: public InstanceMapScript
@@ -48,71 +55,44 @@ class instance_baradin_hold: public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadObjectData(creatureData, nullptr);
                 LoadDoorData(doorData);
                 LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch(creature->GetEntry())
                 {
-                    case BOSS_ARGALOTH:
-                        ArgalothGUID = creature->GetGUID();
+                    case NPC_FEL_FLAMES:
+                        _felFlameGUIDs.push_back(creature->GetGUID());
+                        creature->m_Events.AddEventAtOffset([creature]() { creature->CastSpell(nullptr, SPELL_FEL_FLAMES); }, 1s);
                         break;
-                    case BOSS_OCCUTHAR:
-                        OccutharGUID = creature->GetGUID();
-                        break;
-                    case BOSS_ALIZABAL:
-                        AlizabalGUID = creature->GetGUID();
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch(go->GetEntry())
-                {
-                    case GO_ARGALOTH_DOOR:
-                    case GO_OCCUTHAR_DOOR:
-                    case GO_ALIZABAL_DOOR:
-                        AddDoor(go, true);
-                        break;
-                }
-            }
-
-            ObjectGuid GetGuidData(uint32 data) const override
-            {
-                switch (data)
-                {
-                    case DATA_ARGALOTH:
-                        return ArgalothGUID;
-                    case DATA_OCCUTHAR:
-                        return OccutharGUID;
-                    case DATA_ALIZABAL:
-                        return AlizabalGUID;
                     default:
                         break;
                 }
-
-                return ObjectGuid::Empty;
             }
 
-            void OnGameObjectRemove(GameObject* go) override
+            void SetData(uint32 type, uint32 /*value*/) override
             {
-                switch(go->GetEntry())
+                switch (type)
                 {
-                    case GO_ARGALOTH_DOOR:
-                    case GO_OCCUTHAR_DOOR:
-                    case GO_ALIZABAL_DOOR:
-                        AddDoor(go, false);
+                    case DATA_EXTINUISH_FEL_FLAMES:
+                        for (ObjectGuid const& guid : _felFlameGUIDs)
+                            if (Creature* felFlame = instance->GetCreature(guid))
+                                felFlame->RemoveAllAuras();
+
+                        _felFlameGUIDs.clear();
+                        break;
+                    default:
                         break;
                 }
             }
 
-        protected:
-            ObjectGuid ArgalothGUID;
-            ObjectGuid OccutharGUID;
-            ObjectGuid AlizabalGUID;
+        private:
+            std::vector<ObjectGuid> _felFlameGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

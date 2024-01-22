@@ -33,7 +33,7 @@ enum DynamicObjectType
     DYNAMIC_OBJECT_FARSIGHT_FOCUS   = 0x2
 };
 
-class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicObject>, public MapObject
+class TC_GAME_API DynamicObject final : public WorldObject, public GridObject<DynamicObject>, public MapObject
 {
     public:
         DynamicObject(bool isWorldObject);
