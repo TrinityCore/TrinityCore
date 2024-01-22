@@ -26,7 +26,7 @@ constexpr uint32 MAX_AZERITE_ITEM_KNOWLEDGE_LEVEL = 30;
 constexpr uint32 PLAYER_CONDITION_ID_UNLOCKED_AZERITE_ESSENCES = 69048;
 constexpr uint32 SPELL_ID_HEART_ESSENCE_ACTION_BAR_OVERRIDE = 298554;
 
-class TC_GAME_API AzeriteItem : public Item
+class TC_GAME_API AzeriteItem final : public Item
 {
 public:
     AzeriteItem();
