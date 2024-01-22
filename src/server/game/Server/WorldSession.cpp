@@ -1411,7 +1411,7 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& hol
                               holder.GetPreparedResult(AccountInfoQueryHolder::BATTLE_PET_SLOTS));
 }
 
-rbac::RBACData* WorldSession::GetRBACData()
+rbac::RBACData* WorldSession::GetRBACData() const
 {
     return _RBACData;
 }
