@@ -105,6 +105,7 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P             = 405556,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT      = 409479,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
+    SPELL_PRIEST_LEAP_OF_FAITH                      = 73325,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
     SPELL_PRIEST_LIGHT_ERUPTION                     = 196812,
@@ -2788,8 +2789,35 @@ class spell_pri_vampiric_touch : public AuraScript
     }
 };
 
+// 64129 - Body and soul (65081 - Aura)
+class spell_pri_body_and_soul : public AuraScript
+{
+    PrepareAuraScript(spell_pri_body_and_soul);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            SPELL_PRIEST_BODY_AND_SOUL,
+            SPELL_PRIEST_BODY_AND_SOUL_SPEED,
+            SPELL_PRIEST_LEAP_OF_FAITH,
+            SPELL_PRIEST_POWER_WORD_SHIELD
+            });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_LEAP_OF_FAITH || eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_POWER_WORD_SHIELD;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_body_and_soul::CheckProc);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
+    RegisterSpellScript(spell_pri_body_and_soul);
     RegisterSpellScript(spell_pri_angelic_feather_trigger);
     RegisterAreaTriggerAI(areatrigger_pri_angelic_feather);
     RegisterSpellScript(spell_pri_abyssal_reverie);
