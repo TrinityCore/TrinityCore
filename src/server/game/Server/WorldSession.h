@@ -454,7 +454,7 @@ class TC_GAME_API WorldSession
 
         GameClient* GetGameClient() const { return _gameClient; };
 
-        rbac::RBACData* GetRBACData();
+        rbac::RBACData* GetRBACData() const;
         bool HasPermission(uint32 permissionId);
         void LoadPermissions();
         QueryCallback LoadPermissionsAsync();
