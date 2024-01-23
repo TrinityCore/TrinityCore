@@ -5413,10 +5413,8 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
     // Triggered spells also have range check. no they don't
     /// @todo determine if there is some flag to enable/disable the check
-    if(!IsTriggered())
-    {
+
         castResult = CheckRange(strict);
-    }
     if (castResult != SPELL_CAST_OK)
         return castResult;
 
@@ -6439,6 +6437,12 @@ SpellCastResult Spell::CheckRange(bool strict) const
     // Don't check for instant cast spells
     if (!strict && m_casttime == 0)
         return SPELL_CAST_OK;
+
+    //don't check for self only spells (imp concussive shot)
+    if (m_spellInfo->RangeEntry && m_spellInfo->RangeEntry->ID == 1)
+    {
+        return SPELL_CAST_OK;
+    }
 
     float minRange, maxRange;
     std::tie(minRange, maxRange) = GetMinMaxRange(strict);
