@@ -29,28 +29,23 @@ enum ArgalothTexts
     SAY_ANNOUNCE_FEL_FIRESTORM = 0
 };
 
-enum Spells
+enum ArgalothSpells
 {
-    // Argaloth
     SPELL_FEL_FIRESTORM             = 88972,
     SPELL_FEL_FIRESTORM_TRIGGERED   = 88973,
     SPELL_BERSERK                   = 47008,
     SPELL_METEOR_SLASH_VISUAL       = 88949,
     SPELL_METEOR_SLASH              = 88942,
-    SPELL_CONSUMING_DARKNESS        = 88954,
+    SPELL_CONSUMING_DARKNESS        = 88954
 };
 
-enum Events
+enum ArgalothEvents
 {
-    // Argaloth
     EVENT_METEOR_SLASH = 1,
     EVENT_CONSUMING_DARKNESS,
     EVENT_FEL_FIRESTORM,
     EVENT_END_FEL_FIRESTORM,
-    EVENT_BERSERK,
-
-    // Fel Flames
-    EVENT_FEL_FLAMES
+    EVENT_BERSERK
 };
 
 struct boss_argaloth : public BossAI
@@ -89,6 +84,7 @@ struct boss_argaloth : public BossAI
     {
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONSUMING_DARKNESS);
     }
 
     void UpdateAI(uint32 diff) override
