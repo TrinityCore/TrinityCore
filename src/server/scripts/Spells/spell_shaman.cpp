@@ -542,8 +542,8 @@ class spell_sha_fire_nova : public SpellScript
 
     void Register() override
     {
-        OnCheckCast += SpellCheckCastFn(spell_sha_fire_nova::CheckFireTotem);
-        OnEffectHitTarget += SpellEffectFn(spell_sha_fire_nova::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        //OnCheckCast += SpellCheckCastFn(spell_sha_fire_nova::CheckFireTotem);
+        //OnEffectHitTarget += SpellEffectFn(spell_sha_fire_nova::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
