@@ -3377,7 +3377,7 @@ void World::SendServerMessage(ServerMessageType messageID, std::string_view stri
 
     WorldPackets::Chat::ChatServerMessage chatServerMessage;
     chatServerMessage.MessageID = int32(messageID);
-    if (strstr(serverMessage->Text[player->GetSession()->GetSessionDbcLocale()], "%s"))
+    if (strstr(serverMessage->Text[player ? player->GetSession()->GetSessionDbcLocale() : GetDefaultDbcLocale()], "%s"))
         chatServerMessage.StringParam = stringParam;
 
     if (player)
