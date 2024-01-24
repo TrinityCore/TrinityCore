@@ -1447,7 +1447,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         Player* GetTrader() const;
         TradeData* GetTradeData() const { return m_trade; }
-        void TradeCancel(bool sendback);
+        void TradeCancel(bool sendback, TradeStatus status = TRADE_STATUS_TRADE_CANCELED);
 
         CinematicMgr* GetCinematicMgr() const { return _cinematicMgr.get(); }
 
