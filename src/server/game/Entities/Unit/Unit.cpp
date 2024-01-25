@@ -5970,6 +5970,16 @@ void Unit::SetOwnerGUID(ObjectGuid owner)
     player->SendDirectMessage(&packet);
 }
 
+Unit* Unit::GetDemonCreator() const
+{
+    return ObjectAccessor::GetUnit(*this, GetDemonCreatorGUID());
+}
+
+Player* Unit::GetDemonCreatorPlayer() const
+{
+    return ObjectAccessor::GetPlayer(*this, GetDemonCreatorGUID());
+}
+
 Player* Unit::GetControllingPlayer() const
 {
     ObjectGuid guid = GetCharmerOrOwnerGUID();
