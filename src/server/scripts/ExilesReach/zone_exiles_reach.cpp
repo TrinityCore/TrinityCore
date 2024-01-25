@@ -363,7 +363,7 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
                 me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_READY, me->GetFirstCollisionPosition(2.0f, rand_norm() * static_cast<float>(2 * M_PI)));
                 break;
             case POSITION_SPARPOINT_READY:
-                if (Unit* owner = me->GetOwner())
+                if (Unit* owner = me->GetDemonCreator())
                     me->SetFacingToObject(owner);
                 me->SetImmuneToPC(false);
                 me->SetUninteractible(false);
@@ -378,7 +378,7 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
         if (pathId != _path)
             return;
 
-        if (Unit* owner = me->GetOwner())
+        if (Unit* owner = me->GetDemonCreator())
         {
             me->DespawnOrUnsummon();
             owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
@@ -397,7 +397,7 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
             me->SetUninteractible(true);
             _events.CancelEvent(EVENT_JUMP_BEHIND);
 
-            if (Player* player = me->GetAffectingPlayer())
+            if (Player* player = me->GetDemonCreatorPlayer())
             {
                 me->SetFacingToObject(player);
                 Talk(TALK_SPARING_COMPLETE, player);
@@ -428,7 +428,7 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
 
     void StartPrivateConversation(uint32 conversationId)
     {
-        if (Unit* owner = me->GetOwner())
+        if (Unit* owner = me->GetDemonCreator())
         {
             Conversation* conversation = Conversation::CreateConversation(conversationId, owner, *owner, owner->GetGUID(), nullptr, false);
             conversation->AddActor(_actorId, _actorIndex, me->GetGUID());
@@ -1767,7 +1767,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
 
         _reachedCamp = true;
 
-        if (Unit* owner = me->GetOwner())
+        if (Unit* owner = me->GetDemonCreator())
         {
             Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false);
             conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, 1, me->GetGUID());
@@ -1783,7 +1783,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
             return;
 
-        if (Unit* owner = me->GetOwner())
+        if (Unit* owner = me->GetDemonCreator())
         {
             owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
             owner->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
@@ -1800,7 +1800,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
             {
                 case EVENT_INITIAL_SPAWN_CHECK:
                 {
-                    Unit* owner = me->GetOwner();
+                    Unit* owner = me->GetDemonCreator();
                     if (!owner)
                         break;
 
@@ -1824,7 +1824,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
                     break;
                 }
                 case EVENT_FOLLOW_PLAYER:
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* owner = me->GetDemonCreator())
                         me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
@@ -1858,7 +1858,7 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
         if (_reachedCamp)
             return;
 
-        if (Unit* owner = me->GetOwner())
+        if (Unit* owner = me->GetDemonCreator())
         {
             Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false);
             conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 3, me->GetGUID());
@@ -1874,7 +1874,7 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
             return;
 
-        if (Unit* owner = me->GetOwner())
+        if (Unit* owner = me->GetDemonCreator())
         {
             owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
             owner->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
@@ -1891,7 +1891,7 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
             {
                 case EVENT_INITIAL_SPAWN_CHECK:
                 {
-                    Unit* owner = me->GetOwner();
+                    Unit* owner = me->GetDemonCreator();
                     if (!owner)
                         break;
 
@@ -1915,7 +1915,7 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
                     break;
                 }
                 case EVENT_FOLLOW_PLAYER:
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* owner = me->GetDemonCreator())
                         me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
@@ -2466,7 +2466,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
             }
             case POINT_TRAINING_POINT_ENHANCED_TRAINING:
             {
-                Unit* owner = me->GetOwner();
+                Unit* owner = me->GetDemonCreator();
                 if (!owner)
                     break;
 
@@ -2516,7 +2516,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
         // Used to check if reached home
         if (pathId == PATH_COMBAT_TRAINER_HOME)
         {
-            if (Unit* owner = me->GetOwner())
+            if (Unit* owner = me->GetDemonCreator())
             {
                 owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
                 owner->RemoveAura(_summonSpellAuraID);
@@ -2541,7 +2541,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                 case EVENT_COMBAT_TRAINING_FACE_PLAYER:
                 {
                     // Used by all classes
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* owner = me->GetDemonCreator())
                         me->SetFacingToObject(owner);
 
                     me->SetImmuneToPC(false);
@@ -2553,7 +2553,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                     me->SetImmuneToPC(true);
                     me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->RemoveAllAuras();
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* owner = me->GetDemonCreator())
                     {
                         me->SetFacingToObject(owner);
                         StartConversationWithPlayer(CONVERSATION_CHARGE_FINAL_ENHANCED);
@@ -2676,7 +2676,7 @@ struct npc_sparring_partner_enhanced_combat_training_paladin : public npc_sparri
             {
                 if (_holyPowerCheck) // Used by paladin
                 {
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* owner = me->GetDemonCreator())
                     {
                         if (owner->GetPower(POWER_HOLY_POWER) >= 3)
                         {
@@ -2794,7 +2794,7 @@ struct npc_sparring_partner_enhanced_combat_training_rogue : public npc_sparring
             {
                 if (_comboPointCheck) // Used by rogue
                 {
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* owner = me->GetDemonCreator())
                         _comboPointsCounter = owner->GetPower(POWER_COMBO_POINTS);
 
                     if (_comboPointsCounter >= (GetQuestCredits() + 3))
@@ -2999,7 +2999,7 @@ struct npc_sparring_partner_enhanced_combat_training_shaman : public npc_sparrin
         switch (eventId)
         {
             case EVENT_COMBAT_TRAINING_RESET_SHAMAN:
-                if (Unit* owner = me->GetOwner())
+                if (Unit* owner = me->GetDemonCreator())
                 {
                     me->CastSpell(owner, SPELL_KNOCKBACK);
                     _events.ScheduleEvent(EVENT_COMBAT_TRAINING_AGGRO_CHECK_SHAMAN, 2s);
@@ -3092,7 +3092,7 @@ struct npc_sparring_partner_enhanced_combat_training_mage : public npc_sparring_
         switch (eventId)
         {
             case EVENT_COMBAT_TRAINING_RESET_MAGE:
-                if (Unit* owner = me->GetOwner())
+                if (Unit* owner = me->GetDemonCreator())
                 {
                     me->CastSpell(owner, SPELL_KNOCKBACK);
                     _events.ScheduleEvent(EVENT_COMBAT_TRAINING_AGGRO_CHECK_MAGE, 2s);
@@ -3593,7 +3593,7 @@ struct npc_leader_northbound : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_FOLLOW_PLAYER:
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* owner = me->GetDemonCreator())
                         me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
