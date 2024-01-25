@@ -1,6 +1,6 @@
 -- Set by TC Devs
 -- Fourteen new creature spawns
-SET @GUID := 9009700;
+SET @GUID := 8000021;
 
 -- Add missing Scout-o-Matic 5000 and Choppy Booster Mk. 5 spawns
 DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+13;
@@ -164,8 +164,8 @@ DELETE FROM `phase_area` WHERE `AreaId`=10588 AND `PhaseId` IN (13766,15319,1378
 INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
 (10588,13766, 'Cosmetic - NPE - See The Scout-o-Matic 5000 at Plains'),
 (10588,15319, 'Cosmetic - NPE - See The Choppy Booster Mk. 5 at Plains'),
-(10424,13784, 'Cosmetic - NPE - See Henry Garrick at Orge Ruins'),
-(10424,15327, 'Cosmetic - NPE - See Shuja Grimaxe at Orge Ruins'),
+(10424,13784, 'Cosmetic - NPE - See Henry Garrick at Ogre Ruins'),
+(10424,15327, 'Cosmetic - NPE - See Shuja Grimaxe at Ogre Ruins'),
 (10588,13785, 'Cosmetic - NPE - See Alliance crew at Darkmaul Plains'),
 (10588,15553, 'Cosmetic - NPE - See Horde crew at Darkmaul Plains');
 
@@ -174,8 +174,8 @@ DELETE FROM `phase_name` WHERE `ID` IN (13766,15319,13784,15327,13785,15553);
 INSERT INTO `phase_name` (`ID`,`Name`) VALUES
 (13766,'Cosmetic - NPE - See The Scout-o-Matic 5000 at Plains'),
 (15319,'Cosmetic - NPE - See The Choppy Booster Mk. 5 at Plains'),
-(13784,'Cosmetic - NPE - See Henry Garrick at Orge Ruins'),
-(15327,'Cosmetic - NPE - See Shuja Grimaxe at Orge Ruins'),
+(13784,'Cosmetic - NPE - See Henry Garrick at Ogre Ruins'),
+(15327,'Cosmetic - NPE - See Shuja Grimaxe at Ogre Ruins'),
 (13785,'Cosmetic - NPE - See Alliance crew at Darkmaul Plains'),
 (15553,'Cosmetic - NPE - See Horde crew at Darkmaul Plains');
 
@@ -193,10 +193,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26,13766,10588, 0, 0, 1, 0, 305522, 0, 0, 1, 0, 0, '', 'See The Scout-o-Matic 5000 at Plains if player doses not have aura 305522.'),
 (26,15319,10588, 0, 0, 47, 0, 59940, 74, 0, 0, 0, 0, '', 'See The Choppy Booster Mk. 5 at Plains if quest The Choppy Booster Mk. 5 is inprogress | completed | rewarded Horde.'),
 (26,15319,10588, 0, 0, 1, 0, 326625, 0, 0, 1, 0, 0, '', 'See The Choppy Booster Mk. 5 at Plains if player doses not have aura 326625.'),
-(26,13784,10424, 0, 0, 47, 0, 55186, 64, 0, 0, 0, 0, '', 'AND0 See Henry Garrick at Orge Ruins if quest Down with the Quilboar has been rewarded Alliance.'),
-(26,13784,10424, 0, 0, 47, 0, 55184, 64, 0, 0, 0, 0, '', 'AND0 See Henry Garrick at Orge Ruins if quest Forbidden Quilboar Necromancy has been rewarded Alliance.'),
-(26,15327,10424, 0, 0, 47, 0, 59938, 64, 0, 0, 0, 0, '', 'AND0 See Shuja Grimaxe at Orge Ruins if quest Down with the Quilboar has been rewarded Horde.'),
-(26,15327,10424, 0, 0, 47, 0, 59939, 64, 0, 0, 0, 0, '', 'AND0 See Shuja Grimaxe at Orge Ruins if quest Forbidden Quilboar Necromancy has been rewarded Horde.'),
+(26,13784,10424, 0, 0, 47, 0, 55186, 64, 0, 0, 0, 0, '', 'AND0 See Henry Garrick at Ogre Ruins if quest Down with the Quilboar has been rewarded Alliance.'),
+(26,13784,10424, 0, 0, 47, 0, 55184, 64, 0, 0, 0, 0, '', 'AND0 See Henry Garrick at Ogre Ruins if quest Forbidden Quilboar Necromancy has been rewarded Alliance.'),
+(26,15327,10424, 0, 0, 47, 0, 59938, 64, 0, 0, 0, 0, '', 'AND0 See Shuja Grimaxe at Ogre Ruins if quest Down with the Quilboar has been rewarded Horde.'),
+(26,15327,10424, 0, 0, 47, 0, 59939, 64, 0, 0, 0, 0, '', 'AND0 See Shuja Grimaxe at Ogre Ruins if quest Forbidden Quilboar Necromancy has been rewarded Horde.'),
 (26,13785,10588, 0, 0, 47, 0, 55193, 66, 0, 0, 0, 0, '', 'See Alliance Crew at Plains if quest The Scout-o-Matic 5000 is completed | rewarded Alliance.'),
 (26,15553,10588, 0, 0, 47, 0, 59940, 66, 0, 0, 0, 0, '', 'See Horde Crew at Plains if quest The Choppy Booster Mk. 5 is completed | rewarded Alliance.');
 
@@ -231,11 +231,10 @@ INSERT INTO `spell_target_position` (`ID`,`EffectIndex`,`MapID`,`PositionX`,`Pos
 (326624,0,2175,107.87153,-2414.177,95.44844,52649);
 
 -- Pathing for Won'sa Entry: 167909
-SET @NPC := @GUID+9;
-SET @PATH := @NPC * 10;
+SET @PATH := 16790900;
 DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
 INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
-(@PATH,1,0,'Won\'sa');
+(@PATH,1,0,'Won\'sa - Path to Plains');
 DELETE FROM `waypoint_path_node` WHERE `PathId` IN (@PATH);
 INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`,`Delay`) VALUES
 (@PATH, 1,35.23047,-2496.2656,76.15068,NULL,0),
@@ -289,11 +288,10 @@ INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`Pos
 (@PATH,49,95.66493,-2423.9133,90.917786,0.425676465,0);
 
 -- Pathing for Bo Entry: 167910
-SET @NPC := @GUID+10;
-SET @PATH := @NPC * 10;
+SET @PATH := 16791000;
 DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
 INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
-(@PATH,1,0,'Bo');
+(@PATH,1,0,'Bo - Path to Plains');
 DELETE FROM `waypoint_path_node` WHERE `PathId` IN (@PATH);
 INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`,`Delay`) VALUES
 (@PATH, 1,41.779297,-2500.7227,75.59662,NULL,0),
@@ -345,11 +343,10 @@ INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`Pos
 (@PATH,47,100.55903,-2424.5972,90.15397,1.507016778,0);
 
 -- Pathing for Lana Jordan Entry: 167911
-SET @NPC := @GUID+11;
-SET @PATH := @NPC * 10;
+SET @PATH := 16791100;
 DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
 INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
-(@PATH,1,0,'Lana Jordan');
+(@PATH,1,0,'Lana Jordan - Path to Plains');
 DELETE FROM `waypoint_path_node` WHERE `PathId` IN (@PATH);
 INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`,`Delay`) VALUES
 (@PATH, 1,38.05078,-2497.0703,76.19637,NULL,0),
@@ -402,11 +399,10 @@ INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`Pos
 (@PATH,48,95.635414,-2418.3716,91.03652,6.28133726,0);
 
 -- Pathing for Provisoner Jin'hake Entry: 167912
-SET @NPC := @GUID+12;
-SET @PATH := @NPC * 10;
+SET @PATH := 16791200;
 DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
 INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
-(@PATH,1,0,'Provisoner Jin\'hake');
+(@PATH,1,0,'Provisoner Jin\'hake - Path to Plains');
 DELETE FROM `waypoint_path_node` WHERE `PathId` IN (@PATH);
 INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`,`Delay`) VALUES
 (@PATH, 1,31.38208,-2501.5894,75.11702,NULL,0),
@@ -477,11 +473,10 @@ INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`Pos
 (@PATH,66,93.15278,-2417.3733,91.710266,6.0155663,0);
 
 -- Pathing for Grunt Throg Entry: 167913
-SET @NPC := @GUID+13;
-SET @PATH := @NPC * 10;
+SET @PATH := 16791300;
 DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
 INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
-(@PATH,1,0,'Grunt Throg');
+(@PATH,1,0,'Grunt Throg - Path to Plains');
 DELETE FROM `waypoint_path_node` WHERE `PathId` IN (@PATH);
 INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`,`Delay`) VALUES
 (@PATH, 1,35.570312,-2499.2188,75.41057,NULL,0),
@@ -539,7 +534,7 @@ INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`Pos
 
 -- Pathing for Scout-o-Matic 5000 Entry: 156526
 -- Pathing for Choppy Booster Mk. 5 Entry: 167905
-SET @PATH := @GUID * 10;
+SET @PATH := 15652600;
 DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
 INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
 (@PATH,0,0,'Exile\'s Reach - Copter ride to Ogre Ruins');
@@ -552,7 +547,7 @@ INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`Pos
 
 -- Pathing for Scout-o-Matic 5000 Entry: 156526
 -- Pathing for Choppy Booster Mk. 5 Entry: 167905
-SET @PATH := (@GUID * 10) + 1;
+SET @PATH := 15652601;
 DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
 INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
 (@PATH,0,0,'Exile\'s Reach - Copter ride from Ogre Ruins');
