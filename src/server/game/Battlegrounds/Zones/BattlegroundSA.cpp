@@ -173,6 +173,11 @@ bool BattlegroundSA::ResetObjs()
         door->ResetDoorOrButton();
 
     SetStatus(STATUS_WAIT_JOIN);
+    GetBgMap()->DoOnPlayers([&](Player* player)
+    {
+        SendTransportInit(player);
+    });
+
     TeleportPlayers();
     return true;
 }
