@@ -762,9 +762,7 @@ WorldPacket const* WorldPackets::Misc::StartTimer::Write()
 
 void WorldPackets::Misc::QueryCountdownTimer::Read()
 {
-    uint32 timerType = 0;
-    _worldPacket >> timerType;
-    TimerType = WorldPackets::Misc::TimerType(timerType);
+    TimerType = _worldPacket.read<CountdownTimerType, int32>();
 }
 
 void WorldPackets::Misc::ConversationLineStarted::Read()

@@ -32,6 +32,7 @@
 #include <array>
 #include <map>
 
+enum class CountdownTimerType : int32;
 enum UnitStandStateType : uint8;
 enum WeatherState : uint32;
 
@@ -926,13 +927,6 @@ namespace WorldPackets
             ObjectGuid SourceGuid;
         };
 
-        enum TimerType : int32
-        {
-            Pvp = 0,
-            ChallengeMode = 1,
-            PlayerCountdown = 2
-        };
-
         class StartTimer final : public ServerPacket
         {
         public:
@@ -942,7 +936,7 @@ namespace WorldPackets
 
             Duration<Seconds> TotalTime;
             Duration<Seconds> TimeLeft;
-            TimerType Type = Pvp;
+            CountdownTimerType Type = {};
         };
 
         class QueryCountdownTimer final : public ClientPacket
@@ -952,7 +946,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            WorldPackets::Misc::TimerType TimerType = Pvp;
+            CountdownTimerType TimerType = {};
         };
 
         class ConversationLineStarted final : public ClientPacket

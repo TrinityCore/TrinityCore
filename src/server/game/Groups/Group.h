@@ -46,14 +46,6 @@ enum class InstanceResetMethod : uint8;
 enum class InstanceResetResult : uint8;
 enum LootMethod : uint8;
 
-namespace WorldPackets
-{
-    namespace Misc
-    {
-        enum TimerType : int32;
-    }
-}
-
 #define MAX_GROUP_SIZE      5
 #define MAX_RAID_SIZE       40
 #define MAX_RAID_SUBGROUPS  MAX_RAID_SIZE / MAX_GROUP_SIZE
@@ -177,6 +169,13 @@ struct RaidMarker
         Location.WorldRelocate(mapId, positionX, positionY, positionZ);
         TransportGUID = transportGuid;
     }
+};
+
+enum class CountdownTimerType : int32
+{
+    Pvp             = 0,
+    ChallengeMode   = 1,
+    PlayerCountdown = 2
 };
 
 enum class PingSubjectType : uint8
@@ -407,8 +406,8 @@ class TC_GAME_API Group
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
 
-        void StartCountdown(WorldPackets::Misc::TimerType timerType, Seconds duration, Optional<time_t> startTime = { });
-        CountdownInfo const* GetCountdownInfo(WorldPackets::Misc::TimerType timerType) const;
+        void StartCountdown(CountdownTimerType timerType, Seconds duration, Optional<time_t> startTime = { });
+        CountdownInfo const* GetCountdownInfo(CountdownTimerType timerType) const;
 
     protected:
         bool _setMembersGroup(ObjectGuid guid, uint8 group);

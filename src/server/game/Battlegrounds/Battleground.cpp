@@ -366,7 +366,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         _preparationStartTime = GameTime::GetGameTime();
         for (Group* group : m_BgRaids)
             if (group)
-                group->StartCountdown(WorldPackets::Misc::TimerType::Pvp, Seconds(StartDelayTimes[BG_STARTING_EVENT_FIRST] / 1000), _preparationStartTime);
+                group->StartCountdown(CountdownTimerType::Pvp, Seconds(StartDelayTimes[BG_STARTING_EVENT_FIRST] / 1000), _preparationStartTime);
 
         StartingEventCloseDoors();
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FIRST]);
@@ -1096,9 +1096,9 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, Team team)
         group->Create(player);
         Seconds countdownMaxForBGType = Seconds(StartDelayTimes[BG_STARTING_EVENT_FIRST]  / 1000);
         if (_preparationStartTime)
-            group->StartCountdown(WorldPackets::Misc::TimerType::Pvp, countdownMaxForBGType, _preparationStartTime);
+            group->StartCountdown(CountdownTimerType::Pvp, countdownMaxForBGType, _preparationStartTime);
         else
-            group->StartCountdown(WorldPackets::Misc::TimerType::Pvp, countdownMaxForBGType);
+            group->StartCountdown(CountdownTimerType::Pvp, countdownMaxForBGType);
     }
     else                                            // raid already exist
     {

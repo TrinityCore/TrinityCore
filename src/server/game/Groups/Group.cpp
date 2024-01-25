@@ -1423,16 +1423,22 @@ void Group::BroadcastGroupUpdate(void)
     }
 }
 
-void Group::StartCountdown(WorldPackets::Misc::TimerType timerType, Seconds duration, Optional<time_t> startTime)
+void Group::StartCountdown(CountdownTimerType timerType, Seconds duration, Optional<time_t> startTime)
 {
+    if (AsUnderlyingType(timerType) < 0 || AsUnderlyingType(timerType) >= std::ssize(_countdowns))
+        return;
+
     if (!_countdowns[AsUnderlyingType(timerType)])
         _countdowns[AsUnderlyingType(timerType)] = std::make_unique<CountdownInfo>();
 
     _countdowns[AsUnderlyingType(timerType)]->StartCountdown(duration, startTime);
 }
 
-Group::CountdownInfo const* Group::GetCountdownInfo(WorldPackets::Misc::TimerType timerType) const
+Group::CountdownInfo const* Group::GetCountdownInfo(CountdownTimerType timerType) const
 {
+    if (AsUnderlyingType(timerType) < 0 || AsUnderlyingType(timerType) >= std::ssize(_countdowns))
+        return nullptr;
+
     return _countdowns[AsUnderlyingType(timerType)].get();
 }
 
