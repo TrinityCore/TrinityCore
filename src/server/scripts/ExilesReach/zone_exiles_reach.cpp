@@ -5051,17 +5051,11 @@ struct npc_scoutomatic_5000 : public ScriptedAI
 
         if (pathId == PATH_COPTER_TO_RUINS)
         {
-            player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_ALLIANCE, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
+            player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_ALLIANCE);
         }
         else
         {
-            //player->CastSpell(player, SCOUT_O_MATIC_DESUMMON, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
-            // HACK
-            player->RemoveAura(305533);
-            player->RemoveAura(305532);
-            player->RemoveAura(305522);
-            //player->RemoveAura(326625);
-            // HACK
+            player->CastSpell(player, SCOUT_O_MATIC_DESUMMON, CastSpellExtraArgs(TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE));
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
         }
     }
@@ -5152,17 +5146,11 @@ struct npc_choppy_booster_scout : public ScriptedAI
 
         if (pathId == PATH_COPTER_TO_RUINS)
         {
-            player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_HORDE, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
+            player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_HORDE);
         }
         else
         {
-            //player->CastSpell(player, SCOUT_O_MATIC_DESUMMON, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_ITEM));
-            // HACK
-            player->RemoveAura(305533);
-            player->RemoveAura(305532);
-            //player->RemoveAura(305522);
-            player->RemoveAura(326625);
-            // HACK
+            player->CastSpell(player, SCOUT_O_MATIC_DESUMMON, CastSpellExtraArgs(TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE));
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
         }
     }
