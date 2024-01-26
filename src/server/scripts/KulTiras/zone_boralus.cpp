@@ -455,7 +455,7 @@ public:
         if (!cyrusClone || !gennClone || !greyguardOneClone || !greyguardTwoClone)
             return;
 
-        _gennGUID = gennClone->GetGUID();
+        _gennCloneGUID = gennClone->GetGUID();
 
         cyrusClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
         gennClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
@@ -492,7 +492,7 @@ public:
                 if (!privateObjectOwner)
                     return;
 
-                if (Creature* gennClone = ObjectAccessor::GetCreature(*conversation, _gennGUID))
+                if (Creature* gennClone = ObjectAccessor::GetCreature(*conversation, _gennCloneGUID))
                     gennClone->DespawnOrUnsummon();
 
                 cyrusClone->DespawnOrUnsummon();
@@ -505,7 +505,7 @@ public:
     }
 
 private:
-    ObjectGuid _gennGUID;
+    ObjectGuid _gennCloneGUID;
     EventMap _events;
 };
 
@@ -573,11 +573,8 @@ public:
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
         _events.ScheduleEvent(EVENT_CYRUS_START_WALK_TO_FIRE, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_START_WALK_TO_FIRE));
-
         _events.ScheduleEvent(EVENT_CYRUS_CHANGE_FACING_GENN, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_CHANGE_FACING_GENN));
-
         _events.ScheduleEvent(EVENT_CYRUS_MOVE_BACK_TO_GENN, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_MOVE_BACK_TO_GENN));
-
         _events.ScheduleEvent(EVENT_CYRUS_DESPAWN_CLONE_OFFICE, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_DESPAWN_CLONE_OFFICE));
     }
 
@@ -612,13 +609,13 @@ public:
                 if (!cyrusClone)
                     break;
 
-                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
+                Player* privateObjectOwner = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
                 if (!privateObjectOwner)
                     return;
 
                 cyrusClone->SetWalk(true);
                 cyrusClone->GetMotionMaster()->MovePoint(POINT_CYRUS_MOVE_BACK_TO_GENN, CyrusStaticOfficePos);
-                privateObjectOwner->ToPlayer()->KilledMonsterCredit(KILLCREDIT_HEAR_CYRUS_TALE_OLD_KNIGHT);
+                privateObjectOwner->KilledMonsterCredit(KILLCREDIT_HEAR_CYRUS_TALE_OLD_KNIGHT);
                 break;
             }
             case EVENT_CYRUS_DESPAWN_CLONE_OFFICE:
