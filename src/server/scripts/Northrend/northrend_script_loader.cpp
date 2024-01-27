@@ -210,6 +210,8 @@ void AddSC_wintergrasp();
 void AddSC_zuldrak();
 void AddSC_crystalsong_forest();
 
+void AddSC_strand_of_the_ancients();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddNorthrendScripts()
@@ -406,4 +408,6 @@ void AddNorthrendScripts()
     AddSC_storm_peaks();
     AddSC_wintergrasp();
     AddSC_zuldrak();
+
+    AddSC_strand_of_the_ancients();
 }
