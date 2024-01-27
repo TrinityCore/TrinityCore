@@ -23,6 +23,12 @@
 #include "SpellScript.h"
 #include "ZoneScript.h"
 
+// 191305 - Horde Banner
+// 191306 - Alliance Banner
+// 191307 - Horde Banner
+// 191308 - Alliance Banner
+// 191309 - Horde Banner
+// 191310 - Alliance Banner
 struct go_sota_capturable_object : public GameObjectAI
 {
     go_sota_capturable_object(GameObject* go) : GameObjectAI(go) { }
