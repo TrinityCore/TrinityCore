@@ -1,7 +1,7 @@
-SET @CGUID := 11000000;
-SET @ATID := 10000;
-SEt @ATCP := 10000;
-SET @ATIDSPAWN := 10000;
+SET @CGUID := 8000035;
+SET @ATID := 62;
+SEt @ATCP := 50;
+SET @ATIDSPAWN := 62;
 
 -- Creature
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+4;
@@ -33,7 +33,7 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 DELETE FROM `areatrigger` WHERE `SpawnId` BETWEEN @ATIDSPAWN+0 AND @ATIDSPAWN+3;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `SpellForVisuals`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES 
 (@ATIDSPAWN+0, @ATCP+0, 1, 1643, '0', 1083.3828, -485.8729, 20.3390, 1.313066, 0, 0, 0, NULL, 'at_boralus_old_knight_enter_harbormasters_office', 'Boralus - Enter Harbormasters Office', 0),
-(@ATIDSPAWN+1, @ATCP+1, 1, 1643, '0', 1063.0791, -472.2944, 11.6384, 6.063283, 0, 0, 0, NULL, 'at_boralus_old_knight_genn_arives_boralus', 'Boralus - Genn Greymane arrives Boralus', 0);
+(@ATIDSPAWN+1, @ATCP+1, 1, 1643, '0', 1063.0791, -472.2944, 11.6384, 6.063283, 0, 0, 0, NULL, 'at_boralus_old_knight_genn_arrives_boralus', 'Boralus - Genn Greymane arrives Boralus', 0);
 
 -- SpellScript Names
 DELETE FROM `spell_script_names` WHERE `spell_id` = 269054;

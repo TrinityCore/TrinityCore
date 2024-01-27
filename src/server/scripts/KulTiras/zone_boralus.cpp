@@ -364,9 +364,9 @@ public:
 };
 
 // XX - Boralus The Old Knight (Genn Greymane arrives Boralus)
-struct at_boralus_old_knight_genn_arives_boralus : AreaTriggerAI
+struct at_boralus_old_knight_genn_arrives_boralus : AreaTriggerAI
 {
-    at_boralus_old_knight_genn_arives_boralus(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    at_boralus_old_knight_genn_arrives_boralus(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnUnitEnter(Unit* unit) override
     {
@@ -659,7 +659,7 @@ void AddSC_zone_boralus()
 
     // AreaTrigger
     RegisterAreaTriggerAI(at_boralus_old_knight_enter_harbormasters_office);
-    RegisterAreaTriggerAI(at_boralus_old_knight_genn_arives_boralus);
+    RegisterAreaTriggerAI(at_boralus_old_knight_genn_arrives_boralus);
 
     // AreaTrigger Template
     new GenericAreaTriggerEntityScript<at_boralus_get_your_bearings<QUEST_GET_YOUR_BEARINGS, OBJECTIVE_FERRY_DOCK_VISITED, SPELL_HUB_TOUR_CONVO_FERRY>>("at_boralus_get_your_bearings_ferry");
