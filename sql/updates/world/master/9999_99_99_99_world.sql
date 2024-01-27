@@ -153,7 +153,7 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (26,13775,10588, 0, 0, 47, 0, 56034, 66, 0, 0, 0, 0, '', 'See Re-sized Boar at Plains if quest Re-sizing the Situation is completed | rewarded Alliance.'),
 (26,13775,10588, 0, 0, 1, 0, 305742, 0, 0, 1, 0, 0, '', 'See Re-sized Boar at Plains if player does not have aura Resizer Hit'),
-(26,13775,10588, 0, 0, 1, 0, 321670, 0, 0, 1, 0, 0, '', 'See Re-sized Boar at Plains if player does not have aura Riding Giant Boar');
+(26,13775,10588, 0, 0, 1, 0, 173426, 1, 0, 1, 0, 0, '', 'See Re-sized Boar at Plains if player does not have aura Riding Giant Boar');
 
 -- Phasing Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup`=13776 AND `ConditionValue1`=56034;
