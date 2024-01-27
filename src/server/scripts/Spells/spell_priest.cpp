@@ -129,6 +129,7 @@ enum PriestSpells
     SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_INSANITY   = 262485,
     SPELL_PRIEST_POWER_OF_THE_DARK_SIDE             = 198069,
     SPELL_PRIEST_POWER_OF_THE_DARK_SIDE_TINT        = 225795,
+    SPELL_PRIEST_POWER_WORD_BARRIER_BUFF            = 81782,
     SPELL_PRIEST_POWER_WORD_LIFE                    = 373481,
     SPELL_PRIEST_POWER_WORD_RADIANCE                = 194509,
     SPELL_PRIEST_POWER_WORD_SHIELD                  = 17,
@@ -2788,8 +2789,31 @@ class spell_pri_vampiric_touch : public AuraScript
     }
 };
 
+// 62618 - Power Word: Barrier
+// ID - 1489
+// AreaTriggerID - 5802
+struct  areatrigger_pri_power_word_barrier : AreaTriggerAI
+{
+    areatrigger_pri_power_word_barrier(AreaTrigger* at) : AreaTriggerAI(at) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (caster->IsFriendlyTo(unit))
+                caster->CastSpell(unit, SPELL_PRIEST_POWER_WORD_BARRIER_BUFF, true);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (unit->HasAura(SPELL_PRIEST_POWER_WORD_BARRIER_BUFF, caster->GetGUID()))
+                unit->RemoveAurasDueToSpell(SPELL_PRIEST_POWER_WORD_BARRIER_BUFF, caster->GetGUID());
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
+    RegisterAreaTriggerAI(areatrigger_pri_power_word_barrier);
     RegisterSpellScript(spell_pri_angelic_feather_trigger);
     RegisterAreaTriggerAI(areatrigger_pri_angelic_feather);
     RegisterSpellScript(spell_pri_abyssal_reverie);
