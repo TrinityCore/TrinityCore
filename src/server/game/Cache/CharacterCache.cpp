@@ -107,7 +107,8 @@ void CharacterCache::AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accou
     data.IsDeleted = isDeleted;
 
     // Fill Name to Guid Store
-    _characterCacheByNameStore[name] = &data;
+    if (!isDeleted)
+        _characterCacheByNameStore[name] = &data;
 }
 
 void CharacterCache::DeleteCharacterCacheEntry(ObjectGuid const& guid, std::string const& name)
@@ -186,16 +187,19 @@ void CharacterCache::UpdateCharacterArenaTeamId(ObjectGuid const& guid, uint8 sl
     itr->second.ArenaTeamId[slot] = arenaTeamId;
 }
 
-void CharacterCache::UpdateCharacterInfoDeleted(ObjectGuid const& guid, bool deleted, std::string const* name /*=nullptr*/)
+void CharacterCache::UpdateCharacterInfoDeleted(ObjectGuid const& guid, bool deleted, std::string const& name /*=nullptr*/)
 {
     auto itr = _characterCacheStore.find(guid);
     if (itr == _characterCacheStore.end())
         return;
 
-    itr->second.IsDeleted = deleted;
+    if (deleted)
+        _characterCacheByNameStore.erase(itr->second.Name);
+    else
+        _characterCacheByNameStore[name] = &itr->second;
 
-    if (name)
-        itr->second.Name = *name;
+    itr->second.Name = name;
+    itr->second.IsDeleted = deleted;
 }
 
 /*
