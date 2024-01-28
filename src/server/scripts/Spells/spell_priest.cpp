@@ -2801,7 +2801,7 @@ class spell_pri_protective_light : public AuraScript
 
     void HandleEffectProc(AuraEffect* auraEff, ProcEventInfo& eventInfo)
     {
-        eventInfo.GetProcTarget()->CastSpell(GetCaster(), SPELL_PRIEST_PROTECTIVE_LIGHT_AURA, auraEff);
+        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_PROTECTIVE_LIGHT_AURA, auraEff);
     }
 
     void Register() override
