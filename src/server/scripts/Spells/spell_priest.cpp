@@ -2793,7 +2793,7 @@ class spell_pri_vampiric_touch : public AuraScript
 // 390615 - From Darkness Comes Light (Talent)
 class spell_pri_from_darkness_comes_light : public AuraScript
 {
-    bool CheckEffectProc(const AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    bool CheckEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         return eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_PURGE_THE_WICKED || eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC || eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_SHADOW_WORD_PAIN;
     }
