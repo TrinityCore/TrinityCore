@@ -1760,7 +1760,8 @@ std::vector<DB2Manager::HotfixOptionalData> const* DB2Manager::GetHotfixOptional
 
 uint32 DB2Manager::GetEmptyAnimStateID() const
 {
-    return sAnimationDataStore.GetNumRows();
+    //return sAnimationDataStore.GetNumRows();
+    return 1772; // the Classic client expects the retail storage size so we have to hardcode the value
 }
 
 void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
