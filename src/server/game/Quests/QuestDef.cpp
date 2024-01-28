@@ -37,7 +37,7 @@ Quest::Quest(Field* questRecord)
     _scalingFactionGroup = questRecord[3].GetInt32();
     _maxScalingLevel = questRecord[4].GetInt32();
     _packageID = questRecord[5].GetUInt32();
-    _minLevel = questRecord[6].GetUInt32();
+    _minLevel = questRecord[6].GetInt32();
     _questSortID = questRecord[7].GetInt16();
     _questInfoID = questRecord[8].GetUInt16();
     _suggestedPlayers = questRecord[9].GetUInt8();
