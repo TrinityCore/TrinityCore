@@ -621,6 +621,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
     if (player->isDebugAreaTriggers)
         ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_REACHED, triggerId);
 
+    if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED, atEntry->ID, player))
+        return;
+
     if (sScriptMgr->OnAreaTrigger(player, atEntry))
         return;
 
