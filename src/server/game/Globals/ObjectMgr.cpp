@@ -4534,8 +4534,8 @@ void ObjectMgr::LoadQuests()
     _exclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
-        //0  1          2           3                         4                     5               6              7            8            9                  10               11                  12
-        "ID, QuestType, QuestLevel, QuestScalingFactionGroup, QuestMaxScalingLevel, QuestPackageID, QuestMinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RewardXPMultiplier, "
+        //0  1          2           3                         4                     5               6         7            8            9                  10               11                  12
+        "ID, QuestType, QuestLevel, QuestScalingFactionGroup, QuestMaxScalingLevel, QuestPackageID, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RewardXPMultiplier, "
         //13                    14                     15                16           17           18               19
         "RewardMoneyDifficulty, RewardMoneyMultiplier, RewardBonusMoney, RewardSpell, RewardHonor, RewardKillHonor, StartItem, "
         //20                         21                          22                        23     24       25
