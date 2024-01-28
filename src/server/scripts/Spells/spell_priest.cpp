@@ -2792,8 +2792,6 @@ class spell_pri_vampiric_touch : public AuraScript
 // 193063 - Protective Light (Aura)
 class spell_pri_protective_light : public AuraScript
 {
-    PrepareAuraScript(spell_pri_protective_light);
-
     bool CheckEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         return eventInfo.GetProcTarget() == GetCaster();
