@@ -59,7 +59,7 @@ static STRCreatureIds const plaguedCrittersCreatures[] =
 Position const GateTrapPos[] =                         // Positions of the two Gate Traps 3919.88 -3547.34 134.269
 {
     {3612.29f, -3335.39f, 124.077f, 3.14159f},         // Scarlet side
-    {3919.88f, -3547.34f, 134.269f, 2.94961f}          // Undead side
+    {3919.88f, -3545.34f, 134.269f, 2.94961f}          // Undead side
 };
 
 class instance_stratholme : public InstanceMapScript
@@ -111,7 +111,7 @@ class instance_stratholme : public InstanceMapScript
             EventMap events;
 
             GuidVector TrapGatesGUIDs[2]; //two gate areas
-            std::map<TempSummon*, uint8> PlaguedGatesGUIDs;
+            std::map<ObjectGuid /*guid*/, uint8 /*gate*/> PlaguedGatesGUIDs;
 
             void DoGateTrap(GuidVector& gate)
             {
@@ -133,8 +133,9 @@ class instance_stratholme : public InstanceMapScript
                     for (uint8 i = 0; i < 30; ++i)
                     {
                         float fX, fY, fZ;
-                        player->GetRandomPoint(GateTrapPos[uiGate], 6.0f, fX, fY, fZ);
-                        PlaguedGatesGUIDs.insert({ player->SummonCreature(uiEntry, fX, fY, fZ, 0, TEMPSUMMON_DEAD_DESPAWN, 0s), uiGate });
+                        player->GetRandomPoint(GateTrapPos[uiGate], 5.0f, fX, fY, fZ);
+                        if (Creature* creature = player->SummonCreature(uiEntry, fX, fY, fZ, 0, TEMPSUMMON_DEAD_DESPAWN, 0s))
+                            PlaguedGatesGUIDs.insert({  creature->GetGUID(), uiGate });
                         //Position pos(fX, fY, fZ);
                         //instance->SummonCreature(uiEntry, pos);
                     }
@@ -169,8 +170,7 @@ class instance_stratholme : public InstanceMapScript
                     case NPC_PLAGUED_INSECT:
                     case NPC_PLAGUED_MAGGOT:
                     {
-                        //auto el = PlaguedGatesGUIDs.begin();
-                        auto el = PlaguedGatesGUIDs.find(who->ToTempSummon());
+                        auto el = PlaguedGatesGUIDs.find(who->GetGUID());
                         uint8 uiGate = el->second;
                         if (el != PlaguedGatesGUIDs.end())
                             PlaguedGatesGUIDs.erase(el);
@@ -606,7 +606,7 @@ class instance_stratholme : public InstanceMapScript
                                 }
                             }
                             if (!isClose) //if you haven't already fallen into the trap, update it
-                                events.ScheduleEvent(EVENT_RAT_TRAP_CLOSE, 30s);
+                                events.ScheduleEvent(EVENT_RAT_TRAP_CLOSE, 1s);
                             break;
                         }
                         default:
