@@ -48,12 +48,6 @@ void WorldSession::HandleCheckIsAdventureMapPoiValid(WorldPackets::AdventureMap:
         return;
     }
 
-    if (checkIsAdventureMapPoiValid.AdventureMapPoiID >= 43 && checkIsAdventureMapPoiValid.AdventureMapPoiID <= 45)
-    {
-        sendIsPoiValid(entry->ID, true);
-        return;
-    }
-
     sendIsPoiValid(entry->ID, true);
 }
 
