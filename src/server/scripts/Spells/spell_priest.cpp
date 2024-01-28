@@ -2794,7 +2794,7 @@ class spell_pri_protective_light : public AuraScript
 {
     PrepareAuraScript(spell_pri_protective_light);
 
-    bool CheckEffectProc(const AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    bool CheckEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         return eventInfo.GetProcTarget() == GetCaster();
     }
