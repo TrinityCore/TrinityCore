@@ -2799,7 +2799,7 @@ class spell_pri_protective_light : public AuraScript
         return eventInfo.GetProcTarget() == GetCaster();
     }
 
-    void HandleEffectProc(AuraEffect* auraEff, ProcEventInfo& eventInfo)
+    void HandleEffectProc(AuraEffect* auraEff, ProcEventInfo& /*eventInfo*/)
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_PROTECTIVE_LIGHT_AURA, auraEff);
     }
