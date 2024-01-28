@@ -716,6 +716,9 @@ class TC_GAME_API Quest
 
         void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
+        Optional<uint32> GetAcceptConversationID() const { return _acceptConversationID; }
+        Optional<uint32> GetRewardConversationID() const { return _rewardConversationID; }
+
         // Helpers
         static uint32 RoundXPValue(uint32 xp);
 
@@ -827,6 +830,8 @@ class TC_GAME_API Quest
         uint32 _rewardMailSenderEntry = 0;
         uint32 _specialFlags = 0; // custom flags, not sniffed/WDB
         std::bitset<MAX_QUEST_OBJECTIVE_TYPE> _usedQuestObjectiveTypes;
+        Optional<uint32> _acceptConversationID;
+        Optional<uint32> _rewardConversationID;
         uint32 _scriptId = 0;
 };
 
