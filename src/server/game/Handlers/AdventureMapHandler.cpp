@@ -21,6 +21,42 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 
+void WorldSession::HandleCheckIsAdventureMapPoiValid(WorldPackets::AdventureMap::CheckIsAdventureMapPoiValid& checkIsAdventureMapPoiValid)
+{
+    AdventureMapPOIEntry const* entry = sAdventureMapPOIStore.LookupEntry(checkIsAdventureMapPoiValid.AdventureMapPoiID);
+    if (!entry)
+        return;
+
+    auto sendIsPoiValid = [this](uint32 adventureMapPoiId, bool isVisible) -> void
+    {
+        WorldPackets::AdventureMap::PlayerIsAdventureMapPoiValid isMapPoiValid;
+        isMapPoiValid.AdventureMapPoiID = adventureMapPoiId;
+        isMapPoiValid.IsVisible = isVisible;
+        SendPacket(isMapPoiValid.Write());
+    };
+
+    Quest const* quest = sObjectMgr->GetQuestTemplate(entry->QuestID);
+    if (!quest)
+    {
+        sendIsPoiValid(entry->ID, false);
+        return;
+    }
+
+    if (!_player->MeetPlayerCondition(entry->PlayerConditionID))
+    {
+        sendIsPoiValid(entry->ID, false);
+        return;
+    }
+
+    if (checkIsAdventureMapPoiValid.AdventureMapPoiID >= 43 && checkIsAdventureMapPoiValid.AdventureMapPoiID <= 45)
+    {
+        sendIsPoiValid(entry->ID, true);
+        return;
+    }
+
+    sendIsPoiValid(entry->ID, true);
+}
+
 void WorldSession::HandleAdventureMapStartQuest(WorldPackets::AdventureMap::AdventureMapStartQuest& startQuest)
 {
     Quest const* quest = sObjectMgr->GetQuestTemplate(startQuest.QuestID);
