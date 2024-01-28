@@ -5189,6 +5189,7 @@ void Spell::SendChannelUpdate(uint32 time)
     {
         unitCaster->ClearChannelObjects();
         unitCaster->SetChannelSpellId(0);
+        unitCaster->SetChannelSpellXSpellVisualId(0);
     }
 
     WorldPackets::Spells::SpellChannelUpdate spellChannelUpdate;
@@ -5250,6 +5251,7 @@ void Spell::SendChannelStart(uint32 duration)
                 creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, unitCaster->m_unitData->ChannelObjects[0]));
 
     unitCaster->SetChannelSpellId(m_spellInfo->Id);
+    unitCaster->SetChannelSpellXSpellVisualId(m_SpellVisual.SpellXSpellVisualID);
 
     WorldPackets::Spells::SpellChannelStart spellChannelStart;
     spellChannelStart.CasterGUID = unitCaster->GetGUID();
