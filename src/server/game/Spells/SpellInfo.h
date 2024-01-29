@@ -233,6 +233,7 @@ public:
     SpellRadiusEntry const* TargetARadiusEntry;
     SpellRadiusEntry const* TargetBRadiusEntry;
     int32     ChainTargets;
+    int32     DieSides;
     uint32    ItemType;
     uint32    TriggerSpell;
     flag128   SpellClassMask;

@@ -429,6 +429,7 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry co
     TargetARadiusEntry = sSpellRadiusStore.LookupEntry(_effect.EffectRadiusIndex[0]);
     TargetBRadiusEntry = sSpellRadiusStore.LookupEntry(_effect.EffectRadiusIndex[1]);
     ChainTargets = _effect.EffectChainTargets;
+    DieSides = _effect.EffectDieSides;
     ItemType = _effect.EffectItemType;
     TriggerSpell = _effect.EffectTriggerSpell;
     SpellClassMask = _effect.EffectSpellClassMask;
@@ -511,6 +512,15 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
 
         if (variance)
             *variance = valueVariance;
+    }
+
+    // roll in a range <1;EffectDieSides> as of patch 3.3.3
+    if (DieSides)
+    {
+        if (DieSides == 1)
+            value += DieSides;
+        else
+            value += (DieSides >= 1) ? irand(1, DieSides) : irand(DieSides, 1);
     }
 
     // base amount modification based on spell lvl vs caster lvl
