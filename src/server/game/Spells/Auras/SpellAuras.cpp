@@ -151,6 +151,13 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
     if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_POINTS_ON_CLIENT)
         || std::find_if(GetBase()->GetAuraEffects().begin(), GetBase()->GetAuraEffects().end(), std::cref(effectNeedsAmount)) != GetBase()->GetAuraEffects().end())
         _flags |= AFLAG_SCALABLE;
+
+    if ((_flags & AFLAG_POSITIVE))
+        if (!GetBase()->GetSpellInfo()->IsPassive() && !GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR1_NO_AURA_ICON) && GetBase()->GetOwner()->GetGUID() == GetTarget()->GetGUID())
+            _flags |= AFLAG_CANCELABLE;
+
+    if (GetBase()->GetSpellInfo()->IsPassive())
+        _flags |= AFLAG_PASSIVE;
 }
 
 void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
