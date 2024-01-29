@@ -175,7 +175,6 @@ class instance_stratholme : public InstanceMapScript
                         {
                             uint8 uiGate = el->second;
                             PlaguedGatesGUIDs.erase(el);
-                        
                             if (PlaguedGatesGUIDs.empty())
                             {
                                 UpdateGoState(TrapGatesGUIDs[uiGate][0], GO_STATE_ACTIVE);
