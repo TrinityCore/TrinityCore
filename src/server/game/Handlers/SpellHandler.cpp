@@ -141,6 +141,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
         {
             Loot* loot = new Loot(player->GetMap(), item->GetGUID(), LOOT_ITEM, nullptr);
             item->m_loot.reset(loot);
+            item->m_lootGenerated = true;
             loot->generateMoneyLoot(item->GetTemplate()->MinMoneyLoot, item->GetTemplate()->MaxMoneyLoot);
             loot->FillLoot(item->GetEntry(), LootTemplates_Item, player, true, loot->gold != 0);
 
