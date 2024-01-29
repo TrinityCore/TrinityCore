@@ -494,6 +494,9 @@ class TC_GAME_API Battleground : public ZoneScript
             return &itr->second;
         }
 
+        // Called when valid BattlegroundMap is assigned to the battleground
+        virtual void OnMapSet([[maybe_unused]] BattlegroundMap* map) { }
+
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();

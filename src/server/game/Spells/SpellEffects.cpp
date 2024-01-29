@@ -1581,7 +1581,7 @@ void Spell::EffectOpenLock()
             return;
 
         // Arathi Basin banner opening. /// @todo Verify correctness of this check
-        if (gameObjTarget->GetMapId() != 30 && ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
+        if (gameObjTarget->GetMapId() != 30 && gameObjTarget->GetMapId() != 607 && ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
             (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.requireLOS)))
         {
             //CanUseBattlegroundObject() already called in CheckCast()
