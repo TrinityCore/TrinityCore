@@ -637,11 +637,145 @@ private:
     EventMap _events;
 };
 
+enum SanctumOfTheSagesData
+{
+    QUEST_SANCTUM_OF_THE_SAGES          = 47186,
+
+    NPC_7TH_LEGION_MAGUS_WITH_GOSSIP    = 137066,
+    NPC_7TH_LEGION_MAGUS                = 143613,
+
+    GOSSIP_MENU_OPEN_CITY_PORTALS       = 22548,
+    GOSSIP_OPTION_OPEN_CITY_PORTALS     = 0,
+
+    CONVO_SANCTUM_OF_THE_SAGES          = 8356,
+
+    KILLCREDIT_OPEN_CAPITAL_PORTALS     = 137066,
+
+    SPELL_LEGION_MAGUS_ARCANE_CHANNEL   = 54219,
+
+    PATH_MAGUS_OPEN_PORTAL_STORMWIND    = 13706600,
+    PATH_MAGUS_FINISH_PORTAL_STORMWIND  = 13706601,
+    PATH_MAGUS_OPEN_PORTAL_EXODAR       = 14361300,
+    PATH_MAGUS_FINISH_PORTAL_EXODAR     = 14361301,
+    PATH_MAGUS_OPEN_PORTAL_IRONFORGE    = 14361302,
+    PATH_MAGUS_FINISH_PORTAL_IRONFORGE  = 14361303
+};
+
+// 137066 - 7th Legion Magus
+// 143613 - 7th Legion Magus
+struct npc_7th_legion_magus_sanctum_of_the_sages : public ScriptedAI
+{
+    npc_7th_legion_magus_sanctum_of_the_sages(Creature* creature) : ScriptedAI(creature) { }
+
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    {
+        // Quest 47186 - Sanctum of the Sages
+        if (menuId == GOSSIP_MENU_OPEN_CITY_PORTALS && gossipListId == GOSSIP_OPTION_OPEN_CITY_PORTALS)
+        {
+            CloseGossipMenuFor(player);
+            player->KilledMonsterCredit(KILLCREDIT_OPEN_CAPITAL_PORTALS);
+
+            Creature* magusStormwind = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_7TH_LEGION_MAGUS_WITH_GOSSIP, .StringId = "MagusStormwind", .IgnorePhases = true});
+            Creature* magusExodar = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_7TH_LEGION_MAGUS, .StringId = "MagusExodar", .IgnorePhases = true});
+            Creature* magusIronforge = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_7TH_LEGION_MAGUS, .StringId = "MagusIronforge", .IgnorePhases = true});
+            if (!magusStormwind || !magusExodar || !magusIronforge)
+                return true;
+
+            TempSummon* magusStormwindClone = magusStormwind->SummonPersonalClone(magusStormwind->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            TempSummon* magusExodarClone = magusExodar->SummonPersonalClone(magusExodar->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            TempSummon* magusIronforgeClone = magusIronforge->SummonPersonalClone(magusIronforge->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            if (!magusStormwindClone || !magusExodarClone || !magusIronforgeClone)
+                return true;
+
+            magusStormwindClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP));
+            magusStormwindClone->GetMotionMaster()->MovePath(PATH_MAGUS_OPEN_PORTAL_STORMWIND, false);
+            magusExodarClone->GetMotionMaster()->MovePath(PATH_MAGUS_OPEN_PORTAL_EXODAR, false);
+            magusIronforgeClone->GetMotionMaster()->MovePath(PATH_MAGUS_OPEN_PORTAL_IRONFORGE, false);
+        }
+        return true;
+    }
+
+    void WaypointReached(uint32 /*waypointId*/, uint32 pathId) override
+    {
+        if (pathId == PATH_MAGUS_OPEN_PORTAL_EXODAR)
+        {
+            DoCastAOE(SPELL_LEGION_MAGUS_ARCANE_CHANNEL);
+            _scheduler.Schedule(3s + 500ms, [this](TaskContext task)
+            {
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                task.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+                {
+                    me->GetMotionMaster()->MovePath(PATH_MAGUS_FINISH_PORTAL_EXODAR, false);
+                });
+            });
+        }
+        else if (pathId == PATH_MAGUS_OPEN_PORTAL_IRONFORGE)
+        {
+            DoCastAOE(SPELL_LEGION_MAGUS_ARCANE_CHANNEL);
+            _scheduler.Schedule(3s + 500ms, [this](TaskContext task)
+            {
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                task.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+                {
+                    me->GetMotionMaster()->MovePath(PATH_MAGUS_FINISH_PORTAL_IRONFORGE, false);
+                });
+            });
+        }
+        else if (pathId == PATH_MAGUS_OPEN_PORTAL_STORMWIND)
+        {
+            DoCastAOE(SPELL_LEGION_MAGUS_ARCANE_CHANNEL);
+            _scheduler.Schedule(3s + 500ms, [this](TaskContext task)
+            {
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                task.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+                {
+                    TempSummon* summon = me->ToTempSummon();
+                    if (!summon)
+                        return;
+
+                    Unit* summoner = summon->GetSummonerUnit();
+                    if (!summoner)
+                        return;
+
+                    PhasingHandler::OnConditionChange(summoner);
+                    me->GetMotionMaster()->MovePath(PATH_MAGUS_FINISH_PORTAL_STORMWIND, false);
+                });
+            });
+        }
+        else if (pathId == PATH_MAGUS_FINISH_PORTAL_STORMWIND || pathId == PATH_MAGUS_FINISH_PORTAL_EXODAR || pathId == PATH_MAGUS_FINISH_PORTAL_IRONFORGE)
+            me->DespawnOrUnsummon();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 64 - Boralus - Sanctum of the Sages
+struct at_boralus_sanctum_of_the_sages_conversation : AreaTriggerAI
+{
+    at_boralus_sanctum_of_the_sages_conversation(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player || player->GetQuestStatus(QUEST_SANCTUM_OF_THE_SAGES) != QUEST_STATUS_COMPLETE)
+            return;
+
+        Conversation::CreateConversation(CONVO_SANCTUM_OF_THE_SAGES, player, *player, player->GetGUID(), nullptr, true);
+    }
+};
+
 void AddSC_zone_boralus()
 {
     // Creature
     RegisterCreatureAI(npc_taelia_get_your_bearings);
     RegisterCreatureAI(npc_cyrus_crestfall_old_knight);
+    RegisterCreatureAI(npc_7th_legion_magus_sanctum_of_the_sages);
 
     // Conversation
     new conversation_boralus_hub_tour_00();
@@ -660,6 +794,7 @@ void AddSC_zone_boralus()
     // AreaTrigger
     RegisterAreaTriggerAI(at_boralus_old_knight_enter_harbormasters_office);
     RegisterAreaTriggerAI(at_boralus_old_knight_genn_arrives_boralus);
+    RegisterAreaTriggerAI(at_boralus_sanctum_of_the_sages_conversation);
 
     // AreaTrigger Template
     new GenericAreaTriggerEntityScript<at_boralus_get_your_bearings<QUEST_GET_YOUR_BEARINGS, OBJECTIVE_FERRY_DOCK_VISITED, SPELL_HUB_TOUR_CONVO_FERRY>>("at_boralus_get_your_bearings_ferry");
