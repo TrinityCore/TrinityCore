@@ -166,6 +166,25 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
         }
     }
 
+    if (!loot->items.empty())
+    {
+        std::sort(loot->items.begin(), loot->items.end(), [](LootItem const& left, LootItem const& right) { return left.LootListId < right.LootListId; });
+
+        uint32 lootListId = 0;
+        // add dummy loot items to ensure items are indexable by their LootListId
+        while (loot->items.size() <= loot->items.back().LootListId)
+        {
+            if (loot->items[lootListId].LootListId != lootListId)
+            {
+                auto li = loot->items.emplace(loot->items.begin() + lootListId);
+                li->LootListId = lootListId;
+                li->is_looted = true;
+            }
+
+            ++lootListId;
+        }
+    }
+
     // Mark the item if it has loot so it won't be generated again on open
     item->m_loot.reset(loot);
     item->m_lootGenerated = true;
@@ -326,7 +345,7 @@ void StoredLootContainer::RemoveItem(uint32 itemId, uint32 count, uint32 itemInd
     auto bounds = _lootItems.equal_range(itemId);
     for (auto itr = bounds.first; itr != bounds.second; ++itr)
     {
-        if (itr->second.Count == count)
+        if (itr->second.ItemIndex == itemIndex)
         {
             _lootItems.erase(itr);
             break;
