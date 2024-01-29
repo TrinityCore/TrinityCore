@@ -1,5 +1,5 @@
 DELETE FROM `game_event_gameobject` WHERE `guid`=28704;
-INSERT INTO `game_event_gameobject` VALUES
+INSERT INTO `game_event_gameobject` (eventEntry, guid) VALUES
 (27,28704),
 (28,28704),
 (29,28704),
