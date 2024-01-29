@@ -2286,7 +2286,7 @@ void Spell::EffectLearnSkill()
     if (!playerTarget)
         return;
 
-    if (damage < 1)
+    if (damage < 0)
         return;
 
     uint32 skillid = effectInfo->MiscValue;
@@ -2299,12 +2299,12 @@ void Spell::EffectLearnSkill()
         return;
 
     uint16 skillval = std::max<uint16>(1, playerTarget->GetPureSkillValue(skillid));
-    uint16 maxSkillVal = tier->GetValueForTierIndex(damage - 1);
+    uint16 maxSkillVal = tier->GetValueForTierIndex(damage);
 
     if (rcEntry->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
         skillval = maxSkillVal;
 
-    playerTarget->SetSkill(skillid, damage, skillval, maxSkillVal);
+    playerTarget->SetSkill(skillid, (damage + 1), skillval, maxSkillVal);
 }
 
 void Spell::EffectPlayMovie()
@@ -4550,11 +4550,11 @@ void Spell::EffectSkill()
     if (!playerTarget)
         return;
 
-    if (damage < 1)
+    if (damage < 0)
         return;
 
     uint32 skillid = effectInfo->MiscValue;
-    if (playerTarget->GetSkillStep(skillid) >= damage)
+    if (playerTarget->GetSkillStep(skillid) >= (damage + 1))
         return;
 
     SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillid, playerTarget->GetRace(), playerTarget->GetClass());
@@ -4566,12 +4566,12 @@ void Spell::EffectSkill()
         return;
 
     uint16 skillval = std::max<uint16>(1, playerTarget->GetPureSkillValue(skillid));
-    uint16 maxSkillVal = tier->GetValueForTierIndex(damage - 1);
+    uint16 maxSkillVal = tier->GetValueForTierIndex(damage);
 
     if (rcEntry->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
         skillval = maxSkillVal;
 
-    playerTarget->SetSkill(skillid, damage, skillval, maxSkillVal);
+    playerTarget->SetSkill(skillid, (damage + 1), skillval, maxSkillVal);
 }
 
 void Spell::EffectSpiritHeal()
