@@ -1135,6 +1135,20 @@ class spell_pri_focused_mending : public SpellScript
     }
 };
 
+// 390615 - From Darkness Comes Light (Talent)
+class spell_pri_from_darkness_comes_light : public AuraScript
+{
+    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_from_darkness_comes_light::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 47788 - Guardian Spirit
 class spell_pri_guardian_spirit : public AuraScript
 {
@@ -2807,20 +2821,6 @@ class spell_pri_vampiric_touch : public AuraScript
         AfterDispel += AuraDispelFn(spell_pri_vampiric_touch::HandleDispel);
         DoCheckProc += AuraCheckProcFn(spell_pri_vampiric_touch::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pri_vampiric_touch::HandleEffectProc, EFFECT_2, SPELL_AURA_DUMMY);
-    }
-};
-
-// 390615 - From Darkness Comes Light (Talent)
-class spell_pri_from_darkness_comes_light : public AuraScript
-{
-    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
-    {
-        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA, aurEff);
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_pri_from_darkness_comes_light::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
