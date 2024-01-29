@@ -171,13 +171,16 @@ class instance_stratholme : public InstanceMapScript
                     case NPC_PLAGUED_MAGGOT:
                     {
                         auto el = PlaguedGatesGUIDs.find(who->GetGUID());
-                        uint8 uiGate = el->second;
                         if (el != PlaguedGatesGUIDs.end())
-                            PlaguedGatesGUIDs.erase(el);
-                        if (PlaguedGatesGUIDs.empty())
                         {
-                            UpdateGoState(TrapGatesGUIDs[uiGate][0], GO_STATE_ACTIVE);
-                            UpdateGoState(TrapGatesGUIDs[uiGate][1], GO_STATE_ACTIVE);
+                            uint8 uiGate = el->second;
+                            PlaguedGatesGUIDs.erase(el);
+                        
+                            if (PlaguedGatesGUIDs.empty())
+                            {
+                                UpdateGoState(TrapGatesGUIDs[uiGate][0], GO_STATE_ACTIVE);
+                                UpdateGoState(TrapGatesGUIDs[uiGate][1], GO_STATE_ACTIVE);
+                            }
                         }
                         break;
                     }
