@@ -667,30 +667,30 @@ struct npc_7th_legion_magus_sanctum_of_the_sages : public ScriptedAI
 {
     npc_7th_legion_magus_sanctum_of_the_sages(Creature* creature) : ScriptedAI(creature) { }
 
-    // Quest 47186 - Sanctum of the Sages
     bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
     {
+        // Quest 47186 - Sanctum of the Sages
         if (menuId == GOSSIP_MENU_OPEN_CITY_PORTALS && gossipListId == GOSSIP_OPTION_OPEN_CITY_PORTALS)
         {
             CloseGossipMenuFor(player);
             player->KilledMonsterCredit(KILLCREDIT_OPEN_CAPITAL_PORTALS);
 
-            Creature* MagusStormwindObject = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_7TH_LEGION_MAGUS_WITH_GOSSIP, .StringId = "MagusStormwind", .IgnorePhases = true});
-            Creature* MagusExodarObject = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_7TH_LEGION_MAGUS, .StringId = "MagusExodar", .IgnorePhases = true});
-            Creature* MagusIronforgeObject = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_7TH_LEGION_MAGUS, .StringId = "MagusIronforge", .IgnorePhases = true});
-            if (!MagusStormwindObject || !MagusExodarObject || !MagusIronforgeObject)
+            Creature* magusStormwind = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_7TH_LEGION_MAGUS_WITH_GOSSIP, .StringId = "MagusStormwind", .IgnorePhases = true});
+            Creature* magusExodar = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_7TH_LEGION_MAGUS, .StringId = "MagusExodar", .IgnorePhases = true});
+            Creature* magusIronforge = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_7TH_LEGION_MAGUS, .StringId = "MagusIronforge", .IgnorePhases = true});
+            if (!magusStormwind || !magusExodar || !magusIronforge)
                 return true;
 
-            TempSummon* MagusStormwindClone = MagusStormwindObject->SummonPersonalClone(MagusStormwindObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-            TempSummon* MagusExodarClone = MagusExodarObject->SummonPersonalClone(MagusExodarObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-            TempSummon* MagusIronforgeClone = MagusIronforgeObject->SummonPersonalClone(MagusIronforgeObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-            if (!MagusStormwindClone || !MagusExodarClone || !MagusIronforgeClone)
+            TempSummon* magusStormwindClone = magusStormwind->SummonPersonalClone(magusStormwind->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            TempSummon* magusExodarClone = magusExodar->SummonPersonalClone(magusExodar->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            TempSummon* magusIronforgeClone = magusIronforge->SummonPersonalClone(magusIronforge->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            if (!magusStormwindClone || !magusExodarClone || !magusIronforgeClone)
                 return true;
 
-            MagusStormwindClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP));
-            MagusStormwindClone->GetMotionMaster()->MovePath(PATH_MAGUS_OPEN_PORTAL_STORMWIND, false);
-            MagusExodarClone->GetMotionMaster()->MovePath(PATH_MAGUS_OPEN_PORTAL_EXODAR, false);
-            MagusIronforgeClone->GetMotionMaster()->MovePath(PATH_MAGUS_OPEN_PORTAL_IRONFORGE, false);
+            magusStormwindClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP));
+            magusStormwindClone->GetMotionMaster()->MovePath(PATH_MAGUS_OPEN_PORTAL_STORMWIND, false);
+            magusExodarClone->GetMotionMaster()->MovePath(PATH_MAGUS_OPEN_PORTAL_EXODAR, false);
+            magusIronforgeClone->GetMotionMaster()->MovePath(PATH_MAGUS_OPEN_PORTAL_IRONFORGE, false);
         }
         return true;
     }
@@ -755,7 +755,7 @@ private:
     TaskScheduler _scheduler;
 };
 
-// XX - Boralus - Sanctum of the Sages
+// 64 - Boralus - Sanctum of the Sages
 struct at_boralus_sanctum_of_the_sages_conversation : AreaTriggerAI
 {
     at_boralus_sanctum_of_the_sages_conversation(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
