@@ -253,6 +253,7 @@ class TC_GAME_API Spell
         void EffectNULL();
         void EffectUnused();
         void EffectDistract();
+        void EffectPull();
         void EffectSchoolDMG();
         void EffectEnvironmentalDMG();
         void EffectInstaKill();
@@ -308,6 +309,7 @@ class TC_GAME_API Spell
         void EffectSummonObjectWild();
         void EffectScriptEffect();
         void EffectSanctuary();
+        void EffectAddComboPoints();
         void EffectDuel();
         void EffectStuck();
         void EffectSummonPlayer();
@@ -365,6 +367,7 @@ class TC_GAME_API Spell
         void EffectGameObjectDamage();
         void EffectGameObjectRepair();
         void EffectGameObjectSetDestructionState();
+        void EffectActivateRune();
         void EffectCreateTamedPet();
         void EffectDiscoverTaxi();
         void EffectTitanGrip();
@@ -385,7 +388,6 @@ class TC_GAME_API Spell
         void EffectDestroyItem();
         void EffectRemoveAuraBySpellLabel();
         void EffectCreateConversation();
-        void EffectCancelConversation();
         void EffectGrantBattlePetLevel();
         void EffectGiveExperience();
         void EffectGiveRestedExperience();
