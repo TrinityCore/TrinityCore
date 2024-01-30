@@ -5337,6 +5337,8 @@ enum ResizingQuest
     ACTOR_LINDIE_RESIZING_QUEST                     = 71366,
     ACTOR_CORK_RESIZING_QUEST                       = 76343,
 
+    CONVERSATION_RESIZING_QUEST_ACCEPT              = 12086,
+
     EVENT_RESIZING_FOLLOW_PLAYER                    = 1,
     EVENT_RESIZING_RUN_HOME                         = 2,
 
@@ -5357,11 +5359,13 @@ struct npc_lindie_springstock_q56034 : public ScriptedAI
 
     void JustAppeared() override
     {
-        Player* player = me->GetOwner()->ToPlayer();
+        Unit* owner = me->GetOwner();
+
+        Player* player = owner->ToPlayer();
         if (!player)
             return;
 
-        Conversation* conversation = Conversation::CreateConversation(12086, player, *player, player->GetGUID(), nullptr, false);
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_RESIZING_QUEST_ACCEPT, player, *player, player->GetGUID(), nullptr, false);
         if (!conversation)
             return;
 
@@ -5381,8 +5385,8 @@ struct npc_lindie_springstock_q56034 : public ScriptedAI
         if (uiId != 0)
             return;
 
-        if (Player* player = me->GetOwner()->ToPlayer())
-            player->CastSpell(player, SPELL_LINDIE_DESUMMON_Q56034);
+        if (Unit* owner = me->GetOwner())
+            owner->CastSpell(owner, SPELL_LINDIE_DESUMMON_Q56034);
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -5429,12 +5433,13 @@ struct npc_cork_fizzlepop_q59941 : public ScriptedAI
 
     void JustAppeared() override
     {
-        Player* player = me->GetOwner()->ToPlayer();
+        Unit* owner = me->GetOwner();
+
+        Player* player = owner->ToPlayer();
         if (!player)
             return;
 
-        Conversation* conversation = Conversation::CreateConversation(12086, player, *player, player->GetGUID(), nullptr, false);
-
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_RESIZING_QUEST_ACCEPT, player, *player, player->GetGUID(), nullptr, false);
         if (!conversation)
             return;
 
@@ -5454,10 +5459,10 @@ struct npc_cork_fizzlepop_q59941 : public ScriptedAI
         if (uiId != 0)
             return;
 
-        if (Player* player = me->GetOwner()->ToPlayer())
+        if (Unit* owner = me->GetOwner())
         {
-            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->RemoveAura(SPELL_SUMMON_CORK_FIZZLEPOP_GUARDIAN_Q59941);
+            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+            owner->RemoveAura(SPELL_SUMMON_CORK_FIZZLEPOP_GUARDIAN_Q59941);
         }
     }
 
@@ -5466,7 +5471,9 @@ struct npc_cork_fizzlepop_q59941 : public ScriptedAI
         if (spellInfo->Id != SPELL_PING_LINDIE_Q56034_Q59941)
             return;
 
-        Player* player = me->GetOwner()->ToPlayer();
+        Unit* owner = me->GetOwner();
+
+        Player* player = owner->ToPlayer();
         if (!player)
             return;
 
@@ -5544,8 +5551,7 @@ struct npc_re_sized_boar_q56034 : public ScriptedAI
         me->SetFacingTo(0.785398f);
 
         if (Unit* owner = me->GetOwner())
-            if (owner->ToPlayer())
-                owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
     }
 
     void UpdateAI(uint32 diff) override
@@ -5583,11 +5589,15 @@ class spell_summon_guardian_q56034_q59941 : public SpellScript
 
     void SelectTarget(WorldObject*& target)
     {
-        Player* caster = GetCaster()->ToPlayer();
+        Unit* caster = GetCaster();
         if (!caster)
             return;
 
-        Creature* survivor = FindCreatureIgnorePhase(caster, caster->GetTeam() == ALLIANCE ? "lindie_springstock_plains" : "cork_fizzlepop_plains", 5.0f);
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        Creature* survivor = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "lindie_springstock_plains" : "cork_fizzlepop_plains", 5.0f);
         if (!survivor)
             return;
 
