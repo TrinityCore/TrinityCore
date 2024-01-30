@@ -57,6 +57,7 @@ enum PriestSpells
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
     SPELL_PRIEST_CIRCLE_OF_HEALING                  = 204883,
+    SPELL_PRIEST_DARK_INDULGENCE                    = 372972,
     SPELL_PRIEST_DARK_REPRIMAND                     = 400169,
     SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE      = 373129,
     SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING     = 400171,
@@ -149,6 +150,8 @@ enum PriestSpells
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
     SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
+    SPELL_PRIEST_SCHISM                             = 424509,
+    SPELL_PRIEST_SCHISM_AURA                        = 214621,
     SPELL_PRIEST_SEARING_LIGHT                      = 196811,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32379,
@@ -641,6 +644,21 @@ class spell_pri_circle_of_healing : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_circle_of_healing::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
+// 372972 - Dark Indulgence
+class spell_pri_dark_indulgence : public SpellScript
+{
+    void HandleHit()
+    {
+        if (GetCaster()->HasAura(SPELL_PRIEST_DARK_INDULGENCE, GetCaster()->GetGUID()))
+            GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_POWER_OF_THE_DARK_SIDE, true);
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_pri_dark_indulgence::HandleHit);
     }
 };
 
@@ -2408,6 +2426,21 @@ private:
     ObjectGuid _raptureTarget;
 };
 
+// 424509 - Schism
+class spell_pri_schism : public SpellScript
+{
+    void HandleHit()
+    {
+        if (GetCaster()->HasAura(SPELL_PRIEST_SCHISM, GetCaster()->GetGUID()))
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_SCHISM_AURA, true);
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_pri_schism::HandleHit);
+    }
+};
+
 // 280391 - Sins of the Many
 class spell_pri_sins_of_the_many : public AuraScript
 {
@@ -2837,6 +2870,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement_passive);
     RegisterSpellScript(spell_pri_benediction);
     RegisterSpellScript(spell_pri_circle_of_healing);
+    RegisterSpellScript(spell_pri_dark_indulgence);
     RegisterSpellScript(spell_pri_divine_image);
     RegisterSpellScript(spell_pri_divine_image_spell_triggered);
     RegisterSpellScript(spell_pri_divine_image_stack_timer);
@@ -2883,6 +2917,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_purge_the_wicked);
     RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
+    RegisterSpellScript(spell_pri_schism);
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
     RegisterSpellScript(spell_pri_shadow_covenant);
