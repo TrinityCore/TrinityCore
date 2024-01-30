@@ -8399,11 +8399,9 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
             if (int32 normalization = GetMaxPositiveAuraModifier(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED))
             {
                 if (Creature* creature = ToCreature())
-                {
-                    uint64 immuneMask = creature->GetCreatureTemplate()->MechanicImmuneMask;
-                    if (immuneMask & (1 << (MECHANIC_SNARE - 1)) || immuneMask & (1 << (MECHANIC_DAZE - 1)))
-                        break;
-                }
+                    if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(creature->GetCreatureTemplate()->CreatureImmunitiesId))
+                        if (immunities->Mechanic[MECHANIC_SNARE] || immunities->Mechanic[MECHANIC_DAZE])
+                            break;
 
                 // Use speed from aura
                 float max_speed = normalization / (IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]);
