@@ -652,7 +652,11 @@ class spell_pri_dark_indulgence : public SpellScript
 {
     void HandleHit()
     {
-        if (GetCaster()->HasAura(SPELL_PRIEST_DARK_INDULGENCE, GetCaster()->GetGUID()))
+        AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_PRIEST_DARK_INDULGENCE, EFFECT_0);
+        if (!aurEff)
+            return;
+
+        if (roll_chance_i(aurEff->GetAmount()))
             GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_POWER_OF_THE_DARK_SIDE, true);
     }
 
