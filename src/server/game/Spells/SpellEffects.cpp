@@ -4824,7 +4824,6 @@ void Spell::EffectQuestStart()
     }
 }
 
-
 void Spell::EffectActivateRune()
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
