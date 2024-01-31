@@ -7108,6 +7108,7 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
                             modChance += 10.f;
                             [[fallthrough]];
                         case 849: // Shatter (Rank 1)
+                        {
                             modChance += 10.f;
                             if (!HasAuraState(AURA_STATE_FROZEN, spellInfo, caster))
                                 break;
@@ -7115,6 +7116,7 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
                             std::string str = "shatter crit chance[" + std::to_string(crit_chance) + "]";
                             sWorld->SendServerMessage(SERVER_MSG_STRING, str.c_str());
                             break;
+                        }
                         case 7917: // Glyph of Shadowburn
                             if (HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellInfo, caster))
                                 crit_chance += aurEff->GetAmount();
