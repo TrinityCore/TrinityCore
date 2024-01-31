@@ -63,15 +63,17 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
     if (!unit)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleTalentWipeConfirmOpcode - {} not found or you can't interact with him.", guid.ToString());
         return;
     }
 
+    /*
     if (!unit->CanResetTalents(_player, false))
         return;
+        */
 
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))

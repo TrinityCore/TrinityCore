@@ -14172,8 +14172,11 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
     for (GossipMenuItemsContainer::const_iterator itr = menuItemBounds.first; itr != menuItemBounds.second; ++itr)
     {
         bool canTalk = true;
+        //just show all gossip menu options?
+        /*
         if (!sConditionMgr->IsObjectMeetToConditions(this, source, itr->second.Conditions))
             continue;
+            */
 
         if (Creature* creature = source->ToCreature())
         {
