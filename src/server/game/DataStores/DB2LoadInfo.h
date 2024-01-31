@@ -1259,8 +1259,8 @@ struct ConditionalChrModelLoadInfo
 {
     static constexpr DB2FieldMeta Fields[6] =
     {
-        { true, FT_INT, "ID" },
-        { false, FT_INT, "ChrModelID" },
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "ChrModelID" },
         { true, FT_INT, "ChrCustomizationReqID" },
         { true, FT_INT, "PlayerConditionID" },
         { true, FT_INT, "Flags" },

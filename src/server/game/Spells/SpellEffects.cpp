@@ -24,6 +24,7 @@
 #include "BattlegroundMgr.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
+#include "CharmInfo.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "Common.h"
@@ -1580,7 +1581,7 @@ void Spell::EffectOpenLock()
             return;
 
         // Arathi Basin banner opening. /// @todo Verify correctness of this check
-        if (gameObjTarget->GetMapId() != 30 && ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
+        if (gameObjTarget->GetMapId() != 30 && gameObjTarget->GetMapId() != 607 && ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
             (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.requireLOS)))
         {
             //CanUseBattlegroundObject() already called in CheckCast()
@@ -1963,6 +1964,8 @@ void Spell::EffectSummonType()
                         summon->SetTempSummonType(summonType);
                         if (properties->Control == SUMMON_CATEGORY_ALLY)
                             summon->SetOwnerGUID(caster->GetGUID());
+                        else if (properties->Control == SUMMON_CATEGORY_WILD && caster->IsPlayer()) // there might be more conditions involved
+                            summon->SetDemonCreatorGUID(caster->GetGUID());
 
                         ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), summon);
                     }

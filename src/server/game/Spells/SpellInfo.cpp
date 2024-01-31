@@ -231,7 +231,7 @@ struct SpellEffectInfo::ImmunityInfo
     uint32 SchoolImmuneMask = 0;
     uint32 ApplyHarmfulAuraImmuneMask = 0;
     uint64 MechanicImmuneMask = 0;
-    uint32 DispelImmune = 0;
+    uint32 DispelImmuneMask = 0;
     uint32 DamageSchoolMask = 0;
 
     Trinity::Containers::FlatSet<AuraType> AuraTypeImmune;
@@ -2275,6 +2275,11 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
 
         if (HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER_CONTROLLED_NPC) && unitTarget->IsControlledByPlayer())
             return SPELL_FAILED_TARGET_IS_PLAYER_CONTROLLED;
+
+        if (HasAttribute(SPELL_ATTR3_NOT_ON_AOE_IMMUNE))
+            if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(unitTarget->ToCreature()->GetCreatureTemplate()->CreatureImmunitiesId))
+                if (immunities->ImmuneAoE)
+                    return SPELL_FAILED_BAD_TARGETS;
     }
     else if (HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER))
         return SPELL_FAILED_TARGET_IS_PLAYER;
@@ -3309,7 +3314,7 @@ void SpellInfo::_LoadImmunityInfo()
         uint32 schoolImmunityMask = 0;
         uint32 applyHarmfulAuraImmunityMask = 0;
         uint64 mechanicImmunityMask = 0;
-        uint32 dispelImmunity = 0;
+        uint32 dispelImmunityMask = 0;
         uint32 damageImmunityMask = 0;
 
         int32 miscVal = effect.MiscValue;
@@ -3321,6 +3326,17 @@ void SpellInfo::_LoadImmunityInfo()
         {
             case SPELL_AURA_MECHANIC_IMMUNITY_MASK:
             {
+                if (CreatureImmunities const* creatureImmunities = SpellMgr::GetCreatureImmunities(miscVal))
+                {
+                    schoolImmunityMask |= creatureImmunities->School.to_ulong();
+                    dispelImmunityMask |= creatureImmunities->DispelType.to_ulong();
+                    mechanicImmunityMask |= creatureImmunities->Mechanic.to_ullong();
+                    for (SpellEffectName effectType : creatureImmunities->Effect)
+                        immuneInfo.SpellEffectImmune.insert(effectType);
+                    for (AuraType aura : creatureImmunities->Aura)
+                        immuneInfo.AuraTypeImmune.insert(aura);
+                }
+
                 switch (miscVal)
                 {
                     case 96:   // Free Friend, Uncontrollable Frenzy, Warlord's Presence
@@ -3460,29 +3476,6 @@ void SpellInfo::_LoadImmunityInfo()
                     default:
                         break;
                 }
-
-                if (immuneInfo.AuraTypeImmune.empty())
-                {
-                    if (miscVal & (1 << 10))
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_STUN);
-                    if (miscVal & (1 << 1))
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_TRANSFORM);
-
-                    // These flag can be recognized wrong:
-                    if (miscVal & (1 << 6))
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_DECREASE_SPEED);
-                    if (miscVal & (1 << 0))
-                    {
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
-                    }
-                    if (miscVal & (1 << 2))
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
-                    if (miscVal & (1 << 9))
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
-                    if (miscVal & (1 << 7))
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_DISARM);
-                }
                 break;
             }
             case SPELL_AURA_MECHANIC_IMMUNITY:
@@ -3544,7 +3537,7 @@ void SpellInfo::_LoadImmunityInfo()
             }
             case SPELL_AURA_DISPEL_IMMUNITY:
             {
-                dispelImmunity = uint32(miscVal);
+                dispelImmunityMask = 1u << miscVal;
                 break;
             }
             default:
@@ -3554,7 +3547,7 @@ void SpellInfo::_LoadImmunityInfo()
         immuneInfo.SchoolImmuneMask = schoolImmunityMask;
         immuneInfo.ApplyHarmfulAuraImmuneMask = applyHarmfulAuraImmunityMask;
         immuneInfo.MechanicImmuneMask = mechanicImmunityMask;
-        immuneInfo.DispelImmune = dispelImmunity;
+        immuneInfo.DispelImmuneMask = dispelImmunityMask;
         immuneInfo.DamageSchoolMask = damageImmunityMask;
 
         immuneInfo.AuraTypeImmune.shrink_to_fit();
@@ -3563,7 +3556,7 @@ void SpellInfo::_LoadImmunityInfo()
         if (immuneInfo.SchoolImmuneMask
             || immuneInfo.ApplyHarmfulAuraImmuneMask
             || immuneInfo.MechanicImmuneMask
-            || immuneInfo.DispelImmune
+            || immuneInfo.DispelImmuneMask
             || immuneInfo.DamageSchoolMask
             || !immuneInfo.AuraTypeImmune.empty()
             || !immuneInfo.SpellEffectImmune.empty())
@@ -3704,16 +3697,19 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
         }
     }
 
-    if (uint32 dispelImmunity = immuneInfo->DispelImmune)
+    if (uint32 dispelImmunity = immuneInfo->DispelImmuneMask)
     {
-        target->ApplySpellImmune(Id, IMMUNITY_DISPEL, dispelImmunity, apply);
+        for (uint32 i = 0; i < DISPEL_MAX; ++i)
+            if (dispelImmunity & (1 << i))
+                target->ApplySpellImmune(Id, IMMUNITY_DISPEL, i, apply);
 
         if (apply && HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
         {
             target->RemoveAppliedAuras([dispelImmunity](AuraApplication const* aurApp) -> bool
             {
                 SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
-                if (spellInfo->Dispel == dispelImmunity)
+                uint32 dispelMask = spellInfo->GetDispelMask();
+                if ((dispelMask & dispelImmunity) == dispelMask)
                     return true;
 
                 return false;
@@ -3769,7 +3765,7 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
             if ((mechanicImmunity & (UI64LIT(1) << auraSpellInfo->Mechanic)) != 0)
                 return true;
 
-        if (uint32 dispelImmunity = immuneInfo->DispelImmune)
+        if (uint32 dispelImmunity = immuneInfo->DispelImmuneMask)
             if (auraSpellInfo->Dispel == dispelImmunity)
                 return true;
 

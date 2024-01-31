@@ -16,6 +16,7 @@
  */
 
 #include "WorldSession.h"
+#include "CharmInfo.h"
 #include "Common.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"

@@ -675,8 +675,9 @@ bool StartDB()
 
 void StopDB()
 {
-    CharacterDatabase.Close();
+    HotfixDatabase.Close();
     WorldDatabase.Close();
+    CharacterDatabase.Close();
     LoginDatabase.Close();
 
     MySQL::Library_End();

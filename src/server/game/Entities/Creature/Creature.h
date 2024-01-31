@@ -158,7 +158,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool CanResetTalents(Player* player) const;
         bool CanCreatureAttack(Unit const* victim, bool force = true) const;
-        void LoadTemplateImmunities();
+        void LoadTemplateImmunities(int32 creatureImmunitiesId);
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const override;
         bool IsElite() const;
         bool isWorldBoss() const;
@@ -323,7 +323,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool CanRegenerateHealth() const { return !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_5_NO_HEALTH_REGEN) && _regenerateHealth; }
         void SetRegenerateHealth(bool value) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_5_NO_HEALTH_REGEN, !value); }
-        virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
+        virtual uint8 GetPetAutoSpellSize() const;
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
         float GetPetChaseDistance() const;
 
@@ -524,6 +524,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool _isMissingCanSwimFlagOutOfCombat;
 
+        int32 _creatureImmunitiesId;
         uint32 _gossipMenuId;
         Optional<uint32> _trainerId;
         float _sparringHealthPct;

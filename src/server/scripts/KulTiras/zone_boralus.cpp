@@ -26,6 +26,8 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
@@ -56,6 +58,40 @@ enum GetYourBearingsData
     SPELL_HUB_TOUR_CONVO_FLIGHT_MASTER  = 247753
 };
 
+enum TheOldKnightData
+{
+    QUEST_THE_OLD_KNIGHT                    = 46729,
+
+    NPC_CYRUS_CRESTFALL                     = 122370,
+    NPC_GENN_GREYMANE                       = 120788,
+    NPC_GREYGUARD                           = 120599,
+
+    GOSSIP_MENU_CYRUS_SHAKING_HANDS         = 22543,
+    GOSSIP_OPTION_CYRUS_SHAKING_HANDS       = 0,
+
+    CONVO_ACCEPT_OLD_KNIGHT_QUEST           = 9556,
+    CONVO_CYRUS_MEETS_GENN_IN_OFFICE        = 8062,
+    CONVO_CYRUS_SHAKING_HAND                = 7653,
+
+    CONVO_ACTOR_CYRUS_CRESTFAL              = 59635,
+
+    OBJECTIVE_ENTER_HARBORMASTERS_OFFICE    = 335127,
+
+    KILLCREDIT_SPEAK_WITH_CYRUS_OLD_KNIGHT  = 137009,
+    KILLCREDIT_HEAR_CYRUS_TALE_OLD_KNIGHT   = 137877,
+
+    PATH_KULTIRAN_GUARD_ENTER_OFFICE        = 12463000,
+    PATH_KULTIRAN_GUARD_AFTER_SCENE_OFFICE  = 12463001,
+    PATH_CYRUS_CRESTFAL_AFTER_SCENE_OFFICE  = 12237000,
+    PATH_GENN_GREYMANE_AFTER_SCENE_OFFICE   = 12078800,
+    PATH_GREYGUARD_TWO_AFTER_SCENE_OFFICE   = 12059900,
+    PATH_GREYGUARD_ONE_AFTER_SCENE_OFFICE   = 12059901,
+
+    SPELL_ENTER_HARBOR_MASTERS_OFFICE       = 268759,
+    SPELL_FIND_CYRUS_OBJECTIVE_COMPLETE     = 269054,
+    SPELL_CLIENT_SCENE_CYRUS_AND_GENN       = 271234
+};
+
 // 124630 - Taelia
 struct npc_taelia_get_your_bearings : public ScriptedAI
 {
@@ -68,6 +104,20 @@ struct npc_taelia_get_your_bearings : public ScriptedAI
             me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
     }
 
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_THE_OLD_KNIGHT)
+            Conversation::CreateConversation(CONVO_ACCEPT_OLD_KNIGHT_QUEST, player, *player, player->GetGUID(), nullptr, false);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id != SPELL_FIND_CYRUS_OBJECTIVE_COMPLETE)
+            return;
+
+        me->GetMotionMaster()->MovePath(PATH_KULTIRAN_GUARD_AFTER_SCENE_OFFICE, false);
+    }
+
     void MovementInform(uint32 type, uint32 pointId) override
     {
         if (type != POINT_MOTION_TYPE)
@@ -78,6 +128,12 @@ struct npc_taelia_get_your_bearings : public ScriptedAI
             if (Unit* summoner = me->GetOwner())
                 me->SetFacingToObject(summoner);
         }
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+    {
+        if (pathId == PATH_KULTIRAN_GUARD_AFTER_SCENE_OFFICE)
+            me->DespawnOrUnsummon();
     }
 };
 
@@ -255,10 +311,471 @@ public:
     }
 };
 
+// 9556 - Conversation The Old Knight (accept Quest)
+class conversation_boralus_accept_old_knight : public ConversationScript
+{
+public:
+    conversation_boralus_accept_old_knight() : ConversationScript("conversation_boralus_accept_old_knight") { }
+
+    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    {
+        Creature* kultiranGuard = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = creator->GetGUID() });
+        if (!kultiranGuard)
+            return;
+
+        conversation->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
+        conversation->Start();
+    }
+};
+
+// XX - Boralus The Old Knight (Enter the Harbormasters Office)
+struct at_boralus_old_knight_enter_harbormasters_office : AreaTriggerAI
+{
+    at_boralus_old_knight_enter_harbormasters_office(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player || player->GetQuestStatus(QUEST_THE_OLD_KNIGHT) != QUEST_STATUS_INCOMPLETE || player->GetQuestObjectiveData(QUEST_THE_OLD_KNIGHT, OBJECTIVE_ENTER_HARBORMASTERS_OFFICE))
+            return;
+
+        player->CastSpell(nullptr, SPELL_ENTER_HARBOR_MASTERS_OFFICE, false);
+    }
+};
+
+// 7605 - Conversation The Old Knight (Enter the Harbormasters Office)
+class conversation_boralus_enter_harbormaster_office : public ConversationScript
+{
+public:
+    conversation_boralus_enter_harbormaster_office() : ConversationScript("conversation_boralus_enter_harbormaster_office") { }
+
+    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    {
+        Creature* kultiranGuard = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = creator->GetGUID() });
+        if (!kultiranGuard)
+            return;
+
+        kultiranGuard->GetMotionMaster()->Clear();
+        kultiranGuard->GetMotionMaster()->MovePath(PATH_KULTIRAN_GUARD_ENTER_OFFICE, false);
+
+        conversation->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
+        conversation->Start();
+    }
+};
+
+// XX - Boralus The Old Knight (Genn Greymane arrives Boralus)
+struct at_boralus_old_knight_genn_arrives_boralus : AreaTriggerAI
+{
+    at_boralus_old_knight_genn_arrives_boralus(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player || player->GetQuestStatus(QUEST_THE_OLD_KNIGHT) != QUEST_STATUS_INCOMPLETE || player->GetQuestObjectiveData(QUEST_THE_OLD_KNIGHT, OBJECTIVE_ENTER_HARBORMASTERS_OFFICE))
+            return;
+
+        player->CastSpell(nullptr, SPELL_CLIENT_SCENE_CYRUS_AND_GENN, false);
+    }
+};
+
+// 1960 - Client Scene: Cyrus and Genn
+class scene_boralus_client_scene_cyrus_and_genn : public SceneScript
+{
+public:
+    scene_boralus_client_scene_cyrus_and_genn() : SceneScript("scene_boralus_client_scene_cyrus_and_genn") { }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->CastSpell(player, SPELL_FIND_CYRUS_OBJECTIVE_COMPLETE, true);
+    }
+
+    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->CastSpell(player, SPELL_FIND_CYRUS_OBJECTIVE_COMPLETE, true);
+    }
+};
+
+Position const TaeliaTeleportOfficePos = { 1054.29f, -469.776f, 11.7166f, 3.065999f };
+
+// 269054 - Find Cyrus Objective Complete
+class spell_boralus_find_cyrus_objective_complete : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetHitUnit()->ToPlayer())
+        {
+            player->KilledMonsterCredit(NPC_CYRUS_CRESTFALL);
+            Conversation::CreateConversation(CONVO_CYRUS_MEETS_GENN_IN_OFFICE, player, *player, player->GetGUID(), nullptr, false);
+        }
+        else
+        {
+            if (GetHitUnit()->GetEntry() != NPC_SUMMONED_KULTIRAN_GUARD)
+                return;
+
+            GetHitUnit()->NearTeleportTo(TaeliaTeleportOfficePos);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_boralus_find_cyrus_objective_complete::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+Position const CyrusOfficePos = { 1056.310f, -470.567f, 11.656f, 5.80610f };
+Position const GennOfficePos = { 1052.689f, -470.200f, 11.692f, 0.24838f };
+Position const GreyguardOneOfficePos = { 1044.979f, -468.523f, 8.386f, 6.03047f };
+Position const GreyguardTwoOfficePos = { 1042.359f, -467.738f, 8.386f, 6.04665f };
+
+// 8062 - Conversation
+class conversation_boralus_cyrus_meets_genn : public ConversationScript
+{
+public:
+    conversation_boralus_cyrus_meets_genn() : ConversationScript("conversation_boralus_cyrus_meets_genn") { }
+
+    enum OldKnightsConversationData
+    {
+        CONVO_LINE_CYRUS_AND_GENN_DESPAWN   = 18298,
+
+        EVENT_OLD_KNIGHTS_CLONE_DESPAWN     = 1
+    };
+
+    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    {
+        Creature* cyrusObject = GetClosestCreatureWithOptions(creator, 30.0f, { .CreatureId = NPC_CYRUS_CRESTFALL, .IgnorePhases = true });
+        Creature* gennObject = GetClosestCreatureWithOptions(creator, 30.0f, { .CreatureId = NPC_GENN_GREYMANE, .IgnorePhases = true });
+        Creature* greyguardOneObject = GetClosestCreatureWithOptions(creator, 30.0f, { .CreatureId = NPC_GREYGUARD, .StringId = "GreyguardOne", .IgnorePhases = true });
+        Creature* greyguardTwoObject = GetClosestCreatureWithOptions(creator, 30.0f, { .CreatureId = NPC_GREYGUARD, .StringId = "GreyguardTwo", .IgnorePhases = true });
+        if (!cyrusObject || !gennObject || !greyguardOneObject || !greyguardTwoObject)
+            return;
+
+        TempSummon* cyrusClone = cyrusObject->SummonPersonalClone(CyrusOfficePos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        TempSummon* gennClone = gennObject->SummonPersonalClone(GennOfficePos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        TempSummon* greyguardOneClone = greyguardOneObject->SummonPersonalClone(GreyguardOneOfficePos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        TempSummon* greyguardTwoClone = greyguardTwoObject->SummonPersonalClone(GreyguardTwoOfficePos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        if (!cyrusClone || !gennClone || !greyguardOneClone || !greyguardTwoClone)
+            return;
+
+        _gennCloneGUID = gennClone->GetGUID();
+
+        cyrusClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+        gennClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+
+        cyrusClone->GetMotionMaster()->MovePath(PATH_CYRUS_CRESTFAL_AFTER_SCENE_OFFICE, false);
+        gennClone->GetMotionMaster()->MovePath(PATH_GENN_GREYMANE_AFTER_SCENE_OFFICE, false);
+        greyguardOneClone->GetMotionMaster()->MovePath(PATH_GREYGUARD_ONE_AFTER_SCENE_OFFICE, false);
+        greyguardTwoClone->GetMotionMaster()->MovePath(PATH_GREYGUARD_TWO_AFTER_SCENE_OFFICE, false);
+
+        conversation->AddActor(CONVO_ACTOR_CYRUS_CRESTFAL, 0, cyrusClone->GetGUID());
+        conversation->Start();
+    }
+
+    void OnConversationStart(Conversation* conversation) override
+    {
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
+
+        _events.ScheduleEvent(EVENT_OLD_KNIGHTS_CLONE_DESPAWN, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_AND_GENN_DESPAWN));
+    }
+
+    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    {
+        _events.Update(diff);
+
+        switch (_events.ExecuteEvent())
+        {
+            case EVENT_OLD_KNIGHTS_CLONE_DESPAWN:
+            {
+                Creature* cyrusClone = conversation->GetActorCreature(0);
+                if (!cyrusClone)
+                    break;
+
+                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
+                if (!privateObjectOwner)
+                    return;
+
+                if (Creature* gennClone = ObjectAccessor::GetCreature(*conversation, _gennCloneGUID))
+                    gennClone->DespawnOrUnsummon();
+
+                cyrusClone->DespawnOrUnsummon();
+                PhasingHandler::OnConditionChange(privateObjectOwner);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+private:
+    ObjectGuid _gennCloneGUID;
+    EventMap _events;
+};
+
+// 122370 - Cyrus Crestfall
+struct npc_cyrus_crestfall_old_knight : public ScriptedAI
+{
+    npc_cyrus_crestfall_old_knight(Creature* creature) : ScriptedAI(creature) { }
+
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    {
+        // Quest 46729 - The Old Knight
+        if (menuId == GOSSIP_MENU_CYRUS_SHAKING_HANDS && gossipListId == GOSSIP_OPTION_CYRUS_SHAKING_HANDS)
+        {
+            CloseGossipMenuFor(player);
+            player->KilledMonsterCredit(KILLCREDIT_SPEAK_WITH_CYRUS_OLD_KNIGHT);
+            Conversation::CreateConversation(CONVO_CYRUS_SHAKING_HAND, player, *player, player->GetGUID(), nullptr, false);
+        }
+        return true;
+    }
+};
+
+Position const CyrusMoveToOfficeFirePos = { 1075.257f, -487.25696f, 9.812291f };
+Position const CyrusStaticOfficePos = { 1071.428f, -486.312f, 9.783f, 3.4995f };
+
+// 7653 - Conversation
+class conversation_cyrus_crestfall_shaking_hands : public ConversationScript
+{
+public:
+    conversation_cyrus_crestfall_shaking_hands() : ConversationScript("conversation_cyrus_crestfall_shaking_hands") { }
+
+    enum ShakingHandsConversationData
+    {
+        CONVO_LINE_CYRUS_START_WALK_TO_FIRE     = 17416,
+        CONVO_LINE_CYRUS_CHANGE_FACING_GENN     = 17419,
+        CONVO_LINE_CYRUS_MOVE_BACK_TO_GENN      = 17421,
+        CONVO_LINE_CYRUS_DESPAWN_CLONE_OFFICE   = 17423,
+
+        EVENT_CYRUS_START_WALK_TO_FIRE          = 1,
+        EVENT_CYRUS_CHANGE_FACING_GENN          = 2,
+        EVENT_CYRUS_MOVE_BACK_TO_GENN           = 3,
+        EVENT_CYRUS_DESPAWN_CLONE_OFFICE        = 4,
+
+        POINT_CYRUS_MOVE_TO_OFFICE_FIRE         = 1,
+        POINT_CYRUS_MOVE_BACK_TO_GENN           = 2
+    };
+
+    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    {
+        Creature* cyrusObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_CYRUS_CRESTFALL, .IgnorePhases = true });
+        if (!cyrusObject)
+            return;
+
+        TempSummon* cyrusClone = cyrusObject->SummonPersonalClone(cyrusObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        if (!cyrusClone)
+            return;
+
+        cyrusClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+
+        conversation->AddActor(CONVO_ACTOR_CYRUS_CRESTFAL, 1, cyrusClone->GetGUID());
+        conversation->Start();
+    }
+
+    void OnConversationStart(Conversation* conversation) override
+    {
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
+
+        _events.ScheduleEvent(EVENT_CYRUS_START_WALK_TO_FIRE, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_START_WALK_TO_FIRE));
+        _events.ScheduleEvent(EVENT_CYRUS_CHANGE_FACING_GENN, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_CHANGE_FACING_GENN));
+        _events.ScheduleEvent(EVENT_CYRUS_MOVE_BACK_TO_GENN, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_MOVE_BACK_TO_GENN));
+        _events.ScheduleEvent(EVENT_CYRUS_DESPAWN_CLONE_OFFICE, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_DESPAWN_CLONE_OFFICE));
+    }
+
+    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    {
+        _events.Update(diff);
+
+        switch (_events.ExecuteEvent())
+        {
+            case EVENT_CYRUS_START_WALK_TO_FIRE:
+            {
+                Creature* cyrusClone = conversation->GetActorCreature(1);
+                if (!cyrusClone)
+                    break;
+
+                cyrusClone->SetWalk(true);
+                cyrusClone->GetMotionMaster()->MovePoint(POINT_CYRUS_MOVE_TO_OFFICE_FIRE, CyrusMoveToOfficeFirePos);
+                break;
+            }
+            case EVENT_CYRUS_CHANGE_FACING_GENN:
+            {
+                Creature* cyrusClone = conversation->GetActorCreature(1);
+                if (!cyrusClone)
+                    break;
+
+                cyrusClone->SetFacingTo(3.49956f);
+                break;
+            }
+            case EVENT_CYRUS_MOVE_BACK_TO_GENN:
+            {
+                Creature* cyrusClone = conversation->GetActorCreature(1);
+                if (!cyrusClone)
+                    break;
+
+                Player* privateObjectOwner = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
+                if (!privateObjectOwner)
+                    return;
+
+                cyrusClone->SetWalk(true);
+                cyrusClone->GetMotionMaster()->MovePoint(POINT_CYRUS_MOVE_BACK_TO_GENN, CyrusStaticOfficePos);
+                privateObjectOwner->KilledMonsterCredit(KILLCREDIT_HEAR_CYRUS_TALE_OLD_KNIGHT);
+                break;
+            }
+            case EVENT_CYRUS_DESPAWN_CLONE_OFFICE:
+            {
+                Creature* cyrusClone = conversation->GetActorCreature(1);
+                if (!cyrusClone)
+                    break;
+
+                cyrusClone->DespawnOrUnsummon();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+enum SanctumOfTheSagesData
+{
+    QUEST_SANCTUM_OF_THE_SAGES          = 47186,
+
+    NPC_7TH_LEGION_MAGUS_WITH_GOSSIP    = 137066,
+    NPC_7TH_LEGION_MAGUS                = 143613,
+
+    GOSSIP_MENU_OPEN_CITY_PORTALS       = 22548,
+    GOSSIP_OPTION_OPEN_CITY_PORTALS     = 0,
+
+    CONVO_SANCTUM_OF_THE_SAGES          = 8356,
+
+    KILLCREDIT_OPEN_CAPITAL_PORTALS     = 137066,
+
+    SPELL_LEGION_MAGUS_ARCANE_CHANNEL   = 54219,
+
+    PATH_MAGUS_OPEN_PORTAL_STORMWIND    = 13706600,
+    PATH_MAGUS_FINISH_PORTAL_STORMWIND  = 13706601,
+    PATH_MAGUS_OPEN_PORTAL_EXODAR       = 14361300,
+    PATH_MAGUS_FINISH_PORTAL_EXODAR     = 14361301,
+    PATH_MAGUS_OPEN_PORTAL_IRONFORGE    = 14361302,
+    PATH_MAGUS_FINISH_PORTAL_IRONFORGE  = 14361303
+};
+
+// 137066 - 7th Legion Magus
+// 143613 - 7th Legion Magus
+struct npc_7th_legion_magus_sanctum_of_the_sages : public ScriptedAI
+{
+    npc_7th_legion_magus_sanctum_of_the_sages(Creature* creature) : ScriptedAI(creature) { }
+
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    {
+        // Quest 47186 - Sanctum of the Sages
+        if (menuId == GOSSIP_MENU_OPEN_CITY_PORTALS && gossipListId == GOSSIP_OPTION_OPEN_CITY_PORTALS)
+        {
+            CloseGossipMenuFor(player);
+            player->KilledMonsterCredit(KILLCREDIT_OPEN_CAPITAL_PORTALS);
+
+            Creature* magusStormwind = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_7TH_LEGION_MAGUS_WITH_GOSSIP, .StringId = "MagusStormwind", .IgnorePhases = true});
+            Creature* magusExodar = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_7TH_LEGION_MAGUS, .StringId = "MagusExodar", .IgnorePhases = true});
+            Creature* magusIronforge = GetClosestCreatureWithOptions(player, 10.0f, { .CreatureId = NPC_7TH_LEGION_MAGUS, .StringId = "MagusIronforge", .IgnorePhases = true});
+            if (!magusStormwind || !magusExodar || !magusIronforge)
+                return true;
+
+            TempSummon* magusStormwindClone = magusStormwind->SummonPersonalClone(magusStormwind->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            TempSummon* magusExodarClone = magusExodar->SummonPersonalClone(magusExodar->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            TempSummon* magusIronforgeClone = magusIronforge->SummonPersonalClone(magusIronforge->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            if (!magusStormwindClone || !magusExodarClone || !magusIronforgeClone)
+                return true;
+
+            magusStormwindClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP));
+            magusStormwindClone->GetMotionMaster()->MovePath(PATH_MAGUS_OPEN_PORTAL_STORMWIND, false);
+            magusExodarClone->GetMotionMaster()->MovePath(PATH_MAGUS_OPEN_PORTAL_EXODAR, false);
+            magusIronforgeClone->GetMotionMaster()->MovePath(PATH_MAGUS_OPEN_PORTAL_IRONFORGE, false);
+        }
+        return true;
+    }
+
+    void WaypointReached(uint32 /*waypointId*/, uint32 pathId) override
+    {
+        if (pathId == PATH_MAGUS_OPEN_PORTAL_EXODAR)
+        {
+            DoCastAOE(SPELL_LEGION_MAGUS_ARCANE_CHANNEL);
+            _scheduler.Schedule(3s + 500ms, [this](TaskContext task)
+            {
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                task.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+                {
+                    me->GetMotionMaster()->MovePath(PATH_MAGUS_FINISH_PORTAL_EXODAR, false);
+                });
+            });
+        }
+        else if (pathId == PATH_MAGUS_OPEN_PORTAL_IRONFORGE)
+        {
+            DoCastAOE(SPELL_LEGION_MAGUS_ARCANE_CHANNEL);
+            _scheduler.Schedule(3s + 500ms, [this](TaskContext task)
+            {
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                task.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+                {
+                    me->GetMotionMaster()->MovePath(PATH_MAGUS_FINISH_PORTAL_IRONFORGE, false);
+                });
+            });
+        }
+        else if (pathId == PATH_MAGUS_OPEN_PORTAL_STORMWIND)
+        {
+            DoCastAOE(SPELL_LEGION_MAGUS_ARCANE_CHANNEL);
+            _scheduler.Schedule(3s + 500ms, [this](TaskContext task)
+            {
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                task.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+                {
+                    TempSummon* summon = me->ToTempSummon();
+                    if (!summon)
+                        return;
+
+                    Unit* summoner = summon->GetSummonerUnit();
+                    if (!summoner)
+                        return;
+
+                    PhasingHandler::OnConditionChange(summoner);
+                    me->GetMotionMaster()->MovePath(PATH_MAGUS_FINISH_PORTAL_STORMWIND, false);
+                });
+            });
+        }
+        else if (pathId == PATH_MAGUS_FINISH_PORTAL_STORMWIND || pathId == PATH_MAGUS_FINISH_PORTAL_EXODAR || pathId == PATH_MAGUS_FINISH_PORTAL_IRONFORGE)
+            me->DespawnOrUnsummon();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 64 - Boralus - Sanctum of the Sages
+struct at_boralus_sanctum_of_the_sages_conversation : AreaTriggerAI
+{
+    at_boralus_sanctum_of_the_sages_conversation(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player || player->GetQuestStatus(QUEST_SANCTUM_OF_THE_SAGES) != QUEST_STATUS_COMPLETE)
+            return;
+
+        Conversation::CreateConversation(CONVO_SANCTUM_OF_THE_SAGES, player, *player, player->GetGUID(), nullptr, true);
+    }
+};
+
 void AddSC_zone_boralus()
 {
     // Creature
     RegisterCreatureAI(npc_taelia_get_your_bearings);
+    RegisterCreatureAI(npc_cyrus_crestfall_old_knight);
+    RegisterCreatureAI(npc_7th_legion_magus_sanctum_of_the_sages);
 
     // Conversation
     new conversation_boralus_hub_tour_00();
@@ -266,10 +783,25 @@ void AddSC_zone_boralus()
     new conversation_boralus_hub_tour_counting_house();
     new conversation_boralus_hub_tour_harbor_inn();
     new conversation_boralus_hub_tour_flight_master();
+    new conversation_boralus_accept_old_knight();
+    new conversation_boralus_enter_harbormaster_office();
+    new conversation_boralus_cyrus_meets_genn();
+    new conversation_cyrus_crestfall_shaking_hands();
+
+    // Scene
+    new scene_boralus_client_scene_cyrus_and_genn();
 
     // AreaTrigger
+    RegisterAreaTriggerAI(at_boralus_old_knight_enter_harbormasters_office);
+    RegisterAreaTriggerAI(at_boralus_old_knight_genn_arrives_boralus);
+    RegisterAreaTriggerAI(at_boralus_sanctum_of_the_sages_conversation);
+
+    // AreaTrigger Template
     new GenericAreaTriggerEntityScript<at_boralus_get_your_bearings<QUEST_GET_YOUR_BEARINGS, OBJECTIVE_FERRY_DOCK_VISITED, SPELL_HUB_TOUR_CONVO_FERRY>>("at_boralus_get_your_bearings_ferry");
     new GenericAreaTriggerEntityScript<at_boralus_get_your_bearings<QUEST_GET_YOUR_BEARINGS, OBJECTIVE_COUNTING_HOUSE_VISITED, SPELL_HUB_TOUR_CONVO_BANK>>("at_boralus_get_your_bearings_counting_house");
     new GenericAreaTriggerEntityScript<at_boralus_get_your_bearings<QUEST_GET_YOUR_BEARINGS, OBJECTIVE_SNUG_HARBOR_INN_VISITED, SPELL_HUB_TOUR_CONVO_INN>>("at_boralus_get_your_bearings_inn");
     new GenericAreaTriggerEntityScript<at_boralus_get_your_bearings<QUEST_GET_YOUR_BEARINGS, OBJECTIVE_FLIGHT_MASTER_VISITED, SPELL_HUB_TOUR_CONVO_FLIGHT_MASTER>>("at_boralus_get_your_bearings_flight_master");
+
+    // Spells
+    RegisterSpellScript(spell_boralus_find_cyrus_objective_complete);
 }

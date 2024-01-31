@@ -522,6 +522,7 @@ namespace WorldPackets
         class CloseInteraction;
         class ConversationLineStarted;
         class RequestLatestSplashScreen;
+        class QueryCountdownTimer;
     }
 
     namespace Movement
@@ -1751,6 +1752,7 @@ class TC_GAME_API WorldSession
         void HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction);
         void HandleConversationLineStarted(WorldPackets::Misc::ConversationLineStarted& conversationLineStarted);
         void HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride);
+        void HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownTimer& queryCountdownTimer);
 
         // Adventure Journal
         void HandleAdventureJournalOpenQuest(WorldPackets::AdventureJournal::AdventureJournalOpenQuest& openQuest);

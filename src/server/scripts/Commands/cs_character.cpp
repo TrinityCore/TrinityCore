@@ -231,7 +231,7 @@ public:
         stmt->setUInt64(2, delInfo.guid.GetCounter());
         CharacterDatabase.Execute(stmt);
 
-        sCharacterCache->UpdateCharacterInfoDeleted(delInfo.guid, false, &delInfo.name);
+        sCharacterCache->UpdateCharacterInfoDeleted(delInfo.guid, false, delInfo.name);
     }
 
     static bool HandleCharacterTitlesCommand(ChatHandler* handler, Optional<PlayerIdentifier> player)

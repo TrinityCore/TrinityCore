@@ -1181,3 +1181,21 @@ void WorldSession::HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLa
     splashScreenShowLatest.UISplashScreenID = splashScreen ? splashScreen->ID : 0;
     SendPacket(splashScreenShowLatest.Write());
 }
+
+void WorldSession::HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownTimer& queryCountdownTimer)
+{
+    Group const* group = _player->GetGroup();
+    if (!group)
+        return;
+
+    Group::CountdownInfo const* info = group->GetCountdownInfo(queryCountdownTimer.TimerType);
+    if (!info)
+        return;
+
+    WorldPackets::Misc::StartTimer startTimer;
+    startTimer.Type = queryCountdownTimer.TimerType;
+    startTimer.TimeLeft = info->GetTimeLeft();
+    startTimer.TotalTime = info->GetTotalTime();
+
+    _player->SendDirectMessage(startTimer.Write());
+}

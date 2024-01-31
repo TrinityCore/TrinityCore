@@ -72,6 +72,7 @@ namespace WorldPackets
             float EnergyMulti = 0.0f;
             bool Leader = false;
             std::vector<int32> QuestItems;
+            std::vector<int32> QuestCurrencies;
             uint32 CreatureMovementInfoID = 0;
             int32 HealthScalingExpansion = 0;
             uint32 RequiredExpansion = 0;

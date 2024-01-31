@@ -17,6 +17,7 @@
 
 #include "CreatureAIImpl.h"
 #include "ScriptMgr.h"
+#include "CharmInfo.h"
 #include "CombatAI.h"
 #include "CreatureTextMgr.h"
 #include "G3DPosition.hpp"
