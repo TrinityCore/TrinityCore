@@ -296,9 +296,17 @@ public:
     static value_type GetValue(UF::UnitData const* unitData, uint32 i, Unit const* unit, Player const* receiver)
     {
         value_type npcFlag = unitData->NpcFlags[i];
-        if (i == 0 && unit->IsCreature() && !receiver->CanSeeSpellClickOn(unit->ToCreature()))
-            npcFlag &= ~UNIT_NPC_FLAG_SPELLCLICK;
+        if (i == 0)
+        {
+            if (unit->IsCreature())
+            {
+                if (!receiver->CanSeeSpellClickOn(unit->ToCreature()))
+                    npcFlag &= ~UNIT_NPC_FLAG_SPELLCLICK;
 
+                if (!receiver->CanSeeGossipOn(unit->ToCreature()))
+                    npcFlag &= ~(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+            }
+        }
         return npcFlag;
     }
 };

@@ -1150,6 +1150,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         Creature* GetNPCIfCanInteractWith(ObjectGuid const& guid, NPCFlags npcFlags, NPCFlags2 npcFlags2) const;
         GameObject* GetGameObjectIfCanInteractWith(ObjectGuid const& guid) const;
         GameObject* GetGameObjectIfCanInteractWith(ObjectGuid const& guid, GameobjectTypes type) const;
+        void UpdateNearbyCreatureNpcFlags();
 
         void ToggleAFK();
         void ToggleDND();
@@ -1531,7 +1532,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         uint32 GetGossipTextId(uint32 menuId, WorldObject* source);
         uint32 GetGossipTextId(WorldObject* source);
-        uint32 GetGossipMenuForSource(WorldObject* source);
+        uint32 GetGossipMenuForSource(WorldObject const* source) const;
 
         /*********************************************************/
         /***                    QUEST SYSTEM                   ***/
@@ -2664,6 +2665,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         //bool isActiveObject() const { return true; }
         bool CanSeeSpellClickOn(Creature const* creature) const;
+        bool CanSeeGossipOn(Creature const* creature) const;
 
         uint32 GetChampioningFaction() const { return m_ChampioningFaction; }
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
