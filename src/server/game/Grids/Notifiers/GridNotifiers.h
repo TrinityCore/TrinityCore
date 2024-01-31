@@ -986,8 +986,6 @@ namespace Trinity
                 if (u->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET)
                     return false;
 
-                if (u->GetTypeId() == TYPEID_UNIT && u->ToCreature()->IsTotem())
-                    return false;
 
                 if (!u->isTargetableForAttack(false))
                     return false;

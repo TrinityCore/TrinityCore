@@ -56,7 +56,8 @@ enum RogueSpells
     SPELL_ROGUE_CRIPPLING_POISON                =  3409,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_BUFF         = 31665,
     SPELL_ROGUE_OVERKILL_BUFF                   = 58427,
-    SPELL_ROGUE_STEALTH                         =  1784
+    SPELL_ROGUE_STEALTH                         =  1784,
+    SPELL_ROGUE_IMPROVED_SAP                    = 14095
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -971,6 +972,39 @@ class spell_rog_vanish : public AuraScript
     }
 };
 
+//14076, 14094, 14095 Improved Sap
+class spell_rog_imp_sap : public AuraScript
+{
+    PrepareAuraScript(spell_rog_imp_sap);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_IMPROVED_SAP });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        Unit* unitTarget = GetTarget();
+        unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+
+        // See if we already are stealthed. If so, we're done.
+        if (unitTarget->HasAura(SPELL_ROGUE_STEALTH))
+            return;
+
+        // Reset cooldown on stealth if needed
+        if (unitTarget->GetSpellHistory()->HasCooldown(SPELL_ROGUE_STEALTH))
+            unitTarget->GetSpellHistory()->ResetCooldown(SPELL_ROGUE_STEALTH);
+
+        unitTarget->CastSpell(nullptr, SPELL_ROGUE_STEALTH, true);
+    }
+
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_rog_imp_sap::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     RegisterSpellScript(spell_rog_blade_flurry);
@@ -996,4 +1030,5 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_rog_honor_among_thieves_proc, spell_rog_honor_among_thieves_proc_aura);
     RegisterSpellScript(spell_rog_turn_the_tables);
     RegisterSpellScript(spell_rog_vanish);
+    RegisterSpellScript(spell_rog_imp_sap);
 }

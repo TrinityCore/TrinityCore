@@ -906,7 +906,7 @@ class spell_pal_illumination : public AuraScript
             if (originalSpell && aurEff->GetSpellInfo())
             {
                 Unit* target = eventInfo.GetActor(); // Paladin is the target of the energize
-                uint32 bp = CalculatePct(originalSpell->CalcPowerCost(target, originalSpell->GetSchoolMask()), aurEff->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue());
+                uint32 bp = originalSpell->CalcPowerCost(target, originalSpell->GetSchoolMask());
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(bp);
                 target->CastSpell(target, SPELL_PALADIN_ILLUMINATION_ENERGIZE, args);
@@ -1213,7 +1213,7 @@ private:
             }
         }
 
-        GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
+        //GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
         GetCaster()->CastSpell(GetHitUnit(), spellId2, true);
     }
 

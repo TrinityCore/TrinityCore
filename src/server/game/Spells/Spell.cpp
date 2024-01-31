@@ -2382,6 +2382,7 @@ void Spell::TargetInfo::DoTargetSpellHit(Spell* spell, SpellEffectInfo const& sp
 void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 {
     Unit* unit = spell->m_caster->GetGUID() == TargetGUID ? spell->m_caster->ToUnit() : ObjectAccessor::GetUnit(*spell->m_caster, TargetGUID);
+
     if (!unit)
         return;
 
@@ -2477,6 +2478,8 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             }
             else
                 hitMask |= PROC_HIT_NORMAL;
+
+
 
             healInfo = std::make_unique<HealInfo>(caster, spell->unitTarget, addhealth, spell->m_spellInfo, spell->m_spellInfo->GetSchoolMask());
             caster->HealBySpell(*healInfo, IsCrit);
@@ -2877,9 +2880,11 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
             // Pre-TBC: heartbeat is enabled in both pve and pvp
             if (bool heartbeat = true
                 && hitInfo.DRGroup != DIMINISHING_NONE
-                && hitInfo.AuraSpellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
+                && hitInfo.AuraSpellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK)
+                //we check effect index here to prevent setting heartbreak for every single effect a cc does
+                && spellEffectInfo.EffectIndex == EFFECT_0)
             {
-                hitInfo.HitAura->SetHeartbeatResist(hitInfo.heartbeatResistChance, hitInfo.AuraDuration, uint32(unit->GetDiminishing(hitInfo.DRGroup)));
+                hitInfo.HitAura->SetHeartbeatResist(hitInfo.heartbeatResistChance, hitInfo.AuraDuration, uint32(unit->GetDiminishing(hitInfo.DRGroup)), hitInfo.DRGroup);
             }
         }
     }
@@ -3247,7 +3252,7 @@ void Spell::cast(bool skipCheck)
     Spell* lastSpellMod = nullptr;
     if (modOwner)
     {
-        lastSpellMod = modOwner->m_spellModTakingSpell;
+        lastSpellMod = modOwner->m_spellModTakingSpell; 
         if (lastSpellMod)
             modOwner->SetSpellModTakingSpell(lastSpellMod, false);
     }
@@ -6076,10 +6081,25 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
         // check if target already has the same type, but more powerful aura
         if (!nonAuraEffectMask && (approximateAuraEffectMask & (1 << spellEffectInfo.EffectIndex)) && !m_spellInfo->IsTargetingArea())
-            if (Unit* target = m_targets.GetUnitTarget())
+        {
+            Unit* target;
+            if (spellEffectInfo.TargetA.GetTarget() == TARGET_UNIT_CASTER)
+            {
+                target = m_caster->ToUnit();
+            }
+            else
+            {
+                target = m_targets.GetUnitTarget();
+            }
+            if (target)
+            {
                 if (!target->IsHighestExclusiveAuraEffect(m_spellInfo, AuraType(spellEffectInfo.ApplyAuraName),
                     spellEffectInfo.CalcValue(m_caster, &m_spellValue->EffectBasePoints[spellEffectInfo.EffectIndex]), approximateAuraEffectMask, false))
+                {
                     return SPELL_FAILED_AURA_BOUNCED;
+                }
+            }
+        }
     }
 
     // check trade slot case (last, for allow catch any another cast problems)
@@ -7156,11 +7176,13 @@ void Spell::Delayed() // only called in DealDamage()
     if (!(m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_PUSH_BACK))
         return;
 
-    if (IsDelayableNoMore())                                 // Spells may only be delayed twice
-        return;
-
     //check pushback reduce
-    int32 delaytime = 500;                                  // spellcasting delay is normally 500ms
+    int32 delaytime = (1000 - ((m_delayAtDamageCount - 1) * 200));// spellcasting delay is normally 500ms
+    if (delaytime <= 200)
+    {
+        delaytime = 200;
+    }
+
 
     int32 delayReduce = 100;                                // must be initialized to 100 for percent modifiers
     playerCaster->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
@@ -7168,7 +7190,10 @@ void Spell::Delayed() // only called in DealDamage()
     if (delayReduce >= 100)
         return;
 
-    AddPct(delaytime, -delayReduce);
+    if (roll_chance_i(delayReduce))
+        return;
+    m_delayAtDamageCount++;
+    AddPct(delaytime, 0);
 
     if (m_timer + delaytime > m_casttime)
     {
@@ -7714,6 +7739,7 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, Spe
 
         m_damageMultipliers[spellEffectInfo.EffectIndex] *= multiplier;
     }
+
 
     targetInfo.Damage += m_damage;
     targetInfo.Healing += m_healing;

@@ -1724,6 +1724,17 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
         }
     }
 
+    switch (GetId())
+    {
+        //stoneform
+        case 20594:
+            if (apply)
+                target->CastSpell(target, 20612);
+            else
+                target->RemoveAurasDueToSpell(20612);
+            break;
+    }
+
     // mods at aura apply or remove
     switch (GetSpellInfo()->SpellFamilyName)
     {
@@ -1973,7 +1984,7 @@ void Aura::AddProcCooldown(TimePoint cooldownEnd)
     m_procCooldown = cooldownEnd;
 }
 
-void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLevel)
+void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLevel, DiminishingGroup drGroup)
 {
     // NOTE: This is an experimental approximation of heartbeat resist mechanics, more research is required
     // Main points in common cited by independent sources:
@@ -1993,7 +2004,9 @@ void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLe
     m_heartbeatResistChance = std::lerp(m_heartbeatResistChance, 30, .5f); //regress to 30%
     m_heartbeatResistInterval = std::max(1000, int32(uint32(originalDuration) / (numTimesToRoll + 2)));
     m_heartbeatResistTimer = m_heartbeatResistInterval;
-    std::string str = "setup " + std::to_string(m_heartbeatResistChance) + "% chance to break. Rolling " + std::to_string(numTimesToRoll) + " times (Once every " + std::to_string(m_heartbeatResistInterval * .001f) + "seconds). Spell[" + this->GetSpellInfo()->SpellName[sWorld->GetDefaultDbcLocale()] + "] Unit[" + this->GetUnitOwner()->GetName() + "]";
+    std::string str = "setup " + std::to_string(m_heartbeatResistChance) + "% chance to break. Rolling " + std::to_string(numTimesToRoll) + " times (Once every "
+        + std::to_string(m_heartbeatResistInterval * .001f) + "seconds). Spell[" + this->GetSpellInfo()->SpellName[sWorld->GetDefaultDbcLocale()] + "] Unit[" + this->GetUnitOwner()->GetName()
+        + "] DRLevel[" + std::to_string(drLevel) + "] DRGroup[" + std::to_string(drGroup) + "].";
     sWorld->SendServerMessage(SERVER_MSG_STRING, str.c_str());
 }
 
@@ -2016,7 +2029,10 @@ void Aura::UpdateHeartbeatResist(uint32 diff, Unit* target)
             {
                 float secondsLasted = (m_maxDuration - m_duration) * .001f;
                 float secondsLeft = (m_maxDuration - (m_maxDuration - m_duration)) * .001f;
-                sWorld->SendServerMessage(SERVER_MSG_STRING, "Break out roll success. Removing aura at " + std::to_string(secondsLeft) + " seconds left. Time lasted was " + std::to_string(secondsLasted) + " seconds.");
+                float percentageLasted = 100.f - (((float)m_duration / (float)m_maxDuration) * 100.f);
+                sWorld->SendServerMessage(SERVER_MSG_STRING, "Break out roll success. Removing aura at " + std::to_string(secondsLeft) + " seconds left. Time lasted was " + std::to_string(secondsLasted) + " seconds (" + std::to_string(percentageLasted) + "% effectiveness)."
+
+                );
                 target->RemoveAura(this, AURA_REMOVE_BY_CANCEL);
                 return;
             }
@@ -2025,8 +2041,8 @@ void Aura::UpdateHeartbeatResist(uint32 diff, Unit* target)
             return;
         }
 
-        //std::string str = "Break out roll failed.";
-        //sWorld->SendServerMessage(SERVER_MSG_STRING, str.c_str());
+        std::string str = "Break out roll failed. With a " + std::to_string(m_heartbeatResistChance) + " chance.";
+        sWorld->SendServerMessage(SERVER_MSG_STRING, str.c_str());
     }
 }
 

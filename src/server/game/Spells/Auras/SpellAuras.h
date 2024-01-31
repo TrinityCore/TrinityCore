@@ -217,7 +217,7 @@ class TC_GAME_API Aura
 
         bool IsProcOnCooldown(TimePoint now) const;
         void AddProcCooldown(TimePoint cooldownEnd);
-        void SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLevel);
+        void SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLevel, DiminishingGroup drGroup);
         void UpdateHeartbeatResist(uint32 diff, Unit* target);
         void ResetProcCooldown();
         bool IsUsingCharges() const { return m_isUsingCharges; }

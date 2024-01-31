@@ -166,15 +166,20 @@ bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo c
         spellEffectInfo.TargetA.GetCheckType() != TARGET_CHECK_ENTRY && spellInfo->Id != SENTRY_STONECLAW_SPELLID && spellInfo->Id != SENTRY_BIND_SIGHT_SPELLID)
         return true;
 
-    switch (spellEffectInfo.ApplyAuraName)
+    if (!spellInfo->IsPositive())
     {
-        case SPELL_AURA_PERIODIC_DAMAGE:
-        case SPELL_AURA_PERIODIC_LEECH:
-        case SPELL_AURA_MOD_FEAR:
-        case SPELL_AURA_TRANSFORM:
-            return true;
-        default:
-            break;
+        switch (spellEffectInfo.Effect)
+        {
+            case SPELL_EFFECT_APPLY_AURA:
+            case SPELL_EFFECT_PERSISTENT_AREA_AURA:
+            case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
+            case SPELL_EFFECT_APPLY_AREA_AURA_PET:
+            case SPELL_EFFECT_DISPEL_MECHANIC:
+            case SPELL_EFFECT_NONE:
+                return true;
+            default:
+                break;
+        }
     }
 
     return Creature::IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute);

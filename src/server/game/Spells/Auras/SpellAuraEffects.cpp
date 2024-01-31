@@ -995,13 +995,17 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
                     uint32 lastExtraAttackSpell = eventInfo.GetActor()->GetLastExtraAttackSpell();
 
                     // Patch 1.12.0(?) extra attack abilities can no longer chain proc themselves
+                    
                     if (lastExtraAttackSpell == triggerSpellId)
                         return false;
+                        
 
                     // Patch 2.2.0 Sword Specialization (Warrior, Rogue) extra attack can no longer proc additional extra attacks
                     // 3.3.5 Sword Specialization (Warrior), Hack and Slash (Rogue)
+                    /*
                     if (lastExtraAttackSpell == 16459 || lastExtraAttackSpell == 66923)
                         return false;
+                    */
                 }
             }
             break;
@@ -5147,7 +5151,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT);
 
-    bool crit = roll_chance_f(GetCritChanceFor(caster, target));
+    bool crit = 0;
     if (crit)
         damage = Unit::SpellCriticalDamageBonus(caster, m_spellInfo, damage, target);
 
@@ -5620,7 +5624,9 @@ void AuraEffect::HandleModAttackPowerOfArmorAuraTick(Unit* target, Unit* caster)
 
 void AuraEffect::HandleBreakableCCAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
-    int32 const damageLeft = GetAmount() - static_cast<int32>(eventInfo.GetDamageInfo()->GetDamage());
+    int32 amount = GetAmount();
+    int32 damage = eventInfo.GetDamageInfo()->GetDamage();
+    int32 const damageLeft = amount - damage;
 
     if (damageLeft <= 0)
         aurApp->GetTarget()->RemoveAura(aurApp);

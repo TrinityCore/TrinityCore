@@ -7389,6 +7389,23 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
 
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
+
+
+    Aura* blessingOfLight = owner->GetAuraOfRankedSpell(19977);
+    if (blessingOfLight)
+    {
+        //flash of light
+        if (spellProto->SpellIconID == 242)
+        {
+            DoneAdvertisedBenefit += blessingOfLight->GetEffect(1)->GetBaseAmount();
+        }
+        //holy light
+        else if (spellProto->SpellIconID == 70)
+        {
+            DoneAdvertisedBenefit += blessingOfLight->GetEffect(0)->GetBaseAmount();
+        }
+    }
+
     // modify spell power by victim's SPELL_AURA_MOD_HEALING auras (eg Amplify/Dampen Magic)
     DoneAdvertisedBenefit += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_HEALING, spellProto->GetSchoolMask());
 
@@ -13633,6 +13650,11 @@ bool Unit::IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType aur
         if (sSpellMgr->CheckSpellGroupStackRules(spellInfo, existingAurEff->GetSpellInfo()) == SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST)
         {
             int32 diff = abs(effectAmount) - abs(existingAurEff->GetAmount());
+            if (spellInfo->GetRank() < existingAurEff->m_spellInfo->GetRank())
+            {
+                return false;
+            }
+
             if (!diff)
                 for (int32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     diff += int32((auraEffectMask & (1 << i)) >> i) - int32((existingAurEff->GetBase()->GetEffectMask() & (1 << i)) >> i);
@@ -13653,8 +13675,6 @@ bool Unit::IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType aur
                     }
                 }
             }
-            else if (diff < 0)
-                return false;
         }
     }
 

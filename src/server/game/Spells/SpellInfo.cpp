@@ -2151,7 +2151,10 @@ void SpellInfo::_LoadSpellSpecific()
                     return SPELL_SPECIFIC_CURSE;
 
                 // Warlock (Demon Armor | Demon Skin | Fel Armor)
-                if (SpellFamilyFlags[1] & 0x20000020 || SpellFamilyFlags[2] & 0x00000010)
+                if (SpellFamilyFlags[1] & 0x20000020 || SpellFamilyFlags[2] & 0x00000010
+                    || Id == 687 || Id == 696
+                    || Id == 11735 || Id == 706 || Id == 1086 || Id == 11733 || Id == 11734
+                    )
                     return SPELL_SPECIFIC_WARLOCK_ARMOR;
 
                 //seed of corruption and corruption
@@ -2183,18 +2186,28 @@ void SpellInfo::_LoadSpellSpecific()
             {
                 // Collection of all the seal family flags. No other paladin spell has any of those.
                 if (SpellFamilyFlags[1] & 0x26000C00
-                    || SpellFamilyFlags[0] & 0x0A000000)
+                    || SpellFamilyFlags[0] & 0x0A000000
+                    || Id == 20308 || Id == 21082 || Id == 20162 || Id == 20305 || Id == 20306 || Id == 20307
+                    )
                     return SPELL_SPECIFIC_SEAL;
 
                 if (SpellFamilyFlags[0] & 0x00002190)
                     return SPELL_SPECIFIC_HAND;
 
-                // Judgement of Wisdom, Judgement of Light, Judgement of Justice
-                if (Id == 20184 || Id == 20185 || Id == 20186)
+                // Judgement of Wisdom, Judgement of Light, Judgement of Justice, Judgement of Righteousness
+                if (
+                    Id == 20184 //justice
+                    || Id == 20185 || Id == 20344 || Id == 20345 || Id == 20346 //light
+                    || Id == 20186 || Id == 20354 || Id == 20355 //wisdom
+                    || Id == 21183 || Id == 20303 || Id == 20188 || Id == 20300 || Id == 20301 || Id == 20302 //crusader
+                    || Id == 20187 || Id == 20280 || Id == 20281 || Id == 20282 || Id == 20283 || Id == 20284 || Id == 20285 || Id == 20286 //righteousness
+                    || Id == 20425 || Id == 20467 || Id == 20962 || Id == 20963 || Id == 20961 || Id == 20964 || Id == 20965 || Id == 20967 || Id == 20966 || Id == 20968 //command
+                    )
                     return SPELL_SPECIFIC_JUDGEMENT;
 
                 // only paladin auras have this (for palaldin class family)
-                if (SpellFamilyFlags[2] & 0x00000020)
+                if (SpellFamilyFlags[2] & 0x00000020
+                    || Id == 20218)
                     return SPELL_SPECIFIC_AURA;
 
                 break;
@@ -2281,11 +2294,8 @@ void SpellInfo::_LoadSpellDiminishInfo()
                 else if (Id == 48179)
                     return DIMINISHING_NONE;
                 // Entrapment (own diminishing)
-                else if (Id == 19185)
+                else if (Id == 19185 || Id == 19229 || Id == 23694)
                     return DIMINISHING_ENTRAPMENT;
-                // Entrapment (own diminishing)
-                else if (Id == 19229 || Id == 23694)
-                    return DIMINISHING_ROOT;
                 break;
             }
             // Event spells
@@ -2317,16 +2327,13 @@ void SpellInfo::_LoadSpellDiminishInfo()
                     return DIMINISHING_LIMITONLY;
                 // Charge Stun (own diminishing)
                 else if (SpellFamilyFlags[0] & 0x01000000)
-                    return DIMINISHING_CHARGE;
+                    return DIMINISHING_CONTROLLED_STUN;
                 break;
             }
             case SPELLFAMILY_WARLOCK:
             {
-                // Curses/etc
-                if ((SpellFamilyFlags[0] & 0x80000000) || (SpellFamilyFlags[1] & 0x200))
-                    return DIMINISHING_LIMITONLY;
                 // Seduction
-                else if (SpellFamilyFlags[1] & 0x10000000)
+                if (SpellFamilyFlags[1] & 0x10000000)
                     return DIMINISHING_FEAR;
                 break;
             }
@@ -2354,10 +2361,10 @@ void SpellInfo::_LoadSpellDiminishInfo()
                     return DIMINISHING_DISORIENT;
                 // Blind
                 else if (SpellFamilyFlags[0] & 0x1000000)
-                    return DIMINISHING_FEAR;
+                    return DIMINISHING_CYCLONE;
                 // Cheap Shot
                 else if (SpellFamilyFlags[0] & 0x400)
-                    return DIMINISHING_OPENING_STUN;
+                    return DIMINISHING_CONTROLLED_STUN;
                 // Crippling poison - Limit to 10 seconds in PvP (No SpellFamilyFlags)
                 else if (SpellIconID == 163)
                     return DIMINISHING_LIMITONLY;

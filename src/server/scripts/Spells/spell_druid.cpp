@@ -457,7 +457,10 @@ class spell_dru_frenzied_regeneration : public AuraScript
             return;
 
         int32 const mod = std::min(static_cast<int32>(rage), 100);
-        int32 const regen = CalculatePct(GetTarget()->GetMaxHealth(), GetTarget()->CalculateSpellDamage(GetEffectInfo(EFFECT_1)) * mod / 100.f);
+
+        //every 100 rage, heal for 200. it's usually 20 per rage point (so 20 health per 1 rage or 200 per 10) but rage is stored internally here with an extra digit. 10 rage comes in as 100 (awful).
+        //regen variable is how much to heal per 10 rage (happy case) here.
+        int32 const regen = ((200 * mod) / 100.f); 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(regen);
         GetTarget()->CastSpell(nullptr, SPELL_DRUID_FRENZIED_REGENERATION_HEAL, args);

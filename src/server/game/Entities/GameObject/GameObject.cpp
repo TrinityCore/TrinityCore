@@ -684,11 +684,9 @@ void GameObject::Update(uint32 diff)
                         // summoned traps: Search targets fit to trap spell data
                         if (SpellInfo const* trapSpell = sSpellMgr->GetSpellInfo(goInfo->trap.spellId))
                         {
-                            WorldObject* worldObjectTarget = nullptr;
-                            Trinity::WorldObjectSpellNearbyTargetCheck checker(radius, this, trapSpell, m_goValue.Trap.TargetSearcherCheckType, nullptr);
-                            Trinity::WorldObjectLastSearcher searcher(this, worldObjectTarget, checker, GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER);
+                            Trinity::NearestAttackableNoTotemUnitInObjectRangeCheck checker(this, radius);
+                            Trinity::UnitLastSearcher<Trinity::NearestAttackableNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
                             Cell::VisitAllObjects(this, searcher, radius);
-                            target = Object::ToUnit(worldObjectTarget);
                         }
                         else
                         {
