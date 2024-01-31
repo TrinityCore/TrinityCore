@@ -3285,6 +3285,7 @@ enum DiminishingGroup : uint16
     DIMINISHING_TAUNT               = 18,
     DIMINISHING_LIMITONLY           = 19,
     DIMINISHING_DRAGONS_BREATH      = 20,
+    DIMINISHING_KIDNEY              = 21,
 
     DIMINISHING_MAX
 };
@@ -3767,11 +3768,11 @@ enum PartyResult
 
 enum DiminishingLevels
 {
-    DIMINISHING_LEVEL_1             = 0,
-    DIMINISHING_LEVEL_2             = 1,
-    DIMINISHING_LEVEL_3             = 2,
+    DIMINISHING_LEVEL_0             = 0,
+    DIMINISHING_LEVEL_1             = 1,
+    DIMINISHING_LEVEL_2             = 2,
     DIMINISHING_LEVEL_IMMUNE        = 3,
-    DIMINISHING_LEVEL_4             = 3,
+    DIMINISHING_LEVEL_3             = 3,
     DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4
 };
 

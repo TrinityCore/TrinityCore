@@ -3308,14 +3308,18 @@ void Spell::EffectWeaponDmg()
                 || (m_spellInfo->SpellFamilyFlags[0] & 0x6000000))
             {
                 // Hemorrhage
+                /*
                 if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
                     AddComboPointGain(unitTarget, 1);
+                    */
 
+                /*
                 // 50% more damage with daggers
                 if (unitCaster->GetTypeId() == TYPEID_PLAYER)
                     if (Item* item = unitCaster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
                         if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
                             totalDamagePercentMod *= 1.5f;
+                */
             }
             // Mutilate (for each hand)
             else if (m_spellInfo->SpellFamilyFlags[1] & 0x6)
@@ -3345,12 +3349,17 @@ void Spell::EffectWeaponDmg()
         }
         case SPELLFAMILY_PALADIN:
         {
+            /*
             // Seal of Command Unleashed
-            if (m_spellInfo->Id == 20467)
+            if (m_spellInfo->Id == 20467 || m_spellInfo->Id == 20425 || m_spellInfo->Id == 20962
+                || m_spellInfo->Id == 20963 || m_spellInfo->Id == 20961 || m_spellInfo->Id == 20964
+                || m_spellInfo->Id == 20965 || m_spellInfo->Id == 20967 || m_spellInfo->Id == 20966
+                || m_spellInfo->Id == 20968)
             {
                 spell_bonus += int32(0.08f * unitCaster->GetTotalAttackPowerValue(BASE_ATTACK));
                 spell_bonus += int32(0.13f * unitCaster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()));
             }
+            */
             break;
         }
         case SPELLFAMILY_SHAMAN:

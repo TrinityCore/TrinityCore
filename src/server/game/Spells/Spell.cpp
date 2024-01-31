@@ -2772,7 +2772,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, bool scaleAura, TargetInfo& 
         bool triggered = (m_triggeredByAuraSpell != nullptr);
         hitInfo.DRGroup = m_spellInfo->GetDiminishingReturnsGroupForSpell(triggered);
 
-        DiminishingLevels diminishLevel = DIMINISHING_LEVEL_1;
+        DiminishingLevels diminishLevel = DIMINISHING_LEVEL_0;
         if (hitInfo.DRGroup)
         {
             diminishLevel = unit->GetDiminishing(hitInfo.DRGroup);
@@ -2884,7 +2884,14 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                 //we check effect index here to prevent setting heartbreak for every single effect a cc does
                 && spellEffectInfo.EffectIndex == EFFECT_0)
             {
-                hitInfo.HitAura->SetHeartbeatResist(hitInfo.heartbeatResistChance, hitInfo.AuraDuration, uint32(unit->GetDiminishing(hitInfo.DRGroup)), hitInfo.DRGroup);
+                int drLevel = unit->GetDiminishing(hitInfo.DRGroup);
+                //we have not incremented and applied dr at this point and remembered hit time, so this is hacky but fuck it.
+                drLevel--;
+                if (drLevel < 0)
+                {
+                    drLevel = 0;
+                }
+                hitInfo.HitAura->SetHeartbeatResist(hitInfo.heartbeatResistChance, hitInfo.AuraDuration, drLevel, hitInfo.DRGroup);
             }
         }
     }

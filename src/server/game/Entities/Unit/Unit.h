@@ -374,13 +374,13 @@ enum UnitTypeMask
 
 struct DiminishingReturn
 {
-    DiminishingReturn() : stack(0), hitTime(0), hitCount(DIMINISHING_LEVEL_1) { }
+    DiminishingReturn() : stack(0), hitTime(0), hitCount(DIMINISHING_LEVEL_0) { }
 
     void Clear()
     {
         stack = 0;
         hitTime = 0;
-        hitCount = DIMINISHING_LEVEL_1;
+        hitCount = DIMINISHING_LEVEL_0;
     }
 
     uint16                  stack;

@@ -8849,11 +8849,11 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group) const
 {
     DiminishingReturn const& diminish = m_Diminishing[group];
     if (!diminish.hitCount)
-        return DIMINISHING_LEVEL_1;
+        return DIMINISHING_LEVEL_0;
 
     // If last spell was cast more than 15 seconds ago - reset level
     if (!diminish.stack && GetMSTimeDiffToNow(diminish.hitTime) > 15000)
-        return DIMINISHING_LEVEL_1;
+        return DIMINISHING_LEVEL_0;
 
     return DiminishingLevels(diminish.hitCount);
 }
@@ -8899,10 +8899,10 @@ bool Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, bool trigg
             DiminishingLevels diminish = previousLevel;
             switch (diminish)
             {
-                case DIMINISHING_LEVEL_1: break;
-                case DIMINISHING_LEVEL_2: mod = 0.65f; break;
-                case DIMINISHING_LEVEL_3: mod = 0.4225f; break;
-                case DIMINISHING_LEVEL_4: mod = 0.274625f; break;
+                case DIMINISHING_LEVEL_0: break;
+                case DIMINISHING_LEVEL_1: mod = 0.65f; break;
+                case DIMINISHING_LEVEL_2: mod = 0.4225f; break;
+                case DIMINISHING_LEVEL_3: mod = 0.274625f; break;
                 case DIMINISHING_LEVEL_TAUNT_IMMUNE: mod = 0.0f; break;
                 default: break;
             }
@@ -8916,9 +8916,9 @@ bool Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, bool trigg
         DiminishingLevels diminish = previousLevel;
         switch (diminish)
         {
-            case DIMINISHING_LEVEL_1: break;
-            case DIMINISHING_LEVEL_2: mod = 0.5f; break;
-            case DIMINISHING_LEVEL_3: mod = 0.25f; break;
+            case DIMINISHING_LEVEL_0: break;
+            case DIMINISHING_LEVEL_1: mod = 0.5f; break;
+            case DIMINISHING_LEVEL_2: mod = 0.25f; break;
             case DIMINISHING_LEVEL_IMMUNE: mod = 0.0f; break;
             default: break;
         }

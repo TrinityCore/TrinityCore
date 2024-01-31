@@ -2341,7 +2341,7 @@ void SpellInfo::_LoadSpellDiminishInfo()
             {
                 // Pounce
                 if (SpellFamilyFlags[0] & 0x20000)
-                    return DIMINISHING_OPENING_STUN;
+                    return DIMINISHING_CONTROLLED_STUN;
                 // Cyclone
                 else if (SpellFamilyFlags[1] & 0x20)
                     return DIMINISHING_CYCLONE;
@@ -2368,6 +2368,9 @@ void SpellInfo::_LoadSpellDiminishInfo()
                 // Crippling poison - Limit to 10 seconds in PvP (No SpellFamilyFlags)
                 else if (SpellIconID == 163)
                     return DIMINISHING_LIMITONLY;
+                //Kidney Shot
+                else if (SpellIconID == 499)
+                    return DIMINISHING_KIDNEY;
                 break;
             }
             case SPELLFAMILY_HUNTER:
