@@ -2304,7 +2304,7 @@ void SpellInfo::_LoadSpellDiminishInfo()
             case SPELLFAMILY_MAGE:
             {
                 // Frostbite
-                if (SpellFamilyFlags[1] & 0x80000000)
+                if (Id == 12494)
                     return DIMINISHING_ROOT;
                 // Shattered Barrier
                 else if (SpellVisual[0] == 12297)
