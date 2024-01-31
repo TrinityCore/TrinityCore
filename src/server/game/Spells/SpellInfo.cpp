@@ -2296,6 +2296,8 @@ void SpellInfo::_LoadSpellDiminishInfo()
                 // Entrapment (own diminishing)
                 else if (Id == 19185 || Id == 19229 || Id == 23694)
                     return DIMINISHING_ENTRAPMENT;
+                else if (Id == 12494 || Id == 12497 || Id == 11071 || Id == 12496)
+                    return DIMINISHING_ROOT;
                 break;
             }
             // Event spells
@@ -2304,7 +2306,7 @@ void SpellInfo::_LoadSpellDiminishInfo()
             case SPELLFAMILY_MAGE:
             {
                 // Frostbite
-                if (Id == 12494)
+                if (Id == 12494 || Id == 12497 || Id == 11071 || Id == 12496)
                     return DIMINISHING_ROOT;
                 // Shattered Barrier
                 else if (SpellVisual[0] == 12297)
