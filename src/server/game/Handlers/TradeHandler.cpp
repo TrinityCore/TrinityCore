@@ -42,12 +42,12 @@ void WorldSession::SendTradeStatus(WorldPackets::Trade::TradeStatus& info)
 
 void WorldSession::HandleIgnoreTradeOpcode(WorldPackets::Trade::IgnoreTrade& /*ignoreTrade*/)
 {
-    _player->TradeCancel(true, TRADE_STATUS_IGNORE_YOU);
+    _player->TradeCancel(true, TRADE_STATUS_PLAYER_IGNORED);
 }
 
 void WorldSession::HandleBusyTradeOpcode(WorldPackets::Trade::BusyTrade& /*busyTrade*/)
 {
-    _player->TradeCancel(true, TRADE_STATUS_BUSY);
+    _player->TradeCancel(true, TRADE_STATUS_PLAYER_BUSY);
 }
 
 void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
