@@ -495,8 +495,8 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
     if (!(achievement->Flags & ACHIEVEMENT_FLAG_TRACKING_FLAG))
         _achievementPoints += achievement->Points;
 
-    UpdateCriteria(CriteriaType::EarnAchievement, achievement->ID, 0, 0, nullptr, referencePlayer);
-    UpdateCriteria(CriteriaType::EarnAchievementPoints, achievement->Points, 0, 0, nullptr, referencePlayer);
+    referencePlayer->UpdateCriteria(CriteriaType::EarnAchievement, achievement->ID, 0, 0, nullptr);
+    referencePlayer->UpdateCriteria(CriteriaType::EarnAchievementPoints, achievement->Points, 0, 0, nullptr);
 
     sScriptMgr->OnAchievementCompleted(referencePlayer, achievement);
 
