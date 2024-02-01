@@ -623,25 +623,26 @@ class spell_pri_benediction : public SpellScript
 };
 
 // 215768 - Blaze of Light
-class spell_pri_blaze_of_light : public SpellScript
+class spell_pri_blaze_of_light : public AuraScript
 {
-    void HandleHit()
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        Aura const* aura = GetCaster()->GetAura(SPELL_PRIEST_BLAZE_OF_LIGHT, GetCaster()->GetGUID());
-        if (!aura)
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetProcTarget();
+        if (!caster || !target)
             return;
 
-        if (GetCaster()->IsValidAttackTarget(GetHitUnit()))
+        if (caster->IsValidAttackTarget(target))
         {
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE, true);
+            caster->CastSpell(target, SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE, aurEff);
             return;
         }
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE, true);
+        caster->CastSpell(target, SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE, aurEff);
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pri_blaze_of_light::HandleHit);
+        OnEffectProc += AuraEffectProcFn(spell_pri_blaze_of_light::HandleEffectProc, EFFECT_1, SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL);
     }
 };
 
