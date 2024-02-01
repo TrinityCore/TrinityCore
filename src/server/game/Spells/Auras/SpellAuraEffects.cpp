@@ -5624,14 +5624,23 @@ void AuraEffect::HandleModAttackPowerOfArmorAuraTick(Unit* target, Unit* caster)
 
 void AuraEffect::HandleBreakableCCAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
-    int32 amount = GetAmount();
+    Unit* caster = aurApp->GetBase()->GetCaster()->ToUnit();
+    int32 maxDamage = 1350;
+    if (caster)
+    {
+        maxDamage = (caster->GetLevel() * 25) - 150;
+    }
     int32 damage = eventInfo.GetDamageInfo()->GetDamage();
-    int32 const damageLeft = amount - damage;
+    if (damage > maxDamage)
+    {
+        damage = maxDamage;
+    }
+    float chance = ((float)damage) / maxDamage * 100.f;
 
-    if (damageLeft <= 0)
+    if (roll_chance_f(chance))
+    {
         aurApp->GetTarget()->RemoveAura(aurApp);
-    else
-        SetAmount(damageLeft);
+    }
 }
 
 void AuraEffect::HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
