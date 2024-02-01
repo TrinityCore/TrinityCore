@@ -31,6 +31,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "Item.h"
 
 enum PaladinSpells
 {
@@ -1647,9 +1648,58 @@ class spell_pal_seal_of_righteousness : public AuraScript
         PreventDefaultAction();
 
         Unit* victim = eventInfo.GetProcTarget();
-        uint32 triggerSpell = sSpellMgr->GetSpellWithRank(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, aurEff->GetSpellInfo()->GetRank());
-        //eventInfo.GetActor(), triggerSpell, aurEff)
-        GetTarget()->CastSpell(victim, triggerSpell, aurEff);
+        Unit* caster = eventInfo.GetActor();
+
+        uint32 sealId = aurEff->GetSpellInfo()->GetRank();
+        uint32 procId;
+        switch (sealId)
+        {
+            case 20154: procId = 25742; break;     // Rank 1
+            case 21084: procId = 25741; break;     // Rank 1.5
+            case 20287: procId = 25740; break;     // Rank 2
+            case 20288: procId = 25739; break;     // Rank 3
+            case 20289: procId = 25738; break;     // Rank 4
+            case 20290: procId = 25737; break;     // Rank 5
+            case 20291: procId = 25736; break;     // Rank 6
+            case 20292: procId = 25735; break;     // Rank 7
+            case 20293: procId = 25713; break;     // Rank 8
+            default: break;
+        }
+
+        float speed = GetTarget()->GetAttackTime(BASE_ATTACK);
+        speed /= 1000.0f;
+
+        float damageBasePoints;
+        float coeff;
+        float triggerAmount = aurEff->GetAmount();
+
+        if (((Player*)caster)->IsTwoHandUsed())
+        {
+            // two hand weapon
+            damageBasePoints = 1.20f * triggerAmount * 1.2f * 1.03f * speed / 100.0f + 1;
+            coeff = .108f * speed;
+        }
+        else
+        {
+            // one hand weapon/no weapon
+            damageBasePoints = 0.85f * ceil(triggerAmount * 1.2f * 1.03f * speed / 100.0f) - 1;
+            coeff = .092f * speed;
+        }
+
+        int32 damagePoint = int32(damageBasePoints + 0.03f * (caster->GetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE) + caster->GetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE)) / 2.0f) + 1;
+
+        // apply damage bonuses manually
+        if (damagePoint >= 0)
+        {
+            // currently uses same spell damage fetch as flametongue - need to verify whether SP is supposed to be applied pre-triggered spell bonuses or post
+            int32 bonusDamage = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
+            damagePoint += bonusDamage * coeff;
+        }
+
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(damagePoint);
+
+        GetTarget()->CastSpell(victim, SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, args);
     }
 
     void Register() override
