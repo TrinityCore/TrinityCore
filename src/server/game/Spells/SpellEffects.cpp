@@ -345,6 +345,26 @@ void Spell::EffectSchoolDMG()
     {
         bool apply_direct_bonus = true;
         Unit* unitCaster = GetUnitCasterForEffectHandlers();
+
+        switch (m_spellInfo->Id)
+        {
+            case 20467: // Judgement of Command
+            case 20963:
+            case 20964:
+            case 20965:
+            case 20966:
+            case 27171:
+            case 20968:
+
+            // Get unit state
+            uint32 const unitflag = unitTarget->GetUnitFlags();
+            if (!(unitflag & UNIT_FLAG_STUNNED))
+            {
+                damage /= 2;
+            }
+            break;
+        }
+
         switch (m_spellInfo->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:

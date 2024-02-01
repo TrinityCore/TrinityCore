@@ -32,6 +32,7 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Item.h"
+#include "Spell.h"
 
 enum PaladinSpells
 {
@@ -1204,16 +1205,20 @@ private:
         Unit::AuraEffectList const& auras = GetCaster()->GetAuraEffectsByType(SPELL_AURA_DUMMY);
         for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
         {
-            if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && (*i)->GetEffIndex() == EFFECT_2)
+            if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL)
             {
-                if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
+                if ((*i)->GetEffIndex() == EFFECT_2)
                 {
-                    spellId2 = (*i)->GetAmount();
-                    break;
+                    if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
+                    {
+                        spellId2 = (*i)->GetAmount();
+                        //found seal remove and break
+                        GetCaster()->RemoveAurasDueToSpell((*i)->GetSpellInfo()->Id);
+                        break;
+                    }
                 }
             }
         }
-
         //GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
         GetCaster()->CastSpell(GetHitUnit(), spellId2, true);
     }
@@ -1258,11 +1263,13 @@ class spell_pal_judgement_of_light_heal : public AuraScript
         PreventDefaultAction();
 
         Unit* caster = eventInfo.GetProcTarget();
-
+        uint32 triggerSpell = sSpellMgr->GetSpellWithRank(SPELL_PALADIN_JUDGEMENT_OF_LIGHT_HEAL, aurEff->GetSpellInfo()->GetRank());
+        /*
         CastSpellExtraArgs args(aurEff);
         args.OriginalCaster = GetCasterGUID();
         args.AddSpellBP0(caster->CountPctFromMaxHealth(aurEff->GetAmount()));
-        caster->CastSpell(nullptr, SPELL_PALADIN_JUDGEMENT_OF_LIGHT_HEAL, args);
+        */
+        caster->CastSpell(nullptr, triggerSpell);
     }
 
     void Register() override
@@ -1293,11 +1300,14 @@ class spell_pal_judgement_of_wisdom_mana : public AuraScript
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_JUDGEMENT_OF_WISDOM_MANA);
 
         Unit* caster = eventInfo.GetProcTarget();
+        uint32 triggerSpell = sSpellMgr->GetSpellWithRank(SPELL_PALADIN_JUDGEMENT_OF_WISDOM_MANA, aurEff->GetSpellInfo()->GetRank());
+        /*
         int32 const amount = CalculatePct(static_cast<int32>(caster->GetCreateMana()), spellInfo->GetEffect(EFFECT_0).CalcValue());
         CastSpellExtraArgs args(aurEff);
         args.OriginalCaster = GetCasterGUID();
         args.AddSpellBP0(amount);
-        caster->CastSpell(nullptr, spellInfo->Id, args);
+        */
+        caster->CastSpell(nullptr, spellInfo->Id);
     }
 
     void Register() override
@@ -1628,6 +1638,80 @@ class spell_pal_sacred_shield_dummy : public AuraScript
     TimePoint _cooldownEnd = std::chrono::steady_clock::time_point::min();
 };
 
+// 1826 - Judgement of Wisdom Intermediate
+class spell_pal_jud_wis_intermediate : public SpellScript
+{
+    PrepareSpellScript(spell_pal_jud_wis_intermediate);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return true;
+    }
+
+    void HandleProc(SpellEffIndex /*effIndex*/)
+    {
+        SpellInfo const* info = GetTriggeringSpell();
+        if (info == nullptr)
+            return;
+
+        uint32 triggerSpell = 0;
+        switch (info->Id)
+        {
+            case 20186: triggerSpell = 20268; break; // Rank 1
+            case 20354: triggerSpell = 20352; break; // Rank 2
+            case 20355: triggerSpell = 20353; break; // Rank 3
+        }
+        if (triggerSpell)
+        {
+            TriggerCastFlags triggerFlags = TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+            GetSpell()->m_targets.GetUnitTarget()->CastSpell(nullptr, triggerSpell, triggerFlags);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_pal_jud_wis_intermediate::HandleProc, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+};
+
+// 5373 - Judgement of Light Intermediate
+class spell_pal_jud_light_intermediate : public SpellScript
+{
+    PrepareSpellScript(spell_pal_jud_light_intermediate);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return true;
+    }
+
+    void HandleProc(SpellEffIndex /*effIndex*/)
+    {
+        SpellInfo const* info = GetTriggeringSpell();
+        if (info == nullptr)
+            return;
+
+        uint32 triggerSpell = 0;
+        switch (info->Id)
+        {
+            case 20185: triggerSpell = 20267; break; // Rank 1
+            case 20344: triggerSpell = 20341; break; // Rank 2
+            case 20345: triggerSpell = 20342; break; // Rank 3
+            case 20346: triggerSpell = 20343; break; // Rank 4
+        }
+        if (triggerSpell)
+        {
+            TriggerCastFlags triggerFlags = TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+            GetSpell()->m_targets.GetUnitTarget()->CastSpell(nullptr, triggerSpell, triggerFlags);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_pal_jud_light_intermediate::HandleProc, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 20154, 21084 - Seal of Righteousness - melee proc dummy (addition ${$MWS*(0.022*$AP+0.044*$SPH)} damage)
 class spell_pal_seal_of_righteousness : public AuraScript
 {
@@ -1651,7 +1735,8 @@ class spell_pal_seal_of_righteousness : public AuraScript
         Unit* caster = eventInfo.GetActor();
 
         uint32 sealId = aurEff->GetSpellInfo()->GetRank();
-        uint32 procId;
+        uint32 procId = SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS;
+        /*
         switch (sealId)
         {
             case 20154: procId = 25742; break;     // Rank 1
@@ -1665,6 +1750,7 @@ class spell_pal_seal_of_righteousness : public AuraScript
             case 20293: procId = 25713; break;     // Rank 8
             default: break;
         }
+        */
 
         float speed = GetTarget()->GetAttackTime(BASE_ATTACK);
         speed /= 1000.0f;
@@ -1699,7 +1785,7 @@ class spell_pal_seal_of_righteousness : public AuraScript
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(damagePoint);
 
-        GetTarget()->CastSpell(victim, SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, args);
+        GetTarget()->CastSpell(victim, procId, args);
     }
 
     void Register() override
@@ -2054,4 +2140,6 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_sheath_of_light);
     RegisterSpellScript(spell_pal_t3_6p_bonus);
     RegisterSpellScript(spell_pal_t8_2p_bonus);
+    RegisterSpellScript(spell_pal_jud_wis_intermediate);
+    RegisterSpellScript(spell_pal_jud_light_intermediate);
 }
