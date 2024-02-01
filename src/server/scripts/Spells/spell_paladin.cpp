@@ -1648,7 +1648,8 @@ class spell_pal_seal_of_righteousness : public AuraScript
 
         Unit* victim = eventInfo.GetProcTarget();
         uint32 triggerSpell = sSpellMgr->GetSpellWithRank(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, aurEff->GetSpellInfo()->GetRank());
-        GetTarget()->CastSpell(victim, triggerSpell);
+        //eventInfo.GetActor(), triggerSpell, aurEff)
+        GetTarget()->CastSpell(victim, triggerSpell, aurEff);
     }
 
     void Register() override
