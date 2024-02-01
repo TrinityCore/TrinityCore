@@ -63,6 +63,162 @@ class at_malfurion_stormrage : public AreaTriggerScript
 };
 
 /*#####
+# npc_hakkari_bloodkeeper
+#####*/
+
+enum HakkariBloodkeeper
+{
+    EVENT_CAST_SHADOW_BOLT = 1,
+    EVENT_CAST_CORRUPTION = 2,
+    SPELL_SHADOW_BOLT = 12471,
+    SPELL_CORRUPTION = 11671,
+};
+
+class npc_hakkari_bloodkeeper : public CreatureScript
+{
+public:
+    npc_hakkari_bloodkeeper() : CreatureScript("npc_hakkari_bloodkeeper") { }
+
+    struct npc_hakkari_bloodkeeperAI : public ScriptedAI
+    {
+        npc_hakkari_bloodkeeperAI(Creature* creature) : ScriptedAI(creature), _instance(*creature->GetInstanceScript()) { }
+
+        void JustEngagedWith(Unit* unit)
+        {
+            _events.ScheduleEvent(EVENT_CAST_SHADOW_BOLT, 0s, 2s);
+            _events.ScheduleEvent(EVENT_CAST_CORRUPTION, 13s, 17s);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                 return;
+
+            _events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_CAST_SHADOW_BOLT:
+                    DoCastVictim(SPELL_SHADOW_BOLT);
+                    _events.ScheduleEvent(EVENT_CAST_SHADOW_BOLT, 3s, 4s);
+                    break;
+                case EVENT_CAST_CORRUPTION:
+                    DoCastVictim(SPELL_CORRUPTION);
+                    _events.ScheduleEvent(EVENT_CAST_CORRUPTION, 11s, 15s);
+                    break;
+                default:
+                    break;
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap _events;
+        InstanceScript _instance;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetSunkenTempleAI<npc_hakkari_bloodkeeperAI>(creature);
+    }
+};
+
+/*#####
+# npc_nightmare_suppressor
+#####*/
+
+enum NightmareSuppressor
+{
+    EVENT_CAST_SUPPRESSOR = 1,
+    SAY_RANDOM_SPAWN = 0,
+    POINT_ID_AVATAR_OF_HAKKAR = 0
+};
+
+static Position const CenterOfArena = { -467.067f, 273.796f, -90.642f };
+
+class npc_nightmare_suppressor : public CreatureScript
+{
+public:
+    npc_nightmare_suppressor() : CreatureScript("npc_nightmare_suppressor") { }
+
+    struct npc_nightmare_suppressorAI : public ScriptedAI
+    {
+        npc_nightmare_suppressorAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
+
+        InstanceScript* instance;
+
+        void DoAction(int32 action) override
+        {
+            switch (action)
+            {
+            case ACTION_CAST_SUPPRESSOR_NIGHTMARE:
+                //me->SetReactState(REACT_PASSIVE);
+                me->SetSpeed(MOVE_RUN, 2);
+                me->GetMotionMaster()->MovePoint(POINT_ID_AVATAR_OF_HAKKAR, CenterOfArena);
+                Talk(SAY_RANDOM_SPAWN);
+                _events.ScheduleEvent(EVENT_CAST_SUPPRESSOR, 12s);
+                break;
+            }
+        }
+
+        void JustEngagedWith(Unit* who)
+        {
+            if (Creature* avatar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AVATAR_OF_HAKKAR)))
+                avatar->AI()->DoAction(ACTION_REMOVE_SUPPRESSOR_AVATAR);
+            _events.CancelEvent(EVENT_CAST_SUPPRESSOR);
+            me->CastStop();
+            me->SetSpeed(MOVE_RUN, 5);
+            AttackStart(who);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim() && me->IsEngaged())
+                 return;
+
+            _events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_CAST_SUPPRESSOR:
+                    if (!me->IsInCombat())
+                        DoCastSelf(SPELL_SUPPRESSION);
+                    break;
+                default:
+                    break;
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap _events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetSunkenTempleAI<npc_nightmare_suppressorAI>(creature);
+    }
+};
+
+/*#####
 # go_atalai_statue
 #####*/
 
@@ -88,6 +244,35 @@ class go_atalai_statue : public GameObjectScript
         {
             return GetSunkenTempleAI<go_atalai_statueAI>(go);
         }
+};
+
+/*#####
+# go_eternal_flame
+#####*/
+class go_eternal_flame : public GameObjectScript
+{
+public:
+    go_eternal_flame() : GameObjectScript("go_eternal_flame") { }
+
+    struct go_eternal_flameAI : public GameObjectAI
+    {
+        go_eternal_flameAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+        InstanceScript* instance;
+
+        bool OnGossipHello(Player* /*player*/) override
+        {
+            me->SetGoState(GO_STATE_ACTIVE);
+            me->SetFlag(GO_FLAG_NOT_SELECTABLE);
+            instance->SetData(DATA_ETERNAL_FLAME, instance->GetData(DATA_ETERNAL_FLAME) + 1);
+            return true;
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetSunkenTempleAI<go_eternal_flameAI>(go);
+    }
 };
 
 enum HexOfJammalan
@@ -148,10 +333,48 @@ class spell_sunken_temple_hex_of_jammalan_transform : public AuraScript
     }
 };
 
+// 12346 - Awaken the Soulflayer
+class spell_sunken_temple_awaken_the_soulflayer : public SpellScript
+{
+    PrepareSpellScript(spell_sunken_temple_awaken_the_soulflayer);
+
+    bool Load() override
+    {
+        _instance = GetCaster()->GetInstanceScript();
+        _map = GetCaster()->FindMap();
+        return _instance && _map;
+    }
+
+    void HandleSendEvent(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        if (_instance->GetBossState(DATA_AVATAR_OF_HAKKAR) != NOT_STARTED)
+            return;
+        if (Creature* shade = _map->SummonCreature(NPC_SHADE_OF_HAKKAR, AvatarHakkarSpawnPos))
+        {
+            shade->AI()->Talk(SAY_SPAWN_SHADE);
+            if (Creature* avatar = _map->SummonCreature(NPC_AVATAR_OF_HAKKAR, AvatarHakkarSpawnPos))
+                _instance->SetBossState(DATA_AVATAR_OF_HAKKAR, IN_PROGRESS);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_sunken_temple_awaken_the_soulflayer::HandleSendEvent, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+    }
+private:
+    InstanceScript* _instance = nullptr;
+    Map* _map = nullptr;
+};
+
 void AddSC_sunken_temple()
 {
     new at_malfurion_stormrage();
     new go_atalai_statue();
+    new go_eternal_flame();
+    new npc_nightmare_suppressor();
+    new npc_hakkari_bloodkeeper();
     RegisterSpellScript(spell_sunken_temple_hex_of_jammalan);
     RegisterSpellScript(spell_sunken_temple_hex_of_jammalan_transform);
+    RegisterSpellScript(spell_sunken_temple_awaken_the_soulflayer);
 }
