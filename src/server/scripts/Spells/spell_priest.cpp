@@ -633,11 +633,9 @@ class spell_pri_blaze_of_light : public AuraScript
             return;
 
         if (caster->IsValidAttackTarget(target))
-        {
             caster->CastSpell(target, SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE, aurEff);
-            return;
-        }
-        caster->CastSpell(target, SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE, aurEff);
+        else
+            caster->CastSpell(target, SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE, aurEff);
     }
 
     void Register() override
