@@ -1140,7 +1140,7 @@ class spell_pri_from_darkness_comes_light : public AuraScript
 {
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA, aurEff);
     }
 
     void Register() override
