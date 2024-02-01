@@ -543,8 +543,7 @@ struct TC_GAME_API CreatureTemplate
     int32   WidgetSetID;
     int32   WidgetSetUnitConditionID;
     bool    RegenHealth;
-    uint64  MechanicImmuneMask;
-    uint32  SpellSchoolImmuneMask;
+    int32   CreatureImmunitiesId;
     uint32  flags_extra;
     uint32  ScriptID;
     std::string StringId;
