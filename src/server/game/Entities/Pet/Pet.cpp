@@ -917,8 +917,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         SetStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + SPELL_SCHOOL_FROST), BASE_VALUE, 120);
         SetStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + SPELL_SCHOOL_SHADOW), BASE_VALUE, 120);
         SetStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + SPELL_SCHOOL_ARCANE), BASE_VALUE, 30);
-        SetStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START), BASE_VALUE, 240);
-        SetStatFlatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, 13);  // Bonus Stamina (30% of player stamina)
+        SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, 240);
+        SetStatFlatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, 13); 
     }
 
     // Health, Mana or Power, Armor
