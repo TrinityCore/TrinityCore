@@ -897,7 +897,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
     SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(petlevel * 50));
 
-    SetAttackTime(BASE_ATTACK, BASE_ATTACK_TIME);
+    SetAttackTime(BASE_ATTACK, BASE_ATTACK_TIME); //ttopper: hardcode broken tooth
     SetAttackTime(OFF_ATTACK, BASE_ATTACK_TIME);
     SetAttackTime(RANGED_ATTACK, BASE_ATTACK_TIME);
 
@@ -1912,6 +1912,7 @@ void Pet::LearnPetPassives()
         // For general hunter pets skill 270
         // Passive 01~10, Passive 00 (20782, not used), Ferocious Inspiration (34457)
         // Scale 01~03 (34902~34904, bonus from owner, not used)
+
         for (uint32 spellId : petStore->second)
             addSpell(spellId, ACT_DECIDE, PETSPELL_NEW, PETSPELL_FAMILY);
     }

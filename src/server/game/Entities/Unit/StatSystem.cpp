@@ -1196,11 +1196,11 @@ bool Guardian::UpdateStats(Stats stat)
         if (owner->GetClass() == CLASS_WARLOCK && IsPet())
         {
             ownersBonus = CalculatePct(owner->GetStat(STAT_STAMINA), 75);
-            value += ownersBonus;
+            //value += ownersBonus;
         }
         else
         {
-            mod = 0.45f;
+            mod = 0.0f;
             if (IsPet())
             {
                 PetSpellMap::const_iterator itr = (ToPet()->m_spells.find(62758)); // Wild Hunt rank 1
@@ -1290,8 +1290,10 @@ void Guardian::UpdateArmor()
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
     // hunter and warlock pets gain 35% of owner's armor value
+    /*
     if (IsPet())
         bonus_armor = float(CalculatePct(m_owner->GetArmor(), 35));
+    */
 
     value  = GetFlatModifierValue(unitMod, BASE_VALUE);
     value *= GetPctModifierValue(unitMod, BASE_PCT);
@@ -1371,7 +1373,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     {
         if (IsHunterPet())                      //hunter pets benefit from owner's attack power
         {
-            float mod = 1.0f;                                                 //Hunter contribution modifier
+            float mod = 0.0f;                                                 //Hunter contribution modifier
             if (IsPet())
             {
                 PetSpellMap::const_iterator itr = ToPet()->m_spells.find(62758);    //Wild Hunt rank 1
@@ -1409,6 +1411,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
         //demons benefit from warlocks shadow or fire damage
         else if (IsPet())
         {
+            /*
             int32 fire  = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + AsUnderlyingType(SPELL_SCHOOL_FIRE)) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + AsUnderlyingType(SPELL_SCHOOL_FIRE));
             int32 shadow = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + AsUnderlyingType(SPELL_SCHOOL_SHADOW)) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + AsUnderlyingType(SPELL_SCHOOL_SHADOW));
             int32 maximum  = (fire > shadow) ? fire : shadow;
@@ -1416,14 +1419,17 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
                 maximum = 0;
             SetBonusDamage(int32(maximum * 0.15f));
             bonusAP = maximum * 0.57f;
+            */
         }
         //water elementals benefit from mage's frost damage
         else if (GetEntry() == ENTRY_WATER_ELEMENTAL)
         {
+            /*
             int32 frost = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + AsUnderlyingType(SPELL_SCHOOL_FROST)) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + AsUnderlyingType(SPELL_SCHOOL_FROST));
             if (frost < 0)
                 frost = 0;
             SetBonusDamage(int32(frost * 0.4f));
+            */
         }
     }
 
