@@ -2966,6 +2966,7 @@ enum SkillType
     SKILL_ASSASSINATION            = 253,
     SKILL_FURY                     = 256,
     SKILL_PROTECTION               = 257,
+    SKIL_BEAST_TRAINING            = 261,
     SKILL_PROTECTION2              = 267,
     SKILL_PET_TALENTS              = 270,
     SKILL_PLATE_MAIL               = 293,
