@@ -1638,6 +1638,39 @@ class spell_pal_sacred_shield_dummy : public AuraScript
     TimePoint _cooldownEnd = std::chrono::steady_clock::time_point::min();
 };
 
+// 21082 - Seal of the Crusader
+class spell_seal_crusader : public AuraScript
+{
+    PrepareAuraScript(spell_seal_crusader);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return true;
+    }
+
+    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Aura* aura = aurEff->GetBase();
+        float amount = aura->GetEffect(1)->GetAmount();
+        float reduction = (-100.0f * amount) / (amount + 100.0f);
+        Unit* caster = GetCaster();
+        caster->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, reduction);
+    }
+
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        caster->UpdateDamagePctDoneMods(BASE_ATTACK);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_seal_crusader::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_seal_crusader::OnRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+
 // 1826 - Judgement of Wisdom Intermediate
 class spell_pal_jud_wis_intermediate : public SpellScript
 {
@@ -2142,4 +2175,5 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_t8_2p_bonus);
     RegisterSpellScript(spell_pal_jud_wis_intermediate);
     RegisterSpellScript(spell_pal_jud_light_intermediate);
+    RegisterSpellScript(spell_seal_crusader);
 }

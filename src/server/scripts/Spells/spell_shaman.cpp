@@ -1869,7 +1869,8 @@ class spell_sha_windfury_weapon : public AuraScript
             spellId = SPELL_SHAMAN_WINDFURY_ATTACK_OH;
             attType = OFF_ATTACK;
         }
-
+        //player->AddExtraAttacks(2);
+        
         Item* item = ASSERT_NOTNULL(player->GetWeaponForAttack(attType));
 
         int32 enchantId = static_cast<int32>(item->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
@@ -1896,6 +1897,7 @@ class spell_sha_windfury_weapon : public AuraScript
         // Attack twice
         for (uint8 i = 0; i < 2; ++i)
             player->CastSpell(eventInfo.GetProcTarget(), spellId, args);
+            
     }
 
     void Register() override

@@ -102,16 +102,20 @@ class spell_hun_aspect_of_the_beast : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
+        /*
         Player* player = GetTarget()->ToPlayer();
         if (Pet* pet = player->GetPet())
             pet->RemoveAurasDueToSpell(SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET);
+            */
     }
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
+        /*
         Player* player = GetTarget()->ToPlayer();
         if (player->GetPet())
             player->CastSpell(player, SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET, true);
+            */
     }
 
     void Register() override
@@ -1362,6 +1366,7 @@ class spell_hun_wyvern_sting : public AuraScript
         AfterEffectRemove += AuraEffectRemoveFn(spell_hun_wyvern_sting::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
     }
 };
+
 
 void AddSC_hunter_spell_scripts()
 {

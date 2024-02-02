@@ -1480,6 +1480,25 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         Unit::DealDamage(this, victim, damageInfo->Damages[i].Damage, &cleanDamage, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->Damages[i].DamageSchoolMask), nullptr, durabilityLoss);
     }
 
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        Unit* attacker = damageInfo->Attacker;
+
+        Aura* judgeWisdomAura = victim->GetAuraOfRankedSpell(20186);
+        Aura* judgeLightAura = victim->GetAuraOfRankedSpell(20185);
+
+        //if paladin that cast judgement hits with auto attack, it refreshes duration
+        if (judgeWisdomAura && judgeWisdomAura->GetCaster()->GetGUID() == attacker->GetGUID())
+        {
+            judgeWisdomAura->RefreshDuration();
+        }
+
+        if (judgeLightAura && judgeLightAura->GetCaster()->GetGUID() == attacker->GetGUID())
+        {
+            judgeLightAura->RefreshDuration();
+        }
+    }
+
     // If this is a creature and it attacks from behind it has a probability to daze it's victim
     if ((damageInfo->HitOutCome == MELEE_HIT_CRIT || damageInfo->HitOutCome == MELEE_HIT_CRUSHING || damageInfo->HitOutCome == MELEE_HIT_NORMAL || damageInfo->HitOutCome == MELEE_HIT_GLANCING) &&
         GetTypeId() != TYPEID_PLAYER && !ToCreature()->IsControlledByPlayer() && !victim->HasInArc(float(M_PI), this)
