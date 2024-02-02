@@ -954,6 +954,38 @@ void Spell::MangosDummyPort()
         case SPELLFAMILY_PALADIN:
             break;
         case SPELLFAMILY_SHAMAN:
+            /*
+            if (m_spellInfo->SpellFamilyFlags & flag96(0x0000000000200000)) // Flametongue Weapon Proc, Ranks
+            {
+                if (m_CastItem)
+                {
+                    //int32 bonusDamage = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
+                    // found spelldamage coefficients of 0.381% per 0.1 speed and 15.244 per 4.0 speed
+                    // but own calculation say 0.385 gives at most one point difference to published values
+                    int32 bonusDamage = m_caster->ToUnit()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE);
+                    // Does Amplify Magic/Dampen Magic influence flametongue? If not, the above addition must be removed.
+                    float weaponSpeed = float(m_CastItem->GetTemplate()->Delay) / IN_MILLISECONDS;
+                    bonusDamage /= 10; //flametongue coefficient
+                    int32 totalDamage = (damage * 0.01 * weaponSpeed) + bonusDamage;
+
+                    m_caster->CastSpell(unitTarget, 10444, &totalDamage);
+                }
+
+                return;
+            }
+
+            if (m_spellInfo->SpellFamilyFlags & flag96(0x0000000400000000)) // Flametongue Totem Proc, Ranks
+            {
+                if (m_CastItem) // Does not scale with gear
+                {
+                    float weaponSpeed = float(m_CastItem->GetTemplate()->Delay) / IN_MILLISECONDS;
+                    int32 totalDamage = (damage * 0.01f * weaponSpeed);
+                    m_caster->CastSpell(unitTarget, 16368, &totalDamage);
+                }
+
+                return;
+            }
+            */
             break;
     }
 }
