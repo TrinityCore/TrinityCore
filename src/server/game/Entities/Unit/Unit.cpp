@@ -8900,7 +8900,7 @@ void Unit::IncrDiminishing(SpellInfo const* auraSpellInfo, bool triggered)
 bool Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, bool triggered, int32& duration, WorldObject* caster, DiminishingLevels previousLevel) const
 {
     DiminishingGroup const group = auraSpellInfo->GetDiminishingReturnsGroupForSpell(triggered);
-    if (duration == -1 || group == DIMINISHING_NONE)
+    if (duration == -1 || group == DIMINISHING_NONE || group == DIMINISHING_LIMITONLY)
         return true;
 
     int32 const limitDuration = auraSpellInfo->GetDiminishingReturnsLimitDuration(triggered);
