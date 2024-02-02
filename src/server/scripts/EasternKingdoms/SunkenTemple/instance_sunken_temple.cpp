@@ -23,6 +23,7 @@ SDCategory: Sunken Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -177,8 +178,12 @@ public:
             switch (unit->GetEntry())
             {
             case NPC_NIGHTMARE_SUPPRESSOR:
-                NightmareSuppressorGUID.Clear();
-                Events.ScheduleEvent(EVENT_SPAWN_NIGHTMARE_SUPPRESSOR, 50s, 60s);
+                if (unit->ToCreature()->m_isTempWorldObject)
+                {
+                    NightmareSuppressorGUID.Clear();
+                    if (!Events.Empty())
+                        Events.ScheduleEvent(EVENT_SPAWN_NIGHTMARE_SUPPRESSOR, 50s, 60s);
+                }
                 break;
             default:
                 break;
@@ -262,7 +267,10 @@ public:
                 case EVENT_SPAWN_NIGHTMARE_SUPPRESSOR:
                     if (NightmareSuppressorGUID.IsEmpty())
                         if (Creature* nightmareSuppressor = instance->SummonCreature(NPC_NIGHTMARE_SUPPRESSOR, NightmareSuppressorSpawnsPos[urand(0, 3)]))
+                        {
+                            nightmareSuppressor->m_isTempWorldObject = true;
                             nightmareSuppressor->AI()->DoAction(ACTION_CAST_SUPPRESSOR_NIGHTMARE);
+                        }
                     break;
                 case EVENT_SPAWN_HAKKARI_MINION:
                     for (uint8 i = urand(0, 4); i < 7; ++i)
@@ -355,6 +363,8 @@ public:
             default:
                 break;
             }
+
+            return true;
         }
 
         void SetData(uint32 type, uint32 data) override

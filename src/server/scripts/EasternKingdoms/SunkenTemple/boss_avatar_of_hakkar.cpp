@@ -67,10 +67,10 @@ public:
             SetShadeParameters(true);
         }
 
-        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             if (spellInfo->Id == SPELL_SUPPRESSION)
-                events.ScheduleEvent(EVENT_SUPPRESSOR, 15s);
+                events.ScheduleEvent(EVENT_SUPPRESSOR, 1min);
         }
 
         void DoAction(int32 action) override

@@ -83,7 +83,7 @@ public:
     {
         npc_hakkari_bloodkeeperAI(Creature* creature) : ScriptedAI(creature), _instance(*creature->GetInstanceScript()) { }
 
-        void JustEngagedWith(Unit* unit)
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_CAST_SHADOW_BOLT, 0s, 2s);
             _events.ScheduleEvent(EVENT_CAST_CORRUPTION, 13s, 17s);
@@ -145,6 +145,8 @@ enum NightmareSuppressor
 
 static Position const CenterOfArena = { -467.067f, 273.796f, -90.642f };
 
+#include "Log.h"
+
 class npc_nightmare_suppressor : public CreatureScript
 {
 public:
@@ -170,14 +172,14 @@ public:
             }
         }
 
-        void JustEngagedWith(Unit* who)
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (Creature* avatar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AVATAR_OF_HAKKAR)))
                 avatar->AI()->DoAction(ACTION_REMOVE_SUPPRESSOR_AVATAR);
             _events.CancelEvent(EVENT_CAST_SUPPRESSOR);
             me->CastStop();
             me->SetSpeed(MOVE_RUN, 5);
-            AttackStart(who);
+            //AttackStart(who);
         }
 
         void UpdateAI(uint32 diff) override
