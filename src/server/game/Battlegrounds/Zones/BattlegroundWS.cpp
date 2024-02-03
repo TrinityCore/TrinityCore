@@ -84,30 +84,6 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        if (GetStartTime() >= 27*MINUTE*IN_MILLISECONDS)
-        {
-            if (GetTeamScore(TEAM_ALLIANCE) == 0)
-            {
-                if (GetTeamScore(TEAM_HORDE) == 0)        // No one scored - result is tie
-                    EndBattleground(0);
-                else                                 // Horde has more points and thus wins
-                    EndBattleground(HORDE);
-            }
-            else if (GetTeamScore(TEAM_HORDE) == 0)
-                EndBattleground(ALLIANCE);           // Alliance has > 0, Horde has 0, alliance wins
-            else if (GetTeamScore(TEAM_HORDE) == GetTeamScore(TEAM_ALLIANCE)) // Team score equal, winner is team that scored the last flag
-                EndBattleground(_lastFlagCaptureTeam);
-            else if (GetTeamScore(TEAM_HORDE) > GetTeamScore(TEAM_ALLIANCE))  // Last but not least, check who has the higher score
-                EndBattleground(HORDE);
-            else
-                EndBattleground(ALLIANCE);
-        }
-        // first update needed after 1 minute of game already in progress
-        else if (GetStartTime() > uint32(_minutesElapsed * MINUTE * IN_MILLISECONDS) +  3 * MINUTE * IN_MILLISECONDS)
-        {
-            ++_minutesElapsed;
-            UpdateWorldState(BG_WS_STATE_TIMER, 25 - _minutesElapsed);
-        }
 
         if (_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_WAIT_RESPAWN)
         {
