@@ -259,6 +259,9 @@ void Arena::EndBattleground(uint32 winner)
                 if (!player)
                     continue;
 
+                float winner_honor = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST) * .5f;
+                float loser_honor = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_LAST) * .5f;
+
                 // per player calculation
                 if (team == winner)
                 {
@@ -272,6 +275,7 @@ void Arena::EndBattleground(uint32 winner)
                         player->CastSpell(player, SPELL_LAST_MAN_STANDING, true);
 
                     winnerArenaTeam->MemberWon(player, loserMatchmakerRating, winnerMatchmakerChange);
+                    player->ModifyHonorPoints(winner_honor);
                 }
                 else
                 {
@@ -282,7 +286,9 @@ void Arena::EndBattleground(uint32 winner)
 
                     // Arena lost => reset the win_rated_arena having the "no_lose" condition
                     player->ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE, 0);
+                    player->ModifyHonorPoints(loser_honor);
                 }
+                player->ModifyMoney(10 * 100); //give each player 10 silver
             }
 
             // update previous opponents for arena queue
