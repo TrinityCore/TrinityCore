@@ -1029,7 +1029,8 @@ void Battleground::AddPlayer(Player* player)
     }
     else // IF balance
     {
-        if (player->GetBGTeam() == HORDE) // IF player is a real horde, enter battleground as a horde
+        bool horde = roll_chance_i(50);
+        if (horde) // IF player is a real horde, enter battleground as a horde
             player->SetFactionForRace(RACE_ORC);
         else // IF player is a real alliance, enter battleground as an alliance
             player->SetFactionForRace(RACE_HUMAN);
