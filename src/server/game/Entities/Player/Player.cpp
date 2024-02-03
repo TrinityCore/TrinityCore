@@ -22285,7 +22285,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
             CharacterDatabase.Execute(stmt);
         }
     }
-    ToCreature()->SetFaction(GetRace());
+    SetFactionForRace(GetRace());
 }
 
 bool Player::CanJoinToBattleground(Battleground const* bg) const

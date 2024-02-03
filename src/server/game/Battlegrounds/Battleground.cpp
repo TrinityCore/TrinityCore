@@ -1019,20 +1019,20 @@ void Battleground::AddPlayer(Player* player)
 
     if (hordePlayers < alliancePlayers) // IF alliance more than horde
     {
-        player->ToCreature()->SetFaction(RACE_ORC);
+        player->SetFactionForRace(RACE_ORC);
         player->SetBGTeam(HORDE);
     }
     else if (hordePlayers > alliancePlayers) // IF horde more than alliance
     {
-        player->ToCreature()->SetFaction(RACE_HUMAN);
+        player->SetFactionForRace(RACE_HUMAN);
         player->SetBGTeam(ALLIANCE);
     }
     else // IF balance
     {
         if (player->GetBGTeam() == HORDE) // IF player is a real horde, enter battleground as a horde
-            player->ToCreature()->SetFaction(RACE_ORC);
+            player->SetFactionForRace(RACE_ORC);
         else // IF player is a real alliance, enter battleground as an alliance
-            player->ToCreature()->SetFaction(RACE_HUMAN);
+            player->SetFactionForRace(RACE_HUMAN);
     }
 
     // score struct must be created in inherited class
