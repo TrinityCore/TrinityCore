@@ -773,7 +773,8 @@ void Battleground::EndBattleground(uint32 winner)
             player->CombatStop();
 
         uint32 winner_honor = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST);
-        uint32 loser_honor = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_LAST);
+        uint32 loser_honor = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST);
+        uint32 gold_gain = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_FIRST);
         uint32 winner_arena = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_FIRST);
 
         if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
@@ -799,6 +800,13 @@ void Battleground::EndBattleground(uint32 winner)
             CharacterDatabase.Execute(stmt);
         }
 
+        // if we're arena
+        if (!isBattleground())
+        {
+            winner_honor *= .1f;
+            loser_honor *= .1f;
+            gold_gain *= .1f;
+        }
         // Reward winner team
         if (team == winner)
         {
@@ -815,7 +823,7 @@ void Battleground::EndBattleground(uint32 winner)
             player->ModifyHonorPoints(loser_honor);
         }
 
-        player->ModifyMoney(1 * 100 * 100); //give each player a gold
+        player->ModifyMoney(gold_gain); //give each player a gold
 
         player->ResetAllPowers();
         player->CombatStopWithPets(true);

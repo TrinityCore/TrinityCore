@@ -195,7 +195,7 @@ void BattlegroundWS::StartingEventCloseDoors()
         SpawnBGObject(i, RESPAWN_ONE_DAY);
 
     UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 0);
-    UpdateWorldState(BG_WS_STATE_TIMER, 180);
+    UpdateWorldState(BG_WS_STATE_TIMER, 30);
 }
 
 void BattlegroundWS::StartingEventOpenDoors()
