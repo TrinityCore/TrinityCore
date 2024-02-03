@@ -122,9 +122,9 @@ Battleground::Battleground()
 
     m_HonorMode = BG_NORMAL;
 
-    StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_2M;
-    StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_1M;
-    StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_30S;
+    StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_30S;
+    StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_20S;
+    StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_10S;
     StartDelayTimes[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
 
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = BG_TEXT_START_TWO_MINUTES;
@@ -1027,7 +1027,7 @@ void Battleground::AddPlayer(Player* player)
 
     if (hordePlayers < alliancePlayers) // IF alliance more than horde
     {
-        player->SetFactionForRace(RACE_ORC);
+        player->SetFactionForRace(RACE_BLOODELF);
         player->SetBGTeam(HORDE);
     }
     else if (hordePlayers > alliancePlayers) // IF horde more than alliance
@@ -1039,7 +1039,7 @@ void Battleground::AddPlayer(Player* player)
     {
         bool horde = roll_chance_i(50);
         if (horde) // IF player is a real horde, enter battleground as a horde
-            player->SetFactionForRace(RACE_ORC);
+            player->SetFactionForRace(RACE_BLOODELF);
         else // IF player is a real alliance, enter battleground as an alliance
             player->SetFactionForRace(RACE_HUMAN);
     }
