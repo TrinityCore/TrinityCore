@@ -644,6 +644,35 @@ void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
     if (!factionEntry)
         return;
 
+    // switch to the opposite faction
+    FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(faction_id);
+    switch (faction_id)
+    {
+        case 729:
+            factionEntry2 = sFactionStore.LookupEntry(730);
+            break;
+        case 730:
+            factionEntry2 = sFactionStore.LookupEntry(729);
+            break;
+        case 889:
+            factionEntry2 = sFactionStore.LookupEntry(890);
+            break;
+        case 890:
+            factionEntry2 = sFactionStore.LookupEntry(889);
+            break;
+        case 509:
+            factionEntry2 = sFactionStore.LookupEntry(510);
+            break;
+        case 510:
+            factionEntry2 = sFactionStore.LookupEntry(509);
+            break;
+        default:
+            break;
+    }
+
+    if (!factionEntry2)
+        return;
+
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         Player* player = _GetPlayerForTeam(TeamID, itr, "RewardReputationToTeam");
@@ -981,6 +1010,30 @@ void Battleground::AddPlayer(Player* player)
     // remove afk from player
     if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
         player->ToggleAFK();
+
+    // enter battleground
+    // change team to stay balance
+    // team may be different with in battleground queue
+    uint32 hordePlayers = GetPlayersCountByTeam(HORDE);
+    uint32 alliancePlayers = GetPlayersCountByTeam(ALLIANCE);
+
+    if (hordePlayers < alliancePlayers) // IF alliance more than horde
+    {
+        player->ToCreature()->SetFaction(RACE_ORC);
+        player->SetBGTeam(HORDE);
+    }
+    else if (hordePlayers > alliancePlayers) // IF horde more than alliance
+    {
+        player->ToCreature()->SetFaction(RACE_HUMAN);
+        player->SetBGTeam(ALLIANCE);
+    }
+    else // IF balance
+    {
+        if (player->GetBGTeam() == HORDE) // IF player is a real horde, enter battleground as a horde
+            player->ToCreature()->SetFaction(RACE_ORC);
+        else // IF player is a real alliance, enter battleground as an alliance
+            player->ToCreature()->SetFaction(RACE_HUMAN);
+    }
 
     // score struct must be created in inherited class
 
