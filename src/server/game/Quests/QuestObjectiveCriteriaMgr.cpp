@@ -310,3 +310,8 @@ CriteriaList const& QuestObjectiveCriteriaMgr::GetCriteriaByType(CriteriaType ty
 {
     return sCriteriaMgr->GetQuestObjectiveCriteriaByType(type);
 }
+
+bool QuestObjectiveCriteriaMgr::RequiredAchievementSatisfied(uint32 achievementId) const
+{
+    return _owner->HasAchieved(achievementId);
+}
