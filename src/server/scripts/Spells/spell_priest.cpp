@@ -2568,7 +2568,7 @@ class spell_pri_shadow_mend_periodic_damage : public AuraScript
     }
 };
 
-// 109186 - Surge of Light 
+// 109186 - Surge of Light
 class spell_pri_surge_of_light : public AuraScript
 {
     bool CheckProc(ProcEventInfo& eventInfo)
