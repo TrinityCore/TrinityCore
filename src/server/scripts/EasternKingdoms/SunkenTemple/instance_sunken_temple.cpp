@@ -23,26 +23,17 @@ SDCategory: Sunken Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "CreatureAI.h"
 #include "Map.h"
 #include "sunken_temple.h"
 
-enum Gameobject
+DoorData const doorData[] =
 {
-    GO_ATALAI_STATUE1           = 148830,
-    GO_ATALAI_STATUE2           = 148831,
-    GO_ATALAI_STATUE3           = 148832,
-    GO_ATALAI_STATUE4           = 148833,
-    GO_ATALAI_STATUE5           = 148834,
-    GO_ATALAI_STATUE6           = 148835,
-    GO_ATALAI_LIGHT1            = 148883,
-    GO_ATALAI_LIGHT2            = 148937
-};
-
-enum CreatureIds
-{
-    NPC_ATALALARION             = 8580
+    { GO_FORCEFIELD, DATA_ELITE_TROLLS, DOOR_TYPE_PASSAGE },
+    { 0,             0,                 DOOR_TYPE_ROOM }  // END
 };
 
 static Position const atalalarianPos = { -466.5134f, 95.19822f, -189.6463f, 0.03490658f };
@@ -72,6 +63,8 @@ public:
         instance_sunken_temple_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            SetBossNumber(EncounterCount);
+            LoadDoorData(doorData);
             State = 0;
 
             s1 = false;
@@ -80,6 +73,7 @@ public:
             s4 = false;
             s5 = false;
             s6 = false;
+            EliteTrollsKilled = 0;
         }
 
         ObjectGuid GOAtalaiStatue1;
@@ -88,6 +82,10 @@ public:
         ObjectGuid GOAtalaiStatue4;
         ObjectGuid GOAtalaiStatue5;
         ObjectGuid GOAtalaiStatue6;
+
+        ObjectGuid JammalAnTheProphetGUID;
+        ObjectGuid ShadeOfEranikusGUID;
+        uint8 EliteTrollsKilled;
 
         uint32 State;
 
@@ -108,6 +106,68 @@ public:
                 case GO_ATALAI_STATUE4: GOAtalaiStatue4 = go->GetGUID();   break;
                 case GO_ATALAI_STATUE5: GOAtalaiStatue5 = go->GetGUID();   break;
                 case GO_ATALAI_STATUE6: GOAtalaiStatue6 = go->GetGUID();   break;
+                case GO_FORCEFIELD:
+                AddDoor(go, true);
+                break;
+            }
+        }
+
+        void OnGameObjectRemove(GameObject* go) override
+        {
+            switch (go->GetEntry())
+            {
+            case GO_FORCEFIELD:
+                AddDoor(go, false);
+                break;
+            default:
+                break;
+            }
+        }
+
+        void OnCreatureCreate(Creature* creature) override
+        {
+            InstanceScript::OnCreatureCreate(creature);
+
+            switch (creature->GetEntry())
+            {
+            case NPC_JAMMAL_AN_THE_PROPHET:
+                JammalAnTheProphetGUID = creature->GetGUID();
+                if (GetBossState(DATA_ELITE_TROLLS) != DONE)
+                {
+                    creature->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    creature->CastSpell(*creature, SPELL_GREEN_CHANNELING);
+                }
+                break;
+            case NPC_SHADE_OF_ERANIKUS:
+                ShadeOfEranikusGUID = creature->GetGUID();
+                if (GetBossState(DATA_JAMMAL_AN_THE_PROPHET) != DONE)
+                {
+                    creature->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    creature->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                }
+                break;
+            default:
+                break;
+            }
+        }
+
+        void OnUnitDeath(Unit* unit) override
+        {
+            switch (unit->GetEntry())
+            {
+            case NPC_ZOLO:
+            case NPC_GASHER:
+            case NPC_LORO:
+            case NPC_HUKKU:
+            case NPC_ZUL_LOR:
+            case NPC_MIJAN:
+                SetData(DATA_ELITE_TROLLS, EliteTrollsKilled + 1);
+                break;
+            case NPC_JAMMAL_AN_THE_PROPHET:
+                SetBossState(DATA_JAMMAL_AN_THE_PROPHET, DONE);
+                break;
+            default:
+                break;
             }
         }
 
@@ -189,20 +249,80 @@ public:
             go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10min);
         }
 
+        bool SetBossState(uint32 type, EncounterState state) override
+        {
+            if (!InstanceScript::SetBossState(type, state))
+                return false;
+            switch (type)
+            {
+            case DATA_JAMMAL_AN_THE_PROPHET:
+                if (state == DONE)
+                {
+                    if (Creature* creature = instance->GetCreature(ShadeOfEranikusGUID))
+                    {
+                        creature->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        creature->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                    }
+                }
+                SaveToDB();
+                break;
+            default:
+                break;
+            }
+            return true;
+        }
+
          void SetData(uint32 type, uint32 data) override
          {
-            if (type == EVENT_STATE)
+            switch (type)
+            {
+            case EVENT_STATE:
                 State = data;
+                break;
+            case DATA_ELITE_TROLLS:
+                EliteTrollsKilled = data;
+                if (EliteTrollsKilled == 6)
+                {
+                    //instance->LoadGrid(-425.89f, -86.07f);    
+                    if (Creature* jammal = instance->GetCreature(JammalAnTheProphetGUID))
+                        jammal->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    /*if (GameObject* forceField = instance->GetGameObject(ForceFieldGUID))
+                        forceField->SetGoState(GO_STATE_ACTIVE);*/
+                    SetBossState(DATA_ELITE_TROLLS, DONE);
+                }
+                SaveToDB();
+                break;
+            default:
+                break;
+            }
          }
 
          uint32 GetData(uint32 type) const override
          {
-            if (type == EVENT_STATE)
+            switch (type)
+            {
+            case EVENT_STATE:
                 return State;
+                break;
+            case DATA_ELITE_TROLLS:
+                return EliteTrollsKilled;
+                break;
+            default:
+                break;
+            }
             return 0;
          }
-    };
 
+        void ReadSaveDataMore(std::istringstream& data) override
+        {
+            data >> EliteTrollsKilled;
+        }
+
+        void WriteSaveDataMore(std::ostringstream& data) override
+        {
+            data << EliteTrollsKilled;
+        }
+    };
 };
 
 void AddSC_instance_sunken_temple()
