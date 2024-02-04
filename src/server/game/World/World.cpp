@@ -1462,6 +1462,11 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_BG_REWARD_LOSER_HONOR_FIRST]  = sConfigMgr->GetIntDefault("Battleground.RewardLoserHonorFirst", 5);
     m_int_configs[CONFIG_BG_REWARD_LOSER_HONOR_LAST]   = sConfigMgr->GetIntDefault("Battleground.RewardLoserHonorLast", 5);
 
+    m_int_configs[CONFIG_CENTURION_BG_REWARD_HONOR] = sConfigMgr->GetIntDefault("Centurion.Battleground.RewardHonor", 100);
+    m_int_configs[CONFIG_CENTURION_BG_REWARD_MONEY] = sConfigMgr->GetIntDefault("Centurion.Battleground.RewardMoney", 100000);
+    m_float_configs[CONFIG_CENTURION_BG_ARENA_REWARD_MULTIPLIER] = sConfigMgr->GetIntDefault("Centurion.Battleground.ArenaRewardMultiplier", .2f);
+    m_float_configs[CONFIG_CENTURION_BG_LOSER_REWARD_MULTIPLIER] = sConfigMgr->GetIntDefault("Centurion.Battleground.LoserRewardMultiplier", .1f);
+
     // Max instances per hour
     m_int_configs[CONFIG_MAX_INSTANCES_PER_HOUR] = sConfigMgr->GetIntDefault("AccountInstancesPerHour", 5);
 

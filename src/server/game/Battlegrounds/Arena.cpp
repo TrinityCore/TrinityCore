@@ -259,9 +259,6 @@ void Arena::EndBattleground(uint32 winner)
                 if (!player)
                     continue;
 
-                float winner_honor = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST) * .5f;
-                float loser_honor = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST) * .5f;
-
                 // per player calculation
                 if (team == winner)
                 {

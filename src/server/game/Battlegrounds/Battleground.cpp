@@ -772,9 +772,9 @@ void Battleground::EndBattleground(uint32 winner)
             //needed cause else in av some creatures will kill the players at the end
             player->CombatStop();
 
-        uint32 winner_honor = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST);
-        uint32 loser_honor = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST);
-        uint32 gold_gain = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_FIRST);
+        uint32 winner_honor = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_HONOR);
+        uint32 loser_honor = float(winner_honor) * sWorld->getFloatConfig(CONFIG_CENTURION_BG_LOSER_REWARD_MULTIPLIER);
+        uint32 gold_gain = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_MONEY);
         uint32 winner_arena = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_FIRST);
 
         if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
@@ -803,9 +803,10 @@ void Battleground::EndBattleground(uint32 winner)
         // if we're arena
         if (!isBattleground())
         {
-            winner_honor *= .1f;
-            loser_honor *= .1f;
-            gold_gain *= .1f;
+            float arenaMultiplier = sWorld->getFloatConfig(CONFIG_CENTURION_BG_ARENA_REWARD_MULTIPLIER);
+            winner_honor *= arenaMultiplier;
+            loser_honor *= arenaMultiplier;
+            gold_gain *= arenaMultiplier;
         }
         // Reward winner team
         if (team == winner)
