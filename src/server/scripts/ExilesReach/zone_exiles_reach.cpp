@@ -1767,7 +1767,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
 
         _reachedCamp = true;
 
-        if (Unit* owner = me->GetDemonCreator())
+        if (Unit* owner = me->GetOwner())
         {
             Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false);
             conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, 1, me->GetGUID());
@@ -1783,7 +1783,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
             return;
 
-        if (Unit* owner = me->GetDemonCreator())
+        if (Unit* owner = me->GetOwner())
         {
             owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
             owner->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
@@ -1800,7 +1800,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
             {
                 case EVENT_INITIAL_SPAWN_CHECK:
                 {
-                    Unit* owner = me->GetDemonCreator();
+                    Unit* owner = me->GetOwner();
                     if (!owner)
                         break;
 
@@ -1824,7 +1824,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
                     break;
                 }
                 case EVENT_FOLLOW_PLAYER:
-                    if (Unit* owner = me->GetDemonCreator())
+                    if (Unit* owner = me->GetOwner())
                         me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
@@ -1858,12 +1858,13 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
         if (_reachedCamp)
             return;
 
-        if (Unit* owner = me->GetDemonCreator())
+        if (Unit* owner = me->GetOwner())
         {
-            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false);
-            conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 3, me->GetGUID());
-            conversation->Start();
-
+            if (Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false))
+            {
+                conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 3, me->GetGUID());
+                conversation->Start();
+            }
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
             me->GetMotionMaster()->MovePoint(POINT_CAMP_POSITION, GrimaxeAbandonedCampPosition, false);
         }
@@ -1874,7 +1875,7 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
             return;
 
-        if (Unit* owner = me->GetDemonCreator())
+        if (Unit* owner = me->GetOwner())
         {
             owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
             owner->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
@@ -1891,7 +1892,7 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
             {
                 case EVENT_INITIAL_SPAWN_CHECK:
                 {
-                    Unit* owner = me->GetDemonCreator();
+                    Unit* owner = me->GetOwner();
                     if (!owner)
                         break;
 
@@ -1906,16 +1907,17 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
                     }
                     else
                     {
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR, owner, *owner, owner->GetGUID(), nullptr, false);
-                        conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 2, me->GetGUID());
-                        conversation->Start();
-
+                        if (Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR, owner, *owner, owner->GetGUID(), nullptr, false))
+                        {
+                            conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 2, me->GetGUID());
+                            conversation->Start();
+                        }
                         _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 2s);
                     }
                     break;
                 }
                 case EVENT_FOLLOW_PLAYER:
-                    if (Unit* owner = me->GetDemonCreator())
+                    if (Unit* owner = me->GetOwner())
                         me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
@@ -2413,7 +2415,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
     uint8 GetQuestCredits()
     {
-        Player* player = me->GetAffectingPlayer();
+        Player* player = me->GetDemonCreatorPlayer();
         if (!player)
             return 0;
 
@@ -2499,7 +2501,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
     void StartConversationWithPlayer(uint32 conversationId)
     {
-        if (Player* player = me->GetAffectingPlayer())
+        if (Player* player = me->GetDemonCreatorPlayer())
         {
             Conversation* conversation = Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr, false);
             if (!conversation)
@@ -3593,8 +3595,8 @@ struct npc_leader_northbound : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_FOLLOW_PLAYER:
-                    if (Unit* owner = me->GetDemonCreator())
-                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
+                    if (Player* player = me->GetAffectingPlayer())
+                        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
                     break;
