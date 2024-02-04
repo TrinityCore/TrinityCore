@@ -1299,10 +1299,6 @@ void ScriptMgr::OnSocketClose(std::shared_ptr<WorldSocket> socket)
 
 void ScriptMgr::OnPacketReceive(WorldSession* session, WorldPacket const& packet)
 {
-    if (SCR_REG_LST(ServerScript).empty())
-        return;
-
-    WorldPacket copy(packet);
     // @tswow-begin
     FIRE_ID(
           packet.GetOpcode()
@@ -1312,6 +1308,12 @@ void ScriptMgr::OnPacketReceive(WorldSession* session, WorldPacket const& packet
         , TSPlayer(session->GetPlayer())
     );
     // @tswow-end
+    
+    if (SCR_REG_LST(ServerScript).empty())
+        return;
+
+    WorldPacket copy(packet);
+
     FOREACH_SCRIPT(ServerScript)->OnPacketReceive(session, copy);
 }
 
