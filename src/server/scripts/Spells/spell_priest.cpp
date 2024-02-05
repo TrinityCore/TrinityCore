@@ -641,9 +641,9 @@ class spell_pri_blaze_of_light : public AuraScript
             return;
 
         if (GetTarget()->IsValidAttackTarget(procTarget))
-            GetTarget()->CastSpell(procTarget, SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE);
+            GetTarget()->CastSpell(procTarget, SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE, TriggerCastFlags(TRIGGERED_CAST_DIRECTLY | TRIGGERED_IGNORE_CAST_IN_PROGRESS));
         else
-            GetTarget()->CastSpell(procTarget, SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE);
+            GetTarget()->CastSpell(procTarget, SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE, TriggerCastFlags(TRIGGERED_CAST_DIRECTLY | TRIGGERED_IGNORE_CAST_IN_PROGRESS));
     }
 
     void Register() override
