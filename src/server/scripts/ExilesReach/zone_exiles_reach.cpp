@@ -6066,8 +6066,6 @@ class spell_riding_giant_boar_q55879 : public AuraScript
 
         player->RemoveAura(SPELL_RIDING_GIANT_BOAR_305068);
         player->RemoveAura(SPELL_RIDING_GIANT_BOAR_321670);
-        //player->SetDisableGravity(false);
-        //player->SetPlayHoverAnim(false);
         player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
     }
 
