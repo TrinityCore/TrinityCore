@@ -6539,11 +6539,9 @@ struct npc_henry_q55879 : public ScriptedAI
 
 CreatureAI* HenryGarrickSelector(Creature* creature)
 {
-    if (creature->IsPrivateObject())
-    {
-        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
-            return new npc_henry_q55879(creature);
-    }
+    if (Player* player = ObjectAccessor::GetPlayer(*creature, creature->GetOwnerGUID()))
+        return new npc_henry_q55879(creature);
+
     return new NullCreatureAI(creature);
 };
 
