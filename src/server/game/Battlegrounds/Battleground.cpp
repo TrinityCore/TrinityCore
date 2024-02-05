@@ -633,6 +633,15 @@ void Battleground::RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID)
             player->RemoveAura(SpellID);
 }
 
+void Battleground::CenturionRewardHonorToTeam(uint32 Honor, uint32 TeamID)
+{
+    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+        if (Player* player = _GetPlayerForTeam(TeamID, itr, "CenturionRewardHonorToTeam"))
+        {
+            player->ModifyHonorPoints(Honor);
+        }
+}
+
 void Battleground::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
@@ -774,9 +783,18 @@ void Battleground::EndBattleground(uint32 winner)
             //needed cause else in av some creatures will kill the players at the end
             player->CombatStop();
 
-        uint32 winner_honor = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_HONOR);
-        uint32 loser_honor = float(winner_honor) * sWorld->getFloatConfig(CONFIG_CENTURION_BG_LOSER_REWARD_MULTIPLIER);
-        uint32 gold_gain = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_MONEY);
+        /*
+        *     CONFIG_CENTURION_BG_REWARD_HONOR_WINNER,
+    CONFIG_CENTURION_BG_REWARD_HONOR_LOSER,
+    CONFIG_CENTURION_BG_REWARD_MONEY_WINNER,
+    CONFIG_CENTURION_BG_REWARD_MONEY_LOSER,
+    CONFIG_CENTURION_BG_REWARD_HONOR_FLAG_CAP,
+        */
+
+        uint32 winner_honor = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_HONOR_WINNER);
+        uint32 loser_honor = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_HONOR_LOSER);
+        uint32 winner_money = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_MONEY_WINNER);
+        uint32 loser_money = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_MONEY_LOSER);
         uint32 winner_arena = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_FIRST);
 
         if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
@@ -808,7 +826,8 @@ void Battleground::EndBattleground(uint32 winner)
             float arenaMultiplier = sWorld->getFloatConfig(CONFIG_CENTURION_BG_ARENA_REWARD_MULTIPLIER);
             winner_honor *= arenaMultiplier;
             loser_honor *= arenaMultiplier;
-            gold_gain *= arenaMultiplier;
+            winner_money *= arenaMultiplier;
+            loser_money *= arenaMultiplier;
         }
         // Reward winner team
         if (team == winner)
@@ -820,13 +839,13 @@ void Battleground::EndBattleground(uint32 winner)
                     player->SetRandomWinner(true);
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, player->GetMapId());
+            player->ModifyMoney(winner_money);
         }
         else
         {
             player->ModifyHonorPoints(loser_honor);
+            player->ModifyMoney(loser_money);
         }
-
-        player->ModifyMoney(gold_gain); //give each player a gold
 
         player->ResetAllPowers();
         player->CombatStopWithPets(true);
