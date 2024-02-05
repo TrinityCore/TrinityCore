@@ -2142,9 +2142,7 @@ void Unit::HandleProcExtraAttackFor(Unit* victim, uint32 count)
     while (count)
     {
         --count;
-        // Attack twice
-        for (uint8 i = 0; i < 2; ++i)
-            CastSpell(victim, 8232);
+        AttackerStateUpdate(victim, BASE_ATTACK, true);
     }
 }
 
