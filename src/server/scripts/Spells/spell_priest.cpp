@@ -2571,37 +2571,30 @@ class spell_pri_shadow_mend_periodic_damage : public AuraScript
 // 109186 - Surge of Light
 class spell_pri_surge_of_light : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_SMITE,
+            SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT
+        });
+    }
+
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         if (eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_SMITE)
             return true;
 
         if (eventInfo.GetSpellInfo()->SpellFamilyName == SPELLFAMILY_PRIEST)
-            if (HealInfo* hInfo = eventInfo.GetHealInfo())
-                if (hInfo || hInfo->GetHeal())
-                    return true;
+            return eventInfo.GetHealInfo();
 
         return false;
     }
 
-    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        Unit* caster = eventInfo.GetActor();
-        if (!caster)
-            return;
-
-        Aura* aura = caster->GetAura(SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT, caster->GetGUID());
-
-        if (eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_FLASH_HEAL && aura)
-        {
-            if (aura->GetStackAmount() > 1)
-                aura->SetStackAmount(aura->GetStackAmount() - 1);
-            else
-                caster->RemoveAurasDueToSpell(SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT);
-        }
-        else
-            if (roll_chance_i(aurEff->GetAmount()))
-                caster->CastSpell(caster, SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT, aurEff);
+        if (roll_chance_i(aurEff->GetAmount()))
+            GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT, aurEff);
     }
 
     void Register() override
