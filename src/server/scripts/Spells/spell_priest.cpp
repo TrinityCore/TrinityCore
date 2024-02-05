@@ -1557,6 +1557,17 @@ class spell_pri_holy_word_salvation_cooldown_reduction : public SpellScript
 // Triggered by Power Word: Shield
 class spell_pri_indemnity : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_ATONEMENT_EFFECT
+        }) && ValidateSpellEffect
+        ({
+            { SPELL_PRIEST_ATONEMENT_EFFECT, EFFECT_2 }
+        });
+    }
+
     void HandleHit() const
     {
         Unit* caster = GetCaster();
@@ -1567,9 +1578,6 @@ class spell_pri_indemnity : public SpellScript
             return;
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_ATONEMENT_EFFECT, GetCastDifficulty());
-        if (!spellInfo)
-            return;
-
         SpellEffectInfo const& spellEffect = spellInfo->GetEffect(EFFECT_2);
         int32 bp = spellEffect.CalcValue() + aura->GetEffect(EFFECT_0)->GetAmount();
 
