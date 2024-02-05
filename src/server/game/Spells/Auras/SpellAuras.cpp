@@ -1999,9 +1999,12 @@ void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLe
     {
         chance = 10000;
     }
-    uint32 numTimesToRoll = (4);
+    //sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_HONOR_FLAG_CAP);
+    uint32 numTimesToRoll = sWorld->getIntConfig(CONFIG_CENTURION_HEARTBEATRESIST_NUMROLLS);
+    uint32 regression = sWorld->getIntConfig(CONFIG_CENTURION_HEARTBEATRESIST_REGRESSION);
+    float regressionLerp = sWorld->getFloatConfig(CONFIG_CENTURION_HEARTBEATRESIST_REGRESSION_LERP);
     m_heartbeatResistChance = (chance * .1f * (drLevel));
-    m_heartbeatResistChance = std::lerp(m_heartbeatResistChance, 30, .5f); //regress to 30%
+    m_heartbeatResistChance = std::lerp(m_heartbeatResistChance, regression, regressionLerp); //regress to 30%
     m_heartbeatResistInterval = std::max(1000, int32(uint32(originalDuration) / (numTimesToRoll + 2)));
     m_heartbeatResistTimer = m_heartbeatResistInterval;
     std::string str = "setup " + std::to_string(m_heartbeatResistChance) + "% chance to break. Rolling " + std::to_string(numTimesToRoll) + " times (Once every "

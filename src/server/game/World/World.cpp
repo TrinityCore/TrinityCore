@@ -1462,10 +1462,17 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_BG_REWARD_LOSER_HONOR_FIRST]  = sConfigMgr->GetIntDefault("Battleground.RewardLoserHonorFirst", 5);
     m_int_configs[CONFIG_BG_REWARD_LOSER_HONOR_LAST]   = sConfigMgr->GetIntDefault("Battleground.RewardLoserHonorLast", 5);
 
-    m_int_configs[CONFIG_CENTURION_BG_REWARD_HONOR] = sConfigMgr->GetIntDefault("Centurion.Battleground.RewardHonor", 100);
-    m_int_configs[CONFIG_CENTURION_BG_REWARD_MONEY] = sConfigMgr->GetIntDefault("Centurion.Battleground.RewardMoney", 100000);
-    m_float_configs[CONFIG_CENTURION_BG_ARENA_REWARD_MULTIPLIER] = sConfigMgr->GetIntDefault("Centurion.Battleground.ArenaRewardMultiplier", .2f);
-    m_float_configs[CONFIG_CENTURION_BG_LOSER_REWARD_MULTIPLIER] = sConfigMgr->GetIntDefault("Centurion.Battleground.LoserRewardMultiplier", .1f);
+    //Centurion configurations
+    m_int_configs[CONFIG_CENTURION_BG_REWARD_HONOR_WINNER] = sConfigMgr->GetIntDefault("Centurion.Battleground.RewardHonorWinner", 100);
+    m_int_configs[CONFIG_CENTURION_BG_REWARD_HONOR_LOSER] = sConfigMgr->GetIntDefault("Centurion.Battleground.RewardHonorLoser", 10);
+    m_int_configs[CONFIG_CENTURION_BG_REWARD_MONEY_WINNER] = sConfigMgr->GetIntDefault("Centurion.Battleground.RewardMoneyWinner", 100000);
+    m_int_configs[CONFIG_CENTURION_BG_REWARD_MONEY_LOSER] = sConfigMgr->GetIntDefault("Centurion.Battleground.RewardMoneyLoser", 100000);
+    m_int_configs[CONFIG_CENTURION_BG_REWARD_HONOR_FLAG_CAP] = sConfigMgr->GetIntDefault("Centurion.Battleground.RewardHonorFlagCap", 10);
+    m_float_configs[CONFIG_CENTURION_BG_ARENA_REWARD_MULTIPLIER] = sConfigMgr->GetFloatDefault("Centurion.Battleground.ArenaRewardMultiplier", .2f);
+
+    m_int_configs[CONFIG_CENTURION_HEARTBEATRESIST_NUMROLLS] = sConfigMgr->GetIntDefault("Centurion.HeartbeatResist.NumberRolls", 4);
+    m_int_configs[CONFIG_CENTURION_HEARTBEATRESIST_REGRESSION] = sConfigMgr->GetIntDefault("Centurion.HeartbeatResist.Regression", 30);
+    m_float_configs[CONFIG_CENTURION_HEARTBEATRESIST_REGRESSION_LERP] = sConfigMgr->GetFloatDefault("Centurion.HeartbeatResist.RegressionLerp", .2f);
 
     // Max instances per hour
     m_int_configs[CONFIG_MAX_INSTANCES_PER_HOUR] = sConfigMgr->GetIntDefault("AccountInstancesPerHour", 5);
