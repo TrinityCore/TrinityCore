@@ -41,6 +41,11 @@
 #include "Loot.h"
 #include "SpellHistory.h"
 #include "WorldStateMgr.h"
+#include "Unit.h"
+#include "Vehicle.h"
+#include "WorldSession.h"
+#include "CombatAI.h"
+#include "PhasingHandler.h"
 
 template<class privateAI, class publicAI>
 CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
@@ -5920,6 +5925,630 @@ public:
     }
 };
 
+enum QuestRideBoar
+{
+    SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_SUMMON = 305779,
+    SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA   = 305776,
+    SPELL_PING_GARRICK_TORGOK                       = 316982,
+    SPELL_REUNION_DNT                               = 305893,
+    SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT             = 321693,
+    SPELL_RITUAL_SCENE_HRUN_BEAM_DNT                = 321692,
+    SPELL_RITUAL_SCENE_HARPY_BEAM_DNT               = 321691,
+    SPELL_RITUAL_SCENE_MAIN_BEAM_DNT                = 321690
+};
+
+// Quest 55879 - Ride of the Scientifically Enhanced Boar
+class quest_ride_of_the_scientifically_enhanced_boar : public QuestScript
+{
+public:
+    quest_ride_of_the_scientifically_enhanced_boar() : QuestScript("quest_ride_of_the_scientifically_enhanced_boar") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        switch (newStatus)
+        {
+        case QUEST_STATUS_INCOMPLETE:
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+            player->CastSpell(player, SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_SUMMON);
+            break;
+        case QUEST_STATUS_COMPLETE:
+            player->CombatStop();
+            player->CastSpell(player, SPELL_PING_GARRICK_TORGOK);
+            break;
+        case QUEST_STATUS_REWARDED:
+            player->CastSpell(player, SPELL_REUNION_DNT);
+            player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
+            player->CastSpell(player, SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+            player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+            player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+
+            break;
+        case QUEST_STATUS_NONE:
+            player->RemoveAura(SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA);
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+            break;
+        default:
+            break;
+        }
+    }
+};
+
+enum SceneOgreRuinsRideBoar
+{
+    QUEST_RIDE_ENHANCED_BOAR           = 55879,
+    QUEST_RIDE_BOAR_OBJECTIVE_TWO      = 396499,
+    QUEST_RIDE_BOAR_OBJECTIVE_TWO_MAX  = 8,
+
+    SPELL_ENHANCED_BOAR_TRAMPLE        = 305557,
+    SPELL_ENHANCED_BOAR_CHARGE         = 321627,
+    SPELL_ENHANCED_BOAR_KILL_CREDIT    = 321668,
+    SPELL_ENHANCED_BOAR_PING_VEHICLE   = 305559,
+    SPELL_ENHANCED_BOAR_CHARGE_CONVO   = 305815,
+    SPELL_ENHANCED_BOAR_KNOCKBACK      = 306356,
+    SPELL_ENHANCED_BOAR_KNOCKBACK_HINT = 306357,
+};
+
+// Script scene for Ride of the Scientifically Enhanced Boar quest
+class scene_darkmaul_plains_skeleton_army : public SceneScript
+{
+public:
+    scene_darkmaul_plains_skeleton_army() : SceneScript("scene_darkmaul_plains_skeleton_army") { }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Trampling Time")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_TRAMPLE, true);
+            if (Unit* boar = player->GetVehicleBase())
+                boar->CastSpell(boar, SPELL_ENHANCED_BOAR_CHARGE, true);
+        }
+        else if (triggerName == "Big Kill Credit")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_KILL_CREDIT, true);
+
+            if (player->GetQuestObjectiveData(QUEST_RIDE_ENHANCED_BOAR, QUEST_RIDE_BOAR_OBJECTIVE_TWO) == QUEST_RIDE_BOAR_OBJECTIVE_TWO_MAX)
+                player->CastSpell(player, SPELL_ENHANCED_BOAR_PING_VEHICLE);
+        }
+        else if (triggerName == "Conversation")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_CHARGE_CONVO, true);
+        }
+        else if (triggerName == "Knockback")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_KNOCKBACK, true);
+        }
+        else if (triggerName == "Hint")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_KNOCKBACK_HINT, true);
+        }
+    }
+};
+
+// Spell 305779 - Summon Darkmaul Plains Questgivers (DNT)
+class spell_summon_darkmaul_plains_questgivers_q55879 : public SpellScript
+{
+    // @TODO: drop after TARGET_UNK_142 impl
+
+    void SelectTarget(WorldObject*& target)
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster)
+            return;
+
+        Creature* survivor = FindCreatureIgnorePhase(caster, "captain_garrick_plains", 5.0f);
+        if (!survivor)
+            return;
+
+        target = survivor;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_darkmaul_plains_questgivers_q55879::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
+    }
+};
+
+enum SpellRidingGiantBoar
+{
+    SPELL_RIDING_GIANT_BOAR_305068 = 305068,
+    SPELL_RIDING_GIANT_BOAR_321670 = 321670
+};
+
+// Spell 173426 - Riding Giant Boar
+class spell_riding_giant_boar_q55879 : public AuraScript
+{
+    void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        player->RemoveAura(SPELL_RIDING_GIANT_BOAR_305068);
+        player->RemoveAura(SPELL_RIDING_GIANT_BOAR_321670);
+        //player->SetDisableGravity(false);
+        //player->SetPlayHoverAnim(false);
+        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_riding_giant_boar_q55879::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+enum SpellKnockbackHint
+{
+    ACTOR_ALLIANCE_CAPTAIN = 71372,
+
+    NPC_ALLIANCE_CAPTAIN   = 174955
+};
+
+// Spell 305742 Resizer Hit
+class spell_knockback_hint_q56034 : public SpellScript
+{
+    void HandleLaunch(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        Creature* gasrrick = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = NPC_ALLIANCE_CAPTAIN, .OwnerGuid = player->GetGUID() });
+        if (!gasrrick)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 0, gasrrick->GetGUID());
+        conversation->Start();
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_knockback_hint_q56034::HandleLaunch, EFFECT_0, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+        OnEffectHitTarget += SpellEffectFn(spell_knockback_hint_q56034::HandleEffect, EFFECT_0, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+    }
+};
+
+enum CaptainGarrarkGiantBoar
+{
+    ACTION_EXIT_BOAR                                       = 1,
+
+    ACTOR_HENRY_GARRICK_PRISONER                           = 78493,
+
+    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_ACCEPT    = 12090,
+
+    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_HENRY     = 15615,
+    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_EXIT      = 12092,
+
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR                        = 1,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER            = 2,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY          = 3,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_QUESTGIVER       = 4,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION = 5,
+
+    NPC_GIANT_BOAR                                         = 156267,
+
+    PHASE_SEE_TORGOK                                       = 14663,
+
+    POINT_HENRY_POSITION                                   = 0,
+
+    SPELL_PING_GARRICK_TO_RIDE_BOAR                        = 316984,
+    SPELL_RIDE_VEHICLE_CAPTIAN_BOAR                        = 63315
+};
+
+Position HenryPosition = { 232.16145f, -2292.5347f, 80.91198f };
+
+// Entry 174955 - Captain Garrick
+struct npc_captain_garrick_q55879 : public ScriptedAI
+{
+    npc_captain_garrick_q55879(Creature* creature) : ScriptedAI(creature) { _inCombat = false; }
+
+    void JustAppeared() override
+    {
+        Unit* owner = me->GetOwner();
+
+        Player* player = owner->ToPlayer();
+        if (!player)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_ACCEPT, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 1, me->GetGUID());
+        conversation->Start();
+
+        me->SetFaction(player->GetFaction());
+        me->SetReactState(REACT_PASSIVE);
+        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
+        _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 3s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        damage = 1; // ***** Not sure if this is the best way to do this.
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_PING_GARRICK_TO_RIDE_BOAR:
+            {
+                Unit* owner = me->GetOwner();
+                if (!owner)
+                    break;
+
+                PhasingHandler::InheritPhaseShift(me, owner);
+                PhasingHandler::ResetPhaseShift(me);
+
+                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR, 2s);
+                break;
+            }
+            case SPELL_ENHANCED_BOAR_PING_VEHICLE:
+            {
+                PhasingHandler::AddPhase(me, PHASE_SEE_TORGOK, true);
+                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION, 500ms);
+                break;
+            }
+            case SPELL_PING_GARRICK_TORGOK:
+            {
+                Creature* henry = FindCreatureIgnorePhase(me, "henry_garrick_ogre_ruins_prisoner");
+                if (!henry)
+                    break;
+
+                Player* player = me->GetOwner()->ToPlayer();
+                if (!player)
+                    break;
+
+                Creature* henryPersonal = henry->SummonPersonalClone(henry->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                if (!henryPersonal)
+                    break;
+
+                me->SetReactState(REACT_AGGRESSIVE);
+                _henryGUID = henryPersonal->GetGUID();
+                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY, 1s);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR:
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        Creature* boar = owner->FindNearestCreatureWithOptions(10.0f, { .CreatureId = NPC_GIANT_BOAR, .OwnerGuid = owner->GetGUID() });
+                        if (!boar)
+                            return;
+
+                        boar->SetTemplateRooted(false);
+                        me->CastSpell(boar, SPELL_RIDE_VEHICLE_CAPTIAN_BOAR);
+                    }
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER:
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        if (Player* player = owner->ToPlayer())
+                        {
+                            if (player->IsInCombat() && !me->IsInCombat())
+                            {
+                                me->Attack(player->GetVictim(), true); // ***** Not sure if this is the best way to do this. Does not always work.
+                            }
+
+                            if (((player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) != QUEST_STATUS_NONE)) && ((player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) != QUEST_STATUS_REWARDED)))
+                            {
+                                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 1s);
+                            }
+                            else
+                            {
+                                if (Creature* henry = ObjectAccessor::GetCreature(*me, _henryGUID))
+                                    henry->DespawnOrUnsummon();
+
+                                me->DespawnOrUnsummon();
+                            }
+                        }
+                    }
+                    else
+                        me->DespawnOrUnsummon();
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY:
+                {
+                    Player* player = me->GetOwner()->ToPlayer();
+                    if (!player)
+                        break;
+
+                    Conversation* conversation = Conversation::CreateConversation(CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_HENRY, player, *player, player->GetGUID(), nullptr, false);
+                    if (!conversation)
+                        break;
+
+                    conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 0, me->GetGUID());
+                    conversation->AddActor(ACTOR_HENRY_GARRICK_PRISONER, 1, _henryGUID);
+                    conversation->Start();
+
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MovePoint(POINT_HENRY_POSITION, HenryPosition);
+                    _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_QUESTGIVER, 18s);
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_QUESTGIVER:
+                {
+                    if (Creature* henry = ObjectAccessor::GetCreature(*me, _henryGUID))
+                        henry->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION:
+                {
+                    Unit* owner = me->GetOwner();
+                    if (!owner)
+                        break;
+
+                    Player* player = owner->ToPlayer();
+                    if (!player)
+                        break;
+
+                    Conversation* conversation = Conversation::CreateConversation(CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_EXIT, player, *player, player->GetGUID(), nullptr, false);
+                    if (!conversation)
+                        break;
+
+                    conversation->AddActor(0, 0, player->GetGUID());
+                    conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 1, me->GetGUID());
+                    conversation->Start();
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+    ObjectGuid _henryGUID;
+    bool _inCombat;
+};
+
+enum GiantBoar
+{
+    EVENT_GIANT_BOAR_SIZE_ONE         = 1,
+    EVENT_GIANT_BOAR_SIZE_TWO         = 2,
+    EVENT_GIANT_BOAR_SIZE_THREE       = 3,
+    EVENT_GIANT_BOAR_SIZE_FOUR        = 4,
+    EVENT_GIANT_BOAR_EJECT_PASSENGERS = 5,
+    EVENT_GIANT_BOAR_UNROOT           = 6,
+
+    SOUND_ENLARGE_BOAR                = 157516,
+    SOUND_SHRINK_BOAR                 = 157517
+};
+
+// Entry 156267 - Giant Boar
+struct npc_giant_boar_vehicle_q55879 : public VehicleAI
+{
+    npc_giant_boar_vehicle_q55879(Creature* creature) : VehicleAI(creature)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        me->SetOrientation(0.844224f);
+        _endOfScene = false;
+    }
+
+    void JustAppeared() override
+    {
+        me->SetSpeed(MOVE_RUN, 14.0f);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (apply && passenger->IsPlayer())
+        {
+            me->SetTemplateRooted(true);
+            passenger->SetMovedUnit(me);
+            passenger->CastSpell(passenger, SPELL_PING_GARRICK_TO_RIDE_BOAR); // Ping Garrick to ride Boar (DNT)
+            passenger->CastSpell(passenger, SPELL_UPDATE_PHASE_SHIFT);
+        }
+        else if (apply && passenger->IsCreature())
+        {
+            passenger->ChangeSeat(1);
+        }
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_ENHANCED_BOAR_PING_VEHICLE)
+        {
+            me->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOM_SPELL_01);
+            me->SetTemplateRooted(true);
+            me->CastSpell(me, SPELL_ENHANCED_BOAR_CHARGE);
+            _endOfScene = true;
+            _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_ONE, 4s);
+
+            if (Unit* owner = me->GetOwner())
+                owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!_endOfScene)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_GIANT_BOAR_SIZE_ONE:
+                    me->PlayDirectSound(SOUND_ENLARGE_BOAR);
+                    me->SetObjectScale(1.2f);
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_TWO, 1000ms);
+                    break;
+                case EVENT_GIANT_BOAR_SIZE_TWO:
+                    me->PlayDirectSound(SOUND_SHRINK_BOAR);
+                    me->SetObjectScale(0.7f);
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_THREE, 1000ms);
+                    break;
+                case EVENT_GIANT_BOAR_SIZE_THREE:
+                    me->PlayDirectSound(SOUND_ENLARGE_BOAR);
+                    me->SetObjectScale(1.2f);
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_FOUR, 500ms);
+                    break;
+                case EVENT_GIANT_BOAR_SIZE_FOUR:
+                    me->PlayDirectSound(SOUND_SHRINK_BOAR);
+                    me->SetObjectScale(0.1f);
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_EJECT_PASSENGERS, 500ms);
+                    break;
+                case EVENT_GIANT_BOAR_EJECT_PASSENGERS:
+                    me->RemoveAllAuras();
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_UNROOT, 500ms);
+                    break;
+                case EVENT_GIANT_BOAR_UNROOT:
+                    me->SetTemplateRooted(false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+    bool _endOfScene;
+};
+
+enum Torgok
+{
+    EVENT_CAST_SPIRIT_BOLT              = 1,
+    EVENT_CAST_SOUL_GRASP               = 2,
+
+    ITEM_TORGOKs_REAGENT_POUCH          = 176398,
+
+    QUEST_TORGOKs_REAGENT_POUCH_DROPPED = 59610,
+
+    SPELL_SPIRIT_BOLT_TORGOK            = 319294,
+    SPELL_SOUL_GRASP_TORGOK             = 319298
+};
+
+// 162817 - Torgok
+struct npc_torgok_q55879 : public ScriptedAI
+{
+    npc_torgok_q55879(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        Talk(SAY_AGGRO, who);
+
+        _events.ScheduleEvent(EVENT_CAST_SPIRIT_BOLT, 4s);
+        _events.ScheduleEvent(EVENT_CAST_SOUL_GRASP, 14s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        Talk(SAY_DEATH, killer);
+
+        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        {
+            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+            {
+                for (LootItem const& lootItem : loot->items)
+                {
+                    if (lootItem.itemid == ITEM_TORGOKs_REAGENT_POUCH)
+                    {
+                        player->SetRewardedQuest(QUEST_TORGOKs_REAGENT_POUCH_DROPPED);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CAST_SPIRIT_BOLT:
+                    DoCastVictim(SPELL_SPIRIT_BOLT_TORGOK);
+                    _events.ScheduleEvent(EVENT_CAST_SPIRIT_BOLT, 6s);
+                    break;
+                case EVENT_CAST_SOUL_GRASP:
+                    DoCastAOE(SPELL_SOUL_GRASP_TORGOK);
+                    _events.ScheduleEvent(EVENT_CAST_SOUL_GRASP, 14s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+enum HenryGarrickQuest55879
+{
+    PATH_GARRICK_TO_GROUND = 80000230
+};
+
+// 156799 - Henry Garrick
+struct npc_henry_q55879 : public ScriptedAI
+{
+    npc_henry_q55879(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+        me->RemoveAllAuras();
+    }
+
+    void JustAppeared() override
+    {
+        me->GetMotionMaster()->MovePath(PATH_GARRICK_TO_GROUND, false);
+    }
+};
+
+CreatureAI* HenryGarrickSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+            return new npc_henry_q55879(creature);
+    }
+    return new NullCreatureAI(creature);
+};
+
 void AddSC_zone_exiles_reach()
 {
     // Ship
@@ -6028,4 +6657,14 @@ void AddSC_zone_exiles_reach()
     RegisterSpellScript(spell_resizer_hit_three_q56034);
     RegisterSpellScript(spell_re_sizing_q59941);
     RegisterSpellScript(spell_re_sizing_aura_q59941);
+    // Ride Boar
+    new quest_ride_of_the_scientifically_enhanced_boar();
+    new scene_darkmaul_plains_skeleton_army();
+    RegisterSpellScript(spell_summon_darkmaul_plains_questgivers_q55879);
+    RegisterSpellScript(spell_riding_giant_boar_q55879);
+    RegisterSpellScript(spell_knockback_hint_q56034);
+    RegisterCreatureAI(npc_captain_garrick_q55879);
+    RegisterCreatureAI(npc_giant_boar_vehicle_q55879);
+    RegisterCreatureAI(npc_torgok_q55879);
+    new FactoryCreatureScript<CreatureAI, &HenryGarrickSelector>("npc_henry_garrick_prisioner");
 };
