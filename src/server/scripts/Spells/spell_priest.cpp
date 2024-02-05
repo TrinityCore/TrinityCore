@@ -167,6 +167,8 @@ enum PriestSpells
     SPELL_PRIEST_SPIRIT_OF_REDEMPTION               = 27827,
     SPELL_PRIEST_STRENGTH_OF_SOUL                   = 197535,
     SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT            = 197548,
+    SPELL_PRIEST_SURGE_OF_LIGHT                     = 109186,
+    SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT              = 114255,
     SPELL_PRIEST_TRANQUIL_LIGHT                     = 196816,
     SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
     SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL                = 234946,
@@ -2650,6 +2652,42 @@ class spell_pri_shadow_mend_periodic_damage : public AuraScript
     }
 };
 
+// 109186 - Surge of Light
+class spell_pri_surge_of_light : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_SMITE,
+            SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT
+        });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_SMITE)
+            return true;
+
+        if (eventInfo.GetSpellInfo()->SpellFamilyName == SPELLFAMILY_PRIEST)
+            return eventInfo.GetHealInfo();
+
+        return false;
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        if (roll_chance_i(aurEff->GetAmount()))
+            GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_surge_of_light::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_surge_of_light::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 28809 - Greater Heal
 class spell_pri_t3_4p_bonus : public AuraScript
 {
@@ -2975,6 +3013,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_shadow_covenant);
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
+    RegisterSpellScript(spell_pri_surge_of_light);
     RegisterSpellScript(spell_pri_trail_of_light);
     RegisterSpellScript(spell_pri_t3_4p_bonus);
     RegisterSpellScript(spell_pri_t5_heal_2p_bonus);
