@@ -703,6 +703,7 @@ void Creature::ApplyAllStaticFlags(CreatureStaticFlagsHolder const& flags)
 
     // Apply all other side effects of flag changes
     SetTemplateRooted(flags.HasFlag(CREATURE_STATIC_FLAG_SESSILE));
+    m_updateFlag.NoBirthAnim = flags.HasFlag(CREATURE_STATIC_FLAG_4_NO_BIRTH_ANIM);
 }
 
 void Creature::Update(uint32 diff)
