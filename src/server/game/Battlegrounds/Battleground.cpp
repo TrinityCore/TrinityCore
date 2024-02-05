@@ -40,6 +40,8 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldStatePackets.h"
+#include "CharacterCache.h"
+#include "WorldSession.h"
 #include <cstdarg>
 
 void BattlegroundScore::AppendToPacket(WorldPacket& data)
@@ -1020,34 +1022,14 @@ void Battleground::AddPlayer(Player* player)
     if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
         player->ToggleAFK();
 
-    // enter battleground
-    // change team to stay balance
-    // team may be different with in battleground queue
-    uint32 hordePlayers = GetPlayersCountByTeam(HORDE);
-    uint32 alliancePlayers = GetPlayersCountByTeam(ALLIANCE);
+    uint32 team = player->GetBGTeam();
 
-    if (hordePlayers < alliancePlayers) // IF alliance more than horde
+    player->SetFactionForRace(RACE_HUMAN);
+
+    if (team == HORDE)
     {
         player->SetFactionForRace(RACE_BLOODELF);
-        player->SetBGTeam(HORDE);
     }
-    else if (hordePlayers > alliancePlayers) // IF horde more than alliance
-    {
-        player->SetFactionForRace(RACE_HUMAN);
-        player->SetBGTeam(ALLIANCE);
-    }
-    else // IF balance
-    {
-        bool horde = roll_chance_i(50);
-        if (horde) // IF player is a real horde, enter battleground as a horde
-            player->SetFactionForRace(RACE_BLOODELF);
-        else // IF player is a real alliance, enter battleground as an alliance
-            player->SetFactionForRace(RACE_HUMAN);
-    }
-
-    // score struct must be created in inherited class
-
-    uint32 team = player->GetBGTeam();
 
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
@@ -1092,6 +1074,7 @@ void Battleground::AddPlayer(Player* player)
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
+    
 }
 
 // this method adds player to his team's bg group, or sets his correct group if player is already in bg group
@@ -1186,6 +1169,8 @@ void Battleground::RemoveFromBGFreeSlotQueue()
         m_InBGFreeSlotQueue = false;
     }
 }
+
+
 
 // get the number of free slots for team
 // returns the number how many players can join battleground to MaxPlayersPerTeam

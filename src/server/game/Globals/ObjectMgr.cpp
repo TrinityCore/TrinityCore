@@ -10344,11 +10344,13 @@ DungeonEncounterList const* ObjectMgr::GetDungeonEncounterList(uint32 mapId, Dif
 
 PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
 {
-    if (race >= MAX_RACES)
+    uint8 tmpRace = race;
+    tmpRace %= 100;
+    if (tmpRace >= MAX_RACES)
         return nullptr;
     if (class_ >= MAX_CLASSES)
         return nullptr;
-    auto const& info = _playerInfo[race][class_];
+    auto const& info = _playerInfo[tmpRace][class_];
     if (!info)
         return nullptr;
     return info.get();

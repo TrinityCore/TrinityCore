@@ -222,7 +222,14 @@ void BattlegroundWS::AddPlayer(Player* player)
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
     if (!isInBattleground)
-        PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundWGScore(player->GetGUID());
+    {
+        BattlegroundWGScore* scoreEntry = new BattlegroundWGScore(player->GetGUID());
+        if (player->GetTeam() == HORDE)
+        {
+            scoreEntry->BonusHonor = 1;
+        }
+        PlayerScores[player->GetGUID().GetCounter()] = scoreEntry;
+    }
 }
 
 void BattlegroundWS::RespawnFlag(uint32 Team, bool captured)
@@ -848,8 +855,8 @@ void BattlegroundWS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
 
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        packet.Worldstates.emplace_back(BG_WS_STATE_TIMER_ACTIVE, 1);
-        packet.Worldstates.emplace_back(BG_WS_STATE_TIMER, 25 - _minutesElapsed);
+        //packet.Worldstates.emplace_back(BG_WS_STATE_TIMER_ACTIVE, 1);
+        //packet.Worldstates.emplace_back(BG_WS_STATE_TIMER, 25 - _minutesElapsed);
     }
     else
         packet.Worldstates.emplace_back(BG_WS_STATE_TIMER_ACTIVE, 0);

@@ -57,12 +57,12 @@ struct GroupQueueInfo                                       // stores informatio
 
 enum BattlegroundQueueGroupTypes
 {
-    BG_QUEUE_PREMADE_ALLIANCE   = 0,
-    BG_QUEUE_PREMADE_HORDE      = 1,
-    BG_QUEUE_NORMAL_ALLIANCE    = 2,
-    BG_QUEUE_NORMAL_HORDE       = 3
+    BG_QUEUE_PREMADE_ALLIANCE = 0,
+    BG_QUEUE_PREMADE_HORDE = 1,
+    BG_QUEUE_NORMAL_ALLIANCE = 2,
+    BG_QUEUE_NORMAL_HORDE = 3
 };
-#define BG_QUEUE_GROUP_TYPES_COUNT 4
+#define BG_QUEUE_GROUP_TYPES_COUNT 6
 
 enum BattlegroundQueueInvitationType
 {
@@ -115,7 +115,7 @@ class TC_GAME_API BattlegroundQueue
         public:
             SelectionPool(): PlayerCount(0) { }
             void Init();
-            bool AddGroup(GroupQueueInfo* ginfo, uint32 desiredCount);
+            bool AddGroup(GroupQueueInfo* ginfo, uint32 desiredCount, uint8 tem);
             bool KickGroup(uint32 size);
             uint32 GetPlayerCount() const {return PlayerCount;}
         public:

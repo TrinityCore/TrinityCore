@@ -37,6 +37,7 @@
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "CharacterCache.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
@@ -481,7 +482,21 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         // set the destination instance id
         _player->SetBattlegroundId(bg->GetInstanceID(), bgTypeId);
         // set the destination team
-        _player->SetBGTeam(ginfo.Team);
+        //ttopper we need to figure out teams before this point
+        uint32 tmpTeam = ginfo.Team;
+        uint8 tmpRace = _player->GetRaceForDB();
+
+        //get temporary horde race
+        //we created duplicates of each race in chrRaces and set them to horde faction
+        //the ids are the same except +100
+        //(all races start out as alliance in centurion)
+        //this is to make scoreboard entries appear red/blue when they should
+        _player->SetFactionForRace(RACE_HUMAN);
+        if (tmpTeam == HORDE)
+        {
+            _player->SetFactionForRace(RACE_BLOODELF);
+        }
+        _player->SetBGTeam(tmpTeam);
 
         // bg->HandleBeforeTeleportToBattleground(_player);
         sBattlegroundMgr->SendToBattleground(_player, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
