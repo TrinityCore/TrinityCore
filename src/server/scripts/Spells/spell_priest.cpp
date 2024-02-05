@@ -52,6 +52,9 @@ enum PriestSpells
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
     SPELL_PRIEST_BENEDICTION                        = 193157,
     SPELL_PRIEST_BENEVOLENCE                        = 415416,
+    SPELL_PRIEST_BLAZE_OF_LIGHT                     = 215768,
+    SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE            = 355851,
+    SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE            = 356084,
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_BLESSED_LIGHT                      = 196813,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
@@ -616,6 +619,36 @@ class spell_pri_benediction : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_pri_benediction::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
+// 215768 - Blaze of Light
+class spell_pri_blaze_of_light : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE,
+            SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE
+        });
+    }
+
+    void HandleProc(ProcEventInfo& eventInfo)
+    {
+        Unit* procTarget = eventInfo.GetProcTarget();
+        if (!procTarget)
+            return;
+
+        if (GetTarget()->IsValidAttackTarget(procTarget))
+            GetTarget()->CastSpell(procTarget, SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE, TriggerCastFlags(TRIGGERED_CAST_DIRECTLY | TRIGGERED_IGNORE_CAST_IN_PROGRESS));
+        else
+            GetTarget()->CastSpell(procTarget, SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE, TriggerCastFlags(TRIGGERED_CAST_DIRECTLY | TRIGGERED_IGNORE_CAST_IN_PROGRESS));
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_pri_blaze_of_light::HandleProc);
     }
 };
 
@@ -2836,6 +2869,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement_effect_aura);
     RegisterSpellScript(spell_pri_atonement_passive);
     RegisterSpellScript(spell_pri_benediction);
+    RegisterSpellScript(spell_pri_blaze_of_light);
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_divine_image);
     RegisterSpellScript(spell_pri_divine_image_spell_triggered);
