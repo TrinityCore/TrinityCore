@@ -634,7 +634,7 @@ class spell_pri_blaze_of_light : public AuraScript
         });
     }
 
-    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         Unit* procTarget = eventInfo.GetProcTarget();
         if (!procTarget)
@@ -648,7 +648,7 @@ class spell_pri_blaze_of_light : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_blaze_of_light::HandleEffectProc, EFFECT_1, SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL);
+        OnProc += AuraProcFn(spell_pri_blaze_of_light::HandleProc);
     }
 };
 
