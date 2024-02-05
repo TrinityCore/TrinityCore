@@ -115,6 +115,7 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER     = 411097,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P             = 405556,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT      = 409479,
+    SPELL_PRIEST_INDEMNITY                          = 373049,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
@@ -1549,6 +1550,38 @@ class spell_pri_holy_word_salvation_cooldown_reduction : public SpellScript
     void Register() override
     {
         AfterCast += SpellCastFn(spell_pri_holy_word_salvation_cooldown_reduction::ReduceCooldown);
+    }
+};
+
+// 373049 - Indemnity
+// Triggered by Power Word: Shield
+class spell_pri_indemnity : public SpellScript
+{
+    void HandleHit() const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        Aura* aura = caster->GetAura(SPELL_PRIEST_INDEMNITY, caster->GetGUID());
+        if (!aura)
+            return;
+
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_ATONEMENT_EFFECT, GetCastDifficulty());
+        if (!spellInfo)
+            return;
+
+        SpellEffectInfo const& spellEffect = spellInfo->GetEffect(EFFECT_2);
+        int32 bp = spellEffect.CalcValue() + aura->GetEffect(EFFECT_0)->GetAmount();
+
+        CastSpellExtraArgs args;
+        args.AddSpellMod(SPELLVALUE_DURATION, bp * IN_MILLISECONDS);
+
+        caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_EFFECT, args);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_pri_indemnity::HandleHit);
     }
 };
 
@@ -3185,6 +3218,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_holy_words);
     RegisterSpellScript(spell_pri_holy_word_salvation);
     RegisterSpellScript(spell_pri_holy_word_salvation_cooldown_reduction);
+    RegisterSpellScript(spell_pri_indemnity);
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
