@@ -2,7 +2,7 @@
 
 -- Set by TC Devs
 -- One new creature spawn
-SET @GUID := 9009800;
+SET @GUID := 8000040;
 
 -- Add missing Re-sized Boar
 DELETE FROM `creature` WHERE `guid`=@GUID;
@@ -44,11 +44,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (305742,'spell_resizer_hit_three_q56034'),
 (325346,'spell_re_sizing_q59941'),
 (325345,'spell_re_sizing_aura_q59941');
-
-DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-305742,-305750);
-INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
-(-305742,82238,0,''),
-(-305750,82238,0,'');
 
 -- Conversation
 DELETE FROM `conversation_template` WHERE `Id` IN (12086);

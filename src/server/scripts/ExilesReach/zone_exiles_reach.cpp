@@ -5334,12 +5334,13 @@ public:
 
 // Quest 56034 - Re-sizing the Situation "Alliance"
 // Quest 59941 - Re-sizing the Situation "Horde"
-enum ResizingQuest
+enum ResizingQuestData
 {
     ACTOR_LINDIE_RESIZING_QUEST                     = 71366,
     ACTOR_CORK_RESIZING_QUEST                       = 76343,
 
     CONVERSATION_RESIZING_QUEST_ACCEPT              = 12086,
+    CONVERSATION_RESIZING_REPORT_BACK               = 12089,
 
     EVENT_RESIZING_FOLLOW_PLAYER                    = 1,
     EVENT_RESIZING_RUN_HOME                         = 2,
@@ -5354,7 +5355,7 @@ enum ResizingQuest
 
 Position ResizingGuardianPosition = { 100.56077f, -2418.0713f, 90.34765f };
 
-// Entry 156749 - Lindie Springstock
+// 156749 - Lindie Springstock
 struct npc_lindie_springstock_q56034 : public ScriptedAI
 {
     npc_lindie_springstock_q56034(Creature* creature) : ScriptedAI(creature) { }
@@ -5428,7 +5429,7 @@ private:
     EventMap _events;
 };
 
-// Entry 167915 - Cork Fizzlepop
+// 167915 - Cork Fizzlepop
 struct npc_cork_fizzlepop_q59941 : public ScriptedAI
 {
     npc_cork_fizzlepop_q59941(Creature* creature) : ScriptedAI(creature) { }
@@ -5436,16 +5437,14 @@ struct npc_cork_fizzlepop_q59941 : public ScriptedAI
     void JustAppeared() override
     {
         Unit* owner = me->GetOwner();
-
-        Player* player = owner->ToPlayer();
-        if (!player)
+        if (!owner)
             return;
 
-        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_RESIZING_QUEST_ACCEPT, player, *player, player->GetGUID(), nullptr, false);
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_RESIZING_QUEST_ACCEPT, owner, *owner, owner->GetGUID(), nullptr, false);
         if (!conversation)
             return;
 
-        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(0, 0, owner->GetGUID());
         conversation->AddActor(ACTOR_LINDIE_RESIZING_QUEST, 1, ObjectGuid::Empty);
         conversation->AddActor(ACTOR_CORK_RESIZING_QUEST, 2, me->GetGUID());
         conversation->Start();
@@ -5474,16 +5473,14 @@ struct npc_cork_fizzlepop_q59941 : public ScriptedAI
             return;
 
         Unit* owner = me->GetOwner();
-
-        Player* player = owner->ToPlayer();
-        if (!player)
+        if (!owner)
             return;
 
-        Conversation* conversation = Conversation::CreateConversation(12089, player, *player, player->GetGUID(), nullptr, false);
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_RESIZING_REPORT_BACK, owner, *owner, owner->GetGUID(), nullptr, false);
         if (!conversation)
             return;
 
-        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(0, 0, owner->GetGUID());
         conversation->AddActor(ACTOR_LINDIE_RESIZING_QUEST, 1, ObjectGuid::Empty);
         conversation->AddActor(ACTOR_CORK_RESIZING_QUEST, 2, me->GetGUID());
         conversation->Start();
@@ -5520,7 +5517,7 @@ private:
     EventMap _events;
 };
 
-enum ReSizedBoar
+enum ReSizedBoarData
 {
     EVENT_BOAR_GROW   = 1,
     EVENT_BOAR_MOVE   = 2,
@@ -5532,7 +5529,7 @@ enum ReSizedBoar
 
 Position GiantBoarPosition = { 116.146f, -2430.48f, 90.508415f };
 
-// Entry 156736 - Wandering Boar
+// 156736 - Wandering Boar
 struct npc_re_sized_boar_q56034 : public ScriptedAI
 {
     npc_re_sized_boar_q56034(Creature* creature) : ScriptedAI(creature) { }
@@ -5612,7 +5609,7 @@ class spell_summon_guardian_q56034_q59941 : public SpellScript
     }
 };
 
-enum Resizing
+enum ReSizingData
 {
     NPC_WANDERING_BOAR                               = 156716,
     NPC_LINDIE_SPRINGSTOCK_GUARDIAN                  = 156749,
@@ -5631,10 +5628,9 @@ enum Resizing
     SPELL_RE_SIZER_OVERCHARGED_Q56034                = 325347
 };
 
-// Spell 305716 - Re-Sizing
+// 305716 - Re-Sizing
 class spell_re_sizing_q56034 : public SpellScript
 {
-
     SpellCastResult CheckCast()
     {
         if (!GetExplTargetUnit())
@@ -5656,10 +5652,20 @@ class spell_re_sizing_q56034 : public SpellScript
     }
 };
 
-// Spell 305716 - Re-Sizing
+// 305716 - Re-Sizing
 class spell_re_sizing_aura_q56034 : public AuraScript
 {
-    void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RESIZER_HIT_ONE_Q56034_Q59941,
+            SPELL_RESIZER_HIT_TWO_Q56034_Q59941,
+            SPELL_PING_LINDIE_Q56034_Q59941,
+        });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Player* player = Object::ToPlayer(GetCaster());
         Creature* creature = Object::ToCreature(GetTarget());
@@ -5688,12 +5694,12 @@ class spell_re_sizing_aura_q56034 : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_re_sizing_aura_q56034::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_re_sizing_aura_q56034::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
-// Spell 305724 - Resizer Hit
-// Spell 305721 - Resizer Hit
+// 305724 - Resizer Hit
+// 305721 - Resizer Hit
 class spell_resizer_hit_one_two_q56034_q59941 : public SpellScript
 {
     void HandleLaunch(SpellEffIndex effIndex)
@@ -5730,7 +5736,7 @@ class spell_resizer_hit_one_two_q56034_q59941 : public SpellScript
     }
 };
 
-// Spell 305742 Resizer Hit
+// 305742 - Resizer Hit
 class spell_resizer_hit_three_q56034 : public SpellScript
 {
     void HandleLaunch(SpellEffIndex effIndex)
@@ -5767,9 +5773,18 @@ class spell_resizer_hit_three_q56034 : public SpellScript
     }
 };
 
-// Spell 325346 - Re-Sizing
+// 325346 - Re-Sizing
 class spell_re_sizing_q59941 : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RESIZING_Q59941,
+            SPELL_RE_SIZER_OVERCHARGED_Q56034,
+            SPELL_PING_LINDIE_Q56034_Q59941,
+        });
+    }
 
     SpellCastResult CheckCast()
     {
@@ -5816,10 +5831,19 @@ class spell_re_sizing_q59941 : public SpellScript
     }
 };
 
-// Spell 325345 - Re-Sizing
+// 325345 - Re-Sizing
 class spell_re_sizing_aura_q59941 : public AuraScript
 {
-    void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RESIZER_HIT_ONE_Q56034_Q59941,
+            SPELL_RESIZER_HIT_TWO_Q56034_Q59941
+        });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Player* player = Object::ToPlayer(GetCaster());
         Creature* creature = Object::ToCreature(GetTarget());
@@ -5843,12 +5867,12 @@ class spell_re_sizing_aura_q59941 : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_re_sizing_aura_q59941::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_re_sizing_aura_q59941::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
-// Quest 56034 - Re-sizing the Situation "Alliance"
-// Quest 59941 - Re-sizing the Situation "Horde"
+// 56034 - Re-sizing the Situation "Alliance"
+// 59941 - Re-sizing the Situation "Horde"
 class quest_resizing_the_situation : public QuestScript
 {
 public:
@@ -5859,11 +5883,9 @@ public:
         switch (newStatus)
         {
             case QUEST_STATUS_INCOMPLETE:
-            {
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
                 player->CastSpell(player, SummonSpell);
                 break;
-            }
             case QUEST_STATUS_NONE:
                 player->RemoveAura(SummonSpell);
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
@@ -5874,7 +5896,7 @@ public:
     }
 };
 
-// Quest 56034 - Re-sizing the Situation "Alliance"
+// 56034 - Re-sizing the Situation "Alliance"
 class quest_resizing_the_situation_alliance : public quest_resizing_the_situation
 {
 public:
@@ -5886,7 +5908,7 @@ public:
     }
 };
 
-// Quest 59941 - Re-sizing the Situation "Horde"
+// 59941 - Re-sizing the Situation "Horde"
 class quest_resizing_the_situation_horde : public quest_resizing_the_situation
 {
 public:
