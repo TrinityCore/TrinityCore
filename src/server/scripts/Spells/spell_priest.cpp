@@ -1264,9 +1264,16 @@ class spell_pri_heavens_wrath : public AuraScript
     {
         return ValidateSpellInfo
         ({
-            SPELL_PRIEST_HEAVENS_WRATH,
             SPELL_PRIEST_ULTIMATE_PENITENCE
         });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_ULTIMATE_PENITENCE)
+            return false;
+
+        return true;
     }
 
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
