@@ -42,24 +42,22 @@ enum STGameObjectIds
     GO_ATALAI_STATUE4 = 148833,
     GO_ATALAI_STATUE5 = 148834,
     GO_ATALAI_STATUE6 = 148835,
-    GO_ATALAI_LIGHT1 = 148883,
-    GO_ATALAI_LIGHT2 = 148937,
-
-    GO_FORCEFIELD = 149431,
+    GO_ATALAI_LIGHT1  = 148883,
+    GO_ATALAI_LIGHT2  = 148937,
+    GO_FORCEFIELD     = 149431,
 };
 
 enum STCreatureIds
 {
     NPC_ATALALARION           = 8580,
-
     NPC_SHADE_OF_ERANIKUS     = 5709,
     NPC_JAMMAL_AN_THE_PROPHET = 5710,
-    NPC_ZOLO    = 5712,
-    NPC_GASHER  = 5713,
-    NPC_LORO    = 5714,
-    NPC_HUKKU   = 5715,
-    NPC_ZUL_LOR = 5716,
-    NPC_MIJAN   = 5717,
+    NPC_ZOLO                  = 5712,
+    NPC_GASHER                = 5713,
+    NPC_LORO                  = 5714,
+    NPC_HUKKU                 = 5715,
+    NPC_ZUL_LOR               = 5716,
+    NPC_MIJAN                 = 5717,
 };
 
 enum STShareSpells

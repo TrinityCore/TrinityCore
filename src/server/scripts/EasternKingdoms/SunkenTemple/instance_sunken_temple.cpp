@@ -283,11 +283,8 @@ public:
                 EliteTrollsKilled = data;
                 if (EliteTrollsKilled == 6)
                 {
-                    //instance->LoadGrid(-425.89f, -86.07f);    
                     if (Creature* jammal = instance->GetCreature(JammalAnTheProphetGUID))
                         jammal->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                    /*if (GameObject* forceField = instance->GetGameObject(ForceFieldGUID))
-                        forceField->SetGoState(GO_STATE_ACTIVE);*/
                     SetBossState(DATA_ELITE_TROLLS, DONE);
                 }
                 SaveToDB();
