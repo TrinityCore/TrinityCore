@@ -1869,7 +1869,7 @@ class spell_sha_windfury_weapon : public AuraScript
             spellId = SPELL_SHAMAN_WINDFURY_ATTACK_OH;
             attType = OFF_ATTACK;
         }
-        player->AddExtraAttacks(2);
+        //player->AddExtraAttacks(2);
         
         Item* item = ASSERT_NOTNULL(player->GetWeaponForAttack(attType));
 
