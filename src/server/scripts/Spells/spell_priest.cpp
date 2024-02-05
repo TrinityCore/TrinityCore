@@ -634,16 +634,16 @@ class spell_pri_blaze_of_light : public AuraScript
         });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& eventInfo)
     {
         Unit* procTarget = eventInfo.GetProcTarget();
         if (!procTarget)
             return;
 
         if (GetTarget()->IsValidAttackTarget(procTarget))
-            GetTarget()->CastSpell(procTarget, SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE, aurEff);
+            GetTarget()->CastSpell(procTarget, SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE);
         else
-            GetTarget()->CastSpell(procTarget, SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE, aurEff);
+            GetTarget()->CastSpell(procTarget, SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE);
     }
 
     void Register() override
