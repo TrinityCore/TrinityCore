@@ -56,6 +56,8 @@ protected:
     std::string GetOwnerInfo() const override;
     CriteriaList const& GetCriteriaByType(CriteriaType type, uint32 asset) const override;
 
+    bool RequiredAchievementSatisfied(uint32 achievementId) const override;
+
 private:
     Player* _owner;
     std::unordered_set<uint32> _completedObjectives;

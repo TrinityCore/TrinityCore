@@ -367,9 +367,9 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                       "ctm.Ground, ctm.Swim, ctm.Flight, ctm.Rooted, ctm.Chase, ctm.Random, ctm.InteractionPauseTimer, ExperienceModifier, "
     //                                        39            40          41           42                        43
     //                                       "RacialLeader, movementId, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, "
-    //                                        44                    45                        46
-    //                                       "mechanic_immune_mask, spell_school_immune_mask, flags_extra, "
-    //                                        47          48
+    //                                        44                    45
+    //                                       "CreatureImmunitiesId, flags_extra, "
+    //                                        46          47
     //                                       "ScriptName, StringId FROM creature_template WHERE entry = ? OR 1 = ?");
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
@@ -475,11 +475,10 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.WidgetSetID            = fields[41].GetInt32();
     creatureTemplate.WidgetSetUnitConditionID = fields[42].GetInt32();
     creatureTemplate.RegenHealth            = fields[43].GetBool();
-    creatureTemplate.MechanicImmuneMask     = fields[44].GetUInt64();
-    creatureTemplate.SpellSchoolImmuneMask  = fields[45].GetUInt32();
-    creatureTemplate.flags_extra            = fields[46].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[47].GetString());
-    creatureTemplate.StringId               = fields[48].GetString();
+    creatureTemplate.CreatureImmunitiesId   = fields[44].GetInt32();
+    creatureTemplate.flags_extra            = fields[45].GetUInt32();
+    creatureTemplate.ScriptID               = GetScriptId(fields[46].GetString());
+    creatureTemplate.StringId               = fields[47].GetString();
 }
 
 void ObjectMgr::LoadCreatureTemplateGossip()
