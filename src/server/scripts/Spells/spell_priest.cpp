@@ -625,17 +625,25 @@ class spell_pri_benediction : public SpellScript
 // 215768 - Blaze of Light
 class spell_pri_blaze_of_light : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE,
+            SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE
+        });
+    }
+
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
-        if (!caster || !target)
+        Unit* procTarget = eventInfo.GetProcTarget();
+        if (!procTarget)
             return;
 
-        if (caster->IsValidAttackTarget(target))
-            caster->CastSpell(target, SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE, aurEff);
+        if (GetTarget()->IsValidAttackTarget(procTarget))
+            GetTarget()->CastSpell(procTarget, SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE, aurEff);
         else
-            caster->CastSpell(target, SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE, aurEff);
+            GetTarget()->CastSpell(procTarget, SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE, aurEff);
     }
 
     void Register() override
