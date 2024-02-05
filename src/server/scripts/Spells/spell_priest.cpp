@@ -647,10 +647,15 @@ class spell_pri_circle_of_healing : public SpellScript
     }
 };
 
-// 372972 - Dark Indulgence
+// 8092 - Mind Blast
 class spell_pri_dark_indulgence : public SpellScript
 {
-    void HandleHit()
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_DARK_INDULGENCE, EFFECT_0 } });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
     {
         AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_PRIEST_DARK_INDULGENCE, EFFECT_0);
         if (!aurEff)
@@ -662,7 +667,7 @@ class spell_pri_dark_indulgence : public SpellScript
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pri_dark_indulgence::HandleHit);
+        OnEffectHit += SpellEffectFn(spell_pri_dark_indulgence::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -2430,18 +2435,27 @@ private:
     ObjectGuid _raptureTarget;
 };
 
-// 424509 - Schism
+// 8092 - Mind Blast
 class spell_pri_schism : public SpellScript
 {
-    void HandleHit()
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        if (GetCaster()->HasAura(SPELL_PRIEST_SCHISM, GetCaster()->GetGUID()))
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_SCHISM,
+            SPELL_PRIEST_SCHISM_AURA
+        });
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster()->HasAura(SPELL_PRIEST_SCHISM))
             GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_SCHISM_AURA, true);
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pri_schism::HandleHit);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_schism::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
