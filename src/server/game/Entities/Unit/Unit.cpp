@@ -2142,12 +2142,12 @@ void Unit::HandleProcExtraAttackFor(Unit* victim, uint32 count)
     while (count)
     {
         --count;
-        CastSpellExtraArgs args(true);
-        args.AddSpellBP0(100);
+        //CastSpellExtraArgs args(true);
+        //args.AddSpellBP0(100);
         // Attack twice
         for (uint8 i = 0; i < 2; ++i)
         {
-            CastSpell(victim, 8232, args);
+            //CastSpell(victim, 8232, args);
             AttackerStateUpdate(victim, BASE_ATTACK, true);
         }
     }
