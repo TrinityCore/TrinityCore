@@ -824,6 +824,8 @@ void Battleground::EndBattleground(uint32 winner)
         if (!isBattleground())
         {
             float arenaMultiplier = sWorld->getFloatConfig(CONFIG_CENTURION_BG_ARENA_REWARD_MULTIPLIER);
+            int flag_honor = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_HONOR_FLAG_CAP) * 3;
+            winner_honor += flag_honor;
             winner_honor *= arenaMultiplier;
             loser_honor *= arenaMultiplier;
             winner_money *= arenaMultiplier;
