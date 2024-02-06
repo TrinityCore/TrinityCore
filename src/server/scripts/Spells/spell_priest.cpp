@@ -175,6 +175,7 @@ enum PriestSpells
     SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT            = 197548,
     SPELL_PRIEST_SURGE_OF_LIGHT                     = 109186,
     SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT              = 114255,
+    SPELL_PRIEST_TRAIN_OF_THOUGHT                   = 390693,
     SPELL_PRIEST_TRANQUIL_LIGHT                     = 196816,
     SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
     SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL                = 234946,
@@ -2990,6 +2991,52 @@ private:
     std::queue<ObjectGuid> _healQueue;
 };
 
+// 390693 - Train of Thought
+// Called by Flash Heal, Renew, Smite
+class spell_pri_train_of_thought : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_FLASH_HEAL,
+            SPELL_PRIEST_RENEW,
+            SPELL_PRIEST_SMITE,
+            SPELL_PRIEST_POWER_WORD_SHIELD,
+            SPELL_PRIEST_PENANCE
+        });
+    }
+
+    void HandleProc(ProcEventInfo& eventInfo)
+    {
+        Unit* caster = GetTarget();
+        if (!caster)
+            return;
+
+        if (eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_SMITE)
+        {
+            SpellInfo const* penance = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PENANCE, GetCastDifficulty());
+            AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_PRIEST_TRAIN_OF_THOUGHT, EFFECT_1);
+            int32 cdr = aurEff->GetAmount();
+
+            caster->GetSpellHistory()->ModifyCooldown(penance, Milliseconds(cdr));
+        }
+        else
+        {
+            SpellInfo const* pws = sSpellMgr->GetSpellInfo(SPELL_PRIEST_POWER_WORD_SHIELD, GetCastDifficulty());
+            AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_PRIEST_TRAIN_OF_THOUGHT, EFFECT_0);
+            int32 cdr = aurEff->GetAmount();
+
+            caster->GetSpellHistory()->ModifyCooldown(pws, Milliseconds(cdr));
+        }
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_pri_train_of_thought::HandleProc);
+    }
+};
+
 // 109142 - Twist of Fate (Shadow)
 // 265259 - Twist of Fate (Discipline)
 class spell_pri_twist_of_fate : public AuraScript
@@ -3177,6 +3224,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
     RegisterSpellScript(spell_pri_surge_of_light);
     RegisterSpellScript(spell_pri_trail_of_light);
+    RegisterSpellScript(spell_pri_train_of_thought);
     RegisterSpellScript(spell_pri_t3_4p_bonus);
     RegisterSpellScript(spell_pri_t5_heal_2p_bonus);
     RegisterSpellScript(spell_pri_t10_heal_2p_bonus);
