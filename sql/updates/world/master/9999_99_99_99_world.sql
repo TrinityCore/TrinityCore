@@ -115,7 +115,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- Condition for Spell Ping Garrick (DNT)
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=316982 AND `SourceId`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(13, 1, 316982, 0, 0, 31, 0, 3, 174955, 0, 0, 0, 0, '', 'Spell Ping Garrick (DNT) (effect 0) will hit unit Alliance Captain.');
+(13, 1, 316982, 0, 0, 31, 0, 3, 174955, 0, 0, 0, 0, '', 'Spell Ping Garrick (DNT) (effect 0) will hit unit Alliance Captain.'),
+(13, 1, 316982, 0, 1, 31, 0, 3, 167146, 0, 0, 0, 0, '', 'Spell Ping Garrick (DNT) (effect 0) will hit unit Horde Warrior.');
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (305779,173426,306357,296843);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
