@@ -40,7 +40,8 @@ INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`Pos
 
 UPDATE `creature` SET `StringId`= "captain_garrick_plains" WHERE `guid`=8000018;
 UPDATE `creature` SET `StringId` = 'henry_garrick_ogre_ruins_prisoner' WHERE `guid`=8000023;
-UPDATE `creature_template` SET `ScriptName`="npc_captain_garrick_q55879" WHERE `entry`=174955;
+
+UPDATE `creature_template` SET `faction`=1, `ScriptName`="npc_captain_garrick_q55879" WHERE `entry`=174955;
 UPDATE `creature_template` SET `ScriptName`="npc_giant_boar_vehicle_q55879" WHERE `entry`=156267;
 UPDATE `creature_template` SET `ScriptName`="npc_torgok_q55879" WHERE `entry`=162817;
 UPDATE `creature_template` SET `ScriptName`="npc_henry_garrick_prisioner" WHERE `entry`=156799;
@@ -48,6 +49,7 @@ UPDATE `creature_template` SET `npcflag`=16777216 WHERE entry IN (156595);
 UPDATE `creature_template` SET `VehicleId`=6832 WHERE `entry`=156267;
 UPDATE `creature_template` SET `npcflag`=2 WHERE `entry` IN (156799,156807);
 UPDATE `creature_template` SET `npcflag`=641 WHERE `entry` IN (156800);
+
 DELETE FROM `creature_template_addon` WHERE `entry` IN (162817);
 INSERT INTO `creature_template_addon` (`entry`,`visibilityDistanceType`,`emote`,`auras`) VALUES
 (162817,3,617, ''); -- Torgok
