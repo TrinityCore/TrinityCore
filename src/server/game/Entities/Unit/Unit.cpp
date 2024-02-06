@@ -2145,11 +2145,13 @@ void Unit::HandleProcExtraAttackFor(Unit* victim, uint32 count)
         //CastSpellExtraArgs args(true);
         //args.AddSpellBP0(100);
         // Attack twice
+        CastSpell(victim, 25504);
+        /*
         for (uint8 i = 0; i < 2; ++i)
         {
-            CastSpell(victim, 25504);
             //AttackerStateUpdate(victim, BASE_ATTACK, true);
         }
+        */
     }
 }
 
