@@ -1554,7 +1554,7 @@ struct npc_training_dummy : NullCreatureAI
 
     void JustEnteredCombat(Unit* who) override
     {
-        _combatTimer[who->GetGUID()] = 5s;
+        _combatTimer[who->GetGUID()] = 6s;
     }
 
     void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType damageType, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -1564,7 +1564,7 @@ struct npc_training_dummy : NullCreatureAI
         if (!attacker || damageType == DOT)
             return;
 
-        _combatTimer[attacker->GetGUID()] = 5s;
+        _combatTimer[attacker->GetGUID()] = 6s;
     }
 
     void UpdateAI(uint32 diff) override
