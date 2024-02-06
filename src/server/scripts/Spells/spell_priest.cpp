@@ -1711,6 +1711,20 @@ class spell_pri_penance_or_dark_reprimand_channeled : public AuraScript
     }
 };
 
+// 114239 - Phantasm
+class spell_pri_phantasm : public SpellScript
+{
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveMovementImpairingAuras(false);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_pri_phantasm::HandleEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 262484 - Power Leech (Passive for Shadowfiend)
 // 284621 - Power Leech (Passive for Mindbender)
 class spell_pri_power_leech_passive : public AuraScript
@@ -2989,6 +3003,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance", SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING);
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_dark_reprimand", SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE, SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING);
     RegisterSpellScript(spell_pri_penance_or_dark_reprimand_channeled);
+    RegisterSpellScript(spell_pri_phantasm);
     RegisterSpellScript(spell_pri_power_leech_passive);
     RegisterSpellScript(spell_pri_power_of_the_dark_side);
     RegisterSpellScript(spell_pri_power_of_the_dark_side_damage_bonus);
