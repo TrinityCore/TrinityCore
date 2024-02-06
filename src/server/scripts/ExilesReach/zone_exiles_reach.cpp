@@ -5930,7 +5930,7 @@ enum QuestRideBoar
     SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_SUMMON = 305779,
     SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA   = 305776,
     SPELL_PING_GARRICK_TORGOK                       = 316982,
-    SPELL_REUNION_DNT                               = 305893,
+    SPELL_REUNION_DNT_ALLIANCE                      = 305893,
     SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT             = 321693,
     SPELL_RITUAL_SCENE_HRUN_BEAM_DNT                = 321692,
     SPELL_RITUAL_SCENE_HARPY_BEAM_DNT               = 321691,
@@ -5956,13 +5956,12 @@ public:
             player->CastSpell(player, SPELL_PING_GARRICK_TORGOK);
             break;
         case QUEST_STATUS_REWARDED:
-            player->CastSpell(player, SPELL_REUNION_DNT);
+            player->CastSpell(player, SPELL_REUNION_DNT_ALLIANCE);
             player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
             player->CastSpell(player, SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
             player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
             player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-
             break;
         case QUEST_STATUS_NONE:
             player->RemoveAura(SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA);
@@ -6165,7 +6164,6 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
         conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 1, me->GetGUID());
         conversation->Start();
 
-        me->SetFaction(player->GetFaction());
         me->SetReactState(REACT_PASSIVE);
         me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
         _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 3s);
