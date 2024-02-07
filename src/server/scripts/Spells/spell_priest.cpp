@@ -3004,30 +3004,30 @@ class spell_pri_train_of_thought : public AuraScript
             SPELL_PRIEST_SMITE,
             SPELL_PRIEST_POWER_WORD_SHIELD,
             SPELL_PRIEST_PENANCE
+        }) && ValidateSpellEffect
+        ({
+            { SPELL_PRIEST_TRAIN_OF_THOUGHT, EFFECT_0 },
+            { SPELL_PRIEST_TRAIN_OF_THOUGHT, EFFECT_1 }
         });
     }
 
     void HandleProc(ProcEventInfo& eventInfo)
     {
-        Unit* caster = GetTarget();
-        if (!caster)
-            return;
-
         if (eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_SMITE)
         {
             SpellInfo const* penance = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PENANCE, GetCastDifficulty());
-            AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_PRIEST_TRAIN_OF_THOUGHT, EFFECT_1);
+            AuraEffect const* aurEff = GetTarget()->GetAuraEffect(SPELL_PRIEST_TRAIN_OF_THOUGHT, EFFECT_1);
             int32 cdr = aurEff->GetAmount();
 
-            caster->GetSpellHistory()->ModifyCooldown(penance, Milliseconds(cdr));
+            GetTarget()->GetSpellHistory()->ModifyCooldown(penance, Milliseconds(cdr));
         }
         else
         {
             SpellInfo const* pws = sSpellMgr->GetSpellInfo(SPELL_PRIEST_POWER_WORD_SHIELD, GetCastDifficulty());
-            AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_PRIEST_TRAIN_OF_THOUGHT, EFFECT_0);
+            AuraEffect const* aurEff = GetTarget()->GetAuraEffect(SPELL_PRIEST_TRAIN_OF_THOUGHT, EFFECT_0);
             int32 cdr = aurEff->GetAmount();
 
-            caster->GetSpellHistory()->ModifyCooldown(pws, Milliseconds(cdr));
+            GetTarget()->GetSpellHistory()->ModifyCooldown(pws, Milliseconds(cdr));
         }
     }
 
