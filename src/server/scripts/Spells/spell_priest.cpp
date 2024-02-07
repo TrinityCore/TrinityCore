@@ -1264,27 +1264,22 @@ class spell_pri_heavens_wrath : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_PRIEST_ULTIMATE_PENITENCE
-        });
+        return ValidateSpellInfo({ SPELL_PRIEST_ULTIMATE_PENITENCE });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo const& eventInfo) const
     {
         return !(eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_ULTIMATE_PENITENCE_DAMAGE || eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_ULTIMATE_PENITENCE_HEAL);
     }
 
-    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
         Unit* caster = eventInfo.GetActor();
         if (!caster)
             return;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_ULTIMATE_PENITENCE, GetCastDifficulty());
         int32 cdReduction = aurEff->GetAmount();
-
-        caster->GetSpellHistory()->ModifyCooldown(spellInfo, Seconds(-cdReduction), true);
+        caster->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_ULTIMATE_PENITENCE, Seconds(-cdReduction), true);
     }
 
     void Register() override
