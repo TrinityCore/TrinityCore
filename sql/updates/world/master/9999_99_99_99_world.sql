@@ -4,10 +4,10 @@ SET @GUID := 8000041;
 DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+4;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `ScriptName`, `StringId`, `VerifiedBuild`) VALUES
 (@GUID,162817,2175,10424,10529,'0',0,14663,0,-1,0,0,243.55556,-2242.9185,83.88086,4.5683498,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Torgok <Binder of Souls>
-(@GUID+1,150245,2175,10424,10529,'0',0,13835,0,-1,0,0,169.23438,-2297.9983,82.15651,2.54967,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Lindie Springstock
-(@GUID+2,156800,2175,10424,10529,'0',0,13835,0,-1,0,0,186.51042,-2284.6216,81.91817,3.558244,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Quartermaster Richter <Supplies>
+(@GUID+1,150245,2175,10424,10529,'0',0,13794,0,-1,0,0,169.23438,-2297.9983,82.15651,2.54967,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Lindie Springstock
+(@GUID+2,156800,2175,10424,10529,'0',0,13794,0,-1,0,0,186.51042,-2284.6216,81.91817,3.558244,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Quartermaster Richter <Supplies>
 (@GUID+3,156807,2175,10424,10529,'0',0,13835,0,-1,0,0,185.90625,-2288.927,81.77783,1.908762,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Captain Garrick
-(@GUID+4,156808,2175,10424,10529,'0',0,13835,0,-1,0,0,169.73827,-2293.4995,82.96085,2.618248,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649); -- Small Boar
+(@GUID+4,156808,2175,10424,10529,'0',0,13794,0,-1,0,0,169.73827,-2293.4995,82.96085,2.618248,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649); -- Small Boar
 
 -- Pathing for Small Boar Entry: 156808
 SET @NPC := @GUID+4;
@@ -142,7 +142,7 @@ INSERT INTO `phase_name` (`ID`,`Name`) VALUES
 -- Phase Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13775,13783) AND `ConditionValue1`=321670;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13784,13779,13785,13780,13776,13766,13775) AND `ConditionValue1`=55879;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13835) AND `SourceEntry`=10424;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13835,13794) AND `SourceEntry`=10424;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (14663) AND `SourceEntry`=10424 AND `ElseGroup`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (26,13775,10588, 0, 0, 1, 0, 321670, 0, 0, 1, 0, 0, '', 'See Re-sized Boar at Plains if quest Ride if player does not have aura'),
@@ -157,7 +157,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26,13775,10588, 0, 0, 47, 0, 55879, 64, 0, 1, 0, 0, '', 'See Re-sized Boar at Plains if quest Ride of the Scientifically Enhanced Boar is not rewarded'),
 (26,14663,10424, 0, 0, 47, 0, 55879, 64, 0, 1, 0, 0, '', 'See Torgok <Binder of Souls> if quest Ride of the Scientifically Enhanced Boar is not rewarded'),
 (26,14663,10424, 0, 0, 48, 0, 396499, 0, 8, 0, 0, 0, '', 'See Torgok <Binder of Souls> if quest Ride if player has objective complete'),
-(26,13835,10424, 0, 0, 47, 0, 55879, 64, 0, 0, 0, 0, '', 'See Garrick, Lindie, Richter at ogre ruins if quest Ride of the Scientifically Enhanced Boar is rewarded');
+(26,13835,10424, 0, 0, 47, 0, 55879, 64, 0, 0, 0, 0, '', 'See Garrick at ogre ruins if quest Ride of the Scientifically Enhanced Boar is rewarded'),
+(26,13794,10424, 0, 0, 47, 0, 55879, 64, 0, 0, 0, 0, '', 'See Lindie and Richter at ogre ruins if quest Ride of the Scientifically Enhanced Boar is rewarded');
 
 -- Quest data
 DELETE FROM `creature_queststarter` WHERE `id`=156280 AND `quest`=55879;
