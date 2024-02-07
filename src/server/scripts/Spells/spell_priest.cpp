@@ -2090,9 +2090,13 @@ class spell_pri_power_word_shield : public AuraScript
                 caster->CastSpell(caster, SPELL_PRIEST_SHIELD_DISCIPLINE_EFFECT, aurEff);
     }
 
-    void HandleAfterAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
+    void HandleAfterAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
     {
-        AuraEffect const* auraEff = GetCaster()->GetAuraEffect(SPELL_PRIEST_CRYSTALLINE_REFLECTION, EFFECT_0);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        AuraEffect const* auraEff = caster->GetAuraEffect(SPELL_PRIEST_CRYSTALLINE_REFLECTION, EFFECT_0);
         if (!auraEff)
             return;
 
@@ -2101,7 +2105,7 @@ class spell_pri_power_word_shield : public AuraScript
             return;
 
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.AddSpellBP0(CalculatePct(dmgInfo.GetDamage(), auraEff->GetAmount()));
+        args.AddSpellBP0(CalculatePct(absorbAmount, auraEff->GetAmount()));
 
         GetTarget()->CastSpell(attacker, SPELL_PRIEST_CRYSTALLINE_REFLECTION_REFLECT, args);
     }
@@ -2111,7 +2115,7 @@ class spell_pri_power_word_shield : public AuraScript
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         AfterEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield::HandleOnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield::HandleOnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield::HandleAfterAbsorb, EFFECT_0);
+        AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield::HandleAfterAbsorb, EFFECT_0);
     }
 };
 
