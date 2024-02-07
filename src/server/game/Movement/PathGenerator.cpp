@@ -179,7 +179,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         BuildShortcut();
         bool path = _source->GetTypeId() == TYPEID_UNIT && _source->ToCreature()->CanFly();
 
-        bool waterPath = _source->GetTypeId() == TYPEID_UNIT && _source->ToCreature()->CanSwim();
+        bool waterPath = _source->GetTypeId() == TYPEID_UNIT && _source->ToCreature()->CanEnterWater();
         if (waterPath)
         {
             // Check both start and end points, if they're both in water, then we can *safely* let the creature move
@@ -653,7 +653,7 @@ void PathGenerator::CreateFilter()
     if (_source->GetTypeId() == TYPEID_UNIT)
     {
         Creature* creature = (Creature*)_source;
-        if (creature->CanWalk())
+        if (!creature->IsAquatic())
             includeFlags |= NAV_GROUND;          // walk
 
         // creatures don't take environmental damage

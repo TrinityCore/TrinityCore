@@ -40,7 +40,7 @@ TC_API_EXPORT EnumText EnumUtils<CreatureFlagsExtra>::ToString(CreatureFlagsExtr
         case CREATURE_FLAG_EXTRA_NO_XP: return { "CREATURE_FLAG_EXTRA_NO_XP", "CREATURE_FLAG_EXTRA_NO_XP", "creature kill does not provide XP" };
         case CREATURE_FLAG_EXTRA_TRIGGER: return { "CREATURE_FLAG_EXTRA_TRIGGER", "CREATURE_FLAG_EXTRA_TRIGGER", "trigger creature" };
         case CREATURE_FLAG_EXTRA_NO_TAUNT: return { "CREATURE_FLAG_EXTRA_NO_TAUNT", "CREATURE_FLAG_EXTRA_NO_TAUNT", "creature is immune to taunt auras and 'attack me' effects" };
-        case CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE: return { "CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE", "CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE", "creature won't update movement flags" };
+        case CREATURE_FLAG_EXTRA_UNUSED_9: return { "CREATURE_FLAG_EXTRA_UNUSED_9", "CREATURE_FLAG_EXTRA_UNUSED_9", "creature won't update movement flags" };
         case CREATURE_FLAG_EXTRA_GHOST_VISIBILITY: return { "CREATURE_FLAG_EXTRA_GHOST_VISIBILITY", "CREATURE_FLAG_EXTRA_GHOST_VISIBILITY", "creature will only be visible to dead players" };
         case CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK: return { "CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK", "CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK", "creature will use offhand attacks" };
         case CREATURE_FLAG_EXTRA_NO_SELL_VENDOR: return { "CREATURE_FLAG_EXTRA_NO_SELL_VENDOR", "CREATURE_FLAG_EXTRA_NO_SELL_VENDOR", "players can't sell items to this vendor" };
@@ -84,7 +84,7 @@ TC_API_EXPORT CreatureFlagsExtra EnumUtils<CreatureFlagsExtra>::FromIndex(size_t
         case 6: return CREATURE_FLAG_EXTRA_NO_XP;
         case 7: return CREATURE_FLAG_EXTRA_TRIGGER;
         case 8: return CREATURE_FLAG_EXTRA_NO_TAUNT;
-        case 9: return CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE;
+        case 9: return CREATURE_FLAG_EXTRA_UNUSED_9;
         case 10: return CREATURE_FLAG_EXTRA_GHOST_VISIBILITY;
         case 11: return CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK;
         case 12: return CREATURE_FLAG_EXTRA_NO_SELL_VENDOR;
@@ -125,7 +125,7 @@ TC_API_EXPORT size_t EnumUtils<CreatureFlagsExtra>::ToIndex(CreatureFlagsExtra v
         case CREATURE_FLAG_EXTRA_NO_XP: return 6;
         case CREATURE_FLAG_EXTRA_TRIGGER: return 7;
         case CREATURE_FLAG_EXTRA_NO_TAUNT: return 8;
-        case CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE: return 9;
+        case CREATURE_FLAG_EXTRA_UNUSED_9: return 9;
         case CREATURE_FLAG_EXTRA_GHOST_VISIBILITY: return 10;
         case CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK: return 11;
         case CREATURE_FLAG_EXTRA_NO_SELL_VENDOR: return 12;

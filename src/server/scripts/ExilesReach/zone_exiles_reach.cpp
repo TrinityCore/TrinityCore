@@ -4460,7 +4460,7 @@ struct npc_briarpatch_prisoner : public ScriptedAI
     void JustAppeared() override
     {
         me->SetDisableGravity(true);
-        me->SetTemplateRooted(true);
+        me->SetControlled(true, UNIT_STATE_ROOT);
         me->CastSpell(me, SPELL_NECROTIC_RITUAL_DNT);
     }
 
@@ -4470,7 +4470,7 @@ struct npc_briarpatch_prisoner : public ScriptedAI
         {
             me->RemoveAllAuras();
             me->SetDisableGravity(false);
-            me->SetTemplateRooted(false);
+            me->SetControlled(false, UNIT_STATE_ROOT);
             me->GetMotionMaster()->MoveJump(BriarpatchPrisonerJumpToPosition, 7.9894905f, 19.29110336303710937f);
             Talk(SAY_GET_OUT_OF_HERE);
             _events.ScheduleEvent(EVENT_RUN_TO_PLAINS, 4s);
