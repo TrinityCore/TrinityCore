@@ -142,7 +142,8 @@ INSERT INTO `phase_name` (`ID`,`Name`) VALUES
 -- Phase Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13775,13783) AND `ConditionValue1`=321670;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13784,13779,13785,13780,13776,13766,13775) AND `ConditionValue1`=55879;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (14663,13835) AND `SourceEntry`=10424;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13835) AND `SourceEntry`=10424;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (14663) AND `SourceEntry`=10424 AND `ElseGroup`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (26,13775,10588, 0, 0, 1, 0, 321670, 0, 0, 1, 0, 0, '', 'See Re-sized Boar at Plains if quest Ride if player does not have aura'),
 (26,13783,10529, 0, 0, 1, 0, 321670, 0, 0, 1, 0, 0, '', 'See See the Army of Undead if quest Ride if player does not have aura'),
