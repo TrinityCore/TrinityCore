@@ -5927,6 +5927,9 @@ public:
 
 enum QuestRideBoar
 {
+    NPC_ALLIANCE_CAPTAIN                            = 174955,
+    NPC_HENRY_GARRICK_PRISONER                      = 156799,
+
     SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_SUMMON = 305779,
     SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA   = 305776,
     SPELL_PING_GARRICK_TORGOK                       = 316982,
@@ -5962,6 +5965,10 @@ public:
             player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
             player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+            if (Creature* garrick = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = NPC_ALLIANCE_CAPTAIN, .OwnerGuid = player->GetGUID() }))
+                garrick->DespawnOrUnsummon();
+            if (Creature* henry = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = NPC_HENRY_GARRICK_PRISONER, .OwnerGuid = player->GetGUID() }))
+                henry->DespawnOrUnsummon();
             break;
         case QUEST_STATUS_NONE:
             player->RemoveAura(SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA);
@@ -6076,9 +6083,7 @@ class spell_riding_giant_boar_q55879 : public AuraScript
 
 enum SpellKnockbackHint
 {
-    ACTOR_ALLIANCE_CAPTAIN = 71372,
-
-    NPC_ALLIANCE_CAPTAIN   = 174955
+    ACTOR_ALLIANCE_CAPTAIN = 71372
 };
 
 // Spell 305742 Resizer Hit
@@ -6255,13 +6260,6 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                             if (((player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) != QUEST_STATUS_NONE)) && ((player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) != QUEST_STATUS_REWARDED)))
                             {
                                 _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 1s);
-                            }
-                            else
-                            {
-                                if (Creature* henry = ObjectAccessor::GetCreature(*me, _henryGUID))
-                                    henry->DespawnOrUnsummon();
-
-                                me->DespawnOrUnsummon();
                             }
                         }
                     }
@@ -6526,21 +6524,22 @@ struct npc_henry_q55879 : public ScriptedAI
     void InitializeAI() override
     {
         me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-        me->RemoveAllAuras();
+
     }
 
     void JustAppeared() override
     {
+        me->RemoveAllAuras();
         me->GetMotionMaster()->MovePath(PATH_GARRICK_TO_GROUND, false);
     }
 };
 
 CreatureAI* HenryGarrickSelector(Creature* creature)
 {
-    if (ObjectAccessor::GetPlayer(*creature, creature->GetOwnerGUID()))
+    if (creature->IsPrivateObject())
         return new npc_henry_q55879(creature);
-
-    return new NullCreatureAI(creature);
+    else
+        return new NullCreatureAI(creature);
 };
 
 void AddSC_zone_exiles_reach()
