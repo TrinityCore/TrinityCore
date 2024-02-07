@@ -27,26 +27,28 @@
 // EnumUtils: DESCRIBE THIS
 enum MovementGeneratorType : uint8
 {
-    IDLE_MOTION_TYPE                = 0,     // IdleMovementGenerator.h
-    RANDOM_MOTION_TYPE              = 1,     // RandomMovementGenerator.h
-    WAYPOINT_MOTION_TYPE            = 2,     // WaypointMovementGenerator.h
-    MAX_DB_MOTION_TYPE              = 3,     // Below motion types can't be set in DB.
-    CONFUSED_MOTION_TYPE            = 4,     // ConfusedMovementGenerator.h
-    CHASE_MOTION_TYPE               = 5,     // ChaseMovementGenerator.h
-    HOME_MOTION_TYPE                = 6,     // HomeMovementGenerator.h
-    FLIGHT_MOTION_TYPE              = 7,     // FlightPathMovementGenerator.h
-    POINT_MOTION_TYPE               = 8,     // PointMovementGenerator.h
-    FLEEING_MOTION_TYPE             = 9,     // FleeingMovementGenerator.h
-    DISTRACT_MOTION_TYPE            = 10,    // IdleMovementGenerator.h
-    ASSISTANCE_MOTION_TYPE          = 11,    // PointMovementGenerator.h
-    ASSISTANCE_DISTRACT_MOTION_TYPE = 12,    // IdleMovementGenerator.h
-    TIMED_FLEEING_MOTION_TYPE       = 13,    // FleeingMovementGenerator.h
-    FOLLOW_MOTION_TYPE              = 14,    // FollowMovementGenerator.h
-    ROTATE_MOTION_TYPE              = 15,    // IdleMovementGenerator.h
-    EFFECT_MOTION_TYPE              = 16,
-    SPLINE_CHAIN_MOTION_TYPE        = 17,    // SplineChainMovementGenerator.h
-    FORMATION_MOTION_TYPE           = 18,    // FormationMovementGenerator.h
-    MAX_MOTION_TYPE                          // SKIP
+    IDLE_MOTION_TYPE                = 0,        // IdleMovementGenerator.h
+    RANDOM_MOTION_TYPE              = 1,        // RandomMovementGenerator.h
+    WAYPOINT_MOTION_TYPE            = 2,        // WaypointMovementGenerator.h
+    CYCLIC_SPLINE_MOTION_TYPE       = 3,        // CyclicMovementGenerator.h
+    MAX_DB_MOTION_TYPE,                         // Below motion types can't be set in DB.
+
+    CONFUSED_MOTION_TYPE,                       // ConfusedMovementGenerator.h
+    CHASE_MOTION_TYPE,                          // ChaseMovementGenerator.h
+    HOME_MOTION_TYPE,                           // HomeMovementGenerator.h
+    FLIGHT_MOTION_TYPE,                         // FlightPathMovementGenerator.h
+    POINT_MOTION_TYPE,                          // PointMovementGenerator.h
+    FLEEING_MOTION_TYPE,                        // FleeingMovementGenerator.h
+    DISTRACT_MOTION_TYPE,                       // IdleMovementGenerator.h
+    ASSISTANCE_MOTION_TYPE,                     // PointMovementGenerator.h
+    ASSISTANCE_DISTRACT_MOTION_TYPE,            // IdleMovementGenerator.h
+    TIMED_FLEEING_MOTION_TYPE,                  // FleeingMovementGenerator.h
+    FOLLOW_MOTION_TYPE,                         // FollowMovementGenerator.h
+    ROTATE_MOTION_TYPE,                         // IdleMovementGenerator.h
+    EFFECT_MOTION_TYPE,
+    SPLINE_CHAIN_MOTION_TYPE,                   // SplineChainMovementGenerator.h
+    FORMATION_MOTION_TYPE,                      // FormationMovementGenerator.h
+    MAX_MOTION_TYPE                             // SKIP
 };
 
 enum MovementGeneratorMode : uint8

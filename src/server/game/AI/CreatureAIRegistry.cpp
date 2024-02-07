@@ -57,6 +57,7 @@ namespace AIRegistry
         (new IdleMovementFactory())->RegisterSelf();
         (new RandomMovementFactory())->RegisterSelf();
         (new WaypointMovementFactory())->RegisterSelf();
+        (new CyclicMovementFactory())->RegisterSelf();
 
         (void)sObjectMgr->GetScriptId("NullAreaTriggerAI", false);
     }
