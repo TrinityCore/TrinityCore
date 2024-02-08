@@ -201,7 +201,6 @@ struct at_dracthyr_stasis_feedback : AreaTriggerAI
     }
 };
 
-
 void AddSC_zone_the_forbidden_reach()
 {
     RegisterSpellScript(spell_dracthyr_login);
