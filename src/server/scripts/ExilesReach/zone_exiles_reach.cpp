@@ -6655,7 +6655,7 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
     {
         _inCombat = false;
         // *** HACK *** Added UNIT_FLAG_IMMUNE_TO_PC to get proper cursor when targeting npc.
-        // Inproper cursor reason is unknown to me but could be due to missing Demon creator in CreateObject 
+        // Inproper cursor reason is unknown to me but could be due to missing Demon creator in CreateObject
         me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED | UNIT_FLAG_IMMUNE_TO_PC);
     }
 
@@ -6927,5 +6927,5 @@ void AddSC_zone_exiles_reach()
     new quest_the_re_deather();
     new scene_horde_darkmaul_plains_skeleton_army();
     RegisterCreatureAI(npc_warlord_grimaxe_q59942);
-    new FactoryCreatureScript<CreatureAI, &ShujaPrisonerGarrickSelector>("npc_shuja_grimaxe_prisioner");  
+    new FactoryCreatureScript<CreatureAI, &ShujaPrisonerGarrickSelector>("npc_shuja_grimaxe_prisioner");
 };
