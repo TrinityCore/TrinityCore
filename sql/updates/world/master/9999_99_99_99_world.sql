@@ -1,16 +1,40 @@
-SET @GUID := 8000041;
+SET @CGUID := 8000041;
+SET @OGUID := 8000014;
 
--- Add missing Spawns
-DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+4;
+-- Add missing Creature Spawns
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID AND @CGUID+17;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `ScriptName`, `StringId`, `VerifiedBuild`) VALUES
-(@GUID,162817,2175,10424,10529,'0',0,14663,0,-1,0,0,243.55556,-2242.9185,83.88086,4.5683498,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Torgok <Binder of Souls>
-(@GUID+1,150245,2175,10424,10529,'0',0,13794,0,-1,0,0,169.23438,-2297.9983,82.15651,2.54967,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Lindie Springstock
-(@GUID+2,156800,2175,10424,10529,'0',0,13794,0,-1,0,0,186.51042,-2284.6216,81.91817,3.558244,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Quartermaster Richter <Supplies>
-(@GUID+3,156807,2175,10424,10529,'0',0,13835,0,-1,0,0,185.90625,-2288.927,81.77783,1.908762,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Captain Garrick
-(@GUID+4,156808,2175,10424,10529,'0',0,13794,0,-1,0,0,169.73827,-2293.4995,82.96085,2.618248,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649); -- Small Boar
+-- Alliance
+(@CGUID,162817,2175,10424,10529,'0',0,14663,0,-1,0,0,243.55556,-2242.9185,83.88086,4.5683498,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Torgok <Binder of Souls>
+(@CGUID+1,150245,2175,10424,10529,'0',0,13794,0,-1,0,0,169.23438,-2297.9983,82.15651,2.54967,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Lindie Springstock
+(@CGUID+2,156800,2175,10424,10529,'0',0,13794,0,-1,0,0,186.51042,-2284.6216,81.91817,3.558244,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Quartermaster Richter <Supplies>
+(@CGUID+3,156807,2175,10424,10529,'0',0,13835,0,-1,0,0,185.90625,-2288.927,81.77783,1.908762,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Captain Garrick
+(@CGUID+4,156808,2175,10424,10529,'0',0,13794,0,-1,0,0,169.73827,-2293.4995,82.96085,2.618248,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Small Boar
+-- Horde
+(@CGUID+5,167142,2175,10424,10588,'0',0,15331,0,0,0,0,107.87153,-2414.177,95.44844,0,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52808), -- Choppy Booster Mk. 5
+(@CGUID+6,167212,2175,10424,10529,'0',0,15485,0,0,0,0,185.70660400390625,-2282.98095703125,81.93126678466796875,3.950360536575317382,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52808), -- Warlord Breka Grimaxe
+(@CGUID+7,167216,2175,10424,10529,'0',0,15447,0,0,0,0,183.4184112548828125,-2278.020751953125,81.93170166015625,1.636933207511901855,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52808), -- Grunt Throg
+(@CGUID+8,167217,2175,10424,10529,'0',0,15330,0,0,0,0,177.1770782470703125,-2295.96875,81.96833038330078125,0,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52808), -- Cork Fizzlepop
+(@CGUID+9,167213,2175,10424,10529,'0',0,15330,0,0,0,0,178.4184112548828125,-2292.552001953125,81.93624114990234375,0.398178786039352416,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52808), -- Provisioner Jin'hake
+(@CGUID+10,167219,2175,10424,10529,'0',0,15353,0,0,0,0,257.260406494140625,-2337.651123046875,81.06317138671875,5.754884243011474609,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52808), -- Shuja Grimaxe
+(@CGUID+11,167222,2175,10424,10529,'0',0,15338,0,0,0,0,160.5868072509765625,-2310.088623046875,84.49564361572265625,3.033173322677612304,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52808), -- Won'sa
+(@CGUID+12,167221,2175,10424,10529,'0',0,15338,0,0,0,0,160.5989532470703125,-2307.404541015625,84.11737060546875,2.955642223358154296,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52808), -- Lana Jordan
+(@CGUID+13,167215,2175,10424,10529,'0',0,15377,0,0,0,0,183.6805572509765625,-2295.94091796875,82.250396728515625,4.669465065002441406,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52808), -- Mithdran Dawntracker <Stable Master>
+(@CGUID+14,167290,2175,10424,10528,'0',0,15354,0,0,0,0,392.46875,-2440.225830078125,125.4717788696289062,4.147569179534912109,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,53212), -- Shuja Grimaxe "Harpy area"
+(@CGUID+15,167291,2175,10424,10588,'0',0,15354,0,0,0,0,391.211822509765625,-2443.717041015625,125.1890335083007812,0.829528868198394775,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,53212), -- Bo "Harpy area"
+(@CGUID+16,167225,2175,10424,10527,'0',0,15337,0,0,0,0,92.015625,-2246.911376953125,94.49737548828125,2.622560739517211914,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,53212), -- Lana Jordan "Pit Area"
+(@CGUID+17,167226,2175,10424,10527,'0',0,15337,0,0,0,0,89.265625,-2248.960205078125,94.74571990966796875,1.861210823059082031,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,53212); -- Won'sa "Pit Area"
+
+-- Add missing Creature Spawns
+DELETE FROM `gameobject` WHERE `guid`=@OGUID;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+-- Horde
+(@OGUID, 351765, 2175, 10424, 10529, '0', 15330, 0, 162.796875, -2303.585205078125, 81.78006744384765625, 0.724311470985412597, 0, 0, 0.354290962219238281, 0.935135245323181152, 7200, 255, 1, 53212);
+
+-- Ride of the Scientifically Enhanced Boar
 
 -- Pathing for Small Boar Entry: 156808
-SET @NPC := @GUID+4;
+SET @NPC := @CGUID+4;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `wander_distance`=0,`MovementType`=2,`position_x`=165.30946,`position_y`=-2298.7698,`position_z`=82.51129 WHERE `guid`=@NPC;
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
@@ -245,3 +269,163 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 DELETE FROM `quest_template` WHERE `ID`=59610;
 INSERT INTO `quest_template` (`ID`,`QuestType`,`RewardXPMultiplier`,`RewardMoneyMultiplier`,`RewardArtifactXPMultiplier`,`Flags`,`LogTitle`) VALUES
 (59610,2,1,1,1,1024, '[Hidden Tracker] Torgok\'s Reagent Pouch Dropped');
+
+-- Re-Deather
+
+UPDATE `creature` SET `StringId` = 'shuja_grimaxe_ogre_ruins_prisoner' WHERE `guid`=8000024;
+UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_q59942" WHERE `entry`=167146;
+UPDATE `creature_template` SET `ScriptName`="npc_shuja_grimaxe_prisioner" WHERE `entry`=167126;
+UPDATE `creature_template` SET `npcflag`=16777216 WHERE entry IN (167142);
+
+DELETE FROM `creature_equip_template` WHERE `CreatureID`=167146;
+INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`, `VerifiedBuild`) VALUES
+(167146, 1, 165616, 0, 0, 0, 0, 0, 0, 0, 0, 52808);
+
+DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (167142);
+INSERT INTO `creature_template_movement` (`CreatureId`,`Ground`,`Swim`,`Flight`,`Rooted`,`Chase`,`Random`,`InteractionPauseTimer`) VALUES
+(167142,0,0,1,0,0,0,0); -- Choppy Booster Mk. 5
+
+DELETE FROM `npc_vendor` WHERE `entry`=167213;
+INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `type`, `PlayerConditionID`, `IgnoreFiltering`, `VerifiedBuild`) VALUES
+(167213, 2, 178120, 0, 0, 1, 0, 0, 52808),
+(167213, 1, 117, 0, 0, 1, 0, 1, 52808);
+
+-- Quest data
+DELETE FROM `creature_queststarter` WHERE `id`=167019 AND `quest`=59942;
+DELETE FROM `creature_queststarter` WHERE `id`=167212 AND `quest`=59950;
+INSERT INTO `creature_queststarter` (`id`, `quest`, `VerifiedBuild`) VALUES
+(167019, 59942, 52649), -- The Re-Deather accept from Cork Fizzlepop
+(167212, 59950, 52649); -- Stocking Up on Supplies accept from Warlord Breka Grimaxe
+
+DELETE FROM `creature_questender` WHERE `id`=167126 AND `quest`=59942;
+DELETE FROM `creature_questender` WHERE `id`=167212 AND `quest`=59950;
+INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
+(167126, 59942, 52649), -- The Re-Deather turn in to Shuja Grimaxe
+(167212, 59950, 52649); -- Stocking Up on Supplies turn in to Warlord Breka Grimaxe
+
+DELETE FROM `quest_template_addon` WHERE `ID` IN (59942,59950);
+INSERT INTO `quest_template_addon` (`ID`,`AllowableClasses`,`PrevQuestID`,`NextQuestID`,`ScriptName`) VALUES
+(59942,0,59941,0,'quest_the_re_deather'), -- The Re-Deather
+(59950,0,59942,0,''); -- Stocking Up on Supplies
+
+-- Phase Area
+DELETE FROM `phase_area` WHERE `AreaId`=10588 AND `PhaseId` IN (15331);
+DELETE FROM `phase_area` WHERE `AreaId`=10424 AND `PhaseId` IN (15485,15447,15353,15338,15377);
+INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
+(10588,15331, 'Cosmetic - NPE - See Choppy Booster Mk. 5'),
+(10424,15485, 'Cosmetic - NPE - See Warlord Breka Grimaxe at Ogre Ruins'),
+(10424,15447, 'Cosmetic - NPE - See Grunt Throg at Ogre Ruins'),
+(10424,15353, 'Cosmetic - NPE - See Shuja Grimaxe at Ogre Ruins pre quest at Ogre Ruins'),
+(10424,15338, 'Cosmetic - NPE - See Won\'sa and Lana Jordan at Ogre Ruins pre quest at Ogre Ruins'),
+(10424,15377, 'Cosmetic - NPE - See Mithdran Dawntracker at Ogre Ruins pre quest at Ogre Ruins');
+
+-- Phase Names
+DELETE FROM `phase_name` WHERE `ID` IN (15331,15485,15447,15353,15338,15377);
+INSERT INTO `phase_name` (`ID`,`Name`) VALUES
+(15331,'Cosmetic - NPE - See Choppy Booster Mk. 5'),
+(15485,'Cosmetic - NPE - See Warlord Breka Grimaxe at Ogre Ruins'),
+(15447,'Cosmetic - NPE - See Grunt Throg at Ogre Ruins'),
+(15353,'Cosmetic - NPE - See Shuja Grimaxe at Ogre Ruins pre quest at Ogre Ruins'),
+(15338,'Cosmetic - NPE - See Won\'sa and Lana Jordan at Ogre Ruins pre quest at Ogre Ruins'),
+(15377,'Cosmetic - NPE - See Mithdran Dawntracker at Ogre Ruins pre quest at Ogre Ruins');
+
+-- Phase Conditions
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15331,15319) AND `ConditionValue1`=59942;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15331,13783) AND `ConditionValue1`=325368;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15485,15447,15353,15338,15377,15553,15316,15315,15318) AND `ConditionValue1`=59942;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15316) AND `SourceEntry`=0;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (14663,15327) AND `ConditionValue1`=59942;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (14663) AND `ConditionValue1`=397279;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(26,15331,10588, 0, 0, 47, 0, 59942, 8, 0, 0, 0, 0, '', 'Choppy Booster Mk. 5 if quest The Re-Deather is inprogress'),
+(26,15319,10588, 0, 0, 47, 0, 59942, 1, 0, 0, 0, 0, '', 'Choppy Booster Mk. 5 if quest The Re-Deather is not taken'),
+(26,15331,10588, 0, 0, 1, 0, 325368, 0, 0, 1, 0, 0, '', 'See Choppy Booster Mk. 5 if player does not have aura'),
+(26,13783,10529, 0, 0, 1, 0, 325368, 0, 0, 1, 0, 0, '', 'See See the Army of Undead if player does not have aura'),
+(26,15485,10424, 0, 0, 47, 0, 59942, 64, 0, 0, 0, 0, '', 'See Warlord Breka Grimaxe at Ogre Ruins if quest The Re-Deather is rewarded'),
+(26,15447,10424, 0, 0, 47, 0, 59942, 64, 0, 0, 0, 0, '', 'See Grunt Throg at Ogre Ruins if quest The Re-Deather is rewarded'),
+(26,15353,10424, 0, 0, 47, 0, 59942, 64, 0, 0, 0, 0, '', 'See Shuja Grimaxe at Ogre Ruins pre quest if quest The Re-Deather is rewarded'),
+(26,15338,10424, 0, 0, 47, 0, 59942, 64, 0, 0, 0, 0, '', 'See Won\'sa and Lana Jordan at Ogre Ruins pre quest if quest The Re-Deather is rewarded'),
+(26,15377,10424, 0, 0, 47, 0, 59942, 64, 0, 0, 0, 0, '', 'See Mithdran Dawntracker at Ogre Ruins pre quest if quest The Re-Deather is rewarded'),
+(26,15553,10588, 0, 0, 47, 0, 59942, 64, 0, 1, 0, 0, '', 'See Horde Crew at Darkmaul Plains if quest The Re-Deather is not rewarded'),
+(26,15316,10588, 0, 0, 47, 0, 59942, 64, 0, 1, 0, 0, '', 'See Mithran Dawntracker at Darkmaul Plains if quest The Re-Deather is not rewarded'),
+(26,15316,10588, 0, 1, 47, 0, 59942, 64, 0, 1, 0, 0, '', 'See Mithran Dawntracker at Darkmaul Plains if quest The Re-Deather is not rewarded'),
+(26,15315,10588, 0, 0, 47, 0, 59942, 64, 0, 1, 0, 0, '', 'See Warlord Breka Grimaxe at Darkmaul Plains if quest The Re-Deather is not rewarded'),
+(26,15318,10588, 0, 0, 47, 0, 59942, 64, 0, 1, 0, 0, '', 'See Cork Fizzlepop at Darkmaul Plains if quest The Re-Deather is not rewarded'),
+(26,14663,10424, 0, 1, 47, 0, 59942, 64, 0, 1, 0, 0, '', 'See Torgok <Binder of Souls> if quest The Re-Deather is not rewarded'),
+(26,14663,10424, 0, 1, 48, 0, 397279, 0, 8, 0, 0, 0, '', 'See Torgok <Binder of Souls> if quest Ride if player has objective complete'),
+(26,15327,10424, 0, 0, 47, 0, 59942, 64, 0, 1, 0, 0, '', 'AND0 See Shuja Grimaxe at Ogre Ruins if quest  The Re-Deather is not rewarded Horde.');
+
+-- Add Scenes for The Re-Deather
+DELETE FROM `scene_template` WHERE `SceneId` IN (2489,2489,2497,2423,2422,2421,2420);
+INSERT INTO `scene_template` (`SceneId`,`Flags`,`ScriptPackageID`,`Encrypted`,`ScriptName`) VALUES
+(2489,17,2896,0,'scene_horde_darkmaul_plains_skeleton_army'),
+(2497,17,2933,0,''),
+(2423,16,2825,0,''),
+(2422,16,2824,0,''),
+(2421,16,2823,0,''),
+(2420,16,2822,0,'');
+
+-- Spell Click
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (167142);
+INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`) VALUES
+(167142,325368,1,0);
+
+-- Condition for Spell click event condition type Queststate
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (167142) AND `SourceEntry` IN (325368) AND `SourceId`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(18, 167142, 325368, 0, 0, 47, 0, 59942, 8, 0, 0, 0, 0, '', 'Spellclick unit Choppy Booster Mk. 5 will cast spell Riding Choppy Booster Mk 5 (DNT) on player if quest The Choppy Booster Mk. 5 queststate is INCOMPLETE');
+
+-- Spell Target Position
+DELETE FROM `spell_target_position` WHERE `ID` IN (325368);
+INSERT INTO `spell_target_position` (`ID`,`EffectIndex`,`MapID`,`PositionX`,`PositionY`,`PositionZ`,`VerifiedBuild`) VALUES
+(325368,0,2175,107.87153,-2414.177,95.44844,52649);
+
+-- Spell Target Position
+DELETE FROM `spell_target_position` WHERE `ID` IN (325401);
+INSERT INTO `spell_target_position` (`ID`,`EffectIndex`,`MapID`,`PositionX`,`PositionY`,`PositionZ`,`VerifiedBuild`) VALUES
+(325401,0,2175,233.55,-2332.52,80.84,52649);
+
+-- Summon data for Warlord Grimaxe
+DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (167146);
+INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`, `DespawnOnQuestsRemoved`) VALUES
+(167146,167145,NULL,NULL, '59942');
+
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-325368,325368,325429);
+INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
+(-325368,82238,1,'aura remove'),
+(325368,82238,1,'aura add'),
+(325429,325428,0,'aura add');
+
+-- Conversation
+DELETE FROM `conversation_template` WHERE `Id` IN (14525,14526,14527,15618);
+INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
+(14525,36400,0,'',52649),
+(14526,36402,0,'',52649),
+(14527,36403,0,'',52649),
+(15618,39171,0,'',52649);
+
+DELETE FROM `conversation_actors` WHERE `ConversationId` IN (14525,14526,14527,15618);
+INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
+(14525,75979,8000016,0,0,0,0,0,52649), -- Cork Fizzlepop
+(14526,75979,0,0,167915,96314,0,0,52649), -- Cork Fizzlepop
+(14527,76004,0,0,0,0,0,0,52649),
+(14527,76357,0,1,0,0,0,0,52649),
+(15618,76357,0,0,0,0,0,0,52649),
+(15618,78501,0,1,0,0,0,0,52649);
+
+DELETE FROM `conversation_line_template` WHERE `Id` IN (36400,36402,36403,36404,39171,39172,39173,39174,39175);
+INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES
+(36400,0,0,0,52649),
+(36402,114,0,0,52649),
+(36403,0,0,0,52649),
+(36404,0,1,0,52649),
+(39171,0,0,0,52649),
+(39172,0,1,0,52649),
+(39173,0,0,0,52649),
+(39174,0,0,0,52649),
+(39175,0,1,0,52649);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup`=14663 AND `ElseGroup`=1;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(26,14663,10424, 0, 1, 47, 0, 59942, 64, 0, 1, 0, 0, '', 'See Torgok <Binder of Souls> if quest The Re-Deather is not rewarded'),
+(26,14663,10424, 0, 1, 48, 0, 397279, 0, 8, 0, 0, 0, '', 'See Torgok <Binder of Souls> if quest Ride if player has objective complete');
