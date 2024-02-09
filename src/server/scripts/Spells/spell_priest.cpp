@@ -2102,7 +2102,6 @@ class spell_pri_divine_aegis : public AuraScript
         Unit* caster = eventInfo.GetActor();
         if (!caster)
             return;
-        
         uint32 healing = eventInfo.GetHealInfo()->GetHeal();
         AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS, EFFECT_0);
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
