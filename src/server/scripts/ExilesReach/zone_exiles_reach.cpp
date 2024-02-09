@@ -5965,12 +5965,11 @@ public:
             player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
             player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            if (Creature* garrick = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = NPC_ALLIANCE_CAPTAIN, .OwnerGuid = player->GetGUID() }))
-                garrick->DespawnOrUnsummon();
-            if (Creature* henry = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = NPC_HENRY_GARRICK_PRISONER, .OwnerGuid = player->GetGUID() }))
-                henry->DespawnOrUnsummon();
             break;
         case QUEST_STATUS_NONE:
+            player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+            player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+            player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
             player->RemoveAura(SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA);
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
             break;
@@ -6252,19 +6251,21 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                     {
                         if (Player* player = owner->ToPlayer())
                         {
-                            if (player->IsInCombat() && !me->IsInCombat())
+                            if (player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) == QUEST_STATUS_INCOMPLETE)
                             {
-                                me->Attack(player->GetVictim(), true); // ***** Not sure if this is the best way to do this. Does not always work.
+                                if (player->IsInCombat() && !me->IsInCombat())
+                                    me->Attack(player->GetVictim(), true);
                             }
-
-                            if (((player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) != QUEST_STATUS_NONE)) && ((player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) != QUEST_STATUS_REWARDED)))
+                            else if (player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) == QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) == QUEST_STATUS_REWARDED)
                             {
-                                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 1s);
+                                if (Creature* henry = ObjectAccessor::GetCreature(*me, _henryGUID))
+                                    henry->DespawnOrUnsummon();
+
+                                me->DespawnOrUnsummon();
                             }
                         }
                     }
-                    else
-                        me->DespawnOrUnsummon();
+                    _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 1s);
                     break;
                 }
                 case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY:
@@ -6513,7 +6514,7 @@ private:
 
 enum HenryGarrickQuest55879
 {
-    PATH_GARRICK_TO_GROUND = 80000230
+    PATH_PRISONER_TO_GROUND = 80000230
 };
 
 // 156799 - Henry Garrick
@@ -6524,13 +6525,12 @@ struct npc_henry_q55879 : public ScriptedAI
     void InitializeAI() override
     {
         me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-
     }
 
     void JustAppeared() override
     {
         me->RemoveAllAuras();
-        me->GetMotionMaster()->MovePath(PATH_GARRICK_TO_GROUND, false);
+        me->GetMotionMaster()->MovePath(PATH_PRISONER_TO_GROUND, false);
     }
 };
 
@@ -6538,6 +6538,269 @@ CreatureAI* HenryGarrickSelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
         return new npc_henry_q55879(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
+enum TheReDeather
+{
+    CONVERSATION_ACCEPT_RE_DEATHER_QUEST  = 14525,
+
+    NPC_HORDE_WARRIOR                     = 167146,
+    NPC_SHUJA_GRIMAXE_PRISONER            = 167126,
+
+    QUEST_RE_DEATHER                      = 59942,
+    QUEST_RE_DEATHER_OBJECTIVE_TWO        = 397279,
+    QUEST_RE_DEATHER_OBJECTIVE_TWO_MAX    = 8,
+
+    SPELL_REUNION_DNT_HORDE               = 326678,
+    SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK = 325394,
+    SPELL_RE_DEATHER_ROUGH_LANDING_DNT    = 325401,
+    SPELL_RE_DEATHER_SUMMON_GRIMAXE       = 325429
+};
+
+// Quest 59942 - The Re-Deather
+class quest_the_re_deather : public QuestScript
+{
+public:
+    quest_the_re_deather() : QuestScript("quest_the_re_deather") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                Conversation::CreateConversation(CONVERSATION_ACCEPT_RE_DEATHER_QUEST, player, *player, player->GetGUID(), nullptr);
+                break;
+            case QUEST_STATUS_COMPLETE:
+                player->CombatStop();
+                player->CastSpell(player, SPELL_PING_GARRICK_TORGOK);
+                break;
+            case QUEST_STATUS_REWARDED:
+                player->CastSpell(player, SPELL_REUNION_DNT_HORDE);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            case QUEST_STATUS_NONE:
+            {
+                player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->RemoveAura(SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+};
+
+// Script scene for The Re-Deather quest
+class scene_horde_darkmaul_plains_skeleton_army : public SceneScript
+{
+public:
+    scene_horde_darkmaul_plains_skeleton_army() : SceneScript("scene_horde_darkmaul_plains_skeleton_army") { }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Big Kill Credit")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_KILL_CREDIT, true);
+
+            if (player->GetQuestObjectiveData(QUEST_RE_DEATHER, QUEST_RE_DEATHER_OBJECTIVE_TWO) == QUEST_RE_DEATHER_OBJECTIVE_TWO_MAX)
+            {
+                player->CastSpell(player, SPELL_ENHANCED_BOAR_PING_VEHICLE); // Ping Vehicle
+                player->CastSpell(player, SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK); // Temp Objective Check
+                Conversation::CreateConversation(14526, player, *player, player->GetGUID(), nullptr);
+            }
+        }
+        else if (triggerName == "Conversation")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_CHARGE_CONVO, true); // Does nothing but it's blizzlike
+        }
+        else if (triggerName == "Teleport")
+        {
+            player->CastSpell(player, SPELL_RE_DEATHER_ROUGH_LANDING_DNT);
+        }
+    }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+        player->CastSpell(player, SPELL_RE_DEATHER_SUMMON_GRIMAXE);
+    }
+};
+
+enum GrimaxeReDeather
+{
+    ACTOR_SHUJA_GRIMAXE_PRISONER                       = 76004,
+    ACTOR_WARLORD_GRIMAXE_Q59942                       = 76357,
+    ACTOR_SHUJA_GRIMAXE_FREED                          = 78501,
+
+    CONVERSATION_WARLORD_GRIMAXE_SPAWN_Q59942          = 14527,
+    CONVERSATION_WARLORD_GRIMAXE_QUEST_COMPLETE_Q59942 = 15618
+};
+
+// Entry 167146 - Warlord Grimaxe
+struct npc_warlord_grimaxe_q59942 : public ScriptedAI
+{
+    npc_warlord_grimaxe_q59942(Creature* creature) : ScriptedAI(creature) { }
+
+    void Initialize()
+    {
+        _inCombat = false;
+        // *** HACK *** Added UNIT_FLAG_IMMUNE_TO_PC to get proper cursor when targeting npc.
+        // Inproper cursor reason is unknown to me but could be due to missing Demon creator in CreateObject 
+        me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED | UNIT_FLAG_IMMUNE_TO_PC);
+    }
+
+    void JustAppeared() override
+    {
+        Unit* owner = me->GetOwner();
+
+        Player* player = owner->ToPlayer();
+        if (!player)
+            return;
+
+        Creature* shuja = FindCreatureIgnorePhase(me, "shuja_grimaxe_ogre_ruins_prisoner");
+        if (!shuja)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_WARLORD_GRIMAXE_SPAWN_Q59942, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(ACTOR_SHUJA_GRIMAXE_PRISONER, 0, shuja->GetGUID());
+        conversation->AddActor(ACTOR_WARLORD_GRIMAXE_Q59942, 1, me->GetGUID());
+        conversation->Start();
+
+        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
+        _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 1s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        // *** HACK ***
+        damage = 1;
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_PING_GARRICK_TORGOK:
+            {
+                Creature* shuja = FindCreatureIgnorePhase(me, "shuja_grimaxe_ogre_ruins_prisoner");
+                if (!shuja)
+                    break;
+
+                Player* player = me->GetOwner()->ToPlayer();
+                if (!player)
+                    break;
+
+                Creature* shujaPersonal = shuja->SummonPersonalClone(shuja->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                if (!shujaPersonal)
+                    break;
+
+                me->SetReactState(REACT_AGGRESSIVE);
+                _shujaGUID = shujaPersonal->GetGUID();
+                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY, 1s);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER:
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        if (Player* player = owner->ToPlayer())
+                        {
+                            if (player->GetQuestStatus(QUEST_RE_DEATHER) == QUEST_STATUS_INCOMPLETE)
+                            {
+                                if (player->IsInCombat() && !me->IsInCombat())
+                                    me->Attack(player->GetVictim(), true);
+                            }
+                            else if (player->GetQuestStatus(QUEST_RE_DEATHER) == QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_RE_DEATHER) == QUEST_STATUS_REWARDED)
+                            {
+                                if (Creature* shuja = ObjectAccessor::GetCreature(*me, _shujaGUID))
+                                    shuja->DespawnOrUnsummon();
+
+                                player->RemoveAura(SPELL_RE_DEATHER_SUMMON_GRIMAXE);
+                                me->DespawnOrUnsummon();
+                            }
+                            _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 1s);
+                        }
+                    }
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY:
+                {
+                    Player* player = me->GetOwner()->ToPlayer();
+                    if (!player)
+                        break;
+
+                    Conversation* conversation = Conversation::CreateConversation(CONVERSATION_WARLORD_GRIMAXE_QUEST_COMPLETE_Q59942, player, *player, player->GetGUID(), nullptr, false);
+                    if (!conversation)
+                        break;
+
+                    conversation->AddActor(ACTOR_WARLORD_GRIMAXE_Q59942, 0, me->GetGUID());
+                    conversation->AddActor(ACTOR_SHUJA_GRIMAXE_FREED, 1, _shujaGUID);
+                    conversation->Start();
+
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MovePoint(POINT_HENRY_POSITION, HenryPosition);
+                    _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_QUESTGIVER, 22s);
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_QUESTGIVER:
+                {
+                    if (Creature* shuja = ObjectAccessor::GetCreature(*me, _shujaGUID))
+                        shuja->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+    ObjectGuid _shujaGUID;
+    bool _inCombat;
+};
+
+// 167126 - Shuja Grimaxe
+struct npc_shuja_q59942 : public ScriptedAI
+{
+    npc_shuja_q59942(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->RemoveAllAuras();
+        me->GetMotionMaster()->MovePath(PATH_PRISONER_TO_GROUND, false);
+    }
+};
+
+CreatureAI* ShujaPrisonerGarrickSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_shuja_q59942(creature);
     else
         return new NullCreatureAI(creature);
 };
@@ -6660,4 +6923,9 @@ void AddSC_zone_exiles_reach()
     RegisterCreatureAI(npc_giant_boar_vehicle_q55879);
     RegisterCreatureAI(npc_torgok_q55879);
     new FactoryCreatureScript<CreatureAI, &HenryGarrickSelector>("npc_henry_garrick_prisioner");
+    // The Re-Deather
+    new quest_the_re_deather();
+    new scene_horde_darkmaul_plains_skeleton_army();
+    RegisterCreatureAI(npc_warlord_grimaxe_q59942);
+    new FactoryCreatureScript<CreatureAI, &ShujaPrisonerGarrickSelector>("npc_shuja_grimaxe_prisioner");  
 };
