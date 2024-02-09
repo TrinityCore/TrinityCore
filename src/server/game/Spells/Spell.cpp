@@ -2516,11 +2516,15 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     // If target reflect spell back to caster
     if (targetInfo.MissCondition == SPELL_MISS_REFLECT)
     {
-        // Calculate reflected spell result on caster (shouldn't be able to reflect gameobject spells)
+        // Shouldn't be able to reflect gameobject spells
         Unit* unitCaster = ASSERT_NOTNULL(m_caster->ToUnit());
-        targetInfo.ReflectResult = unitCaster->SpellHitResult(unitCaster, m_spellInfo,
-            false /*can't reflect twice*/,
-            false /*immunity will be checked after complete EffectMask is known*/);
+
+        // Calculate reflected spell result on caster
+        targetInfo.ReflectResult = m_spellInfo->CheckTarget(target, unitCaster, implicit) == SPELL_CAST_OK
+            ? unitCaster->SpellHitResult(unitCaster, m_spellInfo,
+                false /*can't reflect twice*/,
+                false /*immunity will be checked after complete EffectMask is known*/)
+            : SPELL_MISS_IMMUNE;
 
         if (targetInfo.ReflectResult == SPELL_MISS_MISS && target->HasAuraType(SPELL_AURA_REFLECT_SPELLS))
             targetInfo.ReflectingSpellId = target->GetAuraEffectsByType(SPELL_AURA_REFLECT_SPELLS).front()->GetId();
