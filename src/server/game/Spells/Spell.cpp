@@ -595,6 +595,10 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
         && !m_spellInfo->HasAttribute(SPELL_ATTR1_CANT_BE_REFLECTED) && !m_spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
         && !m_spellInfo->IsPassive();
 
+    //freezing trap and immolation trap reflectable
+    m_canReflect = m_canReflect || (m_spellInfo->Id == 3355 || m_spellInfo->Id == 14308 || m_spellInfo->Id == 14309);
+    m_canReflect = m_canReflect || (m_spellInfo->Id == 14305 || m_spellInfo->Id == 409528 || m_spellInfo->Id == 14303 || m_spellInfo->Id == 409524 || m_spellInfo->Id == 409521);
+
     CleanupTargetList();
     memset(m_effectExecuteData, 0, MAX_SPELL_EFFECTS * sizeof(ByteBuffer*));
 
