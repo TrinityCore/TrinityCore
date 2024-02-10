@@ -67,6 +67,8 @@ enum PriestSpells
     SPELL_PRIEST_DARK_REPRIMAND_DAMAGE              = 373130,
     SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
     SPELL_PRIEST_DAZZLING_LIGHT                     = 196810,
+    SPELL_PRIEST_DIVINE_AEGIS                       = 47515,
+    SPELL_PRIEST_DIVINE_AEGIS_ABSORB                = 47753,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
     SPELL_PRIEST_DIVINE_HYMN_HEAL                   = 64844,
     SPELL_PRIEST_DIVINE_IMAGE_SUMMON                = 392990,
@@ -1995,11 +1997,12 @@ class spell_pri_power_word_shield : public AuraScript
         }) && ValidateSpellEffect({
             { SPELL_PRIEST_MASTERY_GRACE, EFFECT_0 },
             { SPELL_PRIEST_RAPTURE, EFFECT_1 },
-            { SPELL_PRIEST_BENEVOLENCE, EFFECT_0 }
+            { SPELL_PRIEST_BENEVOLENCE, EFFECT_0 },
+            { SPELL_PRIEST_DIVINE_AEGIS, EFFECT_1 }
         });
     }
 
-    void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& canBeRecalculated) const
+    void CalculateAmount(AuraEffect const* auraEffect, int32& amount, bool& canBeRecalculated) const
     {
         canBeRecalculated = false;
 
@@ -2016,12 +2019,31 @@ class spell_pri_power_word_shield : public AuraScript
                     if (GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT) || GetUnitOwner()->HasAura(SPELL_PRIEST_TRINITY_EFFECT))
                         AddPct(modifiedAmount, masteryGraceEffect->GetAmount());
 
-                if (player->GetPrimarySpecialization() != ChrSpecialization::PriestHoly)
+                switch (player->GetPrimarySpecialization())
                 {
-                    modifiedAmount *= 1.25f;
-                    if (caster->HasAura(SPELL_PVP_RULES_ENABLED_HARDCODED))
-                        modifiedAmount *= 0.8f;
+                    case ChrSpecialization::PriestDiscipline:
+                        modifiedAmount *= 1.37f;
+                        break;
+                    case ChrSpecialization::PriestShadow:
+                        modifiedAmount *= 1.25f;
+                        if (caster->HasAura(SPELL_PVP_RULES_ENABLED_HARDCODED))
+                            modifiedAmount *= 0.8f;
+                        break;
+                    default:
+                        break;
                 }
+            }
+
+            float critChanceDone = caster->SpellCritChanceDone(nullptr, auraEffect, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
+            float critChanceTaken = GetUnitOwner()->SpellCritChanceTaken(caster, nullptr, auraEffect, GetSpellInfo()->GetSchoolMask(), critChanceDone, GetSpellInfo()->GetAttackType());
+
+            if (roll_chance_f(critChanceTaken))
+            {
+                modifiedAmount *= 2;
+
+                // Divine Aegis
+                if (AuraEffect const* divineEff = caster->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS, EFFECT_1))
+                    AddPct(modifiedAmount, divineEff->GetAmount());
             }
 
             // Rapture talent (TBD: move into DoEffectCalcDamageAndHealing hook).
@@ -2062,6 +2084,41 @@ class spell_pri_power_word_shield : public AuraScript
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         AfterEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield::HandleOnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield::HandleOnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 47515 - Divine Aegis
+class spell_pri_divine_aegis : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_AEGIS_ABSORB, EFFECT_0 } });
+    }
+
+    bool CheckProc(ProcEventInfo const& eventInfo) const
+    {
+        return eventInfo.GetHealInfo() != nullptr;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        Unit* caster = eventInfo.GetActor();
+        if (!caster)
+            return;
+
+        int32 aegisAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+        if (AuraEffect const* existingAegis = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS_ABSORB, EFFECT_0, caster->GetGUID()))
+            aegisAmount += existingAegis->GetAmount();
+
+        CastSpellExtraArgs args(aurEff);
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, aegisAmount);
+        caster->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_DIVINE_AEGIS_ABSORB, args);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_divine_aegis::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -3008,6 +3065,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_blaze_of_light);
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_dark_indulgence);
+    RegisterSpellScript(spell_pri_divine_aegis);
     RegisterSpellScript(spell_pri_divine_image);
     RegisterSpellScript(spell_pri_divine_image_spell_triggered);
     RegisterSpellScript(spell_pri_divine_image_stack_timer);
