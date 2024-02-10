@@ -5,11 +5,11 @@ SET @OGUID := 8000014;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID AND @CGUID+17;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `ScriptName`, `StringId`, `VerifiedBuild`) VALUES
 -- Alliance
-(@CGUID,162817,2175,10424,10529,'0',0,14663,0,-1,0,0,243.55556,-2242.9185,83.88086,4.5683498,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Torgok <Binder of Souls>
-(@CGUID+1,150245,2175,10424,10529,'0',0,13794,0,-1,0,0,169.23438,-2297.9983,82.15651,2.54967,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Lindie Springstock
-(@CGUID+2,156800,2175,10424,10529,'0',0,13794,0,-1,0,0,186.51042,-2284.6216,81.91817,3.558244,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Quartermaster Richter <Supplies>
-(@CGUID+3,156807,2175,10424,10529,'0',0,13835,0,-1,0,0,185.90625,-2288.927,81.77783,1.908762,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Captain Garrick
-(@CGUID+4,156808,2175,10424,10529,'0',0,13794,0,-1,0,0,169.73827,-2293.4995,82.96085,2.618248,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Small Boar
+(@CGUID,162817,2175,10424,10529,'0',0,14663,0,0,0,0,243.55556,-2242.9185,83.88086,4.5683498,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Torgok <Binder of Souls>
+(@CGUID+1,150245,2175,10424,10529,'0',0,13794,0,0,0,0,169.23438,-2297.9983,82.15651,2.54967,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Lindie Springstock
+(@CGUID+2,156800,2175,10424,10529,'0',0,13794,0,0,0,0,186.51042,-2284.6216,81.91817,3.558244,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Quartermaster Richter <Supplies>
+(@CGUID+3,156807,2175,10424,10529,'0',0,13835,0,0,0,0,185.90625,-2288.927,81.77783,1.908762,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Captain Garrick
+(@CGUID+4,156808,2175,10424,10529,'0',0,13794,0,0,0,0,169.73827,-2293.4995,82.96085,2.618248,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52649), -- Small Boar
 -- Horde
 (@CGUID+5,167142,2175,10424,10588,'0',0,15331,0,0,0,0,107.87153,-2414.177,95.44844,0,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52808), -- Choppy Booster Mk. 5
 (@CGUID+6,167212,2175,10424,10529,'0',0,15485,0,0,0,0,185.70660400390625,-2282.98095703125,81.93126678466796875,3.950360536575317382,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,52808), -- Warlord Breka Grimaxe
@@ -116,7 +116,11 @@ INSERT INTO `scene_template` (`SceneId`,`Flags`,`ScriptPackageID`,`Encrypted`,`S
 -- Summon data for Captain Garrick
 DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (174955);
 INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`, `DespawnOnQuestsRemoved`) VALUES
-(174955,156280,NULL,NULL, '55879');
+(174955,156781,NULL,NULL, '55879');
+
+DELETE FROM `creature_equip_template` WHERE `CreatureID`=174955;
+INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`, `VerifiedBuild`) VALUES
+(174955, 1, 163887, 0, 0, 163891, 0, 0, 0, 0, 0, 52808);
 
 -- Spell Click
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (156595);
