@@ -1998,7 +1998,7 @@ class spell_pri_power_word_shield : public AuraScript
             { SPELL_PRIEST_MASTERY_GRACE, EFFECT_0 },
             { SPELL_PRIEST_RAPTURE, EFFECT_1 },
             { SPELL_PRIEST_BENEVOLENCE, EFFECT_0 },
-            { SPELL_PRIEST_DIVINE_AEGIS, EFFECT_1}
+            { SPELL_PRIEST_DIVINE_AEGIS, EFFECT_1 }
         });
     }
 
@@ -2019,16 +2019,25 @@ class spell_pri_power_word_shield : public AuraScript
                     if (GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT) || GetUnitOwner()->HasAura(SPELL_PRIEST_TRINITY_EFFECT))
                         AddPct(modifiedAmount, masteryGraceEffect->GetAmount());
 
-                if (player->GetPrimarySpecialization() != ChrSpecialization::PriestHoly)
+                switch (player->GetPrimarySpecialization())
                 {
-                    modifiedAmount *= 1.25f;
-                    if (caster->HasAura(SPELL_PVP_RULES_ENABLED_HARDCODED))
-                        modifiedAmount *= 0.8f;
+                    case ChrSpecialization::PriestDiscipline:
+                        modifiedAmount *= 1.37f;
+                        break;
+                    case ChrSpecialization::PriestShadow:
+                        modifiedAmount *= 1.25f;
+                        if (caster->HasAura(SPELL_PVP_RULES_ENABLED_HARDCODED))
+                            modifiedAmount *= 0.8f;
+                        break;
+                    default:
+                        break;
                 }
             }
 
-            float critChance = caster->SpellCritChanceDone(nullptr, auraEffect, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
-            if (roll_chance_f(critChance))
+            float critChanceDone = caster->SpellCritChanceDone(nullptr, auraEffect, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
+            float critChanceTaken = GetUnitOwner()->SpellCritChanceTaken(caster, nullptr, auraEffect, GetSpellInfo()->GetSchoolMask(), critChanceDone, GetSpellInfo()->GetAttackType());
+
+            if (roll_chance_f(critChanceTaken))
             {
                 modifiedAmount *= 2;
 
@@ -2083,35 +2092,33 @@ class spell_pri_divine_aegis : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo ({ SPELL_PRIEST_DIVINE_AEGIS_ABSORB })
-            && ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_AEGIS, EFFECT_0} });
+        return ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_AEGIS_ABSORB, EFFECT_0 } });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo const& eventInfo) const
     {
-        if (eventInfo.GetHealInfo() && eventInfo.GetHitMask() & PROC_HIT_CRITICAL)
-            return true;
-
-        return false;
+        return eventInfo.GetHealInfo() != nullptr;
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
         Unit* caster = eventInfo.GetActor();
         if (!caster)
             return;
-        uint32 healing = eventInfo.GetHealInfo()->GetHeal();
-        AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS, EFFECT_0);
-        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.AddSpellBP0(CalculatePct(healing, aurEff->GetAmount()));
 
-        caster->CastSpell(GetTarget(), SPELL_PRIEST_DIVINE_AEGIS_ABSORB, args);
+        int32 aegisAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+        if (AuraEffect const* existingAegis = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS_ABSORB, EFFECT_0, caster->GetGUID()))
+            aegisAmount += existingAegis->GetAmount();
+
+        CastSpellExtraArgs args(aurEff);
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, aegisAmount);
+        caster->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_DIVINE_AEGIS_ABSORB, args);
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pri_divine_aegis::CheckProc);
-        OnProc += AuraProcFn(spell_pri_divine_aegis::HandleProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_divine_aegis::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
