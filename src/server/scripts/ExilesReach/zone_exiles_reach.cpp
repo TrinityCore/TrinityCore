@@ -6177,8 +6177,11 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        // *** HACK Needs more testing ***
-        damage = 1;
+        if (me->GetHealth() <= damage)
+        {
+            damage = 0;
+            me->SetHealth(1);
+        }
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -6686,8 +6689,11 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        // *** HACK Needs more testing ***
-        damage = 1;
+        if (me->GetHealth() <= damage)
+        {
+            damage = 0;
+            me->SetHealth(1);
+        }
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
