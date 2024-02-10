@@ -31,6 +31,9 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficu
 -- Horde
 (@OGUID, 351765, 2175, 10424, 10529, '0', 15330, 0, 162.796875, -2303.585205078125, 81.78006744384765625, 0.724311470985412597, 0, 0, 0.354290962219238281, 0.935135245323181152, 7200, 255, 1, 53212);
 
+-- Fix campfire at ogre ruins
+UPDATE `gameobject_template_addon` SET `flags` = 4 WHERE `entry` = 342365;
+
 -- Ride of the Scientifically Enhanced Boar
 
 -- Pathing for Small Boar Entry: 156808
