@@ -2027,10 +2027,8 @@ class spell_pri_power_word_shield : public AuraScript
                 }
             }
 
-            float critChanceDone = caster->SpellCritChanceDone(nullptr, auraEffect, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
-            float critChanceTaken = caster->SpellCritChanceTaken(caster, nullptr, auraEffect, GetSpellInfo()->GetSchoolMask(), critChanceDone, GetSpellInfo()->GetAttackType());
-
-            if (roll_chance_f(critChanceTaken))
+            float critChance = caster->SpellCritChanceDone(nullptr, auraEffect, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
+            if (roll_chance_f(critChance))
             {
                 modifiedAmount *= 2;
 
