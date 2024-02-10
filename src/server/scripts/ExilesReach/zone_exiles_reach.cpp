@@ -5950,31 +5950,31 @@ public:
     {
         switch (newStatus)
         {
-        case QUEST_STATUS_INCOMPLETE:
-            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->CastSpell(player, SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_SUMMON);
-            break;
-        case QUEST_STATUS_COMPLETE:
-            player->CombatStop();
-            player->CastSpell(player, SPELL_PING_GARRICK_TORGOK);
-            break;
-        case QUEST_STATUS_REWARDED:
-            player->CastSpell(player, SPELL_REUNION_DNT_ALLIANCE);
-            player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
-            player->CastSpell(player, SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
-            player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
-            player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
-            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            break;
-        case QUEST_STATUS_NONE:
-            player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
-            player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
-            player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
-            player->RemoveAura(SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA);
-            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            break;
-        default:
-            break;
+            case QUEST_STATUS_INCOMPLETE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->CastSpell(player, SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_SUMMON);
+                break;
+            case QUEST_STATUS_COMPLETE:
+                player->CombatStop();
+                player->CastSpell(player, SPELL_PING_GARRICK_TORGOK);
+                break;
+            case QUEST_STATUS_REWARDED:
+                player->CastSpell(player, SPELL_REUNION_DNT_ALLIANCE);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            case QUEST_STATUS_NONE:
+                player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->RemoveAura(SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            default:
+                break;
         }
     }
 };
@@ -5995,10 +5995,10 @@ enum SceneOgreRuinsRideBoar
 };
 
 // Script scene for Ride of the Scientifically Enhanced Boar quest
-class scene_darkmaul_plains_skeleton_army : public SceneScript
+class scene_darkmaul_plains_skeleton_army_alliance : public SceneScript
 {
 public:
-    scene_darkmaul_plains_skeleton_army() : SceneScript("scene_darkmaul_plains_skeleton_army") { }
+    scene_darkmaul_plains_skeleton_army_alliance() : SceneScript("scene_darkmaul_plains_skeleton_army_alliance") { }
 
     void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
     {
@@ -6099,15 +6099,15 @@ class spell_knockback_hint_q56034 : public SpellScript
         if (!player)
             return;
 
-        Creature* gasrrick = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = NPC_ALLIANCE_CAPTAIN, .OwnerGuid = player->GetGUID() });
-        if (!gasrrick)
+        Creature* garrick = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = NPC_ALLIANCE_CAPTAIN, .OwnerGuid = player->GetGUID() });
+        if (!garrick)
             return;
 
         Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
         if (!conversation)
             return;
 
-        conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 0, gasrrick->GetGUID());
+        conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 0, garrick->GetGUID());
         conversation->Start();
     }
 
@@ -6145,7 +6145,7 @@ enum CaptainGarrarkGiantBoar
     SPELL_RIDE_VEHICLE_CAPTIAN_BOAR                        = 63315
 };
 
-Position HenryPosition = { 232.16145f, -2292.5347f, 80.91198f };
+Position MoveToPrisonerPosition = { 232.16145f, -2292.5347f, 80.91198f };
 
 // Entry 174955 - Captain Garrick
 struct npc_captain_garrick_q55879 : public ScriptedAI
@@ -6155,6 +6155,8 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
     void JustAppeared() override
     {
         Unit* owner = me->GetOwner();
+        if (!owner)
+            return;
 
         Player* player = owner->ToPlayer();
         if (!player)
@@ -6175,7 +6177,8 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        damage = 1; // ***** Not sure if this is the best way to do this.
+        // *** HACK Needs more testing ***
+        damage = 1;
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -6283,7 +6286,7 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                     conversation->Start();
 
                     me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MovePoint(POINT_HENRY_POSITION, HenryPosition);
+                    me->GetMotionMaster()->MovePoint(POINT_HENRY_POSITION, MoveToPrisonerPosition);
                     _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_QUESTGIVER, 18s);
                     break;
                 }
@@ -6601,10 +6604,10 @@ public:
 };
 
 // Script scene for The Re-Deather quest
-class scene_horde_darkmaul_plains_skeleton_army : public SceneScript
+class scene_darkmaul_plains_skeleton_army_horde : public SceneScript
 {
 public:
-    scene_horde_darkmaul_plains_skeleton_army() : SceneScript("scene_horde_darkmaul_plains_skeleton_army") { }
+    scene_darkmaul_plains_skeleton_army_horde() : SceneScript("scene_darkmaul_plains_skeleton_army_horde") { }
 
     void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
     {
@@ -6654,9 +6657,7 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
     void Initialize()
     {
         _inCombat = false;
-        // *** HACK *** Added UNIT_FLAG_IMMUNE_TO_PC to get proper cursor when targeting npc.
-        // Inproper cursor reason is unknown to me but could be due to missing Demon creator in CreateObject
-        me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED | UNIT_FLAG_IMMUNE_TO_PC);
+        me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
     }
 
     void JustAppeared() override
@@ -6685,7 +6686,7 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        // *** HACK ***
+        // *** HACK Needs more testing ***
         damage = 1;
     }
 
@@ -6764,7 +6765,7 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
                     conversation->Start();
 
                     me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MovePoint(POINT_HENRY_POSITION, HenryPosition);
+                    me->GetMotionMaster()->MovePoint(POINT_HENRY_POSITION, MoveToPrisonerPosition);
                     _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_QUESTGIVER, 22s);
                     break;
                 }
@@ -6915,17 +6916,17 @@ void AddSC_zone_exiles_reach()
     RegisterSpellScript(spell_re_sizing_aura_q59941);
     // Ride Boar
     new quest_ride_of_the_scientifically_enhanced_boar();
-    new scene_darkmaul_plains_skeleton_army();
+    new scene_darkmaul_plains_skeleton_army_alliance();
     RegisterSpellScript(spell_summon_darkmaul_plains_questgivers_q55879);
     RegisterSpellScript(spell_riding_giant_boar_q55879);
     RegisterSpellScript(spell_knockback_hint_q56034);
     RegisterCreatureAI(npc_captain_garrick_q55879);
     RegisterCreatureAI(npc_giant_boar_vehicle_q55879);
     RegisterCreatureAI(npc_torgok_q55879);
-    new FactoryCreatureScript<CreatureAI, &HenryGarrickSelector>("npc_henry_garrick_prisioner");
+    new FactoryCreatureScript<CreatureAI, &HenryGarrickSelector>("npc_henry_garrick_prisoner");
     // The Re-Deather
     new quest_the_re_deather();
-    new scene_horde_darkmaul_plains_skeleton_army();
+    new scene_darkmaul_plains_skeleton_army_horde();
     RegisterCreatureAI(npc_warlord_grimaxe_q59942);
-    new FactoryCreatureScript<CreatureAI, &ShujaPrisonerGarrickSelector>("npc_shuja_grimaxe_prisioner");
+    new FactoryCreatureScript<CreatureAI, &ShujaPrisonerGarrickSelector>("npc_shuja_grimaxe_prisoner");
 };

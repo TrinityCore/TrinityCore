@@ -68,7 +68,7 @@ UPDATE `creature` SET `StringId` = 'henry_garrick_ogre_ruins_prisoner' WHERE `gu
 UPDATE `creature_template` SET `faction`=1, `ScriptName`="npc_captain_garrick_q55879" WHERE `entry`=174955;
 UPDATE `creature_template` SET `ScriptName`="npc_giant_boar_vehicle_q55879" WHERE `entry`=156267;
 UPDATE `creature_template` SET `ScriptName`="npc_torgok_q55879" WHERE `entry`=162817;
-UPDATE `creature_template` SET `ScriptName`="npc_henry_garrick_prisioner" WHERE `entry`=156799;
+UPDATE `creature_template` SET `ScriptName`="npc_henry_garrick_prisoner" WHERE `entry`=156799;
 UPDATE `creature_template` SET `npcflag`=16777216 WHERE entry IN (156595);
 UPDATE `creature_template` SET `VehicleId`=6832 WHERE `entry`=156267;
 UPDATE `creature_template` SET `npcflag`=2 WHERE `entry` IN (156799,156807);
@@ -106,7 +106,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 -- Add Scenes for Ride of the Scientifically Enhanced Boar
 DELETE FROM `scene_template` WHERE `SceneId` IN (2338,2341,2423,2422,2421,2420);
 INSERT INTO `scene_template` (`SceneId`,`Flags`,`ScriptPackageID`,`Encrypted`,`ScriptName`) VALUES
-(2338,16,2712,0,'scene_darkmaul_plains_skeleton_army'),
+(2338,16,2712,0,'scene_darkmaul_plains_skeleton_army_alliance'),
 (2341,17,2933,0,''),
 (2423,16,2825,0,''),
 (2422,16,2824,0,''),
@@ -278,7 +278,7 @@ INSERT INTO `quest_template` (`ID`,`QuestType`,`RewardXPMultiplier`,`RewardMoney
 
 UPDATE `creature` SET `StringId` = 'shuja_grimaxe_ogre_ruins_prisoner' WHERE `guid`=8000024;
 UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_q59942" WHERE `entry`=167146;
-UPDATE `creature_template` SET `ScriptName`="npc_shuja_grimaxe_prisioner" WHERE `entry`=167126;
+UPDATE `creature_template` SET `ScriptName`="npc_shuja_grimaxe_prisoner" WHERE `entry`=167126;
 UPDATE `creature_template` SET `npcflag`=16777216 WHERE entry IN (167142);
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID`=167146;
@@ -362,7 +362,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- Add Scenes for The Re-Deather
 DELETE FROM `scene_template` WHERE `SceneId` IN (2489,2489,2497,2423,2422,2421,2420);
 INSERT INTO `scene_template` (`SceneId`,`Flags`,`ScriptPackageID`,`Encrypted`,`ScriptName`) VALUES
-(2489,17,2896,0,'scene_horde_darkmaul_plains_skeleton_army'),
+(2489,17,2896,0,'scene_darkmaul_plains_skeleton_army_horde'),
 (2497,17,2933,0,''),
 (2423,16,2825,0,''),
 (2422,16,2824,0,''),
@@ -394,11 +394,10 @@ DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (167146);
 INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`, `DespawnOnQuestsRemoved`) VALUES
 (167146,167145,NULL,NULL, '59942');
 
-DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-325368,325368,325429);
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-325368,325368);
 INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
 (-325368,82238,1,'aura remove'),
-(325368,82238,1,'aura add'),
-(325429,325428,0,'aura add');
+(325368,82238,1,'aura add');
 
 -- Conversation
 DELETE FROM `conversation_template` WHERE `Id` IN (14525,14526,14527,15618);
