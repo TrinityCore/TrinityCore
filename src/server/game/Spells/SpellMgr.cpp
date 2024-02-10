@@ -3487,7 +3487,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         71607, // Item - Bauble of True Blood 10m
         71646, // Item - Bauble of True Blood 25m
         71610, // Item - Althor's Abacus trigger 10m
-        71641  // Item - Althor's Abacus trigger 25m
+        71641, // Item - Althor's Abacus trigger 25m
+        373462 // Crystalline Reflection HEAL
     }, [](SpellInfo* spellInfo)
     {
         // We need more spells to find a general way (if there is any)

@@ -60,6 +60,9 @@ enum PriestSpells
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
     SPELL_PRIEST_CIRCLE_OF_HEALING                  = 204883,
+    SPELL_PRIEST_CRYSTALLINE_REFLECTION             = 373457,
+    SPELL_PRIEST_CRYSTALLINE_REFLECTION_HEAL        = 373462,
+    SPELL_PRIEST_CRYSTALLINE_REFLECTION_REFLECT     = 373464,
     SPELL_PRIEST_DARK_INDULGENCE                    = 372972,
     SPELL_PRIEST_DARK_REPRIMAND                     = 400169,
     SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE      = 373129,
@@ -685,6 +688,57 @@ class spell_pri_circle_of_healing : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_circle_of_healing::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
+// 17 - Power Word: Shield
+class spell_pri_crystalline_reflection : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_CRYSTALLINE_REFLECTION,
+            SPELL_PRIEST_CRYSTALLINE_REFLECTION_HEAL,
+            SPELL_PRIEST_CRYSTALLINE_REFLECTION_REFLECT,
+        }) && ValidateSpellEffect({ { SPELL_PRIEST_CRYSTALLINE_REFLECTION, EFFECT_0 } });
+    }
+
+    void HandleOnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        // Crystalline Reflection Heal
+        if (caster->HasAura(SPELL_PRIEST_CRYSTALLINE_REFLECTION))
+            caster->CastSpell(GetTarget(), SPELL_PRIEST_CRYSTALLINE_REFLECTION_HEAL, CastSpellExtraArgs(aurEff)
+                .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
+    }
+
+    void HandleAfterAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32 const& absorbAmount) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        AuraEffect const* auraEff = caster->GetAuraEffect(SPELL_PRIEST_CRYSTALLINE_REFLECTION, EFFECT_0);
+        if (!auraEff)
+            return;
+
+        Unit* attacker = dmgInfo.GetAttacker();
+        if (!attacker)
+            return;
+
+        CastSpellExtraArgs args(TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(absorbAmount, auraEff->GetAmount()));
+        caster->CastSpell(attacker, SPELL_PRIEST_CRYSTALLINE_REFLECTION_REFLECT, args);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_pri_crystalline_reflection::HandleOnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_crystalline_reflection::HandleAfterAbsorb, EFFECT_0);
     }
 };
 
@@ -3064,6 +3118,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_benediction);
     RegisterSpellScript(spell_pri_blaze_of_light);
     RegisterSpellScript(spell_pri_circle_of_healing);
+    RegisterSpellScript(spell_pri_crystalline_reflection);
     RegisterSpellScript(spell_pri_dark_indulgence);
     RegisterSpellScript(spell_pri_divine_aegis);
     RegisterSpellScript(spell_pri_divine_image);
