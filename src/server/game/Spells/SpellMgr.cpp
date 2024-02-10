@@ -2919,7 +2919,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
     }
 
     // remove attribute from spells that can't crit
-    // and mark triggering spell (instead of triggered spell) for spells with SPELL_ATTR4_INHERIT_CRIT_FROM_AURA
     for (SpellInfo* spellInfo : mSpellInfoMap)
     {
         if (!spellInfo)
@@ -2927,28 +2926,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
         if (spellInfo->HasAttribute(SPELL_ATTR2_CANT_CRIT))
             spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_CAN_CRIT;
-        else if (spellInfo->HasAttribute(SPELL_ATTR4_INHERIT_CRIT_FROM_AURA))
-        {
-            bool found = false;
-            for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
-            {
-                switch (spellEffectInfo.ApplyAuraName)
-                {
-                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
-                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT:
-                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
-                        if (SpellInfo* triggerSpell = const_cast<SpellInfo*>(sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell)))
-                            if (triggerSpell->HasAttribute(SPELL_ATTR0_CU_CAN_CRIT))
-                                found = true;
-                        break;
-                    default:
-                        continue;
-                }
-            }
-
-            if (found)
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_CAN_CRIT;
-        }
     }
 
     // add custom attribute to liquid auras
@@ -3073,20 +3050,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     }
 
-    // Allows those to crit
+    // this one is here because we have no SP bonus for dmgclass none spell
+    // but this one should since it's DBC data
     ApplySpellFix({
-        379,   // Earth Shield
-        33778, // Lifebloom Final Bloom
-
         52042, // Healing Stream Totem
-        // this one is here because we have no SP bonus for dmgclass none spell
-        // but this one should since it's DBC data, it won't crit because it already has can't crit attr
-
-        64844, // Divine Hymn
-        71607, // Item - Bauble of True Blood 10m
-        71646, // Item - Bauble of True Blood 25m
-        71610, // Item - Althor's Abacus trigger 10m
-        71641  // Item - Althor's Abacus trigger 25m
     }, [](SpellInfo* spellInfo)
     {
         // We need more spells to find a general way (if there is any)
@@ -5027,10 +4994,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                     spellInfo->SpellFamilyFlags[0] |= 0x40;
                 break;
         }
-
-        // allows those to calculate proper crit chance, that needs to be passed on to triggered spell
-        if (spellInfo->HasAttribute(SPELL_ATTR4_INHERIT_CRIT_FROM_AURA) && spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE)
-            spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
     }
 
     if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(121)))
