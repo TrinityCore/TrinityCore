@@ -175,7 +175,6 @@ enum PriestSpells
     SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT            = 197548,
     SPELL_PRIEST_SURGE_OF_LIGHT                     = 109186,
     SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT              = 114255,
-    SPELL_PRIEST_TRAIN_OF_THOUGHT                   = 390693,
     SPELL_PRIEST_TRANQUIL_LIGHT                     = 196816,
     SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
     SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL                = 234946,
@@ -2999,41 +2998,39 @@ class spell_pri_train_of_thought : public AuraScript
     {
         return ValidateSpellInfo
         ({
-            SPELL_PRIEST_FLASH_HEAL,
-            SPELL_PRIEST_RENEW,
-            SPELL_PRIEST_SMITE,
             SPELL_PRIEST_POWER_WORD_SHIELD,
             SPELL_PRIEST_PENANCE
-        }) && ValidateSpellEffect
-        ({
-            { SPELL_PRIEST_TRAIN_OF_THOUGHT, EFFECT_0 },
-            { SPELL_PRIEST_TRAIN_OF_THOUGHT, EFFECT_1 }
         });
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    bool CheckEffect0(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
     {
-        if (eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_SMITE)
-        {
-            SpellInfo const* penance = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PENANCE, GetCastDifficulty());
-            AuraEffect const* aurEff = GetTarget()->GetAuraEffect(SPELL_PRIEST_TRAIN_OF_THOUGHT, EFFECT_1);
-            int32 cdr = aurEff->GetAmount();
+        // Renew & Flash Heal
+        return eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_PRIEST, { 0x840 });
+    }
 
-            GetTarget()->GetSpellHistory()->ModifyCooldown(penance, Milliseconds(cdr));
-        }
-        else
-        {
-            SpellInfo const* pws = sSpellMgr->GetSpellInfo(SPELL_PRIEST_POWER_WORD_SHIELD, GetCastDifficulty());
-            AuraEffect const* aurEff = GetTarget()->GetAuraEffect(SPELL_PRIEST_TRAIN_OF_THOUGHT, EFFECT_0);
-            int32 cdr = aurEff->GetAmount();
+    bool CheckEffect1(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
+    {
+        // Smite
+        return eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_PRIEST, { 0x80 });
+    }
 
-            GetTarget()->GetSpellHistory()->ModifyCooldown(pws, Milliseconds(cdr));
-        }
+    void ReducePowerWordShieldCooldown(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    {
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_POWER_WORD_SHIELD, Milliseconds(aurEff->GetAmount()));
+    }
+
+    void ReducePenanceCooldown(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    {
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_PENANCE, Milliseconds(aurEff->GetAmount()));
     }
 
     void Register() override
     {
-        OnProc += AuraProcFn(spell_pri_train_of_thought::HandleProc);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_train_of_thought::CheckEffect0, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pri_train_of_thought::ReducePowerWordShieldCooldown, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_train_of_thought::CheckEffect1, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pri_train_of_thought::ReducePenanceCooldown, EFFECT_1, SPELL_AURA_DUMMY);
     }
 };
 
