@@ -597,7 +597,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
 
     //freezing trap and immolation trap reflectable
     m_canReflect = m_canReflect || (m_spellInfo->Id == 3355 || m_spellInfo->Id == 14308 || m_spellInfo->Id == 14309);
-    m_canReflect = m_canReflect || (m_spellInfo->Id == 14305 || m_spellInfo->Id == 409528 || m_spellInfo->Id == 14303 || m_spellInfo->Id == 409524 || m_spellInfo->Id == 409521);
+    m_canReflect = m_canReflect || (m_spellInfo->Id == 13797 || m_spellInfo->Id == 14298 || m_spellInfo->Id == 14299 || m_spellInfo->Id == 14300 || m_spellInfo->Id == 14301);
 
     CleanupTargetList();
     memset(m_effectExecuteData, 0, MAX_SPELL_EFFECTS * sizeof(ByteBuffer*));
@@ -2146,7 +2146,16 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     if (targetInfo.MissCondition == SPELL_MISS_REFLECT)
     {
         // Calculate reflected spell result on caster (shouldn't be able to reflect gameobject spells)
-        Unit* unitCaster = ASSERT_NOTNULL(m_caster->ToUnit());
+        //traps
+        Unit* unitCaster;
+        if (!m_caster->IsUnit() && m_originalCaster->IsUnit())
+        {
+            unitCaster = m_originalCaster->ToUnit();
+        }
+        else
+        {
+            unitCaster = ASSERT_NOTNULL(m_caster->ToUnit());
+        }
         targetInfo.ReflectResult = unitCaster->SpellHitResult(unitCaster, m_spellInfo, false); // can't reflect twice
 
         // Proc spell reflect aura when missile hits the original target
