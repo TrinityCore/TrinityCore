@@ -505,8 +505,10 @@ class spell_pri_atonement_effect : public SpellScript
             SPELL_PRIEST_TRINITY_EFFECT,
             SPELL_PRIEST_POWER_WORD_RADIANCE,
             SPELL_PRIEST_POWER_WORD_SHIELD
-        })
-            && ValidateSpellEffect({ { SPELL_PRIEST_POWER_WORD_RADIANCE, EFFECT_3 } });
+        }) && ValidateSpellEffect({
+            { SPELL_PRIEST_POWER_WORD_RADIANCE, EFFECT_3 },
+            { SPELL_PRIEST_INDEMNITY, EFFECT_0 }
+        });
     }
 
     bool Load() override
@@ -535,9 +537,22 @@ class spell_pri_atonement_effect : public SpellScript
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.SetTriggeringSpell(GetSpell());
 
-        // Power Word: Radiance applies Atonement at 60 % (without modifiers) of its total duration.
-        if (GetSpellInfo()->Id == SPELL_PRIEST_POWER_WORD_RADIANCE)
-            args.AddSpellMod(SPELLVALUE_DURATION_PCT, GetSpellInfo()->GetEffect(EFFECT_3).CalcValue(caster));
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_PRIEST_POWER_WORD_SHIELD:
+                if (AuraEffect const* indemnity = caster->GetAuraEffect(SPELL_PRIEST_INDEMNITY, EFFECT_0))
+                    args.AddSpellMod(SPELLVALUE_DURATION,
+                        (Seconds(indemnity->GetAmount())
+                            + Milliseconds(Aura::CalcMaxDuration(sSpellMgr->AssertSpellInfo(_effectSpellId, GetCastDifficulty()),
+                                caster, &GetSpell()->GetPowerCost()))).count());
+                break;
+            case SPELL_PRIEST_POWER_WORD_RADIANCE:
+                // Power Word: Radiance applies Atonement at 60 % (without modifiers) of its total duration.
+                args.AddSpellMod(SPELLVALUE_DURATION_PCT, GetEffectInfo(EFFECT_3).CalcValue(caster));
+                break;
+            default:
+                break;
+        }
 
         caster->CastSpell(target, _effectSpellId, args);
     }
@@ -1550,46 +1565,6 @@ class spell_pri_holy_word_salvation_cooldown_reduction : public SpellScript
     void Register() override
     {
         AfterCast += SpellCastFn(spell_pri_holy_word_salvation_cooldown_reduction::ReduceCooldown);
-    }
-};
-
-// 373049 - Indemnity
-// Triggered by Power Word: Shield
-class spell_pri_indemnity : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-            SPELL_PRIEST_ATONEMENT_EFFECT
-        }) && ValidateSpellEffect
-        ({
-            { SPELL_PRIEST_ATONEMENT_EFFECT, EFFECT_2 }
-        });
-    }
-
-    void HandleHit() const
-    {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        Aura* aura = caster->GetAura(SPELL_PRIEST_INDEMNITY, caster->GetGUID());
-        if (!aura)
-            return;
-
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_ATONEMENT_EFFECT, GetCastDifficulty());
-        SpellEffectInfo const& spellEffect = spellInfo->GetEffect(EFFECT_2);
-        int32 bp = spellEffect.CalcValue() + aura->GetEffect(EFFECT_0)->GetAmount();
-
-        CastSpellExtraArgs args;
-        args.AddSpellMod(SPELLVALUE_DURATION, bp * IN_MILLISECONDS);
-
-        caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_EFFECT, args);
-    }
-
-    void Register() override
-    {
-        AfterHit += SpellHitFn(spell_pri_indemnity::HandleHit);
     }
 };
 
@@ -3226,7 +3201,6 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_holy_words);
     RegisterSpellScript(spell_pri_holy_word_salvation);
     RegisterSpellScript(spell_pri_holy_word_salvation_cooldown_reduction);
-    RegisterSpellScript(spell_pri_indemnity);
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
