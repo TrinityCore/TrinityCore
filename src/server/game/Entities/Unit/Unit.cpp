@@ -360,7 +360,7 @@ Unit::Unit(bool isWorldObject) :
     m_modMeleeHitChance = 0.0f;
     m_modRangedHitChance = 0.0f;
     m_modSpellHitChance = 0.0f;
-    m_baseSpellCritChance = 5;
+    m_baseSpellCritChance = 5.0f;
 
     m_speed_rate.fill(1.0f);
 
@@ -6914,15 +6914,29 @@ float Unit::SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSch
     float crit_chance = 0.0f;
     switch (spellInfo->DmgClass)
     {
+        case SPELL_DAMAGE_CLASS_NONE:
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
-            if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
-                crit_chance = 0.0f;
-            // For other schools
-            else if (Player const* thisPlayer = ToPlayer())
-                crit_chance = thisPlayer->m_activePlayerData->SpellCritPercentage;
-            else
-                crit_chance = (float)m_baseSpellCritChance;
+            auto getMagicCritChance = [&]
+            {
+                if (Player const* thisPlayer = ToPlayer())
+                    return *thisPlayer->m_activePlayerData->SpellCritPercentage;
+
+                return m_baseSpellCritChance;
+            };
+
+            switch (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
+            {
+                case SPELL_SCHOOL_MASK_NORMAL: // physical only
+                    crit_chance = GetUnitCriticalChanceDone(attackType);
+                    break;
+                case 0: // spell only
+                    crit_chance = getMagicCritChance();
+                    break;
+                default: // mix of physical and magic
+                    crit_chance = std::max(getMagicCritChance(), GetUnitCriticalChanceDone(attackType));
+                    break;
+            }
             break;
         }
         case SPELL_DAMAGE_CLASS_MELEE:
@@ -6931,7 +6945,6 @@ float Unit::SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSch
             crit_chance += GetUnitCriticalChanceDone(attackType);
             break;
         }
-        case SPELL_DAMAGE_CLASS_NONE:
         default:
             return 0.0f;
     }
