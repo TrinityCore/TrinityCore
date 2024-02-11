@@ -6859,9 +6859,11 @@ public:
                 questEnderCompanion->SummonPersonalClone(companionPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
 
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
                 player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
                 player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
                 player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
                 player->CastSpell(player, SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
                 player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
                 player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
