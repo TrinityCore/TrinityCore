@@ -27152,9 +27152,7 @@ bool Player::CanSeeGossipOn(Creature const* creature) const
     // for cases with questgiver/ender without gossip menus
     if (creature->HasNpcFlag(UNIT_NPC_FLAG_QUESTGIVER))
     {
-        QuestRelationResult objectQR = sObjectMgr->GetCreatureQuestRelations(creature->GetEntry());
         QuestRelationResult objectQIR = sObjectMgr->GetCreatureQuestInvolvedRelations(creature->GetEntry());
-
         for (uint32 quest_id : objectQIR)
         {
             QuestStatus status = GetQuestStatus(quest_id);
@@ -27162,6 +27160,7 @@ bool Player::CanSeeGossipOn(Creature const* creature) const
                 return true;
         }
 
+        QuestRelationResult objectQR = sObjectMgr->GetCreatureQuestRelations(creature->GetEntry());
         for (uint32 quest_id : objectQR)
         {
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
