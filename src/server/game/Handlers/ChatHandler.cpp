@@ -381,6 +381,13 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                     return;
             }
 
+            if (sender->InArena())
+            {
+                group = sender->GetGroup();
+                if (!group)
+                    return;
+            }
+
             if (type == CHAT_MSG_PARTY_LEADER && !group->IsLeader(sender->GetGUID()))
                 return;
 
