@@ -41,7 +41,6 @@ enum IsleOfConquestGameObjects
     GO_TELEPORTER_3                             = 195315, // 195315 A-OUT 66549
     GO_TELEPORTER_4                             = 195316, // 195316 A-IN 66548
 
-
     GO_TELEPORTER_EFFECTS_A                     = 195701,
     GO_TELEPORTER_EFFECTS_H                     = 195702,
 
