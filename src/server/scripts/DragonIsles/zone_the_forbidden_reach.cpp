@@ -170,7 +170,7 @@ class spell_awaken_dracthyr_on_quest_abandon : public SpellScript
 {
     void HandleTeleport(SpellEffIndex /*effIndex*/)
     {
-        DracthyrLoginRoom const& room = LoginRoomData[urand(0, 3)];
+        DracthyrLoginRoom const& room = Trinity::Containers::SelectRandomContainerElement(LoginRoomData);
 
         WorldLocation dest = GetHitUnit()->GetWorldLocation();
         SetExplTargetDest(dest);
