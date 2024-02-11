@@ -22,16 +22,17 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_KAZZARA_THE_HELLFORGED,      DATA_KAZZARA_THE_HELLFORGED      },
-    { BOSS_SHADOWFLAME_AMALGAMATION,    DATA_THE_AMALGAMATION_CHAMBER    },
-    { BOSS_RIONTHUS,                    DATA_THE_FORGOTTEN_EXPERIMENTS   },
-    { BOSS_WARLORD_KAGNI,               DATA_ASSAULT_OF_THE_ZAQALI       },
-    { BOSS_RASHOK_THE_ELDER,            DATA_RASHOK_THE_ELDER            },
-    { BOSS_ZSKARN_THE_VIGILANT_STEWARD, DATA_ZSKARN_THE_VIGILANT_STEWARD },
-    { BOSS_MAGMORAX,                    DATA_MAGMORAX                    },
-    { BOSS_ECHO_OF_NELTHARION,          DATA_ECHO_OF_NELTHARION          },
-    { BOSS_SCALECOMMANDER_SARKARETH,    DATA_SCALECOMMANDER_SARKARETH    },
-    { 0,                                0                                }  // END
+    { BOSS_KAZZARA_THE_HELLFORGED,              DATA_KAZZARA_THE_HELLFORGED         },
+    { BOSS_SHADOWFLAME_AMALGAMATION,            DATA_THE_AMALGAMATION_CHAMBER       },
+    { BOSS_RIONTHUS,                            DATA_THE_FORGOTTEN_EXPERIMENTS      },
+    { BOSS_WARLORD_KAGNI,                       DATA_ASSAULT_OF_THE_ZAQALI          },
+    { BOSS_RASHOK_THE_ELDER,                    DATA_RASHOK_THE_ELDER               },
+    { BOSS_ZSKARN_THE_VIGILANT_STEWARD,         DATA_ZSKARN_THE_VIGILANT_STEWARD    },
+    { BOSS_MAGMORAX,                            DATA_MAGMORAX                       },
+    { BOSS_ECHO_OF_NELTHARION,                  DATA_ECHO_OF_NELTHARION             },
+    { BOSS_SCALECOMMANDER_SARKARETH,            DATA_SCALECOMMANDER_SARKARETH       },
+    { NPC_SCALECOMMANDER_SARKARETH_AT_KAZZARA,  DATA_SARKARETH_AT_KAZZARA           },
+    { 0,                                        0                                   }  // END
 };
 
 DoorData const doorData[] =
@@ -59,11 +60,6 @@ DungeonEncounterData const encounters[] =
     { DATA_SCALECOMMANDER_SARKARETH,    {{ 2685 }} }
 };
 
-enum AberrusInstanceCreatureIds
-{
-    NPC_SCALECOMMANDER_SARKARETH_AT_KAZZARA = 202416
-};
-
 enum AberrusInstanceSpells
 {
     SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_3 = 403409 // Winglord Dezran, Sarkareth and Zskarn (Kazzara Summon)
@@ -84,32 +80,40 @@ public:
             LoadDoorData(doorData);
             LoadDungeonEncounterData(encounters);
 
-            _kazzaraIntroDone = false;
-            _deadSunderedMobs = 0;
+            _kazzaraIntroState = NOT_STARTED;
+            _kazzaraAliveIntroNPCs = 0;
         }
 
         uint32 GetData(uint32 dataId) const override
         {
             switch (dataId)
             {
-                case DATA_KAZZARA_INTRO_DONE:
-                    return _kazzaraIntroDone ? 1 : 0;
+                case DATA_KAZZARA_INTRO_STATE:
+                    return _kazzaraIntroState;
                 default:
                     break;
             }
             return 0;
         }
 
-        void SetData(uint32 dataId, uint32 /*value*/) override
+        void SetData(uint32 dataId, uint32 value) override
         {
             switch (dataId)
             {
-                case DATA_KAZZARA_INTRO_DONE:
-                    _kazzaraIntroDone = true; // no need to pass value, it will never reset to false
+                case DATA_KAZZARA_INTRO_STATE:
+                    _kazzaraIntroState = value;
                     break;
                 default:
                     break;
             }
+        }
+
+        void OnCreatureCreate(Creature* creature) override
+        {
+            InstanceScript::OnCreatureCreate(creature);
+
+            if (creature->HasStringId("kazzara_intro_trash"))
+                _kazzaraAliveIntroNPCs++;
         }
 
         void OnUnitDeath(Unit* unit) override
@@ -118,25 +122,28 @@ public:
             if (!creature)
                 return;
 
-            if (creature->HasStringId("sundered_mob"))
+            if (creature->HasStringId("kazzara_intro_trash"))
             {
-                if (_deadSunderedMobs >= 6)
+                if (_kazzaraIntroState != NOT_STARTED)
                     return;
 
-                _deadSunderedMobs++;
-                if (_deadSunderedMobs >= 6)
-                {
-                    Creature* sarkareth = creature->FindNearestCreature(NPC_SCALECOMMANDER_SARKARETH_AT_KAZZARA, 300.0f);
-                    if (!sarkareth)
-                        return;
-                    sarkareth->CastSpell(nullptr, SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_3);
-                }
+                _kazzaraAliveIntroNPCs--;
+                if (_kazzaraAliveIntroNPCs > 0)
+                    return;
+
+                _kazzaraIntroState = IN_PROGRESS;
+
+                Creature* sarkareth = GetCreature(DATA_SARKARETH_AT_KAZZARA);
+                if (!sarkareth)
+                    return;
+
+                sarkareth->CastSpell(nullptr, SPELL_ABERRUS_ENTRANCE_RP_CONVERSATION_3);
             }
         }
 
     private:
-        uint8 _deadSunderedMobs;
-        bool _kazzaraIntroDone;
+        uint8 _kazzaraAliveIntroNPCs;
+        uint8 _kazzaraIntroState;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

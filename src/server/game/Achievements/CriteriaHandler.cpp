@@ -51,6 +51,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include "WorldStateMgr.h"
+#include "WowTime.h"
 
 bool CriteriaData::IsValid(Criteria const* criteria)
 {
@@ -364,7 +365,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, WorldObject co
         case CRITERIA_DATA_TYPE_T_TEAM:
             if (!target || target->GetTypeId() != TYPEID_PLAYER)
                 return false;
-            return target->ToPlayer()->GetTeam() == Team.Team;
+            return target->ToPlayer()->GetTeam() == ::Team(Team.Team);
         case CRITERIA_DATA_TYPE_S_DRUNK:
             return Player::GetDrunkenstateByValue(source->GetDrunkValue()) >= DrunkenState(Drunk.State);
         case CRITERIA_DATA_TYPE_HOLIDAY:
@@ -377,7 +378,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, WorldObject co
             if (!bg)
                 return false;
 
-            uint32 score = bg->GetTeamScore(bg->GetPlayerTeam(source->GetGUID()) == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE);
+            uint32 score = bg->GetTeamScore(bg->GetPlayerTeam(source->GetGUID()) == ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE);
             return score >= BattlegroundScore.Min && score <= BattlegroundScore.Max;
         }
         case CRITERIA_DATA_TYPE_INSTANCE_SCRIPT:
@@ -544,8 +545,10 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::PlayerTriggerGameEvent:
             case CriteriaType::Login:
             case CriteriaType::AnyoneTriggerGameEventScenario:
+            case CriteriaType::DefeatDungeonEncounterWhileElegibleForLoot:
             case CriteriaType::BattlePetReachLevel:
             case CriteriaType::ActivelyEarnPetLevel:
+            case CriteriaType::DefeatDungeonEncounter:
             case CriteriaType::PlaceGarrisonBuilding:
             case CriteriaType::ActivateAnyGarrisonBuilding:
             case CriteriaType::HonorLevelIncrease:
@@ -799,7 +802,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::AccountObtainPetThroughBattle:
             case CriteriaType::WinPetBattle:
             case CriteriaType::PlayerObtainPetThroughBattle:
-            case CriteriaType::DefeatDungeonEncounter:
             case CriteriaType::ActivateGarrisonBuilding:
             case CriteriaType::UpgradeGarrison:
             case CriteriaType::StartAnyGarrisonMissionWithFollowerType:
@@ -823,7 +825,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::BattlePetAchievementPointsEarned:
             case CriteriaType::ReleasedSpirit:
             case CriteriaType::AccountKnownPet:
-            case CriteriaType::DefeatDungeonEncounterWhileElegibleForLoot:
             case CriteriaType::CompletedLFGDungeon:
             case CriteriaType::KickInitiatorInLFGDungeon:
             case CriteriaType::KickVoterInLFGDungeon:
@@ -1195,6 +1196,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::CatchFishInFishingHole:
         case CriteriaType::LearnSpellFromSkillLine:
         case CriteriaType::WinDuel:
+        case CriteriaType::DefeatDungeonEncounterWhileElegibleForLoot:
         case CriteriaType::GetLootByType:
         case CriteriaType::LearnTradeskillSkillLine:
         case CriteriaType::CompletedLFGDungeonWithStrangers:
@@ -1204,6 +1206,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::UniquePetsOwned:
         case CriteriaType::BattlePetReachLevel:
         case CriteriaType::ActivelyEarnPetLevel:
+        case CriteriaType::DefeatDungeonEncounter:
         case CriteriaType::LearnAnyTransmogInSlot:
         case CriteriaType::ParagonLevelIncreaseWithFaction:
         case CriteriaType::PlayerHasEarnedHonor:
@@ -1513,19 +1516,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             bool matchFound = false;
             for (uint32 j : worldOverlayEntry->AreaID)
             {
-                AreaTableEntry const* area = sAreaTableStore.LookupEntry(j);
-                if (!area)
-                    break;
-
-                if (area->AreaBit < 0)
-                    continue;
-
-                size_t playerIndexOffset = size_t(area->AreaBit) / PLAYER_EXPLORED_ZONES_BITS;
-                if (playerIndexOffset >= PLAYER_EXPLORED_ZONES_SIZE)
-                    continue;
-
-                uint64 mask = uint64(1) << (area->AreaBit % PLAYER_EXPLORED_ZONES_BITS);
-                if (referencePlayer->m_activePlayerData->ExploredZones[playerIndexOffset] & mask)
+                if (referencePlayer->HasExploredZone(j))
                 {
                     matchFound = true;
                     break;
@@ -1619,6 +1610,11 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             break;
         case CriteriaType::EarnTeamArenaRating:
             return false;
+        case CriteriaType::DefeatDungeonEncounterWhileElegibleForLoot:
+        case CriteriaType::DefeatDungeonEncounter:
+            if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.DungeonEncounterID))
+                return false;
+            break;
         case CriteriaType::PlaceGarrisonBuilding:
         case CriteriaType::ActivateGarrisonBuilding:
             if (miscValue1 != uint32(criteria->Entry->Asset.GarrBuildingID))
@@ -2235,14 +2231,12 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::TimeBetween: // 109
         {
-            ByteBuffer unpacker;
-            unpacker << reqValue;
-            time_t from = unpacker.ReadPackedTime();
-            unpacker.rpos(0);
-            unpacker.wpos(0);
-            unpacker << secondaryAsset;
-            time_t to = unpacker.ReadPackedTime();
-            if (GameTime::GetGameTime() < from || GameTime::GetGameTime() > to)
+            WowTime from;
+            from.SetPackedTime(reqValue);
+            WowTime to;
+            to.SetPackedTime(secondaryAsset);
+
+            if (!GameTime::GetWowTime()->IsInRange(from, to))
                 return false;
             break;
         }
@@ -2270,15 +2264,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerHasExploredArea: // 113
         {
-            AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(reqValue);
-            if (!areaTable)
-                return false;
-            if (areaTable->AreaBit <= 0)
-                break; // success
-            size_t playerIndexOffset = size_t(areaTable->AreaBit) / PLAYER_EXPLORED_ZONES_BITS;
-            if (playerIndexOffset >= PLAYER_EXPLORED_ZONES_SIZE)
-                break;
-            if (!(referencePlayer->m_activePlayerData->ExploredZones[playerIndexOffset] & (UI64LIT(1) << (areaTable->AreaBit % PLAYER_EXPLORED_ZONES_BITS))))
+            if (!referencePlayer->HasExploredZone(reqValue))
                 return false;
             break;
         }
@@ -4497,9 +4483,11 @@ inline bool IsCriteriaTypeStoredByAsset(CriteriaType type)
         case CriteriaType::GainAura:
         case CriteriaType::CatchFishInFishingHole:
         case CriteriaType::LearnSpellFromSkillLine:
+        case CriteriaType::DefeatDungeonEncounterWhileElegibleForLoot:
         case CriteriaType::GetLootByType:
         case CriteriaType::LandTargetedSpellOnTarget:
         case CriteriaType::LearnTradeskillSkillLine:
+        case CriteriaType::DefeatDungeonEncounter:
             return true;
         default:
             break;
@@ -4530,9 +4518,19 @@ CriteriaList const& CriteriaMgr::GetScenarioCriteriaByTypeAndScenario(CriteriaTy
     return EmptyCriteriaList;
 }
 
+std::unordered_map<int32, CriteriaList> const& CriteriaMgr::GetCriteriaByStartEvent(CriteriaStartEvent startEvent) const
+{
+    return _criteriasByStartEvent[size_t(startEvent)];
+}
+
 CriteriaList const* CriteriaMgr::GetCriteriaByStartEvent(CriteriaStartEvent startEvent, int32 asset) const
 {
     return Trinity::Containers::MapGetValuePtr(_criteriasByStartEvent[size_t(startEvent)], asset);
+}
+
+std::unordered_map<int32, CriteriaList> const& CriteriaMgr::GetCriteriaByFailEvent(CriteriaFailEvent failEvent) const
+{
+    return _criteriasByFailEvent[size_t(failEvent)];
 }
 
 CriteriaList const* CriteriaMgr::GetCriteriaByFailEvent(CriteriaFailEvent failEvent, int32 asset) const

@@ -17,6 +17,8 @@
 
 #include "BattlegroundAB.h"
 #include "BattlegroundMgr.h"
+#include "BattlegroundPackets.h"
+#include "BattlegroundScore.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "Log.h"
@@ -24,6 +26,12 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SpellInfo.h"
+
+enum ArathiBasinPvpStats
+{
+    PVP_STAT_BASES_ASSAULTED    = 926,
+    PVP_STAT_BASES_DEFENDED     = 927,
+};
 
 BattlegroundAB::BattlegroundAB(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
@@ -131,18 +139,6 @@ void BattlegroundAB::StartingEventOpenDoors()
     TriggerGameEvent(AB_EVENT_START_BATTLE);
 }
 
-void BattlegroundAB::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
-{
-    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
-    Battleground::AddPlayer(player, queueId);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new BattlegroundABScore(player->GetGUID(), player->GetBGTeam());
-}
-
-void BattlegroundAB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
-{
-}
-
 void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     switch (trigger)
@@ -197,7 +193,7 @@ void BattlegroundAB::_CalculateTeamNodes(uint8& alliance, uint8& horde)
     }
 }
 
-uint32 BattlegroundAB::GetPrematureWinner()
+Team BattlegroundAB::GetPrematureWinner()
 {
     // How many bases each team owns
     uint8 ally = 0, horde = 0;
@@ -241,14 +237,14 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
             UpdateWorldState(BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE, 0);
             PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_ASSAULTED, 1);
             break;
         case AB_EVENT_DEFENDED_BLACKSMITH_ALLIANCE:
             UpdateWorldState(BG_AB_WS_BLACKSMITH_ALLIANCE_CONTROL_STATE, 2);
             UpdateWorldState(BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE, 0);
             PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_DEFENDED, 1);
             break;
         case AB_EVENT_CAPTURE_BLACKSMITH_ALLIANCE:
             UpdateWorldState(BG_AB_WS_BLACKSMITH_ALLIANCE_CONTROL_STATE, 2);
@@ -259,14 +255,14 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
             UpdateWorldState(BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE, 1);
             PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_HORDE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_ASSAULTED, 1);
             break;
         case AB_EVENT_DEFENDED_BLACKSMITH_HORDE:
             UpdateWorldState(BG_AB_WS_BLACKSMITH_ALLIANCE_CONTROL_STATE, 0);
             UpdateWorldState(BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE, 2);
             PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_DEFENDED, 1);
             break;
         case AB_EVENT_CAPTURE_BLACKSMITH_HORDE:
             UpdateWorldState(BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE, 2);
@@ -277,14 +273,14 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
             UpdateWorldState(BG_AB_WS_FARM_HORDE_CONTROL_STATE, 0);
             PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_ASSAULTED, 1);
             break;
         case AB_EVENT_DEFENDED_FARM_ALLIANCE:
             UpdateWorldState(BG_AB_WS_FARM_ALLIANCE_CONTROL_STATE, 2);
             UpdateWorldState(BG_AB_WS_FARM_HORDE_CONTROL_STATE, 0);
             PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_DEFENDED, 1);
             break;
         case AB_EVENT_CAPTURE_FARM_ALLIANCE:
             UpdateWorldState(BG_AB_WS_FARM_ALLIANCE_CONTROL_STATE, 2);
@@ -295,14 +291,14 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
             UpdateWorldState(BG_AB_WS_FARM_HORDE_CONTROL_STATE, 1);
             PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_HORDE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_ASSAULTED, 1);
             break;
         case AB_EVENT_DEFENDED_FARM_HORDE:
             UpdateWorldState(BG_AB_WS_FARM_ALLIANCE_CONTROL_STATE, 0);
             UpdateWorldState(BG_AB_WS_FARM_HORDE_CONTROL_STATE, 2);
             PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_DEFENDED, 1);
             break;
         case AB_EVENT_CAPTURE_FARM_HORDE:
             UpdateWorldState(BG_AB_WS_FARM_HORDE_CONTROL_STATE, 2);
@@ -313,14 +309,14 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
             UpdateWorldState(BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE, 0);
             PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_ASSAULTED, 1);
             break;
         case AB_EVENT_DEFENDED_GOLD_MINE_ALLIANCE:
             UpdateWorldState(BG_AB_WS_GOLD_MINE_ALLIANCE_CONTROL_STATE, 2);
             UpdateWorldState(BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE, 0);
             PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_DEFENDED, 1);
             break;
         case AB_EVENT_CAPTURE_GOLD_MINE_ALLIANCE:
             UpdateWorldState(BG_AB_WS_GOLD_MINE_ALLIANCE_CONTROL_STATE, 2);
@@ -331,14 +327,14 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
             UpdateWorldState(BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE, 1);
             PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_HORDE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_ASSAULTED, 1);
             break;
         case AB_EVENT_DEFENDED_GOLD_MINE_HORDE:
             UpdateWorldState(BG_AB_WS_GOLD_MINE_ALLIANCE_CONTROL_STATE, 0);
             UpdateWorldState(BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE, 2);
             PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_DEFENDED, 1);
             break;
         case AB_EVENT_CAPTURE_GOLD_MINE_HORDE:
             UpdateWorldState(BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE, 2);
@@ -349,14 +345,14 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
             UpdateWorldState(BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE, 0);
             PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_ASSAULTED, 1);
             break;
         case AB_EVENT_DEFENDED_LUMBER_MILL_ALLIANCE:
             UpdateWorldState(BG_AB_WS_LUMBER_MILL_ALLIANCE_CONTROL_STATE, 2);
             UpdateWorldState(BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE, 0);
             PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_DEFENDED, 1);
             break;
         case AB_EVENT_CAPTURE_LUMBER_MILL_ALLIANCE:
             UpdateWorldState(BG_AB_WS_LUMBER_MILL_ALLIANCE_CONTROL_STATE, 2);
@@ -367,14 +363,14 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
             UpdateWorldState(BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE, 1);
             PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_HORDE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_ASSAULTED, 1);
             break;
         case AB_EVENT_DEFENDED_LUMBER_MILL_HORDE:
             UpdateWorldState(BG_AB_WS_LUMBER_MILL_ALLIANCE_CONTROL_STATE, 0);
             UpdateWorldState(BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE, 2);
             PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_DEFENDED, 1);
             break;
         case AB_EVENT_CAPTURE_LUMBER_MILL_HORDE:
             UpdateWorldState(BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE, 2);
@@ -385,14 +381,14 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
             UpdateWorldState(BG_AB_WS_STABLES_HORDE_CONTROL_STATE, 0);
             PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_ASSAULTED, 1);
             break;
         case AB_EVENT_DEFENDED_STABLES_ALLIANCE:
             UpdateWorldState(BG_AB_WS_STABLES_ALLIANCE_CONTROL_STATE, 2);
             UpdateWorldState(BG_AB_WS_STABLES_HORDE_CONTROL_STATE, 0);
             PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_DEFENDED, 1);
             break;
         case AB_EVENT_CAPTURE_STABLES_ALLIANCE:
             UpdateWorldState(BG_AB_WS_STABLES_ALLIANCE_CONTROL_STATE, 2);
@@ -403,14 +399,14 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
             UpdateWorldState(BG_AB_WS_STABLES_HORDE_CONTROL_STATE, 1);
             PlaySoundToAll(BG_AB_SOUND_NODE_ASSAULTED_HORDE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_ASSAULTED, 1);
             break;
         case AB_EVENT_DEFENDED_STABLES_HORDE:
             UpdateWorldState(BG_AB_WS_STABLES_ALLIANCE_CONTROL_STATE, 0);
             UpdateWorldState(BG_AB_WS_STABLES_HORDE_CONTROL_STATE, 2);
             PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
             if (Player* player = invoker->ToPlayer())
-                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
+                UpdatePvpStat(player, PVP_STAT_BASES_DEFENDED, 1);
             break;
         case AB_EVENT_CAPTURE_STABLES_HORDE:
             UpdateWorldState(BG_AB_WS_STABLES_HORDE_CONTROL_STATE, 2);
@@ -485,7 +481,7 @@ void BattlegroundAB::Reset()
     _capturePoints.clear();
 }
 
-void BattlegroundAB::EndBattleground(uint32 winner)
+void BattlegroundAB::EndBattleground(Team winner)
 {
     // Win reward
     if (winner == ALLIANCE)
@@ -507,23 +503,4 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveyard(Player* player)
 WorldSafeLocsEntry const* BattlegroundAB::GetExploitTeleportLocation(Team team)
 {
     return sObjectMgr->GetWorldSafeLoc(team == ALLIANCE ? AB_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : AB_EXPLOIT_TELEPORT_LOCATION_HORDE);
-}
-
-bool BattlegroundAB::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
-{
-    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
-        return false;
-
-    switch (type)
-    {
-        case SCORE_BASES_ASSAULTED:
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AB_OBJECTIVE_ASSAULT_BASE);
-            break;
-        case SCORE_BASES_DEFENDED:
-            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AB_OBJECTIVE_DEFEND_BASE);
-            break;
-        default:
-            break;
-    }
-    return true;
 }

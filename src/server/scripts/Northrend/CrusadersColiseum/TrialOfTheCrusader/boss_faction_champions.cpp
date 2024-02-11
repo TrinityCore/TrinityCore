@@ -724,9 +724,6 @@ struct boss_faction_championsAI : public BossAI
                     return;
             }
         }
-
-        if (_aiType == AI_MELEE || _aiType == AI_PET)
-            DoMeleeAttackIfReady();
     }
 
     private:
@@ -1322,7 +1319,10 @@ struct npc_toc_mage : public boss_faction_championsAI
 
 struct npc_toc_hunter : public boss_faction_championsAI
 {
-    npc_toc_hunter(Creature* creature) : boss_faction_championsAI(creature, AI_RANGED) { }
+    npc_toc_hunter(Creature* creature) : boss_faction_championsAI(creature, AI_RANGED)
+    {
+        me->SetCanMelee(false); // DoSpellAttackIfReady
+    }
 
     void Reset() override
     {

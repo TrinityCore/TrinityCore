@@ -41,6 +41,15 @@ std::array<uint32, 4> const CandysSpells =
     SPELL_HALLOWS_END_CANDY_GHOST
 };
 
+enum HallowsEndChildrensCustomeSpells
+{
+    SPELL_HALLOWS_END_SCARY_TIKI_MASK             = 97095,
+    SPELL_HALLOWS_END_SCARY_WITCH_HAT             = 97134,
+    SPELL_HALLOWS_END_SCARY_PUMPKIN_MASK          = 97144,
+    SPELL_HALLOWS_END_SCARY_TIKI_MASK_2           = 100315,
+    SPELL_HALLOWS_END_FANCY_TOP_HAT               = 100321
+};
+
 enum HallowsEndMiscSpells
 {
     SPELL_HALLOWS_END_DUMMY_NUKE                  = 21912,
@@ -296,6 +305,43 @@ class spell_hallow_end_wand : public SpellScript
     }
 };
 
+// 97135 - Children's Costume Aura
+class spell_hallows_end_childrens_custome_aura : public AuraScript
+{
+    static constexpr std::array<uint32, 5> ChildrensCustomeSpells =
+    {
+        SPELL_HALLOWS_END_SCARY_TIKI_MASK,
+        SPELL_HALLOWS_END_SCARY_WITCH_HAT,
+        SPELL_HALLOWS_END_SCARY_PUMPKIN_MASK,
+        SPELL_HALLOWS_END_SCARY_TIKI_MASK_2,
+        SPELL_HALLOWS_END_FANCY_TOP_HAT
+    };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(ChildrensCustomeSpells);
+    }
+
+    void HandleAfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), Trinity::Containers::SelectRandomContainerElement(ChildrensCustomeSpells), aurEff);
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        for (uint32 spell : ChildrensCustomeSpells)
+            GetTarget()->RemoveAura(spell);
+
+        GetTarget()->CastSpell(GetTarget(), Trinity::Containers::SelectRandomContainerElement(ChildrensCustomeSpells), aurEff);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_hallows_end_childrens_custome_aura::HandleAfterApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hallows_end_childrens_custome_aura::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 191547 - Powder Blast
 class spell_hallows_end_powder_blast : public AuraScript
 {
@@ -324,5 +370,6 @@ void AddSC_event_hallows_end()
     RegisterSpellScript(spell_hallow_end_trick_or_treat);
     RegisterSpellScript(spell_hallow_end_tricky_treat);
     RegisterSpellScript(spell_hallow_end_wand);
+    RegisterSpellScript(spell_hallows_end_childrens_custome_aura);
     RegisterSpellScript(spell_hallows_end_powder_blast);
 }

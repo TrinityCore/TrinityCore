@@ -1129,8 +1129,6 @@ struct boss_the_lich_king : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING) && !(events.IsInPhase(PHASE_TRANSITION) || events.IsInPhase(PHASE_OUTRO) || events.IsInPhase(PHASE_FROSTMOURNE)))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1261,8 +1259,6 @@ struct npc_tirion_fordring_tft : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1321,8 +1317,6 @@ struct npc_shambling_horror_icc : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void OnSpellFailed(SpellInfo const* spell) override
@@ -1412,8 +1406,6 @@ struct npc_raging_spirit : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1556,8 +1548,6 @@ struct npc_valkyr_shadowguard : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        // no melee attacks
     }
 
 private:
@@ -1792,10 +1782,6 @@ struct npc_terenas_menethil : public ScriptedAI
                     break;
             }
         }
-
-        // fighting Spirit Warden
-        if (me->IsInCombat())
-            DoMeleeAttackIfReady();
     }
 
 private:
@@ -1839,8 +1825,6 @@ struct npc_spirit_warden : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1936,8 +1920,6 @@ struct npc_broken_frostmourne : public CreatureAI
                     break;
             }
         }
-
-        // no melee attacks
     }
 
 private:

@@ -280,8 +280,6 @@ struct boss_anub_arak : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -501,10 +499,7 @@ struct npc_anubarak_anub_ar_assassin : public npc_anubarak_pet_template
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
     void MovementInform(uint32 /*type*/, uint32 id) override
@@ -543,10 +538,7 @@ struct npc_anubarak_anub_ar_guardian : public npc_anubarak_pet_template
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:
@@ -576,10 +568,7 @@ struct npc_anubarak_anub_ar_venomancer : public npc_anubarak_pet_template
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:

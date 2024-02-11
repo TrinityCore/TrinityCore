@@ -216,9 +216,6 @@ struct boss_drakkari_colossus : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        if (me->GetReactState() == REACT_AGGRESSIVE)
-            DoMeleeAttackIfReady();
     }
 
     void JustSummoned(Creature* summon) override
@@ -283,8 +280,6 @@ struct boss_drakkari_elemental : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
    void DoAction(int32 action) override
@@ -439,10 +434,7 @@ struct npc_living_mojo : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:

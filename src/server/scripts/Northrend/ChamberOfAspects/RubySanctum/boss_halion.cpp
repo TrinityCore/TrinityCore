@@ -374,8 +374,6 @@ class boss_halion : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void SetData(uint32 index, uint32 value) override
@@ -545,8 +543,6 @@ class boss_twilight_halion : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

@@ -345,8 +345,6 @@ public:
                     }
                 } else PhaseTimer -= diff;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 };

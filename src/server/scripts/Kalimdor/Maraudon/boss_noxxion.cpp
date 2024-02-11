@@ -137,8 +137,6 @@ public:
                 AddsTimer = 40000;
             }
             else AddsTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };

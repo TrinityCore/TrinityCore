@@ -745,9 +745,6 @@ struct boss_kaelthas : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING) && !me->FindCurrentSpellBySpellId(SPELL_KAEL_GAINING_POWER) && !me->FindCurrentSpellBySpellId(SPELL_KAEL_STUNNED))
                 return;
         }
-
-        if (events.IsInPhase(PHASE_COMBAT))
-            DoMeleeAttackIfReady();
     }
 private:
     uint8 _advisorCounter;
@@ -966,8 +963,6 @@ struct boss_thaladred_the_darkener : public advisorbase_ai
         }
         else
             PsychicBlow_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -1019,8 +1014,6 @@ struct boss_lord_sanguinar : public advisorbase_ai
         }
         else
             Fear_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -1202,8 +1195,6 @@ struct boss_master_engineer_telonicus : public advisorbase_ai
         }
         else
             RemoteToy_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -1265,8 +1256,6 @@ struct npc_phoenix_tk : public ScriptedAI
         }
         else
             Cycle_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 

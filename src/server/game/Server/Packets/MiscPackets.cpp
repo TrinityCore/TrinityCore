@@ -36,8 +36,8 @@ WorldPacket const* WorldPackets::Misc::InvalidatePlayer::Write()
 
 WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
 {
-    _worldPacket.AppendPackedTime(ServerTime);
-    _worldPacket.AppendPackedTime(GameTime);
+    _worldPacket << ServerTime;
+    _worldPacket << GameTime;
     _worldPacket << float(NewSpeed);
     _worldPacket << uint32(ServerTimeHolidayOffset);
     _worldPacket << uint32(GameTimeHolidayOffset);
@@ -758,6 +758,11 @@ WorldPacket const* WorldPackets::Misc::StartTimer::Write()
     _worldPacket << int32(Type);
 
     return &_worldPacket;
+}
+
+void WorldPackets::Misc::QueryCountdownTimer::Read()
+{
+    TimerType = _worldPacket.read<CountdownTimerType, int32>();
 }
 
 void WorldPackets::Misc::ConversationLineStarted::Read()

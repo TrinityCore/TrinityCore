@@ -224,8 +224,6 @@ public:
                 //30 seconds until we should cast this again
                 SummonRifleman_Timer = 30000;
             } else SummonRifleman_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 

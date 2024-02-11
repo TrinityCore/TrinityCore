@@ -31,6 +31,11 @@
 #include "SpellInfo.h"
 #include "Util.h"
 
+enum EyeOfTheStormPvpStats
+{
+    PVP_STAT_FLAG_CAPTURES = 183
+};
+
 BattlegroundEY::BattlegroundEY(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     BgObjects.resize(0);
@@ -96,14 +101,14 @@ void BattlegroundEY::StartingEventOpenDoors()
     TriggerGameEvent(BG_EY_EVENT_START_BATTLE);
 }
 
-void BattlegroundEY::AddPoints(uint32 Team, uint32 Points)
+void BattlegroundEY::AddPoints(Team team, uint32 Points)
 {
-    TeamId team_index = GetTeamIndexByTeamId(Team);
+    TeamId team_index = GetTeamIndexByTeamId(team);
     m_TeamScores[team_index] += Points;
     m_HonorScoreTics[team_index] += Points;
     if (m_HonorScoreTics[team_index] >= m_HonorTics)
     {
-        RewardHonorToTeam(GetBonusHonorFromKill(1), Team);
+        RewardHonorToTeam(GetBonusHonorFromKill(1), team);
         m_HonorScoreTics[team_index] -= m_HonorTics;
     }
     UpdateTeamScore(team_index);
@@ -181,7 +186,7 @@ void BattlegroundEY::RemoveAssaultDebuffFromPlayer(Player* player)
     player->RemoveAurasDueToSpell(BG_EY_BRUTAL_ASSAULT_SPELL);
 }
 
-void BattlegroundEY::UpdateTeamScore(uint32 Team)
+void BattlegroundEY::UpdateTeamScore(TeamId Team)
 {
     uint32 score = GetTeamScore(Team);
 
@@ -200,7 +205,7 @@ void BattlegroundEY::UpdateTeamScore(uint32 Team)
         UpdateWorldState(EY_HORDE_RESOURCES, score);
 }
 
-void BattlegroundEY::EndBattleground(uint32 winner)
+void BattlegroundEY::EndBattleground(Team winner)
 {
     // Win reward
     if (winner == ALLIANCE)
@@ -295,7 +300,7 @@ void BattlegroundEY::OnCaptureFlag(AreaTrigger* areaTrigger, Player* player)
     UpdateWorldState(NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_ON_BASE);
     UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_ON_BASE);
 
-    UpdatePlayerScore(player, SCORE_FLAG_CAPTURES, 1);
+    UpdatePvpStat(player, PVP_STAT_FLAG_CAPTURES, 1);
 
     player->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
     player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
@@ -347,14 +352,6 @@ void BattlegroundEY::OnFlagStateChange(GameObject* /*flagInBase*/, FlagState /*o
     }
 
     UpdateWorldState(NETHERSTORM_FLAG, AsUnderlyingType(newValue));
-}
-
-void BattlegroundEY::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
-{
-    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
-    Battleground::AddPlayer(player, queueId);
-    if (!isInBattleground)
-        PlayerScores[player->GetGUID()] = new BattlegroundEYScore(player->GetGUID(), player->GetBGTeam());
 }
 
 void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
@@ -453,23 +450,12 @@ void BattlegroundEY::EventTeamCapturedPoint(TeamId teamId, uint32 point, GameObj
     UpdatePointsCount(teamId);
 }
 
-bool BattlegroundEY::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
-{
-    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
-        return false;
-
-    if (type == SCORE_FLAG_CAPTURES)
-        player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, EY_OBJECTIVE_CAPTURE_FLAG);
-
-    return true;
-}
-
 WorldSafeLocsEntry const* BattlegroundEY::GetExploitTeleportLocation(Team team)
 {
     return sObjectMgr->GetWorldSafeLoc(team == ALLIANCE ? EY_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EY_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
-uint32 BattlegroundEY::GetPrematureWinner()
+Team BattlegroundEY::GetPrematureWinner()
 {
     if (GetTeamScore(TEAM_ALLIANCE) > GetTeamScore(TEAM_HORDE))
         return ALLIANCE;

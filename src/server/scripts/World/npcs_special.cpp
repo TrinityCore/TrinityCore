@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "CharmInfo.h"
 #include "CombatAI.h"
 #include "Containers.h"
 #include "CreatureTextMgr.h"
@@ -251,8 +252,7 @@ public:
                     ResetFlagTimer -= diff;
             }
 
-            if (UpdateVictim())
-                DoMeleeAttackIfReady();
+            UpdateVictim();
         }
 
         void ReceiveEmote(Player* player, uint32 emote) override

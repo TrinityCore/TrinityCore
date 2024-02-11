@@ -195,8 +195,6 @@ public:
                     Roar_Timer = 40000 + (rand32() % 10000);
                 } else Roar_Timer -= diff;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -294,8 +292,6 @@ public:
                     DoCast(target, SPELL_DEATH_COIL);
                 DeathCoil_Timer = 20000;
             } else DeathCoil_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -389,8 +385,6 @@ public:
                 DoCastVictim(SPELL_ARCANE_EXPLOSION);
                 ArcaneExplosion_Timer = 30000;
             } else ArcaneExplosion_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -472,8 +466,6 @@ public:
                 DoCast(me, SPELL_PRAYER_OH);
                 PrayerofHealing_Timer = urand(35000, 50000);
             } else PrayerofHealing_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 

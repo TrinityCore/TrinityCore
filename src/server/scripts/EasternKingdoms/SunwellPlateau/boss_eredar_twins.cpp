@@ -309,8 +309,6 @@ public:
                 if (me->IsWithinMeleeRange(me->GetVictim()))
                 {
                     HandleTouchedSpells(me->GetVictim(), SPELL_DARK_TOUCHED);
-                    me->AttackerStateUpdate(me->GetVictim());
-                    me->resetAttackTimer();
                 }
             }
         }

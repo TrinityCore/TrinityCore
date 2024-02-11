@@ -123,12 +123,6 @@ enum BG_WS_CarrierDebuffs
     SPELL_CAPTURED_HORDE_COSMETIC_FX    = 262512,
 };
 
-enum BG_WS_Objectives
-{
-    WS_OBJECTIVE_CAPTURE_FLAG   = 928,
-    WS_OBJECTIVE_RETURN_FLAG    = 929
-};
-
 enum BG_WS_AreaTriggers
 {
     AT_CAPTURE_POINT_ALLIANCE   = 30,
@@ -140,44 +134,6 @@ static constexpr uint32 WS_EVENT_START_BATTLE = 35912;
 static constexpr Seconds FLAG_ASSAULT_TIMER = 30s;
 static constexpr uint16 FLAG_BRUTAL_ASSAULT_STACK_COUNT = 5;
 
-struct BattlegroundWGScore final : public BattlegroundScore
-{
-    friend class BattlegroundWS;
-
-    protected:
-        BattlegroundWGScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), FlagCaptures(0), FlagReturns(0) { }
-
-        void UpdateScore(uint32 type, uint32 value) override
-        {
-            switch (type)
-            {
-                case SCORE_FLAG_CAPTURES:   // Flags captured
-                    FlagCaptures += value;
-                    break;
-                case SCORE_FLAG_RETURNS:    // Flags returned
-                    FlagReturns += value;
-                    break;
-                default:
-                    BattlegroundScore::UpdateScore(type, value);
-                    break;
-            }
-        }
-
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
-        {
-            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
-
-            playerData.Stats.emplace_back(WS_OBJECTIVE_CAPTURE_FLAG, FlagCaptures);
-            playerData.Stats.emplace_back(WS_OBJECTIVE_RETURN_FLAG, FlagReturns);
-        }
-
-        uint32 GetAttr1() const final override { return FlagCaptures; }
-        uint32 GetAttr2() const final override { return FlagReturns; }
-
-        uint32 FlagCaptures;
-        uint32 FlagReturns;
-};
-
 class BattlegroundWS : public Battleground
 {
     public:
@@ -186,7 +142,6 @@ class BattlegroundWS : public Battleground
         ~BattlegroundWS();
 
         /* inherited from BattlegroundClass */
-        void AddPlayer(Player* player, BattlegroundQueueTypeId queueId) override;
         void StartingEventOpenDoors() override;
 
         /* BG Flags */
@@ -197,21 +152,20 @@ class BattlegroundWS : public Battleground
         void HandleKillPlayer(Player* player, Player* killer) override;
         bool SetupBattleground() override;
         void Reset() override;
-        void EndBattleground(uint32 winner) override;
+        void EndBattleground(Team winner) override;
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         void UpdateFlagState(uint32 team, FlagState value);
-        void SetLastFlagCapture(uint32 team)                { _lastFlagCaptureTeam = team; }
-        void UpdateTeamScore(uint32 team);
-        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
+        void SetLastFlagCapture(Team team)                { _lastFlagCaptureTeam = team; }
+        void UpdateTeamScore(TeamId team);
 
         /* Scorekeeping */
-        void AddPoint(uint32 TeamID, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(TeamID)] += Points; }
-        void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
-        void RemovePoint(uint32 TeamID, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
+        void AddPoint(Team team, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(team)] += Points; }
+        void SetTeamPoint(Team team, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(team)] = Points; }
+        void RemovePoint(Team team, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(team)] -= Points; }
 
-        uint32 GetPrematureWinner() override;
+        Team GetPrematureWinner() override;
 
         void OnGameObjectCreate(GameObject* gameObject) override;
         void OnAreaTriggerCreate(AreaTrigger* areaTrigger) override;
@@ -230,7 +184,7 @@ class BattlegroundWS : public Battleground
         void RemoveAssaultDebuffFromPlayer(Player* player);
 
     private:
-        uint32 _lastFlagCaptureTeam;                       // Winner is based on this if score is equal
+        Team _lastFlagCaptureTeam;                       // Winner is based on this if score is equal
 
         uint32 m_ReputationCapture;
         uint32 m_HonorWinKills;

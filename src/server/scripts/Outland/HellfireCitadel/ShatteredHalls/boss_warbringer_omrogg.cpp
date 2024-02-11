@@ -367,8 +367,6 @@ class boss_warbringer_omrogg : public CreatureScript
                 }
                 else
                     ThunderClap_Timer -= diff;
-
-                DoMeleeAttackIfReady();
             }
 
             private:

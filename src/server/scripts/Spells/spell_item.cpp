@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "Battleground.h"
+#include "CommonPredicates.h"
 #include "Containers.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
@@ -995,7 +996,7 @@ class spell_item_echoes_of_light : public SpellScript
         if (targets.size() < 2)
             return;
 
-        targets.sort(Trinity::HealthPctOrderPred());
+        targets.sort(Trinity::Predicates::HealthPctOrderPred());
 
         WorldObject* target = targets.front();
         targets.clear();

@@ -140,6 +140,7 @@ struct boss_the_lurker_below : public BossAI
         me->SetVisible(false); // we start invis under water, submerged
         me->SetUninteractible(true);
         me->SetImmuneToPC(true);
+        me->SetCanMelee(true);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -175,6 +176,7 @@ struct boss_the_lurker_below : public BossAI
                 if (Submerged)
                 {
                     me->SetVisible(true);
+                    me->SetCanMelee(true);
                     Submerged = false;
                     WaitTimer2 = 500;
                 }
@@ -213,6 +215,7 @@ struct boss_the_lurker_below : public BossAI
             if (PhaseTimer <= diff)
             {
                 me->InterruptNonMeleeSpells(false);
+                me->SetCanMelee(false);
                 DoCast(me, SPELL_SUBMERGE);
                 PhaseTimer = 60000; // 60secs submerged
                 Submerged = true;
@@ -311,9 +314,6 @@ struct boss_the_lurker_below : public BossAI
 
             if (!UpdateVictim())
                 return;
-
-            DoMeleeAttackIfReady();
-
         }
         else // submerged
         {
@@ -324,6 +324,7 @@ struct boss_the_lurker_below : public BossAI
                 me->RemoveAllAuras();
                 me->SetImmuneToPC(false);
                 me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                me->SetCanMelee(true);
                 DoCast(me, SPELL_EMERGE, true);
                 Spawned = false;
                 SpoutTimer = 3000; // directly cast Spout after emerging!

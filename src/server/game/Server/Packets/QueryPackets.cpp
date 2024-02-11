@@ -112,6 +112,7 @@ WorldPacket const* QueryCreatureResponse::Write()
         _worldPacket << float(Stats.HpMulti);
         _worldPacket << float(Stats.EnergyMulti);
         _worldPacket << uint32(Stats.QuestItems.size());
+        _worldPacket << uint32(Stats.QuestCurrencies.size());
         _worldPacket << int32(Stats.CreatureMovementInfoID);
         _worldPacket << int32(Stats.HealthScalingExpansion);
         _worldPacket << int32(Stats.RequiredExpansion);
@@ -132,6 +133,9 @@ WorldPacket const* QueryCreatureResponse::Write()
 
         if (!Stats.QuestItems.empty())
             _worldPacket.append(Stats.QuestItems.data(), Stats.QuestItems.size());
+
+        if (!Stats.QuestCurrencies.empty())
+            _worldPacket.append(Stats.QuestCurrencies.data(), Stats.QuestCurrencies.size());
     }
 
     return &_worldPacket;

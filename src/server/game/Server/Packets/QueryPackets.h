@@ -72,6 +72,7 @@ namespace WorldPackets
             float EnergyMulti = 0.0f;
             bool Leader = false;
             std::vector<int32> QuestItems;
+            std::vector<int32> QuestCurrencies;
             uint32 CreatureMovementInfoID = 0;
             int32 HealthScalingExpansion = 0;
             uint32 RequiredExpansion = 0;
@@ -210,8 +211,8 @@ namespace WorldPackets
 
             uint32 TextID = 0;
             bool Allow = false;
-            std::array<float, MAX_NPC_TEXT_OPTIONS> Probabilities;
-            std::array<uint32, MAX_NPC_TEXT_OPTIONS> BroadcastTextID;
+            std::array<float, MAX_NPC_TEXT_OPTIONS> Probabilities = { };
+            std::array<uint32, MAX_NPC_TEXT_OPTIONS> BroadcastTextID = { };
         };
 
         class QueryGameObject final : public ClientPacket
@@ -233,7 +234,7 @@ namespace WorldPackets
             std::string UnkString;
             uint32 Type = 0;
             uint32 DisplayID = 0;
-            uint32 Data[MAX_GAMEOBJECT_DATA];
+            std::array<uint32, MAX_GAMEOBJECT_DATA> Data = { };
             float Size = 0.0f;
             std::vector<int32> QuestItems;
             uint32 ContentTuningId = 0;
@@ -326,7 +327,7 @@ namespace WorldPackets
             void Read() override;
 
             int32 MissingQuestCount = 0;
-            std::array<int32, 175> MissingQuestPOIs;
+            std::array<int32, 175> MissingQuestPOIs = { };
         };
 
         class QuestPOIQueryResponse final : public ServerPacket

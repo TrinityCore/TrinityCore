@@ -153,8 +153,6 @@ struct npc_tushui_huojin_trainee : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
     void EnterEvadeMode(EvadeReason why) override

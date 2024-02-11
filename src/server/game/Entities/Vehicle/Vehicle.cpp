@@ -17,6 +17,7 @@
 
 #include "Vehicle.h"
 #include "Battleground.h"
+#include "CharmInfo.h"
 #include "Common.h"
 #include "CreatureAI.h"
 #include "DB2Stores.h"
@@ -834,7 +835,9 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         }
     }
 
-    Passenger->InterruptNonMeleeSpells(false);
+    Passenger->InterruptSpell(CURRENT_GENERIC_SPELL);
+    Passenger->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+    Passenger->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Mount);
     Passenger->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     VehicleSeatEntry const* veSeat = Seat->second.SeatInfo;

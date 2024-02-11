@@ -158,8 +158,6 @@ public:
                 MarkTimer = MarkTimerBase;
                 Talk(SAY_MARK);
             } else MarkTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 

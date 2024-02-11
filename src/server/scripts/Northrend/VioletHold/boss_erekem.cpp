@@ -172,8 +172,6 @@ struct boss_erekem : public BossAI
         {
             if (_phase == 1)
                 DoSpellAttackIfReady(SPELL_STORMSTRIKE);
-            else
-                DoMeleeAttackIfReady();
         });
     }
 
@@ -265,8 +263,7 @@ struct npc_erekem_guard : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        scheduler.Update(diff,
-            std::bind(&ScriptedAI::DoMeleeAttackIfReady, this));
+        scheduler.Update(diff);
     }
 
     void ScheduledTasks()

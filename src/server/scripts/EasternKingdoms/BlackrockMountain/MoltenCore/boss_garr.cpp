@@ -85,8 +85,6 @@ struct boss_garr : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -145,8 +143,7 @@ struct npc_firesworn : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff,
-            std::bind(&ScriptedAI::DoMeleeAttackIfReady, this));
+        _scheduler.Update(diff);
     }
 
 private:

@@ -372,8 +372,6 @@ struct boss_hydross_the_unstable : public BossAI
             DoCast(me, SPELL_ENRAGE);
             EnrageTimer = 60000;
         } else EnrageTimer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 

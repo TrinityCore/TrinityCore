@@ -368,7 +368,7 @@ namespace WorldPackets
             std::vector<SpellPowerData> RemainingPower;
             Optional<RuneData> RemainingRunes;
             MissileTrajectoryResult MissileTrajectory;
-            int32 AmmoDisplayID;
+            int32 AmmoDisplayID = 0;
             uint8 DestLocSpellCastIndex = 0;
             std::vector<TargetLocation> TargetPoints;
             CreatureImmunities Immunities;
@@ -1058,6 +1058,14 @@ namespace WorldPackets
             void Read() override;
 
             uint16 OverrideID = 0;
+        };
+
+        class CancelQueuedSpell final : public ClientPacket
+        {
+        public:
+            CancelQueuedSpell(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_QUEUED_SPELL, std::move(packet)) { }
+
+            void Read() override { }
         };
 
         ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request);

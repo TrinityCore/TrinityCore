@@ -263,7 +263,6 @@ struct boss_harbinger_skyriss : public BossAI
             else
                 ManaBurn_Timer -=diff;
         }
-        DoMeleeAttackIfReady();
     }
 };
 

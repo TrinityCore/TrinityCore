@@ -20,7 +20,7 @@
 
 #include "Item.h"
 
-class TC_GAME_API AzeriteEmpoweredItem : public Item
+class TC_GAME_API AzeriteEmpoweredItem final : public Item
 {
 public:
     AzeriteEmpoweredItem();

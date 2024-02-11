@@ -108,6 +108,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                 _instance(creature->GetInstanceScript())
             {
                 events.SetPhase(PHASE_MILLHOUSE_GROUP_1);
+                me->SetCanMelee(false); // DoSpellAttackIfReady
             }
 
             void ScheduleEvents()

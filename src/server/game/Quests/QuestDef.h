@@ -349,6 +349,7 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_INCREASE_REPUTATION     = 18,   // requires the player to gain X reputation with a faction
     QUEST_OBJECTIVE_AREA_TRIGGER_ENTER      = 19,
     QUEST_OBJECTIVE_AREA_TRIGGER_EXIT       = 20,
+    QUEST_OBJECTIVE_KILL_WITH_LABEL         = 21,
 
     MAX_QUEST_OBJECTIVE_TYPE
 };
@@ -365,6 +366,11 @@ enum QuestObjectiveFlags
     QUEST_OBJECTIVE_FLAG_KILL_PLAYERS_SAME_FACTION          = 0x0080,
     QUEST_OBJECTIVE_FLAG_NO_SHARE_PROGRESS                  = 0x0100,
     QUEST_OBJECTIVE_FLAG_IGNORE_SOULBOUND_ITEMS             = 0x0200,
+};
+
+enum QuestObjectiveFlags2
+{
+    QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM = 0x1   // Item is bound to a single objective, only increments the counter for one quest if multiple require the same item and is not stored in inventory
 };
 
 enum class QuestCompleteSpellType : uint32
@@ -461,6 +467,7 @@ struct QuestObjective
             case QUEST_OBJECTIVE_HAVE_CURRENCY:
             case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
             case QUEST_OBJECTIVE_INCREASE_REPUTATION:
+            case QUEST_OBJECTIVE_KILL_WITH_LABEL:
                 return true;
             default:
                 break;

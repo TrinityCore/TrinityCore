@@ -1810,6 +1810,7 @@ void DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
         throw DB2FileLoadException("Failed to read header");
 
     EndianConvert(_header.Signature);
+    EndianConvert(_header.Version);
     EndianConvert(_header.RecordCount);
     EndianConvert(_header.FieldCount);
     EndianConvert(_header.RecordSize);
@@ -1829,9 +1830,13 @@ void DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
     EndianConvert(_header.PalletDataSize);
     EndianConvert(_header.SectionCount);
 
-    if (_header.Signature != 0x34434457)                        //'WDC4'
-        throw DB2FileLoadException(Trinity::StringFormat("Incorrect file signature in {}, expected 'WDC4', got {}{}{}{}", source->GetFileName(),
+    if (_header.Signature != 0x35434457)                        //'WDC5'
+        throw DB2FileLoadException(Trinity::StringFormat("Incorrect file signature in {}, expected 'WDC5', got {}{}{}{}", source->GetFileName(),
             char(_header.Signature & 0xFF), char((_header.Signature >> 8) & 0xFF), char((_header.Signature >> 16) & 0xFF), char((_header.Signature >> 24) & 0xFF)));
+
+    if (_header.Version != 5)
+        throw DB2FileLoadException(Trinity::StringFormat("Incorrect version in {}, expected 5, got {} (possibly wrong client version)",
+            source->GetFileName(), _header.Version));
 
     if (loadInfo && _header.LayoutHash != loadInfo->Meta->LayoutHash)
         throw DB2FileLoadException(Trinity::StringFormat("Incorrect layout hash in {}, expected 0x{:08X}, got 0x{:08X} (possibly wrong client version)",

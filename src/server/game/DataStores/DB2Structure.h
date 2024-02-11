@@ -897,8 +897,8 @@ struct CinematicSequencesEntry
 
 struct ConditionalChrModelEntry
 {
-    int32 ID;
-    uint32 ChrModelID;                                      // This is the PK
+    uint32 ID;
+    int32 ChrModelID;
     int32 ChrCustomizationReqID;
     int32 PlayerConditionID;
     int32 Flags;
@@ -3128,6 +3128,13 @@ struct PVPItemEntry
     uint32 ID;
     int32 ItemID;
     uint8 ItemLevelDelta;
+};
+
+struct PVPStatEntry
+{
+    LocalizedString Description;
+    uint32 ID;
+    int32 MapID;
 };
 
 struct PvpSeasonEntry

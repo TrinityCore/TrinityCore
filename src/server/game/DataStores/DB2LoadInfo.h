@@ -1259,8 +1259,8 @@ struct ConditionalChrModelLoadInfo
 {
     static constexpr DB2FieldMeta Fields[6] =
     {
-        { true, FT_INT, "ID" },
-        { false, FT_INT, "ChrModelID" },
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "ChrModelID" },
         { true, FT_INT, "ChrCustomizationReqID" },
         { true, FT_INT, "PlayerConditionID" },
         { true, FT_INT, "Flags" },
@@ -4216,6 +4216,18 @@ struct PvpItemLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 3, &PVPItemMeta::Instance, HOTFIX_SEL_PVP_ITEM };
+};
+
+struct PvpStatLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { false, FT_STRING, "Description" },
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "MapID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &PVPStatMeta::Instance, HOTFIX_SEL_PVP_STAT };
 };
 
 struct PvpSeasonLoadInfo
