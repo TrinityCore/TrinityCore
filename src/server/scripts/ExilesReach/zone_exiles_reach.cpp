@@ -6037,11 +6037,11 @@ class spell_summon_darkmaul_plains_questgivers_q55879 : public SpellScript
 
     void SelectTarget(WorldObject*& target)
     {
-        Player* caster = GetCaster()->ToPlayer();
-        if (!caster)
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
             return;
 
-        Creature* survivor = FindCreatureIgnorePhase(caster, "captain_garrick_plains", 5.0f);
+        Creature* survivor = FindCreatureIgnorePhase(player, "captain_garrick_plains", 5.0f);
         if (!survivor)
             return;
 
@@ -6276,7 +6276,11 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                 }
                 case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY:
                 {
-                    Player* player = me->GetOwner()->ToPlayer();
+                    Unit* owner = me->GetOwner();
+                    if (!owner)
+                        break;
+
+                    Player* player = owner->ToPlayer();
                     if (!player)
                         break;
 
@@ -6622,7 +6626,7 @@ public:
             {
                 player->CastSpell(player, SPELL_ENHANCED_BOAR_PING_VEHICLE); // Ping Vehicle
                 player->CastSpell(player, SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK); // Temp Objective Check
-                Conversation::CreateConversation(14526, player, *player, player->GetGUID(), nullptr);
+                Conversation::CreateConversation(CONVERSATION_ACCEPT_RE_DEATHER_QUEST, player, *player, player->GetGUID(), nullptr);
             }
         }
         else if (triggerName == "Conversation")
@@ -6655,7 +6659,10 @@ enum GrimaxeReDeather
 // Entry 167146 - Warlord Grimaxe
 struct npc_warlord_grimaxe_q59942 : public ScriptedAI
 {
-    npc_warlord_grimaxe_q59942(Creature* creature) : ScriptedAI(creature) { }
+    npc_warlord_grimaxe_q59942(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
 
     void Initialize()
     {
@@ -6812,6 +6819,285 @@ CreatureAI* ShujaPrisonerGarrickSelector(Creature* creature)
         return new NullCreatureAI(creature);
 };
 
+// ***************************************************************
+// * Scripting in this section occurs between Ogre Ruins and Pit *
+// ***************************************************************
+
+enum WestwardBound
+{
+    NPC_BJORN_STOUTHANDS_PIT_ONE = 156891,
+    NPC_ALARIA_PIT_ONE           = 156803,
+    NPC_LANAJORDAN_PIT_ONE       = 167225,
+    NPC_WONSA_PIT_ONE            = 167226
+};
+
+Position bjornRuinsPos = { 192.181f, -2311.44f, 80.6975f, 3.368485450744628906f };
+Position alariaRuinsPos = { 190.953f, -2308.32f, 80.6586f, 2.984513044357299804f };
+Position lanaRuinsPos = { 160.486f, -2307.31f, 84.053f, 2.932153224945068359f };
+Position wonsaRuinsPos = { 160.431f, -2310.11f, 84.4598f, 3.03687286376953125f };
+
+// 55965 - Quest Westward Bound "Alliance"
+// 59948 - Quest Westward Bound "Horde"
+class quest_westward_bound_Exiles_Reach : public QuestScript
+{
+public:
+    quest_westward_bound_Exiles_Reach(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view creatureStringOne, std::string_view creatureStringTwo, uint32 questEnderEntry, uint32 questEnderCompanionEntry, Position questGiverPos, Position companionPos)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+            {
+                Creature* questEnder = FindCreatureIgnorePhase(player, creatureStringOne, 125.0f);
+                Creature* questEnderCompanion = FindCreatureIgnorePhase(player, creatureStringTwo, 125.0f);
+
+                if (!questEnder || !questEnderCompanion)
+                    return;
+
+                questEnder->SummonPersonalClone(questGiverPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                questEnderCompanion->SummonPersonalClone(companionPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                break;
+            }
+            case QUEST_STATUS_NONE:
+            {
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+
+                if (Creature* questGiver = player->FindNearestCreatureWithOptions(100.0f, { .CreatureId = questEnderEntry, .IgnorePhases = true, .PrivateObjectOwnerGuid = player->GetGUID() }))
+                    questGiver->DespawnOrUnsummon();
+
+                if (Creature* companion = player->FindNearestCreatureWithOptions(100.0f, { .CreatureId = questEnderCompanionEntry, .IgnorePhases = true, .PrivateObjectOwnerGuid = player->GetGUID() }))
+                    companion->DespawnOrUnsummon();
+
+                break;
+            }
+            default:
+                break;
+        }
+    }
+};
+
+// 55965 - Quest Westward Bound "Alliance"
+class quest_westward_bound_q55965 : public quest_westward_bound_Exiles_Reach
+{
+public:
+    quest_westward_bound_q55965() : quest_westward_bound_Exiles_Reach("quest_westward_bound_q55965") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "bjorn_stouthands_pit_pre_quest", "alaria_pit_pre_quest", NPC_BJORN_STOUTHANDS_PIT_ONE, NPC_ALARIA_PIT_ONE, bjornRuinsPos, alariaRuinsPos);
+    }
+};
+
+// 59948 - Quest Westward Bound "Horde"
+class quest_westward_bound_q59948 : public quest_westward_bound_Exiles_Reach
+{
+public:
+    quest_westward_bound_q59948() : quest_westward_bound_Exiles_Reach("quest_westward_bound_q59948") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "lana_joran_pit_pre_quest", "wonsa_pit_pre_quest", NPC_LANAJORDAN_PIT_ONE, NPC_WONSA_PIT_ONE, lanaRuinsPos, wonsaRuinsPos);
+    }
+};
+
+enum BjornRunToPit
+{
+    EVENT_BJORN_RUN_TO_PIT = 1,
+
+    PATH_BJORN_RUN_TO_PIT  = 10518900,
+
+    SAY_BJORN_RUN_TO_PIT   = 0,
+    SAY_BJORN_REACHED_PIT  = 1
+};
+
+// 156891 - Bjorn Stouthands
+struct npc_bjorn_stouthands_q55965_private : public ScriptedAI
+{
+    npc_bjorn_stouthands_q55965_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+    }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_BJORN_RUN_TO_PIT, 1s);
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        Talk(SAY_BJORN_REACHED_PIT);
+        me->DespawnOrUnsummon(4s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BJORN_RUN_TO_PIT:
+                    Talk(SAY_BJORN_RUN_TO_PIT);
+                    me->GetMotionMaster()->MovePath(PATH_BJORN_RUN_TO_PIT, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+CreatureAI* BjornRuinsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_bjorn_stouthands_q55965_private(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
+enum LanaRunToPit
+{
+    EVENT_LANA_SAY_AT_RUINS = 1,
+    EVENT_LANA_RUN_TO_PIT   = 2,
+
+    PATH_LANA_RUN_TO_PIT    = 80000570,
+
+    SAY_LANA_RUN_TO_PIT     = 0,
+    SAY_LANA_REACHED_PIT    = 1
+};
+
+// 167225 - Lana Jordan
+struct npc_lana_jordan_q59948_private : public ScriptedAI
+{
+    npc_lana_jordan_q59948_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+    }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_LANA_SAY_AT_RUINS, 1s);
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        Talk(SAY_LANA_REACHED_PIT);
+        me->DespawnOrUnsummon(7s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_LANA_SAY_AT_RUINS:
+                    Talk(SAY_BJORN_RUN_TO_PIT);
+                    _events.ScheduleEvent(EVENT_LANA_RUN_TO_PIT, 5s);
+                    break;
+                case EVENT_LANA_RUN_TO_PIT:
+                    me->GetMotionMaster()->MovePath(PATH_LANA_RUN_TO_PIT, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+CreatureAI* LanaRuinsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_lana_jordan_q59948_private(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
+enum CompanionRunToPit
+{
+    EVENT_COMPANION_RUN_TO_PIT = 1,
+
+    PATH_ALARIA_RUN_TO_PIT     = 10518890,
+    PATH_WONSA_RUN_TO_PIT      = 80000580
+};
+
+// 156891 - Alaria
+// 167226 - Won'sa
+struct npc_companion_q55965_q59948_private : public ScriptedAI
+{
+    npc_companion_q55965_q59948_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_COMPANION_RUN_TO_PIT, 1s);
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        me->DespawnOrUnsummon(1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_COMPANION_RUN_TO_PIT:
+                {
+                    if (me->GetEntry() == NPC_ALARIA_PIT_ONE)
+                        me->GetMotionMaster()->MovePath(PATH_ALARIA_RUN_TO_PIT, false);
+                    else
+                        me->GetMotionMaster()->MovePath(PATH_WONSA_RUN_TO_PIT, false);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+CreatureAI* AlariaRuinsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_companion_q55965_q59948_private(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
+CreatureAI* WansaRuinsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_companion_q55965_q59948_private(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
 void AddSC_zone_exiles_reach()
 {
     // Ship
@@ -6935,4 +7221,11 @@ void AddSC_zone_exiles_reach()
     new scene_darkmaul_plains_skeleton_army_horde();
     RegisterCreatureAI(npc_warlord_grimaxe_q59942);
     new FactoryCreatureScript<CreatureAI, &ShujaPrisonerGarrickSelector>("npc_shuja_grimaxe_prisoner");
+    // Westward Bound
+    new quest_westward_bound_q55965();
+    new quest_westward_bound_q59948();
+    new FactoryCreatureScript<CreatureAI, &BjornRuinsSelector>("npc_bjorn_stouthands_q55965");
+    new FactoryCreatureScript<CreatureAI, &LanaRuinsSelector>("npc_lana_jordan_q59948");
+    new FactoryCreatureScript<CreatureAI, &AlariaRuinsSelector>("npc_alaria_q55965");
+    new FactoryCreatureScript<CreatureAI, &WansaRuinsSelector>("npc_wonsa_q59948");
 };

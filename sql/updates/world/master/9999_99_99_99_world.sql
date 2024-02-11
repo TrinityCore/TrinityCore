@@ -435,3 +435,125 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup`=14
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (26,14663,10424, 0, 1, 47, 0, 59942, 64, 0, 1, 0, 0, '', 'See Torgok <Binder of Souls> if quest The Re-Deather is not rewarded'),
 (26,14663,10424, 0, 1, 48, 0, 397279, 0, 8, 0, 0, 0, '', 'See Torgok <Binder of Souls> if quest Ride if player has objective complete');
+
+-- Westward Bound
+
+UPDATE `creature` SET `StringId`= "bjorn_stouthands_pit_pre_quest" WHERE `guid`=1051890;
+UPDATE `creature` SET `StringId`= "alaria_pit_pre_quest" WHERE `guid`=1051889;
+UPDATE `creature` SET `StringId`= "lana_joran_pit_pre_quest" WHERE `guid`=8000057;
+UPDATE `creature` SET `StringId`= "wonsa_pit_pre_quest" WHERE `guid`=8000058;
+
+UPDATE `creature_template` SET `npcflag`=2 WHERE `entry` IN (154300,156891,167225);
+UPDATE `creature_template` SET `ScriptName`="npc_bjorn_stouthands_q55965" WHERE `entry`=156891;
+UPDATE `creature_template` SET `ScriptName`="npc_alaria_q55965" WHERE `entry`=156803;
+UPDATE `creature_template` SET `ScriptName`="npc_lana_jordan_q59948" WHERE `entry`=167225;
+UPDATE `creature_template` SET `ScriptName`="npc_wonsa_q59948" WHERE `entry`=167226;
+
+DELETE FROM `creature_template_addon` WHERE `entry` IN (156891,158803,167225,167226);
+INSERT INTO `creature_template_addon` (`entry`,`visibilityDistanceType`,`emote`,`auras`) VALUES
+(156891,3,0, ''), -- Bjorn Stouthands
+(158803,3,0, ''), -- Alaria
+(167225,3,0, ''), -- Lana Jordan
+(167226,3,0, ''); -- Won'sa
+
+DELETE FROM `creature_text` WHERE `CreatureID` IN (156891,167225);
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(156891,0,0,'All right, let\'s see what we can find.', 12, 0, 100, 0, 0, 153011, 178906, 0, 'Bjorn Stouthands to Player'),
+(156891,1,0,'Well... I think we can say we found somethin\'.', 12, 0, 100, 0, 0, 153012, 178907, 0, 'Bjorn Stouthands to Player'),
+(167225,0,0,'Let\'s see if we can find one of those rituals.', 12, 0, 100, 0, 0, 155935, 196409, 0, 'Lana Jordan to Player'),
+(167225,1,0,'A dark pit and darker magic. I think we found the ritual.', 12, 0, 100, 0, 0, 155936, 196410, 0, 'Lana Jordan to Player');
+
+-- Pathing for Bjorn Stouthands Entry: 156891
+SET @NPC := 1051890;
+SET @PATH := @NPC * 10;
+DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
+INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
+(@PATH,1,0,'Bjorn Stouthands Ogre Ruins');
+DELETE FROM `waypoint_path_node` WHERE `PathId`=@PATH;
+INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`,`Delay`) VALUES
+(@PATH,1,143.74654,-2304.6077,89.66764,NULL,0),
+(@PATH,2,129.32639,-2291.981,94.09912,NULL,0),
+(@PATH,3,119.19444,-2285.2258,96.639084,NULL,0),
+(@PATH,4,111.0816,-2275.9983,97.39326,NULL,0),
+(@PATH,5,102.78819,-2265.302,96.73692,NULL,0),
+(@PATH,6,89.68403,-2249.264,94.694824,NULL,0),
+(@PATH,7,89.68403,-2249.264,94.694824,1.939347267150878906,0);
+
+-- Pathing for Alaria Entry: 156803
+SET @NPC := 1051889;
+SET @PATH := @NPC * 10;
+DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
+INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
+(@PATH,1,0,'Alaria Ogre Ruins');
+DELETE FROM `waypoint_path_node` WHERE `PathId`=@PATH;
+INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`,`Delay`) VALUES
+(@PATH,1,165.59766,-2308.5781,83.23175,NULL,0),
+(@PATH,2,153.73611,-2305.8403,86.4088,NULL,0),
+(@PATH,3,140.17014,-2296.8699,90.521965,NULL,0),
+(@PATH,4,129.96355,-2287.9636,95.05551,NULL,0),
+(@PATH,5,91.98264,-2246.8298,94.39893,NULL,0),
+(@PATH,6,91.98264,-2246.8298,94.39893,2.024514675140380859,0);
+
+-- Pathing for Lana Jordan Entry: 167225
+SET @NPC := @CGUID+16;
+SET @PATH := @NPC * 10;
+DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
+INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
+(@PATH,1,0,'Lana Ogre Ruins');
+DELETE FROM `waypoint_path_node` WHERE `PathId`=@PATH;
+INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`,`Delay`) VALUES
+(@PATH,1,149.25081,-2299.1108,89.23349,NULL,0),
+(@PATH,2,138.00081,-2287.6108,93.98349,NULL,0),
+(@PATH,3,125.25081,-2278.8608,97.48349,NULL,0),
+(@PATH,4,102.25081,-2260.3608,96.23349,NULL,0),
+(@PATH,5,92.015625,-2246.9114,94.41398,NULL,0),
+(@PATH,6,92.015625,-2246.9114,94.41398,2.622560739517211914,0);
+
+-- Pathing for Won'sa Entry: 167226
+SET @NPC := @CGUID+17;
+SET @PATH := @NPC * 10;
+DELETE FROM `waypoint_path` WHERE `PathId`=@PATH;
+INSERT INTO `waypoint_path` (`PathId`,`MoveType`,`Flags`,`Comment`) VALUES
+(@PATH,1,0,'Wansa Ogre Ruins');
+DELETE FROM `waypoint_path_node` WHERE `PathId`=@PATH;
+INSERT INTO `waypoint_path_node` (`PathId`,`NodeId`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`,`Delay`) VALUES
+(@PATH,1,146.84831,-2298.0352,89.56113,NULL,0),
+(@PATH,2,134.59831,-2287.7852,94.81113,NULL,0),
+(@PATH,3,112.09831,-2268.2852,97.31113,NULL,0),
+(@PATH,4,94.09831,-2252.7852,95.06113,NULL,0),
+(@PATH,5,89.265625,-2248.9602,94.66245,NULL,0),
+(@PATH,6,89.265625,-2248.9602,94.66245,1.861210823059082031,0);
+
+-- Quest data
+DELETE FROM `creature_queststarter` WHERE `id`=154300 AND `quest`=55965;
+DELETE FROM `creature_queststarter` WHERE `id`=167221 AND `quest`=59948;
+INSERT INTO `creature_queststarter` (`id`, `quest`, `VerifiedBuild`) VALUES
+(154300, 55965, 52649), -- Westward Bound accept from Bjorn Stouthands Alliance
+(167221, 59948, 52649); -- Westward Bound accept from Lana Jordan Horde
+
+DELETE FROM `creature_questender` WHERE `id`=156891 AND `quest`=55965;
+DELETE FROM `creature_questender` WHERE `id`=167225 AND `quest`=59948;
+INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
+(156891, 55965, 52649), -- Westward Bound turn in to Bjorn Stouthands Alliance
+(167225, 59948, 52649); -- Westward Bound turn in to Lana Jordan Horde
+
+DELETE FROM `quest_template_addon` WHERE `ID` IN (55965,59948);
+INSERT INTO `quest_template_addon` (`ID`,`AllowableClasses`,`PrevQuestID`,`NextQuestID`,`ScriptName`) VALUES
+(55965,0,55194,0,'quest_westward_bound_q55965'), -- Westward Bound Alliance
+(59948,0,59950,0,'quest_westward_bound_q59948'); -- Westward Bound Horde
+
+-- Phase Area
+DELETE FROM `phase_area` WHERE `AreaId`=10424 AND `PhaseId` IN (15337);
+INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
+(10424,15337, 'Cosmetic - NPE - See Won\'sa and Lana Jordan at pit pre quest');
+
+-- Phase Names
+DELETE FROM `phase_name` WHERE `ID` IN (15337);
+INSERT INTO `phase_name` (`ID`,`Name`) VALUES
+(15337,'Cosmetic - NPE - See Won\'sa and Lana Jordan at pit pre quest');
+
+-- Phase Conditions
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15338,15337) AND `ConditionValue1`=59948;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(26,15338,10424, 0, 0, 47, 0, 59948, 74, 0, 1, 0, 0, '', 'See Won\'sa and Lana Jordan at Ogre Ruins pre quest if quest Westward Bound is not taken | complete | rewarded'),
+(26,15337,10424, 0, 0, 47, 0, 59948, 74, 0, 0, 0, 0, '', 'See Won\'sa and Lana Jordan at pit pre quest if quest Westward Bound is taken | complete | rewarded');
