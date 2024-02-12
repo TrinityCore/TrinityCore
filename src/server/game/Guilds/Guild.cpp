@@ -24,9 +24,12 @@
 #include "CharacterCache.h"
 #include "Chat.h"
 #include "ChatPackets.h"
+#include "ClubMembershipService.h"
+#include "ClubService.h"
+#include "ClubUtils.h"
 #include "Config.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
@@ -40,9 +43,8 @@
 #include "SocialMgr.h"
 #include "World.h"
 #include "WorldSession.h"
-#include <club_membership_listener.pb.h>
-#include <WorldserverService.h>
-#include <BattlenetRpcErrorCodes.h>
+#include "club_listener.pb.h"
+#include "club_membership_listener.pb.h"
 
 size_t const MAX_GUILD_BANK_TAB_TEXT_LEN = 500;
 
@@ -1197,36 +1199,27 @@ void Guild::Disband()
     // Call scripts before guild data removed from database
     sScriptMgr->OnGuildDisband(this);
 
-    WorldPackets::Guild::GuildEventDisbanded packet;
+    WorldPackets::Guild::GuildEventDisbanded guildEventDisbanded;
+    guildEventDisbanded.Write();
 
-    auto writtenPacket = packet.Write();
+    // Notify the members of club removal.
+    club::v1::UnsubscribeNotification unsubscribeNotification;
+    unsubscribeNotification.set_club_id(GetId());
 
-    // We have to send old guild and new club packets so we use a custom broadcast loop here.
-    for (auto const& [guid, member] : m_members)
+    BroadcastWorker([&](Player const* member)
     {
-        if (Player* player = member.FindConnectedPlayer())
-        {
-            player->SendDirectMessage(writtenPacket);
+        member->SendDirectMessage(guildEventDisbanded.GetRawPacket());
 
-            // Notify the members of club removal.
-            // Unsubscribe the removed player from the club to ensure interface updates.
-            ::bgs::protocol::club::v1::UnsubscribeNotification unsubscribeNotification;
+        // Unsubscribe the removed player from the club to ensure interface updates.
+        Battlenet::WorldserverService<club::v1::ClubListener>(member->GetSession()).OnUnsubscribe(&unsubscribeNotification, true, true);
 
-            unsubscribeNotification.set_club_id(m_id);
-
-            Battlenet::WorldserverService<::bgs::protocol::club::v1::ClubListener>(player->GetSession()).OnUnsubscribe(&unsubscribeNotification, true, true);
-
-            // Finally remove the client about leaving the club.
-            ::bgs::protocol::club::v1::membership::ClubRemovedNotification clubRemovedNotification;
-
-            clubRemovedNotification.set_club_id(m_id);
-            clubRemovedNotification.set_reason(::bgs::protocol::club::v1::ClubRemovedReason::CLUB_REMOVED_REASON_DESTROYED_BY_MEMBER);
-
-            member.CreateClubMemberId(clubRemovedNotification.mutable_member_id());
-
-            Battlenet::WorldserverService<bgs::protocol::club::v1::membership::ClubMembershipListener>(player->GetSession()).OnClubRemoved(&clubRemovedNotification, true, true);
-        }
-    }
+        // Finally notify the client about leaving the club.
+        club::v1::membership::ClubRemovedNotification clubRemovedNotification;
+        clubRemovedNotification.set_allocated_member_id(Battlenet::Services::ClubMembershipService::CreateClubMemberId(member->GetGUID()).release());
+        clubRemovedNotification.set_club_id(GetId());
+        clubRemovedNotification.set_reason(club::v1::ClubRemovedReason::CLUB_REMOVED_REASON_DESTROYED_BY_MEMBER);
+        Battlenet::WorldserverService<club::v1::membership::ClubMembershipListener>(member->GetSession()).OnClubRemoved(&clubRemovedNotification, true, true);
+    });
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     // Remove all members
@@ -1364,7 +1357,7 @@ void Guild::HandleRoster(WorldSession* session)
         memberData.ClassID = member.GetClass();
         memberData.Gender = member.GetGender();
         memberData.RaceID = member.GetRace();
-        memberData.GuildClubMemberID = member.GetGUID().GetCounter();
+        memberData.GuildClubMemberID = Battlenet::Services::Clubs::CreateClubMemberId(member.GetGUID());
 
         memberData.Authenticated = false;
         memberData.SorEligible = false;
@@ -1381,221 +1374,6 @@ void Guild::HandleRoster(WorldSession* session)
 
     TC_LOG_DEBUG("guild", "SMSG_GUILD_ROSTER [{}]", session->GetPlayerInfo());
     session->SendPacket(roster.Write());
-}
-
-uint32 Guild::HandleClubSubscribe(::bgs::protocol::club::v1::SubscribeNotification* response, WorldSession* session)
-{
-    auto player = session->GetPlayer();
-
-    if (!player)
-        return ERROR_INTERNAL;
-
-    auto guildMember = GetMember(player->GetGUID());
-
-    if (!guildMember)
-        return ERROR_CLUB_NOT_MEMBER;
-
-    auto guildLeader = GetMember(GetLeaderGUID());
-
-    if (!guildLeader)
-        return ERROR_CLUB_NO_SUCH_MEMBER;
-
-    response->set_club_id(m_id);
-
-    guildMember->CreateClubMemberId(response->mutable_agent_id());
-
-    ::bgs::protocol::club::v1::Club* guildClub = response->mutable_club();
-
-    guildClub->set_id(m_id);
-    guildClub->mutable_type()->set_program(5730135);
-    guildClub->mutable_type()->set_name("guild");
-    guildClub->set_name(m_name);
-
-    // These are not related to normal guild functionality so we hardcode them for now.
-    guildClub->set_privacy_level(::bgs::protocol::club::v1::PrivacyLevel::PRIVACY_LEVEL_OPEN);
-    guildClub->set_visibility_level(::bgs::protocol::club::v1::VISIBILITY_LEVEL_PRIVATE);
-
-    guildClub->set_member_count(m_members.size());
-
-    // Set the club leader, guild master in this case.
-    ::bgs::protocol::club::v1::MemberDescription* guildLeaderDescription = guildClub->add_leader();
-
-    guildLeaderDescription->mutable_id()->mutable_account_id()->set_id(guildLeader->GetAccountId());
-    guildLeaderDescription->mutable_id()->set_unique_id(guildLeader->GetGUID().GetCounter());
-
-    ::bgs::protocol::club::v1::Member* subscriber = response->mutable_member();
-
-    // The member sending the notification data.
-    guildMember->CreateClubMemberId(subscriber->mutable_id());
-
-    // Community/Club default roles have slightly different values.
-    // Also this is required to set the current leader/guild master symbol in the interface.
-    // 1 = Owner, 4 = Member. Once communities are fully implemented these will go into a new database table.
-    if (guildMember->IsRank(GuildRankId::GuildMaster))
-        subscriber->add_role(AsUnderlyingType(ClubRoleIdentifier::Owner));
-    else if (_HasRankRight(player, GR_RIGHT_OFFCHATSPEAK) || _HasRankRight(player, GR_RIGHT_OFFCHATLISTEN))
-        subscriber->add_role(AsUnderlyingType(ClubRoleIdentifier::Moderator));
-    else
-        subscriber->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
-
-    subscriber->set_presence_level(::bgs::protocol::club::v1::PRESENCE_LEVEL_RICH);
-    subscriber->set_whisper_level(::bgs::protocol::club::v1::WHISPER_LEVEL_OPEN);
-
-    // Member is online and active.
-    subscriber->set_active(true);
-
-    return ERROR_OK;
-}
-
-uint32 Guild::HandleClubSubscriberStateChanged(::bgs::protocol::club::v1::SubscriberStateChangedNotification* response, WorldSession* session)
-{
-    auto player = session->GetPlayer();
-
-    if (!player)
-        return ERROR_INTERNAL;
-
-    auto guildMember = GetMember(player->GetGUID());
-
-    if (!guildMember)
-        return ERROR_CLUB_NOT_MEMBER;
-
-    response->set_club_id(m_id);
-
-    ::bgs::protocol::club::v1::SubscriberStateAssignment* assignment = response->add_assignment();
-
-    guildMember->CreateClubMemberId(assignment->mutable_member_id());
-
-    // Member is online and active.
-    assignment->set_active(true);
-
-    return ERROR_OK;
-}
-
-uint32 Guild::HandleGetMembers(::bgs::protocol::club::v1::GetMembersResponse* response)
-{
-    for (auto const& [guid, member] : m_members)
-    {
-        ::bgs::protocol::club::v1::Member* clubMember = response->add_member();
-
-        member.CreateClubMemberId(clubMember->mutable_id());
-
-        // Community/Club default roles have slightly different values.
-        // When communities are implemented those are going to be database fields.
-        if (member.IsRank(GuildRankId::GuildMaster))
-            clubMember->add_role(AsUnderlyingType(ClubRoleIdentifier::Owner));
-        else if ((_GetRankRights(member.GetRankId()) & GR_RIGHT_OFFCHATSPEAK) != GR_RIGHT_NONE ||
-                (_GetRankRights(member.GetRankId()) & GR_RIGHT_OFFCHATLISTEN) != GR_RIGHT_NONE)
-            clubMember->add_role(AsUnderlyingType(ClubRoleIdentifier::Moderator));
-        else
-            clubMember->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
-
-        clubMember->set_presence_level(::bgs::protocol::club::v1::PresenceLevel::PRESENCE_LEVEL_RICH);
-        clubMember->set_whisper_level(::bgs::protocol::club::v1::WhisperLevel::WHISPER_LEVEL_OPEN);
-        clubMember->set_note(member.GetPublicNote());
-        clubMember->set_active(member.FindConnectedPlayer() != nullptr);
-    }
-
-    return ERROR_OK;
-}
-
-uint32 Guild::HandleClubMemberSubscribe(club::v1::membership::SubscribeResponse* response, WorldSession* session)
-{
-    auto guildLeader = GetMember(GetLeaderGUID());
-
-    if (!guildLeader)
-        return ERROR_CLUB_NOT_MEMBER;
-
-    ::bgs::protocol::club::v1::ClubMembershipDescription* description = response->mutable_state()->add_description();
-
-    session->CreateClubMemberId(description->mutable_member_id());
-
-    description->mutable_club()->set_id(m_id);
-    description->mutable_club()->mutable_type()->set_program(5730135);
-    description->mutable_club()->mutable_type()->set_name("guild");
-
-    ::bgs::protocol::club::v1::ClubDescription* club = description->mutable_club();
-
-    club->set_name(m_name);
-    club->set_privacy_level(::bgs::protocol::club::v1::PrivacyLevel::PRIVACY_LEVEL_OPEN);
-    club->set_visibility_level(::bgs::protocol::club::v1::VISIBILITY_LEVEL_PRIVATE);
-    club->set_member_count(GetMembersCount());
-    club->set_creation_time(GetCreatedDate() * 1000 * 1000);
-
-    // Not setting these can cause issues.
-    club->set_timezone("");
-    club->set_locale("");
-
-    ::bgs::protocol::club::v1::MemberDescription* leader = club->add_leader();
-
-    guildLeader->CreateClubMemberId(leader->mutable_id());
-
-    response->mutable_state()->mutable_mention_view()->set_last_read_time(0);
-    response->mutable_state()->mutable_mention_view()->set_last_message_time(0);
-
-    return ERROR_OK;
-}
-
-uint32 Guild::HandleClubStreams(bgs::protocol::club::v1::GetStreamsResponse* response, WorldSession* /*session*/)
-{
-    // General guild channel.
-    auto generalGuildChannelStream = response->add_stream();
-
-    generalGuildChannelStream->set_club_id(m_id);
-    generalGuildChannelStream->set_id((uint64)ClubStreamType::Guild);
-
-    auto generalStreamAttribute = generalGuildChannelStream->add_attribute();
-
-    generalStreamAttribute->set_name("global_strings_tag");
-    generalStreamAttribute->mutable_value()->set_string_value("COMMUNITIES_GUILD_GENERAL_CHANNEL_NAME");
-
-    generalGuildChannelStream->set_name("Guild");
-
-    // All roles got access to this channel.
-    // Club roles are currently guild role + 1.
-    // With a complete club/community system those will be handled differently.
-    generalGuildChannelStream->mutable_access()->add_role(AsUnderlyingType(ClubRoleIdentifier::Owner));
-    generalGuildChannelStream->mutable_access()->add_role(AsUnderlyingType(ClubRoleIdentifier::Leader));
-    generalGuildChannelStream->mutable_access()->add_role(AsUnderlyingType(ClubRoleIdentifier::Moderator));
-    generalGuildChannelStream->mutable_access()->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
-
-    // No voice support.
-    generalGuildChannelStream->set_voice_level(::bgs::protocol::club::v1::StreamVoiceLevel::VOICE_LEVEL_DISABLED);
-
-    // Officer guild channel.
-    auto officerGuildChannelStream = response->add_stream();
-
-    officerGuildChannelStream->set_club_id(m_id);
-    officerGuildChannelStream->set_id((uint64)ClubStreamType::Officer);
-
-    auto officerStreamAttribute = officerGuildChannelStream->add_attribute();
-
-    officerStreamAttribute->set_name("global_strings_tag");
-    officerStreamAttribute->mutable_value()->set_string_value("COMMUNITIES_GUILD_OFFICER_CHANNEL_NAME");
-
-    officerGuildChannelStream->set_name("Officer");
-
-    // All roles got access to this channel.
-    // Club roles are currently guild role + 1.
-    // With a complete club/community system those will be handled differently.
-    officerGuildChannelStream->mutable_access()->add_role(AsUnderlyingType(ClubRoleIdentifier::Owner));
-    officerGuildChannelStream->mutable_access()->add_role(AsUnderlyingType(ClubRoleIdentifier::Leader));
-    officerGuildChannelStream->mutable_access()->add_role(AsUnderlyingType(ClubRoleIdentifier::Moderator));
-
-    // No voice support.
-    officerGuildChannelStream->set_voice_level(::bgs::protocol::club::v1::StreamVoiceLevel::VOICE_LEVEL_DISABLED);
-
-    // Enable channel view
-    auto generalView = response->add_view();
-
-    generalView->set_club_id(m_id);
-    generalView->set_stream_id((uint64)ClubStreamType::Guild);
-
-    auto officerView = response->add_view();
-
-    officerView->set_club_id(m_id);
-    officerView->set_stream_id((uint64)ClubStreamType::Officer);
-
-    return ERROR_OK;
 }
 
 void Guild::SendQueryResponse(WorldSession* session)
@@ -2603,11 +2381,20 @@ void Guild::SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelf
 {
     WorldPackets::Guild::GuildEventNewLeader eventPacket;
     eventPacket.SelfPromoted = isSelfPromoted;
+
+    club::v1::MemberRoleChangedNotification memberRoleChangeNotification;
+    memberRoleChangeNotification.set_club_id(GetId());
+
     if (newLeader)
     {
         eventPacket.NewLeaderGUID = newLeader->GetGUID();
         eventPacket.NewLeaderName = newLeader->GetName();
         eventPacket.NewLeaderVirtualRealmAddress = GetVirtualRealmAddress();
+
+        // Owner/GuildMaster role is always 1.
+        club::v1::RoleAssignment* newLeaderRoleAssignment = memberRoleChangeNotification.add_assignment();
+        newLeaderRoleAssignment->set_allocated_member_id(Battlenet::Services::ClubMembershipService::CreateClubMemberId(newLeader->GetGUID()).release());
+        newLeaderRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Owner));
     }
 
     if (oldLeader)
@@ -2615,44 +2402,21 @@ void Guild::SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelf
         eventPacket.OldLeaderGUID = oldLeader->GetGUID();
         eventPacket.OldLeaderName = oldLeader->GetName();
         eventPacket.OldLeaderVirtualRealmAddress = GetVirtualRealmAddress();
+
+        // Non owner members in guilds get the lowest club/community role after a guild master change.
+        club::v1::RoleAssignment* oldLeaderRoleAssignment = memberRoleChangeNotification.add_assignment();
+        oldLeaderRoleAssignment->set_allocated_member_id(Battlenet::Services::ClubMembershipService::CreateClubMemberId(oldLeader->GetGUID()).release());
+        oldLeaderRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
     }
 
-    auto packet = eventPacket.Write();
+    eventPacket.Write();
 
     // We have to send old guild and new club packets so we use a custom broadcast loop here.
-    for (auto const& [guid, member] : m_members)
+    BroadcastWorker([&](Player const* member)
     {
-        if (Player* player = member.FindConnectedPlayer())
-        {
-            player->SendDirectMessage(packet);
-
-            ::bgs::protocol::club::v1::MemberRoleChangedNotification memberRoleChangeNotification;
-
-            memberRoleChangeNotification.set_club_id(m_id);
-
-            if (newLeader)
-            {
-                auto newLeaderRoleAssignment = memberRoleChangeNotification.add_assignment();
-
-                newLeader->CreateClubMemberId(newLeaderRoleAssignment->mutable_member_id());
-
-                // Owner/GuildMaster role is always 1.
-                newLeaderRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Owner));
-            }
-
-            if (oldLeader)
-            {
-                auto oldLeaderRoleAssignment = memberRoleChangeNotification.add_assignment();
-
-                oldLeader->CreateClubMemberId(oldLeaderRoleAssignment->mutable_member_id());
-
-                // Non owner members in guilds get the lowest club/community role after a guild master change.
-                oldLeaderRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
-            }
-
-            Battlenet::WorldserverService<::bgs::protocol::club::v1::ClubListener>(player->GetSession()).OnMemberRoleChanged(&memberRoleChangeNotification, true, true);
-        }
-    }
+        member->SendDirectMessage(eventPacket.GetRawPacket());
+        Battlenet::WorldserverService<club::v1::ClubListener>(member->GetSession()).OnMemberRoleChanged(&memberRoleChangeNotification, true, true);
+    });
 }
 
 void Guild::SendEventPlayerLeft(Member* leaver, Member* remover, bool isRemoved) const
@@ -2670,59 +2434,46 @@ void Guild::SendEventPlayerLeft(Member* leaver, Member* remover, bool isRemoved)
         eventPacket.RemoverVirtualRealmAddress = GetVirtualRealmAddress();
     }
 
-    auto packet = eventPacket.Write();
+    eventPacket.Write();
+
+    Player* leaverPlayer = leaver->FindConnectedPlayer();
+
+    // Notify the removed member of club removal.
+    if (leaverPlayer)
+    {
+        leaverPlayer->SendDirectMessage(eventPacket.GetRawPacket());
+
+        // Unsubscribe the removed player from the club to ensure interface updates.
+        club::v1::UnsubscribeNotification unsubscribeNotification;
+        unsubscribeNotification.set_club_id(GetId());
+        Battlenet::WorldserverService<club::v1::ClubListener>(leaverPlayer->GetSession()).OnUnsubscribe(&unsubscribeNotification, true, true);
+
+        // Finally notify the client about leaving the club.
+        club::v1::membership::ClubRemovedNotification clubRemovedNotification;
+        clubRemovedNotification.set_club_id(GetId());
+        clubRemovedNotification.set_reason(isRemoved
+            ? club::v1::ClubRemovedReason::CLUB_REMOVED_REASON_MEMBER_KICKED
+            : club::v1::ClubRemovedReason::CLUB_REMOVED_REASON_MEMBER_LEFT);
+        clubRemovedNotification.set_allocated_member_id(Battlenet::Services::ClubMembershipService::CreateClubMemberId(leaver->GetGUID()).release());
+        Battlenet::WorldserverService<club::v1::membership::ClubMembershipListener>(leaverPlayer->GetSession()).OnClubRemoved(&clubRemovedNotification, true, true);
+    }
+
+    club::v1::MemberRemovedNotification memberRemovedNotification;
+    memberRemovedNotification.set_club_id(GetId());
+
+    club::v1::MemberRemovedAssignment* removedMemberAssignment = memberRemovedNotification.add_member();
+    removedMemberAssignment->set_allocated_id(Battlenet::Services::ClubMembershipService::CreateClubMemberId(leaver->GetGUID()).release());
+    removedMemberAssignment->set_reason(isRemoved
+        ? club::v1::ClubRemovedReason::CLUB_REMOVED_REASON_MEMBER_KICKED
+        : club::v1::ClubRemovedReason::CLUB_REMOVED_REASON_MEMBER_LEFT);
 
     // We have to send old guild and new club packets so we use a custom broadcast loop here.
-    for (auto const& [guid, member] : m_members)
+    BroadcastWorker([&](Player const* member)
     {
-        if (Player* player = member.FindConnectedPlayer())
-        {
-            player->SendDirectMessage(packet);
-
-            // Notify other guild members.
-            if (!member.IsSamePlayer(leaver->GetGUID()))
-            {
-                ::bgs::protocol::club::v1::MemberRemovedNotification memberRemovedNotification;
-
-                memberRemovedNotification.set_club_id(m_id);
-
-                auto removedMemberAssignment = memberRemovedNotification.add_member();
-
-                leaver->CreateClubMemberId(removedMemberAssignment->mutable_id());
-
-                if (isRemoved)
-                    removedMemberAssignment->set_reason(::bgs::protocol::club::v1::ClubRemovedReason::CLUB_REMOVED_REASON_MEMBER_KICKED);
-                else
-                    removedMemberAssignment->set_reason(::bgs::protocol::club::v1::ClubRemovedReason::CLUB_REMOVED_REASON_MEMBER_LEFT);
-
-                Battlenet::WorldserverService<::bgs::protocol::club::v1::ClubListener>(player->GetSession()).OnMemberRemoved(&memberRemovedNotification, true, true);
-            }
-            // Notify the removed member of club removal.
-            else
-            {
-                // Unsubscribe the removed player from the club to ensure interface updates.
-                ::bgs::protocol::club::v1::UnsubscribeNotification unsubscribeNotification;
-
-                unsubscribeNotification.set_club_id(m_id);
-
-                Battlenet::WorldserverService<::bgs::protocol::club::v1::ClubListener>(player->GetSession()).OnUnsubscribe(&unsubscribeNotification, true, true);
-
-                // Finally notify the client about leaving the club.
-                ::bgs::protocol::club::v1::membership::ClubRemovedNotification clubRemovedNotification;
-
-                clubRemovedNotification.set_club_id(m_id);
-
-                if (isRemoved)
-                    clubRemovedNotification.set_reason(::bgs::protocol::club::v1::ClubRemovedReason::CLUB_REMOVED_REASON_MEMBER_KICKED);
-                else
-                    clubRemovedNotification.set_reason(::bgs::protocol::club::v1::ClubRemovedReason::CLUB_REMOVED_REASON_MEMBER_LEFT);
-
-                leaver->CreateClubMemberId(clubRemovedNotification.mutable_member_id());
-
-                Battlenet::WorldserverService<bgs::protocol::club::v1::membership::ClubMembershipListener>(player->GetSession()).OnClubRemoved(&clubRemovedNotification, true, true);
-            }
-        }
-    }
+        // Notify other guild members.
+        member->SendDirectMessage(eventPacket.GetRawPacket());
+        Battlenet::WorldserverService<::bgs::protocol::club::v1::ClubListener>(member->GetSession()).OnMemberRemoved(&memberRemovedNotification, true, true);
+    }, leaverPlayer);
 }
 
 void Guild::SendEventPresenceChanged(WorldSession* session, bool loggedOn, bool broadcast) const
@@ -2980,76 +2731,19 @@ bool Guild::Validate()
     return true;
 }
 
-void Guild::CreateSenderMessageResponse(bgs::protocol::club::v1::CreateMessageResponse* senderMessageResponse, std::string_view msg, const uint64& messageTime, const Member& member) const
-{
-    senderMessageResponse->mutable_message()->mutable_id()->set_epoch(messageTime);
-    senderMessageResponse->mutable_message()->mutable_id()->set_position(0);
-
-    member.CreateClubMemberId(senderMessageResponse->mutable_message()->mutable_author()->mutable_id());
-
-    auto contentChain = senderMessageResponse->mutable_message()->add_content_chain();
-
-    contentChain->set_content(msg.data(), msg.size());
-    contentChain->set_edit_time(messageTime);
-}
-
-void Guild::CreateMemberMessageNotification(::bgs::protocol::club::v1::StreamMessageAddedNotification* messageAddedNotification, WorldSession* session, bool officerOnly, std::string_view msg, const uint64& messageTime) const
-{
-    session->CreateClubMemberId(messageAddedNotification->mutable_agent_id());
-
-    messageAddedNotification->set_club_id(m_id);
-    messageAddedNotification->set_stream_id(officerOnly ? (uint64)ClubStreamType::Officer : (uint64)ClubStreamType::Guild);
-
-    messageAddedNotification->mutable_message()->mutable_id()->set_epoch(messageTime);
-    messageAddedNotification->mutable_message()->mutable_id()->set_position(0);
-
-    session->CreateClubMemberId(messageAddedNotification->mutable_message()->mutable_author()->mutable_id());
-
-    auto contentChain = messageAddedNotification->mutable_message()->add_content_chain();
-
-    contentChain->set_content(msg.data(), msg.size());
-    contentChain->set_edit_time(messageTime);
-}
-
 // Broadcasts
-void Guild::BroadcastToGuild(WorldSession* session, bool officerOnly, std::string_view msg, ::bgs::protocol::club::v1::CreateMessageResponse* senderMessageResponse, uint32 language) const
+void Guild::BroadcastToGuild(WorldSession* session, bool officerOnly, std::string_view msg, uint32 language) const
 {
     if (session && session->GetPlayer() && _HasRankRight(session->GetPlayer(), officerOnly ? GR_RIGHT_OFFCHATSPEAK : GR_RIGHT_GCHATSPEAK))
     {
         WorldPackets::Chat::Chat packet;
         packet.Initialize(officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, Language(language), session->GetPlayer(), nullptr, msg);
         WorldPacket const* data = packet.Write();
-
-        // Chat message times are in microseconds.
-        uint64 messageTime = GameTime::GetGameTime() * 1000 * 1000;
-
         for (auto const& [guid, member] : m_members)
-        {
             if (Player* player = member.FindConnectedPlayer())
-            {
                 if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
                     !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUID(), session->GetAccountGUID()))
-                {
-                    // Send the chat message to the club frame.
-                    if (senderMessageResponse != nullptr)
-                    {
-                        if (member.IsSamePlayer(session->GetPlayer()->GetGUID()))
-                            CreateSenderMessageResponse(senderMessageResponse, msg, messageTime, member);
-                        else
-                        {
-                            ::bgs::protocol::club::v1::StreamMessageAddedNotification messageAddedNotification;
-
-                            CreateMemberMessageNotification(&messageAddedNotification, session, officerOnly, msg, messageTime);
-
-                            Battlenet::WorldserverService<::bgs::protocol::club::v1::ClubListener>(player->GetSession()).OnStreamMessageAdded(&messageAddedNotification, true, true);
-                        }
-                    }
-
-                    // Send the chat message to the regular chat frame.
                     player->SendDirectMessage(data);
-                }
-            }
-        }
     }
 }
 
@@ -3156,7 +2850,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
         return false;
     }
 
-    Member& newMember = memberIt->second;
+    Member& member = memberIt->second;
     std::string name;
     if (player)
     {
@@ -3164,13 +2858,13 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
         player->SetGuildIdInvited(UI64LIT(0));
         player->SetGuildRank(AsUnderlyingType(*rankId));
         player->SetGuildLevel(GetLevel());
-        newMember.SetStats(player);
+        member.SetStats(player);
         SendLoginInfo(player->GetSession());
         name = player->GetName();
     }
     else
     {
-        newMember.ResetFlags();
+        member.ResetFlags();
 
         bool ok = false;
         // Player must exist
@@ -3180,7 +2874,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
         {
             Field* fields = result->Fetch();
             name = fields[0].GetString();
-            newMember.SetStats(
+            member.SetStats(
                 name,
                 fields[1].GetUInt8(),
                 fields[2].GetUInt8(),
@@ -3190,7 +2884,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
                 fields[6].GetUInt32(),
                 0);
 
-            ok = newMember.CheckStats();
+            ok = member.CheckStats();
         }
 
         if (!ok)
@@ -3201,7 +2895,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
         sCharacterCache->UpdateCharacterGuildId(guid, GetId());
     }
 
-    newMember.SaveToDB(trans);
+    member.SaveToDB(trans);
 
     _UpdateAccountsNumber();
     _LogEvent(GUILD_EVENT_LOG_JOIN_GUILD, lowguid);
@@ -3210,72 +2904,58 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
     joinNotificationPacket.Guid = guid;
     joinNotificationPacket.Name = name;
     joinNotificationPacket.VirtualRealmAddress = GetVirtualRealmAddress();
+    joinNotificationPacket.Write();
 
-    auto packet = joinNotificationPacket.Write();
+    // Notify the added member with new club data.
+    if (player)
+    {
+        player->SendDirectMessage(joinNotificationPacket.GetRawPacket());
+
+        club::v1::membership::ClubAddedNotification clubAddedNotification;
+        clubAddedNotification.mutable_membership()->set_allocated_member_id(Battlenet::Services::ClubMembershipService::CreateClubMemberId(guid).release());
+
+        club::v1::ClubDescription* guildClub = clubAddedNotification.mutable_membership()->mutable_club();
+        guildClub->set_id(GetId());
+        guildClub->set_allocated_type(Battlenet::Services::ClubService::CreateGuildClubType().release());
+        guildClub->set_name(GetName());
+        guildClub->set_privacy_level(club::v1::PrivacyLevel::PRIVACY_LEVEL_OPEN);
+        guildClub->set_visibility_level(club::v1::VISIBILITY_LEVEL_PRIVATE);
+        guildClub->set_member_count(GetMembersCount());
+
+        // Set the club owner, guild master in this case.
+        club::v1::MemberDescription* guildLeaderDescription = guildClub->add_leader();
+        guildLeaderDescription->set_allocated_id(Battlenet::Services::ClubMembershipService::CreateClubMemberId(GetLeaderGUID()).release());
+
+        // Date is in microseconds.
+        guildClub->set_creation_time(
+            std::chrono::duration_cast<std::chrono::microseconds>(SystemTimePoint::clock::from_time_t(GetCreatedDate()).time_since_epoch()).count());
+        guildClub->set_timezone("");
+        guildClub->set_locale("");
+
+        Battlenet::WorldserverService<club::v1::membership::ClubMembershipListener>(player->GetSession()).OnClubAdded(&clubAddedNotification, true, true);
+    }
+
+    club::v1::MemberAddedNotification memberAddedNotification;
+    memberAddedNotification.set_club_id(GetId());
+
+    club::v1::Member* addedMember = memberAddedNotification.add_member();
+    addedMember->set_allocated_id(Battlenet::Services::ClubMembershipService::CreateClubMemberId(guid).release());
+    if (HasAnyRankRight(member.GetRankId(), GuildRankRights(GR_RIGHT_OFFCHATLISTEN | GR_RIGHT_OFFCHATSPEAK)))
+        addedMember->add_role(AsUnderlyingType(ClubRoleIdentifier::Moderator));
+    else
+        addedMember->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
+    addedMember->set_presence_level(club::v1::PresenceLevel::PRESENCE_LEVEL_RICH);
+    addedMember->set_whisper_level(club::v1::WhisperLevel::WHISPER_LEVEL_OPEN);
+    addedMember->set_note("");
+    addedMember->set_active(member.IsOnline());
 
     // We have to send old guild and new club packets so we use a custom broadcast loop here.
-    for (auto const& [guid, member] : m_members)
+    BroadcastWorker([&](Player const* otherMember)
     {
-        if (Player* guildPlayer = member.FindConnectedPlayer())
-        {
-            guildPlayer->SendDirectMessage(packet);
-
-            // Notify other online guild members.
-            if (player && !member.IsSamePlayer(player->GetGUID()))
-            {
-                ::bgs::protocol::club::v1::MemberAddedNotification memberAddedNotification;
-
-                memberAddedNotification.set_club_id(m_id);
-
-                auto addedMember = memberAddedNotification.add_member();
-
-                player->GetSession()->CreateClubMemberId(addedMember->mutable_id());
-
-                // New members should never be auto guild master or officer.
-                addedMember->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
-
-                addedMember->set_presence_level(::bgs::protocol::club::v1::PresenceLevel::PRESENCE_LEVEL_RICH);
-                addedMember->set_whisper_level(::bgs::protocol::club::v1::WhisperLevel::WHISPER_LEVEL_OPEN);
-                addedMember->set_note("");
-                addedMember->set_active(guildPlayer != nullptr);
-
-                Battlenet::WorldserverService<::bgs::protocol::club::v1::ClubListener>(guildPlayer->GetSession()).OnMemberAdded(&memberAddedNotification, true, true);
-            }
-            // Notify the added member with new club data.
-            else
-            {
-                ::bgs::protocol::club::v1::membership::ClubAddedNotification clubAddedNotification;
-
-                member.CreateClubMemberId(clubAddedNotification.mutable_membership()->mutable_member_id());
-
-                ::bgs::protocol::club::v1::ClubDescription* guildClub = clubAddedNotification.mutable_membership()->mutable_club();
-
-                guildClub->set_id(m_id);
-                guildClub->mutable_type()->set_program(5730135);
-                guildClub->mutable_type()->set_name("guild");
-
-                guildClub->set_name(m_name);
-                guildClub->set_privacy_level(::bgs::protocol::club::v1::PrivacyLevel::PRIVACY_LEVEL_OPEN);
-                guildClub->set_visibility_level(::bgs::protocol::club::v1::VISIBILITY_LEVEL_PRIVATE);
-                guildClub->set_member_count(GetMembersCount());
-
-                // Set the club owner, guild master in this case.
-                ::bgs::protocol::club::v1::MemberDescription* guildLeaderDescription = guildClub->add_leader();
-
-                auto guildLeader = GetMember(GetLeaderGUID());
-
-                guildLeaderDescription->mutable_id()->mutable_account_id()->set_id(guildLeader->GetAccountId());
-                guildLeaderDescription->mutable_id()->set_unique_id(guildLeader->GetGUID().GetCounter());
-
-                // Date is in microseconds.
-                guildClub->set_creation_time(GetCreatedDate() * 1000 * 1000);
-                guildClub->set_timezone("");
-                guildClub->set_locale("");
-
-                Battlenet::WorldserverService<::bgs::protocol::club::v1::membership::ClubMembershipListener>(guildPlayer->GetSession()).OnClubAdded(&clubAddedNotification, true, true);
-            }
-        }
-    }
+        // Notify other online guild members.
+        otherMember->SendDirectMessage(joinNotificationPacket.GetRawPacket());
+        Battlenet::WorldserverService<club::v1::ClubListener>(otherMember->GetSession()).OnMemberAdded(&memberAddedNotification, true, true);
+    }, player);
 
     // Call scripts if member was succesfully added (and stored to database)
     sScriptMgr->OnGuildAddMember(this, player, AsUnderlyingType(*rankId));
@@ -3456,6 +3136,11 @@ bool Guild::_HasRankRight(Player const* player, uint32 right) const
         if (Member const* member = GetMember(player->GetGUID()))
             return (_GetRankRights(member->GetRankId()) & right) != GR_RIGHT_NONE;
     return false;
+}
+
+bool Guild::HasAnyRankRight(GuildRankId rankId, GuildRankRights rights) const
+{
+    return (_GetRankRights(rankId) & rights) != GR_RIGHT_NONE;
 }
 
 void Guild::_DeleteMemberFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType lowguid)
@@ -4027,46 +3712,36 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
 
 void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, GuildRankId rank)
 {
-    Member* targetMember = GetMember(targetGuid);
-    ASSERT(targetMember);
+    Member* member = GetMember(targetGuid);
+    ASSERT(member);
 
     WorldPackets::Guild::GuildSendRankChange rankChange;
     rankChange.Officer = setterGuid;
     rankChange.Other = targetGuid;
     rankChange.RankID = AsUnderlyingType(rank);
-    rankChange.Promote = (rank < targetMember->GetRankId());
+    rankChange.Promote = (rank < member->GetRankId());
+    rankChange.Write();
 
-    auto packet = rankChange.Write();
+    club::v1::MemberRoleChangedNotification memberRoleChangeNotification;
+    memberRoleChangeNotification.set_club_id(GetId());
 
-    for (auto const& [guid, member] : m_members)
+    club::v1::RoleAssignment* changedRoleAssignment = memberRoleChangeNotification.add_assignment();
+    changedRoleAssignment->set_allocated_member_id(Battlenet::Services::ClubMembershipService::CreateClubMemberId(targetGuid).release());
+    if (rank == GuildRankId::GuildMaster)
+        changedRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Owner));
+    else if (HasAnyRankRight(rank, GuildRankRights(GR_RIGHT_OFFCHATLISTEN | GR_RIGHT_OFFCHATSPEAK)))
+        changedRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Moderator));
+    else
+        changedRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
+
+    BroadcastWorker([&](Player const* memberPlayer)
     {
-        if (Player* player = member.FindConnectedPlayer())
-        {
-            player->SendDirectMessage(packet);
-
-            ::bgs::protocol::club::v1::MemberRoleChangedNotification memberRoleChangeNotification;
-
-            memberRoleChangeNotification.set_club_id(m_id);
-
-            auto changedRoleAssignment = memberRoleChangeNotification.add_assignment();
-
-            targetMember->CreateClubMemberId(changedRoleAssignment->mutable_member_id());
-
-            if (rank == GuildRankId::GuildMaster)
-                changedRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Owner));
-            else if ((_GetRankRights(rank) & GR_RIGHT_OFFCHATSPEAK) != GR_RIGHT_NONE ||
-                    (_GetRankRights(rank) & GR_RIGHT_OFFCHATLISTEN) != GR_RIGHT_NONE)
-                changedRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Moderator));
-            else
-                changedRoleAssignment->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
-
-            Battlenet::WorldserverService<::bgs::protocol::club::v1::ClubListener>(player->GetSession()).OnMemberRoleChanged(&memberRoleChangeNotification, true, true);
-
-        }
-    }
+        memberPlayer->SendDirectMessage(rankChange.GetRawPacket());
+        Battlenet::WorldserverService<club::v1::ClubListener>(memberPlayer->GetSession()).OnMemberRoleChanged(&memberRoleChangeNotification, true, true);
+    });
 
     CharacterDatabaseTransaction trans;
-    targetMember->ChangeRank(trans, rank);
+    member->ChangeRank(trans, rank);
 
     TC_LOG_DEBUG("network", "SMSG_GUILD_RANKS_UPDATE [Broadcast] Target: {}, Issuer: {}, RankId: {}",
         targetGuid.ToString(), setterGuid.ToString(), uint32(rank));

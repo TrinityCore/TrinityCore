@@ -21,32 +21,31 @@
 #include "WorldserverService.h"
 #include "club_service.pb.h"
 
-namespace Battlenet
+namespace Battlenet::Services
 {
-    class Session;
+class ClubService : public WorldserverService<club::v1::ClubService>
+{
+    typedef WorldserverService<club::v1::ClubService> BaseService;
 
-    namespace Services
-    {
-        class ClubService : public WorldserverService<club::v1::ClubService>
-        {
-            typedef WorldserverService<club::v1::ClubService> BaseService;
+public:
 
-        public:
-            ClubService(WorldSession* session);
+    ClubService(WorldSession* session);
 
-            uint32 HandleGetClubType(club::v1::GetClubTypeRequest const* request, club::v1::GetClubTypeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
-            uint32 HandleSubscribe(club::v1::SubscribeRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
-            uint32 HandleGetMembers(club::v1::GetMembersRequest const* request, club::v1::GetMembersResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
-            uint32 HandleGetStreams(club::v1::GetStreamsRequest const* request, club::v1::GetStreamsResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
-            uint32 HandleSubscribeStream(club::v1::SubscribeStreamRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
-            uint32 HandleUnsubscribeStream(club::v1::UnsubscribeStreamRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
-            uint32 HandleSetStreamFocus(club::v1::SetStreamFocusRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
-            uint32 HandleAdvanceStreamViewTime(club::v1::AdvanceStreamViewTimeRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
-            uint32 HandleCreateMessage(club::v1::CreateMessageRequest const* request, club::v1::CreateMessageResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+    uint32 HandleGetClubType(club::v1::GetClubTypeRequest const* request, club::v1::GetClubTypeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+    uint32 HandleSubscribe(club::v1::SubscribeRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+    uint32 HandleGetMembers(club::v1::GetMembersRequest const* request, club::v1::GetMembersResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+    uint32 HandleGetStreams(club::v1::GetStreamsRequest const* request, club::v1::GetStreamsResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+    uint32 HandleSubscribeStream(club::v1::SubscribeStreamRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+    uint32 HandleUnsubscribeStream(club::v1::UnsubscribeStreamRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+    uint32 HandleSetStreamFocus(club::v1::SetStreamFocusRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+    uint32 HandleAdvanceStreamViewTime(club::v1::AdvanceStreamViewTimeRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+    uint32 HandleCreateMessage(club::v1::CreateMessageRequest const* request, club::v1::CreateMessageResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
 
-        private:
-        };
-    }
+    static std::unique_ptr<club::v1::UniqueClubType> CreateGuildClubType();
+
+private:
+    static void FillStreamMessage(club::v1::StreamMessage* message, std::string_view msg, std::chrono::microseconds messageTime, ObjectGuid author);
+};
 }
 
 #endif // ClubService_h__

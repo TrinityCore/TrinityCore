@@ -1992,7 +1992,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 GetGuildLevel() const { return m_playerData->GuildLevel; }
         void SetGuildIdInvited(ObjectGuid::LowType GuildId) { m_GuildIdInvited = GuildId; }
         ObjectGuid::LowType GetGuildId() const { return m_unitData->GuildGUID->GetCounter(); /* return only lower part */ }
-        uint64 GetGuildClubMemberId() const { return m_playerData->GuildClubMemberID; }
         Guild* GetGuild();
         Guild const* GetGuild() const;
         ObjectGuid::LowType GetGuildIdInvited() const { return m_GuildIdInvited; }

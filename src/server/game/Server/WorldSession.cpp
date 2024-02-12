@@ -191,12 +191,6 @@ bool WorldSession::PlayerDisconnected() const
              m_Socket[CONNECTION_TYPE_INSTANCE] && m_Socket[CONNECTION_TYPE_INSTANCE]->IsOpen());
 }
 
-void WorldSession::CreateClubMemberId(::bgs::protocol::club::v1::MemberId* memberId) const
-{
-    memberId->mutable_account_id()->set_id(GetAccountId());
-    memberId->set_unique_id(GetPlayer() ? GetPlayer()->GetGUID().GetCounter() : 0);
-}
-
 std::string const & WorldSession::GetPlayerName() const
 {
     return _player != nullptr ? _player->GetName() : DefaultPlayerName;

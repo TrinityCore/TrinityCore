@@ -33,7 +33,6 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
-#include "WorldSession.h"
 #include <iomanip>
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
@@ -124,11 +123,6 @@ public:
         }
 
         sGuildMgr->AddGuild(guild);
-
-        // We always want to send this to make sure to get proper club settings for GMs.
-        // This also makes sure that the club is enabled/disabled after joining or leaving a guild.
-        // When full communities, club and guild finder are implemented this can be replaced.
-        handler->GetSession()->SendFeatureSystemStatus();
 
         return true;
     }

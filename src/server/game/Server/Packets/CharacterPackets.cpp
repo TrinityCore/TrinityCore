@@ -16,6 +16,7 @@
  */
 
 #include "CharacterPackets.h"
+#include "ClubUtils.h"
 #include "DB2Stores.h"
 #include "Field.h"
 #include "ObjectMgr.h"
@@ -103,6 +104,7 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
     // "character_declinedname.genitive"
 
     Guid              = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
+    GuildClubMemberID = ::Battlenet::Services::Clubs::CreateClubMemberId(Guid);
     Name              = fields[1].GetString();
     RaceID            = fields[2].GetUInt8();
     ClassID           = fields[3].GetUInt8();
@@ -114,8 +116,6 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
 
     if (ObjectGuid::LowType guildId = fields[11].GetUInt64())
         GuildGUID = ObjectGuid::Create<HighGuid::Guild>(guildId);
-
-    GuildClubMemberID = Guid.GetCounter();
 
     uint32 playerFlags  = fields[12].GetUInt32();
     uint32 atLoginFlags = fields[13].GetUInt16();
