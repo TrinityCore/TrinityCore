@@ -14181,6 +14181,8 @@ void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 me
     bool handled = true;
     switch (gossipOptionNpc)
     {
+        case GossipOptionNpc::None:
+            break;
         case GossipOptionNpc::Vendor:
             GetSession()->SendListInventory(guid);
             break;
