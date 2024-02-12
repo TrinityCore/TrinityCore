@@ -9217,24 +9217,20 @@ bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target) const
         if (!isInsideCylinder)
             return false;
 
-        if (Creature* creatureTarget = target->ToCreature())
+        if (Unit* unitTarget = target->ToUnit())
         {
-            if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(creatureTarget->GetCreatureTemplate()->CreatureImmunitiesId))
+            switch (_searchReason)
             {
-                switch (_searchReason)
-                {
-                    case WorldObjectSpellAreaTargetSearchReason::Area:
-                        if (immunities->ImmuneAoE)
-                            return false;
-                        break;
-                    case WorldObjectSpellAreaTargetSearchReason::Chain:
-                        if (immunities->ImmuneChain)
-                            return false;
-                        break;
-                    default:
-                        break;
-                }
-
+                case WorldObjectSpellAreaTargetSearchReason::Area:
+                    if (unitTarget->GetSpellOtherImmunityMask().HasFlag(SpellOtherImmunity::AoETarget))
+                        return false;
+                    break;
+                case WorldObjectSpellAreaTargetSearchReason::Chain:
+                    if (unitTarget->GetSpellOtherImmunityMask().HasFlag(SpellOtherImmunity::ChainTarget))
+                        return false;
+                    break;
+                default:
+                    break;
             }
         }
     }

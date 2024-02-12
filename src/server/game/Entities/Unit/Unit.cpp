@@ -7522,6 +7522,16 @@ uint64 Unit::GetMechanicImmunityMask() const
     return mask;
 }
 
+EnumFlag<SpellOtherImmunity> Unit::GetSpellOtherImmunityMask() const
+{
+    SpellOtherImmunity mask = { };
+    SpellImmuneContainer const& damageList = m_spellImmune[IMMUNITY_OTHER];
+    for (auto itr = damageList.begin(); itr != damageList.end(); ++itr)
+        mask |= SpellOtherImmunity(itr->first);
+
+    return mask;
+}
+
 bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster,
     bool requireImmunityPurgesEffectAttribute /*= false*/) const
 {
