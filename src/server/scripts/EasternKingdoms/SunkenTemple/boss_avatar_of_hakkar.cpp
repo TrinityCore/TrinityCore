@@ -19,6 +19,7 @@
 #include "sunken_temple.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "Player.h"
 
 enum Phases
@@ -46,6 +47,12 @@ enum Yells
 {
     SAY_SPAWN_AVATAR = 0,
     SAY_AGRO_AVATAR  = 1
+};
+
+enum DisplayID
+{
+    DISPLAY_SHADE_OF_HAKKAR  = 7690,
+    DISPLAY_AVATAR_OF_HAKKAR = 8053
 };
 
 class boss_avatar_of_hakkar : public CreatureScript
@@ -123,7 +130,8 @@ public:
                     break;
                 case EVENT_CAST_CAUSE_INSANITY:
                     if (CheckNearbyPlayers())
-                        DoCastVictim(SPELL_CAUSE_INSANITY);
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
+                            DoCast(target, SPELL_CAUSE_INSANITY);
                     events.ScheduleEvent(EVENT_CAST_CAUSE_INSANITY, 6s, 14s);
                     break;
                 case EVENT_CAST_CURSE_OF_TONGUES:
@@ -152,7 +160,7 @@ public:
                 me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetFaction(FACTION_FRIENDLY);
-                me->SetDisplayId(7690);
+                me->SetDisplayId(DISPLAY_SHADE_OF_HAKKAR);
                 events.SetPhase(PHASE_INTRO);
             }
             else
@@ -161,7 +169,7 @@ public:
                 me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetFaction(FACTION_MONSTER_2);
-                me->SetDisplayId(8053);
+                me->SetDisplayId(DISPLAY_AVATAR_OF_HAKKAR);
                 events.SetPhase(PHASE_COMBAT);
                 Talk(SAY_SPAWN_AVATAR);
             }
