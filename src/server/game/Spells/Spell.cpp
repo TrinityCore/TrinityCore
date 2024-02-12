@@ -5058,6 +5058,8 @@ void Spell::SendSpellExecuteLog()
     spellExecuteLog.LogData.Initialize(this);
 
     m_caster->SendCombatLogMessage(&spellExecuteLog);
+
+    _executeLogEffects.clear();
 }
 
 SpellLogEffect& Spell::GetExecuteLogEffect(SpellEffectName effect)
