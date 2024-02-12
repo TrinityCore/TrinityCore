@@ -5980,6 +5980,29 @@ enum ChatLinkColors : uint32
     CHAT_LINK_COLOR_TRANSMOG        = 0xffff80ff,
 };
 
+enum class ChatMessageResult : uint32
+{
+    Ok,
+    HandledCommand,
+    DisallowedLanguage,
+    InvalidLanguage,
+    LanguageNotLearned,
+    Muted,
+    SilencedByGM,
+    MessageTooLong,
+    MessageEmpty,
+    MessageHasInvalidCharacters,
+    MalformedHyperlinks,
+    PlayerDead,
+    LevelTooLow,
+    NoWhisperTarget,
+    WhisperTargetWrongFaction,
+    NotInGroup,
+    NotLeaderOrAssistant,
+    RaidWarningInPartyDisabled,
+    ChannelIsReadOnly
+};
+
 // Values from ItemPetFood (power of (value-1) used for compare with CreatureFamilyEntry.PetFoodMask
 enum PetDiet
 {

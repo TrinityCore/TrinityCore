@@ -43,6 +43,7 @@
 #include "ChatPackets.h"
 #include "ChatTextBuilder.h"
 #include "CinematicMgr.h"
+#include "ClubUtils.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "Common.h"
@@ -17791,6 +17792,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::WowAccount), GetSession()->GetAccountGUID());
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::BnetAccount), GetSession()->GetBattlenetAccountGUID());
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::GuildClubMemberID), Battlenet::Services::Clubs::CreateClubMemberId(guid));
 
     if (!IsValidGender(fields.gender))
     {
