@@ -44,7 +44,7 @@ uint32 ClubService::HandleGetClubType(club::v1::GetClubTypeRequest const* reques
 uint32 ClubService::HandleSubscribe(club::v1::SubscribeRequest const* /*request*/, NoData* /*response*/,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
-    Player* player = _session->GetPlayer();
+    Player const* player = _session->GetPlayer();
 
     if (!player)
         return ERROR_INTERNAL;
@@ -131,7 +131,7 @@ uint32 ClubService::HandleSubscribe(club::v1::SubscribeRequest const* /*request*
 uint32 ClubService::HandleGetMembers(club::v1::GetMembersRequest const* /*request*/, club::v1::GetMembersResponse* response,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
-    Player* player = _session->GetPlayer();
+    Player const* player = _session->GetPlayer();
 
     if (!player)
         return ERROR_INTERNAL;
@@ -140,6 +140,8 @@ uint32 ClubService::HandleGetMembers(club::v1::GetMembersRequest const* /*reques
 
     if (!guild)
         return ERROR_CLUB_NO_CLUB;
+
+    response->mutable_member()->Reserve(guild->GetMembersCount());
 
     for (auto const& [guid, member] : guild->GetMembers())
     {
@@ -168,7 +170,7 @@ uint32 ClubService::HandleGetMembers(club::v1::GetMembersRequest const* /*reques
 uint32 ClubService::HandleGetStreams(club::v1::GetStreamsRequest const* /*request*/, club::v1::GetStreamsResponse* response,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
-    Player* player = _session->GetPlayer();
+    Player const* player = _session->GetPlayer();
 
     if (!player)
         return ERROR_INTERNAL;
