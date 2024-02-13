@@ -5207,6 +5207,13 @@ void Spell::SummonGuardian(SpellEffectInfo const& spellEffectInfo, uint32 entry,
     if (!unitCaster)
         return;
 
+    Creature* oldSummon = ObjectAccessor::GetCreature(*unitCaster, unitCaster->m_SummonSlot[properties->Slot]);
+    if (oldSummon)
+    {
+        oldSummon->ToTempSummon()->UnSummon();
+        return;
+    }
+
     if (unitCaster->IsTotem())
         unitCaster = unitCaster->ToTotem()->GetOwner();
 
