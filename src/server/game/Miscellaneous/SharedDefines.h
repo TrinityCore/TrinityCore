@@ -1018,7 +1018,7 @@ enum CharacterFlags
 {
     CHARACTER_FLAG_NONE                 = 0x00000000,
     CHARACTER_FLAG_UNK1                 = 0x00000001,
-    CHARACTER_FLAG_UNK2                 = 0x00000002,
+    CHARACTER_FLAG_RESTING              = 0x00000002,
     CHARACTER_FLAG_LOCKED_FOR_TRANSFER  = 0x00000004,
     CHARACTER_FLAG_UNK4                 = 0x00000008,
     CHARACTER_FLAG_UNK5                 = 0x00000010,
