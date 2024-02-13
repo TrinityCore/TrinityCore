@@ -479,7 +479,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     SetWatchedFactionIndex(-1);
 
-    SetCustomizations(Trinity::Containers::MakeIteratorPair(createInfo->Customizations.begin(), createInfo->Customizations.end()));
+    SetCustomizations(Trinity::Containers::MakeIteratorPair(createInfo->Customizations.begin(), createInfo->Customizations.end()), 0);
     SetRestState(REST_TYPE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NORMAL);
     SetRestState(REST_TYPE_HONOR, REST_STATE_NORMAL);
     SetNativeGender(Gender(createInfo->Sex));
@@ -17859,21 +17859,26 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     SetMoney(std::min(fields.money, MAX_MONEY_AMOUNT));
 
-    std::vector<UF::ChrCustomizationChoice> customizations;
+    std::map<uint8, std::vector<UF::ChrCustomizationChoice>> customizations;
     if (PreparedQueryResult customizationsResult = holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUSTOMIZATIONS))
     {
         do
         {
             Field* fields = customizationsResult->Fetch();
-            customizations.emplace_back();
-            UF::ChrCustomizationChoice& choice = customizations.back();
+            const uint8 chrModel = fields[2].GetUInt8();
+            auto& customization = customizations[chrModel];
+            customization.emplace_back();
+            UF::ChrCustomizationChoice& choice = customization.back();
             choice.ChrCustomizationOptionID = fields[0].GetUInt32();
             choice.ChrCustomizationChoiceID = fields[1].GetUInt32();
 
         } while (customizationsResult->NextRow());
     }
+    for (const auto& customization : customizations)
+    {
+        SetCustomizations(Trinity::Containers::MakeIteratorPair(customization.second.begin(), customization.second.end()), customization.first, false);
+    }
 
-    SetCustomizations(Trinity::Containers::MakeIteratorPair(customizations.begin(), customizations.end()), false);
     SetInventorySlotCount(fields.inventorySlots);
     SetBankBagSlotCount(fields.bankSlots);
     SetNativeGender(fields.gender);
@@ -17884,7 +17889,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     m_atLoginFlags = fields.at_login;
 
-    if (!GetSession()->ValidateAppearance(Races(GetRace()), Classes(GetClass()), fields.gender, MakeChrCustomizationChoiceRange(customizations)))
+    if (!GetSession()->ValidateAppearance(Races(GetRace()), Classes(GetClass()), fields.gender, MakeChrCustomizationChoiceRange(customizations[0])))
     {
         TC_LOG_ERROR("entities.player.loading", "Player::LoadFromDB: Player ({}) has wrong Appearance values (Hair/Skin/Color), can't load.", guid.ToString());
         return false;
@@ -20382,6 +20387,7 @@ void SavePlayerCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::Lo
         stmt->setUInt64(0, guid);
         stmt->setUInt32(1, customization.ChrCustomizationOptionID);
         stmt->setUInt32(2, customization.ChrCustomizationChoiceID);
+        stmt->setUInt8(3, customization.ChrModel);
         trans->Append(stmt);
     }
 }

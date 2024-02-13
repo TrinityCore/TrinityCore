@@ -891,6 +891,7 @@ public:
                 UF::ChrCustomizationChoice choice;
                 choice.ChrCustomizationOptionID = option->ID;
                 choice.ChrCustomizationChoiceID = choiceEntry->ID;
+                choice.ChrModel = 0;
                 customizations.push_back(choice);
                 break;
             }

@@ -2762,17 +2762,21 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         }
 
         template<typename Iter>
-        void SetCustomizations(Trinity::IteratorPair<Iter> customizations, bool markChanged = true)
+        void SetCustomizations(Trinity::IteratorPair<Iter> customizations, uint8 chrModel = 0, bool markChanged = true)
         {
             if (markChanged)
                 m_customizationsChanged = true;
 
-            ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
+            auto CheckIfChrModelMatches = [chrModel](UF::ChrCustomizationChoice const& choice) { return choice.ChrModel == chrModel; };
+            for (int32 index = m_playerData->Customizations.FindIndexIf(CheckIfChrModelMatches); index >= 0; index = m_playerData->Customizations.FindIndexIf(CheckIfChrModelMatches))
+                RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations), index);
+
             for (auto&& customization : customizations)
             {
                 UF::ChrCustomizationChoice& newChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
                 newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
                 newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
+                newChoice.ChrModel = chrModel;
             }
         }
         void SetPvpTitle(uint8 pvpTitle) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PvpTitle), pvpTitle); }
