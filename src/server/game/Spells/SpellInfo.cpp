@@ -2124,6 +2124,11 @@ void SpellInfo::_LoadSpellSpecific()
             }
             case SPELLFAMILY_MAGE:
             {
+                if (
+                    ((SpellFamilyFlags[0] & 0x1000000) && GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_CONFUSE))
+                    || (Id == 118 || Id == 28272 || Id == 28270 || Id == 12826 || Id == 28271 || Id == 12825 || Id == 12824)
+                    )
+                    return SPELL_SPECIFIC_MAGE_POLYMORPH;
                 // family flags 18(Molten), 25(Frost/Ice), 28(Mage)
                 if (SpellFamilyFlags[0] & 0x12040000)
                     return SPELL_SPECIFIC_MAGE_ARMOR;
@@ -2131,12 +2136,6 @@ void SpellInfo::_LoadSpellSpecific()
                 // Arcane brillance and Arcane intelect (normal check fails because of flags difference)
                 if (SpellFamilyFlags[0] & 0x400)
                     return SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE;
-
-                if (
-                    ((SpellFamilyFlags[0] & 0x1000000) && GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_CONFUSE))
-                    || (Id == 118 || Id == 28272 || Id == 28270 || Id == 12826 || Id == 28271 || Id == 12825 || Id == 12824)
-                    )
-                    return SPELL_SPECIFIC_MAGE_POLYMORPH;
 
                 break;
             }
