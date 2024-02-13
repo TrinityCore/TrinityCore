@@ -1887,6 +1887,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         bool ResetTalents(bool noCost = false);
         uint32 GetNextResetTalentsCost() const;
+        void IncreaseResetTalentsCostAndCounters(uint32 lastResetTalentsCost);
         uint32 GetTalentResetCost() const { return _resetTalentsCost; }
         void SetTalentResetCost(uint32 cost) { _resetTalentsCost = cost; }
         time_t GetTalentResetTime() const { return _resetTalentsTime; }
