@@ -2132,7 +2132,10 @@ void SpellInfo::_LoadSpellSpecific()
                 if (SpellFamilyFlags[0] & 0x400)
                     return SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE;
 
-                if ((SpellFamilyFlags[0] & 0x1000000) && GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_CONFUSE))
+                if (
+                    ((SpellFamilyFlags[0] & 0x1000000) && GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_CONFUSE))
+                    || (Id == 118 || Id == 28272 || Id == 28270 || Id == 12826 || Id == 28271 || Id == 12825 || Id == 12824)
+                    )
                     return SPELL_SPECIFIC_MAGE_POLYMORPH;
 
                 break;
