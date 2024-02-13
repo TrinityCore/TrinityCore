@@ -116,6 +116,7 @@ class TC_GAME_API Corpse final : public WorldObject, public GridObject<Corpse>
             for (auto&& customization : customizations)
             {
                 UF::ChrCustomizationChoice& newChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Customizations));
+                newChoice.ChrModel = 0;
                 newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
                 newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
             }
