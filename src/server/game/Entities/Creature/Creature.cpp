@@ -2452,6 +2452,9 @@ void Creature::LoadTemplateImmunities(int32 creatureImmunitiesId)
 
         for (AuraType aura : immunities->Aura)
             ApplySpellImmune(placeholderSpellId, IMMUNITY_STATE, aura, apply);
+
+        if (immunities->Other != SpellOtherImmunity::None)
+            ApplySpellImmune(placeholderSpellId, IMMUNITY_OTHER, immunities->Other.AsUnderlyingType(), apply);
     };
 
     // unapply template immunities (in case we're updating entry)
