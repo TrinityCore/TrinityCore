@@ -2015,6 +2015,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool ResetTalents(bool noCost = false);
         void ResetPvpTalents();
         uint32 GetNextResetTalentsCost() const;
+        void IncreaseResetTalentsCostAndCounters(uint32 lastResetTalentsCost);
         void InitTalentForLevel();
         void SendTalentsInfoData();
         TalentLearnResult LearnTalent(uint32 talentId, int32* spellOnCooldown);

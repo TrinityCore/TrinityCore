@@ -220,10 +220,9 @@ public:
                 Unit* owner = creature->GetOwner();
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER && creature->ToPet()->IsPermanentPetFor(owner->ToPlayer()))
                 {
-                    creature->ToPet()->resetTalents();
+                    creature->ToPet()->resetTalents(true);
                     owner->ToPlayer()->SendTalentsInfoData(true);
 
-                    ChatHandler(owner->ToPlayer()->GetSession()).SendSysMessage(LANG_RESET_PET_TALENTS);
                     if (!handler->GetSession() || handler->GetSession()->GetPlayer() != owner->ToPlayer())
                         handler->PSendSysMessage(LANG_RESET_PET_TALENTS_ONLINE, handler->GetNameLink(owner->ToPlayer()).c_str());
                 }
@@ -241,13 +240,12 @@ public:
             target->ResetTalents(true);
             target->ResetTalentSpecialization();
             target->SendTalentsInfoData();
-            ChatHandler(target->GetSession()).SendSysMessage(LANG_RESET_TALENTS);
             if (!handler->GetSession() || handler->GetSession()->GetPlayer() != target)
                 handler->PSendSysMessage(LANG_RESET_TALENTS_ONLINE, handler->GetNameLink(target).c_str());
 
             /* TODO: 6.x remove/update pet talents
             Pet* pet = target->GetPet();
-            Pet::resetTalentsForAllPetsOf(target, pet);
+            Pet::resetTalentsForAllPetsOf(target, pet, true);
             if (pet)
                 target->SendTalentsInfoData(true);
             */
