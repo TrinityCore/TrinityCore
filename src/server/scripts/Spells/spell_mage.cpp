@@ -37,6 +37,7 @@ enum MageSpells
     SPELL_MAGE_COLD_SNAP                         = 12472,
     SPELL_MAGE_FOCUS_MAGIC_PROC                  = 54648,
     SPELL_MAGE_FROST_WARDING_R1                  = 11189,
+    SPELL_MAGE_FIRE_WARDING_R1                   = 11094,
     SPELL_MAGE_FROST_WARDING_TRIGGERED           = 57776,
     SPELL_MAGE_INCANTERS_ABSORBTION_R1           = 44394,
     SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED    = 44413,
@@ -520,6 +521,30 @@ class spell_mage_fire_frost_ward : public spell_mage_incanters_absorbtion_base_A
         }
     }
 
+    void CalculateReflectChance(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = false;
+        if (Unit* caster = GetCaster())
+        {
+            if (AuraEffect* talentAurEff = caster->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_1))
+            {
+                //frost ward
+                if (GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST)
+                {
+                    amount += talentAurEff->CalculateAmount(caster);
+                }
+            }
+            if (AuraEffect* talentAurEff = caster->GetAuraEffectOfRankedSpell(SPELL_MAGE_FIRE_WARDING_R1, EFFECT_0))
+            {
+                //fire ward
+                if (GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FIRE)
+                {
+                    amount += talentAurEff->CalculateAmount(caster);
+                }
+            }
+        }
+    }
+
     void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
     {
         Unit* target = GetTarget();
@@ -543,8 +568,9 @@ class spell_mage_fire_frost_ward : public spell_mage_incanters_absorbtion_base_A
     void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_fire_frost_ward::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_fire_frost_ward::Absorb, EFFECT_0);
-        AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_fire_frost_ward::Trigger, EFFECT_0);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_fire_frost_ward::CalculateReflectChance, EFFECT_1, SPELL_AURA_REFLECT_SPELLS_SCHOOL);
+        //OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_fire_frost_ward::Absorb, EFFECT_0);
+        //AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_fire_frost_ward::Trigger, EFFECT_0);
     }
 };
 
