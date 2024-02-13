@@ -469,6 +469,8 @@ class spell_rog_preparation : public SpellScript
             if (spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE)
                 return false;
 
+            return true;
+            /*
             return (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP ||  // Cold Blood, Shadowstep
                 spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT) ||       // Vanish, Evasion, Sprint
                 (caster->HasAura(SPELL_ROGUE_GLYPH_OF_PREPARATION) &&
@@ -476,6 +478,7 @@ class spell_rog_preparation : public SpellScript
                 spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_KICK ||                   // Kick
                 (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY &&          // Blade Flurry
                 spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY)));
+            */
         }, true);
     }
 
