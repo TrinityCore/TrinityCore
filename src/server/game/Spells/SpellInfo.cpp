@@ -3449,7 +3449,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             if (spellInfo->SpellFamilyFlags[0] == 0x00002000)
                 return true;
             // Permafrost (due to zero basepoint)
-            if (spellInfo->SpellFamilyFlags[2] == 0x00000010)
+            if (spellInfo->SpellFamilyFlags[2] == 0x00000010 || spellInfo->Id == 12571 || spellInfo->Id == 12569 || spellInfo->Id == 11175)
                 return false;
             // Arcane Missiles
             if (spellInfo->SpellFamilyFlags[0] == 0x00000800)
