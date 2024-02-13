@@ -42,6 +42,7 @@
 #include "WorldStatePackets.h"
 #include "CharacterCache.h"
 #include "WorldSession.h"
+#include "Item.h"
 #include <cstdarg>
 
 void BattlegroundScore::AppendToPacket(WorldPacket& data)
@@ -783,14 +784,6 @@ void Battleground::EndBattleground(uint32 winner)
             //needed cause else in av some creatures will kill the players at the end
             player->CombatStop();
 
-        /*
-        *     CONFIG_CENTURION_BG_REWARD_HONOR_WINNER,
-    CONFIG_CENTURION_BG_REWARD_HONOR_LOSER,
-    CONFIG_CENTURION_BG_REWARD_MONEY_WINNER,
-    CONFIG_CENTURION_BG_REWARD_MONEY_LOSER,
-    CONFIG_CENTURION_BG_REWARD_HONOR_FLAG_CAP,
-        */
-
         uint32 winner_honor = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_HONOR_WINNER);
         uint32 loser_honor = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_HONOR_LOSER);
         uint32 winner_money = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_MONEY_WINNER);
@@ -849,6 +842,20 @@ void Battleground::EndBattleground(uint32 winner)
             player->ModifyMoney(loser_money);
         }
 
+        for (int i = 20559; i <= 20575; i++)
+        {
+            Item* depletedMark = player->GetItemByEntry(i);
+            if (depletedMark)
+            {
+                if (player->CanUseItem(depletedMark->GetTemplate()) == EQUIP_ERR_OK)
+                {
+                    player->AddItem(20558, 1); //restored mark of honor
+                    player->RemoveItem(depletedMark->GetBagSlot(), depletedMark->GetSlot(), true); //remove old one
+                }
+            }
+        }
+
+        //player->GetItemByEntry(
         player->ResetAllPowers();
         player->CombatStopWithPets(true);
 
