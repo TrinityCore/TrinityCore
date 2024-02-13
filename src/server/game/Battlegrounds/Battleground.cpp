@@ -849,8 +849,8 @@ void Battleground::EndBattleground(uint32 winner)
             {
                 if (player->CanUseItem(depletedMark->GetTemplate()) == EQUIP_ERR_OK)
                 {
-                    player->AddItem(20558, 1); //restored mark of honor
                     player->RemoveItem(depletedMark->GetBagSlot(), depletedMark->GetSlot(), true); //remove old one
+                    player->AddItem(20558, 1); //restored mark of honor
                 }
             }
         }
