@@ -15,25 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectGuid.h"
 #include "TalentPackets.h"
 
-WorldPacket const* WorldPackets::Talents::Wipe::Write()
+namespace WorldPackets::Talents
 {
-    _worldPacket << TrainerGuid;
+WorldPacket const* RespecWipeConfirm::Write()
+{
+    _worldPacket << RespecMaster;
     _worldPacket << uint32(Cost);
 
     return &_worldPacket;
 }
 
-void WorldPackets::Talents::WipeConfirm::Read()
+void ConfirmRespecWipe::Read()
 {
-    _worldPacket >> TrainerGuid;
+    _worldPacket >> RespecMaster;
 }
 
-WorldPacket const* WorldPackets::Talents::InvoluntarilyReset::Write()
+WorldPacket const* InvoluntarilyReset::Write()
 {
     _worldPacket << uint8(IsPetTalents);
 
     return &_worldPacket;
+}
 }

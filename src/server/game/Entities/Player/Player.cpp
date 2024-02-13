@@ -9425,7 +9425,7 @@ void Player::SetBindPoint(ObjectGuid guid) const
 
 void Player::SendTalentWipeConfirm(ObjectGuid trainerGuid) const
 {
-    SendDirectMessage(WorldPackets::Talents::Wipe(trainerGuid, ResetTalentsCost()).Write());
+    SendDirectMessage(WorldPackets::Talents::RespecWipeConfirm(trainerGuid, ResetTalentsCost()).Write());
 }
 
 void Player::ResetPetTalents()

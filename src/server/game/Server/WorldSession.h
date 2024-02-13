@@ -241,7 +241,7 @@ namespace WorldPackets
 
     namespace Talents
     {
-        class WipeConfirm;
+        class ConfirmRespecWipe;
     }
 
     namespace Totem
@@ -916,7 +916,7 @@ class TC_GAME_API WorldSession
 
         void HandleLearnTalentOpcode(WorldPacket& recvPacket);
         void HandleLearnPreviewTalents(WorldPacket& recvPacket);
-        void HandleTalentWipeConfirmOpcode(WorldPackets::Talents::WipeConfirm& packet);
+        void HandleTalentWipeConfirmOpcode(WorldPackets::Talents::ConfirmRespecWipe& confirmRespecWipe);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
 
         void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);

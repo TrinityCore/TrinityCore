@@ -18,46 +18,42 @@
 #ifndef TalentPackets_h__
 #define TalentPackets_h__
 
+#include "ObjectGuid.h"
 #include "Packet.h"
 
-namespace WorldPackets
+namespace WorldPackets::Talents
 {
-    namespace Talents
-    {
-        class Wipe : public ServerPacket
-        {
-            public:
-                Wipe() : ServerPacket(MSG_TALENT_WIPE_CONFIRM, 8 + 4) { }
-                Wipe(ObjectGuid trainerGuid, uint32 cost) :
-                    ServerPacket(MSG_TALENT_WIPE_CONFIRM, 8 + 4), TrainerGuid(trainerGuid), Cost(cost) { }
+class RespecWipeConfirm final : public ServerPacket
+{
+public:
+    explicit RespecWipeConfirm(ObjectGuid respecMaster, uint32 cost)
+        : ServerPacket(MSG_TALENT_WIPE_CONFIRM, 8 + 4), RespecMaster(respecMaster), Cost(cost) { }
 
-                WorldPacket const* Write() override;
+    WorldPacket const* Write() override;
 
-                ObjectGuid TrainerGuid;
-                uint32 Cost = 0;
-        };
+    ObjectGuid RespecMaster;
+    uint32 Cost = 0;
+};
 
-        class WipeConfirm : public ClientPacket
-        {
-            public:
-                WipeConfirm(WorldPacket&& packet) : ClientPacket(MSG_TALENT_WIPE_CONFIRM, std::move(packet)) { }
+class ConfirmRespecWipe final : public ClientPacket
+{
+public:
+    explicit ConfirmRespecWipe(WorldPacket&& packet) : ClientPacket(MSG_TALENT_WIPE_CONFIRM, std::move(packet)) { }
 
-                void Read() override;
+    void Read() override;
 
-                ObjectGuid TrainerGuid;
-        };
+    ObjectGuid RespecMaster;
+};
 
-        class InvoluntarilyReset : public ServerPacket
-        {
-            public:
-                InvoluntarilyReset() : ServerPacket(SMSG_TALENTS_INVOLUNTARILY_RESET, 1) { }
-                InvoluntarilyReset(uint8 isPetTalents) : ServerPacket(SMSG_TALENTS_INVOLUNTARILY_RESET, 1), IsPetTalents(isPetTalents) { }
+class InvoluntarilyReset final : public ServerPacket
+{
+public:
+    explicit InvoluntarilyReset(bool isPetTalents) : ServerPacket(SMSG_TALENTS_INVOLUNTARILY_RESET, 1), IsPetTalents(isPetTalents ? 1 : 0) { }
 
-                WorldPacket const* Write() override;
+    WorldPacket const* Write() override;
 
-                uint8 IsPetTalents = 0;
-        };
-    }
+    uint8 IsPetTalents = 0;
+};
 }
 
 #endif // TalentPackets_h__
