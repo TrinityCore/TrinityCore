@@ -233,6 +233,7 @@ struct SpellEffectInfo::ImmunityInfo
     uint64 MechanicImmuneMask = 0;
     uint32 DispelImmuneMask = 0;
     uint32 DamageSchoolMask = 0;
+    uint8 OtherImmuneMask = 0;
 
     Trinity::Containers::FlatSet<AuraType> AuraTypeImmune;
     Trinity::Containers::FlatSet<SpellEffectName> SpellEffectImmune;
@@ -2250,6 +2251,10 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
         if (HasAttribute(SPELL_ATTR8_ONLY_TARGET_OWN_SUMMONS))
             if (!unitTarget->IsSummon() || unitTarget->ToTempSummon()->GetSummonerGUID() != caster->GetGUID())
                 return SPELL_FAILED_BAD_TARGETS;
+
+        if (HasAttribute(SPELL_ATTR3_NOT_ON_AOE_IMMUNE))
+            if (unitTarget->GetSpellOtherImmunityMask().HasFlag(SpellOtherImmunity::AoETarget))
+                return SPELL_FAILED_BAD_TARGETS;
     }
     // corpse specific target checks
     else if (Corpse const* corpseTarget = target->ToCorpse())
@@ -2275,11 +2280,6 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
 
         if (HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER_CONTROLLED_NPC) && unitTarget->IsControlledByPlayer())
             return SPELL_FAILED_TARGET_IS_PLAYER_CONTROLLED;
-
-        if (HasAttribute(SPELL_ATTR3_NOT_ON_AOE_IMMUNE))
-            if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(unitTarget->ToCreature()->GetCreatureTemplate()->CreatureImmunitiesId))
-                if (immunities->ImmuneAoE)
-                    return SPELL_FAILED_BAD_TARGETS;
     }
     else if (HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER))
         return SPELL_FAILED_TARGET_IS_PLAYER;
@@ -3316,6 +3316,7 @@ void SpellInfo::_LoadImmunityInfo()
         uint64 mechanicImmunityMask = 0;
         uint32 dispelImmunityMask = 0;
         uint32 damageImmunityMask = 0;
+        uint8 otherImmunityMask = 0;
 
         int32 miscVal = effect.MiscValue;
 
@@ -3330,6 +3331,7 @@ void SpellInfo::_LoadImmunityInfo()
                     schoolImmunityMask |= creatureImmunities->School.to_ulong();
                     dispelImmunityMask |= creatureImmunities->DispelType.to_ulong();
                     mechanicImmunityMask |= creatureImmunities->Mechanic.to_ullong();
+                    otherImmunityMask |= creatureImmunities->Other.AsUnderlyingType();
                     for (SpellEffectName effectType : creatureImmunities->Effect)
                         immuneInfo.SpellEffectImmune.insert(effectType);
                     for (AuraType aura : creatureImmunities->Aura)
@@ -3408,6 +3410,7 @@ void SpellInfo::_LoadImmunityInfo()
         immuneInfo.MechanicImmuneMask = mechanicImmunityMask;
         immuneInfo.DispelImmuneMask = dispelImmunityMask;
         immuneInfo.DamageSchoolMask = damageImmunityMask;
+        immuneInfo.OtherImmuneMask = otherImmunityMask;
 
         immuneInfo.AuraTypeImmune.shrink_to_fit();
         immuneInfo.SpellEffectImmune.shrink_to_fit();
@@ -3417,6 +3420,7 @@ void SpellInfo::_LoadImmunityInfo()
             || immuneInfo.MechanicImmuneMask
             || immuneInfo.DispelImmuneMask
             || immuneInfo.DamageSchoolMask
+            || immuneInfo.OtherImmuneMask
             || !immuneInfo.AuraTypeImmune.empty()
             || !immuneInfo.SpellEffectImmune.empty())
         {
@@ -3597,6 +3601,9 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
 
     for (SpellEffectName effectType : immuneInfo->SpellEffectImmune)
         target->ApplySpellImmune(Id, IMMUNITY_EFFECT, effectType, apply);
+
+    if (uint8 otherImmuneMask = immuneInfo->OtherImmuneMask)
+        target->ApplySpellImmune(Id, IMMUNITY_OTHER, otherImmuneMask, apply);
 }
 
 bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const

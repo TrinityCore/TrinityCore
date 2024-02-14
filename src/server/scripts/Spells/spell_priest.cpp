@@ -115,6 +115,7 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER     = 411097,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P             = 405556,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT      = 409479,
+    SPELL_PRIEST_INDEMNITY                          = 373049,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
@@ -504,8 +505,10 @@ class spell_pri_atonement_effect : public SpellScript
             SPELL_PRIEST_TRINITY_EFFECT,
             SPELL_PRIEST_POWER_WORD_RADIANCE,
             SPELL_PRIEST_POWER_WORD_SHIELD
-        })
-            && ValidateSpellEffect({ { SPELL_PRIEST_POWER_WORD_RADIANCE, EFFECT_3 } });
+        }) && ValidateSpellEffect({
+            { SPELL_PRIEST_POWER_WORD_RADIANCE, EFFECT_3 },
+            { SPELL_PRIEST_INDEMNITY, EFFECT_0 }
+        });
     }
 
     bool Load() override
@@ -534,9 +537,22 @@ class spell_pri_atonement_effect : public SpellScript
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.SetTriggeringSpell(GetSpell());
 
-        // Power Word: Radiance applies Atonement at 60 % (without modifiers) of its total duration.
-        if (GetSpellInfo()->Id == SPELL_PRIEST_POWER_WORD_RADIANCE)
-            args.AddSpellMod(SPELLVALUE_DURATION_PCT, GetSpellInfo()->GetEffect(EFFECT_3).CalcValue(caster));
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_PRIEST_POWER_WORD_SHIELD:
+                if (AuraEffect const* indemnity = caster->GetAuraEffect(SPELL_PRIEST_INDEMNITY, EFFECT_0))
+                    args.AddSpellMod(SPELLVALUE_DURATION,
+                        (Seconds(indemnity->GetAmount())
+                            + Milliseconds(Aura::CalcMaxDuration(sSpellMgr->AssertSpellInfo(_effectSpellId, GetCastDifficulty()),
+                                caster, &GetSpell()->GetPowerCost()))).count());
+                break;
+            case SPELL_PRIEST_POWER_WORD_RADIANCE:
+                // Power Word: Radiance applies Atonement at 60 % (without modifiers) of its total duration.
+                args.AddSpellMod(SPELLVALUE_DURATION_PCT, GetEffectInfo(EFFECT_3).CalcValue(caster));
+                break;
+            default:
+                break;
+        }
 
         caster->CastSpell(target, _effectSpellId, args);
     }

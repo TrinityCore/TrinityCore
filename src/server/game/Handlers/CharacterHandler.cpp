@@ -1469,6 +1469,15 @@ void WorldSession::SendFeatureSystemStatus()
     features.VoiceEnabled = false;
     features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
 
+    // Enable guilds only.
+    // This is required to restore old guild channel behavior for GMs.
+    // The new club streams do not support sending messages through the guild channel when you are not in a guild.
+    features.ClubsEnabled = true;
+    features.ClubsBattleNetClubTypeAllowed = false;
+    features.ClubsCharacterClubTypeAllowed = false;
+    features.ClubsPresenceUpdateEnabled = true;
+    features.HiddenUIClubsPresenceUpdateTimer = 60000;
+
     features.EuropaTicketSystemStatus.emplace();
     features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;
     features.EuropaTicketSystemStatus->ThrottleState.PerMilliseconds = 60000;

@@ -23,8 +23,6 @@
 
 namespace Battlenet
 {
-    class Session;
-
     namespace Services
     {
         class GameUtilitiesService : public WorldserverService<game_utilities::v1::GameUtilitiesService>
