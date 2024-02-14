@@ -1751,9 +1751,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
         if (PowerType != POWER_MANA)
         {
-            target->SetPower(POWER_ENERGY, 0);
-            target->SetPower(POWER_RAGE, 0);
-            uint32 oldPower = target->GetPower(PowerType);
             // reset power to default values only at power change
             if (target->GetPowerType() != PowerType)
                 target->SetPowerType(PowerType);
