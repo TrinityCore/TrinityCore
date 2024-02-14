@@ -470,6 +470,24 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
+    ShapeshiftForm ssf = player->GetShapeshiftForm();
+    switch (ssf)
+    {
+        case FORM_CAT:
+        case FORM_TREE:
+        case FORM_TRAVEL:
+        case FORM_BEAR:
+        case FORM_DIREBEAR:
+        case FORM_MOONKIN:
+        case FORM_AQUA:
+        case FORM_GHOSTWOLF:
+        {
+            return;
+        }
+        default:
+            break;
+    }
+
     //alliance flag picked up from base
     if (player->GetTeam() == HORDE && GetFlagState(ALLIANCE) == BG_WS_FLAG_STATE_ON_BASE
         && BgObjects[BG_WS_OBJECT_A_FLAG] == target_obj->GetGUID())
