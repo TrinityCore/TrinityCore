@@ -64,7 +64,7 @@ enum EncounterFrameType
     ENCOUNTER_FRAME_ENABLE_OBJECTIVE    = 4,
     ENCOUNTER_FRAME_UPDATE_OBJECTIVE    = 5,
     ENCOUNTER_FRAME_DISABLE_OBJECTIVE   = 6,
-    ENCOUNTER_FRAME_UNK7                = 7 // Seems to have something to do with sorting the encounter units
+    ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED = 7
 };
 
 // EnumUtils: DESCRIBE THIS
@@ -258,7 +258,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
-        void SendEncounterUnit(uint32 type, Unit* unit = nullptr, uint8 param1 = 0, uint8 param2 = 0);
+        void SendEncounterUnit(EncounterFrameType type, Unit const* unit = nullptr, uint8 param1 = 0, uint8 param2 = 0);
 
         virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
