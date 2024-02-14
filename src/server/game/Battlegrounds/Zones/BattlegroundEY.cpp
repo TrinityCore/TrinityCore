@@ -354,34 +354,6 @@ void BattlegroundEY::OnFlagStateChange(GameObject* /*flagInBase*/, FlagState /*o
     UpdateWorldState(NETHERSTORM_FLAG, AsUnderlyingType(newValue));
 }
 
-void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
-{
-    if (!player->IsAlive())                                  //hack code, must be removed later
-        return;
-
-    switch (trigger)
-    {
-        case 4530: // Horde Start
-        case 4531: // Alliance Start
-            if (GetStatus() == STATUS_WAIT_JOIN && !entered)
-                TeleportPlayerToExploitLocation(player);
-            break;
-        case 4512:
-        case 4515:
-        case 4517:
-        case 4519:
-        case 4568:
-        case 4569:
-        case 4570:
-        case 4571:
-        case 5866:
-            break;
-        default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
-            break;
-    }
-}
-
 bool BattlegroundEY::SetupBattleground()
 {
     UpdateWorldState(EY_MAX_RESOURCES, BG_EY_MAX_TEAM_SCORE);
