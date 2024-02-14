@@ -417,7 +417,6 @@ struct ChrCustomizationChoice : public IsUpdateFieldStructureTag
 {
     uint32 ChrCustomizationOptionID;
     uint32 ChrCustomizationChoiceID;
-    uint8 ChrModel;
 
     void WriteCreate(ByteBuffer& data, Object const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Object const* owner, Player const* receiver) const;

@@ -1215,7 +1215,7 @@ class TC_GAME_API WorldSession
         bool MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req, Races race, Classes playerClass,
             bool checkRequiredDependentChoices, Trinity::IteratorPair<UF::ChrCustomizationChoice const*> selectedChoices) const;
         bool ValidateAppearance(Races race, Classes playerClass, Gender gender,
-            Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations, uint8 chrModel = 0); // customizations must be sorted
+            Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations); // customizations must be sorted
 
         void SendCharCreate(ResponseCodes result, ObjectGuid const& guid = ObjectGuid::Empty);
         void SendCharDelete(ResponseCodes result);

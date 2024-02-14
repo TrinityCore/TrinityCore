@@ -406,7 +406,6 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
             UF::ChrCustomizationChoice& choice = customizations[fields[0].GetUInt64()].emplace_back();
             choice.ChrCustomizationOptionID = fields[1].GetUInt32();
             choice.ChrCustomizationChoiceID = fields[2].GetUInt32();
-            choice.ChrModel = sDB2Manager.GetZeroIfOptionUsedForPlayerModel(choice.ChrCustomizationOptionID);
 
         } while (customizationsResult->NextRow());
     }
@@ -562,16 +561,26 @@ bool WorldSession::MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req,
     return true;
 }
 
-bool WorldSession::ValidateAppearance(Races race, Classes playerClass, Gender gender, Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations, uint8 chrModel)
+bool WorldSession::ValidateAppearance(Races race, Classes playerClass, Gender gender, Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations)
 {
-    // don't validate options exists yet because if playerChoice has custom model then this doesn't get used.
+    // don't validate options exists yet because if option is used by custom model then this doesn't get used.
     std::vector<ChrCustomizationOptionEntry const*> const* options = sDB2Manager.GetCustomiztionOptions(race, gender);
 
     for (UF::ChrCustomizationChoice playerChoice : customizations)
     {
-        const uint8 resolvedChrModel = chrModel ? chrModel : playerChoice.ChrModel;
-        // base model
-        if (resolvedChrModel == 0)
+        // other model e.g. shapeshift checks
+        if (const uint8 chrModel = sDB2Manager.GetZeroIfOptionUsedForPlayerModel(playerChoice.ChrCustomizationOptionID))
+        {
+            ConditionalChrModelEntry const* conditionalChrModel = DB2Manager::GetConditionalChrModel(chrModel);
+            if (!conditionalChrModel)
+                return false;
+
+            if (ChrCustomizationReqEntry const* req = sChrCustomizationReqStore.LookupEntry(conditionalChrModel->ChrCustomizationReqID))
+                if (!MeetsChrCustomizationReq(req, race, playerClass, false, customizations))
+                    return false;
+        }
+        // player model checks extracted from race and gender
+        else
         {
             if (!options)
                 return false;
@@ -613,17 +622,6 @@ bool WorldSession::ValidateAppearance(Races race, Classes playerClass, Gender ge
 
             if (ChrCustomizationReqEntry const* req = sChrCustomizationReqStore.LookupEntry((*customizationChoiceDataItr)->ChrCustomizationReqID))
                 if (!MeetsChrCustomizationReq(req, race, playerClass, true, customizations))
-                    return false;
-        }
-        // other model e.g. shapeshift checks
-        else
-        {
-            ConditionalChrModelEntry const* conditionalChrModel = DB2Manager::GetConditionalChrModel(resolvedChrModel);
-            if (!conditionalChrModel)
-                return false;
-
-            if (ChrCustomizationReqEntry const* req = sChrCustomizationReqStore.LookupEntry(conditionalChrModel->ChrCustomizationReqID))
-                if (!MeetsChrCustomizationReq(req, race, playerClass, false, customizations))
                     return false;
         }
     }
@@ -1765,10 +1763,10 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
 {
     Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations = MakeChrCustomizationChoiceRange(packet.Customizations);
 
-    if (!ValidateAppearance(Races(_player->GetRace()), Classes(_player->GetClass()), Gender(packet.NewSex), customizations, packet.CustomizedChrModelID))
+    if (!ValidateAppearance(Races(_player->GetRace()), Classes(_player->GetClass()), Gender(packet.NewSex), customizations))
         return;
 
-    // CustomizedChrModelID 0 already got the validation. Everything else must pass.
+    // CustomizedChrModelID 0 already went through the validation. Subsequent packets expected immediately after and should pass.
     if (packet.CustomizedChrModelID)
     {
         _player->SetCustomizations(Trinity::Containers::MakeIteratorPair(packet.Customizations.begin(), packet.Customizations.end()), packet.CustomizedChrModelID);

@@ -2767,16 +2767,15 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
             if (markChanged)
                 m_customizationsChanged = true;
 
-            auto CheckIfChrModelMatches = [chrModel](UF::ChrCustomizationChoice const& choice) { return choice.ChrModel == chrModel; };
-            for (int32 index = m_playerData->Customizations.FindIndexIf(CheckIfChrModelMatches); index >= 0; index = m_playerData->Customizations.FindIndexIf(CheckIfChrModelMatches))
-                RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations), index);
+            // Do not clear customisations for subsequent runs. SetCustomizations is called once per unique chrModel, starting with 0 (player model)
+            if (chrModel == 0)
+                ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
 
             for (auto&& customization : customizations)
             {
                 UF::ChrCustomizationChoice& newChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
                 newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
                 newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
-                newChoice.ChrModel = chrModel;
             }
         }
         void SetPvpTitle(uint8 pvpTitle) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PvpTitle), pvpTitle); }
