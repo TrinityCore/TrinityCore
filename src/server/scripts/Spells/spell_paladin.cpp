@@ -931,12 +931,7 @@ class spell_pal_immunities : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-        {
-            SPELL_PALADIN_FORBEARANCE,
-            SPELL_PALADIN_AVENGING_WRATH_MARKER,
-            SPELL_PALADIN_IMMUNE_SHIELD_MARKER
-        });
+        return true;
     }
 
     SpellCastResult CheckCast()
