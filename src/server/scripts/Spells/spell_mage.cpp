@@ -526,20 +526,24 @@ class spell_mage_fire_frost_ward : public spell_mage_incanters_absorbtion_base_A
         canBeRecalculated = false;
         if (Unit* caster = GetCaster())
         {
-            if (AuraEffect* talentAurEff = caster->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_1))
+            AuraApplication* frostWarding = caster->GetAuraApplicationOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1);
+            if (frostWarding)
             {
                 //frost ward
                 if (GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST)
                 {
-                    amount += talentAurEff->CalculateAmount(caster);
+                    int32 chance = frostWarding->GetBase()->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue();
+                    amount += chance;
                 }
             }
-            if (AuraEffect* talentAurEff = caster->GetAuraEffectOfRankedSpell(SPELL_MAGE_FIRE_WARDING_R1, EFFECT_0))
+            AuraApplication* impFireWard = caster->GetAuraApplicationOfRankedSpell(SPELL_MAGE_FIRE_WARDING_R1);
+            if (impFireWard)
             {
                 //fire ward
                 if (GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FIRE)
                 {
-                    amount += talentAurEff->CalculateAmount(caster);
+                    int32 chance = impFireWard->GetBase()->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue();
+                    amount += chance;
                 }
             }
         }
