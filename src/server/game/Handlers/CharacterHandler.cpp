@@ -578,6 +578,11 @@ bool WorldSession::ValidateAppearance(Races race, Classes playerClass, Gender ge
             if (ChrCustomizationReqEntry const* req = sChrCustomizationReqStore.LookupEntry(conditionalChrModel->ChrCustomizationReqID))
                 if (!MeetsChrCustomizationReq(req, race, playerClass, false, customizations))
                     return false;
+
+            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(conditionalChrModel->PlayerConditionID))
+                // This check is not safe to run if invoked at character selection screen
+                if (_player && !ConditionMgr::IsPlayerMeetingCondition(_player, condition))
+                    return false;
         }
         // player model checks extracted from race and gender
         else
