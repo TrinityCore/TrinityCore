@@ -2135,6 +2135,7 @@ void GameObject::Use(Unit* user)
 
                 player->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                 player->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+                player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
                 // BG flag dropped
                 // WS:
                 // 179785 - Silverwing Flag
