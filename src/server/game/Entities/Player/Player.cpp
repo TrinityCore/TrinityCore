@@ -17865,11 +17865,12 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         do
         {
             Field* fields = customizationsResult->Fetch();
-            const uint8 chrModel = fields[2].GetUInt8();
+            const uint32 option = fields[0].GetUInt32();
+            const uint8 chrModel = sDB2Manager.GetZeroIfOptionUsedForPlayerModel(option);
             auto& customization = customizations[chrModel];
             customization.emplace_back();
             UF::ChrCustomizationChoice& choice = customization.back();
-            choice.ChrCustomizationOptionID = fields[0].GetUInt32();
+            choice.ChrCustomizationOptionID = option;
             choice.ChrCustomizationChoiceID = fields[1].GetUInt32();
 
         } while (customizationsResult->NextRow());
@@ -20387,7 +20388,6 @@ void SavePlayerCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::Lo
         stmt->setUInt64(0, guid);
         stmt->setUInt32(1, customization.ChrCustomizationOptionID);
         stmt->setUInt32(2, customization.ChrCustomizationChoiceID);
-        stmt->setUInt8(3, customization.ChrModel);
         trans->Append(stmt);
     }
 }

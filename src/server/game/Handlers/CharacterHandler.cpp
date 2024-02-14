@@ -406,7 +406,7 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
             UF::ChrCustomizationChoice& choice = customizations[fields[0].GetUInt64()].emplace_back();
             choice.ChrCustomizationOptionID = fields[1].GetUInt32();
             choice.ChrCustomizationChoiceID = fields[2].GetUInt32();
-            choice.ChrModel = fields[3].GetUInt8();
+            choice.ChrModel = sDB2Manager.GetZeroIfOptionUsedForPlayerModel(choice.ChrCustomizationOptionID);
 
         } while (customizationsResult->NextRow());
     }
