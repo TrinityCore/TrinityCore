@@ -2090,6 +2090,7 @@ void GameObject::Use(Unit* user)
 
                 player->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                 player->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+                player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
                 // BG flag click
                 // AB:
                 // 15001
