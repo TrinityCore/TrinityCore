@@ -1751,6 +1751,8 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
         if (PowerType != POWER_MANA)
         {
+            target->SetPower(POWER_ENERGY, 0);
+            target->SetPower(POWER_RAGE, 0);
             uint32 oldPower = target->GetPower(PowerType);
             // reset power to default values only at power change
             if (target->GetPowerType() != PowerType)
@@ -1772,7 +1774,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                         case FORM_CAT:
                         {
                             CastSpellExtraArgs args(this);
-                            args.AddSpellMod(SPELLVALUE_BASE_POINT0, std::min<int32>(oldPower, FurorChance));
+                            args.AddSpellMod(SPELLVALUE_BASE_POINT0, std::min<int32>(40, FurorChance));
                             target->SetPower(POWER_ENERGY, 0);
                             target->CastSpell(target, 17099, args);
                             break;
