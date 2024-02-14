@@ -454,6 +454,7 @@ namespace
     std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
     std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<ChrCustomizationChoiceEntry const*>> _chrCustomizationChoicesByOption;
     std::unordered_map<std::pair<uint8, uint8>, ChrModelEntry const*> _chrModelsByRaceAndGender;
+    std::set<uint8 /*chrModel*/> _chrPlayerModels;
     std::map<std::tuple<uint8 /*race*/, uint8/*gender*/, uint8/*shapeshift*/>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts;
     std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, std::vector<ChrCustomizationOptionEntry const*>> _chrCustomizationOptionsByRaceAndGender;
     std::unordered_map<uint32 /*chrCustomizationReqId*/, std::vector<std::pair<uint32 /*chrCustomizationOptionId*/, std::vector<uint32>>>> _chrCustomizationRequiredChoices;
@@ -1160,6 +1161,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (ChrRaceXChrModelEntry const* raceModel : sChrRaceXChrModelStore)
     {
+        _chrPlayerModels.insert(raceModel->ChrModelID);
         if (ChrModelEntry const* model = sChrModelStore.LookupEntry(raceModel->ChrModelID))
         {
             _chrModelsByRaceAndGender[{ uint8(raceModel->ChrRacesID), uint8(raceModel->Sex) }] = model;
@@ -2057,6 +2059,16 @@ std::vector<ChrCustomizationChoiceEntry const*> const* DB2Manager::GetCustomizti
 std::vector<ChrCustomizationOptionEntry const*> const* DB2Manager::GetCustomiztionOptions(uint8 race, uint8 gender) const
 {
     return Trinity::Containers::MapGetValuePtr(_chrCustomizationOptionsByRaceAndGender, { race,gender });
+}
+
+uint8 DB2Manager::GetZeroIfOptionUsedForPlayerModel(uint32 option) const
+{
+    if (ChrCustomizationOptionEntry const* customizationOption = sChrCustomizationOptionStore.LookupEntry(option))
+    {
+        // Return 0 if it's a player model to sync up with AlterAppearance packet behaviour
+        return _chrPlayerModels.find(customizationOption->ChrModelID) != _chrPlayerModels.end() ? 0 : customizationOption->ChrModelID;
+    }
+    return 0;
 }
 
 std::vector<std::pair<uint32, std::vector<uint32>>> const* DB2Manager::GetRequiredCustomizationChoices(uint32 chrCustomizationReqId) const
