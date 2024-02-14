@@ -2130,7 +2130,7 @@ void SpellInfo::_LoadSpellSpecific()
                     )
                     return SPELL_SPECIFIC_MAGE_POLYMORPH;
                 // family flags 18(Molten), 25(Frost/Ice), 28(Mage)
-                if (SpellFamilyFlags[0] & 0x12040000)
+                if (SpellIconID == 1711 || SpellIconID == 181)
                     return SPELL_SPECIFIC_MAGE_ARMOR;
 
                 // Arcane brillance and Arcane intelect (normal check fails because of flags difference)
