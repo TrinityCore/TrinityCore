@@ -1771,7 +1771,12 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                         case FORM_CAT:
                         {
                             CastSpellExtraArgs args(this);
-                            args.AddSpellMod(SPELLVALUE_BASE_POINT0, std::min<int32>(40, FurorChance));
+                            float energy = std::min<int32>(40, FurorChance);
+                            if (target->GetAura(17768))
+                            {
+                                energy += 20;
+                            }
+                            args.AddSpellMod(SPELLVALUE_BASE_POINT0, energy);
                             target->SetPower(POWER_ENERGY, 0);
                             target->CastSpell(target, 17099, args);
                             break;
