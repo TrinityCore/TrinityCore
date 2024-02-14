@@ -6452,8 +6452,8 @@ enum Torgok
 
     QUEST_TORGOKs_REAGENT_POUCH_DROPPED = 59610,
 
-    SPELL_SPIRIT_BOLT_TORGOK            = 319294,
-    SPELL_SOUL_GRASP_TORGOK             = 319298
+    SPELL_SPIRIT_BOLT                   = 319294,
+    SPELL_SOUL_GRASP                    = 319298
 };
 
 // 162817 - Torgok
@@ -6506,11 +6506,11 @@ struct npc_torgok_q55879 : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_CAST_SPIRIT_BOLT:
-                    DoCastVictim(SPELL_SPIRIT_BOLT_TORGOK);
+                    DoCastVictim(SPELL_SPIRIT_BOLT);
                     _events.ScheduleEvent(EVENT_CAST_SPIRIT_BOLT, 6s);
                     break;
                 case EVENT_CAST_SOUL_GRASP:
-                    DoCastAOE(SPELL_SOUL_GRASP_TORGOK);
+                    DoCastAOE(SPELL_SOUL_GRASP);
                     _events.ScheduleEvent(EVENT_CAST_SOUL_GRASP, 14s);
                     break;
                 default:
@@ -6859,14 +6859,6 @@ public:
                 questEnderCompanion->SummonPersonalClone(companionPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
 
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-                player->RemoveAura(SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
-                player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
-                player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
-                player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
-                player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
-                player->CastSpell(player, SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
-                player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
-                player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
                 break;
             }
             case QUEST_STATUS_NONE:

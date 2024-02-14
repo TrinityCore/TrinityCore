@@ -277,6 +277,21 @@ DELETE FROM `quest_template` WHERE `ID`=59610;
 INSERT INTO `quest_template` (`ID`,`QuestType`,`RewardXPMultiplier`,`RewardMoneyMultiplier`,`RewardArtifactXPMultiplier`,`Flags`,`LogTitle`) VALUES
 (59610,2,1,1,1,1024, '[Hidden Tracker] Torgok\'s Reagent Pouch Dropped');
 
+-- Add missing scene spells "This will be updated in the future with end quest"
+DELETE FROM `spell_area` WHERE `spell` IN (312605) AND `area` IN (10527);
+DELETE FROM `spell_area` WHERE `spell` IN (321690,321691,321692,321693) AND `area` IN (10424);
+INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_end`,`aura_spell`,`racemask`,`gender`,`flags`,`quest_start_status`,`quest_end_status`) VALUES
+(312605,10527,55879,0,0,0,2,3,64,0),
+(312605,10527,59942,0,0,0,2,3,64,0),
+(321690,10424,55879,0,0,0,2,3,64,0),
+(321690,10424,59942,0,0,0,2,3,64,0),
+(321691,10424,55879,0,0,0,2,3,64,0),
+(321691,10424,59942,0,0,0,2,3,64,0),
+(321692,10424,55879,0,0,0,2,3,64,0),
+(321692,10424,59942,0,0,0,2,3,64,0),
+(321693,10424,55879,0,0,0,2,3,64,0),
+(321693,10424,59942,0,0,0,2,3,64,0);
+
 -- Re-Deather
 
 UPDATE `creature` SET `StringId` = 'shuja_grimaxe_ogre_ruins_prisoner' WHERE `guid`=8000024;
@@ -553,7 +568,8 @@ INSERT INTO `phase_name` (`ID`,`Name`) VALUES
 (15337,'Cosmetic - NPE - See Won\'sa and Lana Jordan at pit pre quest');
 
 -- Phase Conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15338,15337) AND `ConditionValue1`=59948;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15338,15337) AND `ConditionValue1` IN (59948,59949);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (26,15338,10424, 0, 0, 47, 0, 59948, 74, 0, 1, 0, 0, '', 'See Won\'sa and Lana Jordan at Ogre Ruins pre quest if quest Westward Bound is not taken | complete | rewarded'),
-(26,15337,10424, 0, 0, 47, 0, 59948, 74, 0, 0, 0, 0, '', 'See Won\'sa and Lana Jordan at pit pre quest if quest Westward Bound is taken | complete | rewarded');
+(26,15337,10424, 0, 0, 47, 0, 59948, 74, 0, 0, 0, 0, '', 'See Won\'sa and Lana Jordan at pit pre quest if quest Westward Bound is taken | complete | rewarded'),
+(26,15337,10424, 0, 0, 47, 0, 59949, 66, 0, 1, 0, 0, '', 'See Won\'sa and Lana Jordan at pit pre quest if quest Who Lurks in the Pit is not complete | rewarded');
