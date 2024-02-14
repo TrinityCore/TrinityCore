@@ -218,6 +218,14 @@ namespace WorldPackets
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
+        class InstanceEncounterPhaseShiftChanged final : public ServerPacket
+        {
+        public:
+            InstanceEncounterPhaseShiftChanged() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
         class InstanceEncounterInCombatResurrection final : public ServerPacket
         {
         public:
