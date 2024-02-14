@@ -7428,6 +7428,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
 
 
+    //blessing of light fix
     Aura* blessingOfLight = owner->GetAuraOfRankedSpell(19977);
     if (blessingOfLight)
     {

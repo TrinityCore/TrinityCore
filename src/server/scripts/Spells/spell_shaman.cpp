@@ -1907,6 +1907,32 @@ class spell_sha_windfury_weapon : public AuraScript
     }
 };
 
+//healing wave
+class spell_sha_healing_wave : public SpellScript
+{
+    PrepareSpellScript(spell_sha_healing_wave);
+
+    void HandleHeal(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (Unit* unitTarget = GetHitUnit())
+        {
+            //get healing way aura
+            AuraApplication* aa = unitTarget->GetAuraApplication(29203);
+            if (aa)
+            {
+                float percentHeal = 1 + (aa->GetBase()->GetEffect(0)->GetAmount() * .01f);
+                SetHitHeal(GetHitHeal() * percentHeal);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_healing_wave::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     RegisterSpellScript(spell_sha_ancestral_awakening);
@@ -1960,4 +1986,5 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_t10_elemental_4p_bonus);
     RegisterSpellScript(spell_sha_t10_restoration_4p_bonus);
     RegisterSpellScript(spell_sha_windfury_weapon);
+    RegisterSpellScript(spell_sha_healing_wave);
 }
