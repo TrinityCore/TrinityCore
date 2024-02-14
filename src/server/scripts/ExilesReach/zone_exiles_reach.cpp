@@ -5967,6 +5967,7 @@ public:
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
                 break;
             case QUEST_STATUS_NONE:
+                player->RemoveAura(SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
                 player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
                 player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
                 player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
@@ -5991,7 +5992,7 @@ enum SceneOgreRuinsRideBoar
     SPELL_ENHANCED_BOAR_PING_VEHICLE   = 305559,
     SPELL_ENHANCED_BOAR_CHARGE_CONVO   = 305815,
     SPELL_ENHANCED_BOAR_KNOCKBACK      = 306356,
-    SPELL_ENHANCED_BOAR_KNOCKBACK_HINT = 306357,
+    SPELL_ENHANCED_BOAR_KNOCKBACK_HINT = 306357
 };
 
 // Script scene for Ride of the Scientifically Enhanced Boar quest
@@ -6343,7 +6344,9 @@ enum GiantBoar
     EVENT_GIANT_BOAR_UNROOT           = 6,
 
     SOUND_ENLARGE_BOAR                = 157516,
-    SOUND_SHRINK_BOAR                 = 157517
+    SOUND_SHRINK_BOAR                 = 157517,
+
+    VEHICLE_BOAR_SEAT_ONE             = 1
 };
 
 // Entry 156267 - Giant Boar
@@ -6376,7 +6379,7 @@ struct npc_giant_boar_vehicle_q55879 : public VehicleAI
         }
         else if (apply && passenger->IsCreature())
         {
-            passenger->ChangeSeat(1);
+            passenger->ChangeSeat(VEHICLE_BOAR_SEAT_ONE);
         }
     }
 
@@ -6597,6 +6600,7 @@ public:
                 break;
             case QUEST_STATUS_NONE:
             {
+                player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
                 player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
                 player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
                 player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
