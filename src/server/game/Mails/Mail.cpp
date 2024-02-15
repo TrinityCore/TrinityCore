@@ -192,25 +192,6 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
     if (pReceiver)
         prepareItems(pReceiver, trans);                            // generate mail template items
 
-    bool isOneDayDurationItem = false;
-    Loot mailLoot;
-    // can be empty
-    mailLoot.FillLoot(m_mailTemplateId, LootTemplates_Mail, pReceiver, true, true);
-    uint32 max_slot = mailLoot.GetMaxSlotInLootFor(pReceiver);
-    for (uint32 i = 0; m_items.size() < MAX_MAIL_ITEMS && i < max_slot; ++i)
-    {
-        if (LootItem* lootitem = mailLoot.LootItemInSlot(i, pReceiver))
-        {
-            for (int i = 20559; i <= 20575; i++)
-            {
-                if (lootitem->itemid == i)
-                {
-                    isOneDayDurationItem = true;
-                    break;
-                }
-            }
-        }
-    }
 
     uint32 mailId = sObjectMgr->GenerateMailID();
 
@@ -225,10 +206,7 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
     // mail from battlemaster (rewardmarks) should last only one day
     else if (sender.GetMailMessageType() == MAIL_CREATURE && sBattlegroundMgr->GetBattleMasterBG(sender.GetSenderId()) != BATTLEGROUND_TYPE_NONE)
         expire_delay = DAY;
-    else if (isOneDayDurationItem)
-    {
-        expire_delay = DAY;
-    }
+
      // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
     else
     {
