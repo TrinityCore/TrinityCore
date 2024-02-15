@@ -2098,7 +2098,8 @@ void GameObject::Use(Unit* user)
                     case FORM_DIREBEAR:
                     case FORM_TRAVEL:
                     case FORM_GHOSTWOLF:
-                        player->SetShapeshiftForm(FORM_NONE);
+                        player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+                        break;
                     default:
                         break;
                 }
@@ -2154,7 +2155,8 @@ void GameObject::Use(Unit* user)
                     case FORM_DIREBEAR:
                     case FORM_TRAVEL:
                     case FORM_GHOSTWOLF:
-                        player->SetShapeshiftForm(FORM_NONE);
+                        player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+                        break;
                     default:
                         break;
                 }
