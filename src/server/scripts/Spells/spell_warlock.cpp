@@ -569,7 +569,7 @@ class spell_warl_glyph_of_corruption_nightfall : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARLOCK_SHADOW_TRANCE });
+        return true;
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
