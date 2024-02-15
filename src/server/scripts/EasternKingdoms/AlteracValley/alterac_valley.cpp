@@ -177,10 +177,10 @@ private:
     TaskScheduler _scheduler;
 };
 
-class Areatrigger_at_av_exploit : public AreaTriggerScript
+class at_av_exploit : public AreaTriggerScript
 {
 public:
-    Areatrigger_at_av_exploit() : AreaTriggerScript("at_av_exploit") { }
+    at_av_exploit() : AreaTriggerScript("at_av_exploit") { }
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
     {
@@ -197,5 +197,5 @@ void AddSC_alterac_valley()
     RegisterCreatureAI(npc_av_marshal_or_warmaster);
     RegisterGameObjectAI(go_av_capturable_object);
     RegisterGameObjectAI(go_av_contested_object);
-    new Areatrigger_at_av_exploit();
+    new at_av_exploit();
 }

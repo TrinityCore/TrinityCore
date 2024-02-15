@@ -254,10 +254,10 @@ private:
     EventMap events;
 };
 
-class Areatrigger_at_ds_pipe_knockback : public AreaTriggerScript
+class at_ds_pipe_knockback : public AreaTriggerScript
 {
 public:
-    Areatrigger_at_ds_pipe_knockback() : AreaTriggerScript("at_ds_pipe_knockback") { }
+    at_ds_pipe_knockback() : AreaTriggerScript("at_ds_pipe_knockback") { }
 
     void Trigger(Player* player) const
     {
@@ -293,5 +293,5 @@ void AddSC_dalaran()
 {
     RegisterCreatureAI(npc_mageguard_dalaran);
     RegisterCreatureAI(npc_minigob_manabonk);
-    new Areatrigger_at_ds_pipe_knockback();
+    new at_ds_pipe_knockback();
 }
