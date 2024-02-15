@@ -326,10 +326,10 @@ class spell_ioc_seaforium_blast_credit : public SpellScript
     }
 };
 
-class Areatrigger_at_ioc_exploit : public AreaTriggerScript
+class at_ioc_exploit : public AreaTriggerScript
 {
 public:
-    Areatrigger_at_ioc_exploit() : AreaTriggerScript("at_ioc_exploit") { }
+    at_ioc_exploit() : AreaTriggerScript("at_ioc_exploit") { }
 
     bool OnExit(Player* player, AreaTriggerEntry const* /*trigger*/) override
     {
@@ -341,13 +341,13 @@ public:
     }
 };
 
-class Areatrigger_at_ioc_backdoor_job : public AreaTriggerScript
+class at_ioc_backdoor_job : public AreaTriggerScript
 {
 public:
     static constexpr uint32 AT_HORDE_KEEP = 5535;
     static constexpr uint32 AT_ALLIANCE_KEEP = 5536;
 
-    Areatrigger_at_ioc_backdoor_job() : AreaTriggerScript("at_ioc_backdoor_job") { }
+    at_ioc_backdoor_job() : AreaTriggerScript("at_ioc_backdoor_job") { }
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
     {
@@ -387,6 +387,6 @@ void AddSC_isle_of_conquest()
     RegisterSpellScript(spell_ioc_parachute_ic);
     RegisterSpellScript(spell_ioc_launch);
     RegisterSpellScript(spell_ioc_seaforium_blast_credit);
-    new Areatrigger_at_ioc_exploit();
-    new Areatrigger_at_ioc_backdoor_job();
+    new at_ioc_exploit();
+    new at_ioc_backdoor_job();
 }
