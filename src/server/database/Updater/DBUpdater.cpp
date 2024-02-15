@@ -181,7 +181,7 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
         return false;
     }
 
-    file << "CREATE DATABASE `" << pool.GetConnectionInfo()->database << "` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci\n\n";
+    file << "CREATE DATABASE `" << pool.GetConnectionInfo()->database << "` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci\n\n";
 
     file.close();
 
@@ -364,7 +364,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 
 #endif
 
-    // Set the default charset to utf8
+    // Set the default charset to utf8mb4
     args.emplace_back("--default-character-set=utf8mb4");
 
     // Set max allowed packet to 1 GB
