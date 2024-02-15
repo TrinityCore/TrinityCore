@@ -102,7 +102,7 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
         {
             CellCoord cellCoord(x, y);
             //lets skip standing cell since we already visited it
-            //if (cellCoord != standing_cell)
+            if (cellCoord != standing_cell)
             {
                 Cell r_zone(cellCoord);
                 r_zone.data.Part.nocreate = this->data.Part.nocreate;
