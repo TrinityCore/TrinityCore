@@ -640,6 +640,10 @@ void Battleground::CenturionRewardHonorToTeam(uint32 Honor, uint32 TeamID)
         if (Player* player = _GetPlayerForTeam(TeamID, itr, "CenturionRewardHonorToTeam"))
         {
             player->ModifyHonorPoints(Honor);
+            uint32 thrallsSocks = Honor / 10;
+            //add thrall's socks
+            if (thrallsSocks > 0)
+                player->AddItem(40752, thrallsSocks / 10);
         }
 }
 
@@ -824,6 +828,8 @@ void Battleground::EndBattleground(uint32 winner)
             winner_money *= arenaMultiplier;
             loser_money *= arenaMultiplier;
         }
+        uint32 thrallsSocksWinner = winner_honor / 10;
+        uint32 thrallsSocksLoser = loser_honor / 10;
         // Reward winner team
         if (team == winner)
         {
@@ -835,11 +841,18 @@ void Battleground::EndBattleground(uint32 winner)
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, player->GetMapId());
             player->ModifyMoney(winner_money);
+
+            //add thrall's socks
+            if(thrallsSocksWinner > 0)
+                player->AddItem(40752, winner_honor / 10);
         }
         else
         {
             player->ModifyHonorPoints(loser_honor);
             player->ModifyMoney(loser_money);
+            //add thrall's socks
+            if (thrallsSocksWinner > 0)
+                player->AddItem(40752, loser_honor / 10);
         }
 
         for (int i = 20559; i <= 20575; i++)
