@@ -2792,27 +2792,9 @@ void Spell::EffectAddHonor()
     if (unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    // not scale value for item based reward (/10 value expected)
-    if (m_CastItem)
-    {
-        unitTarget->ToPlayer()->ModifyHonorPoints(damage/10);
-        TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id {}) rewards {} honor points (item {}) for player {}", m_spellInfo->Id, damage/10, m_CastItem->GetEntry(), unitTarget->ToPlayer()->GetGUID().ToString());
-        return;
-    }
-
-    // do not allow to add too many honor for player (50 * 21) = 1040 at level 70, or (50 * 31) = 1550 at level 80
-    if (damage <= 50)
-    {
-        uint32 honor_reward = Trinity::Honor::hk_honor_at_level(unitTarget->GetLevel(), float(damage));
-        unitTarget->ToPlayer()->ModifyHonorPoints(honor_reward);
-        TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id {}) rewards {} honor points (scale) to player {}", m_spellInfo->Id, honor_reward, unitTarget->ToPlayer()->GetGUID().ToString());
-    }
-    else
-    {
-        //maybe we have correct honor_gain in damage already
-        unitTarget->ToPlayer()->ModifyHonorPoints(damage);
-        TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id {}) rewards {} honor points (non scale) for player {}", m_spellInfo->Id, damage, unitTarget->ToPlayer()->GetGUID().ToString());
-    }
+    //maybe we have correct honor_gain in damage already
+    unitTarget->ToPlayer()->ModifyHonorPoints(damage);
+    TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id {}) rewards {} honor points (non scale) for player {}", m_spellInfo->Id, damage, unitTarget->ToPlayer()->GetGUID().ToString());
 }
 
 void Spell::EffectTradeSkill()
