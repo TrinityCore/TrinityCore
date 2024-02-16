@@ -95,10 +95,6 @@ void AddSC_boss_twinemperors();
 void AddSC_boss_ouro();
 void AddSC_npc_anubisath_sentinel();
 void AddSC_instance_temple_of_ahnqiraj();
-// The Lost City of the Tol'vir
-void AddSC_boss_general_husam();
-void AddSC_boss_lockmaw();
-void AddSC_instance_lost_city_of_the_tolvir();
 // Wailing caverns
 void AddSC_wailing_caverns();
 void AddSC_instance_wailing_caverns();
@@ -106,14 +102,6 @@ void AddSC_instance_wailing_caverns();
 void AddSC_boss_zum_rah();
 void AddSC_zulfarrak();
 void AddSC_instance_zulfarrak();
-void AddSC_instance_halls_of_origination();
-void AddSC_boss_temple_guardian_anhuur();
-void AddSC_boss_earthrager_ptah();
-void AddSC_boss_anraphet();
-void AddSC_instance_firelands();
-void AddSC_firelands();
-void AddSC_boss_alysrazor();
-void AddSC_boss_baleroc();
 
 void AddSC_ashenvale();
 void AddSC_azshara();
@@ -220,10 +208,6 @@ void AddKalimdorScripts()
     AddSC_boss_ouro();
     AddSC_npc_anubisath_sentinel();
     AddSC_instance_temple_of_ahnqiraj();
-    // The Lost City of the Tol'vir
-    AddSC_boss_general_husam();
-    AddSC_boss_lockmaw();
-    AddSC_instance_lost_city_of_the_tolvir();
     // Wailing caverns
     AddSC_wailing_caverns();
     AddSC_instance_wailing_caverns();
@@ -253,14 +237,4 @@ void AddKalimdorScripts()
     AddSC_thunder_bluff();
     // AddSC_ungoro_crater();
     AddSC_winterspring();
-
-    AddSC_instance_halls_of_origination();
-    AddSC_boss_temple_guardian_anhuur();
-    AddSC_boss_earthrager_ptah();
-    AddSC_boss_anraphet();
-
-    AddSC_instance_firelands();
-    AddSC_firelands();
-    AddSC_boss_alysrazor();
-    AddSC_boss_baleroc();
 }

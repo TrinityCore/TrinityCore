@@ -16,10 +16,8 @@
  */
 
 void AddSC_BF_wintergrasp();
-void AddSC_BF_tol_barad();
 
 void AddBattlefieldScripts()
 {
     AddSC_BF_wintergrasp();
-    AddSC_BF_tol_barad();
 }

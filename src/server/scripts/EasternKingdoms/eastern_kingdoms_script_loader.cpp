@@ -22,17 +22,6 @@ void AddSC_boss_drekthar();
 void AddSC_boss_galvangar();
 void AddSC_boss_vanndar();
 void AddSC_arathi_basin();                   //Arathi Basin
-void AddSC_boss_alizabal();                  //Baradin Hold
-void AddSC_boss_occuthar();
-void AddSC_boss_pit_lord_argaloth();
-void AddSC_instance_baradin_hold();
-void AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
-void AddSC_boss_corla();
-void AddSC_boss_karsh_steelbender();
-void AddSC_boss_beauty();
-void AddSC_boss_ascendant_lord_obsidius();
-void AddSC_blackrock_caverns();
-void AddSC_instance_blackrock_caverns();
 void AddSC_blackrock_depths();               //Blackrock Depths
 void AddSC_boss_ambassador_flamelash();
 void AddSC_boss_draganthaurissan();
@@ -215,17 +204,6 @@ void AddEasternKingdomsScripts()
     AddSC_boss_galvangar();
     AddSC_boss_vanndar();
     AddSC_arathi_basin();                   //Arathi Basin
-    AddSC_boss_alizabal();                  //Baradin Hold
-    AddSC_boss_occuthar();
-    AddSC_boss_pit_lord_argaloth();
-    AddSC_instance_baradin_hold();
-    AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
-    AddSC_boss_corla();
-    AddSC_boss_karsh_steelbender();
-    AddSC_boss_beauty();
-    AddSC_boss_ascendant_lord_obsidius();
-    AddSC_blackrock_caverns();
-    AddSC_instance_blackrock_caverns();
     AddSC_blackrock_depths();               //Blackrock Depths
     AddSC_boss_ambassador_flamelash();
     AddSC_boss_draganthaurissan();
@@ -395,7 +373,6 @@ void AddEasternKingdomsScripts()
     AddSC_stormwind_city();
     //AddSC_swamp_of_sorrows();
     AddSC_tirisfal_glades();
-    AddSC_tol_barad();
     AddSC_undercity();
     //AddSC_western_plaguelands();
 }
