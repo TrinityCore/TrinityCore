@@ -643,7 +643,7 @@ void Battleground::CenturionRewardHonorToTeam(uint32 Honor, uint32 TeamID)
             uint32 thrallsSocks = Honor / 10;
             //add thrall's socks
             if (thrallsSocks > 0)
-                player->AddItem(40752, thrallsSocks / 10);
+                player->AddItem(40752, thrallsSocks);
         }
 }
 
