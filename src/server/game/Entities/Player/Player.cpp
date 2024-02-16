@@ -2055,6 +2055,9 @@ void Player::UpdateNearbyCreatureNpcFlags()
         creature->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), unitMask.GetChangesMask(), this);
     }
 
+    if (!udata.HasData())
+        return;
+    
     WorldPacket packet;
     udata.BuildPacket(&packet);
     SendDirectMessage(&packet);
