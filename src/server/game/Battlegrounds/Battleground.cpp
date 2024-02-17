@@ -642,7 +642,7 @@ void Battleground::CenturionRewardHonorToTeam(uint32 Honor, uint32 TeamID)
             player->ModifyHonorPoints(Honor);
             uint32 thrallsSocks = Honor / 10;
             //add thrall's socks
-            if (thrallsSocks < 0)
+            if (thrallsSocks <= 0)
             {
                 thrallsSocks = 1;
             }
