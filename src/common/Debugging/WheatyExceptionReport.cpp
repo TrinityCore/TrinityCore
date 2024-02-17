@@ -1323,7 +1323,13 @@ EnumerateSymbolsCallbackContext* pCtx)
         pVariable += *registerValue;
     }
     else if (pSym->Flags & IMAGEHLP_SYMBOL_INFO_REGISTER)
-        return false;                                       // Don't try to report register variable
+    {
+        registerVariableStorage = GetIntegerRegisterValue(pCtx->context, pSym->Register);
+        if (!registerVariableStorage)
+            return false;                                   // Don't try to report non-integer register variable
+
+        pVariable = reinterpret_cast<DWORD_PTR>(&*registerVariableStorage);
+    }
     else
     {
         // It must be a global variable
