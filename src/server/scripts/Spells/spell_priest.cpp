@@ -130,6 +130,9 @@ enum PriestSpells
     SPELL_PRIEST_MINDGAMES_VENTHYR                  = 323673,
     SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
+    SPELL_PRIEST_PAIN_SUPPRESSION                   = 33206,
+    SPELL_PRIEST_PAIN_TRANSFORMATION                = 372991,
+    SPELL_PRIEST_PAIN_TRANSFORMATION_HEAL           = 372994,
     SPELL_PRIEST_PENANCE                            = 47540,
     SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE             = 47758,
     SPELL_PRIEST_PENANCE_CHANNEL_HEALING            = 47757,
@@ -1736,6 +1739,35 @@ class spell_pri_painful_punishment : public AuraScript
     }
 };
 
+// 372991 - Pain Transformation
+// Triggered by 33206 - Pain Suppression
+class spell_pri_pain_transformation : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_PAIN_SUPPRESSION,
+            SPELL_PRIEST_ATONEMENT_EFFECT,
+            SPELL_PRIEST_PAIN_TRANSFORMATION_HEAL
+        });
+    }
+
+    void HandleHit() const
+    {
+        if (GetCaster()->HasAura(SPELL_PRIEST_PAIN_TRANSFORMATION))
+        {
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_ATONEMENT_EFFECT);
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_PAIN_TRANSFORMATION_HEAL);
+        }
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_pri_pain_transformation::HandleHit);
+    }
+};
+
 // 47540 - Penance
 // 400169 - Dark Reprimand
 class spell_pri_penance : public SpellScript
@@ -3207,6 +3239,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_lights_wrath);
     RegisterSpellScript(spell_pri_mind_bomb);
     RegisterSpellScript(spell_pri_painful_punishment);
+    RegisterSpellScript(spell_pri_pain_transformation);
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance", SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING);
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_dark_reprimand", SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE, SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING);
     RegisterSpellScript(spell_pri_penance_or_dark_reprimand_channeled);
