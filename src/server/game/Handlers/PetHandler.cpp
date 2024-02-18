@@ -96,8 +96,10 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
     if (pet->GetTypeId() == TYPEID_PLAYER && !(flag == ACT_COMMAND && spellid == COMMAND_ATTACK))
         return;
 
+    
     if (GetPlayer()->m_Controlled.size() == 1)
         HandlePetActionHelper(pet, guid1, spellid, flag, guid2);
+        
     else
     {
         // If a pet is dismissed, m_Controlled will change
@@ -299,6 +301,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
 
             // Clear the flags as if owner clicked 'attack'. AI will reset them
             // after AttackStart, even if spell failed
+            /*
             if (pet->GetCharmInfo())
             {
                 pet->GetCharmInfo()->SetIsAtStay(false);
@@ -306,6 +309,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 pet->GetCharmInfo()->SetIsReturning(false);
                 pet->GetCharmInfo()->SetIsFollowing(false);
             }
+            */
 
             Spell* spell = new Spell(pet, spellInfo, TRIGGERED_NONE);
 
