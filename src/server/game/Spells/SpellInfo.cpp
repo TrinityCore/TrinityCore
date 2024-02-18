@@ -2300,6 +2300,8 @@ void SpellInfo::_LoadSpellDiminishInfo()
                     return DIMINISHING_ENTRAPMENT;
                 else if (Id == 12494 || Id == 12497 || Id == 11071 || Id == 12496)
                     return DIMINISHING_ROOT;
+                else if (Id == 18798)
+                    return DIMINISHING_STUN;
                 break;
             }
             // Event spells
@@ -2446,6 +2448,8 @@ void SpellInfo::_LoadSpellDiminishInfo()
         if (mechanic & (1 << MECHANIC_BANISH))
             return DIMINISHING_BANISH;
         if (mechanic & (1 << MECHANIC_ROOT))
+            return triggered ? DIMINISHING_ROOT : DIMINISHING_CONTROLLED_ROOT;
+        if (mechanic & (1 << MECHANIC_FREEZE))
             return triggered ? DIMINISHING_ROOT : DIMINISHING_CONTROLLED_ROOT;
         if (mechanic & (1 << MECHANIC_HORROR))
             return DIMINISHING_HORROR;
