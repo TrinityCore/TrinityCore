@@ -2298,7 +2298,8 @@ void SpellInfo::_LoadSpellDiminishInfo()
                 // Entrapment (own diminishing)
                 else if (Id == 19185 || Id == 19229 || Id == 23694)
                     return DIMINISHING_ENTRAPMENT;
-                else if (Id == 12494 || Id == 12497 || Id == 11071 || Id == 12496)
+                //frostbite for some reason not showing up on mage family
+                else if (Id == 12494)
                     return DIMINISHING_ROOT;
                 else if (Id == 18798)
                     return DIMINISHING_STUN;
@@ -2310,7 +2311,7 @@ void SpellInfo::_LoadSpellDiminishInfo()
             case SPELLFAMILY_MAGE:
             {
                 // Frostbite
-                if (Id == 12494 || Id == 12497 || Id == 11071 || Id == 12496)
+                if (Id == 12494)
                     return DIMINISHING_ROOT;
                 // Shattered Barrier
                 else if (SpellVisual[0] == 12297)

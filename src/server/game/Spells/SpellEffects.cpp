@@ -2792,6 +2792,10 @@ void Spell::EffectAddHonor()
     if (unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    int value = unitTarget->ToPlayer()->GetHonorPoints() + damage;
+    if (value > sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS))
+        return;
+
     //maybe we have correct honor_gain in damage already
     unitTarget->ToPlayer()->ModifyHonorPoints(damage);
     TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id {}) rewards {} honor points (non scale) for player {}", m_spellInfo->Id, damage, unitTarget->ToPlayer()->GetGUID().ToString());

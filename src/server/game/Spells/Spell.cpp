@@ -3309,12 +3309,14 @@ void Spell::_cast(bool skipCheck)
         // As of 3.0.2 pets begin attacking their owner's target immediately
         // Let any pets know we've attacked something. Check DmgClass for harmful spells only
         // This prevents spells such as Hunter's Mark from triggering pet attack
+        
         if (GetSpellInfo()->DmgClass != SPELL_DAMAGE_CLASS_NONE)
             if (Unit* target = m_targets.GetUnitTarget())
                 for (Unit* controlled : playerCaster->m_Controlled)
                     if (Creature* cControlled = controlled->ToCreature())
                         if (CreatureAI* controlledAI = cControlled->AI())
                                 controlledAI->OwnerAttacked(target);
+                                
     }
 
     SetExecutedCurrently(true);
@@ -5517,6 +5519,14 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         // for effects of spells that have only one target
         switch (spellEffectInfo.Effect)
         {
+            case SPELL_EFFECT_ADD_HONOR:
+            {
+                if (spellEffectInfo.BasePoints + 1 + m_caster->ToPlayer()->GetHonorPoints() > sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS))
+                {
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                }
+                break;
+            }
             case SPELL_EFFECT_LEARN_SPELL:
             {
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
