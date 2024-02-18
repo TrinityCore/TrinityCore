@@ -1105,7 +1105,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     data << int32(WildBattlePetLevel);
     data << int32(BattlePetCompanionExperience);
     data << uint32(BattlePetCompanionNameTimestamp);
-    data << int32(InteractSpellID);
+    data << int32(ViewerDependentValue<InteractSpellIDTag>::GetValue(this, owner, receiver));
     data << int32(ScaleDuration);
     data << int32(LooksLikeMountID);
     data << int32(LooksLikeCreatureID);
@@ -1670,7 +1670,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[114])
         {
-            data << int32(InteractSpellID);
+            data << int32(ViewerDependentValue<InteractSpellIDTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[115])
         {

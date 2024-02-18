@@ -1018,7 +1018,7 @@ enum CharacterFlags
 {
     CHARACTER_FLAG_NONE                 = 0x00000000,
     CHARACTER_FLAG_UNK1                 = 0x00000001,
-    CHARACTER_FLAG_UNK2                 = 0x00000002,
+    CHARACTER_FLAG_RESTING              = 0x00000002,
     CHARACTER_FLAG_LOCKED_FOR_TRANSFER  = 0x00000004,
     CHARACTER_FLAG_UNK4                 = 0x00000008,
     CHARACTER_FLAG_UNK5                 = 0x00000010,
@@ -2576,13 +2576,13 @@ enum Mechanics : uint32
 };
 
 // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967ca6)
-#define IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK (\
-    (1<<MECHANIC_CHARM)|(1<<MECHANIC_DISORIENTED)|(1<<MECHANIC_FEAR)| \
-    (1<<MECHANIC_ROOT)|(1<<MECHANIC_SLEEP)|(1<<MECHANIC_SNARE)| \
-    (1<<MECHANIC_STUN)|(1<<MECHANIC_FREEZE)|(1<<MECHANIC_SILENCE)|(1<<MECHANIC_DISARM)|(1<<MECHANIC_KNOCKOUT)| \
-    (1<<MECHANIC_POLYMORPH)|(1<<MECHANIC_BANISH)|(1<<MECHANIC_SHACKLE)| \
-    (1<<MECHANIC_TURN)|(1<<MECHANIC_HORROR)|(1<<MECHANIC_DAZE)| \
-    (1<<MECHANIC_SAPPED))
+inline constexpr uint64 IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK(\
+    (1 << MECHANIC_CHARM) | (1 << MECHANIC_DISORIENTED) | (1 << MECHANIC_FEAR) | \
+    (1 << MECHANIC_ROOT) | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_SNARE) | \
+    (1 << MECHANIC_STUN) | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_SILENCE) | (1 << MECHANIC_DISARM) | (1 << MECHANIC_KNOCKOUT) | \
+    (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_BANISH) | (1 << MECHANIC_SHACKLE) | \
+    (1 << MECHANIC_TURN) | (1 << MECHANIC_HORROR) | (1 << MECHANIC_DAZE) | \
+    (1 << MECHANIC_SAPPED));
 
 // Spell dispel type
 enum DispelType
@@ -2618,6 +2618,7 @@ enum SpellImmunity
     IMMUNITY_DISPEL                = 4,                     // enum DispelType
     IMMUNITY_MECHANIC              = 5,                     // enum Mechanics
     IMMUNITY_ID                    = 6,
+    IMMUNITY_OTHER                 = 7,                     // enum SpellOtherImmunity
 
     MAX_SPELL_IMMUNITY
 };
@@ -5978,6 +5979,29 @@ enum ChatLinkColors : uint32
     CHAT_LINK_COLOR_INSTANCE_LOCK   = 0xffff8000,
     CHAT_LINK_COLOR_JOURNAL         = 0xff66bbff,
     CHAT_LINK_COLOR_TRANSMOG        = 0xffff80ff,
+};
+
+enum class ChatMessageResult : uint32
+{
+    Ok,
+    HandledCommand,
+    DisallowedLanguage,
+    InvalidLanguage,
+    LanguageNotLearned,
+    Muted,
+    SilencedByGM,
+    MessageTooLong,
+    MessageEmpty,
+    MessageHasInvalidCharacters,
+    MalformedHyperlinks,
+    PlayerDead,
+    LevelTooLow,
+    NoWhisperTarget,
+    WhisperTargetWrongFaction,
+    NotInGroup,
+    NotLeaderOrAssistant,
+    RaidWarningInPartyDisabled,
+    ChannelIsReadOnly
 };
 
 // Values from ItemPetFood (power of (value-1) used for compare with CreatureFamilyEntry.PetFoodMask

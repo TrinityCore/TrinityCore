@@ -18,6 +18,7 @@
 #include "QueryPackets.h"
 #include "BattlenetAccountMgr.h"
 #include "CharacterCache.h"
+#include "ClubUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
@@ -200,6 +201,7 @@ bool PlayerGuidLookupData::Initialize(ObjectGuid const& guid, Player const* play
 
     IsDeleted = characterInfo->IsDeleted;
     GuidActual = guid;
+    GuildClubMemberID = ::Battlenet::Services::Clubs::CreateClubMemberId(guid);
     VirtualRealmAddress = GetVirtualRealmAddress();
 
     return true;

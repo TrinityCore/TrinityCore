@@ -671,6 +671,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     if (IsTrigger())
         SetUninteractible(true);
 
+    if (HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
+        InitializeInteractSpellId();
+
     InitializeReactState();
 
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_TAUNT)
@@ -703,6 +706,7 @@ void Creature::ApplyAllStaticFlags(CreatureStaticFlagsHolder const& flags)
 
     // Apply all other side effects of flag changes
     SetTemplateRooted(flags.HasFlag(CREATURE_STATIC_FLAG_SESSILE));
+    m_updateFlag.NoBirthAnim = flags.HasFlag(CREATURE_STATIC_FLAG_4_NO_BIRTH_ANIM);
 }
 
 void Creature::Update(uint32 diff)
@@ -2448,6 +2452,9 @@ void Creature::LoadTemplateImmunities(int32 creatureImmunitiesId)
 
         for (AuraType aura : immunities->Aura)
             ApplySpellImmune(placeholderSpellId, IMMUNITY_STATE, aura, apply);
+
+        if (immunities->Other != SpellOtherImmunity::None)
+            ApplySpellImmune(placeholderSpellId, IMMUNITY_OTHER, immunities->Other.AsUnderlyingType(), apply);
     };
 
     // unapply template immunities (in case we're updating entry)
@@ -3686,4 +3693,15 @@ void Creature::SummonGraveyardTeleporter()
     // ID - 24237 Summon Alliance Graveyard Teleporter (SERVERSIDE)
     // ID - 46894 Summon Horde Graveyard Teleporter (SERVERSIDE)
     SummonCreature(npcEntry, GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 1s, 0, 0);
+}
+
+void Creature::InitializeInteractSpellId()
+{
+    auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(GetEntry());
+    auto itr = clickBounds.begin();
+    // Set InteractSpellID if there is only one row in npc_spellclick_spells in db for this creature
+    if (itr != clickBounds.end() && ++itr == clickBounds.end())
+        SetInteractSpellId(clickBounds.begin()->second.spellId);
+    else
+        SetInteractSpellId(0);
 }

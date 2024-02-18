@@ -124,7 +124,7 @@ Atomic32 Release_CompareAndSwap(volatile Atomic32* ptr,
 #if defined(__MINGW32__) && defined(MemoryBarrier)
 #undef MemoryBarrier
 #endif
-void MemoryBarrier();
+void (MemoryBarrier)();
 void NoBarrier_Store(volatile Atomic32* ptr, Atomic32 value);
 void Acquire_Store(volatile Atomic32* ptr, Atomic32 value);
 void Release_Store(volatile Atomic32* ptr, Atomic32 value);
@@ -172,7 +172,7 @@ Atomic64 Release_Load(volatile const Atomic64* ptr);
 #if defined(GOOGLE_PROTOBUF_ARCH_IA32) || defined(GOOGLE_PROTOBUF_ARCH_X64)
 #include <google/protobuf/stubs/atomicops_internals_x86_msvc.h>
 #else
-GOOGLE_PROTOBUF_ATOMICOPS_ERROR
+#include <google/protobuf/stubs/atomicops_internals_generic_c11_atomic.h>
 #endif
 
 // Solaris

@@ -1767,7 +1767,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
 
         _reachedCamp = true;
 
-        if (Unit* owner = me->GetDemonCreator())
+        if (Unit* owner = me->GetOwner())
         {
             Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false);
             conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, 1, me->GetGUID());
@@ -1783,7 +1783,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
             return;
 
-        if (Unit* owner = me->GetDemonCreator())
+        if (Unit* owner = me->GetOwner())
         {
             owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
             owner->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
@@ -1800,7 +1800,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
             {
                 case EVENT_INITIAL_SPAWN_CHECK:
                 {
-                    Unit* owner = me->GetDemonCreator();
+                    Unit* owner = me->GetOwner();
                     if (!owner)
                         break;
 
@@ -1824,7 +1824,7 @@ struct npc_garrick_summoned_beach : public ScriptedAI
                     break;
                 }
                 case EVENT_FOLLOW_PLAYER:
-                    if (Unit* owner = me->GetDemonCreator())
+                    if (Unit* owner = me->GetOwner())
                         me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
@@ -1858,12 +1858,13 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
         if (_reachedCamp)
             return;
 
-        if (Unit* owner = me->GetDemonCreator())
+        if (Unit* owner = me->GetOwner())
         {
-            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false);
-            conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 3, me->GetGUID());
-            conversation->Start();
-
+            if (Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false))
+            {
+                conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 3, me->GetGUID());
+                conversation->Start();
+            }
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
             me->GetMotionMaster()->MovePoint(POINT_CAMP_POSITION, GrimaxeAbandonedCampPosition, false);
         }
@@ -1874,7 +1875,7 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
             return;
 
-        if (Unit* owner = me->GetDemonCreator())
+        if (Unit* owner = me->GetOwner())
         {
             owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
             owner->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
@@ -1891,7 +1892,7 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
             {
                 case EVENT_INITIAL_SPAWN_CHECK:
                 {
-                    Unit* owner = me->GetDemonCreator();
+                    Unit* owner = me->GetOwner();
                     if (!owner)
                         break;
 
@@ -1906,16 +1907,17 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
                     }
                     else
                     {
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR, owner, *owner, owner->GetGUID(), nullptr, false);
-                        conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 2, me->GetGUID());
-                        conversation->Start();
-
+                        if (Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR, owner, *owner, owner->GetGUID(), nullptr, false))
+                        {
+                            conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 2, me->GetGUID());
+                            conversation->Start();
+                        }
                         _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 2s);
                     }
                     break;
                 }
                 case EVENT_FOLLOW_PLAYER:
-                    if (Unit* owner = me->GetDemonCreator())
+                    if (Unit* owner = me->GetOwner())
                         me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
@@ -2413,7 +2415,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
     uint8 GetQuestCredits()
     {
-        Player* player = me->GetAffectingPlayer();
+        Player* player = me->GetDemonCreatorPlayer();
         if (!player)
             return 0;
 
@@ -2499,7 +2501,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
     void StartConversationWithPlayer(uint32 conversationId)
     {
-        if (Player* player = me->GetAffectingPlayer())
+        if (Player* player = me->GetDemonCreatorPlayer())
         {
             Conversation* conversation = Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr, false);
             if (!conversation)
@@ -3593,8 +3595,8 @@ struct npc_leader_northbound : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_FOLLOW_PLAYER:
-                    if (Unit* owner = me->GetDemonCreator())
-                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
+                    if (Player* player = me->GetAffectingPlayer())
+                        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
                     break;
@@ -5330,6 +5332,594 @@ public:
     }
 };
 
+// Quest 56034 - Re-sizing the Situation "Alliance"
+// Quest 59941 - Re-sizing the Situation "Horde"
+enum ResizingQuestData
+{
+    ACTOR_LINDIE_RESIZING_QUEST                     = 71366,
+    ACTOR_CORK_RESIZING_QUEST                       = 76343,
+
+    CONVERSATION_RESIZING_QUEST_ACCEPT              = 12086,
+    CONVERSATION_RESIZING_REPORT_BACK               = 12089,
+
+    EVENT_RESIZING_FOLLOW_PLAYER                    = 1,
+    EVENT_RESIZING_RUN_HOME                         = 2,
+
+    POINT_HOME_POSITION                             = 0,
+
+    SPELL_SUMMON_LINDIE_SPRINGSTOCK_GUARDIAN_Q56034 = 305750,
+    SPELL_SUMMON_CORK_FIZZLEPOP_GUARDIAN_Q59941     = 326634,
+    SPELL_LINDIE_DESUMMON_Q56034                    = 305756,
+    SPELL_PING_LINDIE_Q56034_Q59941                 = 305754,
+};
+
+Position ResizingGuardianPosition = { 100.56077f, -2418.0713f, 90.34765f };
+
+// 156749 - Lindie Springstock
+struct npc_lindie_springstock_q56034 : public ScriptedAI
+{
+    npc_lindie_springstock_q56034(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        Unit* owner = me->GetOwner();
+
+        Player* player = owner->ToPlayer();
+        if (!player)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_RESIZING_QUEST_ACCEPT, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(ACTOR_LINDIE_RESIZING_QUEST, 1, me->GetGUID());
+        conversation->AddActor(ACTOR_CORK_RESIZING_QUEST, 2, ObjectGuid::Empty);
+        conversation->Start();
+
+        _events.ScheduleEvent(EVENT_RESIZING_FOLLOW_PLAYER, 2s);
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiId != 0)
+            return;
+
+        if (Unit* owner = me->GetOwner())
+            owner->CastSpell(owner, SPELL_LINDIE_DESUMMON_Q56034);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id != SPELL_PING_LINDIE_Q56034_Q59941)
+            return;
+
+        _events.ScheduleEvent(EVENT_RESIZING_RUN_HOME, 2s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_RESIZING_FOLLOW_PLAYER:
+                {
+                    if (Unit* owner = me->GetOwner())
+                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
+                    break;
+                }
+                case EVENT_RESIZING_RUN_HOME:
+                {
+                    me->GetMotionMaster()->MovePoint(POINT_HOME_POSITION, ResizingGuardianPosition);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+// 167915 - Cork Fizzlepop
+struct npc_cork_fizzlepop_q59941 : public ScriptedAI
+{
+    npc_cork_fizzlepop_q59941(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        Unit* owner = me->GetOwner();
+        if (!owner)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_RESIZING_QUEST_ACCEPT, owner, *owner, owner->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, owner->GetGUID());
+        conversation->AddActor(ACTOR_LINDIE_RESIZING_QUEST, 1, ObjectGuid::Empty);
+        conversation->AddActor(ACTOR_CORK_RESIZING_QUEST, 2, me->GetGUID());
+        conversation->Start();
+
+        _events.ScheduleEvent(EVENT_RESIZING_FOLLOW_PLAYER, 2s);
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiId != 0)
+            return;
+
+        if (Unit* owner = me->GetOwner())
+        {
+            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+            owner->RemoveAura(SPELL_SUMMON_CORK_FIZZLEPOP_GUARDIAN_Q59941);
+        }
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id != SPELL_PING_LINDIE_Q56034_Q59941)
+            return;
+
+        Unit* owner = me->GetOwner();
+        if (!owner)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_RESIZING_REPORT_BACK, owner, *owner, owner->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, owner->GetGUID());
+        conversation->AddActor(ACTOR_LINDIE_RESIZING_QUEST, 1, ObjectGuid::Empty);
+        conversation->AddActor(ACTOR_CORK_RESIZING_QUEST, 2, me->GetGUID());
+        conversation->Start();
+
+        _events.ScheduleEvent(EVENT_RESIZING_RUN_HOME, 2s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_RESIZING_FOLLOW_PLAYER:
+                {
+                    if (Unit* owner = me->GetOwner())
+                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
+                    break;
+                }
+                case EVENT_RESIZING_RUN_HOME:
+                {
+                    me->GetMotionMaster()->MovePoint(POINT_HOME_POSITION, ResizingGuardianPosition);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+enum ReSizedBoarData
+{
+    EVENT_BOAR_GROW   = 1,
+    EVENT_BOAR_MOVE   = 2,
+
+    SPELL_GROW_Q56034 = 129310,
+
+    SOUND_GROW_Q56034 = 157469
+};
+
+Position GiantBoarPosition = { 116.146f, -2430.48f, 90.508415f };
+
+// 156736 - Wandering Boar
+struct npc_re_sized_boar_q56034 : public ScriptedAI
+{
+    npc_re_sized_boar_q56034(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_BOAR_GROW, 1s);
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiId != 0)
+            return;
+
+        me->SetFacingTo(0.785398f);
+
+        if (Unit* owner = me->GetOwner())
+            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BOAR_GROW:
+                    me->CastSpell(me, SPELL_GROW_Q56034);
+                    me->PlayDirectSound(SOUND_GROW_Q56034);
+                    _events.ScheduleEvent(EVENT_BOAR_MOVE, 1s);
+                    break;
+                case EVENT_BOAR_MOVE:
+                    me->SetWalk(false);
+                    me->GetMotionMaster()->MovePoint(POINT_HOME_POSITION, GiantBoarPosition);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+// Spell 305749 - Summon Admiral Garrick Guardian
+// Spell 326635 - Summon Cork (DNT)
+class spell_summon_guardian_q56034_q59941 : public SpellScript
+{
+    // @TODO: drop after TARGET_UNK_142 impl
+
+    void SelectTarget(WorldObject*& target)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        Creature* survivor = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "lindie_springstock_plains" : "cork_fizzlepop_plains", 5.0f);
+        if (!survivor)
+            return;
+
+        target = survivor;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_guardian_q56034_q59941::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
+    }
+};
+
+enum ReSizingData
+{
+    NPC_WANDERING_BOAR                               = 156716,
+    NPC_LINDIE_SPRINGSTOCK_GUARDIAN                  = 156749,
+    NPC_CORK_FIZZLEPOP_GUARDIAN                      = 167915,
+
+    QUEST_RE_SIZING_THE_SITUATION_ALLIANCE           = 56034,
+    QUEST_RE_SIZING_THE_SITUATION_HORDE              = 59941,
+
+    QUEST_OBJECTIVE_RE_SIZING_THE_SITUATION_ALLIANCE = 390101,
+    QUEST_OBJECTIVE_RE_SIZING_THE_SITUATION_HORDE    = 397274,
+
+    SPELL_RESIZER_HIT_ONE_Q56034_Q59941              = 305724,
+    SPELL_RESIZER_HIT_TWO_Q56034_Q59941              = 305721,
+    SPELL_RESIZER_HIT_THREE_Q56034                   = 305742,
+    SPELL_RESIZING_Q59941                            = 325345,
+    SPELL_RE_SIZER_OVERCHARGED_Q56034                = 325347
+};
+
+// 305716 - Re-Sizing
+class spell_re_sizing_q56034 : public SpellScript
+{
+    SpellCastResult CheckCast()
+    {
+        if (!GetExplTargetUnit())
+            return SPELL_FAILED_BAD_TARGETS;
+
+        Creature* target = GetExplTargetUnit()->ToCreature();
+        if (!target)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        if (target->GetEntry() != NPC_WANDERING_BOAR)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_re_sizing_q56034::CheckCast);
+    }
+};
+
+// 305716 - Re-Sizing
+class spell_re_sizing_aura_q56034 : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RESIZER_HIT_ONE_Q56034_Q59941,
+            SPELL_RESIZER_HIT_TWO_Q56034_Q59941,
+            SPELL_PING_LINDIE_Q56034_Q59941,
+        });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        Creature* creature = Object::ToCreature(GetTarget());
+        if (!player || !creature)
+            return;
+
+        switch (player->GetQuestObjectiveData(QUEST_RE_SIZING_THE_SITUATION_ALLIANCE, QUEST_OBJECTIVE_RE_SIZING_THE_SITUATION_ALLIANCE))
+        {
+            case 0:
+                player->CastSpell(creature, SPELL_RESIZER_HIT_ONE_Q56034_Q59941, true);
+                creature->DespawnOrUnsummon(2s);
+                break;
+            case 1:
+                player->CastSpell(creature, SPELL_RESIZER_HIT_TWO_Q56034_Q59941, true);
+                creature->DespawnOrUnsummon();
+                break;
+            case 2:
+                player->CastSpell(creature, SPELL_RESIZER_HIT_THREE_Q56034, true);
+                player->CastSpell(player, SPELL_PING_LINDIE_Q56034_Q59941, true);
+                creature->DespawnOrUnsummon();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_re_sizing_aura_q56034::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 305724 - Resizer Hit
+// 305721 - Resizer Hit
+class spell_resizer_hit_one_two_q56034_q59941 : public SpellScript
+{
+    void HandleLaunch(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        uint32 guardianID = player->GetTeam() == ALLIANCE ? NPC_LINDIE_SPRINGSTOCK_GUARDIAN : NPC_CORK_FIZZLEPOP_GUARDIAN;
+
+        Creature* guardian = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = guardianID, .OwnerGuid = player->GetGUID() });
+        if (!guardian)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(ACTOR_LINDIE_RESIZING_QUEST, 1, player->GetTeam() == ALLIANCE ? guardian->GetGUID() : ObjectGuid::Empty);
+        conversation->AddActor(ACTOR_CORK_RESIZING_QUEST, 2, player->GetTeam() == ALLIANCE ? ObjectGuid::Empty : guardian->GetGUID());
+        conversation->Start();
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_resizer_hit_one_two_q56034_q59941::HandleLaunch, EFFECT_3, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+        OnEffectHitTarget += SpellEffectFn(spell_resizer_hit_one_two_q56034_q59941::HandleEffect, EFFECT_3, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+    }
+};
+
+// 305742 - Resizer Hit
+class spell_resizer_hit_three_q56034 : public SpellScript
+{
+    void HandleLaunch(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        uint32 guardianID = player->GetTeam() == ALLIANCE ? NPC_LINDIE_SPRINGSTOCK_GUARDIAN : NPC_CORK_FIZZLEPOP_GUARDIAN;
+
+        Creature* guardian = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = guardianID, .OwnerGuid = player->GetGUID() });
+        if (!guardian)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(ACTOR_LINDIE_RESIZING_QUEST, 1, player->GetTeam() == ALLIANCE ? guardian->GetGUID() : ObjectGuid::Empty);
+        conversation->AddActor(ACTOR_CORK_RESIZING_QUEST, 2, player->GetTeam() == ALLIANCE ? ObjectGuid::Empty : guardian->GetGUID());
+        conversation->Start();
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_resizer_hit_three_q56034::HandleLaunch, EFFECT_4, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+        OnEffectHitTarget += SpellEffectFn(spell_resizer_hit_three_q56034::HandleEffect, EFFECT_4, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+    }
+};
+
+// 325346 - Re-Sizing
+class spell_re_sizing_q59941 : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RESIZING_Q59941,
+            SPELL_RE_SIZER_OVERCHARGED_Q56034,
+            SPELL_PING_LINDIE_Q56034_Q59941,
+        });
+    }
+
+    SpellCastResult CheckCast()
+    {
+        if (!GetExplTargetUnit())
+            return SPELL_FAILED_BAD_TARGETS;
+
+        Creature* target = GetExplTargetUnit()->ToCreature();
+        if (!target)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        if (target->GetEntry() != NPC_WANDERING_BOAR)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        Creature* creature = Object::ToCreature(GetHitUnit());
+        if (!player || !creature)
+            return;
+
+        switch (player->GetQuestObjectiveData(QUEST_RE_SIZING_THE_SITUATION_HORDE, QUEST_OBJECTIVE_RE_SIZING_THE_SITUATION_HORDE))
+        {
+            case 0:
+            case 1:
+                player->CastSpell(creature, SPELL_RESIZING_Q59941, true);
+                break;
+            case 2:
+                player->CastSpell(creature, SPELL_RE_SIZER_OVERCHARGED_Q56034, true);
+                player->CastSpell(player, SPELL_PING_LINDIE_Q56034_Q59941, true);
+                creature->DespawnOrUnsummon(3s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_re_sizing_q59941::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_re_sizing_q59941::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 325345 - Re-Sizing
+class spell_re_sizing_aura_q59941 : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RESIZER_HIT_ONE_Q56034_Q59941,
+            SPELL_RESIZER_HIT_TWO_Q56034_Q59941
+        });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        Creature* creature = Object::ToCreature(GetTarget());
+        if (!player || !creature)
+            return;
+
+        switch (player->GetQuestObjectiveData(QUEST_RE_SIZING_THE_SITUATION_HORDE, QUEST_OBJECTIVE_RE_SIZING_THE_SITUATION_HORDE))
+        {
+            case 0:
+                player->CastSpell(creature, SPELL_RESIZER_HIT_ONE_Q56034_Q59941, true);
+                creature->DespawnOrUnsummon(2s);
+                break;
+            case 1:
+                player->CastSpell(creature, SPELL_RESIZER_HIT_TWO_Q56034_Q59941, true);
+                creature->DespawnOrUnsummon();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_re_sizing_aura_q59941::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 56034 - Re-sizing the Situation "Alliance"
+// 59941 - Re-sizing the Situation "Horde"
+class quest_resizing_the_situation : public QuestScript
+{
+public:
+    quest_resizing_the_situation(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, uint32 SummonSpell)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->CastSpell(player, SummonSpell);
+                break;
+            case QUEST_STATUS_NONE:
+                player->RemoveAura(SummonSpell);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// 56034 - Re-sizing the Situation "Alliance"
+class quest_resizing_the_situation_alliance : public quest_resizing_the_situation
+{
+public:
+    quest_resizing_the_situation_alliance() : quest_resizing_the_situation("quest_resizing_the_situation_alliance") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, SPELL_SUMMON_LINDIE_SPRINGSTOCK_GUARDIAN_Q56034);
+    }
+};
+
+// 59941 - Re-sizing the Situation "Horde"
+class quest_resizing_the_situation_horde : public quest_resizing_the_situation
+{
+public:
+    quest_resizing_the_situation_horde() : quest_resizing_the_situation("quest_resizing_the_situation_horde") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, SPELL_SUMMON_CORK_FIZZLEPOP_GUARDIAN_Q59941);
+    }
+};
+
 void AddSC_zone_exiles_reach()
 {
     // Ship
@@ -5418,7 +6008,7 @@ void AddSC_zone_exiles_reach()
     RegisterCreatureAI(npc_ogre_overseer);
     RegisterAreaTriggerAI(at_briarpatch_to_plains);
     RegisterSpellScript(spell_quilboar_sleep_dnt);
-    // Plains
+    // Plains scouting quest
     new quest_scout_o_matic_5000();
     new quest_choppy_booster_mk5();
     new FactoryCreatureScript<CreatureAI, &LindieSpringstockSelector>("npc_lindie_springstock_plains");
@@ -5426,4 +6016,16 @@ void AddSC_zone_exiles_reach()
     RegisterCreatureAI(npc_scoutomatic_5000);
     new FactoryCreatureScript<CreatureAI, &ChoppyBoosterSelector>("npc_choppy_booster");
     new FactoryCreatureScript<CreatureAI, &HordeCrewPlainsSelector>("npc_horde_crew_plains");
+    // Plains Resizing the situation
+    new quest_resizing_the_situation_alliance();
+    new quest_resizing_the_situation_horde();
+    RegisterCreatureAI(npc_lindie_springstock_q56034);
+    RegisterCreatureAI(npc_cork_fizzlepop_q59941);
+    RegisterCreatureAI(npc_re_sized_boar_q56034);
+    RegisterSpellScript(spell_summon_guardian_q56034_q59941);
+    RegisterSpellAndAuraScriptPair(spell_re_sizing_q56034, spell_re_sizing_aura_q56034);
+    RegisterSpellScript(spell_resizer_hit_one_two_q56034_q59941);
+    RegisterSpellScript(spell_resizer_hit_three_q56034);
+    RegisterSpellScript(spell_re_sizing_q59941);
+    RegisterSpellScript(spell_re_sizing_aura_q59941);
 };

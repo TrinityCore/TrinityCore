@@ -167,7 +167,7 @@ namespace WorldPackets
         class InstanceEncounterEngageUnit final : public ServerPacket
         {
         public:
-            InstanceEncounterEngageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 15) { }
+            InstanceEncounterEngageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 16 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -178,7 +178,7 @@ namespace WorldPackets
         class InstanceEncounterDisengageUnit final : public ServerPacket
         {
         public:
-            InstanceEncounterDisengageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 15) { }
+            InstanceEncounterDisengageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -188,12 +188,61 @@ namespace WorldPackets
         class InstanceEncounterChangePriority final : public ServerPacket
         {
         public:
-            InstanceEncounterChangePriority() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 15) { }
+            InstanceEncounterChangePriority() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 16 + 1) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid Unit;
             uint8 TargetFramePriority = 0; // used to update the position of the unit's current frame
+        };
+
+        class InstanceEncounterTimerStart final : public ServerPacket
+        {
+        public:
+            InstanceEncounterTimerStart() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_TIMER_START, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TimeRemaining = 0;
+        };
+
+        class InstanceEncounterObjectiveStart final : public ServerPacket
+        {
+        public:
+            InstanceEncounterObjectiveStart() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 ObjectiveID = 0;
+        };
+
+        class InstanceEncounterObjectiveUpdate final : public ServerPacket
+        {
+        public:
+            InstanceEncounterObjectiveUpdate() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 ObjectiveID = 0;
+            int32 ProgressAmount = 0;
+        };
+
+        class InstanceEncounterObjectiveComplete final : public ServerPacket
+        {
+        public:
+            InstanceEncounterObjectiveComplete() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 ObjectiveID = 0;
+        };
+
+        class InstanceEncounterPhaseShiftChanged final : public ServerPacket
+        {
+        public:
+            InstanceEncounterPhaseShiftChanged() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
 
         class InstanceEncounterStart final : public ServerPacket

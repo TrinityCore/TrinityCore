@@ -3481,19 +3481,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     }
 
-    // Allows those to crit
-    ApplySpellFix({
-        379,   // Earth Shield
-        71607, // Item - Bauble of True Blood 10m
-        71646, // Item - Bauble of True Blood 25m
-        71610, // Item - Althor's Abacus trigger 10m
-        71641  // Item - Althor's Abacus trigger 25m
-    }, [](SpellInfo* spellInfo)
-    {
-        // We need more spells to find a general way (if there is any)
-        spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
-    });
-
     ApplySpellFix({
         63026, // Summon Aspirant Test NPC (HACK: Target shouldn't be changed)
         63137  // Summon Valiant Test (HACK: Target shouldn't be changed; summon position should be untied from spell destination)
@@ -4970,8 +4957,10 @@ void SpellMgr::LoadSpellInfoImmunities()
             immunities.School = school;
             immunities.DispelType = dispelType;
             immunities.Mechanic = mechanics;
-            immunities.ImmuneAoE = fields[6].GetBool();
-            immunities.ImmuneChain = fields[7].GetBool();
+            if (fields[6].GetBool())
+                immunities.Other |= SpellOtherImmunity::AoETarget;
+            if (fields[7].GetBool())
+                immunities.Other |= SpellOtherImmunity::ChainTarget;
 
             if (immunities.School.to_ullong() != school)
                 TC_LOG_ERROR("sql.sql", "Invalid value in `SchoolMask` {} for creature immunities {}, truncated", school, id);
