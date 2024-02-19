@@ -121,22 +121,26 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
     int32 reqmoney = cost + sendMail.Info.SendMoney;
 
     // Check for overflow
+    /*
     if (reqmoney < sendMail.Info.SendMoney)
     {
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;
     }
+    */
 
     auto mailCountCheckContinuation = [this, player = _player, receiverGuid, mailInfo = std::move(sendMail.Info), reqmoney, cost](uint32 receiverTeam, uint64 mailsCount, uint8 receiverLevel, uint32 receiverAccountId) mutable
     {
         if (_player != player)
             return;
 
+        /*
         if (!player->HasEnoughMoney(reqmoney) && !player->IsGameMaster())
         {
             player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_ENOUGH_MONEY);
             return;
         }
+        */
 
         // do not allow to have more than 100 mails in mailbox.. mails count is in opcode uint8!!! - so max can be 255..
         if (mailsCount > 100)
@@ -431,11 +435,13 @@ void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& takeItem
     }
 
     // prevent cheating with skip client money check
+    /*
     if (!player->HasEnoughMoney(m->COD))
     {
         player->SendMailResult(takeItem.MailID, MAIL_ITEM_TAKEN, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;
     }
+    */
 
     Item* it = player->GetMItem(takeItem.AttachID);
 
