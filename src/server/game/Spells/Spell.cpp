@@ -9222,7 +9222,7 @@ bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target) const
             switch (_searchReason)
             {
                 case WorldObjectSpellAreaTargetSearchReason::Area:
-                    if (unitTarget->GetSpellOtherImmunityMask().HasFlag(SpellOtherImmunity::AoETarget))
+                    if (!_spellInfo->HasAttribute(SPELL_ATTR8_CAN_HIT_AOE_UNTARGETABLE) && unitTarget->GetSpellOtherImmunityMask().HasFlag(SpellOtherImmunity::AoETarget))
                         return false;
                     break;
                 case WorldObjectSpellAreaTargetSearchReason::Chain:
