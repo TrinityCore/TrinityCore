@@ -13696,7 +13696,7 @@ bool Unit::IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType aur
         if (sSpellMgr->CheckSpellGroupStackRules(spellInfo, existingAurEff->GetSpellInfo()) == SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST)
         {
             int32 diff = abs(effectAmount) - abs(existingAurEff->GetAmount());
-            if (spellInfo->GetRank() < existingAurEff->m_spellInfo->GetRank())
+            if (spellInfo->GetRank() < existingAurEff->m_spellInfo->GetRank() && spellInfo->SpellIconID == existingAurEff->m_spellInfo->SpellIconID)
             {
                 return false;
             }
