@@ -14121,7 +14121,7 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
 {
     if (!item)                                               // prevent crash
         return;
-
+    //test commit
                                                             // last check 2.0.10
     WorldPacket data(SMSG_ITEM_PUSH_RESULT, (8+4+4+4+1+4+4+4+4+4));
     data << uint64(GetGUID());                              // player GUID
