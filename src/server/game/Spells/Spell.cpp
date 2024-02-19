@@ -2331,7 +2331,8 @@ void Spell::TargetInfo::PreprocessTarget(Spell* spell)
 
     if (spell->m_originalCaster && MissCondition != SPELL_MISS_EVADE && !spell->m_originalCaster->IsFriendlyTo(unit) && (!spell->m_spellInfo->IsPositive() || spell->m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && (spell->m_spellInfo->HasInitialAggro() || unit->IsEngaged()))
     {
-        if(spell->m_spellInfo->Id != 14309 && spell->m_spellInfo->Id != 14308 && spell->m_spellInfo->Id != 3355 && spell->m_spellInfo->Id != 13810 && spell->m_spellInfo->Id != 63487 && spell->m_spellInfo->Id != 67035 && spell->m_spellInfo->Id != 72216 && spell->m_spellInfo->Id != 19185) //freezing/frost traps don't put you in combat
+        if(spell->m_spellInfo->Id != 14309 && spell->m_spellInfo->Id != 14308 && spell->m_spellInfo->Id != 3355 && spell->m_spellInfo->Id != 13810 && spell->m_spellInfo->Id != 63487 && spell->m_spellInfo->Id != 67035
+            && spell->m_spellInfo->Id != 72216 && spell->m_spellInfo->Id != 19185 && spell->m_spellInfo->Id != 3600) //freezing/frost traps don't put you in combat
             unit->SetInCombatWith(spell->m_originalCaster);
     }
 
@@ -7703,7 +7704,8 @@ void Spell::PreprocessSpellLaunch(TargetInfo& targetInfo)
 
     // This will only cause combat - the target will engage once the projectile hits (in Spell::TargetInfo::PreprocessTarget)
     if (m_originalCaster && targetInfo.MissCondition != SPELL_MISS_EVADE && !m_originalCaster->IsFriendlyTo(targetUnit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && (m_spellInfo->HasInitialAggro() || targetUnit->IsEngaged())
-        && (m_spellInfo->Id != 14309 && m_spellInfo->Id != 14308 && m_spellInfo->Id != 3355 && m_spellInfo->Id != 13810 && m_spellInfo->Id != 63487 && m_spellInfo->Id != 67035 && m_spellInfo->Id != 72216 && m_spellInfo->Id != 19185)) //freezing/frost traps don't put you in combat
+        && (m_spellInfo->Id != 14309 && m_spellInfo->Id != 14308 && m_spellInfo->Id != 3355 && m_spellInfo->Id != 13810 && m_spellInfo->Id != 63487 && m_spellInfo->Id != 67035 && m_spellInfo->Id != 72216 && m_spellInfo->Id != 19185
+            && m_spellInfo->Id != 3600)) //freezing/frost traps don't put you in combat
         m_originalCaster->SetInCombatWith(targetUnit, true);
 
     Unit* unit = nullptr;

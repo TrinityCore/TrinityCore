@@ -444,7 +444,8 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
 
     if (spell)
     {
-        if (spell->Id == 14309 || spell->Id == 14308 || spell->Id == 3355 || spell->Id == 13810 || spell->Id == 63487 || spell->Id == 67035 || spell->Id == 72216 || spell->Id == 19185) //freezing/frost traps don't put you in combat
+        if (spell->Id == 14309 || spell->Id == 14308 || spell->Id == 3355 || spell->Id == 13810 || spell->Id == 63487 || spell->Id == 67035 || spell->Id == 72216
+            || spell->Id == 19185 || spell->Id == 3600) //freezing/frost traps don't put you in combat
         {
             return;
         }
