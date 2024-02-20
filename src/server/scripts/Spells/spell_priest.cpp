@@ -159,6 +159,8 @@ enum PriestSpells
     SPELL_PRIEST_RENEWED_HOPE                       = 197469,
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
     SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
+    SPELL_PRIEST_SANCTUARY                          = 231682,
+    SPELL_PRIEST_SANCTUARY_AURA                     = 208772,
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SCHISM                             = 424509,
     SPELL_PRIEST_SCHISM_AURA                        = 214621,
@@ -2668,6 +2670,60 @@ class spell_pri_schism : public SpellScript
     }
 };
 
+// 231682 - Sanctuary
+// Triggered by 585 - Smite
+class spell_pri_sanctuary : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_SMITE,
+            SPELL_PRIEST_SANCTUARY_AURA
+        });
+    }
+
+    void HandleHit() const
+    {
+        if (GetCaster()->HasAura(SPELL_PRIEST_SANCTUARY))
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_SANCTUARY_AURA, true);
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_pri_sanctuary::HandleHit);
+    }
+};
+
+// 208772 - Sanctuary
+class spell_pri_sanctuary_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect ({ {SPELL_PRIEST_SANCTUARY, EFFECT_0} });
+    }
+
+    void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& canBeRecalculated) const
+    {
+        canBeRecalculated = false;
+
+        Player* player = GetCaster()->ToPlayer();
+        if (!player)
+            return;
+
+        float sanctuaryEffect = player->GetAuraEffect(SPELL_PRIEST_SANCTUARY, EFFECT_0)->GetAmount() / 100.f;
+        float modifiedAmount = player->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * sanctuaryEffect;
+        AddPct(modifiedAmount, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+
+        amount = modifiedAmount;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_sanctuary_aura::CalculateAmount, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 280391 - Sins of the Many
 class spell_pri_sins_of_the_many : public AuraScript
 {
@@ -3229,6 +3285,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_purge_the_wicked);
     RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
+    RegisterSpellScript(spell_pri_sanctuary);
+    RegisterSpellScript(spell_pri_sanctuary_aura);
     RegisterSpellScript(spell_pri_schism);
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
