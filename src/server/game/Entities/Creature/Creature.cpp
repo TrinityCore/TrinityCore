@@ -2821,7 +2821,8 @@ bool Creature::LoadCreaturesAddon()
 void Creature::LoadCreaturesSparringHealth()
 {
     if (std::vector<float> const* templateValues = sObjectMgr->GetCreatureTemplateSparringValues(GetCreatureTemplate()->Entry))
-        _sparringHealthPct = Trinity::Containers::SelectRandomContainerElement(*templateValues);
+        if (std::find(templateValues->begin(), templateValues->end(), _sparringHealthPct) != templateValues->end()) // only re-randomize sparring value if it was loaded from template (not when set to custom value from script)
+            _sparringHealthPct = Trinity::Containers::SelectRandomContainerElement(*templateValues);
 }
 
 /// Send a message to LocalDefense channel for players opposition team in the zone
