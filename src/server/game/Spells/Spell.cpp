@@ -7780,7 +7780,7 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
             m_spellValue->AuraStackAmount = uint8(value);
             break;
         case SPELLVALUE_CRIT_CHANCE:
-            m_spellValue->CriticalChance = value / 100.0f; // @todo ugly /100 remove when basepoints are double
+            m_spellValue->CriticalChance = value;
             break;
     }
 }
