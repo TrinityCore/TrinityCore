@@ -7012,6 +7012,11 @@ float Unit::SpellCritChanceDone(SpellInfo const* spellInfo, SpellSchoolMask scho
         case SPELL_DAMAGE_CLASS_NONE:
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
+            auto getPhysicalCritChance = [&]
+            {
+                return GetUnitCriticalChanceDone(attackType) + GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
+            };
+
             auto getMagicCritChance = [&]
             {
                 if (IsPlayer())
@@ -7020,18 +7025,11 @@ float Unit::SpellCritChanceDone(SpellInfo const* spellInfo, SpellSchoolMask scho
                 return m_baseSpellCritChance + GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
             };
 
-            switch (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
-            {
-                case SPELL_SCHOOL_MASK_NORMAL: // physical only
-                    crit_chance = GetUnitCriticalChanceDone(attackType);
-                    break;
-                case 0: // spell only
-                    crit_chance = getMagicCritChance();
-                    break;
-                default: // mix of physical and magic
-                    crit_chance = std::max(getMagicCritChance(), GetUnitCriticalChanceDone(attackType));
-                    break;
-            }
+            if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
+                crit_chance = std::max(crit_chance, getPhysicalCritChance());
+
+            if (schoolMask & ~SPELL_SCHOOL_MASK_NORMAL)
+                crit_chance = std::max(crit_chance, getMagicCritChance());
             break;
         }
         case SPELL_DAMAGE_CLASS_MELEE:
