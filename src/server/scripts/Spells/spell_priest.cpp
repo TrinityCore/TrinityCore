@@ -1747,24 +1747,30 @@ class spell_pri_pain_transformation : public SpellScript
     {
         return ValidateSpellInfo
         ({
-            SPELL_PRIEST_PAIN_SUPPRESSION,
             SPELL_PRIEST_ATONEMENT_EFFECT,
+            SPELL_PRIEST_TRINITY,
+            SPELL_PRIEST_PAIN_TRANSFORMATION,
             SPELL_PRIEST_PAIN_TRANSFORMATION_HEAL
         });
     }
 
-    void HandleHit() const
+    bool Load() override
     {
-        if (GetCaster()->HasAura(SPELL_PRIEST_PAIN_TRANSFORMATION))
-        {
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_ATONEMENT_EFFECT);
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_PAIN_TRANSFORMATION_HEAL);
-        }
+        return GetCaster()->HasAura(SPELL_PRIEST_PAIN_TRANSFORMATION) && !GetCaster()->HasAura(SPELL_PRIEST_TRINITY);
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/) const
+    {
+        CastSpellExtraArgs args(GetSpell());
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_PAIN_TRANSFORMATION_HEAL, args);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_ATONEMENT_EFFECT, args);
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pri_pain_transformation::HandleHit);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_pain_transformation::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
