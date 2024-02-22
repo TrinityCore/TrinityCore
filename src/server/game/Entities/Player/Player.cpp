@@ -23204,12 +23204,12 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
             }
 
             //we don't learn any fucking skill spells automatically why in the god damn piece of dog fucking cunt is this learning god damn TALENTS
-            /*
+            
             if (!IsInWorld())
                 AddSpell(ability->Spell, true, true, true, false, false, ability->SkillLine);
             else
                 LearnSpell(ability->Spell, true, ability->SkillLine);
-                */
+                
         }
     }
 }
