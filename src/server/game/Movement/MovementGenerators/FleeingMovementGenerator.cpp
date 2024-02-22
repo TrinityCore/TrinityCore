@@ -32,7 +32,6 @@ FleeingMovementGenerator::FleeingMovementGenerator(ObjectGuid fleeTargetGUID) : 
     Priority = MOTION_PRIORITY_HIGHEST;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_FLEEING;
-    ScriptResult = std::move(scriptResult);
 }
 
 MovementGeneratorType FleeingMovementGenerator::GetMovementGeneratorType() const
