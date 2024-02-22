@@ -130,7 +130,6 @@ enum PriestSpells
     SPELL_PRIEST_MINDGAMES_VENTHYR                  = 323673,
     SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
-    SPELL_PRIEST_PAIN_SUPPRESSION                   = 33206,
     SPELL_PRIEST_PAIN_TRANSFORMATION                = 372991,
     SPELL_PRIEST_PAIN_TRANSFORMATION_HEAL           = 372994,
     SPELL_PRIEST_PENANCE                            = 47540,
