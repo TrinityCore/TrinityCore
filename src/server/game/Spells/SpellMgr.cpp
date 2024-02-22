@@ -4742,7 +4742,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Stinging Sap
     ApplySpellFix({ 374523 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx8 |= SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG;
+        spellInfo->AttributesEx8 |= SPELL_ATTR8_CAN_ATTACK_IMMUNE_PC;
     });
 
     // Jump to Center (DNT)
