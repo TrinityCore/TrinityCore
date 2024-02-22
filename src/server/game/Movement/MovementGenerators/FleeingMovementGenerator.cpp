@@ -89,7 +89,7 @@ void FleeingMovementGenerator::Deactivate(Unit* owner)
     owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
 }
 
-void FleeingMovementGenerator::Finalize(Unit* owner, bool active, bool movementInform)
+void FleeingMovementGenerator::Finalize(Unit* owner, bool active, bool /*movementInform*/)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
 
