@@ -173,7 +173,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         /// == Triggered Actions Requested ==================
 
         // Called when creature attack expected (if creature can and no have current victim)
-        //virtual void AttackStart(Unit*) { }
+        void AttackStart(Unit* victim) override;
 
         // Called at World update tick
         //virtual void UpdateAI(const uint32 /*diff*/) { }

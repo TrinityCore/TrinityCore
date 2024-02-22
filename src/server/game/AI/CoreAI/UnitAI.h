@@ -55,7 +55,7 @@ class TC_GAME_API UnitAI
         virtual ~UnitAI() { }
 
         virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
-        virtual void AttackStart(Unit* /*target*/);
+        virtual void AttackStart(Unit* victim);
         virtual void UpdateAI(uint32 diff) = 0;
 
         virtual void InitializeAI();

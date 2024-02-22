@@ -54,9 +54,6 @@ void FleeingMovementGenerator<T>::DoInitialize(T* owner)
     if (!owner || !owner->IsAlive())
         return;
 
-    // TODO: UNIT_FIELD_FLAGS should not be handled by generators
-    owner->SetUnitFlag(UNIT_FLAG_FLEEING);
-
     _path = nullptr;
     SetTargetLocation(owner);
 }
@@ -114,7 +111,6 @@ void FleeingMovementGenerator<Player>::DoFinalize(Player* owner, bool active, bo
 
     if (active)
     {
-        owner->RemoveUnitFlag(UNIT_FLAG_FLEEING);
         owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
         owner->StopMoving();
     }
@@ -127,10 +123,9 @@ void FleeingMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active
 
     if (active)
     {
-        owner->RemoveUnitFlag(UNIT_FLAG_FLEEING);
         owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
-        if (owner->GetVictim())
-            owner->SetTarget(owner->EnsureVictim()->GetGUID());
+        if (Unit const* victim = owner->GetVictim())
+            owner->SetTarget(victim->GetGUID());
     }
 }
 
@@ -257,7 +252,6 @@ void TimedFleeingMovementGenerator::Finalize(Unit* owner, bool active, bool move
     if (!active)
         return;
 
-    owner->RemoveUnitFlag(UNIT_FLAG_FLEEING);
     owner->StopMoving();
     if (Unit* victim = owner->GetVictim())
     {
