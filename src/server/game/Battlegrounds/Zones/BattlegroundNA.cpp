@@ -61,22 +61,6 @@ void BattlegroundNA::StartingEventOpenDoors()
         SpawnBGObject(i, 60);
 }
 
-void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    switch (trigger)
-    {
-        case 4536:                                          // buff trigger?
-        case 4537:                                          // buff trigger?
-            break;
-        default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
-            break;
-    }
-}
-
 bool BattlegroundNA::SetupBattleground()
 {
     // gates
