@@ -23,15 +23,37 @@
 #define STScriptName "instance_sunken_temple"
 #define DataHeader "ST"
 
-uint32 const EncounterCount = 3;
-
-enum STDataTypes
+enum STBossIds
 {
-    DATA_JAMMAL_AN_THE_PROPHET = 0,
-    DATA_SHADE_OF_ERANIKUS     = 1,
-    DATA_ELITE_TROLLS          = 2,
+    BOSS_AVATAR_OF_HAKKAR       = 0,
+    BOSS_JAMMALAN_THE_PROPHET   = 1,
+    BOSS_DREAMSCYTHE            = 2,
+    BOSS_WEAVER                 = 3,
+    BOSS_MORPHAZ                = 4,
+    BOSS_HAZZAS                 = 5,
+    BOSS_SHADE_OF_ERANIKUS      = 6,
+    BOSS_ATALALARION            = 7,
+    BOSS_EVENT_ELITE_TROLLS     = 8,
 
-    EVENT_STATE                = 10
+    MAX_ENCOUNTER
+};
+
+enum STCreatureIds
+{
+    NPC_AVATAR_OF_HAKKAR        = 8443,
+    NPC_JAMMALAN_THE_PROPHET    = 5710,
+    NPC_DREAMSCYTHE             = 5721,
+    NPC_WEAVER                  = 5720,
+    NPC_MORPHAZ                 = 5719,
+    NPC_HAZZAS                  = 5722,
+    NPC_SHADE_OF_ERANIKUS       = 5709,
+    NPC_ATALALARION             = 8580,
+    NPC_ZOLO                    = 5712,
+    NPC_GASHER                  = 5713,
+    NPC_LORO                    = 5714,
+    NPC_HUKKU                   = 5715,
+    NPC_ZUL_LOR                 = 5716,
+    NPC_MIJAN                   = 5717,
 };
 
 enum STGameObjectIds
@@ -47,17 +69,9 @@ enum STGameObjectIds
     GO_FORCEFIELD     = 149431,
 };
 
-enum STCreatureIds
+enum STEvents
 {
-    NPC_ATALALARION           = 8580,
-    NPC_SHADE_OF_ERANIKUS     = 5709,
-    NPC_JAMMAL_AN_THE_PROPHET = 5710,
-    NPC_ZOLO                  = 5712,
-    NPC_GASHER                = 5713,
-    NPC_LORO                  = 5714,
-    NPC_HUKKU                 = 5715,
-    NPC_ZUL_LOR               = 5716,
-    NPC_MIJAN                 = 5717,
+    EVENT_STATE = 1
 };
 
 enum STShareSpells
