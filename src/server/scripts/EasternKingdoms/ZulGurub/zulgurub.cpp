@@ -15,32 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "zulgurub.h"
+#include "GameEventMgr.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
-#include "GameEventMgr.h"
-#include "ScriptMgr.h"
 
- /*######
+/*######
  ## go_brazier_of_madness
  ######*/
 
 enum EventGameIds
 {
-    EVENT_EDGE_OF_MADNESS_GRILEK = 27,
-    EVENT_EDGE_OF_MADNESS_HAZZARAH = 28,
-    EVENT_EDGE_OF_MADNESS_RENATAKI = 29,
+    // ids from game_event table
+    EVENT_EDGE_OF_MADNESS_GRILEK    = 27,
+    EVENT_EDGE_OF_MADNESS_HAZZARAH  = 28,
+    EVENT_EDGE_OF_MADNESS_RENATAKI  = 29,
     EVENT_EDGE_OF_MADNESS_WUSHOOLAY = 30
 };
 
-struct EventPair
-{
-    EventGameIds eventId;
-    ZGCreatureIds npcEntry;
-};
-
-uint8 const MAX_EVENT_PAIRS = 4;
-EventPair const EventPairs[MAX_EVENT_PAIRS] =
+using EventPair = std::pair<EventGameIds, ZGCreatureIds>;
+constexpr EventPair BrazierOfMadnessEventCreatures[] =
 {
     { EVENT_EDGE_OF_MADNESS_GRILEK,     NPC_GRILEK      },
     { EVENT_EDGE_OF_MADNESS_HAZZARAH,   NPC_HAZZARAH    },
@@ -61,17 +56,14 @@ public:
 
         bool OnGossipHello(Player* /*player*/) override
         {
-            uint32 bossEntry = 0;
-            for (uint8 i = 0; i < MAX_EVENT_PAIRS; ++i)
+            for (auto const& [eventId, npcEntry] : BrazierOfMadnessEventCreatures)
             {
-                if (sGameEventMgr->IsActiveEvent(EventPairs[i].eventId))
+                if (sGameEventMgr->IsActiveEvent(eventId))
                 {
-                    bossEntry = EventPairs[i].npcEntry;
+                    me->SummonCreature(npcEntry, MadnessSpawnPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s * HOUR * IN_MILLISECONDS);
                     break;
                 }
             }
-            if (bossEntry)
-                me->SummonCreature(bossEntry, MadnessSpawnPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s * HOUR * IN_MILLISECONDS);
             return false;
         }
     };
