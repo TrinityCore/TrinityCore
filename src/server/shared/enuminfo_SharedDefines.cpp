@@ -811,7 +811,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr4>::ToString(SpellAttr4 value)
         case SPELL_ATTR4_UNK24: return { "SPELL_ATTR4_UNK24", "Unknown attribute 24@Attr4", "Shoot-type spell?" };
         case SPELL_ATTR4_IS_PET_SCALING: return { "SPELL_ATTR4_IS_PET_SCALING", "Pet Scaling aura", "" };
         case SPELL_ATTR4_CAST_ONLY_IN_OUTLAND: return { "SPELL_ATTR4_CAST_ONLY_IN_OUTLAND", "Only in Outland/Northrend", "" };
-        case SPELL_ATTR4_INHERIT_CRIT_FROM_AURA: return { "SPELL_ATTR4_INHERIT_CRIT_FROM_AURA", "Inherit critical chance from triggering aura", "" };
+        case SPELL_ATTR4_FORCE_DISPLAY_CASTBAR: return { "SPELL_ATTR4_FORCE_DISPLAY_CASTBAR", "Force Display Castbar", "" };
         case SPELL_ATTR4_UNK28: return { "SPELL_ATTR4_UNK28", "Unknown attribute 28@Attr4", "" };
         case SPELL_ATTR4_UNK29: return { "SPELL_ATTR4_UNK29", "Unknown attribute 29@Attr4", "" };
         case SPELL_ATTR4_UNK30: return { "SPELL_ATTR4_UNK30", "Unknown attribute 30@Attr4", "" };
@@ -855,7 +855,7 @@ TC_API_EXPORT SpellAttr4 EnumUtils<SpellAttr4>::FromIndex(size_t index)
         case 24: return SPELL_ATTR4_UNK24;
         case 25: return SPELL_ATTR4_IS_PET_SCALING;
         case 26: return SPELL_ATTR4_CAST_ONLY_IN_OUTLAND;
-        case 27: return SPELL_ATTR4_INHERIT_CRIT_FROM_AURA;
+        case 27: return SPELL_ATTR4_FORCE_DISPLAY_CASTBAR;
         case 28: return SPELL_ATTR4_UNK28;
         case 29: return SPELL_ATTR4_UNK29;
         case 30: return SPELL_ATTR4_UNK30;
@@ -896,7 +896,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr4>::ToIndex(SpellAttr4 value)
         case SPELL_ATTR4_UNK24: return 24;
         case SPELL_ATTR4_IS_PET_SCALING: return 25;
         case SPELL_ATTR4_CAST_ONLY_IN_OUTLAND: return 26;
-        case SPELL_ATTR4_INHERIT_CRIT_FROM_AURA: return 27;
+        case SPELL_ATTR4_FORCE_DISPLAY_CASTBAR: return 27;
         case SPELL_ATTR4_UNK28: return 28;
         case SPELL_ATTR4_UNK29: return 29;
         case SPELL_ATTR4_UNK30: return 30;
