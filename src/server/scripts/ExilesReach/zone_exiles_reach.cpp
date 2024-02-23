@@ -5876,6 +5876,29 @@ class spell_re_sizing_aura_q59941 : public AuraScript
     }
 };
 
+// 325368 - Re-sizer Slaughter (DNT)
+class spell_re_sizer_slaughter : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_UPDATE_PHASE_SHIFT
+        });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_UPDATE_PHASE_SHIFT);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_re_sizer_slaughter::OnApply, EFFECT_0, SPELL_AURA_PLAY_SCENE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_re_sizer_slaughter::OnApply, EFFECT_0, SPELL_AURA_PLAY_SCENE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 56034 - Re-sizing the Situation "Alliance"
 // 59941 - Re-sizing the Situation "Horde"
 class quest_resizing_the_situation : public QuestScript
@@ -5940,7 +5963,7 @@ enum QuestRideBoar
     SPELL_RITUAL_SCENE_MAIN_BEAM_DNT                = 321690
 };
 
-// Quest 55879 - Ride of the Scientifically Enhanced Boar
+// 55879 - Ride of the Scientifically Enhanced Boar
 class quest_ride_of_the_scientifically_enhanced_boar : public QuestScript
 {
 public:
@@ -6086,7 +6109,7 @@ enum SpellKnockbackHint
     ACTOR_ALLIANCE_CAPTAIN = 71372
 };
 
-// Spell 305742 Resizer Hit
+// 305742 - Resizer Hit
 class spell_knockback_hint_q56034 : public SpellScript
 {
     void HandleLaunch(SpellEffIndex effIndex)
@@ -6119,7 +6142,7 @@ class spell_knockback_hint_q56034 : public SpellScript
     }
 };
 
-enum CaptainGarrarkGiantBoar
+enum CaptainGarrickGiantBoar
 {
     ACTION_EXIT_BOAR                                       = 1,
 
@@ -6148,18 +6171,14 @@ enum CaptainGarrarkGiantBoar
 
 Position MoveToPrisonerPosition = { 232.16145f, -2292.5347f, 80.91198f };
 
-// Entry 174955 - Captain Garrick
+// 174955 - Captain Garrick
 struct npc_captain_garrick_q55879 : public ScriptedAI
 {
     npc_captain_garrick_q55879(Creature* creature) : ScriptedAI(creature) { _inCombat = false; }
 
     void JustAppeared() override
     {
-        Unit* owner = me->GetOwner();
-        if (!owner)
-            return;
-
-        Player* player = owner->ToPlayer();
+        Player* player = Object::ToPlayer(me->GetOwner());
         if (!player)
             return;
 
@@ -6179,10 +6198,7 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->GetHealth() <= damage)
-        {
-            damage = 0;
-            me->SetHealth(1);
-        }
+            damage = me->GetHealth() - 1;
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -6195,6 +6211,7 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                 if (!owner)
                     break;
 
+                // @TODO ????
                 PhasingHandler::InheritPhaseShift(me, owner);
                 PhasingHandler::ResetPhaseShift(me);
 
@@ -6203,18 +6220,19 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
             }
             case SPELL_ENHANCED_BOAR_PING_VEHICLE:
             {
+                // @TODO ????
                 PhasingHandler::AddPhase(me, PHASE_SEE_TORGOK, true);
                 _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION, 500ms);
                 break;
             }
             case SPELL_PING_GARRICK_TORGOK:
             {
-                Creature* henry = FindCreatureIgnorePhase(me, "henry_garrick_ogre_ruins_prisoner");
-                if (!henry)
+                Player* player = Object::ToPlayer(me->GetOwner());
+                if (!player)
                     break;
 
-                Player* player = me->GetOwner()->ToPlayer();
-                if (!player)
+                Creature* henry = FindCreatureIgnorePhase(me, "henry_garrick_ogre_ruins_prisoner");
+                if (!henry)
                     break;
 
                 Creature* henryPersonal = henry->SummonPersonalClone(henry->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
@@ -6254,22 +6272,19 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                 }
                 case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER:
                 {
-                    if (Unit* owner = me->GetOwner())
+                    if (Player* player = Object::ToPlayer(me->GetOwner()))
                     {
-                        if (Player* player = owner->ToPlayer())
+                        if (player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) == QUEST_STATUS_INCOMPLETE)
                         {
-                            if (player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) == QUEST_STATUS_INCOMPLETE)
-                            {
-                                if (player->IsInCombat() && !me->IsInCombat())
-                                    me->Attack(player->GetVictim(), true);
-                            }
-                            else if (player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) == QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) == QUEST_STATUS_REWARDED)
-                            {
-                                if (Creature* henry = ObjectAccessor::GetCreature(*me, _henryGUID))
-                                    henry->DespawnOrUnsummon();
+                            if (player->IsInCombat() && !me->IsInCombat())
+                                me->AI()->AttackStart(player->GetVictim());
+                        }
+                        else if (player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) == QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) == QUEST_STATUS_REWARDED)
+                        {
+                            if (Creature* henry = ObjectAccessor::GetCreature(*me, _henryGUID))
+                                henry->DespawnOrUnsummon();
 
-                                me->DespawnOrUnsummon();
-                            }
+                            me->DespawnOrUnsummon();
                         }
                     }
                     _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 1s);
@@ -6277,11 +6292,7 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                 }
                 case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY:
                 {
-                    Unit* owner = me->GetOwner();
-                    if (!owner)
-                        break;
-
-                    Player* player = owner->ToPlayer();
+                    Player* player = Object::ToPlayer(me->GetOwner());
                     if (!player)
                         break;
 
@@ -6306,11 +6317,7 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                 }
                 case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION:
                 {
-                    Unit* owner = me->GetOwner();
-                    if (!owner)
-                        break;
-
-                    Player* player = owner->ToPlayer();
+                    Player* player = Object::ToPlayer(me->GetOwner());
                     if (!player)
                         break;
 
@@ -6349,7 +6356,7 @@ enum GiantBoar
     VEHICLE_BOAR_SEAT_ONE             = 1
 };
 
-// Entry 156267 - Giant Boar
+// 156267 - Giant Boar
 struct npc_giant_boar_vehicle_q55879 : public VehicleAI
 {
     npc_giant_boar_vehicle_q55879(Creature* creature) : VehicleAI(creature)
@@ -6531,9 +6538,10 @@ enum HenryGarrickQuest55879
 };
 
 // 156799 - Henry Garrick
-struct npc_henry_q55879 : public ScriptedAI
+// 167126 - Shuja Grimaxe
+struct npc_prisoner_q55879_private : public ScriptedAI
 {
-    npc_henry_q55879(Creature* creature) : ScriptedAI(creature) { }
+    npc_prisoner_q55879_private(Creature* creature) : ScriptedAI(creature) { }
 
     void InitializeAI() override
     {
@@ -6547,10 +6555,10 @@ struct npc_henry_q55879 : public ScriptedAI
     }
 };
 
-CreatureAI* HenryGarrickSelector(Creature* creature)
+CreatureAI* PrisonerQ55879Selector(Creature* creature)
 {
     if (creature->IsPrivateObject())
-        return new npc_henry_q55879(creature);
+        return new npc_prisoner_q55879_private(creature);
     else
         return new NullCreatureAI(creature);
 };
@@ -6572,7 +6580,7 @@ enum TheReDeather
     SPELL_RE_DEATHER_SUMMON_GRIMAXE       = 325429
 };
 
-// Quest 59942 - The Re-Deather
+// 59942 - The Re-Deather
 class quest_the_re_deather : public QuestScript
 {
 public:
@@ -6614,7 +6622,7 @@ public:
     }
 };
 
-// Script scene for The Re-Deather quest
+// 2489
 class scene_darkmaul_plains_skeleton_army_horde : public SceneScript
 {
 public:
@@ -6660,7 +6668,7 @@ enum GrimaxeReDeather
     CONVERSATION_WARLORD_GRIMAXE_QUEST_COMPLETE_Q59942 = 15618
 };
 
-// Entry 167146 - Warlord Grimaxe
+// 167146 - Warlord Grimaxe
 struct npc_warlord_grimaxe_q59942 : public ScriptedAI
 {
     npc_warlord_grimaxe_q59942(Creature* creature) : ScriptedAI(creature)
@@ -6676,9 +6684,7 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
 
     void JustAppeared() override
     {
-        Unit* owner = me->GetOwner();
-
-        Player* player = owner->ToPlayer();
+        Player* player = Object::ToPlayer(me->GetOwner());
         if (!player)
             return;
 
@@ -6701,10 +6707,7 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->GetHealth() <= damage)
-        {
-            damage = 0;
-            me->SetHealth(1);
-        }
+            damage = me->GetHealth() - 1;
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -6713,12 +6716,12 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
         {
             case SPELL_PING_GARRICK_TORGOK:
             {
-                Creature* shuja = FindCreatureIgnorePhase(me, "shuja_grimaxe_ogre_ruins_prisoner");
-                if (!shuja)
+                Player* player = Object::ToPlayer(me->GetOwner());
+                if (!player)
                     break;
 
-                Player* player = me->GetOwner()->ToPlayer();
-                if (!player)
+                Creature* shuja = FindCreatureIgnorePhase(me, "shuja_grimaxe_ogre_ruins_prisoner");
+                if (!shuja)
                     break;
 
                 Creature* shujaPersonal = shuja->SummonPersonalClone(shuja->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
@@ -6745,31 +6748,28 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
             {
                 case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER:
                 {
-                    if (Unit* owner = me->GetOwner())
+                    if (Player* player = Object::ToPlayer(me->GetOwner()))
                     {
-                        if (Player* player = owner->ToPlayer())
+                        if (player->GetQuestStatus(QUEST_RE_DEATHER) == QUEST_STATUS_INCOMPLETE)
                         {
-                            if (player->GetQuestStatus(QUEST_RE_DEATHER) == QUEST_STATUS_INCOMPLETE)
-                            {
-                                if (player->IsInCombat() && !me->IsInCombat())
-                                    me->Attack(player->GetVictim(), true);
-                            }
-                            else if (player->GetQuestStatus(QUEST_RE_DEATHER) == QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_RE_DEATHER) == QUEST_STATUS_REWARDED)
-                            {
-                                if (Creature* shuja = ObjectAccessor::GetCreature(*me, _shujaGUID))
-                                    shuja->DespawnOrUnsummon();
-
-                                player->RemoveAura(SPELL_RE_DEATHER_SUMMON_GRIMAXE);
-                                me->DespawnOrUnsummon();
-                            }
-                            _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 1s);
+                            if (player->IsInCombat() && !me->IsInCombat())
+                                me->AI()->AttackStart(player->GetVictim());
                         }
+                        else if (player->GetQuestStatus(QUEST_RE_DEATHER) == QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_RE_DEATHER) == QUEST_STATUS_REWARDED)
+                        {
+                            if (Creature* shuja = ObjectAccessor::GetCreature(*me, _shujaGUID))
+                                shuja->DespawnOrUnsummon();
+
+                            player->RemoveAura(SPELL_RE_DEATHER_SUMMON_GRIMAXE);
+                            me->DespawnOrUnsummon();
+                        }
+                        _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 1s);
                     }
                     break;
                 }
                 case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY:
                 {
-                    Player* player = me->GetOwner()->ToPlayer();
+                    Player* player = Object::ToPlayer(me->GetOwner());
                     if (!player)
                         break;
 
@@ -6803,26 +6803,6 @@ private:
     bool _inCombat;
 };
 
-// 167126 - Shuja Grimaxe
-struct npc_shuja_q59942 : public ScriptedAI
-{
-    npc_shuja_q59942(Creature* creature) : ScriptedAI(creature) { }
-
-    void JustAppeared() override
-    {
-        me->RemoveAllAuras();
-        me->GetMotionMaster()->MovePath(PATH_PRISONER_TO_GROUND, false);
-    }
-};
-
-CreatureAI* ShujaPrisonerGarrickSelector(Creature* creature)
-{
-    if (creature->IsPrivateObject())
-        return new npc_shuja_q59942(creature);
-    else
-        return new NullCreatureAI(creature);
-};
-
 // ***************************************************************
 // * Scripting in this section occurs between Ogre Ruins and Pit *
 // ***************************************************************
@@ -6835,17 +6815,17 @@ enum WestwardBound
     NPC_WONSA_PIT_ONE            = 167226
 };
 
-Position bjornRuinsPos = { 192.181f, -2311.44f, 80.6975f, 3.368485450744628906f };
-Position alariaRuinsPos = { 190.953f, -2308.32f, 80.6586f, 2.984513044357299804f };
-Position lanaRuinsPos = { 160.486f, -2307.31f, 84.053f, 2.932153224945068359f };
-Position wonsaRuinsPos = { 160.431f, -2310.11f, 84.4598f, 3.03687286376953125f };
+Position const BjornWestwardBoundRuinsPos = { 192.181f, -2311.44f, 80.6975f, 3.368485450744628906f };
+Position const AlariaWestwardBoundRuinsPos = { 190.953f, -2308.32f, 80.6586f, 2.984513044357299804f };
+Position const LanaWestwardBoundRuinsPos = { 160.486f, -2307.31f, 84.053f, 2.932153224945068359f };
+Position const WonsaWestwardBoundRuinsPos = { 160.431f, -2310.11f, 84.4598f, 3.03687286376953125f };
 
 // 55965 - Quest Westward Bound "Alliance"
 // 59948 - Quest Westward Bound "Horde"
-class quest_westward_bound_Exiles_Reach : public QuestScript
+class quest_westward_bound : public QuestScript
 {
 public:
-    quest_westward_bound_Exiles_Reach(char const* script) : QuestScript(script) { }
+    quest_westward_bound(char const* script) : QuestScript(script) { }
 
     void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view creatureStringOne, std::string_view creatureStringTwo, uint32 questEnderEntry, uint32 questEnderCompanionEntry, Position questGiverPos, Position companionPos)
     {
@@ -6854,9 +6834,12 @@ public:
             case QUEST_STATUS_INCOMPLETE:
             {
                 Creature* questEnder = FindCreatureIgnorePhase(player, creatureStringOne, 125.0f);
+                if (!questEnder)
+                    return;
+
                 Creature* questEnderCompanion = FindCreatureIgnorePhase(player, creatureStringTwo, 125.0f);
 
-                if (!questEnder || !questEnderCompanion)
+                if (!questEnderCompanion)
                     return;
 
                 questEnder->SummonPersonalClone(questGiverPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
@@ -6884,26 +6867,26 @@ public:
 };
 
 // 55965 - Quest Westward Bound "Alliance"
-class quest_westward_bound_q55965 : public quest_westward_bound_Exiles_Reach
+class quest_westward_bound_q55965 : public quest_westward_bound
 {
 public:
-    quest_westward_bound_q55965() : quest_westward_bound_Exiles_Reach("quest_westward_bound_q55965") { }
+    quest_westward_bound_q55965() : quest_westward_bound("quest_westward_bound_q55965") { }
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
-        HandleQuestStatusChange(player, newStatus, "bjorn_stouthands_pit_pre_quest", "alaria_pit_pre_quest", NPC_BJORN_STOUTHANDS_PIT_ONE, NPC_ALARIA_PIT_ONE, bjornRuinsPos, alariaRuinsPos);
+        HandleQuestStatusChange(player, newStatus, "bjorn_stouthands_pit_pre_quest", "alaria_pit_pre_quest", NPC_BJORN_STOUTHANDS_PIT_ONE, NPC_ALARIA_PIT_ONE, BjornWestwardBoundRuinsPos, AlariaWestwardBoundRuinsPos);
     }
 };
 
 // 59948 - Quest Westward Bound "Horde"
-class quest_westward_bound_q59948 : public quest_westward_bound_Exiles_Reach
+class quest_westward_bound_q59948 : public quest_westward_bound
 {
 public:
-    quest_westward_bound_q59948() : quest_westward_bound_Exiles_Reach("quest_westward_bound_q59948") { }
+    quest_westward_bound_q59948() : quest_westward_bound("quest_westward_bound_q59948") { }
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
-        HandleQuestStatusChange(player, newStatus, "lana_joran_pit_pre_quest", "wonsa_pit_pre_quest", NPC_LANAJORDAN_PIT_ONE, NPC_WONSA_PIT_ONE, lanaRuinsPos, wonsaRuinsPos);
+        HandleQuestStatusChange(player, newStatus, "lana_joran_pit_pre_quest", "wonsa_pit_pre_quest", NPC_LANAJORDAN_PIT_ONE, NPC_WONSA_PIT_ONE, LanaWestwardBoundRuinsPos, WonsaWestwardBoundRuinsPos);
     }
 };
 
@@ -7041,6 +7024,7 @@ enum CompanionRunToPit
 
 // 156891 - Alaria
 // 167226 - Won'sa
+template<uint32 PitPathId>
 struct npc_companion_q55965_q59948_private : public ScriptedAI
 {
     npc_companion_q55965_q59948_private(Creature* creature) : ScriptedAI(creature) { }
@@ -7064,13 +7048,8 @@ struct npc_companion_q55965_q59948_private : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_COMPANION_RUN_TO_PIT:
-                {
-                    if (me->GetEntry() == NPC_ALARIA_PIT_ONE)
-                        me->GetMotionMaster()->MovePath(PATH_ALARIA_RUN_TO_PIT, false);
-                    else
-                        me->GetMotionMaster()->MovePath(PATH_WONSA_RUN_TO_PIT, false);
+                    me->GetMotionMaster()->MovePath(PitPathId, false);
                     break;
-                }
                 default:
                     break;
             }
@@ -7083,7 +7062,7 @@ private:
 CreatureAI* AlariaRuinsSelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
-        return new npc_companion_q55965_q59948_private(creature);
+        return new npc_companion_q55965_q59948_private<PATH_ALARIA_RUN_TO_PIT>(creature);
     else
         return new NullCreatureAI(creature);
 };
@@ -7091,7 +7070,7 @@ CreatureAI* AlariaRuinsSelector(Creature* creature)
 CreatureAI* WansaRuinsSelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
-        return new npc_companion_q55965_q59948_private(creature);
+        return new npc_companion_q55965_q59948_private<PATH_WONSA_RUN_TO_PIT>(creature);
     else
         return new NullCreatureAI(creature);
 };
@@ -7204,6 +7183,7 @@ void AddSC_zone_exiles_reach()
     RegisterSpellScript(spell_resizer_hit_three_q56034);
     RegisterSpellScript(spell_re_sizing_q59941);
     RegisterSpellScript(spell_re_sizing_aura_q59941);
+    RegisterSpellScript(spell_re_sizer_slaughter);
     // Ride Boar
     new quest_ride_of_the_scientifically_enhanced_boar();
     new scene_darkmaul_plains_skeleton_army_alliance();
@@ -7213,12 +7193,11 @@ void AddSC_zone_exiles_reach()
     RegisterCreatureAI(npc_captain_garrick_q55879);
     RegisterCreatureAI(npc_giant_boar_vehicle_q55879);
     RegisterCreatureAI(npc_torgok_q55879);
-    new FactoryCreatureScript<CreatureAI, &HenryGarrickSelector>("npc_henry_garrick_prisoner");
+    new FactoryCreatureScript<CreatureAI, &PrisonerQ55879Selector>("npc_prisoner_q55879");
     // The Re-Deather
     new quest_the_re_deather();
     new scene_darkmaul_plains_skeleton_army_horde();
     RegisterCreatureAI(npc_warlord_grimaxe_q59942);
-    new FactoryCreatureScript<CreatureAI, &ShujaPrisonerGarrickSelector>("npc_shuja_grimaxe_prisoner");
     // Westward Bound
     new quest_westward_bound_q55965();
     new quest_westward_bound_q59948();

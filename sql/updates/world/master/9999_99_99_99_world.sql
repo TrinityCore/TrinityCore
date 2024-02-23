@@ -71,7 +71,7 @@ UPDATE `creature` SET `StringId` = 'henry_garrick_ogre_ruins_prisoner' WHERE `gu
 UPDATE `creature_template` SET `faction`=1, `ScriptName`="npc_captain_garrick_q55879" WHERE `entry`=174955;
 UPDATE `creature_template` SET `ScriptName`="npc_giant_boar_vehicle_q55879" WHERE `entry`=156267;
 UPDATE `creature_template` SET `ScriptName`="npc_torgok_q55879" WHERE `entry`=162817;
-UPDATE `creature_template` SET `ScriptName`="npc_henry_garrick_prisoner" WHERE `entry`=156799;
+UPDATE `creature_template` SET `ScriptName`="npc_prisoner_q55879" WHERE `entry`=156799;
 UPDATE `creature_template` SET `npcflag`=16777216 WHERE entry IN (156595);
 UPDATE `creature_template` SET `VehicleId`=6832 WHERE `entry`=156267;
 UPDATE `creature_template` SET `npcflag`=2 WHERE `entry` IN (156799,156807);
@@ -151,12 +151,13 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 316982, 0, 0, 31, 0, 3, 174955, 0, 0, 0, 0, '', 'Spell Ping Garrick (DNT) (effect 0) will hit unit Alliance Captain.'),
 (13, 1, 316982, 0, 1, 31, 0, 3, 167146, 0, 0, 0, 0, '', 'Spell Ping Garrick (DNT) (effect 0) will hit unit Horde Warrior.');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (305779,173426,306357,296843);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (305779,173426,306357,296843,325368);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (305779,'spell_summon_darkmaul_plains_questgivers_q55879'),
 (173426,'spell_riding_giant_boar_q55879'),
 (306357,'spell_knockback_hint_q56034'),
-(296843,'spell_gear_repaired_aura_q55194');
+(296843,'spell_gear_repaired_aura_q55194'),
+(325368, 'spell_re_sizer_slaughter');
 
 -- Phase Area
 DELETE FROM `phase_area` WHERE `AreaId`=10424 AND `PhaseId` IN (14663,13835);
@@ -245,19 +246,19 @@ INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`
 (39166,0,1,0,52649);
 
 -- Lindie Springstock SAI 'Ogre Ruins'
-SET @NPC := 150245;
-UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@NPC;
-DELETE FROM `smart_scripts` WHERE `entryorguid` IN (@NPC) AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@NPC,0,0,1,1,0,100,0,8000,10000,8000,10000,0,66,0,0,0,0,0,0,19,156808,10,0,0,0,0,0,0,'OOC Face Small Boar'),
-(@NPC,0,1,0,61,0,100,0,0,0,0,0,0,5,4,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'OOC Emote OneShotCheer');
+SET @ENTRY := 150245;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+(@ENTRY, 0, 0, 1, '', 1, 0, 100, 0, 8000, 10000, 8000, 10000, 66, 0, 0, 0, 0, 0, 0, 19, 156808, 10, 0, 0, 0, 0, 0, 'Every 8 - 10 seconds (OOC) - Self: Look at Closest alive creature Small Boar (156808) in 10 yards'),
+(@ENTRY, 0, 1, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 5, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 8 - 10 seconds (OOC) - Self: Play emote 4');
 
 -- Captain Garrick SAI 'Ogre Ruins'
-SET @NPC := 156807;
-UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@NPC;
-DELETE FROM `smart_scripts` WHERE `entryorguid` IN (@NPC) AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@NPC,0,0,47,0,0,100,0,55194,0,0,0,0,11,296845,0,0,0,0,0,7,0,0,0,0,0,0,0,0,'Quest reward Cast Gear repair on player');
+SET @ENTRY := 156807;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+(@ENTRY, 0, 0, 0, '', 0, 0, 100, 0, 55194, 0, 0, 0, 11, 296845, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Time between 55.194 - 0 seconds (IC) - Self: Cast spell  296845 on Last action invoker');
 
 -- Loot for Torgok
 SET @ID := 162817;
@@ -296,7 +297,7 @@ INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_end`,`aura_spell`,
 
 UPDATE `creature` SET `StringId` = 'shuja_grimaxe_ogre_ruins_prisoner' WHERE `guid`=8000024;
 UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_q59942" WHERE `entry`=167146;
-UPDATE `creature_template` SET `ScriptName`="npc_shuja_grimaxe_prisoner" WHERE `entry`=167126;
+UPDATE `creature_template` SET `ScriptName`="npc_prisoner_q55879" WHERE `entry`=167126;
 UPDATE `creature_template` SET `npcflag`=16777216 WHERE entry IN (167142);
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID`=167146;
@@ -411,11 +412,6 @@ INSERT INTO `spell_target_position` (`ID`,`EffectIndex`,`MapID`,`PositionX`,`Pos
 DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (167146);
 INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`, `DespawnOnQuestsRemoved`) VALUES
 (167146,167145,NULL,NULL, '59942');
-
-DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-325368,325368);
-INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
-(-325368,82238,1,'aura remove'),
-(325368,82238,1,'aura add');
 
 -- Conversation
 DELETE FROM `conversation_template` WHERE `Id` IN (14525,14526,14527,15618);
@@ -554,8 +550,8 @@ INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
 
 DELETE FROM `quest_template_addon` WHERE `ID` IN (55965,59948);
 INSERT INTO `quest_template_addon` (`ID`,`AllowableClasses`,`PrevQuestID`,`NextQuestID`,`ScriptName`) VALUES
-(55965,0,55194,0,'quest_westward_bound_q55965'), -- Westward Bound Alliance
-(59948,0,59950,0,'quest_westward_bound_q59948'); -- Westward Bound Horde
+(55965,0,55194,0,'quest_westward_bound_alliance'), -- Westward Bound Alliance
+(59948,0,59950,0,'quest_westward_bound_horde'); -- Westward Bound Horde
 
 -- Phase Area
 DELETE FROM `phase_area` WHERE `AreaId`=10424 AND `PhaseId` IN (15337);
