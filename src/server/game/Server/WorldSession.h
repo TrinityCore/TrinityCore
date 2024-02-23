@@ -122,12 +122,14 @@ namespace WorldPackets
     {
         class EmoteClient;
     }
+
     namespace Combat
     {
         class AttackSwing;
         class AttackStop;
         class SetSheathed;
     }
+
     namespace Guild
     {
         class QueryGuildInfo;
@@ -220,10 +222,12 @@ namespace WorldPackets
         class QueryItemSingle;
         class QuestPOIQuery;
     }
+
     namespace Quest
     {
         class QueryQuestInfo;
     }
+
     namespace Spells
     {
         class CancelCast;
@@ -234,6 +238,12 @@ namespace WorldPackets
         class CancelAutoRepeatSpell;
         class CancelChannelling;
     }
+
+    namespace Talents
+    {
+        class ConfirmRespecWipe;
+    }
+
     namespace Totem
     {
         class TotemDestroyed;
@@ -454,7 +464,7 @@ class TC_GAME_API WorldSession
 
         GameClient* GetGameClient() const { return _gameClient; };
 
-        rbac::RBACData* GetRBACData();
+        rbac::RBACData* GetRBACData() const;
         bool HasPermission(uint32 permissionId);
         void LoadPermissions();
         QueryCallback LoadPermissionsAsync();
@@ -529,7 +539,7 @@ class TC_GAME_API WorldSession
 
         void SendTradeStatus(TradeStatusInfo const& status);
         void SendUpdateTrade(bool trader_data = true);
-        void SendCancelTrade();
+        void SendCancelTrade(TradeStatus status);
 
         void SendPetitionQueryOpcode(ObjectGuid petitionguid);
 
@@ -906,7 +916,7 @@ class TC_GAME_API WorldSession
 
         void HandleLearnTalentOpcode(WorldPacket& recvPacket);
         void HandleLearnPreviewTalents(WorldPacket& recvPacket);
-        void HandleTalentWipeConfirmOpcode(WorldPacket& recvPacket);
+        void HandleTalentWipeConfirmOpcode(WorldPackets::Talents::ConfirmRespecWipe& confirmRespecWipe);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
 
         void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);

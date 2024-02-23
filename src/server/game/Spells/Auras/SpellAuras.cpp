@@ -470,10 +470,6 @@ bool Aura::CanPeriodicTickCrit(Unit const* caster) const
     if (GetSpellInfo()->HasAttribute(SPELL_ATTR2_CANT_CRIT))
         return false;
 
-    // need to check this attribute because it's the triggered spell that'll receive the crit chance
-    if (GetSpellInfo()->HasAttribute(SPELL_ATTR4_INHERIT_CRIT_FROM_AURA))
-        return true;
-
     if (caster->HasAuraTypeWithAffectMask(SPELL_AURA_ABILITY_PERIODIC_CRIT, GetSpellInfo()))
         return true;
 

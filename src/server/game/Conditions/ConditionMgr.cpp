@@ -1818,6 +1818,15 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED:
+        {
+            if (!sAreaTriggerStore.LookupEntry(cond->SourceEntry))
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exists in AreaTrigger.dbc, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            break;
+        }
         case CONDITION_SOURCE_TYPE_TERRAIN_SWAP:
         {
             TC_LOG_ERROR("sql.sql", "CONDITION_SOURCE_TYPE_TERRAIN_SWAP: is only for master branch, skipped");
