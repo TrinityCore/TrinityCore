@@ -450,32 +450,6 @@ void BattlegroundAV::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*
     player->RemoveAurasDueToSpell(AV_BUFF_ARMOR);
 }
 
-void BattlegroundAV::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
-{
-    switch (trigger)
-    {
-        case 6633: // Horde Start
-        case 6632: // Alliance Start
-            if (GetStatus() == STATUS_WAIT_JOIN && entered)
-                TeleportPlayerToExploitLocation(player);
-            break;
-        case 95:
-        case 2608:
-        case 2606:
-        case 3326:
-        case 3327:
-        case 3328:
-        case 3329:
-        case 3330:
-        case 3331:
-            //Source->Unmount();
-            break;
-        default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
-            break;
-    }
-}
-
 void BattlegroundAV::EventPlayerDestroyedPoint(GameObject* gameobject)
 {
     if (!gameobject)

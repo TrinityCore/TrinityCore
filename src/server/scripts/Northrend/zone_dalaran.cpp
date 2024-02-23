@@ -24,6 +24,7 @@ SDCategory: Dalaran
 Script Data End */
 
 #include "ScriptMgr.h"
+#include "BattlegroundDS.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "Mail.h"
@@ -253,8 +254,44 @@ private:
     EventMap events;
 };
 
+class at_ds_pipe_knockback : public AreaTriggerScript
+{
+public:
+    at_ds_pipe_knockback() : AreaTriggerScript("at_ds_pipe_knockback") { }
+
+    void Trigger(Player* player) const
+    {
+        if (Battleground* battleground = player->GetBattleground())
+        {
+            if (battleground->GetStatus() != STATUS_IN_PROGRESS)
+                return;
+
+            // Remove effects of Demonic Circle Summon
+            player->RemoveAurasDueToSpell(SPELL_WARL_DEMONIC_CIRCLE);
+
+            // Someone has get back into the pipes and the knockback has already been performed,
+            // so we reset the knockback count for kicking the player again into the arena.
+            if (battleground->GetData(BG_DS_DATA_PIPE_KNOCKBACK_COUNT) >= BG_DS_PIPE_KNOCKBACK_TOTAL_COUNT)
+                battleground->SetData(BG_DS_DATA_PIPE_KNOCKBACK_COUNT, 0);
+        }
+    }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+    {
+        Trigger(player);
+        return true;
+    }
+
+    bool OnExit(Player* player, AreaTriggerEntry const* /*trigger*/) override
+    {
+        Trigger(player);
+        return true;
+    }
+};
+
 void AddSC_dalaran()
 {
     RegisterCreatureAI(npc_mageguard_dalaran);
     RegisterCreatureAI(npc_minigob_manabonk);
+    new at_ds_pipe_knockback();
 }

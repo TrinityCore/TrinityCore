@@ -78,6 +78,7 @@ inline constexpr Seconds BG_DS_WATERFALL_TIMER_MAX = 60s;
 inline constexpr Seconds BG_DS_WATERFALL_WARNING_DURATION = 5s;
 inline constexpr Seconds BG_DS_WATERFALL_DURATION = 30s;
 inline constexpr Milliseconds BG_DS_WATERFALL_KNOCKBACK_TIMER = 1500ms;
+inline constexpr uint32 BG_DS_DATA_PIPE_KNOCKBACK_COUNT = 1;
 
 enum BattlegroundDSEvents
 {
@@ -98,9 +99,10 @@ class BattlegroundDS : public Arena
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 
-        void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
 
+        void SetData(uint32 dataId, uint32 value) override;
+        uint32 GetData(uint32 dataId) const override;
     private:
         void PostUpdateImpl(uint32 diff) override;
 
