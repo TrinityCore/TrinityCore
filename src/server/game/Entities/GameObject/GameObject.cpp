@@ -2096,6 +2096,7 @@ void GameObject::Use(Unit* user)
                     case FORM_CAT:
                     case FORM_BEAR:
                     case FORM_DIREBEAR:
+                    case FORM_MOONKIN:
                     case FORM_TRAVEL:
                     case FORM_GHOSTWOLF:
                         player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
@@ -2153,6 +2154,7 @@ void GameObject::Use(Unit* user)
                     case FORM_CAT:
                     case FORM_BEAR:
                     case FORM_DIREBEAR:
+                    case FORM_MOONKIN:
                     case FORM_TRAVEL:
                     case FORM_GHOSTWOLF:
                         player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
