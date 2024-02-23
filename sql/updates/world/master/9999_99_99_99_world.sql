@@ -25,6 +25,11 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+16,167225,2175,10424,10527,'0',0,15337,0,0,0,0,92.015625,-2246.911376953125,94.49737548828125,2.622560739517211914,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,53212), -- Lana Jordan "Pit Area"
 (@CGUID+17,167226,2175,10424,10527,'0',0,15337,0,0,0,0,89.265625,-2248.960205078125,94.74571990966796875,1.861210823059082031,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,53212); -- Won'sa "Pit Area"
 
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+18 AND @CGUID+19;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
+(@CGUID+18, 167926, 2175, 10424, 10529, '0', 15558, 0, 0, 1, 232.1614532470703125, -2292.53466796875, 80.9791717529296875, 4.706853866577148437, 120, 0, 0, 224, 0, 0, NULL, NULL, NULL, NULL, 53262), -- Warlord Breka Grimaxe (Area: Ogre Ruins - Difficulty: 0) CreateObject1
+(@CGUID+19, 167128, 2175, 10424, 10529, '0', 15558, 0, 0, 0, 230.795135498046875, -2297.085205078125, 80.9791717529296875, 1.356228590011596679, 120, 0, 0, 119, 0, 0, NULL, NULL, NULL, NULL, 53262); -- Shuja Grimaxe (Area: Ogre Ruins - Difficulty: 0) CreateObject1
+
 -- Add missing Creature Spawns
 DELETE FROM `gameobject` WHERE `guid`=@OGUID;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
@@ -117,9 +122,10 @@ INSERT INTO `scene_template` (`SceneId`,`Flags`,`ScriptPackageID`,`Encrypted`,`S
 (2420,16,2822,0,'');
 
 -- Summon data for Captain Garrick
-DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (174955);
+DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (174955, 167126);
 INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`, `DespawnOnQuestsRemoved`) VALUES
-(174955,156781,NULL,NULL, '55879');
+(174955,156781,NULL,NULL,''),
+(167126,NULL,NULL,NULL,'59942');
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID`=174955;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`, `VerifiedBuild`) VALUES
@@ -258,7 +264,7 @@ SET @ENTRY := 156807;
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@ENTRY, 0, 0, 0, '', 0, 0, 100, 0, 55194, 0, 0, 0, 11, 296845, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Time between 55.194 - 0 seconds (IC) - Self: Cast spell  296845 on Last action invoker');
+(@ENTRY, 0, 0, 0, '', 47, 0, 100, 0, 55194, 0, 0, 0, 11, 296845, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On quest accepted - Self: Cast spell  296845 on Player who accepted');
 
 -- Loot for Torgok
 SET @ID := 162817;
@@ -280,7 +286,7 @@ INSERT INTO `quest_template` (`ID`,`QuestType`,`RewardXPMultiplier`,`RewardMoney
 
 -- Add missing scene spells "This will be updated in the future with end quest"
 DELETE FROM `spell_area` WHERE `spell` IN (312605) AND `area` IN (10527);
-DELETE FROM `spell_area` WHERE `spell` IN (321690,321691,321692,321693) AND `area` IN (10424);
+DELETE FROM `spell_area` WHERE `spell` IN (321690,321691,321692,321693,325429) AND `area` IN (10424);
 INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_end`,`aura_spell`,`racemask`,`gender`,`flags`,`quest_start_status`,`quest_end_status`) VALUES
 (312605,10527,55879,0,0,0,2,3,64,0),
 (312605,10527,59942,0,0,0,2,3,64,0),
@@ -291,7 +297,12 @@ INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_end`,`aura_spell`,
 (321692,10424,55879,0,0,0,2,3,64,0),
 (321692,10424,59942,0,0,0,2,3,64,0),
 (321693,10424,55879,0,0,0,2,3,64,0),
-(321693,10424,59942,0,0,0,2,3,64,0);
+(321693,10424,59942,0,0,0,2,3,64,0),
+(325429,10424,59942,0,0,0,2,3,10,0);
+
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 17) AND (`SourceEntry` IN (325429));
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(17, 0, 325429, 0, 0, 48, 0, 397279, 0, 8, '', 0, 'Caster of the spell has quest objective 397279 == 8 (but hasn\'t rewarded quest yet)');
 
 -- Re-Deather
 
@@ -335,7 +346,7 @@ INSERT INTO `quest_template_addon` (`ID`,`AllowableClasses`,`PrevQuestID`,`NextQ
 DELETE FROM `phase_area` WHERE `AreaId`=10588 AND `PhaseId` IN (15331);
 DELETE FROM `phase_area` WHERE `AreaId`=10424 AND `PhaseId` IN (15485,15447,15353,15338,15377);
 INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
-(10588,15331, 'Cosmetic - NPE - See Choppy Booster Mk. 5'),
+(10588,15331, 'Cosmetic - NPE - See Choppy Booster Mk. 5 for Re-Deather'),
 (10424,15485, 'Cosmetic - NPE - See Warlord Breka Grimaxe at Ogre Ruins'),
 (10424,15447, 'Cosmetic - NPE - See Grunt Throg at Ogre Ruins'),
 (10424,15353, 'Cosmetic - NPE - See Shuja Grimaxe at Ogre Ruins pre quest at Ogre Ruins'),
@@ -345,7 +356,7 @@ INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
 -- Phase Names
 DELETE FROM `phase_name` WHERE `ID` IN (15331,15485,15447,15353,15338,15377);
 INSERT INTO `phase_name` (`ID`,`Name`) VALUES
-(15331,'Cosmetic - NPE - See Choppy Booster Mk. 5'),
+(15331,'Cosmetic - NPE - See Choppy Booster Mk. 5 for Re-Deather'),
 (15485,'Cosmetic - NPE - See Warlord Breka Grimaxe at Ogre Ruins'),
 (15447,'Cosmetic - NPE - See Grunt Throg at Ogre Ruins'),
 (15353,'Cosmetic - NPE - See Shuja Grimaxe at Ogre Ruins pre quest at Ogre Ruins'),
@@ -353,16 +364,18 @@ INSERT INTO `phase_name` (`ID`,`Name`) VALUES
 (15377,'Cosmetic - NPE - See Mithdran Dawntracker at Ogre Ruins pre quest at Ogre Ruins');
 
 -- Phase Conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15331,15319) AND `ConditionValue1`=59942;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15331,13783) AND `ConditionValue1`=325368;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15331) AND `SourceEntry`=10588;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15319) AND `ConditionValue1`=59942;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13783) AND `ConditionValue1`=325368;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15485,15447,15353,15338,15377,15553,15316,15315,15318) AND `ConditionValue1`=59942;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15316) AND `SourceEntry`=0;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (14663,15327) AND `ConditionValue1`=59942;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (14663) AND `ConditionValue1`=397279;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (26,15331,10588, 0, 0, 47, 0, 59942, 8, 0, 0, 0, 0, '', 'Choppy Booster Mk. 5 if quest The Re-Deather is inprogress'),
-(26,15319,10588, 0, 0, 47, 0, 59942, 1, 0, 0, 0, 0, '', 'Choppy Booster Mk. 5 if quest The Re-Deather is not taken'),
 (26,15331,10588, 0, 0, 1, 0, 325368, 0, 0, 1, 0, 0, '', 'See Choppy Booster Mk. 5 if player does not have aura'),
+(26,15331,10588, 0, 0, 48, 0, 397279, 0, 0, 0, 0, 0, '', 'Player has quest objective 397279 == 0 (but hasn\'t rewarded quest yet)'),
+(26,15319,10588, 0, 0, 47, 0, 59942, 1, 0, 0, 0, 0, '', 'Choppy Booster Mk. 5 if quest The Re-Deather is not taken'),
 (26,13783,10529, 0, 0, 1, 0, 325368, 0, 0, 1, 0, 0, '', 'See See the Army of Undead if player does not have aura'),
 (26,15485,10424, 0, 0, 47, 0, 59942, 64, 0, 0, 0, 0, '', 'See Warlord Breka Grimaxe at Ogre Ruins if quest The Re-Deather is rewarded'),
 (26,15447,10424, 0, 0, 47, 0, 59942, 64, 0, 0, 0, 0, '', 'See Grunt Throg at Ogre Ruins if quest The Re-Deather is rewarded'),
@@ -411,7 +424,7 @@ INSERT INTO `spell_target_position` (`ID`,`EffectIndex`,`MapID`,`PositionX`,`Pos
 -- Summon data for Warlord Grimaxe
 DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (167146);
 INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`, `DespawnOnQuestsRemoved`) VALUES
-(167146,167145,NULL,NULL, '59942');
+(167146,167145,NULL,NULL,'');
 
 -- Conversation
 DELETE FROM `conversation_template` WHERE `Id` IN (14525,14526,14527,15618);
@@ -569,3 +582,23 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26,15338,10424, 0, 0, 47, 0, 59948, 74, 0, 1, 0, 0, '', 'See Won\'sa and Lana Jordan at Ogre Ruins pre quest if quest Westward Bound is not taken | complete | rewarded'),
 (26,15337,10424, 0, 0, 47, 0, 59948, 74, 0, 0, 0, 0, '', 'See Won\'sa and Lana Jordan at pit pre quest if quest Westward Bound is taken | complete | rewarded'),
 (26,15337,10424, 0, 0, 47, 0, 59949, 66, 0, 1, 0, 0, '', 'See Won\'sa and Lana Jordan at pit pre quest if quest Who Lurks in the Pit is not complete | rewarded');
+
+UPDATE `creature` SET `PhaseUseFlags`=`PhaseUseFlags` | 0x01 WHERE `guid` IN(1051317, 1051942); -- fix spirithealer phases
+
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=957, `VerifiedBuild`=53262 WHERE (`Entry`=167146 AND `DifficultyID`=0); -- Horde Warrior
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=741, `VerifiedBuild`=53262 WHERE (`Entry`=167905 AND `DifficultyID`=0); -- Choppy Booster Mk. 5
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=741, `VerifiedBuild`=53262 WHERE (`Entry`=167915 AND `DifficultyID`=0); -- Cork Fizzlepop
+
+UPDATE `creature_template` SET `faction`=116, `BaseAttackTime`=2000, `unit_flags`=64, `unit_flags2`=2048, `unit_flags3`=16 WHERE `entry`=167146; -- Horde Warrior
+
+DELETE FROM `phase_area` WHERE `AreaId`=10424 AND `PhaseId` IN (15558);
+INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
+(10424,15558, 'Cosmetic - NPE - See Breka and Shuja Grimaxe after freeing Shuja');
+
+DELETE FROM `phase_name` WHERE `ID` IN (15558);
+INSERT INTO `phase_name` (`ID`,`Name`) VALUES
+(15558,'Cosmetic - NPE - See Breka and Shuja Grimaxe after freeing Shuja');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 26 AND `SourceEntry`=10424 AND `SourceGroup` IN(15558);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(26, 15558, 10424, 0, 0, 28, 0, 59942, 0, 0, '', 0, 'Player has completed quest quest The Re-Deather (59942) (but not yet rewarded)');

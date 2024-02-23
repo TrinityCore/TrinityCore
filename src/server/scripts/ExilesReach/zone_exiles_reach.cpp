@@ -5978,7 +5978,6 @@ public:
                 player->CastSpell(player, SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_SUMMON);
                 break;
             case QUEST_STATUS_COMPLETE:
-                player->CombatStop();
                 player->CastSpell(player, SPELL_PING_GARRICK_TORGOK);
                 break;
             case QUEST_STATUS_REWARDED:
@@ -6005,17 +6004,17 @@ public:
 
 enum SceneOgreRuinsRideBoar
 {
-    QUEST_RIDE_ENHANCED_BOAR           = 55879,
-    QUEST_RIDE_BOAR_OBJECTIVE_TWO      = 396499,
-    QUEST_RIDE_BOAR_OBJECTIVE_TWO_MAX  = 8,
+    QUEST_RIDE_ENHANCED_BOAR            = 55879,
+    QUEST_RIDE_BOAR_OBJECTIVE_TWO       = 396499,
+    QUEST_RIDE_BOAR_OBJECTIVE_TWO_MAX   = 8,
 
-    SPELL_ENHANCED_BOAR_TRAMPLE        = 305557,
-    SPELL_ENHANCED_BOAR_CHARGE         = 321627,
-    SPELL_ENHANCED_BOAR_KILL_CREDIT    = 321668,
-    SPELL_ENHANCED_BOAR_PING_VEHICLE   = 305559,
-    SPELL_ENHANCED_BOAR_CHARGE_CONVO   = 305815,
-    SPELL_ENHANCED_BOAR_KNOCKBACK      = 306356,
-    SPELL_ENHANCED_BOAR_KNOCKBACK_HINT = 306357
+    SPELL_ENHANCED_BOAR_TRAMPLE         = 305557,
+    SPELL_ENHANCED_BOAR_CHARGE          = 321627,
+    SPELL_ENHANCED_BOAR_KILL_CREDIT     = 321668,
+    SPELL_ENHANCED_BOAR_PING_VEHICLE    = 305559,
+    SPELL_ENHANCED_BOAR_CHARGE_CONVO    = 305815,
+    SPELL_ENHANCED_BOAR_KNOCKBACK       = 306356,
+    SPELL_ENHANCED_BOAR_KNOCKBACK_HINT  = 306357
 };
 
 // Script scene for Ride of the Scientifically Enhanced Boar quest
@@ -6144,29 +6143,29 @@ class spell_knockback_hint_q56034 : public SpellScript
 
 enum CaptainGarrickGiantBoar
 {
-    ACTION_EXIT_BOAR                                       = 1,
+    ACTION_EXIT_BOAR                                        = 1,
 
-    ACTOR_HENRY_GARRICK_PRISONER                           = 78493,
+    ACTOR_HENRY_GARRICK_PRISONER                            = 78493,
 
-    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_ACCEPT    = 12090,
+    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_ACCEPT     = 12090,
 
-    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_HENRY     = 15615,
-    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_EXIT      = 12092,
+    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_HENRY      = 15615,
+    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_EXIT       = 12092,
 
-    EVENT_CAPTAIN_GARRICK_RIDE_BOAR                        = 1,
-    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER            = 2,
-    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY          = 3,
-    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_QUESTGIVER       = 4,
-    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION = 5,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR                         = 1,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER             = 2,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY           = 3,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN           = 4,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION  = 5,
 
-    NPC_GIANT_BOAR                                         = 156267,
+    NPC_GIANT_BOAR                                          = 156267,
 
-    PHASE_SEE_TORGOK                                       = 14663,
+    PHASE_SEE_TORGOK                                        = 14663,
 
-    POINT_HENRY_POSITION                                   = 0,
+    POINT_HENRY_POSITION                                    = 0,
 
-    SPELL_PING_GARRICK_TO_RIDE_BOAR                        = 316984,
-    SPELL_RIDE_VEHICLE_CAPTIAN_BOAR                        = 63315
+    SPELL_PING_GARRICK_TO_RIDE_BOAR                         = 316984,
+    SPELL_RIDE_VEHICLE_CAPTIAN_BOAR                         = 63315
 };
 
 Position MoveToPrisonerPosition = { 232.16145f, -2292.5347f, 80.91198f };
@@ -6306,10 +6305,10 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
 
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MovePoint(POINT_HENRY_POSITION, MoveToPrisonerPosition);
-                    _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_QUESTGIVER, 18s);
+                    _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN, 18s);
                     break;
                 }
-                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_QUESTGIVER:
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN:
                 {
                     if (Creature* henry = ObjectAccessor::GetCreature(*me, _henryGUID))
                         henry->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
@@ -6343,17 +6342,17 @@ private:
 
 enum GiantBoar
 {
-    EVENT_GIANT_BOAR_SIZE_ONE         = 1,
-    EVENT_GIANT_BOAR_SIZE_TWO         = 2,
-    EVENT_GIANT_BOAR_SIZE_THREE       = 3,
-    EVENT_GIANT_BOAR_SIZE_FOUR        = 4,
-    EVENT_GIANT_BOAR_EJECT_PASSENGERS = 5,
-    EVENT_GIANT_BOAR_UNROOT           = 6,
+    EVENT_GIANT_BOAR_SIZE_ONE           = 1,
+    EVENT_GIANT_BOAR_SIZE_TWO           = 2,
+    EVENT_GIANT_BOAR_SIZE_THREE         = 3,
+    EVENT_GIANT_BOAR_SIZE_FOUR          = 4,
+    EVENT_GIANT_BOAR_EJECT_PASSENGERS   = 5,
+    EVENT_GIANT_BOAR_UNROOT             = 6,
 
-    SOUND_ENLARGE_BOAR                = 157516,
-    SOUND_SHRINK_BOAR                 = 157517,
+    SOUND_ENLARGE_BOAR                  = 157516,
+    SOUND_SHRINK_BOAR                   = 157517,
 
-    VEHICLE_BOAR_SEAT_ONE             = 1
+    VEHICLE_BOAR_SEAT_ONE               = 1
 };
 
 // 156267 - Giant Boar
@@ -6453,14 +6452,14 @@ private:
     bool _endOfScene;
 };
 
-enum Torgok
+enum TorgokData
 {
     EVENT_CAST_SPIRIT_BOLT              = 1,
     EVENT_CAST_SOUL_GRASP               = 2,
 
-    ITEM_TORGOKs_REAGENT_POUCH          = 176398,
+    ITEM_TORGOKS_REAGENT_POUCH          = 176398,
 
-    QUEST_TORGOKs_REAGENT_POUCH_DROPPED = 59610,
+    QUEST_TORGOKS_REAGENT_POUCH_DROPPED = 59610,
 
     SPELL_SPIRIT_BOLT                   = 319294,
     SPELL_SOUL_GRASP                    = 319298
@@ -6494,9 +6493,9 @@ struct npc_torgok_q55879 : public ScriptedAI
             {
                 for (LootItem const& lootItem : loot->items)
                 {
-                    if (lootItem.itemid == ITEM_TORGOKs_REAGENT_POUCH)
+                    if (lootItem.itemid == ITEM_TORGOKS_REAGENT_POUCH)
                     {
-                        player->SetRewardedQuest(QUEST_TORGOKs_REAGENT_POUCH_DROPPED);
+                        player->SetRewardedQuest(QUEST_TORGOKS_REAGENT_POUCH_DROPPED);
                         break;
                     }
                 }
@@ -6532,7 +6531,7 @@ private:
     EventMap _events;
 };
 
-enum HenryGarrickQuest55879
+enum PrisonerQuest55879
 {
     PATH_PRISONER_TO_GROUND = 80000230
 };
@@ -6565,20 +6564,25 @@ CreatureAI* PrisonerQ55879Selector(Creature* creature)
 
 enum TheReDeather
 {
-    CONVERSATION_ACCEPT_RE_DEATHER_QUEST  = 14525,
+    CONVERSATION_ACCEPT_RE_DEATHER_QUEST    = 14525,
+    CONVERSATION_RE_DEATHER_EXPLODE         = 14526,
 
-    NPC_HORDE_WARRIOR                     = 167146,
-    NPC_SHUJA_GRIMAXE_PRISONER            = 167126,
+    NPC_HORDE_WARRIOR                       = 167146,
+    NPC_SHUJA_GRIMAXE_PRISONER              = 167126,
 
-    QUEST_RE_DEATHER                      = 59942,
-    QUEST_RE_DEATHER_OBJECTIVE_TWO        = 397279,
-    QUEST_RE_DEATHER_OBJECTIVE_TWO_MAX    = 8,
+    QUEST_RE_DEATHER                        = 59942,
 
-    SPELL_REUNION_DNT_HORDE               = 326678,
-    SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK = 325394,
-    SPELL_RE_DEATHER_ROUGH_LANDING_DNT    = 325401,
-    SPELL_RE_DEATHER_SUMMON_GRIMAXE       = 325429
+    OBJECTIVE_RE_DEATHER_CADAVERS_KILLED    = 397279,
+
+    RE_DEATHER_CADAVERS_KILLED_MAX          = 8,
+
+    SPELL_REUNION_DNT_HORDE                 = 326678,
+    SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK   = 325394,
+    SPELL_RE_DEATHER_ROUGH_LANDING_DNT      = 325401,
+    SPELL_RE_DEATHER_SUMMON_GRIMAXE         = 325429
 };
+
+Position const ReDeatherAbandonTeleportPos = { 102.3f, -2422.5f, 90.1f, 0.764454185962677001f };
 
 // 59942 - The Re-Deather
 class quest_the_re_deather : public QuestScript
@@ -6609,11 +6613,13 @@ public:
             case QUEST_STATUS_NONE:
             {
                 player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
+                player->RemoveAura(SPELL_RE_DEATHER_SUMMON_GRIMAXE);
                 player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
                 player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
                 player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
                 player->RemoveAura(SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK);
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->NearTeleportTo(ReDeatherAbandonTeleportPos);
                 break;
             }
             default:
@@ -6634,11 +6640,11 @@ public:
         {
             player->CastSpell(player, SPELL_ENHANCED_BOAR_KILL_CREDIT, true);
 
-            if (player->GetQuestObjectiveData(QUEST_RE_DEATHER, QUEST_RE_DEATHER_OBJECTIVE_TWO) == QUEST_RE_DEATHER_OBJECTIVE_TWO_MAX)
+            if (player->GetQuestObjectiveData(QUEST_RE_DEATHER, OBJECTIVE_RE_DEATHER_CADAVERS_KILLED) == RE_DEATHER_CADAVERS_KILLED_MAX)
             {
                 player->CastSpell(player, SPELL_ENHANCED_BOAR_PING_VEHICLE); // Ping Vehicle
                 player->CastSpell(player, SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK); // Temp Objective Check
-                Conversation::CreateConversation(CONVERSATION_ACCEPT_RE_DEATHER_QUEST, player, *player, player->GetGUID(), nullptr);
+                Conversation::CreateConversation(CONVERSATION_RE_DEATHER_EXPLODE, player, *player, player->GetGUID(), nullptr);
             }
         }
         else if (triggerName == "Conversation")
@@ -6654,7 +6660,6 @@ public:
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
         player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-        player->CastSpell(player, SPELL_RE_DEATHER_SUMMON_GRIMAXE);
     }
 };
 
@@ -6672,11 +6677,6 @@ enum GrimaxeReDeather
 struct npc_warlord_grimaxe_q59942 : public ScriptedAI
 {
     npc_warlord_grimaxe_q59942(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
     {
         _inCombat = false;
         me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
@@ -6701,7 +6701,6 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
         conversation->Start();
 
         me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
-        _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 1s);
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -6738,6 +6737,12 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
         }
     }
 
+    void OnDespawn() override
+    {
+        if (Creature* shuja = ObjectAccessor::GetCreature(*me, _shujaGUID))
+            shuja->DespawnOrUnsummon();
+    }
+
     void UpdateAI(uint32 diff) override
     {
         _events.Update(diff);
@@ -6746,27 +6751,6 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
         {
             switch (eventId)
             {
-                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER:
-                {
-                    if (Player* player = Object::ToPlayer(me->GetOwner()))
-                    {
-                        if (player->GetQuestStatus(QUEST_RE_DEATHER) == QUEST_STATUS_INCOMPLETE)
-                        {
-                            if (player->IsInCombat() && !me->IsInCombat())
-                                me->AI()->AttackStart(player->GetVictim());
-                        }
-                        else if (player->GetQuestStatus(QUEST_RE_DEATHER) == QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_RE_DEATHER) == QUEST_STATUS_REWARDED)
-                        {
-                            if (Creature* shuja = ObjectAccessor::GetCreature(*me, _shujaGUID))
-                                shuja->DespawnOrUnsummon();
-
-                            player->RemoveAura(SPELL_RE_DEATHER_SUMMON_GRIMAXE);
-                            me->DespawnOrUnsummon();
-                        }
-                        _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 1s);
-                    }
-                    break;
-                }
                 case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY:
                 {
                     Player* player = Object::ToPlayer(me->GetOwner());
@@ -6783,19 +6767,46 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
 
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MovePoint(POINT_HENRY_POSITION, MoveToPrisonerPosition);
-                    _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_QUESTGIVER, 22s);
+                    _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN, 22s);
                     break;
                 }
-                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_QUESTGIVER:
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN:
                 {
-                    if (Creature* shuja = ObjectAccessor::GetCreature(*me, _shujaGUID))
-                        shuja->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                    /*
+                        @TODO implement dynamic setting of ReplaceObject for Breka and Shuja
+
+                        Notes:
+                        SmoothPhasingInfo smoothPhasingInfo{GetGUID(), true, true};
+                        Optional<ObjectGuid> ReplaceObject;
+                        bool ReplaceActive = true;
+                        bool StopAnimKits = true;
+
+                        if (smoothPhasingInfo)
+                        {
+                            if (summoner && smoothPhasingInfo->ReplaceObject)
+                            {
+                                if (WorldObject* replacedObject = ObjectAccessor::GetWorldObject(*summoner, *smoothPhasingInfo->ReplaceObject))
+                                {
+                                    SmoothPhasingInfo originalSmoothPhasingInfo = *smoothPhasingInfo;
+                                    originalSmoothPhasingInfo.ReplaceObject = summon->GetGUID();
+                                    replacedObject->GetOrCreateSmoothPhasing()->SetViewerDependentInfo(privateObjectOwner, originalSmoothPhasingInfo);
+
+                                    summon->SetDemonCreatorGUID(privateObjectOwner);
+                                }
+                            }
+
+                            summon->GetOrCreateSmoothPhasing()->SetSingleInfo(*smoothPhasingInfo);
+                        }
+                    */
+                    me->DespawnOrUnsummon();
                     break;
                 }
                 default:
                     break;
             }
         }
+
+        UpdateVictim();
     }
 private:
     EventMap _events;
@@ -6809,10 +6820,10 @@ private:
 
 enum WestwardBound
 {
-    NPC_BJORN_STOUTHANDS_PIT_ONE = 156891,
-    NPC_ALARIA_PIT_ONE           = 156803,
-    NPC_LANAJORDAN_PIT_ONE       = 167225,
-    NPC_WONSA_PIT_ONE            = 167226
+    NPC_BJORN_STOUTHANDS_PIT_ONE    = 156891,
+    NPC_ALARIA_PIT_ONE              = 156803,
+    NPC_LANAJORDAN_PIT_ONE          = 167225,
+    NPC_WONSA_PIT_ONE               = 167226
 };
 
 Position const BjornWestwardBoundRuinsPos = { 192.181f, -2311.44f, 80.6975f, 3.368485450744628906f };
