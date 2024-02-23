@@ -23,26 +23,27 @@ SDCategory: Sunken Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "sunken_temple.h"
 
-enum Gameobject
+static constexpr DoorData doorData[] =
 {
-    GO_ATALAI_STATUE1           = 148830,
-    GO_ATALAI_STATUE2           = 148831,
-    GO_ATALAI_STATUE3           = 148832,
-    GO_ATALAI_STATUE4           = 148833,
-    GO_ATALAI_STATUE5           = 148834,
-    GO_ATALAI_STATUE6           = 148835,
-    GO_ATALAI_LIGHT1            = 148883,
-    GO_ATALAI_LIGHT2            = 148937
+    { GO_FORCEFIELD, BOSS_EVENT_ELITE_TROLLS, DOOR_TYPE_PASSAGE },
+    { 0,             0,                       DOOR_TYPE_ROOM }  // END
 };
 
-enum CreatureIds
+static constexpr ObjectData gameObjects[] =
 {
-    NPC_ATALALARION             = 8580
+    { GO_ATALAI_STATUE1, GO_ATALAI_STATUE1 },
+    { GO_ATALAI_STATUE2, GO_ATALAI_STATUE2 },
+    { GO_ATALAI_STATUE3, GO_ATALAI_STATUE3 },
+    { GO_ATALAI_STATUE4, GO_ATALAI_STATUE4 },
+    { GO_ATALAI_STATUE5, GO_ATALAI_STATUE5 },
+    { GO_ATALAI_STATUE6, GO_ATALAI_STATUE6 },
+    { 0,                 0 }
 };
 
 static Position const atalalarianPos = { -466.5134f, 95.19822f, -189.6463f, 0.03490658f };
@@ -72,6 +73,9 @@ public:
         instance_sunken_temple_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            SetBossNumber(MAX_ENCOUNTER);
+            LoadDoorData(doorData);
+            LoadObjectData(nullptr, gameObjects);
             State = 0;
 
             s1 = false;
@@ -80,14 +84,12 @@ public:
             s4 = false;
             s5 = false;
             s6 = false;
+            EliteTrollsKilled = 0;
         }
 
-        ObjectGuid GOAtalaiStatue1;
-        ObjectGuid GOAtalaiStatue2;
-        ObjectGuid GOAtalaiStatue3;
-        ObjectGuid GOAtalaiStatue4;
-        ObjectGuid GOAtalaiStatue5;
-        ObjectGuid GOAtalaiStatue6;
+        ObjectGuid JammalAnTheProphetGUID;
+        ObjectGuid ShadeOfEranikusGUID;
+        uint32 EliteTrollsKilled;
 
         uint32 State;
 
@@ -98,16 +100,49 @@ public:
         bool s5;
         bool s6;
 
-        void OnGameObjectCreate(GameObject* go) override
+        void OnUnitDeath(Unit* unit) override
         {
-            switch (go->GetEntry())
+            switch (unit->GetEntry())
             {
-                case GO_ATALAI_STATUE1: GOAtalaiStatue1 = go->GetGUID();   break;
-                case GO_ATALAI_STATUE2: GOAtalaiStatue2 = go->GetGUID();   break;
-                case GO_ATALAI_STATUE3: GOAtalaiStatue3 = go->GetGUID();   break;
-                case GO_ATALAI_STATUE4: GOAtalaiStatue4 = go->GetGUID();   break;
-                case GO_ATALAI_STATUE5: GOAtalaiStatue5 = go->GetGUID();   break;
-                case GO_ATALAI_STATUE6: GOAtalaiStatue6 = go->GetGUID();   break;
+                case NPC_AVATAR_OF_HAKKAR:      SetBossState(BOSS_AVATAR_OF_HAKKAR, DONE); break;
+                case NPC_JAMMALAN_THE_PROPHET:  SetBossState(BOSS_JAMMALAN_THE_PROPHET, DONE); break;
+                case NPC_DREAMSCYTHE:           SetBossState(BOSS_DREAMSCYTHE, DONE); break;
+                case NPC_WEAVER:                SetBossState(BOSS_WEAVER, DONE); break;
+                case NPC_MORPHAZ:               SetBossState(BOSS_MORPHAZ, DONE); break;
+                case NPC_HAZZAS:                SetBossState(BOSS_HAZZAS, DONE); break;
+                case NPC_SHADE_OF_ERANIKUS:     SetBossState(BOSS_SHADE_OF_ERANIKUS, DONE); break;
+                case NPC_ATALALARION:           SetBossState(BOSS_ATALALARION, DONE); break;
+                case NPC_ZOLO:
+                case NPC_GASHER:
+                case NPC_LORO:
+                case NPC_HUKKU:
+                case NPC_ZUL_LOR:
+                case NPC_MIJAN:                 SetData(BOSS_EVENT_ELITE_TROLLS, EliteTrollsKilled + 1); break;
+                default:                        break;
+            }
+        }
+
+        void OnCreatureCreate(Creature* creature) override
+        {
+            InstanceScript::OnCreatureCreate(creature);
+
+            switch (creature->GetEntry())
+            {
+                case NPC_JAMMALAN_THE_PROPHET:
+                    JammalAnTheProphetGUID = creature->GetGUID();
+                    if (GetBossState(BOSS_EVENT_ELITE_TROLLS) != DONE)
+                    {
+                        creature->SetImmuneToPC(true);
+                        creature->CastSpell(creature, SPELL_GREEN_CHANNELING);
+                    }
+                    break;
+                case NPC_SHADE_OF_ERANIKUS:
+                    ShadeOfEranikusGUID = creature->GetGUID();
+                    if (GetBossState(BOSS_JAMMALAN_THE_PROPHET) != DONE)
+                        creature->SetImmuneToAll(true);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -118,34 +153,34 @@ public:
              case GO_ATALAI_STATUE1:
                 if (!s1 && !s2 && !s3 && !s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue1 = instance->GetGameObject(GOAtalaiStatue1))
+                    if (GameObject* pAtalaiStatue1 = GetGameObject(GO_ATALAI_STATUE1))
                         UseStatue(pAtalaiStatue1);
                     s1 = true;
                     State = 0;
-                };
+                }
                 break;
              case GO_ATALAI_STATUE2:
                 if (s1 && !s2 && !s3 && !s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue2 = instance->GetGameObject(GOAtalaiStatue2))
+                    if (GameObject* pAtalaiStatue2 = GetGameObject(GO_ATALAI_STATUE2))
                         UseStatue(pAtalaiStatue2);
                     s2 = true;
                     State = 0;
-                };
+                }
                 break;
              case GO_ATALAI_STATUE3:
                 if (s1 && s2 && !s3 && !s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue3 = instance->GetGameObject(GOAtalaiStatue3))
+                    if (GameObject* pAtalaiStatue3 = GetGameObject(GO_ATALAI_STATUE3))
                         UseStatue(pAtalaiStatue3);
                     s3 = true;
                     State = 0;
-                };
+                }
                 break;
              case GO_ATALAI_STATUE4:
                 if (s1 && s2 && s3 && !s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue4 = instance->GetGameObject(GOAtalaiStatue4))
+                    if (GameObject* pAtalaiStatue4 = GetGameObject(GO_ATALAI_STATUE4))
                         UseStatue(pAtalaiStatue4);
                     s4 = true;
                     State = 0;
@@ -154,7 +189,7 @@ public:
              case GO_ATALAI_STATUE5:
                 if (s1 && s2 && s3 && s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue5 = instance->GetGameObject(GOAtalaiStatue5))
+                    if (GameObject* pAtalaiStatue5 = GetGameObject(GO_ATALAI_STATUE5))
                         UseStatue(pAtalaiStatue5);
                     s5 = true;
                     State = 0;
@@ -163,7 +198,7 @@ public:
              case GO_ATALAI_STATUE6:
                 if (s1 && s2 && s3 && s4 && s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue6 = instance->GetGameObject(GOAtalaiStatue6))
+                    if (GameObject* pAtalaiStatue6 = GetGameObject(GO_ATALAI_STATUE6))
                     {
                         UseStatue(pAtalaiStatue6);
                         UseLastStatue(pAtalaiStatue6);
@@ -173,7 +208,7 @@ public:
                 }
                 break;
              }
-         };
+         }
 
         void UseStatue(GameObject* go)
         {
@@ -189,20 +224,70 @@ public:
             go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10min);
         }
 
+        bool SetBossState(uint32 type, EncounterState state) override
+        {
+            if (!InstanceScript::SetBossState(type, state))
+                return false;
+
+            switch (type)
+            {
+                case BOSS_JAMMALAN_THE_PROPHET:
+                    if (state == DONE)
+                        if (Creature* creature = instance->GetCreature(ShadeOfEranikusGUID))
+                            creature->SetImmuneToAll(false);
+                    break;
+                default:
+                    break;
+            }
+            return true;
+        }
+
          void SetData(uint32 type, uint32 data) override
          {
-            if (type == EVENT_STATE)
-                State = data;
+            switch (type)
+            {
+                case EVENT_STATE:
+                    State = data;
+                    break;
+                case BOSS_EVENT_ELITE_TROLLS:
+                    EliteTrollsKilled = data;
+                    if (EliteTrollsKilled == 6)
+                    {
+                        if (Creature* jammal = instance->GetCreature(JammalAnTheProphetGUID))
+                            jammal->SetImmuneToPC(false);
+                        SetBossState(BOSS_EVENT_ELITE_TROLLS, DONE);
+                    }
+                    SaveToDB();
+                    break;
+                default:
+                    break;
+            }
          }
 
          uint32 GetData(uint32 type) const override
          {
-            if (type == EVENT_STATE)
-                return State;
+            switch (type)
+            {
+                case EVENT_STATE:
+                    return State;
+                case BOSS_EVENT_ELITE_TROLLS:
+                    return EliteTrollsKilled;
+                default:
+                    break;
+            }
             return 0;
          }
-    };
 
+        void ReadSaveDataMore(std::istringstream& data) override
+        {
+            data >> EliteTrollsKilled;
+        }
+
+        void WriteSaveDataMore(std::ostringstream& data) override
+        {
+            data << EliteTrollsKilled;
+        }
+    };
 };
 
 void AddSC_instance_sunken_temple()
