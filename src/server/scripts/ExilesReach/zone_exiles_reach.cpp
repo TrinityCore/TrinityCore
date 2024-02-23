@@ -5963,6 +5963,8 @@ enum QuestRideBoar
     SPELL_RITUAL_SCENE_MAIN_BEAM_DNT                = 321690
 };
 
+Position const ReDeatherAbandonTeleportPos = { 102.3f, -2422.5f, 90.1f, 0.764454185962677001f };
+
 // 55879 - Ride of the Scientifically Enhanced Boar
 class quest_ride_of_the_scientifically_enhanced_boar : public QuestScript
 {
@@ -5978,6 +5980,7 @@ public:
                 player->CastSpell(player, SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_SUMMON);
                 break;
             case QUEST_STATUS_COMPLETE:
+                player->CombatStop();
                 player->CastSpell(player, SPELL_PING_GARRICK_TORGOK);
                 break;
             case QUEST_STATUS_REWARDED:
@@ -5995,6 +5998,7 @@ public:
                 player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
                 player->RemoveAura(SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA);
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->NearTeleportTo(ReDeatherAbandonTeleportPos);
                 break;
             default:
                 break;
@@ -6333,6 +6337,8 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                     break;
             }
         }
+
+        UpdateVictim();
     }
 private:
     EventMap _events;
@@ -6582,8 +6588,6 @@ enum TheReDeather
     SPELL_RE_DEATHER_SUMMON_GRIMAXE         = 325429
 };
 
-Position const ReDeatherAbandonTeleportPos = { 102.3f, -2422.5f, 90.1f, 0.764454185962677001f };
-
 // 59942 - The Re-Deather
 class quest_the_re_deather : public QuestScript
 {
@@ -6665,12 +6669,12 @@ public:
 
 enum GrimaxeReDeather
 {
-    ACTOR_SHUJA_GRIMAXE_PRISONER                       = 76004,
-    ACTOR_WARLORD_GRIMAXE_Q59942                       = 76357,
-    ACTOR_SHUJA_GRIMAXE_FREED                          = 78501,
+    ACTOR_SHUJA_GRIMAXE_PRISONER                        = 76004,
+    ACTOR_WARLORD_GRIMAXE_Q59942                        = 76357,
+    ACTOR_SHUJA_GRIMAXE_FREED                           = 78501,
 
-    CONVERSATION_WARLORD_GRIMAXE_SPAWN_Q59942          = 14527,
-    CONVERSATION_WARLORD_GRIMAXE_QUEST_COMPLETE_Q59942 = 15618
+    CONVERSATION_WARLORD_GRIMAXE_SPAWN_Q59942           = 14527,
+    CONVERSATION_WARLORD_GRIMAXE_QUEST_COMPLETE_Q59942  = 15618
 };
 
 // 167146 - Warlord Grimaxe
