@@ -135,7 +135,7 @@ public:
         ObjectGuid AvatarOfHakkarGUID;
         ObjectGuid NightmareSuppressorGUID;
         GuidVector EternalFlameGUIDs;
-        uint32 EliteTrollsKilled;   
+        uint32 EliteTrollsKilled;
         uint32 AvatarOfHakkarEventState;
         uint8 CountFlames;
         EventMap Events;
@@ -343,7 +343,7 @@ public:
 
         bool SetBossState(uint32 type, EncounterState state) override
         {
-            if (!InstanceScript::SetBossState(type, state)) 
+            if (!InstanceScript::SetBossState(type, state))
                 return false;
 
             switch (type)
