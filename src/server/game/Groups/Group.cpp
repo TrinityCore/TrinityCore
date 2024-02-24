@@ -569,6 +569,8 @@ bool Group::RemoveMember(ObjectGuid guid, RemoveMethod const& method /*= GROUP_R
     {
         if (player)
         {
+            bool isOriginalGroup = false;
+
             // Battleground group handling
             if (isBGGroup() || isBFGroup())
                 player->RemoveFromBattlegroundOrBattlefieldRaid();
@@ -576,7 +578,10 @@ bool Group::RemoveMember(ObjectGuid guid, RemoveMethod const& method /*= GROUP_R
             // Regular group
             {
                 if (player->GetOriginalGroup() == this)
+                {
                     player->SetOriginalGroup(nullptr);
+                    isOriginalGroup = true;
+                }
                 else
                     player->SetGroup(nullptr);
 
@@ -592,11 +597,26 @@ bool Group::RemoveMember(ObjectGuid guid, RemoveMethod const& method /*= GROUP_R
                 player->SendDirectMessage(&data);
             }
 
-            // Do we really need to send this opcode?
-            data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
-            data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
-            data << uint64(m_guid) << uint32(m_counter) << uint32(0) << uint64(0);
-            player->SendDirectMessage(&data);
+            // if we had OriginalGroup (now in Group slot after removal) we need to notify the client to replace group data
+            if (Group* group = player->GetGroup())
+                group->SendUpdateToPlayer(player);
+            else
+            {
+                data.Initialize(SMSG_GROUP_LIST, 1 + 1 + 1 + 1 + 8 + 4 + 4 + 8);
+                data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
+                data << uint64(m_guid) << uint32(m_counter) << uint32(0) << uint64(0);
+                player->SendDirectMessage(&data);
+            }
+
+            // if player left his original group but not bg/lfg group then we need to update values reported by Lua_GetReal** functions
+            if (isOriginalGroup)
+            {
+                data.Initialize(SMSG_REAL_GROUP_UPDATE, 1 + 4 + 8);
+                data << uint8(0x10);
+                data << uint32(0);
+                data << uint64(0);
+                player->SendDirectMessage(&data);
+            }
 
             _homebindIfInstance(player);
         }
@@ -800,6 +820,8 @@ void Group::Disband(bool hideDestroy /* = false */)
         if (!player)
             continue;
 
+        bool isOriginalGroup = false;
+
         //we cannot call _removeMember because it would invalidate member iterator
         //if we are removing player from battleground raid
         if (isBGGroup() || isBFGroup())
@@ -808,7 +830,10 @@ void Group::Disband(bool hideDestroy /* = false */)
         {
             //we can remove player who is in battleground from his original group
             if (player->GetOriginalGroup() == this)
+            {
                 player->SetOriginalGroup(nullptr);
+                isOriginalGroup = true;
+            }
             else
                 player->SetGroup(nullptr);
         }
@@ -837,6 +862,16 @@ void Group::Disband(bool hideDestroy /* = false */)
             data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
             data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
             data << uint64(m_guid) << uint32(m_counter) << uint32(0) << uint64(0);
+            player->SendDirectMessage(&data);
+        }
+
+        // if player left his original group but not bg/lfg group then we need to update values reported by Lua_GetReal** functions
+        if (isOriginalGroup)
+        {
+            data.Initialize(SMSG_REAL_GROUP_UPDATE, 1 + 4 + 8);
+            data << uint8(0x10);
+            data << uint32(0);
+            data << uint64(0);
             player->SendDirectMessage(&data);
         }
 
@@ -1669,25 +1704,34 @@ void Group::SendTargetIconList(WorldSession* session)
 void Group::SendUpdate()
 {
     for (member_witerator witr = m_memberSlots.begin(); witr != m_memberSlots.end(); ++witr)
-        SendUpdateToPlayer(witr->guid, &(*witr));
+    {
+        Player* player = ObjectAccessor::FindConnectedPlayer(witr->guid);
+        if (!player)
+            continue;
+
+        SendUpdateToPlayer(player, &(*witr));
+    }
 }
 
-void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
+void Group::SendUpdateToPlayer(Player const* player, MemberSlot const* slot /*= nullptr*/)
 {
-    Player* player = ObjectAccessor::FindConnectedPlayer(playerGUID);
+    if (player->GetGroup() != this)
+    {
+        if (player->GetOriginalGroup() == this)
+            SendOriginalGroupUpdateToPlayer(player);
 
-    if (!player || !player->GetSession() || player->GetGroup() != this)
         return;
+    }
 
     // if MemberSlot wasn't provided
     if (!slot)
     {
-        member_witerator witr = _getMemberWSlot(playerGUID);
+        member_citerator citr = _getMemberCSlot(player->GetGUID());
 
-        if (witr == m_memberSlots.end()) // if there is no MemberSlot for such a player
+        if (citr == m_memberSlots.end()) // if there is no MemberSlot for such a player
             return;
 
-        slot = &(*witr);
+        slot = &(*citr);
     }
 
     WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+1+4+8+4+4+(GetMembersCount()-1)*(13+8+1+1+1+1)+8+1+8+1+1+1+1));
@@ -1739,6 +1783,15 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         data << uint8(m_raidDifficulty >= RAID_DIFFICULTY_10MAN_HEROIC);    // 3.3 Dynamic Raid Difficulty - 0 normal/1 heroic
     }
 
+    player->SendDirectMessage(&data);
+}
+
+void Group::SendOriginalGroupUpdateToPlayer(Player const* player) const
+{
+    WorldPacket data(SMSG_REAL_GROUP_UPDATE, 1 + 4 + 8);
+    data << uint8(m_groupType);
+    data << uint32(GetMembersCount() - 1);
+    data << uint64(m_leaderGuid);
     player->SendDirectMessage(&data);
 }
 

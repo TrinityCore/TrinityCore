@@ -578,7 +578,7 @@ enum SpellAttr4 : uint32
     SPELL_ATTR4_UNK24                            = 0x01000000, // TITLE Unknown attribute 24@Attr4 DESCRIPTION Shoot-type spell?
     SPELL_ATTR4_IS_PET_SCALING                   = 0x02000000, // TITLE Pet Scaling aura
     SPELL_ATTR4_CAST_ONLY_IN_OUTLAND             = 0x04000000, // TITLE Only in Outland/Northrend
-    SPELL_ATTR4_INHERIT_CRIT_FROM_AURA           = 0x08000000, // TITLE Inherit critical chance from triggering aura
+    SPELL_ATTR4_FORCE_DISPLAY_CASTBAR            = 0x08000000, // TITLE Force Display Castbar
     SPELL_ATTR4_UNK28                            = 0x10000000, // TITLE Unknown attribute 28@Attr4
     SPELL_ATTR4_UNK29                            = 0x20000000, // TITLE Unknown attribute 29@Attr4
     SPELL_ATTR4_UNK30                            = 0x40000000, // TITLE Unknown attribute 30@Attr4

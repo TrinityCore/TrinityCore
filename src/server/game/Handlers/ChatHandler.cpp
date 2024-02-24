@@ -381,8 +381,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                     return;
             }
 
-            if (type == CHAT_MSG_PARTY_LEADER && !group->IsLeader(sender->GetGUID()))
-                return;
+            // control LEADER messages on the server
+            // in a scenario where player has both Group and OriginalGroup,
+            // client will incorrectly send LEADER type when sending message to OriginalGroup while being a leader in regular group
+            type = group->IsLeader(sender->GetGUID()) ? CHAT_MSG_PARTY_LEADER : CHAT_MSG_PARTY;
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 

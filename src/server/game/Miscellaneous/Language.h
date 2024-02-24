@@ -258,7 +258,7 @@ enum TrinityStrings
     LANG_RESET_TALENTS_ONLINE             = 213,
     LANG_RESET_TALENTS_OFFLINE            = 214,
     LANG_RESET_SPELLS                     = 215,
-    LANG_RESET_TALENTS                    = 216,
+    // unused                             = 216,
 
     LANG_RESETALL_UNKNOWN_CASE            = 217,
     LANG_RESETALL_SPELLS                  = 218,
@@ -897,7 +897,7 @@ enum TrinityStrings
     LANG_NO_PET_FOUND                     = 1123,
     LANG_WRONG_PET_TYPE                   = 1124,
     LANG_COMMAND_LEARN_PET_TALENTS        = 1125,
-    LANG_RESET_PET_TALENTS                = 1126,
+    // unused                             = 1126,
     LANG_RESET_PET_TALENTS_ONLINE         = 1127,
     LANG_TAXINODE_ENTRY_LIST_CHAT         = 1128,
     LANG_TAXINODE_ENTRY_LIST_CONSOLE      = 1129,

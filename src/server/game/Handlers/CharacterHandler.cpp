@@ -877,7 +877,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     // reset for all pets before pet loading
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
-        Pet::resetTalentsForAllPetsOf(pCurrChar);
+        Pet::resetTalentsForAllPetsOf(pCurrChar, nullptr, true);
 
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
     pCurrChar->LoadPet();
@@ -900,7 +900,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     {
         pCurrChar->ResetTalents(true);
         pCurrChar->SendTalentsInfoData(false);              // original talents send already in to SendInitialPacketsBeforeAddToMap, resend reset state
-        SendNotification(LANG_RESET_TALENTS);
     }
 
     bool firstLogin = pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST);
