@@ -6819,7 +6819,6 @@ public:
                     return;
 
                 Creature* questEnderCompanion = FindCreatureIgnorePhase(player, creatureStringTwo, 125.0f);
-
                 if (!questEnderCompanion)
                     return;
 
@@ -6848,10 +6847,10 @@ public:
 };
 
 // 55965 - Quest Westward Bound "Alliance"
-class quest_westward_bound_q55965 : public quest_westward_bound
+class quest_westward_bound_alliance : public quest_westward_bound
 {
 public:
-    quest_westward_bound_q55965() : quest_westward_bound("quest_westward_bound_q55965") { }
+    quest_westward_bound_alliance() : quest_westward_bound("quest_westward_bound_alliance") { }
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
@@ -6860,10 +6859,10 @@ public:
 };
 
 // 59948 - Quest Westward Bound "Horde"
-class quest_westward_bound_q59948 : public quest_westward_bound
+class quest_westward_bound_horde : public quest_westward_bound
 {
 public:
-    quest_westward_bound_q59948() : quest_westward_bound("quest_westward_bound_q59948") { }
+    quest_westward_bound_horde() : quest_westward_bound("quest_westward_bound_horde") { }
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
@@ -7180,8 +7179,8 @@ void AddSC_zone_exiles_reach()
     new scene_darkmaul_plains_skeleton_army_horde();
     RegisterCreatureAI(npc_warlord_grimaxe_q59942);
     // Westward Bound
-    new quest_westward_bound_q55965();
-    new quest_westward_bound_q59948();
+    new quest_westward_bound_alliance();
+    new quest_westward_bound_horde();
     new FactoryCreatureScript<CreatureAI, &BjornRuinsSelector>("npc_bjorn_stouthands_q55965");
     new FactoryCreatureScript<CreatureAI, &LanaRuinsSelector>("npc_lana_jordan_q59948");
     new FactoryCreatureScript<CreatureAI, &AlariaRuinsSelector>("npc_alaria_q55965");
