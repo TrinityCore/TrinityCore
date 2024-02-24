@@ -1488,7 +1488,7 @@ struct npc_mithran_dawntracker_beach_laying : public ScriptedAI
         if (spellInfo->Id != SPELL_BANDAGING_QUEST)
             return;
 
-        static Position const MithranCloneSpawnPosition = { -428.576f, -2593.93f, 0.152832f, 4.849576f };
+        static constexpr Position MithranCloneSpawnPosition = { -428.576f, -2593.93f, 0.152832f, 4.849576f };
 
         if (Player* player = caster->ToPlayer())
         {
@@ -1510,7 +1510,7 @@ struct npc_lana_jordan_beach_laying : public ScriptedAI
         if (spellInfo->Id != SPELL_BANDAGING_QUEST)
             return;
 
-        static Position const LanaCloneSpawnPosition = { -420.656f, -2600.28f, 0.556646f, 4.046853f };
+        static constexpr Position LanaCloneSpawnPosition = { -420.656f, -2600.28f, 0.556646f, 4.046853f };
 
         if (Player* player = caster->ToPlayer())
         {
@@ -1748,8 +1748,8 @@ enum LostExpeditionFollowerData
     POINT_CAMP_POSITION                         = 0,
 };
 
-Position const GarrickAbandonedCampPosition = { -249.059006f, -2492.520020f, 18.0742f };
-Position const GrimaxeAbandonedCampPosition = { -249.20117f, -2492.6191f, 17.964903f };
+static constexpr Position GarrickAbandonedCampPosition = { -249.059006f, -2492.520020f, 18.0742f };
+static constexpr Position GrimaxeAbandonedCampPosition = { -249.20117f, -2492.6191f, 17.964903f };
 
 // 165359 - Captain Garrick
 // This script is used by Captian Garrick Follower for Finding the Lost Expedition quest
@@ -2067,7 +2067,7 @@ enum CookingMeatQuestData
     ANIMATION_KIT_INJURED = 14432
 };
 
-Position const InjuredNpcPositionAbandonedCamp = { -245.40973f, -2492.0886f, 18.404648f, 2.4754f };
+static constexpr Position InjuredNpcPositionAbandonedCamp = { -245.40973f, -2492.0886f, 18.404648f, 2.4754f };
 
 // 55174 - Cooking Meat
 // 59932 - Cooking Meat
@@ -2374,8 +2374,8 @@ enum EnhancedCombatTrainerData
     SPELL_AGGRO_RADIUS_CHECK_DNT_DRUID                  = 320766
 };
 
-Position const EnhancedTrainingWalkPosition = { -250.60243f, -2485.2517f, 17.787413f };
-Position const EnhancedTrainingRunPosition = { -231.5225f, -2480.5276f, 19.019197f };
+static constexpr Position EnhancedTrainingWalkPosition = { -250.60243f, -2485.2517f, 17.787413f };
+static constexpr Position EnhancedTrainingRunPosition = { -231.5225f, -2480.5276f, 19.019197f };
 
 // 164577 - Alliance Sparring Partner
 // 166916 - Horde Sparring Partner
@@ -3508,8 +3508,8 @@ enum NorthboundData
     SPELL_LINGER_NORTHBOUND_HORDE                       = 344385,
 };
 
-Position const GarrickQuillboarBriarpatchPosition = { -142.62154f, -2641.0364f, 48.775497f };
-Position const GrimaxeQuillboarBriarpatchPosition = { -142.56076f, -2640.9915f, 48.755478f };
+static constexpr Position GarrickQuillboarBriarpatchPosition = { -142.62154f, -2641.0364f, 48.775497f };
+static constexpr Position GrimaxeQuillboarBriarpatchPosition = { -142.56076f, -2640.9915f, 48.755478f };
 
 // 165360 - Alliance Survivor
 // This script is used by Captian Garrick Follower for Northbound quest
@@ -3932,8 +3932,8 @@ enum HuxsworthBriarpatchData
     EVENT_HUXSWORTH_GARRICK_RUN_BRIARPATCH  = 2,
 };
 
-Position const GarrickBriarpatchDespawnPosition = { -112.92383f, -2640.541f, 52.35042f };
-Position const HuxworthBriarpatchDespawnPosition = { -112.61979f, -2645.9775f, 52.22835f };
+static constexpr Position GarrickBriarpatchDespawnPosition = { -112.92383f, -2640.541f, 52.35042f };
+static constexpr Position HuxworthBriarpatchDespawnPosition = { -112.61979f, -2645.9775f, 52.22835f };
 
 // 154327 - Austin Huxsworth
 struct npc_huxsworth_briarpatch_quest_private : public ScriptedAI
@@ -4080,8 +4080,8 @@ enum DawntrackerBriarpatch
     EVENT_DAWNTRACKER_GRIMAXE_RUN_BRIARPATCH    = 2,
 };
 
-Position const GrimaxeBriarpatchDespawnPosition = { -112.92383f, -2640.541f, 52.35042f };
-Position const DawntrackerBriarpatchDespawnPosition = { -112.61979f, -2645.9775f, 52.22835f };
+static constexpr Position GrimaxeBriarpatchDespawnPosition = { -112.92383f, -2640.541f, 52.35042f };
+static constexpr Position DawntrackerBriarpatchDespawnPosition = { -112.61979f, -2645.9775f, 52.22835f };
 
 // 166996 - Mithdran Dawntracker
 struct npc_dawntracker_briarpatch_quest_private : public ScriptedAI
@@ -4369,7 +4369,7 @@ enum GeolordData
     WORLDSTATE_HORDE            = 4486
 };
 
-Position const PrisonerPosition = { 16.4271f, -2511.82f, 78.8215f, 5.66398f  };
+static constexpr Position PrisonerPosition = { 16.4271f, -2511.82f, 78.8215f, 5.66398f  };
 
 // 151091 - Geolord Grek'og
 struct npc_geolord_grekog : public ScriptedAI
@@ -4448,8 +4448,8 @@ enum BriarpatchPrisonerData
     SAY_GET_OUT_OF_HERE = 0
 };
 
-Position const BriarpatchPrisonerJumpToPosition = { 19.5174f, -2513.75f, 74.0545f };
-Position const PrisonerBriarpatchDespawnPosition = { 51.005207f, -2485.644f, 78.15223f };
+static constexpr Position BriarpatchPrisonerJumpToPosition = { 19.5174f, -2513.75f, 74.0545f };
+static constexpr Position PrisonerBriarpatchDespawnPosition = { 51.005207f, -2485.644f, 78.15223f };
 
 // 167008 - Cork Fizzlepop
 // 154301 - Lindie Springstock
@@ -4847,7 +4847,7 @@ enum LindieSpringStockData
     SPELL_GROW_THREE                    = 111701
 };
 
-Position const MiniChopperJumpPosition = { 107.979f, -2414.13f, 95.6243f };
+static constexpr Position MiniChopperJumpPosition = { 107.979f, -2414.13f, 95.6243f };
 
 // 149899 - Lindie Springstock
 // 167019 - Cork Fizzlepop
@@ -5116,7 +5116,7 @@ private:
     EventMap _events;
 };
 
-Position const HordeCrewPersonalSpawnLocation[] =
+static constexpr Position HordeCrewPersonalSpawnLocation[] =
 {
     { 50.920593f, -2477.466f, 79.444374f, 0.8753076f },
     { 60.51328f, -2476.4822f, 81.034775f, 0.9128374f },
@@ -5270,7 +5270,7 @@ CreatureAI* HordeCrewPlainsSelector(Creature* creature)
     return new NullCreatureAI(creature);
 };
 
-Position const CopterCloneSpawnPosition = { 100.583f, -2417.87f, 90.268f, 0.0f };
+static constexpr Position CopterCloneSpawnPosition = { 100.583f, -2417.87f, 90.268f, 0.0f };
 
 // Quest 55193 - The Scout-o-Matic 5000 "Alliance"
 // Quest 59940 - The Choppy Booster Mk. 5 "Horde"
@@ -5965,7 +5965,7 @@ enum QuestRideBoar
     SPELL_RITUAL_SCENE_MAIN_BEAM_DNT                = 321690
 };
 
-Position const ReDeatherAbandonTeleportPos = { 102.3f, -2422.5f, 90.1f, 0.764454185962677001f };
+static constexpr Position ReDeatherAbandonTeleportPos = { 102.3f, -2422.5f, 90.1f, 0.764454185962677001f };
 
 // 55879 - Ride of the Scientifically Enhanced Boar
 class quest_ride_of_the_scientifically_enhanced_boar : public QuestScript
@@ -6796,10 +6796,10 @@ enum WestwardBound
     NPC_WONSA_PIT_ONE               = 167226
 };
 
-Position const BjornWestwardBoundRuinsPos = { 192.181f, -2311.44f, 80.6975f, 3.368485450744628906f };
-Position const AlariaWestwardBoundRuinsPos = { 190.953f, -2308.32f, 80.6586f, 2.984513044357299804f };
-Position const LanaWestwardBoundRuinsPos = { 160.486f, -2307.31f, 84.053f, 2.932153224945068359f };
-Position const WonsaWestwardBoundRuinsPos = { 160.431f, -2310.11f, 84.4598f, 3.03687286376953125f };
+static constexpr Position BjornWestwardBoundRuinsPos = { 192.181f, -2311.44f, 80.6975f, 3.368485450744628906f };
+static constexpr Position AlariaWestwardBoundRuinsPos = { 190.953f, -2308.32f, 80.6586f, 2.984513044357299804f };
+static constexpr Position LanaWestwardBoundRuinsPos = { 160.486f, -2307.31f, 84.053f, 2.932153224945068359f };
+static constexpr Position WonsaWestwardBoundRuinsPos = { 160.431f, -2310.11f, 84.4598f, 3.03687286376953125f };
 
 // 55965 - Quest Westward Bound "Alliance"
 // 59948 - Quest Westward Bound "Horde"
