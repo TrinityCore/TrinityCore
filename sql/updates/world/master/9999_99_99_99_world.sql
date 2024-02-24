@@ -25,10 +25,12 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+16,167225,2175,10424,10527,'0',0,15337,0,0,0,0,92.015625,-2246.911376953125,94.49737548828125,2.622560739517211914,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,53212), -- Lana Jordan "Pit Area"
 (@CGUID+17,167226,2175,10424,10527,'0',0,15337,0,0,0,0,89.265625,-2248.960205078125,94.74571990966796875,1.861210823059082031,120,0,0,1,0,0,NULL,NULL,NULL,NULL,'',NULL,53212); -- Won'sa "Pit Area"
 
-DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+18 AND @CGUID+19;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+18 AND @CGUID+21;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
 (@CGUID+18, 167926, 2175, 10424, 10529, '0', 15558, 0, 0, 1, 232.1614532470703125, -2292.53466796875, 80.9791717529296875, 4.706853866577148437, 120, 0, 0, 224, 0, 0, NULL, NULL, NULL, NULL, 53262), -- Warlord Breka Grimaxe (Area: Ogre Ruins - Difficulty: 0) CreateObject1
-(@CGUID+19, 167128, 2175, 10424, 10529, '0', 15558, 0, 0, 0, 230.795135498046875, -2297.085205078125, 80.9791717529296875, 1.356228590011596679, 120, 0, 0, 119, 0, 0, NULL, NULL, NULL, NULL, 53262); -- Shuja Grimaxe (Area: Ogre Ruins - Difficulty: 0) CreateObject1
+(@CGUID+19, 167126, 2175, 10424, 10529, '0', 15558, 0, 0, 0, 230.795135498046875, -2297.085205078125, 80.9791717529296875, 1.356228590011596679, 120, 0, 0, 119, 0, 0, 2, NULL, NULL, NULL, 53262), -- Shuja Grimaxe (Area: Ogre Ruins - Difficulty: 0) CreateObject1
+(@CGUID+20, 156799, 2175, 10424, 10529, '0', 13795, 0, 0, 0, 230.795135498046875, -2297.085205078125, 80.9791717529296875, 1.356228590011596679, 120, 0, 0, 95, 382, 0, NULL, NULL, NULL, NULL, 53262), -- Henry Garrick (Area: Ogre Ruins - Difficulty: 0) CreateObject1
+(@CGUID+21, 156807, 2175, 10424, 10529, '0', 13795, 0, 0, 1, 232.1614532470703125, -2292.53466796875, 80.9791717529296875, 4.706853866577148437, 120, 0, 0, 357, 0, 0, NULL, NULL, NULL, NULL, 53262); -- Captain Garrick (Area: Ogre Ruins - Difficulty: 0) CreateObject1
 
 -- Add missing Creature Spawns
 DELETE FROM `gameobject` WHERE `guid`=@OGUID;
@@ -389,7 +391,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26,15318,10588, 0, 0, 47, 0, 59942, 64, 0, 1, 0, 0, '', 'See Cork Fizzlepop at Darkmaul Plains if quest The Re-Deather is not rewarded'),
 (26,14663,10424, 0, 1, 47, 0, 59942, 64, 0, 1, 0, 0, '', 'See Torgok <Binder of Souls> if quest The Re-Deather is not rewarded'),
 (26,14663,10424, 0, 1, 48, 0, 397279, 0, 8, 0, 0, 0, '', 'See Torgok <Binder of Souls> if quest Ride if player has objective complete'),
-(26,15327,10424, 0, 0, 47, 0, 59942, 64, 0, 1, 0, 0, '', 'AND0 See Shuja Grimaxe at Ogre Ruins if quest  The Re-Deather is not rewarded Horde.');
+(26,15327,10424, 0, 0, 47, 0, 59942, 66, 0, 1, 0, 0, '', 'AND0 See Shuja Grimaxe at Ogre Ruins if quest  The Re-Deather is not completed | rewarded Horde.');
 
 -- Add Scenes for The Re-Deather
 DELETE FROM `scene_template` WHERE `SceneId` IN (2489,2489,2497,2423,2422,2421,2420);
@@ -591,14 +593,46 @@ UPDATE `creature_template_difficulty` SET `ContentTuningID`=741, `VerifiedBuild`
 
 UPDATE `creature_template` SET `faction`=116, `BaseAttackTime`=2000, `unit_flags`=64, `unit_flags2`=2048, `unit_flags3`=16 WHERE `entry`=167146; -- Horde Warrior
 
-DELETE FROM `phase_area` WHERE `AreaId`=10424 AND `PhaseId` IN (15558);
+DELETE FROM `phase_area` WHERE `AreaId`=10424 AND `PhaseId` IN (15558, 13795);
 INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
-(10424,15558, 'Cosmetic - NPE - See Breka and Shuja Grimaxe after freeing Shuja');
+(10424,15558, 'Cosmetic - NPE - See Breka and Shuja Grimaxe after freeing Shuja'),
+(10424,13795, 'Cosmetic - NPE - See Captain and Henry Garrick after freeing Henry');
 
-DELETE FROM `phase_name` WHERE `ID` IN (15558);
+DELETE FROM `phase_name` WHERE `ID` IN (15558, 13795);
 INSERT INTO `phase_name` (`ID`,`Name`) VALUES
-(15558,'Cosmetic - NPE - See Breka and Shuja Grimaxe after freeing Shuja');
+(15558,'Cosmetic - NPE - See Breka and Shuja Grimaxe after freeing Shuja'),
+(13795,'Cosmetic - NPE - See Captain and Henry Garrick after freeing Henry');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 26 AND `SourceEntry`=10424 AND `SourceGroup` IN(15558);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 26 AND `SourceEntry`=10424 AND `SourceGroup` IN(15558,13795);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
-(26, 15558, 10424, 0, 0, 28, 0, 59942, 0, 0, '', 0, 'Player has completed quest quest The Re-Deather (59942) (but not yet rewarded)');
+(26, 15558, 10424, 0, 0, 28, 0, 59942, 0, 0, '', 0, 'Player has completed quest quest The Re-Deather (59942) (but not yet rewarded)'),
+(26, 13795, 10424, 0, 0, 28, 0, 55879, 0, 0, '', 0, 'Player has completed quest quest Ride of the Scientifically Enhanced Boar (55879) (but not yet rewarded)');
+
+DELETE FROM `creature_template_addon` WHERE `entry` IN(156799, 167126);
+DELETE FROM `creature_addon` WHERE `guid` IN(8000023, 8000024);
+INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(8000023, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, '305513 325408'),
+(8000024, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, '305513 325408');
+
+DELETE FROM `creature_template_movement` WHERE `CreatureId` IN(156799, 167126);
+DELETE FROM `creature_movement_override` WHERE `SpawnId` IN(8000023, 8000024);
+INSERT INTO `creature_movement_override` (`SpawnId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES
+(8000023, 1, 1, 1, 0, 0, 0, 0),
+(8000024, 1, 1, 1, 0, 0, 0, 0);
+
+DELETE FROM `quest_request_items` WHERE `ID`=55879;
+INSERT INTO `quest_request_items` (`ID`, `EmoteOnComplete`, `EmoteOnIncomplete`, `EmoteOnCompleteDelay`, `EmoteOnIncompleteDelay`, `CompletionText`, `VerifiedBuild`) VALUES
+(55879, 0, 0, 0, 0, 'Please... help! I won\'t last much longer!', 53262); -- Ride of the Scientifically Enhanced Boar
+
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=741, `VerifiedBuild`=53262 WHERE (`Entry`=156267 AND `DifficultyID`=0); -- Giant Boar
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=741, `VerifiedBuild`=53262 WHERE (`Entry`=156736 AND `DifficultyID`=0); -- Re-sized Boar
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=741, `VerifiedBuild`=53262 WHERE (`Entry`=156749 AND `DifficultyID`=0); -- Lindie Springstock
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=1421, `VerifiedBuild`=53262 WHERE (`Entry`=174955 AND `DifficultyID`=0); -- Alliance Captain
+
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags2`=2048 WHERE `entry`=156807; -- Captain Garrick
+UPDATE `creature_template` SET `faction`=2142, `speed_walk`=6.40000009536743164, `speed_run`=2.285714387893676757, `BaseAttackTime`=2000, `RangeAttackTime`=0, `unit_flags2`=2048, `unit_flags3`=67108864 WHERE `entry`=156267; -- Giant Boar
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=2048, `unit_flags3`=67108864 WHERE `entry`=156595; -- Giant Boar
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=2048, `unit_flags3`=67633152 WHERE `entry`=156736; -- Re-sized Boar
+UPDATE `creature_template` SET `faction`=2618, `BaseAttackTime`=2000, `unit_flags2`=2048 WHERE `entry`=156749; -- Lindie Springstock
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags2`=2048 WHERE `entry`=156799; -- Henry Garrick
+UPDATE `creature_template` SET `faction`=4, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048 WHERE `entry`=174955; -- Alliance Captain

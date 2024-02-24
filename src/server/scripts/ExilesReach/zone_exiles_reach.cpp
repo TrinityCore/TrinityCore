@@ -5549,13 +5549,15 @@ struct npc_re_sized_boar_q56034 : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE)
             return;
 
-        if (uiId != 0)
+        if (uiId != POINT_HOME_POSITION)
             return;
 
         me->SetFacingTo(0.785398f);
 
-        if (Unit* owner = me->GetOwner())
-            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+        if (Unit* summoner = me->GetDemonCreator())
+            summoner->CastSpell(summoner, SPELL_UPDATE_PHASE_SHIFT);
+
+        me->DespawnOrUnsummon();
     }
 
     void UpdateAI(uint32 diff) override
@@ -6195,7 +6197,6 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
 
         me->SetReactState(REACT_PASSIVE);
         me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
-        _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 3s);
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -6214,7 +6215,6 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                 if (!owner)
                     break;
 
-                // @TODO ????
                 PhasingHandler::InheritPhaseShift(me, owner);
                 PhasingHandler::ResetPhaseShift(me);
 
@@ -6223,7 +6223,6 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
             }
             case SPELL_ENHANCED_BOAR_PING_VEHICLE:
             {
-                // @TODO ????
                 PhasingHandler::AddPhase(me, PHASE_SEE_TORGOK, true);
                 _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION, 500ms);
                 break;
@@ -6273,26 +6272,6 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                     }
                     break;
                 }
-                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER:
-                {
-                    if (Player* player = Object::ToPlayer(me->GetOwner()))
-                    {
-                        if (player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) == QUEST_STATUS_INCOMPLETE)
-                        {
-                            if (player->IsInCombat() && !me->IsInCombat())
-                                me->AI()->AttackStart(player->GetVictim());
-                        }
-                        else if (player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) == QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_RIDE_ENHANCED_BOAR) == QUEST_STATUS_REWARDED)
-                        {
-                            if (Creature* henry = ObjectAccessor::GetCreature(*me, _henryGUID))
-                                henry->DespawnOrUnsummon();
-
-                            me->DespawnOrUnsummon();
-                        }
-                    }
-                    _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER, 1s);
-                    break;
-                }
                 case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY:
                 {
                     Player* player = Object::ToPlayer(me->GetOwner());
@@ -6314,8 +6293,14 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                 }
                 case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN:
                 {
+                    me->DespawnOrUnsummon();
                     if (Creature* henry = ObjectAccessor::GetCreature(*me, _henryGUID))
-                        henry->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                        henry->DespawnOrUnsummon();
+
+                    Player* player = Object::ToPlayer(me->GetOwner());
+                    if (!player)
+                        break;
+                    player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
                     break;
                 }
                 case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION:
@@ -6776,33 +6761,14 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
                 }
                 case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN:
                 {
-                    /*
-                        @TODO implement dynamic setting of ReplaceObject for Breka and Shuja
-
-                        Notes:
-                        SmoothPhasingInfo smoothPhasingInfo{GetGUID(), true, true};
-                        Optional<ObjectGuid> ReplaceObject;
-                        bool ReplaceActive = true;
-                        bool StopAnimKits = true;
-
-                        if (smoothPhasingInfo)
-                        {
-                            if (summoner && smoothPhasingInfo->ReplaceObject)
-                            {
-                                if (WorldObject* replacedObject = ObjectAccessor::GetWorldObject(*summoner, *smoothPhasingInfo->ReplaceObject))
-                                {
-                                    SmoothPhasingInfo originalSmoothPhasingInfo = *smoothPhasingInfo;
-                                    originalSmoothPhasingInfo.ReplaceObject = summon->GetGUID();
-                                    replacedObject->GetOrCreateSmoothPhasing()->SetViewerDependentInfo(privateObjectOwner, originalSmoothPhasingInfo);
-
-                                    summon->SetDemonCreatorGUID(privateObjectOwner);
-                                }
-                            }
-
-                            summon->GetOrCreateSmoothPhasing()->SetSingleInfo(*smoothPhasingInfo);
-                        }
-                    */
                     me->DespawnOrUnsummon();
+                    if (Creature* shuja = ObjectAccessor::GetCreature(*me, _shujaGUID))
+                        shuja->DespawnOrUnsummon();
+
+                    Player* player = Object::ToPlayer(me->GetOwner());
+                    if (!player)
+                        break;
+                    player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
                     break;
                 }
                 default:
