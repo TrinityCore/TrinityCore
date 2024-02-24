@@ -423,6 +423,12 @@ enum DrunkenState
 
 #define MAX_DRUNKEN   4
 
+enum BarberState
+{
+    NOT_IN_BARBER_STATE = 0,
+    JUST_PASSED_BARBER_CHECKS = 1,
+};
+
 enum PlayerFlags
 {
     PLAYER_FLAGS_GROUP_LEADER           = 0x00000001,
@@ -1718,7 +1724,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SaveInventoryAndGoldToDB(CharacterDatabaseTransaction trans);                    // fast save function for item/money cheating preventing
 
         static void SaveCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid,
-            Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations);
+            Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations, const std::vector<ChrCustomizationOptionEntry const*> const* oldOptions);
         static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction trans);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
@@ -2761,15 +2767,32 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
             return 0;
         }
 
+        void ClearPreviousModelCustomizations(const uint32 oldModel)
+        {
+            if (const std::vector<ChrCustomizationOptionEntry const*> const* oldModelCustomizations = sDB2Manager.GetCustomiztionOptions(oldModel))
+            {
+                for (const auto optionEntry : *oldModelCustomizations)
+                {
+                    const int32 index = m_playerData->Customizations.FindIndexIf([optionEntry](UF::ChrCustomizationChoice const& choice) { return choice.ChrCustomizationOptionID == optionEntry->ID; });
+                    if (index >= 0)
+                        RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations), index);
+                }
+            }
+        }
+
+        void ClearPreviousRaceGenderCustomizations(const uint8 race, const uint8 gender)
+        {
+            if (const ChrModelEntry const* chrModel = sDB2Manager.GetChrModel(race, gender))
+            {
+                ClearPreviousModelCustomizations(chrModel->ID);
+            }
+        }
+
         template<typename Iter>
-        void SetCustomizations(Trinity::IteratorPair<Iter> customizations, uint8 chrModel = 0, bool markChanged = true)
+        void SetCustomizations(Trinity::IteratorPair<Iter> customizations, bool markChanged = true)
         {
             if (markChanged)
                 m_customizationsChanged = true;
-
-            // Do not clear customisations for subsequent runs. SetCustomizations is called once per unique chrModel, starting with 0 (player model)
-            if (chrModel == 0)
-                ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
 
             for (auto&& customization : customizations)
             {
@@ -3227,6 +3250,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         bool _usePvpItemLevels;
         ObjectGuid _areaSpiritHealerGUID;
+
+        bool _justPassedBarberChecks;
 
         // Spell cast request handling
     public:

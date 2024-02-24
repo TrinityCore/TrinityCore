@@ -356,6 +356,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     _restMgr = std::make_unique<RestMgr>(this);
 
     _usePvpItemLevels = false;
+
+    _justPassedBarberChecks = false;
 }
 
 Player::~Player()
@@ -1166,6 +1168,9 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
+
+    if (_justPassedBarberChecks)
+        _justPassedBarberChecks = false;
 }
 
 void Player::setDeathState(DeathState s)
@@ -17859,26 +17864,19 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     SetMoney(std::min(fields.money, MAX_MONEY_AMOUNT));
 
-    std::map<uint8, std::vector<UF::ChrCustomizationChoice>> customizations;
+    std::vector<UF::ChrCustomizationChoice> customizations;
     if (PreparedQueryResult customizationsResult = holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUSTOMIZATIONS))
     {
         do
         {
             Field* fields = customizationsResult->Fetch();
-            const uint32 option = fields[0].GetUInt32();
-            const uint8 chrModel = sDB2Manager.GetZeroIfOptionUsedForPlayerModel(option);
-            auto& customization = customizations[chrModel];
-            customization.emplace_back();
-            UF::ChrCustomizationChoice& choice = customization.back();
-            choice.ChrCustomizationOptionID = option;
+            customizations.emplace_back();
+            UF::ChrCustomizationChoice& choice = customizations.back();
+            choice.ChrCustomizationOptionID = fields[0].GetUInt32();
             choice.ChrCustomizationChoiceID = fields[1].GetUInt32();
-
         } while (customizationsResult->NextRow());
     }
-    for (const auto& customization : customizations)
-    {
-        SetCustomizations(Trinity::Containers::MakeIteratorPair(customization.second.begin(), customization.second.end()), customization.first, false);
-    }
+    SetCustomizations(Trinity::Containers::MakeIteratorPair(customizations.begin(), customizations.end()), false);
 
     SetInventorySlotCount(fields.inventorySlots);
     SetBankBagSlotCount(fields.bankSlots);
@@ -17890,7 +17888,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     m_atLoginFlags = fields.at_login;
 
-    if (!GetSession()->ValidateAppearance(Races(GetRace()), Classes(GetClass()), fields.gender, MakeChrCustomizationChoiceRange(customizations[0])))
+    if (!GetSession()->ValidateAppearance(Races(GetRace()), Classes(GetClass()), fields.gender, MakeChrCustomizationChoiceRange(customizations)))
     {
         TC_LOG_ERROR("entities.player.loading", "Player::LoadFromDB: Player ({}) has wrong Appearance values (Hair/Skin/Color), can't load.", guid.ToString());
         return false;
@@ -20378,13 +20376,9 @@ void Player::SaveInventoryAndGoldToDB(CharacterDatabaseTransaction trans)
 template<typename iterator>
 void SavePlayerCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid, Trinity::IteratorPair<iterator> customizations)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_CUSTOMIZATIONS);
-    stmt->setUInt64(0, guid);
-    trans->Append(stmt);
-
     for (auto&& customization : customizations)
     {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_CUSTOMIZATION);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_CUSTOMIZATION);
         stmt->setUInt64(0, guid);
         stmt->setUInt32(1, customization.ChrCustomizationOptionID);
         stmt->setUInt32(2, customization.ChrCustomizationChoiceID);
@@ -20393,8 +20387,19 @@ void SavePlayerCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::Lo
 }
 
 void Player::SaveCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid,
-    Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations)
+    Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations, const std::vector<ChrCustomizationOptionEntry const*> const* oldOptions)
 {
+    if (oldOptions)
+    {
+        for (const auto oldOption : *oldOptions)
+        {
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_CUSTOMIZATION);
+            stmt->setUInt64(0, guid);
+            stmt->setUInt32(1, oldOption->ID);
+            trans->Append(stmt);
+        }
+    }
+
     SavePlayerCustomizations(trans, guid, customizations);
 }
 
@@ -20404,6 +20409,10 @@ void Player::_SaveCustomizations(CharacterDatabaseTransaction trans)
         return;
 
     m_customizationsChanged = false;
+
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_CUSTOMIZATIONS);
+    stmt->setUInt64(0, GetGUID().GetCounter());
+    trans->Append(stmt);
 
     SavePlayerCustomizations(trans, GetGUID().GetCounter(), Trinity::Containers::MakeIteratorPair(m_playerData->Customizations.begin(), m_playerData->Customizations.end()));
 }

@@ -580,7 +580,7 @@ bool WorldSession::ValidateAppearance(Races race, Classes playerClass, Gender ge
                     return false;
 
             if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(conditionalChrModel->PlayerConditionID))
-                // This check is not safe to run if invoked at character selection screen
+                // This check is not safe to run at character selection screen
                 if (_player && !ConditionMgr::IsPlayerMeetingCondition(_player, condition))
                     return false;
         }
@@ -1771,12 +1771,7 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     if (!ValidateAppearance(Races(_player->GetRace()), Classes(_player->GetClass()), Gender(packet.NewSex), customizations))
         return;
 
-    // CustomizedChrModelID 0 already went through the validation. Subsequent packets expected immediately after and should pass.
-    if (packet.CustomizedChrModelID)
-    {
-        _player->SetCustomizations(Trinity::Containers::MakeIteratorPair(packet.Customizations.begin(), packet.Customizations.end()), packet.CustomizedChrModelID);
-    }
-    else
+    if (!_player->_justPassedBarberChecks)
     {
         GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
         if (!go)
@@ -1795,18 +1790,30 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
             return;
         SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::Success).Write());
 
+        _player->UpdateCriteria(CriteriaType::GotHaircut, 1);
+
+        _player->SetStandState(UNIT_STAND_STATE_STAND);
+
+        _player->_justPassedBarberChecks = true;
+    }
+
+    if (packet.CustomizedChrModelID)
+    {
+        _player->ClearPreviousModelCustomizations(packet.CustomizedChrModelID);
+        _player->SetCustomizations(Trinity::Containers::MakeIteratorPair(packet.Customizations.begin(), packet.Customizations.end()), packet.CustomizedChrModelID);
+    }
+    else
+    {
+        _player->ClearPreviousRaceGenderCustomizations(_player->GetRace(), packet.NewSex);
         if (_player->GetNativeGender() != packet.NewSex)
         {
+            _player->ClearPreviousRaceGenderCustomizations(_player->GetRace(), _player->GetNativeGender());
             _player->SetNativeGender(Gender(packet.NewSex));
             _player->InitDisplayIds();
             _player->RestoreDisplayId(false);
         }
 
         _player->SetCustomizations(Trinity::Containers::MakeIteratorPair(packet.Customizations.begin(), packet.Customizations.end()), packet.CustomizedChrModelID);
-
-        _player->UpdateCriteria(CriteriaType::GotHaircut, 1);
-
-        _player->SetStandState(UNIT_STAND_STATE_STAND);
 
         sCharacterCache->UpdateCharacterGender(_player->GetGUID(), packet.NewSex);
     }
@@ -1845,10 +1852,11 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<WorldPackets::Cha
     std::string oldName = fields[0].GetString();
     Races plrRace = Races(fields[1].GetUInt8());
     Classes plrClass = Classes(fields[2].GetUInt8());
-    Gender plrGender = Gender(fields[3].GetUInt8());
+    Gender oldGender = Gender(fields[3].GetUInt8());
+    Gender newGender = Gender(customizeInfo->SexID);
     uint16 atLoginFlags = fields[4].GetUInt16();
 
-    if (!ValidateAppearance(plrRace, plrClass, plrGender, MakeChrCustomizationChoiceRange(customizeInfo->Customizations)))
+    if (!ValidateAppearance(plrRace, plrClass, newGender, MakeChrCustomizationChoiceRange(customizeInfo->Customizations)))
     {
         SendCharCustomize(CHAR_CREATE_ERROR, customizeInfo.get());
         return;
@@ -1908,7 +1916,8 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<WorldPackets::Cha
     ObjectGuid::LowType lowGuid = customizeInfo->CharGUID.GetCounter();
 
     /// Customize
-    Player::SaveCustomizations(trans, lowGuid, MakeChrCustomizationChoiceRange(customizeInfo->Customizations));
+    std::vector<ChrCustomizationOptionEntry const*> const* oldModelCustomizations = sDB2Manager.GetCustomiztionOptions(plrRace, oldGender);
+    Player::SaveCustomizations(trans, lowGuid, MakeChrCustomizationChoiceRange(customizeInfo->Customizations), oldModelCustomizations);
 
     /// Name Change and update atLogin flags
     {
@@ -1921,6 +1930,12 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<WorldPackets::Cha
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
         stmt->setUInt64(0, lowGuid);
+
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_GENDER);
+        stmt->setUInt8(0, customizeInfo->SexID);
+        stmt->setUInt64(1, lowGuid);
 
         trans->Append(stmt);
     }
@@ -2126,6 +2141,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
 
     std::string oldName = characterInfo->Name;
     uint8 oldRace     = characterInfo->Race;
+    uint8 oldGender   = characterInfo->Sex;
     uint8 playerClass = characterInfo->Class;
     uint8 level       = characterInfo->Level;
 
@@ -2242,7 +2258,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
     }
 
     // Customize
-    Player::SaveCustomizations(trans, lowGuid, MakeChrCustomizationChoiceRange(factionChangeInfo->Customizations));
+    std::vector<ChrCustomizationOptionEntry const*> const* oldModelCustomizations = sDB2Manager.GetCustomiztionOptions(oldRace, oldGender);
+    Player::SaveCustomizations(trans, lowGuid, MakeChrCustomizationChoiceRange(factionChangeInfo->Customizations), oldModelCustomizations);
 
     // Race Change
     {
@@ -2250,6 +2267,12 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
         stmt->setUInt8(0, factionChangeInfo->RaceID);
         stmt->setUInt16(1, PLAYER_EXTRA_HAS_RACE_CHANGED);
         stmt->setUInt64(2, lowGuid);
+
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_GENDER);
+        stmt->setUInt8(0, factionChangeInfo->SexID);
+        stmt->setUInt64(1, lowGuid);
 
         trans->Append(stmt);
     }
