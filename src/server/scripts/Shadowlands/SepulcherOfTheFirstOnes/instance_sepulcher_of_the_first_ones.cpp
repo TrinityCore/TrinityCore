@@ -37,9 +37,16 @@ ObjectData const creatureData[] =
     { NPC_BEACON_OF_HOPE,                       DATA_BEACON_OF_HOPE                 },
     { NPC_QUARTERMASTER_RAHM_ANDUIN,            DATA_QUARTERMASTER_RAHM_ANDUIN      },
     { NPC_BOLVAR_FORDRAGON_ANDUIN,              DATA_BOLVAR_FORDRAGON_ANDUIN        },
-    { 0,                                        0                                   },
 
     // Lords of Dread
+    { BOSS_MALGANIS,                            DATA_MALGANIS                       },
+    { BOSS_KINTESSA,                            DATA_KINTESSA                       },
+    { 0,                                        0                                   }
+};
+ObjectData const gameObjectData[] =
+{
+    { GAMEOBJECT_DOOR_TO_LORDS_OF_DREAD,    DATA_DOOR_TO_LORDS_OF_DREAD     },
+    { 0,                                    0                               }
 };
 
 BossBoundaryData const boundaries =
@@ -49,9 +56,17 @@ BossBoundaryData const boundaries =
 
 DoorData const doorData[] =
 {
-    { GAMEOBJECT_BRIDGE_TO_ANDUIN,              DATA_ANDUIN_WRYNN,          EncounterDoorBehavior::OpenWhenInProgress },
-    { GAMEOBJECT_BRIDGE_AFTER_ANDUIN,           DATA_ANDUIN_WRYNN,          EncounterDoorBehavior::OpenWhenNotDone },
-    { 0,                                        0,                          EncounterDoorBehavior::OpenWhenInProgress }
+    // Anduin Wrynn
+    { GAMEOBJECT_BRIDGE_TO_ANDUIN,                      DATA_ANDUIN_WRYNN,      EncounterDoorBehavior::OpenWhenInProgress   },
+    { GAMEOBJECT_BRIDGE_AFTER_ANDUIN,                   DATA_ANDUIN_WRYNN,      EncounterDoorBehavior::OpenWhenNotDone      },
+
+    // Lords of Dread
+    //{ GAMEOBJECT_DOOR_TO_LORDS_OF_DREAD,                DATA_LORDS_OF_DREAD,            EncounterDoorBehavior::OpenWhenInProgress       },
+    { GAMEOBJECT_DOOR_AFTER_LORDS_OF_DREAD,             DATA_LORDS_OF_DREAD,            EncounterDoorBehavior::OpenWhenDone             },
+    { GAMEOBJECT_BARRIER_BEFORE_LORDS_OF_DREAD_RIGHT,   DATA_LORDS_OF_DREAD,            EncounterDoorBehavior::OpenWhenNotInProgress    },
+    { GAMEOBJECT_BARRIER_BEFORE_LORDS_OF_DREAD_LEFT,    DATA_LORDS_OF_DREAD,            EncounterDoorBehavior::OpenWhenNotInProgress    },
+    { GAMEOBJECT_BARRIER_AFTER_LORDS_OF_DREAD_RIGHT,    DATA_LORDS_OF_DREAD,            EncounterDoorBehavior::OpenWhenDone             },
+    { GAMEOBJECT_BARRIER_AFTER_LORDS_OF_DREAD_LEFT,     DATA_LORDS_OF_DREAD,            EncounterDoorBehavior::OpenWhenDone             },
 };
 
 DungeonEncounterData const encounters[] =
@@ -72,7 +87,7 @@ public:
             SetBossNumber(EncounterCount);
             LoadDungeonEncounterData(encounters);
             LoadBossBoundaries(boundaries);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, gameObjectData);
             LoadDoorData(doorData);
 
             AnduinIntroductionState = NOT_STARTED;
