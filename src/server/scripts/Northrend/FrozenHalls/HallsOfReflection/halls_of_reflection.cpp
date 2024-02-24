@@ -273,7 +273,7 @@ enum HorGossipMenu
     GOSSIP_MENU_SYLVANAS_FINAL         = 10931
 };
 
-Position const NpcJainaOrSylvanasEscapeRoute[] =
+constexpr Position NpcJainaOrSylvanasEscapeRoute[] =
 {
     { 5601.217285f, 2207.652832f, 731.541931f, 5.223304f }, // leave the throne room
     { 5607.224375f, 2173.913330f, 731.126038f, 2.608723f }, // adjust route
@@ -286,36 +286,36 @@ Position const NpcJainaOrSylvanasEscapeRoute[] =
     { 5265.53f,     1681.6f,      784.2947f,   4.13643f  }  // final position (sniffed)
 };
 
-Position const LichKingMoveAwayPos      = { 5400.069824f, 2102.7131689f, 707.69525f, 0.843803f }; // Lich King walks away
-Position const LichKingFirstSummon      = { 5600.076172f, 2192.270996f, 731.750488f, 4.330935f }; // Lich King First summons
-Position const JainaSylvanasShadowThroneDoor = { 5577.243f, 2235.852f, 733.0128f, 2.209562f }; // Jaina/Sylvanas move to door
-Position const LichKingFinalPos         = { 5283.742188f, 1706.335693f, 783.293518f, 4.138510f }; // Lich King Final Pos
+constexpr Position LichKingMoveAwayPos      = { 5400.069824f, 2102.7131689f, 707.69525f, 0.843803f }; // Lich King walks away
+constexpr Position LichKingFirstSummon      = { 5600.076172f, 2192.270996f, 731.750488f, 4.330935f }; // Lich King First summons
+//constexpr Position JainaSylvanasShadowThroneDoor = { 5577.243f, 2235.852f, 733.0128f, 2.209562f };    // Jaina/Sylvanas move to door
+constexpr Position LichKingFinalPos         = { 5283.742188f, 1706.335693f, 783.293518f, 4.138510f }; // Lich King Final Pos
 
 // sniffed
-Position const KorelnOrLoralenPos[] =
+constexpr Position KorelnOrLoralenPos[] =
 {
     { 5253.061f, 1953.616f, 707.6948f, 0.8377581f },
     { 5283.226f, 1992.300f, 707.7445f, 0.8377581f },
     { 5360.711f, 2064.797f, 707.6948f, 0.0f }
 };
 
-Position const SylvanasIntroPosition[] =
+constexpr Position SylvanasIntroPosition[] =
 {
     { 0.0f,     0.0f,     0.0f,      0.0f       }, // 0 - Spawn
     { 5263.2f,  1950.96f, 707.6948f, 0.8028514f }, // 1 - Move to Door
     { 5306.82f, 1998.17f, 709.341f,  1.239184f  }, // 2 - Move to Frostmourne
 };
 
-Position const JainaIntroPosition[] =
+constexpr Position JainaIntroPosition[] =
 {
     { 0.0f,     0.0f,     0.0f,      0.0f      }, // 0 - Spawn
     { 5265.89f, 1952.98f, 707.6978f, 0.0f      }, // 1 - Move to Door
     { 5306.95f, 1998.49f, 709.3414f, 1.277278f }  // 2 - Move to Frostmourne
 };
 
-Position const UtherSpawnPos = { 5307.814f, 2003.168f, 709.4244f, 4.537856f };
+constexpr Position UtherSpawnPos = { 5307.814f, 2003.168f, 709.4244f, 4.537856f };
 
-Position const LichKingIntroPosition[] =
+constexpr Position LichKingIntroPosition[] =
 {
     { 5362.463f, 2062.693f, 707.7781f, 3.944444f }, // 0 - Spawn
     { 5332.83f,  2031.24f,  707.6948f, 0.0f      }, // 1 - Door
@@ -325,21 +325,21 @@ Position const LichKingIntroPosition[] =
     { 5355.488f, 2055.149f, 707.6907f, 0.0f      }  // 5 - Move back 3
 };
 
-Position const FalricPosition[] =
+constexpr Position FalricPosition[] =
 {
     { 5276.583f, 2037.45f, 709.4025f, 5.532694f }, // 0 - Spawn
     { 5283.95f,  2030.53f, 709.3191f, 0.0f      }  // 1 - Intro
 };
 
-Position const MarwynPosition[] =
+constexpr Position MarwynPosition[] =
 {
     { 5342.232f, 1975.696f, 709.4025f, 2.391101f }, // 0 - Spawn
     { 5335.01f,  1982.37f,  709.3191f, 0.0f      }  // 1 - Intro
 };
 
-Position const SylvanasShadowThroneDoorPosition = { 5576.79f, 2235.73f, 733.0029f, 2.687807f };
+constexpr Position SylvanasShadowThroneDoorPosition = { 5576.79f, 2235.73f, 733.0029f, 2.687807f };
 
-Position const IceWallTargetPosition[] =
+constexpr Position IceWallTargetPosition[] =
 {
     { 5547.833f, 2083.701f, 731.4332f, 1.029744f  }, // 1st Icewall
     { 5503.213f, 1969.547f, 737.0245f, 1.27409f   }, // 2nd Icewall
@@ -2415,16 +2415,16 @@ enum QuelDelarMisc
     SPELL_QUEL_DELAR_WILL          = 70698
 };
 
-Position const QuelDelarCenterPos = { 5309.259f, 2006.390f, 718.046f, 0.0f };
-Position const QuelDelarSummonPos = { 5298.473f, 1994.852f, 709.424f, 3.979351f };
-Position const QuelDelarMovement[] =
+constexpr Position QuelDelarCenterPos = { 5309.259f, 2006.390f, 718.046f, 0.0f };
+constexpr Position QuelDelarSummonPos = { 5298.473f, 1994.852f, 709.424f, 3.979351f };
+constexpr Position QuelDelarMovement[] =
 {
     { 5292.870f, 1998.950f, 718.046f, 0.0f },
     { 5295.819f, 1991.912f, 707.707f, 0.0f },
     { 5295.301f, 1989.782f, 708.696f, 0.0f }
 };
 
-Position const UtherQuelDelarMovement[] =
+constexpr Position UtherQuelDelarMovement[] =
 {
     { 5336.830f, 1981.700f, 709.319f, 0.0f },
     { 5314.350f, 1993.440f, 707.726f, 0.0f }

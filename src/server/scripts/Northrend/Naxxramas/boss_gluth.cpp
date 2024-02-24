@@ -47,13 +47,6 @@ enum Spells
     SPELL_INFECTED_WOUND                = 29307  // Used by the zombies on self.
 };
 
-Position const PosSummon[3] =
-{
-    { 3270.132f, -3169.948f, 297.5891f, 5.88176f },
-    { 3307.298f, -3183.449f, 297.5891f, 5.742133f },
-    { 3255.708f, -3135.677f, 297.5891f, 1.867502f }
-};
-
 enum Events
 {
     EVENT_WOUND                         = 1,

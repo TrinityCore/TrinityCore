@@ -49,9 +49,9 @@ enum Erozion
 };
 #define GOSSIP_HELLO_EROZION2   "[PH] Teleport please, i'm tired." //not in DB,maybe incorrect?
 
-Position const ThrallRespawnPositionAfterSkarloc(2062.934f, 229.14508f, 64.57113f, 2.338741064071655273);
-Position const ThrallRespawnPositionAfterHorseRide(2486.5637f, 624.09796f, 57.95088f, 4.136430263519287109);
-Position const ThrallRespawnPositionAfterMeetingTaretha(2660.0847f, 659.54816f, 62.020317f, 5.864306449890136718);
+//constexpr Position ThrallRespawnPositionAfterSkarloc(2062.934f, 229.14508f, 64.57113f, 2.338741064071655273);
+//constexpr Position ThrallRespawnPositionAfterHorseRide(2486.5637f, 624.09796f, 57.95088f, 4.136430263519287109);
+//constexpr Position ThrallRespawnPositionAfterMeetingTaretha(2660.0847f, 659.54816f, 62.020317f, 5.864306449890136718);
 
 /*######
 ## npc_erozion
