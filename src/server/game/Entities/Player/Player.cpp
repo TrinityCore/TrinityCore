@@ -2057,7 +2057,7 @@ void Player::UpdateNearbyCreatureNpcFlags()
 
     if (!udata.HasData())
         return;
-    
+
     WorldPacket packet;
     udata.BuildPacket(&packet);
     SendDirectMessage(&packet);
