@@ -328,13 +328,13 @@ public:
         value_type npcFlag = unitData->NpcFlags[i];
         if (i == 0)
         {
-            if (unit->IsCreature())
+            if (Creature const* creature = unit->ToCreature())
             {
-                if (!receiver->CanSeeSpellClickOn(unit->ToCreature()))
-                    npcFlag &= ~UNIT_NPC_FLAG_SPELLCLICK;
-
-                if (!receiver->CanSeeGossipOn(unit->ToCreature()))
+                if (!receiver->CanSeeGossipOn(creature))
                     npcFlag &= ~(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+
+                if (!receiver->CanSeeSpellClickOn(creature))
+                    npcFlag &= ~UNIT_NPC_FLAG_SPELLCLICK;
             }
         }
         return npcFlag;

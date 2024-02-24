@@ -27129,36 +27129,12 @@ bool Player::IsPetNeedBeTemporaryUnsummoned() const
     return !IsInWorld() || !IsAlive() || HasUnitMovementFlag(MOVEMENTFLAG_FLYING) || HasExtraUnitMovementFlag2(MOVEMENTFLAG3_ADV_FLYING);
 }
 
-bool Player::CanSeeSpellClickOn(Creature const* c) const
-{
-    if (!c->HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
-        return false;
-
-    auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(c->GetEntry());
-    if (clickBounds.begin() == clickBounds.end())
-        return false;
-
-    for (auto const& clickPair : clickBounds)
-    {
-        if (!clickPair.second.IsFitToRequirements(this, c))
-            return false;
-
-        if (sConditionMgr->IsObjectMeetingSpellClickConditions(c->GetEntry(), clickPair.second.spellId, this, c))
-            return true;
-    }
-
-    return false;
-}
-
 bool Player::CanSeeGossipOn(Creature const* creature) const
 {
     if (creature->HasNpcFlag(UNIT_NPC_FLAG_GOSSIP))
     {
-        if (creature->GetCreatureTemplate()->GossipMenuIds.size() || creature->GetGossipMenuId())
-        {
-            if (GetGossipMenuForSource(creature))
-                return true;
-        }
+        if (GetGossipMenuForSource(creature))
+            return true;
     }
 
     // for cases with questgiver/ender without gossip menus
@@ -27183,6 +27159,27 @@ bool Player::CanSeeGossipOn(Creature const* creature) const
                 return true;
         }
     }
+    return false;
+}
+
+bool Player::CanSeeSpellClickOn(Creature const* c) const
+{
+    if (!c->HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
+        return false;
+
+    auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(c->GetEntry());
+    if (clickBounds.begin() == clickBounds.end())
+        return false;
+
+    for (auto const& clickPair : clickBounds)
+    {
+        if (!clickPair.second.IsFitToRequirements(this, c))
+            return false;
+
+        if (sConditionMgr->IsObjectMeetingSpellClickConditions(c->GetEntry(), clickPair.second.spellId, this, c))
+            return true;
+    }
+
     return false;
 }
 
