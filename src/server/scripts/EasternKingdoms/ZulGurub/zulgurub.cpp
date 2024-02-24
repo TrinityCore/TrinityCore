@@ -60,7 +60,7 @@ public:
             {
                 if (sGameEventMgr->IsActiveEvent(eventId))
                 {
-                    me->SummonCreature(npcEntry, MadnessSpawnPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s * HOUR * IN_MILLISECONDS);
+                    me->SummonCreature(npcEntry, MadnessSpawnPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2h);
                     break;
                 }
             }
