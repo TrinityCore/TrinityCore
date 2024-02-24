@@ -177,9 +177,25 @@ private:
     TaskScheduler _scheduler;
 };
 
+class at_av_exploit : public AreaTriggerScript
+{
+public:
+    at_av_exploit() : AreaTriggerScript("at_av_exploit") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+    {
+        if (Battleground* battleground = player->GetBattleground())
+            if (battleground->GetStatus() == STATUS_WAIT_JOIN)
+                battleground->TeleportPlayerToExploitLocation(player);
+
+        return true;
+    }
+};
+
 void AddSC_alterac_valley()
 {
     RegisterCreatureAI(npc_av_marshal_or_warmaster);
     RegisterGameObjectAI(go_av_capturable_object);
     RegisterGameObjectAI(go_av_contested_object);
+    new at_av_exploit();
 }

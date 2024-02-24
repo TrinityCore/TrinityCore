@@ -19,6 +19,7 @@
 #define TRINITY_PASSIVEAI_H
 
 #include "CreatureAI.h"
+#include "Timer.h"
 
 class TC_GAME_API PassiveAI : public CreatureAI
 {
@@ -70,14 +71,16 @@ class TC_GAME_API NullCreatureAI : public CreatureAI
 class TC_GAME_API CritterAI : public PassiveAI
 {
     public:
-        using PassiveAI::PassiveAI;
+        explicit CritterAI(Creature* creature, uint32 scriptId = {});
 
         void JustEngagedWith(Unit* /*who*/) override;
-        void EnterEvadeMode(EvadeReason why) override;
 
-        void MovementInform(uint32 type, uint32 id) override;
+        void UpdateAI(uint32 diff) override;
 
         static int32 Permissible(Creature const* creature);
+
+    private:
+        TimeTracker _evadeTimer;
 };
 
 class TC_GAME_API TriggerAI : public NullCreatureAI

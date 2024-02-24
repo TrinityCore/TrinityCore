@@ -23,6 +23,7 @@
 #include "Define.h"
 #include "DBCEnums.h"
 #include "Duration.h"
+#include "EnumFlag.h"
 #include "Errors.h"
 #include "FlagsArray.h"
 #include "Hash.h"
@@ -594,6 +595,15 @@ struct SpellLearnSpellNode
     bool AutoLearned;               // This marks the spell as automatically learned from another source that - will only be used for unlearning
 };
 
+enum class SpellOtherImmunity : uint8
+{
+    None        = 0x0,
+    AoETarget   = 0x1,
+    ChainTarget = 0x2
+};
+
+DEFINE_ENUM_FLAG(SpellOtherImmunity)
+
 struct CreatureImmunities
 {
     std::bitset<MAX_SPELL_SCHOOL> School;
@@ -601,8 +611,7 @@ struct CreatureImmunities
     std::bitset<MAX_MECHANIC> Mechanic;
     std::vector<SpellEffectName> Effect;
     std::vector<AuraType> Aura;
-    bool ImmuneAoE = false;   // NYI
-    bool ImmuneChain = false; // NYI
+    EnumFlag<SpellOtherImmunity> Other = SpellOtherImmunity::None;
 };
 
 typedef std::multimap<uint32, SpellLearnSpellNode> SpellLearnSpellMap;

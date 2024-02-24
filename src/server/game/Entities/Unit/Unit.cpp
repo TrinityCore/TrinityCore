@@ -360,7 +360,7 @@ Unit::Unit(bool isWorldObject) :
     m_modMeleeHitChance = 0.0f;
     m_modRangedHitChance = 0.0f;
     m_modSpellHitChance = 0.0f;
-    m_baseSpellCritChance = 5;
+    m_baseSpellCritChance = 5.0f;
 
     m_speed_rate.fill(1.0f);
 
@@ -6914,15 +6914,27 @@ float Unit::SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSch
     float crit_chance = 0.0f;
     switch (spellInfo->DmgClass)
     {
+        case SPELL_DAMAGE_CLASS_NONE:
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
+            auto getPhysicalCritChance = [&]
+            {
+                return GetUnitCriticalChanceDone(attackType);
+            };
+
+            auto getMagicCritChance = [&]
+            {
+                if (Player const* thisPlayer = ToPlayer())
+                    return *thisPlayer->m_activePlayerData->SpellCritPercentage;
+
+                return m_baseSpellCritChance;
+            };
+
             if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
-                crit_chance = 0.0f;
-            // For other schools
-            else if (Player const* thisPlayer = ToPlayer())
-                crit_chance = thisPlayer->m_activePlayerData->SpellCritPercentage;
-            else
-                crit_chance = (float)m_baseSpellCritChance;
+                crit_chance = std::max(crit_chance, getPhysicalCritChance());
+
+            if (schoolMask & ~SPELL_SCHOOL_MASK_NORMAL)
+                crit_chance = std::max(crit_chance, getMagicCritChance());
             break;
         }
         case SPELL_DAMAGE_CLASS_MELEE:
@@ -6931,7 +6943,6 @@ float Unit::SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSch
             crit_chance += GetUnitCriticalChanceDone(attackType);
             break;
         }
-        case SPELL_DAMAGE_CLASS_NONE:
         default:
             return 0.0f;
     }
@@ -7505,6 +7516,16 @@ uint64 Unit::GetMechanicImmunityMask() const
     SpellImmuneContainer const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
     for (auto itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
         mask |= (UI64LIT(1) << itr->first);
+
+    return mask;
+}
+
+EnumFlag<SpellOtherImmunity> Unit::GetSpellOtherImmunityMask() const
+{
+    SpellOtherImmunity mask = { };
+    SpellImmuneContainer const& damageList = m_spellImmune[IMMUNITY_OTHER];
+    for (auto itr = damageList.begin(); itr != damageList.end(); ++itr)
+        mask |= SpellOtherImmunity(itr->first);
 
     return mask;
 }
@@ -10984,20 +11005,22 @@ void Unit::SetFeared(bool apply)
         SetTarget(ObjectGuid::Empty);
 
         Unit* caster = nullptr;
-        Unit::AuraEffectList const& fearAuras = GetAuraEffectsByType(SPELL_AURA_MOD_FEAR);
+        AuraEffectList const& fearAuras = GetAuraEffectsByType(SPELL_AURA_MOD_FEAR);
         if (!fearAuras.empty())
             caster = ObjectAccessor::GetUnit(*this, fearAuras.front()->GetCasterGUID());
         if (!caster)
             caster = getAttackerForHelper();
         GetMotionMaster()->MoveFleeing(caster, fearAuras.empty() ? Milliseconds(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_FLEE_DELAY)) : 0ms);             // caster == NULL processed in MoveFleeing
+        SetUnitFlag(UNIT_FLAG_FLEEING);
     }
     else
     {
+        RemoveUnitFlag(UNIT_FLAG_FLEEING);
         if (IsAlive())
         {
             GetMotionMaster()->Remove(FLEEING_MOTION_TYPE);
-            if (GetVictim())
-                SetTarget(EnsureVictim()->GetGUID());
+            if (Unit const* victim = GetVictim())
+                SetTarget(victim->GetGUID());
             if (!IsPlayer() && !IsInCombat())
                 GetMotionMaster()->MoveTargetedHome();
         }
