@@ -6089,9 +6089,19 @@ enum SpellRidingGiantBoar
     SPELL_RIDING_GIANT_BOAR_321670 = 321670
 };
 
-// Spell 173426 - Riding Giant Boar
+// 173426 - Riding Giant Boar
 class spell_riding_giant_boar_q55879 : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RIDING_GIANT_BOAR_305068,
+            SPELL_RIDING_GIANT_BOAR_321670,
+            SPELL_UPDATE_PHASE_SHIFT
+        });
+    }
+
     void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Player* player = Object::ToPlayer(GetCaster());
@@ -6179,7 +6189,7 @@ Position MoveToPrisonerPosition = { 232.16145f, -2292.5347f, 80.91198f };
 // 174955 - Captain Garrick
 struct npc_captain_garrick_q55879 : public ScriptedAI
 {
-    npc_captain_garrick_q55879(Creature* creature) : ScriptedAI(creature) { _inCombat = false; }
+    npc_captain_garrick_q55879(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -6328,7 +6338,6 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
 private:
     EventMap _events;
     ObjectGuid _henryGUID;
-    bool _inCombat;
 };
 
 enum GiantBoar
@@ -6349,15 +6358,9 @@ enum GiantBoar
 // 156267 - Giant Boar
 struct npc_giant_boar_vehicle_q55879 : public VehicleAI
 {
-    npc_giant_boar_vehicle_q55879(Creature* creature) : VehicleAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
+    npc_giant_boar_vehicle_q55879(Creature* creature) : VehicleAI(creature), _endOfScene(false)
     {
         me->SetOrientation(0.844224f);
-        _endOfScene = false;
     }
 
     void JustAppeared() override
@@ -6667,7 +6670,6 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
 {
     npc_warlord_grimaxe_q59942(Creature* creature) : ScriptedAI(creature)
     {
-        _inCombat = false;
         me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
     }
 
@@ -6781,7 +6783,6 @@ struct npc_warlord_grimaxe_q59942 : public ScriptedAI
 private:
     EventMap _events;
     ObjectGuid _shujaGUID;
-    bool _inCombat;
 };
 
 // ***************************************************************
