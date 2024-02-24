@@ -232,76 +232,6 @@ struct npc_mrfloppy : public ScriptedAI
     }
 };
 
-/*######
-## Quest 12227: Doing Your Duty
-######*/
-
-enum Outhouse
-{
-    // Sound
-    SOUND_FEMALE                    = 12671,
-    SOUND_MALE                      = 12670,
-    // Spell
-    SPELL_OUTHOUSE_GROANS           = 48382,
-    SPELL_CAMERA_SHAKE              = 47533,
-    SPELL_DUST_FIELD                = 48329
-};
-
-struct npc_outhouse_bunny : public ScriptedAI
-{
-    npc_outhouse_bunny(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _counter = 0;
-        _gender = 0;
-    }
-
-    void Reset() override
-    {
-        Initialize();
-    }
-
-    void SetData(uint32 Type, uint32 Data) override
-    {
-        if (Type == 1)
-            _gender = Data;
-    }
-
-    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
-    {
-        Unit* unitCaster = caster->ToUnit();
-        if (!unitCaster)
-            return;
-
-        if (spellInfo->Id == SPELL_OUTHOUSE_GROANS)
-        {
-            ++_counter;
-            if (_counter < 5)
-                DoCast(unitCaster, SPELL_CAMERA_SHAKE, true);
-            else
-                _counter = 0;
-            DoCast(me, SPELL_DUST_FIELD, true);
-            switch (_gender)
-            {
-                case GENDER_FEMALE:
-                    DoPlaySoundToSet(me, SOUND_FEMALE);
-                    break;
-
-                case GENDER_MALE:
-                    DoPlaySoundToSet(me, SOUND_MALE);
-                    break;
-            }
-        }
-    }
-    private:
-        uint8 _counter;
-        uint8 _gender;
-};
-
 // Tallhorn Stage
 
 enum TallhornStage
@@ -957,7 +887,6 @@ void AddSC_grizzly_hills()
 {
     RegisterCreatureAI(npc_emily);
     RegisterCreatureAI(npc_mrfloppy);
-    RegisterCreatureAI(npc_outhouse_bunny);
     RegisterCreatureAI(npc_tallhorn_stag);
     RegisterCreatureAI(npc_amberpine_woodsman);
     RegisterCreatureAI(npc_wounded_skirmisher);
