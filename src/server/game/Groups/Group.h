@@ -276,7 +276,8 @@ class TC_GAME_API Group
         //void SendInit(WorldSession* session);
         void SendTargetIconList(WorldSession* session);
         void SendUpdate();
-        void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = nullptr);
+        void SendUpdateToPlayer(Player const* player, MemberSlot const* slot = nullptr);
+        void SendOriginalGroupUpdateToPlayer(Player const* player) const;
         void UpdatePlayerOutOfRange(Player* player);
 
         template<class Worker>
