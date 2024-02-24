@@ -641,7 +641,7 @@ class TC_GAME_API PlayerScript : public ScriptObject
         virtual void OnFreeTalentPointsChanged(Player* player, uint32 points);
 
         // Called when a player's talent points are reset (right before the reset is done)
-        virtual void OnTalentsReset(Player* player, bool noCost);
+        virtual void OnTalentsReset(Player* player, bool involuntarily);
 
         // Called when a player's money is modified (before the modification is done)
         virtual void OnMoneyChanged(Player* player, int32& amount);
@@ -1009,7 +1009,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerKilledByCreature(Creature* killer, Player* killed);
         void OnPlayerLevelChanged(Player* player, uint8 oldLevel);
         void OnPlayerFreeTalentPointsChanged(Player* player, uint32 newPoints);
-        void OnPlayerTalentsReset(Player* player, bool noCost);
+        void OnPlayerTalentsReset(Player* player, bool involuntarily);
         void OnPlayerMoneyChanged(Player* player, int32& amount);
         void OnPlayerMoneyLimit(Player* player, int32 amount);
         void OnGivePlayerXP(Player* player, uint32& amount, Unit* victim);

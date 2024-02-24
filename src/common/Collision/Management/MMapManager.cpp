@@ -18,13 +18,12 @@
 #include "MMapManager.h"
 #include "Errors.h"
 #include "Log.h"
-#include "Config.h"
 #include "MapDefines.h"
 
 namespace MMAP
 {
-    constexpr char MAP_FILE_NAME_FORMAT[] = "{}/mmaps/{:03}.mmap";
-    constexpr char TILE_FILE_NAME_FORMAT[] = "{}/mmaps/{:03}{:02}{:02}.mmtile";
+    constexpr char MAP_FILE_NAME_FORMAT[] = "{}mmaps/{:03}.mmap";
+    constexpr char TILE_FILE_NAME_FORMAT[] = "{}mmaps/{:03}{:02}{:02}.mmtile";
 
     // ######################## MMapManager ########################
     MMapManager::~MMapManager()
@@ -55,7 +54,7 @@ namespace MMAP
         return itr;
     }
 
-    bool MMapManager::loadMapData(uint32 mapId)
+    bool MMapManager::loadMapData(std::string const& basePath, uint32 mapId)
     {
         // we already have this map loaded?
         MMapDataSet::iterator itr = loadedMMaps.find(mapId);
@@ -73,7 +72,7 @@ namespace MMAP
         }
 
         // load and init dtNavMesh - read parameters from file
-        std::string fileName = Trinity::StringFormat(MAP_FILE_NAME_FORMAT, sConfigMgr->GetStringDefault("DataDir", "."), mapId);
+        std::string fileName = Trinity::StringFormat(MAP_FILE_NAME_FORMAT, basePath, mapId);
         FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
         {
@@ -113,10 +112,10 @@ namespace MMAP
         return uint32(x << 16 | y);
     }
 
-    bool MMapManager::loadMap(const std::string& /*basePath*/, uint32 mapId, int32 x, int32 y)
+    bool MMapManager::loadMap(std::string const& basePath, uint32 mapId, int32 x, int32 y)
     {
         // make sure the mmap is loaded and ready to load tiles
-        if (!loadMapData(mapId))
+        if (!loadMapData(basePath, mapId))
             return false;
 
         // get this mmap data
@@ -129,7 +128,7 @@ namespace MMAP
             return false;
 
         // load this tile :: mmaps/MMMXXYY.mmtile
-        std::string fileName = Trinity::StringFormat(TILE_FILE_NAME_FORMAT, sConfigMgr->GetStringDefault("DataDir", "."), mapId, x, y);
+        std::string fileName = Trinity::StringFormat(TILE_FILE_NAME_FORMAT, basePath, mapId, x, y);
         FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
         {
@@ -195,6 +194,32 @@ namespace MMAP
             dtFree(data);
             return false;
         }
+    }
+
+    bool MMapManager::loadMapInstance(std::string const& basePath, uint32 mapId, uint32 instanceId)
+    {
+        if (!loadMapData(basePath, mapId))
+            return false;
+
+        MMapData* mmap = loadedMMaps[mapId];
+        auto [queryItr, inserted] = mmap->navMeshQueries.try_emplace(instanceId, nullptr);
+        if (!inserted)
+            return true;
+
+        // allocate mesh query
+        dtNavMeshQuery* query = dtAllocNavMeshQuery();
+        ASSERT(query);
+        if (dtStatusFailed(query->init(mmap->navMesh, 1024)))
+        {
+            dtFreeNavMeshQuery(query);
+            mmap->navMeshQueries.erase(queryItr);
+            TC_LOG_ERROR("maps", "MMAP:GetNavMeshQuery: Failed to initialize dtNavMeshQuery for mapId {:03} instanceId {}", mapId, instanceId);
+            return false;
+        }
+
+        TC_LOG_DEBUG("maps", "MMAP:GetNavMeshQuery: created dtNavMeshQuery for mapId {:03} instanceId {}", mapId, instanceId);
+        queryItr->second = query;
+        return true;
     }
 
     bool MMapManager::unloadMap(uint32 mapId, int32 x, int32 y)
@@ -285,16 +310,15 @@ namespace MMAP
         }
 
         MMapData* mmap = itr->second;
-        if (mmap->navMeshQueries.find(instanceId) == mmap->navMeshQueries.end())
+        auto queryItr = mmap->navMeshQueries.find(instanceId);
+        if (queryItr == mmap->navMeshQueries.end())
         {
             TC_LOG_DEBUG("maps", "MMAP:unloadMapInstance: Asked to unload not loaded dtNavMeshQuery mapId {:03} instanceId {}", mapId, instanceId);
             return false;
         }
 
-        dtNavMeshQuery* query = mmap->navMeshQueries[instanceId];
-
-        dtFreeNavMeshQuery(query);
-        mmap->navMeshQueries.erase(instanceId);
+        dtFreeNavMeshQuery(queryItr->second);
+        mmap->navMeshQueries.erase(queryItr);
         TC_LOG_DEBUG("maps", "MMAP:unloadMapInstance: Unloaded mapId {:03} instanceId {}", mapId, instanceId);
 
         return true;
@@ -311,27 +335,14 @@ namespace MMAP
 
     dtNavMeshQuery const* MMapManager::GetNavMeshQuery(uint32 mapId, uint32 instanceId)
     {
-        MMapDataSet::const_iterator itr = GetMMapData(mapId);
+        auto itr = GetMMapData(mapId);
         if (itr == loadedMMaps.end())
             return nullptr;
 
-        MMapData* mmap = itr->second;
-        if (mmap->navMeshQueries.find(instanceId) == mmap->navMeshQueries.end())
-        {
-            // allocate mesh query
-            dtNavMeshQuery* query = dtAllocNavMeshQuery();
-            ASSERT(query);
-            if (dtStatusFailed(query->init(mmap->navMesh, 1024)))
-            {
-                dtFreeNavMeshQuery(query);
-                TC_LOG_ERROR("maps", "MMAP:GetNavMeshQuery: Failed to initialize dtNavMeshQuery for mapId {:03} instanceId {}", mapId, instanceId);
-                return nullptr;
-            }
+        auto queryItr = itr->second->navMeshQueries.find(instanceId);
+        if (queryItr == itr->second->navMeshQueries.end())
+            return nullptr;
 
-            TC_LOG_DEBUG("maps", "MMAP:GetNavMeshQuery: created dtNavMeshQuery for mapId {:03} instanceId {}", mapId, instanceId);
-            mmap->navMeshQueries.insert(std::pair<uint32, dtNavMeshQuery*>(instanceId, query));
-        }
-
-        return mmap->navMeshQueries[instanceId];
+        return queryItr->second;
     }
 }
