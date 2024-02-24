@@ -18,7 +18,7 @@ if(PLATFORM EQUAL 32)
       -msse2
       -mfpmath=sse)
 endif()
-if(NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+if(TRINITY_SYSTEM_PROCESSOR MATCHES "x86|amd64")
   target_compile_definitions(trinity-compile-option-interface
     INTERFACE
       -DHAVE_SSE2

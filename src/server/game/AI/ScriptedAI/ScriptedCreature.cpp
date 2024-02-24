@@ -155,7 +155,7 @@ void ScriptedAI::UpdateAI(uint32 /*diff*/)
 void ScriptedAI::DoStartMovement(Unit* victim, float distance, float angle)
 {
     if (victim)
-        me->GetMotionMaster()->MoveChase(victim, distance, angle);
+        me->StartDefaultCombatMovement(victim, distance, angle);
 }
 
 void ScriptedAI::DoStartNoMovement(Unit* victim)

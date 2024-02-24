@@ -73,6 +73,24 @@ enum GuildMemberData
     GUILD_MEMBER_DATA_LEVEL,
 };
 
+// Base Club/Community roles. Do not change.
+enum class ClubRoleIdentifier : uint32
+{
+    Owner     = 1,
+    Leader    = 2,
+    Moderator = 3,
+    Member    = 4
+};
+
+// Base Club/Community chat stream types. Do not change.
+enum class ClubStreamType : uint32
+{
+    General = 0,
+    Guild   = 1,
+    Officer = 2,
+    Other   = 3
+};
+
 enum class GuildRankId : uint8
 {
     GuildMaster = 0
@@ -308,7 +326,7 @@ using SlotIds = std::set<uint8>;
 
 class TC_GAME_API Guild
 {
-    private:
+    public:
         // Class representing guild member
         class Member
         {
@@ -401,6 +419,7 @@ class TC_GAME_API Guild
                 uint32 m_weekReputation;
         };
 
+    private:
         // Base class for event entries
         class LogEntry
         {
@@ -813,10 +832,10 @@ class TC_GAME_API Guild
         void MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, GuildRankOrder minRank);
 
         template<class Do>
-        void BroadcastWorker(Do& _do, Player* except = nullptr)
+        void BroadcastWorker(Do&& _do, Player const* except = nullptr) const
         {
-            for (auto itr = m_members.begin(); itr != m_members.end(); ++itr)
-                if (Player* player = itr->second.FindConnectedPlayer())
+            for (auto const& [_, member] : m_members)
+                if (Player* player = member.FindConnectedPlayer())
                     if (player != except)
                         _do(player);
         }
@@ -828,6 +847,7 @@ class TC_GAME_API Guild
         bool ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid, GuildRankId newRank);
         bool IsMember(ObjectGuid guid) const;
         uint32 GetMembersCount() const { return uint32(m_members.size()); }
+        std::unordered_map<ObjectGuid, Member> const& GetMembers() const { return m_members; }
         uint64 GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const;
         std::vector<Player*> GetMembersTrackingCriteria(uint32 criteriaId) const;
 
@@ -881,19 +901,24 @@ class TC_GAME_API Guild
         RankInfo const* GetRankInfo(GuildRankOrder rankOrder) const;
         RankInfo* GetRankInfo(GuildRankOrder rankOrder);
         bool _HasRankRight(Player const* player, uint32 right) const;
+    public:
+        bool HasAnyRankRight(GuildRankId rankId, GuildRankRights rights) const;
 
+    private:
         inline GuildRankId _GetLowestRankId() const { return m_ranks.back().GetId(); }
 
         inline uint8 _GetPurchasedTabsSize() const { return uint8(m_bankTabs.size()); }
         inline BankTab* GetBankTab(uint8 tabId) { return tabId < m_bankTabs.size() ? &m_bankTabs[tabId] : nullptr; }
         inline BankTab const* GetBankTab(uint8 tabId) const { return tabId < m_bankTabs.size() ? &m_bankTabs[tabId] : nullptr; }
 
+    public:
         inline Member const* GetMember(ObjectGuid const& guid) const
         {
             auto itr = m_members.find(guid);
             return (itr != m_members.end()) ? &itr->second : nullptr;
         }
 
+    private:
         inline Member* GetMember(ObjectGuid const& guid)
         {
             auto itr = m_members.find(guid);

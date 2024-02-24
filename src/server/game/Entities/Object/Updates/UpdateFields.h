@@ -376,6 +376,7 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<217>
     UpdateField<int32, 96, 112> BattlePetCompanionExperience;
     UpdateField<uint32, 96, 113> BattlePetCompanionNameTimestamp;
     UpdateField<int32, 96, 114> InteractSpellID;
+    struct InteractSpellIDTag : ViewerDependentValueTag<int32> {};
     UpdateField<int32, 96, 115> ScaleDuration;
     UpdateField<int32, 96, 116> LooksLikeMountID;
     UpdateField<int32, 96, 117> LooksLikeCreatureID;

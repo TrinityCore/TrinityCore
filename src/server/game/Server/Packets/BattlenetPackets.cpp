@@ -16,6 +16,7 @@
  */
 
 #include "BattlenetPackets.h"
+#include "PacketUtilities.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlenet::MethodCall const& method)
 {
@@ -78,9 +79,15 @@ void WorldPackets::Battlenet::Request::Read()
     _worldPacket >> Method;
     _worldPacket >> protoSize;
 
-    Data.Resize(protoSize);
-    _worldPacket.read(Data.GetWritePointer(), Data.GetRemainingSpace());
-    Data.WriteCompleted(protoSize);
+    if (protoSize > 0xFFFF)
+        throw PacketArrayMaxCapacityException(protoSize, 0xFFFF);
+
+    if (protoSize)
+    {
+        Data.Resize(protoSize);
+        _worldPacket.read(Data.GetWritePointer(), Data.GetRemainingSpace());
+        Data.WriteCompleted(protoSize);
+    }
 }
 
 void WorldPackets::Battlenet::ChangeRealmTicket::Read()

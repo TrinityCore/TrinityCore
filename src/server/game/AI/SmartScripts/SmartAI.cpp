@@ -586,7 +586,7 @@ void SmartAI::AttackStart(Unit* who)
         if (_canCombatMove)
         {
             SetRun(_run);
-            me->GetMotionMaster()->MoveChase(who);
+            me->StartDefaultCombatMovement(who);
         }
     }
 }
@@ -793,7 +793,7 @@ void SmartAI::SetCombatMove(bool on, bool stopMoving)
                 }))
             {
                 SetRun(_run);
-                me->GetMotionMaster()->MoveChase(me->GetVictim());
+                me->StartDefaultCombatMovement(me->GetVictim());
             }
         }
         else if (MovementGenerator* movement = me->GetMotionMaster()->GetMovementGenerator([](MovementGenerator const* a) -> bool

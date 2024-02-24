@@ -609,8 +609,8 @@ enum CrateEvent1Misc
     CHAIN_JENA_LEAVE    = 72
 };
 
-static float const marthaIdleOrientation1 = 3.159046f;
-static float const marthaIdleOrientation2 = 4.764749f;
+static constexpr float marthaIdleOrientation1 = 3.159046f;
+static constexpr float marthaIdleOrientation2 = 4.764749f;
 
 struct npc_martha_goslin : public CreatureScript
 {
@@ -978,12 +978,11 @@ enum CrateEvent3Misc
 
 };
 
-static Position const malcolmSpawn = { 1605.2420f, 805.4160f, 122.9956f, 5.284148f };
-static Position const scruffySpawn = { 1601.1030f, 805.3391f, 123.7677f, 5.471561f };
-static float const scruffyFacing2 = 5.734883f;
-static float const malcolmFacing3 = 2.303835f;
-static Position const scruffyPos3 = { 1629.004f, 810.138f, 120.4927f };
-static float const scruffyFacing4 = 5.445427f;
+static constexpr Position malcolmSpawn = { 1605.2420f, 805.4160f, 122.9956f, 5.284148f };
+static constexpr Position scruffySpawn = { 1601.1030f, 805.3391f, 123.7677f, 5.471561f };
+static constexpr float scruffyFacing2 = 5.734883f;
+static constexpr float malcolmFacing3 = 2.303835f;
+static constexpr float scruffyFacing4 = 5.445427f;
 
 struct npc_malcolm_moore : public CreatureScript
 {

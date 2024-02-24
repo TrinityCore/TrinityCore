@@ -288,6 +288,36 @@ public:
 };
 
 template<>
+class ViewerDependentValue<UF::UnitData::InteractSpellIDTag>
+{
+public:
+    using value_type = UF::UnitData::InteractSpellIDTag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    {
+        value_type interactSpellId = unitData->InteractSpellID;
+        if (unitData->NpcFlags[0] & UNIT_NPC_FLAG_SPELLCLICK && !interactSpellId)
+        {
+            // this field is not set if there are multiple available spellclick spells
+            auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(unit->GetEntry());
+            for (auto const& [creatureId, spellClickInfo] : clickBounds)
+            {
+                if (!spellClickInfo.IsFitToRequirements(receiver, unit))
+                    continue;
+
+                if (!sConditionMgr->IsObjectMeetingSpellClickConditions(unit->GetEntry(), spellClickInfo.spellId, receiver, unit))
+                    continue;
+
+                interactSpellId = spellClickInfo.spellId;
+                break;
+            }
+
+        }
+        return interactSpellId;
+    }
+};
+
+template<>
 class ViewerDependentValue<UF::UnitData::NpcFlagsTag>
 {
 public:
