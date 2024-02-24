@@ -32,22 +32,21 @@ EndScriptData */
 #include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "Pet.h"
 #include "Player.h"
 #include "stratholme.h"
 
 enum InstanceEvents
 {
     EVENT_BARON_RUN         = 1,
-    EVENT_SLAUGHTER_SQUARE  = 2
+    EVENT_SLAUGHTER_SQUARE  = 2,
+    EVENT_RAT_TRAP_CLOSE    = 3,
 };
 
 enum StratholmeMisc
 {
     SAY_YSIDA_SAVED         = 0
 };
-
-Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
-EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
 
 static constexpr DungeonEncounterData Encounters[] =
 {
@@ -65,6 +64,28 @@ static constexpr DungeonEncounterData Encounters[] =
     { BOSS_RAMSTEIN_THE_GORGER, {{ 483 }} }, // Ramstein the Gorger
     { BOSS_RIVENDARE, {{ 484 }} }, // Lord Aurius Rivendare
     { BOSS_POSTMASTER_MALOWN, {{ 1885 }} } // Postmaster Malown
+};
+
+Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
+EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
+
+enum class StratholmeGateTrapType : uint8
+{
+    ScaletSide = 0,
+    UndeadSide = 1
+};
+
+Position const GateTrapPos[] =              // Positions of the two Gate Traps 3919.88 -3547.34 134.269
+{
+    { 3612.29f, -3335.39f, 124.077f },      // Scarlet side
+    { 3919.88f, -3545.34f, 134.269f }       // Undead side
+};
+
+struct GateTrapData
+{
+    std::array<ObjectGuid, 2> Gates;
+    GuidUnorderedSet Rats;
+    bool Triggered = false;
 };
 
 class instance_stratholme : public InstanceMapScript
@@ -87,6 +108,8 @@ class instance_stratholme : public InstanceMapScript
                 scarletsKilled = 0;
                 brokenCrystals = 0;
                 baronRunState = NOT_STARTED;
+
+                events.ScheduleEvent(EVENT_RAT_TRAP_CLOSE, 15s);
             }
 
             uint8 scarletsKilled;
@@ -114,6 +137,8 @@ class instance_stratholme : public InstanceMapScript
             GuidSet crystalsGUID;
             GuidSet abomnationGUID;
             EventMap events;
+
+            std::array<GateTrapData, 2> TrapGates;
 
             void OnUnitDeath(Unit* who) override
             {
@@ -153,6 +178,20 @@ class instance_stratholme : public InstanceMapScript
                         break;
                     default:
                         break;
+                    case NPC_PLAGUED_RAT:
+                    {
+                        for (GateTrapData& trapGate : TrapGates)
+                        {
+                            auto el = trapGate.Rats.find(who->GetGUID());
+                            if (el != trapGate.Rats.end())
+                            {
+                                trapGate.Rats.erase(el);
+                                for (ObjectGuid gate : trapGate.Gates)
+                                    UpdateGoState(gate, GO_STATE_ACTIVE);
+                            }
+                        }
+                        break;
+                    }
                 }
             }
 
@@ -169,19 +208,37 @@ class instance_stratholme : public InstanceMapScript
                 return false;
             }
 
-            //if withRestoreTime true, then newState will be ignored and GO should be restored to original state after 10 seconds
-            void UpdateGoState(ObjectGuid goGuid, uint32 newState, bool withRestoreTime)
+            //if restoreTime is not 0, then newState will be ignored and GO should be restored to original state after "restoreTime" millisecond
+            void UpdateGoState(ObjectGuid goGuid, uint32 newState, uint32 restoreTime = 0u)
             {
                 if (!goGuid)
                     return;
-
                 if (GameObject* go = instance->GetGameObject(goGuid))
                 {
-                    if (withRestoreTime)
-                        go->UseDoorOrButton(10);
+                    if (restoreTime)
+                        go->UseDoorOrButton(restoreTime);
                     else
                         go->SetGoState((GOState)newState);
                 }
+            }
+
+            void DoGateTrap(StratholmeGateTrapType type, Unit* where)
+            {
+                // close the gate, but in two minutes it will open on its own
+                for (ObjectGuid trapGateGuid : TrapGates[AsUnderlyingType(type)].Gates)
+                    UpdateGoState(trapGateGuid, GO_STATE_READY, 20 * IN_MILLISECONDS);
+
+                for (uint8 i = 0; i < 30; ++i)
+                {
+                    Position summonPos = where->GetRandomPoint(GateTrapPos[AsUnderlyingType(type)], 5.0f);
+                    if (Creature* creature = where->SummonCreature(NPC_PLAGUED_RAT, summonPos, TEMPSUMMON_DEAD_DESPAWN, 0s))
+                    {
+                        TrapGates[AsUnderlyingType(type)].Rats.insert(creature->GetGUID());
+                        creature->EngageWithTarget(where);
+                    }
+                }
+
+                TrapGates[AsUnderlyingType(type)].Triggered = true;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -274,6 +331,18 @@ class instance_stratholme : public InstanceMapScript
                         break;
                     case GO_YSIDA_CAGE:
                         ysidaCageGUID = go->GetGUID();
+                        break;
+                    case GO_PORT_TRAP_GATE_1:
+                        TrapGates[AsUnderlyingType(StratholmeGateTrapType::ScaletSide)].Gates[0] = go->GetGUID();
+                        break;
+                    case GO_PORT_TRAP_GATE_2:
+                        TrapGates[AsUnderlyingType(StratholmeGateTrapType::ScaletSide)].Gates[1] = go->GetGUID();
+                        break;
+                    case GO_PORT_TRAP_GATE_3:
+                        TrapGates[AsUnderlyingType(StratholmeGateTrapType::UndeadSide)].Gates[0] = go->GetGUID();
+                        break;
+                    case GO_PORT_TRAP_GATE_4:
+                        TrapGates[AsUnderlyingType(StratholmeGateTrapType::UndeadSide)].Gates[1] = go->GetGUID();
                         break;
                 }
             }
@@ -511,6 +580,41 @@ class instance_stratholme : public InstanceMapScript
                                 TC_LOG_DEBUG("scripts", "Instance Stratholme: Black guard sentries spawned. Opening gates to baron.");
                             }
                             break;
+                        case EVENT_RAT_TRAP_CLOSE:
+                        {
+                            for (uint8 i = 0; i < std::size(GateTrapPos); ++i)
+                            {
+                                if (TrapGates[i].Triggered)
+                                    continue;
+
+                                Position const* gateTrapPos = &GateTrapPos[i];
+                                // Check that the trap is not on cooldown, if so check if player/pet is in range
+                                for (MapReference const& itr : instance->GetPlayers())
+                                {
+                                    Player* player = itr.GetSource();
+                                    if (player->IsGameMaster())
+                                        continue;
+
+                                    if (player->IsWithinDist2d(gateTrapPos, 5.5f))
+                                    {
+                                        DoGateTrap(StratholmeGateTrapType(i), player);
+                                        break;
+                                    }
+
+                                    Pet* pet = player->GetPet();
+                                    if (pet && pet->IsWithinDist2d(gateTrapPos, 5.5f))
+                                    {
+                                        DoGateTrap(StratholmeGateTrapType(i), pet);
+                                        break;
+                                    }
+                                }
+
+                            }
+                            //if you haven't already fallen into the trap, update it
+                            if (std::any_of(TrapGates.begin(), TrapGates.end(), [](GateTrapData const& trap) { return !trap.Triggered; }))
+                                events.ScheduleEvent(EVENT_RAT_TRAP_CLOSE, 1s);
+                            break;
+                        }
                         default:
                             break;
                     }
