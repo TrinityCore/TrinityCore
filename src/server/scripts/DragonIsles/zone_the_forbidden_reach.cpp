@@ -78,6 +78,7 @@ std::array<DracthyrLoginRoom, 4> LoginRoomData =
 };
 
 // 369728 - Dracthyr Login
+// 369744 - Awaken, Dracthyr OnquestAbandon
 class spell_dracthyr_login : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -159,30 +160,7 @@ public:
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
         if (newStatus == QUEST_STATUS_NONE)
-        {
             player->CastSpell(player, SPELL_AWAKEN_DRACTYHR_QUEST_ABANDON, false);
-        }
-    }
-};
-
-// 369744 - Awaken, Dracthyr OnquestAbandon
-class spell_awaken_dracthyr_on_quest_abandon : public SpellScript
-{
-    void HandleTeleport(SpellEffIndex /*effIndex*/)
-    {
-        DracthyrLoginRoom const& room = Trinity::Containers::SelectRandomContainerElement(LoginRoomData);
-
-        WorldLocation dest = GetHitUnit()->GetWorldLocation();
-        SetExplTargetDest(dest);
-
-        GetHitDest()->Relocate(room.PlayerPosition);
-
-        GetCaster()->CastSpell(GetHitUnit(), room.MovieSpellId, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_awaken_dracthyr_on_quest_abandon::HandleTeleport, EFFECT_0, SPELL_EFFECT_TELEPORT_UNITS);
     }
 };
 
@@ -207,7 +185,6 @@ void AddSC_zone_the_forbidden_reach()
     RegisterSpellScript(spell_dracthyr_login);
     new scene_dracthyr_evoker_intro();
     RegisterSpellScript(spell_dracthyr_summon_dervishian);
-    RegisterSpellScript(spell_awaken_dracthyr_on_quest_abandon);
     new quest_awaken_dracthyr();
     RegisterAreaTriggerAI(at_dracthyr_stasis_feedback);
 }

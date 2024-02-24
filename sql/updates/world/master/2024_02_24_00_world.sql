@@ -1,4 +1,4 @@
-SET @OGUID := 11000000;
+SET @OGUID := 9003864;
 
 -- GameObject
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+3;
@@ -31,7 +31,7 @@ DELETE FROM `spell_script_names` WHERE `spell_id` IN (369730, 370111, 369744);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (369730, 'spell_dracthyr_summon_dervishian'),
 (370111, 'spell_dracthyr_summon_dervishian'),
-(369744, 'spell_awaken_dracthyr_on_quest_abandon');
+(369744, 'spell_dracthyr_login');
 
 -- SpellArea
 DELETE FROM `spell_area` WHERE `spell` IN (369731, 370112) AND `area` = 13806;
