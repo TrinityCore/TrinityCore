@@ -67,8 +67,6 @@ enum STRCreatureIds
 
     // Rat trap
     NPC_PLAGUED_RAT                     = 10441,
-    NPC_PLAGUED_INSECT                  = 10461,
-    NPC_PLAGUED_MAGGOT                  = 10536,
 };
 
 enum STRGameobjectIds

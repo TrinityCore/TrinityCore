@@ -51,15 +51,23 @@ enum StratholmeMisc
 Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
 EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
 
-static STRCreatureIds const plaguedCrittersCreatures[] =
+enum class StratholmeGateTrapType : uint8
 {
-    NPC_PLAGUED_RAT, NPC_PLAGUED_MAGGOT, NPC_PLAGUED_INSECT
+    ScaletSide = 0,
+    UndeadSide = 1
 };
 
-Position const GateTrapPos[] =                         // Positions of the two Gate Traps 3919.88 -3547.34 134.269
+Position const GateTrapPos[] =              // Positions of the two Gate Traps 3919.88 -3547.34 134.269
 {
-    {3612.29f, -3335.39f, 124.077f, 3.14159f},         // Scarlet side
-    {3919.88f, -3545.34f, 134.269f, 2.94961f}          // Undead side
+    { 3612.29f, -3335.39f, 124.077f },      // Scarlet side
+    { 3919.88f, -3545.34f, 134.269f }       // Undead side
+};
+
+struct GateTrapData
+{
+    std::array<ObjectGuid, 2> Gates;
+    GuidUnorderedSet Rats;
+    bool Triggered = false;
 };
 
 class instance_stratholme : public InstanceMapScript
@@ -110,37 +118,7 @@ class instance_stratholme : public InstanceMapScript
             GuidSet abomnationGUID;
             EventMap events;
 
-            GuidVector TrapGatesGUIDs[2]; //two gate areas
-            std::map<ObjectGuid /*guid*/, uint8 /*gate*/> PlaguedGatesGUIDs;
-
-            void DoGateTrap(GuidVector& gate)
-            {
-                // close the gate, but in two minutes it will open on its own
-                UpdateGoState(gate[0], GO_STATE_READY, 2 * IN_MILLISECONDS * MINUTE);
-                UpdateGoState(gate[1], GO_STATE_READY, 2 * IN_MILLISECONDS * MINUTE);
-                if (gate == TrapGatesGUIDs[0])
-                    DoSpawnPlaguedCritters(0);
-                else
-                    DoSpawnPlaguedCritters(1);
-            }
-
-            void DoSpawnPlaguedCritters(uint8 uiGate)
-            {
-                Map::PlayerList const& players = instance->GetPlayers();
-                if (Player* player = players.begin()->GetSource())
-                {
-                    uint32 uiEntry = plaguedCrittersCreatures[urand(0, 2)];
-                    for (uint8 i = 0; i < 30; ++i)
-                    {
-                        float fX, fY, fZ;
-                        player->GetRandomPoint(GateTrapPos[uiGate], 5.0f, fX, fY, fZ);
-                        if (Creature* creature = player->SummonCreature(uiEntry, fX, fY, fZ, 0, TEMPSUMMON_DEAD_DESPAWN, 0s))
-                            PlaguedGatesGUIDs.insert({  creature->GetGUID(), uiGate });
-                        //Position pos(fX, fY, fZ);
-                        //instance->SummonCreature(uiEntry, pos);
-                    }
-                }
-            }
+            std::array<GateTrapData, 2> TrapGates;
 
             void OnUnitDeath(Unit* who) override
             {
@@ -167,18 +145,15 @@ class instance_stratholme : public InstanceMapScript
                         break;
                     }
                     case NPC_PLAGUED_RAT:
-                    case NPC_PLAGUED_INSECT:
-                    case NPC_PLAGUED_MAGGOT:
                     {
-                        auto el = PlaguedGatesGUIDs.find(who->GetGUID());
-                        if (el != PlaguedGatesGUIDs.end())
+                        for (GateTrapData& trapGate : TrapGates)
                         {
-                            uint8 uiGate = el->second;
-                            PlaguedGatesGUIDs.erase(el);
-                            if (PlaguedGatesGUIDs.empty())
+                            auto el = trapGate.Rats.find(who->GetGUID());
+                            if (el != trapGate.Rats.end())
                             {
-                                UpdateGoState(TrapGatesGUIDs[uiGate][0], GO_STATE_ACTIVE);
-                                UpdateGoState(TrapGatesGUIDs[uiGate][1], GO_STATE_ACTIVE);
+                                trapGate.Rats.erase(el);
+                                for (ObjectGuid gate : trapGate.Gates)
+                                    UpdateGoState(gate, GO_STATE_ACTIVE);
                             }
                         }
                         break;
@@ -201,7 +176,7 @@ class instance_stratholme : public InstanceMapScript
             }
 
             //if restoreTime is not 0, then newState will be ignored and GO should be restored to original state after "restoreTime" millisecond
-            void UpdateGoState(ObjectGuid goGuid, uint32 newState, uint32 restoreTime = 0U)
+            void UpdateGoState(ObjectGuid goGuid, uint32 newState, uint32 restoreTime = 0u)
             {
                 if (!goGuid)
                     return;
@@ -212,6 +187,25 @@ class instance_stratholme : public InstanceMapScript
                     else
                         go->SetGoState((GOState)newState);
                 }
+            }
+
+            void DoGateTrap(StratholmeGateTrapType type, Unit* where)
+            {
+                // close the gate, but in two minutes it will open on its own
+                for (ObjectGuid trapGateGuid : TrapGates[AsUnderlyingType(type)].Gates)
+                    UpdateGoState(trapGateGuid, GO_STATE_READY, 20 * IN_MILLISECONDS);
+
+                for (uint8 i = 0; i < 30; ++i)
+                {
+                    Position summonPos = where->GetRandomPoint(GateTrapPos[AsUnderlyingType(type)], 5.0f);
+                    if (Creature* creature = where->SummonCreature(NPC_PLAGUED_RAT, summonPos, TEMPSUMMON_DEAD_DESPAWN, 0s))
+                    {
+                        TrapGates[AsUnderlyingType(type)].Rats.insert(creature->GetGUID());
+                        creature->EngageWithTarget(where);
+                    }
+                }
+
+                TrapGates[AsUnderlyingType(type)].Triggered = true;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -306,16 +300,16 @@ class instance_stratholme : public InstanceMapScript
                         ysidaCageGUID = go->GetGUID();
                         break;
                     case GO_PORT_TRAP_GATE_1:
-                        TrapGatesGUIDs[0].push_back(go->GetGUID());
+                        TrapGates[AsUnderlyingType(StratholmeGateTrapType::ScaletSide)].Gates[0] = go->GetGUID();
                         break;
                     case GO_PORT_TRAP_GATE_2:
-                        TrapGatesGUIDs[0].push_back(go->GetGUID());
+                        TrapGates[AsUnderlyingType(StratholmeGateTrapType::ScaletSide)].Gates[1] = go->GetGUID();
                         break;
                     case GO_PORT_TRAP_GATE_3:
-                        TrapGatesGUIDs[1].push_back(go->GetGUID());
+                        TrapGates[AsUnderlyingType(StratholmeGateTrapType::UndeadSide)].Gates[0] = go->GetGUID();
                         break;
                     case GO_PORT_TRAP_GATE_4:
-                        TrapGatesGUIDs[1].push_back(go->GetGUID());
+                        TrapGates[AsUnderlyingType(StratholmeGateTrapType::UndeadSide)].Gates[1] = go->GetGUID();
                         break;
                 }
             }
@@ -581,33 +575,36 @@ class instance_stratholme : public InstanceMapScript
                             break;
                         case EVENT_RAT_TRAP_CLOSE:
                         {
-                            bool isClose = false;
-                            for (size_t i = 0; i < 2; ++i)
+                            for (uint8 i = 0; i < std::size(GateTrapPos); ++i)
                             {
-                                // Check that the trap is not on cooldown, if so check if player/pet is in range
-                                Map::PlayerList const& players = instance->GetPlayers();
-                                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                {
-                                    if (Player* player = itr->GetSource())
-                                    {
-                                        if (!player->IsGameMaster() && player->IsWithinDist2d(GateTrapPos[i].GetPositionX(), GateTrapPos[i].GetPositionY(), 5.5f))
-                                        {
-                                            DoGateTrap(TrapGatesGUIDs[i]);
-                                            isClose = true;
-                                            break;
-                                        }
+                                if (TrapGates[i].Triggered)
+                                    continue;
 
-                                        Pet* pet = player->GetPet();
-                                        if (!player->IsGameMaster() && pet && pet->IsWithinDist2d(GateTrapPos[i].GetPositionX(), GateTrapPos[i].GetPositionY(), 5.5f))
-                                        {
-                                            DoGateTrap(TrapGatesGUIDs[i]);
-                                            isClose = true;
-                                            break;
-                                        }
+                                Position const* gateTrapPos = &GateTrapPos[i];
+                                // Check that the trap is not on cooldown, if so check if player/pet is in range
+                                for (MapReference const& itr : instance->GetPlayers())
+                                {
+                                    Player* player = itr.GetSource();
+                                    if (player->IsGameMaster())
+                                        continue;
+
+                                    if (player->IsWithinDist2d(gateTrapPos, 5.5f))
+                                    {
+                                        DoGateTrap(StratholmeGateTrapType(i), player);
+                                        break;
+                                    }
+
+                                    Pet* pet = player->GetPet();
+                                    if (pet && pet->IsWithinDist2d(gateTrapPos, 5.5f))
+                                    {
+                                        DoGateTrap(StratholmeGateTrapType(i), pet);
+                                        break;
                                     }
                                 }
+
                             }
-                            if (!isClose) //if you haven't already fallen into the trap, update it
+                            //if you haven't already fallen into the trap, update it
+                            if (std::any_of(TrapGates.begin(), TrapGates.end(), [](GateTrapData const& trap) { return !trap.Triggered; }))
                                 events.ScheduleEvent(EVENT_RAT_TRAP_CLOSE, 1s);
                             break;
                         }
