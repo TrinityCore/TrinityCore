@@ -4030,6 +4030,8 @@ void Spell::EffectQuestClear()
 
     sScriptMgr->OnQuestStatusChange(player, quest_id);
     sScriptMgr->OnQuestStatusChange(player, quest, oldStatus, QUEST_STATUS_NONE);
+
+    player->UpdateNearbyCreatureNpcFlags();
 }
 
 void Spell::EffectSendTaxi()
