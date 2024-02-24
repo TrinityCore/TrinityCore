@@ -24,28 +24,53 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "EventMap.h"
+#include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "TemporarySummon.h"
+#include "CreatureAI.h"
 #include "Map.h"
 #include "sunken_temple.h"
 
 enum TimedEvents
 {
-    EVENT_SPAWN_HAKKARI_BLOODKEEPER = 1,
+    EVENT_SPAWN_HAKKARI_BLOODKEEPER  = 1,
     EVENT_SPAWN_NIGHTMARE_SUPPRESSOR = 2,
-    EVENT_SPAWN_HAKKARI_MINION = 3,
+    EVENT_SPAWN_HAKKARI_MINION       = 3,
+};
+
+static constexpr DoorData doorData[] =
+{
+    { GO_AVATAR_OF_HAKKAR_DOOR, BOSS_AVATAR_OF_HAKKAR,   DOOR_TYPE_ROOM },
+    { GO_FORCEFIELD,            BOSS_EVENT_ELITE_TROLLS, DOOR_TYPE_PASSAGE },
+    { 0,                        0,                       DOOR_TYPE_ROOM }  // END
+};
+
+static constexpr ObjectData gameObjects[] =
+{
+    { GO_ATALAI_STATUE1,  GO_ATALAI_STATUE1 },
+    { GO_ATALAI_STATUE2,  GO_ATALAI_STATUE2 },
+    { GO_ATALAI_STATUE3,  GO_ATALAI_STATUE3 },
+    { GO_ATALAI_STATUE4,  GO_ATALAI_STATUE4 },
+    { GO_ATALAI_STATUE5,  GO_ATALAI_STATUE5 },
+    { GO_ATALAI_STATUE6,  GO_ATALAI_STATUE6 },
+    { GO_ETERNAL_FLAME_1, GO_ETERNAL_FLAME_1 },
+    { GO_ETERNAL_FLAME_2, GO_ETERNAL_FLAME_2 },
+    { GO_ETERNAL_FLAME_3, GO_ETERNAL_FLAME_3 },
+    { GO_ETERNAL_FLAME_4, GO_ETERNAL_FLAME_4 },
+    { 0,                  0 } // END
 };
 
 static Position const HakkariBloodkeeperSpawnsPos[8] =
 {
-    { -483.465f, 272.550f, -90.640f, 0.0f },      //{ -483.20f, 272.56f, -90.64f, 0.0f },
-    { -449.465f, 272.550f, -90.580f, 0.0f },      //{ -450.24f, 276.49f, -90.58f, 0.0f },
-    { -479.400f, 285.461f, -90.600f, 0.0f },      //{ -480.78f, 282.72f, -90.60f, 0.0f },
-    { -479.400f, 260.461f, -90.480f, 0.0f },      //{ -478.98f, 262.06f, -90.48f, 0.0f },
-    { -467.067f, 290.461f, -90.600f, 0.0f },      //{ -469.55f, 290.58f, -90.60f, 0.0f },
-    { -467.067f, 255.461f, -90.570f, 0.0f },      //{ -464.42f, 257.45f, -90.57f, 0.0f },
-    { -455.400f, 285.461f, -90.580f, 0.0f },      //{ -458.24f, 287.90f, -90.58f, 0.0f },
-    { -455.400f, 260.461f, -90.500f, 0.0f }       //{ -453.59f, 264.41f, -90.50f, 0.0f }
+    { -483.465f, 272.550f, -90.640f, 0.0f },
+    { -449.465f, 272.550f, -90.580f, 0.0f },
+    { -479.400f, 285.461f, -90.600f, 0.0f },
+    { -479.400f, 260.461f, -90.480f, 0.0f },
+    { -467.067f, 290.461f, -90.600f, 0.0f },
+    { -467.067f, 255.461f, -90.570f, 0.0f },
+    { -455.400f, 285.461f, -90.580f, 0.0f },
+    { -455.400f, 260.461f, -90.500f, 0.0f }
 };
 
 static Position const NightmareSuppressorSpawnsPos[4] =
@@ -83,8 +108,9 @@ public:
         instance_sunken_temple_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
-            SetBossNumber(EncounterCount);
-
+            SetBossNumber(MAX_ENCOUNTER);
+            LoadDoorData(doorData);
+            LoadObjectData(nullptr, gameObjects);
             State = 0;
 
             s1 = false;
@@ -93,8 +119,8 @@ public:
             s4 = false;
             s5 = false;
             s6 = false;
-
-            lockEvent = false;
+            EliteTrollsKilled = 0;
+            LockEvent = false;
             CountFlames = 0;
         }
 
@@ -103,22 +129,17 @@ public:
             Events.Reset();
         }
 
-        ObjectGuid GOAtalaiStatue1;
-        ObjectGuid GOAtalaiStatue2;
-        ObjectGuid GOAtalaiStatue3;
-        ObjectGuid GOAtalaiStatue4;
-        ObjectGuid GOAtalaiStatue5;
-        ObjectGuid GOAtalaiStatue6;
-
+        ObjectGuid JammalAnTheProphetGUID;
+        ObjectGuid ShadeOfEranikusGUID;
         ObjectGuid ShadeOfHakkarGUID;
         ObjectGuid AvatarOfHakkarGUID;
         ObjectGuid NightmareSuppressorGUID;
         GuidVector EternalFlameGUIDs;
-        GuidVector SummoningCircleGUIDs;
+        uint32 EliteTrollsKilled;   
         uint32 AvatarOfHakkarEventState;
         uint8 CountFlames;
         EventMap Events;
-        bool lockEvent;
+        bool LockEvent;
 
         uint32 State;
 
@@ -129,29 +150,37 @@ public:
         bool s5;
         bool s6;
 
-        void OnGameObjectCreate(GameObject* go) override
+        void OnUnitDeath(Unit* unit) override
         {
-            InstanceScript::OnGameObjectCreate(go);
-
-            switch (go->GetEntry())
+            switch (unit->GetEntry())
             {
-            case GO_ATALAI_STATUE1: GOAtalaiStatue1 = go->GetGUID();   break;
-            case GO_ATALAI_STATUE2: GOAtalaiStatue2 = go->GetGUID();   break;
-            case GO_ATALAI_STATUE3: GOAtalaiStatue3 = go->GetGUID();   break;
-            case GO_ATALAI_STATUE4: GOAtalaiStatue4 = go->GetGUID();   break;
-            case GO_ATALAI_STATUE5: GOAtalaiStatue5 = go->GetGUID();   break;
-            case GO_ATALAI_STATUE6: GOAtalaiStatue6 = go->GetGUID();   break;
-            case GO_ETERNAL_FLAME_1:
-            case GO_ETERNAL_FLAME_2:
-            case GO_ETERNAL_FLAME_3:
-            case GO_ETERNAL_FLAME_4:
-                EternalFlameGUIDs.push_back(go->GetGUID());
+            case NPC_AVATAR_OF_HAKKAR:      SetBossState(BOSS_AVATAR_OF_HAKKAR, DONE); break;
+            case NPC_JAMMALAN_THE_PROPHET:  SetBossState(BOSS_JAMMALAN_THE_PROPHET, DONE); break;
+            case NPC_DREAMSCYTHE:           SetBossState(BOSS_DREAMSCYTHE, DONE); break;
+            case NPC_WEAVER:                SetBossState(BOSS_WEAVER, DONE); break;
+            case NPC_MORPHAZ:               SetBossState(BOSS_MORPHAZ, DONE); break;
+            case NPC_HAZZAS:                SetBossState(BOSS_HAZZAS, DONE); break;
+            case NPC_SHADE_OF_ERANIKUS:     SetBossState(BOSS_SHADE_OF_ERANIKUS, DONE); break;
+            case NPC_ATALALARION:           SetBossState(BOSS_ATALALARION, DONE); break;
+            case NPC_ZOLO:
+            case NPC_GASHER:
+            case NPC_LORO:
+            case NPC_HUKKU:
+            case NPC_ZUL_LOR:
+            case NPC_MIJAN:                 SetData(BOSS_EVENT_ELITE_TROLLS, EliteTrollsKilled + 1); break;
+            case NPC_NIGHTMARE_SUPPRESSOR:
+                if (unit->ToCreature()->m_isTempWorldObject)
+                {
+                    NightmareSuppressorGUID.Clear();
+                    if (!Events.Empty())
+                        Events.ScheduleEvent(EVENT_SPAWN_NIGHTMARE_SUPPRESSOR, 50s, 60s);
+                }
                 break;
-            case GO_EVIL_GOD_SUMMONING_CIRCLE:
-                SummoningCircleGUIDs.push_back(go->GetGUID());
+            default:
                 break;
             }
         }
+
         void OnCreatureCreate(Creature* creature) override
         {
             InstanceScript::OnCreatureCreate(creature);
@@ -168,22 +197,18 @@ public:
                 if (creature->m_isTempWorldObject)
                     NightmareSuppressorGUID = creature->GetGUID();
                 break;
-            default:
-                break;
-            }
-        }
-
-        void OnUnitDeath(Unit* unit) override
-        {
-            switch (unit->GetEntry())
-            {
-            case NPC_NIGHTMARE_SUPPRESSOR:
-                if (unit->ToCreature()->m_isTempWorldObject)
+            case NPC_JAMMALAN_THE_PROPHET:
+                JammalAnTheProphetGUID = creature->GetGUID();
+                if (GetBossState(BOSS_EVENT_ELITE_TROLLS) != DONE)
                 {
-                    NightmareSuppressorGUID.Clear();
-                    if (!Events.Empty())
-                        Events.ScheduleEvent(EVENT_SPAWN_NIGHTMARE_SUPPRESSOR, 50s, 60s);
+                    creature->SetImmuneToPC(true);
+                    creature->CastSpell(creature, SPELL_GREEN_CHANNELING);
                 }
+                break;
+            case NPC_SHADE_OF_ERANIKUS:
+                ShadeOfEranikusGUID = creature->GetGUID();
+                if (GetBossState(BOSS_JAMMALAN_THE_PROPHET) != DONE)
+                    creature->SetImmuneToAll(true);
                 break;
             default:
                 break;
@@ -197,34 +222,34 @@ public:
             case GO_ATALAI_STATUE1:
                 if (!s1 && !s2 && !s3 && !s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue1 = instance->GetGameObject(GOAtalaiStatue1))
+                    if (GameObject* pAtalaiStatue1 = GetGameObject(GO_ATALAI_STATUE1))
                         UseStatue(pAtalaiStatue1);
                     s1 = true;
                     State = 0;
-                };
+                }
                 break;
             case GO_ATALAI_STATUE2:
                 if (s1 && !s2 && !s3 && !s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue2 = instance->GetGameObject(GOAtalaiStatue2))
+                    if (GameObject* pAtalaiStatue2 = GetGameObject(GO_ATALAI_STATUE2))
                         UseStatue(pAtalaiStatue2);
                     s2 = true;
                     State = 0;
-                };
+                }
                 break;
             case GO_ATALAI_STATUE3:
                 if (s1 && s2 && !s3 && !s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue3 = instance->GetGameObject(GOAtalaiStatue3))
+                    if (GameObject* pAtalaiStatue3 = GetGameObject(GO_ATALAI_STATUE3))
                         UseStatue(pAtalaiStatue3);
                     s3 = true;
                     State = 0;
-                };
+                }
                 break;
             case GO_ATALAI_STATUE4:
                 if (s1 && s2 && s3 && !s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue4 = instance->GetGameObject(GOAtalaiStatue4))
+                    if (GameObject* pAtalaiStatue4 = GetGameObject(GO_ATALAI_STATUE4))
                         UseStatue(pAtalaiStatue4);
                     s4 = true;
                     State = 0;
@@ -233,7 +258,7 @@ public:
             case GO_ATALAI_STATUE5:
                 if (s1 && s2 && s3 && s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue5 = instance->GetGameObject(GOAtalaiStatue5))
+                    if (GameObject* pAtalaiStatue5 = GetGameObject(GO_ATALAI_STATUE5))
                         UseStatue(pAtalaiStatue5);
                     s5 = true;
                     State = 0;
@@ -242,7 +267,7 @@ public:
             case GO_ATALAI_STATUE6:
                 if (s1 && s2 && s3 && s4 && s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue6 = instance->GetGameObject(GOAtalaiStatue6))
+                    if (GameObject* pAtalaiStatue6 = GetGameObject(GO_ATALAI_STATUE6))
                     {
                         UseStatue(pAtalaiStatue6);
                         UseLastStatue(pAtalaiStatue6);
@@ -300,15 +325,15 @@ public:
 
         void EnableFlameCircle()
         {
-            for (uint8 i = 0; i < 4; ++i)
-                if (GameObject* eternalFlame = instance->GetGameObject(EternalFlameGUIDs[i]))
+            for (uint32 i = GO_ETERNAL_FLAME_1; i <= GO_ETERNAL_FLAME_4; ++i)
+                if (GameObject* eternalFlame = GetGameObject(i))
                     eternalFlame->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
-            Creature* avatar = instance->GetCreature(ShadeOfHakkarGUID);
+            Creature* shade = instance->GetCreature(ShadeOfHakkarGUID);
             for (uint8 i = 0; i < 8; ++i)
             {
                 QuaternionData rot = QuaternionData::fromEulerAnglesZYX(0.f, 0.f, 0.f);
-                if (GameObject* circle = avatar->SummonGameObject(GO_EVIL_GOD_SUMMONING_CIRCLE, HakkariBloodkeeperSpawnsPos[i], rot, 0s, GOSummonType(GO_SUMMON_TIMED_OR_CORPSE_DESPAWN)))
+                if (GameObject* circle = shade->SummonGameObject(GO_EVIL_GOD_SUMMONING_CIRCLE, HakkariBloodkeeperSpawnsPos[i], rot, 0s, GOSummonType(GO_SUMMON_TIMED_OR_CORPSE_DESPAWN)))
                 {
                     circle->SetGoState(GO_STATE_READY);
                     circle->SetFlag(GO_FLAG_NOT_SELECTABLE);
@@ -318,27 +343,28 @@ public:
 
         bool SetBossState(uint32 type, EncounterState state) override
         {
-            if (!InstanceScript::SetBossState(type, state))
+            if (!InstanceScript::SetBossState(type, state)) 
                 return false;
+
             switch (type)
             {
-            case DATA_AVATAR_OF_HAKKAR:
+            case BOSS_AVATAR_OF_HAKKAR:
             {
                 AvatarOfHakkarEventState = state;
                 if (AvatarOfHakkarEventState == IN_PROGRESS)
                 {
-                    if (!lockEvent)
+                    if (!LockEvent)
                     {
                         Events.ScheduleEvent(EVENT_SPAWN_HAKKARI_BLOODKEEPER, 15s);
                         Events.ScheduleEvent(EVENT_SPAWN_HAKKARI_MINION, 3s, 10s);
                         Events.ScheduleEvent(EVENT_SPAWN_NIGHTMARE_SUPPRESSOR, 10s);
                         EnableFlameCircle();
-                        lockEvent = true;
+                        LockEvent = true;
                     }
                 }
                 if (AvatarOfHakkarEventState == FAIL)
                 {
-                    lockEvent = false;
+                    LockEvent = false;
                     if (Creature* avatar = instance->GetCreature(AvatarOfHakkarGUID))
                     {
                         avatar->DespawnOrUnsummon();
@@ -349,21 +375,26 @@ public:
                         shade->DespawnOrUnsummon();
                         ShadeOfHakkarGUID.Clear();
                     }
-                    for (uint8 i = 0; i < 4; ++i)
-                        if (GameObject* eternalFlame = instance->GetGameObject(EternalFlameGUIDs[i]))
+                    for (uint32 i = GO_ETERNAL_FLAME_1; i <= GO_ETERNAL_FLAME_4; ++i)
+                        if (GameObject* eternalFlame = GetGameObject(i))
                         {
                             eternalFlame->SetFlag(GO_FLAG_NOT_SELECTABLE);
                             eternalFlame->SetGoState(GO_STATE_READY);
                         }
                     Events.Reset();
-                    SetBossState(DATA_AVATAR_OF_HAKKAR, NOT_STARTED);
+                    SetBossState(BOSS_AVATAR_OF_HAKKAR, NOT_STARTED);
                 }
+
             }
             break;
+            case BOSS_JAMMALAN_THE_PROPHET:
+                    if (state == DONE)
+                        if (Creature* creature = instance->GetCreature(ShadeOfEranikusGUID))
+                            creature->SetImmuneToAll(false);
+                    break;
             default:
                 break;
             }
-
             return true;
         }
 
@@ -402,6 +433,16 @@ public:
                     }
                 }
                 break;
+            case BOSS_EVENT_ELITE_TROLLS:
+                EliteTrollsKilled = data;
+                if (EliteTrollsKilled == 6)
+                {
+                    if (Creature* jammal = instance->GetCreature(JammalAnTheProphetGUID))
+                        jammal->SetImmuneToPC(false);
+                    SetBossState(BOSS_EVENT_ELITE_TROLLS, DONE);
+                }
+                SaveToDB();
+                break;
             default:
                 break;
             }
@@ -413,13 +454,12 @@ public:
             {
             case EVENT_STATE:
                 return State;
-                break;
-            case DATA_AVATAR_OF_HAKKAR:
+            case BOSS_AVATAR_OF_HAKKAR:
                 return AvatarOfHakkarEventState;
-                break;
+            case BOSS_EVENT_ELITE_TROLLS:
+                return EliteTrollsKilled;
             case DATA_ETERNAL_FLAME:
                 return CountFlames;
-                break;
             default:
                 break;
             }
@@ -430,7 +470,7 @@ public:
         {
             switch (type)
             {
-            case DATA_AVATAR_OF_HAKKAR:
+            case BOSS_AVATAR_OF_HAKKAR:
                 return AvatarOfHakkarGUID;
                 break;
             default:
@@ -439,15 +479,15 @@ public:
             return ObjectGuid::Empty;
         }
 
-        /*void ReadSaveDataMore(std::istringstream& data) override
+        void ReadSaveDataMore(std::istringstream& data) override
         {
-            data >> AvatarOfHakkarEventState;
+            data >> EliteTrollsKilled;
         }
 
         void WriteSaveDataMore(std::ostringstream& data) override
         {
-            data << AvatarOfHakkarEventState;
-        }*/
+            data << EliteTrollsKilled;
+        }
     };
 };
 

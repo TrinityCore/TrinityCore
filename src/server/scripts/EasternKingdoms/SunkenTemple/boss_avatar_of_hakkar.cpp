@@ -62,7 +62,7 @@ public:
 
     struct boss_avatar_of_hakkarAI : public BossAI
     {
-        boss_avatar_of_hakkarAI(Creature* creature) : BossAI(creature, DATA_AVATAR_OF_HAKKAR) { }
+        boss_avatar_of_hakkarAI(Creature* creature) : BossAI(creature, BOSS_AVATAR_OF_HAKKAR) { }
 
         void Reset() override
         {
@@ -142,7 +142,7 @@ public:
                     if (events.IsInPhase(PHASE_INTRO))
                     {
                         me->DespawnOrUnsummon();
-                        instance->SetBossState(DATA_AVATAR_OF_HAKKAR, FAIL);
+                        instance->SetBossState(BOSS_AVATAR_OF_HAKKAR, FAIL);
                     }
                     break;
                 }

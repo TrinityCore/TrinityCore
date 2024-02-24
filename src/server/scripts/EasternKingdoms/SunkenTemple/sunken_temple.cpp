@@ -35,6 +35,9 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
 #include "sunken_temple.h"
 
 /*#####
@@ -69,9 +72,9 @@ class at_malfurion_stormrage : public AreaTriggerScript
 enum HakkariBloodkeeper
 {
     EVENT_CAST_SHADOW_BOLT = 1,
-    EVENT_CAST_CORRUPTION = 2,
-    SPELL_SHADOW_BOLT = 12471,
-    SPELL_CORRUPTION = 11671,
+    EVENT_CAST_CORRUPTION,
+    SPELL_SHADOW_BOLT      = 12471,
+    SPELL_CORRUPTION       = 11671,
 };
 
 class npc_hakkari_bloodkeeper : public CreatureScript
@@ -138,14 +141,12 @@ public:
 
 enum NightmareSuppressor
 {
-    EVENT_CAST_SUPPRESSOR = 1,
-    SAY_RANDOM_SPAWN = 0,
+    EVENT_CAST_SUPPRESSOR     = 1,
+    SAY_RANDOM_SPAWN          = 0,
     POINT_ID_AVATAR_OF_HAKKAR = 0
 };
 
-static Position const CenterOfArena = { -467.067f, 273.796f, -90.642f };
-
-#include "Log.h"
+static Position const AvatarHakkarSpawnPos = { -467.107f, 273.063f, -90.449f, 3.0f };
 
 class npc_nightmare_suppressor : public CreatureScript
 {
@@ -165,7 +166,7 @@ public:
             case ACTION_CAST_SUPPRESSOR_NIGHTMARE:
                 //me->SetReactState(REACT_PASSIVE);
                 me->SetSpeed(MOVE_RUN, 2);
-                me->GetMotionMaster()->MovePoint(POINT_ID_AVATAR_OF_HAKKAR, CenterOfArena);
+                me->GetMotionMaster()->MovePoint(POINT_ID_AVATAR_OF_HAKKAR, AvatarHakkarSpawnPos);
                 Talk(SAY_RANDOM_SPAWN);
                 _events.ScheduleEvent(EVENT_CAST_SUPPRESSOR, 12s);
                 break;
@@ -174,7 +175,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            if (Creature* avatar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AVATAR_OF_HAKKAR)))
+            if (Creature* avatar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_AVATAR_OF_HAKKAR)))
                 avatar->AI()->DoAction(ACTION_REMOVE_SUPPRESSOR_AVATAR);
             _events.CancelEvent(EVENT_CAST_SUPPRESSOR);
             me->CastStop();
@@ -251,6 +252,7 @@ class go_atalai_statue : public GameObjectScript
 /*#####
 # go_eternal_flame
 #####*/
+
 class go_eternal_flame : public GameObjectScript
 {
 public:
@@ -350,13 +352,13 @@ class spell_sunken_temple_awaken_the_soulflayer : public SpellScript
     void HandleSendEvent(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        if (_instance->GetBossState(DATA_AVATAR_OF_HAKKAR) != NOT_STARTED)
+        if (_instance->GetBossState(BOSS_AVATAR_OF_HAKKAR) != NOT_STARTED)
             return;
-        if (Creature* shade = _map->SummonCreature(NPC_SHADE_OF_HAKKAR, AvatarHakkarSpawnPos))
+        if (TempSummon* shade = _map->SummonCreature(NPC_SHADE_OF_HAKKAR, AvatarHakkarSpawnPos))
         {
             shade->AI()->Talk(SAY_SPAWN_SHADE);
-            if (Creature* avatar = _map->SummonCreature(NPC_AVATAR_OF_HAKKAR, AvatarHakkarSpawnPos))
-                _instance->SetBossState(DATA_AVATAR_OF_HAKKAR, IN_PROGRESS);
+            _map->SummonCreature(NPC_AVATAR_OF_HAKKAR, AvatarHakkarSpawnPos);
+            _instance->SetBossState(BOSS_AVATAR_OF_HAKKAR, IN_PROGRESS);
         }
     }
 
