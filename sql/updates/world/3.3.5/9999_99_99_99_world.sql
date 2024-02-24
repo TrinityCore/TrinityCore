@@ -14,3 +14,11 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (8440, 3, 0, 'HAKKAR LIVES!', 14, 0, 100, 0, 0, 0, 6254, 0, 'Shade of Hakkar'),
 (8443, 0, 0, 'I AM HERE!', 14, 0, 100, 0, 0, 0, 4545, 0, 'Avatar of Hakkar'),
 (8443, 1, 0, 'DIE, MORTALS!', 14, 0, 100, 0, 0, 0, 4546, 0, 'Avatar of Hakkar');
+
+SET @GUID1 := 33905; -- (unused GUID from TDB 335.24011)
+SET @GUID2 := 33906; -- (unused GUID from TDB 335.24011)
+
+DELETE FROM `gameobject` WHERE `guid`IN (@GUID1, @GUID2);
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `ScriptName`, `VerifiedBuild`) VALUES 
+(@GUID1, 149432, 109, 0, 0, 1, 1, -518.714, 275.768, -93.201, 3.15298, 0, 0, -0.999984, 0.00569166, 300, 255, 0, '', 0),
+(@GUID2, 149432, 109, 0, 0, 1, 1, -415.761, 275.768, -93.201, 3.15298, 0, 0, -0.999984, 0.00569166, 300, 255, 0, '', 0);
