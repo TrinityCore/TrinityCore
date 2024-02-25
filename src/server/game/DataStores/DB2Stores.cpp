@@ -455,6 +455,7 @@ namespace
     std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<ChrCustomizationChoiceEntry const*>> _chrCustomizationChoicesByOption;
     std::unordered_map<std::pair<uint8, uint8>, ChrModelEntry const*> _chrModelsByRaceAndGender;
     std::set<uint8 /*chrModel*/> _chrPlayerModels;
+    std::map<std::pair<uint8 /*race*/, uint8 /*form*/>, ChrCustomizationChoiceEntry const*> _shapeshiftRaceFormDefaultOptions;
     std::map<std::tuple<uint8 /*race*/, uint8/*shapeshift*/>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts;
     std::unordered_map<uint32 /*chrModel*/, std::vector<ChrCustomizationOptionEntry const*>> _chrCustomizationOptionsByModel;
     std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, std::vector<ChrCustomizationOptionEntry const*>> _chrCustomizationOptionsByRaceAndGender;
@@ -1133,6 +1134,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
                                 if (customizationReq->RaceMask.HasRace(race))
                                 {
                                     shapeshiftFormByRace.emplace(race, std::make_pair(customizationOption->ID, uint8(customizationDisplayInfo->ShapeshiftFormID)));
+                                    if (customizationReq->AchievementID == 0 && customizationReq->QuestID == 0 && customizationReq->ItemModifiedAppearanceID == 0 && customizationReq->RaceMask.RawValue != -1)
+                                        _shapeshiftRaceFormDefaultOptions.emplace(std::make_pair(race, uint8(customizationDisplayInfo->ShapeshiftFormID)), customizationChoice);
                                 }
                             }
                         }
@@ -2934,6 +2937,11 @@ std::vector<RewardPackXCurrencyTypeEntry const*> const* DB2Manager::GetRewardPac
 std::vector<RewardPackXItemEntry const*> const* DB2Manager::GetRewardPackItemsByRewardID(uint32 rewardPackID) const
 {
     return Trinity::Containers::MapGetValuePtr(_rewardPackItems, rewardPackID);
+}
+
+ChrCustomizationChoiceEntry const* DB2Manager::GetShapeshiftRaceDefaultOptions(uint8 race, uint8 form) const
+{
+    return Trinity::Containers::MapGetValuePtr(_shapeshiftRaceFormDefaultOptions, { race, form });
 }
 
 ShapeshiftFormModelData const* DB2Manager::GetShapeshiftFormModelData(uint8 race, uint8 form) const
