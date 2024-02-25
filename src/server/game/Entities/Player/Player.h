@@ -2756,39 +2756,10 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetAverageItemLevelTotal(float newItemLevel) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::AvgItemLevel, 0), newItemLevel); }
         void SetAverageItemLevelEquipped(float newItemLevel) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::AvgItemLevel, 1), newItemLevel); }
 
-        uint32 GetCustomizationChoice(uint32 chrCustomizationOptionId) const
-        {
-            int32 choiceIndex = m_playerData->Customizations.FindIndexIf([chrCustomizationOptionId](UF::ChrCustomizationChoice choice)
-            {
-                return choice.ChrCustomizationOptionID == chrCustomizationOptionId;
-            });
-
-            if (choiceIndex >= 0)
-                return m_playerData->Customizations[choiceIndex].ChrCustomizationChoiceID;
-
-            return 0;
-        }
-
-        void ClearPreviousModelCustomizations(const uint32 oldModel)
-        {
-            if (const std::vector<ChrCustomizationOptionEntry const*> const* oldModelCustomizations = sDB2Manager.GetCustomiztionOptions(oldModel))
-            {
-                for (const auto optionEntry : *oldModelCustomizations)
-                {
-                    const int32 index = m_playerData->Customizations.FindIndexIf([optionEntry](UF::ChrCustomizationChoice const& choice) { return choice.ChrCustomizationOptionID == optionEntry->ID; });
-                    if (index >= 0)
-                        RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations), index);
-                }
-            }
-        }
-
-        void ClearPreviousRaceGenderCustomizations(const uint8 race, const uint8 gender)
-        {
-            if (const ChrModelEntry const* chrModel = sDB2Manager.GetChrModel(race, gender))
-            {
-                ClearPreviousModelCustomizations(chrModel->ID);
-            }
-        }
+        uint32 GetCustomizationChoice(uint32 chrCustomizationOptionId) const;
+        void ClearPreviousModelCustomizations(const uint32 oldModel);
+        void ClearPreviousRaceGenderCustomizations(const uint8 race, const uint8 gender);
+        void SetMissingCustomizations();
 
         template<typename Iter>
         void SetCustomizations(Trinity::IteratorPair<Iter> customizations, bool markChanged = true)

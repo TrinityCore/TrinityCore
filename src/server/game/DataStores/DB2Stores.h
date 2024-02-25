@@ -505,6 +505,7 @@ public:
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItemsFallback(uint32 questPackageID) const;
     uint32 GetQuestUniqueBitFlag(uint32 questId);
     std::vector<RewardPackXCurrencyTypeEntry const*> const* GetRewardPackCurrencyTypesByRewardID(uint32 rewardPackID) const;
+    ChrCustomizationChoiceEntry const* GetShapeshiftRaceDefaultOptions(uint8 race, uint8 form) const;
     std::vector<RewardPackXItemEntry const*> const* GetRewardPackItemsByRewardID(uint32 rewardPackID) const;
     ShapeshiftFormModelData const* GetShapeshiftFormModelData(uint8 race, uint8 form) const;
     std::vector<SkillLineEntry const*> const* GetSkillLinesForParentSkill(uint32 parentSkillId) const;

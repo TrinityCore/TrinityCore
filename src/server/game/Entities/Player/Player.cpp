@@ -482,6 +482,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetWatchedFactionIndex(-1);
 
     SetCustomizations(Trinity::Containers::MakeIteratorPair(createInfo->Customizations.begin(), createInfo->Customizations.end()));
+    SetMissingCustomizations();
     SetRestState(REST_TYPE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NORMAL);
     SetRestState(REST_TYPE_HONOR, REST_STATE_NORMAL);
     SetNativeGender(Gender(createInfo->Sex));
@@ -17877,6 +17878,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         } while (customizationsResult->NextRow());
     }
     SetCustomizations(Trinity::Containers::MakeIteratorPair(customizations.begin(), customizations.end()), false);
+    SetMissingCustomizations();
 
     SetInventorySlotCount(fields.inventorySlots);
     SetBankBagSlotCount(fields.bankSlots);
@@ -20383,6 +20385,63 @@ void SavePlayerCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::Lo
         stmt->setUInt32(1, customization.ChrCustomizationOptionID);
         stmt->setUInt32(2, customization.ChrCustomizationChoiceID);
         trans->Append(stmt);
+    }
+}
+
+uint32 Player::GetCustomizationChoice(uint32 chrCustomizationOptionId) const
+{
+    int32 choiceIndex = m_playerData->Customizations.FindIndexIf([chrCustomizationOptionId](UF::ChrCustomizationChoice choice)
+        {
+            return choice.ChrCustomizationOptionID == chrCustomizationOptionId;
+        });
+
+    if (choiceIndex >= 0)
+        return m_playerData->Customizations[choiceIndex].ChrCustomizationChoiceID;
+
+    return 0;
+}
+
+void Player::ClearPreviousModelCustomizations(const uint32 oldModel)
+{
+    if (const std::vector<ChrCustomizationOptionEntry const*> const* oldModelCustomizations = sDB2Manager.GetCustomiztionOptions(oldModel))
+    {
+        for (const auto optionEntry : *oldModelCustomizations)
+        {
+            const int32 index = m_playerData->Customizations.FindIndexIf([optionEntry](UF::ChrCustomizationChoice const& choice) { return choice.ChrCustomizationOptionID == optionEntry->ID; });
+            if (index >= 0)
+                RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations), index);
+        }
+    }
+}
+
+void Player::ClearPreviousRaceGenderCustomizations(const uint8 race, const uint8 gender)
+{
+    if (const ChrModelEntry const* chrModel = sDB2Manager.GetChrModel(race, gender))
+    {
+        ClearPreviousModelCustomizations(chrModel->ID);
+    }
+}
+
+// Force apply race specific druid custoisations if they are not set (at first login, occasionally on race change when using race-specific forms)
+void Player::SetMissingCustomizations()
+{
+    if (GetClass() == CLASS_DRUID)
+    {
+        static const std::vector<ShapeshiftForm> shapeshiftForms = { FORM_BEAR_FORM, FORM_CAT_FORM, FORM_TRAVEL_FORM, FORM_FLIGHT_FORM_EPIC, FORM_AQUATIC_FORM };
+        for (const auto shapeshiftForm : shapeshiftForms)
+        {
+            if (ChrCustomizationChoiceEntry const* customization = sDB2Manager.GetShapeshiftRaceDefaultOptions(GetRace(), shapeshiftForm))
+            {
+                const int32 index = m_playerData->Customizations.FindIndexIf([customization](UF::ChrCustomizationChoice const& choice) { return choice.ChrCustomizationOptionID == customization->ChrCustomizationOptionID; });
+                if (index < 0)
+                {
+                    UF::ChrCustomizationChoice& defaultChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
+                    defaultChoice.ChrCustomizationOptionID = customization->ChrCustomizationOptionID;
+                    defaultChoice.ChrCustomizationChoiceID = customization->ID;
+                    m_customizationsChanged = true;
+                }
+            }
+        }
     }
 }
 
