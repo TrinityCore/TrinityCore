@@ -2274,8 +2274,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
         trans->Append(stmt);
 
         // Race specific languages
-        static const std::set<uint8> racesWithoutSpecificLanguages = { RACE_ORC, RACE_HUMAN, RACE_MAGHAR_ORC, RACE_KUL_TIRAN };
-        if (racesWithoutSpecificLanguages.find(factionChangeInfo->RaceID) == racesWithoutSpecificLanguages.end())
+        const std::array<uint8, 4> racesWithoutSpecificLanguages = { RACE_ORC, RACE_HUMAN, RACE_MAGHAR_ORC, RACE_KUL_TIRAN };
+        if (std::find(racesWithoutSpecificLanguages.begin(), racesWithoutSpecificLanguages.end(), factionChangeInfo->RaceID) == racesWithoutSpecificLanguages.end())
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
             stmt->setUInt64(0, lowGuid);
