@@ -353,7 +353,6 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
         if (Creature* trigger = AddCreature(WORLD_TRIGGER, triggerSpawnID, BG_AV_CreaturePos[triggerSpawnID]))
         {
             trigger->SetFaction(newFaction);
-            trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
         }
     }
 
@@ -756,9 +755,7 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
                              GetTeamIndexByTeamId(owner));
     }
 
-    //add bonus honor aura trigger creature when node is accupied
-    //cast bonus aura (+50% honor in 25yards)
-    //aura should only apply to players who have accupied the node, set correct faction for trigger
+    // set correct faction for trigger
     if (trigger)
     {
         if (owner != ALLIANCE && owner != HORDE)//node can be neutral, remove trigger
@@ -767,7 +764,6 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
             return;
         }
         trigger->SetFaction(owner == ALLIANCE ? FACTION_ALLIANCE_GENERIC : FACTION_HORDE_GENERIC);
-        trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
     }
 }
 void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
