@@ -2074,9 +2074,9 @@ void Player::Regenerate(Powers power)
                 ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA) * (2.066f - (GetLevel() * 0.066f));
 
             if (recentCast) // Trinity Updates Mana in intervals of 2s, which is correct
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * 0.001f * m_regenTimer;
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + AsUnderlyingType(POWER_MANA)) *  ManaIncreaseRate * 0.001f * m_regenTimer;
             else
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) * ManaIncreaseRate * 0.001f * m_regenTimer;
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + AsUnderlyingType(POWER_MANA)) * ManaIncreaseRate * 0.001f * m_regenTimer;
         }   break;
         case POWER_RAGE:                                    // Regenerate rage
         {
@@ -2087,7 +2087,14 @@ void Player::Regenerate(Powers power)
             }
         }   break;
         case POWER_ENERGY:                                  // Regenerate energy (rogue)
-            addvalue += 0.01f * m_regenTimer * sWorld->getRate(RATE_POWER_ENERGY);
+            // Regen per second
+            addvalue += (GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + AsUnderlyingType(POWER_ENERGY)) + 10.f);
+            // Regen per millisecond
+            addvalue *= 0.001f;
+            // Milliseconds passed
+            addvalue *= m_regenTimer;
+            // Rate
+            addvalue *= sWorld->getRate(RATE_POWER_ENERGY);
             break;
         case POWER_RUNIC_POWER:
         {
@@ -2107,8 +2114,8 @@ void Player::Regenerate(Powers power)
             break;
     }
 
-    // Mana regen calculated in Player::UpdateManaRegen()
-    if (power != POWER_MANA)
+    // Mana regen calculated in Player::UpdateManaRegen(), energy regen calculated in Player::UpdateEnergyRegen()
+    if (power != POWER_MANA && power != POWER_ENERGY)
     {
         addvalue *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, power);
 
