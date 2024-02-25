@@ -1933,7 +1933,7 @@ enum class SpellEffectAttributes
     SuppressPointsStacking                  = 0x000040,
     ChainFromInitialTarget                  = 0x000080,
     UncontrolledNoBackwards                 = 0x000100, /*NYI*/
-    AuraPointsStack                         = 0x000200, /*NYI*/ // refreshing periodic auras with this attribute will add remaining damage to new aura
+    AuraPointsStack                         = 0x000200, // refreshing auras with this attribute will add remaining amount to new aura
     NoCopyDamageInterruptsOrProcs           = 0x000400, /*NYI*/
     AddTargetCombatReachToAOE               = 0x000800, /*NYI*/
     IsHarmful                               = 0x001000,

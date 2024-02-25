@@ -2210,8 +2210,6 @@ class spell_pri_divine_aegis : public AuraScript
             return;
 
         int32 aegisAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
-        if (AuraEffect const* existingAegis = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS_ABSORB, EFFECT_0, caster->GetGUID()))
-            aegisAmount += existingAegis->GetAmount();
 
         CastSpellExtraArgs args(aurEff);
         args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);

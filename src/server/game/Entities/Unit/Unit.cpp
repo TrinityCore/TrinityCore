@@ -3263,8 +3263,11 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(AuraCreateInfo& createInfo)
                 else
                     bp = int32(spellEffectInfo.BasePoints);
 
-                int32* oldBP = const_cast<int32*>(&(auraEff->m_baseAmount)); // todo 6.x review GetBaseAmount and GetCastItemGUID in this case
-                *oldBP = bp;
+                int32* oldBP = const_cast<int32*>(&(auraEff->m_baseAmount));
+                if (spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes::AuraPointsStack))
+                    *oldBP += bp;
+                else
+                    *oldBP = bp;
             }
 
             // correct cast item guid if needed
