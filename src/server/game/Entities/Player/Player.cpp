@@ -20386,20 +20386,51 @@ void SavePlayerCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::Lo
     }
 }
 
-void Player::SaveCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid,
-    Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations, const std::vector<ChrCustomizationOptionEntry const*> const* oldOptions)
+void RemoveShapeshiftFormRaceCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid, ShapeshiftFormModelData const* shapeshiftFormModelData, const uint8 newRace)
 {
-    if (oldOptions)
+    for (const auto choice : *shapeshiftFormModelData->Choices)
     {
-        for (const auto oldOption : *oldOptions)
+        if (ChrCustomizationReqEntry const* customizationReq = sChrCustomizationReqStore.LookupEntry(choice->ChrCustomizationReqID))
+        {
+            if (!customizationReq->RaceMask.HasRace(newRace))
+            {
+                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_CUSTOMIZATION_CHOICE);
+                stmt->setUInt64(0, guid);
+                stmt->setUInt32(1, choice->ChrCustomizationOptionID);
+                stmt->setUInt32(2, choice->ID);
+                trans->Append(stmt);
+            }
+        }
+    }
+}
+
+void Player::RemoveShapehiftRaceCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid, uint8 oldRace, uint8 newRace)
+{
+    static const std::vector<ShapeshiftForm> shapeshiftForms = { FORM_BEAR_FORM, FORM_CAT_FORM, FORM_TRAVEL_FORM, FORM_FLIGHT_FORM_EPIC, FORM_AQUATIC_FORM };
+    for (const auto shapeshiftForm : shapeshiftForms)
+    {
+        if (ShapeshiftFormModelData const* shapeshiftFormModelData = sDB2Manager.GetShapeshiftFormModelData(oldRace, shapeshiftForm))
+            RemoveShapeshiftFormRaceCustomizations(trans, guid, shapeshiftFormModelData, newRace);
+    }
+}
+
+void Player::RemoveRaceGenderModelCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid, uint8 race, uint8 gender)
+{
+    if (std::vector<ChrCustomizationOptionEntry const*> const* modelCustomizations = sDB2Manager.GetCustomiztionOptions(race, gender))
+    {
+        for (const auto option : *modelCustomizations)
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_CUSTOMIZATION);
             stmt->setUInt64(0, guid);
-            stmt->setUInt32(1, oldOption->ID);
+            stmt->setUInt32(1, option->ID);
             trans->Append(stmt);
         }
     }
+}
 
+void Player::SaveCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid,
+    Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations)
+{
     SavePlayerCustomizations(trans, guid, customizations);
 }
 

@@ -1723,8 +1723,10 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDatabaseTransaction trans, bool create = false);
         void SaveInventoryAndGoldToDB(CharacterDatabaseTransaction trans);                    // fast save function for item/money cheating preventing
 
+        static void RemoveRaceGenderModelCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid, uint8 race, uint8 gender);
+        static void RemoveShapehiftRaceCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid, uint8 oldRace, uint8 newRace);
         static void SaveCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid,
-            Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations, const std::vector<ChrCustomizationOptionEntry const*> const* oldOptions);
+            Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations);
         static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction trans);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);

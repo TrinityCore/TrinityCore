@@ -1916,8 +1916,8 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<WorldPackets::Cha
     ObjectGuid::LowType lowGuid = customizeInfo->CharGUID.GetCounter();
 
     /// Customize
-    std::vector<ChrCustomizationOptionEntry const*> const* oldModelCustomizations = sDB2Manager.GetCustomiztionOptions(plrRace, oldGender);
-    Player::SaveCustomizations(trans, lowGuid, MakeChrCustomizationChoiceRange(customizeInfo->Customizations), oldModelCustomizations);
+    Player::RemoveRaceGenderModelCustomizations(trans, lowGuid, plrRace, oldGender);
+    Player::SaveCustomizations(trans, lowGuid, MakeChrCustomizationChoiceRange(customizeInfo->Customizations));
 
     /// Name Change and update atLogin flags
     {
@@ -2258,8 +2258,9 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
     }
 
     // Customize
-    std::vector<ChrCustomizationOptionEntry const*> const* oldModelCustomizations = sDB2Manager.GetCustomiztionOptions(oldRace, oldGender);
-    Player::SaveCustomizations(trans, lowGuid, MakeChrCustomizationChoiceRange(factionChangeInfo->Customizations), oldModelCustomizations);
+    Player::RemoveRaceGenderModelCustomizations(trans, lowGuid, oldRace, oldGender);
+    Player::RemoveShapehiftRaceCustomizations(trans, lowGuid, oldRace, factionChangeInfo->RaceID);
+    Player::SaveCustomizations(trans, lowGuid, MakeChrCustomizationChoiceRange(factionChangeInfo->Customizations));
 
     // Race Change
     {
