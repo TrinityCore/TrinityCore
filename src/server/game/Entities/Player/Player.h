@@ -2254,9 +2254,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void UpdateExpertise(WeaponAttackType attType);
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
-        void UpdateManaRegen();
-        void UpdateEnergyRegen();
-        void UpdateAllRunesRegen();
+        void UpdatePowerRegen(Powers power);
+        float GetPowerRegen(Powers power) const;
 
         void SetPetSpellPower(uint32 spellPower) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::PetSpellPower), spellPower); }
 
