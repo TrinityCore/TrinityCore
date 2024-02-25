@@ -1988,15 +1988,13 @@ bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo 
 
 void Player::RegenerateAll()
 {
-    //if (m_regenTimer <= 500)
-    //    return;
-
     m_regenTimerCount += m_regenTimer;
     m_foodEmoteTimerCount += m_regenTimer;
 
     Regenerate(POWER_ENERGY);
-
     Regenerate(POWER_MANA);
+    Regenerate(POWER_RAGE);
+    Regenerate(POWER_RUNIC_POWER);
 
     // Runes act as cooldowns, and they don't need to send any data
     if (GetClass() == CLASS_DEATH_KNIGHT)
@@ -2013,10 +2011,6 @@ void Player::RegenerateAll()
         {
             RegenerateHealth();
         }
-
-        Regenerate(POWER_RAGE);
-        if (GetClass() == CLASS_DEATH_KNIGHT)
-            Regenerate(POWER_RUNIC_POWER);
 
         m_regenTimerCount -= 2000;
     }
@@ -2089,7 +2083,7 @@ void Player::Regenerate(Powers power)
             if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
             {
                 float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
-                addvalue += -20 * RageDecreaseRate;               // 2 rage by tick (= 2 seconds => 1 rage/sec)
+                addvalue += -0.0125f * m_regenTimer * RageDecreaseRate; // -1.25 rage per second
             }
         }   break;
         case POWER_ENERGY:                                  // Regenerate energy (rogue)
@@ -2100,7 +2094,7 @@ void Player::Regenerate(Powers power)
             if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
             {
                 float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                addvalue += -30 * RunicPowerDecreaseRate;         // 3 RunicPower by tick
+                addvalue += -0.0125f * m_regenTimer * RunicPowerDecreaseRate;         // -1.25 runic power per second
             }
         }   break;
         case POWER_RUNE:
@@ -2120,7 +2114,7 @@ void Player::Regenerate(Powers power)
 
         // Butchery requires combat for this effect
         if (power != POWER_RUNIC_POWER || IsInCombat())
-            addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * ((power != POWER_ENERGY) ? m_regenTimerCount : m_regenTimer) / (5 * IN_MILLISECONDS);
+            addvalue += static_cast<float>(GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power)) * static_cast<float>(m_regenTimer) / static_cast<float>((5 * IN_MILLISECONDS));
     }
 
     if (addvalue < 0.0f)
