@@ -2328,10 +2328,10 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                 case LANG_PANDAREN_HORDE:
                     stmt->setUInt16(1, 905);
                     break;
-                //case RACE_DRACTHYR_ALLIANCE:
-                //case RACE_DRACTHYR_HORDE:
-                //    stmt->setUInt16(1, 138);
-                //    break;
+                case RACE_DRACTHYR_ALLIANCE:
+                case RACE_DRACTHYR_HORDE:
+                    stmt->setUInt16(1, 138);
+                    break;
                 default:
                     TC_LOG_ERROR("entities.player", "Could not find language data for race ({}).", factionChangeInfo->RaceID);
                     SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
