@@ -934,7 +934,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetMaxPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_MAXPOWER1 + int32(power)); }
         float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
         int32 CountPctFromMaxPower(Powers power, int32 pct) const { return CalculatePct(GetMaxPower(power), pct); }
-        void SetPower(Powers power, uint32 val, bool withPowerUpdate = true);
+        void SetPower(Powers power, uint32 val, bool withPowerUpdate = true, bool force = false);
         void SetMaxPower(Powers power, uint32 val);
         inline void SetFullPower(Powers power) { SetPower(power, GetMaxPower(power)); }
         // returns the change in power

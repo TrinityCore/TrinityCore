@@ -9402,8 +9402,11 @@ void Unit::SetMaxHealth(uint32 val)
         SetHealth(val);
 }
 
-void Unit::SetPower(Powers power, uint32 val, bool withPowerUpdate /*= true*/)
+void Unit::SetPower(Powers power, uint32 val, bool withPowerUpdate /*= true*/, bool force /*= false*/)
 {
+    if (!force && GetPower(power) == val)
+        return;
+
     uint32 maxPower = GetMaxPower(power);
     if (maxPower < val)
         val = maxPower;
