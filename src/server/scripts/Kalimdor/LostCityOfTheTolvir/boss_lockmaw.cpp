@@ -256,8 +256,6 @@ struct boss_lockmaw : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     bool _enraged;
@@ -494,8 +492,6 @@ struct npc_lockmaw_augh_boss : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

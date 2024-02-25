@@ -120,29 +120,6 @@ void BattlegroundDS::StartingEventOpenDoors()
             player->RemoveAurasDueToSpell(SPELL_WARL_DEMONIC_CIRCLE);
 }
 
-void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    switch (trigger)
-    {
-        case 5347:
-        case 5348:
-            // Remove effects of Demonic Circle Summon
-            player->RemoveAurasDueToSpell(SPELL_WARL_DEMONIC_CIRCLE);
-
-            // Someone has get back into the pipes and the knockback has already been performed,
-            // so we reset the knockback count for kicking the player again into the arena.
-            if (_pipeKnockBackCount >= BG_DS_PIPE_KNOCKBACK_TOTAL_COUNT)
-                _pipeKnockBackCount = 0;
-            break;
-        default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
-            break;
-    }
-}
-
 bool BattlegroundDS::SetupBattleground()
 {
     // gates
@@ -164,4 +141,19 @@ bool BattlegroundDS::SetupBattleground()
     }
 
     return true;
+}
+
+void BattlegroundDS::SetData(uint32 dataId, uint32 value)
+{
+    Arena::SetData(dataId, value);
+    if (dataId == BG_DS_DATA_PIPE_KNOCKBACK_COUNT)
+        _pipeKnockBackCount = value;
+}
+
+uint32 BattlegroundDS::GetData(uint32 dataId) const
+{
+    if (dataId == BG_DS_DATA_PIPE_KNOCKBACK_COUNT)
+        return _pipeKnockBackCount;
+
+    return Arena::GetData(dataId);
 }

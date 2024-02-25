@@ -23,6 +23,7 @@
 #include "Define.h"
 #include "DBCEnums.h"
 #include "Duration.h"
+#include "EnumFlag.h"
 #include "Errors.h"
 #include "FlagsArray.h"
 #include "Hash.h"
@@ -30,7 +31,7 @@
 #include "RaceMask.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
-
+#include <bitset>
 #include <functional>
 #include <map>
 #include <set>
@@ -64,6 +65,7 @@ struct SpellShapeshiftEntry;
 struct SpellTargetRestrictionsEntry;
 struct SpellTotemsEntry;
 struct SpellXSpellVisualEntry;
+enum AuraType : uint32;
 
 // only used in code
 enum SpellCategories
@@ -593,6 +595,25 @@ struct SpellLearnSpellNode
     bool AutoLearned;               // This marks the spell as automatically learned from another source that - will only be used for unlearning
 };
 
+enum class SpellOtherImmunity : uint8
+{
+    None        = 0x0,
+    AoETarget   = 0x1,
+    ChainTarget = 0x2
+};
+
+DEFINE_ENUM_FLAG(SpellOtherImmunity)
+
+struct CreatureImmunities
+{
+    std::bitset<MAX_SPELL_SCHOOL> School;
+    std::bitset<DISPEL_MAX> DispelType;
+    std::bitset<MAX_MECHANIC> Mechanic;
+    std::vector<SpellEffectName> Effect;
+    std::vector<AuraType> Aura;
+    EnumFlag<SpellOtherImmunity> Other = SpellOtherImmunity::None;
+};
+
 typedef std::multimap<uint32, SpellLearnSpellNode> SpellLearnSpellMap;
 typedef std::pair<SpellLearnSpellMap::const_iterator, SpellLearnSpellMap::const_iterator> SpellLearnSpellMapBounds;
 
@@ -744,6 +765,9 @@ class TC_GAME_API SpellMgr
         SpellAreaForQuestMapBounds GetSpellAreaForQuestEndMapBounds(uint32 quest_id) const;
         SpellAreaForAuraMapBounds GetSpellAreaForAuraMapBounds(uint32 spell_id) const;
         SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const;
+
+        // Immunities
+        static CreatureImmunities const* GetCreatureImmunities(int32 creatureImmunitiesId);
 
         // SpellInfo object management
         SpellInfo const* GetSpellInfo(uint32 spellId, Difficulty difficulty) const;

@@ -473,6 +473,14 @@ enum HitInfo
     HITINFO_FAKE_DAMAGE         = 0x01000000                // enables damage animation even if no damage done, set only if no damage
 };
 
+enum class AttackSwingErr : uint8
+{
+    NotInRange  = 0,
+    BadFacing   = 1,
+    CantAttack  = 2,
+    DeadTarget  = 3
+};
+
 #define MAX_DECLINED_NAME_CASES 5
 
 struct TC_GAME_API DeclinedName

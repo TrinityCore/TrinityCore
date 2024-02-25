@@ -433,10 +433,6 @@ struct boss_four_horsemen_baron : public boss_four_horsemen_baseAI
                     break;
             }
         }
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-        DoMeleeAttackIfReady();
     }
 
     void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
@@ -498,10 +494,6 @@ struct boss_four_horsemen_thane : public boss_four_horsemen_baseAI
                     break;
             }
         }
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-        DoMeleeAttackIfReady();
     }
 
     void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
@@ -519,7 +511,11 @@ struct boss_four_horsemen_thane : public boss_four_horsemen_baseAI
 
 struct boss_four_horsemen_lady : public boss_four_horsemen_baseAI
 {
-    boss_four_horsemen_lady(Creature* creature) : boss_four_horsemen_baseAI(creature, LADY, ladyPath) { }
+    boss_four_horsemen_lady(Creature* creature) : boss_four_horsemen_baseAI(creature, LADY, ladyPath)
+    {
+        me->SetCanMelee(false);
+    }
+
     void BeginFighting() override
     {
         events.ScheduleEvent(EVENT_BERSERK, 10min);
@@ -578,7 +574,11 @@ struct boss_four_horsemen_lady : public boss_four_horsemen_baseAI
 
 struct boss_four_horsemen_sir : public boss_four_horsemen_baseAI
 {
-    boss_four_horsemen_sir(Creature* creature) : boss_four_horsemen_baseAI(creature, SIR, sirPath), _shouldSay(true) { }
+    boss_four_horsemen_sir(Creature* creature) : boss_four_horsemen_baseAI(creature, SIR, sirPath), _shouldSay(true)
+    {
+        me->SetCanMelee(false);
+    }
+
     void BeginFighting() override
     {
         events.ScheduleEvent(EVENT_BERSERK, 10min);

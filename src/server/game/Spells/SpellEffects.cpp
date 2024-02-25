@@ -24,6 +24,7 @@
 #include "BattlegroundMgr.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
+#include "CharmInfo.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "Common.h"
@@ -1369,25 +1370,19 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
     if (num_to_add)
     {
         // create the new item and store it
-        Item* pItem = player->StoreNewItem(dest, newitemid, true, GenerateItemRandomBonusListId(newitemid), GuidSet(), context, bonusListIDs);
-
-        // was it successful? return error if not
-        if (!pItem)
+        if (Item* pItem = player->StoreNewItem(dest, newitemid, true, GenerateItemRandomBonusListId(newitemid), GuidSet(), context, bonusListIDs))
         {
-            player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
-            return;
+            // set the "Crafted by ..." property of the item
+            if (pItem->GetTemplate()->HasSignature())
+                pItem->SetCreator(player->GetGUID());
+
+            // send info to the client
+            player->SendNewItem(pItem, num_to_add, true, true);
+
+            if (pItem->GetQuality() > ITEM_QUALITY_EPIC || (pItem->GetQuality() == ITEM_QUALITY_EPIC && pItem->GetItemLevel(player) >= MinNewsItemLevel))
+                if (Guild* guild = player->GetGuild())
+                    guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
         }
-
-        // set the "Crafted by ..." property of the item
-        if (pItem->GetTemplate()->HasSignature())
-            pItem->SetCreator(player->GetGUID());
-
-        // send info to the client
-        player->SendNewItem(pItem, num_to_add, true, true);
-
-        if (pItem->GetQuality() > ITEM_QUALITY_EPIC || (pItem->GetQuality() == ITEM_QUALITY_EPIC && pItem->GetItemLevel(player) >= MinNewsItemLevel))
-            if (Guild* guild = player->GetGuild())
-                guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
 
         // we succeeded in creating at least one item, so a levelup is possible
         player->UpdateCraftSkill(m_spellInfo);
@@ -1586,8 +1581,8 @@ void Spell::EffectOpenLock()
             return;
 
         // Arathi Basin banner opening. /// @todo Verify correctness of this check
-        if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
-            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.requireLOS))
+        if (gameObjTarget->GetMapId() != 30 && gameObjTarget->GetMapId() != 607 && ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
+            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.requireLOS)))
         {
             //CanUseBattlegroundObject() already called in CheckCast()
             // in battleground check
@@ -1596,11 +1591,6 @@ void Spell::EffectOpenLock()
                 bg->EventPlayerClickedOnFlag(player, gameObjTarget);
                 return;
             }
-        }
-        else if (goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT)
-        {
-            gameObjTarget->AssaultCapturePoint(player);
-            return;
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {
@@ -1612,11 +1602,6 @@ void Spell::EffectOpenLock()
                     bg->EventPlayerClickedOnFlag(player, gameObjTarget);
                 return;
             }
-        }
-        else if (goInfo->type == GAMEOBJECT_TYPE_NEW_FLAG)
-        {
-            gameObjTarget->Use(player);
-            return;
         }
         else if (m_spellInfo->Id == 1842 && gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && gameObjTarget->GetOwner())
         {
@@ -1979,6 +1964,8 @@ void Spell::EffectSummonType()
                         summon->SetTempSummonType(summonType);
                         if (properties->Control == SUMMON_CATEGORY_ALLY)
                             summon->SetOwnerGUID(caster->GetGUID());
+                        else if (properties->Control == SUMMON_CATEGORY_WILD && caster->IsPlayer()) // there might be more conditions involved
+                            summon->SetDemonCreatorGUID(caster->GetGUID());
 
                         ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), summon);
                     }
@@ -3832,7 +3819,7 @@ void Spell::EffectSkinning()
         if (uint32 pureSkillValue = player->GetPureSkillValue(skinningSkill))
         {
             // Double chances for elites
-            player->UpdateGatherSkill(skinningSkill, pureSkillValue, reqValue, creature->isElite() ? 2 : 1);
+            player->UpdateGatherSkill(skinningSkill, pureSkillValue, reqValue, creature->IsElite() ? 2 : 1);
         }
     }
 }
@@ -4039,9 +4026,12 @@ void Spell::EffectQuestClear()
 
     player->RemoveActiveQuest(quest_id, false);
     player->RemoveRewardedQuest(quest_id);
+    player->DespawnPersonalSummonsForQuest(quest_id);
 
     sScriptMgr->OnQuestStatusChange(player, quest_id);
     sScriptMgr->OnQuestStatusChange(player, quest, oldStatus, QUEST_STATUS_NONE);
+
+    player->UpdateNearbyCreatureNpcFlags();
 }
 
 void Spell::EffectSendTaxi()
@@ -5305,9 +5295,10 @@ void Spell::EffectCreateAreaTrigger()
     if (!unitCaster || !m_targets.HasDst())
         return;
 
+    AreaTriggerCreatePropertiesId createPropertiesId = { uint32(effectInfo->MiscValue), false };
     int32 duration = GetSpellInfo()->CalcDuration(GetCaster());
 
-    AreaTrigger::CreateAreaTrigger(effectInfo->MiscValue, unitCaster, nullptr, GetSpellInfo(), destTarget->GetPosition(), duration, m_SpellVisual, this);
+    AreaTrigger::CreateAreaTrigger(createPropertiesId, destTarget->GetPosition(), duration, unitCaster, nullptr, m_SpellVisual, GetSpellInfo(), this);
 }
 
 void Spell::EffectRemoveTalent()

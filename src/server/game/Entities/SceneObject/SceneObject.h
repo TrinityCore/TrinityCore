@@ -29,7 +29,7 @@ enum class SceneType : uint32
     PetBattle   = 1
 };
 
-class TC_GAME_API SceneObject : public WorldObject, public GridObject<SceneObject>
+class TC_GAME_API SceneObject final : public WorldObject, public GridObject<SceneObject>
 {
 public:
     SceneObject();

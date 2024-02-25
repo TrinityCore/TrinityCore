@@ -40,11 +40,6 @@
 
 #define WARMODE_ENLISTED_SPELL_OUTSIDE 269083
 
-#define MAX_SPELL_CHARM         4
-#define MAX_SPELL_VEHICLE       6
-#define MAX_SPELL_POSSESS       8
-#define MAX_SPELL_CONTROL_BAR   10
-
 #define MAX_AGGRO_RESET_TIME 10 // in seconds
 #define MAX_AGGRO_RADIUS 45.0f  // yards
 
@@ -69,6 +64,7 @@ enum InventorySlot
 };
 
 struct AbstractFollower;
+struct CharmInfo;
 struct FactionTemplateEntry;
 struct LiquidData;
 struct LiquidTypeEntry;
@@ -99,12 +95,14 @@ class UnitAura;
 class Vehicle;
 class VehicleJoinEvent;
 
+enum CharmType : uint8;
 enum class EncounterType : uint8;
 enum class PetActionFeedback : uint8;
 enum MovementGeneratorType : uint8;
 enum ProcFlagsHit : uint32;
 enum ProcFlagsSpellPhase : uint32;
 enum ProcFlagsSpellType : uint32;
+enum class SpellOtherImmunity : uint8;
 enum ZLiquidStatus : uint32;
 
 namespace Movement
@@ -592,130 +590,7 @@ enum CurrentSpellTypes : uint8
 #define CURRENT_FIRST_NON_MELEE_SPELL 1
 #define CURRENT_MAX_SPELL             4
 
-#define UNIT_ACTION_BUTTON_ACTION(X) (uint32(X) & 0x00FFFFFF)
-#define UNIT_ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF000000) >> 24)
-#define MAKE_UNIT_ACTION_BUTTON(A, T) (uint32(A) | (uint32(T) << 24))
-
-struct UnitActionBarEntry
-{
-    UnitActionBarEntry() : packedData(uint32(ACT_DISABLED) << 24) { }
-
-    uint32 packedData;
-
-    // helper
-    ActiveStates GetType() const { return ActiveStates(UNIT_ACTION_BUTTON_TYPE(packedData)); }
-    uint32 GetAction() const { return UNIT_ACTION_BUTTON_ACTION(packedData); }
-    bool IsActionBarForSpell() const
-    {
-        ActiveStates Type = GetType();
-        return Type == ACT_DISABLED || Type == ACT_ENABLED || Type == ACT_PASSIVE;
-    }
-
-    void SetActionAndType(uint32 action, ActiveStates type)
-    {
-        packedData = MAKE_UNIT_ACTION_BUTTON(action, type);
-    }
-
-    void SetType(ActiveStates type)
-    {
-        packedData = MAKE_UNIT_ACTION_BUTTON(UNIT_ACTION_BUTTON_ACTION(packedData), type);
-    }
-
-    void SetAction(uint32 action)
-    {
-        packedData = (packedData & 0xFF000000) | UNIT_ACTION_BUTTON_ACTION(action);
-    }
-};
-
 typedef std::list<Player*> SharedVisionList;
-
-enum CharmType
-{
-    CHARM_TYPE_CHARM,
-    CHARM_TYPE_POSSESS,
-    CHARM_TYPE_VEHICLE,
-    CHARM_TYPE_CONVERT
-};
-
-typedef UnitActionBarEntry CharmSpellInfo;
-
-enum ActionBarIndex
-{
-    ACTION_BAR_INDEX_START = 0,
-    ACTION_BAR_INDEX_PET_SPELL_START = 3,
-    ACTION_BAR_INDEX_PET_SPELL_END = 7,
-    ACTION_BAR_INDEX_END = 10
-};
-
-#define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)
-
-struct TC_GAME_API CharmInfo
-{
-    public:
-        explicit CharmInfo(Unit* unit);
-        ~CharmInfo();
-        void RestoreState();
-        uint32 GetPetNumber() const { return _petnumber; }
-        void SetPetNumber(uint32 petnumber, bool statwindow);
-
-        void SetCommandState(CommandStates st) { _CommandState = st; }
-        CommandStates GetCommandState() const { return _CommandState; }
-        bool HasCommandState(CommandStates state) const { return (_CommandState == state); }
-
-        void InitPossessCreateSpells();
-        void InitCharmCreateSpells();
-        void InitPetActionBar();
-        void InitEmptyActionBar(bool withAttack = true);
-
-                                                            //return true if successful
-        bool AddSpellToActionBar(SpellInfo const* spellInfo, ActiveStates newstate = ACT_DECIDE, uint8 preferredSlot = 0);
-        bool RemoveSpellFromActionBar(uint32 spell_id);
-        void LoadPetActionBar(const std::string& data);
-        void BuildActionBar(WorldPacket* data);
-        void SetSpellAutocast(SpellInfo const* spellInfo, bool state);
-        void SetActionBar(uint8 index, uint32 spellOrAction, ActiveStates type)
-        {
-            PetActionBar[index].SetActionAndType(spellOrAction, type);
-        }
-        UnitActionBarEntry const* GetActionBarEntry(uint8 index) const { return &(PetActionBar[index]); }
-
-        void ToggleCreatureAutocast(SpellInfo const* spellInfo, bool apply);
-
-        CharmSpellInfo* GetCharmSpell(uint8 index) { return &(_charmspells[index]); }
-
-        void SetIsCommandAttack(bool val);
-        bool IsCommandAttack();
-        void SetIsCommandFollow(bool val);
-        bool IsCommandFollow();
-        void SetIsAtStay(bool val);
-        bool IsAtStay();
-        void SetIsFollowing(bool val);
-        bool IsFollowing();
-        void SetIsReturning(bool val);
-        bool IsReturning();
-        void SaveStayPosition();
-        void GetStayPosition(float &x, float &y, float &z);
-
-    private:
-
-        Unit* _unit;
-        UnitActionBarEntry PetActionBar[MAX_UNIT_ACTION_BAR_INDEX];
-        CharmSpellInfo _charmspells[4];
-        CommandStates _CommandState;
-        uint32 _petnumber;
-
-        //for restoration after charmed
-        ReactStates     _oldReactState;
-
-        bool _isCommandAttack;
-        bool _isCommandFollow;
-        bool _isAtStay;
-        bool _isFollowing;
-        bool _isReturning;
-        float _stayX;
-        float _stayY;
-        float _stayZ;
-};
 
 // for clearing special attacks
 #define REACTIVE_TIMER_START 4000
@@ -1053,7 +928,8 @@ class TC_GAME_API Unit : public WorldObject
         void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProcContainer& procAuras);
 
         void HandleEmoteCommand(Emote emoteId, Player* target = nullptr, Trinity::IteratorPair<int32 const*> spellVisualKitIds = {}, int32 sequenceVariation = 0);
-        void AttackerStateUpdate (Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
+        void DoMeleeAttackIfReady();
+        void AttackerStateUpdate(Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
 
         void CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
         void DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss);
@@ -1191,6 +1067,7 @@ class TC_GAME_API Unit : public WorldObject
 
         bool IsInWater() const;
         bool IsUnderWater() const;
+        bool IsOnOceanFloor() const;
         bool isInAccessiblePlaceFor(Creature const* c) const;
 
         void SendHealSpellLog(HealInfo& healInfo, bool critical = false);
@@ -1290,6 +1167,8 @@ class TC_GAME_API Unit : public WorldObject
         void SetBattlePetCompanionGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BattlePetCompanionGUID), guid); }
         ObjectGuid GetDemonCreatorGUID() const { return m_unitData->DemonCreator; }
         void SetDemonCreatorGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DemonCreator), guid); }
+        Unit* GetDemonCreator() const;
+        Player* GetDemonCreatorPlayer() const;
 
         ObjectGuid GetCharmerGUID() const { return m_unitData->CharmedBy; }
         Unit* GetCharmer() const { return m_charmer; }
@@ -1578,7 +1457,7 @@ class TC_GAME_API Unit : public WorldObject
         float m_modMeleeHitChance;
         float m_modRangedHitChance;
         float m_modSpellHitChance;
-        int32 m_baseSpellCritChance;
+        float m_baseSpellCritChance;
 
         std::array<uint32, MAX_ATTACK> m_baseAttackSpeed;
         std::array<float, MAX_ATTACK> m_modAttackSpeedPct;
@@ -1733,6 +1612,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetSchoolImmunityMask() const;
         uint32 GetDamageImmunityMask() const;
         uint64 GetMechanicImmunityMask() const;
+        EnumFlag<SpellOtherImmunity> GetSpellOtherImmunityMask() const;
 
         bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask) const;
         bool IsImmunedToDamage(SpellInfo const* spellInfo, SpellEffectInfo const* spellEffectInfo = nullptr) const;
@@ -1956,7 +1836,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 m_procDeep;               // tracked for proc system correctness (what spells should proc what)
         int32 m_procChainLength;        // tracked to protect against infinite proc loops (hard limit, will disallow procs even if they should happen)
 
-        typedef std::list<DynamicObject*> DynObjectList;
+        typedef std::vector<DynamicObject*> DynObjectList;
         DynObjectList m_dynObj;
 
         typedef std::list<GameObject*> GameObjectList;
@@ -2095,61 +1975,5 @@ class TC_GAME_API Unit : public WorldObject
 
         bool _isCombatDisallowed;
 };
-
-namespace Trinity
-{
-    // Binary predicate for sorting Units based on percent value of a power
-    class PowerPctOrderPred
-    {
-        public:
-            PowerPctOrderPred(Powers power, bool ascending = true) : _power(power), _ascending(ascending) { }
-
-            bool operator()(WorldObject const* objA, WorldObject const* objB) const
-            {
-                Unit const* a = objA->ToUnit();
-                Unit const* b = objB->ToUnit();
-                float rA = a ? a->GetPowerPct(_power) : 0.0f;
-                float rB = b ? b->GetPowerPct(_power) : 0.0f;
-                return _ascending ? rA < rB : rA > rB;
-            }
-
-            bool operator()(Unit const* a, Unit const* b) const
-            {
-                float rA = a->GetPowerPct(_power);
-                float rB = b->GetPowerPct(_power);
-                return _ascending ? rA < rB : rA > rB;
-            }
-
-        private:
-            Powers const _power;
-            bool const _ascending;
-    };
-
-    // Binary predicate for sorting Units based on percent value of health
-    class HealthPctOrderPred
-    {
-        public:
-            HealthPctOrderPred(bool ascending = true) : _ascending(ascending) { }
-
-            bool operator()(WorldObject const* objA, WorldObject const* objB) const
-            {
-                Unit const* a = objA->ToUnit();
-                Unit const* b = objB->ToUnit();
-                float rA = (a && a->GetMaxHealth()) ? float(a->GetHealth()) / float(a->GetMaxHealth()) : 0.0f;
-                float rB = (b && b->GetMaxHealth()) ? float(b->GetHealth()) / float(b->GetMaxHealth()) : 0.0f;
-                return _ascending ? rA < rB : rA > rB;
-            }
-
-            bool operator() (Unit const* a, Unit const* b) const
-            {
-                float rA = a->GetMaxHealth() ? float(a->GetHealth()) / float(a->GetMaxHealth()) : 0.0f;
-                float rB = b->GetMaxHealth() ? float(b->GetHealth()) / float(b->GetMaxHealth()) : 0.0f;
-                return _ascending ? rA < rB : rA > rB;
-            }
-
-        private:
-            bool const _ascending;
-    };
-}
 
 #endif

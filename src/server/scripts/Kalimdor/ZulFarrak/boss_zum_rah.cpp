@@ -136,8 +136,6 @@ public:
                 _heal30 = true;
                 events.ScheduleEvent(EVENT_HEALING_WAVE, 3s);
             }
-
-            DoMeleeAttackIfReady();
         }
 
         private:

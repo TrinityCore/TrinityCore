@@ -367,9 +367,9 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                       "ctm.Ground, ctm.Swim, ctm.Flight, ctm.Rooted, ctm.Chase, ctm.Random, ctm.InteractionPauseTimer, ExperienceModifier, "
     //                                        39            40          41           42                        43
     //                                       "RacialLeader, movementId, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, "
-    //                                        44                    45                        46
-    //                                       "mechanic_immune_mask, spell_school_immune_mask, flags_extra, "
-    //                                        47          48
+    //                                        44                    45
+    //                                       "CreatureImmunitiesId, flags_extra, "
+    //                                        46          47
     //                                       "ScriptName, StringId FROM creature_template WHERE entry = ? OR 1 = ?");
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
@@ -395,8 +395,6 @@ void ObjectMgr::LoadCreatureTemplates()
 
     // We load the creature models after loading but before checking
     LoadCreatureTemplateModels();
-
-    LoadCreatureSummonedData();
 
     // Checking needs to be done after loading because of the difficulty self referencing
     for (auto const& ctPair : _creatureTemplateStore)
@@ -427,7 +425,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.speed_walk             = fields[12].GetFloat();
     creatureTemplate.speed_run              = fields[13].GetFloat();
     creatureTemplate.scale                  = fields[14].GetFloat();
-    creatureTemplate.rank                   = uint32(fields[15].GetUInt8());
+    creatureTemplate.Classification         = CreatureClassifications(fields[15].GetUInt8());
     creatureTemplate.dmgschool              = uint32(fields[16].GetInt8());
     creatureTemplate.BaseAttackTime         = fields[17].GetUInt32();
     creatureTemplate.RangeAttackTime        = fields[18].GetUInt32();
@@ -477,11 +475,10 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.WidgetSetID            = fields[41].GetInt32();
     creatureTemplate.WidgetSetUnitConditionID = fields[42].GetInt32();
     creatureTemplate.RegenHealth            = fields[43].GetBool();
-    creatureTemplate.MechanicImmuneMask     = fields[44].GetUInt64();
-    creatureTemplate.SpellSchoolImmuneMask  = fields[45].GetUInt32();
-    creatureTemplate.flags_extra            = fields[46].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[47].GetString());
-    creatureTemplate.StringId               = fields[48].GetString();
+    creatureTemplate.CreatureImmunitiesId   = fields[44].GetInt32();
+    creatureTemplate.flags_extra            = fields[45].GetUInt32();
+    creatureTemplate.ScriptID               = GetScriptId(fields[46].GetString());
+    creatureTemplate.StringId               = fields[47].GetString();
 }
 
 void ObjectMgr::LoadCreatureTemplateGossip()
@@ -677,8 +674,8 @@ void ObjectMgr::LoadCreatureSummonedData()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0           1                            2                     3
-    QueryResult result = WorldDatabase.Query("SELECT CreatureID, CreatureIDVisibleToSummoner, GroundMountDisplayID, FlyingMountDisplayID FROM creature_summoned_data");
+    //                                               0           1                            2                     3                     4
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, CreatureIDVisibleToSummoner, GroundMountDisplayID, FlyingMountDisplayID, DespawnOnQuestsRemoved FROM creature_summoned_data");
 
     if (!result)
     {
@@ -732,6 +729,30 @@ void ObjectMgr::LoadCreatureSummonedData()
             }
         }
 
+        if (!fields[4].IsNull())
+        {
+            std::vector<uint32> questList;
+            for (std::string_view questStr : Trinity::Tokenize(fields[4].GetStringView(), ',', false))
+            {
+                Optional<uint32> questId = Trinity::StringTo<uint32>(questStr);
+                if (!questId)
+                    continue;
+
+                Quest const* quest = GetQuestTemplate(*questId);
+                if (!quest)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `creature_summoned_data` references non-existing quest {} in DespawnOnQuestsRemoved for creature {}, skipping",
+                        *questId, creatureId);
+                    continue;
+                }
+
+                questList.push_back(*questId);
+            }
+
+            if (!questList.empty())
+                summonedData.DespawnOnQuestsRemoved = std::move(questList);
+        }
+
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} creature summoned data definitions in {} ms", _creatureSummonedDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -742,7 +763,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
     uint32 oldMSTime = getMSTime();
 
     //                                               0      1        2      3           4         5         6            7         8      9          10               11            12                      13
-    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
+    QueryResult result = WorldDatabase.Query("SELECT entry, PathId, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
 
     if (!result)
     {
@@ -765,7 +786,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
         CreatureAddon& creatureAddon = _creatureTemplateAddonStore[entry];
 
-        creatureAddon.path_id                   = fields[1].GetUInt32();
+        creatureAddon.PathId                   = fields[1].GetUInt32();
         creatureAddon.mount                     = fields[2].GetUInt32();
         creatureAddon.standState                = fields[3].GetUInt8();
         creatureAddon.animTier                  = fields[4].GetUInt8();
@@ -973,7 +994,7 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
             CreatureStaticFlags6(fields[23].GetUInt32()), CreatureStaticFlags7(fields[24].GetUInt32()),  CreatureStaticFlags8(fields[25].GetUInt32()));
 
         // TODO: Check if this still applies
-        creatureDifficulty.DamageModifier *= Creature::_GetDamageMod(itr->second.rank);
+        creatureDifficulty.DamageModifier *= Creature::GetDamageMod(itr->second.Classification);
 
         if (creatureDifficulty.HealthScalingExpansion < EXPANSION_LEVEL_CURRENT || creatureDifficulty.HealthScalingExpansion >= MAX_EXPANSIONS)
         {
@@ -1184,7 +1205,7 @@ void ObjectMgr::LoadCreatureAddons()
     uint32 oldMSTime = getMSTime();
 
     //                                               0     1        2      3           4         5         6            7         8      9          10               11            12                      13
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
+    QueryResult result = WorldDatabase.Query("SELECT guid, PathId, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
 
     if (!result)
     {
@@ -1208,8 +1229,8 @@ void ObjectMgr::LoadCreatureAddons()
 
         CreatureAddon& creatureAddon = _creatureAddonStore[guid];
 
-        creatureAddon.path_id = fields[1].GetUInt32();
-        if (creData->movementType == WAYPOINT_MOTION_TYPE && !creatureAddon.path_id)
+        creatureAddon.PathId = fields[1].GetUInt32();
+        if (creData->movementType == WAYPOINT_MOTION_TYPE && !creatureAddon.PathId)
         {
             const_cast<CreatureData*>(creData)->movementType = IDLE_MOTION_TYPE;
             TC_LOG_ERROR("sql.sql", "Creature (GUID {}) has movement type set to WAYPOINT_MOTION_TYPE but no path assigned", guid);
@@ -3256,6 +3277,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.SpellPPMRate = 0.0f;
         itemTemplate.RandomBonusListTemplateId = 0;
         itemTemplate.ItemSpecClassMask = 0;
+        itemTemplate.QuestLogItemId = 0;
 
         if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDB2Manager.GetItemSpecOverrides(sparse->ID))
         {
@@ -3328,7 +3350,7 @@ void ObjectMgr::LoadItemTemplateAddon()
     uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance, RandomBonusListTemplateId FROM item_template_addon");
+    QueryResult result = WorldDatabase.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance, RandomBonusListTemplateId, QuestLogItemId FROM item_template_addon");
     if (result)
     {
         do
@@ -3355,6 +3377,7 @@ void ObjectMgr::LoadItemTemplateAddon()
             itemTemplate->MaxMoneyLoot = maxMoneyLoot;
             itemTemplate->SpellPPMRate = fields[5].GetFloat();
             itemTemplate->RandomBonusListTemplateId = fields[6].GetUInt32();
+            itemTemplate->QuestLogItemId = fields[7].GetInt32();
             ++count;
         } while (result->NextRow());
     }
@@ -4458,16 +4481,19 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
 
 std::vector<uint32> const* ObjectMgr::GetCreatureQuestItemList(uint32 creatureEntry, Difficulty difficulty) const
 {
-    CreatureQuestItemMap::const_iterator itr = _creatureQuestItemStore.find(std::make_pair(creatureEntry, difficulty));
-    if (itr != _creatureQuestItemStore.end())
-        return &itr->second;
+    if (std::vector<uint32> const* items = Trinity::Containers::MapGetValuePtr(_creatureQuestItemStore, { creatureEntry, difficulty }))
+        return items;
 
     // If there is no data for the difficulty, try to get data for the fallback difficulty
-    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
-    if (difficultyEntry)
+    if (DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty))
         return GetCreatureQuestItemList(creatureEntry, Difficulty(difficultyEntry->FallbackDifficultyID));
 
     return nullptr;
+}
+
+std::vector<int32> const* ObjectMgr::GetCreatureQuestCurrencyList(uint32 creatureId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_creatureQuestCurrenciesStore, creatureId);
 }
 
 void ObjectMgr::LoadQuests()
@@ -6876,7 +6902,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation con
 
         if (conditionObject)
         {
-            if (!sConditionMgr->IsObjectMeetToConditions(conditionSource, data.Conditions))
+            if (!data.Conditions.Meets(conditionSource))
                 continue;
 
             if (int16(entry->Loc.GetMapId()) == mapEntry->ParentMapID && !conditionObject->GetPhaseShift().HasVisibleMapId(entry->Loc.GetMapId()))
@@ -6885,15 +6911,18 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation con
         else if (team != 0)
         {
             bool teamConditionMet = true;
-            for (Condition const* cond : data.Conditions)
+            if (std::shared_ptr<std::vector<Condition>> conditions = data.Conditions.Conditions.lock())
             {
-                if (cond->ConditionType != CONDITION_TEAM)
-                    continue;
+                for (Condition const& cond : *conditions)
+                {
+                    if (cond.ConditionType != CONDITION_TEAM)
+                        continue;
 
-                if (cond->ConditionValue1 == team)
-                    continue;
+                    if (cond.ConditionValue1 == team)
+                        continue;
 
-                teamConditionMet = false;
+                    teamConditionMet = false;
+                }
             }
 
             if (!teamConditionMet)
@@ -7454,7 +7483,7 @@ inline void CheckGOLockId(GameObjectTemplate const* goInfo, uint32 dataN, uint32
         return;
 
     TC_LOG_ERROR("sql.sql", "Gameobject (Entry: {} GoType: {}) have data{}={} but lock (Id: {}) not found.",
-        goInfo->entry, goInfo->type, N, goInfo->door.open, goInfo->door.open);
+        goInfo->entry, goInfo->type, N, dataN, dataN);
 }
 
 inline void CheckGOLinkedTrapId(GameObjectTemplate const* goInfo, uint32 dataN, uint32 N)
@@ -10717,14 +10746,14 @@ void ObjectMgr::LoadCreatureQuestItems()
         {
             TC_LOG_ERROR("sql.sql", "Table `creature_questitem` has data for nonexistent creature (entry: {}, difficulty: {}, idx: {}), skipped", entry, difficulty, idx);
             continue;
-        };
+        }
 
         ItemEntry const* db2Data = sItemStore.LookupEntry(item);
         if (!db2Data)
         {
             TC_LOG_ERROR("sql.sql", "Table `creature_questitem` has nonexistent item (ID: {}) in creature (entry: {}, difficulty: {}, idx: {}), skipped", item, entry, difficulty, idx);
             continue;
-        };
+        }
 
         _creatureQuestItemStore[std::make_pair(entry, difficulty)].push_back(item);
 
@@ -10733,6 +10762,48 @@ void ObjectMgr::LoadCreatureQuestItems()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} creature quest items in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadCreatureQuestCurrencies()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0           1
+    QueryResult result = WorldDatabase.Query("SELECT CreatureId, CurrencyId FROM creature_quest_currency ORDER BY CreatureId, CurrencyId ASC");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 creature quest currencies. DB table `creature_quest_currency` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 entry = fields[0].GetUInt32();
+        int32 currency = fields[1].GetInt32();
+
+        if (!GetCreatureTemplate(entry))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature_quest_currency` has data for nonexistent creature (entry: {}, currency: {}), skipped", entry, currency);
+            continue;
+        }
+
+        if (!sCurrencyTypesStore.HasRecord(currency))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature_quest_currency` has nonexistent currency (ID: {}) in creature (entry: {}, currency: {}), skipped", currency, entry, currency);
+            continue;
+        }
+
+        _creatureQuestCurrenciesStore[entry].push_back(currency);
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} creature quest currencies in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)

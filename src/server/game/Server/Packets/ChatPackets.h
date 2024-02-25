@@ -320,11 +320,11 @@ namespace WorldPackets
         class ChatRestricted final : public ServerPacket
         {
         public:
-            ChatRestricted() : ServerPacket(SMSG_CHAT_RESTRICTED, 1) { }
+            ChatRestricted() : ServerPacket(SMSG_CHAT_RESTRICTED, 4) { }
 
             WorldPacket const* Write() override;
 
-            uint8 Reason = 0;
+            int32 Reason = 0;
         };
 
         class CanLocalWhisperTargetRequest final : public ClientPacket

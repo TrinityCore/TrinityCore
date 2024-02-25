@@ -27,7 +27,7 @@ struct VehicleEntry;
 class Unit;
 class VehicleJoinEvent;
 
-class TC_GAME_API Vehicle : public TransportBase
+class TC_GAME_API Vehicle final : public TransportBase
 {
     public:
         Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);

@@ -129,6 +129,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         MovementGeneratorType GetDefaultMovementType() const override { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
 
+        CreatureClassifications GetCreatureClassification() const { return GetCreatureTemplate()->Classification; }
+        bool HasClassification(CreatureClassifications classification) const { return GetCreatureTemplate()->Classification == classification; }
+
         bool IsDungeonBoss() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS) != 0; }
         bool IsAffectedByDiminishingReturns() const override { return Unit::IsAffectedByDiminishingReturns() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH) != 0; }
 
@@ -155,9 +158,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool CanResetTalents(Player* player) const;
         bool CanCreatureAttack(Unit const* victim, bool force = true) const;
-        void LoadTemplateImmunities();
+        void LoadTemplateImmunities(int32 creatureImmunitiesId);
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const override;
-        bool isElite() const;
+        bool IsElite() const;
         bool isWorldBoss() const;
 
         bool HasScalableLevels() const;
@@ -185,9 +188,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType /*attackType*/ = BASE_ATTACK) const override { return m_meleeDamageSchoolMask; }
         void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }
-        bool CanMelee() const { return !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_NO_MELEE); }
-        void SetCanMelee(bool canMelee) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_MELEE, !canMelee); }
+        bool CanMelee() const { return !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_NO_MELEE_FLEE) && !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_NO_MELEE_APPROACH); }
+        void SetCanMelee(bool canMelee, bool fleeFromMelee = false);
         bool CanIgnoreLineOfSightWhenCastingOnMe() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_IGNORE_LOS_WHEN_CASTING_ON_ME); }
+        void StartDefaultCombatMovement(Unit* victim, Optional<float> range = {}, Optional<float> angle = {});
 
         bool HasSpell(uint32 spellID) const override;
 
@@ -208,7 +212,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint8 GetCurrentEquipmentId() const { return m_equipmentId; }
         void SetCurrentEquipmentId(uint8 id) { m_equipmentId = id; }
 
-        float GetSpellDamageMod(int32 Rank) const;
+        float GetSpellDamageMod(CreatureClassifications classification) const;
 
         VendorItemData const* GetVendorItems() const;
         uint32 GetVendorItemCurrentCount(VendorItem const* vItem);
@@ -260,7 +264,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AllLootRemovedFromCorpse();
 
         uint16 GetLootMode() const { return m_LootMode; }
-        bool HasLootMode(uint16 lootMode) { return (m_LootMode & lootMode) != 0; }
+        bool HasLootMode(uint16 lootMode) const { return (m_LootMode & lootMode) != 0; }
         void SetLootMode(uint16 lootMode) { m_LootMode = lootMode; }
         void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
@@ -320,7 +324,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool CanRegenerateHealth() const { return !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_5_NO_HEALTH_REGEN) && _regenerateHealth; }
         void SetRegenerateHealth(bool value) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_5_NO_HEALTH_REGEN, !value); }
-        virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
+        virtual uint8 GetPetAutoSpellSize() const;
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
         float GetPetChaseDistance() const;
 
@@ -337,7 +341,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void GetTransportHomePosition(float& x, float& y, float& z, float& ori) const { m_transportHomePosition.GetPosition(x, y, z, ori); }
         Position const& GetTransportHomePosition() const { return m_transportHomePosition; }
 
-        uint32 GetWaypointPath() const { return _waypointPathId; }
+        uint32 GetWaypointPathId() const { return _waypointPathId; }
         void LoadPath(uint32 pathid) { _waypointPathId = pathid; }
 
         // nodeId, pathId
@@ -364,9 +368,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         // There's many places not ready for dynamic spawns. This allows them to live on for now.
         void SetRespawnCompatibilityMode(bool mode = true) { m_respawnCompatibilityMode = mode; }
-        bool GetRespawnCompatibilityMode() { return m_respawnCompatibilityMode; }
+        bool GetRespawnCompatibilityMode() const { return m_respawnCompatibilityMode; }
 
-        static float _GetDamageMod(int32 Rank);
+        static float GetDamageMod(CreatureClassifications classification);
 
         float m_SightDistance, m_CombatDistance;
 
@@ -397,8 +401,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AtEngage(Unit* target) override;
         void AtDisengage() override;
 
+        bool IsThreatFeedbackDisabled() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_NO_THREAT_FEEDBACK); }
+        void SetNoThreatFeedback(bool noThreatFeedback) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_3_NO_THREAT_FEEDBACK, noThreatFeedback); }
+
+        void OverrideSparringHealthPct(float healthPct) { _sparringHealthPct = healthPct; }
         void OverrideSparringHealthPct(std::vector<float> const& healthPct);
-        float GetSparringHealthPct() { return _sparringHealthPct; }
+        float GetSparringHealthPct() const { return _sparringHealthPct; }
         uint32 CalculateDamageForSparring(Unit* attacker, uint32 damage);
         bool ShouldFakeDamageFrom(Unit* attacker);
 
@@ -429,6 +437,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void SummonGraveyardTeleporter();
 
+        void InitializeInteractSpellId();
+        void SetInteractSpellId(int32 interactSpellId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::InteractSpellID), interactSpellId); }
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -436,7 +447,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         // vendor items
         VendorItemCounts m_vendorItemCounts;
 
-        static float _GetHealthMod(int32 Rank);
+        static float GetHealthMod(CreatureClassifications classification);
 
         GuidUnorderedSet m_tapList;
         bool m_dontClearTapListOnEvade;
@@ -521,6 +532,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool _isMissingCanSwimFlagOutOfCombat;
 
+        int32 _creatureImmunitiesId;
         uint32 _gossipMenuId;
         Optional<uint32> _trainerId;
         float _sparringHealthPct;

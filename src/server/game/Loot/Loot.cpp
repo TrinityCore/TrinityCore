@@ -75,10 +75,10 @@ bool LootItem::AllowedForPlayer(Player const* player, Loot const* loot) const
 }
 
 bool LootItem::AllowedForPlayer(Player const* player, Loot const* loot, uint32 itemid, bool needs_quest, bool follow_loot_rules, bool strictUsabilityCheck,
-    ConditionContainer const& conditions)
+    ConditionsReference const& conditions)
 {
     // DB conditions check
-    if (!sConditionMgr->IsObjectMeetToConditions(player, conditions))
+    if (!conditions.Meets(player))
         return false;
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
@@ -888,9 +888,13 @@ bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool
 
         --unlootedCount;
 
-        Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, lootItem->randomBonusListId, GuidSet(), lootItem->context, &lootItem->BonusListIDs);
-        player->SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast);
-        player->ApplyItemLootedSpell(pItem, true);
+        if (Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, lootItem->randomBonusListId, GuidSet(), lootItem->context, &lootItem->BonusListIDs))
+        {
+            player->SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast, GetDungeonEncounterId());
+            player->ApplyItemLootedSpell(pItem, true);
+        }
+        else
+            player->ApplyItemLootedSpell(sObjectMgr->GetItemTemplate(lootItem->itemid));
     }
 
     return allLooted;
@@ -952,7 +956,7 @@ bool Loot::hasItemForAll() const
         return true;
 
     for (LootItem const& item : items)
-        if (!item.is_looted && item.follow_loot_rules && !item.freeforall && item.conditions.empty())
+        if (!item.is_looted && item.follow_loot_rules && !item.freeforall && item.conditions.IsEmpty())
             return true;
     return false;
 }

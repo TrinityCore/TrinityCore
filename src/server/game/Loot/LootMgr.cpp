@@ -101,7 +101,6 @@ class LootTemplate::LootGroup                               // A set of loot def
         void CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const;
         LootStoreItemList* GetExplicitlyChancedItemList() { return &ExplicitlyChanced; }
         LootStoreItemList* GetEqualChancedItemList() { return &EqualChanced; }
-        void CopyConditions(ConditionContainer conditions);
     private:
         LootStoreItemList ExplicitlyChanced;                // Entries with chances defined in DB
         LootStoreItemList EqualChanced;                     // Zero chances - every entry takes the same chance
@@ -215,15 +214,6 @@ bool LootStore::HaveQuestLootForPlayer(uint32 loot_id, Player const* player) con
             return true;
 
     return false;
-}
-
-void LootStore::ResetConditions()
-{
-    for (LootTemplateMap::iterator itr = m_LootTemplates.begin(); itr != m_LootTemplates.end(); ++itr)
-    {
-        ConditionContainer empty;
-        itr->second->CopyConditions(empty);
-    }
 }
 
 LootTemplate const* LootStore::GetLootFor(uint32 loot_id) const
@@ -453,15 +443,6 @@ bool LootTemplate::LootGroup::HasQuestDropForPlayer(Player const* player) const
     return false;
 }
 
-void LootTemplate::LootGroup::CopyConditions(ConditionContainer /*conditions*/)
-{
-    for (LootStoreItemList::iterator i = ExplicitlyChanced.begin(); i != ExplicitlyChanced.end(); ++i)
-        (*i)->conditions.clear();
-
-    for (LootStoreItemList::iterator i = EqualChanced.begin(); i != EqualChanced.end(); ++i)
-        (*i)->conditions.clear();
-}
-
 // Rolls an item from the group (if any takes its chance) and adds the item to the loot
 void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode, Player const* personalLooter /*= nullptr*/) const
 {
@@ -556,16 +537,6 @@ void LootTemplate::AddEntry(LootStoreItem* item)
     }
     else                                                      // Non-grouped entries and references are stored together
         Entries.push_back(item);
-}
-
-void LootTemplate::CopyConditions(ConditionContainer const& conditions)
-{
-    for (LootStoreItemList::iterator i = Entries.begin(); i != Entries.end(); ++i)
-        (*i)->conditions.clear();
-
-    for (LootGroups::iterator i = Groups.begin(); i != Groups.end(); ++i)
-        if (LootGroup* group = *i)
-            group->CopyConditions(conditions);
 }
 
 void LootTemplate::CopyConditions(LootItem* li) const
@@ -880,21 +851,15 @@ void LootTemplate::CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_se
             group->CheckLootRefs(store, ref_set);
 }
 
-bool LootTemplate::addConditionItem(Condition* cond)
+bool LootTemplate::LinkConditions(ConditionId const& id, ConditionsReference reference)
 {
-    if (!cond || !cond->isLoaded())//should never happen, checked at loading
-    {
-        TC_LOG_ERROR("loot", "LootTemplate::addConditionItem: condition is null");
-        return false;
-    }
-
     if (!Entries.empty())
     {
-        for (LootStoreItemList::iterator i = Entries.begin(); i != Entries.end(); ++i)
+        for (LootStoreItem* item : Entries)
         {
-            if ((*i)->itemid == uint32(cond->SourceEntry))
+            if (item->itemid == uint32(id.SourceEntry))
             {
-                (*i)->conditions.push_back(cond);
+                item->conditions = std::move(reference);
                 return true;
             }
         }
@@ -902,20 +867,19 @@ bool LootTemplate::addConditionItem(Condition* cond)
 
     if (!Groups.empty())
     {
-        for (LootGroups::iterator groupItr = Groups.begin(); groupItr != Groups.end(); ++groupItr)
+        for (LootGroup* group : Groups)
         {
-            LootGroup* group = *groupItr;
             if (!group)
                 continue;
 
             LootStoreItemList* itemList = group->GetExplicitlyChancedItemList();
             if (!itemList->empty())
             {
-                for (LootStoreItemList::iterator i = itemList->begin(); i != itemList->end(); ++i)
+                for (LootStoreItem* item : *itemList)
                 {
-                    if ((*i)->itemid == uint32(cond->SourceEntry))
+                    if (item->itemid == uint32(id.SourceEntry))
                     {
-                        (*i)->conditions.push_back(cond);
+                        item->conditions = std::move(reference);
                         return true;
                     }
                 }
@@ -924,11 +888,11 @@ bool LootTemplate::addConditionItem(Condition* cond)
             itemList = group->GetEqualChancedItemList();
             if (!itemList->empty())
             {
-                for (LootStoreItemList::iterator i = itemList->begin(); i != itemList->end(); ++i)
+                for (LootStoreItem* item : *itemList)
                 {
-                    if ((*i)->itemid == uint32(cond->SourceEntry))
+                    if (item->itemid == uint32(id.SourceEntry))
                     {
-                        (*i)->conditions.push_back(cond);
+                        item->conditions = std::move(reference);
                         return true;
                     }
                 }

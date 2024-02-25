@@ -369,7 +369,7 @@ void WorldSession::HandleRequestCemeteryList(WorldPackets::Misc::RequestCemetery
     for (auto it = range.first; it != range.second && graveyardIds.size() < 16; ++it) // client max
     {
         ConditionSourceInfo conditionSource(_player);
-        if (!sConditionMgr->IsObjectMeetToConditions(conditionSource, it->second.Conditions))
+        if (!it->second.Conditions.Meets(conditionSource))
             continue;
 
         graveyardIds.push_back(it->first);
@@ -1180,4 +1180,22 @@ void WorldSession::HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLa
     WorldPackets::Misc::SplashScreenShowLatest splashScreenShowLatest;
     splashScreenShowLatest.UISplashScreenID = splashScreen ? splashScreen->ID : 0;
     SendPacket(splashScreenShowLatest.Write());
+}
+
+void WorldSession::HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownTimer& queryCountdownTimer)
+{
+    Group const* group = _player->GetGroup();
+    if (!group)
+        return;
+
+    Group::CountdownInfo const* info = group->GetCountdownInfo(queryCountdownTimer.TimerType);
+    if (!info)
+        return;
+
+    WorldPackets::Misc::StartTimer startTimer;
+    startTimer.Type = queryCountdownTimer.TimerType;
+    startTimer.TimeLeft = info->GetTimeLeft();
+    startTimer.TotalTime = info->GetTotalTime();
+
+    _player->SendDirectMessage(startTimer.Write());
 }

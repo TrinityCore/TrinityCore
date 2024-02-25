@@ -679,8 +679,6 @@ struct boss_algalon_the_observer : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING) && !events.IsInPhase(PHASE_ROLE_PLAY))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

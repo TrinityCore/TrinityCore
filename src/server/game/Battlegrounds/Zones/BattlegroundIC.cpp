@@ -364,7 +364,7 @@ bool BattlegroundIC::SetupBattleground()
     return true;
 }
 
-void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
+void BattlegroundIC::HandleKillUnit(Creature* unit, Unit* killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
        return;
@@ -384,7 +384,10 @@ void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
     //Achievement Mowed Down
     // TO-DO: This should be done on the script of each vehicle of the BG.
     if (unit->IsVehicle())
-        killer->CastSpell(killer, SPELL_DESTROYED_VEHICLE_ACHIEVEMENT, true);
+    {
+        if (Player* killerPlayer = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+            killerPlayer->CastSpell(killerPlayer, SPELL_DESTROYED_VEHICLE_ACHIEVEMENT, true);
+    }
 }
 
 void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
@@ -473,7 +476,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
             if (!AddObject(nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry, cords[0], cords[1], cords[2], cords[3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
             {
                 TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning a banner (type: {}, entry: {}). Isle of Conquest BG cancelled.", nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry);
-                EndBattleground(0);
+                EndBattleground(TEAM_OTHER);
             }
 
             GetBGObject(nodePoint[i].gameobject_type)->SetFaction(nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_Factions[1] : BG_IC_Factions[0]);

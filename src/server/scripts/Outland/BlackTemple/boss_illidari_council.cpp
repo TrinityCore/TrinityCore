@@ -450,7 +450,10 @@ private:
 
 struct boss_lady_malande : public IllidariCouncilBossAI
 {
-    boss_lady_malande(Creature* creature) : IllidariCouncilBossAI(creature, DATA_LADY_MALANDE) { }
+    boss_lady_malande(Creature* creature) : IllidariCouncilBossAI(creature, DATA_LADY_MALANDE)
+    {
+        me->SetCanMelee(false); // DoSpellAttackIfReady
+    }
 
     void ScheduleEvents() override
     {

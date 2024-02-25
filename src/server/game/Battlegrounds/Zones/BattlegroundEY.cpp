@@ -101,14 +101,14 @@ void BattlegroundEY::StartingEventOpenDoors()
     TriggerGameEvent(BG_EY_EVENT_START_BATTLE);
 }
 
-void BattlegroundEY::AddPoints(uint32 Team, uint32 Points)
+void BattlegroundEY::AddPoints(Team team, uint32 Points)
 {
-    TeamId team_index = GetTeamIndexByTeamId(Team);
+    TeamId team_index = GetTeamIndexByTeamId(team);
     m_TeamScores[team_index] += Points;
     m_HonorScoreTics[team_index] += Points;
     if (m_HonorScoreTics[team_index] >= m_HonorTics)
     {
-        RewardHonorToTeam(GetBonusHonorFromKill(1), Team);
+        RewardHonorToTeam(GetBonusHonorFromKill(1), team);
         m_HonorScoreTics[team_index] -= m_HonorTics;
     }
     UpdateTeamScore(team_index);
@@ -186,7 +186,7 @@ void BattlegroundEY::RemoveAssaultDebuffFromPlayer(Player* player)
     player->RemoveAurasDueToSpell(BG_EY_BRUTAL_ASSAULT_SPELL);
 }
 
-void BattlegroundEY::UpdateTeamScore(uint32 Team)
+void BattlegroundEY::UpdateTeamScore(TeamId Team)
 {
     uint32 score = GetTeamScore(Team);
 
@@ -205,7 +205,7 @@ void BattlegroundEY::UpdateTeamScore(uint32 Team)
         UpdateWorldState(EY_HORDE_RESOURCES, score);
 }
 
-void BattlegroundEY::EndBattleground(uint32 winner)
+void BattlegroundEY::EndBattleground(Team winner)
 {
     // Win reward
     if (winner == ALLIANCE)
@@ -354,34 +354,6 @@ void BattlegroundEY::OnFlagStateChange(GameObject* /*flagInBase*/, FlagState /*o
     UpdateWorldState(NETHERSTORM_FLAG, AsUnderlyingType(newValue));
 }
 
-void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
-{
-    if (!player->IsAlive())                                  //hack code, must be removed later
-        return;
-
-    switch (trigger)
-    {
-        case 4530: // Horde Start
-        case 4531: // Alliance Start
-            if (GetStatus() == STATUS_WAIT_JOIN && !entered)
-                TeleportPlayerToExploitLocation(player);
-            break;
-        case 4512:
-        case 4515:
-        case 4517:
-        case 4519:
-        case 4568:
-        case 4569:
-        case 4570:
-        case 4571:
-        case 5866:
-            break;
-        default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
-            break;
-    }
-}
-
 bool BattlegroundEY::SetupBattleground()
 {
     UpdateWorldState(EY_MAX_RESOURCES, BG_EY_MAX_TEAM_SCORE);
@@ -455,7 +427,7 @@ WorldSafeLocsEntry const* BattlegroundEY::GetExploitTeleportLocation(Team team)
     return sObjectMgr->GetWorldSafeLoc(team == ALLIANCE ? EY_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EY_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
-uint32 BattlegroundEY::GetPrematureWinner()
+Team BattlegroundEY::GetPrematureWinner()
 {
     if (GetTeamScore(TEAM_ALLIANCE) > GetTeamScore(TEAM_HORDE))
         return ALLIANCE;

@@ -1337,7 +1337,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr8>::ToString(SpellAttr8 value)
         case SPELL_ATTR8_NOT_IN_BATTLEGROUND: return { "SPELL_ATTR8_NOT_IN_BATTLEGROUND", "Not in Battleground", "" };
         case SPELL_ATTR8_MASTERY_AFFECTS_POINTS: return { "SPELL_ATTR8_MASTERY_AFFECTS_POINTS", "Mastery Affects Points", "" };
         case SPELL_ATTR8_DISPLAY_LARGE_AURA_ICON_ON_UNIT_FRAMES_BOSS_AURA: return { "SPELL_ATTR8_DISPLAY_LARGE_AURA_ICON_ON_UNIT_FRAMES_BOSS_AURA", "Display Large Aura Icon On Unit Frames (Boss Aura)", "" };
-        case SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG: return { "SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG", "Can Attack ImmunePC", "Do not check UNIT_FLAG_IMMUNE_TO_PC in IsValidAttackTarget" };
+        case SPELL_ATTR8_CAN_ATTACK_IMMUNE_PC: return { "SPELL_ATTR8_CAN_ATTACK_IMMUNE_PC", "Can Attack ImmunePC", "Do not check UNIT_FLAG_IMMUNE_TO_PC in IsValidAttackTarget" };
         default: throw std::out_of_range("value");
     }
 }
@@ -1381,7 +1381,7 @@ TC_API_EXPORT SpellAttr8 EnumUtils<SpellAttr8>::FromIndex(size_t index)
         case 28: return SPELL_ATTR8_NOT_IN_BATTLEGROUND;
         case 29: return SPELL_ATTR8_MASTERY_AFFECTS_POINTS;
         case 30: return SPELL_ATTR8_DISPLAY_LARGE_AURA_ICON_ON_UNIT_FRAMES_BOSS_AURA;
-        case 31: return SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG;
+        case 31: return SPELL_ATTR8_CAN_ATTACK_IMMUNE_PC;
         default: throw std::out_of_range("index");
     }
 }
@@ -1422,7 +1422,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr8>::ToIndex(SpellAttr8 value)
         case SPELL_ATTR8_NOT_IN_BATTLEGROUND: return 28;
         case SPELL_ATTR8_MASTERY_AFFECTS_POINTS: return 29;
         case SPELL_ATTR8_DISPLAY_LARGE_AURA_ICON_ON_UNIT_FRAMES_BOSS_AURA: return 30;
-        case SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG: return 31;
+        case SPELL_ATTR8_CAN_ATTACK_IMMUNE_PC: return 31;
         default: throw std::out_of_range("value");
     }
 }

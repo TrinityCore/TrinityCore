@@ -137,9 +137,12 @@ public:
             }
             player->RemoveActiveQuest(quest->GetQuestId(), false);
             player->RemoveRewardedQuest(quest->GetQuestId());
+            player->DespawnPersonalSummonsForQuest(quest->GetQuestId());
 
             sScriptMgr->OnQuestStatusChange(player, quest->GetQuestId());
             sScriptMgr->OnQuestStatusChange(player, quest, oldStatus, QUEST_STATUS_NONE);
+
+            player->UpdateNearbyCreatureNpcFlags();
 
             handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
             return true;

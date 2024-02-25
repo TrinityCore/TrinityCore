@@ -798,8 +798,6 @@ class boss_thorim : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void DoAction(int32 action) override
@@ -952,6 +950,8 @@ struct npc_thorim_trashAI : public ScriptedAI
                 _info = &StaticThorimTrashInfo[i];
 
         ASSERT(_info);
+        if (_info->Type == DARK_RUNE_ACOLYTE)
+            me->SetCanMelee(false); // DoSpellAttackIfReady
     }
 
     struct AIHelper
@@ -1101,8 +1101,6 @@ struct npc_thorim_trashAI : public ScriptedAI
 
         if (_info->Type == DARK_RUNE_ACOLYTE)
             DoSpellAttackIfReady(SPELL_HOLY_SMITE);
-        else
-            DoMeleeAttackIfReady();
     }
 
     virtual void ExecuteEvent(uint32 eventId) = 0;
@@ -1470,8 +1468,6 @@ class npc_runic_colossus : public CreatureScript
 
                 if (!UpdateVictim())
                     return;
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -1555,8 +1551,6 @@ class npc_ancient_rune_giant : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

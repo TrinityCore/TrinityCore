@@ -176,11 +176,11 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     }
                     break;
                 }
-                case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE:
+                case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM:
                 {
                     if (!sAreaTriggerDataStore->GetAreaTriggerTemplate({ (uint32)temp.entryOrGuid, true }))
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: AreaTrigger entry ({} IsServerSide true) does not exist, skipped loading.", uint32(temp.entryOrGuid));
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: AreaTrigger entry ({} IsCustom true) does not exist, skipped loading.", uint32(temp.entryOrGuid));
                         continue;
                     }
                     break;
@@ -1318,9 +1318,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             case SMART_EVENT_AREATRIGGER_ONTRIGGER:
             {
-                if (e.event.areatrigger.id && (e.GetScriptType() == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY || e.GetScriptType() == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE))
+                if (e.event.areatrigger.id && (e.GetScriptType() == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY || e.GetScriptType() == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM))
                 {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} areatrigger param not supported for SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY and SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} areatrigger param not supported for SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY and SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                     return false;
                 }
                 if (e.event.areatrigger.id && !IsAreaTriggerValid(e, e.event.areatrigger.id))
@@ -1879,7 +1879,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_WP_START:
         {
             WaypointPath const* path = sWaypointMgr->GetPath(e.action.wpStart.pathID);
-            if (!path || path->nodes.empty())
+            if (!path || path->Nodes.empty())
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Creature {} Event {} Action {} uses non-existent WaypointPath id {}, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpStart.pathID);
                 return false;

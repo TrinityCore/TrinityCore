@@ -49,7 +49,7 @@ enum CorpseFlags
     CORPSE_FLAG_FFA_PVP     = 0x40
 };
 
-class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
+class TC_GAME_API Corpse final : public WorldObject, public GridObject<Corpse>
 {
     public:
         explicit Corpse(CorpseType type = CORPSE_BONES);

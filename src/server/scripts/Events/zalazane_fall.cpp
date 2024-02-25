@@ -234,8 +234,6 @@ struct npc_tiger_matriarch : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

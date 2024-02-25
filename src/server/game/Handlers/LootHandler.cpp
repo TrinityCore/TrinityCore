@@ -33,8 +33,10 @@
 #include "LootPackets.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "SpellMgr.h"
+#include "World.h"
 
 class AELootCreatureCheck
 {
@@ -231,9 +233,13 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
 
     GetPlayer()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Looting);
 
+    bool const aeLootEnabled = sWorld->getBoolConfig(CONFIG_ENABLE_AE_LOOT);
     std::vector<Creature*> corpses;
-    Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
-    Cell::VisitGridObjects(_player, searcher, AELootCreatureCheck::LootDistance);
+    if (aeLootEnabled)
+    {
+        Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
+        Cell::VisitGridObjects(_player, searcher, AELootCreatureCheck::LootDistance);
+    }
 
     if (!corpses.empty())
         SendPacket(WorldPackets::Loot::AELootTargets(uint32(corpses.size() + 1)).Write());
@@ -458,8 +464,10 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem
         }
 
         // now move item from loot to target inventory
-        Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomBonusListId, item.GetAllowedLooters(), item.context, &item.BonusListIDs);
-        aeResult.Add(newitem, item.count, loot->loot_type, loot->GetDungeonEncounterId());
+        if (Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomBonusListId, item.GetAllowedLooters(), item.context, &item.BonusListIDs))
+            aeResult.Add(newitem, item.count, loot->loot_type, loot->GetDungeonEncounterId());
+        else
+            target->ApplyItemLootedSpell(sObjectMgr->GetItemTemplate(item.itemid));
 
         // mark as looted
         item.count = 0;

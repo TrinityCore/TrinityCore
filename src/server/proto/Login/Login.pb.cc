@@ -37,6 +37,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* LoginForm_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   LoginForm_reflection_ = NULL;
+const ::google::protobuf::Descriptor* SrpLoginChallenge_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  SrpLoginChallenge_reflection_ = NULL;
 const ::google::protobuf::Descriptor* LoginResult_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   LoginResult_reflection_ = NULL;
@@ -93,9 +96,11 @@ void protobuf_AssignDesc_Login_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FormInput));
   FormInputs_descriptor_ = file->message_type(2);
-  static const int FormInputs_offsets_[2] = {
+  static const int FormInputs_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FormInputs, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FormInputs, inputs_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FormInputs, srp_url_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FormInputs, srp_js_),
   };
   FormInputs_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -142,13 +147,37 @@ void protobuf_AssignDesc_Login_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(LoginForm));
-  LoginResult_descriptor_ = file->message_type(5);
-  static const int LoginResult_offsets_[5] = {
+  SrpLoginChallenge_descriptor_ = file->message_type(5);
+  static const int SrpLoginChallenge_offsets_[9] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SrpLoginChallenge, version_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SrpLoginChallenge, iterations_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SrpLoginChallenge, modulus_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SrpLoginChallenge, generator_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SrpLoginChallenge, hash_function_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SrpLoginChallenge, username_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SrpLoginChallenge, salt_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SrpLoginChallenge, public_b_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SrpLoginChallenge, eligible_credential_upgrade_),
+  };
+  SrpLoginChallenge_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      SrpLoginChallenge_descriptor_,
+      SrpLoginChallenge::default_instance_,
+      SrpLoginChallenge_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SrpLoginChallenge, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SrpLoginChallenge, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(SrpLoginChallenge));
+  LoginResult_descriptor_ = file->message_type(6);
+  static const int LoginResult_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, authentication_state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, error_code_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, error_message_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, url_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, login_ticket_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, server_evidence_m2_),
   };
   LoginResult_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -161,7 +190,7 @@ void protobuf_AssignDesc_Login_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(LoginResult));
-  LoginRefreshResult_descriptor_ = file->message_type(6);
+  LoginRefreshResult_descriptor_ = file->message_type(7);
   static const int LoginRefreshResult_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginRefreshResult, login_ticket_expiry_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginRefreshResult, is_expired_),
@@ -177,7 +206,7 @@ void protobuf_AssignDesc_Login_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(LoginRefreshResult));
-  GameAccountInfo_descriptor_ = file->message_type(7);
+  GameAccountInfo_descriptor_ = file->message_type(8);
   static const int GameAccountInfo_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountInfo, display_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountInfo, expansion_),
@@ -197,7 +226,7 @@ void protobuf_AssignDesc_Login_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GameAccountInfo));
-  GameAccountList_descriptor_ = file->message_type(8);
+  GameAccountList_descriptor_ = file->message_type(9);
   static const int GameAccountList_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountList, game_accounts_),
   };
@@ -237,6 +266,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     LoginForm_descriptor_, &LoginForm::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    SrpLoginChallenge_descriptor_, &SrpLoginChallenge::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     LoginResult_descriptor_, &LoginResult::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     LoginRefreshResult_descriptor_, &LoginRefreshResult::default_instance());
@@ -259,6 +290,8 @@ void protobuf_ShutdownFile_Login_2eproto() {
   delete FormInputValue_reflection_;
   delete LoginForm::default_instance_;
   delete LoginForm_reflection_;
+  delete SrpLoginChallenge::default_instance_;
+  delete SrpLoginChallenge_reflection_;
   delete LoginResult::default_instance_;
   delete LoginResult_reflection_;
   delete LoginRefreshResult::default_instance_;
@@ -279,28 +312,35 @@ void protobuf_AddDesc_Login_2eproto() {
     "\n\013Login.proto\022\024Battlenet.JSON.Login\"\017\n\rE"
     "rrorResponse\"N\n\tFormInput\022\020\n\010input_id\030\001 "
     "\002(\t\022\014\n\004type\030\002 \002(\t\022\r\n\005label\030\003 \002(\t\022\022\n\nmax_"
-    "length\030\004 \001(\r\"k\n\nFormInputs\022,\n\004type\030\001 \002(\016"
-    "2\036.Battlenet.JSON.Login.FormType\022/\n\006inpu"
-    "ts\030\002 \003(\0132\037.Battlenet.JSON.Login.FormInpu"
-    "t\"1\n\016FormInputValue\022\020\n\010input_id\030\001 \002(\t\022\r\n"
-    "\005value\030\002 \002(\t\"{\n\tLoginForm\022\023\n\013platform_id"
-    "\030\001 \002(\t\022\022\n\nprogram_id\030\002 \002(\t\022\017\n\007version\030\003 "
-    "\002(\t\0224\n\006inputs\030\004 \003(\0132$.Battlenet.JSON.Log"
-    "in.FormInputValue\"\244\001\n\013LoginResult\022G\n\024aut"
-    "hentication_state\030\001 \002(\0162).Battlenet.JSON"
-    ".Login.AuthenticationState\022\022\n\nerror_code"
-    "\030\002 \001(\t\022\025\n\rerror_message\030\003 \001(\t\022\013\n\003url\030\004 \001"
-    "(\t\022\024\n\014login_ticket\030\005 \001(\t\"E\n\022LoginRefresh"
-    "Result\022\033\n\023login_ticket_expiry\030\001 \002(\004\022\022\n\ni"
-    "s_expired\030\002 \001(\010\"\232\001\n\017GameAccountInfo\022\024\n\014d"
-    "isplay_name\030\001 \002(\t\022\021\n\texpansion\030\002 \002(\r\022\024\n\014"
-    "is_suspended\030\003 \001(\010\022\021\n\tis_banned\030\004 \001(\010\022\032\n"
-    "\022suspension_expires\030\005 \001(\004\022\031\n\021suspension_"
-    "reason\030\006 \001(\t\"O\n\017GameAccountList\022<\n\rgame_"
-    "accounts\030\001 \003(\0132%.Battlenet.JSON.Login.Ga"
-    "meAccountInfo*\032\n\010FormType\022\016\n\nLOGIN_FORM\020"
-    "\001*H\n\023AuthenticationState\022\t\n\005LOGIN\020\001\022\t\n\005L"
-    "EGAL\020\002\022\021\n\rAUTHENTICATOR\020\003\022\010\n\004DONE\020\004B\002H\002", 999);
+    "length\030\004 \001(\r\"\214\001\n\nFormInputs\022,\n\004type\030\001 \002("
+    "\0162\036.Battlenet.JSON.Login.FormType\022/\n\006inp"
+    "uts\030\002 \003(\0132\037.Battlenet.JSON.Login.FormInp"
+    "ut\022\017\n\007srp_url\030\003 \001(\t\022\016\n\006srp_js\030\004 \001(\t\"1\n\016F"
+    "ormInputValue\022\020\n\010input_id\030\001 \002(\t\022\r\n\005value"
+    "\030\002 \002(\t\"{\n\tLoginForm\022\023\n\013platform_id\030\001 \002(\t"
+    "\022\022\n\nprogram_id\030\002 \002(\t\022\017\n\007version\030\003 \002(\t\0224\n"
+    "\006inputs\030\004 \003(\0132$.Battlenet.JSON.Login.For"
+    "mInputValue\"\312\001\n\021SrpLoginChallenge\022\017\n\007ver"
+    "sion\030\001 \002(\r\022\022\n\niterations\030\002 \002(\r\022\017\n\007modulu"
+    "s\030\003 \002(\t\022\021\n\tgenerator\030\004 \002(\t\022\025\n\rhash_funct"
+    "ion\030\005 \002(\t\022\020\n\010username\030\006 \002(\t\022\014\n\004salt\030\007 \002("
+    "\t\022\020\n\010public_B\030\010 \002(\t\022#\n\033eligible_credenti"
+    "al_upgrade\030\t \001(\010\"\300\001\n\013LoginResult\022G\n\024auth"
+    "entication_state\030\001 \002(\0162).Battlenet.JSON."
+    "Login.AuthenticationState\022\022\n\nerror_code\030"
+    "\002 \001(\t\022\025\n\rerror_message\030\003 \001(\t\022\013\n\003url\030\004 \001("
+    "\t\022\024\n\014login_ticket\030\005 \001(\t\022\032\n\022server_eviden"
+    "ce_M2\030\006 \001(\t\"E\n\022LoginRefreshResult\022\033\n\023log"
+    "in_ticket_expiry\030\001 \002(\004\022\022\n\nis_expired\030\002 \001"
+    "(\010\"\232\001\n\017GameAccountInfo\022\024\n\014display_name\030\001"
+    " \002(\t\022\021\n\texpansion\030\002 \002(\r\022\024\n\014is_suspended\030"
+    "\003 \001(\010\022\021\n\tis_banned\030\004 \001(\010\022\032\n\022suspension_e"
+    "xpires\030\005 \001(\004\022\031\n\021suspension_reason\030\006 \001(\t\""
+    "O\n\017GameAccountList\022<\n\rgame_accounts\030\001 \003("
+    "\0132%.Battlenet.JSON.Login.GameAccountInfo"
+    "*\032\n\010FormType\022\016\n\nLOGIN_FORM\020\001*H\n\023Authenti"
+    "cationState\022\t\n\005LOGIN\020\001\022\t\n\005LEGAL\020\002\022\021\n\rAUT"
+    "HENTICATOR\020\003\022\010\n\004DONE\020\004B\002H\002", 1266);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "Login.proto", &protobuf_RegisterTypes);
   ErrorResponse::default_instance_ = new ErrorResponse();
@@ -308,6 +348,7 @@ void protobuf_AddDesc_Login_2eproto() {
   FormInputs::default_instance_ = new FormInputs();
   FormInputValue::default_instance_ = new FormInputValue();
   LoginForm::default_instance_ = new LoginForm();
+  SrpLoginChallenge::default_instance_ = new SrpLoginChallenge();
   LoginResult::default_instance_ = new LoginResult();
   LoginRefreshResult::default_instance_ = new LoginRefreshResult();
   GameAccountInfo::default_instance_ = new GameAccountInfo();
@@ -317,6 +358,7 @@ void protobuf_AddDesc_Login_2eproto() {
   FormInputs::default_instance_->InitAsDefaultInstance();
   FormInputValue::default_instance_->InitAsDefaultInstance();
   LoginForm::default_instance_->InitAsDefaultInstance();
+  SrpLoginChallenge::default_instance_->InitAsDefaultInstance();
   LoginResult::default_instance_->InitAsDefaultInstance();
   LoginRefreshResult::default_instance_->InitAsDefaultInstance();
   GameAccountInfo::default_instance_->InitAsDefaultInstance();
@@ -522,6 +564,8 @@ void FormInput::Swap(FormInput* other) {
 #ifndef _MSC_VER
 const int FormInputs::kTypeFieldNumber;
 const int FormInputs::kInputsFieldNumber;
+const int FormInputs::kSrpUrlFieldNumber;
+const int FormInputs::kSrpJsFieldNumber;
 #endif  // !_MSC_VER
 
 FormInputs::FormInputs()
@@ -541,8 +585,11 @@ FormInputs::FormInputs(const FormInputs& from)
 }
 
 void FormInputs::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   type_ = 1;
+  srp_url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  srp_js_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -552,6 +599,12 @@ FormInputs::~FormInputs() {
 }
 
 void FormInputs::SharedDtor() {
+  if (srp_url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete srp_url_;
+  }
+  if (srp_js_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete srp_js_;
+  }
   if (this != default_instance_) {
   }
 }
@@ -761,11 +814,119 @@ void LoginForm::Swap(LoginForm* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int SrpLoginChallenge::kVersionFieldNumber;
+const int SrpLoginChallenge::kIterationsFieldNumber;
+const int SrpLoginChallenge::kModulusFieldNumber;
+const int SrpLoginChallenge::kGeneratorFieldNumber;
+const int SrpLoginChallenge::kHashFunctionFieldNumber;
+const int SrpLoginChallenge::kUsernameFieldNumber;
+const int SrpLoginChallenge::kSaltFieldNumber;
+const int SrpLoginChallenge::kPublicBFieldNumber;
+const int SrpLoginChallenge::kEligibleCredentialUpgradeFieldNumber;
+#endif  // !_MSC_VER
+
+SrpLoginChallenge::SrpLoginChallenge()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Battlenet.JSON.Login.SrpLoginChallenge)
+}
+
+void SrpLoginChallenge::InitAsDefaultInstance() {
+}
+
+SrpLoginChallenge::SrpLoginChallenge(const SrpLoginChallenge& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:Battlenet.JSON.Login.SrpLoginChallenge)
+}
+
+void SrpLoginChallenge::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  version_ = 0u;
+  iterations_ = 0u;
+  modulus_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  generator_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  hash_function_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  username_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  salt_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  public_b_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  eligible_credential_upgrade_ = false;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+SrpLoginChallenge::~SrpLoginChallenge() {
+  // @@protoc_insertion_point(destructor:Battlenet.JSON.Login.SrpLoginChallenge)
+  SharedDtor();
+}
+
+void SrpLoginChallenge::SharedDtor() {
+  if (modulus_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete modulus_;
+  }
+  if (generator_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete generator_;
+  }
+  if (hash_function_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete hash_function_;
+  }
+  if (username_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete username_;
+  }
+  if (salt_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete salt_;
+  }
+  if (public_b_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete public_b_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void SrpLoginChallenge::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SrpLoginChallenge::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return SrpLoginChallenge_descriptor_;
+}
+
+const SrpLoginChallenge& SrpLoginChallenge::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_Login_2eproto();
+  return *default_instance_;
+}
+
+SrpLoginChallenge* SrpLoginChallenge::default_instance_ = NULL;
+
+SrpLoginChallenge* SrpLoginChallenge::New() const {
+  return new SrpLoginChallenge;
+}
+
+void SrpLoginChallenge::Swap(SrpLoginChallenge* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata SrpLoginChallenge::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = SrpLoginChallenge_descriptor_;
+  metadata.reflection = SrpLoginChallenge_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
 const int LoginResult::kAuthenticationStateFieldNumber;
 const int LoginResult::kErrorCodeFieldNumber;
 const int LoginResult::kErrorMessageFieldNumber;
 const int LoginResult::kUrlFieldNumber;
 const int LoginResult::kLoginTicketFieldNumber;
+const int LoginResult::kServerEvidenceM2FieldNumber;
 #endif  // !_MSC_VER
 
 LoginResult::LoginResult()
@@ -792,6 +953,7 @@ void LoginResult::SharedCtor() {
   error_message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   login_ticket_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  server_evidence_m2_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -812,6 +974,9 @@ void LoginResult::SharedDtor() {
   }
   if (login_ticket_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete login_ticket_;
+  }
+  if (server_evidence_m2_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete server_evidence_m2_;
   }
   if (this != default_instance_) {
   }

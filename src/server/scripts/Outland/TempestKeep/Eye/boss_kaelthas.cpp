@@ -274,19 +274,19 @@ enum MovementPoints
     POINT_END_TRANSITION                 = 6
 };
 
-uint32 const SummonWeaponsSpells[] =
+constexpr uint32 SummonWeaponsSpells[] =
 {
     SPELL_SUMMON_WEAPONA, SPELL_SUMMON_WEAPONB, SPELL_SUMMON_WEAPONC, SPELL_SUMMON_WEAPOND,
     SPELL_SUMMON_WEAPONE, SPELL_SUMMON_WEAPONF, SPELL_SUMMON_WEAPONG
 };
 
-uint32 const RemoveWeaponsSpells[] =
+constexpr uint32 RemoveWeaponsSpells[] =
 {
     SPELL_REMOVE_WEAPONA, SPELL_REMOVE_WEAPONB, SPELL_REMOVE_WEAPONC, SPELL_REMOVE_WEAPOND,
     SPELL_REMOVE_WEAPONE, SPELL_REMOVE_WEAPONF, SPELL_REMOVE_WEAPONG
 };
 
-uint32 GravityLapseSpells[] =
+constexpr uint32 GravityLapseSpells[] =
 {
     SPELL_GRAVITY_LAPSE_TELE_FRONT,
     SPELL_GRAVITY_LAPSE_TELE_FRONT_RIGHT,
@@ -315,12 +315,10 @@ uint32 GravityLapseSpells[] =
     SPELL_GRAVITY_LAPSE_TELE_CASTER_BACK_RIGHT3
 };
 
-const float CAPERNIAN_DISTANCE          = 20.0f;            //she casts away from the target
-//const float KAEL_VISIBLE_RANGE          = 50.0f;
+constexpr float CAPERNIAN_DISTANCE          = 20.0f;            //she casts away from the target
+//constexpr float KAEL_VISIBLE_RANGE          = 50.0f;
 
-Position const afGravityPos = {795.0f, 0.0f, 70.0f};
-
-Position const TransitionPos[6] =
+constexpr Position TransitionPos[6] =
 {
     // First two values are not static, they seem to differ on each sniff.
     { 794.0522f, -0.96732f, 48.97848f, 0.0f },
@@ -745,9 +743,6 @@ struct boss_kaelthas : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING) && !me->FindCurrentSpellBySpellId(SPELL_KAEL_GAINING_POWER) && !me->FindCurrentSpellBySpellId(SPELL_KAEL_STUNNED))
                 return;
         }
-
-        if (events.IsInPhase(PHASE_COMBAT))
-            DoMeleeAttackIfReady();
     }
 private:
     uint8 _advisorCounter;
@@ -966,8 +961,6 @@ struct boss_thaladred_the_darkener : public advisorbase_ai
         }
         else
             PsychicBlow_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -1019,8 +1012,6 @@ struct boss_lord_sanguinar : public advisorbase_ai
         }
         else
             Fear_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -1202,8 +1193,6 @@ struct boss_master_engineer_telonicus : public advisorbase_ai
         }
         else
             RemoteToy_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -1265,8 +1254,6 @@ struct npc_phoenix_tk : public ScriptedAI
         }
         else
             Cycle_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 

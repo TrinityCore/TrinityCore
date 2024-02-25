@@ -30,8 +30,12 @@ void WorldSession::HandleMoveDismissVehicle(WorldPackets::Vehicle::MoveDismissVe
     if (vehicleGUID.IsEmpty())
         return;
 
-    _player->ValidateMovementInfo(&moveDismissVehicle.Status);
-    _player->m_movementInfo = moveDismissVehicle.Status;
+    if (moveDismissVehicle.Status.guid != vehicleGUID)
+    {
+        TC_LOG_ERROR("network", "Player {} tried to dismiss a controlled vehicle ({}) that he has no control over. Possible cheater or malformed packet.",
+            GetPlayer()->GetGUID().ToString().c_str(), vehicleGUID.ToString().c_str());
+        return;
+    }
 
     _player->ExitVehicle();
 }

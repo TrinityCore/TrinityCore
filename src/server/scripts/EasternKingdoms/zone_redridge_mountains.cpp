@@ -73,7 +73,6 @@ public:
         void UpdateAI(uint32 diff) override
         {
             _scheduler.Update(diff);
-            DoMeleeAttackIfReady();
         }
 
     private:
@@ -103,11 +102,6 @@ public:
         {
             if ((!who || who->GetTypeId() == TYPEID_UNIT) && me->HealthBelowPctDamaged(82, damage))
                 damage = 0;
-        }
-
-        void UpdateAI(uint32 /*diff*/) override
-        {
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -244,7 +238,6 @@ public:
                     }
                 }
             }
-            DoMeleeAttackIfReady();
         }
 
     private:
@@ -358,7 +351,6 @@ public:
                     }
                 }
             }
-            DoMeleeAttackIfReady();
         }
     private:
         EventMap _events;

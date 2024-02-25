@@ -56,13 +56,13 @@ class TC_GAME_API PhaseShift
 public:
     struct PhaseRef
     {
-        PhaseRef(uint32 id, PhaseFlags flags, std::vector<Condition*> const* conditions)
+        PhaseRef(uint32 id, PhaseFlags flags, std::vector<Condition> const* conditions)
             : Id(id), Flags(flags), References(0), AreaConditions(conditions) { }
 
         uint16 Id;
         EnumFlag<PhaseFlags> Flags;
         int32 References;
-        std::vector<Condition*> const* AreaConditions;
+        std::vector<Condition> const* AreaConditions;
         std::strong_ordering operator<=>(PhaseRef const& right) const { return Id <=> right.Id; }
         bool operator==(PhaseRef const& right) const { return Id == right.Id; }
         bool IsPersonal() const { return Flags.HasFlag(PhaseFlags::Personal); }
@@ -95,7 +95,7 @@ public:
 
     ObjectGuid GetPersonalGuid() const { return PersonalGuid; }
 
-    bool AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references = 1);
+    bool AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition> const* areaConditions, int32 references = 1);
     EraseResult<PhaseContainer> RemovePhase(uint32 phaseId);
     bool HasPhase(uint32 phaseId) const { return Phases.find(PhaseRef(phaseId, PhaseFlags::None, nullptr)) != Phases.end(); }
     PhaseContainer const& GetPhases() const { return Phases; }

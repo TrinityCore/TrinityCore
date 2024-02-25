@@ -1466,28 +1466,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             WorldObject* target = nullptr;
 
-            /*if (e.GetTargetType() == SMART_TARGET_CREATURE_RANGE || e.GetTargetType() == SMART_TARGET_CREATURE_GUID ||
-                e.GetTargetType() == SMART_TARGET_CREATURE_DISTANCE || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_RANGE ||
-                e.GetTargetType() == SMART_TARGET_GAMEOBJECT_GUID || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_DISTANCE ||
-                e.GetTargetType() == SMART_TARGET_CLOSEST_CREATURE || e.GetTargetType() == SMART_TARGET_CLOSEST_GAMEOBJECT ||
-                e.GetTargetType() == SMART_TARGET_OWNER_OR_SUMMONER || e.GetTargetType() == SMART_TARGET_ACTION_INVOKER ||
-                e.GetTargetType() == SMART_TARGET_CLOSEST_ENEMY || e.GetTargetType() == SMART_TARGET_CLOSEST_FRIENDLY)*/
-            {
-                // we want to move to random element
-                if (!targets.empty())
-                    target = Trinity::Containers::SelectRandomContainerElement(targets);
-            }
+            // we want to move to random element
+            if (!targets.empty())
+                target = Trinity::Containers::SelectRandomContainerElement(targets);
 
-            if (!target)
-            {
-                Position dest(e.target.x, e.target.y, e.target.z);
-                if (e.action.moveToPos.transport)
-                    if (TransportBase* trans = me->GetDirectTransport())
-                        trans->CalculatePassengerPosition(dest.m_positionX, dest.m_positionY, dest.m_positionZ);
-
-                me->GetMotionMaster()->MovePoint(e.action.moveToPos.pointId, dest, e.action.moveToPos.disablePathfinding == 0);
-            }
-            else
+            if (target)
             {
                 float x, y, z;
                 target->GetPosition(x, y, z);
@@ -1495,6 +1478,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     target->GetContactPoint(me, x, y, z, e.action.moveToPos.ContactDistance);
                 me->GetMotionMaster()->MovePoint(e.action.moveToPos.pointId, x + e.target.x, y + e.target.y, z + e.target.z, e.action.moveToPos.disablePathfinding == 0);
             }
+
+            if (e.GetTargetType() != SMART_TARGET_POSITION)
+                break;
+
+            Position dest(e.target.x, e.target.y, e.target.z);
+            if (e.action.moveToPos.transport)
+                if (TransportBase* trans = me->GetDirectTransport())
+                    trans->CalculatePassengerPosition(dest.m_positionX, dest.m_positionY, dest.m_positionZ);
+
+            me->GetMotionMaster()->MovePoint(e.action.moveToPos.pointId, dest, e.action.moveToPos.disablePathfinding == 0);
             break;
         }
         case SMART_ACTION_ENABLE_TEMP_GOBJ:
@@ -1616,7 +1609,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Creature* creature = target->ToCreature())
                     if (IsSmart(creature) && creature->GetVictim())
                         if (ENSURE_AI(SmartAI, creature->AI())->CanCombatMove())
-                            creature->GetMotionMaster()->MoveChase(creature->GetVictim(), attackDistance, attackAngle);
+                            creature->StartDefaultCombatMovement(creature->GetVictim(), attackDistance, attackAngle);
             }
 
             break;
@@ -1866,6 +1859,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     target->GetContactPoint(me, x, y, z, e.action.jump.ContactDistance);
                 pos = Position(x + e.target.x, y + e.target.y, z + e.target.z);
             }
+            else if (e.GetTargetType() != SMART_TARGET_POSITION)
+                break;
 
             if (e.action.jump.Gravity || e.action.jump.UseDefaultGravity)
             {
@@ -2066,17 +2061,17 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         for (uint32 pathId : waypoints)
                         {
                             WaypointPath const* path = sWaypointMgr->GetPath(pathId);
-                            if (!path || path->nodes.empty())
+                            if (!path || path->Nodes.empty())
                                 continue;
 
-                            for (WaypointNode const& waypoint : path->nodes)
+                            for (WaypointNode const& waypoint : path->Nodes)
                             {
-                                float distamceToThisNode = creature->GetDistance(waypoint.x, waypoint.y, waypoint.z);
-                                if (distamceToThisNode < distanceToClosest)
+                                float distanceToThisNode = creature->GetDistance(waypoint.X, waypoint.Y, waypoint.Z);
+                                if (distanceToThisNode < distanceToClosest)
                                 {
-                                    distanceToClosest = distamceToThisNode;
+                                    distanceToClosest = distanceToThisNode;
                                     closest.first = pathId;
-                                    closest.second = waypoint.id;
+                                    closest.second = waypoint.Id;
                                 }
                             }
                         }
@@ -3794,7 +3789,7 @@ void SmartScript::OnUpdate(uint32 const diff)
     if ((mScriptType == SMART_SCRIPT_TYPE_CREATURE
         || mScriptType == SMART_SCRIPT_TYPE_GAMEOBJECT
         || mScriptType == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY
-        || mScriptType == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE)
+        || mScriptType == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM)
         && !GetBaseObject())
         return;
 
@@ -3975,7 +3970,7 @@ void SmartScript::GetScript()
             FillScript(std::move(e), go, nullptr, nullptr, nullptr, 0);
             break;
         case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY:
-        case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE:
+        case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM:
             e = sSmartScriptMgr->GetScript((int32)areaTrigger->GetEntry(), mScriptType);
             FillScript(std::move(e), areaTrigger, nullptr, nullptr, nullptr, 0);
             break;
@@ -4086,8 +4081,8 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, Sce
                 break;
             case TYPEID_AREATRIGGER:
                 areaTrigger = obj->ToAreaTrigger();
-                mScriptType = areaTrigger->IsServerSide() ? SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE : SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY;
-                TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is AreaTrigger {}, IsServerSide {}", areaTrigger->GetEntry(), uint32(areaTrigger->IsServerSide()));
+                mScriptType = areaTrigger->IsCustom() ? SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_CUSTOM : SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY;
+                TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is AreaTrigger {}, IsCustom {}", areaTrigger->GetEntry(), uint32(areaTrigger->IsCustom()));
                 break;
             default:
                 TC_LOG_ERROR("misc", "SmartScript::OnInitialize: Unhandled TypeID !WARNING!");

@@ -568,8 +568,6 @@ struct boss_nefarian : public BossAI
             Phase3 = true;
             Talk(SAY_RAISE_SKELETONS);
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

@@ -77,7 +77,7 @@ public:
         return _connections;
     }
 
-    virtual void AddSocket(std::shared_ptr<SocketType> sock)
+    void AddSocket(std::shared_ptr<SocketType> sock)
     {
         std::lock_guard<std::mutex> lock(_newSocketsLock);
 

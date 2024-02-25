@@ -244,8 +244,6 @@ class boss_kelidan_the_breaker : public CreatureScript
                 }
                 else
                     BurningNova_Timer -=diff;
-
-                DoMeleeAttackIfReady();
             }
         };
 
@@ -356,8 +354,6 @@ class npc_shadowmoon_channeler : public CreatureScript
                 }
                 else
                     ShadowBolt_Timer -=diff;
-
-                DoMeleeAttackIfReady();
             }
         };
 

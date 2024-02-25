@@ -434,9 +434,7 @@ struct boss_garothi_worldbreaker : public BossAI
                 return;
         }
 
-        if (me->GetVictim() && me->GetVictim()->IsWithinMeleeRange(me))
-            DoMeleeAttackIfReady();
-        else
+        if (!me->GetVictim() || !me->GetVictim()->IsWithinMeleeRange(me))
             DoSpellAttackIfReady(SPELL_CARNAGE);
     }
  private:

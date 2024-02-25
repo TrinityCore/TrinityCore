@@ -111,8 +111,6 @@ struct boss_ioc_horde_alliance : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

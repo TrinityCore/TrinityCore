@@ -16,17 +16,16 @@
  */
 
 #include "WorldserverServiceDispatcher.h"
-#include "WorldserverService.h"
 
 Battlenet::WorldserverServiceDispatcher::WorldserverServiceDispatcher()
 {
     AddService<WorldserverService<account::v1::AccountService>>();
     AddService<WorldserverService<authentication::v1::AuthenticationService>>();
-    AddService<WorldserverService<club::v1::membership::ClubMembershipService>>();
-    AddService<WorldserverService<club::v1::ClubService>>();
+    AddService<Services::ClubMembershipService>();
+    AddService<Services::ClubService>();
     AddService<WorldserverService<connection::v1::ConnectionService>>();
     AddService<WorldserverService<friends::v1::FriendsService>>();
-    AddService<GameUtilitiesService>();
+    AddService<Services::GameUtilitiesService>();
     AddService<WorldserverService<presence::v1::PresenceService>>();
     AddService<WorldserverService<report::v1::ReportService>>();
     AddService<WorldserverService<report::v2::ReportService>>();

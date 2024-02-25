@@ -318,7 +318,7 @@ void WorldSession::HandleCalendarInvite(WorldPackets::Calendar::CalendarInvite& 
     if (!normalizePlayerName(calendarEventInvite.Name))
         return;
 
-    auto createInvite = [this, playerGuid, inviteeName, eventId, isSignUp](ObjectGuid const& inviteeGuid, uint32 inviteeTeam, ObjectGuid::LowType inviteeGuildId, bool inviteeIsIngoring)
+    auto createInvite = [this, playerGuid, inviteeName, eventId, isSignUp](ObjectGuid const& inviteeGuid, Team inviteeTeam, ObjectGuid::LowType inviteeGuildId, bool inviteeIsIngoring)
     {
         if (!_player || _player->GetGUID() != playerGuid)
             return;

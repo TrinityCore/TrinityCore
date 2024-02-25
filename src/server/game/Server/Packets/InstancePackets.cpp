@@ -140,6 +140,35 @@ WorldPacket const* WorldPackets::Instance::InstanceEncounterChangePriority::Writ
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Instance::InstanceEncounterTimerStart::Write()
+{
+    _worldPacket << int32(TimeRemaining);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterObjectiveStart::Write()
+{
+    _worldPacket << int32(ObjectiveID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterObjectiveUpdate::Write()
+{
+    _worldPacket << int32(ObjectiveID);
+    _worldPacket << int32(ProgressAmount);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterObjectiveComplete::Write()
+{
+    _worldPacket << int32(ObjectiveID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Instance::InstanceEncounterStart::Write()
 {
     _worldPacket << uint32(InCombatResCount);

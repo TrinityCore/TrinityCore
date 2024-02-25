@@ -102,7 +102,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const&
 {
     data << uint32(waitInfo.WaitCount);
     data << uint32(waitInfo.WaitTime);
+    data << uint32(waitInfo.AllowedFactionGroupForCharacterCreate);
     data.WriteBit(waitInfo.HasFCM);
+    data.WriteBit(waitInfo.CanCreateOnlyIfExisting);
     data.FlushBits();
 
     return data;

@@ -179,7 +179,7 @@ struct TC_GAME_API LootItem
     ItemRandomBonusListId randomBonusListId;
     std::vector<int32> BonusListIDs;
     ItemContext context;
-    ConditionContainer conditions;                          // additional loot condition
+    ConditionsReference conditions;                         // additional loot condition
     GuidSet allowedGUIDs;
     ObjectGuid rollWinnerGUID;                              // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
     uint8   count             : 8;
@@ -208,7 +208,7 @@ struct TC_GAME_API LootItem
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot - used only for loot generation
     bool AllowedForPlayer(Player const* player, Loot const* loot) const;
     static bool AllowedForPlayer(Player const* player, Loot const* loot, uint32 itemid, bool needs_quest, bool follow_loot_rules, bool strictUsabilityCheck,
-        ConditionContainer const& conditions);
+        ConditionsReference const& conditions);
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
     bool HasAllowedLooter(ObjectGuid const& looter) const;

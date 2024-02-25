@@ -139,32 +139,6 @@ void BattlegroundAB::StartingEventOpenDoors()
     TriggerGameEvent(AB_EVENT_START_BATTLE);
 }
 
-void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
-{
-    switch (trigger)
-    {
-        case 6635: // Horde Start
-        case 6634: // Alliance Start
-            if (GetStatus() == STATUS_WAIT_JOIN && !entered)
-                TeleportPlayerToExploitLocation(player);
-            break;
-        case 3948:                                          // Arathi Basin Alliance Exit.
-        case 3949:                                          // Arathi Basin Horde Exit.
-        case 3866:                                          // Stables
-        case 3869:                                          // Gold Mine
-        case 3867:                                          // Farm
-        case 3868:                                          // Lumber Mill
-        case 3870:                                          // Black Smith
-        case 4020:                                          // Unk1
-        case 4021:                                          // Unk2
-        case 4674:                                          // Unk3
-            //break;
-        default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
-            break;
-    }
-}
-
 void BattlegroundAB::_CalculateTeamNodes(uint8& alliance, uint8& horde)
 {
     alliance = 0;
@@ -193,7 +167,7 @@ void BattlegroundAB::_CalculateTeamNodes(uint8& alliance, uint8& horde)
     }
 }
 
-uint32 BattlegroundAB::GetPrematureWinner()
+Team BattlegroundAB::GetPrematureWinner()
 {
     // How many bases each team owns
     uint8 ally = 0, horde = 0;
@@ -481,7 +455,7 @@ void BattlegroundAB::Reset()
     _capturePoints.clear();
 }
 
-void BattlegroundAB::EndBattleground(uint32 winner)
+void BattlegroundAB::EndBattleground(Team winner)
 {
     // Win reward
     if (winner == ALLIANCE)
