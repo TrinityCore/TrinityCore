@@ -2062,7 +2062,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
     if (!cashFlow)
     {
         player->ModifyMoney(-int64(amount));
-        player->SaveGoldToDB(trans);
+        player->SaveInventoryAndGoldToDB(trans);
     }
 
     _LogBankEvent(trans, cashFlow ? GUILD_BANK_LOG_CASH_FLOW_DEPOSIT : GUILD_BANK_LOG_DEPOSIT_MONEY, uint8(0), player->GetGUID().GetCounter(), amount);
@@ -2108,7 +2108,7 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool
         if (!player->ModifyMoney(amount))
             return false;
 
-        player->SaveGoldToDB(trans);
+        player->SaveInventoryAndGoldToDB(trans);
     }
 
     // Update remaining money amount

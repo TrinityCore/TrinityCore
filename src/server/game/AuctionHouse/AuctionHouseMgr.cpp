@@ -1684,7 +1684,7 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
     }
 
     player->ModifyMoney(-int64(totalPrice));
-    player->SaveGoldToDB(trans);
+    player->SaveInventoryAndGoldToDB(trans);
 
     for (MailedItemsBatch const& batch : items)
     {
