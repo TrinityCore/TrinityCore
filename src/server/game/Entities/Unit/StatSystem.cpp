@@ -825,6 +825,20 @@ void Player::UpdateManaRegen()
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, manaIndex), base_regen);
 }
 
+void Player::UpdateEnergyRegen()
+{
+    uint32 energyIndex = GetPowerIndex(POWER_ENERGY);
+    if (energyIndex == MAX_POWERS)
+        return;
+
+    float regenPerSecond = 10.f;   // +10 energy per second
+    regenPerSecond *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_ENERGY);
+    regenPerSecond += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_ENERGY) / static_cast<float>(5 * IN_MILLISECONDS);
+
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, energyIndex), regenPerSecond - 10.f);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, energyIndex), regenPerSecond - 10.f);
+}
+
 void Player::UpdateAllRunesRegen()
 {
     if (GetClass() != CLASS_DEATH_KNIGHT)

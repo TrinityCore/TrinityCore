@@ -1702,12 +1702,12 @@ void Player::Regenerate(Powers power)
     if (RatesForPower[power] != MAX_RATES)
         addvalue *= sWorld->getRate(RatesForPower[power]);
 
-    // Mana regen calculated in Player::UpdateManaRegen()
-    if (power != POWER_MANA)
+    // Mana regen calculated in Player::UpdateManaRegen(), energy regen calculated in Player::UpdateEnergyRegen()
+    if (power != POWER_MANA && power != POWER_ENERGY)
     {
         addvalue *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, power);
 
-        addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * ((power != POWER_ENERGY) ? m_regenTimerCount : m_regenTimer) / (5 * IN_MILLISECONDS);
+        addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * static_cast<float>(m_regenTimer) / static_cast<float>(5 * IN_MILLISECONDS);
     }
 
     int32 minPower = powerType->MinPower;
