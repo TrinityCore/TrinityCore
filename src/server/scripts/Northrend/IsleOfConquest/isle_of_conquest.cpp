@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "BattlegroundIC.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -27,6 +28,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "WorldStateMgr.h"
 
 // TO-DO: This should be done with SmartAI, but yet it does not correctly support vehicles's AIs.
 //        Even adding ReactState Passive we still have issues using SmartAI.
@@ -81,13 +83,10 @@ struct npc_ioc_gunship_captain : public ScriptedAI
 {
     npc_ioc_gunship_captain(Creature* creature) : ScriptedAI(creature) { }
 
-    void DoAction(int32 action) override
+    void JustAppeared() override
     {
-        if (action == ACTION_GUNSHIP_READY)
-        {
-            DoCast(me, SPELL_SIMPLE_TELEPORT);
-            _events.ScheduleEvent(EVENT_TALK, 3s);
-        }
+        DoCast(me, SPELL_SIMPLE_TELEPORT);
+        _events.ScheduleEvent(EVENT_TALK, 3s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -103,9 +102,7 @@ struct npc_ioc_gunship_captain : public ScriptedAI
                     DoCast(me, SPELL_TELEPORT_VISUAL_ONLY);
                     break;
                 case EVENT_DESPAWN:
-                    if (BattlegroundMap* iocMap = me->GetMap()->ToBattlegroundMap())
-                        if (Battleground* bgIoC = iocMap->GetBG())
-                            bgIoC->DelCreature(BG_IC_NPC_GUNSHIP_CAPTAIN_1);
+                    me->DespawnOrUnsummon();
                     break;
                 default:
                     break;
@@ -115,6 +112,89 @@ struct npc_ioc_gunship_captain : public ScriptedAI
 
 private:
     EventMap _events;
+};
+
+struct npc_ioc_siege_engine : public ScriptedAI
+{
+    npc_ioc_siege_engine(Creature* creature) : ScriptedAI(creature) { }
+
+    static constexpr uint32 SPELL_DAMAGED = 67323;
+    static constexpr uint32 VEHICLE_REC_ID = 514;
+    static constexpr int32 ACTION_REPAIRED = 1;
+
+    void JustAppeared() override
+    {
+        me->RemoveVehicleKit(false);
+        DoCastSelf(SPELL_DAMAGED);
+    }
+
+    void DoAction(int32 actionId) override
+    {
+        // there should be some moving involved first
+        if (actionId == ACTION_REPAIRED)
+        {
+            me->CreateVehicleKit(VEHICLE_REC_ID, me->GetEntry(), false);
+            me->GetVehicleKit()->InstallAllAccessories(false);
+        }
+    }
+};
+
+struct go_ioc_capturable_object : public GameObjectAI
+{
+    go_ioc_capturable_object(GameObject* go) : GameObjectAI(go) { }
+
+    bool OnGossipHello(Player* player) override
+    {
+        if (me->GetGoState() != GO_STATE_READY || me->HasFlag(GO_FLAG_NOT_SELECTABLE))
+            return true;
+
+        if (ZoneScript* zonescript = me->GetZoneScript())
+        {
+            zonescript->DoAction(ACTION_IOC_INTERACT_CAPTURABLE_OBJECT, player, me);
+            return false;
+        }
+
+        return true;
+    }
+};
+
+struct go_ioc_contested_object : public go_ioc_capturable_object
+{
+    go_ioc_contested_object(GameObject* go) : go_ioc_capturable_object(go) { }
+
+    void Reset() override
+    {
+        go_ioc_capturable_object::Reset();
+        _scheduler.Schedule(1min, [&](TaskContext)
+        {
+            if (ZoneScript* zonescript = me->GetZoneScript())
+                zonescript->DoAction(ACTION_IOC_CAPTURE_CAPTURABLE_OBJECT, me, me);
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 67323 - Damaged
+class spell_ioc_damaged : public AuraScript
+{
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (Creature const* creatureTarget = GetTarget()->ToCreature())
+            if (UnitAI* ai = creatureTarget->GetAI())
+                ai->DoAction(npc_ioc_siege_engine::ACTION_REPAIRED);
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_ioc_damaged::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 66630 - Alliance Gunship Portal
@@ -246,12 +326,67 @@ class spell_ioc_seaforium_blast_credit : public SpellScript
     }
 };
 
+class at_ioc_exploit : public AreaTriggerScript
+{
+public:
+    at_ioc_exploit() : AreaTriggerScript("at_ioc_exploit") { }
+
+    bool OnExit(Player* player, AreaTriggerEntry const* /*trigger*/) override
+    {
+        if (Battleground* battleground = player->GetBattleground())
+            if (battleground->GetStatus() == STATUS_WAIT_JOIN)
+                battleground->TeleportPlayerToExploitLocation(player);
+
+        return true;
+    }
+};
+
+class at_ioc_backdoor_job : public AreaTriggerScript
+{
+public:
+    static constexpr uint32 AT_HORDE_KEEP = 5535;
+    static constexpr uint32 AT_ALLIANCE_KEEP = 5536;
+
+    at_ioc_backdoor_job() : AreaTriggerScript("at_ioc_backdoor_job") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+    {
+        /// @hack: this spell should be cast by npc 22515 (World Trigger) and not by the player
+        if (player->GetBGTeam() == HORDE && trigger->ID == AT_ALLIANCE_KEEP)
+        {
+            bool keepClosed = sWorldStateMgr->GetValue(BG_IC_GATE_EAST_A_WS_CLOSED, player->GetMap()) == 1
+                && sWorldStateMgr->GetValue(BG_IC_GATE_WEST_A_WS_CLOSED, player->GetMap()) == 1
+                && sWorldStateMgr->GetValue(BG_IC_GATE_FRONT_A_WS_CLOSED, player->GetMap()) == 1;
+
+            if (keepClosed)
+                player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
+        }
+        else if (player->GetBGTeam() == ALLIANCE && trigger->ID == AT_HORDE_KEEP)
+        {
+            bool keepClosed = sWorldStateMgr->GetValue(BG_IC_GATE_EAST_H_WS_CLOSED, player->GetMap()) == 1
+                && sWorldStateMgr->GetValue(BG_IC_GATE_WEST_H_WS_CLOSED, player->GetMap()) == 1
+                && sWorldStateMgr->GetValue(BG_IC_GATE_FRONT_H_WS_CLOSED, player->GetMap()) == 1;
+
+            if (keepClosed)
+                player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
+        }
+
+        return true;
+    }
+};
+
 void AddSC_isle_of_conquest()
 {
     RegisterCreatureAI(npc_four_car_garage);
     RegisterCreatureAI(npc_ioc_gunship_captain);
+    RegisterCreatureAI(npc_ioc_siege_engine);
+    RegisterGameObjectAI(go_ioc_capturable_object);
+    RegisterGameObjectAI(go_ioc_contested_object);
+    RegisterSpellScript(spell_ioc_damaged);
     RegisterSpellScript(spell_ioc_gunship_portal);
     RegisterSpellScript(spell_ioc_parachute_ic);
     RegisterSpellScript(spell_ioc_launch);
     RegisterSpellScript(spell_ioc_seaforium_blast_credit);
+    new at_ioc_exploit();
+    new at_ioc_backdoor_job();
 }
