@@ -186,8 +186,8 @@ class spell_ioc_damaged : public AuraScript
 {
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        if (Creature const* creatureOwner = GetOwner()->ToCreature())
-            if (UnitAI* ai = creatureOwner->GetAI())
+        if (Creature const* creatureTarget = GetTarget()->ToCreature())
+            if (UnitAI* ai = creatureTarget->GetAI())
                 ai->DoAction(npc_ioc_siege_engine::ACTION_REPAIRED);
     }
 

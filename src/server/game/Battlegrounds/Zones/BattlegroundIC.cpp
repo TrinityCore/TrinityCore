@@ -110,7 +110,7 @@ enum IsleOfConquestGameObjects
 
 static constexpr Seconds IOC_RESOURCE_TIMER = 45s;
 
-Position const IOC_GUNSHIP_TELEPORT_TRIGGER_POS[2] =
+Position const GunshipTeleportTriggerPosition[2] =
 {
     { 11.69964981079101562f, 0.034145999699831008f, 20.62075996398925781f, 3.211405754089355468f },
     { 7.30560922622680664f, -0.09524600207805633f, 34.51021575927734375f, 3.159045934677124023f }
@@ -247,32 +247,23 @@ void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
 
 uint32 BattlegroundIC::GetGateIDFromEntry(uint32 id)
 {
-    uint32 i = 0;
     switch (id)
     {
         case GO_HORDE_GATE_1:
-            i = BG_IC_H_FRONT;
-            break;
+            return BG_IC_H_FRONT;
         case GO_HORDE_GATE_2:
-            i = BG_IC_H_WEST;
-            break;
+            return BG_IC_H_WEST;
         case GO_HORDE_GATE_3:
-            i = BG_IC_H_EAST;
-            break;
+            return BG_IC_H_EAST;
         case GO_ALLIANCE_GATE_3:
-            i = BG_IC_A_FRONT;
-            break;
+            return BG_IC_A_FRONT;
         case GO_ALLIANCE_GATE_1:
-            i = BG_IC_A_WEST;
-            break;
+            return BG_IC_A_WEST;
         case GO_ALLIANCE_GATE_2:
-            i = BG_IC_A_EAST;
-            break;
+            return BG_IC_A_EAST;
         default:
-            break;
+            return 0;
     }
-
-    return i;
 }
 
 int32 BattlegroundIC::GetWorldStateFromGateEntry(uint32 id, bool open)
@@ -380,8 +371,8 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint& node)
             if (Transport* transport = GetBgMap()->GetTransport(_gunshipGUIDs[node.GetLastControlledTeam()]))
             {
                 // Can't have this in spawngroup, creature is on a transport
-                if (TempSummon* trigger = transport->SummonCreature(NPC_WORLD_TRIGGER_NOT_FLOATING, IOC_GUNSHIP_TELEPORT_TRIGGER_POS[node.GetLastControlledTeam()]))
-                    _gunshipTeleporTarget = trigger->GetGUID();
+                if (TempSummon* trigger = transport->SummonPassenger(NPC_WORLD_TRIGGER_NOT_FLOATING, GunshipTeleportTriggerPosition[node.GetLastControlledTeam()], TEMPSUMMON_MANUAL_DESPAWN))
+                    _gunshipTeleportTarget = trigger->GetGUID();
 
                 transport->EnableMovement(true);
             }
@@ -590,7 +581,7 @@ void BattlegroundIC::OnPlayerAssaultNode(Player* player, ICNodePoint& node)
             }
 
             // Despawn teleport trigger target
-            if (Creature* creature = FindBgMap()->GetCreature(_gunshipTeleporTarget))
+            if (Creature* creature = FindBgMap()->GetCreature(_gunshipTeleportTarget))
                 creature->DespawnOrUnsummon();
             break;
         default:

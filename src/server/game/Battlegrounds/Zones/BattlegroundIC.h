@@ -357,21 +357,20 @@ class BattlegroundIC : public Battleground
         std::array<GuidVector, PVP_TEAMS_COUNT> _cannonGUIDs;
         std::array<GuidVector, PVP_TEAMS_COUNT> _keepGateGUIDs;
         std::array<ObjectGuid, PVP_TEAMS_COUNT> _keepBannerGUIDs;
-        ObjectGuid _gunshipTeleporTarget;
+        ObjectGuid _gunshipTeleportTarget;
 
         TaskScheduler _scheduler;
         TimeTracker _resourceTimer;
 
-        uint32 GetGateIDFromEntry(uint32 id);
-
-        int32 GetWorldStateFromGateEntry(uint32 id, bool open);
+        static uint32 GetGateIDFromEntry(uint32 id);
+        static int32 GetWorldStateFromGateEntry(uint32 id, bool open);
 
         void UpdateNodeWorldState(ICNodePoint const& node);
         void HandleCapturedNodes(ICNodePoint& node);
         void HandleCaptureNodeAction(GameObject* banner);
         void OnGateDestroyed(GameObject* gate, WorldObject* destroyer);
 
-        static inline ICNodePointType BannerToNodeType(uint32 bannerId);
+        static ICNodePointType BannerToNodeType(uint32 bannerId);
 };
 
 #endif
