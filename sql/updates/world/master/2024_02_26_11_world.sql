@@ -1,7 +1,7 @@
-SET @CGUID := 10000000;
-SET @OGUID := 10000000;
+SET @CGUID := 223912;
+SET @OGUID := 166877;
 
-SET @SPAWNGROUP := 10000000;
+SET @SPAWNGROUP := 1201;
 
 DELETE FROM `spell_area` WHERE `spell` IN (68719, 68720);
 INSERT INTO `spell_area` (`spell`, `area`, `gender`, `flags`) VALUES
