@@ -43,6 +43,7 @@
 #include "ChatPackets.h"
 #include "ChatTextBuilder.h"
 #include "CinematicMgr.h"
+#include "ClubUtils.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "Common.h"
@@ -2030,6 +2031,37 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid const& guid, Gameo
         return nullptr;
 
     return go;
+}
+
+void Player::UpdateNearbyCreatureNpcFlags()
+{
+    std::vector<Creature*> creatures;
+    GetCreatureListWithOptionsInGrid(creatures, GetVisibilityRange(), { .IgnorePhases = false });
+
+    UpdateData udata(GetMapId());
+    UF::ObjectData::Base objMask;
+    UF::UnitData::Base unitMask;
+    for (uint32 i = 0; i < m_unitData->NpcFlags.size(); ++i)
+        unitMask.MarkChanged(&UF::UnitData::NpcFlags, i);
+
+    for (Creature* creature : creatures)
+    {
+        if (!HaveAtClient(creature))
+            continue;
+
+        // skip creatures which dont have any npcflags set
+        if (!creature->GetNpcFlags() && !creature->GetNpcFlags2())
+            continue;
+
+        creature->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), unitMask.GetChangesMask(), this);
+    }
+
+    if (!udata.HasData())
+        return;
+
+    WorldPacket packet;
+    udata.BuildPacket(&packet);
+    SendDirectMessage(&packet);
 }
 
 bool Player::IsInAreaTriggerRadius(AreaTriggerEntry const* trigger) const
@@ -14180,6 +14212,8 @@ void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 me
     bool handled = true;
     switch (gossipOptionNpc)
     {
+        case GossipOptionNpc::None:
+            break;
         case GossipOptionNpc::Vendor:
             GetSession()->SendListInventory(guid);
             break;
@@ -14359,7 +14393,7 @@ uint32 Player::GetGossipTextId(uint32 menuId, WorldObject* source)
     return textId;
 }
 
-uint32 Player::GetGossipMenuForSource(WorldObject* source)
+uint32 Player::GetGossipMenuForSource(WorldObject const* source) const
 {
     switch (source->GetTypeId())
     {
@@ -14748,11 +14782,6 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
 {
     AddQuest(quest, questGiver);
 
-    for (QuestObjective const& obj : quest->GetObjectives())
-        if (obj.Type == QUEST_OBJECTIVE_CRITERIA_TREE)
-            if (m_questObjectiveCriteriaMgr->HasCompletedObjective(&obj))
-                KillCreditCriteriaTreeObjective(obj);
-
     if (CanCompleteQuest(quest->GetQuestId()))
         CompleteQuest(quest->GetQuestId());
 
@@ -14997,6 +15026,8 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, questStatusData.Status);
+
+    UpdateNearbyCreatureNpcFlags();
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -15384,6 +15415,8 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     if (quest->HasFlag(QUEST_FLAGS_UPDATE_PHASESHIFT))
         updateVisibility = PhasingHandler::OnConditionChange(this, false);
 
+    UpdateNearbyCreatureNpcFlags();
+
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
 
@@ -15415,6 +15448,8 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
     if (updateVisibility)
         UpdateObjectVisibility();
+
+    UpdateNearbyCreatureNpcFlags();
 }
 
 void Player::SetRewardedQuest(uint32 quest_id)
@@ -16069,6 +16104,8 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
         sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, status);
     }
 
+    UpdateNearbyCreatureNpcFlags();
+
     if (update)
         SendQuestUpdate(questId);
 }
@@ -16333,6 +16370,8 @@ void Player::SkipQuests(std::vector<uint32> const& questIds)
 
     if (updateVisibility)
         UpdateObjectVisibility();
+
+    UpdateNearbyCreatureNpcFlags();
 }
 
 void Player::DespawnPersonalSummonsForQuest(uint32 questId)
@@ -16375,22 +16414,31 @@ uint16 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry) const
 void Player::AdjustQuestObjectiveProgress(Quest const* quest)
 {
     // adjust progress of quest objectives that rely on external counters, like items
-    if (quest->HasQuestObjectiveType(QUEST_OBJECTIVE_ITEM))
+    for (QuestObjective const& obj : quest->GetObjectives())
     {
-        for (QuestObjective const& obj : quest->GetObjectives())
+        switch (obj.Type)
         {
-            if (obj.Type == QUEST_OBJECTIVE_ITEM && !(obj.Flags2 & QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM))
-            {
-                uint32 reqItemCount = obj.Amount;
-                uint32 curItemCount = GetItemCount(obj.ObjectID, true);
-                SetQuestObjectiveData(obj, std::min(curItemCount, reqItemCount));
-            }
-            else if (obj.Type == QUEST_OBJECTIVE_HAVE_CURRENCY)
+            case QUEST_OBJECTIVE_ITEM:
+                if (!(obj.Flags2 & QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM))
+                {
+                    uint32 reqItemCount = obj.Amount;
+                    uint32 curItemCount = GetItemCount(obj.ObjectID, true);
+                    SetQuestObjectiveData(obj, std::min(curItemCount, reqItemCount));
+                }
+                break;
+            case QUEST_OBJECTIVE_HAVE_CURRENCY:
             {
                 uint32 reqCurrencyCount = obj.Amount;
                 uint32 curCurrencyCount = GetCurrencyQuantity(obj.ObjectID);
                 SetQuestObjectiveData(obj, std::min(reqCurrencyCount, curCurrencyCount));
+                break;
             }
+            case QUEST_OBJECTIVE_CRITERIA_TREE:
+                if (m_questObjectiveCriteriaMgr->HasCompletedObjective(&obj))
+                    SetQuestObjectiveData(obj, 1);
+                break;
+            default:
+                break;
         }
     }
 }
@@ -16855,6 +16903,8 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
 
     if (updatePhaseShift)
         PhasingHandler::OnConditionChange(this);
+
+    UpdateNearbyCreatureNpcFlags();
 
     if (updateZoneAuras)
     {
@@ -17787,6 +17837,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::WowAccount), GetSession()->GetAccountGUID());
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::BnetAccount), GetSession()->GetBattlenetAccountGUID());
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::GuildClubMemberID), Battlenet::Services::Clubs::CreateClubMemberId(guid));
 
     if (!IsValidGender(fields.gender))
     {
@@ -27076,6 +27127,39 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
 bool Player::IsPetNeedBeTemporaryUnsummoned() const
 {
     return !IsInWorld() || !IsAlive() || HasUnitMovementFlag(MOVEMENTFLAG_FLYING) || HasExtraUnitMovementFlag2(MOVEMENTFLAG3_ADV_FLYING);
+}
+
+bool Player::CanSeeGossipOn(Creature const* creature) const
+{
+    if (creature->HasNpcFlag(UNIT_NPC_FLAG_GOSSIP))
+    {
+        if (GetGossipMenuForSource(creature))
+            return true;
+    }
+
+    // for cases with questgiver/ender without gossip menus
+    if (creature->HasNpcFlag(UNIT_NPC_FLAG_QUESTGIVER))
+    {
+        QuestRelationResult objectQIR = sObjectMgr->GetCreatureQuestInvolvedRelations(creature->GetEntry());
+        for (uint32 quest_id : objectQIR)
+        {
+            QuestStatus status = GetQuestStatus(quest_id);
+            if (status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_INCOMPLETE)
+                return true;
+        }
+
+        QuestRelationResult objectQR = sObjectMgr->GetCreatureQuestRelations(creature->GetEntry());
+        for (uint32 quest_id : objectQR)
+        {
+            Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
+            if (!quest)
+                continue;
+
+            if (CanTakeQuest(quest, false))
+                return true;
+        }
+    }
+    return false;
 }
 
 bool Player::CanSeeSpellClickOn(Creature const* c) const

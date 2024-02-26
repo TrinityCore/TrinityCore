@@ -398,39 +398,32 @@ enum AnduinWrynnSpellVisuals
     SPELL_VISUAL_CHEST_LOOT     = 114023,
 };
 
-Position const PreIntroductionAssistersPositions[3] =
+constexpr Position PreIntroductionAssistersPositions[3] =
 {
     { -3826.9548f, -2626.2761f, 78.9296f, 4.644121f }, // Jaina
     { -3831.6807f, -2626.2761f, 78.9296f, 5.460620f }, // Uther
     { -3818.7300f, -2626.2800f, 78.9296f, 4.558697f }, // Sylvanas
 };
 
-Position const AssistersSpawnPos[3] =
-{
-    { -3824.65f, -2692.20f, 91.3485f, 4.64412f}, // Jaina
-    { -3828.03f, -2688.25f, 91.3485f, 5.46062f}, // Uther
-    { -3819.48f, -2687.19f, 91.3485f, 4.55870f}, // Sylvanas
-};
+//constexpr Position FirimOutroductionPos = { -3830.0156f, -2676.7969f, 91.56402f };
+constexpr Position QuartermasterRahmPos = { -3824.9565f, -2673.0190f, 91.44697f, 4.7163963f };
+constexpr Position LeftKnightPosition = { -3815.4097f, -2677.1824f, 91.44697f, 4.742376f };
+constexpr Position RightKnightPosition = { -3834.6807f, -2677.42360f, 91.44697f, 4.6956997f };
 
-Position const FirimOutroductionPos = { -3830.0156f, -2676.7969f, 91.56402f };
-Position const QuartermasterRahmPos = { -3824.9565f, -2673.0190f, 91.44697f, 4.7163963f };
-Position const LeftKnightPosition = { -3815.4097f, -2677.1824f, 91.44697f, 4.742376f };
-Position const RightKnightPosition = { -3834.6807f, -2677.42360f, 91.44697f, 4.6956997f };
+constexpr Position DominationGraspCenter = { -3825.0601f, -2715.4600f, 91.3567f, 1.6260f };
 
-Position const DominationGraspCenter = { -3825.0601f, -2715.4600f, 91.3567f, 1.6260f };
-
-Position const IntermissionAssistersTeleportPosition[3] =
+constexpr Position IntermissionAssistersTeleportPosition[3] =
 {
     { -3828.472f, -2688.191f, 91.2652f, 1.9153f }, // Sylvanas
     { -3819.519f, -2687.170f, 91.2652f, 2.1812f }, // Uther
     { -3824.960f, -2692.550f, 91.2652f, 1.5733f }, // Jaina
 };
 
-Position const AnduinsDespairSpawnPosition = { -3828.355957f, -2704.1875f, 91.350716f, 4.982021f };
+constexpr Position AnduinsDespairSpawnPosition = { -3828.355957f, -2704.1875f, 91.350716f, 4.982021f };
 
-Position const AnduinsSoulSpawnPosition = { -3825.060059f, -2715.459961f, 91.356697f, 1.626040f };
+constexpr Position AnduinsSoulSpawnPosition = { -3825.060059f, -2715.459961f, 91.356697f, 1.626040f };
 
-Position const AnduinsDoubtSpawnPositions[4] =
+constexpr Position AnduinsDoubtSpawnPositions[4] =
 {
     {  -3852.638916f, -2687.373291f, 91.348526f, 5.560700f }, // Right of Uther
     {  -3852.845459f, -2742.732666f, 91.348534f, 0.961583f }, // Next Right
@@ -438,7 +431,7 @@ Position const AnduinsDoubtSpawnPositions[4] =
     {  -3799.805664f, -2740.925293f, 91.348541f, 2.247305f }, // Next Left
 };
 
-Position const AnduinsHopeSpawnPosition[4] =
+constexpr Position AnduinsHopeSpawnPosition[4] =
 {
     {  -3825.149414f, -2711.508789f, 91.354919f, 1.463445f }, // In front of Anduin
     {  -3828.751709f, -2715.171875f, 91.354919f, 3.221487f }, // Left of Anduin
@@ -446,9 +439,9 @@ Position const AnduinsHopeSpawnPosition[4] =
     {  -3825.180664f, -2719.208252f, 91.354820f, 4.741285f }, // Behind Anduin
 };
 
-Position const RemnantOfAFallenKingSpawnPosition = { -3825.2466f, -2700.0486f, 91.3650f, 1.3762f };
+constexpr Position RemnantOfAFallenKingSpawnPosition = { -3825.2466f, -2700.0486f, 91.3650f, 1.3762f };
 
-Position const GrimReflectionsSpawnPositions[4] =
+constexpr Position GrimReflectionsSpawnPositions[4] =
 {
     { -3825.389f, -2739.4202f, 91.431305f, 4.8445f}, // back side of Anduin
     { -3849.8438f, -2715.0574f, 91.40953f, 2.9961f}, // left side of Anduin
@@ -468,9 +461,9 @@ Position const MarchOfTheDamnedSpawnPositions[8] =
     { -3810.4290f, -2751.0903f, 91.53032f, 1.9584f } // Fourth Left
 };
 
-Position const BeaconOfHopeSpawnPosition = { -3825.0417f, -2715.3923f, 91.3568f, 0.0f };
+constexpr Position BeaconOfHopeSpawnPosition = { -3825.0417f, -2715.3923f, 91.3568f, 0.0f };
 
-Position const ChestLootSpawnPosition = { -3840.9915f, -2741.7847f, 91.26521f, 1.334929f };
+constexpr Position ChestLootSpawnPosition = { -3840.9915f, -2741.7847f, 91.26521f, 1.334929f };
 
 class ActivateGhouls : public BasicEvent
 {

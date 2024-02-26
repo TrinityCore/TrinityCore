@@ -41,6 +41,11 @@
 #include "Loot.h"
 #include "SpellHistory.h"
 #include "WorldStateMgr.h"
+#include "Unit.h"
+#include "Vehicle.h"
+#include "WorldSession.h"
+#include "CombatAI.h"
+#include "PhasingHandler.h"
 
 template<class privateAI, class publicAI>
 CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
@@ -1483,7 +1488,7 @@ struct npc_mithran_dawntracker_beach_laying : public ScriptedAI
         if (spellInfo->Id != SPELL_BANDAGING_QUEST)
             return;
 
-        static Position const MithranCloneSpawnPosition = { -428.576f, -2593.93f, 0.152832f, 4.849576f };
+        static constexpr Position MithranCloneSpawnPosition = { -428.576f, -2593.93f, 0.152832f, 4.849576f };
 
         if (Player* player = caster->ToPlayer())
         {
@@ -1505,7 +1510,7 @@ struct npc_lana_jordan_beach_laying : public ScriptedAI
         if (spellInfo->Id != SPELL_BANDAGING_QUEST)
             return;
 
-        static Position const LanaCloneSpawnPosition = { -420.656f, -2600.28f, 0.556646f, 4.046853f };
+        static constexpr Position LanaCloneSpawnPosition = { -420.656f, -2600.28f, 0.556646f, 4.046853f };
 
         if (Player* player = caster->ToPlayer())
         {
@@ -1743,8 +1748,8 @@ enum LostExpeditionFollowerData
     POINT_CAMP_POSITION                         = 0,
 };
 
-Position const GarrickAbandonedCampPosition = { -249.059006f, -2492.520020f, 18.0742f };
-Position const GrimaxeAbandonedCampPosition = { -249.20117f, -2492.6191f, 17.964903f };
+static constexpr Position GarrickAbandonedCampPosition = { -249.059006f, -2492.520020f, 18.0742f };
+static constexpr Position GrimaxeAbandonedCampPosition = { -249.20117f, -2492.6191f, 17.964903f };
 
 // 165359 - Captain Garrick
 // This script is used by Captian Garrick Follower for Finding the Lost Expedition quest
@@ -2062,7 +2067,7 @@ enum CookingMeatQuestData
     ANIMATION_KIT_INJURED = 14432
 };
 
-Position const InjuredNpcPositionAbandonedCamp = { -245.40973f, -2492.0886f, 18.404648f, 2.4754f };
+static constexpr Position InjuredNpcPositionAbandonedCamp = { -245.40973f, -2492.0886f, 18.404648f, 2.4754f };
 
 // 55174 - Cooking Meat
 // 59932 - Cooking Meat
@@ -2369,8 +2374,8 @@ enum EnhancedCombatTrainerData
     SPELL_AGGRO_RADIUS_CHECK_DNT_DRUID                  = 320766
 };
 
-Position const EnhancedTrainingWalkPosition = { -250.60243f, -2485.2517f, 17.787413f };
-Position const EnhancedTrainingRunPosition = { -231.5225f, -2480.5276f, 19.019197f };
+static constexpr Position EnhancedTrainingWalkPosition = { -250.60243f, -2485.2517f, 17.787413f };
+static constexpr Position EnhancedTrainingRunPosition = { -231.5225f, -2480.5276f, 19.019197f };
 
 // 164577 - Alliance Sparring Partner
 // 166916 - Horde Sparring Partner
@@ -3503,8 +3508,8 @@ enum NorthboundData
     SPELL_LINGER_NORTHBOUND_HORDE                       = 344385,
 };
 
-Position const GarrickQuillboarBriarpatchPosition = { -142.62154f, -2641.0364f, 48.775497f };
-Position const GrimaxeQuillboarBriarpatchPosition = { -142.56076f, -2640.9915f, 48.755478f };
+static constexpr Position GarrickQuillboarBriarpatchPosition = { -142.62154f, -2641.0364f, 48.775497f };
+static constexpr Position GrimaxeQuillboarBriarpatchPosition = { -142.56076f, -2640.9915f, 48.755478f };
 
 // 165360 - Alliance Survivor
 // This script is used by Captian Garrick Follower for Northbound quest
@@ -3927,8 +3932,8 @@ enum HuxsworthBriarpatchData
     EVENT_HUXSWORTH_GARRICK_RUN_BRIARPATCH  = 2,
 };
 
-Position const GarrickBriarpatchDespawnPosition = { -112.92383f, -2640.541f, 52.35042f };
-Position const HuxworthBriarpatchDespawnPosition = { -112.61979f, -2645.9775f, 52.22835f };
+static constexpr Position GarrickBriarpatchDespawnPosition = { -112.92383f, -2640.541f, 52.35042f };
+static constexpr Position HuxworthBriarpatchDespawnPosition = { -112.61979f, -2645.9775f, 52.22835f };
 
 // 154327 - Austin Huxsworth
 struct npc_huxsworth_briarpatch_quest_private : public ScriptedAI
@@ -4075,8 +4080,8 @@ enum DawntrackerBriarpatch
     EVENT_DAWNTRACKER_GRIMAXE_RUN_BRIARPATCH    = 2,
 };
 
-Position const GrimaxeBriarpatchDespawnPosition = { -112.92383f, -2640.541f, 52.35042f };
-Position const DawntrackerBriarpatchDespawnPosition = { -112.61979f, -2645.9775f, 52.22835f };
+static constexpr Position GrimaxeBriarpatchDespawnPosition = { -112.92383f, -2640.541f, 52.35042f };
+static constexpr Position DawntrackerBriarpatchDespawnPosition = { -112.61979f, -2645.9775f, 52.22835f };
 
 // 166996 - Mithdran Dawntracker
 struct npc_dawntracker_briarpatch_quest_private : public ScriptedAI
@@ -4364,7 +4369,7 @@ enum GeolordData
     WORLDSTATE_HORDE            = 4486
 };
 
-Position const PrisonerPosition = { 16.4271f, -2511.82f, 78.8215f, 5.66398f  };
+static constexpr Position PrisonerPosition = { 16.4271f, -2511.82f, 78.8215f, 5.66398f  };
 
 // 151091 - Geolord Grek'og
 struct npc_geolord_grekog : public ScriptedAI
@@ -4443,8 +4448,8 @@ enum BriarpatchPrisonerData
     SAY_GET_OUT_OF_HERE = 0
 };
 
-Position const BriarpatchPrisonerJumpToPosition = { 19.5174f, -2513.75f, 74.0545f };
-Position const PrisonerBriarpatchDespawnPosition = { 51.005207f, -2485.644f, 78.15223f };
+static constexpr Position BriarpatchPrisonerJumpToPosition = { 19.5174f, -2513.75f, 74.0545f };
+static constexpr Position PrisonerBriarpatchDespawnPosition = { 51.005207f, -2485.644f, 78.15223f };
 
 // 167008 - Cork Fizzlepop
 // 154301 - Lindie Springstock
@@ -4842,7 +4847,7 @@ enum LindieSpringStockData
     SPELL_GROW_THREE                    = 111701
 };
 
-Position const MiniChopperJumpPosition = { 107.979f, -2414.13f, 95.6243f };
+static constexpr Position MiniChopperJumpPosition = { 107.979f, -2414.13f, 95.6243f };
 
 // 149899 - Lindie Springstock
 // 167019 - Cork Fizzlepop
@@ -5111,7 +5116,7 @@ private:
     EventMap _events;
 };
 
-Position const HordeCrewPersonalSpawnLocation[] =
+static constexpr Position HordeCrewPersonalSpawnLocation[] =
 {
     { 50.920593f, -2477.466f, 79.444374f, 0.8753076f },
     { 60.51328f, -2476.4822f, 81.034775f, 0.9128374f },
@@ -5265,7 +5270,7 @@ CreatureAI* HordeCrewPlainsSelector(Creature* creature)
     return new NullCreatureAI(creature);
 };
 
-Position const CopterCloneSpawnPosition = { 100.583f, -2417.87f, 90.268f, 0.0f };
+static constexpr Position CopterCloneSpawnPosition = { 100.583f, -2417.87f, 90.268f, 0.0f };
 
 // Quest 55193 - The Scout-o-Matic 5000 "Alliance"
 // Quest 59940 - The Choppy Booster Mk. 5 "Horde"
@@ -5544,13 +5549,15 @@ struct npc_re_sized_boar_q56034 : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE)
             return;
 
-        if (uiId != 0)
+        if (uiId != POINT_HOME_POSITION)
             return;
 
         me->SetFacingTo(0.785398f);
 
-        if (Unit* owner = me->GetOwner())
-            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+        if (Unit* summoner = me->GetDemonCreator())
+            summoner->CastSpell(summoner, SPELL_UPDATE_PHASE_SHIFT);
+
+        me->DespawnOrUnsummon();
     }
 
     void UpdateAI(uint32 diff) override
@@ -5871,6 +5878,29 @@ class spell_re_sizing_aura_q59941 : public AuraScript
     }
 };
 
+// 325368 - Re-sizer Slaughter (DNT)
+class spell_re_sizer_slaughter : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_UPDATE_PHASE_SHIFT
+        });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_UPDATE_PHASE_SHIFT);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_re_sizer_slaughter::OnApply, EFFECT_0, SPELL_AURA_PLAY_SCENE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_re_sizer_slaughter::OnApply, EFFECT_0, SPELL_AURA_PLAY_SCENE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 56034 - Re-sizing the Situation "Alliance"
 // 59941 - Re-sizing the Situation "Horde"
 class quest_resizing_the_situation : public QuestScript
@@ -5918,6 +5948,1112 @@ public:
     {
         HandleQuestStatusChange(player, newStatus, SPELL_SUMMON_CORK_FIZZLEPOP_GUARDIAN_Q59941);
     }
+};
+
+enum QuestRideBoar
+{
+    NPC_ALLIANCE_CAPTAIN                            = 174955,
+    NPC_HENRY_GARRICK_PRISONER                      = 156799,
+
+    SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_SUMMON = 305779,
+    SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA   = 305776,
+    SPELL_PING_GARRICK_TORGOK                       = 316982,
+    SPELL_REUNION_DNT_ALLIANCE                      = 305893,
+    SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT             = 321693,
+    SPELL_RITUAL_SCENE_HRUN_BEAM_DNT                = 321692,
+    SPELL_RITUAL_SCENE_HARPY_BEAM_DNT               = 321691,
+    SPELL_RITUAL_SCENE_MAIN_BEAM_DNT                = 321690
+};
+
+static constexpr Position ReDeatherAbandonTeleportPos = { 102.3f, -2422.5f, 90.1f, 0.764454185962677001f };
+
+// 55879 - Ride of the Scientifically Enhanced Boar
+class quest_ride_of_the_scientifically_enhanced_boar : public QuestScript
+{
+public:
+    quest_ride_of_the_scientifically_enhanced_boar() : QuestScript("quest_ride_of_the_scientifically_enhanced_boar") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->CastSpell(player, SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_SUMMON);
+                break;
+            case QUEST_STATUS_COMPLETE:
+                player->CombatStop();
+                player->CastSpell(player, SPELL_PING_GARRICK_TORGOK);
+                break;
+            case QUEST_STATUS_REWARDED:
+                player->CastSpell(player, SPELL_REUNION_DNT_ALLIANCE);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            case QUEST_STATUS_NONE:
+                player->RemoveAura(SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->RemoveAura(SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->NearTeleportTo(ReDeatherAbandonTeleportPos);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+enum SceneOgreRuinsRideBoar
+{
+    QUEST_RIDE_ENHANCED_BOAR            = 55879,
+    QUEST_RIDE_BOAR_OBJECTIVE_TWO       = 396499,
+    QUEST_RIDE_BOAR_OBJECTIVE_TWO_MAX   = 8,
+
+    SPELL_ENHANCED_BOAR_TRAMPLE         = 305557,
+    SPELL_ENHANCED_BOAR_CHARGE          = 321627,
+    SPELL_ENHANCED_BOAR_KILL_CREDIT     = 321668,
+    SPELL_ENHANCED_BOAR_PING_VEHICLE    = 305559,
+    SPELL_ENHANCED_BOAR_CHARGE_CONVO    = 305815,
+    SPELL_ENHANCED_BOAR_KNOCKBACK       = 306356,
+    SPELL_ENHANCED_BOAR_KNOCKBACK_HINT  = 306357
+};
+
+// Script scene for Ride of the Scientifically Enhanced Boar quest
+class scene_darkmaul_plains_skeleton_army_alliance : public SceneScript
+{
+public:
+    scene_darkmaul_plains_skeleton_army_alliance() : SceneScript("scene_darkmaul_plains_skeleton_army_alliance") { }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Trampling Time")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_TRAMPLE, true);
+            if (Unit* boar = player->GetVehicleBase())
+                boar->CastSpell(boar, SPELL_ENHANCED_BOAR_CHARGE, true);
+        }
+        else if (triggerName == "Big Kill Credit")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_KILL_CREDIT, true);
+
+            if (player->GetQuestObjectiveData(QUEST_RIDE_ENHANCED_BOAR, QUEST_RIDE_BOAR_OBJECTIVE_TWO) == QUEST_RIDE_BOAR_OBJECTIVE_TWO_MAX)
+                player->CastSpell(player, SPELL_ENHANCED_BOAR_PING_VEHICLE);
+        }
+        else if (triggerName == "Conversation")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_CHARGE_CONVO, true);
+        }
+        else if (triggerName == "Knockback")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_KNOCKBACK, true);
+        }
+        else if (triggerName == "Hint")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_KNOCKBACK_HINT, true);
+        }
+    }
+};
+
+// Spell 305779 - Summon Darkmaul Plains Questgivers (DNT)
+class spell_summon_darkmaul_plains_questgivers_q55879 : public SpellScript
+{
+    // @TODO: drop after TARGET_UNK_142 impl
+
+    void SelectTarget(WorldObject*& target)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        Creature* survivor = FindCreatureIgnorePhase(player, "captain_garrick_plains", 5.0f);
+        if (!survivor)
+            return;
+
+        target = survivor;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_darkmaul_plains_questgivers_q55879::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
+    }
+};
+
+enum SpellRidingGiantBoar
+{
+    SPELL_RIDING_GIANT_BOAR_305068 = 305068,
+    SPELL_RIDING_GIANT_BOAR_321670 = 321670
+};
+
+// 173426 - Riding Giant Boar
+class spell_riding_giant_boar_q55879 : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RIDING_GIANT_BOAR_305068,
+            SPELL_RIDING_GIANT_BOAR_321670,
+            SPELL_UPDATE_PHASE_SHIFT
+        });
+    }
+
+    void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        player->RemoveAura(SPELL_RIDING_GIANT_BOAR_305068);
+        player->RemoveAura(SPELL_RIDING_GIANT_BOAR_321670);
+        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_riding_giant_boar_q55879::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+enum SpellKnockbackHint
+{
+    ACTOR_ALLIANCE_CAPTAIN = 71372
+};
+
+// 305742 - Resizer Hit
+class spell_knockback_hint_q56034 : public SpellScript
+{
+    void HandleLaunch(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        Creature* garrick = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = NPC_ALLIANCE_CAPTAIN, .OwnerGuid = player->GetGUID() });
+        if (!garrick)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 0, garrick->GetGUID());
+        conversation->Start();
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_knockback_hint_q56034::HandleLaunch, EFFECT_0, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+        OnEffectHitTarget += SpellEffectFn(spell_knockback_hint_q56034::HandleEffect, EFFECT_0, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+    }
+};
+
+enum CaptainGarrickGiantBoar
+{
+    ACTION_EXIT_BOAR                                        = 1,
+
+    ACTOR_HENRY_GARRICK_PRISONER                            = 78493,
+
+    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_ACCEPT     = 12090,
+
+    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_HENRY      = 15615,
+    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_EXIT       = 12092,
+
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR                         = 1,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER             = 2,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY           = 3,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN           = 4,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION  = 5,
+
+    NPC_GIANT_BOAR                                          = 156267,
+
+    PHASE_SEE_TORGOK                                        = 14663,
+
+    POINT_HENRY_POSITION                                    = 0,
+
+    SPELL_PING_GARRICK_TO_RIDE_BOAR                         = 316984,
+    SPELL_RIDE_VEHICLE_CAPTIAN_BOAR                         = 63315
+};
+
+Position MoveToPrisonerPosition = { 232.16145f, -2292.5347f, 80.91198f };
+
+// 174955 - Captain Garrick
+struct npc_captain_garrick_q55879 : public ScriptedAI
+{
+    npc_captain_garrick_q55879(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        Player* player = Object::ToPlayer(me->GetOwner());
+        if (!player)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_ACCEPT, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 1, me->GetGUID());
+        conversation->Start();
+
+        me->SetReactState(REACT_PASSIVE);
+        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->GetHealth() <= damage)
+            damage = me->GetHealth() - 1;
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_PING_GARRICK_TO_RIDE_BOAR:
+            {
+                Unit* owner = me->GetOwner();
+                if (!owner)
+                    break;
+
+                PhasingHandler::InheritPhaseShift(me, owner);
+                PhasingHandler::ResetPhaseShift(me);
+
+                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR, 2s);
+                break;
+            }
+            case SPELL_ENHANCED_BOAR_PING_VEHICLE:
+            {
+                PhasingHandler::AddPhase(me, PHASE_SEE_TORGOK, true);
+                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION, 500ms);
+                break;
+            }
+            case SPELL_PING_GARRICK_TORGOK:
+            {
+                Player* player = Object::ToPlayer(me->GetOwner());
+                if (!player)
+                    break;
+
+                Creature* henry = FindCreatureIgnorePhase(me, "henry_garrick_ogre_ruins_prisoner");
+                if (!henry)
+                    break;
+
+                Creature* henryPersonal = henry->SummonPersonalClone(henry->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                if (!henryPersonal)
+                    break;
+
+                me->SetReactState(REACT_AGGRESSIVE);
+                _henryGUID = henryPersonal->GetGUID();
+                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY, 1s);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR:
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        Creature* boar = owner->FindNearestCreatureWithOptions(10.0f, { .CreatureId = NPC_GIANT_BOAR, .OwnerGuid = owner->GetGUID() });
+                        if (!boar)
+                            return;
+
+                        boar->SetTemplateRooted(false);
+                        me->CastSpell(boar, SPELL_RIDE_VEHICLE_CAPTIAN_BOAR);
+                    }
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY:
+                {
+                    Player* player = Object::ToPlayer(me->GetOwner());
+                    if (!player)
+                        break;
+
+                    Conversation* conversation = Conversation::CreateConversation(CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_HENRY, player, *player, player->GetGUID(), nullptr, false);
+                    if (!conversation)
+                        break;
+
+                    conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 0, me->GetGUID());
+                    conversation->AddActor(ACTOR_HENRY_GARRICK_PRISONER, 1, _henryGUID);
+                    conversation->Start();
+
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MovePoint(POINT_HENRY_POSITION, MoveToPrisonerPosition);
+                    _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN, 18s);
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN:
+                {
+                    me->DespawnOrUnsummon();
+                    if (Creature* henry = ObjectAccessor::GetCreature(*me, _henryGUID))
+                        henry->DespawnOrUnsummon();
+
+                    Player* player = Object::ToPlayer(me->GetOwner());
+                    if (!player)
+                        break;
+                    player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION:
+                {
+                    Player* player = Object::ToPlayer(me->GetOwner());
+                    if (!player)
+                        break;
+
+                    Conversation* conversation = Conversation::CreateConversation(CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_EXIT, player, *player, player->GetGUID(), nullptr, false);
+                    if (!conversation)
+                        break;
+
+                    conversation->AddActor(0, 0, player->GetGUID());
+                    conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 1, me->GetGUID());
+                    conversation->Start();
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        UpdateVictim();
+    }
+private:
+    EventMap _events;
+    ObjectGuid _henryGUID;
+};
+
+enum GiantBoar
+{
+    EVENT_GIANT_BOAR_SIZE_ONE           = 1,
+    EVENT_GIANT_BOAR_SIZE_TWO           = 2,
+    EVENT_GIANT_BOAR_SIZE_THREE         = 3,
+    EVENT_GIANT_BOAR_SIZE_FOUR          = 4,
+    EVENT_GIANT_BOAR_EJECT_PASSENGERS   = 5,
+    EVENT_GIANT_BOAR_UNROOT             = 6,
+
+    SOUND_ENLARGE_BOAR                  = 157516,
+    SOUND_SHRINK_BOAR                   = 157517,
+
+    VEHICLE_BOAR_SEAT_ONE               = 1
+};
+
+// 156267 - Giant Boar
+struct npc_giant_boar_vehicle_q55879 : public VehicleAI
+{
+    npc_giant_boar_vehicle_q55879(Creature* creature) : VehicleAI(creature), _endOfScene(false)
+    {
+        me->SetOrientation(0.844224f);
+    }
+
+    void JustAppeared() override
+    {
+        me->SetSpeed(MOVE_RUN, 14.0f);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (apply && passenger->IsPlayer())
+        {
+            me->SetTemplateRooted(true);
+            passenger->SetMovedUnit(me);
+            passenger->CastSpell(passenger, SPELL_PING_GARRICK_TO_RIDE_BOAR); // Ping Garrick to ride Boar (DNT)
+            passenger->CastSpell(passenger, SPELL_UPDATE_PHASE_SHIFT);
+        }
+        else if (apply && passenger->IsCreature())
+        {
+            passenger->ChangeSeat(VEHICLE_BOAR_SEAT_ONE);
+        }
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_ENHANCED_BOAR_PING_VEHICLE)
+        {
+            me->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOM_SPELL_01);
+            me->SetTemplateRooted(true);
+            me->CastSpell(me, SPELL_ENHANCED_BOAR_CHARGE);
+            _endOfScene = true;
+            _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_ONE, 4s);
+
+            if (Unit* owner = me->GetOwner())
+                owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!_endOfScene)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_GIANT_BOAR_SIZE_ONE:
+                    me->PlayDirectSound(SOUND_ENLARGE_BOAR);
+                    me->SetObjectScale(1.2f);
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_TWO, 1000ms);
+                    break;
+                case EVENT_GIANT_BOAR_SIZE_TWO:
+                    me->PlayDirectSound(SOUND_SHRINK_BOAR);
+                    me->SetObjectScale(0.7f);
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_THREE, 1000ms);
+                    break;
+                case EVENT_GIANT_BOAR_SIZE_THREE:
+                    me->PlayDirectSound(SOUND_ENLARGE_BOAR);
+                    me->SetObjectScale(1.2f);
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_FOUR, 500ms);
+                    break;
+                case EVENT_GIANT_BOAR_SIZE_FOUR:
+                    me->PlayDirectSound(SOUND_SHRINK_BOAR);
+                    me->SetObjectScale(0.1f);
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_EJECT_PASSENGERS, 500ms);
+                    break;
+                case EVENT_GIANT_BOAR_EJECT_PASSENGERS:
+                    me->RemoveAllAuras();
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_UNROOT, 500ms);
+                    break;
+                case EVENT_GIANT_BOAR_UNROOT:
+                    me->SetTemplateRooted(false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+    bool _endOfScene;
+};
+
+enum TorgokData
+{
+    EVENT_CAST_SPIRIT_BOLT              = 1,
+    EVENT_CAST_SOUL_GRASP               = 2,
+
+    ITEM_TORGOKS_REAGENT_POUCH          = 176398,
+
+    QUEST_TORGOKS_REAGENT_POUCH_DROPPED = 59610,
+
+    SPELL_SPIRIT_BOLT                   = 319294,
+    SPELL_SOUL_GRASP                    = 319298
+};
+
+// 162817 - Torgok
+struct npc_torgok_q55879 : public ScriptedAI
+{
+    npc_torgok_q55879(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        Talk(SAY_AGGRO, who);
+
+        _events.ScheduleEvent(EVENT_CAST_SPIRIT_BOLT, 4s);
+        _events.ScheduleEvent(EVENT_CAST_SOUL_GRASP, 14s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        Talk(SAY_DEATH, killer);
+
+        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        {
+            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+            {
+                for (LootItem const& lootItem : loot->items)
+                {
+                    if (lootItem.itemid == ITEM_TORGOKS_REAGENT_POUCH)
+                    {
+                        player->SetRewardedQuest(QUEST_TORGOKS_REAGENT_POUCH_DROPPED);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CAST_SPIRIT_BOLT:
+                    DoCastVictim(SPELL_SPIRIT_BOLT);
+                    _events.ScheduleEvent(EVENT_CAST_SPIRIT_BOLT, 6s);
+                    break;
+                case EVENT_CAST_SOUL_GRASP:
+                    DoCastAOE(SPELL_SOUL_GRASP);
+                    _events.ScheduleEvent(EVENT_CAST_SOUL_GRASP, 14s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+enum PrisonerQuest55879
+{
+    PATH_PRISONER_TO_GROUND = 80000230
+};
+
+// 156799 - Henry Garrick
+// 167126 - Shuja Grimaxe
+struct npc_prisoner_q55879_private : public ScriptedAI
+{
+    npc_prisoner_q55879_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+    }
+
+    void JustAppeared() override
+    {
+        me->RemoveAllAuras();
+        me->GetMotionMaster()->MovePath(PATH_PRISONER_TO_GROUND, false);
+    }
+};
+
+CreatureAI* PrisonerQ55879Selector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_prisoner_q55879_private(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
+enum TheReDeather
+{
+    CONVERSATION_ACCEPT_RE_DEATHER_QUEST    = 14525,
+    CONVERSATION_RE_DEATHER_EXPLODE         = 14526,
+
+    NPC_HORDE_WARRIOR                       = 167146,
+    NPC_SHUJA_GRIMAXE_PRISONER              = 167126,
+
+    QUEST_RE_DEATHER                        = 59942,
+
+    OBJECTIVE_RE_DEATHER_CADAVERS_KILLED    = 397279,
+
+    RE_DEATHER_CADAVERS_KILLED_MAX          = 8,
+
+    SPELL_REUNION_DNT_HORDE                 = 326678,
+    SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK   = 325394,
+    SPELL_RE_DEATHER_ROUGH_LANDING_DNT      = 325401,
+    SPELL_RE_DEATHER_SUMMON_GRIMAXE         = 325429
+};
+
+// 59942 - The Re-Deather
+class quest_the_re_deather : public QuestScript
+{
+public:
+    quest_the_re_deather() : QuestScript("quest_the_re_deather") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                Conversation::CreateConversation(CONVERSATION_ACCEPT_RE_DEATHER_QUEST, player, *player, player->GetGUID(), nullptr);
+                break;
+            case QUEST_STATUS_COMPLETE:
+                player->CombatStop();
+                player->CastSpell(player, SPELL_PING_GARRICK_TORGOK);
+                break;
+            case QUEST_STATUS_REWARDED:
+                player->CastSpell(player, SPELL_REUNION_DNT_HORDE);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            case QUEST_STATUS_NONE:
+            {
+                player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
+                player->RemoveAura(SPELL_RE_DEATHER_SUMMON_GRIMAXE);
+                player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->RemoveAura(SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->NearTeleportTo(ReDeatherAbandonTeleportPos);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+};
+
+// 2489
+class scene_darkmaul_plains_skeleton_army_horde : public SceneScript
+{
+public:
+    scene_darkmaul_plains_skeleton_army_horde() : SceneScript("scene_darkmaul_plains_skeleton_army_horde") { }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Big Kill Credit")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_KILL_CREDIT, true);
+
+            if (player->GetQuestObjectiveData(QUEST_RE_DEATHER, OBJECTIVE_RE_DEATHER_CADAVERS_KILLED) == RE_DEATHER_CADAVERS_KILLED_MAX)
+            {
+                player->CastSpell(player, SPELL_ENHANCED_BOAR_PING_VEHICLE); // Ping Vehicle
+                player->CastSpell(player, SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK); // Temp Objective Check
+                Conversation::CreateConversation(CONVERSATION_RE_DEATHER_EXPLODE, player, *player, player->GetGUID(), nullptr);
+            }
+        }
+        else if (triggerName == "Conversation")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_CHARGE_CONVO, true); // Does nothing but it's blizzlike
+        }
+        else if (triggerName == "Teleport")
+        {
+            player->CastSpell(player, SPELL_RE_DEATHER_ROUGH_LANDING_DNT);
+        }
+    }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+    }
+};
+
+enum GrimaxeReDeather
+{
+    ACTOR_SHUJA_GRIMAXE_PRISONER                        = 76004,
+    ACTOR_WARLORD_GRIMAXE_Q59942                        = 76357,
+    ACTOR_SHUJA_GRIMAXE_FREED                           = 78501,
+
+    CONVERSATION_WARLORD_GRIMAXE_SPAWN_Q59942           = 14527,
+    CONVERSATION_WARLORD_GRIMAXE_QUEST_COMPLETE_Q59942  = 15618
+};
+
+// 167146 - Warlord Grimaxe
+struct npc_warlord_grimaxe_q59942 : public ScriptedAI
+{
+    npc_warlord_grimaxe_q59942(Creature* creature) : ScriptedAI(creature)
+    {
+        me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
+    }
+
+    void JustAppeared() override
+    {
+        Player* player = Object::ToPlayer(me->GetOwner());
+        if (!player)
+            return;
+
+        Creature* shuja = FindCreatureIgnorePhase(me, "shuja_grimaxe_ogre_ruins_prisoner");
+        if (!shuja)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_WARLORD_GRIMAXE_SPAWN_Q59942, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(ACTOR_SHUJA_GRIMAXE_PRISONER, 0, shuja->GetGUID());
+        conversation->AddActor(ACTOR_WARLORD_GRIMAXE_Q59942, 1, me->GetGUID());
+        conversation->Start();
+
+        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->GetHealth() <= damage)
+            damage = me->GetHealth() - 1;
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_PING_GARRICK_TORGOK:
+            {
+                Player* player = Object::ToPlayer(me->GetOwner());
+                if (!player)
+                    break;
+
+                Creature* shuja = FindCreatureIgnorePhase(me, "shuja_grimaxe_ogre_ruins_prisoner");
+                if (!shuja)
+                    break;
+
+                Creature* shujaPersonal = shuja->SummonPersonalClone(shuja->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                if (!shujaPersonal)
+                    break;
+
+                me->SetReactState(REACT_AGGRESSIVE);
+                _shujaGUID = shujaPersonal->GetGUID();
+                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY, 1s);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void OnDespawn() override
+    {
+        if (Creature* shuja = ObjectAccessor::GetCreature(*me, _shujaGUID))
+            shuja->DespawnOrUnsummon();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY:
+                {
+                    Player* player = Object::ToPlayer(me->GetOwner());
+                    if (!player)
+                        break;
+
+                    Conversation* conversation = Conversation::CreateConversation(CONVERSATION_WARLORD_GRIMAXE_QUEST_COMPLETE_Q59942, player, *player, player->GetGUID(), nullptr, false);
+                    if (!conversation)
+                        break;
+
+                    conversation->AddActor(ACTOR_WARLORD_GRIMAXE_Q59942, 0, me->GetGUID());
+                    conversation->AddActor(ACTOR_SHUJA_GRIMAXE_FREED, 1, _shujaGUID);
+                    conversation->Start();
+
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MovePoint(POINT_HENRY_POSITION, MoveToPrisonerPosition);
+                    _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN, 22s);
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN:
+                {
+                    me->DespawnOrUnsummon();
+                    if (Creature* shuja = ObjectAccessor::GetCreature(*me, _shujaGUID))
+                        shuja->DespawnOrUnsummon();
+
+                    Player* player = Object::ToPlayer(me->GetOwner());
+                    if (!player)
+                        break;
+                    player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        UpdateVictim();
+    }
+private:
+    EventMap _events;
+    ObjectGuid _shujaGUID;
+};
+
+// ***************************************************************
+// * Scripting in this section occurs between Ogre Ruins and Pit *
+// ***************************************************************
+
+enum WestwardBound
+{
+    NPC_BJORN_STOUTHANDS_PIT_ONE    = 156891,
+    NPC_ALARIA_PIT_ONE              = 156803,
+    NPC_LANAJORDAN_PIT_ONE          = 167225,
+    NPC_WONSA_PIT_ONE               = 167226
+};
+
+static constexpr Position BjornWestwardBoundRuinsPos = { 192.181f, -2311.44f, 80.6975f, 3.368485450744628906f };
+static constexpr Position AlariaWestwardBoundRuinsPos = { 190.953f, -2308.32f, 80.6586f, 2.984513044357299804f };
+static constexpr Position LanaWestwardBoundRuinsPos = { 160.486f, -2307.31f, 84.053f, 2.932153224945068359f };
+static constexpr Position WonsaWestwardBoundRuinsPos = { 160.431f, -2310.11f, 84.4598f, 3.03687286376953125f };
+
+// 55965 - Quest Westward Bound "Alliance"
+// 59948 - Quest Westward Bound "Horde"
+class quest_westward_bound : public QuestScript
+{
+public:
+    quest_westward_bound(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view creatureStringOne, std::string_view creatureStringTwo, uint32 questEnderEntry, uint32 questEnderCompanionEntry, Position questGiverPos, Position companionPos)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+            {
+                Creature* questEnder = FindCreatureIgnorePhase(player, creatureStringOne, 125.0f);
+                if (!questEnder)
+                    return;
+
+                Creature* questEnderCompanion = FindCreatureIgnorePhase(player, creatureStringTwo, 125.0f);
+                if (!questEnderCompanion)
+                    return;
+
+                questEnder->SummonPersonalClone(questGiverPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                questEnderCompanion->SummonPersonalClone(companionPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            }
+            case QUEST_STATUS_NONE:
+            {
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+
+                if (Creature* questGiver = player->FindNearestCreatureWithOptions(100.0f, { .CreatureId = questEnderEntry, .IgnorePhases = true, .PrivateObjectOwnerGuid = player->GetGUID() }))
+                    questGiver->DespawnOrUnsummon();
+
+                if (Creature* companion = player->FindNearestCreatureWithOptions(100.0f, { .CreatureId = questEnderCompanionEntry, .IgnorePhases = true, .PrivateObjectOwnerGuid = player->GetGUID() }))
+                    companion->DespawnOrUnsummon();
+
+                break;
+            }
+            default:
+                break;
+        }
+    }
+};
+
+// 55965 - Quest Westward Bound "Alliance"
+class quest_westward_bound_alliance : public quest_westward_bound
+{
+public:
+    quest_westward_bound_alliance() : quest_westward_bound("quest_westward_bound_alliance") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "bjorn_stouthands_pit_pre_quest", "alaria_pit_pre_quest", NPC_BJORN_STOUTHANDS_PIT_ONE, NPC_ALARIA_PIT_ONE, BjornWestwardBoundRuinsPos, AlariaWestwardBoundRuinsPos);
+    }
+};
+
+// 59948 - Quest Westward Bound "Horde"
+class quest_westward_bound_horde : public quest_westward_bound
+{
+public:
+    quest_westward_bound_horde() : quest_westward_bound("quest_westward_bound_horde") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "lana_joran_pit_pre_quest", "wonsa_pit_pre_quest", NPC_LANAJORDAN_PIT_ONE, NPC_WONSA_PIT_ONE, LanaWestwardBoundRuinsPos, WonsaWestwardBoundRuinsPos);
+    }
+};
+
+enum BjornRunToPit
+{
+    EVENT_BJORN_RUN_TO_PIT = 1,
+
+    PATH_BJORN_RUN_TO_PIT  = 10518900,
+
+    SAY_BJORN_RUN_TO_PIT   = 0,
+    SAY_BJORN_REACHED_PIT  = 1
+};
+
+// 156891 - Bjorn Stouthands
+struct npc_bjorn_stouthands_q55965_private : public ScriptedAI
+{
+    npc_bjorn_stouthands_q55965_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+    }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_BJORN_RUN_TO_PIT, 1s);
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        Talk(SAY_BJORN_REACHED_PIT);
+        me->DespawnOrUnsummon(4s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BJORN_RUN_TO_PIT:
+                    Talk(SAY_BJORN_RUN_TO_PIT);
+                    me->GetMotionMaster()->MovePath(PATH_BJORN_RUN_TO_PIT, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+CreatureAI* BjornRuinsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_bjorn_stouthands_q55965_private(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
+enum LanaRunToPit
+{
+    EVENT_LANA_SAY_AT_RUINS = 1,
+    EVENT_LANA_RUN_TO_PIT   = 2,
+
+    PATH_LANA_RUN_TO_PIT    = 80000570,
+
+    SAY_LANA_RUN_TO_PIT     = 0,
+    SAY_LANA_REACHED_PIT    = 1
+};
+
+// 167225 - Lana Jordan
+struct npc_lana_jordan_q59948_private : public ScriptedAI
+{
+    npc_lana_jordan_q59948_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+    }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_LANA_SAY_AT_RUINS, 1s);
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        Talk(SAY_LANA_REACHED_PIT);
+        me->DespawnOrUnsummon(7s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_LANA_SAY_AT_RUINS:
+                    Talk(SAY_BJORN_RUN_TO_PIT);
+                    _events.ScheduleEvent(EVENT_LANA_RUN_TO_PIT, 5s);
+                    break;
+                case EVENT_LANA_RUN_TO_PIT:
+                    me->GetMotionMaster()->MovePath(PATH_LANA_RUN_TO_PIT, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+CreatureAI* LanaRuinsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_lana_jordan_q59948_private(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
+enum CompanionRunToPit
+{
+    EVENT_COMPANION_RUN_TO_PIT = 1,
+
+    PATH_ALARIA_RUN_TO_PIT     = 10518890,
+    PATH_WONSA_RUN_TO_PIT      = 80000580
+};
+
+// 156891 - Alaria
+// 167226 - Won'sa
+template<uint32 PitPathId>
+struct npc_companion_q55965_q59948_private : public ScriptedAI
+{
+    npc_companion_q55965_q59948_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_COMPANION_RUN_TO_PIT, 1s);
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        me->DespawnOrUnsummon(1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_COMPANION_RUN_TO_PIT:
+                    me->GetMotionMaster()->MovePath(PitPathId, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+CreatureAI* AlariaRuinsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_companion_q55965_q59948_private<PATH_ALARIA_RUN_TO_PIT>(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
+CreatureAI* WansaRuinsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_companion_q55965_q59948_private<PATH_WONSA_RUN_TO_PIT>(creature);
+    else
+        return new NullCreatureAI(creature);
 };
 
 void AddSC_zone_exiles_reach()
@@ -6028,4 +7164,26 @@ void AddSC_zone_exiles_reach()
     RegisterSpellScript(spell_resizer_hit_three_q56034);
     RegisterSpellScript(spell_re_sizing_q59941);
     RegisterSpellScript(spell_re_sizing_aura_q59941);
+    RegisterSpellScript(spell_re_sizer_slaughter);
+    // Ride Boar
+    new quest_ride_of_the_scientifically_enhanced_boar();
+    new scene_darkmaul_plains_skeleton_army_alliance();
+    RegisterSpellScript(spell_summon_darkmaul_plains_questgivers_q55879);
+    RegisterSpellScript(spell_riding_giant_boar_q55879);
+    RegisterSpellScript(spell_knockback_hint_q56034);
+    RegisterCreatureAI(npc_captain_garrick_q55879);
+    RegisterCreatureAI(npc_giant_boar_vehicle_q55879);
+    RegisterCreatureAI(npc_torgok_q55879);
+    new FactoryCreatureScript<CreatureAI, &PrisonerQ55879Selector>("npc_prisoner_q55879");
+    // The Re-Deather
+    new quest_the_re_deather();
+    new scene_darkmaul_plains_skeleton_army_horde();
+    RegisterCreatureAI(npc_warlord_grimaxe_q59942);
+    // Westward Bound
+    new quest_westward_bound_alliance();
+    new quest_westward_bound_horde();
+    new FactoryCreatureScript<CreatureAI, &BjornRuinsSelector>("npc_bjorn_stouthands_q55965");
+    new FactoryCreatureScript<CreatureAI, &LanaRuinsSelector>("npc_lana_jordan_q59948");
+    new FactoryCreatureScript<CreatureAI, &AlariaRuinsSelector>("npc_alaria_q55965");
+    new FactoryCreatureScript<CreatureAI, &WansaRuinsSelector>("npc_wonsa_q59948");
 };

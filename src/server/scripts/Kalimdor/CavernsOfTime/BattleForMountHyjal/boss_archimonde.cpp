@@ -96,8 +96,6 @@ enum Actions
     ACTION_CHANNEL_WORLD_TREE
 };
 
-Position const NordrassilLoc = { 5503.713f, -3523.436f, 1608.781f, 0.0f };
-
 class npc_ancient_wisp : public CreatureScript
 {
 public:

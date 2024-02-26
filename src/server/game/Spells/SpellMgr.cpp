@@ -4742,7 +4742,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Stinging Sap
     ApplySpellFix({ 374523 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx8 |= SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG;
+        spellInfo->AttributesEx8 |= SPELL_ATTR8_CAN_ATTACK_IMMUNE_PC;
     });
 
     // Jump to Center (DNT)
@@ -4957,8 +4957,10 @@ void SpellMgr::LoadSpellInfoImmunities()
             immunities.School = school;
             immunities.DispelType = dispelType;
             immunities.Mechanic = mechanics;
-            immunities.ImmuneAoE = fields[6].GetBool();
-            immunities.ImmuneChain = fields[7].GetBool();
+            if (fields[6].GetBool())
+                immunities.Other |= SpellOtherImmunity::AoETarget;
+            if (fields[7].GetBool())
+                immunities.Other |= SpellOtherImmunity::ChainTarget;
 
             if (immunities.School.to_ullong() != school)
                 TC_LOG_ERROR("sql.sql", "Invalid value in `SchoolMask` {} for creature immunities {}, truncated", school, id);

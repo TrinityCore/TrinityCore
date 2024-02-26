@@ -17,7 +17,7 @@
 
 #include "PassiveAI.h"
 #include "Creature.h"
-#include "MovementDefines.h"
+#include "World.h"
 
 PassiveAI::PassiveAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId)
 {
@@ -73,23 +73,31 @@ void PossessedAI::JustDied(Unit* /*u*/)
     me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
 }
 
-void CritterAI::JustEngagedWith(Unit* /*who*/)
+CritterAI::CritterAI(Creature* creature, uint32 scriptId) : PassiveAI(creature, scriptId)
 {
-    if (!me->HasUnitState(UNIT_STATE_FLEEING))
-        me->SetControlled(true, UNIT_STATE_FLEEING);
+    me->SetCanMelee(false, true);
 }
 
-void CritterAI::MovementInform(uint32 type, uint32 /*id*/)
+void CritterAI::JustEngagedWith(Unit* who)
 {
-    if (type == TIMED_FLEEING_MOTION_TYPE)
-        EnterEvadeMode(EvadeReason::Other);
+    me->StartDefaultCombatMovement(who);
+    _evadeTimer.Reset(Milliseconds(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_FLEE_DELAY)));
 }
 
-void CritterAI::EnterEvadeMode(EvadeReason why)
+void CritterAI::UpdateAI(uint32 diff)
 {
-    if (me->HasUnitState(UNIT_STATE_FLEEING))
-        me->SetControlled(false, UNIT_STATE_FLEEING);
-    CreatureAI::EnterEvadeMode(why);
+    if (me->IsEngaged())
+    {
+        if (!me->IsInCombat())
+        {
+            EnterEvadeMode(EvadeReason::NoHostiles);
+            return;
+        }
+
+        _evadeTimer.Update(diff);
+        if (_evadeTimer.Passed())
+            EnterEvadeMode(EvadeReason::Other);
+    }
 }
 
 int32 CritterAI::Permissible(Creature const* creature)
