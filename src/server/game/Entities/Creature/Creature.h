@@ -179,6 +179,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
 
+        bool IsStateRestoredOnEvade() const { return !HasFlag(CREATURE_STATIC_FLAG_5_NO_LEAVECOMBAT_STATE_RESTORE); }
+        void SetRestoreStateOnEvade(bool restoreOnEvade) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_5_NO_LEAVECOMBAT_STATE_RESTORE, !restoreOnEvade); }
+
         bool AIM_Destroy();
         bool AIM_Create(CreatureAI* ai = nullptr);
         bool AIM_Initialize(CreatureAI* ai = nullptr);
