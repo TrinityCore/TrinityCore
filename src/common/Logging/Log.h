@@ -134,19 +134,19 @@ class TC_COMMON_API Log
 #elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 
 // This will catch format errors on build time
-#define TC_LOG_MESSAGE_BODY(filterType__, level__, ...)                 \
-        do {                                                            \
-            if (sLog->ShouldLog(filterType__, level__))                 \
-                sLog->OutMessage(filterType__, level__, __VA_ARGS__);   \
+#define TC_LOG_MESSAGE_BODY(filterType__, level__, ...)                                 \
+        do {                                                                            \
+            if (Log* logInstance = sLog; logInstance->ShouldLog(filterType__, level__)) \
+                logInstance->OutMessage(filterType__, level__, __VA_ARGS__);            \
         } while (0)
 #else
-#define TC_LOG_MESSAGE_BODY(filterType__, level__, ...)                 \
-        __pragma(warning(push))                                         \
-        __pragma(warning(disable:4127))                                 \
-        do {                                                            \
-            if (sLog->ShouldLog(filterType__, level__))                 \
-                sLog->OutMessage(filterType__, level__, __VA_ARGS__);   \
-        } while (0)                                                     \
+#define TC_LOG_MESSAGE_BODY(filterType__, level__, ...)                                 \
+        __pragma(warning(push))                                                         \
+        __pragma(warning(disable:4127))                                                 \
+        do {                                                                            \
+            if (Log* logInstance = sLog; logInstance->ShouldLog(filterType__, level__)) \
+                logInstance->OutMessage(filterType__, level__, __VA_ARGS__);            \
+        } while (0)                                                                     \
         __pragma(warning(pop))
 #endif
 
