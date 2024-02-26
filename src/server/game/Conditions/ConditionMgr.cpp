@@ -201,7 +201,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_GENDER:
         {
             if (Player* player = object->ToPlayer())
-                condMeets = player->GetNativeGender() == ConditionValue1;
+                condMeets = player->GetNativeGender() == Gender(ConditionValue1);
             break;
         }
         case CONDITION_SKILL:
