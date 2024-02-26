@@ -5349,8 +5349,8 @@ void Spell::TakeCastItem()
 
             int32 charges = m_CastItem->GetSpellCharges(itemEffect->LegacySlotIndex);
 
-            // item has charges left
-            if (charges)
+            // item has charges left for this slot
+            if (charges && itemEffect->SpellID == int32(m_spellInfo->Id))
             {
                 (charges > 0) ? --charges : ++charges;  // abs(charges) less at 1 after use
                 if (proto->GetMaxStackSize() == 1)
