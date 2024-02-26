@@ -714,6 +714,11 @@ class spell_dk_obliteration : public AuraScript
 // 207200 - Permafrost
 class spell_dk_permafrost : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_FROST_SHIELD });
+    }
+
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         _damageAmount = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
