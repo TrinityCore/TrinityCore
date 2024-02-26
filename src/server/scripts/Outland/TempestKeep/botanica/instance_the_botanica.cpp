@@ -30,6 +30,7 @@ class instance_the_botanica : public InstanceMapScript
             instance_the_botanica_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
+                SetBossNumber(EncounterCount);
             }
 
             void OnCreatureCreate(Creature* creature) override

@@ -130,13 +130,13 @@ public:
 
         {
             uint16 dbPort = 0;
-            if (QueryResult res = LoginDatabase.PQuery("SELECT port FROM realmlist WHERE id = %u", realm.Id.Realm))
+            if (QueryResult res = LoginDatabase.PQuery("SELECT port FROM realmlist WHERE id = {}", realm.Id.Realm))
                 dbPort = (*res)[0].GetUInt16();
 
             if (dbPort)
-                dbPortOutput = Trinity::StringFormat("Realmlist (Realm Id: %u) configured in port %" PRIu16, realm.Id.Realm, dbPort);
+                dbPortOutput = Trinity::StringFormat("Realmlist (Realm Id: {}) configured in port {}", realm.Id.Realm, dbPort);
             else
-                dbPortOutput = Trinity::StringFormat("Realm Id: %u not found in `realmlist` table. Please check your setup", realm.Id.Realm);
+                dbPortOutput = Trinity::StringFormat("Realm Id: {} not found in `realmlist` table. Please check your setup", realm.Id.Realm);
         }
 
         handler->PSendSysMessage("%s", GitRevision::GetFullVersion());
@@ -173,7 +173,7 @@ public:
             handler->PSendSysMessage("Automatic database updates are enabled for the following databases: %s", availableUpdateDatabases.c_str());
         }
 
-        handler->PSendSysMessage("Worldserver listening connections on port %" PRIu16, worldPort);
+        handler->PSendSysMessage("Worldserver listening connections on port {}", worldPort);
         handler->PSendSysMessage("%s", dbPortOutput.c_str());
 
         bool vmapIndoorCheck = sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK);

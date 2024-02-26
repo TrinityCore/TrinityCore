@@ -80,10 +80,12 @@ enum ICDataTypes
     DATA_PROFESSOR_PUTRICIDE           = 6,
     DATA_BLOOD_PRINCE_COUNCIL          = 7,
     DATA_BLOOD_QUEEN_LANA_THEL         = 8,
-    DATA_SISTER_SVALNA                 = 9,
-    DATA_VALITHRIA_DREAMWALKER         = 10,
-    DATA_SINDRAGOSA                    = 11,
-    DATA_THE_LICH_KING                 = 12,
+    DATA_VALITHRIA_DREAMWALKER         = 9,
+    DATA_SINDRAGOSA                    = 10,
+    DATA_THE_LICH_KING                 = 11,
+
+    // miniboss, for door handling
+    DATA_SISTER_SVALNA                 = 12,
 
     // Additional data
     DATA_SAURFANG_EVENT_NPC            = 13,

@@ -81,6 +81,7 @@ TC_GAME_API uint32 GetDefaultMapLight(uint32 mapId);
 
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoMap;
 typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
+TC_GAME_API std::vector<SkillLineAbilityEntry const*> const* GetSkillLineAbilitiesBySkill(uint32 skill);
 TC_GAME_API SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
 
 TC_GAME_API ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale);

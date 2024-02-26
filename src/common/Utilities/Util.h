@@ -39,6 +39,8 @@ enum class TimeFormat : uint8
 
 namespace Trinity
 {
+    TC_COMMON_API void VerifyOsVersion();
+
     TC_COMMON_API std::vector<std::string_view> Tokenize(std::string_view str, char sep, bool keepEmpty);
 
     /* this would return string_view into temporary otherwise */
@@ -51,8 +53,11 @@ namespace Trinity
 
 TC_COMMON_API Optional<int32> MoneyStringToMoney(std::string const& moneyString);
 
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
 TC_COMMON_API struct tm* localtime_r(time_t const* time, struct tm *result);
-TC_COMMON_API time_t LocalTimeToUTCTime(time_t time);
+TC_COMMON_API struct tm* gmtime_r(time_t const* time, struct tm *result);
+TC_COMMON_API time_t timegm(struct tm* tm);
+#endif
 TC_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime = true);
 TC_COMMON_API tm TimeBreakdown(time_t t);
 
@@ -417,18 +422,6 @@ public:
         part[2] = p3;
     }
 
-    inline bool operator<(flag96 const& right) const
-    {
-        for (uint8 i = 3; i > 0; --i)
-        {
-            if (part[i - 1] < right.part[i - 1])
-                return true;
-            else if (part[i - 1] > right.part[i - 1])
-                return false;
-        }
-        return false;
-    }
-
     inline bool operator==(flag96 const& right) const
     {
         return
@@ -557,10 +550,23 @@ Ret* Coalesce(T1* first, T*... rest)
         return static_cast<Ret*>(first);
 }
 
-TC_COMMON_API std::string GetTypeName(std::type_info const&);
+namespace Trinity
+{
+namespace Impl
+{
+    TC_COMMON_API std::string GetTypeName(std::type_info const&);
+}
+
 template <typename T>
-std::string GetTypeName() { return GetTypeName(typeid(T)); }
+std::string GetTypeName() { return Impl::GetTypeName(typeid(T)); }
 template <typename T>
-std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::type_info>, std::string> GetTypeName(T&& v) { return GetTypeName(typeid(v)); }
+std::string GetTypeName(T&& v)
+{
+    if constexpr (std::is_same_v<std::remove_cv_t<T>, std::type_info>)
+        return Impl::GetTypeName(v);
+    else
+        return Impl::GetTypeName(typeid(v));
+}
+}
 
 #endif

@@ -899,14 +899,14 @@ class TC_GAME_API Unit : public WorldObject
         virtual Gender GetNativeGender() const { return GetGender(); }
         virtual void SetNativeGender(Gender gender) { SetGender(gender); }
 
-        float GetStat(Stats stat) const { return float(GetUInt32Value(UNIT_FIELD_STAT0+stat)); }
-        void SetStat(Stats stat, int32 val) { SetStatInt32Value(UNIT_FIELD_STAT0+stat, val); }
+        float GetStat(Stats stat) const { return float(GetUInt32Value(UNIT_FIELD_STAT0 + int32(stat))); }
+        void SetStat(Stats stat, int32 val) { SetStatInt32Value(UNIT_FIELD_STAT0 + int32(stat), val); }
         uint32 GetArmor() const { return GetResistance(SPELL_SCHOOL_NORMAL); }
         void SetArmor(int32 val) { SetResistance(SPELL_SCHOOL_NORMAL, val); }
 
-        int32 GetResistance(SpellSchools school) const { return GetInt32Value(UNIT_FIELD_RESISTANCES + school); }
+        int32 GetResistance(SpellSchools school) const { return GetInt32Value(UNIT_FIELD_RESISTANCES + int32(school)); }
         int32 GetResistance(SpellSchoolMask mask) const;
-        void SetResistance(SpellSchools school, int32 val) { SetStatInt32Value(UNIT_FIELD_RESISTANCES + school, val); }
+        void SetResistance(SpellSchools school, int32 val) { SetStatInt32Value(UNIT_FIELD_RESISTANCES + int32(school), val); }
         static float CalculateAverageResistReduction(WorldObject const* caster, SpellSchoolMask schoolMask, Unit const* victim, SpellInfo const* spellInfo = nullptr);
 
         uint32 GetHealth()    const { return GetUInt32Value(UNIT_FIELD_HEALTH); }
@@ -930,8 +930,8 @@ class TC_GAME_API Unit : public WorldObject
         Powers GetPowerType() const { return Powers(GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_POWER_TYPE)); }
         void SetPowerType(Powers power, bool sendUpdate = true);
         void UpdateDisplayPower();
-        uint32 GetPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_POWER1   +power); }
-        uint32 GetMaxPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_MAXPOWER1+power); }
+        uint32 GetPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_POWER1 + int32(power)); }
+        uint32 GetMaxPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_MAXPOWER1 + int32(power)); }
         float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
         int32 CountPctFromMaxPower(Powers power, int32 pct) const { return CalculatePct(GetMaxPower(power), pct); }
         void SetPower(Powers power, uint32 val, bool withPowerUpdate = true);
@@ -941,7 +941,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 ModifyPower(Powers power, int32 val, bool withPowerUpdate = true);
 
         uint32 GetAttackTime(WeaponAttackType att) const;
-        void SetAttackTime(WeaponAttackType att, uint32 val) { SetFloatValue(UNIT_FIELD_BASEATTACKTIME+att, val*m_modAttackSpeedPct[att]); }
+        void SetAttackTime(WeaponAttackType att, uint32 val) { SetFloatValue(UNIT_FIELD_BASEATTACKTIME + int32(att), val * m_modAttackSpeedPct[att]); }
         void ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply);
         void ApplyCastTimePercentMod(float val, bool apply);
 
@@ -1044,7 +1044,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetLastDamagedTargetGuid(ObjectGuid guid) { _lastDamagedTargetGuid = guid; }
         ObjectGuid GetLastDamagedTargetGuid() const { return _lastDamagedTargetGuid; }
 
-        void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = BASE_ATTACK, bool crit = false, Spell* spell = nullptr);
+        void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = BASE_ATTACK, bool crit = false, bool blocked = false, Spell* spell = nullptr);
         void DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilityLoss);
 
         // player or player's pet resilience (-1%)
@@ -1141,7 +1141,7 @@ class TC_GAME_API Unit : public WorldObject
 
         bool IsInCombat() const { return HasUnitFlag(UNIT_FLAG_IN_COMBAT); }
         bool IsInCombatWith(Unit const* who) const { return who && m_combatManager.IsInCombatWith(who); }
-        void SetInCombatWith(Unit* enemy) { if (enemy) m_combatManager.SetInCombatWith(enemy); }
+        void SetInCombatWith(Unit* enemy, bool addSecondUnitSuppressed = false) { if (enemy) m_combatManager.SetInCombatWith(enemy, addSecondUnitSuppressed); }
         void ClearInCombat() { m_combatManager.EndAllCombat(); }
         void UpdatePetCombatState();
         // Threat handling
@@ -1320,7 +1320,7 @@ class TC_GAME_API Unit : public WorldObject
         void _ApplyAura(AuraApplication* aurApp, uint8 effMask);
         void _UnapplyAura(AuraApplicationMap::iterator& i, AuraRemoveMode removeMode);
         void _UnapplyAura(AuraApplication* aurApp, AuraRemoveMode removeMode);
-        void _RemoveNoStackAurasDueToAura(Aura* aura);
+        void _RemoveNoStackAurasDueToAura(Aura* aura, bool owned);
         void _RegisterAuraEffect(AuraEffect* aurEff, bool apply);
 
         // m_ownedAuras container management
@@ -1343,14 +1343,14 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAura(Aura* aur, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
 
         // Convenience methods removing auras by predicate
-        void RemoveAppliedAuras(std::function<bool(AuraApplication const*)> const& check);
-        void RemoveOwnedAuras(std::function<bool(Aura const*)> const& check);
+        void RemoveAppliedAuras(std::function<bool(AuraApplication const*)> const& check, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        void RemoveOwnedAuras(std::function<bool(Aura const*)> const& check, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         // Optimized overloads taking advantage of map key
-        void RemoveAppliedAuras(uint32 spellId, std::function<bool(AuraApplication const*)> const& check);
-        void RemoveOwnedAuras(uint32 spellId, std::function<bool(Aura const*)> const& check);
+        void RemoveAppliedAuras(uint32 spellId, std::function<bool(AuraApplication const*)> const& check, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        void RemoveOwnedAuras(uint32 spellId, std::function<bool(Aura const*)> const& check, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
-        void RemoveAurasByType(AuraType auraType, std::function<bool(AuraApplication const*)> const& check);
+        void RemoveAurasByType(AuraType auraType, std::function<bool(AuraApplication const*)> const& check, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         void RemoveAurasDueToSpell(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAuraFromStack(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
@@ -1362,7 +1362,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAurasWithInterruptFlags(uint32 flag, uint32 except = 0);
         void RemoveAurasWithAttribute(uint32 flags);
         void RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, ObjectGuid casterGUID);
-        void RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode = AURA_REMOVE_BY_DEFAULT, uint32 except = 0);
+        void RemoveAurasWithMechanic(uint32 mechanicMaskToRemove, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, uint32 exceptSpellId = 0, bool withEffectMechanics = false);
         void RemoveMovementImpairingAuras(bool withRoot);
         void RemoveAurasByShapeShift();
 
@@ -1450,8 +1450,8 @@ class TC_GAME_API Unit : public WorldObject
         void SetCreateMana(uint32 val) { SetUInt32Value(UNIT_FIELD_BASE_MANA, val); }
         uint32 GetCreateMana() const { return GetUInt32Value(UNIT_FIELD_BASE_MANA); }
         uint32 GetCreatePowerValue(Powers power) const;
-        float GetPosStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_POSSTAT0+stat); }
-        float GetNegStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_NEGSTAT0+stat); }
+        float GetPosStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_POSSTAT0 + int32(stat)); }
+        float GetNegStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_NEGSTAT0 + int32(stat)); }
         float GetCreateStat(Stats stat) const { return m_createStats[stat]; }
 
         uint32 GetChannelSpellId() const { return GetUInt32Value(UNIT_CHANNEL_SPELL); }
@@ -1496,7 +1496,7 @@ class TC_GAME_API Unit : public WorldObject
         float m_modMeleeHitChance;
         float m_modRangedHitChance;
         float m_modSpellHitChance;
-        int32 m_baseSpellCritChance;
+        float m_baseSpellCritChance;
 
         float m_modAttackSpeedPct[MAX_ATTACK];
         uint32 m_attackTimer[MAX_ATTACK];
@@ -1620,8 +1620,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType attType, SpellInfo const* spellProto = nullptr, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL);
         uint32 MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto = nullptr, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL);
 
-        bool isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = BASE_ATTACK);
-        bool isBlockCritical();
+        bool IsBlockCritical();
         float SpellCritChanceDone(SpellInfo const* spellInfo, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK, bool isPeriodic = false) const;
         float SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, float doneChance, WeaponAttackType attackType = BASE_ATTACK, bool isPeriodic = false) const;
         static uint32 SpellCriticalDamageBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage, Unit* victim);
@@ -1634,14 +1633,14 @@ class TC_GAME_API Unit : public WorldObject
         float CalculateDefaultCoefficient(SpellInfo const* spellInfo, DamageEffectType damagetype) const;
 
         void ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply);
-        virtual bool IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster) const;
+        virtual bool IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const;
         uint32 GetSchoolImmunityMask() const;
         uint32 GetDamageImmunityMask() const;
         uint32 GetMechanicImmunityMask() const;
 
         bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask) const;
         bool IsImmunedToDamage(SpellInfo const* spellInfo) const;
-        virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const;
+        virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const;
 
         static bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo = nullptr);
         static uint32 CalcArmorReducedDamage(Unit const* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = MAX_ATTACK, uint8 attackerLevel = 0);

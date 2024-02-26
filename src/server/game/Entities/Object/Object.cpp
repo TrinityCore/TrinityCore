@@ -61,7 +61,7 @@ constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max
     MAX_VISIBILITY_DISTANCE
 };
 
-Object::Object() : m_PackGUID(sizeof(uint64)+1)
+Object::Object()
 {
     m_objectTypeId      = TYPEID_OBJECT;
     m_objectType        = TYPEMASK_OBJECT;
@@ -83,8 +83,8 @@ WorldObject::~WorldObject()
     {
         if (GetTypeId() == TYPEID_CORPSE)
         {
-            TC_LOG_FATAL("misc", "WorldObject::~WorldObject Corpse Type: %d (%s) deleted but still in map!!",
-                ToCorpse()->GetType(), GetGUID().ToString().c_str());
+            TC_LOG_FATAL("misc", "WorldObject::~WorldObject Corpse Type: {} ({}) deleted but still in map!!",
+                ToCorpse()->GetType(), GetGUID().ToString());
             ABORT();
         }
         ResetMap();
@@ -95,15 +95,15 @@ Object::~Object()
 {
     if (IsInWorld())
     {
-        TC_LOG_FATAL("misc", "Object::~Object %s deleted but still in world!!", GetGUID().ToString().c_str());
+        TC_LOG_FATAL("misc", "Object::~Object {} deleted but still in world!!", GetGUID().ToString());
         if (isType(TYPEMASK_ITEM))
-            TC_LOG_FATAL("misc", "Item slot %u", ((Item*)this)->GetSlot());
+            TC_LOG_FATAL("misc", "Item slot {}", ((Item*)this)->GetSlot());
         ABORT();
     }
 
     if (m_objectUpdated)
     {
-        TC_LOG_FATAL("misc", "Object::~Object %s deleted but still in update list!!", GetGUID().ToString().c_str());
+        TC_LOG_FATAL("misc", "Object::~Object {} deleted but still in update list!!", GetGUID().ToString());
         ABORT();
     }
 
@@ -166,14 +166,14 @@ void Object::RemoveFromWorld()
 
 void Object::BuildMovementUpdateBlock(UpdateData* data, uint32 flags) const
 {
-    ByteBuffer buf(500);
+    ByteBuffer& buf = data->GetBuffer();
 
     buf << uint8(UPDATETYPE_MOVEMENT);
     buf << GetPackGUID();
 
     BuildMovementUpdate(&buf, flags);
 
-    data->AddUpdateBlock(buf);
+    data->AddUpdateBlock();
 }
 
 void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const
@@ -194,16 +194,16 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
             flags |= UPDATEFLAG_HAS_TARGET;
     }
 
-    //TC_LOG_DEBUG("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updateType, m_objectTypeId, flags, flags2);
+    //TC_LOG_DEBUG("BuildCreateUpdate: update-type: {}, object-type: {} got flags: {:X}, flags2: {:X}", updateType, m_objectTypeId, flags, flags2);
 
-    ByteBuffer buf(500);
+    ByteBuffer& buf = data->GetBuffer();
     buf << uint8(updateType);
     buf << GetPackGUID();
     buf << uint8(m_objectTypeId);
 
     BuildMovementUpdate(&buf, flags);
     BuildValuesUpdate(updateType, &buf, target);
-    data->AddUpdateBlock(buf);
+    data->AddUpdateBlock();
 }
 
 void Object::SendUpdateToPlayer(Player* player)
@@ -222,14 +222,14 @@ void Object::SendUpdateToPlayer(Player* player)
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* target) const
 {
-    ByteBuffer buf(500);
+    ByteBuffer& buf = data->GetBuffer();
 
     buf << uint8(UPDATETYPE_VALUES);
     buf << GetPackGUID();
 
     BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
 
-    data->AddUpdateBlock(buf);
+    data->AddUpdateBlock();
 }
 
 void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
@@ -922,7 +922,7 @@ void Object::ApplyModFlag64(uint16 index, uint64 flag, bool apply)
 
 bool Object::PrintIndexError(uint32 index, bool set) const
 {
-    TC_LOG_ERROR("misc", "Attempt to %s non-existing value field: %u (count: %u) for object typeid: %u type mask: %u", (set ? "set value to" : "get value from"), index, m_valuesCount, GetTypeId(), m_objectType);
+    TC_LOG_ERROR("misc", "Attempt to {} non-existing value field: {} (count: {}) for object typeid: {} type mask: {}", (set ? "set value to" : "get value from"), index, m_valuesCount, GetTypeId(), m_objectType);
 
     // ASSERT must fail after function call
     return false;
@@ -938,31 +938,31 @@ std::string Object::GetDebugInfo() const
 void MovementInfo::OutDebug()
 {
     TC_LOG_DEBUG("misc", "MOVEMENT INFO");
-    TC_LOG_DEBUG("misc", "%s", guid.ToString().c_str());
-    TC_LOG_DEBUG("misc", "flags %u", flags);
-    TC_LOG_DEBUG("misc", "flags2 %u", flags2);
-    TC_LOG_DEBUG("misc", "time %u current time " UI64FMTD "", flags2, uint64(::time(nullptr)));
-    TC_LOG_DEBUG("misc", "position: `%s`", pos.ToString().c_str());
+    TC_LOG_DEBUG("misc", "{}", guid.ToString());
+    TC_LOG_DEBUG("misc", "flags {}", flags);
+    TC_LOG_DEBUG("misc", "flags2 {}", flags2);
+    TC_LOG_DEBUG("misc", "time {} current time {}", flags2, uint64(::time(nullptr)));
+    TC_LOG_DEBUG("misc", "position: `{}`", pos.ToString());
     if (flags & MOVEMENTFLAG_ONTRANSPORT)
     {
         TC_LOG_DEBUG("misc", "TRANSPORT:");
-        TC_LOG_DEBUG("misc", "%s", transport.guid.ToString().c_str());
-        TC_LOG_DEBUG("misc", "position: `%s`", transport.pos.ToString().c_str());
-        TC_LOG_DEBUG("misc", "seat: %i", transport.seat);
-        TC_LOG_DEBUG("misc", "time: %u", transport.time);
+        TC_LOG_DEBUG("misc", "{}", transport.guid.ToString());
+        TC_LOG_DEBUG("misc", "position: `{}`", transport.pos.ToString());
+        TC_LOG_DEBUG("misc", "seat: {}", transport.seat);
+        TC_LOG_DEBUG("misc", "time: {}", transport.time);
         if (flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
-            TC_LOG_DEBUG("misc", "time2: %u", transport.time2);
+            TC_LOG_DEBUG("misc", "time2: {}", transport.time2);
     }
 
     if ((flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
-        TC_LOG_DEBUG("misc", "pitch: %f", pitch);
+        TC_LOG_DEBUG("misc", "pitch: {}", pitch);
 
-    TC_LOG_DEBUG("misc", "fallTime: %u", fallTime);
+    TC_LOG_DEBUG("misc", "fallTime: {}", fallTime);
     if (flags & MOVEMENTFLAG_FALLING)
-        TC_LOG_DEBUG("misc", "j_zspeed: %f j_sinAngle: %f j_cosAngle: %f j_xyspeed: %f", jump.zspeed, jump.sinAngle, jump.cosAngle, jump.xyspeed);
+        TC_LOG_DEBUG("misc", "j_zspeed: {} j_sinAngle: {} j_cosAngle: {} j_xyspeed: {}", jump.zspeed, jump.sinAngle, jump.cosAngle, jump.xyspeed);
 
     if (flags & MOVEMENTFLAG_SPLINE_ELEVATION)
-        TC_LOG_DEBUG("misc", "splineElevation: %f", splineElevation);
+        TC_LOG_DEBUG("misc", "splineElevation: {}", splineElevation);
 }
 
 WorldObject::WorldObject(bool isWorldObject) : Object(), WorldLocation(), LastUsedScriptID(0),
@@ -1023,19 +1023,9 @@ void WorldObject::setActive(bool on)
         return;
 
     if (on)
-    {
-        if (GetTypeId() == TYPEID_UNIT)
-            map->AddToActive(ToCreature());
-        else if (GetTypeId() == TYPEID_DYNAMICOBJECT)
-            map->AddToActive((DynamicObject*)this);
-    }
+        map->AddToActive(this);
     else
-    {
-        if (GetTypeId() == TYPEID_UNIT)
-            map->RemoveFromActive(ToCreature());
-        else if (GetTypeId() == TYPEID_DYNAMICOBJECT)
-            map->RemoveFromActive((DynamicObject*)this);
-    }
+        map->RemoveFromActive(this);
 }
 
 void WorldObject::SetFarVisible(bool on)
@@ -1555,12 +1545,12 @@ float WorldObject::GetSightRange(WorldObject const* target) const
     return 0.0f;
 }
 
-bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, bool distanceCheck, bool checkAlert) const
+bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bool distanceCheck, bool checkAlert) const
 {
     if (this == obj)
         return true;
 
-    if (obj->IsNeverVisible() || CanNeverSee(obj))
+    if (obj->IsNeverVisible(implicitDetect) || CanNeverSee(obj))
         return false;
 
     if (obj->IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
@@ -1642,7 +1632,7 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (obj->IsInvisibleDueToDespawn())
         return false;
 
-    if (!CanDetect(obj, ignoreStealth, checkAlert))
+    if (!CanDetect(obj, implicitDetect, checkAlert))
         return false;
 
     return true;
@@ -1653,7 +1643,7 @@ bool WorldObject::CanNeverSee(WorldObject const* obj) const
     return GetMap() != obj->GetMap() || !InSamePhase(obj);
 }
 
-bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth, bool checkAlert) const
+bool WorldObject::CanDetect(WorldObject const* obj, bool implicitDetect, bool checkAlert) const
 {
     WorldObject const* seer = this;
 
@@ -1673,10 +1663,10 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth, bool che
     if (obj->IsAlwaysDetectableFor(seer))
         return true;
 
-    if (!ignoreStealth && !seer->CanDetectInvisibilityOf(obj))
+    if (!implicitDetect && !seer->CanDetectInvisibilityOf(obj))
         return false;
 
-    if (!ignoreStealth && !seer->CanDetectStealthOf(obj, checkAlert))
+    if (!implicitDetect && !seer->CanDetectStealthOf(obj, checkAlert))
         return false;
 
     return true;
@@ -1835,7 +1825,7 @@ void WorldObject::SetMap(Map* map)
         return;
     if (m_currMap)
     {
-        TC_LOG_FATAL("misc", "WorldObject::SetMap: obj %u new map %u %u, old map %u %u", (uint32)GetTypeId(), map->GetId(), map->GetInstanceId(), m_currMap->GetId(), m_currMap->GetInstanceId());
+        TC_LOG_FATAL("misc", "WorldObject::SetMap: obj {} new map {} {}, old map {} {}", (uint32)GetTypeId(), map->GetId(), map->GetInstanceId(), m_currMap->GetId(), m_currMap->GetInstanceId());
         ABORT();
     }
     m_currMap = map;
@@ -1864,7 +1854,7 @@ void WorldObject::AddObjectToRemoveList()
     Map* map = FindMap();
     if (!map)
     {
-        TC_LOG_ERROR("misc", "Object %s at attempt add to move list not have valid map (Id: %u).", GetGUID().ToString().c_str(), GetMapId());
+        TC_LOG_ERROR("misc", "Object {} at attempt add to move list not have valid map (Id: {}).", GetGUID().ToString(), GetMapId());
         return;
     }
 
@@ -2042,7 +2032,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
     if (!goinfo)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject template %u not found in database!", entry);
+        TC_LOG_ERROR("sql.sql", "Gameobject template {} not found in database!", entry);
         return nullptr;
     }
 
@@ -2108,7 +2098,7 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
     std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group);
     if (!data)
     {
-        TC_LOG_WARN("scripts", "%s (%s) tried to summon non-existing summon group %u.", GetName().c_str(), GetGUID().ToString().c_str(), group);
+        TC_LOG_WARN("scripts", "{} ({}) tried to summon non-existing summon group {}.", GetName(), GetGUID().ToString(), group);
         return;
     }
 
@@ -2635,17 +2625,17 @@ FactionTemplateEntry const* WorldObject::GetFactionTemplateEntry() const
         switch (GetTypeId())
         {
             case TYPEID_PLAYER:
-                TC_LOG_ERROR("entities.unit", "Player %s has invalid faction (faction template id) #%u", ToPlayer()->GetName().c_str(), factionId);
+                TC_LOG_ERROR("entities.unit", "Player {} has invalid faction (faction template id) #{}", ToPlayer()->GetName(), factionId);
                 break;
             case TYPEID_UNIT:
-                TC_LOG_ERROR("entities.unit", "Creature (template id: %u) has invalid faction (faction template Id) #%u", ToCreature()->GetCreatureTemplate()->Entry, factionId);
+                TC_LOG_ERROR("entities.unit", "Creature (template id: {}) has invalid faction (faction template Id) #{}", ToCreature()->GetCreatureTemplate()->Entry, factionId);
                 break;
             case TYPEID_GAMEOBJECT:
                 if (factionId) // Gameobjects may have faction template id = 0
-                    TC_LOG_ERROR("entities.faction", "GameObject (template id: %u) has invalid faction (faction template Id) #%u", ToGameObject()->GetGOInfo()->entry, factionId);
+                    TC_LOG_ERROR("entities.faction", "GameObject (template id: {}) has invalid faction (faction template Id) #{}", ToGameObject()->GetGOInfo()->entry, factionId);
                 break;
             default:
-                TC_LOG_ERROR("entities.unit", "Object (name=%s, type=%u) has invalid faction (faction template Id) #%u", GetName().c_str(), uint32(GetTypeId()), factionId);
+                TC_LOG_ERROR("entities.unit", "Object (name={}, type={}) has invalid faction (faction template Id) #{}", GetName(), uint32(GetTypeId()), factionId);
                 break;
         }
     }
@@ -2829,13 +2819,13 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
     SpellInfo const* info = sSpellMgr->GetSpellInfo(spellId);
     if (!info)
     {
-        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell %u by caster %s", spellId, GetGUID().ToString().c_str());
+        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell {} by caster {}", spellId, GetGUID().ToString());
         return SPELL_FAILED_SPELL_UNAVAILABLE;
     }
 
     if (!targets.Targets)
     {
-        TC_LOG_ERROR("entities.unit", "CastSpell: Invalid target passed to spell cast %u by %s", spellId, GetGUID().ToString().c_str());
+        TC_LOG_ERROR("entities.unit", "CastSpell: Invalid target passed to spell cast {} by {}", spellId, GetGUID().ToString());
         return SPELL_FAILED_BAD_TARGETS;
     }
 
@@ -3255,8 +3245,8 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
     // Prevent invalid coordinates here, position is unchanged
     if (!Trinity::IsValidMapCoord(destx, desty, pos.m_positionZ))
     {
-        TC_LOG_FATAL("misc", "WorldObject::MovePosition: Object %s has invalid coordinates X: %f and Y: %f were passed!",
-            GetGUID().ToString().c_str(), destx, desty);
+        TC_LOG_FATAL("misc", "WorldObject::MovePosition: Object {} has invalid coordinates X: {} and Y: {} were passed!",
+            GetGUID().ToString(), destx, desty);
         return;
     }
 
@@ -3302,7 +3292,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     // Prevent invalid coordinates here, position is unchanged
     if (!Trinity::IsValidMapCoord(destx, desty))
     {
-        TC_LOG_FATAL("misc", "WorldObject::MovePositionToFirstCollision invalid coordinates X: %f and Y: %f were passed!", destx, desty);
+        TC_LOG_FATAL("misc", "WorldObject::MovePositionToFirstCollision invalid coordinates X: {} and Y: {} were passed!", destx, desty);
         return;
     }
 

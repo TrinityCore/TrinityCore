@@ -19,6 +19,7 @@
 #define _REALMLIST_H
 
 #include "Define.h"
+#include "Duration.h"
 #include "Realm.h"
 #include <array>
 #include <map>

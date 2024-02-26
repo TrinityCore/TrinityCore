@@ -86,13 +86,13 @@ public:
             Initialize();
 
             if (IsEvent)
-                instance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
+                instance->SetBossState(DATA_AZGALOR, NOT_STARTED);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
             if (IsEvent)
-                instance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_AZGALOR, IN_PROGRESS);
 
             Talk(SAY_ONAGGRO);
         }
@@ -116,7 +116,7 @@ public:
         {
             hyjal_trashAI::JustDied(killer);
             if (IsEvent)
-                instance->SetData(DATA_AZGALOREVENT, DONE);
+                instance->SetBossState(DATA_AZGALOR, DONE);
             Talk(SAY_ONDEATH);
         }
 

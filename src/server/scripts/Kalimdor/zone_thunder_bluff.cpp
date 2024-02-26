@@ -142,6 +142,7 @@ public:
 
         bool OnGossipHello(Player* player) override
         {
+            InitGossipMenuFor(player, GOSSIP_MENU_HCB);
             if (me->IsQuestGiver())
                 player->PrepareQuestMenu(me->GetGUID());
 

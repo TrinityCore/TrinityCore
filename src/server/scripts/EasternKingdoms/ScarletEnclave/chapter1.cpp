@@ -224,7 +224,7 @@ public:
                     else
                     {
                         me->GetMotionMaster()->MovePoint(1, anchorX, anchorY, me->GetPositionZ());
-                        //TC_LOG_DEBUG("scripts", "npc_unworthy_initiateAI: move to %f %f %f", anchorX, anchorY, me->GetPositionZ());
+                        //TC_LOG_DEBUG("scripts", "npc_unworthy_initiateAI: move to {} {} {}", anchorX, anchorY, me->GetPositionZ());
                         phase = PHASE_EQUIPING;
                         wait_timer = 0;
                     }
@@ -472,7 +472,7 @@ struct npc_eye_of_acherus : public ScriptedAI
                     break;
                 case EVENT_LAUNCH_TOWARDS_DESTINATION:
                 {
-                    std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
+                    std::function<void(Movement::MoveSplineInit&)> initializer = [=, me = me](Movement::MoveSplineInit& init)
                     {
                         Movement::PointsArray path(EyeOfAcherusPath, EyeOfAcherusPath + EyeOfAcherusPathSize);
                         init.MovebyPath(path);
@@ -673,6 +673,8 @@ public:
 
         bool OnGossipHello(Player* player) override
         {
+            uint32 gossipMenuId = Player::GetDefaultGossipMenuForSource(me);
+            InitGossipMenuFor(player, gossipMenuId);
             if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && me->IsFullHealth())
             {
                 if (player->HealthBelowPct(10))
@@ -681,7 +683,7 @@ public:
                 if (player->IsInCombat() || me->IsInCombat())
                     return true;
 
-                AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, gossipMenuId, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                 SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             }
             return true;

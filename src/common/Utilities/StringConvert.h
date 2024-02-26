@@ -76,7 +76,9 @@ namespace Trinity::Impl::StringConvertImpl
 
         static std::string ToString(T val)
         {
-            std::string buf(20,'\0'); /* 2^64 is 20 decimal characters, -(2^63) is 20 including the sign */
+            using buffer_size = std::integral_constant<size_t, sizeof(T) < 8 ? 11 : 20>;
+
+            std::string buf(buffer_size::value,'\0'); /* 2^64 is 20 decimal characters, -(2^63) is 20 including the sign */
             char* const start = buf.data();
             char* const end = (start + buf.length());
             std::to_chars_result const res = std::to_chars(start, end, val);

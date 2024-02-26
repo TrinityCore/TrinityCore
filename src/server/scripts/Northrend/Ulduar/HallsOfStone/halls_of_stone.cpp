@@ -689,6 +689,7 @@ struct npc_brann_hos : public EscortAI
 
     bool OnGossipHello(Player* player) override
     {
+        InitGossipMenuFor(player, GOSSIP_ITEM_START_MID);
         if (me->IsQuestGiver())
             player->PrepareQuestMenu(me->GetGUID());
 

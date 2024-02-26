@@ -32,10 +32,16 @@ class OPvPCapturePoint;
 class Transport;
 class Unit;
 struct TransportAnimation;
+enum SpellTargetCheckTypes : uint8;
 enum TriggerCastFlags : uint32;
 
 union GameObjectValue
 {
+    //6 GAMEOBJECT_TYPE_TRAP
+    struct
+    {
+        SpellTargetCheckTypes TargetSearcherCheckType;
+    } Trap;
     //11 GAMEOBJECT_TYPE_TRANSPORT
     struct
     {
@@ -235,7 +241,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void TriggeringLinkedGameObject(uint32 trapEntry, Unit* target);
 
-        bool IsNeverVisible() const override;
+        bool IsNeverVisible(bool allowServersideObjects) const override;
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
         bool IsInvisibleDueToDespawn() const override;
 

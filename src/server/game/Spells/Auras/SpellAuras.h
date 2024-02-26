@@ -49,11 +49,11 @@ class TC_GAME_API AuraApplication
     private:
         Unit* const _target;
         Aura* const _base;
-        AuraRemoveMode _removeMode:8;                  // Store info for know remove aura reason
+        AuraRemoveMode _removeMode;                    // Store info for know remove aura reason
         uint8 _slot;                                   // Aura slot on unit
         uint8 _flags;                                  // Aura info flag
         uint8 _effectsToApply;                         // Used only at spell hit to determine which effect should be applied
-        bool _needClientUpdate:1;
+        bool _needClientUpdate;
 
         explicit AuraApplication(Unit* target, Unit* caster, Aura* base, uint8 effMask);
         void _Remove();
@@ -73,7 +73,7 @@ class TC_GAME_API AuraApplication
         bool IsSelfcast() const { return (_flags & AFLAG_CASTER) != 0; }
 
         uint8 GetEffectsToApply() const { return _effectsToApply; }
-        void UpdateApplyEffectMask(uint8 newEffMask);
+        void UpdateApplyEffectMask(uint8 newEffMask, bool canHandleNewEffects);
 
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
         AuraRemoveMode GetRemoveMode() const { return _removeMode; }

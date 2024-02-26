@@ -22,14 +22,17 @@
 #include "Common.h"
 #include "Duration.h"
 #include <map>
-#include <memory>
 #include <set>
 
-#define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_SAVE_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_LOAD_INST_DATA(a)          TC_LOG_DEBUG("scripts", "Loading Instance Data for Instance %s (Map %d, Instance Id %d). Input is '%s'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)
-#define OUT_LOAD_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_LOAD_INST_DATA_FAIL        TC_LOG_ERROR("scripts", "Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#ifdef TRINITY_API_USE_DYNAMIC_LINKING
+#include <memory>
+#endif
+
+#define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance {} (Map {}, Instance Id {})", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_SAVE_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance {} (Map {}, Instance Id {}) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_LOAD_INST_DATA(a)          TC_LOG_DEBUG("scripts", "Loading Instance Data for Instance {} (Map {}, Instance Id {}). Input is '{}'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)
+#define OUT_LOAD_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Instance Data Load for Instance {} (Map {}, Instance Id: {}) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_LOAD_INST_DATA_FAIL        TC_LOG_ERROR("scripts", "Unable to load Instance Data for Instance {} (Map {}, Instance Id: {}).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 
 namespace WorldPackets
 {
@@ -61,7 +64,7 @@ enum EncounterFrameType
     ENCOUNTER_FRAME_ENABLE_OBJECTIVE    = 4,
     ENCOUNTER_FRAME_UPDATE_OBJECTIVE    = 5,
     ENCOUNTER_FRAME_DISABLE_OBJECTIVE   = 6,
-    ENCOUNTER_FRAME_UNK7                = 7 // Seems to have something to do with sorting the encounter units
+    ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED = 7
 };
 
 // EnumUtils: DESCRIBE THIS
@@ -255,7 +258,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
-        void SendEncounterUnit(uint32 type, Unit* unit = nullptr, uint8 param1 = 0, uint8 param2 = 0);
+        void SendEncounterUnit(EncounterFrameType type, Unit const* unit = nullptr, uint8 param1 = 0, uint8 param2 = 0);
 
         virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 

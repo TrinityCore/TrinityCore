@@ -23,6 +23,7 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "karazhan.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
@@ -248,6 +249,7 @@ public:
                 positions.push_back(&InfernalPoints[i]);
 
             instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
+            instance->SetBossState(DATA_MALCHEZZAR, NOT_STARTED);
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -268,6 +270,7 @@ public:
                 positions.push_back(&InfernalPoints[i]);
 
             instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
+            instance->SetBossState(DATA_MALCHEZZAR, DONE);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -275,6 +278,7 @@ public:
             Talk(SAY_AGGRO);
 
             instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
+            instance->SetBossState(DATA_MALCHEZZAR, IN_PROGRESS);
         }
 
         void InfernalCleanup()

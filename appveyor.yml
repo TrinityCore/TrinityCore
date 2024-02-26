@@ -1,41 +1,60 @@
 version: 1.0.{build}
-image: Visual Studio 2019
+image: Visual Studio 2022
 clone_depth: 1
 init:
 - ps: ''
 environment:
-  BOOST_ROOT: C:\Libraries\boost_1_73_0
-  OPENSSL_ROOT_DIR: C:\OpenSSL-v111-Win64
+  BOOST_ROOT: C:\Libraries\boost_1_83_0
+  MYSQL_ROOT_DIR: C:\mysql-8.1.0-winx64
+  OPENSSL_ROOT_DIR: C:\OpenSSL-v30-Win64
+install:
+- ps: >-
+    Write-Host "Installing MySQL Server 8.1" -ForegroundColor Cyan
+
+    Write-Host "Downloading MySQL..."
+
+    $zipPath = "$($env:temp)\mysql-8.1.0-winx64.zip"
+
+    (New-Object Net.WebClient).DownloadFile('https://cdn.mysql.com//Downloads/MySQL-8.1/mysql-8.1.0-winx64.zip', $zipPath)
+
+    Write-Host "Unpacking..."
+
+    7z x $zipPath -o"C:\" | Out-Null
+
+    Write-Host "MySQL Server 8.1 installed" -ForegroundColor Cyan
+
 build_script:
 - cmd: >-
     git config user.email "appveyor@build.bot" && git config user.name "AppVeyor"
 
     md build && cd build
 
-    cmake -G"Visual Studio 16 2019" -A x64 -DSCRIPTS=dynamic -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" ..
+    cmake -G"Visual Studio 17 2022" -A x64 -DSCRIPTS=dynamic -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" ..
 
-    "%programfiles(x86)%\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\amd64\MsBuild.exe" /nologo /m:2 /p:Configuration=RelWithDebInfo /p:Platform="X64" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" "TrinityCore.sln"
+    "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" /nologo /m:2 /p:Configuration=RelWithDebInfo /p:Platform="X64" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" "TrinityCore.sln"
 
     cd bin\RelWithDebInfo\
 
-    copy "C:\Program Files\MySQL\MySQL Server 5.7\lib\libmysql.dll" libmysql.dll
+    copy "%MYSQL_ROOT_DIR%\lib\libmysql.dll" libmysql.dll
 
-    copy "%OPENSSL_ROOT_DIR%\libssl-1_1-x64.dll" libssl-1_1-x64.dll
+    copy "%OPENSSL_ROOT_DIR%\libssl-3-x64.dll" libssl-3-x64.dll
 
-    copy "%OPENSSL_ROOT_DIR%\libcrypto-1_1-x64.dll" libcrypto-1_1-x64.dll
+    copy "%OPENSSL_ROOT_DIR%\libcrypto-3-x64.dll" libcrypto-3-x64.dll
+
+    copy "%OPENSSL_ROOT_DIR%\bin\legacy.dll" legacy.dll
 
     cd ..
 
-    7z a TrinityCoreWin64VS2019.zip .\RelWithDebInfo\*
+    7z a TrinityCoreWin64VS2022.zip .\RelWithDebInfo\*
 
     del /F /Q /S "RelWithDebInfo\*.pdb" > NUL
 
-    7z a TrinityCoreWin64VS2019NoSymbols.zip .\RelWithDebInfo\*
+    7z a TrinityCoreWin64VS2022NoSymbols.zip .\RelWithDebInfo\*
 
 test: off
 artifacts:
-- path: build\bin\TrinityCoreWin64VS2019.zip
-  name: TrinityCoreWin64VS2019
+- path: build\bin\TrinityCoreWin64VS2022.zip
+  name: TrinityCoreWin64VS2022
 
-- path: build\bin\TrinityCoreWin64VS2019NoSymbols.zip
-  name: TrinityCoreWin64VS2019NoSymbols
+- path: build\bin\TrinityCoreWin64VS2022NoSymbols.zip
+  name: TrinityCoreWin64VS2022NoSymbols

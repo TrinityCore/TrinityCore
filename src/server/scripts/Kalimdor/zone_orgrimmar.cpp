@@ -233,26 +233,32 @@ public:
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF + 1:
+                    InitGossipMenuFor(player, OPTION_WHAT_DISCOVERIES);
                     AddGossipItemFor(player, OPTION_WHAT_DISCOVERIES, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     SendGossipMenuFor(player, GOSSIP_THE_SHATTERED_HAND, me->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2:
+                    InitGossipMenuFor(player, OPTION_USURPER);
                     AddGossipItemFor(player, OPTION_USURPER, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                     SendGossipMenuFor(player, GOSSIP_IT_WOULD_APPEAR_AS, me->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 3:
+                    InitGossipMenuFor(player, OPTION_WITH_ALL_DUE_RESPECT);
                     AddGossipItemFor(player, OPTION_WITH_ALL_DUE_RESPECT, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
                     SendGossipMenuFor(player, GOSSIP_THE_BROOD_MOTHER, me->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 4:
+                    InitGossipMenuFor(player, OPTION_I_I_DID_NOT_THINK_OF);
                     AddGossipItemFor(player, OPTION_I_I_DID_NOT_THINK_OF, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                     SendGossipMenuFor(player, GOSSIP_SO_MUCH_TO_LEARN, me->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 5:
+                    InitGossipMenuFor(player, OPTION_I_LIVE_ONLY_TO_SERVE);
                     AddGossipItemFor(player, OPTION_I_LIVE_ONLY_TO_SERVE, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
                     SendGossipMenuFor(player, GOSSIP_I_DO_NOT_FAULT_YOU, me->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 6:
+                    InitGossipMenuFor(player, OPTION_OF_COURSE_WARCHIEF);
                     AddGossipItemFor(player, OPTION_OF_COURSE_WARCHIEF, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
                     SendGossipMenuFor(player, GOSSIP_NOW_PAY_ATTENTION, me->GetGUID());
                     break;
@@ -266,6 +272,7 @@ public:
 
         bool OnGossipHello(Player* player) override
         {
+            InitGossipMenuFor(player, OPTION_PLEASE_SHARE_YOUR);
             if (me->IsQuestGiver())
                 player->PrepareQuestMenu(me->GetGUID());
 

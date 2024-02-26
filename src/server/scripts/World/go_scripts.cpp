@@ -174,7 +174,7 @@ public:
                         if (Spell)
                             creature->CastSpell(player, Spell, false);
                         else
-                            TC_LOG_ERROR("scripts", "go_ethereum_prison summoned Creature (entry %u) but faction (%u) are not expected by script.", creature->GetEntry(), creature->GetFaction());
+                            TC_LOG_ERROR("scripts", "go_ethereum_prison summoned Creature (entry {}) but faction ({}) are not expected by script.", creature->GetEntry(), creature->GetFaction());
                     }
                 }
             }
@@ -1179,6 +1179,12 @@ public:
                 if (_rings == 0) // 00:00 and 12:00
                 {
                     _rings = 12;
+                }
+
+                // Dwarf hourly horn should only play a single time, each time the next hour begins.
+                if (_soundId == BELLTOLLDWARFGNOME)
+                {
+                    _rings = 1;
                 }
 
                 for (auto i = 0; i < _rings; ++i)

@@ -30,11 +30,11 @@
 #include "ObjectGuid.h"
 #include "Packet.h"
 #include "SharedDefines.h"
+#include <boost/circular_buffer_fwd.hpp>
 #include <string>
 #include <map>
 #include <memory>
 #include <unordered_map>
-#include <boost/circular_buffer.hpp>
 
 class Creature;
 class GameClient;
@@ -87,6 +87,27 @@ namespace WorldPackets
         class BuyBankSlot;
     }
 
+    namespace Calendar
+    {
+        class CalendarAddEvent;
+        class CalendarCopyEvent;
+        class CalendarInvite;
+        class CalendarModeratorStatusQuery;
+        class CalendarRSVP;
+        class CalendarEventSignUp;
+        class CalendarStatus;
+        class CalendarGetCalendar;
+        class CalendarGetEvent;
+        class CalendarGetNumPending;
+        class CalendarGuildFilter;
+        class CalendarArenaTeam;
+        class CalendarRemoveEvent;
+        class CalendarRemoveInvite;
+        class CalendarUpdateEvent;
+        class SetSavedInstanceExtend;
+        class CalendarComplain;
+    }
+
     namespace Character
     {
         class LogoutCancel;
@@ -101,12 +122,14 @@ namespace WorldPackets
     {
         class EmoteClient;
     }
+
     namespace Combat
     {
         class AttackSwing;
         class AttackStop;
         class SetSheathed;
     }
+
     namespace Guild
     {
         class QueryGuildInfo;
@@ -199,10 +222,12 @@ namespace WorldPackets
         class QueryItemSingle;
         class QuestPOIQuery;
     }
+
     namespace Quest
     {
         class QueryQuestInfo;
     }
+
     namespace Spells
     {
         class CancelCast;
@@ -213,6 +238,12 @@ namespace WorldPackets
         class CancelAutoRepeatSpell;
         class CancelChannelling;
     }
+
+    namespace Talents
+    {
+        class ConfirmRespecWipe;
+    }
+
     namespace Totem
     {
         class TotemDestroyed;
@@ -400,7 +431,8 @@ struct PacketCounter
 class TC_GAME_API WorldSession
 {
     public:
-        WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time,
+            Minutes timezoneOffset, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -432,7 +464,7 @@ class TC_GAME_API WorldSession
 
         GameClient* GetGameClient() const { return _gameClient; };
 
-        rbac::RBACData* GetRBACData();
+        rbac::RBACData* GetRBACData() const;
         bool HasPermission(uint32 permissionId);
         void LoadPermissions();
         QueryCallback LoadPermissionsAsync();
@@ -507,7 +539,7 @@ class TC_GAME_API WorldSession
 
         void SendTradeStatus(TradeStatusInfo const& status);
         void SendUpdateTrade(bool trader_data = true);
-        void SendCancelTrade();
+        void SendCancelTrade(TradeStatus status);
 
         void SendPetitionQueryOpcode(ObjectGuid petitionguid);
 
@@ -571,6 +603,9 @@ class TC_GAME_API WorldSession
         // Locales
         LocaleConstant GetSessionDbcLocale() const { return m_sessionDbcLocale; }
         LocaleConstant GetSessionDbLocaleIndex() const { return m_sessionDbLocaleIndex; }
+
+        Minutes GetTimezoneOffset() const { return _timezoneOffset; }
+
         char const* GetTrinityString(uint32 entry) const;
 
         uint32 GetLatency() const { return m_latency; }
@@ -881,7 +916,7 @@ class TC_GAME_API WorldSession
 
         void HandleLearnTalentOpcode(WorldPacket& recvPacket);
         void HandleLearnPreviewTalents(WorldPacket& recvPacket);
-        void HandleTalentWipeConfirmOpcode(WorldPacket& recvPacket);
+        void HandleTalentWipeConfirmOpcode(WorldPackets::Talents::ConfirmRespecWipe& confirmRespecWipe);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
 
         void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);
@@ -1079,26 +1114,27 @@ class TC_GAME_API WorldSession
         void HandleAcceptGrantLevel(WorldPacket& recvData);
 
         // Calendar
-        void HandleCalendarGetCalendar(WorldPacket& recvData);
-        void HandleCalendarGetEvent(WorldPacket& recvData);
-        void HandleCalendarGuildFilter(WorldPacket& recvData);
-        void HandleCalendarArenaTeam(WorldPacket& recvData);
-        void HandleCalendarAddEvent(WorldPacket& recvData);
-        void HandleCalendarUpdateEvent(WorldPacket& recvData);
-        void HandleCalendarRemoveEvent(WorldPacket& recvData);
-        void HandleCalendarCopyEvent(WorldPacket& recvData);
-        void HandleCalendarEventInvite(WorldPacket& recvData);
-        void HandleCalendarEventRsvp(WorldPacket& recvData);
-        void HandleCalendarEventRemoveInvite(WorldPacket& recvData);
-        void HandleCalendarEventStatus(WorldPacket& recvData);
-        void HandleCalendarEventModeratorStatus(WorldPacket& recvData);
-        void HandleCalendarComplain(WorldPacket& recvData);
-        void HandleCalendarGetNumPending(WorldPacket& recvData);
-        void HandleCalendarEventSignup(WorldPacket& recvData);
+        void HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGetCalendar& calendarGetCalendar);
+        void HandleCalendarGetEvent(WorldPackets::Calendar::CalendarGetEvent& calendarGetEvent);
+        void HandleCalendarGuildFilter(WorldPackets::Calendar::CalendarGuildFilter& calendarGuildFilter);
+        void HandleCalendarArenaTeam(WorldPackets::Calendar::CalendarArenaTeam& calendarArenaTeam);
+        void HandleCalendarAddEvent(WorldPackets::Calendar::CalendarAddEvent& calendarAddEvent);
+        void HandleCalendarUpdateEvent(WorldPackets::Calendar::CalendarUpdateEvent& calendarUpdateEvent);
+        void HandleCalendarRemoveEvent(WorldPackets::Calendar::CalendarRemoveEvent& calendarRemoveEvent);
+        void HandleCalendarCopyEvent(WorldPackets::Calendar::CalendarCopyEvent& calendarCopyEvent);
+        void HandleCalendarEventInvite(WorldPackets::Calendar::CalendarInvite& calendarEventInvite);
+        void HandleCalendarEventRsvp(WorldPackets::Calendar::CalendarRSVP& calendarRSVP);
+        void HandleCalendarEventRemoveInvite(WorldPackets::Calendar::CalendarRemoveInvite& calendarRemoveInvite);
+        void HandleCalendarEventStatus(WorldPackets::Calendar::CalendarStatus& calendarStatus);
+        void HandleCalendarEventModeratorStatus(WorldPackets::Calendar::CalendarModeratorStatusQuery& calendarModeratorStatus);
+        void HandleCalendarComplain(WorldPackets::Calendar::CalendarComplain& calendarComplain);
+        void HandleCalendarGetNumPending(WorldPackets::Calendar::CalendarGetNumPending& calendarGetNumPending);
+        void HandleCalendarEventSignup(WorldPackets::Calendar::CalendarEventSignUp& calendarEventSignUp);
 
-        void SendCalendarRaidLockout(InstanceSave const* save, bool add);
+        void SendCalendarRaidLockoutAdded(InstanceSave const* save);
+        void SendCalendarRaidLockoutRemoved(InstanceSave const* save);
         void SendCalendarRaidLockoutUpdated(InstanceSave const* save);
-        void HandleSetSavedInstanceExtend(WorldPacket& recvData);
+        void HandleSetSavedInstanceExtend(WorldPackets::Calendar::SetSavedInstanceExtend& setSavedInstanceExtend);
 
         void HandleSpellClick(WorldPacket& recvData);
         void HandleMirrorImageDataRequest(WorldPacket& recvData);
@@ -1203,6 +1239,7 @@ class TC_GAME_API WorldSession
         bool m_playerSave;
         LocaleConstant m_sessionDbcLocale;
         LocaleConstant m_sessionDbLocaleIndex;
+        Minutes _timezoneOffset;
         std::atomic<uint32> m_latency;
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
         uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
@@ -1236,7 +1273,7 @@ class TC_GAME_API WorldSession
         bool forceExit;
         ObjectGuid m_currentBankerGUID;
 
-        boost::circular_buffer<std::pair<int64, uint32>> _timeSyncClockDeltaQueue; // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
+        std::unique_ptr<boost::circular_buffer<std::pair<int64, uint32>>> _timeSyncClockDeltaQueue; // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
         int64 _timeSyncClockDelta;
         void ComputeNewClockDelta();
 

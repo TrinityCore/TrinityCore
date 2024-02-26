@@ -114,7 +114,7 @@ enum BuyBankSlotResult
     ERR_BANKSLOT_OK                 = 3
 };
 
-enum PlayerSpellState
+enum PlayerSpellState : uint8
 {
     PLAYERSPELL_UNCHANGED = 0,
     PLAYERSPELL_CHANGED   = 1,
@@ -125,7 +125,7 @@ enum PlayerSpellState
 
 struct PlayerSpell
 {
-    PlayerSpellState state : 8;
+    PlayerSpellState state;
     bool active            : 1;                             // show in spellbook
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
@@ -133,8 +133,8 @@ struct PlayerSpell
 
 struct PlayerTalent
 {
-    PlayerSpellState state : 8;
-    uint8 spec             : 8;
+    PlayerSpellState state;
+    uint8 spec;
 };
 
 // Spell modifier (used for modify other spells)
@@ -750,7 +750,6 @@ enum PlayerDelayedOperations
     DELAYED_SPELL_CAST_DESERTER = 0x04,
     DELAYED_BG_MOUNT_RESTORE    = 0x08,                     ///< Flag to restore mount state after teleport from BG
     DELAYED_BG_TAXI_RESTORE     = 0x10,                     ///< Flag to restore taxi state after teleport from BG
-    DELAYED_BG_GROUP_RESTORE    = 0x20,                     ///< Flag to restore group state after teleport from BG
     DELAYED_END
 };
 
@@ -914,7 +913,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         static bool BuildEnumData(PreparedQueryResult result, WorldPacket* data);
 
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const override;
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const override;
 
         bool IsFalling() { return GetPositionZ() < m_lastFallZ; }
         bool IsInAreaTriggerRadius(AreaTriggerEntry const* trigger) const;
@@ -1167,7 +1166,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         Player* GetTrader() const;
         TradeData* GetTradeData() const { return m_trade; }
-        void TradeCancel(bool sendback);
+        void TradeCancel(bool sendback, TradeStatus status = TRADE_STATUS_TRADE_CANCELED);
 
         CinematicMgr* GetCinematicMgr() const { return _cinematicMgr; }
 
@@ -1359,7 +1358,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool m_mailsUpdated;
 
         void SetBindPoint(ObjectGuid guid) const;
-        void SendTalentWipeConfirm(ObjectGuid guid) const;
+        void SendTalentWipeConfirm(ObjectGuid trainerGuid) const;
         void ResetPetTalents();
         void RegenerateAll();
         void Regenerate(Powers power);
@@ -1445,8 +1444,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::string const& GetGuildName() const;
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
         void SetFreeTalentPoints(uint32 points);
-        bool ResetTalents(bool no_cost = false);
+        bool ResetTalents(bool involuntarily = false);
         uint32 ResetTalentsCost() const;
+        void IncreaseResetTalentsCostAndCounters(uint32 lastResetTalentsCost);
         void InitTalentForLevel();
         void BuildPlayerTalentsInfoData(WorldPacket* data);
         void BuildPetTalentsInfoData(WorldPacket* data);
@@ -1649,8 +1649,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateExpertise(WeaponAttackType attType);
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
-        void UpdateManaRegen();
+        void UpdatePowerRegen(Powers power);
         void UpdateRuneRegen(RuneType rune);
+        float GetPowerRegen(Powers power) const;
         uint32 GetRuneTimer(uint8 index) const { return m_runeGraceCooldown[index]; }
         void SetRuneTimer(uint8 index, uint32 timer) { m_runeGraceCooldown[index] = timer; }
         uint32 GetLastRuneGraceTimer(uint8 index) const { return m_lastRuneGraceTimers[index]; }
@@ -1691,7 +1692,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SendMessageToSet(WorldPacket const* data, bool self) const override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
         void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const override;
-        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only) const;
+        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only, bool required3dDist = false) const;
         void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) const override;
 
         Corpse* GetCorpse() const;
@@ -1700,7 +1701,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void KillPlayer();
         static void OfflineResurrect(ObjectGuid const& guid, CharacterDatabaseTransaction trans);
         bool HasCorpse() const { return _corpseLocation.GetMapId() != MAPID_INVALID; }
-        WorldLocation GetCorpseLocation() const { return _corpseLocation; }
+        WorldLocation const& GetCorpseLocation() const { return _corpseLocation; }
         uint32 GetResurrectionSpellId();
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
@@ -1895,7 +1896,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendBGWeekendWorldStates() const;
         void SendBattlefieldWorldStates() const;
 
-        void SendAurasForTarget(Unit* target) const;
+        void SendAurasForTarget(Unit* target, bool force = false) const;
 
         PlayerMenu* PlayerTalkClass;
         std::vector<ItemSetEffect*> ItemSetEff;
@@ -1936,7 +1937,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetBGTeam(uint32 team);
         uint32 GetBGTeam() const;
 
-        void LeaveBattleground(bool teleportToEntryPoint = true);
+        void LeaveBattleground(bool teleportToEntryPoint = true, bool withoutDeserterDebuff = false);
         bool CanJoinToBattleground(Battleground const* bg) const;
         bool CanReportAfkDueToLimit();
         void ReportedAfkBy(Player* reporter);
@@ -2026,7 +2027,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool HaveAtClient(Object const* u) const;
 
-        bool IsNeverVisible() const override;
+        bool IsNeverVisible(bool allowServersideObjects) const override;
 
         bool IsVisibleGloballyFor(Player const* player) const;
 

@@ -344,5 +344,5 @@ void AddSC_boss_bronjahm()
     RegisterSpellScriptWithArgs(spell_bronjahm_soulstorm_visual, "spell_bronjahm_soulstorm_channel");
     RegisterSpellScriptWithArgs(spell_bronjahm_soulstorm_visual, "spell_bronjahm_soulstorm_visual");
     RegisterSpellScript(spell_bronjahm_soulstorm_targeting);
-    RegisterSpellScript(achievement_bronjahm_soul_power);
+    new achievement_bronjahm_soul_power();
 }

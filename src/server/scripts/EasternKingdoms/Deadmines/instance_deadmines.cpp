@@ -240,6 +240,15 @@ class instance_deadmines : public InstanceMapScript
                         case NPC_GILNID:
                             SetBossState(BOSS_GILNID, DONE);
                             break;
+                        case NPC_MR_SMITE:
+                            SetBossState(BOSS_MR_SMITE, DONE);
+                            break;
+                        case NPC_GREENSKIN:
+                            SetBossState(BOSS_GREENSKIN, DONE);
+                            break;
+                        case NPC_COOKIE:
+                            SetBossState(BOSS_COOKIE, DONE);
+                            break;
                         default:
                             break;
                     }

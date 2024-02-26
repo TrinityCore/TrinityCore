@@ -186,7 +186,7 @@ template std::string PreparedStatementData::ToString<double>(double);
 
 std::string PreparedStatementData::ToString(std::string const& value)
 {
-    return fmt::format("'{}'", value);
+    return Trinity::StringFormat("'{}'", value);
 }
 
 std::string PreparedStatementData::ToString(std::vector<uint8> const& /*value*/)

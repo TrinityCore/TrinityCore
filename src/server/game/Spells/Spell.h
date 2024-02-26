@@ -394,6 +394,7 @@ class TC_GAME_API Spell
         ObjectGuid m_castItemGUID;
         uint32 m_castItemEntry;
         uint8 m_cast_count;
+        bool m_fromClient;
         uint32 m_glyphIndex;
         SpellCastTargets m_targets;
 
@@ -625,6 +626,7 @@ class TC_GAME_API Spell
         void AddCorpseTarget(Corpse* target, uint32 effectMask);
         void AddDestTarget(SpellDestination const& dest, uint32 effIndex);
 
+        void PreprocessSpellLaunch(TargetInfo& targetInfo);
         SpellMissInfo PreprocessSpellHit(Unit* unit, bool scaleAura, TargetInfo& targetInfo);
         void DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo, TargetInfo& targetInfo);
 
