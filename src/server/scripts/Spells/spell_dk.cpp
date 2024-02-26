@@ -721,17 +721,15 @@ class spell_dk_permafrost : public AuraScript
 
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        _damageAmount = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
-        GetTarget()->CastSpell(GetTarget(), SPELL_DK_FROST_SHIELD, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_BASE_POINT0, _damageAmount));
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
+        GetTarget()->CastSpell(GetTarget(), SPELL_DK_FROST_SHIELD, args);
     }
 
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dk_permafrost::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
-
-private:
-    uint32 _damageAmount;
 };
 
 // 121916 - Glyph of the Geist (Unholy)
