@@ -295,7 +295,7 @@ class TC_GAME_API Aura
         ApplicationMap m_applications;
 
         float m_heartbeatResistChance = 0;                      // Chance to break this spell due to heartbeat resistance
-        int32 m_heartbeatResistInterval;                    // Heartbeat resistance periodic interval
+        int32 m_heartbeatDurationCap;                    // Heartbeat resistance periodic interval
         int32 m_heartbeatResistTimer;                       // Timer for heartbeat resistance
 
         bool m_isRemoved:1;
