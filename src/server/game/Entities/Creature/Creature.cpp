@@ -2898,6 +2898,7 @@ void Creature::InitializeMovementCapabilities()
 {
     SetHover(GetMovementTemplate().IsHoverInitiallyEnabled());
     SetDisableGravity(IsFloating());
+    SetControlled(IsSessile(), UNIT_STATE_ROOT);
 
     // If an amphibious creatures was swimming while engaged, disable swimming again
     if (IsAmphibious() && !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_CAN_SWIM))
