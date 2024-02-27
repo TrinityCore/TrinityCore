@@ -8,7 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.18)
 
 # add this options before PROJECT keyword
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
@@ -19,31 +19,23 @@ project(TrinityCore)
 
 # CMake policies (can not be handled elsewhere)
 cmake_policy(SET CMP0005 NEW)
-if(CMAKE_VERSION VERSION_LESS "3.16.0")
-  cmake_policy(SET CMP0043 OLD) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
-else()
-  cmake_policy(SET CMP0043 NEW) # Cotire isn't used so set to NEW
-endif()
+cmake_policy(SET CMP0043 NEW) # Ignore COMPILE_DEFINITIONS_<Config> properties
 cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if(SOME_STRING_VARIABLE MATCHES "MSVC") as if(SOME_STRING_VARIABLE MATCHES "1")
+cmake_policy(SET CMP0074 NEW) # find_package() uses <PackageName>_ROOT variables
 
-if(POLICY CMP0074)
-  cmake_policy(SET CMP0074 NEW) # find_package() uses <PackageName>_ROOT variables
+if(POLICY CMP0144)
+  cmake_policy(SET CMP0144 NEW) # find_package() uses upper-case <PACKAGENAME>_ROOT variables
 endif()
 
 # Set RPATH-handing (CMake parameters)
 set(CMAKE_SKIP_BUILD_RPATH 0)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH 0)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+list(APPEND CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
 
 # set macro-directory
 list(APPEND CMAKE_MODULE_PATH
   "${CMAKE_SOURCE_DIR}/cmake/macros")
-
-if(CMAKE_VERSION VERSION_LESS "3.16.0")
-  list(APPEND CMAKE_MODULE_PATH
-    "${CMAKE_SOURCE_DIR}/dep/cotire/CMake")
-endif()
 
 # build in Release-mode by default if not explicitly set
 if(CMAKE_GENERATOR STREQUAL "Ninja Multi-Config")
@@ -73,11 +65,13 @@ include(GroupSources)
 include(AutoCollect)
 
 find_package(PCHSupport)
-find_package(MySQL)
 
 if(NOT WITHOUT_GIT)
   find_package(Git 1.7)
 endif()
+
+# find mysql client binary (needed by genrev)
+find_package(MySQL OPTIONAL_COMPONENTS binary)
 
 # Find revision ID and hash of the sourcetree
 include(cmake/genrev.cmake)

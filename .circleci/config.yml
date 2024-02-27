@@ -53,9 +53,9 @@ jobs:
             mkdir bin
             cd bin
             if [ "$DOCKERHUB_PUSH_IMAGES" == "TRUE" ]; then
-              cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_INSTALL_PREFIX=check_install -DBUILD_TESTING=1
+              cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_INSTALL_PREFIX=check_install -DCMAKE_INSTALL_RPATH=\$ORIGIN/../lib -DBUILD_TESTING=1
             else
-              cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install -DBUILD_TESTING=1
+              cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install -DCMAKE_INSTALL_RPATH=\$ORIGIN/../lib -DBUILD_TESTING=1
             fi
             cd ..
       - run:
@@ -79,13 +79,13 @@ jobs:
       - run:
           name: Create docker images
           command: |
-            cd bin/check_install/bin
-            cp -r ../../../contrib/Docker/* .
-            cp -r ../../../sql ./sql
+            cd bin/check_install
+            cp -r ../../contrib/Docker/* .
+            cp -r ../../sql ./sql
             image_prefix=$(echo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME | tr '[:upper:]' '[:lower:]')
             echo $image_prefix
             docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:$(echo $CIRCLE_BRANCH | tr '/' '-' | tr '[:upper:]' '[:lower:]') .
-            docker save $image_prefix | gzip > ../../../docker.tar.gz
+            docker save $image_prefix | gzip > ../../docker.tar.gz
             if [ "$DOCKERHUB_PUSH_IMAGES" == "TRUE" ]; then
               if [ "$CIRCLE_BRANCH" == "3.3.5" ] || [ "$CIRCLE_BRANCH" == "master" ] || [ "$CIRCLE_BRANCH" == "wotlk_classic" ]; then
                 docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD

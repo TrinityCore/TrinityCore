@@ -52,8 +52,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "Hacks/boost_1_74_fibonacci_heap.h"
-
 u_map_magic MapMagic        = { {'M','A','P','S'} };
 uint32 MapVersionMagic      = 10;
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
@@ -78,8 +76,6 @@ struct RespawnInfoWithHandle;
 struct RespawnListContainer : boost::heap::fibonacci_heap<RespawnInfoWithHandle*, boost::heap::compare<CompareRespawnInfo>>
 {
 };
-
-BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(RespawnListContainer::value_type)
 
 struct RespawnInfoWithHandle : RespawnInfo
 {
