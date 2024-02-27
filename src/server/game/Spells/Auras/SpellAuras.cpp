@@ -2093,7 +2093,7 @@ void Aura::UpdateHeartbeatResist(uint32 diff, Unit* target)
         float secondsLasted = (m_maxDuration - m_duration) * .001f;
         float secondsLeft = (m_maxDuration - (m_maxDuration - m_duration)) * .001f;
         float percentageLasted = 100.f - (((float)m_duration / (float)m_maxDuration) * 100.f);
-        sWorld->SendServerMessage(SERVER_MSG_STRING, "Heartbeat break out roll success. Removing aura at " + std::to_string(secondsLeft) + " seconds left. Time lasted was " + std::to_string(secondsLasted) + " seconds (" + std::to_string(percentageLasted) + "% effectiveness)."
+        sWorld->SendServerMessage(SERVER_MSG_STRING, "Heartbeat break out roll success. Removing aura at " + std::to_string(secondsLeft) + " seconds left. Time lasted was " + std::to_string(secondsLasted) + " seconds (" + std::to_string(percentageLasted) + "% effectiveness).");
     }
 }
 
