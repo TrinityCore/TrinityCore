@@ -108,6 +108,7 @@ bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
         init.DisableTransportPathTransformations();
     init.SetFacing(angle);
     init.Launch();
+    owner->SetOrientation(angle);
 
     if (_duration > diff)
         _duration -= diff;
