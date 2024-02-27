@@ -860,7 +860,7 @@ void Aura::Update(uint32 diff, Unit* caster)
         }
 
        
-        if (m_duration && m_heartbeatResistChance >= 1 && m_owner->IsPlayer() && !IsRemoved())
+        if (m_duration && m_heartbeatDurationCap >= 0 && m_owner->IsPlayer() && !IsRemoved())
             UpdateHeartbeatResist(diff, this->GetUnitOwner());
     }
 }
@@ -2074,7 +2074,7 @@ void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLe
     float heartbeatDurationCap = inverse_of_normal_cdf(probability, 15160, 4713);
 
     m_heartbeatDurationCap = inverse_of_normal_cdf(probability, 15160, 4713);
-    std::string str = "heartbeat duration " + std::to_string(heartbeatDurationCap) + " roll (out of 100): " + std::to_string(probability) + " "
+    std::string str = "heartbeat duration " + std::to_string(heartbeatDurationCap) + " roll (out of 100): " + std::to_string(probability * 100.f) + " "
         + "Spell[" + this->GetSpellInfo()->SpellName[sWorld->GetDefaultDbcLocale()] + "] Unit[" + this->GetUnitOwner()->GetName()
         + "] DRLevel[" + std::to_string(drLevel) + "] DRGroup[" + std::to_string(drGroup) + "].";
 
@@ -2083,9 +2083,6 @@ void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLe
 
 void Aura::UpdateHeartbeatResist(uint32 diff, Unit* target)
 {
-    if (m_heartbeatDurationCap <= 0)
-        return;
-
     m_heartbeatDurationCap -= diff;
     if (m_heartbeatDurationCap <= 0)
     {
