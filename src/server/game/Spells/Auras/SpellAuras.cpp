@@ -2083,7 +2083,7 @@ void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLe
 
 void Aura::UpdateHeartbeatResist(uint32 diff, Unit* target)
 {
-    if (m_heartbeatResistChance == 0.0f || !m_heartbeatDurationCap)
+    if (m_heartbeatDurationCap <= 0)
         return;
 
     m_heartbeatDurationCap -= diff;
