@@ -56,7 +56,7 @@ ALTER TABLE `creature_template_movement`
 UPDATE `creature_template_movement` SET `HoverInitiallyEnabled`= 1 WHERE `Ground` = 2;
 
 ALTER TABLE `creature_movement_override`   
-	ADD COLUMN `HoverInitiallyEnabled` TINYINT UNSIGNED NULL AFTER `CreatureId`;
+	ADD COLUMN `HoverInitiallyEnabled` TINYINT UNSIGNED NULL AFTER `SpawnId`;
 
 UPDATE `creature_movement_override` SET `HoverInitiallyEnabled`= 1 WHERE `Ground` = 2;
 
