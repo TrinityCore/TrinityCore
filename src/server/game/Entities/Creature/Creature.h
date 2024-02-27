@@ -122,7 +122,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsAquatic() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_AQUATIC); }
         // Returns true if CREATURE_STATIC_FLAG_AMPHIBIOUS is set which allows a creature to enter and leave liquids while sticking to the ocean floor. These creatures will become able to swim when engaged
         bool IsAmphibious() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_AMPHIBIOUS); }
-        // Returns true if CREATURE_STATIC_FLAG_FLOATING is set which is permanently disabling the gravity of the creature
+        // Returns true if CREATURE_STATIC_FLAG_FLOATING is set which is  disabling the gravity of the creature on spawn and reset
         bool IsFloating() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_FLOATING); }
         // Returns true if CREATURE_STATIC_FLAG_SESSILE is set which permanently roots the creature in place
         bool IsSessile() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_SESSILE); }
