@@ -334,6 +334,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetCannotReachTarget(bool cannotReach);
         bool CanNotReachTarget() const { return m_cannotReachTarget; }
 
+        void SetDefaultMount(Optional<uint32> mountCreatureDisplayId);
+
         void SetHomePosition(float x, float y, float z, float o) { m_homePosition.Relocate(x, y, z, o); }
         void SetHomePosition(Position const& pos) { m_homePosition.Relocate(pos); }
         void GetHomePosition(float& x, float& y, float& z, float& ori) const { m_homePosition.GetPosition(x, y, z, ori); }
@@ -535,6 +537,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool _isMissingCanSwimFlagOutOfCombat;
 
+        Optional<uint32> _defaultMountDisplayIdOverride;
         int32 _creatureImmunitiesId;
         uint32 _gossipMenuId;
         Optional<uint32> _trainerId;
