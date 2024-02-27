@@ -13581,6 +13581,22 @@ void Unit::Whisper(uint32 textId, Player* target, bool isBossWhisper /*= false*/
     target->SendDirectMessage(packet.Write());
 }
 
+void Unit::ClearBossEmotes(Optional<uint32> zoneId, Player const* target) const
+{
+    WorldPackets::Chat::ClearBossEmotes clearBossEmotes;
+    clearBossEmotes.Write();
+
+    if (target)
+    {
+        target->SendDirectMessage(clearBossEmotes.GetRawPacket());
+        return;
+    }
+
+    for (MapReference const& ref : GetMap()->GetPlayers())
+        if (!zoneId || DB2Manager::IsInArea(ref.GetSource()->GetAreaId(), *zoneId))
+            ref.GetSource()->SendDirectMessage(clearBossEmotes.GetRawPacket());
+}
+
 SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag) const
 {
     auto findMatchingAuraEffectIn = [this, spellInfo, &triggerFlag](AuraType type) -> SpellInfo const*

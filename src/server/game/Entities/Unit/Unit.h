@@ -1767,6 +1767,13 @@ class TC_GAME_API Unit : public WorldObject
         virtual void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false);
         virtual void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
 
+        /**
+           @brief Clears boss emotes frame
+           @param zoneId Only clears emotes for players in that zone id
+           @param target Only clears emotes for that player
+        */
+        void ClearBossEmotes(Optional<uint32> zoneId = {}, Player const* target = nullptr) const;
+
         float GetCollisionHeight() const override;
         uint32 GetVirtualItemId(uint32 slot) const;
         uint16 GetVirtualItemAppearanceMod(uint32 slot) const;
