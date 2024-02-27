@@ -2082,7 +2082,8 @@ void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLe
     float heartbeatDurationCap = inverse_of_normal_cdf(probability, 15160, 4713);
 
     m_heartbeatDurationCap = inverse_of_normal_cdf(probability, 15160, 4713);
-    std::string str = "heartbeat duration " + std::to_string(heartbeatDurationCap) + " roll (out of 100): " + std::to_string(probability * 100.f) + " "
+
+    std::string str = "heartbeat duration " + std::to_string(heartbeatDurationCap) + " roll (out of 100): " + std::to_string((int)(probability * 100.f)) + " "
         + "Spell[" + this->GetSpellInfo()->SpellName[sWorld->GetDefaultDbcLocale()] + "] Unit[" + this->GetUnitOwner()->GetName()
         + "] DRLevel[" + std::to_string(drLevel) + "] DRGroup[" + std::to_string(drGroup) + "].";
 
