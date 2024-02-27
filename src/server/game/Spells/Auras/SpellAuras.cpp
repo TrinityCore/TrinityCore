@@ -2071,6 +2071,14 @@ void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLe
         return;
 
     float probability = (rand() % 101) / 100.f;
+    if (probability < 0.01f)
+    {
+        probability = 0.01f;
+    }
+    if (probability > .99f)
+    {
+        probability = .99f;
+    }
     float heartbeatDurationCap = inverse_of_normal_cdf(probability, 15160, 4713);
 
     m_heartbeatDurationCap = inverse_of_normal_cdf(probability, 15160, 4713);
