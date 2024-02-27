@@ -6277,7 +6277,7 @@ struct npc_captain_garrick_q55879 : public ScriptedAI
                         if (!boar)
                             return;
 
-                        boar->SetTemplateRooted(false);
+                        boar->SetControlled(false, UNIT_STATE_ROOT);
                         me->CastSpell(boar, SPELL_RIDE_VEHICLE_CAPTIAN_BOAR);
                     }
                     break;
@@ -6372,7 +6372,7 @@ struct npc_giant_boar_vehicle_q55879 : public VehicleAI
     {
         if (apply && passenger->IsPlayer())
         {
-            me->SetTemplateRooted(true);
+            me->SetControlled(true, UNIT_STATE_ROOT);
             passenger->SetMovedUnit(me);
             passenger->CastSpell(passenger, SPELL_PING_GARRICK_TO_RIDE_BOAR); // Ping Garrick to ride Boar (DNT)
             passenger->CastSpell(passenger, SPELL_UPDATE_PHASE_SHIFT);
@@ -6388,7 +6388,7 @@ struct npc_giant_boar_vehicle_q55879 : public VehicleAI
         if (spellInfo->Id == SPELL_ENHANCED_BOAR_PING_VEHICLE)
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOM_SPELL_01);
-            me->SetTemplateRooted(true);
+            me->SetControlled(true, UNIT_STATE_ROOT);
             me->CastSpell(me, SPELL_ENHANCED_BOAR_CHARGE);
             _endOfScene = true;
             _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_ONE, 4s);
@@ -6434,7 +6434,7 @@ struct npc_giant_boar_vehicle_q55879 : public VehicleAI
                     _events.ScheduleEvent(EVENT_GIANT_BOAR_UNROOT, 500ms);
                     break;
                 case EVENT_GIANT_BOAR_UNROOT:
-                    me->SetTemplateRooted(false);
+                    me->SetControlled(false, UNIT_STATE_ROOT);
                     break;
                 default:
                     break;
