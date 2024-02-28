@@ -36,7 +36,6 @@ EndScriptData */
 enum Spells
 {
     SPELL_SPOUT             = 37433,
-    SPELL_SPOUT_ANIM        = 42835,
     SPELL_SPOUT_BREATH      = 37431,
     SPELL_KNOCKBACK         = 19813,
     SPELL_GEYSER            = 37478,
@@ -227,6 +226,7 @@ struct boss_the_lurker_below : public BossAI
             {
                 Talk(EMOTE_SPOUT);
                 me->SetReactState(REACT_PASSIVE);
+                DoCast(me, SPELL_SPOUT_BREATH, true);
                 me->GetMotionMaster()->MoveRotate(0, urand(0, 1) ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT, 20s, float(M_PI) / 7.0f);
                 SpoutTimer = 45000;
                 WhirlTimer = 20000; // whirl directly after spout
@@ -264,16 +264,10 @@ struct boss_the_lurker_below : public BossAI
 
             if (RotTimer)
             {
-                instance->instance->DoOnPlayers([&](Player* player)
-                {
-                    if (player->IsAlive() && me->HasInArc(diff/20000.f*float(M_PI)*2.f, player) && me->IsWithinDist(player, SPOUT_DIST) && !player->IsInWater())
-                        DoCast(player, SPELL_SPOUT, true); // only knock back players in arc, in 100yards, not in water
-                });
-
                 if (SpoutAnimTimer <= diff)
                 {
-                    DoCast(me, SPELL_SPOUT_ANIM, true);
-                    SpoutAnimTimer = 1000;
+                    DoCast(me, SPELL_SPOUT, true);
+                    SpoutAnimTimer = 200;
                 } else SpoutAnimTimer -= diff;
 
                 if (RotTimer <= diff)
