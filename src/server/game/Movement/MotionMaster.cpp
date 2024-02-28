@@ -1135,13 +1135,13 @@ void MotionMaster::MovePath(WaypointPath const& path, bool repeatable, Optional<
         wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, generatePath), MOTION_SLOT_DEFAULT);
 }
 
-void MotionMaster::MoveRotate(uint32 id, uint32 time, RotateDirection direction)
+void MotionMaster::MoveRotate(uint32 id, RotateDirection direction, Optional<Milliseconds> time /*= {}*/,
+    Optional<float> turnSpeed /*= {}*/, Optional<float> totalTurnAngle /*= {}*/)
 {
-    if (!time)
-        return;
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRotate: '{}', starts rotate (time: {}ms, turnSpeed: {}, totalTurnAngle: {}, direction: {})",
+        _owner->GetGUID().ToString(), time.value_or(0ms).count(), turnSpeed, totalTurnAngle, direction);
 
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRotate: '{}', starts rotate (time: {}, direction: {})", _owner->GetGUID().ToString(), time, direction);
-    Add(new RotateMovementGenerator(id, time, direction));
+    Add(new RotateMovementGenerator(id, direction, time, turnSpeed, totalTurnAngle));
 }
 
 void MotionMaster::MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2)
