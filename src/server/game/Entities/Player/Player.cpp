@@ -5297,7 +5297,7 @@ float Player::GetMeleeCritFromAgility() const
     {
         crit = GetStat(STAT_AGILITY) / 53.f;
     }
-    return crit*100.0f;
+    return crit;
 }
 
 void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing) const
