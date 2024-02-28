@@ -860,7 +860,7 @@ void Aura::Update(uint32 diff, Unit* caster)
         }
 
        
-        if (m_duration && m_heartbeatDurationCap >= 0 && m_owner->IsPlayer() && !IsRemoved())
+        if (m_duration && m_heartbeatDurationCap >= 0 && m_heartbeatResistChance > 0 && m_owner->IsPlayer() && !IsRemoved())
             UpdateHeartbeatResist(diff, this->GetUnitOwner());
     }
 }
@@ -2069,6 +2069,8 @@ void Aura::SetHeartbeatResist(uint32 chance, int32 originalDuration, uint32 drLe
     // * Break chance becomes higher as hit count rises
     if (chance <= 0)
         return;
+
+    m_heartbeatResistChance = chance;
 
     float probability = (rand() % 101) / 100.f;
     if (probability < 0.01f)
