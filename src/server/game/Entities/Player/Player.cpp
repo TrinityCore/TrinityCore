@@ -5288,13 +5288,15 @@ float Player::GetMeleeCritFromAgility() const
 
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
-
-    GtChanceToMeleeCritBaseEntry const* critBase  = sGtChanceToMeleeCritBaseStore.LookupEntry(pclass-1);
-    GtChanceToMeleeCritEntry     const* critRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    if (critBase == nullptr || critRatio == nullptr)
-        return 0.0f;
-
-    float crit = critBase->Data + GetStat(STAT_AGILITY)*critRatio->Data;
+    float crit = GetStat(STAT_AGILITY) / 20.f;
+    if (pclass == CLASS_ROGUE)
+    {
+        crit = GetStat(STAT_AGILITY) / 29.f
+    }
+    if (pclass == CLASS_HUNTER)
+    {
+        crit = GetStat(STAT_AGILITY) / 53.f
+    }
     return crit*100.0f;
 }
 
