@@ -5305,6 +5305,22 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing) cons
     uint8 level = GetLevel();
     uint32 pclass = GetClass();
 
+    // Table for base dodge values
+    const float dodge_base[MAX_CLASSES] =
+    {
+         0.036640f, // Warrior
+         0.034943f, // Paladin
+        -0.040873f, // Hunter
+         0.020957f, // Rogue
+         0.034178f, // Priest
+         0.036640f, // DK
+         0.021080f, // Shaman
+         0.036587f, // Mage
+         0.024211f, // Warlock
+         0.0f,      // ??
+         0.056097f  // Druid
+    };
+
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
     float dodge = GetStat(STAT_AGILITY) / 20.f;
@@ -5318,25 +5334,44 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing) cons
     }
 
     // calculate diminishing (green in char screen) and non-diminishing (white) contribution
-    diminishing = dodge;
+    nondiminishing = 100.f * dodge_base[pclass-1] + dodge;
     //nondiminishing = 100.0f * (dodge_base[pclass-1] + base_agility * dodgeRatio->Data * crit_to_dodge[pclass-1]);
 }
 
 float Player::GetSpellCritFromIntellect() const
 {
-    uint8 level = GetLevel();
-    uint32 pclass = GetClass();
+    // Chance to crit is computed from INT and LEVEL as follows:
+    //   chance = base + INT / (rate0 + rate1 * LEVEL)
+    // The formula keeps the crit chance at %5 on every level unless the player
+    // increases his intelligence by other means (enchants, buffs, talents, ...)
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
-
-    GtChanceToSpellCritBaseEntry const* critBase  = sGtChanceToSpellCritBaseStore.LookupEntry(pclass-1);
-    GtChanceToSpellCritEntry     const* critRatio = sGtChanceToSpellCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    if (critBase == nullptr || critRatio == nullptr)
+    //[TZERO] from mangos 3462 for 1.12 MUST BE CHECKED
+    static const struct
+    {
+        float base;
+        float rate0, rate1;
+    }
+    crit_data[MAX_CLASSES] =
+    {
+        {   0.0f,   0.0f,  10.0f  },                        //  0: unused
+        {   0.0f,   0.0f,  10.0f  },                        //  1: warrior
+        {   3.70f, 14.77f,  0.65f },                        //  2: paladin
+        {   0.0f,   0.0f,  10.0f  },                        //  3: hunter
+        {   0.0f,   0.0f,  10.0f  },                        //  4: rogue
+        {   2.97f, 10.03f,  0.82f },                        //  5: priest
+        {   0.0f,   0.0f,  10.0f  },                        //  6: unused
+        {   3.54f, 11.51f,  0.80f },                        //  7: shaman
+        {   3.70f, 14.77f,  0.65f },                        //  8: mage
+        {   3.18f, 11.30f,  0.82f },                        //  9: warlock
+        {   0.0f,   0.0f,  10.0f  },                        // 10: unused
+        {   3.33f, 12.41f,  0.79f }                         // 11: druid
+    };
+    // FIXME: Add base value and scaling for hunters, fix the formula
+    const uint32 pclass = GetClass();
+    if (pclass >= MAX_CLASSES)
         return 0.0f;
-
-    float crit = critBase->Data + GetStat(STAT_INTELLECT) * critRatio->Data;
-    return crit * 100.0f;
+    const float crit_ratio = crit_data[pclass].rate0 + crit_data[pclass].rate1 * GetLevel();
+    return (crit_data[pclass].base + (GetStat(STAT_INTELLECT) / crit_ratio));
 }
 
 float Player::GetRatingMultiplier(CombatRating cr) const
