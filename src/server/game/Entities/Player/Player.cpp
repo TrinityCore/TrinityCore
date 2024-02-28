@@ -5291,11 +5291,11 @@ float Player::GetMeleeCritFromAgility() const
     float crit = GetStat(STAT_AGILITY) / 20.f;
     if (pclass == CLASS_ROGUE)
     {
-        crit = GetStat(STAT_AGILITY) / 29.f
+        crit = GetStat(STAT_AGILITY) / 29.f;
     }
     if (pclass == CLASS_HUNTER)
     {
-        crit = GetStat(STAT_AGILITY) / 53.f
+        crit = GetStat(STAT_AGILITY) / 53.f;
     }
     return crit*100.0f;
 }
