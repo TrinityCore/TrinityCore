@@ -57,6 +57,11 @@ enum FOSCreatures
     NPC_CRUCIBLE_OF_SOULS           = 37094
 };
 
+enum FOSWorldStates
+{
+    WORLD_STATE_THREE_FACED_FAILED  = 4927
+};
+
 template <class AI, class T>
 inline AI* GetForgeOfSoulsAI(T* obj)
 {
