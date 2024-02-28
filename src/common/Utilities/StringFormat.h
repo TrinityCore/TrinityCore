@@ -18,7 +18,8 @@
 #ifndef TRINITYCORE_STRING_FORMAT_H
 #define TRINITYCORE_STRING_FORMAT_H
 
-#include "fmt/core.h"
+#include "Optional.h"
+#include <fmt/core.h>
 
 namespace Trinity
 {
@@ -107,5 +108,18 @@ namespace Trinity
         return fmt.size() == 0;
     }
 }
+
+template<typename T, typename Char>
+struct fmt::formatter<Optional<T>, Char> : formatter<T, Char>
+{
+    template<typename FormatContext>
+    auto format(Optional<T> const& value, FormatContext& ctx) const -> decltype(ctx.out())
+    {
+        if (value.has_value())
+            return formatter<T, Char>::format(*value, ctx);
+
+        return formatter<std::string_view, Char>().format("(nullopt)", ctx);
+    }
+};
 
 #endif
