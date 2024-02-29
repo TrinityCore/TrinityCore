@@ -2920,7 +2920,7 @@ void Creature::UpdateMovementCapabilities()
         RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
 
     // Some Amphibious creatures toggle swimming while engaged
-    if (IsAmphibious() && !HasUnitFlag(UNIT_FLAG_CANT_SWIM) && !HasUnitFlag(UNIT_FLAG_CAN_SWIM))
+    if (IsAmphibious() && !HasUnitFlag(UNIT_FLAG_CANT_SWIM) && !HasUnitFlag(UNIT_FLAG_CAN_SWIM) && IsEngaged())
         if (!IsSwimPrevented() || (GetVictim() && !GetVictim()->IsOnOceanFloor()))
             SetUnitFlag(UNIT_FLAG_CAN_SWIM);
 
