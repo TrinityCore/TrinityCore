@@ -2257,6 +2257,11 @@ void ObjectMgr::LoadCreatures()
             TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with `wander_distance`< 0, set to 0.", guid, data.id);
             data.wander_distance = 0.0f;
         }
+        else if (data.wander_distance > 0.0f && data.wander_distance < 0.1f)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with `wander_distance` below the allowed minimum distance of 0.1, set to 0.", guid, data.id);
+            data.wander_distance = 0.0f;
+        }
         else if (data.movementType == RANDOM_MOTION_TYPE)
         {
             if (G3D::fuzzyEq(data.wander_distance, 0.0f))
