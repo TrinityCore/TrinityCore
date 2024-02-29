@@ -1095,22 +1095,14 @@ void Battleground::AddPlayer(Player* player)
     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     // add arena specific auras
-    if (isArena())
-    {
-        player->RemoveArenaEnchantments(TEMP_ENCHANTMENT_SLOT);
-        player->DestroyConjuredItems(true);
-        player->UnsummonPetTemporaryIfAny();
+    player->RemoveArenaEnchantments(TEMP_ENCHANTMENT_SLOT);
+    player->DestroyConjuredItems(true);
+    player->UnsummonPetTemporaryIfAny();
 
-        if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
-        {
-            player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
-            player->ResetAllPowers();
-        }
-    }
-    else
+    if ( GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
     {
-        if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
-            player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
+        player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
+        player->ResetAllPowers();
     }
 
     // reset all map criterias on map enter
