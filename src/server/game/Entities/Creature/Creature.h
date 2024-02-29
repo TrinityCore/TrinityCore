@@ -120,16 +120,25 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         // Returns true if CREATURE_STATIC_FLAG_AQUATIC is set which strictly binds the creature to liquids
         bool IsAquatic() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_AQUATIC); }
+
         // Returns true if CREATURE_STATIC_FLAG_AMPHIBIOUS is set which allows a creature to enter and leave liquids while sticking to the ocean floor. These creatures will become able to swim when engaged
         bool IsAmphibious() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_AMPHIBIOUS); }
+
         // Returns true if CREATURE_STATIC_FLAG_FLOATING is set which is  disabling the gravity of the creature on spawn and reset
         bool IsFloating() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_FLOATING); }
+        void SetFloating(bool floating) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_FLOATING, floating); SetDisableGravity(floating); }
+
         // Returns true if CREATURE_STATIC_FLAG_SESSILE is set which permanently roots the creature in place
         bool IsSessile() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_SESSILE); }
+        void SetSessile(bool sessile) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_SESSILE, sessile); SetControlled(sessile, UNIT_STATE_ROOT); }
+
         // Returns true if CREATURE_STATIC_FLAG_3_CANNOT_PENETRATE_WATER is set which does not allow the creature to go below liquid surfaces
         bool CannotPenetrateWater() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANNOT_PENETRATE_WATER); }
+        void SetCannotPenetrateWater(bool cannotPenetrateWater) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_3_CANNOT_PENETRATE_WATER, cannotPenetrateWater); }
+
         // Returns true if CREATURE_STATIC_FLAG_3_CANNOT_SWIM is set which prevents 'Amphibious' creatures from swimming when engaged
         bool IsSwimDisabled() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANNOT_SWIM); }
+
         // Returns true if CREATURE_STATIC_FLAG_4_PREVENT_SWIM is set which prevents 'Amphibious' creatures from swimming when engaged until the victim is no longer on the ocean floor
         bool IsSwimPrevented() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_PREVENT_SWIM); }
 
