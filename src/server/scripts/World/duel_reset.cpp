@@ -108,9 +108,6 @@ class DuelResetScript : public PlayerScript
 
                 return remainingCooldown > 0
                     && !itr->second.OnHold
-                    && Milliseconds(totalCooldown) < Minutes(10)
-                    && Milliseconds(categoryCooldown) < Minutes(10)
-                    && Milliseconds(remainingCooldown) < Minutes(10)
                     && (onStartDuel ? Milliseconds(totalCooldown - remainingCooldown) > Seconds(30) : true)
                     && (onStartDuel ? Milliseconds(categoryCooldown - remainingCooldown) > Seconds(30) : true);
             }, true);
