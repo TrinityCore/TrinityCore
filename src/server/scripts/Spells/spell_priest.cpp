@@ -160,6 +160,7 @@ enum PriestSpells
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
     SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
     SPELL_PRIEST_SANCTUARY                          = 231682,
+    SPELL_PRIEST_SANCTUARY_ABSORB                   = 208771,
     SPELL_PRIEST_SANCTUARY_AURA                     = 208772,
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SCHISM                             = 424509,
@@ -2670,57 +2671,124 @@ class spell_pri_schism : public SpellScript
     }
 };
 
-// 231682 - Sanctuary
-// Triggered by 585 - Smite
-class spell_pri_sanctuary : public SpellScript
+// 585 - Smite
+class spell_pri_smite : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
-            SPELL_PRIEST_SMITE,
-            SPELL_PRIEST_SANCTUARY_AURA
+            SPELL_PRIEST_SANCTUARY,
+            SPELL_PRIEST_SANCTUARY_AURA,
+            SPELL_PRIEST_SANCTUARY_ABSORB
         });
     }
 
-    void HandleHit() const
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
     {
-        if (GetCaster()->HasAura(SPELL_PRIEST_SANCTUARY))
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_SANCTUARY_AURA, true);
+        Unit* caster = GetCaster();
+
+        if (caster->HasAura(SPELL_PRIEST_SANCTUARY))
+        {
+            caster->CastSpell(GetHitUnit(), SPELL_PRIEST_SANCTUARY_AURA, true);
+            caster->CastSpell(caster, SPELL_PRIEST_SANCTUARY_ABSORB, true);
+        }
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pri_sanctuary::HandleHit);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_smite::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
-// 208772 - Sanctuary
+// 231682 - Sanctuary
+// Triggered by 585 - Smite
+// 208772 - Sanctuary (Aura)
 class spell_pri_sanctuary_aura : public AuraScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    /*bool Validate(SpellInfo const* / *spellInfo* /) override
     {
         return ValidateSpellEffect ({ {SPELL_PRIEST_SANCTUARY, EFFECT_0} });
+    }*/
+
+    bool Load() override
+    {
+        Player* player = GetCaster()->ToPlayer();
+        if (!player)
+            return false;
+
+        float sanctuaryEffect = player->GetAuraEffect(SPELL_PRIEST_SANCTUARY, EFFECT_0)->GetAmount() / 100.f;
+        float initialAbsorb = player->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * sanctuaryEffect;
+        AddPct(initialAbsorb, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+
+        remainingAbsorb = initialAbsorb;
+        initAbsorb = initialAbsorb;
+        return true;
+    }
+
+    void HandleOnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        remainingAbsorb += initAbsorb;
     }
 
     void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& canBeRecalculated) const
     {
-        canBeRecalculated = false;
-
-        Player* player = GetCaster()->ToPlayer();
-        if (!player)
-            return;
-
-        float sanctuaryEffect = player->GetAuraEffect(SPELL_PRIEST_SANCTUARY, EFFECT_0)->GetAmount() / 100.f;
-        float modifiedAmount = player->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * sanctuaryEffect;
-        AddPct(modifiedAmount, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
-
-        amount = modifiedAmount;
+        canBeRecalculated = true;
+        amount = remainingAbsorb;
     }
 
     void Register() override
     {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_sanctuary_aura::HandleOnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAPPLY);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_sanctuary_aura::CalculateAmount, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+private:
+    int32 remainingAbsorb = 0;
+    int32 initAbsorb = 0;
+
+public:
+    void SetRemainingAbsorb(int32 absorb)
+    {
+        remainingAbsorb = absorb;
+    }
+};
+
+// 208771 - Sanctuary (Absorb)
+class spell_pri_sanctuary_absorb : public AuraScript
+{
+    /*bool Validate(SpellInfo const* / *spellInfo* /) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SANCTUARY_AURA });
+    }*/
+
+    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount) const
+    {
+        Unit* caster = GetCaster();
+        Unit* attacker = dmgInfo.GetAttacker();
+        if (!caster || !attacker)
+            return;
+
+        Aura* attackerAura = attacker->GetAura(SPELL_PRIEST_SANCTUARY_AURA);
+        if (!attackerAura)
+            return;
+
+        spell_pri_sanctuary_aura* sanctuaryAuraScript = attackerAura->GetScript<spell_pri_sanctuary_aura>();
+        if (!sanctuaryAuraScript)
+            return;
+
+        int32 remainingAbsorb = sanctuaryAuraScript->GetEffect(EFFECT_0)->GetAmount() - dmgInfo.GetDamage();
+        remainingAbsorb = std::max(remainingAbsorb, 0);
+        if (!remainingAbsorb)
+            attacker->RemoveAurasDueToSpell(SPELL_PRIEST_SANCTUARY_AURA);
+
+        sanctuaryAuraScript->SetRemainingAbsorb(remainingAbsorb);
+        absorbAmount = remainingAbsorb;
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_sanctuary_absorb::HandleAbsorb, EFFECT_0);
     }
 };
 
@@ -3285,14 +3353,15 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_purge_the_wicked);
     RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
-    RegisterSpellScript(spell_pri_sanctuary);
     RegisterSpellScript(spell_pri_sanctuary_aura);
+    RegisterSpellScript(spell_pri_sanctuary_absorb);
     RegisterSpellScript(spell_pri_schism);
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
     RegisterSpellScript(spell_pri_shadow_covenant);
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
+    RegisterSpellScript(spell_pri_smite);
     RegisterSpellScript(spell_pri_surge_of_light);
     RegisterSpellScript(spell_pri_trail_of_light);
     RegisterSpellScript(spell_pri_train_of_thought);
