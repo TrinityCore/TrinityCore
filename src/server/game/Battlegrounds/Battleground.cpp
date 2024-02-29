@@ -197,10 +197,10 @@ void Battleground::Update(uint32 diff)
             break;
         case STATUS_IN_PROGRESS:
             _ProcessOfflineQueue();
-            // after 47 minutes without one team losing, the arena closes with no winner and no rating change
+            // after 20 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
-                if (GetStartTime() >= 47 * MINUTE*IN_MILLISECONDS)
+                if (GetStartTime() >= 20 * MINUTE*IN_MILLISECONDS)
                 {
                     EndBattleground(0);
                     return;
