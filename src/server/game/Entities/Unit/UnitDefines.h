@@ -177,7 +177,7 @@ enum UnitFlags : uint32
     UNIT_FLAG_DISALLOWED            = (UNIT_FLAG_SERVER_CONTROLLED | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL |
                                        UNIT_FLAG_PLAYER_CONTROLLED | UNIT_FLAG_RENAME | UNIT_FLAG_PREPARATION | /* UNIT_FLAG_UNK_6 | */
                                        UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_LOOTING | UNIT_FLAG_PET_IN_COMBAT | UNIT_FLAG_PVP_ENABLING |
-                                       UNIT_FLAG_NON_ATTACKABLE_2 | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED |
+                                       UNIT_FLAG_CANT_SWIM | UNIT_FLAG_CAN_SWIM | UNIT_FLAG_NON_ATTACKABLE_2 | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED |
                                        UNIT_FLAG_IN_COMBAT | UNIT_FLAG_ON_TAXI | UNIT_FLAG_DISARMED | UNIT_FLAG_CONFUSED | UNIT_FLAG_FLEEING |
                                        UNIT_FLAG_POSSESSED | UNIT_FLAG_SKINNABLE | UNIT_FLAG_MOUNT | UNIT_FLAG_UNK_28 |
                                        UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_SHEATHE | UNIT_FLAG_IMMUNE), // SKIP
@@ -227,7 +227,7 @@ enum UnitFlags2 : uint32
     UNIT_FLAG2_DISALLOWED                                       = (UNIT_FLAG2_FEIGN_DEATH | UNIT_FLAG2_IGNORE_REPUTATION | UNIT_FLAG2_COMPREHEND_LANG |
                                                                    UNIT_FLAG2_MIRROR_IMAGE | UNIT_FLAG2_FORCE_MOVEMENT | UNIT_FLAG2_DISARM_OFFHAND |
                                                                    UNIT_FLAG2_DISABLE_PRED_STATS | UNIT_FLAG2_ALLOW_CHANGING_TALENTS | UNIT_FLAG2_DISARM_RANGED |
-                                                                /* UNIT_FLAG2_REGENERATE_POWER | */ UNIT_FLAG2_RESTRICT_PARTY_INTERACTION |
+                                                                /* UNIT_FLAG2_REGENERATE_POWER | */ UNIT_FLAG2_RESTRICT_PARTY_INTERACTION | UNIT_FLAG2_CANNOT_TURN |
                                                                    UNIT_FLAG2_PREVENT_SPELL_CLICK | /* UNIT_FLAG2_INTERACT_WHILE_HOSTILE | */ /* UNIT_FLAG2_UNK2 | */
                                                                 /* UNIT_FLAG2_PLAY_DEATH_ANIM | */ UNIT_FLAG2_ALLOW_CHEAT_SPELLS | UNIT_FLAG2_SUPPRESS_HIGHLIGHT_WHEN_TARGETED_OR_MOUSED_OVER |
                                                                    UNIT_FLAG2_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS | UNIT_FLAG2_LARGE_AOI | UNIT_FLAG2_GIGANTIC_AOI | UNIT_FLAG2_NO_ACTIONS |

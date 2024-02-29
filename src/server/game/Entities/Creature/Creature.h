@@ -94,9 +94,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SelectWildBattlePetLevel();
         void LoadEquipment(int8 id = 1, bool force = false);
         void SetSpawnHealth();
-        void LoadTemplateRoot();
-        bool IsTemplateRooted() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_SESSILE); }
-        void SetTemplateRooted(bool rooted);
 
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
@@ -116,15 +113,29 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
         bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
 
-        void InitializeMovementFlags();
-        void UpdateMovementFlags();
+        void InitializeMovementCapabilities();
+        void UpdateMovementCapabilities();
 
         CreatureMovementData const& GetMovementTemplate() const;
-        bool CanWalk() const { return GetMovementTemplate().IsGroundAllowed(); }
+
+        // Returns true if CREATURE_STATIC_FLAG_AQUATIC is set which strictly binds the creature to liquids
+        bool IsAquatic() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_AQUATIC); }
+        // Returns true if CREATURE_STATIC_FLAG_AMPHIBIOUS is set which allows a creature to enter and leave liquids while sticking to the ocean floor. These creatures will become able to swim when engaged
+        bool IsAmphibious() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_AMPHIBIOUS); }
+        // Returns true if CREATURE_STATIC_FLAG_FLOATING is set which is  disabling the gravity of the creature on spawn and reset
+        bool IsFloating() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_FLOATING); }
+        // Returns true if CREATURE_STATIC_FLAG_SESSILE is set which permanently roots the creature in place
+        bool IsSessile() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_SESSILE); }
+        // Returns true if CREATURE_STATIC_FLAG_3_CANNOT_PENETRATE_WATER is set which does not allow the creature to go below liquid surfaces
+        bool CannotPenetrateWater() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANNOT_PENETRATE_WATER); }
+        // Returns true if CREATURE_STATIC_FLAG_3_CANNOT_SWIM is set which prevents 'Amphibious' creatures from swimming when engaged
+        bool IsSwimDisabled() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANNOT_SWIM); }
+        // Returns true if CREATURE_STATIC_FLAG_4_PREVENT_SWIM is set which prevents 'Amphibious' creatures from swimming when engaged until the victim is no longer on the ocean floor
+        bool IsSwimPrevented() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_PREVENT_SWIM); }
+
         bool CanSwim() const override;
-        bool CanEnterWater() const override;
-        bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed() || IsFlying(); }
-        bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover || IsHovering(); }
+        bool CanEnterWater() const override { return (CanSwim() || IsAmphibious()); };
+        bool CanFly()  const override { return (IsFlying() || HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY)); }
 
         MovementGeneratorType GetDefaultMovementType() const override { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
@@ -415,12 +426,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 CalculateDamageForSparring(Unit* attacker, uint32 damage);
         bool ShouldFakeDamageFrom(Unit* attacker);
 
-        bool HasCanSwimFlagOutOfCombat() const
-        {
-            return !_isMissingCanSwimFlagOutOfCombat;
-        }
-        void RefreshCanSwimFlag(bool recheck = false);
-
         std::string GetDebugInfo() const override;
 
         void ExitVehicle(Position const* exitPosition = nullptr) override;
@@ -534,8 +539,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         // Regenerate health
         bool _regenerateHealth; // Set on creation
-
-        bool _isMissingCanSwimFlagOutOfCombat;
 
         Optional<uint32> _defaultMountDisplayIdOverride;
         int32 _creatureImmunitiesId;

@@ -43,7 +43,7 @@ enum CreatureStaticFlags
     CREATURE_STATIC_FLAG_IMMUNE_TO_PC                      = 0x00000020, // UNIT_FLAG_IMMUNE_TO_PC
     CREATURE_STATIC_FLAG_IMMUNE_TO_NPC                     = 0x00000040, // UNIT_FLAG_IMMUNE_TO_NPC
     CREATURE_STATIC_FLAG_CAN_WIELD_LOOT                    = 0x00000080,
-    CREATURE_STATIC_FLAG_SESSILE                           = 0x00000100, // creature_template_movement.Rooted = 1
+    CREATURE_STATIC_FLAG_SESSILE                           = 0x00000100, // Rooted movementflag, creature is permanently rooted in place
     CREATURE_STATIC_FLAG_UNINTERACTIBLE                    = 0x00000200, // UNIT_FLAG_UNINTERACTIBLE
     CREATURE_STATIC_FLAG_NO_AUTOMATIC_REGEN                = 0x00000400, // Creatures with that flag uses no UNIT_FLAG2_REGENERATE_POWER
     CREATURE_STATIC_FLAG_DESPAWN_INSTANTLY                 = 0x00000800, // Creature instantly disappear when killed
@@ -54,7 +54,7 @@ enum CreatureStaticFlags
     CREATURE_STATIC_FLAG_BOSS_MOB                          = 0x00010000, // CREATURE_TYPE_FLAG_BOSS_MOB, original description: Raid Boss Mob
     CREATURE_STATIC_FLAG_COMBAT_PING                       = 0x00020000,
     CREATURE_STATIC_FLAG_AQUATIC                           = 0x00040000, // aka Water Only, creature_template_movement.Ground = 0
-    CREATURE_STATIC_FLAG_AMPHIBIOUS                        = 0x00080000, // creature_template_movement.Swim = 1
+    CREATURE_STATIC_FLAG_AMPHIBIOUS                        = 0x00080000, // Creatures will be able to enter and leave water but can only move on the ocean floor when CREATURE_STATIC_FLAG_CAN_SWIM is not present
     CREATURE_STATIC_FLAG_NO_MELEE_FLEE                     = 0x00100000, // "No Melee (Flee)" Prevents melee (moves as-if feared, does not make creature passive)
     CREATURE_STATIC_FLAG_VISIBLE_TO_GHOSTS                 = 0x00200000, // CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS
     CREATURE_STATIC_FLAG_PVP_ENABLING                      = 0x00400000, // Old UNIT_FLAG_PVP_ENABLING, now UNIT_BYTES_2_OFFSET_PVP_FLAG from UNIT_FIELD_BYTES_2
@@ -64,7 +64,7 @@ enum CreatureStaticFlags
     CREATURE_STATIC_FLAG_ONLY_ATTACK_PVP_ENABLING          = 0x04000000, // "Only attack targets that are PvP enabling"
     CREATURE_STATIC_FLAG_CALLS_GUARDS                      = 0x08000000, // Creature will summon a guard if player is within its aggro range (even if creature doesn't attack per se)
     CREATURE_STATIC_FLAG_CAN_SWIM                          = 0x10000000, // UnitFlags 0x8000 UNIT_FLAG_CAN_SWIM
-    CREATURE_STATIC_FLAG_FLOATING                          = 0x20000000, // creature_template_movement.Flight = 1
+    CREATURE_STATIC_FLAG_FLOATING                          = 0x20000000, // sets DisableGravity movementflag on spawn/reset
     CREATURE_STATIC_FLAG_MORE_AUDIBLE                      = 0x40000000, // CREATURE_TYPE_FLAG_MORE_AUDIBLE
     CREATURE_STATIC_FLAG_LARGE_AOI                         = 0x80000000  // UnitFlags2 0x200000
 };
@@ -340,7 +340,7 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_NO_XP                = 0x00000040,       // creature kill does not provide XP
     CREATURE_FLAG_EXTRA_TRIGGER              = 0x00000080,       // trigger creature
     CREATURE_FLAG_EXTRA_NO_TAUNT             = 0x00000100,       // creature is immune to taunt auras and 'attack me' effects
-    CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE = 0x00000200,       // creature won't update movement flags
+    CREATURE_FLAG_EXTRA_UNUSED_9             = 0x00000200,
     CREATURE_FLAG_EXTRA_GHOST_VISIBILITY     = 0x00000400,       // creature will only be visible to dead players
     CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK   = 0x00000800,       // creature will use offhand attacks
     CREATURE_FLAG_EXTRA_NO_SELL_VENDOR       = 0x00001000,       // players can't sell items to this vendor
@@ -372,24 +372,6 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_DB_ALLOWED           = (0xFFFFFFFF & ~(CREATURE_FLAG_EXTRA_UNUSED | CREATURE_FLAG_EXTRA_DUNGEON_BOSS)) // SKIP
 };
 
-enum class CreatureGroundMovementType : uint8
-{
-    None,
-    Run,
-    Hover,
-
-    Max
-};
-
-enum class CreatureFlightMovementType : uint8
-{
-    None,
-    DisableGravity,
-    CanFly,
-
-    Max
-};
-
 enum class CreatureChaseMovementType : uint8
 {
     Run,
@@ -412,21 +394,15 @@ struct TC_GAME_API CreatureMovementData
 {
     CreatureMovementData();
 
-    CreatureGroundMovementType Ground;
-    CreatureFlightMovementType Flight;
-    bool Swim;
-    bool Rooted;
+    bool HoverInitiallyEnabled;
     CreatureChaseMovementType Chase;
     CreatureRandomMovementType Random;
     uint32 InteractionPauseTimer;
 
-    bool IsGroundAllowed() const { return Ground != CreatureGroundMovementType::None; }
-    bool IsSwimAllowed() const { return Swim; }
-    bool IsFlightAllowed() const { return Flight != CreatureFlightMovementType::None; }
-    bool IsRooted() const { return Rooted; }
-
     CreatureChaseMovementType GetChase() const { return Chase; }
     CreatureRandomMovementType GetRandom() const { return Random; }
+
+    bool IsHoverInitiallyEnabled() const { return HoverInitiallyEnabled; }
 
     uint32 GetInteractionPauseTimer() const { return InteractionPauseTimer; }
 

@@ -3741,9 +3741,17 @@ float WorldObject::GetFloorZ() const
 
 float WorldObject::GetMapWaterOrGroundLevel(float x, float y, float z, float* ground/* = nullptr*/) const
 {
-    return GetMap()->GetWaterOrGroundLevel(GetPhaseShift(), x, y, z, ground,
-        isType(TYPEMASK_UNIT) ? !static_cast<Unit const*>(this)->HasAuraType(SPELL_AURA_WATER_WALK) : false,
-        GetCollisionHeight());
+    bool swimming = [&]()
+    {
+        if (Creature const* creature = ToCreature())
+            return (!creature->CannotPenetrateWater() && !creature->HasAuraType(SPELL_AURA_WATER_WALK));
+        else if (Unit const* unit = ToUnit())
+            return !unit->HasAuraType(SPELL_AURA_WATER_WALK);
+
+        return true;
+    }();
+
+    return GetMap()->GetWaterOrGroundLevel(GetPhaseShift(), x, y, z, ground, swimming, GetCollisionHeight());
 }
 
 float WorldObject::GetMapHeight(float x, float y, float z, bool vmap/* = true*/, float distanceToSearch/* = DEFAULT_HEIGHT_SEARCH*/) const

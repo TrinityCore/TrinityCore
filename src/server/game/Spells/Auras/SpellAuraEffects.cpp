@@ -2985,10 +2985,7 @@ void AuraEffect::HandleAuraModRootAndDisableGravity(AuraApplication const* aurAp
     target->SetControlled(apply, UNIT_STATE_ROOT);
 
     // Do not remove DisableGravity if there are more than this auraEffect of that kind on the unit or if it's a creature with DisableGravity on its movement template.
-    if (!apply
-        && (target->HasAuraType(GetAuraType())
-            || target->HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY)
-            || (target->IsCreature() && target->ToCreature()->GetMovementTemplate().Flight == CreatureFlightMovementType::DisableGravity)))
+    if (!apply && (target->HasAuraType(GetAuraType()) || target->HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY) || (target->IsCreature() && target->ToCreature()->IsFloating())))
         return;
 
     if (target->SetDisableGravity(apply))
@@ -3009,10 +3006,7 @@ void AuraEffect::HandleAuraModStunAndDisableGravity(AuraApplication const* aurAp
         target->GetThreatManager().EvaluateSuppressed();
 
     // Do not remove DisableGravity if there are more than this auraEffect of that kind on the unit or if it's a creature with DisableGravity on its movement template.
-    if (!apply
-        && (target->HasAuraType(GetAuraType())
-            || target->HasAuraType(SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY)
-            || (target->IsCreature() && target->ToCreature()->GetMovementTemplate().Flight == CreatureFlightMovementType::DisableGravity)))
+    if (!apply && (target->HasAuraType(GetAuraType()) || target->HasAuraType(SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY) || (target->IsCreature() && target->ToCreature()->IsFloating())))
         return;
 
     if (target->SetDisableGravity(apply))

@@ -1132,7 +1132,7 @@ class TC_GAME_API ObjectMgr
         CreatureModelInfo const* GetCreatureModelRandomGender(CreatureModel* model, CreatureTemplate const* creatureTemplate) const;
         CreatureSummonedData const* GetCreatureSummonedData(uint32 entryId) const;
         static CreatureModel const* ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data = nullptr);
-        static void ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64* npcFlags, uint32* unitFlags, uint32* unitFlags2, uint32* unitFlags3, CreatureData const* data = nullptr);
+        static void ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64* npcFlags, uint32* unitFlags, uint32* unitFlags2, uint32* unitFlags3, CreatureStaticFlagsHolder const& staticFlags, CreatureData const* data = nullptr);
         EquipmentInfo const* GetEquipmentInfo(uint32 entry, int8& id) const;
         CreatureAddon const* GetCreatureAddon(ObjectGuid::LowType lowguid) const;
         GameObjectAddon const* GetGameObjectAddon(ObjectGuid::LowType lowguid) const;
