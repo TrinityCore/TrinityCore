@@ -214,6 +214,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanMelee() const { return !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_NO_MELEE_FLEE) && !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_NO_MELEE_APPROACH); }
         void SetCanMelee(bool canMelee, bool fleeFromMelee = false);
         bool CanIgnoreLineOfSightWhenCastingOnMe() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_IGNORE_LOS_WHEN_CASTING_ON_ME); }
+        bool IsTreatedAsRaidUnit() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS); }
+        void SetTreatAsRaidUnit(bool treatAsRaidUnit) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_4_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS, treatAsRaidUnit); }
         void StartDefaultCombatMovement(Unit* victim, Optional<float> range = {}, Optional<float> angle = {});
 
         bool HasSpell(uint32 spellID) const override;
