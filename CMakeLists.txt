@@ -21,6 +21,7 @@ project(TrinityCore)
 cmake_policy(SET CMP0005 NEW)
 cmake_policy(SET CMP0043 NEW) # Ignore COMPILE_DEFINITIONS_<Config> properties
 cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if(SOME_STRING_VARIABLE MATCHES "MSVC") as if(SOME_STRING_VARIABLE MATCHES "1")
+cmake_policy(SET CMP0067 NEW) # Honor language standard in try_compile() source-file signature
 cmake_policy(SET CMP0074 NEW) # find_package() uses <PackageName>_ROOT variables
 
 if(POLICY CMP0144)
