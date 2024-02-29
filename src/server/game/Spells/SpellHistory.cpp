@@ -236,12 +236,9 @@ void SpellHistory::Update()
             ++itr;
     }
 
-    for (auto& p : _categoryCharges)
-    {
-        std::deque<ChargeEntry>& chargeRefreshTimes = p.second;
+    for (auto& [chargeCategoryId, chargeRefreshTimes] : _categoryCharges)
         while (!chargeRefreshTimes.empty() && chargeRefreshTimes.front().RechargeEnd <= now)
             chargeRefreshTimes.pop_front();
-    }
 }
 
 void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell /*= nullptr*/)
@@ -965,6 +962,30 @@ SpellHistory::Duration SpellHistory::GetRemainingGlobalCooldown(SpellInfo const*
 
     Clock::duration remaining = end - now;
     return duration_cast<Milliseconds>(remaining);
+}
+
+void SpellHistory::PauseCooldowns()
+{
+    _pauseTime = time_point_cast<Duration>(GameTime::GetTime<Clock>());
+}
+
+void SpellHistory::ResumeCooldowns()
+{
+    if (!_pauseTime)
+        return;
+
+    Duration pausedDuration = time_point_cast<Duration>(GameTime::GetTime<Clock>()) - *_pauseTime;
+
+    for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
+        itr->second.CooldownEnd += pausedDuration;
+
+    for (auto& [chargeCategoryId, chargeRefreshTimes] : _categoryCharges)
+        for (ChargeEntry& chargeEntry : chargeRefreshTimes)
+            chargeEntry.RechargeEnd += pausedDuration;
+
+    _pauseTime.reset();
+
+    Update();
 }
 
 Player* SpellHistory::GetPlayerOwner() const

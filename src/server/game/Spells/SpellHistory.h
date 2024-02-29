@@ -174,6 +174,10 @@ public:
     void CancelGlobalCooldown(SpellInfo const* spellInfo);
     Duration GetRemainingGlobalCooldown(SpellInfo const* spellInfo) const;
 
+    bool IsPaused() const { return _pauseTime.has_value(); }
+    void PauseCooldowns();
+    void ResumeCooldowns();
+
     void SaveCooldownStateBeforeDuel();
     void RestoreCooldownStateAfterDuel();
 
@@ -200,6 +204,7 @@ private:
     TimePoint _schoolLockouts[MAX_SPELL_SCHOOL];
     ChargeStorageType _categoryCharges;
     GlobalCooldownStorageType _globalCooldowns;
+    Optional<TimePoint> _pauseTime;
 
     template<class T>
     struct PersistenceHelper { };

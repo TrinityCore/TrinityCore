@@ -2841,7 +2841,8 @@ void Unit::_DeleteRemovedAuras()
 
 void Unit::_UpdateSpells(uint32 time)
 {
-    _spellHistory->Update();
+    if (!_spellHistory->IsPaused())
+        _spellHistory->Update();
 
     if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL])
         _UpdateAutoRepeatSpell();
