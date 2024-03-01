@@ -18,6 +18,8 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Install/Update requirements
+      env:
+        HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
       run: |
         brew update
         brew uninstall openssl@1.1
@@ -36,16 +38,20 @@ jobs:
     - name: Configure CMake
       run: >
         cmake -GNinja -B ${{ steps.strings.outputs.build-output-dir }}
-        -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DBUILD_TESTING=1
+        -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DBUILD_TESTING=1
         -DCMAKE_INSTALL_PREFIX=check_install
         -S ${{ github.workspace }}
 
-    - name: Build & Test
+    - name: Build
       run: |
         cd ${{ steps.strings.outputs.build-output-dir }}
         ninja
-        ninja test
         ninja install
+      
+    - name: Unit tests
+      run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}
+        ninja test
       
     - name: Check binaries
       run: |
