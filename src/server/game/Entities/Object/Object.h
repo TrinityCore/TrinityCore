@@ -578,10 +578,11 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         virtual uint8 GetLevelForTarget(WorldObject const* /*target*/) const { return 1; }
 
-        void PlayDistanceSound(uint32 soundId, Player* target = nullptr);
-        void PlayDirectSound(uint32 soundId, Player* target = nullptr, uint32 broadcastTextId = 0);
-        void PlayDirectMusic(uint32 musicId, Player* target = nullptr);
-        void PlayObjectSound(int32 soundKitId, ObjectGuid targetObject, Player* target = nullptr, int32 broadcastTextId = 0);
+        void PlayDistanceSound(uint32 soundId, Player const* target = nullptr) const;
+        void StopDistanceSound(Player const* target = nullptr) const;
+        void PlayDirectSound(uint32 soundId, Player const* target = nullptr, uint32 broadcastTextId = 0) const;
+        void PlayDirectMusic(uint32 musicId, Player const* target = nullptr) const;
+        void PlayObjectSound(int32 soundKitId, ObjectGuid targetObject, Player const* target = nullptr, int32 broadcastTextId = 0) const;
 
         void AddObjectToRemoveList();
 
