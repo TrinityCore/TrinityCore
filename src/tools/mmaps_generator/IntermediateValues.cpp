@@ -16,6 +16,7 @@
  */
 
 #include "IntermediateValues.h"
+#include "StringFormat.h"
 
 namespace MMAP
 {
@@ -30,42 +31,32 @@ namespace MMAP
 
     void IntermediateValues::writeIV(uint32 mapID, uint32 tileX, uint32 tileY)
     {
-        char fileName[255];
-        char tileString[25];
-        sprintf(tileString, "[%02u,%02u]: ", tileX, tileY);
+        std::string tileString = Trinity::StringFormat("[{:02},{:02}]: ", tileX, tileY);
 
-        printf("%sWriting debug output...                       \r", tileString);
+        printf("%sWriting debug output...                       \r", tileString.c_str());
 
-        std::string name("meshes/%04u%02i%02i.");
-
-#define DEBUG_WRITE(fileExtension,data) \
-    do { \
-    sprintf(fileName, (name + fileExtension).c_str(), mapID, tileY, tileX); \
-    FILE* file = fopen(fileName, "wb"); \
-    if (!file) \
-        { \
-        char message[1024]; \
-        sprintf(message, "%sFailed to open %s for writing!\n",  tileString, fileName); \
-        perror(message); \
-        } \
-            else \
-            debugWrite(file, data); \
-            if (file) fclose(file); \
-            printf("%sWriting debug output...                       \r", tileString); \
-    } while (false)
+        auto debugWrite = [&](char const* extension, auto const* data)
+        {
+            std::string fileName = Trinity::StringFormat("meshes/{:04}{:02}{:02}.{}", mapID, tileY, tileX, extension);
+            if (FILE* file = fopen(fileName.c_str(), "wb"))
+            {
+                this->debugWrite(file, data);
+                fclose(file);
+            }
+            else
+                perror(Trinity::StringFormat("{}Failed to open {} for writing!\n", tileString, fileName).c_str());
+        };
 
         if (heightfield)
-            DEBUG_WRITE("hf", heightfield);
+            debugWrite("hf", heightfield);
         if (compactHeightfield)
-            DEBUG_WRITE("chf", compactHeightfield);
+            debugWrite("chf", compactHeightfield);
         if (contours)
-            DEBUG_WRITE("cs", contours);
+            debugWrite("cs", contours);
         if (polyMesh)
-            DEBUG_WRITE("pmesh", polyMesh);
+            debugWrite("pmesh", polyMesh);
         if (polyMeshDetail)
-            DEBUG_WRITE("dmesh", polyMeshDetail);
-
-#undef DEBUG_WRITE
+            debugWrite("dmesh", polyMeshDetail);
     }
 
     void IntermediateValues::debugWrite(FILE* file, rcHeightfield const* mesh)
@@ -200,15 +191,13 @@ namespace MMAP
 
     void IntermediateValues::generateObjFile(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData)
     {
-        char objFileName[255];
-        sprintf(objFileName, "meshes/map%04u%02u%02u.obj", mapID, tileY, tileX);
+        std::string objFileName;
+        objFileName = Trinity::StringFormat("meshes/map{:04}{:02}{:02}.obj", mapID, tileY, tileX);
 
-        FILE* objFile = fopen(objFileName, "wb");
+        FILE* objFile = fopen(objFileName.c_str(), "wb");
         if (!objFile)
         {
-            char message[1024];
-            sprintf(message, "Failed to open %s for writing!\n", objFileName);
-            perror(message);
+            perror(Trinity::StringFormat("Failed to open {} for writing!\n", objFileName).c_str());
             return;
         }
 
@@ -233,18 +222,14 @@ namespace MMAP
 
         fclose(objFile);
 
-        char tileString[25];
-        sprintf(tileString, "[%02u,%02u]: ", tileY, tileX);
-        printf("%sWriting debug output...                       \r", tileString);
+        printf("[%02u,%02u]: Writing debug output...                       \r", tileY, tileX);
 
-        sprintf(objFileName, "meshes/%04u.map", mapID);
+        objFileName = Trinity::StringFormat("meshes/map{:04}.map", mapID);
 
-        objFile = fopen(objFileName, "wb");
+        objFile = fopen(objFileName.c_str(), "wb");
         if (!objFile)
         {
-            char message[1024];
-            sprintf(message, "Failed to open %s for writing!\n", objFileName);
-            perror(message);
+            perror(Trinity::StringFormat("Failed to open {} for writing!\n", objFileName).c_str());
             return;
         }
 
@@ -252,13 +237,11 @@ namespace MMAP
         fwrite(&b, sizeof(char), 1, objFile);
         fclose(objFile);
 
-        sprintf(objFileName, "meshes/%04u%02u%02u.mesh", mapID, tileY, tileX);
-        objFile = fopen(objFileName, "wb");
+        objFileName = Trinity::StringFormat("meshes/map{:04}{:02}{:02}.mesh", mapID, tileY, tileX);
+        objFile = fopen(objFileName.c_str(), "wb");
         if (!objFile)
         {
-            char message[1024];
-            sprintf(message, "Failed to open %s for writing!\n", objFileName);
-            perror(message);
+            perror(Trinity::StringFormat("Failed to open {} for writing!\n", objFileName).c_str());
             return;
         }
 

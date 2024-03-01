@@ -21,6 +21,7 @@
 #include "MapTree.h"
 #include "MMapDefines.h"
 #include "ModelInstance.h"
+#include "StringFormat.h"
 #include "Util.h"
 #include "VMapManager2.h"
 #include <map>
@@ -78,17 +79,16 @@ namespace MMAP
     /**************************************************************************/
     bool TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, Spot portion)
     {
-        char mapFileName[255];
-        sprintf(mapFileName, "maps/%04u_%02u_%02u.map", mapID, tileY, tileX);
+        std::string mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", mapID, tileY, tileX);
 
-        FILE* mapFile = fopen(mapFileName, "rb");
+        FILE* mapFile = fopen(mapFileName.c_str(), "rb");
         if (!mapFile)
         {
             int32 parentMapId = sMapStore[mapID].ParentMapID;
             while (!mapFile && parentMapId != -1)
             {
-                sprintf(mapFileName, "maps/%04d_%02u_%02u.map", parentMapId, tileY, tileX);
-                mapFile = fopen(mapFileName, "rb");
+                mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", parentMapId, tileY, tileX);
+                mapFile = fopen(mapFileName.c_str(), "rb");
                 parentMapId = sMapStore[parentMapId].ParentMapID;
             }
         }
@@ -101,7 +101,7 @@ namespace MMAP
             fheader.versionMagic != MapVersionMagic)
         {
             fclose(mapFile);
-            printf("%s is the wrong version, please extract new .map files\n", mapFileName);
+            printf("%s is the wrong version, please extract new .map files\n", mapFileName.c_str());
             return false;
         }
 
