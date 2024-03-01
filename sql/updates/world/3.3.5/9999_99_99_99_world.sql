@@ -42,7 +42,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (2732600, 9, 11, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 4, 12670, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Play Sound (Male)"),
 (2732600, 9, 12, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 0, 11, 48329, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Cast Dustfield"),
 (2732600, 9, 13, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 4, 12670, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Play Sound (Male)"),
-(2732600, 9, 14, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 4, 12670, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Play Sound (Male)"),
 (2732601, 9, 0, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 0, 11, 48329, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Cast Dustfield"),
 (2732601, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 11, 47533, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Cast Camera Shake"),
 (2732601, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 4, 12671, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Play Sound (Female)"),
@@ -56,5 +55,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (2732601, 9, 10, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 11, 47533, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Cast Camera Shake"),
 (2732601, 9, 11, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 4, 12671, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Play Sound (Female)"),
 (2732601, 9, 12, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 0, 11, 48329, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Cast Dustfield"),
-(2732601, 9, 13, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 4, 12671, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Play Sound (Female)"),
-(2732601, 9, 14, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 4, 12671, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Play Sound (Female)");
+(2732601, 9, 13, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 4, 12671, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Outhouse Bunny - Script - Play Sound (Female)");
