@@ -28,6 +28,10 @@ if(POLICY CMP0144)
   cmake_policy(SET CMP0144 NEW) # find_package() uses upper-case <PACKAGENAME>_ROOT variables
 endif()
 
+if(POLICY CMP0153)
+  cmake_policy(SET CMP0153 NEW) # The exec_program() command should not be called
+endif()
+
 # Set RPATH-handing (CMake parameters)
 set(CMAKE_SKIP_BUILD_RPATH 0)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH 0)
