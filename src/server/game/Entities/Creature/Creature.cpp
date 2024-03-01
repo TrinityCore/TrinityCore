@@ -683,7 +683,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     InitializeMovementCapabilities();
 
     LoadCreaturesAddon();
-    LoadCreaturesSparringHealth();
+    LoadCreaturesSparringHealth(true);
     LoadTemplateImmunities(cInfo->CreatureImmunitiesId);
 
     GetThreatManager().EvaluateSuppressed();
@@ -1145,7 +1145,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Posit
     }
 
     LoadCreaturesAddon();
-    LoadCreaturesSparringHealth();
+    LoadCreaturesSparringHealth(true);
 
     //! Need to be called after LoadCreaturesAddon - MOVEMENTFLAG_HOVER is set there
     m_positionZ += GetHoverOffset();
@@ -2794,10 +2794,10 @@ bool Creature::LoadCreaturesAddon()
     return true;
 }
 
-void Creature::LoadCreaturesSparringHealth()
+void Creature::LoadCreaturesSparringHealth(bool force /*= false*/)
 {
     if (std::vector<float> const* templateValues = sObjectMgr->GetCreatureTemplateSparringValues(GetCreatureTemplate()->Entry))
-        if (std::find(templateValues->begin(), templateValues->end(), _sparringHealthPct) != templateValues->end()) // only re-randomize sparring value if it was loaded from template (not when set to custom value from script)
+        if (force || std::find(templateValues->begin(), templateValues->end(), _sparringHealthPct) != templateValues->end()) // only re-randomize sparring value if it was loaded from template (not when set to custom value from script)
             _sparringHealthPct = Trinity::Containers::SelectRandomContainerElement(*templateValues);
 }
 

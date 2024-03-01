@@ -88,7 +88,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         static Creature* CreateCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true, bool allowDuplicate = false);
 
         bool LoadCreaturesAddon();
-        void LoadCreaturesSparringHealth();
+        void LoadCreaturesSparringHealth(bool force = false);
         void SelectLevel();
         void UpdateLevelDependantStats();
         void SelectWildBattlePetLevel();
