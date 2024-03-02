@@ -188,7 +188,11 @@ enum PriestSpells
     SPELL_PRIEST_ULTIMATE_PENITENCE                 = 421453,
     SPELL_PRIEST_ULTIMATE_PENITENCE_DAMAGE          = 421543,
     SPELL_PRIEST_ULTIMATE_PENITENCE_HEAL            = 421544,
+    SPELL_PRIEST_UNFURLING_DARKNESS                 = 341273,
+    SPELL_PRIEST_UNFURLING_DARKNESS_AURA            = 341282,
+    SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF          = 341291,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
+    SPELL_PRIEST_VAMPIRIC_TOUCH                     = 34914,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788,
@@ -3175,8 +3179,56 @@ class spell_pri_vampiric_touch : public AuraScript
     }
 };
 
+// 341273 - Unfurling Darkness
+// Triggered by 34914 - Vampiric Touch
+class spell_pri_unfurling_darkness : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_TOUCH });
+    }
+
+    bool Load() override
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return false;
+
+        return caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS);
+    }
+
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF))
+            return;
+
+        caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_AURA, true);
+        caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF, true);
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->RemoveAurasDueToSpell(SPELL_PRIEST_UNFURLING_DARKNESS_AURA);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_unfurling_darkness::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectRemove += AuraEffectApplyFn(spell_pri_unfurling_darkness::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
+    RegisterSpellScript(spell_pri_unfurling_darkness);
     RegisterSpellScript(spell_pri_angelic_feather_trigger);
     RegisterAreaTriggerAI(areatrigger_pri_angelic_feather);
     RegisterSpellScript(spell_pri_abyssal_reverie);
