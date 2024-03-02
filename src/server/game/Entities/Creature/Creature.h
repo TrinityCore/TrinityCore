@@ -515,6 +515,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         Optional<uint32> m_lootId;
         uint16 m_LootMode;                                  // Bitmask (default: LOOT_MODE_DEFAULT) that determines what loot will be lootable
 
+        CreatureStaticFlagsHolder _staticFlags;
+
         bool IsInvisibleDueToDespawn(WorldObject const* seer) const override;
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
@@ -545,8 +547,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTextRepeatGroup m_textRepeat;
 
         void ApplyAllStaticFlags(CreatureStaticFlagsHolder const& flags);
-
-        CreatureStaticFlagsHolder _staticFlags;
 
         // Regenerate health
         bool _regenerateHealth; // Set on creation
