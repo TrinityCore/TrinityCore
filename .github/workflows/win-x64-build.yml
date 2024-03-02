@@ -1,0 +1,64 @@
+name: Windows x64
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        
+    - name: Set Environment Variables
+      run: |
+        echo "BOOST_ROOT=C:/libs/boost_1_84_0" >> $env:GITHUB_ENV
+        echo "OPENSSL_ROOT_DIR=C:/libs/openssl" >> $env:GITHUB_ENV
+        echo "MYSQL_ROOT_DIR=C:/Program Files/MySQL/MySQL Server 8.0" >> $env:GITHUB_ENV
+        
+    - name: Download and install Openssl 3.x
+      run: |
+        $Url = "https://slproweb.com/download/Win64OpenSSL-3_2_1.exe"
+        (New-Object System.Net.WebClient).DownloadFile($Url, "${{ env.TEMP }}\openssl.exe")
+        Start-Process -Wait -FilePath "${{ env.TEMP }}\openssl.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES",/DIR=${{ env.OPENSSL_ROOT_DIR }}
+
+        # Quick Openssl install test
+        & ${{ env.OPENSSL_ROOT_DIR }}/bin/openssl.exe version
+        
+    - name: Download and install Boost
+      run: |
+        $Url = "https://sourceforge.net/projects/boost/files/boost-binaries/1.84.0/boost_1_84_0-msvc-14.3-64.exe"
+        (New-Object System.Net.WebClient).DownloadFile($Url, "${{ env.TEMP }}\boost.exe")
+        Start-Process -Wait -FilePath "${{ env.TEMP }}\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES",/DIR=${{ env.BOOST_ROOT }}
+
+    - name: Configure CMake
+      run: >
+        cmake -G"Visual Studio 17 2022" -B ${{ steps.strings.outputs.build-output-dir }}
+        -DSCRIPTS=dynamic -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX"
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}
+        & "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin/amd64/MSBuild.exe" /nologo /p:Configuration=RelWithDebInfo /p:Platform=x64 /verbosity:minimal "TrinityCore.sln"
+
+    - name: Copy Dependencies
+      run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}/bin/RelWithDebInfo
+        copy "${{ env.MYSQL_ROOT_DIR }}/lib/libmysql.dll" libmysql.dll
+        copy "${{ env.OPENSSL_ROOT_DIR }}/libssl-3-x64.dll" libssl-3-x64.dll
+        copy "${{ env.OPENSSL_ROOT_DIR }}/libcrypto-3-x64.dll" libcrypto-3-x64.dll
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{ steps.strings.outputs.build-output-dir }}/bin/RelWithDebInfo
+        name: TrinityCoreMasterWin64VS2022
+        # Set a custom retention for artifacts
+        #retention-days: 7
