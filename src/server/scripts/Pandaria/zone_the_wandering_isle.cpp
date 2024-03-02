@@ -17,6 +17,8 @@
 
 #include "CellImpl.h"
 #include "Containers.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -400,10 +402,34 @@ private:
     TaskScheduler _scheduler;
 };
 
+enum EdictOfTemperanceSpells
+{
+    SPELL_FORCED_OPEN_EDICT_OF_TEMPERANCE = 122484
+};
+
+// 210986 - Edict of Temperance
+struct go_edict_of_temperance : public GameObjectAI
+{
+    go_edict_of_temperance(GameObject* go) : GameObjectAI(go) { }
+
+    bool OnReportUse(Player* /*player*/) override
+    {
+        me->SendGameObjectDespawn();
+        return false;
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_FORCED_OPEN_EDICT_OF_TEMPERANCE)
+            me->SendGameObjectDespawn();
+    }
+};
+
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
     RegisterCreatureAI(npc_huojin_trainee);
     RegisterCreatureAI(npc_tushui_leading_trainee);
     RegisterCreatureAI(npc_instructor_zhi);
+    RegisterGameObjectAI(go_edict_of_temperance);
 }
