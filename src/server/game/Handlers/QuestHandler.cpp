@@ -490,8 +490,6 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
 
             if (quest)
                 sScriptMgr->OnQuestStatusChange(_player, quest, oldStatus, QUEST_STATUS_NONE);
-
-            _player->UpdateNearbyCreatureNpcFlags();
         }
 
         _player->UpdateCriteria(CriteriaType::AbandonAnyQuest, 1);
