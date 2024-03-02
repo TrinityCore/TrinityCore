@@ -183,6 +183,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsElite() const;
         bool isWorldBoss() const;
 
+        void SetInteractionAllowedWhileHostile(bool interactionAllowed) override;
+        void SetInteractionAllowedInCombat(bool interactionAllowed) override;
+        void UpdateNearbyPlayersInteractions() override;
+
         bool HasScalableLevels() const;
         void ApplyLevelScaling();
         uint8 GetLevelForTarget(WorldObject const* target) const override;
