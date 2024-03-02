@@ -166,6 +166,7 @@ enum PriestSpells
     SPELL_PRIEST_SCHISM                             = 424509,
     SPELL_PRIEST_SCHISM_AURA                        = 214621,
     SPELL_PRIEST_SEARING_LIGHT                      = 196811,
+    SPELL_PRIEST_SHADOW_CRASH_WHISPERING_SHADOWS    = 391286,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32379,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
@@ -189,9 +190,12 @@ enum PriestSpells
     SPELL_PRIEST_ULTIMATE_PENITENCE_DAMAGE          = 421543,
     SPELL_PRIEST_ULTIMATE_PENITENCE_HEAL            = 421544,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
+    SPELL_PRIEST_VAMPIRIC_TOUCH                     = 34914,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788,
+    SPELL_PRIEST_WHISPERING_SHADOWS                 = 406777,
+    SPELL_PRIEST_WHISPERING_SHADOWS_DUMMY           = 391286,
     SPELL_PVP_RULES_ENABLED_HARDCODED               = 134735
 };
 
@@ -2773,6 +2777,26 @@ class spell_pri_shadow_covenant : public SpellScript
     }
 };
 
+// 205385 - Shadow Crash
+class spell_pri_shadow_crash : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ {SPELL_PRIEST_WHISPERING_SHADOWS_DUMMY, EFFECT_2} });
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        if (GetCaster()->HasAura(SPELL_PRIEST_WHISPERING_SHADOWS))
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_WHISPERING_SHADOWS_DUMMY);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_shadow_crash::HandleEffectHitTarget, EFFECT_2, SPELL_EFFECT_TRIGGER_MISSILE);
+    }
+};
+
 // 186263 - Shadow Mend
 class spell_pri_shadow_mend : public SpellScript
 {
@@ -3175,6 +3199,31 @@ class spell_pri_vampiric_touch : public AuraScript
     }
 };
 
+// 391286 - Whispering Shadows (Dot Application)
+// Triggered by 205385 - Shadow Crash
+class spell_pri_whispering_shadows_dummy : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_WHISPERING_SHADOWS, SPELL_PRIEST_VAMPIRIC_TOUCH });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PRIEST_WHISPERING_SHADOWS);
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_VAMPIRIC_TOUCH, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_whispering_shadows_dummy::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_angelic_feather_trigger);
@@ -3245,6 +3294,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
     RegisterSpellScript(spell_pri_shadow_covenant);
+    RegisterSpellScript(spell_pri_shadow_crash);
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
     RegisterSpellScript(spell_pri_surge_of_light);
@@ -3257,4 +3307,5 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_vampiric_embrace);
     RegisterSpellScript(spell_pri_vampiric_embrace_target);
     RegisterSpellScript(spell_pri_vampiric_touch);
+    RegisterSpellScript(spell_pri_whispering_shadows_dummy);
 }
