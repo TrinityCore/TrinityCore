@@ -244,7 +244,7 @@ void ObjectMgr::AddLocaleString(std::string_view value, LocaleConstant localeCon
         data.reserve(TOTAL_LOCALES);
         data.resize(localeConstant + 1);
     }
-    
+
     data[localeConstant] = value.empty() ? "" : value;
 }
 
