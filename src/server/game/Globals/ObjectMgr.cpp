@@ -239,16 +239,13 @@ ObjectMgr::~ObjectMgr()
 
 void ObjectMgr::AddLocaleString(std::string_view value, LocaleConstant localeConstant, std::vector<std::string>& data)
 {
-    if (!value.empty())
+    if (data.size() <= size_t(localeConstant))
     {
-        if (data.size() <= size_t(localeConstant))
-        {
-            data.reserve(TOTAL_LOCALES);
-            data.resize(localeConstant + 1);
-        }
-
-        data[localeConstant] = value;
+        data.reserve(TOTAL_LOCALES);
+        data.resize(localeConstant + 1);
     }
+
+    data[localeConstant] = value.empty() ? "" : value;
 }
 
 void ObjectMgr::LoadCreatureLocales()
