@@ -165,7 +165,7 @@ class TC_GAME_API ThreatManager
         // what it says on the tin - call AddThreat on everything that's threatened by us with the specified params
         void ForwardThreatForAssistingMe(Unit* assistant, float baseAmount, SpellInfo const* spell = nullptr, bool ignoreModifiers = false);
         // delete all ThreatReferences with victim == owner
-        void RemoveMeFromThreatLists();
+        void RemoveMeFromThreatLists(bool (*unitFilter)(Unit const* otherUnit));
         // re-calculates the temporary threat modifier from auras on myself
         void UpdateMyTempModifiers();
         // re-calculate SPELL_AURA_MOD_THREAT modifiers
