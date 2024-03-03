@@ -84,6 +84,13 @@ class DuelResetScript : public PlayerScript
                     // check if player2 class uses mana
                     if (loser->GetPowerType() == POWER_MANA || loser->GetClass() == CLASS_DRUID)
                         loser->RestoreManaAfterDuel();
+
+                    // pet cooldowns
+                    if (Pet* winpet = winner->GetPet())
+                        winpet->SetHealth(winpet->GetMaxHealth());
+
+                    if (Pet* losepet = loser->GetPet())
+                        losepet->SetHealth(losepet->GetMaxHealth());
                 }
             }
         }

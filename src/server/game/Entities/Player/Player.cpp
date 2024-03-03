@@ -1789,7 +1789,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 RemoveArenaSpellCooldowns(true);
                 RemoveArenaAuras();
                 if (pet)
+                {
                     pet->RemoveArenaAuras();
+                    pet->SetMaxHealth(pet->GetMaxHealth());
+                }
             }
 
             // remove pet on map change
