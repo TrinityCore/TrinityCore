@@ -22,11 +22,18 @@
 #include <string>
 #include <unordered_map>
 
-enum ModelFlags
+// flags of each spawn
+enum ModelInstanceFlags
 {
-    MOD_M2 = 1,
-    MOD_HAS_BOUND = 1 << 1,
-    MOD_PARENT_SPAWN = 1 << 2
+    MOD_HAS_BOUND       = 1 << 0,
+    MOD_PARENT_SPAWN    = 1 << 1
+};
+
+// flags of each model
+enum class ModelFlags : uint32
+{
+    None    = 0x0,
+    IsM2    = 0x1
 };
 
 struct WMODoodadData;

@@ -32,11 +32,10 @@ namespace VMAP
     struct LocationInfo;
     enum class ModelIgnoreFlags : uint32;
 
-    enum ModelFlags
+    enum ModelInstanceFlags
     {
-        MOD_M2 = 1,
-        MOD_HAS_BOUND = 1 << 1,
-        MOD_PARENT_SPAWN = 1 << 2
+        MOD_HAS_BOUND       = 1 << 0,
+        MOD_PARENT_SPAWN    = 1 << 1
     };
 
     struct ModelMinimalData

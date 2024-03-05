@@ -107,8 +107,8 @@ namespace VMAP
             bool GetLiquidLevel(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type, uint32& mogpFlags) const override;
             void getAreaAndLiquidData(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, AreaAndLiquidData& data) const override;
 
-            WorldModel* acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags = 0);
-            void releaseModelInstance(const std::string& filename);
+            WorldModel* acquireModelInstance(std::string const& basepath, std::string const& filename);
+            void releaseModelInstance(std::string const& filename);
 
             // what's the use of this? o.O
             virtual std::string getDirFileName(unsigned int mapId, int /*x*/, int /*y*/) const override

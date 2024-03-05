@@ -622,7 +622,7 @@ namespace MMAP
                 std::vector<GroupModel> const& groupModels = worldModel->getGroupModels();
 
                 // all M2s need to have triangle indices reversed
-                bool isM2 = (instance.flags & MOD_M2) != 0;
+                bool isM2 = worldModel->IsM2();
 
                 // transform data
                 float scale = instance.iScale;

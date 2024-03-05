@@ -471,7 +471,7 @@ namespace VMAP
         if ((ignoreFlags & ModelIgnoreFlags::M2) != ModelIgnoreFlags::Nothing)
         {
             // M2 models are not taken into account for LoS calculation if caller requested their ignoring.
-            if (Flags & MOD_M2)
+            if (Flags.HasFlag(ModelFlags::None))
                 return false;
         }
 
@@ -569,6 +569,11 @@ namespace VMAP
         if (result && fwrite("WMOD", 1, 4, wf) != 4) result = false;
         chunkSize = sizeof(uint32) + sizeof(uint32);
         if (result && fwrite(&chunkSize, sizeof(uint32), 1, wf) != 1) result = false;
+        if (result)
+        {
+            uint32 flags = Flags.AsUnderlyingType();
+            if (fwrite(&flags, sizeof(uint32), 1, wf) != 1) result = false;
+        }
         if (result && fwrite(&RootWMOID, sizeof(uint32), 1, wf) != 1) result = false;
 
         // write group models
@@ -605,6 +610,14 @@ namespace VMAP
 
         if (result && !readChunk(rf, chunk, "WMOD", 4)) result = false;
         if (result && fread(&chunkSize, sizeof(uint32), 1, rf) != 1) result = false;
+        if (result)
+        {
+            ModelFlags flags;
+            if (fread(&flags, sizeof(flags), 1, rf) == 1)
+                Flags = flags;
+            else
+                result = false;
+        }
         if (result && fread(&RootWMOID, sizeof(uint32), 1, rf) != 1) result = false;
 
         // read group models

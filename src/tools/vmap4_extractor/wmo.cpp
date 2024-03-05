@@ -200,6 +200,8 @@ bool WMORoot::ConvertToVMAPRootWmo(FILE* pOutfile)
     fwrite(&nVectors,sizeof(nVectors), 1, pOutfile); // will be filled later
     fwrite(&nGroups, 4, 1, pOutfile);
     fwrite(&RootWMOID, 4, 1, pOutfile);
+    ModelFlags tcFlags = ModelFlags::None;
+    fwrite(&tcFlags, sizeof(ModelFlags), 1, pOutfile);
     return true;
 }
 

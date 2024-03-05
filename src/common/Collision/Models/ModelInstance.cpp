@@ -74,7 +74,7 @@ namespace VMAP
         }
 
         // M2 files don't contain area info, only WMO files
-        if (flags & MOD_M2)
+        if (iModel->IsM2())
             return;
         if (!iBound.contains(p))
             return;
@@ -108,7 +108,7 @@ namespace VMAP
         }
 
         // M2 files don't contain area info, only WMO files
-        if (flags & MOD_M2)
+        if (iModel->IsM2())
             return false;
         if (!iBound.contains(p))
             return false;

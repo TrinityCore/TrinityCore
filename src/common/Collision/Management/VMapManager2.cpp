@@ -315,7 +315,7 @@ namespace VMAP
         }
     }
 
-    WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags/* Only used when creating the model */)
+    WorldModel* VMapManager2::acquireModelInstance(std::string const& basepath, std::string const& filename)
     {
         //! Critical section, thread safe access to iLoadedModelFiles
         std::lock_guard<std::mutex> lock(LoadedModelFilesLock);
@@ -333,7 +333,6 @@ namespace VMAP
             TC_LOG_DEBUG("maps", "VMapManager2: loading file '{}{}'", basepath, filename);
 
             worldmodel->getModel()->SetName(filename);
-            worldmodel->getModel()->Flags = flags;
 
             model = iLoadedModelFiles.insert(std::pair<std::string, ManagedModel*>(filename, worldmodel)).first;
         }
@@ -341,7 +340,7 @@ namespace VMAP
         return model->second->getModel();
     }
 
-    void VMapManager2::releaseModelInstance(const std::string &filename)
+    void VMapManager2::releaseModelInstance(std::string const& filename)
     {
         //! Critical section, thread safe access to iLoadedModelFiles
         std::lock_guard<std::mutex> lock(LoadedModelFilesLock);
