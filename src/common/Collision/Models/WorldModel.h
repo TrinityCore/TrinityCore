@@ -33,15 +33,11 @@ namespace VMAP
     struct GroupLocationInfo;
     enum class ModelIgnoreFlags : uint32;
 
-    class TC_COMMON_API MeshTriangle
+    struct MeshTriangle
     {
-        public:
-            MeshTriangle() : idx0(0), idx1(0), idx2(0) { }
-            MeshTriangle(uint32 na, uint32 nb, uint32 nc): idx0(na), idx1(nb), idx2(nc) { }
-
-            uint32 idx0;
-            uint32 idx1;
-            uint32 idx2;
+        uint32 idx0;
+        uint32 idx1;
+        uint32 idx2;
     };
 
     class TC_COMMON_API WmoLiquid
@@ -55,6 +51,8 @@ namespace VMAP
             uint32 GetType() const { return iType; }
             float *GetHeightStorage() { return iHeight; }
             uint8 *GetFlagsStorage() { return iFlags; }
+            float const* GetHeightStorage() const { return iHeight; }
+            uint8 const* GetFlagsStorage()  const { return iFlags; }
             uint32 GetFileSize();
             bool writeToFile(FILE* wf);
             static bool readFromFile(FILE* rf, WmoLiquid* &liquid);
@@ -91,7 +89,9 @@ namespace VMAP
             const G3D::AABox& GetBound() const { return iBound; }
             uint32 GetMogpFlags() const { return iMogpFlags; }
             uint32 GetWmoID() const { return iGroupWMOID; }
-            void getMeshData(std::vector<G3D::Vector3>& outVertices, std::vector<MeshTriangle>& outTriangles, WmoLiquid*& liquid);
+            std::vector<G3D::Vector3> const& GetVertices() const { return vertices; }
+            std::vector<MeshTriangle> const& GetTriangles() const { return triangles; }
+            WmoLiquid const* GetLiquid() const { return iLiquid; }
         protected:
             G3D::AABox iBound;
             uint32 iMogpFlags;// 0x8 outdor; 0x2000 indoor
@@ -116,7 +116,7 @@ namespace VMAP
             bool GetLocationInfo(const G3D::Vector3 &p, const G3D::Vector3 &down, float &dist, GroupLocationInfo& info) const;
             bool writeFile(const std::string &filename);
             bool readFile(const std::string &filename);
-            void getGroupModels(std::vector<GroupModel>& outGroupModels);
+            std::vector<GroupModel> const& getGroupModels() const { return groupModels; }
             std::string const& GetName() const { return name; }
             void SetName(std::string newName) { name = std::move(newName); }
             uint32 Flags;
