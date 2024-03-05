@@ -34,7 +34,7 @@ struct WMODoodadData;
 extern const char * szWorkDirWmo;
 extern std::unordered_map<std::string, WMODoodadData> WmoDoodads;
 
-uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId);
+uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId, bool isWmo);
 
 bool FileExists(const char * file);
 

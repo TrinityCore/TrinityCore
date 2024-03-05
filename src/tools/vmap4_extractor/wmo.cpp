@@ -617,7 +617,7 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, boo
     float scale = 1.0f;
     if (mapObjDef.Flags & 0x4)
         scale = mapObjDef.Scale / 1024.0f;
-    uint32 uniqueId = GenerateUniqueObjectId(mapObjDef.UniqueId, 0);
+    uint32 uniqueId = GenerateUniqueObjectId(mapObjDef.UniqueId, 0, true);
     uint8 flags = MOD_HAS_BOUND;
     uint8 nameSet = mapObjDef.NameSet;
     if (mapID != originalMapId)

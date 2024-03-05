@@ -176,7 +176,7 @@ void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint
     Vec3D position = fixCoords(doodadDef.Position);
 
     uint8 nameSet = 0;// not used for models
-    uint32 uniqueId = GenerateUniqueObjectId(doodadDef.UniqueId, 0);
+    uint32 uniqueId = GenerateUniqueObjectId(doodadDef.UniqueId, 0, false);
     uint8 tcflags = MOD_M2;
     if (mapID != originalMapId)
         tcflags |= MOD_PARENT_SPAWN;
@@ -284,7 +284,7 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
             rotation.y = G3D::toDegrees(rotation.y);
 
             uint8 nameSet = 0;     // not used for models
-            uint32 uniqueId = GenerateUniqueObjectId(wmo.UniqueId, doodadId);
+            uint32 uniqueId = GenerateUniqueObjectId(wmo.UniqueId, doodadId, false);
             uint8 tcflags = MOD_M2;
             if (mapID != originalMapId)
                 tcflags |= MOD_PARENT_SPAWN;
