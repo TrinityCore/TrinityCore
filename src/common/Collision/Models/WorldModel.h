@@ -122,7 +122,6 @@ namespace VMAP
             void setFlags(ModelFlags flags) { Flags = flags; }
             void setRootWmoID(uint32 id) { RootWMOID = id; }
             bool IntersectRay(const G3D::Ray &ray, float &distance, bool stopAtFirstHit, ModelIgnoreFlags ignoreFlags) const;
-            bool IntersectPoint(const G3D::Vector3 &p, const G3D::Vector3 &down, float &dist, AreaInfo &info) const;
             bool GetLocationInfo(const G3D::Vector3 &p, const G3D::Vector3 &down, float &dist, GroupLocationInfo& info) const;
             bool writeFile(const std::string &filename);
             bool readFile(const std::string &filename);

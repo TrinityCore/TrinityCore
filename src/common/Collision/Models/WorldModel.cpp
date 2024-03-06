@@ -471,7 +471,7 @@ namespace VMAP
         if ((ignoreFlags & ModelIgnoreFlags::M2) != ModelIgnoreFlags::Nothing)
         {
             // M2 models are not taken into account for LoS calculation if caller requested their ignoring.
-            if (Flags.HasFlag(ModelFlags::None))
+            if (IsM2())
                 return false;
         }
 
@@ -521,25 +521,6 @@ namespace VMAP
                 //std::cout << "trying to intersect '" << prims[entry].name << "'\n";
             }
     };
-
-    bool WorldModel::IntersectPoint(const G3D::Vector3& p, const G3D::Vector3& down, float& dist, AreaInfo& info) const
-    {
-        if (groupModels.empty())
-            return false;
-
-        WModelAreaCallback callback(groupModels, down);
-        groupTree.intersectPoint(p, callback);
-        if (callback.hit != groupModels.end())
-        {
-            info.rootId = RootWMOID;
-            info.groupId = callback.hit->GetWmoID();
-            info.flags = callback.hit->GetMogpFlags();
-            info.result = true;
-            dist = callback.zDist;
-            return true;
-        }
-        return false;
-    }
 
     bool WorldModel::GetLocationInfo(const G3D::Vector3& p, const G3D::Vector3& down, float& dist, GroupLocationInfo& info) const
     {
