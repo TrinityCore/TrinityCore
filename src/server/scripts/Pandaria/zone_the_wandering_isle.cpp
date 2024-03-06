@@ -23,7 +23,9 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "TaskScheduler.h"
+#include "Unit.h"
 
 enum TraineeMisc
 {
@@ -400,10 +402,231 @@ private:
     TaskScheduler _scheduler;
 };
 
+enum JaominRoMisc
+{
+    // Spells
+    SPELL_CSA_AREATRIGGER_DUMMY      = 88811,
+    SPELL_HAWK_DIVING_TO_EARTH       = 108955,
+    SPELL_HAWK_DIVING_TO_EARTH_DMG   = 108935,
+    SPELL_BABY_ELEPHANT_TAKES_A_BATH = 108938,
+    SPELL_FORCE_SUMMONER_TO_RIDE     = 108583,
+    SPELL_EJECT_ALL_PASSENGERS       = 50630,
+    SPELL_DIZZY                      = 108959,
+    SPELL_RIDE_DRAKE                 = 108582,
+    SPELL_SERVERSIDE_KILL_CREDIT     = 109837,
+    SPELL_FULL_HEALTH                = 17683,
+
+    // Texts
+    SAY_INTRO                        = 0,
+    SAY_DEFEATED                     = 1,
+
+    // Movement
+    POINT_RANDOM_DEST                = 0,
+
+    // Events
+    EVENT_RANDOM_SPELL               = 1,
+    EVENT_MOVE,
+    EVENT_HEAL,
+    EVENT_MOVE_HOME
+};
+
+
+// 54611 - Jaomin Ro
+struct npc_jaomin_ro : public ScriptedAI
+{
+    npc_jaomin_ro(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_RANDOM_SPELL, 4s, 6s);
+    }
+
+    void JustReachedHome() override
+    {
+        if (me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2))
+            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2);
+    }
+
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_CSA_AREATRIGGER_DUMMY && target->GetTypeId() == TYPEID_PLAYER && !me->IsInCombat())
+        {
+            Talk(SAY_INTRO, target);
+            me->SetOrientation(1.67690026f);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            me->SetEmoteState(EMOTE_STATE_READY_UNARMED);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasAura(SPELL_RIDE_DRAKE))
+            return;
+
+        switch (_events.ExecuteEvent())
+        {
+            case EVENT_RANDOM_SPELL:
+            {
+                uint32 spellId = RAND(SPELL_BABY_ELEPHANT_TAKES_A_BATH, SPELL_HAWK_DIVING_TO_EARTH);
+                DoCast(spellId);
+                _events.ScheduleEvent(EVENT_RANDOM_SPELL, 4s, 6s);
+                break;
+            }
+            case EVENT_HEAL:
+            {
+                DoCastSelf(SPELL_FULL_HEALTH);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                break;
+            }
+            case EVENT_MOVE_HOME:
+            {
+                me->GetMotionMaster()->MoveTargetedHome();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->HealthBelowPctDamaged(2, damage))
+        {
+            damage = 0;
+
+            me->SetReactState(REACT_PASSIVE);
+            me->AttackStop();
+            me->InterruptNonMeleeSpells(true);
+            _events.Reset();
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE_2);
+            me->SetEmoteState(EMOTE_ONESHOT_NONE);
+            DoCast(SPELL_SERVERSIDE_KILL_CREDIT);
+            Talk(SAY_DEFEATED, attacker);
+            
+            _events.ScheduleEvent(EVENT_HEAL, 5s);
+            _events.ScheduleEvent(EVENT_MOVE_HOME, 6s);
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+// 57750 - Jaomin Ro (Hawk)
+struct npc_jaomin_ro_hawk : public ScriptedAI
+{
+    npc_jaomin_ro_hawk(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        orientation = 0.0f;
+    }
+
+    void JustAppeared() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->SetSpeedRate(MOVE_RUN, 2.5f);
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        DoCast(SPELL_FORCE_SUMMONER_TO_RIDE);
+        orientation = me->GetAbsoluteAngle(summoner->ToUnit()->GetVictim()) - me->GetOrientation();
+        _events.ScheduleEvent(EVENT_MOVE, 1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        switch (_events.ExecuteEvent())
+        {
+            case EVENT_MOVE:
+            {
+                me->GetMotionMaster()->MovePoint(POINT_RANDOM_DEST, me->GetFirstCollisionPosition(40.0f, orientation));
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_HAWK_DIVING_TO_EARTH_DMG && target->GetTypeId() == TYPEID_PLAYER)
+        {
+            DoCast(SPELL_EJECT_ALL_PASSENGERS);
+            me->DespawnOrUnsummon();
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        switch (pointId)
+        {
+            case POINT_RANDOM_DEST:
+            {
+                DoCast(SPELL_EJECT_ALL_PASSENGERS);
+                me->DespawnOrUnsummon();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+private:
+    EventMap _events;
+    float orientation;
+};
+
+// 108583 - Force Summoner to Ride Vehicle
+class spell_force_summoner_to_ride_vehicle : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectValue(), TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_force_summoner_to_ride_vehicle::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 108582 - Ride Drake
+class spell_ride_drake : public AuraScript
+{
+    void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DIZZY, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_ride_drake::OnRemoveVehicle, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
     RegisterCreatureAI(npc_huojin_trainee);
     RegisterCreatureAI(npc_tushui_leading_trainee);
     RegisterCreatureAI(npc_instructor_zhi);
+    RegisterCreatureAI(npc_jaomin_ro);
+    RegisterCreatureAI(npc_jaomin_ro_hawk);
+    RegisterSpellScript(spell_force_summoner_to_ride_vehicle);
+    RegisterSpellScript(spell_ride_drake);
 }
