@@ -1130,20 +1130,25 @@ void AuctionHouseObject::Update()
         {
             SendAuctionExpired(auction, trans);
             sScriptMgr->OnAuctionExpire(this, auction);
+
+            RemoveAuction(trans, auction, &it);
         }
         ///- Or perform the transaction
         else
         {
+            // Copy data before freeing AuctionPosting in auctionHouse->RemoveAuction
+            // Because auctionHouse->SendAuctionWon can unload items if bidder is offline
+            // we need to RemoveAuction before sending mails
+            AuctionPosting copy = *auction;
+            RemoveAuction(trans, auction, &it);
+
             //we should send an "item sold" message if the seller is online
             //we send the item to the winner
             //we send the money to the seller
-            SendAuctionWon(auction, nullptr, trans);
-            SendAuctionSold(auction, nullptr, trans);
+            SendAuctionSold(&copy, nullptr, trans);
+            SendAuctionWon(&copy, nullptr, trans);
             sScriptMgr->OnAuctionSuccessful(this, auction);
         }
-
-        ///- In any case clear the auction
-        RemoveAuction(trans, auction, &it);
     }
 
     // Run DB changes

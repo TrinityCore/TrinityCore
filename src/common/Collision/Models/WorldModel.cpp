@@ -443,13 +443,6 @@ namespace VMAP
         return 0;
     }
 
-    void GroupModel::getMeshData(std::vector<G3D::Vector3>& outVertices, std::vector<MeshTriangle>& outTriangles, WmoLiquid*& liquid)
-    {
-        outVertices = vertices;
-        outTriangles = triangles;
-        liquid = iLiquid;
-    }
-
     // ===================== WorldModel ==================================
 
     void WorldModel::setGroupModels(std::vector<GroupModel>& models)
@@ -478,7 +471,7 @@ namespace VMAP
         if ((ignoreFlags & ModelIgnoreFlags::M2) != ModelIgnoreFlags::Nothing)
         {
             // M2 models are not taken into account for LoS calculation if caller requested their ignoring.
-            if (Flags & MOD_M2)
+            if (Flags.HasFlag(ModelFlags::None))
                 return false;
         }
 
@@ -576,6 +569,11 @@ namespace VMAP
         if (result && fwrite("WMOD", 1, 4, wf) != 4) result = false;
         chunkSize = sizeof(uint32) + sizeof(uint32);
         if (result && fwrite(&chunkSize, sizeof(uint32), 1, wf) != 1) result = false;
+        if (result)
+        {
+            uint32 flags = Flags.AsUnderlyingType();
+            if (fwrite(&flags, sizeof(uint32), 1, wf) != 1) result = false;
+        }
         if (result && fwrite(&RootWMOID, sizeof(uint32), 1, wf) != 1) result = false;
 
         // write group models
@@ -612,6 +610,14 @@ namespace VMAP
 
         if (result && !readChunk(rf, chunk, "WMOD", 4)) result = false;
         if (result && fread(&chunkSize, sizeof(uint32), 1, rf) != 1) result = false;
+        if (result)
+        {
+            ModelFlags flags;
+            if (fread(&flags, sizeof(flags), 1, rf) == 1)
+                Flags = flags;
+            else
+                result = false;
+        }
         if (result && fread(&RootWMOID, sizeof(uint32), 1, rf) != 1) result = false;
 
         // read group models
@@ -632,10 +638,5 @@ namespace VMAP
 
         fclose(rf);
         return result;
-    }
-
-    void WorldModel::getGroupModels(std::vector<GroupModel>& outGroupModels)
-    {
-        outGroupModels = groupModels;
     }
 }

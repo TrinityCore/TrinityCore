@@ -32,11 +32,10 @@ namespace VMAP
     struct LocationInfo;
     enum class ModelIgnoreFlags : uint32;
 
-    enum ModelFlags
+    enum ModelInstanceFlags
     {
-        MOD_M2 = 1,
-        MOD_HAS_BOUND = 1 << 1,
-        MOD_PARENT_SPAWN = 1 << 2
+        MOD_HAS_BOUND       = 1 << 0,
+        MOD_PARENT_SPAWN    = 1 << 1
     };
 
     struct ModelMinimalData
@@ -77,8 +76,8 @@ namespace VMAP
             void intersectPoint(G3D::Vector3 const& p, AreaInfo& info) const;
             bool GetLocationInfo(G3D::Vector3 const& p, LocationInfo& info) const;
             bool GetLiquidLevel(G3D::Vector3 const& p, LocationInfo& info, float& liqHeight) const;
-            G3D::Matrix3 const& GetInvRot() { return iInvRot; }
-            WorldModel* getWorldModel() { return iModel; }
+            G3D::Matrix3 const& GetInvRot() const { return iInvRot; }
+            WorldModel const* getWorldModel() const { return iModel; }
         protected:
             G3D::Matrix3 iInvRot;
             float iInvScale;

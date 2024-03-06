@@ -391,7 +391,7 @@ namespace VMAP
                 if (ModelSpawn::readFromFile(fileResult.File, spawn))
                 {
                     // acquire model instance
-                    WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name, spawn.flags);
+                    WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name);
                     if (!model)
                         TC_LOG_ERROR("misc", "StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [{}, {}]", tileX, tileY);
 
