@@ -431,7 +431,6 @@ enum JaominRoMisc
     EVENT_MOVE_HOME
 };
 
-
 // 54611 - Jaomin Ro
 struct npc_jaomin_ro : public ScriptedAI
 {
@@ -499,6 +498,7 @@ struct npc_jaomin_ro : public ScriptedAI
         if (me->HealthBelowPctDamaged(2, damage))
         {
             damage = 0;
+
             me->SetReactState(REACT_PASSIVE);
             me->AttackStop();
             me->RemoveAllAuras();
