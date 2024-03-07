@@ -17,6 +17,7 @@
 
 #include "CellImpl.h"
 #include "Containers.h"
+#include "CreatureAIImpl.h" // for RAND()
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -501,13 +502,14 @@ struct npc_jaomin_ro : public ScriptedAI
 
             me->SetReactState(REACT_PASSIVE);
             me->AttackStop();
+            me->RemoveAllAuras();
             me->InterruptNonMeleeSpells(true);
             _events.Reset();
             me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE_2);
             me->SetEmoteState(EMOTE_ONESHOT_NONE);
             DoCast(SPELL_SERVERSIDE_KILL_CREDIT);
             Talk(SAY_DEFEATED, attacker);
-            
+
             _events.ScheduleEvent(EVENT_HEAL, 5s);
             _events.ScheduleEvent(EVENT_MOVE_HOME, 6s);
         }
