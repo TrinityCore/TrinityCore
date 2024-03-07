@@ -22,6 +22,7 @@
 #include "Duration.h"
 #include "Errors.h"
 #include "EventProcessor.h"
+#include "MapDefines.h"
 #include "ModelIgnoreFlags.h"
 #include "MovementInfo.h"
 #include "ObjectDefines.h"
@@ -62,10 +63,8 @@ class WorldPacket;
 class ZoneScript;
 struct FactionTemplateEntry;
 struct Loot;
-struct PositionFullTerrainStatus;
 struct QuaternionData;
 struct SpellPowerCost;
-enum ZLiquidStatus : uint32;
 
 namespace WorldPackets
 {
@@ -530,6 +529,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool IsInWorldPvpZone() const;
         bool IsOutdoors() const { return m_outdoors; }
         ZLiquidStatus GetLiquidStatus() const { return m_liquidStatus; }
+        WmoLocation const* GetCurrentWmo() const { return m_currentWmo ? &*m_currentWmo : nullptr; }
 
         InstanceScript* GetInstanceScript() const;
 
@@ -789,6 +789,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         float m_staticFloorZ;
         bool m_outdoors;
         ZLiquidStatus m_liquidStatus;
+        Optional<WmoLocation> m_currentWmo;
 
         //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
         //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!
