@@ -53,7 +53,6 @@ std::shared_ptr<CASC::Storage> CascStorage;
 struct MapEntry
 {
     uint32 Id = 0;
-    int32 WdtFileDataId = 0;
     int16 ParentMapID = 0;
     std::string Name;
     std::string Directory;
@@ -63,7 +62,7 @@ std::vector<MapEntry> map_ids; // partitioned by parent maps first
 std::unordered_set<uint32> maps_that_are_parents;
 boost::filesystem::path input_path;
 bool preciseVectorData = false;
-char const* CascProduct = "wow";
+char const* CascProduct = "wow_classic_beta";
 char const* CascRegion = "eu";
 bool UseRemoteCasc = false;
 uint32 DbcLocale = 0;
@@ -280,13 +279,9 @@ void ParsMapFiles()
             if (mapEntryItr == map_ids.end())
                 return nullptr;
 
-            uint32 fileDataId = mapEntryItr->WdtFileDataId;
-            if (!fileDataId)
-                return nullptr;
-
-            std::string description = Trinity::StringFormat("WDT for map {} - {} (FileDataID {})", mapId, mapEntryItr->Name, fileDataId);
+            std::string fileName = Trinity::StringFormat("World\\Maps\\{}\\{}.wdt", mapEntryItr->Directory.c_str(), mapEntryItr->Directory.c_str());
             std::string directory = mapEntryItr->Directory;
-            itr = wdts.emplace(std::piecewise_construct, std::forward_as_tuple(mapId), std::forward_as_tuple(fileDataId, description, std::move(directory), maps_that_are_parents.count(mapId) > 0)).first;
+            itr = wdts.emplace(std::piecewise_construct, std::forward_as_tuple(mapId), std::forward_as_tuple(std::move(fileName), std::move(directory), maps_that_are_parents.count(mapId) > 0)).first;
             if (!itr->second.init(mapId))
             {
                 wdts.erase(itr);
@@ -554,7 +549,6 @@ int main(int argc, char ** argv)
 
             MapEntry map;
             map.Id = record.GetId();
-            map.WdtFileDataId = record.GetInt32("WdtFileDataID");
             map.ParentMapID = int16(record.GetUInt16("ParentMapID"));
             map.Name = record.GetString("MapName");
             map.Directory = record.GetString("Directory");
@@ -577,15 +571,12 @@ int main(int argc, char ** argv)
             {
                 MapEntry map;
                 map.Id = copy.NewRowId;
-                map.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
                 map.ParentMapID = map_ids[itr->second].ParentMapID;
                 map.Name = map_ids[itr->second].Name;
                 map.Directory = map_ids[itr->second].Directory;
                 map_ids.push_back(map);
             }
         }
-
-        map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }), map_ids.end());
 
         // force parent maps to be extracted first
         std::stable_partition(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return maps_that_are_parents.count(map.Id) > 0; });

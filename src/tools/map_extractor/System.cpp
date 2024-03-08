@@ -51,7 +51,6 @@ std::shared_ptr<CASC::Storage> CascStorage;
 struct MapEntry
 {
     uint32 Id = 0;
-    int32 WdtFileDataId = 0;
     std::string Name;
     std::string Directory;
 };
@@ -110,7 +109,7 @@ float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - l
 
 uint32 CONF_Locale = 0;
 
-char const* CONF_Product = "wow";
+char const* CONF_Product = "wow_classic_beta";
 char const* CONF_Region = "eu";
 bool CONF_UseRemoteCasc = false;
 
@@ -287,7 +286,6 @@ void ReadMapDBC()
 
         MapEntry map;
         map.Id = record.GetId();
-        map.WdtFileDataId = record.GetInt32("WdtFileDataID");
         map.Name = record.GetString("MapName");
         map.Directory = record.GetString("Directory");
         idToIndex[map.Id] = map_ids.size();
@@ -302,14 +300,11 @@ void ReadMapDBC()
         {
             MapEntry map;
             map.Id = copy.NewRowId;
-            map.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
             map.Name = map_ids[itr->second].Name;
             map.Directory = map_ids[itr->second].Directory;
             map_ids.push_back(map);
         }
     }
-
-    map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }), map_ids.end());
 
     printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
 }
@@ -1089,7 +1084,8 @@ void ExtractMaps(uint32 build)
         // Loadup map grid data
         ChunkedFile wdt;
         std::bitset<(WDT_MAP_SIZE) * (WDT_MAP_SIZE)> existingTiles;
-        if (wdt.loadFile(CascStorage, map_ids[z].WdtFileDataId, Trinity::StringFormat("WDT for map {}", map_ids[z].Id), false))
+        std::string fileName = Trinity::StringFormat("World\\Maps\\{}\\{}.wdt", map_ids[z].Directory.c_str(), map_ids[z].Directory.c_str());
+        if (wdt.loadFile(CascStorage, fileName, false))
         {
             FileChunk* mphd = wdt.GetChunk("MPHD");
             FileChunk* main = wdt.GetChunk("MAIN");
@@ -1109,7 +1105,7 @@ void ExtractMaps(uint32 build)
                     }
                     else
                     {
-                        std::string storagePath = Trinity::StringFormat(R"(World\Maps\{}\{}_{}_{}.adt)", map_ids[z].Directory, map_ids[z].Directory, x, y);
+                        std::string storagePath = Trinity::StringFormat("World\\Maps\\{}\\{}_{}_{}.adt", map_ids[z].Directory, map_ids[z].Directory, x, y);
                         existingTiles[y * WDT_MAP_SIZE + x] = ConvertADT(storagePath, map_ids[z].Name, outputFileName, y, x, build, ignoreDeepWater);
                     }
                 }
@@ -1336,26 +1332,24 @@ void ExtractGameTables()
 
     DB2FileInfo GameTables[] =
     {
-        { 1582086, "ArtifactKnowledgeMultiplier.txt" },
-        { 1391662, "ArtifactLevelXP.txt" },
         { 1391663, "BarberShopCostBase.txt" },
-        { 1391664, "BaseMp.txt" },
-        { 4494528, "BaseProfessionRatings.txt" },
-        { 1391665, "BattlePetTypeDamageMod.txt" },
-        { 1391666, "BattlePetXP.txt" },
+        { 3999262, "ChanceToMeleeCrit.txt" },
+        { 3999263, "ChanceToMeleeCritbase.txt" },
+        { 3999265, "ChanceToSpellCrit.txt" },
+        { 3999264, "ChanceToSpellCritBase.txt" },
         { 1391669, "CombatRatings.txt" },
-        { 1391670, "CombatRatingsMultByILvl.txt" },
-        { 1391671, "HonorLevel.txt" },
-        { 1391642, "HpPerSta.txt" },
-        { 2012881, "ItemLevelByLevel.txt" },
-        { 1726830, "ItemLevelSquish.txt" },
-        { 1391643, "ItemSocketCostPerLevel.txt" },
         { 1391651, "NPCManaCostScaler.txt" },
-        { 4492239, "ProfessionRatings.txt" },
-        { 1391659, "SandboxScaling.txt" },
+        { 5464960, "OCTBaseHPByClass.txt" },
+        { 4049853, "OCTBaseMPByClass.txt" },
+        { 4526467, "OCTClassCombatRatingScalar.txt" },
+        { 5464961, "OCTHPPerStamina.txt" },
+        { 3953485, "OCTRegenHP.txt" },
+        { 2238239, "OCTRegenMP.txt" },
+        { 3953486, "RegenHPPerSpt.txt" },
+        { 2238240, "RegenMPPerSpt.txt" },
+        { 2200979, "ShieldBlockRegular.txt" },
         { 1391660, "SpellScaling.txt" },
-        { 1980632, "StaminaMultByILvl.txt" },
-        { 1391661, "xp.txt" }
+        { 4640503, "TeamContributionPoints.txt" }
     };
 
     uint32 count = 0;

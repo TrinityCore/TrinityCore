@@ -23,18 +23,17 @@
 
 struct CinematicCameraLoadInfo
 {
-    static constexpr DB2MetaField MetaFields[5] =
+    static constexpr DB2MetaField MetaFields[4] =
     {
         { FT_FLOAT, 3, true },
         { FT_INT, 1, false },
         { FT_FLOAT, 1, true },
         { FT_INT, 1, false },
-        { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1294214, -1, 5, 5, 0x4B3DF171, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance{ 1294214, -1, 4, 4, 0x744B99BC, MetaFields, -1 };
 
-    static constexpr DB2FieldMeta Fields[8] =
+    static constexpr DB2FieldMeta Fields[7] =
     {
         { false, FT_INT, "ID" },
         { false, FT_FLOAT, "OriginX" },
@@ -43,31 +42,29 @@ struct CinematicCameraLoadInfo
         { false, FT_INT, "SoundID" },
         { false, FT_FLOAT, "OriginFacing" },
         { false, FT_INT, "FileDataID" },
-        { false, FT_INT, "ConversationID" },
     };
 
-    static constexpr DB2FileLoadInfo Instance{ Fields, 8, & MetaInstance };
+    static constexpr DB2FileLoadInfo Instance{ Fields, 7, & MetaInstance };
 };
 
 struct GameobjectDisplayInfoLoadInfo
 {
-    static constexpr DB2MetaField MetaFields[8] =
+    static constexpr DB2MetaField MetaFields[6] =
     {
+        { FT_STRING_NOT_LOCALIZED, 1, true },
         { FT_FLOAT, 6, true },
         { FT_INT, 1, true },
         { FT_SHORT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1266277, -1, 8, 8, 0x7F774625, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance{ 1266277, -1, 6, 6, 0xB59CF0B2, MetaFields, -1 };
 
-    static constexpr DB2FieldMeta Fields[14] =
+    static constexpr DB2FieldMeta Fields[12] =
     {
         { false, FT_INT, "ID" },
+        { false, FT_STRING_NOT_LOCALIZED, "ModelName" },
         { false, FT_FLOAT, "GeoBoxMinX" },
         { false, FT_FLOAT, "GeoBoxMinY" },
         { false, FT_FLOAT, "GeoBoxMinZ" },
@@ -78,12 +75,9 @@ struct GameobjectDisplayInfoLoadInfo
         { true, FT_SHORT, "ObjectEffectPackageID" },
         { false, FT_FLOAT, "OverrideLootEffectScale" },
         { false, FT_FLOAT, "OverrideNameScale" },
-        { true, FT_INT, "AlternateDisplayType" },
-        { true, FT_INT, "ClientCreatureDisplayInfoID" },
-        { true, FT_INT, "ClientItemID" },
     };
 
-    static constexpr DB2FileLoadInfo Instance{ Fields, 14, &MetaInstance };
+    static constexpr DB2FileLoadInfo Instance{ Fields, 12, &MetaInstance };
 };
 
 struct LiquidMaterialLoadInfo
@@ -226,7 +220,7 @@ struct LiquidTypeLoadInfo
 
 struct MapLoadInfo
 {
-    static constexpr DB2MetaField MetaFields[24] =
+    static constexpr DB2MetaField MetaFields[22] =
     {
         { FT_STRING_NOT_LOCALIZED, 1, true },
         { FT_STRING, 1, true },
@@ -234,7 +228,6 @@ struct MapLoadInfo
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
-        { FT_FLOAT, 2, true },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, true },
         { FT_BYTE, 1, false },
@@ -245,18 +238,17 @@ struct MapLoadInfo
         { FT_SHORT, 1, true },
         { FT_BYTE, 1, false },
         { FT_FLOAT, 1, true },
+        { FT_INT, 1, true },
         { FT_SHORT, 1, true },
         { FT_BYTE, 1, false },
         { FT_SHORT, 1, true },
         { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
         { FT_INT, 3, true },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1349477, -1, 24, 24, 0x15542FE8, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance{ 1349477, -1, 22, 22, 0xEE526FA5, MetaFields, -1 };
 
-    static constexpr DB2FieldMeta Fields[28] =
+    static constexpr DB2FieldMeta Fields[25] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING_NOT_LOCALIZED, "Directory" },
@@ -265,8 +257,6 @@ struct MapLoadInfo
         { false, FT_STRING, "MapDescription1" },
         { false, FT_STRING, "PvpShortDescription" },
         { false, FT_STRING, "PvpLongDescription" },
-        { false, FT_FLOAT, "CorpseX" },
-        { false, FT_FLOAT, "CorpseY" },
         { false, FT_BYTE, "MapType" },
         { true, FT_BYTE, "InstanceType" },
         { false, FT_BYTE, "ExpansionID" },
@@ -277,18 +267,17 @@ struct MapLoadInfo
         { true, FT_SHORT, "CosmeticParentMapID" },
         { false, FT_BYTE, "TimeOffset" },
         { false, FT_FLOAT, "MinimapIconScale" },
+        { true, FT_INT, "RaidOffset" },
         { true, FT_SHORT, "CorpseMapID" },
         { false, FT_BYTE, "MaxPlayers" },
         { true, FT_SHORT, "WindSettingsID" },
         { true, FT_INT, "ZmpFileDataID" },
-        { true, FT_INT, "WdtFileDataID" },
-        { true, FT_INT, "NavigationMaxDistance" },
         { true, FT_INT, "Flags1" },
         { true, FT_INT, "Flags2" },
         { true, FT_INT, "Flags3" },
     };
 
-    static constexpr DB2FileLoadInfo Instance{ Fields, 28, &MetaInstance };
+    static constexpr DB2FileLoadInfo Instance{ Fields, 25, &MetaInstance };
 };
 
 #endif // ExtractorDB2LoadInfo_h__
