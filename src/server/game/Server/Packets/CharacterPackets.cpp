@@ -251,6 +251,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo con
     data.WriteBit(charInfo.FirstLogin);
     data.WriteBit(charInfo.BoostInProgress);
     data.WriteBits(charInfo.unkWod61x, 5);
+    data.WriteBits(0, 2); // unk
     data.WriteBit(charInfo.RpeResetAvailable);
     data.WriteBit(charInfo.RpeResetQuestClearAvailable);
 
