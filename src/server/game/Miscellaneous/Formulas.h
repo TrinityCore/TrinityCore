@@ -138,6 +138,9 @@ namespace Trinity
 
         inline uint32 BaseGain(uint8 pl_level, uint8 mob_level)
         {
+            return 0;
+
+            /*
             uint32 baseGain;
 
             GtXpEntry const* xpPlayer = sXpGameTable.GetRow(pl_level);
@@ -172,6 +175,7 @@ namespace Trinity
 
             sScriptMgr->OnBaseGainCalculation(baseGain, pl_level, mob_level);
             return baseGain;
+            */
         }
 
         inline uint32 Gain(Player* player, Unit* u, bool isBattleGround = false)

@@ -4311,18 +4311,15 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        _playerXPperLevel.resize(sXpGameTable.GetTableRowCount(), 0);
+        _playerXPperLevel.resize(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+        for (uint8 level = 0; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+            _playerXPperLevel[level] = 0;
 
         //                                               0      1
         QueryResult result = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
 
-        // load the DBC's levels at first...
-        for (uint32 level = 1; level < sXpGameTable.GetTableRowCount(); ++level)
-            _playerXPperLevel[level] = sXpGameTable.GetRow(level)->Total;
-
         uint32 count = 0;
 
-        // ...overwrite if needed (custom values)
         if (result)
         {
             do
@@ -4355,7 +4352,7 @@ void ObjectMgr::LoadPlayerInfo()
             if (_playerXPperLevel[level] == 0)
             {
                 TC_LOG_ERROR("sql.sql", "Level {} does not have XP for level data. Using data of level [{}] + 12000.", level + 1, level);
-                _playerXPperLevel[level] = _playerXPperLevel[level - 1] + 12000;
+                _playerXPperLevel[level] = _playerXPperLevel[level - 1] + 100;
             }
         }
 
@@ -4371,7 +4368,7 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& base
     if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
 
-    GtBaseMPEntry const* mp = sBaseMPGameTable.GetRow(level);
+    GtOctBaseMpByClassEntry const* mp = sOctBaseMpByClassGameTable.GetRow(level);
     if (!mp)
     {
         TC_LOG_ERROR("misc", "Tried to get non-existant Class-Level combination data for base hp/mp. Class {} Level {}", class_, level);

@@ -24,49 +24,74 @@
 
 enum InventoryType : uint8;
 
-struct GtArtifactKnowledgeMultiplierEntry
-{
-    float Multiplier = 0.0f;
-};
-
-struct GtArtifactLevelXPEntry
-{
-    float XP = 0.0f;
-    float XP2 = 0.0f;
-};
-
 struct GtBarberShopCostBaseEntry
 {
     float Cost = 0.0f;
 };
 
-struct GtBaseMPEntry
+struct GtChanceToMeleeCritEntry
 {
-    float Rogue = 0.0f;
-    float Druid = 0.0f;
-    float Hunter = 0.0f;
-    float Mage = 0.0f;
-    float Paladin = 0.0f;
-    float Priest = 0.0f;
-    float Shaman = 0.0f;
-    float Warlock = 0.0f;
     float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
     float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
     float Monk = 0.0f;
-    float DemonHunter = 0.0f;
-    float Evoker = 0.0f;
-    float Adventurer = 0.0f;
+    float Druid = 0.0f;
 };
 
-struct GtBattlePetXPEntry
+struct GtChanceToMeleeCritBaseEntry
 {
-    float Wins = 0.0f;
-    float Xp = 0.0f;
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtChanceToSpellCritEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtChanceToSpellCritBaseEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
 };
 
 struct GtCombatRatingsEntry
 {
-    float Amplify = 0.0f;
+    float WeaponSkill = 0.0f;
     float DefenseSkill = 0.0f;
     float Dodge = 0.0f;
     float Parry = 0.0f;
@@ -77,45 +102,27 @@ struct GtCombatRatingsEntry
     float CritMelee = 0.0f;
     float CritRanged = 0.0f;
     float CritSpell = 0.0f;
-    float Corruption = 0.0f;
-    float CorruptionResistance = 0.0f;
-    float Speed = 0.0f;
-    float ResilienceCritTaken = 0.0f;
-    float ResiliencePlayerDamage = 0.0f;
-    float Lifesteal = 0.0f;
+    float HitTakenMelee = 0.0f;
+    float HitTakenRanged = 0.0f;
+    float HitTakenSpell = 0.0f;
+    float CritTakenMelee = 0.0f;
+    float CritTakenRanged = 0.0f;
+    float CritTakenSpell = 0.0f;
     float HasteMelee = 0.0f;
     float HasteRanged = 0.0f;
     float HasteSpell = 0.0f;
-    float Avoidance = 0.0f;
-    float Sturdiness = 0.0f;
-    float Unused7 = 0.0f;
-    float Expertise = 0.0f;
-    float ArmorPenetration = 0.0f;
-    float Mastery = 0.0f;
-    float PvPPower = 0.0f;
-    float Cleave = 0.0f;
-    float VersatilityDamageDone = 0.0f;
-    float VersatilityHealingDone = 0.0f;
-    float VersatilityDamageTaken = 0.0f;
-    float Unused12 = 0.0f;
-};
-
-struct GtCombatRatingsMultByILvl
-{
-    float ArmorMultiplier = 0.0f;
-    float WeaponMultiplier = 0.0f;
-    float TrinketMultiplier = 0.0f;
-    float JewelryMultiplier = 0.0f;
-};
-
-struct GtHpPerStaEntry
-{
-    float Health = 0.0f;
-};
-
-struct GtItemSocketCostPerLevelEntry
-{
-    float SocketCost = 0.0f;
+    float Unknown1 = 0.0f;
+    float Unknown2 = 0.0f;
+    float Unknown3 = 0.0f;
+    float Unknown4 = 0.0f;
+    float Unknown5 = 0.0f;
+    float Unknown6 = 0.0f;
+    float Unknown7 = 0.0f;
+    float Unknown8 = 0.0f;
+    float Unknown9 = 0.0f;
+    float Unknown10 = 0.0f;
+    float Unknown11 = 0.0f;
+    float Unknown12 = 0.0f;
 };
 
 struct GtNpcManaCostScalerEntry
@@ -123,48 +130,148 @@ struct GtNpcManaCostScalerEntry
     float Scaler = 0.0f;
 };
 
+struct GtOctBaseHpByClassEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtOctBaseMpByClassEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtOctClassCombatRatingScalarEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtOctHpPerStaminaEntry
+{
+    float Scalar = 0.0f;
+};
+
+struct GtOctRegenHpEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtOctRegenMpEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtRegenHpPerSptEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtRegenMpPerSptEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtShieldBlockRegularEntry
+{
+    float Poor = 0.0f;
+    float Standard = 0.0f;
+    float Good = 0.0f;
+    float Superior = 0.0f;
+    float Epic = 0.0f;
+    float Legendary = 0.0f;
+    float Artifact = 0.0f;
+    float ScalingStat = 0.0;
+};
+
 struct GtSpellScalingEntry
 {
-    float Rogue = 0.0f;
-    float Druid = 0.0f;
-    float Hunter = 0.0f;
-    float Mage = 0.0f;
-    float Paladin = 0.0f;
-    float Priest = 0.0f;
-    float Shaman = 0.0f;
-    float Warlock = 0.0f;
     float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
     float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
     float Monk = 0.0f;
-    float DemonHunter = 0.0f;
-    float Evoker = 0.0f;
-    float Adventurer = 0.0f;
-    float Item = 0.0f;
-    float Consumable = 0.0f;
-    float Gem1 = 0.0f;
-    float Gem2 = 0.0f;
-    float Gem3 = 0.0f;
-    float Health = 0.0f;
-    float DamageReplaceStat = 0.0f;
-    float DamageSecondary = 0.0f;
-    float ManaConsumable = 0.0f;
+    float Druid = 0.0f;
+    float Unknown1 = 0.0f;
+    float Unknown2 = 0.0f;
 };
 
-struct GtStaminaMultByILvl
+struct GtTeamContributionPointsEntry
 {
-    float ArmorMultiplier = 0.0f;
-    float WeaponMultiplier = 0.0f;
-    float TrinketMultiplier = 0.0f;
-    float JewelryMultiplier = 0.0f;
-};
-
-struct GtXpEntry
-{
-    float Total = 0.0f;
-    float PerKill = 0.0f;
-    float Junk = 0.0f;
-    float Stats = 0.0f;
-    float Divisor = 0.0f;
+    float Value = 0.0f;
 };
 
 template<class T>
@@ -187,19 +294,24 @@ private:
     std::vector<T> _data;
 };
 
-TC_GAME_API extern GameTable<GtArtifactKnowledgeMultiplierEntry>    sArtifactKnowledgeMultiplierGameTable;
-TC_GAME_API extern GameTable<GtArtifactLevelXPEntry>                sArtifactLevelXPGameTable;
 TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>             sBarberShopCostBaseGameTable;
-TC_GAME_API extern GameTable<GtBaseMPEntry>                         sBaseMPGameTable;
-TC_GAME_API extern GameTable<GtBattlePetXPEntry>                    sBattlePetXPGameTable;
+TC_GAME_API extern GameTable<GtChanceToMeleeCritEntry>              sChanceToMeleeCritGameTable;
+TC_GAME_API extern GameTable<GtChanceToMeleeCritBaseEntry>          sChanceToMeleeCritBaseGameTable;
+TC_GAME_API extern GameTable<GtChanceToSpellCritEntry>              sChanceToSpellCritGameTable;
+TC_GAME_API extern GameTable<GtChanceToSpellCritBaseEntry>          sChanceToSpellCritBaseGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
-TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>             sCombatRatingsMultByILvlGameTable;
-TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable;
-TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
 TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
+TC_GAME_API extern GameTable<GtOctBaseHpByClassEntry>               sOctBaseHpByClassGameTable;
+TC_GAME_API extern GameTable<GtOctBaseMpByClassEntry>               sOctBaseMpByClassGameTable;
+TC_GAME_API extern GameTable<GtOctClassCombatRatingScalarEntry>     sOctClassCombatRazingScalarGameTable;
+TC_GAME_API extern GameTable<GtOctHpPerStaminaEntry>                sOctHpPerStaminaGameTable;
+TC_GAME_API extern GameTable<GtOctRegenHpEntry>                     sOctRegenHpGameTable;
+TC_GAME_API extern GameTable<GtOctRegenMpEntry>                     sOctRegenMpGameTable;
+TC_GAME_API extern GameTable<GtRegenHpPerSptEntry>                  sRegenHpPerSptTable;
+TC_GAME_API extern GameTable<GtRegenMpPerSptEntry>                  sRegenMpPerSptTable;
+TC_GAME_API extern GameTable<GtShieldBlockRegularEntry>             sShieldBlockRegularTable;
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
-TC_GAME_API extern GameTable<GtStaminaMultByILvl>                   sStaminaMultByILvlGameTable;
-TC_GAME_API extern GameTable<GtXpEntry>                             sXpGameTable;
+TC_GAME_API extern GameTable<GtTeamContributionPointsEntry>         sTeamContributionPointsGameTable;
 
 TC_GAME_API void LoadGameTables(std::string const& dataPath);
 
@@ -230,12 +342,6 @@ inline float GetGameTableColumnForClass(T const* row, int32 class_)
             return row->Monk;
         case CLASS_DRUID:
             return row->Druid;
-        case CLASS_DEMON_HUNTER:
-            return row->DemonHunter;
-        case CLASS_EVOKER:
-            return row->Evoker;
-        case CLASS_ADVENTURER:
-            return row->Adventurer;
         default:
             break;
     }
@@ -269,41 +375,11 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Monk;
         case CLASS_DRUID:
             return row->Druid;
-        case CLASS_DEMON_HUNTER:
-            return row->DemonHunter;
-        case CLASS_EVOKER:
-            return row->Evoker;
-        case CLASS_ADVENTURER:
-            return row->Adventurer;
-        case -1:
-        case -7:
-            return row->Item;
-        case -2:
-            return row->Consumable;
-        case -3:
-            return row->Gem1;
-        case -4:
-            return row->Gem2;
-        case -5:
-            return row->Gem3;
-        case -6:
-            return row->Health;
-        case -8:
-            return row->DamageReplaceStat;
-        case -9:
-            return row->DamageSecondary;
-        case -10:
-            return row->ManaConsumable;
         default:
             break;
     }
 
     return 0.0f;
-}
-
-inline float GetBattlePetXPPerLevel(GtBattlePetXPEntry const* row)
-{
-    return row->Wins * row->Xp;
 }
 
 template<class T>

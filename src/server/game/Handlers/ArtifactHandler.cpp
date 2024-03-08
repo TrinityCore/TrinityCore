@@ -38,8 +38,8 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
     uint32 currentArtifactTier = artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER);
 
     uint64 xpCost = 0;
-    if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(artifact->GetTotalPurchasedArtifactPowers() + 1))
-        xpCost = uint64(currentArtifactTier == MAX_ARTIFACT_TIER ? cost->XP2 : cost->XP);
+    //if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(artifact->GetTotalPurchasedArtifactPowers() + 1))
+    //    xpCost = uint64(currentArtifactTier == MAX_ARTIFACT_TIER ? cost->XP2 : cost->XP);
 
     if (xpCost > artifact->m_itemData->ArtifactXP)
         return;
@@ -208,16 +208,19 @@ void WorldSession::HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmAr
         return;
 
     uint64 xpCost = 0;
-    if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(artifact->GetTotalPurchasedArtifactPowers() + 1))
-        xpCost = uint64(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) == 1 ? cost->XP2 : cost->XP);
+    //if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(artifact->GetTotalPurchasedArtifactPowers() + 1))
+    //    xpCost = uint64(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) == 1 ? cost->XP2 : cost->XP);
 
     if (xpCost > artifact->m_itemData->ArtifactXP)
         return;
 
     uint64 newAmount = artifact->m_itemData->ArtifactXP - xpCost;
+
+    /*
     for (uint32 i = 0; i <= artifact->GetTotalPurchasedArtifactPowers(); ++i)
         if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(i))
             newAmount += uint64(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) == 1 ? cost->XP2 : cost->XP);
+        */
 
     for (UF::ArtifactPower const& artifactPower : artifact->m_itemData->ArtifactPowers)
     {

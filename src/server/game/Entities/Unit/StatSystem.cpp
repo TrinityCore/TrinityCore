@@ -280,8 +280,8 @@ float Player::GetHealthBonusFromStamina() const
 {
     // Taken from PaperDollFrame.lua - 6.0.3.19085
     float ratio = 10.0f;
-    if (GtHpPerStaEntry const* hpBase = sHpPerStaGameTable.GetRow(GetLevel()))
-        ratio = hpBase->Health;
+    if (GtOctHpPerStaminaEntry const* hpBase = sOctHpPerStaminaGameTable.GetRow(GetLevel()))
+        ratio = hpBase->Scalar;
 
     float stamina = GetStat(STAT_STAMINA);
 

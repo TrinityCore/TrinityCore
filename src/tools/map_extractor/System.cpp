@@ -1334,7 +1334,7 @@ void ExtractGameTables()
     {
         { 1391663, "BarberShopCostBase.txt" },
         { 3999262, "ChanceToMeleeCrit.txt" },
-        { 3999263, "ChanceToMeleeCritbase.txt" },
+        { 3999263, "ChanceToMeleeCritBase.txt" },
         { 3999265, "ChanceToSpellCrit.txt" },
         { 3999264, "ChanceToSpellCritBase.txt" },
         { 1391669, "CombatRatings.txt" },

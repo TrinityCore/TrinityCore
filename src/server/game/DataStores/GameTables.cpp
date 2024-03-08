@@ -25,19 +25,24 @@
 #include <fstream>
 #include <sstream>
 
-GameTable<GtArtifactKnowledgeMultiplierEntry>   sArtifactKnowledgeMultiplierGameTable;
-GameTable<GtArtifactLevelXPEntry>               sArtifactLevelXPGameTable;
-GameTable<GtBarberShopCostBaseEntry>            sBarberShopCostBaseGameTable;
-GameTable<GtBaseMPEntry>                        sBaseMPGameTable;
-GameTable<GtBattlePetXPEntry>                   sBattlePetXPGameTable;
-GameTable<GtCombatRatingsEntry>                 sCombatRatingsGameTable;
-GameTable<GtCombatRatingsMultByILvl>            sCombatRatingsMultByILvlGameTable;
-GameTable<GtHpPerStaEntry>                      sHpPerStaGameTable;
-GameTable<GtItemSocketCostPerLevelEntry>        sItemSocketCostPerLevelGameTable;
-GameTable<GtNpcManaCostScalerEntry>             sNpcManaCostScalerGameTable;
-GameTable<GtSpellScalingEntry>                  sSpellScalingGameTable;
-GameTable<GtStaminaMultByILvl>                  sStaminaMultByILvlGameTable;
-GameTable<GtXpEntry>                            sXpGameTable;
+GameTable<GtBarberShopCostBaseEntry>             sBarberShopCostBaseGameTable;
+GameTable<GtChanceToMeleeCritEntry>              sChanceToMeleeCritGameTable;
+GameTable<GtChanceToMeleeCritBaseEntry>          sChanceToMeleeCritBaseGameTable;
+GameTable<GtChanceToSpellCritEntry>              sChanceToSpellCritGameTable;
+GameTable<GtChanceToSpellCritBaseEntry>          sChanceToSpellCritBaseGameTable;
+GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
+GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
+GameTable<GtOctBaseHpByClassEntry>               sOctBaseHpByClassGameTable;
+GameTable<GtOctBaseMpByClassEntry>               sOctBaseMpByClassGameTable;
+GameTable<GtOctClassCombatRatingScalarEntry>     sOctClassCombatRazingScalarGameTable;
+GameTable<GtOctHpPerStaminaEntry>                sOctHpPerStaminaGameTable;
+GameTable<GtOctRegenHpEntry>                     sOctRegenHpGameTable;
+GameTable<GtOctRegenMpEntry>                     sOctRegenMpGameTable;
+GameTable<GtRegenHpPerSptEntry>                  sRegenHpPerSptTable;
+GameTable<GtRegenMpPerSptEntry>                  sRegenMpPerSptTable;
+GameTable<GtShieldBlockRegularEntry>             sShieldBlockRegularTable;
+GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
+GameTable<GtTeamContributionPointsEntry>         sTeamContributionPointsGameTable;
 
 template<class T>
 inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& storage, boost::filesystem::path const& path)
@@ -112,19 +117,25 @@ void LoadGameTables(std::string const& dataPath)
 
 #define LOAD_GT(store, file) gameTableCount += LoadGameTable(bad_gt_files, store, gtPath / file); ++expectedGameTableCount;
 
-    LOAD_GT(sArtifactKnowledgeMultiplierGameTable, "ArtifactKnowledgeMultiplier.txt");
-    LOAD_GT(sArtifactLevelXPGameTable, "ArtifactLevelXP.txt");
     LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
-    LOAD_GT(sBaseMPGameTable, "BaseMp.txt");
-    LOAD_GT(sBattlePetXPGameTable, "BattlePetXP.txt");
+    LOAD_GT(sChanceToMeleeCritGameTable, "ChanceToMeleeCrit.txt");
+    LOAD_GT(sChanceToMeleeCritBaseGameTable, "ChanceToMeleeCritBase.txt");
+    LOAD_GT(sChanceToSpellCritGameTable, "ChanceToSpellCrit.txt");
+    LOAD_GT(sChanceToSpellCritBaseGameTable, "ChanceToSpellCritBase.txt");
     LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");
-    LOAD_GT(sCombatRatingsMultByILvlGameTable, "CombatRatingsMultByILvl.txt");
-    LOAD_GT(sItemSocketCostPerLevelGameTable, "ItemSocketCostPerLevel.txt");
-    LOAD_GT(sHpPerStaGameTable, "HpPerSta.txt");
     LOAD_GT(sNpcManaCostScalerGameTable, "NPCManaCostScaler.txt");
+    LOAD_GT(sOctBaseHpByClassGameTable, "OCTBaseHPByClass.txt");
+    LOAD_GT(sOctBaseMpByClassGameTable, "OCTBaseMPByClass.txt");
+    LOAD_GT(sOctClassCombatRazingScalarGameTable, "OCTClassCombatRatingScalar.txt");
+    LOAD_GT(sOctHpPerStaminaGameTable, "OCTHPPerStamina.txt");
+    LOAD_GT(sOctRegenHpGameTable, "OCTRegenHP.txt");
+    LOAD_GT(sOctRegenMpGameTable, "OCTRegenMP.txt");
+    LOAD_GT(sRegenHpPerSptTable, "RegenHPPerSpt.txt");
+    LOAD_GT(sRegenMpPerSptTable, "RegenMPPerSpt.txt");
+    LOAD_GT(sShieldBlockRegularTable, "ShieldBlockRegular.txt");
     LOAD_GT(sSpellScalingGameTable, "SpellScaling.txt");
-    LOAD_GT(sStaminaMultByILvlGameTable, "StaminaMultByILvl.txt");
-    LOAD_GT(sXpGameTable, "xp.txt");
+    LOAD_GT(sTeamContributionPointsGameTable, "TeamContributionPoints.txt");
+
 
 #undef LOAD_GT
 
@@ -144,30 +155,5 @@ void LoadGameTables(std::string const& dataPath)
 template<class T>
 float GetIlvlStatMultiplier(T const* row, InventoryType invType)
 {
-    switch (invType)
-    {
-        case INVTYPE_NECK:
-        case INVTYPE_FINGER:
-            return row->JewelryMultiplier;
-            break;
-        case INVTYPE_TRINKET:
-            return row->TrinketMultiplier;
-            break;
-        case INVTYPE_WEAPON:
-        case INVTYPE_SHIELD:
-        case INVTYPE_RANGED:
-        case INVTYPE_2HWEAPON:
-        case INVTYPE_WEAPONMAINHAND:
-        case INVTYPE_WEAPONOFFHAND:
-        case INVTYPE_HOLDABLE:
-        case INVTYPE_RANGEDRIGHT:
-            return row->WeaponMultiplier;
-            break;
-        default:
-            return row->ArmorMultiplier;
-            break;
-    }
+    return 1.0f;
 }
-
-template float GetIlvlStatMultiplier(GtCombatRatingsMultByILvl const* row, InventoryType invType);
-template float GetIlvlStatMultiplier(GtStaminaMultByILvl const* row, InventoryType invType);

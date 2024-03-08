@@ -699,6 +699,9 @@ void BattlePetMgr::ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality
 
 void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePetXpSource xpSource)
 {
+    return;
+
+    /*
     if (!HasJournalLock())
         return;
 
@@ -755,6 +758,7 @@ void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePe
     std::vector<std::reference_wrapper<BattlePet>> updates;
     updates.push_back(std::ref(*pet));
     SendUpdates(std::move(updates), false);
+    */
 }
 
 void BattlePetMgr::GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels)
