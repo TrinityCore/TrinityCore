@@ -488,7 +488,7 @@ struct TC_GAME_API CreatureTemplate
     std::vector<uint32> GossipMenuIds;
     std::unordered_map<Difficulty, CreatureDifficulty> difficultyStore;
     uint32  RequiredExpansion;
-    uint32  VignetteID;                                     /// @todo Read Vignette.db2
+    uint32  VignetteID;
     uint32  faction;
     uint64  npcflag;
     float   speed_walk;

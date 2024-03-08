@@ -111,6 +111,11 @@ namespace Movement
     struct SpellEffectExtraData;
 }
 
+namespace Vignettes
+{
+struct VignetteData;
+}
+
 typedef std::list<Unit*> UnitList;
 
 class TC_GAME_API DispelableAura
@@ -1799,6 +1804,9 @@ class TC_GAME_API Unit : public WorldObject
         }
         void ClearWorldEffects() { ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::WorldEffects)); }
 
+        Vignettes::VignetteData const* GetVignette() const { return m_vignette.get(); }
+        void SetVignette(uint32 vignetteId);
+
         std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::UnitData, 0, TYPEID_UNIT> m_unitData;
@@ -1902,6 +1910,8 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 m_unitTypeMask;
         LiquidTypeEntry const* _lastLiquid;
+
+        std::unique_ptr<Vignettes::VignetteData> m_vignette;
 
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
         bool IsAlwaysDetectableFor(WorldObject const* seer) const override;
