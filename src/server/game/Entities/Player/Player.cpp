@@ -23780,26 +23780,6 @@ bool Player::IsVisibleGloballyFor(Player const* u) const
 }
 
 template<class T>
-inline void UpdateVisibilityOf_helper(GuidUnorderedSet& s64, T* target, std::set<Unit*>& /*v*/)
-{
-    s64.insert(target->GetGUID());
-}
-
-template<>
-inline void UpdateVisibilityOf_helper(GuidUnorderedSet& s64, Creature* target, std::set<Unit*>& v)
-{
-    s64.insert(target->GetGUID());
-    v.insert(target);
-}
-
-template<>
-inline void UpdateVisibilityOf_helper(GuidUnorderedSet& s64, Player* target, std::set<Unit*>& v)
-{
-    s64.insert(target->GetGUID());
-    v.insert(target);
-}
-
-template<class T>
 inline void BeforeVisibilityDestroy(T* /*t*/, Player* /*p*/) { }
 
 template<>
@@ -23815,7 +23795,7 @@ void Player::UpdateVisibilityOf(Trinity::IteratorPair<WorldObject**> targets)
         return;
 
     UpdateData udata(GetMapId());
-    std::set<Unit*> newVisibleUnits;
+    std::set<WorldObject*> newVisibleObjects;
 
     for (WorldObject* target : targets)
     {
@@ -23825,28 +23805,28 @@ void Player::UpdateVisibilityOf(Trinity::IteratorPair<WorldObject**> targets)
         switch (target->GetTypeId())
         {
             case TYPEID_UNIT:
-                UpdateVisibilityOf(target->ToCreature(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToCreature(), udata, newVisibleObjects);
                 break;
             case TYPEID_PLAYER:
-                UpdateVisibilityOf(target->ToPlayer(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToPlayer(), udata, newVisibleObjects);
                 break;
             case TYPEID_GAMEOBJECT:
-                UpdateVisibilityOf(target->ToGameObject(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToGameObject(), udata, newVisibleObjects);
                 break;
             case TYPEID_DYNAMICOBJECT:
-                UpdateVisibilityOf(target->ToDynObject(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToDynObject(), udata, newVisibleObjects);
                 break;
             case TYPEID_CORPSE:
-                UpdateVisibilityOf(target->ToCorpse(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToCorpse(), udata, newVisibleObjects);
                 break;
             case TYPEID_AREATRIGGER:
-                UpdateVisibilityOf(target->ToAreaTrigger(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToAreaTrigger(), udata, newVisibleObjects);
                 break;
             case TYPEID_SCENEOBJECT:
-                UpdateVisibilityOf(target->ToSceneObject(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToSceneObject(), udata, newVisibleObjects);
                 break;
             case TYPEID_CONVERSATION:
-                UpdateVisibilityOf(target->ToConversation(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToConversation(), udata, newVisibleObjects);
                 break;
             default:
                 break;
@@ -23860,7 +23840,7 @@ void Player::UpdateVisibilityOf(Trinity::IteratorPair<WorldObject**> targets)
     udata.BuildPacket(&packet);
     SendDirectMessage(&packet);
 
-    for (Unit* visibleUnit : newVisibleUnits)
+    for (WorldObject* visibleUnit : newVisibleObjects)
         SendInitialVisiblePackets(visibleUnit);
 }
 
@@ -23945,18 +23925,21 @@ void Player::UpdateTriggerVisibility()
     SendDirectMessage(&packet);
 }
 
-void Player::SendInitialVisiblePackets(Unit* target) const
+void Player::SendInitialVisiblePackets(WorldObject* target) const
 {
-    SendAurasForTarget(target);
-    if (target->IsAlive())
+    if (Unit* targetUnit = target->ToUnit())
     {
-        if (target->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && target->GetVictim())
-            target->SendMeleeAttackStart(target->GetVictim());
+        SendAurasForTarget(targetUnit);
+        if (targetUnit->IsAlive())
+        {
+            if (targetUnit->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && targetUnit->GetVictim())
+                targetUnit->SendMeleeAttackStart(targetUnit->GetVictim());
+        }
     }
 }
 
 template<class T>
-void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow)
+void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObject*>& visibleNow)
 {
     if (HaveAtClient(target))
     {
@@ -23981,7 +23964,8 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
         if (CanSeeOrDetect(target, false, true))
         {
             target->BuildCreateUpdateBlockForPlayer(&data, this);
-            UpdateVisibilityOf_helper(m_clientGUIDs, target, visibleNow);
+            m_clientGUIDs.insert(target->GetGUID());
+            visibleNow.insert(target);
 
             #ifdef TRINITY_DEBUG
                 TC_LOG_DEBUG("maps", "Object {} is visible now for player {}. Distance = {}", target->GetGUID().ToString(), GetGUID().ToString(), GetDistance(target));
@@ -23990,14 +23974,14 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
     }
 }
 
-template void Player::UpdateVisibilityOf(Player*        target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(AreaTrigger*   target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(SceneObject*   target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(Conversation*  target, UpdateData& data, std::set<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(Player*        target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(AreaTrigger*   target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(SceneObject*   target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(Conversation*  target, UpdateData& data, std::set<WorldObject*>& visibleNow);
 
 void Player::UpdateObjectVisibility(bool forced)
 {

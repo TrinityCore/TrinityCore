@@ -2515,7 +2515,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         bool IsVisibleGloballyFor(Player const* player) const;
 
-        void SendInitialVisiblePackets(Unit* target) const;
+        void SendInitialVisiblePackets(WorldObject* target) const;
         void OnPhaseChange() override;
         void UpdateObjectVisibility(bool forced = true) override;
         void UpdateVisibilityForPlayer();
@@ -2524,7 +2524,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void UpdateTriggerVisibility();
 
         template<class T>
-        void UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow);
+        void UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObject*>& visibleNow);
 
         std::array<uint8, MAX_MOVE_TYPE> m_forced_speed_changes;
         uint8 m_movementForceModMagnitudeChanges;
