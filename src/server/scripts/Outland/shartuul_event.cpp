@@ -57,12 +57,12 @@
 
 enum STActions
 {
-    ACTION_START_DEMON_I_PHASE_I     = -1,      //battle with trash mobs (Felhound Defender and Fel Imp Defender)
-    ACTION_START_DEMON_I_PHASE_II    = -2,     //battle with boss (Doomguard Punisher)
-    ACTION_START_DEMON_II_PHASE_I    = -3,     //battle with trash mobs (Gan'arg Underlings and Mo'arg Tormenter)
-    ACTION_START_DEMON_II_PHASE_II   = -4,    //battle with boss (Shivan Assassin)
-    ACTION_START_DEMON_III_PHASE_I   = -5,    //battle with boss (Eye of Shartuul)
-    ACTION_START_DEMON_III_PHASE_II  = -6,   //battle with boss (Dreadmaw)
+    ACTION_START_DEMON_I_PHASE_I     = -1,  //battle with trash mobs (Felhound Defender and Fel Imp Defender)
+    ACTION_START_DEMON_I_PHASE_II    = -2,  //battle with boss (Doomguard Punisher)
+    ACTION_START_DEMON_II_PHASE_I    = -3,  //battle with trash mobs (Gan'arg Underlings and Mo'arg Tormenter)
+    ACTION_START_DEMON_II_PHASE_II   = -4,  //battle with boss (Shivan Assassin)
+    ACTION_START_DEMON_III_PHASE_I   = -5,  //battle with boss (Eye of Shartuul)
+    ACTION_START_DEMON_III_PHASE_II  = -6,  //battle with boss (Dreadmaw)
     ACTION_START_DEMON_III_PHASE_III = -7,  //battle with boss (Shartuul)
     ACTION_EVENT_DONE_OR_FAIL        = -8,
 };
@@ -192,7 +192,7 @@ static Position const MoSpawnPos[3] =
 //TODO check all dist 225f?
 //
 //TODO FIND SHARTUUL PORTAL GAMEOBJECT
-//TODO SPELL_BUILD_PORTABLE_FEL_CANNON = 40675, //todo should be building a portable fel cannon (Make a separate spell script)
+//TODO SPELL_BUILD_PORTABLE_FEL_CANNON = 40675, //todo should be building a portable fel cannon (Make a separate spell script) //mb effect_1(2)
 //TODO SPELL_METEOR = 26558, //todo find real
 //TODO SPELL_DISRUPTION_RAY = 41550 - dont work right (aims the beam under himself anyway, must at the enemy)
 //TODO EYE STALK METEOR
@@ -626,12 +626,13 @@ public:
             for (uint8 i = 0; i < 16; ++i)
             {
                 //Cast a spell to add a meteor effect, then summon the eye stalk
-                if (Creature* creature = me->SummonCreature(NPC_FEL_EYE_STALK, me->GetRandomPoint(ForgeCampPos, 50.0f)))
-                {
+                me->SummonCreature(NPC_FEL_EYE_STALK, me->GetRandomPoint(ForgeCampPos, 50.0f));
+                //if (Creature* creature = me->SummonCreature(NPC_FEL_EYE_STALK, me->GetRandomPoint(ForgeCampPos, 50.0f)))
+                //{
                     //TODO SPELL_FEL_CANNON_BLAST or a spell with the same animation should be used here.
                     //TODO But SpellCastResult returns SPELL_FAILED_BAD_TARGETS.
                     //DoCast(creature, SPELL_FEL_CANNON_BLAST);
-                }
+               // }
             }
         }
 
@@ -1182,18 +1183,15 @@ enum EyeOfShartuul
 
 {
     SAY_EMOTE                  = 0,
-                               
     EVENT_CAST_DARK_GLARE      = 0,
-    EVENT_CAST_DISRUPTION_RAY, 
-    EVENT_CAST_FEL_FIREBALL,   
-    EVENT_CAST_TONGUE_LASH,    
-                               
+    EVENT_CAST_DISRUPTION_RAY,
+    EVENT_CAST_FEL_FIREBALL,
+    EVENT_CAST_TONGUE_LASH,
     SPELL_DARK_GLARE           = 41936,
     SPELL_DISRUPTION_RAY       = 41550, //TODO doesn't work right (aims the beam under himself anyway, must at the enemy)
     SPELL_FEL_FIREBALL         = 40633,
     SPELL_TONGUE_LASH          = 42002,
     SPELL_BEHOLDER_TRANSFORM   = 40534,
-                               
     MODEL_IMAGE_OF_EMPTY       = 19595,
 };
 
@@ -1292,7 +1290,6 @@ enum Dreadmaw
     EVENT_CAST_LACERATING_BITE,
     EVENT_CAST_RAMPAGING_CHARGE,
     EVENT_CAST_WAR_STOMP,
-
     SPELL_GROWTH                 = 41953,
     SPELL_LACERATING_BITE        = 41940,
     SPELL_RAMPAGING_CHARGE       = 41939,
@@ -1395,17 +1392,14 @@ enum Shartuul
 {
     SAY_AGRO                        = 0,
     SAY_INCINERATE,
-
     EVENT_LIGHTNING_EYE_OF_SHARTUUL = NPC_EYE_OF_SHARTUUL,
     EVENT_LIGHTNING_DREADMAW        = NPC_DREADMAW,
-
     EVENT_CAST_IMMOLATE             = 10,
     EVENT_CAST_INCINERATE,
     EVENT_CAST_MAGNETIC_PUL,
     EVENT_CAST_SHADOW_BOLT,
     EVENT_CAST_SHADOW_RESONANCE,
     EVENT_CAST_METEOR,
-
     SPELL_IMMOLATE                  = 41958,
     SPELL_INCINERATE                = 41960,
     SPELL_MAGNETIC_PULL             = 41959,
@@ -1461,7 +1455,7 @@ public:
             events.ScheduleEvent(EVENT_CAST_METEOR, 60s);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (damage >= me->GetHealth())
             {
@@ -1645,7 +1639,7 @@ struct trash_defenderAI : public ScriptedAI
         me->GetMotionMaster()->MoveTargetedHome();
     }
 
-    virtual void ExecuteEvent(uint32 eventId) { }
+    virtual void ExecuteEvent(uint32 /*eventId*/) { }
 
     void UpdateAI(uint32 diff) override
     {
