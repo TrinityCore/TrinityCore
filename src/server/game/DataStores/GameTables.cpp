@@ -114,7 +114,11 @@ void LoadGameTables(std::string const& dataPath)
     std::vector<std::string> bad_gt_files;
     uint32 gameTableCount = 0, expectedGameTableCount = 0;
 
-#define LOAD_GT(store, file) gameTableCount += LoadGameTable(bad_gt_files, store, gtPath / file); ++expectedGameTableCount;
+    auto LOAD_GT = [&]<typename T>(GameTable<T>& gameTable, char const* file)
+    {
+        gameTableCount += LoadGameTable(bad_gt_files, gameTable, gtPath / file);
+        ++expectedGameTableCount;
+    };
 
     LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
     LOAD_GT(sChanceToMeleeCritGameTable, "ChanceToMeleeCrit.txt");

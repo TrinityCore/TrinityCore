@@ -78,6 +78,7 @@ enum WeatherState : uint32;
 enum class ItemContext : uint8;
 
 namespace Trinity { struct ObjectUpdater; }
+namespace Vignettes { struct VignetteData; }
 namespace VMAP { enum class ModelIgnoreFlags : uint32; }
 
 enum TransferAbortReason : uint32
@@ -821,6 +822,18 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
     private:
         WorldStateValueContainer _worldStateValues;
+
+        /*********************************************************/
+        /***                   Vignettes                       ***/
+        /*********************************************************/
+    public:
+        void AddInfiniteAOIVignette(Vignettes::VignetteData* vignette);
+        void RemoveInfiniteAOIVignette(Vignettes::VignetteData* vignette);
+        std::vector<Vignettes::VignetteData*> const& GetInfiniteAOIVignettes() const { return _infiniteAOIVignettes; }
+
+    private:
+        std::vector<Vignettes::VignetteData*> _infiniteAOIVignettes;
+        PeriodicTimer _vignetteUpdateTimer;
 };
 
 enum class InstanceResetMethod : uint8
