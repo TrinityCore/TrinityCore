@@ -1508,7 +1508,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GUILD_BANK_BUY_TAB:                   // not profiled
         case CMSG_GUILD_BANK_UPDATE_TAB:                // not profiled
         case CMSG_GUILD_BANK_SET_TAB_TEXT:              // not profiled
-        case CMSG_SAVE_GUILD_EMBLEM:                    // not profiled
+        //case CMSG_SAVE_GUILD_EMBLEM:                    // not profiled
         case CMSG_PETITION_RENAME_GUILD:                // not profiled
         case CMSG_CONFIRM_RESPEC_WIPE:                  // not profiled
         case CMSG_SET_DUNGEON_DIFFICULTY:               // not profiled
