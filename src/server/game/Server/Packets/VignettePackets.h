@@ -27,7 +27,7 @@ namespace WorldPackets::Vignette
 struct VignetteData
 {
     ObjectGuid ObjGUID;
-    TaggedPosition<Position::XYZ> Position;
+    TaggedPosition<::Position::XYZ> Position;
     int32 VignetteID = 0;
     uint32 ZoneID = 0;
     uint32 WMOGroupID = 0;
