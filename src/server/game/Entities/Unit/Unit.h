@@ -1547,10 +1547,11 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_lastSanctuaryTime;
 
         VisibleAuraContainer const& GetVisibleAuras() const { return m_visibleAuras; }
-        bool HasVisibleAura(AuraApplication* aurApp) const { return m_visibleAuras.count(aurApp) > 0; }
+        bool HasVisibleAura(AuraApplication* aurApp) const { return m_visibleAuras.contains(aurApp); }
         void SetVisibleAura(AuraApplication* aurApp);
-        void SetVisibleAuraUpdate(AuraApplication* aurApp) { m_visibleAurasToUpdate.insert(aurApp); }
         void RemoveVisibleAura(AuraApplication* aurApp);
+        void SetVisibleAuraUpdate(AuraApplication* aurApp) { m_visibleAurasToUpdate.insert(aurApp); }
+        void RemoveVisibleAuraUpdate(AuraApplication* aurApp) { m_visibleAurasToUpdate.erase(aurApp); }
 
         bool HasInterruptFlag(SpellAuraInterruptFlags flags) const { return m_interruptMask.HasFlag(flags); }
         bool HasInterruptFlag(SpellAuraInterruptFlags2 flags) const { return m_interruptMask2.HasFlag(flags); }
