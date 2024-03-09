@@ -151,6 +151,23 @@ class spell_dracthyr_summon_dervishian : public SpellScript
     }
 };
 
+// 366636 - Stasis
+class spell_stasis_3 : public SpellScript
+{
+    void AcceptQuest()
+    {
+        Quest const* quest = sObjectMgr->GetQuestTemplate(GetSpellInfo()->GetEffect(EFFECT_1).MiscValue);
+
+        if (Player* player = GetHitUnit()->ToPlayer())
+            player->AddQuest(quest, nullptr);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_stasis_3::AcceptQuest);
+    }
+};
+
 // 64864 - Awaken, Dracthyr
 class quest_awaken_dracthyr : public QuestScript
 {
@@ -185,6 +202,7 @@ void AddSC_zone_the_forbidden_reach()
     RegisterSpellScript(spell_dracthyr_login);
     new scene_dracthyr_evoker_intro();
     RegisterSpellScript(spell_dracthyr_summon_dervishian);
+    RegisterSpellScript(spell_stasis_3);
     new quest_awaken_dracthyr();
     RegisterAreaTriggerAI(at_dracthyr_stasis_feedback);
 }
