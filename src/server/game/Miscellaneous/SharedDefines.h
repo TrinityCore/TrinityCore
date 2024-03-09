@@ -102,28 +102,28 @@ enum Expansions
     MAX_ACCOUNT_EXPANSIONS
 };
 
-#define CURRENT_EXPANSION EXPANSION_DRAGONFLIGHT
+#define CURRENT_EXPANSION EXPANSION_CATACLYSM
 
 constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
 {
     switch (expansion)
     {
         case EXPANSION_CLASSIC:
-            return 30;
+            return 60;
         case EXPANSION_THE_BURNING_CRUSADE:
-            return 30;
+            return 70;
         case EXPANSION_WRATH_OF_THE_LICH_KING:
-            return 30;
+            return 80;
         case EXPANSION_CATACLYSM:
-            return 35;
+            return 85;
         case EXPANSION_MISTS_OF_PANDARIA:
-            return 35;
+            return 90;
         case EXPANSION_WARLORDS_OF_DRAENOR:
-            return 40;
+            return 100;
         case EXPANSION_LEGION:
-            return 45;
+            return 110;
         case EXPANSION_BATTLE_FOR_AZEROTH:
-            return 50;
+            return 120;
         case EXPANSION_SHADOWLANDS:
             return 60;
         case EXPANSION_DRAGONFLIGHT:
