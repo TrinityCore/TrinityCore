@@ -9063,7 +9063,7 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_RAGE:
         case UNIT_MOD_FOCUS:
         case UNIT_MOD_ENERGY:
-        case UNIT_MOD_COMBO_POINTS:
+        case UNIT_MOD_HAPPINESS:
         case UNIT_MOD_RUNES:
         case UNIT_MOD_RUNIC_POWER:
         case UNIT_MOD_SOUL_SHARDS:
@@ -9073,7 +9073,7 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_MAELSTROM:
         case UNIT_MOD_CHI:
         case UNIT_MOD_INSANITY:
-        case UNIT_MOD_BURNING_EMBERS:
+        case UNIT_MOD_COMBO_POINTS:
         case UNIT_MOD_DEMONIC_FURY:
         case UNIT_MOD_ARCANE_CHARGES:
         case UNIT_MOD_FURY:
@@ -9084,7 +9084,8 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_RUNE_UNHOLY:
         case UNIT_MOD_ALTERNATE_QUEST:
         case UNIT_MOD_ALTERNATE_ENCOUNTER:
-        case UNIT_MOD_ALTERNATE_MOUNT:     UpdateMaxPower(Powers(unitMod - UNIT_MOD_POWER_START));     break;
+        case UNIT_MOD_ALTERNATE_MOUNT:
+        case UNIT_MOD_BALANCE:             UpdateMaxPower(Powers(unitMod - UNIT_MOD_POWER_START));     break;
 
         case UNIT_MOD_RESISTANCE_HOLY:
         case UNIT_MOD_RESISTANCE_FIRE:
