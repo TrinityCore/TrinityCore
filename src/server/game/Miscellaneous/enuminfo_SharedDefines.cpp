@@ -111,7 +111,7 @@ TC_API_EXPORT EnumText EnumUtils<Powers>::ToString(Powers value)
         case POWER_RAGE: return { "POWER_RAGE", "Rage", "" };
         case POWER_FOCUS: return { "POWER_FOCUS", "Focus", "" };
         case POWER_ENERGY: return { "POWER_ENERGY", "Energy", "" };
-        case POWER_COMBO_POINTS: return { "POWER_COMBO_POINTS", "Combo Points", "" };
+        case POWER_HAPPINESS: return { "POWER_HAPPINESS", "Happiness", "" };
         case POWER_RUNES: return { "POWER_RUNES", "Runes", "" };
         case POWER_RUNIC_POWER: return { "POWER_RUNIC_POWER", "Runic Power", "" };
         case POWER_SOUL_SHARDS: return { "POWER_SOUL_SHARDS", "Soul Shards", "" };
@@ -121,7 +121,7 @@ TC_API_EXPORT EnumText EnumUtils<Powers>::ToString(Powers value)
         case POWER_MAELSTROM: return { "POWER_MAELSTROM", "Maelstrom", "" };
         case POWER_CHI: return { "POWER_CHI", "Chi", "" };
         case POWER_INSANITY: return { "POWER_INSANITY", "Insanity", "" };
-        case POWER_BURNING_EMBERS: return { "POWER_BURNING_EMBERS", "Burning Embers (Obsolete)", "" };
+        case POWER_COMBO_POINTS: return { "POWER_COMBO_POINTS", "Combo Points", "" };
         case POWER_DEMONIC_FURY: return { "POWER_DEMONIC_FURY", "Demonic Fury (Obsolete)", "" };
         case POWER_ARCANE_CHARGES: return { "POWER_ARCANE_CHARGES", "Arcane Charges", "" };
         case POWER_FURY: return { "POWER_FURY", "Fury", "" };
@@ -133,6 +133,7 @@ TC_API_EXPORT EnumText EnumUtils<Powers>::ToString(Powers value)
         case POWER_ALTERNATE_QUEST: return { "POWER_ALTERNATE_QUEST", "Alternate (Quest)", "" };
         case POWER_ALTERNATE_ENCOUNTER: return { "POWER_ALTERNATE_ENCOUNTER", "Alternate (Encounter)", "" };
         case POWER_ALTERNATE_MOUNT: return { "POWER_ALTERNATE_MOUNT", "Alternate (Mount)", "" };
+        case POWER_BALANCE: return { "POWER_BALANCE", "Balance", "" };
         default: throw std::out_of_range("value");
     }
 }
@@ -150,7 +151,7 @@ TC_API_EXPORT Powers EnumUtils<Powers>::FromIndex(size_t index)
         case 2: return POWER_RAGE;
         case 3: return POWER_FOCUS;
         case 4: return POWER_ENERGY;
-        case 5: return POWER_COMBO_POINTS;
+        case 5: return POWER_HAPPINESS;
         case 6: return POWER_RUNES;
         case 7: return POWER_RUNIC_POWER;
         case 8: return POWER_SOUL_SHARDS;
@@ -160,7 +161,7 @@ TC_API_EXPORT Powers EnumUtils<Powers>::FromIndex(size_t index)
         case 12: return POWER_MAELSTROM;
         case 13: return POWER_CHI;
         case 14: return POWER_INSANITY;
-        case 15: return POWER_BURNING_EMBERS;
+        case 15: return POWER_COMBO_POINTS;
         case 16: return POWER_DEMONIC_FURY;
         case 17: return POWER_ARCANE_CHARGES;
         case 18: return POWER_FURY;
@@ -172,6 +173,7 @@ TC_API_EXPORT Powers EnumUtils<Powers>::FromIndex(size_t index)
         case 24: return POWER_ALTERNATE_QUEST;
         case 25: return POWER_ALTERNATE_ENCOUNTER;
         case 26: return POWER_ALTERNATE_MOUNT;
+        case 27: return POWER_BALANCE;
         default: throw std::out_of_range("index");
     }
 }
@@ -186,7 +188,7 @@ TC_API_EXPORT size_t EnumUtils<Powers>::ToIndex(Powers value)
         case POWER_RAGE: return 2;
         case POWER_FOCUS: return 3;
         case POWER_ENERGY: return 4;
-        case POWER_COMBO_POINTS: return 5;
+        case POWER_HAPPINESS: return 5;
         case POWER_RUNES: return 6;
         case POWER_RUNIC_POWER: return 7;
         case POWER_SOUL_SHARDS: return 8;
@@ -196,7 +198,7 @@ TC_API_EXPORT size_t EnumUtils<Powers>::ToIndex(Powers value)
         case POWER_MAELSTROM: return 12;
         case POWER_CHI: return 13;
         case POWER_INSANITY: return 14;
-        case POWER_BURNING_EMBERS: return 15;
+        case POWER_COMBO_POINTS: return 15;
         case POWER_DEMONIC_FURY: return 16;
         case POWER_ARCANE_CHARGES: return 17;
         case POWER_FURY: return 18;
@@ -208,6 +210,7 @@ TC_API_EXPORT size_t EnumUtils<Powers>::ToIndex(Powers value)
         case POWER_ALTERNATE_QUEST: return 24;
         case POWER_ALTERNATE_ENCOUNTER: return 25;
         case POWER_ALTERNATE_MOUNT: return 26;
+        case POWER_BALANCE: return 27;
         default: throw std::out_of_range("value");
     }
 }

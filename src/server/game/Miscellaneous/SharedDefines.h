@@ -288,7 +288,7 @@ enum Powers : int8
     POWER_RAGE                          = 1,  // TITLE Rage
     POWER_FOCUS                         = 2,  // TITLE Focus
     POWER_ENERGY                        = 3,  // TITLE Energy
-    POWER_COMBO_POINTS                  = 4,  // TITLE Combo Points
+    POWER_HAPPINESS                     = 4,  // TITLE Happiness
     POWER_RUNES                         = 5,  // TITLE Runes
     POWER_RUNIC_POWER                   = 6,  // TITLE Runic Power
     POWER_SOUL_SHARDS                   = 7,  // TITLE Soul Shards
@@ -298,7 +298,7 @@ enum Powers : int8
     POWER_MAELSTROM                     = 11, // TITLE Maelstrom
     POWER_CHI                           = 12, // TITLE Chi
     POWER_INSANITY                      = 13, // TITLE Insanity
-    POWER_BURNING_EMBERS                = 14, // TITLE Burning Embers (Obsolete)
+    POWER_COMBO_POINTS                  = 14, // TITLE Combo Points
     POWER_DEMONIC_FURY                  = 15, // TITLE Demonic Fury (Obsolete)
     POWER_ARCANE_CHARGES                = 16, // TITLE Arcane Charges
     POWER_FURY                          = 17, // TITLE Fury
@@ -310,7 +310,8 @@ enum Powers : int8
     POWER_ALTERNATE_QUEST               = 23, // TITLE Alternate (Quest)
     POWER_ALTERNATE_ENCOUNTER           = 24, // TITLE Alternate (Encounter)
     POWER_ALTERNATE_MOUNT               = 25, // TITLE Alternate (Mount)
-    MAX_POWERS                          = 26, // SKIP
+    POWER_BALANCE                       = 26, // TITLE Balance
+    MAX_POWERS                          = 27, // SKIP
     POWER_ALL                           = 127 // SKIP
 };
 
