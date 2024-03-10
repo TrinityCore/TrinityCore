@@ -20403,7 +20403,7 @@ uint32 Player::GetCustomizationChoice(uint32 chrCustomizationOptionId) const
 
 void Player::ClearPreviousModelCustomizations(const uint32 oldModel)
 {
-    if (const std::vector<ChrCustomizationOptionEntry const*> const* oldModelCustomizations = sDB2Manager.GetCustomiztionOptions(oldModel))
+    if (std::vector<ChrCustomizationOptionEntry const*> const* oldModelCustomizations = sDB2Manager.GetCustomiztionOptions(oldModel))
     {
         for (const auto optionEntry : *oldModelCustomizations)
         {
@@ -20416,23 +20416,23 @@ void Player::ClearPreviousModelCustomizations(const uint32 oldModel)
 
 void Player::ClearPreviousRaceGenderCustomizations(const uint8 race, const uint8 gender)
 {
-    if (const ChrModelEntry const* chrModel = sDB2Manager.GetChrModel(race, gender))
+    if (ChrModelEntry const* chrModel = sDB2Manager.GetChrModel(race, gender))
     {
         ClearPreviousModelCustomizations(chrModel->ID);
     }
 }
 
-// Force apply race specific druid custoisations if they are not set (at first login, occasionally on race change when using race-specific forms)
+// Force apply race specific druid customizations if they are not set (at character creation & occasionally on race change when previously using race-specific forms)
 void Player::SetMissingCustomizations()
 {
     if (GetClass() == CLASS_DRUID)
     {
-        static const std::vector<ShapeshiftForm> shapeshiftForms = { FORM_BEAR_FORM, FORM_CAT_FORM, FORM_TRAVEL_FORM, FORM_FLIGHT_FORM_EPIC, FORM_AQUATIC_FORM };
+        const std::array<ShapeshiftForm, 5> shapeshiftForms = { FORM_BEAR_FORM, FORM_CAT_FORM, FORM_TRAVEL_FORM, FORM_FLIGHT_FORM_EPIC, FORM_AQUATIC_FORM };
         for (const auto shapeshiftForm : shapeshiftForms)
         {
             if (ChrCustomizationChoiceEntry const* customization = sDB2Manager.GetShapeshiftRaceDefaultOptions(GetRace(), shapeshiftForm))
             {
-                const int32 index = m_playerData->Customizations.FindIndexIf([customization](UF::ChrCustomizationChoice const& choice) { return choice.ChrCustomizationOptionID == customization->ChrCustomizationOptionID; });
+                const int32 index = m_playerData->Customizations.FindIndexIf([customization](UF::ChrCustomizationChoice const& choice) { return int32(choice.ChrCustomizationOptionID) == customization->ChrCustomizationOptionID; });
                 if (index < 0)
                 {
                     UF::ChrCustomizationChoice& defaultChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
