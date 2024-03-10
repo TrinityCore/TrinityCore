@@ -1078,22 +1078,62 @@ void AreaTrigger::UndoActions(Unit* unit)
 
 void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, uint32 timeToTarget)
 {
-    float angleSin = std::sin(GetOrientation());
-    float angleCos = std::cos(GetOrientation());
+    if (offsets.size() < 2)
+        return;
 
     // This is needed to rotate the spline, following caster orientation
     std::vector<G3D::Vector3> rotatedPoints;
     rotatedPoints.reserve(offsets.size());
+
     for (Position const& offset : offsets)
     {
-        float x = GetPositionX() + (offset.GetPositionX() * angleCos - offset.GetPositionY() * angleSin);
-        float y = GetPositionY() + (offset.GetPositionY() * angleCos + offset.GetPositionX() * angleSin);
-        float z = GetPositionZ();
+        Position positionWithOffset = GetPosition().GetPositionWithOffset(offset);
+        rotatedPoints.emplace_back(positionWithOffset.GetPositionX(), positionWithOffset.GetPositionY(), positionWithOffset.GetPositionZ());
+    }
 
-        UpdateAllowedPositionZ(x, y, z);
-        z += offset.GetPositionZ();
+    if (GetTemplate() && GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN))
+    {
+        ::Movement::Spline<int32> offsetSpline = ::Movement::Spline<int32>();
+        offsetSpline.init_spline(&rotatedPoints[0], rotatedPoints.size(), ::Movement::SplineBase::ModeLinear);
+        offsetSpline.initLengths();
 
-        rotatedPoints.emplace_back(x, y, z);
+        // This is a guess from various sniff, would require more research
+        const uint8 stepCount = 14;
+
+        G3D::Vector3 startPosition;
+        offsetSpline.evaluate_percent(0, startPosition);
+        float lastZ = startPosition.z;
+
+        rotatedPoints.clear();
+        rotatedPoints.emplace_back(startPosition);
+
+        float currentPercent = .0f;
+        for (uint8 stepIndex = 1; stepIndex <= stepCount; ++stepIndex)
+        {
+            currentPercent = float(stepIndex) / float(stepCount);
+
+            G3D::Vector3 currentPosition;
+            offsetSpline.evaluate_percent(currentPercent, currentPosition);
+
+            currentPosition.z = GetMapHeight(currentPosition.x, currentPosition.y, lastZ + 5.0f);
+            currentPosition.z = std::max(lastZ - 2.0f, currentPosition.z);
+
+            G3D::Vector3 previousPoint = rotatedPoints.back();
+            bool isInLineOfSight = GetMap()->isInLineOfSight(GetPhaseShift(), previousPoint.x, previousPoint.y, previousPoint.z + 1.75f, currentPosition.x, currentPosition.y, currentPosition.z + 1.75f, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::Nothing);
+
+            if (!isInLineOfSight)
+                break;
+
+            rotatedPoints.emplace_back(currentPosition);
+            lastZ = currentPosition.z;
+        }
+
+        // If we stopped before the end of the spline due to LOS,
+        // reduce the timeToTarget accordingly to keep initial speed
+        timeToTarget *= currentPercent;
+
+        if (rotatedPoints.size() < 2)
+            rotatedPoints.emplace_back(rotatedPoints.back());
     }
 
     InitSplines(std::move(rotatedPoints), timeToTarget);
