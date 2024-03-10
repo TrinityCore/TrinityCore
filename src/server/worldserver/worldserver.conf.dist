@@ -708,6 +708,7 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
+#        Default:     3 - (Expansion 3)
 #        Default:     9 - (Expansion 9)
 #                     8 - (Expansion 8)
 #                     7 - (Expansion 7)
@@ -719,7 +720,7 @@ DeclinedNames = 0
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 9
+Expansion = 3
 
 #
 #    MinPlayerName
@@ -897,9 +898,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     70
+#        Default:     85
 
-MaxPlayerLevel = 70
+MaxPlayerLevel = 85
 
 #
 #    MinDualSpecLevel
