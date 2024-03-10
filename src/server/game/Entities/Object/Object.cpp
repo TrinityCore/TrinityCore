@@ -2381,7 +2381,7 @@ int32 WorldObject::CalcSpellDuration(SpellInfo const* spellInfo, std::vector<Spe
 
     int32 baseComboCost = (*itr)->ManaCost + (*itr)->OptionalCost;
     if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(POWER_COMBO_POINTS))
-        baseComboCost += int32(CalculatePct(powerTypeEntry->MaxBasePower, (*itr)->PowerCostPct + (*itr)->OptionalCostPct));
+        baseComboCost += int32(CalculatePct(powerTypeEntry->MaxBasePower, (*itr)->PowerCostPct));
 
     float durationPerComboPoint = float(maxduration - minduration) / baseComboCost;
     return minduration + int32(durationPerComboPoint * consumedItr->Amount);

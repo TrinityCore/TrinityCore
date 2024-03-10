@@ -434,7 +434,6 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry co
     TriggerSpell = _effect.EffectTriggerSpell;
     SpellClassMask = _effect.EffectSpellClassMask;
     BonusCoefficientFromAP = _effect.BonusCoefficientFromAP;
-    Scaling.Class = _effect.ScalingClass;
     Scaling.Coefficient = _effect.Coefficient;
     Scaling.Variance = _effect.Variance;
     Scaling.ResourceCoefficient = _effect.ResourceCoefficient;
@@ -571,6 +570,7 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
             level = _spellInfo->Scaling.MaxScalingLevel;
 
         float value = 0.0f;
+        /*
         if (level > 0)
         {
             if (!Scaling.Class)
@@ -606,8 +606,9 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
                 if (GtStaminaMultByILvl const* staminaMult = sStaminaMultByILvlGameTable.GetRow(effectiveItemLevel))
                     if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
                         value *= GetIlvlStatMultiplier(staminaMult, InventoryType(itemSparse->InventoryType));
-            */
+            
         }
+        */
 
         value *= Scaling.Coefficient;
         if (value > 0.0f && value < 1.0f)
@@ -618,27 +619,6 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
     else
     {
         float value = BasePoints;
-        ExpectedStatType stat = GetScalingExpectedStat();
-        if (stat != ExpectedStatType::None)
-        {
-            if (_spellInfo->HasAttribute(SPELL_ATTR0_SCALES_WITH_CREATURE_LEVEL))
-                stat = ExpectedStatType::CreatureAutoAttackDps;
-
-            // TODO - add expansion and content tuning id args?
-            uint32 contentTuningId = _spellInfo->ContentTuningId; // content tuning should be passed as arg, the one stored in SpellInfo is fallback
-            int32 expansion = -2;
-            if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId))
-                expansion = contentTuning->ExpansionID;
-
-            int32 level = 1;
-            if (target && _spellInfo->HasAttribute(SPELL_ATTR8_USE_TARGETS_LEVEL_FOR_SPELL_SCALING))
-                level = target->GetLevel();
-            else if (caster && caster->IsUnit())
-                level = caster->ToUnit()->GetLevel();
-
-            value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE, 0) * BasePoints / 100.0f;
-        }
-
         return int32(round(value));
     }
 }
@@ -1250,10 +1230,6 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         TargetAuraSpell = _aura->TargetAuraSpell;
         ExcludeCasterAuraSpell = _aura->ExcludeCasterAuraSpell;
         ExcludeTargetAuraSpell = _aura->ExcludeTargetAuraSpell;
-        CasterAuraType = AuraType(_aura->CasterAuraType);
-        TargetAuraType = AuraType(_aura->TargetAuraType);
-        ExcludeCasterAuraType = AuraType(_aura->ExcludeCasterAuraType);
-        ExcludeTargetAuraType = AuraType(_aura->ExcludeTargetAuraType);
     }
 
     // SpellCastingRequirementsEntry
@@ -3954,34 +3930,6 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
     else
     {
         powerCost = int32(power->OptionalCost);
-
-        if (power->OptionalCostPct)
-        {
-            switch (power->PowerType)
-            {
-                // health as power used
-                case POWER_HEALTH:
-                    powerCost += int32(CalculatePct(unitCaster->GetMaxHealth(), power->OptionalCostPct));
-                    break;
-                case POWER_MANA:
-                    powerCost += int32(CalculatePct(unitCaster->GetCreateMana(), power->OptionalCostPct));
-                    break;
-                case POWER_ALTERNATE_POWER:
-                    TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unsupported power type POWER_ALTERNATE_POWER in spell {} for optional cost percent", Id);
-                    return {};
-                default:
-                {
-                    if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(Powers(power->PowerType)))
-                    {
-                        powerCost += int32(CalculatePct(powerTypeEntry->MaxBasePower, power->OptionalCostPct));
-                        break;
-                    }
-
-                    TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '{}' in spell {} for optional cost percent", power->PowerType, Id);
-                    return {};
-                }
-            }
-        }
 
         powerCost += unitCaster->GetTotalAuraModifier(SPELL_AURA_MOD_ADDITIONAL_POWER_COST, [this, power](AuraEffect const* aurEff) -> bool
         {

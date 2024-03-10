@@ -49,12 +49,12 @@ LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0),
 
 LFGDungeonData::LFGDungeonData(LFGDungeonsEntry const* dbc) : id(dbc->ID), name(dbc->Name[sWorld->GetDefaultDbcLocale()]), map(dbc->MapID),
     type(uint8(dbc->TypeID)), expansion(uint8(dbc->ExpansionLevel)), group(uint8(dbc->GroupID)),
-    contentTuningId(uint32(dbc->ContentTuningID)), difficulty(Difficulty(dbc->DifficultyID)),
+    contentTuningId(0), difficulty(Difficulty(dbc->DifficultyID)),
     seasonal((dbc->Flags[0] & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
     requiredItemLevel(0), finalDungeonEncounterId(0)
 {
-    if (JournalEncounterEntry const* journalEncounter = sJournalEncounterStore.LookupEntry(dbc->FinalEncounterID))
-        finalDungeonEncounterId = journalEncounter->DungeonEncounterID;
+    //if (JournalEncounterEntry const* journalEncounter = sJournalEncounterStore.LookupEntry(dbc->FinalEncounterID))
+    //    finalDungeonEncounterId = journalEncounter->DungeonEncounterID;
 }
 
 LFGMgr::LFGMgr() : m_QueueTimer(0), m_lfgProposalId(1),

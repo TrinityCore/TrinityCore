@@ -119,36 +119,6 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
         }
         else
             resetAppearanceItems.push_back(itemTransmogrified);
-
-        if (transmogItem.SpellItemEnchantmentID)
-        {
-            if (transmogItem.Slot != EQUIPMENT_SLOT_MAINHAND && transmogItem.Slot != EQUIPMENT_SLOT_OFFHAND)
-            {
-                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - {}, Name: {} tried to transmogrify illusion into non-weapon slot ({}).", player->GetGUID().ToString(), player->GetName(), transmogItem.Slot);
-                return;
-            }
-
-            TransmogIllusionEntry const* illusion = sDB2Manager.GetTransmogIllusionForEnchantment(transmogItem.SpellItemEnchantmentID);
-            if (!illusion)
-            {
-                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - {}, Name: {} tried to transmogrify illusion using invalid enchant ({}).", player->GetGUID().ToString(), player->GetName(), transmogItem.SpellItemEnchantmentID);
-                return;
-            }
-
-            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->UnlockConditionID))
-            {
-                if (!ConditionMgr::IsPlayerMeetingCondition(player, condition))
-                {
-                    TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - {}, Name: {} tried to transmogrify illusion using not allowed enchant ({}).", player->GetGUID().ToString(), player->GetName(), transmogItem.SpellItemEnchantmentID);
-                    return;
-                }
-            }
-
-            illusionItems[itemTransmogrified] = transmogItem.SpellItemEnchantmentID;
-            cost += illusion->TransmogCost;
-        }
-        else
-            resetIllusionItems.push_back(itemTransmogrified);
     }
 
     if (!player->HasAuraType(SPELL_AURA_REMOVE_TRANSMOG_COST) && cost) // 0 cost if reverting look

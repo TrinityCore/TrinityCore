@@ -8035,11 +8035,6 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
         if (mountCapability->ReqSpellKnownID && !HasSpell(mountCapability->ReqSpellKnownID))
             continue;
 
-        if (Player const* thisPlayer = ToPlayer())
-            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountCapability->PlayerConditionID))
-                if (!ConditionMgr::IsPlayerMeetingCondition(thisPlayer, playerCondition))
-                    continue;
-
         return mountCapability;
     }
 
@@ -11976,11 +11971,27 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
         }
     }
 
+    uint32 modelId = 0;
     SpellShapeshiftFormEntry const* formEntry = sSpellShapeshiftFormStore.LookupEntry(form);
-    if (formEntry && formEntry->CreatureDisplayID)
-        return formEntry->CreatureDisplayID;
+    if (formEntry && formEntry->CreatureDisplayID[0])
+    {
+        // Take the alliance modelid as default
+        if (GetTypeId() != TYPEID_PLAYER)
+            return formEntry->CreatureDisplayID[0];
+        else
+        {
+            if (Player::TeamForRace(GetRace()) == ALLIANCE)
+                modelId = formEntry->CreatureDisplayID[0];
+            else
+                modelId = formEntry->CreatureDisplayID[1];
 
-    return 0;
+            // If the player is horde but there are no values for the horde modelid - take the alliance modelid
+            if (!modelId && Player::TeamForRace(GetRace()) == HORDE)
+                modelId = formEntry->CreatureDisplayID[0];
+        }
+    }
+
+    return modelId;
 }
 
 void Unit::JumpTo(float speedXY, float speedZ, float angle, Optional<Position> dest)

@@ -2159,8 +2159,8 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             FriendshipReputationEntry const* friendshipReputation = sFriendshipReputationStore.LookupEntry(friendshipRepReaction->FriendshipRepID);
             if (!friendshipReputation)
                 return false;
-            if (referencePlayer->GetReputation(friendshipReputation->FactionID) < int32(friendshipRepReaction->ReactionThreshold))
-                return false;
+            //if (referencePlayer->GetReputation(friendshipReputation->FactionID) < int32(friendshipRepReaction->ReactionThreshold))
+            //    return false;
             break;
         }
         case ModifierTreeType::ReputationWithFactionIsEqualOrGreaterThan: // 95
@@ -3348,6 +3348,10 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(reqValue);
             if (!friendshipReactions)
                 return false;
+
+            return false;
+
+            /*
             uint32 rank = referencePlayer->GetReputationRank(friendshipReputation->FactionID);
             if (rank >= friendshipReactions->size())
                 return false;
@@ -3355,6 +3359,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             std::advance(itr, rank);
             if ((*itr)->ID != reqValue)
                 return false;
+            */
             break;
         }
         case ModifierTreeType::PlayerAuraStackCountEqual: // 255

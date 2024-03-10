@@ -1167,18 +1167,8 @@ void WorldSession::HandleConversationLineStarted(WorldPackets::Misc::Conversatio
 
 void WorldSession::HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLatestSplashScreen& /*requestLatestSplashScreen*/)
 {
-    UISplashScreenEntry const* splashScreen = nullptr;
-    for (auto itr = sUISplashScreenStore.begin(); itr != sUISplashScreenStore.end(); ++itr)
-    {
-        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(itr->CharLevelConditionID))
-            if (!ConditionMgr::IsPlayerMeetingCondition(_player, playerCondition))
-                continue;
-
-        splashScreen = *itr;
-    }
-
     WorldPackets::Misc::SplashScreenShowLatest splashScreenShowLatest;
-    splashScreenShowLatest.UISplashScreenID = splashScreen ? splashScreen->ID : 0;
+    splashScreenShowLatest.UISplashScreenID = 0;
     SendPacket(splashScreenShowLatest.Write());
 }
 

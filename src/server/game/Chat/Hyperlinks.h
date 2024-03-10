@@ -42,11 +42,9 @@ struct ItemTemplate;
 struct LocalizedString;
 struct MapEntry;
 struct MapChallengeModeEntry;
-struct MawPowerEntry;
 struct PvpTalentEntry;
 class Quest;
 struct SkillLineEntry;
-struct SoulbindConduitRankEntry;
 class SpellInfo;
 struct SpellItemEnchantmentEntry;
 struct TalentEntry;
@@ -368,13 +366,6 @@ namespace Trinity::Hyperlinks
             static bool StoreTo(BattlePetAbilLinkData& val, std::string_view text);
         };
 
-        struct TC_GAME_API conduit
-        {
-            using value_type = SoulbindConduitRankEntry const*;
-            static constexpr std::string_view tag() { return "conduit"; }
-            static bool StoreTo(SoulbindConduitRankEntry const*& val, std::string_view text);
-        };
-
         struct TC_GAME_API currency
         {
             using value_type = CurrencyLinkData const&;
@@ -445,13 +436,6 @@ namespace Trinity::Hyperlinks
             static bool StoreTo(KeystoneLinkData& val, std::string_view text);
         };
 
-        struct TC_GAME_API mawpower
-        {
-            using value_type = MawPowerEntry const*;
-            static constexpr std::string_view tag() { return "mawpower"; }
-            static bool StoreTo(MawPowerEntry const*& val, std::string_view text);
-        };
-
         struct TC_GAME_API mount
         {
             using value_type = MountLinkData const&;
@@ -506,13 +490,6 @@ namespace Trinity::Hyperlinks
             using value_type = ItemModifiedAppearanceEntry const*;
             static constexpr std::string_view tag() { return "transmogappearance"; }
             static bool StoreTo(ItemModifiedAppearanceEntry const*& val, std::string_view text);
-        };
-
-        struct TC_GAME_API transmogillusion
-        {
-            using value_type = SpellItemEnchantmentEntry const*;
-            static constexpr std::string_view tag() { return "transmogillusion"; }
-            static bool StoreTo(SpellItemEnchantmentEntry const*& val, std::string_view text);
         };
 
         struct TC_GAME_API transmogset

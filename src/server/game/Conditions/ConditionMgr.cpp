@@ -2824,31 +2824,6 @@ uint32 ConditionMgr::GetPlayerConditionLfgValue(Player const* player, PlayerCond
 
 bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition)
 {
-    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(condition->ContentTuningID, player->m_playerData->CtrOptions->ContentTuningConditionMask))
-    {
-        uint8 minLevel = condition->Flags & 0x800 ? levels->MinLevelWithDelta : levels->MinLevel;
-        uint8 maxLevel = 0;
-        if (!(condition->Flags & 0x20))
-            maxLevel = condition->Flags & 0x800 ? levels->MaxLevelWithDelta : levels->MaxLevel;
-
-        if (condition->Flags & 0x80)
-        {
-            if (minLevel && player->GetLevel() >= minLevel && (!maxLevel || player->GetLevel() <= maxLevel))
-                return false;
-
-            if (maxLevel && player->GetLevel() <= maxLevel && (!minLevel || player->GetLevel() >= minLevel))
-                return false;
-        }
-        else
-        {
-            if (minLevel && player->GetLevel() < minLevel)
-                return false;
-
-            if (maxLevel && player->GetLevel() > maxLevel)
-                return false;
-        }
-    }
-
     if (!condition->RaceMask.IsEmpty() && !condition->RaceMask.HasRace(player->GetRace()))
         return false;
 
@@ -3242,49 +3217,6 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->ModifierTreeID && !player->ModifierTreeSatisfied(condition->ModifierTreeID))
         return false;
-
-    if (condition->CovenantID && player->m_playerData->CovenantID != condition->CovenantID)
-        return false;
-
-    if (std::any_of(condition->TraitNodeEntryID.begin(), condition->TraitNodeEntryID.end(), [](int32 traitNodeEntryId) { return traitNodeEntryId != 0; }))
-    {
-        auto getTraitNodeEntryRank = [player](int32 traitNodeEntryId) -> Optional<uint16>
-        {
-            for (UF::TraitConfig const& traitConfig : player->m_activePlayerData->TraitConfigs)
-            {
-                if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
-                {
-                    if (int32(*player->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
-                        || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
-                        continue;
-                }
-
-                for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
-                    if (traitEntry.TraitNodeEntryID == traitNodeEntryId)
-                        return traitEntry.Rank;
-            }
-            return {};
-        };
-
-        std::array<bool, std::tuple_size_v<decltype(condition->TraitNodeEntryID)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->TraitNodeEntryID.size(); ++i)
-        {
-            if (!condition->TraitNodeEntryID[i])
-                continue;
-
-            Optional<int32> rank = getTraitNodeEntryRank(condition->TraitNodeEntryID[i]);
-            if (!rank)
-                results[i] = false;
-            else if (condition->TraitNodeEntryMinRank[i] && rank < condition->TraitNodeEntryMinRank[i])
-                results[i] = false;
-            else if (condition->TraitNodeEntryMaxRank[i] && rank > condition->TraitNodeEntryMaxRank[i])
-                results[i] = false;
-        }
-
-        if (!PlayerConditionLogic(condition->TraitNodeEntryLogic, results))
-            return false;
-    }
 
     return true;
 }

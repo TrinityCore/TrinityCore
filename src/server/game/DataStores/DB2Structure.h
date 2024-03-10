@@ -2596,16 +2596,16 @@ struct MapEntry
     bool IsScenario() const { return InstanceType == MAP_SCENARIO; }
     bool IsWorldMap() const { return InstanceType == MAP_COMMON; }
 
-    bool GetEntrancePos(int32& mapid, float& x, float& y) const
+    bool GetEntrancePos(int32& mapid, float& /*x*/, float& /*y*/) const
     {
         if (CorpseMapID < 0)
             return false;
 
         // FIX ME!
-        //mapid = CorpseMapID;
+        mapid = CorpseMapID;
         //x = Corpse.X;
         //y = Corpse.Y;
-        //return true;
+        return true;
     }
 
     bool IsContinent() const
@@ -3391,7 +3391,7 @@ struct SpellDurationEntry
     uint32 ID;
     int32 Duration;
     uint32 DurationPerLevel;
-    uint32 MaxDuration;
+    int32 MaxDuration;
 };
 
 struct SpellEffectEntry

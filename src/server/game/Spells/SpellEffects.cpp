@@ -2485,7 +2485,7 @@ void Spell::EffectEnchantItemTmp()
     }
 
     // select enchantment duration
-    uint32 duration = pEnchant->Duration;
+    uint32 duration = m_damage;
 
     // item can be in trade slot and have owner diff. from caster
     Player* item_owner = itemTarget->GetOwner();
@@ -3807,7 +3807,7 @@ void Spell::EffectSkinning()
         if (!contentTuning)
             return;
 
-        uint32 skinningSkill = player->GetProfessionSkillForExp(skill, contentTuning->ExpansionID);
+        uint32 skinningSkill = player->GetProfessionSkillForExp(skill, 0);
         if (!skinningSkill)
             return;
 
@@ -5505,6 +5505,9 @@ void Spell::EffectEnableBattlePets()
 
 void Spell::EffectChangeBattlePetQuality()
 {
+    return;
+
+    /*
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -5525,6 +5528,7 @@ void Spell::EffectChangeBattlePetQuality()
         quality = BattlePets::BattlePetBreedQuality(qualityItr->QualityEnum);
 
     playerCaster->GetSession()->GetBattlePetMgr()->ChangeBattlePetQuality(unitTarget->GetBattlePetCompanionGUID(), quality);
+    */
 }
 
 void Spell::EffectLaunchQuestChoice()
@@ -5926,6 +5930,9 @@ void Spell::EffectGrantBattlePetExperience()
 
 void Spell::EffectLearnTransmogIllusion()
 {
+    return;
+
+    /*
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -5938,6 +5945,7 @@ void Spell::EffectLearnTransmogIllusion()
         return;
 
     player->GetSession()->GetCollectionMgr()->AddTransmogIllusion(illusionId);
+    */
 }
 
 void Spell::EffectModifyAuraStacks()

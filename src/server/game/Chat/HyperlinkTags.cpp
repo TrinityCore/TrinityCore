@@ -154,15 +154,6 @@ bool Trinity::Hyperlinks::LinkTags::battlePetAbil::StoreTo(BattlePetAbilLinkData
         && t.IsEmpty();
 }
 
-bool Trinity::Hyperlinks::LinkTags::conduit::StoreTo(SoulbindConduitRankEntry const*& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 soulbindConduitId, rank;
-    if (!(t.TryConsumeTo(soulbindConduitId) && t.TryConsumeTo(rank) && t.IsEmpty()))
-        return false;
-    return !!(val = sDB2Manager.GetSoulbindConduitRank(soulbindConduitId, rank));
-}
-
 bool Trinity::Hyperlinks::LinkTags::currency::StoreTo(CurrencyLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
@@ -406,15 +397,6 @@ bool Trinity::Hyperlinks::LinkTags::keystone::StoreTo(KeystoneLinkData& val, std
     return true;
 }
 
-bool Trinity::Hyperlinks::LinkTags::mawpower::StoreTo(MawPowerEntry const*& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 mawPowerId;
-    if (!t.TryConsumeTo(mawPowerId))
-        return false;
-    return !!(val = sMawPowerStore.LookupEntry(mawPowerId)) && t.IsEmpty();
-}
-
 bool Trinity::Hyperlinks::LinkTags::mount::StoreTo(MountLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
@@ -500,16 +482,6 @@ bool Trinity::Hyperlinks::LinkTags::transmogappearance::StoreTo(ItemModifiedAppe
     if (!t.TryConsumeTo(itemModifiedAppearanceId))
         return false;
     return !!(val = sItemModifiedAppearanceStore.LookupEntry(itemModifiedAppearanceId)) && t.IsEmpty();
-}
-
-bool Trinity::Hyperlinks::LinkTags::transmogillusion::StoreTo(SpellItemEnchantmentEntry const*& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 spellItemEnchantmentId;
-    if (!t.TryConsumeTo(spellItemEnchantmentId))
-        return false;
-    return !!(val = sSpellItemEnchantmentStore.LookupEntry(spellItemEnchantmentId))
-        && sDB2Manager.GetTransmogIllusionForEnchantment(spellItemEnchantmentId) && t.IsEmpty();
 }
 
 bool Trinity::Hyperlinks::LinkTags::transmogset::StoreTo(TransmogSetEntry const*& val, std::string_view text)

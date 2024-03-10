@@ -440,8 +440,6 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
                         DoUpdateCriteria(CriteriaType::DefeatDungeonEncounter, dungeonEncounter->ID);
                         SendBossKillCredit(dungeonEncounter->ID);
-                        if (dungeonEncounter->CompleteWorldStateID)
-                            DoUpdateWorldState(dungeonEncounter->CompleteWorldStateID, 1);
 
                         UpdateLfgEncounterState(bossInfo);
                     }
@@ -508,10 +506,6 @@ void InstanceScript::Load(char const* data)
         {
             if (bosses[i].state == DONE && !CheckRequiredBosses(i))
                 bosses[i].state = NOT_STARTED;
-
-            if (DungeonEncounterEntry const* dungeonEncounter = bosses[i].GetDungeonEncounterForDifficulty(instance->GetDifficultyID()))
-                if (dungeonEncounter->CompleteWorldStateID)
-                    DoUpdateWorldState(dungeonEncounter->CompleteWorldStateID, bosses[i].state == DONE ? 1 : 0);
         }
 
         UpdateSpawnGroups();

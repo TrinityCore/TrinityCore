@@ -2869,12 +2869,12 @@ void GameObject::Use(Unit* user)
                     if (!areaContentTuning)
                         break;
 
-                    player->UpdateFishingSkill(areaContentTuning->ExpansionID);
+                    player->UpdateFishingSkill(0);
 
                     // Send loot
                     int32 areaFishingLevel = sObjectMgr->GetFishingBaseSkillLevel(areaEntry);
 
-                    uint32 playerFishingSkill = player->GetProfessionSkillForExp(SKILL_FISHING, areaContentTuning->ExpansionID);
+                    uint32 playerFishingSkill = player->GetProfessionSkillForExp(SKILL_FISHING, 0);
                     int32 playerFishingLevel = player->GetSkillValue(playerFishingSkill);
 
                     int32 roll = irand(1, 100);

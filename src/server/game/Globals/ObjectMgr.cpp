@@ -3321,11 +3321,13 @@ void ObjectMgr::LoadItemTemplates()
                 specs.set();
     }
 
+    /*
     // Load item effects (spells)
     for (ItemXItemEffectEntry const* effectEntry : sItemXItemEffectStore)
         if (ItemTemplate* item = Trinity::Containers::MapGetValuePtr(_itemTemplateStore, effectEntry->ItemID))
             if (ItemEffectEntry const* effect = sItemEffectStore.LookupEntry(effectEntry->ItemEffectID))
                 item->Effects.push_back(effect);
+    */
 
     TC_LOG_INFO("server.loading", ">> Loaded {} item templates in {} ms", _itemTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
@@ -6917,8 +6919,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation con
             // if find graveyard at different map from where entrance placed (or no entrance data), use any first
             if (!mapEntry
                 || mapEntry->CorpseMapID < 0
-                || uint32(mapEntry->CorpseMapID) != entry->Loc.GetMapId()
-                || (mapEntry->Corpse.X == 0 && mapEntry->Corpse.Y == 0)) // Check X and Y
+                || uint32(mapEntry->CorpseMapID) != entry->Loc.GetMapId())
             {
                 // not have any corrdinates for check distance anyway
                 entryFar = entry;
@@ -6926,20 +6927,15 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation con
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->Loc.GetPositionX() - mapEntry->Corpse.X) * (entry->Loc.GetPositionX() - mapEntry->Corpse.X)
-                + (entry->Loc.GetPositionY() - mapEntry->Corpse.Y) * (entry->Loc.GetPositionY() - mapEntry->Corpse.Y);
             if (foundEntr)
             {
-                if (dist2 < distEntr)
-                {
-                    distEntr = dist2;
-                    entryEntr = entry;
-                }
+                //distEntr = 0.f;
+                entryEntr = entry;
             }
             else
             {
                 foundEntr = true;
-                distEntr = dist2;
+                //distEntr = 0.f;
                 entryEntr = entry;
             }
         }

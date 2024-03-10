@@ -5775,11 +5775,6 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             if (m_spellInfo->ExcludeCasterAuraSpell && unitCaster->HasAura(m_spellInfo->ExcludeCasterAuraSpell))
                 return SPELL_FAILED_CASTER_AURASTATE;
 
-            if (m_spellInfo->CasterAuraType && !unitCaster->HasAuraType(m_spellInfo->CasterAuraType))
-                return SPELL_FAILED_CASTER_AURASTATE;
-            if (m_spellInfo->ExcludeCasterAuraType && unitCaster->HasAuraType(m_spellInfo->ExcludeCasterAuraType))
-                return SPELL_FAILED_CASTER_AURASTATE;
-
             if (unitCaster->IsInCombat() && !m_spellInfo->CanBeUsedInCombat(unitCaster))
                 return SPELL_FAILED_AFFECTING_COMBAT;
         }
@@ -6559,54 +6554,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             case SPELL_EFFECT_GRANT_BATTLEPET_LEVEL:
             case SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE:
             {
-                Player* playerCaster = m_caster->ToPlayer();
-                if (!playerCaster || !m_targets.GetUnitTarget() || !m_targets.GetUnitTarget()->IsCreature())
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                BattlePets::BattlePetMgr* battlePetMgr = playerCaster->GetSession()->GetBattlePetMgr();
-                if (!battlePetMgr->HasJournalLock())
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
-                if (Creature* creature = m_targets.GetUnitTarget()->ToCreature())
-                {
-                    if (playerCaster->GetSummonedBattlePetGUID().IsEmpty() || creature->GetBattlePetCompanionGUID().IsEmpty())
-                        return SPELL_FAILED_NO_PET;
-
-                    if (playerCaster->GetSummonedBattlePetGUID() != creature->GetBattlePetCompanionGUID())
-                        return SPELL_FAILED_BAD_TARGETS;
-
-                    if (BattlePets::BattlePet* battlePet = battlePetMgr->GetPet(creature->GetBattlePetCompanionGUID()))
-                    {
-                        if (BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(battlePet->PacketInfo.Species))
-                        {
-                            if (uint32 battlePetType = spellEffectInfo.MiscValue)
-                                if (!(battlePetType & (1 << battlePetSpecies->PetTypeEnum)))
-                                    return SPELL_FAILED_WRONG_BATTLE_PET_TYPE;
-
-                            if (spellEffectInfo.Effect == SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY)
-                            {
-                                auto qualityItr = std::lower_bound(sBattlePetBreedQualityStore.begin(), sBattlePetBreedQualityStore.end(), spellEffectInfo.CalcBaseValue(m_caster, creature, m_castItemEntry, m_castItemLevel), [](BattlePetBreedQualityEntry const* a1, int32 selector)
-                                {
-                                    return a1->MaxQualityRoll < selector;
-                                });
-
-                                BattlePets::BattlePetBreedQuality quality = BattlePets::BattlePetBreedQuality::Poor;
-                                if (qualityItr != sBattlePetBreedQualityStore.end())
-                                    quality = BattlePets::BattlePetBreedQuality(qualityItr->QualityEnum);
-
-                                if (battlePet->PacketInfo.Quality >= AsUnderlyingType(quality))
-                                    return SPELL_FAILED_CANT_UPGRADE_BATTLE_PET;
-                            }
-
-                            if (spellEffectInfo.Effect == SPELL_EFFECT_GRANT_BATTLEPET_LEVEL || spellEffectInfo.Effect == SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE)
-                                if (battlePet->PacketInfo.Level >= BattlePets::MAX_BATTLE_PET_LEVEL)
-                                    return GRANT_PET_LEVEL_FAIL;
-
-                            if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::CantBattle))
-                                return SPELL_FAILED_BAD_TARGETS;
-                        }
-                    }
-                }
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 break;
             }
             default:

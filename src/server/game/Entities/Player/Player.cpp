@@ -6335,46 +6335,6 @@ void Player::CheckAreaExploreAndOutdoor()
         AddExploredZones(offset, val);
 
         UpdateCriteria(CriteriaType::RevealWorldMapOverlay, GetAreaId());
-
-        if (Optional<ContentTuningLevels> areaLevels = sDB2Manager.GetContentTuningData(areaEntry->ContentTuningID, m_playerData->CtrOptions->ContentTuningConditionMask))
-        {
-            if (IsMaxLevel())
-            {
-                SendExplorationExperience(areaId, 0);
-            }
-            else
-            {
-                int16 areaLevel = std::min(std::max(int16(GetLevel()), areaLevels->MinLevel), areaLevels->MaxLevel);
-                int32 diff = int32(GetLevel()) - areaLevel;
-                uint32 XP;
-                if (diff < -5)
-                {
-                    XP = uint32(sObjectMgr->GetBaseXP(GetLevel() + 5) * sWorld->getRate(RATE_XP_EXPLORE));
-                }
-                else if (diff > 5)
-                {
-                    int32 exploration_percent = 100 - ((diff - 5) * 5);
-                    if (exploration_percent < 0)
-                        exploration_percent = 0;
-
-                    XP = uint32(sObjectMgr->GetBaseXP(areaLevel) * exploration_percent / 100 * sWorld->getRate(RATE_XP_EXPLORE));
-                }
-                else
-                {
-                    XP = uint32(sObjectMgr->GetBaseXP(areaLevel) * sWorld->getRate(RATE_XP_EXPLORE));
-                }
-
-                if (sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO))
-                {
-                    uint32 minScaledXP = uint32(sObjectMgr->GetBaseXP(areaLevel)*sWorld->getRate(RATE_XP_EXPLORE)) * sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO) / 100;
-                    XP = std::max(minScaledXP, XP);
-                }
-
-                GiveXP(XP, nullptr);
-                SendExplorationExperience(areaId, XP);
-            }
-            TC_LOG_DEBUG("entities.player", "Player '{}' ({}) discovered a new area: {}", GetName(),GetGUID().ToString(), areaId);
-        }
     }
 }
 
@@ -6464,10 +6424,12 @@ ReputationRank Player::GetReputationRank(uint32 faction) const
 int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool noQuestBonus)
 {
     bool noBonuses = false;
+    /*
     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction))
         if (FriendshipReputationEntry const* friendshipReputation = sFriendshipReputationStore.LookupEntry(factionEntry->FriendshipRepID))
             if (friendshipReputation->GetFlags().HasFlag(FriendshipReputationFlags::NoRepGainModifiers))
                 noBonuses = true;
+    */
 
     float percent = 100.0f;
 
@@ -6570,8 +6532,8 @@ void Player::RewardReputation(Unit* victim, float rate)
         Map const* map = GetMap();
         if (map->IsNonRaidDungeon())
             if (LFGDungeonsEntry const* dungeon = DB2Manager::GetLfgDungeon(map->GetId(), map->GetDifficultyID()))
-                if (Optional<ContentTuningLevels> dungeonLevels = sDB2Manager.GetContentTuningData(dungeon->ContentTuningID, m_playerData->CtrOptions->ContentTuningConditionMask))
-                    if (dungeonLevels->TargetLevelMax == int16(GetMaxLevelForExpansion(EXPANSION_WRATH_OF_THE_LICH_KING)))
+                if (LFGDungeonsEntry const* dungeon = DB2Manager::GetLfgDungeon(map->GetId(), map->GetDifficultyID()))
+                    if (dungeon->TargetLevel == int16(GetMaxLevelForExpansion(EXPANSION_WRATH_OF_THE_LICH_KING)))
                         ChampioningFaction = GetChampioningFaction();
     }
 
@@ -7345,9 +7307,6 @@ uint32 Player::GetCurrencyMaxQuantity(CurrencyTypesEntry const* currency, bool o
         return 0;
 
     uint32 maxQuantity = currency->MaxQty;
-    if (currency->MaxQtyWorldStateID)
-        maxQuantity = sWorldStateMgr->GetValue(currency->MaxQtyWorldStateID, GetMap());
-
     uint32 increasedCap = 0;
     if (currency->GetFlags().HasFlag(CurrencyTypesFlags::DynamicMaximum))
         increasedCap = GetCurrencyIncreasedCapQuantity(currency->ID);
@@ -18442,21 +18401,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     PushQuests();
 
-    for (TransmogIllusionEntry const* transmogIllusion : sTransmogIllusionStore)
-    {
-        if (!transmogIllusion->GetFlags().HasFlag(TransmogIllusionFlags::PlayerConditionGrantsOnLogin))
-            continue;
-
-        if (GetSession()->GetCollectionMgr()->HasTransmogIllusion(transmogIllusion->ID))
-            continue;
-
-        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(transmogIllusion->UnlockConditionID))
-            if (!ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
-                continue;
-
-        GetSession()->GetCollectionMgr()->AddTransmogIllusion(transmogIllusion->ID);
-    }
-
     return true;
 }
 
@@ -26791,58 +26735,7 @@ void Player::ResetTalentSpecialization()
 
 TalentLearnResult Player::LearnPvpTalent(uint32 talentID, uint8 slot, int32* spellOnCooldown)
 {
-    if (slot >= MAX_PVP_TALENT_SLOTS)
-        return TALENT_FAILED_UNKNOWN;
-
-    if (IsInCombat())
-        return TALENT_FAILED_AFFECTING_COMBAT;
-
-    if (isDead())
-        return TALENT_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
-    PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(talentID);
-    if (!talentInfo)
-        return TALENT_FAILED_UNKNOWN;
-
-    if (talentInfo->SpecID != int32(GetPrimarySpecialization()))
-        return TALENT_FAILED_UNKNOWN;
-
-    if (talentInfo->LevelRequired > GetLevel())
-        return TALENT_FAILED_UNKNOWN;
-
-    if (sDB2Manager.GetRequiredLevelForPvpTalentSlot(slot, Classes(GetClass())) > GetLevel())
-        return TALENT_FAILED_UNKNOWN;
-
-    if (PvpTalentCategoryEntry const* talentCategory = sPvpTalentCategoryStore.LookupEntry(talentInfo->PvpTalentCategoryID))
-        if (!(talentCategory->TalentSlotMask & (1 << slot)))
-            return TALENT_FAILED_UNKNOWN;
-
-    // Check if player doesn't have this talent in other slot
-    if (HasPvpTalent(talentID, GetActiveTalentGroup()))
-        return TALENT_FAILED_UNKNOWN;
-
-    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(talentInfo->PlayerConditionID))
-        if (!ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
-            return TALENT_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
-    if (PvpTalentEntry const* talent = sPvpTalentStore.LookupEntry(GetPvpTalentMap(GetActiveTalentGroup())[slot]))
-    {
-        if (!HasPlayerFlag(PLAYER_FLAGS_RESTING) && !HasUnitFlag2(UNIT_FLAG2_ALLOW_CHANGING_TALENTS))
-            return TALENT_FAILED_REST_AREA;
-
-        if (GetSpellHistory()->HasCooldown(talent->SpellID))
-        {
-            *spellOnCooldown = talent->SpellID;
-            return TALENT_FAILED_CANT_REMOVE_TALENT;
-        }
-
-        RemovePvpTalent(talent, GetActiveTalentGroup());
-    }
-
-    if (!AddPvpTalent(talentInfo, GetActiveTalentGroup(), slot))
-        return TALENT_FAILED_UNKNOWN;
-
-    return TALENT_LEARN_OK;
+    return TALENT_FAILED_UNKNOWN;
 }
 
 bool Player::AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup, uint8 slot)

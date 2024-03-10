@@ -32,10 +32,7 @@ struct ItemLevelSelectorQualityEntryComparator
 
 using ItemLevelSelectorQualities = std::set<ItemLevelSelectorQualityEntry const*, ItemLevelSelectorQualityEntryComparator>;
 
-std::unordered_multimap<int32 /*azeriteUnlockMappingSetId*/, AzeriteUnlockMappingEntry const*> _azeriteUnlockMappings;
-std::unordered_multimap<uint32 /*itemBonusTreeId*/, ChallengeModeItemBonusOverrideEntry const*> _challengeModeItemBonusOverrides;
 std::unordered_map<uint32 /*itemBonusListId*/, std::vector<ItemBonusEntry const*>> _itemBonusLists;
-std::unordered_multimap<int32, ItemBonusListGroupEntryEntry const*> _itemBonusListGroupEntries;
 std::unordered_map<int16 /*itemLevelDelta*/, uint32 /*itemBonusListId*/> _itemLevelDeltaToBonusListContainer;
 std::unordered_map<uint32 /*itemLevelSelectorQualitySetId*/, ItemLevelSelectorQualities> _itemLevelQualitySelectorQualities;
 std::unordered_map<uint32 /*itemBonusTreeId*/, std::set<ItemBonusTreeNodeEntry const*>> _itemBonusTrees;
@@ -46,17 +43,8 @@ namespace ItemBonusMgr
 {
 void Load()
 {
-    for (AzeriteUnlockMappingEntry const* azeriteUnlockMapping : sAzeriteUnlockMappingStore)
-        _azeriteUnlockMappings.emplace(azeriteUnlockMapping->AzeriteUnlockMappingSetID, azeriteUnlockMapping);
-
-    for (ChallengeModeItemBonusOverrideEntry const* challengeModeItemBonusOverride : sChallengeModeItemBonusOverrideStore)
-        _challengeModeItemBonusOverrides.emplace(challengeModeItemBonusOverride->SrcItemBonusTreeID, challengeModeItemBonusOverride);
-
     for (ItemBonusEntry const* bonus : sItemBonusStore)
         _itemBonusLists[bonus->ParentItemBonusListID].push_back(bonus);
-
-    for (ItemBonusListGroupEntryEntry const* bonusListGroupEntry : sItemBonusListGroupEntryStore)
-        _itemBonusListGroupEntries.emplace(bonusListGroupEntry->ItemBonusListGroupID, bonusListGroupEntry);
 
     for (ItemBonusListLevelDeltaEntry const* itemBonusListLevelDelta : sItemBonusListLevelDeltaStore)
         _itemLevelDeltaToBonusListContainer[itemBonusListLevelDelta->ItemLevelDelta] = itemBonusListLevelDelta->ID;
@@ -112,9 +100,6 @@ ItemContext GetContextForPlayer(MapDifficultyEntry const* mapDifficulty, Player 
             if (!meetsPlayerCondition)
                 continue;
 
-            if (itemContextPickerEntry->LabelID && !sDB2Manager.HasContentTuningLabel(contentTuningId, itemContextPickerEntry->LabelID))
-                continue;
-
             if (!selectedPickerEntry || selectedPickerEntry->OrderIndex < itemContextPickerEntry->OrderIndex)
                 selectedPickerEntry = itemContextPickerEntry;
         }
@@ -144,294 +129,20 @@ uint32 GetItemBonusListForItemLevelDelta(int16 delta)
 
 bool CanApplyBonusTreeToItem(ItemTemplate const* itemTemplate, uint32 itemBonusTreeId, ItemBonusGenerationParams const& params)
 {
-    if (ItemBonusTreeEntry const* bonusTree = sItemBonusTreeStore.LookupEntry(itemBonusTreeId))
-    {
-        if (bonusTree->InventoryTypeSlotMask)
-            if (!(1 << itemTemplate->GetInventoryType() & bonusTree->InventoryTypeSlotMask))
-                return false;
-
-        if (bonusTree->Flags & 0x8 && !itemTemplate->HasFlag(ITEM_FLAG2_CASTER_WEAPON))
-            return false;
-        if (bonusTree->Flags & 0x10 && itemTemplate->HasFlag(ITEM_FLAG2_CASTER_WEAPON))
-            return false;
-        if (bonusTree->Flags & 0x20 && !itemTemplate->HasFlag(ITEM_FLAG4_CC_TRINKET))
-            return false;
-        if (bonusTree->Flags & 0x40 && itemTemplate->HasFlag(ITEM_FLAG4_CC_TRINKET))
-            return false;
-
-        if (bonusTree->Flags & 0x4)
-            return true;
-    }
-
-    if (std::set<ItemBonusTreeNodeEntry const*>* bonusTreeNodes = Trinity::Containers::MapGetValuePtr(_itemBonusTrees, itemBonusTreeId))
-    {
-        bool anyNodeMatched = false;
-        for (ItemBonusTreeNodeEntry const* bonusTreeNode : *bonusTreeNodes)
-        {
-            if (bonusTreeNode->MinMythicPlusLevel > 0)
-                continue;
-
-            ItemContext nodeContext = ItemContext(bonusTreeNode->ItemContext);
-            if (nodeContext == ItemContext::NONE || nodeContext == params.Context)
-            {
-                if (anyNodeMatched)
-                    return false;
-
-                anyNodeMatched = true;
-            }
-        }
-    }
-
-    return true;
+    return false;
 }
 
 uint32 GetBonusTreeIdOverride(uint32 itemBonusTreeId, ItemBonusGenerationParams const& params)
 {
-    // TODO: configure seasons globally
-    if (MythicPlusSeasonEntry const* mythicPlusSeason = sMythicPlusSeasonStore.LookupEntry(0))
-    {
-        int32 selectedLevel = -1;
-        int32 selectedMilestoneSeason = -1;
-        ChallengeModeItemBonusOverrideEntry const* selectedItemBonusOverride = nullptr;
-        for (auto& [_, itemBonusOverride] : Trinity::Containers::MapEqualRange(_challengeModeItemBonusOverrides, itemBonusTreeId))
-        {
-            if (itemBonusOverride->Type != 0)
-                continue;
-
-            if (itemBonusOverride->Value > params.MythicPlusKeystoneLevel.value_or(-1))
-                continue;
-
-            if (itemBonusOverride->MythicPlusSeasonID)
-            {
-                MythicPlusSeasonEntry const* overrideSeason = sMythicPlusSeasonStore.LookupEntry(itemBonusOverride->MythicPlusSeasonID);
-                if (!overrideSeason)
-                    continue;
-
-                if (mythicPlusSeason->MilestoneSeason < overrideSeason->MilestoneSeason)
-                    continue;
-
-                if (selectedMilestoneSeason > overrideSeason->MilestoneSeason)
-                    continue;
-
-                if (selectedMilestoneSeason == overrideSeason->MilestoneSeason)
-                    if (selectedLevel > itemBonusOverride->Value)
-                        continue;
-
-                selectedMilestoneSeason = overrideSeason->MilestoneSeason;
-            }
-            else if (selectedLevel > itemBonusOverride->Value)
-                continue;
-
-            selectedLevel = itemBonusOverride->Value;
-            selectedItemBonusOverride = itemBonusOverride;
-        }
-
-        if (selectedItemBonusOverride && selectedItemBonusOverride->DstItemBonusTreeID)
-            itemBonusTreeId = selectedItemBonusOverride->DstItemBonusTreeID;
-    }
-
-    // TODO: configure seasons globally
-    if (PvpSeasonEntry const* pvpSeason = sPvpSeasonStore.LookupEntry(0))
-    {
-        int32 selectedLevel = -1;
-        int32 selectedMilestoneSeason = -1;
-        ChallengeModeItemBonusOverrideEntry const* selectedItemBonusOverride = nullptr;
-        for (auto& [_, itemBonusOverride] : Trinity::Containers::MapEqualRange(_challengeModeItemBonusOverrides, itemBonusTreeId))
-        {
-            if (itemBonusOverride->Type != 1)
-                continue;
-
-            if (itemBonusOverride->Value > params.PvpTier.value_or(-1))
-                continue;
-
-            if (itemBonusOverride->PvPSeasonID)
-            {
-                PvpSeasonEntry const* overrideSeason = sPvpSeasonStore.LookupEntry(itemBonusOverride->PvPSeasonID);
-                if (!overrideSeason)
-                    continue;
-
-                if (pvpSeason->MilestoneSeason < overrideSeason->MilestoneSeason)
-                    continue;
-
-                if (selectedMilestoneSeason > overrideSeason->MilestoneSeason)
-                    continue;
-
-                if (selectedMilestoneSeason == overrideSeason->MilestoneSeason)
-                    if (selectedLevel > itemBonusOverride->Value)
-                        continue;
-
-                selectedMilestoneSeason = overrideSeason->MilestoneSeason;
-            }
-            else if (selectedLevel > itemBonusOverride->Value)
-                continue;
-
-            selectedLevel = itemBonusOverride->Value;
-            selectedItemBonusOverride = itemBonusOverride;
-        }
-
-        if (selectedItemBonusOverride && selectedItemBonusOverride->DstItemBonusTreeID)
-            itemBonusTreeId = selectedItemBonusOverride->DstItemBonusTreeID;
-    }
-
     return itemBonusTreeId;
 }
 
 void ApplyBonusTreeHelper(ItemTemplate const* itemTemplate, uint32 itemBonusTreeId, ItemBonusGenerationParams const& params, int32 sequenceLevel, uint32* itemLevelSelectorId, std::vector<int32>* bonusListIDs)
 {
-    uint32 originalItemBonusTreeId = itemBonusTreeId;
-
-    // override bonus tree with season specific values
-    itemBonusTreeId = GetBonusTreeIdOverride(itemBonusTreeId, params);
-
-    if (!CanApplyBonusTreeToItem(itemTemplate, itemBonusTreeId, params))
-        return;
-
-    auto treeItr = _itemBonusTrees.find(itemBonusTreeId);
-    if (treeItr == _itemBonusTrees.end())
-        return;
-
-    for (ItemBonusTreeNodeEntry const* bonusTreeNode : treeItr->second)
-    {
-        ItemContext nodeContext = ItemContext(bonusTreeNode->ItemContext);
-        ItemContext requiredContext = nodeContext != ItemContext::Force_to_NONE ? nodeContext : ItemContext::NONE;
-        if (nodeContext != ItemContext::NONE && params.Context != requiredContext)
-            continue;
-
-        if (params.MythicPlusKeystoneLevel)
-        {
-            if (bonusTreeNode->MinMythicPlusLevel && params.MythicPlusKeystoneLevel < bonusTreeNode->MinMythicPlusLevel)
-                continue;
-
-            if (bonusTreeNode->MaxMythicPlusLevel && params.MythicPlusKeystoneLevel > bonusTreeNode->MaxMythicPlusLevel)
-                continue;
-        }
-
-        if (bonusTreeNode->ChildItemBonusTreeID)
-            ApplyBonusTreeHelper(itemTemplate, bonusTreeNode->ChildItemBonusTreeID, params, sequenceLevel, itemLevelSelectorId, bonusListIDs);
-        else if (bonusTreeNode->ChildItemBonusListID)
-            bonusListIDs->push_back(bonusTreeNode->ChildItemBonusListID);
-        else if (bonusTreeNode->ChildItemLevelSelectorID)
-            *itemLevelSelectorId = bonusTreeNode->ChildItemLevelSelectorID;
-        else if (bonusTreeNode->ChildItemBonusListGroupID)
-        {
-            int32 resolvedSequenceLevel = sequenceLevel;
-            switch (originalItemBonusTreeId)
-            {
-                case 4001:
-                    resolvedSequenceLevel = 1;
-                    break;
-                case 4079:
-                    if (params.MythicPlusKeystoneLevel)
-                    {
-                        switch (bonusTreeNode->IblGroupPointsModSetID)
-                        {
-                            case 2909: // MythicPlus_End_of_Run levels 2-8
-                                resolvedSequenceLevel = sDB2Manager.GetCurveValueAt(62951, *params.MythicPlusKeystoneLevel);
-                                break;
-                            case 2910: // MythicPlus_End_of_Run levels 9-16
-                                resolvedSequenceLevel = sDB2Manager.GetCurveValueAt(62952, *params.MythicPlusKeystoneLevel);
-                                break;
-                            case 2911: // MythicPlus_End_of_Run levels 17-20
-                                resolvedSequenceLevel = sDB2Manager.GetCurveValueAt(62954, *params.MythicPlusKeystoneLevel);
-                                break;
-                            case 3007: // MythicPlus_Jackpot (weekly reward) levels 2-7
-                                resolvedSequenceLevel = sDB2Manager.GetCurveValueAt(64388, *params.MythicPlusKeystoneLevel);
-                                break;
-                            case 3008: // MythicPlus_Jackpot (weekly reward) levels 8-15
-                                resolvedSequenceLevel = sDB2Manager.GetCurveValueAt(64389, *params.MythicPlusKeystoneLevel);
-                                break;
-                            case 3009: // MythicPlus_Jackpot (weekly reward) levels 16-20
-                                resolvedSequenceLevel = sDB2Manager.GetCurveValueAt(64395, *params.MythicPlusKeystoneLevel);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    break;
-                case 4125:
-                    resolvedSequenceLevel = 2;
-                    break;
-                case 4126:
-                    resolvedSequenceLevel = 3;
-                    break;
-                case 4127:
-                    resolvedSequenceLevel = 4;
-                    break;
-                case 4128:
-                    switch (params.Context)
-                    {
-                        case ItemContext::Raid_Normal:
-                        case ItemContext::Raid_Raid_Finder:
-                        case ItemContext::Raid_Heroic:
-                            resolvedSequenceLevel = 2;
-                            break;
-                        case ItemContext::Raid_Mythic:
-                            resolvedSequenceLevel = 6;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                case 4140:
-                    switch (params.Context)
-                    {
-                        case ItemContext::Dungeon_Normal:
-                            resolvedSequenceLevel = 2;
-                            break;
-                        case ItemContext::Dungeon_Mythic:
-                            resolvedSequenceLevel = 4;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            for (auto const& [_, bonusListGroupEntry] : Trinity::Containers::MapEqualRange(_itemBonusListGroupEntries, bonusTreeNode->ChildItemBonusListGroupID))
-            {
-                if ((resolvedSequenceLevel > 0 || bonusListGroupEntry->SequenceValue <= 0) && resolvedSequenceLevel != bonusListGroupEntry->SequenceValue)
-                    continue;
-
-                *itemLevelSelectorId = bonusListGroupEntry->ItemLevelSelectorID;
-                bonusListIDs->push_back(bonusListGroupEntry->ItemBonusListID);
-                break;
-            }
-        }
-    }
 }
 
 int32 GetAzeriteUnlockBonusList(uint16 azeriteUnlockMappingSetId, uint16 minItemLevel, InventoryType inventoryType)
 {
-    AzeriteUnlockMappingEntry const* selectedAzeriteUnlockMapping = nullptr;
-    for (auto [_, azeriteUnlockMapping] : Trinity::Containers::MapEqualRange(_azeriteUnlockMappings, azeriteUnlockMappingSetId))
-    {
-        if (minItemLevel < azeriteUnlockMapping->ItemLevel)
-            continue;
-
-        if (selectedAzeriteUnlockMapping && selectedAzeriteUnlockMapping->ItemLevel > azeriteUnlockMapping->ItemLevel)
-            continue;
-
-        selectedAzeriteUnlockMapping = azeriteUnlockMapping;
-    }
-
-    if (selectedAzeriteUnlockMapping)
-    {
-        switch (inventoryType)
-        {
-            case INVTYPE_HEAD:
-                return selectedAzeriteUnlockMapping->ItemBonusListHead;
-            case INVTYPE_SHOULDERS:
-                return selectedAzeriteUnlockMapping->ItemBonusListShoulders;
-            case INVTYPE_CHEST:
-            case INVTYPE_ROBE:
-                return selectedAzeriteUnlockMapping->ItemBonusListChest;
-            default:
-                break;
-        }
-    }
-
     return 0;
 }
 
@@ -473,9 +184,6 @@ std::vector<int32> GetBonusListsForItem(uint32 itemId, ItemBonusGenerationParams
                     bonusListIDs.push_back((*itemSelectorQuality)->QualityItemBonusListID);
             }
         }
-
-        if (int32 azeriteUnlockBonusListId = GetAzeriteUnlockBonusList(selector->AzeriteUnlockMappingSet, selector->MinItemLevel, itemTemplate->GetInventoryType()))
-            bonusListIDs.push_back(azeriteUnlockBonusListId);
     }
 
     return bonusListIDs;

@@ -2907,10 +2907,10 @@ void SpellMgr::LoadSpellInfoServerside()
             spellInfo.TargetAuraSpell = fields[31].GetUInt32();
             spellInfo.ExcludeCasterAuraSpell = fields[32].GetUInt32();
             spellInfo.ExcludeTargetAuraSpell = fields[33].GetUInt32();
-            spellInfo.CasterAuraType = AuraType(fields[34].GetInt32());
-            spellInfo.TargetAuraType = AuraType(fields[35].GetInt32());
-            spellInfo.ExcludeCasterAuraType = AuraType(fields[36].GetInt32());
-            spellInfo.ExcludeTargetAuraType = AuraType(fields[37].GetInt32());
+            // spellInfo.CasterAuraType = AuraType(fields[34].GetInt32());
+            // spellInfo.TargetAuraType = AuraType(fields[35].GetInt32());
+            // spellInfo.ExcludeCasterAuraType = AuraType(fields[36].GetInt32());
+            // spellInfo.ExcludeTargetAuraType = AuraType(fields[37].GetInt32());
             spellInfo.CastTimeEntry = sSpellCastTimesStore.LookupEntry(fields[38].GetUInt32());
             spellInfo.RecoveryTime = fields[39].GetUInt32();
             spellInfo.CategoryRecoveryTime = fields[40].GetUInt32();
