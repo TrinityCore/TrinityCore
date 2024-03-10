@@ -31,6 +31,7 @@
 #include "TemporarySummon.h"
 #include "AreaBoundary.h"
 #include "SpellMgr.h"
+#include "SpellAuras.h"
 #include "Unit.h"
 
  /* ContentData: Legion Ring event (Shartuul's Transporter)
@@ -40,7 +41,7 @@
  new boss_dreadmaw;
  new boss_shartuul;
  new npc_warp_gate_shield;
- new npc_felguard_degradeb;
+ new npc_felguard_degrader;
  new npc_overseer_shartuul;
  new npc_shield_zapper;
  new npc_fel_imp_defender;
@@ -50,9 +51,12 @@
  new npc_portable_fel_cannon;
  new npc_fel_eye_stalk;
  RegisterSpellScript(spell_shartuuls_transporter_possess_demon);
+ RegisterSpellScript(spell_shartuuls_transporter_possession_transfer);
  RegisterSpellScript(spell_shartuuls_transporter_aspects);
  RegisterSpellScript(spell_shartuuls_transporter_summon_stun_trap);
  RegisterSpellScript(spell_shartuuls_transporter_consume_essence);
+ RegisterSpellScript(spell_shartuuls_transporter_build_portable_fel_cannon);
+ RegisterSpellScript(spell_shartuuls_transporter_super_jump);
  EndContentData */
 
 enum STActions
@@ -78,7 +82,11 @@ enum STSpells
 {
     SPELL_KNOCKBACK        = 40191,
     SPELL_POSSESS_DEMON    = 40309,
-    SPELL_FEL_CANNON_BLAST = 40672,
+    SPELL_TOUCH_OF_MADNESS = 40821,
+    SPELL_MADNESS_RIFT     = 40824,
+    SPELL_CHARM_NORTH_01   = 39985,
+    SPELL_CHARM_NORTH_02   = 40382,
+    SPELL_CHARM_NORTH_03   = 40523
 };
 
 enum Creatures
@@ -110,7 +118,6 @@ enum Creatures
     NPC_PORTABLE_FEL_CANNON          = 23278,
     NPC_FEL_EYE_STALK                = 23323
 };
-
 
 ParallelogramBoundary* const GreenMatterBoundary = new ParallelogramBoundary
 {
@@ -188,19 +195,28 @@ static Position const MoSpawnPos[3] =
     {2704.05f, 7089.95f, 364.77f, 4.08f}
 };
 
+///
+/// spell_script_names - 40675 spell_shartuuls_transporter_build_portable_fel_cannon xxxx
+/// spell_script_names - 40493 spell_shartuuls_transporter_super_jump xxxx
+/// conditions - 39985 xxxx
+/// 
+/// spell_script_names - 40503 spell_shartuuls_transporter_possession_transfer
+/// spell_script_names - 41962 spell_shartuuls_transporter_possession_transfer
+/// conditions - 40382
+/// conditions - 40523
+///
+
+
 //TODO code style
 //TODO check all dist 225f?
 //
 //TODO FIND SHARTUUL PORTAL GAMEOBJECT
-//TODO SPELL_BUILD_PORTABLE_FEL_CANNON = 40675, //todo should be building a portable fel cannon (Make a separate spell script) //mb effect_1(2)
 //TODO SPELL_METEOR = 26558, //todo find real
 //TODO SPELL_DISRUPTION_RAY = 41550 - dont work right (aims the beam under himself anyway, must at the enemy)
 //TODO EYE STALK METEOR
 //TODO FIND REAL ANITMATION FOR STUN FIELD
-//TODO FIX 40493 NPC_DOOMGUARD_PUNISHER spell doesnt work (mb conditionsTypeOfReference 29)
 //TODO FIX ACTION BAR NPC_DOOMGUARD_PUNISHER and NPC_SHIVAN AFTER POCCESS
 //TODO FIX DOUBLE ZAP IN JustAppeared trash_defender
-//TODO ADD FEL CANNON AFTER OK CAST SPELL BUILD
 
 //////////////////
 ///NPC TRIGGERS///
@@ -943,8 +959,7 @@ struct possess_demonAI : public WorldBossAI
     {
         switch (eventId)
         {
-            //todo I wanted to convert this into a spell script, but I can't possess the demon after the end of the cast.
-            //todo AfterCast is called immediately
+            //todo convert this into a spell script
         case EVENT_FINISHED_CAST_POSSESSION_TRANSFER:
             if (Creature* creature = ObjectAccessor::GetCreature(*me, _lastDemon))
             {
@@ -1003,24 +1018,24 @@ private:
 };
 
 /*#####
-# npc_felguard_degradeb - first possessed demon
+# npc_felguard_degrader - first possessed demon
 #####*/
 
-class npc_felguard_degradeb : public CreatureScript
+class npc_felguard_degrader : public CreatureScript
 {
 public:
-    npc_felguard_degradeb() : CreatureScript("npc_felguard_degradeb") { }
+    npc_felguard_degrader() : CreatureScript("npc_felguard_degrader") { }
 
-    struct npc_felguard_degradebAI : public ScriptedAI
+    struct npc_felguard_degraderAI : public ScriptedAI
     {
-        npc_felguard_degradebAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_felguard_degraderAI(Creature* creature) : ScriptedAI(creature) { }
 
         void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
             Player* playerCaster = caster->ToPlayer();
             if (!playerCaster)
                 return;
-
+            //playerCaster->SetEmoteState(EMOTE_STATE_DEAD);
             if (spellInfo->Id == SPELL_POSSESS_DEMON)
             {
                 if (Creature* overseerShartuul = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 250.0f))
@@ -1037,7 +1052,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_felguard_degradebAI(creature);
+        return new npc_felguard_degraderAI(creature);
     }
 };
 
@@ -1270,8 +1285,6 @@ public:
             }
             DoMeleeAttackIfReady();
         }
-
-    private:
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -1375,8 +1388,6 @@ public:
             }
             DoMeleeAttackIfReady();
         }
-
-    private:
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -1384,6 +1395,7 @@ public:
         return new boss_dreadmawAI(creature);
     }
 };
+
 /*#####
 # boss_shartuul
 #####*/
@@ -1549,10 +1561,11 @@ public:
                 //Checking to make sure Eye Stalk is not summoned behind a barrier
                 if (!pos.IsWithinBox(ForgeCampPos, 20.0f, 20.0f, 110.0f))
                     continue;
-                if (Creature* creature = me->SummonCreature(NPC_FEL_EYE_STALK, pos))
-                {
-                    //me->CastSpell(creature, /*mini meteor*/);  SPELL_FEL_CANNON_BLAST = 40672,
-                }
+                me->SummonCreature(NPC_FEL_EYE_STALK, pos);
+                //if (Creature* creature = me->SummonCreature(NPC_FEL_EYE_STALK, pos))
+                //{
+                //    //me->CastSpell(creature, /*mini meteor*/);  SPELL_FEL_CANNON_BLAST = 40672,
+                //}
             }
         }
 
@@ -1580,8 +1593,9 @@ public:
 # - Fel Imp Defender
 # - Gan'arg Underling
 # - Mo'arg Tormenter
-# - Portable Fel Cannon
 # - Fel Eye Stalk
+#
+# - Portable Fel Cannon is a separate NPC
 #####*/
 
 enum TrashDefender
@@ -1594,7 +1608,6 @@ enum TrashDefender
     //Gan'arg Underling
     EVENT_CAST_HEALTH_FUNNEL,
     EVENT_CAST_BUILD_PORTABLE_FEL_CANNON,
-    EVENT_CASTED_BUILD_PORTABLE_FEL_CANNON,
 
     //Mo'arg Tormenter
     EVENT_CAST_ACID_GEYSER,
@@ -1614,7 +1627,7 @@ struct trash_defenderAI : public ScriptedAI
 {
     trash_defenderAI(Creature* creature) : ScriptedAI(creature)
     {
-        //SetActive(false);
+        SetActive(false);
         //me->SetInstantCast(true);
     }
 
@@ -1770,7 +1783,6 @@ public:
 
 enum GanargUnderling
 {
-    //todo I can't create a portable fel cannon exactly after a completed cast. AfterCast, AfterHit are called immediately.
     SPELL_BUILD_PORTABLE_FEL_CANNON = 40675,
 
     SPELL_HEALTH_FUNNEL             = 40671, //todo This spell can only be used on MoargTormenter
@@ -1814,17 +1826,8 @@ public:
                 Events.ScheduleEvent(EVENT_CAST_HEALTH_FUNNEL, 20s);
                 break;
             case EVENT_CAST_BUILD_PORTABLE_FEL_CANNON:
-                Events.ScheduleEvent(EVENT_CASTED_BUILD_PORTABLE_FEL_CANNON, 4s);
-                DoCastVictim(SPELL_BUILD_PORTABLE_FEL_CANNON);
+                DoCastSelf(SPELL_BUILD_PORTABLE_FEL_CANNON);
                 break;
-            case EVENT_CASTED_BUILD_PORTABLE_FEL_CANNON:  //todo replace with spell script (SPELL_BUILD_PORTABLE_FEL_CANNON)
-            {
-                Talk(SAY_BUILD_FEL_CANNON);
-                Position pos = me->GetRandomPoint(me->GetPosition(), 5.0f);
-                if (pos.IsWithinBox(ForgeCampPos, 20.0f, 20.0f, 110.0f))
-                    me->SummonCreature(NPC_PORTABLE_FEL_CANNON, me->GetRandomPoint(me->GetPosition(), 5.0f), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5min);
-            }
-            break;
             default:
                 break;
             }
@@ -1893,6 +1896,7 @@ public:
 
 enum PortableFelCannon
 {
+    SPELL_FEL_CANNON_BLAST              = 40672,
     SPELL_PORTABLE_FEL_CANNON_TRANSFORM = 40673,
 };
 
@@ -1901,38 +1905,51 @@ class npc_portable_fel_cannon : public CreatureScript
 public:
     npc_portable_fel_cannon() : CreatureScript("npc_portable_fel_cannon") { }
 
-    struct npc_portable_fel_cannonAI : public trash_defenderAI
+    struct npc_portable_fel_cannonAI : public ScriptedAI
     {
-        npc_portable_fel_cannonAI(Creature* creature) : trash_defenderAI(creature) { }
+        npc_portable_fel_cannonAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void JustEngagedWith(Unit* who) override
+        void JustAppeared() override
         {
-            trash_defenderAI::JustEngagedWith(who);
-            Events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 2s);
+            DoCastSelf(SPELL_PORTABLE_FEL_CANNON_TRANSFORM);
+            _events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 2s);
         }
 
-        void ExecuteEvent(uint32 eventId) override
+        void UpdateAI(uint32 diff) override
         {
-            switch (eventId)
+            if (!UpdateVictim() && _events.Empty())
+                return;
+
+            _events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-            case EVENT_TRANSFORM:
-                SetActive(true);
-                DoCastSelf(SPELL_PORTABLE_FEL_CANNON_TRANSFORM);
-                break;
-            case EVENT_CAST_FEL_CANNON_BLAST:
-                DoCast(me->FindNearestCreature(NPC_DOOMGUARD_PUNISHER, 50.0f), SPELL_FEL_CANNON_BLAST);
-                Events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 5s);
-                break;
-            default:
-                break;
+                switch (eventId)
+                {
+                case EVENT_CAST_FEL_CANNON_BLAST:
+                    DoCast(me->FindNearestCreature(NPC_DOOMGUARD_PUNISHER, 50.0f), SPELL_FEL_CANNON_BLAST);
+                    _events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 5s);
+                    break;
+                default:
+                    break;
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
         }
+    private:
+        EventMap _events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_portable_fel_cannonAI(creature);
     }
+
 };
 
 /*#####
@@ -2014,15 +2031,63 @@ class spell_shartuuls_transporter_possess_demon : public SpellScript
         if (Unit* target = GetHitUnit())
         {
             PreventHitDefaultEffect(effIndex);
-            //todo I haven't found anything better than using "Charm (Possess)" (530)
             if (target->IsAlive())
-                caster->CastSpell(target, 530);
+                caster->CastSpell(target, SPELL_CHARM_NORTH_01);
         }
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_shartuuls_transporter_possess_demon::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 40503 - Possession Transfer (Doom Punisher)
+// 41962 - Possession Transfer (Shivan)
+class spell_shartuuls_transporter_possession_transfer : public AuraScript
+{
+    PrepareAuraScript(spell_shartuuls_transporter_possession_transfer);
+
+    //todo So far, it's not working
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        PreventDefaultAction();
+        Unit* caster = GetCaster();
+
+        //!I'm not sure how safe it's gonna be
+        Unit* target = caster->GetVictim();
+        if (!target)
+            return;
+        Unit* charmer = target->GetCharmer();
+        if (!charmer || !caster)
+            return;
+        uint32 previousCharm;
+        uint32 currCharm;
+        if (GetId() == SPELL_DOOMPUNISHER_POSSESSION_TRANSFER)
+        {
+            previousCharm = SPELL_CHARM_NORTH_01;
+            currCharm = SPELL_CHARM_NORTH_02;
+        }
+        else //SPELL_SHIVAN_POSSESSION_TRANSFER
+        {
+            previousCharm = SPELL_CHARM_NORTH_02;
+            currCharm = SPELL_CHARM_NORTH_03;
+        }
+
+        charmer->RemoveAurasDueToSpell(previousCharm);
+        target->RemoveAurasDueToSpell(previousCharm);
+        if (target->IsCreature())
+            target->ToCreature()->DespawnOrUnsummon();
+        charmer->CastSpell(nullptr, currCharm);
+        caster->CombatStop();
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectApplyFn(spell_shartuuls_transporter_possession_transfer::AfterRemove, EFFECT_2, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2131,6 +2196,53 @@ class spell_shartuuls_transporter_consume_essence : public SpellScript
     }
 };
 
+// 40675 - Build Portable Fel Cannon
+class spell_shartuuls_transporter_build_portable_fel_cannon : public AuraScript
+{
+    PrepareAuraScript(spell_shartuuls_transporter_build_portable_fel_cannon);
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+        if (Creature* caster = GetCaster()->ToCreature())
+        {
+            caster->AI()->Talk(SAY_BUILD_FEL_CANNON);
+            Position pos = caster->GetRandomPoint(caster->GetPosition(), 5.0f);
+            caster->SummonCreature(NPC_PORTABLE_FEL_CANNON, caster->GetRandomPoint(caster->GetPosition(), 5.0f), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5min);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_shartuuls_transporter_build_portable_fel_cannon::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 40493 - Super Jump
+class spell_shartuuls_transporter_super_jump : public SpellScript
+{
+    PrepareSpellScript(spell_shartuuls_transporter_super_jump);
+
+    //Most likely, this can be converted simply into a CastSpell, redirecting EFFECT_0 to the target, and not to yourself.
+    //(EFFECT_0 already has logic)
+    void HandleLeap(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        Unit* caster = GetCaster();
+        if (Unit* target = GetExplTargetUnit())
+        {
+            Position pos = target->GetPosition();
+            caster->GetMotionMaster()->MoveJump(pos, 21, 16);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_shartuuls_transporter_super_jump::HandleLeap, EFFECT_0, SPELL_EFFECT_LEAP_BACK);
+    }
+};
+
 void AddSC_shartuul_event()
 {
     new boss_doomguard_punisher;
@@ -2139,7 +2251,7 @@ void AddSC_shartuul_event()
     new boss_dreadmaw;
     new boss_shartuul;
     new npc_warp_gate_shield;
-    new npc_felguard_degradeb;
+    new npc_felguard_degrader;
     new npc_overseer_shartuul;
     new npc_shield_zapper;
     new npc_fel_imp_defender;
@@ -2149,7 +2261,10 @@ void AddSC_shartuul_event()
     new npc_portable_fel_cannon;
     new npc_fel_eye_stalk;
     RegisterSpellScript(spell_shartuuls_transporter_possess_demon);
+    //RegisterSpellScript(spell_shartuuls_transporter_possession_transfer);
     RegisterSpellScript(spell_shartuuls_transporter_aspects);
     RegisterSpellScript(spell_shartuuls_transporter_summon_stun_trap);
     RegisterSpellScript(spell_shartuuls_transporter_consume_essence);
+    RegisterSpellScript(spell_shartuuls_transporter_build_portable_fel_cannon);
+    RegisterSpellScript(spell_shartuuls_transporter_super_jump);
 }

@@ -1,5 +1,4 @@
-
-UPDATE `creature_template` SET `ScriptName`='npc_felguard_degradeb' WHERE `entry`=23055;
+UPDATE `creature_template` SET `ScriptName`='npc_felguard_degrader' WHERE `entry`=23055;
 UPDATE `creature_template` SET `ScriptName`='boss_doomguard_punisher' WHERE `entry`=23113;
 UPDATE `creature_template` SET `ScriptName`='boss_shivan_assassin' WHERE `entry`=23220;
 UPDATE `creature_template` SET `ScriptName`='boss_shartuul' WHERE `entry`=23230;
@@ -16,14 +15,16 @@ UPDATE `creature_template` SET `flags_extra`=64, `ScriptName`='npc_ganarg_underl
 UPDATE `creature_template` SET `flags_extra`=64, `ScriptName`='npc_portable_fel_cannon' WHERE `entry`=23278;
 UPDATE `creature_template` SET `flags_extra`=64, `ScriptName`='npc_fel_eye_stalk' WHERE `entry`=23323;
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (40309, 41593, 41594, 41595, 40784, 40565);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (40309, 41593, 41594, 41595, 40784, 40565, 40675, 40493);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (40309, 'spell_shartuuls_transporter_possess_demon'),
 (41593, 'spell_shartuuls_transporter_aspects'),
 (41594, 'spell_shartuuls_transporter_aspects'),
 (41595, 'spell_shartuuls_transporter_aspects'),
 (40784, 'spell_shartuuls_transporter_summon_stun_trap'),
-(40565, 'spell_shartuuls_transporter_consume_essence');
+(40565, 'spell_shartuuls_transporter_consume_essence'),
+(40675, 'spell_shartuuls_transporter_build_portable_fel_cannon'),
+(40493, 'spell_shartuuls_transporter_super_jump');
 
 -- Arena Boundaries and Overseer
 DELETE FROM `creature` WHERE `guid` IN (230072, 230073, 230074, 230075, 230079);
@@ -35,7 +36,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `p
 (230079, 23063, 530, 0, 0, 1, 1, 0, 0, 2720.74, 7118.42, 393.85, 4.78097, 300, 0, 0, 6722, 0, 0, 0, 33554432, 0, '', 0);
 
 -- Shield Zappers is in the center of the arena
-DELETE FROM `creature` WHERE `guid` IN (230098, 230099, 230102, 230075, 230103);
+DELETE FROM `creature` WHERE `guid` IN (230098, 230099, 230102, 230103);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (230098, 23500, 530, 0, 0, 1, 1, 0, 0, 2713.58, 7117.04, 381.815, 0.548783, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
 (230099, 23500, 530, 0, 0, 1, 1, 0, 0, 2717.87, 7122.89, 381.708, 5.11982, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
@@ -154,9 +155,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 40309, 0, 0, 31, 0, 3, 23055, 0, 0, 0, 0, '', NULL),
 (13, 1, 40503, 0, 0, 31, 0, 3, 23055, 0, 0, 0, 0, '', NULL);
 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=39985 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=23055 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1, 39985, 0, 0, 31, 0, 3, 23055, 0, 0, 0, 0, '', NULL);
+
 -- Set an implicit target for the "Build Portable Fel Cannon" and "Possession Transfer (Shivan Assassin)" spells
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry` IN (40675, 41962)AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=23113 AND `ConditionValue3`=0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) 
-VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (13, 1, 40675, 0, 0, 31, 0, 3, 23113, 0, 0, 0, 0, '', NULL),
 (13, 1, 41962, 0, 0, 31, 0, 3, 23113, 0, 0, 0, 0, '', NULL);
