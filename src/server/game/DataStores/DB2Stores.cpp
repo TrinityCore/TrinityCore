@@ -1121,7 +1121,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     std::unordered_map<uint32, ChrCustomizationDisplayInfoEntry const*> displayInfoByCustomizationChoice;
 
     // build shapeshift form model lookup
-    std::array<uint8, 7> const druidRaces = { RACE_NIGHTELF, RACE_TAUREN, RACE_TROLL, RACE_WORGEN, RACE_HIGHMOUNTAIN_TAUREN, RACE_TROLL, RACE_KUL_TIRAN };
+    std::array<uint8, 7> const druidRaces = { RACE_NIGHTELF, RACE_TAUREN, RACE_TROLL, RACE_WORGEN, RACE_HIGHMOUNTAIN_TAUREN, RACE_ZANDALARI_TROLL, RACE_KUL_TIRAN };
     for (ChrCustomizationElementEntry const* customizationElement : sChrCustomizationElementStore)
     {
         if (ChrCustomizationDisplayInfoEntry const* customizationDisplayInfo = sChrCustomizationDisplayInfoStore.LookupEntry(customizationElement->ChrCustomizationDisplayInfoID))
