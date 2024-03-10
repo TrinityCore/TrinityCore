@@ -2367,6 +2367,7 @@ bool Player::IsMaxLevel() const
 
 void Player::InitTalentForLevel()
 {
+    /*
     uint8 level = GetLevel();
     // talents base at level diff (talents = level - 9 but some can be used already)
     if (level < MIN_SPECIALIZATION_LEVEL)
@@ -2397,6 +2398,7 @@ void Player::InitTalentForLevel()
 
     if (!GetSession()->PlayerLoading())
         SendTalentsInfoData(); // update at client
+    */
 }
 
 void Player::InitStatsForLevel(bool reapplyMods)
@@ -26711,6 +26713,7 @@ TalentLearnResult Player::LearnTalent(uint32 talentId, int32* spellOnCooldown)
 
 void Player::ResetTalentSpecialization()
 {
+    /*
     // Reset only talents that have different spells for each spec
     uint32 class_ = GetClass();
     for (uint32 t = 0; t < MAX_TALENT_TIERS; ++t)
@@ -26731,6 +26734,7 @@ void Player::ResetTalentSpecialization()
 
     SendTalentsInfoData();
     UpdateItemSetAuras(false);
+    */
 }
 
 TalentLearnResult Player::LearnPvpTalent(uint32 talentID, uint8 slot, int32* spellOnCooldown)

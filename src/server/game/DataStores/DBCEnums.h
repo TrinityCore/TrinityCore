@@ -58,7 +58,7 @@ enum LevelLimit
 enum BattlegroundBracketId                                  // bracketId for level ranges
 {
     BG_BRACKET_ID_FIRST          = 0,
-    BG_BRACKET_ID_LAST           = 12,
+    BG_BRACKET_ID_LAST           = 15,
 
     // must be max value in PvPDificulty slot + 1
     MAX_BATTLEGROUND_BRACKETS
@@ -2129,8 +2129,8 @@ enum class SummonPropertiesFlags : uint32
 
 DEFINE_ENUM_FLAG(SummonPropertiesFlags);
 
-#define MAX_TALENT_TIERS 7
-#define MAX_TALENT_COLUMNS 3
+#define MAX_TALENT_TIERS 11
+#define MAX_TALENT_COLUMNS 4
 #define MAX_PVP_TALENT_SLOTS 4
 
 enum class TaxiNodeFlags : int32
