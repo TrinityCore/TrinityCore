@@ -1205,7 +1205,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             }
 
             // link shapeshift displays to race/gender/form
-            for (std::pair<uint32 const, std::pair<uint32, uint8>> const& shapeshiftOptionsForModel : Trinity::Containers::MapEqualRange(shapeshiftFormByRace, raceModel->ChrRacesID))
+            for (std::pair<uint8 const, std::pair<uint32, uint8>> const& shapeshiftOptionsForModel : Trinity::Containers::MapEqualRange(shapeshiftFormByRace, raceModel->ChrRacesID))
             {
                 ShapeshiftFormModelData& data = _chrCustomizationChoicesForShapeshifts[{ uint8(raceModel->ChrRacesID), shapeshiftOptionsForModel.second.second }];
                 data.OptionID = shapeshiftOptionsForModel.second.first;
