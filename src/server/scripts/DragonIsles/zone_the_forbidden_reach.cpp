@@ -24,6 +24,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "Log.h"
+#include "ObjectMgr.h"
 
 enum DracthyrLoginSpells
 {
