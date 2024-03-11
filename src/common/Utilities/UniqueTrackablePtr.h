@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_UNIQUE_TRACKING_PTR_H
-#define TRINITYCORE_UNIQUE_TRACKING_PTR_H
+#ifndef TRINITYCORE_UNIQUE_TRACKABLE_PTR_H
+#define TRINITYCORE_UNIQUE_TRACKABLE_PTR_H
 
 #include "Define.h"
 #include <memory>
@@ -271,4 +271,4 @@ std::enable_if_t<std::is_bounded_array_v<T>, unique_trackable_ptr<T>> make_uniqu
 }
 }
 
-#endif // TRINITYCORE_UNIQUE_TRACKING_PTR_H
+#endif // TRINITYCORE_UNIQUE_TRACKABLE_PTR_H
