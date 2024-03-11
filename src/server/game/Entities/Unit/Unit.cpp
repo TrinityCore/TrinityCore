@@ -8848,8 +8848,11 @@ void Unit::AtTargetAttacked(Unit* target, bool canInitialAggro)
     if (!target->IsEngaged() && !canInitialAggro)
         return;
     target->EngageWithTarget(this);
+    //pet attacked doesn't trigger combat
+    /*
     if (Unit* targetOwner = target->GetCharmerOrOwner())
         targetOwner->EngageWithTarget(this);
+    */
 
     //Patch 3.0.8: All player spells which cause a creature to become aggressive to you will now also immediately cause the creature to be tapped.
     if (Creature* creature = target->ToCreature())

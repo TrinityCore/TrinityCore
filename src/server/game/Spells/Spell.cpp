@@ -2746,7 +2746,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, bool scaleAura, TargetInfo& 
                 }
             }
 
-            if (m_originalCaster && unit->IsInCombat() && m_spellInfo->HasInitialAggro())
+            if (m_originalCaster && unit->IsInCombat() && m_spellInfo->HasInitialAggro() && !unit->IsPet())
             {
                 if (m_originalCaster->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)) // only do explicit combat forwarding for PvP enabled units
                     m_originalCaster->GetCombatManager().InheritCombatStatesFrom(unit);    // for creature v creature combat, the threat forward does it for us
