@@ -17,7 +17,7 @@
 
 #include "tc_catch2.h"
 
-#include "UniqueTrackingPtr.h"
+#include "UniqueTrackablePtr.h"
 
 struct TestObj
 {
@@ -32,7 +32,7 @@ struct TestObj
     bool* Deleted = nullptr;
 };
 
-TEST_CASE("Trinity::unique_trackable_ptr frees memory", "[UniqueTrackingPtr]")
+TEST_CASE("Trinity::unique_trackable_ptr frees memory", "[UniqueTrackablePtr]")
 {
     bool deleted = false;
 
@@ -57,7 +57,7 @@ TEST_CASE("Trinity::unique_trackable_ptr frees memory", "[UniqueTrackingPtr]")
     }
 }
 
-TEST_CASE("Trinity::unique_weak_ptr", "[UniqueTrackingPtr]")
+TEST_CASE("Trinity::unique_weak_ptr", "[UniqueTrackablePtr]")
 {
     Trinity::unique_trackable_ptr<int> ptr = Trinity::make_unique_trackable<int>();
 
