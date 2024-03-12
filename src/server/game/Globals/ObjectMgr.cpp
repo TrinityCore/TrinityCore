@@ -3319,15 +3319,12 @@ void ObjectMgr::LoadItemTemplates()
         for (auto& specs : itemTemplate.Specializations)
             if (specs.count() == 0)
                 specs.set();
-    }
 
-    /*
-    // Load item effects (spells)
-    for (ItemXItemEffectEntry const* effectEntry : sItemXItemEffectStore)
-        if (ItemTemplate* item = Trinity::Containers::MapGetValuePtr(_itemTemplateStore, effectEntry->ItemID))
-            if (ItemEffectEntry const* effect = sItemEffectStore.LookupEntry(effectEntry->ItemEffectID))
-                item->Effects.push_back(effect);
-    */
+        // Load item effects (spells)
+        if (std::vector<ItemEffectEntry const*> const* itemEffects = sDB2Manager.GetItemEffectsForItemId(sparse->ID))
+            for (ItemEffectEntry const* itemEffect : *itemEffects)
+                itemTemplate.Effects.push_back(itemEffect);
+    }
 
     TC_LOG_INFO("server.loading", ">> Loaded {} item templates in {} ms", _itemTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }

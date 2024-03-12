@@ -515,6 +515,7 @@ public:
     bool IsUiMapPhase(uint32 phaseId) const;
     WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const;
     std::unordered_set<uint32> const* GetPVPStatIDsForMap(uint32 mapId) const;
+    std::vector<ItemEffectEntry const*> const* GetItemEffectsForItemId(uint32 itemId) const;
 
 private:
     friend class DB2HotfixGeneratorBase;
