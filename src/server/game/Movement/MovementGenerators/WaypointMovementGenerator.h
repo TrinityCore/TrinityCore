@@ -47,8 +47,8 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         MovementGeneratorType GetMovementGeneratorType() const override;
 
         void UnitSpeedChanged() override { AddFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING); }
-        void Pause(uint32 timer = 0) override;
-        void Resume(uint32 overrideTimer = 0) override;
+        void Pause(uint32 timer) override;
+        void Resume(uint32 overrideTimer) override;
         bool GetResetPosition(Unit*, float& x, float& y, float& z) override;
 
         void DoInitialize(Creature*);
