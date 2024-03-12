@@ -30,7 +30,7 @@
 
 WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
-    Optional<float> wanderDistanceAtPathEnds, bool followPathBackwardsFromEndToStart, bool generatePath)
+    Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath)
     : _nextMoveTime(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true),
     _speed(speed), _speedSelectionMode(speedSelectionMode), _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)),
     _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds), _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _isReturningToStart(false),
@@ -46,7 +46,7 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bo
 
 WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath const& path, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
-    Optional<float> wanderDistanceAtPathEnds, bool followPathBackwardsFromEndToStart, bool generatePath)
+    Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath)
     : _nextMoveTime(0), _pathId(0), _repeating(repeating), _loadedFromDB(false),
     _speed(speed), _speedSelectionMode(speedSelectionMode), _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)),
     _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds), _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _isReturningToStart(false),
@@ -132,8 +132,6 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
         TC_LOG_ERROR("sql.sql", "WaypointMovementGenerator::DoInitialize: couldn't load path for creature ({}) (_pathId: {})", owner->GetGUID().ToString(), _pathId);
         return;
     }
-
-    _followPathBackwardsFromEndToStart = GetPath()->Flags.HasFlag(WaypointPathFlags::FollowPathBackwardsFromEndToStart);
 
     if (GetPath()->Nodes.size() == 1)
         _repeating = false;
@@ -285,7 +283,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
         _nextMoveTime.Reset(waypoint.Delay);
     }
 
-    if (_waitTimeRangeAtPathEnd && _followPathBackwardsFromEndToStart
+    if (_waitTimeRangeAtPathEnd && IsFollowingPathBackwardsFromEndToStart()
         && ((_isReturningToStart && _currentNode == 0) || (!_isReturningToStart && _currentNode == GetPath()->Nodes.size() - 1)))
     {
         owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
@@ -433,7 +431,7 @@ bool WaypointMovementGenerator<Creature>::ComputeNextNode()
     if ((_currentNode == GetPath()->Nodes.size() - 1) && !_repeating)
         return false;
 
-    if (!_followPathBackwardsFromEndToStart || GetPath()->Nodes.size() < WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES)
+    if (!IsFollowingPathBackwardsFromEndToStart() || GetPath()->Nodes.size() < WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES)
         _currentNode = (_currentNode + 1) % GetPath()->Nodes.size();
     else
     {
@@ -456,6 +454,14 @@ bool WaypointMovementGenerator<Creature>::ComputeNextNode()
     }
 
     return true;
+}
+
+bool WaypointMovementGenerator<Creature>::IsFollowingPathBackwardsFromEndToStart() const
+{
+    if (_followPathBackwardsFromEndToStart)
+        return *_followPathBackwardsFromEndToStart;
+
+    return GetPath()->Flags.HasFlag(WaypointPathFlags::FollowPathBackwardsFromEndToStart);
 }
 
 std::string WaypointMovementGenerator<Creature>::GetDebugInfo() const
