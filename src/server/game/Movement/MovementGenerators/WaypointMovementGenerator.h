@@ -38,11 +38,11 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         explicit WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
-            bool followPathBackwardsFromEndToStart = false, bool generatePath = true);
+            Optional<bool> followPathBackwardsFromEndToStart = {}, bool generatePath = true);
         explicit WaypointMovementGenerator(WaypointPath const& path, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
             MovementWalkRunSpeedSelectionMode speedSelectionMode,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd, Optional<float> wanderDistanceAtPathEnds,
-            bool followPathBackwardsFromEndToStart, bool generatePath);
+            Optional<bool> followPathBackwardsFromEndToStart, bool generatePath);
         ~WaypointMovementGenerator();
 
         MovementGeneratorType GetMovementGeneratorType() const override;
@@ -78,6 +78,8 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
             return false;
         }
 
+        bool IsFollowingPathBackwardsFromEndToStart() const;
+
         TimeTracker _nextMoveTime;
         uint32 _pathId;
         bool _repeating;
@@ -88,7 +90,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         MovementWalkRunSpeedSelectionMode _speedSelectionMode;
         Optional<std::pair<Milliseconds, Milliseconds>> _waitTimeRangeAtPathEnd;
         Optional<float> _wanderDistanceAtPathEnds;
-        bool _followPathBackwardsFromEndToStart;
+        Optional<bool> _followPathBackwardsFromEndToStart;
         bool _isReturningToStart;
         bool _generatePath;
 };
