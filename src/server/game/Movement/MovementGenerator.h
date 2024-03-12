@@ -48,7 +48,11 @@ enum MovementGeneratorFlags : uint16
 class TC_GAME_API MovementGenerator
 {
     public:
-        MovementGenerator() : Mode(0), Priority(0), Flags(MOVEMENTGENERATOR_FLAG_NONE), BaseUnitState(0) { }
+        explicit MovementGenerator() : Mode(0), Priority(0), Flags(MOVEMENTGENERATOR_FLAG_NONE), BaseUnitState(0) { }
+        MovementGenerator(MovementGenerator const&) = delete;
+        MovementGenerator(MovementGenerator&&) = delete;
+        MovementGenerator& operator=(MovementGenerator const&) = delete;
+        MovementGenerator& operator=(MovementGenerator&&) = delete;
         virtual ~MovementGenerator();
 
         // on top first update
