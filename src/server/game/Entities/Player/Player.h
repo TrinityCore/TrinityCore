@@ -678,45 +678,45 @@ enum InventorySlots : uint8                                 // 4 slots
 
 enum ReagentBagSlots : uint8                                // 1 slot
 {
-    REAGENT_BAG_SLOT_START  = 34,
-    REAGENT_BAG_SLOT_END    = 35
+    REAGENT_BAG_SLOT_START      = 34,
+    REAGENT_BAG_SLOT_END        = 35
 };
 
-enum InventoryPackSlots : uint8                             // 28 slots
+enum InventoryPackSlots : uint8                             // 24 slots
 {
     INVENTORY_SLOT_ITEM_START   = 35,
-    INVENTORY_SLOT_ITEM_END     = 63
+    INVENTORY_SLOT_ITEM_END     = 59
 };
 
 enum BankItemSlots                                          // 28 slots
 {
-    BANK_SLOT_ITEM_START        = 63,
-    BANK_SLOT_ITEM_END          = 91
+    BANK_SLOT_ITEM_START        = 59,
+    BANK_SLOT_ITEM_END          = 87
 };
 
 enum BankBagSlots                                           // 7 slots
 {
-    BANK_SLOT_BAG_START         = 91,
-    BANK_SLOT_BAG_END           = 98
+    BANK_SLOT_BAG_START         = 87,
+    BANK_SLOT_BAG_END           = 94
 };
 
 enum BuyBackSlots                                           // 12 slots
 {
     // stored in m_buybackitems
-    BUYBACK_SLOT_START          = 98,
-    BUYBACK_SLOT_END            = 110
+    BUYBACK_SLOT_START          = 94,
+    BUYBACK_SLOT_END            = 106
 };
 
-enum ReagentSlots                                           // 98 slots
+enum KeyRingSlots                                           // 32 slots
 {
-    REAGENT_SLOT_START          = 110,
-    REAGENT_SLOT_END            = 208,
+    KEYRING_SLOT_START          = 106,
+    KEYRING_SLOT_END            = 138,
 };
 
 enum ChildEquipmentSlots
 {
-    CHILD_EQUIPMENT_SLOT_START   = 208,
-    CHILD_EQUIPMENT_SLOT_END     = 211,
+    CHILD_EQUIPMENT_SLOT_START   = 138,
+    CHILD_EQUIPMENT_SLOT_END     = 141,
 };
 
 // slots past 214 are guessed (unused in client)
@@ -1328,11 +1328,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
                             if (Item* pItem = GetItemInBag(bag, j))
                                 if (callback(pItem) == ItemSearchCallbackResult::Stop)
                                     return false;
-
-                for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
-                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (callback(pItem) == ItemSearchCallbackResult::Stop)
-                            return false;
             }
 
             return true;
@@ -1367,8 +1362,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         static bool IsBagPos(uint16 pos);
         static bool IsBankPos(uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
         static bool IsBankPos(uint8 bag, uint8 slot);
-        static bool IsReagentBankPos(uint16 pos) { return IsReagentBankPos(pos >> 8, pos & 255); }
-        static bool IsReagentBankPos(uint8 bag, uint8 slot);
         static bool IsChildEquipmentPos(uint16 pos) { return IsChildEquipmentPos(pos >> 8, pos & 255); }
         static bool IsChildEquipmentPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) const { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
@@ -1403,7 +1396,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         InventoryResult CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
         InventoryResult CanUnequipItems(uint32 item, uint32 count) const;
         InventoryResult CanUnequipItem(uint16 src, bool swap) const;
-        InventoryResult CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true, bool reagentBankOnly = false) const;
+        InventoryResult CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true) const;
         InventoryResult CanUseItem(Item* pItem, bool not_loading = true) const;
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem, bool skipRequiredLevelCheck = false) const;
@@ -2700,10 +2693,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot);
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
-
-        // Reagent Bank
-        bool IsReagentBankUnlocked() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
-        void UnlockReagentBank() { SetPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
 
         void CreateGarrison(uint32 garrSiteId);
         void DeleteGarrison();
