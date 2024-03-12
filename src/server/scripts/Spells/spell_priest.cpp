@@ -162,6 +162,7 @@ enum PriestSpells
     SPELL_PRIEST_RENEWED_HOPE                       = 197469,
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
     SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
+    SPELL_PRIEST_RHAPSODY_PROC                      = 390636,
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SCHISM                             = 424509,
     SPELL_PRIEST_SCHISM_AURA                        = 214621,
@@ -2642,6 +2643,25 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
     }
 };
 
+// 390622 - Rhapsody
+class spell_pri_rhapsody : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_RHAPSODY_PROC });
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_RHAPSODY_PROC, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_rhapsody::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 47536 - Rapture
 class spell_pri_rapture : public SpellScript
 {
@@ -3241,6 +3261,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_purge_the_wicked);
     RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
+    RegisterSpellScript(spell_pri_rhapsody);
     RegisterSpellScript(spell_pri_schism);
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
