@@ -71,7 +71,7 @@ MovementGeneratorType WaypointMovementGenerator<Creature>::GetMovementGeneratorT
     return WAYPOINT_MOTION_TYPE;
 }
 
-void WaypointMovementGenerator<Creature>::Pause(uint32 timer/* = 0*/)
+void WaypointMovementGenerator<Creature>::Pause(uint32 timer)
 {
     if (timer)
     {
@@ -91,7 +91,7 @@ void WaypointMovementGenerator<Creature>::Pause(uint32 timer/* = 0*/)
     }
 }
 
-void WaypointMovementGenerator<Creature>::Resume(uint32 overrideTimer/* = 0*/)
+void WaypointMovementGenerator<Creature>::Resume(uint32 overrideTimer)
 {
     if (overrideTimer)
         _nextMoveTime.Reset(overrideTimer);
