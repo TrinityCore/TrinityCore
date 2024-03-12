@@ -18,7 +18,6 @@
  // This is where scripts' loading functions should be declared:
 void AddSC_assault_on_the_dark_portal();
 void AddSC_draenor_shadowmoon_valley();
-void AddSC_garrison_generic();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -26,5 +25,4 @@ void AddDraenorScripts()
 {
     AddSC_assault_on_the_dark_portal();
     AddSC_draenor_shadowmoon_valley();
-    AddSC_garrison_generic();
 }

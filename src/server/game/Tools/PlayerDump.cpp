@@ -101,11 +101,6 @@ DumpTable const DumpTables[] =
     { "character_declinedname",           DTT_CHAR_TABLE },
     { "character_favorite_auctions",      DTT_CHAR_TABLE },
     { "character_fishingsteps",           DTT_CHAR_TABLE },
-    { "character_garrison",               DTT_CHAR_TABLE },
-    { "character_garrison_blueprints",    DTT_CHAR_TABLE },
-    { "character_garrison_buildings",     DTT_CHAR_TABLE },
-    /// @todo: character_garrison_follower_abilities
-    /// @todo: character_garrison_followers
     { "character_glyphs",                 DTT_CHAR_TABLE },
     { "character_homebind",               DTT_CHAR_TABLE },
     { "character_inventory",              DTT_INVENTORY  },

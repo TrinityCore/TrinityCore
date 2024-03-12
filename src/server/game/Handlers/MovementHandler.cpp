@@ -21,7 +21,6 @@
 #include "DB2Stores.h"
 #include "FlightPathMovementGenerator.h"
 #include "GameTime.h"
-#include "Garrison.h"
 #include "InstanceLockMgr.h"
 #include "InstancePackets.h"
 #include "Log.h"
@@ -154,11 +153,7 @@ void WorldSession::HandleMoveWorldportAck()
     if (!seamlessTeleport)
         player->SendInitialPacketsAfterAddToMap();
     else
-    {
         player->UpdateVisibilityForPlayer();
-        if (Garrison* garrison = player->GetGarrison())
-            garrison->SendRemoteInfo();
-    }
 
     // flight fast teleport case
     if (player->IsInFlight())

@@ -54,7 +54,6 @@
 #include "GameObjectModel.h"
 #include "GameTables.h"
 #include "GameTime.h"
-#include "GarrisonMgr.h"
 #include "GitRevision.h"
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
@@ -2341,9 +2340,6 @@ void World::SetInitialWorldSettings()
     /*TC_LOG_INFO("server.loading", "Loading GM surveys...");
     sSupportMgr->LoadSurveys();*/
 
-    TC_LOG_INFO("server.loading", "Loading garrison info...");
-    sGarrisonMgr.Initialize();
-
     ///- Handle outdated emails (delete/return)
     TC_LOG_INFO("server.loading", "Returning old mails...");
     sObjectMgr->ReturnOrDeleteOldMails(false);
@@ -3528,10 +3524,6 @@ void World::DailyReset()
 {
     // reset all saved quest status
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_DAILY);
-    CharacterDatabase.Execute(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_GARRISON_FOLLOWER_ACTIVATIONS);
-    stmt->setUInt32(0, 1);
     CharacterDatabase.Execute(stmt);
 
     // reset all quest status in memory

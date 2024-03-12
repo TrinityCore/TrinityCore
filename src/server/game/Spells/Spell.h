@@ -387,13 +387,9 @@ class TC_GAME_API Spell
         void EffectCreateAreaTrigger();
         void EffectRemoveTalent();
         void EffectDestroyItem();
-        void EffectLearnGarrisonBuilding();
         void EffectRemoveAuraBySpellLabel();
-        void EffectCreateGarrison();
         void EffectCreateConversation();
         void EffectCancelConversation();
-        void EffectAddGarrisonFollower();
-        void EffectActivateGarrisonBuilding();
         void EffectGrantBattlePetLevel();
         void EffectGiveExperience();
         void EffectGiveRestedExperience();

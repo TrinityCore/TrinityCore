@@ -29,7 +29,6 @@
 
 class Battleground;
 class BattlegroundMap;
-class GarrisonMap;
 class Group;
 class InstanceLock;
 class InstanceMap;
@@ -140,7 +139,6 @@ class TC_GAME_API MapManager
         Map* CreateWorldMap(uint32 mapId, uint32 instanceId);
         InstanceMap* CreateInstance(uint32 mapId, uint32 instanceId, InstanceLock* instanceLock, Difficulty difficulty, TeamId team, Group* group);
         BattlegroundMap* CreateBattleground(uint32 mapId, uint32 instanceId, Battleground* bg);
-        GarrisonMap* CreateGarrison(uint32 mapId, uint32 instanceId, Player* owner);
 
         bool DestroyMap(Map* map);
 
