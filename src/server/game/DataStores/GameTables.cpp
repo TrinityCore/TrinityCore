@@ -16,7 +16,6 @@
  */
 
 #include "GameTables.h"
-#include "ItemTemplate.h"
 #include "Timer.h"
 #include "Log.h"
 #include "StringConvert.h"
@@ -150,10 +149,4 @@ void LoadGameTables(std::string const& dataPath)
     }
 
     TC_LOG_INFO("server.loading", ">> Initialized {} GameTables in {} ms", gameTableCount, GetMSTimeDiffToNow(oldMSTime));
-}
-
-template<class T>
-float GetIlvlStatMultiplier(T const* row, InventoryType invType)
-{
-    return 1.0f;
 }
