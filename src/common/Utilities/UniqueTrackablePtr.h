@@ -61,7 +61,7 @@ public:
 
     unique_trackable_ptr& operator=(unique_trackable_ptr&& other) noexcept
     {
-        _ptr = std::move(other);
+        _ptr = std::move(other._ptr);
         return *this;
     }
 
