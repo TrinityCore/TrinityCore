@@ -20,12 +20,10 @@
 #include "CreatureAI.h"
 #include "Errors.h"
 #include "Log.h"
-#include "Map.h"
 #include "MotionMaster.h"
-#include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
-#include "ObjectMgr.h"
+#include "MovementDefines.h"
 #include "Transport.h"
 #include "WaypointManager.h"
 #include <sstream>
@@ -54,7 +52,7 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath cons
     _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds), _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _isReturningToStart(false),
     _generatePath(generatePath)
 {
-    _path = &path;
+    _path = std::make_unique<WaypointPath>(path);
 
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -105,11 +103,11 @@ void WaypointMovementGenerator<Creature>::Resume(uint32 overrideTimer)
 bool WaypointMovementGenerator<Creature>::GetResetPosition(Unit* /*owner*/, float& x, float& y, float& z)
 {
     // prevent a crash at empty waypoint path.
-    if (!_path || _path->Nodes.empty())
+    if (!GetPath() || GetPath()->Nodes.empty())
         return false;
 
-    ASSERT(_currentNode < _path->Nodes.size(), "WaypointMovementGenerator::GetResetPosition: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->Id);
-    WaypointNode const &waypoint = _path->Nodes.at(_currentNode);
+    ASSERT(_currentNode < GetPath()->Nodes.size(), "WaypointMovementGenerator::GetResetPosition: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, GetPath()->Id);
+    WaypointNode const& waypoint = GetPath()->Nodes[_currentNode];
 
     x = waypoint.X;
     y = waypoint.Y;
@@ -129,15 +127,15 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
         _path = sWaypointMgr->GetPath(_pathId);
     }
 
-    if (!_path)
+    if (!GetPath())
     {
         TC_LOG_ERROR("sql.sql", "WaypointMovementGenerator::DoInitialize: couldn't load path for creature ({}) (_pathId: {})", owner->GetGUID().ToString(), _pathId);
         return;
     }
 
-    _followPathBackwardsFromEndToStart = _path->Flags.HasFlag(WaypointPathFlags::FollowPathBackwardsFromEndToStart);
+    _followPathBackwardsFromEndToStart = GetPath()->Flags.HasFlag(WaypointPathFlags::FollowPathBackwardsFromEndToStart);
 
-    if (_path->Nodes.size() == 1)
+    if (GetPath()->Nodes.size() == 1)
         _repeating = false;
 
     owner->StopMoving();
@@ -160,7 +158,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
     if (!owner || !owner->IsAlive())
         return true;
 
-    if (HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED | MOVEMENTGENERATOR_FLAG_PAUSED) || !_path || _path->Nodes.empty())
+    if (HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED | MOVEMENTGENERATOR_FLAG_PAUSED) || !GetPath() || GetPath()->Nodes.empty())
         return true;
 
     if (_duration)
@@ -266,21 +264,21 @@ void WaypointMovementGenerator<Creature>::DoFinalize(Creature* owner, bool activ
 
 void WaypointMovementGenerator<Creature>::MovementInform(Creature* owner)
 {
-    WaypointNode const& waypoint = _path->Nodes.at(_currentNode);
+    WaypointNode const& waypoint = GetPath()->Nodes[_currentNode];
     if (CreatureAI* AI = owner->AI())
     {
         AI->MovementInform(WAYPOINT_MOTION_TYPE, waypoint.Id);
-        AI->WaypointReached(waypoint.Id, _path->Id);
+        AI->WaypointReached(waypoint.Id, GetPath()->Id);
     }
 }
 
 void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
 {
-    if (!_path || _path->Nodes.empty())
+    if (!GetPath() || GetPath()->Nodes.empty())
         return;
 
-    ASSERT(_currentNode < _path->Nodes.size(), "WaypointMovementGenerator::OnArrived: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->Id);
-    WaypointNode const &waypoint = _path->Nodes.at(_currentNode);
+    ASSERT(_currentNode < GetPath()->Nodes.size(), "WaypointMovementGenerator::OnArrived: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, GetPath()->Id);
+    WaypointNode const& waypoint = GetPath()->Nodes[_currentNode];
     if (waypoint.Delay)
     {
         owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
@@ -288,7 +286,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
     }
 
     if (_waitTimeRangeAtPathEnd && _followPathBackwardsFromEndToStart
-        && ((_isReturningToStart && _currentNode == 0) || (!_isReturningToStart && _currentNode == _path->Nodes.size() - 1)))
+        && ((_isReturningToStart && _currentNode == 0) || (!_isReturningToStart && _currentNode == GetPath()->Nodes.size() - 1)))
     {
         owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         Milliseconds waitTime = randtime(_waitTimeRangeAtPathEnd->first, _waitTimeRangeAtPathEnd->second);
@@ -303,13 +301,13 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
 
     MovementInform(owner);
 
-    owner->UpdateCurrentWaypointInfo(waypoint.Id, _path->Id);
+    owner->UpdateCurrentWaypointInfo(waypoint.Id, GetPath()->Id);
 }
 
 void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaunch/* = false*/)
 {
     // sanity checks
-    if (!owner || !owner->IsAlive() || HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED) || !_path || _path->Nodes.empty() || (relaunch && (HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED) || !HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED))))
+    if (!owner || !owner->IsAlive() || HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED) || !GetPath() || GetPath()->Nodes.empty() || (relaunch && (HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED) || !HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED))))
         return;
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting() || (owner->IsFormationLeader() && !owner->IsFormationLeaderMoveAllowed())) // if cannot move OR cannot move because of formation
@@ -324,15 +322,15 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     {
         if (ComputeNextNode())
         {
-            ASSERT(_currentNode < _path->Nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->Id);
+            ASSERT(_currentNode < GetPath()->Nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, GetPath()->Id);
 
             // inform AI
             if (CreatureAI* AI = owner->AI())
-                AI->WaypointStarted(_path->Nodes[_currentNode].Id, _path->Id);
+                AI->WaypointStarted(GetPath()->Nodes[_currentNode].Id, GetPath()->Id);
         }
         else
         {
-            WaypointNode const& waypoint = _path->Nodes[_currentNode];
+            WaypointNode const& waypoint = GetPath()->Nodes[_currentNode];
             float x = waypoint.X;
             float y = waypoint.Y;
             float z = waypoint.Z;
@@ -356,7 +354,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
             // inform AI
             if (CreatureAI* AI = owner->AI())
-                AI->WaypointPathEnded(waypoint.Id, _path->Id);
+                AI->WaypointPathEnded(waypoint.Id, GetPath()->Id);
             return;
         }
     }
@@ -366,11 +364,11 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
         // inform AI
         if (CreatureAI* AI = owner->AI())
-            AI->WaypointStarted(_path->Nodes[_currentNode].Id, _path->Id);
+            AI->WaypointStarted(GetPath()->Nodes[_currentNode].Id, GetPath()->Id);
     }
 
-    ASSERT(_currentNode < _path->Nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->Id);
-    WaypointNode const &waypoint = _path->Nodes[_currentNode];
+    ASSERT(_currentNode < GetPath()->Nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, GetPath()->Id);
+    WaypointNode const &waypoint = GetPath()->Nodes[_currentNode];
 
     RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED | MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
 
@@ -386,10 +384,10 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     //! but formationDest contains global coordinates
     init.MoveTo(waypoint.X, waypoint.Y, waypoint.Z, _generatePath);
 
-    if (waypoint.Orientation.has_value() && (waypoint.Delay > 0 || _currentNode == _path->Nodes.size() - 1))
+    if (waypoint.Orientation.has_value() && (waypoint.Delay > 0 || _currentNode == GetPath()->Nodes.size() - 1))
         init.SetFacing(*waypoint.Orientation);
 
-    switch (_path->MoveType)
+    switch (GetPath()->MoveType)
     {
         case WaypointMoveType::Land:
             init.SetAnimation(AnimTier::Ground);
@@ -432,16 +430,16 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
 bool WaypointMovementGenerator<Creature>::ComputeNextNode()
 {
-    if ((_currentNode == _path->Nodes.size() - 1) && !_repeating)
+    if ((_currentNode == GetPath()->Nodes.size() - 1) && !_repeating)
         return false;
 
-    if (!_followPathBackwardsFromEndToStart || _path->Nodes.size() < WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES)
-        _currentNode = (_currentNode + 1) % _path->Nodes.size();
+    if (!_followPathBackwardsFromEndToStart || GetPath()->Nodes.size() < WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES)
+        _currentNode = (_currentNode + 1) % GetPath()->Nodes.size();
     else
     {
         if (!_isReturningToStart)
         {
-            if (++_currentNode >= _path->Nodes.size())
+            if (++_currentNode >= GetPath()->Nodes.size())
             {
                 _currentNode -= WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES;
                 _isReturningToStart = true;

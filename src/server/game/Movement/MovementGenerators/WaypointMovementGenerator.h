@@ -21,17 +21,18 @@
 #include "MovementGenerator.h"
 #include "PathMovementBase.h"
 #include "Timer.h"
+#include "WaypointDefines.h"
+#include <variant>
 
 class Creature;
 class Unit;
-struct WaypointPath;
 
 template<class T>
 class WaypointMovementGenerator;
 
 template<>
 class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creature, WaypointMovementGenerator<Creature>>,
-    public PathMovementBase<Creature, WaypointPath const*>
+    public PathMovementBase<Creature, std::variant<WaypointPath const*, std::unique_ptr<WaypointPath>>>
 {
     public:
         explicit WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
@@ -56,6 +57,8 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         bool DoUpdate(Creature*, uint32);
         void DoDeactivate(Creature*);
         void DoFinalize(Creature*, bool, bool);
+
+        WaypointPath const* GetPath() const { return std::visit([](auto&& path) -> WaypointPath const* { return std::addressof(*path); }, _path); }
 
         std::string GetDebugInfo() const override;
 
