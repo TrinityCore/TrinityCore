@@ -1,0 +1,58 @@
+-- Remove post cataclysm spawns
+-- Creatures
+SET @CGUIDSTART := 5000000;
+SET @CGUIDEND := 9999999;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `creature_formations` WHERE `leaderGUID` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `creature_formations` WHERE `memberGUID` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `creature_movement_override` WHERE `spawnId` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `game_event_creature` WHERE `guid` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `pool_members` WHERE `type`=0 AND `spawnId` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `spawn_group` WHERE `spawnType`=0 AND `spawnId` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid` BETWEEN -@CGUIDEND AND -@CGUIDSTART;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceId`=0 AND `SourceEntry` BETWEEN -@CGUIDEND AND -@CGUIDSTART;
+DELETE FROM `conversation_actors` WHERE `ConversationActorGuid` BETWEEN @CGUIDSTART AND @CGUIDEND;
+
+SET @CGUIDSTART := 450000;
+SET @CGUIDEND := 1249999;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `creature_formations` WHERE `leaderGUID` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `creature_formations` WHERE `memberGUID` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `creature_movement_override` WHERE `spawnId` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `game_event_creature` WHERE `guid` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `pool_members` WHERE `type`=0 AND `spawnId` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `spawn_group` WHERE `spawnType`=0 AND `spawnId` BETWEEN @CGUIDSTART AND @CGUIDEND;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid` BETWEEN -@CGUIDEND AND -@CGUIDSTART;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceId`=0 AND `SourceEntry` BETWEEN -@CGUIDEND AND -@CGUIDSTART;
+DELETE FROM `conversation_actors` WHERE `ConversationActorGuid` BETWEEN @CGUIDSTART AND @CGUIDEND;
+
+-- gameobjects
+SET @CGUIDSTART := 5000000;
+SET @CGUIDEND := 9999999;
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUIDSTART AND @OGUIDEND;
+DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUIDSTART AND @OGUIDEND;
+DELETE FROM `gameobject_overrides` WHERE `spawnId` BETWEEN @OGUIDSTART AND @OGUIDEND;
+DELETE FROM `game_event_gameobject` WHERE `guid` BETWEEN @OGUIDSTART AND @OGUIDEND;
+DELETE FROM `pool_members` WHERE `type`=1 AND `spawnId` BETWEEN @OGUIDSTART AND @OGUIDEND;
+DELETE FROM `spawn_group` WHERE `spawnType`=1 AND `spawnId` BETWEEN @OGUIDSTART AND @OGUIDEND;
+DELETE FROM `smart_scripts` WHERE `source_type`=1 AND `entryorguid` BETWEEN -@OGUIDEND AND -@OGUIDSTART;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceId`=1 AND `SourceEntry` BETWEEN -@OGUIDEND AND -@OGUIDSTART;
+
+SET @CGUIDSTART := 300000;
+SET @CGUIDEND := 699999;
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUIDSTART AND @OGUIDEND;
+DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUIDSTART AND @OGUIDEND;
+DELETE FROM `gameobject_overrides` WHERE `spawnId` BETWEEN @OGUIDSTART AND @OGUIDEND;
+DELETE FROM `game_event_gameobject` WHERE `guid` BETWEEN @OGUIDSTART AND @OGUIDEND;
+DELETE FROM `pool_members` WHERE `type`=1 AND `spawnId` BETWEEN @OGUIDSTART AND @OGUIDEND;
+DELETE FROM `spawn_group` WHERE `spawnType`=1 AND `spawnId` BETWEEN @OGUIDSTART AND @OGUIDEND;
+DELETE FROM `smart_scripts` WHERE `source_type`=1 AND `entryorguid` BETWEEN -@OGUIDEND AND -@OGUIDSTART;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceId`=1 AND `SourceEntry` BETWEEN -@OGUIDEND AND -@OGUIDSTART;
+
+-- Wipe all scenarios
+DELETE FROM `scenarios`;
+
+-- Wipe all scenes
+DELETE FROM `scene_template`;
