@@ -32,6 +32,7 @@
 #include "Position.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
+#include "UniqueTrackablePtr.h"
 #include "UpdateFields.h"
 #include <list>
 #include <unordered_map>
@@ -260,6 +261,8 @@ class TC_GAME_API Object
 
         virtual std::string GetDebugInfo() const;
 
+        Trinity::unique_weak_ptr<Object> GetWeakPtr() const { return m_scriptRef; }
+
         virtual Loot* GetLootForPlayer([[maybe_unused]] Player const* player) const { return nullptr; }
 
     protected:
@@ -398,6 +401,9 @@ class TC_GAME_API Object
         bool m_inWorld;
         bool m_isNewObject;
         bool m_isDestroyedObject;
+
+        struct NoopObjectDeleter { void operator()(Object*) const { /*noop - not managed*/ } };
+        Trinity::unique_trackable_ptr<Object> m_scriptRef;
 
         Object(Object const& right) = delete;
         Object(Object&& right) = delete;

@@ -22,12 +22,13 @@
 #include "DBCEnums.h"
 #include "Battleground.h"
 #include "BattlegroundQueue.h"
+#include "UniqueTrackablePtr.h"
 #include <unordered_map>
 
 class Battleground;
 struct BattlemasterListEntry;
 
-typedef std::map<uint32, Battleground*> BattlegroundContainer;
+typedef std::map<uint32, Trinity::unique_trackable_ptr<Battleground>> BattlegroundContainer;
 typedef std::set<uint32> BattlegroundClientIdsContainer;
 
 typedef std::unordered_map<uint32, BattlegroundTypeId> BattleMastersMap;
@@ -102,7 +103,6 @@ class TC_GAME_API BattlegroundMgr
         Battleground* CreateNewBattleground(BattlegroundQueueTypeId queueId, BattlegroundBracketId bracketId);
 
         void AddBattleground(Battleground* bg);
-        void RemoveBattleground(BattlegroundTypeId bgTypeId, uint32 instanceId);
         void AddToBGFreeSlotQueue(Battleground* bg);
         void RemoveFromBGFreeSlotQueue(uint32 mapId, uint32 instanceId);
         BGFreeSlotQueueContainer& GetBGFreeSlotQueueStore(uint32 mapId);
