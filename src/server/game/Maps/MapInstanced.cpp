@@ -97,10 +97,6 @@ void MapInstanced::UnloadAll()
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
         i->second->UnloadAll();
 
-    // Delete the maps only after everything is unloaded to prevent crashes
-    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
-        delete i->second;
-
     m_InstancedMaps.clear();
 
     // Unload own grids (just dummy(placeholder) grids, neccesary to unload GridMaps!)
@@ -237,7 +233,9 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     if (sWorld->getBoolConfig(CONFIG_INSTANCEMAP_LOAD_GRIDS))
         map->LoadAllCells();
 
-    m_InstancedMaps[InstanceId] = map;
+    Trinity::unique_trackable_ptr<Map>& ptr = m_InstancedMaps[InstanceId];
+    ptr.reset(map);
+    map->SetWeakPtr(ptr);
     return map;
 }
 
@@ -262,7 +260,9 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     map->SetBG(bg);
     bg->SetBgMap(map);
 
-    m_InstancedMaps[InstanceId] = map;
+    Trinity::unique_trackable_ptr<Map>& ptr = m_InstancedMaps[InstanceId];
+    ptr.reset(map);
+    map->SetWeakPtr(ptr);
     return map;
 }
 
@@ -292,7 +292,6 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
         sMapMgr->FreeInstanceId(itr->second->GetInstanceId());
 
     // erase map
-    delete itr->second;
     m_InstancedMaps.erase(itr++);
 
     return true;

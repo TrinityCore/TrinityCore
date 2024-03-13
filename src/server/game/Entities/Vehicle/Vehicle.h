@@ -20,8 +20,9 @@
 
 #include "ObjectDefines.h"
 #include "Object.h"
-#include "VehicleDefines.h"
+#include "UniqueTrackablePtr.h"
 #include "Unit.h"
+#include "VehicleDefines.h"
 #include <list>
 
 struct VehicleEntry;
@@ -30,14 +31,10 @@ class VehicleJoinEvent;
 
 class TC_GAME_API Vehicle : public TransportBase
 {
-    protected:
-        friend bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry);
+    public:
         Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
-
-        friend void Unit::RemoveVehicleKit();
         ~Vehicle();
 
-    public:
         void Install();
         void Uninstall();
         void Reset(bool evading = false);
@@ -72,6 +69,8 @@ class TC_GAME_API Vehicle : public TransportBase
         Milliseconds GetDespawnDelay();
 
         std::string GetDebugInfo() const;
+
+        Trinity::unique_weak_ptr<Vehicle> GetWeakPtr() const;
 
     protected:
         friend class VehicleJoinEvent;
