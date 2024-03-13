@@ -6943,24 +6943,13 @@ float Unit::SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSch
         case SPELL_DAMAGE_CLASS_NONE:
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
-            auto getPhysicalCritChance = [&]
-            {
-                return GetUnitCriticalChanceDone(attackType);
-            };
-
-            auto getMagicCritChance = [&]
-            {
-                if (Player const* thisPlayer = ToPlayer())
-                    return *thisPlayer->m_activePlayerData->SpellCritPercentage;
-
-                return m_baseSpellCritChance;
-            };
-
             if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
-                crit_chance = std::max(crit_chance, getPhysicalCritChance());
-
-            if (schoolMask & ~SPELL_SCHOOL_MASK_NORMAL)
-                crit_chance = std::max(crit_chance, getMagicCritChance());
+                crit_chance = 0.0f;
+            // For other schools
+            else if (Player const* thisPlayer = ToPlayer())
+                crit_chance = thisPlayer->m_activePlayerData->SpellCritPercentage[AsUnderlyingType(GetFirstSchoolInMask(schoolMask))];
+            else
+                crit_chance = (float)m_baseSpellCritChance;
             break;
         }
         case SPELL_DAMAGE_CLASS_MELEE:
@@ -7252,14 +7241,7 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
 
     // Healing done percent
     if (Player const* thisPlayer = ToPlayer())
-    {
-        float maxModDamagePercentSchool = 0.0f;
-        for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
-            if (spellProto->GetSchoolMask() & (1 << i))
-                maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, thisPlayer->m_activePlayerData->ModHealingDonePercent[i]);
-
-        DoneTotalMod *= maxModDamagePercentSchool;
-    }
+        DoneTotalMod *= thisPlayer->m_activePlayerData->ModHealingDonePercent;
     else // SPELL_AURA_MOD_HEALING_DONE_PERCENT is included in m_activePlayerData->ModHealingDonePercent for players
         DoneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
 
@@ -9260,14 +9242,10 @@ void Unit::UpdateResistances(uint32 school)
 
         float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
         value *= GetPctModifierValue(unitMod, BASE_PCT);
-
-        float baseValue = value;
-
         value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
         value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
         SetResistance(SpellSchools(school), int32(value));
-        SetBonusResistanceMod(SpellSchools(school), int32(value - baseValue));
     }
     else
         UpdateArmor();
@@ -9278,8 +9256,6 @@ float Unit::GetTotalAttackPowerValue(WeaponAttackType attType, bool includeWeapo
     if (attType == RANGED_ATTACK)
     {
         float ap = m_unitData->RangedAttackPower + m_unitData->RangedAttackPowerModPos + m_unitData->RangedAttackPowerModNeg;
-        if (includeWeapon)
-            ap += std::max<float>(m_unitData->MainHandWeaponAttackPower, m_unitData->RangedWeaponAttackPower);
         if (ap < 0)
             return 0.0f;
         return ap * (1.0f + m_unitData->RangedAttackPowerMultiplier);
@@ -9287,16 +9263,6 @@ float Unit::GetTotalAttackPowerValue(WeaponAttackType attType, bool includeWeapo
     else
     {
         float ap = m_unitData->AttackPower + m_unitData->AttackPowerModPos + m_unitData->AttackPowerModNeg;
-        if (includeWeapon)
-        {
-            if (attType == BASE_ATTACK)
-                ap += std::max<float>(m_unitData->MainHandWeaponAttackPower, m_unitData->RangedWeaponAttackPower);
-            else
-            {
-                ap += m_unitData->OffHandWeaponAttackPower;
-                ap /= 2;
-            }
-        }
         if (ap < 0)
             return 0.0f;
         return ap * (1.0f + m_unitData->AttackPowerMultiplier);

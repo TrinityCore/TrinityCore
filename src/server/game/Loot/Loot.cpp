@@ -568,7 +568,7 @@ ItemDisenchantLootEntry const* LootRoll::GetItemDisenchantLoot() const
         return nullptr;
 
     ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(m_lootItem->itemid);
-    uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, 1, 0, 0, 0, 0, false, 0);
+    uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, 1, 0, 0, 0, 0, false);
     return Item::GetDisenchantLoot(itemTemplate, bonusData.Quality, itemLevel);
 }
 

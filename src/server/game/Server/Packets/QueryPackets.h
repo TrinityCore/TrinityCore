@@ -70,6 +70,7 @@ namespace WorldPackets
             CreatureDisplayStats Display;
             float HpMulti = 0.0f;
             float EnergyMulti = 0.0f;
+            bool Civilian = false;
             bool Leader = false;
             std::vector<int32> QuestItems;
             std::vector<int32> QuestCurrencies;
@@ -85,6 +86,8 @@ namespace WorldPackets
             std::array<uint32, 2> ProxyCreatureID = { };
             std::array<std::string, 4> Name = { };
             std::array<std::string, 4> NameAlt = { };
+
+            uint32 PetSpellDataID = 0;
         };
 
         class QueryCreatureResponse final : public ServerPacket

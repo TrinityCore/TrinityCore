@@ -282,18 +282,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineAn
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineUnknown901 const& unk)
-{
-    for (WorldPackets::Movement::MonsterSplineUnknown901::Inner const& unkInner : unk.Data)
-    {
-        data << int32(unkInner.Unknown_1);
-        data << unkInner.Visual;
-        data << uint32(unkInner.Unknown_4);
-    }
-
-    return data;
-}
-
 ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline)
 {
     data << uint32(movementSpline.Flags);
@@ -312,7 +300,6 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     data.WriteBit(movementSpline.SpellEffectExtraData.has_value());
     data.WriteBit(movementSpline.JumpExtraData.has_value());
     data.WriteBit(movementSpline.AnimTierTransition.has_value());
-    data.WriteBit(movementSpline.Unknown901.has_value());
     data.FlushBits();
 
     if (movementSpline.SplineFilter)
@@ -346,9 +333,6 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
 
     if (movementSpline.AnimTierTransition)
         data << *movementSpline.AnimTierTransition;
-
-    if (movementSpline.Unknown901)
-        data << *movementSpline.Unknown901;
 
     return data;
 }

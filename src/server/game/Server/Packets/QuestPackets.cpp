@@ -104,8 +104,11 @@ WorldPacket const* QueryQuestInfoResponse::Write()
     {
         _worldPacket << int32(Info.QuestID);
         _worldPacket << int32(Info.QuestType);
+        _worldPacket << int32(Info.QuestLevel);
+        _worldPacket << int32(Info.QuestScalingFactionGroup);
+        _worldPacket << int32(Info.QuestMaxScalingLevel);
         _worldPacket << int32(Info.QuestPackageID);
-        _worldPacket << int32(Info.ContentTuningID);
+        _worldPacket << int32(Info.QuestMinLevel);
         _worldPacket << int32(Info.QuestSortID);
         _worldPacket << int32(Info.QuestInfoID);
         _worldPacket << int32(Info.SuggestedGroupNum);
@@ -116,7 +119,7 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << int32(Info.RewardMoneyDifficulty);
         _worldPacket << float(Info.RewardMoneyMultiplier);
         _worldPacket << int32(Info.RewardBonusMoney);
-        _worldPacket << uint32(Info.RewardDisplaySpell.size());
+        _worldPacket.append(Info.RewardDisplaySpell.data(), Info.RewardDisplaySpell.size());
         _worldPacket << int32(Info.RewardSpell);
         _worldPacket << int32(Info.RewardHonor);
         _worldPacket << float(Info.RewardKillHonor);
@@ -188,12 +191,6 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << int32(Info.QuestSessionBonus);
         _worldPacket << int32(Info.QuestGiverCreatureID);
 
-        _worldPacket << uint32(Info.ConditionalQuestDescription.size());
-        _worldPacket << uint32(Info.ConditionalQuestCompletionLog.size());
-
-        for (QuestCompleteDisplaySpell const& rewardDisplaySpell : Info.RewardDisplaySpell)
-            _worldPacket << rewardDisplaySpell;
-
         _worldPacket.WriteBits(Info.LogTitle.size(), 9);
         _worldPacket.WriteBits(Info.LogDescription.size(), 12);
         _worldPacket.WriteBits(Info.QuestDescription.size(), 12);
@@ -236,12 +233,6 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket.WriteString(Info.PortraitTurnInText);
         _worldPacket.WriteString(Info.PortraitTurnInName);
         _worldPacket.WriteString(Info.QuestCompletionLog);
-
-        for (ConditionalQuestText const& conditionalQuestText : Info.ConditionalQuestDescription)
-            _worldPacket << conditionalQuestText;
-
-        for (ConditionalQuestText const& conditionalQuestText : Info.ConditionalQuestCompletionLog)
-            _worldPacket << conditionalQuestText;
     }
 
     return &_worldPacket;

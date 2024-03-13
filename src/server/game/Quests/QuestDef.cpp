@@ -619,19 +619,6 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.PortraitGiverName = GetPortraitGiverName();
     response.Info.PortraitTurnInText = GetPortraitTurnInText();
     response.Info.PortraitTurnInName = GetPortraitTurnInName();
-    std::transform(GetConditionalQuestDescription().begin(), GetConditionalQuestDescription().end(), std::back_inserter(response.Info.ConditionalQuestDescription), [loc](QuestConditionalText const& text)
-    {
-        std::string_view content = text.Text[LOCALE_enUS];
-        ObjectMgr::GetLocaleString(text.Text, loc, content);
-        return WorldPackets::Quest::ConditionalQuestText { text.PlayerConditionId, text.QuestgiverCreatureId, content };
-    });
-
-    std::transform(GetConditionalQuestCompletionLog().begin(), GetConditionalQuestCompletionLog().end(), std::back_inserter(response.Info.ConditionalQuestCompletionLog), [loc](QuestConditionalText const& text)
-    {
-        std::string_view content = text.Text[LOCALE_enUS];
-        ObjectMgr::GetLocaleString(text.Text, loc, content);
-        return WorldPackets::Quest::ConditionalQuestText { text.PlayerConditionId, text.QuestgiverCreatureId, content };
-    });
 
     if (loc != LOCALE_enUS)
     {
@@ -651,7 +638,6 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
 
     response.Info.QuestID = GetQuestId();
     response.Info.QuestType = GetQuestType();
-    response.Info.ContentTuningID = GetContentTuningId();
     response.Info.QuestPackageID = GetQuestPackageID();
     response.Info.QuestSortID = GetZoneOrSort();
     response.Info.QuestInfoID = GetQuestInfoID();
@@ -666,12 +652,13 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.RewardMoneyDifficulty = GetRewMoneyDifficulty();
     response.Info.RewardMoneyMultiplier = GetMoneyMultiplier();
     response.Info.RewardBonusMoney = GetRewMoneyMaxLevel();
-    for (QuestRewardDisplaySpell displaySpell : RewardDisplaySpell)
+
+    for (uint8 i = 0; i < QUEST_REWARD_DISPLAY_SPELL_COUNT; ++i)
     {
-        WorldPackets::Quest::QuestCompleteDisplaySpell& rewardDisplaySpell = response.Info.RewardDisplaySpell.emplace_back();
-        rewardDisplaySpell.SpellID = displaySpell.SpellId;
-        rewardDisplaySpell.PlayerConditionID = displaySpell.PlayerConditionId;
-        rewardDisplaySpell.Type = int32(displaySpell.Type);
+        if (RewardDisplaySpell.empty() || RewardDisplaySpell.size() < i)
+            continue;
+
+        response.Info.RewardDisplaySpell[i] = RewardDisplaySpell[i].SpellId;
     }
 
     response.Info.RewardSpell = GetRewSpell();

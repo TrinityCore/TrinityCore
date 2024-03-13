@@ -17,8 +17,6 @@
 
 #include "Item.h"
 #include "ArtifactPackets.h"
-#include "AzeriteEmpoweredItem.h"
-#include "AzeriteItem.h"
 #include "Bag.h"
 #include "CollectionMgr.h"
 #include "Common.h"
@@ -54,12 +52,6 @@ Item* NewItemOrBag(ItemTemplate const* proto)
     if (proto->GetInventoryType() == INVTYPE_BAG)
         return new Bag();
 
-    if (sDB2Manager.IsAzeriteItem(proto->GetId()))
-        return new AzeriteItem();
-
-    if (sDB2Manager.GetAzeriteEmpoweredItem(proto->GetId()))
-        return new AzeriteEmpoweredItem();
-
     return new Item();
 }
 
@@ -89,7 +81,7 @@ void AddItemsSetItem(Player* player, Item const* item)
         {
             uint32 maxLevel = sDB2Manager.GetCurveXAxisRange(item->GetBonus()->PlayerLevelToItemLevelCurveId).second;
 
-            if (Optional<ContentTuningLevels> contentTuning = sDB2Manager.GetContentTuningData(item->GetBonus()->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask, true))
+            if (Optional<ContentTuningLevels> contentTuning = sDB2Manager.GetContentTuningData(item->GetBonus()->ContentTuningId, 0 /*player->m_playerData->CtrOptions->ContentTuningConditionMask*/, true))
                 maxLevel = std::min<uint32>(maxLevel, contentTuning->MaxLevel);
 
             if (player->GetLevel() > maxLevel)
@@ -308,9 +300,7 @@ ItemModifier const SecondaryAppearanceModifierSlotBySpec[MAX_SPECIALIZATIONS] =
 };
 
 void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo>* loadInfo,
-    PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult,
-    PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult,
-    PreparedQueryResult azeriteEmpoweredItemResult)
+    PreparedQueryResult artifactResult)
 {
     //                 0     1                       2                 3                   4                 5
     // SELECT a.itemGuid, a.xp, a.artifactAppearanceId, a.artifactTierId, ap.artifactPowerId, ap.purchasedRank FROM item_instance_artifact_powers ap LEFT JOIN item_instance_artifact a ON ap.itemGuid = a.itemGuid ...
@@ -344,100 +334,6 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             }
 
         } while (artifactResult->NextRow());
-    }
-
-    //                  0      1         2                  3
-    // SELECT iz.itemGuid, iz.xp, iz.level, iz.knowledgeLevel,
-    //                                 4                                             5                                             6                                             7                                             8
-    // iz.selectedAzeriteEssences1specId, iz.selectedAzeriteEssences1azeriteEssenceId1, iz.selectedAzeriteEssences1azeriteEssenceId2, iz.selectedAzeriteEssences1azeriteEssenceId3, iz.selectedAzeriteEssences1azeriteEssenceId4,
-    //                                 9                                            10                                            11                                            12                                            13
-    // iz.selectedAzeriteEssences2specId, iz.selectedAzeriteEssences2azeriteEssenceId1, iz.selectedAzeriteEssences2azeriteEssenceId2, iz.selectedAzeriteEssences2azeriteEssenceId3, iz.selectedAzeriteEssences2azeriteEssenceId4,
-    //                                14                                            15                                            16                                            17                                            18
-    // iz.selectedAzeriteEssences3specId, iz.selectedAzeriteEssences3azeriteEssenceId1, iz.selectedAzeriteEssences3azeriteEssenceId2, iz.selectedAzeriteEssences3azeriteEssenceId3, iz.selectedAzeriteEssences3azeriteEssenceId4,
-    //                                19                                            20                                            21                                            22                                            23
-    // iz.selectedAzeriteEssences4specId, iz.selectedAzeriteEssences4azeriteEssenceId1, iz.selectedAzeriteEssences4azeriteEssenceId2, iz.selectedAzeriteEssences4azeriteEssenceId3, iz.selectedAzeriteEssences4azeriteEssenceId4
-    // FROM item_instance_azerite iz INNER JOIN ...
-    if (azeriteItemResult)
-    {
-        do
-        {
-            Field* fields = azeriteItemResult->Fetch();
-            ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
-            if (!info.AzeriteItem)
-                info.AzeriteItem.emplace();
-            info.AzeriteItem->Xp = fields[1].GetUInt64();
-            info.AzeriteItem->Level = fields[2].GetUInt32();
-            info.AzeriteItem->KnowledgeLevel = fields[3].GetUInt32();
-            for (std::size_t i = 0; i < info.AzeriteItem->SelectedAzeriteEssences.size(); ++i)
-            {
-                uint32 specializationId = fields[4 + i * 4].GetUInt32();
-                if (!sChrSpecializationStore.LookupEntry(specializationId))
-                    continue;
-
-                info.AzeriteItem->SelectedAzeriteEssences[i].SpecializationId = specializationId;
-                for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)
-                {
-                    AzeriteEssenceEntry const* azeriteEssence = sAzeriteEssenceStore.LookupEntry(fields[5 + i * 5 + j].GetUInt32());
-                    if (!azeriteEssence || !sDB2Manager.IsSpecSetMember(azeriteEssence->SpecSetID, specializationId))
-                        continue;
-
-                    info.AzeriteItem->SelectedAzeriteEssences[i].AzeriteEssenceId[j] = azeriteEssence->ID;
-                }
-            }
-
-        } while (azeriteItemResult->NextRow());
-    }
-
-    //                    0                                 1
-    // SELECT iamp.itemGuid, iamp.azeriteItemMilestonePowerId FROM item_instance_azerite_milestone_power iamp INNER JOIN ...
-    if (azeriteItemMilestonePowersResult)
-    {
-        do
-        {
-            Field* fields = azeriteItemMilestonePowersResult->Fetch();
-            ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
-            if (!info.AzeriteItem)
-                info.AzeriteItem.emplace();
-            info.AzeriteItem->AzeriteItemMilestonePowers.push_back(fields[1].GetUInt32());
-        }
-        while (azeriteItemMilestonePowersResult->NextRow());
-    }
-
-    //                    0                      1           2
-    // SELECT iaue.itemGuid, iaue.azeriteEssenceId, iaue.`rank` FROM item_instance_azerite_unlocked_essence iaue INNER JOIN ...
-    if (azeriteItemUnlockedEssencesResult)
-    {
-        do
-        {
-            Field* fields = azeriteItemUnlockedEssencesResult->Fetch();
-            if (AzeriteEssencePowerEntry const* azeriteEssencePower = sDB2Manager.GetAzeriteEssencePower(fields[1].GetUInt32(), fields[2].GetUInt32()))
-            {
-                ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
-                if (!info.AzeriteItem)
-                    info.AzeriteItem.emplace();
-
-                info.AzeriteItem->UnlockedAzeriteEssences.push_back(azeriteEssencePower);
-            }
-        }
-        while (azeriteItemUnlockedEssencesResult->NextRow());
-    }
-
-    //                   0                    1                    2                    3                    4                    5
-    // SELECT iae.itemGuid, iae.azeritePowerId1, iae.azeritePowerId2, iae.azeritePowerId3, iae.azeritePowerId4, iae.azeritePowerId5 FROM item_instance_azerite_empowered iae INNER JOIN ...
-    if (azeriteEmpoweredItemResult)
-    {
-        do
-        {
-            Field* fields = azeriteEmpoweredItemResult->Fetch();
-            ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
-            if (!info.AzeriteEmpoweredItem)
-                info.AzeriteEmpoweredItem.emplace();
-
-            for (uint32 i = 0; i < MAX_AZERITE_EMPOWERED_TIER; ++i)
-                if (sAzeritePowerStore.LookupEntry(fields[1 + i].GetInt32()))
-                    info.AzeriteEmpoweredItem->SelectedAzeritePowers[i] = fields[1 + i].GetInt32();
-
-        } while (azeriteEmpoweredItemResult->NextRow());
     }
 }
 
@@ -1474,7 +1370,8 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::ID), 0);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Duration), 0);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Charges), 0);
-    SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Inactive), 0);
+    SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Field_A), 0);
+    SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Field_B), 0);
     SetState(ITEM_CHANGED, GetOwner());
 }
 
@@ -2283,23 +2180,17 @@ uint32 Item::GetItemLevel(Player const* owner) const
     uint32 minItemLevelCutoff = owner->m_unitData->MinItemLevelCutoff;
     uint32 maxItemLevel = itemTemplate->HasFlag(ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP) ? 0 : owner->m_unitData->MaxItemLevel;
     bool pvpBonus = owner->IsUsingPvpItemLevels();
-    uint32 azeriteLevel = 0;
-    if (AzeriteItem const* azeriteItem = ToAzeriteItem())
-        azeriteLevel = azeriteItem->GetEffectiveLevel();
     return Item::GetItemLevel(itemTemplate, _bonusData, owner->GetLevel(), GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL),
-        minItemLevel, minItemLevelCutoff, maxItemLevel, pvpBonus, azeriteLevel);
+        minItemLevel, minItemLevelCutoff, maxItemLevel, pvpBonus);
 }
 
 uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bonusData, uint32 level, uint32 fixedLevel,
-    uint32 minItemLevel, uint32 minItemLevelCutoff, uint32 maxItemLevel, bool pvpBonus, uint32 azeriteLevel)
+    uint32 minItemLevel, uint32 minItemLevelCutoff, uint32 maxItemLevel, bool pvpBonus)
 {
     if (!itemTemplate)
         return MIN_ITEM_LEVEL;
 
     uint32 itemLevel = itemTemplate->GetBaseItemLevel();
-    if (AzeriteLevelInfoEntry const* azeriteLevelInfo = sAzeriteLevelInfoStore.LookupEntry(azeriteLevel))
-        itemLevel = azeriteLevelInfo->ItemLevel;
-
     if (bonusData.PlayerLevelToItemLevelCurveId)
     {
         if (fixedLevel)

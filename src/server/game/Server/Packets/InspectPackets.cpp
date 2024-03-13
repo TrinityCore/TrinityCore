@@ -16,7 +16,6 @@
  */
 
 #include "InspectPackets.h"
-#include "AzeriteItem.h"
 #include "Item.h"
 #include "Player.h"
 
@@ -180,28 +179,6 @@ InspectItemData::InspectItemData(::Item const* item, uint8 index)
             gem.Item.Initialize(&gemData);
         }
         ++i;
-    }
-
-    if (AzeriteItem const* azeriteItem = item->ToAzeriteItem())
-    {
-        if (UF::SelectedAzeriteEssences const* essences = azeriteItem->GetSelectedAzeriteEssences())
-        {
-            for (uint8 slot = 0; slot < essences->AzeriteEssenceID.size(); ++slot)
-            {
-                AzeriteEssences.emplace_back();
-
-                AzeriteEssenceData& essence = AzeriteEssences.back();
-                essence.Index = slot;
-                essence.AzeriteEssenceID = essences->AzeriteEssenceID[slot];
-                if (essence.AzeriteEssenceID)
-                {
-                    essence.Rank = azeriteItem->GetEssenceRank(essence.AzeriteEssenceID);
-                    essence.SlotUnlocked = true;
-                }
-                else
-                    essence.SlotUnlocked = azeriteItem->HasUnlockedEssenceSlot(slot);
-            }
-        }
     }
 }
 

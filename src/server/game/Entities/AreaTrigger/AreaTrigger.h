@@ -100,8 +100,6 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         AuraEffect const* GetAuraEffect() const { return _aurEff; }
         uint32 GetTimeSinceCreated() const { return _timeSinceCreated; }
 
-        void SetHeightIgnoresScale(bool heightIgnoresScale) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::HeightIgnoresScale), heightIgnoresScale); }
-
         void SetOverrideScaleCurve(float overrideScale);
         void SetOverrideScaleCurve(std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset = {}, CurveInterpolationMode interpolation = CurveInterpolationMode::Linear);
         void ClearOverrideScaleCurve();

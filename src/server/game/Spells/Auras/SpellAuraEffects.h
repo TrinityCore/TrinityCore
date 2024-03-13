@@ -333,8 +333,6 @@ class TC_GAME_API AuraEffect
         void HandleTriggerSpellOnExpire(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleStoreTeleportReturnPoint(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleMountRestrictions(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleCosmeticMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModRequiredMountCapabilityFlags(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleSuppressItemPassiveEffectBySpellLabel(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleForceBreathBar(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 

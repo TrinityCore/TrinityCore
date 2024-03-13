@@ -169,6 +169,7 @@ namespace WorldPackets
             SquelchInfo Squelch;
             RafSystemFeatureInfo RAFSystem;
             std::vector<GameRuleValuePair> GameRuleValues;
+            std::string Field_16F = "";
         };
 
         struct DebugTimeEventInfo
@@ -202,9 +203,11 @@ namespace WorldPackets
             bool LiveRegionKeyBindingsCopyEnabled    = false;
             bool Unknown901CheckoutRelated           = false; // NYI
             bool AddonsDisabled                      = false;
+            bool IsSoMNotificationEnabled            = false; // NYI
             bool Unused1000                          = false;
             bool AccountSaveDataExportEnabled        = false;
             bool AccountLockedByExport               = false;
+            bool IsNameReservationEnabled            = false; // NYI
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 TokenPollTimeSeconds              = 0;     // NYI
@@ -224,6 +227,7 @@ namespace WorldPackets
             Optional<int32> LaunchETA;
             std::vector<DebugTimeEventInfo> DebugTimeEvents;
             int32 Unused1007                         = 0;
+            int32 Unused440                          = 0;
             Optional<std::string> RealmHiddenAlert;
         };
 
