@@ -135,7 +135,6 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sSpellScalingGameTable, "SpellScaling.txt");
     LOAD_GT(sTeamContributionPointsGameTable, "TeamContributionPoints.txt");
 
-
 #undef LOAD_GT
 
     // error checks
