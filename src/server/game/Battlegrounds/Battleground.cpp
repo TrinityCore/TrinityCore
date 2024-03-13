@@ -1101,7 +1101,14 @@ void Battleground::AddPlayer(Player* player)
 
     if ( GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
     {
-        player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
+        if (isArena())
+        {
+            player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
+        }
+        else
+        {
+            player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
+        }
         player->ResetAllPowers();
     }
 
