@@ -135,8 +135,11 @@ namespace WorldPackets
         {
             int32 QuestID                   = 0;
             int32 QuestType                 = 0; // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
-            int32 ContentTuningID           = 0;
+            int32 QuestLevel                = 0;
+            int32 QuestScalingFactionGroup  = 0;
+            int32 QuestMaxScalingLevel      = 0;
             int32 QuestPackageID            = 0;
+            int32 QuestMinLevel             = 0;
             int32 QuestSortID               = 0; // zone or sort to display in quest log
             int32 QuestInfoID               = 0;
             int32 SuggestedGroupNum         = 0;
@@ -147,7 +150,7 @@ namespace WorldPackets
             int32 RewardMoneyDifficulty     = 0;
             float RewardMoneyMultiplier     = 1.0f;
             int32 RewardBonusMoney          = 0;
-            std::vector<QuestCompleteDisplaySpell> RewardDisplaySpell; // reward spell, this spell will be displayed (icon)
+            std::array<int32, QUEST_REWARD_DISPLAY_SPELL_COUNT> RewardDisplaySpell; // reward spell, this spell will be displayed (icon)
             int32 RewardSpell               = 0;
             int32 RewardHonor               = 0;
             float RewardKillHonor           = 0.0f;
@@ -191,8 +194,6 @@ namespace WorldPackets
             int32 QuestSessionBonus         = 0;
             int32 QuestGiverCreatureID      = 0; // used to select ConditionalQuestText
             std::vector<QuestObjective> Objectives;
-            std::vector<ConditionalQuestText> ConditionalQuestDescription;
-            std::vector<ConditionalQuestText> ConditionalQuestCompletionLog;
             int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = { };
             int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = { };
             int32 ItemDrop[QUEST_ITEM_DROP_COUNT] = { };

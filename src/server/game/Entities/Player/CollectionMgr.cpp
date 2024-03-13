@@ -880,13 +880,9 @@ void CollectionMgr::SendFavoriteAppearances() const
     _owner->SendPacket(accountTransmogUpdate.Write());
 }
 
+// @TODO: Remove
 void CollectionMgr::LoadTransmogIllusions()
 {
-    Player* owner = _owner->GetPlayer();
-    boost::to_block_range(*_transmogIllusions, DynamicBitsetBlockOutputIterator([owner](uint32 blockValue)
-    {
-        owner->AddIllusionBlock(blockValue);
-    }));
 }
 
 void CollectionMgr::LoadAccountTransmogIllusions(PreparedQueryResult knownTransmogIllusions)
@@ -947,23 +943,9 @@ void CollectionMgr::SaveAccountTransmogIllusions(LoginDatabaseTransaction trans)
     }));
 }
 
-void CollectionMgr::AddTransmogIllusion(uint32 transmogIllusionId)
+// @TODO: Remove
+void CollectionMgr::AddTransmogIllusion(uint32 /*transmogIllusionId*/)
 {
-    Player* owner = _owner->GetPlayer();
-    if (_transmogIllusions->size() <= transmogIllusionId)
-    {
-        std::size_t numBlocks = _transmogIllusions->num_blocks();
-        _transmogIllusions->resize(transmogIllusionId + 1);
-        numBlocks = _transmogIllusions->num_blocks() - numBlocks;
-        while (numBlocks--)
-            owner->AddIllusionBlock(0);
-    }
-
-    _transmogIllusions->set(transmogIllusionId);
-    uint32 blockIndex = transmogIllusionId / 32;
-    uint32 bitIndex = transmogIllusionId % 32;
-
-    owner->AddIllusionFlag(blockIndex, 1 << bitIndex);
 }
 
 bool CollectionMgr::HasTransmogIllusion(uint32 transmogIllusionId) const

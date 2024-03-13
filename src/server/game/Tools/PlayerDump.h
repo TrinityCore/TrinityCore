@@ -52,9 +52,7 @@ enum DumpTableType
 
     DTT_ITEM_GIFT,      // <- item guids                    // character_gifts
 
-    DTT_ITEM_TABLE,     // <- item guids                    // item_instance_artifact, item_instance_artifact_powers, item_instance_azerite
-                                                            // item_instance_azerite_empowered, item_instance_azerite_milestone_power,
-                                                            // item_instance_azerite_unlocked_essence, item_instance_gems, item_instance_modifiers,
+    DTT_ITEM_TABLE,     // <- item guids                    // item_instance_artifact, item_instance_artifact_powers, item_instance_gems, item_instance_modifiers,
                                                             // item_instance_transmog
 
     DTT_PET,            //    -> pet guids collection       // character_pet

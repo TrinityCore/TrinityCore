@@ -4032,9 +4032,6 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
         }
     }
 
-    if (power->PowerType == POWER_MANA)
-        powerCost = float(powerCost) * (1.0f + unitCaster->m_unitData->ManaCostMultiplier);
-
     // power cost cannot become negative if initially positive
     if (initiallyNegative != (powerCost < 0))
         powerCost = 0;
@@ -4116,7 +4113,7 @@ inline float CalcPPMCritMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster
 
     float crit = player->m_activePlayerData->CritPercentage;
     float rangedCrit = player->m_activePlayerData->RangedCritPercentage;
-    float spellCrit = player->m_activePlayerData->SpellCritPercentage;
+    float spellCrit = player->m_activePlayerData->SpellCritPercentage[0];
 
     switch (mod->Param)
     {

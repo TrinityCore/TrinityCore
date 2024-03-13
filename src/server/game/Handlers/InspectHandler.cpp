@@ -17,7 +17,6 @@
 
 #include "WorldSession.h"
 #include "AchievementMgr.h"
-#include "AzeriteItem.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "InspectPackets.h"
@@ -70,10 +69,6 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
         inspectResult.GuildData->NumGuildMembers = guild->GetMembersCount();
         inspectResult.GuildData->AchievementPoints = guild->GetAchievementMgr().GetAchievementPoints();
     }
-
-    if (Item const* heartOfAzeroth = player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere))
-        if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
-            inspectResult.AzeriteLevel = azeriteItem->GetEffectiveLevel();
 
     inspectResult.ItemLevel = int32(player->GetAverageItemLevel());
     inspectResult.LifetimeMaxRank = player->m_activePlayerData->LifetimeMaxRank;

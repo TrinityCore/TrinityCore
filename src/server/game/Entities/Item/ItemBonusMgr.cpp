@@ -78,7 +78,7 @@ ItemContext GetContextForPlayer(MapDifficultyEntry const* mapDifficulty, Player 
 
     if (mapDifficulty->ItemContextPickerID)
     {
-        uint32 contentTuningId = sDB2Manager.GetRedirectedContentTuningId(mapDifficulty->ContentTuningID, player->m_playerData->CtrOptions->ContentTuningConditionMask);
+        uint32 contentTuningId = sDB2Manager.GetRedirectedContentTuningId(mapDifficulty->ContentTuningID, 0 /*player->m_playerData->CtrOptions->ContentTuningConditionMask*/);
 
         ItemContextPickerEntryEntry const* selectedPickerEntry = nullptr;
         for (ItemContextPickerEntryEntry const* itemContextPickerEntry : sItemContextPickerEntryStore)

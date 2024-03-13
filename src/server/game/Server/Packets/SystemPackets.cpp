@@ -130,13 +130,17 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
     _worldPacket.WriteBit(AddonsDisabled);
     _worldPacket.WriteBit(WarGamesEnabled);
+    _worldPacket.WriteBit(false);                   // unk, unused 4.4.0
+    _worldPacket.WriteBit(false);                   // unk, unused 4.4.0
     _worldPacket.WriteBit(ContentTrackingEnabled);
     _worldPacket.WriteBit(IsSellAllJunkEnabled);
+
     _worldPacket.WriteBit(IsGroupFinderEnabled);
     _worldPacket.WriteBit(IsLFDEnabled);
-
     _worldPacket.WriteBit(IsLFREnabled);
     _worldPacket.WriteBit(IsPremadeGroupEnabled);
+
+    _worldPacket.WriteBits(Field_16F.size(), 8);
 
     _worldPacket.FlushBits();
 
@@ -172,6 +176,9 @@ WorldPacket const* FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->Period);
         _worldPacket << int32(SessionAlert->DisplayTime);
     }
+
+    if (!Field_16F.empty())
+        _worldPacket.WriteString(Field_16F);
 
     {
         _worldPacket.WriteBit(Squelch.IsSquelched);
@@ -209,11 +216,15 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
     _worldPacket.WriteBit(false); // unused, 10.0.2
     _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
-    _worldPacket.WriteBit(false); // unused, 10.0.2
+    _worldPacket.WriteBit(IsNameReservationEnabled);
     _worldPacket.WriteBit(LaunchETA.has_value());
+    _worldPacket.WriteBit(false); // unused, 4.4.0
+    _worldPacket.WriteBit(false); // unused, 4.4.0
+
+    _worldPacket.WriteBit(false); // unused, 4.4.0
+    _worldPacket.WriteBit(IsSoMNotificationEnabled);
     _worldPacket.WriteBit(AddonsDisabled);
     _worldPacket.WriteBit(Unused1000);
-
     _worldPacket.WriteBit(AccountSaveDataExportEnabled);
     _worldPacket.WriteBit(AccountLockedByExport);
     _worldPacket.WriteBit(RealmHiddenAlert.has_value());
@@ -243,6 +254,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << PlayerNameQueryInterval;
     _worldPacket << uint32(DebugTimeEvents.size());
     _worldPacket << int32(Unused1007);
+    _worldPacket << int32(Unused440);
 
     if (LaunchETA)
         _worldPacket << int32(*LaunchETA);

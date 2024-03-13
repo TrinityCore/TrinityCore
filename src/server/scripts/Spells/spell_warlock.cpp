@@ -158,9 +158,10 @@ class spell_warl_chaos_bolt : public SpellScript
         return GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
+    // @TODO: Fix for 4.4.0
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetCaster()->ToPlayer()->m_activePlayerData->SpellCritPercentage));
+        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetCaster()->ToPlayer()->m_activePlayerData->SpellCritPercentage[0]));
     }
 
     void CalcCritChance(Unit const* /*victim*/, float& critChance)

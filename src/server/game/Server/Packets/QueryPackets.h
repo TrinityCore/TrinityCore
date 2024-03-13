@@ -67,11 +67,11 @@ namespace WorldPackets
             int32 CreatureType = 0;
             int32 CreatureFamily = 0;
             int32 Classification = 0;
-            uint32 PetSpellDataId = 0;
+            uint32 PetSpellDataID = 0;
             CreatureDisplayStats Display;
             float HpMulti = 0.0f;
             float EnergyMulti = 0.0f;
-            bool Cilivilan = false;
+            bool Civilian = false;
             bool Leader = false;
             std::vector<int32> QuestItems;
             std::vector<int32> QuestCurrencies;
