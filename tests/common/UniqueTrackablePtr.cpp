@@ -17,6 +17,7 @@
 
 #include "tc_catch2.h"
 
+#include "CompilerDefs.h"
 #include "UniqueTrackablePtr.h"
 
 struct TestObj
@@ -104,6 +105,12 @@ TEST_CASE("Trinity::unique_weak_ptr", "[UniqueTrackablePtr]")
     }
 }
 
+// disable warning about invalid reinterpret_cast, test intentionally tests this
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreinterpret-base-class"
+#endif
+
 TEST_CASE("Trinity::unique_strong_ref_ptr type casts", "[UniqueTrackablePtr]")
 {
     Trinity::unique_trackable_ptr<TestObj> ptr = Trinity::make_unique_trackable<TestObj3>();
@@ -152,3 +159,7 @@ TEST_CASE("Trinity::unique_strong_ref_ptr type casts", "[UniqueTrackablePtr]")
         REQUIRE(testObj2 == Trinity::dynamic_pointer_cast<TestObj4>(weak).lock());
     }
 }
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic pop
+#endif
