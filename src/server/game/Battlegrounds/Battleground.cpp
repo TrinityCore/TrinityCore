@@ -834,7 +834,7 @@ void Battleground::EndBattleground(uint32 winner)
         uint32 thrallsSocksWinner = winner_honor / 10;
         uint32 thrallsSocksLoser = loser_honor / 10;
         // Reward winner team
-        if (team == winner && GetStartDelayTime() <= 0)
+        if (team == winner && GetStartDelayTime() <= 0 && (GetStartTime() >= .5f * MINUTE * IN_MILLISECONDS))
         {
             player->ModifyHonorPoints(winner_honor);
                 if (CanAwardArenaPoints())
@@ -863,7 +863,7 @@ void Battleground::EndBattleground(uint32 winner)
                 }
             }
         }
-        else if (GetStartDelayTime() <= 0)
+        else if (GetStartDelayTime() <= 0 && (GetStartTime() >= .5f * MINUTE * IN_MILLISECONDS))
         {
             player->ModifyHonorPoints(loser_honor);
             player->ModifyMoney(loser_money);
