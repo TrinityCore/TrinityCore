@@ -1430,6 +1430,8 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool IsMovementPreventedByCasting() const;
         bool CanCastSpellWhileMoving(SpellInfo const* spellInfo) const;
 
+        bool IsSilenced() const { return HasUnitFlag(UNIT_FLAG_SILENCED); };
+
         SpellHistory* GetSpellHistory() { return _spellHistory.get(); }
         SpellHistory const* GetSpellHistory() const { return _spellHistory.get(); }
 

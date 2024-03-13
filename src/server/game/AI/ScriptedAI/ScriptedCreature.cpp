@@ -341,9 +341,9 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
     if (!target)
         return nullptr;
 
-    // Silenced so we can't cast @TODO: 4.4.0
-    // if (me->HasUnitFlag(UNIT_FLAG_SILENCED))
-    //     return nullptr;
+    // Silenced so we can't cast
+    if (me->IsSilenced())
+        return nullptr;
 
     // Using the extended script system we first create a list of viable spells
     SpellInfo const* apSpell[MAX_CREATURE_SPELLS];

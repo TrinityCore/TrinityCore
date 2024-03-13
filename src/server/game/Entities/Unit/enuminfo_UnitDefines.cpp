@@ -44,7 +44,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
         case UNIT_FLAG_LOOTING: return { "UNIT_FLAG_LOOTING", "UNIT_FLAG_LOOTING", "loot animation" };
         case UNIT_FLAG_PET_IN_COMBAT: return { "UNIT_FLAG_PET_IN_COMBAT", "UNIT_FLAG_PET_IN_COMBAT", "on player pets: whether the pet is chasing a target to attack || on other units: whether any of the unit's minions is in combat" };
         case UNIT_FLAG_PVP_ENABLING: return { "UNIT_FLAG_PVP_ENABLING", "UNIT_FLAG_PVP_ENABLING", "changed in 3.0.3, now UNIT_BYTES_2_OFFSET_PVP_FLAG from UNIT_FIELD_BYTES_2" };
-        case UNIT_FLAG_FORCE_NAMEPLATE: return { "UNIT_FLAG_FORCE_NAMEPLATE", "UNIT_FLAG_FORCE_NAMEPLATE", "Force show nameplate, 9.0" };
+        case UNIT_FLAG_SILENCED: return { "UNIT_FLAG_SILENCED", "UNIT_FLAG_SILENCED", "Silenced" };
         case UNIT_FLAG_CANT_SWIM: return { "UNIT_FLAG_CANT_SWIM", "Can't Swim", "" };
         case UNIT_FLAG_CAN_SWIM: return { "UNIT_FLAG_CAN_SWIM", "Can Swim", "shows swim animation in water" };
         case UNIT_FLAG_NON_ATTACKABLE_2: return { "UNIT_FLAG_NON_ATTACKABLE_2", "UNIT_FLAG_NON_ATTACKABLE_2", "removes attackable icon, if on yourself, cannot assist self but can cast TARGET_SELF spells - added by SPELL_AURA_MOD_UNATTACKABLE" };
@@ -88,7 +88,7 @@ TC_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
         case 10: return UNIT_FLAG_LOOTING;
         case 11: return UNIT_FLAG_PET_IN_COMBAT;
         case 12: return UNIT_FLAG_PVP_ENABLING;
-        case 13: return UNIT_FLAG_FORCE_NAMEPLATE;
+        case 13: return UNIT_FLAG_SILENCED;
         case 14: return UNIT_FLAG_CANT_SWIM;
         case 15: return UNIT_FLAG_CAN_SWIM;
         case 16: return UNIT_FLAG_NON_ATTACKABLE_2;
@@ -129,7 +129,7 @@ TC_API_EXPORT size_t EnumUtils<UnitFlags>::ToIndex(UnitFlags value)
         case UNIT_FLAG_LOOTING: return 10;
         case UNIT_FLAG_PET_IN_COMBAT: return 11;
         case UNIT_FLAG_PVP_ENABLING: return 12;
-        case UNIT_FLAG_FORCE_NAMEPLATE: return 13;
+        case UNIT_FLAG_SILENCED: return 13;
         case UNIT_FLAG_CANT_SWIM: return 14;
         case UNIT_FLAG_CAN_SWIM: return 15;
         case UNIT_FLAG_NON_ATTACKABLE_2: return 16;
