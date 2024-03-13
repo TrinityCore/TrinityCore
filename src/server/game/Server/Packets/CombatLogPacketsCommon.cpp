@@ -78,7 +78,6 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attac
     TargetLevel = target->GetLevel();
     Expansion = creatureDifficulty->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(attacker->m_unitData->ScalingLevelDelta);
-    TargetContentTuningID = creatureDifficulty->ContentTuningID;
     return true;
 }
 
@@ -96,14 +95,13 @@ bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacke
     TargetLevel = target->GetLevel();
     Expansion = creatureDifficulty->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(target->m_unitData->ScalingLevelDelta);
-    TargetContentTuningID = creatureDifficulty->ContentTuningID;
     return true;
 }
 
 template<>
 bool ContentTuningParams::GenerateDataForUnits<Creature, Creature>(Creature* attacker, Creature* target)
 {
-    Creature* accessor = target->HasScalableLevels() ? target : attacker;
+    Creature* accessor = attacker;
     CreatureTemplate const* creatureTemplate = accessor->GetCreatureTemplate();
     CreatureDifficulty const* creatureDifficulty = creatureTemplate->GetDifficulty(accessor->GetMap()->GetDifficultyID());
 
@@ -113,7 +111,6 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Creature>(Creature* att
     TargetLevel = target->GetLevel();
     Expansion = creatureDifficulty->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(accessor->m_unitData->ScalingLevelDelta);
-    TargetContentTuningID = creatureDifficulty->ContentTuningID;
     return true;
 }
 
@@ -121,28 +118,8 @@ template<>
 bool ContentTuningParams::GenerateDataForUnits<Unit, Unit>(Unit* attacker, Unit* target)
 {
     if (Player* playerAttacker = Object::ToPlayer(attacker))
-    {
         if (Player* playerTarget = Object::ToPlayer(target))
             return GenerateDataForUnits(playerAttacker, playerTarget);
-        else if (Creature* creatureTarget = Object::ToCreature(target))
-        {
-            if (creatureTarget->HasScalableLevels())
-                return GenerateDataForUnits(playerAttacker, creatureTarget);
-        }
-    }
-    else if (Creature* creatureAttacker = Object::ToCreature(attacker))
-    {
-        if (Player* playerTarget = Object::ToPlayer(target))
-        {
-            if (creatureAttacker->HasScalableLevels())
-                return GenerateDataForUnits(creatureAttacker, playerTarget);
-        }
-        else if (Creature* creatureTarget = Object::ToCreature(target))
-        {
-            if (creatureAttacker->HasScalableLevels() || creatureTarget->HasScalableLevels())
-                return GenerateDataForUnits(creatureAttacker, creatureTarget);
-        }
-    }
 
     return false;
 }

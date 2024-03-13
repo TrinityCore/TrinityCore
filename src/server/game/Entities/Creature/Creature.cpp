@@ -177,6 +177,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
 
     WorldPackets::Query::CreatureStats& stats = queryTemp.Stats;
 
+    stats.Civilian = Civilian;
     stats.Leader = RacialLeader;
 
     stats.Name[0] = Name;
@@ -188,6 +189,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
     stats.CreatureType = type;
     stats.CreatureFamily = family;
     stats.Classification = uint32(Classification);
+    stats.PetSpellDataID = PetSpellDataID;
 
     for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
         stats.ProxyCreatureID[i] = KillCredit[i];
@@ -251,9 +253,8 @@ CreatureDifficulty const* CreatureTemplate::GetDifficulty(Difficulty difficulty)
     {
         DefaultCreatureDifficulty()
         {
-            DeltaLevelMin = 0;
-            DeltaLevelMax = 0;
-            ContentTuningID = 0;
+            MinLevel = 1;
+            MaxLevel = 1;
             HealthScalingExpansion = 0;
             HealthModifier = 1.f;
             ManaModifier = 1.f;
@@ -620,17 +621,15 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     if (updateLevel)
         SelectLevel();
-    else if (!IsGuardian())
+
+    // Do not update guardian stats here - they are handled in Guardian::InitStatsForLevel()
+    if (!IsGuardian())
     {
         uint32 previousHealth = GetHealth();
         UpdateLevelDependantStats(); // We still re-initialize level dependant stats on entry update
         if (previousHealth > 0)
             SetHealth(previousHealth);
-    }
 
-    // Do not update guardian stats here - they are handled in Guardian::InitStatsForLevel()
-    if (!IsGuardian())
-    {
         SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
         SetStatFlatModifier(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_HOLY]));
         SetStatFlatModifier(UNIT_MOD_RESISTANCE_FIRE,   BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_FIRE]));
@@ -1568,25 +1567,23 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
 void Creature::SelectLevel()
 {
     // Level
-    ApplyLevelScaling();
-    int32 levelWithDelta = m_unitData->ScalingLevelMax + m_unitData->ScalingLevelDelta;
-    uint8 level = RoundToInterval<int32>(levelWithDelta, 1, STRONG_MAX_LEVEL);
-    SetLevel(level);
-
-    UpdateLevelDependantStats();
+    CreatureDifficulty const* difficulty = GetCreatureDifficulty();
+    if (difficulty->MinLevel != difficulty->MaxLevel)
+        SetLevel(urand(difficulty->MinLevel, difficulty->MaxLevel));
+    else
+        SetLevel(difficulty->MinLevel);
 }
 
 void Creature::UpdateLevelDependantStats()
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
     CreatureClassifications classification = IsPet() ? CreatureClassifications::Normal : cInfo->Classification;
-    uint8 level = GetLevel();
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(GetLevel(), cInfo->unit_class);
 
     // health
     float healthmod = GetHealthMod(classification);
 
-    uint32 basehp = GetMaxHealthByLevel(level);
+    uint32 basehp = stats->GenerateHealth(m_creatureDifficulty);
     uint32 health = uint32(basehp * healthmod);
 
     SetCreateHealth(health);
@@ -1611,7 +1608,7 @@ void Creature::UpdateLevelDependantStats()
     }
 
     // damage
-    float basedamage = GetBaseDamageForLevel(level);
+    float basedamage = stats->GenerateBaseDamage(m_creatureDifficulty);
 
     float weaponBaseMinDamage = basedamage;
     float weaponBaseMaxDamage = basedamage * 1.5f;
@@ -1628,7 +1625,7 @@ void Creature::UpdateLevelDependantStats()
     SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
     SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
 
-    float armor = GetBaseArmorForLevel(level);
+    float armor = (float)stats->GenerateArmor(m_creatureDifficulty); /// @todo Why is this treated as uint32 when it's a float?
     SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, armor);
 }
 
@@ -3008,84 +3005,6 @@ void Creature::UpdateNearbyPlayersInteractions()
     }
 }
 
-bool Creature::HasScalableLevels() const
-{
-    return m_unitData->ContentTuningID != 0;
-}
-
-void Creature::ApplyLevelScaling()
-{
-    CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-
-    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(creatureDifficulty->ContentTuningID, 0))
-    {
-        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMin), levels->MinLevel);
-        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMax), levels->MaxLevel);
-    }
-
-    int32 mindelta = std::min(creatureDifficulty->DeltaLevelMax, creatureDifficulty->DeltaLevelMin);
-    int32 maxdelta = std::max(creatureDifficulty->DeltaLevelMax, creatureDifficulty->DeltaLevelMin);
-    int32 delta = mindelta == maxdelta ? mindelta : irand(mindelta, maxdelta);
-
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelDelta), delta);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ContentTuningID), creatureDifficulty->ContentTuningID);
-}
-
-uint64 Creature::GetMaxHealthByLevel(uint8 level) const
-{
-    CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-    float baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
-    return std::max(baseHealth * creatureDifficulty->HealthModifier, 1.0f);
-}
-
-float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
-{
-    if (!HasScalableLevels())
-        return 1.0f;
-
-    uint8 levelForTarget = GetLevelForTarget(target);
-    if (GetLevel() < levelForTarget)
-        return 1.0f;
-
-    return double(GetMaxHealthByLevel(levelForTarget)) / double(GetCreateHealth());
-}
-
-float Creature::GetBaseDamageForLevel(uint8 level) const
-{
-    CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-    return sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureAutoAttackDps, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
-}
-
-float Creature::GetDamageMultiplierForTarget(WorldObject const* target) const
-{
-    if (!HasScalableLevels())
-        return 1.0f;
-
-    uint8 levelForTarget = GetLevelForTarget(target);
-
-    return GetBaseDamageForLevel(levelForTarget) / GetBaseDamageForLevel(GetLevel());
-}
-
-float Creature::GetBaseArmorForLevel(uint8 level) const
-{
-    CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-    float baseArmor = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureArmor, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
-    return baseArmor * creatureDifficulty->ArmorModifier;
-}
-
-float Creature::GetArmorMultiplierForTarget(WorldObject const* target) const
-{
-    if (!HasScalableLevels())
-        return 1.0f;
-
-    uint8 levelForTarget = GetLevelForTarget(target);
-
-    return GetBaseArmorForLevel(levelForTarget) / GetBaseArmorForLevel(GetLevel());
-}
-
 uint8 Creature::GetLevelForTarget(WorldObject const* target) const
 {
     if (Unit const* unitTarget = target->ToUnit())
@@ -3094,34 +3013,6 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
         {
             uint8 level = unitTarget->GetLevel() + sWorld->getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
             return RoundToInterval<uint8>(level, 1u, 255u);
-        }
-
-        // If this creature should scale level, adapt level depending of target level
-        // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
-        if (HasScalableLevels())
-        {
-            int32 scalingLevelMin = m_unitData->ScalingLevelMin;
-            int32 scalingLevelMax = m_unitData->ScalingLevelMax;
-            int32 scalingLevelDelta = m_unitData->ScalingLevelDelta;
-            int32 scalingFactionGroup = m_unitData->ScalingFactionGroup;
-            int32 targetLevel = unitTarget->m_unitData->EffectiveLevel;
-            if (!targetLevel)
-                targetLevel = unitTarget->GetLevel();
-
-            int32 targetLevelDelta = 0;
-
-            if (Player const* playerTarget = target->ToPlayer())
-            {
-                if (scalingFactionGroup && sFactionTemplateStore.AssertEntry(sChrRacesStore.AssertEntry(playerTarget->GetRace())->FactionID)->FactionGroup != scalingFactionGroup)
-                    scalingLevelMin = scalingLevelMax;
-
-                int32 maxCreatureScalingLevel = playerTarget->m_activePlayerData->MaxCreatureScalingLevel;
-                targetLevelDelta = std::min(maxCreatureScalingLevel > 0 ? maxCreatureScalingLevel - targetLevel : 0, *playerTarget->m_activePlayerData->ScalingPlayerLevelDelta);
-            }
-
-            int32 levelWithDelta = targetLevel + targetLevelDelta;
-            int32 level = RoundToInterval(levelWithDelta, scalingLevelMin, scalingLevelMax) + scalingLevelDelta;
-            return RoundToInterval(level, 1, MAX_LEVEL + 3);
         }
     }
 
