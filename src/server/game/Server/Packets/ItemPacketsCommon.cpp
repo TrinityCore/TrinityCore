@@ -200,6 +200,8 @@ ByteBuffer& operator>>(ByteBuffer& data, ItemModList& itemModList)
 ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance)
 {
     data << int32(itemInstance.ItemID);
+    data << int32(itemInstance.RandomPropertiesSeed);
+    data << int32(itemInstance.RandomPropertiesID);
 
     data.WriteBit(itemInstance.ItemBonus.has_value());
     data.FlushBits();
@@ -215,6 +217,8 @@ ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance)
 ByteBuffer& operator>>(ByteBuffer& data, ItemInstance& itemInstance)
 {
     data >> itemInstance.ItemID;
+    data >> itemInstance.RandomPropertiesSeed;
+    data >> itemInstance.RandomPropertiesID;
 
     bool hasItemBonus = data.ReadBit();
     data.ResetBitPos();

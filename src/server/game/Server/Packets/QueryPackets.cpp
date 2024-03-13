@@ -87,6 +87,8 @@ WorldPacket const* QueryCreatureResponse::Write()
             _worldPacket.WriteBits(Stats.NameAlt[i].length() + 1, 11);
         }
 
+        _worldPacket.FlushBits();
+
         for (std::size_t i = 0; i < Stats.Name.size(); ++i)
         {
             if (!Stats.Name[i].empty())

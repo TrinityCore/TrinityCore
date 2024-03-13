@@ -1,0 +1,15 @@
+DROP TABLE IF EXISTS `azerite_unlock_mapping`;
+DROP TABLE IF EXISTS `broadcast_text_duration`;
+DROP TABLE IF EXISTS `challenge_mode_item_bonus_override`;
+DROP TABLE IF EXISTS `content_tuning_x_expected`;
+DROP TABLE IF EXISTS `content_tuning_x_label`;
+DROP TABLE IF EXISTS `corruption_effects`;
+DROP TABLE IF EXISTS `global_curve`;
+DROP TABLE IF EXISTS `item_bonus_list_entry`;
+DROP TABLE IF EXISTS `item_bonus_tree`;
+DROP TABLE IF EXISTS `item_x_item_effect`;
+DROP TABLE IF EXISTS `maw_power`;
+DROP TABLE IF EXISTS `pvp_stat`;
+DROP TABLE IF EXISTS `soulbind_conduit_rank`;
+DROP TABLE IF EXISTS `transmog_illusion`;
+DROP TABLE IF EXISTS `ui_splash_screen`;

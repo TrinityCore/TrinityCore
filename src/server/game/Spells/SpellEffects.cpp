@@ -5321,7 +5321,6 @@ void Spell::EffectDestroyItem()
         player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
 
-
 void Spell::EffectRemoveAuraBySpellLabel()
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
