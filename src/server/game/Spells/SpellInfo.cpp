@@ -606,7 +606,6 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
                 if (GtStaminaMultByILvl const* staminaMult = sStaminaMultByILvlGameTable.GetRow(effectiveItemLevel))
                     if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
                         value *= GetIlvlStatMultiplier(staminaMult, InventoryType(itemSparse->InventoryType));
-            
         }
         */
 

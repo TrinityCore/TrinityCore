@@ -78,6 +78,7 @@ WorldPacket const* QueryCreatureResponse::Write()
         _worldPacket.WriteBits(Stats.Title.length() + 1, 11);
         _worldPacket.WriteBits(Stats.TitleAlt.length() + 1, 11);
         _worldPacket.WriteBits(Stats.CursorName.length() + 1, 6);
+        _worldPacket.WriteBit(Stats.Cilivilan);
         _worldPacket.WriteBit(Stats.Leader);
 
         for (std::size_t i = 0; i < Stats.Name.size(); ++i)
@@ -85,6 +86,8 @@ WorldPacket const* QueryCreatureResponse::Write()
             _worldPacket.WriteBits(Stats.Name[i].length() + 1, 11);
             _worldPacket.WriteBits(Stats.NameAlt[i].length() + 1, 11);
         }
+
+        _worldPacket.FlushBits();
 
         for (std::size_t i = 0; i < Stats.Name.size(); ++i)
         {
@@ -99,6 +102,7 @@ WorldPacket const* QueryCreatureResponse::Write()
         _worldPacket << int32(Stats.CreatureType);
         _worldPacket << int32(Stats.CreatureFamily);
         _worldPacket << int32(Stats.Classification);
+        _worldPacket << uint32(Stats.PetSpellDataId);
         _worldPacket.append(Stats.ProxyCreatureID.data(), Stats.ProxyCreatureID.size());
         _worldPacket << uint32(Stats.Display.CreatureDisplay.size());
         _worldPacket << float(Stats.Display.TotalProbability);
