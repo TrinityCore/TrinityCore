@@ -65,7 +65,8 @@ MapManager* MapManager::instance()
 
 Map* MapManager::FindMap_i(uint32 mapId, uint32 instanceId) const
 {
-    return Trinity::Containers::MapGetValuePtr(i_maps, { mapId, instanceId });
+    auto itr = i_maps.find({ mapId, instanceId });
+    return itr != i_maps.end() ? itr->second.get() : nullptr;
 }
 
 Map* MapManager::CreateWorldMap(uint32 mapId, uint32 instanceId)
@@ -230,7 +231,14 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
     }
 
     if (map)
-        i_maps[{ map->GetId(), map->GetInstanceId() }] = map;
+    {
+        Trinity::unique_trackable_ptr<Map>& ptr = i_maps[{ map->GetId(), map->GetInstanceId() }];
+        if (ptr.get() != map)
+        {
+            ptr.reset(map);
+            map->SetWeakPtr(ptr);
+        }
+    }
 
     return map;
 }
@@ -295,7 +303,7 @@ void MapManager::Update(uint32 diff)
     {
         if (iter->second->CanUnload(diff))
         {
-            if (DestroyMap(iter->second))
+            if (DestroyMap(iter->second.get()))
                 iter = i_maps.erase(iter);
             else
                 ++iter;
@@ -332,7 +340,6 @@ bool MapManager::DestroyMap(Map* map)
         sMapMgr->FreeInstanceId(map->GetInstanceId());
 
     // erase map
-    delete map;
     return true;
 }
 
@@ -348,9 +355,6 @@ void MapManager::UnloadAll()
         iter->second->UnloadAll();
 
     // then delete them
-    for (auto iter = i_maps.begin(); iter != i_maps.end(); ++iter)
-        delete iter->second;
-
     i_maps.clear();
 
     if (m_updater.activated())
