@@ -87,8 +87,6 @@ namespace WorldPackets
             std::array<uint32, 2> ProxyCreatureID = { };
             std::array<std::string, 4> Name = { };
             std::array<std::string, 4> NameAlt = { };
-
-            uint32 PetSpellDataID = 0;
         };
 
         class QueryCreatureResponse final : public ServerPacket
