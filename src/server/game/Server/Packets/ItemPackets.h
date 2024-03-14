@@ -352,13 +352,9 @@ namespace WorldPackets
             uint32 BattlePetBreedQuality    = 0;
             int32 BattlePetLevel            = 0;
             ObjectGuid ItemGUID;
-            std::vector<UiEventToast> Toasts;
-            Optional<Crafting::CraftingData> CraftingData;
-            Optional<uint32> FirstCraftOperationID;
             bool Pushed                     = false;
             DisplayType DisplayText         = DISPLAY_TYPE_HIDDEN;
             bool Created                    = false;
-            bool Unused_1017                = false;
             bool IsBonusRoll                = false;
             bool IsEncounterLoot            = false;
         };

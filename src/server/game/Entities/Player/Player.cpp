@@ -16958,7 +16958,6 @@ void Player::SendQuestUpdateAddItem(ItemTemplate const* itemTemplate, QuestObjec
     packet.Quantity = count;
     packet.QuantityInInventory = GetQuestObjectiveData(obj);
     packet.DisplayText = static_cast<WorldPackets::Item::ItemPushResult::DisplayType>(3);
-    packet.Unused_1017 = true;
 
     if (GetGroup() && !itemTemplate->HasFlag(ITEM_FLAG3_DONT_REPORT_LOOT_LOG_TO_PARTY))
         GetGroup()->BroadcastPacket(packet.Write(), true);
