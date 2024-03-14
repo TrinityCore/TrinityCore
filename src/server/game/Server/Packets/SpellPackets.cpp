@@ -331,12 +331,6 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellMissStatus const& spellMissStatus)
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, SpellHitStatus const& spellHitStatus)
-{
-    data << uint8(spellHitStatus.Reason);
-    return data;
-}
-
 ByteBuffer& operator<<(ByteBuffer& data, SpellPowerData const& spellPowerData)
 {
     data << int32(spellPowerData.Cost);
@@ -389,17 +383,17 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastData const& spellCastData)
     data << uint32(spellCastData.CastFlagsEx);
     data << uint32(spellCastData.CastTime);
     data << spellCastData.MissileTrajectory;
-    data << int32(spellCastData.AmmoDisplayID);
     data << uint8(spellCastData.DestLocSpellCastIndex);
     data << spellCastData.Immunities;
     data << spellCastData.Predict;
     data.WriteBits(spellCastData.HitTargets.size(), 16);
     data.WriteBits(spellCastData.MissTargets.size(), 16);
-    data.WriteBits(spellCastData.HitStatus.size(), 16);
     data.WriteBits(spellCastData.MissStatus.size(), 16);
     data.WriteBits(spellCastData.RemainingPower.size(), 9);
     data.WriteBit(spellCastData.RemainingRunes.has_value());
     data.WriteBits(spellCastData.TargetPoints.size(), 16);
+    data.WriteBit(spellCastData.AmmoDisplayID.has_value());
+    data.WriteBit(spellCastData.AmmoInventoryType.has_value());
     data.FlushBits();
 
     data << spellCastData.Target;
@@ -409,9 +403,6 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastData const& spellCastData)
 
     for (ObjectGuid const& missTarget : spellCastData.MissTargets)
         data << missTarget;
-
-    for (SpellHitStatus const& hitStatus : spellCastData.HitStatus)
-        data << hitStatus;
 
     for (SpellMissStatus const& missStatus : spellCastData.MissStatus)
         data << missStatus;
@@ -424,6 +415,12 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastData const& spellCastData)
 
     for (TargetLocation const& targetLoc : spellCastData.TargetPoints)
         data << targetLoc;
+
+    if (spellCastData.AmmoDisplayID.has_value())
+        data << int32(*spellCastData.AmmoDisplayID);
+
+    if (spellCastData.AmmoInventoryType.has_value())
+        data << int32(*spellCastData.AmmoInventoryType);
 
     return data;
 }

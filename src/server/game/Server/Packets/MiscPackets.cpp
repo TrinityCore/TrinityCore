@@ -396,6 +396,7 @@ WorldPacket const* WorldPackets::Misc::LevelUpInfo::Write()
         _worldPacket << stat;
 
     _worldPacket << int32(NumNewTalents);
+    _worldPacket << int32(NumNewPvpTalentSlots);
 
     return &_worldPacket;
 }

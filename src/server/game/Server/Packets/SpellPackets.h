@@ -300,14 +300,6 @@ namespace WorldPackets
             ObjectGuid ServerCastID;
         };
 
-        struct SpellHitStatus
-        {
-            SpellHitStatus() { }
-            SpellHitStatus(uint8 reason) : Reason(reason) { }
-
-            uint8 Reason = 0;
-        };
-
         struct SpellMissStatus
         {
             SpellMissStatus() { }
@@ -362,13 +354,13 @@ namespace WorldPackets
             uint32 CastTime     = 0;
             std::vector<ObjectGuid> HitTargets;
             std::vector<ObjectGuid> MissTargets;
-            std::vector<SpellHitStatus> HitStatus;
             std::vector<SpellMissStatus> MissStatus;
             SpellTargetData Target;
             std::vector<SpellPowerData> RemainingPower;
             Optional<RuneData> RemainingRunes;
             MissileTrajectoryResult MissileTrajectory;
-            int32 AmmoDisplayID = 0;
+            Optional<int32> AmmoDisplayID;
+            Optional<int32> AmmoInventoryType;
             uint8 DestLocSpellCastIndex = 0;
             std::vector<TargetLocation> TargetPoints;
             CreatureImmunities Immunities;

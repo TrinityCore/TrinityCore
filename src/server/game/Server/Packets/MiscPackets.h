@@ -499,7 +499,7 @@ namespace WorldPackets
         class LevelUpInfo final : public ServerPacket
         {
         public:
-            LevelUpInfo() : ServerPacket(SMSG_LEVEL_UP_INFO, 60) { }
+            LevelUpInfo() : ServerPacket(SMSG_LEVEL_UP_INFO, 76) { }
 
             WorldPacket const* Write() override;
 
@@ -508,6 +508,7 @@ namespace WorldPackets
             std::array<int32, MAX_POWERS_PER_CLASS> PowerDelta = { };
             std::array<int32, MAX_STATS> StatDelta = { };
             int32 NumNewTalents = 0;
+            int32 NumNewPvpTalentSlots = 0;
         };
 
         class PlayMusic final : public ServerPacket
