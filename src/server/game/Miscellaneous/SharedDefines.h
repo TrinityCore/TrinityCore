@@ -1470,10 +1470,10 @@ enum SpellEffectName
     SPELL_EFFECT_324                                = 324,
     SPELL_EFFECT_325                                = 325,
     SPELL_EFFECT_326                                = 326,
-    SPELL_EFFECT_327                                = 327,
-    SPELL_EFFECT_328                                = 328,
-    SPELL_EFFECT_329                                = 329,
-    SPELL_EFFECT_330                                = 330,
+    SPELL_EFFECT_PULL                                = 327,
+    SPELL_EFFECT_ADD_COMBO_POINTS                   = 328,
+    SPELL_EFFECT_RESURRECT_NEW                      = 329,
+    SPELL_EFFECT_ACTIVATE_RUNE                      = 330,
     TOTAL_SPELL_EFFECTS
 };
 
