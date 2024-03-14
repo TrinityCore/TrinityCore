@@ -727,9 +727,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SetFarVisible(bool on);
         bool IsVisibilityOverridden() const { return m_visibilityDistanceOverride.has_value(); }
         void SetVisibilityDistanceOverride(VisibilityDistanceType type);
-        void SetWorldObject(bool apply);
-        bool IsPermanentWorldObject() const { return m_isWorldObject; }
-        bool IsWorldObject() const;
+        void SetIsStoredInWorldObjectGridContainer(bool apply);
+        bool IsAlwaysStoredInWorldObjectGridContainer() const { return m_isStoredInWorldObjectGridContainer; }
+        bool IsStoredInWorldObjectGridContainer() const;
 
         uint32  LastUsedScriptID;
 
@@ -783,7 +783,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool m_isActive;
         bool m_isFarVisible;
         Optional<float> m_visibilityDistanceOverride;
-        bool const m_isWorldObject;
+        bool const m_isStoredInWorldObjectGridContainer;
         ZoneScript* m_zoneScript;
 
         // transports (gameobjects only)
