@@ -833,47 +833,50 @@ void Battleground::EndBattleground(uint32 winner)
         }
         uint32 thrallsSocksWinner = winner_honor / 10;
         uint32 thrallsSocksLoser = loser_honor / 10;
-        // Reward winner team
-        if (team == winner && GetStartDelayTime() <= 0 && (GetStartTime() >= .5f * MINUTE * IN_MILLISECONDS))
+
+        // Rewards
+        // only grant rewards if battle has lasted 15 seconds
+        if (GetStartDelayTime() <= 0 && GetStartTime() >= 15 * IN_MILLISECONDS)
         {
-            player->ModifyHonorPoints(winner_honor);
+            if (team == winner)
+            {
+                player->ModifyHonorPoints(winner_honor);
                 if (CanAwardArenaPoints())
                     player->ModifyArenaPoints(winner_arena);
                 if (!player->GetRandomWinner())
                     player->SetRandomWinner(true);
 
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, player->GetMapId());
-            player->ModifyMoney(winner_money);
+                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, player->GetMapId());
+                player->ModifyMoney(winner_money);
 
-            //add thrall's socks
-            if (thrallsSocksWinner <= 0)
-                thrallsSocksWinner = 1;
-            player->AddItem(40752, thrallsSocksWinner);
+                //add thrall's socks
+                if (thrallsSocksWinner <= 0)
+                    thrallsSocksWinner = 1;
+                player->AddItem(40752, thrallsSocksWinner);
 
-            for (int i = 20559; i <= 20575; i++)
-            {
-                Item* depletedMark = player->GetItemByEntry(i);
-                if (depletedMark)
+                for (int i = 20559; i <= 20575; i++)
                 {
-                    if (player->CanUseItem(depletedMark->GetTemplate()) == EQUIP_ERR_OK)
+                    Item* depletedMark = player->GetItemByEntry(i);
+                    if (depletedMark)
                     {
-                        player->RemoveItem(depletedMark->GetBagSlot(), depletedMark->GetSlot(), true); //remove old one
-                        player->AddItem(20558, 1); //restored mark of honor
+                        if (player->CanUseItem(depletedMark->GetTemplate()) == EQUIP_ERR_OK)
+                        {
+                            player->RemoveItem(depletedMark->GetBagSlot(), depletedMark->GetSlot(), true); //remove old one
+                            player->AddItem(20558, 1); //restored mark of honor
+                        }
                     }
                 }
             }
+            else
+            {
+                player->ModifyHonorPoints(loser_honor);
+                player->ModifyMoney(loser_money);
+                //add thrall's socks
+                if (thrallsSocksLoser <= 0)
+                    thrallsSocksLoser = 1;
+                player->AddItem(40752, thrallsSocksLoser);
+            }
         }
-        else if (GetStartDelayTime() <= 0 && (GetStartTime() >= .5f * MINUTE * IN_MILLISECONDS))
-        {
-            player->ModifyHonorPoints(loser_honor);
-            player->ModifyMoney(loser_money);
-            //add thrall's socks
-            if (thrallsSocksLoser <= 0)
-                thrallsSocksLoser = 1;
-            player->AddItem(40752, thrallsSocksLoser);
-        }
-
-        //player->GetItemByEntry(
         player->ResetAllPowers();
         player->CombatStopWithPets(true);
 
