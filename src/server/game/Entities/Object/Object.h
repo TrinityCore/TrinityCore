@@ -200,8 +200,8 @@ class TC_GAME_API Object
         inline bool IsWorldObject() const { return isType(TYPEMASK_WORLDOBJECT); }
         static WorldObject* ToWorldObject(Object* o) { return o ? o->ToWorldObject() : nullptr; }
         static WorldObject const* ToWorldObject(Object const* o) { return o ? o->ToWorldObject() : nullptr; }
-        WorldObject* ToWorldObject() { if (IsUnit()) return reinterpret_cast<WorldObject*>(this); else return nullptr; }
-        WorldObject const* ToWorldObject() const { if (IsUnit()) return reinterpret_cast<WorldObject const*>(this); else return nullptr; }
+        WorldObject* ToWorldObject() { if (IsWorldObject()) return reinterpret_cast<WorldObject*>(this); else return nullptr; }
+        WorldObject const* ToWorldObject() const { if (IsWorldObject()) return reinterpret_cast<WorldObject const*>(this); else return nullptr; }
 
         inline bool IsItem() const { return isType(TYPEMASK_ITEM); }
         static Item* ToItem(Object* o) { return o ? o->ToItem() : nullptr; }
