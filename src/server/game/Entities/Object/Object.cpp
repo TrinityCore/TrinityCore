@@ -886,7 +886,7 @@ void MovementInfo::OutDebug()
 }
 
 WorldObject::WorldObject(bool isWorldObject) : Object(), WorldLocation(), LastUsedScriptID(0),
-m_movementInfo(), m_name(), m_isActive(false), m_isFarVisible(false), m_isWorldObject(isWorldObject), m_zoneScript(nullptr),
+m_movementInfo(), m_name(), m_isActive(false), m_isFarVisible(false), m_isStoredInWorldObjectGridContainer(isWorldObject), m_zoneScript(nullptr),
 m_transport(nullptr), m_zoneId(0), m_areaId(0), m_staticFloorZ(VMAP_INVALID_HEIGHT), m_outdoors(false), m_liquidStatus(LIQUID_MAP_NO_WATER),
 m_currMap(nullptr), m_InstanceId(0), _dbPhase(0), m_notifyflags(0)
 {
@@ -897,7 +897,7 @@ m_currMap(nullptr), m_InstanceId(0), _dbPhase(0), m_notifyflags(0)
 WorldObject::~WorldObject()
 {
     // this may happen because there are many !create/delete
-    if (IsWorldObject() && m_currMap)
+    if (IsStoredInWorldObjectGridContainer() && m_currMap)
     {
         if (GetTypeId() == TYPEID_CORPSE)
         {
@@ -914,7 +914,7 @@ void WorldObject::Update(uint32 diff)
     m_Events.Update(diff);
 }
 
-void WorldObject::SetWorldObject(bool on)
+void WorldObject::SetIsStoredInWorldObjectGridContainer(bool on)
 {
     if (!IsInWorld())
         return;
@@ -922,9 +922,9 @@ void WorldObject::SetWorldObject(bool on)
     GetMap()->AddObjectToSwitchList(this, on);
 }
 
-bool WorldObject::IsWorldObject() const
+bool WorldObject::IsStoredInWorldObjectGridContainer() const
 {
-    if (m_isWorldObject)
+    if (m_isStoredInWorldObjectGridContainer)
         return true;
 
     if (ToCreature() && ToCreature()->m_isTempWorldObject)
@@ -1815,7 +1815,7 @@ void WorldObject::SetMap(Map* map)
     m_currMap = map;
     m_mapId = map->GetId();
     m_InstanceId = map->GetInstanceId();
-    if (IsWorldObject())
+    if (IsStoredInWorldObjectGridContainer())
         m_currMap->AddWorldObject(this);
 }
 
@@ -1823,7 +1823,7 @@ void WorldObject::ResetMap()
 {
     ASSERT(m_currMap);
     ASSERT(!IsInWorld());
-    if (IsWorldObject())
+    if (IsStoredInWorldObjectGridContainer())
         m_currMap->RemoveWorldObject(this);
     m_currMap = nullptr;
     //maybe not for corpse
