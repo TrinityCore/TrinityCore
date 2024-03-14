@@ -20,6 +20,7 @@
 
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
+#include "UniqueTrackablePtr.h"
 
 class SpellInfo;
 struct SpellModifier;
@@ -269,6 +270,14 @@ class TC_GAME_API Aura
 
         virtual std::string GetDebugInfo() const;
 
+        Trinity::unique_weak_ptr<Aura> GetWeakPtr() const { return m_scriptRef; }
+
+        Aura(Aura const&) = delete;
+        Aura(Aura&&) = delete;
+
+        Aura& operator=(Aura const&) = delete;
+        Aura& operator=(Aura&&) = delete;
+
     private:
         AuraScript* GetScriptByName(std::string const& scriptName) const;
         void _DeleteRemovedApplications();
@@ -302,6 +311,9 @@ class TC_GAME_API Aura
 
     private:
         std::vector<AuraApplication*> _removedApplications;
+
+        struct NoopAuraDeleter { void operator()(Aura*) const { /*noop - not managed*/ } };
+        Trinity::unique_trackable_ptr<Aura> m_scriptRef;
 };
 
 class TC_GAME_API UnitAura : public Aura

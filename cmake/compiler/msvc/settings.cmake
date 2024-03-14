@@ -111,6 +111,12 @@ message(STATUS "MSVC: Disabled NON-SECURE warnings")
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
     -D_CRT_NONSTDC_NO_WARNINGS)
+
+# Force math constants like M_PI to be available
+target_compile_definitions(trinity-compile-option-interface
+  INTERFACE
+    -D_USE_MATH_DEFINES)
+
 message(STATUS "MSVC: Disabled POSIX warnings")
 
 # Ignore specific warnings

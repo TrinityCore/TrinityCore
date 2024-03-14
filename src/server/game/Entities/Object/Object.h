@@ -29,6 +29,7 @@
 #include "Position.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
+#include "UniqueTrackablePtr.h"
 #include "UpdateFields.h"
 #include "UpdateMask.h"
 #include <list>
@@ -200,6 +201,8 @@ class TC_GAME_API Object
 
         virtual std::string GetDebugInfo() const;
 
+        Trinity::unique_weak_ptr<Object> GetWeakPtr() const { return m_scriptRef; }
+
     protected:
         Object();
 
@@ -243,8 +246,12 @@ class TC_GAME_API Object
 
         PackedGuid m_PackGUID;
 
+        struct NoopObjectDeleter { void operator()(Object*) const { /*noop - not managed*/ } };
+        Trinity::unique_trackable_ptr<Object> m_scriptRef;
+
         // for output helpfull error messages from asserts
         bool PrintIndexError(uint32 index, bool set) const;
+
         Object(Object const& right) = delete;
         Object(Object&& right) = delete;
         Object& operator=(Object const& right) = delete;

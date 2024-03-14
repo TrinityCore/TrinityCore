@@ -32,6 +32,7 @@
 #include "SpawnData.h"
 #include "Timer.h"
 #include "Transaction.h"
+#include "UniqueTrackablePtr.h"
 #include <bitset>
 #include <list>
 #include <memory>
@@ -429,6 +430,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         uint32 GetInstanceId() const { return i_InstanceId; }
         uint8 GetSpawnMode() const { return (i_spawnMode); }
 
+        Trinity::unique_weak_ptr<Map> GetWeakPtr() const { return m_weakRef; }
+        void SetWeakPtr(Trinity::unique_weak_ptr<Map> weakRef) { m_weakRef = std::move(weakRef); }
+
         enum EnterState
         {
             CAN_ENTER = 0,
@@ -710,6 +714,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         MapEntry const* i_mapEntry;
         uint8 i_spawnMode;
         uint32 i_InstanceId;
+        Trinity::unique_weak_ptr<Map> m_weakRef;
         uint32 m_unloadTimer;
         float m_VisibleDistance;
         DynamicMapTree _dynamicTree;

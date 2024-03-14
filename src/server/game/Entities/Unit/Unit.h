@@ -1730,7 +1730,8 @@ class TC_GAME_API Unit : public WorldObject
         ObjectGuid LastCharmerGUID;
         bool CreateVehicleKit(uint32 id, uint32 creatureEntry);
         void RemoveVehicleKit();
-        Vehicle* GetVehicleKit() const { return m_vehicleKit; }
+        Vehicle* GetVehicleKit() const { return m_vehicleKit.get(); }
+        Trinity::unique_weak_ptr<Vehicle> GetVehicleKitWeakPtr() const { return m_vehicleKit; }
         Vehicle* GetVehicle() const { return m_vehicle; }
         void SetVehicle(Vehicle* vehicle) { m_vehicle = vehicle; }
         bool IsOnVehicle(Unit const* vehicle) const;
@@ -1892,7 +1893,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_regenTimer;
 
         Vehicle* m_vehicle;
-        Vehicle* m_vehicleKit;
+        Trinity::unique_trackable_ptr<Vehicle> m_vehicleKit;
 
         uint32 m_unitTypeMask;
         LiquidTypeEntry const* _lastLiquid;
