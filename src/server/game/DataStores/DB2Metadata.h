@@ -2968,11 +2968,11 @@ struct CreatureImmunitiesMeta
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_INT, 2, true },
-        { FT_INT, 10, false },
+        { FT_INT, 11, false },
         { FT_INT, 20, false },
     };
 
-    static constexpr DB2Meta Instance{ 1131322, -1, 9, 9, 0x1B605529, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1131322, -1, 9, 9, 0x6103DDDA, Fields, -1 };
 };
 
 struct CreatureModelDataMeta
@@ -5647,10 +5647,10 @@ struct ItemRandomPropertiesMeta
     static constexpr DB2MetaField Fields[2] =
     {
         { FT_STRING, 1, true },
-        { FT_SHORT, 5, false },
+        { FT_SHORT, 5, true },
     };
 
-    static constexpr DB2Meta Instance{ 1237441, -1, 2, 2, 0xA74D16F8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1237441, -1, 2, 2, 0x0D2C3577, Fields, -1 };
 };
 
 struct ItemRandomSuffixMeta
@@ -5658,11 +5658,11 @@ struct ItemRandomSuffixMeta
     static constexpr DB2MetaField Fields[3] =
     {
         { FT_STRING, 1, true },
-        { FT_SHORT, 5, false },
-        { FT_SHORT, 5, false },
+        { FT_INT, 5, true },
+        { FT_INT, 5, true },
     };
 
-    static constexpr DB2Meta Instance{ 1237592, -1, 3, 3, 0x0FF4E63B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1237592, -1, 3, 3, 0x07FFE191, Fields, -1 };
 };
 
 struct ItemRangedDisplayInfoMeta
@@ -5680,8 +5680,9 @@ struct ItemRangedDisplayInfoMeta
 
 struct ItemReforgeMeta
 {
-    static constexpr DB2MetaField Fields[5] =
+    static constexpr DB2MetaField Fields[6] =
     {
+        { FT_INT, 1, true },
         { FT_SHORT, 1, false },
         { FT_FLOAT, 1, true },
         { FT_SHORT, 1, false },
@@ -5689,7 +5690,7 @@ struct ItemReforgeMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 5633983, -1, 5, 5, 0xE91C7760, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5633983, 0, 6, 6, 0xF3A870E9, Fields, -1 };
 };
 
 struct ItemSearchNameMeta
@@ -5744,7 +5745,7 @@ struct ItemSetSpellMeta
 
 struct ItemSparseMeta
 {
-    static constexpr DB2MetaField Fields[73] =
+    static constexpr DB2MetaField Fields[74] =
     {
         { FT_LONG, 1, true },
         { FT_STRING, 1, true },
@@ -5759,6 +5760,7 @@ struct ItemSparseMeta
         { FT_INT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 10, true },
+        { FT_INT, 10, true },
         { FT_INT, 10, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -5821,7 +5823,7 @@ struct ItemSparseMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1572924, -1, 73, 73, 0xD532973D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1572924, -1, 74, 74, 0xE3090D23, Fields, -1 };
 };
 
 struct ItemSpecMeta
@@ -9643,29 +9645,29 @@ struct SpellItemEnchantmentMeta
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
-        { FT_INT, 3, false },
+        { FT_INT, 1, true },
+        { FT_INT, 3, true },
+        { FT_INT, 3, true },
+        { FT_INT, 3, true },
+        { FT_INT, 3, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
         { FT_FLOAT, 3, true },
-        { FT_INT, 1, false },
-        { FT_INT, 1, false },
-        { FT_INT, 1, false },
-        { FT_INT, 1, false },
-        { FT_SHORT, 3, true },
-        { FT_SHORT, 3, true },
-        { FT_SHORT, 1, false },
-        { FT_SHORT, 1, false },
-        { FT_SHORT, 1, false },
-        { FT_SHORT, 1, false },
-        { FT_SHORT, 1, false },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 3, false },
-        { FT_BYTE, 1, true },
-        { FT_BYTE, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1362771, -1, 22, 22, 0x18AA1166, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1362771, -1, 22, 22, 0x31CF18E7, Fields, -1 };
 };
 
 struct SpellItemEnchantmentConditionMeta

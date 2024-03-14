@@ -1951,13 +1951,6 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
             if (!illusion->ItemVisual || !illusion->GetFlags().HasFlag(SpellItemEnchantmentFlags::AllowTransmog))
                 return false;
 
-            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->TransmogUseConditionID))
-                if (!sConditionMgr->IsPlayerMeetingCondition(_player, condition))
-                    return false;
-
-            if (illusion->ScalingClassRestricted > 0 && uint8(illusion->ScalingClassRestricted) != _player->GetClass())
-                return false;
-
             return true;
         };
 

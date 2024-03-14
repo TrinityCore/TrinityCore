@@ -2980,7 +2980,7 @@ struct ItemSetSpellLoadInfo
 
 struct ItemSparseLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[130] =
+    static constexpr DB2FieldMeta Fields[140] =
     {
         { false, FT_INT, "ID" },
         { true, FT_LONG, "AllowableRace" },
@@ -3005,6 +3005,16 @@ struct ItemSparseLoadInfo
         { false, FT_FLOAT, "StatPercentageOfSocket8" },
         { false, FT_FLOAT, "StatPercentageOfSocket9" },
         { false, FT_FLOAT, "StatPercentageOfSocket10" },
+        { true, FT_INT, "Unknown440_11" },
+        { true, FT_INT, "Unknown440_12" },
+        { true, FT_INT, "Unknown440_13" },
+        { true, FT_INT, "Unknown440_14" },
+        { true, FT_INT, "Unknown440_15" },
+        { true, FT_INT, "Unknown440_16" },
+        { true, FT_INT, "Unknown440_17" },
+        { true, FT_INT, "Unknown440_18" },
+        { true, FT_INT, "Unknown440_19" },
+        { true, FT_INT, "Unknown440_110" },
         { true, FT_INT, "StatPercentEditor1" },
         { true, FT_INT, "StatPercentEditor2" },
         { true, FT_INT, "StatPercentEditor3" },
@@ -3114,7 +3124,7 @@ struct ItemSparseLoadInfo
         { true, FT_BYTE, "RequiredLevel" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 130, &ItemSparseMeta::Instance, HOTFIX_SEL_ITEM_SPARSE };
+    static constexpr DB2LoadInfo Instance{ Fields, 140, &ItemSparseMeta::Instance, HOTFIX_SEL_ITEM_SPARSE };
 };
 
 struct ItemSpecLoadInfo
@@ -4785,36 +4795,36 @@ struct SpellItemEnchantmentLoadInfo
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "HordeName" },
-        { false, FT_INT, "EffectArg1" },
-        { false, FT_INT, "EffectArg2" },
-        { false, FT_INT, "EffectArg3" },
+        { true, FT_INT, "Charges" },
+        { true, FT_INT, "Effect1" },
+        { true, FT_INT, "Effect2" },
+        { true, FT_INT, "Effect3" },
+        { true, FT_INT, "EffectPointsMin1" },
+        { true, FT_INT, "EffectPointsMin2" },
+        { true, FT_INT, "EffectPointsMin3" },
+        { true, FT_INT, "EffectPointsMax1" },
+        { true, FT_INT, "EffectPointsMax2" },
+        { true, FT_INT, "EffectPointsMax3" },
+        { true, FT_INT, "EffectArg1" },
+        { true, FT_INT, "EffectArg2" },
+        { true, FT_INT, "EffectArg3" },
+        { true, FT_INT, "ItemVisual" },
+        { true, FT_INT, "Flags" },
         { false, FT_FLOAT, "EffectScalingPoints1" },
         { false, FT_FLOAT, "EffectScalingPoints2" },
         { false, FT_FLOAT, "EffectScalingPoints3" },
-        { false, FT_INT, "GemItemID" },
-        { false, FT_INT, "TransmogUseConditionID" },
-        { false, FT_INT, "TransmogCost" },
-        { false, FT_INT, "IconFileDataID" },
-        { true, FT_SHORT, "EffectPointsMin1" },
-        { true, FT_SHORT, "EffectPointsMin2" },
-        { true, FT_SHORT, "EffectPointsMin3" },
-        { true, FT_SHORT, "EffectPointsMax1" },
-        { true, FT_SHORT, "EffectPointsMax2" },
-        { true, FT_SHORT, "EffectPointsMax3" },
-        { false, FT_SHORT, "ItemVisual" },
-        { false, FT_SHORT, "Flags" },
-        { false, FT_SHORT, "RequiredSkillID" },
-        { false, FT_SHORT, "RequiredSkillRank" },
-        { false, FT_SHORT, "ItemLevel" },
-        { false, FT_BYTE, "Charges" },
-        { false, FT_BYTE, "Effect1" },
-        { false, FT_BYTE, "Effect2" },
-        { false, FT_BYTE, "Effect3" },
-        { true, FT_BYTE, "ScalingClass" },
-        { true, FT_BYTE, "ScalingClassRestricted" },
-        { false, FT_BYTE, "ConditionID" },
-        { false, FT_BYTE, "MinLevel" },
-        { false, FT_BYTE, "MaxLevel" },
+        { true, FT_INT, "ScalingClass" },
+        { true, FT_INT, "Unk440_1" },
+        { true, FT_INT, "GemItemID" },
+        { true, FT_INT, "ConditionID" },
+        { true, FT_INT, "RequiredSkillID" },
+        { true, FT_INT, "RequiredSkillRank" },
+        { true, FT_INT, "MinLevel" },
+        { true, FT_INT, "Unk440_2" },
+        { true, FT_INT, "Unk440_3" },
+        { true, FT_INT, "ItemLevel" },
+        { true, FT_INT, "Unk440_4" },
+        { true, FT_INT, "Unk440_5" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 33, &SpellItemEnchantmentMeta::Instance, HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT };

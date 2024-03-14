@@ -911,9 +911,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         uint32 health = uint32(basehp * healthmod);
         uint32 mana = stats->GenerateMana(m_creatureDifficulty);
 
-        CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-        SetCreateHealth(std::max(sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, petlevel, creatureDifficulty->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cinfo->unit_class), 0) * creatureDifficulty->HealthModifier * GetHealthMod(cinfo->Classification), 1.0f));
-        SetCreateMana(stats->BaseMana);
+        SetCreateHealth(health);
+        SetCreateMana(mana);
         SetCreateStat(STAT_STRENGTH, 22);
         SetCreateStat(STAT_AGILITY, 22);
         SetCreateStat(STAT_STAMINA, 25);

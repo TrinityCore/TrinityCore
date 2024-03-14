@@ -950,21 +950,22 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_ITEM_SPARSE, "SELECT ID, AllowableRace, Description, Display3, Display2, Display1, Display, DmgVariance, "
         "DurationInInventory, QualityModifier, BagFamily, StartQuestID, ItemRange, StatPercentageOfSocket1, StatPercentageOfSocket2, "
         "StatPercentageOfSocket3, StatPercentageOfSocket4, StatPercentageOfSocket5, StatPercentageOfSocket6, StatPercentageOfSocket7, "
-        "StatPercentageOfSocket8, StatPercentageOfSocket9, StatPercentageOfSocket10, StatPercentEditor1, StatPercentEditor2, StatPercentEditor3, "
-        "StatPercentEditor4, StatPercentEditor5, StatPercentEditor6, StatPercentEditor7, StatPercentEditor8, StatPercentEditor9, StatPercentEditor10, "
-        "Stackable, MaxCount, MinReputation, RequiredAbility, SellPrice, BuyPrice, VendorStackCount, PriceVariance, PriceRandomValue, Flags1, Flags2, "
-        "Flags3, Flags4, FactionRelated, ModifiedCraftingReagentItemID, ContentTuningID, PlayerLevelToItemLevelCurveID, MaxDurability, "
-        "ItemNameDescriptionID, RequiredTransmogHoliday, RequiredHoliday, LimitCategory, GemProperties, SocketMatchEnchantmentId, TotemCategoryID, "
-        "InstanceBound, ZoneBound1, ZoneBound2, ItemSet, LockID, PageID, ItemDelay, MinFactionID, RequiredSkillRank, RequiredSkill, ItemLevel, "
-        "AllowableClass, ItemRandomSuffixGroupID, RandomSelect, MinDamage1, MinDamage2, MinDamage3, MinDamage4, MinDamage5, MaxDamage1, MaxDamage2, "
-        "MaxDamage3, MaxDamage4, MaxDamage5, Resistances1, Resistances2, Resistances3, Resistances4, Resistances5, Resistances6, Resistances7, "
-        "ScalingStatDistributionID, StatModifierBonusAmount1, StatModifierBonusAmount2, StatModifierBonusAmount3, StatModifierBonusAmount4, "
-        "StatModifierBonusAmount5, StatModifierBonusAmount6, StatModifierBonusAmount7, StatModifierBonusAmount8, StatModifierBonusAmount9, "
-        "StatModifierBonusAmount10, ExpansionID, ArtifactID, SpellWeight, SpellWeightCategory, SocketType1, SocketType2, SocketType3, SheatheType, "
-        "Material, PageMaterialID, LanguageID, Bonding, DamageDamageType, StatModifierBonusStat1, StatModifierBonusStat2, StatModifierBonusStat3, "
-        "StatModifierBonusStat4, StatModifierBonusStat5, StatModifierBonusStat6, StatModifierBonusStat7, StatModifierBonusStat8, "
-        "StatModifierBonusStat9, StatModifierBonusStat10, ContainerSlots, RequiredPVPMedal, RequiredPVPRank, InventoryType, OverallQualityID, "
-        "AmmunitionType, RequiredLevel FROM item_sparse WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "StatPercentageOfSocket8, StatPercentageOfSocket9, StatPercentageOfSocket10, Unknown440_11, Unknown440_12, Unknown440_13, Unknown440_14, "
+        "Unknown440_15, Unknown440_16, Unknown440_17, Unknown440_18, Unknown440_19, Unknown440_110, StatPercentEditor1, StatPercentEditor2, "
+        "StatPercentEditor3, StatPercentEditor4, StatPercentEditor5, StatPercentEditor6, StatPercentEditor7, StatPercentEditor8, StatPercentEditor9, "
+        "StatPercentEditor10, Stackable, MaxCount, MinReputation, RequiredAbility, SellPrice, BuyPrice, VendorStackCount, PriceVariance, "
+        "PriceRandomValue, Flags1, Flags2, Flags3, Flags4, FactionRelated, ModifiedCraftingReagentItemID, ContentTuningID, "
+        "PlayerLevelToItemLevelCurveID, MaxDurability, ItemNameDescriptionID, RequiredTransmogHoliday, RequiredHoliday, LimitCategory, GemProperties, "
+        "SocketMatchEnchantmentId, TotemCategoryID, InstanceBound, ZoneBound1, ZoneBound2, ItemSet, LockID, PageID, ItemDelay, MinFactionID, "
+        "RequiredSkillRank, RequiredSkill, ItemLevel, AllowableClass, ItemRandomSuffixGroupID, RandomSelect, MinDamage1, MinDamage2, MinDamage3, "
+        "MinDamage4, MinDamage5, MaxDamage1, MaxDamage2, MaxDamage3, MaxDamage4, MaxDamage5, Resistances1, Resistances2, Resistances3, Resistances4, "
+        "Resistances5, Resistances6, Resistances7, ScalingStatDistributionID, StatModifierBonusAmount1, StatModifierBonusAmount2, "
+        "StatModifierBonusAmount3, StatModifierBonusAmount4, StatModifierBonusAmount5, StatModifierBonusAmount6, StatModifierBonusAmount7, "
+        "StatModifierBonusAmount8, StatModifierBonusAmount9, StatModifierBonusAmount10, ExpansionID, ArtifactID, SpellWeight, SpellWeightCategory, "
+        "SocketType1, SocketType2, SocketType3, SheatheType, Material, PageMaterialID, LanguageID, Bonding, DamageDamageType, StatModifierBonusStat1, "
+        "StatModifierBonusStat2, StatModifierBonusStat3, StatModifierBonusStat4, StatModifierBonusStat5, StatModifierBonusStat6, "
+        "StatModifierBonusStat7, StatModifierBonusStat8, StatModifierBonusStat9, StatModifierBonusStat10, ContainerSlots, RequiredPVPMedal, "
+        "RequiredPVPRank, InventoryType, OverallQualityID, AmmunitionType, RequiredLevel FROM item_sparse WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_SPARSE, "SELECT MAX(ID) + 1 FROM item_sparse", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_SPARSE, "SELECT ID, Description_lang, Display3_lang, Display2_lang, Display1_lang, Display_lang"
         " FROM item_sparse_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
@@ -1450,11 +1451,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_INTERRUPTS, "SELECT MAX(ID) + 1 FROM spell_interrupts", CONNECTION_SYNCH);
 
     // SpellItemEnchantment.db2
-    PrepareStatement(HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT, "SELECT ID, Name, HordeName, EffectArg1, EffectArg2, EffectArg3, EffectScalingPoints1, "
-        "EffectScalingPoints2, EffectScalingPoints3, GemItemID, TransmogUseConditionID, TransmogCost, IconFileDataID, EffectPointsMin1, "
-        "EffectPointsMin2, EffectPointsMin3, EffectPointsMax1, EffectPointsMax2, EffectPointsMax3, ItemVisual, Flags, RequiredSkillID, "
-        "RequiredSkillRank, ItemLevel, Charges, Effect1, Effect2, Effect3, ScalingClass, ScalingClassRestricted, ConditionID, MinLevel, MaxLevel"
-        " FROM spell_item_enchantment WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT, "SELECT ID, Name, HordeName, Charges, Effect1, Effect2, Effect3, EffectPointsMin1, "
+        "EffectPointsMin2, EffectPointsMin3, EffectPointsMax1, EffectPointsMax2, EffectPointsMax3, EffectArg1, EffectArg2, EffectArg3, ItemVisual, "
+        "Flags, EffectScalingPoints1, EffectScalingPoints2, EffectScalingPoints3, ScalingClass, Unk440_1, GemItemID, ConditionID, RequiredSkillID, "
+        "RequiredSkillRank, MinLevel, Unk440_2, Unk440_3, ItemLevel, Unk440_4, Unk440_5 FROM spell_item_enchantment WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT, "SELECT MAX(ID) + 1 FROM spell_item_enchantment", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT, "SELECT ID, Name_lang, HordeName_lang FROM spell_item_enchantment_locale"
         " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);

@@ -13334,48 +13334,11 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                     }
                     break;
                 case ITEM_ENCHANTMENT_TYPE_RESISTANCE:
-                    if (pEnchant->ScalingClass)
-                    {
-                        int32 scalingClass = pEnchant->ScalingClass;
-                        if ((*m_unitData->MinItemLevel || *m_unitData->MaxItemLevel) && pEnchant->ScalingClassRestricted)
-                            scalingClass = pEnchant->ScalingClassRestricted;
-
-                        uint8 minLevel = pEnchant->GetFlags().HasFlag(SpellItemEnchantmentFlags::ScaleAsAGem) ? 1 : 60;
-                        uint8 scalingLevel = GetLevel();
-                        uint8 maxLevel = uint8(pEnchant->MaxLevel ? pEnchant->MaxLevel : sSpellScalingGameTable.GetTableRowCount() - 1);
-
-                        if (minLevel > GetLevel())
-                            scalingLevel = minLevel;
-                        else if (maxLevel < GetLevel())
-                            scalingLevel = maxLevel;
-
-                        if (GtSpellScalingEntry const* spellScaling = sSpellScalingGameTable.GetRow(scalingLevel))
-                            enchant_amount = uint32(pEnchant->EffectScalingPoints[s] * GetSpellScalingColumnForClass(spellScaling, scalingClass));
-                    }
                     enchant_amount = std::max(enchant_amount, 1u);
                     HandleStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + enchant_spell_id), TOTAL_VALUE, float(enchant_amount), apply);
                     break;
                 case ITEM_ENCHANTMENT_TYPE_STAT:
                 {
-                    if (pEnchant->ScalingClass)
-                    {
-                        int32 scalingClass = pEnchant->ScalingClass;
-                        if ((*m_unitData->MinItemLevel || *m_unitData->MaxItemLevel) && pEnchant->ScalingClassRestricted)
-                            scalingClass = pEnchant->ScalingClassRestricted;
-
-                        uint8 minLevel = pEnchant->GetFlags().HasFlag(SpellItemEnchantmentFlags::ScaleAsAGem) ? 1 : 60;
-                        uint8 scalingLevel = GetLevel();
-                        uint8 maxLevel = uint8(pEnchant->MaxLevel ? pEnchant->MaxLevel : sSpellScalingGameTable.GetTableRowCount() - 1);
-
-                        if (minLevel > GetLevel())
-                            scalingLevel = minLevel;
-                        else if (maxLevel < GetLevel())
-                            scalingLevel = maxLevel;
-
-                        if (GtSpellScalingEntry const* spellScaling = sSpellScalingGameTable.GetRow(scalingLevel))
-                            enchant_amount = uint32(pEnchant->EffectScalingPoints[s] * GetSpellScalingColumnForClass(spellScaling, scalingClass));
-                    }
-
                     enchant_amount = std::max(enchant_amount, 1u);
 
                     TC_LOG_DEBUG("entities.player.items", "Adding {} to stat nb {}", enchant_amount, enchant_spell_id);
