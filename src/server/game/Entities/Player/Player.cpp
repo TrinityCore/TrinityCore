@@ -2281,18 +2281,11 @@ void Player::GiveLevel(uint8 level)
     /// @todo find some better solution
     // for (int i = 0; i < MAX_STORED_POWERS; ++i)
     packet.PowerDelta[0] = int32(basemana) - int32(GetCreateMana());
-    packet.PowerDelta[1] = 0;
-    packet.PowerDelta[2] = 0;
-    packet.PowerDelta[3] = 0;
-    packet.PowerDelta[4] = 0;
-    packet.PowerDelta[5] = 0;
-    packet.PowerDelta[6] = 0;
 
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         packet.StatDelta[i] = int32(info.stats[i]) - GetCreateStat(Stats(i));
 
     packet.NumNewTalents = DB2Manager::GetNumTalentsAtLevel(level, Classes(GetClass())) - DB2Manager::GetNumTalentsAtLevel(oldLevel, Classes(GetClass()));
-    packet.NumNewPvpTalentSlots = sDB2Manager.GetPvpTalentNumSlotsAtLevel(level, Classes(GetClass())) - sDB2Manager.GetPvpTalentNumSlotsAtLevel(oldLevel, Classes(GetClass()));
 
     SendDirectMessage(packet.Write());
 
