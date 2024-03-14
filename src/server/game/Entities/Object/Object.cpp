@@ -81,8 +81,8 @@ Object::~Object()
     if (IsInWorld())
     {
         TC_LOG_FATAL("misc", "Object::~Object {} deleted but still in world!!", GetGUID().ToString());
-        if (isType(TYPEMASK_ITEM))
-            TC_LOG_FATAL("misc", "Item slot {}", ((Item*)this)->GetSlot());
+        if (Item* item = ToItem())
+            TC_LOG_FATAL("misc", "Item slot {}", item->GetSlot());
         ABORT();
     }
 
@@ -180,9 +180,9 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_SELF;
 
-    if (isType(TYPEMASK_UNIT))
+    if (Unit const* unit = ToUnit())
     {
-        if (ToUnit()->GetVictim())
+        if (unit->GetVictim())
             flags |= UPDATEFLAG_HAS_TARGET;
     }
 
@@ -233,7 +233,7 @@ void Object::DestroyForPlayer(Player* target, bool onDeath) const
 {
     ASSERT(target);
 
-    if (isType(TYPEMASK_UNIT) || isType(TYPEMASK_PLAYER))
+    if (IsUnit())
     {
         if (Battleground* bg = target->GetBattleground())
         {
@@ -303,10 +303,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     Unit const* unit = nullptr;
     WorldObject const* object = nullptr;
 
-    if (isType(TYPEMASK_UNIT))
-        unit = ToUnit();
-    else
-        object = (WorldObject const*)this;
+    unit = ToUnit();
+    if (!unit)
+        object = ToWorldObject();
 
     *data << uint16(flags);                                  // update flags
 
@@ -1422,7 +1421,11 @@ void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
 {
     float new_z = GetMapHeight(x, y, z);
     if (new_z > INVALID_HEIGHT)
-        z = new_z + (isType(TYPEMASK_UNIT) ? static_cast<Unit const*>(this)->GetHoverOffset() : 0.0f);
+    {
+        z = new_z;
+        if (Unit const* unit = ToUnit())
+            z += unit->GetHoverOffset();
+    }
 }
 
 void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z, float* groundZ) const
@@ -3421,7 +3424,7 @@ void WorldObject::DestroyForNearbyPlayers()
         if (!player->HaveAtClient(this))
             continue;
 
-        if (isType(TYPEMASK_UNIT) && ToUnit()->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
+        if (Unit const* unit = ToUnit(); unit && unit->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
             continue;
 
         if (GetTypeId() == TYPEID_UNIT)
@@ -3546,9 +3549,15 @@ float WorldObject::GetFloorZ() const
 
 float WorldObject::GetMapWaterOrGroundLevel(float x, float y, float z, float* ground/* = nullptr*/) const
 {
-    return GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), x, y, z, ground,
-        isType(TYPEMASK_UNIT) ? !static_cast<Unit const*>(this)->HasAuraType(SPELL_AURA_WATER_WALK) : false,
-        GetCollisionHeight());
+    bool swimming = [&]()
+    {
+        if (Unit const* unit = ToUnit())
+            return !unit->HasAuraType(SPELL_AURA_WATER_WALK);
+
+        return false;
+    }();
+
+    return GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), x, y, z, ground, swimming, GetCollisionHeight());
 }
 
 float WorldObject::GetMapHeight(float x, float y, float z, bool vmap/* = true*/, float distanceToSearch/* = DEFAULT_HEIGHT_SEARCH*/) const

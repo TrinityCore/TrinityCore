@@ -374,10 +374,10 @@ Aura* Aura::Create(AuraCreateInfo& createInfo)
         createInfo.CasterGUID = createInfo.Caster->GetGUID();
 
     // check if aura can be owned by owner
-    if (createInfo._owner->isType(TYPEMASK_UNIT))
-        if (!createInfo._owner->IsInWorld() || createInfo._owner->ToUnit()->IsDuringRemoveFromWorld())
+    if (Unit* ownerUnit = createInfo._owner->ToUnit())
+        if (!ownerUnit->IsInWorld() || ownerUnit->IsDuringRemoveFromWorld())
             // owner not in world so don't allow to own not self cast single target auras
-            if (createInfo.CasterGUID != createInfo._owner->GetGUID() && createInfo._spellInfo->IsSingleTarget())
+            if (createInfo.CasterGUID != ownerUnit->GetGUID() && createInfo._spellInfo->IsSingleTarget())
                 return nullptr;
 
     Aura* aura = nullptr;

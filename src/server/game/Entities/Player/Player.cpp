@@ -15173,7 +15173,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (quest->GetRewSpellCast() > 0)
     {
         SpellInfo const* spellInfo = ASSERT_NOTNULL(sSpellMgr->GetSpellInfo(quest->GetRewSpellCast()));
-        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM) && !spellInfo->IsSelfCast())
+        if (questGiver->IsUnit() && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM) && !spellInfo->IsSelfCast())
         {
             if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
                 creature->CastSpell(this, quest->GetRewSpellCast(), true);
@@ -15184,7 +15184,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     else if (quest->GetRewSpell() > 0)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
-        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM) && !spellInfo->IsSelfCast())
+        if (questGiver->IsUnit() && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM) && !spellInfo->IsSelfCast())
         {
             if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
                 creature->CastSpell(this, quest->GetRewSpell(), true);
@@ -22393,7 +22393,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
 
             // target aura duration for caster show only if target exist at caster client
             // send data at target visibility change (adding to client)
-            if (target->isType(TYPEMASK_UNIT))
+            if (target->IsUnit())
                 SendInitialVisiblePackets(static_cast<Unit*>(target));
         }
     }
@@ -24308,14 +24308,11 @@ bool ItemPosCount::isContainedIn(std::vector<ItemPosCount> const& vec) const
 
 void Player::StopCastingBindSight() const
 {
-    if (WorldObject* target = GetViewpoint())
+    if (Unit* target = Object::ToUnit(GetViewpoint()))
     {
-        if (target->isType(TYPEMASK_UNIT))
-        {
-            static_cast<Unit*>(target)->RemoveAurasByType(SPELL_AURA_BIND_SIGHT, GetGUID());
-            static_cast<Unit*>(target)->RemoveAurasByType(SPELL_AURA_MOD_POSSESS, GetGUID());
-            static_cast<Unit*>(target)->RemoveAurasByType(SPELL_AURA_MOD_POSSESS_PET, GetGUID());
-        }
+        target->RemoveAurasByType(SPELL_AURA_BIND_SIGHT, GetGUID());
+        target->RemoveAurasByType(SPELL_AURA_MOD_POSSESS, GetGUID());
+        target->RemoveAurasByType(SPELL_AURA_MOD_POSSESS_PET, GetGUID());
     }
 }
 
@@ -24335,8 +24332,8 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
         // farsight dynobj or puppet may be very far away
         UpdateVisibilityOf(target);
 
-        if (target->isType(TYPEMASK_UNIT) && target != GetVehicleBase())
-            static_cast<Unit*>(target)->AddPlayerToVision(this);
+        if (Unit* targetUnit = target->ToUnit(); targetUnit && targetUnit != GetVehicleBase())
+            targetUnit->AddPlayerToVision(this);
         SetSeer(target);
     }
     else
@@ -24349,8 +24346,8 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             return;
         }
 
-        if (target->isType(TYPEMASK_UNIT) && target != GetVehicleBase())
-            static_cast<Unit*>(target)->RemovePlayerFromVision(this);
+        if (Unit* targetUnit = target->ToUnit(); targetUnit && targetUnit != GetVehicleBase())
+            targetUnit->RemovePlayerFromVision(this);
 
         //must immediately set seer back otherwise may crash
         SetSeer(this);

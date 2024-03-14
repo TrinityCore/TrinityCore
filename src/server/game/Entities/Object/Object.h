@@ -42,6 +42,7 @@ class CreatureAI;
 class DynamicObject;
 class GameObject;
 class InstanceScript;
+class Item;
 class Map;
 class Player;
 class Spell;
@@ -162,6 +163,18 @@ class TC_GAME_API Object
 
         // FG: some hacky helpers
         void ForceValuesUpdateAtIndex(uint32);
+
+        inline bool IsWorldObject() const { return isType(TYPEMASK_WORLDOBJECT); }
+        static WorldObject* ToWorldObject(Object* o) { return o ? o->ToWorldObject() : nullptr; }
+        static WorldObject const* ToWorldObject(Object const* o) { return o ? o->ToWorldObject() : nullptr; }
+        WorldObject* ToWorldObject() { if (IsUnit()) return reinterpret_cast<WorldObject*>(this); else return nullptr; }
+        WorldObject const* ToWorldObject() const { if (IsUnit()) return reinterpret_cast<WorldObject const*>(this); else return nullptr; }
+
+        inline bool IsItem() const { return isType(TYPEMASK_ITEM); }
+        static Item* ToItem(Object* o) { return o ? o->ToItem() : nullptr; }
+        static Item const* ToItem(Object const* o) { return o ? o->ToItem() : nullptr; }
+        Item* ToItem() { if (IsItem()) return reinterpret_cast<Item*>(this); else return nullptr; }
+        Item const* ToItem() const { if (IsItem()) return reinterpret_cast<Item const*>(this); else return nullptr; }
 
         inline bool IsPlayer() const { return GetTypeId() == TYPEID_PLAYER; }
         static Player* ToPlayer(Object* o) { return o ? o->ToPlayer() : nullptr; }
