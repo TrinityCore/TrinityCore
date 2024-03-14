@@ -508,7 +508,6 @@ namespace WorldPackets
             std::array<int32, MAX_POWERS_PER_CLASS> PowerDelta = { };
             std::array<int32, MAX_STATS> StatDelta = { };
             int32 NumNewTalents = 0;
-            int32 NumNewPvpTalentSlots = 0;
         };
 
         class PlayMusic final : public ServerPacket
