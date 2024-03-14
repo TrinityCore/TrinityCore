@@ -25,6 +25,7 @@
 #include "MMapFactory.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
 #include "World.h"
@@ -95,7 +96,11 @@ void MapInstanced::UnloadAll()
 {
     // Unload instanced maps
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
+    {
         i->second->UnloadAll();
+
+        sScriptMgr->OnDestroyMap(i->second.get());
+    }
 
     m_InstancedMaps.clear();
 
@@ -236,6 +241,8 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     Trinity::unique_trackable_ptr<Map>& ptr = m_InstancedMaps[InstanceId];
     ptr.reset(map);
     map->SetWeakPtr(ptr);
+
+    sScriptMgr->OnCreateMap(map);
     return map;
 }
 
@@ -263,6 +270,8 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     Trinity::unique_trackable_ptr<Map>& ptr = m_InstancedMaps[InstanceId];
     ptr.reset(map);
     map->SetWeakPtr(ptr);
+
+    sScriptMgr->OnCreateMap(map);
     return map;
 }
 
@@ -286,6 +295,8 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
         // so in the next map creation, (EnsureGridCreated actually) VMaps will be reloaded
         Map::UnloadAll();
     }
+
+    sScriptMgr->OnDestroyMap(itr->second.get());
 
     // Free up the instance id and allow it to be reused for bgs and arenas (other instances are handled in the InstanceSaveMgr)
     if (itr->second->IsBattlegroundOrArena())
