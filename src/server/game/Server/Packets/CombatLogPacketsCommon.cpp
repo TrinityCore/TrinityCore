@@ -164,7 +164,6 @@ ByteBuffer& operator<<(ByteBuffer& data, ContentTuningParams const& contentTunin
 ByteBuffer& operator>>(ByteBuffer& data, SpellCastVisual& visual)
 {
     data >> visual.SpellXSpellVisualID;
-    data >> visual.ScriptVisualID;
 
     return data;
 }
@@ -172,7 +171,6 @@ ByteBuffer& operator>>(ByteBuffer& data, SpellCastVisual& visual)
 ByteBuffer& operator<<(ByteBuffer& data, SpellCastVisual const& visual)
 {
     data << int32(visual.SpellXSpellVisualID);
-    data << int32(visual.ScriptVisualID);
 
     return data;
 }

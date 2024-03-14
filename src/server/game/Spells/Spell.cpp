@@ -8101,7 +8101,7 @@ bool Spell::IsPositive() const
 
 bool Spell::IsNeedSendToClient() const
 {
-    return m_SpellVisual.SpellXSpellVisualID || m_SpellVisual.ScriptVisualID || m_spellInfo->IsChanneled() ||
+    return m_SpellVisual.SpellXSpellVisualID || m_spellInfo->IsChanneled() ||
         (m_spellInfo->HasAttribute(SPELL_ATTR8_AURA_POINTS_ON_CLIENT)) || m_spellInfo->HasHitDelay() || (!m_triggeredByAuraSpell && !IsTriggered()) ||
         m_spellInfo->HasAttribute(SPELL_ATTR7_ALWAYS_CAST_LOG);
 }
@@ -9330,5 +9330,5 @@ CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringAura(AuraEffect const* trig
 
 SpellCastVisual::operator WorldPackets::Spells::SpellCastVisual() const
 {
-    return { int32(SpellXSpellVisualID), int32(ScriptVisualID) };
+    return { int32(SpellXSpellVisualID) };
 }

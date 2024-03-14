@@ -455,7 +455,7 @@ Aura* Aura::Create(AuraCreateInfo& createInfo)
 Aura::Aura(AuraCreateInfo const& createInfo) :
 m_spellInfo(createInfo._spellInfo), m_castDifficulty(createInfo._castDifficulty), m_castId(createInfo._castId), m_casterGuid(createInfo.CasterGUID),
 m_castItemGuid(createInfo.CastItemGUID), m_castItemId(createInfo.CastItemId),
-m_castItemLevel(createInfo.CastItemLevel), m_spellVisual({ createInfo.Caster ? createInfo.Caster->GetCastSpellXSpellVisualId(createInfo._spellInfo) : createInfo._spellInfo->GetSpellXSpellVisualId(), 0 }),
+m_castItemLevel(createInfo.CastItemLevel), m_spellVisual({ createInfo.Caster ? createInfo.Caster->GetCastSpellXSpellVisualId(createInfo._spellInfo) : createInfo._spellInfo->GetSpellXSpellVisualId() }),
 m_applyTime(GameTime::GetGameTime()), m_owner(createInfo._owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(createInfo.Caster ? createInfo.Caster->GetLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
