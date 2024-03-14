@@ -7786,10 +7786,10 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 HandleStatFlatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(val), apply);
                 UpdateStatBuffMod(STAT_INTELLECT);
                 break;
-            // case ITEM_MOD_SPIRIT:                           //modify spirit
-            //     HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), apply);
-            //     ApplyStatBuffMod(STAT_SPIRIT, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_SPIRIT, BASE_PCT_EXCLUDE_CREATE)), apply);
-            //     break;
+            case ITEM_MOD_SPIRIT:                           //modify spirit
+                HandleStatFlatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), apply);
+                UpdateStatBuffMod(STAT_SPIRIT);
+                 break;
             case ITEM_MOD_STAMINA:                          //modify stamina
             {
                 //if (GtStaminaMultByILvl const* staminaMult = sStaminaMultByILvlGameTable.GetRow(itemLevel))
@@ -13368,10 +13368,10 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             UpdateStatBuffMod(STAT_INTELLECT);
                             break;
                         // case ITEM_MOD_SPIRIT:
-                        //     TC_LOG_DEBUG("entities.player.items", "+ {} SPIRIT", enchant_amount);
-                        //     HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, float(enchant_amount), apply);
-                        //     ApplyStatBuffMod(STAT_SPIRIT, (float)enchant_amount, apply);
-                        //     break;
+                            TC_LOG_DEBUG("entities.player.items", "+ {} SPIRIT", enchant_amount);
+                            HandleStatFlatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, float(enchant_amount), apply);
+                            UpdateStatBuffMod(STAT_SPIRIT);
+                            break;
                         case ITEM_MOD_STAMINA:
                             TC_LOG_DEBUG("entities.player.items", "+ {} STAMINA", enchant_amount);
                             HandleStatFlatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, float(enchant_amount), apply);
@@ -20775,7 +20775,7 @@ void Player::outDebugValues() const
 
     sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "HP is: \t\t\t{}\t\tMP is: \t\t\t{}", GetMaxHealth(), GetMaxPower(POWER_MANA));
     sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "AGILITY is: \t\t{}\t\tSTRENGTH is: \t\t{}", GetStat(STAT_AGILITY), GetStat(STAT_STRENGTH));
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "INTELLECT is: \t\t{}", GetStat(STAT_INTELLECT));
+    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "INTELLECT is: \t\t{}\t\SPIRIT is: \t\t{}", GetStat(STAT_INTELLECT), GetStat(STAT_SPIRIT));
     sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "STAMINA is: \t\t{}", GetStat(STAT_STAMINA));
     sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "Armor is: \t\t{}\t\tBlock is: \t\t{}", GetArmor(), *m_activePlayerData->BlockPercentage);
     sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "HolyRes is: \t\t{}\t\tFireRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_HOLY), GetResistance(SPELL_SCHOOL_MASK_FIRE));

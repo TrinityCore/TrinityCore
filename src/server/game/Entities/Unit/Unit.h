@@ -169,6 +169,7 @@ enum UnitMods
     UNIT_MOD_STAT_AGILITY,
     UNIT_MOD_STAT_STAMINA,
     UNIT_MOD_STAT_INTELLECT,
+    UNIT_MOD_STAT_SPIRIT,
     UNIT_MOD_HEALTH,
     UNIT_MOD_MANA,                                          // UNIT_MOD_MANA..UNIT_MOD_PAIN must be listed in existing order, it is accessed by index values of Powers enum.
     UNIT_MOD_RAGE,
