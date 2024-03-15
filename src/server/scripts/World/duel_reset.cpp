@@ -35,22 +35,14 @@ class DuelResetScript : public PlayerScript
             // Cooldowns reset
             if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
             {
-                player1->GetSpellHistory()->SaveCooldownStateBeforeDuel();
-                player2->GetSpellHistory()->SaveCooldownStateBeforeDuel();
-
-                ResetSpellCooldowns(player1, true);
-                ResetSpellCooldowns(player2, true);
+                player1->GetSpellHistory()->ResetAllCooldowns();
+                player2->GetSpellHistory()->ResetAllCooldowns();
             }
 
             // Health and mana reset
             if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_HEALTH_MANA))
             {
-                player1->SaveHealthBeforeDuel();
-                player1->SaveManaBeforeDuel();
                 player1->ResetAllPowers();
-
-                player2->SaveHealthBeforeDuel();
-                player2->SaveManaBeforeDuel();
                 player2->ResetAllPowers();
             }
         }
@@ -64,26 +56,15 @@ class DuelResetScript : public PlayerScript
                 // Cooldown restore
                 if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
                 {
-                    ResetSpellCooldowns(winner, false);
-                    ResetSpellCooldowns(loser, false);
-
-                    winner->GetSpellHistory()->RestoreCooldownStateAfterDuel();
-                    loser->GetSpellHistory()->RestoreCooldownStateAfterDuel();
+                    winner->GetSpellHistory()->ResetAllCooldowns();
+                    loser->GetSpellHistory()->ResetAllCooldowns();
                 }
 
                 // Health and mana restore
                 if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_HEALTH_MANA))
                 {
-                    winner->RestoreHealthAfterDuel();
-                    loser->RestoreHealthAfterDuel();
-
-                    // check if player1 class uses mana
-                    if (winner->GetPowerType() == POWER_MANA || winner->GetClass() == CLASS_DRUID)
-                        winner->RestoreManaAfterDuel();
-
-                    // check if player2 class uses mana
-                    if (loser->GetPowerType() == POWER_MANA || loser->GetClass() == CLASS_DRUID)
-                        loser->RestoreManaAfterDuel();
+                    winner->ResetAllPowers();
+                    loser->ResetAllPowers();
 
                     // pet cooldowns
                     if (Pet* winpet = winner->GetPet())
