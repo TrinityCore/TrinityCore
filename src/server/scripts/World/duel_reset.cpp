@@ -98,26 +98,7 @@ class DuelResetScript : public PlayerScript
         static void ResetSpellCooldowns(Player* player, bool onStartDuel)
         {
             // remove cooldowns on spells that have < 10 min CD > 30 sec and has no onHold
-            player->GetSpellHistory()->ResetCooldowns([player, onStartDuel](SpellHistory::CooldownStorageType::iterator itr) -> bool
-            {
-                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
-                uint32 remainingCooldown = player->GetSpellHistory()->GetRemainingCooldown(spellInfo);
-                int32 totalCooldown = spellInfo->RecoveryTime;
-                int32 categoryCooldown = spellInfo->CategoryRecoveryTime;
-
-                player->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, totalCooldown, nullptr);
-
-                if (int32 cooldownMod = player->GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
-                    totalCooldown += cooldownMod * IN_MILLISECONDS;
-
-                if (!spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
-                    player->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, categoryCooldown, nullptr);
-
-                return remainingCooldown > 0
-                    && !itr->second.OnHold
-                    && (onStartDuel ? Milliseconds(totalCooldown - remainingCooldown) > Seconds(30) : true)
-                    && (onStartDuel ? Milliseconds(categoryCooldown - remainingCooldown) > Seconds(30) : true);
-            }, true);
+            player->GetSpellHistory()->ResetAllCooldowns();
 
             // pet cooldowns
             if (Pet* pet = player->GetPet())
