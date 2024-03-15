@@ -8970,9 +8970,11 @@ bool Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, bool trigg
 
     duration = int32(duration * mod);
     //sWorld->GetDefaultDbcLocale()
+    /*
     std::string str = "applying dr: DRGroup[" + std::to_string(group) + "] DRLevel[" + std::to_string(previousLevel + 1) + "]. " + auraSpellInfo->SpellName[sWorld->GetDefaultDbcLocale()];
 
     sWorld->SendServerMessage(SERVER_MSG_STRING, str.c_str());
+    */
 
     return (duration != 0);
 }
