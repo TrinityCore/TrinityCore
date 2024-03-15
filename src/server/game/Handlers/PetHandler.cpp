@@ -803,7 +803,9 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     spell->m_cast_count = castCount; // probably pending spell cast
     spell->m_targets = targets;
 
-    SpellCastResult result = spell->CheckPetCast(nullptr);
+    bool const needsExplicit = !targets.GetUnitTarget() && spellInfo->NeedsExplicitUnitTarget();
+    Unit* target = needsExplicit ? _player->GetSelectedUnit() : nullptr;
+    SpellCastResult result = spell->CheckPetCast(target);
 
     if (result == SPELL_CAST_OK)
     {
