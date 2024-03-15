@@ -99,6 +99,18 @@ class TC_COMMON_API Log
         void CreateAppenderFromConfigLine(std::string const& name, std::string const& options);
         void CreateLoggerFromConfigLine(std::string const& name, std::string const& options);
 
+        template <typename StringOrStringView>
+        static constexpr std::string_view make_string_view(StringOrStringView const& stringOrStringView)
+        {
+            return stringOrStringView;
+        }
+
+        template <size_t CharArraySize>
+        static consteval std::string_view make_string_view(char const(&chars)[CharArraySize])
+        {
+            return { std::begin(chars), (chars[CharArraySize - 1] == '\0' ? CharArraySize - 1 : CharArraySize) };
+        }
+
     private:
         static std::string GetTimestampStr();
         void write(std::unique_ptr<LogMessage> msg) const;
@@ -129,43 +141,40 @@ class TC_COMMON_API Log
 
 #define sLog Log::instance()
 
-#ifdef PERFORMANCE_PROFILING
-#define TC_LOG_MESSAGE_BODY(filterType__, level__, ...) ((void)0)
-#elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
-
-// This will catch format errors on build time
-#define TC_LOG_MESSAGE_BODY(filterType__, level__, ...)                                 \
-        do {                                                                            \
-            if (Log* logInstance = sLog; logInstance->ShouldLog(filterType__, level__)) \
-                logInstance->OutMessage(filterType__, level__, __VA_ARGS__);            \
+#define TC_LOG_MESSAGE_BODY_CORE(filterType__, level__, message__, ...)                                                                  \
+        do {                                                                                                                             \
+            if (Log* logInstance = sLog; logInstance->ShouldLog(Log::make_string_view(filterType__), level__))                           \
+                logInstance->OutMessage(Log::make_string_view(filterType__), level__, Log::make_string_view(message__), ## __VA_ARGS__); \
         } while (0)
+
+#ifdef PERFORMANCE_PROFILING
+#define TC_LOG_MESSAGE_BODY(filterType__, level__, message__, ...) ((void)0)
+#elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#define TC_LOG_MESSAGE_BODY(filterType__, level__, message__, ...) TC_LOG_MESSAGE_BODY_CORE(filterType__, level__, message__, ## __VA_ARGS__)
 #else
-#define TC_LOG_MESSAGE_BODY(filterType__, level__, ...)                                 \
-        __pragma(warning(push))                                                         \
-        __pragma(warning(disable:4127))                                                 \
-        do {                                                                            \
-            if (Log* logInstance = sLog; logInstance->ShouldLog(filterType__, level__)) \
-                logInstance->OutMessage(filterType__, level__, __VA_ARGS__);            \
-        } while (0)                                                                     \
+#define TC_LOG_MESSAGE_BODY(filterType__, level__, message__, ...)                 \
+        __pragma(warning(push))                                                    \
+        __pragma(warning(disable:4127))                                            \
+        TC_LOG_MESSAGE_BODY_CORE(filterType__, level__, message__, ## __VA_ARGS__) \
         __pragma(warning(pop))
 #endif
 
-#define TC_LOG_TRACE(filterType__, ...) \
-    TC_LOG_MESSAGE_BODY(filterType__, LOG_LEVEL_TRACE, __VA_ARGS__)
+#define TC_LOG_TRACE(filterType__, message__, ...) \
+    TC_LOG_MESSAGE_BODY(filterType__, LOG_LEVEL_TRACE, message__, ## __VA_ARGS__)
 
-#define TC_LOG_DEBUG(filterType__, ...) \
-    TC_LOG_MESSAGE_BODY(filterType__, LOG_LEVEL_DEBUG, __VA_ARGS__)
+#define TC_LOG_DEBUG(filterType__, message__, ...) \
+    TC_LOG_MESSAGE_BODY(filterType__, LOG_LEVEL_DEBUG, message__, ## __VA_ARGS__)
 
-#define TC_LOG_INFO(filterType__, ...)  \
-    TC_LOG_MESSAGE_BODY(filterType__, LOG_LEVEL_INFO, __VA_ARGS__)
+#define TC_LOG_INFO(filterType__, message__, ...)  \
+    TC_LOG_MESSAGE_BODY(filterType__, LOG_LEVEL_INFO, message__, ## __VA_ARGS__)
 
-#define TC_LOG_WARN(filterType__, ...)  \
-    TC_LOG_MESSAGE_BODY(filterType__, LOG_LEVEL_WARN, __VA_ARGS__)
+#define TC_LOG_WARN(filterType__, message__, ...)  \
+    TC_LOG_MESSAGE_BODY(filterType__, LOG_LEVEL_WARN, message__, ## __VA_ARGS__)
 
-#define TC_LOG_ERROR(filterType__, ...) \
-    TC_LOG_MESSAGE_BODY(filterType__, LOG_LEVEL_ERROR, __VA_ARGS__)
+#define TC_LOG_ERROR(filterType__, message__, ...) \
+    TC_LOG_MESSAGE_BODY(filterType__, LOG_LEVEL_ERROR, message__, ## __VA_ARGS__)
 
-#define TC_LOG_FATAL(filterType__, ...) \
-    TC_LOG_MESSAGE_BODY(filterType__, LOG_LEVEL_FATAL, __VA_ARGS__)
+#define TC_LOG_FATAL(filterType__, message__, ...) \
+    TC_LOG_MESSAGE_BODY(filterType__, LOG_LEVEL_FATAL, message__, ## __VA_ARGS__)
 
 #endif
