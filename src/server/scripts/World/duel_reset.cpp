@@ -50,40 +50,26 @@ class DuelResetScript : public PlayerScript
         // Called when a duel ends
         void OnDuelEnd(Player* winner, Player* loser, DuelCompleteType type) override
         {
-            // do not reset anything if DUEL_INTERRUPTED or DUEL_FLED
-            if (type == DUEL_WON)
+            // Cooldown restore
+            if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
             {
-                // Cooldown restore
-                if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
-                {
-                    winner->GetSpellHistory()->ResetAllCooldowns();
-                    loser->GetSpellHistory()->ResetAllCooldowns();
-                }
-
-                // Health and mana restore
-                if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_HEALTH_MANA))
-                {
-                    winner->ResetAllPowers();
-                    loser->ResetAllPowers();
-
-                    // pet cooldowns
-                    if (Pet* winpet = winner->GetPet())
-                        winpet->SetHealth(winpet->GetMaxHealth());
-
-                    if (Pet* losepet = loser->GetPet())
-                        losepet->SetHealth(losepet->GetMaxHealth());
-                }
+                winner->GetSpellHistory()->ResetAllCooldowns();
+                loser->GetSpellHistory()->ResetAllCooldowns();
             }
-        }
 
-        static void ResetSpellCooldowns(Player* player, bool onStartDuel)
-        {
-            // remove cooldowns on spells that have < 10 min CD > 30 sec and has no onHold
-            player->GetSpellHistory()->ResetAllCooldowns();
+            // Health and mana restore
+            if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_HEALTH_MANA))
+            {
+                winner->ResetAllPowers();
+                loser->ResetAllPowers();
 
-            // pet cooldowns
-            if (Pet* pet = player->GetPet())
-                pet->GetSpellHistory()->ResetAllCooldowns();
+                // pet cooldowns
+                if (Pet* winpet = winner->GetPet())
+                    winpet->SetHealth(winpet->GetMaxHealth());
+
+                if (Pet* losepet = loser->GetPet())
+                    losepet->SetHealth(losepet->GetMaxHealth());
+            }
         }
 };
 
