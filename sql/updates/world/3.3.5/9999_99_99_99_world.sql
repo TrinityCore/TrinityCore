@@ -15,7 +15,7 @@ UPDATE `creature_template` SET `flags_extra`=64, `ScriptName`='npc_ganarg_underl
 UPDATE `creature_template` SET `flags_extra`=64, `ScriptName`='npc_portable_fel_cannon' WHERE `entry`=23278;
 UPDATE `creature_template` SET `flags_extra`=64, `ScriptName`='npc_fel_eye_stalk' WHERE `entry`=23323;
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (40309, 41593, 41594, 41595, 40784, 40565, 40675, 40493);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (40309, 41593, 41594, 41595, 40784, 40565, 40675, 40493, 40503, 41962);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (40309, 'spell_shartuuls_transporter_possess_demon'),
 (41593, 'spell_shartuuls_transporter_aspects'),
@@ -24,7 +24,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (40784, 'spell_shartuuls_transporter_summon_stun_trap'),
 (40565, 'spell_shartuuls_transporter_consume_essence'),
 (40675, 'spell_shartuuls_transporter_build_portable_fel_cannon'),
-(40493, 'spell_shartuuls_transporter_super_jump');
+(40493, 'spell_shartuuls_transporter_super_jump'),
+(40503, 'spell_shartuuls_transporter_possession_transfer'),
+(41962, 'spell_shartuuls_transporter_possession_transfer');
 
 -- Arena Boundaries and Overseer
 DELETE FROM `creature` WHERE `guid` IN (230072, 230073, 230074, 230075, 230079);
@@ -164,3 +166,15 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (13, 1, 40675, 0, 0, 31, 0, 3, 23113, 0, 0, 0, 0, '', NULL),
 (13, 1, 41962, 0, 0, 31, 0, 3, 23113, 0, 0, 0, 0, '', NULL);
+
+-- Set implicit targets for the "Legion Ring - Charm - North 02 (Possess)" and "Legion Ring - Charm - North 03 (Possess)" spells
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry` IN (40382, 40523) AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2` IN (23113, 23220) AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1, 40382, 0, 0, 31, 0, 3, 23113, 0, 0, 0, 0, '', NULL),
+(13, 1, 40523, 0, 0, 31, 0, 3, 23220, 0, 0, 0, 0, '', NULL);
+
+-- Set implicit targets for the "Madness Rift" and "Touch of Madness" spells
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry` IN (40824, 40821) AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2` IN (23323, 23063) AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1, 40824, 0, 0, 31, 0, 3, 23323, 0, 0, 0, 0, '', NULL),
+(13, 1, 40821, 0, 0, 31, 0, 3, 23063, 0, 0, 0, 0, '', NULL);

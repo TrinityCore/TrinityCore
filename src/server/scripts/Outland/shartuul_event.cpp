@@ -82,11 +82,10 @@ enum STSpells
 {
     SPELL_KNOCKBACK        = 40191,
     SPELL_POSSESS_DEMON    = 40309,
-    SPELL_TOUCH_OF_MADNESS = 40821,
-    SPELL_MADNESS_RIFT     = 40824,
     SPELL_CHARM_NORTH_01   = 39985,
     SPELL_CHARM_NORTH_02   = 40382,
-    SPELL_CHARM_NORTH_03   = 40523
+    SPELL_CHARM_NORTH_03   = 40523,
+    SPELL_INVIS_AND_IMMUNE = 40357
 };
 
 enum Creatures
@@ -147,14 +146,16 @@ static Position const DreadmawSpawnPos = { 2705.00f, 7093.24f, 364.91f, 2.19f };
 
 static Position const WarpGateShieldSpawnPos = { 2720.31f, 7117.68f, 371.30f, 4.29094f };
 
-static Position const ShartuulSpawnPos = { 2671.42f, 7144.42f, 365.42f, 5.76889f };
+static Position const ShartuulSpawnPos = { 2654.52f, 7150.42f, 364.54f, 5.90889f };
+
+static Position const ShartuulPortalSpawnPos = { 2648.45f, 7152.92f, 364.86f, 5.76889f };
 
 //Position where Shartuul approaches before the start of the battle
-static Position const ShartuulCombatPos = { 2694.21f, 7131.45f, 365.15f, 5.84f };
+static Position const ShartuulCombatPos = { 2694.21f, 7131.45f, 365.15f, 5.733f };
 
 static Position const ForgeCampPos = { 2720.31f, 7117.68f, 367.30f, 4.29094f };
 
-static Position const EredarBreathTargetSpawnPos = { 2671.42f, 7144.42f, 377.35f, 5.76889f };
+static Position const EredarBreathTargetSpawnPos = { 2648.45f, 7152.92f, 377.35f, 5.76889f };
 
 static Position const ZapperTargetPos[4] =
 {
@@ -195,28 +196,14 @@ static Position const MoSpawnPos[3] =
     {2704.05f, 7089.95f, 364.77f, 4.08f}
 };
 
-///
-/// spell_script_names - 40675 spell_shartuuls_transporter_build_portable_fel_cannon xxxx
-/// spell_script_names - 40493 spell_shartuuls_transporter_super_jump xxxx
-/// conditions - 39985 xxxx
-/// 
-/// spell_script_names - 40503 spell_shartuuls_transporter_possession_transfer
-/// spell_script_names - 41962 spell_shartuuls_transporter_possession_transfer
-/// conditions - 40382
-/// conditions - 40523
-///
-
-
 //TODO code style
 //TODO check all dist 225f?
 //
-//TODO FIND SHARTUUL PORTAL GAMEOBJECT
-//TODO SPELL_METEOR = 26558, //todo find real
 //TODO SPELL_DISRUPTION_RAY = 41550 - dont work right (aims the beam under himself anyway, must at the enemy)
-//TODO EYE STALK METEOR
-//TODO FIND REAL ANITMATION FOR STUN FIELD
 //TODO FIX ACTION BAR NPC_DOOMGUARD_PUNISHER and NPC_SHIVAN AFTER POCCESS
 //TODO FIX DOUBLE ZAP IN JustAppeared trash_defender
+//TODO Madness Rift should only cast in newly created Eye stalk.
+//TODO JUMP
 
 //////////////////
 ///NPC TRIGGERS///
@@ -240,14 +227,18 @@ enum OverseerShartuul
     EVENT_SPAWN_MOB_DEMON_II_WAVE_II,
     EVENT_SPAWN_MOB_DEMON_II_WAVE_III,
     EVENT_SPAWN_MOB_DEMON_II_WAVE_IV,
-    EVENT_SPAWN_FEL_EYE_STALK,
 
     EVENT_SPAWN_EYE_OF_SHARTUUL,
     EVENT_SPAWN_DREADMAW,
     EVENT_SPAWN_SHIVAN_ASSASSIN,
+    EVENT_SPAWN_SHARTUUL,
 
     EVENT_SPAWN_MOB_WAVE,
-    EVENT_CLOSE_SHARTUULS_GATE,
+    EVENT_CAST_ARCANE_EXPLOSION,
+    EVENT_OPEN_SHARTUUL_PORTAL,
+    EVENT_CLOSE_SHARTUULS_PORTAL,
+    EVENT_MOVE_TO_BATTLE,
+    EVENT_SWAP_DEMONS,
 
     SAY_THREAT                          = 0,
     SAY_EVENT_START,
@@ -259,9 +250,13 @@ enum OverseerShartuul
 
     SPELL_COSMETIC_GREEN_MATTER         = 40071,
     SPELL_COSMETIC_EREDAR_PRE_GATE_BEAM = 40605,
+    SPELL_COSMETIC_ARCANE_EXPLOSION     = 34808,
+    SPELL_COSMETIC_SHARTUUL_PORTAL      = 40280,
     SPELL_COSMETIC_SHIVAN_STASIS        = 40507,
     SPELL_COSMETIC_EREDAR_LIGHTNING     = 40646,
-    SPELL_COSMETIC_METEOR               = 26558, //todo find real (Shartuul summons a meteor from his hand, not the sky)
+    SPELL_SHADOWFORM                    = 37816,
+    SPELL_MADNESS_RIFT                  = 40824,
+    SPELL_TOUCH_OF_MADNESS              = 40821,
 
     POINT_SHARTUUL_COMBAT               = 0
 };
@@ -286,6 +281,7 @@ public:
             _knockBackX = 0;
             _knockBackY = 0;
             _knockBackOrientation = 0;
+            _spawnEyesFirtTime = true;
 
             _eredarGateBeamGUIDs.clear();
             _wreckageGUIDs.clear();
@@ -304,10 +300,6 @@ public:
             Initialaize();
         }
 
-        void JustAppeared() override
-        {
-        }
-
         uint8 currMoWave;
         int8 currDemonState;
         EventMap events;
@@ -322,6 +314,17 @@ public:
         void SummonedCreatureDespawn(Creature* summon) override
         {
             summons.Despawn(summon);
+        }
+
+        void JustAppeared() override { }
+
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        {
+            if (spellInfo->Id == SPELL_TOUCH_OF_MADNESS)
+            {
+                SpawnEyeStalk();
+                DoCast(SPELL_MADNESS_RIFT);
+            }
         }
 
         void DoAction(int32 action) override
@@ -349,7 +352,7 @@ public:
                 events.Reset();
                 break;
             case ACTION_START_DEMON_II_PHASE_I: //Summon Shivan Assassin
-                events.ScheduleEvent(EVENT_SPAWN_SHIVAN_ASSASSIN, 12s);
+                events.ScheduleEvent(EVENT_SPAWN_SHIVAN_ASSASSIN, 60s);
                 break;
             case ACTION_START_DEMON_II_PHASE_II: //Activate Shivan Assassin
                 if (_shivanAssassinGUID)
@@ -362,8 +365,11 @@ public:
                 break;
             case ACTION_START_DEMON_III_PHASE_I: //Open the portal, and eventually close it
                 Talk(SAY_SHIVAN_DONE);
-                OpenShartuulsGate(true);
-                events.ScheduleEvent(EVENT_CLOSE_SHARTUULS_GATE, 10s);
+                ActivatePortalBeam();
+                events.ScheduleEvent(EVENT_CAST_ARCANE_EXPLOSION, 1s);
+                events.ScheduleEvent(EVENT_OPEN_SHARTUUL_PORTAL, 10s);
+                events.ScheduleEvent(EVENT_SPAWN_SHARTUUL, 18s);
+                events.ScheduleEvent(EVENT_CLOSE_SHARTUULS_PORTAL, 23s);
                 break;
             case ACTION_START_DEMON_III_PHASE_II: //Summon DreadMaw
                 if (_shartuulGUID)
@@ -377,8 +383,8 @@ public:
                 if (_shartuulGUID)
                 {
                     Creature* shartuul = ObjectAccessor::GetCreature(*me, _shartuulGUID);
-                    shartuul->CastSpell(me, SPELL_COSMETIC_METEOR);
-                    shartuul->GetMotionMaster()->MovePoint(POINT_SHARTUUL_COMBAT, ShartuulCombatPos);
+                    shartuul->CastSpell(me, SPELL_TOUCH_OF_MADNESS);
+                    events.ScheduleEvent(EVENT_MOVE_TO_BATTLE, 8s);
                 }
                 break;
             case ACTION_EVENT_DONE_OR_FAIL: //Reset event
@@ -417,9 +423,9 @@ public:
                         events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_I_WAVE_I, 120s); //!x2 mobs after 120s
                         break;
                     case ACTION_START_DEMON_II_PHASE_I:
-                        events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_I, 1s);
-                        events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_II, 24s);
-                        events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_III, 44s);
+                        events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_I, 6s);
+                        events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_II, 30s);
+                        events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_III, 50s);
                         break;
                     default:
                         break;
@@ -454,6 +460,9 @@ public:
                             shartuul->CastSpell(dreadMaw, SPELL_COSMETIC_EREDAR_LIGHTNING);
                         }
                     }
+                    break;
+                case EVENT_SPAWN_SHARTUUL:
+                    _shartuulGUID = me->SummonCreature(NPC_SHARTUUL, ShartuulSpawnPos, TEMPSUMMON_DEAD_DESPAWN)->GetGUID();
                     break;
                     //!Mob Waves
                 case EVENT_SPAWN_MOB_DEMON_I_WAVE_I:
@@ -490,12 +499,27 @@ public:
                     ++currMoWave;
                 }
                 break;
-                case EVENT_CLOSE_SHARTUULS_GATE:
-                    OpenShartuulsGate(false);
+                case EVENT_OPEN_SHARTUUL_PORTAL:
+                    events.CancelEvent(EVENT_CAST_ARCANE_EXPLOSION);
+                    if (Creature* creature = me->SummonCreature(NPC_TRIGGER_EREDAR_BREATH_TARGET, ShartuulPortalSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 20s))
+                        creature->AI()->DoCastSelf(SPELL_COSMETIC_SHARTUUL_PORTAL);
+                    break;
+                case EVENT_CAST_ARCANE_EXPLOSION:
+                    if (Creature* creature = me->FindNearestCreature(NPC_TRIGGER_EREDAR_BREATH_TARGET, 100.0f))
+                        creature->AI()->DoCastSelf(SPELL_COSMETIC_ARCANE_EXPLOSION);
+                    events.ScheduleEvent(EVENT_CAST_ARCANE_EXPLOSION, 3s);
+                    break;
+                case EVENT_CLOSE_SHARTUULS_PORTAL:
+                    if (Creature* creature = me->FindNearestCreature(NPC_TRIGGER_EREDAR_BREATH_TARGET, 100.0f))
+                        creature->RemoveAurasDueToSpell(SPELL_COSMETIC_SHARTUUL_PORTAL);
                     events.ScheduleEvent(EVENT_SPAWN_EYE_OF_SHARTUUL, 7s);  //Summon Eye of Shartuul
                     break;
-                case EVENT_SPAWN_FEL_EYE_STALK:
-                    SpawnEyeStalk();
+                case EVENT_MOVE_TO_BATTLE:
+                    if (_shartuulGUID)
+                    {
+                        Creature* shartuul = ObjectAccessor::GetCreature(*me, _shartuulGUID);
+                        shartuul->GetMotionMaster()->MovePoint(POINT_SHARTUUL_COMBAT, ShartuulCombatPos);
+                    }
                     break;
                 default:
                     break;
@@ -592,7 +616,7 @@ public:
             if (currMoWave == 2)
             {
                 //Calculate position by line
-                static const std::vector<std::pair<int, int>> offsets = { {-20, 12}, {-10, 10}, {10, -10}, {20, -12} };
+                static const std::vector<std::pair<int16, int16>> offsets = { {-20, 12}, {-10, 10}, {10, -10}, {20, -12} };
                 if (i < offsets.size())
                 {
                     moPos.m_positionX += offsets[i].first;
@@ -602,7 +626,7 @@ public:
             else
             {
                 //Calculate position by square
-                static const std::vector<std::pair<int, int>> offsets = { {-10, -10}, {10, -10}, {-10, 10}, {10, 10} };
+                static const std::vector<std::pair<int16, int16>> offsets = { {-10, -10}, {10, -10}, {-10, 10}, {10, 10} };
                 if (i < offsets.size())
                 {
                     moPos.m_positionX += offsets[i].first;
@@ -612,44 +636,41 @@ public:
             me->SummonCreature(NPC_GAN_ARG_UNDERLING, moPos, TEMPSUMMON_DEAD_DESPAWN);
         }
 
-        void OpenShartuulsGate(bool on)
+        void ActivatePortalBeam()
         {
             // If the gate is to be opened, summon the necessary creatures and cast the pre gate beam
-            if (on)
+            if (Creature* eredarBreathTarget = me->SummonCreature(NPC_TRIGGER_EREDAR_BREATH_TARGET, EredarBreathTargetSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 15s))
             {
-                if (Creature* eredarBreathTarget = me->SummonCreature(NPC_TRIGGER_EREDAR_BREATH_TARGET, EredarBreathTargetSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 30s))
-                {
-                    _eredarBreathTargeGUID = eredarBreathTarget->GetGUID();
-                    for (uint8 i = 0; i < 2; ++i)
-                        if (Creature* eredarBeam = me->SummonCreature(NPC_TRIGGER_EREDAR_PRE_GATE_BEAM, EredarBeamSpawnPos[i], TEMPSUMMON_TIMED_DESPAWN, 30s))
-                        {
-                            _eredarGateBeamGUIDs.push_back(eredarBeam->GetGUID());
-                            eredarBeam->CastSpell(eredarBreathTarget, SPELL_COSMETIC_EREDAR_PRE_GATE_BEAM);
-                        }
-                }
+                _eredarBreathTargeGUID = eredarBreathTarget->GetGUID();
+                for (uint8 i = 0; i < 2; ++i)
+                    if (Creature* eredarBeam = me->SummonCreature(NPC_TRIGGER_EREDAR_PRE_GATE_BEAM, EredarBeamSpawnPos[i], TEMPSUMMON_TIMED_DESPAWN, 15s))
+                    {
+                        _eredarGateBeamGUIDs.push_back(eredarBeam->GetGUID());
+                        eredarBeam->CastSpell(eredarBreathTarget, SPELL_COSMETIC_EREDAR_PRE_GATE_BEAM);
+                    }
             }
-            // If the gate is to be closed, remove the pre gate beam from the eredarBreathTarge. Summon Shartuul
-            else
-            {
-                if (Creature* eredarBreathTarge = ObjectAccessor::GetCreature(*me, _eredarBreathTargeGUID))
-                    eredarBreathTarge->RemoveAurasDueToSpell(SPELL_COSMETIC_EREDAR_PRE_GATE_BEAM);
-                _shartuulGUID = me->SummonCreature(NPC_SHARTUUL, ShartuulSpawnPos, TEMPSUMMON_DEAD_DESPAWN)->GetGUID();
-            }
-        }
+        }   
 
         void SpawnEyeStalk()
         {
-            for (uint8 i = 0; i < 16; ++i)
+            if (_spawnEyesFirtTime)
             {
-                //Cast a spell to add a meteor effect, then summon the eye stalk
-                me->SummonCreature(NPC_FEL_EYE_STALK, me->GetRandomPoint(ForgeCampPos, 50.0f));
-                //if (Creature* creature = me->SummonCreature(NPC_FEL_EYE_STALK, me->GetRandomPoint(ForgeCampPos, 50.0f)))
-                //{
-                    //TODO SPELL_FEL_CANNON_BLAST or a spell with the same animation should be used here.
-                    //TODO But SpellCastResult returns SPELL_FAILED_BAD_TARGETS.
-                    //DoCast(creature, SPELL_FEL_CANNON_BLAST);
-               // }
+                //Eyes appears all over the arena
+                for (uint8 i = 0; i < 16; ++i)
+                    me->SummonCreature(NPC_FEL_EYE_STALK, me->GetRandomPoint(ForgeCampPos, 50.0f));
             }
+            else
+            {
+                //Eyes spawns near the player
+                for (uint8 i = 0; i < 6; ++i)
+                {
+                    if (!_shivanAssassinGUID)
+                        break;
+                    Position pos = me->GetRandomPoint(ObjectAccessor::GetCreature(*me, _shivanAssassinGUID)->GetPosition(), 10.0f);
+                    me->SummonCreature(NPC_FEL_EYE_STALK, pos);
+                }
+            }
+            _spawnEyesFirtTime = false;
         }
 
         void SummonShieldZappers(bool on)
@@ -669,6 +690,7 @@ public:
         }
 
     private:
+        bool _spawnEyesFirtTime;
         float _knockBackDist;
         float _knockBackX, _knockBackY;
         float _knockBackOrientation;
@@ -892,7 +914,6 @@ public:
 enum PossessDemon
 {
     EVENT_CAST_TRANSFORM                    = 20,
-    EVENT_FINISHED_CAST_POSSESSION_TRANSFER,
 
     SPELL_DOOMPUNISHER_POSSESSION_TRANSFER  = 40503,
     SPELL_SHIVAN_POSSESSION_TRANSFER        = 41962
@@ -907,13 +928,7 @@ struct possess_demonAI : public WorldBossAI
 
     void Initialize()
     {
-        //DoCastSelf(/*shadow spell*/);
         SetActive(false);
-    }
-
-    void Reset() override
-    {
-        _Reset();
     }
 
     void DoAction(int32 action) override
@@ -932,57 +947,19 @@ struct possess_demonAI : public WorldBossAI
         }
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {
             damage = me->GetHealth() - 1;
             me->CastStop();
             events.Reset();
-            _lastDemon = attacker->GetGUID();
 
             //Possess the demon
             if (me->GetEntry() == NPC_SHIVAN_ASSASSIN)
                 DoCastVictim(SPELL_SHIVAN_POSSESSION_TRANSFER);
             else
                 DoCastVictim(SPELL_DOOMPUNISHER_POSSESSION_TRANSFER);
-        }
-    }
-
-    void OnSpellCast(const SpellInfo* spell) override
-    {
-        if (spell->Id == SPELL_SHIVAN_POSSESSION_TRANSFER || spell->Id == SPELL_DOOMPUNISHER_POSSESSION_TRANSFER)
-            events.ScheduleEvent(EVENT_FINISHED_CAST_POSSESSION_TRANSFER, 5s);
-    }
-
-    void ExecuteEvent(uint32 eventId) override
-    {
-        switch (eventId)
-        {
-            //todo convert this into a spell script
-        case EVENT_FINISHED_CAST_POSSESSION_TRANSFER:
-            if (Creature* creature = ObjectAccessor::GetCreature(*me, _lastDemon))
-            {
-                if (Player* player = creature->GetCharmer()->ToPlayer())
-                {
-                    if (Creature* overseerShartuul = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 200.0f))
-                    {
-                        //This is to check if the current demon the player is controlling is still alive
-                        ENSURE_AI(npc_overseer_shartuul::npc_overseer_shartuulAI, overseerShartuul->AI())->currPossessDemonGUID = me->GetGUID();
-                        if (me->GetEntry() == NPC_SHIVAN_ASSASSIN)
-                            overseerShartuul->AI()->DoAction(ACTION_START_DEMON_III_PHASE_I);
-                        else
-                            overseerShartuul->AI()->DoAction(ACTION_START_DEMON_II_PHASE_I);
-                        //Replacing the demon
-                        creature->KillSelf();
-                        player->CastSpell(me, 530);
-                        me->SetFaction(FACTION_ENEMY);
-                    }
-                }
-            }
-            break;
-        default:
-            break;
         }
     }
 
@@ -1008,13 +985,17 @@ struct possess_demonAI : public WorldBossAI
     void SetActive(bool on)
     {
         if (on)
+        {
+            me->RemoveAurasDueToSpell(SPELL_SHADOWFORM);
             me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+            me->SetFaction(FACTION_ENEMY);
+        }
         else
+        {
+            DoCastSelf(SPELL_SHADOWFORM);
             me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+        }
     }
-
-private:
-    ObjectGuid _lastDemon;
 };
 
 /*#####
@@ -1030,12 +1011,8 @@ public:
     {
         npc_felguard_degraderAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            Player* playerCaster = caster->ToPlayer();
-            if (!playerCaster)
-                return;
-            //playerCaster->SetEmoteState(EMOTE_STATE_DEAD);
             if (spellInfo->Id == SPELL_POSSESS_DEMON)
             {
                 if (Creature* overseerShartuul = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 250.0f))
@@ -1273,7 +1250,7 @@ public:
                     break;
                 case EVENT_CAST_TRANSFORM:
                     DoCastSelf(SPELL_BEHOLDER_TRANSFORM);
-                    me->SetFaction(FACTION_MONSTER_2);
+                    me->SetFaction(FACTION_ENEMY);
                     AttackStart(me->FindNearestCreature(NPC_SHIVAN_ASSASSIN, 100.0f));
                     break;
                 default:
@@ -1376,7 +1353,7 @@ public:
                     break;
                 case EVENT_CAST_TRANSFORM:
                     DoCastSelf(SPELL_WRATH_HOUND_TRANSFORM);
-                    me->SetFaction(FACTION_MONSTER_2);
+                    me->SetFaction(FACTION_ENEMY);
                     JustEngagedWith(me->FindNearestCreature(NPC_SHIVAN_ASSASSIN, 100.0f));
                     break;
                 default:
@@ -1430,7 +1407,6 @@ public:
 
         void JustAppeared() override
         {
-            //DoCastSelf(/*shadow spell*/);
             SetActive(false);
         }
 
@@ -1529,16 +1505,13 @@ public:
                     events.ScheduleEvent(EVENT_CAST_SHADOW_RESONANCE, 8s, 12s);
                     break;
                 case EVENT_CAST_METEOR:
-                    if (Creature* creature = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 200.0f))
-                        DoCast(creature, SPELL_COSMETIC_METEOR);
-                    SpawnEyeStalk();
+                    DoCast(SPELL_TOUCH_OF_MADNESS);
                     events.ScheduleEvent(EVENT_CAST_METEOR, 8s, 12s);
                     break;
                 case EVENT_CAST_TRANSFORM:
                     SetActive(true);
                     Talk(SAY_AGRO);
-                    //me->RemoveAurasDueToSpell(/*shadow spell*/);
-                    me->SetFaction(FACTION_MONSTER_2);
+                    me->SetFaction(FACTION_ENEMY);
                     JustEngagedWith(me->FindNearestCreature(NPC_SHIVAN_ASSASSIN, 100.0f));
                     break;
                 default:
@@ -1551,30 +1524,18 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        //todo Should be the same mechanics as Overseer, only Eye Stalk should be summoned near the player
-        void SpawnEyeStalk()
-        {
-            for (uint8 i = 0; i < 6; ++i)
-            {
-                Position pos = me->GetRandomPoint(me->GetVictim()->GetPosition(), 10.0f);
-
-                //Checking to make sure Eye Stalk is not summoned behind a barrier
-                if (!pos.IsWithinBox(ForgeCampPos, 20.0f, 20.0f, 110.0f))
-                    continue;
-                me->SummonCreature(NPC_FEL_EYE_STALK, pos);
-                //if (Creature* creature = me->SummonCreature(NPC_FEL_EYE_STALK, pos))
-                //{
-                //    //me->CastSpell(creature, /*mini meteor*/);  SPELL_FEL_CANNON_BLAST = 40672,
-                //}
-            }
-        }
-
         void SetActive(bool on)
         {
             if (on)
+            {
+                me->RemoveAurasDueToSpell(SPELL_SHADOWFORM);
                 me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+            }
             else
+            {
+                DoCastSelf(SPELL_SHADOWFORM);
                 me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+            }
         }
     };
 
@@ -1593,9 +1554,8 @@ public:
 # - Fel Imp Defender
 # - Gan'arg Underling
 # - Mo'arg Tormenter
+# - Portable Fel Cannon
 # - Fel Eye Stalk
-#
-# - Portable Fel Cannon is a separate NPC
 #####*/
 
 enum TrashDefender
@@ -1616,7 +1576,6 @@ enum TrashDefender
     EVENT_CAST_FEL_CANNON_BLAST,
 
     //Fel Eye Stalk
-    EVENT_IGNITE,
     EVENT_CAST_MIND_FLAY,
 
     SPELL_COSMETIC_GREEN_LIGHTNING_THICK    = 40057,
@@ -1628,19 +1587,15 @@ struct trash_defenderAI : public ScriptedAI
     trash_defenderAI(Creature* creature) : ScriptedAI(creature)
     {
         SetActive(false);
-        //me->SetInstantCast(true);
     }
 
     void JustAppeared() override
     {
         me->SetFaction(FACTION_ENEMY);
-        const uint32 entry = me->GetEntry();
-        if (entry != NPC_PORTABLE_FEL_CANNON && entry != NPC_FEL_EYE_STALK)
-        {
-            //The effect of being struck by green lightning, before a npc appears
-            DoCastSelf(SPELL_COSMETIC_FEL_IMPACT);
-            me->CastSpell(me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 60.0f), SPELL_COSMETIC_GREEN_LIGHTNING_THICK);
-        }
+
+        //The effect of being struck by green lightning, before a npc appears
+        DoCastSelf(SPELL_COSMETIC_FEL_IMPACT);
+        me->CastSpell(me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 60.0f), SPELL_COSMETIC_GREEN_LIGHTNING_THICK);
         me->SetDisplayId(MODEL_IMAGE_OF_EMPTY);
         Events.ScheduleEvent(EVENT_TRANSFORM, 4s);
     }
@@ -1891,6 +1846,57 @@ public:
 };
 
 /*#####
+# stationary_defenderAI - Used to track a victim without attacking them. 
+#####*/
+
+struct stationary_defenderAI : public trash_defenderAI
+{
+    stationary_defenderAI(Creature* creature) : trash_defenderAI(creature)
+    {
+        _victimGUID.Clear();
+    }
+
+    void JustAppeared() override
+    {
+        me->SetFaction(FACTION_ENEMY);
+        me->SetDisplayId(MODEL_IMAGE_OF_EMPTY);
+        Events.ScheduleEvent(EVENT_TRANSFORM, 4s);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override { }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _victimGUID.Clear();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!_victimGUID || Events.Empty())
+            return;
+
+        Unit* victim = ObjectAccessor::GetUnit(*me, _victimGUID);
+        me->SetFacingToObject(victim);
+
+        Events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = Events.ExecuteEvent())
+        {
+            ExecuteEvent(eventId);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+    }
+protected:
+    ObjectGuid _victimGUID;
+
+};
+
+/*#####
 # npc_portable_fel_cannon
 #####*/
 
@@ -1905,44 +1911,34 @@ class npc_portable_fel_cannon : public CreatureScript
 public:
     npc_portable_fel_cannon() : CreatureScript("npc_portable_fel_cannon") { }
 
-    struct npc_portable_fel_cannonAI : public ScriptedAI
+    struct npc_portable_fel_cannonAI : public stationary_defenderAI
     {
-        npc_portable_fel_cannonAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_portable_fel_cannonAI(Creature* creature) : stationary_defenderAI(creature) { }
 
         void JustAppeared() override
         {
-            DoCastSelf(SPELL_PORTABLE_FEL_CANNON_TRANSFORM);
-            _events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 2s);
+            stationary_defenderAI::JustAppeared();
+            if (Unit* victim = me->FindNearestCreature(NPC_DOOMGUARD_PUNISHER, 250.0f))
+                _victimGUID = victim->GetGUID();
+            Events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 2s);
         }
 
-        void UpdateAI(uint32 diff) override
+        void ExecuteEvent(uint32 eventId) override
         {
-            if (!UpdateVictim() && _events.Empty())
-                return;
-
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
-                {
-                case EVENT_CAST_FEL_CANNON_BLAST:
-                    DoCast(me->FindNearestCreature(NPC_DOOMGUARD_PUNISHER, 50.0f), SPELL_FEL_CANNON_BLAST);
-                    _events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 5s);
-                    break;
-                default:
-                    break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
+            case EVENT_TRANSFORM:
+                SetActive(true);
+                DoCastSelf(SPELL_PORTABLE_FEL_CANNON_TRANSFORM);
+                break;
+            case EVENT_CAST_FEL_CANNON_BLAST:
+                DoCast(ObjectAccessor::GetUnit(*me, _victimGUID), SPELL_FEL_CANNON_BLAST);
+                Events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 5s);
+                break;
+            default:
+                break;
             }
         }
-    private:
-        EventMap _events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -1967,38 +1963,28 @@ class npc_fel_eye_stalk : public CreatureScript
 public:
     npc_fel_eye_stalk() : CreatureScript("npc_fel_eye_stalk") { }
 
-    struct npc_fel_eye_stalkAI : public trash_defenderAI
+    struct npc_fel_eye_stalkAI : public stationary_defenderAI
     {
-        npc_fel_eye_stalkAI(Creature* creature) : trash_defenderAI(creature) { }
+        npc_fel_eye_stalkAI(Creature* creature) : stationary_defenderAI(creature) { }
 
         void JustAppeared() override
         {
-            trash_defenderAI::JustAppeared();
-            Events.ScheduleEvent(SPELL_MIND_FLAY, 2s);
+            stationary_defenderAI::JustAppeared();
+            if (Unit* victim = me->FindNearestCreature(NPC_SHIVAN_ASSASSIN, 250.0f))
+                _victimGUID = victim->GetGUID();
+            Events.ScheduleEvent(EVENT_CAST_MIND_FLAY, 2s);
         }
 
-        void JustEngagedWith(Unit* who) override
-        {
-            trash_defenderAI::JustEngagedWith(who);
-            Events.ScheduleEvent(SPELL_MIND_FLAY, 2s);
-        }
         void ExecuteEvent(uint32 eventId) override
         {
             switch (eventId)
             {
-            case EVENT_IGNITE:
-            {
-                // Summon a game object for the fire effect
-                QuaternionData rotation = QuaternionData::fromEulerAnglesZYX(me->GetPositionZ(), 0.f, 0.f);
-                me->SummonGameObject(GO_SHIELD_WRECKAGE, me->GetPosition(), rotation, 6s, GOSummonType(GO_SUMMON_TIMED_DESPAWN));
-                break;
-            }
             case EVENT_TRANSFORM:
                 SetActive(true);
                 DoCastSelf(SPELL_EYE_STALK_TRANSFORM);
                 break;
             case EVENT_CAST_MIND_FLAY:
-                me->CastSpell(me->FindNearestCreature(NPC_SHIVAN_ASSASSIN, 25.0f), SPELL_MIND_FLAY);
+                DoCast(ObjectAccessor::GetUnit(*me, _victimGUID), SPELL_MIND_FLAY);
                 Events.ScheduleEvent(EVENT_CAST_MIND_FLAY, 13s);
                 break;
             default:
@@ -2048,46 +2034,52 @@ class spell_shartuuls_transporter_possession_transfer : public AuraScript
 {
     PrepareAuraScript(spell_shartuuls_transporter_possession_transfer);
 
-    //todo So far, it's not working
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
-
-        PreventDefaultAction();
         Unit* caster = GetCaster();
+        Creature* overseerShartuul = caster->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 200.0f);
+        if (!overseerShartuul)
+            return;
 
         //!I'm not sure how safe it's gonna be
-        Unit* target = caster->GetVictim();
+        Unit* target = caster->GetVictim(); //GetTargetApplication()->GetTarget();
         if (!target)
             return;
         Unit* charmer = target->GetCharmer();
         if (!charmer || !caster)
             return;
-        uint32 previousCharm;
+        uint32 prevCharm;
         uint32 currCharm;
+
+        //Save the new demon controlled by the player
+        ENSURE_AI(npc_overseer_shartuul::npc_overseer_shartuulAI, overseerShartuul->AI())->currPossessDemonGUID = caster->GetGUID();
         if (GetId() == SPELL_DOOMPUNISHER_POSSESSION_TRANSFER)
         {
-            previousCharm = SPELL_CHARM_NORTH_01;
+            prevCharm = SPELL_CHARM_NORTH_01;
             currCharm = SPELL_CHARM_NORTH_02;
+            overseerShartuul->AI()->DoAction(ACTION_START_DEMON_II_PHASE_I);
         }
         else //SPELL_SHIVAN_POSSESSION_TRANSFER
         {
-            previousCharm = SPELL_CHARM_NORTH_02;
+            prevCharm = SPELL_CHARM_NORTH_02;
             currCharm = SPELL_CHARM_NORTH_03;
+            overseerShartuul->AI()->DoAction(ACTION_START_DEMON_III_PHASE_I);
         }
 
-        charmer->RemoveAurasDueToSpell(previousCharm);
-        target->RemoveAurasDueToSpell(previousCharm);
+        //Swaping the demon
+        charmer->RemoveAurasDueToSpell(prevCharm);
+        target->RemoveAurasDueToSpell(prevCharm);
         if (target->IsCreature())
-            target->ToCreature()->DespawnOrUnsummon();
-        charmer->CastSpell(nullptr, currCharm);
+            target->KillSelf();
+        charmer->CastSpell(caster, currCharm);
         caster->CombatStop();
     }
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectApplyFn(spell_shartuuls_transporter_possession_transfer::AfterRemove, EFFECT_2, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_shartuuls_transporter_possession_transfer::AfterRemove, EFFECT_2, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2139,7 +2131,7 @@ enum DisruptionRay
     SPELL_SUMMON_STUN_ZONE_GRAPHIC_EW = 40776,
     SPELL_SUMMON_STUN_ZONE_GRAPHIC_NS = 40783,
     SPELL_STUN_ZONE                   = 40775,
-    MODEL_STUN_FIELD                  = 11686,
+    SPELL_STUN_ROPE                   = 40778,
     NPC_TRIGGER_STUN_FIELD            = 23312,
     NPC_TRIGGER_STUN_ROPE_DUMMY       = 23313,
 };
@@ -2158,13 +2150,18 @@ class spell_shartuuls_transporter_summon_stun_trap : public SpellScript
                 //Summons creatures that describe the boundary of a stun trap (East-West, North-South)
                 middleStunField->CastSpell(middleStunField, SPELL_SUMMON_STUN_ZONE_GRAPHIC_EW);
                 middleStunField->CastSpell(middleStunField, SPELL_SUMMON_STUN_ZONE_GRAPHIC_NS);
+                if (!middleStunField->HasAura(SPELL_STUN_ZONE))
+                    //Apply stun effect on summoned creatures
+                    middleStunField->AI()->DoCastSelf(SPELL_STUN_ZONE);
 
                 std::vector<Creature*> temp;
                 middleStunField->GetCreatureListWithEntryInGrid(temp, NPC_TRIGGER_STUN_ROPE_DUMMY, 20.0f);
-                for (uint8 i = 0; i < temp.size(); ++i)
-                    if (!temp[i]->HasAura(SPELL_STUN_ZONE))
-                        //Apply effect on summoned creatures
-                        temp[i]->AI()->DoCastSelf(SPELL_STUN_ZONE);
+                for (uint8 i = 0; i < temp.size(); i += 2)
+                {
+                    if (!temp[i]->HasAura(SPELL_STUN_ROPE))
+                        //Apply cosmetic effect on summoned creatures
+                        temp[i]->AI()->DoCast(temp[i + 1], SPELL_STUN_ROPE);
+                }
             }
         }
     }
@@ -2183,11 +2180,12 @@ class spell_shartuuls_transporter_consume_essence : public SpellScript
     //todo I think it can be converted to conditions in DB, but I don't know how.
     SpellCastResult CheckCast()
     {
-        Unit* caster = GetCaster();
-        if (Unit* target = ObjectAccessor::GetCreature(*caster, caster->GetTarget()))
-            if (target->GetEntry() != NPC_GAN_ARG_UNDERLING)
-                return SPELL_FAILED_BAD_TARGETS;
-        return SPELL_CAST_OK;
+        if (Unit* target = GetExplTargetUnit())
+        {
+            if (target->GetEntry() == NPC_GAN_ARG_UNDERLING)
+                return SPELL_CAST_OK;
+        }
+        return SPELL_FAILED_BAD_TARGETS;
     }
 
     void Register() override
@@ -2196,6 +2194,7 @@ class spell_shartuuls_transporter_consume_essence : public SpellScript
     }
 };
 
+//todo check wihout conditions
 // 40675 - Build Portable Fel Cannon
 class spell_shartuuls_transporter_build_portable_fel_cannon : public AuraScript
 {
@@ -2209,7 +2208,7 @@ class spell_shartuuls_transporter_build_portable_fel_cannon : public AuraScript
         {
             caster->AI()->Talk(SAY_BUILD_FEL_CANNON);
             Position pos = caster->GetRandomPoint(caster->GetPosition(), 5.0f);
-            caster->SummonCreature(NPC_PORTABLE_FEL_CANNON, caster->GetRandomPoint(caster->GetPosition(), 5.0f), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5min);
+            caster->SummonCreature(NPC_PORTABLE_FEL_CANNON, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5min);
         }
     }
 
@@ -2219,17 +2218,17 @@ class spell_shartuuls_transporter_build_portable_fel_cannon : public AuraScript
     }
 };
 
+//TODO FIX
 // 40493 - Super Jump
 class spell_shartuuls_transporter_super_jump : public SpellScript
 {
     PrepareSpellScript(spell_shartuuls_transporter_super_jump);
 
-    //Most likely, this can be converted simply into a CastSpell, redirecting EFFECT_0 to the target, and not to yourself.
-    //(EFFECT_0 already has logic)
     void HandleLeap(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
         Unit* caster = GetCaster();
+        
         if (Unit* target = GetExplTargetUnit())
         {
             Position pos = target->GetPosition();
@@ -2261,7 +2260,7 @@ void AddSC_shartuul_event()
     new npc_portable_fel_cannon;
     new npc_fel_eye_stalk;
     RegisterSpellScript(spell_shartuuls_transporter_possess_demon);
-    //RegisterSpellScript(spell_shartuuls_transporter_possession_transfer);
+    RegisterSpellScript(spell_shartuuls_transporter_possession_transfer);
     RegisterSpellScript(spell_shartuuls_transporter_aspects);
     RegisterSpellScript(spell_shartuuls_transporter_summon_stun_trap);
     RegisterSpellScript(spell_shartuuls_transporter_consume_essence);
