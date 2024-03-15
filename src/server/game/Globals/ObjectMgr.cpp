@@ -139,9 +139,7 @@ std::string GetScriptCommandName(ScriptCommands command)
         case SCRIPT_COMMAND_PLAY_ANIMKIT: res = "SCRIPT_COMMAND_PLAY_ANIMKIT"; break;
         default:
         {
-            char sz[32];
-            sprintf(sz, "Unknown command: %d", command);
-            res = sz;
+            res = Trinity::StringFormat("Unknown command: {}", command);
             break;
         }
     }
@@ -150,9 +148,7 @@ std::string GetScriptCommandName(ScriptCommands command)
 
 std::string ScriptInfo::GetDebugInfo() const
 {
-    char sz[256];
-    sprintf(sz, "%s ('%s' script id: %u)", GetScriptCommandName(command).c_str(), GetScriptsTableNameByType(type).c_str(), id);
-    return std::string(sz);
+    return Trinity::StringFormat("{} ('{}' script id: {})", GetScriptCommandName(command), GetScriptsTableNameByType(type), id);
 }
 
 bool normalizePlayerName(std::string& name)
@@ -243,16 +239,13 @@ ObjectMgr::~ObjectMgr()
 
 void ObjectMgr::AddLocaleString(std::string_view value, LocaleConstant localeConstant, std::vector<std::string>& data)
 {
-    if (!value.empty())
+    if (data.size() <= size_t(localeConstant))
     {
-        if (data.size() <= size_t(localeConstant))
-        {
-            data.reserve(TOTAL_LOCALES);
-            data.resize(localeConstant + 1);
-        }
-
-        data[localeConstant] = value;
+        data.reserve(TOTAL_LOCALES);
+        data.resize(localeConstant + 1);
     }
+
+    data[localeConstant] = value.empty() ? "" : value;
 }
 
 void ObjectMgr::LoadCreatureLocales()
@@ -363,13 +356,13 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                       "unit_class, unit_flags, unit_flags2, unit_flags3, "
     //                                        25      26             27    28         29      30
     //                                       "family, trainer_class, type, VehicleId, AIName, MovementType, "
-    //                                        31          32        33          34          35         36          37                         38
-    //                                       "ctm.Ground, ctm.Swim, ctm.Flight, ctm.Rooted, ctm.Chase, ctm.Random, ctm.InteractionPauseTimer, ExperienceModifier, "
-    //                                        39            40          41           42                        43
+    //                                        31                         32         33          34                        35
+    //                                       "ctm.HoverInitiallyEnabled, ctm.Chase, ctm.Random, ctm.InteractionPauseTimer, ExperienceModifier, "
+    //                                        36            37          38           39                        40
     //                                       "RacialLeader, movementId, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, "
-    //                                        44                    45
+    //                                        41                    42
     //                                       "CreatureImmunitiesId, flags_extra, "
-    //                                        46          47
+    //                                        43          44
     //                                       "ScriptName, StringId FROM creature_template WHERE entry = ? OR 1 = ?");
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
@@ -448,37 +441,29 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.VehicleId              = fields[28].GetUInt32();
     creatureTemplate.AIName                 = fields[29].GetString();
     creatureTemplate.MovementType           = uint32(fields[30].GetUInt8());
+
     if (!fields[31].IsNull())
-        creatureTemplate.Movement.Ground = static_cast<CreatureGroundMovementType>(fields[31].GetUInt8());
+        creatureTemplate.Movement.HoverInitiallyEnabled = fields[31].GetBool();
 
     if (!fields[32].IsNull())
-        creatureTemplate.Movement.Swim = fields[32].GetBool();
+        creatureTemplate.Movement.Chase = static_cast<CreatureChaseMovementType>(fields[32].GetUInt8());
 
     if (!fields[33].IsNull())
-        creatureTemplate.Movement.Flight = static_cast<CreatureFlightMovementType>(fields[33].GetUInt8());
+        creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[33].GetUInt8());
 
     if (!fields[34].IsNull())
-        creatureTemplate.Movement.Rooted = fields[34].GetBool();
+        creatureTemplate.Movement.InteractionPauseTimer = fields[34].GetUInt32();
 
-    if (!fields[35].IsNull())
-        creatureTemplate.Movement.Chase = static_cast<CreatureChaseMovementType>(fields[35].GetUInt8());
-
-    if (!fields[36].IsNull())
-        creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[36].GetUInt8());
-
-    if (!fields[37].IsNull())
-        creatureTemplate.Movement.InteractionPauseTimer = fields[37].GetUInt32();
-
-    creatureTemplate.ModExperience          = fields[38].GetFloat();
-    creatureTemplate.RacialLeader           = fields[39].GetBool();
-    creatureTemplate.movementId             = fields[40].GetUInt32();
-    creatureTemplate.WidgetSetID            = fields[41].GetInt32();
-    creatureTemplate.WidgetSetUnitConditionID = fields[42].GetInt32();
-    creatureTemplate.RegenHealth            = fields[43].GetBool();
-    creatureTemplate.CreatureImmunitiesId   = fields[44].GetInt32();
-    creatureTemplate.flags_extra            = fields[45].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[46].GetString());
-    creatureTemplate.StringId               = fields[47].GetString();
+    creatureTemplate.ModExperience          = fields[35].GetFloat();
+    creatureTemplate.RacialLeader           = fields[36].GetBool();
+    creatureTemplate.movementId             = fields[37].GetUInt32();
+    creatureTemplate.WidgetSetID            = fields[38].GetInt32();
+    creatureTemplate.WidgetSetUnitConditionID = fields[39].GetInt32();
+    creatureTemplate.RegenHealth            = fields[40].GetBool();
+    creatureTemplate.CreatureImmunitiesId   = fields[41].GetInt32();
+    creatureTemplate.flags_extra            = fields[42].GetUInt32();
+    creatureTemplate.ScriptID               = GetScriptId(fields[43].GetString());
+    creatureTemplate.StringId               = fields[44].GetString();
 }
 
 void ObjectMgr::LoadCreatureTemplateGossip()
@@ -1167,24 +1152,16 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         TC_LOG_INFO("sql.sql", "Creature (Entry: {}) has assigned gossip menu, but npcflag does not include UNIT_NPC_FLAG_GOSSIP.", cInfo->Entry);
     else if (cInfo->GossipMenuIds.empty() && cInfo->npcflag & UNIT_NPC_FLAG_GOSSIP)
         TC_LOG_INFO("sql.sql", "Creature (Entry: {}) has npcflag UNIT_NPC_FLAG_GOSSIP, but gossip menu is unassigned.", cInfo->Entry);
+
+    if (cInfo->VignetteID && !sVignetteStore.HasRecord(cInfo->VignetteID))
+    {
+        TC_LOG_INFO("sql.sql", "Creature (Entry: {}) has non-existing Vignette {}, set to 0.", cInfo->Entry, cInfo->VignetteID);
+        const_cast<CreatureTemplate*>(cInfo)->VignetteID = 0;
+    }
 }
 
 void ObjectMgr::CheckCreatureMovement(char const* table, uint64 id, CreatureMovementData& creatureMovement)
 {
-    if (creatureMovement.Ground >= CreatureGroundMovementType::Max)
-    {
-        TC_LOG_ERROR("sql.sql", "`{}`.`Ground` wrong value ({}) for Id {}, setting to Run.",
-            table, uint32(creatureMovement.Ground), id);
-        creatureMovement.Ground = CreatureGroundMovementType::Run;
-    }
-
-    if (creatureMovement.Flight >= CreatureFlightMovementType::Max)
-    {
-        TC_LOG_ERROR("sql.sql", "`{}`.`Flight` wrong value ({}) for Id {}, setting to None.",
-            table, uint32(creatureMovement.Flight), id);
-        creatureMovement.Flight = CreatureFlightMovementType::None;
-    }
-
     if (creatureMovement.Chase >= CreatureChaseMovementType::Max)
     {
         TC_LOG_ERROR("sql.sql", "`{}`.`Chase` wrong value ({}) for Id {}, setting to Run.",
@@ -1581,10 +1558,7 @@ void ObjectMgr::LoadCreatureMovementOverrides()
     // Load the data from creature_movement_override and if NULL fallback to creature_template_movement
     QueryResult result = WorldDatabase.Query(
         "SELECT cmo.SpawnId,"
-        "COALESCE(cmo.Ground, ctm.Ground),"
-        "COALESCE(cmo.Swim, ctm.Swim),"
-        "COALESCE(cmo.Flight, ctm.Flight),"
-        "COALESCE(cmo.Rooted, ctm.Rooted),"
+        "COALESCE(cmo.HoverInitiallyEnabled, ctm.HoverInitiallyEnabled),"
         "COALESCE(cmo.Chase, ctm.Chase),"
         "COALESCE(cmo.Random, ctm.Random),"
         "COALESCE(cmo.InteractionPauseTimer, ctm.InteractionPauseTimer) "
@@ -1610,19 +1584,13 @@ void ObjectMgr::LoadCreatureMovementOverrides()
 
         CreatureMovementData& movement = _creatureMovementOverrides[spawnId];
         if (!fields[1].IsNull())
-            movement.Ground = static_cast<CreatureGroundMovementType>(fields[1].GetUInt8());
+            movement.HoverInitiallyEnabled = fields[1].GetBool();
         if (!fields[2].IsNull())
-            movement.Swim = fields[2].GetBool();
+            movement.Chase = static_cast<CreatureChaseMovementType>(fields[2].GetUInt8());
         if (!fields[3].IsNull())
-            movement.Flight = static_cast<CreatureFlightMovementType>(fields[3].GetUInt8());
+            movement.Random = static_cast<CreatureRandomMovementType>(fields[3].GetUInt8());
         if (!fields[4].IsNull())
-            movement.Rooted = fields[4].GetBool();
-        if (!fields[5].IsNull())
-            movement.Chase = static_cast<CreatureChaseMovementType>(fields[5].GetUInt8());
-        if (!fields[6].IsNull())
-            movement.Random = static_cast<CreatureRandomMovementType>(fields[6].GetUInt8());
-        if (!fields[7].IsNull())
-            movement.InteractionPauseTimer = fields[7].GetUInt32();
+            movement.InteractionPauseTimer = fields[4].GetUInt32();
 
         CheckCreatureMovement("creature_movement_override", spawnId, movement);
     }
@@ -1659,7 +1627,7 @@ CreatureModel const* ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, C
     return cinfo->GetFirstInvisibleModel();
 }
 
-void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64* npcFlags, uint32* unitFlags, uint32* unitFlags2, uint32* unitFlags3, CreatureData const* data /*= nullptr*/)
+void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64* npcFlags, uint32* unitFlags, uint32* unitFlags2, uint32* unitFlags3, CreatureStaticFlagsHolder const& staticFlags, CreatureData const* data /*= nullptr*/)
 {
 #define ChooseCreatureFlagSource(field) ((data && data->field.has_value()) ? *data->field : cInfo->field)
 
@@ -1667,13 +1635,31 @@ void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64* npcFl
         *npcFlags = ChooseCreatureFlagSource(npcflag);
 
     if (unitFlags)
+    {
         *unitFlags = ChooseCreatureFlagSource(unit_flags);
+        if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_CAN_SWIM))
+            *unitFlags |= UNIT_FLAG_CAN_SWIM;
+
+        if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANNOT_SWIM))
+            *unitFlags |= UNIT_FLAG_CANT_SWIM;
+    }
 
     if (unitFlags2)
+    {
         *unitFlags2 = ChooseCreatureFlagSource(unit_flags2);
+        if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANNOT_TURN))
+            *unitFlags2 |= UNIT_FLAG2_CANNOT_TURN;
+
+        if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_5_INTERACT_WHILE_HOSTILE))
+            *unitFlags2 |= UNIT_FLAG2_INTERACT_WHILE_HOSTILE;
+    }
 
     if (unitFlags3)
+    {
         *unitFlags3 = ChooseCreatureFlagSource(unit_flags3);
+        if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_ALLOW_INTERACTION_WHILE_IN_COMBAT))
+            *unitFlags3 |= UNIT_FLAG3_ALLOW_INTERACTION_WHILE_IN_COMBAT;
+    }
 
 #undef ChooseCreatureFlagSource
 }
@@ -2275,6 +2261,11 @@ void ObjectMgr::LoadCreatures()
         if (data.wander_distance < 0.0f)
         {
             TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with `wander_distance`< 0, set to 0.", guid, data.id);
+            data.wander_distance = 0.0f;
+        }
+        else if (data.wander_distance > 0.0f && data.wander_distance < 0.1f)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with `wander_distance` below the allowed minimum distance of 0.1, set to 0.", guid, data.id);
             data.wander_distance = 0.0f;
         }
         else if (data.movementType == RANDOM_MOTION_TYPE)
@@ -4556,9 +4547,10 @@ void ObjectMgr::LoadQuests()
         Field* fields = result->Fetch();
 
         uint32 questId = fields[0].GetUInt32();
-        auto itr = _questTemplates.emplace(std::piecewise_construct, std::forward_as_tuple(questId), std::forward_as_tuple(fields)).first;
-        if (itr->second.IsAutoPush())
-            _questTemplatesAutoPush.push_back(&itr->second);
+        auto itr = _questTemplates.emplace(std::piecewise_construct, std::forward_as_tuple(questId), std::forward_as_tuple(new Quest(fields))).first;
+        itr->second->_weakRef = itr->second;
+        if (itr->second->IsAutoPush())
+            _questTemplatesAutoPush.push_back(itr->second.get());
     } while (result->NextRow());
 
     struct QuestLoaderHelper
@@ -4633,7 +4625,7 @@ void ObjectMgr::LoadQuests()
 
                 auto itr = _questTemplates.find(questId);
                 if (itr != _questTemplates.end())
-                    (itr->second.*loader.LoaderFunction)(fields);
+                    (itr->second.get()->*loader.LoaderFunction)(fields);
                 else
                     TC_LOG_ERROR("server.loading", "Table `{}` has data for quest {} but such quest does not exist", loader.TableName, questId);
             } while (result->NextRow());
@@ -4674,7 +4666,7 @@ void ObjectMgr::LoadQuests()
             // Do not throw error here because error for non existing quest is thrown while loading quest objectives. we do not need duplication
             auto itr = _questTemplates.find(questId);
             if (itr != _questTemplates.end())
-                itr->second.LoadQuestObjectiveVisualEffect(fields);
+                itr->second->LoadQuestObjectiveVisualEffect(fields);
         } while (result->NextRow());
     }
 
@@ -4687,7 +4679,7 @@ void ObjectMgr::LoadQuests()
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, questPair.first, nullptr))
             continue;
 
-        Quest* qinfo = &questPair.second;
+        Quest* qinfo = questPair.second.get();
 
         // additional quest integrity checks (GO, creature_template and items must be loaded already)
 
@@ -5267,7 +5259,7 @@ void ObjectMgr::LoadQuests()
             auto prevQuestItr = _questTemplates.find(prevQuestId);
             if (prevQuestItr == _questTemplates.end())
                 TC_LOG_ERROR("sql.sql", "Quest {} has PrevQuestId {}, but no such quest", qinfo->GetQuestId(), qinfo->GetPrevQuestId());
-            else if (prevQuestItr->second._breadcrumbForQuestId)
+            else if (prevQuestItr->second->_breadcrumbForQuestId)
                 TC_LOG_ERROR("sql.sql", "Quest {} should not be unlocked by breadcrumb quest {}", qinfo->_id, prevQuestId);
             else if (qinfo->_prevQuestID > 0)
                 qinfo->DependentPreviousQuests.push_back(prevQuestId);
@@ -5279,7 +5271,7 @@ void ObjectMgr::LoadQuests()
             if (nextQuestItr == _questTemplates.end())
                 TC_LOG_ERROR("sql.sql", "Quest {} has NextQuestId {}, but no such quest", qinfo->GetQuestId(), qinfo->_nextQuestID);
             else
-                nextQuestItr->second.DependentPreviousQuests.push_back(qinfo->GetQuestId());
+                nextQuestItr->second->DependentPreviousQuests.push_back(qinfo->GetQuestId());
         }
 
         if (uint32 breadcrumbForQuestId = std::abs(qinfo->_breadcrumbForQuestId))
@@ -5304,7 +5296,7 @@ void ObjectMgr::LoadQuests()
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, questPair.first, nullptr))
             continue;
 
-        Quest* qinfo = &questPair.second;
+        Quest* qinfo = questPair.second.get();
         uint32   qid = qinfo->GetQuestId();
         uint32 breadcrumbForQuestId = std::abs(qinfo->_breadcrumbForQuestId);
         std::set<uint32> questSet;
@@ -6756,7 +6748,8 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt
 
 Quest const* ObjectMgr::GetQuestTemplate(uint32 quest_id) const
 {
-    return Trinity::Containers::MapGetValuePtr(_questTemplates, quest_id);
+    auto itr = _questTemplates.find(quest_id);
+    return itr != _questTemplates.end() ? itr->second.get() : nullptr;
 }
 
 void ObjectMgr::LoadGraveyardZones()
@@ -10832,7 +10825,7 @@ void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
     // Initialize Query Data for quests
     if (mask & QUERY_DATA_QUESTS)
         for (auto& questTemplatePair : _questTemplates)
-            pool.PostWork([quest = &questTemplatePair.second]() { quest->InitializeQueryData(); });
+            pool.PostWork([quest = questTemplatePair.second.get()]() { quest->InitializeQueryData(); });
 
     // Initialize Quest POI data
     if (mask & QUERY_DATA_POIS)

@@ -267,7 +267,6 @@ class BattlegroundSA : public Battleground
 
         /// Called when a player leave battleground
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
-        void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
 
         void OnGameObjectCreate(GameObject* gameobject) override;
         void DoAction(uint32 actionId, WorldObject* source, WorldObject* target) override;

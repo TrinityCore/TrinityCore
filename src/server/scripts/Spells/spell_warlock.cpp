@@ -41,6 +41,7 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
     SPELL_WARLOCK_DEVOUR_MAGIC_HEAL                 = 19658,
+    SPELL_WARLOCK_DOOM_ENERGIZE                     = 193318,
     SPELL_WARLOCK_DRAIN_SOUL_ENERGIZE               = 205292,
     SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING           = 56249,
     SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP                = 56226,
@@ -337,6 +338,26 @@ class spell_warl_devour_magic : public SpellScript
     void Register() override
     {
         OnEffectSuccessfulDispel += SpellEffectFn(spell_warl_devour_magic::OnSuccessfulDispel, EFFECT_0, SPELL_EFFECT_DISPEL);
+    }
+};
+
+// 603 - Doom
+class spell_warl_doom : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_WARLOCK_DOOM_ENERGIZE });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_WARLOCK_DOOM_ENERGIZE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_doom::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
@@ -1014,6 +1035,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_demonic_circle_summon);
     RegisterSpellScript(spell_warl_demonic_circle_teleport);
     RegisterSpellScript(spell_warl_devour_magic);
+    RegisterSpellScript(spell_warl_doom);
     RegisterSpellScript(spell_warl_drain_soul);
     RegisterSpellScript(spell_warl_haunt);
     RegisterSpellScript(spell_warl_health_funnel);

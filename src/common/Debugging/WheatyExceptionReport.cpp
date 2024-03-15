@@ -41,7 +41,7 @@ inline LPTSTR ErrorMessage(DWORD dw)
     else
     {
         LPTSTR msgBuf = (LPTSTR)LocalAlloc(LPTR, 30);
-        sprintf(msgBuf, "Unknown error: %u", dw);
+        snprintf(msgBuf, 30, "Unknown error: %u", dw);
         return msgBuf;
     }
 
@@ -125,7 +125,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
     ++pos;
 
     TCHAR crash_folder_path[MAX_PATH];
-    sprintf_s(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
+    _stprintf_s(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
     if (!CreateDirectory(crash_folder_path, nullptr))
     {
         if (GetLastError() != ERROR_ALREADY_EXISTS)
@@ -134,10 +134,10 @@ PEXCEPTION_POINTERS pExceptionInfo)
 
     SYSTEMTIME systime;
     GetLocalTime(&systime);
-    sprintf(m_szDumpFileName, "%s\\%s_%s_[%u-%u_%u-%u-%u].dmp",
+    _stprintf_s(m_szDumpFileName, "%s\\%s_%s_[%u-%u_%u-%u-%u].dmp",
         crash_folder_path, GitRevision::GetHash(), pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
 
-    _stprintf(m_szLogFileName, _T("%s\\%s_%s_[%u-%u_%u-%u-%u].txt"),
+    _stprintf_s(m_szLogFileName, _T("%s\\%s_%s_[%u-%u_%u-%u-%u].txt"),
         crash_folder_path, GitRevision::GetHash(), pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
 
     m_hDumpFile = CreateFile(m_szDumpFileName,
@@ -375,13 +375,13 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
                 lRet = ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009"), 0, KEY_QUERY_VALUE, &hKey);
                 if (lRet == ERROR_SUCCESS)
                 {
-                    _stprintf(wszTmp, _T("Service Pack 6a (Version %d.%d, Build %d)"),
+                    _stprintf_s(wszTmp, _T("Service Pack 6a (Version %d.%d, Build %d)"),
                         osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
                     _tcsncat(szVersion, wszTmp, cntMax);
                 }
                 else                                            // Windows NT 4.0 prior to SP6a
                 {
-                    _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
+                    _stprintf_s(wszTmp, _T("%s (Version %d.%d, Build %d)"),
                         szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
                     _tcsncat(szVersion, wszTmp, cntMax);
                 }
@@ -390,17 +390,17 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
             else                                                // Windows NT 3.51 and earlier or Windows 2000 and later
             {
                 if (!_tcslen(szCSDVersion))
-                    _stprintf(wszTmp, _T("(Version %d.%d, Build %d)"),
+                    _stprintf_s(wszTmp, _T("(Version %d.%d, Build %d)"),
                         osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
                 else
-                    _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
+                    _stprintf_s(wszTmp, _T("%s (Version %d.%d, Build %d)"),
                         szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
                 _tcsncat(szVersion, wszTmp, cntMax);
             }
             break;
         }
         default:
-            _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
+            _stprintf_s(wszTmp, _T("%s (Version %d.%d, Build %d)"),
                 szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
             _tcsncat(szVersion, wszTmp, cntMax);
             break;
@@ -1736,50 +1736,50 @@ size_t countOverride)
                 else
                     length = strlen((char*)pAddress);
                 if (length > bufferSize - 6)
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s...\"", (DWORD)(bufferSize - 6), (char*)pAddress);
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "\"%.*s...\"", (int)(bufferSize - 6), (char*)pAddress);
                 else
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s\"", (DWORD)length, (char*)pAddress);
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "\"%.*s\"", (int)length, (char*)pAddress);
                 break;
             }
             case btStdString:
             {
                 std::string* value = static_cast<std::string*>(pAddress);
                 if (value->length() > bufferSize - 6)
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s...\"", (DWORD)(bufferSize - 6), value->c_str());
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "\"%.*s...\"", (int)(bufferSize - 6), value->c_str());
                 else
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%s\"", value->c_str());
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "\"%s\"", value->c_str());
                 break;
             }
             default:
                 // Format appropriately (assuming it's a 1, 2, or 4 bytes (!!!)
                 if (length == 1)
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X", *(PBYTE)pAddress);
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X", *(PBYTE)pAddress);
                 else if (length == 2)
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X", *(PWORD)pAddress);
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X", *(PWORD)pAddress);
                 else if (length == 4)
                 {
                     if (basicType == btFloat)
-                        pszCurrBuffer += sprintf(pszCurrBuffer, "%f", *(PFLOAT)pAddress);
+                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "%f", *(PFLOAT)pAddress);
                     else
-                        pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X", *(PDWORD)pAddress);
+                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X", *(PDWORD)pAddress);
                 }
                 else if (length == 8)
                 {
                     if (basicType == btFloat)
                     {
-                        pszCurrBuffer += sprintf(pszCurrBuffer, "%f",
+                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "%f",
                             *(double *)pAddress);
                     }
                     else
-                        pszCurrBuffer += sprintf(pszCurrBuffer, "0x%I64X",
+                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%I64X",
                         *(DWORD64*)pAddress);
                 }
                 else
                 {
     #if _WIN64
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "0x%I64X", (DWORD64)pAddress);
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%I64X", (DWORD64)pAddress);
     #else
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X", (DWORD)pAddress);
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X", (DWORD)pAddress);
     #endif
                 }
                 break;
@@ -1788,9 +1788,9 @@ size_t countOverride)
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
 #if _WIN64
-        pszCurrBuffer += sprintf(pszCurrBuffer, "0x%I64X <Unable to read memory>", (DWORD64)pAddress);
+        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%I64X <Unable to read memory>", (DWORD64)pAddress);
 #else
-        pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X <Unable to read memory>", (DWORD)pAddress);
+        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X <Unable to read memory>", (DWORD)pAddress);
 #endif
     }
 }

@@ -101,6 +101,7 @@ enum PaladinSpells
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
     SPELL_PALADIN_RIGHTEOUS_VERDICT_AURA         = 267611,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
+    SPELL_PALADIN_SHIELD_OF_THE_RIGHTEOUS_ARMOR  = 132403,
     SPELL_PALADIN_SHIELD_OF_VENGEANCE_DAMAGE     = 184689,
     SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE         = 224266,
     SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE        = 408399,
@@ -1319,6 +1320,25 @@ class spell_pal_selfless_healer : public AuraScript
     }
 };
 
+// 53600 - Shield of the Righteous
+class spell_pal_shield_of_the_righteous : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_SHIELD_OF_THE_RIGHTEOUS_ARMOR });
+    }
+
+    void HandleArmor()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_PALADIN_SHIELD_OF_THE_RIGHTEOUS_ARMOR, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pal_shield_of_the_righteous::HandleArmor);
+    }
+};
+
 // 184662 - Shield of Vengeance
 class spell_pal_shield_of_vengeance : public AuraScript
 {
@@ -1575,6 +1595,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_righteous_protector);
     RegisterSpellScript(spell_pal_righteous_verdict);
     RegisterSpellScript(spell_pal_selfless_healer);
+    RegisterSpellScript(spell_pal_shield_of_the_righteous);
     RegisterSpellScript(spell_pal_shield_of_vengeance);
     RegisterSpellScript(spell_pal_templar_s_verdict);
     RegisterSpellScript(spell_pal_t3_6p_bonus);

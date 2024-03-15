@@ -492,8 +492,6 @@ struct npc_joren_ironstock : public ScriptedAI
 
     void JustAppeared() override
     {
-        me->SetTemplateRooted(true);
-
         _scheduler.Schedule(1s, [this](TaskContext task)
         {
             if (Creature* invader = me->SummonCreature(NPC_ROCKJAW_INVADER, Trinity::Containers::SelectRandomContainerElement(RockjawInvaderSpawnPoints), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 18s))

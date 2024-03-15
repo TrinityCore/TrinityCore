@@ -164,11 +164,14 @@ uint32 GetInstalledLocalesMask()
     return 0;
 }
 
+uint32 uniqueObjectIdGenerator = std::numeric_limits<uint32>::max() - 1;
 std::map<std::pair<uint32, uint16>, uint32> uniqueObjectIds;
 
-uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId)
+uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId, bool isWmo)
 {
-    return uniqueObjectIds.emplace(std::make_pair(clientId, clientDoodadId), uniqueObjectIds.size() + 1).first->second;
+    // WMO client ids must be preserved, they are used in DB2 files
+    uint32 newId = isWmo ? clientId : uniqueObjectIdGenerator--;
+    return uniqueObjectIds.emplace(std::make_pair(clientId, clientDoodadId), newId).first->second;
 }
 
 // Local testing functions
@@ -187,12 +190,11 @@ bool ExtractSingleWmo(std::string& fname)
     // Copy files from archive
     std::string originalName = fname;
 
-    char szLocalFile[1024];
     char* plain_name = GetPlainName(&fname[0]);
     NormalizeFileName(plain_name, strlen(plain_name));
-    sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
+    std::string szLocalFile = Trinity::StringFormat("{}/{}", szWorkDirWmo, plain_name);
 
-    if (FileExists(szLocalFile))
+    if (FileExists(szLocalFile.c_str()))
         return true;
 
     int p = 0;
@@ -213,10 +215,10 @@ bool ExtractSingleWmo(std::string& fname)
         printf("Couldn't open RootWmo!!!\n");
         return true;
     }
-    FILE *output = fopen(szLocalFile,"wb");
+    FILE *output = fopen(szLocalFile.c_str(),"wb");
     if(!output)
     {
-        printf("couldn't open %s for writing!\n", szLocalFile);
+        printf("couldn't open %s for writing!\n", szLocalFile.c_str());
         return false;
     }
     froot.ConvertToVMAPRootWmo(output);
@@ -262,7 +264,7 @@ bool ExtractSingleWmo(std::string& fname)
 
     // Delete the extracted file in the case of an error
     if (!file_ok)
-        remove(szLocalFile);
+        remove(szLocalFile.c_str());
     return true;
 }
 

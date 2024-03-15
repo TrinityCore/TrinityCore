@@ -615,17 +615,14 @@ namespace MMAP
             return;
         }
 
-        char fileName[25];
-        sprintf(fileName, "mmaps/%04u.mmap", mapID);
+        std::string fileName = Trinity::StringFormat("mmaps/{:04}.mmap", mapID);
 
-        FILE* file = fopen(fileName, "wb");
+        FILE* file = fopen(fileName.c_str(), "wb");
         if (!file)
         {
             dtFreeNavMesh(navMesh);
             navMesh = nullptr;
-            char message[1024];
-            sprintf(message, "[Map %04u] Failed to open %s for writing!\n", mapID, fileName);
-            perror(message);
+            perror(Trinity::StringFormat("[Map {:04}] Failed to open {} for writing!\n", mapID, fileName).c_str());
             return;
         }
 
@@ -929,14 +926,11 @@ namespace MMAP
             }
 
             // file output
-            char fileName[255];
-            sprintf(fileName, "mmaps/%04u%02i%02i.mmtile", mapID, tileY, tileX);
-            FILE* file = fopen(fileName, "wb");
+            std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileY, tileX);
+            FILE* file = fopen(fileName.c_str(), "wb");
             if (!file)
             {
-                char message[1024];
-                sprintf(message, "[Map %04u] Failed to open %s for writing!\n", mapID, fileName);
-                perror(message);
+                perror(Trinity::StringFormat("[Map {:04}] Failed to open {} for writing!\n", mapID, fileName).c_str());
                 navMesh->removeTile(tileRef, nullptr, nullptr);
                 break;
             }
@@ -1073,9 +1067,8 @@ namespace MMAP
     /**************************************************************************/
     bool TileBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const
     {
-        char fileName[255];
-        sprintf(fileName, "mmaps/%04u%02i%02i.mmtile", mapID, tileY, tileX);
-        FILE* file = fopen(fileName, "rb");
+        std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileY, tileX);
+        FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
             return false;
 

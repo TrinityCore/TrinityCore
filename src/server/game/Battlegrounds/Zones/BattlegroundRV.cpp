@@ -80,25 +80,6 @@ void BattlegroundRV::StartingEventOpenDoors()
     TogglePillarCollision();
 }
 
-void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    switch (trigger)
-    {
-        case 5224:
-        case 5226:
-        // fire was removed in 3.2.0
-        case 5473:
-        case 5474:
-            break;
-        default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
-            break;
-    }
-}
-
 bool BattlegroundRV::SetupBattleground()
 {
     // elevators

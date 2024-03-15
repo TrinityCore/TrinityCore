@@ -24,6 +24,7 @@
 #include "BoundingIntervalHierarchy.h"
 
 #include "Define.h"
+#include "EnumFlag.h"
 
 namespace VMAP
 {
@@ -33,15 +34,19 @@ namespace VMAP
     struct GroupLocationInfo;
     enum class ModelIgnoreFlags : uint32;
 
-    class TC_COMMON_API MeshTriangle
+    enum class ModelFlags : uint32
     {
-        public:
-            MeshTriangle() : idx0(0), idx1(0), idx2(0) { }
-            MeshTriangle(uint32 na, uint32 nb, uint32 nc): idx0(na), idx1(nb), idx2(nc) { }
+        None    = 0x0,
+        IsM2    = 0x1
+    };
 
-            uint32 idx0;
-            uint32 idx1;
-            uint32 idx2;
+    DEFINE_ENUM_FLAG(ModelFlags);
+
+    struct MeshTriangle
+    {
+        uint32 idx0;
+        uint32 idx1;
+        uint32 idx2;
     };
 
     class TC_COMMON_API WmoLiquid
@@ -55,6 +60,8 @@ namespace VMAP
             uint32 GetType() const { return iType; }
             float *GetHeightStorage() { return iHeight; }
             uint8 *GetFlagsStorage() { return iFlags; }
+            float const* GetHeightStorage() const { return iHeight; }
+            uint8 const* GetFlagsStorage()  const { return iFlags; }
             uint32 GetFileSize();
             bool writeToFile(FILE* wf);
             static bool readFromFile(FILE* rf, WmoLiquid* &liquid);
@@ -91,7 +98,9 @@ namespace VMAP
             const G3D::AABox& GetBound() const { return iBound; }
             uint32 GetMogpFlags() const { return iMogpFlags; }
             uint32 GetWmoID() const { return iGroupWMOID; }
-            void getMeshData(std::vector<G3D::Vector3>& outVertices, std::vector<MeshTriangle>& outTriangles, WmoLiquid*& liquid);
+            std::vector<G3D::Vector3> const& GetVertices() const { return vertices; }
+            std::vector<MeshTriangle> const& GetTriangles() const { return triangles; }
+            WmoLiquid const* GetLiquid() const { return iLiquid; }
         protected:
             G3D::AABox iBound;
             uint32 iMogpFlags;// 0x8 outdor; 0x2000 indoor
@@ -106,21 +115,22 @@ namespace VMAP
     class TC_COMMON_API WorldModel
     {
         public:
-            WorldModel(): Flags(0), RootWMOID(0) { }
+            WorldModel(): Flags(ModelFlags::None), RootWMOID(0) { }
 
             //! pass group models to WorldModel and create BIH. Passed vector is swapped with old geometry!
             void setGroupModels(std::vector<GroupModel> &models);
+            void setFlags(ModelFlags flags) { Flags = flags; }
             void setRootWmoID(uint32 id) { RootWMOID = id; }
             bool IntersectRay(const G3D::Ray &ray, float &distance, bool stopAtFirstHit, ModelIgnoreFlags ignoreFlags) const;
-            bool IntersectPoint(const G3D::Vector3 &p, const G3D::Vector3 &down, float &dist, AreaInfo &info) const;
             bool GetLocationInfo(const G3D::Vector3 &p, const G3D::Vector3 &down, float &dist, GroupLocationInfo& info) const;
             bool writeFile(const std::string &filename);
             bool readFile(const std::string &filename);
-            void getGroupModels(std::vector<GroupModel>& outGroupModels);
+            bool IsM2() const { return Flags.HasFlag(ModelFlags::IsM2); }
+            std::vector<GroupModel> const& getGroupModels() const { return groupModels; }
             std::string const& GetName() const { return name; }
             void SetName(std::string newName) { name = std::move(newName); }
-            uint32 Flags;
         protected:
+            EnumFlag<ModelFlags> Flags;
             uint32 RootWMOID;
             std::vector<GroupModel> groupModels;
             BIH groupTree;

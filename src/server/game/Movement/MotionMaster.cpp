@@ -639,21 +639,16 @@ void MotionMaster::MoveConfused()
     }
 }
 
-void MotionMaster::MoveFleeing(Unit* enemy, Milliseconds time)
+void MotionMaster::MoveFleeing(Unit* enemy, Milliseconds time /*= 0ms*/)
 {
     if (!enemy)
         return;
 
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFleeing: '{}', flees from '{}' (time: {}ms)", _owner->GetGUID().ToString(), enemy->GetGUID().ToString(), time.count());
-    if (_owner->GetTypeId() == TYPEID_UNIT)
-    {
-        if (time > 0ms)
-            Add(new TimedFleeingMovementGenerator(enemy->GetGUID(), time));
-        else
-            Add(new FleeingMovementGenerator<Creature>(enemy->GetGUID()));
-    }
+    if (_owner->GetTypeId() == TYPEID_UNIT && time > 0ms)
+        Add(new TimedFleeingMovementGenerator(enemy->GetGUID(), time));
     else
-        Add(new FleeingMovementGenerator<Player>(enemy->GetGUID()));
+        Add(new FleeingMovementGenerator(enemy->GetGUID()));
 }
 
 void MotionMaster::MovePoint(uint32 id, Position const& pos, bool generatePath/* = true*/, Optional<float> finalOrient/* = {}*/, Optional<float> speed /*= {}*/,
@@ -865,7 +860,8 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
         arrivalSpellTargetGuid = arrivalCast->Target;
     }
 
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id, arrivalSpellId, arrivalSpellTargetGuid);
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id,
+        { .ArrivalSpellId = arrivalSpellId, .ArrivalSpellTarget = arrivalSpellTargetGuid });
     movement->Priority = MOTION_PRIORITY_HIGHEST;
     movement->BaseUnitState = UNIT_STATE_JUMPING;
     Add(movement);
@@ -899,14 +895,17 @@ void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float
         arrivalSpellTargetGuid = arrivalCast->Target;
     }
 
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id, arrivalSpellId, arrivalSpellTargetGuid);
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id,
+        { .ArrivalSpellId = arrivalSpellId, .ArrivalSpellTarget = arrivalSpellTargetGuid });
     movement->Priority = MOTION_PRIORITY_HIGHEST;
     movement->BaseUnitState = UNIT_STATE_JUMPING;
     movement->AddFlag(MOVEMENTGENERATOR_FLAG_PERSIST_ON_DEATH);
     Add(movement);
 }
 
-void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount)
+void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount,
+    Optional<Milliseconds> duration /*= {}*/, Optional<float> speed /*= {}*/,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/)
 {
     std::function<void(Movement::MoveSplineInit&)> initializer = [=, this](Movement::MoveSplineInit& init)
     {
@@ -915,11 +914,11 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         float angle = pos.GetAbsoluteAngle(_owner->GetPositionX(), _owner->GetPositionY());
 
         // add the owner's current position as starting point as it gets removed after entering the cycle
-        init.Path().push_back(G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()));
+        init.Path().emplace_back(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
 
         for (uint8 i = 0; i < stepCount; angle += step, ++i)
         {
-            G3D::Vector3 point;
+            G3D::Vector3& point = init.Path().emplace_back();
             point.x = x + radius * cosf(angle);
             point.y = y + radius * sinf(angle);
 
@@ -927,24 +926,34 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
                 point.z = z;
             else
                 point.z = _owner->GetMapHeight(point.x, point.y, z) + _owner->GetHoverOffset();
-
-            init.Path().push_back(point);
         }
 
+        init.SetCyclic();
         if (_owner->IsFlying())
         {
             init.SetFly();
-            init.SetCyclic();
             init.SetAnimation(AnimTier::Hover);
         }
         else
-        {
             init.SetWalk(true);
-            init.SetCyclic();
+
+        switch (speedSelectionMode)
+        {
+            case MovementWalkRunSpeedSelectionMode::ForceRun:
+                init.SetWalk(false);
+                break;
+            case MovementWalkRunSpeedSelectionMode::ForceWalk:
+                init.SetWalk(true);
+                break;
+            case MovementWalkRunSpeedSelectionMode::Default:
+            default:
+                break;
         }
+        if (speed)
+            init.SetVelocity(*speed);
     };
 
-    Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, 0));
+    Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, 0, { .Duration = duration }));
 }
 
 void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk, bool fly)
@@ -1105,7 +1114,7 @@ void MotionMaster::MoveDistract(uint32 timer, float orientation)
 
 void MotionMaster::MovePath(uint32 pathId, bool repeatable, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
-    Optional<float> wanderDistanceAtPathEnds, bool followPathBackwardsFromEndToStart, bool generatePath)
+    Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath)
 {
     if (!pathId)
         return;
@@ -1118,7 +1127,7 @@ void MotionMaster::MovePath(uint32 pathId, bool repeatable, Optional<Millisecond
 
 void MotionMaster::MovePath(WaypointPath const& path, bool repeatable, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
-    Optional<float> wanderDistanceAtPathEnds, bool followPathBackwardsFromEndToStart, bool generatePath)
+    Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MovePath: '{}', starts moving over path Id: {} (repeatable: {})",
         _owner->GetGUID().ToString(), path.Id, repeatable ? "YES" : "NO");
@@ -1126,13 +1135,13 @@ void MotionMaster::MovePath(WaypointPath const& path, bool repeatable, Optional<
         wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, generatePath), MOTION_SLOT_DEFAULT);
 }
 
-void MotionMaster::MoveRotate(uint32 id, uint32 time, RotateDirection direction)
+void MotionMaster::MoveRotate(uint32 id, RotateDirection direction, Optional<Milliseconds> time /*= {}*/,
+    Optional<float> turnSpeed /*= {}*/, Optional<float> totalTurnAngle /*= {}*/)
 {
-    if (!time)
-        return;
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRotate: '{}', starts rotate (time: {}ms, turnSpeed: {}, totalTurnAngle: {}, direction: {})",
+        _owner->GetGUID().ToString(), time.value_or(0ms).count(), turnSpeed, totalTurnAngle, direction);
 
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRotate: '{}', starts rotate (time: {}, direction: {})", _owner->GetGUID().ToString(), time, direction);
-    Add(new RotateMovementGenerator(id, time, direction));
+    Add(new RotateMovementGenerator(id, direction, time, turnSpeed, totalTurnAngle));
 }
 
 void MotionMaster::MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2)

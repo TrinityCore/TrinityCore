@@ -60,6 +60,7 @@ enum DeathKnightSpells
     SPELL_DK_FROST                              = 137006,
     SPELL_DK_FROST_FEVER                        = 55095,
     SPELL_DK_FROST_SCYTHE                       = 207230,
+    SPELL_DK_FROST_SHIELD                       = 207203,
     SPELL_DK_GLYPH_OF_FOUL_MENAGERIE            = 58642,
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
@@ -710,6 +711,27 @@ class spell_dk_obliteration : public AuraScript
     }
 };
 
+// 207200 - Permafrost
+class spell_dk_permafrost : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_FROST_SHIELD });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
+        GetTarget()->CastSpell(GetTarget(), SPELL_DK_FROST_SHIELD, args);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dk_permafrost::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 121916 - Glyph of the Geist (Unholy)
 /// 6.x, does this belong here or in spell_generic? apply this in creature_template_addon? sniffs say this is always cast on raise dead.
 class spell_dk_pet_geist_transform : public SpellScript
@@ -943,6 +965,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_mark_of_blood);
     RegisterSpellScript(spell_dk_necrosis);
     RegisterSpellScript(spell_dk_obliteration);
+    RegisterSpellScript(spell_dk_permafrost);
     RegisterSpellScript(spell_dk_pet_geist_transform);
     RegisterSpellScript(spell_dk_pet_skeleton_transform);
     RegisterSpellScript(spell_dk_pvp_4p_bonus);

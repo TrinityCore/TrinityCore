@@ -1580,19 +1580,7 @@ void Spell::EffectOpenLock()
         if (goInfo->GetNoDamageImmune() && player->HasUnitFlag(UNIT_FLAG_IMMUNE))
             return;
 
-        // Arathi Basin banner opening. /// @todo Verify correctness of this check
-        if (gameObjTarget->GetMapId() != 30 && gameObjTarget->GetMapId() != 607 && ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
-            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.requireLOS)))
-        {
-            //CanUseBattlegroundObject() already called in CheckCast()
-            // in battleground check
-            if (Battleground* bg = player->GetBattleground())
-            {
-                bg->EventPlayerClickedOnFlag(player, gameObjTarget);
-                return;
-            }
-        }
-        else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
+        if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {
             //CanUseBattlegroundObject() already called in CheckCast()
             // in battleground check
@@ -3142,16 +3130,23 @@ void Spell::EffectSanctuary()
     if (!unitTarget)
         return;
 
+    auto isAffectedBySanctuary = [](Unit const* attacker)
+    {
+        Creature const* attackerCreature = attacker->ToCreature();
+        return !attackerCreature || !attackerCreature->IsIgnoringSanctuarySpellEffect();
+    };
+
     if (unitTarget->GetTypeId() == TYPEID_PLAYER && !unitTarget->GetMap()->IsDungeon())
     {
         // stop all pve combat for players outside dungeons, suppress pvp combat
-        unitTarget->CombatStop(false, false);
+        unitTarget->CombatStop(false, false, isAffectedBySanctuary);
     }
     else
     {
         // in dungeons (or for nonplayers), reset this unit on all enemies' threat lists
-        for (auto const& pair : unitTarget->GetThreatManager().GetThreatenedByMeList())
-            pair.second->ScaleThreat(0.0f);
+        for (auto const& [guid, ref] : unitTarget->GetThreatManager().GetThreatenedByMeList())
+            if (isAffectedBySanctuary(ref->GetOwner()))
+                ref->ScaleThreat(0.0f);
     }
 
     // makes spells cast before this time fizzle

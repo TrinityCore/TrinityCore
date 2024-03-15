@@ -734,10 +734,6 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
             return false;
     }
 
-    if (itemTemplate->GetQuality() < ITEM_QUALITY_UNCOMMON)
-        if (!itemTemplate->HasFlag(ITEM_FLAG2_IGNORE_QUALITY_FOR_ITEM_VISUAL_SOURCE) || !itemTemplate->HasFlag(ITEM_FLAG3_ACTS_AS_TRANSMOG_HIDDEN_VISUAL_OPTION))
-            return false;
-
     if (itemModifiedAppearance->ID < _appearances->size() && _appearances->test(itemModifiedAppearance->ID))
         return false;
 

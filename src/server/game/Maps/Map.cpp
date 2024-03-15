@@ -16,14 +16,13 @@
  */
 
 #include "Map.h"
-#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CharacterPackets.h"
 #include "Containers.h"
 #include "Conversation.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
 #include "GameTime.h"
@@ -43,7 +42,6 @@
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
 #include "ObjectMgr.h"
-#include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "PoolMgr.h"
@@ -51,9 +49,11 @@
 #include "SpellAuras.h"
 #include "TerrainMgr.h"
 #include "Transport.h"
-#include "Vehicle.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
+#include "Vehicle.h"
+#include "Vignette.h"
+#include "VignettePackets.h"
 #include "Weather.h"
 #include "WeatherMgr.h"
 #include "World.h"
@@ -88,10 +88,6 @@ struct RespawnInfoWithHandle : RespawnInfo
 
 Map::~Map()
 {
-    // UnloadAll must be called before deleting the map
-
-    sScriptMgr->OnDestroyMap(this);
-
     // Delete all waiting spawns, else there will be a memory leak
     // This doesn't delete from database.
     UnloadAllRespawnInfos();
@@ -99,7 +95,7 @@ Map::~Map()
     while (!i_worldObjects.empty())
     {
         WorldObject* obj = *i_worldObjects.begin();
-        ASSERT(obj->IsWorldObject());
+        ASSERT(obj->IsStoredInWorldObjectGridContainer());
         //ASSERT(obj->GetTypeId() == TYPEID_CORPSE);
         obj->RemoveFromWorld();
         obj->ResetMap();
@@ -107,9 +103,6 @@ Map::~Map()
 
     if (!m_scriptSchedule.empty())
         sMapMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
-
-    sOutdoorPvPMgr->DestroyOutdoorPvPForMap(this);
-    sBattlefieldMgr->DestroyBattlefieldsForMap(this);
 
     m_terrain->UnloadMMapInstance(GetId(), GetInstanceId());
 }
@@ -144,7 +137,7 @@ m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
 i_gridExpiry(expiry), m_terrain(sTerrainMgr.LoadTerrain(id)), m_forceEnabledNavMeshFilterFlags(0), m_forceDisabledNavMeshFilterFlags(0),
-i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _respawnCheckTimer(0)
+i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _respawnCheckTimer(0), _vignetteUpdateTimer(5200, 5200)
 {
     for (uint32 x = 0; x < MAX_NUMBER_OF_GRIDS; ++x)
     {
@@ -171,11 +164,6 @@ i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _r
     m_terrain->LoadMMapInstance(GetId(), GetInstanceId());
 
     _worldStateValues = sWorldStateMgr->GetInitialWorldStatesForMap(this);
-
-    sOutdoorPvPMgr->CreateOutdoorPvPForMap(this);
-    sBattlefieldMgr->CreateBattlefieldsForMap(this);
-
-    sScriptMgr->OnCreateMap(this);
 }
 
 void Map::InitVisibilityDistance()
@@ -190,7 +178,7 @@ template<class T>
 void Map::AddToGrid(T* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsWorldObject())
+    if (obj->IsStoredInWorldObjectGridContainer())
         grid->GetGridType(cell.CellX(), cell.CellY()).template AddWorldObject<T>(obj);
     else
         grid->GetGridType(cell.CellX(), cell.CellY()).template AddGridObject<T>(obj);
@@ -200,7 +188,7 @@ template<>
 void Map::AddToGrid(Creature* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsWorldObject())
+    if (obj->IsStoredInWorldObjectGridContainer())
         grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
     else
         grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
@@ -221,7 +209,7 @@ template<>
 void Map::AddToGrid(DynamicObject* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsWorldObject())
+    if (obj->IsStoredInWorldObjectGridContainer())
         grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
     else
         grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
@@ -250,7 +238,7 @@ void Map::AddToGrid(Corpse* obj, Cell const& cell)
     // to avoid failing an assertion in GridObject::AddToGrid
     if (grid->isGridObjectDataLoaded())
     {
-        if (obj->IsWorldObject())
+        if (obj->IsStoredInWorldObjectGridContainer())
             grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
         else
             grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
@@ -263,7 +251,7 @@ void Map::SwitchGridContainers(T* /*obj*/, bool /*on*/) { }
 template<>
 void Map::SwitchGridContainers(Creature* obj, bool on)
 {
-    ASSERT(!obj->IsPermanentWorldObject());
+    ASSERT(!obj->IsAlwaysStoredInWorldObjectGridContainer());
     CellCoord p = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
     if (!p.IsCoordValid())
     {
@@ -509,6 +497,38 @@ void Map::SetWorldStateValue(int32 worldStateId, int32 value, bool hidden)
 
         mapReference.GetSource()->SendDirectMessage(updateWorldState.GetRawPacket());
     }
+}
+
+void Map::AddInfiniteAOIVignette(Vignettes::VignetteData* vignette)
+{
+    _infiniteAOIVignettes.push_back(vignette);
+
+    WorldPackets::Vignette::VignetteUpdate vignetteUpdate;
+    vignette->FillPacket(vignetteUpdate.Added);
+    vignetteUpdate.Write();
+
+    for (MapReference const& ref : m_mapRefManager)
+        if (Vignettes::CanSee(ref.GetSource(), *vignette))
+            ref.GetSource()->SendDirectMessage(vignetteUpdate.GetRawPacket());
+}
+
+void Map::RemoveInfiniteAOIVignette(Vignettes::VignetteData* vignette)
+{
+    if (!std::erase(_infiniteAOIVignettes, vignette))
+        return;
+
+    WorldPackets::Vignette::VignetteUpdate vignetteUpdate;
+    vignetteUpdate.Removed.push_back(vignette->Guid);
+    vignetteUpdate.Write();
+
+    if (vignette->Data->GetFlags().HasFlag(VignetteFlags::ZoneInfiniteAOI))
+    {
+        for (MapReference const& ref : m_mapRefManager)
+            if (ref.GetSource()->GetZoneId() == vignette->ZoneID)
+                ref.GetSource()->SendDirectMessage(vignetteUpdate.GetRawPacket());
+    }
+    else
+        SendToPlayers(vignetteUpdate.GetRawPacket());
 }
 
 template<class T>
@@ -772,6 +792,24 @@ void Map::Update(uint32 t_diff)
         WorldObject* obj = *_transportsUpdateIter;
         ++_transportsUpdateIter;
         obj->Update(t_diff);
+    }
+
+    if (_vignetteUpdateTimer.Update(t_diff))
+    {
+        for (Vignettes::VignetteData* vignette : _infiniteAOIVignettes)
+        {
+            if (vignette->NeedUpdate)
+            {
+                WorldPackets::Vignette::VignetteUpdate vignetteUpdate;
+                vignette->FillPacket(vignetteUpdate.Updated);
+                vignetteUpdate.Write();
+                for (MapReference const& ref : m_mapRefManager)
+                    if (Vignettes::CanSee(ref.GetSource(), *vignette))
+                        ref.GetSource()->SendDirectMessage(vignetteUpdate.GetRawPacket());
+
+                vignette->NeedUpdate = false;
+            }
+        }
     }
 
     SendObjectUpdates();
@@ -1680,20 +1718,15 @@ void Map::UnloadAll()
 }
 
 void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data,
-    map_liquidHeaderTypeFlags reqLiquidType, float collisionHeight)
+    Optional<map_liquidHeaderTypeFlags> reqLiquidType, float collisionHeight)
 {
     m_terrain->GetFullTerrainStatusForPosition(phaseShift, GetId(), x, y, z, data, reqLiquidType, collisionHeight, &_dynamicTree);
 }
 
-ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, map_liquidHeaderTypeFlags ReqLiquidType, LiquidData* data,
+ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, Optional<map_liquidHeaderTypeFlags> ReqLiquidType, LiquidData* data,
     float collisionHeight)
 {
     return m_terrain->GetLiquidStatus(phaseShift, GetId(), x, y, z, ReqLiquidType, data, collisionHeight);
-}
-
-bool Map::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId)
-{
-    return m_terrain->GetAreaInfo(phaseShift, GetId(), x, y, z, mogpflags, adtId, rootId, groupId, &_dynamicTree);
 }
 
 uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z)
@@ -2580,7 +2613,7 @@ void Map::RemoveAllObjectsInRemoveList()
         bool on = itr->second;
         i_objectsToSwitch.erase(itr);
 
-        if (!obj->IsPermanentWorldObject())
+        if (!obj->IsAlwaysStoredInWorldObjectGridContainer())
         {
             switch (obj->GetTypeId())
             {
