@@ -671,7 +671,7 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
                 unit = m_caster->ToCreature()->GetVictim();
 
             // didn't find anything - let's use self as target
-            if (!unit && neededTargets & (TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY | TARGET_FLAG_UNIT_ALLY))
+            if (!unit && (neededTargets & (TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT_DEAD | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_UNIT_PASSENGER)) == 0)
                 unit = m_caster->ToUnit();
 
             m_targets.SetUnitTarget(unit);
