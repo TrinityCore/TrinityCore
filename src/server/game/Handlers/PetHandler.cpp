@@ -801,7 +801,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     Spell* spell = new Spell(caster, spellInfo, triggerCastFlags);
     spell->m_fromClient = true;
     spell->m_cast_count = castCount; // probably pending spell cast
-    spell->m_targets = targets;
+    spell->InitExplicitTargets(targets);
 
     SpellCastResult result = spell->CheckPetCast(nullptr);
 
