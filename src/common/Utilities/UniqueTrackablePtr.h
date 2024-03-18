@@ -18,12 +18,11 @@
 #ifndef TRINITYCORE_UNIQUE_TRACKABLE_PTR_H
 #define TRINITYCORE_UNIQUE_TRACKABLE_PTR_H
 
-#include "Define.h"
 #include <memory>
 
 namespace Trinity
 {
-template <typename T, typename Deleter = std::default_delete<T>>
+template <typename T>
 class unique_trackable_ptr;
 
 template <typename T>
@@ -36,32 +35,44 @@ class unique_strong_ref_ptr;
  * \brief Specialized variant of std::shared_ptr that enforces unique ownership and/or std::unique_ptr with std::weak_ptr capabilities
  * Implementation has the same overhead as a std::shared_ptr, that is, a separate allocation for control block that holds use counters
  * \tparam T Type of held object
- * \tparam Deleter Object deleter (defaults to std::default_delete<T>)
  */
-template <typename T, typename Deleter>
+template <typename T>
 class unique_trackable_ptr
 {
 public:
     using element_type = T;
     using pointer = T*;
-    using deleter_type = Deleter;
 
-    unique_trackable_ptr() : _ptr(nullptr, deleter_type()) { }
+    unique_trackable_ptr() : _ptr() { }
 
-    explicit unique_trackable_ptr(pointer ptr) : _ptr(ptr, deleter_type()) { }
+    explicit unique_trackable_ptr(pointer ptr)
+        : _ptr(ptr) { }
 
-    explicit unique_trackable_ptr(pointer ptr, deleter_type deleter) : _ptr(ptr, std::move(deleter)) { }
+    template <typename Deleter, std::enable_if_t<std::conjunction_v<std::is_move_constructible<Deleter>, std::is_invocable<Deleter&, T*&>>, int> = 0>
+    explicit unique_trackable_ptr(pointer ptr, Deleter deleter)
+        : _ptr(ptr, std::move(deleter)) { }
 
     unique_trackable_ptr(unique_trackable_ptr const&) = delete;
 
     unique_trackable_ptr(unique_trackable_ptr&& other) noexcept
         : _ptr(std::move(other._ptr)) { }
 
+    template <typename T2, std::enable_if_t<std::is_convertible_v<T2*, T*>, int> = 0>
+    unique_trackable_ptr(unique_trackable_ptr<T2>&& other) noexcept
+        : _ptr(std::move(other)._ptr) { }
+
     unique_trackable_ptr& operator=(unique_trackable_ptr const&) = delete;
 
     unique_trackable_ptr& operator=(unique_trackable_ptr&& other) noexcept
     {
         _ptr = std::move(other._ptr);
+        return *this;
+    }
+
+    template <typename T2, std::enable_if_t<std::is_convertible_v<T2*, T*>, int> = 0>
+    unique_trackable_ptr& operator=(unique_trackable_ptr<T2>&& other) noexcept
+    {
+        _ptr = std::move(other)._ptr;
         return *this;
     }
 
@@ -99,12 +110,26 @@ public:
         return static_cast<bool>(_ptr);
     }
 
-    void reset(pointer ptr = nullptr, deleter_type deleter = {})
+    void reset()
+    {
+        _ptr.reset();
+    }
+
+    void reset(pointer ptr)
+    {
+        _ptr.reset(ptr);
+    }
+
+    template <class Deleter, std::enable_if_t<std::conjunction_v<std::is_move_constructible<Deleter>, std::is_invocable<Deleter&, T*&>>, int> = 0>
+    void reset(pointer ptr, Deleter deleter)
     {
         _ptr.reset(ptr, std::move(deleter));
     }
 
 private:
+    template <typename T0>
+    friend class unique_trackable_ptr;
+
     template <typename T0>
     friend class unique_weak_ptr;
 
@@ -139,22 +164,36 @@ public:
 
     unique_weak_ptr() = default;
 
-    template<typename Deleter>
-    unique_weak_ptr(unique_trackable_ptr<T, Deleter> const& trackable) : _ptr(trackable._ptr)
-    {
-    }
+    unique_weak_ptr(unique_trackable_ptr<T> const& trackable)
+        : _ptr(trackable._ptr) { }
 
     unique_weak_ptr(unique_weak_ptr const& other) = default;
+
+    template <typename T2, std::enable_if_t<std::is_convertible_v<T2*, T*>, int> = 0>
+    unique_weak_ptr(unique_weak_ptr<T2> const& other) noexcept
+        : _ptr(other._ptr) { }
+
     unique_weak_ptr(unique_weak_ptr&& other) noexcept = default;
 
-    template<typename Deleter>
-    unique_weak_ptr& operator=(unique_trackable_ptr<T, Deleter> const& trackable)
+    template <typename T2, std::enable_if_t<std::is_convertible_v<T2*, T*>, int> = 0>
+    unique_weak_ptr(unique_weak_ptr<T2>&& other) noexcept
+        : _ptr(std::move(other)._ptr) { }
+
+    unique_weak_ptr& operator=(unique_trackable_ptr<T> const& trackable)
     {
         _ptr = trackable._ptr;
         return *this;
     }
 
     unique_weak_ptr& operator=(unique_weak_ptr const& other) = default;
+
+    template <typename T2, std::enable_if_t<std::is_convertible_v<T2*, T*>, int> = 0>
+    unique_weak_ptr& operator=(unique_weak_ptr<T2>&& other)
+    {
+        _ptr = std::move(other)._ptr;
+        return *this;
+    }
+
     unique_weak_ptr& operator=(unique_weak_ptr&& other) noexcept = default;
 
     ~unique_weak_ptr() = default;
@@ -176,6 +215,24 @@ public:
     }
 
 private:
+    template <typename T0>
+    friend class unique_weak_ptr;
+
+    template <typename T0>
+    friend class unique_strong_ref_ptr;
+
+    template <class To, class From>
+    friend unique_weak_ptr<To> static_pointer_cast(unique_weak_ptr<From> const& other);
+
+    template <class To, class From>
+    friend unique_weak_ptr<To> const_pointer_cast(unique_weak_ptr<From> const& other);
+
+    template <class To, class From>
+    friend unique_weak_ptr<To> reinterpret_pointer_cast(unique_weak_ptr<From> const& other);
+
+    template <class To, class From>
+    friend unique_weak_ptr<To> dynamic_pointer_cast(unique_weak_ptr<From> const& other);
+
     std::weak_ptr<element_type> _ptr;
 };
 
@@ -219,16 +276,71 @@ public:
         return static_cast<bool>(_ptr);
     }
 
-    friend std::strong_ordering operator<=>(unique_strong_ref_ptr const&, unique_strong_ref_ptr const&) = default;
+    operator unique_weak_ptr<T>() const
+    {
+        unique_weak_ptr<T> weak;
+        weak._ptr = _ptr;
+        return weak;
+    }
 
 private:
     template <typename T0>
     friend class unique_weak_ptr;
 
+    template <class To, class From>
+    friend unique_strong_ref_ptr<To> static_pointer_cast(unique_strong_ref_ptr<From> const& other);
+
+    template <class To, class From>
+    friend unique_strong_ref_ptr<To> static_pointer_cast(unique_strong_ref_ptr<From>&& other);
+
+    template <class To, class From>
+    friend unique_strong_ref_ptr<To> const_pointer_cast(unique_strong_ref_ptr<From> const& other);
+
+    template <class To, class From>
+    friend unique_strong_ref_ptr<To> const_pointer_cast(unique_strong_ref_ptr<From>&& other);
+
+    template <class To, class From>
+    friend unique_strong_ref_ptr<To> reinterpret_pointer_cast(unique_strong_ref_ptr<From> const& other);
+
+    template <class To, class From>
+    friend unique_strong_ref_ptr<To> reinterpret_pointer_cast(unique_strong_ref_ptr<From>&& other);
+
+    template <class To, class From>
+    friend unique_strong_ref_ptr<To> dynamic_pointer_cast(unique_strong_ref_ptr<From> const& other);
+
+    template <class To, class From>
+    friend unique_strong_ref_ptr<To> dynamic_pointer_cast(unique_strong_ref_ptr<From>&& other);
+
     unique_strong_ref_ptr(std::shared_ptr<element_type> ptr) : _ptr(std::move(ptr)) { }
 
     std::shared_ptr<element_type> _ptr;
 };
+
+// unique_trackable_ptr funcions
+
+template <typename T1, typename T2>
+bool operator==(unique_trackable_ptr<T1> const& left, unique_trackable_ptr<T2> const& right)
+{
+    return left.get() == right.get();
+}
+
+template <typename T1, typename T2>
+std::strong_ordering operator<=>(unique_trackable_ptr<T1> const& left, unique_trackable_ptr<T2> const& right)
+{
+    return left.get() <=> right.get();
+}
+
+template <typename T1>
+bool operator==(unique_trackable_ptr<T1> const& left, std::nullptr_t)
+{
+    return left.get() == nullptr;
+}
+
+template <typename T1>
+std::strong_ordering operator<=>(unique_trackable_ptr<T1> const& left, std::nullptr_t)
+{
+    return left.get() <=> nullptr;
+}
 
 template <typename T, typename... Args>
 std::enable_if_t<!std::is_array_v<T>, unique_trackable_ptr<T>> make_unique_trackable(Args&&... args)
@@ -268,6 +380,114 @@ std::enable_if_t<std::is_bounded_array_v<T>, unique_trackable_ptr<T>> make_uniqu
     unique_trackable_ptr<T> ptr;
     ptr._ptr = std::make_shared<T>(val);
     return ptr;
+}
+
+// unique_weak_ptr funcions
+
+template <class To, class From>
+unique_weak_ptr<To> static_pointer_cast(unique_weak_ptr<From> const& other)
+{
+    unique_weak_ptr<To> to;
+    to._ptr = std::static_pointer_cast<To>(other._ptr.lock());
+    return to;
+}
+
+template <class To, class From>
+unique_weak_ptr<To> const_pointer_cast(unique_weak_ptr<From> const& other)
+{
+    unique_weak_ptr<To> to;
+    to._ptr = std::const_pointer_cast<To>(other._ptr.lock());
+    return to;
+}
+
+template <class To, class From>
+unique_weak_ptr<To> reinterpret_pointer_cast(unique_weak_ptr<From> const& other)
+{
+    unique_weak_ptr<To> to;
+    to._ptr = std::reinterpret_pointer_cast<To>(other._ptr.lock());
+    return to;
+}
+
+template <class To, class From>
+unique_weak_ptr<To> dynamic_pointer_cast(unique_weak_ptr<From> const& other)
+{
+    unique_weak_ptr<To> to;
+    to._ptr = std::dynamic_pointer_cast<To>(other._ptr.lock());
+    return to;
+}
+
+// unique_strong_ref_ptr funcions
+
+template <typename T1, typename T2>
+bool operator==(unique_strong_ref_ptr<T1> const& left, unique_strong_ref_ptr<T2> const& right)
+{
+    return left.get() == right.get();
+}
+
+template <typename T1, typename T2>
+std::strong_ordering operator<=>(unique_strong_ref_ptr<T1> const& left, unique_strong_ref_ptr<T2> const& right)
+{
+    return left.get() <=> right.get();
+}
+
+template <typename T1>
+bool operator==(unique_strong_ref_ptr<T1> const& left, std::nullptr_t)
+{
+    return left.get() == nullptr;
+}
+
+template <typename T1>
+std::strong_ordering operator<=>(unique_strong_ref_ptr<T1> const& left, std::nullptr_t)
+{
+    return left.get() <=> nullptr;
+}
+
+template <class To, class From>
+unique_strong_ref_ptr<To> static_pointer_cast(unique_strong_ref_ptr<From> const& other)
+{
+    return unique_strong_ref_ptr<To>(std::static_pointer_cast<To>(other._ptr));
+}
+
+template <class To, class From>
+unique_strong_ref_ptr<To> static_pointer_cast(unique_strong_ref_ptr<From>&& other)
+{
+    return unique_strong_ref_ptr<To>(std::static_pointer_cast<To>(std::move(other._ptr)));
+}
+
+template <class To, class From>
+unique_strong_ref_ptr<To> const_pointer_cast(unique_strong_ref_ptr<From> const& other)
+{
+    return unique_strong_ref_ptr<To>(std::const_pointer_cast<To>(other._ptr));
+}
+
+template <class To, class From>
+unique_strong_ref_ptr<To> const_pointer_cast(unique_strong_ref_ptr<From>&& other)
+{
+    return unique_strong_ref_ptr<To>(std::const_pointer_cast<To>(std::move(other._ptr)));
+}
+
+template <class To, class From>
+unique_strong_ref_ptr<To> reinterpret_pointer_cast(unique_strong_ref_ptr<From> const& other)
+{
+    return unique_strong_ref_ptr<To>(std::reinterpret_pointer_cast<To>(other._ptr));
+}
+
+template <class To, class From>
+unique_strong_ref_ptr<To> reinterpret_pointer_cast(unique_strong_ref_ptr<From>&& other)
+{
+    return unique_strong_ref_ptr<To>(std::reinterpret_pointer_cast<To>(std::move(other._ptr)));
+}
+
+template <class To, class From>
+unique_strong_ref_ptr<To> dynamic_pointer_cast(unique_strong_ref_ptr<From> const& other)
+{
+    return unique_strong_ref_ptr<To>(std::dynamic_pointer_cast<To>(other._ptr));
+}
+
+template <class To, class From>
+unique_strong_ref_ptr<To> dynamic_pointer_cast(unique_strong_ref_ptr<From>&& other)
+{
+    return unique_strong_ref_ptr<To>(std::dynamic_pointer_cast<To>(std::move(other._ptr)));
 }
 }
 

@@ -20,6 +20,7 @@
 
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
+#include "UniqueTrackablePtr.h"
 #include <typeinfo>
 
 class SpellInfo;
@@ -308,6 +309,8 @@ class TC_GAME_API Aura
 
         virtual std::string GetDebugInfo() const;
 
+        Trinity::unique_weak_ptr<Aura> GetWeakPtr() const { return m_scriptRef; }
+
         Aura(Aura const&) = delete;
         Aura(Aura&&) = delete;
 
@@ -356,6 +359,9 @@ class TC_GAME_API Aura
         std::vector<AuraApplication*> _removedApplications;
 
         AuraEffectVector _effects;
+
+        struct NoopAuraDeleter { void operator()(Aura*) const { /*noop - not managed*/ } };
+        Trinity::unique_trackable_ptr<Aura> m_scriptRef;
 };
 
 class TC_GAME_API UnitAura : public Aura

@@ -25,6 +25,7 @@
 #include "Optional.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
+#include "UniqueTrackablePtr.h"
 #include "WorldPacket.h"
 #include <bitset>
 #include <vector>
@@ -719,6 +720,8 @@ class TC_GAME_API Quest
         // Helpers
         static uint32 RoundXPValue(uint32 xp);
 
+        Trinity::unique_weak_ptr<Quest> GetWeakPtr() const { return _weakRef; }
+
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;
         std::array<WorldPacket, TOTAL_LOCALES> QueryData;
@@ -828,6 +831,8 @@ class TC_GAME_API Quest
         uint32 _specialFlags = 0; // custom flags, not sniffed/WDB
         std::bitset<MAX_QUEST_OBJECTIVE_TYPE> _usedQuestObjectiveTypes;
         uint32 _scriptId = 0;
+
+        Trinity::unique_weak_ptr<Quest> _weakRef;
 };
 
 struct QuestStatusData

@@ -16,14 +16,13 @@
  */
 
 #include "Map.h"
-#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CharacterPackets.h"
 #include "Containers.h"
 #include "Conversation.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
 #include "GameTime.h"
@@ -43,7 +42,6 @@
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
 #include "ObjectMgr.h"
-#include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "PoolMgr.h"
@@ -51,9 +49,9 @@
 #include "SpellAuras.h"
 #include "TerrainMgr.h"
 #include "Transport.h"
-#include "Vehicle.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
+#include "Vehicle.h"
 #include "Vignette.h"
 #include "VignettePackets.h"
 #include "Weather.h"
@@ -90,10 +88,6 @@ struct RespawnInfoWithHandle : RespawnInfo
 
 Map::~Map()
 {
-    // UnloadAll must be called before deleting the map
-
-    sScriptMgr->OnDestroyMap(this);
-
     // Delete all waiting spawns, else there will be a memory leak
     // This doesn't delete from database.
     UnloadAllRespawnInfos();
@@ -101,7 +95,7 @@ Map::~Map()
     while (!i_worldObjects.empty())
     {
         WorldObject* obj = *i_worldObjects.begin();
-        ASSERT(obj->IsWorldObject());
+        ASSERT(obj->IsStoredInWorldObjectGridContainer());
         //ASSERT(obj->GetTypeId() == TYPEID_CORPSE);
         obj->RemoveFromWorld();
         obj->ResetMap();
@@ -109,9 +103,6 @@ Map::~Map()
 
     if (!m_scriptSchedule.empty())
         sMapMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
-
-    sOutdoorPvPMgr->DestroyOutdoorPvPForMap(this);
-    sBattlefieldMgr->DestroyBattlefieldsForMap(this);
 
     m_terrain->UnloadMMapInstance(GetId(), GetInstanceId());
 }
@@ -173,11 +164,6 @@ i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _r
     m_terrain->LoadMMapInstance(GetId(), GetInstanceId());
 
     _worldStateValues = sWorldStateMgr->GetInitialWorldStatesForMap(this);
-
-    sOutdoorPvPMgr->CreateOutdoorPvPForMap(this);
-    sBattlefieldMgr->CreateBattlefieldsForMap(this);
-
-    sScriptMgr->OnCreateMap(this);
 }
 
 void Map::InitVisibilityDistance()
@@ -192,7 +178,7 @@ template<class T>
 void Map::AddToGrid(T* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsWorldObject())
+    if (obj->IsStoredInWorldObjectGridContainer())
         grid->GetGridType(cell.CellX(), cell.CellY()).template AddWorldObject<T>(obj);
     else
         grid->GetGridType(cell.CellX(), cell.CellY()).template AddGridObject<T>(obj);
@@ -202,7 +188,7 @@ template<>
 void Map::AddToGrid(Creature* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsWorldObject())
+    if (obj->IsStoredInWorldObjectGridContainer())
         grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
     else
         grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
@@ -223,7 +209,7 @@ template<>
 void Map::AddToGrid(DynamicObject* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsWorldObject())
+    if (obj->IsStoredInWorldObjectGridContainer())
         grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
     else
         grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
@@ -252,7 +238,7 @@ void Map::AddToGrid(Corpse* obj, Cell const& cell)
     // to avoid failing an assertion in GridObject::AddToGrid
     if (grid->isGridObjectDataLoaded())
     {
-        if (obj->IsWorldObject())
+        if (obj->IsStoredInWorldObjectGridContainer())
             grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
         else
             grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
@@ -265,7 +251,7 @@ void Map::SwitchGridContainers(T* /*obj*/, bool /*on*/) { }
 template<>
 void Map::SwitchGridContainers(Creature* obj, bool on)
 {
-    ASSERT(!obj->IsPermanentWorldObject());
+    ASSERT(!obj->IsAlwaysStoredInWorldObjectGridContainer());
     CellCoord p = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
     if (!p.IsCoordValid())
     {
@@ -2627,7 +2613,7 @@ void Map::RemoveAllObjectsInRemoveList()
         bool on = itr->second;
         i_objectsToSwitch.erase(itr);
 
-        if (!obj->IsPermanentWorldObject())
+        if (!obj->IsAlwaysStoredInWorldObjectGridContainer())
         {
             switch (obj->GetTypeId())
             {
