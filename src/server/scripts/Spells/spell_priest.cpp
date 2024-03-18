@@ -2651,14 +2651,40 @@ class spell_pri_rhapsody : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_RHAPSODY_PROC });
     }
 
-    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    void HandlePeriodic(AuraEffect const* aurEff) const
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_RHAPSODY_PROC, true);
+        Unit* target = GetTarget();
+        if (Aura* rhapsodyStack = target->GetAura(SPELL_PRIEST_RHAPSODY_PROC, GetCasterGUID()))
+            rhapsodyStack->ModStackAmount(1);
+        else
+            target->CastSpell(target, SPELL_PRIEST_RHAPSODY_PROC,
+                CastSpellExtraArgs(aurEff).SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
     }
 
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_rhapsody::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 390636 - Rhapsody
+class spell_pri_rhapsody_proc : public AuraScript
+{
+    void PreventChargeDrop(ProcEventInfo const& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+    }
+
+    void RemoveAura(ProcEventInfo const& /*eventInfo*/) const
+    {
+        // delay charge drop to allow spellmod to be applied to both damaging and healing spells
+        GetAura()->DropChargeDelayed(1);
+    }
+
+    void Register() override
+    {
+        DoPrepareProc += AuraProcFn(spell_pri_rhapsody_proc::PreventChargeDrop);
+        AfterProc += AuraProcFn(spell_pri_rhapsody_proc::RemoveAura);
     }
 };
 
@@ -3262,6 +3288,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
     RegisterSpellScript(spell_pri_rhapsody);
+    RegisterSpellScript(spell_pri_rhapsody_proc);
     RegisterSpellScript(spell_pri_schism);
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
