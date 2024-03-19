@@ -89,14 +89,14 @@ void WaypointMgr::LoadPathFromDB(Field* fields)
 
     WaypointPath& path = _pathStore[pathId];
     path.Id = pathId;
-    path.MoveType = (WaypointMoveType)fields[1].GetUInt8();
+    path.MoveType = WaypointMoveType(fields[1].GetUInt8());
 
     if (path.MoveType >= WaypointMoveType::Max)
     {
         TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has invalid MoveType {}, ignoring", pathId, AsUnderlyingType(path.MoveType));
         return;
     }
-    path.Flags = (WaypointPathFlags)fields[2].GetUInt8();
+    path.Flags = WaypointPathFlags(fields[2].GetUInt8());
     path.Nodes.clear();
 }
 
@@ -104,7 +104,8 @@ void WaypointMgr::LoadPathNodesFromDB(Field* fields)
 {
     uint32 pathId = fields[0].GetUInt32();
 
-    if (_pathStore.find(pathId) == _pathStore.end())
+    WaypointPath* path = Trinity::Containers::MapGetValuePtr(_pathStore, pathId);
+    if (!path)
     {
         TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path_node` does not exist in `waypoint_path`, ignoring", pathId);
         return;
@@ -120,10 +121,7 @@ void WaypointMgr::LoadPathNodesFromDB(Field* fields)
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
 
-    WaypointNode waypoint(fields[1].GetUInt32(), x, y, z, o, fields[6].GetUInt32());
-
-    WaypointPath& path = _pathStore[pathId];
-    path.Nodes.push_back(std::move(waypoint));
+    path->Nodes.emplace_back(fields[1].GetUInt32(), x, y, z, o, fields[6].GetUInt32());
 }
 
 void WaypointMgr::DoPostLoadingChecks()

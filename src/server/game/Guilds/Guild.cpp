@@ -1761,7 +1761,8 @@ void Guild::HandleAcceptMember(WorldSession* session)
 void Guild::HandleLeaveMember(WorldSession* session)
 {
     Player* player = session->GetPlayer();
-    bool disband = false;
+
+    sCalendarMgr->RemovePlayerGuildEventsAndSignups(player->GetGUID(), GetId());
 
     // If leader is leaving
     if (_IsLeader(player))
@@ -1773,7 +1774,6 @@ void Guild::HandleLeaveMember(WorldSession* session)
         {
             // Guild is disbanded if leader leaves.
             Disband();
-            disband = true;
         }
     }
     else
@@ -1781,16 +1781,11 @@ void Guild::HandleLeaveMember(WorldSession* session)
         _LogEvent(GUILD_EVENT_LOG_LEAVE_GUILD, player->GetGUID().GetCounter());
         SendEventPlayerLeft(GetMember(player->GetGUID()));
 
+        SendCommandResult(session, GUILD_COMMAND_LEAVE_GUILD, ERR_GUILD_COMMAND_SUCCESS, m_name);
+
         CharacterDatabaseTransaction trans(nullptr);
         DeleteMember(trans, player->GetGUID(), false, false);
-
-        SendCommandResult(session, GUILD_COMMAND_LEAVE_GUILD, ERR_GUILD_COMMAND_SUCCESS, m_name);
     }
-
-    sCalendarMgr->RemovePlayerGuildEventsAndSignups(player->GetGUID(), GetId());
-
-    if (disband)
-        delete this;
 }
 
 void Guild::HandleRemoveMember(WorldSession* session, ObjectGuid guid)
@@ -1821,11 +1816,11 @@ void Guild::HandleRemoveMember(WorldSession* session, ObjectGuid guid)
                 _LogEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, player->GetGUID().GetCounter(), guid.GetCounter());
                 SendEventPlayerLeft(member, memberMe, true);
 
+                SendCommandResult(session, GUILD_COMMAND_REMOVE_PLAYER, ERR_GUILD_COMMAND_SUCCESS, name);
+
                 // After call to DeleteMember pointer to member becomes invalid
                 CharacterDatabaseTransaction trans(nullptr);
                 DeleteMember(trans, guid, false, true);
-
-                SendCommandResult(session, GUILD_COMMAND_REMOVE_PLAYER, ERR_GUILD_COMMAND_SUCCESS, name);
             }
         }
     }
@@ -2145,7 +2140,6 @@ void Guild::HandleDelete(WorldSession* session)
     {
         Disband();
         TC_LOG_DEBUG("guild", "{} successfully deleted", GetGUID().ToString());
-        delete this;
     }
 }
 
@@ -2708,13 +2702,8 @@ bool Guild::Validate()
     if (!leader)
     {
         CharacterDatabaseTransaction dummy(nullptr);
-        DeleteMember(dummy, m_leaderGuid);
-        // If no more members left, disband guild
-        if (m_members.empty())
-        {
-            Disband();
+        if (DeleteMember(dummy, m_leaderGuid))
             return false;
-        }
     }
     else if (!leader->IsRank(GuildRankId::GuildMaster))
         _SetLeader(trans, *leader);
@@ -2963,7 +2952,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optio
     return true;
 }
 
-void Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding, bool isKicked, bool canDeleteGuild)
+bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding, bool isKicked)
 {
     // Guild master can be deleted when loading guild and guid doesn't exist in characters table
     // or when he is removed from guild by gm command
@@ -2982,9 +2971,7 @@ void Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
         if (!newLeader)
         {
             Disband();
-            if (canDeleteGuild)
-                delete this;
-            return;
+            return true;
         }
 
         _SetLeader(trans, *newLeader);
@@ -3018,6 +3005,14 @@ void Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
     Guild::_DeleteMemberFromDB(trans, guid.GetCounter());
     if (!isDisbanding)
         _UpdateAccountsNumber();
+
+    if (m_members.empty())
+    {
+        Disband();
+        return true;
+    }
+
+    return false;
 }
 
 bool Guild::ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid, GuildRankId newRank)

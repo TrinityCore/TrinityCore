@@ -84,22 +84,7 @@ BattlegroundMgr::~BattlegroundMgr()
 
 void BattlegroundMgr::DeleteAllBattlegrounds()
 {
-    for (BattlegroundDataContainer::iterator itr1 = bgDataStore.begin(); itr1 != bgDataStore.end(); ++itr1)
-    {
-        BattlegroundData& data = itr1->second;
-
-        while (!data.m_Battlegrounds.empty())
-            delete data.m_Battlegrounds.begin()->second;
-
-        data.m_Battlegrounds.clear();
-    }
-
     bgDataStore.clear();
-
-    for (auto itr = m_BGFreeSlotQueue.begin(); itr != m_BGFreeSlotQueue.end(); ++itr)
-        while (!itr->second.empty())
-            delete itr->second.front();
-
     m_BGFreeSlotQueue.clear();
 }
 
@@ -122,18 +107,19 @@ void BattlegroundMgr::Update(uint32 diff)
             for (BattlegroundContainer::iterator itr = itrDelete; itr != bgs.end();)
             {
                 itrDelete = itr++;
-                Battleground* bg = itrDelete->second;
+                Battleground* bg = itrDelete->second.get();
 
                 bg->Update(m_UpdateTimer);
                 if (bg->ToBeDeleted())
                 {
-                    itrDelete->second = nullptr;
-                    bgs.erase(itrDelete);
                     BattlegroundClientIdsContainer& clients = itr1->second.m_ClientBattlegroundIds[bg->GetBracketId()];
                     if (!clients.empty())
                         clients.erase(bg->GetClientInstanceID());
 
-                    delete bg;
+                    // move out unique_ptr to delete after erasing
+                    Trinity::unique_trackable_ptr<Battleground> bgPtr = std::move(itrDelete->second);
+
+                    bgs.erase(itrDelete);
                 }
             }
         }
@@ -270,7 +256,7 @@ Battleground* BattlegroundMgr::GetBattleground(uint32 instanceId, BattlegroundTy
         BattlegroundContainer const& bgs = it->second.m_Battlegrounds;
         BattlegroundContainer::const_iterator itr = bgs.find(instanceId);
         if (itr != bgs.end())
-           return itr->second;
+           return itr->second.get();
     }
 
     return nullptr;
@@ -745,10 +731,9 @@ void BattlegroundMgr::RemoveFromBGFreeSlotQueue(uint32 mapId, uint32 instanceId)
 void BattlegroundMgr::AddBattleground(Battleground* bg)
 {
     if (bg)
-        bgDataStore[bg->GetTypeID()].m_Battlegrounds[bg->GetInstanceID()] = bg;
-}
-
-void BattlegroundMgr::RemoveBattleground(BattlegroundTypeId bgTypeId, uint32 instanceId)
-{
-    bgDataStore[bgTypeId].m_Battlegrounds.erase(instanceId);
+    {
+        Trinity::unique_trackable_ptr<Battleground>& ptr = bgDataStore[bg->GetTypeID()].m_Battlegrounds[bg->GetInstanceID()];
+        ptr.reset(bg);
+        bg->SetWeakPtr(ptr);
+    }
 }

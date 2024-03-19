@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include "UniqueTrackablePtr.h"
 #include "ZoneScript.h"
 #include <deque>
 #include <map>
@@ -497,6 +498,9 @@ class TC_GAME_API Battleground : public ZoneScript
         // Called when valid BattlegroundMap is assigned to the battleground
         virtual void OnMapSet([[maybe_unused]] BattlegroundMap* map) { }
 
+        Trinity::unique_weak_ptr<Battleground> GetWeakPtr() const { return m_weakRef; }
+        void SetWeakPtr(Trinity::unique_weak_ptr<Battleground> weakRef) { m_weakRef = std::move(weakRef); }
+
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();
@@ -612,5 +616,7 @@ class TC_GAME_API Battleground : public ZoneScript
 
         // Time when the first message "the battle will begin in 2minutes" is send (or 1m for arenas)
         time_t _preparationStartTime;
+
+        Trinity::unique_weak_ptr<Battleground> m_weakRef;
 };
 #endif

@@ -438,8 +438,8 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
     if (canBuyout && placeBid.BidAmount == auction->BuyoutOrUnitPrice)
     {
         // buyout
-        auctionHouse->SendAuctionWon(auction, player, trans);
         auctionHouse->SendAuctionSold(auction, nullptr, trans);
+        auctionHouse->SendAuctionWon(auction, player, trans);
 
         auctionHouse->RemoveAuction(trans, auction);
     }

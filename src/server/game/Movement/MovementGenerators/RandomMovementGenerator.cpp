@@ -44,7 +44,7 @@ MovementGeneratorType RandomMovementGenerator<T>::GetMovementGeneratorType() con
 }
 
 template<class T>
-void RandomMovementGenerator<T>::Pause(uint32 timer /*= 0*/)
+void RandomMovementGenerator<T>::Pause(uint32 timer)
 {
     if (timer)
     {
@@ -60,7 +60,7 @@ void RandomMovementGenerator<T>::Pause(uint32 timer /*= 0*/)
 }
 
 template<class T>
-void RandomMovementGenerator<T>::Resume(uint32 overrideTimer /*= 0*/)
+void RandomMovementGenerator<T>::Resume(uint32 overrideTimer)
 {
     if (overrideTimer)
         _timer.Reset(overrideTimer);

@@ -6415,6 +6415,26 @@ struct VehicleSeatLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 66, &VehicleSeatMeta::Instance, HOTFIX_SEL_VEHICLE_SEAT };
 };
 
+struct VignetteLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[11] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { false, FT_INT, "PlayerConditionID" },
+        { false, FT_INT, "VisibleTrackingQuestID" },
+        { false, FT_INT, "QuestFeedbackEffectID" },
+        { true, FT_INT, "Flags" },
+        { false, FT_FLOAT, "MaxHeight" },
+        { false, FT_FLOAT, "MinHeight" },
+        { true, FT_BYTE, "VignetteType" },
+        { true, FT_INT, "RewardQuestID" },
+        { true, FT_INT, "UiWidgetSetID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 11, &VignetteMeta::Instance, HOTFIX_SEL_VIGNETTE };
+};
+
 struct WmoAreaTableLoadInfo
 {
     static constexpr DB2FieldMeta Fields[15] =

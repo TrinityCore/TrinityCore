@@ -35,6 +35,7 @@
 #include "SharedDefines.h"
 #include "SpawnData.h"
 #include "Timer.h"
+#include "UniqueTrackablePtr.h"
 #include "WorldStateDefines.h"
 #include <bitset>
 #include <list>
@@ -78,6 +79,7 @@ enum WeatherState : uint32;
 enum class ItemContext : uint8;
 
 namespace Trinity { struct ObjectUpdater; }
+namespace Vignettes { struct VignetteData; }
 namespace VMAP { enum class ModelIgnoreFlags : uint32; }
 
 enum TransferAbortReason : uint32
@@ -271,10 +273,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SetForceDisabledNavMeshFilterFlag(uint16 flag) { m_forceDisabledNavMeshFilterFlags |= flag; }
         void RemoveForceDisabledNavMeshFilterFlag(uint16 flag) { m_forceDisabledNavMeshFilterFlags &= ~flag; }
 
-        void GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, map_liquidHeaderTypeFlags reqLiquidType = map_liquidHeaderTypeFlags::AllLiquids, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
-        ZLiquidStatus GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, map_liquidHeaderTypeFlags ReqLiquidType, LiquidData* data = nullptr, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
+        void GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, Optional<map_liquidHeaderTypeFlags> reqLiquidType = {}, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
+        ZLiquidStatus GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, Optional<map_liquidHeaderTypeFlags> ReqLiquidType = {}, LiquidData* data = nullptr, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
 
-        bool GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId);
         uint32 GetAreaId(PhaseShift const& phaseShift, float x, float y, float z);
         uint32 GetAreaId(PhaseShift const& phaseShift, Position const& pos) { return GetAreaId(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
         uint32 GetZoneId(PhaseShift const& phaseShift, float x, float y, float z);
@@ -311,6 +312,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         static bool CheckGridIntegrity(T* object, bool moved, char const* objType);
 
         uint32 GetInstanceId() const { return i_InstanceId; }
+
+        Trinity::unique_weak_ptr<Map> GetWeakPtr() const { return m_weakRef; }
+        void SetWeakPtr(Trinity::unique_weak_ptr<Map> weakRef) { m_weakRef = std::move(weakRef); }
 
         static TransferAbortParams PlayerCannotEnter(uint32 mapid, Player* player);
         virtual TransferAbortParams CannotEnter(Player* /*player*/) { return { TRANSFER_ABORT_NONE }; }
@@ -605,6 +609,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         MapEntry const* i_mapEntry;
         Difficulty i_spawnMode;
         uint32 i_InstanceId;
+        Trinity::unique_weak_ptr<Map> m_weakRef;
         uint32 m_unloadTimer;
         float m_VisibleDistance;
         DynamicMapTree _dynamicTree;
@@ -822,6 +827,18 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
     private:
         WorldStateValueContainer _worldStateValues;
+
+        /*********************************************************/
+        /***                   Vignettes                       ***/
+        /*********************************************************/
+    public:
+        void AddInfiniteAOIVignette(Vignettes::VignetteData* vignette);
+        void RemoveInfiniteAOIVignette(Vignettes::VignetteData* vignette);
+        std::vector<Vignettes::VignetteData*> const& GetInfiniteAOIVignettes() const { return _infiniteAOIVignettes; }
+
+    private:
+        std::vector<Vignettes::VignetteData*> _infiniteAOIVignettes;
+        PeriodicTimer _vignetteUpdateTimer;
 };
 
 enum class InstanceResetMethod : uint8

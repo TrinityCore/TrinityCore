@@ -743,13 +743,16 @@ void ThreatManager::ForwardThreatForAssistingMe(Unit* assistant, float baseAmoun
         threatened->GetThreatManager().AddThreat(assistant, 0.0f, spell, true);
 }
 
-void ThreatManager::RemoveMeFromThreatLists()
+void ThreatManager::RemoveMeFromThreatLists(bool (*unitFilter)(Unit const* otherUnit))
 {
-    while (!_threatenedByMe.empty())
-    {
-        auto& ref = _threatenedByMe.begin()->second;
+    std::vector<ThreatReference*> threatReferencesToRemove;
+    threatReferencesToRemove.reserve(_threatenedByMe.size());
+    for (auto const& [guid, ref] : _threatenedByMe)
+        if (!unitFilter || unitFilter(ref->GetOwner()))
+            threatReferencesToRemove.push_back(ref);
+
+    for (ThreatReference* ref : threatReferencesToRemove)
         ref->_mgr.ClearThreat(_owner);
-    }
 }
 
 void ThreatManager::UpdateMyTempModifiers()

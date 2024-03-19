@@ -164,11 +164,14 @@ uint32 GetInstalledLocalesMask()
     return 0;
 }
 
+uint32 uniqueObjectIdGenerator = std::numeric_limits<uint32>::max() - 1;
 std::map<std::pair<uint32, uint16>, uint32> uniqueObjectIds;
 
-uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId)
+uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId, bool isWmo)
 {
-    return uniqueObjectIds.emplace(std::make_pair(clientId, clientDoodadId), uniqueObjectIds.size() + 1).first->second;
+    // WMO client ids must be preserved, they are used in DB2 files
+    uint32 newId = isWmo ? clientId : uniqueObjectIdGenerator--;
+    return uniqueObjectIds.emplace(std::make_pair(clientId, clientDoodadId), newId).first->second;
 }
 
 // Local testing functions
