@@ -1277,6 +1277,29 @@ struct GameObjectTemplate
         }
     }
 
+    uint32 GetSpawnVignette() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_CHEST:             return chest.SpawnVignette;
+            case GAMEOBJECT_TYPE_GOOBER:            return goober.SpawnVignette;
+            case GAMEOBJECT_TYPE_NEW_FLAG:          return newflag.SpawnVignette;
+            case GAMEOBJECT_TYPE_NEW_FLAG_DROP:     return newflagdrop.SpawnVignette;
+            case GAMEOBJECT_TYPE_CAPTURE_POINT:     return capturePoint.SpawnVignette;
+            case GAMEOBJECT_TYPE_GATHERING_NODE:    return gatheringNode.SpawnVignette;
+            default: return 0;
+        }
+    }
+
+    bool ClearObjectVignetteonOpening() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_GATHERING_NODE:    return gatheringNode.ClearObjectVignetteonOpening != 0;
+            default: return false;
+        }
+    }
+
     uint32 GetSpellFocusType() const
     {
         switch (type)

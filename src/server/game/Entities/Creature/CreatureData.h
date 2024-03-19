@@ -82,7 +82,7 @@ enum CreatureStaticFlags2
     CREATURE_STATIC_FLAG_2_NO_WOUNDED_SLOWDOWN             = 0x00000040,
     CREATURE_STATIC_FLAG_2_USE_CREATOR_BONUSES             = 0x00000080,
     CREATURE_STATIC_FLAG_2_IGNORE_FEIGN_DEATH              = 0x00000100, // CREATURE_FLAG_EXTRA_IGNORE_FEIGN_DEATH
-    CREATURE_STATIC_FLAG_2_IGNORE_SANCTUARY                = 0x00000200,
+    CREATURE_STATIC_FLAG_2_IGNORE_SANCTUARY                = 0x00000200, // Ignores SPELL_EFFECT_SANCTUARY
     CREATURE_STATIC_FLAG_2_ACTION_TRIGGERS_WHILE_CHARMED   = 0x00000400,
     CREATURE_STATIC_FLAG_2_INTERACT_WHILE_DEAD             = 0x00000800, // CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD
     CREATURE_STATIC_FLAG_2_NO_INTERRUPT_SCHOOL_COOLDOWN    = 0x00001000,
@@ -488,7 +488,7 @@ struct TC_GAME_API CreatureTemplate
     std::vector<uint32> GossipMenuIds;
     std::unordered_map<Difficulty, CreatureDifficulty> difficultyStore;
     uint32  RequiredExpansion;
-    uint32  VignetteID;                                     /// @todo Read Vignette.db2
+    uint32  VignetteID;
     uint32  faction;
     uint64  npcflag;
     float   speed_walk;

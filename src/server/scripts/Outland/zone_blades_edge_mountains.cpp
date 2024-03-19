@@ -952,7 +952,7 @@ public:
 
         void IsSummonedBy(WorldObject* summoner) override
         {
-            if (summoner->isType(TYPEMASK_PLAYER))
+            if (summoner->IsPlayer())
                 playerGuid = summoner->GetGUID();
         }
 

@@ -22,11 +22,11 @@
 #include "Log.h"
 #include "Player.h"
 
-#define TC_LOG_CHAT(TYPE, ...)                           \
-    if (lang != LANG_ADDON && lang != LANG_ADDON_LOGGED) \
-        TC_LOG_DEBUG("chat.log." TYPE, __VA_ARGS__);     \
-    else                                                 \
-        TC_LOG_DEBUG("chat.log.addon." TYPE, __VA_ARGS__);
+#define TC_LOG_CHAT(TYPE, MESSAGE, ...)                           \
+    if (lang != LANG_ADDON && lang != LANG_ADDON_LOGGED)          \
+        TC_LOG_DEBUG("chat.log." TYPE, MESSAGE, __VA_ARGS__);     \
+    else                                                          \
+        TC_LOG_DEBUG("chat.log.addon." TYPE, MESSAGE, __VA_ARGS__);
 
 class ChatLogScript : public PlayerScript
 {
