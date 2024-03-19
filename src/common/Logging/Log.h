@@ -66,12 +66,19 @@ class TC_COMMON_API Log
         void LoadFromConfig();
         void Close();
         bool ShouldLog(std::string_view type, LogLevel level) const;
+        Logger const* GetEnabledLogger(std::string_view type, LogLevel level) const;
         bool SetLogLevel(std::string const& name, int32 level, bool isLogger = true);
 
         template<typename... Args>
-        void OutMessage(std::string_view filter, LogLevel const level, Trinity::FormatString<Args...> fmt, Args&&... args)
+        void OutMessage(std::string_view filter, LogLevel level, Trinity::FormatString<Args...> fmt, Args&&... args)
         {
-            OutMessageImpl(filter, level, fmt, Trinity::MakeFormatArgs(args...));
+            this->OutMessageImpl(GetLoggerByType(filter), filter, level, fmt, Trinity::MakeFormatArgs(args...));
+        }
+
+        template<typename... Args>
+        void OutMessageTo(Logger const* logger, std::string_view filter, LogLevel level, Trinity::FormatString<Args...> fmt, Args&&... args)
+        {
+            this->OutMessageImpl(logger, filter, level, fmt, Trinity::MakeFormatArgs(args...));
         }
 
         template<typename... Args>
@@ -80,7 +87,7 @@ class TC_COMMON_API Log
             if (!ShouldLog("commands.gm", LOG_LEVEL_INFO))
                 return;
 
-            OutCommandImpl(account, fmt, Trinity::MakeFormatArgs(args...));
+            this->OutCommandImpl(account, fmt, Trinity::MakeFormatArgs(args...));
         }
 
         void OutCharDump(char const* str, uint32 account_id, uint64 guid, char const* name);
@@ -90,7 +97,7 @@ class TC_COMMON_API Log
         template<class AppenderImpl>
         void RegisterAppender()
         {
-            RegisterAppender(AppenderImpl::type, &CreateAppender<AppenderImpl>);
+            this->RegisterAppender(AppenderImpl::type, &CreateAppender<AppenderImpl>);
         }
 
         std::string const& GetLogsDir() const { return m_logsDir; }
@@ -111,9 +118,15 @@ class TC_COMMON_API Log
             return { std::begin(chars), (chars[CharArraySize - 1] == '\0' ? CharArraySize - 1 : CharArraySize) };
         }
 
+        template <size_t CharArraySize>
+        static consteval Trinity::FormatStringView make_format_string_view(char const(&chars)[CharArraySize])
+        {
+            return { std::begin(chars), (chars[CharArraySize - 1] == '\0' ? CharArraySize - 1 : CharArraySize) };
+        }
+
     private:
         static std::string GetTimestampStr();
-        void write(std::unique_ptr<LogMessage> msg) const;
+        void write(Logger const* logger, std::unique_ptr<LogMessage> msg) const;
 
         Logger const* GetLoggerByType(std::string_view type) const;
         Appender* GetAppenderByName(std::string_view name);
@@ -123,8 +136,8 @@ class TC_COMMON_API Log
         void ReadAppendersFromConfig();
         void ReadLoggersFromConfig();
         void RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn);
-        void OutMessageImpl(std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs);
-        void OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs);
+        void OutMessageImpl(Logger const* logger, std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const;
+        void OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const;
 
         std::unordered_map<uint8, AppenderCreatorFn> appenderFactory;
         std::unordered_map<uint8, std::unique_ptr<Appender>> appenders;
@@ -141,10 +154,12 @@ class TC_COMMON_API Log
 
 #define sLog Log::instance()
 
-#define TC_LOG_MESSAGE_BODY_CORE(filterType__, level__, message__, ...)                                                                  \
-        do {                                                                                                                             \
-            if (Log* logInstance = sLog; logInstance->ShouldLog(Log::make_string_view(filterType__), level__))                           \
-                logInstance->OutMessage(Log::make_string_view(filterType__), level__, Log::make_string_view(message__), ## __VA_ARGS__); \
+#define TC_LOG_MESSAGE_BODY_CORE(filterType__, level__, message__, ...)                                                         \
+        do {                                                                                                                    \
+            Log* logInstance = sLog;                                                                                            \
+            if (Logger const* loggerInstance = logInstance->GetEnabledLogger(Log::make_string_view((filterType__)), (level__))) \
+                logInstance->OutMessageTo(loggerInstance, Log::make_string_view((filterType__)), (level__),                     \
+                    Log::make_format_string_view((message__)), ## __VA_ARGS__);                                                 \
         } while (0)
 
 #ifdef PERFORMANCE_PROFILING
