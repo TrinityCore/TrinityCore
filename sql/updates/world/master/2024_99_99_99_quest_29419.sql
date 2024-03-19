@@ -23,7 +23,7 @@ INSERT INTO `creature_template_gossip` (`CreatureID`, `MenuID`, `VerifiedBuild`)
 (54567, 13037, 53584); -- Aysa Cloudsinger
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=13037;
-INSERT INTO `conditions` VALUES (14, 13037, 0, 0, 0, 47, 0, 29419, 2 | 64, 0, '', 0, 0, 0, '', 'Aysa Cloudsinger - Show Gossip Menu 18310 if Quest 29419 is complete | rewarded');
+INSERT INTO `conditions` VALUES (14, 13037, 0, 0, 0, 47, 0, 29419, 2 | 64, 0, '', 0, 0, 0, '', 'Aysa Cloudsinger - Show Gossip Menu 13037 if Quest 29419 is complete | rewarded');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14672;
 INSERT INTO `conditions` VALUES (14, 14672, 0, 0, 0, 47, 0, 29419, 2 | 64, 0, '', 1, 0, 0, '', 'Aysa Cloudsinger - Show Gossip Menu 14672 if Quest 29419 is not complete | rewarded');
