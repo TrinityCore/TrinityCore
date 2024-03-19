@@ -563,9 +563,9 @@ private:
 };
 
 // 54130 - Amberleaf Scamp
-struct npc_amberleaf_scamp : public EscortAI
+struct npc_amberleaf_scamp : public ScriptedAI
 {
-    npc_amberleaf_scamp(Creature* creature) : EscortAI(creature) {  }
+    npc_amberleaf_scamp(Creature* creature) : ScriptedAI(creature) {  }
 
     void MovementInform(uint32 /*type*/, uint32 id) override
     {
