@@ -310,9 +310,9 @@ enum ReputationSource
     REPUTATION_SOURCE_SPELL
 };
 
-#define ACTION_BUTTON_ACTION(X) (uint64(X) & 0x00FFFFFFFFFFFFFF)
-#define ACTION_BUTTON_TYPE(X)   ((uint64(X) & 0xFF00000000000000) >> 56)
-#define MAX_ACTION_BUTTON_ACTION_VALUE UI64LIT(0xFFFFFFFFFFFFFF)
+#define ACTION_BUTTON_ACTION(X) (uint32(X) & 0x00FFFFFF)
+#define ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF000000) >> 24)
+#define MAX_ACTION_BUTTON_ACTION_VALUE (0x00FFFFFF+1)
 
 struct ActionButton
 {
@@ -323,10 +323,10 @@ struct ActionButton
 
     // helpers
     ActionButtonType GetType() const { return ActionButtonType(ACTION_BUTTON_TYPE(packedData)); }
-    uint64 GetAction() const { return ACTION_BUTTON_ACTION(packedData); }
-    void SetActionAndType(uint64 action, ActionButtonType type)
+    uint32 GetAction() const { return ACTION_BUTTON_ACTION(packedData); }
+    void SetActionAndType(uint32 action, ActionButtonType type)
     {
-        uint64 newData = uint64(action) | (uint64(type) << 56);
+        uint32 newData = uint32(action) | (uint32(type) << 24);
         if (newData != packedData || uState == ACTIONBUTTON_DELETED)
         {
             packedData = newData;
@@ -336,7 +336,7 @@ struct ActionButton
     }
 };
 
-#define MAX_ACTION_BUTTONS 180
+#define MAX_ACTION_BUTTONS 180  //checked in 4.4.0
 
 typedef std::map<uint8, ActionButton> ActionButtonList;
 
@@ -1918,12 +1918,12 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 GetMovie() const { return m_movie; }
         void SetMovie(uint32 movie) { m_movie = movie; }
 
-        ActionButton* AddActionButton(uint8 button, uint64 action, uint8 type);
+        ActionButton* AddActionButton(uint8 button, uint32 action, uint8 type);
         void RemoveActionButton(uint8 button);
         ActionButton const* GetActionButton(uint8 button);
         void SendInitialActionButtons() const { SendActionButtons(0); }
         void SendActionButtons(uint32 state) const;
-        bool IsActionButtonDataValid(uint8 button, uint64 action, uint8 type) const;
+        bool IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) const;
         void SetMultiActionBars(uint8 mask) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::MultiActionBars), mask); }
 
         PvPInfo pvpInfo;
