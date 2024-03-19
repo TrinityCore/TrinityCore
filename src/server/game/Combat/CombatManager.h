@@ -120,12 +120,15 @@ class TC_GAME_API CombatManager
         bool IsInCombatWith(Unit const* who) const;
         void InheritCombatStatesFrom(Unit const* who);
         void EndCombatBeyondRange(float range, bool includingPvP = false);
+
+        using UnitFilter = bool(Unit const* otherUnit);
+
         // flags any pvp refs for suppression on owner's side - these refs will not generate combat until refreshed
-        void SuppressPvPCombat();
-        void EndAllPvECombat();
+        void SuppressPvPCombat(UnitFilter* unitFilter = nullptr);
+        void EndAllPvECombat(UnitFilter* unitFilter = nullptr);
         void RevalidateCombat();
-        void EndAllPvPCombat();
-        void EndAllCombat() { EndAllPvECombat(); EndAllPvPCombat(); }
+        void EndAllPvPCombat(UnitFilter* unitFilter = nullptr);
+        void EndAllCombat(UnitFilter* unitFilter = nullptr) { EndAllPvECombat(unitFilter); EndAllPvPCombat(unitFilter); }
 
         CombatManager(CombatManager const&) = delete;
         CombatManager& operator=(CombatManager const&) = delete;

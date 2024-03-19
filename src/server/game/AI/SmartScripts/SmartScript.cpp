@@ -1609,7 +1609,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Creature* creature = target->ToCreature())
                     if (IsSmart(creature) && creature->GetVictim())
                         if (ENSURE_AI(SmartAI, creature->AI())->CanCombatMove())
-                            creature->GetMotionMaster()->MoveChase(creature->GetVictim(), attackDistance, attackAngle);
+                            creature->StartDefaultCombatMovement(creature->GetVictim(), attackDistance, attackAngle);
             }
 
             break;

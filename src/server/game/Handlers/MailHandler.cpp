@@ -547,7 +547,7 @@ void WorldSession::HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney& takeMo
 
     // save money and mail to prevent cheating
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    player->SaveGoldToDB(trans);
+    player->SaveInventoryAndGoldToDB(trans);
     player->_SaveMail(trans);
     CharacterDatabase.CommitTransaction(trans);
 }

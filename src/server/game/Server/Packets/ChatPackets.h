@@ -223,6 +223,14 @@ namespace WorldPackets
             int32 EmoteID = 0;
         };
 
+        class ClearBossEmotes final : public ServerPacket
+        {
+        public:
+            ClearBossEmotes() : ServerPacket(SMSG_CLEAR_BOSS_EMOTES, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
         class TC_GAME_API PrintNotification final : public ServerPacket
         {
         public:

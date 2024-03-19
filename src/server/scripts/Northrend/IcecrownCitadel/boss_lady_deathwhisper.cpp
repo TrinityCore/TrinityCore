@@ -263,7 +263,7 @@ struct boss_lady_deathwhisper : public BossAI
                     break;
                 case 5:
                     Talk(SAY_INTRO_7);
-                    return;
+                    break;
                 default:
                     break;
             }
@@ -336,6 +336,7 @@ struct boss_lady_deathwhisper : public BossAI
             });
 
         Talk(SAY_AGGRO);
+        me->SetCanMelee(false);
         DoStartNoMovement(who);
         me->RemoveAurasDueToSpell(SPELL_SHADOW_CHANNELING);
         DoCastSelf(SPELL_MANA_BARRIER, true);

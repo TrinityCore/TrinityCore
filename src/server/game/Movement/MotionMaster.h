@@ -160,7 +160,6 @@ class TC_GAME_API MotionMaster
         void MoveFollow(Unit* target, float dist, ChaseAngle angle, Optional<Milliseconds> duration = {}, MovementSlot slot = MOTION_SLOT_ACTIVE);
         void MoveChase(Unit* target, Optional<ChaseRange> dist = {}, Optional<ChaseAngle> angle = {});
         void MoveChase(Unit* target, float dist, float angle) { MoveChase(target, ChaseRange(dist), ChaseAngle(angle)); }
-        void MoveChase(Unit* target, float dist) { MoveChase(target, ChaseRange(dist)); }
         void MoveConfused();
         void MoveFleeing(Unit* enemy, Milliseconds time = 0ms);
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {}, Optional<float> speed = {},
@@ -201,12 +200,22 @@ class TC_GAME_API MotionMaster
         void MovePath(uint32 pathId, bool repeatable, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
-            bool followPathBackwardsFromEndToStart = false, bool generatePath = true);
+            Optional<bool> followPathBackwardsFromEndToStart = {}, bool generatePath = true);
         void MovePath(WaypointPath const& path, bool repeatable, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
-            bool followPathBackwardsFromEndToStart = false, bool generatePath = true);
-        void MoveRotate(uint32 id, uint32 time, RotateDirection direction);
+            Optional<bool> followPathBackwardsFromEndToStart = {}, bool generatePath = true);
+
+        /**
+         * \brief Makes the Unit turn in place
+         * \param id Movement identifier, later passed to script MovementInform hooks
+         * \param direction Rotation direction
+         * \param time How long should this movement last, infinite if not set
+         * \param turnSpeed How fast should the unit rotate, in radians per second. Uses unit's turn speed if not set
+         * \param totalTurnAngle Total angle of the entire movement, infinite if not set
+         */
+        void MoveRotate(uint32 id, RotateDirection direction, Optional<Milliseconds> time = {},
+            Optional<float> turnSpeed = {}, Optional<float> totalTurnAngle = {});
         void MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2);
 
         void LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE);

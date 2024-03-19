@@ -71,7 +71,7 @@ void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* in
         me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
     }
 
-    me->GetMotionMaster()->MovePath(*path, _repeatWaypointPath);
+    me->GetMotionMaster()->MovePath(pathId, _repeatWaypointPath);
 }
 
 WaypointPath const* SmartAI::LoadPath(uint32 entry)
@@ -586,7 +586,7 @@ void SmartAI::AttackStart(Unit* who)
         if (_canCombatMove)
         {
             SetRun(_run);
-            me->GetMotionMaster()->MoveChase(who);
+            me->StartDefaultCombatMovement(who);
         }
     }
 }
@@ -793,7 +793,7 @@ void SmartAI::SetCombatMove(bool on, bool stopMoving)
                 }))
             {
                 SetRun(_run);
-                me->GetMotionMaster()->MoveChase(me->GetVictim());
+                me->StartDefaultCombatMovement(me->GetVictim());
             }
         }
         else if (MovementGenerator* movement = me->GetMotionMaster()->GetMovementGenerator([](MovementGenerator const* a) -> bool

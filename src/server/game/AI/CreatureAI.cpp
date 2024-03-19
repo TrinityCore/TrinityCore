@@ -307,7 +307,8 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
         return false;
     }
 
-    me->RemoveAurasOnEvade();
+    if (me->IsStateRestoredOnEvade())
+        me->RemoveAurasOnEvade();
 
     me->CombatStop(true);
     if (!me->IsTapListNotClearedOnEvade())
@@ -322,6 +323,21 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     EngagementOver();
 
     return true;
+}
+
+void CreatureAI::AttackStart(Unit* victim)
+{
+    if (victim && me->Attack(victim, true))
+    {
+        // Clear distracted state on attacking
+        if (me->HasUnitState(UNIT_STATE_DISTRACTED))
+        {
+            me->ClearUnitState(UNIT_STATE_DISTRACTED);
+            me->GetMotionMaster()->Clear();
+        }
+
+        me->StartDefaultCombatMovement(victim);
+    }
 }
 
 Optional<QuestGiverStatus> CreatureAI::GetDialogStatus(Player const* /*player*/)

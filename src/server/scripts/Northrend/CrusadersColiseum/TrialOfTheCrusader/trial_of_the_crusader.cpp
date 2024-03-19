@@ -147,22 +147,22 @@ enum TocMenuIds
     MENUID_LK                = 10693
 };
 
-Position const BarretSpawnPosition       = { 559.1528f, 90.55729f, 395.2734f, 5.078908f };
-Position const WilfredSpawnPosition      = { 563.6007f, 208.5278f, 395.2696f, 4.729842f };
-Position const JaraxxusSpawnPosition     = { 563.8264f, 140.6563f, 393.9861f, 4.694936f };
-Position const PortalTargetSpawnPosition = { 563.6597f, 139.7569f, 399.2507f, 4.712389f };
-Position const PurpleGroundSpawnPosition = { 563.6858f, 139.4323f, 393.9862f, 4.694936f };
-Position const ArthasPortalSpawnPosition = { 563.6996f, 175.9826f, 394.5042f, 4.694936f };
-Position const LichKingSpawnPosition     = { 563.5712f, 174.8351f, 394.4954f, 4.712389f };
-Position const CorpseTeleportPosition    = { 631.9390f, 136.5040f, 142.5540f, 0.803332f };
+constexpr Position BarretSpawnPosition       = { 559.1528f, 90.55729f, 395.2734f, 5.078908f };
+constexpr Position WilfredSpawnPosition      = { 563.6007f, 208.5278f, 395.2696f, 4.729842f };
+constexpr Position JaraxxusSpawnPosition     = { 563.8264f, 140.6563f, 393.9861f, 4.694936f };
+constexpr Position PortalTargetSpawnPosition = { 563.6597f, 139.7569f, 399.2507f, 4.712389f };
+constexpr Position PurpleGroundSpawnPosition = { 563.6858f, 139.4323f, 393.9862f, 4.694936f };
+constexpr Position ArthasPortalSpawnPosition = { 563.6996f, 175.9826f, 394.5042f, 4.694936f };
+constexpr Position LichKingSpawnPosition     = { 563.5712f, 174.8351f, 394.4954f, 4.712389f };
+constexpr Position CorpseTeleportPosition    = { 631.9390f, 136.5040f, 142.5540f, 0.803332f };
 
-Position const NorthrendBeastsSpawnPositions[] =
+constexpr Position NorthrendBeastsSpawnPositions[] =
 {
     { 563.9358f, 229.8299f, 394.8061f, 4.694936f }, // Gormok \ Icehowl
     { 564.2802f, 233.1322f, 394.7897f, 1.621917f }, // Dreadscale
 };
 
-Position const AnubarakLoc[] =
+constexpr Position AnubarakLoc[] =
 {
     { 783.9305f, 132.9722f, 142.6711f, 3.141593f }, // 0 - Anub'arak Spawn Location (sniffed)
     { 695.240051f, 137.834824f, 142.200000f, 0 },  // 1 - Anub'arak move point location
@@ -172,15 +172,15 @@ Position const AnubarakLoc[] =
     { 740.184509f, 193.443390f, 142.117584f, 0 }   // 4 - Nerub Spawn
 };
 
-Position const EndSpawnLoc[] =
-{
-    { 648.9167f, 131.0208f, 141.6161f, 0.f }, // 0 - Highlord Tirion Fordring
-    { 649.1614f, 142.0399f, 141.3057f, 0.f }, // 1 - Argent Mage
-    { 644.6250f, 149.2743f, 140.6015f, 5.f }  // 2 - Portal to Dalaran
-};
+//constexpr Position EndSpawnLoc[] =
+//{
+//    { 648.9167f, 131.0208f, 141.6161f, 0.f }, // 0 - Highlord Tirion Fordring
+//    { 649.1614f, 142.0399f, 141.3057f, 0.f }, // 1 - Argent Mage
+//    { 644.6250f, 149.2743f, 140.6015f, 5.f }  // 2 - Portal to Dalaran
+//};
 
 // ToDo: Remove it in nexts rewrites
-Position const ToCCommonLoc[] =
+constexpr Position ToCCommonLoc[] =
 {
     { 559.257996f, 90.266197f, 395.122986f, 0.0f },  //  0 Barrent
     { 563.672974f, 139.57100f, 393.837006f, 0.0f },    //  1 Center

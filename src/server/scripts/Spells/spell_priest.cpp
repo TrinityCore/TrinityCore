@@ -129,7 +129,10 @@ enum PriestSpells
     SPELL_PRIEST_MINDGAMES                          = 375901,
     SPELL_PRIEST_MINDGAMES_VENTHYR                  = 323673,
     SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
+    SPELL_PRIEST_MISERY                             = 238558,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
+    SPELL_PRIEST_PAIN_TRANSFORMATION                = 372991,
+    SPELL_PRIEST_PAIN_TRANSFORMATION_HEAL           = 372994,
     SPELL_PRIEST_PENANCE                            = 47540,
     SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE             = 47758,
     SPELL_PRIEST_PENANCE_CHANNEL_HEALING            = 47757,
@@ -162,6 +165,7 @@ enum PriestSpells
     SPELL_PRIEST_SANCTUARY                          = 231682,
     SPELL_PRIEST_SANCTUARY_ABSORB                   = 208771,
     SPELL_PRIEST_SANCTUARY_AURA                     = 208772,
+    SPELL_PRIEST_RHAPSODY_PROC                      = 390636,
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SCHISM                             = 424509,
     SPELL_PRIEST_SCHISM_AURA                        = 214621,
@@ -172,6 +176,7 @@ enum PriestSpells
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
     SPELL_PRIEST_SHIELD_DISCIPLINE                  = 197045,
     SPELL_PRIEST_SHIELD_DISCIPLINE_EFFECT           = 47755,
+    SPELL_PRIEST_SIN_AND_PUNISHMENT                 = 87204,
     SPELL_PRIEST_SINS_OF_THE_MANY                   = 280398,
     SPELL_PRIEST_SMITE                              = 585,
     SPELL_PRIEST_SPIRIT_OF_REDEMPTION               = 27827,
@@ -188,7 +193,6 @@ enum PriestSpells
     SPELL_PRIEST_ULTIMATE_PENITENCE_DAMAGE          = 421543,
     SPELL_PRIEST_ULTIMATE_PENITENCE_HEAL            = 421544,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
-    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788,
@@ -206,11 +210,6 @@ enum PriestSummons
     NPC_PRIEST_DIVINE_IMAGE                         = 198236,
     NPC_PRIEST_MINDBENDER                           = 62982,
     NPC_PRIEST_SHADOWFIEND                          = 19668
-};
-
-enum MiscSpells
-{
-    SPELL_GEN_REPLENISHMENT                         = 57669
 };
 
 class RaidCheck
@@ -1739,6 +1738,41 @@ class spell_pri_painful_punishment : public AuraScript
     }
 };
 
+// 372991 - Pain Transformation
+// Triggered by 33206 - Pain Suppression
+class spell_pri_pain_transformation : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_ATONEMENT_EFFECT,
+            SPELL_PRIEST_TRINITY,
+            SPELL_PRIEST_PAIN_TRANSFORMATION,
+            SPELL_PRIEST_PAIN_TRANSFORMATION_HEAL
+        });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PRIEST_PAIN_TRANSFORMATION) && !GetCaster()->HasAura(SPELL_PRIEST_TRINITY);
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/) const
+    {
+        CastSpellExtraArgs args(GetSpell());
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_PAIN_TRANSFORMATION_HEAL, args);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_ATONEMENT_EFFECT, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_pain_transformation::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 // 47540 - Penance
 // 400169 - Dark Reprimand
 class spell_pri_penance : public SpellScript
@@ -2180,8 +2214,6 @@ class spell_pri_divine_aegis : public AuraScript
             return;
 
         int32 aegisAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
-        if (AuraEffect const* existingAegis = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS_ABSORB, EFFECT_0, caster->GetGUID()))
-            aegisAmount += existingAegis->GetAmount();
 
         CastSpellExtraArgs args(aurEff);
         args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
@@ -2611,6 +2643,51 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_purge_the_wicked_dummy::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_pri_purge_the_wicked_dummy::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 390622 - Rhapsody
+class spell_pri_rhapsody : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_RHAPSODY_PROC });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff) const
+    {
+        Unit* target = GetTarget();
+        if (Aura* rhapsodyStack = target->GetAura(SPELL_PRIEST_RHAPSODY_PROC, GetCasterGUID()))
+            rhapsodyStack->ModStackAmount(1);
+        else
+            target->CastSpell(target, SPELL_PRIEST_RHAPSODY_PROC,
+                CastSpellExtraArgs(aurEff).SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_rhapsody::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 390636 - Rhapsody
+class spell_pri_rhapsody_proc : public AuraScript
+{
+    void PreventChargeDrop(ProcEventInfo const& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+    }
+
+    void RemoveAura(ProcEventInfo const& /*eventInfo*/) const
+    {
+        // delay charge drop to allow spellmod to be applied to both damaging and healing spells
+        GetAura()->DropChargeDelayed(1);
+    }
+
+    void Register() override
+    {
+        DoPrepareProc += AuraProcFn(spell_pri_rhapsody_proc::PreventChargeDrop);
+        AfterProc += AuraProcFn(spell_pri_rhapsody_proc::RemoveAura);
     }
 };
 
@@ -3245,46 +3322,26 @@ class spell_pri_vampiric_touch : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, SPELL_GEN_REPLENISHMENT });
+        return ValidateSpellInfo({ SPELL_PRIEST_SIN_AND_PUNISHMENT, SPELL_PRIEST_SHADOW_WORD_PAIN });
     }
 
-    void HandleDispel(DispelInfo* /*dispelInfo*/)
+    void HandleDispel(DispelInfo* dispelInfo)
     {
         if (Unit* caster = GetCaster())
-        {
-            if (Unit* target = GetUnitOwner())
-            {
-                if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
-                {
-                    // backfire damage
-                    int32 bp = aurEff->GetAmount();
-                    bp = target->SpellDamageBonusTaken(caster, aurEff->GetSpellInfo(), bp, DOT);
-                    bp *= 8;
-
-                    CastSpellExtraArgs args(aurEff);
-                    args.AddSpellBP0(bp);
-                    caster->CastSpell(target, SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, args);
-                }
-            }
-        }
+            caster->CastSpell(dispelInfo->GetDispeller(), SPELL_PRIEST_SIN_AND_PUNISHMENT, true);
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        return eventInfo.GetProcTarget() == GetCaster();
-    }
-
-    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
-    {
-        PreventDefaultAction();
-        eventInfo.GetProcTarget()->CastSpell(nullptr, SPELL_GEN_REPLENISHMENT, aurEff);
+        if (Unit* caster = GetCaster())
+            if (caster->HasAura(SPELL_PRIEST_MISERY))
+                caster->CastSpell(GetTarget(), SPELL_PRIEST_SHADOW_WORD_PAIN, true);
     }
 
     void Register() override
     {
         AfterDispel += AuraDispelFn(spell_pri_vampiric_touch::HandleDispel);
-        DoCheckProc += AuraCheckProcFn(spell_pri_vampiric_touch::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_pri_vampiric_touch::HandleEffectProc, EFFECT_2, SPELL_AURA_DUMMY);
+        OnEffectApply += AuraEffectApplyFn(spell_pri_vampiric_touch::HandleApplyEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
@@ -3331,6 +3388,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_lights_wrath);
     RegisterSpellScript(spell_pri_mind_bomb);
     RegisterSpellScript(spell_pri_painful_punishment);
+    RegisterSpellScript(spell_pri_pain_transformation);
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance", SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING);
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_dark_reprimand", SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE, SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING);
     RegisterSpellScript(spell_pri_penance_or_dark_reprimand_channeled);
@@ -3355,6 +3413,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_rapture);
     RegisterSpellScript(spell_pri_sanctuary_aura);
     RegisterSpellScript(spell_pri_sanctuary_absorb);
+    RegisterSpellScript(spell_pri_rhapsody);
+    RegisterSpellScript(spell_pri_rhapsody_proc);
     RegisterSpellScript(spell_pri_schism);
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);

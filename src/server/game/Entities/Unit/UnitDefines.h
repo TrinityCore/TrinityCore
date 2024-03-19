@@ -177,7 +177,7 @@ enum UnitFlags : uint32
     UNIT_FLAG_DISALLOWED            = (UNIT_FLAG_SERVER_CONTROLLED | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL |
                                        UNIT_FLAG_PLAYER_CONTROLLED | UNIT_FLAG_RENAME | UNIT_FLAG_PREPARATION | /* UNIT_FLAG_UNK_6 | */
                                        UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_LOOTING | UNIT_FLAG_PET_IN_COMBAT | UNIT_FLAG_PVP_ENABLING |
-                                       UNIT_FLAG_NON_ATTACKABLE_2 | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED |
+                                       UNIT_FLAG_CANT_SWIM | UNIT_FLAG_CAN_SWIM | UNIT_FLAG_NON_ATTACKABLE_2 | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED |
                                        UNIT_FLAG_IN_COMBAT | UNIT_FLAG_ON_TAXI | UNIT_FLAG_DISARMED | UNIT_FLAG_CONFUSED | UNIT_FLAG_FLEEING |
                                        UNIT_FLAG_POSSESSED | UNIT_FLAG_SKINNABLE | UNIT_FLAG_MOUNT | UNIT_FLAG_UNK_28 |
                                        UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_SHEATHE | UNIT_FLAG_IMMUNE), // SKIP
@@ -227,7 +227,7 @@ enum UnitFlags2 : uint32
     UNIT_FLAG2_DISALLOWED                                       = (UNIT_FLAG2_FEIGN_DEATH | UNIT_FLAG2_IGNORE_REPUTATION | UNIT_FLAG2_COMPREHEND_LANG |
                                                                    UNIT_FLAG2_MIRROR_IMAGE | UNIT_FLAG2_FORCE_MOVEMENT | UNIT_FLAG2_DISARM_OFFHAND |
                                                                    UNIT_FLAG2_DISABLE_PRED_STATS | UNIT_FLAG2_ALLOW_CHANGING_TALENTS | UNIT_FLAG2_DISARM_RANGED |
-                                                                /* UNIT_FLAG2_REGENERATE_POWER | */ UNIT_FLAG2_RESTRICT_PARTY_INTERACTION |
+                                                                /* UNIT_FLAG2_REGENERATE_POWER | */ UNIT_FLAG2_RESTRICT_PARTY_INTERACTION | UNIT_FLAG2_CANNOT_TURN |
                                                                    UNIT_FLAG2_PREVENT_SPELL_CLICK | /* UNIT_FLAG2_INTERACT_WHILE_HOSTILE | */ /* UNIT_FLAG2_UNK2 | */
                                                                 /* UNIT_FLAG2_PLAY_DEATH_ANIM | */ UNIT_FLAG2_ALLOW_CHEAT_SPELLS | UNIT_FLAG2_SUPPRESS_HIGHLIGHT_WHEN_TARGETED_OR_MOUSED_OVER |
                                                                    UNIT_FLAG2_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS | UNIT_FLAG2_LARGE_AOI | UNIT_FLAG2_GIGANTIC_AOI | UNIT_FLAG2_NO_ACTIONS |
@@ -263,7 +263,7 @@ enum UnitFlags3 : uint32
     UNIT_FLAG3_ALREADY_SKINNED                              = 0x00020000,
     UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS                      = 0x00040000,   // TITLE Suppress all NPC sounds DESCRIPTION Skips playing sounds on beginning and end of npc interaction for all npcs as long as npc with this flag is visible
     UNIT_FLAG3_SUPPRESS_NPC_SOUNDS                          = 0x00080000,   // TITLE Suppress NPC sounds DESCRIPTION Skips playing sounds on beginning and end of npc interaction
-    UNIT_FLAG3_UNK20                                        = 0x00100000,
+    UNIT_FLAG3_ALLOW_INTERACTION_WHILE_IN_COMBAT            = 0x00100000,   // TITLE Allow Interaction While in Combat DESCRIPTION Allows using various NPC functions while in combat (vendor, gossip, questgiver)
     UNIT_FLAG3_UNK21                                        = 0x00200000,
     UNIT_FLAG3_DONT_FADE_OUT                                = 0x00400000,
     UNIT_FLAG3_UNK23                                        = 0x00800000,
@@ -279,9 +279,9 @@ enum UnitFlags3 : uint32
     UNIT_FLAG3_DISALLOWED                                   = (UNIT_FLAG3_UNK0 | /* UNIT_FLAG3_UNCONSCIOUS_ON_DEATH | */ /* UNIT_FLAG3_ALLOW_MOUNTED_COMBAT | */ UNIT_FLAG3_GARRISON_PET |
                                                                /* UNIT_FLAG3_UI_CAN_GET_POSITION | */ /* UNIT_FLAG3_AI_OBSTACLE | */ UNIT_FLAG3_ALTERNATIVE_DEFAULT_LANGUAGE | /* UNIT_FLAG3_SUPPRESS_ALL_NPC_FEEDBACK | */
                                                                UNIT_FLAG3_IGNORE_COMBAT | UNIT_FLAG3_SUPPRESS_NPC_FEEDBACK | UNIT_FLAG3_UNK10 | UNIT_FLAG3_UNK11 |
-                                                               UNIT_FLAG3_UNK12 | /* UNIT_FLAG3_FAKE_DEAD | */ /* UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE | */ /* UNIT_FLAG3_UNTARGETABLE_FROM_UI | */
+                                                               UNIT_FLAG3_UNK12 | UNIT_FLAG3_FAKE_DEAD | /* UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE | */ /* UNIT_FLAG3_UNTARGETABLE_FROM_UI | */
                                                                /* UNIT_FLAG3_NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD | */ UNIT_FLAG3_ALREADY_SKINNED | /* UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS | */ /* UNIT_FLAG3_SUPPRESS_NPC_SOUNDS | */
-                                                               UNIT_FLAG3_UNK20 | UNIT_FLAG3_UNK21 | /* UNIT_FLAG3_DONT_FADE_OUT | */ UNIT_FLAG3_UNK23 |
+                                                               UNIT_FLAG3_ALLOW_INTERACTION_WHILE_IN_COMBAT | UNIT_FLAG3_UNK21 | /* UNIT_FLAG3_DONT_FADE_OUT | */ UNIT_FLAG3_UNK23 |
                                                                /* UNIT_FLAG3_FORCE_HIDE_NAMEPLATE | */ UNIT_FLAG3_UNK25 | UNIT_FLAG3_UNK26 | UNIT_FLAG3_UNK27 |
                                                                UNIT_FLAG3_UNK28 | UNIT_FLAG3_UNK29 | UNIT_FLAG3_UNK30 | UNIT_FLAG3_UNK31), // SKIP
     UNIT_FLAG3_ALLOWED                                      = (0xFFFFFFFF & ~UNIT_FLAG3_DISALLOWED) // SKIP

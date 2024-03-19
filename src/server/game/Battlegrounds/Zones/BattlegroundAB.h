@@ -222,7 +222,6 @@ class BattlegroundAB : public Battleground
         ~BattlegroundAB();
 
         void StartingEventOpenDoors() override;
-        void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
         void Reset() override;
         void EndBattleground(Team winner) override;

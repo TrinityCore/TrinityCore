@@ -95,7 +95,6 @@ class BattlegroundRV : public Arena
         /* inherited from BattlegroundClass */
         void StartingEventOpenDoors() override;
 
-        void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
 
     private:

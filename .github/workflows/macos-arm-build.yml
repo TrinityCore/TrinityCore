@@ -1,0 +1,60 @@
+name: macOS arm64
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install/Update requirements
+      env:
+        HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+      run: |
+        brew update
+        brew uninstall openssl@1.1
+        brew install mysql openssl readline cmake boost coreutils ninja
+        brew config
+
+    - name: Check some deps
+      run: |
+        mysql --version
+        openssl version
+        
+    - name: Print CPU info
+      run: |
+         echo "Cores: $(nproc), Arch: $(uname -p)"
+        
+    - name: Configure CMake
+      run: >
+        cmake -GNinja -B ${{ steps.strings.outputs.build-output-dir }}
+        -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DBUILD_TESTING=1
+        -DCMAKE_INSTALL_PREFIX=check_install
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}
+        ninja
+        ninja install
+      
+    - name: Unit tests
+      run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}
+        ninja test
+      
+    - name: Check binaries
+      run: |
+        cd ${{ github.workspace }}/check_install/bin
+        ./bnetserver --version
+        ./worldserver --version

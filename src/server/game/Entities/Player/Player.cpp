@@ -130,6 +130,8 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "VehiclePackets.h"
+#include "Vignette.h"
+#include "VignettePackets.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -1568,6 +1570,7 @@ void Player::RemoveFromWorld()
         StopCastingCharm();
         StopCastingBindSight();
         UnsummonPetTemporaryIfAny();
+        UnsummonBattlePetTemporaryIfAny();
         SetPower(POWER_COMBO_POINTS, 0);
         m_session->DoLootReleaseAll();
         m_lootRolls.clear();
@@ -1985,7 +1988,10 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, NPCFlags npcFl
         return nullptr;
 
     // not unfriendly/hostile
-    if (!creature->HasUnitFlag2(UNIT_FLAG2_INTERACT_WHILE_HOSTILE) && creature->GetReactionTo(this) <= REP_UNFRIENDLY)
+    if (!creature->IsInteractionAllowedWhileHostile() && creature->GetReactionTo(this) <= REP_UNFRIENDLY)
+        return nullptr;
+
+    if (creature->IsInCombat() && !creature->IsInteractionAllowedInCombat())
         return nullptr;
 
     // not too far, taken from CGGameUI::SetInteractTarget
@@ -3855,7 +3861,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (ObjectGuid::LowType guildId = sCharacterCache->GetCharacterGuildIdByGuid(playerguid))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-            guild->DeleteMember(trans, playerguid, false, false, true);
+            guild->DeleteMember(trans, playerguid, false, false);
 
     // remove from arena teams
     LeaveAllArenaTeams(playerguid);
@@ -7619,6 +7625,24 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
         UpdateCriteria(CriteriaType::EnterTopLevelArea, newZone);
         UpdateCriteria(CriteriaType::LeaveTopLevelArea, oldZone);
+
+        {
+            WorldPackets::Vignette::VignetteUpdate vignetteUpdate;
+
+            for (Vignettes::VignetteData const* vignette : GetMap()->GetInfiniteAOIVignettes())
+            {
+                if (!vignette->Data->GetFlags().HasFlag(VignetteFlags::ZoneInfiniteAOI))
+                    continue;
+
+                if (vignette->ZoneID == newZone && Vignettes::CanSee(this, *vignette))
+                    vignette->FillPacket(vignetteUpdate.Added);
+                else if (vignette->ZoneID == oldZone)
+                    vignetteUpdate.Removed.push_back(vignette->Guid);
+            }
+
+            if (!vignetteUpdate.Added.IDs.empty() || !vignetteUpdate.Removed.empty())
+                SendDirectMessage(vignetteUpdate.Write());
+        }
     }
 }
 
@@ -13886,7 +13910,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
     }
 
     // visualize enchantment at player and equipped items
-    if (slot == PERM_ENCHANTMENT_SLOT)
+    if (slot == PERM_ENCHANTMENT_SLOT && item->GetSlot() < m_playerData->VisibleItems.size())
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::VisibleItems, item->GetSlot()).ModifyValue(&UF::VisibleItem::ItemVisual), item->GetVisibleItemVisual(this));
 
     if (apply_dur)
@@ -14362,7 +14386,7 @@ uint32 Player::GetGossipTextId(uint32 menuId, WorldObject* source)
     return textId;
 }
 
-uint32 Player::GetGossipMenuForSource(WorldObject* source)
+uint32 Player::GetGossipMenuForSource(WorldObject const* source) const
 {
     switch (source->GetTypeId())
     {
@@ -14964,9 +14988,8 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetSrcSpell(), GetMap()->GetDifficultyID());
         Unit* caster = this;
-        if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ACCEPT) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER) && !spellInfo->HasTargetType(TARGET_DEST_CASTER_SUMMON))
-            if (Unit* unit = questGiver->ToUnit())
-                caster = unit;
+        if (questGiver && questGiver->IsUnit() && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ACCEPT) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER) && !spellInfo->HasTargetType(TARGET_DEST_CASTER_SUMMON))
+            caster = questGiver->ToUnit();
 
         caster->CastSpell(this, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spellInfo->Difficulty));
     }
@@ -15332,9 +15355,8 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(quest->GetRewSpell(), GetMap()->GetDifficultyID());
         Unit* caster = this;
-        if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
-            if (Unit* unit = questGiver->ToUnit())
-                caster = unit;
+        if (questGiver && questGiver->IsUnit() && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
+            caster = questGiver->ToUnit();
 
         caster->CastSpell(this, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spellInfo->Difficulty));
     }
@@ -15348,9 +15370,8 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(displaySpell.SpellId, GetMap()->GetDifficultyID());
             Unit* caster = this;
-            if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
-                if (Unit* unit = questGiver->ToUnit())
-                    caster = unit;
+            if (questGiver && questGiver->IsUnit() && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
+                caster = questGiver->ToUnit();
 
             caster->CastSpell(this, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spellInfo->Difficulty));
         }
@@ -15374,9 +15395,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
         UpdatePvPState();
     }
 
-    SendQuestGiverStatusMultiple();
-
-    SendQuestUpdate(quest_id);
+    SendQuestUpdate(quest_id, true, true);
 
     bool updateVisibility = false;
     if (quest->HasFlag(QUEST_FLAGS_UPDATE_PHASESHIFT))
@@ -15385,7 +15404,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
 
-    if (questGiver && questGiver->isType(TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT))
+    if (questGiver && questGiver->IsWorldObject())
     {
         //For AutoSubmition was added plr case there as it almost same exclute AI script cases.
         // Send next quest
@@ -16120,7 +16139,7 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
         SendQuestUpdate(questId);
 }
 
-void Player::SendQuestUpdate(uint32 questId)
+void Player::SendQuestUpdate(uint32 questId, bool updateInteractions /*= true*/, bool updateGameObjectQuestGiverStatus /*= false*/)
 {
     SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestMapBounds(questId);
 
@@ -16168,7 +16187,8 @@ void Player::SendQuestUpdate(uint32 questId)
             RemoveAurasDueToSpell(spellId);
     }
 
-    UpdateVisibleGameobjectsOrSpellClicks();
+    if (updateInteractions)
+        UpdateVisibleObjectInteractions(true, false, updateGameObjectQuestGiverStatus, true);
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
@@ -16188,6 +16208,13 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
         }
         case TYPEID_UNIT:
         {
+            Creature const* questGiverCreature = questgiver->ToCreature();
+            if (!questGiverCreature->IsInteractionAllowedWhileHostile() && questGiverCreature->IsHostileTo(this))
+                return QuestGiverStatus::None;
+
+            if (!questGiverCreature->IsInteractionAllowedInCombat() && questGiverCreature->IsInCombat())
+                return QuestGiverStatus::None;
+
             if (CreatureAI* ai = questgiver->ToCreature()->AI())
                 if (Optional<QuestGiverStatus> questStatus = ai->GetDialogStatus(this))
                     return *questStatus;
@@ -16315,7 +16342,7 @@ void Player::SkipQuests(std::vector<uint32> const& questIds)
         }
 
         SetRewardedQuest(questId);
-        SendQuestUpdate(questId);
+        SendQuestUpdate(questId, false);
 
         if (!updateVisibility && quest->HasFlag(QUEST_FLAGS_UPDATE_PHASESHIFT))
             updateVisibility = PhasingHandler::OnConditionChange(this, false);
@@ -16324,7 +16351,7 @@ void Player::SkipQuests(std::vector<uint32> const& questIds)
         sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, QUEST_STATUS_REWARDED);
     }
 
-    SendQuestGiverStatusMultiple();
+    UpdateVisibleObjectInteractions(true, false, true, true);
 
     // make full db save
     SaveToDB(false);
@@ -16635,7 +16662,7 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 /*count*/)
             IncompleteQuest(questId);
         }
     }
-    UpdateVisibleGameobjectsOrSpellClicks();
+    UpdateVisibleObjectInteractions(true, false, false, true);
 }
 
 void Player::KilledMonster(CreatureTemplate const* cInfo, ObjectGuid guid)
@@ -16858,7 +16885,7 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
     }
 
     if (anyObjectiveChangedCompletionState)
-        UpdateVisibleGameobjectsOrSpellClicks();
+        UpdateVisibleObjectInteractions(true, false, false, true);
 
     if (updatePhaseShift)
         PhasingHandler::OnConditionChange(this);
@@ -17341,7 +17368,7 @@ void Player::SendQuestGiverStatusMultiple(GuidUnorderedSet const& guids)
         {
             // need also pet quests case support
             Creature* questgiver = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, *itr);
-            if (!questgiver || questgiver->IsHostileTo(this))
+            if (!questgiver)
                 continue;
             if (!questgiver->HasNpcFlag(UNIT_NPC_FLAG_QUESTGIVER))
                 continue;
@@ -20338,11 +20365,7 @@ void Player::SaveInventoryAndGoldToDB(CharacterDatabaseTransaction trans)
 {
     _SaveInventory(trans);
     _SaveCurrency(trans);
-    SaveGoldToDB(trans);
-}
 
-void Player::SaveGoldToDB(CharacterDatabaseTransaction trans) const
-{
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_MONEY);
     stmt->setUInt64(0, GetMoney());
     stmt->setUInt64(1, GetGUID().GetCounter());
@@ -21624,7 +21647,7 @@ void Player::RemovePetAura(PetAura const* petSpell)
         pet->RemoveAurasDueToSpell(petSpell->GetAura(pet->GetEntry()));
 }
 
-Creature* Player::GetSummonedBattlePet()
+Creature* Player::GetSummonedBattlePet() const
 {
     if (Creature* summonedBattlePet = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, GetCritterGUID()))
         if (!GetSummonedBattlePetGUID().IsEmpty() && GetSummonedBattlePetGUID() == summonedBattlePet->GetBattlePetCompanionGUID())
@@ -23774,26 +23797,6 @@ bool Player::IsVisibleGloballyFor(Player const* u) const
 }
 
 template<class T>
-inline void UpdateVisibilityOf_helper(GuidUnorderedSet& s64, T* target, std::set<Unit*>& /*v*/)
-{
-    s64.insert(target->GetGUID());
-}
-
-template<>
-inline void UpdateVisibilityOf_helper(GuidUnorderedSet& s64, Creature* target, std::set<Unit*>& v)
-{
-    s64.insert(target->GetGUID());
-    v.insert(target);
-}
-
-template<>
-inline void UpdateVisibilityOf_helper(GuidUnorderedSet& s64, Player* target, std::set<Unit*>& v)
-{
-    s64.insert(target->GetGUID());
-    v.insert(target);
-}
-
-template<class T>
 inline void BeforeVisibilityDestroy(T* /*t*/, Player* /*p*/) { }
 
 template<>
@@ -23801,6 +23804,44 @@ inline void BeforeVisibilityDestroy<Creature>(Creature* t, Player* p)
 {
     if (p->GetPetGUID() == t->GetGUID() && t->IsPet())
         t->ToPet()->Remove(PET_SAVE_NOT_IN_SLOT, true);
+
+    if (Vignettes::VignetteData const* vignette = t->GetVignette())
+    {
+        if (!vignette->Data->IsInfiniteAOI())
+        {
+            WorldPackets::Vignette::VignetteUpdate vignetteUpdate;
+            vignetteUpdate.Removed.push_back(vignette->Guid);
+            p->SendDirectMessage(vignetteUpdate.Write());
+        }
+    }
+}
+
+template<>
+inline void BeforeVisibilityDestroy<Player>(Player* t, Player* p)
+{
+    if (Vignettes::VignetteData const* vignette = t->GetVignette())
+    {
+        if (!vignette->Data->IsInfiniteAOI())
+        {
+            WorldPackets::Vignette::VignetteUpdate vignetteUpdate;
+            vignetteUpdate.Removed.push_back(vignette->Guid);
+            p->SendDirectMessage(vignetteUpdate.Write());
+        }
+    }
+}
+
+template<>
+inline void BeforeVisibilityDestroy<GameObject>(GameObject* t, Player* p)
+{
+    if (Vignettes::VignetteData const* vignette = t->GetVignette())
+    {
+        if (!vignette->Data->IsInfiniteAOI())
+        {
+            WorldPackets::Vignette::VignetteUpdate vignetteUpdate;
+            vignetteUpdate.Removed.push_back(vignette->Guid);
+            p->SendDirectMessage(vignetteUpdate.Write());
+        }
+    }
 }
 
 void Player::UpdateVisibilityOf(Trinity::IteratorPair<WorldObject**> targets)
@@ -23809,7 +23850,7 @@ void Player::UpdateVisibilityOf(Trinity::IteratorPair<WorldObject**> targets)
         return;
 
     UpdateData udata(GetMapId());
-    std::set<Unit*> newVisibleUnits;
+    std::set<WorldObject*> newVisibleObjects;
 
     for (WorldObject* target : targets)
     {
@@ -23819,28 +23860,28 @@ void Player::UpdateVisibilityOf(Trinity::IteratorPair<WorldObject**> targets)
         switch (target->GetTypeId())
         {
             case TYPEID_UNIT:
-                UpdateVisibilityOf(target->ToCreature(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToCreature(), udata, newVisibleObjects);
                 break;
             case TYPEID_PLAYER:
-                UpdateVisibilityOf(target->ToPlayer(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToPlayer(), udata, newVisibleObjects);
                 break;
             case TYPEID_GAMEOBJECT:
-                UpdateVisibilityOf(target->ToGameObject(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToGameObject(), udata, newVisibleObjects);
                 break;
             case TYPEID_DYNAMICOBJECT:
-                UpdateVisibilityOf(target->ToDynObject(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToDynObject(), udata, newVisibleObjects);
                 break;
             case TYPEID_CORPSE:
-                UpdateVisibilityOf(target->ToCorpse(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToCorpse(), udata, newVisibleObjects);
                 break;
             case TYPEID_AREATRIGGER:
-                UpdateVisibilityOf(target->ToAreaTrigger(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToAreaTrigger(), udata, newVisibleObjects);
                 break;
             case TYPEID_SCENEOBJECT:
-                UpdateVisibilityOf(target->ToSceneObject(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToSceneObject(), udata, newVisibleObjects);
                 break;
             case TYPEID_CONVERSATION:
-                UpdateVisibilityOf(target->ToConversation(), udata, newVisibleUnits);
+                UpdateVisibilityOf(target->ToConversation(), udata, newVisibleObjects);
                 break;
             default:
                 break;
@@ -23854,7 +23895,7 @@ void Player::UpdateVisibilityOf(Trinity::IteratorPair<WorldObject**> targets)
     udata.BuildPacket(&packet);
     SendDirectMessage(&packet);
 
-    for (Unit* visibleUnit : newVisibleUnits)
+    for (WorldObject* visibleUnit : newVisibleObjects)
         SendInitialVisiblePackets(visibleUnit);
 }
 
@@ -23864,8 +23905,20 @@ void Player::UpdateVisibilityOf(WorldObject* target)
     {
         if (!CanSeeOrDetect(target, false, true))
         {
-            if (target->GetTypeId() == TYPEID_UNIT)
-                BeforeVisibilityDestroy<Creature>(target->ToCreature(), this);
+            switch (target->GetTypeId())
+            {
+                case TYPEID_UNIT:
+                    BeforeVisibilityDestroy<Creature>(target->ToCreature(), this);
+                    break;
+                case TYPEID_PLAYER:
+                    BeforeVisibilityDestroy<Player>(target->ToPlayer(), this);
+                    break;
+                case TYPEID_GAMEOBJECT:
+                    BeforeVisibilityDestroy<GameObject>(target->ToGameObject(), this);
+                    break;
+                default:
+                    break;
+            }
 
             if (!target->IsDestroyedObject())
                 target->SendOutOfRangeForPlayer(this);
@@ -23892,8 +23945,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
 
             // target aura duration for caster show only if target exist at caster client
             // send data at target visibility change (adding to client)
-            if (target->isType(TYPEMASK_UNIT))
-                SendInitialVisiblePackets(static_cast<Unit*>(target));
+            SendInitialVisiblePackets(target);
         }
     }
 }
@@ -23939,18 +23991,39 @@ void Player::UpdateTriggerVisibility()
     SendDirectMessage(&packet);
 }
 
-void Player::SendInitialVisiblePackets(Unit* target) const
+void Player::SendInitialVisiblePackets(WorldObject* target) const
 {
-    SendAurasForTarget(target);
-    if (target->IsAlive())
+    auto sendVignette = [](Vignettes::VignetteData const& vignette, Player const* where)
     {
-        if (target->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && target->GetVictim())
-            target->SendMeleeAttackStart(target->GetVictim());
+        if (!vignette.Data->IsInfiniteAOI() && Vignettes::CanSee(where, vignette))
+        {
+            WorldPackets::Vignette::VignetteUpdate vignetteUpdate;
+            vignette.FillPacket(vignetteUpdate.Added);
+            where->SendDirectMessage(vignetteUpdate.Write());
+        }
+    };
+
+    if (Unit* targetUnit = target->ToUnit())
+    {
+        SendAurasForTarget(targetUnit);
+        if (targetUnit->IsAlive())
+        {
+            if (targetUnit->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && targetUnit->GetVictim())
+                targetUnit->SendMeleeAttackStart(targetUnit->GetVictim());
+        }
+
+        if (Vignettes::VignetteData const* vignette = targetUnit->GetVignette())
+            sendVignette(*vignette, this);
+    }
+    else if (GameObject* targetGo = target->ToGameObject())
+    {
+        if (Vignettes::VignetteData const* vignette = targetGo->GetVignette())
+            sendVignette(*vignette, this);
     }
 }
 
 template<class T>
-void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow)
+void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObject*>& visibleNow)
 {
     if (HaveAtClient(target))
     {
@@ -23975,7 +24048,8 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
         if (CanSeeOrDetect(target, false, true))
         {
             target->BuildCreateUpdateBlockForPlayer(&data, this);
-            UpdateVisibilityOf_helper(m_clientGUIDs, target, visibleNow);
+            m_clientGUIDs.insert(target->GetGUID());
+            visibleNow.insert(target);
 
             #ifdef TRINITY_DEBUG
                 TC_LOG_DEBUG("maps", "Object {} is visible now for player {}. Distance = {}", target->GetGUID().ToString(), GetGUID().ToString(), GetDistance(target));
@@ -23984,14 +24058,14 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
     }
 }
 
-template void Player::UpdateVisibilityOf(Player*        target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(AreaTrigger*   target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(SceneObject*   target, UpdateData& data, std::set<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(Conversation*  target, UpdateData& data, std::set<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(Player*        target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(AreaTrigger*   target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(SceneObject*   target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(Conversation*  target, UpdateData& data, std::set<WorldObject*>& visibleNow);
 
 void Player::UpdateObjectVisibility(bool forced)
 {
@@ -24242,6 +24316,19 @@ void Player::SendInitialPacketsBeforeAddToMap()
 void Player::SendInitialPacketsAfterAddToMap()
 {
     UpdateVisibilityForPlayer();
+
+    // Send map wide vignettes before UpdateZone, that will send zone wide vignettes
+    // But first send on new map will wipe all vignettes on client
+    {
+        WorldPackets::Vignette::VignetteUpdate vignetteUpdate;
+        vignetteUpdate.ForceUpdate = true;
+
+        for (Vignettes::VignetteData const* vignette : GetMap()->GetInfiniteAOIVignettes())
+            if (!vignette->Data->GetFlags().HasFlag(VignetteFlags::ZoneInfiniteAOI) && Vignettes::CanSee(this, *vignette))
+                vignette->FillPacket(vignetteUpdate.Added);
+
+        SendDirectMessage(vignetteUpdate.Write());
+    }
 
     // update zone
     uint32 newzone, newarea;
@@ -25115,33 +25202,37 @@ bool Player::HasQuestForGO(int32 GOId) const
     return false;
 }
 
-void Player::UpdateVisibleGameobjectsOrSpellClicks()
+void Player::UpdateVisibleObjectInteractions(bool allUnits, bool onlySpellClicks, bool gameObjectQuestGiverStatus, bool questObjectiveGameObjects)
 {
-    if (m_clientGUIDs.empty())
-        return;
-
+    WorldPackets::Quest::QuestGiverStatusMultiple giverStatusMultiple;
     UpdateData udata(GetMapId());
-    WorldPacket packet;
-    for (auto itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
+    for (ObjectGuid visibleObjectGuid : m_clientGUIDs)
     {
-        if (itr->IsGameObject())
+        if (visibleObjectGuid.IsGameObject() && (gameObjectQuestGiverStatus || questObjectiveGameObjects))
         {
-            if (GameObject* obj = ObjectAccessor::GetGameObject(*this, *itr))
+            GameObject* gameObject = ObjectAccessor::GetGameObject(*this, visibleObjectGuid);
+            if (!gameObject)
+                continue;
+
+            if (gameObjectQuestGiverStatus && gameObject->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
+                giverStatusMultiple.QuestGiver.emplace_back(visibleObjectGuid, GetQuestDialogStatus(gameObject));
+
+            if (questObjectiveGameObjects)
             {
                 UF::ObjectData::Base objMask;
                 UF::GameObjectData::Base goMask;
 
-                if (m_questObjectiveStatus.find({ QUEST_OBJECTIVE_GAMEOBJECT, int32(obj->GetEntry()) }) != m_questObjectiveStatus.end())
+                if (m_questObjectiveStatus.contains({ QUEST_OBJECTIVE_GAMEOBJECT, int32(gameObject->GetEntry()) }))
                     objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
 
-                switch (obj->GetGoType())
+                switch (gameObject->GetGoType())
                 {
                     case GAMEOBJECT_TYPE_QUESTGIVER:
                     case GAMEOBJECT_TYPE_CHEST:
                     case GAMEOBJECT_TYPE_GOOBER:
                     case GAMEOBJECT_TYPE_GENERIC:
                     case GAMEOBJECT_TYPE_GATHERING_NODE:
-                        if (sObjectMgr->IsGameObjectForQuests(obj->GetEntry()))
+                        if (sObjectMgr->IsGameObjectForQuests(gameObject->GetEntry()))
                             objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
                         break;
                     default:
@@ -25149,35 +25240,62 @@ void Player::UpdateVisibleGameobjectsOrSpellClicks()
                 }
 
                 if (objMask.GetChangesMask().IsAnySet() || goMask.GetChangesMask().IsAnySet())
-                    obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), this);
+                    gameObject->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), this);
             }
         }
-        else if (itr->IsCreatureOrVehicle())
+        else if (visibleObjectGuid.IsCreatureOrVehicle() && (allUnits || onlySpellClicks))
         {
-            Creature* obj = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, *itr);
-            if (!obj)
+            Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, visibleObjectGuid);
+            if (!creature)
                 continue;
 
-            // check if this unit requires quest specific flags
-            if (!obj->HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
-                continue;
-
-            auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(obj->GetEntry());
-            for (auto const& clickPair : clickBounds)
+            if (allUnits)
             {
-                if (sConditionMgr->HasConditionsForSpellClickEvent(obj->GetEntry(), clickPair.second.spellId))
+                UF::ObjectData::Base objMask;
+                UF::UnitData::Base unitMask;
+                for (uint32 i = 0; i < creature->m_unitData->NpcFlags.size(); ++i)
+                    if (creature->m_unitData->NpcFlags[i])
+                        unitMask.MarkChanged(&UF::UnitData::NpcFlags, i);
+
+                if (objMask.GetChangesMask().IsAnySet() || unitMask.GetChangesMask().IsAnySet())
+                    creature->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), unitMask.GetChangesMask(), this);
+
+                if (creature->IsQuestGiver())
+                    giverStatusMultiple.QuestGiver.emplace_back(visibleObjectGuid, GetQuestDialogStatus(creature));
+            }
+            else if (onlySpellClicks)
+            {
+                // check if this unit requires quest specific flags
+                if (!creature->HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
+                    continue;
+
+                auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(creature->GetEntry());
+                for (auto const& clickPair : clickBounds)
                 {
-                    UF::ObjectData::Base objMask;
-                    UF::UnitData::Base unitMask;
-                    unitMask.MarkChanged(&UF::UnitData::NpcFlags, 0); // NpcFlags[0] has UNIT_NPC_FLAG_SPELLCLICK
-                    obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), unitMask.GetChangesMask(), this);
-                    break;
+                    if (sConditionMgr->HasConditionsForSpellClickEvent(creature->GetEntry(), clickPair.second.spellId))
+                    {
+                        UF::ObjectData::Base objMask;
+                        UF::UnitData::Base unitMask;
+                        unitMask.MarkChanged(&UF::UnitData::NpcFlags, 0); // NpcFlags[0] has UNIT_NPC_FLAG_SPELLCLICK
+                        creature->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), unitMask.GetChangesMask(), this);
+                        break;
+                    }
                 }
             }
         }
     }
-    udata.BuildPacket(&packet);
-    SendDirectMessage(&packet);
+
+    // If as a result of npcflag updates we stop seeing UNIT_NPC_FLAG_QUESTGIVER then
+    // we must also send SMSG_QUEST_GIVER_STATUS_MULTIPLE because client will not request it automatically
+    if (!giverStatusMultiple.QuestGiver.empty())
+        SendDirectMessage(giverStatusMultiple.Write());
+
+    if (udata.HasData())
+    {
+        WorldPacket packet;
+        udata.BuildPacket(&packet);
+        SendDirectMessage(&packet);
+    }
 }
 
 bool Player::HasSummonPending() const
@@ -26010,14 +26128,11 @@ bool ItemPosCount::isContainedIn(std::vector<ItemPosCount> const& vec) const
 
 void Player::StopCastingBindSight() const
 {
-    if (WorldObject* target = GetViewpoint())
+    if (Unit* target = Object::ToUnit(GetViewpoint()))
     {
-        if (target->isType(TYPEMASK_UNIT))
-        {
-            static_cast<Unit*>(target)->RemoveAurasByType(SPELL_AURA_BIND_SIGHT, GetGUID());
-            static_cast<Unit*>(target)->RemoveAurasByType(SPELL_AURA_MOD_POSSESS, GetGUID());
-            static_cast<Unit*>(target)->RemoveAurasByType(SPELL_AURA_MOD_POSSESS_PET, GetGUID());
-        }
+        target->RemoveAurasByType(SPELL_AURA_BIND_SIGHT, GetGUID());
+        target->RemoveAurasByType(SPELL_AURA_MOD_POSSESS, GetGUID());
+        target->RemoveAurasByType(SPELL_AURA_MOD_POSSESS_PET, GetGUID());
     }
 }
 
@@ -26039,8 +26154,8 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
         // farsight dynobj or puppet may be very far away
         UpdateVisibilityOf(target);
 
-        if (target->isType(TYPEMASK_UNIT) && target != GetVehicleBase())
-            static_cast<Unit*>(target)->AddPlayerToVision(this);
+        if (Unit* targetUnit = target->ToUnit(); targetUnit && targetUnit != GetVehicleBase())
+            targetUnit->AddPlayerToVision(this);
         SetSeer(target);
     }
     else
@@ -26055,8 +26170,8 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::FarsightObject), ObjectGuid::Empty);
 
-        if (target->isType(TYPEMASK_UNIT) && target != GetVehicleBase())
-            static_cast<Unit*>(target)->RemovePlayerFromVision(this);
+        if (Unit* targetUnit = target->ToUnit(); targetUnit && targetUnit != GetVehicleBase())
+            targetUnit->RemovePlayerFromVision(this);
 
         //must immediately set seer back otherwise may crash
         SetSeer(this);
@@ -27081,9 +27196,71 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
     m_temporaryUnsummonedPetNumber = 0;
 }
 
+void Player::UnsummonBattlePetTemporaryIfAny(bool onFlyingMount /*= false*/)
+{
+    Creature* battlepet = GetSummonedBattlePet();
+    if (!battlepet || !battlepet->IsSummon())
+        return;
+
+    if (onFlyingMount && !battlepet->ToTempSummon()->IsDismissedOnFlyingMount())
+        return;
+
+    if (battlepet->ToTempSummon()->IsAutoResummoned())
+        m_temporaryUnsummonedBattlePet = battlepet->GetBattlePetCompanionGUID();
+
+    GetSession()->GetBattlePetMgr()->DismissPet();
+}
+
+void Player::ResummonBattlePetTemporaryUnSummonedIfAny()
+{
+    if (m_temporaryUnsummonedBattlePet.IsEmpty())
+        return;
+
+    // not resummon in not appropriate state
+    if (IsPetNeedBeTemporaryUnsummoned())
+        return;
+
+    GetSession()->GetBattlePetMgr()->SummonPet(m_temporaryUnsummonedBattlePet);
+
+    m_temporaryUnsummonedBattlePet.Clear();
+}
+
 bool Player::IsPetNeedBeTemporaryUnsummoned() const
 {
     return !IsInWorld() || !IsAlive() || HasUnitMovementFlag(MOVEMENTFLAG_FLYING) || HasExtraUnitMovementFlag2(MOVEMENTFLAG3_ADV_FLYING);
+}
+
+bool Player::CanSeeGossipOn(Creature const* creature) const
+{
+    if (creature->HasNpcFlag(UNIT_NPC_FLAG_GOSSIP))
+    {
+        if (GetGossipMenuForSource(creature))
+            return true;
+    }
+
+    // for cases with questgiver/ender without gossip menus
+    if (creature->HasNpcFlag(UNIT_NPC_FLAG_QUESTGIVER))
+    {
+        QuestRelationResult objectQIR = sObjectMgr->GetCreatureQuestInvolvedRelations(creature->GetEntry());
+        for (uint32 quest_id : objectQIR)
+        {
+            QuestStatus status = GetQuestStatus(quest_id);
+            if (status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_INCOMPLETE)
+                return true;
+        }
+
+        QuestRelationResult objectQR = sObjectMgr->GetCreatureQuestRelations(creature->GetEntry());
+        for (uint32 quest_id : objectQR)
+        {
+            Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
+            if (!quest)
+                continue;
+
+            if (CanTakeQuest(quest, false))
+                return true;
+        }
+    }
+    return false;
 }
 
 bool Player::CanSeeSpellClickOn(Creature const* c) const

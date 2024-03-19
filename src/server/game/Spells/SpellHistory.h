@@ -18,14 +18,14 @@
 #ifndef SpellHistory_h__
 #define SpellHistory_h__
 
-#include "SharedDefines.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "GameTime.h"
 #include "Optional.h"
+#include "SharedDefines.h"
 #include <deque>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 class Item;
 class Player;
@@ -48,32 +48,33 @@ class TC_GAME_API SpellHistory
 public:
     using Clock = std::chrono::system_clock;
     using Duration = Milliseconds; // Cooldowns are stored only with millisecond precision, not whatever Clock's precision is
+    using TimePoint = std::chrono::time_point<Clock, Duration>;
 
     struct CooldownEntry
     {
         uint32 SpellId = 0;
-        Clock::time_point CooldownEnd = Clock::time_point::min();
+        TimePoint CooldownEnd = TimePoint::min();
         uint32 ItemId = 0;
         uint32 CategoryId = 0;
-        Clock::time_point CategoryEnd = Clock::time_point::min();
+        TimePoint CategoryEnd = TimePoint::min();
         bool OnHold = false;
     };
 
     struct ChargeEntry
     {
         ChargeEntry() = default;
-        ChargeEntry(Clock::time_point startTime, Duration rechargeTime) : RechargeStart(startTime), RechargeEnd(startTime + rechargeTime) { }
-        ChargeEntry(Clock::time_point startTime, Clock::time_point endTime) : RechargeStart(startTime), RechargeEnd(endTime) { }
+        ChargeEntry(TimePoint startTime, Duration rechargeTime) : RechargeStart(startTime), RechargeEnd(startTime + rechargeTime) { }
+        ChargeEntry(TimePoint startTime, TimePoint endTime) : RechargeStart(startTime), RechargeEnd(endTime) { }
 
-        Clock::time_point RechargeStart;
-        Clock::time_point RechargeEnd;
+        TimePoint RechargeStart;
+        TimePoint RechargeEnd;
     };
 
     using ChargeEntryCollection = std::deque<ChargeEntry>;
     using CooldownStorageType = std::unordered_map<uint32 /*spellId*/, CooldownEntry>;
     using CategoryCooldownStorageType = std::unordered_map<uint32 /*categoryId*/, CooldownEntry*>;
     using ChargeStorageType = std::unordered_map<uint32 /*categoryId*/, ChargeEntryCollection>;
-    using GlobalCooldownStorageType = std::unordered_map<uint32 /*categoryId*/, Clock::time_point>;
+    using GlobalCooldownStorageType = std::unordered_map<uint32 /*categoryId*/, TimePoint>;
 
     explicit SpellHistory(Unit* owner);
     ~SpellHistory();
@@ -106,11 +107,11 @@ public:
 
     void AddCooldown(uint32 spellId, uint32 itemId, Duration cooldownDuration)
     {
-        Clock::time_point now = GameTime::GetTime<Clock>();
+        TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
         AddCooldown(spellId, itemId, now + cooldownDuration, 0, now);
     }
 
-    void AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
+    void AddCooldown(uint32 spellId, uint32 itemId, TimePoint cooldownEnd, uint32 categoryId, TimePoint categoryEnd, bool onHold = false);
     void ModifyCooldown(uint32 spellId, Duration cooldownMod, bool withoutCategoryCooldown = false);
     void ModifyCooldown(SpellInfo const* spellInfo, Duration cooldownMod, bool withoutCategoryCooldown = false);
     template<typename Predicate>
@@ -173,6 +174,10 @@ public:
     void CancelGlobalCooldown(SpellInfo const* spellInfo);
     Duration GetRemainingGlobalCooldown(SpellInfo const* spellInfo) const;
 
+    bool IsPaused() const { return _pauseTime.has_value(); }
+    void PauseCooldowns();
+    void ResumeCooldowns();
+
     void SaveCooldownStateBeforeDuel();
     void RestoreCooldownStateAfterDuel();
 
@@ -196,9 +201,10 @@ private:
     CooldownStorageType _spellCooldowns;
     CooldownStorageType _spellCooldownsBeforeDuel;
     CategoryCooldownStorageType _categoryCooldowns;
-    Clock::time_point _schoolLockouts[MAX_SPELL_SCHOOL];
+    TimePoint _schoolLockouts[MAX_SPELL_SCHOOL];
     ChargeStorageType _categoryCharges;
     GlobalCooldownStorageType _globalCooldowns;
+    Optional<TimePoint> _pauseTime;
 
     template<class T>
     struct PersistenceHelper { };

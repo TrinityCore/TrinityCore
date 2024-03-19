@@ -53,6 +53,7 @@
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "Transport.h"
+#include "Vignette.h"
 #include "World.h"
 #include <G3D/Box.h>
 #include <G3D/CoordinateFrame.h>
@@ -874,6 +875,8 @@ std::string const& GameObject::GetAIName() const
 
 void GameObject::CleanupsBeforeDelete(bool finalCleanup)
 {
+    SetVignette(0);
+
     WorldObject::CleanupsBeforeDelete(finalCleanup);
 
     RemoveFromOwner();
@@ -1151,6 +1154,9 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         if (gameObjectAddon->AIAnimKitID)
             _animKitId = gameObjectAddon->AIAnimKitID;
     }
+
+    if (uint32 vignetteId = GetGOInfo()->GetSpawnVignette())
+        SetVignette(vignetteId);
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
 
@@ -3425,6 +3431,24 @@ void GameObject::Use(Unit* user)
             break;
     }
 
+    if (m_vignette)
+    {
+        if (Player* player = user->ToPlayer())
+        {
+            if (Quest const* reward = sObjectMgr->GetQuestTemplate(m_vignette->Data->RewardQuestID))
+                if (!player->GetQuestRewardStatus(m_vignette->Data->RewardQuestID))
+                    player->RewardQuest(reward, LootItemType::Item, 0, this, false);
+
+            if (m_vignette->Data->VisibleTrackingQuestID)
+                player->SetRewardedQuest(m_vignette->Data->VisibleTrackingQuestID);
+        }
+
+        // only unregister it from visibility (need to keep vignette for other gameobject users in case its usable by multiple players
+        // to flag their quest completion
+        if (GetGOInfo()->ClearObjectVignetteonOpening())
+            Vignettes::Remove(*m_vignette, this);
+    }
+
     if (!spellId)
         return;
 
@@ -4090,6 +4114,10 @@ void GameObject::AfterRelocation()
     if (m_goTypeImpl)
         m_goTypeImpl->OnRelocated();
 
+    // TODO: on heartbeat
+    if (m_vignette)
+        Vignettes::Update(*m_vignette, this);
+
     UpdateObjectVisibility(false);
 }
 
@@ -4165,6 +4193,21 @@ void GameObject::SetAnimKitId(uint16 animKitId, bool oneshot)
     activateAnimKit.AnimKitID = animKitId;
     activateAnimKit.Maintain = !oneshot;
     SendMessageToSet(activateAnimKit.Write(), true);
+}
+
+void GameObject::SetVignette(uint32 vignetteId)
+{
+    if (m_vignette)
+    {
+        if (m_vignette->Data->ID == vignetteId)
+            return;
+
+        Vignettes::Remove(*m_vignette, this);
+        m_vignette = nullptr;
+    }
+
+    if (VignetteEntry const* vignette = sVignetteStore.LookupEntry(vignetteId))
+        m_vignette = Vignettes::Create(vignette, this);
 }
 
 void GameObject::SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid)

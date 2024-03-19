@@ -124,7 +124,6 @@ Battleground::~Battleground()
     for (uint32 i = 0; i < size; ++i)
         DelObject(i);
 
-    sBattlegroundMgr->RemoveBattleground(GetTypeID(), GetInstanceID());
     // unload map
     if (m_Map)
     {

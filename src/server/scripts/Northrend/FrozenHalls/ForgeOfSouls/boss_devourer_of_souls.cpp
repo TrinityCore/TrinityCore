@@ -118,26 +118,15 @@ struct outroPosition
     { { 0, 0 }, { 0.0f, 0.0f, 0.0f, 0.0f } }
 };
 
-Position const CrucibleSummonPos = {5672.294f, 2520.686f, 713.4386f, 0.9599311f};
-
-enum Misc
-{
-    DATA_THREE_FACED                = 1
-};
+static constexpr Position CrucibleSummonPos = { 5672.294f, 2520.686f, 713.4386f, 0.9599311f };
 
 struct boss_devourer_of_souls : public BossAI
 {
     boss_devourer_of_souls(Creature* creature) : BossAI(creature, DATA_DEVOURER_OF_SOULS)
     {
-        Initialize();
         beamAngle = 0.f;
-        beamAngleDiff = 0.f;
+        beamAngleDiff = float(M_PI) / 20.0f;
         wailingSoulTick = 0;
-    }
-
-    void Initialize()
-    {
-        threeFaced = true;
     }
 
     void Reset() override
@@ -146,8 +135,7 @@ struct boss_devourer_of_souls : public BossAI
         me->SetControlled(false, UNIT_STATE_ROOT);
         me->SetDisplayId(DISPLAY_ANGER);
         me->SetReactState(REACT_AGGRESSIVE);
-
-        Initialize();
+        instance->DoUpdateWorldState(WORLD_STATE_THREE_FACED_FAILED, 0);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -220,15 +208,7 @@ struct boss_devourer_of_souls : public BossAI
     void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == H_SPELL_PHANTOM_BLAST)
-            threeFaced = false;
-    }
-
-    uint32 GetData(uint32 type) const override
-    {
-        if (type == DATA_THREE_FACED)
-            return threeFaced;
-
-        return 0;
+            instance->DoUpdateWorldState(WORLD_STATE_THREE_FACED_FAILED, 1);
     }
 
     void UpdateAI(uint32 diff) override
@@ -286,8 +266,7 @@ struct boss_devourer_of_souls : public BossAI
 
                     beamAngle = me->GetOrientation();
 
-                    beamAngleDiff = float(M_PI)/30.0f; // PI/2 in 15 sec = PI/30 per tick
-                    if (RAND(true, false))
+                    if (roll_chance_i(50))
                         beamAngleDiff = -beamAngleDiff;
 
                     me->InterruptNonMeleeSpells(false);
@@ -299,25 +278,25 @@ struct boss_devourer_of_souls : public BossAI
                     me->GetMotionMaster()->Clear();
                     me->SetControlled(true, UNIT_STATE_ROOT);
 
-                    wailingSoulTick = 15;
-                    events.DelayEvents(18s); // no other events during wailing souls
+                    wailingSoulTick = 20;
+                    events.DelayEvents(13s); // no other events during wailing souls
                     events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3s); // first one after 3 secs.
                     break;
 
                 case EVENT_WAILING_SOULS_TICK:
-                    beamAngle += beamAngleDiff;
-                    me->SetFacingTo(beamAngle);
-
-                    DoCast(me, SPELL_WAILING_SOULS);
-
                     if (--wailingSoulTick)
-                        events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 1s);
+                    {
+                        beamAngle += beamAngleDiff;
+                        me->SetFacingTo(beamAngle);
+                        DoCast(me, SPELL_WAILING_SOULS);
+                        events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 500ms);
+                    }
                     else
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetDisplayId(DISPLAY_ANGER);
                         me->SetControlled(false, UNIT_STATE_ROOT);
-                        me->GetMotionMaster()->MoveChase(me->GetVictim());
+                        me->StartDefaultCombatMovement(me->GetVictim());
                         events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
                     }
                     break;
@@ -329,8 +308,6 @@ struct boss_devourer_of_souls : public BossAI
     }
 
 private:
-    bool threeFaced;
-
     // wailing soul event
     float beamAngle;
     float beamAngleDiff;
@@ -420,29 +397,10 @@ class spell_devourer_of_souls_mirrored_soul_target_selector : public SpellScript
     }
 };
 
-class achievement_three_faced : public AchievementCriteriaScript
-{
-    public:
-        achievement_three_faced() : AchievementCriteriaScript("achievement_three_faced") { }
-
-        bool OnCheck(Player* /*player*/, Unit* target) override
-        {
-            if (!target)
-                return false;
-
-            if (Creature* Devourer = target->ToCreature())
-                if (Devourer->AI()->GetData(DATA_THREE_FACED))
-                    return true;
-
-            return false;
-        }
-};
-
 void AddSC_boss_devourer_of_souls()
 {
     RegisterForgeOfSoulsCreatureAI(boss_devourer_of_souls);
     RegisterSpellScript(spell_devourer_of_souls_mirrored_soul);
     RegisterSpellScript(spell_devourer_of_souls_mirrored_soul_proc);
     RegisterSpellScript(spell_devourer_of_souls_mirrored_soul_target_selector);
-    new achievement_three_faced();
 }

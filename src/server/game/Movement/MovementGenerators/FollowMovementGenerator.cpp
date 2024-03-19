@@ -103,11 +103,16 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
         return true;
     }
 
+    float range = _range;
+    if (Creature* cOwner = owner->ToCreature())
+        if (cOwner->IsIgnoringChaseRange())
+            range = 0.0f;
+
     _checkTimer.Update(diff);
     if (_checkTimer.Passed())
     {
         _checkTimer.Reset(CHECK_INTERVAL);
-        if (HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED) && PositionOkay(owner, target, _range, _angle))
+        if (HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED) && PositionOkay(owner, target, range, _angle))
         {
             RemoveFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
             _path = nullptr;
@@ -129,7 +134,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
     if (!_lastTargetPosition || _lastTargetPosition->GetExactDistSq(target->GetPosition()) > 0.0f)
     {
         _lastTargetPosition = target->GetPosition();
-        if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE) || !PositionOkay(owner, target, _range + FOLLOW_RANGE_TOLERANCE))
+        if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE) || !PositionOkay(owner, target, range + FOLLOW_RANGE_TOLERANCE))
         {
             if (!_path)
                 _path = std::make_unique<PathGenerator>(owner);
@@ -151,7 +156,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
                     tAngle = _angle.LowerBound();
             }
 
-            target->GetNearPoint(owner, x, y, z, _range, target->ToAbsoluteAngle(tAngle));
+            target->GetNearPoint(owner, x, y, z, range, target->ToAbsoluteAngle(tAngle));
 
             if (owner->IsHovering())
                 owner->UpdateAllowedPositionZ(x, y, z);

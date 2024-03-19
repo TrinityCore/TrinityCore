@@ -68,18 +68,18 @@ struct WaypointNode
 
 struct WaypointPath
 {
-    WaypointPath() : Id(0), MoveType(WaypointMoveType::Walk), Flags(WaypointPathFlags::None) { }
+    WaypointPath() = default;
     WaypointPath(uint32 id, std::vector<WaypointNode>&& nodes, WaypointMoveType moveType = WaypointMoveType::Walk, WaypointPathFlags flags = WaypointPathFlags::None)
     {
         Id = id;
-        Nodes = nodes;
+        Nodes = std::move(nodes);
         Flags = flags;
         MoveType = moveType;
     }
 
     std::vector<WaypointNode> Nodes;
-    uint32 Id;
-    WaypointMoveType MoveType;
+    uint32 Id = 0;
+    WaypointMoveType MoveType = WaypointMoveType::Walk;
     EnumFlag<WaypointPathFlags> Flags = WaypointPathFlags::None;
 };
 
