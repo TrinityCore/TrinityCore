@@ -150,7 +150,7 @@ namespace WorldPackets
             int32 RewardMoneyDifficulty     = 0;
             float RewardMoneyMultiplier     = 1.0f;
             int32 RewardBonusMoney          = 0;
-            std::array<int32, QUEST_REWARD_DISPLAY_SPELL_COUNT> RewardDisplaySpell; // reward spell, this spell will be displayed (icon)
+            std::array<int32, QUEST_REWARD_DISPLAY_SPELL_COUNT> RewardDisplaySpell = { }; // reward spell, this spell will be displayed (icon)
             int32 RewardSpell               = 0;
             int32 RewardHonor               = 0;
             float RewardKillHonor           = 0.0f;
