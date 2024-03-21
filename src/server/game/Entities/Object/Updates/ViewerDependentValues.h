@@ -100,6 +100,12 @@ public:
                     else if (receiver->IsGameMaster())
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
                     break;
+                case GAMEOBJECT_TYPE_GENERIC:
+                case GAMEOBJECT_TYPE_SPELL_FOCUS:
+                    if (gameObject->GetGOInfo()->GetQuestID() || gameObject->GetGOInfo()->GetConditionID1())
+                        if (gameObject->CanActivateForPlayer(receiver))
+                            dynFlags |= GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
+                    break;
                 case GAMEOBJECT_TYPE_GOOBER:
                     if (gameObject->ActivateToQuest(receiver))
                     {
@@ -109,10 +115,6 @@ public:
                     }
                     else if (receiver->IsGameMaster())
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
-                    break;
-                case GAMEOBJECT_TYPE_GENERIC:
-                    if (gameObject->ActivateToQuest(receiver))
-                        dynFlags |= GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
                     break;
                 case GAMEOBJECT_TYPE_TRANSPORT:
                 case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
@@ -137,7 +139,7 @@ public:
                     break;
             }
 
-            if (!gameObject->MeetsInteractCondition(receiver))
+            if (!receiver->IsGameMaster() && !gameObject->MeetsInteractCondition(receiver))
                 dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
 
             dynamicFlags = (uint32(pathProgress) << 16) | uint32(dynFlags);
