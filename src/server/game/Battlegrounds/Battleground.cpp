@@ -169,7 +169,7 @@ void Battleground::Update(uint32 diff)
     if (!PreUpdateImpl(diff))
         return;
 
-    if (!GetPlayersSize())
+    if (!GetPlayersSize() && !IsReplay())
     {
         //BG is empty
         // if there are no players invited, delete BG
@@ -227,7 +227,10 @@ void Battleground::Update(uint32 diff)
     m_ResetStatTimer += diff;
 
     PostUpdateImpl(diff);
+
+    sScriptMgr->OnBattlegroundUpdate(this, diff);
 }
+
 
 inline void Battleground::_CheckSafePositions(uint32 diff)
 {
@@ -888,6 +891,7 @@ void Battleground::EndBattleground(uint32 winner)
         sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, TIME_TO_AUTOREMOVE, GetStartTime(), GetArenaType(), player->GetBGTeam());
         player->SendDirectMessage(&data);
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, player->GetMapId());
+        sScriptMgr->OnBattlegroundEnd(this, winner);
     }
 }
 
@@ -1048,6 +1052,7 @@ void Battleground::Reset()
 
     ResetBGSubclass();
 }
+
 
 void Battleground::StartBattleground()
 {

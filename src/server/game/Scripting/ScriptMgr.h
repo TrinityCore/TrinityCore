@@ -468,9 +468,8 @@ class TC_GAME_API BattlegroundScript : public ScriptObject
         explicit BattlegroundScript(char const* name);
 
     public:
-
-        // Should return a fully valid Battleground object for the type ID.
-        virtual Battleground* GetBattleground() const = 0;
+        virtual void OnBattlegroundUpdate(Battleground* /*bg*/, uint32 /*diff*/) { }
+        virtual void OnBattlegroundEnd(Battleground* /*bg*/, uint32 /*winner*/) { }
 };
 
 class TC_GAME_API OutdoorPvPScript : public ScriptObject
@@ -952,6 +951,8 @@ class TC_GAME_API ScriptMgr
     public: /* BattlegroundScript */
 
         Battleground* CreateBattleground(BattlegroundTypeId typeId);
+        void OnBattlegroundUpdate(Battleground* bg, uint32 diff);
+        void OnBattlegroundEnd(Battleground* bg, uint32 winner);
 
     public: /* OutdoorPvPScript */
 

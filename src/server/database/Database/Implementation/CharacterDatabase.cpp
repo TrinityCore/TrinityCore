@@ -594,6 +594,11 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     // DeserterTracker
     PrepareStatement(CHAR_INS_DESERTER_TRACK, "INSERT INTO battleground_deserters (guid, type, datetime) VALUES (?, ?, NOW())", CONNECTION_ASYNC);
+
+    // bg replays
+    PrepareStatement(CHAR_INS_ARENA_REPLAYS, "INSERT INTO character_bg_replays (arenaTypeId, typeId, contentSize, contents, mapId) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_ARENA_REPLAYS, "SELECT id, arenaTypeId, typeId, contentSize, contents, mapId FROM character_bg_replays where id =  ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_SEL_LAST_10_ARENA_REPLAYS, "SELECT id, arenaTypeId, typeId, contentSize, contents, mapId FROM character_bg_replays order by id desc limit 10", CONNECTION_SYNCH);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

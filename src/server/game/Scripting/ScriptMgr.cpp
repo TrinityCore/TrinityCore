@@ -1309,6 +1309,20 @@ void ScriptMgr::OnPacketSend(WorldSession* session, WorldPacket const& packet)
     FOREACH_SCRIPT(ServerScript)->OnPacketSend(session, copy);
 }
 
+void ScriptMgr::OnBattlegroundUpdate(Battleground* bg, uint32 diff)
+{
+    if (SCR_REG_LST(BattlegroundScript).empty())
+        return;
+    FOREACH_SCRIPT(BattlegroundScript)->OnBattlegroundUpdate(bg, diff);
+}
+
+void ScriptMgr::OnBattlegroundEnd(Battleground* bg, uint32 winner)
+{
+    if (SCR_REG_LST(BattlegroundScript).empty())
+        return;
+    FOREACH_SCRIPT(BattlegroundScript)->OnBattlegroundEnd(bg, winner);
+}
+
 void ScriptMgr::OnOpenStateChange(bool open)
 {
     FOREACH_SCRIPT(WorldScript)->OnOpenStateChange(open);
