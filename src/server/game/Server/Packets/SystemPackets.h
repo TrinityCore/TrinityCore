@@ -194,6 +194,7 @@ namespace WorldPackets
             bool IsExpansionPreorderInStore          = false; // NYI
             bool KioskModeEnabled                    = false; // NYI
             bool CompetitiveModeEnabled              = false; // NYI
+            bool IsBoostEnabled                      = false; // classic only
             bool TrialBoostEnabled                   = false; // NYI
             bool TokenBalanceEnabled                 = false; // NYI
             bool LiveRegionCharacterListEnabled      = false; // NYI
@@ -201,6 +202,7 @@ namespace WorldPackets
             bool LiveRegionAccountCopyEnabled        = false; // NYI
             bool LiveRegionKeyBindingsCopyEnabled    = false;
             bool Unknown901CheckoutRelated           = false; // NYI
+            bool IsNameReservationEnabled            = false; // classic only
             bool AddonsDisabled                      = false;
             bool Unused1000                          = false;
             bool AccountSaveDataExportEnabled        = false;
@@ -224,6 +226,7 @@ namespace WorldPackets
             Optional<int32> LaunchETA;
             std::vector<DebugTimeEventInfo> DebugTimeEvents;
             int32 Unused1007                         = 0;
+            uint32 EventRealmQueues                  = 0;
             Optional<std::string> RealmHiddenAlert;
         };
 

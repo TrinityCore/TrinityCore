@@ -486,7 +486,7 @@ struct CustomTabardInfo : public IsUpdateFieldStructureTag, public HasChangesMas
     void ClearChangesMask();
 };
 
-struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<269>
+struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<288>
 {
     UpdateField<bool, 0, 1> HasQuestSession;
     UpdateField<bool, 0, 2> HasLevelLink;
@@ -520,20 +520,23 @@ struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<269>
     UpdateField<int32, 0, 30> HonorLevel;
     UpdateField<int64, 0, 31> LogoutTime;
     UpdateField<std::string, 32, 33> Name;
-    UpdateField<int32, 32, 34> Field_B0;
-    UpdateField<int32, 32, 35> Field_B4;
+    UpdateField<int32, 32, 34> Field_1AC;
+    UpdateField<int32, 32, 35> Field_1B0;
     UpdateField<int32, 32, 36> CurrentBattlePetSpeciesID;
     UpdateField<UF::CTROptions, 32, 37> CtrOptions;
     UpdateField<int32, 32, 38> CovenantID;
     UpdateField<int32, 32, 39> SoulbindID;
-    UpdateField<WorldPackets::MythicPlus::DungeonScoreSummary, 32, 40> DungeonScore;
-    OptionalUpdateField<UF::DeclinedNames, 32, 41> DeclinedNames;
-    UpdateField<UF::CustomTabardInfo, 32, 42> PersonalTabard;
-    UpdateFieldArray<uint8, 2, 43, 44> PartyType;
-    UpdateFieldArray<UF::QuestLog, 175, 46, 47> QuestLog;
-    UpdateFieldArray<UF::VisibleItem, 19, 222, 223> VisibleItems;
-    UpdateFieldArray<float, 6, 242, 243> AvgItemLevel;
-    UpdateFieldArray<uint32, 19, 249, 250> Field_3120;
+    UpdateField<ObjectGuid, 32, 40> Field_1F0;
+    UpdateField<int32, 32, 41> Field_200;
+    UpdateField<WorldPackets::MythicPlus::DungeonScoreSummary, 32, 42> DungeonScore;
+    OptionalUpdateField<UF::DeclinedNames, 32, 43> DeclinedNames;
+    UpdateField<UF::CustomTabardInfo, 32, 44> PersonalTabard;
+    UpdateFieldArray<uint8, 2, 45, 46> PartyType;
+    UpdateFieldArray<UF::QuestLog, 175, 48, 49> QuestLog;
+    UpdateFieldArray<UF::VisibleItem, 19, 224, 225> VisibleItems;
+    UpdateFieldArray<float, 6, 244, 245> AvgItemLevel;
+    UpdateFieldArray<WorldPackets::Item::ItemInstance, 16, 251, 252> VisibleEquipableSpells;
+    UpdateFieldArray<uint32, 19, 268, 269> Field_3120;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;

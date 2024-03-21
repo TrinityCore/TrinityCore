@@ -26,7 +26,7 @@
 
 struct AchievementLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[17] =
+    static constexpr DB2FieldMeta Fields[19] =
     {
         { false, FT_STRING, "Description" },
         { false, FT_STRING, "Title" },
@@ -45,9 +45,11 @@ struct AchievementLoadInfo
         { false, FT_INT, "CriteriaTree" },
         { true, FT_SHORT, "SharesCriteria" },
         { true, FT_INT, "CovenantID" },
+        { true, FT_INT, "HiddenBeforeDisplaySeason" },
+        { true, FT_INT, "LegacyAfterTimeEvent" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 17, &AchievementMeta::Instance, HOTFIX_SEL_ACHIEVEMENT };
+    static constexpr DB2LoadInfo Instance{ Fields, 19, &AchievementMeta::Instance, HOTFIX_SEL_ACHIEVEMENT };
 };
 
 struct AchievementCategoryLoadInfo
@@ -65,7 +67,7 @@ struct AchievementCategoryLoadInfo
 
 struct AdventureJournalLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[25] =
+    static constexpr DB2FieldMeta Fields[23] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
@@ -83,8 +85,6 @@ struct AdventureJournalLoadInfo
         { false, FT_SHORT, "BattleMasterListID" },
         { false, FT_BYTE, "PriorityMin" },
         { false, FT_BYTE, "PriorityMax" },
-        { true, FT_INT, "ItemID" },
-        { false, FT_INT, "ItemQuantity" },
         { false, FT_SHORT, "CurrencyType" },
         { false, FT_INT, "CurrencyQuantity" },
         { false, FT_SHORT, "UiMapID" },
@@ -94,7 +94,7 @@ struct AdventureJournalLoadInfo
         { false, FT_BYTE, "BonusValue2" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 25, &AdventureJournalMeta::Instance, HOTFIX_SEL_ADVENTURE_JOURNAL };
+    static constexpr DB2LoadInfo Instance{ Fields, 23, &AdventureJournalMeta::Instance, HOTFIX_SEL_ADVENTURE_JOURNAL };
 };
 
 struct AdventureMapPoiLoadInfo

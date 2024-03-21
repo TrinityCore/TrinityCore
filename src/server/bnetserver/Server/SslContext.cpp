@@ -24,6 +24,8 @@
 #include <openssl/store.h>
 #include <openssl/ui.h>
 
+bool Battlenet::SslContext::_usesDevWildcardCertificate = false;
+
 namespace
 {
 auto CreatePasswordUiMethodFromPemCallback(::pem_password_cb* callback)
@@ -114,6 +116,37 @@ bool Battlenet::SslContext::Initialize()
     if (sk_X509_num(certs) > 0)
     {
         X509* cert = sk_X509_shift(certs);
+
+        _usesDevWildcardCertificate = [&]
+        {
+            X509_NAME const* nm = X509_get_subject_name(cert);
+            int32 lastpos = -1;
+            while (true)
+            {
+                lastpos = X509_NAME_get_index_by_NID(nm, NID_commonName, lastpos);
+                if (lastpos == -1)
+                    break;
+
+                X509_NAME_ENTRY* e = X509_NAME_get_entry(nm, lastpos);
+                if (!e)
+                    continue;
+
+                ASN1_STRING* text = X509_NAME_ENTRY_get_data(e);
+                if (!text)
+                    continue;
+
+                unsigned char* utf8TextRaw = nullptr;
+                if (int utf8Length = ASN1_STRING_to_UTF8(&utf8TextRaw, text); utf8Length >= 0)
+                {
+                    auto utf8Text = Trinity::make_unique_ptr_with_deleter(utf8TextRaw, [](unsigned char* ptr) { ::OPENSSL_free(ptr); });
+                    if (std::string_view(reinterpret_cast<char const*>(utf8Text.get()), utf8Length) == "*.*")
+                        return true;
+                }
+            }
+
+            return false;
+        }();
+
         SSL_CTX_use_cert_and_key(nativeContext, cert, key, certs, 1);
     }
 
