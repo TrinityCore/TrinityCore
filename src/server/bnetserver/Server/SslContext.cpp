@@ -119,7 +119,7 @@ bool Battlenet::SslContext::Initialize()
 
         _usesDevWildcardCertificate = [&]
         {
-            X509_NAME const* nm = X509_get_subject_name(cert);
+            X509_NAME* nm = X509_get_subject_name(cert);
             int32 lastpos = -1;
             while (true)
             {
