@@ -100,10 +100,7 @@ struct SpellInfoVisitor
     value_type operator()(Hyperlink<enchant> enchant) const { return enchant; };
     value_type operator()(Hyperlink<glyph> glyph) const { return operator()(glyph->Glyph->SpellID); };
     value_type operator()(Hyperlink<spell> spell) const { return *spell; }
-    value_type operator()(Hyperlink<talent> talent) const
-    {
-        return operator()(talent->Talent->SpellRank[talent->Rank - 1]);
-    };
+    value_type operator()(Hyperlink<talent> talent) const { return talent->Spell; };
     value_type operator()(Hyperlink<trade> trade) const { return trade->Spell; };
 
     value_type operator()(uint32 spellId) const { return sSpellMgr->GetSpellInfo(spellId); }
