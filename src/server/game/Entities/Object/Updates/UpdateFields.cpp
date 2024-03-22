@@ -2288,7 +2288,7 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
     CtrOptions->WriteCreate(data, owner, receiver);
     data << int32(CovenantID);
     data << int32(SoulbindID);
-    data << Field_1F0;
+    data << SpectateTarget;
     data << int32(Field_200);
     data << uint32(VisualItemReplacements.size());
     for (uint32 i = 0; i < 19; ++i)
@@ -2593,11 +2593,11 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
         {
             data << int32(SoulbindID);
         }
-        if (changesMask[40])
-        {
-            data << Field_1F0;
-        }
         if (changesMask[41])
+        {
+            data << SpectateTarget;
+        }
+        if (changesMask[42])
         {
             data << int32(Field_200);
         }
@@ -2611,7 +2611,7 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
         }
         data.WriteBits(DeclinedNames.has_value(), 1);
         data.FlushBits();
-        if (changesMask[42])
+        if (changesMask[40])
         {
             data << DungeonScore;
         }
@@ -2733,9 +2733,9 @@ void PlayerData::ClearChangesMask()
     Base::ClearChangesMask(CtrOptions);
     Base::ClearChangesMask(CovenantID);
     Base::ClearChangesMask(SoulbindID);
-    Base::ClearChangesMask(Field_1F0);
-    Base::ClearChangesMask(Field_200);
     Base::ClearChangesMask(DungeonScore);
+    Base::ClearChangesMask(SpectateTarget);
+    Base::ClearChangesMask(Field_200);
     Base::ClearChangesMask(DeclinedNames);
     Base::ClearChangesMask(PersonalTabard);
     Base::ClearChangesMask(PartyType);

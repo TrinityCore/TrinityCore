@@ -526,9 +526,9 @@ struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<288>
     UpdateField<UF::CTROptions, 32, 37> CtrOptions;
     UpdateField<int32, 32, 38> CovenantID;
     UpdateField<int32, 32, 39> SoulbindID;
-    UpdateField<ObjectGuid, 32, 40> Field_1F0;
-    UpdateField<int32, 32, 41> Field_200;
-    UpdateField<WorldPackets::MythicPlus::DungeonScoreSummary, 32, 42> DungeonScore;
+    UpdateField<WorldPackets::MythicPlus::DungeonScoreSummary, 32, 40> DungeonScore;
+    UpdateField<ObjectGuid, 32, 41> SpectateTarget;
+    UpdateField<int32, 32, 42> Field_200;
     OptionalUpdateField<UF::DeclinedNames, 32, 43> DeclinedNames;
     UpdateField<UF::CustomTabardInfo, 32, 44> PersonalTabard;
     UpdateFieldArray<uint8, 2, 45, 46> PartyType;
