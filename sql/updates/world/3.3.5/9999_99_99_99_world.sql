@@ -29,21 +29,17 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (41962, 'spell_shartuuls_transporter_possession_transfer');
 
 -- Arena Boundaries and Overseer
-DELETE FROM `creature` WHERE `guid` IN (230072, 230073, 230074, 230075, 230079);
+DELETE FROM `creature` WHERE `guid` IN (230079);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
-(230072, 23059, 530, 0, 0, 1, 1, 0, 0, 2640.37, 7089.21, 371.327, 2.28263, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
-(230073, 23059, 530, 0, 0, 1, 1, 0, 0, 2698.23, 7184.25, 371.327, 0.173832, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
-(230074, 23059, 530, 0, 0, 1, 1, 0, 0, 2798.41, 7135.72, 371.327, 3.51963, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
-(230075, 23059, 530, 0, 0, 1, 1, 0, 0, 2741.68, 7046.69, 371.327, 1.76821, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
 (230079, 23063, 530, 0, 0, 1, 1, 0, 0, 2720.74, 7118.42, 393.85, 4.78097, 300, 0, 0, 6722, 0, 0, 0, 33554432, 0, '', 0);
 
 -- Shield Zappers is in the center of the arena
 DELETE FROM `creature` WHERE `guid` IN (230098, 230099, 230102, 230103);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(230098, 23500, 530, 0, 0, 1, 1, 0, 0, 2713.58, 7117.04, 381.815, 0.548783, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
-(230099, 23500, 530, 0, 0, 1, 1, 0, 0, 2717.87, 7122.89, 381.708, 5.11982, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
-(230102, 23500, 530, 0, 0, 1, 1, 0, 0, 2721.63, 7112.49, 381.709, 2.64287, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
-(230103, 23500, 530, 0, 0, 1, 1, 0, 0, 2726, 7119.11, 381.659, 3.50053, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0);
+(230098, 23260, 530, 0, 0, 1, 1, 0, 0, 2713.58, 7117.04, 381.815, 0.548783, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
+(230099, 23260, 530, 0, 0, 1, 1, 0, 0, 2717.87, 7122.89, 381.708, 5.11982, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
+(230102, 23260, 530, 0, 0, 1, 1, 0, 0, 2721.63, 7112.49, 381.709, 2.64287, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
+(230103, 23260, 530, 0, 0, 1, 1, 0, 0, 2726, 7119.11, 381.659, 3.50053, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0);
 
 -- Changes to make the trigger NPCs levitate
 DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (23116, 23500, 23063, 23328, 23260, 23059);
