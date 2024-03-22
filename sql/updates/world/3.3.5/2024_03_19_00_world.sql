@@ -1,0 +1,2 @@
+--
+DELETE FROM `disables` WHERE `sourceType`=0 AND `flags`=64 AND `entry` IN (48188,69922,53038,52227,46171,45949,38729,32979);

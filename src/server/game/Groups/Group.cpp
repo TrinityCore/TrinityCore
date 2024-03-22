@@ -62,7 +62,8 @@ Loot* Roll::getLoot()
 Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
 m_dungeonDifficulty(DUNGEON_DIFFICULTY_NORMAL), m_raidDifficulty(RAID_DIFFICULTY_10MAN_NORMAL),
 m_bgGroup(nullptr), m_bfGroup(nullptr), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
-m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_isLeaderOffline(false)
+m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_isLeaderOffline(false),
+ m_scriptRef(this, NoopGroupDeleter())
 {
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
         m_targetIcons[i].Clear();
