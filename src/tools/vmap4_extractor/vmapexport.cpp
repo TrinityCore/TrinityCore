@@ -248,7 +248,7 @@ bool ExtractSingleWmo(std::string& fname)
 
         if (fgroup.mogpFlags2 & 0x80
             && fgroup.parentOrFirstChildSplitGroupIndex >= 0
-            && fgroup.parentOrFirstChildSplitGroupIndex < groups.size())
+            && size_t(fgroup.parentOrFirstChildSplitGroupIndex) < groups.size())
             fgroup.groupWMOID = groups[fgroup.parentOrFirstChildSplitGroupIndex].groupWMOID;
 
         Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, preciseVectorData);
