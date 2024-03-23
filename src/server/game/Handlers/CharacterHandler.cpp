@@ -1018,6 +1018,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         pCurrChar->RepopAtGraveyard();
     }
 
+    if (pCurrChar->IsSpectator())
+    {
+        pCurrChar->SetIsSpectator(false);
+        pCurrChar->SetPendingSpectatorForBG(0);
+        pCurrChar->SetPendingSpectatorInviteInstanceId(0);
+        pCurrChar->TeleportTo(pCurrChar->m_homebindMapId, pCurrChar->m_homebindX, pCurrChar->m_homebindY, pCurrChar->m_homebindZ, 0.0f);
+    }
+
     sScriptMgr->OnPlayerLogin(pCurrChar, firstLogin);
 
     TC_METRIC_EVENT("player_events", "Login", pCurrChar->GetName());

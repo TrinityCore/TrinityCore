@@ -2028,6 +2028,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetSaveTimer() const { return m_nextSave; }
         void SetSaveTimer(uint32 timer) { m_nextSave = timer; }
 
+        [[nodiscard]] bool IsInvitedForBattlegroundInstance() const { return m_bgData.isInvited; }
+
         void SaveRecallPosition() { m_recall_location.WorldRelocate(*this); }
         void Recall() { TeleportTo(m_recall_location); }
 

@@ -128,7 +128,9 @@ void WorldSession::HandleMoveWorldportAck()
         // join to bg case
         else if (Battleground* bg = player->GetBattleground())
         {
-            if (player->IsInvitedForBattlegroundInstance(player->GetBattlegroundId()))
+            if (player->IsInvitedForBattlegroundInstance(player->GetBattlegroundId())
+                || player->IsSpectator()
+                )
                 bg->AddPlayer(player);
         }
     }
@@ -138,9 +140,9 @@ void WorldSession::HandleMoveWorldportAck()
         {
             _player->ClearReceivedSpectatorResetFor();
             _player->SetIsSpectator(true);
-            ArenaSpectator::SendCommand(_player, "%sENABLE", SPECTATOR_ADDON_PREFIX);
+            //ArenaSpectator::SendCommand(_player, "%sENABLE", SPECTATOR_ADDON_PREFIX);
             ((BattlegroundMap*)newMap)->GetBG()->AddSpectator(_player);
-            ArenaSpectator::HandleResetCommand(_player);
+            //ArenaSpectator::HandleResetCommand(_player);
         }
         else
             _player->SetIsSpectator(false);

@@ -139,13 +139,13 @@ public:
     void OnBattlegroundUpdate(Battleground* bg, uint32 diff) override {
 
         if (!bg->IsReplay()) return;
-        if (bg->GetStatus() != BattlegroundStatus::STATUS_IN_PROGRESS) return;
         int32 startDelayTime = bg->GetStartDelayTime();
         if (startDelayTime > 5000)
         {
             bg->SetStartDelayTime(5000);
             bg->SetStartTime(bg->GetStartTime() + (startDelayTime - 5000));
         }
+        if (bg->GetStatus() != BattlegroundStatus::STATUS_IN_PROGRESS) return;
 
         //retrieve replay data
         auto it = loadedReplays.find(bg->GetReplayId());
@@ -158,8 +158,9 @@ public:
 
             if (!bg->GetPlayers().empty())
             {
-                bg->EndNow();
                 uint32 playerGUID = bg->GetReplayId();
+                bg->EndNow();
+                bg->toggleReplay(0);
                 Player* player = ObjectAccessor::FindPlayerByLowGUID(playerGUID);
                 player->LeaveBattleground(bg);
             }
@@ -231,12 +232,12 @@ public:
         bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override {
             uint32 replayId = GetGossipActionFor(player, gossipListId);
             player->PlayerTalkClass->ClearMenus();
-            replayArenaMatch(player, replayId);
+            StartReplay(player, replayId);
             CloseGossipMenuFor(player);
             return true;
         }
 
-        bool replayArenaMatch(Player* player, uint32 replayId) {
+        bool StartReplay(Player* player, uint32 replayId) {
             auto handler = ChatHandler(player->GetSession());
 
             if (!loadReplayDataForPlayer(player, replayId))
@@ -249,7 +250,7 @@ public:
                 handler.SetSentErrorMessage(true);
                 return false;
             }
-
+            player->SetIsSpectator(true);
             bg->toggleReplay(player->GetGUID());
             player->SetPendingSpectatorForBG(bg->GetInstanceID());
             bg->StartBattleground();
@@ -258,7 +259,7 @@ public:
 
             uint32 queueSlot = 0;
             WorldPacket data;
-            TeamId teamId = player->GetTeamId();
+            TeamId teamId = TEAM_NEUTRAL;
 
             player->SetBattlegroundId(bg->GetInstanceID(), bgTypeId, queueSlot, true, false, TEAM_NEUTRAL);
             sBattlegroundMgr->SendToBattleground(player, bg->GetInstanceID(), bgTypeId);

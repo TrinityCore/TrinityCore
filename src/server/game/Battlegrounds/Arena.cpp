@@ -96,7 +96,7 @@ void Arena::AddPlayer(Player* player)
     UpdateArenaWorldState();
 }
 
-void Arena::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
+void Arena::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
