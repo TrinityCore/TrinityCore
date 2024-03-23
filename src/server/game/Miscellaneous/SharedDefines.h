@@ -1138,6 +1138,7 @@ enum Team
     //TEAM_HORDE_FORCES        = 892,
     //TEAM_SANCTUARY           = 936,
     //TEAM_OUTLAND             = 980,
+    PANDARIA_NEUTRAL    = 1249,                             // Starting pandas should have this team
     TEAM_OTHER               = 0                            // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
 };
 
