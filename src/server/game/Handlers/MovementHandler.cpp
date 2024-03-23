@@ -502,6 +502,11 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     ReadMovementInfo(recvData, &movementInfo);
     recvData >> speedReceived;
 
+    if (!mover)
+    {
+        return;
+    }
+
     ASSERT(mover);
 
     // verify that indeed the client is replying with the changes that were send to him
