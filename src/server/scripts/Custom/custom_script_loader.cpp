@@ -19,8 +19,8 @@
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
-#include "ArenaReplay.cpp"
+#include "BGReplay.cpp"
 void AddCustomScripts()
 {
-    addArenaReplayScript();
+    AddBGReplayScripts();
 }

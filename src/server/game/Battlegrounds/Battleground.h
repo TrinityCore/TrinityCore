@@ -344,6 +344,9 @@ class TC_GAME_API Battleground
 
         typedef std::map<ObjectGuid, BattlegroundPlayer> BattlegroundPlayerMap;
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
+        Player* _GetPlayer(ObjectGuid guid, bool offlineRemove, char const* context) const;
+        Player* _GetPlayer(BattlegroundPlayerMap::iterator itr, char const* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
+        Player* _GetPlayer(BattlegroundPlayerMap::const_iterator itr, char const* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
         uint32 GetPlayersSize() const { return m_Players.size(); }
 
         typedef std::map<uint32, BattlegroundScore*> BattlegroundScoreMap;
@@ -509,20 +512,22 @@ class TC_GAME_API Battleground
         // because BattleGrounds with different types and same level range has different m_BracketId
         uint8 GetUniqueBracketId() const;
 
+        //spectators
         typedef std::set<Player*> SpectatorList;
+        typedef std::map<ObjectGuid, ObjectGuid> ToBeTeleportedMap;
         void AddSpectator(Player* p) { m_Spectators.insert(p); }
         void RemoveSpectator(Player* p) { m_Spectators.erase(p); }
         bool HaveSpectators() { return !m_Spectators.empty(); }
         [[nodiscard]] const SpectatorList& GetSpectators() const { return m_Spectators; }
+        void AddToBeTeleported(ObjectGuid spectator, ObjectGuid participant) { m_ToBeTeleported[spectator] = participant; }
+        void RemoveToBeTeleported(ObjectGuid spectator) { ToBeTeleportedMap::iterator itr = m_ToBeTeleported.find(spectator); if (itr != m_ToBeTeleported.end()) m_ToBeTeleported.erase(itr); }
+        void SpectatorsSendPacket(WorldPacket& data);
 
-    protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();
-        void PlayerAddedToBGCheckIfBGIsRunning(Player* player);
 
-        Player* _GetPlayer(ObjectGuid guid, bool offlineRemove, char const* context) const;
-        Player* _GetPlayer(BattlegroundPlayerMap::iterator itr, char const* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
-        Player* _GetPlayer(BattlegroundPlayerMap::const_iterator itr, char const* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
+    protected:
+        void PlayerAddedToBGCheckIfBGIsRunning(Player* player);
         Player* _GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, char const* context) const;
 
         void _ProcessOfflineQueue();
@@ -540,6 +545,7 @@ class TC_GAME_API Battleground
         // Player lists, those need to be accessible by inherited classes
         BattlegroundPlayerMap m_Players;
         SpectatorList m_Spectators;
+        ToBeTeleportedMap m_ToBeTeleported;
         // Spirit Guide guid + Player list GUIDS
         std::map<ObjectGuid, GuidVector> m_ReviveQueue;
 

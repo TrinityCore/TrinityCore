@@ -77,9 +77,9 @@ struct MatchRecord { BattlegroundTypeId typeId; uint8 arenaTypeId; uint32 mapId;
 std::unordered_map<uint32, MatchRecord> records;
 std::unordered_map<uint64, MatchRecord> loadedReplays;
 
-class ArenaReplayServerScript : public ServerScript {
+class BGReplayServerScript : public ServerScript {
 public:
-    ArenaReplayServerScript() : ServerScript("ArenaReplayServerScript") {}
+    BGReplayServerScript() : ServerScript("BGReplayServerScript") {}
 
     void OnPacketSend(WorldSession* session, WorldPacket& packet) override {
         if (session == nullptr || session->GetPlayer() == nullptr) return;
@@ -89,7 +89,7 @@ public:
         //ignore packet when no bg or casual games
         if (bg == nullptr || bg->IsReplay()) return;
         //ignore packets until arena started
-        //if (bg->GetStatus() != BattlegroundStatus::STATUS_IN_PROGRESS) return;
+        if (bg->GetStatus() != BattlegroundStatus::STATUS_IN_PROGRESS) return;
         //record packets from 1 player of each team
         //iterate just in case a player leaves and used as reference
         for (auto it : bg->GetPlayers()) {
@@ -109,7 +109,11 @@ public:
         MatchRecord& record = records[bg->GetInstanceID()];
 
         uint32 timestamp = bg->GetStartTime();
-        record.typeId = bg->GetTypeID();
+        record.typeId = bg->GetTypeID(false);
+        if (record.typeId == BATTLEGROUND_AA)
+        {
+            record.typeId = bg->GetTypeID(true);
+        }
         record.arenaTypeId = bg->GetArenaType();
         record.mapId = bg->GetMapId();
 
@@ -119,9 +123,9 @@ public:
 };
 
 
-class ArenaReplayBGScript : public BattlegroundScript {
+class BGReplayBGScript : public BattlegroundScript {
 public:
-    ArenaReplayBGScript() : BattlegroundScript("ArenaReplayBGScript") {}
+    BGReplayBGScript() : BattlegroundScript("BGReplayBGScript") {}
 
     void OnBattlegroundEnd(Battleground* bg, uint32 winner) override
     {
@@ -135,6 +139,13 @@ public:
     void OnBattlegroundUpdate(Battleground* bg, uint32 diff) override {
 
         if (!bg->IsReplay()) return;
+        if (bg->GetStatus() != BattlegroundStatus::STATUS_IN_PROGRESS) return;
+        int32 startDelayTime = bg->GetStartDelayTime();
+        if (startDelayTime > 5000)
+        {
+            bg->SetStartDelayTime(5000);
+            bg->SetStartTime(bg->GetStartTime() + (startDelayTime - 5000));
+        }
 
         //retrieve replay data
         auto it = loadedReplays.find(bg->GetReplayId());
@@ -142,11 +153,12 @@ public:
         MatchRecord& match = it->second;
 
         //if replay ends or spectator left > free replay data and/or kick player
-        if (match.packets.empty() || bg->GetSpectators().empty()) {
+        if (match.packets.empty() || bg->GetPlayers().empty()) {
             loadedReplays.erase(it);
 
-            if (!bg->GetSpectators().empty())
+            if (!bg->GetPlayers().empty())
             {
+                bg->EndNow();
                 uint32 playerGUID = bg->GetReplayId();
                 Player* player = ObjectAccessor::FindPlayerByLowGUID(playerGUID);
                 player->LeaveBattleground(bg);
@@ -156,7 +168,7 @@ public:
 
         //send replay data to spectator
         while (!match.packets.empty() && match.packets.front().timestamp <= bg->GetStartTime()) {
-            if (bg->GetSpectators().empty())
+            if (bg->GetPlayers().empty())
                 break;
             uint32 playerGUID = bg->GetReplayId();
             Player* player = ObjectAccessor::FindPlayerByLowGUID(playerGUID);
@@ -239,22 +251,19 @@ public:
             }
 
             bg->toggleReplay(player->GetGUID());
+            player->SetPendingSpectatorForBG(bg->GetInstanceID());
             bg->StartBattleground();
-            bg->AddSpectator(player);
 
             BattlegroundTypeId bgTypeId = bg->GetTypeID();
 
-            player->TeleportToBGEntryPoint();
-
             uint32 queueSlot = 0;
             WorldPacket data;
-            TeamId teamId = TEAM_NEUTRAL;
+            TeamId teamId = player->GetTeamId();
+
+            player->SetBattlegroundId(bg->GetInstanceID(), bgTypeId, queueSlot, true, false, TEAM_NEUTRAL);
+            sBattlegroundMgr->SendToBattleground(player, bg->GetInstanceID(), bgTypeId);
             sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_IN_PROGRESS, 0, bg->GetStartTime(), bg->GetArenaType(), teamId);
             player->GetSession()->SendPacket(&data);
-            player->SetBGTeam(TEAM_OTHER);
-
-            player->SetBattlegroundId(bg->GetInstanceID(), bgTypeId);
-            sBattlegroundMgr->SendToBattleground(player, bg->GetInstanceID(), bgTypeId);
 
             handler.PSendSysMessage("Replay begins.");
             return true;
@@ -337,8 +346,8 @@ public:
     }
 };
 
-void addArenaReplayScript() {
-    new ArenaReplayServerScript();
-    new ArenaReplayBGScript();
+void AddBGReplayScripts() {
+    new BGReplayServerScript();
+    new BGReplayBGScript();
     new ReplayGossip();
 }

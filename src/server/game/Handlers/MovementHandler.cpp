@@ -36,10 +36,12 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "ArenaSpectator.h"
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
 #include <boost/circular_buffer.hpp>
+#include <BattlegroundMgr.h>
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recvData*/)
 {
@@ -128,6 +130,28 @@ void WorldSession::HandleMoveWorldportAck()
         {
             if (player->IsInvitedForBattlegroundInstance(player->GetBattlegroundId()))
                 bg->AddPlayer(player);
+        }
+    }
+
+    {
+        if (newMap->IsBattleArena() && ((BattlegroundMap*)newMap)->GetBG() && _player->HasPendingSpectatorForBG(((BattlegroundMap*)newMap)->GetInstanceId()))
+        {
+            _player->ClearReceivedSpectatorResetFor();
+            _player->SetIsSpectator(true);
+            ArenaSpectator::SendCommand(_player, "%sENABLE", SPECTATOR_ADDON_PREFIX);
+            ((BattlegroundMap*)newMap)->GetBG()->AddSpectator(_player);
+            ArenaSpectator::HandleResetCommand(_player);
+        }
+        else
+            _player->SetIsSpectator(false);
+
+        GetPlayer()->SetPendingSpectatorForBG(0);
+
+        if (uint32 inviteInstanceId = _player->GetPendingSpectatorInviteInstanceId())
+        {
+            if (Battleground* tbg = sBattlegroundMgr->GetBattleground(inviteInstanceId, BATTLEGROUND_TYPE_NONE))
+                tbg->RemoveToBeTeleported(_player->GetGUID());
+            _player->SetPendingSpectatorInviteInstanceId(0);
         }
     }
 

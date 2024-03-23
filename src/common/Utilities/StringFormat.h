@@ -19,6 +19,7 @@
 #define TRINITYCORE_STRING_FORMAT_H
 
 #include "fmt/core.h"
+#include "fmt/printf.h"
 
 namespace Trinity
 {
@@ -43,6 +44,21 @@ namespace Trinity
         catch (std::exception const& formatError)
         {
             return fmt::format("An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
+        }
+    }
+
+    /// Default AC string format function.
+    template<typename Format, typename... Args>
+    inline std::string StringFormatAC(Format&& fmt, Args&& ... args)
+    {
+        try
+        {
+            return fmt::sprintf(std::forward<Format>(fmt), std::forward<Args>(args)...);
+        }
+        catch (const fmt::format_error& formatError)
+        {
+            std::string error = "An error occurred formatting string \"" + std::string(fmt) + "\" : " + std::string(formatError.what());
+            return error;
         }
     }
 

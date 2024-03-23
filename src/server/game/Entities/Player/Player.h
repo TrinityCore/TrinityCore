@@ -443,6 +443,7 @@ enum PlayerExtraFlags
     PLAYER_EXTRA_GM_INVISIBLE               = 0x0010,
     PLAYER_EXTRA_GM_CHAT                    = 0x0020,       // Show GM badge in chat messages
     PLAYER_EXTRA_HAS_310_FLYER              = 0x0040,       // Marks if player already has 310% speed flying mount
+    PLAYER_EXTRA_SPECTATOR_ON               = 0x0080,       // Marks if player is spectactor
 
     // other states
     PLAYER_EXTRA_PVP_DEATH                  = 0x0100,       // store PvP death status until corpse creating.
@@ -848,6 +849,11 @@ struct BGData
 
     uint32 bgTeam;                          ///< What side the player will be added to
 
+    TeamId bgTeamId{ TEAM_NEUTRAL };
+    uint32 bgQueueSlot{ PLAYER_MAX_BATTLEGROUND_QUEUES };
+    bool isInvited{ false };
+    bool bgIsRandom{ false };
+
     uint32 mountSpell;
     uint32 taxiPath[2];
 
@@ -855,6 +861,22 @@ struct BGData
 
     void ClearTaxiPath()     { taxiPath[0] = taxiPath[1] = 0; }
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
+};
+
+// holder for Entry Point data (pussywizard: stored in db)
+struct EntryPointData
+{
+    EntryPointData()
+    {
+        ClearTaxiPath();
+    }
+
+    uint32 mountSpell{ 0 };
+    std::array<uint32, 2> taxiPath;
+    WorldLocation joinPos;
+
+    void ClearTaxiPath() { taxiPath.fill(0); }
+    [[nodiscard]] bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
 };
 
 struct TradeStatusInfo
@@ -1923,7 +1945,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetBattlegroundQueueIndex(BattlegroundQueueTypeId bgQueueTypeId) const;
         bool IsInvitedForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const;
         bool InBattlegroundQueueForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const;
-
+        void SetBattlegroundId(uint32 id, BattlegroundTypeId bgTypeId, uint32 queueSlot, bool invited, bool isRandom, TeamId teamId);
         void SetBattlegroundId(uint32 val, BattlegroundTypeId bgTypeId);
         uint32 AddBattlegroundQueueId(BattlegroundQueueTypeId val);
         bool HasFreeBattlegroundQueueId() const;
@@ -2019,7 +2041,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         float m_homebindY;
         float m_homebindZ;
 
-        WorldLocation GetStartPosition() const;
+        [[nodiscard]] WorldLocation GetStartPosition() const;
+
+        [[nodiscard]] WorldLocation const& GetEntryPoint() const { return m_entryPointData.joinPos; }
+        void SetEntryPoint();
 
         // currently visible objects at player client
         GuidUnorderedSet m_clientGUIDs;
@@ -2195,6 +2220,22 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         std::string GetDebugInfo() const override;
 
+        // arena spectator
+        [[nodiscard]] bool IsSpectator() const { return m_ExtraFlags & PLAYER_EXTRA_SPECTATOR_ON; }
+        void SetIsSpectator(bool on);
+        [[nodiscard]] bool NeedSendSpectatorData() const;
+        void SetPendingSpectatorForBG(uint32 bgInstanceId) { m_pendingSpectatorForBG = bgInstanceId; }
+        [[nodiscard]] bool HasPendingSpectatorForBG(uint32 bgInstanceId) const { return m_pendingSpectatorForBG == bgInstanceId; }
+        void SetPendingSpectatorInviteInstanceId(uint32 bgInstanceId) { m_pendingSpectatorInviteInstanceId = bgInstanceId; }
+        [[nodiscard]] uint32 GetPendingSpectatorInviteInstanceId() const { return m_pendingSpectatorInviteInstanceId; }
+        bool HasReceivedSpectatorResetFor(ObjectGuid guid) { return m_receivedSpectatorResetFor.find(guid) != m_receivedSpectatorResetFor.end(); }
+        void ClearReceivedSpectatorResetFor() { m_receivedSpectatorResetFor.clear(); }
+        void AddReceivedSpectatorResetFor(ObjectGuid guid) { m_receivedSpectatorResetFor.insert(guid); }
+        void RemoveReceivedSpectatorResetFor(ObjectGuid guid) { m_receivedSpectatorResetFor.erase(guid); }
+        uint32 m_pendingSpectatorForBG;
+        uint32 m_pendingSpectatorInviteInstanceId;
+        GuidSet m_receivedSpectatorResetFor;
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2220,6 +2261,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         BGData                    m_bgData;
 
         bool m_IsBGRandomWinner;
+
+        /*********************************************************/
+        /***                   ENTRY POINT                     ***/
+        /*********************************************************/
+
+        EntryPointData m_entryPointData;
+
 
         /*********************************************************/
         /***                    QUEST SYSTEM                   ***/
