@@ -3057,6 +3057,7 @@ void DeleteSpellFromAllPlayers(uint32 spellId)
 bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+
     if (!spellInfo)
     {
         // do character spell book cleanup (all characters)
@@ -25308,6 +25309,11 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
 void Player::LearnTalent(uint32 talentId, uint32 talentRank)
 {
     uint32 CurTalentPoints = GetFreeTalentPoints();
+
+    if (InBattleground() || InArena())
+    {
+        return;
+    }
 
     if (CurTalentPoints == 0)
         return;
