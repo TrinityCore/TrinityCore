@@ -690,10 +690,17 @@ void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty&
             continue;
         }
 
-        if (!receiver->SatisfyQuestReputation(quest, false))
+        if (!receiver->SatisfyQuestMinReputation(quest, false))
         {
             sender->SendPushToPartyResponse(receiver, QuestPushReason::LowFaction);
             receiver->SendPushToPartyResponse(sender, QuestPushReason::LowFactionToRecipient, quest);
+            continue;
+        }
+
+        if (!receiver->SatisfyQuestMaxReputation(quest, false))
+        {
+            sender->SendPushToPartyResponse(receiver, QuestPushReason::HighFaction);
+            receiver->SendPushToPartyResponse(sender, QuestPushReason::HighFactionToRecipient, quest);
             continue;
         }
 

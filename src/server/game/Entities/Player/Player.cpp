@@ -2145,7 +2145,7 @@ bool Player::IsGroupVisibleFor(Player const* p) const
     {
         default: return IsInSameGroupWith(p);
         case 1:  return IsInSameRaidWith(p);
-        case 2:  return GetTeam() == p->GetTeam();
+        case 2:  return GetEffectiveTeam() == p->GetEffectiveTeam();
         case 3:  return false;
     }
 }
@@ -6459,6 +6459,7 @@ Team Player::TeamForRace(uint8 race)
         {
             case 0: return ALLIANCE;
             case 1: return HORDE;
+            case 2: return PANDARIA_NEUTRAL;
         }
         TC_LOG_ERROR("entities.player", "Race ({}) has wrong teamid ({}) in DBC: wrong DBC files?", uint32(race), rEntry->Alliance);
     }
@@ -7783,7 +7784,7 @@ void Player::DuelComplete(DuelCompleteType type)
         case DUEL_FLED:
             // if initiator and opponent are on the same team
             // or initiator and opponent are not PvP enabled, forcibly stop attacking
-            if (GetTeam() == opponent->GetTeam())
+            if (GetEffectiveTeam() == opponent->GetEffectiveTeam())
             {
                 AttackStop();
                 opponent->AttackStop();
@@ -15771,7 +15772,7 @@ bool Player::SatisfyQuestRace(Quest const* qInfo, bool msg) const
     return true;
 }
 
-bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg) const
+bool Player::SatisfyQuestMinReputation(Quest const* qInfo, bool msg) const
 {
     uint32 fIdMin = qInfo->GetRequiredMinRepFaction();      //Min required rep
     if (fIdMin && GetReputationMgr().GetReputation(fIdMin) < qInfo->GetRequiredMinRepValue())
@@ -15785,6 +15786,11 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg) const
         return false;
     }
 
+    return true;
+}
+
+bool Player::SatisfyQuestMaxReputation(Quest const* qInfo, bool msg) const
+{
     uint32 fIdMax = qInfo->GetRequiredMaxRepFaction();      //Max required rep
     if (fIdMax && GetReputationMgr().GetReputation(fIdMax) >= qInfo->GetRequiredMaxRepValue())
     {
@@ -15798,6 +15804,11 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg) const
     }
 
     return true;
+}
+
+bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg) const
+{
+    return SatisfyQuestMinReputation(qInfo, msg) && SatisfyQuestMaxReputation(qInfo, msg);
 }
 
 bool Player::SatisfyQuestStatus(Quest const* qInfo, bool msg) const
@@ -25222,23 +25233,25 @@ void Player::UpdateVisibleObjectInteractions(bool allUnits, bool onlySpellClicks
                 UF::ObjectData::Base objMask;
                 UF::GameObjectData::Base goMask;
 
-                if (m_questObjectiveStatus.contains({ QUEST_OBJECTIVE_GAMEOBJECT, int32(gameObject->GetEntry()) }))
+                if (m_questObjectiveStatus.contains({ QUEST_OBJECTIVE_GAMEOBJECT, int32(gameObject->GetEntry()) }) || gameObject->GetGOInfo()->GetConditionID1())
                     objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-
-                switch (gameObject->GetGoType())
+                else
                 {
-                    case GAMEOBJECT_TYPE_QUESTGIVER:
-                    case GAMEOBJECT_TYPE_CHEST:
-                    case GAMEOBJECT_TYPE_GOOBER:
-                    case GAMEOBJECT_TYPE_GENERIC:
-                    case GAMEOBJECT_TYPE_GATHERING_NODE:
-                        if (sObjectMgr->IsGameObjectForQuests(gameObject->GetEntry()))
-                            objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-                        break;
-                    default:
-                        break;
+                    switch (gameObject->GetGoType())
+                    {
+                        case GAMEOBJECT_TYPE_QUESTGIVER:
+                        case GAMEOBJECT_TYPE_CHEST:
+                        case GAMEOBJECT_TYPE_GENERIC:
+                        case GAMEOBJECT_TYPE_SPELL_FOCUS:
+                        case GAMEOBJECT_TYPE_GOOBER:
+                        case GAMEOBJECT_TYPE_GATHERING_NODE:
+                            if (sObjectMgr->IsGameObjectForQuests(gameObject->GetEntry()))
+                                objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
+                            break;
+                        default:
+                            break;
+                    }
                 }
-
                 if (objMask.GetChangesMask().IsAnySet() || goMask.GetChangesMask().IsAnySet())
                     gameObject->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), this);
             }

@@ -249,7 +249,10 @@ bool WMOGroup::open(WMORoot* rootWMO)
             f.read(&nBatchC, 4);
             f.read(&fogIdx, 4);
             f.read(&groupLiquid, 4);
-            f.read(&groupWMOID,4);
+            f.read(&groupWMOID, 4);
+            f.read(&mogpFlags2, 4);
+            f.read(&parentOrFirstChildSplitGroupIndex, 2);
+            f.read(&nextSplitChildGroupIndex, 2);
 
             // according to WoW.Dev Wiki:
             if (rootWMO->flags & 4)
