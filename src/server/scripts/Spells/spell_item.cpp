@@ -2371,7 +2371,7 @@ class spell_item_six_demon_bag : public SpellScript
                 spellId = SPELL_ENVELOPING_WINDS;
             else                                // Summon Felhund minion (5% chance)
             {
-                spellId = SPELL_SUMMON_FELHOUND_MINION;
+                spellId = SPELL_FROSTBOLT;
                 target = caster;
             }
 
