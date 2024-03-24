@@ -8795,6 +8795,12 @@ void ObjectMgr::LoadGameObjectForQuests()
                     break;
                 continue;
             }
+            case GAMEOBJECT_TYPE_SPELL_FOCUS:
+            {
+                if (gameObjectTemplatePair.second.spellFocus.questID > 0)          //quests objects
+                    break;
+                continue;
+            }
             case GAMEOBJECT_TYPE_GOOBER:
             {
                 if (gameObjectTemplatePair.second.goober.questID > 0)              //quests objects

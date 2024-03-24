@@ -25233,23 +25233,25 @@ void Player::UpdateVisibleObjectInteractions(bool allUnits, bool onlySpellClicks
                 UF::ObjectData::Base objMask;
                 UF::GameObjectData::Base goMask;
 
-                if (m_questObjectiveStatus.contains({ QUEST_OBJECTIVE_GAMEOBJECT, int32(gameObject->GetEntry()) }))
+                if (m_questObjectiveStatus.contains({ QUEST_OBJECTIVE_GAMEOBJECT, int32(gameObject->GetEntry()) }) || gameObject->GetGOInfo()->GetConditionID1())
                     objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-
-                switch (gameObject->GetGoType())
+                else
                 {
-                    case GAMEOBJECT_TYPE_QUESTGIVER:
-                    case GAMEOBJECT_TYPE_CHEST:
-                    case GAMEOBJECT_TYPE_GOOBER:
-                    case GAMEOBJECT_TYPE_GENERIC:
-                    case GAMEOBJECT_TYPE_GATHERING_NODE:
-                        if (sObjectMgr->IsGameObjectForQuests(gameObject->GetEntry()))
-                            objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-                        break;
-                    default:
-                        break;
+                    switch (gameObject->GetGoType())
+                    {
+                        case GAMEOBJECT_TYPE_QUESTGIVER:
+                        case GAMEOBJECT_TYPE_CHEST:
+                        case GAMEOBJECT_TYPE_GENERIC:
+                        case GAMEOBJECT_TYPE_SPELL_FOCUS:
+                        case GAMEOBJECT_TYPE_GOOBER:
+                        case GAMEOBJECT_TYPE_GATHERING_NODE:
+                            if (sObjectMgr->IsGameObjectForQuests(gameObject->GetEntry()))
+                                objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
+                            break;
+                        default:
+                            break;
+                    }
                 }
-
                 if (objMask.GetChangesMask().IsAnySet() || goMask.GetChangesMask().IsAnySet())
                     gameObject->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), this);
             }
