@@ -41,15 +41,20 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `p
 (230102, 23260, 530, 0, 0, 1, 1, 0, 0, 2721.63, 7112.49, 381.709, 2.64287, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0),
 (230103, 23260, 530, 0, 0, 1, 1, 0, 0, 2726, 7119.11, 381.659, 3.50053, 300, 0, 0, 4979, 0, 0, 0, 33554432, 0, '', 0);
 
--- Changes to make the trigger NPCs levitate
-DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (23116, 23500, 23063, 23328, 23260, 23059);
+DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (23116, 23500, 23063, 23328, 23260, 23059, 23323, 23278);
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES
+
+-- Changes to make the trigger NPCs levitate
 (23116, 1, 1, 1, 0, 0, 0, NULL),
 (23500, 1, 1, 1, 0, 0, 0, NULL),
 (23063, 1, 1, 1, 0, 0, 0, NULL),
 (23328, 0, 0, 1, 0, 0, 0, NULL),
 (23260, 0, 0, 1, 0, 0, 0, NULL),
-(23059, 0, 0, 1, 0, 0, 0, NULL);
+(23059, 0, 0, 1, 0, 0, 0, NULL),
+
+-- Changes to make Portable Fel Cannon and Fel Eye Stalk do not move
+(23323, 1, 1, 0, 1, 0, 0, NULL),
+(23278, 1, 1, 0, 1, 0, 0, NULL);
 
 -- Adding spells for Felguard Degrader
 DELETE FROM `creature_template_spell` WHERE `CreatureID`=23055;
@@ -141,36 +146,28 @@ DELETE FROM `creature_text` WHERE `CreatureID`=23275;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
 (23275, 0, 0, '%s lashes out, opening a large gash on $n!', 41, 0, 100, 0, 0, 0, 21987, 3, 'Dreadmaw');
 
--- Set an implicit target for the "Shield of Shattering" spell
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup` IN (1, 2) AND `SourceEntry`=40222 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=23116 AND `ConditionValue3`=0;
+-- Set implicit targets for various spells
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup` IN (1, 2) AND `SourceEntry` IN (40222, 40309, 40503, 39985, 40675, 41962, 40382, 40523, 40824, 40821) AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2` IN (23116, 23055, 23323, 23063, 23113, 23220) AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+
+-- "Shield of Shattering"
 (13, 1, 40222, 0, 0, 31, 0, 3, 23116, 0, 0, 0, 0, '', NULL),
-(13, 2, 40222, 0, 0, 31, 0, 3, 23116, 0, 0, 0, 0, '', NULL);
+(13, 2, 40222, 0, 0, 31, 0, 3, 23116, 0, 0, 0, 0, '', NULL),
 
--- Set an implicit target for the "Possess Demon" and "Possession Transfer(Doom Punisher)" spells
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry` IN (40309, 40503)AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=23055 AND `ConditionValue3`=0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+-- "Possess Demon" and "Possession Transfer(Doom Punisher)"
 (13, 1, 40309, 0, 0, 31, 0, 3, 23055, 0, 0, 0, 0, '', NULL),
-(13, 1, 40503, 0, 0, 31, 0, 3, 23055, 0, 0, 0, 0, '', NULL);
+(13, 1, 40503, 0, 0, 31, 0, 3, 23055, 0, 0, 0, 0, '', NULL),
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=39985 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=23055 AND `ConditionValue3`=0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
-(13, 1, 39985, 0, 0, 31, 0, 3, 23055, 0, 0, 0, 0, '', NULL);
-
--- Set an implicit target for the "Build Portable Fel Cannon" and "Possession Transfer (Shivan Assassin)" spells
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry` IN (40675, 41962)AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=23113 AND `ConditionValue3`=0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+-- "Build Portable Fel Cannon" and "Possession Transfer (Shivan Assassin)"
 (13, 1, 40675, 0, 0, 31, 0, 3, 23113, 0, 0, 0, 0, '', NULL),
-(13, 1, 41962, 0, 0, 31, 0, 3, 23113, 0, 0, 0, 0, '', NULL);
+(13, 1, 41962, 0, 0, 31, 0, 3, 23113, 0, 0, 0, 0, '', NULL),
 
--- Set implicit targets for the "Legion Ring - Charm - North 02 (Possess)" and "Legion Ring - Charm - North 03 (Possess)" spells
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry` IN (40382, 40523) AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2` IN (23113, 23220) AND `ConditionValue3`=0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+-- "Legion Ring - Charm - North 01 - 03 (Possess)"
+(13, 1, 39985, 0, 0, 31, 0, 3, 23055, 0, 0, 0, 0, '', NULL),
 (13, 1, 40382, 0, 0, 31, 0, 3, 23113, 0, 0, 0, 0, '', NULL),
-(13, 1, 40523, 0, 0, 31, 0, 3, 23220, 0, 0, 0, 0, '', NULL);
+(13, 1, 40523, 0, 0, 31, 0, 3, 23220, 0, 0, 0, 0, '', NULL),
 
--- Set implicit targets for the "Madness Rift" and "Touch of Madness" spells
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry` IN (40824, 40821) AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2` IN (23323, 23063) AND `ConditionValue3`=0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+-- "Madness Rift" and "Touch of Madness"
 (13, 1, 40824, 0, 0, 31, 0, 3, 23323, 0, 0, 0, 0, '', NULL),
 (13, 1, 40821, 0, 0, 31, 0, 3, 23063, 0, 0, 0, 0, '', NULL);
+

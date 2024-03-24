@@ -217,19 +217,17 @@ static Position const MoSpawnPos[3] =
 
 static std::set<uint32> const TrashMobSet =
 {
-    {NPC_FEL_IMP_DEFENDER},
-    {NPC_FELHOUND_DEFENDER},
-    {NPC_GAN_ARG_UNDERLING},
-    {NPC_MO_ARG_TORMENTER}
+    NPC_FEL_IMP_DEFENDER,
+    NPC_FELHOUND_DEFENDER,
+    NPC_GAN_ARG_UNDERLING,
+    NPC_MO_ARG_TORMENTER
 };
 
 //TODO code style
 //TODO check all dist 225f?
 //
+// 
 //TODO SPELL_DISRUPTION_RAY = 41550 - dont work right (aims the beam under himself anyway, must at the enemy)
-//TODO FIX ACTION BAR NPC_DOOMGUARD_PUNISHER and NPC_SHIVAN AFTER POCCESS
-//TODO FIX DOUBLE ZAP IN JustAppeared trash_defender
-//TODO Madness Rift should only cast in newly created Eye stalk.
 //TODO JUMP
 
 //////////////////
@@ -373,13 +371,17 @@ public:
                 SummonShieldZappers(false);
                 SetGreenMatter();
                 SetBoundary(FieldBoundary);
-                if (Creature* shield = ObjectAccessor::GetCreature(*me, _shieldGateGUID))
+                if (_shieldGateGUID)
+                {
+                    Creature* shield = ObjectAccessor::GetCreature(*me, _shieldGateGUID);
                     shield->AI()->DoAction(ACTION_START_DEMON_I_PHASE_I);
+                }
                 events.ScheduleEvent(EVENT_SPAWN_MOB_WAVE, 8s);
                 break;
             case ACTION_START_DEMON_I_PHASE_II: //Activate Doom Punisher, remove trash mobs
-                if (Creature* doomPunisher = ObjectAccessor::GetCreature(*me, _doomPunisherGUID))
+                if (_doomPunisherGUID)
                 {
+                    Creature* doomPunisher = ObjectAccessor::GetCreature(*me, _doomPunisherGUID);
                     summons.DespawnEntry(NPC_FELHOUND_DEFENDER);
                     summons.DespawnEntry(NPC_FEL_IMP_DEFENDER);
                     doomPunisher->AI()->DoAction(ACTION_START_DEMON_I_PHASE_II);
@@ -603,15 +605,17 @@ public:
                 if (!creature->IsAlive())
                     DoAction(ACTION_EVENT_DONE_OR_FAIL);
             }
-            
         };
 
         void CheckBoundary()
         {
-            if (Creature* creature = ObjectAccessor::GetCreature(*me, currPossessDemonGUID))
+            if (currPossessDemonGUID)
+            {
+                Creature* creature = ObjectAccessor::GetCreature(*me, currPossessDemonGUID);
                 if (!IsInBoundary(creature))
                     // If the creature is not within the boundary, compute the knockback.
                     ComputeKnockback(creature);
+            }
         };
 
         // This function turns the barrier on
@@ -718,7 +722,7 @@ public:
                 {
                     if (!_shivanAssassinGUID)
                         break;
-                    Position pos = me->GetRandomPoint(ObjectAccessor::GetCreature(*me, _shivanAssassinGUID)->GetPosition(), 10.0f);
+                    Position pos = me->GetRandomPoint(ObjectAccessor::GetCreature(*me, _shivanAssassinGUID)->GetPosition(), 15.0f);
                     me->SummonCreature(NPC_FEL_EYE_STALK, pos);
                 }
             }
@@ -801,7 +805,7 @@ public:
             switch (action)
             {
             case ACTION_START_DEMON_I_PHASE_I:
-                _events.ScheduleEvent(EVENT_DEFENSE_BEAM, 5s); //todo 1min
+                _events.ScheduleEvent(EVENT_DEFENSE_BEAM, 1min);
                 break;
             default:
                 break;
@@ -874,13 +878,16 @@ public:
         {
             me->RemoveAura(SPELL_COSMETIC_SHELL_SHIELD);
             Position pos = me->GetPosition();
-            pos.m_positionZ -= 7;
+            pos.m_positionZ -= 5;
             me->NearTeleportTo(pos, true);
             DoCastSelf(SPELL_COSMETIC_SHIELD_EXPLODE);
 
             //Inform Overseer that the shield has exploded.
-            if (Creature* overseerShartuul = ObjectAccessor::GetCreature(*me, _overseerShartuulGUID))
+            if (_overseerShartuulGUID)
+            {
+                Creature* overseerShartuul = ObjectAccessor::GetCreature(*me, _overseerShartuulGUID);
                 overseerShartuul->AI()->DoAction(ACTION_START_DEMON_I_PHASE_II);
+            }
         }
 
     private:
@@ -1069,8 +1076,10 @@ public:
     {
         npc_felguard_degraderAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
+            Player* player = caster->ToPlayer();
+            player->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC); //todo replace
             if (spellInfo->Id == SPELL_POSSESS_DEMON)
             {
                 if (Creature* overseerShartuul = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 250.0f))
@@ -1233,7 +1242,7 @@ enum EyeOfShartuul
 
 {
     SAY_EMOTE                  = 0,
-    EVENT_CAST_DARK_GLARE      = 0,
+    EVENT_CAST_DARK_GLARE      = 1,
     EVENT_CAST_DISRUPTION_RAY,
     EVENT_CAST_FEL_FIREBALL,
     EVENT_CAST_TONGUE_LASH,
@@ -1264,7 +1273,7 @@ public:
         {
             AttackStart(who);
             events.ScheduleEvent(EVENT_CAST_DARK_GLARE, 25s);
-            events.ScheduleEvent(EVENT_CAST_DISRUPTION_RAY, 2s);
+            events.ScheduleEvent(EVENT_CAST_DISRUPTION_RAY, 21s);
             events.ScheduleEvent(EVENT_CAST_FEL_FIREBALL, 13s);
             events.ScheduleEvent(EVENT_CAST_TONGUE_LASH, 6s);
         }
@@ -1334,7 +1343,7 @@ public:
 
 enum Dreadmaw
 {
-    EVENT_CAST_GROWTH            = 2,
+    EVENT_CAST_GROWTH            = 1,
     EVENT_CAST_LACERATING_BITE,
     EVENT_CAST_RAMPAGING_CHARGE,
     EVENT_CAST_WAR_STOMP,
@@ -1439,7 +1448,7 @@ enum Shartuul
 {
     SAY_AGRO                        = 0,
     SAY_INCINERATE,
-    EVENT_CAST_IMMOLATE             = 10,
+    EVENT_CAST_IMMOLATE             = 1,
     EVENT_CAST_INCINERATE,
     EVENT_CAST_MAGNETIC_PUL,
     EVENT_CAST_SHADOW_BOLT,
@@ -1562,7 +1571,7 @@ public:
                     break;
                 case EVENT_CAST_METEOR:
                     DoCast(SPELL_TOUCH_OF_MADNESS);
-                    events.ScheduleEvent(EVENT_CAST_METEOR, 8s, 12s);
+                    events.ScheduleEvent(EVENT_CAST_METEOR, 50s);
                     break;
                 case EVENT_CAST_TRANSFORM:
                     SetActive(true);
@@ -1648,7 +1657,6 @@ struct trash_defenderAI : public ScriptedAI
     void JustAppeared() override
     {
         me->SetFaction(FACTION_ENEMY);
-        DoCastSelf(SPELL_COSMETIC_FEL_IMPACT);
         me->SetDisplayId(MODEL_IMAGE_OF_EMPTY);
         Events.ScheduleEvent(EVENT_TRANSFORM, 2s);
     }
@@ -1792,10 +1800,8 @@ public:
 enum GanargUnderling
 {
     SPELL_BUILD_PORTABLE_FEL_CANNON = 40675,
-
-    SPELL_HEALTH_FUNNEL             = 40671, //todo This spell can only be used on MoargTormenter
+    SPELL_HEALTH_FUNNEL             = 40671,
     SPELL_GAN_ARG_TRANSFORM         = 40069,
-
     SAY_ASSIST                      = 0,
     SAY_BUILD_FEL_CANNON            = 1
 };
@@ -1812,7 +1818,7 @@ public:
         void JustEngagedWith(Unit* who) override
         {
             trash_defenderAI::JustEngagedWith(who);
-            Events.ScheduleEvent(EVENT_CAST_BUILD_PORTABLE_FEL_CANNON, 15s);
+            Events.ScheduleEvent(EVENT_CAST_BUILD_PORTABLE_FEL_CANNON, 12s, 18s);
             Events.ScheduleEvent(EVENT_CAST_HEALTH_FUNNEL, 25s);
         }
 
@@ -1899,57 +1905,6 @@ public:
 };
 
 /*#####
-# stationary_defenderAI - Used to track a victim without attacking them.
-#####*/
-
-struct stationary_defenderAI : public trash_defenderAI
-{
-    stationary_defenderAI(Creature* creature) : trash_defenderAI(creature)
-    {
-        _victimGUID.Clear();
-    }
-
-    void JustAppeared() override
-    {
-        me->SetFaction(FACTION_ENEMY);
-        me->SetDisplayId(MODEL_IMAGE_OF_EMPTY);
-        Events.ScheduleEvent(EVENT_TRANSFORM, 4s);
-    }
-
-    void JustEngagedWith(Unit* /*who*/) override { }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _victimGUID.Clear();
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!_victimGUID || Events.Empty())
-            return;
-
-        Unit* victim = ObjectAccessor::GetUnit(*me, _victimGUID);
-        me->SetFacingToObject(victim);
-
-        Events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = Events.ExecuteEvent())
-        {
-            ExecuteEvent(eventId);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-        }
-    }
-protected:
-    ObjectGuid _victimGUID;
-
-};
-
-/*#####
 # npc_portable_fel_cannon
 #####*/
 
@@ -1964,15 +1919,13 @@ class npc_portable_fel_cannon : public CreatureScript
 public:
     npc_portable_fel_cannon() : CreatureScript("npc_portable_fel_cannon") { }
 
-    struct npc_portable_fel_cannonAI : public stationary_defenderAI
+    struct npc_portable_fel_cannonAI : public trash_defenderAI
     {
-        npc_portable_fel_cannonAI(Creature* creature) : stationary_defenderAI(creature) { }
+        npc_portable_fel_cannonAI(Creature* creature) : trash_defenderAI(creature) { }
 
         void JustAppeared() override
         {
-            stationary_defenderAI::JustAppeared();
-            if (Unit* victim = me->FindNearestCreature(NPC_DOOMGUARD_PUNISHER, 250.0f))
-                _victimGUID = victim->GetGUID();
+            trash_defenderAI::JustAppeared();
             Events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 2s);
         }
 
@@ -1985,7 +1938,7 @@ public:
                 DoCastSelf(SPELL_PORTABLE_FEL_CANNON_TRANSFORM);
                 break;
             case EVENT_CAST_FEL_CANNON_BLAST:
-                DoCast(ObjectAccessor::GetUnit(*me, _victimGUID), SPELL_FEL_CANNON_BLAST);
+                DoCast(me->GetVictim(), SPELL_FEL_CANNON_BLAST);
                 Events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 5s);
                 break;
             default:
@@ -2016,15 +1969,13 @@ class npc_fel_eye_stalk : public CreatureScript
 public:
     npc_fel_eye_stalk() : CreatureScript("npc_fel_eye_stalk") { }
 
-    struct npc_fel_eye_stalkAI : public stationary_defenderAI
+    struct npc_fel_eye_stalkAI : public trash_defenderAI
     {
-        npc_fel_eye_stalkAI(Creature* creature) : stationary_defenderAI(creature) { }
+        npc_fel_eye_stalkAI(Creature* creature) : trash_defenderAI(creature) { }
 
         void JustAppeared() override
         {
-            stationary_defenderAI::JustAppeared();
-            if (Unit* victim = me->FindNearestCreature(NPC_SHIVAN_ASSASSIN, 250.0f))
-                _victimGUID = victim->GetGUID();
+            trash_defenderAI::JustAppeared();
             Events.ScheduleEvent(EVENT_CAST_MIND_FLAY, 2s);
         }
 
@@ -2035,9 +1986,10 @@ public:
             case EVENT_TRANSFORM:
                 SetActive(true);
                 DoCastSelf(SPELL_EYE_STALK_TRANSFORM);
+                me->SetEntry(16236);
                 break;
             case EVENT_CAST_MIND_FLAY:
-                DoCast(ObjectAccessor::GetUnit(*me, _victimGUID), SPELL_MIND_FLAY);
+                DoCast(me->GetVictim(), SPELL_MIND_FLAY);
                 Events.ScheduleEvent(EVENT_CAST_MIND_FLAY, 13s);
                 break;
             default:
@@ -2121,9 +2073,9 @@ class spell_shartuuls_transporter_possession_transfer : public AuraScript
             overseerShartuul->AI()->DoAction(ACTION_START_DEMON_III_PHASE_I);
         }
 
-        //Swaping the demon
         caster->ToCreature()->SetHomePosition(caster->GetPosition());
 
+        //Swaping the demon
         charmer->RemoveAurasDueToSpell(prevCharm);
         target->RemoveAurasDueToSpell(prevCharm);
         if (target->IsCreature())
@@ -2132,9 +2084,15 @@ class spell_shartuuls_transporter_possession_transfer : public AuraScript
         caster->CombatStop();
     }
 
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        PreventDefaultAction();
+    }
+
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_shartuuls_transporter_possession_transfer::AfterRemove, EFFECT_2, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_shartuuls_transporter_possession_transfer::OnApply, EFFECT_2, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2247,7 +2205,7 @@ class spell_shartuuls_transporter_consume_essence : public SpellScript
     }
 };
 
-//todo check wihout conditions
+//todo check without conditions
 // 40675 - Build Portable Fel Cannon
 class spell_shartuuls_transporter_build_portable_fel_cannon : public AuraScript
 {
