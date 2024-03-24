@@ -2234,11 +2234,11 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         static TeamId TeamIdForRace(uint8 race);
         static uint8 GetFactionGroupForRace(uint8 race);
         Team GetTeam() const { return m_team; }
-        TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
+        TeamId GetTeamId() const { return GetTeamIdForTeam(m_team); }
         void SetFactionForRace(uint8 race);
 
-        Team GetEffectiveTeam() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE) ? (GetTeam() == ALLIANCE ? HORDE : ALLIANCE) : Team(GetTeam()); }
-        TeamId GetEffectiveTeamId() const { return GetEffectiveTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
+        Team GetEffectiveTeam() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE) ? GetOtherTeam(GetTeam()) : GetTeam(); }
+        TeamId GetEffectiveTeamId() const { return GetTeamIdForTeam(GetEffectiveTeam()); }
 
         void InitDisplayIds();
 

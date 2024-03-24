@@ -461,7 +461,6 @@ class TC_GAME_API Battleground : public ZoneScript
 
         // since arenas can be AvA or Hvh, we have to get the "temporary" team of a player
         Team GetPlayerTeam(ObjectGuid guid) const;
-        Team GetOtherTeam(Team team) const;
         bool IsPlayerInBattleground(ObjectGuid guid) const;
         bool IsPlayerMercenaryInBattleground(ObjectGuid guid) const;
 
