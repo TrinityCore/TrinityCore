@@ -66,15 +66,11 @@ class instance_shattered_halls : public InstanceMapScript
                 LoadDungeonEncounterData(encounters);
                 executionTimer = 0;
                 executed = 0;
-                _team = 0;
             }
 
             void OnPlayerEnter(Player* player) override
             {
                 Aura* ex = nullptr;
-
-                if (!_team)
-                    _team = player->GetTeam();
 
                 player->CastSpell(player, SPELL_REMOVE_KARGATH_EXECUTIONER, true);
 
@@ -102,14 +98,6 @@ class instance_shattered_halls : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
-                if (!_team)
-                {
-                    Map::PlayerList const& players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            _team = player->GetTeam();
-                }
-
                 switch (creature->GetEntry())
                 {
                     case NPC_GRAND_WARLOCK_NETHEKURSE:
@@ -119,7 +107,7 @@ class instance_shattered_halls : public InstanceMapScript
                         kargathGUID = creature->GetGUID();
                         break;
                     case NPC_RANDY_WHIZZLESPROCKET:
-                        if (_team == HORDE)
+                        if (instance->GetTeamInInstance() == HORDE)
                             creature->UpdateEntry(NPC_DRISELLA);
                         break;
                     case NPC_SHATTERED_EXECUTIONER:
@@ -205,7 +193,7 @@ class instance_shattered_halls : public InstanceMapScript
                     case DATA_PRISONERS_EXECUTED:
                         return executed;
                     case DATA_TEAM_IN_INSTANCE:
-                        return _team;
+                        return instance->GetTeamInInstance();
                     default:
                         return 0;
                 }
@@ -249,7 +237,6 @@ class instance_shattered_halls : public InstanceMapScript
 
             uint8 executed;
             uint32 executionTimer;
-            uint32 _team;
         };
 };
 

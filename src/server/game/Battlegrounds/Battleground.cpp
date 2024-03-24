@@ -1705,11 +1705,6 @@ Team Battleground::GetPlayerTeam(ObjectGuid guid) const
     return TEAM_OTHER;
 }
 
-Team Battleground::GetOtherTeam(Team team) const
-{
-    return team ? ((team == ALLIANCE) ? HORDE : ALLIANCE) : TEAM_OTHER;
-}
-
 bool Battleground::IsPlayerInBattleground(ObjectGuid guid) const
 {
     BattlegroundPlayerMap::const_iterator itr = m_Players.find(guid);
