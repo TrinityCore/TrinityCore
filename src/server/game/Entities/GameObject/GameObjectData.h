@@ -865,6 +865,18 @@ struct GameObjectTemplate
         }
     }
 
+    uint32 GetQuestID() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_CHEST: return chest.questID;
+            case GAMEOBJECT_TYPE_GENERIC: return generic.questID;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS: return spellFocus.questID;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.questID;
+            default: return 0;
+        }
+    }
+
     uint32 GetConditionID1() const
     {
         switch (type)
