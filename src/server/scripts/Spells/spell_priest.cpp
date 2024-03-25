@@ -3257,32 +3257,28 @@ class spell_pri_whispering_shadows_effect : public SpellScript
         if (targets.size() <= GetSpellValue()->MaxAffectedTargets)
             return;
 
+        auto getVampiricTouch = [&](WorldObject const* target)
+        {
+            return target->ToUnit()->GetAura(SPELL_PRIEST_VAMPIRIC_TOUCH, GetCaster()->GetGUID());
+        };
+
         // prioritize targets without Vampiric Touch
         targets.sort([&](WorldObject const* target1, WorldObject const* target2)
         {
             int32 duration1 = 0;
-            if (Aura const* aura1 = target1->ToUnit()->GetAura(SPELL_PRIEST_VAMPIRIC_TOUCH, GetCaster()->GetGUID()))
+            if (Aura const* aura1 = getVampiricTouch(target1))
                 duration1 = aura1->GetDuration();
             int32 duration2 = 0;
-            if (Aura const* aura2 = target2->ToUnit()->GetAura(SPELL_PRIEST_VAMPIRIC_TOUCH, GetCaster()->GetGUID()))
+            if (Aura const* aura2 = getVampiricTouch(target2))
                 duration2 = aura2->GetDuration();
             return duration1 < duration2;
         });
 
-        bool needRandomization = false;
-        auto firstVtTarget = std::find_if(targets.begin(), targets.end(), [&, noVtTargets = 0u](WorldObject const* target) mutable
-        {
-            if (target->ToUnit()->HasAura(SPELL_PRIEST_VAMPIRIC_TOUCH, GetCaster()->GetGUID()))
-                return true;
-            needRandomization = ++noVtTargets > GetSpellValue()->MaxAffectedTargets;
-            return false;
-        });
+        // remove targets that definitely will not get Vampiric Touch applied (excess targets with longest remaining duration)
+        while (targets.size() > GetSpellValue()->MaxAffectedTargets && getVampiricTouch(targets.back()) != nullptr)
+            targets.pop_back();
 
-        if (needRandomization)
-        {
-            targets.erase(firstVtTarget, targets.end());
-            // actual randomization done in Spell code before adding targets
-        }
+        Trinity::Containers::RandomResize(targets, GetSpellValue()->MaxAffectedTargets);
     }
 
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
