@@ -295,7 +295,7 @@ struct battleground_warsong_gulch : BattlegroundScript
     {
         DoForFlagKeepers([&](Player* player) -> void
         {
-            TeamId const team = Battleground::GetTeamIndexByTeamId(battlegroundMap->GetBG()->GetPlayerTeam(player->GetGUID()));
+            TeamId const team = Battleground::GetTeamIndexByTeamId(battleground->GetPlayerTeam(player->GetGUID()));
             if (AreaTrigger* trigger = battlegroundMap->GetAreaTrigger(_capturePointAreaTriggers[team]))
                 if (trigger->GetInsideUnits().contains(player->GetGUID()))
                     if (CanCaptureFlag(trigger, player))
@@ -388,7 +388,7 @@ struct battleground_warsong_gulch : BattlegroundScript
         BattlegroundScript::OnFlagStateChange(flagInBase, oldValue, newValue, player);
 
         Team const team = flagInBase->GetEntry() == OBJECT_HORDE_FLAG_IN_BASE ? HORDE : ALLIANCE;
-        TeamId const otherTeamId = Battleground::GetTeamIndexByTeamId(battleground->GetOtherTeam(team));
+        TeamId const otherTeamId = Battleground::GetTeamIndexByTeamId(GetOtherTeam(team));
 
         UpdateFlagState(team, newValue);
 
@@ -481,7 +481,7 @@ struct battleground_warsong_gulch : BattlegroundScript
 
         Team const team = battleground->GetPlayerTeam(player->GetGUID());
         TeamId const teamId = Battleground::GetTeamIndexByTeamId(team);
-        TeamId const otherTeamId = Battleground::GetTeamIndexByTeamId(battleground->GetOtherTeam(team));
+        TeamId const otherTeamId = Battleground::GetTeamIndexByTeamId(GetOtherTeam(team));
 
         if (areaTrigger->GetGUID() != _capturePointAreaTriggers[teamId])
             return false;
@@ -500,9 +500,9 @@ struct battleground_warsong_gulch : BattlegroundScript
 
         Team winner = TEAM_OTHER;
 
-        Team const team = battlegroundMap->GetBG()->GetPlayerTeam(player->GetGUID());
+        Team const team = battleground->GetPlayerTeam(player->GetGUID());
         TeamId const teamId = Battleground::GetTeamIndexByTeamId(team);
-        TeamId const otherTeamId = Battleground::GetTeamIndexByTeamId(battlegroundMap->GetBG()->GetOtherTeam(team));
+        TeamId const otherTeamId = Battleground::GetTeamIndexByTeamId(GetOtherTeam(team));
 
         /*
             1. Update flag states & score world states
