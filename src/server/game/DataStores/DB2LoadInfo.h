@@ -6172,7 +6172,7 @@ struct VehicleSeatLoadInfo
 
 struct VignetteLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[11] =
+    static constexpr DB2FieldMeta Fields[10] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
@@ -6186,7 +6186,7 @@ struct VignetteLoadInfo
         { true, FT_INT, "RewardQuestID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 11, &VignetteMeta::Instance, HOTFIX_SEL_VIGNETTE };
+    static constexpr DB2LoadInfo Instance{ Fields, 10, &VignetteMeta::Instance, HOTFIX_SEL_VIGNETTE };
 };
 
 struct WmoAreaTableLoadInfo
