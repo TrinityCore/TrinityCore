@@ -112,6 +112,7 @@ class TC_COMMON_API BIH
             delete[] dat.indices;
         }
         uint32 primCount() const { return uint32(objects.size()); }
+        G3D::AABox const& bound() const { return bounds; }
 
         template<typename RayCallback>
         void intersectRay(const G3D::Ray &r, RayCallback& intersectCallback, float &maxDist, bool stopAtFirst = false) const
