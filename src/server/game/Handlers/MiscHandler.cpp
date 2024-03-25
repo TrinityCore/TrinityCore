@@ -1170,9 +1170,8 @@ void WorldSession::HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLa
     UISplashScreenEntry const* splashScreen = nullptr;
     for (auto itr = sUISplashScreenStore.begin(); itr != sUISplashScreenStore.end(); ++itr)
     {
-        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(itr->CharLevelConditionID))
-            if (!ConditionMgr::IsPlayerMeetingCondition(_player, playerCondition))
-                continue;
+        if (!ConditionMgr::IsPlayerMeetingCondition(_player, itr->CharLevelConditionID))
+            continue;
 
         splashScreen = *itr;
     }

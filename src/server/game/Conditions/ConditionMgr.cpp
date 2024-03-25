@@ -92,7 +92,8 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX_D
     "AreaTrigger Client Triggered",
     "Trainer Spell",
     "Object Visibility (by ID)",
-    "Spawn Group"
+    "Spawn Group",
+    "Player Condition"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -657,8 +658,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_PLAYER_CONDITION:
         {
             if (Player const* player = object->ToPlayer())
-                if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(ConditionValue1))
-                    condMeets = ConditionMgr::IsPlayerMeetingCondition(player, playerCondition);
+                condMeets = ConditionMgr::IsPlayerMeetingCondition(player, ConditionValue1);
             break;
         }
         case CONDITION_PRIVATE_OBJECT:
@@ -2028,10 +2028,6 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             break;
         }
-        case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
-        case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
-        case CONDITION_SOURCE_TYPE_SMART_EVENT:
-            break;
         case CONDITION_SOURCE_TYPE_GRAVEYARD:
             if (!sObjectMgr->FindGraveyardData(cond->SourceEntry, cond->SourceGroup))
             {
@@ -2125,6 +2121,11 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
+        case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
+        case CONDITION_SOURCE_TYPE_SMART_EVENT:
+        case CONDITION_SOURCE_TYPE_PLAYER_CONDITION:
+            break;
         default:
             TC_LOG_ERROR("sql.sql", "{} Invalid ConditionSourceType in `condition` table, ignoring.", cond->ToString());
             return false;
@@ -2820,6 +2821,20 @@ uint32 ConditionMgr::GetPlayerConditionLfgValue(Player const* player, PlayerCond
     }
 
     return 0;
+}
+
+bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, uint32 conditionId)
+{
+    if (!conditionId)
+        return true;
+
+    if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_PLAYER_CONDITION, conditionId, player))
+        return false;
+
+    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(conditionId))
+        return IsPlayerMeetingCondition(player, playerCondition);
+
+    return true;
 }
 
 bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition)

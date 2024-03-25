@@ -505,9 +505,8 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext contex
                 if (itemProto->GetArtifactID() != artifactAppearanceSet->ArtifactID)
                     continue;
 
-                if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(artifactAppearance->UnlockPlayerConditionID))
-                    if (!owner || !sConditionMgr->IsPlayerMeetingCondition(owner, playerCondition))
-                        continue;
+                if (!owner || !ConditionMgr::IsPlayerMeetingCondition(owner, artifactAppearance->UnlockPlayerConditionID))
+                    continue;
 
                 SetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID, artifactAppearance->ID);
                 SetAppearanceModId(artifactAppearance->ItemAppearanceModifierID);
@@ -1038,13 +1037,10 @@ void Item::LoadArtifactData(Player const* owner, uint64 xp, uint32 artifactAppea
                         case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_PICKER:
                             if (_bonusData.GemRelicType[e - SOCK_ENCHANTMENT_SLOT] != -1)
                             {
-                                if (ArtifactPowerPickerEntry const* artifactPowerPicker = sArtifactPowerPickerStore.LookupEntry(enchant->EffectArg[i]))
-                                {
-                                    PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(artifactPowerPicker->PlayerConditionID);
-                                    if (!playerCondition || (owner && sConditionMgr->IsPlayerMeetingCondition(owner, playerCondition)))
-                                        if (artifactPower->Label == _bonusData.GemRelicType[e - SOCK_ENCHANTMENT_SLOT])
-                                            power.CurrentRankWithBonus += enchant->EffectPointsMin[i];
-                                }
+                                ArtifactPowerPickerEntry const* artifactPowerPicker = sArtifactPowerPickerStore.LookupEntry(enchant->EffectArg[i]);
+                                if (artifactPowerPicker && owner && ConditionMgr::IsPlayerMeetingCondition(owner, artifactPowerPicker->PlayerConditionID))
+                                    if (artifactPower->Label == _bonusData.GemRelicType[e - SOCK_ENCHANTMENT_SLOT])
+                                        power.CurrentRankWithBonus += enchant->EffectPointsMin[i];
                             }
                             break;
                         default:
@@ -2716,8 +2712,7 @@ void Item::ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enc
                     {
                         if (ArtifactPowerPickerEntry const* artifactPowerPicker = sArtifactPowerPickerStore.LookupEntry(enchant->EffectArg[i]))
                         {
-                            PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(artifactPowerPicker->PlayerConditionID);
-                            if (!playerCondition || sConditionMgr->IsPlayerMeetingCondition(owner, playerCondition))
+                            if (ConditionMgr::IsPlayerMeetingCondition(owner, artifactPowerPicker->PlayerConditionID))
                             {
                                 for (uint32 artifactPowerIndex = 0; artifactPowerIndex < m_itemData->ArtifactPowers.size(); ++artifactPowerIndex)
                                 {
