@@ -64,6 +64,7 @@ namespace WorldPackets
             Optional<int32> TemplateSet;
             bool IsTrialBoost     = false;
             bool UseNPE           = false;
+            bool Unused1026       = false;
             std::string Name;
 
             /// Server side data

@@ -27,8 +27,8 @@
 #include <set>
 #include <string>
 #include <type_traits>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 enum TypeID
 {
@@ -66,7 +66,9 @@ enum TypeMask
     TYPEMASK_AREATRIGGER            = 0x0800,
     TYPEMASK_SCENEOBJECT            = 0x1000,
     TYPEMASK_CONVERSATION           = 0x2000,
-    TYPEMASK_SEER                   = TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
+
+    TYPEMASK_SEER                   = TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT,
+    TYPEMASK_WORLDOBJECT            = TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE | TYPEMASK_AREATRIGGER | TYPEMASK_SCENEOBJECT | TYPEMASK_CONVERSATION
 };
 
 enum class HighGuid

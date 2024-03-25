@@ -60,6 +60,7 @@
 #include "TemporarySummon.h"
 #include "TradeData.h"
 #include "TraitPackets.h"
+#include "UniqueTrackablePtr.h"
 #include "Util.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
@@ -484,18 +485,19 @@ SpellValue::SpellValue(SpellInfo const* proto, WorldObject const* caster)
 class TC_GAME_API SpellEvent : public BasicEvent
 {
 public:
-    SpellEvent(Spell* spell);
+    explicit SpellEvent(Spell* spell);
     ~SpellEvent();
 
     bool Execute(uint64 e_time, uint32 p_time) override;
     void Abort(uint64 e_time) override;
     bool IsDeletable() const override;
-    Spell const* GetSpell() const { return m_Spell; }
+    Spell const* GetSpell() const { return m_Spell.get(); }
+    Trinity::unique_weak_ptr<Spell> GetSpellWeakPtr() const { return m_Spell; }
 
     std::string GetDebugInfo() const { return m_Spell->GetDebugInfo(); }
 
 protected:
-    Spell* m_Spell;
+    Trinity::unique_trackable_ptr<Spell> m_Spell;
 };
 
 Spell::Spell(WorldObject* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID /*= ObjectGuid::Empty*/,
@@ -830,8 +832,7 @@ void Spell::SelectSpellTargets()
         if (m_spellInfo->HasAttribute(SPELL_ATTR8_REQUIRES_LOCATION_TO_BE_ON_LIQUID_SURFACE))
         {
             ZLiquidStatus status = m_caster->GetMap()->GetLiquidStatus(m_caster->GetPhaseShift(),
-                m_targets.GetDstPos()->GetPositionX(), m_targets.GetDstPos()->GetPositionY(), m_targets.GetDstPos()->GetPositionZ(),
-                map_liquidHeaderTypeFlags::AllLiquids);
+                m_targets.GetDstPos()->GetPositionX(), m_targets.GetDstPos()->GetPositionY(), m_targets.GetDstPos()->GetPositionZ());
             if (!(status & (LIQUID_MAP_WATER_WALK | LIQUID_MAP_IN_WATER)))
             {
                 SendCastResult(SPELL_FAILED_NO_LIQUID);
@@ -1512,7 +1513,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
             float ground = m_caster->GetMapHeight(x, y, z);
             float liquidLevel = VMAP_INVALID_HEIGHT_VALUE;
             LiquidData liquidData;
-            if (m_caster->GetMap()->GetLiquidStatus(m_caster->GetPhaseShift(), x, y, z, map_liquidHeaderTypeFlags::AllLiquids, &liquidData, m_caster->GetCollisionHeight()))
+            if (m_caster->GetMap()->GetLiquidStatus(m_caster->GetPhaseShift(), x, y, z, {}, &liquidData, m_caster->GetCollisionHeight()))
                 liquidLevel = liquidData.level;
 
             if (liquidLevel <= ground) // When there is no liquid Map::GetWaterOrGroundLevel returns ground level
@@ -3028,6 +3029,12 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 
                 if (effMask)
                     _spellHitTarget->_ApplyAura(aurApp, effMask);
+
+                if (aurApp->IsNeedClientUpdate() && aurApp->GetRemoveMode() == AURA_REMOVE_NONE)
+                {
+                    aurApp->ClientUpdate(false);
+                    _spellHitTarget->RemoveVisibleAuraUpdate(aurApp);
+                }
             }
         }
 
@@ -8196,9 +8203,8 @@ Unit* Spell::GetUnitCasterForEffectHandlers() const
     return m_originalCaster ? m_originalCaster : m_caster->ToUnit();
 }
 
-SpellEvent::SpellEvent(Spell* spell) : BasicEvent()
+SpellEvent::SpellEvent(Spell* spell) : BasicEvent(), m_Spell(spell)
 {
-    m_Spell = spell;
 }
 
 SpellEvent::~SpellEvent()
@@ -8206,11 +8212,7 @@ SpellEvent::~SpellEvent()
     if (m_Spell->getState() != SPELL_STATE_FINISHED)
         m_Spell->cancel();
 
-    if (m_Spell->IsDeletable())
-    {
-        delete m_Spell;
-    }
-    else
+    if (!m_Spell->IsDeletable())
     {
         TC_LOG_ERROR("spells", "~SpellEvent: {} {} tried to delete non-deletable spell {}. Was not deleted, causes memory leak.",
             (m_Spell->GetCaster()->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), m_Spell->GetCaster()->GetGUID().ToString(), m_Spell->m_spellInfo->Id);
@@ -9036,6 +9038,11 @@ std::string Spell::GetDebugInfo() const
         << "Id: " << GetSpellInfo()->Id << " Name: '" << (*GetSpellInfo()->SpellName)[sWorld->GetDefaultDbcLocale()] << "' OriginalCaster: " << m_originalCasterGUID.ToString()
         << " State: " << getState();
     return sstr.str();
+}
+
+Trinity::unique_weak_ptr<Spell> Spell::GetWeakPtr() const
+{
+    return _spellEvent->GetSpellWeakPtr();
 }
 
 bool Spell::IsWithinLOS(WorldObject const* source, WorldObject const* target, bool targetAsSourceLocation, VMAP::ModelIgnoreFlags ignoreFlags) const

@@ -119,12 +119,8 @@ void ExtractGameobjectModels()
         if (!GetHeaderMagic(fileName, &header))
             continue;
 
-        uint8 isWmo = 0;
         if (!memcmp(&header, "REVM", 4))
-        {
-            isWmo = 1;
             result = ExtractSingleWmo(fileName);
-        }
         else if (!memcmp(&header, "MD20", 4) || !memcmp(&header, "MD21", 4))
             result = ExtractSingleModel(fileName);
         else
@@ -135,7 +131,6 @@ void ExtractGameobjectModels()
             uint32 displayId = record.GetId();
             uint32 path_length = fileName.length();
             fwrite(&displayId, sizeof(uint32), 1, model_list);
-            fwrite(&isWmo, sizeof(uint8), 1, model_list);
             fwrite(&path_length, sizeof(uint32), 1, model_list);
             fwrite(fileName.c_str(), sizeof(char), path_length, model_list);
         }

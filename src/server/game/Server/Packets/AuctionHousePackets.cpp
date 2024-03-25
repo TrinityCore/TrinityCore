@@ -291,6 +291,7 @@ void AuctionBrowseQuery::Read()
 
     KnownPets.resize(knownPetsSize);
     _worldPacket >> MaxPetLevel;
+    _worldPacket >> Unused1026;
     for (uint8& knownPetMask : KnownPets)
         _worldPacket >> knownPetMask;
 

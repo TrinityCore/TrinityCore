@@ -85,6 +85,8 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "VehiclePackets.h"
+#include "Vignette.h"
+#include "VignettePackets.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -4272,8 +4274,8 @@ void Unit::RemoveAllAuras()
             {
                 sstr << "m_ownedAuras:" << "\n";
 
-                for (std::pair<uint32 const, Aura*>& auraPair : m_ownedAuras)
-                    sstr << auraPair.second->GetDebugInfo() << "\n";
+                for (auto const& [spellId, aura] : m_ownedAuras)
+                    sstr << aura->GetDebugInfo() << "\n";
             }
 
             TC_LOG_ERROR("entities.unit", "{}", sstr.str());
@@ -6525,7 +6527,7 @@ void Unit::AddPlayerToVision(Player* player)
     if (m_sharedVision.empty())
     {
         setActive(true);
-        SetWorldObject(true);
+        SetIsStoredInWorldObjectGridContainer(true);
     }
     m_sharedVision.push_back(player);
 }
@@ -6537,7 +6539,7 @@ void Unit::RemovePlayerFromVision(Player* player)
     if (m_sharedVision.empty())
     {
         setActive(false);
-        SetWorldObject(false);
+        SetIsStoredInWorldObjectGridContainer(false);
     }
 }
 
@@ -7975,7 +7977,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
         mountFlags = areaTable->GetMountFlags();
 
     LiquidData liquid;
-    ZLiquidStatus liquidStatus = GetMap()->GetLiquidStatus(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), map_liquidHeaderTypeFlags::AllLiquids, &liquid);
+    ZLiquidStatus liquidStatus = GetMap()->GetLiquidStatus(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), {}, &liquid);
     isSubmerged = (liquidStatus & LIQUID_MAP_UNDER_WATER) != 0 || HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     isInWater = (liquidStatus & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)) != 0;
 
@@ -8628,6 +8630,9 @@ void Unit::setDeathState(DeathState s)
         SetPower(GetPowerType(), 0);
         SetEmoteState(EMOTE_ONESHOT_NONE);
         SetStandState(UNIT_STAND_STATE_STAND);
+
+        if (m_vignette && !m_vignette->Data->GetFlags().HasFlag(VignetteFlags::PersistsThroughDeath))
+            SetVignette(0);
 
         // players in instance don't have ZoneScript, but they have InstanceScript
         if (ZoneScript* zoneScript = GetZoneScript() ? GetZoneScript() : GetInstanceScript())
@@ -9664,6 +9669,8 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 {
     // This needs to be before RemoveFromWorld to make GetCaster() return a valid pointer on aura removal
     InterruptNonMeleeSpells(true);
+
+    SetVignette(0);
 
     if (IsInWorld())
         RemoveFromWorld();
@@ -10706,6 +10713,18 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
             }
         }
 
+        if (Vignettes::VignetteData const* vignette = victim->GetVignette())
+        {
+            for (Player* tapper : tappers)
+            {
+                if (Quest const* reward = sObjectMgr->GetQuestTemplate(vignette->Data->RewardQuestID))
+                    tapper->RewardQuest(reward, LootItemType::Item, 0, victim, false);
+
+                if (vignette->Data->VisibleTrackingQuestID)
+                    tapper->SetRewardedQuest(vignette->Data->VisibleTrackingQuestID);
+            }
+        }
+
         KillRewarder(Trinity::IteratorPair(tappers.data(), tappers.data() + tappers.size()), victim, false).Reward();
     }
 
@@ -11427,7 +11446,7 @@ bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry, bool loading /*= fa
     if (!vehInfo)
         return false;
 
-    m_vehicleKit = std::make_unique<Vehicle>(this, vehInfo, creatureEntry);
+    m_vehicleKit = Trinity::make_unique_trackable<Vehicle>(this, vehInfo, creatureEntry);
     m_updateFlag.Vehicle = true;
     m_unitTypeMask |= UNIT_MASK_VEHICLE;
 
@@ -12411,6 +12430,10 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
 
     if (isInWater)
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::Swimming);
+
+    // TODO: on heartbeat
+    if (m_vignette)
+        Vignettes::Update(*m_vignette, this);
 
     return (relocated || turn);
 }
@@ -13731,6 +13754,21 @@ float Unit::GetCollisionHeight() const
 
     float const collisionHeight = scaleMod * modelData->CollisionHeight * modelData->ModelScale * displayInfo->CreatureModelScale;
     return collisionHeight == 0.0f ? DEFAULT_COLLISION_HEIGHT : collisionHeight;
+}
+
+void Unit::SetVignette(uint32 vignetteId)
+{
+    if (m_vignette)
+    {
+        if (m_vignette->Data->ID == vignetteId)
+            return;
+
+        Vignettes::Remove(*m_vignette, this);
+        m_vignette = nullptr;
+    }
+
+    if (VignetteEntry const* vignette = sVignetteStore.LookupEntry(vignetteId))
+        m_vignette = Vignettes::Create(vignette, this);
 }
 
 std::string Unit::GetDebugInfo() const

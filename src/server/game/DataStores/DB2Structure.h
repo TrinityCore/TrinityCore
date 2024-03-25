@@ -44,6 +44,8 @@ struct AchievementEntry
     uint32 CriteriaTree;
     int16 SharesCriteria;                                           // referenced achievement (counting of all completed criterias)
     int32 CovenantID;
+    int32 HiddenBeforeDisplaySeason;                                // hidden in UI before this DisplaySeason is active
+    int32 LegacyAfterTimeEvent;                                     // category changes clientside to Legacy after this TimeEvent is passed
 };
 
 struct Achievement_CategoryEntry
@@ -72,8 +74,6 @@ struct AdventureJournalEntry
     uint16 BattleMasterListID;
     uint8 PriorityMin;
     uint8 PriorityMax;
-    int32 ItemID;
-    uint32 ItemQuantity;
     uint16 CurrencyType;
     uint32 CurrencyQuantity;
     uint16 UiMapID;
@@ -4569,6 +4569,24 @@ struct VehicleSeatEntry
                 VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4));
     }
     inline bool IsEjectable() const { return HasFlag(VEHICLE_SEAT_FLAG_B_EJECTABLE); }
+};
+
+struct VignetteEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    uint32 PlayerConditionID;
+    uint32 VisibleTrackingQuestID;
+    uint32 QuestFeedbackEffectID;
+    int32 Flags;
+    float MaxHeight;
+    float MinHeight;
+    int8 VignetteType;
+    int32 RewardQuestID;
+    int32 UiWidgetSetID;
+
+    EnumFlag<VignetteFlags> GetFlags() const { return static_cast<VignetteFlags>(Flags); }
+    bool IsInfiniteAOI() const { return GetFlags().HasFlag(VignetteFlags::InfiniteAOI | VignetteFlags::ZoneInfiniteAOI); }
 };
 
 struct WMOAreaTableEntry

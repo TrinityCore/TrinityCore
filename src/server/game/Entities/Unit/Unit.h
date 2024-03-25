@@ -111,6 +111,11 @@ namespace Movement
     struct SpellEffectExtraData;
 }
 
+namespace Vignettes
+{
+struct VignetteData;
+}
+
 typedef std::list<Unit*> UnitList;
 
 class TC_GAME_API DispelableAura
@@ -1542,10 +1547,11 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_lastSanctuaryTime;
 
         VisibleAuraContainer const& GetVisibleAuras() const { return m_visibleAuras; }
-        bool HasVisibleAura(AuraApplication* aurApp) const { return m_visibleAuras.count(aurApp) > 0; }
+        bool HasVisibleAura(AuraApplication* aurApp) const { return m_visibleAuras.contains(aurApp); }
         void SetVisibleAura(AuraApplication* aurApp);
-        void SetVisibleAuraUpdate(AuraApplication* aurApp) { m_visibleAurasToUpdate.insert(aurApp); }
         void RemoveVisibleAura(AuraApplication* aurApp);
+        void SetVisibleAuraUpdate(AuraApplication* aurApp) { m_visibleAurasToUpdate.insert(aurApp); }
+        void RemoveVisibleAuraUpdate(AuraApplication* aurApp) { m_visibleAurasToUpdate.erase(aurApp); }
 
         bool HasInterruptFlag(SpellAuraInterruptFlags flags) const { return m_interruptMask.HasFlag(flags); }
         bool HasInterruptFlag(SpellAuraInterruptFlags2 flags) const { return m_interruptMask2.HasFlag(flags); }
@@ -1703,6 +1709,7 @@ class TC_GAME_API Unit : public WorldObject
         bool CreateVehicleKit(uint32 id, uint32 creatureEntry, bool loading = false);
         void RemoveVehicleKit(bool onRemoveFromWorld = false);
         Vehicle* GetVehicleKit() const { return m_vehicleKit.get(); }
+        Trinity::unique_weak_ptr<Vehicle> GetVehicleKitWeakPtr() const { return m_vehicleKit; }
         Vehicle* GetVehicle() const { return m_vehicle; }
         void SetVehicle(Vehicle* vehicle) { m_vehicle = vehicle; }
         bool IsOnVehicle(Unit const* vehicle) const;
@@ -1798,6 +1805,9 @@ class TC_GAME_API Unit : public WorldObject
                 RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::WorldEffects), index);
         }
         void ClearWorldEffects() { ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::WorldEffects)); }
+
+        Vignettes::VignetteData const* GetVignette() const { return m_vignette.get(); }
+        void SetVignette(uint32 vignetteId);
 
         std::string GetDebugInfo() const override;
 
@@ -1898,10 +1908,12 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_regenTimer;
 
         Vehicle* m_vehicle;
-        std::unique_ptr<Vehicle> m_vehicleKit;
+        Trinity::unique_trackable_ptr<Vehicle> m_vehicleKit;
 
         uint32 m_unitTypeMask;
         LiquidTypeEntry const* _lastLiquid;
+
+        std::unique_ptr<Vignettes::VignetteData> m_vignette;
 
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
         bool IsAlwaysDetectableFor(WorldObject const* seer) const override;

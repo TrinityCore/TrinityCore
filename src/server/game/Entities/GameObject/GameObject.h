@@ -35,6 +35,11 @@ struct Loot;
 struct TransportAnimation;
 enum TriggerCastFlags : uint32;
 
+namespace Vignettes
+{
+struct VignetteData;
+}
+
 // enum for GAMEOBJECT_TYPE_NEW_FLAG
 // values taken from world state
 enum class FlagState : uint8
@@ -333,6 +338,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id) const override;
+        bool CanActivateForPlayer(Player const* target) const;
         bool ActivateToQuest(Player const* target) const;
         void UseDoorOrButton(uint32 time_to_restore = 0, bool alternative = false, Unit* user = nullptr);
                                                             // 0 = use `gameobject`.`spawntimesecs`
@@ -419,6 +425,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetWorldEffectID() const { return _worldEffectID; }
         void SetWorldEffectID(uint32 worldEffectID) { _worldEffectID = worldEffectID; }
 
+        Vignettes::VignetteData const* GetVignette() const { return m_vignette.get(); }
+        void SetVignette(uint32 vignetteId);
+
         void SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid = ObjectGuid::Empty);
         void AssaultCapturePoint(Player* player);
         void UpdateCapturePoint();
@@ -501,6 +510,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool m_respawnCompatibilityMode;
         uint16 _animKitId;
         uint32 _worldEffectID;
+
+        std::unique_ptr<Vignettes::VignetteData> m_vignette;
 
         struct PerPlayerState
         {

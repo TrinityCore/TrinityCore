@@ -124,7 +124,6 @@ Battleground::~Battleground()
     for (uint32 i = 0; i < size; ++i)
         DelObject(i);
 
-    sBattlegroundMgr->RemoveBattleground(GetTypeID(), GetInstanceID());
     // unload map
     if (m_Map)
     {
@@ -1704,11 +1703,6 @@ Team Battleground::GetPlayerTeam(ObjectGuid guid) const
     if (itr != m_Players.end())
         return itr->second.Team;
     return TEAM_OTHER;
-}
-
-Team Battleground::GetOtherTeam(Team team) const
-{
-    return team ? ((team == ALLIANCE) ? HORDE : ALLIANCE) : TEAM_OTHER;
 }
 
 bool Battleground::IsPlayerInBattleground(ObjectGuid guid) const
