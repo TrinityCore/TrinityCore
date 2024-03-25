@@ -339,9 +339,9 @@ enum AncientCursesData
     POINT_LYSANDER_STEP_TO_DOOR     = 1,
 
     PATH_ARKONARIN_WALK_TO_MOUNT_UP = 20735300,
-    PATH_ARKONARIN_FLY_TO_FELLWOOD  = 20735301,
+    PATH_ARKONARIN_FLY_TO_FELWOOD   = 20735301,
     PATH_LYSANDER_WALK_TO_MOUNT_UP  = 20270001,
-    PATH_LYSANDER_FLY_TO_FELLWOOD   = 20270002
+    PATH_LYSANDER_FLY_TO_FELWOOD    = 20270002
 };
 
 Position const LysanderWalkToTheDoor = { -8051.493f, 820.21704f, 68.30904f };
@@ -368,7 +368,7 @@ struct npc_arkonarin_starshade_ancient_curses : public ScriptedAI
             me->SetMountDisplayId(DISPLAY_ID_STARSHADE_MOUNT);
             _scheduler.Schedule(2s + 500ms, [this](TaskContext /*context*/)
             {
-                me->GetMotionMaster()->MovePath(PATH_ARKONARIN_FLY_TO_FELLWOOD, false);
+                me->GetMotionMaster()->MovePath(PATH_ARKONARIN_FLY_TO_FELWOOD, false);
                 me->DespawnOrUnsummon(5s);
             });
         }
@@ -396,7 +396,7 @@ struct npc_lysande_starshade_ancient_curses : public ScriptedAI
             me->SetMountDisplayId(DISPLAY_ID_STARSHADE_MOUNT);
             _scheduler.Schedule(2s + 500ms, [this](TaskContext /*context*/)
             {
-                me->GetMotionMaster()->MovePath(PATH_LYSANDER_FLY_TO_FELLWOOD, false);
+                me->GetMotionMaster()->MovePath(PATH_LYSANDER_FLY_TO_FELWOOD, false);
                 me->DespawnOrUnsummon(5s);
             });
         }
