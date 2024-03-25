@@ -1,5 +1,5 @@
-SET @CGUID := 11000000;
-SET @OGUID := 11000000;
+SET @CGUID := 6000973;
+SET @OGUID := 6000599;
 
 -- Creature
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+18;
@@ -23,6 +23,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+16, 96493, 1481, 7705, 7754, '0', 5084, 0, 0, 1, 1204.751708984375, 1676.079833984375, 92.766632080078125, 5.433307647705078125, 120, 0, 0, 3106, 0, 0, NULL, NULL, NULL, NULL, 52129), -- Felguard Butcher (Area: Cryptic Hollow - Difficulty: 0) CreateObject1 (Auras: 191175 - Fel Invisibility)
 (@CGUID+17, 96493, 1481, 7705, 7754, '0', 5084, 0, 0, 1, 1225.7447509765625, 1650.1805419921875, 101.721923828125, 5.705277919769287109, 120, 0, 0, 3106, 0, 0, NULL, NULL, NULL, NULL, 52129), -- Felguard Butcher (Area: Cryptic Hollow - Difficulty: 0) CreateObject1 (Auras: 191175 - Fel Invisibility)
 (@CGUID+18, 96493, 1481, 7705, 7754, '0', 5084, 0, 0, 1, 1214.521484375, 1658.967529296875, 97.752655029296875, 5.4336395263671875, 120, 0, 0, 3106, 0, 0, NULL, NULL, NULL, NULL, 52129); -- Felguard Butcher (Area: Cryptic Hollow - Difficulty: 0) CreateObject1 (Auras: 191175 - Fel Invisibility)
+
 DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+18;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+0, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 0, '222589 42459'), -- Demon Hunter - 222589 - Glaive Anim Replacement, 42459 - Dual Wield
