@@ -423,11 +423,13 @@ enum TheMissingDriverMisc
     PATH_MOVE_RUN                   = 5650300,
     PATH_MOVE_WALK                  = 5650301,
 
-    WAYPOINT_ID_0                   = 0,
-    WAYPOINT_ID_3                   = 3,
-    WAYPOINT_ID_11                  = 11,
+    WAYPOINT_TALK_0                 = 0,
+    WAYPOINT_TALK_1                 = 3,
+    WAYPOINT_MOVE_WALK              = 11,
 
-    POINT_0                         = 0,
+    WAYPOINT_DESPAWN                = 3,
+
+    POINT_MOVE_RANDOM               = 0,
 
     // Quests
     QUEST_THE_MISSING_DRIVER        = 29419
@@ -527,13 +529,13 @@ struct npc_min_dimwind_summon : public ScriptedAI
         {
             switch (waypointId)
             {
-                case WAYPOINT_ID_0:
-                case WAYPOINT_ID_3:
+                case WAYPOINT_TALK_0:
+                case WAYPOINT_TALK_1:
                 {
                     Talk(SAY_MIN_DIMWIND_TEXT_2);
                     break;
                 }
-                case WAYPOINT_ID_11:
+                case WAYPOINT_MOVE_WALK:
                 {
                     Talk(SAY_MIN_DIMWIND_TEXT_3);
                     me->GetMotionMaster()->MovePath(PATH_MOVE_WALK, false);
@@ -543,7 +545,7 @@ struct npc_min_dimwind_summon : public ScriptedAI
         }
         else if (pathId == PATH_MOVE_WALK)
         {
-            if (waypointId == WAYPOINT_ID_3)
+            if (waypointId == WAYPOINT_DESPAWN)
             {
                 me->SetFacingTo(0.575958f);
                 me->DespawnOrUnsummon(2s);
@@ -581,7 +583,7 @@ struct npc_amberleaf_scamp : public ScriptedAI
 
     void MovementInform(uint32 /*type*/, uint32 id) override
     {
-        if (id == POINT_0)
+        if (id == POINT_MOVE_RANDOM)
         {
             me->GetMotionMaster()->MoveRandom(10.0f);
 
