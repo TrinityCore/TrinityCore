@@ -6656,10 +6656,20 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     float dist = 10000;
     uint32 id = 0;
 
-    TaxiNodeFlags requireFlag = (team == ALLIANCE) ? TaxiNodeFlags::ShowOnAllianceMap : TaxiNodeFlags::ShowOnHordeMap;
+    auto isVisibleForFaction = [&](TaxiNodesEntry const* node)
+    {
+        switch (team)
+        {
+            case HORDE: return node->GetFlags().HasFlag(TaxiNodeFlags::ShowOnHordeMap);
+            case ALLIANCE: return node->GetFlags().HasFlag(TaxiNodeFlags::ShowOnAllianceMap);
+            default: break;
+        }
+        return false;
+    };
+
     for (TaxiNodesEntry const* node : sTaxiNodesStore)
     {
-        if (!node || node->ContinentID != mapid || !node->GetFlags().HasFlag(requireFlag) || node->GetFlags().HasFlag(TaxiNodeFlags::IgnoreForFindNearest))
+        if (!node || node->ContinentID != mapid || !isVisibleForFaction(node) || node->GetFlags().HasFlag(TaxiNodeFlags::IgnoreForFindNearest))
             continue;
 
         uint32 field   = uint32((node->ID - 1) / 8);
@@ -8782,6 +8792,12 @@ void ObjectMgr::LoadGameObjectForQuests()
             case GAMEOBJECT_TYPE_GENERIC:
             {
                 if (gameObjectTemplatePair.second.generic.questID > 0)             //quests objects
+                    break;
+                continue;
+            }
+            case GAMEOBJECT_TYPE_SPELL_FOCUS:
+            {
+                if (gameObjectTemplatePair.second.spellFocus.questID > 0)          //quests objects
                     break;
                 continue;
             }

@@ -38,7 +38,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // Achievement.db2
     PrepareStatement(HOTFIX_SEL_ACHIEVEMENT, "SELECT Description, Title, Reward, ID, InstanceID, Faction, Supercedes, Category, MinimumCriteria, "
-        "Points, Flags, UiOrder, IconFileID, RewardItemID, CriteriaTree, SharesCriteria, CovenantID FROM achievement WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "Points, Flags, UiOrder, IconFileID, RewardItemID, CriteriaTree, SharesCriteria, CovenantID, HiddenBeforeDisplaySeason, LegacyAfterTimeEvent"
+        " FROM achievement WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ACHIEVEMENT, "SELECT MAX(ID) + 1 FROM achievement", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ACHIEVEMENT, "SELECT ID, Description_lang, Title_lang, Reward_lang FROM achievement_locale"
         " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
@@ -51,9 +52,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // AdventureJournal.db2
     PrepareStatement(HOTFIX_SEL_ADVENTURE_JOURNAL, "SELECT ID, Name, Description, ButtonText, RewardDescription, ContinueDescription, Type, "
-        "PlayerConditionID, Flags, ButtonActionType, TextureFileDataID, LfgDungeonID, QuestID, BattleMasterListID, PriorityMin, PriorityMax, ItemID, "
-        "ItemQuantity, CurrencyType, CurrencyQuantity, UiMapID, BonusPlayerConditionID1, BonusPlayerConditionID2, BonusValue1, BonusValue2"
-        " FROM adventure_journal WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "PlayerConditionID, Flags, ButtonActionType, TextureFileDataID, LfgDungeonID, QuestID, BattleMasterListID, PriorityMin, PriorityMax, "
+        "CurrencyType, CurrencyQuantity, UiMapID, BonusPlayerConditionID1, BonusPlayerConditionID2, BonusValue1, BonusValue2 FROM adventure_journal"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ADVENTURE_JOURNAL, "SELECT MAX(ID) + 1 FROM adventure_journal", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ADVENTURE_JOURNAL, "SELECT ID, Name_lang, Description_lang, ButtonText_lang, RewardDescription_lang, "
         "ContinueDescription_lang FROM adventure_journal_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
