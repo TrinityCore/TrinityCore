@@ -427,6 +427,8 @@ enum TheMissingDriverMisc
     WAYPOINT_ID_3                   = 3,
     WAYPOINT_ID_11                  = 11,
 
+    POINT_0                         = 0,
+
     // Quests
     QUEST_THE_MISSING_DRIVER        = 29419
 };
@@ -579,7 +581,7 @@ struct npc_amberleaf_scamp : public ScriptedAI
 
     void MovementInform(uint32 /*type*/, uint32 id) override
     {
-        if (id == 0)
+        if (id == POINT_0)
         {
             me->GetMotionMaster()->MoveRandom(10.0f);
 
