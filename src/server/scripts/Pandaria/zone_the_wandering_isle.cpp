@@ -423,6 +423,10 @@ enum TheMissingDriverMisc
     PATH_MOVE_RUN                   = 5650300,
     PATH_MOVE_WALK                  = 5650301,
 
+    WAYPOINT_ID_0                   = 0,
+    WAYPOINT_ID_3                   = 3,
+    WAYPOINT_ID_11                  = 11,
+
     // Quests
     QUEST_THE_MISSING_DRIVER        = 29419
 };
@@ -521,13 +525,13 @@ struct npc_min_dimwind_summon : public ScriptedAI
         {
             switch (waypointId)
             {
-                case 0:
-                case 3:
+                case WAYPOINT_ID_0:
+                case WAYPOINT_ID_3:
                 {
                     Talk(SAY_MIN_DIMWIND_TEXT_2);
                     break;
                 }
-                case 11:
+                case WAYPOINT_ID_11:
                 {
                     Talk(SAY_MIN_DIMWIND_TEXT_3);
                     me->GetMotionMaster()->MovePath(PATH_MOVE_WALK, false);
@@ -537,17 +541,23 @@ struct npc_min_dimwind_summon : public ScriptedAI
         }
         else if (pathId == PATH_MOVE_WALK)
         {
-            if (waypointId == 3)
+            if (waypointId == WAYPOINT_ID_3)
             {
                 me->SetFacingTo(0.575958f);
                 me->DespawnOrUnsummon(2s);
 
                 _scheduler.Schedule(Seconds(1), [this](TaskContext /*task*/)
                 {
-                    Unit* summoner = me->ToTempSummon()->GetSummonerUnit();
+                    if (me->IsSummon())
+                    {
+                        Unit* summoner = me->ToTempSummon()->GetSummonerUnit();
 
-                    summoner->RemoveAurasDueToSpell(SPELL_SUMMON_CART_DRIVER);
-                    PhasingHandler::OnConditionChange(summoner);
+                        if (!summoner)
+                            return;
+
+                        summoner->RemoveAurasDueToSpell(SPELL_SUMMON_CART_DRIVER);
+                        PhasingHandler::OnConditionChange(summoner);
+                    }
                 });
             }
         }
