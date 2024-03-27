@@ -1446,7 +1446,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     struct
     {
-        bool operator()(uint32 playerConditionId, std::vector<Condition> const& conditions, ConditionsByEntryMap const& referenceConditions) const
+        bool operator()(uint32 playerConditionId, std::vector<Condition> const& conditions, ConditionEntriesByTypeArray const& store) const
         {
             return std::any_of(conditions.begin(), conditions.end(), [&](Condition const& condition)
             {
@@ -1454,12 +1454,16 @@ void ConditionMgr::LoadConditions(bool isReload)
                 {
                     if (condition.ConditionValue1 == playerConditionId)
                         return true;
+                    auto playerCondItr = store[CONDITION_SOURCE_TYPE_PLAYER_CONDITION].find({ 0, int32(condition.ConditionValue1), 0 });
+                    if (playerCondItr != store[CONDITION_SOURCE_TYPE_PLAYER_CONDITION].end())
+                        if (operator()(playerConditionId, *playerCondItr->second, store))
+                            return true;
                 }
                 else if (condition.ReferenceId)
                 {
-                    auto refItr = referenceConditions.find({ condition.ReferenceId, 0, 0 });
-                    if (refItr != referenceConditions.end())
-                        if (operator()(playerConditionId, *refItr->second, referenceConditions))
+                    auto refItr = store[CONDITION_SOURCE_TYPE_REFERENCE_CONDITION].find({ condition.ReferenceId, 0, 0 });
+                    if (refItr != store[CONDITION_SOURCE_TYPE_REFERENCE_CONDITION].end())
+                        if (operator()(playerConditionId, *refItr->second, store))
                             return true;
                 }
                 return false;
@@ -1469,7 +1473,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     for (auto&& [id, conditions] : ConditionStore[CONDITION_SOURCE_TYPE_PLAYER_CONDITION])
     {
-        if (isPlayerConditionIdUsedByCondition(id.SourceEntry, *conditions, ConditionStore[CONDITION_SOURCE_TYPE_REFERENCE_CONDITION]))
+        if (isPlayerConditionIdUsedByCondition(id.SourceEntry, *conditions, ConditionStore))
         {
             TC_LOG_ERROR("sql.sql", "[Condition SourceType: CONDITION_SOURCE_TYPE_PLAYER_CONDITION, SourceGroup: {}, SourceEntry: {}, SourceId: {}] "
                 "has a circular reference to player condition id {}, removed all conditions for this SourceEntry!",
