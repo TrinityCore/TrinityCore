@@ -15,7 +15,7 @@ if(TRINITY_SYSTEM_PROCESSOR MATCHES "x86|amd64")
     ${CMAKE_CURRENT_SOURCE_DIR}/argon2/ref.c)
 else()
   list(REMOVE_ITEM sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/argon2/opt.c)    
+    ${CMAKE_CURRENT_SOURCE_DIR}/argon2/opt.c)
 endif()
 
 add_library(argon2 STATIC
