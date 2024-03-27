@@ -3669,7 +3669,7 @@ void GameObject::ModifyHealth(int32 change, WorldObject* attackerOrHealer /*= nu
         newState = GO_DESTRUCTIBLE_DESTROYED;
     else if (m_goValue.Building.Health <= m_goValue.Building.DestructibleHitpoint->DamagedNumHits)
         newState = GO_DESTRUCTIBLE_DAMAGED;
-    else if (m_goValue.Building.Health == m_goValue.Building.DestructibleHitpoint->)
+    else if (m_goValue.Building.Health == m_goValue.Building.DestructibleHitpoint->GetMaxHealth())
         newState = GO_DESTRUCTIBLE_INTACT;
 
     if (newState == GetDestructibleState())
