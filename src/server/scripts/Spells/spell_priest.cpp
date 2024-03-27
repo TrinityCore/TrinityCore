@@ -3146,6 +3146,53 @@ class spell_pri_twist_of_fate : public AuraScript
     }
 };
 
+// 341273 - Unfurling Darkness
+// Triggered by 34914 - Vampiric Touch
+class spell_pri_unfurling_darkness : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_TOUCH });
+    }
+
+    bool Load() override
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return false;
+
+        return caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS);
+    }
+
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF))
+            return;
+
+        caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_AURA, true);
+        caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF, true);
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->RemoveAurasDueToSpell(SPELL_PRIEST_UNFURLING_DARKNESS_AURA);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_unfurling_darkness::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectRemove += AuraEffectApplyFn(spell_pri_unfurling_darkness::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 // 15286 - Vampiric Embrace
 class spell_pri_vampiric_embrace : public AuraScript
 {
@@ -3222,53 +3269,6 @@ class spell_pri_vampiric_touch : public AuraScript
     {
         AfterDispel += AuraDispelFn(spell_pri_vampiric_touch::HandleDispel);
         OnEffectApply += AuraEffectApplyFn(spell_pri_vampiric_touch::HandleApplyEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-    }
-};
-
-// 341273 - Unfurling Darkness
-// Triggered by 34914 - Vampiric Touch
-class spell_pri_unfurling_darkness : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_TOUCH });
-    }
-
-    bool Load() override
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return false;
-
-        return caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS);
-    }
-
-    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF))
-            return;
-
-        caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_AURA, true);
-        caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF, true);
-    }
-
-    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        caster->RemoveAurasDueToSpell(SPELL_PRIEST_UNFURLING_DARKNESS_AURA);
-    }
-
-    void Register() override
-    {
-        OnEffectApply += AuraEffectApplyFn(spell_pri_unfurling_darkness::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-        OnEffectRemove += AuraEffectApplyFn(spell_pri_unfurling_darkness::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
