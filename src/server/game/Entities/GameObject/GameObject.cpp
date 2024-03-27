@@ -1067,8 +1067,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             break;
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
         {
-            // TODO: Get the values somehow, no longer in gameobject_template
-            m_goValue.Building.Health = 20000/*goinfo->destructibleBuilding.intactNumHits + goinfo->destructibleBuilding.damagedNumHits*/;
+            m_goValue.Building.Health = GetGOInfo()->GetMaxHealth();
             m_goValue.Building.MaxHealth = m_goValue.Building.Health;
             SetGoAnimProgress(255);
             // yes, even after the updatefield rewrite this garbage hack is still in client
@@ -3659,7 +3658,7 @@ void GameObject::ModifyHealth(int32 change, WorldObject* attackerOrHealer /*= nu
 
     if (!m_goValue.Building.Health)
         newState = GO_DESTRUCTIBLE_DESTROYED;
-    else if (m_goValue.Building.Health <= 10000/*GetGOInfo()->destructibleBuilding.damagedNumHits*/) // TODO: Get health somewhere
+    else if (m_goValue.Building.Health <= GetGOInfo()->GetDamagedHealth())
         newState = GO_DESTRUCTIBLE_DAMAGED;
     else if (m_goValue.Building.Health == m_goValue.Building.MaxHealth)
         newState = GO_DESTRUCTIBLE_INTACT;
@@ -3704,7 +3703,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
 
             if (setHealth)
             {
-                m_goValue.Building.Health = 10000/*m_goInfo->destructibleBuilding.damagedNumHits*/;
+                m_goValue.Building.Health = GetGOInfo()->GetDamagedHealth();
                 uint32 maxHealth = m_goValue.Building.MaxHealth;
                 // in this case current health is 0 anyway so just prevent crashing here
                 if (!maxHealth)
