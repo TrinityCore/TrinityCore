@@ -1698,8 +1698,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerMeetsCondition: // 2
         {
-            PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(reqValue);
-            if (!playerCondition || !ConditionMgr::IsPlayerMeetingCondition(referencePlayer, playerCondition))
+            if (!ConditionMgr::IsPlayerMeetingCondition(referencePlayer, reqValue))
                 return false;
             break;
         }
@@ -1963,8 +1962,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (!ref || !ref->IsPlayer())
                 return false;
 
-            PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(reqValue);
-            if (!playerCondition || !ConditionMgr::IsPlayerMeetingCondition(ref->ToPlayer(), playerCondition))
+            if (!ConditionMgr::IsPlayerMeetingCondition(ref->ToPlayer(), reqValue))
                 return false;
             break;
         }
