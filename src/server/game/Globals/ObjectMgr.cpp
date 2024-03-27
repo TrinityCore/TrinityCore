@@ -9843,8 +9843,11 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, VendorItem const& vItem, 
 
     if (vItem.PlayerConditionId && !sPlayerConditionStore.LookupEntry(vItem.PlayerConditionId))
     {
-        TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: {}) with invalid PlayerConditionId ({}) for vendor ({}), ignore", vItem.item, vItem.PlayerConditionId, vendor_entry);
-        return false;
+        if (!sConditionMgr->HasConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_PLAYER_CONDITION, vItem.PlayerConditionId))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: {}) with serverside PlayerConditionId ({}) for vendor ({}) without conditions, ignore", vItem.item, vItem.PlayerConditionId, vendor_entry);
+            return false;
+        }
     }
 
     if (vItem.ExtendedCost && !sItemExtendedCostStore.LookupEntry(vItem.ExtendedCost))

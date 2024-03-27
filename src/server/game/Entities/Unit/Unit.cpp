@@ -8038,9 +8038,8 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
             continue;
 
         if (Player const* thisPlayer = ToPlayer())
-            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountCapability->PlayerConditionID))
-                if (!ConditionMgr::IsPlayerMeetingCondition(thisPlayer, playerCondition))
-                    continue;
+            if (!ConditionMgr::IsPlayerMeetingCondition(thisPlayer, mountCapability->PlayerConditionID))
+                continue;
 
         return mountCapability;
     }
