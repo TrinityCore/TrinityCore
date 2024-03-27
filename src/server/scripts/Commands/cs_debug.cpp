@@ -1612,11 +1612,7 @@ public:
             return false;
         }
 
-        PlayerConditionEntry const* playerConditionEntry = sPlayerConditionStore.LookupEntry(playerConditionId);
-        if (!playerConditionEntry)
-            return false;
-
-        if (ConditionMgr::IsPlayerMeetingCondition(target, playerConditionEntry))
+        if (ConditionMgr::IsPlayerMeetingCondition(target, playerConditionId))
             handler->PSendSysMessage("PlayerCondition %u met", playerConditionId);
         else
             handler->PSendSysMessage("PlayerCondition %u not met", playerConditionId);

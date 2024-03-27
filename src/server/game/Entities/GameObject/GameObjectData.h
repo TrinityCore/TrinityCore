@@ -27,6 +27,15 @@
 #include <set>
 #include <string>
 
+struct DestructibleHitpoint
+{
+    uint32 Id;
+    uint32 IntactNumHits;
+    uint32 DamagedNumHits;
+
+    uint32 GetMaxHealth() const { return IntactNumHits + DamagedNumHits; }
+};
+
 // from `gameobject_template`
 struct GameObjectTemplate
 {

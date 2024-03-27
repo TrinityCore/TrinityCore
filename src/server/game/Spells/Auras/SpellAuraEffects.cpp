@@ -2634,8 +2634,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
                         std::copy_if(mountDisplays->begin(), mountDisplays->end(), std::back_inserter(usableDisplays), [target](MountXDisplayEntry const* mountDisplay)
                         {
                             if (Player* playerTarget = target->ToPlayer())
-                                if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountDisplay->PlayerConditionID))
-                                    return sConditionMgr->IsPlayerMeetingCondition(playerTarget, playerCondition);
+                                return ConditionMgr::IsPlayerMeetingCondition(playerTarget, mountDisplay->PlayerConditionID);
 
                             return true;
                         });

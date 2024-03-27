@@ -90,31 +90,33 @@ public:
             uint16 pathProgress = 0xFFFF;
             switch (gameObject->GetGoType())
             {
+                case GAMEOBJECT_TYPE_BUTTON:
+                case GAMEOBJECT_TYPE_GOOBER:
+                    if (gameObject->GetGOInfo()->GetQuestID() || gameObject->GetGOInfo()->GetConditionID1())
+                    {
+                        if (gameObject->CanActivateForPlayer(receiver))
+                        {
+                            dynFlags |= GO_DYNFLAG_LO_HIGHLIGHT;
+                            if (gameObject->GetGoStateFor(receiver->GetGUID()) != GO_STATE_ACTIVE)
+                                dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                        }
+                    }
+                    break;
                 case GAMEOBJECT_TYPE_QUESTGIVER:
-                    if (gameObject->ActivateToQuest(receiver))
+                    if (gameObject->CanActivateForPlayer(receiver))
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
                     break;
                 case GAMEOBJECT_TYPE_CHEST:
-                    if (gameObject->ActivateToQuest(receiver))
+                    if (gameObject->CanActivateForPlayer(receiver))
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
                     else if (receiver->IsGameMaster())
-                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE;
                     break;
                 case GAMEOBJECT_TYPE_GENERIC:
                 case GAMEOBJECT_TYPE_SPELL_FOCUS:
                     if (gameObject->GetGOInfo()->GetQuestID() || gameObject->GetGOInfo()->GetConditionID1())
                         if (gameObject->CanActivateForPlayer(receiver))
                             dynFlags |= GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
-                    break;
-                case GAMEOBJECT_TYPE_GOOBER:
-                    if (gameObject->ActivateToQuest(receiver))
-                    {
-                        dynFlags |= GO_DYNFLAG_LO_HIGHLIGHT;
-                        if (gameObject->GetGoStateFor(receiver->GetGUID()) != GO_STATE_ACTIVE)
-                            dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
-                    }
-                    else if (receiver->IsGameMaster())
-                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
                     break;
                 case GAMEOBJECT_TYPE_TRANSPORT:
                 case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
@@ -130,7 +132,7 @@ public:
                         dynFlags &= ~GO_DYNFLAG_LO_NO_INTERACT;
                     break;
                 case GAMEOBJECT_TYPE_GATHERING_NODE:
-                    if (gameObject->ActivateToQuest(receiver))
+                    if (gameObject->CanActivateForPlayer(receiver))
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
                     if (gameObject->GetGoStateFor(receiver->GetGUID()) == GO_STATE_ACTIVE)
                         dynFlags |= GO_DYNFLAG_LO_DEPLETED;
