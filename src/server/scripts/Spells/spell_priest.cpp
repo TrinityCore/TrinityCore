@@ -197,6 +197,8 @@ enum PriestSpells
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788,
+    SPELL_PRIEST_WHISPERING_SHADOWS                 = 406777,
+    SPELL_PRIEST_WHISPERING_SHADOWS_DUMMY           = 391286,
     SPELL_PVP_RULES_ENABLED_HARDCODED               = 134735
 };
 
@@ -3272,6 +3274,77 @@ class spell_pri_vampiric_touch : public AuraScript
     }
 };
 
+// 205385 - Shadow Crash
+class spell_pri_whispering_shadows : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_WHISPERING_SHADOWS });
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex effIndex)
+    {
+        if (!GetCaster()->HasAura(SPELL_PRIEST_WHISPERING_SHADOWS))
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_pri_whispering_shadows::HandleEffectHitTarget, EFFECT_2, SPELL_EFFECT_TRIGGER_MISSILE);
+    }
+};
+
+// 391286 - Whispering Shadows (Dot Application)
+class spell_pri_whispering_shadows_effect : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_TOUCH });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        if (targets.size() <= GetSpellValue()->MaxAffectedTargets)
+            return;
+
+        auto getVampiricTouch = [&](WorldObject const* target)
+        {
+            return target->ToUnit()->GetAura(SPELL_PRIEST_VAMPIRIC_TOUCH, GetCaster()->GetGUID());
+        };
+
+        // prioritize targets without Vampiric Touch
+        targets.sort([&](WorldObject const* target1, WorldObject const* target2)
+        {
+            int32 duration1 = 0;
+            if (Aura const* aura1 = getVampiricTouch(target1))
+                duration1 = aura1->GetDuration();
+            int32 duration2 = 0;
+            if (Aura const* aura2 = getVampiricTouch(target2))
+                duration2 = aura2->GetDuration();
+            return duration1 < duration2;
+        });
+
+        // remove targets that definitely will not get Vampiric Touch applied (excess targets with longest remaining duration)
+        while (targets.size() > GetSpellValue()->MaxAffectedTargets && getVampiricTouch(targets.back()) != nullptr)
+            targets.pop_back();
+
+        Trinity::Containers::RandomResize(targets, GetSpellValue()->MaxAffectedTargets);
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_VAMPIRIC_TOUCH, CastSpellExtraArgs()
+            .SetTriggeringSpell(GetSpell())
+            .SetTriggerFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_whispering_shadows_effect::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_whispering_shadows_effect::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_unfurling_darkness);
@@ -3357,4 +3430,6 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_vampiric_embrace);
     RegisterSpellScript(spell_pri_vampiric_embrace_target);
     RegisterSpellScript(spell_pri_vampiric_touch);
+    RegisterSpellScript(spell_pri_whispering_shadows);
+    RegisterSpellScript(spell_pri_whispering_shadows_effect);
 }

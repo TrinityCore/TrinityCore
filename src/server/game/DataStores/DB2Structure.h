@@ -44,6 +44,8 @@ struct AchievementEntry
     uint32 CriteriaTree;
     int16 SharesCriteria;                                           // referenced achievement (counting of all completed criterias)
     int32 CovenantID;
+    int32 HiddenBeforeDisplaySeason;                                // hidden in UI before this DisplaySeason is active
+    int32 LegacyAfterTimeEvent;                                     // category changes clientside to Legacy after this TimeEvent is passed
 };
 
 struct Achievement_CategoryEntry
@@ -72,8 +74,6 @@ struct AdventureJournalEntry
     uint16 BattleMasterListID;
     uint8 PriorityMin;
     uint8 PriorityMax;
-    int32 ItemID;
-    uint32 ItemQuantity;
     uint16 CurrencyType;
     uint32 CurrencyQuantity;
     uint16 UiMapID;
