@@ -7504,7 +7504,7 @@ void ObjectMgr::LoadDestructibleHitpoints()
 
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded {} destructible_hitpoint records in {} ms", uint32(_destructibleHitpointStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} destructible_hitpoint records in {} ms", _destructibleHitpointStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 inline void CheckGOLockId(GameObjectTemplate const* goInfo, uint32 dataN, uint32 N)
@@ -7769,7 +7769,7 @@ void ObjectMgr::LoadGameObjectTemplate()
                 }
                 break;
             case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
-                if (got.destructibleBuilding.HealthRec && !Trinity::Containers::MapGetValuePtr(_destructibleHitpointStore, got.destructibleBuilding.HealthRec))
+                if (got.destructibleBuilding.HealthRec && !GetDestructibleHitpoint(got.destructibleBuilding.HealthRec))
                     TC_LOG_ERROR("sql.sql", "GameObject (Entry: {}) Has non existing Destructible Hitpoint Record {}.", entry, got.destructibleBuilding.HealthRec);
                 break;
             case GAMEOBJECT_TYPE_GARRISON_BUILDING:

@@ -1,11 +1,12 @@
-CREATE TABLE IF NOT EXISTS `destructible_hitpoint` (
+DROP TABLE IF EXISTS `destructible_hitpoint`;
+CREATE TABLE `destructible_hitpoint` (
   `Id` int unsigned NOT NULL,
   `IntactNumHits` int unsigned NOT NULL,
   `DamagedNumHits` int unsigned NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='This table contains data about destructible buildings. Implementation guessed on DestructibleHitpoint db2 data';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='This table contains data about destructible building health';
 
-INSERT INTO `destructible_hitpoint` (`Id`,  `IntactNumHits`,  `DamagedNumHits`) VALUES
+INSERT INTO `destructible_hitpoint` (`Id`, `IntactNumHits`, `DamagedNumHits`) VALUES
 (1, 0, 0),
 (3, 50000, 50000),
 (4, 50000, 50000),
