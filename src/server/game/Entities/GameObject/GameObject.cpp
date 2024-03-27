@@ -1067,8 +1067,17 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             break;
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
         {
-            m_goValue.Building.Health = GetGOInfo()->GetMaxHealth();
-            m_goValue.Building.MaxHealth = m_goValue.Building.Health;
+            if (DestructibleHitpoint const* destructibleHitpoint = sObjectMgr->GetDestructibleHitpoint(GetGOInfo()->destructibleBuilding.HealthRec))
+            {
+                m_goValue.Building.DestructibleHitpoint = destructibleHitpoint;
+                m_goValue.Building.Health = destructibleHitpoint->GetMaxHealth();
+            }
+            else if (GetGOInfo()->destructibleBuilding.HealthRec)
+            {
+                TC_LOG_ERROR("gameobject", "GameObject (Entry: {}) Has non existing Destructible Hitpoint Record {}.", entry, GetGOInfo()->destructibleBuilding.HealthRec);
+                m_goValue.Building.Health = 0;
+            }
+
             SetGoAnimProgress(255);
             // yes, even after the updatefield rewrite this garbage hack is still in client
             QuaternionData reinterpretId;
@@ -3622,7 +3631,7 @@ QuaternionData GameObject::GetWorldRotation() const
 
 void GameObject::ModifyHealth(int32 change, WorldObject* attackerOrHealer /*= nullptr*/, uint32 spellId /*= 0*/)
 {
-    if (!m_goValue.Building.MaxHealth || !change)
+    if (!m_goValue.Building.DestructibleHitpoint || !change)
         return;
 
     // prevent double destructions of the same object
@@ -3631,13 +3640,13 @@ void GameObject::ModifyHealth(int32 change, WorldObject* attackerOrHealer /*= nu
 
     if (int32(m_goValue.Building.Health) + change <= 0)
         m_goValue.Building.Health = 0;
-    else if (int32(m_goValue.Building.Health) + change >= int32(m_goValue.Building.MaxHealth))
-        m_goValue.Building.Health = m_goValue.Building.MaxHealth;
+    else if (int32(m_goValue.Building.Health) + change >= int32(m_goValue.Building.DestructibleHitpoint->GetMaxHealth()))
+        m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
     else
         m_goValue.Building.Health += change;
 
     // Set the health bar, value = 255 * healthPct;
-    SetGoAnimProgress(m_goValue.Building.Health * 255 / m_goValue.Building.MaxHealth);
+    SetGoAnimProgress(m_goValue.Building.Health * 255 / m_goValue.Building.DestructibleHitpoint->GetMaxHealth());
 
     // dealing damage, send packet
     if (Player* player = attackerOrHealer ? attackerOrHealer->GetCharmerOrOwnerPlayerOrPlayerItself() : nullptr)
@@ -3658,9 +3667,9 @@ void GameObject::ModifyHealth(int32 change, WorldObject* attackerOrHealer /*= nu
 
     if (!m_goValue.Building.Health)
         newState = GO_DESTRUCTIBLE_DESTROYED;
-    else if (m_goValue.Building.Health <= GetGOInfo()->GetDamagedHealth())
+    else if (m_goValue.Building.Health <= m_goValue.Building.DestructibleHitpoint->DamagedNumHits)
         newState = GO_DESTRUCTIBLE_DAMAGED;
-    else if (m_goValue.Building.Health == m_goValue.Building.MaxHealth)
+    else if (m_goValue.Building.Health == m_goValue.Building.DestructibleHitpoint->)
         newState = GO_DESTRUCTIBLE_INTACT;
 
     if (newState == GetDestructibleState())
@@ -3679,9 +3688,9 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_INTACT:
             RemoveFlag(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
             SetDisplayId(m_goInfo->displayId);
-            if (setHealth)
+            if (setHealth && m_goValue.Building.DestructibleHitpoint)
             {
-                m_goValue.Building.Health = m_goValue.Building.MaxHealth;
+                m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
                 SetGoAnimProgress(255);
             }
             EnableCollision(true);
@@ -3701,10 +3710,10 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                     modelId = modelData->State1Wmo;
             SetDisplayId(modelId);
 
-            if (setHealth)
+            if (setHealth && m_goValue.Building.DestructibleHitpoint)
             {
-                m_goValue.Building.Health = GetGOInfo()->GetDamagedHealth();
-                uint32 maxHealth = m_goValue.Building.MaxHealth;
+                m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->DamagedNumHits;
+                uint32 maxHealth = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
                 // in this case current health is 0 anyway so just prevent crashing here
                 if (!maxHealth)
                     maxHealth = 1;
@@ -3752,9 +3761,9 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             SetDisplayId(modelId);
 
             // restores to full health
-            if (setHealth)
+            if (setHealth && m_goValue.Building.DestructibleHitpoint)
             {
-                m_goValue.Building.Health = m_goValue.Building.MaxHealth;
+                m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
                 SetGoAnimProgress(255);
             }
             EnableCollision(true);

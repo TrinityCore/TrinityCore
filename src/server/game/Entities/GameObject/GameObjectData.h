@@ -848,8 +848,6 @@ struct GameObjectTemplate
     std::string StringId;
     WorldPacket QueryData[TOTAL_LOCALES];
 
-    ::DestructibleHitpoint const* DestructibleHitpoint;
-
     // helpers
     bool IsDespawnAtAction() const
     {
@@ -1358,22 +1356,6 @@ struct GameObjectTemplate
 
     void InitializeQueryData();
     WorldPacket BuildQueryData(LocaleConstant loc) const;
-
-    uint32 GetMaxHealth() const
-    {
-        if (!DestructibleHitpoint)
-            return 0;
-
-        return DestructibleHitpoint->GetMaxHealth();
-    }
-
-    uint32 GetDamagedHealth() const
-    {
-        if (!DestructibleHitpoint)
-            return 0;
-
-        return DestructibleHitpoint->DamagedNumHits;
-    }
 };
 
 // From `gameobject_template_addon`, `gameobject_overrides`
