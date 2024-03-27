@@ -275,19 +275,10 @@ struct boss_valithria_dreamwalker : public ScriptedAI
         _done = false;
     }
 
-    void InitializeAI() override
-    {
-        if (CreatureData const* data = me->GetCreatureData())
-            if (data->curhealth)
-                _spawnHealth = data->curhealth;
-
-        ScriptedAI::InitializeAI();
-    }
-
     void Reset() override
     {
         _events.Reset();
-        me->SetHealth(_spawnHealth);
+        me->SetSpawnHealth();
         me->SetReactState(REACT_PASSIVE);
         me->LoadCreaturesAddon();
         // immune to percent heals

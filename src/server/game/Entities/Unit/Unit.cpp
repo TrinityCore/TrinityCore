@@ -5531,12 +5531,30 @@ void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType
     SendAttackStateUpdate(&dmgInfo);
 }
 
-void Unit::SetPowerType(Powers new_powertype, bool sendUpdate/* = true*/)
+void Unit::InitPowerType()
 {
-    if (GetPowerType() == new_powertype)
+    Powers powerType = GetPowerType();
+
+    if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType))
+    {
+        if (powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::UnitsUseDefaultPowerOnInit))
+            SetPower(powerType, powerTypeEntry->DefaultPower);
+        else
+            SetFullPower(powerType);
+    }
+}
+
+void Unit::SetPowerType(Powers power, bool sendUpdate/* = true*/)
+{
+    PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(power);
+
+    if (!powerTypeEntry)
         return;
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayPower), new_powertype);
+    if (IsCreature() && !powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::IsUsedByNPCs))
+        return;
+
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayPower), power);
 
     if (!sendUpdate)
         return;
@@ -5553,10 +5571,10 @@ void Unit::SetPowerType(Powers new_powertype, bool sendUpdate/* = true*/)
     }*/
 
     // Update max power
-    UpdateMaxPower(new_powertype);
+    UpdateMaxPower(power);
 
     // Update current power
-    switch (new_powertype)
+    switch (power)
     {
         case POWER_MANA: // Keep the same (druid form switching...)
         case POWER_ENERGY:
@@ -5565,7 +5583,7 @@ void Unit::SetPowerType(Powers new_powertype, bool sendUpdate/* = true*/)
             SetPower(POWER_RAGE, 0);
             break;
         case POWER_FOCUS: // Make it full
-            SetFullPower(new_powertype);
+            SetFullPower(power);
             break;
         default:
             break;

@@ -5359,6 +5359,32 @@ class spell_gen_random_aggro_taunt : public SpellScript
     }
 };
 
+// 24931 - 100 Health
+// 24959 - 500 Health
+// 28838 - 1 Health
+// 43645 - 1 Health
+// 73342 - 1 Health
+// 86562 - 1 Health
+class spell_gen_set_health : public SpellScript
+{
+public:
+    spell_gen_set_health(uint64 health) : _health(health) { }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitUnit()->IsAlive() && _health > 0)
+            GetHitUnit()->SetHealth(_health);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_set_health::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+private:
+    uint64 _health;
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5535,4 +5561,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_major_healing_cooldown_modifier);
     RegisterSpellScript(spell_gen_major_healing_cooldown_modifier_aura);
     RegisterSpellScript(spell_gen_random_aggro_taunt);
+    RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_1", 1);
+    RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_100", 100);
+    RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_500", 500);
 }
