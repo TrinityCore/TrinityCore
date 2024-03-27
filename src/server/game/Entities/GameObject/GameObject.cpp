@@ -1072,11 +1072,8 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
                 m_goValue.Building.DestructibleHitpoint = destructibleHitpoint;
                 m_goValue.Building.Health = destructibleHitpoint->GetMaxHealth();
             }
-            else if (GetGOInfo()->destructibleBuilding.HealthRec)
-            {
-                TC_LOG_ERROR("gameobject", "GameObject (Entry: {}) Has non existing Destructible Hitpoint Record {}.", entry, GetGOInfo()->destructibleBuilding.HealthRec);
+            else
                 m_goValue.Building.Health = 0;
-            }
 
             SetGoAnimProgress(255);
             // yes, even after the updatefield rewrite this garbage hack is still in client

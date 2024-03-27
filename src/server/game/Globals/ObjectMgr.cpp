@@ -7768,6 +7768,10 @@ void ObjectMgr::LoadGameObjectTemplate()
                     got.barberChair.SitAnimKit = 0;
                 }
                 break;
+            case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+                if (got.destructibleBuilding.HealthRec && !Trinity::Containers::MapGetValuePtr(_destructibleHitpointStore, got.destructibleBuilding.HealthRec))
+                    TC_LOG_ERROR("sql.sql", "GameObject (Entry: {}) Has non existing Destructible Hitpoint Record {}.", entry, got.destructibleBuilding.HealthRec);
+                break;
             case GAMEOBJECT_TYPE_GARRISON_BUILDING:
                 if (uint32 transportMap = got.garrisonBuilding.SpawnMap)
                     _transportMaps.insert(transportMap);
