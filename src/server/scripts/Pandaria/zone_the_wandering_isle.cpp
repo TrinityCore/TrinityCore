@@ -461,7 +461,7 @@ class at_min_dimwind_captured : public AreaTriggerScript
 
                 minDimwind->CastSpell(player, SPELL_FORCE_SUMMON_CART_DRIVER, TRIGGERED_FULL_MASK);
                 player->CastSpell(player, SPELL_SERVERSIDE_KILL_CREDIT, TRIGGERED_FULL_MASK);
-                PhasingHandler::OnConditionChange(player); // phase 630 is added when kill credit but immediately is removed to add it again when Min Dimwind reaches final waypoint
+                PhasingHandler::OnConditionChange(player); // phase 630 is added when kill credit but immediately is removed to be added again when Min Dimwind reaches final waypoint
             }
 
             return false;
