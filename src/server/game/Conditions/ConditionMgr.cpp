@@ -1444,6 +1444,40 @@ void ConditionMgr::LoadConditions(bool isReload)
     for (auto&& [id, conditions] : ConditionStore[CONDITION_SOURCE_TYPE_GRAVEYARD])
         addToGraveyardData(id, conditions);
 
+    struct
+    {
+        bool operator()(uint32 playerConditionId, std::vector<Condition> const& conditions, ConditionsByEntryMap const& referenceConditions) const
+        {
+            return std::any_of(conditions.begin(), conditions.end(), [&](Condition const& condition)
+            {
+                if (condition.ConditionType == CONDITION_PLAYER_CONDITION)
+                {
+                    if (condition.ConditionValue1 == playerConditionId)
+                        return true;
+                }
+                else if (condition.ReferenceId)
+                {
+                    auto refItr = referenceConditions.find({ condition.ReferenceId, 0, 0 });
+                    if (refItr != referenceConditions.end())
+                        if (operator()(playerConditionId, *refItr->second, referenceConditions))
+                            return true;
+                }
+                return false;
+            });
+        }
+    } isPlayerConditionIdUsedByCondition;
+
+    for (auto&& [id, conditions] : ConditionStore[CONDITION_SOURCE_TYPE_PLAYER_CONDITION])
+    {
+        if (isPlayerConditionIdUsedByCondition(id.SourceEntry, *conditions, ConditionStore[CONDITION_SOURCE_TYPE_REFERENCE_CONDITION]))
+        {
+            TC_LOG_ERROR("sql.sql", "[Condition SourceType: CONDITION_SOURCE_TYPE_PLAYER_CONDITION, SourceGroup: {}, SourceEntry: {}, SourceId: {}] "
+                "has a circular reference to player condition id {}, removed all conditions for this SourceEntry!",
+                id.SourceGroup, id.SourceEntry, id.SourceId, id.SourceEntry);
+            conditions->clear();
+        }
+    }
+
     TC_LOG_INFO("server.loading", ">> Loaded {} conditions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
