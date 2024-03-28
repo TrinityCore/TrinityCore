@@ -17,19 +17,35 @@
 
 #include "tc_catch2.h"
 
+#include "CompilerDefs.h"
 #include "UniqueTrackablePtr.h"
 
 struct TestObj
 {
     TestObj(bool* deleted = nullptr) : Deleted(deleted) { }
 
-    ~TestObj()
+    virtual ~TestObj()
     {
         if (Deleted)
             *Deleted = true;
     }
 
     bool* Deleted = nullptr;
+};
+
+struct TestObj2
+{
+    virtual ~TestObj2() = default;
+
+    int a = 5;
+};
+
+struct TestObj3 : public TestObj2, public TestObj
+{
+};
+
+struct TestObj4 : public TestObj
+{
 };
 
 TEST_CASE("Trinity::unique_trackable_ptr frees memory", "[UniqueTrackablePtr]")
@@ -88,3 +104,62 @@ TEST_CASE("Trinity::unique_weak_ptr", "[UniqueTrackablePtr]")
         REQUIRE(!!weakRef.lock());
     }
 }
+
+// disable warning about invalid reinterpret_cast, test intentionally tests this
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreinterpret-base-class"
+#endif
+
+TEST_CASE("Trinity::unique_strong_ref_ptr type casts", "[UniqueTrackablePtr]")
+{
+    Trinity::unique_trackable_ptr<TestObj> ptr = Trinity::make_unique_trackable<TestObj3>();
+
+    Trinity::unique_weak_ptr<TestObj> weak = ptr;
+
+    Trinity::unique_strong_ref_ptr<TestObj> temp = weak.lock();
+    REQUIRE(temp != nullptr);
+
+    SECTION("static_pointer_cast")
+    {
+        Trinity::unique_strong_ref_ptr<TestObj3> testObj2 = Trinity::static_pointer_cast<TestObj3>(temp);
+
+        REQUIRE(testObj2.get() == static_cast<TestObj3*>(ptr.get()));
+
+        // sanity check that we didn't accidentally setup inheritance of TestObjs incorrectly
+        REQUIRE(testObj2.get() != reinterpret_cast<TestObj3*>(ptr.get()));
+
+        REQUIRE(testObj2 == Trinity::static_pointer_cast<TestObj3>(weak).lock());
+    }
+
+    SECTION("reinterpret_pointer_cast")
+    {
+        Trinity::unique_strong_ref_ptr<TestObj3> testObj2 = Trinity::reinterpret_pointer_cast<TestObj3>(temp);
+
+        REQUIRE(testObj2.get() == reinterpret_cast<TestObj3*>(ptr.get()));
+
+        REQUIRE(testObj2 == Trinity::reinterpret_pointer_cast<TestObj3>(weak).lock());
+    }
+
+    SECTION("succeeding dynamic_pointer_cast")
+    {
+        Trinity::unique_strong_ref_ptr<TestObj3> testObj2 = Trinity::dynamic_pointer_cast<TestObj3>(temp);
+
+        REQUIRE(testObj2.get() == dynamic_cast<TestObj3*>(ptr.get()));
+
+        REQUIRE(testObj2 == Trinity::dynamic_pointer_cast<TestObj3>(weak).lock());
+    }
+
+    SECTION("failing dynamic_pointer_cast")
+    {
+        Trinity::unique_strong_ref_ptr<TestObj4> testObj2 = Trinity::dynamic_pointer_cast<TestObj4>(temp);
+
+        REQUIRE(testObj2 == nullptr);
+
+        REQUIRE(testObj2 == Trinity::dynamic_pointer_cast<TestObj4>(weak).lock());
+    }
+}
+
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif

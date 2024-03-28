@@ -22,7 +22,7 @@
 
 struct AchievementMeta
 {
-    static constexpr DB2MetaField Fields[17] =
+    static constexpr DB2MetaField Fields[19] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
@@ -41,9 +41,11 @@ struct AchievementMeta
         { FT_INT, 1, false },
         { FT_SHORT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1260179, 3, 17, 17, 0xFA2C0B62, Fields, 11 };
+    static constexpr DB2Meta Instance{ 1260179, 3, 19, 19, 0x920E09CB, Fields, 11 };
 };
 
 struct Achievement_CategoryMeta
@@ -85,7 +87,7 @@ struct ActionBarGroupEntryMeta
 
 struct AdventureJournalMeta
 {
-    static constexpr DB2MetaField Fields[22] =
+    static constexpr DB2MetaField Fields[20] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
@@ -102,8 +104,6 @@ struct AdventureJournalMeta
         { FT_SHORT, 1, false },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
-        { FT_INT, 1, true },
-        { FT_INT, 1, false },
         { FT_SHORT, 1, false },
         { FT_INT, 1, false },
         { FT_SHORT, 1, false },
@@ -111,7 +111,21 @@ struct AdventureJournalMeta
         { FT_BYTE, 2, false },
     };
 
-    static constexpr DB2Meta Instance{ 1115949, -1, 22, 22, 0xC165B3AF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1115949, -1, 20, 20, 0x872F8E30, Fields, -1 };
+};
+
+struct AdventureJournalItemMeta
+{
+    static constexpr DB2MetaField Fields[5] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5599873, -1, 5, 4, 0x7C64B965, Fields, 4 };
 };
 
 struct AdventureMapPOIMeta
@@ -517,6 +531,18 @@ struct AreaPOIStateMeta
     };
 
     static constexpr DB2Meta Instance{ 1000631, -1, 5, 4, 0xC236B11E, Fields, 4 };
+};
+
+struct AreaPOIUiWidgetSetMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_BYTE, 1, false },
+    };
+
+    static constexpr DB2Meta Instance{ 5634691, -1, 3, 3, 0x457F53FD, Fields, -1 };
 };
 
 struct AreaTableMeta
@@ -1321,6 +1347,23 @@ struct BattlemasterListMeta
     };
 
     static constexpr DB2Meta Instance{ 1360265, -1, 17, 17, 0x145B6F18, Fields, -1 };
+};
+
+struct BattlepayCurrencyMeta
+{
+    static constexpr DB2MetaField Fields[8] =
+    {
+        { FT_STRING_NOT_LOCALIZED, 1, true },
+        { FT_STRING, 1, true },
+        { FT_STRING, 1, true },
+        { FT_STRING, 1, true },
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5549327, 4, 8, 8, 0x6B8D71CD, Fields, -1 };
 };
 
 struct BeamEffectMeta
@@ -7100,7 +7143,7 @@ struct JournalEncounterCreatureMeta
 
 struct JournalEncounterItemMeta
 {
-    static constexpr DB2MetaField Fields[6] =
+    static constexpr DB2MetaField Fields[7] =
     {
         { FT_INT, 1, false },
         { FT_SHORT, 1, false },
@@ -7108,9 +7151,10 @@ struct JournalEncounterItemMeta
         { FT_BYTE, 1, true },
         { FT_INT, 1, true },
         { FT_BYTE, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1344467, 0, 6, 6, 0xDAC92896, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1344467, 0, 7, 7, 0x2F00E0F6, Fields, 1 };
 };
 
 struct JournalEncounterSectionMeta
@@ -9964,13 +10008,14 @@ struct QuestXUIQuestDetailsThemeMeta
 
 struct QuestXUiWidgetSetMeta
 {
-    static constexpr DB2MetaField Fields[2] =
+    static constexpr DB2MetaField Fields[3] =
     {
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 3923421, -1, 2, 2, 0x2B4CA6A1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3923421, -1, 3, 3, 0x5FABCD9E, Fields, -1 };
 };
 
 struct RTPCMeta
@@ -10098,6 +10143,22 @@ struct RenownRewardsMeta
     };
 
     static constexpr DB2Meta Instance{ 3743117, -1, 18, 18, 0xB1FF79CA, Fields, 3 };
+};
+
+struct RenownRewardsPlunderstormMeta
+{
+    static constexpr DB2MetaField Fields[7] =
+    {
+        { FT_STRING, 1, true },
+        { FT_STRING, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5662591, -1, 7, 7, 0xD63E74F4, Fields, 2 };
 };
 
 struct ResearchBranchMeta
@@ -13721,8 +13782,9 @@ struct UiModelSceneCameraMeta
 
 struct UiPartyPoseMeta
 {
-    static constexpr DB2MetaField Fields[10] =
+    static constexpr DB2MetaField Fields[11] =
     {
+        { FT_STRING, 1, true },
         { FT_STRING, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, true },
@@ -13735,7 +13797,7 @@ struct UiPartyPoseMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1993323, 1, 10, 9, 0xF02E09B6, Fields, 9 };
+    static constexpr DB2Meta Instance{ 1993323, 2, 11, 10, 0x4F7568D2, Fields, 10 };
 };
 
 struct UiQuestDetailsThemeMeta
@@ -14172,6 +14234,18 @@ struct VignetteMeta
     };
 
     static constexpr DB2Meta Instance{ 892861, -1, 10, 10, 0xEC171292, Fields, -1 };
+};
+
+struct VignetteUiWidgetSetMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_BYTE, 1, false },
+    };
+
+    static constexpr DB2Meta Instance{ 5634692, -1, 3, 3, 0xB3CE04F0, Fields, -1 };
 };
 
 struct VirtualAttachmentMeta

@@ -35,6 +35,7 @@
 #include "SharedDefines.h"
 #include "SpawnData.h"
 #include "Timer.h"
+#include "UniqueTrackablePtr.h"
 #include "WorldStateDefines.h"
 #include <bitset>
 #include <list>
@@ -45,6 +46,7 @@
 
 class Battleground;
 class BattlegroundMap;
+class BattlegroundScript;
 class CreatureGroup;
 class GameObjectModel;
 class Group;
@@ -311,6 +313,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         static bool CheckGridIntegrity(T* object, bool moved, char const* objType);
 
         uint32 GetInstanceId() const { return i_InstanceId; }
+
+        Trinity::unique_weak_ptr<Map> GetWeakPtr() const { return m_weakRef; }
+        void SetWeakPtr(Trinity::unique_weak_ptr<Map> weakRef) { m_weakRef = std::move(weakRef); }
 
         static TransferAbortParams PlayerCannotEnter(uint32 mapid, Player* player);
         virtual TransferAbortParams CannotEnter(Player* /*player*/) { return { TRANSFER_ABORT_NONE }; }
@@ -605,6 +610,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         MapEntry const* i_mapEntry;
         Difficulty i_spawnMode;
         uint32 i_InstanceId;
+        Trinity::unique_weak_ptr<Map> m_weakRef;
         uint32 m_unloadTimer;
         float m_VisibleDistance;
         DynamicMapTree _dynamicTree;
@@ -904,12 +910,22 @@ class TC_GAME_API BattlegroundMap : public Map
         void SetUnload();
         //void UnloadAll(bool pForce);
         void RemoveAllPlayers() override;
+        void Update(uint32 diff) override;
 
         virtual void InitVisibilityDistance() override;
         Battleground* GetBG() const { return m_bg; }
         void SetBG(Battleground* bg) { m_bg = bg; }
+
+        uint32 GetScriptId() const { return _scriptId; }
+        std::string const& GetScriptName() const;
+        BattlegroundScript* GetBattlegroundScript() { return _battlegroundScript.get(); }
+        BattlegroundScript const* GetBattlegroundScript() const { return _battlegroundScript.get(); }
+
+        void InitScriptData();
     private:
         Battleground* m_bg;
+        std::unique_ptr<BattlegroundScript> _battlegroundScript;
+        uint32 _scriptId;
 };
 
 template<class T, class CONTAINER>

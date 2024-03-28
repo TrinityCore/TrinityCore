@@ -198,7 +198,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 
     _worldPacket.WriteBit(KioskModeEnabled);
     _worldPacket.WriteBit(CompetitiveModeEnabled);
-    _worldPacket.WriteBit(false); // unused, 10.0.2
+    _worldPacket.WriteBit(IsBoostEnabled);
     _worldPacket.WriteBit(TrialBoostEnabled);
     _worldPacket.WriteBit(TokenBalanceEnabled);
     _worldPacket.WriteBit(LiveRegionCharacterListEnabled);
@@ -209,7 +209,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
     _worldPacket.WriteBit(false); // unused, 10.0.2
     _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
-    _worldPacket.WriteBit(false); // unused, 10.0.2
+    _worldPacket.WriteBit(IsNameReservationEnabled);
     _worldPacket.WriteBit(LaunchETA.has_value());
     _worldPacket.WriteBit(AddonsDisabled);
     _worldPacket.WriteBit(Unused1000);
@@ -243,6 +243,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << PlayerNameQueryInterval;
     _worldPacket << uint32(DebugTimeEvents.size());
     _worldPacket << int32(Unused1007);
+    _worldPacket << uint32(EventRealmQueues);
 
     if (LaunchETA)
         _worldPacket << int32(*LaunchETA);

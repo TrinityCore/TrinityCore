@@ -148,7 +148,7 @@ void OutdoorPvPTF::HandlePlayerEnterZone(Player* player, uint32 zone)
         if (m_AllianceTowersControlled >= TF_TOWER_NUM)
             player->CastSpell(player, TF_CAPTURE_BUFF, true);
     }
-    else
+    else if (player->GetTeam() == HORDE)
     {
         if (m_HordeTowersControlled >= TF_TOWER_NUM)
             player->CastSpell(player, TF_CAPTURE_BUFF, true);

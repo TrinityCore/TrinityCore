@@ -295,10 +295,7 @@ GameObject const* AzeriteItem::FindHeartForge(Player const* owner)
 
 bool AzeriteItem::CanUseEssences() const
 {
-    if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(PLAYER_CONDITION_ID_UNLOCKED_AZERITE_ESSENCES))
-        return ConditionMgr::IsPlayerMeetingCondition(GetOwner(), condition);
-
-    return false;
+    return ConditionMgr::IsPlayerMeetingCondition(GetOwner(), PLAYER_CONDITION_ID_UNLOCKED_AZERITE_ESSENCES);
 }
 
 bool AzeriteItem::HasUnlockedEssenceSlot(uint8 slot) const

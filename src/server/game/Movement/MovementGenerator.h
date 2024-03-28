@@ -48,7 +48,11 @@ enum MovementGeneratorFlags : uint16
 class TC_GAME_API MovementGenerator
 {
     public:
-        MovementGenerator() : Mode(0), Priority(0), Flags(MOVEMENTGENERATOR_FLAG_NONE), BaseUnitState(0) { }
+        explicit MovementGenerator() : Mode(0), Priority(0), Flags(MOVEMENTGENERATOR_FLAG_NONE), BaseUnitState(0) { }
+        MovementGenerator(MovementGenerator const&) = delete;
+        MovementGenerator(MovementGenerator&&) = delete;
+        MovementGenerator& operator=(MovementGenerator const&) = delete;
+        MovementGenerator& operator=(MovementGenerator&&) = delete;
         virtual ~MovementGenerator();
 
         // on top first update
@@ -65,9 +69,9 @@ class TC_GAME_API MovementGenerator
 
         virtual void UnitSpeedChanged() { }
         // timer in ms
-        virtual void Pause(uint32/* timer = 0*/) { }
+        virtual void Pause(uint32/* timer*/) { }
         // timer in ms
-        virtual void Resume(uint32/* overrideTimer = 0*/) { }
+        virtual void Resume(uint32/* overrideTimer*/) { }
         // used by Evade code for select point to evade with expected restart default movement
         virtual bool GetResetPosition(Unit*, float&/* x*/, float&/* y*/, float&/* z*/) { return false; }
 
