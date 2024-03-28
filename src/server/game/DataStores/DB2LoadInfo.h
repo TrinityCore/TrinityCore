@@ -841,6 +841,19 @@ struct ChallengeModeItemBonusOverrideLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 8, &ChallengeModeItemBonusOverrideMeta::Instance, HOTFIX_SEL_CHALLENGE_MODE_ITEM_BONUS_OVERRIDE };
 };
 
+struct CharBaseInfoLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[4] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_BYTE, "RaceID" },
+        { true, FT_BYTE, "ClassID" },
+        { true, FT_INT, "OtherFactionRaceID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &CharBaseInfoMeta::Instance, HOTFIX_SEL_CHAR_BASE_INFO };
+};
+
 struct CharTitlesLoadInfo
 {
     static constexpr DB2FieldMeta Fields[5] =

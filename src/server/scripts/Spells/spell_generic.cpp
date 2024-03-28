@@ -408,37 +408,6 @@ class spell_gen_bandage : public SpellScript
 // 193970 - Mercenary Shapeshift
 class spell_gen_battleground_mercenary_shapeshift : public AuraScript
 {
-    using OtherFactionRacePriorityList = std::array<Races, 3>;
-
-    inline static std::unordered_map<Races, OtherFactionRacePriorityList> const RaceInfo =
-    {
-        { RACE_HUMAN, { RACE_UNDEAD_PLAYER, RACE_BLOODELF } },
-        { RACE_ORC, { RACE_DWARF } },
-        { RACE_DWARF, { RACE_ORC, RACE_UNDEAD_PLAYER, RACE_TAUREN } },
-        { RACE_NIGHTELF, { RACE_TROLL, RACE_BLOODELF } },
-        { RACE_UNDEAD_PLAYER, { RACE_HUMAN } },
-        { RACE_TAUREN, { RACE_DRAENEI, RACE_NIGHTELF } },
-        { RACE_GNOME, { RACE_GOBLIN, RACE_BLOODELF } },
-        { RACE_TROLL, { RACE_NIGHTELF, RACE_HUMAN, RACE_DRAENEI } },
-        { RACE_GOBLIN, { RACE_GNOME, RACE_DWARF } },
-        { RACE_BLOODELF, { RACE_HUMAN, RACE_NIGHTELF } },
-        { RACE_DRAENEI, { RACE_TAUREN, RACE_ORC } },
-        { RACE_WORGEN, { RACE_TROLL } },
-        { RACE_PANDAREN_NEUTRAL, { RACE_PANDAREN_NEUTRAL } },
-        { RACE_PANDAREN_ALLIANCE, { RACE_PANDAREN_HORDE, RACE_PANDAREN_NEUTRAL } },
-        { RACE_PANDAREN_HORDE, { RACE_PANDAREN_ALLIANCE, RACE_PANDAREN_NEUTRAL } },
-        { RACE_NIGHTBORNE, { RACE_NIGHTELF, RACE_HUMAN } },
-        { RACE_HIGHMOUNTAIN_TAUREN, { RACE_DRAENEI, RACE_NIGHTELF } },
-        { RACE_VOID_ELF, { RACE_TROLL, RACE_BLOODELF } },
-        { RACE_LIGHTFORGED_DRAENEI, { RACE_TAUREN, RACE_ORC } },
-        { RACE_ZANDALARI_TROLL, { RACE_KUL_TIRAN, RACE_HUMAN } },
-        { RACE_KUL_TIRAN, { RACE_ZANDALARI_TROLL } },
-        { RACE_DARK_IRON_DWARF, { RACE_MAGHAR_ORC, RACE_ORC } },
-        { RACE_VULPERA, { RACE_MECHAGNOME, RACE_DARK_IRON_DWARF /*guessed, for shamans*/ } },
-        { RACE_MAGHAR_ORC, { RACE_DARK_IRON_DWARF } },
-        { RACE_MECHAGNOME, { RACE_VULPERA } },
-    };
-
     inline static std::unordered_map<Races, std::array<uint32, 2>> const RaceDisplayIds =
     {
         { RACE_HUMAN, { 55239, 55238 } },
@@ -472,10 +441,9 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
 
     static Races GetReplacementRace(Races nativeRace, Classes playerClass)
     {
-        if (OtherFactionRacePriorityList const* otherRaces = Trinity::Containers::MapGetValuePtr(RaceInfo, nativeRace))
-            for (Races race : *otherRaces)
-                if (sObjectMgr->GetPlayerInfo(race, playerClass))
-                    return race;
+        if (CharBaseInfoEntry const* charBaseInfo = DB2Manager::GetCharBaseInfo(nativeRace, playerClass))
+            if (sObjectMgr->GetPlayerInfo(charBaseInfo->OtherFactionRaceID, playerClass))
+                return Races(charBaseInfo->OtherFactionRaceID);
 
         return RACE_NONE;
     }
@@ -490,16 +458,6 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        for (auto const& [race, otherRaces] : RaceInfo)
-        {
-            if (!sChrRacesStore.LookupEntry(race))
-                return false;
-
-            for (Races otherRace : otherRaces)
-                if (!sChrRacesStore.LookupEntry(otherRace))
-                    return false;
-        }
-
         for (auto const& [race, displayIds] : RaceDisplayIds)
         {
             if (!sChrRacesStore.LookupEntry(race))
@@ -518,7 +476,7 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
         return true;
     }
 
-    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode) const
     {
         Unit* owner = GetUnitOwner();
         Races otherFactionRace = GetReplacementRace(Races(owner->GetRace()), Classes(owner->GetClass()));
@@ -532,7 +490,7 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
             UpdateRacials(Races(owner->GetRace()), otherFactionRace);
     }
 
-    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         Unit* owner = GetUnitOwner();
         Races otherFactionRace = GetReplacementRace(Races(owner->GetRace()), Classes(owner->GetClass()));
@@ -542,7 +500,7 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
         UpdateRacials(otherFactionRace, Races(owner->GetRace()));
     }
 
-    void UpdateRacials(Races oldRace, Races newRace)
+    void UpdateRacials(Races oldRace, Races newRace) const
     {
         Player* player = GetUnitOwner()->ToPlayer();
         if (!player)

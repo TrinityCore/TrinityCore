@@ -582,6 +582,14 @@ struct ChallengeModeItemBonusOverrideEntry
     uint32 SrcItemBonusTreeID;
 };
 
+struct CharBaseInfoEntry
+{
+    uint32 ID;
+    int8 RaceID;
+    int8 ClassID;
+    int32 OtherFactionRaceID;
+};
+
 struct CharTitlesEntry
 {
     uint32 ID;
