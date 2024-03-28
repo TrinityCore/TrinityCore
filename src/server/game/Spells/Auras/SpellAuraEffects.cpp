@@ -3396,12 +3396,7 @@ void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const* aurApp, uint
     Player* player = target->ToPlayer();
     if (!apply && player && GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::StealthOrInvis))
     {
-        if (player->InBattleground())
-        {
-            if (Battleground* bg = player->GetBattleground())
-                bg->EventPlayerDroppedFlag(player);
-        }
-        else
+        if (!player->InBattleground())
             sOutdoorPvPMgr->HandleDropFlag(player, GetSpellInfo()->Id);
     }
 }

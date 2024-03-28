@@ -4403,12 +4403,6 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     UpdateZone(newzone, newarea);
     sOutdoorPvPMgr->HandlePlayerResurrects(this, newzone);
 
-    if (InBattleground())
-    {
-        if (Battleground* bg = GetBattleground())
-            bg->HandlePlayerResurrect(this);
-    }
-
     // update visibility
     UpdateObjectVisibility();
 
@@ -4796,9 +4790,7 @@ void Player::RepopAtGraveyard()
     }
 
     WorldSafeLocsEntry const* closestGrave = nullptr;
-    if (Battleground* bg = GetBattleground())
-        closestGrave = bg->GetClosestGraveyard(this);
-    else if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetMap(), GetZoneId()))
+    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetMap(), GetZoneId()))
         closestGrave = bf->GetClosestGraveyard(this);
     else if (InstanceScript* instance = GetInstanceScript())
         closestGrave = sObjectMgr->GetWorldSafeLoc(instance->GetEntranceLocation());
@@ -24932,11 +24924,6 @@ void Player::SummonIfPossible(bool agree)
 
     // stop taxi flight at summon
     FinishTaxiFlight();
-
-    // drop flag at summon
-    // this code can be reached only when GM is summoning player who carries flag, because player should be immune to summoning spells when he carries flag
-    if (Battleground* bg = GetBattleground())
-        bg->EventPlayerDroppedFlag(this);
 
     m_summon_expire = 0;
 

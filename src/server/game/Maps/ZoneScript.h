@@ -92,7 +92,7 @@ class TC_GAME_API ZoneScript
         virtual void SetData(uint32 /*DataId*/, uint32 /*Value*/) { }
 
         virtual void TriggerGameEvent(uint32 gameEventId, WorldObject* source = nullptr, WorldObject* target = nullptr);
-        virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/) { }
+        virtual void ProcessEvent([[maybe_unused]] WorldObject* obj, [[maybe_unused]] uint32 eventId, [[maybe_unused]] WorldObject* invoker) { }
         virtual void DoAction([[maybe_unused]] uint32 actionId, [[maybe_unused]] WorldObject* source = nullptr, [[maybe_unused]] WorldObject* target = nullptr) { }
 
         virtual void OnFlagStateChange([[maybe_unused]] GameObject* flagInBase, [[maybe_unused]] FlagState oldValue, [[maybe_unused]] FlagState newValue, [[maybe_unused]] Player* player) { }
