@@ -19,6 +19,7 @@
 #include "BattlegroundMgr.h"
 #include "BattlegroundPackets.h"
 #include "BattlegroundScore.h"
+#include "BattlegroundScript.h"
 #include "ChatTextBuilder.h"
 #include "Creature.h"
 #include "CreatureTextMgr.h"
@@ -114,16 +115,6 @@ Battleground::Battleground(Battleground const&) = default;
 
 Battleground::~Battleground()
 {
-    // remove objects and creatures
-    // (this is done automatically in mapmanager update, when the instance is reset after the reset time)
-    uint32 size = uint32(BgCreatures.size());
-    for (uint32 i = 0; i < size; ++i)
-        DelCreature(i);
-
-    size = uint32(BgObjects.size());
-    for (uint32 i = 0; i < size; ++i)
-        DelObject(i);
-
     // unload map
     if (m_Map)
     {
@@ -355,19 +346,12 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             return;
         }
 
-        // Setup here, only when at least one player has ported to the map
-        if (!SetupBattleground())
-        {
-            EndNow();
-            return;
-        }
-
         _preparationStartTime = GameTime::GetGameTime();
         for (Group* group : m_BgRaids)
             if (group)
                 group->StartCountdown(CountdownTimerType::Pvp, Seconds(StartDelayTimes[BG_STARTING_EVENT_FIRST] / 1000), _preparationStartTime);
 
-        StartingEventCloseDoors();
+        GetBgMap()->GetBattlegroundScript()->OnPrepareStage1();
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FIRST]);
         // First start warning - 2 or 1 minute
         if (StartMessageIds[BG_STARTING_EVENT_FIRST])
@@ -377,6 +361,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     else if (GetStartDelayTime() <= StartDelayTimes[BG_STARTING_EVENT_SECOND] && !(m_Events & BG_STARTING_EVENT_2))
     {
         m_Events |= BG_STARTING_EVENT_2;
+        GetBgMap()->GetBattlegroundScript()->OnPrepareStage2();
         if (StartMessageIds[BG_STARTING_EVENT_SECOND])
             SendBroadcastText(StartMessageIds[BG_STARTING_EVENT_SECOND], CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
@@ -384,6 +369,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     else if (GetStartDelayTime() <= StartDelayTimes[BG_STARTING_EVENT_THIRD] && !(m_Events & BG_STARTING_EVENT_3))
     {
         m_Events |= BG_STARTING_EVENT_3;
+        GetBgMap()->GetBattlegroundScript()->OnPrepareStage3();
         if (StartMessageIds[BG_STARTING_EVENT_THIRD])
             SendBroadcastText(StartMessageIds[BG_STARTING_EVENT_THIRD], CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
@@ -392,7 +378,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     {
         m_Events |= BG_STARTING_EVENT_4;
 
-        StartingEventOpenDoors();
+        GetBgMap()->GetBattlegroundScript()->OnStart();
 
         if (StartMessageIds[BG_STARTING_EVENT_FOURTH])
             SendBroadcastText(StartMessageIds[BG_STARTING_EVENT_FOURTH], CHAT_MSG_BG_SYSTEM_NEUTRAL);
@@ -785,6 +771,8 @@ void Battleground::EndBattleground(Team winner)
         player->SendDirectMessage(pvpMatchComplete.GetRawPacket());
 
         player->UpdateCriteria(CriteriaType::ParticipateInBattleground, player->GetMapId());
+
+        GetBgMap()->GetBattlegroundScript()->OnEnd(winner);
     }
 }
 
@@ -1081,6 +1069,8 @@ void Battleground::AddPlayer(Player* player, BattlegroundQueueTypeId queueId)
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
+
+    GetBgMap()->GetBattlegroundScript()->OnPlayerJoined(player, isInBattleground);
 }
 
 // this method adds player to his team's bg group, or sets his correct group if player is already in bg group
@@ -1312,133 +1302,6 @@ void Battleground::UpdatePvpStat(Player* player, uint32 pvpStatId, uint32 value)
         score->UpdatePvpStat(pvpStatId, value);
 }
 
-bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 /*respawnTime*/, GOState goState)
-{
-    // If the assert is called, means that BgObjects must be resized!
-    ASSERT(type < BgObjects.size());
-
-    Map* map = FindBgMap();
-    if (!map)
-        return false;
-
-    QuaternionData rot(rotation0, rotation1, rotation2, rotation3);
-    // Temporally add safety check for bad spawns and send log (object rotations need to be rechecked in sniff)
-    if (!rotation0 && !rotation1 && !rotation2 && !rotation3)
-    {
-        TC_LOG_DEBUG("bg.battleground", "Battleground::AddObject: gameoobject [entry: {}, object type: {}] for BG (map: {}) has zeroed rotation fields, "
-            "orientation used temporally, but please fix the spawn", entry, type, GetMapId());
-
-        rot = QuaternionData::fromEulerAnglesZYX(o, 0.f, 0.f);
-    }
-
-    // Must be created this way, adding to godatamap would add it to the base map of the instance
-    // and when loading it (in go::LoadFromDB()), a new guid would be assigned to the object, and a new object would be created
-    // So we must create it specific for this instance
-    GameObject* go = GameObject::CreateGameObject(entry, GetBgMap(), Position(x, y, z, o), rot, 255, goState);
-    if (!go)
-    {
-        TC_LOG_ERROR("bg.battleground", "Battleground::AddObject: cannot create gameobject (entry: {}) for BG (map: {}, instance id: {})!",
-                entry, GetMapId(), m_InstanceID);
-        return false;
-    }
-
-/*
-    uint32 guid = go->GetGUIDLow();
-
-    // without this, UseButtonOrDoor caused the crash, since it tried to get go info from godata
-    // iirc that was changed, so adding to go data map is no longer required if that was the only function using godata from GameObject without checking if it existed
-    GameObjectData& data = sObjectMgr->NewGOData(guid);
-
-    data.id             = entry;
-    data.mapid          = GetMapId();
-    data.posX           = x;
-    data.posY           = y;
-    data.posZ           = z;
-    data.orientation    = o;
-    data.rotation0      = rotation0;
-    data.rotation1      = rotation1;
-    data.rotation2      = rotation2;
-    data.rotation3      = rotation3;
-    data.spawntimesecs  = respawnTime;
-    data.spawnMask      = 1;
-    data.animprogress   = 100;
-    data.go_state       = 1;
-*/
-    // Add to world, so it can be later looked up from HashMapHolder
-    if (!map->AddToMap(go))
-    {
-        delete go;
-        return false;
-    }
-    BgObjects[type] = go->GetGUID();
-    return true;
-}
-
-bool Battleground::AddObject(uint32 type, uint32 entry, Position const& pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime /*= 0*/, GOState goState /*= GO_STATE_READY*/)
-{
-    return AddObject(type, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), rotation0, rotation1, rotation2, rotation3, respawnTime, goState);
-}
-
-// Some doors aren't despawned so we cannot handle their closing in gameobject::update()
-// It would be nice to correctly implement GO_ACTIVATED state and open/close doors in gameobject code
-void Battleground::DoorClose(uint32 type)
-{
-    if (GameObject* obj = GetBgMap()->GetGameObject(BgObjects[type]))
-    {
-        // If doors are open, close it
-        if (obj->getLootState() == GO_ACTIVATED && obj->GetGoState() != GO_STATE_READY)
-        {
-            obj->SetLootState(GO_READY);
-            obj->SetGoState(GO_STATE_READY);
-        }
-    }
-    else
-        TC_LOG_ERROR("bg.battleground", "Battleground::DoorClose: door gameobject (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-            type, BgObjects[type].ToString(), GetMapId(), m_InstanceID);
-}
-
-void Battleground::DoorOpen(uint32 type)
-{
-    if (GameObject* obj = GetBgMap()->GetGameObject(BgObjects[type]))
-    {
-        obj->SetLootState(GO_ACTIVATED);
-        obj->SetGoState(GO_STATE_ACTIVE);
-    }
-    else
-        TC_LOG_ERROR("bg.battleground", "Battleground::DoorOpen: door gameobject (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-            type, BgObjects[type].ToString(), GetMapId(), m_InstanceID);
-}
-
-GameObject* Battleground::GetBGObject(uint32 type, bool logError)
-{
-    GameObject* obj = GetBgMap()->GetGameObject(BgObjects[type]);
-    if (!obj)
-    {
-        if (logError)
-            TC_LOG_ERROR("bg.battleground", "Battleground::GetBGObject: gameobject (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-                type, BgObjects[type].ToString(), GetMapId(), m_InstanceID);
-        else
-            TC_LOG_INFO("bg.battleground", "Battleground::GetBGObject: gameobject (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-                type, BgObjects[type].ToString(), GetMapId(), m_InstanceID);
-    }
-    return obj;
-}
-
-Creature* Battleground::GetBGCreature(uint32 type, bool logError)
-{
-    Creature* creature = GetBgMap()->GetCreature(BgCreatures[type]);
-    if (!creature)
-    {
-        if (logError)
-            TC_LOG_ERROR("bg.battleground", "Battleground::GetBGCreature: creature (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-                type, BgCreatures[type].ToString(), GetMapId(), m_InstanceID);
-        else
-            TC_LOG_INFO("bg.battleground", "Battleground::GetBGCreature: creature (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-                type, BgCreatures[type].ToString(), GetMapId(), m_InstanceID);
-    }
-    return creature;
-}
-
 uint32 Battleground::GetMapId() const
 {
     return _battlegroundTemplate->BattlemasterEntry->MapID[0];
@@ -1448,167 +1311,9 @@ void Battleground::SetBgMap(BattlegroundMap* map)
 {
     m_Map = map;
     if (map)
-    {
         _pvpStatIds = sDB2Manager.GetPVPStatIDsForMap(map->GetId());
-        OnMapSet(map);
-    }
     else
         _pvpStatIds = nullptr;
-}
-
-void Battleground::SpawnBGObject(uint32 type, uint32 respawntime)
-{
-    if (Map* map = FindBgMap())
-        if (GameObject* obj = map->GetGameObject(BgObjects[type]))
-        {
-            if (respawntime)
-            {
-                obj->SetLootState(GO_JUST_DEACTIVATED);
-
-                if (GameObjectOverride const* goOverride = obj->GetGameObjectOverride())
-                    if (goOverride->Flags & GO_FLAG_NODESPAWN)
-                    {
-                        // This function should be called in GameObject::Update() but in case of
-                        // GO_FLAG_NODESPAWN flag the function is never called, so we call it here
-                        obj->SendGameObjectDespawn();
-                    }
-            }
-            else if (obj->getLootState() == GO_JUST_DEACTIVATED)
-            {
-                // Change state from GO_JUST_DEACTIVATED to GO_READY in case battleground is starting again
-                obj->SetLootState(GO_READY);
-            }
-            obj->SetRespawnTime(respawntime);
-            map->AddToMap(obj);
-        }
-}
-
-Creature* Battleground::AddCreature(uint32 entry, uint32 type, float x, float y, float z, float o, TeamId /*teamId = TEAM_NEUTRAL*/, uint32 respawntime /*= 0*/, Transport* transport)
-{
-    // If the assert is called, means that BgCreatures must be resized!
-    ASSERT(type < BgCreatures.size());
-
-    Map* map = FindBgMap();
-    if (!map)
-        return nullptr;
-
-    if (!sObjectMgr->GetCreatureTemplate(entry))
-    {
-        TC_LOG_ERROR("bg.battleground", "Battleground::AddCreature: creature template (entry: {}) does not exist for BG (map: {}, instance id: {})!",
-            entry, GetMapId(), m_InstanceID);
-        return nullptr;
-    }
-
-    if (transport)
-    {
-        if (Creature* creature = transport->SummonPassenger(entry, { x, y, z, o }, TEMPSUMMON_MANUAL_DESPAWN))
-        {
-            BgCreatures[type] = creature->GetGUID();
-            return creature;
-        }
-
-        return nullptr;
-    }
-
-    Position pos = { x, y, z, o };
-
-    Creature* creature = Creature::CreateCreature(entry, map, pos);
-    if (!creature)
-    {
-        TC_LOG_ERROR("bg.battleground", "Battleground::AddCreature: cannot create creature (entry: {}) for BG (map: {}, instance id: {})!",
-            entry, GetMapId(), m_InstanceID);
-        return nullptr;
-    }
-
-    creature->SetHomePosition(pos);
-
-    if (!map->AddToMap(creature))
-    {
-        delete creature;
-        return nullptr;
-    }
-
-    BgCreatures[type] = creature->GetGUID();
-
-    if (respawntime)
-        creature->SetRespawnDelay(respawntime);
-
-    return creature;
-}
-
-Creature* Battleground::AddCreature(uint32 entry, uint32 type, Position const& pos, TeamId teamId /*= TEAM_NEUTRAL*/, uint32 respawntime /*= 0*/, Transport* transport)
-{
-    return AddCreature(entry, type, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teamId, respawntime, transport);
-}
-
-bool Battleground::DelCreature(uint32 type)
-{
-    if (!BgCreatures[type])
-        return true;
-
-    if (Creature* creature = GetBgMap()->GetCreature(BgCreatures[type]))
-    {
-        creature->AddObjectToRemoveList();
-        BgCreatures[type].Clear();
-        return true;
-    }
-
-    TC_LOG_ERROR("bg.battleground", "Battleground::DelCreature: creature (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-        type, BgCreatures[type].ToString(), GetMapId(), m_InstanceID);
-    BgCreatures[type].Clear();
-    return false;
-}
-
-bool Battleground::DelObject(uint32 type)
-{
-    if (!BgObjects[type])
-        return true;
-
-    if (GameObject* obj = GetBgMap()->GetGameObject(BgObjects[type]))
-    {
-        obj->SetRespawnTime(0);                                 // not save respawn time
-        obj->Delete();
-        BgObjects[type].Clear();
-        return true;
-    }
-    TC_LOG_ERROR("bg.battleground", "Battleground::DelObject: gameobject (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-        type, BgObjects[type].ToString(), GetMapId(), m_InstanceID);
-    BgObjects[type].Clear();
-    return false;
-}
-
-bool Battleground::RemoveObjectFromWorld(uint32 type)
-{
-    if (!BgObjects[type])
-        return true;
-
-    if (GameObject* obj = GetBgMap()->GetGameObject(BgObjects[type]))
-    {
-        obj->RemoveFromWorld();
-        BgObjects[type].Clear();
-        return true;
-    }
-    TC_LOG_INFO("bg.battleground", "Battleground::RemoveObjectFromWorld: gameobject (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-        type, BgObjects[type].ToString(), GetMapId(), m_InstanceID);
-    return false;
-}
-
-bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float o, TeamId teamId /*= TEAM_NEUTRAL*/)
-{
-    uint32 entry = (teamId == TEAM_ALLIANCE) ? BG_CREATURE_ENTRY_A_SPIRITGUIDE : BG_CREATURE_ENTRY_H_SPIRITGUIDE;
-
-    if (AddCreature(entry, type, x, y, z, o, teamId))
-        return true;
-
-    TC_LOG_ERROR("bg.battleground", "Battleground::AddSpiritGuide: cannot create spirit guide (type: {}, entry: {}) for BG (map: {}, instance id: {})!",
-        type, entry, GetMapId(), m_InstanceID);
-    EndNow();
-    return false;
-}
-
-bool Battleground::AddSpiritGuide(uint32 type, Position const& pos, TeamId teamId /*= TEAM_NEUTRAL*/)
-{
-    return AddSpiritGuide(type, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teamId);
 }
 
 void Battleground::SendMessageToAll(uint32 entry, ChatMsg msgType, Player const* source)
@@ -1693,6 +1398,15 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
         victim->SetUnitFlag(UNIT_FLAG_SKINNABLE);
         RewardXPAtKill(killer, victim);
     }
+
+    if (BattlegroundScript* script = GetBgMap()->GetBattlegroundScript())
+        script->OnPlayerKilled(victim, killer);
+}
+
+void Battleground::HandleKillUnit(Creature* victim, Unit* killer)
+{
+    if (BattlegroundScript* script = GetBgMap()->GetBattlegroundScript())
+        script->OnUnitKilled(victim, killer);
 }
 
 // Return the player's team based on battlegroundplayer info
@@ -1748,16 +1462,6 @@ uint32 Battleground::GetAlivePlayersCountByTeam(Team team) const
     return count;
 }
 
-int32 Battleground::GetObjectType(ObjectGuid guid)
-{
-    for (uint32 i = 0; i < BgObjects.size(); ++i)
-        if (BgObjects[i] == guid)
-            return i;
-    TC_LOG_ERROR("bg.battleground", "Battleground::GetObjectType: player used gameobject ({}) which is not in internal data for BG (map: {}, instance id: {}), cheating?",
-        guid.ToString(), GetMapId(), m_InstanceID);
-    return -1;
-}
-
 void Battleground::SetBgRaid(Team team, Group* bg_raid)
 {
     Group*& old_raid = team == ALLIANCE ? m_BgRaids[TEAM_ALLIANCE] : m_BgRaids[TEAM_HORDE];
@@ -1766,20 +1470,6 @@ void Battleground::SetBgRaid(Team team, Group* bg_raid)
     if (bg_raid)
         bg_raid->SetBattlegroundGroup(this);
     old_raid = bg_raid;
-}
-
-WorldSafeLocsEntry const* Battleground::GetClosestGraveyard(Player* player)
-{
-    return sObjectMgr->GetClosestGraveyard(*player, GetPlayerTeam(player->GetGUID()), player);
-}
-
-void Battleground::TriggerGameEvent(uint32 gameEventId, WorldObject* source /*= nullptr*/, WorldObject* target /*= nullptr*/)
-{
-    ProcessEvent(target, gameEventId, source);
-    GameEvents::TriggerForMap(gameEventId, GetBgMap(), source, target);
-    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-            GameEvents::TriggerForPlayer(gameEventId, player);
 }
 
 void Battleground::SetBracket(PVPDifficultyEntry const* bracketEntry)
@@ -1803,12 +1493,6 @@ uint32 Battleground::GetTeamScore(TeamId teamId) const
 
     TC_LOG_ERROR("bg.battleground", "GetTeamScore with wrong Team {} for BG {}", teamId, GetTypeID());
     return 0;
-}
-
-void Battleground::HandleAreaTrigger(Player* player, uint32 trigger, bool /*entered*/)
-{
-    TC_LOG_DEBUG("bg.battleground", "Unhandled AreaTrigger {} in Battleground {}. Player coords (x: {}, y: {}, z: {})",
-                   trigger, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 }
 
 char const* Battleground::GetName() const

@@ -60,6 +60,13 @@ struct BattlegroundTemplate
     uint8 GetMaxLevel() const;
 };
 
+struct BattlegroundScriptTemplate
+{
+    int32 MapId;
+    BattlegroundTypeId Id;
+    uint32 ScriptId;
+};
+
 namespace WorldPackets
 {
     namespace Battleground
@@ -151,6 +158,9 @@ class TC_GAME_API BattlegroundMgr
             return nullptr;
         }
 
+        void LoadBattlegroundScriptTemplate();
+        BattlegroundScriptTemplate const* FindBattlegroundScriptTemplate(uint32 mapId, BattlegroundTypeId bgTypeId) const;
+
     private:
         uint32 CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
         static bool IsArenaType(BattlegroundTypeId bgTypeId);
@@ -190,6 +200,8 @@ class TC_GAME_API BattlegroundMgr
         typedef std::map<uint32 /*mapId*/, BattlegroundTemplate*> BattlegroundMapTemplateContainer;
         BattlegroundTemplateMap _battlegroundTemplates;
         BattlegroundMapTemplateContainer _battlegroundMapTemplates;
+
+        std::map<std::pair<int32, uint32>, BattlegroundScriptTemplate> _battlegroundScriptTemplates;
 };
 
 #define sBattlegroundMgr BattlegroundMgr::instance()

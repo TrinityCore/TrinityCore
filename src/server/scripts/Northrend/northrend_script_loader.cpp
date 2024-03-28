@@ -194,9 +194,6 @@ void AddSC_boss_baltharus_the_warborn();
 void AddSC_boss_saviana_ragefire();
 void AddSC_boss_general_zarithrian();
 void AddSC_boss_halion();
-// Isle of Conquest
-void AddSC_isle_of_conquest();
-void AddSC_boss_ioc_horde_alliance();
 
 void AddSC_dalaran();
 void AddSC_borean_tundra();
@@ -209,8 +206,6 @@ void AddSC_storm_peaks();
 void AddSC_wintergrasp();
 void AddSC_zuldrak();
 void AddSC_crystalsong_forest();
-
-void AddSC_strand_of_the_ancients();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -394,9 +389,6 @@ void AddNorthrendScripts()
     AddSC_boss_saviana_ragefire();
     AddSC_boss_general_zarithrian();
     AddSC_boss_halion();
-    // Isle of Conquest
-    AddSC_isle_of_conquest();
-    AddSC_boss_ioc_horde_alliance();
 
     AddSC_dalaran();
     AddSC_borean_tundra();
@@ -408,6 +400,4 @@ void AddNorthrendScripts()
     AddSC_storm_peaks();
     AddSC_wintergrasp();
     AddSC_zuldrak();
-
-    AddSC_strand_of_the_ancients();
 }
