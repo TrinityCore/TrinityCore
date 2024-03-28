@@ -1405,15 +1405,15 @@ class GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
 };
 #define RegisterAreaTriggerAI(ai_name) new GenericAreaTriggerEntityScript<ai_name>(#ai_name)
 
-template<class AI>
+template<class Script>
 class GenericBattlegroundMapScript : public BattlegroundMapScript
 {
 public:
     GenericBattlegroundMapScript(char const* name, uint32 mapId) : BattlegroundMapScript(name, mapId) { }
 
-    BattlegroundScript* GetBattlegroundScript(BattlegroundMap* map) const override { return new AI(map); }
+    BattlegroundScript* GetBattlegroundScript(BattlegroundMap* map) const override { return new Script(map); }
 };
-#define RegisterBattlegroundMapScript(ai_name, mapId) new GenericBattlegroundMapScript<ai_name>(#ai_name, mapId)
+#define RegisterBattlegroundMapScript(script_name, mapId) new GenericBattlegroundMapScript<script_name>(#script_name, mapId)
 
 #define sScriptMgr ScriptMgr::instance()
 

@@ -22,8 +22,8 @@ struct battleground_twin_peaks : BattlegroundScript
 {
     enum PvpStats : uint32
     {
-        BG_TP_FLAG_CAPTURES = 290,
-        BG_TP_FLAG_RETURNS = 291
+        BG_TP_FLAG_CAPTURES     = 290,
+        BG_TP_FLAG_RETURNS      = 291
     };
 
     explicit battleground_twin_peaks(BattlegroundMap* map) : BattlegroundScript(map) { }

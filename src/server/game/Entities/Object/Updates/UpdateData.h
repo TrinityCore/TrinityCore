@@ -33,7 +33,7 @@ enum OBJECT_UPDATE_TYPE
     UPDATETYPE_OUT_OF_RANGE_OBJECTS = 3,
 };
 
-class TC_GAME_API UpdateData
+class UpdateData
 {
     public:
         UpdateData(uint32 map);

@@ -34,94 +34,94 @@ struct battleground_warsong_gulch : BattlegroundScript
 
     enum Misc
     {
-        MAX_TEAM_SCORE = 3,
-        FLAG_BRUTAL_ASSAULT_STACK_COUNT = 5
+        MAX_TEAM_SCORE                          = 3,
+        FLAG_BRUTAL_ASSAULT_STACK_COUNT         = 5
     };
 
     enum Spells : uint32
     {
-        SPELL_FOCUSED_ASSAULT = 46392,
-        SPELL_BRUTAL_ASSAULT = 46393,
-        SPELL_CAPTURED_ALLIANCE_COSMETIC_FX = 262508,
-        SPELL_CAPTURED_HORDE_COSMETIC_FX = 262512,
-        SPELL_WARSONG_FLAG = 23333,
-        SPELL_WARSONG_FLAG_DROPPED = 23334,
-        SPELL_SILVERWING_FLAG = 23335,
-        SPELL_SILVERWING_FLAG_DROPPED = 23336,
-        SPELL_QUICK_CAP_TIMER = 183317,
+        SPELL_FOCUSED_ASSAULT                   = 46392,
+        SPELL_BRUTAL_ASSAULT                    = 46393,
+        SPELL_CAPTURED_ALLIANCE_COSMETIC_FX     = 262508,
+        SPELL_CAPTURED_HORDE_COSMETIC_FX        = 262512,
+        SPELL_WARSONG_FLAG                      = 23333,
+        SPELL_WARSONG_FLAG_DROPPED              = 23334,
+        SPELL_SILVERWING_FLAG                   = 23335,
+        SPELL_SILVERWING_FLAG_DROPPED           = 23336,
+        SPELL_QUICK_CAP_TIMER                   = 183317,
     };
 
     enum AreaTriggers : uint32
     {
-        AT_CAPTURE_POINT_ALLIANCE = 30,
-        AT_CAPTURE_POINT_HORDE = 31
+        AT_CAPTURE_POINT_ALLIANCE               = 30,
+        AT_CAPTURE_POINT_HORDE                  = 31
     };
 
     enum Events : uint32
     {
-        EVENT_START_BATTLE = 35912
+        EVENT_START_BATTLE                      = 35912
     };
 
     enum PvpStats : uint32
     {
-        PVP_STAT_FLAG_CAPTURES = 928,
-        PVP_STAT_FLAG_RETURNS = 929
+        PVP_STAT_FLAG_CAPTURES                  = 928,
+        PVP_STAT_FLAG_RETURNS                   = 929
     };
 
     enum WorldStates : int32
     {
-        WORLD_STATE_FLAG_STATE_ALLIANCE = 1545,
-        WORLD_STATE_FLAG_STATE_HORDE = 1546,
-        WORLD_STATE_FLAG_STATE_NEUTRAL = 1547,
-        WORLD_STATE_HORDE_FLAG_COUNT_PICKED_UP = 17712,
-        WORLD_STATE_ALLIANCE_FLAG_COUNT_PICKED_UP = 17713,
-        WORLD_STATE_FLAG_CAPTURES_ALLIANCE = 1581,
-        WORLD_STATE_FLAG_CAPTURES_HORDE = 1582,
-        WORLD_STATE_FLAG_CAPTURES_MAX = 1601,
-        WORLD_STATE_FLAG_CAPTURES_MAX_NEW = 17303,
-        WORLD_STATE_FLAG_CONTROL_HORDE = 2338,
-        WORLD_STATE_FLAG_CONTROL_ALLIANCE = 2339,
-        WORLD_STATE_STATE_TIMER = 4248,
-        WORLD_STATE_STATE_TIMER_ACTIVE = 4247
+        WORLD_STATE_FLAG_STATE_ALLIANCE             = 1545,
+        WORLD_STATE_FLAG_STATE_HORDE                = 1546,
+        WORLD_STATE_FLAG_STATE_NEUTRAL              = 1547,
+        WORLD_STATE_HORDE_FLAG_COUNT_PICKED_UP      = 17712,
+        WORLD_STATE_ALLIANCE_FLAG_COUNT_PICKED_UP   = 17713,
+        WORLD_STATE_FLAG_CAPTURES_ALLIANCE          = 1581,
+        WORLD_STATE_FLAG_CAPTURES_HORDE             = 1582,
+        WORLD_STATE_FLAG_CAPTURES_MAX               = 1601,
+        WORLD_STATE_FLAG_CAPTURES_MAX_NEW           = 17303,
+        WORLD_STATE_FLAG_CONTROL_HORDE              = 2338,
+        WORLD_STATE_FLAG_CONTROL_ALLIANCE           = 2339,
+        WORLD_STATE_STATE_TIMER                     = 4248,
+        WORLD_STATE_STATE_TIMER_ACTIVE              = 4247
     };
 
     enum Texts
     {
-        TEXT_START_ONE_MINUTE = 10015,
-        TEXT_START_HALF_MINUTE = 10016,
-        TEXT_BATTLE_HAS_BEGUN = 10014,
-        TEXT_CAPTURED_HORDE_FLAG = 9801,
-        TEXT_CAPTURED_ALLIANCE_FLAG = 9802,
-        TEXT_FLAGS_PLACED = 9803,
-        TEXT_ALLIANCE_FLAG_PICKED_UP = 9804,
-        TEXT_ALLIANCE_FLAG_DROPPED = 9805,
-        TEXT_HORDE_FLAG_PICKED_UP = 9807,
-        TEXT_HORDE_FLAG_DROPPED = 9806,
-        TEXT_ALLIANCE_FLAG_RETURNED = 9808,
-        TEXT_HORDE_FLAG_RETURNED = 9809
+        TEXT_START_ONE_MINUTE                   = 10015,
+        TEXT_START_HALF_MINUTE                  = 10016,
+        TEXT_BATTLE_HAS_BEGUN                   = 10014,
+        TEXT_CAPTURED_HORDE_FLAG                = 9801,
+        TEXT_CAPTURED_ALLIANCE_FLAG             = 9802,
+        TEXT_FLAGS_PLACED                       = 9803,
+        TEXT_ALLIANCE_FLAG_PICKED_UP            = 9804,
+        TEXT_ALLIANCE_FLAG_DROPPED              = 9805,
+        TEXT_HORDE_FLAG_PICKED_UP               = 9807,
+        TEXT_HORDE_FLAG_DROPPED                 = 9806,
+        TEXT_ALLIANCE_FLAG_RETURNED             = 9808,
+        TEXT_HORDE_FLAG_RETURNED                = 9809
     };
 
     enum Sounds
     {
-        SOUND_FLAG_CAPTURED_ALLIANCE = 8173,
-        SOUND_FLAG_CAPTURED_HORDE = 8213,
-        SOUND_FLAG_PLACED = 8232,
-        SOUND_FLAG_RETURNED = 8192,
-        SOUND_HORDE_FLAG_PICKED_UP = 8212,
-        SOUND_ALLIANCE_FLAG_PICKED_UP = 8174,
-        SOUND_FLAGS_RESPAWNED = 8232
+        SOUND_FLAG_CAPTURED_ALLIANCE            = 8173,
+        SOUND_FLAG_CAPTURED_HORDE               = 8213,
+        SOUND_FLAG_PLACED                       = 8232,
+        SOUND_FLAG_RETURNED                     = 8192,
+        SOUND_HORDE_FLAG_PICKED_UP              = 8212,
+        SOUND_ALLIANCE_FLAG_PICKED_UP           = 8174,
+        SOUND_FLAGS_RESPAWNED                   = 8232
     };
 
     enum GameObjects
     {
-        OBJECT_ALLIANCE_DOOR = 309704,
-        OBJECT_PORTCULLIS_009 = 309705,
-        OBJECT_PORTCULLIS_002 = 309883,
-        OBJECT_COLLISION_PC_SIZE = 242273,
-        OBJECT_HORDE_GATE_1 = 352709,
-        OBJECT_HORDE_GATE_2 = 352710,
-        OBJECT_ALLIANCE_FLAG_IN_BASE = 227741,
-        OBJECT_HORDE_FLAG_IN_BASE = 227740
+        OBJECT_ALLIANCE_DOOR                    = 309704,
+        OBJECT_PORTCULLIS_009                   = 309705,
+        OBJECT_PORTCULLIS_002                   = 309883,
+        OBJECT_COLLISION_PC_SIZE                = 242273,
+        OBJECT_HORDE_GATE_1                     = 352709,
+        OBJECT_HORDE_GATE_2                     = 352710,
+        OBJECT_ALLIANCE_FLAG_IN_BASE            = 227741,
+        OBJECT_HORDE_FLAG_IN_BASE               = 227740
     };
 
     static constexpr std::array<std::array<uint32, 3>, 2> HONOR_REWARDS =
@@ -246,7 +246,7 @@ struct battleground_warsong_gulch : BattlegroundScript
         });
     }
 
-    void ApplyAssaultDebuffToPlayer(Player* player)
+    void ApplyAssaultDebuffToPlayer(Player* player) const
     {
         if (_assaultStackCount == 0)
             return;
@@ -269,7 +269,7 @@ struct battleground_warsong_gulch : BattlegroundScript
             aura->SetStackAmount(_assaultStackCount);
     }
 
-    void RemoveAssaultDebuffFromPlayer(Player* player)
+    void RemoveAssaultDebuffFromPlayer(Player* player) const
     {
         player->RemoveAurasDueToSpell(SPELL_FOCUSED_ASSAULT);
         player->RemoveAurasDueToSpell(SPELL_BRUTAL_ASSAULT);

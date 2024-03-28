@@ -910,7 +910,7 @@ class TC_GAME_API BattlegroundMap : public Map
         void SetUnload();
         //void UnloadAll(bool pForce);
         void RemoveAllPlayers() override;
-        void Update(uint32) override;
+        void Update(uint32 diff) override;
 
         virtual void InitVisibilityDistance() override;
         Battleground* GetBG() const { return m_bg; }
@@ -918,13 +918,13 @@ class TC_GAME_API BattlegroundMap : public Map
 
         uint32 GetScriptId() const { return _scriptId; }
         std::string const& GetScriptName() const;
-        BattlegroundScript* GetBattlegroundScript() { return _battlegroundScript; }
-        BattlegroundScript const* GetBattlegroundScript() const { return _battlegroundScript; }
+        BattlegroundScript* GetBattlegroundScript() { return _battlegroundScript.get(); }
+        BattlegroundScript const* GetBattlegroundScript() const { return _battlegroundScript.get(); }
 
         void InitScriptData();
     private:
         Battleground* m_bg;
-        BattlegroundScript* _battlegroundScript;
+        std::unique_ptr<BattlegroundScript> _battlegroundScript;
         uint32 _scriptId;
 };
 

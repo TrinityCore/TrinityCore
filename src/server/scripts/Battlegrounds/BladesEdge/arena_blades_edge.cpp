@@ -26,12 +26,12 @@ struct arena_blades_edge : ArenaScript
 {
     enum GameObjects
     {
-        BG_BE_OBJECT_TYPE_DOOR_1 = 183971,
-        BG_BE_OBJECT_TYPE_DOOR_2 = 183973,
-        BG_BE_OBJECT_TYPE_DOOR_3 = 183970,
-        BG_BE_OBJECT_TYPE_DOOR_4 = 183972,
-        BG_BE_OBJECT_TYPE_BUFF_1 = 184663,
-        BG_BE_OBJECT_TYPE_BUFF_2 = 184664
+        BG_BE_OBJECT_TYPE_DOOR_1    = 183971,
+        BG_BE_OBJECT_TYPE_DOOR_2    = 183973,
+        BG_BE_OBJECT_TYPE_DOOR_3    = 183970,
+        BG_BE_OBJECT_TYPE_DOOR_4    = 183972,
+        BG_BE_OBJECT_TYPE_BUFF_1    = 184663,
+        BG_BE_OBJECT_TYPE_BUFF_2    = 184664
     };
 
     explicit arena_blades_edge(BattlegroundMap* map) : ArenaScript(map) { }

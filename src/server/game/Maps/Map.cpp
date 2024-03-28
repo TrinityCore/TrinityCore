@@ -3401,8 +3401,6 @@ BattlegroundMap::~BattlegroundMap()
         m_bg->SetBgMap(nullptr);
         m_bg = nullptr;
     }
-
-    delete _battlegroundScript;
 }
 
 void BattlegroundMap::InitVisibilityDistance()
@@ -3423,27 +3421,20 @@ void BattlegroundMap::InitScriptData()
         return;
 
     ASSERT(GetBG(), "Battleground not set yet!");
-    BattlegroundScriptTemplate const* scriptTemplate = sBattlegroundMgr->FindBattlegroundScriptTemplate(GetId(), GetBG()->GetTypeID());
 
-    if (!scriptTemplate)
-    {
-        if (IsBattleArena())
-            _battlegroundScript = new ArenaScript(this);
-        else
-            _battlegroundScript = new BattlegroundScript(this);
-    }
-    else
+    if (BattlegroundScriptTemplate const* scriptTemplate = sBattlegroundMgr->FindBattlegroundScriptTemplate(GetId(), GetBG()->GetTypeID()))
     {
         _scriptId = scriptTemplate->ScriptId;
-        _battlegroundScript = sScriptMgr->CreateBattlegroundData(this);
-        // Make sure every battleground has a default script
-        if (!_battlegroundScript)
-        {
-            if (IsBattleArena())
-                _battlegroundScript = new ArenaScript(this);
-            else
-                _battlegroundScript = new BattlegroundScript(this);
-        }
+        _battlegroundScript.reset(sScriptMgr->CreateBattlegroundData(this));
+    }
+
+    // Make sure every battleground has a default script
+    if (!_battlegroundScript)
+    {
+        if (IsBattleArena())
+            _battlegroundScript = std::make_unique<ArenaScript>(this);
+        else
+            _battlegroundScript = std::make_unique<BattlegroundScript>(this);
     }
 
     _battlegroundScript->OnInit();

@@ -29,7 +29,6 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "strand_of_the_ancients.h"
-#include "UpdateData.h"
 #include "VehicleDefines.h"
 #include "WorldStateMgr.h"
 
@@ -46,138 +45,138 @@ enum BG_SA_Status
 enum BG_SA_GateState
 {
     // alliance is defender
-    BG_SA_ALLIANCE_GATE_OK = 1,
-    BG_SA_ALLIANCE_GATE_DAMAGED = 2,
-    BG_SA_ALLIANCE_GATE_DESTROYED = 3,
+    BG_SA_ALLIANCE_GATE_OK          = 1,
+    BG_SA_ALLIANCE_GATE_DAMAGED     = 2,
+    BG_SA_ALLIANCE_GATE_DESTROYED   = 3,
     // horde is defender
-    BG_SA_HORDE_GATE_OK = 4,
-    BG_SA_HORDE_GATE_DAMAGED = 5,
-    BG_SA_HORDE_GATE_DESTROYED = 6,
+    BG_SA_HORDE_GATE_OK             = 4,
+    BG_SA_HORDE_GATE_DAMAGED        = 5,
+    BG_SA_HORDE_GATE_DESTROYED      = 6,
 };
 
 enum StrandOfTheAncientsGameObjects
 {
-    GO_SEAFORIUM_BOMB_H = 194086, // Used by horde players
-    GO_SEAFORIUM_BOMB_A = 190753, // Used by alliance players
-    GO_SEAFORIUM_CHARGE_H = 257572,
-    GO_SEAFORIUM_CHARGE_A = 257565,
+    GO_SEAFORIUM_BOMB_H             = 194086, // Used by horde players
+    GO_SEAFORIUM_BOMB_A             = 190753, // Used by alliance players
+    GO_SEAFORIUM_CHARGE_H           = 257572,
+    GO_SEAFORIUM_CHARGE_A           = 257565,
 
-    GO_GRAVEYARD_WEST_H = 191307,
-    GO_GRAVEYARD_WEST_A = 191308,
+    GO_GRAVEYARD_WEST_H             = 191307,
+    GO_GRAVEYARD_WEST_A             = 191308,
 
-    GO_GRAVEYARD_EAST_H = 191305,
-    GO_GRAVEYARD_EAST_A = 191306,
+    GO_GRAVEYARD_EAST_H             = 191305,
+    GO_GRAVEYARD_EAST_A             = 191306,
 
-    GO_GRAVEYARD_CENTRAL_H = 191309,
-    GO_GRAVEYARD_CENTRAL_A = 191310,
+    GO_GRAVEYARD_CENTRAL_H          = 191309,
+    GO_GRAVEYARD_CENTRAL_A          = 191310,
 
-    GO_COLLISION_DOOR = 194162,
-    GO_TITAN_RELIC_A = 194083,
-    GO_TITAN_RELIC_H = 194082,
+    GO_COLLISION_DOOR               = 194162,
+    GO_TITAN_RELIC_A                = 194083,
+    GO_TITAN_RELIC_H                = 194082,
 
-    GO_GATE_OF_THE_GREEN_EMERALD = 190722,
-    GO_GATE_OF_THE_PURPLE_AMETHYST = 190723,
-    GO_GATE_OF_THE_BLUE_SAPPHIRE = 190724,
-    GO_GATE_OF_THE_RED_SUN = 190726,
-    GO_GATE_OF_THE_YELLOW_MOON = 190727,
-    GO_CHAMBER_OF_ANCIENT_RELICS = 192549
+    GO_GATE_OF_THE_GREEN_EMERALD    = 190722,
+    GO_GATE_OF_THE_PURPLE_AMETHYST  = 190723,
+    GO_GATE_OF_THE_BLUE_SAPPHIRE    = 190724,
+    GO_GATE_OF_THE_RED_SUN          = 190726,
+    GO_GATE_OF_THE_YELLOW_MOON      = 190727,
+    GO_CHAMBER_OF_ANCIENT_RELICS    = 192549
 };
 
 enum BG_SA_Timers
 {
-    BG_SA_BOAT_START = 60 * IN_MILLISECONDS,
-    BG_SA_WARMUPLENGTH = 120 * IN_MILLISECONDS,
-    BG_SA_ROUNDLENGTH = 600 * IN_MILLISECONDS
+    BG_SA_BOAT_START                = 60 * IN_MILLISECONDS,
+    BG_SA_WARMUPLENGTH              = 120 * IN_MILLISECONDS,
+    BG_SA_ROUNDLENGTH               = 600 * IN_MILLISECONDS
 };
 
 enum SASounds
 {
-    SOUND_GRAVEYARD_TAKEN_HORDE = 8174,
-    SOUND_GRAVEYARD_TAKEN_ALLIANCE = 8212,
-    SOUND_DEFEAT_HORDE = 15905,
-    SOUND_VICTORY_HORDE = 15906,
-    SOUND_VICTORY_ALLIANCE = 15907,
-    SOUND_DEFEAT_ALLIANCE = 15908,
-    SOUND_WALL_DESTROYED_ALLIANCE = 15909,
-    SOUND_WALL_DESTROYED_HORDE = 15910,
-    SOUND_WALL_ATTACKED_HORDE = 15911,
-    SOUND_WALL_ATTACKED_ALLIANCE = 15912
+    SOUND_GRAVEYARD_TAKEN_HORDE     = 8174,
+    SOUND_GRAVEYARD_TAKEN_ALLIANCE  = 8212,
+    SOUND_DEFEAT_HORDE              = 15905,
+    SOUND_VICTORY_HORDE             = 15906,
+    SOUND_VICTORY_ALLIANCE          = 15907,
+    SOUND_DEFEAT_ALLIANCE           = 15908,
+    SOUND_WALL_DESTROYED_ALLIANCE   = 15909,
+    SOUND_WALL_DESTROYED_HORDE      = 15910,
+    SOUND_WALL_ATTACKED_HORDE       = 15911,
+    SOUND_WALL_ATTACKED_ALLIANCE    = 15912
 };
 
 enum SATexts
 {
     // Kanrethad
-    TEXT_ROUND_STARTED = 1,
-    TEXT_ROUND_1_FINISHED = 2,
+    TEXT_ROUND_STARTED              = 1,
+    TEXT_ROUND_1_FINISHED           = 2,
 
     // Rigger Sparklight / Gorgril Rigspark
-    TEXT_SPARKLIGHT_RIGSPARK_SPAWN = 1,
+    TEXT_SPARKLIGHT_RIGSPARK_SPAWN  = 1,
 
     // World Trigger
-    TEXT_BLUE_GATE_UNDER_ATTACK = 1,
-    TEXT_GREEN_GATE_UNDER_ATTACK = 2,
-    TEXT_RED_GATE_UNDER_ATTACK = 3,
-    TEXT_PURPLE_GATE_UNDER_ATTACK = 4,
-    TEXT_YELLOW_GATE_UNDER_ATTACK = 5,
-    TEXT_YELLOW_GATE_DESTROYED = 6,
-    TEXT_PURPLE_GATE_DESTROYED = 7,
-    TEXT_RED_GATE_DESTROYED = 8,
-    TEXT_GREEN_GATE_DESTROYED = 9,
-    TEXT_BLUE_GATE_DESTROYED = 10,
-    TEXT_EAST_GRAVEYARD_CAPTURED_A = 11,
-    TEXT_WEST_GRAVEYARD_CAPTURED_A = 12,
+    TEXT_BLUE_GATE_UNDER_ATTACK     = 1,
+    TEXT_GREEN_GATE_UNDER_ATTACK    = 2,
+    TEXT_RED_GATE_UNDER_ATTACK      = 3,
+    TEXT_PURPLE_GATE_UNDER_ATTACK   = 4,
+    TEXT_YELLOW_GATE_UNDER_ATTACK   = 5,
+    TEXT_YELLOW_GATE_DESTROYED      = 6,
+    TEXT_PURPLE_GATE_DESTROYED      = 7,
+    TEXT_RED_GATE_DESTROYED         = 8,
+    TEXT_GREEN_GATE_DESTROYED       = 9,
+    TEXT_BLUE_GATE_DESTROYED        = 10,
+    TEXT_EAST_GRAVEYARD_CAPTURED_A  = 11,
+    TEXT_WEST_GRAVEYARD_CAPTURED_A  = 12,
     TEXT_SOUTH_GRAVEYARD_CAPTURED_A = 13,
-    TEXT_EAST_GRAVEYARD_CAPTURED_H = 14,
-    TEXT_WEST_GRAVEYARD_CAPTURED_H = 15,
+    TEXT_EAST_GRAVEYARD_CAPTURED_H  = 14,
+    TEXT_WEST_GRAVEYARD_CAPTURED_H  = 15,
     TEXT_SOUTH_GRAVEYARD_CAPTURED_H = 16,
-    TEXT_ANCIENT_GATE_UNDER_ATTACK = 17,
-    TEXT_ANCIENT_GATE_DESTROYED = 18
+    TEXT_ANCIENT_GATE_UNDER_ATTACK  = 17,
+    TEXT_ANCIENT_GATE_DESTROYED     = 18
 };
 
 enum SAWorldStates
 {
-    BG_SA_TIMER = 3557,
-    BG_SA_ALLY_ATTACKS = 4352,
-    BG_SA_HORDE_ATTACKS = 4353,
-    BG_SA_PURPLE_GATEWS = 3614,
-    BG_SA_RED_GATEWS = 3617,
-    BG_SA_BLUE_GATEWS = 3620,
-    BG_SA_GREEN_GATEWS = 3623,
-    BG_SA_YELLOW_GATEWS = 3638,
-    BG_SA_ANCIENT_GATEWS = 3849,
+    BG_SA_TIMER                         = 3557,
+    BG_SA_ALLY_ATTACKS                  = 4352,
+    BG_SA_HORDE_ATTACKS                 = 4353,
+    BG_SA_PURPLE_GATEWS                 = 3614,
+    BG_SA_RED_GATEWS                    = 3617,
+    BG_SA_BLUE_GATEWS                   = 3620,
+    BG_SA_GREEN_GATEWS                  = 3623,
+    BG_SA_YELLOW_GATEWS                 = 3638,
+    BG_SA_ANCIENT_GATEWS                = 3849,
 
-    BG_SA_LEFT_GY_ALLIANCE = 3635,
-    BG_SA_RIGHT_GY_ALLIANCE = 3636,
-    BG_SA_CENTER_GY_ALLIANCE = 3637,
+    BG_SA_LEFT_GY_ALLIANCE              = 3635,
+    BG_SA_RIGHT_GY_ALLIANCE             = 3636,
+    BG_SA_CENTER_GY_ALLIANCE            = 3637,
 
-    BG_SA_RIGHT_ATT_TOKEN_ALL = 3627,
-    BG_SA_LEFT_ATT_TOKEN_ALL = 3626,
-    BG_SA_LEFT_ATT_TOKEN_HRD = 3629,
-    BG_SA_RIGHT_ATT_TOKEN_HRD = 3628,
-    BG_SA_HORDE_DEFENCE_TOKEN = 3631,
-    BG_SA_ALLIANCE_DEFENCE_TOKEN = 3630,
+    BG_SA_RIGHT_ATT_TOKEN_ALL           = 3627,
+    BG_SA_LEFT_ATT_TOKEN_ALL            = 3626,
+    BG_SA_LEFT_ATT_TOKEN_HRD            = 3629,
+    BG_SA_RIGHT_ATT_TOKEN_HRD           = 3628,
+    BG_SA_HORDE_DEFENCE_TOKEN           = 3631,
+    BG_SA_ALLIANCE_DEFENCE_TOKEN        = 3630,
 
-    BG_SA_RIGHT_GY_HORDE = 3632,
-    BG_SA_LEFT_GY_HORDE = 3633,
-    BG_SA_CENTER_GY_HORDE = 3634,
+    BG_SA_RIGHT_GY_HORDE                = 3632,
+    BG_SA_LEFT_GY_HORDE                 = 3633,
+    BG_SA_CENTER_GY_HORDE               = 3634,
 
-    BG_SA_BONUS_TIMER = 3571,
+    BG_SA_BONUS_TIMER                   = 3571,
 
-    BG_SA_ENABLE_TIMER = 3564,
-    BG_SA_ATTACKER_TEAM = 3690,
-    BG_SA_DESTROYED_ALLIANCE_VEHICLES = 3955,
-    BG_SA_DESTROYED_HORDE_VEHICLES = 3956,
+    BG_SA_ENABLE_TIMER                  = 3564,
+    BG_SA_ATTACKER_TEAM                 = 3690,
+    BG_SA_DESTROYED_ALLIANCE_VEHICLES   = 3955,
+    BG_SA_DESTROYED_HORDE_VEHICLES      = 3956,
 };
 
 enum BG_SA_Boat
 {
-    BG_SA_BOAT_ONE_A = 208000,
-    BG_SA_BOAT_TWO_H = 208001,
-    BG_SA_BOAT_ONE_H = 193184,
-    BG_SA_BOAT_TWO_A = 193185
+    BG_SA_BOAT_ONE_A    = 208000,
+    BG_SA_BOAT_TWO_H    = 208001,
+    BG_SA_BOAT_ONE_H    = 193184,
+    BG_SA_BOAT_TWO_A    = 193185
 };
 
-uint32 const BG_SA_Factions[2] =
+static constexpr uint32 BG_SA_Factions[2] =
 {
     1732,
     1735,
@@ -192,11 +191,11 @@ enum class StrandOfTheAncientsGraveyard
 
 enum BG_SA_BroadcastTexts
 {
-    BG_SA_TEXT_ALLIANCE_CAPTURED_TITAN_PORTAL = 28944,
-    BG_SA_TEXT_HORDE_CAPTURED_TITAN_PORTAL = 28945,
+    BG_SA_TEXT_ALLIANCE_CAPTURED_TITAN_PORTAL   = 28944,
+    BG_SA_TEXT_HORDE_CAPTURED_TITAN_PORTAL      = 28945,
 
-    BG_SA_TEXT_ROUND_TWO_START_ONE_MINUTE = 29448,
-    BG_SA_TEXT_ROUND_TWO_START_HALF_MINUTE = 29449
+    BG_SA_TEXT_ROUND_TWO_START_ONE_MINUTE       = 29448,
+    BG_SA_TEXT_ROUND_TWO_START_HALF_MINUTE      = 29449
 };
 
 enum class DefenseLine
@@ -234,37 +233,37 @@ struct BG_SA_RoundScore
 
 enum StrandOfTheAncientsPvpStats
 {
-    PVP_STAT_GATES_DESTROYED = 231,
-    PVP_STAT_DEMOLISHERS_DESTROYED = 232
+    PVP_STAT_GATES_DESTROYED        = 231,
+    PVP_STAT_DEMOLISHERS_DESTROYED  = 232
 };
 
 enum StrandOfTheAncientsEvents
 {
-    EVENT_HORDE_ASSAULT_STARTED = 21702,
-    EVENT_ALLIANCE_ASSAULT_STARTED = 23748,
-    EVENT_TITAN_RELIC_ACTIVATED = 20572
+    EVENT_HORDE_ASSAULT_STARTED     = 21702,
+    EVENT_ALLIANCE_ASSAULT_STARTED  = 23748,
+    EVENT_TITAN_RELIC_ACTIVATED     = 20572
 };
 
 enum StrandOfTheAncientsCreatures
 {
-    NPC_KANRETHAD = 29,
-    NPC_DEMOLISHER = 28781,
-    NPC_ANTIPERSONNEL_CANNON = 27894,
-    NPC_RIGGER_SPARKLIGHT = 29260,
-    NPC_GORGRIL_RIGSPARK = 29262,
-    NPC_WORLD_TRIGGER = 22515,
-    NPC_DEMOLISHER_SA = 28781
+    NPC_KANRETHAD                   = 29,
+    NPC_DEMOLISHER                  = 28781,
+    NPC_ANTIPERSONNEL_CANNON        = 27894,
+    NPC_RIGGER_SPARKLIGHT           = 29260,
+    NPC_GORGRIL_RIGSPARK            = 29262,
+    NPC_WORLD_TRIGGER               = 22515,
+    NPC_DEMOLISHER_SA               = 28781
 };
 
 enum StrandOfTheAncientsSpawnPositions
 {
-    SPAWN_DEFENDERS = 1399
+    SPAWN_DEFENDERS                 = 1399
 };
 
 enum StrandOfTheAncientsData
 {
-    DATA_ATTACKERS = 1,
-    DATA_STATUS = 2
+    DATA_ATTACKERS                  = 1,
+    DATA_STATUS                     = 2
 };
 
 enum StrandOfTheAncientSpells
@@ -278,7 +277,7 @@ enum StrandOfTheAncientSpells
     SPELL_CARRYING_SEAFORIUM_CHARGE = 52415
 };
 
-Position const spawnPositionOnTransport[] =
+static constexpr Position spawnPositionOnTransport[] =
 {
     { 0.0f, 5.0f, 9.6f, 3.14f },
     { -6.0f, -3.0f, 8.6f, 0.0f }
@@ -499,16 +498,8 @@ struct battleground_strand_of_the_ancients : BattlegroundScript
 
                 // make sure every player knows the transport exists & is moving
                 for (auto const& [playerGuid, _] : battleground->GetPlayers())
-                {
-                    if (Player const* player = ObjectAccessor::FindPlayer(playerGuid))
-                    {
-                        UpdateData data(player->GetMapId());
-                        WorldPacket pkt;
-                        boat->BuildValuesUpdateBlockForPlayer(&data, player);
-                        data.BuildPacket(&pkt);
-                        player->SendDirectMessage(&pkt);
-                    }
-                }
+                    if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+                        boat->SendUpdateToPlayer(player);
             }
         }
 
@@ -729,7 +720,7 @@ struct battleground_strand_of_the_ancients : BattlegroundScript
         }
     }
 
-    void TitanRelicActivated(Player* clicker)
+    void TitanRelicActivated(Player const* clicker)
     {
         if (!clicker)
             return;
@@ -802,26 +793,9 @@ struct battleground_strand_of_the_ancients : BattlegroundScript
 
     void SendTransportInit(Player* player) const
     {
-        UpdateData transData(player->GetMapId());
         for (ObjectGuid const& boatGuid : _boatGUIDs[_attackers])
-            if (GameObject const* boat = battlegroundMap->GetGameObject(boatGuid))
-                boat->BuildCreateUpdateBlockForPlayer(&transData, player);
-
-        WorldPacket packet;
-        transData.BuildPacket(&packet);
-        player->SendDirectMessage(&packet);
-    }
-
-    void SendTransportsRemove(Player* player) const
-    {
-        UpdateData transData(player->GetMapId());
-        for (ObjectGuid const& boatGuid : _boatGUIDs[_attackers])
-            if (GameObject const* boat = battlegroundMap->GetGameObject(boatGuid))
-                boat->BuildOutOfRangeUpdateBlock(&transData);
-
-        WorldPacket packet;
-        transData.BuildPacket(&packet);
-        player->SendDirectMessage(&packet);
+            if (GameObject* boat = battlegroundMap->GetGameObject(boatGuid))
+                boat->SendUpdateToPlayer(player);
     }
 
     bool IsGateDestroyed(GateInfo const* gateInfo) const
@@ -833,7 +807,7 @@ struct battleground_strand_of_the_ancients : BattlegroundScript
         return value == BG_SA_ALLIANCE_GATE_DESTROYED || value == BG_SA_HORDE_GATE_DESTROYED;
     }
 
-    void HandleCaptureGraveyardAction(GameObject* graveyardBanner, Player* player)
+    void HandleCaptureGraveyardAction(GameObject const* graveyardBanner, Player const* player)
     {
         if (!graveyardBanner || !player)
             return;
@@ -862,7 +836,7 @@ struct battleground_strand_of_the_ancients : BattlegroundScript
         }
     }
 
-    void MakeObjectsInteractable(DefenseLine defenseLine)
+    void MakeObjectsInteractable(DefenseLine defenseLine) const
     {
         auto makeInteractable = [&](ObjectGuid const& guid) -> void
         {

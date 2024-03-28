@@ -20,7 +20,6 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerDataStore.h"
 #include "BattlePetMgr.h"
-#include "Battleground.h"
 #include "BattlegroundScript.h"
 #include "Containers.h"
 #include "ConversationDataStore.h"

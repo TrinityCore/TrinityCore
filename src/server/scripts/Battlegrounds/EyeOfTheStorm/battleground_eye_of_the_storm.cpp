@@ -30,145 +30,145 @@
 
 enum EyeOfTheStormWorldStates
 {
-    EY_ALLIANCE_RESOURCES = 1776,
-    EY_HORDE_RESOURCES = 1777,
-    EY_MAX_RESOURCES = 1780,
-    EY_ALLIANCE_BASE = 2752,
-    EY_HORDE_BASE = 2753,
-    DRAENEI_RUINS_HORDE_CONTROL = 2733,
-    DRAENEI_RUINS_ALLIANCE_CONTROL = 2732,
-    DRAENEI_RUINS_UNCONTROL = 2731,
-    MAGE_TOWER_ALLIANCE_CONTROL = 2730,
-    MAGE_TOWER_HORDE_CONTROL = 2729,
-    MAGE_TOWER_UNCONTROL = 2728,
-    FEL_REAVER_HORDE_CONTROL = 2727,
-    FEL_REAVER_ALLIANCE_CONTROL = 2726,
-    FEL_REAVER_UNCONTROL = 2725,
-    BLOOD_ELF_HORDE_CONTROL = 2724,
-    BLOOD_ELF_ALLIANCE_CONTROL = 2723,
-    BLOOD_ELF_UNCONTROL = 2722,
-    PROGRESS_BAR_PERCENT_GREY = 2720,                 //100 = empty (only grey), 0 = blue|red (no grey)
-    PROGRESS_BAR_STATUS = 2719,                 //50 init!, 48 ... hordak bere .. 33 .. 0 = full 100% hordacky, 100 = full alliance
-    PROGRESS_BAR_SHOW = 2718,                 //1 init, 0 druhy send - bez messagu, 1 = controlled aliance
-    NETHERSTORM_FLAG = 8863,
+    EY_ALLIANCE_RESOURCES                   = 1776,
+    EY_HORDE_RESOURCES                      = 1777,
+    EY_MAX_RESOURCES                        = 1780,
+    EY_ALLIANCE_BASE                        = 2752,
+    EY_HORDE_BASE                           = 2753,
+    DRAENEI_RUINS_HORDE_CONTROL             = 2733,
+    DRAENEI_RUINS_ALLIANCE_CONTROL          = 2732,
+    DRAENEI_RUINS_UNCONTROL                 = 2731,
+    MAGE_TOWER_ALLIANCE_CONTROL             = 2730,
+    MAGE_TOWER_HORDE_CONTROL                = 2729,
+    MAGE_TOWER_UNCONTROL                    = 2728,
+    FEL_REAVER_HORDE_CONTROL                = 2727,
+    FEL_REAVER_ALLIANCE_CONTROL             = 2726,
+    FEL_REAVER_UNCONTROL                    = 2725,
+    BLOOD_ELF_HORDE_CONTROL                 = 2724,
+    BLOOD_ELF_ALLIANCE_CONTROL              = 2723,
+    BLOOD_ELF_UNCONTROL                     = 2722,
+    PROGRESS_BAR_PERCENT_GREY               = 2720,                 //100 = empty (only grey), 0 = blue|red (no grey)
+    PROGRESS_BAR_STATUS                     = 2719,                 //50 init!, 48 ... hordak bere .. 33 .. 0 = full 100% hordacky, 100 = full alliance
+    PROGRESS_BAR_SHOW                       = 2718,                 //1 init, 0 druhy send - bez messagu, 1 = controlled aliance
+    NETHERSTORM_FLAG                        = 8863,
     //set to 2 when flag is picked up, and to 1 if it is dropped
-    NETHERSTORM_FLAG_STATE_ALLIANCE = 9808,
-    NETHERSTORM_FLAG_STATE_HORDE = 9809,
+    NETHERSTORM_FLAG_STATE_ALLIANCE         = 9808,
+    NETHERSTORM_FLAG_STATE_HORDE            = 9809,
 
-    DRAENEI_RUINS_HORDE_CONTROL_STATE = 17362,
-    DRAENEI_RUINS_ALLIANCE_CONTROL_STATE = 17366,
-    MAGE_TOWER_HORDE_CONTROL_STATE = 17361,
-    MAGE_TOWER_ALLIANCE_CONTROL_STATE = 17368,
-    FEL_REAVER_HORDE_CONTROL_STATE = 17364,
-    FEL_REAVER_ALLIANCE_CONTROL_STATE = 17367,
-    BLOOD_ELF_HORDE_CONTROL_STATE = 17363,
-    BLOOD_ELF_ALLIANCE_CONTROL_STATE = 17365,
+    DRAENEI_RUINS_HORDE_CONTROL_STATE       = 17362,
+    DRAENEI_RUINS_ALLIANCE_CONTROL_STATE    = 17366,
+    MAGE_TOWER_HORDE_CONTROL_STATE          = 17361,
+    MAGE_TOWER_ALLIANCE_CONTROL_STATE       = 17368,
+    FEL_REAVER_HORDE_CONTROL_STATE          = 17364,
+    FEL_REAVER_ALLIANCE_CONTROL_STATE       = 17367,
+    BLOOD_ELF_HORDE_CONTROL_STATE           = 17363,
+    BLOOD_ELF_ALLIANCE_CONTROL_STATE        = 17365,
 };
 
 enum EyeOfTheStormSounds
 {
     //strange ids, but sure about them
-    BG_EY_SOUND_FLAG_PICKED_UP_ALLIANCE = 8212,
-    BG_EY_SOUND_FLAG_CAPTURED_HORDE = 8213,
-    BG_EY_SOUND_FLAG_PICKED_UP_HORDE = 8174,
-    BG_EY_SOUND_FLAG_CAPTURED_ALLIANCE = 8173,
-    BG_EY_SOUND_FLAG_RESET = 8192
+    BG_EY_SOUND_FLAG_PICKED_UP_ALLIANCE     = 8212,
+    BG_EY_SOUND_FLAG_CAPTURED_HORDE         = 8213,
+    BG_EY_SOUND_FLAG_PICKED_UP_HORDE        = 8174,
+    BG_EY_SOUND_FLAG_CAPTURED_ALLIANCE      = 8173,
+    BG_EY_SOUND_FLAG_RESET                  = 8192
 };
 
 enum EyeOfTheStormSpells
 {
-    BG_EY_NETHERSTORM_FLAG_SPELL = 34976,
-    BG_EY_PLAYER_DROPPED_FLAG_SPELL = 34991,
+    BG_EY_NETHERSTORM_FLAG_SPELL            = 34976,
+    BG_EY_PLAYER_DROPPED_FLAG_SPELL         = 34991,
 
     // Focused/Brutal Assault
-    BG_EY_FOCUSED_ASSAULT_SPELL = 46392,
-    BG_EY_BRUTAL_ASSAULT_SPELL = 46393
+    BG_EY_FOCUSED_ASSAULT_SPELL             = 46392,
+    BG_EY_BRUTAL_ASSAULT_SPELL              = 46393
 };
 
 enum EyeOfTheStormObjectEntry
 {
-    BG_OBJECT_A_DOOR_EY_ENTRY = 184719,           //Alliance door
-    BG_OBJECT_H_DOOR_EY_ENTRY = 184720,           //Horde door
-    BG_OBJECT_FLAG2_EY_ENTRY = 208977,           //Netherstorm flag (flagstand)
-    BG_OBJECT_BE_TOWER_CAP_EY_ENTRY = 184080,           //BE Tower Cap Pt
-    BG_OBJECT_FR_TOWER_CAP_EY_ENTRY = 184081,           //Fel Reaver Cap Pt
-    BG_OBJECT_HU_TOWER_CAP_EY_ENTRY = 184082,           //Human Tower Cap Pt
-    BG_OBJECT_DR_TOWER_CAP_EY_ENTRY = 184083,           //Draenei Tower Cap Pt
+    BG_OBJECT_A_DOOR_EY_ENTRY               = 184719,           //Alliance door
+    BG_OBJECT_H_DOOR_EY_ENTRY               = 184720,           //Horde door
+    BG_OBJECT_FLAG2_EY_ENTRY                = 208977,           //Netherstorm flag (flagstand)
+    BG_OBJECT_BE_TOWER_CAP_EY_ENTRY         = 184080,           //BE Tower Cap Pt
+    BG_OBJECT_FR_TOWER_CAP_EY_ENTRY         = 184081,           //Fel Reaver Cap Pt
+    BG_OBJECT_HU_TOWER_CAP_EY_ENTRY         = 184082,           //Human Tower Cap Pt
+    BG_OBJECT_DR_TOWER_CAP_EY_ENTRY         = 184083,           //Draenei Tower Cap Pt
 };
 
 enum EyeOfTheStormPointsTrigger
 {
-    AREATRIGGER_CAPTURE_FLAG = 33
+    AREATRIGGER_CAPTURE_FLAG                = 33
 };
 
 enum EyeOfTheStormPoints
 {
-    FEL_REAVER = 0,
-    BLOOD_ELF = 1,
-    DRAENEI_RUINS = 2,
-    MAGE_TOWER = 3,
+    FEL_REAVER                              = 0,
+    BLOOD_ELF                               = 1,
+    DRAENEI_RUINS                           = 2,
+    MAGE_TOWER                              = 3,
 
-    EY_PLAYERS_OUT_OF_POINTS = 4,
-    EY_POINTS_MAX = 4
+    EY_PLAYERS_OUT_OF_POINTS                = 4,
+    EY_POINTS_MAX                           = 4
 };
 
-#define BG_EY_NotEYWeekendHonorTicks    260
-#define BG_EY_EYWeekendHonorTicks       160
+constexpr uint32 BG_EY_NotEYWeekendHonorTicks = 260;
+constexpr uint32 BG_EY_EYWeekendHonorTicks = 160;
 
 enum BG_EY_Score
 {
-    BG_EY_WARNING_NEAR_VICTORY_SCORE = 1200,
-    BG_EY_MAX_TEAM_SCORE = 1500
+    BG_EY_WARNING_NEAR_VICTORY_SCORE        = 1200,
+    BG_EY_MAX_TEAM_SCORE                    = 1500
 };
 
 enum BG_EY_FlagState
 {
-    BG_EY_FLAG_STATE_ON_BASE = 0,
-    BG_EY_FLAG_STATE_WAIT_RESPAWN = 1,
-    BG_EY_FLAG_STATE_ON_PLAYER = 2,
-    BG_EY_FLAG_STATE_ON_GROUND = 3
+    BG_EY_FLAG_STATE_ON_BASE                = 0,
+    BG_EY_FLAG_STATE_WAIT_RESPAWN           = 1,
+    BG_EY_FLAG_STATE_ON_PLAYER              = 2,
+    BG_EY_FLAG_STATE_ON_GROUND              = 3
 };
 
 enum EYBattlegroundPointState
 {
-    EY_POINT_NO_OWNER = 0,
-    EY_POINT_STATE_UNCONTROLLED = 0,
-    EY_POINT_UNDER_CONTROL = 3
+    EY_POINT_NO_OWNER                       = 0,
+    EY_POINT_STATE_UNCONTROLLED             = 0,
+    EY_POINT_UNDER_CONTROL                  = 3
 };
 
 enum BG_EY_ExploitTeleportLocations
 {
-    EY_EXPLOIT_TELEPORT_LOCATION_ALLIANCE = 3773,
-    EY_EXPLOIT_TELEPORT_LOCATION_HORDE = 3772
+    EY_EXPLOIT_TELEPORT_LOCATION_ALLIANCE   = 3773,
+    EY_EXPLOIT_TELEPORT_LOCATION_HORDE      = 3772
 };
 
 enum EyeOFtheStormBroadcastTexts
 {
-    BG_EY_TEXT_ALLIANCE_TAKEN_FEL_REAVER_RUINS = 17828,
-    BG_EY_TEXT_HORDE_TAKEN_FEL_REAVER_RUINS = 17829,
-    BG_EY_TEXT_ALLIANCE_LOST_FEL_REAVER_RUINS = 91961,
-    BG_EY_TEXT_HORDE_LOST_FEL_REAVER_RUINS = 91962,
+    BG_EY_TEXT_ALLIANCE_TAKEN_FEL_REAVER_RUINS  = 17828,
+    BG_EY_TEXT_HORDE_TAKEN_FEL_REAVER_RUINS     = 17829,
+    BG_EY_TEXT_ALLIANCE_LOST_FEL_REAVER_RUINS   = 91961,
+    BG_EY_TEXT_HORDE_LOST_FEL_REAVER_RUINS      = 91962,
 
-    BG_EY_TEXT_ALLIANCE_TAKEN_BLOOD_ELF_TOWER = 17819,
-    BG_EY_TEXT_HORDE_TAKEN_BLOOD_ELF_TOWER = 17823,
-    BG_EY_TEXT_ALLIANCE_LOST_BLOOD_ELF_TOWER = 91957,
-    BG_EY_TEXT_HORDE_LOST_BLOOD_ELF_TOWER = 91958,
+    BG_EY_TEXT_ALLIANCE_TAKEN_BLOOD_ELF_TOWER   = 17819,
+    BG_EY_TEXT_HORDE_TAKEN_BLOOD_ELF_TOWER      = 17823,
+    BG_EY_TEXT_ALLIANCE_LOST_BLOOD_ELF_TOWER    = 91957,
+    BG_EY_TEXT_HORDE_LOST_BLOOD_ELF_TOWER       = 91958,
 
-    BG_EY_TEXT_ALLIANCE_TAKEN_DRAENEI_RUINS = 17827,
-    BG_EY_TEXT_HORDE_TAKEN_DRAENEI_RUINS = 91917,
-    BG_EY_TEXT_ALLIANCE_LOST_DRAENEI_RUINS = 91959,
-    BG_EY_TEXT_HORDE_LOST_DRAENEI_RUINS = 91960,
+    BG_EY_TEXT_ALLIANCE_TAKEN_DRAENEI_RUINS     = 17827,
+    BG_EY_TEXT_HORDE_TAKEN_DRAENEI_RUINS        = 91917,
+    BG_EY_TEXT_ALLIANCE_LOST_DRAENEI_RUINS      = 91959,
+    BG_EY_TEXT_HORDE_LOST_DRAENEI_RUINS         = 91960,
 
-    BG_EY_TEXT_ALLIANCE_TAKEN_MAGE_TOWER = 17824,
-    BG_EY_TEXT_HORDE_TAKEN_MAGE_TOWER = 17825,
-    BG_EY_TEXT_ALLIANCE_LOST_MAGE_TOWER = 91963,
-    BG_EY_TEXT_HORDE_LOST_MAGE_TOWER = 91964,
+    BG_EY_TEXT_ALLIANCE_TAKEN_MAGE_TOWER        = 17824,
+    BG_EY_TEXT_HORDE_TAKEN_MAGE_TOWER           = 17825,
+    BG_EY_TEXT_ALLIANCE_LOST_MAGE_TOWER         = 91963,
+    BG_EY_TEXT_HORDE_LOST_MAGE_TOWER            = 91964,
 
-    BG_EY_TEXT_TAKEN_FLAG = 18359,
-    BG_EY_TEXT_FLAG_DROPPED = 18361,
-    BG_EY_TEXT_FLAG_RESET = 18364,
-    BG_EY_TEXT_ALLIANCE_CAPTURED_FLAG = 18375,
-    BG_EY_TEXT_HORDE_CAPTURED_FLAG = 18384,
+    BG_EY_TEXT_TAKEN_FLAG                       = 18359,
+    BG_EY_TEXT_FLAG_DROPPED                     = 18361,
+    BG_EY_TEXT_FLAG_RESET                       = 18364,
+    BG_EY_TEXT_ALLIANCE_CAPTURED_FLAG           = 18375,
+    BG_EY_TEXT_HORDE_CAPTURED_FLAG              = 18384,
 };
 
 struct BattlegroundEYPointIconsStruct

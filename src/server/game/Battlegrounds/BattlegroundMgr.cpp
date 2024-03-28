@@ -283,13 +283,10 @@ void BattlegroundMgr::LoadBattlegroundScriptTemplate()
             continue;
         }
 
-        BattlegroundScriptTemplate scriptTemplate;
-
+        BattlegroundScriptTemplate& scriptTemplate = _battlegroundScriptTemplates[{ mapID, bgTypeId }];
         scriptTemplate.MapId = mapID;
         scriptTemplate.Id = bgTypeId;
         scriptTemplate.ScriptId = sObjectMgr->GetScriptId(fields[2].GetString());
-
-        _battlegroundScriptTemplates[{ mapID, bgTypeId }] = scriptTemplate;
 
         ++count;
     } while (result->NextRow());

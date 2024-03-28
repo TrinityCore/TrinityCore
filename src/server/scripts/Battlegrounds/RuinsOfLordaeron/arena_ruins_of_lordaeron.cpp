@@ -26,10 +26,10 @@ struct arena_ruins_of_lordaeron : ArenaScript
 {
     enum BattlegroundRLGameObjects
     {
-        BG_RL_OBJECT_TYPE_DOOR_1 = 185918,
-        BG_RL_OBJECT_TYPE_DOOR_2 = 185917,
-        BG_RL_OBJECT_TYPE_BUFF_1 = 184663,
-        BG_RL_OBJECT_TYPE_BUFF_2 = 184664
+        BG_RL_OBJECT_TYPE_DOOR_1    = 185918,
+        BG_RL_OBJECT_TYPE_DOOR_2    = 185917,
+        BG_RL_OBJECT_TYPE_BUFF_1    = 184663,
+        BG_RL_OBJECT_TYPE_BUFF_2    = 184664
     };
 
     explicit arena_ruins_of_lordaeron(BattlegroundMap* map) : ArenaScript(map) { }

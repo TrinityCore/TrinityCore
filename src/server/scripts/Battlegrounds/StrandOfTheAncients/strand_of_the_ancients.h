@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __STRAND_OF_THE_ANCIENTS_H
-#define __STRAND_OF_THE_ANCIENTS_H
+#ifndef TRINITYCORE_STRAND_OF_THE_ANCIENTS_H
+#define TRINITYCORE_STRAND_OF_THE_ANCIENTS_H
 
 enum StrandOfTheAncientSharedActions
 {

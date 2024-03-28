@@ -38,146 +38,146 @@ struct battleground_arathi_basin : BattlegroundScript
 
     enum PvpStats
     {
-        PVP_STAT_BASES_ASSAULTED = 926,
-        PVP_STAT_BASES_DEFENDED = 927,
+        PVP_STAT_BASES_ASSAULTED                    = 926,
+        PVP_STAT_BASES_DEFENDED                     = 927,
     };
 
     enum Events
     {
-        AB_EVENT_START_BATTLE = 9158, // Achievement: Let's Get This Done
+        AB_EVENT_START_BATTLE                       = 9158, // Achievement: Let's Get This Done
 
-        AB_EVENT_CONTESTED_STABLES_HORDE = 28523,
-        AB_EVENT_CAPTURE_STABLES_HORDE = 28527,
-        AB_EVENT_DEFENDED_STABLES_HORDE = 28525,
-        AB_EVENT_CONTESTED_STABLES_ALLIANCE = 28522,
-        AB_EVENT_CAPTURE_STABLES_ALLIANCE = 28526,
-        AB_EVENT_DEFENDED_STABLES_ALLIANCE = 28524,
+        AB_EVENT_CONTESTED_STABLES_HORDE            = 28523,
+        AB_EVENT_CAPTURE_STABLES_HORDE              = 28527,
+        AB_EVENT_DEFENDED_STABLES_HORDE             = 28525,
+        AB_EVENT_CONTESTED_STABLES_ALLIANCE         = 28522,
+        AB_EVENT_CAPTURE_STABLES_ALLIANCE           = 28526,
+        AB_EVENT_DEFENDED_STABLES_ALLIANCE          = 28524,
 
-        AB_EVENT_CONTESTED_BLACKSMITH_HORDE = 8876,
-        AB_EVENT_CAPTURE_BLACKSMITH_HORDE = 8773,
-        AB_EVENT_DEFENDED_BLACKSMITH_HORDE = 8770,
-        AB_EVENT_CONTESTED_BLACKSMITH_ALLIANCE = 8874,
-        AB_EVENT_CAPTURE_BLACKSMITH_ALLIANCE = 8769,
-        AB_EVENT_DEFENDED_BLACKSMITH_ALLIANCE = 8774,
+        AB_EVENT_CONTESTED_BLACKSMITH_HORDE         = 8876,
+        AB_EVENT_CAPTURE_BLACKSMITH_HORDE           = 8773,
+        AB_EVENT_DEFENDED_BLACKSMITH_HORDE          = 8770,
+        AB_EVENT_CONTESTED_BLACKSMITH_ALLIANCE      = 8874,
+        AB_EVENT_CAPTURE_BLACKSMITH_ALLIANCE        = 8769,
+        AB_EVENT_DEFENDED_BLACKSMITH_ALLIANCE       = 8774,
 
-        AB_EVENT_CONTESTED_FARM_HORDE = 39398,
-        AB_EVENT_CAPTURE_FARM_HORDE = 39399,
-        AB_EVENT_DEFENDED_FARM_HORDE = 39400,
-        AB_EVENT_CONTESTED_FARM_ALLIANCE = 39401,
-        AB_EVENT_CAPTURE_FARM_ALLIANCE = 39402,
-        AB_EVENT_DEFENDED_FARM_ALLIANCE = 39403,
+        AB_EVENT_CONTESTED_FARM_HORDE               = 39398,
+        AB_EVENT_CAPTURE_FARM_HORDE                 = 39399,
+        AB_EVENT_DEFENDED_FARM_HORDE                = 39400,
+        AB_EVENT_CONTESTED_FARM_ALLIANCE            = 39401,
+        AB_EVENT_CAPTURE_FARM_ALLIANCE              = 39402,
+        AB_EVENT_DEFENDED_FARM_ALLIANCE             = 39403,
 
-        AB_EVENT_CONTESTED_GOLD_MINE_HORDE = 39404,
-        AB_EVENT_CAPTURE_GOLD_MINE_HORDE = 39405,
-        AB_EVENT_DEFENDED_GOLD_MINE_HORDE = 39406,
-        AB_EVENT_CONTESTED_GOLD_MINE_ALLIANCE = 39407,
-        AB_EVENT_CAPTURE_GOLD_MINE_ALLIANCE = 39408,
-        AB_EVENT_DEFENDED_GOLD_MINE_ALLIANCE = 39409,
+        AB_EVENT_CONTESTED_GOLD_MINE_HORDE          = 39404,
+        AB_EVENT_CAPTURE_GOLD_MINE_HORDE            = 39405,
+        AB_EVENT_DEFENDED_GOLD_MINE_HORDE           = 39406,
+        AB_EVENT_CONTESTED_GOLD_MINE_ALLIANCE       = 39407,
+        AB_EVENT_CAPTURE_GOLD_MINE_ALLIANCE         = 39408,
+        AB_EVENT_DEFENDED_GOLD_MINE_ALLIANCE        = 39409,
 
-        AB_EVENT_CONTESTED_LUMBER_MILL_HORDE = 39387,
-        AB_EVENT_CAPTURE_LUMBER_MILL_HORDE = 39388,
-        AB_EVENT_DEFENDED_LUMBER_MILL_HORDE = 39389,
-        AB_EVENT_CONTESTED_LUMBER_MILL_ALLIANCE = 39390,
-        AB_EVENT_CAPTURE_LUMBER_MILL_ALLIANCE = 39391,
-        AB_EVENT_DEFENDED_LUMBER_MILL_ALLIANCE = 39392
+        AB_EVENT_CONTESTED_LUMBER_MILL_HORDE        = 39387,
+        AB_EVENT_CAPTURE_LUMBER_MILL_HORDE          = 39388,
+        AB_EVENT_DEFENDED_LUMBER_MILL_HORDE         = 39389,
+        AB_EVENT_CONTESTED_LUMBER_MILL_ALLIANCE     = 39390,
+        AB_EVENT_CAPTURE_LUMBER_MILL_ALLIANCE       = 39391,
+        AB_EVENT_DEFENDED_LUMBER_MILL_ALLIANCE      = 39392
     };
 
     enum Sounds
     {
-        BG_AB_SOUND_NODE_CLAIMED = 8192,
-        BG_AB_SOUND_NODE_CAPTURED_ALLIANCE = 8173,
-        BG_AB_SOUND_NODE_CAPTURED_HORDE = 8213,
-        BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE = 8212,
-        BG_AB_SOUND_NODE_ASSAULTED_HORDE = 8174,
-        BG_AB_SOUND_NEAR_VICTORY_ALLIANCE = 8456,
-        BG_AB_SOUND_NEAR_VICTORY_HORDE = 8457
+        BG_AB_SOUND_NODE_CLAIMED                    = 8192,
+        BG_AB_SOUND_NODE_CAPTURED_ALLIANCE          = 8173,
+        BG_AB_SOUND_NODE_CAPTURED_HORDE             = 8213,
+        BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE         = 8212,
+        BG_AB_SOUND_NODE_ASSAULTED_HORDE            = 8174,
+        BG_AB_SOUND_NEAR_VICTORY_ALLIANCE           = 8456,
+        BG_AB_SOUND_NEAR_VICTORY_HORDE              = 8457
     };
 
     enum BroadcastTexts
     {
-        BG_AB_TEXT_ALLIANCE_NEAR_VICTORY = 10598,
-        BG_AB_TEXT_HORDE_NEAR_VICTORY = 10599,
+        BG_AB_TEXT_ALLIANCE_NEAR_VICTORY            = 10598,
+        BG_AB_TEXT_HORDE_NEAR_VICTORY               = 10599,
     };
 
     enum Score
     {
-        BG_AB_WARNING_NEAR_VICTORY_SCORE = 1200,
-        BG_AB_MAX_TEAM_SCORE = 1500
+        BG_AB_WARNING_NEAR_VICTORY_SCORE            = 1200,
+        BG_AB_MAX_TEAM_SCORE                        = 1500
     };
 
     enum Creatures
     {
-        BG_AB_NPC_THE_BLACK_BRIDE = 150501,
-        BG_AB_NPC_RADULF_LEDER = 150505
+        BG_AB_NPC_THE_BLACK_BRIDE                   = 150501,
+        BG_AB_NPC_RADULF_LEDER                      = 150505
     };
 
     enum ObjectTypes
     {
-        BG_AB_OBJECTID_CAPTURE_POINT_STABLES = 227420,
-        BG_AB_OBJECTID_CAPTURE_POINT_BLACKSMITH = 227522,
-        BG_AB_OBJECTID_CAPTURE_POINT_FARM = 227536,
-        BG_AB_OBJECTID_CAPTURE_POINT_GOLD_MINE = 227538,
-        BG_AB_OBJECTID_CAPTURE_POINT_LUMBER_MILL = 227544,
+        BG_AB_OBJECTID_CAPTURE_POINT_STABLES        = 227420,
+        BG_AB_OBJECTID_CAPTURE_POINT_BLACKSMITH     = 227522,
+        BG_AB_OBJECTID_CAPTURE_POINT_FARM           = 227536,
+        BG_AB_OBJECTID_CAPTURE_POINT_GOLD_MINE      = 227538,
+        BG_AB_OBJECTID_CAPTURE_POINT_LUMBER_MILL    = 227544,
 
-        BG_AB_OBJECTID_GHOST_GATE = 180322,
-        BG_AB_OBJECTID_ALLIANCE_DOOR = 322273,
-        BG_AB_OBJECTID_HORDE_DOOR = 322274
+        BG_AB_OBJECTID_GHOST_GATE                   = 180322,
+        BG_AB_OBJECTID_ALLIANCE_DOOR                = 322273,
+        BG_AB_OBJECTID_HORDE_DOOR                   = 322274
     };
 
     enum WorldStates
     {
-        BG_AB_WS_OCCUPIED_BASES_HORDE = 1778,
-        BG_AB_WS_OCCUPIED_BASES_ALLY = 1779,
-        BG_AB_WS_RESOURCES_ALLY = 1776,
-        BG_AB_WS_RESOURCES_HORDE = 1777,
-        BG_AB_WS_RESOURCES_MAX = 1780,
-        BG_AB_WS_RESOURCES_WARNING = 1955,
+        BG_AB_WS_OCCUPIED_BASES_HORDE               = 1778,
+        BG_AB_WS_OCCUPIED_BASES_ALLY                = 1779,
+        BG_AB_WS_RESOURCES_ALLY                     = 1776,
+        BG_AB_WS_RESOURCES_HORDE                    = 1777,
+        BG_AB_WS_RESOURCES_MAX                      = 1780,
+        BG_AB_WS_RESOURCES_WARNING                  = 1955,
 
-        BG_AB_WS_STABLE_ICON = 1842,             // Stable map icon (NONE)
-        BG_AB_WS_STABLE_STATE_ALIENCE = 1767,             // Stable map state (ALIENCE)
-        BG_AB_WS_STABLE_STATE_HORDE = 1768,             // Stable map state (HORDE)
-        BG_AB_WS_STABLE_STATE_CON_ALI = 1769,             // Stable map state (CON ALIENCE)
-        BG_AB_WS_STABLE_STATE_CON_HOR = 1770,             // Stable map state (CON HORDE)
-        BG_AB_WS_FARM_ICON = 1845,             // Farm map icon (NONE)
-        BG_AB_WS_FARM_STATE_ALIENCE = 1772,             // Farm state (ALIENCE)
-        BG_AB_WS_FARM_STATE_HORDE = 1773,             // Farm state (HORDE)
-        BG_AB_WS_FARM_STATE_CON_ALI = 1774,             // Farm state (CON ALIENCE)
-        BG_AB_WS_FARM_STATE_CON_HOR = 1775,             // Farm state (CON HORDE)
-        BG_AB_WS_BLACKSMITH_ICON = 1846,             // Blacksmith map icon (NONE)
-        BG_AB_WS_BLACKSMITH_STATE_ALIENCE = 1782,             // Blacksmith map state (ALIENCE)
-        BG_AB_WS_BLACKSMITH_STATE_HORDE = 1783,             // Blacksmith map state (HORDE)
-        BG_AB_WS_BLACKSMITH_STATE_CON_ALI = 1784,             // Blacksmith map state (CON ALIENCE)
-        BG_AB_WS_BLACKSMITH_STATE_CON_HOR = 1785,             // Blacksmith map state (CON HORDE)
-        BG_AB_WS_LUMBERMILL_ICON = 1844,             // Lumber Mill map icon (NONE)
-        BG_AB_WS_LUMBERMILL_STATE_ALIENCE = 1792,             // Lumber Mill map state (ALIENCE)
-        BG_AB_WS_LUMBERMILL_STATE_HORDE = 1793,             // Lumber Mill map state (HORDE)
-        BG_AB_WS_LUMBERMILL_STATE_CON_ALI = 1794,             // Lumber Mill map state (CON ALIENCE)
-        BG_AB_WS_LUMBERMILL_STATE_CON_HOR = 1795,             // Lumber Mill map state (CON HORDE)
-        BG_AB_WS_GOLDMINE_ICON = 1843,             // Gold Mine map icon (NONE)
-        BG_AB_WS_GOLDMINE_STATE_ALIENCE = 1787,             // Gold Mine map state (ALIENCE)
-        BG_AB_WS_GOLDMINE_STATE_HORDE = 1788,             // Gold Mine map state (HORDE)
-        BG_AB_WS_GOLDMINE_STATE_CON_ALI = 1789,             // Gold Mine map state (CON ALIENCE
-        BG_AB_WS_GOLDMINE_STATE_CON_HOR = 1790,             // Gold Mine map state (CON HORDE)
+        BG_AB_WS_STABLE_ICON                        = 1842,             // Stable map icon (NONE)
+        BG_AB_WS_STABLE_STATE_ALIENCE               = 1767,             // Stable map state (ALIENCE)
+        BG_AB_WS_STABLE_STATE_HORDE                 = 1768,             // Stable map state (HORDE)
+        BG_AB_WS_STABLE_STATE_CON_ALI               = 1769,             // Stable map state (CON ALIENCE)
+        BG_AB_WS_STABLE_STATE_CON_HOR               = 1770,             // Stable map state (CON HORDE)
+        BG_AB_WS_FARM_ICON                          = 1845,             // Farm map icon (NONE)
+        BG_AB_WS_FARM_STATE_ALIENCE                 = 1772,             // Farm state (ALIENCE)
+        BG_AB_WS_FARM_STATE_HORDE                   = 1773,             // Farm state (HORDE)
+        BG_AB_WS_FARM_STATE_CON_ALI                 = 1774,             // Farm state (CON ALIENCE)
+        BG_AB_WS_FARM_STATE_CON_HOR                 = 1775,             // Farm state (CON HORDE)
+        BG_AB_WS_BLACKSMITH_ICON                    = 1846,             // Blacksmith map icon (NONE)
+        BG_AB_WS_BLACKSMITH_STATE_ALIENCE           = 1782,             // Blacksmith map state (ALIENCE)
+        BG_AB_WS_BLACKSMITH_STATE_HORDE             = 1783,             // Blacksmith map state (HORDE)
+        BG_AB_WS_BLACKSMITH_STATE_CON_ALI           = 1784,             // Blacksmith map state (CON ALIENCE)
+        BG_AB_WS_BLACKSMITH_STATE_CON_HOR           = 1785,             // Blacksmith map state (CON HORDE)
+        BG_AB_WS_LUMBERMILL_ICON                    = 1844,             // Lumber Mill map icon (NONE)
+        BG_AB_WS_LUMBERMILL_STATE_ALIENCE           = 1792,             // Lumber Mill map state (ALIENCE)
+        BG_AB_WS_LUMBERMILL_STATE_HORDE             = 1793,             // Lumber Mill map state (HORDE)
+        BG_AB_WS_LUMBERMILL_STATE_CON_ALI           = 1794,             // Lumber Mill map state (CON ALIENCE)
+        BG_AB_WS_LUMBERMILL_STATE_CON_HOR           = 1795,             // Lumber Mill map state (CON HORDE)
+        BG_AB_WS_GOLDMINE_ICON                      = 1843,             // Gold Mine map icon (NONE)
+        BG_AB_WS_GOLDMINE_STATE_ALIENCE             = 1787,             // Gold Mine map state (ALIENCE)
+        BG_AB_WS_GOLDMINE_STATE_HORDE               = 1788,             // Gold Mine map state (HORDE)
+        BG_AB_WS_GOLDMINE_STATE_CON_ALI             = 1789,             // Gold Mine map state (CON ALIENCE
+        BG_AB_WS_GOLDMINE_STATE_CON_HOR             = 1790,             // Gold Mine map state (CON HORDE)
 
-        BG_AB_WS_HAD_500_DISADVANTAGE_ALLIANCE = 3644,
-        BG_AB_WS_HAD_500_DISADVANTAGE_HORDE = 3645,
+        BG_AB_WS_HAD_500_DISADVANTAGE_ALLIANCE      = 3644,
+        BG_AB_WS_HAD_500_DISADVANTAGE_HORDE         = 3645,
 
-        BG_AB_WS_FARM_ICON_NEW = 8808,             // Farm map icon
-        BG_AB_WS_LUMBER_MILL_ICON_NEW = 8805,             // Lumber Mill map icon
-        BG_AB_WS_BLACKSMITH_ICON_NEW = 8799,             // Blacksmith map icon
-        BG_AB_WS_GOLD_MINE_ICON_NEW = 8809,             // Gold Mine map icon
-        BG_AB_WS_STABLES_ICON_NEW = 5834,             // Stable map icon
+        BG_AB_WS_FARM_ICON_NEW                      = 8808,             // Farm map icon
+        BG_AB_WS_LUMBER_MILL_ICON_NEW               = 8805,             // Lumber Mill map icon
+        BG_AB_WS_BLACKSMITH_ICON_NEW                = 8799,             // Blacksmith map icon
+        BG_AB_WS_GOLD_MINE_ICON_NEW                 = 8809,             // Gold Mine map icon
+        BG_AB_WS_STABLES_ICON_NEW                   = 5834,             // Stable map icon
 
-        BG_AB_WS_FARM_HORDE_CONTROL_STATE = 17328,
-        BG_AB_WS_FARM_ALLIANCE_CONTROL_STATE = 17325,
-        BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE = 17330,
+        BG_AB_WS_FARM_HORDE_CONTROL_STATE           = 17328,
+        BG_AB_WS_FARM_ALLIANCE_CONTROL_STATE        = 17325,
+        BG_AB_WS_LUMBER_MILL_HORDE_CONTROL_STATE    = 17330,
         BG_AB_WS_LUMBER_MILL_ALLIANCE_CONTROL_STATE = 17326,
-        BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE = 17327,
-        BG_AB_WS_BLACKSMITH_ALLIANCE_CONTROL_STATE = 17324,
-        BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE = 17329,
-        BG_AB_WS_GOLD_MINE_ALLIANCE_CONTROL_STATE = 17323,
-        BG_AB_WS_STABLES_HORDE_CONTROL_STATE = 17331,
-        BG_AB_WS_STABLES_ALLIANCE_CONTROL_STATE = 17322,
+        BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE     = 17327,
+        BG_AB_WS_BLACKSMITH_ALLIANCE_CONTROL_STATE  = 17324,
+        BG_AB_WS_GOLD_MINE_HORDE_CONTROL_STATE      = 17329,
+        BG_AB_WS_GOLD_MINE_ALLIANCE_CONTROL_STATE   = 17323,
+        BG_AB_WS_STABLES_HORDE_CONTROL_STATE        = 17331,
+        BG_AB_WS_STABLES_ALLIANCE_CONTROL_STATE     = 17322,
     };
 
     explicit battleground_arathi_basin(BattlegroundMap* map) : BattlegroundScript(map), _lastTick(0), _isInformedNearVictory(false)

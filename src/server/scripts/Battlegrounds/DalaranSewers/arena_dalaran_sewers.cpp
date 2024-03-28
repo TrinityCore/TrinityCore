@@ -31,43 +31,43 @@ struct arena_dalaran_sewers : ArenaScript
 {
     enum GameObjects
     {
-        BG_DS_OBJECT_TYPE_DOOR_1    = 192642,
-        BG_DS_OBJECT_TYPE_DOOR_2    = 192643,
-        BG_DS_OBJECT_TYPE_WATER_1   = 194395, // Collision
-        BG_DS_OBJECT_TYPE_WATER_2   = 191877,
-        BG_DS_OBJECT_TYPE_BUFF_1    = 184663,
-        BG_DS_OBJECT_TYPE_BUFF_2    = 184664
+        BG_DS_OBJECT_TYPE_DOOR_1        = 192642,
+        BG_DS_OBJECT_TYPE_DOOR_2        = 192643,
+        BG_DS_OBJECT_TYPE_WATER_1       = 194395, // Collision
+        BG_DS_OBJECT_TYPE_WATER_2       = 191877,
+        BG_DS_OBJECT_TYPE_BUFF_1        = 184663,
+        BG_DS_OBJECT_TYPE_BUFF_2        = 184664
     };
 
     enum Events
     {
-        BG_DS_EVENT_WATERFALL_WARNING = 1, // Water starting to fall, but no LoS Blocking nor movement blocking
-        BG_DS_EVENT_WATERFALL_ON = 2, // LoS and Movement blocking active
-        BG_DS_EVENT_WATERFALL_OFF = 3,
+        BG_DS_EVENT_WATERFALL_WARNING   = 1, // Water starting to fall, but no LoS Blocking nor movement blocking
+        BG_DS_EVENT_WATERFALL_ON        = 2, // LoS and Movement blocking active
+        BG_DS_EVENT_WATERFALL_OFF       = 3,
         BG_DS_EVENT_WATERFALL_KNOCKBACK = 4,
 
-        BG_DS_EVENT_PIPE_KNOCKBACK = 5
+        BG_DS_EVENT_PIPE_KNOCKBACK      = 5
     };
 
     enum Creatures
     {
-        BG_DS_NPC_TYPE_WATER_SPOUT = 28567
+        BG_DS_NPC_TYPE_WATER_SPOUT      = 28567
     };
 
     enum Spells
     {
-        BG_DS_SPELL_FLUSH = 57405, // Visual and target selector for the starting knockback from the pipe
-        BG_DS_SPELL_FLUSH_KNOCKBACK = 61698, // Knockback effect for previous spell (triggered, not needed to be cast)
-        BG_DS_SPELL_WATER_SPOUT = 58873, // Knockback effect of the central waterfall
+        BG_DS_SPELL_FLUSH               = 57405, // Visual and target selector for the starting knockback from the pipe
+        BG_DS_SPELL_FLUSH_KNOCKBACK     = 61698, // Knockback effect for previous spell (triggered, not needed to be cast)
+        BG_DS_SPELL_WATER_SPOUT         = 58873, // Knockback effect of the central waterfall
 
-        SPELL_WARL_DEMONIC_CIRCLE = 48018  // Demonic Circle Summon
+        SPELL_WARL_DEMONIC_CIRCLE       = 48018  // Demonic Circle Summon
     };
 
     enum Data
     {
         // These values are NOT blizzlike... need the correct data!
-        BG_DS_PIPE_KNOCKBACK_FIRST_DELAY = 5000,
-        BG_DS_PIPE_KNOCKBACK_DELAY = 3000
+        BG_DS_PIPE_KNOCKBACK_FIRST_DELAY    = 5000,
+        BG_DS_PIPE_KNOCKBACK_DELAY          = 3000
     };
 
     // These values are NOT blizzlike... need the correct data!
@@ -121,10 +121,12 @@ struct arena_dalaran_sewers : ArenaScript
                         waterSpout->CastSpell(waterSpout, BG_DS_SPELL_WATER_SPOUT, true);
                     _events.ScheduleEvent(eventId, BG_DS_WATERFALL_KNOCKBACK_TIMER);
                     break;
-            case BG_DS_EVENT_PIPE_KNOCKBACK:
+                case BG_DS_EVENT_PIPE_KNOCKBACK:
                     for (ObjectGuid const& guid : _pipeCreatureGUIDs)
                         if (Creature* waterSpout = battlegroundMap->GetCreature(guid))
                             waterSpout->CastSpell(waterSpout, BG_DS_SPELL_FLUSH, true);
+                    break;
+                default:
                     break;
             }
         }
@@ -235,7 +237,7 @@ public:
                 return;
 
             // Remove effects of Demonic Circle Summon
-            player->RemoveAurasDueToSpell(arena_dalaran_sewers::Spells::SPELL_WARL_DEMONIC_CIRCLE);
+            player->RemoveAurasDueToSpell(arena_dalaran_sewers::SPELL_WARL_DEMONIC_CIRCLE);
 
             // Someone has get back into the pipes and the knockback has already been performed,
             // so we reset the knockback count for kicking the player again into the arena.

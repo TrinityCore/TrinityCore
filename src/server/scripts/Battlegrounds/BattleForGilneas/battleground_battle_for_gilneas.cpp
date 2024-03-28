@@ -22,8 +22,8 @@ struct battleground_battle_for_gilneas : BattlegroundScript
 {
     enum PvpStats : uint32
     {
-        BFG_OBJECTIVE_BASES_ASSAULTED = 370,
-        BFG_OBJECTIVE_BASES_DEFENDED = 371
+        BFG_OBJECTIVE_BASES_ASSAULTED               = 370,
+        BFG_OBJECTIVE_BASES_DEFENDED                = 371
     };
 
     explicit battleground_battle_for_gilneas(BattlegroundMap* map) : BattlegroundScript(map) { }
