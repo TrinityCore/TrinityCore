@@ -2,7 +2,7 @@ version: 2
 jobs:
   codestyle_and_sql:
     docker:
-      - image: trinitycore/circle-ci:master-base-22.04
+      - image: trinitycore/circle-ci:cata_classic-base-22.04
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -31,20 +31,20 @@ jobs:
             dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
             mysql -h 127.0.0.1 -uroot < sql/create/create_mysql.sql
             mysql -h 127.0.0.1 -uroot auth < sql/base/auth_database.sql
-            ./contrib/check_updates.sh auth master auth 127.0.0.1
+            ./contrib/check_updates.sh auth cata_classic auth 127.0.0.1
             mysql -h 127.0.0.1 -uroot characters < sql/base/characters_database.sql
-            ./contrib/check_updates.sh characters master characters 127.0.0.1
+            ./contrib/check_updates.sh characters cata_classic characters 127.0.0.1
             echo "Importing world database structure"
             mysql -h 127.0.0.1 -uroot world < sql/base/dev/world_database.sql
             echo "Importing hotfixes database structure"
             mysql -h 127.0.0.1 -uroot hotfixes < sql/base/dev/hotfixes_database.sql
             echo "Importing world database updates"
-            cat sql/updates/world/master/*.sql | mysql -h 127.0.0.1 -uroot world
+            cat sql/updates/world/cata_classic/*.sql | mysql -h 127.0.0.1 -uroot world
             echo "Importing hotfixes database updates"
-            cat sql/updates/hotfixes/master/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
+            cat sql/updates/hotfixes/cata_classic/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
   pch:
     docker:
-      - image: trinitycore/circle-ci:master-base-22.04
+      - image: trinitycore/circle-ci:cata_classic-base-22.04
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -93,7 +93,7 @@ jobs:
             docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:$(echo $CIRCLE_BRANCH | tr '/' '-' | tr '[:upper:]' '[:lower:]') .
             docker save $image_prefix | gzip > ../../docker.tar.gz
             if [ "$DOCKERHUB_PUSH_IMAGES" == "TRUE" ]; then
-              if [ "$CIRCLE_BRANCH" == "3.3.5" ] || [ "$CIRCLE_BRANCH" == "master" ] || [ "$CIRCLE_BRANCH" == "wotlk_classic" ]; then
+              if [ "$CIRCLE_BRANCH" == "3.3.5" ] || [ "$CIRCLE_BRANCH" == "master" ] || [ "$CIRCLE_BRANCH" == "wotlk_classic" ] || [ "$CIRCLE_BRANCH" == "cata_classic" ]; then
                 docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
                 echo "Pushing docker image to dockerhub"
                 docker push --all-tags $image_prefix
@@ -103,7 +103,7 @@ jobs:
           path: docker.tar.gz
   nopch:
     docker:
-      - image: trinitycore/circle-ci:master-base-22.04
+      - image: trinitycore/circle-ci:cata_classic-base-22.04
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -119,9 +119,9 @@ jobs:
             /scripts/checkout.sh
       - restore_cache:
           keys:
-            - master-nopch-{{ .Branch }}-{{ .Revision }}
-            - master-nopch-{{ .Branch }}
-            - master-nopch-master
+            - cata_classic-nopch-{{ .Branch }}-{{ .Revision }}
+            - cata_classic-nopch-{{ .Branch }}
+            - cata_classic-nopch-cata_classic
       - run:
           name: Setup
           command: |
@@ -150,7 +150,7 @@ jobs:
             ./bnetserver --version
             ./worldserver --version
       - save_cache:
-          key: master-nopch-{{ .Branch }}-{{ .Revision }}
+          key: cata_classic-nopch-{{ .Branch }}-{{ .Revision }}
           paths:
             - /home/circleci/.ccache
 workflows:
