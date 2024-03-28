@@ -108,52 +108,24 @@ TC_API_EXPORT EnumText EnumUtils<QuestPushReason>::ToString(QuestPushReason valu
     {
         case QuestPushReason::Success: return { "Success", "Success", "\042Sharing quest with %s...\042" };
         case QuestPushReason::Invalid: return { "Invalid", "Invalid", "\042%s is not eligible for that quest\042" };
-        case QuestPushReason::InvalidToRecipient: return { "InvalidToRecipient", "InvalidToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You are not eligible for that quest.\042" };
         case QuestPushReason::Accepted: return { "Accepted", "Accepted", "\042%s has accepted your quest\042" };
         case QuestPushReason::Declined: return { "Declined", "Declined", "\042%s has declined your quest\042" };
         case QuestPushReason::Busy: return { "Busy", "Busy", "\042%s is busy\042" };
         case QuestPushReason::Dead: return { "Dead", "Dead", "\042%s is dead.\042" };
-        case QuestPushReason::DeadToRecipient: return { "DeadToRecipient", "DeadToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You are dead.\042" };
         case QuestPushReason::LogFull: return { "LogFull", "LogFull", "\042%s's quest log is full\042" };
-        case QuestPushReason::LogFullToRecipient: return { "LogFullToRecipient", "LogFullToRecipient", "\042%s's attempt to share quest \042%s\042 failed. Your quest log is full.\042" };
         case QuestPushReason::OnQuest: return { "OnQuest", "OnQuest", "\042%s is already on that quest\042" };
-        case QuestPushReason::OnQuestToRecipient: return { "OnQuestToRecipient", "OnQuestToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You are already on that quest.\042" };
         case QuestPushReason::AlreadyDone: return { "AlreadyDone", "AlreadyDone", "\042%s has completed that quest\042" };
-        case QuestPushReason::AlreadyDoneToRecipient: return { "AlreadyDoneToRecipient", "AlreadyDoneToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You have completed that quest.\042" };
         case QuestPushReason::NotDaily: return { "NotDaily", "NotDaily", "\042That quest cannot be shared today\042" };
         case QuestPushReason::TimerExpired: return { "TimerExpired", "TimerExpired", "\042Quest sharing timer has expired\042" };
         case QuestPushReason::NotInParty: return { "NotInParty", "NotInParty", "\042You are not in a party\042" };
         case QuestPushReason::DifferentServerDaily: return { "DifferentServerDaily", "DifferentServerDaily", "\042%s is not eligible for that quest today\042" };
-        case QuestPushReason::DifferentServerDailyToRecipient: return { "DifferentServerDailyToRecipient", "DifferentServerDailyToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You are not eligible for that quest today.\042" };
         case QuestPushReason::NotAllowed: return { "NotAllowed", "NotAllowed", "\042That quest cannot be shared\042" };
-        case QuestPushReason::Prerequisite: return { "Prerequisite", "Prerequisite", "\042%s hasn't completed all of the prerequisite quests required for that quest.\042" };
-        case QuestPushReason::PrerequisiteToRecipient: return { "PrerequisiteToRecipient", "PrerequisiteToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You must complete all of the prerequisite quests first.\042" };
-        case QuestPushReason::LowLevel: return { "LowLevel", "LowLevel", "\042%s is too low level for that quest.\042" };
-        case QuestPushReason::LowLevelToRecipient: return { "LowLevelToRecipient", "LowLevelToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You are too low level for that quest.\042" };
-        case QuestPushReason::HighLevel: return { "HighLevel", "HighLevel", "\042%s is too high level for that quest.\042" };
-        case QuestPushReason::HighLevelToRecipient: return { "HighLevelToRecipient", "HighLevelToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You are too high level for that quest.\042" };
-        case QuestPushReason::Class: return { "Class", "Class", "\042%s is the wrong class for that quest.\042" };
-        case QuestPushReason::ClassToRecipient: return { "ClassToRecipient", "ClassToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You are the wrong class for that quest.\042" };
-        case QuestPushReason::Race: return { "Race", "Race", "\042%s is the wrong race for that quest.\042" };
-        case QuestPushReason::RaceToRecipient: return { "RaceToRecipient", "RaceToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You are the wrong race for that quest.\042" };
-        case QuestPushReason::LowFaction: return { "LowFaction", "LowFaction", "\042%s's reputation is too low for that quest.\042" };
-        case QuestPushReason::LowFactionToRecipient: return { "LowFactionToRecipient", "LowFactionToRecipient", "\042%s's attempt to share quest \042%s\042 failed. Your reputation is too low for that quest.\042" };
-        case QuestPushReason::Expansion: return { "Expansion", "Expansion", "\042%s doesn't own the required expansion for that quest.\042" };
-        case QuestPushReason::ExpansionToRecipient: return { "ExpansionToRecipient", "ExpansionToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You do not own the required expansion for that quest.\042" };
-        case QuestPushReason::NotGarrisonOwner: return { "NotGarrisonOwner", "NotGarrisonOwner", "\042%s must own a garrison to accept that quest.\042" };
-        case QuestPushReason::NotGarrisonOwnerToRecipient: return { "NotGarrisonOwnerToRecipient", "NotGarrisonOwnerToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You must own a garrison to accept that quest.\042" };
-        case QuestPushReason::WrongCovenant: return { "WrongCovenant", "WrongCovenant", "\042%s is in the wrong covenant for that quest.\042" };
-        case QuestPushReason::WrongCovenantToRecipient: return { "WrongCovenantToRecipient", "WrongCovenantToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You are in the wrong covenant for that quest.\042" };
-        case QuestPushReason::NewPlayerExperience: return { "NewPlayerExperience", "NewPlayerExperience", "\042%s must complete Exile's Reach to accept that quest.\042" };
-        case QuestPushReason::NewPlayerExperienceToRecipient: return { "NewPlayerExperienceToRecipient", "NewPlayerExperienceToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You must complete Exile's Reach to accept that quest.\042" };
-        case QuestPushReason::WrongFaction: return { "WrongFaction", "WrongFaction", "\042%s is the wrong faction for that quest.\042" };
-        case QuestPushReason::WrongFactionToRecipient: return { "WrongFactionToRecipient", "WrongFactionToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You are the wrong faction for that quest.\042" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<QuestPushReason>::Count() { return 42; }
+TC_API_EXPORT size_t EnumUtils<QuestPushReason>::Count() { return 15; }
 
 template <>
 TC_API_EXPORT QuestPushReason EnumUtils<QuestPushReason>::FromIndex(size_t index)
@@ -162,46 +134,19 @@ TC_API_EXPORT QuestPushReason EnumUtils<QuestPushReason>::FromIndex(size_t index
     {
         case 0: return QuestPushReason::Success;
         case 1: return QuestPushReason::Invalid;
-        case 2: return QuestPushReason::InvalidToRecipient;
-        case 3: return QuestPushReason::Accepted;
-        case 4: return QuestPushReason::Declined;
+        case 2: return QuestPushReason::Accepted;
+        case 3: return QuestPushReason::Declined;
+        case 4: return QuestPushReason::TooFar;
         case 5: return QuestPushReason::Busy;
         case 6: return QuestPushReason::Dead;
-        case 7: return QuestPushReason::DeadToRecipient;
-        case 8: return QuestPushReason::LogFull;
-        case 9: return QuestPushReason::LogFullToRecipient;
-        case 10: return QuestPushReason::OnQuest;
-        case 11: return QuestPushReason::OnQuestToRecipient;
-        case 12: return QuestPushReason::AlreadyDone;
-        case 13: return QuestPushReason::AlreadyDoneToRecipient;
-        case 14: return QuestPushReason::NotDaily;
-        case 15: return QuestPushReason::TimerExpired;
-        case 16: return QuestPushReason::NotInParty;
-        case 17: return QuestPushReason::DifferentServerDaily;
-        case 18: return QuestPushReason::DifferentServerDailyToRecipient;
-        case 19: return QuestPushReason::NotAllowed;
-        case 20: return QuestPushReason::Prerequisite;
-        case 21: return QuestPushReason::PrerequisiteToRecipient;
-        case 22: return QuestPushReason::LowLevel;
-        case 23: return QuestPushReason::LowLevelToRecipient;
-        case 24: return QuestPushReason::HighLevel;
-        case 25: return QuestPushReason::HighLevelToRecipient;
-        case 26: return QuestPushReason::Class;
-        case 27: return QuestPushReason::ClassToRecipient;
-        case 28: return QuestPushReason::Race;
-        case 29: return QuestPushReason::RaceToRecipient;
-        case 30: return QuestPushReason::LowFaction;
-        case 31: return QuestPushReason::LowFactionToRecipient;
-        case 32: return QuestPushReason::Expansion;
-        case 33: return QuestPushReason::ExpansionToRecipient;
-        case 34: return QuestPushReason::NotGarrisonOwner;
-        case 35: return QuestPushReason::NotGarrisonOwnerToRecipient;
-        case 36: return QuestPushReason::WrongCovenant;
-        case 37: return QuestPushReason::WrongCovenantToRecipient;
-        case 38: return QuestPushReason::NewPlayerExperience;
-        case 39: return QuestPushReason::NewPlayerExperienceToRecipient;
-        case 40: return QuestPushReason::WrongFaction;
-        case 41: return QuestPushReason::WrongFactionToRecipient;
+        case 7: return QuestPushReason::LogFull;
+        case 8: return QuestPushReason::OnQuest;
+        case 9: return QuestPushReason::AlreadyDone;
+        case 10: return QuestPushReason::NotDaily;
+        case 11: return QuestPushReason::TimerExpired;
+        case 12: return QuestPushReason::NotInParty;
+        case 13: return QuestPushReason::DifferentServerDaily;
+        case 14: return QuestPushReason::NotAllowed;
         default: throw std::out_of_range("index");
     }
 }
@@ -213,46 +158,19 @@ TC_API_EXPORT size_t EnumUtils<QuestPushReason>::ToIndex(QuestPushReason value)
     {
         case QuestPushReason::Success: return 0;
         case QuestPushReason::Invalid: return 1;
-        case QuestPushReason::InvalidToRecipient: return 2;
-        case QuestPushReason::Accepted: return 3;
-        case QuestPushReason::Declined: return 4;
+        case QuestPushReason::Accepted: return 2;
+        case QuestPushReason::Declined: return 3;
+        case QuestPushReason::TooFar: return 4;
         case QuestPushReason::Busy: return 5;
         case QuestPushReason::Dead: return 6;
-        case QuestPushReason::DeadToRecipient: return 7;
-        case QuestPushReason::LogFull: return 8;
-        case QuestPushReason::LogFullToRecipient: return 9;
-        case QuestPushReason::OnQuest: return 10;
-        case QuestPushReason::OnQuestToRecipient: return 11;
-        case QuestPushReason::AlreadyDone: return 12;
-        case QuestPushReason::AlreadyDoneToRecipient: return 13;
-        case QuestPushReason::NotDaily: return 14;
-        case QuestPushReason::TimerExpired: return 15;
-        case QuestPushReason::NotInParty: return 16;
-        case QuestPushReason::DifferentServerDaily: return 17;
-        case QuestPushReason::DifferentServerDailyToRecipient: return 18;
-        case QuestPushReason::NotAllowed: return 19;
-        case QuestPushReason::Prerequisite: return 20;
-        case QuestPushReason::PrerequisiteToRecipient: return 21;
-        case QuestPushReason::LowLevel: return 22;
-        case QuestPushReason::LowLevelToRecipient: return 23;
-        case QuestPushReason::HighLevel: return 24;
-        case QuestPushReason::HighLevelToRecipient: return 25;
-        case QuestPushReason::Class: return 26;
-        case QuestPushReason::ClassToRecipient: return 27;
-        case QuestPushReason::Race: return 28;
-        case QuestPushReason::RaceToRecipient: return 29;
-        case QuestPushReason::LowFaction: return 30;
-        case QuestPushReason::LowFactionToRecipient: return 31;
-        case QuestPushReason::Expansion: return 32;
-        case QuestPushReason::ExpansionToRecipient: return 33;
-        case QuestPushReason::NotGarrisonOwner: return 34;
-        case QuestPushReason::NotGarrisonOwnerToRecipient: return 35;
-        case QuestPushReason::WrongCovenant: return 36;
-        case QuestPushReason::WrongCovenantToRecipient: return 37;
-        case QuestPushReason::NewPlayerExperience: return 38;
-        case QuestPushReason::NewPlayerExperienceToRecipient: return 39;
-        case QuestPushReason::WrongFaction: return 40;
-        case QuestPushReason::WrongFactionToRecipient: return 41;
+        case QuestPushReason::LogFull: return 7;
+        case QuestPushReason::OnQuest: return 8;
+        case QuestPushReason::AlreadyDone: return 9;
+        case QuestPushReason::NotDaily: return 10;
+        case QuestPushReason::TimerExpired: return 11;
+        case QuestPushReason::NotInParty: return 12;
+        case QuestPushReason::DifferentServerDaily: return 13;
+        case QuestPushReason::NotAllowed: return 14;
         default: throw std::out_of_range("value");
     }
 }

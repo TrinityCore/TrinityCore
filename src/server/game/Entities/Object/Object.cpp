@@ -468,7 +468,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         bool hasMoveCurveID         = createProperties && createProperties->MoveCurveId != 0;
         bool hasAreaTriggerSphere   = shape.IsSphere();
         bool hasAreaTriggerBox      = shape.IsBox();
-        bool hasAreaTriggerPolygon  = createProperties && shape.IsPolygon();
+        bool hasAreaTriggerPolygon  = shape.IsPolygon();
         bool hasAreaTriggerCylinder = shape.IsCylinder();
         bool hasDisk                = shape.IsDisk();
         bool hasBoundedPlane        = shape.IsBoundedPlane();

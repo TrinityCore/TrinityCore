@@ -625,7 +625,6 @@ void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty&
         if (!receiver->IsAlive())
         {
             sender->SendPushToPartyResponse(receiver, QuestPushReason::Dead);
-            receiver->SendPushToPartyResponse(sender, QuestPushReason::DeadToRecipient, quest);
             continue;
         }
 
@@ -634,14 +633,12 @@ void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty&
             case QUEST_STATUS_REWARDED:
             {
                 sender->SendPushToPartyResponse(receiver, QuestPushReason::AlreadyDone);
-                receiver->SendPushToPartyResponse(sender, QuestPushReason::AlreadyDoneToRecipient, quest);
                 continue;
             }
             case QUEST_STATUS_INCOMPLETE:
             case QUEST_STATUS_COMPLETE:
             {
                 sender->SendPushToPartyResponse(receiver, QuestPushReason::OnQuest);
-                receiver->SendPushToPartyResponse(sender, QuestPushReason::OnQuestToRecipient, quest);
                 continue;
             }
             default:
@@ -651,70 +648,18 @@ void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty&
         if (!receiver->SatisfyQuestLog(false))
         {
             sender->SendPushToPartyResponse(receiver, QuestPushReason::LogFull);
-            receiver->SendPushToPartyResponse(sender, QuestPushReason::LogFullToRecipient, quest);
             continue;
         }
 
         if (!receiver->SatisfyQuestDay(quest, false))
         {
             sender->SendPushToPartyResponse(receiver, QuestPushReason::AlreadyDone);
-            receiver->SendPushToPartyResponse(sender, QuestPushReason::AlreadyDoneToRecipient, quest);
-            continue;
-        }
-
-        if (!receiver->SatisfyQuestMinLevel(quest, false))
-        {
-            sender->SendPushToPartyResponse(receiver, QuestPushReason::LowLevel);
-            receiver->SendPushToPartyResponse(sender, QuestPushReason::LowLevelToRecipient, quest);
-            continue;
-        }
-
-        if (!receiver->SatisfyQuestMaxLevel(quest, false))
-        {
-            sender->SendPushToPartyResponse(receiver, QuestPushReason::HighLevel);
-            receiver->SendPushToPartyResponse(sender, QuestPushReason::HighLevelToRecipient, quest);
-            continue;
-        }
-
-        if (!receiver->SatisfyQuestClass(quest, false))
-        {
-            sender->SendPushToPartyResponse(receiver, QuestPushReason::Class);
-            receiver->SendPushToPartyResponse(sender, QuestPushReason::ClassToRecipient, quest);
-            continue;
-        }
-
-        if (!receiver->SatisfyQuestRace(quest, false))
-        {
-            sender->SendPushToPartyResponse(receiver, QuestPushReason::Race);
-            receiver->SendPushToPartyResponse(sender, QuestPushReason::RaceToRecipient, quest);
-            continue;
-        }
-
-        if (!receiver->SatisfyQuestReputation(quest, false))
-        {
-            sender->SendPushToPartyResponse(receiver, QuestPushReason::LowFaction);
-            receiver->SendPushToPartyResponse(sender, QuestPushReason::LowFactionToRecipient, quest);
-            continue;
-        }
-
-        if (!receiver->SatisfyQuestDependentQuests(quest, false))
-        {
-            sender->SendPushToPartyResponse(receiver, QuestPushReason::Prerequisite);
-            receiver->SendPushToPartyResponse(sender, QuestPushReason::PrerequisiteToRecipient, quest);
-            continue;
-        }
-
-        if (!receiver->SatisfyQuestExpansion(quest, false))
-        {
-            sender->SendPushToPartyResponse(receiver, QuestPushReason::Expansion);
-            receiver->SendPushToPartyResponse(sender, QuestPushReason::ExpansionToRecipient, quest);
             continue;
         }
 
         if (!receiver->CanTakeQuest(quest, false))
         {
             sender->SendPushToPartyResponse(receiver, QuestPushReason::Invalid);
-            receiver->SendPushToPartyResponse(sender, QuestPushReason::InvalidToRecipient, quest);
             continue;
         }
 

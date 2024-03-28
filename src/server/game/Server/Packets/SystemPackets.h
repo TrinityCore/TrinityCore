@@ -195,6 +195,7 @@ namespace WorldPackets
             bool IsExpansionPreorderInStore          = false; // NYI
             bool KioskModeEnabled                    = false; // NYI
             bool CompetitiveModeEnabled              = false; // NYI
+            bool IsBoostEnabled                      = false; // classic only
             bool TrialBoostEnabled                   = false; // NYI
             bool TokenBalanceEnabled                 = false; // NYI
             bool LiveRegionCharacterListEnabled      = false; // NYI
@@ -207,7 +208,7 @@ namespace WorldPackets
             bool Unused1000                          = false;
             bool AccountSaveDataExportEnabled        = false;
             bool AccountLockedByExport               = false;
-            bool IsNameReservationEnabled            = false; // NYI
+            bool IsNameReservationEnabled            = false; // NYI classic only
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 TokenPollTimeSeconds              = 0;     // NYI
@@ -227,7 +228,7 @@ namespace WorldPackets
             Optional<int32> LaunchETA;
             std::vector<DebugTimeEventInfo> DebugTimeEvents;
             int32 Unused1007                         = 0;
-            int32 Unused440                          = 0;
+            uint32 EventRealmQueues                  = 0;
             Optional<std::string> RealmHiddenAlert;
         };
 
