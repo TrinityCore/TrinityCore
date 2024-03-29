@@ -1112,7 +1112,7 @@ void MotionMaster::MoveDistract(uint32 timer, float orientation)
     Add(new DistractMovementGenerator(timer, orientation));
 }
 
-void MotionMaster::MovePath(uint32 pathId, bool repeatable, Optional<Milliseconds> duration, Optional<float> speed,
+void MotionMaster::MovePath(uint32 pathId, bool repeatable, Optional<Milliseconds> duration,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
     Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath)
 {
@@ -1121,17 +1121,17 @@ void MotionMaster::MovePath(uint32 pathId, bool repeatable, Optional<Millisecond
 
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MovePath: '{}', starts moving over path Id: {} (repeatable: {})",
         _owner->GetGUID().ToString(), pathId, repeatable ? "YES" : "NO");
-    Add(new WaypointMovementGenerator<Creature>(pathId, repeatable, duration, speed, speedSelectionMode, waitTimeRangeAtPathEnd,
+    Add(new WaypointMovementGenerator<Creature>(pathId, repeatable, duration, speedSelectionMode, waitTimeRangeAtPathEnd,
         wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, generatePath), MOTION_SLOT_DEFAULT);
 }
 
-void MotionMaster::MovePath(WaypointPath const& path, bool repeatable, Optional<Milliseconds> duration, Optional<float> speed,
+void MotionMaster::MovePath(WaypointPath const& path, bool repeatable, Optional<Milliseconds> duration,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
     Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MovePath: '{}', starts moving over path Id: {} (repeatable: {})",
         _owner->GetGUID().ToString(), path.Id, repeatable ? "YES" : "NO");
-    Add(new WaypointMovementGenerator<Creature>(path, repeatable, duration, speed, speedSelectionMode, waitTimeRangeAtPathEnd,
+    Add(new WaypointMovementGenerator<Creature>(path, repeatable, duration, speedSelectionMode, waitTimeRangeAtPathEnd,
         wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, generatePath), MOTION_SLOT_DEFAULT);
 }
 

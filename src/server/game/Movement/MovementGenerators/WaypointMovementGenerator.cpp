@@ -28,11 +28,11 @@
 #include "WaypointManager.h"
 #include <sstream>
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
     Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath)
     : _nextMoveTime(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true),
-    _speed(speed), _speedSelectionMode(speedSelectionMode), _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)),
+    _speedSelectionMode(speedSelectionMode), _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)),
     _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds), _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _isReturningToStart(false),
     _generatePath(generatePath)
 {
@@ -44,11 +44,11 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bo
         _duration.emplace(*duration);
 }
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath const& path, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath const& path, bool repeating, Optional<Milliseconds> duration,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
     Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath)
     : _nextMoveTime(0), _pathId(0), _repeating(repeating), _loadedFromDB(false),
-    _speed(speed), _speedSelectionMode(speedSelectionMode), _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)),
+    _speedSelectionMode(speedSelectionMode), _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)),
     _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds), _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _isReturningToStart(false),
     _generatePath(generatePath)
 {
@@ -417,8 +417,8 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
             break;
     }
 
-    if (_speed)
-        init.SetVelocity(*_speed);
+    if (GetPath()->Velocity)
+        init.SetVelocity(*GetPath()->Velocity);
 
     init.Launch();
 

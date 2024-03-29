@@ -217,7 +217,7 @@ struct npc_kayn_sunfury_invasion_begins : public ScriptedAI
         else if (pointId == POINT_KAYN_MOVE_TO_DEMON)
         {
             me->SetAIAnimKitId(ANIM_DH_RUN);
-            me->GetMotionMaster()->MovePath(PATH_KAYN_ATTACK_DEMON, false, {}, 4.0f);
+            me->GetMotionMaster()->MovePath(PATH_KAYN_ATTACK_DEMON, false);
         }
     }
 
