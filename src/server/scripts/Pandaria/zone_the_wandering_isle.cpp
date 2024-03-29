@@ -649,7 +649,7 @@ struct npc_master_li_fei_summon : public ScriptedAI
                                     {
                                         Talk(SAY_TEXT_5);
 
-                                        task.Schedule(Seconds(6), [this](TaskContext task)
+                                        task.Schedule(Seconds(6), [this](TaskContext /*task*/)
                                         {
                                             Creature* aysa = me->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_quest_29414" });
 
