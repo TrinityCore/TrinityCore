@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
 
