@@ -98,8 +98,17 @@ void WaypointMgr::LoadPathFromDB(Field* fields)
 
     path.Id = pathId;
     path.Flags = WaypointPathFlags(fields[2].GetUInt8());
+
     if (!fields[3].IsNull())
+    {
         path.Velocity = fields[3].GetFloat();
+        if (path.Velocity <= 0.0f)
+        {
+            TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has invalid velocity {}, using default velocity instead", pathId, path.Velocity);
+            path.Velocity = {};
+        }
+    }
+
     path.Nodes.clear();
 }
 
