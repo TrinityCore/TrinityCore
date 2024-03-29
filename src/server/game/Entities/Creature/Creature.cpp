@@ -2653,7 +2653,8 @@ void Creature::UpdateMovementFlags()
     float ground = GetFloorZ();
 
     bool canHover = CanHover();
-    bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + (canHover ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f) + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
+    float collisionHeight = GetCollisionHeight() / 2.0f;
+    bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + (canHover ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f) + collisionHeight) || G3D::fuzzyLt(GetPositionZ(), ground - collisionHeight)); // Can be underground too, prevent the falling
 
     if (GetMovementTemplate().IsFlightAllowed() && isInAir && !IsFalling())
     {
