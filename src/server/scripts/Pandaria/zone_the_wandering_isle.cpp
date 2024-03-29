@@ -439,7 +439,7 @@ struct npc_aysa_cloudsinger_summon : public ScriptedAI
             {
                 me->GetMotionMaster()->MoveJumpWithGravity(aysaJumpPos[1], 12.0f, 10.7163f);
 
-                task.Schedule(Seconds(2), [this](TaskContext task)
+                task.Schedule(Seconds(2), [this](TaskContext /*task*/)
                 {
                     me->GetMotionMaster()->MoveJumpWithGravity(aysaJumpPos[2], 12.0f, 14.6923f, POINT_JUMP);
                 });
