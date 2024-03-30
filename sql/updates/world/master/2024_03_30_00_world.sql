@@ -1,5 +1,5 @@
 DELIMITER ;;
-CREATE PROCEDURE creature_health() BEGIN
+CREATE PROCEDURE creature_health_2024_03_30_00_world() BEGIN
     IF NOT EXISTS (SELECT * FROM `information_schema`.`columns` WHERE `table_schema`=SCHEMA() AND `table_name`='creature' AND `column_name`='curHealthPct') THEN
   
     ALTER TABLE `creature` 
@@ -10,9 +10,9 @@ CREATE PROCEDURE creature_health() BEGIN
 END;;
 
 DELIMITER ;
-CALL creature_health();
+CALL creature_health_2024_03_30_00_world();
 
-DROP PROCEDURE IF EXISTS creature_health;
+DROP PROCEDURE IF EXISTS creature_health_2024_03_30_00_world;
 
 UPDATE `creature` c
 INNER JOIN `creature_template` ct ON c.`id`=ct.`entry`

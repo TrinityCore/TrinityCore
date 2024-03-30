@@ -1606,8 +1606,7 @@ void Creature::UpdateLevelDependantStats()
     Powers powerType = CalculateDisplayPowerType();
     SetCreateMana(stats->BaseMana);
     SetStatPctModifier(UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(powerType)), BASE_PCT, GetCreatureDifficulty()->ManaModifier);
-    SetPowerType(powerType);
-    InitPowerType();
+    SetPowerType(powerType, true, true);
 
     // damage
     float basedamage = GetBaseDamageForLevel(level);
@@ -1960,7 +1959,7 @@ void Creature::LoadEquipment(int8 id, bool force /*= true*/)
 void Creature::SetSpawnHealth()
 {
     SetHealth(CountPctFromMaxHealth(m_creatureData ? m_creatureData->curHealthPct : 100));
-    InitPowerType();
+    SetInitialPowerValue(GetPowerType());
 }
 
 bool Creature::hasQuest(uint32 quest_id) const
