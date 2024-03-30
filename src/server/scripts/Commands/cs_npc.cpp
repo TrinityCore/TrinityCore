@@ -290,9 +290,8 @@ public:
             return false;
         }
 
-        creature->SetMaxHealth(100 + 30*lvl);
-        creature->SetHealth(100 + 30*lvl);
         creature->SetLevel(lvl);
+        creature->UpdateLevelDependantStats();
         creature->SaveToDB();
 
         return true;
