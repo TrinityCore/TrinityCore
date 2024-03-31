@@ -749,16 +749,16 @@ namespace
 }
 
 template <typename FormatContext>
-inline auto fmt::formatter<ObjectGuid>::format(ObjectGuid const& guid, FormatContext& ctx) const -> decltype(ctx.out())
+auto fmt::formatter<ObjectGuid>::format(ObjectGuid const& guid, FormatContext& ctx) const -> decltype(ctx.out())
 {
     if (guid.GetHigh() >= HighGuid::Count)
-        return format(ObjectGuid::ToStringFailed, ctx);
+        return this->format(ObjectGuid::ToStringFailed, ctx);
 
     int32 type = AsUnderlyingType(guid.GetHigh());
     if (!Info.ClientFormatFunction[type])
-        return format(ObjectGuid::ToStringFailed, ctx);
+        return this->format(ObjectGuid::ToStringFailed, ctx);
 
-    return Info.ClientFormatFunction[type](ctx, Info.Names[type].c_str(), guid);
+    return Info.ClientFormatFunction[type](ctx, Info.Names[type], guid);
 }
 
 template TC_GAME_API fmt::appender fmt::formatter<ObjectGuid>::format<fmt::format_context>(ObjectGuid const&, format_context&) const;
