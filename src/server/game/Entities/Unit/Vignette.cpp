@@ -119,9 +119,8 @@ bool CanSee(Player const* player, VignetteData const& vignette)
         if (player->IsQuestRewarded(vignette.Data->VisibleTrackingQuestID))
             return false;
 
-    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(vignette.Data->PlayerConditionID))
-        if (!ConditionMgr::IsPlayerMeetingCondition(player, playerCondition))
-            return false;
+    if (!ConditionMgr::IsPlayerMeetingCondition(player, vignette.Data->PlayerConditionID))
+        return false;
 
     return true;
 }

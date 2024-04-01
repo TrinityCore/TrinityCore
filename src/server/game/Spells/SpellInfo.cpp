@@ -4364,9 +4364,8 @@ uint32 SpellInfo::GetSpellXSpellVisualId(WorldObject const* caster /*= nullptr*/
 {
     for (SpellXSpellVisualEntry const* visual : _visuals)
     {
-        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(visual->CasterPlayerConditionID))
-            if (!caster || !caster->IsPlayer() || !ConditionMgr::IsPlayerMeetingCondition(caster->ToPlayer(), playerCondition))
-                continue;
+        if (!caster || !caster->IsPlayer() || !ConditionMgr::IsPlayerMeetingCondition(caster->ToPlayer(), visual->CasterPlayerConditionID))
+            continue;
 
         if (UnitConditionEntry const* unitCondition = sUnitConditionStore.LookupEntry(visual->CasterUnitConditionID))
             if (!caster || !caster->IsUnit() || !ConditionMgr::IsUnitMeetingCondition(caster->ToUnit(), Object::ToUnit(viewer), unitCondition))
@@ -4930,8 +4929,7 @@ bool SpellInfo::MeetsFutureSpellPlayerCondition(Player const* player) const
     if (ShowFutureSpellPlayerConditionID == 0)
         return false;
 
-    PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(ShowFutureSpellPlayerConditionID);
-    return !playerCondition || ConditionMgr::IsPlayerMeetingCondition(player, playerCondition);
+    return ConditionMgr::IsPlayerMeetingCondition(player, ShowFutureSpellPlayerConditionID);
 }
 
 bool SpellInfo::HasLabel(uint32 labelId) const

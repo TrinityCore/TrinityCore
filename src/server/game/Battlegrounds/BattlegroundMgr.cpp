@@ -16,20 +16,8 @@
  */
 
 #include "BattlegroundMgr.h"
-#include "BattlegroundAB.h"
-#include "BattlegroundAV.h"
-#include "BattlegroundBE.h"
-#include "BattlegroundBFG.h"
-#include "BattlegroundDS.h"
-#include "BattlegroundEY.h"
-#include "BattlegroundIC.h"
-#include "BattlegroundNA.h"
+#include "Arena.h"
 #include "BattlegroundPackets.h"
-#include "BattlegroundRL.h"
-#include "BattlegroundRV.h"
-#include "BattlegroundSA.h"
-#include "BattlegroundTP.h"
-#include "BattlegroundWS.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
@@ -262,6 +250,59 @@ Battleground* BattlegroundMgr::GetBattleground(uint32 instanceId, BattlegroundTy
     return nullptr;
 }
 
+void BattlegroundMgr::LoadBattlegroundScriptTemplate()
+{
+    uint32 oldMSTime = getMSTime();
+    //                                               0      1                   2
+    QueryResult result = WorldDatabase.Query("SELECT MapId, BattlemasterListId, ScriptName FROM battleground_scripts");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 battleground scripts. DB table `battleground_scripts` is empty!");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 mapID = fields[0].GetUInt32();
+
+        MapEntry const* mapEntry = sMapStore.LookupEntry(mapID);
+        if (!mapEntry || !mapEntry->IsBattlegroundOrArena())
+        {
+            TC_LOG_ERROR("sql.sql", "BattlegroundMgr::LoadBattlegroundScriptTemplate: bad mapid {}! Map doesn't exist or is not a battleground/arena!", mapID);
+            continue;
+        }
+
+        BattlegroundTypeId bgTypeId = static_cast<BattlegroundTypeId>(fields[1].GetUInt32());
+        if (bgTypeId != BATTLEGROUND_TYPE_NONE && !Trinity::Containers::MapGetValuePtr(_battlegroundTemplates, bgTypeId))
+        {
+            TC_LOG_ERROR("sql.sql", "BattlegroundMgr::LoadBattlegroundScriptTemplate: bad battlemasterlist id {}! Battleground doesn't exist or is not supported in battleground_template!", bgTypeId);
+            continue;
+        }
+
+        BattlegroundScriptTemplate& scriptTemplate = _battlegroundScriptTemplates[{ mapID, bgTypeId }];
+        scriptTemplate.MapId = mapID;
+        scriptTemplate.Id = bgTypeId;
+        scriptTemplate.ScriptId = sObjectMgr->GetScriptId(fields[2].GetString());
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} battleground scripts in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+BattlegroundScriptTemplate const* BattlegroundMgr::FindBattlegroundScriptTemplate(uint32 mapId, BattlegroundTypeId bgTypeId) const
+{
+    if (BattlegroundScriptTemplate const* scriptTemplate = Trinity::Containers::MapGetValuePtr(_battlegroundScriptTemplates, { mapId, bgTypeId }))
+        return scriptTemplate;
+
+    // fall back to 0 for no specific battleground type id
+    return Trinity::Containers::MapGetValuePtr(_battlegroundScriptTemplates, { mapId, BATTLEGROUND_TYPE_NONE });
+}
+
 uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)
 {
     if (IsArenaType(bgTypeId))
@@ -309,56 +350,10 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundQueueTypeId que
     }
 
     Battleground* bg = nullptr;
-    // create a copy of the BG template
-    switch (bgTypeId)
-    {
-        case BATTLEGROUND_AV:
-            bg = new BattlegroundAV(bg_template);
-            break;
-        case BATTLEGROUND_WS:
-        case BATTLEGROUND_WG_CTF:
-            bg = new BattlegroundWS(bg_template);
-            break;
-        case BATTLEGROUND_AB:
-        case BATTLEGROUND_DOM_AB:
-            bg = new BattlegroundAB(bg_template);
-            break;
-        case BATTLEGROUND_NA:
-            bg = new BattlegroundNA(bg_template);
-            break;
-        case BATTLEGROUND_BE:
-            bg = new BattlegroundBE(bg_template);
-            break;
-        case BATTLEGROUND_EY:
-            bg = new BattlegroundEY(bg_template);
-            break;
-        case BATTLEGROUND_RL:
-            bg = new BattlegroundRL(bg_template);
-            break;
-        case BATTLEGROUND_SA:
-            bg = new BattlegroundSA(bg_template);
-            break;
-        case BATTLEGROUND_DS:
-            bg = new BattlegroundDS(bg_template);
-            break;
-        case BATTLEGROUND_RV:
-            bg = new BattlegroundRV(bg_template);
-            break;
-        case BATTLEGROUND_IC:
-            bg = new BattlegroundIC(bg_template);
-            break;
-        case BATTLEGROUND_TP:
-            bg = new BattlegroundTP(bg_template);
-            break;
-        case BATTLEGROUND_BFG:
-            bg = new BattlegroundBFG(bg_template);
-            break;
-        case BATTLEGROUND_RB:
-        case BATTLEGROUND_AA:
-        case BATTLEGROUND_RANDOM_EPIC:
-        default:
-            return nullptr;
-    }
+    if (bg_template->IsArena())
+        bg = new Arena(bg_template);
+    else
+        bg = new Battleground(bg_template);
 
     bg->SetBracket(bracketEntry);
     bg->SetInstanceID(sMapMgr->GenerateInstanceId());
@@ -689,6 +684,7 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
         ids.reserve(16);
         std::vector<double> weights;
         weights.reserve(16);
+        double totalWeight = 0.0;
         for (int32 mapId : bgTemplate->BattlemasterEntry->MapID)
         {
             if (mapId == -1)
@@ -698,10 +694,12 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
             {
                 ids.push_back(bg->Id);
                 weights.push_back(bg->Weight);
+                totalWeight += bg->Weight;
             }
         }
 
-        return *Trinity::Containers::SelectRandomWeightedContainerElement(ids, std::span(weights));
+        if (totalWeight > 0.0)
+            return *Trinity::Containers::SelectRandomWeightedContainerElement(ids, std::span(weights));
     }
 
     return BATTLEGROUND_TYPE_NONE;

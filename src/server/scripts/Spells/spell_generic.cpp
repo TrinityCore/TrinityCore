@@ -408,37 +408,6 @@ class spell_gen_bandage : public SpellScript
 // 193970 - Mercenary Shapeshift
 class spell_gen_battleground_mercenary_shapeshift : public AuraScript
 {
-    using OtherFactionRacePriorityList = std::array<Races, 3>;
-
-    inline static std::unordered_map<Races, OtherFactionRacePriorityList> const RaceInfo =
-    {
-        { RACE_HUMAN, { RACE_UNDEAD_PLAYER, RACE_BLOODELF } },
-        { RACE_ORC, { RACE_DWARF } },
-        { RACE_DWARF, { RACE_ORC, RACE_UNDEAD_PLAYER, RACE_TAUREN } },
-        { RACE_NIGHTELF, { RACE_TROLL, RACE_BLOODELF } },
-        { RACE_UNDEAD_PLAYER, { RACE_HUMAN } },
-        { RACE_TAUREN, { RACE_DRAENEI, RACE_NIGHTELF } },
-        { RACE_GNOME, { RACE_GOBLIN, RACE_BLOODELF } },
-        { RACE_TROLL, { RACE_NIGHTELF, RACE_HUMAN, RACE_DRAENEI } },
-        { RACE_GOBLIN, { RACE_GNOME, RACE_DWARF } },
-        { RACE_BLOODELF, { RACE_HUMAN, RACE_NIGHTELF } },
-        { RACE_DRAENEI, { RACE_TAUREN, RACE_ORC } },
-        { RACE_WORGEN, { RACE_TROLL } },
-        { RACE_PANDAREN_NEUTRAL, { RACE_PANDAREN_NEUTRAL } },
-        { RACE_PANDAREN_ALLIANCE, { RACE_PANDAREN_HORDE, RACE_PANDAREN_NEUTRAL } },
-        { RACE_PANDAREN_HORDE, { RACE_PANDAREN_ALLIANCE, RACE_PANDAREN_NEUTRAL } },
-        { RACE_NIGHTBORNE, { RACE_NIGHTELF, RACE_HUMAN } },
-        { RACE_HIGHMOUNTAIN_TAUREN, { RACE_DRAENEI, RACE_NIGHTELF } },
-        { RACE_VOID_ELF, { RACE_TROLL, RACE_BLOODELF } },
-        { RACE_LIGHTFORGED_DRAENEI, { RACE_TAUREN, RACE_ORC } },
-        { RACE_ZANDALARI_TROLL, { RACE_KUL_TIRAN, RACE_HUMAN } },
-        { RACE_KUL_TIRAN, { RACE_ZANDALARI_TROLL } },
-        { RACE_DARK_IRON_DWARF, { RACE_MAGHAR_ORC, RACE_ORC } },
-        { RACE_VULPERA, { RACE_MECHAGNOME, RACE_DARK_IRON_DWARF /*guessed, for shamans*/ } },
-        { RACE_MAGHAR_ORC, { RACE_DARK_IRON_DWARF } },
-        { RACE_MECHAGNOME, { RACE_VULPERA } },
-    };
-
     inline static std::unordered_map<Races, std::array<uint32, 2>> const RaceDisplayIds =
     {
         { RACE_HUMAN, { 55239, 55238 } },
@@ -472,10 +441,9 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
 
     static Races GetReplacementRace(Races nativeRace, Classes playerClass)
     {
-        if (OtherFactionRacePriorityList const* otherRaces = Trinity::Containers::MapGetValuePtr(RaceInfo, nativeRace))
-            for (Races race : *otherRaces)
-                if (sObjectMgr->GetPlayerInfo(race, playerClass))
-                    return race;
+        if (CharBaseInfoEntry const* charBaseInfo = DB2Manager::GetCharBaseInfo(nativeRace, playerClass))
+            if (sObjectMgr->GetPlayerInfo(charBaseInfo->OtherFactionRaceID, playerClass))
+                return Races(charBaseInfo->OtherFactionRaceID);
 
         return RACE_NONE;
     }
@@ -490,16 +458,6 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        for (auto const& [race, otherRaces] : RaceInfo)
-        {
-            if (!sChrRacesStore.LookupEntry(race))
-                return false;
-
-            for (Races otherRace : otherRaces)
-                if (!sChrRacesStore.LookupEntry(otherRace))
-                    return false;
-        }
-
         for (auto const& [race, displayIds] : RaceDisplayIds)
         {
             if (!sChrRacesStore.LookupEntry(race))
@@ -518,7 +476,7 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
         return true;
     }
 
-    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode) const
     {
         Unit* owner = GetUnitOwner();
         Races otherFactionRace = GetReplacementRace(Races(owner->GetRace()), Classes(owner->GetClass()));
@@ -532,7 +490,7 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
             UpdateRacials(Races(owner->GetRace()), otherFactionRace);
     }
 
-    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         Unit* owner = GetUnitOwner();
         Races otherFactionRace = GetReplacementRace(Races(owner->GetRace()), Classes(owner->GetClass()));
@@ -542,7 +500,7 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
         UpdateRacials(otherFactionRace, Races(owner->GetRace()));
     }
 
-    void UpdateRacials(Races oldRace, Races newRace)
+    void UpdateRacials(Races oldRace, Races newRace) const
     {
         Player* player = GetUnitOwner()->ToPlayer();
         if (!player)
@@ -1093,7 +1051,7 @@ class spell_gen_create_lance : public SpellScript
         {
             if (target->GetTeam() == ALLIANCE)
                 GetCaster()->CastSpell(target, SPELL_CREATE_LANCE_ALLIANCE, true);
-            else
+            else if (target->GetTeam() == HORDE)
                 GetCaster()->CastSpell(target, SPELL_CREATE_LANCE_HORDE, true);
         }
     }
@@ -4704,7 +4662,7 @@ class spell_defender_of_azeroth_death_gate_selector : public SpellScript
         if (player->GetQuestStatus(QUEST_DEFENDER_OF_AZEROTH_ALLIANCE) == QUEST_STATUS_NONE && player->GetQuestStatus(QUEST_DEFENDER_OF_AZEROTH_HORDE) == QUEST_STATUS_NONE)
             return;
 
-        BindLocation bindLoc = player->GetTeam() == ALLIANCE ? StormwindInnLoc : OrgrimmarInnLoc;
+        BindLocation const& bindLoc = player->GetTeam() == ALLIANCE ? StormwindInnLoc : OrgrimmarInnLoc;
         player->SetHomebind(bindLoc.Loc, bindLoc.AreaId);
         player->SendBindPointUpdate();
         player->SendPlayerBound(player->GetGUID(), bindLoc.AreaId);
@@ -5018,7 +4976,7 @@ class spell_gen_skinning : public SpellScript
                 case SKILL_CATACLYSM_SKINNING:    return SPELL_CATACLYSM_SKINNING;
                 case SKILL_PANDARIA_SKINNING:     return SPELL_PANDARIA_SKINNING;
                 case SKILL_DRAENOR_SKINNING:      return SPELL_DRAENOR_SKINNING;
-                case SKILL_KUL_TIRAN_SKINNING:    return player->GetTeam() == ALLIANCE ? SPELL_KUL_TIRAN_SKINNING : SPELL_ZANDALARI_SKINNING;
+                case SKILL_KUL_TIRAN_SKINNING:    return player->GetTeam() == ALLIANCE ? SPELL_KUL_TIRAN_SKINNING : (player->GetTeam() == HORDE ? SPELL_ZANDALARI_SKINNING : 0);
                 case SKILL_SHADOWLANDS_SKINNING:  return SPELL_SHADOWLANDS_SKINNING;
                 case SKILL_DRAGON_ISLES_SKINNING: return SPELL_DRAGON_ISLES_SKINNING;
                 case SKILL_CLASSIC_SKINNING:      // Trainer only
@@ -5359,6 +5317,32 @@ class spell_gen_random_aggro_taunt : public SpellScript
     }
 };
 
+// 24931 - 100 Health
+// 24959 - 500 Health
+// 28838 - 1 Health
+// 43645 - 1 Health
+// 73342 - 1 Health
+// 86562 - 1 Health
+class spell_gen_set_health : public SpellScript
+{
+public:
+    spell_gen_set_health(uint64 health) : _health(health) { }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitUnit()->IsAlive() && _health > 0)
+            GetHitUnit()->SetHealth(_health);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_set_health::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+private:
+    uint64 _health;
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5535,4 +5519,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_major_healing_cooldown_modifier);
     RegisterSpellScript(spell_gen_major_healing_cooldown_modifier_aura);
     RegisterSpellScript(spell_gen_random_aggro_taunt);
+    RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_1", 1);
+    RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_100", 100);
+    RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_500", 500);
 }

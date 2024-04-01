@@ -461,7 +461,8 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
             if (GameObject* go = GetGameObject(guid))
             {
                 go->SetDestructibleState(GO_DESTRUCTIBLE_INTACT);
-                go->ModifyHealth(go->GetGOValue()->Building.MaxHealth);
+                if (go->GetGOValue()->Building.DestructibleHitpoint)
+                    go->ModifyHealth(go->GetGOValue()->Building.DestructibleHitpoint->GetMaxHealth());
             }
         }
     }
