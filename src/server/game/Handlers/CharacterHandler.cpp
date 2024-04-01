@@ -1797,7 +1797,7 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     if (packet.CustomizedChrModelID)
     {
         _player->ClearPreviousModelCustomizations(packet.CustomizedChrModelID);
-        _player->SetCustomizations(Trinity::Containers::MakeIteratorPair(packet.Customizations.begin(), packet.Customizations.end()), packet.CustomizedChrModelID);
+        _player->SetCustomizations(Trinity::Containers::MakeIteratorPair(packet.Customizations.begin(), packet.Customizations.end()));
     }
     else
     {
@@ -1810,7 +1810,7 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
             _player->RestoreDisplayId(false);
         }
 
-        _player->SetCustomizations(Trinity::Containers::MakeIteratorPair(packet.Customizations.begin(), packet.Customizations.end()), packet.CustomizedChrModelID);
+        _player->SetCustomizations(Trinity::Containers::MakeIteratorPair(packet.Customizations.begin(), packet.Customizations.end()));
 
         sCharacterCache->UpdateCharacterGender(_player->GetGUID(), packet.NewSex);
     }
