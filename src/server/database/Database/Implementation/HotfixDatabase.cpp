@@ -305,6 +305,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "MythicPlusSeasonID, PvPSeasonID, SrcItemBonusTreeID FROM challenge_mode_item_bonus_override WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CHALLENGE_MODE_ITEM_BONUS_OVERRIDE, "SELECT MAX(ID) + 1 FROM challenge_mode_item_bonus_override", CONNECTION_SYNCH);
 
+    // CharBaseInfo.db2
+    PrepareStatement(HOTFIX_SEL_CHAR_BASE_INFO, "SELECT ID, RaceID, ClassID, OtherFactionRaceID FROM char_base_info WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CHAR_BASE_INFO, "SELECT MAX(ID) + 1 FROM char_base_info", CONNECTION_SYNCH);
+
     // CharTitles.db2
     PrepareStatement(HOTFIX_SEL_CHAR_TITLES, "SELECT ID, Name, Name1, MaskID, Flags FROM char_titles WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CHAR_TITLES, "SELECT MAX(ID) + 1 FROM char_titles", CONNECTION_SYNCH);

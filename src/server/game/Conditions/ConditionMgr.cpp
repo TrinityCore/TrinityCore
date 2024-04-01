@@ -20,7 +20,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerDataStore.h"
 #include "BattlePetMgr.h"
-#include "Battleground.h"
+#include "BattlegroundScript.h"
 #include "Containers.h"
 #include "ConversationDataStore.h"
 #include "DB2Stores.h"
@@ -232,7 +232,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             else if (BattlegroundMap const* bgMap = map->ToBattlegroundMap())
             {
-                ZoneScript const* zoneScript = bgMap->GetBG();
+                ZoneScript const* zoneScript = bgMap->GetBattlegroundScript();
                 switch (ConditionValue3)
                 {
                     case INSTANCE_INFO_DATA:

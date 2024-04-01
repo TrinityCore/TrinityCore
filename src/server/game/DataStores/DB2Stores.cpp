@@ -88,6 +88,7 @@ DB2Storage<BroadcastTextDurationEntry>          sBroadcastTextDurationStore("Bro
 DB2Storage<Cfg_CategoriesEntry>                 sCfgCategoriesStore("Cfg_Categories.db2", &CfgCategoriesLoadInfo::Instance);
 DB2Storage<Cfg_RegionsEntry>                    sCfgRegionsStore("Cfg_Regions.db2", &CfgRegionsLoadInfo::Instance);
 DB2Storage<ChallengeModeItemBonusOverrideEntry> sChallengeModeItemBonusOverrideStore("ChallengeModeItemBonusOverride.db2", &ChallengeModeItemBonusOverrideLoadInfo::Instance);
+DB2Storage<CharBaseInfoEntry>                   sCharBaseInfoStore("CharBaseInfo.db2", &CharBaseInfoLoadInfo::Instance);
 DB2Storage<CharTitlesEntry>                     sCharTitlesStore("CharTitles.db2", &CharTitlesLoadInfo::Instance);
 DB2Storage<CharacterLoadoutEntry>               sCharacterLoadoutStore("CharacterLoadout.db2", &CharacterLoadoutLoadInfo::Instance);
 DB2Storage<CharacterLoadoutItemEntry>           sCharacterLoadoutItemStore("CharacterLoadoutItem.db2", &CharacterLoadoutItemLoadInfo::Instance);
@@ -450,6 +451,7 @@ namespace
     std::unordered_map<uint32 /*azeritePowerSetId*/, std::vector<AzeritePowerSetMemberEntry const*>> _azeritePowers;
     std::unordered_map<std::pair<uint32 /*azeriteUnlockSetId*/, ItemContext>, std::array<uint8, MAX_AZERITE_EMPOWERED_TIER>> _azeriteTierUnlockLevels;
     std::unordered_map<std::pair<int32 /*broadcastTextId*/, CascLocaleBit /*cascLocaleBit*/>, int32> _broadcastTextDurations;
+    std::unordered_map<std::pair<uint8, uint8>, CharBaseInfoEntry const*> _charBaseInfoByRaceAndClass;
     std::array<ChrClassUIDisplayEntry const*, MAX_CLASSES> _uiDisplayByClass;
     std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
     std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<ChrCustomizationChoiceEntry const*>> _chrCustomizationChoicesByOption;
@@ -688,6 +690,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sCfgCategoriesStore);
     LOAD_DB2(sCfgRegionsStore);
     LOAD_DB2(sChallengeModeItemBonusOverrideStore);
+    LOAD_DB2(sCharBaseInfoStore);
     LOAD_DB2(sCharTitlesStore);
     LOAD_DB2(sCharacterLoadoutStore);
     LOAD_DB2(sCharacterLoadoutItemStore);
@@ -1077,6 +1080,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     _broadcastTextDurations.reserve(sBroadcastTextDurationStore.GetNumRows());
     for (BroadcastTextDurationEntry const* broadcastTextDuration : sBroadcastTextDurationStore)
         _broadcastTextDurations[{ broadcastTextDuration->BroadcastTextID, CascLocaleBit(broadcastTextDuration->Locale) }] = broadcastTextDuration->Duration;
+
+    for (CharBaseInfoEntry const* charBaseInfo : sCharBaseInfoStore)
+        _charBaseInfoByRaceAndClass[{ charBaseInfo->RaceID, charBaseInfo->ClassID }] = charBaseInfo;
 
     for (ChrClassUIDisplayEntry const* uiDisplay : sChrClassUIDisplayStore)
     {
@@ -2024,6 +2030,11 @@ char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcas
 int32 const* DB2Manager::GetBroadcastTextDuration(int32 broadcastTextId, LocaleConstant locale /*= DEFAULT_LOCALE*/) const
 {
     return Trinity::Containers::MapGetValuePtr(_broadcastTextDurations, { broadcastTextId, WowLocaleToCascLocaleBit[locale] });
+}
+
+CharBaseInfoEntry const* DB2Manager::GetCharBaseInfo(Races race, Classes class_)
+{
+    return Trinity::Containers::MapGetValuePtr(_charBaseInfoByRaceAndClass, { race, class_ });
 }
 
 ChrClassUIDisplayEntry const* DB2Manager::GetUiDisplayForClass(Classes unitClass) const
