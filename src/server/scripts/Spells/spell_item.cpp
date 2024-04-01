@@ -3081,9 +3081,6 @@ class spell_item_rocket_boots : public SpellScript
     void HandleDummy(SpellEffIndex /* effIndex */)
     {
         Player* caster = GetCaster()->ToPlayer();
-        if (Battleground* bg = caster->GetBattleground())
-            bg->EventPlayerDroppedFlag(caster);
-
         caster->GetSpellHistory()->ResetCooldown(SPELL_ROCKET_BOOTS_PROC);
         caster->CastSpell(caster, SPELL_ROCKET_BOOTS_PROC, true);
     }

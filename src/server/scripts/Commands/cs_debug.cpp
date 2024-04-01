@@ -1418,15 +1418,11 @@ public:
 
         if (linked)
         {
-            if (Battleground* bg = player->GetBattleground())
-                nearestLoc = bg->GetClosestGraveyard(player);
+
+            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetMap(), player->GetZoneId()))
+                nearestLoc = bf->GetClosestGraveyard(player);
             else
-            {
-                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetMap(), player->GetZoneId()))
-                    nearestLoc = bf->GetClosestGraveyard(player);
-                else
-                    nearestLoc = sObjectMgr->GetClosestGraveyard(*player, player->GetTeam(), player);
-            }
+                nearestLoc = sObjectMgr->GetClosestGraveyard(*player, player->GetTeam(), player);
         }
         else
         {
@@ -1616,11 +1612,7 @@ public:
             return false;
         }
 
-        PlayerConditionEntry const* playerConditionEntry = sPlayerConditionStore.LookupEntry(playerConditionId);
-        if (!playerConditionEntry)
-            return false;
-
-        if (ConditionMgr::IsPlayerMeetingCondition(target, playerConditionEntry))
+        if (ConditionMgr::IsPlayerMeetingCondition(target, playerConditionId))
             handler->PSendSysMessage("PlayerCondition %u met", playerConditionId);
         else
             handler->PSendSysMessage("PlayerCondition %u not met", playerConditionId);
