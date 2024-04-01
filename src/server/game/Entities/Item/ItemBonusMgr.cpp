@@ -106,8 +106,7 @@ ItemContext GetContextForPlayer(MapDifficultyEntry const* mapDifficulty, Player 
 
             bool meetsPlayerCondition = false;
             if (player)
-                if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(itemContextPickerEntry->PlayerConditionID))
-                    meetsPlayerCondition = ConditionMgr::IsPlayerMeetingCondition(player, playerCondition);
+                meetsPlayerCondition = ConditionMgr::IsPlayerMeetingCondition(player, itemContextPickerEntry->PlayerConditionID);
 
             if (itemContextPickerEntry->Flags & 0x1)
                 meetsPlayerCondition = !meetsPlayerCondition;

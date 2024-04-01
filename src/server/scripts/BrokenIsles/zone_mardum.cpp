@@ -1609,6 +1609,42 @@ public:
     }
 };
 
+enum GiveMeSightBeyondSightData
+{
+    KILLCREDIT_FACE_THE_CAVE            = 96437,
+
+    SPELL_DH_SPECTRAL_SIGHT             = 188501,
+    SPELL_GIVE_ME_SIGHT_PERIODIC_AURA   = 191095,
+    SPELL_GIVE_ME_SIGHT_PERIODIC_DUMMY  = 191097
+};
+
+Position const RockslideCavePosition = { 1237.1528f, 1642.6180f, 103.1518f, 5.8055872f };
+
+// 191097 - Give Me Sight Beyond Sight: Periodic Trigger Dummy
+class spell_give_me_sight_beyond_sight_periodic : public AuraScript
+{
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+        if (!player || !player->HasAura(SPELL_DH_SPECTRAL_SIGHT))
+            return;
+
+        float angleToWall = player->GetAbsoluteAngle(RockslideCavePosition);
+        float playerOrientation = player->GetOrientation();
+        if (playerOrientation >= Position::NormalizeOrientation(angleToWall - float(M_PI) / 4) && playerOrientation <= Position::NormalizeOrientation(angleToWall + float(M_PI) / 4))
+        {
+            player->KilledMonsterCredit(KILLCREDIT_FACE_THE_CAVE);
+            player->RemoveAurasDueToSpell(SPELL_GIVE_ME_SIGHT_PERIODIC_AURA);
+            player->RemoveAurasDueToSpell(SPELL_GIVE_ME_SIGHT_PERIODIC_DUMMY);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_give_me_sight_beyond_sight_periodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 void AddSC_zone_mardum()
 {
     // Creature
@@ -1648,17 +1684,18 @@ void AddSC_zone_mardum()
     new scene_enter_the_illidari_ashtongue();
     new scene_enter_the_illidari_coilskar();
 
+    // Quests
+    new quest_enter_the_illidari_shivarra();
+
     // Spells
     RegisterSpellScript(spell_demon_hunter_intro_aura);
     RegisterSpellScript(spell_accepting_felsaber_gift);
     RegisterSpellScript(spell_mardum_baleful_legion_aegis);
     RegisterSpellScript(spell_mardum_coloss_infernal_smash_selector);
     RegisterSpellScript(spell_mardum_baleful_beaming_gaze_selector);
+    RegisterSpellScript(spell_give_me_sight_beyond_sight_periodic);
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_CYANA_NIGHTGLAIVE_FREED>, "spell_cyana_nightglaive_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_IZAL_WHITEMOON_FREED>, "spell_izal_whitemoon_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_BELATH_DAWNBLADE_FREED>, "spell_belath_dawnblade_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_MANNETHREL_DARKSTAR_FREED>, "spell_mannethrel_darkstar_killcredit_set_them_free");
-
-    // Quests
-    new quest_enter_the_illidari_shivarra();
 };

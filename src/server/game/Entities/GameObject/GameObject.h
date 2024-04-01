@@ -136,7 +136,7 @@ union GameObjectValue
     struct
     {
         uint32 Health;
-        uint32 MaxHealth;
+        ::DestructibleHitpoint const* DestructibleHitpoint;
     } Building;
     //42 GAMEOBJECT_TYPE_CAPTURE_POINT
     struct

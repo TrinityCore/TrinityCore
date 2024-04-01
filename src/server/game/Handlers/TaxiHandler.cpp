@@ -202,10 +202,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
                 DB2Manager::MountXDisplayContainer usableDisplays;
                 std::copy_if(mountDisplays->begin(), mountDisplays->end(), std::back_inserter(usableDisplays), [this](MountXDisplayEntry const* mountDisplay)
                 {
-                    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountDisplay->PlayerConditionID))
-                        return sConditionMgr->IsPlayerMeetingCondition(GetPlayer(), playerCondition);
-
-                    return true;
+                    return ConditionMgr::IsPlayerMeetingCondition(GetPlayer(), mountDisplay->PlayerConditionID);
                 });
 
                 if (!usableDisplays.empty())

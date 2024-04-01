@@ -46,9 +46,8 @@ struct EdgeCost
         if (!isVisibleForFaction)
             return std::numeric_limits<uint16>::max();
 
-        if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(To->ConditionID))
-            if (!sConditionMgr->IsPlayerMeetingCondition(player, condition))
-                return std::numeric_limits<uint16>::max();
+        if (!ConditionMgr::IsPlayerMeetingCondition(player, To->ConditionID))
+            return std::numeric_limits<uint16>::max();
 
         return Distance;
     }

@@ -18,6 +18,7 @@
 #include "MapManager.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
+#include "CharacterCache.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
@@ -127,6 +128,7 @@ BattlegroundMap* MapManager::CreateBattleground(uint32 mapId, uint32 instanceId,
     ASSERT(map->IsBattlegroundOrArena());
     map->SetBG(bg);
     bg->SetBgMap(map);
+    map->InitScriptData();
     map->InitSpawnGroupState();
 
     if (sWorld->getBoolConfig(CONFIG_BATTLEGROUNDMAP_LOAD_GRIDS))
@@ -223,7 +225,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
 
         if (!map)
         {
-            map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, player->GetTeamId(), group);
+            map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, GetTeamIdForTeam(sCharacterCache->GetCharacterTeamByGuid(instanceOwnerGuid)), group);
             if (group)
                 group->SetRecentInstance(mapId, instanceOwnerGuid, newInstanceId);
             else
