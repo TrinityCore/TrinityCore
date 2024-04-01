@@ -110,6 +110,7 @@ TC_API_EXPORT EnumText EnumUtils<QuestPushReason>::ToString(QuestPushReason valu
         case QuestPushReason::Invalid: return { "Invalid", "Invalid", "\042%s is not eligible for that quest\042" };
         case QuestPushReason::Accepted: return { "Accepted", "Accepted", "\042%s has accepted your quest\042" };
         case QuestPushReason::Declined: return { "Declined", "Declined", "\042%s has declined your quest\042" };
+        case QuestPushReason::TooFar: return { "TooFar", "TooFar", "\042%s is too far away to receive your quest\042" };
         case QuestPushReason::Busy: return { "Busy", "Busy", "\042%s is busy\042" };
         case QuestPushReason::Dead: return { "Dead", "Dead", "\042%s is dead.\042" };
         case QuestPushReason::LogFull: return { "LogFull", "LogFull", "\042%s's quest log is full\042" };
