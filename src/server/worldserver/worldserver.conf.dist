@@ -3558,10 +3558,10 @@ GameObject.CheckInvalidPosition = 0
 #
 #     Loot.EnableAELoot
 #        Description: Enables AE loot which will allow looting all creatures within a 30 yards radius at once
-#        Default:     1  - (AE loot enabled)
-#                     0  - (AE loot disabled)
+#        Default:     1  - (AE loot disabled)
+#                     0  - (AE loot enabled)
 
-Loot.EnableAELoot = 1
+Loot.EnableAELoot = 0
 
 #
 ###################################################################################################
