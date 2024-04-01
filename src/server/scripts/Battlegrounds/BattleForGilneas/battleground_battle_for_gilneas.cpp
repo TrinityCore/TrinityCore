@@ -19,6 +19,7 @@
 #include "BattlegroundPackets.h"
 #include "BattlegroundScript.h"
 #include "ScriptMgr.h"
+#include "Timer.h"
 
 namespace BattleForGilneas
 {
