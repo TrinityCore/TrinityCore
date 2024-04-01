@@ -18,6 +18,7 @@
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
 #include "BattlegroundScript.h"
+#include "Map.h"
 #include "ScriptMgr.h"
 #include "Timer.h"
 
