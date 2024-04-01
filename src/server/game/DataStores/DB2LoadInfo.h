@@ -3169,14 +3169,15 @@ struct ItemXBonusTreeLoadInfo
 
 struct JournalEncounterLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[12] =
+    static constexpr DB2FieldMeta Fields[13] =
     {
-        { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
         { false, FT_FLOAT, "MapX" },
         { false, FT_FLOAT, "MapY" },
+        { false, FT_INT, "ID" },
         { false, FT_SHORT, "JournalInstanceID" },
+        { false, FT_SHORT, "DungeonEncounterID" },
         { false, FT_INT, "OrderIndex" },
         { false, FT_SHORT, "FirstSectionID" },
         { false, FT_SHORT, "UiMapID" },
@@ -3185,7 +3186,7 @@ struct JournalEncounterLoadInfo
         { true, FT_BYTE, "DifficultyMask" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 12, &JournalEncounterMeta::Instance, HOTFIX_SEL_JOURNAL_ENCOUNTER };
+    static constexpr DB2LoadInfo Instance{ Fields, 13, &JournalEncounterMeta::Instance, HOTFIX_SEL_JOURNAL_ENCOUNTER };
 };
 
 struct JournalEncounterSectionLoadInfo

@@ -5935,11 +5935,13 @@ struct ItemXBonusTreeMeta
 
 struct JournalEncounterMeta
 {
-    static constexpr DB2MetaField Fields[10] =
+    static constexpr DB2MetaField Fields[12] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
         { FT_FLOAT, 2, true },
+        { FT_INT, 1, false },
+        { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
         { FT_INT, 1, false },
         { FT_SHORT, 1, false },
@@ -5949,7 +5951,7 @@ struct JournalEncounterMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1240336, -1, 10, 10, 0x6C77939B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1240336, 3, 12, 12, 0x37948505, Fields, -1 };
 };
 
 struct JournalEncounterCreatureMeta

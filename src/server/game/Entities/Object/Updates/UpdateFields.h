@@ -761,7 +761,7 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateField<WorldPackets::PerksProgram::PerksVendorItem, 104, 119> FrozenPerksVendorItem;
     UpdateField<int32, 104, 120> TransportServerTime;
     UpdateField<uint32, 104, 121> ActiveCombatTraitConfigID;
-    UpdateField<uint8, 104, 122> GlyphsEnabled;
+    UpdateField<uint16, 104, 122> GlyphsEnabled;
     UpdateField<uint8, 104, 123> LfgRoles;
     OptionalUpdateField<UF::StableInfo, 104, 124> PetStable;
     UpdateField<uint8, 104, 125> NumStableSlots;

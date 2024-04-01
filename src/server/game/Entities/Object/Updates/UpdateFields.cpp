@@ -3219,7 +3219,7 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
         data << uint32(GlyphSlots[i]);
         data << uint32(Glyphs[i]);
     }
-    data << uint8(GlyphsEnabled);
+    data << uint16(GlyphsEnabled);
     data << uint8(LfgRoles);
     data << uint32(CategoryCooldownMods.size());
     data << uint32(WeeklySpellUses.size());
@@ -4114,7 +4114,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         }
         if (changesMask[122])
         {
-            data << uint8(GlyphsEnabled);
+            data << uint16(GlyphsEnabled);
         }
         if (changesMask[123])
         {
@@ -4738,7 +4738,9 @@ void CorpseData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
 
 void CorpseData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Corpse const* owner, Player const* receiver) const
 {
-    data.WriteBits(changesMask.GetBlock(0), 32);
+    data.WriteBits(changesMask.GetBlocksMask(0), 1);
+    if (changesMask.GetBlock(0))
+        data.WriteBits(changesMask.GetBlock(0), 32);
 
     if (changesMask[0])
     {

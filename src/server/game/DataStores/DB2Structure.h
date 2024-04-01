@@ -2378,11 +2378,12 @@ struct ItemXBonusTreeEntry
 
 struct JournalEncounterEntry
 {
-    uint32 ID;
     LocalizedString Name;
     LocalizedString Description;
     DBCPosition2D Map;
+    uint32 ID;
     uint16 JournalInstanceID;
+    uint16 DungeonEncounterID;
     uint32 OrderIndex;
     uint16 FirstSectionID;
     uint16 UiMapID;
