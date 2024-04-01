@@ -579,10 +579,9 @@ bool WorldSession::ValidateAppearance(Races race, Classes playerClass, Gender ge
                 if (!MeetsChrCustomizationReq(req, race, playerClass, false, customizations))
                     return false;
 
-            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(conditionalChrModel->PlayerConditionID))
-                // This check is not safe to run at character selection screen
-                if (_player && !ConditionMgr::IsPlayerMeetingCondition(_player, condition))
-                    return false;
+            // This check is not safe to run at character selection screen
+            if (_player && !ConditionMgr::IsPlayerMeetingCondition(_player, conditionalChrModel->PlayerConditionID))
+                return false;
         }
         // player model checks extracted from race and gender
         else
@@ -1786,8 +1785,6 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
             return;
         }
 
-        if (!ConditionMgr::IsPlayerMeetingCondition(_player, conditionalChrModel->PlayerConditionID))
-            return;
         SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::Success).Write());
 
         _player->UpdateCriteria(CriteriaType::GotHaircut, 1);
