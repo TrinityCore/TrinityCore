@@ -38,8 +38,8 @@ void WaypointMgr::_LoadPaths()
 
     _pathStore.clear();
 
-    //                                                    0         1      2
-    QueryResult result = WorldDatabase.Query("SELECT PathId, MoveType, Flags FROM waypoint_path");
+    //                                                    0         1      2         3
+    QueryResult result = WorldDatabase.Query("SELECT PathId, MoveType, Flags, Velocity FROM waypoint_path");
 
     if (!result)
     {
@@ -88,15 +88,25 @@ void WaypointMgr::LoadPathFromDB(Field* fields)
     uint32 pathId = fields[0].GetUInt32();
 
     WaypointPath& path = _pathStore[pathId];
-    path.Id = pathId;
-    path.MoveType = WaypointMoveType(fields[1].GetUInt8());
 
+    path.MoveType = WaypointMoveType(fields[1].GetUInt8());;
     if (path.MoveType >= WaypointMoveType::Max)
     {
         TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has invalid MoveType {}, ignoring", pathId, AsUnderlyingType(path.MoveType));
         return;
     }
+
+    path.Id = pathId;
     path.Flags = WaypointPathFlags(fields[2].GetUInt8());
+
+    if (!fields[3].IsNull())
+    {
+        if (fields[3].GetFloat() > 0.0f)
+            path.Velocity = fields[3].GetFloat();
+        else
+            TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has invalid velocity {}, using default velocity instead", pathId, fields[3].GetFloat());
+    }
+
     path.Nodes.clear();
 }
 
