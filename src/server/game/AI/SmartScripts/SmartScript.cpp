@@ -590,7 +590,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     continue;
                 }
 
-
                 SpellCastResult result = SPELL_FAILED_BAD_TARGETS;
                 if (me)
                 {
@@ -687,7 +686,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 if (e.action.cast.castFlags & SMARTCAST_INTERRUPT_PREVIOUS)
                     tempLastInvoker->InterruptNonMeleeSpells(false);
-
 
                 tempLastInvoker->CastSpell(target, e.action.cast.spell, args);
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_INVOKER_CAST: Invoker {} casts spell {} on target {} with castflags {}",
