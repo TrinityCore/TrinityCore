@@ -3011,7 +3011,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         if (player->GetMap()->IsBattlegroundOrArena())
             team = player->m_playerData->ArenaFaction;
         else
-            team = player->GetTeamId();
+            team = player->GetTeamId() == TEAM_ALLIANCE ? 1 : 0;
 
         if (condition->CurrentPvpFaction - 1 != team)
             return false;
