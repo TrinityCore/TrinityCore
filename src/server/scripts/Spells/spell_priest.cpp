@@ -3172,11 +3172,13 @@ class spell_pri_unfurling_darkness : public AuraScript
         if (!caster)
             return;
 
-        if (caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF))
-            return;
-
-        caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_AURA, true);
-        caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF, true);
+        if (!caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF))
+        {
+            caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_AURA, true);
+            caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF, true);
+        }
+        else if (caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS_AURA))
+            caster->RemoveAurasDueToSpell(SPELL_PRIEST_UNFURLING_DARKNESS_AURA);
     }
 
     void Register() override
@@ -3252,14 +3254,9 @@ class spell_pri_vampiric_touch : public AuraScript
 
     void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-        if (caster->HasAura(SPELL_PRIEST_MISERY))
-            caster->CastSpell(GetTarget(), SPELL_PRIEST_SHADOW_WORD_PAIN, true);
-
-        if (caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS_AURA))
-            caster->RemoveAurasDueToSpell(SPELL_PRIEST_UNFURLING_DARKNESS_AURA);
+        if (Unit* caster = GetCaster())
+            if (caster->HasAura(SPELL_PRIEST_MISERY))
+                caster->CastSpell(GetTarget(), SPELL_PRIEST_SHADOW_WORD_PAIN, true);
     }
 
     void Register() override
