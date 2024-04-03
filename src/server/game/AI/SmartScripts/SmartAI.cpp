@@ -832,7 +832,7 @@ void SmartAI::StopFollow(bool complete)
     _followGUID.Clear();
     _followDistance = 0;
     _followAngle = 0;
-    _followCredit = 0;
+    uint32 followCredit = std::exchange(_followCredit, 0);
     _followArrivedTimer = 1000;
     _followArrivedEntry = 0;
     _followCreditType = 0;
@@ -846,9 +846,9 @@ void SmartAI::StopFollow(bool complete)
     if (player)
     {
         if (!_followCreditType)
-            player->RewardPlayerAndGroupAtEvent(_followCredit, me);
+            player->RewardPlayerAndGroupAtEvent(followCredit, me);
         else
-            player->GroupEventHappens(_followCredit, me);
+            player->GroupEventHappens(followCredit, me);
     }
 
     SetDespawnTime(5000);
