@@ -5122,12 +5122,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
         if (m_caster->ToUnit() && !m_caster->ToUnit()->GetSpellHistory()->IsReady(m_spellInfo, m_castItemEntry, IsIgnoringCooldowns()))
         {
-            if (m_triggeredByAuraSpell)
+            if (m_triggeredByAuraSpell || m_spellInfo->HasAttribute(SPELL_ATTR0_DISABLED_WHILE_ACTIVE))
                 return SPELL_FAILED_DONT_REPORT;
-            else if (m_castItemEntry)
-                return SPELL_FAILED_NOT_READY;
             else
-                return SPELL_FAILED_DONT_REPORT;
+                return SPELL_FAILED_NOT_READY;
         }
     }
 
