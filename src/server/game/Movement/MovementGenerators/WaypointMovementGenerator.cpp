@@ -417,6 +417,9 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
             break;
     }
 
+    if (GetPath()->Velocity && !_speed)
+        _speed = GetPath()->Velocity;
+
     if (_speed)
         init.SetVelocity(*_speed);
 
