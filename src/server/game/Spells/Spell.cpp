@@ -5124,8 +5124,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         {
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
-            else
+            else if (m_castItemEntry)
                 return SPELL_FAILED_NOT_READY;
+            else
+                return SPELL_FAILED_DONT_REPORT;
         }
     }
 
