@@ -124,6 +124,8 @@ enum PriestSpells
     SPELL_PRIEST_MASOCHISM_TALENT                   = 193063,
     SPELL_PRIEST_MASOCHISM_PERIODIC_HEAL            = 193065,
     SPELL_PRIEST_MASTERY_GRACE                      = 271534,
+    SPELL_PRIEST_MIND_DEVOURER                      = 373202,
+    SPELL_PRIEST_MIND_DEVOURER_AURA                 = 373204,
     SPELL_PRIEST_MINDBENDER_DISC                    = 123040,
     SPELL_PRIEST_MINDBENDER_SHADOW                  = 200174,
     SPELL_PRIEST_MINDGAMES                          = 375901,
@@ -1701,6 +1703,55 @@ class spell_pri_mind_bomb : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_pri_mind_bomb::RemoveEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 373202 - Mind Devourer
+// Triggered by 8092 - Mind Blast
+class spell_pri_mind_devourer : public SpellScript
+{
+     bool Validate(SpellInfo const* /*spellInfo*/) override
+     {
+         return ValidateSpellInfo({ { SPELL_PRIEST_MIND_DEVOURER_AURA } })
+             && ValidateSpellEffect({ {SPELL_PRIEST_MIND_DEVOURER, EFFECT_0} });
+     }
+
+     bool Load() override
+     {
+         return GetCaster()->HasAura(SPELL_PRIEST_MIND_DEVOURER);
+     }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_PRIEST_MIND_DEVOURER, EFFECT_0);
+        if (roll_chance_i(aurEff->GetAmount()))
+            GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_MIND_DEVOURER_AURA, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_mind_devourer::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 373204 - Mind Devourer (Aura)
+// Consumed by 335467 - Devouring Plague
+class spell_pri_mind_devourer_aura_consumed : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ { SPELL_PRIEST_MIND_DEVOURER_AURA } });
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        if (GetCaster()->HasAura(SPELL_PRIEST_MIND_DEVOURER_AURA))
+            GetCaster()->RemoveAurasDueToSpell(SPELL_PRIEST_MIND_DEVOURER_AURA);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_mind_devourer_aura_consumed::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_HEALTH_LEECH);
     }
 };
 
@@ -3337,6 +3388,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_levitate);
     RegisterSpellScript(spell_pri_lights_wrath);
     RegisterSpellScript(spell_pri_mind_bomb);
+    RegisterSpellScript(spell_pri_mind_devourer);
+    RegisterSpellScript(spell_pri_mind_devourer_aura_consumed);
     RegisterSpellScript(spell_pri_painful_punishment);
     RegisterSpellScript(spell_pri_pain_transformation);
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance", SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING);
