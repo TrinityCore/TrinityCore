@@ -195,7 +195,7 @@ class TC_GAME_API MotionMaster
         void MoveFall(uint32 id = 0);
         void MoveSeekAssistance(float x, float y, float z);
         void MoveSeekAssistanceDistract(uint32 timer);
-        void MoveTaxiFlight(uint32 path, uint32 pathnode);
+        void MoveTaxiFlight(uint32 path, uint32 pathnode, Optional<float> speed = {});
         void MoveDistract(uint32 time, float orientation);
         void MovePath(uint32 pathId, bool repeatable, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
