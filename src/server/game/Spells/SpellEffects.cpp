@@ -4043,8 +4043,8 @@ void Spell::EffectKnockBack()
             if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
                 return;
 
-    // Spells with SPELL_EFFECT_KNOCK_BACK (like Thunderstorm) can't knockback target if target has ROOT/STUN
-    if (unitTarget->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
+    // Spells with SPELL_EFFECT_KNOCK_BACK (like Thunderstorm) can't knockback target if target has ROOT
+    if (unitTarget->HasUnitState(UNIT_STATE_ROOT))
         return;
 
     float ratio = 0.1f;
