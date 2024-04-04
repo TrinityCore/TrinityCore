@@ -1079,7 +1079,7 @@ void MotionMaster::MoveSeekAssistanceDistract(uint32 time)
         TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveSeekAssistanceDistract: '{}', attempted to call distract assistance.", _owner->GetGUID());
 }
 
-void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
+void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode, Optional<float> speed /*= {}*/)
 {
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
@@ -1091,7 +1091,7 @@ void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
             bool hasExisting = HasMovementGenerator([](MovementGenerator const* gen) { return gen->GetMovementGeneratorType() == FLIGHT_MOTION_TYPE; });
             ASSERT(!hasExisting, "Duplicate flight path movement generator");
 
-            FlightPathMovementGenerator* movement = new FlightPathMovementGenerator();
+            FlightPathMovementGenerator* movement = new FlightPathMovementGenerator(speed);
             movement->LoadPath(_owner->ToPlayer(), pathnode);
             Add(movement);
         }

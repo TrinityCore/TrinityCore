@@ -32,9 +32,9 @@
 #define SKIP_SPLINE_POINT_DISTANCE_SQ (40.f * 40.f)
 #define PLAYER_FLIGHT_SPEED 32.0f
 
-FlightPathMovementGenerator::FlightPathMovementGenerator()
+FlightPathMovementGenerator::FlightPathMovementGenerator(Optional<float> speed)
 {
-    _currentNode = 0;
+    _speed = speed;
     _endGridX = 0.0f;
     _endGridY = 0.0f;
     _endMapId = 0;
@@ -98,7 +98,7 @@ void FlightPathMovementGenerator::DoReset(Player* owner)
     init.SetSmooth();
     init.SetUncompressed();
     init.SetWalk(true);
-    init.SetVelocity(PLAYER_FLIGHT_SPEED);
+    init.SetVelocity(_speed.value_or(PLAYER_FLIGHT_SPEED));
     init.Launch();
 }
 
