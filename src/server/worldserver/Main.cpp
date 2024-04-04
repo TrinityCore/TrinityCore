@@ -345,8 +345,8 @@ extern int main(int argc, char** argv)
         // unload battleground templates before different singletons destroyed
         sBattlegroundMgr->DeleteAllBattlegrounds();
 
-        sOutdoorPvPMgr->Die();                    // unload it before MapManager
         sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
+        sOutdoorPvPMgr->Die();
         sTerrainMgr.UnloadAll();
         sInstanceLockMgr.Unload();
     });
