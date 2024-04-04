@@ -1712,7 +1712,7 @@ class spell_pri_mind_devourer : public SpellScript
 {
      bool Validate(SpellInfo const* /*spellInfo*/) override
      {
-         return ValidateSpellInfo({ { SPELL_PRIEST_MIND_DEVOURER_AURA } })
+         return ValidateSpellInfo({ SPELL_PRIEST_MIND_DEVOURER_AURA })
              && ValidateSpellEffect({ {SPELL_PRIEST_MIND_DEVOURER, EFFECT_0} });
      }
 
@@ -1740,7 +1740,7 @@ class spell_pri_mind_devourer_aura_consumed : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ { SPELL_PRIEST_MIND_DEVOURER_AURA } });
+        return ValidateSpellInfo({ SPELL_PRIEST_MIND_DEVOURER_AURA });
     }
 
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
