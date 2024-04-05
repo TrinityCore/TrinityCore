@@ -3154,7 +3154,11 @@ class spell_pri_unfurling_darkness : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_TOUCH });
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_UNFURLING_DARKNESS_AURA,
+            SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF
+        });
     }
 
     bool Load() override
