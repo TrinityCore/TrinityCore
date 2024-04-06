@@ -21,7 +21,6 @@
 #include "AbstractFollower.h"
 #include "MovementDefines.h"
 #include "MovementGenerator.h"
-#include "Optional.h"
 #include "Position.h"
 #include "Timer.h"
 
@@ -33,7 +32,8 @@ class Unit;
 class FollowMovementGenerator : public MovementGenerator, public AbstractFollower
 {
     public:
-        explicit FollowMovementGenerator(Unit* target, float range, ChaseAngle angle, Optional<Milliseconds> duration);
+        explicit FollowMovementGenerator(Unit* target, float range, ChaseAngle angle, Optional<Milliseconds> duration,
+            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
         ~FollowMovementGenerator();
 
         void Initialize(Unit*) override;

@@ -30,7 +30,8 @@
 
 WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
-    Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath)
+    Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
     : _nextMoveTime(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true),
     _speed(speed), _speedSelectionMode(speedSelectionMode), _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)),
     _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds), _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _isReturningToStart(false),
@@ -40,13 +41,15 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bo
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
+    ScriptResult = std::move(scriptResult);
     if (duration)
         _duration.emplace(*duration);
 }
 
 WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath const& path, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
-    Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath)
+    Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
     : _nextMoveTime(0), _pathId(0), _repeating(repeating), _loadedFromDB(false),
     _speed(speed), _speedSelectionMode(speedSelectionMode), _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)),
     _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds), _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _isReturningToStart(false),
@@ -58,6 +61,7 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath cons
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
+    ScriptResult = std::move(scriptResult);
     if (duration)
         _duration.emplace(*duration);
 }
@@ -166,6 +170,9 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
         {
             RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY);
             AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+            AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
+            owner->UpdateCurrentWaypointInfo(0, 0);
+            SetScriptResult(MovementStopReason::Finished);
             return false;
         }
     }
@@ -248,7 +255,7 @@ void WaypointMovementGenerator<Creature>::DoDeactivate(Creature* owner)
     owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
 }
 
-void WaypointMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active, bool/* movementInform*/)
+void WaypointMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active, bool movementInform)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
     if (active)
@@ -258,6 +265,9 @@ void WaypointMovementGenerator<Creature>::DoFinalize(Creature* owner, bool activ
         // TODO: Research if this modification is needed, which most likely isnt
         owner->SetWalk(false);
     }
+
+    if (movementInform)
+        SetScriptResult(MovementStopReason::Finished);
 }
 
 void WaypointMovementGenerator<Creature>::MovementInform(Creature* owner)
@@ -353,6 +363,8 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
             // inform AI
             if (CreatureAI* AI = owner->AI())
                 AI->WaypointPathEnded(waypoint.Id, GetPath()->Id);
+
+            SetScriptResult(MovementStopReason::Finished);
             return;
         }
     }
@@ -391,7 +403,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
             init.SetAnimation(AnimTier::Ground);
             break;
         case WaypointMoveType::TakeOff:
-            init.SetAnimation(AnimTier::Hover);
+            init.SetAnimation(AnimTier::Fly);
             break;
         case WaypointMoveType::Run:
             init.SetWalk(false);

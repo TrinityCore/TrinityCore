@@ -24,6 +24,7 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
+#include "ScriptActionResult.h"
 #include <any>
 #include <vector>
 
@@ -38,6 +39,7 @@ class WorldObject;
 enum Difficulty : uint8;
 enum ProcFlags : uint32;
 enum ProcFlags2 : int32;
+enum SpellCastResult : int32;
 
 namespace UF
 {
@@ -474,6 +476,8 @@ struct TC_GAME_API CastSpellExtraArgs
     CastSpellExtraArgs& AddSpellMod(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); return *this; }
     CastSpellExtraArgs& AddSpellBP0(int32 val) { return AddSpellMod(SPELLVALUE_BASE_POINT0, val); } // because i don't want to type SPELLVALUE_BASE_POINT0 300 times
     CastSpellExtraArgs& SetCustomArg(std::any customArg) { CustomArg = std::move(customArg); return *this; }
+    CastSpellExtraArgs& SetScriptResult(Scripting::v2::ActionResultSetter<SpellCastResult> scriptResult) { ScriptResult.emplace(std::move(scriptResult)); return *this; }
+    CastSpellExtraArgs& SetScriptWaitsForSpellHit(bool scriptWaitsForSpellHit) { ScriptWaitsForSpellHit = scriptWaitsForSpellHit; return *this; }
 
     TriggerCastFlags TriggerFlags = TRIGGERED_NONE;
     Item* CastItem = nullptr;
@@ -497,6 +501,9 @@ struct TC_GAME_API CastSpellExtraArgs
         std::vector<std::pair<SpellValueMod, int32>> data;
     } SpellValueOverrides;
     std::any CustomArg;
+
+    Optional<Scripting::v2::ActionResultSetter<SpellCastResult>> ScriptResult;
+    bool ScriptWaitsForSpellHit = false;
 };
 
 struct SpellCastVisual

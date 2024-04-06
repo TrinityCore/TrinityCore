@@ -3882,6 +3882,9 @@ void Spell::_cast(bool skipCheck)
         handle_immediate();
     }
 
+    if (m_scriptResult && !m_scriptWaitsForSpellHit)
+        m_scriptResult->SetResult(SPELL_CAST_OK);
+
     CallScriptAfterCastHandlers();
 
     if (std::vector<int32> const* spell_triggered = sSpellMgr->GetSpellLinked(SPELL_LINK_CAST, m_spellInfo->Id))
@@ -4312,6 +4315,9 @@ void Spell::finish(SpellCastResult result)
     if (m_spellState == SPELL_STATE_FINISHED)
         return;
     m_spellState = SPELL_STATE_FINISHED;
+
+    if (m_scriptResult && (m_scriptWaitsForSpellHit || result != SPELL_CAST_OK))
+        m_scriptResult->SetResult(result);
 
     if (!m_caster)
         return;

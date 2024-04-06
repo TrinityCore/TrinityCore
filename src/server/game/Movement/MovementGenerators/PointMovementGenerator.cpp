@@ -31,7 +31,7 @@
 PointMovementGenerator::PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, Optional<float> speed /*= {}*/, Optional<float> finalOrient /*= {}*/,
     Unit const* faceTarget /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
     MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
-    Optional<float> closeEnoughDistance /*= {}*/)
+    Optional<float> closeEnoughDistance /*= {}*/, Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
     : _movementId(id), _destination(x, y, z), _speed(speed), _generatePath(generatePath), _finalOrient(finalOrient),
     i_faceTarget(faceTarget), _speedSelectionMode(speedSelectionMode), _closeEnoughDistance(closeEnoughDistance)
 {
@@ -39,6 +39,7 @@ PointMovementGenerator::PointMovementGenerator(uint32 id, float x, float y, floa
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
+    this->ScriptResult = std::move(scriptResult);
 
     if (spellEffectExtraData)
         this->i_spellEffectExtra = std::make_unique<Movement::SpellEffectExtraData>(*spellEffectExtraData);
@@ -195,6 +196,8 @@ void PointMovementGenerator::Finalize(Unit* owner, bool active, bool movementInf
 
 void PointMovementGenerator::MovementInform(Unit* owner)
 {
+    SetScriptResult(MovementStopReason::Finished);
+
     // deliver EVENT_CHARGE to scripts, EVENT_CHARGE_PREPATH is just internal implementation detail of this movement generator
     uint32 movementId = _movementId == EVENT_CHARGE_PREPATH ? uint32(EVENT_CHARGE) : _movementId;
 

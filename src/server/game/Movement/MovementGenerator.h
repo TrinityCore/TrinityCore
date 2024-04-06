@@ -22,6 +22,8 @@
 #include "FactoryHolder.h"
 #include "MovementDefines.h"
 #include "ObjectRegistry.h"
+#include "Optional.h"
+#include "ScriptActionResult.h"
 
 class Creature;
 class Unit;
@@ -85,6 +87,10 @@ class TC_GAME_API MovementGenerator
         uint8 Priority;
         uint16 Flags;
         uint32 BaseUnitState;
+        Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> ScriptResult;
+
+    protected:
+        void SetScriptResult(MovementStopReason reason);
 };
 
 template<class T, class D>
