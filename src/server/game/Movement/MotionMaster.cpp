@@ -713,6 +713,8 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos, Optional<int32> tier
     {
         init.MoveTo(PositionToVector3(pos), false);
         init.SetAnimation(AnimTier::Ground, tierTransitionId.value_or(1));
+        init.SetFly(); // ensure smooth animation even if gravity is enabled before calling this function
+        init.SetSmooth();
         switch (speedSelectionMode)
         {
             case MovementWalkRunSpeedSelectionMode::ForceRun:
@@ -740,7 +742,8 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, Optional<int32> t
     std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
     {
         init.MoveTo(PositionToVector3(pos), false);
-        init.SetAnimation(AnimTier::Hover, tierTransitionId.value_or(15));
+        init.SetAnimation(AnimTier::Fly, tierTransitionId.value_or(2));
+        init.SetFly(); // ensure smooth animation even if gravity is disabled after calling this function
         switch (speedSelectionMode)
         {
             case MovementWalkRunSpeedSelectionMode::ForceRun:
