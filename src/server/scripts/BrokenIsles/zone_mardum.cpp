@@ -1838,7 +1838,7 @@ struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
 
         player->KilledMonsterCredit(NPC_ROCKSLIDE_KILLCREDIT);
         Talk(SAY_JAYCE_ATTACK_ILLIDARI);
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext /*task*/)
         {
             me->GetMotionMaster()->MovePoint(POINT_JAYCE_DARKWEAVER_PREPARE_JUMP, JaycePrepareJump);
             for (ObjectGuid const& guid : _cloneGuids)
@@ -1907,7 +1907,7 @@ struct npc_basic_hidden_no_more_private : public ScriptedAI
         {
             case ACTION_HIDDEN_NO_MORE_MOVE:
             {
-                _scheduler.Schedule(pathDelay->MoveDelay, [this, pathDelay](TaskContext task)
+                _scheduler.Schedule(pathDelay->MoveDelay, [this, pathDelay](TaskContext /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(pathDelay->PathId, false);
                     me->DespawnOrUnsummon(6s);
@@ -1962,7 +1962,7 @@ struct npc_demon_hunter_hidden_no_more_private : public npc_basic_hidden_no_more
             case ACTION_HIDDEN_NO_MORE_MOVE:
             {
                 me->SetAIAnimKitId(ANIM_DH_RUN);
-                _scheduler.Schedule(pathDelay->MoveDelay, [this, pathDelay](TaskContext task)
+                _scheduler.Schedule(pathDelay->MoveDelay, [this, pathDelay](TaskContext /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(pathDelay->PathId, false);
                     me->DespawnOrUnsummon(6s);
