@@ -27,6 +27,7 @@
 
 MovementGenerator::~MovementGenerator()
 {
+    // Ensure script doesn't get stuck waiting for this movement
     SetScriptResult(MovementStopReason::Interrupted);
 }
 
