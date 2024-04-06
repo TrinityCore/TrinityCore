@@ -1953,7 +1953,7 @@ struct npc_demon_hunter_hidden_no_more_private : public npc_basic_hidden_no_more
         {
             case ACTION_HIDDEN_NO_MORE_EYEBEAM:
             {
-                _scheduler.Schedule(pathDelay->ActionDelay, [this](TaskContext task)
+                _scheduler.Schedule(pathDelay->ActionDelay, [this](TaskContext /*task*/)
                 {
                     me->CastSpell(me, (me->GetGender() == GENDER_FEMALE ? SPELL_COSMETIC_EYE_BEAM_01_FEMALE : SPELL_COSMETIC_EYE_BEAM_01_MALE), false);
                 });
