@@ -1768,7 +1768,6 @@ std::unordered_map<std::string_view, HiddenNoMorePathDelay> HiddenNoMorePathMap 
 
 constexpr Position JaycePrepareJump = { 1263.948f, 1632.9402f, 102.08563f };
 constexpr Position JayceJumpPosition = { 1245.257f, 1639.049f, 101.223f };
-constexpr Position JayceAfterJump = { 1218.278f, 1659.17f, 99.27652f };
 
 // 96436 - Jayce Darkweaver
 struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
