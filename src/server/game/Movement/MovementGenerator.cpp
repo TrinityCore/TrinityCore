@@ -25,7 +25,10 @@
 #include "WaypointMovementGenerator.h"
 #include <sstream>
 
-MovementGenerator::~MovementGenerator() { }
+MovementGenerator::~MovementGenerator()
+{
+    SetScriptResult(MovementStopReason::Interrupted);
+}
 
 std::string MovementGenerator::GetDebugInfo() const
 {
@@ -36,6 +39,15 @@ std::string MovementGenerator::GetDebugInfo() const
         << " Flags: " << Flags
         << " BaseUniteState: " << BaseUnitState;
     return sstr.str();
+}
+
+void MovementGenerator::SetScriptResult(MovementStopReason reason)
+{
+    if (ScriptResult)
+    {
+        ScriptResult->SetResult(reason);
+        ScriptResult.reset();
+    }
 }
 
 IdleMovementFactory::IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }

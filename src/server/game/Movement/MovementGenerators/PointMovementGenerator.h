@@ -19,7 +19,6 @@
 #define TRINITY_POINTMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
-#include "Optional.h"
 #include "Position.h"
 
 class Creature;
@@ -34,7 +33,8 @@ class PointMovementGenerator : public MovementGenerator
         explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, Optional<float> speed = {}, Optional<float> finalOrient = {},
             Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr,
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
-            Optional<float> closeEnoughDistance = {});
+            Optional<float> closeEnoughDistance = {},
+            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 
