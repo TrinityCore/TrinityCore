@@ -1,6 +1,3 @@
-@ECHO OFF
-CLS
-
 :MENU
 ECHO.
 ECHO ====================== Extractor ========================
@@ -36,7 +33,7 @@ IF %M%==6 GOTO :EOF
 ECHO.
 start /b /w mapextractor.exe
 ECHO Cameras, dbc and maps extracted.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 CLS
 GOTO MENU
 
@@ -46,56 +43,56 @@ start /b /w vmap4extractor.exe
 start /b /w vmap4assembler.exe Buildings vmaps
 rmdir Buildings /s /q
 ECHO Vmaps extracted and reassembled.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 CLS
 GOTO MENU
 
 :MMAPS
 ECHO.
 ECHO This may take a few hours to complete. Please be patient.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 start /b /w mmaps_generator.exe
 ECHO Mmaps generated.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 CLS
 GOTO MENU
 
 :ALL
 ECHO.
 ECHO This may take a few hours to complete. Please be patient.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 start /b /w mapextractor.exe
 ECHO Cameras, dbc and maps extracted.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 start /b /w vmap4extractor.exe
 ECHO Vmaps extracted.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 start /b /w vmap4assembler.exe
 rmdir Buildings /s /q
 ECHO Vmaps reassembled.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 start /b /w mmaps_generator.exe
 ECHO Mmaps generated.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 CLS
 GOTO MENU
 
 :ALLWITHLOGS
 ECHO.
 ECHO This may take a few hours to complete. Please be patient.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 start /b /w mapextractor.exe 2>&1 > mapextractor.log
 ECHO Cameras, dbc and maps extracted.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 start /b /w vmap4extractor.exe 2>&1 > vmap4extractor.log
 ECHO Vmaps extracted.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 start /b /w vmap4assembler.exe 2>&1 > vmap4assembler.log
 rmdir Buildings /s /q
 ECHO Vmaps reassembled.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 start /b /w mmaps_generator.exe 2>&1 > mmaps_generator.log
 ECHO Mmaps generated.
-PING 127.0.0.1 -n 5 >NUL
+TIMEOUT 5 > NUL
 CLS
 GOTO MENU
