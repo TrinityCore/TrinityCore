@@ -2029,6 +2029,9 @@ void SpellInfo::_LoadAuraState()
             case 35329: // Vibrant Blood
             case 35331: // Black Blood
             case 49163: // Perpetual Instability
+            case 1543:  // Flare
+            case 13424: // Faerie Fire
+            case 13752: // Faerie Fire
                 return AURA_STATE_FAERIE_FIRE;
             default:
                 break;
