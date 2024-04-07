@@ -123,18 +123,6 @@ void WorldSession::SendTaxiMenu(Creature* unit)
     GetPlayer()->SetTaxiCheater(lastTaxiCheaterState);
 }
 
-void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathNode)
-{
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    if (mountDisplayId)
-        GetPlayer()->Mount(mountDisplayId);
-
-    GetPlayer()->GetMotionMaster()->MoveTaxiFlight(path, pathNode);
-}
-
 bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
 {
     // find current node
