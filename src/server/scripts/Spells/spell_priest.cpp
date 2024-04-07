@@ -3240,44 +3240,54 @@ class spell_pri_twist_of_fate : public AuraScript
 
 // 341273 - Unfurling Darkness
 // Triggered by 34914 - Vampiric Touch
-class spell_pri_unfurling_darkness : public AuraScript
+class spell_pri_unfurling_darkness : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_PRIEST_UNFURLING_DARKNESS_AURA,
-            SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF
-        });
+        return ValidateSpellInfo({ SPELL_PRIEST_UNFURLING_DARKNESS, SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF })
+            && ValidateSpellEffect({ { SPELL_PRIEST_UNFURLING_DARKNESS_AURA, EFFECT_0 } });
     }
 
-    bool Load() override
+    void PreventDirectDamage(WorldObject*& target) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
+        bool canTriggerDirectDamage = [&]
+        {
+            if (!GetSpell()->m_originalCastId.IsEmpty())
+                return false;  // not when triggered by Shadow Crash (Whispering Shadows talent)
+            if (AuraEffect const* unfurlingDarkness = GetCaster()->GetAuraEffect(SPELL_PRIEST_UNFURLING_DARKNESS_AURA, EFFECT_0))
+                if (GetSpell()->m_appliedMods.contains(unfurlingDarkness->GetBase()))
+                    return true;
             return false;
+        }();
 
-        return caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS);
+        if (!canTriggerDirectDamage)
+            target = nullptr;
     }
 
-    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    void TriggerUnfurlingDarkness() const
     {
+        if (!GetSpell()->m_originalCastId.IsEmpty())
+            return; // not when triggered by Shadow Crash (Whispering Shadows talent)
+
         Unit* caster = GetCaster();
-        if (!caster)
-            return;
+
+        if (AuraEffect const* unfurlingDarkness = GetCaster()->GetAuraEffect(SPELL_PRIEST_UNFURLING_DARKNESS_AURA, EFFECT_0))
+        {
+            if (GetSpell()->m_appliedMods.contains(unfurlingDarkness->GetBase()))
+            {
+                unfurlingDarkness->GetBase()->Remove();
+                return;
+            }
+        }
 
         if (!caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF))
-        {
             caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_AURA, true);
-            caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF, true);
-        }
-        else if (caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS_AURA))
-            caster->RemoveAurasDueToSpell(SPELL_PRIEST_UNFURLING_DARKNESS_AURA);
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_pri_unfurling_darkness::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_unfurling_darkness::PreventDirectDamage, EFFECT_3, TARGET_UNIT_TARGET_ENEMY);
+        AfterCast += SpellCastFn(spell_pri_unfurling_darkness::TriggerUnfurlingDarkness);
     }
 };
 
