@@ -10,20 +10,12 @@ ECHO.
 ECHO ======================================================
 ECHO WARNING! when extracting the vmaps extractor will
 ECHO output the text below, it's intended and not an error:
-<<<<<<< Updated upstream
-ECHO ..........................................
-=======
 ECHO ======================================================
->>>>>>> Stashed changes
 ECHO Extracting World\Wmo\Band\Final_Stage.wmo
 ECHO No such file.
 ECHO Couldn't open RootWmo!!!
 ECHO Done!
-<<<<<<< Updated upstream
-ECHO ..........................................
-=======
 ECHO ======================================================
->>>>>>> Stashed changes
 ECHO.
 ECHO 1: Extract base files (NEEDED) and cameras.
 ECHO 2: Extract vmaps (needs maps to be extracted before you run this) (OPTIONAL, but highly recommended)
