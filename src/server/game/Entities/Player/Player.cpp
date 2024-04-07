@@ -16111,8 +16111,19 @@ void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
         m_QuestStatusSave[questId] = QUEST_DELETE_SAVE_TYPE;
     }
 
+    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+    bool updateVisibility = false;
+
     if (update)
+    {
         SendQuestUpdate(questId);
+
+        if (quest && quest->HasFlag(QUEST_FLAGS_UPDATE_PHASESHIFT))
+            updateVisibility = PhasingHandler::OnConditionChange(this, false);
+    }
+
+    if (updateVisibility)
+        UpdateObjectVisibility();
 }
 
 void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
@@ -16128,11 +16139,14 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
         SetQuestCompletedBit(questBit, false);
 
     // Remove seasonal quest also
-    Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
-    ASSERT(qInfo);
-    if (qInfo->IsSeasonal())
+    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+    bool updateVisibility = false;
+
+    ASSERT(quest);
+
+    if (quest->IsSeasonal())
     {
-        uint16 eventId = qInfo->GetEventIdForQuest();
+        uint16 eventId = quest->GetEventIdForQuest();
         if (m_seasonalquests.find(eventId) != m_seasonalquests.end())
         {
             m_seasonalquests[eventId].erase(questId);
@@ -16141,7 +16155,15 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
     }
 
     if (update)
+    {
         SendQuestUpdate(questId);
+
+        if (quest && quest->HasFlag(QUEST_FLAGS_UPDATE_PHASESHIFT))
+            updateVisibility = PhasingHandler::OnConditionChange(this, false);
+    }
+
+    if (updateVisibility)
+        UpdateObjectVisibility();
 }
 
 void Player::SendQuestUpdate(uint32 questId, bool updateInteractions /*= true*/, bool updateGameObjectQuestGiverStatus /*= false*/)
