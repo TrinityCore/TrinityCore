@@ -191,6 +191,9 @@ enum PriestSpells
     SPELL_PRIEST_ULTIMATE_PENITENCE                 = 421453,
     SPELL_PRIEST_ULTIMATE_PENITENCE_DAMAGE          = 421543,
     SPELL_PRIEST_ULTIMATE_PENITENCE_HEAL            = 421544,
+    SPELL_PRIEST_UNFURLING_DARKNESS                 = 341273,
+    SPELL_PRIEST_UNFURLING_DARKNESS_AURA            = 341282,
+    SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF          = 341291,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
     SPELL_PRIEST_VAMPIRIC_TOUCH                     = 34914,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
@@ -3235,6 +3238,59 @@ class spell_pri_twist_of_fate : public AuraScript
     }
 };
 
+// 341273 - Unfurling Darkness
+// Triggered by 34914 - Vampiric Touch
+class spell_pri_unfurling_darkness : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_UNFURLING_DARKNESS, SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF })
+            && ValidateSpellEffect({ { SPELL_PRIEST_UNFURLING_DARKNESS_AURA, EFFECT_0 } });
+    }
+
+    void PreventDirectDamage(WorldObject*& target) const
+    {
+        bool canTriggerDirectDamage = [&]
+        {
+            if (!GetSpell()->m_originalCastId.IsEmpty())
+                return false;  // not when triggered by Shadow Crash (Whispering Shadows talent)
+            if (AuraEffect const* unfurlingDarkness = GetCaster()->GetAuraEffect(SPELL_PRIEST_UNFURLING_DARKNESS_AURA, EFFECT_0))
+                if (GetSpell()->m_appliedMods.contains(unfurlingDarkness->GetBase()))
+                    return true;
+            return false;
+        }();
+
+        if (!canTriggerDirectDamage)
+            target = nullptr;
+    }
+
+    void TriggerUnfurlingDarkness() const
+    {
+        if (!GetSpell()->m_originalCastId.IsEmpty())
+            return; // not when triggered by Shadow Crash (Whispering Shadows talent)
+
+        Unit* caster = GetCaster();
+
+        if (AuraEffect const* unfurlingDarkness = GetCaster()->GetAuraEffect(SPELL_PRIEST_UNFURLING_DARKNESS_AURA, EFFECT_0))
+        {
+            if (GetSpell()->m_appliedMods.contains(unfurlingDarkness->GetBase()))
+            {
+                unfurlingDarkness->GetBase()->Remove();
+                return;
+            }
+        }
+
+        if (!caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF))
+            caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_AURA, true);
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_unfurling_darkness::PreventDirectDamage, EFFECT_3, TARGET_UNIT_TARGET_ENEMY);
+        AfterCast += SpellCastFn(spell_pri_unfurling_darkness::TriggerUnfurlingDarkness);
+    }
+};
+
 // 15286 - Vampiric Embrace
 class spell_pri_vampiric_embrace : public AuraScript
 {
@@ -3468,6 +3524,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_t5_heal_2p_bonus);
     RegisterSpellScript(spell_pri_t10_heal_2p_bonus);
     RegisterSpellScript(spell_pri_twist_of_fate);
+    RegisterSpellScript(spell_pri_unfurling_darkness);
     RegisterSpellScript(spell_pri_vampiric_embrace);
     RegisterSpellScript(spell_pri_vampiric_embrace_target);
     RegisterSpellScript(spell_pri_vampiric_touch);
