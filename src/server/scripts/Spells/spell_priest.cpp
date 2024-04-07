@@ -1713,7 +1713,7 @@ class spell_pri_mind_devourer : public SpellScript
      bool Validate(SpellInfo const* /*spellInfo*/) override
      {
          return ValidateSpellInfo({ SPELL_PRIEST_MIND_DEVOURER_AURA })
-             && ValidateSpellEffect({ {SPELL_PRIEST_MIND_DEVOURER, EFFECT_0} });
+             && ValidateSpellEffect({ { SPELL_PRIEST_MIND_DEVOURER, EFFECT_0 } });
      }
 
      bool Load() override
@@ -1724,8 +1724,8 @@ class spell_pri_mind_devourer : public SpellScript
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
     {
         AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_PRIEST_MIND_DEVOURER, EFFECT_0);
-        if (roll_chance_i(aurEff->GetAmount()))
-            GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_MIND_DEVOURER_AURA, true);
+        if (aurEff && roll_chance_i(aurEff->GetAmount()))
+            GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_MIND_DEVOURER_AURA, GetSpell());
     }
 
     void Register() override
@@ -1735,24 +1735,63 @@ class spell_pri_mind_devourer : public SpellScript
 };
 
 // 373204 - Mind Devourer (Aura)
-// Consumed by 335467 - Devouring Plague
-class spell_pri_mind_devourer_aura_consumed : public SpellScript
+// Attached to 335467 - Devouring Plague
+class spell_pri_mind_devourer_buff_aura : public AuraScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    void CalculateDamage(AuraEffect const* /*aurEff*/, Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_MIND_DEVOURER_AURA });
-    }
-
-    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
-    {
-        if (GetCaster()->HasAura(SPELL_PRIEST_MIND_DEVOURER_AURA))
-            GetCaster()->RemoveAurasDueToSpell(SPELL_PRIEST_MIND_DEVOURER_AURA);
+        AddPct(pctMod, DamageIncrease);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_mind_devourer_aura_consumed::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_HEALTH_LEECH);
+        DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(spell_pri_mind_devourer_buff_aura::CalculateDamage, EFFECT_1, SPELL_AURA_PERIODIC_LEECH);
     }
+
+public:
+    float DamageIncrease = 0.0f;
+};
+
+class spell_pri_mind_devourer_buff : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_MIND_DEVOURER_AURA, EFFECT_1 } });
+    }
+
+    void OnPrecast() override
+    {
+        AuraEffect const* mindDevourer = GetCaster()->GetAuraEffect(SPELL_PRIEST_MIND_DEVOURER_AURA, EFFECT_1);
+        if (!mindDevourer || !GetSpell()->m_appliedMods.contains(mindDevourer->GetBase()))
+            return;
+
+        _damageIncrease = mindDevourer->GetAmount();
+    }
+
+    void CalculateDamage(Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        AddPct(pctMod, _damageIncrease);
+    }
+
+    void ModifyAuraValueAndRemoveBuff(SpellEffIndex /*effIndex*/) const
+    {
+        if (!_damageIncrease)
+            return;
+
+        if (Aura* devouringPlague = GetHitAura())
+            if (spell_pri_mind_devourer_buff_aura* script = devouringPlague->GetScript<spell_pri_mind_devourer_buff_aura>())
+                script->DamageIncrease = _damageIncrease;
+
+        GetCaster()->RemoveAurasDueToSpell(SPELL_PRIEST_MIND_DEVOURER_AURA);
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_pri_mind_devourer_buff::CalculateDamage);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_mind_devourer_buff::ModifyAuraValueAndRemoveBuff, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+    }
+
+    float _damageIncrease = 0.0f;
 };
 
 // 390686 - Painful Punishment
@@ -3389,7 +3428,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_lights_wrath);
     RegisterSpellScript(spell_pri_mind_bomb);
     RegisterSpellScript(spell_pri_mind_devourer);
-    RegisterSpellScript(spell_pri_mind_devourer_aura_consumed);
+    RegisterSpellAndAuraScriptPair(spell_pri_mind_devourer_buff, spell_pri_mind_devourer_buff_aura);
     RegisterSpellScript(spell_pri_painful_punishment);
     RegisterSpellScript(spell_pri_pain_transformation);
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance", SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING);
