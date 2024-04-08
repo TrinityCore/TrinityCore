@@ -1,11 +1,11 @@
 :MENU
 ECHO.
 ECHO ====================== Extractor ========================
-ECHO Trinitycore cameras, dbc, maps, vmaps and mmaps extractor
+ECHO TrinityCore cameras, dbc, maps, vmaps and mmaps extractor
 ECHO =========================================================
 ECHO.
 ECHO ======================================================
-ECHO WARNING! when extracting the vmaps extractor will
+ECHO WARNING! When extracting the vmaps extractor will
 ECHO output the text below, it's intended and not an error:
 ECHO ======================================================
 ECHO Extracting World\Wmo\Band\Final_Stage.wmo
