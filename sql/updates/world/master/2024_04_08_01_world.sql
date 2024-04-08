@@ -21,3 +21,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 -- Quest Awaken, Dracthyr is not an auto accept quest
 UPDATE `quest_template_addon` SET `SpecialFlags`=0 WHERE `ID`=64864;
+
+-- Allow the aura when not on quest or when quest is in log
+UPDATE `spell_area` SET `quest_start_status`=11 WHERE `spell` IN (369731,370112);
