@@ -1,3 +1,6 @@
+@ECHO OFF
+CLS
+
 :MENU
 ECHO.
 ECHO ====================== Extractor ========================
