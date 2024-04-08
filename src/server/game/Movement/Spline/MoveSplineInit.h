@@ -207,7 +207,8 @@ namespace Movement
         args.animTier.emplace();
         args.animTier->TierTransitionId = tierTransitionId;
         args.animTier->AnimTier = anim;
-        args.flags.EnableAnimation();
+        if (!tierTransitionId)
+            args.flags.EnableAnimation();
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }

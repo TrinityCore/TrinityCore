@@ -1843,7 +1843,7 @@ enum class PowerTypeFlags : int16
     ContinueRegenWhileFatigued    = 0x0200, // NYI
     RegenAffectedByHaste          = 0x0400, // NYI
     SetToMaxOnLevelUp             = 0x1000,
-    SetToMaxLevelOnInitialLogIn   = 0x2000, // NYI
+    SetToMaxOnInitialLogIn        = 0x2000, // NYI
     AllowCostModsForPlayers       = 0x4000  // NYI
 };
 

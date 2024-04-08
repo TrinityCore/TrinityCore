@@ -33,7 +33,6 @@ enum PetEntry
 
     // Death Knight pets
     PET_GHOUL           = 26125,
-    PET_ABOMINATION     = 106848,
 
     // Shaman pet
     PET_SPIRIT_WOLF     = 29264
@@ -115,7 +114,6 @@ class TC_GAME_API Minion : public TempSummon
 
         // Death Knight pets
         bool IsPetGhoul() const { return GetEntry() == PET_GHOUL; } // Ghoul may be guardian or pet
-        bool IsPetAbomination() const { return GetEntry() == PET_ABOMINATION; } // Sludge Belcher dk talent
 
         // Shaman pet
         bool IsSpiritWolf() const { return GetEntry() == PET_SPIRIT_WOLF; } // Spirit wolf from feral spirits

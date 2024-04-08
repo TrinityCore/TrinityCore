@@ -609,6 +609,9 @@ class TC_GAME_API Spell
 
         UsedSpellMods m_appliedMods;
 
+        Optional<Scripting::v2::ActionResultSetter<SpellCastResult>> m_scriptResult;
+        bool m_scriptWaitsForSpellHit = false;
+
         int32 GetCastTime() const { return m_casttime; }
         int32 GetRemainingCastTime() const { return m_timer; }
         bool IsAutoRepeat() const { return m_autoRepeat; }

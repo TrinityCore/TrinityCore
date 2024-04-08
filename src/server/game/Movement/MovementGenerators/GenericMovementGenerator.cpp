@@ -40,6 +40,7 @@ GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::
         _duration.emplace(*args.Duration);
         _durationTracksSpline = false;
     }
+    ScriptResult = std::move(args.ScriptResult);
 }
 
 void GenericMovementGenerator::Initialize(Unit* owner)
@@ -100,6 +101,8 @@ void GenericMovementGenerator::MovementInform(Unit* owner)
 {
     if (_arrivalSpellId)
         owner->CastSpell(ObjectAccessor::GetUnit(*owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+
+    SetScriptResult(MovementStopReason::Finished);
 
     if (Creature* creature = owner->ToCreature())
     {
