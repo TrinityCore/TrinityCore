@@ -36,7 +36,7 @@ IF %M%==6 GOTO :EOF
 ECHO.
 START /b /w mapextractor.exe
 ECHO Cameras, dbc and maps extracted.
-TIMEOUT 5 > NUL
+TIMEOUT 5 > NULL
 CLS
 GOTO MENU
 
@@ -84,17 +84,17 @@ GOTO MENU
 ECHO.
 ECHO This may take a few hours to complete. Please be patient.
 TIMEOUT 5 > NUL
-START /b /w mapextractor.exe 2>&1 > mapextractor.log
+START /b /w mapextractor.exe > mapextractor.log
 ECHO Cameras, dbc and maps extracted.
 TIMEOUT 5 > NUL
-START /b /w vmap4extractor.exe 2>&1 > vmap4extractor.log
+START /b /w vmap4extractor.exe > vmap4extractor.log
 ECHO Vmaps extracted.
 TIMEOUT 5 > NUL
-START /b /w vmap4assembler.exe 2>&1 > vmap4assembler.log
+START /b /w vmap4assembler.exe > vmap4assembler.log
 RMDIR Buildings /s /q
 ECHO Vmaps reassembled.
 TIMEOUT 5 > NUL
-START /b /w mmaps_generator.exe 2>&1 > mmaps_generator.log
+START /b /w mmaps_generator.exe > mmaps_generator.log
 ECHO Mmaps generated.
 TIMEOUT 5 > NUL
 CLS
