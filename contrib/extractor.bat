@@ -36,7 +36,7 @@ IF %M%==6 GOTO :EOF
 ECHO.
 START /b /w mapextractor.exe
 ECHO Cameras, dbc and maps extracted.
-TIMEOUT 5 > NULL
+TIMEOUT 5 > NUL
 CLS
 GOTO MENU
 
