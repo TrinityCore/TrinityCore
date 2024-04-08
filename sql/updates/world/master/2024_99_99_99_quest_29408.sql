@@ -8,6 +8,10 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 1, 122484, 0, 0, 51, 0, 8, 210986, 0, '', 0, 0, 0, '', 'Forced Open Edict of Temperance can only target Edict of Temperance');
 
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 34 AND `SourceEntry` = 15642);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(34, 0, 15642, 0, 0, 47, 0, 29408, 8, 0, 0, 0, 0, '', 'Satisfy PlayerCondition 15642 if quest 29408 is in progress');
+
 -- Areatrigger
 DELETE FROM `areatrigger_scripts` WHERE `entry` = 8085;
 INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
@@ -18,7 +22,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (8085, 2, 0, 0, 46, 0, 100, 0, 0, 0, 0, 0, 85, 122486, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On trigger - self: Cast spell 122486 on Invoker');
 
 -- Trigger Condition
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 22 AND `SourceGroup` = 1 AND `SourceEntry` = 8085);
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 8085);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 1, 8085, 2, 0, 47, 0, 29408, 8, 0, 0, 0, 0, '', 'SAI AreaTrigger needs Quest 29408 in Progress'),
 (22, 1, 8085, 2, 0, 48, 0, 252345, 0, 0, 0, 0, 1, '', 'SAI AreaTrigger needs Objective 252345 not rewarded');
