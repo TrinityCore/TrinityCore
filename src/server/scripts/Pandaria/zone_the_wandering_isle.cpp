@@ -512,7 +512,7 @@ struct npc_aysa_cloudsinger_cave_of_meditation : public ScriptedAI
                 break;
             }
             case ACTION_FINISH_MEDITATION:
-            {               
+            {
                 events.CancelEvent(EVENT_SUMMON_AMBERLEAF);
                 break;
             }
