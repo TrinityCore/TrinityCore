@@ -26,7 +26,6 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
-#include "Unit.h"
 
 enum TraineeMisc
 {
@@ -443,8 +442,7 @@ struct npc_jaomin_ro : public ScriptedAI
 
     void JustReachedHome() override
     {
-        if (me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2))
-            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2);
+        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2);
     }
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
@@ -493,25 +491,21 @@ struct npc_jaomin_ro : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void OnHealthDepleted(Unit* attacker, bool /*isKill*/)
     {
-        if (me->HealthBelowPctDamaged(2, damage))
-        {
-            damage = 0;
+        me->SetReactState(REACT_PASSIVE);
+        me->AttackStop();
+        me->RemoveAllAuras();
+        me->InterruptNonMeleeSpells(true);
+        _events.Reset();
+        me->SetUninteractible(true);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2);
+        me->SetEmoteState(EMOTE_ONESHOT_NONE);
+        DoCast(SPELL_SERVERSIDE_KILL_CREDIT);
+        Talk(SAY_DEFEATED, attacker);
 
-            me->SetReactState(REACT_PASSIVE);
-            me->AttackStop();
-            me->RemoveAllAuras();
-            me->InterruptNonMeleeSpells(true);
-            _events.Reset();
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE_2);
-            me->SetEmoteState(EMOTE_ONESHOT_NONE);
-            DoCast(SPELL_SERVERSIDE_KILL_CREDIT);
-            Talk(SAY_DEFEATED, attacker);
-
-            _events.ScheduleEvent(EVENT_HEAL, 5s);
-            _events.ScheduleEvent(EVENT_MOVE_HOME, 6s);
-        }
+        _events.ScheduleEvent(EVENT_HEAL, 5s);
+        _events.ScheduleEvent(EVENT_MOVE_HOME, 6s);
     }
 
 private:
@@ -537,10 +531,15 @@ struct npc_jaomin_ro_hawk : public ScriptedAI
         me->SetSpeedRate(MOVE_RUN, 2.5f);
     }
 
-    void IsSummonedBy(WorldObject* summoner) override
+    void IsSummonedBy(WorldObject* summonerWO) override
     {
+        Unit* summoner = summonerWO->ToUnit();
+        Unit* victim = summoner->GetVictim();
+        if (!summoner || !victim)
+            return;
+
         DoCast(SPELL_FORCE_SUMMONER_TO_RIDE);
-        orientation = me->GetAbsoluteAngle(summoner->ToUnit()->GetVictim()) - me->GetOrientation();
+        orientation = me->GetAbsoluteAngle(victim) - me->GetOrientation();
         _events.ScheduleEvent(EVENT_MOVE, 1s);
     }
 

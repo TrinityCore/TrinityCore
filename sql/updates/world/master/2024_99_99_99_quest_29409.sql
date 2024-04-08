@@ -8,8 +8,8 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (54611, 1, 4, 'I bow to your skill. You bested me fairly.', 12, 0, 100, 2, 0, 0, 55209, 0, 'Jaomin Ro to Player'),
 (54611, 1, 5, 'It was an honor to be defeated by you.', 12, 0, 100, 2, 0, 0, 55210, 0, 'Jaomin Ro to Player');
 
-UPDATE `creature_template_difficulty` SET `StaticFlags1`=268435456, `VerifiedBuild`=53441 WHERE (`Entry`=54611 AND `DifficultyID`=0); -- Jaomin Ro
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=80, `VerifiedBuild`=53441 WHERE (`Entry`=57750 AND `DifficultyID`=0); -- Jaomin Ro
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=268959758, `StaticFlags3`=8388608, `StaticFlags4`=2147483648, `VerifiedBuild`=53441 WHERE (`Entry`=54611 AND `DifficultyID`=0); -- Jaomin Ro
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=524806, `ContentTuningID`=80, `VerifiedBuild`=53441 WHERE (`Entry`=57750 AND `DifficultyID`=0); -- Jaomin Ro
 
 UPDATE `creature_template` SET `faction`=2104, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=67584, `unit_flags3`=524288, `VehicleId`=1953, `ScriptName`='npc_jaomin_ro_hawk' WHERE `entry`=57750; -- Jaomin Ro
 UPDATE `creature_template` SET `ScriptName`='npc_jaomin_ro' WHERE `entry`=54611; -- Jaomin Ro
