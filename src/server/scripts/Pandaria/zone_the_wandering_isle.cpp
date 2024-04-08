@@ -17,6 +17,7 @@
 
 #include "CellImpl.h"
 #include "Containers.h"
+#include "CreatureAI.h"
 #include "CreatureAIImpl.h" // for RAND()
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
