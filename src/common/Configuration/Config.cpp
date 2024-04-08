@@ -18,7 +18,7 @@
 #include "Config.h"
 #include "Log.h"
 #include "StringConvert.h"
-#include "Util.h"
+#include <boost/filesystem/operations.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <algorithm>
 #include <cstdlib>
@@ -26,6 +26,7 @@
 #include <mutex>
 
 namespace bpt = boost::property_tree;
+namespace fs  = boost::filesystem;
 
 namespace
 {
@@ -159,6 +160,8 @@ bool ConfigMgr::LoadAdditionalFile(std::string file, bool keepOnReload, std::str
     if (!LoadFile(file, fullTree, error))
         return false;
 
+    std::lock_guard<std::mutex> lock(_configLock);
+
     for (bpt::ptree::value_type const& child : fullTree.begin()->second)
         _config.put_child(bpt::ptree::path_type(child.first, '/'), child.second);
 
@@ -166,6 +169,32 @@ bool ConfigMgr::LoadAdditionalFile(std::string file, bool keepOnReload, std::str
         _additonalFiles.emplace_back(std::move(file));
 
     return true;
+}
+
+bool ConfigMgr::LoadAdditionalDir(std::string const& dir, bool keepOnReload, std::vector<std::string>& loadedFiles, std::vector<std::string>& errors)
+{
+    fs::path dirPath = dir;
+    if (!fs::exists(dirPath) || !fs::is_directory(dirPath))
+        return true;
+
+    for (fs::directory_entry const& f : fs::recursive_directory_iterator(dirPath))
+    {
+        if (!fs::is_regular_file(f))
+            continue;
+
+        fs::path configFile = fs::absolute(f);
+        if (configFile.extension() != ".conf")
+            continue;
+
+        std::string fileName = configFile.generic_string();
+        std::string error;
+        if (LoadAdditionalFile(fileName, keepOnReload, error))
+            loadedFiles.push_back(std::move(fileName));
+        else
+            errors.push_back(std::move(error));
+    }
+
+    return errors.empty();
 }
 
 std::vector<std::string> ConfigMgr::OverrideWithEnvVariablesIfAny()
