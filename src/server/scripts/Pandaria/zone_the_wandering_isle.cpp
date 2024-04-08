@@ -104,12 +104,12 @@ struct npc_tushui_huojin_trainee : public ScriptedAI
             me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
             me->CombatStop();
 
-            _scheduler.Schedule(Seconds(1), [this](TaskContext /*task*/)
+            _scheduler.Schedule(1s, [this](TaskContext /*task*/)
             {
                 Talk(SAY_FINISH_FIGHT);
             });
 
-            _scheduler.Schedule(Seconds(3), [this](TaskContext /*task*/)
+            _scheduler.Schedule(3s, [this](TaskContext /*task*/)
             {
                 Position currentPosition;
                 float currentDist = 1000.0f;
@@ -140,12 +140,12 @@ struct npc_tushui_huojin_trainee : public ScriptedAI
 
     void JustEngagedWith(Unit* /*attacker*/) override
     {
-        _scheduler.Schedule(Seconds(4), [this](TaskContext task)
+        _scheduler.Schedule(4s, [this](TaskContext task)
         {
             if (me->GetVictim())
                 DoCastVictim(SPELL_BLACKOUT_KICK);
 
-            task.Repeat(Seconds(8));
+            task.Repeat(8s);
         });
     }
 
@@ -230,7 +230,7 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
             _scheduler.CancelAll();
 
             me->SetEmoteState(EMOTE_ONESHOT_NONE);
-            _scheduler.Schedule(Seconds(1), [this](TaskContext /*task*/ )
+            _scheduler.Schedule(1s, [this](TaskContext /*task*/ )
             {
                 me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
             });
@@ -243,15 +243,15 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
         me->SetEmoteState(EMOTE_ONESHOT_NONE);
         me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
 
-        _scheduler.Schedule(Seconds(1), [this](TaskContext /*task*/)
+        _scheduler.Schedule(1s, [this](TaskContext /*task*/)
         {
             me->SetEmoteState(EMOTE_STATE_MONKOFFENSE_READYUNARMED);
         });
 
-        _scheduler.Schedule(Seconds(4), [this](TaskContext task)
+        _scheduler.Schedule(4s, [this](TaskContext task)
         {
             PlayRandomEmote();
-            task.Repeat(Seconds(4));
+            task.Repeat(4s);
         });
     }
 
@@ -267,7 +267,7 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
     void BeginSparringDelayed(ObjectGuid partnerGuid)
     {
         _partnerGuid = partnerGuid;
-        _scheduler.Schedule(Seconds(1), [this, partnerGuid](TaskContext /*task*/)
+        _scheduler.Schedule(1s, [this, partnerGuid](TaskContext /*task*/)
         {
             BeginSparring(partnerGuid);
         });
@@ -348,11 +348,11 @@ struct npc_tushui_leading_trainee : public npc_tushui_huojin_trainee
 
     void ScheduleEmoteExecution()
     {
-        _scheduler.Schedule(Seconds(1), [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext task)
         {
             Emote emote = PlayRandomEmote();
             HandleEmoteNearbyTushuiTrainees(me, emote);
-            task.Repeat(Seconds(6));
+            task.Repeat(6s);
         });
     }
 
@@ -380,16 +380,16 @@ struct npc_instructor_zhi : public ScriptedAI
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(Seconds(6), [this](TaskContext task)
+        _scheduler.Schedule(6s, [this](TaskContext task)
         {
             Emote emote = Trinity::Containers::SelectRandomContainerElement(TraineeEmotes);
             me->HandleEmoteCommand(emote);
 
-            task.Schedule(Seconds(1), [this, emote](TaskContext /*task*/)
+            task.Schedule(1s, [this, emote](TaskContext /*task*/)
             {
                 HandleEmoteNearbyTushuiTrainees(me, emote);
             });
-            task.Repeat(Seconds(6));
+            task.Repeat(6s);
         });
     }
 
@@ -413,7 +413,7 @@ enum AysaCloudsingerMisc
     PATH_CAVE_OF_MEDITATION  = 5965200
 };
 
-Position const aysaJumpPos[3] =
+constexpr Position aysaJumpPos[3] =
 {
     { 1196.72f,   3492.85f,   90.9836f  },
     { 1192.29f,   3478.69f,   108.788f  },
@@ -432,15 +432,15 @@ struct npc_aysa_cloudsinger_summon : public ScriptedAI
 
         Talk(SAY_GO_CAVE, summoner);
 
-        _scheduler.Schedule(Seconds(3), [this](TaskContext task)
+        _scheduler.Schedule(3s, [this](TaskContext task)
         {
             me->GetMotionMaster()->MoveJumpWithGravity(aysaJumpPos[0], 12.0f, 17.4735f);
 
-            task.Schedule(Milliseconds(1700), [this](TaskContext task)
+            task.Schedule(1700ms, [this](TaskContext task)
             {
                 me->GetMotionMaster()->MoveJumpWithGravity(aysaJumpPos[1], 12.0f, 10.7163f);
 
-                task.Schedule(Seconds(2), [this](TaskContext /*task*/)
+                task.Schedule(2s, [this](TaskContext /*task*/)
                 {
                     me->GetMotionMaster()->MoveJumpWithGravity(aysaJumpPos[2], 12.0f, 14.6923f, POINT_JUMP);
                 });
@@ -496,81 +496,67 @@ enum CaveOfMeditationMisc
     SAY_AYSA_FINISH_MEDITATION      = 1
 };
 
-// 7756 - Areatrigger
-class at_cave_of_meditation : public AreaTriggerScript
+// 59642 - Aysa Cloudsinger (Cave of Meditation)
+struct npc_aysa_cloudsinger_cave_of_meditation : public ScriptedAI
 {
-public:
-    at_cave_of_meditation() : AreaTriggerScript("at_cave_of_meditation") { }
+    npc_aysa_cloudsinger_cave_of_meditation(Creature* creature) : ScriptedAI(creature), _finishEvent(false) { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    void DoAction(int32 action) override
     {
-        if (player->IsAlive() && player->GetQuestStatus(QUEST_THE_WAY_OF_THE_TUSHUI) == QUEST_STATUS_INCOMPLETE)
+        switch (action)
         {
-            if (!player->HasAura(SPELL_MEDITATION_TIMER_BAR))
-                player->CastSpell(player, SPELL_MEDITATION_TIMER_BAR, TRIGGERED_FULL_MASK);
-
-            return true;
-        }
-        return false;
-    }
-
-    bool OnExit(Player* player, AreaTriggerEntry const* /*trigger*/) override
-    {
-        if (player->HasAura(SPELL_MEDITATION_TIMER_BAR))
-            player->RemoveAura(SPELL_MEDITATION_TIMER_BAR);
-
-        return true;
-    }
-};
-
-// 7645 - Areatrigger
-class at_inside_of_cave_of_meditation : public AreaTriggerScript
-{
-public:
-    at_inside_of_cave_of_meditation() : AreaTriggerScript("at_inside_of_cave_of_meditation") { }
-
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
-    {
-        if (player->IsAlive() && player->GetQuestStatus(QUEST_THE_WAY_OF_THE_TUSHUI) == QUEST_STATUS_INCOMPLETE)
-        {
-            if (!player->HasAura(SPELL_SUMMON_MASTER_LI_FEI))
+            case ACTION_START_MEDITATION:
             {
-                Creature* aysa = player->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_quest_29414" });
-
-                if (!aysa)
-                    return false;
-
-                aysa->AI()->Talk(SAY_AYSA_HELP, player);
-                aysa->AI()->DoAction(ACTION_START_MEDITATION);
-                player->CastSpell(player, SPELL_SUMMON_MASTER_LI_FEI, TRIGGERED_FULL_MASK);
+                _finishEvent = false;
+                events.ScheduleEvent(EVENT_SUMMON_AMBERLEAF, 1s);
+                break;
             }
-
-            return true;
+            case ACTION_FINISH_MEDITATION:
+            {               
+                events.CancelEvent(EVENT_SUMMON_AMBERLEAF);
+                break;
+            }
+            default:
+                break;
         }
-        return false;
     }
 
-    bool OnExit(Player* player, AreaTriggerEntry const* /*trigger*/) override
+    void FinishEvent()
     {
-        if (!talkDone)
+        if (_finishEvent)
+            return;
+
+        Creature* aysa = me->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_after_quest_29414", .IgnorePhases = true });
+
+        if (!aysa)
+            return;
+
+        aysa->AI()->Talk(SAY_AYSA_FINISH_MEDITATION);
+        _finishEvent = true;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            if (player->IsAlive() && player->GetQuestStatus(QUEST_THE_WAY_OF_THE_TUSHUI) == QUEST_STATUS_COMPLETE)
+            switch (eventId)
             {
-                Creature* aysa = player->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_after_quest_29414" });
-
-                if (!aysa)
-                    return false;
-
-                aysa->AI()->Talk(SAY_AYSA_FINISH_MEDITATION);
-                talkDone = true;
+                case EVENT_SUMMON_AMBERLEAF:
+                {
+                    DoCastSelf(SPELL_SUMMON_AMBERLEAF_TROUBLEMAKER);
+                    events.Repeat(11s);
+                    break;
+                }
+                default:
+                    break;
             }
         }
-
-        return true;
     }
-
 private:
-    bool talkDone = false;
+    EventMap events;
+    bool _finishEvent;
 };
 
 enum MasterLiFeiMisc
@@ -617,40 +603,40 @@ struct npc_master_li_fei_summon : public ScriptedAI
 
         me->GetMotionMaster()->MovePath(PATH_MASTER_LI, false);
 
-        _scheduler.Schedule(Seconds(23), [this](TaskContext task)
+        _scheduler.Schedule(23s, [this](TaskContext task)
         {
             FaceToPlayer();
 
-            task.Schedule(Seconds(2), [this](TaskContext task)
+            task.Schedule(2s, [this](TaskContext task)
             {
                 Talk(SAY_TEXT_0);
 
-                task.Schedule(Seconds(10), [this](TaskContext task)
+                task.Schedule(10s, [this](TaskContext task)
                 {
                     Talk(SAY_TEXT_1);
 
-                    task.Schedule(Seconds(12), [this](TaskContext task)
+                    task.Schedule(12s, [this](TaskContext task)
                     {
                         Talk(SAY_TEXT_2);
 
-                        task.Schedule(Seconds(11), [this](TaskContext task)
+                        task.Schedule(11s, [this](TaskContext task)
                         {
                             FaceToPlayer();
                             Talk(SAY_TEXT_3);
 
-                            task.Schedule(Seconds(11), [this](TaskContext task)
+                            task.Schedule(11s, [this](TaskContext task)
                             {
                                 Talk(SAY_TEXT_4);
 
-                                task.Schedule(Seconds(9), [this](TaskContext task)
+                                task.Schedule(9s, [this](TaskContext task)
                                 {
                                     FaceToPlayer();
 
-                                    task.Schedule(Seconds(2), [this](TaskContext task)
+                                    task.Schedule(2s, [this](TaskContext task)
                                     {
                                         Talk(SAY_TEXT_5);
 
-                                        task.Schedule(Seconds(6), [this](TaskContext /*task*/)
+                                        task.Schedule(6s, [this](TaskContext /*task*/)
                                         {
                                             Creature* aysa = me->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_quest_29414" });
 
@@ -681,51 +667,69 @@ private:
     TaskScheduler _scheduler;
 };
 
-// 59642 - Aysa Cloudsinger (Cave of Meditation)
-struct npc_aysa_cloudsinger_cave_of_meditation : public ScriptedAI
+// 7756 - Areatrigger
+class at_cave_of_meditation : public AreaTriggerScript
 {
-    npc_aysa_cloudsinger_cave_of_meditation(Creature* creature) : ScriptedAI(creature) { }
+public:
+    at_cave_of_meditation() : AreaTriggerScript("at_cave_of_meditation") { }
 
-    void DoAction(int32 action) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-        switch (action)
+        if (player->IsAlive() && player->GetQuestStatus(QUEST_THE_WAY_OF_THE_TUSHUI) == QUEST_STATUS_INCOMPLETE)
         {
-            case ACTION_START_MEDITATION:
-            {
-                events.ScheduleEvent(EVENT_SUMMON_AMBERLEAF, Seconds(1));
-                break;
-            }
-            case ACTION_FINISH_MEDITATION:
-            {
-                events.CancelEvent(EVENT_SUMMON_AMBERLEAF);
-                break;
-            }
-            default:
-                break;
+            if (!player->HasAura(SPELL_MEDITATION_TIMER_BAR))
+                player->CastSpell(player, SPELL_MEDITATION_TIMER_BAR, TRIGGERED_FULL_MASK);
+
+            return true;
         }
+        return false;
     }
 
-    void UpdateAI(uint32 diff) override
+    bool OnExit(Player* player, AreaTriggerEntry const* /*trigger*/) override
     {
-        events.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_SUMMON_AMBERLEAF:
-                {
-                    DoCastSelf(SPELL_SUMMON_AMBERLEAF_TROUBLEMAKER);
-                    events.Repeat(Seconds(11));
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
+        player->RemoveAura(SPELL_MEDITATION_TIMER_BAR);
+        return true;
     }
-private:
-    EventMap events;
+};
+
+// 7645 - Areatrigger
+class at_inside_of_cave_of_meditation : public AreaTriggerScript
+{
+public:
+    at_inside_of_cave_of_meditation() : AreaTriggerScript("at_inside_of_cave_of_meditation") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (player->IsAlive() && player->GetQuestStatus(QUEST_THE_WAY_OF_THE_TUSHUI) == QUEST_STATUS_INCOMPLETE)
+        {
+            if (!player->HasAura(SPELL_SUMMON_MASTER_LI_FEI))
+            {
+                Creature* aysa = player->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_quest_29414" });
+
+                if (!aysa)
+                    return false;
+
+                aysa->AI()->Talk(SAY_AYSA_HELP, player);
+                aysa->AI()->DoAction(ACTION_START_MEDITATION);
+                player->CastSpell(player, SPELL_SUMMON_MASTER_LI_FEI, TRIGGERED_FULL_MASK);
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    bool OnExit(Player* player, AreaTriggerEntry const* /*trigger*/) override
+    {
+        if (player->IsAlive() && player->GetQuestStatus(QUEST_THE_WAY_OF_THE_TUSHUI) == QUEST_STATUS_COMPLETE)
+        {
+            if (Creature* aysa = player->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_quest_29414", .IgnorePhases = true }))
+                if (npc_aysa_cloudsinger_cave_of_meditation* aysaAI = CAST_AI(npc_aysa_cloudsinger_cave_of_meditation, aysa->GetAI()))
+                    aysaAI->FinishEvent();
+        }
+
+        return true;
+    }
 };
 
 // 116421 - Meditation Timer Bar
@@ -741,7 +745,7 @@ class spell_meditation_timer_bar : public AuraScript
             {
                 target->CastSpell(GetTarget(), SPELL_CAVE_OF_SCROLLS_CREDIT, TRIGGERED_FULL_MASK);
                 target->CastSpell(GetTarget(), SPELL_AYSA_CAVE_OF_SCROLLS_COMP, TRIGGERED_FULL_MASK);
-                target->RemoveAura(GetId());
+                Remove();
             }
         }
     }
@@ -759,8 +763,8 @@ void AddSC_zone_the_wandering_isle()
     RegisterCreatureAI(npc_tushui_leading_trainee);
     RegisterCreatureAI(npc_instructor_zhi);
     RegisterCreatureAI(npc_aysa_cloudsinger_summon);
-    RegisterCreatureAI(npc_master_li_fei_summon);
     RegisterCreatureAI(npc_aysa_cloudsinger_cave_of_meditation);
+    RegisterCreatureAI(npc_master_li_fei_summon);
 
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();

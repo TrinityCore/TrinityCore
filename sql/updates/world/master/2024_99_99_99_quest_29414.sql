@@ -23,9 +23,9 @@ INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`,
 (54856, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '22650'); -- 54856 (Master Li Fei) - Ghost Visual
 
 DELETE FROM `creature` WHERE `guid` IN (450358, 450361); -- These npcs were wrong spawned
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
-(450358, 61801, 860, 5736, 5848, '0', 838, 0, 0, 0, 1187.0625, 3439.999267578125, 102.6911392211914062, 3.016042709350585937, 20, 0, 0, 312, 0, 0, NULL, NULL, NULL, NULL, 53913), -- Amberleaf Troublemaker (Area: Cave of Meditation - Difficulty: 0)
-(450361, 61801, 860, 5736, 5848, '0', 838, 0, 0, 0, 1185.7725830078125, 3448.739501953125, 102.5142288208007812, 3.500391721725463867, 20, 0, 0, 312, 0, 0, NULL, NULL, NULL, NULL, 53913); -- Amberleaf Troublemaker (Area: Cave of Meditation - Difficulty: 0)
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curHealthPct`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
+(450358, 61801, 860, 5736, 5848, '0', 838, 0, 0, 0, 1187.0625, 3439.999267578125, 102.6911392211914062, 3.016042709350585937, 20, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 53913), -- Amberleaf Troublemaker (Area: Cave of Meditation - Difficulty: 0)
+(450361, 61801, 860, 5736, 5848, '0', 838, 0, 0, 0, 1185.7725830078125, 3448.739501953125, 102.5142288208007812, 3.500391721725463867, 20, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 53913); -- Amberleaf Troublemaker (Area: Cave of Meditation - Difficulty: 0)
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (54567, 59642, 59652, 54856);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
