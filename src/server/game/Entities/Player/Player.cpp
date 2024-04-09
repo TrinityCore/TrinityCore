@@ -14992,6 +14992,10 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     SendQuestUpdate(quest_id);
 
+    bool updateVisibility = false;
+    if (quest->HasFlag(QUEST_FLAGS_UPDATE_PHASESHIFT))
+        updateVisibility = PhasingHandler::OnConditionChange(this, false);
+
     if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
     {
         // prepare Quest Tracker datas
@@ -15004,6 +15008,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         // add to Quest Tracker
         CharacterDatabase.Execute(stmt);
     }
+
+    if (updateVisibility)
+        UpdateObjectVisibility();
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, questStatusData.Status);
@@ -16104,8 +16111,19 @@ void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
         m_QuestStatusSave[questId] = QUEST_DELETE_SAVE_TYPE;
     }
 
+    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+    bool updateVisibility = false;
+
     if (update)
+    {
         SendQuestUpdate(questId);
+
+        if (quest && quest->HasFlag(QUEST_FLAGS_UPDATE_PHASESHIFT))
+            updateVisibility = PhasingHandler::OnConditionChange(this, false);
+    }
+
+    if (updateVisibility)
+        UpdateObjectVisibility();
 }
 
 void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
@@ -16121,11 +16139,14 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
         SetQuestCompletedBit(questBit, false);
 
     // Remove seasonal quest also
-    Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
-    ASSERT(qInfo);
-    if (qInfo->IsSeasonal())
+    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+    bool updateVisibility = false;
+
+    ASSERT(quest);
+
+    if (quest->IsSeasonal())
     {
-        uint16 eventId = qInfo->GetEventIdForQuest();
+        uint16 eventId = quest->GetEventIdForQuest();
         if (m_seasonalquests.find(eventId) != m_seasonalquests.end())
         {
             m_seasonalquests[eventId].erase(questId);
@@ -16134,7 +16155,15 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
     }
 
     if (update)
+    {
         SendQuestUpdate(questId);
+
+        if (quest && quest->HasFlag(QUEST_FLAGS_UPDATE_PHASESHIFT))
+            updateVisibility = PhasingHandler::OnConditionChange(this, false);
+    }
+
+    if (updateVisibility)
+        UpdateObjectVisibility();
 }
 
 void Player::SendQuestUpdate(uint32 questId, bool updateInteractions /*= true*/, bool updateGameObjectQuestGiverStatus /*= false*/)
@@ -22501,7 +22530,7 @@ UF::PVPInfo const* Player::GetPvpInfoForBracket(int8 bracket) const
 }
 
 bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= nullptr*/, uint32 spellid /*= 0*/, uint32 preferredMountDisplay /*= 0*/,
-    Optional<float> speed /*= {}*/)
+    Optional<float> speed /*= {}*/, Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> const& scriptResult /*= {}*/)
 {
     if (nodes.size() < 2)
     {
@@ -22681,18 +22710,19 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         ModifyMoney(-int64(firstcost));
         UpdateCriteria(CriteriaType::MoneySpentOnTaxis, firstcost);
         GetSession()->SendActivateTaxiReply(ERR_TAXIOK);
-        StartTaxiMovement(mount_display_id, sourcepath, 0, speed);
+        StartTaxiMovement(mount_display_id, sourcepath, 0, speed, Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>(scriptResult));
     }
     return true;
 }
 
-bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/, Optional<float> speed /*= {}*/)
+bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/, Optional<float> speed /*= {}*/,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> const& scriptResult /*= {}*/)
 {
     TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(taxi_path_id);
     if (!entry)
         return false;
 
-    return ActivateTaxiPathTo({ { entry->FromTaxiNode, entry->ToTaxiNode } }, nullptr, spellid, 0, speed);
+    return ActivateTaxiPathTo({ { entry->FromTaxiNode, entry->ToTaxiNode } }, nullptr, spellid, 0, speed, scriptResult);
 }
 
 void Player::FinishTaxiFlight()
@@ -22758,10 +22788,11 @@ void Player::ContinueTaxiFlight()
         }
     }
 
-    StartTaxiMovement(mountDisplayId, path, startNode, {});
+    StartTaxiMovement(mountDisplayId, path, startNode, {}, {});
 }
 
-void Player::StartTaxiMovement(uint32 mountDisplayId, uint32 path, uint32 pathNode, Optional<float> speed)
+void Player::StartTaxiMovement(uint32 mountDisplayId, uint32 path, uint32 pathNode, Optional<float> speed,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult)
 {
     // remove fake death
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
@@ -22769,7 +22800,7 @@ void Player::StartTaxiMovement(uint32 mountDisplayId, uint32 path, uint32 pathNo
     if (mountDisplayId)
         Mount(mountDisplayId);
 
-    GetMotionMaster()->MoveTaxiFlight(path, pathNode, speed);
+    GetMotionMaster()->MoveTaxiFlight(path, pathNode, speed, std::move(scriptResult));
 }
 
 void Player::InitDataForForm(bool reapplyMods)

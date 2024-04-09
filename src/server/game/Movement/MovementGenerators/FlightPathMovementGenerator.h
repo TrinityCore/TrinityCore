@@ -33,7 +33,8 @@ struct TaxiPathNodeEntry;
 class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, FlightPathMovementGenerator>, public PathMovementBase<Player, std::vector<TaxiPathNodeEntry const*>>
 {
     public:
-        explicit FlightPathMovementGenerator(Optional<float> speed);
+        explicit FlightPathMovementGenerator(Optional<float> speed,
+            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult);
 
         MovementGeneratorType GetMovementGeneratorType() const override;
         bool GetResetPosition(Unit* owner, float& x, float& y, float& z) override;

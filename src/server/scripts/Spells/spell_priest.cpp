@@ -124,6 +124,8 @@ enum PriestSpells
     SPELL_PRIEST_MASOCHISM_TALENT                   = 193063,
     SPELL_PRIEST_MASOCHISM_PERIODIC_HEAL            = 193065,
     SPELL_PRIEST_MASTERY_GRACE                      = 271534,
+    SPELL_PRIEST_MIND_DEVOURER                      = 373202,
+    SPELL_PRIEST_MIND_DEVOURER_AURA                 = 373204,
     SPELL_PRIEST_MINDBENDER_DISC                    = 123040,
     SPELL_PRIEST_MINDBENDER_SHADOW                  = 200174,
     SPELL_PRIEST_MINDGAMES                          = 375901,
@@ -189,6 +191,9 @@ enum PriestSpells
     SPELL_PRIEST_ULTIMATE_PENITENCE                 = 421453,
     SPELL_PRIEST_ULTIMATE_PENITENCE_DAMAGE          = 421543,
     SPELL_PRIEST_ULTIMATE_PENITENCE_HEAL            = 421544,
+    SPELL_PRIEST_UNFURLING_DARKNESS                 = 341273,
+    SPELL_PRIEST_UNFURLING_DARKNESS_AURA            = 341282,
+    SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF          = 341291,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
     SPELL_PRIEST_VAMPIRIC_TOUCH                     = 34914,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
@@ -1704,6 +1709,94 @@ class spell_pri_mind_bomb : public AuraScript
     }
 };
 
+// 373202 - Mind Devourer
+// Triggered by 8092 - Mind Blast
+class spell_pri_mind_devourer : public SpellScript
+{
+     bool Validate(SpellInfo const* /*spellInfo*/) override
+     {
+         return ValidateSpellInfo({ SPELL_PRIEST_MIND_DEVOURER_AURA })
+             && ValidateSpellEffect({ { SPELL_PRIEST_MIND_DEVOURER, EFFECT_0 } });
+     }
+
+     bool Load() override
+     {
+         return GetCaster()->HasAura(SPELL_PRIEST_MIND_DEVOURER);
+     }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_PRIEST_MIND_DEVOURER, EFFECT_0);
+        if (aurEff && roll_chance_i(aurEff->GetAmount()))
+            GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_MIND_DEVOURER_AURA, GetSpell());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_mind_devourer::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 373204 - Mind Devourer (Aura)
+// Attached to 335467 - Devouring Plague
+class spell_pri_mind_devourer_buff_aura : public AuraScript
+{
+    void CalculateDamage(AuraEffect const* /*aurEff*/, Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        AddPct(pctMod, DamageIncrease);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(spell_pri_mind_devourer_buff_aura::CalculateDamage, EFFECT_1, SPELL_AURA_PERIODIC_LEECH);
+    }
+
+public:
+    float DamageIncrease = 0.0f;
+};
+
+class spell_pri_mind_devourer_buff : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_MIND_DEVOURER_AURA, EFFECT_1 } });
+    }
+
+    void OnPrecast() override
+    {
+        AuraEffect const* mindDevourer = GetCaster()->GetAuraEffect(SPELL_PRIEST_MIND_DEVOURER_AURA, EFFECT_1);
+        if (!mindDevourer || !GetSpell()->m_appliedMods.contains(mindDevourer->GetBase()))
+            return;
+
+        _damageIncrease = mindDevourer->GetAmount();
+    }
+
+    void CalculateDamage(Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        AddPct(pctMod, _damageIncrease);
+    }
+
+    void ModifyAuraValueAndRemoveBuff(SpellEffIndex /*effIndex*/) const
+    {
+        if (!_damageIncrease)
+            return;
+
+        if (Aura* devouringPlague = GetHitAura())
+            if (spell_pri_mind_devourer_buff_aura* script = devouringPlague->GetScript<spell_pri_mind_devourer_buff_aura>())
+                script->DamageIncrease = _damageIncrease;
+
+        GetCaster()->RemoveAurasDueToSpell(SPELL_PRIEST_MIND_DEVOURER_AURA);
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_pri_mind_devourer_buff::CalculateDamage);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_mind_devourer_buff::ModifyAuraValueAndRemoveBuff, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+    }
+
+    float _damageIncrease = 0.0f;
+};
+
 // 390686 - Painful Punishment
 class spell_pri_painful_punishment : public AuraScript
 {
@@ -3145,6 +3238,59 @@ class spell_pri_twist_of_fate : public AuraScript
     }
 };
 
+// 341273 - Unfurling Darkness
+// Triggered by 34914 - Vampiric Touch
+class spell_pri_unfurling_darkness : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_UNFURLING_DARKNESS, SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF })
+            && ValidateSpellEffect({ { SPELL_PRIEST_UNFURLING_DARKNESS_AURA, EFFECT_0 } });
+    }
+
+    void PreventDirectDamage(WorldObject*& target) const
+    {
+        bool canTriggerDirectDamage = [&]
+        {
+            if (!GetSpell()->m_originalCastId.IsEmpty())
+                return false;  // not when triggered by Shadow Crash (Whispering Shadows talent)
+            if (AuraEffect const* unfurlingDarkness = GetCaster()->GetAuraEffect(SPELL_PRIEST_UNFURLING_DARKNESS_AURA, EFFECT_0))
+                if (GetSpell()->m_appliedMods.contains(unfurlingDarkness->GetBase()))
+                    return true;
+            return false;
+        }();
+
+        if (!canTriggerDirectDamage)
+            target = nullptr;
+    }
+
+    void TriggerUnfurlingDarkness() const
+    {
+        if (!GetSpell()->m_originalCastId.IsEmpty())
+            return; // not when triggered by Shadow Crash (Whispering Shadows talent)
+
+        Unit* caster = GetCaster();
+
+        if (AuraEffect const* unfurlingDarkness = GetCaster()->GetAuraEffect(SPELL_PRIEST_UNFURLING_DARKNESS_AURA, EFFECT_0))
+        {
+            if (GetSpell()->m_appliedMods.contains(unfurlingDarkness->GetBase()))
+            {
+                unfurlingDarkness->GetBase()->Remove();
+                return;
+            }
+        }
+
+        if (!caster->HasAura(SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF))
+            caster->CastSpell(caster, SPELL_PRIEST_UNFURLING_DARKNESS_AURA, true);
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_unfurling_darkness::PreventDirectDamage, EFFECT_3, TARGET_UNIT_TARGET_ENEMY);
+        AfterCast += SpellCastFn(spell_pri_unfurling_darkness::TriggerUnfurlingDarkness);
+    }
+};
+
 // 15286 - Vampiric Embrace
 class spell_pri_vampiric_embrace : public AuraScript
 {
@@ -3337,6 +3483,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_levitate);
     RegisterSpellScript(spell_pri_lights_wrath);
     RegisterSpellScript(spell_pri_mind_bomb);
+    RegisterSpellScript(spell_pri_mind_devourer);
+    RegisterSpellAndAuraScriptPair(spell_pri_mind_devourer_buff, spell_pri_mind_devourer_buff_aura);
     RegisterSpellScript(spell_pri_painful_punishment);
     RegisterSpellScript(spell_pri_pain_transformation);
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance", SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING);
@@ -3376,6 +3524,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_t5_heal_2p_bonus);
     RegisterSpellScript(spell_pri_t10_heal_2p_bonus);
     RegisterSpellScript(spell_pri_twist_of_fate);
+    RegisterSpellScript(spell_pri_unfurling_darkness);
     RegisterSpellScript(spell_pri_vampiric_embrace);
     RegisterSpellScript(spell_pri_vampiric_embrace_target);
     RegisterSpellScript(spell_pri_vampiric_touch);
