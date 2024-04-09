@@ -1160,7 +1160,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
 
-    m_stringIds[0] = goInfo->StringId;
+    m_stringIds[AsUnderlyingType(StringIdType::Template)] = goInfo->StringId;
 
     AIM_Initialize();
 
@@ -1980,7 +1980,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
     m_goData = data;
 
-    m_stringIds[1] = data->StringId;
+    m_stringIds[AsUnderlyingType(StringIdType::Spawn)] = data->StringId;
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
@@ -3507,12 +3507,12 @@ void GameObject::SetScriptStringId(std::string id)
     if (!id.empty())
     {
         m_scriptStringId.emplace(std::move(id));
-        m_stringIds[2] = *m_scriptStringId;
+        m_stringIds[AsUnderlyingType(StringIdType::Script)] = *m_scriptStringId;
     }
     else
     {
         m_scriptStringId.reset();
-        m_stringIds[2] = {};
+        m_stringIds[AsUnderlyingType(StringIdType::Script)] = {};
     }
 }
 
