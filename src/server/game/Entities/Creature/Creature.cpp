@@ -3137,6 +3137,15 @@ uint32 Creature::GetScriptId() const
     return ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(GetEntry()))->ScriptID;
 }
 
+void Creature::InheritStringIds(Creature* parent)
+{
+    if (CreatureTemplate const* parentTemplateInfo = GetCreatureTemplate())
+        m_stringIds[AsUnderlyingType(StringIdType::Template)] = parentTemplateInfo->StringId;
+    if (CreatureData const* spawnData = sObjectMgr->GetCreatureData(parent->GetSpawnId()))
+        m_stringIds[AsUnderlyingType(StringIdType::Spawn)] = spawnData->StringId;
+    SetScriptStringId(std::string(parent->GetStringId(StringIdType::Script)));
+}
+
 bool Creature::HasStringId(std::string_view id) const
 {
     return std::find(m_stringIds.begin(), m_stringIds.end(), id) != m_stringIds.end();

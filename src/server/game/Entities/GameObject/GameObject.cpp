@@ -3497,6 +3497,15 @@ uint32 GameObject::GetScriptId() const
     return GetGOInfo()->ScriptId;
 }
 
+void GameObject::InheritStringIds(GameObject* parent)
+{
+    if (GameObjectTemplate const* parentTemplateInfo = sObjectMgr->GetGameObjectTemplate(parent->GetEntry()))
+        m_stringIds[AsUnderlyingType(StringIdType::Template)] = parentTemplateInfo->StringId;
+    if (GameObjectData const* spawnData = sObjectMgr->GetGameObjectData(parent->GetSpawnId()))
+        m_stringIds[AsUnderlyingType(StringIdType::Spawn)] = spawnData->StringId;
+    SetScriptStringId(std::string(parent->GetStringId(StringIdType::Script)));
+}
+
 bool GameObject::HasStringId(std::string_view id) const
 {
     return std::find(m_stringIds.begin(), m_stringIds.end(), id) != m_stringIds.end();
