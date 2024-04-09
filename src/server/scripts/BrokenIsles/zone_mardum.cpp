@@ -1706,7 +1706,6 @@ public:
         if (newStatus == QUEST_STATUS_NONE)
         {
             player->CastSpell(nullptr, SPELL_ABANDON_HIDDEN_NO_MORE, true);
-            PhasingHandler::OnConditionChange(player);
         }
     }
 };
@@ -1719,16 +1718,7 @@ struct npc_jayce_darkweaver_cryptic_hollow : public ScriptedAI
     void OnQuestAccept(Player* player, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_HIDDEN_NO_MORE)
-        {
             me->SummonPersonalClone(me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-            PhasingHandler::OnConditionChange(player);
-        }
-    }
-
-    void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
-    {
-        if (quest->GetQuestId() == QUEST_GIVE_ME_SIGHT_BEYOND_SIGHT)
-            PhasingHandler::OnConditionChange(player);
     }
 
     bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
@@ -1777,6 +1767,8 @@ struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
     void JustAppeared() override
     {
         Player* player = me->GetDemonCreatorPlayer();
+        if (!player)
+            return;
 
         me->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
         me->CastSpell(nullptr, SPELL_COSMETIC_EYE_BEAM_01_MALE, false);
@@ -1789,9 +1781,7 @@ struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
         if (!shivarraClone)
             return;
 
-        ObjectGuid shivarraGuid = shivarraClone->GetGUID();
-
-        _scheduler.Schedule(4s, [this, shivarraGuid](TaskContext task)
+        _scheduler.Schedule(4s, [this, shivarraGuid = shivarraClone->GetGUID()](TaskContext task)
         {
             Creature* shivarraClone = ObjectAccessor::GetCreature(*me, shivarraGuid);
             if (!shivarraClone)
