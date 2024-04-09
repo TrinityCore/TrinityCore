@@ -381,6 +381,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool HasStringId(std::string_view id) const;
         void SetScriptStringId(std::string id);
         std::array<std::string_view, 3> const& GetStringIds() const { return m_stringIds; }
+        std::string_view const& GetStringId(StringIdType type) const { return m_stringIds[AsUnderlyingType(type)]; }
 
         void SetDisplayId(uint32 displayid);
         uint32 GetDisplayId() const { return m_gameObjectData->DisplayID; }
