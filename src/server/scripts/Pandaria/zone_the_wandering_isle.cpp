@@ -495,7 +495,7 @@ struct npc_min_dimwind_summon : public ScriptedAI
 
         amberleafScamp5->GetMotionMaster()->MovePoint(0, amberleafPos[4]);
 
-        _scheduler.Schedule(Seconds(2), [this](TaskContext /*task*/)
+        _scheduler.Schedule(2s, [this](TaskContext /*task*/)
         {
             Creature* amberleafScamp4 = me->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_amberleaf_scamp_4" });
 
@@ -506,16 +506,21 @@ struct npc_min_dimwind_summon : public ScriptedAI
             amberleafScamp4->GetMotionMaster()->MovePoint(0, amberleafPos[3]);
         });
 
-        _scheduler.Schedule(Seconds(5), [this](TaskContext task)
+        _scheduler.Schedule(5s, [this](TaskContext task)
         {
-            me->SetFacingToObject(me->ToTempSummon()->GetSummonerUnit());
-            Talk(SAY_MIN_DIMWIND_TEXT_0, me->ToTempSummon()->GetSummonerUnit());
+            Unit* summoner = me->ToTempSummon()->GetSummonerUnit();
 
-            task.Schedule(Seconds(4), [this](TaskContext task)
+            if (!summoner)
+                return;
+
+            me->SetFacingToObject(summoner);
+            Talk(SAY_MIN_DIMWIND_TEXT_0, summoner);
+
+            task.Schedule(4s, [this](TaskContext task)
             {
                 Talk(SAY_MIN_DIMWIND_TEXT_1);
 
-                task.Schedule(Seconds(4), [this](TaskContext /*task*/)
+                task.Schedule(4s, [this](TaskContext /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(PATH_MOVE_RUN, false);
                 });
@@ -550,7 +555,7 @@ struct npc_min_dimwind_summon : public ScriptedAI
                 me->SetFacingTo(0.575958f);
                 me->DespawnOrUnsummon(2s);
 
-                _scheduler.Schedule(Seconds(1), [this](TaskContext /*task*/)
+                _scheduler.Schedule(1s, [this](TaskContext /*task*/)
                 {
                     if (me->IsSummon())
                     {
@@ -587,7 +592,7 @@ struct npc_amberleaf_scamp : public ScriptedAI
         {
             me->GetMotionMaster()->MoveRandom(10.0f);
 
-            _scheduler.Schedule(Seconds(10), [this](TaskContext /*task*/)
+            _scheduler.Schedule(10s, [this](TaskContext /*task*/)
             {
                 me->GetMotionMaster()->MoveTargetedHome();
             });
