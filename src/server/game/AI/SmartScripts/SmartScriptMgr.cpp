@@ -298,16 +298,18 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.action.raw.param5 = fields[20].GetUInt32();
         temp.action.raw.param6 = fields[21].GetUInt32();
         temp.action.raw.param7 = fields[22].GetUInt32();
+        temp.action.ParamString = fields[23].GetString();
 
-        temp.target.type = (SMARTAI_TARGETS)fields[23].GetUInt8();
-        temp.target.raw.param1 = fields[24].GetUInt32();
-        temp.target.raw.param2 = fields[25].GetUInt32();
-        temp.target.raw.param3 = fields[26].GetUInt32();
-        temp.target.raw.param4 = fields[27].GetUInt32();
-        temp.target.x = fields[28].GetFloat();
-        temp.target.y = fields[29].GetFloat();
-        temp.target.z = fields[30].GetFloat();
-        temp.target.o = fields[31].GetFloat();
+        temp.target.type = (SMARTAI_TARGETS)fields[24].GetUInt8();
+        temp.target.raw.param1 = fields[25].GetUInt32();
+        temp.target.raw.param2 = fields[26].GetUInt32();
+        temp.target.raw.param3 = fields[27].GetUInt32();
+        temp.target.raw.param4 = fields[28].GetUInt32();
+        temp.target.ParamString = fields[29].GetString();
+        temp.target.x = fields[30].GetFloat();
+        temp.target.y = fields[31].GetFloat();
+        temp.target.z = fields[32].GetFloat();
+        temp.target.o = fields[33].GetFloat();
 
         //check target
         if (!IsTargetValid(temp))

@@ -1656,7 +1656,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             ObjectVector casters;
-            GetTargets(casters, CreateSmartEvent(SMART_EVENT_UPDATE_IC, 0, 0, 0, 0, 0, 0, SMART_ACTION_NONE, 0, 0, 0, 0, 0, 0, 0, (SMARTAI_TARGETS)e.action.crossCast.targetType, e.action.crossCast.targetParam1, e.action.crossCast.targetParam2, e.action.crossCast.targetParam3, 0, 0), unit);
+            GetTargets(casters, CreateSmartEvent(SMART_EVENT_UPDATE_IC, 0, 0, 0, 0, 0, 0, SMART_ACTION_NONE, 0, 0, 0, 0, 0, 0, 0, (SMARTAI_TARGETS)e.action.crossCast.targetType, e.action.crossCast.targetParam1, e.action.crossCast.targetParam2, e.action.crossCast.targetParam3, e.action.crossCast.targetParam4, e.action.ParamString, 0), unit);
 
             CastSpellExtraArgs args;
             if (e.action.crossCast.castFlags & SMARTCAST_TRIGGERED)
@@ -2537,7 +2537,7 @@ void SmartScript::ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, ui
         RecalcTimer(e, std::min<uint32>(min, 5000), std::min<uint32>(min, 5000));
 }
 
-SmartScriptHolder SmartScript::CreateSmartEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, uint32 event_param5, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, uint32 action_param7, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 target_param4, uint32 phaseMask)
+SmartScriptHolder SmartScript::CreateSmartEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, uint32 event_param5, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, uint32 action_param7, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 target_param4, std::string_view targetParamString, uint32 phaseMask)
 {
     SmartScriptHolder script;
     script.event.type = e;
@@ -2564,6 +2564,7 @@ SmartScriptHolder SmartScript::CreateSmartEvent(SMART_EVENT e, uint32 event_flag
     script.target.raw.param2 = target_param2;
     script.target.raw.param3 = target_param3;
     script.target.raw.param4 = target_param4;
+    script.target.ParamString = targetParamString;
 
     script.source_type = SMART_SCRIPT_TYPE_CREATURE;
     InitTimer(script);
@@ -2686,19 +2687,22 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 break;
             }
 
-            ObjectVector units;
-            GetWorldObjectsInDist(units, static_cast<float>(e.target.unitRange.maxDist));
+            ObjectVector objects;
+            GetWorldObjectsInDist(objects, static_cast<float>(e.target.unitRange.maxDist));
 
-            for (WorldObject* unit : units)
+            for (WorldObject* object : objects)
             {
-                if (!IsCreature(unit))
+                if (!IsCreature(object))
                     continue;
 
-                if (me && me->GetGUID() == unit->GetGUID())
+                if (me && me->GetGUID() == object->GetGUID())
                     continue;
 
-                if ((!e.target.unitRange.creature || unit->ToCreature()->GetEntry() == e.target.unitRange.creature) && ref->IsInRange(unit, float(e.target.unitRange.minDist), float(e.target.unitRange.maxDist)))
-                    targets.push_back(unit);
+                if (!e.target.ParamString.empty() && !object->ToCreature()->HasStringId(e.target.ParamString))
+                    continue;
+
+                if ((!e.target.unitRange.creature || object->ToCreature()->GetEntry() == e.target.unitRange.creature) && ref->IsInRange(object, float(e.target.unitRange.minDist), float(e.target.unitRange.maxDist)))
+                    targets.push_back(object);
             }
 
             if (e.target.unitRange.maxSize)
@@ -2707,19 +2711,22 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         }
         case SMART_TARGET_CREATURE_DISTANCE:
         {
-            ObjectVector units;
-            GetWorldObjectsInDist(units, static_cast<float>(e.target.unitDistance.dist));
+            ObjectVector objects;
+            GetWorldObjectsInDist(objects, static_cast<float>(e.target.unitDistance.dist));
 
-            for (WorldObject* unit : units)
+            for (WorldObject* object : objects)
             {
-                if (!IsCreature(unit))
+                if (!IsCreature(object))
                     continue;
 
-                if (me && me->GetGUID() == unit->GetGUID())
+                if (me && me->GetGUID() == object->GetGUID())
                     continue;
 
-                if (!e.target.unitDistance.creature || unit->ToCreature()->GetEntry() == e.target.unitDistance.creature)
-                    targets.push_back(unit);
+                if (!e.target.ParamString.empty() && !object->ToCreature()->HasStringId(e.target.ParamString))
+                    continue;
+
+                if (!e.target.unitDistance.creature || object->ToCreature()->GetEntry() == e.target.unitDistance.creature)
+                    targets.push_back(object);
             }
 
             if (e.target.unitDistance.maxSize)
@@ -2728,19 +2735,22 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         }
         case SMART_TARGET_GAMEOBJECT_DISTANCE:
         {
-            ObjectVector units;
-            GetWorldObjectsInDist(units, static_cast<float>(e.target.goDistance.dist));
+            ObjectVector objects;
+            GetWorldObjectsInDist(objects, static_cast<float>(e.target.goDistance.dist));
 
-            for (WorldObject* unit : units)
+            for (WorldObject* object : objects)
             {
-                if (!IsGameObject(unit))
+                if (!IsGameObject(object))
                     continue;
 
-                if (go && go->GetGUID() == unit->GetGUID())
+                if (go && go->GetGUID() == object->GetGUID())
                     continue;
 
-                if (!e.target.goDistance.entry || unit->ToGameObject()->GetEntry() == e.target.goDistance.entry)
-                    targets.push_back(unit);
+                if (!e.target.ParamString.empty() && !object->ToGameObject()->HasStringId(e.target.ParamString))
+                    continue;
+
+                if (!e.target.goDistance.entry || object->ToGameObject()->GetEntry() == e.target.goDistance.entry)
+                    targets.push_back(object);
             }
 
             if (e.target.goDistance.maxSize)
@@ -2760,19 +2770,22 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 break;
             }
 
-            ObjectVector units;
-            GetWorldObjectsInDist(units, static_cast<float>(e.target.goRange.maxDist));
+            ObjectVector objects;
+            GetWorldObjectsInDist(objects, static_cast<float>(e.target.goRange.maxDist));
 
-            for (WorldObject* unit : units)
+            for (WorldObject* object : objects)
             {
-                if (!IsGameObject(unit))
+                if (!IsGameObject(object))
                     continue;
 
-                if (go && go->GetGUID() == unit->GetGUID())
+                if (go && go->GetGUID() == object->GetGUID())
                     continue;
 
-                if ((!e.target.goRange.entry || unit->ToGameObject()->GetEntry() == e.target.goRange.entry) && ref->IsInRange(unit, float(e.target.goRange.minDist), float(e.target.goRange.maxDist)))
-                    targets.push_back(unit);
+                if (!e.target.ParamString.empty() && !object->ToGameObject()->HasStringId(e.target.ParamString))
+                    continue;
+
+                if ((!e.target.goRange.entry || object->ToGameObject()->GetEntry() == e.target.goRange.entry) && ref->IsInRange(object, float(e.target.goRange.minDist), float(e.target.goRange.maxDist)))
+                    targets.push_back(object);
             }
 
             if (e.target.goRange.maxSize)
@@ -2859,7 +2872,8 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             }
 
             if (Creature* target = ref->FindNearestCreature(e.target.unitClosest.entry, float(e.target.unitClosest.dist ? e.target.unitClosest.dist : 100), !e.target.unitClosest.dead))
-                targets.push_back(target);
+                if (e.target.ParamString.empty() || target->HasStringId(e.target.ParamString))
+                    targets.push_back(target);
             break;
         }
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
@@ -2876,7 +2890,8 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             }
 
             if (GameObject* target = ref->FindNearestGameObject(e.target.goClosest.entry, float(e.target.goClosest.dist ? e.target.goClosest.dist : 100)))
-                targets.push_back(target);
+                if (e.target.ParamString.empty() || target->HasStringId(e.target.ParamString))
+                    targets.push_back(target);
             break;
         }
         case SMART_TARGET_CLOSEST_PLAYER:
