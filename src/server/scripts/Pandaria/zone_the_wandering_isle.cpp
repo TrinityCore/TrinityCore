@@ -492,7 +492,7 @@ struct npc_jaomin_ro : public ScriptedAI
         }
     }
 
-    void OnHealthDepleted(Unit* attacker, bool /*isKill*/)
+    void OnHealthDepleted(Unit* attacker, bool /*isKill*/) override
     {
         me->SetReactState(REACT_PASSIVE);
         me->AttackStop();
