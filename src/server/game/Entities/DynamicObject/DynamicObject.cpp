@@ -108,7 +108,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     SetUpdateFieldValue(dynamicObjectData.ModifyValue(&UF::DynamicObjectData::Radius), radius);
     SetUpdateFieldValue(dynamicObjectData.ModifyValue(&UF::DynamicObjectData::CastTime), GameTime::GetGameTimeMS());
 
-    if (IsWorldObject())
+    if (IsStoredInWorldObjectGridContainer())
         setActive(true);    //must before add to map to be put in world container
 
     TransportBase* transport = caster->GetTransport();

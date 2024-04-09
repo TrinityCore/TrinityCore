@@ -63,13 +63,16 @@ MovementGeneratorType IdleMovementGenerator::GetMovementGeneratorType() const
 //----------------------------------------------------//
 
 RotateMovementGenerator::RotateMovementGenerator(uint32 id, RotateDirection direction, Optional<Milliseconds> duration,
-    Optional<float> turnSpeed, Optional<float> totalTurnAngle) : _id(id), _duration(duration), _turnSpeed(turnSpeed), _totalTurnAngle(totalTurnAngle),
+    Optional<float> turnSpeed, Optional<float> totalTurnAngle,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult) : _id(id), _duration(duration),
+    _turnSpeed(turnSpeed), _totalTurnAngle(totalTurnAngle),
     _direction(direction), _diffSinceLastUpdate(0)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROTATING;
+    ScriptResult = std::move(scriptResult);
 }
 
 void RotateMovementGenerator::Initialize(Unit* owner)
@@ -142,8 +145,12 @@ void RotateMovementGenerator::Finalize(Unit* owner, bool/* active*/, bool moveme
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
 
-    if (movementInform && owner->GetTypeId() == TYPEID_UNIT)
-        owner->ToCreature()->AI()->MovementInform(ROTATE_MOTION_TYPE, _id);
+    if (movementInform)
+    {
+        SetScriptResult(MovementStopReason::Finished);
+        if (owner->IsCreature())
+            owner->ToCreature()->AI()->MovementInform(ROTATE_MOTION_TYPE, _id);
+    }
 }
 
 MovementGeneratorType RotateMovementGenerator::GetMovementGeneratorType() const

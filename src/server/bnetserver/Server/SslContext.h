@@ -28,6 +28,11 @@ namespace Battlenet
         static bool Initialize();
 
         static boost::asio::ssl::context& instance();
+
+        static bool UsesDevWildcardCertificate() { return _usesDevWildcardCertificate; }
+
+    private:
+        static bool _usesDevWildcardCertificate;
     };
 }
 

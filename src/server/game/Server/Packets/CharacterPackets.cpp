@@ -352,6 +352,7 @@ void CreateCharacter::Read()
     bool const hasTemplateSet = _worldPacket.ReadBit();
     CreateInfo->IsTrialBoost = _worldPacket.ReadBit();
     CreateInfo->UseNPE = _worldPacket.ReadBit();
+    CreateInfo->Unused1026 = _worldPacket.ReadBit();
 
     _worldPacket >> CreateInfo->Race;
     _worldPacket >> CreateInfo->Class;

@@ -441,7 +441,7 @@ namespace WorldPackets
         class RatedPvpInfo final : public ServerPacket
         {
         public:
-            RatedPvpInfo() : ServerPacket(SMSG_RATED_PVP_INFO, 7 * sizeof(BracketInfo)) { }
+            RatedPvpInfo() : ServerPacket(SMSG_RATED_PVP_INFO, 9 * sizeof(BracketInfo)) { }
 
             WorldPacket const* Write() override;
 
@@ -467,7 +467,7 @@ namespace WorldPackets
                 int32 Unused4 = 0;
                 int32 Rank = 0;
                 bool Disqualified = false;
-            } Bracket[7];
+            } Bracket[9];
         };
 
         struct RatedMatchDeserterPenalty
