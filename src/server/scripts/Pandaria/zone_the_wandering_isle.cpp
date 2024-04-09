@@ -414,14 +414,14 @@ struct go_edict_of_temperance : public GameObjectAI
 
     bool OnReportUse(Player* /*player*/) override
     {
-        me->SendGameObjectDespawn();
+        me->DespawnOrUnsummon();
         return false;
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_FORCED_OPEN_EDICT_OF_TEMPERANCE)
-            me->SendGameObjectDespawn();
+            me->DespawnOrUnsummon();
     }
 };
 
