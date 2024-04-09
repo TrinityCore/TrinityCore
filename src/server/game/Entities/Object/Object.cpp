@@ -1845,6 +1845,11 @@ void WorldObject::ResetMap()
     //m_InstanceId = 0;
 }
 
+Difficulty WorldObject::GetMapDifficulty() const
+{
+    return m_currMap ? m_currMap->GetDifficulty() : REGULAR_DIFFICULTY;
+}
+
 void WorldObject::AddObjectToRemoveList()
 {
     ASSERT(m_uint32Values);

@@ -349,6 +349,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     // Player summoning
     m_summon_expire = 0;
+    m_summon_difficulty = REGULAR_DIFFICULTY;
 
     m_seer = this;
 
@@ -23515,6 +23516,7 @@ void Player::SendSummonRequestFrom(Unit* summoner)
 
     m_summon_expire = GameTime::GetGameTime() + MAX_PLAYER_SUMMON_DELAY;
     m_summon_location.WorldRelocate(*summoner);
+    m_summon_difficulty = summoner->GetMapDifficulty();
 
     WorldPacket data(SMSG_SUMMON_REQUEST, 8 + 4 + 4);
     data << uint64(summoner->GetGUID());                     // summoner guid
@@ -23528,11 +23530,16 @@ void Player::SummonIfPossible(bool agree)
     if (!agree)
     {
         m_summon_expire = 0;
+        m_summon_difficulty = REGULAR_DIFFICULTY;
         return;
     }
 
     // expire and auto declined
     if (m_summon_expire < GameTime::GetGameTime())
+        return;
+
+    // check access requirements
+    if (!Satisfy(sObjectMgr->GetAccessRequirement(m_summon_location.m_mapId, m_summon_difficulty), m_summon_location.m_mapId, true))
         return;
 
     // stop taxi flight at summon
@@ -23544,6 +23551,7 @@ void Player::SummonIfPossible(bool agree)
         bg->EventPlayerDroppedFlag(this);
 
     m_summon_expire = 0;
+    m_summon_difficulty = REGULAR_DIFFICULTY;
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS, 1);
 
