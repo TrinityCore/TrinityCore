@@ -604,7 +604,7 @@ enum AuraType : uint32
     SPELL_AURA_509                                          = 509,
     SPELL_AURA_MODIFIED_RAID_INSTANCE                       = 510, // NYI; Related to "Fated" raid affixes
     SPELL_AURA_APPLY_PROFESSION_EFFECT                      = 511, // NYI; MiscValue[0] = ProfessionEffectID
-    SPELL_AURA_512                                          = 512,
+    SPELL_AURA_CONVERT_RUNE                                 = 512,
     SPELL_AURA_513                                          = 513,
     SPELL_AURA_514                                          = 514,
     SPELL_AURA_515                                          = 515,
