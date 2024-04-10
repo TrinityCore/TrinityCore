@@ -247,8 +247,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void InheritStringIds(Creature const* parent);
         bool HasStringId(std::string_view id) const;
         void SetScriptStringId(std::string id);
-        std::array<std::string_view, 3> const& GetStringIds() const { return m_stringIds; }
-        std::string_view GetStringId(StringIdType type) const { return m_stringIds[size_t(type)]; }
+        std::string_view GetStringId(StringIdType type) const { return m_stringIds[size_t(type)] ? std::string_view(*m_stringIds[size_t(type)]) : std::string_view(); }
 
         // override WorldObject function for proper name localization
         std::string GetNameForLocaleIdx(LocaleConstant locale) const override;
@@ -510,7 +509,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTemplate const* m_creatureInfo;
         CreatureData const* m_creatureData;
         CreatureDifficulty const* m_creatureDifficulty;
-        std::array<std::string_view, 3> m_stringIds;
+        std::array<std::string const*, 3> m_stringIds;
         Optional<std::string> m_scriptStringId;
 
         Optional<uint32> m_lootId;
