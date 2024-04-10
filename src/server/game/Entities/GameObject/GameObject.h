@@ -277,8 +277,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void InheritStringIds(GameObject const* parent);
         bool HasStringId(std::string_view id) const;
         void SetScriptStringId(std::string id);
-        std::array<std::string_view, 3> const& GetStringIds() const { return m_stringIds; }
-        std::string_view GetStringId(StringIdType type) const { return m_stringIds[size_t(type)]; }
+        std::string_view GetStringId(StringIdType type) const { return m_stringIds[size_t(type)] ? std::string_view(*m_stringIds[size_t(type)]) : std::string_view(); }
 
         void SetDisplayId(uint32 displayid);
         uint32 GetDisplayId() const { return GetUInt32Value(GAMEOBJECT_DISPLAYID); }
@@ -345,7 +344,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectTemplateAddon const* m_goTemplateAddon;
         GameObjectData const* m_goData;
         GameObjectValue m_goValue;
-        std::array<std::string_view, 3> m_stringIds;
+        std::array<std::string const*, 3> m_stringIds;
         Optional<std::string> m_scriptStringId;
 
         int64 m_packedRotation;
