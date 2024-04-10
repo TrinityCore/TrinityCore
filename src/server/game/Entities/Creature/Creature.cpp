@@ -693,7 +693,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     //We must update last scriptId or it looks like we reloaded a script, breaking some things such as gossip temporarily
     LastUsedScriptID = GetScriptId();
 
-    m_stringIds[0] = cInfo->StringId;
+    m_stringIds[AsUnderlyingType(StringIdType::Template)] = cInfo->StringId;
 
     return true;
 }
@@ -1920,7 +1920,7 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
     // checked at creature_template loading
     m_defaultMovementType = MovementGeneratorType(data->movementType);
 
-    m_stringIds[1] = data->StringId;
+    m_stringIds[AsUnderlyingType(StringIdType::Spawn)] = data->StringId;
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
@@ -3137,6 +3137,15 @@ uint32 Creature::GetScriptId() const
     return ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(GetEntry()))->ScriptID;
 }
 
+void Creature::InheritStringIds(Creature const* parent)
+{
+    // copy references to stringIds from template and spawn
+    m_stringIds = parent->m_stringIds;
+
+    // then copy script stringId, not just its reference
+    SetScriptStringId(std::string(parent->GetStringId(StringIdType::Script)));
+}
+
 bool Creature::HasStringId(std::string_view id) const
 {
     return std::find(m_stringIds.begin(), m_stringIds.end(), id) != m_stringIds.end();
@@ -3147,12 +3156,12 @@ void Creature::SetScriptStringId(std::string id)
     if (!id.empty())
     {
         m_scriptStringId.emplace(std::move(id));
-        m_stringIds[2] = *m_scriptStringId;
+        m_stringIds[AsUnderlyingType(StringIdType::Script)] = *m_scriptStringId;
     }
     else
     {
         m_scriptStringId.reset();
-        m_stringIds[2] = {};
+        m_stringIds[AsUnderlyingType(StringIdType::Script)] = {};
     }
 }
 

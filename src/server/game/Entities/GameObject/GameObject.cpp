@@ -1160,7 +1160,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
 
-    m_stringIds[0] = goInfo->StringId;
+    m_stringIds[AsUnderlyingType(StringIdType::Template)] = goInfo->StringId;
 
     AIM_Initialize();
 
@@ -1980,7 +1980,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
     m_goData = data;
 
-    m_stringIds[1] = data->StringId;
+    m_stringIds[AsUnderlyingType(StringIdType::Spawn)] = data->StringId;
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
@@ -3497,6 +3497,15 @@ uint32 GameObject::GetScriptId() const
     return GetGOInfo()->ScriptId;
 }
 
+void GameObject::InheritStringIds(GameObject const* parent)
+{
+    // copy references to stringIds from template and spawn
+    m_stringIds = parent->m_stringIds;
+
+    // then copy script stringId, not just its reference
+    SetScriptStringId(std::string(parent->GetStringId(StringIdType::Script)));
+}
+
 bool GameObject::HasStringId(std::string_view id) const
 {
     return std::find(m_stringIds.begin(), m_stringIds.end(), id) != m_stringIds.end();
@@ -3507,12 +3516,12 @@ void GameObject::SetScriptStringId(std::string id)
     if (!id.empty())
     {
         m_scriptStringId.emplace(std::move(id));
-        m_stringIds[2] = *m_scriptStringId;
+        m_stringIds[AsUnderlyingType(StringIdType::Script)] = *m_scriptStringId;
     }
     else
     {
         m_scriptStringId.reset();
-        m_stringIds[2] = {};
+        m_stringIds[AsUnderlyingType(StringIdType::Script)] = {};
     }
 }
 
