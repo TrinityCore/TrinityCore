@@ -1128,7 +1128,6 @@ bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& e)
         }
     }
 
-
     bool targetUsesStringParam = [&]
     {
         switch (e.GetTargetType())
