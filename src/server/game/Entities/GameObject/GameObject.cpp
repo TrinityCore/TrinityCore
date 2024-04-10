@@ -3497,12 +3497,12 @@ uint32 GameObject::GetScriptId() const
     return GetGOInfo()->ScriptId;
 }
 
-void GameObject::InheritStringIds(GameObject* parent)
+void GameObject::InheritStringIds(GameObject const* parent)
 {
-    if (GameObjectTemplate const* parentTemplateInfo = sObjectMgr->GetGameObjectTemplate(parent->GetEntry()))
-        m_stringIds[AsUnderlyingType(StringIdType::Template)] = parentTemplateInfo->StringId;
-    if (GameObjectData const* spawnData = sObjectMgr->GetGameObjectData(parent->GetSpawnId()))
-        m_stringIds[AsUnderlyingType(StringIdType::Spawn)] = spawnData->StringId;
+    // copy references to stringIds from template and spawn
+    m_stringIds = parent->m_stringIds;
+
+    // then copy script stringId, not just its reference
     SetScriptStringId(std::string(parent->GetStringId(StringIdType::Script)));
 }
 

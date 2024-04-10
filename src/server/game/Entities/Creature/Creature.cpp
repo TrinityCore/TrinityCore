@@ -3137,12 +3137,12 @@ uint32 Creature::GetScriptId() const
     return ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(GetEntry()))->ScriptID;
 }
 
-void Creature::InheritStringIds(Creature* parent)
+void Creature::InheritStringIds(Creature const* parent)
 {
-    if (CreatureTemplate const* parentTemplateInfo = GetCreatureTemplate())
-        m_stringIds[AsUnderlyingType(StringIdType::Template)] = parentTemplateInfo->StringId;
-    if (CreatureData const* spawnData = sObjectMgr->GetCreatureData(parent->GetSpawnId()))
-        m_stringIds[AsUnderlyingType(StringIdType::Spawn)] = spawnData->StringId;
+    // copy references to stringIds from template and spawn
+    m_stringIds = parent->m_stringIds;
+
+    // then copy script stringId, not just its reference
     SetScriptStringId(std::string(parent->GetStringId(StringIdType::Script)));
 }
 
