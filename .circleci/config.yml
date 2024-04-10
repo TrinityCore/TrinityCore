@@ -81,7 +81,7 @@ jobs:
             ./bnetserver --version
             ./worldserver --version
       - setup_remote_docker:
-          version: 19.03.13
+          version: default
       - run:
           name: Create docker images
           command: |
