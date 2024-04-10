@@ -304,9 +304,12 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 }
 
 Creature::Creature(bool isWorldObject) : Unit(isWorldObject), MapObject(), m_PlayerDamageReq(0), m_dontClearTapListOnEvade(false), _pickpocketLootRestore(0),
-    m_corpseRemoveTime(0), m_respawnTime(0), m_respawnDelay(300), m_corpseDelay(60), m_ignoreCorpseDecayRatio(false), m_wanderDistance(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
-    m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(UI64LIT(0)), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
-    m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), m_creatureDifficulty(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
+    m_corpseRemoveTime(0), m_respawnTime(0), m_respawnDelay(300), m_corpseDelay(60), m_ignoreCorpseDecayRatio(false), m_wanderDistance(0.0f),
+    m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
+    m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(UI64LIT(0)), m_equipmentId(0), m_originalEquipmentId(0),
+    m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
+    m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(),
+    m_creatureInfo(nullptr), m_creatureData(nullptr), m_creatureDifficulty(nullptr), m_stringIds(), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
     m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _lastDamagedTime(0),
     _regenerateHealth(true), _creatureImmunitiesId(0), _gossipMenuId(0), _sparringHealthPct(0)
 {
@@ -693,7 +696,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     //We must update last scriptId or it looks like we reloaded a script, breaking some things such as gossip temporarily
     LastUsedScriptID = GetScriptId();
 
-    m_stringIds[AsUnderlyingType(StringIdType::Template)] = cInfo->StringId;
+    m_stringIds[AsUnderlyingType(StringIdType::Template)] = &cInfo->StringId;
 
     return true;
 }
@@ -1920,7 +1923,7 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
     // checked at creature_template loading
     m_defaultMovementType = MovementGeneratorType(data->movementType);
 
-    m_stringIds[AsUnderlyingType(StringIdType::Spawn)] = data->StringId;
+    m_stringIds[AsUnderlyingType(StringIdType::Spawn)] = &data->StringId;
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
@@ -3148,7 +3151,7 @@ void Creature::InheritStringIds(Creature const* parent)
 
 bool Creature::HasStringId(std::string_view id) const
 {
-    return std::find(m_stringIds.begin(), m_stringIds.end(), id) != m_stringIds.end();
+    return std::ranges::any_of(m_stringIds, [id](std::string const* stringId) { return stringId && *stringId == id; });
 }
 
 void Creature::SetScriptStringId(std::string id)
@@ -3156,12 +3159,12 @@ void Creature::SetScriptStringId(std::string id)
     if (!id.empty())
     {
         m_scriptStringId.emplace(std::move(id));
-        m_stringIds[AsUnderlyingType(StringIdType::Script)] = *m_scriptStringId;
+        m_stringIds[AsUnderlyingType(StringIdType::Script)] = &*m_scriptStringId;
     }
     else
     {
         m_scriptStringId.reset();
-        m_stringIds[AsUnderlyingType(StringIdType::Script)] = {};
+        m_stringIds[AsUnderlyingType(StringIdType::Script)] = nullptr;
     }
 }
 
