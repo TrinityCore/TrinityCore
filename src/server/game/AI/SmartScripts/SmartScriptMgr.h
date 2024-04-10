@@ -1259,7 +1259,7 @@ struct SmartAction
         } raw;
     };
 
-    std::string ParamString;
+    std::string param_string;
 };
 
 enum SMARTAI_SPAWN_FLAGS
@@ -1446,7 +1446,7 @@ struct SmartTarget
         } raw;
     };
 
-    std::string ParamString;
+    std::string param_string;
 };
 
 enum SmartScriptType

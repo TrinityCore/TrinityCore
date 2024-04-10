@@ -1656,7 +1656,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             ObjectVector casters;
-            GetTargets(casters, CreateSmartEvent(SMART_EVENT_UPDATE_IC, 0, 0, 0, 0, 0, 0, SMART_ACTION_NONE, 0, 0, 0, 0, 0, 0, 0, (SMARTAI_TARGETS)e.action.crossCast.targetType, e.action.crossCast.targetParam1, e.action.crossCast.targetParam2, e.action.crossCast.targetParam3, e.action.crossCast.targetParam4, e.action.ParamString, 0), unit);
+            GetTargets(casters, CreateSmartEvent(SMART_EVENT_UPDATE_IC, 0, 0, 0, 0, 0, 0, SMART_ACTION_NONE, 0, 0, 0, 0, 0, 0, 0, (SMARTAI_TARGETS)e.action.crossCast.targetType, e.action.crossCast.targetParam1, e.action.crossCast.targetParam2, e.action.crossCast.targetParam3, e.action.crossCast.targetParam4, e.action.param_string, 0), unit);
 
             CastSpellExtraArgs args;
             if (e.action.crossCast.castFlags & SMARTCAST_TRIGGERED)
@@ -2564,7 +2564,7 @@ SmartScriptHolder SmartScript::CreateSmartEvent(SMART_EVENT e, uint32 event_flag
     script.target.raw.param2 = target_param2;
     script.target.raw.param3 = target_param3;
     script.target.raw.param4 = target_param4;
-    script.target.ParamString = targetParamString;
+    script.target.param_string = targetParamString;
 
     script.source_type = SMART_SCRIPT_TYPE_CREATURE;
     InitTimer(script);
@@ -2687,23 +2687,13 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 break;
             }
 
-            ObjectVector objects;
-            GetWorldObjectsInDist(objects, static_cast<float>(e.target.unitRange.maxDist));
+            std::vector<Creature*> creatures;
+            ref->GetCreatureListWithOptionsInGrid(creatures, static_cast<float>(e.target.unitRange.maxDist), {
+                .CreatureId = e.target.unitRange.creature ? Optional<uint32>(e.target.unitRange.creature) : Optional<uint32>(),
+                .StringId = !e.target.param_string.empty() ? Optional<std::string_view>(e.target.param_string) : Optional<std::string_view>(),
+            });
 
-            for (WorldObject* object : objects)
-            {
-                if (!IsCreature(object))
-                    continue;
-
-                if (me && me->GetGUID() == object->GetGUID())
-                    continue;
-
-                if (!e.target.ParamString.empty() && !object->ToCreature()->HasStringId(e.target.ParamString))
-                    continue;
-
-                if ((!e.target.unitRange.creature || object->ToCreature()->GetEntry() == e.target.unitRange.creature) && ref->IsInRange(object, float(e.target.unitRange.minDist), float(e.target.unitRange.maxDist)))
-                    targets.push_back(object);
-            }
+            std::ranges::copy_if(creatures, std::back_inserter(targets), [&](Creature const* target) { return !ref->IsWithinDist(target, static_cast<float>(e.target.unitRange.minDist)); });
 
             if (e.target.unitRange.maxSize)
                 Trinity::Containers::RandomResize(targets, e.target.unitRange.maxSize);
@@ -2711,50 +2701,19 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         }
         case SMART_TARGET_CREATURE_DISTANCE:
         {
-            ObjectVector objects;
-            GetWorldObjectsInDist(objects, static_cast<float>(e.target.unitDistance.dist));
+            if (!baseObject)
+                break;
 
-            for (WorldObject* object : objects)
-            {
-                if (!IsCreature(object))
-                    continue;
+            std::vector<Creature*> creatures;
+            baseObject->GetCreatureListWithOptionsInGrid(creatures, static_cast<float>(e.target.unitDistance.dist), {
+                .CreatureId = e.target.unitDistance.creature ? Optional<uint32>(e.target.unitDistance.creature) : Optional<uint32>(),
+                .StringId = !e.target.param_string.empty() ? Optional<std::string_view>(e.target.param_string) : Optional<std::string_view>(),
+            });
 
-                if (me && me->GetGUID() == object->GetGUID())
-                    continue;
-
-                if (!e.target.ParamString.empty() && !object->ToCreature()->HasStringId(e.target.ParamString))
-                    continue;
-
-                if (!e.target.unitDistance.creature || object->ToCreature()->GetEntry() == e.target.unitDistance.creature)
-                    targets.push_back(object);
-            }
+            targets = { creatures.begin(), creatures.end() };
 
             if (e.target.unitDistance.maxSize)
                 Trinity::Containers::RandomResize(targets, e.target.unitDistance.maxSize);
-            break;
-        }
-        case SMART_TARGET_GAMEOBJECT_DISTANCE:
-        {
-            ObjectVector objects;
-            GetWorldObjectsInDist(objects, static_cast<float>(e.target.goDistance.dist));
-
-            for (WorldObject* object : objects)
-            {
-                if (!IsGameObject(object))
-                    continue;
-
-                if (go && go->GetGUID() == object->GetGUID())
-                    continue;
-
-                if (!e.target.ParamString.empty() && !object->ToGameObject()->HasStringId(e.target.ParamString))
-                    continue;
-
-                if (!e.target.goDistance.entry || object->ToGameObject()->GetEntry() == e.target.goDistance.entry)
-                    targets.push_back(object);
-            }
-
-            if (e.target.goDistance.maxSize)
-                Trinity::Containers::RandomResize(targets, e.target.goDistance.maxSize);
             break;
         }
         case SMART_TARGET_GAMEOBJECT_RANGE:
@@ -2770,26 +2729,33 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 break;
             }
 
-            ObjectVector objects;
-            GetWorldObjectsInDist(objects, static_cast<float>(e.target.goRange.maxDist));
+            std::vector<GameObject*> gameObjects;
+            ref->GetGameObjectListWithOptionsInGrid(gameObjects, static_cast<float>(e.target.goRange.maxDist), {
+                .GameObjectId = e.target.goRange.entry ? Optional<uint32>(e.target.goRange.entry) : Optional<uint32>(),
+                .StringId = !e.target.param_string.empty() ? Optional<std::string_view>(e.target.param_string) : Optional<std::string_view>(),
+            });
 
-            for (WorldObject* object : objects)
-            {
-                if (!IsGameObject(object))
-                    continue;
-
-                if (go && go->GetGUID() == object->GetGUID())
-                    continue;
-
-                if (!e.target.ParamString.empty() && !object->ToGameObject()->HasStringId(e.target.ParamString))
-                    continue;
-
-                if ((!e.target.goRange.entry || object->ToGameObject()->GetEntry() == e.target.goRange.entry) && ref->IsInRange(object, float(e.target.goRange.minDist), float(e.target.goRange.maxDist)))
-                    targets.push_back(object);
-            }
+            std::ranges::copy_if(gameObjects, std::back_inserter(targets), [&](GameObject const* target) { return !ref->IsWithinDist(target, static_cast<float>(e.target.goRange.minDist)); });
 
             if (e.target.goRange.maxSize)
                 Trinity::Containers::RandomResize(targets, e.target.goRange.maxSize);
+            break;
+        }
+        case SMART_TARGET_GAMEOBJECT_DISTANCE:
+        {
+            if (!baseObject)
+                break;
+
+            std::vector<GameObject*> gameObjects;
+            baseObject->GetGameObjectListWithOptionsInGrid(gameObjects, static_cast<float>(e.target.goDistance.dist), {
+                .GameObjectId = e.target.goDistance.entry ? Optional<uint32>(e.target.goDistance.entry) : Optional<uint32>(),
+                .StringId = !e.target.param_string.empty() ? Optional<std::string_view>(e.target.param_string) : Optional<std::string_view>(),
+            });
+
+            targets = { gameObjects.begin(), gameObjects.end() };
+
+            if (e.target.goDistance.maxSize)
+                Trinity::Containers::RandomResize(targets, e.target.goDistance.maxSize);
             break;
         }
         case SMART_TARGET_CREATURE_GUID:
@@ -2822,23 +2788,22 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         }
         case SMART_TARGET_PLAYER_RANGE:
         {
-            ObjectVector units;
-            GetWorldObjectsInDist(units, static_cast<float>(e.target.playerRange.maxDist));
+            if (!baseObject)
+                break;
 
-            if (!units.empty() && baseObject)
-                for (WorldObject* unit : units)
-                    if (IsPlayer(unit) && baseObject->IsInRange(unit, float(e.target.playerRange.minDist), float(e.target.playerRange.maxDist)))
-                        targets.push_back(unit);
+            std::vector<Player*> players;
+            baseObject->GetPlayerListInGrid(players, static_cast<float>(e.target.playerRange.maxDist));
+            std::ranges::copy_if(players, std::back_inserter(targets), [&](Player const* target) { return !baseObject->IsWithinDist(target, static_cast<float>(e.target.playerRange.minDist)); });
             break;
         }
         case SMART_TARGET_PLAYER_DISTANCE:
         {
-            ObjectVector units;
-            GetWorldObjectsInDist(units, static_cast<float>(e.target.playerDistance.dist));
+            if (!baseObject)
+                break;
 
-            for (WorldObject* unit : units)
-                if (IsPlayer(unit))
-                    targets.push_back(unit);
+            std::vector<Player*> players;
+            baseObject->GetPlayerListInGrid(players, static_cast<float>(e.target.playerDistance.dist));
+            targets = { players.begin(), players.end() };
             break;
         }
         case SMART_TARGET_STORED:
@@ -2871,9 +2836,14 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 break;
             }
 
-            if (Creature* target = ref->FindNearestCreature(e.target.unitClosest.entry, float(e.target.unitClosest.dist ? e.target.unitClosest.dist : 100), !e.target.unitClosest.dead))
-                if (e.target.ParamString.empty() || target->HasStringId(e.target.ParamString))
-                    targets.push_back(target);
+            Creature* target = ref->FindNearestCreatureWithOptions(float(e.target.unitClosest.dist ? e.target.unitClosest.dist : 100), {
+                .CreatureId = e.target.unitClosest.entry,
+                .StringId = !e.target.param_string.empty() ? Optional<std::string_view>(e.target.param_string) : Optional<std::string_view>(),
+                .IsAlive = !e.target.unitClosest.dead
+            });
+
+            if (target)
+                targets.push_back(target);
             break;
         }
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
@@ -2889,9 +2859,13 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 break;
             }
 
-            if (GameObject* target = ref->FindNearestGameObject(e.target.goClosest.entry, float(e.target.goClosest.dist ? e.target.goClosest.dist : 100)))
-                if (e.target.ParamString.empty() || target->HasStringId(e.target.ParamString))
-                    targets.push_back(target);
+            GameObject* target = ref->FindNearestGameObjectWithOptions(float(e.target.goClosest.dist ? e.target.goClosest.dist : 100), {
+                .GameObjectId = e.target.goClosest.entry,
+                .StringId = !e.target.param_string.empty() ? Optional<std::string_view>(e.target.param_string) : Optional<std::string_view>()
+            });
+
+            if (target)
+                targets.push_back(target);
             break;
         }
         case SMART_TARGET_CLOSEST_PLAYER:
@@ -2996,17 +2970,6 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         default:
             break;
     }
-}
-
-void SmartScript::GetWorldObjectsInDist(ObjectVector& targets, float dist) const
-{
-    WorldObject* obj = GetBaseObject();
-    if (!obj)
-        return;
-
-    Trinity::AllWorldObjectsInRange u_check(obj, dist);
-    Trinity::WorldObjectListSearcher<Trinity::AllWorldObjectsInRange> searcher(obj, targets, u_check);
-    Cell::VisitAllObjects(obj, searcher, dist);
 }
 
 void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, SpellInfo const* spell, GameObject* gob, std::string const& varString)
