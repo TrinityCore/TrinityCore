@@ -378,6 +378,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetScriptId() const;
         GameObjectAI* AI() const { return m_AI; }
 
+        void InheritStringIds(GameObject const* parent);
         bool HasStringId(std::string_view id) const;
         void SetScriptStringId(std::string id);
         std::array<std::string_view, 3> const& GetStringIds() const { return m_stringIds; }
