@@ -244,6 +244,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         std::string const& GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
+        void InheritStringIds(Creature const* parent);
         bool HasStringId(std::string_view id) const;
         void SetScriptStringId(std::string id);
         std::array<std::string_view, 3> const& GetStringIds() const { return m_stringIds; }
