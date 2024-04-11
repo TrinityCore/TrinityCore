@@ -601,7 +601,7 @@ struct npc_amberleaf_scamp : public ScriptedAI
 
     void JustReachedHome() override
     {
-        me->GetMotionMaster()->MoveIdle();
+        me->GetMotionMaster()->InitializeDefault();
     }
 
     void UpdateAI(uint32 diff) override
