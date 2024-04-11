@@ -34,7 +34,7 @@ typedef uint32 SAIBool;
 
 enum eSmartAI
 {
-    SMART_EVENT_PARAM_COUNT = 4,
+    SMART_EVENT_PARAM_COUNT = 5,
     SMART_ACTION_PARAM_COUNT = 7,
     SMART_SUMMON_COUNTER = 0xFFFFFF,
     SMART_ESCORT_LAST_OOC_POINT = 0xFFFFFF,
@@ -543,7 +543,7 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_NPC_FLAG                    = 83,     // Flags
     SMART_ACTION_SIMPLE_TALK                        = 84,     // groupID, can be used to make players say groupID, Text_over event is not triggered, whisper can not be used (Target units will say the text)
     SMART_ACTION_SELF_CAST                          = 85,     // spellID, castFlags
-    SMART_ACTION_CROSS_CAST                         = 86,     // spellID, castFlags, CasterTargetType, CasterTarget param1, CasterTarget param2, CasterTarget param3, ( + the origonal target fields as Destination target),   CasterTargets will cast spellID on all Targets (use with caution if targeting multiple * multiple units)
+    SMART_ACTION_CROSS_CAST                         = 86,     // spellID, castFlags, CasterTargetType, CasterTarget param1, CasterTarget param2, CasterTarget param3, CasterTarget param4, CasterTarget ParamString ( + the original target fields as Destination target),   CasterTargets will cast spellID on all Targets (use with caution if targeting multiple * multiple units)
     SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST       = 87,     // script9 ids 1-9
     SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST = 88,     // script9 id min, max
     SMART_ACTION_RANDOM_MOVE                        = 89,     // maxDist
@@ -703,6 +703,7 @@ struct SmartAction
             uint32 targetParam1;
             uint32 targetParam2;
             uint32 targetParam3;
+            uint32 targetParam4;
         } crossCast;
 
         struct
@@ -1257,6 +1258,8 @@ struct SmartAction
             uint32 param7;
         } raw;
     };
+
+    std::string param_string;
 };
 
 enum SMARTAI_SPAWN_FLAGS
@@ -1278,18 +1281,18 @@ enum SMARTAI_TARGETS
     SMART_TARGET_HOSTILE_RANDOM_NOT_TOP         = 6,    // Any random target except top threat, maxdist, playerOnly, powerType + 1
     SMART_TARGET_ACTION_INVOKER                 = 7,    // Unit who caused this Event to occur
     SMART_TARGET_POSITION                       = 8,    // use xyz from event params
-    SMART_TARGET_CREATURE_RANGE                 = 9,    // CreatureEntry(0any), minDist, maxDist
+    SMART_TARGET_CREATURE_RANGE                 = 9,    // CreatureEntry(0any), minDist, maxDist, maxSize, StringId
     SMART_TARGET_CREATURE_GUID                  = 10,   // guid, entry
-    SMART_TARGET_CREATURE_DISTANCE              = 11,   // CreatureEntry(0any), maxDist
+    SMART_TARGET_CREATURE_DISTANCE              = 11,   // CreatureEntry(0any), maxDist, maxSize, StringId
     SMART_TARGET_STORED                         = 12,   // id, uses pre-stored target(list)
-    SMART_TARGET_GAMEOBJECT_RANGE               = 13,   // entry(0any), min, max
+    SMART_TARGET_GAMEOBJECT_RANGE               = 13,   // entry(0any), minDist, maxDist, StringId
     SMART_TARGET_GAMEOBJECT_GUID                = 14,   // guid, entry
-    SMART_TARGET_GAMEOBJECT_DISTANCE            = 15,   // entry(0any), maxDist
+    SMART_TARGET_GAMEOBJECT_DISTANCE            = 15,   // entry(0any), maxDist, StringId
     SMART_TARGET_INVOKER_PARTY                  = 16,   // invoker's party members
     SMART_TARGET_PLAYER_RANGE                   = 17,   // min, max
     SMART_TARGET_PLAYER_DISTANCE                = 18,   // maxDist
-    SMART_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any), maxDist, dead?
-    SMART_TARGET_CLOSEST_GAMEOBJECT             = 20,   // entry(0any), maxDist
+    SMART_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any), maxDist, dead?, StringId
+    SMART_TARGET_CLOSEST_GAMEOBJECT             = 20,   // entry(0any), maxDist, StringId
     SMART_TARGET_CLOSEST_PLAYER                 = 21,   // maxDist
     SMART_TARGET_ACTION_INVOKER_VEHICLE         = 22,   // Unit's vehicle who caused this Event to occur
     SMART_TARGET_OWNER_OR_SUMMONER              = 23,   // Unit's owner or summoner, Use Owner/Charmer of this unit
@@ -1442,6 +1445,8 @@ struct SmartTarget
             uint32 param4;
         } raw;
     };
+
+    std::string param_string;
 };
 
 enum SmartScriptType
