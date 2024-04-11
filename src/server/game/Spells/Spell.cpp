@@ -1427,6 +1427,18 @@ void Spell::SelectImplicitAreaTargets(SpellEffectInfo const& spellEffectInfo, Sp
             SearchAreaTargets(targets, spellEffectInfo, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(),
                 spellEffectInfo.ImplicitTargetConditions.get(), Trinity::WorldObjectSpellAreaTargetSearchReason::Area);
             break;
+        case TARGET_UNIT_AREA_THREAT_LIST:
+            if (Unit* unit = m_caster->ToUnit())
+                for (ThreatReference const* threatRef : unit->GetThreatManager().GetUnsortedThreatList())
+                    if (Unit* threateningUnit = threatRef->GetVictim())
+                        targets.push_back(threateningUnit);
+            break;
+        case TARGET_UNIT_AREA_TAP_LIST:
+            if (Creature* creature = m_caster->ToCreature())
+                for (ObjectGuid const& tapperGuid : creature->GetTapList())
+                    if (Player* tapper = ObjectAccessor::GetPlayer(*m_caster, tapperGuid))
+                        targets.push_back(tapper);
+            break;
         default:
             SearchAreaTargets(targets, spellEffectInfo, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(),
                 spellEffectInfo.ImplicitTargetConditions.get(), Trinity::WorldObjectSpellAreaTargetSearchReason::Area);
@@ -9075,16 +9087,6 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
                 if (!unitTarget->IsSummon())
                     return false;
                 if (unitTarget->ToTempSummon()->GetSummonerGUID() != _caster->GetGUID())
-                    return false;
-                break;
-            case TARGET_CHECK_THREAT:
-                if (!_referer->IsUnit() || _referer->ToUnit()->GetThreatManager().GetThreat(unitTarget, true) <= 0.0f)
-                    return false;
-                break;
-            case TARGET_CHECK_TAP:
-                if (_referer->GetTypeId() != TYPEID_UNIT || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                    return false;
-                if (!_referer->ToCreature()->isTappedBy(unitTarget->ToPlayer()))
                     return false;
                 break;
             default:
