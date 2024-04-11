@@ -487,6 +487,7 @@ enum CaveOfMeditationMisc
     // Actions
     ACTION_START_MEDITATION  = 1,
     ACTION_FINISH_MEDITATION = 2,
+    ACTION_FINISH_EVENT      = 3,
 
     // Events
     EVENT_SUMMON_AMBERLEAF = 1,
@@ -516,23 +517,23 @@ struct npc_aysa_cloudsinger_cave_of_meditation : public ScriptedAI
                 events.CancelEvent(EVENT_SUMMON_AMBERLEAF);
                 break;
             }
+            case ACTION_FINISH_EVENT:
+            {
+                if (_finishEvent)
+                    return;
+
+                Creature* aysa = me->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_after_quest_29414", .IgnorePhases = true });
+
+                if (!aysa)
+                    return;
+
+                aysa->AI()->Talk(SAY_AYSA_FINISH_MEDITATION);
+                _finishEvent = true;
+                break;
+            }
             default:
                 break;
         }
-    }
-
-    void FinishEvent()
-    {
-        if (_finishEvent)
-            return;
-
-        Creature* aysa = me->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_after_quest_29414", .IgnorePhases = true });
-
-        if (!aysa)
-            return;
-
-        aysa->AI()->Talk(SAY_AYSA_FINISH_MEDITATION);
-        _finishEvent = true;
     }
 
     void UpdateAI(uint32 diff) override
@@ -724,8 +725,7 @@ public:
         if (player->IsAlive() && player->GetQuestStatus(QUEST_THE_WAY_OF_THE_TUSHUI) == QUEST_STATUS_COMPLETE)
         {
             if (Creature* aysa = player->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_quest_29414", .IgnorePhases = true }))
-                if (npc_aysa_cloudsinger_cave_of_meditation* aysaAI = CAST_AI(npc_aysa_cloudsinger_cave_of_meditation, aysa->GetAI()))
-                    aysaAI->FinishEvent();
+                aysa->AI()->DoAction(ACTION_FINISH_EVENT);
         }
 
         return true;
