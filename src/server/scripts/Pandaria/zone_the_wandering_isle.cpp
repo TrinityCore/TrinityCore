@@ -23,8 +23,8 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
 
@@ -444,6 +444,7 @@ struct npc_jaomin_ro : public ScriptedAI
     void JustReachedHome() override
     {
         me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2);
+        me->InitializeReactState();
     }
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
@@ -479,12 +480,12 @@ struct npc_jaomin_ro : public ScriptedAI
             case EVENT_HEAL:
             {
                 DoCastSelf(SPELL_FULL_HEALTH);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 break;
             }
             case EVENT_MOVE_HOME:
             {
-                me->GetMotionMaster()->MoveTargetedHome();
+                EnterEvadeMode();
                 break;
             }
             default:
@@ -535,8 +536,10 @@ struct npc_jaomin_ro_hawk : public ScriptedAI
     void IsSummonedBy(WorldObject* summonerWO) override
     {
         Unit* summoner = summonerWO->ToUnit();
+        if (!summoner)
+            return;
         Unit* victim = summoner->GetVictim();
-        if (!summoner || !victim)
+        if (!victim)
             return;
 
         DoCast(SPELL_FORCE_SUMMONER_TO_RIDE);
