@@ -434,7 +434,7 @@ enum JaominRoMisc
 // 54611 - Jaomin Ro
 struct npc_jaomin_ro : public ScriptedAI
 {
-    npc_jaomin_ro(Creature* creature) : ScriptedAI(creature) { }
+    using ScriptedAI::ScriptedAI;
 
     void JustEngagedWith(Unit* /*who*/) override
     {
@@ -517,15 +517,7 @@ private:
 // 57750 - Jaomin Ro (Hawk)
 struct npc_jaomin_ro_hawk : public ScriptedAI
 {
-    npc_jaomin_ro_hawk(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        orientation = 0.0f;
-    }
+    using ScriptedAI::ScriptedAI;
 
     void JustAppeared() override
     {
@@ -543,24 +535,15 @@ struct npc_jaomin_ro_hawk : public ScriptedAI
             return;
 
         DoCast(SPELL_FORCE_SUMMONER_TO_RIDE);
-        orientation = me->GetAbsoluteAngle(victim) - me->GetOrientation();
-        _events.ScheduleEvent(EVENT_MOVE, 1s);
+        _scheduler.Schedule(1s, [this, orientation = me->GetAbsoluteAngle(victim) - me->GetOrientation()](TaskContext /*context*/)
+        {
+            me->GetMotionMaster()->MovePoint(POINT_RANDOM_DEST, me->GetFirstCollisionPosition(40.0f, orientation));
+        });
     }
 
     void UpdateAI(uint32 diff) override
     {
-        _events.Update(diff);
-
-        switch (_events.ExecuteEvent())
-        {
-            case EVENT_MOVE:
-            {
-                me->GetMotionMaster()->MovePoint(POINT_RANDOM_DEST, me->GetFirstCollisionPosition(40.0f, orientation));
-                break;
-            }
-            default:
-                break;
-        }
+        _scheduler.Update(diff);
     }
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
@@ -591,14 +574,13 @@ struct npc_jaomin_ro_hawk : public ScriptedAI
     }
 
 private:
-    EventMap _events;
-    float orientation;
+    TaskScheduler _scheduler;
 };
 
 // 108583 - Force Summoner to Ride Vehicle
 class spell_force_summoner_to_ride_vehicle : public SpellScript
 {
-    void HandleScript(SpellEffIndex /*effIndex*/)
+    void HandleScript(SpellEffIndex /*effIndex*/) const
     {
         GetHitUnit()->CastSpell(GetCaster(), GetEffectValue(), TRIGGERED_FULL_MASK);
     }
@@ -612,9 +594,10 @@ class spell_force_summoner_to_ride_vehicle : public SpellScript
 // 108582 - Ride Drake
 class spell_ride_drake : public AuraScript
 {
-    void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_DIZZY, TRIGGERED_FULL_MASK);
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_DIZZY, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
