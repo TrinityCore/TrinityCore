@@ -73,6 +73,9 @@ void Load()
 
 ItemContext GetContextForPlayer(MapDifficultyEntry const* mapDifficulty, Player const* player)
 {
+    if (!mapDifficulty)
+        return ItemContext::NONE;
+
     auto evalContext = [](ItemContext currentContext, ItemContext newContext)
     {
         if (newContext == ItemContext::NONE)
@@ -103,8 +106,7 @@ ItemContext GetContextForPlayer(MapDifficultyEntry const* mapDifficulty, Player 
 
             bool meetsPlayerCondition = false;
             if (player)
-                if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(itemContextPickerEntry->PlayerConditionID))
-                    meetsPlayerCondition = ConditionMgr::IsPlayerMeetingCondition(player, playerCondition);
+                meetsPlayerCondition = ConditionMgr::IsPlayerMeetingCondition(player, itemContextPickerEntry->PlayerConditionID);
 
             if (itemContextPickerEntry->Flags & 0x1)
                 meetsPlayerCondition = !meetsPlayerCondition;

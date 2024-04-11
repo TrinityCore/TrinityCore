@@ -488,7 +488,7 @@ struct TC_GAME_API CreatureTemplate
     std::vector<uint32> GossipMenuIds;
     std::unordered_map<Difficulty, CreatureDifficulty> difficultyStore;
     uint32  RequiredExpansion;
-    uint32  VignetteID;                                     /// @todo Read Vignette.db2
+    uint32  VignetteID;
     uint32  faction;
     uint64  npcflag;
     float   speed_walk;
@@ -592,8 +592,7 @@ struct CreatureData : public SpawnData
     int8 equipmentId = 0;
     float wander_distance = 0.0f;
     uint32 currentwaypoint = 0;
-    uint32 curhealth = 0;
-    uint32 curmana = 0;
+    uint32 curHealthPct = 0;
     uint8 movementType = 0;
     Optional<uint64> npcflag;
     Optional<uint32> unit_flags;                                  // enum UnitFlags mask values

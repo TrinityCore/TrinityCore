@@ -22,12 +22,13 @@
 #include "DBCEnums.h"
 #include "Battleground.h"
 #include "BattlegroundQueue.h"
+#include "UniqueTrackablePtr.h"
 #include <unordered_map>
 
 class Battleground;
 struct BattlemasterListEntry;
 
-typedef std::map<uint32, Battleground*> BattlegroundContainer;
+typedef std::map<uint32, Trinity::unique_trackable_ptr<Battleground>> BattlegroundContainer;
 typedef std::set<uint32> BattlegroundClientIdsContainer;
 
 typedef std::unordered_map<uint32, BattlegroundTypeId> BattleMastersMap;
@@ -57,6 +58,13 @@ struct BattlegroundTemplate
     uint16 GetMaxPlayersPerTeam() const;
     uint8 GetMinLevel() const;
     uint8 GetMaxLevel() const;
+};
+
+struct BattlegroundScriptTemplate
+{
+    int32 MapId;
+    BattlegroundTypeId Id;
+    uint32 ScriptId;
 };
 
 namespace WorldPackets
@@ -102,7 +110,6 @@ class TC_GAME_API BattlegroundMgr
         Battleground* CreateNewBattleground(BattlegroundQueueTypeId queueId, BattlegroundBracketId bracketId);
 
         void AddBattleground(Battleground* bg);
-        void RemoveBattleground(BattlegroundTypeId bgTypeId, uint32 instanceId);
         void AddToBGFreeSlotQueue(Battleground* bg);
         void RemoveFromBGFreeSlotQueue(uint32 mapId, uint32 instanceId);
         BGFreeSlotQueueContainer& GetBGFreeSlotQueueStore(uint32 mapId);
@@ -151,6 +158,9 @@ class TC_GAME_API BattlegroundMgr
             return nullptr;
         }
 
+        void LoadBattlegroundScriptTemplate();
+        BattlegroundScriptTemplate const* FindBattlegroundScriptTemplate(uint32 mapId, BattlegroundTypeId bgTypeId) const;
+
     private:
         uint32 CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
         static bool IsArenaType(BattlegroundTypeId bgTypeId);
@@ -190,6 +200,8 @@ class TC_GAME_API BattlegroundMgr
         typedef std::map<uint32 /*mapId*/, BattlegroundTemplate*> BattlegroundMapTemplateContainer;
         BattlegroundTemplateMap _battlegroundTemplates;
         BattlegroundMapTemplateContainer _battlegroundMapTemplates;
+
+        std::map<std::pair<int32, uint32>, BattlegroundScriptTemplate> _battlegroundScriptTemplates;
 };
 
 #define sBattlegroundMgr BattlegroundMgr::instance()

@@ -26,6 +26,7 @@
 #include "Position.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
+#include "UniqueTrackablePtr.h"
 #include <memory>
 
 namespace WorldPackets::Spells
@@ -608,6 +609,9 @@ class TC_GAME_API Spell
 
         UsedSpellMods m_appliedMods;
 
+        Optional<Scripting::v2::ActionResultSetter<SpellCastResult>> m_scriptResult;
+        bool m_scriptWaitsForSpellHit = false;
+
         int32 GetCastTime() const { return m_casttime; }
         int32 GetRemainingCastTime() const { return m_timer; }
         bool IsAutoRepeat() const { return m_autoRepeat; }
@@ -670,6 +674,9 @@ class TC_GAME_API Spell
         int64 GetCorpseTargetCountForEffect(SpellEffIndex effect) const;
 
         std::string GetDebugInfo() const;
+
+        Trinity::unique_weak_ptr<Spell> GetWeakPtr() const;
+
         void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount);
 
         bool IsWithinLOS(WorldObject const* source, WorldObject const* target, bool targetAsSourceLocation, VMAP::ModelIgnoreFlags ignoreFlags) const;
