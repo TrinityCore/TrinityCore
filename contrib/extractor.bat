@@ -35,7 +35,6 @@ IF %M%==6 GOTO :EOF
 :MAPS
 ECHO.
 START /b /w mapextractor.exe
-ECHO Cameras, dbc and maps extracted.
 TIMEOUT 5 > NUL
 CLS
 GOTO MENU
@@ -45,7 +44,6 @@ ECHO.
 START /b /w vmap4extractor.exe
 START /b /w vmap4assembler.exe Buildings vmaps
 RMDIR Buildings /s /q
-ECHO Vmaps extracted and reassembled.
 TIMEOUT 5 > NUL
 CLS
 GOTO MENU
@@ -55,7 +53,6 @@ ECHO.
 ECHO This may take a few hours to complete. Please be patient.
 TIMEOUT 5 > NUL
 START /b /w mmaps_generator.exe
-ECHO Mmaps generated.
 TIMEOUT 5 > NUL
 CLS
 GOTO MENU
@@ -65,36 +62,42 @@ ECHO.
 ECHO This may take a few hours to complete. Please be patient.
 TIMEOUT 5 > NUL
 START /b /w mapextractor.exe
-ECHO Cameras, dbc and maps extracted.
 TIMEOUT 5 > NUL
 START /b /w vmap4extractor.exe
-ECHO Vmaps extracted.
 TIMEOUT 5 > NUL
 START /b /w vmap4assembler.exe
 RMDIR Buildings /s /q
-ECHO Vmaps reassembled.
 TIMEOUT 5 > NUL
 START /b /w mmaps_generator.exe
-ECHO Mmaps generated.
 TIMEOUT 5 > NUL
 CLS
 GOTO MENU
 
+REM "2>&1" merges Standard Error (stderr) with Standard Output (stdout).
+REM The results are redirected ">" into the log file.
 :ALLWITHLOGS
 ECHO.
 ECHO This may take a few hours to complete. Please be patient.
+ECHO.
 TIMEOUT 5 > NUL
-START /b /w mapextractor.exe > mapextractor.log
-ECHO Cameras, dbc and maps extracted.
+ECHO Extracting cameras, dbc and maps.
+START /b /w mapextractor.exe 2>&1 > mapextractor.log
+ECHO cameras, dbc and maps extracted.
+ECHO.
 TIMEOUT 5 > NUL
-START /b /w vmap4extractor.exe > vmap4extractor.log
-ECHO Vmaps extracted.
+ECHO Extracting Buildings for Vmaps.
+START /b /w vmap4extractor.exe 2>&1 > vmap4extractor.log
+ECHO Buildings for Vmaps extracted.
+ECHO.
 TIMEOUT 5 > NUL
-START /b /w vmap4assembler.exe > vmap4assembler.log
+ECHO Assembling Buildings with Vmaps.
+START /b /w vmap4assembler.exe 2>&1 > vmap4assembler.log
 RMDIR Buildings /s /q
-ECHO Vmaps reassembled.
+ECHO Buildings with Vmaps Assembled.
+ECHO.
 TIMEOUT 5 > NUL
-START /b /w mmaps_generator.exe > mmaps_generator.log
+ECHO Generating Mmaps (This takes the longest time).
+START /b /w mmaps_generator.exe 2>&1 > mmaps_generator.log
 ECHO Mmaps generated.
 TIMEOUT 5 > NUL
 CLS
