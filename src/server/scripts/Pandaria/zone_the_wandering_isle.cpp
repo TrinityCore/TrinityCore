@@ -819,7 +819,6 @@ private:
     TaskScheduler _scheduler;
 };
 
-
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
