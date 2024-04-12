@@ -529,7 +529,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
     movementSpline.FaceGUID = moveSpline.facing.target;
     movementSpline.FaceSpot = Position(moveSpline.facing.f.x, moveSpline.facing.f.y, moveSpline.facing.f.z);
 
-    if (splineFlags.animation)
+    if (moveSpline.anim_tier)
     {
         movementSpline.AnimTierTransition.emplace();
         movementSpline.AnimTierTransition->TierTransitionID = moveSpline.anim_tier->TierTransitionId;

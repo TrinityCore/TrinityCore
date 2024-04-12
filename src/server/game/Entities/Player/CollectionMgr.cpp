@@ -391,12 +391,8 @@ bool CollectionMgr::AddMount(uint32 spellId, MountStatusFlags flags, bool factio
     _mounts.insert(MountContainer::value_type(spellId, flags));
 
     // Mount condition only applies to using it, should still learn it.
-    if (mount->PlayerConditionID)
-    {
-        PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mount->PlayerConditionID);
-        if (playerCondition && !ConditionMgr::IsPlayerMeetingCondition(player, playerCondition))
-            return false;
-    }
+    if (!ConditionMgr::IsPlayerMeetingCondition(player, mount->PlayerConditionID))
+        return false;
 
     if (!learned)
     {

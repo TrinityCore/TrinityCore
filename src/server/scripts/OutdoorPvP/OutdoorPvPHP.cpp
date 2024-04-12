@@ -109,7 +109,7 @@ void OutdoorPvPHP::HandlePlayerEnterZone(Player* player, uint32 zone)
         if (m_AllianceTowersControlled >=3)
             player->CastSpell(player, AllianceBuff, true);
     }
-    else
+    else if (player->GetTeam() == HORDE)
     {
         if (m_HordeTowersControlled >=3)
             player->CastSpell(player, HordeBuff, true);
@@ -124,7 +124,7 @@ void OutdoorPvPHP::HandlePlayerLeaveZone(Player* player, uint32 zone)
     {
         player->RemoveAurasDueToSpell(AllianceBuff);
     }
-    else
+    else if (player->GetTeam() == HORDE)
     {
         player->RemoveAurasDueToSpell(HordeBuff);
     }
