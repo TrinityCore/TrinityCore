@@ -972,11 +972,11 @@ void AddSC_zone_the_wandering_isle()
     RegisterCreatureAI(npc_aysa_cloudsinger_summon);
     RegisterCreatureAI(npc_aysa_cloudsinger_cave_of_meditation);
     RegisterCreatureAI(npc_master_li_fei_summon);
-    
+
     RegisterSpellScript(spell_force_summoner_to_ride_vehicle);
     RegisterSpellScript(spell_ride_drake);
     RegisterSpellScript(spell_meditation_timer_bar);
-  
+
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();
 }
