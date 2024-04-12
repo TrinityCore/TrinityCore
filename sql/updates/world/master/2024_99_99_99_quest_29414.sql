@@ -46,14 +46,12 @@ UPDATE `gameobject` SET `phaseUseFlags`=1 WHERE `guid` IN (300018, 300098);
 
 -- Smart Scripts
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = -450358;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=22375 AND `source_type`=0 AND `id`=0 AND `link`=0;
-INSERT INTO `smart_scripts` VALUES 
-(-450358, 0, 0, 0, '', 1, 0, 100, 0, 5000, 10000, 0, 0, 0, '', 69, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 1143.3512, 3437.6262, 104.967064, 0, 'Amberleaf Troublemaker - OOC - Move To Position');
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`)  VALUES 
+(-450358, 0, 0, 0, '', 1, 0, 100, 0, 5000, 10000, 0, 0, 0, '', 69, 0, 0, 0, 0, 0, 0, 0, NULL, 8, 0, 0, 0, 0, NULL, 1143.3512, 3437.6262, 104.967064, 0, 'Amberleaf Troublemaker - OOC - Move To Position');
 
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = -450361;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=22375 AND `source_type`=0 AND `id`=0 AND `link`=0;
-INSERT INTO `smart_scripts` VALUES 
-(-450361, 0, 0, 0, '', 1, 0, 100, 0, 5000, 10000, 0, 0, 0, '', 69, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 1145.1484, 3432.8604, 105.24505, 0, 'Amberleaf Troublemaker - OOC - Move To Position');
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+(-450361, 0, 0, 0, '', 1, 0, 100, 0, 5000, 10000, 0, 0, 0, '', 69, 0, 0, 0, 0, 0, 0, 0, NULL, 8, 0, 0, 0, 0, NULL, 1145.1484, 3432.8604, 105.24505, 0, 'Amberleaf Troublemaker - OOC - Move To Position');
 
 -- Areatrigger
 DELETE FROM `smart_scripts` WHERE `entryorguid`=7748 AND `source_type`=2 AND `id`=1;
@@ -68,12 +66,13 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceGroup`=1 AND `SourceEntry`=7748;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 1, 7748, 2, 0, 1, 0, 116221, 0, 0, 1, 0, 0, '', 'Areatrigger 7748 only triggers when player has not aura 116221'),
-(22, 1, 7748, 2, 0, 28, 0, 29410, 0, 0, 0, 0, 0, '', 'Areatrigger 7748 only triggers when player has completed quest 29410');
+(22, 1, 7748, 2, 0, 47, 0, 29410, 2, 0, 0, 0, 0, '', 'Areatrigger 7748 only triggers when player has completed quest 29410');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceGroup`=2 AND `SourceEntry`=7748;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 2, 7748, 2, 1, 1, 0, 116219, 0, 0, 1, 0, 0, '', 'Areatrigger 7748 only triggers when player has not aura 116219'),
-(22, 2, 7748, 2, 1, 28, 0, 29424, 0, 0, 0, 0, 0, '', 'Areatrigger 7748 only triggers when player has completed quest 29424');
+(22, 2, 7748, 2, 1, 47, 0, 29419, 2, 0, 0, 0, 0, '', 'Areatrigger 7748 only triggers when player has completed quest 29419'),
+(22, 2, 7748, 2, 1, 47, 0, 29424, 2, 0, 0, 0, 0, '', 'Areatrigger 7748 only triggers when player has completed quest 29424');
 
 DELETE FROM `areatrigger_scripts` WHERE `entry` IN (7756, 7645);
 INSERT INTO `areatrigger_scripts` VALUES
