@@ -612,7 +612,7 @@ class spell_ride_drake : public AuraScript
 enum TheMissingDriverMisc
 {
     // Spells
-    SPELL_SERVERSIDE_KILL_CREDIT    = 106231,
+    SPELL_SERVERSIDE_DRIVER_CREDIT  = 106231,
     SPELL_FORCE_SUMMON_CART_DRIVER  = 106206,
     SPELL_SUMMON_CART_DRIVER        = 106205,
 
@@ -829,7 +829,7 @@ void AddSC_zone_the_wandering_isle()
     RegisterCreatureAI(npc_jaomin_ro_hawk);
     RegisterCreatureAI(npc_min_dimwind_summon);
     RegisterCreatureAI(npc_amberleaf_scamp);
-  
+
     RegisterSpellScript(spell_force_summoner_to_ride_vehicle);
     RegisterSpellScript(spell_ride_drake);
 
