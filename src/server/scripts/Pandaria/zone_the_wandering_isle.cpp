@@ -24,11 +24,13 @@
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
+#include "TemporarySummon.h"
 
 enum TraineeMisc
 {
@@ -620,6 +622,218 @@ class spell_ride_drake : public AuraScript
     }
 };
 
+// Quest 29419 - The Missing Driver
+enum TheMissingDriverMisc
+{
+    // Spells
+    SPELL_SERVERSIDE_DRIVER_CREDIT  = 106231,
+    SPELL_FORCE_SUMMON_CART_DRIVER  = 106206,
+    SPELL_SUMMON_CART_DRIVER        = 106205,
+
+    // Texts
+    SAY_MIN_DIMWIND_TEXT_0          = 0,
+    SAY_MIN_DIMWIND_TEXT_1          = 1,
+    SAY_MIN_DIMWIND_TEXT_2          = 2,
+    SAY_MIN_DIMWIND_TEXT_3          = 3,
+
+    SAY_AMBERLEAF_SCAMP_0           = 0,
+    SAY_AMBERLEAF_SCAMP_1           = 1,
+
+    // Waypoint
+    PATH_MOVE_RUN                   = 5650300,
+    PATH_MOVE_WALK                  = 5650301,
+
+    WAYPOINT_TALK_0                 = 0,
+    WAYPOINT_TALK_1                 = 3,
+    WAYPOINT_MOVE_WALK              = 11,
+
+    WAYPOINT_DESPAWN                = 3,
+
+    POINT_MOVE_RANDOM               = 0,
+
+    // Quests
+    QUEST_THE_MISSING_DRIVER        = 29419
+};
+
+constexpr Position amberleafPos[5] =
+{
+    { 1410.2014f, 3598.6494f, 89.59319f },
+    { 1456.201f,  3568.265f,  88.39075f },
+    { 1383.158f,  3595.447f,  90.3155f  },
+    { 1367.333f,  3594.927f,  88.89806f },
+    { 1350.278f,  3588.938f,  89.17908f }
+};
+
+// 6958 - Areatrigger
+class at_min_dimwind_captured : public AreaTriggerScript
+{
+    public:
+        at_min_dimwind_captured() : AreaTriggerScript("at_min_dimwind_captured") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        {
+            if (!player->isDead() && player->GetQuestStatus(QUEST_THE_MISSING_DRIVER) == QUEST_STATUS_INCOMPLETE)
+            {
+                Creature* minDimwind = player->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_min_dimwind" });
+
+                if (!minDimwind)
+                    return false;
+
+                minDimwind->CastSpell(player, SPELL_FORCE_SUMMON_CART_DRIVER, TRIGGERED_FULL_MASK);
+                player->CastSpell(player, SPELL_SERVERSIDE_DRIVER_CREDIT, TRIGGERED_FULL_MASK);
+                PhasingHandler::OnConditionChange(player); // phase 630 is added when kill credit but immediately is removed to be added again when Min Dimwind reaches final waypoint
+            }
+
+            return false;
+        }
+};
+
+// 56503 - Min Dimwind (Summon)
+struct npc_min_dimwind_summon : public ScriptedAI
+{
+    using ScriptedAI::ScriptedAI;
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (!summoner->IsPlayer())
+            return;
+
+        Creature* amberleafScamp1 = me->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_amberleaf_scamp_1" });
+        Creature* amberleafScamp2 = me->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_amberleaf_scamp_2" });
+        Creature* amberleafScamp3 = me->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_amberleaf_scamp_3" });
+        Creature* amberleafScamp5 = me->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_amberleaf_scamp_5" });
+
+        if (!amberleafScamp1 || !amberleafScamp2 || !amberleafScamp3 || !amberleafScamp5)
+            return;
+
+        amberleafScamp1->AI()->Talk(SAY_AMBERLEAF_SCAMP_0);
+        amberleafScamp1->GetMotionMaster()->MovePoint(0, amberleafPos[0]);
+
+        amberleafScamp2->GetMotionMaster()->MovePoint(0, amberleafPos[1]);
+
+        amberleafScamp3->GetMotionMaster()->MovePoint(0, amberleafPos[2]);
+
+        amberleafScamp5->GetMotionMaster()->MovePoint(0, amberleafPos[4]);
+
+        _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+        {
+            Creature* amberleafScamp4 = me->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_amberleaf_scamp_4" });
+
+            if (!amberleafScamp4)
+                return;
+
+            amberleafScamp4->AI()->Talk(SAY_AMBERLEAF_SCAMP_1);
+            amberleafScamp4->GetMotionMaster()->MovePoint(0, amberleafPos[3]);
+        });
+
+        _scheduler.Schedule(5s, [this](TaskContext task)
+        {
+            Unit* summoner = me->ToTempSummon()->GetSummonerUnit();
+
+            if (!summoner)
+                return;
+
+            me->SetFacingToObject(summoner);
+            Talk(SAY_MIN_DIMWIND_TEXT_0, summoner);
+
+            task.Schedule(4s, [this](TaskContext task)
+            {
+                Talk(SAY_MIN_DIMWIND_TEXT_1);
+
+                task.Schedule(4s, [this](TaskContext /*task*/)
+                {
+                    me->GetMotionMaster()->MovePath(PATH_MOVE_RUN, false);
+                });
+            });
+        });
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId == PATH_MOVE_RUN)
+        {
+            switch (waypointId)
+            {
+                case WAYPOINT_TALK_0:
+                case WAYPOINT_TALK_1:
+                {
+                    Talk(SAY_MIN_DIMWIND_TEXT_2);
+                    break;
+                }
+                case WAYPOINT_MOVE_WALK:
+                {
+                    Talk(SAY_MIN_DIMWIND_TEXT_3);
+                    me->GetMotionMaster()->MovePath(PATH_MOVE_WALK, false);
+                    break;
+                }
+            }
+        }
+        else if (pathId == PATH_MOVE_WALK)
+        {
+            if (waypointId == WAYPOINT_DESPAWN)
+            {
+                me->SetFacingTo(0.575958f);
+                me->DespawnOrUnsummon(2s);
+
+                _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+                {
+                    if (me->IsSummon())
+                    {
+                        Unit* summoner = me->ToTempSummon()->GetSummonerUnit();
+
+                        if (!summoner)
+                            return;
+
+                        summoner->RemoveAurasDueToSpell(SPELL_SUMMON_CART_DRIVER);
+                        PhasingHandler::OnConditionChange(summoner);
+                    }
+                });
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 54130 - Amberleaf Scamp
+struct npc_amberleaf_scamp : public ScriptedAI
+{
+    using ScriptedAI::ScriptedAI;
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type == POINT_MOTION_TYPE && id == POINT_MOVE_RANDOM && !me->IsInCombat())
+        {
+            me->GetMotionMaster()->MoveRandom(10.0f);
+
+            _scheduler.Schedule(10s, [this](TaskContext /*task*/)
+            {
+                if (!me->IsInCombat())
+                    me->GetMotionMaster()->MoveTargetedHome();
+            });
+        }
+    }
+
+    void JustReachedHome() override
+    {
+        me->GetMotionMaster()->InitializeDefault();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
@@ -629,6 +843,11 @@ void AddSC_zone_the_wandering_isle()
     RegisterGameObjectAI(go_edict_of_temperance);
     RegisterCreatureAI(npc_jaomin_ro);
     RegisterCreatureAI(npc_jaomin_ro_hawk);
+    RegisterCreatureAI(npc_min_dimwind_summon);
+    RegisterCreatureAI(npc_amberleaf_scamp);
+
     RegisterSpellScript(spell_force_summoner_to_ride_vehicle);
     RegisterSpellScript(spell_ride_drake);
+
+    new at_min_dimwind_captured();
 }
