@@ -298,16 +298,18 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.action.raw.param5 = fields[20].GetUInt32();
         temp.action.raw.param6 = fields[21].GetUInt32();
         temp.action.raw.param7 = fields[22].GetUInt32();
+        temp.action.param_string = fields[23].GetString();
 
-        temp.target.type = (SMARTAI_TARGETS)fields[23].GetUInt8();
-        temp.target.raw.param1 = fields[24].GetUInt32();
-        temp.target.raw.param2 = fields[25].GetUInt32();
-        temp.target.raw.param3 = fields[26].GetUInt32();
-        temp.target.raw.param4 = fields[27].GetUInt32();
-        temp.target.x = fields[28].GetFloat();
-        temp.target.y = fields[29].GetFloat();
-        temp.target.z = fields[30].GetFloat();
-        temp.target.o = fields[31].GetFloat();
+        temp.target.type = (SMARTAI_TARGETS)fields[24].GetUInt8();
+        temp.target.raw.param1 = fields[25].GetUInt32();
+        temp.target.raw.param2 = fields[26].GetUInt32();
+        temp.target.raw.param3 = fields[27].GetUInt32();
+        temp.target.raw.param4 = fields[28].GetUInt32();
+        temp.target.param_string = fields[29].GetString();
+        temp.target.x = fields[30].GetFloat();
+        temp.target.y = fields[31].GetFloat();
+        temp.target.z = fields[32].GetFloat();
+        temp.target.o = fields[33].GetFloat();
 
         //check target
         if (!IsTargetValid(temp))
@@ -851,7 +853,7 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
         }
     }();
 
-    static size_t rawCount = sizeof(SmartEvent::raw) / sizeof(uint32);
+    constexpr size_t rawCount = sizeof(SmartEvent::raw) / sizeof(uint32);
     size_t paramsCount = paramsStructSize / sizeof(uint32);
 
     for (size_t index = paramsCount; index < rawCount; index++)
@@ -862,6 +864,25 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} has unused event_param{} with value {}, it should be 0.",
                 e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), index + 1, value);
         }
+    }
+
+    bool eventUsesStringParam = [&]
+    {
+        switch (e.GetEventType())
+        {
+            case SMART_EVENT_SCENE_TRIGGER:
+                return true;
+            default:
+                break;
+        }
+
+        return false;
+    }();
+
+    if (!eventUsesStringParam && !e.event.param_string.empty())
+    {
+        TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} has unused event_param_string with value {}, it should be NULL.",
+            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.param_string);
     }
 
     return true;
@@ -1014,7 +1035,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
         }
     }();
 
-    static size_t rawCount = sizeof(SmartAction::raw) / sizeof(uint32);
+    constexpr size_t rawCount = sizeof(SmartAction::raw) / sizeof(uint32);
     size_t paramsCount = paramsStructSize / sizeof(uint32);
 
     for (size_t index = paramsCount; index < rawCount; index++)
@@ -1025,6 +1046,25 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} has unused action_param{} with value {}, it should be 0.",
                 e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), index + 1, value);
         }
+    }
+
+    bool actionUsesStringParam = [&]
+    {
+        switch (e.GetActionType())
+        {
+            case SMART_ACTION_CROSS_CAST:
+                return true;
+            default:
+                break;
+        }
+
+        return false;
+    }();
+
+    if (!actionUsesStringParam && !e.action.param_string.empty())
+    {
+        TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} has unused action_param_string with value {}, it should be NULL.",
+            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.param_string);
     }
 
     return true;
@@ -1075,7 +1115,7 @@ bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& e)
         }
     }();
 
-    static size_t rawCount = sizeof(SmartTarget::raw) / sizeof(uint32);
+    constexpr size_t rawCount = sizeof(SmartTarget::raw) / sizeof(uint32);
     size_t paramsCount = paramsStructSize / sizeof(uint32);
 
     for (size_t index = paramsCount; index < rawCount; index++)
@@ -1086,6 +1126,30 @@ bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& e)
             TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} has unused target_param{} with value {}, it should be 0.",
                 e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), index + 1, value);
         }
+    }
+
+    bool targetUsesStringParam = [&]
+    {
+        switch (e.GetTargetType())
+        {
+            case SMART_TARGET_CREATURE_RANGE:
+            case SMART_TARGET_CREATURE_DISTANCE:
+            case SMART_TARGET_GAMEOBJECT_RANGE:
+            case SMART_TARGET_GAMEOBJECT_DISTANCE:
+            case SMART_TARGET_CLOSEST_CREATURE:
+            case SMART_TARGET_CLOSEST_GAMEOBJECT:
+                return true;
+            default:
+                break;
+        }
+
+        return false;
+    }();
+
+    if (!targetUsesStringParam && !e.target.param_string.empty())
+    {
+        TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} has unused target_param_string with value {}, it should be NULL.",
+            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.param_string);
     }
 
     return true;
