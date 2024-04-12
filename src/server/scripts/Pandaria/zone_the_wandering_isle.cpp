@@ -1091,7 +1091,7 @@ struct npc_master_li_fei_summon : public ScriptedAI
             });
         });
     }
-        
+
     void UpdateAI(uint32 diff) override
     {
         _scheduler.Update(diff);
