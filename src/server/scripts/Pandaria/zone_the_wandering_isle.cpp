@@ -405,26 +405,15 @@ private:
     TaskScheduler _scheduler;
 };
 
-enum EdictOfTemperanceSpells
-{
-    SPELL_FORCED_OPEN_EDICT_OF_TEMPERANCE = 122484
-};
-
 // 210986 - Edict of Temperance
 struct go_edict_of_temperance : public GameObjectAI
 {
     go_edict_of_temperance(GameObject* go) : GameObjectAI(go) { }
 
-    bool OnReportUse(Player* /*player*/) override
+    bool OnGossipHello(Player* /*player*/) override
     {
-        me->DespawnOrUnsummon();
+        me->DespawnOrUnsummon(1ms);
         return false;
-    }
-
-    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-    {
-        if (spellInfo->Id == SPELL_FORCED_OPEN_EDICT_OF_TEMPERANCE)
-            me->DespawnOrUnsummon();
     }
 };
 
