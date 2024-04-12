@@ -408,7 +408,7 @@ private:
 // 210986 - Edict of Temperance
 struct go_edict_of_temperance : public GameObjectAI
 {
-    go_edict_of_temperance(GameObject* go) : GameObjectAI(go) { }
+    using GameObjectAI::GameObjectAI;
 
     bool OnGossipHello(Player* /*player*/) override
     {
