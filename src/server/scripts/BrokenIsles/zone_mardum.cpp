@@ -1877,11 +1877,8 @@ struct npc_basic_hidden_no_more_private : public ScriptedAI
 
     HiddenNoMorePathDelay const* GetPathDelay()
     {
-        for (std::string_view const& stringId : me->GetStringIds())
-        {
-            if (HiddenNoMorePathDelay const* pathDelay = Trinity::Containers::MapGetValuePtr(HiddenNoMorePathMap, stringId))
-                return pathDelay;
-        }
+        if (HiddenNoMorePathDelay const* pathDelay = Trinity::Containers::MapGetValuePtr(HiddenNoMorePathMap, me->GetStringId(StringIdType::Spawn)))
+            return pathDelay;
         return nullptr;
     }
 
