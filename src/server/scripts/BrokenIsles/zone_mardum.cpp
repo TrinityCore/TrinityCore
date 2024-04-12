@@ -1773,7 +1773,7 @@ struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
         me->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
         me->CastSpell(nullptr, SPELL_COSMETIC_EYE_BEAM_01_MALE, false);
 
-        Creature* shivarraObject = GetClosestCreatureWithOptions(player, 25.0f, { .CreatureId = NPC_SHIVARRA_CRYPTIC_HOLLOW, .IgnorePhases = true });
+        Creature* shivarraObject = me->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_SHIVARRA_CRYPTIC_HOLLOW, .IgnorePhases = true });
         if (!shivarraObject)
             return;
 
@@ -1804,7 +1804,7 @@ struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
 
         for (std::pair<std::string_view const, HiddenNoMorePathDelay>& npcPair : HiddenNoMorePathMap)
         {
-            Creature* originalObject = me->FindNearestCreatureWithOptions(25.0f, { .StringId = npcPair.first });
+            Creature* originalObject = me->FindNearestCreatureWithOptions(25.0f, { .StringId = npcPair.first, .IgnorePhases = true });
             if (!originalObject)
                 continue;
 
@@ -1812,7 +1812,6 @@ struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
             if (!clone)
                 continue;
 
-            clone->SetScriptStringId(std::string(originalObject->GetStringIds()[1]));
             _cloneGuids.push_back(clone->GetGUID());
             clone->AI()->DoAction(ACTION_HIDDEN_NO_MORE_EYEBEAM);
         }
