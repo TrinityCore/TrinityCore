@@ -680,7 +680,7 @@ class at_min_dimwind_captured : public AreaTriggerScript
                     return false;
 
                 minDimwind->CastSpell(player, SPELL_FORCE_SUMMON_CART_DRIVER, TRIGGERED_FULL_MASK);
-                player->CastSpell(player, SPELL_SERVERSIDE_KILL_CREDIT, TRIGGERED_FULL_MASK);
+                player->CastSpell(player, SPELL_SERVERSIDE_DRIVER_CREDIT, TRIGGERED_FULL_MASK);
                 PhasingHandler::OnConditionChange(player); // phase 630 is added when kill credit but immediately is removed to be added again when Min Dimwind reaches final waypoint
             }
 
@@ -691,7 +691,7 @@ class at_min_dimwind_captured : public AreaTriggerScript
 // 56503 - Min Dimwind (Summon)
 struct npc_min_dimwind_summon : public ScriptedAI
 {
-    npc_min_dimwind_summon(Creature* creature) : ScriptedAI(creature) { }
+    using ScriptedAI::ScriptedAI;
 
     void IsSummonedBy(WorldObject* summoner) override
     {
@@ -804,17 +804,18 @@ private:
 // 54130 - Amberleaf Scamp
 struct npc_amberleaf_scamp : public ScriptedAI
 {
-    npc_amberleaf_scamp(Creature* creature) : ScriptedAI(creature) {  }
+    using ScriptedAI::ScriptedAI;
 
-    void MovementInform(uint32 /*type*/, uint32 id) override
+    void MovementInform(uint32 type, uint32 id) override
     {
-        if (id == POINT_MOVE_RANDOM)
+        if (type == POINT_MOTION_TYPE && id == POINT_MOVE_RANDOM && !me->IsInCombat())
         {
             me->GetMotionMaster()->MoveRandom(10.0f);
 
             _scheduler.Schedule(10s, [this](TaskContext /*task*/)
             {
-                me->GetMotionMaster()->MoveTargetedHome();
+                if (!me->IsInCombat())
+                    me->GetMotionMaster()->MoveTargetedHome();
             });
         }
     }
