@@ -19,6 +19,8 @@
 #include "Containers.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h" // for RAND()
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -403,6 +405,18 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 210986 - Edict of Temperance
+struct go_edict_of_temperance : public GameObjectAI
+{
+    using GameObjectAI::GameObjectAI;
+
+    bool OnGossipHello(Player* /*player*/) override
+    {
+        me->DespawnOrUnsummon(1ms);
+        return false;
+    }
+};
+
 enum JaominRoMisc
 {
     // Spells
@@ -612,6 +626,7 @@ void AddSC_zone_the_wandering_isle()
     RegisterCreatureAI(npc_huojin_trainee);
     RegisterCreatureAI(npc_tushui_leading_trainee);
     RegisterCreatureAI(npc_instructor_zhi);
+    RegisterGameObjectAI(go_edict_of_temperance);
     RegisterCreatureAI(npc_jaomin_ro);
     RegisterCreatureAI(npc_jaomin_ro_hawk);
     RegisterSpellScript(spell_force_summoner_to_ride_vehicle);
