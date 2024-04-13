@@ -768,6 +768,8 @@ class spell_dk_death_pact : public SpellScript
                         undeadPet->GetOwnerGUID() == player->GetGUID() &&
                         undeadPet->GetCreatureType() == CREATURE_TYPE_UNDEAD &&
                         undeadPet->IsWithinDist(player, 100.0f, false))
+						if (undeadPet->HasAura(33786))
+						    undeadPet->RemoveAura(33786);
                         return SPELL_CAST_OK;
 
         return SPELL_FAILED_NO_PET;
