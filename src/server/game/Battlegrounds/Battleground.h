@@ -293,7 +293,7 @@ class TC_GAME_API Battleground
         uint32 GetScriptId() const          { return ScriptId; }
         uint32 GetFightId() const { return m_FightId; }
         uint32 GetReplayId() const { return m_ReplayId; }
-        bool IsReplay() const { return m_IsReplay; }
+        bool IsReplay() const { return false; }
         void SetReplay(bool isReplay) { m_IsReplay = isReplay; }
         void SetFightId(uint32 FightId) { m_FightId = FightId; }
         void SetReplayId(uint32 ReplayId) { m_ReplayId = ReplayId; }
