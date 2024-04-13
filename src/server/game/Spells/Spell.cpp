@@ -738,10 +738,56 @@ void Spell::SelectSpellTargets()
         if (implicitTargetMask & (TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_GAMEOBJECT_ITEM))
             m_targets.SetTargetFlag(TARGET_FLAG_GAMEOBJECT);
 
-        uint32 currentlyProcessedEffectMask = processedEffectsMaskForSpell;
-        SelectEffectImplicitTargets(spellEffectInfo, spellEffectInfo.TargetA, SpellTargetIndex::TargetA, processedEffectsMaskForSpell);
-        SelectEffectImplicitTargets(spellEffectInfo, spellEffectInfo.TargetB, SpellTargetIndex::TargetB, processedEffectsMaskForSpell);
-        currentlyProcessedEffectMask = processedEffectsMaskForSpell & ~currentlyProcessedEffectMask;
+        uint32 implicitTargetEffectMaskToSelect = [&]
+        {
+            uint32 effectMask = 1u << spellEffectInfo.EffectIndex;
+            // set the same target list for all effects
+            // some spells appear to need this, however this requires more research
+            std::vector<SpellEffectInfo> const& effects = GetSpellInfo()->GetEffects();
+            // choose which targets we can select at once
+            for (uint32 j = spellEffectInfo.EffectIndex + 1; j < effects.size(); ++j)
+            {
+                if (effects[j].IsEffect() &&
+                    spellEffectInfo.TargetA.GetTarget() == effects[j].TargetA.GetTarget() &&
+                    spellEffectInfo.TargetB.GetTarget() == effects[j].TargetB.GetTarget() &&
+                    spellEffectInfo.ImplicitTargetConditions == effects[j].ImplicitTargetConditions &&
+                    spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes::PlayersOnly) == effects[j].EffectAttributes.HasFlag(SpellEffectAttributes::PlayersOnly) &&
+                    CheckScriptEffectImplicitTargets(spellEffectInfo.EffectIndex, j))
+                {
+                    auto shouldCheckRadius = [](SpellImplicitTargetInfo const& targetInfo)
+                    {
+                        switch (targetInfo.GetSelectionCategory())
+                        {
+                            case TARGET_SELECT_CATEGORY_NEARBY:
+                            case TARGET_SELECT_CATEGORY_CONE:
+                            case TARGET_SELECT_CATEGORY_AREA:
+                            case TARGET_SELECT_CATEGORY_LINE:
+                                return true;
+                            default:
+                                break;
+                        }
+                        return false;
+                    };
+
+                    if (shouldCheckRadius(spellEffectInfo.TargetA) || shouldCheckRadius(spellEffectInfo.TargetB))
+                        if (spellEffectInfo.CalcRadius(m_caster, SpellTargetIndex::TargetA) != effects[j].CalcRadius(m_caster, SpellTargetIndex::TargetA) ||
+                            spellEffectInfo.CalcRadius(m_caster, SpellTargetIndex::TargetB) != effects[j].CalcRadius(m_caster, SpellTargetIndex::TargetB))
+                            continue;
+
+                    effectMask |= 1 << j;
+                }
+            }
+
+            return effectMask;
+        }();
+
+        implicitTargetEffectMaskToSelect &= ~processedEffectsMaskForSpell;
+        if (implicitTargetEffectMaskToSelect)
+        {
+            SelectEffectImplicitTargets(spellEffectInfo, spellEffectInfo.TargetA, SpellTargetIndex::TargetA, implicitTargetEffectMaskToSelect);
+            SelectEffectImplicitTargets(spellEffectInfo, spellEffectInfo.TargetB, SpellTargetIndex::TargetB, implicitTargetEffectMaskToSelect);
+            processedEffectsMaskForSpell |= implicitTargetEffectMaskToSelect;
+        }
 
         // Select targets of effect based on effect type
         // those are used when no valid target could be added for spell effect based on spell target type
@@ -753,7 +799,7 @@ void Spell::SelectSpellTargets()
         if (m_targets.HasDst())
             AddDestTarget(*m_targets.GetDst(), spellEffectInfo.EffectIndex);
 
-        if (currentlyProcessedEffectMask
+        if (implicitTargetEffectMaskToSelect
             && (spellEffectInfo.TargetA.GetObjectType() == TARGET_OBJECT_TYPE_UNIT
                 || spellEffectInfo.TargetA.GetObjectType() == TARGET_OBJECT_TYPE_UNIT_AND_DEST
                 || spellEffectInfo.TargetB.GetObjectType() == TARGET_OBJECT_TYPE_UNIT
@@ -761,9 +807,9 @@ void Spell::SelectSpellTargets()
         {
             if (m_spellInfo->HasAttribute(SPELL_ATTR1_REQUIRE_ALL_TARGETS))
             {
-                bool noTargetFound = std::ranges::none_of(m_UniqueTargetInfo, [currentlyProcessedEffectMask](TargetInfo const& target)
+                bool noTargetFound = std::ranges::none_of(m_UniqueTargetInfo, [implicitTargetEffectMaskToSelect](TargetInfo const& target)
                 {
-                    return target.EffectMask & currentlyProcessedEffectMask;
+                    return target.EffectMask & implicitTargetEffectMaskToSelect;
                 });
 
                 if (noTargetFound)
@@ -896,49 +942,10 @@ void Spell::UpdateDelayMomentForUnitTarget(Unit* unit, uint64 hitDelay)
         m_caster->m_Events.ModifyEventTime(_spellEvent, Milliseconds(GetDelayStart() + m_delayMoment));
 }
 
-void Spell::SelectEffectImplicitTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, SpellTargetIndex targetIndex, uint32& processedEffectMask)
+void Spell::SelectEffectImplicitTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, SpellTargetIndex targetIndex, uint32 effectMask)
 {
     if (!targetType.GetTarget())
         return;
-
-    uint32 effectMask = 1 << spellEffectInfo.EffectIndex;
-
-    // targets for effect already selected
-    if (effectMask & processedEffectMask)
-        return;
-
-    // set the same target list for all effects
-    // some spells appear to need this, however this requires more research
-    std::vector<SpellEffectInfo> const& effects = GetSpellInfo()->GetEffects();
-    // choose which targets we can select at once
-    for (uint32 j = spellEffectInfo.EffectIndex + 1; j < effects.size(); ++j)
-    {
-        if (effects[j].IsEffect() &&
-            spellEffectInfo.TargetA.GetTarget() == effects[j].TargetA.GetTarget() &&
-            spellEffectInfo.TargetB.GetTarget() == effects[j].TargetB.GetTarget() &&
-            spellEffectInfo.ImplicitTargetConditions == effects[j].ImplicitTargetConditions &&
-            spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes::PlayersOnly) == effects[j].EffectAttributes.HasFlag(SpellEffectAttributes::PlayersOnly) &&
-            CheckScriptEffectImplicitTargets(spellEffectInfo.EffectIndex, j))
-        {
-            switch (targetType.GetSelectionCategory())
-            {
-                case TARGET_SELECT_CATEGORY_NEARBY:
-                case TARGET_SELECT_CATEGORY_CONE:
-                case TARGET_SELECT_CATEGORY_AREA:
-                case TARGET_SELECT_CATEGORY_LINE:
-                    if (spellEffectInfo.CalcRadius(m_caster, SpellTargetIndex::TargetA) != effects[j].CalcRadius(m_caster, SpellTargetIndex::TargetA) ||
-                        spellEffectInfo.CalcRadius(m_caster, SpellTargetIndex::TargetB) != effects[j].CalcRadius(m_caster, SpellTargetIndex::TargetB))
-                        continue;
-                break;
-                default:
-                    break;
-            }
-
-            effectMask |= 1 << j;
-        }
-    }
-
-    processedEffectMask |= effectMask;
 
     switch (targetType.GetSelectionCategory())
     {
