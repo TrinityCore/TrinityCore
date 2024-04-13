@@ -1475,6 +1475,20 @@ void ObjectMgr::LoadEquipmentTemplates()
         return;
     }
 
+    std::array<InventoryType, 10> inventoryTypesEquipable =
+    {
+        INVTYPE_WEAPON,
+        INVTYPE_SHIELD,
+        INVTYPE_RANGED,
+        INVTYPE_2HWEAPON,
+        INVTYPE_WEAPONMAINHAND,
+        INVTYPE_WEAPONOFFHAND,
+        INVTYPE_HOLDABLE,
+        INVTYPE_THROWN,
+        INVTYPE_RANGEDRIGHT,
+        INVTYPE_PROFESSION_TOOL
+    };
+
     uint32 count = 0;
     do
     {
@@ -1526,7 +1540,7 @@ void ObjectMgr::LoadEquipmentTemplates()
                 continue;
             }
 
-            if (std::ranges::none_of(InventoryTypesEquipable, [dbcItem](InventoryType inventoryType) { return inventoryType == dbcItem->InventoryType; }))
+            if (std::ranges::none_of(inventoryTypesEquipable, [dbcItem](InventoryType inventoryType) { return inventoryType == dbcItem->InventoryType; }))
             {
                 TC_LOG_ERROR("sql.sql", "Item (ID={}) in creature_equip_template.ItemID{} for CreatureID = {} and ID = {} is not equipable in a hand, forced to 0.",
                     equipmentInfo.Items[i].ItemId, i + 1, entry, id);
