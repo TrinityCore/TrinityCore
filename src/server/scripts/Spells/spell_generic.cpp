@@ -1644,6 +1644,40 @@ class spell_gen_feign_death_all_flags_uninteractible : public AuraScript
     }
 };
 
+// 96733 - Permanent Feign Death (Stun)
+class spell_gen_feign_death_all_flags_except_uninteractible : public AuraScript
+{
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->SetUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
+        target->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+        target->SetUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+        target->SetImmuneToAll(true);
+
+        if (Creature* creature = target->ToCreature())
+            creature->SetReactState(REACT_PASSIVE);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
+        target->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+        target->RemoveUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+        target->SetImmuneToAll(false);
+
+        if (Creature* creature = target->ToCreature())
+            creature->InitializeReactState();
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_gen_feign_death_all_flags_except_uninteractible::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_gen_feign_death_all_flags_except_uninteractible::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 35357 - Spawn Feign Death
 // 51329 - Feign Death
 class spell_gen_feign_death_no_dyn_flag : public AuraScript
@@ -5388,6 +5422,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_feast);
     RegisterSpellScript(spell_gen_feign_death_all_flags);
     RegisterSpellScript(spell_gen_feign_death_all_flags_uninteractible);
+    RegisterSpellScript(spell_gen_feign_death_all_flags_except_uninteractible);
     RegisterSpellScript(spell_gen_feign_death_no_dyn_flag);
     RegisterSpellScript(spell_gen_feign_death_no_prevent_emotes);
     RegisterSpellScript(spell_gen_furious_rage);
