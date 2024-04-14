@@ -992,7 +992,6 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, 0, { .Duration = duration, .ScriptResult = std::move(scriptResult) }));
 }
 
-
 void MotionMaster::MoveCyclicPath(uint32 pathId, bool enforceFly /*= false*/,
     Optional<Milliseconds> duration /*= {}*/, Optional<float> speed /*= {}*/,
     MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
