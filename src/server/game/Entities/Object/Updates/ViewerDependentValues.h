@@ -132,7 +132,7 @@ public:
                         dynFlags &= ~GO_DYNFLAG_LO_NO_INTERACT;
                     break;
                 case GAMEOBJECT_TYPE_GATHERING_NODE:
-                    if (gameObject->CanActivateForPlayer(receiver))
+                    if (gameObject->GetGOInfo()->GetConditionID1() && gameObject->CanActivateForPlayer(receiver))
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
                     if (gameObject->GetGoStateFor(receiver->GetGUID()) == GO_STATE_ACTIVE)
                         dynFlags |= GO_DYNFLAG_LO_DEPLETED;

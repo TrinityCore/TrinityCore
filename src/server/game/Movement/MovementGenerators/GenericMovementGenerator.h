@@ -32,6 +32,7 @@ struct GenericMovementGeneratorArgs
     Optional<uint32> ArrivalSpellId;
     Optional<ObjectGuid> ArrivalSpellTarget;
     Optional<Milliseconds> Duration;
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> ScriptResult;
 };
 
 class GenericMovementGenerator : public MovementGenerator

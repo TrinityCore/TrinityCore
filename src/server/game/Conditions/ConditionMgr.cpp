@@ -2178,15 +2178,24 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
     {
         case CONDITION_AURA:
         {
-            if (!sSpellMgr->GetSpellInfo(cond->ConditionValue1, DIFFICULTY_NONE))
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->ConditionValue1, DIFFICULTY_NONE);
+            if (!spellInfo)
             {
                 TC_LOG_ERROR("sql.sql", "{} has non existing spell (Id: {}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
 
-            if (cond->ConditionValue2 >= MAX_SPELL_EFFECTS)
+            if (cond->ConditionValue2 >= spellInfo->GetEffects().size())
             {
-                TC_LOG_ERROR("sql.sql", "{} has non existing effect index ({}) (must be 0..{}), skipped.", cond->ToString(true), cond->ConditionValue2, MAX_SPELL_EFFECTS - 1);
+                TC_LOG_ERROR("sql.sql", "{} spell {} has non existing effect index ({}) (must be 0..{}), skipped.",
+                    cond->ToString(true), cond->ConditionValue1, cond->ConditionValue2, spellInfo->GetEffects().size() - 1);
+                return false;
+            }
+
+            if (!spellInfo->GetEffect(SpellEffIndex(cond->ConditionValue2)).IsAura())
+            {
+                TC_LOG_ERROR("sql.sql", "{} spell {} effect index {} is not an aura, skipped.",
+                    cond->ToString(true), cond->ConditionValue1, cond->ConditionValue2);
                 return false;
             }
             break;
@@ -3011,7 +3020,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         if (player->GetMap()->IsBattlegroundOrArena())
             team = player->m_playerData->ArenaFaction;
         else
-            team = player->GetTeamId();
+            team = player->GetTeamId() == TEAM_ALLIANCE ? 1 : 0;
 
         if (condition->CurrentPvpFaction - 1 != team)
             return false;

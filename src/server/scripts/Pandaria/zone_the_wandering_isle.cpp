@@ -17,13 +17,20 @@
 
 #include "CellImpl.h"
 #include "Containers.h"
+#include "CreatureAI.h"
+#include "CreatureAIImpl.h" // for RAND()
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "PhasingHandler.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "TaskScheduler.h"
+#include "TemporarySummon.h"
 
 enum TraineeMisc
 {
@@ -400,10 +407,447 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 210986 - Edict of Temperance
+struct go_edict_of_temperance : public GameObjectAI
+{
+    using GameObjectAI::GameObjectAI;
+
+    bool OnGossipHello(Player* /*player*/) override
+    {
+        me->DespawnOrUnsummon(1ms);
+        return false;
+    }
+};
+
+enum JaominRoMisc
+{
+    // Spells
+    SPELL_CSA_AREATRIGGER_DUMMY      = 88811,
+    SPELL_HAWK_DIVING_TO_EARTH       = 108955,
+    SPELL_HAWK_DIVING_TO_EARTH_DMG   = 108935,
+    SPELL_BABY_ELEPHANT_TAKES_A_BATH = 108938,
+    SPELL_FORCE_SUMMONER_TO_RIDE     = 108583,
+    SPELL_EJECT_ALL_PASSENGERS       = 50630,
+    SPELL_DIZZY                      = 108959,
+    SPELL_RIDE_DRAKE                 = 108582,
+    SPELL_SERVERSIDE_KILL_CREDIT     = 109837,
+    SPELL_FULL_HEALTH                = 17683,
+
+    // Texts
+    SAY_INTRO                        = 0,
+    SAY_DEFEATED                     = 1,
+
+    // Movement
+    POINT_RANDOM_DEST                = 0,
+
+    // Events
+    EVENT_RANDOM_SPELL               = 1,
+    EVENT_MOVE,
+    EVENT_HEAL,
+    EVENT_MOVE_HOME
+};
+
+// 54611 - Jaomin Ro
+struct npc_jaomin_ro : public ScriptedAI
+{
+    using ScriptedAI::ScriptedAI;
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_RANDOM_SPELL, 4s, 6s);
+    }
+
+    void JustReachedHome() override
+    {
+        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2);
+        me->InitializeReactState();
+    }
+
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_CSA_AREATRIGGER_DUMMY && target->GetTypeId() == TYPEID_PLAYER && !me->IsInCombat())
+        {
+            Talk(SAY_INTRO, target);
+            me->SetOrientation(1.67690026f);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            me->SetEmoteState(EMOTE_STATE_READY_UNARMED);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasAura(SPELL_RIDE_DRAKE))
+            return;
+
+        switch (_events.ExecuteEvent())
+        {
+            case EVENT_RANDOM_SPELL:
+            {
+                uint32 spellId = RAND(SPELL_BABY_ELEPHANT_TAKES_A_BATH, SPELL_HAWK_DIVING_TO_EARTH);
+                DoCast(spellId);
+                _events.ScheduleEvent(EVENT_RANDOM_SPELL, 4s, 6s);
+                break;
+            }
+            case EVENT_HEAL:
+            {
+                DoCastSelf(SPELL_FULL_HEALTH);
+                me->SetUninteractible(false);
+                break;
+            }
+            case EVENT_MOVE_HOME:
+            {
+                EnterEvadeMode();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void OnHealthDepleted(Unit* attacker, bool /*isKill*/) override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->AttackStop();
+        me->RemoveAllAuras();
+        me->InterruptNonMeleeSpells(true);
+        _events.Reset();
+        me->SetUninteractible(true);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2);
+        me->SetEmoteState(EMOTE_ONESHOT_NONE);
+        DoCast(SPELL_SERVERSIDE_KILL_CREDIT);
+        Talk(SAY_DEFEATED, attacker);
+
+        _events.ScheduleEvent(EVENT_HEAL, 5s);
+        _events.ScheduleEvent(EVENT_MOVE_HOME, 6s);
+    }
+
+private:
+    EventMap _events;
+};
+
+// 57750 - Jaomin Ro (Hawk)
+struct npc_jaomin_ro_hawk : public ScriptedAI
+{
+    using ScriptedAI::ScriptedAI;
+
+    void JustAppeared() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->SetSpeedRate(MOVE_RUN, 2.5f);
+    }
+
+    void IsSummonedBy(WorldObject* summonerWO) override
+    {
+        Unit* summoner = summonerWO->ToUnit();
+        if (!summoner)
+            return;
+        Unit* victim = summoner->GetVictim();
+        if (!victim)
+            return;
+
+        DoCast(SPELL_FORCE_SUMMONER_TO_RIDE);
+        _scheduler.Schedule(1s, [this, orientation = me->GetAbsoluteAngle(victim) - me->GetOrientation()](TaskContext /*context*/)
+        {
+            me->GetMotionMaster()->MovePoint(POINT_RANDOM_DEST, me->GetFirstCollisionPosition(40.0f, orientation));
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_HAWK_DIVING_TO_EARTH_DMG && target->GetTypeId() == TYPEID_PLAYER)
+        {
+            DoCast(SPELL_EJECT_ALL_PASSENGERS);
+            me->DespawnOrUnsummon();
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        switch (pointId)
+        {
+            case POINT_RANDOM_DEST:
+            {
+                DoCast(SPELL_EJECT_ALL_PASSENGERS);
+                me->DespawnOrUnsummon();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 108583 - Force Summoner to Ride Vehicle
+class spell_force_summoner_to_ride_vehicle : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/) const
+    {
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectValue(), TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_force_summoner_to_ride_vehicle::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 108582 - Ride Drake
+class spell_ride_drake : public AuraScript
+{
+    void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_DIZZY, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_ride_drake::OnRemoveVehicle, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// Quest 29419 - The Missing Driver
+enum TheMissingDriverMisc
+{
+    // Spells
+    SPELL_SERVERSIDE_DRIVER_CREDIT  = 106231,
+    SPELL_FORCE_SUMMON_CART_DRIVER  = 106206,
+    SPELL_SUMMON_CART_DRIVER        = 106205,
+
+    // Texts
+    SAY_MIN_DIMWIND_TEXT_0          = 0,
+    SAY_MIN_DIMWIND_TEXT_1          = 1,
+    SAY_MIN_DIMWIND_TEXT_2          = 2,
+    SAY_MIN_DIMWIND_TEXT_3          = 3,
+
+    SAY_AMBERLEAF_SCAMP_0           = 0,
+    SAY_AMBERLEAF_SCAMP_1           = 1,
+
+    // Waypoint
+    PATH_MOVE_RUN                   = 5650300,
+    PATH_MOVE_WALK                  = 5650301,
+
+    WAYPOINT_TALK_0                 = 0,
+    WAYPOINT_TALK_1                 = 3,
+    WAYPOINT_MOVE_WALK              = 11,
+
+    WAYPOINT_DESPAWN                = 3,
+
+    POINT_MOVE_RANDOM               = 0,
+
+    // Quests
+    QUEST_THE_MISSING_DRIVER        = 29419
+};
+
+constexpr Position amberleafPos[5] =
+{
+    { 1410.2014f, 3598.6494f, 89.59319f },
+    { 1456.201f,  3568.265f,  88.39075f },
+    { 1383.158f,  3595.447f,  90.3155f  },
+    { 1367.333f,  3594.927f,  88.89806f },
+    { 1350.278f,  3588.938f,  89.17908f }
+};
+
+// 6958 - Areatrigger
+class at_min_dimwind_captured : public AreaTriggerScript
+{
+    public:
+        at_min_dimwind_captured() : AreaTriggerScript("at_min_dimwind_captured") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        {
+            if (!player->isDead() && player->GetQuestStatus(QUEST_THE_MISSING_DRIVER) == QUEST_STATUS_INCOMPLETE)
+            {
+                Creature* minDimwind = player->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_min_dimwind" });
+
+                if (!minDimwind)
+                    return false;
+
+                minDimwind->CastSpell(player, SPELL_FORCE_SUMMON_CART_DRIVER, TRIGGERED_FULL_MASK);
+                player->CastSpell(player, SPELL_SERVERSIDE_DRIVER_CREDIT, TRIGGERED_FULL_MASK);
+                PhasingHandler::OnConditionChange(player); // phase 630 is added when kill credit but immediately is removed to be added again when Min Dimwind reaches final waypoint
+            }
+
+            return false;
+        }
+};
+
+// 56503 - Min Dimwind (Summon)
+struct npc_min_dimwind_summon : public ScriptedAI
+{
+    using ScriptedAI::ScriptedAI;
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (!summoner->IsPlayer())
+            return;
+
+        Creature* amberleafScamp1 = me->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_amberleaf_scamp_1" });
+        Creature* amberleafScamp2 = me->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_amberleaf_scamp_2" });
+        Creature* amberleafScamp3 = me->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_amberleaf_scamp_3" });
+        Creature* amberleafScamp5 = me->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_amberleaf_scamp_5" });
+
+        if (!amberleafScamp1 || !amberleafScamp2 || !amberleafScamp3 || !amberleafScamp5)
+            return;
+
+        amberleafScamp1->AI()->Talk(SAY_AMBERLEAF_SCAMP_0);
+        amberleafScamp1->GetMotionMaster()->MovePoint(0, amberleafPos[0]);
+
+        amberleafScamp2->GetMotionMaster()->MovePoint(0, amberleafPos[1]);
+
+        amberleafScamp3->GetMotionMaster()->MovePoint(0, amberleafPos[2]);
+
+        amberleafScamp5->GetMotionMaster()->MovePoint(0, amberleafPos[4]);
+
+        _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+        {
+            Creature* amberleafScamp4 = me->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_amberleaf_scamp_4" });
+
+            if (!amberleafScamp4)
+                return;
+
+            amberleafScamp4->AI()->Talk(SAY_AMBERLEAF_SCAMP_1);
+            amberleafScamp4->GetMotionMaster()->MovePoint(0, amberleafPos[3]);
+        });
+
+        _scheduler.Schedule(5s, [this](TaskContext task)
+        {
+            Unit* summoner = me->ToTempSummon()->GetSummonerUnit();
+
+            if (!summoner)
+                return;
+
+            me->SetFacingToObject(summoner);
+            Talk(SAY_MIN_DIMWIND_TEXT_0, summoner);
+
+            task.Schedule(4s, [this](TaskContext task)
+            {
+                Talk(SAY_MIN_DIMWIND_TEXT_1);
+
+                task.Schedule(4s, [this](TaskContext /*task*/)
+                {
+                    me->GetMotionMaster()->MovePath(PATH_MOVE_RUN, false);
+                });
+            });
+        });
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId == PATH_MOVE_RUN)
+        {
+            switch (waypointId)
+            {
+                case WAYPOINT_TALK_0:
+                case WAYPOINT_TALK_1:
+                {
+                    Talk(SAY_MIN_DIMWIND_TEXT_2);
+                    break;
+                }
+                case WAYPOINT_MOVE_WALK:
+                {
+                    Talk(SAY_MIN_DIMWIND_TEXT_3);
+                    me->GetMotionMaster()->MovePath(PATH_MOVE_WALK, false);
+                    break;
+                }
+            }
+        }
+        else if (pathId == PATH_MOVE_WALK)
+        {
+            if (waypointId == WAYPOINT_DESPAWN)
+            {
+                me->SetFacingTo(0.575958f);
+                me->DespawnOrUnsummon(2s);
+
+                _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+                {
+                    if (me->IsSummon())
+                    {
+                        Unit* summoner = me->ToTempSummon()->GetSummonerUnit();
+
+                        if (!summoner)
+                            return;
+
+                        summoner->RemoveAurasDueToSpell(SPELL_SUMMON_CART_DRIVER);
+                        PhasingHandler::OnConditionChange(summoner);
+                    }
+                });
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 54130 - Amberleaf Scamp
+struct npc_amberleaf_scamp : public ScriptedAI
+{
+    using ScriptedAI::ScriptedAI;
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type == POINT_MOTION_TYPE && id == POINT_MOVE_RANDOM && !me->IsInCombat())
+        {
+            me->GetMotionMaster()->MoveRandom(10.0f);
+
+            _scheduler.Schedule(10s, [this](TaskContext /*task*/)
+            {
+                if (!me->IsInCombat())
+                    me->GetMotionMaster()->MoveTargetedHome();
+            });
+        }
+    }
+
+    void JustReachedHome() override
+    {
+        me->GetMotionMaster()->InitializeDefault();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
     RegisterCreatureAI(npc_huojin_trainee);
     RegisterCreatureAI(npc_tushui_leading_trainee);
     RegisterCreatureAI(npc_instructor_zhi);
+    RegisterGameObjectAI(go_edict_of_temperance);
+    RegisterCreatureAI(npc_jaomin_ro);
+    RegisterCreatureAI(npc_jaomin_ro_hawk);
+    RegisterCreatureAI(npc_min_dimwind_summon);
+    RegisterCreatureAI(npc_amberleaf_scamp);
+
+    RegisterSpellScript(spell_force_summoner_to_ride_vehicle);
+    RegisterSpellScript(spell_ride_drake);
+
+    new at_min_dimwind_captured();
 }
