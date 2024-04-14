@@ -25,6 +25,7 @@
 #include "GameEventMgr.h"
 #include "GameEventSender.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -38,6 +39,7 @@
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Random.h"
+#include "ScriptActions.h"
 #include "SmartAI.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
@@ -263,6 +265,34 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
     --mNestedEventsCounter;
 }
 
+namespace
+{
+template <typename Result, typename ConcreteActionImpl = Scripting::v2::ActionResult<Result>, typename... Args>
+static std::shared_ptr<ConcreteActionImpl> CreateTimedActionListWaitEventFor(SmartScriptHolder const& e, Args&&... args)
+{
+    if (e.GetScriptType() != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
+        return nullptr;
+
+    if (!(e.event.event_flags & SMART_EVENT_FLAG_ACTIONLIST_WAITS))
+        return nullptr;
+
+    return std::make_shared<ConcreteActionImpl>(std::forward<Args>(args)...);
+}
+
+template <typename InnerResult>
+struct MultiActionResult : Scripting::v2::ActionResult<void>
+{
+    std::vector<Scripting::v2::ActionResult<InnerResult>> Results;
+
+    explicit MultiActionResult(std::size_t estimatedSize) { Results.reserve(estimatedSize); }
+
+    bool IsReady() const noexcept override
+    {
+        return std::ranges::all_of(Results, [](Scripting::v2::ActionResult<InnerResult> const& result) { return result.IsReady(); });
+    }
+};
+}
+
 void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, SpellInfo const* spell, GameObject* gob, std::string const& varString)
 {
     e.runOnce = true; //used for repeat check
@@ -324,25 +354,28 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             mLastTextID = e.action.talk.textGroupID;
             mTextTimer = e.action.talk.duration;
             mUseTextTimer = true;
-            sCreatureTextMgr->SendChat(talker, uint8(e.action.talk.textGroupID), talkTarget);
+            uint32 duration = sCreatureTextMgr->SendChat(talker, uint8(e.action.talk.textGroupID), talkTarget);
+            mTimedActionWaitEvent = CreateTimedActionListWaitEventFor<void, Scripting::v2::WaitAction>(e, GameTime::Now() + Milliseconds(duration));
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_TALK: talker: {} {}, textGuid: {}",
                 talker->GetName(), talker->GetGUID().ToString(), talkTarget ? talkTarget->GetGUID().ToString().c_str() : "Empty");
             break;
         }
         case SMART_ACTION_SIMPLE_TALK:
         {
+            uint32 duration = 0;
             for (WorldObject* target : targets)
             {
                 if (IsCreature(target))
-                    sCreatureTextMgr->SendChat(target->ToCreature(), uint8(e.action.simpleTalk.textGroupID), IsPlayer(GetLastInvoker()) ? GetLastInvoker() : nullptr);
+                    duration = std::max(sCreatureTextMgr->SendChat(target->ToCreature(), uint8(e.action.simpleTalk.textGroupID), IsPlayer(GetLastInvoker()) ? GetLastInvoker() : nullptr), duration);
                 else if (IsPlayer(target) && me)
                 {
                     Unit* templastInvoker = GetLastInvoker();
-                    sCreatureTextMgr->SendChat(me, uint8(e.action.simpleTalk.textGroupID), IsPlayer(templastInvoker) ? templastInvoker : nullptr, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, target->ToPlayer());
+                    duration = std::max(sCreatureTextMgr->SendChat(me, uint8(e.action.simpleTalk.textGroupID), IsPlayer(templastInvoker) ? templastInvoker : nullptr, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, target->ToPlayer()), duration);
                 }
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_SIMPLE_TALK: talker: {} {}, textGroupId: {}",
                     target->GetName(), target->GetGUID().ToString(), uint8(e.action.simpleTalk.textGroupID));
             }
+            mTimedActionWaitEvent = CreateTimedActionListWaitEventFor<void, Scripting::v2::WaitAction>(e, GameTime::Now() + Milliseconds(duration));
             break;
         }
         case SMART_ACTION_PLAY_EMOTE:
@@ -582,12 +615,20 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     args.TriggerFlags = TRIGGERED_FULL_MASK;
             }
 
+            std::shared_ptr<MultiActionResult<SpellCastResult>> waitEvent = CreateTimedActionListWaitEventFor<void, MultiActionResult<SpellCastResult>>(e, targets.size());
+
             for (WorldObject* target : targets)
             {
                 if (e.action.cast.castFlags & SMARTCAST_AURA_NOT_PRESENT && (!target->IsUnit() || target->ToUnit()->HasAura(e.action.cast.spell)))
                 {
                     TC_LOG_DEBUG("scripts.ai", "Spell {} not cast because it has flag SMARTCAST_AURA_NOT_PRESENT and the target ({}) already has the aura", e.action.cast.spell, target->GetGUID());
                     continue;
+                }
+
+                if (waitEvent)
+                {
+                    args.SetScriptResult(Scripting::v2::ActionResult<SpellCastResult>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() }));
+                    args.SetScriptWaitsForSpellHit((e.action.cast.castFlags & SMARTCAST_WAIT_FOR_HIT) != 0);
                 }
 
                 SpellCastResult result = SPELL_FAILED_BAD_TARGETS;
@@ -617,6 +658,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     me ? me->GetGUID() : go->GetGUID(), e.action.cast.spell, target->GetGUID(), e.action.cast.castFlags);
             }
 
+            if (waitEvent && !waitEvent->Results.empty())
+                mTimedActionWaitEvent = std::move(waitEvent);
+
             // If there is at least 1 failed cast and no successful casts at all, retry again on next loop
             if (failedSpellCast && !successfulSpellCast)
             {
@@ -634,6 +678,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.action.cast.targetsLimit)
                 Trinity::Containers::RandomResize(targets, e.action.cast.targetsLimit);
 
+            std::shared_ptr<MultiActionResult<SpellCastResult>> waitEvent = CreateTimedActionListWaitEventFor<void, MultiActionResult<SpellCastResult>>(e, targets.size());
+
             CastSpellExtraArgs args;
             if (e.action.cast.castFlags & SMARTCAST_TRIGGERED)
             {
@@ -648,11 +694,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (e.action.cast.castFlags & SMARTCAST_AURA_NOT_PRESENT && (!target->IsUnit() || target->ToUnit()->HasAura(e.action.cast.spell)))
                     continue;
 
+                if (waitEvent)
+                {
+                    args.SetScriptResult(Scripting::v2::ActionResult<SpellCastResult>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() }));
+                    args.SetScriptWaitsForSpellHit((e.action.cast.castFlags & SMARTCAST_WAIT_FOR_HIT) != 0);
+                }
+
                 if (e.action.cast.castFlags & SMARTCAST_INTERRUPT_PREVIOUS && target->IsUnit())
                     target->ToUnit()->InterruptNonMeleeSpells(false);
 
                 target->CastSpell(target, e.action.cast.spell, args);
             }
+            if (waitEvent && !waitEvent->Results.empty())
+                mTimedActionWaitEvent = std::move(waitEvent);
             break;
         }
         case SMART_ACTION_INVOKER_CAST:
@@ -676,6 +730,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     args.TriggerFlags = TRIGGERED_FULL_MASK;
             }
 
+            std::shared_ptr<MultiActionResult<SpellCastResult>> waitEvent = CreateTimedActionListWaitEventFor<void, MultiActionResult<SpellCastResult>>(e, targets.size());
+
             for (WorldObject* target : targets)
             {
                 if (e.action.cast.castFlags & SMARTCAST_AURA_NOT_PRESENT && (!target->IsUnit() || target->ToUnit()->HasAura(e.action.cast.spell)))
@@ -687,10 +743,18 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (e.action.cast.castFlags & SMARTCAST_INTERRUPT_PREVIOUS)
                     tempLastInvoker->InterruptNonMeleeSpells(false);
 
+                if (waitEvent)
+                {
+                    args.SetScriptResult(Scripting::v2::ActionResult<SpellCastResult>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() }));
+                    args.SetScriptWaitsForSpellHit((e.action.cast.castFlags & SMARTCAST_WAIT_FOR_HIT) != 0);
+                }
+
                 tempLastInvoker->CastSpell(target, e.action.cast.spell, args);
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_INVOKER_CAST: Invoker {} casts spell {} on target {} with castflags {}",
                     tempLastInvoker->GetGUID(), e.action.cast.spell, target->GetGUID(), e.action.cast.castFlags);
             }
+            if (waitEvent && !waitEvent->Results.empty())
+                mTimedActionWaitEvent = std::move(waitEvent);
             break;
         }
         case SMART_ACTION_ACTIVATE_GOBJECT:
@@ -1172,6 +1236,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_MOVE_OFFSET:
         {
+            std::shared_ptr<MultiActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<void, MultiActionResult<MovementStopReason>>(e, targets.size());
+
             for (WorldObject* target : targets)
             {
                 if (!IsCreature(target))
@@ -1188,8 +1254,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 x = pos.GetPositionX() + (std::cos(o - (M_PI / 2))*e.target.x) + (std::cos(o)*e.target.y);
                 y = pos.GetPositionY() + (std::sin(o - (M_PI / 2))*e.target.x) + (std::sin(o)*e.target.y);
                 z = pos.GetPositionZ() + e.target.z;
-                target->ToCreature()->GetMotionMaster()->MovePoint(e.action.moveOffset.PointId, x, y, z);
+
+                Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> scriptResult;
+                if (waitEvent)
+                    scriptResult = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() });
+
+                target->ToCreature()->GetMotionMaster()->MovePoint(e.action.moveOffset.PointId, x, y, z,
+                    true, {}, {}, MovementWalkRunSpeedSelectionMode::Default, {}, std::move(scriptResult));
             }
+            if (waitEvent && !waitEvent->Results.empty())
+                mTimedActionWaitEvent = std::move(waitEvent);
             break;
         }
         case SMART_ACTION_SET_VISIBILITY:
@@ -1386,7 +1460,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 }
             }
 
-            ENSURE_AI(SmartAI, me->AI())->StartPath(entry, repeat, unit);
+            std::shared_ptr<Scripting::v2::ActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<MovementStopReason>(e);
+            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> scriptResult;
+            if (waitEvent)
+                scriptResult = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter(waitEvent);
+
+            ENSURE_AI(SmartAI, me->AI())->StartPath(entry, repeat, unit, 0, std::move(scriptResult));
+            mTimedActionWaitEvent = std::move(waitEvent);
 
             uint32 quest = e.action.wpStart.quest;
             uint32 DespawnTime = e.action.wpStart.despawnTime;
@@ -1459,6 +1539,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!targets.empty())
                 target = Trinity::Containers::SelectRandomContainerElement(targets);
 
+            std::shared_ptr<Scripting::v2::ActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<MovementStopReason>(e);
+            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> scriptResult;
+            if (waitEvent)
+                scriptResult = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter(waitEvent);
+
             if (target)
             {
                 float x, y, z;
@@ -1466,6 +1551,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (e.action.moveToPos.ContactDistance > 0)
                     target->GetContactPoint(me, x, y, z, e.action.moveToPos.ContactDistance);
                 me->GetMotionMaster()->MovePoint(e.action.moveToPos.pointId, x + e.target.x, y + e.target.y, z + e.target.z, e.action.moveToPos.disablePathfinding == 0);
+                mTimedActionWaitEvent = std::move(waitEvent);
             }
 
             if (e.GetTargetType() != SMART_TARGET_POSITION)
@@ -1476,7 +1562,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (TransportBase* trans = me->GetDirectTransport())
                     trans->CalculatePassengerPosition(dest.m_positionX, dest.m_positionY, dest.m_positionZ);
 
-            me->GetMotionMaster()->MovePoint(e.action.moveToPos.pointId, dest, e.action.moveToPos.disablePathfinding == 0);
+            me->GetMotionMaster()->MovePoint(e.action.moveToPos.pointId, dest, e.action.moveToPos.disablePathfinding == 0, {}, {},
+                MovementWalkRunSpeedSelectionMode::Default, {}, std::move(scriptResult));
+            mTimedActionWaitEvent = std::move(waitEvent);
             break;
         }
         case SMART_ACTION_ENABLE_TEMP_GOBJ:
@@ -1658,6 +1746,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ObjectVector casters;
             GetTargets(casters, CreateSmartEvent(SMART_EVENT_UPDATE_IC, 0, 0, 0, 0, 0, 0, SMART_ACTION_NONE, 0, 0, 0, 0, 0, 0, 0, (SMARTAI_TARGETS)e.action.crossCast.targetType, e.action.crossCast.targetParam1, e.action.crossCast.targetParam2, e.action.crossCast.targetParam3, e.action.crossCast.targetParam4, e.action.param_string, 0), unit);
 
+            std::shared_ptr<MultiActionResult<SpellCastResult>> waitEvent = CreateTimedActionListWaitEventFor<void, MultiActionResult<SpellCastResult>>(e, casters.size()* targets.size());
+
             CastSpellExtraArgs args;
             if (e.action.crossCast.castFlags & SMARTCAST_TRIGGERED)
                 args.TriggerFlags = TRIGGERED_FULL_MASK;
@@ -1684,9 +1774,17 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         interruptedSpell = true;
                     }
 
+                    if (waitEvent)
+                    {
+                        args.SetScriptResult(Scripting::v2::ActionResult<SpellCastResult>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() }));
+                        args.SetScriptWaitsForSpellHit((e.action.crossCast.castFlags & SMARTCAST_WAIT_FOR_HIT) != 0);
+                    }
+
                     casterUnit->CastSpell(target, e.action.crossCast.spell, args);
                 }
             }
+            if (waitEvent && !waitEvent->Results.empty())
+                mTimedActionWaitEvent = std::move(waitEvent);
             break;
         }
         case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST:
@@ -1749,9 +1847,23 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_ACTIVATE_TAXI:
         {
+            std::shared_ptr<MultiActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<void, MultiActionResult<MovementStopReason>>(e, targets.size());
+
             for (WorldObject* target : targets)
+            {
                 if (IsPlayer(target))
-                    target->ToPlayer()->ActivateTaxiPathTo(e.action.taxi.id);
+                {
+                    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> scriptResult;
+                    if (waitEvent)
+                        scriptResult = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() });
+
+                    if (!target->ToPlayer()->ActivateTaxiPathTo(e.action.taxi.id, 0, {}, scriptResult))
+                        if (scriptResult)
+                            scriptResult->SetResult(MovementStopReason::Interrupted);
+                }
+            }
+            if (waitEvent && !waitEvent->Results.empty())
+                mTimedActionWaitEvent = std::move(waitEvent);
             break;
         }
         case SMART_ACTION_RANDOM_MOVE:
@@ -1852,14 +1964,22 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             else if (e.GetTargetType() != SMART_TARGET_POSITION)
                 break;
 
+            std::shared_ptr<Scripting::v2::ActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<MovementStopReason>(e);
+            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> actionResultSetter;
+            if (waitEvent)
+                actionResultSetter = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter(waitEvent);
+
             if (e.action.jump.Gravity || e.action.jump.UseDefaultGravity)
             {
                 float gravity = e.action.jump.UseDefaultGravity ? Movement::gravity : e.action.jump.Gravity;
-                me->GetMotionMaster()->MoveJumpWithGravity(pos, float(e.action.jump.SpeedXY), gravity, e.action.jump.PointId);
+                me->GetMotionMaster()->MoveJumpWithGravity(pos, float(e.action.jump.SpeedXY), gravity, e.action.jump.PointId,
+                    false, nullptr, nullptr, std::move(actionResultSetter));
             }
             else
-                me->GetMotionMaster()->MoveJump(pos, float(e.action.jump.SpeedXY), float(e.action.jump.SpeedZ), e.action.jump.PointId);
+                me->GetMotionMaster()->MoveJump(pos, float(e.action.jump.SpeedXY), float(e.action.jump.SpeedZ), e.action.jump.PointId,
+                    false, nullptr, nullptr, std::move(actionResultSetter));
 
+            mTimedActionWaitEvent = std::move(waitEvent);
             break;
         }
         case SMART_ACTION_GO_SET_LOOT_STATE:
@@ -2035,12 +2155,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_START_CLOSEST_WAYPOINT:
         {
-            std::vector<uint32> waypoints;
-            std::copy_if(std::begin(e.action.closestWaypointFromList.wps), std::end(e.action.closestWaypointFromList.wps),
-                std::back_inserter(waypoints), [](uint32 wp) { return wp != 0; });
-
             float distanceToClosest = std::numeric_limits<float>::max();
             std::pair<uint32, uint32> closest = { 0, 0 };
+
+            std::shared_ptr<MultiActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<void, MultiActionResult<MovementStopReason>>(e, targets.size());
 
             for (WorldObject* target : targets)
             {
@@ -2048,7 +2166,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (IsSmart(creature))
                     {
-                        for (uint32 pathId : waypoints)
+                        for (uint32 pathId : e.action.closestWaypointFromList.wps)
                         {
                             WaypointPath const* path = sWaypointMgr->GetPath(pathId);
                             if (!path || path->Nodes.empty())
@@ -2067,10 +2185,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         }
 
                         if (closest.first != 0)
-                            ENSURE_AI(SmartAI, creature->AI())->StartPath(closest.first, true, nullptr, closest.second);
+                        {
+                            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> actionResultSetter;
+                            if (waitEvent)
+                                actionResultSetter = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() });
+
+                            ENSURE_AI(SmartAI, creature->AI())->StartPath(closest.first, true, nullptr, closest.second, std::move(actionResultSetter));
+                        }
                     }
                 }
             }
+
+            if (waitEvent && !waitEvent->Results.empty())
+                mTimedActionWaitEvent = std::move(waitEvent);
             break;
         }
         case SMART_ACTION_RANDOM_SOUND:
@@ -3586,6 +3713,9 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
         return;
 
     if (e.GetEventType() == SMART_EVENT_UPDATE_OOC && (me && me->IsEngaged())) //can be used with me=nullptr (go script)
+        return;
+
+    if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST && mTimedActionWaitEvent && !mTimedActionWaitEvent->IsReady())
         return;
 
     if (e.timer < diff)
