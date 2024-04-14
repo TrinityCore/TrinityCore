@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "SmartScriptMgr.h"
+#include <memory>
 
 class AreaTrigger;
 class Creature;
@@ -31,6 +32,11 @@ class Unit;
 class WorldObject;
 struct AreaTriggerEntry;
 struct SceneTemplate;
+
+namespace Scripting::v2
+{
+class ActionBase;
+}
 
 class TC_GAME_API SmartScript
 {
@@ -111,6 +117,7 @@ class TC_GAME_API SmartScript
         SmartAIEventList mInstallEvents;
         SmartAIEventList mTimedActionList;
         ObjectGuid mTimedActionListInvoker;
+        std::shared_ptr<Scripting::v2::ActionBase> mTimedActionWaitEvent;
         bool isProcessingTimedActionList;
         Creature* me;
         ObjectGuid meOrigGUID;
