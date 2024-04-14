@@ -776,6 +776,10 @@ class spell_dk_death_pact : public SpellScript
                         {
                             undeadPet->RemoveAura(33786);
                         }
+                        else if (undeadPet->HasAura(65859))
+                        {
+                            undeadPet->RemoveAura(65859);
+                        }
 
                         return SPELL_CAST_OK;
                     }
