@@ -32,7 +32,8 @@
 #define SKIP_SPLINE_POINT_DISTANCE_SQ (40.f * 40.f)
 #define PLAYER_FLIGHT_SPEED 32.0f
 
-FlightPathMovementGenerator::FlightPathMovementGenerator(Optional<float> speed)
+FlightPathMovementGenerator::FlightPathMovementGenerator(Optional<float> speed,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult)
 {
     _speed = speed;
     _endGridX = 0.0f;
@@ -44,6 +45,7 @@ FlightPathMovementGenerator::FlightPathMovementGenerator(Optional<float> speed)
     Priority = MOTION_PRIORITY_HIGHEST;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_IN_FLIGHT;
+    ScriptResult = std::move(scriptResult);
 }
 
 MovementGeneratorType FlightPathMovementGenerator::GetMovementGeneratorType() const
@@ -152,7 +154,7 @@ void FlightPathMovementGenerator::DoDeactivate(Player* /*owner*/)
     AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 }
 
-void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* movementInform*/)
+void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool movementInform)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
     if (!active)
@@ -179,6 +181,9 @@ void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* 
     }
 
     owner->RemovePlayerFlag(PLAYER_FLAGS_TAXI_BENCHMARK);
+
+    if (movementInform)
+        SetScriptResult(MovementStopReason::Finished);
 }
 
 uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const

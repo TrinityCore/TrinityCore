@@ -2060,6 +2060,9 @@ TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType
         if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime, privateObjectOwner, spellId, vehId, privateObjectOwner->GetGUID(), &smoothPhasingInfo))
         {
             summon->SetTempSummonType(despawnType);
+
+            if (Creature* thisCreature = ToCreature())
+                summon->InheritStringIds(thisCreature);
             return summon;
         }
     }
@@ -2931,6 +2934,8 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
     }
 
     spell->m_customArg = args.CustomArg;
+    spell->m_scriptResult = args.ScriptResult;
+    spell->m_scriptWaitsForSpellHit = args.ScriptWaitsForSpellHit;
 
     return spell->prepare(*targets.Targets, args.TriggeringAura);
 }

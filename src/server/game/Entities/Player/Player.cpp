@@ -3924,7 +3924,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     do
                     {
                         Field* fields = resultItems->Fetch();
-                        uint64 mailId = fields[44].GetUInt64();
+                        uint64 mailId = fields[53].GetUInt64();
                         if (Item* mailItem = _LoadMailedItem(playerguid, nullptr, mailId, nullptr, fields, Trinity::Containers::MapGetValuePtr(additionalData, fields[0].GetUInt64())))
                             itemsByMail[mailId].push_back(mailItem);
 
@@ -11545,19 +11545,19 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         if (bonusListIDs)
             item->SetBonuses(*bonusListIDs);
 
+        item->SetFixedLevel(GetLevel());
+        item->SetItemRandomBonusList(randomBonusListId);
+        item->SetCreatePlayedTime(GetTotalPlayedTime());
+
         item = StoreItem(pos, item, update);
 
         ItemAddedQuestCheck(itemId, count, false);
         UpdateCriteria(CriteriaType::ObtainAnyItem, itemId, count);
         UpdateCriteria(CriteriaType::AcquireItem, itemId, count);
 
-        item->SetFixedLevel(GetLevel());
-        item->SetItemRandomBonusList(randomBonusListId);
-
         if (allowedLooters.size() > 1 && item->GetTemplate()->GetMaxStackSize() == 1 && item->IsSoulBound())
         {
             item->SetSoulboundTradeable(allowedLooters);
-            item->SetCreatePlayedTime(GetTotalPlayedTime());
             AddTradeableItem(item);
 
             // save data
@@ -14992,6 +14992,10 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     SendQuestUpdate(quest_id);
 
+    bool updateVisibility = false;
+    if (quest->HasFlag(QUEST_FLAGS_UPDATE_PHASESHIFT))
+        updateVisibility = PhasingHandler::OnConditionChange(this, false);
+
     if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
     {
         // prepare Quest Tracker datas
@@ -15004,6 +15008,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         // add to Quest Tracker
         CharacterDatabase.Execute(stmt);
     }
+
+    if (updateVisibility)
+        UpdateObjectVisibility();
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, questStatusData.Status);
@@ -16104,8 +16111,19 @@ void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
         m_QuestStatusSave[questId] = QUEST_DELETE_SAVE_TYPE;
     }
 
+    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+    bool updateVisibility = false;
+
     if (update)
+    {
         SendQuestUpdate(questId);
+
+        if (quest && quest->HasFlag(QUEST_FLAGS_UPDATE_PHASESHIFT))
+            updateVisibility = PhasingHandler::OnConditionChange(this, false);
+    }
+
+    if (updateVisibility)
+        UpdateObjectVisibility();
 }
 
 void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
@@ -16121,11 +16139,14 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
         SetQuestCompletedBit(questBit, false);
 
     // Remove seasonal quest also
-    Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
-    ASSERT(qInfo);
-    if (qInfo->IsSeasonal())
+    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+    bool updateVisibility = false;
+
+    ASSERT(quest);
+
+    if (quest->IsSeasonal())
     {
-        uint16 eventId = qInfo->GetEventIdForQuest();
+        uint16 eventId = quest->GetEventIdForQuest();
         if (m_seasonalquests.find(eventId) != m_seasonalquests.end())
         {
             m_seasonalquests[eventId].erase(questId);
@@ -16134,7 +16155,15 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
     }
 
     if (update)
+    {
         SendQuestUpdate(questId);
+
+        if (quest && quest->HasFlag(QUEST_FLAGS_UPDATE_PHASESHIFT))
+            updateVisibility = PhasingHandler::OnConditionChange(this, false);
+    }
+
+    if (updateVisibility)
+        UpdateObjectVisibility();
 }
 
 void Player::SendQuestUpdate(uint32 questId, bool updateInteractions /*= true*/, bool updateGameObjectQuestGiverStatus /*= false*/)
@@ -18775,19 +18804,23 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
     PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult,
     PreparedQueryResult azeriteEmpoweredItemResult, uint32 timeDiff)
 {
-    //           0          1            2                3      4         5        6      7             8                 9          10          11    12
-    // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
-    //                        13                  14              15                  16       17            18
+    //           0          1            2                3      4         5        6      7             8                  9          10          11          12    13
+    // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomBonusListId, durability, playedTime, createTime, text,
+    //                        14                  15              16                  17       18            19
     //        battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, context, bonusListIDs,
-    //                                    19                           20                           21                           22                           23
-    //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
-    //                                  24                         25                         26                         27                         28
-    //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
-    //                29           30           31                32          33           34           35                36          37           38           39                40
+    //                                    20                           21                           22                           23                           24                           25
+    //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4, itemModifiedAppearanceSpec5,
+    //                                  26                         27                         28                         29                         30                         31
+    //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4, spellItemEnchantmentSpec5,
+    //                                             32                                    33                                    34
+    //        secondaryItemModifiedAppearanceAllSpecs, secondaryItemModifiedAppearanceSpec1, secondaryItemModifiedAppearanceSpec2,
+    //                                          35                                    36                                    37
+    //        secondaryItemModifiedAppearanceSpec3, secondaryItemModifiedAppearanceSpec4, secondaryItemModifiedAppearanceSpec5,
+    //                38           39           40                41          42           43           44                45          46           47           48                49
     //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-    //                       41                      42
+    //                       50                      51
     //        fixedScalingLevel, artifactKnowledgeLevel FROM item_instance
-    //         43    44
+    //         52    53
     //        bag, slot
     // FROM character_inventory ci
     // JOIN item_instance ii ON ci.item = ii.guid
@@ -18838,8 +18871,8 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                             azeriteEmpoweredItem->LoadAzeriteEmpoweredItemData(this, *addionalDataPtr->AzeriteEmpoweredItem);
                 }
 
-                ObjectGuid bagGuid = fields[51].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[51].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[52].GetUInt8();
+                ObjectGuid bagGuid = fields[52].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[52].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[53].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
                 GetSession()->GetCollectionMgr()->AddItemAppearance(item);
@@ -19053,10 +19086,10 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
             }
             else if (item->IsRefundable())
             {
-                if (item->GetPlayedTime() > (2 * HOUR))
+                if (item->IsRefundExpired())
                 {
                     TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}') has item ({}) with expired refund time ({}). Deleting refund data and removing refundable flag.",
-                        GetGUID().ToString(), GetName(), item->GetGUID().ToString(), item->GetPlayedTime());
+                        GetGUID().ToString(), GetName(), item->GetGUID().ToString(), GetTotalPlayedTime() - item->GetPlayedTime());
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
                     stmt->setUInt64(0, item->GetGUID().GetCounter());
@@ -19179,7 +19212,7 @@ Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint
 
     Item* item = NewItemOrBag(proto);
 
-    ObjectGuid ownerGuid = fields[51].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[51].GetUInt64()) : ObjectGuid::Empty;
+    ObjectGuid ownerGuid = fields[52].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[52].GetUInt64()) : ObjectGuid::Empty;
     if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
     {
         TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: {}) in mail ({}) doesn't exist, deleted from mail.", itemGuid, mailId);
@@ -19268,7 +19301,7 @@ void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mail
         do
         {
             Field* fields = mailItemsResult->Fetch();
-            uint64 mailId = fields[52].GetUInt64();
+            uint64 mailId = fields[53].GetUInt64();
             _LoadMailedItem(GetGUID(), this, mailId, mailById[mailId], fields, Trinity::Containers::MapGetValuePtr(additionalData, fields[0].GetUInt64()));
         } while (mailItemsResult->NextRow());
     }
@@ -20570,10 +20603,10 @@ void Player::_SaveInventory(CharacterDatabaseTransaction trans)
         i_next = itr;
         ++i_next;
 
-        Item* iPtr = GetItemByGuid(*itr);
-        if (iPtr)
+        if (Item* iPtr = GetItemByGuid(*itr))
         {
-            iPtr->UpdatePlayedTime(this);
+            if (iPtr->IsRefundable() && iPtr->IsRefundExpired())
+                iPtr->SetNotRefundable(this);
             continue;
         }
         else
@@ -22501,7 +22534,7 @@ UF::PVPInfo const* Player::GetPvpInfoForBracket(int8 bracket) const
 }
 
 bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= nullptr*/, uint32 spellid /*= 0*/, uint32 preferredMountDisplay /*= 0*/,
-    Optional<float> speed /*= {}*/)
+    Optional<float> speed /*= {}*/, Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> const& scriptResult /*= {}*/)
 {
     if (nodes.size() < 2)
     {
@@ -22681,18 +22714,19 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         ModifyMoney(-int64(firstcost));
         UpdateCriteria(CriteriaType::MoneySpentOnTaxis, firstcost);
         GetSession()->SendActivateTaxiReply(ERR_TAXIOK);
-        StartTaxiMovement(mount_display_id, sourcepath, 0, speed);
+        StartTaxiMovement(mount_display_id, sourcepath, 0, speed, Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>(scriptResult));
     }
     return true;
 }
 
-bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/, Optional<float> speed /*= {}*/)
+bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/, Optional<float> speed /*= {}*/,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> const& scriptResult /*= {}*/)
 {
     TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(taxi_path_id);
     if (!entry)
         return false;
 
-    return ActivateTaxiPathTo({ { entry->FromTaxiNode, entry->ToTaxiNode } }, nullptr, spellid, 0, speed);
+    return ActivateTaxiPathTo({ { entry->FromTaxiNode, entry->ToTaxiNode } }, nullptr, spellid, 0, speed, scriptResult);
 }
 
 void Player::FinishTaxiFlight()
@@ -22758,10 +22792,11 @@ void Player::ContinueTaxiFlight()
         }
     }
 
-    StartTaxiMovement(mountDisplayId, path, startNode, {});
+    StartTaxiMovement(mountDisplayId, path, startNode, {}, {});
 }
 
-void Player::StartTaxiMovement(uint32 mountDisplayId, uint32 path, uint32 pathNode, Optional<float> speed)
+void Player::StartTaxiMovement(uint32 mountDisplayId, uint32 path, uint32 pathNode, Optional<float> speed,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult)
 {
     // remove fake death
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
@@ -22769,7 +22804,7 @@ void Player::StartTaxiMovement(uint32 mountDisplayId, uint32 path, uint32 pathNo
     if (mountDisplayId)
         Mount(mountDisplayId);
 
-    GetMotionMaster()->MoveTaxiFlight(path, pathNode, speed);
+    GetMotionMaster()->MoveTaxiFlight(path, pathNode, speed, std::move(scriptResult));
 }
 
 void Player::InitDataForForm(bool reapplyMods)
@@ -28578,8 +28613,8 @@ void Player::DeleteRefundReference(ObjectGuid it)
 
 void Player::SendRefundInfo(Item* item)
 {
-    // This function call unsets ITEM_FIELD_FLAG_REFUNDABLE if played time is over 2 hours.
-    item->UpdatePlayedTime(this);
+    if (item->IsRefundable() && item->IsRefundExpired())
+        item->SetNotRefundable(this);
 
     if (!item->IsRefundable())
     {
@@ -28603,7 +28638,7 @@ void Player::SendRefundInfo(Item* item)
 
     WorldPackets::Item::SetItemPurchaseData setItemPurchaseData;
     setItemPurchaseData.ItemGUID = item->GetGUID();
-    setItemPurchaseData.PurchaseTime = GetTotalPlayedTime() - item->GetPlayedTime();
+    setItemPurchaseData.PurchaseTime = item->m_itemData->CreatePlayedTime;
     setItemPurchaseData.Contents.Money = item->GetPaidMoney();
 
     for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)                             // item cost data

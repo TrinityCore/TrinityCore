@@ -26,12 +26,14 @@
 #define MIN_QUIET_DISTANCE 28.0f
 #define MAX_QUIET_DISTANCE 43.0f
 
-FleeingMovementGenerator::FleeingMovementGenerator(ObjectGuid fleeTargetGUID) : _fleeTargetGUID(fleeTargetGUID), _timer(0)
+FleeingMovementGenerator::FleeingMovementGenerator(ObjectGuid fleeTargetGUID,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/) : _fleeTargetGUID(fleeTargetGUID), _timer(0)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_HIGHEST;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_FLEEING;
+    ScriptResult = std::move(scriptResult);
 }
 
 MovementGeneratorType FleeingMovementGenerator::GetMovementGeneratorType() const
@@ -89,7 +91,7 @@ void FleeingMovementGenerator::Deactivate(Unit* owner)
     owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
 }
 
-void FleeingMovementGenerator::Finalize(Unit* owner, bool active, bool /*movementInform*/)
+void FleeingMovementGenerator::Finalize(Unit* owner, bool active, bool movementInform)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
 
@@ -105,6 +107,9 @@ void FleeingMovementGenerator::Finalize(Unit* owner, bool active, bool /*movemen
         else if (owner->IsPlayer())
             owner->StopMoving();
     }
+
+    if (movementInform)
+        SetScriptResult(MovementStopReason::Finished);
 }
 
 void FleeingMovementGenerator::SetTargetLocation(Unit* owner)
@@ -223,6 +228,8 @@ void TimedFleeingMovementGenerator::Finalize(Unit* owner, bool active, bool move
 
     if (movementInform)
     {
+        SetScriptResult(MovementStopReason::Finished);
+
         Creature* ownerCreature = owner->ToCreature();
         if (CreatureAI* AI = ownerCreature ? ownerCreature->AI() : nullptr)
             AI->MovementInform(TIMED_FLEEING_MOTION_TYPE, 0);
