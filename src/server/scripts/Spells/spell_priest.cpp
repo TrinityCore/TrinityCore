@@ -70,6 +70,8 @@ enum PriestSpells
     SPELL_PRIEST_DARK_REPRIMAND_DAMAGE              = 373130,
     SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
     SPELL_PRIEST_DAZZLING_LIGHT                     = 196810,
+    SPELL_PRIEST_DEATHSPEAKER                       = 392507,
+    SPELL_PRIEST_DEATHSPEAKER_AURA                  = 392511,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47515,
     SPELL_PRIEST_DIVINE_AEGIS_ABSORB                = 47753,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
@@ -169,6 +171,7 @@ enum PriestSpells
     SPELL_PRIEST_SEARING_LIGHT                      = 196811,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32379,
+    SPELL_PRIEST_SHADOW_WORD_DEATH_BACKLASH         = 32409,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
     SPELL_PRIEST_SHIELD_DISCIPLINE                  = 197045,
@@ -2906,6 +2909,78 @@ class spell_pri_shadow_mend_periodic_damage : public AuraScript
     }
 };
 
+// 32379 - Shadow Word: Death
+class spell_pri_shadow_word_death : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_DEATHSPEAKER,
+            SPELL_PRIEST_DEATHSPEAKER_AURA,
+        }) && ValidateSpellEffect
+        ({
+            {SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_1},
+            {SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_2},
+            {SPELL_PRIEST_DEATHSPEAKER_AURA, EFFECT_1}
+        });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        uint32 backlashDmg = CalculatePct(GetCaster()->GetMaxHealth(), GetEffectInfo(EFFECT_4).CalcValue(GetCaster()));
+        GetCaster()->Yell("back:" + std::to_string(backlashDmg), LANG_UNIVERSAL);
+
+        if (GetCaster()->HasAura(SPELL_PRIEST_DEATHSPEAKER_AURA))
+        {
+            int32 increaseBP = sSpellMgr->GetSpellInfo(SPELL_PRIEST_DEATHSPEAKER_AURA, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(GetCaster());
+            GetCaster()->Yell(std::to_string(increaseBP), LANG_UNIVERSAL);
+            int32 dmgIncrease = GetHitDamage() + CalculatePct(GetHitDamage(), increaseBP);
+            GetCaster()->Yell("25inc:" + std::to_string(dmgIncrease), LANG_UNIVERSAL);
+            AddPct(dmgIncrease, GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+            GetCaster()->Yell("250inc:" + std::to_string(dmgIncrease), LANG_UNIVERSAL);
+
+            SetHitDamage(dmgIncrease);
+
+            GetCaster()->RemoveAurasDueToSpell(SPELL_PRIEST_DEATHSPEAKER_AURA);
+        }
+
+        if (GetHitUnit()->HealthBelowPct(GetEffectInfo(EFFECT_1).CalcValue(GetCaster())))
+        {
+            int32 dmgIncrease = GetHitDamage();
+            AddPct(dmgIncrease, GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+            GetCaster()->Yell("inc:" + std::to_string(dmgIncrease), LANG_UNIVERSAL);
+            SetHitDamage(dmgIncrease);
+        }
+
+        if (GetHitDamage() < GetHitUnit()->GetHealth())
+            GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH_BACKLASH, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(backlashDmg));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_shadow_word_death::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 392507 - Deathspeaker
+class spell_pri_deathspeaker : public AuraScript
+{
+    void HandleOnProc(ProcEventInfo& /*eventInfo*/) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->GetSpellHistory()->ResetCooldown(SPELL_PRIEST_SHADOW_WORD_DEATH);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_pri_deathspeaker::HandleOnProc);
+    }
+};
+
 // 109186 - Surge of Light
 class spell_pri_surge_of_light : public AuraScript
 {
@@ -3311,6 +3386,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_crystalline_reflection);
     RegisterSpellScript(spell_pri_dark_indulgence);
+    RegisterSpellScript(spell_pri_deathspeaker);
     RegisterSpellScript(spell_pri_divine_aegis);
     RegisterSpellScript(spell_pri_divine_image);
     RegisterSpellScript(spell_pri_divine_image_spell_triggered);
@@ -3369,6 +3445,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_shadow_covenant);
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
+    RegisterSpellScript(spell_pri_shadow_word_death);
     RegisterSpellScript(spell_pri_surge_of_light);
     RegisterSpellScript(spell_pri_trail_of_light);
     RegisterSpellScript(spell_pri_train_of_thought);
