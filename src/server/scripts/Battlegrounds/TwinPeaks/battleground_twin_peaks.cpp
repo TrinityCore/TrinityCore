@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SpellAuras.h"
 #include "Battleground.h"
 #include "BattlegroundScript.h"
 #include "GameObject.h"
