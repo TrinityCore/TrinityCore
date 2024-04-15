@@ -5804,9 +5804,11 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 {
                     if (unitCaster->GetTypeId() == TYPEID_PLAYER)
                     {
+                        /*
                         if (strict)                         //starting cast, trigger pet stun (cast by pet so it doesn't attack player)
                             if (Pet* pet = unitCaster->ToPlayer()->GetPet())
                                 pet->CastSpell(pet, 32752, pet->GetGUID());
+                                */
                     }
                     else if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET))
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
