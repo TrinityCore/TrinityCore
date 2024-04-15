@@ -501,6 +501,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 {
                     player->RemoveAurasDueToSpell(SPELL_PREPARATION);
+                    player->RemoveAurasDueToSpell(SPELL_INSTANT_CAST);
                     player->ResetAllPowers();
                 }
             // Announce BG starting
@@ -1112,10 +1113,12 @@ void Battleground::AddPlayer(Player* player)
         if (isArena())
         {
             player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
+            player->CastSpell(player, SPELL_INSTANT_CAST, true);
         }
         else
         {
             player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
+            player->CastSpell(player, SPELL_INSTANT_CAST, true);
         }
         player->ResetAllPowers();
     }

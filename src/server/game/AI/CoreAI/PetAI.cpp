@@ -395,6 +395,10 @@ void PetAI::HandleReturnMovement()
         {
             ClearCharmInfoFlags();
             me->GetCharmInfo()->SetIsReturning(true);
+            me->GetCharmInfo()->SetIsCommandAttack(false);
+            me->GetCharmInfo()->SetIsCommandFollow(true);
+            me->GetCharmInfo()->SetIsAtStay(false);
+            me->GetCharmInfo()->SetIsFollowing(false);
 
             if (me->HasUnitState(UNIT_STATE_CHASE))
                 me->GetMotionMaster()->Remove(CHASE_MOTION_TYPE);
