@@ -475,6 +475,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     player->SendDirectMessage(&status);
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
+                    player->RemoveAurasDueToSpell(SPELL_INSTANT_CAST);
                     player->ResetAllPowers();
                     if (!player->IsGameMaster())
                     {
