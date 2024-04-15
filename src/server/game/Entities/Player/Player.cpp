@@ -22337,6 +22337,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
             CharacterDatabase.Execute(stmt);
         }
     }
+    RemoveAurasDueToSpell(SPELL_INSTANT_CAST);
     SetFactionForRace(GetRaceForDB());
 }
 
