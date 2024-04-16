@@ -1,8 +1,8 @@
-SET @OGUID := 10000000;
-SET @CGUID := 10000000;
+SET @OGUID := 3000028;
+SET @CGUID := 3000009;
 SET @TRIGGER_ID_ALLIANCE := 30; -- Trigger ID for capture flag area trigger alliance
 SET @TRIGGER_ID_HORDE := 31; -- Trigger ID for capture flag area trigger horde
-SET @TRIGGER_SPAWN_ID := 10000000;
+SET @TRIGGER_SPAWN_ID := 65;
 
 UPDATE `battleground_template` SET `Weight` = 1 WHERE `ID` = 108;
 
@@ -77,7 +77,7 @@ DELETE FROM `creature` WHERE `guid` = @CGUID+0;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curHealthPct`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
 (@CGUID+0, 13117, 726, 5031, 0, '0', '0', 0, 0, 1, 1818.3055419921875, 153.1302032470703125, 1.889904022216796875, 1.631284713745117187, 7200, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 54205); -- Horde Spirit Guide (Area: 0 - Difficulty: 0) CreateObject1 (Auras: 9036 - Ghost)
 
-DELETE FROM `areatrigger` WHERE `SpawnId` BETWEEN @TRIGGER_SPAWN_ID+0 AND @TRIGGER_SPAWN_ID+2 AND `IsCustom` = 1;
+DELETE FROM `areatrigger` WHERE `SpawnId` BETWEEN @TRIGGER_SPAWN_ID+0 AND @TRIGGER_SPAWN_ID+1 AND `IsCustom` = 1;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `ScriptName`, `Comment`) VALUES
 (@TRIGGER_SPAWN_ID+0, @TRIGGER_ID_ALLIANCE, 1, 726, 2117.63720703125, 191.6822967529296875, 44.05199050903320312, 6.021387100219726562, 'areatrigger_action_capture_flag', 'Twin Peaks - Capture Flag - Alliance'),
 (@TRIGGER_SPAWN_ID+1, @TRIGGER_ID_HORDE, 1, 726, 1578.3367919921875, 344.045135498046875, 2.418408870697021484, 2.792518377304077148, 'areatrigger_action_capture_flag', 'Twin Peaks - Capture Flag - Horde');
