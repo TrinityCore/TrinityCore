@@ -34,11 +34,13 @@
 #include "ScriptSystem.h"
 #include "Unit.h"
 #include "WaypointDefines.h"
+#include "WaypointManager.h"
 #include <algorithm>
 #include <iterator>
 
 #include "ChaseMovementGenerator.h"
 #include "ConfusedMovementGenerator.h"
+#include "CyclicMovementGenerator.h"
 #include "FleeingMovementGenerator.h"
 #include "FlightPathMovementGenerator.h"
 #include "FollowMovementGenerator.h"
@@ -988,6 +990,22 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     };
 
     Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, 0, { .Duration = duration, .ScriptResult = std::move(scriptResult) }));
+}
+
+void MotionMaster::MoveCyclicPath(uint32 pathId, bool enforceFly /*= false*/,
+    Optional<Milliseconds> duration /*= {}*/, Optional<float> speed /*= {}*/,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
+{
+    WaypointPath const* path = sWaypointMgr->GetPath(pathId);
+    if (!path)
+    {
+        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveCyclePath: '{}' tried to use not existing path with id: {}", _owner->GetGUID(), pathId);
+        if (scriptResult)
+            scriptResult->SetResult(MovementStopReason::Interrupted);
+        return;
+    }
+    Add(new CyclicMovementGenerator<Creature>(path, enforceFly, duration, speed, speedSelectionMode, std::move(scriptResult)));
 }
 
 void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk, bool fly)

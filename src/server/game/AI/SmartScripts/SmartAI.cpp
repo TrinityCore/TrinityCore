@@ -526,12 +526,22 @@ void SmartAI::JustReachedHome()
     CreatureGroup* formation = me->GetFormation();
     if (!formation || formation->GetLeader() == me || !formation->IsFormed())
     {
-        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType(MOTION_SLOT_DEFAULT) != WAYPOINT_MOTION_TYPE)
+        if (me->GetDefaultMovementType() == CYCLIC_SPLINE_MOTION_TYPE)
         {
-            if (me->GetWaypointPathId())
-                me->GetMotionMaster()->MovePath(me->GetWaypointPathId(), true);
+            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType(MOTION_SLOT_DEFAULT) != CYCLIC_SPLINE_MOTION_TYPE)
+            {
+                if (me->GetWaypointPathId())
+                    me->GetMotionMaster()->MoveCyclicPath(me->GetWaypointPathId());
+            }
         }
-
+        else
+        {
+            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType(MOTION_SLOT_DEFAULT) != WAYPOINT_MOTION_TYPE)
+            {
+                if (me->GetWaypointPathId())
+                    me->GetMotionMaster()->MovePath(me->GetWaypointPathId(), true);
+            }
+        }
         me->ResumeMovement();
     }
     else if (formation->IsFormed())
