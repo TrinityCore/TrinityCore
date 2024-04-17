@@ -37,7 +37,8 @@ enum HarlanEvents
     EVENT_HARLAN_DRAGONS_REACH      = 1,
     EVENT_HARLAN_CALL_FOR_HELP,
     EVENT_HARLAN_HEROIC_LEAP,
-    EVENT_HARLAN_BERSERKER_RAGE 
+    EVENT_HARLAN_BERSERKER_RAGE,
+    EVENT_HARLAN_BLADES_OF_LIGHT
 };
 
 enum HarlanTexts
@@ -87,8 +88,8 @@ struct boss_armsmaster_harlan : public BossAI
     {
         if (id == EVENT_JUMP)
         {
-            DoCastSelf(SPELL_HARLAN_BLADES_OF_LIGHT);
             me->SetReactState(REACT_PASSIVE);
+            events.ScheduleEvent(EVENT_HARLAN_BLADES_OF_LIGHT, 10s);
         }
     }
 
@@ -113,12 +114,17 @@ struct boss_armsmaster_harlan : public BossAI
                 events.ScheduleEvent(EVENT_HARLAN_DRAGONS_REACH, 7s);
                 break;
             case EVENT_HARLAN_CALL_FOR_HELP:
+                Talk(SAY_HARLAN_CALL_FOR_HELP);
                 break;
             case EVENT_HARLAN_HEROIC_LEAP:
                 DoCast(SPELL_HARLAN_HEROIC_LEAP_JUMP);
                 events.ScheduleEvent(EVENT_HARLAN_HEROIC_LEAP, 41s);
                 break;
             case EVENT_HARLAN_BERSERKER_RAGE:
+                break;
+            case EVENT_HARLAN_BLADES_OF_LIGHT:
+                Talk(ANNOUNCE_HARLAN_BLADE_FOR_LIGHT);
+                DoCastSelf(SPELL_HARLAN_BLADES_OF_LIGHT);
                 break;
             default:
                 break;

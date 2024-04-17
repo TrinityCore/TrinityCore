@@ -303,6 +303,8 @@ void AddEasternKingdomsScripts()
     AddSC_boss_scorn();
     AddSC_instance_scarlet_monastery();
     AddSC_boss_mograine_and_whitemane();
+    AddSC_instance_scarlet_halls();        // Scarlet Halls
+    AddSC_boss_armsmaster_harlan();
     AddSC_boss_darkmaster_gandling();       //Scholomance
     AddSC_boss_death_knight_darkreaver();
     AddSC_boss_theolenkrastinov();
