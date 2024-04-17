@@ -60,6 +60,12 @@ MovementGeneratorType IdleMovementGenerator::GetMovementGeneratorType() const
     return IDLE_MOTION_TYPE;
 }
 
+MovementGenerator* IdleMovementFactory::Create(Unit* /*object*/) const
+{
+    static IdleMovementGenerator instance;
+    return &instance;
+}
+
 //----------------------------------------------------//
 
 RotateMovementGenerator::RotateMovementGenerator(uint32 id, RotateDirection direction, Optional<Milliseconds> duration,

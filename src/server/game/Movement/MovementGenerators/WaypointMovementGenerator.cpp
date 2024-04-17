@@ -26,13 +26,12 @@
 #include "MovementDefines.h"
 #include "Transport.h"
 #include "WaypointManager.h"
-#include <sstream>
 
 WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
     Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
-    : _nextMoveTime(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true),
+    : PathMovementBase(PathType(std::in_place_type<WaypointPath const*>)), _nextMoveTime(0), _pathId(pathId), _repeating(repeating),
     _speed(speed), _speedSelectionMode(speedSelectionMode), _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)),
     _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds), _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _isReturningToStart(false),
     _generatePath(generatePath)
@@ -50,13 +49,11 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath cons
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
     Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, bool generatePath,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
-    : _nextMoveTime(0), _pathId(0), _repeating(repeating), _loadedFromDB(false),
+    : PathMovementBase(std::make_unique<WaypointPath>(path)), _nextMoveTime(0), _pathId(0), _repeating(repeating),
     _speed(speed), _speedSelectionMode(speedSelectionMode), _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)),
     _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds), _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _isReturningToStart(false),
     _generatePath(generatePath)
 {
-    _path = std::make_unique<WaypointPath>(path);
-
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
@@ -123,7 +120,7 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    if (_loadedFromDB)
+    if (IsLoadedFromDB())
     {
         if (!_pathId)
             _pathId = owner->GetWaypointPathId();
@@ -270,7 +267,7 @@ void WaypointMovementGenerator<Creature>::DoFinalize(Creature* owner, bool activ
         SetScriptResult(MovementStopReason::Finished);
 }
 
-void WaypointMovementGenerator<Creature>::MovementInform(Creature* owner)
+void WaypointMovementGenerator<Creature>::MovementInform(Creature const* owner) const
 {
     WaypointNode const& waypoint = GetPath()->Nodes[_currentNode];
     if (CreatureAI* AI = owner->AI())
@@ -481,8 +478,12 @@ bool WaypointMovementGenerator<Creature>::IsFollowingPathBackwardsFromEndToStart
 
 std::string WaypointMovementGenerator<Creature>::GetDebugInfo() const
 {
-    std::stringstream sstr;
-    sstr << PathMovementBase::GetDebugInfo() << "\n"
-        << MovementGeneratorMedium::GetDebugInfo();
-    return sstr.str();
+    return Trinity::StringFormat("{}\n{}",
+        PathMovementBase::GetDebugInfo(),
+        MovementGeneratorMedium::GetDebugInfo());
+}
+
+MovementGenerator* WaypointMovementFactory::Create(Unit* /*object*/) const
+{
+    return new WaypointMovementGenerator<Creature>(0, true);
 }

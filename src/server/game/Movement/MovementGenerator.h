@@ -125,34 +125,23 @@ class MovementGeneratorMedium : public MovementGenerator
 
 typedef FactoryHolder<MovementGenerator, Unit, MovementGeneratorType> MovementGeneratorCreator;
 
-template<class Movement>
-struct MovementGeneratorFactory : public MovementGeneratorCreator
-{
-    MovementGeneratorFactory(MovementGeneratorType movementGeneratorType) : MovementGeneratorCreator(movementGeneratorType) { }
-
-    MovementGenerator* Create(Unit* /*object*/) const override
-    {
-        return new Movement();
-    }
-};
-
 struct IdleMovementFactory : public MovementGeneratorCreator
 {
-    IdleMovementFactory();
+    IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }
 
     MovementGenerator* Create(Unit* object) const override;
 };
 
 struct RandomMovementFactory : public MovementGeneratorCreator
 {
-    RandomMovementFactory();
+    RandomMovementFactory() : MovementGeneratorCreator(RANDOM_MOTION_TYPE) { }
 
     MovementGenerator* Create(Unit* object) const override;
 };
 
 struct WaypointMovementFactory : public MovementGeneratorCreator
 {
-    WaypointMovementFactory();
+    WaypointMovementFactory() : MovementGeneratorCreator(WAYPOINT_MOTION_TYPE) { }
 
     MovementGenerator* Create(Unit* object) const override;
 };

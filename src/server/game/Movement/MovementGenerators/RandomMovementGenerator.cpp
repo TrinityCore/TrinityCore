@@ -275,3 +275,8 @@ void RandomMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active,
             owner->AI()->MovementInform(RANDOM_MOTION_TYPE, 0);
     }
 }
+
+MovementGenerator* RandomMovementFactory::Create(Unit* /*object*/) const
+{
+    return new RandomMovementGenerator<Creature>();
+}
