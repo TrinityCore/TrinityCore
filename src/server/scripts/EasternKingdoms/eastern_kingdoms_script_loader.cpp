@@ -112,6 +112,8 @@ void AddSC_boss_interrogator_vishas();
 void AddSC_boss_scorn();
 void AddSC_instance_scarlet_monastery();
 void AddSC_boss_mograine_and_whitemane();
+void AddSC_instance_scarlet_halls();        // Scarlet Halls
+void AddSC_boss_armsmaster_harlan();
 void AddSC_boss_darkmaster_gandling();       //Scholomance
 void AddSC_boss_death_knight_darkreaver();
 void AddSC_boss_theolenkrastinov();
