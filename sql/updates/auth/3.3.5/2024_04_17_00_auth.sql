@@ -1,4 +1,5 @@
 -- Dumping structure for table auth.account_ip_history
+DROP TABLE IF EXISTS `account_ip_history`;
 CREATE TABLE IF NOT EXISTS `account_ip_history` (
   `Account` int unsigned NOT NULL DEFAULT 0,
   `RealmID` int unsigned DEFAULT NULL,
