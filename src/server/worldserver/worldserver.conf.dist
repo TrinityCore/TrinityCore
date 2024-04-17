@@ -4046,7 +4046,7 @@ Allow.IP.Based.Action.Logging = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-IPHistory = 1
+IPHistory = 0
 
 #
 ###################################################################################################
