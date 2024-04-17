@@ -604,6 +604,17 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
         LoginDatabase.Execute(stmt);
     }
 
+    if (sWorld->getBoolConfig(CONFIG_IP_HISTORY))
+    {
+        // Update the ip history in the database as it was successful for login
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_IP_HISTORY);
+        uint32 realmId = realm.Id.Realm;
+        stmt->setUInt32(0, account.Id);
+        stmt->setUInt32(1, realmId);
+        stmt->setString(2, address);
+        LoginDatabase.Execute(stmt);
+    }
+
     // At this point, we can safely hook a successful login
     sScriptMgr->OnAccountLogin(account.Id);
 
