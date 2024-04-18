@@ -217,12 +217,26 @@ struct boss_victor_nefarius : public BossAI
 
     void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
     {
-        if (summon->GetEntry() != NPC_NEFARIAN)
+        if ((summon->GetEntry() != NPC_NEFARIAN) && (summon->GetEntry() != NPC_BONE_CONSTRUCT))
         {
-            summon->UpdateEntry(NPC_BONE_CONSTRUCT);
-            summon->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-            summon->SetReactState(REACT_PASSIVE);
-            summon->SetStandState(UNIT_STAND_STATE_DEAD);
+            ObjectGuid summonGUID = summon->GetGUID();
+            summon->SetHomePosition(summon->GetPosition());
+            if (summon->GetMap()->ConvertCorpseToBones(summon->GetGUID()));
+                Corpse* corpse = summon->GetMap()->GetCorpse(summon->GetGUID());
+            scheduler.Schedule(1500ms, [this, summonGUID](TaskContext /*context*/)
+                {
+                    if (Creature* creature = ObjectAccessor::GetCreature(*me, summonGUID))
+                    {
+                        SummonDrakonidBones(creature);
+                        creature->SetOriginalEntry(NPC_BONE_CONSTRUCT);
+                        creature->UpdateEntry(NPC_BONE_CONSTRUCT);
+                        creature->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        creature->SetReactState(REACT_PASSIVE);
+                        creature->SetStandState(UNIT_STAND_STATE_DEAD);
+                        creature->SetRespawnCompatibilityMode();
+                        creature->SetVisible(false);
+                    }
+                });
         }
     }
 
@@ -296,6 +310,7 @@ struct boss_victor_nefarius : public BossAI
         if (UpdateVictim() && SpawnedAdds <= 42)
         {
             events.Update(diff);
+            scheduler.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -381,6 +396,14 @@ struct boss_victor_nefarius : public BossAI
         return false;
     }
 
+    void SummonDrakonidBones(Creature* creature)
+    {
+        float o = creature->GetOrientation();
+        o += M_PI;
+        QuaternionData rot = QuaternionData::fromEulerAnglesZYX(o, 0.0f, 0.0f);
+        creature->SummonGameObject(GO_DRAKONID_BONES, creature->GetPosition(), rot, 0s, GOSummonType(GO_SUMMON_TIMED_OR_CORPSE_DESPAWN));
+    }
+
     private:
         uint32 SpawnedAdds;
 };
@@ -444,6 +467,30 @@ struct boss_nefarian : public BossAI
             DoZoneInCombat();
             if (me->GetVictim())
                 AttackStart(me->GetVictim());
+        }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        // Phase3 begins when health below 20 pct
+        if (!Phase3 && me->HealthBelowPctDamaged(20, damage))
+        {
+            instance->SetData(DATA_DRAKONID_BONES, SPECIAL); //Despawn Drakonids Bones
+            std::list<Creature*> constructList;
+            me->GetCreatureListWithEntryInGrid(constructList, NPC_BONE_CONSTRUCT, 500.0f);
+            for (Creature* const& summon : constructList)
+                if (summon && !summon->IsAlive())
+                {
+                    summon->SetVisible(true);
+                    summon->RemoveAllGameObjects();
+                    summon->Respawn();
+                    summon->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    summon->SetReactState(REACT_AGGRESSIVE);
+                    summon->SetStandState(UNIT_STAND_STATE_STAND);
+                    DoZoneInCombat(summon);
+                }
+            Phase3 = true;
+            Talk(SAY_RAISE_SKELETONS);
         }
     }
 
@@ -550,26 +597,6 @@ struct boss_nefarian : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        // Phase3 begins when health below 20 pct
-        if (!Phase3 && HealthBelowPct(20))
-        {
-            std::list<Creature*> constructList;
-            me->GetCreatureListWithEntryInGrid(constructList, NPC_BONE_CONSTRUCT, 500.0f);
-            for (std::list<Creature*>::const_iterator itr = constructList.begin(); itr != constructList.end(); ++itr)
-                if ((*itr) && !(*itr)->IsAlive())
-                {
-                    (*itr)->Respawn();
-                    DoZoneInCombat((*itr));
-                    (*itr)->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                    (*itr)->SetReactState(REACT_AGGRESSIVE);
-                    (*itr)->SetStandState(UNIT_STAND_STATE_STAND);
-                }
-
-            Phase3 = true;
-            Talk(SAY_RAISE_SKELETONS);
-        }
-
         DoMeleeAttackIfReady();
     }
 
