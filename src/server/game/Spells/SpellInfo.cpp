@@ -4366,12 +4366,15 @@ uint32 SpellInfo::GetSpellXSpellVisualId(WorldObject const* caster /*= nullptr*/
     {
         if (caster)
         {
-            if (caster->IsPlayer() && !ConditionMgr::IsPlayerMeetingCondition(caster->ToPlayer(), visual->CasterPlayerConditionID))
-                continue;
+            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(visual->CasterPlayerConditionID))
+            {
+                if (!caster->IsPlayer() || !ConditionMgr::IsPlayerMeetingCondition(caster->ToPlayer(), playerCondition))
+                    continue;
+            }
 
             if (UnitConditionEntry const* unitCondition = sUnitConditionStore.LookupEntry(visual->CasterUnitConditionID))
             {
-                if (caster->IsUnit() && !ConditionMgr::IsUnitMeetingCondition(caster->ToUnit(), Object::ToUnit(viewer), unitCondition))
+                if (!caster->IsUnit() || !ConditionMgr::IsUnitMeetingCondition(caster->ToUnit(), Object::ToUnit(viewer), unitCondition))
                     continue;
             }
         }
