@@ -144,6 +144,10 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     loginStmt->setUInt32(0, accountId);
     trans->Append(loginStmt);
 
+    loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_IP_HISTORY);
+    loginStmt->setUInt32(0, accountId);
+    trans->Append(loginStmt);
+
     LoginDatabase.CommitTransaction(trans);
 
     return AccountOpResult::AOR_OK;
