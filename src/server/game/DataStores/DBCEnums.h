@@ -2099,7 +2099,7 @@ enum class SummonPropertiesFlags : uint32
     DespawnOnSummonerDeath            = 0x00000008, // NYI
     OnlyVisibleToSummoner             = 0x00000010,
     CannotDismissPet                  = 0x00000020, // NYI
-    UseDemonTimeout                   = 0x00000040, // NYI
+    UseDemonTimeout                   = 0x00000040,
     UnlimitedSummons                  = 0x00000080, // NYI
     UseCreatureLevel                  = 0x00000100,
     JoinSummonerSpawnGroup            = 0x00000200, // NYI

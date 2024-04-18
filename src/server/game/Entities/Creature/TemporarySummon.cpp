@@ -90,8 +90,9 @@ void TempSummon::Update(uint32 diff)
         {
             if (m_timer <= msDiff)
             {
-                UnSummon();
-                return;
+                if (!m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::UseDemonTimeout))
+                    UnSummon();
+                    return;
             }
 
             m_timer -= msDiff;
@@ -103,8 +104,9 @@ void TempSummon::Update(uint32 diff)
             {
                 if (m_timer <= msDiff)
                 {
-                    UnSummon();
-                    return;
+                    if (!m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::UseDemonTimeout))
+                        UnSummon();
+                        return;
                 }
 
                 m_timer -= msDiff;
