@@ -221,8 +221,6 @@ struct boss_victor_nefarius : public BossAI
         {
             ObjectGuid summonGUID = summon->GetGUID();
             summon->SetHomePosition(summon->GetPosition());
-            if (summon->GetMap()->ConvertCorpseToBones(summon->GetGUID()));
-                Corpse* corpse = summon->GetMap()->GetCorpse(summon->GetGUID());
             scheduler.Schedule(1500ms, [this, summonGUID](TaskContext /*context*/)
                 {
                     if (Creature* creature = ObjectAccessor::GetCreature(*me, summonGUID))
@@ -399,7 +397,7 @@ struct boss_victor_nefarius : public BossAI
     void SummonDrakonidBones(Creature* creature)
     {
         float o = creature->GetOrientation();
-        o += M_PI;
+        o += float(M_PI);
         QuaternionData rot = QuaternionData::fromEulerAnglesZYX(o, 0.0f, 0.0f);
         creature->SummonGameObject(GO_DRAKONID_BONES, creature->GetPosition(), rot, 0s, GOSummonType(GO_SUMMON_TIMED_OR_CORPSE_DESPAWN));
     }
