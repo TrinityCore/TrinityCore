@@ -79,10 +79,13 @@ struct WaypointPath
     }
 
     std::vector<WaypointNode> Nodes;
+    std::vector<std::pair<std::size_t, std::size_t>> ContinuousSegments;
     uint32 Id = 0;
     WaypointMoveType MoveType = WaypointMoveType::Walk;
     EnumFlag<WaypointPathFlags> Flags = WaypointPathFlags::None;
     Optional<float> Velocity;
+
+    void BuildSegments();
 };
 
 #endif

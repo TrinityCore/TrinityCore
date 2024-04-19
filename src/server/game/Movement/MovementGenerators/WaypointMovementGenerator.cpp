@@ -24,8 +24,10 @@
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "MovementDefines.h"
+#include "PathGenerator.h"
 #include "Transport.h"
 #include "WaypointManager.h"
+#include <span>
 
 WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
@@ -61,6 +63,8 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath cons
     ScriptResult = std::move(scriptResult);
     if (duration)
         _duration.emplace(*duration);
+
+    std::get<std::unique_ptr<WaypointPath>>(_path)->BuildSegments();
 }
 
 WaypointMovementGenerator<Creature>::~WaypointMovementGenerator() = default;
@@ -215,6 +219,16 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
         if (owner->GetTransGUID().IsEmpty())
             owner->SetHomePosition(owner->GetPosition());
 
+        // handle switching points in continuous segments
+        if (_waypointTransitionSplinePoints.size() > 1 && owner->movespline->currentPathIdx() >= _waypointTransitionSplinePoints.front())
+        {
+            OnArrived(owner);
+            _waypointTransitionSplinePoints.erase(_waypointTransitionSplinePoints.begin());
+            if (ComputeNextNode())
+                if (CreatureAI* ai = owner->AI())
+                    ai->WaypointStarted(path->Nodes[_currentNode].Id, path->Id);
+        }
+
         // relaunch movement if its speed has changed
         if (HasFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING))
             StartMove(owner, true);
@@ -336,6 +350,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
     bool const transportPath = !owner->GetTransGUID().IsEmpty();
 
+    uint32 previousNode = _currentNode;
     if (HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED) && HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED))
     {
         if (ComputeNextNode())
@@ -388,7 +403,69 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     }
 
     ASSERT(_currentNode < path->Nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, path->Id);
-    WaypointNode const &waypoint = path->Nodes[_currentNode];
+
+    std::span<WaypointNode const> segment = [&]
+    {
+        // find the continuous segment that our destination waypoint is on
+        auto segmentItr = std::ranges::find_if(path->ContinuousSegments, [&](std::pair<std::size_t, std::size_t> segmentRange)
+        {
+            auto isInSegmentRange = [&](uint32 node) { return node >= segmentRange.first && node < segmentRange.first + segmentRange.second; };
+            return isInSegmentRange(_currentNode) && isInSegmentRange(previousNode);
+        });
+
+        // handle path returning directly from last point to first
+        if (segmentItr == path->ContinuousSegments.end())
+        {
+            if (_currentNode != 0 || previousNode != path->Nodes.size() - 1)
+                return std::span(&path->Nodes[_currentNode], 1);
+
+            segmentItr = path->ContinuousSegments.begin();
+        }
+
+        if (!_isReturningToStart)
+            return std::span(&path->Nodes[_currentNode], segmentItr->second - (_currentNode - segmentItr->first));
+
+        return std::span(&path->Nodes[segmentItr->first], _currentNode - segmentItr->first + 1);
+    }();
+
+    WaypointNode const& lastWaypointForSegment = !_isReturningToStart ? segment.back() : segment.front();
+
+    _waypointTransitionSplinePoints.clear();
+    Movement::PointsArray points;
+    auto fillPath = [this, owner, &points]<typename iterator>(iterator itr, iterator end)
+    {
+        Optional<PathGenerator> generator;
+        if (_generatePath)
+            generator.emplace(owner);
+
+        Position source = owner->GetPosition();
+        points.emplace_back(source.GetPositionX(), source.GetPositionY(), source.GetPositionZ());
+
+        while (itr != end)
+        {
+            if (generator)
+            {
+                bool result = generator->CalculatePath(source.GetPositionX(), source.GetPositionY(), source.GetPositionZ(), itr->X, itr->Y, itr->Z);
+                if (result && !(generator->GetPathType() & PATHFIND_NOPATH))
+                    points.insert(points.end(), generator->GetPath().begin() + 1, generator->GetPath().end());
+                else
+                    generator.reset(); // when path generation to a waypoint fails, add all remaining points without pathfinding (preserve legacy behavior of MoveSplineInit::MoveTo)
+            }
+
+            if (!generator)
+                points.emplace_back(itr->X, itr->Y, itr->Z);
+
+            _waypointTransitionSplinePoints.push_back(points.size() - 1);
+
+            source.Relocate(itr->X, itr->Y, itr->Z);
+            ++itr;
+        }
+    };
+
+    if (!_isReturningToStart)
+        fillPath(segment.begin(), segment.end());
+    else
+        fillPath(segment.rbegin(), segment.rend());
 
     RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED | MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
 
@@ -396,22 +473,28 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
     Movement::MoveSplineInit init(owner);
 
+    // because steering flag can cause position on client to not be perfectly accurate, dont do it in combat
+    if (!owner->IsInCombat())
+        init.SetSteering();
+
     //! If creature is on transport, we assume waypoints set in DB are already transport offsets
     if (transportPath)
         init.DisableTransportPathTransformations();
 
-    init.MoveTo(waypoint.X, waypoint.Y, waypoint.Z, _generatePath);
+    init.MovebyPath(points);
 
-    if (waypoint.Orientation.has_value() && (waypoint.Delay || _currentNode == path->Nodes.size() - 1))
-        init.SetFacing(*waypoint.Orientation);
+    if (lastWaypointForSegment.Orientation.has_value() && (lastWaypointForSegment.Delay || _currentNode == path->Nodes.size() - 1))
+        init.SetFacing(*lastWaypointForSegment.Orientation);
 
     switch (path->MoveType)
     {
         case WaypointMoveType::Land:
             init.SetAnimation(AnimTier::Ground);
+            init.SetFly();
             break;
         case WaypointMoveType::TakeOff:
             init.SetAnimation(AnimTier::Fly);
+            init.SetFly();
             break;
         case WaypointMoveType::Run:
             init.SetWalk(false);
@@ -442,6 +525,25 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
     if (_speed)
         init.SetVelocity(*_speed);
+
+    if (init.Path().size() > 2)
+    {
+        G3D::Vector3 mid = (init.Path().front() + init.Path().back()) / 2.0f;
+        auto itr = init.Path().begin() + 1;
+        auto end = itr + (init.Path().size() - 2);
+        while (itr != end)
+        {
+            G3D::Vector3 offset = *itr - mid;
+            if (std::fabs(offset.x) >= 128.0f || std::fabs(offset.y) >= 128.0f || std::fabs(offset.z) >= 64.0f)
+            {
+                // when distance is too great, send path in uncompressed state otherwise too much precision is lost on each point
+                init.SetUncompressed();
+                break;
+            }
+
+            ++itr;
+        }
+    }
 
     init.Launch();
 
