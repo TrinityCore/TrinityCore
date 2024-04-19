@@ -24,6 +24,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
+#include "ObjectAccessor.h"
 
 enum Events
 {
