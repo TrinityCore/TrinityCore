@@ -4631,6 +4631,34 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF FIRELANDS
 
     //
+    // SCARLET HALLS SPELLS
+    //
+
+    // 111755 - Call Reinforcement
+    ApplySpellFix({ 111755 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
+    // 111756 - Call Reinforcement
+    ApplySpellFix({ 111756 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
+    // ENDOF SCARLET HALLS SPELLS
+
+    //
     // MARDUM SPELLS
     //
 

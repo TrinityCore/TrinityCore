@@ -11,6 +11,17 @@ DELETE FROM `creature_template_addon` WHERE `entry`=58998;
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (58998, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '112955'); -- 58998 (Scarlet Defender) - Blades of Light
 
+-- Script Names
+DELETE FROM `spell_script_names` WHERE `spell_id` = 111216;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(111216, 'spell_harlan_blades_of_light');
+
+-- Spelltarget Pos.
+DELETE FROM `spell_target_position` WHERE `ID` IN (111755, 111756);
+INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `VerifiedBuild`) VALUES
+(111755, 0, 1001, 1182.020, 447.325, 11.98933, NULL, 0),
+(111756, 0, 1001, 1181.833, 440.649, 11.98763, NULL, 0);
+
 -- Creature text
 DELETE FROM `creature_text` WHERE `CreatureID` = 58632;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -70,7 +81,7 @@ SET @PATHOFFSET := 0;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Comment`) VALUES
-(@PATH, 0, 0, 'Armsmaster Harlan - Blades of Light Path Left');
+(@PATH, 1, 0, 'Armsmaster Harlan - Blades of Light Path Left');
 
 DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
@@ -101,7 +112,7 @@ SET @PATHOFFSET := 1;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Comment`) VALUES
-(@PATH, 0, 0, 'Armsmaster Harlan - Blades of Light Path Right');
+(@PATH, 1, 0, 'Armsmaster Harlan - Blades of Light Path Right');
 
 DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES

@@ -27,9 +27,11 @@
 
 enum HarlanSpells
 {
-    SPELL_HARLAN_DRAGONS_REACH      = 111217,
-    SPELL_HARLAN_HEROIC_LEAP_JUMP   = 111219,
-    SPELL_HARLAN_BLADES_OF_LIGHT    = 111216
+    SPELL_HARLAN_DRAGONS_REACH          = 111217,
+    SPELL_HARLAN_CALL_REINFORCEMENT     = 111755,
+    SPELL_HARLAN_HEROIC_LEAP_JUMP       = 111219,
+    SPELL_HARLAN_BLADES_OF_LIGHT        = 111216,
+    SPELL_HARLAN_BERSERKERS_RAGE        = 111221
 };
 
 enum HarlanEvents
@@ -38,17 +40,18 @@ enum HarlanEvents
     EVENT_HARLAN_CALL_FOR_HELP,
     EVENT_HARLAN_HEROIC_LEAP,
     EVENT_HARLAN_BERSERKER_RAGE,
-    EVENT_HARLAN_BLADES_OF_LIGHT
+    EVENT_HARLAN_BLADES_OF_LIGHT,
+    EVENT_HARLAN_CALL_REINFORCEMENT
 };
 
 enum HarlanTexts
 {
-    SAY_HARLAN_AGGRO                = 0,
-    SAY_HARLAN_CALL_FOR_HELP        = 1,
-    ANNOUNCE_HARLAN_CALL_FOR_HELP   = 2,
-    ANNOUNCE_HARLAN_BLADE_FOR_LIGHT = 3,
-    SAY_HARLAN_SCARLET_DEFENDER_DIE = 4,
-    SAY_HARLAN_DEATH                = 5
+    SAY_HARLAN_AGGRO                    = 0,
+    SAY_HARLAN_CALL_FOR_HELP            = 1,
+    ANNOUNCE_HARLAN_CALL_FOR_HELP       = 2,
+    ANNOUNCE_HARLAN_BLADE_FOR_LIGHT     = 3,
+    SAY_HARLAN_SCARLET_DEFENDER_DIE     = 4,
+    SAY_HARLAN_DEATH                    = 5
 };
 
 enum HarlanPathIds
@@ -60,7 +63,7 @@ enum HarlanPathIds
 // 58632 - Armsmaster Harlan
 struct boss_armsmaster_harlan : public BossAI
 {
-    boss_armsmaster_harlan(Creature* creature) : BossAI(creature, DATA_ARMSMASTER_HARAN) { }
+    boss_armsmaster_harlan(Creature* creature) : BossAI(creature, DATA_ARMSMASTER_HARAN), _berserkerRage(false) { }
 
     void JustEngagedWith(Unit* who) override
     {
@@ -75,6 +78,7 @@ struct boss_armsmaster_harlan : public BossAI
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        summons.DespawnAll();
         _EnterEvadeMode();
         _DespawnAtEvade();
     }
@@ -82,6 +86,8 @@ struct boss_armsmaster_harlan : public BossAI
     void JustDied(Unit* /*killer*/) override
     {
         Talk(SAY_HARLAN_DEATH);
+        summons.DespawnAll();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
     void MovementInform(uint32 /*type*/, uint32 id) override
@@ -89,8 +95,22 @@ struct boss_armsmaster_harlan : public BossAI
         if (id == EVENT_JUMP)
         {
             me->SetReactState(REACT_PASSIVE);
-            events.ScheduleEvent(EVENT_HARLAN_BLADES_OF_LIGHT, 10s);
+            events.ScheduleEvent(EVENT_HARLAN_BLADES_OF_LIGHT, 1s);
         }
+    }
+
+    void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_berserkerRage && me->HealthBelowPctDamaged(50, damage))
+        {
+            _berserkerRage = true;
+            DoCastSelf(SPELL_HARLAN_BERSERKERS_RAGE);
+        }
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+
     }
 
     void UpdateAI(uint32 diff) override
@@ -115,16 +135,20 @@ struct boss_armsmaster_harlan : public BossAI
                 break;
             case EVENT_HARLAN_CALL_FOR_HELP:
                 Talk(SAY_HARLAN_CALL_FOR_HELP);
+                events.ScheduleEvent(EVENT_HARLAN_CALL_REINFORCEMENT, 4s);
                 break;
             case EVENT_HARLAN_HEROIC_LEAP:
                 DoCast(SPELL_HARLAN_HEROIC_LEAP_JUMP);
-                events.ScheduleEvent(EVENT_HARLAN_HEROIC_LEAP, 41s);
-                break;
-            case EVENT_HARLAN_BERSERKER_RAGE:
                 break;
             case EVENT_HARLAN_BLADES_OF_LIGHT:
                 Talk(ANNOUNCE_HARLAN_BLADE_FOR_LIGHT);
                 DoCastSelf(SPELL_HARLAN_BLADES_OF_LIGHT);
+                // Pause current schedule timer
+                break;
+            case EVENT_HARLAN_CALL_REINFORCEMENT:
+                Talk(ANNOUNCE_HARLAN_CALL_FOR_HELP);
+                DoCast(SPELL_HARLAN_CALL_REINFORCEMENT);
+                events.ScheduleEvent(EVENT_HARLAN_CALL_FOR_HELP, 20s);
                 break;
             default:
                 break;
@@ -135,6 +159,25 @@ struct boss_armsmaster_harlan : public BossAI
         }
         
     }
+private:
+    bool _berserkerRage;
+};
+
+// 111216 - Blades of Light
+class spell_harlan_blades_of_light : public SpellScript
+{
+    void HandleAfterCast()
+    {
+        if (urand(0, 1) == 0)
+            GetCaster()->GetMotionMaster()->MovePath(PATH_HARLAN_BLADES_OF_LIGHT_LEFT, false);
+        else
+            GetCaster()->GetMotionMaster()->MovePath(PATH_HARLAN_BLADES_OF_LIGHT_RIGHT, false);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_harlan_blades_of_light::HandleAfterCast);
+    }
 };
 
 void AddSC_boss_armsmaster_harlan()
@@ -143,4 +186,5 @@ void AddSC_boss_armsmaster_harlan()
     RegisterScarletHallsCreatureAI(boss_armsmaster_harlan);
 
     // Spells
+    RegisterSpellScript(spell_harlan_blades_of_light);
 }
