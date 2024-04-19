@@ -69,7 +69,7 @@ namespace Movement
             Mask_No_Monster_Move = Done,
             // Unused, not suported flags
             Mask_Unused         = No_Spline | Enter_Cycle | Frozen | Unknown_0x8 | Unknown_0x100 | Unknown_0x20000 | Unknown_0x40000
-                                | Unknown_0x800000 | Unknown_0x1000000 | FadeObject | Steering | UnlimitedSpeed | Unknown_0x40000000 | Unknown_0x80000000
+                                | Unknown_0x800000 | Unknown_0x1000000 | FadeObject | UnlimitedSpeed | Unknown_0x40000000 | Unknown_0x80000000
         };
 
         inline uint32& raw() { return (uint32&)*this; }
@@ -101,6 +101,7 @@ namespace Movement
         void EnableCatmullRom() { raw() = (raw() & ~SmoothGroundPath) | Catmullrom; }
         void EnableTransportEnter() { raw() = (raw() & ~TransportExit) | TransportEnter; }
         void EnableTransportExit() { raw() = (raw() & ~TransportEnter) | TransportExit; }
+        void EnableSteering() { raw() = (raw() & ~SmoothGroundPath) | Steering; }
 
         bool unknown0x1          : 1;
         bool unknown0x2          : 1;
