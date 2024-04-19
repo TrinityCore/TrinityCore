@@ -84,6 +84,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
 
         bool IsLoadedFromDB() const { return std::holds_alternative<WaypointPath const*>(_path); }
 
+        std::vector<int32> _waypointTransitionSplinePoints;
         TimeTracker _nextMoveTime;
         uint32 _pathId;
         bool _repeating;
