@@ -80,7 +80,6 @@ void WaypointMgr::_LoadPathNodes()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} waypoint path nodes in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    DoPostLoadingChecks();
 }
 
 void WaypointMgr::LoadPathFromDB(Field* fields)
@@ -89,7 +88,7 @@ void WaypointMgr::LoadPathFromDB(Field* fields)
 
     WaypointPath& path = _pathStore[pathId];
 
-    path.MoveType = WaypointMoveType(fields[1].GetUInt8());;
+    path.MoveType = WaypointMoveType(fields[1].GetUInt8());
     if (path.MoveType >= WaypointMoveType::Max)
     {
         TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has invalid MoveType {}, ignoring", pathId, AsUnderlyingType(path.MoveType));
@@ -128,10 +127,14 @@ void WaypointMgr::LoadPathNodesFromDB(Field* fields)
     if (!fields[5].IsNull())
         o = fields[5].GetFloat();
 
+    Optional<Milliseconds> delay;
+    if (uint32 delayMs = fields[6].GetUInt32())
+        delay.emplace(delayMs);
+
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
 
-    path->Nodes.emplace_back(fields[1].GetUInt32(), x, y, z, o, fields[6].GetUInt32());
+    path->Nodes.emplace_back(fields[1].GetUInt32(), x, y, z, o, delay);
 }
 
 void WaypointMgr::DoPostLoadingChecks()

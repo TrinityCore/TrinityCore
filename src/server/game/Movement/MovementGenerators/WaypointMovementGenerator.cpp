@@ -293,22 +293,10 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
     ASSERT(_currentNode < path->Nodes.size(), "WaypointMovementGenerator::OnArrived: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, path->Id);
     WaypointNode const& waypoint = path->Nodes[_currentNode];
 
-    Milliseconds delay = [&]
-    {
-        if (!_isReturningToStart)
-            return Milliseconds(waypoint.Delay);
-
-        // when traversing the path backwards, use delays from "next" waypoint to make sure pauses happen between the same points as in forward direction
-        if (_currentNode > 0)
-            return Milliseconds(path->Nodes[_currentNode - 1].Delay);
-
-        return 0ms;
-    }();
-
-    if (delay > 0ms)
+    if (waypoint.Delay)
     {
         owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
-        _nextMoveTime.Reset(delay);
+        _nextMoveTime.Reset(*waypoint.Delay);
     }
 
     if (_waitTimeRangeAtPathEnd && IsFollowingPathBackwardsFromEndToStart()
@@ -414,7 +402,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
     init.MoveTo(waypoint.X, waypoint.Y, waypoint.Z, _generatePath);
 
-    if (waypoint.Orientation.has_value() && (waypoint.Delay > 0 || _currentNode == path->Nodes.size() - 1))
+    if (waypoint.Orientation.has_value() && (waypoint.Delay || _currentNode == path->Nodes.size() - 1))
         init.SetFacing(*waypoint.Orientation);
 
     switch (path->MoveType)
