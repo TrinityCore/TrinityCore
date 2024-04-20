@@ -571,25 +571,6 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     if (_speed)
         init.SetVelocity(*_speed);
 
-    if (init.Path().size() > 2)
-    {
-        G3D::Vector3 mid = (init.Path().front() + init.Path().back()) / 2.0f;
-        auto itr = init.Path().begin() + 1;
-        auto end = itr + (init.Path().size() - 2);
-        while (itr != end)
-        {
-            G3D::Vector3 offset = *itr - mid;
-            if (std::fabs(offset.x) >= 128.0f || std::fabs(offset.y) >= 128.0f || std::fabs(offset.z) >= 64.0f)
-            {
-                // when distance is too great, send path in uncompressed state otherwise too much precision is lost on each point
-                init.SetUncompressed();
-                break;
-            }
-
-            ++itr;
-        }
-    }
-
     Milliseconds duration(init.Launch());
 
     if (!IsExactSplinePath()
