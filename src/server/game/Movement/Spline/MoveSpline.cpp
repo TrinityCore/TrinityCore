@@ -238,37 +238,59 @@ MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
 
 /// ============================================================================================
 
-bool MoveSplineInitArgs::Validate(Unit* unit) const
+bool MoveSplineInitArgs::Validate(Unit const* unit)
 {
 #define CHECK(exp, verbose) \
-    if (!(exp))\
+    do if (!(exp))\
     {\
         if (unit)\
-            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '{}' failed for {}", #exp, (verbose ? unit->GetDebugInfo() : unit->GetGUID().ToString()));\
+            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '{}' failed for {}", #exp, verbose);\
         else\
             TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '{}' failed for cyclic spline continuation", #exp); \
         return false;\
-    }
-    CHECK(path.size() > 1, true);
-    CHECK(velocity >= 0.01f, true);
-    CHECK(effect_start_time_percent >= 0.f && effect_start_time_percent <= 1.f, true);
-    CHECK(_checkPathLengths(), false);
+    } while (0)
+    CHECK(path.size() > 1, unit->GetDebugInfo());
+    CHECK(velocity >= 0.01f, unit->GetDebugInfo());
+    CHECK(effect_start_time_percent >= 0.f && effect_start_time_percent <= 1.f, unit->GetDebugInfo());
+    CHECK(_checkPathLengths(), unit->GetGUID());
     if (spellEffectExtra)
     {
-        CHECK(!spellEffectExtra->ProgressCurveId || sCurveStore.LookupEntry(spellEffectExtra->ProgressCurveId), true);
-        CHECK(!spellEffectExtra->ParabolicCurveId || sCurveStore.LookupEntry(spellEffectExtra->ParabolicCurveId), true);
+        CHECK(!spellEffectExtra->ProgressCurveId || sCurveStore.LookupEntry(spellEffectExtra->ProgressCurveId), unit->GetDebugInfo());
+        CHECK(!spellEffectExtra->ParabolicCurveId || sCurveStore.LookupEntry(spellEffectExtra->ParabolicCurveId), unit->GetDebugInfo());
     }
     return true;
 #undef CHECK
 }
 
 // check path lengths - why are we even starting such short movement?
-bool MoveSplineInitArgs::_checkPathLengths() const
+bool MoveSplineInitArgs::_checkPathLengths()
 {
-    if (path.size() > 2 || facing.type == MONSTER_MOVE_NORMAL)
-        for (uint32 i = 0; i < path.size() - 1; ++i)
+    constexpr float MIN_OFFSET = 1.0f / 4.0f;
+    constexpr float MAX_XY_OFFSET = (1 << 11) / 4.0f;
+    constexpr float MAX_Z_OFFSET = (1 << 10) / 4.0f;
+
+    auto isValidPackedXYOffset = [](float coord) -> bool { return coord < MAX_XY_OFFSET && (coord < 0.1f || coord >= MIN_OFFSET); };
+    auto isValidPackedZOffset = [](float coord) -> bool { return coord < MAX_Z_OFFSET && (coord < 0.1f || coord >= MIN_OFFSET); };
+
+    if (path.size() > 2)
+    {
+        if ((path[2] - path[1]).length() < 0.1f)
+            return false;
+
+        Vector3 middle = (path.front() + path.back()) / 2;
+        for (uint32 i = 1; i < path.size() - 1; ++i)
+        {
             if ((path[i + 1] - path[i]).length() < 0.1f)
                 return false;
+
+            // when compression is enabled, each point coord is packed into 11 bits (10 for Z)
+            if (!flags.uncompressedPath)
+                if (!isValidPackedXYOffset(std::fabs(path[i].x - middle.x))
+                    || !isValidPackedXYOffset(std::fabs(path[i].y - middle.y))
+                    || !isValidPackedZOffset(std::fabs(path[i].z - middle.z)))
+                    flags.uncompressedPath = true;
+        }
+    }
     return true;
 }
 
