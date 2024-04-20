@@ -65,7 +65,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         std::string GetDebugInfo() const override;
 
     private:
-        void MovementInform(Creature*);
+        void MovementInform(Creature const*) const;
         void OnArrived(Creature*);
         void StartMove(Creature*, bool relaunch = false);
         bool ComputeNextNode();
@@ -82,10 +82,12 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
 
         bool IsFollowingPathBackwardsFromEndToStart() const;
 
+        bool IsLoadedFromDB() const { return std::holds_alternative<WaypointPath const*>(_path); }
+
+        std::vector<int32> _waypointTransitionSplinePoints;
         TimeTracker _nextMoveTime;
         uint32 _pathId;
         bool _repeating;
-        bool _loadedFromDB;
 
         Optional<TimeTracker> _duration;
         Optional<float> _speed;
