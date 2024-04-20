@@ -38,12 +38,12 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         explicit WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
-            Optional<bool> followPathBackwardsFromEndToStart = {}, bool generatePath = true,
+            Optional<bool> followPathBackwardsFromEndToStart = {}, Optional<bool> exactSplinePath = {}, bool generatePath = true,
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
         explicit WaypointMovementGenerator(WaypointPath const& path, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
             MovementWalkRunSpeedSelectionMode speedSelectionMode,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd, Optional<float> wanderDistanceAtPathEnds,
-            Optional<bool> followPathBackwardsFromEndToStart, bool generatePath,
+            Optional<bool> followPathBackwardsFromEndToStart, Optional<bool> exactSplinePath, bool generatePath,
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
         ~WaypointMovementGenerator();
 
@@ -69,34 +69,39 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         void OnArrived(Creature*);
         void StartMove(Creature*, bool relaunch = false);
         bool ComputeNextNode();
-        bool UpdateTimer(uint32 diff)
+        bool UpdateMoveTimer(uint32 diff) { return UpdateTimer(_moveTimer, diff); }
+        bool UpdateWaitTimer(uint32 diff) { return UpdateTimer(_nextMoveTime, diff); }
+        static bool UpdateTimer(TimeTracker& timer, uint32 diff)
         {
-            _nextMoveTime.Update(diff);
-            if (_nextMoveTime.Passed())
+            timer.Update(Milliseconds(diff));
+            if (timer.Passed())
             {
-                _nextMoveTime.Reset(0);
+                timer.Reset(0);
                 return true;
             }
             return false;
         }
 
         bool IsFollowingPathBackwardsFromEndToStart() const;
+        bool IsExactSplinePath() const;
 
         bool IsLoadedFromDB() const { return std::holds_alternative<WaypointPath const*>(_path); }
 
-        std::vector<int32> _waypointTransitionSplinePoints;
-        TimeTracker _nextMoveTime;
         uint32 _pathId;
-        bool _repeating;
-
         Optional<TimeTracker> _duration;
         Optional<float> _speed;
         MovementWalkRunSpeedSelectionMode _speedSelectionMode;
         Optional<std::pair<Milliseconds, Milliseconds>> _waitTimeRangeAtPathEnd;
         Optional<float> _wanderDistanceAtPathEnds;
         Optional<bool> _followPathBackwardsFromEndToStart;
-        bool _isReturningToStart;
+        Optional<bool> _exactSplinePath;
+        bool _repeating;
         bool _generatePath;
+
+        TimeTracker _moveTimer;
+        TimeTracker _nextMoveTime;
+        std::vector<int32> _waypointTransitionSplinePoints;
+        bool _isReturningToStart;
 };
 
 #endif

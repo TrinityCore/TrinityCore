@@ -72,7 +72,7 @@ void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* in
         me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
     }
 
-    me->GetMotionMaster()->MovePath(pathId, _repeatWaypointPath, {}, {}, MovementWalkRunSpeedSelectionMode::Default, {}, {}, {}, true, std::move(scriptResult));
+    me->GetMotionMaster()->MovePath(pathId, _repeatWaypointPath, {}, {}, MovementWalkRunSpeedSelectionMode::Default, {}, {}, {}, {}, true, std::move(scriptResult));
 }
 
 WaypointPath const* SmartAI::LoadPath(uint32 entry)

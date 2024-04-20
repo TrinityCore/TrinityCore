@@ -1157,7 +1157,8 @@ void MotionMaster::MoveDistract(uint32 timer, float orientation)
 void MotionMaster::MovePath(uint32 pathId, bool repeatable, Optional<Milliseconds> duration /*= {}*/, Optional<float> speed /*= {}*/,
     MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
     Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd /*= {}*/,
-    Optional<float> wanderDistanceAtPathEnds /*= {}*/, Optional<bool> followPathBackwardsFromEndToStart /*= {}*/, bool generatePath /*= true*/,
+    Optional<float> wanderDistanceAtPathEnds /*= {}*/, Optional<bool> followPathBackwardsFromEndToStart /*= {}*/,
+    Optional<bool> exactSplinePath /*= {}*/, bool generatePath /*= true*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {
     if (!pathId)
@@ -1170,19 +1171,20 @@ void MotionMaster::MovePath(uint32 pathId, bool repeatable, Optional<Millisecond
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MovePath: '{}', starts moving over path Id: {} (repeatable: {})",
         _owner->GetGUID(), pathId, repeatable ? "YES" : "NO");
     Add(new WaypointMovementGenerator<Creature>(pathId, repeatable, duration, speed, speedSelectionMode, waitTimeRangeAtPathEnd,
-        wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, generatePath, std::move(scriptResult)), MOTION_SLOT_DEFAULT);
+        wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, exactSplinePath, generatePath, std::move(scriptResult)), MOTION_SLOT_DEFAULT);
 }
 
 void MotionMaster::MovePath(WaypointPath const& path, bool repeatable, Optional<Milliseconds> duration /*= {}*/, Optional<float> speed /*= {}*/,
     MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
     Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd /*= {}*/,
-    Optional<float> wanderDistanceAtPathEnds /*= {}*/, Optional<bool> followPathBackwardsFromEndToStart /*= {}*/, bool generatePath /*= true*/,
+    Optional<float> wanderDistanceAtPathEnds /*= {}*/, Optional<bool> followPathBackwardsFromEndToStart /*= {}*/,
+    Optional<bool> exactSplinePath /*= {}*/, bool generatePath /*= true*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MovePath: '{}', starts moving over path Id: {} (repeatable: {})",
         _owner->GetGUID(), path.Id, repeatable ? "YES" : "NO");
     Add(new WaypointMovementGenerator<Creature>(path, repeatable, duration, speed, speedSelectionMode, waitTimeRangeAtPathEnd,
-        wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, generatePath, std::move(scriptResult)), MOTION_SLOT_DEFAULT);
+        wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, exactSplinePath, generatePath, std::move(scriptResult)), MOTION_SLOT_DEFAULT);
 }
 
 void MotionMaster::MoveRotate(uint32 id, RotateDirection direction, Optional<Milliseconds> time /*= {}*/,
