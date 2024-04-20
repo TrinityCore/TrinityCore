@@ -147,6 +147,10 @@ namespace Movement
          */
         void SetOrientationFixed(bool enable);
 
+        /* Enables avoiding minor obstacles clientside (might cause visual position on client to not be accurate with the serverside one). Disabled by default
+         */
+        void SetSteering();
+
         /* Enables no-speed limit
          * if not set, the speed will be limited by certain flags to 50.0f, and otherwise 28.0f
          */
@@ -182,6 +186,7 @@ namespace Movement
     inline void MoveSplineInit::SetTransportEnter() { args.flags.EnableTransportEnter(); }
     inline void MoveSplineInit::SetTransportExit() { args.flags.EnableTransportExit(); }
     inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.orientationFixed = enable; }
+    inline void MoveSplineInit::SetSteering() { args.flags.EnableSteering(); }
     inline void MoveSplineInit::SetUnlimitedSpeed() { args.flags.unlimitedSpeed = true; }
 
     inline void MoveSplineInit::SetParabolic(float amplitude, float time_shift)

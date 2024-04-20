@@ -34,7 +34,7 @@ typedef uint32 SAIBool;
 
 enum eSmartAI
 {
-    SMART_EVENT_PARAM_COUNT = 4,
+    SMART_EVENT_PARAM_COUNT = 5,
     SMART_ACTION_PARAM_COUNT = 7,
     SMART_SUMMON_COUNTER = 0xFFFFFF,
     SMART_ESCORT_LAST_OOC_POINT = 0xFFFFFF,
@@ -543,7 +543,7 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_NPC_FLAG                    = 83,     // Flags
     SMART_ACTION_SIMPLE_TALK                        = 84,     // groupID, can be used to make players say groupID, Text_over event is not triggered, whisper can not be used (Target units will say the text)
     SMART_ACTION_SELF_CAST                          = 85,     // spellID, castFlags
-    SMART_ACTION_CROSS_CAST                         = 86,     // spellID, castFlags, CasterTargetType, CasterTarget param1, CasterTarget param2, CasterTarget param3, ( + the origonal target fields as Destination target),   CasterTargets will cast spellID on all Targets (use with caution if targeting multiple * multiple units)
+    SMART_ACTION_CROSS_CAST                         = 86,     // spellID, castFlags, CasterTargetType, CasterTarget param1, CasterTarget param2, CasterTarget param3, CasterTarget param4, CasterTarget ParamString ( + the original target fields as Destination target),   CasterTargets will cast spellID on all Targets (use with caution if targeting multiple * multiple units)
     SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST       = 87,     // script9 ids 1-9
     SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST = 88,     // script9 id min, max
     SMART_ACTION_RANDOM_MOVE                        = 89,     // maxDist
@@ -703,6 +703,7 @@ struct SmartAction
             uint32 targetParam1;
             uint32 targetParam2;
             uint32 targetParam3;
+            uint32 targetParam4;
         } crossCast;
 
         struct
@@ -1257,6 +1258,8 @@ struct SmartAction
             uint32 param7;
         } raw;
     };
+
+    std::string param_string;
 };
 
 enum SMARTAI_SPAWN_FLAGS
@@ -1278,18 +1281,18 @@ enum SMARTAI_TARGETS
     SMART_TARGET_HOSTILE_RANDOM_NOT_TOP         = 6,    // Any random target except top threat, maxdist, playerOnly, powerType + 1
     SMART_TARGET_ACTION_INVOKER                 = 7,    // Unit who caused this Event to occur
     SMART_TARGET_POSITION                       = 8,    // use xyz from event params
-    SMART_TARGET_CREATURE_RANGE                 = 9,    // CreatureEntry(0any), minDist, maxDist
+    SMART_TARGET_CREATURE_RANGE                 = 9,    // CreatureEntry(0any), minDist, maxDist, maxSize, StringId
     SMART_TARGET_CREATURE_GUID                  = 10,   // guid, entry
-    SMART_TARGET_CREATURE_DISTANCE              = 11,   // CreatureEntry(0any), maxDist
+    SMART_TARGET_CREATURE_DISTANCE              = 11,   // CreatureEntry(0any), maxDist, maxSize, StringId
     SMART_TARGET_STORED                         = 12,   // id, uses pre-stored target(list)
-    SMART_TARGET_GAMEOBJECT_RANGE               = 13,   // entry(0any), min, max
+    SMART_TARGET_GAMEOBJECT_RANGE               = 13,   // entry(0any), minDist, maxDist, StringId
     SMART_TARGET_GAMEOBJECT_GUID                = 14,   // guid, entry
-    SMART_TARGET_GAMEOBJECT_DISTANCE            = 15,   // entry(0any), maxDist
+    SMART_TARGET_GAMEOBJECT_DISTANCE            = 15,   // entry(0any), maxDist, StringId
     SMART_TARGET_INVOKER_PARTY                  = 16,   // invoker's party members
     SMART_TARGET_PLAYER_RANGE                   = 17,   // min, max
     SMART_TARGET_PLAYER_DISTANCE                = 18,   // maxDist
-    SMART_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any), maxDist, dead?
-    SMART_TARGET_CLOSEST_GAMEOBJECT             = 20,   // entry(0any), maxDist
+    SMART_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any), maxDist, dead?, StringId
+    SMART_TARGET_CLOSEST_GAMEOBJECT             = 20,   // entry(0any), maxDist, StringId
     SMART_TARGET_CLOSEST_PLAYER                 = 21,   // maxDist
     SMART_TARGET_ACTION_INVOKER_VEHICLE         = 22,   // Unit's vehicle who caused this Event to occur
     SMART_TARGET_OWNER_OR_SUMMONER              = 23,   // Unit's owner or summoner, Use Owner/Charmer of this unit
@@ -1442,6 +1445,8 @@ struct SmartTarget
             uint32 param4;
         } raw;
     };
+
+    std::string param_string;
 };
 
 enum SmartScriptType
@@ -1594,14 +1599,14 @@ enum SmartEventFlags
     SMART_EVENT_FLAG_DIFFICULTY_1_DEPRECATED  = 0x004,                     // UNUSED, DO NOT REUSE
     SMART_EVENT_FLAG_DIFFICULTY_2_DEPRECATED  = 0x008,                     // UNUSED, DO NOT REUSE
     SMART_EVENT_FLAG_DIFFICULTY_3_DEPRECATED  = 0x010,                     // UNUSED, DO NOT REUSE
-    SMART_EVENT_FLAG_RESERVED_5               = 0x020,
+    SMART_EVENT_FLAG_ACTIONLIST_WAITS         = 0x020,                     // Timed action list will wait for action from this event to finish before moving on to next action
     SMART_EVENT_FLAG_RESERVED_6               = 0x040,
     SMART_EVENT_FLAG_DEBUG_ONLY               = 0x080,                     //Event only occurs in debug build
     SMART_EVENT_FLAG_DONT_RESET               = 0x100,                     //Event will not reset in SmartScript::OnReset()
     SMART_EVENT_FLAG_WHILE_CHARMED            = 0x200,                     //Event occurs even if AI owner is charmed
 
     SMART_EVENT_FLAGS_DEPRECATED              = (SMART_EVENT_FLAG_DIFFICULTY_0_DEPRECATED | SMART_EVENT_FLAG_DIFFICULTY_1_DEPRECATED | SMART_EVENT_FLAG_DIFFICULTY_2_DEPRECATED | SMART_EVENT_FLAG_DIFFICULTY_3_DEPRECATED),
-    SMART_EVENT_FLAGS_ALL                     = (SMART_EVENT_FLAG_NOT_REPEATABLE| SMART_EVENT_FLAGS_DEPRECATED | SMART_EVENT_FLAG_RESERVED_5 | SMART_EVENT_FLAG_RESERVED_6 | SMART_EVENT_FLAG_DEBUG_ONLY | SMART_EVENT_FLAG_DONT_RESET | SMART_EVENT_FLAG_WHILE_CHARMED),
+    SMART_EVENT_FLAGS_ALL                     = (SMART_EVENT_FLAG_NOT_REPEATABLE| SMART_EVENT_FLAGS_DEPRECATED | SMART_EVENT_FLAG_ACTIONLIST_WAITS | SMART_EVENT_FLAG_RESERVED_6 | SMART_EVENT_FLAG_DEBUG_ONLY | SMART_EVENT_FLAG_DONT_RESET | SMART_EVENT_FLAG_WHILE_CHARMED),
 
     // Temp flags, used only at runtime, never stored in DB
     SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL = 0x40000000,              //Event occurs no matter what roll_chance_i(e.event.event_chance) returns.
@@ -1615,7 +1620,8 @@ enum SmartCastFlags
     //SMARTCAST_NO_MELEE_IF_OOM        = 0x08,                     //Prevents creature from entering melee if out of mana or out of range
     //SMARTCAST_FORCE_TARGET_SELF      = 0x10,                     //Forces the target to cast this spell on itself
     SMARTCAST_AURA_NOT_PRESENT       = 0x20,                     // Only casts the spell if the target does not have an aura from the spell
-    SMARTCAST_COMBAT_MOVE            = 0x40                      // Prevents combat movement if cast successful. Allows movement on range, OOM, LOS
+    SMARTCAST_COMBAT_MOVE            = 0x40,                     // Prevents combat movement if cast successful. Allows movement on range, OOM, LOS
+    SMARTCAST_WAIT_FOR_HIT           = 0x80,                     // When used in combination with SMART_EVENT_FLAG_ACTIONLIST_WAITS, AI will wait for the spell to hit its target instead of just cast bar to finish
 };
 
 // one line in DB is one event
