@@ -36,12 +36,13 @@ enum HarlanSpells
 
 enum HarlanEvents
 {
-    EVENT_HARLAN_DRAGONS_REACH      = 1,
+    EVENT_HARLAN_DRAGONS_REACH          = 1,
     EVENT_HARLAN_CALL_FOR_HELP,
     EVENT_HARLAN_HEROIC_LEAP,
     EVENT_HARLAN_BERSERKER_RAGE,
     EVENT_HARLAN_BLADES_OF_LIGHT,
-    EVENT_HARLAN_CALL_REINFORCEMENT
+    EVENT_HARLAN_CALL_REINFORCEMENT,
+    EVENT_HARLAN_FINISH_BLADES_OF_LIGHT,
 };
 
 enum HarlanTexts
@@ -95,7 +96,8 @@ struct boss_armsmaster_harlan : public BossAI
         if (id == EVENT_JUMP)
         {
             me->SetReactState(REACT_PASSIVE);
-            events.ScheduleEvent(EVENT_HARLAN_BLADES_OF_LIGHT, 1s);
+            Talk(ANNOUNCE_HARLAN_BLADE_FOR_LIGHT);
+            DoCastSelf(SPELL_HARLAN_BLADES_OF_LIGHT);
         }
     }
 
@@ -110,7 +112,7 @@ struct boss_armsmaster_harlan : public BossAI
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
     {
-
+        events.ScheduleEvent(EVENT_HARLAN_FINISH_BLADES_OF_LIGHT, 1s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -140,15 +142,14 @@ struct boss_armsmaster_harlan : public BossAI
             case EVENT_HARLAN_HEROIC_LEAP:
                 DoCast(SPELL_HARLAN_HEROIC_LEAP_JUMP);
                 break;
-            case EVENT_HARLAN_BLADES_OF_LIGHT:
-                Talk(ANNOUNCE_HARLAN_BLADE_FOR_LIGHT);
-                DoCastSelf(SPELL_HARLAN_BLADES_OF_LIGHT);
-                // Pause current schedule timer
-                break;
             case EVENT_HARLAN_CALL_REINFORCEMENT:
                 Talk(ANNOUNCE_HARLAN_CALL_FOR_HELP);
                 DoCast(SPELL_HARLAN_CALL_REINFORCEMENT);
                 events.ScheduleEvent(EVENT_HARLAN_CALL_FOR_HELP, 20s);
+                break;
+            case EVENT_HARLAN_FINISH_BLADES_OF_LIGHT:
+                me->RemoveAurasDueToSpell(SPELL_HARLAN_BLADES_OF_LIGHT);
+                me->SetReactState(REACT_AGGRESSIVE);
                 break;
             default:
                 break;
@@ -168,10 +169,16 @@ class spell_harlan_blades_of_light : public SpellScript
 {
     void HandleAfterCast()
     {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster)
+            return;
+
+        caster->GetMotionMaster()->Clear();
+
         if (urand(0, 1) == 0)
-            GetCaster()->GetMotionMaster()->MovePath(PATH_HARLAN_BLADES_OF_LIGHT_LEFT, false);
+            caster->GetMotionMaster()->MovePath(PATH_HARLAN_BLADES_OF_LIGHT_LEFT, false);
         else
-            GetCaster()->GetMotionMaster()->MovePath(PATH_HARLAN_BLADES_OF_LIGHT_RIGHT, false);
+            caster->GetMotionMaster()->MovePath(PATH_HARLAN_BLADES_OF_LIGHT_RIGHT, false);
     }
 
     void Register() override
