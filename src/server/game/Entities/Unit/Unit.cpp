@@ -571,7 +571,7 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
 
             WorldPackets::Movement::FlightSplineSync flightSplineSync;
             flightSplineSync.Guid = GetGUID();
-            flightSplineSync.SplineDist = movespline->timePassed() / movespline->Duration();
+            flightSplineSync.SplineDist = float(movespline->timePassed()) / movespline->Duration();
             SendMessageToSet(flightSplineSync.Write(), true);
         }
     }

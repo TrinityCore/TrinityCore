@@ -28,7 +28,7 @@ namespace Movement
     class MoveSplineFlag
     {
     public:
-        enum eFlags
+        enum eFlags : uint32
         {
             None                = 0x00000000,
             Unknown_0x1         = 0x00000001,           // NOT VERIFIED

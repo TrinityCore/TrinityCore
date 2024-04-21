@@ -506,7 +506,6 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
     WorldPackets::Movement::MovementSpline& movementSpline = SplineData.Move;
 
     ::Movement::MoveSplineFlag splineFlags = moveSpline.splineflags;
-    splineFlags.enter_cycle = moveSpline.isCyclic();
     movementSpline.Flags = uint32(splineFlags & uint32(~::Movement::MoveSplineFlag::Mask_No_Monster_Move));
     movementSpline.Face = moveSpline.facing.type;
     movementSpline.FaceDirection = moveSpline.facing.angle;
@@ -548,24 +547,14 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
 
     if (splineFlags & ::Movement::MoveSplineFlag::UncompressedPath)
     {
-        if (!splineFlags.cyclic)
-        {
-            uint32 count = spline.getPointCount() - 3;
-            for (uint32 i = 0; i < count; ++i)
-                movementSpline.Points.emplace_back(array[i + 2].x, array[i + 2].y, array[i + 2].z);
-        }
-        else
-        {
-            uint32 count = spline.getPointCount() - 3;
-            movementSpline.Points.emplace_back(array[1].x, array[1].y, array[1].z);
-            for (uint32 i = 0; i < count; ++i)
-                movementSpline.Points.emplace_back(array[i + 1].x, array[i + 1].y, array[i + 1].z);
-        }
+        uint32 count = spline.getPointCount() - (splineFlags.cyclic ? 4 : 3);
+        for (uint32 i = 0; i < count; ++i)
+            movementSpline.Points.emplace_back(array[i + 2].x, array[i + 2].y, array[i + 2].z);
     }
     else
     {
-        uint32 lastIdx = spline.getPointCount() - 3;
-        G3D::Vector3 const* realPath = &spline.getPoint(1);
+        uint32 lastIdx = spline.getPointCount() - (splineFlags.cyclic ? 4 : 3);
+        G3D::Vector3 const* realPath = &array[1];
 
         movementSpline.Points.emplace_back(realPath[lastIdx].x, realPath[lastIdx].y, realPath[lastIdx].z);
 
