@@ -97,6 +97,9 @@ struct boss_armsmaster_harlan : public BossAI
         {
             me->SetReactState(REACT_PASSIVE);
             Talk(ANNOUNCE_HARLAN_BLADE_FOR_LIGHT);
+            events.CancelEvent(EVENT_HARLAN_DRAGONS_REACH);
+            events.CancelEvent(EVENT_HARLAN_CALL_FOR_HELP);
+            events.CancelEvent(EVENT_HARLAN_HEROIC_LEAP);
             DoCastSelf(SPELL_HARLAN_BLADES_OF_LIGHT);
         }
     }
@@ -113,6 +116,9 @@ struct boss_armsmaster_harlan : public BossAI
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
     {
         events.ScheduleEvent(EVENT_HARLAN_FINISH_BLADES_OF_LIGHT, 1s);
+        events.ScheduleEvent(EVENT_HARLAN_DRAGONS_REACH, 3s);
+        events.ScheduleEvent(EVENT_HARLAN_CALL_FOR_HELP, 8s);
+        events.ScheduleEvent(EVENT_HARLAN_HEROIC_LEAP, 40s);
     }
 
     void UpdateAI(uint32 diff) override
