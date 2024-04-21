@@ -1570,6 +1570,7 @@ and UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT. Some auras can apply only 2 flags
 
 spell_gen_feign_death_all_flags applies all 3 flags
 spell_gen_feign_death_all_flags_uninteractible applies all 3 flags and additionally sets UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_UNINTERACTIBLE
+spell_gen_feign_death_all_flags_no_uninteractible applies all 3 flags and additionally sets UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC
 spell_gen_feign_death_no_dyn_flag applies no UNIT_DYNFLAG_DEAD (does not make the creature appear dead)
 spell_gen_feign_death_no_prevent_emotes applies no UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT
 
@@ -1645,9 +1646,9 @@ class spell_gen_feign_death_all_flags_uninteractible : public AuraScript
 };
 
 // 96733 - Permanent Feign Death (Stun)
-class spell_gen_feign_death_all_flags_except_uninteractible : public AuraScript
+class spell_gen_feign_death_all_flags_no_uninteractible : public AuraScript
 {
-    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         Unit* target = GetTarget();
         target->SetUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
@@ -1659,7 +1660,7 @@ class spell_gen_feign_death_all_flags_except_uninteractible : public AuraScript
             creature->SetReactState(REACT_PASSIVE);
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         Unit* target = GetTarget();
         target->RemoveUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
@@ -1673,8 +1674,8 @@ class spell_gen_feign_death_all_flags_except_uninteractible : public AuraScript
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_gen_feign_death_all_flags_except_uninteractible::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_gen_feign_death_all_flags_except_uninteractible::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_gen_feign_death_all_flags_no_uninteractible::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_gen_feign_death_all_flags_no_uninteractible::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -5422,7 +5423,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_feast);
     RegisterSpellScript(spell_gen_feign_death_all_flags);
     RegisterSpellScript(spell_gen_feign_death_all_flags_uninteractible);
-    RegisterSpellScript(spell_gen_feign_death_all_flags_except_uninteractible);
+    RegisterSpellScript(spell_gen_feign_death_all_flags_no_uninteractible);
     RegisterSpellScript(spell_gen_feign_death_no_dyn_flag);
     RegisterSpellScript(spell_gen_feign_death_no_prevent_emotes);
     RegisterSpellScript(spell_gen_furious_rage);
