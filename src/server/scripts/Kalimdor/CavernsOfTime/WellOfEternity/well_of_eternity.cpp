@@ -61,6 +61,17 @@ enum Events
     EVENT_STRIKE_FEAR = 1
 };
 
+constexpr Position FirewallPos[7] =
+{
+    { 3204.6145f, -4935.3647f, 194.41118f },
+    { 3182.0986f, -4933.1196f, 194.41118f },
+    { 3201.0647f, -4937.5664f, 194.41118f },
+    { 3185.1438f, -4935.9785f, 194.41118f },
+    { 3197.0664f, -4938.774f,  194.41118f },
+    { 3188.825f,  -4937.952f,  194.41118f },
+    { 3192.8916f, -4938.9053f, 194.41118f }
+};
+
 // Areatrigger - 7387
 struct at_woe_nozdormu_intro : OnlyOnceAreaTriggerScript
 {
@@ -98,7 +109,7 @@ public:
 // 55624 - Nozdormu
 struct npc_woe_nozdormu : public ScriptedAI
 {
-    npc_woe_nozdormu(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    npc_woe_nozdormu(Creature* creature) : ScriptedAI(creature) { }
 
     void DoAction(int32 actionId) override
     {
@@ -128,7 +139,6 @@ struct npc_woe_nozdormu : public ScriptedAI
 
 private:
     TaskScheduler scheduler;
-    InstanceScript* _instance;
 };
 
 // 55503 - Legion Demon
@@ -198,40 +208,29 @@ class spell_woe_summon_fel_firewall_cosmetic_ph : public AuraScript
 
     void HandlePeriodic(AuraEffect const* aurEff)
     {
-        Position const firewallPos[7] =
-        {
-            { 3204.6145f, -4935.3647f, 194.41118f },
-            { 3182.0986f, -4933.1196f, 194.41118f },
-            { 3201.0647f, -4937.5664f, 194.41118f },
-            { 3185.1438f, -4935.9785f, 194.41118f },
-            { 3197.0664f, -4938.774f,  194.41118f },
-            { 3188.825f,  -4937.952f,  194.41118f },
-            { 3192.8916f, -4938.9053f, 194.41118f }
-        };
-
         switch (aurEff->GetTickNumber())
         {
             case 1:
             {
-                GetTarget()->CastSpell(firewallPos[0], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
-                GetTarget()->CastSpell(firewallPos[1], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
+                GetTarget()->CastSpell(FirewallPos[0], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
+                GetTarget()->CastSpell(FirewallPos[1], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
                 break;
             }
             case 2:
             {
-                GetTarget()->CastSpell(firewallPos[2], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
-                GetTarget()->CastSpell(firewallPos[3], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
+                GetTarget()->CastSpell(FirewallPos[2], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
+                GetTarget()->CastSpell(FirewallPos[3], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
                 break;
             }
             case 3:
             {
-                GetTarget()->CastSpell(firewallPos[4], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
-                GetTarget()->CastSpell(firewallPos[5], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
+                GetTarget()->CastSpell(FirewallPos[4], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
+                GetTarget()->CastSpell(FirewallPos[5], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
                 break;
             }
             case 4:
             {
-                GetTarget()->CastSpell(firewallPos[6], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
+                GetTarget()->CastSpell(FirewallPos[6], SPELL_SUMMON_FEL_FIREWALL_COSMETIC_PULSE, TRIGGERED_FULL_MASK);
                 break;
             }
             default:

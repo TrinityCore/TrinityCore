@@ -22,6 +22,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "ScriptMgr.h"
+#include "TemporarySummon.h"
 #include "Unit.h"
 #include "well_of_eternity.h"
 
@@ -124,19 +125,21 @@ enum Factions
     FACTION_WELL_OF_ETERNITY_ILLIDAN = 2385
 };
 
-Position const distractionEndPoint[2] =
+constexpr Position DistractionEndPoint[2] =
 {
     { 3313.2888f, -4932.8378f },
     { 3290.6479f, -4945.4965f }
 };
 
-Position const illidanSummonPos[4] =
+constexpr Position IllidanSummonPos[4] =
 {
     { 3173.6746f, -4875.5103f, 194.43994f, 5.3581609f },
     { 3294.2f,    -4981.97f,   181.16032f, 0.8726646f },
     { 3444.98f,   -4886.34f,   181.16032f, 4.0142574f },
     { 3471.1199f, -4839.83f,   194.21544f, 2.0071287f }
 };
+
+constexpr Position WallOfShadowStalkerPos  = { 3312.3826f, -4906.39f, 181.07674f };
 
 // Areatrigger - 7066
 struct at_woe_illidan_intro : AreaTriggerScript
@@ -150,9 +153,7 @@ public:
         {
             if (instance->GetData(DATA_ILLIDAN_START_INTRO) != DONE)
             {
-                player->SummonCreature(NPC_ILLIDAN_PART_1, illidanSummonPos[0], TEMPSUMMON_MANUAL_DESPAWN);
-
-                if (Creature* illidan = instance->GetCreature(DATA_ILLIDAN_1))
+                if (Creature* illidan = player->SummonCreature(NPC_ILLIDAN_PART_1, IllidanSummonPos[0], TEMPSUMMON_MANUAL_DESPAWN))
                     illidan->AI()->DoAction(ACTION_ILLIDAN_INTRO);
             }
 
@@ -173,7 +174,7 @@ public:
         {
             if (instance->GetData(DATA_ILLIDAN_START_ESCORT) != DONE)
             {
-                if (Creature* illidan = instance->GetCreature(DATA_ILLIDAN_1))
+                if (Creature* illidan = instance->GetCreature(DATA_ILLIDAN_COURTYARD_OF_LIGHTS))
                     illidan->AI()->DoAction(ACTION_SKIP_TALK);
             }
         }
@@ -201,7 +202,7 @@ struct npc_illidan_stormrage_courtyard_of_lights : public ScriptedAI
         {
             _instance->SetData(DATA_ILLIDAN_FIRST_CRYSTAL, DONE);
             me->DespawnOrUnsummon();
-            me->SummonCreature(NPC_ILLIDAN_PART_1, illidanSummonPos[1], TEMPSUMMON_MANUAL_DESPAWN);
+            me->SummonCreature(NPC_ILLIDAN_PART_1, IllidanSummonPos[1], TEMPSUMMON_MANUAL_DESPAWN);
         }
     }
 
@@ -287,7 +288,7 @@ struct npc_illidan_stormrage_courtyard_of_lights : public ScriptedAI
                     {
                         if (Player* player = i.GetSource())
                         {
-                            if (player->GetDistance2d(distractionEndPoint[0].GetPositionX(), distractionEndPoint[0].GetPositionY()) >= 15.0f && player->GetDistance2d(distractionEndPoint[1].GetPositionX(), distractionEndPoint[1].GetPositionY()) >= 15.0f)
+                            if (player->GetDistance2d(DistractionEndPoint[0].GetPositionX(), DistractionEndPoint[0].GetPositionY()) >= 15.0f && player->GetDistance2d(DistractionEndPoint[1].GetPositionX(), DistractionEndPoint[1].GetPositionY()) >= 15.0f)
                             {
                                 playerMisplaced = true;
                                 break;
@@ -330,7 +331,7 @@ struct npc_illidan_stormrage_courtyard_of_lights : public ScriptedAI
             }
             case ACTION_ILLIDAN_ON_FIRST_CRYSTAL:
             {
-                me->GetMotionMaster()->MovePoint(POINT_DESPAWN_FIRST_PORTAL, illidanSummonPos[1]);
+                me->GetMotionMaster()->MovePoint(POINT_DESPAWN_FIRST_PORTAL, IllidanSummonPos[1]);
                 break;
             }
             /* ------------ END OF PART 1 -----------*/
@@ -478,8 +479,11 @@ class spell_woe_shadowcloak_aura : public AuraScript
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         // To-Do: Set the duration of shadow ambusher based on number of ticks that player has of shadow walk aura
+        InstanceScript* instance = GetTarget()->GetInstanceScript();
+        if (!instance)
+            return;
 
-        if (Creature* illidan = GetTarget()->GetInstanceScript()->GetCreature(DATA_ILLIDAN_1))
+        if (Creature* illidan = instance->GetCreature(DATA_ILLIDAN_COURTYARD_OF_LIGHTS))
             if (npc_illidan_stormrage_courtyard_of_lights* illidanAI = CAST_AI(npc_illidan_stormrage_courtyard_of_lights, illidan->GetAI()))
                 illidanAI->DoAction(ACTION_ENTER_COMBAT);
     }
@@ -523,6 +527,10 @@ class spell_woe_distract_demon_missile : public SpellScript
     void SelectTarget(WorldObject*& target)
     {
         Creature* stalker = GetCaster()->FindNearestCreatureWithOptions(50.0f, { .StringId = "wall_of_shadow_stalker" });
+
+        if (!stalker)
+            return;
+
         _wallOfShadowGUID = stalker->GetGUID();
         target = stalker;
     }
@@ -531,7 +539,7 @@ class spell_woe_distract_demon_missile : public SpellScript
     {
         if (Creature* stalker = ObjectAccessor::GetCreature(*GetCaster(), _wallOfShadowGUID))
         {
-            stalker->GetMotionMaster()->MovePoint(POINT_START_MOVING, wallOfShadowStalkerPos);
+            stalker->GetMotionMaster()->MovePoint(POINT_START_MOVING, WallOfShadowStalkerPos);
             stalker->DespawnOrUnsummon(4s);
         }
     }
@@ -544,7 +552,6 @@ class spell_woe_distract_demon_missile : public SpellScript
 
 private:
     ObjectGuid _wallOfShadowGUID;
-    Position const wallOfShadowStalkerPos  = { 3312.3826f, -4906.39f, 181.07674f };
 };
 
 // 104400 - Wall of Shadow

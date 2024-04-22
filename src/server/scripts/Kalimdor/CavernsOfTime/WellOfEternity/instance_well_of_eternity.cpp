@@ -26,9 +26,9 @@ ObjectData const creatureData[] =
     { NPC_MANNOROTH,      BOSS_MANNOROTH     },
 
     // Additional Datas
-    { NPC_NOZDORMU,       DATA_NOZDORMU      },
-    { NPC_ILLIDAN_PART_1, DATA_ILLIDAN_1     },
-    { 0,                  0                  }  // END
+    { NPC_NOZDORMU,       DATA_NOZDORMU                    },
+    { NPC_ILLIDAN_PART_1, DATA_ILLIDAN_COURTYARD_OF_LIGHTS },
+    { 0,                  0                                }  // END
 };
 
 DungeonEncounterData const encounters[] =
@@ -135,7 +135,7 @@ public:
                 if (_crystalOneCreaturesAlive > 0)
                     return;
 
-                Creature* illidan = GetCreature(DATA_ILLIDAN_1);
+                Creature* illidan = GetCreature(DATA_ILLIDAN_COURTYARD_OF_LIGHTS);
                 if (!illidan)
                     return;
 
