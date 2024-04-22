@@ -2,25 +2,37 @@
 UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'boss_armsmaster_harlan' WHERE `entry` = 58632;
 UPDATE `creature_template` SET `unit_flags2`=2048 WHERE `entry`=58632; -- Armsmaster Harlan
 
+-- Template Addon
+DELETE FROM `creature_template_addon` WHERE `entry`=58998;
+INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(58998, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '113959'); -- 58998 (Scarlet Defender) - Heavy Armor
+
+-- Instance
 DELETE FROM `instance_template` WHERE `map` = 1001;
 INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
 (1001, 0, 'instance_scarlet_halls');
 
--- Template Addon
-DELETE FROM `creature_template_addon` WHERE `entry`=58998;
-INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
-(58998, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '112955'); -- 58998 (Scarlet Defender) - Blades of Light
-
 -- Script Names
-DELETE FROM `spell_script_names` WHERE `spell_id` = 111216;
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (111216, 111394);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(111216, 'spell_harlan_blades_of_light');
+(111216, 'spell_harlan_blades_of_light'),
+(111394, 'spell_harlan_blades_of_light_selector');
 
 -- Spelltarget Pos.
 DELETE FROM `spell_target_position` WHERE `ID` IN (111755, 111756);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `VerifiedBuild`) VALUES
 (111755, 0, 1001, 1182.020, 447.325, 11.98933, NULL, 0),
 (111756, 0, 1001, 1181.833, 440.649, 11.98763, NULL, 0);
+
+-- Conditions
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13) AND (`SourceEntry` IN (111394));
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(13, 1, 111394, 0, 0, 31, 0, 4, 0, 0, '', 0, 'Potential target of the spell is player'),
+(13, 1, 111394, 0, 0, 31, 0, 3, 58998, 0, '', 0, 'Potential target of the spell is creature, entry is Scarlet Defender (58998)');
+
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13) AND (`SourceEntry` IN (112955));
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(13, 1, 112955, 0, 0, 31, 0, 3, 58632, 0, '', 0, 'Potential target of the spell is creature, entry is Armsmaster Harlan (58632)');
 
 -- Creature text
 DELETE FROM `creature_text` WHERE `CreatureID` = 58632;
@@ -31,6 +43,11 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (58632, 3, 0, '|TInterface\\Icons\\inv_weapon_halberd_05.blp:20|tArmsmaster Harlan casts |cFFFF0000|Hspell:111216|h[Blades of Light]|h|r!', 41, 0, 100, 0, 0, 0, 65527, 0, 'Armsmaster Harlan'),
 (58632, 4, 0, 'Tsk! You need more training.', 14, 0, 100, 0, 0, 29430, 65562, 0, 'Armsmaster Harlan to Scarlet Defender'), -- BroadcastTextID: 65562 - 170993
 (58632, 5, 0, 'Bested... by the likes of...', 14, 0, 100, 0, 0, 29427, 65560, 0, 'Armsmaster Harlan to Player'); -- BroadcastTextID: 65560 - 170995
+
+-- NPC spellclick
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` = 58632;
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
+(58632, 112955, 0, 0);
 
 -- Difficulty
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=211, `StaticFlags1`=268435456, `VerifiedBuild`=54205 WHERE (`Entry`=58632 AND `DifficultyID`=1); -- Armsmaster Harlan

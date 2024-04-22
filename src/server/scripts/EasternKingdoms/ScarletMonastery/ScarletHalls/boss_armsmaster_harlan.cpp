@@ -27,11 +27,13 @@
 
 enum HarlanSpells
 {
-    SPELL_HARLAN_DRAGONS_REACH          = 111217,
-    SPELL_HARLAN_CALL_REINFORCEMENT     = 111755,
-    SPELL_HARLAN_HEROIC_LEAP_JUMP       = 111219,
-    SPELL_HARLAN_BLADES_OF_LIGHT        = 111216,
-    SPELL_HARLAN_BERSERKERS_RAGE        = 111221
+    SPELL_HARLAN_DRAGONS_REACH              = 111217,
+    SPELL_HARLAN_CALL_REINFORCEMENT         = 111755,
+    SPELL_HARLAN_HEROIC_LEAP_JUMP           = 111219,
+    SPELL_HARLAN_BERSERKERS_RAGE            = 111221,
+    SPELL_HARLAN_BLADES_OF_LIGHT_CAST       = 111216,
+    SPELL_HARLAN_BLADES_OF_LIGHT_SELECTOR   = 111394,
+    SPELL_HARLAN_BLADES_OF_LIGHT_VEHICLE    = 112955
 };
 
 enum HarlanEvents
@@ -100,7 +102,7 @@ struct boss_armsmaster_harlan : public BossAI
             events.CancelEvent(EVENT_HARLAN_DRAGONS_REACH);
             events.CancelEvent(EVENT_HARLAN_CALL_FOR_HELP);
             events.CancelEvent(EVENT_HARLAN_HEROIC_LEAP);
-            DoCastSelf(SPELL_HARLAN_BLADES_OF_LIGHT);
+            DoCastSelf(SPELL_HARLAN_BLADES_OF_LIGHT_CAST);
         }
     }
 
@@ -154,7 +156,7 @@ struct boss_armsmaster_harlan : public BossAI
                 events.ScheduleEvent(EVENT_HARLAN_CALL_FOR_HELP, 20s);
                 break;
             case EVENT_HARLAN_FINISH_BLADES_OF_LIGHT:
-                me->RemoveAurasDueToSpell(SPELL_HARLAN_BLADES_OF_LIGHT);
+                me->RemoveAurasDueToSpell(SPELL_HARLAN_BLADES_OF_LIGHT_CAST);
                 me->SetReactState(REACT_AGGRESSIVE);
                 break;
             default:
@@ -193,6 +195,25 @@ class spell_harlan_blades_of_light : public SpellScript
     }
 };
 
+// 111394 - Blades of Light
+class spell_harlan_blades_of_light_selector : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HARLAN_BLADES_OF_LIGHT_CAST });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_HARLAN_BLADES_OF_LIGHT_VEHICLE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_harlan_blades_of_light_selector::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_boss_armsmaster_harlan()
 {
     // Creature
@@ -200,4 +221,5 @@ void AddSC_boss_armsmaster_harlan()
 
     // Spells
     RegisterSpellScript(spell_harlan_blades_of_light);
+    RegisterSpellScript(spell_harlan_blades_of_light_selector);
 }
