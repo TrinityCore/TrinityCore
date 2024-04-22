@@ -169,7 +169,7 @@ namespace Movement
         STRINGIZE(CanSwim           ), // 0x00200000
         STRINGIZE(UncompressedPath  ), // 0x00400000
         STRINGIZE(Unknown_0x800000  ), // 0x00800000
-        STRINGIZE(Unknown_0x1000000 ), // 0x01000000
+        STRINGIZE(FastSteering      ), // 0x01000000           // Predicts spline only 500ms into the future for smoothing instead of 1s and turns off clientside obstacle detection
         STRINGIZE(Animation         ), // 0x02000000           // Animationid (0...3), Uint32 Time, Not Compartible With Trajectory And Fall Movement
         STRINGIZE(Parabolic         ), // 0x04000000           // Not Compartible With Fall Movement
         STRINGIZE(FadeObject        ), // 0x08000000
