@@ -55,7 +55,7 @@ namespace Movement
             CanSwim             = 0x00200000,
             UncompressedPath    = 0x00400000,
             Unknown_0x800000    = 0x00800000,           // NOT VERIFIED
-            Unknown_0x1000000   = 0x01000000,           // NOT VERIFIED
+            FastSteering        = 0x01000000,           // Predicts spline only 500ms into the future for smoothing instead of 1s (making turns sharper) and turns off clientside obstacle detection
             Animation           = 0x02000000,           // Plays animation after some time passed
             Parabolic           = 0x04000000,           // Affects elevation computation, can't be combined with Falling flag
             FadeObject          = 0x08000000,
@@ -69,7 +69,7 @@ namespace Movement
             Mask_No_Monster_Move = Done,
             // Unused, not suported flags
             Mask_Unused         = No_Spline | Enter_Cycle | Frozen | Unknown_0x8 | Unknown_0x100 | Unknown_0x20000 | Unknown_0x40000
-                                | Unknown_0x800000 | Unknown_0x1000000 | FadeObject | UnlimitedSpeed | Unknown_0x40000000 | Unknown_0x80000000
+                                | Unknown_0x800000 | FastSteering | FadeObject | UnlimitedSpeed | Unknown_0x40000000 | Unknown_0x80000000
         };
 
         inline uint32& raw() { return (uint32&)*this; }
@@ -127,7 +127,7 @@ namespace Movement
         bool canSwim             : 1;
         bool uncompressedPath    : 1;
         bool unknown0x800000     : 1;
-        bool unknown0x1000000    : 1;
+        bool fastSteering        : 1;
         bool animation           : 1;
         bool parabolic           : 1;
         bool fadeObject          : 1;
