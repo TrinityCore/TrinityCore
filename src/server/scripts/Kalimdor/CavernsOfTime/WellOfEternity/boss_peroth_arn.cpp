@@ -108,8 +108,8 @@ struct boss_peroth_arn : public BossAI
                         });
                     });
                     instance->SetData(DATA_PEROTHARN_INTRO, DONE);
-                    break;
                 }
+                break;
             }
             default:
                 break;
