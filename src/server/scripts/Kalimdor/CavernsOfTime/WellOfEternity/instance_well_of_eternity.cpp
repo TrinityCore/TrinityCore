@@ -21,8 +21,14 @@
 
 ObjectData const creatureData[] =
 {
-    { NPC_PEROTHARN,    BOSS_PEROTHARN  },
-    { 0,                0               } // END
+    { NPC_PEROTHARN,      BOSS_PEROTHARN     },
+    { NPC_QUEEN_AZSHARA,  BOSS_QUEEN_AZSHARA },
+    { NPC_MANNOROTH,      BOSS_MANNOROTH     },
+
+    // Additional Datas
+    { NPC_NOZDORMU,       DATA_NOZDORMU      },
+    { NPC_ILLIDAN_PART_1, DATA_ILLIDAN_1     },
+    { 0,                  0                  }  // END
 };
 
 DungeonEncounterData const encounters[] =
@@ -45,7 +51,104 @@ public:
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
             LoadDungeonEncounterData(encounters);
+
+            PerotharnIntroState = NOT_STARTED;
+            IllidanEscortState = NOT_STARTED;
+            IllidanIntroState = NOT_STARTED;
+            IllidanFirstCrystalState = NOT_STARTED;
+            _crystalOneCreaturesAlive = 0;
+            //_crystalTwoCreaturesAlive = 0;
+            //_crystalThreeCreaturesAlive = 0;
         }
+
+        void OnPlayerEnter(Player* /*player*/) override
+        {
+            if (GetData(DATA_ILLIDAN_START_ESCORT) == DONE)
+                DoCastSpellOnPlayers(SPELL_SHADOWCLOAK_PLAYER);
+        }
+
+        void SetData(uint32 type, uint32 data) override
+        {
+            switch (type)
+            {
+                case DATA_PEROTHARN_INTRO:
+                {
+                    PerotharnIntroState = data;
+                    break;
+                }
+                case DATA_ILLIDAN_START_ESCORT:
+                {
+                    IllidanEscortState = data;
+                    break;
+                }
+                case DATA_ILLIDAN_START_INTRO:
+                {
+                    IllidanIntroState = data;
+                    break;
+                }
+                case DATA_ILLIDAN_FIRST_CRYSTAL:
+                {
+                    IllidanFirstCrystalState = data;
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        uint32 GetData(uint32 type) const override
+        {
+            switch (type)
+            {
+                case DATA_ILLIDAN_START_ESCORT:
+                    return IllidanEscortState;
+                case DATA_ILLIDAN_START_INTRO:
+                    return IllidanIntroState;
+                case DATA_ILLIDAN_FIRST_CRYSTAL:
+                    return IllidanFirstCrystalState;
+                case DATA_PEROTHARN_INTRO:
+                    return PerotharnIntroState;
+                default:
+                    break;
+            }
+
+            return 0;
+        }
+
+        void OnCreatureCreate(Creature* creature) override
+        {
+            InstanceScript::OnCreatureCreate(creature);
+
+            if (creature->HasStringId("crystal_1_creature"))
+                _crystalOneCreaturesAlive++;
+        }
+
+        void OnUnitDeath(Unit* unit) override
+        {
+            Creature* creature = unit->ToCreature();
+            if (!creature)
+                return;
+
+            if (creature->HasStringId("crystal_1_creature"))
+            {
+                --_crystalOneCreaturesAlive;
+                if (_crystalOneCreaturesAlive > 0)
+                    return;
+
+                Creature* illidan = GetCreature(DATA_ILLIDAN_1);
+                if (!illidan)
+                    return;
+
+                illidan->AI()->DoAction(ACTION_ILLIDAN_ON_FIRST_CRYSTAL);
+            }
+        }
+
+    private:
+        uint8 PerotharnIntroState;
+        uint8 IllidanEscortState;
+        uint8 IllidanIntroState;
+        uint8 IllidanFirstCrystalState;
+        uint8 _crystalOneCreaturesAlive;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

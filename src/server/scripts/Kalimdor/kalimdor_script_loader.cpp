@@ -57,7 +57,10 @@ void AddSC_instance_end_time();
 // CoT Hour of Twilight
 void AddSC_instance_hour_of_twilight();
 // CoT Well of Eternity
+void AddSC_boss_peroth_arn();
+void AddSC_illidan_stormrage_courtyard_of_lights();
 void AddSC_instance_well_of_eternity();
+void AddSC_well_of_eternity();
 // Dire Maul
 void AddSC_instance_dire_maul();
 // Dragon Soul
@@ -198,7 +201,10 @@ void AddKalimdorScripts()
     // CoT Hour of Twilight
     AddSC_instance_hour_of_twilight();
     // CoT Well of Eternity
+    AddSC_boss_peroth_arn();
+    AddSC_illidan_stormrage_courtyard_of_lights();
     AddSC_instance_well_of_eternity();
+    AddSC_well_of_eternity();
     // Dire Maul
     AddSC_instance_dire_maul();
     // Dragon Soul
