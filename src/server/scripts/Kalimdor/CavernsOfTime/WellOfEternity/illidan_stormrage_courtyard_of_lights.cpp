@@ -358,7 +358,7 @@ struct npc_illidan_stormrage_courtyard_of_lights : public ScriptedAI
                 me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             }
         }
-        else if (pathId == PATH_ILLIDAN_PORTAL_1)
+        else if (pathId == PATH_ILLIDAN_CRYSTAL_1)
         {
             if (waypointId == WAYPOINT_ATTACK)
                 Talk(SAY_IDLE_1);
