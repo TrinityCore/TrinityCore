@@ -25,6 +25,7 @@
 #include "wdtfile.h"
 #include "wmo.h"
 #include "mpq_libmpq04.h"
+#include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <fstream>
 #include <iostream>
