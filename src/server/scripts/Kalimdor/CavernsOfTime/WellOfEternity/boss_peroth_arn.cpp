@@ -71,7 +71,6 @@ struct boss_peroth_arn : public BossAI
                         legionDemon->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE_NO_SHEATH);
                         context.Schedule(3s + 622ms, [this](TaskContext context)
                         {
-                            
                             Creature* dreadlordDefender1 = me->FindNearestCreatureWithOptions(30.0f, { .StringId = "dreadlord_defender_woe_intro_1" });
                             Creature* dreadlordDefender2 = me->FindNearestCreatureWithOptions(30.0f, { .StringId = "dreadlord_defender_woe_intro_2" });
                             Creature* corruptedArcanist = me->FindNearestCreatureWithOptions(30.0f, { .StringId = "corrupted_arcanist_woe_intro" });
