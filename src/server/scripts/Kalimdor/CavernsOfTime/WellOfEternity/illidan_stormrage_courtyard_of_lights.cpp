@@ -22,6 +22,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 #include "Unit.h"
 #include "well_of_eternity.h"
@@ -82,11 +83,7 @@ enum Spells
     SPELL_WALL_OF_SHADOW                     = 104400,
 
     // Fel Crystal / Portal Npcs
-    SPELL_ARCANE_EXPLOSION                   = 98122,
-
-    // Misc
-    SPELL_DISTRACT_DEMONS_STATIONARY         = 110082,
-    SPELL_SHRINK                             = 59632   // Serverside
+    SPELL_ARCANE_EXPLOSION                   = 98122
 };
 
 enum MovementMisc
@@ -418,38 +415,6 @@ private:
     InstanceScript* _instance;
 };
 
-// 58200 - Distract Demon Stalker
-struct npc_distract_demon_stalker : public ScriptedAI
-{
-    npc_distract_demon_stalker(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        DoCast(SPELL_SHRINK);
-    }
-
-    void JustAppeared() override
-    {
-        DoCast(SPELL_DISTRACT_DEMONS_STATIONARY);
-
-        scheduler.Schedule(1s + 200ms, [this](TaskContext /*context*/)
-        {
-            me->RemoveAurasDueToSpell(SPELL_SHRINK);
-        });
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        scheduler.Update(diff);
-    }
-
-private:
-    TaskScheduler scheduler;
-};
-
 // 103004 - Shadowcloak
 class spell_woe_shadowcloak : public SpellScript
 {
@@ -572,7 +537,6 @@ class spell_woe_wall_of_shadow : public AuraScript
 void AddSC_illidan_stormrage_courtyard_of_lights()
 {
     RegisterWellOfEternityCreatureAI(npc_illidan_stormrage_courtyard_of_lights);
-    RegisterWellOfEternityCreatureAI(npc_distract_demon_stalker);
     RegisterSpellAndAuraScriptPair(spell_woe_shadowcloak, spell_woe_shadowcloak_aura);
     RegisterSpellScript(spell_woe_shadowcloak_dismount);
     RegisterSpellScript(spell_woe_distract_demon_missile);

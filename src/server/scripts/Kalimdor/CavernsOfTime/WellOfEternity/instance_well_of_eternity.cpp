@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
 #include "ScriptMgr.h"
 #include "well_of_eternity.h"
 #include "InstanceScript.h"

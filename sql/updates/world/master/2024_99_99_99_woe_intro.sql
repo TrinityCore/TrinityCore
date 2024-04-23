@@ -14,6 +14,10 @@ DELETE FROM `creature_addon` WHERE `guid` = @CGUID+0;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+0, 0, 0, 0, 3, 1, 1, 0, 0, 0, 0, 0, 0, '49414'); -- Alurmi - 49414 - Generic Quest Invisibility 1
 
+DELETE FROM `creature_template_addon` WHERE `entry` = 58200;
+INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(58200, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, '110082 59632'); -- 58200 (Distract Demon Stalker) - Distract Demons Stationary - Shrink (SERVERSIDE)
+
 UPDATE `creature_template` SET `ScriptName` = 'npc_woe_nozdormu' WHERE `entry` = 55624;
 UPDATE `creature_template` SET `unit_flags`=0, `unit_flags2`=4196352 WHERE `entry`=55656; -- Dreadlord Defender
 UPDATE `creature_template` SET `BaseAttackTime`=2001980, `unit_flags`=2181071616, `unit_flags2`=4194304, `unit_flags3`=1, `ScriptName`='boss_peroth_arn' WHERE `entry`=55085; -- Peroth'arn
@@ -22,7 +26,7 @@ UPDATE `creature_template_addon` SET `VisFlags`=1 WHERE `entry`=57864; -- 57864 
 UPDATE `creature_template` SET `unit_flags3`=1 WHERE `entry`=56389; -- Shadowcloak Illidan Helper Stalker PH
 UPDATE `creature_template` SET `unit_flags3`=1 WHERE `entry`=55154; -- Shadowcloak Helper Stalker PH
 UPDATE `creature_template` SET `unit_flags`=32768, `unit_flags2`=2099200, `ScriptName`='npc_illidan_stormrage_courtyard_of_lights' WHERE `entry`=55500; -- Illidan Stormrage
-UPDATE `creature_template` SET `speed_walk`=1.399999976158142089, `speed_run`=0.5, `unit_flags`=33555200, `unit_flags2`=2099200, `unit_flags3`=524289, `ScriptName` = 'npc_distract_demon_stalker' WHERE `entry`=58200; -- Distract Demon Stalker
+UPDATE `creature_template` SET `speed_walk`=1.399999976158142089, `speed_run`=0.5, `unit_flags`=33555200, `unit_flags2`=2099200, `unit_flags3`=524289, `AIName` = 'SmartAI' WHERE `entry`=58200; -- Distract Demon Stalker
 UPDATE `creature_template` SET `unit_flags2`=4196352, `unit_flags3`=1 WHERE `entry`=54506; -- Well of Eternity Stalker
 UPDATE `creature_template` SET `unit_flags`=0, `unit_flags2`=4196352 WHERE `entry`=55654; -- Corrupted Arcanist
 UPDATE `creature_template` SET `unit_flags2`=4196352, `unit_flags3`=1 WHERE `entry`=54500; -- Legion Demon
@@ -104,6 +108,7 @@ DELETE FROM `creature` WHERE `guid` = 358830;
 -- Illidan is summoned, not spawned
 DELETE FROM `creature` WHERE `guid` IN (358828, 358831, 358834, 358838);
 
+-- Texts
 DELETE FROM `creature_text` WHERE `CreatureID` IN (55624, 55085, 55500);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (55624, 0, 0, 'I see you\'ve arrived. This is the eve of the sundering, when the collapse of the Well of Eternity fractured the continents of the world.', 12, 0, 100, 0, 0, 25961, 55271, 0, 'Nozdormu to Player'),
@@ -153,6 +158,13 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=55500 AND `spell_id`=46598;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
 (55500, 46598, 0, 0);
+
+-- SAI
+DELETE FROM `smart_scripts` WHERE `entryorguid`=58200 AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=5820000 AND `source_type`=9;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(58200, 0, 0, 0, '', 54, 0, 100, 0, 0, 0, 0, 0, 0, '', 80, (58200 * 100), 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'OnSummon - Self: Start timed action list'),
+(5820000, 9, 0, 0, '', 0, 0, 100, 0, 1200, 1200, 0, 0, 0, '', 28, 59632, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'After 1.2 seconds - Self: Remove Aura');
 
 -- Areatriggers
 DELETE FROM `areatrigger_scripts` WHERE `entry`IN (7387, 7029, 7066, 7144);
