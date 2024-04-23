@@ -86,11 +86,11 @@ namespace Movement
         // correct first vertex
         args.path[0] = real_position;
         args.initialOrientation = real_position.orientation;
-        args.flags.enter_cycle = args.flags.cyclic;
+        args.flags.Enter_Cycle = args.flags.Cyclic;
         move_spline.onTransport = transport;
 
         uint32 moveFlags = unit->m_movementInfo.GetMovementFlags();
-        if (!args.flags.backward)
+        if (!args.flags.Backward)
             moveFlags = (moveFlags & ~MOVEMENTFLAG_BACKWARD) | MOVEMENTFLAG_FORWARD;
         else
             moveFlags = (moveFlags & ~MOVEMENTFLAG_FORWARD) | MOVEMENTFLAG_BACKWARD;
@@ -117,10 +117,10 @@ namespace Movement
         // limit the speed in the same way the client does
         float speedLimit = [&]()
         {
-            if (args.flags.unlimitedSpeed)
+            if (args.flags.UnlimitedSpeed)
                 return std::numeric_limits<float>::max();
 
-            if (args.flags.falling || args.flags.catmullrom || args.flags.flying || args.flags.parabolic)
+            if (args.flags.Falling || args.flags.Catmullrom || args.flags.Flying || args.flags.Parabolic)
                 return 50.0f;
 
             return std::max(28.0f, unit->GetSpeed(MOVE_RUN) * 4.0f);
@@ -175,7 +175,7 @@ namespace Movement
             loc.orientation = unit->GetOrientation();
         }
 
-        args.flags = MoveSplineFlag::Done;
+        args.flags = MoveSplineFlagEnum::Done;
         unit->m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
         move_spline.onTransport = transport;
         move_spline.Initialize(args);
@@ -201,11 +201,11 @@ namespace Movement
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
         args.TransformForTransport = !unit->GetTransGUID().IsEmpty();
         // mix existing state into new
-        args.flags.canSwim = unit->CanSwim();
         args.walk = unit->HasUnitMovementFlag(MOVEMENTFLAG_WALKING);
-        args.flags.flying = unit->HasUnitMovementFlag(MovementFlags(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));
-        args.flags.steering = unit->HasNpcFlag2(UNIT_NPC_FLAG_2_STEERING);
-        args.flags.smoothGroundPath = !args.flags.flying && !args.flags.steering; // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
+        args.flags.CanSwim = unit->CanSwim();
+        args.flags.Flying = unit->HasUnitMovementFlag(MovementFlags(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));
+        args.flags.Steering = unit->HasNpcFlag2(UNIT_NPC_FLAG_2_STEERING);
+        args.flags.SmoothGroundPath = !args.flags.Flying && !args.flags.Steering; // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
     }
 
     MoveSplineInit::~MoveSplineInit() = default;
@@ -279,8 +279,8 @@ namespace Movement
 
     void MoveSplineInit::SetFall()
     {
-        args.flags.EnableFalling();
-        args.flags.fallingSlow = unit->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+        args.flags.Falling = true;
+        args.flags.FallingSlow = unit->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
     }
 
     Vector3 TransportPathTransform::operator()(Vector3 input)

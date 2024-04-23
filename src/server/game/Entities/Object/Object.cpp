@@ -829,8 +829,9 @@ void MovementInfo::OutDebug()
 {
     TC_LOG_DEBUG("misc", "MOVEMENT INFO");
     TC_LOG_DEBUG("misc", "{}", guid.ToString());
-    TC_LOG_DEBUG("misc", "flags {} ({})", Movement::MovementFlags_ToString(flags), flags);
-    TC_LOG_DEBUG("misc", "flags2 {} ({})", Movement::MovementFlagsExtra_ToString(flags2), flags2);
+    TC_LOG_DEBUG("misc", "flags {} ({})", Movement::MovementFlags_ToString(MovementFlags(flags)), flags);
+    TC_LOG_DEBUG("misc", "flags2 {} ({})", Movement::MovementFlags_ToString(MovementFlags2(flags2)), flags2);
+    TC_LOG_DEBUG("misc", "flags3 {} ({})", Movement::MovementFlags_ToString(MovementFlags3(flags3)), flags2);
     TC_LOG_DEBUG("misc", "time {} current time {}", time, getMSTime());
     TC_LOG_DEBUG("misc", "position: `{}`", pos.ToString());
     if (!transport.guid.IsEmpty())

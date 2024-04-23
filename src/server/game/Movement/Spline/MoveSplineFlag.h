@@ -19,124 +19,145 @@
 #define TRINITYSERVER_MOVESPLINEFLAG_H
 
 #include "Define.h"
+#include "EnumFlag.h"
 #include <string>
 
 namespace Movement
 {
-#pragma pack(push, 1)
-
-    class MoveSplineFlag
+    // EnumUtils: DESCRIBE THIS
+    enum class MoveSplineFlagEnum : uint32
     {
-    public:
-        enum eFlags : uint32
+        None                = 0x00000000,
+        Unknown_0x1         = 0x00000001,           // NOT VERIFIED
+        Unknown_0x2         = 0x00000002,           // NOT VERIFIED
+        Unknown_0x4         = 0x00000004,           // NOT VERIFIED
+        Unknown_0x8         = 0x00000008,           // NOT VERIFIED - does someting related to falling/fixed orientation
+        FallingSlow         = 0x00000010,
+        Done                = 0x00000020,
+        Falling             = 0x00000040,           // Affects elevation computation, can't be combined with Parabolic flag
+        No_Spline           = 0x00000080,
+        Unknown_0x100       = 0x00000100,           // NOT VERIFIED
+        Flying              = 0x00000200,           // Smooth movement(Catmullrom interpolation mode), flying animation
+        OrientationFixed    = 0x00000400,           // Model orientation fixed
+        Catmullrom          = 0x00000800,           // Used Catmullrom interpolation mode
+        Cyclic              = 0x00001000,           // Movement by cycled spline
+        Enter_Cycle         = 0x00002000,           // Everytimes appears with cyclic flag in monster move packet, erases first spline vertex after first cycle done
+        Frozen              = 0x00004000,           // Will never arrive
+        TransportEnter      = 0x00008000,
+        TransportExit       = 0x00010000,
+        Unknown_0x20000     = 0x00020000,           // NOT VERIFIED
+        Unknown_0x40000     = 0x00040000,           // NOT VERIFIED
+        Backward            = 0x00080000,
+        SmoothGroundPath    = 0x00100000,
+        CanSwim             = 0x00200000,
+        UncompressedPath    = 0x00400000,
+        Unknown_0x800000    = 0x00800000,           // NOT VERIFIED
+        FastSteering        = 0x01000000,           // Predicts spline only 500ms into the future for smoothing instead of 1s (making turns sharper) and turns off clientside obstacle detection
+        Animation           = 0x02000000,           // Plays animation after some time passed
+        Parabolic           = 0x04000000,           // Affects elevation computation, can't be combined with Falling flag
+        FadeObject          = 0x08000000,
+        Steering            = 0x10000000,
+        UnlimitedSpeed      = 0x20000000,
+        Unknown_0x40000000  = 0x40000000,           // NOT VERIFIED
+        Unknown_0x80000000  = 0x80000000,           // NOT VERIFIED
+
+        // Masks
+        // flags that shouldn't be appended into SMSG_MONSTER_MOVE\SMSG_MONSTER_MOVE_TRANSPORT packet, should be more probably
+        Mask_No_Monster_Move = Done, // SKIP
+        // Unused, not suported flags
+        Mask_Unused         = No_Spline | Enter_Cycle | Frozen | Unknown_0x8 | Unknown_0x100 | Unknown_0x20000 | Unknown_0x40000
+                            | Unknown_0x800000 | FastSteering | FadeObject | UnlimitedSpeed | Unknown_0x40000000 | Unknown_0x80000000 // SKIP
+    };
+
+    DEFINE_ENUM_FLAG(MoveSplineFlagEnum);
+
+    consteval MoveSplineFlagEnum GetDisallowedFlagsFor(MoveSplineFlagEnum flag)
+    {
+        switch (flag)
         {
-            None                = 0x00000000,
-            Unknown_0x1         = 0x00000001,           // NOT VERIFIED
-            Unknown_0x2         = 0x00000002,           // NOT VERIFIED
-            Unknown_0x4         = 0x00000004,           // NOT VERIFIED
-            Unknown_0x8         = 0x00000008,           // NOT VERIFIED - does someting related to falling/fixed orientation
-            FallingSlow         = 0x00000010,
-            Done                = 0x00000020,
-            Falling             = 0x00000040,           // Affects elevation computation, can't be combined with Parabolic flag
-            No_Spline           = 0x00000080,
-            Unknown_0x100       = 0x00000100,           // NOT VERIFIED
-            Flying              = 0x00000200,           // Smooth movement(Catmullrom interpolation mode), flying animation
-            OrientationFixed    = 0x00000400,           // Model orientation fixed
-            Catmullrom          = 0x00000800,           // Used Catmullrom interpolation mode
-            Cyclic              = 0x00001000,           // Movement by cycled spline
-            Enter_Cycle         = 0x00002000,           // Everytimes appears with cyclic flag in monster move packet, erases first spline vertex after first cycle done
-            Frozen              = 0x00004000,           // Will never arrive
-            TransportEnter      = 0x00008000,
-            TransportExit       = 0x00010000,
-            Unknown_0x20000     = 0x00020000,           // NOT VERIFIED
-            Unknown_0x40000     = 0x00040000,           // NOT VERIFIED
-            Backward            = 0x00080000,
-            SmoothGroundPath    = 0x00100000,
-            CanSwim             = 0x00200000,
-            UncompressedPath    = 0x00400000,
-            Unknown_0x800000    = 0x00800000,           // NOT VERIFIED
-            FastSteering        = 0x01000000,           // Predicts spline only 500ms into the future for smoothing instead of 1s (making turns sharper) and turns off clientside obstacle detection
-            Animation           = 0x02000000,           // Plays animation after some time passed
-            Parabolic           = 0x04000000,           // Affects elevation computation, can't be combined with Falling flag
-            FadeObject          = 0x08000000,
-            Steering            = 0x10000000,
-            UnlimitedSpeed      = 0x20000000,
-            Unknown_0x40000000  = 0x40000000,           // NOT VERIFIED
-            Unknown_0x80000000  = 0x80000000,           // NOT VERIFIED
+            case MoveSplineFlagEnum::Falling: return MoveSplineFlagEnum::Parabolic | MoveSplineFlagEnum::Animation | MoveSplineFlagEnum::Flying;
+            case MoveSplineFlagEnum::Flying: return MoveSplineFlagEnum::FallingSlow | MoveSplineFlagEnum::Falling;
+            case MoveSplineFlagEnum::Catmullrom: return MoveSplineFlagEnum::SmoothGroundPath;
+            case MoveSplineFlagEnum::TransportEnter: return MoveSplineFlagEnum::TransportExit;
+            case MoveSplineFlagEnum::TransportExit: return MoveSplineFlagEnum::TransportEnter;
+            case MoveSplineFlagEnum::SmoothGroundPath: return MoveSplineFlagEnum::Steering;
+            case MoveSplineFlagEnum::Animation: return MoveSplineFlagEnum::Falling | MoveSplineFlagEnum::Parabolic | MoveSplineFlagEnum::FallingSlow | MoveSplineFlagEnum::FadeObject;
+            case MoveSplineFlagEnum::Parabolic: return MoveSplineFlagEnum::Falling | MoveSplineFlagEnum::Animation | MoveSplineFlagEnum::FallingSlow | MoveSplineFlagEnum::FadeObject;
+            case MoveSplineFlagEnum::FadeObject: return MoveSplineFlagEnum::Falling | MoveSplineFlagEnum::Parabolic | MoveSplineFlagEnum::FallingSlow | MoveSplineFlagEnum::Animation;
+            case MoveSplineFlagEnum::Steering: return MoveSplineFlagEnum::SmoothGroundPath;
+            default: break;
+        }
+        return MoveSplineFlagEnum::None;
+    }
 
-            // Masks
-            // flags that shouldn't be appended into SMSG_MONSTER_MOVE\SMSG_MONSTER_MOVE_TRANSPORT packet, should be more probably
-            Mask_No_Monster_Move = Done,
-            // Unused, not suported flags
-            Mask_Unused         = No_Spline | Enter_Cycle | Frozen | Unknown_0x8 | Unknown_0x100 | Unknown_0x20000 | Unknown_0x40000
-                                | Unknown_0x800000 | FastSteering | FadeObject | UnlimitedSpeed | Unknown_0x40000000 | Unknown_0x80000000
-        };
-
-        inline uint32& raw() { return (uint32&)*this; }
-        inline uint32 const& raw() const { return (uint32 const&)*this; }
-
-        MoveSplineFlag() { raw() = 0; }
-        MoveSplineFlag(uint32 f) { raw() = f; }
+    union MoveSplineFlag
+    {
+        constexpr MoveSplineFlag() : Raw(MoveSplineFlagEnum::None) { }
+        constexpr MoveSplineFlag(MoveSplineFlagEnum f) : Raw(f) { }
 
         // Constant interface
 
-        bool isSmooth() const { return (raw() & Catmullrom) != 0; }
-        bool isLinear() const { return !isSmooth(); }
+        constexpr bool isSmooth() const { return Raw.HasFlag(MoveSplineFlagEnum::Catmullrom); }
+        constexpr bool isLinear() const { return !isSmooth(); }
 
-        bool hasAllFlags(uint32 f) const { return (raw() & f) == f; }
-        bool hasFlag(uint32 f) const { return (raw() & f) != 0; }
-        uint32 operator & (uint32 f) const { return (raw() & f); }
-        uint32 operator | (uint32 f) const { return (raw() | f); }
+        constexpr bool HasAllFlags(MoveSplineFlagEnum f) const { return Raw.HasAllFlags(f); }
+        constexpr bool HasFlag(MoveSplineFlagEnum f) const { return Raw.HasFlag(f); }
+        constexpr MoveSplineFlagEnum operator&(MoveSplineFlagEnum f) const { return (Raw & f); }
+        constexpr MoveSplineFlagEnum operator|(MoveSplineFlagEnum f) const { return (Raw | f); }
         std::string ToString() const;
 
         // Not constant interface
 
-        void operator &= (uint32 f) { raw() &= f; }
-        void operator |= (uint32 f) { raw() |= f; }
+        constexpr MoveSplineFlag& operator&=(MoveSplineFlagEnum f) { Raw &= f; return *this; }
+        constexpr MoveSplineFlag& operator|=(MoveSplineFlagEnum f) { Raw |= f; return *this; }
 
-        void EnableAnimation() { raw() = (raw() & ~(Falling | Parabolic | FallingSlow | FadeObject)) | Animation; }
-        void EnableParabolic() { raw() = (raw() & ~(Falling | Animation | FallingSlow | FadeObject)) | Parabolic; }
-        void EnableFlying() { raw() = (raw() & ~(Falling)) | Flying; }
-        void EnableFalling() { raw() = (raw() & ~(Parabolic | Animation | Flying)) | Falling; }
-        void EnableCatmullRom() { raw() = (raw() & ~SmoothGroundPath) | Catmullrom; }
-        void EnableTransportEnter() { raw() = (raw() & ~TransportExit) | TransportEnter; }
-        void EnableTransportExit() { raw() = (raw() & ~TransportEnter) | TransportExit; }
-        void EnableSteering() { raw() = (raw() & ~SmoothGroundPath) | Steering; }
+        EnumFlag<MoveSplineFlagEnum> Raw;
 
-        bool unknown0x1          : 1;
-        bool unknown0x2          : 1;
-        bool unknown0x4          : 1;
-        bool unknown0x8          : 1;
-        bool fallingSlow         : 1;
-        bool done                : 1;
-        bool falling             : 1;
-        bool no_spline           : 1;
-        bool unknown0x100        : 1;
-        bool flying              : 1;
-        bool orientationFixed    : 1;
-        bool catmullrom          : 1;
-        bool cyclic              : 1;
-        bool enter_cycle         : 1;
-        bool frozen              : 1;
-        bool transportEnter      : 1;
-        bool transportExit       : 1;
-        bool unknown0x20000      : 1;
-        bool unknown0x40000      : 1;
-        bool backward            : 1;
-        bool smoothGroundPath    : 1;
-        bool canSwim             : 1;
-        bool uncompressedPath    : 1;
-        bool unknown0x800000     : 1;
-        bool fastSteering        : 1;
-        bool animation           : 1;
-        bool parabolic           : 1;
-        bool fadeObject          : 1;
-        bool steering            : 1;
-        bool unlimitedSpeed      : 1;
-        bool unknown0x40000000   : 1;
-        bool unknown0x80000000   : 1;
+        template <MoveSplineFlagEnum Flag>
+        struct FlagAccessor
+        {
+            constexpr operator bool() const { return (Raw & Flag) != MoveSplineFlagEnum::None; }
+            constexpr FlagAccessor& operator=(bool val) { if (val) { Raw = Raw & ~GetDisallowedFlagsFor(Flag) | Flag; } else Raw &= ~Flag; return *this; }
+            MoveSplineFlagEnum Raw;
+        };
+
+#define MAKE_FLAG_ACCESSOR_FIELD(flag) FlagAccessor<MoveSplineFlagEnum::flag> flag
+
+        MAKE_FLAG_ACCESSOR_FIELD(Unknown_0x1);
+        MAKE_FLAG_ACCESSOR_FIELD(Unknown_0x2);
+        MAKE_FLAG_ACCESSOR_FIELD(Unknown_0x4);
+        MAKE_FLAG_ACCESSOR_FIELD(Unknown_0x8);
+        MAKE_FLAG_ACCESSOR_FIELD(FallingSlow);
+        MAKE_FLAG_ACCESSOR_FIELD(Done);
+        MAKE_FLAG_ACCESSOR_FIELD(Falling);
+        MAKE_FLAG_ACCESSOR_FIELD(No_Spline);
+        MAKE_FLAG_ACCESSOR_FIELD(Unknown_0x100);
+        MAKE_FLAG_ACCESSOR_FIELD(Flying);
+        MAKE_FLAG_ACCESSOR_FIELD(OrientationFixed);
+        MAKE_FLAG_ACCESSOR_FIELD(Catmullrom);
+        MAKE_FLAG_ACCESSOR_FIELD(Cyclic);
+        MAKE_FLAG_ACCESSOR_FIELD(Enter_Cycle);
+        MAKE_FLAG_ACCESSOR_FIELD(Frozen);
+        MAKE_FLAG_ACCESSOR_FIELD(TransportEnter);
+        MAKE_FLAG_ACCESSOR_FIELD(TransportExit);
+        MAKE_FLAG_ACCESSOR_FIELD(Unknown_0x20000);
+        MAKE_FLAG_ACCESSOR_FIELD(Unknown_0x40000);
+        MAKE_FLAG_ACCESSOR_FIELD(Backward);
+        MAKE_FLAG_ACCESSOR_FIELD(SmoothGroundPath);
+        MAKE_FLAG_ACCESSOR_FIELD(CanSwim);
+        MAKE_FLAG_ACCESSOR_FIELD(UncompressedPath);
+        MAKE_FLAG_ACCESSOR_FIELD(Unknown_0x800000);
+        MAKE_FLAG_ACCESSOR_FIELD(FastSteering);
+        MAKE_FLAG_ACCESSOR_FIELD(Animation);
+        MAKE_FLAG_ACCESSOR_FIELD(Parabolic);
+        MAKE_FLAG_ACCESSOR_FIELD(FadeObject);
+        MAKE_FLAG_ACCESSOR_FIELD(Steering);
+        MAKE_FLAG_ACCESSOR_FIELD(UnlimitedSpeed);
+        MAKE_FLAG_ACCESSOR_FIELD(Unknown_0x40000000);
+        MAKE_FLAG_ACCESSOR_FIELD(Unknown_0x80000000);
+
+#undef MAKE_FLAG_ACCESSOR_FIELD
     };
-#pragma pack(pop)
 }
 
 #endif // TRINITYSERVER_MOVESPLINEFLAG_H
