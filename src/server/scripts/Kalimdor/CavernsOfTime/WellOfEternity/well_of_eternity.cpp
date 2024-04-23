@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "ScriptMgr.h"
