@@ -517,10 +517,6 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
     Movement::MoveSplineInit init(owner);
 
-    // because steering flag can cause position on client to not be perfectly accurate, dont do it in combat
-    if (!owner->IsInCombat())
-        init.SetSteering();
-
     //! If creature is on transport, we assume waypoints set in DB are already transport offsets
     if (transportPath)
         init.DisableTransportPathTransformations();
@@ -576,6 +572,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     if (!IsExactSplinePath()
         && duration > 2 * SEND_NEXT_POINT_EARLY_DELTA
         && !lastWaypointForSegment->Delay
+        && path->Nodes.size() > 2
         // don't cut movement short at ends of path if its not a looping path or if it can be traversed backwards
         && ((_currentNode != 0 && _currentNode != path->Nodes.size() - 1) || (!IsFollowingPathBackwardsFromEndToStart() && _repeating)))
         duration -= SEND_NEXT_POINT_EARLY_DELTA;

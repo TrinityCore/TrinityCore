@@ -204,8 +204,8 @@ namespace Movement
         args.walk = unit->HasUnitMovementFlag(MOVEMENTFLAG_WALKING);
         args.flags.CanSwim = unit->CanSwim();
         args.flags.Flying = unit->HasUnitMovementFlag(MovementFlags(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));
-        args.flags.Steering = unit->HasNpcFlag2(UNIT_NPC_FLAG_2_STEERING);
-        args.flags.SmoothGroundPath = !args.flags.Flying && !args.flags.Steering; // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
+        args.flags.FastSteering = true;
+        args.flags.Steering = unit->HasNpcFlag2(UNIT_NPC_FLAG_2_STEERING) || !unit->IsInCombat();
     }
 
     MoveSplineInit::~MoveSplineInit() = default;
