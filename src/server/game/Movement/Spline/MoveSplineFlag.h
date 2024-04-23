@@ -116,8 +116,11 @@ namespace Movement
         template <MoveSplineFlagEnum Flag>
         struct FlagAccessor
         {
+            // force compile time evaluation - workaround for clang <= 14
+            static constexpr MoveSplineFlagEnum DisallowedFlag = std::integral_constant<MoveSplineFlagEnum, GetDisallowedFlagsFor(Flag)>::value;
+
             constexpr operator bool() const { return (Raw & Flag) != MoveSplineFlagEnum::None; }
-            constexpr FlagAccessor& operator=(bool val) { if (val) { Raw = Raw & ~GetDisallowedFlagsFor(Flag) | Flag; } else Raw &= ~Flag; return *this; }
+            constexpr FlagAccessor& operator=(bool val) { if (val) { Raw = Raw & ~DisallowedFlag | Flag; } else Raw &= ~Flag; return *this; }
             MoveSplineFlagEnum Raw;
         };
 
