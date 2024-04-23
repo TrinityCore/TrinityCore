@@ -106,7 +106,7 @@ namespace Movement
         int32 _currentSplineIdx() const { return point_Idx; }
         float Velocity() const { return velocity; }
         void _Finalize();
-        void _Interrupt() { splineflags.done = true; }
+        void _Interrupt() { splineflags.Done = true; }
 
     public:
         void Initialize(MoveSplineInitArgs const&);
@@ -134,9 +134,9 @@ namespace Movement
         Location ComputePosition(int32 time_offset) const;
 
         uint32 GetId() const { return m_Id; }
-        bool Finalized() const { return splineflags.done; }
-        bool isCyclic() const { return splineflags.cyclic; }
-        bool isFalling() const { return splineflags.falling; }
+        bool Finalized() const { return splineflags.Done; }
+        bool isCyclic() const { return splineflags.Cyclic; }
+        bool isFalling() const { return splineflags.Falling; }
         Vector3 const& FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3::zero(); }
         Vector3 const& CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3::zero(); }
         int32 currentPathIdx() const;
