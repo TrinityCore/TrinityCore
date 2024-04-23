@@ -66,7 +66,7 @@ namespace Movement
         Mask_No_Monster_Move = Done, // SKIP
         // Unused, not suported flags
         Mask_Unused         = No_Spline | Enter_Cycle | Frozen | Unknown_0x8 | Unknown_0x100 | Unknown_0x20000 | Unknown_0x40000
-                            | Unknown_0x800000 | FastSteering | FadeObject | UnlimitedSpeed | Unknown_0x40000000 | Unknown_0x80000000 // SKIP
+                            | Unknown_0x800000 | FadeObject | UnlimitedSpeed | Unknown_0x40000000 | Unknown_0x80000000 // SKIP
     };
 
     DEFINE_ENUM_FLAG(MoveSplineFlagEnum);
