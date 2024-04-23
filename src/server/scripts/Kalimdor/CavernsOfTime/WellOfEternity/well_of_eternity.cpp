@@ -19,6 +19,7 @@
 #include "CreatureAI.h"
 #include "InstanceScript.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "ScriptMgr.h"

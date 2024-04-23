@@ -25,6 +25,7 @@
 #include "SpellScript.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 #include "Unit.h"
 #include "well_of_eternity.h"
