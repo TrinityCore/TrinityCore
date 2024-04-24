@@ -146,7 +146,7 @@ enum NightmareSuppressor
     POINT_ID_AVATAR_OF_HAKKAR = 0
 };
 
-static Position const AvatarHakkarSpawnPos = { -467.107f, 273.063f, -90.449f, 3.0f };
+Position const AvatarHakkarSpawnPos = { -467.107f, 273.063f, -90.449f, 3.0f };
 
 class npc_nightmare_suppressor : public CreatureScript
 {
@@ -175,8 +175,8 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            if (Creature* avatar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_AVATAR_OF_HAKKAR)))
-                avatar->AI()->DoAction(ACTION_REMOVE_SUPPRESSOR_AVATAR);
+            if (Creature* shade = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADE_OF_HAKKAR)))
+                shade->AI()->DoAction(ACTION_REMOVE_SUPPRESSOR);
             _events.CancelEvent(EVENT_CAST_SUPPRESSOR);
             me->CastStop();
             me->SetSpeed(MOVE_RUN, 5);
@@ -199,7 +199,7 @@ public:
                 {
                 case EVENT_CAST_SUPPRESSOR:
                     if (!me->IsInCombat())
-                        DoCastSelf(SPELL_SUPPRESSION);
+                        DoCast(SPELL_SUPPRESSION);
                     break;
                 default:
                     break;
@@ -357,7 +357,6 @@ class spell_sunken_temple_awaken_the_soulflayer : public SpellScript
         if (TempSummon* shade = _map->SummonCreature(NPC_SHADE_OF_HAKKAR, AvatarHakkarSpawnPos))
         {
             shade->AI()->Talk(SAY_SPAWN_SHADE);
-            _map->SummonCreature(NPC_AVATAR_OF_HAKKAR, AvatarHakkarSpawnPos);
             _instance->SetBossState(BOSS_AVATAR_OF_HAKKAR, IN_PROGRESS);
         }
     }

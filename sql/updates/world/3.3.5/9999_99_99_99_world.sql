@@ -1,6 +1,7 @@
 UPDATE `creature_template` SET `ScriptName` = 'npc_nightmare_suppressor' WHERE `entry`=8497;
 UPDATE `creature_template` SET `ScriptName` = 'npc_hakkari_bloodkeeper'  WHERE `entry`=8438;
 UPDATE `creature_template` SET `ScriptName` = 'boss_avatar_of_hakkar'    WHERE `entry`=8443;
+UPDATE `creature_template` SET `ScriptName` = 'npc_shade_of_hakkar'      WHERE `entry`=8440;
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (8497, 8440, 8443);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -14,6 +15,10 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (8440, 3, 0, 'HAKKAR LIVES!', 14, 0, 100, 0, 0, 0, 6254, 0, 'Shade of Hakkar'),
 (8443, 0, 0, 'I AM HERE!', 14, 0, 100, 0, 0, 0, 4545, 0, 'Avatar of Hakkar'),
 (8443, 1, 0, 'DIE, MORTALS!', 14, 0, 100, 0, 0, 0, 4546, 0, 'Avatar of Hakkar');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=12623 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=8440 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1, 12623, 0, 0, 31, 0, 3, 8440, 0, 0, 0, 0, '', NULL);
 
 SET @GUID1 := 33905; -- (unused GUID from TDB 335.24011)
 SET @GUID2 := 33906; -- (unused GUID from TDB 335.24011)

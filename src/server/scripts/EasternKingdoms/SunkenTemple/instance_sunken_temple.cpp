@@ -173,7 +173,7 @@ public:
                 {
                     NightmareSuppressorGUID.Clear();
                     if (!Events.Empty())
-                        Events.ScheduleEvent(EVENT_SPAWN_NIGHTMARE_SUPPRESSOR, 50s, 60s);
+                        Events.ScheduleEvent(EVENT_SPAWN_NIGHTMARE_SUPPRESSOR, 15s, 45);
                 }
                 break;
             default:
@@ -285,7 +285,7 @@ public:
                 {
                 case EVENT_SPAWN_HAKKARI_BLOODKEEPER:
                     if (Creature* hakkariBloodkeeper = instance->SummonCreature(NPC_HAKKARI_BLOODKEEPER, HakkariBloodkeeperSpawnsPos[urand(0, 7)]))
-                        if (Unit* target = hakkariBloodkeeper->SelectNearestTarget(200))
+                        if (Unit* target = hakkariBloodkeeper->SelectNearestTarget(200.0f))
                             hakkariBloodkeeper->AI()->AttackStart(target);
                     Events.ScheduleEvent(EVENT_SPAWN_HAKKARI_BLOODKEEPER, 45s, 55s);
                     break;
@@ -328,15 +328,17 @@ public:
             for (uint32 i = GO_ETERNAL_FLAME_1; i <= GO_ETERNAL_FLAME_4; ++i)
                 if (GameObject* eternalFlame = GetGameObject(i))
                     eternalFlame->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
-
-            Creature* shade = instance->GetCreature(ShadeOfHakkarGUID);
-            for (uint8 i = 0; i < 8; ++i)
-            {
-                QuaternionData rot = QuaternionData::fromEulerAnglesZYX(0.f, 0.f, 0.f);
-                if (GameObject* circle = shade->SummonGameObject(GO_EVIL_GOD_SUMMONING_CIRCLE, HakkariBloodkeeperSpawnsPos[i], rot, 0s, GOSummonType(GO_SUMMON_TIMED_OR_CORPSE_DESPAWN)))
+            if (ShadeOfHakkarGUID)
+            { 
+                Creature* shade = instance->GetCreature(ShadeOfHakkarGUID);
+                for (uint8 i = 0; i < 8; ++i)
                 {
-                    circle->SetGoState(GO_STATE_READY);
-                    circle->SetFlag(GO_FLAG_NOT_SELECTABLE);
+                    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(0.f, 0.f, 0.f);
+                    if (GameObject* circle = shade->SummonGameObject(GO_EVIL_GOD_SUMMONING_CIRCLE, HakkariBloodkeeperSpawnsPos[i], rot, 0s, GOSummonType(GO_SUMMON_TIMED_OR_CORPSE_DESPAWN)))
+                    {
+                        circle->SetGoState(GO_STATE_READY);
+                        circle->SetFlag(GO_FLAG_NOT_SELECTABLE);
+                    }
                 }
             }
         }
@@ -370,11 +372,7 @@ public:
                         avatar->DespawnOrUnsummon();
                         AvatarOfHakkarGUID.Clear();
                     }
-                    if (Creature* shade = instance->GetCreature(ShadeOfHakkarGUID))
-                    {
-                        shade->DespawnOrUnsummon();
-                        ShadeOfHakkarGUID.Clear();
-                    }
+                    ShadeOfHakkarGUID.Clear();
                     for (uint32 i = GO_ETERNAL_FLAME_1; i <= GO_ETERNAL_FLAME_4; ++i)
                         if (GameObject* eternalFlame = GetGameObject(i))
                         {
@@ -384,7 +382,6 @@ public:
                     Events.Reset();
                     SetBossState(BOSS_AVATAR_OF_HAKKAR, NOT_STARTED);
                 }
-
             }
             break;
             case BOSS_JAMMALAN_THE_PROPHET:
@@ -410,18 +407,12 @@ public:
                 if (Creature* shade = instance->GetCreature(ShadeOfHakkarGUID)) {
                     switch (CountFlames)
                     {
-                    case 1:
-                        shade->AI()->Talk(SAY_ETHERNAL_FLAME_SHADE1);
-                        break;
-                    case 2:
-                        shade->AI()->Talk(SAY_ETHERNAL_FLAME_SHADE2);
-                        break;
-                    case 3:
-                        shade->AI()->Talk(SAY_ETHERNAL_FLAME_SHADE3);
-                        break;
+                    case 1: shade->AI()->Talk(SAY_ETHERNAL_FLAME_SHADE1); break;
+                    case 2: shade->AI()->Talk(SAY_ETHERNAL_FLAME_SHADE2); break;
+                    case 3: shade->AI()->Talk(SAY_ETHERNAL_FLAME_SHADE3); break;
                     case 4:
                         shade->DespawnOrUnsummon();
-                        if (Creature* avatar = instance->GetCreature(AvatarOfHakkarGUID))
+                        if (Creature* avatar = instance->SummonCreature(NPC_AVATAR_OF_HAKKAR, AvatarHakkarSpawnPos))
                         {
                             avatar->AI()->DoAction(ACTION_FIGHT_STATE_AVATAR);
                             avatar->AI()->DoZoneInCombat();
@@ -472,6 +463,9 @@ public:
             {
             case BOSS_AVATAR_OF_HAKKAR:
                 return AvatarOfHakkarGUID;
+                break;
+            case DATA_SHADE_OF_HAKKAR:
+                return ShadeOfHakkarGUID;
                 break;
             default:
                 break;

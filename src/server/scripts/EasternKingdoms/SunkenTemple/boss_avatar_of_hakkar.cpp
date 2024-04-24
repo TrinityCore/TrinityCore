@@ -22,12 +22,6 @@
 #include "SpellInfo.h"
 #include "Player.h"
 
-enum Phases
-{
-    PHASE_INTRO  = 1,
-    PHASE_COMBAT = 2
-};
-
 enum Events
 {
     EVENT_CAST_LASH              = 1,
@@ -55,6 +49,11 @@ enum DisplayID
     DISPLAY_AVATAR_OF_HAKKAR = 8053
 };
 
+
+/*#####
+# boss_avatar_of_hakkar
+#####*/
+
 class boss_avatar_of_hakkar : public CreatureScript
 {
 public:
@@ -63,38 +62,6 @@ public:
     struct boss_avatar_of_hakkarAI : public BossAI
     {
         boss_avatar_of_hakkarAI(Creature* creature) : BossAI(creature, BOSS_AVATAR_OF_HAKKAR) { }
-
-        void Reset() override
-        {
-            _Reset();
-        }
-
-        void JustAppeared() override
-        {
-            SetShadeParameters(true);
-        }
-
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-        {
-            if (spellInfo->Id == SPELL_SUPPRESSION)
-                events.ScheduleEvent(EVENT_SUPPRESSOR, 1min);
-        }
-
-        void DoAction(int32 action) override
-        {
-            switch (action)
-            {
-            case ACTION_FIGHT_STATE_AVATAR:
-                SetShadeParameters(false);
-                break;
-            case ACTION_REMOVE_SUPPRESSOR_AVATAR:
-                me->RemoveAurasDueToSpell(SPELL_SUPPRESSION);
-                events.CancelEvent(EVENT_SUPPRESSOR);
-                break;
-            default:
-                break;
-            }
-        }
 
         void JustEngagedWith(Unit* who) override
         {
@@ -105,14 +72,9 @@ public:
             events.ScheduleEvent(EVENT_CAST_CURSE_OF_TONGUES, 14s, 21s);
         }
 
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-        }
-
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
+            if (!UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -138,41 +100,11 @@ public:
                     DoCastSelf(SPELL_CURSE_OF_TONGUES);
                     events.ScheduleEvent(EVENT_CAST_CURSE_OF_TONGUES, 14s, 21s);
                     break;
-                case EVENT_SUPPRESSOR:
-                    if (events.IsInPhase(PHASE_INTRO))
-                    {
-                        me->DespawnOrUnsummon();
-                        instance->SetBossState(BOSS_AVATAR_OF_HAKKAR, FAIL);
-                    }
-                    break;
                 }
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
             }
             DoMeleeAttackIfReady();
-        }
-
-        void SetShadeParameters(bool on)
-        {
-            if (on)
-            {
-                me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
-                me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                me->SetFaction(FACTION_FRIENDLY);
-                me->SetDisplayId(DISPLAY_SHADE_OF_HAKKAR);
-                events.SetPhase(PHASE_INTRO);
-            }
-            else
-            {
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                me->SetFaction(FACTION_MONSTER_2);
-                me->SetDisplayId(DISPLAY_AVATAR_OF_HAKKAR);
-                events.SetPhase(PHASE_COMBAT);
-                Talk(SAY_SPAWN_AVATAR);
-            }
         }
 
         bool CheckNearbyPlayers()
@@ -191,7 +123,74 @@ public:
     }
 };
 
+/*#####
+# npc_shade_of_hakkar
+#####*/
+
+class npc_shade_of_hakkar : public CreatureScript
+{
+public:
+    npc_shade_of_hakkar() : CreatureScript("npc_shade_of_hakkar") { }
+    struct npc_shade_of_hakkarAI : public ScriptedAI
+    {
+        npc_shade_of_hakkarAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        {
+            if (spellInfo->Id == SPELL_SUPPRESSION)
+                _events.ScheduleEvent(EVENT_SUPPRESSOR, 1min);
+        }
+
+        void DoAction(int32 action) override
+        {
+            switch (action)
+            {
+            case ACTION_REMOVE_SUPPRESSOR:
+                me->RemoveAurasDueToSpell(SPELL_SUPPRESSION);
+                _events.CancelEvent(EVENT_SUPPRESSOR);
+                break;
+            default:
+                break;
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!me->HasAura(SPELL_SUPPRESSION))
+                return;
+
+            _events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_SUPPRESSOR:
+                    me->DespawnOrUnsummon();
+                    _instance->SetBossState(BOSS_AVATAR_OF_HAKKAR, FAIL);
+                    break;
+                }
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+            DoMeleeAttackIfReady();
+        }
+    private:
+        InstanceScript* _instance;
+        EventMap _events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetSunkenTempleAI<npc_shade_of_hakkarAI>(creature);
+    }
+};
+
 void AddSC_boss_avatar_of_hakkar()
 {
     new boss_avatar_of_hakkar();
+    new npc_shade_of_hakkar();
 }

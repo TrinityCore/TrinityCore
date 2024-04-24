@@ -82,7 +82,8 @@ enum STGameObjectIds
 enum STEvents
 {
     EVENT_STATE        = 1,
-    DATA_ETERNAL_FLAME
+    DATA_ETERNAL_FLAME,
+    DATA_SHADE_OF_HAKKAR
 };
 
 enum STInstanceTexts
@@ -98,7 +99,7 @@ enum STShareActions
 {
     ACTION_FIGHT_STATE_AVATAR        = -1,
     ACTION_CAST_SUPPRESSOR_NIGHTMARE = -2,
-    ACTION_REMOVE_SUPPRESSOR_AVATAR  = -3
+    ACTION_REMOVE_SUPPRESSOR         = -3
 };
 
 enum STShareSpells
@@ -106,6 +107,11 @@ enum STShareSpells
     SPELL_SUPPRESSION      = 12623,
     SPELL_GREEN_CHANNELING = 13540
 };
+
+struct Position;
+
+// Defined in sunken_temple.cpp
+extern Position const AvatarHakkarSpawnPos;
 
 template <class AI, class T>
 inline AI* GetSunkenTempleAI(T* obj)
