@@ -15,19 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "violet_hold.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
-#include "GameObjectAI.h"
+#include "ScriptMgr.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "violet_hold.h"
+#include "WaypointDefines.h"
 
 /*
  * TODO:
@@ -294,55 +295,79 @@ Position const DefaultPortalWPs[] =
     { 1843.567017f, 804.288208f, 44.139091f }
 };
 
-Position const SaboteurMoraggPath[] = // sniff
+static WaypointPath const SaboteurMoraggPath = // sniff
 {
-    { 1886.251f, 803.0743f, 38.42326f },
-    { 1885.71f,  799.8929f, 38.37241f },
-    { 1889.505f, 762.3288f, 47.66684f },
-    { 1894.542f, 742.1829f, 47.66684f },
-    { 1894.603f, 739.9231f, 47.66684f },
+    POINT_INTRO,
+    {
+        { 0, 1886.251f, 803.0743f, 38.42326f },
+        { 1, 1885.71f,  799.8929f, 38.37241f },
+        { 2, 1889.505f, 762.3288f, 47.66684f },
+        { 3, 1894.542f, 742.1829f, 47.66684f },
+        { 4, 1894.603f, 739.9231f, 47.66684f }
+    },
+    WaypointMoveType::Run
 };
 
-Position const SaboteurErekemPath[] = // sniff
+static WaypointPath const SaboteurErekemPath = // sniff
 {
-    { 1886.251f, 803.0743f, 38.42326f },
-    { 1881.047f, 829.6866f, 38.64856f },
-    { 1877.585f, 844.6685f, 38.49014f },
-    { 1876.085f, 851.6685f, 42.99014f },
-    { 1873.747f, 864.1373f, 43.33349f }
+    POINT_INTRO,
+    {
+        { 0, 1886.251f, 803.0743f, 38.42326f },
+        { 1, 1881.047f, 829.6866f, 38.64856f },
+        { 2, 1877.585f, 844.6685f, 43.33349f },
+        { 3, 1876.085f, 851.6685f, 42.99014f },
+        { 4, 1873.747f, 864.1373f, 43.33349f }
+    },
+    WaypointMoveType::Run
 };
 
-Position const SaboteurIchoronPath[] = // sniff
+static WaypointPath const SaboteurIchoronPath = // sniff
 {
-    { 1886.251f, 803.0743f, 38.42326f },
-    { 1888.672f, 801.2348f, 38.42305f },
-    { 1901.987f, 793.3254f, 38.65126f }
+    POINT_INTRO,
+    {
+        { 0, 1886.251f, 803.0743f, 38.42326f },
+        { 1, 1888.672f, 801.2348f, 38.42305f },
+        { 2, 1901.987f, 793.3254f, 38.65126f }
+    },
+    WaypointMoveType::Run
 };
 
-Position const SaboteurLavanthorPath[] = // sniff
+static WaypointPath const SaboteurLavanthorPath = // sniff
 {
-    { 1886.251f, 803.0743f, 38.42326f },
-    { 1867.925f, 778.8035f, 38.64702f },
-    { 1853.304f, 759.0161f, 38.65761f }
+    POINT_INTRO,
+    {
+        { 0, 1886.251f, 803.0743f, 38.42326f },
+        { 1, 1867.925f, 778.8035f, 38.64702f },
+        { 2, 1853.304f, 759.0161f, 38.65761f }
+    },
+    WaypointMoveType::Run
 };
 
-Position const SaboteurXevozzPath[] = // sniff
+static WaypointPath const SaboteurXevozzPath = // sniff
 {
-    { 1886.251f, 803.0743f, 38.42326f },
-    { 1889.096f, 810.0487f, 38.43871f },
-    { 1896.547f, 823.5473f, 38.72863f },
-    { 1906.666f, 842.3111f, 38.63351f }
+    POINT_INTRO,
+    {
+        { 0, 1886.251f, 803.0743f, 38.42326f },
+        { 1, 1889.096f, 810.0487f, 38.43871f },
+        { 2, 1896.547f, 823.5473f, 38.72863f },
+        { 3, 1906.666f, 842.3111f, 38.63351f }
+    },
+    WaypointMoveType::Run
 };
 
-Position const SaboteurZuramatPath[] = // sniff
+static WaypointPath const SaboteurZuramatPath = // sniff
 {
-    { 1886.251f, 803.0743f, 38.42326f },
-    { 1889.69f,  807.0032f, 38.39914f },
-    { 1906.91f,  818.2574f, 38.86596f },
-    { 1929.03f,  824.2713f, 46.09165f },
-    { 1928.441f, 842.8891f, 47.15078f },
-    { 1927.454f, 851.6091f, 47.19094f },
-    { 1927.947f, 852.2986f, 47.19637f }
+    POINT_INTRO,
+    {
+        { 0, 1886.251f, 803.0743f, 38.42326f },
+        { 1, 1889.69f,  807.0032f, 38.39914f },
+        { 2, 1906.91f,  818.2574f, 38.86596f },
+        { 3, 1929.03f,  824.2713f, 46.09165f },
+        { 4, 1928.441f, 842.8891f, 47.15078f },
+        { 5, 1927.454f, 851.6091f, 47.19094f },
+        { 6, 1927.947f, 852.2986f, 47.19637f }
+    },
+    WaypointMoveType::Run
 };
 
 Position const SinclariPositions[] = // sniff
@@ -563,33 +588,27 @@ struct npc_azure_saboteur : public ScriptedAI
             _bossId = _instance->GetData(DATA_2ND_BOSS);
     }
 
-    template <size_t N>
-    void StartSmoothPath(Position const (&path)[N])
-    {
-        me->GetMotionMaster()->MoveSmoothPath(POINT_INTRO, &path[0], N, false);
-    }
-
     void StartMovement()
     {
         switch (_bossId)
         {
             case DATA_MORAGG:
-                StartSmoothPath(SaboteurMoraggPath);
+                me->GetMotionMaster()->MovePath(SaboteurMoraggPath, false);
                 break;
             case DATA_EREKEM:
-                StartSmoothPath(SaboteurErekemPath);
+                me->GetMotionMaster()->MovePath(SaboteurErekemPath, false);
                 break;
             case DATA_ICHORON:
-                StartSmoothPath(SaboteurIchoronPath);
+                me->GetMotionMaster()->MovePath(SaboteurIchoronPath, false);
                 break;
             case DATA_LAVANTHOR:
-                StartSmoothPath(SaboteurLavanthorPath);
+                me->GetMotionMaster()->MovePath(SaboteurLavanthorPath, false);
                 break;
             case DATA_XEVOZZ:
-                StartSmoothPath(SaboteurXevozzPath);
+                me->GetMotionMaster()->MovePath(SaboteurXevozzPath, false);
                 break;
             case DATA_ZURAMAT:
-                StartSmoothPath(SaboteurZuramatPath);
+                me->GetMotionMaster()->MovePath(SaboteurZuramatPath, false);
                 break;
         }
     }
@@ -603,9 +622,9 @@ struct npc_azure_saboteur : public ScriptedAI
         });
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void WaypointPathEnded(uint32 /*waypointId*/, uint32 pathId) override
     {
-        if (type == EFFECT_MOTION_TYPE && pointId == POINT_INTRO)
+        if (pathId == POINT_INTRO)
         {
             _scheduler.Schedule(0s, [this](TaskContext task)
             {

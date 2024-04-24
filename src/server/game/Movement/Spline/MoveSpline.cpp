@@ -277,9 +277,6 @@ bool MoveSplineInitArgs::_checkPathLengths()
 
     if (path.size() > 2)
     {
-        if ((path[2] - path[1]).length() < 0.1f)
-            return false;
-
         Vector3 middle = (path.front() + path.back()) / 2;
         for (uint32 i = 1; i < path.size() - 1; ++i)
         {

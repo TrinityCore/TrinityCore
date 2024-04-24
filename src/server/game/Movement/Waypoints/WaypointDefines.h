@@ -41,14 +41,16 @@ enum class WaypointPathFlags : uint8
     None                                = 0x00,
     FollowPathBackwardsFromEndToStart   = 0x01,
     ExactSplinePath                     = 0x02, // Points are going to be merged into single packets and pathfinding is disabled
+
+    FlyingPath                          = ExactSplinePath   // flying paths are always exact splines
 };
 
 DEFINE_ENUM_FLAG(WaypointPathFlags);
 
 struct WaypointNode
 {
-    WaypointNode() : Id(0), X(0.f), Y(0.f), Z(0.f), MoveType(WaypointMoveType::Walk) { }
-    WaypointNode(uint32 id, float x, float y, float z, Optional<float> orientation = { }, Optional<Milliseconds> delay = {})
+    constexpr WaypointNode() : Id(0), X(0.f), Y(0.f), Z(0.f), MoveType(WaypointMoveType::Walk) { }
+    constexpr WaypointNode(uint32 id, float x, float y, float z, Optional<float> orientation = { }, Optional<Milliseconds> delay = {})
     {
         Id = id;
         X = x;
