@@ -265,12 +265,15 @@ bool MoveSplineInitArgs::Validate(Unit const* unit)
 // check path lengths - why are we even starting such short movement?
 bool MoveSplineInitArgs::_checkPathLengths()
 {
-    constexpr float MIN_OFFSET = 1.0f / 4.0f;
-    constexpr float MAX_XY_OFFSET = (1 << 11) / 4.0f;
-    constexpr float MAX_Z_OFFSET = (1 << 10) / 4.0f;
+    constexpr float MIN_XY_OFFSET = -(1 << 11) / 4.0f;
+    constexpr float MIN_Z_OFFSET = -(1 << 10) / 4.0f;
 
-    auto isValidPackedXYOffset = [](float coord) -> bool { return coord < MAX_XY_OFFSET && (coord < 0.1f || coord >= MIN_OFFSET); };
-    auto isValidPackedZOffset = [](float coord) -> bool { return coord < MAX_Z_OFFSET && (coord < 0.1f || coord >= MIN_OFFSET); };
+    // positive values have 1 less bit limit (if the highest bit was set, value would be sign extended into negative when decompressing)
+    constexpr float MAX_XY_OFFSET = (1 << 10) / 4.0f;
+    constexpr float MAX_Z_OFFSET = (1 << 9) / 4.0f;
+
+    auto isValidPackedXYOffset = [](float coord) -> bool { return coord > MIN_XY_OFFSET && coord < MAX_XY_OFFSET; };
+    auto isValidPackedZOffset = [](float coord) -> bool { return coord > MIN_Z_OFFSET && coord < MAX_Z_OFFSET; };
 
     if (path.size() > 2)
     {
@@ -285,9 +288,9 @@ bool MoveSplineInitArgs::_checkPathLengths()
 
             // when compression is enabled, each point coord is packed into 11 bits (10 for Z)
             if (!flags.UncompressedPath)
-                if (!isValidPackedXYOffset(std::fabs(path[i].x - middle.x))
-                    || !isValidPackedXYOffset(std::fabs(path[i].y - middle.y))
-                    || !isValidPackedZOffset(std::fabs(path[i].z - middle.z)))
+                if (!isValidPackedXYOffset(middle.x - path[i].x)
+                    || !isValidPackedXYOffset(middle.y - path[i].y)
+                    || !isValidPackedZOffset(middle.z - path[i].z))
                     flags.UncompressedPath = true;
         }
     }
