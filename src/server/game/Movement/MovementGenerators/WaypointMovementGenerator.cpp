@@ -567,6 +567,9 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     if (_speed)
         init.SetVelocity(*_speed);
 
+    if (IsExactSplinePath() && points.size() > 2 && owner->CanFly())
+        init.SetSmooth();
+
     Milliseconds duration(init.Launch());
 
     if (!IsExactSplinePath()
