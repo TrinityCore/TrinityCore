@@ -201,7 +201,6 @@ class TC_GAME_API MotionMaster
             Optional<Milliseconds> duration = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
-        void MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk = false, bool fly = false);
         // Walk along spline chain stored in DB (script_spline_chain_meta and script_spline_chain_waypoints)
         void MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk);
         void MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk);
