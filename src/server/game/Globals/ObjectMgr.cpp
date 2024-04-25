@@ -10903,21 +10903,21 @@ void ObjectMgr::LoadCreatureStaticFlagsOverride()
         }
 
         CreatureStaticFlagsOverride& staticFlagsOverride = _creatureStaticFlagsOverrideStore[std::make_pair(spawnId, difficultyId)];
-        if (fields[2].IsNull())
+        if (!fields[2].IsNull())
             staticFlagsOverride.StaticFlags1 = static_cast<CreatureStaticFlags>(fields[2].GetUInt32());
-        if (fields[3].IsNull())
+        if (!fields[3].IsNull())
             staticFlagsOverride.StaticFlags2 = static_cast<CreatureStaticFlags2>(fields[3].GetUInt32());
-        if (fields[4].IsNull())
+        if (!fields[4].IsNull())
             staticFlagsOverride.StaticFlags3 = static_cast<CreatureStaticFlags3>(fields[4].GetUInt32());
-        if (fields[5].IsNull())
+        if (!fields[5].IsNull())
             staticFlagsOverride.StaticFlags4 = static_cast<CreatureStaticFlags4>(fields[5].GetUInt32());
-        if (fields[6].IsNull())
+        if (!fields[6].IsNull())
             staticFlagsOverride.StaticFlags5 = static_cast<CreatureStaticFlags5>(fields[6].GetUInt32());
-        if (fields[7].IsNull())
+        if (!fields[7].IsNull())
             staticFlagsOverride.StaticFlags6 = static_cast<CreatureStaticFlags6>(fields[7].GetUInt32());
-        if (fields[8].IsNull())
+        if (!fields[8].IsNull())
             staticFlagsOverride.StaticFlags7 = static_cast<CreatureStaticFlags7>(fields[8].GetUInt32());
-        if (fields[9].IsNull())
+        if (!fields[9].IsNull())
             staticFlagsOverride.StaticFlags8 = static_cast<CreatureStaticFlags8>(fields[9].GetUInt32());
 
         ++count;
