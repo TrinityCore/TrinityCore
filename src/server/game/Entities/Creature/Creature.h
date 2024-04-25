@@ -558,7 +558,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTextRepeatGroup m_textRepeat;
 
         // Draws data from m_creatureDifficulty and spawn/difficulty based override data and returns a CreatureStaticFlagsHolder value which contains the data of both
-        CreatureStaticFlagsHolder const GenerateStaticFlags(CreatureDifficulty const* creatureDifficulty, ObjectGuid::LowType spawnId, Difficulty difficultyId) const;
+        CreatureStaticFlagsHolder GenerateStaticFlags(CreatureDifficulty const* creatureDifficulty, ObjectGuid::LowType spawnId, Difficulty difficultyId);
         void ApplyAllStaticFlags(CreatureStaticFlagsHolder const& flags);
 
         // Regenerate health

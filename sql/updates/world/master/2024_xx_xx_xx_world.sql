@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `creature_static_flags_override`;
 CREATE TABLE `creature_static_flags_override` (  
   `SpawnId` INT UNSIGNED NOT NULL,
   `DifficultyId` TINYINT UNSIGNED NOT NULL DEFAULT 0,

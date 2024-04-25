@@ -702,7 +702,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     return true;
 }
 
-CreatureStaticFlagsHolder const Creature::GenerateStaticFlags(CreatureDifficulty const* creatureDifficulty, ObjectGuid::LowType spawnId, Difficulty difficultyId) const
+CreatureStaticFlagsHolder Creature::GenerateStaticFlags(CreatureDifficulty const* creatureDifficulty, ObjectGuid::LowType spawnId, Difficulty difficultyId)
 {
     CreatureStaticFlagsOverride const* staticFlagsOverride = sObjectMgr->GetCreatureStaticFlagsOverride(spawnId, difficultyId);
     if (!staticFlagsOverride)
