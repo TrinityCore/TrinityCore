@@ -32,7 +32,6 @@
 #include "Position.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
-#include "Timer.h"
 #include "UniqueTrackablePtr.h"
 #include "UpdateFields.h"
 #include <list>
@@ -841,7 +840,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         std::unique_ptr<SmoothPhasing> _smoothPhasing;
 
-        TimeTracker _heartbeatTimer;
+        Milliseconds _heartbeatTimer;
 
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true) const;
 
