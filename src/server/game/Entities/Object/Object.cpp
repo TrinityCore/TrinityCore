@@ -904,6 +904,13 @@ WorldObject::~WorldObject()
 void WorldObject::Update(uint32 diff)
 {
     m_Events.Update(diff);
+
+    _heartbeatTimer.Update(diff);
+    while (_heartbeatTimer.Passed())
+    {
+        _heartbeatTimer.Reset(_heartbeatTimer.GetExpiry() + HEARTBEAT_INTERVAL);
+        Heartbeat();
+    }
 }
 
 void WorldObject::SetIsStoredInWorldObjectGridContainer(bool on)
