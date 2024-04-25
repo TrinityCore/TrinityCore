@@ -503,6 +503,7 @@ typedef std::unordered_map<uint32, EquipmentInfoContainerInternal> EquipmentInfo
 typedef std::unordered_map<uint32, CreatureModelInfo> CreatureModelContainer;
 typedef std::unordered_map<std::pair<uint32, Difficulty>, std::vector<uint32>> CreatureQuestItemMap;
 typedef std::unordered_map<uint32, std::vector<int32>> CreatureQuestCurrenciesMap;
+typedef std::unordered_map<std::pair<ObjectGuid::LowType, Difficulty>, CreatureStaticFlagsOverride> CreatureStaticFlagsOverrideMap;
 typedef std::unordered_map<uint32, DestructibleHitpoint> DestructibleHitpointContainer;
 typedef std::unordered_map<uint32, GameObjectTemplate> GameObjectTemplateContainer;
 typedef std::unordered_map<uint32, GameObjectTemplateAddon> GameObjectTemplateAddonContainer;
@@ -1171,6 +1172,8 @@ class TC_GAME_API ObjectMgr
         std::vector<uint32> const* GetCreatureQuestItemList(uint32 creatureEntry, Difficulty difficulty) const;
         std::vector<int32> const* GetCreatureQuestCurrencyList(uint32 creatureId) const;
 
+        CreatureStaticFlagsOverride const* GetCreatureStaticFlagsOverride(ObjectGuid::LowType spawnId, Difficulty difficultyId) const;
+
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
         void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
         void GetTaxiPath(uint32 source, uint32 destination, std::vector<uint32>& path, uint32& cost);
@@ -1322,6 +1325,7 @@ class TC_GAME_API ObjectMgr
         void LoadGameObjectQuestItems();
         void LoadCreatureQuestItems();
         void LoadCreatureQuestCurrencies();
+        void LoadCreatureStaticFlagsOverride();
         void LoadTempSummons();
         void LoadCreatures();
         void LoadLinkedRespawn();
@@ -1757,6 +1761,8 @@ class TC_GAME_API ObjectMgr
 
         JumpChargeParams const* GetJumpChargeParams(int32 id) const;
 
+        CreatureStaticFlagsOverride const* GetCreatureStaticFlagsOverride(ObjectGuid::LowType spawnId, Difficulty difficultyId) const;
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1899,6 +1905,7 @@ class TC_GAME_API ObjectMgr
         GameObjectQuestItemMap _gameObjectQuestItemStore;
         CreatureQuestItemMap _creatureQuestItemStore;
         CreatureQuestCurrenciesMap _creatureQuestCurrenciesStore;
+        CreatureStaticFlagsOverrideMap _creatureStaticFlagsOverrideStore;
         EquipmentInfoContainer _equipmentInfoStore;
         LinkedRespawnContainer _linkedRespawnStore;
         CreatureLocaleContainer _creatureLocaleStore;
