@@ -27,13 +27,18 @@
 
 enum HarlanSpells
 {
+    // Armsmaster Harlan
     SPELL_HARLAN_DRAGONS_REACH              = 111217,
     SPELL_HARLAN_CALL_REINFORCEMENT         = 111755,
     SPELL_HARLAN_HEROIC_LEAP_JUMP           = 111219,
     SPELL_HARLAN_BERSERKERS_RAGE            = 111221,
     SPELL_HARLAN_BLADES_OF_LIGHT_CAST       = 111216,
-    SPELL_HARLAN_BLADES_OF_LIGHT_SELECTOR   = 111394,
-    SPELL_HARLAN_BLADES_OF_LIGHT_VEHICLE    = 112955
+    SPELL_HARLAN_BLADES_OF_LIGHT_VEHICLE    = 112955,
+    SPELL_HARLAN_BLADES_OF_LIGHT_DAMAGE     = 111215,
+    SPELL_HARLAN_LEAVE_VEHICLE              = 112953,
+
+    // Scarlet Defender
+    SPELL_SCARLET_DEFENDER_UNARMORED        = 113969
 };
 
 enum HarlanEvents
@@ -53,8 +58,7 @@ enum HarlanTexts
     SAY_HARLAN_CALL_FOR_HELP            = 1,
     ANNOUNCE_HARLAN_CALL_FOR_HELP       = 2,
     ANNOUNCE_HARLAN_BLADE_FOR_LIGHT     = 3,
-    SAY_HARLAN_SCARLET_DEFENDER_DIE     = 4,
-    SAY_HARLAN_DEATH                    = 5
+    SAY_HARLAN_DEATH                    = 4
 };
 
 enum HarlanPathIds
@@ -98,6 +102,7 @@ struct boss_armsmaster_harlan : public BossAI
         if (id == EVENT_JUMP)
         {
             me->SetReactState(REACT_PASSIVE);
+            //me->SetFacingToObject(); -- target tank
             Talk(ANNOUNCE_HARLAN_BLADE_FOR_LIGHT);
             events.CancelEvent(EVENT_HARLAN_DRAGONS_REACH);
             events.CancelEvent(EVENT_HARLAN_CALL_FOR_HELP);
@@ -118,9 +123,9 @@ struct boss_armsmaster_harlan : public BossAI
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
     {
         events.ScheduleEvent(EVENT_HARLAN_FINISH_BLADES_OF_LIGHT, 1s);
-        events.ScheduleEvent(EVENT_HARLAN_DRAGONS_REACH, 3s);
-        events.ScheduleEvent(EVENT_HARLAN_CALL_FOR_HELP, 8s);
-        events.ScheduleEvent(EVENT_HARLAN_HEROIC_LEAP, 40s);
+        events.ScheduleEvent(EVENT_HARLAN_DRAGONS_REACH, 6s);
+        events.ScheduleEvent(EVENT_HARLAN_CALL_FOR_HELP, 19s);
+        events.ScheduleEvent(EVENT_HARLAN_HEROIC_LEAP, 29s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -157,6 +162,8 @@ struct boss_armsmaster_harlan : public BossAI
                 break;
             case EVENT_HARLAN_FINISH_BLADES_OF_LIGHT:
                 me->RemoveAurasDueToSpell(SPELL_HARLAN_BLADES_OF_LIGHT_CAST);
+                me->SetHover(false);
+                DoCastSelf(SPELL_HARLAN_LEAVE_VEHICLE);
                 me->SetReactState(REACT_AGGRESSIVE);
                 break;
             default:
@@ -182,6 +189,7 @@ class spell_harlan_blades_of_light : public SpellScript
             return;
 
         caster->GetMotionMaster()->Clear();
+        caster->SetHover(true);
 
         if (urand(0, 1) == 0)
             caster->GetMotionMaster()->MovePath(PATH_HARLAN_BLADES_OF_LIGHT_LEFT, false);
@@ -206,11 +214,40 @@ class spell_harlan_blades_of_light_selector : public SpellScript
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         GetHitUnit()->CastSpell(GetCaster(), SPELL_HARLAN_BLADES_OF_LIGHT_VEHICLE, true);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_HARLAN_BLADES_OF_LIGHT_DAMAGE, false);
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_harlan_blades_of_light_selector::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 112953 - Leave Vehicle
+class spell_harlan_leave_vehicle : public SpellScript
+{
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->ExitVehicle();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_harlan_leave_vehicle::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 113959 - Heavy Armor
+class spell_scarlet_defender_heavy_armor : public AuraScript
+{
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_SCARLET_DEFENDER_UNARMORED);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_scarlet_defender_heavy_armor::OnRemove, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -222,4 +259,6 @@ void AddSC_boss_armsmaster_harlan()
     // Spells
     RegisterSpellScript(spell_harlan_blades_of_light);
     RegisterSpellScript(spell_harlan_blades_of_light_selector);
+    RegisterSpellScript(spell_harlan_leave_vehicle);
+    RegisterSpellScript(spell_scarlet_defender_heavy_armor);
 }

@@ -13,10 +13,12 @@ INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
 (1001, 0, 'instance_scarlet_halls');
 
 -- Script Names
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (111216, 111394);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (111216, 111394, 112953, 113969);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (111216, 'spell_harlan_blades_of_light'),
-(111394, 'spell_harlan_blades_of_light_selector');
+(111394, 'spell_harlan_blades_of_light_selector'),
+(112953, 'spell_harlan_leave_vehicle'),
+(113969, 'spell_scarlet_defender_heavy_armor');
 
 -- Spelltarget Pos.
 DELETE FROM `spell_target_position` WHERE `ID` IN (111755, 111756);
@@ -28,7 +30,7 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13) AND (`SourceEntry` IN (111394));
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
 (13, 1, 111394, 0, 0, 31, 0, 4, 0, 0, '', 0, 'Potential target of the spell is player'),
-(13, 1, 111394, 0, 0, 31, 0, 3, 58998, 0, '', 0, 'Potential target of the spell is creature, entry is Scarlet Defender (58998)');
+(13, 1, 111394, 0, 1, 31, 0, 3, 58998, 0, '', 0, 'Potential target of the spell is creature, entry is Scarlet Defender (58998)');
 
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13) AND (`SourceEntry` IN (112955));
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
@@ -41,8 +43,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (58632, 1, 0, 'On your guard!', 14, 0, 100, 0, 0, 29426, 65559, 0, 'Armsmaster Harlan'), -- BroadcastTextID: 33752 - 33756 - 35825 - 65559 - 170996
 (58632, 2, 0, '|TInterface\\Icons\\ability_warrior_battleshout.blp:20|tArmsmaster Harlan calls on two of his allies to join the fight!', 41, 0, 100, 0, 0, 0, 65526, 0, 'Armsmaster Harlan'),
 (58632, 3, 0, '|TInterface\\Icons\\inv_weapon_halberd_05.blp:20|tArmsmaster Harlan casts |cFFFF0000|Hspell:111216|h[Blades of Light]|h|r!', 41, 0, 100, 0, 0, 0, 65527, 0, 'Armsmaster Harlan'),
-(58632, 4, 0, 'Tsk! You need more training.', 14, 0, 100, 0, 0, 29430, 65562, 0, 'Armsmaster Harlan to Scarlet Defender'), -- BroadcastTextID: 65562 - 170993
-(58632, 5, 0, 'Bested... by the likes of...', 14, 0, 100, 0, 0, 29427, 65560, 0, 'Armsmaster Harlan to Player'); -- BroadcastTextID: 65560 - 170995
+(58632, 4, 0, 'Bested... by the likes of...', 14, 0, 100, 0, 0, 29427, 65560, 0, 'Armsmaster Harlan to Player'); -- BroadcastTextID: 65560 - 170995
 
 -- NPC spellclick
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` = 58632;
