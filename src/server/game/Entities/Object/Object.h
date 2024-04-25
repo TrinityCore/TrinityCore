@@ -145,7 +145,7 @@ namespace UF
 }
 
 float const DEFAULT_COLLISION_HEIGHT = 2.03128f; // Most common value in dbc
-static constexpr Seconds const HEARTBEAT_INTERVAL = 5s;
+static constexpr Milliseconds const HEARTBEAT_INTERVAL = 5s + 200ms;
 
 class TC_GAME_API Object
 {
