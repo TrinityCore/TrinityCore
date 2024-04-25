@@ -18,7 +18,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (111216, 'spell_harlan_blades_of_light'),
 (111394, 'spell_harlan_blades_of_light_selector'),
 (112953, 'spell_harlan_leave_vehicle'),
-(113969, 'spell_scarlet_defender_heavy_armor');
+(113959, 'spell_scarlet_defender_heavy_armor');
 
 -- Spelltarget Pos.
 DELETE FROM `spell_target_position` WHERE `ID` IN (111755, 111756);

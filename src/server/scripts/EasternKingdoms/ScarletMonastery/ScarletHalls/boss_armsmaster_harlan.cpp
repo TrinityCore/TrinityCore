@@ -144,30 +144,30 @@ struct boss_armsmaster_harlan : public BossAI
         {
             switch (eventId)
             {
-            case EVENT_HARLAN_DRAGONS_REACH:
-                DoCastVictim(SPELL_HARLAN_DRAGONS_REACH);
-                events.ScheduleEvent(EVENT_HARLAN_DRAGONS_REACH, 7s);
-                break;
-            case EVENT_HARLAN_CALL_FOR_HELP:
-                Talk(SAY_HARLAN_CALL_FOR_HELP);
-                events.ScheduleEvent(EVENT_HARLAN_CALL_REINFORCEMENT, 4s);
-                break;
-            case EVENT_HARLAN_HEROIC_LEAP:
-                DoCast(SPELL_HARLAN_HEROIC_LEAP_JUMP);
-                break;
-            case EVENT_HARLAN_CALL_REINFORCEMENT:
-                Talk(ANNOUNCE_HARLAN_CALL_FOR_HELP);
-                DoCast(SPELL_HARLAN_CALL_REINFORCEMENT);
-                events.ScheduleEvent(EVENT_HARLAN_CALL_FOR_HELP, 20s);
-                break;
-            case EVENT_HARLAN_FINISH_BLADES_OF_LIGHT:
-                me->RemoveAurasDueToSpell(SPELL_HARLAN_BLADES_OF_LIGHT_CAST);
-                me->SetHover(false);
-                DoCastSelf(SPELL_HARLAN_LEAVE_VEHICLE);
-                me->SetReactState(REACT_AGGRESSIVE);
-                break;
-            default:
-                break;
+                case EVENT_HARLAN_DRAGONS_REACH:
+                    DoCastVictim(SPELL_HARLAN_DRAGONS_REACH);
+                    events.ScheduleEvent(EVENT_HARLAN_DRAGONS_REACH, 7s);
+                    break;
+                case EVENT_HARLAN_CALL_FOR_HELP:
+                    Talk(SAY_HARLAN_CALL_FOR_HELP);
+                    events.ScheduleEvent(EVENT_HARLAN_CALL_REINFORCEMENT, 4s);
+                    break;
+                case EVENT_HARLAN_HEROIC_LEAP:
+                    DoCast(SPELL_HARLAN_HEROIC_LEAP_JUMP);
+                    break;
+                case EVENT_HARLAN_CALL_REINFORCEMENT:
+                    Talk(ANNOUNCE_HARLAN_CALL_FOR_HELP);
+                    DoCast(SPELL_HARLAN_CALL_REINFORCEMENT);
+                    events.ScheduleEvent(EVENT_HARLAN_CALL_FOR_HELP, 20s);
+                    break;
+                case EVENT_HARLAN_FINISH_BLADES_OF_LIGHT:
+                    me->RemoveAurasDueToSpell(SPELL_HARLAN_BLADES_OF_LIGHT_CAST);
+                    me->SetHover(false);
+                    DoCastSelf(SPELL_HARLAN_LEAVE_VEHICLE);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                default:
+                    break;
             }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
