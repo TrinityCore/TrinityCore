@@ -345,8 +345,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
         _CUFProfiles[i] = nullptr;
 
-    m_groupUpdateTimer.Reset(5000);
-
     _advancedCombatLoggingEnabled = false;
 
     _restMgr = std::make_unique<RestMgr>(this);
@@ -1133,14 +1131,6 @@ void Player::Update(uint32 p_time)
         }
     }
 
-    // group update
-    m_groupUpdateTimer.Update(p_time);
-    if (m_groupUpdateTimer.Passed())
-    {
-        SendUpdateToOutOfRangeGroupMembers();
-        m_groupUpdateTimer.Reset(5000);
-    }
-
     Pet* pet = GetPet();
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
     //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
@@ -1162,6 +1152,14 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
+}
+
+void Player::Heartbeat()
+{
+    Unit::Heartbeat();
+
+    // Group update
+    SendUpdateToOutOfRangeGroupMembers();
 }
 
 void Player::setDeathState(DeathState s)
