@@ -107,7 +107,6 @@ struct boss_armsmaster_harlan : public BossAI
         if (id == EVENT_JUMP)
         {
             me->SetReactState(REACT_PASSIVE);
-            //me->SetFacingToObject(); -- target tank
             Talk(ANNOUNCE_HARLAN_BLADE_FOR_LIGHT);
             events.CancelEvent(EVENT_HARLAN_DRAGONS_REACH);
             events.CancelEvent(EVENT_HARLAN_CALL_FOR_HELP);
