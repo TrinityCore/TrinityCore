@@ -182,7 +182,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_regenInterruptTimestamp = GameTime::Now();
     m_regenTimer = 0;
     m_regenTimerCount = 0;
-    m_foodEmoteTimerCount = 0;
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = uint32(-1);
@@ -1624,7 +1623,6 @@ bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo 
 void Player::RegenerateAll()
 {
     m_regenTimerCount += m_regenTimer;
-    m_foodEmoteTimerCount += m_regenTimer;
 
     for (Powers power = POWER_MANA; power < MAX_POWERS; power = Powers(power + 1))
         if (power != POWER_RUNES)
@@ -1661,35 +1659,6 @@ void Player::RegenerateAll()
     }
 
     m_regenTimer = 0;
-
-    // Handles the emotes for drinking and eating.
-    // According to sniffs there is a background timer going on that repeats independed from the time window where the aura applies.
-    // That's why we dont need to reset the timer on apply. In sniffs I have seen that the first call for the spell visual is totally random, then after
-    // 5 seconds over and over again which confirms my theory that we have a independed timer.
-    if (m_foodEmoteTimerCount >= 5000)
-    {
-        auto findInterruptibleEffect = [](AuraEffect const* aurEff)
-        {
-            return aurEff->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing);
-        };
-
-        // Food emote comes above drinking emote if we have to decide (mage regen food for example)
-        AuraEffectList const& ModRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_REGEN);
-        auto itr = std::find_if(ModRegenAuras.cbegin(), ModRegenAuras.cend(), findInterruptibleEffect);
-        if (itr != ModRegenAuras.end())
-        {
-            SendPlaySpellVisualKit(SPELL_VISUAL_KIT_FOOD, 0, 0);
-        }
-        else
-        {
-            AuraEffectList const& ModPowerRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN);
-            itr = std::find_if(ModPowerRegenAuras.cbegin(), ModPowerRegenAuras.cend(), findInterruptibleEffect);
-            if (itr != ModPowerRegenAuras.end())
-                SendPlaySpellVisualKit(SPELL_VISUAL_KIT_DRINK, 0, 0);
-        }
-
-        m_foodEmoteTimerCount -= 5000;
-    }
 }
 
 void Player::Regenerate(Powers power)
