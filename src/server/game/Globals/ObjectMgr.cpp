@@ -10886,7 +10886,7 @@ void ObjectMgr::LoadCreatureStaticFlagsOverride()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType spawnId = fields[0].GetUInt32();
+        ObjectGuid::LowType spawnId = fields[0].GetUInt64();
         Difficulty difficultyId = static_cast<Difficulty>(fields[1].GetUInt8());
 
         CreatureData const* creatureData = GetCreatureData(spawnId);
