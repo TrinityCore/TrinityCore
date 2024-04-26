@@ -90,6 +90,11 @@ struct boss_armsmaster_harlan : public BossAI
         _DespawnAtEvade();
     }
 
+    void Reset() override
+    {
+        _berserkerRage = false;
+    }
+
     void JustDied(Unit* /*killer*/) override
     {
         Talk(SAY_HARLAN_DEATH);
