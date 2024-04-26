@@ -317,6 +317,15 @@ public:
     void ApplyFlag(CreatureStaticFlags7 flag, bool apply) { if (apply) _flags7 |= flag; else _flags7 &= ~flag; }
     void ApplyFlag(CreatureStaticFlags8 flag, bool apply) { if (apply) _flags8 |= flag; else _flags8 &= ~flag; }
 
+    EnumFlag<CreatureStaticFlags> GetFlags() const { return _flags; }
+    EnumFlag<CreatureStaticFlags2> GetFlags2() const { return _flags2; }
+    EnumFlag<CreatureStaticFlags3> GetFlags3() const { return _flags3; }
+    EnumFlag<CreatureStaticFlags4> GetFlags4() const { return _flags4; }
+    EnumFlag<CreatureStaticFlags5> GetFlags5() const { return _flags5; }
+    EnumFlag<CreatureStaticFlags6> GetFlags6() const { return _flags6; }
+    EnumFlag<CreatureStaticFlags7> GetFlags7() const { return _flags7; }
+    EnumFlag<CreatureStaticFlags8> GetFlags8() const { return _flags8; }
+
 private:
     EnumFlag<CreatureStaticFlags> _flags;
     EnumFlag<CreatureStaticFlags2> _flags2;
@@ -663,6 +672,19 @@ struct CreatureAddon
     uint16 meleeAnimKit;
     std::vector<uint32> auras;
     VisibilityDistanceType visibilityDistanceType;
+};
+
+// `creature_static_flags_override` table
+struct CreatureStaticFlagsOverride
+{
+    Optional<CreatureStaticFlags> StaticFlags1;
+    Optional<CreatureStaticFlags2> StaticFlags2;
+    Optional<CreatureStaticFlags3> StaticFlags3;
+    Optional<CreatureStaticFlags4> StaticFlags4;
+    Optional<CreatureStaticFlags5> StaticFlags5;
+    Optional<CreatureStaticFlags6> StaticFlags6;
+    Optional<CreatureStaticFlags7> StaticFlags7;
+    Optional<CreatureStaticFlags8> StaticFlags8;
 };
 
 // Vendors
