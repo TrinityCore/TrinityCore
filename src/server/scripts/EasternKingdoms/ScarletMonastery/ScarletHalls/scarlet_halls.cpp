@@ -24,13 +24,13 @@ ObjectData const creatureData[] =
     { BOSS_HOUNDMASTER_BRAUN,   DATA_HOUNDMASTER_BRAUN      },
     { BOSS_ARMSMASTER_HARLAN,   DATA_ARMSMASTER_HARLAN      },
     { BOSS_FLAMEWEAVER_KOEGLER, DATA_FLAMEWEAVER_KOEGLER    },
-    { 0,                        0                           } // END   
+    { 0,                        0                           } // END
 };
 
 DoorData const doorData[] =
 {
     { GO_HERODS_DOOR_HARLAN_ENCOUNTER_ENTRANCE, DATA_ARMSMASTER_HARLAN, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                                        0,                     EncounterDoorBehavior::OpenWhenNotInProgress } //End
+    { 0,                                        0,                      EncounterDoorBehavior::OpenWhenNotInProgress } //End
 };
 
 DungeonEncounterData const encounters[] =
