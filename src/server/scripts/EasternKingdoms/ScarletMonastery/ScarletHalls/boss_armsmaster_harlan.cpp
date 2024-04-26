@@ -70,7 +70,7 @@ enum HarlanPathIds
 // 58632 - Armsmaster Harlan
 struct boss_armsmaster_harlan : public BossAI
 {
-    boss_armsmaster_harlan(Creature* creature) : BossAI(creature, DATA_ARMSMASTER_HARAN), _berserkerRage(false) { }
+    boss_armsmaster_harlan(Creature* creature) : BossAI(creature, DATA_ARMSMASTER_HARLAN), _berserkerRage(false) { }
 
     void JustEngagedWith(Unit* who) override
     {
