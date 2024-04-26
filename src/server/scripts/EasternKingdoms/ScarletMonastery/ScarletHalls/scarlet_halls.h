@@ -29,7 +29,7 @@ enum ScarletHallsTypes
 {
     // Encounters
     DATA_HOUNDMASTER_BRAUN      = 0,
-    DATA_ARMSMASTER_HARAN       = 1,
+    DATA_ARMSMASTER_HARLAN      = 1,
     DATA_FLAMEWEAVER_KOEGLER    = 2
 };
 
