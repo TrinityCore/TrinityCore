@@ -333,25 +333,27 @@ DEFINE_ENUM_FLAG(NPCFlags);
 // EnumUtils: DESCRIBE THIS
 enum NPCFlags2 : uint32
 {
-    UNIT_NPC_FLAG_2_NONE                    = 0x00000000,
-    UNIT_NPC_FLAG_2_ITEM_UPGRADE_MASTER     = 0x00000001,   // TITLE is item upgrade
-    UNIT_NPC_FLAG_2_GARRISON_ARCHITECT      = 0x00000002,   // TITLE is garrison architect DESCRIPTION garrison building placement UI
-    UNIT_NPC_FLAG_2_STEERING                = 0x00000004,   // TITLE is avoiding obstacles DESCRIPTION clientside pathfinding
-    UNIT_NPC_FLAG_2_AREA_SPIRIT_HEALER_INDIVIDUAL = 0x00000008, // TITLE is area spirit healer individual DESCRIPTION area spirit healer with individual timers
-    UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER        = 0x00000010,   // TITLE is shipment crafter DESCRIPTION garrison work orders
-    UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC    = 0x00000020,   // TITLE is garrison mission
-    UNIT_NPC_FLAG_2_TRADESKILL_NPC          = 0x00000040,   // TITLE is tradeskill DESCRIPTION crafting at npc
-    UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW       = 0x00000080,   // TITLE is black market view DESCRIPTION only allows viewing black market auctions, no bidding
-    UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC     = 0x00000200,   // TITLE is garrrison talent
-    UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR  = 0x00000400,   // TITLE is contribution collector
-    UNIT_NPC_FLAG_2_AZERITE_RESPEC          = 0x00004000,   // TITLE is azerite respec
-    UNIT_NPC_FLAG_2_ISLANDS_QUEUE           = 0x00008000,   // TITLE is islands queue
+    UNIT_NPC_FLAG_2_NONE                                            = 0x00000000,
+    UNIT_NPC_FLAG_2_ITEM_UPGRADE_MASTER                             = 0x00000001,   // TITLE is item upgrade
+    UNIT_NPC_FLAG_2_GARRISON_ARCHITECT                              = 0x00000002,   // TITLE is garrison architect DESCRIPTION garrison building placement UI
+    UNIT_NPC_FLAG_2_STEERING                                        = 0x00000004,   // TITLE is avoiding obstacles DESCRIPTION clientside pathfinding
+    UNIT_NPC_FLAG_2_AREA_SPIRIT_HEALER_INDIVIDUAL                   = 0x00000008,   // TITLE is area spirit healer individual DESCRIPTION area spirit healer with individual timers
+    UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER                                = 0x00000010,   // TITLE is shipment crafter DESCRIPTION garrison work orders
+    UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC                            = 0x00000020,   // TITLE is garrison mission
+    UNIT_NPC_FLAG_2_TRADESKILL_NPC                                  = 0x00000040,   // TITLE is tradeskill DESCRIPTION crafting at npc
+    UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW                               = 0x00000080,   // TITLE is black market view DESCRIPTION only allows viewing black market auctions, no bidding
+    UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC                             = 0x00000200,   // TITLE is garrrison talent
+    UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR                          = 0x00000400,   // TITLE is contribution collector
+    UNIT_NPC_FLAG_2_FAST_STEERING_AVOIDS_OBSTACLES                  = 0x00002000,   // TITLE enables avoiding obstacles when FastSteering spline flag is set
+    UNIT_NPC_FLAG_2_AZERITE_RESPEC                                  = 0x00004000,   // TITLE is azerite respec
+    UNIT_NPC_FLAG_2_ISLANDS_QUEUE                                   = 0x00008000,   // TITLE is islands queue
     UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION   = 0x00010000,
-    UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER= 0x00200000,   // TITLE is personal tabard designer
+    UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER                        = 0x00200000,   // TITLE is personal tabard designer
 };
 
 DEFINE_ENUM_FLAG(NPCFlags2);
 
+// EnumUtils: DESCRIBE THIS
 enum MovementFlags : uint32
 {
     MOVEMENTFLAG_NONE                  = 0x00000000,
@@ -388,29 +390,30 @@ enum MovementFlags : uint32
 
     MOVEMENTFLAG_MASK_MOVING =
         MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT |
-        MOVEMENTFLAG_FALLING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING,
+        MOVEMENTFLAG_FALLING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING,// SKIP
 
     MOVEMENTFLAG_MASK_TURNING =
-        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN,
+        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN, // SKIP
 
     MOVEMENTFLAG_MASK_MOVING_FLY =
-        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING,
+        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING, // SKIP
 
     // Movement flags allowed for creature in CreateObject - we need to keep all other enabled serverside
     // to properly calculate all movement
     MOVEMENTFLAG_MASK_CREATURE_ALLOWED =
         MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_ROOT | MOVEMENTFLAG_SWIMMING |
-        MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER | MOVEMENTFLAG_DISABLE_COLLISION,
+        MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER | MOVEMENTFLAG_DISABLE_COLLISION, // SKIP
 
     /// @todo if needed: add more flags to this masks that are exclusive to players
     MOVEMENTFLAG_MASK_PLAYER_ONLY =
-        MOVEMENTFLAG_FLYING,
+        MOVEMENTFLAG_FLYING, // SKIP
 
     /// Movement flags that have change status opcodes associated for players
     MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE = MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_ROOT |
-        MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER | MOVEMENTFLAG_DISABLE_COLLISION
+        MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER | MOVEMENTFLAG_DISABLE_COLLISION // SKIP
 };
 
+// EnumUtils: DESCRIBE THIS
 enum MovementFlags2 : uint32
 {
     MOVEMENTFLAG2_NONE                                      = 0x00000000,
@@ -435,6 +438,7 @@ enum MovementFlags2 : uint32
     MOVEMENTFLAG2_INTERPOLATED_PITCHING                     = 0x00080000
 };
 
+// EnumUtils: DESCRIBE THIS
 enum MovementFlags3 : uint32
 {
     MOVEMENTFLAG3_NONE              = 0x00000000,
