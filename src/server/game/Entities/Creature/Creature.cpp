@@ -3668,10 +3668,16 @@ void Creature::ForcePartyMembersIntoCombat()
     }
 
     for (Group const* partyToForceIntoCombat : partiesToForceIntoCombat)
+    {
         for (auto const* itr = partyToForceIntoCombat->GetFirstMember(); itr != nullptr; itr = itr->next())
-            if (Player* player = itr->GetSource())
-                if (!player->IsGameMaster())
-                    EngageWithTarget(player);
+        {
+            Player* player = itr->GetSource();
+            if (!player || !player->IsInWorld() || player->GetMap() != GetMap() || player->IsGameMaster())
+                continue;
+
+            EngageWithTarget(player);
+        }
+    }
 }
 
 bool Creature::IsEscorted() const
