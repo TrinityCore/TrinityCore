@@ -504,6 +504,10 @@ void Unit::Heartbeat()
 
     // Trigger heartbeat procs and generic aura behavior such as food emotes
     TriggerAuraHeartbeat();
+
+    // Update Vignette position and visibility
+    if (m_vignette)
+        Vignettes::Update(*m_vignette, this);
 }
 
 void Unit::TriggerAuraHeartbeat()
@@ -12464,10 +12468,6 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
 
     if (isInWater)
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::Swimming);
-
-    // TODO: on heartbeat
-    if (m_vignette)
-        Vignettes::Update(*m_vignette, this);
 
     return (relocated || turn);
 }
