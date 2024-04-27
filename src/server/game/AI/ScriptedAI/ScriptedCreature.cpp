@@ -579,7 +579,6 @@ void BossAI::_JustEngagedWith(Unit* who)
     }
 
     me->setActive(true);
-    DoZoneInCombat();
     ScheduleTasks();
 }
 
