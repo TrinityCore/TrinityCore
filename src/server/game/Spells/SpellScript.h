@@ -1211,7 +1211,7 @@ public:
                     "AuraHeartbeatHandler signature must be \"static void HandleHeartbeat()\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(AuraHeartbeatFnType::Static)>(handler) };
-                _safeWrapper = [](AuraScript* /*auraScript*/, DispelInfo* dispelInfo, AuraHeartbeatFnType callImpl) -> void
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraHeartbeatFnType callImpl) -> void
                 {
                     return reinterpret_cast<ScriptFunc>(callImpl.Static)();
                 };
