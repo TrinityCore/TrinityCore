@@ -4308,6 +4308,7 @@ enum AmalgamsSeventhSpine
     SPELL_FRAGILE_ECHOES_PALADIN            = 225297,
     SPELL_FRAGILE_ECHOES_DRUID              = 225298,
     SPELL_FRAGILE_ECHOES_PRIEST_HOLY        = 225366,
+    SPELL_FRAGILE_ECHOES_EVOKER             = 429020,
     SPELL_FRAGILE_ECHO_ENERGIZE             = 215270,
 };
 
@@ -4316,17 +4317,19 @@ class spell_item_amalgams_seventh_spine : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({
+        return ValidateSpellInfo
+        ({
             SPELL_FRAGILE_ECHOES_MONK,
             SPELL_FRAGILE_ECHOES_SHAMAN,
             SPELL_FRAGILE_ECHOES_PRIEST_DISCIPLINE,
             SPELL_FRAGILE_ECHOES_PALADIN,
             SPELL_FRAGILE_ECHOES_DRUID,
-            SPELL_FRAGILE_ECHOES_PRIEST_HOLY
+            SPELL_FRAGILE_ECHOES_PRIEST_HOLY,
+            SPELL_FRAGILE_ECHOES_EVOKER
         });
     }
 
-    void UpdateSpecAura()
+    void UpdateSpecAura(bool apply) const
     {
         Player* target = GetUnitOwner()->ToPlayer();
         if (!target)
@@ -4334,7 +4337,7 @@ class spell_item_amalgams_seventh_spine : public AuraScript
 
         auto updateAuraIfInCorrectSpec = [&](ChrSpecialization spec, AmalgamsSeventhSpine aura)
         {
-            if (target->GetPrimarySpecialization() != spec)
+            if (!apply || target->GetPrimarySpecialization() != spec)
                 target->RemoveAurasDueToSpell(aura);
             else if (!target->HasAura(aura))
                 target->CastSpell(target, aura, GetEffect(EFFECT_0));
@@ -4358,14 +4361,28 @@ class spell_item_amalgams_seventh_spine : public AuraScript
             case CLASS_DRUID:
                 updateAuraIfInCorrectSpec(ChrSpecialization::DruidRestoration, SPELL_FRAGILE_ECHOES_DRUID);
                 break;
+            case CLASS_EVOKER:
+                updateAuraIfInCorrectSpec(ChrSpecialization::EvokerPreservation, SPELL_FRAGILE_ECHOES_EVOKER);
+                break;
             default:
                 break;
         }
     }
 
+    void HandleHeartbeat() const
+    {
+        UpdateSpecAura(true);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        UpdateSpecAura(false);
+    }
+
     void Register() override
     {
-        OnHeartbeat += AuraHeartbeatFn(spell_item_amalgams_seventh_spine::UpdateSpecAura);
+        OnHeartbeat += AuraHeartbeatFn(spell_item_amalgams_seventh_spine::HandleHeartbeat);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_item_amalgams_seventh_spine::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -4377,7 +4394,7 @@ class spell_item_amalgams_seventh_spine_mana_restore : public AuraScript
         return ValidateSpellInfo({ SPELL_FRAGILE_ECHO_ENERGIZE });
     }
 
-    void TriggerManaRestoration(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void TriggerManaRestoration(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
