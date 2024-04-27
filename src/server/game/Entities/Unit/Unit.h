@@ -687,6 +687,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void Update(uint32 time) override;
 
         void Heartbeat() override;
+        void TriggerAuraHeartbeat();
 
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
         void resetAttackTimer(WeaponAttackType type = BASE_ATTACK);

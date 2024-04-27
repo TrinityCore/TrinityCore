@@ -134,7 +134,7 @@ enum ProcFlags : uint32
 {
     PROC_FLAG_NONE                              = 0x00000000,
 
-    PROC_FLAG_HEARTBEAT                         = 0x00000001,    // 00 Killed by agressor - not sure about this flag
+    PROC_FLAG_HEARTBEAT                         = 0x00000001,    // 00 Heartbeat
     PROC_FLAG_KILL                              = 0x00000002,    // 01 Kill target (in most cases need XP/Honor reward)
 
     PROC_FLAG_DEAL_MELEE_SWING                  = 0x00000004,    // 02 Done melee auto attack
