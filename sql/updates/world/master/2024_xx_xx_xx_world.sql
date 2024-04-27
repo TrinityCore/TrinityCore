@@ -778,3 +778,9 @@ UPDATE `creature_template_difficulty` SET `StaticFlags2`= `StaticFlags2` | 0x2 W
 UPDATE `creature_template_difficulty` SET `StaticFlags2`= `StaticFlags2` | 0x2 WHERE `Entry` = 73620;
 UPDATE `creature_template_difficulty` SET `StaticFlags2`= `StaticFlags2` | 0x2 WHERE `Entry` = 73663;
 UPDATE `creature_template_difficulty` SET `StaticFlags2`= `StaticFlags2` | 0x2 WHERE `Entry` = 73958;
+-- Manually added flag for currently scripted post MoP raid bosses
+UPDATE `creature_template_difficulty` SET `StaticFlags2`= `StaticFlags2` | 0x2 WHERE `Entry` = 122450; -- Garothi Worldbreaker
+UPDATE `creature_template_difficulty` SET `StaticFlags2`= `StaticFlags2` | 0x2 WHERE `Entry` = 114323; -- Guarm
+UPDATE `creature_template_difficulty` SET `StaticFlags2`= `StaticFlags2` | 0x2 WHERE `Entry` = 201261; -- Kazzara the Hellforged
+UPDATE `creature_template_difficulty` SET `StaticFlags2`= `StaticFlags2` | 0x2 WHERE `Entry` = 175732; -- Sylvanas Windrunner
+UPDATE `creature_template_difficulty` SET `StaticFlags2`= `StaticFlags2` | 0x2 WHERE `Entry` = 181954; -- Anduin Wrynn
