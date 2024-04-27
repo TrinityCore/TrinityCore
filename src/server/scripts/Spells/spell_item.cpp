@@ -4326,17 +4326,9 @@ class spell_item_amalgams_seventh_spine : public AuraScript
         });
     }
 
-    void ForcePeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
+    void UpdateSpecAura()
     {
-        // simulate heartbeat timer
-        isPeriodic = true;
-        amplitude = 5000;
-    }
-
-    void UpdateSpecAura(AuraEffect const* aurEff)
-    {
-        PreventDefaultAction();
-        Player* target = GetTarget()->ToPlayer();
+        Player* target = GetUnitOwner()->ToPlayer();
         if (!target)
             return;
 
@@ -4345,7 +4337,7 @@ class spell_item_amalgams_seventh_spine : public AuraScript
             if (target->GetPrimarySpecialization() != spec)
                 target->RemoveAurasDueToSpell(aura);
             else if (!target->HasAura(aura))
-                target->CastSpell(target, aura, aurEff);
+                target->CastSpell(target, aura, GetEffect(EFFECT_0));
         };
 
         switch (target->GetClass())
@@ -4373,8 +4365,7 @@ class spell_item_amalgams_seventh_spine : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_item_amalgams_seventh_spine::ForcePeriodic, EFFECT_0, SPELL_AURA_DUMMY);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_amalgams_seventh_spine::UpdateSpecAura, EFFECT_0, SPELL_AURA_DUMMY);
+        OnHeartbeat += AuraHeartbeatFn(spell_item_amalgams_seventh_spine::UpdateSpecAura);
     }
 };
 
