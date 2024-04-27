@@ -101,7 +101,6 @@ struct boss_armsmaster_harlan : public BossAI
     {
         _JustDied();
         Talk(SAY_HARLAN_DEATH);
-        summons.DespawnAll();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
