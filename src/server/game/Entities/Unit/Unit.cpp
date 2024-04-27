@@ -501,6 +501,17 @@ void Unit::Heartbeat()
 
     // SMSG_FLIGHT_SPLINE_SYNC for cyclic splines
     SendFlightSplineSyncUpdate();
+
+    // Trigger heartbeat procs and generic aura behavior such as food emotes
+    TriggerAuraHeartbeat();
+}
+
+void Unit::TriggerAuraHeartbeat()
+{
+    for (auto const& [_, auraApplication] : m_appliedAuras)
+        auraApplication->GetBase()->Heartbeat();
+
+    Unit::ProcSkillsAndAuras(this, nullptr, PROC_FLAG_HEARTBEAT, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 }
 
 bool Unit::haveOffhandWeapon() const
