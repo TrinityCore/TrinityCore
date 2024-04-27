@@ -3650,7 +3650,7 @@ void Creature::ForcePartyMembersIntoCombat()
     if (!_staticFlags.HasFlag(CREATURE_STATIC_FLAG_2_FORCE_PARTY_MEMBERS_INTO_COMBAT) || !IsEngaged())
         return;
 
-    std::vector<Group const*> partiesToForceIntoCombat;
+    Trinity::Containers::FlatSet<Group const*> partiesToForceIntoCombat;
     for (auto const& [_, combatReference] : GetCombatManager().GetPvECombatRefs())
     {
         if (combatReference->IsSuppressedFor(this))
@@ -3660,11 +3660,8 @@ void Creature::ForcePartyMembersIntoCombat()
         if (!player || player->IsGameMaster())
             continue;
 
-        Group const* group = player->GetGroup();
-        if (!group || std::find(partiesToForceIntoCombat.begin(), partiesToForceIntoCombat.end(), group) != partiesToForceIntoCombat.end())
-            continue;
-
-        partiesToForceIntoCombat.push_back(group);
+        if (Group const* group = player->GetGroup())
+            partiesToForceIntoCombat.insert(group);
     }
 
     for (Group const* partyToForceIntoCombat : partiesToForceIntoCombat)
