@@ -383,7 +383,6 @@ struct boss_headless_horseman : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         _events.ScheduleEvent(EVENT_HORSEMAN_CLEAVE, 13s, 0, PHASE_1);
         _events.ScheduleEvent(EVENT_RANDOM_LAUGH, 30s, 60s);
