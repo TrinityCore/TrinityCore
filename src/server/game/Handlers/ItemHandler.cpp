@@ -1269,7 +1269,9 @@ void StoreItemInBank(Item* item, Player* player)
     }
 
     for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
-        if (Bag* pBag = player->GetBagByPos(i))
+    {
+        Bag* pBag = player->GetBagByPos(i);
+        if (pBag)
         {
             ItemPosCountVec dest;
             if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
@@ -1278,6 +1280,7 @@ void StoreItemInBank(Item* item, Player* player)
                 return;
             }
         }
+    }
 }
 
 void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
