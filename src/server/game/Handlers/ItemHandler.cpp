@@ -1216,30 +1216,64 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
 
-void StoreItemInBag(Item* item, Player* player)
+void StoreItemInBag(Item* item, Player* player, bool leftToRight = false)
 {
     if (!item)
         return;
 
-    ItemPosCountVec dest;
-    if (player->CanStoreItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+    if (!leftToRight)
     {
-        player->StoreItem(dest, item, true);
-        return;
-    }
+        ItemPosCountVec dest;
+        if (player->CanStoreItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+        {
+            player->StoreItem(dest, item, true);
+            return;
+        }
 
-    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+        {
+            Bag* pbag = player->GetBagByPos(i);
+            if (pbag)
+            {
+                ItemPosCountVec dest;
+                if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                {
+                    player->StoreItem(dest, item, true);
+                    return;
+                }
+            }
+        }
+    }
+    else
     {
-        Bag* pbag = player->GetBagByPos(i);
-        if (pbag)
+        for (uint8 i = INVENTORY_SLOT_BAG_END-1; i >= INVENTORY_SLOT_BAG_START; --i)
+        {
+            Bag* pbag = player->GetBagByPos(i);
+            if (pbag)
+            {
+                for (uint8 j = GetBagSize(pbag); j > 0; j--)
+                {
+                    ItemPosCountVec dest;
+                    if (player->CanStoreItem(i, j-1, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        player->StoreItem(dest, item, true);
+                        return;
+                    }
+                }
+            }
+        }
+
+        uint8 endbackpackSlot = INVENTORY_SLOT_ITEM_START + player->GetInventorySlotCount();
+        for (uint8 i = endbackpackSlot; i > 0; i--)
         {
             ItemPosCountVec dest;
-            if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+            if (player->CanStoreItem(INVENTORY_SLOT_BAG_0, i-1, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
             {
                 player->StoreItem(dest, item, true);
                 return;
             }
         }
+
     }
 }
 
@@ -1394,33 +1428,23 @@ void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
 
     //... then all the food/drink...
     for (auto itr = std::begin(foodItems); itr != std::end(foodItems); ++itr)
-    {
         StoreItemInBag(itr->second, _player);
-    }
 
     //... then weapons...
     for (auto itr = std::begin(weaponItems); itr != std::end(weaponItems); ++itr)
-    {
         StoreItemInBag(itr->second, _player);
-    }
 
     //... then armor...
     for (auto itr = std::begin(armorItems); itr != std::end(armorItems); ++itr)
-    {
         StoreItemInBag(itr->second, _player);
-    }
 
     //... then all other item except poor items...
     for (auto itr = std::begin(items); itr != std::end(items); ++itr)
-    {
         StoreItemInBag(itr->second, _player);
-    }
 
     //... and finaly poor items
     for (auto itr = std::begin(poorQualityItems); itr != std::end(poorQualityItems); ++itr)
-    {
-        StoreItemInBag(itr->second, _player);
-    }
+        StoreItemInBag(itr->second, _player, true);
 
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
@@ -1456,9 +1480,7 @@ void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBa
 
     //store all items in bank. Order = item entry
     for (auto itr = std::begin(items); itr != std::end(items); ++itr)
-    {
         StoreItemInBank(itr->second, _player);
-    }
 
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
@@ -1479,9 +1501,7 @@ void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBank
 
     //store all items in bank. Order = item entry
     for (auto itr = std::begin(items); itr != std::end(items); ++itr)
-    {
         StoreItemInReagentBank(itr->second, _player);
-    }
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
 
