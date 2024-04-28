@@ -56,6 +56,23 @@ enum ItemUpdateState
     ITEM_NEW                                     = 2,
     ITEM_REMOVED                                 = 3
 };
+// Enum used in ItemHandler for wrapper & bag sorting
+enum ItemSpecialItem
+{
+    ITEM_HEARTHSTONE = 6948,  // Hearthstone
+    ITEM_RED_RIBBONED_WRAPPING_PAPER = 5042,  // Red Ribboned Wrapping Paper
+    ITEM_RED_RIBBONED_GIFT = 5043,  // Red Ribboned Gift
+    ITEM_BLUE_RIBBONED_WRAPPING_PAPER = 5048,  // Blue Ribboned Wrapping Paper
+    ITEM_BLUE_RIBBONED_GIFT = 5044,  // Blue Ribboned Gift
+    ITEM_BLUE_RIBBONED_HOLIDAY_WRAPPING_PAPER = 17303, // Blue Ribboned Wrapping Paper
+    ITEM_BLUE_RIBBONED_HOLIDAY_GIFT = 17302, // Blue Ribboned Holiday Gift
+    ITEM_GREEN_RIBBONED_WRAPPING_PAPER = 17304, // Green Ribboned Wrapping Paper
+    ITEM_GREEN_RIBBONED_HOLIDAY_GIFT = 17305, // Green Ribboned Holiday Gift
+    ITEM_PURPLE_RIBBONED_WRAPPING_PAPER = 17307, // Purple Ribboned Wrapping Paper
+    ITEM_PURPLE_RIBBONED_HOLIDAY_GIFT = 17308, // Purple Ribboned Holiday Gift
+    ITEM_EMPTY_WRAPPER = 21830, // Empty Wrapper
+    ITEM_WRAPPED_GIFT = 21831, // Wrappered Gift
+};
 
 #define MAX_ITEM_SPELLS 5
 

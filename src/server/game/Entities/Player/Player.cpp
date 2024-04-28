@@ -10581,9 +10581,24 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
     // search free slot
     uint8 searchSlotStart = INVENTORY_SLOT_ITEM_START;
     // new bags can be directly equipped
-    if (!pItem && pProto->GetClass() == ITEM_CLASS_CONTAINER && pProto->GetSubClass() == ITEM_SUBCLASS_CONTAINER &&
-        (pProto->GetBonding() == BIND_NONE || pProto->GetBonding() == BIND_ON_ACQUIRE))
-        searchSlotStart = INVENTORY_SLOT_BAG_START;
+    if (!pItem && pProto->GetClass() == ITEM_CLASS_CONTAINER && (pProto->GetBonding() == BIND_NONE || pProto->GetBonding() == BIND_ON_ACQUIRE))
+    {
+        // to prevent equip normal bag in reagent bag
+        switch (pProto->GetSubClass())
+        {
+        case ITEM_SUBCLASS_CONTAINER: // for normal bag
+            searchSlotStart = INVENTORY_SLOT_BAG_START;
+            inventoryEnd = INVENTORY_SLOT_BAG_END;
+            break;
+        case ITEM_SUBCLASS_REAGENT_CONTAINER: // for reagent bag
+            searchSlotStart = REAGENT_BAG_SLOT_START;
+            inventoryEnd = REAGENT_BAG_SLOT_END;
+            break;
+        default:
+            break;
+        }
+    }
+
 
     res = CanStoreItem_InInventorySlots(searchSlotStart, inventoryEnd, dest, pProto, count, false, pItem, bag, slot);
     if (res != EQUIP_ERR_OK)

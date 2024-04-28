@@ -882,26 +882,27 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
 
     item->SetEntry(gift->GetEntry());
 
+    //Replace 'magic value' by enum value
     switch (item->GetEntry())
     {
-        case 5042:
-            item->SetEntry(5043);
-            break;
-        case 5048:
-            item->SetEntry(5044);
-            break;
-        case 17303:
-            item->SetEntry(17302);
-            break;
-        case 17304:
-            item->SetEntry(17305);
-            break;
-        case 17307:
-            item->SetEntry(17308);
-            break;
-        case 21830:
-            item->SetEntry(21831);
-            break;
+    case ITEM_RED_RIBBONED_WRAPPING_PAPER:
+        item->SetEntry(ITEM_RED_RIBBONED_GIFT);
+        break;
+    case ITEM_BLUE_RIBBONED_WRAPPING_PAPER:
+        item->SetEntry(ITEM_BLUE_RIBBONED_GIFT);
+        break;
+    case ITEM_BLUE_RIBBONED_HOLIDAY_WRAPPING_PAPER:
+        item->SetEntry(ITEM_BLUE_RIBBONED_HOLIDAY_GIFT);
+        break;
+    case ITEM_GREEN_RIBBONED_WRAPPING_PAPER:
+        item->SetEntry(ITEM_GREEN_RIBBONED_HOLIDAY_GIFT);
+        break;
+    case ITEM_PURPLE_RIBBONED_WRAPPING_PAPER:
+        item->SetEntry(ITEM_PURPLE_RIBBONED_HOLIDAY_GIFT);
+        break;
+    case ITEM_EMPTY_WRAPPER:
+        item->SetEntry(ITEM_WRAPPED_GIFT);
+        break;
     }
 
     item->SetGiftCreator(_player->GetGUID());
@@ -1214,27 +1215,274 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
 
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
+void StoreItemInBag(Item* item, Player* player)
+{
+    if (!item)
+        return;
+
+    ItemPosCountVec dest;
+    if (player->CanStoreItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+    {
+        player->StoreItem(dest, item, true);
+        return;
+    }
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+    {
+        if (Bag* pbag = player->GetBagByPos(i))
+        {
+            ItemPosCountVec dest;
+            if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+            {
+                player->StoreItem(dest, item, true);
+                return;
+            }
+        }
+    }
+}
+
+
+void StoreItemInReagentBank(Item* item, Player* player)
+{
+    if (!item)
+        return;
+
+    ItemPosCountVec dest;
+    if (player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false, true, true) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+    {
+        player->BankItem(dest, item, true);
+        return;
+    }
+}
+
+
+void StoreItemInBank(Item* item, Player* player)
+{
+    if (!item)
+        return;
+
+    ItemPosCountVec dest;
+    if (player->CanBankItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+    {
+        player->BankItem(dest, item, true);
+        return;
+    }
+
+    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+        if (Bag* pBag = player->GetBagByPos(i))
+        {
+            ItemPosCountVec dest;
+            if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+            {
+                player->BankItem(dest, item, true);
+                return;
+            }
+        }
+}
 
 void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
 {
-    // TODO: Implement sorting
-    // Placeholder to prevent completely locking out bags clientside
+    Item* hearthstoneItem = nullptr;
+    std::multimap<uint32, Item*> items;
+    std::multimap<uint32, Item*> foodItems;
+    std::multimap<uint32, Item*> armorItems;
+    std::multimap<uint32, Item*> weaponItems;
+    std::multimap<uint32, Item*> poorQualityItems;
+
+    uint8 endbackpackSlot = INVENTORY_SLOT_ITEM_START + _player->GetInventorySlotCount();
+
+    /*
+    * Store item in multiple multimap depending on:
+    *   healthstone: hearthstoneItem
+    *   quality (poor only): poorQualityItems
+    *   Class:
+    *       Armor: armorItems
+    *       weapon: weaponItems
+    *   SubClass (food items only): foodItems
+    *   all other: items
+    * First loop for the backpack
+    * Second loop for all other bags
+    */
+    for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < endbackpackSlot; slot++)
+    {
+        if (Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+        {
+            if (item->GetEntry() == ITEM_HEARTHSTONE)
+            {
+                hearthstoneItem = item;
+                _player->RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
+                continue;
+            }
+            else if (item->GetQuality() == ITEM_QUALITY_POOR)
+                poorQualityItems.insert(std::make_pair(item->GetEntry(), item));
+            else
+            {
+                switch (item->GetTemplate()->GetClass())
+                {
+                case (ITEM_CLASS_ARMOR):
+                    armorItems.insert(std::make_pair(item->GetEntry(), item));
+                    break;
+                case (ITEM_CLASS_WEAPON):
+                    weaponItems.insert(std::make_pair(item->GetEntry(), item));
+                    break;
+                case (ITEM_CLASS_CONSUMABLE):
+                    if (item->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
+                        foodItems.insert(std::make_pair(item->GetEntry(), item));
+                    else
+                        items.insert(std::make_pair(item->GetEntry(), item));
+                    break;
+                default:
+                    items.insert(std::make_pair(item->GetEntry(), item));
+                    break;
+                }
+            }
+            _player->RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
+        }
+    }
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+    {
+        if (Bag* bag = _player->GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < GetBagSize(bag); j++)
+            {
+                if (Item* item = GetItemInBag(bag, j))
+                {
+                    if (item->GetEntry() == ITEM_HEARTHSTONE)
+                    {
+                        hearthstoneItem = item;
+                        _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
+                        continue;
+                    }
+                    else if (item->GetQuality() == ITEM_QUALITY_POOR)
+                        poorQualityItems.insert(std::make_pair(item->GetEntry(), item));
+                    else
+                    {
+                        switch (item->GetTemplate()->GetClass())// == ITEM_CLASS_ARMOR)
+                        {
+                        case (ITEM_CLASS_ARMOR):
+                            armorItems.insert(std::make_pair(item->GetEntry(), item));
+                            break;
+                        case (ITEM_CLASS_WEAPON):
+                            weaponItems.insert(std::make_pair(item->GetEntry(), item));
+                            break;
+                        case (ITEM_CLASS_CONSUMABLE):
+                            if (item->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
+                                foodItems.insert(std::make_pair(item->GetEntry(), item));
+                            else
+                                items.insert(std::make_pair(item->GetEntry(), item));
+                            break;
+                        default:
+                            items.insert(std::make_pair(item->GetEntry(), item));
+                            break;
+                        }
+                    }
+                    _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
+                }
+            }
+        }
+    }
+
+    //all inventory (backpack + bags) is empty now
+
+    //first store hearthstone...
+    if (hearthstoneItem != nullptr)
+        StoreItemInBag(hearthstoneItem, _player);
+
+    //... then all the food/drink...
+    for (auto itr = std::begin(foodItems); itr != std::end(foodItems); ++itr)
+    {
+        StoreItemInBag(itr->second, _player);
+    }
+
+    //... then weapons...
+    for (auto itr = std::begin(weaponItems); itr != std::end(weaponItems); ++itr)
+    {
+        StoreItemInBag(itr->second, _player);
+    }
+
+    //... then armor...
+    for (auto itr = std::begin(armorItems); itr != std::end(armorItems); ++itr)
+    {
+        StoreItemInBag(itr->second, _player);
+    }
+
+    //... then all other item except poor items...
+    for (auto itr = std::begin(items); itr != std::end(items); ++itr)
+    {
+        StoreItemInBag(itr->second, _player);
+    }
+
+    //... and finaly poor items
+    for (auto itr = std::begin(poorQualityItems); itr != std::end(poorQualityItems); ++itr)
+    {
+        StoreItemInBag(itr->second, _player);
+    }
+
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
 
+
 void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBankBags*/)
 {
-    // TODO: Implement sorting
-    // Placeholder to prevent completely locking out bags clientside
+    std::multimap<uint32, Item*> items;
+
+    //save all the items in all bags into a multimap: items and remove items from bank
+    for (uint8 slot = BANK_SLOT_ITEM_START; slot < BANK_SLOT_ITEM_END; slot++)
+    {
+        if (Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+        {
+            items.insert(std::make_pair(item->GetEntry(), item));
+            _player->RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
+        }
+    }
+
+    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
+    {
+        if (Bag* bag = _player->GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < GetBagSize(bag); j++)
+            {
+                if (Item* item = GetItemInBag(bag, j))
+                {
+                    items.insert(std::make_pair(item->GetEntry(), item));
+                    _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
+                }
+            }
+        }
+    }
+
+    //store all items in bank. Order = item entry
+    for (auto itr = std::begin(items); itr != std::end(items); ++itr)
+    {
+        StoreItemInBank(itr->second, _player);
+    }
+
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
 
 void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBankBags& /*sortReagentBankBags*/)
 {
-    // TODO: Implement sorting
-    // Placeholder to prevent completely locking out bags clientside
+    std::multimap<uint32, Item*> items;
+
+    //save all the items in all bags into a multimap: items and remove items from bank
+    for (uint8 slot = REAGENT_SLOT_START; slot < REAGENT_SLOT_END; ++slot)
+    {
+        if (Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+        {
+            items.insert(std::make_pair(item->GetEntry(), item));
+            _player->RemoveItem(INVENTORY_SLOT_BAG_0, item->GetSlot(), true);
+        }
+    }
+
+    //store all items in bank. Order = item entry
+    for (auto itr = std::begin(items); itr != std::end(items); ++itr)
+    {
+        StoreItemInReagentBank(itr->second, _player);
+    }
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
+
 
 void WorldSession::HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& removeNewItem)
 {
