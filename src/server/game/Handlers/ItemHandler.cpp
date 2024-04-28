@@ -1215,6 +1215,7 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
 
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
+
 void StoreItemInBag(Item* item, Player* player)
 {
     if (!item)
@@ -1241,7 +1242,6 @@ void StoreItemInBag(Item* item, Player* player)
     }
 }
 
-
 void StoreItemInReagentBank(Item* item, Player* player)
 {
     if (!item)
@@ -1254,7 +1254,6 @@ void StoreItemInReagentBank(Item* item, Player* player)
         return;
     }
 }
-
 
 void StoreItemInBank(Item* item, Player* player)
 {
@@ -1422,7 +1421,6 @@ void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
 
-
 void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBankBags*/)
 {
     std::multimap<uint32, Item*> items;
@@ -1482,7 +1480,6 @@ void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBank
     }
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
-
 
 void WorldSession::HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& removeNewItem)
 {

@@ -10599,7 +10599,6 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
         }
     }
 
-
     res = CanStoreItem_InInventorySlots(searchSlotStart, inventoryEnd, dest, pProto, count, false, pItem, bag, slot);
     if (res != EQUIP_ERR_OK)
     {
