@@ -289,7 +289,6 @@ struct boss_lady_deathwhisper : public BossAI
         }
 
         _phase = PHASE_ONE;
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         DoZoneInCombat();
         scheduler.CancelGroup(GROUP_INTRO);

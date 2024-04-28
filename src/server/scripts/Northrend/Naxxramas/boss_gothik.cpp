@@ -329,10 +329,7 @@ struct boss_gothik : public BossAI
     {
         summons.Summon(summon);
         if (me->IsInCombat())
-        {
             summon->AI()->DoAction(_gateIsOpen ? ACTION_GATE_OPENED : ACTION_ACQUIRE_TARGET);
-            summon->SetCombatPulseDelay(5);
-        }
         else
             summon->DespawnOrUnsummon();
     }

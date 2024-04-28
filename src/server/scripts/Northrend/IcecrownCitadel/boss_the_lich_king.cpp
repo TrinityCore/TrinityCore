@@ -552,7 +552,6 @@ struct boss_the_lich_king : public BossAI
         }
 
         me->setActive(true);
-        me->SetCombatPulseDelay(5);
         DoZoneInCombat();
 
         events.SetPhase(PHASE_ONE);
