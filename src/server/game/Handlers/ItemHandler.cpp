@@ -1230,7 +1230,8 @@ void StoreItemInBag(Item* item, Player* player)
 
     for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
     {
-        if (Bag* pbag = player->GetBagByPos(i))
+        Bag* pbag = player->GetBagByPos(i);
+        if (pbag)
         {
             ItemPosCountVec dest;
             if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
