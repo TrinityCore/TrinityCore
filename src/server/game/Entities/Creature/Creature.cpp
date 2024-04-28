@@ -3666,9 +3666,9 @@ void Creature::ForcePartyMembersIntoCombat()
 
     for (Group const* partyToForceIntoCombat : partiesToForceIntoCombat)
     {
-        for (auto const* itr = partyToForceIntoCombat->GetFirstMember(); itr != nullptr; itr = itr->next())
+        for (GroupReference const* ref = partyToForceIntoCombat->GetFirstMember(); ref != nullptr; ref = ref->next())
         {
-            Player* player = itr->GetSource();
+            Player* player = ref->GetSource();
             if (!player || !player->IsInWorld() || player->GetMap() != GetMap() || player->IsGameMaster())
                 continue;
 
