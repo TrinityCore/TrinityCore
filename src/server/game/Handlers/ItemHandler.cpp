@@ -1251,3 +1251,40 @@ void WorldSession::HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& remove
         item->SetState(ITEM_CHANGED, _player);
     }
 }
+
+void WorldSession::HandleChangeBagSlotFlag(WorldPackets::Item::ChangeBagSlotFlag const& changeBagSlotFlag)
+{
+    if (changeBagSlotFlag.BagIndex >= _player->m_activePlayerData->BagSlotFlags.size())
+        return;
+
+    if (changeBagSlotFlag.On)
+        _player->SetBagSlotFlag(changeBagSlotFlag.BagIndex, changeBagSlotFlag.FlagToChange);
+    else
+        _player->RemoveBagSlotFlag(changeBagSlotFlag.BagIndex, changeBagSlotFlag.FlagToChange);
+}
+
+void WorldSession::HandleChangeBankBagSlotFlag(WorldPackets::Item::ChangeBankBagSlotFlag const& changeBankBagSlotFlag)
+{
+    if (changeBankBagSlotFlag.BagIndex >= _player->m_activePlayerData->BankBagSlotFlags.size())
+        return;
+
+    if (changeBankBagSlotFlag.On)
+        _player->SetBankBagSlotFlag(changeBankBagSlotFlag.BagIndex, changeBankBagSlotFlag.FlagToChange);
+    else
+        _player->RemoveBankBagSlotFlag(changeBankBagSlotFlag.BagIndex, changeBankBagSlotFlag.FlagToChange);
+}
+
+void WorldSession::HandleSetBackpackAutosortDisabled(WorldPackets::Item::SetBackpackAutosortDisabled const& setBackpackAutosortDisabled)
+{
+    _player->SetBackpackAutoSortDisabled(setBackpackAutosortDisabled.Disable);
+}
+
+void WorldSession::HandleSetBackpackSellJunkDisabled(WorldPackets::Item::SetBackpackSellJunkDisabled const& setBackpackSellJunkDisabled)
+{
+    _player->SetBackpackSellJunkDisabled(setBackpackSellJunkDisabled.Disable);
+}
+
+void WorldSession::HandleSetBankAutosortDisabled(WorldPackets::Item::SetBankAutosortDisabled const& setBankAutosortDisabled)
+{
+    _player->SetBankAutoSortDisabled(setBankAutosortDisabled.Disable);
+}

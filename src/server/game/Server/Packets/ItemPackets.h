@@ -28,6 +28,7 @@
 #include <array>
 
 struct VoidStorageItem;
+enum class BagSlotFlags : uint32;
 
 namespace WorldPackets
 {
@@ -535,6 +536,60 @@ namespace WorldPackets
             InventoryFullOverflow() : ServerPacket(SMSG_INVENTORY_FULL_OVERFLOW, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class ChangeBagSlotFlag final : public ClientPacket
+        {
+        public:
+            explicit ChangeBagSlotFlag(WorldPacket&& packet) : ClientPacket(CMSG_CHANGE_BAG_SLOT_FLAG, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 BagIndex = 0;
+            BagSlotFlags FlagToChange = { };
+            bool On = false;
+        };
+
+        class ChangeBankBagSlotFlag final : public ClientPacket
+        {
+        public:
+            explicit ChangeBankBagSlotFlag(WorldPacket&& packet) : ClientPacket(CMSG_CHANGE_BANK_BAG_SLOT_FLAG, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 BagIndex = 0;
+            BagSlotFlags FlagToChange = { };
+            bool On = false;
+        };
+
+        class SetBackpackAutosortDisabled final : public ClientPacket
+        {
+        public:
+            explicit SetBackpackAutosortDisabled(WorldPacket&& packet) : ClientPacket(CMSG_SET_BACKPACK_AUTOSORT_DISABLED, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Disable = false;
+        };
+
+        class SetBackpackSellJunkDisabled final : public ClientPacket
+        {
+        public:
+            explicit SetBackpackSellJunkDisabled(WorldPacket&& packet) : ClientPacket(CMSG_SET_BACKPACK_SELL_JUNK_DISABLED, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Disable = false;
+        };
+
+        class SetBankAutosortDisabled final : public ClientPacket
+        {
+        public:
+            explicit SetBankAutosortDisabled(WorldPacket&& packet) : ClientPacket(CMSG_SET_BANK_AUTOSORT_DISABLED, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Disable = false;
         };
     }
 }
