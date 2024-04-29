@@ -257,12 +257,14 @@ class TC_GAME_API Aura
         float CalcPPMProcChance(Unit* actor) const;
         void SetLastProcAttemptTime(TimePoint lastProcAttemptTime) { m_lastProcAttemptTime = lastProcAttemptTime; }
         void SetLastProcSuccessTime(TimePoint lastProcSuccessTime) { m_lastProcSuccessTime = lastProcSuccessTime; }
+        virtual void Heartbeat() { }
 
         // AuraScript
         void LoadScripts();
         bool CallScriptCheckAreaTargetHandlers(Unit* target);
         void CallScriptDispel(DispelInfo* dispelInfo);
         void CallScriptAfterDispel(DispelInfo* dispelInfo);
+        void CallScriptOnHeartbeat();
         bool CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         void CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
@@ -382,6 +384,9 @@ class TC_GAME_API UnitAura : public Aura
         DiminishingGroup GetDiminishGroup() const { return m_AuraDRGroup; }
 
         void AddStaticApplication(Unit* target, uint32 effMask);
+
+        void Heartbeat() override;
+        void HandlePeriodicFoodSpellVisualKit();
 
     private:
         DiminishingGroup m_AuraDRGroup;                 // Diminishing

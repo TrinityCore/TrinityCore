@@ -171,13 +171,14 @@ void protobuf_AssignDesc_Login_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SrpLoginChallenge));
   LoginResult_descriptor_ = file->message_type(6);
-  static const int LoginResult_offsets_[6] = {
+  static const int LoginResult_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, authentication_state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, error_code_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, error_message_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, url_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, login_ticket_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, server_evidence_m2_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, next_url_),
   };
   LoginResult_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -325,22 +326,23 @@ void protobuf_AddDesc_Login_2eproto() {
     "s\030\003 \002(\t\022\021\n\tgenerator\030\004 \002(\t\022\025\n\rhash_funct"
     "ion\030\005 \002(\t\022\020\n\010username\030\006 \002(\t\022\014\n\004salt\030\007 \002("
     "\t\022\020\n\010public_B\030\010 \002(\t\022#\n\033eligible_credenti"
-    "al_upgrade\030\t \001(\010\"\300\001\n\013LoginResult\022G\n\024auth"
+    "al_upgrade\030\t \001(\010\"\322\001\n\013LoginResult\022G\n\024auth"
     "entication_state\030\001 \002(\0162).Battlenet.JSON."
     "Login.AuthenticationState\022\022\n\nerror_code\030"
     "\002 \001(\t\022\025\n\rerror_message\030\003 \001(\t\022\013\n\003url\030\004 \001("
     "\t\022\024\n\014login_ticket\030\005 \001(\t\022\032\n\022server_eviden"
-    "ce_M2\030\006 \001(\t\"E\n\022LoginRefreshResult\022\033\n\023log"
-    "in_ticket_expiry\030\001 \002(\004\022\022\n\nis_expired\030\002 \001"
-    "(\010\"\232\001\n\017GameAccountInfo\022\024\n\014display_name\030\001"
-    " \002(\t\022\021\n\texpansion\030\002 \002(\r\022\024\n\014is_suspended\030"
-    "\003 \001(\010\022\021\n\tis_banned\030\004 \001(\010\022\032\n\022suspension_e"
-    "xpires\030\005 \001(\004\022\031\n\021suspension_reason\030\006 \001(\t\""
-    "O\n\017GameAccountList\022<\n\rgame_accounts\030\001 \003("
-    "\0132%.Battlenet.JSON.Login.GameAccountInfo"
-    "*\032\n\010FormType\022\016\n\nLOGIN_FORM\020\001*H\n\023Authenti"
-    "cationState\022\t\n\005LOGIN\020\001\022\t\n\005LEGAL\020\002\022\021\n\rAUT"
-    "HENTICATOR\020\003\022\010\n\004DONE\020\004B\002H\002", 1266);
+    "ce_M2\030\006 \001(\t\022\020\n\010next_url\030\007 \001(\t\"E\n\022LoginRe"
+    "freshResult\022\033\n\023login_ticket_expiry\030\001 \002(\004"
+    "\022\022\n\nis_expired\030\002 \001(\010\"\232\001\n\017GameAccountInfo"
+    "\022\024\n\014display_name\030\001 \002(\t\022\021\n\texpansion\030\002 \002("
+    "\r\022\024\n\014is_suspended\030\003 \001(\010\022\021\n\tis_banned\030\004 \001"
+    "(\010\022\032\n\022suspension_expires\030\005 \001(\004\022\031\n\021suspen"
+    "sion_reason\030\006 \001(\t\"O\n\017GameAccountList\022<\n\r"
+    "game_accounts\030\001 \003(\0132%.Battlenet.JSON.Log"
+    "in.GameAccountInfo*\032\n\010FormType\022\016\n\nLOGIN_"
+    "FORM\020\001*H\n\023AuthenticationState\022\t\n\005LOGIN\020\001"
+    "\022\t\n\005LEGAL\020\002\022\021\n\rAUTHENTICATOR\020\003\022\010\n\004DONE\020\004"
+    "B\002H\002", 1284);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "Login.proto", &protobuf_RegisterTypes);
   ErrorResponse::default_instance_ = new ErrorResponse();
@@ -927,6 +929,7 @@ const int LoginResult::kErrorMessageFieldNumber;
 const int LoginResult::kUrlFieldNumber;
 const int LoginResult::kLoginTicketFieldNumber;
 const int LoginResult::kServerEvidenceM2FieldNumber;
+const int LoginResult::kNextUrlFieldNumber;
 #endif  // !_MSC_VER
 
 LoginResult::LoginResult()
@@ -954,6 +957,7 @@ void LoginResult::SharedCtor() {
   url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   login_ticket_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   server_evidence_m2_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  next_url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -977,6 +981,9 @@ void LoginResult::SharedDtor() {
   }
   if (server_evidence_m2_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete server_evidence_m2_;
+  }
+  if (next_url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete next_url_;
   }
   if (this != default_instance_) {
   }

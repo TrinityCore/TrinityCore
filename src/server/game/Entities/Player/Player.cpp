@@ -182,7 +182,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_regenInterruptTimestamp = GameTime::Now();
     m_regenTimer = 0;
     m_regenTimerCount = 0;
-    m_foodEmoteTimerCount = 0;
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = uint32(-1);
@@ -348,8 +347,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
         _CUFProfiles[i] = nullptr;
-
-    m_groupUpdateTimer.Reset(5000);
 
     _advancedCombatLoggingEnabled = false;
 
@@ -1137,14 +1134,6 @@ void Player::Update(uint32 p_time)
         }
     }
 
-    // group update
-    m_groupUpdateTimer.Update(p_time);
-    if (m_groupUpdateTimer.Passed())
-    {
-        SendUpdateToOutOfRangeGroupMembers();
-        m_groupUpdateTimer.Reset(5000);
-    }
-
     Pet* pet = GetPet();
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
     //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
@@ -1166,6 +1155,17 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
+}
+
+void Player::Heartbeat()
+{
+    Unit::Heartbeat();
+
+    // Group update
+    SendUpdateToOutOfRangeGroupMembers();
+
+    // Indoor/Outdoor aura requirements
+    CheckOutdoorsAuraRequirements();
 }
 
 void Player::setDeathState(DeathState s)
@@ -1623,7 +1623,6 @@ bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo 
 void Player::RegenerateAll()
 {
     m_regenTimerCount += m_regenTimer;
-    m_foodEmoteTimerCount += m_regenTimer;
 
     for (Powers power = POWER_MANA; power < MAX_POWERS; power = Powers(power + 1))
         if (power != POWER_RUNES)
@@ -1660,35 +1659,6 @@ void Player::RegenerateAll()
     }
 
     m_regenTimer = 0;
-
-    // Handles the emotes for drinking and eating.
-    // According to sniffs there is a background timer going on that repeats independed from the time window where the aura applies.
-    // That's why we dont need to reset the timer on apply. In sniffs I have seen that the first call for the spell visual is totally random, then after
-    // 5 seconds over and over again which confirms my theory that we have a independed timer.
-    if (m_foodEmoteTimerCount >= 5000)
-    {
-        auto findInterruptibleEffect = [](AuraEffect const* aurEff)
-        {
-            return aurEff->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing);
-        };
-
-        // Food emote comes above drinking emote if we have to decide (mage regen food for example)
-        AuraEffectList const& ModRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_REGEN);
-        auto itr = std::find_if(ModRegenAuras.cbegin(), ModRegenAuras.cend(), findInterruptibleEffect);
-        if (itr != ModRegenAuras.end())
-        {
-            SendPlaySpellVisualKit(SPELL_VISUAL_KIT_FOOD, 0, 0);
-        }
-        else
-        {
-            AuraEffectList const& ModPowerRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN);
-            itr = std::find_if(ModPowerRegenAuras.cbegin(), ModPowerRegenAuras.cend(), findInterruptibleEffect);
-            if (itr != ModPowerRegenAuras.end())
-                SendPlaySpellVisualKit(SPELL_VISUAL_KIT_DRINK, 0, 0);
-        }
-
-        m_foodEmoteTimerCount -= 5000;
-    }
 }
 
 void Player::Regenerate(Powers power)
@@ -6276,7 +6246,7 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     if (GetGroup())
         SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
 
-    CheckAreaExploreAndOutdoor();
+    CheckAreaExplore();
 
     return true;
 }
@@ -6335,16 +6305,13 @@ void Player::SendMovieStart(uint32 movieId)
     SendDirectMessage(packet.Write());
 }
 
-void Player::CheckAreaExploreAndOutdoor()
+void Player::CheckAreaExplore()
 {
     if (!IsAlive())
         return;
 
     if (IsInFlight())
         return;
-
-    if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK))
-        RemoveAurasWithAttribute(IsOutdoors() ? SPELL_ATTR0_ONLY_INDOORS : SPELL_ATTR0_ONLY_OUTDOORS);
 
     uint32 const areaId = GetAreaId();
     if (!areaId)
@@ -6441,6 +6408,12 @@ bool Player::HasExploredZone(uint32 areaId) const
 
     uint64 mask = uint64(1) << (area->AreaBit % PLAYER_EXPLORED_ZONES_BITS);
     return (m_activePlayerData->DataFlags[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX][playerIndexOffset] & mask) != 0;
+}
+
+void Player::CheckOutdoorsAuraRequirements()
+{
+    if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK))
+        RemoveAurasWithAttribute(IsOutdoors() ? SPELL_ATTR0_ONLY_INDOORS : SPELL_ATTR0_ONLY_OUTDOORS);
 }
 
 Team Player::TeamForRace(uint8 race)
@@ -17655,7 +17628,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     struct PlayerLoadData
     {
-        // "SELECT c.guid, account, name, race, class, gender, level, xp, money, inventorySlots, bankSlots, restState, playerFlags, playerFlagsEx, "
+        // "SELECT c.guid, account, name, race, class, gender, level, xp, money, inventorySlots, inventoryBagFlags, bagSlotFlags1, bagSlotFlags2, bagSlotFlags3, bagSlotFlags4, bagSlotFlags5, "
+        // "bankSlots, bankBagFlags, bankBagSlotFlags1, bankBagSlotFlags2, bankBagSlotFlags3, bankBagSlotFlags4, bankBagSlotFlags5, bankBagSlotFlags6, bankBagSlotFlags7, restState, playerFlags, playerFlagsEx, "
         // "position_x, position_y, position_z, map, orientation, taximask, createTime, createMode, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, "
         // "resettalents_time, primarySpecialization, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, summonedPetNumber, at_login, zone, online, death_expire_time, taxi_path, dungeonDifficulty, "
         // "totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
@@ -17674,7 +17648,11 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         uint32 xp;
         uint64 money;
         uint8 inventorySlots;
+        EnumFlag<BagSlotFlags> inventoryBagFlags = BagSlotFlags::None;
+        std::array<BagSlotFlags, 5> bagSlotFlags;
         uint8 bankSlots;
+        EnumFlag<BagSlotFlags> bankBagFlags = BagSlotFlags::None;
+        std::array<BagSlotFlags, 7> bankBagSlotFlags;
         PlayerRestState restState;
         PlayerFlags playerFlags;
         PlayerFlagsEx playerFlagsEx;
@@ -17749,7 +17727,13 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             xp = fields[i++].GetUInt32();
             money = fields[i++].GetUInt64();
             inventorySlots = fields[i++].GetUInt8();
+            inventoryBagFlags = static_cast<BagSlotFlags>(fields[i++].GetUInt32());
+            for (BagSlotFlags& flags : bagSlotFlags)
+                flags = static_cast<BagSlotFlags>(fields[i++].GetUInt32());
             bankSlots = fields[i++].GetUInt8();
+            bankBagFlags = static_cast<BagSlotFlags>(fields[i++].GetUInt32());
+            for (BagSlotFlags& flags : bankBagSlotFlags)
+                flags = static_cast<BagSlotFlags>(fields[i++].GetUInt32());
             restState = PlayerRestState(fields[i++].GetUInt8());
             playerFlags = PlayerFlags(fields[i++].GetUInt32());
             playerFlagsEx = PlayerFlagsEx(fields[i++].GetUInt32());
@@ -17904,7 +17888,14 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     SetCustomizations(Trinity::Containers::MakeIteratorPair(customizations.begin(), customizations.end()), false);
     SetInventorySlotCount(fields.inventorySlots);
+    SetBackpackAutoSortDisabled(fields.inventoryBagFlags.HasFlag(BagSlotFlags::DisableAutoSort));
+    SetBackpackSellJunkDisabled(fields.inventoryBagFlags.HasFlag(BagSlotFlags::ExcludeJunkSell));
+    for (uint32 bagIndex = 0; bagIndex < fields.bagSlotFlags.size(); ++bagIndex)
+        ReplaceAllBagSlotFlags(bagIndex, fields.bagSlotFlags[bagIndex]);
     SetBankBagSlotCount(fields.bankSlots);
+    SetBankAutoSortDisabled(fields.bankBagFlags.HasFlag(BagSlotFlags::DisableAutoSort));
+    for (uint32 bagIndex = 0; bagIndex < fields.bankBagSlotFlags.size(); ++bagIndex)
+        ReplaceAllBankBagSlotFlags(bagIndex, fields.bankBagSlotFlags[bagIndex]);
     SetNativeGender(fields.gender);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Inebriation), fields.drunk);
     ReplaceAllPlayerFlags(fields.playerFlags);
@@ -20061,7 +20052,27 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt32(index++, GetXP());
         stmt->setUInt64(index++, GetMoney());
         stmt->setUInt8(index++, GetInventorySlotCount());
+        stmt->setUInt32(index++, [&]
+        {
+            BagSlotFlags inventoryFlags = BagSlotFlags::None;
+            if (m_activePlayerData->BackpackAutoSortDisabled)
+                inventoryFlags |= BagSlotFlags::DisableAutoSort;
+            if (m_activePlayerData->BackpackSellJunkDisabled)
+                inventoryFlags |= BagSlotFlags::ExcludeJunkSell;
+            return AsUnderlyingType(inventoryFlags);
+        }());
+        for (uint32 bagSlotFlag : m_activePlayerData->BagSlotFlags)
+            stmt->setUInt32(index++, bagSlotFlag);
         stmt->setUInt8(index++, GetBankBagSlotCount());
+        stmt->setUInt32(index++, [&]
+        {
+            BagSlotFlags inventoryFlags = BagSlotFlags::None;
+            if (m_activePlayerData->BankAutoSortDisabled)
+                inventoryFlags |= BagSlotFlags::DisableAutoSort;
+            return AsUnderlyingType(inventoryFlags);
+        }());
+        for (uint32 bankBagSlotFlag : m_activePlayerData->BankBagSlotFlags)
+            stmt->setUInt32(index++, bankBagSlotFlag);
         stmt->setUInt8(index++, m_activePlayerData->RestInfo[REST_TYPE_XP].StateID);
         stmt->setUInt32(index++, m_playerData->PlayerFlags);
         stmt->setUInt32(index++, m_playerData->PlayerFlagsEx);
@@ -20178,7 +20189,27 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt32(index++, GetXP());
         stmt->setUInt64(index++, GetMoney());
         stmt->setUInt8(index++, GetInventorySlotCount());
+        stmt->setUInt32(index++, [&]
+        {
+            BagSlotFlags inventoryFlags = BagSlotFlags::None;
+            if (m_activePlayerData->BackpackAutoSortDisabled)
+                inventoryFlags |= BagSlotFlags::DisableAutoSort;
+            if (m_activePlayerData->BackpackSellJunkDisabled)
+                inventoryFlags |= BagSlotFlags::ExcludeJunkSell;
+            return AsUnderlyingType(inventoryFlags);
+        }());
+        for (uint32 bagSlotFlag : m_activePlayerData->BagSlotFlags)
+            stmt->setUInt32(index++, bagSlotFlag);
         stmt->setUInt8(index++, GetBankBagSlotCount());
+        stmt->setUInt32(index++, [&]
+        {
+            BagSlotFlags inventoryFlags = BagSlotFlags::None;
+            if (m_activePlayerData->BankAutoSortDisabled)
+                inventoryFlags |= BagSlotFlags::DisableAutoSort;
+            return AsUnderlyingType(inventoryFlags);
+        }());
+        for (uint32 bankBagSlotFlag : m_activePlayerData->BankBagSlotFlags)
+            stmt->setUInt32(index++, bankBagSlotFlag);
         stmt->setUInt8(index++, m_activePlayerData->RestInfo[REST_TYPE_XP].StateID);
         stmt->setUInt32(index++, m_playerData->PlayerFlags);
         stmt->setUInt32(index++, m_playerData->PlayerFlagsEx);

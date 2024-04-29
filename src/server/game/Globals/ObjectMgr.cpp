@@ -10727,6 +10727,11 @@ JumpChargeParams const* ObjectMgr::GetJumpChargeParams(int32 id) const
     return Trinity::Containers::MapGetValuePtr(_jumpChargeParams, id);
 }
 
+CreatureStaticFlagsOverride const* ObjectMgr::GetCreatureStaticFlagsOverride(ObjectGuid::LowType spawnId, Difficulty difficultyId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_creatureStaticFlagsOverrideStore, std::make_pair(spawnId, difficultyId));
+}
+
 void ObjectMgr::LoadGameObjectQuestItems()
 {
     uint32 oldMSTime = getMSTime();
@@ -10858,6 +10863,67 @@ void ObjectMgr::LoadCreatureQuestCurrencies()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} creature quest currencies in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadCreatureStaticFlagsOverride()
+{
+    // reload case
+    _creatureStaticFlagsOverrideStore.clear();
+
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0        1             2             3             4             5             6             7             8             9
+    QueryResult result = WorldDatabase.Query("SELECT SpawnId, DifficultyId, StaticFlags1, StaticFlags2, StaticFlags3, StaticFlags4, StaticFlags5, StaticFlags6, StaticFlags7, StaticFlags8 FROM creature_static_flags_override");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 creature static flag overrides. DB table `creature_static_flags_override` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        ObjectGuid::LowType spawnId = fields[0].GetUInt64();
+        Difficulty difficultyId = static_cast<Difficulty>(fields[1].GetUInt8());
+
+        CreatureData const* creatureData = GetCreatureData(spawnId);
+        if (!creatureData)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature_static_flags_override` has data for nonexistent creature (SpawnId: {}), skipped", spawnId);
+            continue;
+        }
+
+        if (std::find(creatureData->spawnDifficulties.begin(), creatureData->spawnDifficulties.end(), difficultyId) == creatureData->spawnDifficulties.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature_static_flags_override` has data for a creature that is not available for the specified DifficultyId (SpawnId: {}, DifficultyId: {}), skipped", spawnId, difficultyId);
+            continue;
+        }
+
+        CreatureStaticFlagsOverride& staticFlagsOverride = _creatureStaticFlagsOverrideStore[std::make_pair(spawnId, difficultyId)];
+        if (!fields[2].IsNull())
+            staticFlagsOverride.StaticFlags1 = static_cast<CreatureStaticFlags>(fields[2].GetUInt32());
+        if (!fields[3].IsNull())
+            staticFlagsOverride.StaticFlags2 = static_cast<CreatureStaticFlags2>(fields[3].GetUInt32());
+        if (!fields[4].IsNull())
+            staticFlagsOverride.StaticFlags3 = static_cast<CreatureStaticFlags3>(fields[4].GetUInt32());
+        if (!fields[5].IsNull())
+            staticFlagsOverride.StaticFlags4 = static_cast<CreatureStaticFlags4>(fields[5].GetUInt32());
+        if (!fields[6].IsNull())
+            staticFlagsOverride.StaticFlags5 = static_cast<CreatureStaticFlags5>(fields[6].GetUInt32());
+        if (!fields[7].IsNull())
+            staticFlagsOverride.StaticFlags6 = static_cast<CreatureStaticFlags6>(fields[7].GetUInt32());
+        if (!fields[8].IsNull())
+            staticFlagsOverride.StaticFlags7 = static_cast<CreatureStaticFlags7>(fields[8].GetUInt32());
+        if (!fields[9].IsNull())
+            staticFlagsOverride.StaticFlags8 = static_cast<CreatureStaticFlags8>(fields[9].GetUInt32());
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} creature static flag overrides in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
