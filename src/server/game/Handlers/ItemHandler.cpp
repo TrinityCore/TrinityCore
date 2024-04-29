@@ -1297,7 +1297,7 @@ void StoreItemInBag(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotFl
             }
         }
     }
-    else //for junk 
+    else //for junk
     {
         for (uint8 i = INVENTORY_SLOT_BAG_END-1; i >= INVENTORY_SLOT_BAG_START; --i)
         {
