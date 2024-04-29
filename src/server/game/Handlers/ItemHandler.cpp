@@ -1216,11 +1216,62 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
 
-void StoreItemInBag(Item* item, Player* player, bool leftToRight = false)
+bool HasBagAnyFlag(uint8 bagSlot, Player* player)
+{
+    if (player->GetBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityConsumables))
+        return true;
+    if (player->GetBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityEquipment))
+        return true;
+    if (player->GetBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityJunk))
+        return true;
+    if (player->GetBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityQuestItems))
+        return true;
+    if (player->GetBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityTradeGoods))
+        return true;
+
+    return false;
+}
+
+bool HasBankBagAnyFlag(uint8 bagSlot, Player* player)
+{
+    if (player->GetBankBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityConsumables))
+        return true;
+    if (player->GetBankBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityEquipment))
+        return true;
+    if (player->GetBankBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityJunk))
+        return true;
+    if (player->GetBankBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityQuestItems))
+        return true;
+    if (player->GetBankBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityTradeGoods))
+        return true;
+
+    return false;
+}
+
+void StoreItemInBag(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotFlags::None, bool leftToRight = false)
 {
     if (!item)
         return;
 
+    //First we prioritize the bag with Priority flags
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+    {
+        Bag* pbag = player->GetBagByPos(i);
+        if (pbag)
+        {
+            if (player->GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(bagFlag))
+            {
+                ItemPosCountVec dest;
+                if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                {
+                    player->StoreItem(dest, item, true);
+                    return;
+                }
+            }
+        }
+    }
+
+    //Then we check all the bags + inventory. But we don't want to store items in flagged bags
     if (!leftToRight)
     {
         ItemPosCountVec dest;
@@ -1235,6 +1286,8 @@ void StoreItemInBag(Item* item, Player* player, bool leftToRight = false)
             Bag* pbag = player->GetBagByPos(i);
             if (pbag)
             {
+                if (HasBagAnyFlag(i - INVENTORY_SLOT_BAG_START, player)) //to ignore the flagged bags
+                    continue;
                 ItemPosCountVec dest;
                 if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
                 {
@@ -1244,17 +1297,19 @@ void StoreItemInBag(Item* item, Player* player, bool leftToRight = false)
             }
         }
     }
-    else
+    else //for junk 
     {
         for (uint8 i = INVENTORY_SLOT_BAG_END-1; i >= INVENTORY_SLOT_BAG_START; --i)
         {
             Bag* pbag = player->GetBagByPos(i);
             if (pbag)
             {
+                if (HasBagAnyFlag(i - INVENTORY_SLOT_BAG_START, player)) //to ignore the flagged bags
+                    continue;
                 for (uint8 j = GetBagSize(pbag); j > 0; j--)
                 {
                     ItemPosCountVec dest;
-                    if (player->CanStoreItem(i, j-1, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    if (player->CanStoreItem(i, j - 1, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
                     {
                         player->StoreItem(dest, item, true);
                         return;
@@ -1267,13 +1322,35 @@ void StoreItemInBag(Item* item, Player* player, bool leftToRight = false)
         for (uint8 i = endbackpackSlot; i > 0; i--)
         {
             ItemPosCountVec dest;
-            if (player->CanStoreItem(INVENTORY_SLOT_BAG_0, i-1, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+            if (player->CanStoreItem(INVENTORY_SLOT_BAG_0, i - 1, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
             {
                 player->StoreItem(dest, item, true);
                 return;
             }
         }
 
+    }
+
+    //In case we don't have any place in other bags we store in all the remaining bags
+    ItemPosCountVec dest;
+    if (player->CanStoreItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+    {
+        player->StoreItem(dest, item, true);
+        return;
+    }
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+    {
+        Bag* pbag = player->GetBagByPos(i);
+        if (pbag)
+        {
+            ItemPosCountVec dest;
+            if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+            {
+                player->StoreItem(dest, item, true);
+                return;
+            }
+        }
     }
 }
 
@@ -1290,11 +1367,88 @@ void StoreItemInReagentBank(Item* item, Player* player)
     }
 }
 
-void StoreItemInBank(Item* item, Player* player)
+void StoreItemInBank(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotFlags::None, bool leftToRight = false)
 {
     if (!item)
         return;
 
+    //First we prioritize the bag with Priority flags
+    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+    {
+        Bag* pBag = player->GetBagByPos(i);
+        if (pBag)
+        {
+            if (player->GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::DisableAutoSort))
+                continue;
+            if (player->GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(bagFlag))
+            {
+                ItemPosCountVec dest;
+                if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                {
+                    player->BankItem(dest, item, true);
+                    return;
+                }
+            }
+        }
+    }
+
+    //Then we check all the bags + inventory. But we don't want to store items in flagged bags
+    if (!leftToRight)
+    {
+        ItemPosCountVec dest;
+        if (player->CanBankItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+        {
+            player->BankItem(dest, item, true);
+            return;
+        }
+
+        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+        {
+            Bag* pBag = player->GetBagByPos(i);
+            if (pBag)
+            {
+                if (HasBankBagAnyFlag(i - BANK_SLOT_BAG_START, player))
+                    continue;
+
+                ItemPosCountVec dest;
+                if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                {
+                    player->BankItem(dest, item, true);
+                    return;
+                }
+            }
+        }
+    }
+    else //for junk
+    {
+        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+        {
+            Bag* pBag = player->GetBagByPos(i);
+            if (pBag)
+            {
+                if (HasBankBagAnyFlag(i - BANK_SLOT_BAG_START, player))
+                    continue;
+                ItemPosCountVec dest;
+                if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                {
+                    player->BankItem(dest, item, true);
+                    return;
+                }
+            }
+        }
+
+        for (uint8 slot = BANK_SLOT_ITEM_END-1; slot >= BANK_SLOT_ITEM_START; slot--)
+        {
+            ItemPosCountVec dest;
+            if (player->CanBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+            {
+                player->BankItem(dest, item, true);
+                return;
+            }
+        }
+    }
+
+    //In case we don't have any place in other bags we store in all the remaining bags
     ItemPosCountVec dest;
     if (player->CanBankItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
     {
@@ -1322,35 +1476,180 @@ void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
     Item* hearthstoneItem = nullptr;
     std::multimap<uint32, Item*> items;
     std::multimap<uint32, Item*> foodItems;
+    std::multimap<uint32, Item*> consumablesNofoodItems;
     std::multimap<uint32, Item*> armorItems;
     std::multimap<uint32, Item*> weaponItems;
     std::multimap<uint32, Item*> poorQualityItems;
+    std::multimap<uint32, Item*> tradeGoodItems;
+    std::multimap<uint32, Item*> questItems;
 
     uint8 endbackpackSlot = INVENTORY_SLOT_ITEM_START + _player->GetInventorySlotCount();
 
     /*
     * Store item in multiple multimap depending on:
     *   healthstone: hearthstoneItem
+    *   quest Items: questItems
     *   quality (poor only): poorQualityItems
     *   Class:
     *       Armor: armorItems
     *       weapon: weaponItems
+    *       consumables (except food/drinks): consumablesNofoodItems
     *   SubClass (food items only): foodItems
     *   all other: items
     * First loop for the backpack
     * Second loop for all other bags
     */
-    for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < endbackpackSlot; slot++)
+    if (!_player->IsBackpackAutoSortDisabled())
+        for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < endbackpackSlot; slot++)
+        {
+            if (Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+            {
+                if (item->GetEntry() == ITEM_HEARTHSTONE)
+                {
+                    hearthstoneItem = item;
+                    _player->RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
+                    continue;
+                }
+                else if (item->GetQuality() == ITEM_QUALITY_POOR)
+                    poorQualityItems.insert(std::make_pair(item->GetEntry(), item));
+                else
+                {
+                    switch (item->GetTemplate()->GetClass())
+                    {
+                    case (ITEM_CLASS_ARMOR):
+                        armorItems.insert(std::make_pair(item->GetEntry(), item));
+                        break;
+                    case (ITEM_CLASS_WEAPON):
+                        weaponItems.insert(std::make_pair(item->GetEntry(), item));
+                        break;
+                    case (ITEM_CLASS_CONSUMABLE):
+                        if (item->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
+                            foodItems.insert(std::make_pair(item->GetEntry(), item));
+                        else
+                            consumablesNofoodItems.insert(std::make_pair(item->GetEntry(), item));
+                        break;
+                    case (ITEM_CLASS_TRADE_GOODS):
+                        tradeGoodItems.insert(std::make_pair(item->GetEntry(), item));
+                        break;
+                    case (ITEM_CLASS_QUEST):
+                        questItems.insert(std::make_pair(item->GetEntry(), item));
+                        break;
+                    default:
+                        items.insert(std::make_pair(item->GetEntry(), item));
+                        break;
+                    }
+                }
+                _player->RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
+            }
+        }
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+    {
+        if (Bag* bag = _player->GetBagByPos(i))
+        {
+            if (!_player->GetBagSlotFlags(i- INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::DisableAutoSort))
+                for (uint32 j = 0; j < GetBagSize(bag); j++)
+                {
+                    if (Item* item = GetItemInBag(bag, j))
+                    {
+                        if (item->GetEntry() == ITEM_HEARTHSTONE)
+                        {
+                            hearthstoneItem = item;
+                            _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
+                            continue;
+                        }
+                        else if (item->GetQuality() == ITEM_QUALITY_POOR)
+                            poorQualityItems.insert(std::make_pair(item->GetEntry(), item));
+                        else
+                        {
+                            switch (item->GetTemplate()->GetClass())
+                            {
+                            case (ITEM_CLASS_ARMOR):
+                                armorItems.insert(std::make_pair(item->GetEntry(), item));
+                                break;
+                            case (ITEM_CLASS_WEAPON):
+                                weaponItems.insert(std::make_pair(item->GetEntry(), item));
+                                break;
+                            case (ITEM_CLASS_CONSUMABLE):
+                                if (item->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
+                                    foodItems.insert(std::make_pair(item->GetEntry(), item));
+                                else
+                                    consumablesNofoodItems.insert(std::make_pair(item->GetEntry(), item));
+                                break;
+                            case (ITEM_CLASS_TRADE_GOODS):
+                                tradeGoodItems.insert(std::make_pair(item->GetEntry(), item));
+                                break;
+                            case (ITEM_CLASS_QUEST):
+                                questItems.insert(std::make_pair(item->GetEntry(), item));
+                                break;
+                            default:
+                                items.insert(std::make_pair(item->GetEntry(), item));
+                                break;
+                            }
+                        }
+                        _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
+                    }
+                }
+        }
+    }
+    //all inventory (backpack + bags) is empty now
+
+    //first store hearthstone...
+    if (hearthstoneItem != nullptr)
+        StoreItemInBag(hearthstoneItem, _player);
+
+    //... then all the food/drink...
+    for (auto itr = std::begin(foodItems); itr != std::end(foodItems); ++itr)
+        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityConsumables);
+
+    //... then weapons...
+    for (auto itr = std::begin(weaponItems); itr != std::end(weaponItems); ++itr)
+        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityEquipment);
+
+    //... then armor...
+    for (auto itr = std::begin(armorItems); itr != std::end(armorItems); ++itr)
+        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityEquipment);
+
+    //... then consumables (except for foods/drinks)...
+    for (auto itr = std::begin(consumablesNofoodItems); itr != std::end(consumablesNofoodItems); ++itr)
+        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityConsumables);
+
+    //... then all other item except poor items and quest Item...
+    for (auto itr = std::begin(items); itr != std::end(items); ++itr)
+        StoreItemInBag(itr->second, _player);
+
+    //... then all other item except poor items and quest Item...
+    for (auto itr = std::begin(tradeGoodItems); itr != std::end(tradeGoodItems); ++itr)
+        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityTradeGoods);
+
+    //... then quest item...
+    for (auto itr = std::begin(questItems); itr != std::end(questItems); ++itr)
+        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityQuestItems);
+
+    //... and finaly poor items
+    for (auto itr = std::begin(poorQualityItems); itr != std::end(poorQualityItems); ++itr)
+        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityJunk, true);
+
+    SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
+}
+
+void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBankBags*/)
+{
+    std::multimap<uint32, Item*> items;
+    std::multimap<uint32, Item*> foodItems;
+    std::multimap<uint32, Item*> consumablesNofoodItems;
+    std::multimap<uint32, Item*> armorItems;
+    std::multimap<uint32, Item*> weaponItems;
+    std::multimap<uint32, Item*> poorQualityItems;
+    std::multimap<uint32, Item*> tradeGoodItems;
+    std::multimap<uint32, Item*> questItems;
+
+    //save all the items in all bags into a multimap: items and remove items from bank
+    for (uint8 slot = BANK_SLOT_ITEM_START; slot < BANK_SLOT_ITEM_END; slot++)
     {
         if (Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
         {
-            if (item->GetEntry() == ITEM_HEARTHSTONE)
-            {
-                hearthstoneItem = item;
-                _player->RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
-                continue;
-            }
-            else if (item->GetQuality() == ITEM_QUALITY_POOR)
+            if (item->GetQuality() == ITEM_QUALITY_POOR)
                 poorQualityItems.insert(std::make_pair(item->GetEntry(), item));
             else
             {
@@ -1366,18 +1665,24 @@ void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
                     if (item->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
                         foodItems.insert(std::make_pair(item->GetEntry(), item));
                     else
-                        items.insert(std::make_pair(item->GetEntry(), item));
+                        consumablesNofoodItems.insert(std::make_pair(item->GetEntry(), item));
+                    break;
+                case (ITEM_CLASS_TRADE_GOODS):
+                    tradeGoodItems.insert(std::make_pair(item->GetEntry(), item));
+                    break;
+                case (ITEM_CLASS_QUEST):
+                    questItems.insert(std::make_pair(item->GetEntry(), item));
                     break;
                 default:
                     items.insert(std::make_pair(item->GetEntry(), item));
                     break;
                 }
             }
-            _player->RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
+            _player->RemoveItem(INVENTORY_SLOT_BAG_0, item->GetSlot(), true);
         }
     }
 
-    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
     {
         if (Bag* bag = _player->GetBagByPos(i))
         {
@@ -1385,17 +1690,11 @@ void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
             {
                 if (Item* item = GetItemInBag(bag, j))
                 {
-                    if (item->GetEntry() == ITEM_HEARTHSTONE)
-                    {
-                        hearthstoneItem = item;
-                        _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
-                        continue;
-                    }
-                    else if (item->GetQuality() == ITEM_QUALITY_POOR)
+                    if (item->GetQuality() == ITEM_QUALITY_POOR)
                         poorQualityItems.insert(std::make_pair(item->GetEntry(), item));
                     else
                     {
-                        switch (item->GetTemplate()->GetClass())// == ITEM_CLASS_ARMOR)
+                        switch (item->GetTemplate()->GetClass())
                         {
                         case (ITEM_CLASS_ARMOR):
                             armorItems.insert(std::make_pair(item->GetEntry(), item));
@@ -1407,7 +1706,13 @@ void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
                             if (item->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
                                 foodItems.insert(std::make_pair(item->GetEntry(), item));
                             else
-                                items.insert(std::make_pair(item->GetEntry(), item));
+                                consumablesNofoodItems.insert(std::make_pair(item->GetEntry(), item));
+                            break;
+                        case (ITEM_CLASS_TRADE_GOODS):
+                            tradeGoodItems.insert(std::make_pair(item->GetEntry(), item));
+                            break;
+                        case (ITEM_CLASS_QUEST):
+                            questItems.insert(std::make_pair(item->GetEntry(), item));
                             break;
                         default:
                             items.insert(std::make_pair(item->GetEntry(), item));
@@ -1420,67 +1725,37 @@ void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
         }
     }
 
-    //all inventory (backpack + bags) is empty now
-
-    //first store hearthstone...
-    if (hearthstoneItem != nullptr)
-        StoreItemInBag(hearthstoneItem, _player);
-
-    //... then all the food/drink...
+    //All the food/drink...
     for (auto itr = std::begin(foodItems); itr != std::end(foodItems); ++itr)
-        StoreItemInBag(itr->second, _player);
+        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityConsumables);
 
     //... then weapons...
     for (auto itr = std::begin(weaponItems); itr != std::end(weaponItems); ++itr)
-        StoreItemInBag(itr->second, _player);
+        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityEquipment);
 
     //... then armor...
     for (auto itr = std::begin(armorItems); itr != std::end(armorItems); ++itr)
-        StoreItemInBag(itr->second, _player);
+        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityEquipment);
 
-    //... then all other item except poor items...
+    //... then consumables (except for foods/drinks)...
+    for (auto itr = std::begin(consumablesNofoodItems); itr != std::end(consumablesNofoodItems); ++itr)
+        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityConsumables);
+
+    //... then all other item except poor items and quest Item...
     for (auto itr = std::begin(items); itr != std::end(items); ++itr)
-        StoreItemInBag(itr->second, _player);
+        StoreItemInBank(itr->second, _player);
+
+    //... then all other item except poor items and quest Item...
+    for (auto itr = std::begin(tradeGoodItems); itr != std::end(tradeGoodItems); ++itr)
+        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityTradeGoods);
+
+    //... then quest item...
+    for (auto itr = std::begin(questItems); itr != std::end(questItems); ++itr)
+        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityQuestItems);
 
     //... and finaly poor items
     for (auto itr = std::begin(poorQualityItems); itr != std::end(poorQualityItems); ++itr)
-        StoreItemInBag(itr->second, _player, true);
-
-    SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
-}
-
-void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBankBags*/)
-{
-    std::multimap<uint32, Item*> items;
-
-    //save all the items in all bags into a multimap: items and remove items from bank
-    for (uint8 slot = BANK_SLOT_ITEM_START; slot < BANK_SLOT_ITEM_END; slot++)
-    {
-        if (Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-        {
-            items.insert(std::make_pair(item->GetEntry(), item));
-            _player->RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
-        }
-    }
-
-    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
-    {
-        if (Bag* bag = _player->GetBagByPos(i))
-        {
-            for (uint32 j = 0; j < GetBagSize(bag); j++)
-            {
-                if (Item* item = GetItemInBag(bag, j))
-                {
-                    items.insert(std::make_pair(item->GetEntry(), item));
-                    _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
-                }
-            }
-        }
-    }
-
-    //store all items in bank. Order = item entry
-    for (auto itr = std::begin(items); itr != std::end(items); ++itr)
-        StoreItemInBank(itr->second, _player);
+        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityJunk, true);
 
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
@@ -1502,6 +1777,7 @@ void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBank
     //store all items in bank. Order = item entry
     for (auto itr = std::begin(items); itr != std::end(items); ++itr)
         StoreItemInReagentBank(itr->second, _player);
+
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
 
@@ -1527,7 +1803,20 @@ void WorldSession::HandleChangeBagSlotFlag(WorldPackets::Item::ChangeBagSlotFlag
         return;
 
     if (changeBagSlotFlag.On)
+    {
+        //Only one priority can be available at the same time so we have to remove all flags (except Ignore Cleanup & Ignore Junk)
+        if (_player->GetBagSlotFlags(changeBagSlotFlag.BagIndex).HasFlag(BagSlotFlags::PriorityEquipment))
+            _player->RemoveBagSlotFlag(changeBagSlotFlag.BagIndex, BagSlotFlags::PriorityEquipment);
+        if (_player->GetBagSlotFlags(changeBagSlotFlag.BagIndex).HasFlag(BagSlotFlags::PriorityConsumables))
+            _player->RemoveBagSlotFlag(changeBagSlotFlag.BagIndex, BagSlotFlags::PriorityConsumables);
+        if (_player->GetBagSlotFlags(changeBagSlotFlag.BagIndex).HasFlag(BagSlotFlags::PriorityTradeGoods))
+            _player->RemoveBagSlotFlag(changeBagSlotFlag.BagIndex, BagSlotFlags::PriorityTradeGoods);
+        if (_player->GetBagSlotFlags(changeBagSlotFlag.BagIndex).HasFlag(BagSlotFlags::PriorityJunk))
+            _player->RemoveBagSlotFlag(changeBagSlotFlag.BagIndex, BagSlotFlags::PriorityJunk);
+        if (_player->GetBagSlotFlags(changeBagSlotFlag.BagIndex).HasFlag(BagSlotFlags::PriorityQuestItems))
+            _player->RemoveBagSlotFlag(changeBagSlotFlag.BagIndex, BagSlotFlags::PriorityQuestItems);
         _player->SetBagSlotFlag(changeBagSlotFlag.BagIndex, changeBagSlotFlag.FlagToChange);
+    }
     else
         _player->RemoveBagSlotFlag(changeBagSlotFlag.BagIndex, changeBagSlotFlag.FlagToChange);
 }
@@ -1538,7 +1827,19 @@ void WorldSession::HandleChangeBankBagSlotFlag(WorldPackets::Item::ChangeBankBag
         return;
 
     if (changeBankBagSlotFlag.On)
+    {
+        if (_player->GetBankBagSlotFlags(changeBankBagSlotFlag.BagIndex).HasFlag(BagSlotFlags::PriorityConsumables))
+            _player->RemoveBankBagSlotFlag(changeBankBagSlotFlag.BagIndex, BagSlotFlags::PriorityConsumables);
+        if (_player->GetBankBagSlotFlags(changeBankBagSlotFlag.BagIndex).HasFlag(BagSlotFlags::PriorityEquipment))
+            _player->RemoveBankBagSlotFlag(changeBankBagSlotFlag.BagIndex, BagSlotFlags::PriorityEquipment);
+        if (_player->GetBankBagSlotFlags(changeBankBagSlotFlag.BagIndex).HasFlag(BagSlotFlags::PriorityJunk))
+            _player->RemoveBankBagSlotFlag(changeBankBagSlotFlag.BagIndex, BagSlotFlags::PriorityJunk);
+        if (_player->GetBankBagSlotFlags(changeBankBagSlotFlag.BagIndex).HasFlag(BagSlotFlags::PriorityQuestItems))
+            _player->RemoveBankBagSlotFlag(changeBankBagSlotFlag.BagIndex, BagSlotFlags::PriorityQuestItems);
+        if (_player->GetBankBagSlotFlags(changeBankBagSlotFlag.BagIndex).HasFlag(BagSlotFlags::PriorityTradeGoods))
+            _player->RemoveBankBagSlotFlag(changeBankBagSlotFlag.BagIndex, BagSlotFlags::PriorityTradeGoods);
         _player->SetBankBagSlotFlag(changeBankBagSlotFlag.BagIndex, changeBankBagSlotFlag.FlagToChange);
+    }
     else
         _player->RemoveBankBagSlotFlag(changeBankBagSlotFlag.BagIndex, changeBankBagSlotFlag.FlagToChange);
 }
