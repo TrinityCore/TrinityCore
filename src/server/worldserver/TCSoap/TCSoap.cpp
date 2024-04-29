@@ -16,49 +16,57 @@
  */
 
 #include "TCSoap.h"
-#include "soapH.h"
-#include "soapStub.h"
+#include "AccountMgr.h"
+#include "IpAddress.h"
+#include "Log.h"
+#include "Memory.h"
 #include "Realm.h"
 #include "World.h"
-#include "AccountMgr.h"
-#include "Log.h"
+#include "soapH.h"
+#include "soapStub.h"
 
-void TCSoapThread(const std::string& host, uint16 port)
+std::thread* CreateSoapThread(const std::string& host, uint16 port)
 {
-    struct soap soap;
-    soap_init(&soap);
-    soap_set_imode(&soap, SOAP_C_UTFSTRING);
-    soap_set_omode(&soap, SOAP_C_UTFSTRING);
+    auto soap = Trinity::make_unique_ptr_with_deleter<struct soap*>(new struct soap(), [](struct soap* soap)
+    {
+        soap_destroy(soap);
+        soap_end(soap);
+        soap_done(soap);
+        delete soap;
+    });
+
+    soap_init(soap.get());
+    soap_set_imode(soap.get(), SOAP_C_UTFSTRING);
+    soap_set_omode(soap.get(), SOAP_C_UTFSTRING);
 
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
-    soap.bind_flags = SO_REUSEADDR;
+    soap->bind_flags = SO_REUSEADDR;
 #endif
 
     // check every 3 seconds if world ended
-    soap.accept_timeout = 3;
-    soap.recv_timeout = 5;
-    soap.send_timeout = 5;
-    if (!soap_valid_socket(soap_bind(&soap, host.c_str(), port, 100)))
+    soap->accept_timeout = 3;
+    soap->recv_timeout = 5;
+    soap->send_timeout = 5;
+    if (!soap_valid_socket(soap_bind(soap.get(), host.c_str(), port, 100)))
     {
         TC_LOG_ERROR("network.soap", "Couldn't bind to {}:{}", host, port);
-        exit(-1);
+        return nullptr;
     }
 
     TC_LOG_INFO("network.soap", "Bound to http://{}:{}", host, port);
 
-    while (!World::IsStopped())
+    return new std::thread([soap = std::move(soap)]
     {
-        if (!soap_valid_socket(soap_accept(&soap)))
-            continue;   // ran into an accept timeout
+        while (!World::IsStopped())
+        {
+            if (!soap_valid_socket(soap_accept(soap.get())))
+                continue;   // ran into an accept timeout
 
-        TC_LOG_DEBUG("network.soap", "Accepted connection from IP={}.{}.{}.{}", (int)(soap.ip>>24)&0xFF, (int)(soap.ip>>16)&0xFF, (int)(soap.ip>>8)&0xFF, (int)soap.ip&0xFF);
-        struct soap* thread_soap = soap_copy(&soap);// make a safe copy
-        process_message(thread_soap);
-    }
-
-    soap_destroy(&soap);
-    soap_end(&soap);
-    soap_done(&soap);
+            struct soap* thread_soap = soap_copy(soap.get());// make a safe copy
+            TC_LOG_DEBUG("network.soap", "Accepted connection from IP={}", Trinity::Net::make_address_v4(thread_soap->ip).to_string());
+            process_message(thread_soap);
+        }
+    });
 }
 
 void process_message(struct soap* soap_message)
