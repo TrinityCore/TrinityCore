@@ -1048,6 +1048,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_CHECK_AREA_TARGET,
     AURA_SCRIPT_HOOK_DISPEL,
     AURA_SCRIPT_HOOK_AFTER_DISPEL,
+    AURA_SCRIPT_HOOK_ON_HEARTBEAT,
     AURA_SCRIPT_HOOK_ENTER_LEAVE_COMBAT,
     // Spell Proc Hooks
     AURA_SCRIPT_HOOK_CHECK_PROC,
@@ -1171,6 +1172,58 @@ public:
         }
     private:
         AuraDispelFnType _callImpl;
+        SafeWrapperType _safeWrapper;
+    };
+
+    class AuraHeartbeatHandler final
+    {
+    public:
+        union AuraHeartbeatFnType
+        {
+            void(AuraScript::* Member)();
+            void(*Static)();
+        };
+
+        using SafeWrapperType = void(*)(AuraScript* auraScript, AuraHeartbeatFnType callImpl);
+
+        template<typename ScriptFunc>
+        explicit AuraHeartbeatHandler(ScriptFunc handler)
+        {
+            using ScriptClass = GetScriptClass_t<ScriptFunc>;
+
+            static_assert(sizeof(AuraHeartbeatFnType) >= sizeof(ScriptFunc));
+            static_assert(alignof(AuraHeartbeatFnType) >= alignof(ScriptFunc));
+
+            if constexpr (!std::is_void_v<ScriptClass>)
+            {
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass>,
+                    "AuraHeartbeat signature must be \"void HandleHeartbeat()\"");
+
+                _callImpl = { .Member = reinterpret_cast<decltype(AuraHeartbeatFnType::Member)>(handler) };
+                _safeWrapper = [](AuraScript* auraScript, AuraHeartbeatFnType callImpl) -> void
+                {
+                    return (static_cast<ScriptClass*>(auraScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))();
+                };
+            }
+            else
+            {
+                static_assert(std::is_invocable_r_v<void, ScriptFunc>,
+                    "AuraHeartbeatHandler signature must be \"static void HandleHeartbeat()\"");
+
+                _callImpl = { .Static = reinterpret_cast<decltype(AuraHeartbeatFnType::Static)>(handler) };
+                _safeWrapper = [](AuraScript* /*auraScript*/, AuraHeartbeatFnType callImpl) -> void
+                {
+                    return reinterpret_cast<ScriptFunc>(callImpl.Static)();
+                };
+            }
+        }
+
+        void Call(AuraScript* auraScript) const
+        {
+            return _safeWrapper(auraScript, _callImpl);
+        }
+    private:
+        AuraHeartbeatFnType _callImpl;
         SafeWrapperType _safeWrapper;
     };
 
@@ -2016,6 +2069,12 @@ public:
     // where function is: void function (DispelInfo* dispelInfo);
     HookList<AuraDispelHandler> AfterDispel;
     #define AuraDispelFn(F) AuraDispelHandler(&F)
+
+    // executed on every heartbeat of a unit
+    // example: OnHeartbeat += AuraHeartbeatFn(class::function);
+    // where function is: void function ();
+    HookList<AuraHeartbeatHandler> OnHeartbeat;
+    #define AuraHeartbeatFn(F) AuraHeartbeatHandler(&F)
 
     // executed when aura effect is applied with specified mode to target
     // should be used when when effect handler preventing/replacing is needed, do not use this hook for triggering spellcasts/removing auras etc - may be unsafe

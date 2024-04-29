@@ -1891,7 +1891,21 @@ CREATE TABLE `characters` (
   `xp` int unsigned NOT NULL DEFAULT '0',
   `money` bigint unsigned NOT NULL DEFAULT '0',
   `inventorySlots` tinyint unsigned NOT NULL DEFAULT '16',
+  `inventoryBagFlags` int unsigned NOT NULL DEFAULT '0',
+  `bagSlotFlags1` int unsigned NOT NULL DEFAULT '0',
+  `bagSlotFlags2` int unsigned NOT NULL DEFAULT '0',
+  `bagSlotFlags3` int unsigned NOT NULL DEFAULT '0',
+  `bagSlotFlags4` int unsigned NOT NULL DEFAULT '0',
+  `bagSlotFlags5` int unsigned NOT NULL DEFAULT '0',
   `bankSlots` tinyint unsigned NOT NULL DEFAULT '0',
+  `bankBagFlags` int unsigned NOT NULL DEFAULT '0',
+  `bankBagSlotFlags1` int unsigned NOT NULL DEFAULT '0',
+  `bankBagSlotFlags2` int unsigned NOT NULL DEFAULT '0',
+  `bankBagSlotFlags3` int unsigned NOT NULL DEFAULT '0',
+  `bankBagSlotFlags4` int unsigned NOT NULL DEFAULT '0',
+  `bankBagSlotFlags5` int unsigned NOT NULL DEFAULT '0',
+  `bankBagSlotFlags6` int unsigned NOT NULL DEFAULT '0',
+  `bankBagSlotFlags7` int unsigned NOT NULL DEFAULT '0',
   `restState` tinyint unsigned NOT NULL DEFAULT '0',
   `playerFlags` int unsigned NOT NULL DEFAULT '0',
   `playerFlagsEx` int unsigned NOT NULL DEFAULT '0',
@@ -3725,7 +3739,8 @@ INSERT INTO `updates` VALUES
 ('2023_11_15_00_characters.sql','441E0F17DE3E3945307AC400DF86FCDF06C61653','ARCHIVED','2023-11-15 00:53:47',0),
 ('2024_02_08_00_characters.sql','743A11042AA17CDBD5F3D510D24509A10838DB5A','ARCHIVED','2024-02-08 00:56:26',0),
 ('2024_04_09_00_characters.sql','07AC79B4E489B1CD073852EC57D12939C2A1D4B1','RELEASED','2024-04-09 12:54:11',0),
-('2024_04_12_00_characters.sql','043E023F998DA77170C9D2D0162CAA340290B215','RELEASED','2024-04-12 00:23:51',0);
+('2024_04_12_00_characters.sql','043E023F998DA77170C9D2D0162CAA340290B215','RELEASED','2024-04-12 00:23:51',0),
+('2024_04_28_00_characters.sql','F80F476704BE535B5DCB0BCEBDD56024FCFBBAA2','RELEASED','2024-04-28 19:26:58',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
