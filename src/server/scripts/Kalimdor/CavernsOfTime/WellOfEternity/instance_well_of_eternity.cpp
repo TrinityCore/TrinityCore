@@ -63,10 +63,10 @@ public:
             //_crystalThreeCreaturesAlive = 0;
         }
 
-        void OnPlayerEnter(Player* /*player*/) override
+        void OnPlayerEnter(Player* player) override
         {
             if (GetData(DATA_ILLIDAN_START_ESCORT) == DONE)
-                DoCastSpellOnPlayers(SPELL_SHADOWCLOAK_PLAYER);
+                DoCastSpellOnPlayer(player, SPELL_SHADOWCLOAK_PLAYER);
         }
 
         void SetData(uint32 type, uint32 data) override
