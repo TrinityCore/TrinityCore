@@ -91,9 +91,8 @@ public:
                     events.ScheduleEvent(EVENT_CAST_LASH, 4s, 7s);
                     break;
                 case EVENT_CAST_CAUSE_INSANITY:
-                    if (CheckNearbyPlayers())
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
-                            DoCast(target, SPELL_CAUSE_INSANITY);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
+                        DoCast(target, SPELL_CAUSE_INSANITY);
                     events.ScheduleEvent(EVENT_CAST_CAUSE_INSANITY, 6s, 14s);
                     break;
                 case EVENT_CAST_CURSE_OF_TONGUES:
@@ -107,14 +106,6 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        bool CheckNearbyPlayers()
-        {
-            std::vector<Player*> temp;
-            me->GetPlayerListInGrid(temp, 20.0f);
-            if (temp.size() > 1)
-                return true;
-            return false;
-        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
