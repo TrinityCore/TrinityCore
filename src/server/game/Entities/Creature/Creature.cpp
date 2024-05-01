@@ -542,6 +542,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     SetModRangedHaste(1.0f);
     SetModHasteRegen(1.0f);
     SetModTimeRate(1.0f);
+    SetSpellEmpowerStage(-1);
 
     SetSpeedRate(MOVE_WALK,   creatureInfo->speed_walk);
     SetSpeedRate(MOVE_RUN,    creatureInfo->speed_run);

@@ -20,6 +20,7 @@
 
 #include "ConditionMgr.h"
 #include "DBCEnums.h"
+#include "Duration.h"
 #include "ModelIgnoreFlags.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
@@ -77,6 +78,8 @@ enum class WorldObjectSpellAreaTargetSearchReason;
 #define MAX_SPELL_RANGE_TOLERANCE 3.0f
 #define TRAJECTORY_MISSILE_SIZE 3.0f
 #define AOE_DAMAGE_TARGET_CAP SI64LIT(20)
+#define SPELL_EMPOWER_HOLD_TIME_AT_MAX (1 * IN_MILLISECONDS)
+#define SPELL_EMPOWER_HARDCODED_GCD 359115u
 
 enum SpellCastFlags : uint32
 {
@@ -552,7 +555,7 @@ class TC_GAME_API Spell
         void ExecuteLogEffectResurrect(SpellEffectName effect, Unit* target);
         void SendSpellInterruptLog(Unit* victim, uint32 spellId);
         void SendInterrupted(uint8 result);
-        void SendChannelUpdate(uint32 time);
+        void SendChannelUpdate(uint32 time, Optional<SpellCastResult> result = {});
         void SendChannelStart(uint32 duration);
         void SendResurrectRequest(Player* target);
 
@@ -624,6 +627,10 @@ class TC_GAME_API Spell
         bool IsChannelActive() const;
         bool IsAutoActionResetSpell() const;
         bool IsPositive() const;
+
+        bool IsEmpowerSpell() const { return m_empower != nullptr; }
+        void SetEmpowerReleasedByClient(bool release);
+        bool CanReleaseEmpowerSpell() const;
 
         bool IsTriggeredByAura(SpellInfo const* auraSpellInfo) const { return (auraSpellInfo == m_triggeredByAuraSpell); }
 
@@ -708,6 +715,16 @@ class TC_GAME_API Spell
         bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
         uint8 m_runesState;
+
+        struct EmpowerData
+        {
+            Milliseconds MinHoldTime = 0ms;
+            std::vector<Milliseconds> StageDurations;
+            int32 CompletedStages = 0;
+            bool IsReleasedByClient = false;
+            bool IsReleased = false;
+        };
+        std::unique_ptr<EmpowerData> m_empower;
 
         uint8 m_delayAtDamageCount;
         bool IsDelayableNoMore()
@@ -885,6 +902,8 @@ class TC_GAME_API Spell
         void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptDestinationTargetSelectHandlers(SpellDestination& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
+        void CallScriptEmpowerStageCompletedHandlers(int32 completedStagesCount);
+        void CallScriptEmpowerCompletedHandlers(int32 completedStagesCount);
         bool CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck);
         std::vector<SpellScript*> m_loadedScripts;
 

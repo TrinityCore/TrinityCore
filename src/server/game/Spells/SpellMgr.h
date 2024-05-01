@@ -51,6 +51,7 @@ struct SpellCategoriesEntry;
 struct SpellClassOptionsEntry;
 struct SpellCooldownsEntry;
 struct SpellEffectEntry;
+struct SpellEmpowerStageEntry;
 struct SpellEquippedItemsEntry;
 struct SpellInterruptsEntry;
 struct SpellLabelEntry;
@@ -667,6 +668,7 @@ struct SpellInfoLoadHelper
     SpellClassOptionsEntry const* ClassOptions = nullptr;
     SpellCooldownsEntry const* Cooldowns = nullptr;
     std::array<SpellEffectEntry const*, MAX_SPELL_EFFECTS> Effects = { };
+    std::vector<SpellEmpowerStageEntry const*> EmpowerStages;
     SpellEquippedItemsEntry const* EquippedItems = nullptr;
     SpellInterruptsEntry const* Interrupts = nullptr;
     std::vector<SpellLabelEntry const*> Labels;

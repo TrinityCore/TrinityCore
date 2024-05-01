@@ -281,6 +281,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_legacyRaidDifficulty = DIFFICULTY_10_N;
 
     m_lastPotionId = 0;
+    m_empowerMinHoldStagePercent = 1.0f;
 
     m_auraBaseFlatMod.fill(0.0f);
     m_auraBasePctMod.fill(1.0f);
@@ -2404,6 +2405,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetModRangedHaste(1.0f);
     SetModHasteRegen(1.0f);
     SetModTimeRate(1.0f);
+    SetSpellEmpowerStage(-1);
 
     // reset size before reapply auras
     SetObjectScale(1.0f);
